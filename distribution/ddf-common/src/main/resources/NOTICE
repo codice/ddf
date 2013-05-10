@@ -1,0 +1,119 @@
+Distributed Data Framework (DDF)
+Copyright Codice Foundation
+
+
+I. Included Software
+
+This product includes software developed at 
+Lockheed Martin Corporation contributed to the Codice Foundation (http://www.codice.org). 
+Licensed under the GNU Lesser General Public License version 3.0.
+
+This product uses software developed at
+The Apache Software Foundation (http://apache.org/).
+Licensed under the Apache License 2.0.
+
+This product uses software developed at
+The OSGi Alliance (http://www.osgi.org/).
+Copyright (c) OSGi Alliance (2000, 2010).
+Licensed under the Apache License 2.0.
+
+This product includes software developed at
+OW2 (http://www.ow2.org/).
+Licensed under the BSD License.
+
+This product includes software developed at
+OPS4J (http://www.ops4j.org/).
+Licensed under the Apache License 2.0.
+
+This product includes software developed at
+Eclipse Foundation (http://www.eclipse.org/).
+Licensed under the EPL.
+
+This product includes software written by
+Antony Lesuisse.
+Licensed under Public Domain.
+
+This product includes software developed at
+ForgeRock Community (http://forgerock.org)
+Licensed under CDDL License 1.0
+
+This product includes software developed at
+Open Source Geospatial Foundation (OSGeo) (http://www.osgeo.org/)
+Licensed under LGPL License 2.1
+
+This product includes software from http://www.json.org.
+Copyright (c) 2002 JSON.org
+
+II. Used Software
+
+This product uses software developed at
+AOP Alliance (http://aopalliance.sourceforge.net/).
+Licensed under the Public Domain.
+
+This product uses software developed at
+Tanuki Software (http://www.tanukisoftware.com/).
+Licensed under the Apache License 2.0.
+
+This product uses software developed at
+Jasypt (http://jasypt.sourceforge.net/).
+Licensed under the Apache License 2.0.
+
+This product uses software developed at
+JLine (http://jline.sourceforge.net).
+Licensed under the BSD License.
+
+This product uses software developed at
+SLF4J (http://www.slf4j.org/).
+Licensed under the MIT License.
+
+This product uses software developed at
+SpringSource (http://www.springsource.org/).
+Licensed under the Apache License 2.0.
+
+This product uses software developed at
+WS02 (http://wso2.com/).
+Licensed under the Apache License 2.0.
+
+This product uses software developed at
+JSciense (http://jscience.org)
+Licensed under the JScience BSD License
+
+This product uses software developed at
+Codehaus Foundation (http://www.codehaus.org)
+Licensed under the Apache License 2.0
+
+This product uses software developed at
+Vivid Solutions (http://www.vividsolutions.com)
+Licensed under the LGPL License 3.0
+
+This product uses software developed from https://code.google.com/p/javaapiforkml/
+Licensed under the New BSD License
+
+This product uses software developed from https://code.google.com/p/json-simple/
+Licensed under the Apache License 2.0
+
+This product uses software developed at
+Visigoth Software Society (http://sourceforge.net/projects/visigoths)
+Licensed under BSD-style License
+
+This product uses software developed at
+QOS.ch (http://www.qos.ch)
+Licensed under MIT License
+
+This product uses software developed at
+Saxonica (http://saxonica.com)
+Licensed under Mozilla Public License version 1.0 
+
+This product uses software developed at
+http://trentrichardson.com
+Licensed under MIT License
+
+III. License Summary
+- Apache License 2.0
+- BSD License
+- EPL License
+- MIT License
+- CDDL 1.0 License
+- LGPL 2.1 License
+- JScience BSD License
+- SLF4J MIT License

@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version. 
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+-->
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
+
+	<bean id="it1" class="ddf.test.catalog.input.transformer.stubs.InputTransformerStub">
+		<argument value="it1" />
+	</bean>
+
+	<bean id="it2" class="ddf.test.catalog.input.transformer.stubs.InputTransformerStub">
+		<argument value="it2" />
+	</bean>
+
+	<bean id="it3" class="ddf.test.catalog.input.transformer.stubs.InputTransformerStub">
+		<argument value="it3" />
+	</bean>
+	<bean id="it4" class="ddf.test.catalog.input.transformer.stubs.InputTransformerStub">
+		<argument value="it4" />
+	</bean>
+	<bean id="it5" class="ddf.test.catalog.input.transformer.stubs.InputTransformerStub">
+		<argument value="it5" />
+	</bean>
+
+	<service ref="it1" interface="ddf.catalog.transform.InputTransformer" ranking="-5">
+		<service-properties>
+			<entry key="shortname" value="it1" />
+			<entry key="id" value="it1" />
+			<entry key="mime-type">
+				<list>
+					<value>text/xml;id=it1</value>
+					<value>text/xml</value>
+					<value>text/html</value>
+				</list>
+			</entry>
+		</service-properties>
+	</service>
+
+	<service ref="it2" interface="ddf.catalog.transform.InputTransformer" ranking="-4">
+		<service-properties>
+			<entry key="shortname" value="it2" />
+			<entry key="id" value="it2" />
+			<entry key="mime-type">
+				<list>
+					<value>text/xml;id=it2</value>
+					<value>text/xml</value>
+					<value>text/plain</value>
+				</list>
+			</entry>
+		</service-properties>
+	</service>
+
+	<service ref="it3" interface="ddf.catalog.transform.InputTransformer" ranking="-3">
+		<service-properties>
+			<entry key="shortname" value="it3" />
+			<entry key="id" value="it3" />
+			<entry key="mime-type">
+				<list>
+					<value>text/xml;id=it3</value>
+					<value>text/xml</value>
+					<value>text/plain</value>
+					<value>text/html</value>
+				</list>
+			</entry>
+		</service-properties>
+	</service>
+
+	<service ref="it4" interface="ddf.catalog.transform.InputTransformer" ranking="-2">
+		<service-properties>
+			<entry key="shortname" value="it4" />
+			<entry key="id" value="it4" />
+			<entry key="mime-type">
+				<list>
+					<value>text/xml;id=it4</value>
+					<value>text/xml</value>
+					<value>text/plain</value>
+				</list>
+			</entry>
+		</service-properties>
+	</service>
+
+	<service ref="it5" interface="ddf.catalog.transform.InputTransformer" ranking="-1">
+		<service-properties>
+			<entry key="shortname" value="it5" />
+			<entry key="id" value="it5" />
+			<entry key="mime-type">
+				<list>
+					<value>text/xml;id=it5</value>
+					<value>text/xml</value>
+					<value>text/html</value>
+				</list>
+			</entry>
+		</service-properties>
+	</service>
+</blueprint>

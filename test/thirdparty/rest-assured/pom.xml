@@ -1,0 +1,102 @@
+<!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version. 
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>ddf.test.thirdparty</groupId>
+		<artifactId>thirdparty</artifactId>
+		<version>2.2.0.ALPHA5-SNAPSHOT</version>
+	</parent>
+	<artifactId>rest-assured</artifactId>
+	<name>DDF :: Test :: Thirdparty :: REST-assured</name>
+	<packaging>bundle</packaging>
+	
+	<dependencies>
+		<dependency>
+			<groupId>com.jayway.restassured</groupId>
+			<artifactId>rest-assured</artifactId>
+			<version>${restassured.version}</version>
+		</dependency>
+		<dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpcore</artifactId>
+            <version>4.2.1</version>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-bundle-plugin</artifactId>
+				<configuration>
+					<instructions>
+						<Bundle-SymbolicName>
+							${project.groupId}.${project.artifactId}
+						</Bundle-SymbolicName>
+						<Bundle-Name>${project.name}</Bundle-Name>
+						
+						<Embed-Transitive>true</Embed-Transitive>
+						<Embed-Dependency>*;artifactId=!hamcrest-core|hamcrest-library</Embed-Dependency>
+
+						<Export-Package>						
+							com.jayway.restassured;version="${restassured.version}",
+							com.jayway.restassured.assertion;version="${restassured.version}",
+							com.jayway.restassured.authentication;version="${restassured.version}",
+							com.jayway.restassured.builder;version="${restassured.version}",
+							com.jayway.restassured.config;version="${restassured.version}",
+							com.jayway.restassured.exception;version="${restassured.version}",
+							com.jayway.restassured.filter;version="${restassured.version}",
+							com.jayway.restassured.filter.log;version="${restassured.version}",
+							com.jayway.restassured.http;version="${restassured.version}",
+							com.jayway.restassured.internal;version="${restassured.version}",
+							com.jayway.restassured.internal.filter;version="${restassured.version}",
+							com.jayway.restassured.internal.http;version="${restassured.version}",
+							com.jayway.restassured.internal.mapping;version="${restassured.version}",
+							com.jayway.restassured.internal.matcher.xml;version="${restassured.version}",
+							com.jayway.restassured.internal.path;version="${restassured.version}",
+							com.jayway.restassured.internal.path.xml;version="${restassured.version}",
+							com.jayway.restassured.internal.support;version="${restassured.version}",
+							com.jayway.restassured.mapper;version="${restassured.version}",
+							com.jayway.restassured.mapper.factory;version="${restassured.version}",
+							com.jayway.restassured.mapper.resolver;version="${restassured.version}",
+							com.jayway.restassured.matcher;version="${restassured.version}",
+							com.jayway.restassured.parsing;version="${restassured.version}",
+							com.jayway.restassured.path.json;version="${restassured.version}",
+							com.jayway.restassured.path.xml;version="${restassured.version}",
+							com.jayway.restassured.path.xml.element;version="${restassured.version}",
+							com.jayway.restassured.response;version="${restassured.version}",
+							com.jayway.restassured.specification;version="${restassured.version}",
+							com.jayway.restassured.spi;version="${restassured.version}"
+						</Export-Package>
+
+						<Import-Package>
+							org.hamcrest;version="${hamcrest.version}",
+							org.hamcrest.core;version="${hamcrest.version}",
+							org.hamcrest.internal;version="${hamcrest.version}",
+							org.hamcrest.beans;version="${hamcrest.version}",
+							org.hamcrest.collection;version="${hamcrest.version}",
+							org.hamcrest.number;version="${hamcrest.version}",
+							org.hamcrest.object;version="${hamcrest.version}",
+							org.hamcrest.text;version="${hamcrest.version}",
+							org.hamcrest.xml;version="${hamcrest.version}",
+							*;resolution:=optional
+						</Import-Package>
+					</instructions>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>

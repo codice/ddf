@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version. 
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+-->
+
+<project name="antrun-external-build" default="createSourceZip" basedir="">
+
+    <fail unless="ddf.release.version"/>
+
+    <property name="destFileName" value="ddf-distro-src-${ddf.release.version}.zip"/>
+    <property name="sourceUnzippedDir" value="${basedir}/target/sourceUnzipped"/>
+
+    <target name="createZip">
+        <echo message="creating distro artifact"/>
+
+        <mkdir dir="${sourceUnzippedDir}"/>
+        <unzip dest="${sourceUnzippedDir}">
+            <fileset dir="${basedir}/target/dependencies-with-versions">
+                <include name="**/*.zip"/>
+            </fileset>
+        </unzip>
+
+        <mkdir dir="${sourceUnzippedDir}/ddf-distro-src-${ddf.release.version}/src/ddf"/>
+        <move file="${sourceUnzippedDir}/ddf-${ddf.release.version}" tofile="${sourceUnzippedDir}/ddf-distro-src-${ddf.release.version}/src/ddf"/>
+
+        <zip destfile="${basedir}/target/${destFileName}">
+            <zipfileset dir="${sourceUnzippedDir}" includes="**/**"/>
+        </zip>
+
+    </target>
+
+    <!--
+       targets for maven phases
+    -->
+    <target name="initialize">
+        <mkdir dir="${basedir}/target"/>
+        <mkdir dir="${basedir}/target/temp"/>
+        <mkdir dir="${sourceUnzippedDir}"/>
+
+    </target>
+    <target name="createSourceZip">
+        <antcall target="initialize" inheritRefs="true" inheritAll="true"/>
+        <antcall target="createZip" inheritRefs="true" inheritAll="true"/>
+    </target>
+</project>

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version. 
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+
+ -->
+<metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
+
+    <OCD name="File System Provider" id="ddf.content.provider.filesystem.FileSystemProvider">
+        <AD
+            description="Specifies the directory to use for the content repository. A shutdown of the server is necessary for this property to take effect. If a filepath is provided with directories that don't exist, File System Provider will attempt to create them. Out of the box (without configuration), the content repository is <INSTALL_DIR>/content/store."
+            name="Content Repository File Path" id="baseContentDirectory" required="true"
+            type="String" default="" />
+                   
+    </OCD>
+
+    <Designate pid="ddf.content.provider.filesystem.FileSystemProvider" >
+
+        <Object ocdref="ddf.content.provider.filesystem.FileSystemProvider" />
+    </Designate>
+
+</metatype:MetaData>

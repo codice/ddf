@@ -1,0 +1,65 @@
+<!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version. 
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+-->
+<blueprint xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0"
+    xmlns:jaxws="http://cxf.apache.org/blueprint/jaxws"
+    xmlns:cxf="http://cxf.apache.org/blueprint/core"
+    xmlns:camel="http://camel.apache.org/schema/blueprint"
+    xmlns:camelcxf="http://camel.apache.org/schema/blueprint/cxf"
+    xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+    xsi:schemaLocation="
+             http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd
+             http://cxf.apache.org/blueprint/jaxws http://cxf.apache.org/schemas/blueprint/jaxws.xsd
+             http://cxf.apache.org/blueprint/core http://cxf.apache.org/schemas/blueprint/core.xsd
+             " >
+
+    <camel:camelContext id="camelHttpContext" >
+    </camel:camelContext>
+
+    <camel:camelContext id="camelHttpsContext" >
+    </camel:camelContext>
+   
+
+    <!-- Create a singleton instance of the HTTP Load Balancer -->
+
+    <bean
+        id="httpLoadBalancer"
+        class="ddf.cloud.loadbalancer.HttpLoadBalancer"
+        destroy-method="destroy"
+        init-method="init"
+        scope="singleton" >
+        <cm:managed-properties
+            persistent-id="ddf.cloud.loadbalancer.HttpLoadBalancer"
+            update-method="updateCallback"
+            update-strategy="component-managed" />
+
+        <argument ref="camelHttpContext" />
+    </bean>
+
+    <bean
+        id="httpsLoadBalancer"
+        class="ddf.cloud.loadbalancer.HttpsLoadBalancer"
+        destroy-method="destroy"
+        init-method="init"
+        scope="singleton" >
+        <property name="bundleContext" ref="blueprintBundleContext" />
+        <cm:managed-properties
+            persistent-id="ddf.cloud.loadbalancer.HttpsLoadBalancer"
+            update-method="updateCallback"
+            update-strategy="component-managed" />
+
+        <argument ref="camelHttpsContext" />
+    </bean>
+
+</blueprint>

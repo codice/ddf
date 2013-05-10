@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version. 
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+
+ -->
+<metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
+
+    <OCD description="Site"
+         name="System Settings"
+         id="ddf.catalog.config">
+
+        <AD name="Protocol" id="protocol" type="String" required="true"
+            description="Default protocol to use for services." default="http">
+            <Option label="http" value="http://"/>
+            <Option label="https" value="https://"/>
+        </AD>
+
+        <AD name="Host" id="host" required="true" type="String"
+            description="The host name or IP address of the machine that DDF is running on. Do not enter localhost."/>
+
+        <AD name="Port" id="port" required="true" type="String"
+            description="The port that DDF is running on."/>
+
+        <AD name="Trust Store:" id="trustStore" description="Trust Store location. Path is relative to ddf.home."
+            required="false" type="String" default="etc/keystores/clientTruststore.jks">
+        </AD>
+
+        <AD name="Trust Store Password:" id="trustStorePassword" description="Trust Store password"
+            required="false" type="String" default="ENC(gVSowR80cHSRgHLUarq36AhKpXc56QSg)">
+        </AD>
+
+        <AD name="Key Store:" id="keyStore" description="Key Store location. Path is relative to ddf.home."
+            required="false" type="String" default="etc/keystores/clientKeystore.jks">
+        </AD>
+
+        <AD name="Key Store Password:" id="keyStorePassword" description="Key Store password."
+            required="false" type="String" default="ENC(gVSowR80cHSRgHLUarq36AhKpXc56QSg)">
+        </AD>
+
+        <AD name="Site Name" id="id" required="true" type="String"/>
+
+        <AD name="Version" id="version" required="true" type="String"/>
+
+        <AD name="Organization" id="organization" required="true"
+            type="String"/>
+    </OCD>
+
+    <Designate
+            pid="ddf.catalog.config">
+        <Object
+                ocdref="ddf.catalog.config"/>
+    </Designate>
+
+</metatype:MetaData>

@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- /**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version. 
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/ -->
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0"
+  xmlns:jaxws="http://cxf.apache.org/blueprint/jaxws"
+  xmlns:jaxrs="http://cxf.apache.org/blueprint/jaxrs"
+  xmlns:cxf="http://cxf.apache.org/blueprint/core"
+  xsi:schemaLocation="
+  http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd
+  http://cxf.apache.org/blueprint/jaxws http://cxf.apache.org/schemas/blueprint/jaxws.xsd
+  http://cxf.apache.org/blueprint/jaxrs http://cxf.apache.org/schemas/blueprint/jaxrs.xsd
+  http://cxf.apache.org/blueprint/core http://cxf.apache.org/schemas/blueprint/core.xsd
+  ">
+
+	<bean id="tvServiceClientFactory" class="org.apache.cxf.jaxrs.client.JAXRSClientFactoryBean">
+		<!-- How to define address dynamically? -->
+<!-- 		<cm:managed-properties persistent-id="" udpate-strategy="component-managed" update-method="update"/> -->
+		<property name="address" value="http://localhost:8181/services/oauth/access/validate" />
+		<property name="headers">
+			<map>
+				<entry key="Accept" value="application/xml" />
+			</map>
+		</property>
+	</bean>
+
+	<bean id="tvServiceClient" factory-ref="tvServiceClientFactory" factory-method="createWebClient" />
+
+	<bean id="tokenValidator" class="org.apache.cxf.rs.security.oauth2.filters.AccessTokenValidatorClient">
+		<property name="tokenValidatorClient" ref="tvServiceClient" />
+	</bean>
+
+	<bean id="oauthFilter" class="org.apache.cxf.rs.security.oauth2.filters.OAuthRequestFilter">
+		<property name="tokenValidator" ref="tokenValidator" />
+	</bean>
+
+	<reference id="transformerMapper" interface="ddf.mime.MimeTypeToTransformerMapper" />
+	<reference id="catalog" interface="ddf.catalog.CatalogFramework" />
+	<reference id="filterBuilder" interface="ddf.catalog.filter.FilterBuilder" />
+
+	<bean id="restSvc" class="com.lmco.ddf.endpoints.rest.RESTEndpoint">
+		<argument ref="catalog" />
+		<property name="filterBuilder" ref="filterBuilder" />
+		<property name="mimeTypeToTransformerMapper" ref="transformerMapper" />
+	</bean>
+
+	<jaxrs:server id="secureRestService" address="/catalog">
+		<jaxrs:serviceBeans>
+			<ref component-id="restSvc" />
+		</jaxrs:serviceBeans>
+		<jaxrs:providers>
+			<ref component-id="oauthFilter" />
+		</jaxrs:providers>
+	</jaxrs:server>
+	
+</blueprint>

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+	  
+	  <xs:complexType name="binary" mixed="true">
+	  	<xs:simpleContent>
+			<xs:extension base="xs:base64Binary">
+				<xs:attribute name="name" use="required" type="xs:string"/>
+			</xs:extension>
+	  	</xs:simpleContent>
+	  </xs:complexType>
+
+	  <xs:complexType name="text">	  
+	  	<xs:simpleContent>
+	  		<xs:extension base="xs:string">
+	    	 	<xs:attribute name="name" use="required" type="xs:string"/>
+	    	</xs:extension>
+	  	</xs:simpleContent>
+	  </xs:complexType>
+	  
+	  <xs:element name="metacard">
+      <xs:complexType>
+        <xs:sequence>
+            <xs:element name="binary" minOccurs="0" maxOccurs="unbounded" type="binary" />
+            <xs:element name="boolean" minOccurs="0" maxOccurs="unbounded" type="text" />
+            <xs:element name="date" minOccurs="0" maxOccurs="unbounded" type="text" />
+            <xs:element name="double" minOccurs="0" maxOccurs="unbounded" type="text" />
+            <xs:element name="float" minOccurs="0" maxOccurs="unbounded" type="text" />
+            <xs:element name="geometry" minOccurs="0" maxOccurs="unbounded" type="text" />
+            <xs:element name="integer" minOccurs="0" maxOccurs="unbounded" type="text" />
+            <xs:element name="long" minOccurs="0" maxOccurs="unbounded" type="text" />
+            <xs:element name="object" minOccurs="0" maxOccurs="unbounded" type="binary" />
+            <xs:element name="short" minOccurs="0" maxOccurs="unbounded" type="text" />
+            <xs:element name="text" minOccurs="0" maxOccurs="unbounded" type="text" />
+            <xs:element name="text-xml" minOccurs="0" maxOccurs="unbounded" type="text" />
+        </xs:sequence>
+      </xs:complexType>
+      </xs:element>
+
+</xs:schema>

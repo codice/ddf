@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version. 
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+
+ -->
+<metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
+
+  <!-- 
+  This metatype resides in the standard catalog framework instead of in the SortedFederationStrategy bundle because standard catalog framework creates
+  SortedFederationStrategy and uses the (executor) pool singleton from SortedFederationStrategy across a few of its instantiated implementations.  
+  This metatype may goes away once a smarter federation strategy is implemented.
+   -->
+   <OCD description="Sorted Federation Strategy"
+        name="Sorted Federation Strategy Configuration"
+        id="ddf.catalog.federation.impl.SortedFederationStrategy">         
+      <AD name="Maximum start index" id="maxStartIndex" required="true" type="Integer" default="50000" 
+        description="Sets a limit on the number of results this sorted federation strategy can handle from each federated source. A large start index 
+        in conjunction with several federated sources could yield a large result set, which the sorted federation strategy has a limited ability to do.  
+        The admin can make a rough calculation to decide what maximum start index to use based on the amount of memory in the system, the amount of 
+        federated sources, the number of threads, and the expected amount of query results requested 
+        ( (average # of threads) * (maximum # of federated sources) * (maxStartIndex + maximumQueryResults) ) must fit into the allocated memory of 
+        the running distribution.  This field will be removed when sorted federation strategy has the ability to sort a larger amount of results."/>
+   </OCD>
+
+   <Designate pid="ddf.catalog.federation.impl.SortedFederationStrategy">
+      <Object ocdref="ddf.catalog.federation.impl.SortedFederationStrategy"/>
+   </Designate>
+
+</metatype:MetaData>
+

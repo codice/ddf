@@ -1,0 +1,57 @@
+<!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version. 
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+ -->
+<features name="${project.artifactId}-${project.version}">
+
+    <feature name="sdk-metrics" version="${project.version}"
+        description="SDK sample metrics.">
+        <bundle>mvn:ddf.sdk/sample-metrics/${project.version}</bundle>
+
+        <!-- 
+        SDK Metrics: example of adding a more refined metric for spatial, 
+        here Point Radius queries count.
+        
+        WARNING: The JmxCollector interface is not final and may change in the future.
+        
+        Should rarely, if ever, need to change rrdDataSourceName from "data".
+        
+        rrdPath should be a descriptive name of what metric is being collected and always
+        end with the .rrd file extension.
+        
+        rrdDataSourceType can only be COUNTER or GAUGE. COUNTER is for metrics that
+        always increment (e.g., query count). GAUGE is for metrics that can wax and wane,
+        e.g., response time.
+        -->
+        <config name="ddf.metrics.reporting.internal.rrd4j.JmxCollector-PointRadiusQueries">
+            mbeanName = sdk.metrics.sample:name=Queries.PointRadius
+            mbeanAttributeName = Count
+            rrdPath = pointRadiusQueries.rrd
+            rrdDataSourceName = data
+            rrdDataSourceType = COUNTER
+        </config>
+        
+        <!-- 
+        SDK Metrics: example of adding an existing metric, here the JVM uptime 
+        
+        WARNING: The JmxCollector interface is not final and may change in the future.
+        -->
+        <config name="ddf.metrics.reporting.internal.rrd4j.JmxCollector-JvmUptime">
+            mbeanName = java.lang:type=Runtime
+            mbeanAttributeName = Uptime
+            rrdPath = jvmUptime.rrd
+            rrdDataSourceName = data
+            rrdDataSourceType = COUNTER
+        </config>
+    </feature>
+	
+</features>

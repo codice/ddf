@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version. 
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+
+ -->
+<metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
+
+  <OCD name="LDAP Server Settings" id="ddf.ldap.embedded.server.LDAPManager">
+    <AD description="Port to listen for LDAP requests. Set to 0 to disable connector." name="LDAP Port" id="ldap.port" required="true"
+      type="int" default="1389" />
+    <AD description="Port to listen for LDAPS requests. Set to 0 to disable connector." name="LDAPS Port" id="ldaps.port" required="true"
+      type="int" default="1636" />
+    <AD
+      description="Location to the base LDIF file. This should be used to load a base set of users into the LDAP. NOTE: Changing this will clear out backend before importing."
+      name="Base LDIF File" id="base.ldif" required="true" type="String" default="" />
+  </OCD>
+
+  <Designate pid="ddf.ldap.embedded.server.LDAPManager">
+    <Object ocdref="ddf.ldap.embedded.server.LDAPManager" />
+  </Designate>
+
+</metatype:MetaData>

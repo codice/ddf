@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version. 
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+
+ -->
+<beans:beans xmlns="http://www.springframework.org/schema/osgi" 
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:osgix="http://www.springframework.org/schema/osgi-compendium" 
+  xmlns:beans="http://www.springframework.org/schema/beans"
+  xsi:schemaLocation="
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd 
+http://www.springframework.org/schema/osgi http://www.springframework.org/schema/osgi/spring-osgi.xsd
+http://www.springframework.org/schema/osgi-compendium http://www.springframework.org/schema/osgi-compendium/spring-osgi-compendium.xsd">
+  
+
+  <osgix:managed-service-factory id="customMimeTypeResolver" factory-pid="DDF_Custom_Mime_Type_Resolver"
+    update-strategy="container-managed" >
+
+    <osgix:interfaces>
+      <beans:value>ddf.mime.MimeTypeResolver</beans:value>
+    </osgix:interfaces>
+
+    <beans:bean id="DDF_Custom_Mime_Type_Resolver" class="ddf.mime.custom.CustomMimeTypeResolver" 
+    init-method="init" destroy-method="destroy">
+    	<beans:property name="name" value="DDF Custom Mime Type Resolver" />
+    	<beans:property name="priority" value="10" />
+    	<!-- <beans:property name="customMimeTypes" value="" /> -->
+    </beans:bean>
+    
+  </osgix:managed-service-factory>
+
+</beans:beans>

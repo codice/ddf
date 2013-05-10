@@ -1,0 +1,197 @@
+version: 1
+
+dn: dc=example,dc=com
+objectClass: domain
+objectClass: top
+dc: example
+
+dn: ou=users,dc=example,dc=com
+objectClass: organizationalUnit
+objectClass: top
+ou: users
+
+dn: uid=testuser1,ou=users,dc=example,dc=com
+objectClass: person
+objectClass: inetOrgPerson
+objectClass: organizationalPerson
+objectClass: extensibleObject
+objectClass: top
+cn: Test User
+sn: testuser1
+givenName: Test User
+mail: testuser1@example.com
+uid: testuser1
+userPassword:: e1NTSEF9Rko5SVN3cHVEWnhZS0JROHd1eWdsUVFpUHNJdjVGK3JGYXVaS2c9P
+ Q==
+
+dn: uid=testuser2,ou=users,dc=example,dc=com
+objectClass: person
+objectClass: inetOrgPerson
+objectClass: organizationalPerson
+objectClass: extensibleObject
+objectClass: top
+cn: Test User #2
+sn: testuser2
+givenName: Test User
+mail: testuser2@example.com
+uid: testuser2
+userPassword:: e1NTSEF9eFlHN2hKL0ZtMzFJQlVlbldZUFQxRGdxc2dodzhXQmJPMXdrblE9P
+ Q==
+
+dn: uid=lcage,ou=users,dc=example,dc=com
+objectClass: person
+objectClass: inetOrgPerson
+objectClass: organizationalPerson
+objectClass: extensibleObject
+objectClass: top
+cn: Luke Cage
+sn: lcage
+givenName: Luke Cage
+mail: lcage@example.com
+uid: lcage
+userPassword:: e1NTSEF9Rko5SVN3cHVEWnhZS0JROHd1eWdsUVFpUHNJdjVGK3JGYXVaS2c9P
+ Q==
+
+dn: uid=jhowlett,ou=users,dc=example,dc=com
+objectClass: person
+objectClass: inetOrgPerson
+objectClass: organizationalPerson
+objectClass: extensibleObject
+objectClass: top
+cn: James Howlett
+sn: jhowlett
+givenName: James Howlett
+mail: jhowlett@example.com
+uid: jhowlett
+userPassword:: e1NTSEF9Rko5SVN3cHVEWnhZS0JROHd1eWdsUVFpUHNJdjVGK3JGYXVaS2c9P
+ Q==
+
+dn: uid=pparker,ou=users,dc=example,dc=com
+objectClass: person
+objectClass: inetOrgPerson
+objectClass: organizationalPerson
+objectClass: extensibleObject
+objectClass: top
+cn: Peter Parker
+sn: pparker
+givenName: Peter Parker
+mail: pparker@example.com
+uid: pparker
+userPassword:: e1NTSEF9Rko5SVN3cHVEWnhZS0JROHd1eWdsUVFpUHNJdjVGK3JGYXVaS2c9P
+ Q==
+
+dn: uid=jdrew,ou=users,dc=example,dc=com
+objectClass: person
+objectClass: inetOrgPerson
+objectClass: organizationalPerson
+objectClass: extensibleObject
+objectClass: top
+cn: Jessica Drew
+sn: jdrew
+givenName: Jessica Drew
+mail: jdrew@example.com
+uid: jdrew
+userPassword:: e1NTSEF9Rko5SVN3cHVEWnhZS0JROHd1eWdsUVFpUHNJdjVGK3JGYXVaS2c9P
+ Q==
+
+dn: uid=tstark,ou=users,dc=example,dc=com
+objectClass: person
+objectClass: inetOrgPerson
+objectClass: organizationalPerson
+objectClass: extensibleObject
+objectClass: top
+cn: Tony Stark
+sn: tstark
+givenName: Anthony Stark
+mail: tstark@example.com
+uid: tstark
+userPassword:: e1NTSEF9Rko5SVN3cHVEWnhZS0JROHd1eWdsUVFpUHNJdjVGK3JGYXVaS2c9P
+ Q==
+
+dn: uid=bbanner,ou=users,dc=example,dc=com
+objectClass: person
+objectClass: inetOrgPerson
+objectClass: organizationalPerson
+objectClass: extensibleObject
+objectClass: top
+cn: Bruce Banner
+sn: bbanner
+givenName: Bruce Banner
+mail: bbanner@example.com
+uid: bbanner
+userPassword:: e1NTSEF9Rko5SVN3cHVEWnhZS0JROHd1eWdsUVFpUHNJdjVGK3JGYXVaS2c9P
+ Q==
+
+dn: uid=srogers,ou=users,dc=example,dc=com
+objectClass: person
+objectClass: inetOrgPerson
+objectClass: organizationalPerson
+objectClass: extensibleObject
+objectClass: top
+cn: Steve Rogers
+sn: srogers
+givenName: Steve Rogers
+mail: srogers@example.com
+uid: srogers
+userPassword:: e1NTSEF9Rko5SVN3cHVEWnhZS0JROHd1eWdsUVFpUHNJdjVGK3JGYXVaS2c9P
+ Q==
+
+dn: uid=nromanova,ou=users,dc=example,dc=com
+objectClass: person
+objectClass: AuthorizationOrgPerson
+objectClass: inetOrgPerson
+objectClass: organizationalPerson
+objectClass: extensibleObject
+objectClass: top
+cn: Natalia Romanova
+sn: nromanova
+givenName: Natalia Romanova
+mail: nromanova@example.com
+uid: nromanova
+userPassword:: e1NTSEF9Rko5SVN3cHVEWnhZS0JROHd1eWdsUVFpUHNJdjVGK3JGYXVaS2c9P
+ Q==
+
+dn: ou=groups,dc=example,dc=com
+objectClass: organizationalUnit
+objectClass: top
+ou: groups
+
+dn: uid=admin,ou=users,dc=example,dc=com
+objectClass: person
+objectClass: organizationalPerson
+objectClass: extensibleObject
+objectClass: top
+cn: admin
+sn: admin
+mail: admin@example.com
+uid: admin
+userPassword:: e1NTSEF9U09qdGdqUGp6Wk9KUVV0UXE3M0krWGRlakcveVIra2FoWGVGRkE9P
+ Q==
+
+dn: cn=avengers,ou=groups,dc=example,dc=com
+objectClass: groupOfNames
+objectClass: top
+cn: avengers
+description: The Avengers
+member: uid=bbanner,ou=users,dc=example,dc=com
+member: uid=tstark,ou=users,dc=example,dc=com
+member: uid=jdrew,ou=users,dc=example,dc=com
+member: uid=pparker,ou=users,dc=example,dc=com
+member: uid=jhowlett,ou=users,dc=example,dc=com
+member: uid=lcage,ou=users,dc=example,dc=com
+member: uid=srogers,ou=users,dc=example,dc=com
+member: uid=nromanova,ou=users,dc=example,dc=com
+
+dn: cn=admin,ou=groups,dc=example,dc=com
+objectClass: groupOfNames
+objectClass: top
+cn: admin
+description: Karaf Admin Users
+member: uid=admin,ou=users,dc=example,dc=com
+member: uid=bbanner,ou=users,dc=example,dc=com
+member: uid=tstark,ou=users,dc=example,dc=com
+member: uid=jdrew,ou=users,dc=example,dc=com
+member: uid=pparker,ou=users,dc=example,dc=com
+member: uid=jhowlett,ou=users,dc=example,dc=com
+member: uid=lcage,ou=users,dc=example,dc=com
+member: uid=srogers,ou=users,dc=example,dc=com

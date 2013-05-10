@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version. 
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+-->
+<metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
+
+  <OCD description="DDF Default Site Security for Title, Description, and Security Elements" name="DDF Default Site Security"
+    id="ddf.DefaultSiteSecurity">
+    <AD name="Apply Default Security Settings" id="applyDefaultSecurity" required="true"
+      type="Boolean" default="false"
+      description="If checked, the default security settings below will be applied to all records returned 
+      from the Federated Site that do not contain DDMS metadata.  If unchecked, the records without the DDMS metadata 
+      will be removed from the result set." />
+    
+    
+    <AD name="Default Title classification" id="classificationTitle" required="true"
+      type="String" default="U" />
+    <AD name="Default Title ownerProducer" id="ownerProducerTitle" required="true"
+      type="String" default="USA" />
+    <AD name="Default Title SCIcontrols" id="SCIcontrolsTitle" required="true"
+      type="String" default="UNKNOWN" />
+    <AD name="Default Title SARIdentifier" id="SARIdentifierTitle" required="true"
+      type="String" default="UNKNOWN" />
+    <AD name="Default Title disseminationControls" id="disseminationControlsTitle" required="true"
+      type="String" default="UNKNOWN" />
+    <AD name="Default Title FGIsourceOpen" id="FGIsourceOpenTitle" required="true"
+      type="String" default="UNKNOWN" />
+    <AD name="Default Title FGIsourceProtected" id="FGIsourceProtectedTitle" required="true"
+      type="String" default="UNKNOWN" />
+    <AD name="Default Title releasableTo" id="releasableToTitle" required="true"
+      type="String" default="UNKNOWN" />
+    <AD name="Default Title nonICmarkings" id="nonICmarkingsTitle" required="true"
+      type="String" default="UNKNOWN" />
+    <AD name="Default Title classifiedBy" id="classifiedByTitle" required="true"
+      type="String" default="UNKNOWN" />
+    <AD name="Default Title derivativelyClassifiedBy" id="derivativelyClassifiedByTitle" required="true"
+      type="String" default="UNKNOWN" />
+    <AD name="Default Title classificationReason" id="classificationReasonTitle" required="true"
+      type="String" default="UNKNOWN" />
+    <AD name="Default Title derivedFrom" id="derivedFromTitle" required="true"
+      type="String" default="UNKNOWN" />
+    <AD name="Default Title declassDate" id="declassDateTitle" required="true"
+      type="String" default="9999-01-01" />
+    <AD name="Default Title declassEvent" id="declassEventTitle" required="true"
+      type="String" default="UNKNOWN" />
+    <AD name="Default Title declassException" id="declassExceptionTitle" required="true"
+      type="String" default="UNKNOWN" />
+    <AD name="Default Title typeOfExemptedSource" id="typeOfExemptedSourceTitle" required="true"
+      type="String" default="UNKNOWN" />
+    <AD name="Default Title dateOfExemptedSource" id="dateOfExemptedSourceTitle" required="true"
+      type="String" default="UNKNOWN" />
+	<AD name="Default Title declassManualReview" id="declassManualReviewTitle" required="true"
+      type="String" default="UNKNOWN" />
+      
+      
+    <AD name="Default Description classification" id="classificationDescription" required="true"
+      type="String" default="U" />
+    <AD name="Default Description ownerProducer" id="ownerProducerDescription" required="true"
+      type="String" default="USA" />
+    <AD name="Default Description SCIcontrols" id="SCIcontrolsDescription" required="true"
+      type="String" default="UNKNOWN" />
+    <AD name="Default Description SARIdentifier" id="SARIdentifierDescription" required="true"
+      type="String" default="UNKNOWN" />
+    <AD name="Default Description disseminationControls" id="disseminationControlsDescription" required="true"
+      type="String" default="UNKNOWN" />
+    <AD name="Default Description FGIsourceOpen" id="FGIsourceOpenDescription" required="true"
+      type="String" default="UNKNOWN" />
+    <AD name="Default Description FGIsourceProtected" id="FGIsourceProtectedDescription" required="true"
+      type="String" default="UNKNOWN" />
+    <AD name="Default Description releasableTo" id="releasableToDescription" required="true"
+      type="String" default="UNKNOWN" />
+    <AD name="Default Description nonICmarkings" id="nonICmarkingsDescription" required="true"
+      type="String" default="UNKNOWN" />
+    <AD name="Default Description classifiedBy" id="classifiedByDescription" required="true"
+      type="String" default="UNKNOWN" />
+    <AD name="Default Description derivativelyClassifiedBy" id="derivativelyClassifiedByDescription" required="true"
+      type="String" default="UNKNOWN" />
+    <AD name="Default Description classificationReason" id="classificationReasonDescription" required="true"
+      type="String" default="UNKNOWN" />
+    <AD name="Default Description derivedFrom" id="derivedFromDescription" required="true"
+      type="String" default="UNKNOWN" />
+    <AD name="Default Description declassDate" id="declassDateDescription" required="true"
+      type="String" default="9999-01-01" />
+    <AD name="Default Description declassEvent" id="declassEventDescription" required="true"
+      type="String" default="UNKNOWN" />
+    <AD name="Default Description declassException" id="declassExceptionDescription" required="true"
+      type="String" default="UNKNOWN" />
+    <AD name="Default Description typeOfExemptedSource" id="typeOfExemptedSourceDescription" required="true"
+      type="String" default="UNKNOWN" />
+    <AD name="Default Description dateOfExemptedSource" id="dateOfExemptedSourceDescription" required="true"
+      type="String" default="UNKNOWN" />
+	<AD name="Default Description declassManualReview" id="declassManualReviewDescription" required="true"
+      type="String" default="UNKNOWN" />
+      
+    <AD name="Default Security classification" id="classificationSecurity" required="true"
+      type="String" default="U" />
+    <AD name="Default Security ownerProducer" id="ownerProducerSecurity" required="true"
+      type="String" default="USA" />
+    <AD name="Default Security SCIcontrols" id="SCIcontrolsSecurity" required="true"
+      type="String" default="UNKNOWN" />
+    <AD name="Default Security SARIdentifier" id="SARIdentifierSecurity" required="true"
+      type="String" default="UNKNOWN" />
+    <AD name="Default Security disseminationControls" id="disseminationControlsSecurity" required="true"
+      type="String" default="UNKNOWN" />
+    <AD name="Default Security FGIsourceOpen" id="FGIsourceOpenSecurity" required="true"
+      type="String" default="UNKNOWN" />
+    <AD name="Default Security FGIsourceProtected" id="FGIsourceProtectedSecurity" required="true"
+      type="String" default="UNKNOWN" />
+    <AD name="Default Security releasableTo" id="releasableToSecurity" required="true"
+      type="String" default="UNKNOWN" />
+    <AD name="Default Security nonICmarkings" id="nonICmarkingsSecurity" required="true"
+      type="String" default="UNKNOWN" />
+    <AD name="Default Security classifiedBy" id="classifiedBySecurity" required="true"
+      type="String" default="UNKNOWN" />
+    <AD name="Default Security derivativelyClassifiedBy" id="derivativelyClassifiedBySecurity" required="true"
+      type="String" default="UNKNOWN" />
+    <AD name="Default Security classificationReason" id="classificationReasonSecurity" required="true"
+      type="String" default="UNKNOWN" />
+    <AD name="Default Security derivedFrom" id="derivedFromSecurity" required="true"
+      type="String" default="UNKNOWN" />
+    <AD name="Default Security declassDate" id="declassDateSecurity" required="true"
+      type="String" default="9999-01-01" />
+    <AD name="Default Security declassEvent" id="declassEventSecurity" required="true"
+      type="String" default="UNKNOWN" />
+    <AD name="Default Security declassException" id="declassExceptionSecurity" required="true"
+      type="String" default="UNKNOWN" />
+    <AD name="Default Security typeOfExemptedSource" id="typeOfExemptedSourceSecurity" required="true"
+      type="String" default="UNKNOWN" />
+    <AD name="Default Security dateOfExemptedSource" id="dateOfExemptedSourceSecurity" required="true"
+      type="String" default="UNKNOWN" />
+	<AD name="Default Security declassManualReview" id="declassManualReviewSecurity" required="true"
+      type="String" default="UNKNOWN" />
+  </OCD>
+
+  <Designate pid="ddf.DefaultSiteSecurity">
+    <Object ocdref="ddf.DefaultSiteSecurity" />
+  </Designate>
+  
+  </metatype:MetaData>

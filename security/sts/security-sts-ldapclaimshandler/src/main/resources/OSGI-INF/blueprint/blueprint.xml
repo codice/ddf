@@ -1,0 +1,110 @@
+
+<!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+-->
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one
+  or more contributor license agreements. See the NOTICE file
+  distributed with this work for additional information
+  regarding copyright ownership. The ASF licenses this file
+  to you under the Apache License, Version 2.0 (the
+  "License"); you may not use this file except in compliance
+  with the License. You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing,
+  software distributed under the License is distributed on an
+  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  KIND, either express or implied. See the License for the
+  specific language governing permissions and limitations
+  under the License.
+-->
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0"
+           xsi:schemaLocation="http://www.osgi.org/xmlns/blueprint/v1.0.0
+		http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd
+        http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0
+        http://aries.apache.org/schemas/blueprint-cm/blueprint-cm-1.1.0.xsd" default-activation="lazy">
+
+    <cm:property-placeholder persistent-id="ddf.security.sts.claimsHandler" placeholder-prefix="$ch{" update-strategy="reload">
+        <cm:default-properties>            
+            <cm:property name="userBaseDn" value="ou=users,dc=example,dc=com"/>
+            <cm:property name="groupBaseDn" value="ou=groups,dc=example,dc=com"/>
+            <cm:property name="userNameAttribute" value="uid"/>
+            <cm:property name="ldapUrl" value="ldap://localhost:1389"/>
+            <cm:property name="ldapBindUserDn" value="cn=admin"/>
+            <cm:property name="ldapBindUserPass" value="ENC(c+GitDfYAMTDRESXSDDsMw==)"/>
+            <cm:property name="attributeMap">
+                <list>
+                    <value>http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier=uid</value>
+                    <value>http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress=mail</value>
+                    <value>http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname=sn</value>
+                    <value>http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname=givenName</value>
+                    <value>http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=groups</value>
+                    <value>AdminOrganization=organizationName</value>
+                    <value>AuthorityCategory=poa</value>
+                    <value>ATOStatus=organizationalStatus</value>
+                    <value>AICP=cleared</value>
+                    <value>Clearance=clearance</value>
+                    <value>CountryOfAffiliation=countryOfAffiliation</value>
+                    <value>DigitalIdentifier=ds-certificate-subject-dn</value>
+                    <value>DutyOrganization=extendedGroup</value>
+                    <value>EntityType=employeeType</value>
+                    <value>isICMember=cleared</value>
+                    <value>FineAccessControls=SCIControls</value>
+                    <value>Role=extendedFunctionalRole</value>
+                    <value>Region=geographicSubRegion</value>
+                    <value>LifeCycleStatus=citizenshipStatus</value>
+                    <value>Topic=nipfTopic</value>
+                </list>
+            </cm:property>
+            <cm:property name="securityAttributeClaimType" value="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"/>
+        </cm:default-properties>
+    </cm:property-placeholder>
+
+    <reference id="encryptionService" interface="ddf.security.encryption.EncryptionService" />
+    
+    <bean id="contextSource" class=" ddf.security.sts.claimsHandler.ContextSourceDecrypt" init-method="afterPropertiesSet">
+        <property name="encryptionService" ref="encryptionService" />
+        <property name="url" value="$ch{ldapUrl}" />
+        <property name="userDn" value="$ch{ldapBindUserDn}" />
+        <property name="password" value="$ch{ldapBindUserPass}" />
+    </bean>
+
+    <bean id="ldapTemplate" class="org.springframework.ldap.core.LdapTemplate">
+        <argument ref="contextSource" />
+    </bean>
+
+    <bean id="roleClaimsHandler" class="ddf.security.sts.claimsHandler.RoleClaimsHandler">
+        <property name="ldapTemplate" ref="ldapTemplate" />
+        <property name="attributeMapping" value="$ch{attributeMap}"/>
+        <property name="userBaseDn" value="$ch{userBaseDn}" />
+        <property name="userNameAttribute" value="$ch{userNameAttribute}" />
+        <property name="groupBaseDn" value="$ch{groupBaseDn}" />
+    </bean>
+
+    <bean id="ldapClaimsHandler" class="ddf.security.sts.claimsHandler.LdapClaimsHandler">
+        <property name="ldapTemplate" ref="ldapTemplate" />
+        <property name="attributeMapping" value="$ch{attributeMap}"/>
+        <property name="userBaseDN" value="$ch{userBaseDn}" />
+        <property name="userNameAttribute" value="$ch{userNameAttribute}" />
+    </bean>
+    
+    <service ref="roleClaimsHandler" interface="org.apache.cxf.sts.claims.ClaimsHandler"/>
+  
+    <service ref="ldapClaimsHandler" interface="org.apache.cxf.sts.claims.ClaimsHandler"/>
+
+</blueprint>
+

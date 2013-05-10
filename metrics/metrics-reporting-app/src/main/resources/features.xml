@@ -1,0 +1,38 @@
+<!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version. 
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+ -->
+<features name="${project.artifactId}-${project.version}">
+		
+	<feature name="metrics-reporting" version="${project.version}"
+		description="Metrics reporting for DDF.">
+		<bundle>mvn:joda-time/joda-time/2.2</bundle>
+		<bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.poi/3.6_2</bundle>
+		<bundle>mvn:ddf.metrics.reporting/metrics-reporting/${project.version}</bundle>
+		<bundle>mvn:ddf.metrics.webconsoleplugin/metrics-webconsole-plugin/${project.version}</bundle>
+	</feature>
+	
+    <feature name="metrics-services" version="${project.version}"
+        description="cxf interceptors to capture metrics.">
+        <bundle>mvn:ddf.metrics.interceptor/metrics-interceptor/${project.version}</bundle>
+        
+        <config name="ddf.metrics.reporting.internal.rrd4j.JmxCollector-ServicesLatency">
+            mbeanName = ddf.metrics.services:name=Latency
+            mbeanAttributeName = Mean
+            rrdPath = ServicesLatency.rrd
+            rrdDataSourceName = data
+            rrdDataSourceType = GAUGE
+        </config>
+    </feature>
+    
+</features>
+	
