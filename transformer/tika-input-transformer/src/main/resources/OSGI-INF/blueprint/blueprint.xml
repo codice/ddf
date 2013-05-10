@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version. 
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+ -->
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
+
+
+    <!--
+    Set service ranking to be -1 so that this default transformer is used after any other
+    custom, more specific transformers have been used, 
+    -->
+	<service interface="ddf.catalog.transform.InputTransformer" ranking="-1">
+	
+		<service-properties>
+			<entry key="shortname" value="" />
+			<entry key="id" value="" />
+			<entry key="title" value="Tika Input Transformer" />
+			<entry key="description" value="Default Input Transformer for all mime types." />
+			<entry key="mime-type">
+			   <list>
+			      <value>application/pdf</value>
+			      
+			      <value>application/vnd.openxmlformats-officedocument.wordprocessingml.document</value>
+			      <value>application/vnd.openxmlformats-officedocument.spreadsheetml.sheet</value>
+			      
+			      <!-- PowerPoint -->
+			      <value>application/vnd.openxmlformats-officedocument.presentationml.presentation</value>
+			      <value>application/vnd.openxmlformats-officedocument.presentationml.presentation</value>
+                  <value>application/vnd.ms-powerpoint.presentation.macroenabled.12</value>
+                  <value>application/vnd.ms-powerpoint.slideshow.macroenabled.12</value>
+                  <value>application/vnd.openxmlformats-officedocument.presentationml.slideshow</value>
+                  <value>application/vnd.ms-powerpoint.template.macroenabled.12</value>
+                  
+                  <!-- OpenOffice -->
+                  <value>application/vnd.oasis.opendocument.text</value>
+			   </list>
+			</entry>
+			
+		</service-properties>
+
+		<bean class="ddf.catalog.transformer.input.tika.TikaInputTransformer" />
+
+	</service>
+
+</blueprint>

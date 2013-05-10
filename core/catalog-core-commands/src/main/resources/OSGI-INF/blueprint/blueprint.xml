@@ -1,0 +1,65 @@
+
+<!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version. 
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+-->
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
+
+	<command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.0.0">
+
+		<command name="catalog/ingest">
+			<action class="com.lmco.ddf.commands.catalog.IngestCommand" />
+		</command>
+
+		<command name="catalog/inspect">
+			<action class="com.lmco.ddf.commands.catalog.InspectCommand" />
+		</command>
+
+		<command name="catalog/latest">
+			<action class="com.lmco.ddf.commands.catalog.LatestCommand" />
+		</command>
+
+		<command name="catalog/remove">
+			<action class="com.lmco.ddf.commands.catalog.RemoveCommand" />
+		</command>
+
+		<command name="catalog/removeall">
+			<action class="com.lmco.ddf.commands.catalog.RemoveAllCommand" />
+		</command>
+
+		<command name="catalog/search">
+			<action class="com.lmco.ddf.commands.catalog.SearchCommand" />
+		</command>
+
+		<command name="catalog/spatial">
+			<action class="com.lmco.ddf.commands.catalog.SpatialCommand" />
+		</command>
+
+		<command name="catalog/envlist">
+			<action class="com.lmco.ddf.commands.catalog.EnvListCommand" />
+		</command>
+
+		<command name="catalog/describe">
+			<action class="com.lmco.ddf.commands.catalog.DescribeCommand" />
+		</command>
+		
+		<command name="catalog/dump">
+			<action class="com.lmco.ddf.commands.catalog.DumpCommand" />
+		</command>
+
+		<command name="catalog/range">
+			<action class="com.lmco.ddf.commands.catalog.RangeCommand" />
+		</command>
+	</command-bundle>
+
+
+</blueprint>

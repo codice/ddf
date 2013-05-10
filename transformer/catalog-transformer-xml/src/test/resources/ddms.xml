@@ -1,0 +1,242 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- /**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version. 
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/ -->
+<ns3:metacard xmlns:ns1="http://www.opengis.net/gml" xmlns:ns2="http://www.w3.org/1999/xlink" xmlns:ns3="urn:catalog:metacard" xmlns:ns4="http://www.w3.org/2001/SMIL20/" xmlns:ns5="http://www.w3.org/2001/SMIL20/Language" ns1:id="1234567890987654321">
+    <ns3:type>ddf.metacard</ns3:type>
+    <ns3:source>FooBarSource</ns3:source>
+    <ns3:dateTime name="expiration">
+        <ns3:value>2013-01-25T10:44:52.181-07:00</ns3:value>
+    </ns3:dateTime>
+    <ns3:stringxml name="metadata">
+        <ns3:value>
+            <ddms:Resource xmlns:ddms="http://metadata.dod.mil/mdr/ns/DDMS/2.0/" xmlns:ICISM="urn:us:gov:ic:ism:v2" xmlns:gml="http://www.opengis.net/gml" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                <ddms:identifier ddms:qualifier="http://metadata.dod.mil/mdr/ns/MDR/0.1/MDR.owl#URI" ddms:value="http://www.defenselink.mil/news/May2004/n05172004_200405174.html"/>
+                <ddms:title ICISM:classification="U" ICISM:ownerProducer="AUS GBR USA">Roadside Bomb Releases Sarin Gas in Quait</ddms:title>
+                <ddms:description ICISM:classification="U" ICISM:ownerProducer="AUS GBR USA">A roadside bomb containing the nerve agent sarin a substance Saddam Hussein's regime insisted it had destroyed more than 
+                    a decade ago exploded near a U.S. military convoy traveling near Baghdad, coalition officials said today.</ddms:description>
+                <ddms:language ddms:qualifier="http://metadata.dod.mil/mdr/ns/ExtStd/iso_639-2b.owl#en" ddms:value="en"/>
+                <ddms:dates ddms:posted="2004-08-16"/>
+                <ddms:rights ddms:copyright="true" ddms:intellectualProperty="true" ddms:privacyAct="false"/>
+                <ddms:creator ICISM:classification="U" ICISM:ownerProducer="AUS GBR USA">
+                    <ddms:Person>
+                        <ddms:name>Donna Miles</ddms:name>
+                        <ddms:surname>Miles</ddms:surname>
+                        <ddms:affiliation>American Forces Press Service</ddms:affiliation>
+                    </ddms:Person>
+                </ddms:creator>
+                <ddms:publisher ICISM:classification="U" ICISM:ownerProducer="AUS GBR USA">
+                    <ddms:Organization>
+                        <ddms:name>American Forces Press Service</ddms:name>
+                    </ddms:Organization>
+                </ddms:publisher>
+                <ddms:format>
+                    <ddms:Media>
+                        <ddms:mimeType>text/pdf</ddms:mimeType>
+                        <ddms:extent ddms:qualifier="http://metadata.dod.mil/mdr/ns/UnitOfMeasure/0.1/ComputerStorage.owl#byte" ddms:value="299000"/>
+                        <ddms:medium>digital</ddms:medium>
+                    </ddms:Media>
+                </ddms:format>
+                <ddms:subjectCoverage>
+                    <ddms:Subject>
+                        <ddms:category ddms:code="Terrorism_Event" ddms:label="Terrorism Event" ddms:qualifier="http://metadata.dod.mil/mdr/ns/TaxFG/0.75c/Core_Tax_0.75c.owl#Terrorist_event "/>
+                        <ddms:category ddms:code="_21" ddms:label="NERVE SARIN" ddms:qualifier="http://metadata.dod.mil/mdr/ns/DomainSets/1.0/GOP_biofeature_agent_type.owl#_21"/>
+                        <ddms:category ddms:code="WMD" ddms:label="Weapons of Mass Destruction" ddms:qualifier="http://metadata.dod.mil/mdr/ns/DomainSets/1.0/GMI_TargetSystemType.owl#WMD"/>
+                        <ddms:keyword ddms:value="exercise"/>
+                        <ddms:category ddms:code="nitf" ddms:label="nitf" ddms:qualifier="SubjectCoverageQualifier"/>
+                    </ddms:Subject>
+                </ddms:subjectCoverage>
+                <ddms:temporalCoverage>
+                    <ddms:TimePeriod>
+                        <ddms:start>2004-05-17</ddms:start>
+                        <ddms:end>2004-05-17</ddms:end>
+                    </ddms:TimePeriod>
+                </ddms:temporalCoverage>
+                <ddms:geospatialCoverage>
+                    <ddms:GeospatialExtent>
+                        <ddms:geographicIdentifier>
+                            <ddms:name>Iraq</ddms:name>
+                            <ddms:countryCode ddms:qualifier="http://metadata.dod.mil/mdr/ns/ExtStd/1.0/FIPS10-4-2.owl#IZ"/>
+                        </ddms:geographicIdentifier>
+                        <ddms:boundingGeometry>
+                            <gml:Polygon gml:id="BGE-1" srsName="http://metadata.dod.mil/mdr/ns/GSIP/crs/WGS84E_2D">
+                                <gml:exterior>
+                                    <gml:LinearRing>
+                                        <gml:pos>34.0 44.0</gml:pos>
+                                        <gml:pos>33.0 44.0</gml:pos>
+                                        <gml:pos>33.0 45.0</gml:pos>
+                                        <gml:pos>34.0 45.0</gml:pos>
+                                        <gml:pos>34.0 44.0</gml:pos>
+                                    </gml:LinearRing>
+                                </gml:exterior>
+                            </gml:Polygon>
+                        </ddms:boundingGeometry>
+                    </ddms:GeospatialExtent>
+                </ddms:geospatialCoverage>
+                <ddms:security ICISM:classification="U" ICISM:ownerProducer="USA"/>
+                <content>
+                    <nitf>
+                        <header>
+                            <version>1.1</version> 
+                            <fileDateTime>2001-12-17T09:30:47-05:00</fileDateTime> 
+                            <fileTitle>Quait</fileTitle> 
+                            <complexityLevel>String</complexityLevel> 
+                            <originatorName>String</originatorName> 
+                            <originatingStationId>String</originatingStationId> 
+                            <security>
+                                <classification>UnClass</classification> 
+                                <disseminationControl>FOUO</disseminationControl> 
+                                <releasableTo>String</releasableTo> 
+                                <codeWords>to</codeWords> 
+                                <controlCode>to</controlCode> 
+                                <releaseInstruction>String</releaseInstruction> 
+                                <controlNumber>String</controlNumber> 
+                                <classificationInfo>
+                                    <system>String</system> 
+                                    <authority>String</authority> 
+                                    <authorityType>O</authorityType> 
+                                    <text>String</text> 
+                                    <reason>String</reason> 
+                                    <date>1967-08-13</date> 
+                                </classificationInfo>
+                                <declassificationInfo>
+                                    <type>DD</type> 
+                                    <date>1967-08-13</date> 
+                                </declassificationInfo>
+                            </security>
+                        </header>
+                        <image>
+                            <header>
+                                <id>Oil Fields</id> 
+                                <dateTime>2001-12-17T09:30:47-05:00</dateTime> 
+                                <title>Kuwaiti Oil Fields</title> 
+                                <source>U2</source> 
+                                <numberOfRows>2</numberOfRows> 
+                                <numberOfColumns>2</numberOfColumns> 
+                                <band>
+                                    <numberOfBands>9</numberOfBands> 
+                                    <representation>R</representation> 
+                                    <subcategory>token</subcategory> 
+                                </band>
+                                <bitsPerPixelPerBand>96</bitsPerPixelPerBand> 
+                                <representation>BCS-A</representation> 
+                                <category>VIS</category> 
+                                <mode>B</mode> 
+                                <magnification>3.1416</magnification> 
+                                <compression>
+                                    <scheme>NC</scheme> 
+                                    <rateCode>token</rateCode> 
+                                </compression>
+                                <security>
+                                    <classification>UnClass</classification> 
+                                    <disseminationControl>FOUO</disseminationControl> 
+                                    <releasableTo>String</releasableTo> 
+                                    <codeWords>to</codeWords> 
+                                    <controlCode>to</controlCode> 
+                                    <releaseInstruction>String</releaseInstruction> 
+                                    <controlNumber>String</controlNumber> 
+                                    <classificationInfo>
+                                        <system>String</system> 
+                                        <authority>String</authority> 
+                                        <authorityType>O</authorityType> 
+                                        <text>String</text> 
+                                        <reason>String</reason> 
+                                        <date>1967-08-13</date> 
+                                    </classificationInfo>
+                                    <declassificationInfo>
+                                        <type>DD</type> 
+                                        <date>1967-08-13</date> 
+                                    </declassificationInfo>
+                                </security>
+                                <coverage>
+                                    <point>
+                                        <coordinate>
+                                            <ellipsoid>
+                                                <latitude>30.50</latitude> 
+                                                <longitude>47.85</longitude> 
+                                            </ellipsoid>
+                                            <text>String</text> 
+                                        </coordinate>
+                                        <elevation factor="1" uom="m">3.1416</elevation> 
+                                    </point>
+                                    <point>
+                                        <coordinate>
+                                            <ellipsoid>
+                                                <latitude>30.50</latitude> 
+                                                <longitude>48.6</longitude> 
+                                            </ellipsoid>
+                                            <text>String</text> 
+                                        </coordinate>
+                                        <elevation factor="1" uom="m">3.1416</elevation> 
+                                    </point>
+                                    <point>
+                                        <coordinate>
+                                            <ellipsoid>
+                                                <latitude>29.75</latitude> 
+                                                <longitude>48.6</longitude> 
+                                            </ellipsoid>
+                                            <text>String</text> 
+                                        </coordinate>
+                                        <elevation factor="1" uom="m">3.1416</elevation> 
+                                    </point>
+                                    <point>
+                                        <coordinate>
+                                            <ellipsoid>
+                                                <latitude>29.75</latitude> 
+                                                <longitude>47.85</longitude> 
+                                            </ellipsoid>
+                                            <text>String</text> 
+                                        </coordinate>
+                                        <elevation factor="1" uom="m">3.1416</elevation> 
+                                    </point>
+                                </coverage>
+                                <target>
+                                    <id>DAS000-001</id> 
+                                    <suffix>String</suffix> 
+                                </target>
+                                <comment>Text</comment> 
+                            </header>
+                        </image>
+                    </nitf>
+                </content>
+            </ddms:Resource>
+        </ns3:value>
+    </ns3:stringxml>
+    <ns3:geometry name="location">
+        <ns3:value>
+            <ns1:Polygon>
+                <ns1:exterior>
+                    <ns1:LinearRing>
+                        <ns1:pos>35.0 10.0</ns1:pos>
+                        <ns1:pos>10.0 20.0</ns1:pos>
+                        <ns1:pos>15.0 40.0</ns1:pos>
+                        <ns1:pos>45.0 45.0</ns1:pos>
+                        <ns1:pos>35.0 10.0</ns1:pos>
+                    </ns1:LinearRing>
+                </ns1:exterior>
+                <ns1:interior>
+                    <ns1:LinearRing>
+                        <ns1:pos>20.0 30.0</ns1:pos>
+                        <ns1:pos>35.0 35.0</ns1:pos>
+                        <ns1:pos>30.0 20.0</ns1:pos>
+                        <ns1:pos>20.0 30.0</ns1:pos>
+                    </ns1:LinearRing>
+                </ns1:interior>
+            </ns1:Polygon>
+        </ns3:value>
+    </ns3:geometry>
+    <ns3:base64Binary name="thumbnail">
+        <ns3:value>AAABAAABAQEAAQAAAQEBAAEAAAEBAQABAAABAQEAAQAAAQEBAAEAAAEBAQABAAABAQE=</ns3:value>
+    </ns3:base64Binary>
+    <ns3:string name="title">
+        <ns3:value>Title!</ns3:value>
+    </ns3:string>
+</ns3:metacard>

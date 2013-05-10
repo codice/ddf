@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+	targetNamespace="http://mts.lmco.com/subscriptionservice"
+	xmlns:tns="http://mts.lmco.com/subscriptionservice"
+	xmlns:ns1="http://mts.lmco.com/subscription"
+	elementFormDefault="qualified">
+
+	
+	<xsd:element name="GetAllSubscriptionsResponse">
+		<xsd:complexType>
+			<xsd:annotation>
+				<xsd:documentation xml:lang="en">
+					The response to a GetAllSubscriptions request sent
+					to the SubscriptionService RESTful service. This
+					response includes a list of all of the subscriptions,
+					in XML format, currently created in MTS.
+				</xsd:documentation>
+			</xsd:annotation>
+			<xsd:sequence>
+		        <xsd:element maxOccurs="unbounded" minOccurs="0"
+					name="subscriptions" type="xsd:string">
+					<xsd:annotation>
+						<xsd:documentation xml:lang="en">
+							The current subscriptions in MTS.
+						</xsd:documentation>
+					</xsd:annotation>
+				</xsd:element>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+	
+	
+	<xsd:element name="GetSubscriptionIdsResponse">
+		<xsd:complexType>
+			<xsd:annotation>
+				<xsd:documentation xml:lang="en">
+					The response to a GetSubscriptionIds request sent
+					to the SubscriptionService RESTful service. This
+					response includes a list of all of the subscription IDs
+					currently created in MTS.
+				</xsd:documentation>
+			</xsd:annotation>
+			<xsd:sequence>
+		        <xsd:element maxOccurs="unbounded" minOccurs="0"
+					name="subscriptionIds" type="xsd:string">
+					<xsd:annotation>
+						<xsd:documentation xml:lang="en">
+							The current subscription IDs in MTS.
+						</xsd:documentation>
+					</xsd:annotation>
+				</xsd:element>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+	
+</xsd:schema>

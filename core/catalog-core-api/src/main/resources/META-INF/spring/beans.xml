@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version. 
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+
+ -->
+<beans:beans xmlns="http://www.springframework.org/schema/osgi"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:osgix="http://www.springframework.org/schema/osgi-compendium"
+	xmlns:beans="http://www.springframework.org/schema/beans"
+	xsi:schemaLocation="http://www.springframework.org/schema/osgi  
+       	http://www.springframework.org/schema/osgi/spring-osgi.xsd
+     http://www.springframework.org/schema/osgi-compendium                                    
+       	http://www.springframework.org/schema/osgi-compendium/spring-osgi-compendium.xsd      
+     http://www.springframework.org/schema/beans   
+       	http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+
+    <reference id="configurationAdmin"
+		interface="org.osgi.service.cm.ConfigurationAdmin" />
+		
+		
+    <!-- 
+    The list of DdfManagedServices that are interested in updates to the DDF System Settings. 
+    These DdfManagedServices register their interest in updates to the DDF System Settings as they
+    come on line.
+    Set the cardinality to 0..N (0 essentially meaning optional), equating to availability=optional
+    in blueprint. This attribute also helped address a BeanCurrentlyInCreationException was getting as
+    DDF started up.
+    -->
+	<list id="listenerList" interface="ddf.catalog.util.DdfConfigurationWatcher" cardinality="0..N">
+		<listener bind-method="bind" ref="ddfConfigurationManager" />
+    </list>
+	
+    <list id="ddfManagedServiceList" interface="ddf.catalog.util.DdfConfigurationWatcher" cardinality="0..N"/>
+	
+	<beans:bean name="ddfConfigurationManager"  class="ddf.catalog.util.DdfConfigurationManager">
+		<osgix:managed-properties persistent-id="ddf.catalog.config" 
+					update-strategy="bean-managed" update-method="updated"/>
+		<beans:constructor-arg ref="ddfManagedServiceList" />
+		<beans:constructor-arg ref="configurationAdmin" />
+ 	</beans:bean>
+	
+</beans:beans>
+
+

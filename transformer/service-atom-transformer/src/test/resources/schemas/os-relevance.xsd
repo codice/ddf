@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema targetNamespace="http://a9.com/-/opensearch/extensions/relevance/1.0/" elementFormDefault="qualified"
+  xmlns:relevance="http://a9.com/-/opensearch/extensions/relevance/1.0/" xmlns:os="http://a9.com/-/spec/opensearch/1.1/"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  
+  <xs:element name="score">
+    <xs:simpleType>
+      <xs:restriction base="xs:decimal">
+        <xs:maxInclusive value="1.0" />
+        <xs:minInclusive value="0.0" />
+      </xs:restriction>
+    </xs:simpleType>
+  </xs:element>
+
+</xs:schema>

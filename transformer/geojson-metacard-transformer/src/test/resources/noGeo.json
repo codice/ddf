@@ -1,0 +1,14 @@
+{
+    "properties":{
+        "title":"myTitle",
+        "thumbnail":"CA==",
+        "resource-uri":"http:\/\/example.com",
+        "created":"2012-09-01T00:09:19.368+0000",
+        "metadata-content-type-version":"myVersion",
+        "metadata-content-type":"myType",
+        "metadata":"<xml><\/xml>",
+        "modified":"2012-09-01T00:09:19.368+0000"
+    },
+    "type":"Feature",
+    "geometry":null
+}

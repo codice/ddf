@@ -1,0 +1,33 @@
+
+<!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version. 
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+-->
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0" xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0">
+
+	<!-- Retrieve the desired transformer -->
+	<reference id="transformer" 
+              interface="ddf.catalog.transform.MetacardTransformer" filter="(id=geojson)"></reference>
+              
+	<!-- Post Ingest Plugin -->
+	<bean id="plugin" class="ddf.catalog.federation.layered.replication.RestReplicatorPlugin">
+		<cm:managed-properties persistent-id="ddf.catalog.federation.layered.replication.RestReplicatorPlugin"
+			update-strategy="container-managed"/>
+		<!-- The default value is purposely a different port than the default REST endpoint so that a deadlock does not occur on ingest -->
+		<argument value="http://localhost:8182/services/catalog"/>
+		<property name="transformer" ref="transformer"/>
+	</bean>
+
+	<!-- Register in the OSGi Service Registry -->
+	<service ref="plugin" interface="ddf.catalog.plugin.PostIngestPlugin" />
+
+</blueprint>
