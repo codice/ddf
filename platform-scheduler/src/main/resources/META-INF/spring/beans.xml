@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version. 
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+
+ -->
+<beans:beans xmlns="http://www.springframework.org/schema/osgi" xmlns:camel="http://camel.apache.org/schema/spring" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:osgi="http://www.springframework.org/schema/osgi" xmlns:osgix="http://www.springframework.org/schema/osgi-compendium" xmlns:beans="http://www.springframework.org/schema/beans"
+	xsi:schemaLocation="
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd 
+http://www.springframework.org/schema/osgi http://www.springframework.org/schema/osgi/spring-osgi.xsd
+http://www.springframework.org/schema/osgi-compendium http://www.springframework.org/schema/osgi-compendium/spring-osgi-compendium.xsd
+">
+
+	<beans:bean id="scheduler" class="org.quartz.impl.StdSchedulerFactory" factory-method="getDefaultScheduler" init-method="start"
+		destroy-method="shutdown" />
+
+	<osgi:reference id="commandProcessor" interface="org.apache.felix.service.command.CommandProcessor" cardinality="1..1" />
+	
+	<beans:bean id="serviceStore" class="ddf.platform.scheduler.ServiceStore" factory-method="getInstance">
+		<beans:property name="object" ref="commandProcessor"/>
+	</beans:bean>
+	
+	<osgix:managed-service-factory id="commandSchedule" factory-pid="ddf.platform.scheduler.Command"
+		update-strategy="bean-managed" update-method="updateTask">
+
+		<osgix:interfaces>
+			<beans:value>ddf.platform.scheduler.ScheduledTask</beans:value>
+		</osgix:interfaces>
+
+		<beans:bean id="scheduleCommandJob" class="ddf.platform.scheduler.ScheduledCommandTask" init-method="newTask" destroy-method="deleteTask">
+			<beans:constructor-arg ref="scheduler" />
+			<beans:constructor-arg type="java.lang.Class" value="ddf.platform.scheduler.CommandJob"/>
+		</beans:bean>
+
+	</osgix:managed-service-factory>
+
+
+</beans:beans>
