@@ -1,0 +1,17 @@
+#!/bin/sh
+
+SCRIPTDIR=`dirname $0`
+
+# Set environment variable for DDF home directory (used by DDF Java code)
+DDF_HOME=`cd $SCRIPTDIR/..; pwd`
+
+# NOTE: export on separate line to support caveat of Solaris OS
+export DDF_HOME
+
+JAVA_OPTS="-server -XX:PermSize=128m -XX:MaxPermSize=512m -Xmx2048M -Dfile.encoding=UTF8 -Dddf.home=$DDF_HOME"
+#JAVA_OPTS="-server -XX:PermSize=128m -XX:MaxPermSize=512m -Xmx2048M -Dfile.encoding=UTF8 -Djavax.net.ssl.keyStore=../etc/keystores/serverKeystore.jks -Djavax.net.ssl.keyStorePassword=changeit -Djavax.net.ssl.trustStore=../etc/keystores/serverTruststore.jks -Djavax.net.ssl.trustStorePassword=changeit -Dddf.home=$DDF_HOME"
+export JAVA_OPTS
+
+# Argument to Karaf is optional. 
+# Provides ability to start Karaf in different modes, e.g., server, client, etc.
+$SCRIPTDIR/karaf "$1"
