@@ -350,6 +350,7 @@
 					<configuration>
 						<autoVersionSubmodules>true</autoVersionSubmodules>
 						<preparationGoals>clean verify install</preparationGoals>
+						<pushChanges>false</pushChanges>
 					</configuration>
 				</plugin>
 
