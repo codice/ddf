@@ -83,7 +83,7 @@ public class KeyValuePermission implements Permission
             {
                 if(getKey().equals(keyValuePermission.getKey()))
                 {
-                    WildcardPermission implied = buildWildcardFromKeyValue((KeyValuePermission) p);
+                    WildcardPermission implied = buildWildcardFromKeyValue(keyValuePermission);
                     return thisWildCard.implies(implied);
                 }
             }
