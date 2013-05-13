@@ -17,8 +17,6 @@
 Distributed Data Framework (DDF) is an open source, modular integration framework. 
 
 ## Advantages
--------------
-
  * Standardization
     - Building on established Free and Open Source Software (FOSS) and open standards avoids vendor lock-in
  * Extensibility
@@ -38,16 +36,17 @@ Distributed Data Framework (DDF) is an open source, modular integration framewor
     - Provides Security Service reference implementations for a realistic end-to-end use case.
  
 ## Building
------------
 ### What you need ###
 * [Install J2SE 7 SDK](http://www.oracle.com/technetwork/java/javase/downloads/index.html). The build is also compatible with JDK 6.0 Update 29 \(or later\).
-* Make sure that your JAVA\_HOME environment variable is set to the newly installed JDK location, and that your PATH includes %JAVA\_HOME%\bin (windows) or $JAVA\_HOME$/bin (\*nix).
+* Make sure that your JAVA\_HOME environment variable is set to the newly installed JDK location, and that your PATH includes %JAVA\_HOME%\bin (Windows) or $JAVA\_HOME$/bin (\*NIX).
 * [Install Maven 3.0.3 \(or later\)](http://maven.apache.org/download.html). Make sure that your PATH includes the MVN\_HOME/bin directory.
 * Set the MAVEN_OPTS variable with the appropriate memory settings
 
+*NIX
 ```
 export MAVEN_OPTS='-Xmx512m -XX:MaxPermSize=128m'
 ```
+Windows
 ```
 set MAVEN_OPTS='-Xmx512m -XX:MaxPermSize=128m'
 ```
@@ -67,13 +66,10 @@ This will compile DDF and run all of the tests in the DDF source distribution. I
 The distribution will be available under "distribution/ddf-standard/target" directory.
 
 ## How to Run
--------------
 * Unzip the distribution. 
 * Run the executable at <distribution_home>/bin/ddf.bat or <distribution_home>/bin/ddf
 
 ## Additional information
--------------------
-
 The [wiki](https://tools.codice.org/wiki/display/DDF) is the right place to find any documentation about DDF.
 
 Discussions can be found on the [forum](http://groups.google.com/group/ddf-codice).
@@ -84,13 +80,11 @@ If you find any issues with DDF, please submit reports with [JIRA](https://tools
 
 Many thanks for using DDF.
 
-For information on contributing see [Contributing to Codice](http://www.codice.org/contributing).
+For information on contributing to DDF see [Contributing to Codice](http://www.codice.org/contributing).
 
 -- The Codice DDF Development Team
 
 ## Copyright / License
-----------------------
-
 Copyright (c) Codice Foundation
  
 This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License 
