@@ -36,7 +36,7 @@ The following benefits are provided:
 Getting Started
 ===============
 For a DDF source distribution, please read
-the README.md for instructions on building DDF.
+the README.md at https://github.com/codice/ddf for instructions on building DDF.
 
 For a DDF binary distribution, please read
 the release notes on the wiki for a list of supported and unsupported features.
@@ -44,7 +44,7 @@ the release notes on the wiki for a list of supported and unsupported features.
 How to Run
 ==========
 * Unzip the distribution. 
-* Run the executable at <distribution_home>/bin/ddf.bat or <distribution_home>/bin/ddf.sh
+* Run the executable at <distribution_home>/bin/ddf.bat or <distribution_home>/bin/ddf
 
 Additional Information
 =====================

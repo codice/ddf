@@ -43,6 +43,15 @@ Distributed Data Framework (DDF) is an open source, modular integration framewor
 * [Install J2SE 7 SDK](http://www.oracle.com/technetwork/java/javase/downloads/index.html). The build is also compatible with JDK 6.0 Update 29 \(or later\).
 * Make sure that your JAVA\_HOME environment variable is set to the newly installed JDK location, and that your PATH includes %JAVA\_HOME%\bin (windows) or $JAVA\_HOME$/bin (\*nix).
 * [Install Maven 3.0.3 \(or later\)](http://maven.apache.org/download.html). Make sure that your PATH includes the MVN\_HOME/bin directory.
+* Set the MAVEN_OPTS variable with the appropriate memory settings
+
+```
+export MAVEN_OPTS='-Xmx512m -XX:MaxPermSize=128m'
+```
+```
+set MAVEN_OPTS='-Xmx512m -XX:MaxPermSize=128m'
+```
+
 
 ### How to build ###
 ```
@@ -60,7 +69,7 @@ The distribution will be available under "distribution/ddf-standard/target" dire
 ## How to Run
 -------------
 * Unzip the distribution. 
-* Run the executable at <distribution_home>/bin/ddf.bat or <distribution_home>/bin/ddf.sh
+* Run the executable at <distribution_home>/bin/ddf.bat or <distribution_home>/bin/ddf
 
 ## Additional information
 -------------------
@@ -74,6 +83,8 @@ For a DDF binary distribution, please read  the release notes on the wiki for a 
 If you find any issues with DDF, please submit reports with [JIRA](https://tools.codice.org/jira/browse/DDF).
 
 Many thanks for using DDF.
+
+For information on contributing see [Contributing to Codice](http://www.codice.org/contributing).
 
 -- The Codice DDF Development Team
 
