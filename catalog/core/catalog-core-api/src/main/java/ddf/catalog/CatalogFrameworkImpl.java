@@ -1496,7 +1496,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements DdfConfigur
 				logger.debug("get resource by product uri");
 				Object value = resourceRequest.getAttributeValue();
 				
-				if (value != null && value instanceof URI) {
+				if (value instanceof URI) {
 					resourceUri = (URI) value;
 					
                     Query propertyEqualToUriQuery = createPropertyIsEqualToQuery(
