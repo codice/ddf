@@ -37,11 +37,10 @@
             <artifactId>cxf-services-sts-core</artifactId>
             <scope>compile</scope>
         </dependency>
-
+        
         <dependency>
             <groupId>org.apache.cxf</groupId>
-            <artifactId>cxf-bundle</artifactId>
-            <scope>compile</scope>
+            <artifactId>cxf-api</artifactId>
         </dependency>
         
         <dependency>
