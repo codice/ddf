@@ -1495,14 +1495,17 @@ public class CatalogFrameworkImpl extends DescribableImpl implements DdfConfigur
 				// have the product uri to return
 				logger.debug("get resource by product uri");
 				Object value = resourceRequest.getAttributeValue();
-				if (value instanceof URI) {
+				
+				if (value != null && value instanceof URI) {
 					resourceUri = (URI) value;
-
+					
+                    Query propertyEqualToUriQuery = createPropertyIsEqualToQuery(
+                            Metacard.RESOURCE_URI, resourceUri.toString());
+					
 					// if isEnterprise, go out and obtain the actual source
-					// where the
-					// product's metacard is stored.
+					// where the product's metacard is stored.
                     QueryRequest queryRequest = new QueryRequestImpl(
-                            createResourceUriQuery(resourceUri),
+                            propertyEqualToUriQuery,
                             isEnterprise,
                             Collections.singletonList(site == null ? this
                                     .getId() : site), resourceRequest.getProperties());
@@ -1602,12 +1605,8 @@ public class CatalogFrameworkImpl extends DescribableImpl implements DdfConfigur
 		return createPropertyIsEqualToQuery(Metacard.ID, metacardId);
 	}
 
-	protected Query createResourceUriQuery(URI resourceUri) {
-		return createPropertyIsEqualToQuery(Metacard.RESOURCE_URI, resourceUri);
-	}
-
 	protected Query createPropertyIsEqualToQuery(String propertyName,
-			Object literal) {
+			String literal) {
 		return new QueryImpl(new PropertyIsEqualToLiteral(new PropertyNameImpl(
 				propertyName), new LiteralImpl(literal)));
 	}
