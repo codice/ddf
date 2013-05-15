@@ -78,8 +78,6 @@
               javax.activation,
               javax.crypto,
               javax.crypto.spec,
-              javax.mail,
-              javax.mail.internet,
               javax.management,
               javax.management.remote,
               javax.management.remote.rmi,
@@ -93,17 +91,6 @@
               javax.security.auth.login,
               javax.security.auth.x500,
               javax.security.sasl,
-              javax.swing,
-              javax.swing.border,
-              javax.swing.event,
-              javax.swing.filechooser,
-              javax.swing.plaf,
-              javax.swing.plaf.basic,
-              javax.swing.plaf.metal,
-              javax.swing.table,
-              javax.swing.text,
-              javax.swing.text.html,
-              javax.swing.tree,
               javax.transaction.xa,
               org.ietf.jgss,
               org.slf4j,
@@ -111,19 +98,8 @@
               org.osgi.framework,
               org.apache.commons.io,
               org.osgi.service.blueprint,
-              <!-- Optional imports used by embedded classes -->
-              <!-- Used by org/opends/quicksetup/webstart/WebStartDownloader.class -->
-              javax.jnlp;resolution:=optional,
-              <!-- Used by com/sleepycat/je/jmx/plugin/*Stats -->
-              com.sun.tools.jconsole;resolution:=optional,
-              <!-- Used by com/sleepycat/je/jmx/plugin/Stats$GraphFrame.class -->
-              sun.tools.jconsole;resolution:=optional,
-              <!-- Used by org/opends/server/protocols/internal/InternalMozillaLDAPSocketFactory.class -->
-              netscape.ldap;resolution:=optional,
-              <!-- Used by com/sleepycat/persist/model/ClassEnhancerTask.class -->
-              org.apache.tools.ant;resolution:=optional,
-              org.apache.tools.ant.types;resolution:=optional,
-                org.apache.commons.lang
+              org.apache.commons.lang,
+              *;resolution:=optional
             </Import-Package>
             <Export-Package />
             <Private-Package>ddf.ldap.embedded.server</Private-Package>

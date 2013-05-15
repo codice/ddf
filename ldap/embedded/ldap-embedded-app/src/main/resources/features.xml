@@ -13,8 +13,14 @@
  -->
 <features name="${project.artifactId}-${project.version}">
 
-	<feature name="ldap-embedded" version="${project.version}" description="DDF Embedded LDAP (OpenDJ)">
-		<bundle>mvn:ddf.ldap.embedded/ldap-embedded-opendj/${project.version}</bundle>
-	</feature>
+  <feature name="ldap-embedded" version="${project.version}" description="DDF Embedded LDAP (OpenDJ)">
+    <bundle>mvn:org.apache.geronimo.specs/geronimo-jta_1.1_spec/1.1.1</bundle>
+    <bundle>mvn:org.apache.servicemix.specs/org.apache.servicemix.specs.activation-api-1.1/2.0.0</bundle>
+    <bundle>mvn:ch.qos.cal10n/cal10n-api/0.7.4</bundle> <!-- for slf4j-ext -->
+    <bundle>mvn:org.slf4j/slf4j-ext/${org.slf4j.version}</bundle>
+    <bundle>mvn:commons-io/commons-io/${commons-io.version}</bundle>
+    <bundle>mvn:commons-lang/commons-lang/2.6</bundle>
+    <bundle>mvn:ddf.ldap.embedded/ldap-embedded-opendj/${project.version}</bundle>
+  </feature>
 
 </features>
