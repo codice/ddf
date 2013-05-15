@@ -47,8 +47,13 @@
     
     <dependency>
 		<groupId>org.apache.cxf</groupId>
-		<artifactId>cxf-bundle</artifactId>
+		<artifactId>cxf-rt-frontend-jaxrs</artifactId>
 	</dependency>
+  
+    <dependency>
+        <groupId>commons-lang</groupId>
+        <artifactId>commons-lang</artifactId>
+    </dependency>
 	
 	<dependency>
 		<groupId>commons-io</groupId>
