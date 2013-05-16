@@ -9,7 +9,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-package ddf.security.pdp.api;
+package ddf.security.pdp.xacml;
 
 /**
  * Exception thrown by the DDF implementation of the Balana PDP.

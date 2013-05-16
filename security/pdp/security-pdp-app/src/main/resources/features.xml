@@ -15,9 +15,7 @@
 <features name="${project.artifactId}-${project.version}">
 
 	<feature name="security-pdp-xacml" version="${project.version}" description="DDF Security XACML-based PDP.">
-		<bundle>mvn:ddf.security.pdp/security-pdp-xacmlapi/${project.version}</bundle>
         <bundle>mvn:ddf.security.pdp/security-pdp-xacmlrealm/${project.version}</bundle>
-		<bundle>mvn:ddf.security.pdp/security-pdp-xacmlprocessor/${project.version}</bundle>
 	</feature>
 
     <feature name="security-pdp-java" version="${project.version}" description="DDF Security Simple PDP.">

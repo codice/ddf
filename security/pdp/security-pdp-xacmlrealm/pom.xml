@@ -12,7 +12,8 @@
  *
  **/
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>ddf.security.pdp</groupId>
@@ -37,15 +38,6 @@
       <artifactId>catalog-core-api</artifactId>
     </dependency>
     <dependency>
-      <groupId>ddf.security.pdp</groupId>
-      <artifactId>security-pdp-xacmlapi</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>ddf.security.pdp</groupId>
-      <artifactId>security-pdp-xacmlprocessor</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
       <groupId>org.apache.cxf</groupId>
       <artifactId>cxf-rt-ws-security</artifactId>
       <scope>test</scope>
@@ -53,17 +45,52 @@
     <dependency>
       <groupId>ddf.security.core</groupId>
       <artifactId>security-core-commons</artifactId>
-      </dependency>
+    </dependency>
+    <dependency>
+      <groupId>org.wso2.balana</groupId>
+      <artifactId>balana</artifactId>
+      <version>1.0.0</version>
+      <scope>system</scope>
+      <systemPath>${project.basedir}/lib/balana-1.0.0.jar</systemPath>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-log4j12</artifactId>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <build>
     <plugins>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>jaxb2-maven-plugin</artifactId>
+        <version>1.5</version>
+        <executions>
+          <execution>
+            <id>xjc</id>
+            <goals>
+              <goal>xjc</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <arguments>-extension</arguments>
+          <!-- The name of your generated source package -->
+          <packageName>oasis.names.tc.xacml._3_0.core.schema.wd_17</packageName>
+        </configuration>
+      </plugin>
       <plugin>
         <groupId>org.apache.felix</groupId>
         <artifactId>maven-bundle-plugin</artifactId>
         <configuration>
           <instructions>
             <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+            <Embed-Dependency>balana</Embed-Dependency>
             <Import-Package>
               javax.servlet.http; version="[2.5.0,3.0.0)",
               *

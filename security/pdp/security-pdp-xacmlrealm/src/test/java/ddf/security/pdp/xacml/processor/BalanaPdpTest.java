@@ -9,7 +9,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-package security.pdp.balana;
+package ddf.security.pdp.xacml.processor;
 
 
 import static org.junit.Assert.assertEquals;
@@ -42,8 +42,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
-import ddf.security.pdp.api.PdpException;
-import ddf.security.pdp.balana.BalanaPdp;
+import ddf.security.pdp.xacml.PdpException;
+import ddf.security.pdp.xacml.processor.BalanaPdp;
 
 
 public class BalanaPdpTest

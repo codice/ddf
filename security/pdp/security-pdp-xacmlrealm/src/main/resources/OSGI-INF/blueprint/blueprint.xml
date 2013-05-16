@@ -14,8 +14,8 @@
 -->
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
 
-  <bean id="xacmlRealm" class="ddf.security.pep.realm.XACMLRealm">
-    <property name="policyDecisionPoint" ref="policyDecisionPoint" />
+  <bean id="xacmlRealm" class="ddf.security.pdp.xacml.realm.XACMLRealm">
+    <argument value="etc/pdp/policies" />
   </bean>
 
   <service ref="xacmlRealm">
@@ -24,7 +24,5 @@
       <value>org.apache.shiro.authz.Authorizer</value>
     </interfaces>
   </service>
-
-  <reference id="policyDecisionPoint" interface="ddf.security.pdp.api.PolicyDecisionPoint" />
 
 </blueprint>
