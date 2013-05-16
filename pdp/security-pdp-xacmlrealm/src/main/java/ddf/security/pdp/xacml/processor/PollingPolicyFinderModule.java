@@ -9,7 +9,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-package ddf.security.pdp.balana;
+package ddf.security.pdp.xacml.processor;
 
 import java.io.File;
 import java.io.FileFilter;

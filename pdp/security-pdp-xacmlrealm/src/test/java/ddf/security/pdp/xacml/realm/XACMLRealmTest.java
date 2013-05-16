@@ -9,7 +9,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-package ddf.security.pep.realm;
+package ddf.security.pdp.xacml.realm;
 
 
 import static org.junit.Assert.assertFalse;
@@ -38,9 +38,8 @@ import org.apache.shiro.authz.SimpleAuthorizationInfo;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import ddf.security.pdp.api.PdpException;
-import ddf.security.pdp.api.PolicyDecisionPoint;
-import ddf.security.pdp.balana.BalanaPdp;
+import ddf.security.pdp.xacml.PdpException;
+import ddf.security.pdp.xacml.realm.XACMLRealm;
 import ddf.security.permission.KeyValueCollectionPermission;
 import ddf.security.permission.KeyValuePermission;
 import ddf.security.service.AbstractAuthorizingRealm;
@@ -57,6 +56,9 @@ public class XACMLRealmTest
     private static final String ACCESS_TYPE_A = "A";
     private static final String ACCESS_TYPE_B = "B";
     private static final String ACCESS_TYPE_C = "C";
+    
+    //Subject info
+    private static final String TEST_COUNTRY = "ATA";
 
     private static final String NAME_IDENTIFIER = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier";
     private static final String GIVEN_NAME = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname";
@@ -69,9 +71,7 @@ public class XACMLRealmTest
     {
         BasicConfigurator.configure();
         logger.setLevel(Level.DEBUG);
-        testRealm = new XACMLRealm();
-        PolicyDecisionPoint pdp = new BalanaPdp("src/test/resources/policies");
-        testRealm.setPolicyDecisionPoint(pdp);
+        testRealm = new XACMLRealm("src/test/resources/policies");
     }
 
     @Test
@@ -105,8 +105,7 @@ public class XACMLRealmTest
     @Test
     public void testActionGoodCountry()
     {
-
-        RequestType request = testRealm.createActionXACMLRequest(USER_NAME, generateSubjectInfo(), QUERY_ACTION); 
+        RequestType request = testRealm.createActionXACMLRequest(USER_NAME, generateSubjectInfo(TEST_COUNTRY), QUERY_ACTION); 
 
         assertTrue(testRealm.isPermitted(request));
     }
@@ -114,10 +113,9 @@ public class XACMLRealmTest
     @Test
     public void testActionBadCountry()
     {
+        RequestType request = testRealm.createActionXACMLRequest(USER_NAME, generateSubjectInfo("CAN"), QUERY_ACTION); 
 
-        RequestType request = testRealm.createActionXACMLRequest(USER_NAME, generateSubjectInfo(), QUERY_ACTION); 
-
-        assertTrue(testRealm.isPermitted(request));
+        assertFalse(testRealm.isPermitted(request));
     }
     
     @Test
@@ -134,7 +132,7 @@ public class XACMLRealmTest
     public void testActionBadAction()
     {
 
-        RequestType request = testRealm.createActionXACMLRequest(USER_NAME, generateSubjectInfo(), "bad"); 
+        RequestType request = testRealm.createActionXACMLRequest(USER_NAME, generateSubjectInfo(TEST_COUNTRY), "bad"); 
 
         assertFalse(testRealm.isPermitted(request));
     }
@@ -148,7 +146,7 @@ public class XACMLRealmTest
 
         KeyValueCollectionPermission resourcePermissions = new KeyValueCollectionPermission(security);
 
-        RequestType request = testRealm.createRedactXACMLRequest(USER_NAME, generateSubjectInfo(),
+        RequestType request = testRealm.createRedactXACMLRequest(USER_NAME, generateSubjectInfo(TEST_COUNTRY),
             resourcePermissions);
 
         assertTrue(testRealm.isPermitted(request));
@@ -163,7 +161,7 @@ public class XACMLRealmTest
         security.put(RESOURCE_ACCESS, Arrays.asList(ACCESS_TYPE_A));
 
         KeyValueCollectionPermission resourcePermissions = new KeyValueCollectionPermission(security);
-        RequestType request = testRealm.createRedactXACMLRequest(USER_NAME, generateSubjectInfo(),
+        RequestType request = testRealm.createRedactXACMLRequest(USER_NAME, generateSubjectInfo(TEST_COUNTRY),
             resourcePermissions);
 
         assertTrue(testRealm.isPermitted(request));
@@ -178,14 +176,14 @@ public class XACMLRealmTest
         security.put(RESOURCE_ACCESS, Arrays.asList(ACCESS_TYPE_A, ACCESS_TYPE_B, ACCESS_TYPE_C));
 
         KeyValueCollectionPermission resourcePermissions = new KeyValueCollectionPermission(security);
-        RequestType request = testRealm.createRedactXACMLRequest(USER_NAME, generateSubjectInfo(),
+        RequestType request = testRealm.createRedactXACMLRequest(USER_NAME, generateSubjectInfo(TEST_COUNTRY),
             resourcePermissions);
 
         assertFalse(testRealm.isPermitted(request));
 
     }
 
-    private AuthorizationInfo generateSubjectInfo()
+    private AuthorizationInfo generateSubjectInfo(String country)
     {
         SimpleAuthorizationInfo info = new SimpleAuthorizationInfo();
         Set<Permission> permissions = new HashSet<Permission>();
@@ -197,7 +195,7 @@ public class XACMLRealmTest
 
         // add permissions
         KeyValuePermission citizenshipPermission = new KeyValuePermission(COUNTRY);
-        citizenshipPermission.addValue("ATA");
+        citizenshipPermission.addValue(country);
         permissions.add(citizenshipPermission);
 
         KeyValuePermission typePermission = new KeyValuePermission(SUBJECT_ACCESS);
@@ -213,6 +211,7 @@ public class XACMLRealmTest
         permissions.add(typePermission);
         permissions.add(nameIdentPermission);
         permissions.add(givenNamePermission);
+        
 
         info.setRoles(roles);
         info.setObjectPermissions(permissions);

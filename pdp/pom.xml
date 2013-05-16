@@ -28,8 +28,6 @@
   <packaging>pom</packaging>
 
   <modules>
-    <module>security-pdp-xacmlapi</module>
-    <module>security-pdp-xacmlprocessor</module>
     <module>security-pdp-xacmlrealm</module>
     <module>security-pdp-authzrealm</module>
     <module>security-pdp-app</module>

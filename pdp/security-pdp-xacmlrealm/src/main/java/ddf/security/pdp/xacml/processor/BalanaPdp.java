@@ -9,7 +9,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-package ddf.security.pdp.balana;
+package ddf.security.pdp.xacml.processor;
 
 
 import java.io.File;
@@ -56,14 +56,13 @@ import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.XMLFilterImpl;
 import org.xml.sax.helpers.XMLReaderFactory;
 
-import ddf.security.pdp.api.PdpException;
-import ddf.security.pdp.api.PolicyDecisionPoint;
+import ddf.security.pdp.xacml.PdpException;
 
 /**
  * Balana implementation of a XACML Policy Decision Point (PDP).  This class acts as a proxy to the real
  * Balana PDP.
  */
-public class BalanaPdp implements PolicyDecisionPoint
+public class BalanaPdp
 {
     private static final Logger LOGGER = LoggerFactory.getLogger( BalanaPdp.class );
     
@@ -158,7 +157,6 @@ public class BalanaPdp implements PolicyDecisionPoint
      * @return XACML response
      * @throws PdpException
      */
-    @Override
     public ResponseType evaluate( RequestType xacmlRequestType ) throws PdpException
     {
         String xacmlRequest = this.marshal( xacmlRequestType );

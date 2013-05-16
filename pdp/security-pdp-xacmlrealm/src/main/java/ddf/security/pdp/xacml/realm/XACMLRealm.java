@@ -9,7 +9,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-package ddf.security.pep.realm;
+package ddf.security.pdp.xacml.realm;
 
 
 import java.util.ArrayList;
@@ -35,9 +35,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ddf.security.common.audit.SecurityLogger;
-import ddf.security.pdp.api.PdpException;
-import ddf.security.pdp.api.PolicyDecisionPoint;
-import ddf.security.pdp.api.XACMLConstants;
+import ddf.security.pdp.xacml.PdpException;
+import ddf.security.pdp.xacml.XACMLConstants;
+import ddf.security.pdp.xacml.processor.BalanaPdp;
 import ddf.security.permission.ActionPermission;
 import ddf.security.permission.CollectionPermission;
 import ddf.security.permission.KeyValueCollectionPermission;
@@ -58,14 +58,15 @@ public class XACMLRealm extends AbstractAuthorizingRealm
 
     private static final String AUTHZ_ROLE_EXCEPTION = " does not have the checked role(s).";
 
-    private PolicyDecisionPoint pdp;
+    private BalanaPdp pdp;
 
     /**
      * Creates a general
      */
-    public XACMLRealm()
+    public XACMLRealm(String dirPath) throws PdpException
     {
         super();
+        pdp = new BalanaPdp(dirPath);
         logger.debug("Creating new PDP-backed Authorizing Realm");
     }
 
@@ -163,12 +164,6 @@ public class XACMLRealm extends AbstractAuthorizingRealm
             }
         }
         return results;
-    }
-
-    public void setPolicyDecisionPoint( PolicyDecisionPoint pdp )
-    {
-        logger.debug("Setting PDP: " + pdp.getClass().getName());
-        this.pdp = pdp;
     }
 
     protected RequestType createActionXACMLRequest( String subject, AuthorizationInfo info, String action )
