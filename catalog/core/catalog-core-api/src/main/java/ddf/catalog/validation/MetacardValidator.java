@@ -14,16 +14,23 @@ package ddf.catalog.validation;
 import ddf.catalog.data.Metacard;
 
 /**
+ * A service that validates a Metacard and provides information if problems
+ * exist with the Metacard data.
+ * 
  * @author Michael Menousek, Lockheed Martin
+ * @author Ashraf Barakat, Lockheed Martin
  * @author ddf.isgs@lmco.com
  */
-public interface Validator {
+public interface MetacardValidator {
 
-	/**
-	 * Validates a {@link Metacard}
-	 * @param metacard - the {@link Metacard} to validate
-	 * @throws ValidationException if any validation error or warning occurs
-	 */
-	public void validate(Metacard metacard) throws ValidationException;
+    /**
+     * Validates a {@link Metacard}
+     * 
+     * @param metacard
+     *            {@link Metacard} to validate
+     * @throws ValidationException
+     *             if any validation error occurs
+     */
+    public void validate(Metacard metacard) throws ValidationException;
 
 }

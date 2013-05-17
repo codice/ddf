@@ -22,7 +22,7 @@ import ddf.catalog.plugin.PluginExecutionException;
 import ddf.catalog.plugin.PostQueryPlugin;
 import ddf.catalog.plugin.StopProcessingException;
 import ddf.catalog.validation.ValidationException;
-import ddf.catalog.validation.Validator;
+import ddf.catalog.validation.MetacardValidator;
 
 /**
  * Validates the query results from a query as a PostQueryPLugin
@@ -33,9 +33,9 @@ public class DummyValidationPostQueryPlugin implements PostQueryPlugin {
 	private static Logger LOGGER = LoggerFactory
 			.getLogger(DummyValidationPostQueryPlugin.class.getName());
 
-	private Validator validator;
+	private MetacardValidator validator;
 
-	public DummyValidationPostQueryPlugin(Validator validator) {
+	public DummyValidationPostQueryPlugin(MetacardValidator validator) {
 		this.validator = validator;
 	}
 

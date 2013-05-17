@@ -19,7 +19,7 @@
 	<!-- Get reference to Filter Builder implementation -->
 	<reference id="filterBuilder" interface="ddf.catalog.filter.FilterBuilder" />
 
-	<reference id="validator" interface="ddf.catalog.validation.Validator" />
+	<reference id="validator" interface="ddf.catalog.validation.MetacardValidator" />
 
 
 	<!-- Create bean instantiation of the DDF Component. This example shows 

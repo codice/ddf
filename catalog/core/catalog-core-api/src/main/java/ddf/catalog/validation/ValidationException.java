@@ -14,34 +14,47 @@ package ddf.catalog.validation;
 import java.util.List;
 
 /**
+ * Thrown to indicate that a validation operation could not be completed.
+ * Provides information in the form of a summary message, a list of error
+ * messages, and a list of warnings.
+ * 
  * @author Michael Menousek, Lockheed Martin
  * @author Shaun Morris, Lockheed Martin
+ * @author Ashraf Barakat, Lockheed Martin
  * @author ddf.isgs@lmco.com
  */
-public abstract class ValidationException extends Exception{
+public abstract class ValidationException extends Exception {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	public ValidationException(String message)
-	{
-		super(message);
-	}
-	
-	/**
-	 * Get a list of all of the assertion and report error messages in human-readable plain text.
-	 * 
-	 * @return list of error strings
-	 */
-	public abstract List<String> getErrors();
-	
-	
-	/**
-	 * Get a list of all of the assertion and report warning messages human-readable plain text.
-	 * 
-	 * @return list of warning strings
-	 */
-	public abstract List<String> getWarnings();
+    /**
+     * Constructs a {@code ValidationException} with no detailed message.
+     */
+    public ValidationException() {
+        super();
+    }
+
+    /**
+     * Constructs a {@code ValidationException} with a specified summary message
+     * of the failure.
+     * 
+     * @param summaryMessage
+     *            summarizes why the validation operation failed
+     */
+    public ValidationException(String summaryMessage) {
+        super(summaryMessage);
+    }
+
+    /**
+     * @return a list of all error messages that has caused validation to fail.
+     *         The error message should be human-readable plain text.
+     */
+    public abstract List<String> getErrors();
+
+    /**
+     * @return a list of warning messages of possible issues that arose during
+     *         validation that did not cause validation to fail. The warning
+     *         message should be human-readable plain text.
+     */
+    public abstract List<String> getWarnings();
 }
