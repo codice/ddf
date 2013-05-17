@@ -18,17 +18,13 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.mock;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import org.junit.Test;
-import org.osgi.framework.BundleContext;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
@@ -39,9 +35,9 @@ import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.AttributeDescriptorImpl;
 import ddf.catalog.data.BasicTypes;
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.MetacardTypeRegistry;
 import ddf.catalog.data.QualifiedMetacardType;
 import ddf.catalog.data.QualifiedMetacardTypeImpl;
-import ddf.catalog.data.MetacardTypeRegistry;
 import ddf.catalog.data.metacardtype.MetacardTypeRegistryImpl;
 import ddf.catalog.transform.CatalogTransformerException;
 
@@ -196,14 +192,13 @@ public class TestGeoJsonExtensible {
 	}
 	
 	private MetacardTypeRegistry prepareMetacardTypeRegistry(){
-	    BundleContext context = mock(BundleContext.class);
-	    List<QualifiedMetacardType> qmtList = new ArrayList<QualifiedMetacardType>();
 	    
-	    qmtList.add(new QualifiedMetacardTypeImpl(BasicTypes.BASIC_METACARD));
-	    qmtList.add(sampleMetacardTypeA());
-	    qmtList.add(sampleMetacardTypeB());
+	    MetacardTypeRegistry mtr = MetacardTypeRegistryImpl.getInstance();
+	    mtr.register(sampleMetacardTypeA());
+	    mtr.register(sampleMetacardTypeB());
+	    mtr.register(new QualifiedMetacardTypeImpl(BasicTypes.BASIC_METACARD));
 	    
-	    return MetacardTypeRegistryImpl.getInstance(context, qmtList);
+	    return mtr;
 	}
 	
 	protected void verifyBasics(Metacard metacard) throws ParseException {
