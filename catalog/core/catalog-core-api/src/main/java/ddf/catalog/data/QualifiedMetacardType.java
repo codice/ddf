@@ -15,9 +15,14 @@ package ddf.catalog.data;
 /**
  * 
  * Qualified and uniquely identified set of {@link AttributeDescriptor}s used to
- * specify and describe the valid {@link Attribute}s on a {@link Metacard}.
+ * specify and describe the valid {@link Attribute}s on a {@link Metacard}.  
  * 
- * @author ianbarnett
+ * <p><b>
+ * This code is experimental.  While this interface is functional and tested, 
+ * it may change or be removed in a future version of the library.
+ * </b></p>
+ * 
+ * @author Ian Barnett
  * @author ddf.isgs@lmco.com
  * 
  */
@@ -31,7 +36,8 @@ public interface QualifiedMetacardType extends MetacardType {
     
     /**
      * 
-     * @return namespace that qualifies the {@link MetacardType} name
+     * @return namespace that qualifies the {@link MetacardType} name.  If no namespace was
+     * 		specified on construction, then the default namespace must be returned.
      */
     public String getNamespace();
 }
