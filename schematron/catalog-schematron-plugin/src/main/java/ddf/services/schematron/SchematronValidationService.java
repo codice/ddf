@@ -47,7 +47,7 @@ import ddf.catalog.operation.UpdateRequest;
 import ddf.catalog.plugin.PreIngestPlugin;
 import ddf.catalog.plugin.StopProcessingException;
 import ddf.catalog.validation.ValidationException;
-import ddf.catalog.validation.Validator;
+import ddf.catalog.validation.MetacardValidator;
 
 
 /**
@@ -74,7 +74,7 @@ import ddf.catalog.validation.Validator;
  * @author rodgersh
  *
  */ 
-public class SchematronValidationService implements PreIngestPlugin, Validator
+public class SchematronValidationService implements PreIngestPlugin, MetacardValidator
 {
 	/** The original Schematron .sch file */
 	private String schematronSchemaFilename;
