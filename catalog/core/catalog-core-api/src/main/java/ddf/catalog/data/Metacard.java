@@ -158,6 +158,21 @@ public interface Metacard extends Serializable {
     /**
      * {@link Attribute} name for accessing the security relevant markings on
      * the product that this {@link Metacard} represents.
+     * @deprecated Not to be used anymore, replaced with SECURITY attribute.
+     */
+    public static final String SECURITY_MATCH_ALL = "security-match-all";
+
+    /**
+     * {@link Attribute} name for accessing the security relevant markings on
+     * the product that this {@link Metacard} represents.
+     * @deprecated Not to be used anymore, replaced with SECURITY attribute.
+     */
+    public static final String SECURITY_MATCH_ONE = "security-match-one";
+
+    /**
+     * {@link Attribute} name for accessing the security relevant markings on
+     * the product that this {@link Metacard} represents.
+     * @since DDF-2.2.0.RC1
      */
     public static final String SECURITY = "security";
 

@@ -16,9 +16,6 @@ import ddf.security.pdp.realm.SimpleAuthzRealm;
 import ddf.security.permission.ActionPermission;
 import ddf.security.permission.KeyValueCollectionPermission;
 import ddf.security.permission.KeyValuePermission;
-//import ddf.security.permission.RedactionMatchAllPermission;
-//import ddf.security.permission.RedactionMatchOnePermission;
-//import ddf.security.permission.RedactionPermission;
 import junit.framework.Assert;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Level;
@@ -84,10 +81,8 @@ public class SimpleAuthzRealmTest
         security.put("rule", Arrays.asList("A", "B"));
         metacard.setSecurity(security);
         testRealm.setAuthorizationInfo(authorizationInfo);
-        Map<String, Object>  mappings = new HashMap<String, Object>();
-        mappings.put(SimpleAuthzRealm.MATCH_ALL_MAPPINGS, Arrays.asList("FineAccessControls=rule"));
-        mappings.put(SimpleAuthzRealm.MATCH_ONE_MAPPINGS, Arrays.asList("CountryOfAffiliation=country"));
-        testRealm.updated(mappings);
+        testRealm.setMatchOneMappings(Arrays.asList("CountryOfAffiliation=country"));
+        testRealm.setMatchAllMappings(Arrays.asList("FineAccessControls=rule"));
     }
 
     @Test
@@ -146,9 +141,7 @@ public class SimpleAuthzRealmTest
     {
         permissionList.clear();
         ActionPermission actionPermission = new ActionPermission("action");
-        HashMap<String, Object> config = new HashMap<String, Object>();
-        config.put(SimpleAuthzRealm.OPEN_ACCESS_ACTION_LIST, Arrays.asList("action"));
-        testRealm.updated(config);
+        testRealm.setOpenAccessActionList(Arrays.asList("action"));
         permissionList.add(actionPermission);
         PrincipalCollection mockSubjectPrincipal = Mockito.mock(PrincipalCollection.class);
         boolean[] permittedArray = testRealm.isPermitted( mockSubjectPrincipal, permissionList );
@@ -163,10 +156,8 @@ public class SimpleAuthzRealmTest
     {
         permissionList.clear();
         ActionPermission actionPermission = new ActionPermission("action");
-        HashMap<String, Object> config = new HashMap<String, Object>();
-        config.put(SimpleAuthzRealm.OPEN_ACCESS_ACTION_LIST, Arrays.asList("otherAction"));
-        config.put(SimpleAuthzRealm.ACCESS_ROLE_LIST, Arrays.asList("admin"));
-        testRealm.updated(config);
+        testRealm.setOpenAccessActionList(Arrays.asList("otherAction"));
+        testRealm.setAccessRoleList(Arrays.asList("admin"));
         permissionList.add(actionPermission);
         PrincipalCollection mockSubjectPrincipal = Mockito.mock(PrincipalCollection.class);
         boolean[] permittedArray = testRealm.isPermitted( mockSubjectPrincipal, permissionList );

@@ -47,6 +47,11 @@ public class AbstractOverrideInterceptor extends AbstractPhaseInterceptor<Messag
         this.loader = loader;
     }
 
+    /**
+     * Adds the policy retrieved from the configured policy loader to this message as the override
+     * policy.
+     * @param message
+     */
     @Override
     public void handleMessage( Message message )
     {

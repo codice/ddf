@@ -24,11 +24,11 @@
             name="Open Action List" id="openAccessActionList" required="true"
             type="String" cardinality="-100" default="" />
 
-        <AD description="Match-All subject attribute to Metacard attribute mapping. All values of this subject key must be present in the corresponding metacard key values. Format is subjectAttrName=metacardAttrName."
+        <AD description="Match-All subject attribute to Metacard attribute mapping. All values of this metacard key must be present in the corresponding subject key values. Format is subjectAttrName=metacardAttrName."
             name="Match-All Mappings" id="matchAllMappings" required="false"
             type="String" cardinality="-100" default="" />
 
-        <AD description="Match-One subject attribute to Metacard attribute mapping. One value of this subject key must be present in the corresponding metacard key values. Format is subjectAttrName=metacardAttrName."
+        <AD description="Match-One subject attribute to Metacard attribute mapping. One value of this metacard key must be present in the corresponding subject key values. Format is subjectAttrName=metacardAttrName."
             name="Match-One Mappings" id="matchOneMappings" required="false"
             type="String" cardinality="-100" default="" />
     </OCD>

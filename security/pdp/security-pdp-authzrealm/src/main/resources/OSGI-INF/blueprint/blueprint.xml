@@ -16,7 +16,7 @@
 
     <bean id="pdpAuthzRealm" class="ddf.security.pdp.realm.SimpleAuthzRealm">
         <cm:managed-properties persistent-id="ddf.security.pdp.realm.SimpleAuthzRealm"
-                               update-strategy="component-managed" update-method="updated" />
+                               update-strategy="container-managed" />
         <property name="accessRoleList">
             <list>
                 <value>admin</value>
