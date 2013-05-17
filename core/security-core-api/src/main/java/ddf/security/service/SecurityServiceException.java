@@ -11,7 +11,10 @@
  **/
 package ddf.security.service;
 
-
+/**
+ * Exception specific to the security service packages. Used for all security-related exceptions
+ * thrown to external callers.
+ */
 public class SecurityServiceException extends Exception
 {
 

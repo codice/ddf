@@ -16,7 +16,9 @@ import org.apache.shiro.authz.Permission;
 import java.util.Collection;
 
 /**
- * @author Scott Tustison
+ * Permission class handling the match one case. Shiro permissions always "match all" attributes. This class
+ * extends the CollectionPermission and overrides the implies method to perform the implies for a "match one"
+ * condition.
  */
 public class MatchOneCollectionPermission extends CollectionPermission
 {
@@ -25,6 +27,14 @@ public class MatchOneCollectionPermission extends CollectionPermission
         super(permissions);
     }
 
+    /**
+     * Overrides the implies method to handle checking for the existence of one attribute - the "match one"
+     * scenario rather than the "match all" behavior of the overridden classes. Specifically, this permission
+     * will imply another permission if that permission matches at least one of our permission attributes.
+     * @param p the permission to check for behavior/functionality comparison.
+     * @return  {@code true} if this current instance <em>implies</em> the specified {@code Permission}
+     *          argument, {@code false} otherwise.
+     */
     @Override
     public boolean implies(Permission p)
     {

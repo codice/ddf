@@ -188,10 +188,8 @@ public class RedactionPluginTest
         incomingResponse.addResult(result2, false);
         incomingResponse.addResult(result3, true);
 
-        Map<String, Object>  mappings = new HashMap<String, Object>();
-        mappings.put(SimpleAuthzRealm.MATCH_ALL_MAPPINGS, Arrays.asList("FineAccessControls=rule"));
-        mappings.put(SimpleAuthzRealm.MATCH_ONE_MAPPINGS, Arrays.asList("CountryOfAffiliation=country"));
-        ((SimpleAuthzRealm)realm).updated(mappings);
+        ((SimpleAuthzRealm)realm).setMatchAllMappings(Arrays.asList("FineAccessControls=rule"));
+        ((SimpleAuthzRealm)realm).setMatchOneMappings(Arrays.asList("CountryOfAffiliation=country"));
     }
 
     @Test

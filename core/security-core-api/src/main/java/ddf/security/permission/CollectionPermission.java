@@ -19,18 +19,26 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * @author Scott Tustison
+ * Permission class handling a collection of permissions and handling the logic to determine if one
+ * collection of permissions can imply another collection of permissions. Assumes the underlying permissions
+ * can handle instances of differing permission types.
  */
 public class CollectionPermission implements Permission
 {
 
     protected List<Permission> permissionList = new ArrayList<Permission>();
 
+    /**
+     * Default constructor creating an empty collection of permissions.
+     */
     public CollectionPermission()
     {
-
     }
 
+    /**
+     * Creates a new collection of permissions and adds the provided permissions to the collection.
+     * @param permissions  permission objects to be added to the newly created collection
+     */
     public CollectionPermission(Permission... permissions)
     {
         for(Permission permission : permissions)
@@ -39,6 +47,11 @@ public class CollectionPermission implements Permission
         }
     }
 
+    /**
+     * Creates a new collection of permissions from an existing collection of permissions. All
+     * permissions in the provided collection are added to the newly created collection.
+     * @param permissions  existing collection of permission objects
+     */
     public CollectionPermission(Collection<Permission> permissions)
     {
         permissionList.addAll(permissions);
@@ -95,11 +108,20 @@ public class CollectionPermission implements Permission
         return false;
     }
 
+    /**
+     * Returns this collection as an unmodifiable list of permissions.
+     * @return  unmodifiable List of permissions corresponding to this collection
+     */
     public List<Permission> getPermissionList()
     {
         return Collections.unmodifiableList(permissionList);
     }
 
+    /**
+     * String representation of this collection of permissions. Depends on the toString method
+     * of each permission.
+     * @return  String representation of this collection of permissions
+     */
     public String toString()
     {
         StringBuilder sb = new StringBuilder();

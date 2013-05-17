@@ -12,10 +12,8 @@
 package ddf.security.service;
 
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
+import ddf.security.assertion.SecurityAssertion;
+import ddf.security.permission.KeyValuePermission;
 import org.apache.shiro.authz.AuthorizationException;
 import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.authz.Permission;
@@ -31,8 +29,9 @@ import org.opensaml.xml.schema.XSString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ddf.security.assertion.SecurityAssertion;
-import ddf.security.permission.KeyValuePermission;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 
 /**
@@ -47,6 +46,14 @@ public abstract class AbstractAuthorizingRealm extends AuthorizingRealm
 
     private static final String SAML_ROLE = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role";
 
+    /**
+     * Takes the security attributes about the subject of the incoming security token and builds
+     * sets of permissions and roles for use in further checking.
+     * @param principalCollection  holds the security assertions for the primary principal of this request
+     * @return  a new collection of permissions and roles corresponding to the security assertions
+     * @throws AuthorizationException if there are no security assertions associated with this principal collection
+     *          or if the token cannot be processed successfully.
+     */
     @Override
     protected AuthorizationInfo doGetAuthorizationInfo( PrincipalCollection principalCollection )
     {

@@ -18,7 +18,7 @@
         <bundle>mvn:ddf.security.pdp/security-pdp-xacmlrealm/${project.version}</bundle>
 	</feature>
 
-    <feature name="security-pdp-java" version="${project.version}" description="DDF Security Simple PDP.">
+    <feature name="security-pdp-java" version="${project.version}" description="DDF Security Java-based PDP.">
         <bundle>mvn:ddf.security.pdp/security-pdp-authzrealm/${project.version}</bundle>
     </feature>
 

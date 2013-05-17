@@ -29,8 +29,17 @@ import org.apache.shiro.authz.permission.RolePermissionResolver;
 import org.apache.shiro.authz.permission.WildcardPermission;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.util.CollectionUtils;
+import org.slf4j.LoggerFactory;
+import org.slf4j.ext.XLogger;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * This simple Authz {@link ddf.security.service.AbstractAuthorizingRealm} provides the ability to check permissions without making calls
@@ -41,11 +50,50 @@ import java.util.*;
  */
 public class SimpleAuthzRealm extends AbstractAuthorizingRealm
 {
+    private static final XLogger LOGGER = new XLogger( LoggerFactory.getLogger(SimpleAuthzRealm.class) );
+
     private static final String ACCESS_DENIED_MSG = "User not authorized";
 
+    /**
+     * Identifies the key used to retrieve a List of Strings that represent the mapping between metacard
+     * and user attributes.
+     * The mappings defined in this List of Strings are used by the "match all" evaluation to determine
+     * if this user should be authorized to access this data.
+     * <p>
+     * Each string is of the format: <code>metacardAttribute=userAttribute</code>
+     * where metacardAttribute is the name of an attribute in the metacard and userAttribute is the name of the corresponding
+     * attribute in the user credentials. It is the value of each of these attributes that will be evaluated against each
+     * other when determining if authorization should be allowed.
+     */
     public static final String MATCH_ALL_MAPPINGS = "matchAllMappings";
+
+    /**
+     * Identifies the key used to retrieve a List of Strings that represent the mapping between metacard
+     * and user attributes.
+     * The mappings defined in this List of Strings are used by the "match one" evaluation to determine
+     * if this user should be authorized to access this data.
+     * <p>
+     * Each string is of the format: <code>metacardAttribute=userAttribute</code>
+     * where metacardAttribute is the name of an attribute in the metacard and userAttribute is the name of the corresponding
+     * attribute in the user credentials. It is the value of each of these attributes that will be evaluated against each
+     * other when determining if authorization should be allowed.
+     */
     public static final String MATCH_ONE_MAPPINGS = "matchOneMappings";
+
+    /**
+     * Identifies the key used to retrieve a List of Strings that represent roles that will be allowed to
+     * perform restricted actions.
+     * Each string defines the role name.
+     */
     public static final String ACCESS_ROLE_LIST = "accessRoleList";
+
+    /**
+     * Identifies the key used to retrieve a List of Strings that represent actions that are open for any
+     * role to access.
+     * Each string is the action corresponding to the SOAP action presented in the SOAP request.
+     * If the specified string is contained in the SOAP action string, then access is
+     * automatically allowed for this operation.
+     */
     public static final String OPEN_ACCESS_ACTION_LIST = "openAccessActionList";
 
     private List<String> accessRoleList;
@@ -252,6 +300,7 @@ public class SimpleAuthzRealm extends AbstractAuthorizingRealm
         }
         else if(permission instanceof ActionPermission && isPermitted((ActionPermission) permission, info))
         {
+            SecurityLogger.logInfo("Permission ["+ permission +"] implied");
             return true;
         }
         SecurityLogger.logInfo("Permission ["+ permission +"] not implied");
@@ -270,7 +319,7 @@ public class SimpleAuthzRealm extends AbstractAuthorizingRealm
                 {
                     if(action.indexOf(openAction) != -1)
                     {
-                        SecurityLogger.logInfo("Permission ["+ actionPermission +"] implied");
+                        SecurityLogger.logInfo("Action permission ["+ actionPermission +"] implied as an open action");
                         return true;
                     }
                 }
@@ -289,6 +338,7 @@ public class SimpleAuthzRealm extends AbstractAuthorizingRealm
                 }
             }
         }
+        SecurityLogger.logInfo("Action permission ["+ actionPermission +"] not implied");
         return false;
     }
 
@@ -339,14 +389,7 @@ public class SimpleAuthzRealm extends AbstractAuthorizingRealm
             }
         }
 
-        if (permissions.isEmpty())
-        {
-            return Collections.emptySet();
-        }
-        else
-        {
-            return Collections.unmodifiableSet(permissions);
-        }
+        return Collections.unmodifiableSet(permissions);
     }
 
     /**
@@ -395,53 +438,87 @@ public class SimpleAuthzRealm extends AbstractAuthorizingRealm
         return perms;
     }
 
+    /**
+     * Sets the list of roles that are allowed to execute privileged operations. Each string in the list
+     * defines a specific role that users may be assigned.
+     * @param accessRoleList  List of String values that correspond to roles that are allowed to execute
+     *                        privileged operations.
+     */
     public void setAccessRoleList(List<String> accessRoleList)
     {
+        this.accessRoleList = accessRoleList;
     }
 
+    /**
+     * Sets the list of SOAP actions that are open for users in any role to access.
+     * Each string is the action corresponding to the SOAP action presented in the SOAP request.
+     * If the specified string is contained in the SOAP action string, then access is
+     * automatically allowed for this operation.
+     * @param openAccessActionList  List of SOAP action strings that may be accessed by users in any role.
+     */
     public void setOpenAccessActionList(List<String> openAccessActionList)
     {
+        this.openAccessActionList = openAccessActionList;
     }
+
+    /**
+     * Sets the mappings used by the "match all" evaluation to determine if this user should be authorized
+     * to access requested data.
+     * <p>
+     * Each string is of the format: <code>metacardAttribute=userAttribute</code><br/>
+     * where <code>metacardAttribute</code> is the name of an attribute in the metacard and
+     * <code>userAttribute</code> is the name of the corresponding attribute in the user credentials.<br/>
+     * It is the values corresponding to each of these attributes that will be evaluated against each
+     * other when determining if authorization should be allowed.
+     * @param list  List of Strings that define mappings between metadata attributes and user attributes
+     */
     public void setMatchAllMappings(List<String> list)
     {
-    }
-    public void setMatchOneMappings(List<String> list)
-    {
-    }
-    public void updated(Map<String, Object> properties)
-    {
-        List<String> mapOneList;
-        List<String> mapAllList;
-        if (properties != null)
+        String[] values;
+        matchAllMap.clear();
+        if (list != null)
         {
-            accessRoleList = (List<String>) properties.get(ACCESS_ROLE_LIST);
-            openAccessActionList = (List<String>) properties.get(OPEN_ACCESS_ACTION_LIST);
-
-            mapOneList = (List<String>) properties.get(MATCH_ONE_MAPPINGS);
-            mapAllList = (List<String>) properties.get(MATCH_ALL_MAPPINGS);
-
-            String[] values;
-            if (mapOneList != null)
+            for (String mapping : list)
             {
-                for (String mapping : mapOneList)
+                values = mapping.split("=");
+                if (values.length == 2)
                 {
-                    values = mapping.split("=");
-                    if (values.length == 2)
-                    {
-                        matchOneMap.put(values[1].trim(), values[0].trim());
-                    }
+                    LOGGER.debug("Adding mapping: {} = {} to matchAllMap.", values[1].trim(), values[0].trim());
+                    matchAllMap.put(values[1].trim(), values[0].trim());
+                } else
+                {
+                    LOGGER.warn("Match all mapping ignored: {} doesn't match expected format of metacardAttribute=userAttribute", mapping);
                 }
             }
-
-            if (mapAllList != null)
+        }
+    }
+    /**
+     * Sets the mappings used by the "match one" evaluation to determine if this user should be authorized
+     * to access requested data.
+     * <p>
+     * Each string is of the format: <code>metacardAttribute=userAttribute</code><br/>
+     * where <code>metacardAttribute</code> is the name of an attribute in the metacard and
+     * <code>userAttribute</code> is the name of the corresponding attribute in the user credentials.<br/>
+     * It is the values corresponding to each of these attributes that will be evaluated against each
+     * other when determining if authorization should be allowed.
+     * @param list  List of Strings that define mappings between metadata attributes and user attributes
+     */
+    public void setMatchOneMappings(List<String> list)
+    {
+        String[] values;
+        matchOneMap.clear();
+        if (list != null)
+        {
+            for (String mapping : list)
             {
-                for (String mapping : mapAllList)
+                values = mapping.split("=");
+                if (values.length == 2)
                 {
-                    values = mapping.split("=");
-                    if (values.length == 2)
-                    {
-                        matchAllMap.put(values[1].trim(), values[0].trim());
-                    }
+                    LOGGER.debug("Adding mapping: {} = {} to matchOneMap.", values[1].trim(), values[0].trim());
+                    matchOneMap.put(values[1].trim(), values[0].trim());
+                } else
+                {
+                    LOGGER.warn("Match one mapping ignored: {} doesn't match expected format of metacardAttribute=userAttribute", mapping);
                 }
             }
         }

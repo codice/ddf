@@ -28,8 +28,8 @@ public interface SecurityManager
      * contains a security assertion which can be used to obtain information
      * about the current credentials.
      * 
-     * @param An object containing information about the user that can be used to populate the subject.
-     * @return
+     * @param token  An object containing information about the user that can be used to populate the subject.
+     * @return  the Subject corresponding to the provided security token
      * @throws SecurityServiceException if an error occurs during the
      *             authentication process
      */

@@ -13,7 +13,17 @@ package ddf.security;
 
 public final class SecurityConstants
 {
+    /**
+     * String used to retrieve the security logger in each class that wishes to log to the security log.
+     * Guarantees that all classes use the same security logger.
+     */
     public static final String SECURITY_LOGGER = "securityLogger";
+
+    /**
+     * Property name for the security subject. The subject is added to incoming requests under this property
+     * name. The security framework retrieves the subject using this property name in order to perform any
+     * security operations involving the subject of the request.
+     */
     public static final String SECURITY_SUBJECT = "ddf.security.subject";
     
     private SecurityConstants()
