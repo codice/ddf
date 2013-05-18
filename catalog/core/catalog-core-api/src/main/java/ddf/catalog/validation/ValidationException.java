@@ -46,15 +46,15 @@ public abstract class ValidationException extends Exception {
     }
 
     /**
-     * @return a list of all error messages that has caused validation to fail.
+     * @return a list of all error messages that have caused validation to fail.
      *         The error message should be human-readable plain text.
      */
     public abstract List<String> getErrors();
 
     /**
-     * @return a list of warning messages of possible issues that arose during
-     *         validation that did not cause validation to fail. The warning
-     *         message should be human-readable plain text.
+     * @return a list of warning messages. Warning messages are issues that
+     *         arose during validation but did not cause validation to fail. A
+     *         warning message should be human-readable plain text.
      */
     public abstract List<String> getWarnings();
 }
