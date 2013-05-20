@@ -20,7 +20,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.apache.tika.io.IOUtils;
+import org.apache.commons.io.IOUtils;
 import org.osgi.framework.BundleContext;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
