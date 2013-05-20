@@ -105,9 +105,6 @@ public final class OpenSearchSource implements FederatedSource
     // expensive creation, meant to be done once
     private static final Abdera ABDERA = new Abdera();
 
-    //not thread safe, do not make static
-    private final DateFormat dateFormat = new SimpleDateFormat("E M dd hh:mm:ss zzz yyyy");
-
     /**
      * Creates an OpenSearch Site instance. Sets an initial default
      * endpointUrl that can be overwritten using the setter methods.
