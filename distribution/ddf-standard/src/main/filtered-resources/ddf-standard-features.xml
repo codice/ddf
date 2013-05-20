@@ -48,6 +48,7 @@
 		<feature>catalog-core-standardframework</feature>
         <feature>catalog-core-metricsplugin</feature>
 		<feature>catalog-opensearch-endpoint</feature>
+        <feature>catalog-opensearch-source</feature>
 		<feature>catalog-rest-endpoint</feature>
 		<feature>action-core-impl</feature>
 		<feature>mime-core</feature>
