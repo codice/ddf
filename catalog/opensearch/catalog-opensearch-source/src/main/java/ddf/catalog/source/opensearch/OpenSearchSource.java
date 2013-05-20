@@ -380,12 +380,6 @@ public final class OpenSearchSource implements FederatedSource
                 }
             }
 
-//            SpatialFilter spatialFilter = visitor.getPolygonSpatialFilter();
-//            if ( spatialFilter != null)
-//            {
-//                url = OpenSearchSiteUtil.populateGeospatial( url, spatialFilter, shouldConvertToBBox );
-//            }
-
             url = blankOutQuery( url );
 
             urlStr = url.toString();
