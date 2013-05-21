@@ -12,18 +12,17 @@
 
 package ddf.catalog.pubsub.predicate;
 
-import java.util.Date;
-import java.util.Map;
-
-import org.apache.log4j.Logger;
-import org.osgi.service.event.Event;
-
 import ddf.catalog.data.Metacard;
 import ddf.catalog.pubsub.EventProcessorImpl.DateType;
 import ddf.catalog.pubsub.criteria.temporal.TemporalEvaluationCriteria;
 import ddf.catalog.pubsub.criteria.temporal.TemporalEvaluationCriteriaImpl;
 import ddf.catalog.pubsub.criteria.temporal.TemporalEvaluator;
 import ddf.catalog.pubsub.internal.PubSubConstants;
+import org.apache.log4j.Logger;
+import org.osgi.service.event.Event;
+
+import java.util.Date;
+import java.util.Map;
 
 
 public class TemporalPredicate implements Predicate 
@@ -72,16 +71,19 @@ public class TemporalPredicate implements Predicate
         Map<String, Object> contextualMap = (Map<String, Object>) properties.getProperty( PubSubConstants.HEADER_CONTEXTUAL_KEY );
         String operation = (String) properties.getProperty( PubSubConstants.HEADER_OPERATION_KEY );
         logger.debug( "operation = " + operation );
-        String metadata = (String) contextualMap.get( "METADATA" );
-        logger.debug( "metadata = [" + metadata + "]" );
-
-        // If deleting a catalog entry and the entry's location data is NULL is only the word "deleted" (i.e., the
-        // source is deleting the catalog entry and did not send any location data with the delete event), then
-        // cannot apply any geospatial filtering - just send the event on to the subscriber
-        if ( operation.equals( PubSubConstants.DELETE ) && metadata.equals( PubSubConstants.METADATA_DELETED ) )
+        if(contextualMap != null)
         {
-            logger.debug( "Detected a DELETE operation where metadata is just the word 'deleted', so send event on to subscriber" );
-            return true;
+            String metadata = (String) contextualMap.get( "METADATA" );
+            logger.debug( "metadata = [" + metadata + "]" );
+
+            // If deleting a catalog entry and the entry's location data is NULL is only the word "deleted" (i.e., the
+            // source is deleting the catalog entry and did not send any location data with the delete event), then
+            // cannot apply any geospatial filtering - just send the event on to the subscriber
+            if ( PubSubConstants.DELETE.equals( operation ) && PubSubConstants.METADATA_DELETED.equals( metadata ) )
+            {
+                logger.debug( "Detected a DELETE operation where metadata is just the word 'deleted', so send event on to subscriber" );
+                return true;
+            }
         }
 
 		Metacard entry = (Metacard) properties.getProperty( PubSubConstants.HEADER_ENTRY_KEY );

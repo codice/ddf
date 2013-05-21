@@ -12,23 +12,6 @@
 
 package ddf.catalog.pubsub;
 
-import java.net.URI;
-import java.util.Dictionary;
-import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-
-import org.apache.log4j.Logger;
-import org.apache.lucene.store.Directory;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceRegistration;
-import org.osgi.service.event.Event;
-import org.osgi.service.event.EventAdmin;
-import org.osgi.service.event.EventConstants;
-import org.osgi.service.event.EventHandler;
-
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.event.EventProcessor;
@@ -49,6 +32,22 @@ import ddf.catalog.pubsub.internal.PubSubConstants;
 import ddf.catalog.pubsub.internal.PubSubThread;
 import ddf.catalog.pubsub.internal.SubscriptionFilterVisitor;
 import ddf.catalog.pubsub.predicate.Predicate;
+import org.apache.log4j.Logger;
+import org.apache.lucene.store.Directory;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceRegistration;
+import org.osgi.service.event.Event;
+import org.osgi.service.event.EventAdmin;
+import org.osgi.service.event.EventConstants;
+import org.osgi.service.event.EventHandler;
+
+import java.net.URI;
+import java.util.Dictionary;
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 
 
@@ -381,13 +380,14 @@ public class EventProcessorImpl implements EventProcessor, EventHandler, PostIng
 	            {
 	                logger.error(e);
 	            }
-	            if(eventAdmin != null)
-	            {
-	              eventAdmin.postEvent(new Event(PubSubConstants.PUBLISHED_EVENT_TOPIC_NAME, properties));
-	            } else {
-	            	logger.warn("Unable to post event since eventAdmin is null.");
-	            }
 	        }
+
+            if(eventAdmin != null)
+            {
+                eventAdmin.postEvent(new Event(PubSubConstants.PUBLISHED_EVENT_TOPIC_NAME, properties));
+            } else {
+                logger.warn("Unable to post event since eventAdmin is null.");
+            }
         } else {
         	logger.warn("Unable to post null metacard.");
         }
