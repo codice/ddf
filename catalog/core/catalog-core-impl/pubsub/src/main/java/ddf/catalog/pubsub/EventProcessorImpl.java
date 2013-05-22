@@ -312,9 +312,6 @@ public class EventProcessorImpl implements EventProcessor, EventHandler, PostIng
 	        // TODO: probably don't need to pass this through since they can get the metacard
 	        properties.put(PubSubConstants.HEADER_ID_KEY, metacard.getId());
 	
-	        // ENTRY DAD INFORMATION
-	        // TODO:change to match new API (metacard.getProductUri())
-	
 	        try
 	        {
 	            URI uri = metacard.getResourceURI();
