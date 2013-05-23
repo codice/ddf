@@ -25,6 +25,7 @@ import java.util.Map;
 
 import javax.activation.MimeType;
 import javax.activation.MimeTypeParseException;
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -66,12 +67,21 @@ import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.InputTransformer;
 import ddf.mime.MimeTypeToTransformerMapper;
+import ddf.security.SecurityConstants;
+import ddf.security.Subject;
+import ddf.security.service.SecurityManager;
+import ddf.security.service.SecurityServiceException;
+import ddf.security.service.TokenRequestHandler;
 
 @Path("/")
 public class RESTEndpoint {
 
 	private static final String DEFAULT_METACARD_TRANSFORMER = "xml";
 	private static final Logger LOGGER = Logger.getLogger(RESTEndpoint.class);
+    
+	private SecurityManager securityManager;
+    
+    private List<TokenRequestHandler> requestHandlerList;
 
 	private FilterBuilder filterBuilder;
 	private CatalogFramework catalogFramework;
@@ -97,9 +107,9 @@ public class RESTEndpoint {
 	@GET
 	@Path("/{id:.*}")
 	public Response getDocument(@PathParam("id") String id,	@QueryParam("transform") String transformerParam,
-			@Context UriInfo uriInfo) {
+			@Context UriInfo uriInfo, @Context HttpServletRequest httpRequest) {
 		
-		return getDocument(null, id, transformerParam, uriInfo);
+		return getDocument(null, id, transformerParam, uriInfo, httpRequest);
 	}
 	
 
@@ -119,12 +129,13 @@ public class RESTEndpoint {
 	public Response getDocument(@PathParam("sourceid") String sourceid,
 			@PathParam("id") String id,
 			@QueryParam("transform") String transformerParam,
-			@Context UriInfo uriInfo) {
+			@Context UriInfo uriInfo, @Context HttpServletRequest httpRequest) {
 	
 		BinaryContent content;
 		Response response;
 		QueryResponse queryResponse;
 		Metacard card = null;
+		Subject subject;
 
 		LOGGER.debug("GET");
 		URI absolutePath = uriInfo.getAbsolutePath();
@@ -136,6 +147,12 @@ public class RESTEndpoint {
 				LOGGER.debug("Got service: " + transformerParam);
 				LOGGER.debug("Map of query parameters: \n" + map.toString());
 			}
+			
+			subject = getSubject(httpRequest);
+	        if (subject == null)
+	        {
+	            LOGGER.info("Could not set security attributes for user, performing query with no permissions set.");
+	        }
 
 			Map<String, Serializable> convertedMap = convert(map);
 			convertedMap.put("url", absolutePath.toString());
@@ -159,6 +176,12 @@ public class RESTEndpoint {
 
 				QueryRequestImpl request = new QueryRequestImpl(new QueryImpl(filter), sources);
 				request.setProperties(convertedMap);
+                if(subject != null)
+                {
+                    LOGGER.debug("Adding " + SecurityConstants.SECURITY_SUBJECT + " property with value " + subject
+                        + " to request.");
+                    request.getProperties().put(SecurityConstants.SECURITY_SUBJECT, subject);
+                }
 				queryResponse = catalogFramework.query(request, null);
 				
 				// pull the metacard out of the blocking queue
@@ -431,6 +454,39 @@ public class RESTEndpoint {
 
 		return mimeType;
 	}
+	
+    private Subject getSubject(HttpServletRequest request)
+    {
+        Subject subject = null;
+        if(request != null)
+        {
+            for(TokenRequestHandler curHandler : requestHandlerList)
+            {
+                try
+                {
+                    subject = securityManager.getSubject(curHandler.createToken(request));
+                    LOGGER.debug("Able to get populated subject from incoming request.");
+                    break;
+                } 
+                catch (SecurityServiceException sse)
+                {
+                    LOGGER.warn("Could not create subject from request handler, trying other handlers if available." );
+                }
+            }
+        }
+        return subject;
+    }
+	
+    public void setSecurityManager( SecurityManager securityManager )
+    {
+        LOGGER.debug("Got a security manager");
+        this.securityManager = securityManager;
+    }
+    
+    public void setRequestHandlers (List<TokenRequestHandler> requestHandlerList)
+    {
+        this.requestHandlerList = requestHandlerList;
+    }
 
 	public MimeTypeToTransformerMapper getMimeTypeToTransformerMapper() {
 		return mimeTypeToTransformerMapper;

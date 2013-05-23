@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.QueryParam;
@@ -50,9 +51,18 @@ import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.util.DdfConfigurationManager;
 import ddf.catalog.util.DdfConfigurationWatcher;
+import ddf.security.SecurityConstants;
+import ddf.security.Subject;
+import ddf.security.service.SecurityManager;
+import ddf.security.service.SecurityServiceException;
+import ddf.security.service.TokenRequestHandler;
 
 @Path("/")
 public class OpenSearchEndpoint implements DdfConfigurationWatcher {
+    
+    private SecurityManager securityManager;
+    
+    private List<TokenRequestHandler> requestHandlerList;
 
     private static final String UPDATE_QUERY_INTERVAL = "interval";
 
@@ -213,13 +223,20 @@ public class OpenSearchEndpoint implements DdfConfigurationWatcher {
             @QueryParam(DATE_OFFSET) String dateOffset,
             @QueryParam(SORT) String sort, @QueryParam(FORMAT) String format,
             @QueryParam(SELECTOR) String selector, @Context UriInfo ui,
-            @QueryParam(TYPE) String type, @QueryParam(VERSION) String versions) {
+            @QueryParam(TYPE) String type, @QueryParam(VERSION) String versions,
+            @Context HttpServletRequest request) {
         final String methodName = "processQuery";
         LOGGER.entry(methodName);
         Response response;
         String localCount = count;
-
+        Subject subject;
         LOGGER.debug("request url: " + ui.getRequestUri());
+        
+        subject = getSubject(request);
+        if (subject == null)
+        {
+            LOGGER.info("Could not set security attributes for user, performing query with no permissions set.");
+        }
 
         // DDF-1904: honor maxResults if count is not specified
         if ((StringUtils.isEmpty(localCount))
@@ -288,7 +305,7 @@ public class OpenSearchEndpoint implements DdfConfigurationWatcher {
                 query.addTypeFilter(type, versions);
             }
 
-            response = executeQuery(queryFormat, query, ui);
+            response = executeQuery(queryFormat, query, ui, subject);
         } catch (IllegalArgumentException iae) {
             LOGGER.warn("Bad input found while executing a query", iae);
             response = Response.status(Response.Status.BAD_REQUEST)
@@ -345,8 +362,41 @@ public class OpenSearchEndpoint implements DdfConfigurationWatcher {
             }
         }
     }
+    
+    private Subject getSubject(HttpServletRequest request)
+    {
+        Subject subject = null;
+        if(request != null)
+        {
+            for(TokenRequestHandler curHandler : requestHandlerList)
+            {
+                try
+                {
+                    subject = securityManager.getSubject(curHandler.createToken(request));
+                    LOGGER.debug("Able to get populated subject from incoming request.");
+                    break;
+                } 
+                catch (SecurityServiceException sse)
+                {
+                    LOGGER.warn("Could not create subject from request handler, trying other handlers if available." );
+                }
+            }
+        }
+        return subject;
+    }
+    
+    public void setSecurityManager( SecurityManager securityManager )
+    {
+        LOGGER.debug("Got a security manager");
+        this.securityManager = securityManager;
+    }
+    
+    public void setRequestHandlers (List<TokenRequestHandler> requestHandlerList)
+    {
+        this.requestHandlerList = requestHandlerList;
+    }
 
-    /*
+    /**
      * Executes the OpenSearchQuery and formulates the response
      * 
      * @param format - of the results in the response
@@ -358,7 +408,7 @@ public class OpenSearchEndpoint implements DdfConfigurationWatcher {
      * @return the response on the query
      */
     private Response executeQuery(String format, OpenSearchQuery query,
-            UriInfo ui) {
+            UriInfo ui, Subject subject) {
         Response response;
         String queryFormat = format;
 
@@ -399,6 +449,13 @@ public class OpenSearchEndpoint implements DdfConfigurationWatcher {
                 QueryRequest queryRequest = new QueryRequestImpl(query,
                         query.isEnterprise(), query.getSiteIds(), null);
                 QueryResponse queryResponse;
+                
+                if(subject != null)
+                {
+                    LOGGER.debug("Adding " + SecurityConstants.SECURITY_SUBJECT + " property with value " + subject
+                        + " to request.");
+                    queryRequest.getProperties().put(SecurityConstants.SECURITY_SUBJECT, subject);
+                }
 
                 LOGGER.debug("Sending query");
                 queryResponse = framework.query(queryRequest);
