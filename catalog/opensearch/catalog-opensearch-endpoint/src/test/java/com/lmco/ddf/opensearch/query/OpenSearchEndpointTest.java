@@ -148,7 +148,7 @@ public class OpenSearchEndpointTest {
 
         // ***Test Execution***
         osEndPoint.processQuery(searchTerms, null, sources, null, null, count, null, null, null, null,
-                null, null, null, null, null, null, null, null, mockUriInfo, null, null);
+                null, null, null, null, null, null, null, null, mockUriInfo, null, null, null);
         
     }
 

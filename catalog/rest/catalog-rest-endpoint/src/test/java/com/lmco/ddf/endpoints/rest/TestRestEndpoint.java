@@ -533,12 +533,12 @@ public class TestRestEndpoint {
 		if(local)
 		{
 			uriInfo = createSpecificUriInfo(LOCAL_RETRIEVE_ADDRESS);
-			response = restEndpoint.getDocument(GET_ID, null, uriInfo);
+			response = restEndpoint.getDocument(GET_ID, null, uriInfo, null);
 		}
 		else
 		{
 			uriInfo = createSpecificUriInfo(FED_RETRIEVE_ADDRESS);
-			response = restEndpoint.getDocument(GET_SITENAME, GET_ID, null, uriInfo);
+			response = restEndpoint.getDocument(GET_SITENAME, GET_ID, null, uriInfo, null);
 		}
 
 		return response;

@@ -22,6 +22,10 @@
   <feature name="security-cas-tokenvalidator" version="${project.version}" description="DDF Security CAS Validator for the STS.">
     <bundle>mvn:ddf.security.cas/security-cas-tokenvalidator/${project.version}</bundle>
   </feature>
+  
+  <feature name="security-cas-cxfservletfilter" version="${project.version}" description="DDF Security CAS Servlet Filter for CXF.">
+    <bundle>mvn:ddf.security.cas/security-cas-cxfservletfilter/${project.version}</bundle>
+  </feature>
 
 </features>
 	

@@ -12,77 +12,93 @@
  *
  **/
  -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<modelVersion>4.0.0</modelVersion>
-	
-    <parent>
-        <artifactId>catalog-opensearch-pom</artifactId>
-        <groupId>ddf.catalog.opensearch</groupId>
-        <version>2.2.0.RC2-SNAPSHOT</version>
-    </parent>
-	
-	<artifactId>catalog-opensearch-endpoint</artifactId>
-	<name>DDF :: Catalog :: OpenSearch :: Endpoint</name>
-	<packaging>bundle</packaging>
-	<dependencies>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
 
-		<dependency>
-			<groupId>javax.ws.rs</groupId>
-			<artifactId>javax.ws.rs-api</artifactId>
-		</dependency>
+  <parent>
+    <artifactId>catalog-opensearch-pom</artifactId>
+    <groupId>ddf.catalog.opensearch</groupId>
+    <version>2.2.0.RC2-SNAPSHOT</version>
+  </parent>
 
-		<dependency>
-			<groupId>ddf.catalog.core</groupId>
-			<artifactId>catalog-core-api</artifactId>
-		</dependency>
+  <artifactId>catalog-opensearch-endpoint</artifactId>
+  <name>DDF :: Catalog :: OpenSearch :: Endpoint</name>
+  <packaging>bundle</packaging>
 
-		<dependency>
-            <groupId>ddf.catalog.core</groupId>
-            <artifactId>catalog-core-commons</artifactId>
-		</dependency>
+  <properties>
+    <web.contextPath>opensearch</web.contextPath>
+  </properties>
 
-		<dependency>
-			<groupId>joda-time</groupId>
-			<artifactId>joda-time</artifactId>
-		</dependency>
+  <dependencies>
 
-		<dependency>
-			<groupId>org.osgi</groupId>
-			<artifactId>org.osgi.core</artifactId>
-		</dependency>
+    <dependency>
+      <groupId>javax.ws.rs</groupId>
+      <artifactId>javax.ws.rs-api</artifactId>
+    </dependency>
 
-		<dependency>
-			<groupId>log4j</groupId>
-			<artifactId>log4j</artifactId>
-		</dependency>
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>servlet-api</artifactId>
+    </dependency>
 
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-ext</artifactId>
-		</dependency>
+    <dependency>
+      <groupId>ddf.security.core</groupId>
+      <artifactId>security-core-api</artifactId>
+    </dependency>
 
-		<dependency>
-			<groupId>ch.qos.logback</groupId>
-			<artifactId>logback-classic</artifactId>
-			<version>0.9.24</version>
-		</dependency>
+    <dependency>
+      <groupId>ddf.catalog.core</groupId>
+      <artifactId>catalog-core-api</artifactId>
+    </dependency>
 
-		<dependency>
-			<groupId>org.geotools</groupId>
-			<artifactId>gt-jts-wrapper</artifactId>
-		</dependency>
+    <dependency>
+      <groupId>ddf.catalog.core</groupId>
+      <artifactId>catalog-core-commons</artifactId>
+    </dependency>
 
-        <dependency>
-            <groupId>org.parboiled</groupId>
-            <artifactId>parboiled-java</artifactId>
-            <version>1.1.3</version>
-        </dependency>
+    <dependency>
+      <groupId>joda-time</groupId>
+      <artifactId>joda-time</artifactId>
+    </dependency>
 
-        <dependency>
-            <groupId>ddf.catalog.core</groupId>
-            <artifactId>filter-proxy</artifactId>
-            <scope>test</scope>
-        </dependency>
+    <dependency>
+      <groupId>org.osgi</groupId>
+      <artifactId>org.osgi.core</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>log4j</groupId>
+      <artifactId>log4j</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-ext</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>ch.qos.logback</groupId>
+      <artifactId>logback-classic</artifactId>
+      <version>0.9.24</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.geotools</groupId>
+      <artifactId>gt-jts-wrapper</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.parboiled</groupId>
+      <artifactId>parboiled-java</artifactId>
+      <version>1.1.3</version>
+    </dependency>
+
+    <dependency>
+      <groupId>ddf.catalog.core</groupId>
+      <artifactId>filter-proxy</artifactId>
+      <scope>test</scope>
+    </dependency>
         
         <!-- Wanted to use this in JUnit tests to be able to get SQL representation
             of an OGC filter, but it caused class loader problems.
@@ -90,72 +106,35 @@
             <dependency> <groupId>org.geotools</groupId> <artifactId>gt-jdbc</artifactId>
             </dependency>
         -->
-	</dependencies>
+  </dependencies>
 
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.apache.felix</groupId>
-				<artifactId>maven-bundle-plugin</artifactId>
-				<configuration>
-					<instructions>
-						<Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-						<Spring-Context>*;wait-for-dependencies:=true;timeout:=604800</Spring-Context>
-						<Import-Package>
-							ddf.catalog.federation,
-							ddf.catalog.operation,
-							ddf.catalog.transform,
-							ddf.catalog,
-							ddf.catalog.data,
-                            ddf.catalog.util,
-							ddf.catalog.source,
-                            ddf.catalog.filter,
-							ddf.catalog.impl.filter,
-							javax.security.auth,
-							org.geotools.filter,
-							org.geotools.styling,
-							org.geotools.temporal.object,
-							org.opengis.filter,
-							org.opengis.filter.expression,
-							org.opengis.filter.sort,
-							org.opengis.filter.spatial,
-							org.opengis.filter.temporal,
-							org.opengis.geometry,
-							org.opengis.temporal,
-							javax.wsdl,
-							javax.xml.bind,
-							javax.xml.bind.annotation,
-							javax.ws.rs,
-							META-INF.cxf,
-							META-INF.cxf.osgi,
-                            org.apache.commons.lang,
-							org.apache.cxf.bus,
-							org.apache.cxf.bus.spring,
-							org.apache.cxf.bus.resource,
-							org.apache.cxf.resource,
-							org.apache.cxf.configuration.spring,
-							org.apache.cxf.binding,
-							org.apache.cxf.jaxrs.utils,
-							org.apache.cxf.transport.http,
-							org.springframework.beans.factory.config,
-							org.slf4j,
-							org.slf4j.ext,
-							org.xml.sax.helpers,
-							*
-						</Import-Package>
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.felix</groupId>
+        <artifactId>maven-bundle-plugin</artifactId>
+        <configuration>
+          <instructions>
+            <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+            <Spring-Context>*;wait-for-dependencies:=true;timeout:=604800</Spring-Context>
+            <Import-Package>
+              META-INF.cxf,
+              META-INF.cxf.osgi,
+              *
+            </Import-Package>
                         <!-- Package uses conflict if we do not embed this -->
-                        <Private-Package>
-                            org.parboiled.*,
-                            org.objectweb.asm,
-                            org.objectweb.asm.signature,
-                            org.objectweb.asm.tree,
-                            org.objectweb.asm.tree.analysis,
-                            org.objectweb.asm.util
-                        </Private-Package>
-						<DynamicImport-Package>javax.ws.rs.*</DynamicImport-Package>
-					</instructions>
-				</configuration>
-			</plugin>
-		</plugins>
-	</build>
+            <Private-Package>
+              org.parboiled.*,
+              org.objectweb.asm,
+              org.objectweb.asm.signature,
+              org.objectweb.asm.tree,
+              org.objectweb.asm.tree.analysis,
+              org.objectweb.asm.util
+            </Private-Package>
+            <DynamicImport-Package>javax.ws.rs.*</DynamicImport-Package>
+          </instructions>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
 </project>
