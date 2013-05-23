@@ -30,6 +30,7 @@
     <module>security-cas-client</module>
     <module>security-cas-impl</module>
     <module>security-cas-tokenvalidator</module>
+    <module>security-cas-cxfservletfilter</module>
     <module>security-cas-app</module>
     <module>security-cas-server</module>
   </modules>
