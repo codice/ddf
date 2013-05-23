@@ -72,15 +72,17 @@ The distribution will be available under "distribution/ddf-standard/target" dire
 ## Additional information
 The [wiki](https://tools.codice.org/wiki/display/DDF) is the right place to find any documentation about DDF.
 
-Discussions can be found on the [forum](http://groups.google.com/group/ddf-codice).
+Discussions can be found on the [Annoucements forum](http://groups.google.com/group/ddf-announcements),  [Users forum](http://groups.google.com/group/ddf-users), and  [Developers forum](http://groups.google.com/group/ddf-developers).
 
 For a DDF binary distribution, please read  the release notes on the wiki for a list of supported and unsupported features.
 
 If you find any issues with DDF, please submit reports with [JIRA](https://tools.codice.org/jira/browse/DDF).
 
-Many thanks for using DDF.
-
 For information on contributing to DDF see [Contributing to Codice](http://www.codice.org/contributing).
+
+The DDF Website also contains additional information at [http://ddf.codice.org](http://ddf.codice.org).
+
+Many thanks for using DDF.
 
 -- The Codice DDF Development Team
 
