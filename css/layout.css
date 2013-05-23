@@ -1,0 +1,18 @@
+.col1, .col2, .col3, .cols {float:left}
+.col1 {padding-left:50px;width:279px}
+.col2 {padding-left:50px;width:553px}
+.col_1 {width:161px;padding-left:50px;float:left}
+.col_2 {width:131px;padding-left:50px;float:left}
+.cols {width:256px}
+/* index.html */
+#page1 header {height:544px;background:url(../images/header_bg.png) center 131px no-repeat}
+/* index-1.html */
+#page2 .col2 figure {float:left;width:53px}
+#page2 .col2 .left {width:195px}
+/* index-2.html */
+#page4 h2.pad_top1 {padding-top:0;margin-top:-10px}
+#page4 #content {padding-bottom:29px}
+/* index-3.html */
+/* index-4.html */
+/* index-5.html */
+/* index-6.html */
