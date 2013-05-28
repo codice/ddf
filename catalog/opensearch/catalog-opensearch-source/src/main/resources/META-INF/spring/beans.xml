@@ -31,6 +31,8 @@
     <osgi:reference id="xmlInputTransformer" interface="ddf.catalog.transform.InputTransformer"
                     filter ="(&amp;(mime-type=text/xml)(id=xml))"/>
 
+	<osgi:reference id="filterAdapter" interface="ddf.catalog.filter.FilterAdapter"/>                    
+
     <osgix:managed-service-factory id="CDDAfederationPrototypeServiceFactory"
     factory-pid="CDDAOpenSearchSource" update-strategy="container-managed">
 
@@ -55,6 +57,9 @@
       <beans:property name="trustStorePassword" value="password" />
       <beans:property name="keyStoreLocation" value="keyStore.jks" />
       <beans:property name="keyStorePassword" value="password" />
+      <beans:constructor-arg>
+      	<beans:bean id="cddaRemoteConnection" class="ddf.catalog.source.opensearch.SecureRemoteConnectionImpl"/>
+      </beans:constructor-arg>
     </beans:bean>
 
     </osgix:managed-service-factory>
@@ -84,6 +89,10 @@
             <beans:property name="keyStoreLocation" value="keyStore.jks" />
             <beans:property name="keyStorePassword" value="password" />
             <beans:property name="inputTransformer" ref="xmlInputTransformer" />
+            <beans:constructor-arg>
+      			<beans:bean id="remoteConnection" class="ddf.catalog.source.opensearch.SecureRemoteConnectionImpl"/>
+      		</beans:constructor-arg>
+		    <beans:constructor-arg ref="filterAdapter"/>
         </beans:bean>
 
     </osgix:managed-service-factory>

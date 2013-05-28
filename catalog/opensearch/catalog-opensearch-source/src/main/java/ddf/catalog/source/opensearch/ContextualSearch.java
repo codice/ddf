@@ -12,7 +12,7 @@
 package ddf.catalog.source.opensearch;
 
 
-public class ContextualFilter
+public class ContextualSearch
 {
     private String searchPhrase;
     
@@ -21,7 +21,7 @@ public class ContextualFilter
     private boolean isCaseSensitive;
     
     
-    public ContextualFilter( String selectors, String searchPhrase, boolean isCaseSensitive )
+    public ContextualSearch( String selectors, String searchPhrase, boolean isCaseSensitive )
     {
         this.selectors = selectors;
         this.searchPhrase = searchPhrase;

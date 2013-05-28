@@ -25,9 +25,9 @@
       default="http://localhost:8181/services/catalog/query?q={searchTerms}&amp;src={fs:routeTo?}&amp;mr={fs:maxResults?}&amp;count={count?}&amp;mt={fs:maxTimeout?}&amp;dn={idn:userDN?}&amp;lat={geo:lat?}&amp;lon={geo:lon?}&amp;radius={geo:radius?}&amp;bbox={geo:box?}&amp;polygon={geo:polygon?}&amp;dtstart={time:start?}&amp;dtend={time:end?}&amp;dateName={cat:dateName?}&amp;filter={fsa:filter?}&amp;sort={fsa:sort?}"
       description="The OpenSearch endpoint URL or DDF's OpenSearch endpoint (http://0.0.0.0:8181/services/catalog/query?q={searchTerms}...)" />
 
-    <AD name="Always perform local query." id="localQueryOnly" required="true"
-      type="Boolean" default="false"
-      description="Always performs a local query by setting src=local OpenSearch parameter in endpoint URL. This must be set if federating to another DDF." />
+    <AD name="Always perform local query" id="localQueryOnly" required="true"
+      type="Boolean" default="true"
+      description="When federating with other DDFs, keep this checked. If checked, this source performs a local query on the remote site (by setting src=local in endpoint URL), as opposed to an enterprise search." />
       
     <AD name="Convert to BBox" id="shouldConvertToBBox" required="true"
       type="Boolean" default="true"
