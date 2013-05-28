@@ -12,19 +12,29 @@
 package ddf.catalog.source.opensearch;
 
 
-import ddf.catalog.Constants;
-import ddf.catalog.data.*;
-import ddf.catalog.impl.filter.SpatialDistanceFilter;
-import ddf.catalog.impl.filter.SpatialFilter;
-import ddf.catalog.impl.filter.TemporalFilter;
-import ddf.catalog.operation.*;
-import ddf.catalog.resource.ResourceNotFoundException;
-import ddf.catalog.resource.ResourceNotSupportedException;
-import ddf.catalog.source.FederatedSource;
-import ddf.catalog.source.SourceMonitor;
-import ddf.catalog.source.UnsupportedQueryException;
-import ddf.catalog.transform.CatalogTransformerException;
-import ddf.catalog.transform.InputTransformer;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.Serializable;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.Dictionary;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.security.auth.Subject;
+import javax.xml.namespace.QName;
+import javax.xml.transform.TransformerException;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
+
 import org.apache.abdera.Abdera;
 import org.apache.abdera.model.Category;
 import org.apache.abdera.model.Entry;
@@ -41,21 +51,28 @@ import org.slf4j.ext.XLogger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
-import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLSocketFactory;
-import javax.security.auth.Subject;
-import javax.xml.namespace.QName;
-import javax.xml.transform.TransformerException;
-import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
-import java.io.*;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URL;
-import java.net.URLConnection;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.*;
+import ddf.catalog.Constants;
+import ddf.catalog.data.ContentType;
+import ddf.catalog.data.Metacard;
+import ddf.catalog.data.MetacardImpl;
+import ddf.catalog.data.Result;
+import ddf.catalog.data.ResultImpl;
+import ddf.catalog.filter.FilterAdapter;
+import ddf.catalog.impl.filter.SpatialDistanceFilter;
+import ddf.catalog.impl.filter.SpatialFilter;
+import ddf.catalog.impl.filter.TemporalFilter;
+import ddf.catalog.operation.Query;
+import ddf.catalog.operation.QueryRequest;
+import ddf.catalog.operation.ResourceResponse;
+import ddf.catalog.operation.SourceResponse;
+import ddf.catalog.operation.SourceResponseImpl;
+import ddf.catalog.resource.ResourceNotFoundException;
+import ddf.catalog.resource.ResourceNotSupportedException;
+import ddf.catalog.source.FederatedSource;
+import ddf.catalog.source.SourceMonitor;
+import ddf.catalog.source.UnsupportedQueryException;
+import ddf.catalog.transform.CatalogTransformerException;
+import ddf.catalog.transform.InputTransformer;
 
 
 /**
@@ -78,10 +95,6 @@ public final class OpenSearchSource implements FederatedSource
     private String endpointUrl;
     private String classification = "U";
     private String ownerProducer = "USA";
-    private String trustStore;
-    private String trustStorePass;
-    private String keyStore;
-    private String keyStorePass;
 
     private InputTransformer inputTransformer;
     private static final String ORGANIZATION = "DDF";
@@ -95,13 +108,14 @@ public final class OpenSearchSource implements FederatedSource
     private static final String URL_SRC_PARAMETER = "src=";
     private static final String LOCAL_SEARCH_PARAMETER = URL_SRC_PARAMETER + "local";
 
-    private SSLSocketFactory socketFactory;
-
     private static XLogger logger = new XLogger( LoggerFactory.getLogger( OpenSearchSource.class ) );
 
     private javax.xml.xpath.XPath xpath;
     private Configuration siteSecurityConfig;
-
+    private SecureRemoteConnection connection;
+    private FilterAdapter filterAdapter;
+    private boolean isRestSearch;
+    
     // expensive creation, meant to be done once
     private static final Abdera ABDERA = new Abdera();
 
@@ -111,16 +125,17 @@ public final class OpenSearchSource implements FederatedSource
      *
      * @throws ddf.catalog.source.UnsupportedQueryException
      */
-    public OpenSearchSource() throws UnsupportedQueryException
+    public OpenSearchSource(SecureRemoteConnection connection, FilterAdapter filterAdapter)
     {
         this.version = "1.0";
+        this.filterAdapter= filterAdapter;
+        this.connection = connection;
         endpointUrl = "https://example.com?q={searchTerms}&src={fs:routeTo?}&mr={fs:maxResults?}&count={count?}&mt={fs:maxTimeout?}&dn={idn:userDN?}&lat={geo:lat?}&lon={geo:lon?}&radius={geo:radius?}&bbox={geo:box?}&polygon={geo:polygon?}&dtstart={time:start?}&dtend={time:end?}&dateName={cat:dateName?}&filter={fsa:filter?}&sort={fsa:sort?}";
         lastAvailableDate = null;
 
         XPathFactory xpFactory = XPathFactory.newInstance();
         xpath = xpFactory.newXPath();
     }
-
 
     /**
      * Called when this OpenSearch Source is created, but after all of the
@@ -129,23 +144,14 @@ public final class OpenSearchSource implements FederatedSource
      */
     public void init()
     {
-        String methodName = "init";
-        logger.debug( "ENTERING: " + methodName );
-
         isInitialized = true;
         configureEndpointUrl();
-
-        logger.debug( "EXITING: " + methodName );
     }
 
 
     public void destroy()
     {
-        String methodName = "destroy";
-        logger.debug( "ENTERING: " + methodName );
-
-
-        logger.debug( "EXITING: " + methodName );
+        logger.info( "Nothing to destroy.");
     }
 
     /**
@@ -245,7 +251,15 @@ public final class OpenSearchSource implements FederatedSource
                     logger.debug( "Calling URL with test query to check availability: " + url.toString() );
                 }
                 // call service
-                is = retrieveResponseFromConnection( url.toString() );
+                try {
+                    is = connection.getData( url.toString() );
+                } catch (MalformedURLException e) {
+                    logger.info("Could not retrieve data." , e);
+                    return false;
+                } catch (IOException e) {
+                    logger.info("Could not retrieve data." , e);
+                    return false;
+                }
                 // check for ANY response
                 Document availableDoc = OpenSearchSiteUtil.convertStreamToDocument( is );
                 String allContent = evaluate( "/atom:feed", availableDoc );
@@ -310,8 +324,18 @@ public final class OpenSearchSource implements FederatedSource
         // If the url is non-null, then it is valid and can be used to search the site.
         if ( url != null )
         {
-            InputStream is = retrieveResponseFromConnection( url );
+            InputStream is;
+            try {
+                is = connection.getData(url);
+            } catch (MalformedURLException e) {
+               throw new UnsupportedQueryException("Could not complete query.", e);
+            } catch (IOException e) {
+               throw new UnsupportedQueryException("Could not complete query.", e);
+            }
             response = processResponse( is, queryRequest );
+        }
+        else {
+            logger.debug("URL created was null.");
         }
 
         logger.exit( methodName );
@@ -322,7 +346,7 @@ public final class OpenSearchSource implements FederatedSource
 
 
     // Refactored from query() and made protected so JUnit tests could be written for this logic
-    protected String createUrl( Query query, Subject user ) throws UnsupportedQueryException
+    protected String createUrl( Query query, Subject user )
     {
         if (logger.isDebugEnabled())
         {
@@ -343,7 +367,7 @@ public final class OpenSearchSource implements FederatedSource
 
         String urlStr = null;
 
-        ContextualFilter contextualFilter = visitor.getContextualFilter();
+        ContextualSearch contextualFilter = visitor.getContextualSearch();
 
         // All queries must have at least a search phrase to be valid, hence this check
         // for a contextual filter with a non-empty search phrase
@@ -353,7 +377,7 @@ public final class OpenSearchSource implements FederatedSource
             url = OpenSearchSiteUtil.populateSearchOptions( url, query, user );
             url = OpenSearchSiteUtil.populateContextual( url, contextualFilter.getSearchPhrase() );
 
-            TemporalFilter temporalFilter = visitor.getTemporalFilter();
+            TemporalFilter temporalFilter = visitor.getTemporalSearch();
             if ( temporalFilter != null)
             {
                 if (logger.isDebugEnabled())
@@ -364,16 +388,24 @@ public final class OpenSearchSource implements FederatedSource
                 url = OpenSearchSiteUtil.populateTemporal( url, temporalFilter );
             }
 
-            SpatialFilter spatialFilter = visitor.getSpatialFilter();
+            SpatialFilter spatialFilter = visitor.getSpatialSearch();
             if ( spatialFilter != null )
             {
                 if ( spatialFilter instanceof SpatialDistanceFilter )
                 {
-                    url = OpenSearchSiteUtil.populateGeospatial( url, (SpatialDistanceFilter) spatialFilter, shouldConvertToBBox );
+                    try {
+                        url = OpenSearchSiteUtil.populateGeospatial( url, (SpatialDistanceFilter) spatialFilter, shouldConvertToBBox );
+                    } catch (UnsupportedQueryException e) {
+                        logger.info("Problem with populating geospatial criteria. ", e);
+                    }
                 }
                 else
                 {
-                    url = OpenSearchSiteUtil.populateGeospatial( url, spatialFilter, shouldConvertToBBox );
+                    try {
+                        url = OpenSearchSiteUtil.populateGeospatial( url, spatialFilter, shouldConvertToBBox );
+                    } catch (UnsupportedQueryException e) {
+                        logger.info("Problem with populating geospatial criteria. ", e);
+                    }
                 }
             }
 
@@ -383,6 +415,33 @@ public final class OpenSearchSource implements FederatedSource
         }
 
         logger.debug( "Populated URL being called: " + urlStr );
+        
+        // if it cannot be done by OpenSearch, possibly by REST
+        if(urlStr == null) {
+            
+            RestFilterDelegate delegate = null;
+            
+            try {
+                delegate = new RestFilterDelegate(RestUrl.newInstance(endpointUrl));
+            } catch (MalformedURLException e) {
+                logger.info("Bad Url.", e);
+            } catch (URISyntaxException e) {
+                logger.info("Bad URI.", e);
+            }
+            
+            if(delegate != null) {
+                
+                try {
+                    filterAdapter.adapt(query, delegate);
+                    this.isRestSearch = true;
+                    urlStr = delegate.getRestUrl().buildUrl();
+                } catch (UnsupportedQueryException e) {
+                    logger.debug("Not a REST request.", e);
+                }
+                
+            }
+            
+        }
 
         return urlStr;
     }
@@ -411,39 +470,6 @@ public final class OpenSearchSource implements FederatedSource
         return url;
     }
 
-
-    /**
-     * Calls URL and sends back response as inputstream.
-     *
-     * @param urlStr - URL-encoded string that connection will be opened to
-     * @return response as InputStream
-     * @throws ddf.catalog.source.UnsupportedQueryException
-     */
-    private InputStream retrieveResponseFromConnection( String urlStr ) throws UnsupportedQueryException
-    {
-        try
-        {
-            URL url = new URL( urlStr );
-            URLConnection conn = url.openConnection();
-            if ( conn instanceof HttpsURLConnection )
-            {
-                ( (HttpsURLConnection) conn ).setSSLSocketFactory( getSocketFactory() );
-            }
-            conn.connect();
-            return conn.getInputStream();
-        }
-        catch ( MalformedURLException mue )
-        {
-            throw new UnsupportedQueryException( "Badly formed URL used (" + urlStr + "), cannot perform query.", mue );
-        }
-        catch ( IOException ioe )
-        {
-            throw new UnsupportedQueryException( "Error while connecting to server: " + urlStr + ", cannot perform query.",
-                ioe );
-        }
-    }
-
-
     /**
      * @param is
      * @param queryRequest
@@ -454,6 +480,26 @@ public final class OpenSearchSource implements FederatedSource
     {
         List<Result> resultQueue = new ArrayList<Result>();
 
+        if (isRestSearch) {
+            Metacard metacard = null;
+            try {
+                metacard = inputTransformer.transform(is);
+            } catch (IOException e) {
+                logger.debug("Problem with transformation.", e);
+            } catch (CatalogTransformerException e) {
+                logger.debug("Problem with transformation.", e);
+            }
+            if (metacard != null) {
+                ResultImpl result = new ResultImpl(metacard);
+                resultQueue.add(result);
+                SourceResponseImpl response = new SourceResponseImpl(
+                        queryRequest, resultQueue);
+                response.setHits(resultQueue.size());
+                return response;
+            }
+
+        }
+        
         ClassLoader tccl = Thread.currentThread().getContextClassLoader();
         Parser parser = null;
         org.apache.abdera.model.Document<Feed> atomDoc;
@@ -666,24 +712,6 @@ public final class OpenSearchSource implements FederatedSource
 
 
     /**
-     * Makes sure a new SSLSocketFactory is only created if necessary. Checks to
-     * see if the current factory is null (which means either the stores were
-     * changed or a factory hasn't been made yet).
-     *
-     * @return current SSLSocketFactory
-     * @throws ddf.catalog.source.UnsupportedQueryException
-     */
-    private SSLSocketFactory getSocketFactory() throws UnsupportedQueryException
-    {
-        if ( socketFactory == null )
-        {
-            socketFactory = OpenSearchSiteUtil.createSocket( trustStore, trustStorePass, keyStore, keyStorePass );
-        }
-        return socketFactory;
-    }
-
-
-    /**
      * Set URL of the endpoint.
      * 
      * @param endpointUrl Full url of the endpoint.
@@ -808,8 +836,7 @@ public final class OpenSearchSource implements FederatedSource
      */
     public void setTrustStoreLocation( String trustStore )
     {
-        socketFactory = null;
-        this.trustStore = trustStore;
+        connection.setTrustStoreLocation(trustStore);
     }
 
 
@@ -820,7 +847,7 @@ public final class OpenSearchSource implements FederatedSource
      */
     public String getTrustStoreLocation()
     {
-        return trustStore;
+        return connection.getTrustStoreLocation();
     }
 
 
@@ -831,8 +858,7 @@ public final class OpenSearchSource implements FederatedSource
      */
     public void setKeyStoreLocation( String keyStore )
     {
-        socketFactory = null;
-        this.keyStore = keyStore;
+        connection.setKeyStoreLocation(keyStore);
     }
 
 
@@ -843,7 +869,7 @@ public final class OpenSearchSource implements FederatedSource
      */
     public String getKeyStoreLocation()
     {
-        return keyStore;
+        return connection.getKeyStoreLocation();
     }
 
 
@@ -854,8 +880,7 @@ public final class OpenSearchSource implements FederatedSource
      */
     public void setTrustStorePassword( String trustStorePass )
     {
-        socketFactory = null;
-        this.trustStorePass = trustStorePass;
+        connection.setTrustStorePassword(trustStorePass);
     }
 
 
@@ -866,7 +891,7 @@ public final class OpenSearchSource implements FederatedSource
      */
     public String getTrustStorePassword()
     {
-        return trustStorePass;
+        return connection.getTrustStorePassword();
     }
 
 
@@ -878,8 +903,7 @@ public final class OpenSearchSource implements FederatedSource
      */
     public void setKeyStorePassword( String keyStorePass )
     {
-        socketFactory = null;
-        this.keyStorePass = keyStorePass;
+        connection.setKeyStorePassword(keyStorePass);
     }
 
 
@@ -890,7 +914,7 @@ public final class OpenSearchSource implements FederatedSource
      */
     public String getKeyStorePassword()
     {
-        return keyStorePass;
+        return connection.getKeyStorePassword();
     }
 
 
@@ -1045,6 +1069,7 @@ public final class OpenSearchSource implements FederatedSource
                     else
                     {
                         endpointUrl += paramList[i];
+
                     }
                 }
             }
@@ -1059,5 +1084,4 @@ public final class OpenSearchSource implements FederatedSource
 	    
 	    logger.exit( methodName + ":   endpointUrl = " + endpointUrl );
 	}
-
 }

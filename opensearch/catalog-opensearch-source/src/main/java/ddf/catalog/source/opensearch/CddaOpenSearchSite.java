@@ -122,16 +122,20 @@ public final class CddaOpenSearchSite implements FederatedSource
         net.sf.saxon.TransformerFactoryImpl.class.getName(), getClass().getClassLoader() );
     private Configuration siteSecurityConfig;
 
+    private SecureRemoteConnection connection;
+
     
     /**
      * Creates an OpenSearch Site instance. Sets an initial default
      * endpointUrl that can be overwritten using the setter methods.
+     * @param connection TODO
      * 
      * @throws UnsupportedQueryException
      */
-    public CddaOpenSearchSite() throws UnsupportedQueryException
+    public CddaOpenSearchSite(SecureRemoteConnection connection) throws UnsupportedQueryException
     {
         this.version = "1.0";
+        this.connection = connection;
         endpointUrl = "https://example.com?q={searchTerms}&src={fs:routeTo?}&mr={fs:maxResults?}&count={count?}&mt={fs:maxTimeout?}&dn={idn:userDN?}&lat={geo:lat?}&lon={geo:lon?}&radius={geo:radius?}&bbox={geo:box?}&polygon={geo:polygon?}&dtstart={time:start?}&dtend={time:end?}&dateName={cat:dateName?}&filter={fsa:filter?}&sort={fsa:sort?}";
         lastAvailableDate = null;
         InputStream xsltStream = getClass().getResourceAsStream( "/" + NORMALIZE_XSLT );
@@ -276,7 +280,15 @@ public final class CddaOpenSearchSite implements FederatedSource
                     logger.debug( "Calling URL with test query to check availability: " + url.toString() );
                 }
                 // call service
-                is = retrieveResponseFromConnection( url.toString() );
+                try {
+                    is = connection.getData( url.toString() );
+                } catch (MalformedURLException e) {
+                    logger.info("Could not retrieve data." , e);
+                    return false;
+                } catch (IOException e) {
+                    logger.info("Could not retrieve data." , e);
+                    return false;
+                }
                 // check for ANY response
                 Document availableDoc = OpenSearchSiteUtil.convertStreamToDocument( is );
                 String allContent = evaluate( "/atom:feed", availableDoc );
@@ -292,12 +304,6 @@ public final class CddaOpenSearchSite implements FederatedSource
                     isAvailable = false;
                 }
 
-            }
-            catch (UnsupportedQueryException uqe)
-            {
-                logger.catching(uqe);
-                logger.warn("Calling site threw error, marking as NOT available.");
-                isAvailable = false;
             }
             catch (ConversionException ce)
             {
@@ -349,7 +355,14 @@ public final class CddaOpenSearchSite implements FederatedSource
         {
             try
             {
-                InputStream is = retrieveResponseFromConnection(url);
+                InputStream is = null;
+                try {
+                    is = connection.getData(url);
+                } catch (MalformedURLException e) {
+                   throw new UnsupportedQueryException("Could not complete query.", e);
+                } catch (IOException e) {
+                   throw new UnsupportedQueryException("Could not complete query.", e);
+                }
                 response = processResponse(is, queryRequest);
             }
             catch (ConversionException ce)
@@ -388,7 +401,7 @@ public final class CddaOpenSearchSite implements FederatedSource
         
         String urlStr = null;
                 
-        ContextualFilter contextualFilter = visitor.getContextualFilter();
+        ContextualSearch contextualFilter = visitor.getContextualSearch();
         
         // All queries must have at least a search phrase to be valid, hence this check
         // for a contextual filter with a non-empty search phrase
@@ -398,7 +411,7 @@ public final class CddaOpenSearchSite implements FederatedSource
             url = OpenSearchSiteUtil.populateSearchOptions( url, query, user );
             url = OpenSearchSiteUtil.populateContextual( url, contextualFilter.getSearchPhrase() );
         
-            TemporalFilter temporalFilter = visitor.getTemporalFilter();
+            TemporalFilter temporalFilter = visitor.getTemporalSearch();
             if ( temporalFilter != null)
             {
                 if (logger.isDebugEnabled())
@@ -409,7 +422,7 @@ public final class CddaOpenSearchSite implements FederatedSource
                 url = OpenSearchSiteUtil.populateTemporal( url, temporalFilter );
             }
             
-            SpatialFilter spatialFilter = visitor.getSpatialFilter();
+            SpatialFilter spatialFilter = visitor.getSpatialSearch();
             if ( spatialFilter != null )
             {
                 if ( spatialFilter instanceof SpatialDistanceFilter )
@@ -462,39 +475,6 @@ public final class CddaOpenSearchSite implements FederatedSource
         return url;
     }
 
-
-    /**
-     * Calls URL and sends back response as inputstream.
-     * 
-     * @param urlStr - URL-encoded string that connection will be opened to
-     * @return response as InputStream
-     * @throws UnsupportedQueryException
-     */
-    private InputStream retrieveResponseFromConnection( String urlStr ) throws UnsupportedQueryException
-    {
-        try
-        {
-            URL url = new URL( urlStr );
-            URLConnection conn = url.openConnection();
-            if ( conn instanceof HttpsURLConnection )
-            {
-                ( (HttpsURLConnection) conn ).setSSLSocketFactory( getSocketFactory() );
-            }
-            conn.connect();
-            return conn.getInputStream();
-        }
-        catch ( MalformedURLException mue )
-        {
-            throw new UnsupportedQueryException( "Badly formed URL used (" + urlStr + "), cannot perform query.", mue );
-        }
-        catch ( IOException ioe )
-        {
-            throw new UnsupportedQueryException( "Error while connecting to server: " + urlStr + ", cannot perform query.",
-                ioe );
-        }
-    }
-    
-    
     /**
      * @param is
      * @param queryRequest
@@ -666,24 +646,6 @@ public final class CddaOpenSearchSite implements FederatedSource
 
 
     /**
-     * Makes sure a new SSLSocketFactory is only created if necessary. Checks to
-     * see if the current factory is null (which means either the stores were
-     * changed or a factory hasn't been made yet).
-     * 
-     * @return current SSLSocketFactory
-     * @throws UnsupportedQueryException
-     */
-    private SSLSocketFactory getSocketFactory() throws UnsupportedQueryException
-    {
-        if ( socketFactory == null )
-        {
-            socketFactory = OpenSearchSiteUtil.createSocket( trustStore, trustStorePass, keyStore, keyStorePass );
-        }
-        return socketFactory;
-    }
-
-
-    /**
      * Set URL of the endpoint.
      * 
      * @param endpointUrl Full url of the endpoint.
@@ -808,8 +770,7 @@ public final class CddaOpenSearchSite implements FederatedSource
      */
     public void setTrustStoreLocation( String trustStore )
     {
-        socketFactory = null;
-        this.trustStore = trustStore;
+        connection.setTrustStoreLocation(trustStore);
     }
 
 
@@ -820,7 +781,7 @@ public final class CddaOpenSearchSite implements FederatedSource
      */
     public String getTrustStoreLocation()
     {
-        return trustStore;
+        return connection.getTrustStoreLocation();
     }
 
 
@@ -831,8 +792,7 @@ public final class CddaOpenSearchSite implements FederatedSource
      */
     public void setKeyStoreLocation( String keyStore )
     {
-        socketFactory = null;
-        this.keyStore = keyStore;
+        connection.setKeyStoreLocation(keyStore);
     }
 
 
@@ -843,7 +803,7 @@ public final class CddaOpenSearchSite implements FederatedSource
      */
     public String getKeyStoreLocation()
     {
-        return keyStore;
+        return connection.getKeyStoreLocation();
     }
 
 
@@ -854,8 +814,7 @@ public final class CddaOpenSearchSite implements FederatedSource
      */
     public void setTrustStorePassword( String trustStorePass )
     {
-        socketFactory = null;
-        this.trustStorePass = trustStorePass;
+        connection.setTrustStorePassword(trustStorePass);
     }
 
 
@@ -866,7 +825,7 @@ public final class CddaOpenSearchSite implements FederatedSource
      */
     public String getTrustStorePassword()
     {
-        return trustStorePass;
+        return connection.getTrustStorePassword();
     }
 
 
@@ -878,8 +837,7 @@ public final class CddaOpenSearchSite implements FederatedSource
      */
     public void setKeyStorePassword( String keyStorePass )
     {
-        socketFactory = null;
-        this.keyStorePass = keyStorePass;
+        connection.setKeyStorePassword(keyStorePass);
     }
 
 
@@ -890,7 +848,7 @@ public final class CddaOpenSearchSite implements FederatedSource
      */
     public String getKeyStorePassword()
     {
-        return keyStorePass;
+        return connection.getKeyStorePassword();
     }
     
     

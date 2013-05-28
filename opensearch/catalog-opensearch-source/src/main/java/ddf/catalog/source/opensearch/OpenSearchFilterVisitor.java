@@ -63,9 +63,9 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor
     private List<Filter> filters;
 
     // Can only have one each of each type of filter in an OpenSearch query
-    private ContextualFilter contextualFilter;
-    private TemporalFilter temporalFilter;
-    private SpatialFilter spatialFilter;
+    private ContextualSearch contextualSearch;
+    private TemporalFilter temporalSearch;
+    private SpatialFilter spatialSearch;
 
     private NestedTypes curNest = null;
 
@@ -73,9 +73,9 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor
     {
         filters = new ArrayList<Filter>();
 
-        contextualFilter = null;
-        temporalFilter = null;
-        spatialFilter = null;
+        contextualSearch = null;
+        temporalSearch = null;
+        spatialSearch = null;
     }
 
     @Override
@@ -149,7 +149,7 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor
             logger.debug("point: coords[0] = " + coords[0] + ",   coords[1] = " + coords[1]);
             logger.debug("radius = " + distance);
 
-            this.spatialFilter = new SpatialDistanceFilter(coords[0], coords[1], distance);
+            this.spatialSearch = new SpatialDistanceFilter(coords[0], coords[1], distance);
 
             filters.add(filter);
         }
@@ -201,7 +201,7 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor
                     }
                 }
                 geometryWkt.append("))");
-                this.spatialFilter = new SpatialFilter(geometryWkt.toString());
+                this.spatialSearch = new SpatialFilter(geometryWkt.toString());
 
                 logger.debug("geometryWkt = [" + geometryWkt.toString() + "]");
 
@@ -261,7 +261,7 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor
                     }
                 }
                 geometryWkt.append("))");
-                this.spatialFilter = new SpatialFilter(geometryWkt.toString());
+                this.spatialSearch = new SpatialFilter(geometryWkt.toString());
 
                 logger.debug("geometryWkt = [" + geometryWkt.toString() + "]");
 
@@ -338,7 +338,7 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor
             Date start = period.getBeginning().getPosition().getDate();
             Date end = period.getEnding().getPosition().getDate();
 
-            temporalFilter = new TemporalFilter(start, end);
+            temporalSearch = new TemporalFilter(start, end);
 
             filters.add(filter);
         }
@@ -351,7 +351,7 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor
             Date end = Calendar.getInstance().getTime();
             Date start = new Date(end.getTime() - duration.getTimeInMillis());
 
-            temporalFilter = new TemporalFilter(start, end);
+            temporalSearch = new TemporalFilter(start, end);
 
             filters.add(filter);
         }
@@ -389,14 +389,14 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor
 
         String searchPhrase = likeFilter.getLiteral();
         logger.debug("searchPhrase = [" + searchPhrase + "]");
-        if (contextualFilter != null)
+        if (contextualSearch != null)
         {
-            contextualFilter.setSearchPhrase(contextualFilter.getSearchPhrase() + " " + curNest.toString() + " "
+            contextualSearch.setSearchPhrase(contextualSearch.getSearchPhrase() + " " + curNest.toString() + " "
                     + searchPhrase);
         }
         else
         {
-            contextualFilter = new ContextualFilter(selectors, searchPhrase, likeFilter.isMatchingCase());
+            contextualSearch = new ContextualSearch(selectors, searchPhrase, likeFilter.isMatchingCase());
         }
 
         logger.debug("EXITING: PropertyIsLike filter");
@@ -433,19 +433,19 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor
         return filters;
     }
 
-    public ContextualFilter getContextualFilter()
+    public ContextualSearch getContextualSearch()
     {
-        return contextualFilter;
+        return contextualSearch;
     }
 
-    public TemporalFilter getTemporalFilter()
+    public TemporalFilter getTemporalSearch()
     {
-        return temporalFilter;
+        return temporalSearch;
     }
 
-    public SpatialFilter getSpatialFilter()
+    public SpatialFilter getSpatialSearch()
     {
-        return spatialFilter;
+        return spatialSearch;
     }
 
 }

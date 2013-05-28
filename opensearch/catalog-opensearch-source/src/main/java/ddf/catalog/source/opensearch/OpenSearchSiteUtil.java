@@ -182,6 +182,10 @@ public final class OpenSearchSiteUtil
     {
         String openSearchSortStr = null;
         String orderType = null;
+        
+        if (ddfSort == null || ddfSort.getSortOrder() == null) {
+            return openSearchSortStr;
+        }
 
         if (ddfSort.getSortOrder().equals(SortOrder.ASCENDING))
         {
@@ -522,77 +526,6 @@ public final class OpenSearchSiteUtil
         {
             IOUtils.closeQuietly(bais);
             IOUtils.closeQuietly(baos);
-        }
-    }
-
-    /**
-     * Creates a new SSLSocketFactory from a truststore and keystore. This is
-     * used during SSL communications with the server.
-     * 
-     * @param trustStoreLoc File path to the truststore.
-     * @param trustStorePass Password to the truststore.
-     * @param keyStoreLoc File path to the keystore.
-     * @param keyStorePass Password to the keystore.
-     * @return new SSLSocketFactory instance containing the trust and key
-     *         stores.
-     * @throws UnsupportedQueryException
-     */
-    public static SSLSocketFactory createSocket( String trustStoreLoc, String trustStorePass, String keyStoreLoc,
-        String keyStorePass ) throws UnsupportedQueryException
-    {
-        String methodName = "createSocket";
-        logger.debug("ENTERING: " + methodName);
-
-        try
-        {
-            logger.debug("trustStoreLoc = " + trustStoreLoc);
-            FileInputStream trustFIS = new FileInputStream(trustStoreLoc);
-            logger.debug("keyStoreLoc = " + keyStoreLoc);
-            FileInputStream keyFIS = new FileInputStream(keyStoreLoc);
-
-            // truststore stuff
-            KeyStore trustStore = KeyStore.getInstance(KeyStore.getDefaultType());
-            try
-            {
-                logger.debug("Loading trustStore");
-                trustStore.load(trustFIS, trustStorePass.toCharArray());
-            }
-            finally
-            {
-                IOUtils.closeQuietly(trustFIS);
-            }
-
-            TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
-            tmf.init(trustStore);
-            logger.debug("trust manager factory initialized");
-
-            // keystore stuff
-            KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
-            try
-            {
-                logger.debug("Loading keyStore");
-                keyStore.load(keyFIS, keyStorePass.toCharArray());
-            }
-            finally
-            {
-                IOUtils.closeQuietly(keyFIS);
-            }
-            KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
-            kmf.init(keyStore, keyStorePass.toCharArray());
-            logger.debug("key manager factory initialized");
-
-            // ssl context
-            SSLContext sslCtx = SSLContext.getInstance("TLS");
-            sslCtx.init(kmf.getKeyManagers(), tmf.getTrustManagers(), null);
-
-            logger.debug("EXITING: " + methodName);
-
-            return sslCtx.getSocketFactory();
-        }
-        catch (Exception e)
-        {
-            logger.debug("EXITING: " + methodName);
-            throw new UnsupportedQueryException("Problems creating SSL socket.", e);
         }
     }
 

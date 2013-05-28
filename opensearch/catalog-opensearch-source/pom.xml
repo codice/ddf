@@ -12,20 +12,21 @@
  *
  **/
  -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
-    
-    <parent>
-        <artifactId>catalog-opensearch-pom</artifactId>
-        <groupId>ddf.catalog.opensearch</groupId>
-        <version>2.2.0.RC2-SNAPSHOT</version>
-    </parent>
-    
-    <artifactId>catalog-opensearch-source</artifactId>
-    <name>DDF :: Catalog :: OpenSearch :: Source</name>
-    <packaging>bundle</packaging>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
 
-    <dependencies>
+	<parent>
+		<artifactId>catalog-opensearch-pom</artifactId>
+		<groupId>ddf.catalog.opensearch</groupId>
+		<version>2.2.0.RC2-SNAPSHOT</version>
+	</parent>
+
+	<artifactId>catalog-opensearch-source</artifactId>
+	<name>DDF :: Catalog :: OpenSearch :: Source</name>
+	<packaging>bundle</packaging>
+
+	<dependencies>
 
 		<dependency>
 			<groupId>ddf.catalog.core</groupId>
@@ -33,8 +34,14 @@
 		</dependency>
 
 		<dependency>
-            <groupId>ddf.catalog.core</groupId>
-            <artifactId>catalog-core-commons</artifactId>
+			<groupId>ddf.catalog.core</groupId>
+			<artifactId>filter-proxy</artifactId>
+		</dependency>
+
+
+		<dependency>
+			<groupId>ddf.catalog.core</groupId>
+			<artifactId>catalog-core-commons</artifactId>
 
 			<!-- There is a conflict between geotools (specifically gt-xsd-filter) 
 				and jscience. Since there is no direct dependency on jscience, rather 
@@ -70,12 +77,12 @@
 			<artifactId>joda-time</artifactId>
 		</dependency>
 
-        <dependency>
+		<dependency>
 			<groupId>net.sf.saxon</groupId>
 			<artifactId>saxon</artifactId>
 		</dependency>
 
-        <dependency>
+		<dependency>
 			<groupId>log4j</groupId>
 			<artifactId>log4j</artifactId>
 		</dependency>
@@ -91,15 +98,15 @@
 			<version>0.9.24</version>
 		</dependency>
 
-        <dependency>
-            <groupId>org.apache.abdera</groupId>
-            <artifactId>abdera-extensions-opensearch</artifactId>
-        </dependency>
+		<dependency>
+			<groupId>org.apache.abdera</groupId>
+			<artifactId>abdera-extensions-opensearch</artifactId>
+		</dependency>
 
-        <dependency>
-            <groupId>org.apache.abdera</groupId>
-            <artifactId>abdera-extensions-geo</artifactId>
-        </dependency>
+		<dependency>
+			<groupId>org.apache.abdera</groupId>
+			<artifactId>abdera-extensions-geo</artifactId>
+		</dependency>
 
 
 		<!-- TEST DEPENDENCIES -->
@@ -115,36 +122,42 @@
 			<scope>test</scope>
 		</dependency>
 
-    </dependencies>
+		<dependency>
+			<groupId>ddf.catalog.transformer</groupId>
+			<artifactId>catalog-transformer-xml</artifactId>
+			<version>${project.version}</version>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
 
 	<build>
 		<plugins>
-            <plugin>
-                <groupId>org.apache.felix</groupId>
-                <artifactId>maven-bundle-plugin</artifactId>
-                <extensions>true</extensions>
-                <configuration>
-                    <instructions>
-                        <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <Import-Package>
+			<plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-bundle-plugin</artifactId>
+				<extensions>true</extensions>
+				<configuration>
+					<instructions>
+						<Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+						<Import-Package>
                             <!-- To avoid ClassNotFoundException for FOMFactory -->
-                            org.apache.axiom.om,
-                            org.apache.axiom.om.impl.llom.factory,
-                            org.apache.abdera.parser.stax;version="[${abdera.version}, 2.0)",
-                            org.apache.abdera.parser.stax.util;version="[${abdera.version}, 2.0)",
-                            org.apache.abdera.util,
-                            org.apache.abdera.writer,
-                            org.apache.abdera.factory,
-                            org.apache.abdera.i18n.text.io, <!-- needed by AbstractWriter -->
-                            org.apache.abdera.i18n.iri, <!-- Element -->
-                            org.apache.abdera.i18n.rfc4646, <!-- Element -->
-                            com.ctc.wstx.stax, <!-- needed by FOMWriter -->
-                            *
-                        </Import-Package>
-                        <Export-Package />
-                    </instructions>
-                </configuration>
-            </plugin>
+							org.apache.axiom.om,
+							org.apache.axiom.om.impl.llom.factory,
+							org.apache.abdera.parser.stax;version="[${abdera.version}, 2.0)",
+							org.apache.abdera.parser.stax.util;version="[${abdera.version}, 2.0)",
+							org.apache.abdera.util,
+							org.apache.abdera.writer,
+							org.apache.abdera.factory,
+							org.apache.abdera.i18n.text.io, <!-- needed by AbstractWriter -->
+							org.apache.abdera.i18n.iri, <!-- Element -->
+							org.apache.abdera.i18n.rfc4646, <!-- Element -->
+							com.ctc.wstx.stax, <!-- needed by FOMWriter -->
+							*
+						</Import-Package>
+						<Export-Package />
+					</instructions>
+				</configuration>
+			</plugin>
 		</plugins>
 	</build>
 </project>
