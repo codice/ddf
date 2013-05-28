@@ -37,7 +37,6 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.geotools.filter.FilterFactoryImpl;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -86,7 +85,8 @@ import ddf.catalog.util.SourcePollerRunner;
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(AbstractFederationStrategy.class)
 public class FederationStrategyTest {
-	private static final long DEFAULT_TIMEOUT = 10;
+	private static final long SHORT_TIMEOUT = 25;
+	private static final long LONG_TIMEOUT = 100;
 	private static final FilterFactory FILTER_FACTORY = new FilterFactoryImpl();
 	private static final ExecutorService EXECUTOR = Executors.newFixedThreadPool(2);
 	
@@ -156,7 +156,7 @@ public class FederationStrategyTest {
 				FILTER_FACTORY.property(Metacard.ID),
 				FILTER_FACTORY.literal(createResponse.getCreatedMetacards()
 						.get(0).getId())));
-		query.setTimeoutMillis(DEFAULT_TIMEOUT);
+		query.setTimeoutMillis(SHORT_TIMEOUT);
 		query.setSortBy(new FilterFactoryImpl().sort(Result.RELEVANCE,
 				SortOrder.ASCENDING));
 
@@ -178,7 +178,7 @@ public class FederationStrategyTest {
 	public void testNegativePageSizeQuery() throws Exception {	
 		Query query = mock(Query.class);
 		when(query.getPageSize()).thenReturn(-1);
-		when(query.getTimeoutMillis()).thenReturn(DEFAULT_TIMEOUT);
+		when(query.getTimeoutMillis()).thenReturn(LONG_TIMEOUT);
 		
 		QueryRequest fedQueryRequest = mock(QueryRequest.class);
 		when(fedQueryRequest.getQuery()).thenReturn(query);
