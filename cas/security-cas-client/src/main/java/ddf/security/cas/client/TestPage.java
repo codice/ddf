@@ -18,6 +18,7 @@ import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
@@ -39,6 +40,8 @@ import org.jasig.cas.client.authentication.AttributePrincipal;
 public class TestPage extends HttpServlet
 {
     private static final long serialVersionUID = 1L;
+    
+    private static final String HTML_ENDLINE = "<br/>";
     
     private static final Logger LOGGER = Logger.getLogger( TestPage.class );
     
@@ -89,16 +92,16 @@ public class TestPage extends HttpServlet
         
         builder.append( "<h2 align=\"center\">Protected Page on '" ).append( request.getServerName() ).append( "'</h2>" ).append( endl );
 
-        builder.append( new java.util.Date() ).append( "<br/><br/>" ).append( endl );
+        builder.append( new java.util.Date() ).append( HTML_ENDLINE + HTML_ENDLINE ).append( endl );
 
         builder.append( "request.getRemoteUser() = " );
-        builder.append( request.getRemoteUser() ).append( "<br/>" ).append( endl );
+        builder.append( request.getRemoteUser() ).append( HTML_ENDLINE ).append( endl );
        
 
         builder.append( "request.getUserPrincipal() = " );
 
         Principal principal = request.getUserPrincipal();
-        builder.append( principal ).append( "<br/><br/>" ).append( endl );
+        builder.append( principal ).append( HTML_ENDLINE + HTML_ENDLINE).append( endl );
     
 
         if ( request.getContextPath() != null && !"".equals(request.getContextPath()) )
@@ -120,28 +123,31 @@ public class TestPage extends HttpServlet
 
             if ( attributes != null && attributes.size() > 0 )
             {
-                Iterator iterator = attributes.keySet().iterator();
+                @SuppressWarnings( "unchecked" )
+                Iterator<Entry<String,Object>> iterator = attributes.entrySet().iterator();
+                
                 while ( iterator.hasNext() )
                 {
-                    String key = (String) iterator.next();
-                    Object value = attributes.get( key );
+                    Entry<String,Object> curEntry = iterator.next();
+                    String key = curEntry.getKey();
+                    Object value = curEntry.getValue();
                     if ( value instanceof String )
                     {
-                        builder.append( key ).append( ": " ).append( value ).append( "<br/>" ).append( endl );
+                        builder.append( key ).append( ": " ).append( value ).append( HTML_ENDLINE ).append( endl );
                     }
                     else if ( value instanceof List )
                     {
                         builder.append( key ).append( " is a List:<br/>" ).append( endl );
                         for( Object o : ( (List) value ) )
                         {
-                            builder.append( "&nbsp;&nbsp;&nbsp;" ).append( o.toString() ).append( "<br/>" ).append( endl );
+                            builder.append( "&nbsp;&nbsp;&nbsp;" ).append( o.toString() ).append( HTML_ENDLINE ).append( endl );
                         }
                     }
                 }
             }
             else
             {
-                builder.append( "None" ).append( "<br/><br/>" ).append( endl );
+                builder.append( "None" ).append( HTML_ENDLINE + HTML_ENDLINE ).append( endl );
             }
 
         }
@@ -153,7 +159,7 @@ public class TestPage extends HttpServlet
             builder.append( "getCookies() = <br/>" ).append( endl );
             for( Cookie o : cookies )
             {
-                builder.append( "&nbsp;&nbsp;&nbsp;" ).append( o.getName() ).append( ": " ).append( o.getValue() ).append( "<br/>" ).append( endl );
+                builder.append( "&nbsp;&nbsp;&nbsp;" ).append( o.getName() ).append( ": " ).append( o.getValue() ).append( HTML_ENDLINE ).append( endl );
             }
         }
         else
@@ -170,7 +176,7 @@ public class TestPage extends HttpServlet
             while ( headers.hasMoreElements() )
             {
                 String name = (String) headers.nextElement();
-                builder.append( "&nbsp;&nbsp;&nbsp;" ).append( name ).append( ": " ).append( request.getHeader( name ) ).append( "<br/>" ).append( endl );
+                builder.append( "&nbsp;&nbsp;&nbsp;" ).append( name ).append( ": " ).append( request.getHeader( name ) ).append( HTML_ENDLINE ).append( endl );
             }
         }
         else

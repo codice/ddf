@@ -14,6 +14,7 @@ package ddf.security.ws.policy.impl;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -22,10 +23,20 @@ import static org.mockito.Mockito.when;
 import java.io.IOException;
 import java.net.URL;
 
+import org.apache.cxf.common.util.UrlUtils;
+import org.apache.cxf.endpoint.Endpoint;
+import org.apache.cxf.message.Exchange;
+import org.apache.cxf.message.Message;
+import org.apache.cxf.message.MessageImpl;
+import org.apache.cxf.service.model.EndpointInfo;
+import org.apache.cxf.transport.Conduit;
+import org.apache.cxf.transport.Destination;
+import org.apache.cxf.ws.addressing.EndpointReferenceType;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.osgi.framework.Bundle;
@@ -33,9 +44,6 @@ import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Node;
-
-import ddf.security.ws.policy.impl.FilePolicyLoader;
-import ddf.security.ws.policy.impl.PolicyWSDLGetInterceptor;
 
 
 /**
@@ -52,7 +60,7 @@ public class PolicyTest
     private static final String BAD_POLICY_LOCATION = "/policies/bad_policy.xml";
     private static final String TXT_POLICY_LOCATION = "/policies/notXmlPolicy.txt";
     private static final String WSDL_LOCATION = "/wsdl/w3c_example.wsdl";
-    
+
     private Logger logger = LoggerFactory.getLogger(PolicyTest.class);
 
     @Rule
@@ -92,7 +100,7 @@ public class PolicyTest
     }
 
     @Test
-    public void policyWSDLTest()
+    public void combinePolicyTest()
     {
         try
         {
@@ -114,32 +122,18 @@ public class PolicyTest
         }
     }
 
-    @Test
-    public void badFileLocationTest()
+    @Test( expected = IOException.class )
+    public void badFileLocationTest() throws IOException
     {
-        try
-        {
-            new FilePolicyLoader(mockContext, BAD_POLICY_LOCATION);
-            fail("Should have thrown an exception when passed in a bad file location.");
-        }
-        catch (IOException ioe)
-        {
-            // Exception successfully thrown.
-        }
+        new FilePolicyLoader(mockContext, BAD_POLICY_LOCATION);
+        fail("Should have thrown an exception when passed in a bad file location.");
     }
 
-    @Test
-    public void notXmlFile()
+    @Test( expected = IOException.class )
+    public void notXmlFile() throws IOException
     {
-        try
-        {
-            new FilePolicyLoader(mockContext, TXT_POLICY_LOCATION);
-            fail("Should have thrown an exception when passed in a non-xml file.");
-        }
-        catch (IOException ioe)
-        {
-            // Exception successfully thrown.
-        }
+        new FilePolicyLoader(mockContext, TXT_POLICY_LOCATION);
+        fail("Should have thrown an exception when passed in a non-xml file.");
     }
 
 }
