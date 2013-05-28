@@ -30,6 +30,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.geotools.filter.FilterTransformer;
+import org.joda.time.format.DateTimeFormatter;
+import org.joda.time.format.ISODateTimeFormat;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.MethodRule;
@@ -759,17 +761,10 @@ public class TestCddaOpenSearchSite
 
     private String reformatDate( Date date )
     {
-        // Reformat date into original format that was used to create filter
-        SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZZ");
-        String formattedDate = dateFormatter.format(date);
+        DateTimeFormatter fmt = ISODateTimeFormat.dateTime();
+        String formattedDate = fmt.print(date.getTime());
 
-        // Add colon in GMT offset, e.g., -07:00 vs. -0700
-        StringBuffer sb = new StringBuffer(formattedDate);
-        sb.insert(formattedDate.length() - 2, ":");
-        formattedDate = sb.toString();
-
-        logger.debug("formattedDate = " + formattedDate.toString());
-
+        logger.debug("formattedDate = {}", formattedDate);
         return formattedDate;
     }
 
