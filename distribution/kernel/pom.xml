@@ -24,8 +24,8 @@
   <!--
   Packages the DDF configured Karaf.
   
-  This is the DDF distribution with the smallest footprint and the building block for the other
-  DDF distributions, i.e., ddf-standard distribution pom depends on this pom. 
+  This is the DDF distribution with the smallest footprint and the building block for other
+  DDF distributions, i.e., ddf distribution pom depends on this pom. 
   
   NOTE: This was originally called ddf-minimal based on the Apache Servicemix paradigm, but was later
   changed to kernel.

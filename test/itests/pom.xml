@@ -105,7 +105,7 @@
     <dependencies>
         <dependency>
             <groupId>ddf.distribution</groupId>
-            <artifactId>ddf-standard</artifactId>
+            <artifactId>ddf</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <scope>test</scope>

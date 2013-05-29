@@ -31,7 +31,7 @@
     <module>webconsole-branding-plugin</module>
     <module>ddf-common</module>
     <module>kernel</module>
-    <module>ddf-standard</module>
+    <module>ddf</module>
 	<module>ddf-standalone-loadbalancer</module>
   </modules>
   

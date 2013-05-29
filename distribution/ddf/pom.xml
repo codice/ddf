@@ -30,8 +30,8 @@
   in this pom.
 
   -->
-  <artifactId>ddf-standard</artifactId>
-  <name>DDF :: Distribution :: DDF Standard</name>
+  <artifactId>ddf</artifactId>
+  <name>DDF :: Distribution :: DDF</name>
   <packaging>pom</packaging>
 
   <properties>

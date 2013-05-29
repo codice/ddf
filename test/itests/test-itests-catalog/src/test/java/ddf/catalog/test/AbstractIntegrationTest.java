@@ -118,7 +118,7 @@ public abstract class AbstractIntegrationTest {
         }
 
         MavenUrlReference ddf = maven().groupId("ddf.distribution")
-                .artifactId("ddf-standard").type("zip").versionAsInProject();
+                .artifactId("ddf").type("zip").versionAsInProject();
         KarafDistributionKitConfigurationOption platformOption = new KarafDistributionKitConfigurationOption(
                 ddf, "ddf", KARAF_VERSION, platform).executable(ddfScript)
                 .filesToMakeExecutable(adminScript);
