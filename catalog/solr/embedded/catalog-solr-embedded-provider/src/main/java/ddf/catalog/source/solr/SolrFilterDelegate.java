@@ -507,8 +507,9 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
 		}
 
 		StringBuilder builder = new StringBuilder();
-
-		builder.append(START_PAREN);
+		//Solr does not support outside parenthesis in certain queries and throws EOF exception. 
+		//Restore line when bug fixed in Solr.
+		//builder.append(START_PAREN);
 		builder.append(query.getQuery());
 
 		for (int i = startIndex; i < operands.size(); i++) {
@@ -522,8 +523,9 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
 			}
 
 		}
-
-		builder.append(END_PAREN);
+		//Solr does not support outside parenthesis in certain queries and throws EOF exception. 
+		//Restore line when bug fixed in Solr.
+		//builder.append(END_PAREN);
 		query.setQuery(builder.toString());
 
 		return query;
