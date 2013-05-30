@@ -14,25 +14,15 @@
 -->
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0" xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0">
 
-    <bean id="pdpAuthzRealm" class="ddf.security.pdp.realm.SimpleAuthzRealm">
-        <cm:managed-properties persistent-id="ddf.security.pdp.realm.SimpleAuthzRealm"
+    <bean id="userAttributeExpansion" class="ddf.security.expansion.impl.StraightExpansionImpl">
+        <cm:managed-properties persistent-id="ddf.security.user.attribute.mapping"
                                update-strategy="container-managed" />
-        <property name="expansionService" ref="userAttributeExpansion"/>
-        <property name="accessRoleList">
-            <list>
-                <value>admin</value>
-            </list>
-        </property>
     </bean>
 
-    <reference id="userAttributeExpansion" interface="ddf.security.expansion.Expansion"
-             filter="(mapping=security.user.attribute.mapping)" />
-
-    <service ref="pdpAuthzRealm">
-        <interfaces>
-            <value>org.apache.shiro.realm.Realm</value>
-            <value>org.apache.shiro.authz.Authorizer</value>
-        </interfaces>
+    <service ref="userAttributeExpansion" interface="ddf.security.expansion.Expansion" ranking="3">
+        <service-properties>
+            <entry key="mapping" value="security.user.attribute.mapping" />
+        </service-properties>
     </service>
 
 </blueprint>
