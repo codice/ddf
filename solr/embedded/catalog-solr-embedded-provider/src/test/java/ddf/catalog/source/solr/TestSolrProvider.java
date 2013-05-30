@@ -1891,6 +1891,20 @@ public class TestSolrProvider extends SolrProviderTestCase {
 		sourceResponse = provider.query(new QueryRequestImpl(new QueryImpl(filter)));
 
 		assertEquals("Failed: (Airport AND AZ) or Flagstaff", ONE_HIT, sourceResponse.getResults().size());
+		
+		/** COMPLEX CONTEXTUAL QUERY **/
+
+		filter = filterFactory.and(filterFactory.like(filterFactory.property(Metacard.METADATA),
+				AIRPORT_QUERY_PHRASE, wildcard, singleChar, escape, false),
+				filterFactory.and(filterFactory.like(filterFactory.property(Metacard.METADATA),
+				"AZ", wildcard, singleChar, escape, false),filterFactory.or (filterFactory.like(filterFactory.property(Metacard.METADATA),
+				FLAGSTAFF_QUERY_PHRASE, wildcard, singleChar, escape, false), filterFactory.like(
+				filterFactory.property(Metacard.METADATA),  TAMPA_QUERY_PHRASE, wildcard, singleChar, escape, false)) ));
+
+		sourceResponse = provider.query(new QueryRequestImpl(new QueryImpl(filter)));
+
+		assertEquals("Failed: (Airport AND (AZ AND (Flagstaff OR TAMPA)))", ONE_HIT, sourceResponse.getResults().size());
+		
 
 		/** CONTEXTUAL QUERY - NOT positive **/
 
