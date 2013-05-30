@@ -37,22 +37,12 @@
 			</dependency>
 			<dependency>
 				<groupId>ddf.catalog.transformer</groupId>
-				<artifactId>service-ddms-transformer</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>ddf.catalog.transformer</groupId>
 				<artifactId>catalog-transformer-attribute</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>ddf.catalog.transformer</groupId>
 				<artifactId>catalog-transformer-attribute</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>ddf.catalog.transformer</groupId>
-				<artifactId>service-kml-transformer</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
