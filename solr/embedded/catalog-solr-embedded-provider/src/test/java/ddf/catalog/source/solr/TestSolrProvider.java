@@ -1903,7 +1903,7 @@ public class TestSolrProvider extends SolrProviderTestCase {
 
 		sourceResponse = provider.query(new QueryRequestImpl(new QueryImpl(filter)));
 
-		assertEquals("Failed: (Airport AND (AZ AND (Flagstaff OR TAMPA)))", ONE_HIT, sourceResponse.getResults().size());
+		assertEquals("(Airport AND (AZ AND (Flagstaff OR TAMPA)))", ONE_HIT, sourceResponse.getResults().size());
 		
 
 		/** CONTEXTUAL QUERY - NOT positive **/
