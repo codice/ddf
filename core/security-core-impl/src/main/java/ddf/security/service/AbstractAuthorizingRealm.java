@@ -13,6 +13,7 @@ package ddf.security.service;
 
 
 import ddf.security.assertion.SecurityAssertion;
+import ddf.security.expansion.Expansion;
 import ddf.security.permission.KeyValuePermission;
 import org.apache.shiro.authz.AuthorizationException;
 import org.apache.shiro.authz.AuthorizationInfo;
@@ -46,6 +47,8 @@ public abstract class AbstractAuthorizingRealm extends AuthorizingRealm
 
     private static final String SAML_ROLE = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role";
 
+    private Expansion expansionService;
+
     /**
      * Takes the security attributes about the subject of the incoming security token and builds
      * sets of permissions and roles for use in further checking.
@@ -73,6 +76,7 @@ public abstract class AbstractAuthorizingRealm extends AuthorizingRealm
             List<Attribute> attributes;
             Set<Permission> permissions = new HashSet<Permission>();
             Set<String> roles = new HashSet<String>();
+            Set<String> attributeSet;
             KeyValuePermission curPermission;
             for ( AttributeStatement curStatement : attributeStatements )
             {
@@ -80,17 +84,17 @@ public abstract class AbstractAuthorizingRealm extends AuthorizingRealm
 
                 for ( Attribute curAttribute : attributes )
                 {
+                    attributeSet = expandAttributes(curAttribute);
                     curPermission = new KeyValuePermission(curAttribute.getName());
-                    for ( XMLObject curValue : curAttribute.getAttributeValues() )
+                    if (attributeSet != null)
                     {
-                        if (curValue instanceof XSString)
+                        for (String attr : attributeSet)
                         {
-                            String value = ((XSString) curValue).getValue();
-                            curPermission.addValue(value);
+                            curPermission.addValue(attr);
                             if (SAML_ROLE.equals(curAttribute.getName()))
                             {
-                                LOGGER.debug("Adding role to authorization info: {}", value);
-                                roles.add(value);
+                                LOGGER.debug("Adding role to authorization info: {}", attr);
+                                roles.add(attr);
                             }
                         }
                     }
@@ -111,4 +115,31 @@ public abstract class AbstractAuthorizingRealm extends AuthorizingRealm
         return info;
     }
 
+    private Set<String> expandAttributes(Attribute attribute)
+    {
+        Set<String> attributeSet = new HashSet<String>();
+        String attributeName = attribute.getName();
+        for (XMLObject curValue : attribute.getAttributeValues())
+        {
+            if (curValue instanceof XSString)
+            {
+                attributeSet.add(((XSString) curValue).getValue());
+            } else
+            {
+                LOGGER.info("Unexpected attribute type (non-string) for attribute named {} - ignored", attributeName);
+            }
+        }
+        if (expansionService != null)
+        {
+            LOGGER.debug("Expanding attributes for {} - original values: {}", attributeName, attributeSet);
+            attributeSet = expansionService.expand(attributeName, attributeSet);
+        }
+        LOGGER.debug("Expanded attributes for {} - values: {}", attributeName, attributeSet);
+        return attributeSet;
+    }
+
+    public void setExpansionService(Expansion expansionService)
+    {
+        this.expansionService = expansionService;
+    }
 }

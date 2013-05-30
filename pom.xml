@@ -63,7 +63,17 @@
                 <artifactId>security-encryption-api</artifactId>
                 <version>${project.version}</version>
             </dependency>
-            
+            <dependency>
+                <groupId>ddf.security.expansion</groupId>
+                <artifactId>security-expansion-impl</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>ddf.security.expansion</groupId>
+                <artifactId>security-expansion-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
             <!-- CXF Libraries  -->
             <dependency>
                 <groupId>org.apache.cxf</groupId>
@@ -80,10 +90,11 @@
 
 	<modules>
         <module>encryption</module>
+        <module>expansion</module>
         <module>core</module>
         <module>sts</module>
 		<module>cas</module>
         <module>pdp</module>
 		<module>pep</module>
-	</modules>
+    </modules>
 </project>

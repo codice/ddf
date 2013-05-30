@@ -51,7 +51,10 @@
       <groupId>org.apache.cxf.services.sts</groupId>
       <artifactId>cxf-services-sts-core</artifactId>
     </dependency>
-
+    <dependency>
+        <groupId>ddf.security.expansion</groupId>
+        <artifactId>security-expansion-api</artifactId>
+    </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-log4j12</artifactId>
