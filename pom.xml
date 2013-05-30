@@ -230,10 +230,8 @@
         <!-- when upgrading the karaf version, ensure that the properties and cfg files in package-commons/.../distribution/etc/ are updated and compatible with the
         latest karaf version.  Those configuration files in package-commons/.../distribution/etc have been copied from a previous version of Karaf, and are
         source controlled because of some slight customizations that have been made to them.  -->
-		<karaf.version>2.2.9</karaf.version>
-		<camel.version>2.10.4</camel.version>
-		<cellar.version>2.2.6</cellar.version>
-
+		<karaf.version>2.3.1</karaf.version>
+		<camel.version>2.11.0</camel.version>
         <!--
         Default properties for Version.txt (this is the file containing the build number and
         svn revision number for the ddf-common project).

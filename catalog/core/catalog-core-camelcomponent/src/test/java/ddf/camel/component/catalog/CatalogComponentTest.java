@@ -21,6 +21,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Properties;
 
@@ -236,7 +237,7 @@ public class CatalogComponentTest extends CamelTestSupport {
 		// Mock a DDMS InputTransformer and register it in the OSGi Registry
 		// (PojoSR)
 		InputTransformer mockTransformer = getMockInputTransformer();
-		Properties props = new Properties();
+		Hashtable<String, String> props = new Hashtable<String, String>();
 		props.put(MimeTypeToTransformerMapper.ID_KEY, "ddms20");
 		props.put(MimeTypeToTransformerMapper.MIME_TYPE_KEY, "text/xml");
 		bundleContext.registerService(InputTransformer.class.getName(), mockTransformer, props);
@@ -300,7 +301,7 @@ public class CatalogComponentTest extends CamelTestSupport {
 		// Mock a DDMS InputTransformer and register it in the OSGi Registry
 		// (PojoSR)
 		InputTransformer mockTransformer = getMockInputTransformer();
-		Properties props = new Properties();
+		Hashtable<String, String> props = new Hashtable<String, String>();
 		props.put(MimeTypeToTransformerMapper.ID_KEY, "ddms20");
 		props.put(MimeTypeToTransformerMapper.MIME_TYPE_KEY, "text/xml");
 		bundleContext.registerService(InputTransformer.class.getName(), mockTransformer, props);
