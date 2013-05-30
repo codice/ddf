@@ -158,6 +158,7 @@
 		<ddf.security.encryption.service.api.version>1.0.0</ddf.security.encryption.service.api.version>
 		<ddf.security.pdp.api.version>1.0.0-SNAPSHOT</ddf.security.pdp.api.version>
 		<ddf.security.core.api.version>1.0.0-SNAPSHOT</ddf.security.core.api.version>
+        <ddf.security.expansion.service.api.version>1.0.0-SNAPSHOT</ddf.security.expansion.service.api.version>
 
         <!-- Do NOT set karaf.data or karaf.base -->
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
