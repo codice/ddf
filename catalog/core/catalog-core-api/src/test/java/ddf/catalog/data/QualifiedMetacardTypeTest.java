@@ -118,5 +118,15 @@ public class QualifiedMetacardTypeTest {
 	assertTrue(qmt1.hashCode() != qmt2.hashCode());
     }
     
+    @Test
+    public void testEqualsQualifiedMetacardTypeAndMetacardTypeImpl(){
+	MetacardType mt1 = new MetacardTypeImpl(QUALIFIED_METACARD_TYPE_NAME_3, qmtAttributes);
+	QualifiedMetacardTypeImpl qmt1 = new QualifiedMetacardTypeImpl(QualifiedMetacardType.DEFAULT_METACARD_TYPE_NAMESPACE, mt1);
+	MetacardType mt2 = new MetacardTypeImpl(QUALIFIED_METACARD_TYPE_NAME_3, qmtAttributes);
+	
+	assertTrue(qmt1.equals(mt2));
+	assertTrue(mt2.equals(qmt1));
+    }
+    
     
 }

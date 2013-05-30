@@ -69,21 +69,23 @@ public class QualifiedMetacardTypeImpl extends MetacardTypeImpl implements Quali
 	    return false;
 	}
 	
-	if(!(obj instanceof QualifiedMetacardType)){
+	if(!(obj instanceof MetacardType)){
 	    return false;
 	}
-	
-	QualifiedMetacardTypeImpl other = (QualifiedMetacardTypeImpl) obj;
-	
-	if (namespace == null) {
-	    if (other.namespace != null)
-	    {	
+
+	if (obj instanceof QualifiedMetacardType) {
+	    QualifiedMetacardTypeImpl other = (QualifiedMetacardTypeImpl) obj;
+
+	    if (namespace == null) {
+		if (other.namespace != null) {
+		    return false;
+		}
+	    } else if (!namespace.equals(other.namespace)) {
 		return false;
 	    }
-	} else if (!namespace.equals(other.namespace)){
-	    return false;
+
 	}
-	
+		
 	return true;
     }
 
