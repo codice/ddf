@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+
+ -->
+<metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
+
+    <OCD name="Expansion Service for User Attributes" id="ddf.security.user.attribute.mapping">
+        <AD description="Attribute separator - used to separate attributes in replacement strings - defaults to space (specified by no value)."
+            name="Attribute Separator" id="attributeSeparator" required="false"
+            type="String" cardinality="1" default=" " />
+
+        <AD description="Rules to expand user attributes to different or enhanced values. Format of each rule is <attributeName>:<original>[:<replacement>]. Where <attributeName> is the original attribute name, <original> is the orignal value of that attribute that is to be changed, <replacement> is an optional value that will replace the original value. An empty <replacement> value will remove the original attribute."
+            name="Expansion Rules List" id="expansionRules" required="false"
+            type="String" cardinality="-100" default="" />
+    </OCD>
+
+    <Designate pid="ddf.security.user.attribute.mapping">
+        <Object ocdref="ddf.security.user.attribute.mapping" />
+    </Designate>
+
+</metatype:MetaData>

@@ -21,5 +21,9 @@
         <bundle>mvn:ddf.security.pep/security-pep-redaction/${project.version}</bundle>
     </feature>
 
+    <feature name="security-pep-user-attributes" version="${project.version}" description="DDF Security PEP User Attributes Expansion">
+        <bundle>mvn:ddf.security.pep/security-pep-userattr-map/${project.version}</bundle>
+    </feature>
+
 </features>
   
