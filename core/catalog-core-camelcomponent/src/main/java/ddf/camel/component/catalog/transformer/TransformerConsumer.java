@@ -12,6 +12,9 @@
 package ddf.camel.component.catalog.transformer;
 
 import java.io.Serializable;
+import java.util.Dictionary;
+import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
@@ -69,7 +72,7 @@ public class TransformerConsumer extends DefaultConsumer {
 		} catch (Exception e) {
 			throw new CatalogTransformerException("Failed to start Transformer Consumer", e);
 		}
-		Properties props = new Properties();
+		Hashtable<String, String> props = new Hashtable<String, String>();
 		if(endpoint.getTransformerId() != null) {
 			props.put(MimeTypeToTransformerMapper.ID_KEY, endpoint.getTransformerId());
 		}
