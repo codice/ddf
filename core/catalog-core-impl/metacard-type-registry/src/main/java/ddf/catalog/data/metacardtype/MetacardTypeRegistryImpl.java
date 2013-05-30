@@ -86,7 +86,6 @@ public final class MetacardTypeRegistryImpl implements MetacardTypeRegistry {
 	
 	if(!removedSuccessfully){
 	    String message = "Unable to unregister specified MetacardType.";
-	    logger.debug(message);
 	    throw new MetacardTypeUnregistrationException(message);
 	}
 	logger.debug("Successfully unregistered MetacardType.");
@@ -94,8 +93,7 @@ public final class MetacardTypeRegistryImpl implements MetacardTypeRegistry {
 
     @Override
     public Set<QualifiedMetacardType> getRegisteredTypes() {
-	HashSet<QualifiedMetacardType> copiedSet = new HashSet<QualifiedMetacardType>(registeredMetacardTypes);
-	return Collections.unmodifiableSet(copiedSet);
+	return Collections.unmodifiableSet(new HashSet<QualifiedMetacardType>(registeredMetacardTypes));
     }
 
     private void validateInput(QualifiedMetacardType qmt) {
@@ -110,13 +108,11 @@ public final class MetacardTypeRegistryImpl implements MetacardTypeRegistry {
     private void validateInput(String namespace, String metacardTypeName) {
 	if (namespace == null) {
 	    String message = "Namespace parameter cannot be null.";
-	    logger.debug(message);
 	    throw new IllegalArgumentException(message);
 	}
 	
 	if (metacardTypeName == null || metacardTypeName.isEmpty()) {
 	    String message = "MetacardTypeName parameter cannot be null or empty.";
-	    logger.debug(message);
 	    throw new IllegalArgumentException(message);
 	}
     }
