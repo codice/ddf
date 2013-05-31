@@ -11,12 +11,18 @@
  **/
 package ddf.catalog.test;
 
-import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.*;
-import static org.junit.Assert.*;
-import static org.ops4j.pax.exam.CoreOptions.*;
+import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.editConfigurationFilePut;
+import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.logLevel;
+import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.replaceConfigurationFile;
+import static org.junit.Assert.fail;
+import static org.ops4j.pax.exam.CoreOptions.maven;
+import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
+import static org.ops4j.pax.exam.CoreOptions.options;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Arrays;
+import java.util.Dictionary;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -34,7 +40,13 @@ import org.ops4j.pax.exam.options.MavenUrlReference;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
+import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
+import org.osgi.service.cm.ConfigurationEvent;
+import org.osgi.service.cm.ConfigurationListener;
+import org.osgi.util.tracker.ServiceTracker;
+
+import ddf.catalog.source.CatalogProvider;
 
 /**
  * Abstract integration test with helper methods and configuration at the
@@ -46,19 +58,31 @@ import org.osgi.service.cm.ConfigurationAdmin;
  * 
  */
 public abstract class AbstractIntegrationTest {
-    
-    protected static final Logger LOGGER = Logger.getLogger(AbstractIntegrationTest.class);
-    
+
+    private static final int CONFIG_UPDATE_WAIT_INTERVAL = 5;
+
+    protected static final Logger LOGGER = Logger
+            .getLogger(AbstractIntegrationTest.class);
+
+    protected static final String LOG_CONFIG_PID = "org.ops4j.pax.logging";
+
+    protected static final String LOGGER_PREFIX = "log4j.logger.";
+
     private static final String KARAF_VERSION = "2.2.9";
-    
+
     protected static final int ONE_MINUTE_MILLIS = 60000;
+
     protected static final int FIVE_MINUTES_MILLIS = ONE_MINUTE_MILLIS * 5;
 
     // TODO: Use the Camel AvailablePortFinder.getNextAvailable() test method
     protected static final String HTTP_PORT = "9081";
+
     protected static final String HTTPS_PORT = "9993";
+
     protected static final String SSH_PORT = "9101";
+
     protected static final String RMI_SERVER_PORT = "44445";
+
     protected static final String RMI_REG_PORT = "1100";
 
     @Inject
@@ -68,9 +92,11 @@ public abstract class AbstractIntegrationTest {
 
     @Inject
     protected ConfigurationAdmin configAdmin;
-    
+
     @Inject
     protected FeaturesService features;
+
+    protected CatalogProvider catalogProvider;
 
     static {
         // Make Pax URL use the maven.repo.local setting if present
@@ -92,21 +118,28 @@ public abstract class AbstractIntegrationTest {
                 getPlatformOption(Platform.WINDOWS),
                 getPlatformOption(Platform.NIX),
                 logLevel(LogLevel.INFO),
-//              KarafDistributionOption.keepRuntimeFolder(),
-                mavenBundle("junit","junit","4.10"),
-                mavenBundle("ddf.test.thirdparty","hamcrest-all").versionAsInProject(),
-                mavenBundle("ddf.test.thirdparty","rest-assured").versionAsInProject(),
-                editConfigurationFilePut("etc/org.apache.karaf.shell.cfg", "sshPort", SSH_PORT),
-                editConfigurationFilePut("etc/org.ops4j.pax.web.cfg", "org.osgi.service.http.port", HTTP_PORT),
-                editConfigurationFilePut("etc/org.ops4j.pax.web.cfg", "org.osgi.service.http.port.secure", HTTPS_PORT),
-                editConfigurationFilePut("etc/org.apache.karaf.management.cfg", "rmiRegistryPort", RMI_REG_PORT),
-                editConfigurationFilePut("etc/org.apache.karaf.management.cfg", "rmiServerPort", RMI_SERVER_PORT),
-                replaceConfigurationFile("etc/hazelcast.xml", new File("src/test/resources/hazelcast.xml"))
-                );
+                // KarafDistributionOption.keepRuntimeFolder(),
+                mavenBundle("junit", "junit", "4.10"),
+                mavenBundle("ddf.test.thirdparty", "hamcrest-all")
+                        .versionAsInProject(),
+                mavenBundle("ddf.test.thirdparty", "rest-assured")
+                        .versionAsInProject(),
+                editConfigurationFilePut("etc/org.apache.karaf.shell.cfg",
+                        "sshPort", SSH_PORT),
+                editConfigurationFilePut("etc/org.ops4j.pax.web.cfg",
+                        "org.osgi.service.http.port", HTTP_PORT),
+                editConfigurationFilePut("etc/org.ops4j.pax.web.cfg",
+                        "org.osgi.service.http.port.secure", HTTPS_PORT),
+                editConfigurationFilePut("etc/org.apache.karaf.management.cfg",
+                        "rmiRegistryPort", RMI_REG_PORT),
+                editConfigurationFilePut("etc/org.apache.karaf.management.cfg",
+                        "rmiServerPort", RMI_SERVER_PORT),
+                replaceConfigurationFile("etc/hazelcast.xml", new File(
+                        "src/test/resources/hazelcast.xml")));
         // @formatter:on
     }
 
-    private KarafDistributionKitConfigurationOption getPlatformOption(
+    protected KarafDistributionKitConfigurationOption getPlatformOption(
             Platform platform) {
         String ddfScript = "bin/ddf";
         String adminScript = "bin/admin";
@@ -125,6 +158,64 @@ public abstract class AbstractIntegrationTest {
         platformOption.unpackDirectory(new File("target/exam"));
 
         return platformOption;
+    }
+
+    /**
+     * Creates a Managed Service that is created from a Managed Service Factory.
+     * Waits for the asynchronous call that the properties have been updated and
+     * the service can be used.
+     * 
+     * @param factoryPid
+     *            the factory pid of the Managed Service Factory
+     * @param properties
+     *            the service properties for the Managed Service
+     * @throws IOException
+     *             if access to persistent storage fails
+     * @throws InterruptedException
+     */
+    public void createManagedService(String factoryPid,
+            Dictionary<String, Object> properties, long timeout)
+            throws IOException, InterruptedException {
+
+        final Configuration sourceConfig = configAdmin
+                .createFactoryConfiguration(factoryPid, null);
+
+        ServiceConfigurationListener listener = new ServiceConfigurationListener(
+                sourceConfig.getPid());
+
+        bundleCtx.registerService(ConfigurationListener.class.getName(),
+                listener, null);
+
+        sourceConfig.update(properties);
+
+        long millis = 0;
+        while (!listener.isUpdated() && millis < timeout) {
+            try {
+                Thread.sleep(CONFIG_UPDATE_WAIT_INTERVAL);
+                millis += CONFIG_UPDATE_WAIT_INTERVAL;
+            } catch (InterruptedException e) {
+                LOGGER.info(e);
+            }
+            LOGGER.info("Waiting for configuration to be updated..." + millis
+                    + "ms");
+        }
+
+        if (!listener.isUpdated()) {
+            throw new RuntimeException(
+                    "Service was not updated before timeout ["
+                            + timeout
+                            + "]. Increase the timeout or found why the service was not updated or created.");
+        }
+
+    }
+
+    protected void setLogLevels() throws IOException {
+        Configuration logConfig = configAdmin.getConfiguration(LOG_CONFIG_PID,
+                null);
+        Dictionary<String, Object> properties = logConfig.getProperties();
+        properties.put(LOGGER_PREFIX + "ddf", "TRACE");
+        properties.put(LOGGER_PREFIX + "com.lmco", "TRACE");
+        logConfig.update(properties);
     }
 
     protected void waitForRequiredBundles(String symbolicNamePrefix)
@@ -178,5 +269,54 @@ public abstract class AbstractIntegrationTest {
             }
         }
     }
-    
+
+    protected void waitForCatalogProviderToBeAvailable()
+            throws InterruptedException {
+        ServiceTracker st = new ServiceTracker(bundleCtx,
+                CatalogProvider.class.getName(), null);
+        st.open();
+
+        CatalogProvider provider = (CatalogProvider) st.waitForService(5000);
+
+        boolean ready = false;
+        long timeoutLimit = System.currentTimeMillis() + ONE_MINUTE_MILLIS;
+        while (!ready) {
+            if (provider.isAvailable()) {
+                ready = true;
+            }
+            if (!ready) {
+                if (System.currentTimeMillis() > timeoutLimit) {
+                    fail("Catalog provider timed out.");
+                }
+                Thread.sleep(100);
+            }
+        }
+
+        this.catalogProvider = provider;
+    }
+
+    private class ServiceConfigurationListener implements ConfigurationListener {
+
+        private boolean updated = false;
+
+        private String pid;
+
+        public ServiceConfigurationListener(String pid) {
+            this.pid = pid;
+        }
+
+        @Override
+        public void configurationEvent(ConfigurationEvent event) {
+            System.out.println(event);
+            if (event.getPid().equals(pid)
+                    && event.CM_UPDATED == event.getType()) {
+                updated = true;
+            }
+        }
+
+        public boolean isUpdated() {
+            return updated;
+        }
+    };
+
 }
