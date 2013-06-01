@@ -102,6 +102,16 @@ ${response.setHeader("Content-Type", "text/html")}
 		</div>
 	</div>
 	
+	<!-- Metacard Modal -->
+	<div id="metacardModal" class="modal hide" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+		<div class="modal-body">
+			Loading metacard...
+		</div>
+		<div class="modal-footer">
+			<button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
+		</div>
+	</div>
+	
 	<div class="main" class="container-fluid clear-top">
 		<div class="row-fluid">
 
@@ -386,10 +396,10 @@ ${response.setHeader("Content-Type", "text/html")}
 							<#list request.body.results as result>
 								<tr>
 									<td>
-										<#if (exchange.getProperty("metacardActionProviderList")?size > 0) &&
-											 (exchange.getProperty("metacardActionProviderList")[0].getAction(result.metacard)??) &&
-											 (exchange.getProperty("metacardActionProviderList")[0].getAction(result.metacard).getUrl()??) >
-											<a href="${exchange.getProperty("metacardActionProviderList")[0].getAction(result.metacard).getUrl()?string}">${result.metacard.title!"No Title"}</a>
+										<#if (exchange.getProperty("htmlActionProviderList")?size > 0) &&
+											 (exchange.getProperty("htmlActionProviderList")[0].getAction(result.metacard)??) &&
+											 (exchange.getProperty("htmlActionProviderList")[0].getAction(result.metacard).getUrl()??) >
+											<a class="metacard-modal" href="${exchange.getProperty("htmlActionProviderList")[0].getAction(result.metacard).getUrl()?string}">${result.metacard.title!"No Title"}</a>
 										<#else>
 											${result.metacard.title!"No Title"}
 										</#if>
@@ -419,7 +429,7 @@ ${response.setHeader("Content-Type", "text/html")}
 											<#if (exchange.getProperty("resourceActionProviderList")?size > 0) &&
 												(exchange.getProperty("resourceActionProviderList")[0].getAction(result.metacard)??) &&
 												(exchange.getProperty("resourceActionProviderList")[0].getAction(result.metacard).getUrl()??) >
-												<a href="${exchange.getProperty("resourceActionProviderList")[0].getAction(result.metacard).getUrl()?string}">
+												<a href="${exchange.getProperty("resourceActionProviderList")[0].getAction(result.metacard).getUrl()?string}" target="_blank">
 													<i class="icon-download-alt"></i>
 												</a>
 											</#if>

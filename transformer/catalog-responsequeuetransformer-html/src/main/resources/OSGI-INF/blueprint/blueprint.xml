@@ -46,6 +46,7 @@
 			<setProperty propertyName="catalog"><simple>ref:catalog</simple></setProperty>
 			<setProperty propertyName="sourceInfoReq"><simple>ref:sourceInfoRequestLocal</simple></setProperty>
 			<setProperty propertyName="federatedSites"><simple>ref:federatedSources</simple></setProperty>
+            <setProperty propertyName="htmlActionProviderList"><simple>ref:htmlActionProviderList</simple></setProperty>
 			<setProperty propertyName="metacardActionProviderList"><simple>ref:metacardActionProviderList</simple></setProperty>
 			<setProperty propertyName="thumbnailActionProviderList"><simple>ref:thumbnailActionProviderList</simple></setProperty>
 			<setProperty propertyName="resourceActionProviderList"><simple>ref:resourceActionProviderList</simple></setProperty>
@@ -54,6 +55,7 @@
 		</route>
 	</camelContext>
 
+    <reference-list id="htmlActionProviderList" interface="ddf.action.ActionProvider" filter="(id=catalog.data.metacard.html)" availability="optional"/>
 	<reference-list id="metacardActionProviderList" interface="ddf.action.ActionProvider" filter="(id=catalog.data.metacard.view)" availability="optional"/>
 	<reference-list id="thumbnailActionProviderList" interface="ddf.action.ActionProvider" filter="(id=catalog.data.metacard.thumbnail)" availability="optional"/>
 	<reference-list id="resourceActionProviderList" interface="ddf.action.ActionProvider" filter="(id=catalog.data.metacard.resource)" availability="optional"/>

@@ -67,6 +67,7 @@ public class SearchPageTest {
 	private static final long PAGE_SIZE = 5;
 
 	private static final String URL = SCHEME_SPECIFIC_PART + "/services/catalog/query?format=querypage&count=" + PAGE_SIZE + "&start=1&q=mace&temporalCriteria=absoluteTime&dtend=&dtend=&dtoffset=&offsetTime=&offsetTimeUnits=minutes&radius=14000&lat=45.2&lon=31.2&latitude=45.2&longitude=31.2&radiusValue=14&radiusUnits=kilometers&bbox=&west=&south=&east=&north=&type=Resource&typeList=Resource&src=ddf&federationSources=ddf";
+	private static final String HTML_ACTION = "/someAction/html";
 	private static final String METACARD_ACTION = "/someAction/metacard";
 	private static final String RESOURCE_ACTION = "/someAction/resource";	
 	private static final String HEADER = "Test Header";
@@ -149,9 +150,9 @@ public class SearchPageTest {
     	int count = 0;
     	for(Metacard metacard : getMetacards()) {
     		if(count < PAGE_SIZE) {
-    			assertTrue(generatedHtml.contains("<a href=\"" + generateActionUrl(METACARD_ACTION, metacard) + "\">" + metacard.getTitle() + "</a>"));
+    			assertTrue(generatedHtml.contains("<a class=\"metacard-modal\" href=\"" + generateActionUrl(HTML_ACTION, metacard) + "\">" + metacard.getTitle() + "</a>"));
     		} else {
-    			assertFalse(generatedHtml.contains("<a href=\"" + generateActionUrl(METACARD_ACTION, metacard) + "\">" + metacard.getTitle() + "</a>"));    			
+    			assertFalse(generatedHtml.contains("<a href=\"" + generateActionUrl(HTML_ACTION, metacard) + "\">" + metacard.getTitle() + "</a>"));
     		}
     		count++;
     	}
@@ -165,7 +166,7 @@ public class SearchPageTest {
     			assertFalse(generatedHtml.contains("<a href=\"" + generateActionUrl(RESOURCE_ACTION, metacard) + "\">"));
     		} else {
     			
-    			assertTrue(generatedHtml.contains("<a href=\"" + generateActionUrl(RESOURCE_ACTION, metacard) + "\">"));
+    			assertTrue(generatedHtml.contains("<a href=\"" + generateActionUrl(RESOURCE_ACTION, metacard) + "\" target=\"_blank\">"));
     		}
     		count++;
 		}
@@ -303,6 +304,8 @@ public class SearchPageTest {
 		contentTypes.add(c);
 		contentTypes.add(d);
 
+        List<ActionProvider> htmlActionProviderList = new ArrayList<ActionProvider>();
+        htmlActionProviderList.add(buildActionProvider(HTML_ACTION));
 		List<ActionProvider> metacardActionProviderList = new ArrayList<ActionProvider>();
 		metacardActionProviderList.add(buildActionProvider(METACARD_ACTION));
 		List<ActionProvider> thumbnailActionProviderList = new ArrayList<ActionProvider>();		
@@ -342,6 +345,7 @@ public class SearchPageTest {
 		when(exchange.getProperty("catalog")).thenReturn(catalog);
 		when(exchange.getProperty("sourceInfoReq")).thenReturn(sourceInfoRequestLocal);
 		when(exchange.getProperty("federatedSites")).thenReturn(federatedSourceList);
+		when(exchange.getProperty("htmlActionProviderList")).thenReturn(htmlActionProviderList);
 		when(exchange.getProperty("metacardActionProviderList")).thenReturn(metacardActionProviderList);
 		when(exchange.getProperty("thumbnailActionProviderList")).thenReturn(thumbnailActionProviderList);
 		when(exchange.getProperty("resourceActionProviderList")).thenReturn(resourceActionProviderList);	
