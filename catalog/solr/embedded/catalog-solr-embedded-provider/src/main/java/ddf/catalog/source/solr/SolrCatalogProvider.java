@@ -221,17 +221,16 @@ public class SolrCatalogProvider extends MaskableImpl implements
     @Override
     public boolean isAvailable() {
 
-        // The negative side of "OK" needs to be tested.
-        SolrPingResponse ping;
         try {
 
-            ping = server.ping();
+            SolrPingResponse ping = server.ping();
 
             return "OK".equals(ping.getResponse().get("status"));
-
-        } catch (SolrServerException e) {
-            LOGGER.warn("Solr Server ping request/response failed.", e);
-        } catch (IOException e) {
+        } catch (Exception e) {
+            /*
+             * if we get any type of exception, whether declared by Solr or not,
+             * we do not want to fail, we just want to return false
+             */
             LOGGER.warn("Solr Server ping request/response failed.", e);
         }
 

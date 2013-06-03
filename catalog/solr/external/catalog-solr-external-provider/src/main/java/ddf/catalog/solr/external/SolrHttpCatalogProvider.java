@@ -17,9 +17,7 @@ import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrServer;
-import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
-import org.apache.solr.common.SolrException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,7 +50,7 @@ import ddf.catalog.util.MaskableImpl;
 public class SolrHttpCatalogProvider extends MaskableImpl implements
         CatalogProvider {
 
-    private static final String PING_ERROR_MESSAGE = "Error with ping to Solr Server.";
+    private static final String PING_ERROR_MESSAGE = "Solr Server ping failed.";
 
     private static final String OK_STATUS = "OK";
 
@@ -67,7 +65,7 @@ public class SolrHttpCatalogProvider extends MaskableImpl implements
     private FilterAdapter filterAdapter;
 
     private boolean firstUse;
-
+    
     private static final Logger LOGGER = LoggerFactory
             .getLogger(SolrHttpCatalogProvider.class);
 
@@ -209,7 +207,7 @@ public class SolrHttpCatalogProvider extends MaskableImpl implements
      */
     public void updateServer(String urlValue) {
         LOGGER.info("New url {}", urlValue);
-    
+        
         if (urlValue != null) {
     
             if (!StringUtils.equalsIgnoreCase(urlValue.trim(), url)) {
@@ -224,7 +222,7 @@ public class SolrHttpCatalogProvider extends MaskableImpl implements
                 }
     
                 server = new HttpSolrServer(url);
-    
+                
                 firstUse = true;
     
             }
@@ -251,23 +249,18 @@ public class SolrHttpCatalogProvider extends MaskableImpl implements
     }
 
     private boolean isServerUp(SolrServer solrServer) {
-    
+
         if (solrServer == null) {
             return false;
         }
-    
+
         try {
-            return OK_STATUS.equals(solrServer.ping().getResponse().get("status"));
-        } catch (SolrServerException e) {
+            return OK_STATUS.equals(solrServer.ping().getResponse()
+                    .get("status"));
+        } catch (Exception e) {
             LOGGER.warn(PING_ERROR_MESSAGE, e);
-            return false;
-        } catch (IOException e) {
-            LOGGER.warn(PING_ERROR_MESSAGE, e);
-            return false;
-        } catch (SolrException e) {
-            LOGGER.warn(PING_ERROR_MESSAGE, e);
-            return false;
         }
+        return false;
     }
 
     /**

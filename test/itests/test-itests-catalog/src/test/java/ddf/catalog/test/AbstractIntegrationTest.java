@@ -281,9 +281,7 @@ public abstract class AbstractIntegrationTest {
         boolean ready = false;
         long timeoutLimit = System.currentTimeMillis() + ONE_MINUTE_MILLIS;
         while (!ready) {
-            if (provider.isAvailable()) {
-                ready = true;
-            }
+            ready = provider.isAvailable();
             if (!ready) {
                 if (System.currentTimeMillis() > timeoutLimit) {
                     fail("Catalog provider timed out.");

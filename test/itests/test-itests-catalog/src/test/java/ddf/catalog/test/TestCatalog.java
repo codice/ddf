@@ -87,8 +87,6 @@ public class TestCatalog extends AbstractIntegrationTest {
     }
     
     @Test
-    // Ignoring because of connection pool failure that must be fixed
-    @Ignore
     public void testExternalSolr() throws Exception {
         installExternalSolrAndProvider();
         
