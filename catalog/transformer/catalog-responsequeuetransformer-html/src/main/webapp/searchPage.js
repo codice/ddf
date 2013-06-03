@@ -241,7 +241,7 @@ function updateFederation() {
 }
 
 function restoreTypeSelection(type) {	
-	$("select[name=typeList]:first option:contains('" + type + "')").attr("selected", "selected");
+	$("select[name=typeList] option:contains('" + type + "')").attr("selected", "selected");
 }
 
 function restoreCountSelection(count) {	
