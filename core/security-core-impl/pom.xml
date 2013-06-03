@@ -12,76 +12,117 @@
  *
  **/
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
 
-  <parent>
-    <groupId>ddf.security.core</groupId>
-    <artifactId>security-core-pom</artifactId>
-    <version>2.2.0.RC2-SNAPSHOT</version>
-  </parent>
+    <parent>
+        <groupId>ddf.security.core</groupId>
+        <artifactId>security-core-pom</artifactId>
+        <version>2.2.0.RC2-SNAPSHOT</version>
+    </parent>
 
-  <artifactId>security-core-impl</artifactId>
-  <name>DDF :: Security :: Core :: Implementation</name>
-  <packaging>bundle</packaging>
+    <artifactId>security-core-impl</artifactId>
+    <name>DDF :: Security :: Core :: Implementation</name>
+    <packaging>bundle</packaging>
 
-  <dependencies>
-    <dependency>
-      <groupId>org.apache.shiro</groupId>
-      <artifactId>shiro-core</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>ddf.security.core</groupId>
-      <artifactId>security-core-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>ddf.catalog.core</groupId>
-      <artifactId>catalog-core-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.cxf</groupId>
-      <artifactId>cxf-rt-security</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.cxf</groupId>
-      <artifactId>cxf-rt-frontend-jaxws</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.cxf.services.sts</groupId>
-      <artifactId>cxf-services-sts-core</artifactId>
-    </dependency>
-    <dependency>
-        <groupId>ddf.security.expansion</groupId>
-        <artifactId>security-expansion-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-log4j12</artifactId>
-      <scope>test</scope>
-    </dependency>
-  </dependencies>
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-rt-ws-security</artifactId>
+        </dependency>
 
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.felix</groupId>
-        <artifactId>maven-bundle-plugin</artifactId>
-        <configuration>
-          <instructions>
-            <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-            <Import-Package>
-              javax.servlet.http; version="[2.5.0,3.0.0)",
-              *
-            </Import-Package>
-            <Export-Package>
-              ddf.security.assertion.impl;version=${project.version},
-              ddf.security.ws.policy.impl;version=${project.version}
-            </Export-Package>
-          </instructions>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
+        <dependency>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-rt-transports-http</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>commons-lang</groupId>
+            <artifactId>commons-lang</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-ext</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>servlet-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.shiro</groupId>
+            <artifactId>shiro-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>ddf.security.core</groupId>
+            <artifactId>security-core-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>ddf.catalog.core</groupId>
+            <artifactId>catalog-core-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-rt-security</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-rt-frontend-jaxws</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.cxf.services.sts</groupId>
+            <artifactId>cxf-services-sts-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>ddf.security.expansion</groupId>
+            <artifactId>security-expansion-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <configuration>
+                    <instructions>
+                        <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+                        <Import-Package>
+                            javax.servlet.http; version="[2.5.0,3.0.0)",
+                            *
+                        </Import-Package>
+                        <Export-Package>
+                            ddf.security.impl;version=${project.version},
+                            ddf.security.assertion.impl;version=${project.version},
+                            ddf.security.common;version=${project.version},
+                            ddf.security.common.assertion;version=${project.version},
+                            ddf.security.common.audit;version=${project.version},
+                            ddf.security.common.callback;version=${project.version},
+                            ddf.security.common.util;version=${project.version},
+                            ddf.security.service.impl;version=${project.version},
+                            ddf.security.ws.policy.impl;version=${project.version}
+                        </Export-Package>
+                    </instructions>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>

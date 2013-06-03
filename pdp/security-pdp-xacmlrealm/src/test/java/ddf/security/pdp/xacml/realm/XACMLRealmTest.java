@@ -42,7 +42,7 @@ import ddf.security.pdp.xacml.PdpException;
 import ddf.security.pdp.xacml.realm.XACMLRealm;
 import ddf.security.permission.KeyValueCollectionPermission;
 import ddf.security.permission.KeyValuePermission;
-import ddf.security.service.AbstractAuthorizingRealm;
+import ddf.security.service.impl.AbstractAuthorizingRealm;
 
 
 public class XACMLRealmTest

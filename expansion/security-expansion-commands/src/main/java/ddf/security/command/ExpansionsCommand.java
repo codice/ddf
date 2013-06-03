@@ -13,26 +13,18 @@ package ddf.security.command;
 
 
 import ddf.security.expansion.Expansion;
-import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
 import org.fusesource.jansi.Ansi;
 
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 
 
-@Command( scope = "security", name = "expand", description = "Expands a given key and set of values." )
-public class ExpandCommand extends OsgiCommandSupport
+@Command( scope = "security", name = "expansions", description = "Dumps the current expansion tables." )
+public class ExpansionsCommand extends OsgiCommandSupport
 {
-    @Argument( name = "key", description = "The of the value to be encrypted.", index = 0, multiValued = false, required = true )
-    private String key = null;
-
-    @Argument( name = "values", description = "The set of values to be expanded.", index = 1, multiValued = true, required = true )
-    private Set<String> values = null;
-
     private List<Expansion> expansionList = null;
-
 
     /**
      * Called to execute the security:encrypt console command.
@@ -40,18 +32,22 @@ public class ExpandCommand extends OsgiCommandSupport
     @Override
     protected Object doExecute() throws Exception
     {           
-        if ((key == null) || (values == null))
-        {
-            return null;
-        }
-
         if ((expansionList != null) && (!expansionList.isEmpty()))
         {
             for (Expansion expansion : expansionList)
             {
-                Set<String> expandedValues = expansion.expand(key, values);
+                Map<String, List<String[]>> map = expansion.getExpansionMap();
                 System.out.print( Ansi.ansi().fg( Ansi.Color.YELLOW ).toString() );
-                System.out.println( expandedValues );
+                if ((map != null) && (!map.isEmpty()))
+                {
+                    for (String key : map.keySet())
+                    {
+                        for (String[] mapping : map.get(key))
+                        {
+                            System.out.println(key + " : " + mapping[0] + " : " + mapping[1]);
+                        }
+                    }
+                }
                 System.out.print( Ansi.ansi().fg( Ansi.Color.DEFAULT ).toString() );
             }
         } else
