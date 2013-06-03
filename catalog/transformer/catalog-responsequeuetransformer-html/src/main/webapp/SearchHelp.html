@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<!-- 
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version. 
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ -->
+
+<html>
+<head>
+<meta charset="utf-8">
+
+<title>Search Page Help</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="">
+<meta name="author" content="">
+
+<link href="/search/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+<link href="/search/bootstrap/css/bootstrap-responsive.min.css" rel="stylesheet">
+<link href="/search/help.css" rel="stylesheet">
+
+<!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+<!--[if lt IE 9]>
+		<script src="/search/shim/html5.js"></script>
+	<![endif]-->
+	
+</head>
+<body data-spy="scroll" data-target=".docs-sidebar">
+	<script src="/search/jquery/js/jquery-1.8.2.min.js"></script>
+	<script src="/search/jquery/js/plugin/purl.js"></script>
+
+	<div class="navbar navbar-inverse navbar-fixed-top">
+		<div class="navbar-inner">
+			<div class="container">
+				<a class="brand" href="/search"><i class="icon-globe icon-white"></i><script type="text/javascript">if($.url().param('title') != null) { document.write($.url().param('title')); }</script></a>
+				<div class="nav-collapse collapse">
+					<ul class="nav">
+						<li><a href="/search">Search</a></li>
+					</ul>
+					<ul class="nav pull-right">
+						<li class="active"><a href="#">Help</a></li>
+					</ul>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="container">
+		<div class="row">
+		  <div class="span3 docs-sidebar">
+			<ul class="nav nav-list bs-docs-sidenav">
+			  <li><a href="#intro"><i class="icon-chevron-right"></i> Search Page</a></li>
+			  <li><a href="#layout"><i class="icon-chevron-right"></i> Layout</a></li>
+			   <li><a href="#inputs"><i class="icon-chevron-right"></i> Inputs</a></li>
+			   <li><a href="#results"><i class="icon-chevron-right"></i> Results</a></li>
+			</ul>
+		  </div>
+		  <div class="span9">
+			<section id="intro">
+			  <div class="page-header">
+                <h2>Search Page Help</h2>
+              </div>
+			  <h4>The Search Page help is a web page integrated into the <script type="text/javascript">$.url().param('title') != null) { document.write($.url().param('title')) };</script> system.</h4>
+			  <ul>
+				<li>	It is a web based user interface which enables the user to query for metadata on the DIB Federation
+				<li>	It leverages the DDF OpenSearch Endpoint, along with The Query Response HTML Transformer (both enabled in the <script type="text/javascript">$.url().param('title') != null) { document.write($.url().param('title')) };</script> system console) to generate OpenSearch Queries and render them in a human readable webpage.
+				<li>	Can be accessed via http://&lt;host&gt;:&lt;port&gt;/search
+		Redirects to an empty OpenSearch query, using the querypage format.
+			  </ul>
+			</section>
+			<section id="layout">
+			  <div class="page-header">
+                <h2>Search Page Layout</h2>
+              </div>
+			  <h4>The Search Page contains several panels</h4>
+			  <dl class="dl-horizontal">
+				<dt>Classification Banners</dt><dd>A optional Banner along the top and bottom which states the maximum classification of data available from this system</dd>
+				<dt>Menu Bar</dt><dd>Includes links to this help page and back to the search page</dd>
+				<dt><a href="#inputs">Query Pane</a></dt><dd>A panel on the left side of the page which provides a form for entering query parameters</dd>
+				<dt><a href="#results">Query Results Table</a></dt><dd>A panel to the right of the Query Pane for displaying results from the current query in tabular form</dd>
+			  </dl>
+			</section>
+			<section id="inputs">
+			  <div class="page-header">
+                <h2>Search Page Query Input Form</h2>
+              </div>
+			  <h4>The Input form allows the user to specify keyword, geospatial, temporal, and type query parameters.  It also allows the user to select the sources to search and the number of results to return.</h4>
+			  <dl class="dl-horizontal">
+				<dt>Keyword Search</dt><dd>A text box allowing the user to enter a textual query.  This supports the use of (*) wildcards.  If blank, the query will contain to contextual component</dd>
+				<dt>Temporal Query</dt><dd>Select from any, relative, or absolute.  Any results in no temporal restrictions to the query, relative allows the user to query a period from some length of time in the past until now, and absolute allows the user to specify a start and stop date range</dd>
+				<dt>Spatial Search</dt><dd>Select from any, point-radius, and bounding box.  Any results in no spatial restrictions to the query, point-radius allows the user to specify a lat/lon and radius to search, and a bounding box allows the user to specify an eastern, western, southern and northern boundary to search within</dd>
+				<dt>Type Search</dt><dd>Select from any, or a specific type.  Any results in no type restrictions to the query, and specific types shows a list of known content types on the federation, and allows the user to select a specific type to search for</dd>
+				<dt>Sources</dt><dd>Select from none, all sources, or specific sources.  None results in querying only the local provider, all sources results in an enterprise search where all federations are queried, and specific sources allows the user to select which sources are queried</dd>
+				<dt>Results per Page</dt><dd>Select the number of results to be returned by a single query</dd> 
+				<dt>Submit</dt><dd>Submits the search, and refresh with the result</dd>
+				<dt>Clear</dt><dd>Removes all user entered data from the query form</dd>
+			  </dl>
+			</section>
+			<section id="results">
+			  <div class="page-header">
+                <h2>Search Page Results Table</h2>
+              </div>
+			  <h4>The table of results shows the details of the results found, as well as links (if available) to download the metadata or product.</h4>
+       		  <dl class="dl-horizontal">
+				<dt>Result Count</dt><dd>Total Number of Results available for this query.  If There are more results than the number displayed per page (10) then a page navigation links will appear to the right</dd>
+				<dt>Pages</dt><dd>Provides page navigation, which generate queries for requesting additional pages of results</dd>
+				<dt>Results List</dt><dd>This provides a preview and links of the results</dd>
+			  </dl>
+			  <h4>The following is a list of columns in in the results table</h4>
+			  <dl class="dl-horizontal">
+				<dt>Title</dt><dd>Displays title of the metacard.  This will be a link* which can clicked to download the metacard</dd>
+				<dt>Source</dt><dd>Displays where the metadata came from, which could be the local provider or a federated source</dd>
+				<dt>Location</dt><dd>Displays the WKT Location of the metacard, if available</dd>
+				<dt>Time</dt><dd>Shows the Received (Created) and Effective times of the metacard, if available</dd>
+				<dt>Thumbnail</dt><dd>Shows the thumbnail* of the metacard, if available</dd>
+				<dt>Download</dt><dd>A download link* to retrieve the product associated with the metacard, when applicable, if available</dd>
+			  </dl>
+	* An Action Provider must be enabled via the DDF Web console for this to be available.
+			</section>
+		
+
+		  </div>
+		</div>
+	</div>
+
+	<script src="/search/bootstrap/js/bootstrap.min.js"></script>
+	
+</body>
+</html>
