@@ -34,7 +34,7 @@ ${response.setHeader("Content-Type", "text/html")}
 	</#if>
 </#list>
 
-<title>${exchange.getProperty("title")}: Query Response</title>
+<title><#if exchange.getProperty("branding")??>${exchange.getProperty("branding").getProductName()}</#if> Search</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="description" content="">
 <meta name="author" content="">
@@ -65,24 +65,24 @@ ${response.setHeader("Content-Type", "text/html")}
 		<#if exchange.getProperty("header")??  && exchange.getProperty("header")?length &gt; 0><div class="banner">${exchange.getProperty("header")}</div></#if>
 		<div class="navbar-inner">
 			<div class="container">
-				<a class="brand" href="#"><i class="icon-globe icon-white"></i> ${exchange.getProperty("title")}</a>
+				<a class="brand" href="#"><i class="icon-globe icon-white"></i> <#if exchange.getProperty("branding")??>${exchange.getProperty("branding").getProductName()}</#if></a>
 				<div class="nav-collapse collapse">
 					<ul class="nav">
 						<li class="active"><a href="#">Search</a></li>
 					</ul>
 					<ul class="nav pull-right">
-						<li><a href="#aboutModal" data-toggle="modal">About</a></li>
+						<li><a href="/search/SearchHelp.html<#if exchange.getProperty("branding")??>?title=${exchange.getProperty("branding").getProductName()}</#if>">Help</a></li>
 					</ul>
 				</div>
 			</div>
 		</div>
 	</div>
 
-	<!-- About Modal -->
-	<div id="aboutModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+	<!-- Help Modal -->
+	<div id="helpModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
 		<div class="modal-header">	
 			<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-			<h3>About ${exchange.getProperty("title")}</h3>
+			<h3><#if exchange.getProperty("branding")??>${exchange.getProperty("branding").getProductName()}</#if> Search</h3>
 		</div>
 		<div class="modal-body" id="about_content" style='padding:10px; background:#fff;'>
 			<h3>DDF Query Response Transformer</h3><p>
@@ -120,7 +120,6 @@ ${response.setHeader("Content-Type", "text/html")}
 				<form id="searchForm" class="partialaffix span3 search-controls" method="get">
 					<ul class="nav nav-list well well-small">
 						<input type="hidden" name="format" value="querypage">
-						<input type="hidden" name="count" value="10">
 						<input type="hidden" name="start" value="1">
 
 						<li class="nav-header">Keywords</li>
@@ -161,7 +160,7 @@ ${response.setHeader("Content-Type", "text/html")}
 								<div id="time_relative" name="time_relative" class="tab-pane">
 									<div class="row-fluid">
 										<input type="hidden" name="dtoffset" value="">
-										<div class="span11 input-prepend input-append">										
+										<div class="span11 input-prepend input-append">
 											<div class="span7">
 												<span class="add-on add-on-label">Last</span>
 												<input id="offsetTime" class="span7" name="offsetTime" type="number" onchange="updateOffset()"/>
@@ -310,6 +309,24 @@ ${response.setHeader("Content-Type", "text/html")}
 								</div>
 							</div>
 						</li>
+						
+						<li class="divider"></li>
+
+						<li class="nav-header">Page Size</li>
+						<li>
+							<div class="input-prepend">
+								<span class="add-on">Results per Page</span>
+								<select id="count" class="span4" type="number" name="count">
+									<option value="5">5</option>
+									<option value="10" selected="selected">10</option>
+									<option value="25">25</option>
+									<option value="100">100</option>
+									<option value="500">500</option>
+									<option value="1000">1000</option>
+								</select>
+							</div>
+						</li>
+						
 						<li>
 							<div class="form-actions">
 								<button class="btn btn-primary " type="submit">

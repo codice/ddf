@@ -120,11 +120,6 @@ public class SearchPageTest {
     }
     
     @Test 
-    public void testTitle() {
-    	assertTrue(generatedHtml.contains("<a class=\"brand\" href=\"#\"><i class=\"icon-globe icon-white\"></i> " + TITLE + "</a>"));
-    }
-
-    @Test 
     public void testSites() {
     	// contains each site once and only once
     	assertTrue(containsExactlyOnce(generatedHtml, "<option>" + LOCAL_ID + "</option>"));

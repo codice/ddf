@@ -127,6 +127,8 @@ if(type) {
 	$('button[name=noTypeButton]').click();		
 }
 
+restoreCountSelection(urlVals.param('count'));
+
 // end of initialization logic
 
 $('button[name=noTemporalButton]').on('click', function (e) {
@@ -239,7 +241,11 @@ function updateFederation() {
 }
 
 function restoreTypeSelection(type) {	
-	$("select[name=typeList] option:contains('" + type + "')").attr("selected", "selected");
+	$("select[name=typeList]:first option:contains('" + type + "')").attr("selected", "selected");
+}
+
+function restoreCountSelection(count) {	
+	$("select[name=count] option").filter(function() {return $(this).text() == count}).attr("selected", "selected");
 }
 
 function updateType() {

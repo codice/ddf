@@ -18,7 +18,6 @@
 
 	<cm:property-placeholder persistent-id="query.response.transformer.properties" update-strategy="reload">
 		<cm:default-properties>
-			<cm:property name="title" value="Search"/>
 			<cm:property name="header" value=""/>
 			<cm:property name="footer" value=""/>
 			<cm:property name="color" value="yellow"/>
@@ -38,12 +37,12 @@
 	<camelContext xmlns="http://camel.apache.org/schema/blueprint" depends-on="catalogComponent">
 		<route>
 			<from uri="catalog:queryresponsetransformer?id=querypage&amp;mimeType=text/html" /> 
-			<setProperty propertyName="title"><constant>{{title}}</constant></setProperty>
 			<setProperty propertyName="header"><constant>{{header}}</constant></setProperty>
 			<setProperty propertyName="footer"><constant>{{footer}}</constant></setProperty>
 			<setProperty propertyName="color"><constant>{{color}}</constant></setProperty>
 			<setProperty propertyName="background"><constant>{{background}}</constant></setProperty>
 			<setProperty propertyName="catalog"><simple>ref:catalog</simple></setProperty>
+			<setProperty propertyName="branding"><simple>ref:branding</simple></setProperty>
 			<setProperty propertyName="sourceInfoReq"><simple>ref:sourceInfoRequestLocal</simple></setProperty>
 			<setProperty propertyName="federatedSites"><simple>ref:federatedSources</simple></setProperty>
             <setProperty propertyName="htmlActionProviderList"><simple>ref:htmlActionProviderList</simple></setProperty>
@@ -65,6 +64,8 @@
 	</bean>
 
 	<reference id="catalog" interface="ddf.catalog.CatalogFramework"/>
+
+	<reference id="branding" interface="org.apache.felix.webconsole.BrandingPlugin"/>
 
 	<reference-list id="federatedSources" interface="ddf.catalog.source.FederatedSource" availability="optional"/>
 
