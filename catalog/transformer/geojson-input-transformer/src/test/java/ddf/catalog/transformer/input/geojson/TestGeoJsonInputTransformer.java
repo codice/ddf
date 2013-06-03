@@ -47,7 +47,7 @@ public class TestGeoJsonInputTransformer {
 	public static final byte[] DEFAULT_BYTES = { 8 };
 	private static final BundleContext context = mock(BundleContext.class);
 	private static List<QualifiedMetacardType> qmtList = new ArrayList<QualifiedMetacardType>();
-	private static final MetacardTypeRegistry mtr = MetacardTypeRegistryImpl.getInstance(context, qmtList);
+	private static final MetacardTypeRegistry mtr = MetacardTypeRegistryImpl.getInstance();
 
 	@Test(expected = CatalogTransformerException.class)
 	public void testNullInput() throws IOException, CatalogTransformerException {

@@ -86,4 +86,113 @@ public class MetacardTypeImplTest {
 		assertTrue(oldAd.isEmpty());
 		assertTrue(newAd.isEmpty());
 	}
+	
+    @Test
+    public void testEquals() {
+
+	MetacardTypeImpl metacardType1 = generateMetacardType("metacardType", 0);
+	
+	MetacardTypeImpl metacardType2 = generateMetacardType("metacardType", 0);	
+	
+	assertTrue(metacardType1.equals(metacardType2));
+	assertTrue(metacardType2.equals(metacardType1));
+    }
+
+    @Test
+    public void testEquals_DifferentDescriptors() {
+
+	MetacardTypeImpl metacardType1 = generateMetacardType("metacardType", 0);
+	
+	MetacardTypeImpl metacardType2 = generateMetacardType("metacardType", 1);	
+	
+	assertTrue(!metacardType1.equals(metacardType2));
+	assertTrue(!metacardType2.equals(metacardType1));
+    }
+    
+    @Test
+    public void testEquals_DifferentNames() {
+
+	MetacardTypeImpl metacardType1 = generateMetacardType("differentName", 0);
+	
+	MetacardTypeImpl metacardType2 = generateMetacardType("metacardType", 0);	
+	
+	assertTrue(!metacardType1.equals(metacardType2));
+	assertTrue(!metacardType2.equals(metacardType1));
+    }
+    
+    @Test
+    public void testEquals_NullNames() {
+
+	MetacardTypeImpl metacardType1 = generateMetacardType(null, 0);
+
+	MetacardTypeImpl metacardType2 = generateMetacardType(null, 0);	
+	
+	assertTrue(metacardType1.equals(metacardType2));
+	assertTrue(metacardType2.equals(metacardType1));
+    }
+    
+    @Test
+    public void testEquals_NullDescriptors() {
+
+	MetacardTypeImpl metacardType1 = generateMetacardType("name", 2);
+
+	MetacardTypeImpl metacardType2 = generateMetacardType("name", 2);		
+	
+	assertTrue(metacardType1.equals(metacardType2));
+	assertTrue(metacardType2.equals(metacardType1));
+    }
+    
+    @Test
+    public void testEquals_SubClass(){
+        HashSet<AttributeDescriptor> descriptors = new HashSet<AttributeDescriptor>();
+        descriptors.add(new AttributeDescriptorImpl("id", true, true, false, false, BasicTypes.STRING_TYPE));
+        descriptors.add(new AttributeDescriptorImpl("title", true, true, false, false, BasicTypes.STRING_TYPE));
+       	descriptors.add(new AttributeDescriptorImpl("frequency", true, true, false, false, BasicTypes.DOUBLE_TYPE));
+	MetacardTypeImplExtended extendedMetacardType = new MetacardTypeImplExtended("metacard-type-extended", descriptors, "description of metacard type extended");
+	
+	MetacardTypeImpl metacardType = generateMetacardType("metacard-type-extended", 0);
+	
+	assertTrue(extendedMetacardType.equals(metacardType));
+	assertTrue(metacardType.equals(extendedMetacardType));	
+    }
+
+    private MetacardTypeImpl generateMetacardType(String name, int descriptorSetIndex) {
+    
+        HashSet<AttributeDescriptor> descriptors = new HashSet<AttributeDescriptor>();
+        switch (descriptorSetIndex) {
+            case 0:
+        	descriptors.add(new AttributeDescriptorImpl("id", true, true, false, false, BasicTypes.STRING_TYPE));
+        	descriptors.add(new AttributeDescriptorImpl("title", true, true, false, false, BasicTypes.STRING_TYPE));
+        	descriptors.add(new AttributeDescriptorImpl("frequency", true, true, false, false,
+        		BasicTypes.DOUBLE_TYPE));
+        	break;
+            case 1:
+        	descriptors.add(new AttributeDescriptorImpl("id", true, true, false, false, BasicTypes.STRING_TYPE));
+        	descriptors.add(new AttributeDescriptorImpl("title", true, true, false, false, BasicTypes.STRING_TYPE));
+        	descriptors
+        		.add(new AttributeDescriptorImpl("height", true, true, false, false, BasicTypes.DOUBLE_TYPE));
+        	break;
+            case 2:
+        	descriptors = null;
+        	break;
+        }
+    
+        return new MetacardTypeImpl(name, descriptors);
+    }
+    
+    private class MetacardTypeImplExtended extends MetacardTypeImpl{
+
+	private String description;
+	
+	public MetacardTypeImplExtended(String name, Set<AttributeDescriptor> descriptors, String description) {
+	    super(name, descriptors);
+	    this.description = description;
+	}
+	
+	public String getDescription(){
+	    return description;
+	}
+	
+    }
+    
 }

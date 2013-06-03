@@ -13,6 +13,18 @@ package ddf.catalog.data;
 
 import java.util.Set;
 
+/**
+ * Default implementation of the QualifiedMetacardType.  
+ * 
+ * <p><b>
+ * This code is experimental.  While this class is functional and tested, 
+ * it may change or be removed in a future version of the library.
+ * </b></p>
+ * 
+ * @author Ian Barnett
+ * @author ddf.isgs@lmco.com
+ *
+ */
 public class QualifiedMetacardTypeImpl extends MetacardTypeImpl implements QualifiedMetacardType {
 
     private static final long serialVersionUID = -5596051498437529825L;
@@ -42,4 +54,40 @@ public class QualifiedMetacardTypeImpl extends MetacardTypeImpl implements Quali
 	return namespace;
     }
 
+    @Override
+    public int hashCode() {
+	final int prime = 31;
+	int result = super.hashCode();
+	result = prime * result
+		+ ((namespace == null) ? 0 : namespace.hashCode());
+	return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+	if(!super.equals(obj)){
+	    return false;
+	}
+	
+	if(!(obj instanceof MetacardType)){
+	    return false;
+	}
+
+	if (obj instanceof QualifiedMetacardType) {
+	    QualifiedMetacardTypeImpl other = (QualifiedMetacardTypeImpl) obj;
+
+	    if (namespace == null) {
+		if (other.namespace != null) {
+		    return false;
+		}
+	    } else if (!namespace.equals(other.namespace)) {
+		return false;
+	    }
+
+	}
+		
+	return true;
+    }
+
+    
 }
