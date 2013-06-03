@@ -42,10 +42,6 @@
       <artifactId>cxf-rt-transports-http</artifactId>
     </dependency>
     <dependency>
-      <groupId>ddf.security.core</groupId>
-      <artifactId>security-core-commons</artifactId>
-    </dependency>
-    <dependency>
       <groupId>ddf.security.sts</groupId>
       <artifactId>security-sts-clientconfig</artifactId>
     </dependency>

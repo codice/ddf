@@ -40,7 +40,6 @@
         <dependency>
             <groupId>ddf.security.core</groupId>
             <artifactId>security-core-impl</artifactId>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>ddf.security.pdp</groupId>
@@ -51,10 +50,6 @@
 			<groupId>org.apache.cxf</groupId>
 			<artifactId>cxf-rt-ws-security</artifactId>
 		</dependency>
-        <dependency>
-            <groupId>ddf.security.core</groupId>
-            <artifactId>security-core-commons</artifactId>
-        </dependency>
     </dependencies>
 
     <build>
@@ -65,6 +60,9 @@
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+                        <Import-Package>
+                            *
+                        </Import-Package>
                         <Export-Package />
                     </instructions>
                 </configuration>

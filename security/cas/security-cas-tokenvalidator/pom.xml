@@ -54,11 +54,11 @@
     </dependency>
 
     <dependency>
-      <groupId>ddf.security.core</groupId>
-      <artifactId>security-core-commons</artifactId>
+       <groupId>ddf.security.core</groupId>
+       <artifactId>security-core-impl</artifactId>
     </dependency>
 
-    <dependency>
+      <dependency>
       <groupId>ddf.security.sts</groupId>
       <artifactId>security-sts-clientconfig</artifactId>
     </dependency>

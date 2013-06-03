@@ -55,15 +55,15 @@
             <artifactId>log4j</artifactId>
         </dependency>
         
-        <dependency>
-      		<groupId>ddf.security.core</groupId>
-      		<artifactId>security-core-commons</artifactId>
-    	</dependency>
-    	
     	<dependency>
     	    <groupId>ddf.security.encryption</groupId>
     	    <artifactId>security-encryption-api</artifactId>
     	</dependency>
+
+        <dependency>
+            <groupId>ddf.security.core</groupId>
+            <artifactId>security-core-impl</artifactId>
+        </dependency>
     </dependencies>
 
     <build>

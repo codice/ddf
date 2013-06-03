@@ -15,7 +15,7 @@ package ddf.security.pep.interceptor;
 import ddf.catalog.Constants;
 import ddf.security.Subject;
 import ddf.security.assertion.SecurityAssertion;
-import ddf.security.common.assertion.SecurityAssertionStore;
+import ddf.security.service.impl.SecurityAssertionStore;
 import ddf.security.common.audit.SecurityLogger;
 import ddf.security.permission.ActionPermission;
 import ddf.security.service.SecurityManager;

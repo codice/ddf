@@ -17,7 +17,7 @@ import ddf.security.permission.CollectionPermission;
 import ddf.security.permission.KeyValueCollectionPermission;
 import ddf.security.permission.KeyValuePermission;
 import ddf.security.permission.MatchOneCollectionPermission;
-import ddf.security.service.AbstractAuthorizingRealm;
+import ddf.security.service.impl.AbstractAuthorizingRealm;
 import org.apache.commons.lang.StringUtils;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationInfo;
@@ -42,7 +42,7 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * This simple Authz {@link ddf.security.service.AbstractAuthorizingRealm} provides the ability to check permissions without making calls
+ * This simple Authz {@link ddf.security.service.impl.AbstractAuthorizingRealm} provides the ability to check permissions without making calls
  * out to an external PDP. {@link Permission} objects are checked against each other to ensure that the subject permissions
  * imply the resource permissions.
  *

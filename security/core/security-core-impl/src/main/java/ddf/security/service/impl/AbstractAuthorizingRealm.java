@@ -9,7 +9,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-package ddf.security.service;
+package ddf.security.service.impl;
 
 
 import ddf.security.assertion.SecurityAssertion;

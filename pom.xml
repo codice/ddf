@@ -1713,12 +1713,6 @@
 			</dependency>
 
 			<dependency>
-				<groupId>ddf.security.core</groupId>
-				<artifactId>security-core-commons</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-
-			<dependency>
 				<groupId>ddf.content.core</groupId>
 				<artifactId>content-core-impl</artifactId>
 				<version>${project.version}</version>

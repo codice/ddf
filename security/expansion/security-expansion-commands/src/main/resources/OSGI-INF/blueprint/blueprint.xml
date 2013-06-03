@@ -15,15 +15,22 @@
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
 
  
-	<reference id="expansion" interface="ddf.security.expansion.Expansion" />
+    <reference-list id="expanders" interface="ddf.security.expansion.Expansion"
+                    availability="optional" />
 
 	<command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.0.0">
 
 		<command name="security/expand">
 			<action class="ddf.security.command.ExpandCommand">
-				<property name="expansion" ref="expansion"/>
+				<property name="expansionList" ref="expanders"/>
 			</action>
 		</command>
+
+        <command name="security/expansions">
+            <action class="ddf.security.command.ExpansionsCommand">
+                <property name="expansionList" ref="expanders"/>
+            </action>
+        </command>
 
 	</command-bundle>
 

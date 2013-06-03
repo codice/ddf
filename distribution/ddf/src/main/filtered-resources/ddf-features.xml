@@ -31,6 +31,7 @@
 	<repository>mvn:ddf.catalog.transformer/catalog-transformer-app/${project.version}/xml/features</repository>
 	<repository>mvn:ddf.security.core/security-core-app/${project.version}/xml/features</repository>
     <repository>mvn:ddf.security.encryption/security-encryption-app/${project.version}/xml/features</repository>
+    <repository>mvn:ddf.security.expansion/security-expansion-app/${project.version}/xml/features</repository>
     <repository>mvn:ddf.ldap.embedded/ldap-embedded-app/${project.version}/xml/features</repository>
     <repository>mvn:ddf.security.cas/security-cas-app/${project.version}/xml/features</repository>
     <repository>mvn:ddf.security.sts/security-sts-app/${project.version}/xml/features</repository>
@@ -55,6 +56,7 @@
 		<feature>mime-tika-resolver</feature>
 		<feature>metrics-reporting</feature>
         <feature>security-encryption</feature>
+        <feature>security-expansion</feature>
 		<feature>security-core</feature>
         <feature>security-sts-realm</feature>
 

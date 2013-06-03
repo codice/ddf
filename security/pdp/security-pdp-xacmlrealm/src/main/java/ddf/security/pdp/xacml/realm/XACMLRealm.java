@@ -42,7 +42,7 @@ import ddf.security.permission.ActionPermission;
 import ddf.security.permission.CollectionPermission;
 import ddf.security.permission.KeyValueCollectionPermission;
 import ddf.security.permission.KeyValuePermission;
-import ddf.security.service.AbstractAuthorizingRealm;
+import ddf.security.service.impl.AbstractAuthorizingRealm;
 
 
 /**

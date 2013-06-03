@@ -16,11 +16,10 @@
   <feature name="security-core" version="${project.version}" description="DDF Security Core">
     <feature>cxf-rt-security</feature>
     <bundle>mvn:org.apache.shiro/shiro-core/${shiro.version}</bundle>
-    <bundle>mvn:ddf.security.core/security-core-commons/${project.version}</bundle>
     <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.bcprov-jdk15/${org.apache.servicemix.bundles.bcprov-jdk15.version}
     </bundle>
     <bundle>mvn:ddf.security.core/security-core-opensaml/${project.version}</bundle>
-
+    <bundle>mvn:ddf.security.expansion/security-expansion-api/${project.version}</bundle>
     <bundle>mvn:ddf.security.core/security-core-api/${project.version}</bundle>
     <bundle>mvn:ddf.security.core/security-core-impl/${project.version}</bundle>
     
