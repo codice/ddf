@@ -189,7 +189,7 @@ $('button[name=enterpriseFederationButton]').on('click', function (e) {
 $('.metacard-modal').live('click', function(e) {
     e.preventDefault();
     var url = $(this).attr('href');
-    $("#metacardModal .modal-body").html('<iframe width="100%" height="100%" frameborder="0" scrolling="yes" allowtransparency="true" style="display: block; vertical-align: bottom;" src="' + url + '"></iframe>');
+    $('#metacardModal .modal-body').html('<iframe id="metacardIframe" frameborder="0" scrolling="yes" allowtransparency="false" src="' + url + '"></iframe>');
     $('#metacardModal').modal('show');
 });
 
