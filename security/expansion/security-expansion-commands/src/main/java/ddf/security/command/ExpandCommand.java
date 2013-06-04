@@ -21,7 +21,10 @@ import org.fusesource.jansi.Ansi;
 import java.util.List;
 import java.util.Set;
 
-
+/**
+ * Implements the "expand" command - taking an attribute name and the current value, and prints out what the
+ * expansion of that value is using the currently-configured expansion service.
+ */
 @Command( scope = "security", name = "expand", description = "Expands a given key and set of values." )
 public class ExpandCommand extends OsgiCommandSupport
 {
@@ -31,6 +34,7 @@ public class ExpandCommand extends OsgiCommandSupport
     @Argument( name = "values", description = "The set of values to be expanded.", index = 1, multiValued = true, required = true )
     private Set<String> values = null;
 
+    // live list of expansion services
     private List<Expansion> expansionList = null;
 
 

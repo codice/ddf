@@ -29,7 +29,6 @@
   <modules>
     <module>security-core-api</module>
     <module>security-core-impl</module>
-    <!-- <module>security-core-commons</module> -->
     <module>security-core-opensaml</module>
     <module>security-core-app</module>
   </modules>

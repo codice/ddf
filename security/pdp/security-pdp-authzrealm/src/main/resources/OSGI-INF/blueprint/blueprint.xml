@@ -17,7 +17,7 @@
     <bean id="pdpAuthzRealm" class="ddf.security.pdp.realm.SimpleAuthzRealm">
         <cm:managed-properties persistent-id="ddf.security.pdp.realm.SimpleAuthzRealm"
                                update-strategy="container-managed" />
-        <property name="expansionService" ref="userAttributeExpansion"/>
+        <property name="expansionServiceList" ref="userAttributeExpansionList"/>
         <property name="accessRoleList">
             <list>
                 <value>admin</value>
@@ -25,8 +25,8 @@
         </property>
     </bean>
 
-    <reference id="userAttributeExpansion" interface="ddf.security.expansion.Expansion"
-             filter="(mapping=security.user.attribute.mapping)" />
+    <reference-list id="userAttributeExpansionList" interface="ddf.security.expansion.Expansion"
+              filter="(mapping=security.user.attribute.mapping)" availability="optional" />
 
     <service ref="pdpAuthzRealm">
         <interfaces>
