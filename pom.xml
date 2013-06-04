@@ -1967,11 +1967,6 @@
 			<name>ServiceMix Releases</name>
 			<url>http://svn.apache.org/repos/asf/servicemix/m2-repo</url>
 		</repository>
-	    <repository>
-			<id>fusesource</id>
-			<name>FuseSource</name>
-			<url>http://repo.fusesource.com/maven2/</url>
-		</repository>
 		<repository>
 			<id>codice</id>
 			<name>Codice Repository</name>
