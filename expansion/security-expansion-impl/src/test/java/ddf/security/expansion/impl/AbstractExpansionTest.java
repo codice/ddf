@@ -18,6 +18,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -219,5 +220,39 @@ public class AbstractExpansionTest
         assert(result.contains("B"));
         assert(result.contains("C"));
         assert(result.contains("D"));
+    }
+
+    @Test
+    public void testLoadConfiguration()
+    {
+        Map<String, List<String[]>> map = new HashMap<String, List<String[]>>();
+        StraightExpansionImpl exp = new StraightExpansionImpl();
+
+        URL testConfigFile = ClassLoader.getSystemResource("testExpansionConfig.cfg");
+        String filename = testConfigFile.getFile();
+        exp.loadConfiguration(filename);
+
+        map = exp.getExpansionMap();
+        assertMapsAreEqual(map, testmap);
+
+        // make sure exisitng rules get cleared on reload
+        exp.addExpansionRule("xyz", rule4);
+
+        exp.loadConfiguration(filename);
+        map = exp.getExpansionMap();
+        assertMapsAreEqual(map, testmap);
+
+        exp.loadConfiguration("");
+        map = exp.getExpansionMap();
+        assert(map.isEmpty());
+
+        exp.loadConfiguration(null);
+        map = exp.getExpansionMap();
+        assert(map.isEmpty());
+
+        exp = new StraightExpansionImpl();
+        exp.loadConfiguration(null);
+        map = exp.getExpansionMap();
+        assert(map.isEmpty());
     }
 }

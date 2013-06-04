@@ -1,13 +1,17 @@
 /**
  * Copyright (c) Codice Foundation
- *
- * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
- * version 3 of the License, or any later version. 
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * 
+ * This is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU Lesser General Public License as published by the Free
+ * Software Foundation, either version 3 of the License, or any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * details. A copy of the GNU Lesser General Public License is distributed along
+ * with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
+ * 
  **/
 package ddf.security.service.impl;
 
@@ -47,15 +51,20 @@ public abstract class AbstractAuthorizingRealm extends AuthorizingRealm
 
     private static final String SAML_ROLE = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role";
 
-    private Expansion expansionService;
+    private List<Expansion> expansionServiceList;
 
     /**
-     * Takes the security attributes about the subject of the incoming security token and builds
-     * sets of permissions and roles for use in further checking.
-     * @param principalCollection  holds the security assertions for the primary principal of this request
-     * @return  a new collection of permissions and roles corresponding to the security assertions
-     * @throws AuthorizationException if there are no security assertions associated with this principal collection
-     *          or if the token cannot be processed successfully.
+     * Takes the security attributes about the subject of the incoming security
+     * token and builds sets of permissions and roles for use in further
+     * checking.
+     * 
+     * @param principalCollection holds the security assertions for the primary
+     *            principal of this request
+     * @return a new collection of permissions and roles corresponding to the
+     *         security assertions
+     * @throws AuthorizationException if there are no security assertions
+     *             associated with this principal collection or if the token
+     *             cannot be processed successfully.
      */
     @Override
     protected AuthorizationInfo doGetAuthorizationInfo( PrincipalCollection principalCollection )
@@ -88,7 +97,7 @@ public abstract class AbstractAuthorizingRealm extends AuthorizingRealm
                     curPermission = new KeyValuePermission(curAttribute.getName());
                     if (attributeSet != null)
                     {
-                        for (String attr : attributeSet)
+                        for ( String attr : attributeSet )
                         {
                             curPermission.addValue(attr);
                             if (SAML_ROLE.equals(curAttribute.getName()))
@@ -115,31 +124,48 @@ public abstract class AbstractAuthorizingRealm extends AuthorizingRealm
         return info;
     }
 
-    private Set<String> expandAttributes(Attribute attribute)
+    /**
+     * Takes an {@link org.opensaml.saml2.core.Attribute} and utilizes the
+     * {@link ddf.security.expansion.Expansion} service to potentially expand it
+     * to a different/enhanced set of attributes. This expansion is controlled
+     * by the configuration of the expansion service but relies on the name of
+     * this attribute as a key. The returned set of Strings represent the
+     * possibly expanded set of attributes to be added to the current
+     * permissions.
+     * 
+     * @param attribute current attribute whose values are to be potentially
+     *            expanded
+     * @return a set of potentially expanded values
+     */
+    private Set<String> expandAttributes( Attribute attribute )
     {
         Set<String> attributeSet = new HashSet<String>();
         String attributeName = attribute.getName();
-        for (XMLObject curValue : attribute.getAttributeValues())
+        for ( XMLObject curValue : attribute.getAttributeValues() )
         {
             if (curValue instanceof XSString)
             {
                 attributeSet.add(((XSString) curValue).getValue());
-            } else
+            }
+            else
             {
                 LOGGER.info("Unexpected attribute type (non-string) for attribute named {} - ignored", attributeName);
             }
         }
-        if (expansionService != null)
+        if (expansionServiceList != null)
         {
-            LOGGER.debug("Expanding attributes for {} - original values: {}", attributeName, attributeSet);
-            attributeSet = expansionService.expand(attributeName, attributeSet);
+            for ( Expansion expansionService : expansionServiceList )
+            {
+                LOGGER.debug("Expanding attributes for {} - original values: {}", attributeName, attributeSet);
+                attributeSet = expansionService.expand(attributeName, attributeSet);
+            }
         }
         LOGGER.debug("Expanded attributes for {} - values: {}", attributeName, attributeSet);
         return attributeSet;
     }
 
-    public void setExpansionService(Expansion expansionService)
+    public void setExpansionServiceList( List<Expansion> expansionServiceList )
     {
-        this.expansionService = expansionService;
+        this.expansionServiceList = expansionServiceList;
     }
 }

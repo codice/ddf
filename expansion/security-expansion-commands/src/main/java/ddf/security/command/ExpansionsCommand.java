@@ -20,10 +20,14 @@ import org.fusesource.jansi.Ansi;
 import java.util.List;
 import java.util.Map;
 
-
+/**
+ * Implements the "expansions" command - dumps the current expansion mapping table for each
+ * expansion service.
+ */
 @Command( scope = "security", name = "expansions", description = "Dumps the current expansion tables." )
 public class ExpansionsCommand extends OsgiCommandSupport
 {
+    // live list of expansion services
     private List<Expansion> expansionList = null;
 
     /**

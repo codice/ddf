@@ -17,6 +17,8 @@
     <bean id="userAttributeExpansion" class="ddf.security.expansion.impl.StraightExpansionImpl">
         <cm:managed-properties persistent-id="ddf.security.user.attribute.mapping"
                                update-strategy="container-managed" />
+        <property name="attributeSeparator" value=" " />
+        <property name="expansionFileName" value="file:${ddf.home}/security/ddf-user-attribute-ruleset.cfg"/>
     </bean>
 
     <service ref="userAttributeExpansion" interface="ddf.security.expansion.Expansion" ranking="3">

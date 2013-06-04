@@ -13,8 +13,6 @@ package ddf.security.expansion.impl;
 
 public class RegexExpansion extends AbstractExpansion
 {
-
-
     public RegexExpansion()
     {
     }

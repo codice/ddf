@@ -15,6 +15,10 @@ import ddf.security.expansion.Expansion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -27,22 +31,43 @@ import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
 /**
- * Created with IntelliJ IDEA.
- * User: beyelerb
- * Date: 5/29/13
- * Time: 1:29 PM
- * To change this template use File | Settings | File Templates.
+ * Base class for all expansion services. Provides the generic setting/getting for attribute
+ * separator as well as the actual map of expansion rules. Defines an abstrace <code>doExpansion</code>
+ * method to be overridden with the appropriate logic.
  */
 public abstract class AbstractExpansion implements Expansion
 {
+    /**
+     * Default string that separates individual attributes in the replacement strings.
+     */
     public static final String DEFAULT_VALUE_SEPARATOR = " ";
+    /**
+     * Separator for various parts of the rules when presented as a string.
+     */
     public static final String RULE_SPLIT_REGEX = ":";
+    /**
+     * String to mark the line as a comment in the configuration file
+     */
+    public static final String CFG_COMMENT_STR = "#";
+    /**
+     * String to identify the line containing the attribute separator string in the configuration file.
+     */
+    public static final String SEPARATOR_PREFIX = "separator=";
+    /**
+     * Default filename for the user attribute mapping configuration file.
+     */
+    public static final String DEFAULT_CONFIG_FILE_NAME = "ddf-user-attribute-ruleset.cfg";
+
     protected static final Logger LOGGER = LoggerFactory.getLogger(RegexExpansion.class);
     protected Pattern rulePattern = Pattern.compile(RULE_SPLIT_REGEX);  //("\\[(.+)\\|(.*)\\]");
     protected Map<String, List<String[]>> expansionTable;
     private String key;
     private String attributeSeparator = DEFAULT_VALUE_SEPARATOR;
+    private String expansionFilename = DEFAULT_CONFIG_FILE_NAME;
 
+    /*
+     * @see ddf.security.expansion.Expansion#expand(Map<String, Set<String>>)
+     */
     @Override
     public Map<String, Set<String>> expand(Map<String, Set<String>> map)
     {
@@ -59,6 +84,9 @@ public abstract class AbstractExpansion implements Expansion
         return map;
     }
 
+    /*
+     * @see ddf.security.expansion.Expansion#expand(String, Set<String>)
+     */
     @Override
     public Set<String> expand(String key, Set<String> values)
     {
@@ -139,19 +167,49 @@ public abstract class AbstractExpansion implements Expansion
         return currentSet;
     }
 
+    /**
+     * This is the method that will do the actual expansion - interpreting the rules and expanding the
+     * values. It is abstract and will be overridden by each concrete implementation.
+     * @param original  the original value of the attribute
+     * @param rule  the rule that describes the expansion for one specific attribute value
+     * @return  the (possibly) expanded result of applying the rule to the original value
+     */
     protected abstract String doExpansion(String original, String[] rule);
 
+    /*
+     * @see ddf.security.expansion.Expansion#getExpansionMap()
+     */
     @Override
     public Map<String, List<String[]>> getExpansionMap()
     {
+        if (expansionTable == null)
+            return null;
+
         return Collections.unmodifiableMap(expansionTable);
     }
 
+    /**
+     * Sets the expansion map (which includes a set of keys corresponding to attribute names, each
+     * with a corresponding list of rules that apply to that attribute. If the passed in table is
+     * null, an empty expansion map is created.
+     * @param table  the complete map of attributes and their corresponding list of rules
+     */
     public void setExpansionMap(Map<String, List<String[]>> table)
     {
-        expansionTable = table;
+        if (table == null)
+            expansionTable = new HashMap<String, List<String[]>>();
+        else
+            expansionTable = table;
     }
 
+    /**
+     * Adds an individual expansion rule to the existing (or newly created) expansion map.
+     * If an entry already exists for the given attribute key, this rule is added to that entry,
+     * if an entry doesn't exist, it is created and then this rule added. If invalid input is
+     * received, nothing is done.
+     * @param key  the attribute for which the corresponding rule should be added
+     * @param rule  the expansion rule to apply to the corresponding attribute
+     */
     public void addExpansionRule(String key, String[] rule)
     {
         if ((key == null) || (key.isEmpty()) || (rule == null) || (rule.length != 2))
@@ -179,6 +237,13 @@ public abstract class AbstractExpansion implements Expansion
         list.add(rule);
     }
 
+    /**
+     * Removes a single rule from the expansion map (if it exists). Returns a boolean indicating if
+     * the specified rule was successfully removed.
+     * @param key  the attribute for which the corresponding rule should be removed
+     * @param rule  the rule to be removed from the list of rules for the corresponding attribute
+     * @return  true if the rule was found and removed, false otherwise
+     */
     public boolean removeExpansionRule(String key, String[] rule)
     {
         boolean result = false;
@@ -198,6 +263,12 @@ public abstract class AbstractExpansion implements Expansion
         return result;
     }
 
+    /**
+     * Adds a list of rules corresponding to the give key in the expansion map. Convenience method for
+     * adding each rule individually.
+     * @param key  the attribute for which the corresponding list of rules will be added
+     * @param list  the list of rules to be added to the corresponding attribute
+     */
     public void addExpansionList(String key, List<String[]> list)
     {
         if ((key == null) || (key.isEmpty()) || (list == null) || (list.size() == 0))
@@ -216,6 +287,11 @@ public abstract class AbstractExpansion implements Expansion
         }
     }
 
+    /**
+     * Adds a list of rules provided in String form. This is a convenience method for adding each rule
+     * individually.
+     * @param rulesList  list of rules (in String form) to be added to the expansion map
+     */
     public void setExpansionRules(List<String> rulesList)
     {
         if (expansionTable == null)
@@ -230,24 +306,37 @@ public abstract class AbstractExpansion implements Expansion
             String[] rule;
             for (String r : rulesList)
             {
-                String[] parts = rulePattern.split(r, -2); // allow for empty trailing strings
-                if (parts.length >= 2)
-                {
-                    key = parts[0];
-                    rule = new String[2];
-                    rule[0] = parts[1];
-                    rule[1] = parts.length > 2 ? parts[2] : "";
-
-                    if (parts.length > 3)
-                    {
-                        LOGGER.warn("Rule being added with more than key:search:replace parts - ignoring the rest - rule: {}", r);
-                    }
-                    addExpansionRule(key, rule);
-                } else
-                {
-                    LOGGER.warn("Attempt to add rule without enough data - format is key:search[:replace] - rule: '{}'", r);
-                }
+                addExpansionRule(r);
             }
+        }
+    }
+
+    /**
+     * Adds an individual rule (expressed in String form)
+     * The String form of the rule is a three-part string with each part separated by a colon (:)<br/>
+     * &lt;attribute name&gt;:&lt;original value&gt;:&lt;replacement value&gt;
+     * @param ruleStr  the rule to be added (in String form)
+     */
+    private void addExpansionRule(String ruleStr)
+    {
+        String key;
+        String[] rule;
+        String[] parts = rulePattern.split(ruleStr, -2); // allow for empty trailing strings
+        if (parts.length >= 2)
+        {
+            key = parts[0];
+            rule = new String[2];
+            rule[0] = parts[1];
+            rule[1] = parts.length > 2 ? parts[2] : "";
+
+            if (parts.length > 3)
+            {
+                LOGGER.warn("Rule being added with more than key:search:replace parts - ignoring the rest - rule: {}", ruleStr);
+            }
+            addExpansionRule(key, rule);
+        } else
+        {
+            LOGGER.warn("Attempt to add rule without enough data - format is key:search[:replace] - rule: '{}'", ruleStr);
         }
     }
 
@@ -279,8 +368,98 @@ public abstract class AbstractExpansion implements Expansion
         return tmpList;
     }
 
+    /**
+     * Sets the separator to be used in splitting up replacement strings. If a null or empty value is passed
+     * in, the default separator (a space) is used.
+     * @param separator  the separator to be used to split up replacement strings
+     */
     public void setAttributeSeparator(String separator)
     {
-        attributeSeparator = separator;
+        if ((separator == null) || (separator.isEmpty()))
+            attributeSeparator = DEFAULT_VALUE_SEPARATOR;
+        else
+            attributeSeparator = separator;
+    }
+
+    /**
+     * Sets the name of the configuration file defining the attribute separator and the mapping of attributes
+     * to their expanded values. This file is read initially, and whenever the file name is set. If the name
+     * is null or empty, the existing map of rules is cleared.
+     * @param filename  the name of the configuration file to be loaded into the expansion service
+     */
+    public void setExpansionFileName(String filename)
+    {
+        if ((filename != null) && (!filename.isEmpty()))
+        {
+            expansionFilename = filename;
+            LOGGER.info("Loading mapping rulesets from configuration file: {}", filename);
+            loadConfiguration(expansionFilename);
+        } else
+        {
+            LOGGER.warn("Null or empty mapping configuration file name: {} - clearing existing map.", filename);
+            expansionTable.clear();
+        }
+    }
+
+    /**
+     * Does the work of reading the configuration file and configuring the expansion map and attribute separator.
+     * @param filename  the name of the file to be read and processed
+     */
+    protected void loadConfiguration(String filename)
+    {
+        BufferedReader br = null;
+
+        if (filename == null)
+        {
+            setExpansionMap(null);
+            return;
+        }
+
+        // first clear out the existing table
+        if (expansionTable != null)
+            expansionTable.clear();
+        try
+        {
+
+            File file = new File(filename);
+            br = new BufferedReader(new FileReader(file));
+            if (br != null)
+            {
+                String line;
+                while ((line = br.readLine()) != null)
+                {
+                    if ((line.length() > 0) && (!line.startsWith(CFG_COMMENT_STR)))
+                    {
+                        if (line.startsWith(SEPARATOR_PREFIX))
+                        {
+                            if (line.length() > SEPARATOR_PREFIX.length())
+                                attributeSeparator = line.substring(SEPARATOR_PREFIX.length());
+                            else
+                                attributeSeparator = DEFAULT_VALUE_SEPARATOR;
+                        } else
+                        {
+                            addExpansionRule(line);
+                        }
+                    }
+                }
+                LOGGER.info("Finished loading mapping configuration file.");
+            }
+        } catch (IOException e)
+        {
+            LOGGER.warn("Unexpected exception reading mapping configuration file {} - {}", filename, e.getMessage());
+            setExpansionMap(null);
+        } finally
+        {
+            if (br != null)
+            {
+                try
+                {
+                    br.close();
+                } catch (IOException e)
+                {
+                    LOGGER.warn("Error closing mapping configuration file: {}", e.getMessage());
+                }
+            }
+        }
     }
 }

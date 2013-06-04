@@ -20,9 +20,9 @@
             name="Attribute Separator" id="attributeSeparator" required="false"
             type="String" cardinality="1" default=" " />
 
-        <AD description="Rules to expand user attributes to different or enhanced values. Format of each rule is <attributeName>:<original>[:<replacement>]. Where <attributeName> is the original attribute name, <original> is the orignal value of that attribute that is to be changed, <replacement> is an optional value that will replace the original value. An empty <replacement> value will remove the original attribute."
-            name="Expansion Rules List" id="expansionRules" required="false"
-            type="String" cardinality="-100" default="" />
+        <AD description="Location of the file containing the attribute expansion rules."
+            name="Expansion Rules Configuration File Location" id="expansionFileName" required="true"
+            type="String" cardinality="1" default="" />
     </OCD>
 
     <Designate pid="ddf.security.user.attribute.mapping">
