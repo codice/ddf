@@ -232,6 +232,8 @@
         source controlled because of some slight customizations that have been made to them.  -->
 		<karaf.version>2.3.1</karaf.version>
 		<camel.version>2.11.0</camel.version>
+		<cellar.version>2.3.0</cellar.version>
+
         <!--
         Default properties for Version.txt (this is the file containing the build number and
         svn revision number for the ddf-common project).

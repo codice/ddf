@@ -406,63 +406,94 @@
     </feature>
 	<!-- End CXF Features -->
 	
-	<!-- Cellar 2.2.6 Features; All feature definitions come from 3rd party feature file. DO NOT EDIT  -->
-    <feature name='hazelcast' description='In memory data grid' version='1.9.4.8' resolver='(obr)'>
-        <bundle start-level='31' dependency='true'>mvn:com.hazelcast/hazelcast/1.9.4.8</bundle>
-    </feature>
-<!--
-    <feature name='hazelcast-monitor' description='Hazelcast console' version='1.9.4.8' resolver='(obr)'>
-        <feature version='1.9.4.8'>hazelcast</feature>
-        <feature>war</feature>
-        <bundle>mvn:com.hazelcast/hazelcast-monitor/1.9.4.8/war</bundle>
-    </feature>
--->
-    <feature name='cellar' description='Karaf clustering' version='2.2.6' resolver='(obr)'>
-        <feature version='1.9.4.8'>hazelcast</feature>
-        <bundle start-level='32'>mvn:org.apache.karaf.cellar/org.apache.karaf.cellar.core/2.2.6</bundle>
-        <bundle start-level='33'>mvn:org.apache.karaf.cellar/org.apache.karaf.cellar.hazelcast/2.2.6</bundle>
-        <bundle start-level='40'>mvn:org.apache.karaf.cellar/org.apache.karaf.cellar.config/2.2.6</bundle>
-        <bundle start-level='40'>mvn:org.apache.karaf.cellar/org.apache.karaf.cellar.features/2.2.6</bundle>
-        <bundle start-level='40'>mvn:org.apache.karaf.cellar/org.apache.karaf.cellar.bundle/2.2.6</bundle>
-        <bundle start-level='40'>mvn:org.apache.karaf.cellar/org.apache.karaf.cellar.dosgi/2.2.6</bundle>
-        <bundle start-level='40'>mvn:org.apache.karaf.cellar/org.apache.karaf.cellar.utils/2.2.6</bundle>
-        <bundle start-level='40'>mvn:org.apache.karaf.cellar/org.apache.karaf.cellar.shell/2.2.6</bundle>
-        <bundle start-level='40'>mvn:org.apache.karaf.cellar/org.apache.karaf.cellar.management/2.2.6</bundle>
+	<!-- Cellar 2.3.0 Features; All feature definitions come from 3rd party feature file. DO NOT EDIT  -->
+<feature name="cellar-core" description="Karaf clustering core" version="2.3.0" resolver="(obr)">
         <configfile finalname="/etc/org.apache.karaf.cellar.groups.cfg">
-            mvn:org.apache.karaf.cellar/apache-karaf-cellar/2.2.6/cfg/groups
+            mvn:org.apache.karaf.cellar/apache-karaf-cellar/2.3.0/cfg/groups
         </configfile>
         <configfile finalname="/etc/org.apache.karaf.cellar.node.cfg">
-            mvn:org.apache.karaf.cellar/apache-karaf-cellar/2.2.6/cfg/node
+            mvn:org.apache.karaf.cellar/apache-karaf-cellar/2.3.0/cfg/node
         </configfile>
+        <bundle start-level="30">mvn:org.apache.karaf.cellar/org.apache.karaf.cellar.core/2.3.0</bundle>
+        <bundle start-level="31">mvn:org.apache.karaf.cellar/org.apache.karaf.cellar.utils/2.3.0</bundle>
+    </feature>
+
+    <feature name="hazelcast" description="In memory data grid" version="2.5" resolver="(obr)">
         <configfile finalname="/etc/hazelcast.xml">
-            mvn:org.apache.karaf.cellar/apache-karaf-cellar/2.2.6/xml/hazelcast
+            mvn:org.apache.karaf.cellar/apache-karaf-cellar/2.3.0/xml/hazelcast
         </configfile>
+        <bundle start-level="32" dependency="true">mvn:com.hazelcast/hazelcast/2.5</bundle>
     </feature>
 
-    <feature name='cellar-obr' description='OBR support in Cellar clusters' version='2.2.6' resolver='(obr)'>
+    <feature name="cellar-hazelcast" description="Cellar implementation based on Hazelcast" version="2.3.0" resolver="(obr)">
+        <feature version="2.5">hazelcast</feature>
+        <feature version="2.3.0">cellar-core</feature>
+        <bundle start-level="33">mvn:org.apache.karaf.cellar/org.apache.karaf.cellar.hazelcast/2.3.0</bundle>
+    </feature>
+
+    <feature name="cellar-config" description="ConfigAdmin cluster support" version="2.3.0" resolver="(obr)">
+        <feature version="2.3.0">cellar-core</feature>
+        <bundle start-level="40">mvn:org.apache.karaf.cellar/org.apache.karaf.cellar.config/2.3.0</bundle>
+    </feature>
+
+    <feature name="cellar-features" description="Karaf features cluster support" version="2.3.0" resolver="(obr)">
+        <feature version="2.3.0">cellar-core</feature>
+        <bundle start-level="40">mvn:org.apache.karaf.cellar/org.apache.karaf.cellar.features/2.3.0</bundle>
+    </feature>
+
+    <feature name="cellar-bundle" description="Bundle cluster support" version="2.3.0" resolver="(obr)">
+        <feature version="2.3.0">cellar-core</feature>
+        <bundle start-level="40">mvn:org.apache.karaf.cellar/org.apache.karaf.cellar.bundle/2.3.0</bundle>
+    </feature>
+
+    <feature name="cellar-shell" description="Cellar shell commands" version="2.3.0" resolver="(obr)">
+        <feature version="2.3.0">cellar-core</feature>
+        <bundle start-level="40">mvn:org.apache.karaf.cellar/org.apache.karaf.cellar.shell/2.3.0</bundle>
+    </feature>
+
+    <feature name="cellar-management" description="Cellar management" version="2.3.0" resolver="(obr)">
+        <feature version="2.3.0">cellar-core</feature>
+        <bundle start-level="40">mvn:org.apache.karaf.cellar/org.apache.karaf.cellar.management/2.3.0</bundle>
+    </feature>
+
+    <feature name="cellar" description="Karaf clustering" version="2.3.0" resolver="(obr)">
+        <feature version="2.3.0">cellar-hazelcast</feature>
+        <feature version="2.3.0">cellar-shell</feature>
+        <feature version="2.3.0">cellar-config</feature>
+        <feature version="2.3.0">cellar-bundle</feature>
+        <feature version="2.3.0">cellar-features</feature>
+        <feature version="2.3.0">cellar-management</feature>
+    </feature>
+
+    <feature name="cellar-dosgi" description="DOSGi support" version="2.3.0" resolver="(obr)">
+        <feature version="2.3.0">cellar-core</feature>
+        <bundle start-level="40">mvn:org.apache.karaf.cellar/org.apache.karaf.cellar.dosgi/2.3.0</bundle>
+    </feature>
+
+    <feature name="cellar-obr" description="OBR cluster support" version="2.3.0" resolver="(obr)">
         <feature>obr</feature>
-        <feature version='2.2.6'>cellar</feature>
-        <bundle>mvn:org.apache.karaf.cellar/org.apache.karaf.cellar.obr/2.2.6</bundle>
+        <feature version="2.3.0">cellar-core</feature>
+        <bundle>mvn:org.apache.karaf.cellar/org.apache.karaf.cellar.obr/2.3.0</bundle>
     </feature>
 
-    <feature name='cellar-event' description='OSGi events broadcasting in Cellar clusters' version='2.2.6' resolver='(obr)'>
+    <feature name="cellar-event" description="OSGi events broadcasting in clusters" version="2.3.0" resolver="(obr)">
         <feature>eventadmin</feature>
-        <feature version='2.2.6'>cellar</feature>
-        <bundle>mvn:org.apache.karaf.cellar/org.apache.karaf.cellar.event/2.2.6</bundle>
+        <feature version="2.3.0">cellar-core</feature>
+        <bundle>mvn:org.apache.karaf.cellar/org.apache.karaf.cellar.event/2.3.0</bundle>
     </feature>
 <!--
-    <feature name='cellar-cloud' description='Cloud blobstore support in Cellar clusters' version='2.2.6' resolver='(obr)'>
-        <feature version="2.2.6">cellar</feature>
-        <feature version="1.3.2_3">jclouds</feature>
-        <feature version="1.3.2_3">jclouds-aws-s3</feature>
-        <bundle dependency='true'>mvn:joda-time/joda-time/2.1</bundle>
-        <bundle>mvn:org.apache.karaf.cellar/org.apache.karaf.cellar.cloud/2.2.6</bundle>
+    <feature name="cellar-cloud" description="Cloud blobstore support in clusters" version="2.3.0" resolver="(obr)">
+        <feature version="2.3.0">cellar-core</feature>
+        <feature version="1.4.0">jclouds</feature>
+        <feature version="1.4.0">jclouds-aws-s3</feature>
+        <bundle dependency="true">mvn:joda-time/joda-time/2.1</bundle>
+        <bundle>mvn:org.apache.karaf.cellar/org.apache.karaf.cellar.cloud/2.3.0</bundle>
     </feature>
 -->
-    <feature name='cellar-webconsole' description='Karaf WebConsole plug for Cellar' version='2.2.6' resolver='(obr)'>
-        <feature version="2.2.6">cellar</feature>
+    <feature name="cellar-webconsole" description="Cellar plugin for Karaf WebConsole" version="2.3.0" resolver="(obr)">
+        <feature version="2.3.0">cellar</feature>
         <feature>webconsole</feature>
-        <bundle>mvn:org.apache.karaf.cellar/org.apache.karaf.cellar.webconsole/2.2.6</bundle>
+        <bundle>mvn:org.apache.karaf.cellar/org.apache.karaf.cellar.webconsole/2.3.0</bundle>
     </feature>
 <!-- End Cellar Features -->
 
