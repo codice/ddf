@@ -13,9 +13,9 @@ package ddf.catalog.transformer.resource;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.isA;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -34,6 +34,8 @@ import org.apache.log4j.Logger;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.BinaryContent;
@@ -45,12 +47,12 @@ import ddf.catalog.resource.ResourceNotFoundException;
 import ddf.catalog.resource.ResourceNotSupportedException;
 import ddf.catalog.transform.CatalogTransformerException;
 
-
 /**
  * 
  * Unit tests for the Resource Transformer.
  * 
  * @author Tim Anderson
+ * @author Ashraf Barakat
  *
  */
 public class TestResourceMetacardTransformer {
@@ -76,10 +78,38 @@ public class TestResourceMetacardTransformer {
          Metacard metacard = getMockMetacard(uri);
          boolean expectSuccess = true;
          MimeType mimeType = getMimeType(JPEG_MIME_TYPE);
-         //Resource resource = getResource(mimeType, uri);
          CatalogFramework framework = getFramework(getResourceResponse(getResource(mimeType, uri)));
          testGetResource( metacard, filePath, mimeType, framework, expectSuccess );
    }
+
+    /**
+     * Tests that the metacard source name is passed to the
+     * {@link CatalogFramework}
+     * 
+     * @throws Exception
+     */
+    @Test
+    public void testGetResourceJpegFromFedSource() throws Exception {
+
+        // given
+        String filePath = ABSOLUTE_PATH + TEST_PATH + JPEG_FILE_NAME_1;
+        String federatedSourceId = "fedSourceId";
+        URI uri = getUri(filePath);
+        Metacard metacard = getMockMetacard(uri, federatedSourceId);
+        MimeType mimeType = getMimeType(JPEG_MIME_TYPE);
+        ArgumentCapture capture = new ArgumentCapture(
+                getResourceResponse(getResource(mimeType, uri)));
+        CatalogFramework framework = givenFramework(capture);
+        ResourceMetacardTransformer resourceTransformer = new ResourceMetacardTransformer(
+                framework);
+
+        // when
+        resourceTransformer.transform(metacard,
+                new HashMap<String, Serializable>());
+
+        // then
+        assertEquals(federatedSourceId, capture.inputArgs[1]);
+    }
    
    @Test
    public void testGetResourceTransportStream() throws Exception {
@@ -202,24 +232,34 @@ public class TestResourceMetacardTransformer {
       
    }
    
-//   private void configResourceResponse(Resource resource) throws Exception {
-//      
-//      
-//      //return resourceResponse;
-//   }
-   
    private ResourceResponse getResourceResponse( Resource resource ) {
       ResourceResponse resourceResponse = mock(ResourceResponse.class);
       when( resourceResponse.getResource() ).thenReturn(resource);
       return resourceResponse;
    }
    
-   private CatalogFramework getFramework( ResourceResponse resourceResponse ) throws Exception {
-      CatalogFramework framework = mock(CatalogFramework.class);
-      when(framework.getId()).thenReturn(TEST_SITE);
-      when(framework.getResource(any(ResourceRequest.class), eq(TEST_SITE))).thenReturn( resourceResponse );
-      return framework;
-   }
+    private CatalogFramework givenFramework(ArgumentCapture answer)
+            throws IOException, ResourceNotFoundException,
+            ResourceNotSupportedException {
+        
+        CatalogFramework framework = mock(CatalogFramework.class);
+        
+        when(framework.getId()).thenReturn(TEST_SITE);
+        
+        when(
+                framework.getResource(any(ResourceRequest.class),
+                        isA(String.class))).thenAnswer(answer);
+        
+        return framework;
+
+    }
+
+    private CatalogFramework getFramework( ResourceResponse resourceResponse ) throws Exception {
+          CatalogFramework framework = mock(CatalogFramework.class);
+          when(framework.getId()).thenReturn(TEST_SITE);
+          when(framework.getResource(any(ResourceRequest.class), eq(TEST_SITE))).thenReturn( resourceResponse );
+          return framework;
+       }
    
    private CatalogFramework getFrameworkException( Exception e ) throws Exception {
       CatalogFramework framework = mock(CatalogFramework.class);
@@ -235,20 +275,50 @@ public class TestResourceMetacardTransformer {
       return resource;
    }
    
-   private Metacard getMockMetacard(URI resourceUri ) {
+   private Metacard getMockMetacard(URI resourceUri, String sourceName ) {
       Metacard metacard = mock(Metacard.class);
       when(metacard.getId()).thenReturn(TEST_ID);
       when(metacard.getResourceURI()).thenReturn(resourceUri);
+      when(metacard.getSourceId()).thenReturn(sourceName);
       return metacard;
    }
    
-   private MimeType getMimeType(String mimeTypeStr) throws Exception {
-      return new MimeType( mimeTypeStr );
-   }
-   private URI getUri( String filePath ) {
-      File file = new File(filePath);
-      URI uri = file.toURI();
-      return uri;
-   }
+    private Metacard getMockMetacard(URI resourceUri) {
+        return getMockMetacard(resourceUri, null);
+    }
+   
+    private MimeType getMimeType(String mimeTypeStr) throws Exception {
+        return new MimeType(mimeTypeStr);
+    }
 
+    private URI getUri(String filePath) {
+        File file = new File(filePath);
+        URI uri = file.toURI();
+        return uri;
+    }
+
+    private class ArgumentCapture implements Answer<ResourceResponse> {
+
+        private Object[] inputArgs;
+
+        private ResourceResponse resourceResponse;
+
+        public ArgumentCapture(ResourceResponse resourceResponse) {
+            this.resourceResponse = resourceResponse;
+        }
+
+        public Object[] getInputArgs() {
+            return inputArgs;
+        }
+
+        @Override
+        public ResourceResponse answer(InvocationOnMock invocation)
+                throws Throwable {
+            this.inputArgs = invocation.getArguments();
+
+            return this.resourceResponse;
+
+        }
+
+    }
 }
