@@ -19,6 +19,7 @@ import java.util.Map;
 import javax.activation.MimeType;
 import javax.activation.MimeTypeParseException;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import ddf.catalog.CatalogFramework;
@@ -39,6 +40,7 @@ import ddf.catalog.transform.MetacardTransformer;
  * the resource based on the metacard id.
  * 
  * @author Tim Anderson
+ * @author Ashraf Barakat
  * @author ddf.isgs@lmco.com
  *
  */
@@ -50,8 +52,12 @@ public class ResourceMetacardTransformer implements MetacardTransformer {
    private CatalogFramework catalogFramework;
    
    private static final String DEFAULT_MIME_TYPE_STR = "application/octet-stream";
-   
 
+    /**
+     * Construct instance with required framework to resolve the resource
+     * 
+     * @param framework
+     */
    public ResourceMetacardTransformer(CatalogFramework framework) {
       LOGGER.debug("constructing resource metacard transformer");
       this.catalogFramework = framework;
@@ -62,9 +68,7 @@ public class ResourceMetacardTransformer implements MetacardTransformer {
          Map<String, Serializable> arguments)
          throws CatalogTransformerException {
 
-      if ( LOGGER.isTraceEnabled() ) {
-         LOGGER.trace("Entering resource ResourceMetacardTransformer.transform");
-      }
+      LOGGER.trace("Entering resource ResourceMetacardTransformer.transform");
       
       if ( ! isValid( metacard )) {
          throw new CatalogTransformerException( "Could not transform metacard to a resource because the metacard is not valid.");
@@ -81,11 +85,15 @@ public class ResourceMetacardTransformer implements MetacardTransformer {
       
       ResourceResponse resourceResponse = null;
 
+      String sourceName = metacard.getSourceId();
+      
+      if(StringUtils.isBlank(sourceName)){
+          sourceName = catalogFramework.getId();
+      }
+      
       try {
-
          resourceResponse = catalogFramework.getResource(resourceRequest,
-               catalogFramework.getId());
-
+                 sourceName);
       } catch (IOException e) {
          throw new CatalogTransformerException(
                "Unable to retrieve resource for the requested metacard with id: '" + id + "'.", e);
