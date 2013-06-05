@@ -30,6 +30,10 @@ public class RestUrl {
 
     private String id;
 
+    private boolean retrieveResource;
+    
+    static final String RESOURCE_QUERY_PARAM = "transform=resource";
+
     public RestUrl(String protocol, String host, String port, String contextPath) {
 
         url.append(protocol + "://" + host + ":" + port + contextPath);
@@ -49,7 +53,11 @@ public class RestUrl {
     public static RestUrl newInstance(String urlTemplate)
             throws URISyntaxException, MalformedURLException {
 
-        URI uri = new URI(urlTemplate.substring(0, urlTemplate.indexOf("{")));
+        int indexOf = urlTemplate.indexOf('{');
+        if(indexOf == -1) {
+            indexOf = urlTemplate.length();
+        }
+        URI uri = new URI(urlTemplate.substring(0, indexOf));
         URL url = uri.toURL();
 
         String protocol = url.getProtocol();
@@ -58,11 +66,23 @@ public class RestUrl {
         String path = url.getPath();
 
         return new RestUrl(protocol, host, Integer.toString(port),
-                path.substring(0, path.lastIndexOf("/") + 1));
+                path.substring(0, path.lastIndexOf('/') + 1));
     }
 
     public void setId(String literal) {
         this.id = literal;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setRetrieveResource(boolean retrieveResource) {
+        this.retrieveResource = retrieveResource;
+    }
+    
+    public boolean isRetrieveResource() {
+        return retrieveResource;
     }
 
     @Override
@@ -74,6 +94,9 @@ public class RestUrl {
 
         if (id != null) {
             url.append(id);
+        }
+        if(retrieveResource){
+            url.append("?" + RESOURCE_QUERY_PARAM);
         }
 
         return url.toString();

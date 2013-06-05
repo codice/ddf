@@ -52,6 +52,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import ddf.catalog.Constants;
+import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.ContentType;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardImpl;
@@ -280,8 +281,9 @@ public final class CddaOpenSearchSite implements FederatedSource
                     logger.debug( "Calling URL with test query to check availability: " + url.toString() );
                 }
                 // call service
+                BinaryContent data = null;
                 try {
-                    is = connection.getData( url.toString() );
+                    data = connection.getData( url.toString() );
                 } catch (MalformedURLException e) {
                     logger.info("Could not retrieve data." , e);
                     return false;
@@ -289,6 +291,10 @@ public final class CddaOpenSearchSite implements FederatedSource
                     logger.info("Could not retrieve data." , e);
                     return false;
                 }
+                if(data == null) {
+                    return false;
+                }
+                is = data.getInputStream();
                 // check for ANY response
                 Document availableDoc = OpenSearchSiteUtil.convertStreamToDocument( is );
                 String allContent = evaluate( "/atom:feed", availableDoc );
@@ -355,15 +361,18 @@ public final class CddaOpenSearchSite implements FederatedSource
         {
             try
             {
-                InputStream is = null;
+                BinaryContent data = null ;
                 try {
-                    is = connection.getData(url);
+                    data = connection.getData(url);
+                    if(data == null) {
+                        return response;
+                    }
                 } catch (MalformedURLException e) {
                    throw new UnsupportedQueryException("Could not complete query.", e);
                 } catch (IOException e) {
                    throw new UnsupportedQueryException("Could not complete query.", e);
                 }
-                response = processResponse(is, queryRequest);
+                response = processResponse( data.getInputStream(), queryRequest );
             }
             catch (ConversionException ce)
             {

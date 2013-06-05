@@ -12,8 +12,8 @@
 package ddf.catalog.source.opensearch;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.MalformedURLException;
+
+import ddf.catalog.data.BinaryContent;
 
 public interface RemoteConnection {
 
@@ -22,10 +22,9 @@ public interface RemoteConnection {
      * 
      * @param url
      *            String of the url to connect to
-     * @return {@link InputStream} of data requested.
-     * @throws MalformedURLException 
+     * @return {@link BinaryContent} of data requested.
      * @throws IOException 
      */
-    public InputStream getData(String url) throws IOException, MalformedURLException;
+    public BinaryContent getData(String url) throws IOException;
 
 }

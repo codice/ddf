@@ -11,45 +11,50 @@
  **/
 package ddf.catalog.source.opensearch;
 
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.endsWith;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 import static org.mockito.Matchers.isA;
-import static org.mockito.Matchers.notNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.net.URLEncoder;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 
-import javax.servlet.http.HttpUtils;
-
 import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.httpclient.util.ParameterParser;
-import org.apache.commons.httpclient.util.URIUtil;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.opengis.filter.Filter;
 
+import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
+import ddf.catalog.filter.FilterAdapter;
 import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.filter.proxy.adapter.GeotoolsFilterAdapterImpl;
 import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
 import ddf.catalog.operation.QueryImpl;
 import ddf.catalog.operation.QueryRequestImpl;
+import ddf.catalog.operation.ResourceResponse;
 import ddf.catalog.operation.SourceResponse;
+import ddf.catalog.resource.BinaryContentImpl;
+import ddf.catalog.resource.ResourceNotFoundException;
+import ddf.catalog.resource.ResourceNotSupportedException;
 import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.transformer.xml.XmlInputTransformer;
 
@@ -173,6 +178,110 @@ public class TestOpenSearchSource {
         verifyOpenSearchUrl(pairs, pair("q", SAMPLE_SEARCH_PHRASE));
 
     }
+    
+    /**
+     * Basic retrieve product case. Tests the url sent to the connection is correct.
+     * @throws ResourceNotSupportedException
+     * @throws IOException
+     * @throws ResourceNotFoundException
+     */
+    @Test
+    public void testRetrieveResource() throws ResourceNotSupportedException, IOException, ResourceNotFoundException {
+        
+        // given
+        FirstArgumentCapture answer = new FirstArgumentCapture(
+                getBinaryData());
+
+        OpenSearchSource source = givenSource(answer);
+        
+        Map<String,Serializable> requestProperties = new HashMap<String,Serializable>();
+        
+        requestProperties.put(Metacard.ID, SAMPLE_ID);
+        
+        // when 
+        ResourceResponse response = source.retrieveResource(null, requestProperties);
+        
+        // then
+        assertThat(answer.getInputArg(), endsWith("services/catalog/"
+                + SAMPLE_ID +"?" + RestUrl.RESOURCE_QUERY_PARAM));
+    }
+    
+    /**
+     * Given all null params, nothing will be returned, expect an exception.
+     * @throws ResourceNotSupportedException
+     */
+    @Test
+    public void testRetrieveNullProduct() throws ResourceNotSupportedException {
+        //given
+        OpenSearchSource source = new OpenSearchSource(mock(SecureRemoteConnection.class), mock(FilterAdapter.class));
+        
+        //when 
+        try {
+            source.retrieveResource(null, null);
+            
+        // then 
+            fail("Should have thrown " + ResourceNotFoundException.class.getName() + " because of null uri.") ;
+        } catch (ResourceNotFoundException e) {
+            /*
+             * this exception should have been thrown.
+             */
+            assertThat(e.getMessage(), containsString(OpenSearchSource.COULD_NOT_RETRIEVE_RESOURCE_MESSAGE));
+            assertThat(e.getMessage(), containsString("null"));
+        }
+        
+    }
+    
+    @Test
+    public void testRetrieveProductUriSyntaxException() throws ResourceNotSupportedException {
+        //given
+        OpenSearchSource source = new OpenSearchSource(mock(SecureRemoteConnection.class), mock(FilterAdapter.class));
+        
+        source.setEndpointUrl("http://example.com/q?s=^LMT");
+        
+        Map<String,Serializable> requestProperties = new HashMap<String,Serializable>();
+        
+        requestProperties.put(Metacard.ID, SAMPLE_ID);
+        
+        //when 
+        try {
+            source.retrieveResource(null, requestProperties);
+            
+        // then 
+            fail("Should have thrown " + ResourceNotFoundException.class.getName() + " because of null uri.") ;
+        } catch (ResourceNotFoundException e) {
+            /*
+             * this exception should have been thrown.
+             */
+            assertThat(e.getMessage(), containsString(OpenSearchSource.BAD_URL_MESSAGE));
+        }
+        
+    }
+    
+    @Test
+    public void testRetrieveProductMalformedUrlException() throws ResourceNotSupportedException {
+        //given
+        OpenSearchSource source = new OpenSearchSource(mock(SecureRemoteConnection.class), mock(FilterAdapter.class));
+        
+        source.setEndpointUrl("unknownProtocol://localhost:8181/services/catalog/query");
+        
+        Map<String,Serializable> requestProperties = new HashMap<String,Serializable>();
+        
+        requestProperties.put(Metacard.ID, SAMPLE_ID);
+        
+        //when 
+        try {
+            source.retrieveResource(null, requestProperties);
+            
+        // then 
+            fail("Should have thrown " + ResourceNotFoundException.class.getName() + " because of null uri.") ;
+        } catch (ResourceNotFoundException e) {
+            /*
+             * this exception should have been thrown.
+             */
+            assertThat(e.getMessage(), containsString(OpenSearchSource.BAD_URL_MESSAGE));
+        }
+        
+    }
 
     private NameValuePair pair(String name, String value) {
         return new NameValuePair(name, value);
@@ -230,7 +339,7 @@ public class TestOpenSearchSource {
         return map;
     }
 
-    private OpenSearchSource givenSource(Answer<InputStream> answer)
+    private OpenSearchSource givenSource(Answer<BinaryContent> answer)
             throws MalformedURLException, IOException {
         OpenSearchSource source = new OpenSearchSource(
                 givenRemoteConnection(answer), FILTER_ADAPTER);
@@ -242,7 +351,7 @@ public class TestOpenSearchSource {
     }
 
     private SecureRemoteConnection givenRemoteConnection(
-            Answer<InputStream> answer) throws MalformedURLException,
+            Answer<BinaryContent> answer) throws MalformedURLException,
             IOException {
 
         SecureRemoteConnection connection = mock(SecureRemoteConnection.class);
@@ -318,6 +427,13 @@ public class TestOpenSearchSource {
         return new ByteArrayInputStream(response.getBytes());
 
     }
+    
+    private static InputStream getBinaryData() {
+        
+        byte[] sampleBytes = {80,81,82};
+        
+        return new ByteArrayInputStream(sampleBytes);
+    }
 
     private static InputStream getSampleXmlStream() {
 
@@ -390,7 +506,7 @@ public class TestOpenSearchSource {
         return new ByteArrayInputStream(response.getBytes());
     }
 
-    private class FirstArgumentCapture implements Answer<InputStream> {
+    private class FirstArgumentCapture implements Answer<BinaryContent> {
 
         public FirstArgumentCapture() {
             this.returnInputStream = getSampleXmlStream();
@@ -409,9 +525,10 @@ public class TestOpenSearchSource {
         }
 
         @Override
-        public InputStream answer(InvocationOnMock invocation) throws Throwable {
+        public BinaryContent answer(InvocationOnMock invocation) throws Throwable {
             this.inputArg = (String) invocation.getArguments()[0];
-            return returnInputStream;
+            
+            return new BinaryContentImpl(returnInputStream);
 
         }
 

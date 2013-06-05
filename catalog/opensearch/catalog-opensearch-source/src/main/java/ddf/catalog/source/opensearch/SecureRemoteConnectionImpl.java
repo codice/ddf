@@ -13,8 +13,6 @@ package ddf.catalog.source.opensearch;
 
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.security.KeyManagementException;
@@ -24,6 +22,8 @@ import java.security.NoSuchAlgorithmException;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 
+import javax.activation.MimeType;
+import javax.activation.MimeTypeParseException;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
@@ -33,6 +33,9 @@ import javax.net.ssl.TrustManagerFactory;
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 
+import ddf.catalog.data.BinaryContent;
+import ddf.catalog.data.BinaryContentImpl;
+
 /**
  * Makes a SSL Socket connection to a remote entity.
  * @author Ashraf Barakat
@@ -41,7 +44,9 @@ import org.apache.log4j.Logger;
  */
 public class SecureRemoteConnectionImpl implements SecureRemoteConnection {
 
-    private static Logger LOGGER = Logger.getLogger(OpenSearchSiteUtil.class);
+    private static final Logger LOGGER = Logger.getLogger(OpenSearchSiteUtil.class);
+    
+    private static final MimeType DEFAULT_MIMETYPE = createDefaultMimeType();
 
     private SSLSocketFactory socketFactory;
 
@@ -52,10 +57,19 @@ public class SecureRemoteConnectionImpl implements SecureRemoteConnection {
     private String keyStore;
 
     private String keyStorePass;
+    
+    private static MimeType createDefaultMimeType() {
+        try {
+            return new MimeType("application/octet-stream");
+        } catch (MimeTypeParseException e) {
+            LOGGER.debug("Problem creating default mime type.");
+        }
+        return new MimeType();
+    }
+    
 
     @Override
-    public InputStream getData(String urlStr) throws IOException,
-            MalformedURLException {
+    public BinaryContent getData(String urlStr) throws IOException {
         URL url = new URL(urlStr);
         URLConnection conn = url.openConnection();
         if (conn instanceof HttpsURLConnection) {
@@ -67,7 +81,15 @@ public class SecureRemoteConnectionImpl implements SecureRemoteConnection {
             }
         }
         conn.connect();
-        return conn.getInputStream();
+        MimeType mimeType = DEFAULT_MIMETYPE;
+        try {
+            mimeType = new MimeType(conn.getContentType());
+        } catch (MimeTypeParseException e) {
+            LOGGER.debug("Error creating mime type with input ["
+                    + conn.getContentType() + "], defaulting to "
+                    + DEFAULT_MIMETYPE.toString());
+        }
+        return new BinaryContentImpl(conn.getInputStream(), mimeType);
     }
 
     /**

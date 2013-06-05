@@ -107,13 +107,11 @@
 			<artifactId>abdera-extensions-geo</artifactId>
 		</dependency>
 
-
-		<!-- TEST DEPENDENCIES -->
 		<dependency>
 			<groupId>commons-lang</groupId>
 			<artifactId>commons-lang</artifactId>
-			<scope>test</scope>
 		</dependency>
+		<!-- TEST DEPENDENCIES -->		
 
 		<dependency>
 			<groupId>net.sf.saxon</groupId>
