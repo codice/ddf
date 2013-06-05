@@ -41,6 +41,7 @@ import org.apache.abdera.model.Entry;
 import org.apache.abdera.model.Feed;
 import org.apache.abdera.parser.Parser;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.geotools.filter.FilterTransformer;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
@@ -52,6 +53,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
 import ddf.catalog.Constants;
+import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.ContentType;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardImpl;
@@ -64,8 +66,10 @@ import ddf.catalog.impl.filter.TemporalFilter;
 import ddf.catalog.operation.Query;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.ResourceResponse;
+import ddf.catalog.operation.ResourceResponseImpl;
 import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.operation.SourceResponseImpl;
+import ddf.catalog.resource.ResourceImpl;
 import ddf.catalog.resource.ResourceNotFoundException;
 import ddf.catalog.resource.ResourceNotSupportedException;
 import ddf.catalog.source.FederatedSource;
@@ -82,6 +86,8 @@ import ddf.catalog.transform.InputTransformer;
  */
 public final class OpenSearchSource implements FederatedSource
 {
+    static final String BAD_URL_MESSAGE = "Bad url given for remote source";
+    static final String COULD_NOT_RETRIEVE_RESOURCE_MESSAGE = "Could not retrieve resource";
     public static final String NAME = "name";
     private boolean isInitialized = false;
 
@@ -251,8 +257,9 @@ public final class OpenSearchSource implements FederatedSource
                     logger.debug( "Calling URL with test query to check availability: " + url.toString() );
                 }
                 // call service
+                BinaryContent data = null;
                 try {
-                    is = connection.getData( url.toString() );
+                    data = connection.getData( url.toString() );
                 } catch (MalformedURLException e) {
                     logger.info("Could not retrieve data." , e);
                     return false;
@@ -260,6 +267,10 @@ public final class OpenSearchSource implements FederatedSource
                     logger.info("Could not retrieve data." , e);
                     return false;
                 }
+                if(data == null) {
+                    return false;
+                }
+                is = data.getInputStream();
                 // check for ANY response
                 Document availableDoc = OpenSearchSiteUtil.convertStreamToDocument( is );
                 String allContent = evaluate( "/atom:feed", availableDoc );
@@ -324,15 +335,18 @@ public final class OpenSearchSource implements FederatedSource
         // If the url is non-null, then it is valid and can be used to search the site.
         if ( url != null )
         {
-            InputStream is;
+            BinaryContent data = null ;
             try {
-                is = connection.getData(url);
+                data = connection.getData(url);
+                if(data == null) {
+                    return response;
+                }
             } catch (MalformedURLException e) {
                throw new UnsupportedQueryException("Could not complete query.", e);
             } catch (IOException e) {
                throw new UnsupportedQueryException("Could not complete query.", e);
             }
-            response = processResponse( is, queryRequest );
+            response = processResponse( data.getInputStream(), queryRequest );
         }
         else {
             logger.debug("URL created was null.");
@@ -420,13 +434,10 @@ public final class OpenSearchSource implements FederatedSource
         if(urlStr == null) {
             
             RestFilterDelegate delegate = null;
+            RestUrl restUrl = newRestUrl();
             
-            try {
-                delegate = new RestFilterDelegate(RestUrl.newInstance(endpointUrl));
-            } catch (MalformedURLException e) {
-                logger.info("Bad Url.", e);
-            } catch (URISyntaxException e) {
-                logger.info("Bad URI.", e);
+            if(restUrl != null) {
+                delegate = new RestFilterDelegate(restUrl);
             }
             
             if(delegate != null) {
@@ -490,6 +501,7 @@ public final class OpenSearchSource implements FederatedSource
                 logger.debug("Problem with transformation.", e);
             }
             if (metacard != null) {
+                metacard.setSourceId(getId());
                 ResultImpl result = new ResultImpl(metacard);
                 resultQueue.add(result);
                 SourceResponseImpl response = new SourceResponseImpl(
@@ -515,7 +527,7 @@ public final class OpenSearchSource implements FederatedSource
 
         Feed feed = atomDoc.getRoot();
 
-        Map<String, String> securityProps = updateDefaultClassification();
+        updateDefaultClassification();
 
 //        String resultNum = evaluate( "//opensearch:totalResults", atomDoc );
 //        long totalResults = 0;
@@ -560,7 +572,7 @@ public final class OpenSearchSource implements FederatedSource
         //getPath() returns catalog:id:<id>, so we parse out the <id>
         if (id != null && !id.isEmpty())
         {
-            id = id.substring(id.lastIndexOf(":") + 1);
+            id = id.substring(id.lastIndexOf(':') + 1);
         }
 
         //content
@@ -981,14 +993,69 @@ public final class OpenSearchSource implements FederatedSource
         return shouldConvertToBBox;
     }
 
-
     @Override
-	public ResourceResponse retrieveResource(URI uri,
-			Map<String, Serializable> requestProperties)
-			throws ResourceNotFoundException, ResourceNotSupportedException {
+    public ResourceResponse retrieveResource(URI uri,
+            Map<String, Serializable> requestProperties)
+            throws ResourceNotFoundException, ResourceNotSupportedException {
 
-    	throw new ResourceNotFoundException("This source does not support resource retrieval.");
-	}
+        if (requestProperties == null) {
+            throw new ResourceNotFoundException(
+                    "Could not retrieve resource with null properties.");
+        }
+
+        Serializable serializableId = requestProperties.get(Metacard.ID);
+
+        if (serializableId != null) {
+
+            String metacardId = serializableId.toString();
+            RestUrl restUrl = null;
+            try {
+                restUrl = RestUrl.newInstance(endpointUrl);
+            } catch (MalformedURLException e) {
+                logger.warn("m",e);
+                throw new ResourceNotFoundException(
+                        COULD_NOT_RETRIEVE_RESOURCE_MESSAGE + ": "
+                                + BAD_URL_MESSAGE, e);
+            } catch (URISyntaxException e) {
+                throw new ResourceNotFoundException(
+                        COULD_NOT_RETRIEVE_RESOURCE_MESSAGE + ": "
+                                + BAD_URL_MESSAGE, e);
+            }
+
+            if (restUrl != null) {
+                restUrl.setId(metacardId);
+                restUrl.setRetrieveResource(true);
+                BinaryContent binaryContent = null;
+                try {
+                    binaryContent = connection.getData(restUrl.buildUrl());
+                } catch (IOException e) {
+                    throw new ResourceNotFoundException(
+                            COULD_NOT_RETRIEVE_RESOURCE_MESSAGE, e);
+                }
+                if (binaryContent != null) {
+                    return new ResourceResponseImpl(new ResourceImpl(
+                            binaryContent.getInputStream(),
+                            binaryContent.getMimeType(), getId()
+                                    + "_Resource_Retrieval:"
+                                    + System.currentTimeMillis()));
+                }
+            }
+        }
+
+        throw new ResourceNotFoundException(COULD_NOT_RETRIEVE_RESOURCE_MESSAGE);
+    }
+
+    private RestUrl newRestUrl() {
+        RestUrl restUrl = null;
+        try {
+            restUrl = RestUrl.newInstance(endpointUrl);
+        } catch (MalformedURLException e) {
+            logger.info(BAD_URL_MESSAGE, e);
+        } catch (URISyntaxException e) {
+            logger.info(BAD_URL_MESSAGE, e);
+        }
+        return restUrl;
+    }
 
 
 	@Override
