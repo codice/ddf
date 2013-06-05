@@ -138,7 +138,7 @@ public class FanoutCatalogFramework extends CatalogFrameworkImpl {
      *            - set of {@link ResourceReader}(s) that will be get a
      *            {@link Resource}
      * @param queryStrategy
-     *            - The default federation strategy (e.g. Sorted, FIFO).
+     *            - The default federation strategy (e.g. Sorted).
      * @param pool
      *            - An ExecutorService used to manage threaded operations.
      * @param poller
@@ -198,7 +198,7 @@ public class FanoutCatalogFramework extends CatalogFrameworkImpl {
      *            - set of {@link ResourceReader}(s) that will be get a
      *            {@link Resource}
      * @param queryStrategy
-     *            - The default federation strategy (e.g. Sorted, FIFO).
+     *            - The default federation strategy (e.g. Sorted).
      * @param pool
      *            - An ExecutorService used to manage threaded operations.
      * @param poller
