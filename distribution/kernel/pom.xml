@@ -142,7 +142,7 @@
                   <destFileName>ddf-branding.jar</destFileName>
                 </artifactItem>
                 
-                <!-- Copy over the endorsed libraries -->
+                <!-- Copy over the endorsed libraries 
                 <artifactItem>
                   <groupId>xalan</groupId>
                   <artifactId>serializer</artifactId>
@@ -166,7 +166,7 @@
                   <artifactId>xml-resolver</artifactId>
                   <version>${xml-resolver.version}</version>
                   <outputDirectory>${setup.folder}/endorsed</outputDirectory>
-                </artifactItem>
+                </artifactItem>-->
               </artifactItems>
             </configuration>
           </execution>
