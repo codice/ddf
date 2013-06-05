@@ -183,7 +183,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements DdfConfigur
 	protected List<FederatedSource> federatedSources;
 
 	/**
-	 * The default federation strategy (e.g. Sorted, FIFO).
+	 * The default federation strategy (e.g. Sorted).
 	 */
 	protected FederationStrategy defaultFederationStrategy;
 	
@@ -250,7 +250,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements DdfConfigur
      *            - set of {@link ResourceReader}(s) that will be get a
      *            {@link Resource}
      * @param queryStrategy
-     *            - The default federation strategy (e.g. Sorted, FIFO).
+     *            - The default federation strategy (e.g. Sorted).
      * @param pool
      *            - An ExecutorService used to manage threaded operations.
      * @param poller
@@ -315,7 +315,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements DdfConfigur
 	 *            - set of {@link ResourceReader}(s) that will be get a
 	 *            {@link Resource}
 	 * @param queryStrategy
-	 *            - The default federation strategy (e.g. Sorted, FIFO).
+	 *            - The default federation strategy (e.g. Sorted).
 	 * @param pool
 	 *            - An ExecutorService used to manage threaded operations.
 	 * @param poller

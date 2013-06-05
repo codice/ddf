@@ -130,17 +130,6 @@
 		</service-properties>
 	</service>
 
-	<bean id="fifo" class="ddf.catalog.federation.impl.FifoFederationStrategy">
-		<argument ref="pool" />
-	</bean>
-
-	<service ref="fifo" interface="ddf.catalog.federation.FederationStrategy"
-		ranking="99">
-		<service-properties>
-			<entry key="shortname" value="fifo" />
-		</service-properties>
-	</service>
-
 
 	<!-- create the ddf bean -->
 	<bean id="ddf" class="ddf.catalog.CatalogFrameworkImpl">
