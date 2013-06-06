@@ -258,6 +258,10 @@ public class SolrHttpCatalogProvider extends MaskableImpl implements
             return OK_STATUS.equals(solrServer.ping().getResponse()
                     .get("status"));
         } catch (Exception e) {
+            /*
+             * if we get any type of exception, whether declared by Solr or not,
+             * we do not want to fail, we just want to return false
+             */
             LOGGER.warn(PING_ERROR_MESSAGE, e);
         }
         return false;
