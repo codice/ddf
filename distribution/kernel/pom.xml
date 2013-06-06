@@ -141,7 +141,20 @@
                   <outputDirectory>${setup.folder}</outputDirectory>
                   <destFileName>ddf-branding.jar</destFileName>
                 </artifactItem>
-                
+                <artifactItem>
+                  <groupId>org.bouncycastle</groupId>
+                  <artifactId>bcprov-jdk15on</artifactId>
+                  <version>1.49</version>
+                  <outputDirectory>${setup.folder}/ext</outputDirectory>
+                  <destFileName>bcprov-1.49.jar</destFileName>
+                </artifactItem>
+                <artifactItem>
+                  <groupId>org.bouncycastle</groupId>
+                  <artifactId>bcprov-ext-jdk15on</artifactId>
+                  <version>1.49</version>
+                  <outputDirectory>${setup.folder}/ext</outputDirectory>
+                  <destFileName>bcprov-ext-1.49.jar</destFileName>
+                </artifactItem>
                 <!-- Copy over the endorsed libraries 
                 <artifactItem>
                   <groupId>xalan</groupId>
