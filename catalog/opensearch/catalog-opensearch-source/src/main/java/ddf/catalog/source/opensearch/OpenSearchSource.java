@@ -1012,7 +1012,6 @@ public final class OpenSearchSource implements FederatedSource
             try {
                 restUrl = RestUrl.newInstance(endpointUrl);
             } catch (MalformedURLException e) {
-                logger.warn("m",e);
                 throw new ResourceNotFoundException(
                         COULD_NOT_RETRIEVE_RESOURCE_MESSAGE + ": "
                                 + BAD_URL_MESSAGE, e);
