@@ -154,6 +154,7 @@
 							com.vividsolutions.jts.operation.valid,
 							com.vividsolutions.jts.simplify,
 							com.vividsolutions.jts.util,
+                            javax.net.ssl,
 							javax.servlet,
 							javax.servlet.http,
 							javax.xml.parsers,
