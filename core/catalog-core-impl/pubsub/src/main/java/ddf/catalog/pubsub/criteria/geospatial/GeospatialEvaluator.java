@@ -40,6 +40,51 @@ public class GeospatialEvaluator
 	private static Logger logger = Logger.getLogger( GeospatialEvaluator.class );
 	
 	
+	// If both criteria and input are GeometryCollections, each element of input must lie entirely within one component
+	// of criteria.
+	private static boolean containsWithGeometryCollection(Geometry criteria, Geometry input) {
+		for ( int whichInput = 0; whichInput < input.getNumGeometries(); ++whichInput )
+		{
+			boolean thisInputOk = false;
+			for ( int whichCriteria = 0; whichCriteria < criteria.getNumGeometries(); ++whichCriteria )
+			{
+				if ( criteria.getGeometryN( whichCriteria ).contains( input.getGeometryN( whichInput ) ) )
+				{
+					thisInputOk = true;
+					break;
+				}
+			}
+			if ( ! thisInputOk )
+			{
+				// We found an input component which is not in a criteria component
+				return false;
+			}
+		}
+		return true;
+	}
+
+	private static boolean overlapsWithGeometryCollection(Geometry criteria, Geometry input) {
+		for ( int i = 0; i < criteria.getNumGeometries(); ++i )
+		{
+			for ( int j = 0; j < input.getNumGeometries(); ++j )
+			{
+				// The legacy interpretation of OVERLAPS corresponds better to a JTS INTERSECTS
+				// Intersects means NOT DISJOINT.  In other words the two geometries have at least one point in common
+				// JTS's interpretation of OVERLAPS is the geometries have some but NOT all points in common.  This
+				// means that if geometry A is a large, and geometry B is smaller than A and is completely inside A,
+				// A and B DO NOT overlap.
+				if ( criteria.getGeometryN( i ).intersects( input.getGeometryN( j ) ) )
+				{
+					// Criteria overlaps input if any component of either overlaps a component of the other.
+					return true;
+				}
+			}
+		}
+		// Nothing overlapped anything else
+		return false;
+	}
+
+
 	public static boolean evaluate( GeospatialEvaluationCriteria gec ) 
 	{		
 		String methodName = "evaluate";
@@ -58,20 +103,15 @@ public class GeospatialEvaluator
 		{
 			switch ( SpatialOperator.valueOf( operation.toUpperCase() ) ) 			 
 			{
-				case CONTAINS: 	
+				case CONTAINS:
 					logger.debug( "Doing CONTAINS evaluation" );
-					evaluation = criteria.contains(input); 
+					evaluation = containsWithGeometryCollection(criteria, input);
 					break;
-					
-                case OVERLAPS:  
-                    logger.debug( "Doing OVERLAPS evaluation" ); 
-                    // The legacy interpretation of OVERLAPS corresponds better to a JTS INTERSECTS
-                    // Intersects means NOT DISJOINT.  In other words the two geometries have at least one point in common
-                    // JTS's interpretation of OVERLAPS is the geometries have some but NOT all points in common.  This
-                    // means that if geometry A is a large, and geometry B is smaller than A and is completely inside A,
-                    // A and B DO NOT overlap.  
-                    evaluation = criteria.intersects(input); 
-                    break;
+
+				case OVERLAPS:
+					logger.debug( "Doing OVERLAPS evaluation" );
+					evaluation = overlapsWithGeometryCollection(criteria, input);
+					break;
 
 // Unsupported as of release DDF 2.0.0 10/24/11					
 //				case EQUALS: 	
