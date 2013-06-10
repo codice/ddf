@@ -13,17 +13,22 @@ package ddf.catalog.test;
 
 import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.editConfigurationFilePut;
 import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.logLevel;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
 import static org.ops4j.pax.exam.CoreOptions.options;
 
+import java.io.File;
 import java.io.IOException;
+import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.util.Dictionary;
 import java.util.Hashtable;
+import java.util.Map;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
@@ -34,9 +39,9 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.util.EntityUtils;
 import org.apache.karaf.tooling.exam.options.KarafDistributionKitConfigurationOption.Platform;
+import org.apache.karaf.tooling.exam.options.KarafDistributionOption;
 import org.apache.karaf.tooling.exam.options.LogLevelOption.LogLevel;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Option;
@@ -45,7 +50,12 @@ import org.ops4j.pax.exam.junit.JUnit4TestRunner;
 import org.ops4j.pax.exam.spi.reactors.EagerSingleStagedReactorFactory;
 import org.osgi.service.cm.Configuration;
 import org.osgi.util.tracker.ServiceTracker;
+import org.slf4j.LoggerFactory;
+import org.slf4j.ext.XLogger;
 
+import ddf.catalog.data.Metacard;
+import ddf.catalog.operation.ResourceResponse;
+import ddf.catalog.resource.ResourceNotFoundException;
 import ddf.catalog.source.FederatedSource;
 
 /**
@@ -60,9 +70,18 @@ import ddf.catalog.source.FederatedSource;
 @ExamReactorStrategy(EagerSingleStagedReactorFactory.class)
 public class TestFederation extends AbstractIntegrationTest {
 
-    /* 
-     * Temporary fix
-     * Added separate ports to not clash with other distros running.
+    private static XLogger LOGGER = new XLogger(
+            LoggerFactory.getLogger(TestFederation.class));
+
+    private static final String SAMPLE_DATA = "sample data";
+
+    private static final int XML_RECORD_INDEX = 1;
+
+    private static final int GEOJSON_RECORD_INDEX = 0;
+
+    /*
+     * Temporary fix - Added separate ports to not clash with other distros
+     * running.
      */
     protected static final String HTTP_PORT = "9082";
 
@@ -73,11 +92,14 @@ public class TestFederation extends AbstractIntegrationTest {
     protected static final String RMI_SERVER_PORT = "44446";
 
     protected static final String RMI_REG_PORT = "1101";
+
     /* ************************ */
-    
+
     private static final String DEFAULT_KEYWORD = "text";
 
-    private static final String DEFAULT_TITLE = "myTitle";
+    private static final String RECORD_TITLE_1 = "myTitle";
+
+    private static final String RECORD_TITLE_2 = "myXmlTitle";
 
     private static final String SOLR_CONFIG_PID = "ddf.catalog.source.solr.SolrCatalogProvider";
 
@@ -92,10 +114,15 @@ public class TestFederation extends AbstractIntegrationTest {
 
     private static final String REMOTE_SITE_NAME = "remoteSite";
 
-    private boolean ranBefore = false;
+    /*
+     * The fields must be static if they are purposely used across all test
+     * methods.
+     */
+    private static boolean ranBefore = false;
 
-    private String geojsonMetacardId;
+    private static String[] metacardIds = new String[2];
 
+    private static FederatedSource source;
 
     /**
      * Configures the pax exam test container
@@ -110,7 +137,7 @@ public class TestFederation extends AbstractIntegrationTest {
                 getPlatformOption(Platform.WINDOWS),
                 getPlatformOption(Platform.NIX),
                 logLevel(LogLevel.INFO),
-                // KarafDistributionOption.keepRuntimeFolder(),
+//                KarafDistributionOption.keepRuntimeFolder(),
                 mavenBundle("junit", "junit", "4.10"),
                 mavenBundle("org.apache.httpcomponents", "httpcore-osgi",
                         "4.2.1"),
@@ -140,9 +167,10 @@ public class TestFederation extends AbstractIntegrationTest {
     public void beforeTest() throws InterruptedException, IOException {
 
         if (!ranBefore) {
+            System.out.println("RUNNINGSetup");
             setLogLevels();
             waitForRequiredBundles(CATALOG_SYMBOLIC_NAME_PREFIX);
-            waitForCatalogProviderToBeAvailable();
+            this.catalogProvider = waitForCatalogProviderToBeAvailable();
             setSolrSoftCommit();
 
             FederatedSourceProperties sourceProperties = new FederatedSourceProperties();
@@ -152,16 +180,25 @@ public class TestFederation extends AbstractIntegrationTest {
                     sourceProperties.createDefaultProperties(
                             String.valueOf(HTTP_PORT), REMOTE_SITE_NAME), 1000);
 
-            waitForFederatedSource(5000);
-            geojsonMetacardId = ingest(Library.getSimpleGeoJson(),
-                    "application/json");
+            this.source = waitForFederatedSource(5000);
+            File file = new File("sample.txt");
+            file.createNewFile();
+            FileUtils.write(file, SAMPLE_DATA);
+            String fileLocation = file.toURI().toURL().toString();
+            metacardIds[GEOJSON_RECORD_INDEX] = ingest(
+                    Library.getSimpleGeoJson(), "application/json");
+
+            LOGGER.debug("File Location: {}", fileLocation);
+            metacardIds[XML_RECORD_INDEX] = ingest(
+                    Library.getSimpleXml(fileLocation), "text/xml");
+            ranBefore = true;
         }
 
     }
 
     /**
      * Given what was ingested in beforeTest(), tests that a Federated wildcard
-     * search will return all appropriate records.
+     * search will return all appropriate record(s).
      * 
      * @throws Exception
      */
@@ -178,14 +215,16 @@ public class TestFederation extends AbstractIntegrationTest {
 
         // then
         assertNotNull(result);
-        assertTrue("Record should include the right title.",
-                result.contains(DEFAULT_TITLE));
+        assertTrue("Record should include the first record title.",
+                result.contains(RECORD_TITLE_1));
+        assertTrue("Record should include the second record title.",
+                result.contains(RECORD_TITLE_2));
 
     }
 
     /**
      * Given what was ingested in beforeTest(), tests that a Federated search
-     * phrase will return the appropriate record.
+     * phrase will return the appropriate record(s).
      * 
      * @throws Exception
      */
@@ -202,8 +241,10 @@ public class TestFederation extends AbstractIntegrationTest {
 
         // then
         assertNotNull(result);
-        assertTrue("Record should include the right title.",
-                result.contains(DEFAULT_TITLE));
+        assertTrue("Record should include the first record title.",
+                result.contains(RECORD_TITLE_1));
+        assertTrue("Record should include the second record title.",
+                result.contains(RECORD_TITLE_2));
 
     }
 
@@ -226,7 +267,7 @@ public class TestFederation extends AbstractIntegrationTest {
         // then
         assertNotNull(result);
         assertTrue("No records should have been returned.",
-                !result.contains(DEFAULT_TITLE));
+                !result.contains(RECORD_TITLE_1));
 
     }
 
@@ -242,15 +283,60 @@ public class TestFederation extends AbstractIntegrationTest {
 
         // when
         String restUrl = REST_PATH + "sources/" + REMOTE_SITE_NAME + "/"
-                + geojsonMetacardId;
+                + metacardIds[GEOJSON_RECORD_INDEX];
 
         String result = read(restUrl);
 
         // then
         assertNotNull(result);
+        LOGGER.debug("testFederatedQueryById result\n" + result);
         assertTrue("Record should include the right title.",
-                result.contains(DEFAULT_TITLE));
+                result.contains(RECORD_TITLE_1));
 
+    }
+
+    /**
+     * Tests Source can retrieve product existing product.
+     * 
+     * @throws Exception
+     */
+    @Test
+    public void testFederatedRetrieveExistingProduct() throws Exception {
+
+        // given
+        Map<String, Serializable> requestProperties = new Hashtable<String, Serializable>();
+        requestProperties.put(Metacard.ID, metacardIds[XML_RECORD_INDEX]);
+
+        // when
+        ResourceResponse response = source.retrieveResource(null,
+                requestProperties);
+
+        // then
+        String mimeTypeValue = response.getResource().getMimeTypeValue();
+        LOGGER.info("MimeType returned [{}]", mimeTypeValue);
+        assertEquals("text/plain", mimeTypeValue);
+        assertEquals(SAMPLE_DATA,
+                IOUtils.toString(response.getResource().getInputStream()));
+    }
+
+    /**
+     * Tests Source can retrieve product nonexistent product.
+     * 
+     * @throws Exception
+     */
+    @Test(expected = ResourceNotFoundException.class)
+    public void testFederatedRetrieveNoProduct() throws Exception {
+
+        // given
+
+        Map<String, Serializable> requestProperties = new Hashtable<String, Serializable>();
+        requestProperties.put(Metacard.ID, metacardIds[GEOJSON_RECORD_INDEX]);
+
+        // when
+        source.retrieveResource(null, requestProperties);
+
+        // then
+        // exception thrown, see expected
     }
 
     private FederatedSource waitForFederatedSource(long timeout)

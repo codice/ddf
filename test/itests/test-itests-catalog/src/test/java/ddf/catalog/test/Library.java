@@ -11,6 +11,7 @@
  **/
 package ddf.catalog.test;
 
+
 /**
  * Helper class containing test data.
  * 
@@ -29,7 +30,6 @@ public final class Library {
                 + "    \"properties\": {\r\n"
                 + "        \"title\": \"myTitle\",\r\n"
                 + "        \"thumbnail\": \"CA==\",\r\n"
-                + "        \"resource-uri\": \"http://example.com\",\r\n"
                 + "        \"created\": \"2012-09-01T00:09:19.368+0000\",\r\n"
                 + "        \"metadata-content-type-version\": \"myVersion\",\r\n"
                 + "        \"metadata-content-type\": \"myType\",\r\n"
@@ -48,6 +48,10 @@ public final class Library {
     }
     
     public static String getSimpleXml() {
+        return getSimpleXml("http://example.iana.org/");
+    }
+    
+    public static String getSimpleXml(String filePath) {
         return "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n" + 
     		"<metacard xmlns=\"urn:catalog:metacard\" xmlns:ns2=\"http://www.opengis.net/gml\" xmlns:ns3=\"http://www.w3.org/1999/xlink\" xmlns:ns4=\"http://www.w3.org/2001/SMIL20/\" xmlns:ns5=\"http://www.w3.org/2001/SMIL20/Language\">\n" + 
     		"    <type>ddf.metacard</type>\n" + 
@@ -56,7 +60,7 @@ public final class Library {
     		"        <value>myVersion</value>\n" + 
     		"    </string>\n" + 
     		"    <string name=\"title\">\n" + 
-    		"        <value>myTitle</value>\n" + 
+    		"        <value>myXmlTitle</value>\n" + 
     		"    </string>\n" + 
     		"    <geometry name=\"location\">\n" + 
     		"        <value>\n" + 
@@ -83,8 +87,9 @@ public final class Library {
     		"        <value>myType</value>\n" + 
     		"    </string>\n" + 
     		"    <string name=\"resource-uri\">\n" + 
-    		"        <value>http://example.com</value>\n" + 
+    		"        <value>" + filePath +"</value>\n" + 
     		"    </string>\n" + 
     		"</metacard>\n";
     }
+
 }

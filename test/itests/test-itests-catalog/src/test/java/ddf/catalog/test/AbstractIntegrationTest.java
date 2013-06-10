@@ -96,7 +96,9 @@ public abstract class AbstractIntegrationTest {
     @Inject
     protected FeaturesService features;
 
-    protected CatalogProvider catalogProvider;
+    // Fields used across all test methods must be static.
+    // PAX-EXAM wipes away field information before each test method.
+    protected static CatalogProvider catalogProvider;
 
     static {
         // Make Pax URL use the maven.repo.local setting if present
@@ -270,7 +272,7 @@ public abstract class AbstractIntegrationTest {
         }
     }
 
-    protected void waitForCatalogProviderToBeAvailable()
+    protected CatalogProvider waitForCatalogProviderToBeAvailable()
             throws InterruptedException {
         ServiceTracker st = new ServiceTracker(bundleCtx,
                 CatalogProvider.class.getName(), null);
@@ -290,7 +292,8 @@ public abstract class AbstractIntegrationTest {
             }
         }
 
-        this.catalogProvider = provider;
+        return provider;
+        
     }
 
     private class ServiceConfigurationListener implements ConfigurationListener {
