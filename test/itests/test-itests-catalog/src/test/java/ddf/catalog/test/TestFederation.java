@@ -167,7 +167,7 @@ public class TestFederation extends AbstractIntegrationTest {
     public void beforeTest() throws InterruptedException, IOException {
 
         if (!ranBefore) {
-            System.out.println("RUNNINGSetup");
+            LOGGER.info("Running one-time only setup.");
             setLogLevels();
             waitForRequiredBundles(CATALOG_SYMBOLIC_NAME_PREFIX);
             this.catalogProvider = waitForCatalogProviderToBeAvailable();
@@ -320,7 +320,7 @@ public class TestFederation extends AbstractIntegrationTest {
     }
 
     /**
-     * Tests Source can retrieve product nonexistent product.
+     * Tests Source can retrieve nonexistent product.
      * 
      * @throws Exception
      */
