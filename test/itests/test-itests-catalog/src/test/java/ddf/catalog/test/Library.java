@@ -51,7 +51,7 @@ public final class Library {
         return getSimpleXml("http://example.iana.org/");
     }
     
-    public static String getSimpleXml(String filePath) {
+    public static String getSimpleXml(String uri) {
         return "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n" + 
     		"<metacard xmlns=\"urn:catalog:metacard\" xmlns:ns2=\"http://www.opengis.net/gml\" xmlns:ns3=\"http://www.w3.org/1999/xlink\" xmlns:ns4=\"http://www.w3.org/2001/SMIL20/\" xmlns:ns5=\"http://www.w3.org/2001/SMIL20/Language\">\n" + 
     		"    <type>ddf.metacard</type>\n" + 
@@ -87,7 +87,7 @@ public final class Library {
     		"        <value>myType</value>\n" + 
     		"    </string>\n" + 
     		"    <string name=\"resource-uri\">\n" + 
-    		"        <value>" + filePath +"</value>\n" + 
+    		"        <value>" + uri +"</value>\n" + 
     		"    </string>\n" + 
     		"</metacard>\n";
     }
