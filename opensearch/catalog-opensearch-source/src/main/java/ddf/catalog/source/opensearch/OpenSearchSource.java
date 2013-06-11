@@ -36,12 +36,13 @@ import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
 import org.apache.abdera.Abdera;
+import org.apache.abdera.ext.opensearch.OpenSearchConstants;
 import org.apache.abdera.model.Category;
+import org.apache.abdera.model.Element;
 import org.apache.abdera.model.Entry;
 import org.apache.abdera.model.Feed;
 import org.apache.abdera.parser.Parser;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
 import org.geotools.filter.FilterTransformer;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
@@ -529,29 +530,35 @@ public final class OpenSearchSource implements FederatedSource
 
         updateDefaultClassification();
 
-//        String resultNum = evaluate( "//opensearch:totalResults", atomDoc );
-//        long totalResults = 0;
-//        if ( resultNum != null && !resultNum.isEmpty() )
-//        {
-//            totalResults = Integer.parseInt( resultNum );
-//        }
-//        else
-//        {
-//            // if no openseach:totalResults element, spec says to use list
-//            // of current items as totalResults
-//            totalResults = list.getLength();
-//        }
-
-
-        //TODO would it make sense to use totalResults instead of the actual number of entries?
         List<Entry> entries = feed.getEntries();
         for (Entry entry : entries)
         {
             resultQueue.add( createResponseFromEntry(entry) );
         }
 
+        long totalResults = 0;
+
+//        org.apache.abdera.xpath.XPath xp = ABDERA.getXPath();
+//        Map<String, String> ns = xp.getDefaultNamespaces();
+//        ns.put(OpenSearchConstants.OS_PREFIX, OpenSearchConstants.OPENSEARCH_NS);
+//        String resultNum = xp.valueOf( "//os:totalResults", atomDoc, ns );
+
+        // OSGi has some weird issues with Abdera's XPath, so just traverse down the element tree
+        Element totalResultsElement = atomDoc.getRoot().getExtension( OpenSearchConstants.TOTAL_RESULTS );
+        String resultNum = totalResultsElement.getText();
+
+        if ( resultNum != null && !resultNum.isEmpty() )
+        {
+            totalResults = Integer.parseInt( resultNum );
+        }
+        else
+        {
+            // if no os:totalResults element, spec says to use list of current items as result set
+            totalResults = entries.size();
+        }
+
         SourceResponseImpl response = new SourceResponseImpl( queryRequest, resultQueue );
-        response.setHits( entries.size() );
+        response.setHits( totalResults );
 
         return response;
     }
