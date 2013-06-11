@@ -11,6 +11,31 @@
  **/
 package ddf.catalog;
 
+import java.io.IOException;
+import java.io.Serializable;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.framework.ServiceReference;
+import org.osgi.service.blueprint.container.ServiceUnavailableException;
+import org.slf4j.LoggerFactory;
+import org.slf4j.ext.XLogger;
+
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.ContentType;
 import ddf.catalog.data.Metacard;
@@ -52,6 +77,7 @@ import ddf.catalog.plugin.PreIngestPlugin;
 import ddf.catalog.plugin.PreQueryPlugin;
 import ddf.catalog.plugin.PreResourcePlugin;
 import ddf.catalog.plugin.StopProcessingException;
+import ddf.catalog.resource.Resource;
 import ddf.catalog.resource.ResourceNotFoundException;
 import ddf.catalog.resource.ResourceNotSupportedException;
 import ddf.catalog.resource.ResourceReader;
@@ -70,32 +96,9 @@ import ddf.catalog.transform.QueryResponseTransformer;
 import ddf.catalog.util.DdfConfigurationManager;
 import ddf.catalog.util.DdfConfigurationWatcher;
 import ddf.catalog.util.DescribableImpl;
+import ddf.catalog.util.IngestLogger;
 import ddf.catalog.util.Masker;
 import ddf.catalog.util.SourcePoller;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.builder.ToStringBuilder;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.InvalidSyntaxException;
-import org.osgi.framework.ServiceReference;
-import org.osgi.service.blueprint.container.ServiceUnavailableException;
-import org.slf4j.LoggerFactory;
-import org.slf4j.ext.XLogger;
-
-import java.io.IOException;
-import java.io.Serializable;
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 
 /**
@@ -118,7 +121,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements DdfConfigur
 	//TODO make this final
 	private static XLogger logger = new XLogger(
 			LoggerFactory.getLogger(CatalogFrameworkImpl.class));
-	
+
 	//TODO make this private
 	protected static final String FAILED_BY_GET_RESOURCE_PLUGIN = "Error during Pre/PostResourcePlugin.";
 
@@ -632,14 +635,21 @@ public class CatalogFrameworkImpl extends DescribableImpl implements DdfConfigur
 		logger.entry(methodName);
 		CreateRequest createReq = createRequest;
 		if (!sourceIsAvailable(catalog)) {
+			if (IngestLogger.isWarnEnabled()) {
+				String log = "Error on create operation, local provider not available. " +
+					createReq.getMetacards().size() + " metacards failed to ingest";
+				IngestLogger.warn(buildIngestLog(log, createReq));
+			}
 			throw new SourceUnavailableException(
 					"Local provider is not available, cannot perform create operation.");
 		}
 
 		validateCreateRequest(createReq);
+		
 		CreateResponse createResponse = null;
+		
+		Exception ingestError = null;
 		try {
-
 			for (PreIngestPlugin plugin : preIngest) {
 				try {
 					createReq = plugin.process(createReq);
@@ -655,15 +665,25 @@ public class CatalogFrameworkImpl extends DescribableImpl implements DdfConfigur
 			logger.debug("Calling catalog.create() with "
 					+ createReq.getMetacards().size() + " entries.");
 			createResponse = catalog.create(createRequest);
+		} catch (IngestException iee) {
+			logger.warn("Exception when processing through the catalog provider", iee);
+			ingestError = iee;
+			throw iee;
 		} catch (StopProcessingException see) {
 			logger.warn(PRE_INGEST_ERROR + see.getMessage());
+			ingestError = see;
 			throw new IngestException(PRE_INGEST_ERROR + see.getMessage());
-
 		} catch (RuntimeException re) {
 			logger.warn("Exception during runtime while performing create", re);
+			ingestError = re;
 			throw new IngestException(
 					"Exception during runtime while performing create");
-
+		} finally {
+			if (ingestError != null && IngestLogger.isWarnEnabled()) {
+				String log = "Error on create operation. " +
+							createReq.getMetacards().size() + " metacards failed to ingest";
+				IngestLogger.warn(buildIngestLog(log, createReq), ingestError);
+			}
 		}
 
 		try {
@@ -682,10 +702,16 @@ public class CatalogFrameworkImpl extends DescribableImpl implements DdfConfigur
 			logger.warn(
 					"Exception during runtime while performing doing post create operations (plugins and pubsub)",
 					re);
+			
 		} finally {
 			logger.exit(methodName);
 		}
-
+		
+		//if debug is enabled then catalog might take a significant performance hit w/r/t string building
+		if (IngestLogger.isDebugEnabled()) {
+			String log = createReq.getMetacards().size() + " metacards were successfully ingested";
+			IngestLogger.debug(buildIngestLog(log, createReq), ingestError);
+		}
 		return createResponse;
 	}
 
@@ -1916,6 +1942,36 @@ public class CatalogFrameworkImpl extends DescribableImpl implements DdfConfigur
 			throw new UnsupportedQueryException(
 					"Cannot perform query with null query, either passed in from endpoint, or as output from a PreQuery Plugin");
 		}
+	}
+	
+	/**
+	 * Helper method to build ingest log strings
+	 */
+	private String buildIngestLog(String intialLog, CreateRequest createReq) {
+		StringBuilder strBuilder = new StringBuilder(intialLog);
+		List<Metacard> metacards = createReq.getMetacards();
+		for (int i = 0; i < metacards.size(); i++) {
+			Metacard card = metacards.get(i);
+			strBuilder.append(System.getProperty("line.separator"))
+					  .append("Batch #: " + (i + 1))
+					  .append(" | ");
+			if (card != null) {
+				if (card.getTitle() != null) {
+					strBuilder.append("Metacard Title: ")
+							  .append(card.getTitle())
+							  .append(" | ");
+				}
+				if (card.getId() != null) {
+					strBuilder.append("Metacard ID: ")
+							  .append(card.getId())
+							  .append(" | ");
+				}
+			}
+			else {
+				strBuilder.append("Null Metacard");
+			}
+		}
+		return strBuilder.toString();
 	}
 
 	@Deprecated
