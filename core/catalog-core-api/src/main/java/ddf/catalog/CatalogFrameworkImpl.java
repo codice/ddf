@@ -33,6 +33,7 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.blueprint.container.ServiceUnavailableException;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.ext.XLogger;
 
@@ -96,7 +97,6 @@ import ddf.catalog.transform.QueryResponseTransformer;
 import ddf.catalog.util.DdfConfigurationManager;
 import ddf.catalog.util.DdfConfigurationWatcher;
 import ddf.catalog.util.DescribableImpl;
-import ddf.catalog.util.IngestLogger;
 import ddf.catalog.util.Masker;
 import ddf.catalog.util.SourcePoller;
 
@@ -121,6 +121,8 @@ public class CatalogFrameworkImpl extends DescribableImpl implements DdfConfigur
 	//TODO make this final
 	private static XLogger logger = new XLogger(
 			LoggerFactory.getLogger(CatalogFrameworkImpl.class));
+	
+	final static Logger INGEST_LOGGER = LoggerFactory.getLogger("ingestLogger");
 
 	//TODO make this private
 	protected static final String FAILED_BY_GET_RESOURCE_PLUGIN = "Error during Pre/PostResourcePlugin.";
@@ -635,10 +637,10 @@ public class CatalogFrameworkImpl extends DescribableImpl implements DdfConfigur
 		logger.entry(methodName);
 		CreateRequest createReq = createRequest;
 		if (!sourceIsAvailable(catalog)) {
-			if (IngestLogger.isWarnEnabled()) {
-				String log = "Error on create operation, local provider not available. " +
-					createReq.getMetacards().size() + " metacards failed to ingest";
-				IngestLogger.warn(buildIngestLog(log, createReq));
+			if (INGEST_LOGGER.isWarnEnabled()) {
+				INGEST_LOGGER.warn("Error on create operation, local provider not available. {}" +
+								   " metacards failed to ingest. {}", createReq.getMetacards().size(),
+								   buildIngestLog(createReq));
 			}
 			throw new SourceUnavailableException(
 					"Local provider is not available, cannot perform create operation.");
@@ -679,10 +681,11 @@ public class CatalogFrameworkImpl extends DescribableImpl implements DdfConfigur
 			throw new IngestException(
 					"Exception during runtime while performing create");
 		} finally {
-			if (ingestError != null && IngestLogger.isWarnEnabled()) {
-				String log = "Error on create operation. " +
-							createReq.getMetacards().size() + " metacards failed to ingest";
-				IngestLogger.warn(buildIngestLog(log, createReq), ingestError);
+			if (ingestError != null && INGEST_LOGGER.isWarnEnabled()) {
+				INGEST_LOGGER.warn("Error on create operation. {} metacards failed to ingest. {}",
+								   new Object[]{createReq.getMetacards().size(),
+								   				buildIngestLog(createReq),
+								   				ingestError});
 			}
 		}
 
@@ -708,9 +711,10 @@ public class CatalogFrameworkImpl extends DescribableImpl implements DdfConfigur
 		}
 		
 		//if debug is enabled then catalog might take a significant performance hit w/r/t string building
-		if (IngestLogger.isDebugEnabled()) {
-			String log = createReq.getMetacards().size() + " metacards were successfully ingested";
-			IngestLogger.debug(buildIngestLog(log, createReq), ingestError);
+		if (INGEST_LOGGER.isDebugEnabled()) {
+			INGEST_LOGGER.debug("{} metacards were successfully ingested. {}",
+							   createReq.getMetacards().size(),
+							   buildIngestLog(createReq));
 		}
 		return createResponse;
 	}
@@ -1947,13 +1951,16 @@ public class CatalogFrameworkImpl extends DescribableImpl implements DdfConfigur
 	/**
 	 * Helper method to build ingest log strings
 	 */
-	private String buildIngestLog(String intialLog, CreateRequest createReq) {
-		StringBuilder strBuilder = new StringBuilder(intialLog);
+	private String buildIngestLog(CreateRequest createReq) {
+		StringBuilder strBuilder = new StringBuilder();
 		List<Metacard> metacards = createReq.getMetacards();
+		final String NEW_LINE = System.getProperty("line.separator");
+		
 		for (int i = 0; i < metacards.size(); i++) {
 			Metacard card = metacards.get(i);
-			strBuilder.append(System.getProperty("line.separator"))
-					  .append("Batch #: " + (i + 1))
+			strBuilder.append(NEW_LINE)
+					  .append("Batch #: ")
+					  .append(i + 1)
 					  .append(" | ");
 			if (card != null) {
 				if (card.getTitle() != null) {
