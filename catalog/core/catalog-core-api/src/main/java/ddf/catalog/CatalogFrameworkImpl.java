@@ -668,7 +668,6 @@ public class CatalogFrameworkImpl extends DescribableImpl implements DdfConfigur
 					+ createReq.getMetacards().size() + " entries.");
 			createResponse = catalog.create(createRequest);
 		} catch (IngestException iee) {
-			logger.warn("Exception when processing through the catalog provider", iee);
 			ingestError = iee;
 			throw iee;
 		} catch (StopProcessingException see) {
