@@ -636,6 +636,9 @@ public class CatalogFrameworkImpl extends DescribableImpl implements DdfConfigur
 		final String methodName = "create";
 		logger.entry(methodName);
 		CreateRequest createReq = createRequest;
+		
+		validateCreateRequest(createReq);
+		
 		if (!sourceIsAvailable(catalog)) {
 			if (INGEST_LOGGER.isWarnEnabled()) {
 				INGEST_LOGGER.warn("Error on create operation, local provider not available. {}" +
@@ -645,8 +648,6 @@ public class CatalogFrameworkImpl extends DescribableImpl implements DdfConfigur
 			throw new SourceUnavailableException(
 					"Local provider is not available, cannot perform create operation.");
 		}
-
-		validateCreateRequest(createReq);
 		
 		CreateResponse createResponse = null;
 		
