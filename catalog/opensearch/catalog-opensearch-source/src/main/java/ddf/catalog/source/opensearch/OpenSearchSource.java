@@ -536,7 +536,7 @@ public final class OpenSearchSource implements FederatedSource
             resultQueue.add( createResponseFromEntry(entry) );
         }
 
-        long totalResults = 0;
+        long totalResults = entries.size();
 
 //        org.apache.abdera.xpath.XPath xp = ABDERA.getXPath();
 //        Map<String, String> ns = xp.getDefaultNamespaces();
@@ -545,16 +545,13 @@ public final class OpenSearchSource implements FederatedSource
 
         // OSGi has some weird issues with Abdera's XPath, so just traverse down the element tree
         Element totalResultsElement = atomDoc.getRoot().getExtension( OpenSearchConstants.TOTAL_RESULTS );
-        String resultNum = totalResultsElement.getText();
 
-        if ( resultNum != null && !resultNum.isEmpty() )
-        {
-            totalResults = Integer.parseInt( resultNum );
-        }
-        else
-        {
-            // if no os:totalResults element, spec says to use list of current items as result set
-            totalResults = entries.size();
+        if (totalResultsElement != null) {
+            try {
+                totalResults = Long.parseLong( totalResultsElement.getText() );
+            } catch (NumberFormatException e) {
+                // totalResults is already initialized to the correct value, so don't do anything here.
+            }
         }
 
         SourceResponseImpl response = new SourceResponseImpl( queryRequest, resultQueue );
