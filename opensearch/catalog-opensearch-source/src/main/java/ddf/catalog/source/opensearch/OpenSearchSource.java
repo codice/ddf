@@ -538,11 +538,6 @@ public final class OpenSearchSource implements FederatedSource
 
         long totalResults = entries.size();
 
-//        org.apache.abdera.xpath.XPath xp = ABDERA.getXPath();
-//        Map<String, String> ns = xp.getDefaultNamespaces();
-//        ns.put(OpenSearchConstants.OS_PREFIX, OpenSearchConstants.OPENSEARCH_NS);
-//        String resultNum = xp.valueOf( "//os:totalResults", atomDoc, ns );
-
         // OSGi has some weird issues with Abdera's XPath, so just traverse down the element tree
         Element totalResultsElement = atomDoc.getRoot().getExtension( OpenSearchConstants.TOTAL_RESULTS );
 
@@ -550,7 +545,8 @@ public final class OpenSearchSource implements FederatedSource
             try {
                 totalResults = Long.parseLong( totalResultsElement.getText() );
             } catch (NumberFormatException e) {
-                // totalResults is already initialized to the correct value, so don't do anything here.
+                // totalResults is already initialized to the correct value, so don't change it here.
+                logger.debug("Received invalid number of results.", e);
             }
         }
 
