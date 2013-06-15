@@ -26,6 +26,9 @@
 		<cm:managed-properties persistent-id="ddf.catalog.solr.external.SolrHttpCatalogProvider" update-strategy="container-managed" />
 		<argument ref="filterAdapter" />
 		<argument ref="solrServer" />
+		<argument>
+			<bean class="ddf.catalog.source.solr.SolrFilterDelegateFactoryImpl"/>
+		</argument>
 	</bean>
 	
 	<!-- Register the Catalog Provider in the OSGi Service Registry -->

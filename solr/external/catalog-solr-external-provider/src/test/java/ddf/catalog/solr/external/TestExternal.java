@@ -18,6 +18,7 @@ import org.junit.Ignore;
 import ddf.catalog.filter.proxy.adapter.GeotoolsFilterAdapterImpl;
 import ddf.catalog.source.solr.ConfigurationStore;
 import ddf.catalog.source.solr.SolrCatalogProvider;
+import ddf.catalog.source.solr.SolrFilterDelegateFactoryImpl;
 import ddf.catalog.source.solr.SolrServerFactory;
 import ddf.catalog.source.solr.TestSolrProvider;
 
@@ -41,7 +42,8 @@ public class TestExternal extends TestSolrProvider {
         SolrCatalogProvider solrCatalogProvider = new SolrCatalogProvider(
                 SolrServerFactory
                         .getHttpSolrServer("http://localhost:8181/solr"),
-                new GeotoolsFilterAdapterImpl());
+                new GeotoolsFilterAdapterImpl(),
+                new SolrFilterDelegateFactoryImpl());
 
         /*
          * necessary for automated test purposes. forces commits so that

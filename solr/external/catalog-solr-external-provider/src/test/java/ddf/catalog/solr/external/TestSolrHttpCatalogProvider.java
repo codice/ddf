@@ -56,7 +56,7 @@ public class TestSolrHttpCatalogProvider {
 
     @Test
     public void testId() {
-        CatalogProvider provider = new SolrHttpCatalogProvider(null, null);
+        CatalogProvider provider = new SolrHttpCatalogProvider(null, null, null);
 
         provider.maskId("myId");
 
@@ -66,7 +66,7 @@ public class TestSolrHttpCatalogProvider {
     @Test
     public void testDescribableProperties() {
 
-        CatalogProvider provider = new SolrHttpCatalogProvider(null, null);
+        CatalogProvider provider = new SolrHttpCatalogProvider(null, null, null);
 
         assertNotNull(provider.getTitle());
         assertNotNull(provider.getDescription());
@@ -80,7 +80,7 @@ public class TestSolrHttpCatalogProvider {
             SolrServerException, IOException {
         SolrServer givenServer = givenSolrServer(false);
         CatalogProvider provider = new SolrHttpCatalogProvider(null,
-                givenServer);
+                givenServer, null);
 
         try {
             provider.create(mock(CreateRequest.class));
@@ -106,7 +106,7 @@ public class TestSolrHttpCatalogProvider {
         SolrServer givenServer = mock(SolrServer.class);
         when(givenServer.ping()).thenThrow(SolrException.class);
         CatalogProvider provider = new SolrHttpCatalogProvider(null,
-                givenServer);
+                givenServer, null);
 
         // when
         String message = null;
@@ -124,7 +124,7 @@ public class TestSolrHttpCatalogProvider {
 
     @Test(expected = IllegalArgumentException.class)
     public void testUnconfiguredDelete() throws IngestException {
-        CatalogProvider provider = new SolrHttpCatalogProvider(null, null);
+        CatalogProvider provider = new SolrHttpCatalogProvider(null, null, null);
 
         provider.delete(mock(DeleteRequest.class));
 
@@ -132,7 +132,7 @@ public class TestSolrHttpCatalogProvider {
 
     @Test(expected = IllegalArgumentException.class)
     public void testUnconfiguredUpdate() throws IngestException {
-        CatalogProvider provider = new SolrHttpCatalogProvider(null, null);
+        CatalogProvider provider = new SolrHttpCatalogProvider(null, null, null);
 
         provider.update(mock(UpdateRequest.class));
 
@@ -140,7 +140,7 @@ public class TestSolrHttpCatalogProvider {
 
     @Test(expected = IllegalArgumentException.class)
     public void testUnconfiguredQuery() throws UnsupportedQueryException {
-        CatalogProvider provider = new SolrHttpCatalogProvider(null, null);
+        CatalogProvider provider = new SolrHttpCatalogProvider(null, null, null);
 
         provider.query(mock(QueryRequest.class));
 
@@ -148,21 +148,21 @@ public class TestSolrHttpCatalogProvider {
 
     @Test
     public void testAvailability() throws IngestException {
-        CatalogProvider provider = new SolrHttpCatalogProvider(null, null);
+        CatalogProvider provider = new SolrHttpCatalogProvider(null, null, null);
 
         assertThat(provider.isAvailable(), is(false));
     }
 
     @Test
     public void testAvailabilitySourceMonitor() throws IngestException {
-        CatalogProvider provider = new SolrHttpCatalogProvider(null, null);
+        CatalogProvider provider = new SolrHttpCatalogProvider(null, null, null);
 
         assertThat(provider.isAvailable(null), is(false));
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testUnconfiguredGetContentTypes() throws IngestException {
-        CatalogProvider provider = new SolrHttpCatalogProvider(null, null);
+        CatalogProvider provider = new SolrHttpCatalogProvider(null, null, null);
 
         provider.getContentTypes();
 
@@ -171,7 +171,7 @@ public class TestSolrHttpCatalogProvider {
     @Test()
     public void testUpdateConfigurationNullProperties() throws IngestException {
         SolrHttpCatalogProvider provider = new SolrHttpCatalogProvider(null,
-                null);
+                null, null);
 
         provider.updateServer(null);
 
@@ -184,7 +184,7 @@ public class TestSolrHttpCatalogProvider {
         // given
         SolrServer givenServer = givenSolrServer(true);
         SolrHttpCatalogProvider provider = new SolrHttpCatalogProvider(null,
-                givenServer);
+                givenServer, null);
 
         // when
         provider.updateServer(null);
@@ -206,7 +206,7 @@ public class TestSolrHttpCatalogProvider {
     public void testForceAutoCommit() throws IngestException {
 
         SolrHttpCatalogProvider provider = new SolrHttpCatalogProvider(null,
-                null);
+                null, null);
 
         provider.setForceAutoCommit(true);
 
@@ -232,7 +232,7 @@ public class TestSolrHttpCatalogProvider {
         boolean serverStatus = false;
         SolrServer givenServer = givenSolrServer(serverStatus);
         SolrHttpCatalogProvider provider = new SolrHttpCatalogProvider(null,
-                givenServer);
+                givenServer, null);
         // when
         try {
             provider.create(mock(CreateRequest.class));
@@ -251,7 +251,7 @@ public class TestSolrHttpCatalogProvider {
         boolean serverStatus = true;
         SolrServer givenServer = givenSolrServer(serverStatus);
         SolrHttpCatalogProvider provider = new SolrHttpCatalogProvider(null,
-                givenServer);
+                givenServer, null);
 
         provider.shutdown();
         verify(givenServer, times(1)).shutdown();
