@@ -52,7 +52,7 @@ public class ReuterSolrImport implements Runnable {
 
 			this.solrServer = SolrServerFactory.getEmbeddedSolrServer("solrconfigSoft.xml", "schema.xml", new ConfigurationFileProxy(null, ConfigurationStore.getInstance()));
 
-			this.solrProvider = new SolrCatalogProvider(this.solrServer, new GeotoolsFilterAdapterImpl());
+			this.solrProvider = new SolrCatalogProvider(this.solrServer, new GeotoolsFilterAdapterImpl(), new SolrFilterDelegateFactoryImpl());
 
 		} catch (Exception localException) {
 			throw new RuntimeException("unable to connect to solr server: " , localException);

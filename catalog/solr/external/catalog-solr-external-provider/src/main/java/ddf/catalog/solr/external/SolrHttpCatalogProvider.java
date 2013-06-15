@@ -36,7 +36,10 @@ import ddf.catalog.source.IngestException;
 import ddf.catalog.source.SourceMonitor;
 import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.source.solr.ConfigurationStore;
+import ddf.catalog.source.solr.DynamicSchemaResolver;
 import ddf.catalog.source.solr.SolrCatalogProvider;
+import ddf.catalog.source.solr.SolrFilterDelegateFactory;
+import ddf.catalog.source.solr.SolrFilterDelegateFactoryImpl;
 import ddf.catalog.util.MaskableImpl;
 
 /**
@@ -65,6 +68,10 @@ public class SolrHttpCatalogProvider extends MaskableImpl implements
     private FilterAdapter filterAdapter;
 
     private boolean firstUse;
+
+    private SolrFilterDelegateFactory solrFilterDelegateFactory;
+
+    private DynamicSchemaResolver resolver;
     
     private static final Logger LOGGER = LoggerFactory
             .getLogger(SolrHttpCatalogProvider.class);
@@ -89,11 +96,19 @@ public class SolrHttpCatalogProvider extends MaskableImpl implements
      *            - {@link SolrServer} to handle requests
      */
     public SolrHttpCatalogProvider(FilterAdapter filterAdapter,
-            SolrServer server) {
+            SolrServer server, SolrFilterDelegateFactory solrFilterDelegateFactory,
+            DynamicSchemaResolver resolver) {
 
         this.filterAdapter = filterAdapter;
         this.server = server;
         this.firstUse = true;
+        this.solrFilterDelegateFactory = solrFilterDelegateFactory;
+        this.resolver = resolver;
+    }
+    
+    public SolrHttpCatalogProvider(FilterAdapter filterAdapter,
+            SolrServer server, SolrFilterDelegateFactory solrFilterDelegateFactory) {
+        this(filterAdapter, server, solrFilterDelegateFactory, null);
     }
 
     @Override
@@ -237,7 +252,11 @@ public class SolrHttpCatalogProvider extends MaskableImpl implements
     private CatalogProvider getProvider() {
         if (firstUse) {
             if (isServerUp(this.server)) {
-                provider = new SolrCatalogProvider(server, filterAdapter);
+                if( resolver == null) {
+                    provider = new SolrCatalogProvider(server, filterAdapter, solrFilterDelegateFactory);
+                } else {
+                    provider = new SolrCatalogProvider(server, filterAdapter, solrFilterDelegateFactory, resolver);
+                }
                 provider.maskId(getId());
                 this.firstUse = false;
                 return provider;
