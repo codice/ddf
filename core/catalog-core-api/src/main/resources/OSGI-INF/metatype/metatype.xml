@@ -13,52 +13,43 @@
  **/
 
  -->
-<metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
 
-    <OCD description="Site"
-         name="System Settings"
-         id="ddf.catalog.config">
-
-        <AD name="Protocol" id="protocol" type="String" required="true"
-            description="Default protocol to use for services." default="http">
-            <Option label="http" value="http://"/>
-            <Option label="https" value="https://"/>
+<metatype:MetaData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.osgi.org/xmlns/metatype/v1.2.0 http://www.osgi.org/xmlns/metatype/v1.2.0"
+                   xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.2.0">
+    <OCD  name="System Settings" id="ddf.catalog.config" description="Site">
+        <AD id="protocol" type="String">
+            <Option label="http" value="http://" />
+            <Option label="https" value="https://" />
         </AD>
 
-        <AD name="Host" id="host" required="true" type="String"
-            description="The host name or IP address of the machine that DDF is running on. Do not enter localhost."/>
+        <AD name="Host" id="host" required="true" type="String" description="The host name or IP address of the machine that DDF is running on. Do not enter localhost." />
 
-        <AD name="Port" id="port" required="true" type="String"
-            description="The port that DDF is running on."/>
+        <AD name="Port" id="port" required="true" type="String" description="The port that DDF is running on." />
 
-        <AD name="Trust Store:" id="trustStore" description="Trust Store location. Path is relative to ddf.home."
-            required="false" type="String" default="etc/keystores/clientTruststore.jks">
+        <AD name="Trust Store:" id="trustStore" description="Trust Store location. Path is relative to ddf.home - for default (development-only) trust store, use etc/keystores/clientTruststore.jks." required="false" type="String">
         </AD>
 
-        <AD name="Trust Store Password:" id="trustStorePassword" description="Trust Store password"
-            required="false" type="String" default="ENC(gVSowR80cHSRgHLUarq36AhKpXc56QSg)">
+        <AD name="Trust Store Password:" id="trustStorePassword" description="Trust Store password" required="false" type="Password">
         </AD>
 
-        <AD name="Key Store:" id="keyStore" description="Key Store location. Path is relative to ddf.home."
-            required="false" type="String" default="etc/keystores/clientKeystore.jks">
+        <AD name="Key Store:" id="keyStore" description="Key Store location. Path is relative to ddf.home - for default (development-only) key store, use etc/keystores/clientKeystore.jks." required="false" type="String">
         </AD>
 
-        <AD name="Key Store Password:" id="keyStorePassword" description="Key Store password."
-            required="false" type="String" default="ENC(gVSowR80cHSRgHLUarq36AhKpXc56QSg)">
+        <AD name="Key Store Password:" id="keyStorePassword" description="Key Store password." required="false" type="Password">
         </AD>
 
-        <AD name="Site Name" id="id" required="true" type="String"/>
+        <AD name="Site Name" id="id" required="true" type="String" />
 
-        <AD name="Version" id="version" required="true" type="String"/>
+        <AD name="Version" id="version" required="true" type="String" />
 
-        <AD name="Organization" id="organization" required="true"
-            type="String"/>
+        <AD name="Organization" id="organization" required="true" type="String" />
     </OCD>
-
     <Designate
             pid="ddf.catalog.config">
         <Object
-                ocdref="ddf.catalog.config"/>
+                ocdref="ddf.catalog.config" />
     </Designate>
+
 
 </metatype:MetaData>
