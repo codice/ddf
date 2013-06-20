@@ -39,7 +39,11 @@
     <karaf.folder>apache-karaf-${karaf.version}</karaf.folder>
     <setup.folder>target/dependencies</setup.folder>
     <win.setup.folder>target/temp/win</win.setup.folder>
-    
+
+    <!-- Added to support the custom ddf-webconsole feature - remove once karaf is upgraded to greater than 2.3.1 -->
+    <felix.eventadmin.version>1.3.2</felix.eventadmin.version>
+    <felix.eventadmin-plugin.version>1.0.2</felix.eventadmin-plugin.version>
+
     <!-- The name of the distribution zip file to generate in the /target directory -->
     <distribution.file.name>ddf-${project.artifactId}-${project.version}</distribution.file.name>
   </properties>
