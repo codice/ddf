@@ -39,5 +39,9 @@
 		<bundle>mvn:ddf.camel.component/content-core-camelcomponent/${project.version}</bundle>
 	</feature>
 
+	<feature name="content-rest-endpoint" version="${project.version}" description="REST Endpoint provides CRUD operations for content storage.">
+		<bundle>mvn:ddf.content.endpoint/content-endpoint-rest/${project.version}</bundle>
+	</feature>
+
 </features>
 	
