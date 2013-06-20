@@ -492,7 +492,7 @@
 -->
     <feature name="cellar-webconsole" description="Cellar plugin for Karaf WebConsole" version="2.3.0" resolver="(obr)">
         <feature version="2.3.0">cellar</feature>
-        <feature>webconsole</feature>
+        <feature>ddf-webconsole</feature>
         <bundle>mvn:org.apache.karaf.cellar/org.apache.karaf.cellar.webconsole/2.3.0</bundle>
     </feature>
 <!-- End Cellar Features -->
@@ -508,7 +508,7 @@
 		<feature>management</feature>
 		<feature>kar</feature>
 		<feature>ssh</feature>
-		<feature>webconsole</feature>
+		<feature>ddf-webconsole</feature>
 		<feature>jasypt-encryption</feature>
 		<feature>war</feature>
 	</feature>
