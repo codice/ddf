@@ -11,15 +11,10 @@
  **/
 package ddf.security.cas;
 
-import java.io.IOException;
-import java.nio.charset.Charset;
-import java.util.Map;
-
-import javax.net.ssl.HttpsURLConnection;
-import javax.security.auth.callback.CallbackHandler;
-
 import ddf.catalog.util.DdfConfigurationManager;
 import ddf.catalog.util.DdfConfigurationWatcher;
+import ddf.security.common.audit.SecurityLogger;
+import ddf.security.common.util.CommonSSLFactory;
 import ddf.security.encryption.EncryptionService;
 import ddf.security.sts.client.configuration.STSClientConfigurationManager;
 import org.apache.cxf.sts.STSPropertiesMBean;
@@ -41,8 +36,11 @@ import org.jasig.cas.client.validation.TicketValidationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ddf.security.common.audit.SecurityLogger;
-import ddf.security.common.util.CommonSSLFactory;
+import javax.net.ssl.HttpsURLConnection;
+import javax.security.auth.callback.CallbackHandler;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.util.Map;
 
 /**
  * Validates Web Single Sign-On Tokens.
@@ -224,6 +222,7 @@ public class WebSSOTokenValidator implements TokenValidator, DdfConfigurationWat
         String setTrustStorePassword = (String) properties.get(DdfConfigurationManager.TRUST_STORE_PASSWORD);
         if (setTrustStorePassword != null)
         {
+            LOGGER.debug("Changing trust store password from {} to {}", this.trustStorePassword, setTrustStorePassword); /*** DEBUG ONLY ***/
             this.trustStorePassword = setTrustStorePassword;
     		if(encryptionService == null)
     		{
@@ -249,6 +248,7 @@ public class WebSSOTokenValidator implements TokenValidator, DdfConfigurationWat
         String setKeyStorePassword = (String) properties.get(DdfConfigurationManager.KEY_STORE_PASSWORD);
         if (setKeyStorePassword != null)
         {
+            LOGGER.debug("Changing key store password from {} to {}", this.keyStorePassword, setKeyStorePassword); /*** DEBUG ONLY ***/
             this.keyStorePassword = setKeyStorePassword;
     		if(encryptionService == null)
     		{

@@ -13,7 +13,7 @@
  **/
 
  -->
-<metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
+<metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.2.0">
 
     <OCD description="DDF STS Client"
          name="DDF STS Client Settings"
@@ -28,9 +28,9 @@
         <AD name="STS Address:" id="sts.address" description="STS Address." required="false" type="String"
             default="https://server:8993/services/SecurityTokenService" />
 
-        <AD name="Username:" id="ws-security.username" description="Username." required="false" type="String" default="" />
+        <AD name="Username:" id="ws-security.username" description="Username." required="false" type="Password" />
 
-        <AD name="Password:" id="ws-security.password" description="Password." required="false" type="String" default="" />
+        <AD name="Password:" id="ws-security.password" description="Password." required="false" type="Password" />
 
         <AD name="Signature Username:" id="ws-security.signature.username" description="Signature Username." required="false"
             type="String" default="" />

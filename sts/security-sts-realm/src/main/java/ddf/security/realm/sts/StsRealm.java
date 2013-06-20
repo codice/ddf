@@ -11,36 +11,16 @@
  **/
 package ddf.security.realm.sts;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.StringWriter;
-import java.io.Writer;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.UnrecoverableKeyException;
-import java.security.cert.CertificateException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-
-import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.KeyManager;
-import javax.net.ssl.KeyManagerFactory;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.TrustManagerFactory;
-import javax.xml.bind.JAXB;
-import javax.xml.bind.JAXBElement;
-import javax.xml.namespace.QName;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.stream.XMLStreamException;
-
+import ddf.catalog.util.DdfConfigurationManager;
+import ddf.catalog.util.DdfConfigurationWatcher;
+import ddf.security.assertion.SecurityAssertion;
+import ddf.security.assertion.impl.SecurityAssertionImpl;
+import ddf.security.common.audit.SecurityLogger;
+import ddf.security.common.callback.CommonCallbackHandler;
+import ddf.security.common.util.CommonSSLFactory;
+import ddf.security.common.util.PropertiesLoader;
+import ddf.security.encryption.EncryptionService;
+import ddf.security.sts.client.configuration.STSClientConfigurationManager;
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusException;
 import org.apache.cxf.BusFactory;
@@ -75,16 +55,34 @@ import org.w3c.dom.Node;
 import org.w3c.dom.ls.DOMImplementationLS;
 import org.w3c.dom.ls.LSSerializer;
 
-import ddf.catalog.util.DdfConfigurationManager;
-import ddf.catalog.util.DdfConfigurationWatcher;
-import ddf.security.assertion.SecurityAssertion;
-import ddf.security.assertion.impl.SecurityAssertionImpl;
-import ddf.security.common.audit.SecurityLogger;
-import ddf.security.common.callback.CommonCallbackHandler;
-import ddf.security.common.util.CommonSSLFactory;
-import ddf.security.common.util.PropertiesLoader;
-import ddf.security.encryption.EncryptionService;
-import ddf.security.sts.client.configuration.STSClientConfigurationManager;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.KeyManager;
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.TrustManagerFactory;
+import javax.xml.bind.JAXB;
+import javax.xml.bind.JAXBElement;
+import javax.xml.namespace.QName;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.stream.XMLStreamException;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.StringWriter;
+import java.io.Writer;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.UnrecoverableKeyException;
+import java.security.cert.CertificateException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
 
 /**
  *  The STS Realm is the main piece of the security framework responsible for exchanging a binary security token for a SAML assertion.
@@ -200,6 +198,70 @@ public class StsRealm extends AuthenticatingRealm implements DdfConfigurationWat
 			LOGGER.debug("properties are NULL or empty");
 		}
 	}
+
+    public void setDefaultConfiguration( @SuppressWarnings( "rawtypes" ) Map properties)
+    {
+        String value;
+        value = (String) properties.get(DdfConfigurationManager.TRUST_STORE);
+        if (value != null)
+            trustStorePath = value;
+
+        value = (String) properties.get(DdfConfigurationManager.TRUST_STORE_PASSWORD);
+        if (value != null)
+            trustStorePassword = value;
+
+        value = (String) properties.get(DdfConfigurationManager.KEY_STORE);
+        if (value != null)
+            keyStorePath = value;
+
+        value = (String) properties.get(DdfConfigurationManager.KEY_STORE_PASSWORD);
+        if (value != null)
+            keyStorePassword = value;
+
+        value = (String) properties.get(STSClientConfigurationManager.STS_ADDRESS);
+        if (value != null)
+            stsAddress = value;
+
+        value = (String) properties.get(STSClientConfigurationManager.STS_SERVICE_NAME);
+        if (value != null)
+            stsServiceName = value;
+
+        value = (String) properties.get(STSClientConfigurationManager.STS_ENDPOINT_NAME);
+        if (value != null)
+            stsEndpointName = value;
+
+        value = (String) properties.get(SecurityConstants.SIGNATURE_PROPERTIES);
+        if (value != null)
+            signaturePropertiesPath = value;
+
+        value = (String) properties.get(SecurityConstants.ENCRYPT_PROPERTIES);
+        if (value != null)
+            encryptionPropertiesPath = value;
+
+        value = (String) properties.get(SecurityConstants.STS_TOKEN_PROPERTIES);
+        if (value != null)
+            stsPropertiesPath = value;
+
+        value = (String) properties.get(SecurityConstants.USERNAME);
+        if (value != null)
+            wssUsername = value;
+
+        value = (String) properties.get(SecurityConstants.PASSWORD);
+        if (value != null)
+            wssPassword = value;
+
+        value = (String) properties.get(SecurityConstants.SIGNATURE_USERNAME);
+        if (value != null)
+            signatureUsername = value;
+
+        value = (String) properties.get(SecurityConstants.ENCRYPT_USERNAME);
+        if (value != null)
+            encryptionUsername = value;
+
+        value = (String) properties.get(SecurityConstants.STS_TOKEN_USERNAME);
+        if (value != null)
+            stsTokenUsername = value;
+    }
 
     /**
      *  Determine if the supplied token is supported by this realm. 
@@ -706,7 +768,8 @@ public class StsRealm extends AuthenticatingRealm implements DdfConfigurationWat
         String setTrustStorePassword = (String) properties.get( DdfConfigurationManager.TRUST_STORE_PASSWORD );
         if ( setTrustStorePassword != null )
         {
-    		if(encryptionService == null)
+            LOGGER.debug("Changing trust store password from {} to {}", this.trustStorePassword, setTrustStorePassword); /*** DEBUG ONLY ***/
+            if(encryptionService == null)
     		{
     		    LOGGER.error("The StsRealm has a null Encryption Service. Unable to decrypt the encrypted " +
     		    		"trustStore password. Setting decrypted password to null.");
@@ -730,7 +793,8 @@ public class StsRealm extends AuthenticatingRealm implements DdfConfigurationWat
         String setKeyStorePassword = (String) properties.get( DdfConfigurationManager.KEY_STORE_PASSWORD );
         if ( setKeyStorePassword != null )
         {
-    		if(encryptionService == null)
+            LOGGER.debug("Changing key store password from {} to {}", this.keyStorePassword, setKeyStorePassword); /*** DEBUG ONLY ***/
+            if(encryptionService == null)
     		{
     		    LOGGER.error("The StsRealm has a null Encryption Service. Unable to decrypt the encrypted " +
     		    		"keyStore password. Setting decrypted password to null.");
