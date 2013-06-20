@@ -16,7 +16,7 @@
 <metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
 
     <OCD description="Site"
-         name="System Settings"
+         name="Platform Global Configuration"
          id="ddf.catalog.config">
 
         <AD name="Protocol" id="protocol" type="String" required="true"

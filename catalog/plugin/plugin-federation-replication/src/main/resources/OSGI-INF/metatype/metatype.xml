@@ -15,7 +15,7 @@
  -->
 <metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
 
-	<OCD name="Federation Replication Configuration Properties"
+	<OCD name="Catalog Federation Replication"
 		id="ddf.catalog.federation.layered.replication.RestReplicatorPlugin">
 		<AD
 			description="All create, update, and delete responses will be sent to this parent address."

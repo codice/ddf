@@ -15,7 +15,7 @@
  -->
 <metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
 
-	<OCD name="Solr Catalog Provider Configuration Properties" id="ddf.catalog.source.solr.SolrCatalogProvider">
+	<OCD name="Catalog Embedded Solr Catalog Provider" id="ddf.catalog.source.solr.SolrCatalogProvider">
 		<AD
 			description="Specifies the directory to use for data storage. A shutdown of the server is necessary for this property to take effect. If a filepath is provided with directories that don't exist, Solr Catalog Provider (SCP) will attempt to create those directories. Out of the box (without configuration), this Solr Catalog Provider writes to <DISTRIBUTION_INSTALLATION_DIRECTORY>/data/solr. It is recommended to use an absolute filepath to minimize confusion such as /opt/solr_data in Linux or C:/solr_data in Windows."
 			name="Data Directory File Path" id="dataDirectoryPath" required="true"

@@ -16,7 +16,7 @@
 <metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
 
    <OCD description="DDF Local site"
-        name="DDF Standard Catalog Framework"
+        name="Catalog Standard Catalog Framework"
         id="ddf.catalog.CatalogFrameworkImpl">         
       <AD name="Federation Thread Pool Size (0 for unlimited)" id="poolSize" required="true"
           type="Integer" default="0"/>

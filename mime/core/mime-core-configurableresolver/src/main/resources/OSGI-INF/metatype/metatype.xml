@@ -15,7 +15,7 @@
  -->
 <metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
 
-  <OCD description="DDF Custom Mime Types" name="DDF Custom Mime Types"
+  <OCD description="DDF Custom Mime Types" name="MIME Custom Types"
     id="DDF_Custom_Mime_Type_Resolver">    
      
     <AD name="Resolver Name" id="name" required="false" default="DDF Custom Resolver"

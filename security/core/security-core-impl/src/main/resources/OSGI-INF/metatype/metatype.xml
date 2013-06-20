@@ -15,7 +15,7 @@
  -->
 <metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
 
-  <OCD name="WS-Security Properties" id="ddf.security.ws.policy.impl.WSSecurityPropertiesImpl">
+  <OCD name="Security WS-Policy" id="ddf.security.ws.policy.impl.WSSecurityPropertiesImpl">
     <AD description="List of ws-security properties to set. These are used for the secure CXF endpoints."
       name="Properties" id="securityPropList" required="true" type="String" cardinality="-100"
       default="ws-security.enableRevocation=false" />

@@ -14,7 +14,7 @@
 -->
 <metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
 
-  <OCD description="DDF Default Site Security for Title, Description, and Security Elements" name="DDF Default Site Security"
+  <OCD description="DDF Default Site Security for Title, Description, and Security Elements" name="Catalog Security Defaults"
     id="ddf.DefaultSiteSecurity">
     <AD name="Apply Default Security Settings" id="applyDefaultSecurity" required="true"
       type="Boolean" default="false"

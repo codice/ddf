@@ -14,7 +14,7 @@
 -->
 <metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
 
-	<OCD description="STS Configuration" name="STS Configuration" id="ddf.security.sts">
+	<OCD description="STS Configuration" name="Security STS Server" id="ddf.security.sts">
 
         <AD name="SAML Assertion Lifetime:" id="lifetime" required="true" type="Integer"
             default="1800"

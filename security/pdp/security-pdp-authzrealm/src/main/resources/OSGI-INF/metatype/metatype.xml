@@ -15,7 +15,9 @@
  -->
 <metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
 
-    <OCD name="AuthZ Security Settings" id="ddf.security.pdp.realm.SimpleAuthzRealm">
+    <OCD description="AuthZ Security Settings"
+    	 name="Security Simple AuthZ Realm"
+    	 id="ddf.security.pdp.realm.SimpleAuthzRealm">
         <AD description="Roles that a user could have in order to be permitted for restricted actions. Defaults to admin."
             name="Roles" id="accessRoleList" required="true"
             type="String" cardinality="-100" default="admin" />

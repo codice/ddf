@@ -16,7 +16,7 @@
 <metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
 
     <OCD description="DDF STS Client"
-         name="DDF STS Client Settings"
+         name="Security STS Client"
          id="ddf.security.sts.client.config">
 
         <AD name="STS Endpoint Name:" id="sts.endpoint.name" description="STS Endpoint Name." required="false"
