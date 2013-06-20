@@ -15,7 +15,9 @@
  -->
 <metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
 
-    <OCD name="Expansion Service for User Attributes" id="ddf.security.user.attribute.mapping">
+    <OCD description="Expansion Service for User Attributes"
+    	 name="Security User Attribute Mapping"
+    	 id="ddf.security.user.attribute.mapping">
         <AD description="Attribute separator - used to separate attributes in replacement strings - defaults to space (specified by no value)."
             name="Attribute Separator" id="attributeSeparator" required="false"
             type="String" cardinality="1" default=" " />

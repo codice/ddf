@@ -14,7 +14,7 @@
 -->
 <metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
 
-	<OCD description="STS Ldap Login Configuration" name="STS Ldap Login Configuration" id="ddf.security.sts.ldap">
+	<OCD description="STS Ldap Login Configuration" name="Security STS LDAP Realm" id="ddf.security.sts.ldap">
 	    
 	    <AD name="LDAP URL:" id="ldapUrl" required="true" type="String"
 	      default="ldaps://localhost:1636"
