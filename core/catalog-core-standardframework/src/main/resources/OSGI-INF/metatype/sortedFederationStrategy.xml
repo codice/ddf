@@ -21,7 +21,7 @@
   This metatype may goes away once a smarter federation strategy is implemented.
    -->
    <OCD description="Sorted Federation Strategy"
-        name="Sorted Federation Strategy Configuration"
+        name="Catalog Sorted Federation Strategy"
         id="ddf.catalog.federation.impl.SortedFederationStrategy">         
       <AD name="Maximum start index" id="maxStartIndex" required="true" type="Integer" default="50000" 
         description="Sets a limit on the number of results this sorted federation strategy can handle from each federated source. A large start index 

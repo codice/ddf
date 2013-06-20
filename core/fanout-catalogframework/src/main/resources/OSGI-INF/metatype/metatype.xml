@@ -16,7 +16,7 @@
 <metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
 
    <OCD description="DDF Fanout Proxy"
-        name="DDF Fanout Catalog Framework"
+        name="Catalog Fanout Catalog Framework"
         id="ddf.catalog.impl.service.fanout.FanoutCatalogFramework">
       
       <AD name="Federation Thread Pool Size (0 for unlimited)" id="poolSize" required="true"

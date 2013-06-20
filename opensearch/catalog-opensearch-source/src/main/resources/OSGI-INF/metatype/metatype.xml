@@ -14,7 +14,7 @@
 -->
 <metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
 
-  <OCD description="DDF OpenSearch Federated Source" name="DDF OpenSearch Source"
+  <OCD description="DDF OpenSearch Federated Source" name="Catalog OpenSearch Federated Source"
     id="OpenSearchSource">
 
     <AD name="Source Name" id="shortname" required="true" type="String"
@@ -49,7 +49,7 @@
       
   </OCD>
 
-    <OCD description="CDDA OpenSearch Federated Source" name="CDDA OpenSearch Source"
+    <OCD description="CDDA OpenSearch Federated Source" name="Catalog CDDA Opensearch Federated Source"
          id="CDDAOpenSearchSource">
 
         <AD name="Source Name" id="shortname" required="true" type="String"
