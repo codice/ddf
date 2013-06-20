@@ -20,7 +20,7 @@
 	<bean id="stsRealm" class="ddf.security.realm.sts.StsRealm">
 	    <property name="encryptionService" ref="encryptionService" />
 	</bean>
-	
+
 	<service ref="stsRealm" interface="ddf.catalog.util.DdfConfigurationWatcher" />
 	
 	<service ref="stsRealm" interface="org.apache.shiro.realm.Realm" />
