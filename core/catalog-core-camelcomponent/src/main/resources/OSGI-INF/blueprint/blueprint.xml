@@ -20,12 +20,15 @@
 
     <reference id="transformerMapper" interface="ddf.mime.MimeTypeToTransformerMapper" />
 
+    <reference id="ddf" interface="ddf.catalog.CatalogFramework" />
+
     <!--
     Instantiate our custom Camel CatalogComponent and inject this bundle context into it.  
     -->
     <bean id="catalogComponent" class="ddf.camel.component.catalog.CatalogComponent">
 		<property name="bundleContext" ref="blueprintBundleContext" />
 		<property name="mimeTypeToTransformerMapper" ref="transformerMapper" />
+        <property name="catalogFramework" ref="ddf"/>
 	</bean>
 	
 	<!--

@@ -13,6 +13,7 @@ package ddf.camel.component.catalog;
 
 import java.util.Map;
 
+import ddf.catalog.CatalogFramework;
 import org.apache.camel.Endpoint;
 import org.apache.camel.impl.DefaultComponent;
 import org.osgi.framework.BundleContext;
@@ -46,6 +47,7 @@ public class CatalogComponent extends DefaultComponent
     
     private MimeTypeToTransformerMapper mimeTypeToTransformerMapper;
 
+    private CatalogFramework catalogFramework;
 
     public CatalogComponent() 
     {
@@ -71,7 +73,7 @@ public class CatalogComponent extends DefaultComponent
         
         LOGGER.debug( "transformerId = " + transformerId );
         
-        Endpoint endpoint = new CatalogEndpoint( uri, this, transformerId, mimeType, contextPath );
+        Endpoint endpoint = new CatalogEndpoint( uri, this, transformerId, mimeType, contextPath, catalogFramework );
         try {
         setProperties( endpoint, parameters );
 		} catch (Exception e) {
@@ -127,5 +129,27 @@ public class CatalogComponent extends DefaultComponent
     {
         LOGGER.debug( "Setting mimeTypeToTransformerMapper" );
         this.mimeTypeToTransformerMapper = mimeTypeToTransformerMapper;
+    }
+
+
+    /**
+     * Retrieves the catalog framework
+     *
+     * @return the catalog framework
+     */
+    public CatalogFramework getCatalogFramework()
+    {
+        return catalogFramework;
+    }
+
+
+    /**
+     * Sets the catalog framework
+     *
+     * @param catalogFramework  the catalog framework
+     */
+    public void setCatalogFramework(CatalogFramework catalogFramework)
+    {
+        this.catalogFramework = catalogFramework;
     }
 }
