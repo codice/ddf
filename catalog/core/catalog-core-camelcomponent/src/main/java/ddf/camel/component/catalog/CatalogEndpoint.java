@@ -11,6 +11,8 @@
  **/
 package ddf.camel.component.catalog;
 
+import ddf.camel.component.catalog.framework.FrameworkProducer;
+import ddf.catalog.CatalogFramework;
 import org.apache.camel.Consumer;
 import org.apache.camel.ExchangePattern;
 import org.apache.camel.Processor;
@@ -37,12 +39,15 @@ public class CatalogEndpoint extends DefaultEndpoint {
 
 	private static final String INPUT_TRANSFORMER = "inputtransformer";
 	private static final String QUERYRESPONSE_TRANSFORMER = "queryresponsetransformer";
+    private static final String FRAMEWORK = "framework";
 
-	private String transformerId;
+    private String transformerId;
 
 	private String contextPath;
 
 	private String mimeType;
+
+    private CatalogFramework catalogFramework;
 
 	/**
 	 * Constructs a CatalogEndpoint for the specified custom
@@ -61,14 +66,17 @@ public class CatalogEndpoint extends DefaultEndpoint {
 	 *            portion of the URI after the <code>catalog</code> scheme,
 	 *            e.g., <code>inputtransformer</code>, which indicates how to
 	 *            interpret the <code>catalog</code> route node
+     * @param catalogFramework
+     *            the catalog framework
 	 */
 	public CatalogEndpoint(String uri, CatalogComponent component, String transformerId, String mimeType,
-			String contextPath) {
+			String contextPath, CatalogFramework catalogFramework) {
 		super(uri, component);
-		LOGGER.debug("INSIDE CamelCatalogEndpoint(uri, component, transformerId, contextPath) constructor");
+		LOGGER.debug("INSIDE CamelCatalogEndpoint(uri, component, transformerId, contextPath, catalogFramework) constructor");
 		this.transformerId = transformerId;
 		this.mimeType = mimeType;
 		this.contextPath = contextPath;
+        this.catalogFramework = catalogFramework;
 		setSynchronous(true);
 	}
 
@@ -110,7 +118,9 @@ public class CatalogEndpoint extends DefaultEndpoint {
 			producer = new InputTransformerProducer(this);
 		} else if (contextPath.equals(QUERYRESPONSE_TRANSFORMER)) {
 			producer = new QueryResponseTransformerProducer(this);
-		} else {
+		} else if (contextPath.equals(FRAMEWORK)) {
+            producer = new FrameworkProducer(this, catalogFramework);
+        } else {
 			LOGGER.debug("Unable to create producer for context path [" + contextPath + "]");
 			throw new IllegalArgumentException("Unable to create producer for context path [" + contextPath + "]");
 		}
