@@ -14,7 +14,7 @@
 -->
 <metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
 
-  <OCD description="" name="Schedule Command" id="ddf.platform.scheduler.Command">
+  <OCD description="" name="Platform Command Scheduler" id="ddf.platform.scheduler.Command">
   
     <AD name="Command" id="command" required="true" type="String" default=""
       description="Shell command to be used within the container. For example, log:set DEBUG">
