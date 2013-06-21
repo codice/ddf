@@ -83,7 +83,32 @@ public class WebSSOTokenValidator implements TokenValidator, DdfConfigurationWat
 	{
 		this.encryptionService = encryptionService;
 	}
-	
+
+    public void setKeyStorePassword(String pw)
+    {
+        this.keyStorePassword = pw;
+    }
+
+    public void setTrustStorePassword(String pw)
+    {
+        this.trustStorePassword = pw;
+    }
+
+    public void setStsAddress(String stsAddress)
+    {
+        this.stsAddress = stsAddress;
+    }
+
+    public void setTrustStorePath(String trustStorePath)
+    {
+        this.trustStorePath = trustStorePath;
+    }
+
+    public void setKeyStorePath(String keyStorePath)
+    {
+        this.keyStorePath = keyStorePath;
+    }
+
     /*
      * Return true if this TokenValidator implementation is capable of
      * validating the ReceivedToken argument.
