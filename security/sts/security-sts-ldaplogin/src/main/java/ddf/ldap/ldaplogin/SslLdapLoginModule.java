@@ -16,6 +16,7 @@ import java.security.Principal;
 import java.security.acl.Group;
 import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -133,43 +134,13 @@ public class SslLdapLoginModule extends LDAPLoginModule {
 	}
 	
 	/**
-	 * Added additional code to add user's roles as a group value instead of the RolePrincipal value.
+	 * Added additional logging to the security logger.
 	 */
 	@Override
     protected boolean doLogin() throws LoginException {
 	    try{
 	        boolean isLoggedIn = super.doLogin();
-	      //update principals
-	        Set<Principal> addedPrincipals = new HashSet<Principal>(principals);
-	        principals.clear();
-	        LOGGER.trace("Cleared out the principal list.");
-	        Set<Group> groupList = new HashSet<Group>();
-	        Principal userPrincipal = null;
-	        for(Principal curPrincipal : addedPrincipals)
-	        {
-	            if (!(curPrincipal instanceof RolePrincipal))
-	            {
-	                //not a role, must be the name
-	                LOGGER.trace("Adding {} as a user", curPrincipal.getName());
-	                principals.add(curPrincipal);
-	                userPrincipal = curPrincipal;
-	            }
-	            else
-	            {
-	                LOGGER.trace("Adding {} as a group (role)", curPrincipal.getName());
-	                groupList.add(new GroupImpl(curPrincipal.getName()));
-	            }
-	        }
-	        if(userPrincipal != null)
-	        {
-	            //add user to each group
-	            for(Group curGroup : groupList)
-	            {
-	                curGroup.addMember(userPrincipal);
-	            }
-	        }
 	        
-	        principals.addAll(groupList);
 	        if(isLoggedIn)
 	        {
 	            SecurityLogger.logInfo("Username [" + user + "] successfully logged in using LDAP authentication.");
