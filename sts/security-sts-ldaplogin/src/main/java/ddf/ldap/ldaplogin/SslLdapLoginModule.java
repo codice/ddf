@@ -12,23 +12,31 @@
 
 package ddf.ldap.ldaplogin;
 
-import org.apache.karaf.jaas.config.KeystoreManager;
-import org.apache.karaf.jaas.modules.ldap.LDAPLoginModule;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.BundleReference;
-import org.osgi.framework.ServiceReference;
+import java.security.Principal;
+import java.security.acl.Group;
+import java.util.HashSet;
+import java.util.Hashtable;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
 
 import javax.naming.Context;
 import javax.net.ssl.SSLSocketFactory;
 import javax.security.auth.Subject;
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.login.LoginException;
-import java.util.Hashtable;
-import java.util.Map;
 
-import ddf.security.encryption.EncryptionService;
+import org.apache.karaf.jaas.boot.principal.RolePrincipal;
+import org.apache.karaf.jaas.config.KeystoreManager;
+import org.apache.karaf.jaas.modules.ldap.LDAPLoginModule;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.BundleReference;
+import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import ddf.security.common.audit.SecurityLogger;
+import ddf.security.encryption.EncryptionService;
 
 public class SslLdapLoginModule extends LDAPLoginModule {
 
@@ -124,4 +132,30 @@ public class SslLdapLoginModule extends LDAPLoginModule {
 			}
 		}
 	}
+	
+	/**
+	 * Added additional logging to the security logger.
+	 */
+	@Override
+    protected boolean doLogin() throws LoginException {
+	    try{
+	        boolean isLoggedIn = super.doLogin();
+	        
+	        if(isLoggedIn)
+	        {
+	            SecurityLogger.logInfo("Username [" + user + "] successfully logged in using LDAP authentication.");
+	        }
+	        else
+	        {
+	            SecurityLogger.logWarn("Username [" + user + "] failed LDAP authentication.");
+	        }
+	        return isLoggedIn;
+	        
+	    }
+	    catch (LoginException le)
+	    {
+	        SecurityLogger.logWarn("Username [" + user + "] could not log in successfuly using LDAP authentication due to an exception", le);
+	        throw le;
+	    }
+    }
 }
