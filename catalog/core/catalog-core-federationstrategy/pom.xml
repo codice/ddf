@@ -35,6 +35,20 @@
             <artifactId>catalog-core-commons</artifactId>
 		</dependency>
 		<dependency>
+            <groupId>ddf.catalog.core</groupId>
+            <artifactId>catalog-core-metricsplugin</artifactId>
+            <version>${project.version}</version>
+		</dependency>
+		<!-- 
+		<dependency>
+			<groupId>ddf.metrics.internal</groupId>
+			<artifactId>metrics-internal</artifactId>
+			<version>${project.version}</version>
+			<type>jar</type>
+			<scope>compile</scope>
+		</dependency>
+		-->
+		<dependency>
 			<groupId>org.osgi</groupId>
 			<artifactId>org.osgi.core</artifactId>
 		</dependency>
@@ -84,6 +98,8 @@
 				<configuration>
 					<instructions>
 						<Bundle-SymbolicName>${project.artifactId};blueprint.graceperiod:=true;blueprint.timeout:=604800000</Bundle-SymbolicName>
+						<Embed-Dependency>metrics-core;scope=compile|runtime;inline=true</Embed-Dependency>
+						<Embed-Transitive>true</Embed-Transitive>
 						<Import-Package>
 							ddf.catalog,
 							ddf.catalog.federation, 
@@ -91,7 +107,8 @@
 							ddf.catalog.resource,
 							ddf.catalog.source,
 							ddf.catalog.util,
-							ddf.catalog.data, 
+							ddf.catalog.data,
+							ddf.catalog.metrics.internal,
 							ddf.catalog.operation, 
 							org.opengis.filter, 
 							org.opengis.filter.expression, 
@@ -99,7 +116,9 @@
 							org.slf4j, 
 							org.slf4j.ext,
 							org.osgi.service.blueprint,
-							org.osgi.service.cm
+							org.osgi.service.cm,
+							sun.misc;resolution:=optional,
+							*
                         </Import-Package>
 						<Export-Package>
 						    ddf.catalog.federation.impl;version="${project.version}"

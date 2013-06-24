@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -36,6 +37,8 @@ import org.slf4j.ext.XLogger;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.federation.AbstractFederationStrategy;
+import ddf.catalog.federation.FederationStrategy;
+import ddf.catalog.metrics.internal.SourceMetrics;
 import ddf.catalog.operation.ProcessingDetails;
 import ddf.catalog.operation.ProcessingDetailsImpl;
 import ddf.catalog.operation.Query;
@@ -73,15 +76,27 @@ public class SortedFederationStrategy extends AbstractFederationStrategy
 
     private static XLogger logger = new XLogger(LoggerFactory.getLogger(SortedFederationStrategy.class));
 
+//    private static final String MBEAN_PACKAGE_NAME = "ddf.metrics.catalog.source";
+//	private static final String EXCEPTIONS_SCOPE = "Exceptions";
+//    private static final String QUERIES_SCOPE = "Queries";
+    
+//    private Metrics metrics;
+    private SourceMetrics sourceMetrics;
+	
+
     /**
      * Instantiates a {@code SortedFederationStrategy} with the provided
      * {@link ExecutorService}.
      * 
      * @param queryExecutorService the {@link ExecutorService} for queries
      */
-    public SortedFederationStrategy( ExecutorService queryExecutorService )
+//    public SortedFederationStrategy( ExecutorService queryExecutorService, ConfigurationAdmin configurationAdmin )
+    public SortedFederationStrategy( ExecutorService queryExecutorService, SourceMetrics sourceMetrics)
     {
         super(queryExecutorService);
+//        metrics = new Metrics(MBEAN_PACKAGE_NAME, configurationAdmin);
+        this.sourceMetrics = sourceMetrics;
+
     }
 
     @Override
@@ -100,7 +115,7 @@ public class SortedFederationStrategy extends AbstractFederationStrategy
         private Query query;
 
         public SortedQueryMonitor( ExecutorService pool, Map<Source, Future<SourceResponse>> futuress,
-            QueryResponseImpl returnResults, Query query )
+            QueryResponseImpl returnResults, Query query)
         {
 
             this.returnResults = returnResults;
@@ -151,10 +166,10 @@ public class SortedFederationStrategy extends AbstractFederationStrategy
             for ( final Entry<Source, Future<SourceResponse>> entry : futures.entrySet() )
             {
                 Source site = entry.getKey();
+                SourceResponse sourceResponse = null;
                 try
                 {
-
-                    SourceResponse sourceResponse = query.getTimeoutMillis() < 1 ? entry.getValue().get() : entry
+                    sourceResponse = query.getTimeoutMillis() < 1 ? entry.getValue().get() : entry
                         .getValue().get(getTimeRemaining(deadline), TimeUnit.MILLISECONDS);
 
                     resultList.addAll(sourceResponse.getResults());
@@ -193,8 +208,11 @@ public class SortedFederationStrategy extends AbstractFederationStrategy
                     logger.warn("search timed out: " + new Date() + " on site " + site.getId());
                     processingDetails.add(new ProcessingDetailsImpl(site.getId(), e));
                 }
+                updateQueryMetrics(site.getId(), sourceResponse);
             }
             logger.debug("all sites finished returning results: " + resultList.size());
+            
+            updateExceptionsMetrics(processingDetails);
 
             Collections.sort(resultList, coreComparator);
 
@@ -204,7 +222,37 @@ public class SortedFederationStrategy extends AbstractFederationStrategy
             returnResults.addResults(resultList.size() > maxResults ? resultList.subList(0, maxResults) : resultList,
                 true);
         }
+        
+		private void updateQueryMetrics(String sourceId,
+				SourceResponse sourceResponse) {
+			
+//			String metricName = sourceId + "." + sourceMetrics.QUERIES_SCOPE;
+			sourceMetrics.updateMetric(sourceId, sourceMetrics.QUERIES_SCOPE, 1);
+			
+			if (sourceResponse != null) {
+//				metricName = sourceId + "." + sourceMetrics.QUERIES_TOTAL_RESULTS_SCOPE;
+				sourceMetrics.updateMetric(sourceId, sourceMetrics.QUERIES_TOTAL_RESULTS_SCOPE, (int) sourceResponse.getHits());
+				//logger.debug(sourceId + ".Queries.TotalResults count = " + resultCount.getCount());
+			}
+		}
+        
+		private void updateExceptionsMetrics(Set<ProcessingDetails> processingDetails) {
 
+			if (processingDetails == null || processingDetails.iterator() == null) {
+	            return;
+	        }
+			
+			Iterator<ProcessingDetails> iterator = processingDetails.iterator();
+	        while (iterator.hasNext()) {
+	            ProcessingDetails next = iterator.next();
+	            if (next != null && next.getException() != null) {
+					String sourceId = next.getSourceId();
+//					String metricName = sourceId + "." + sourceMetrics.EXCEPTIONS_SCOPE;
+					sourceMetrics.updateMetric(sourceId, sourceMetrics.EXCEPTIONS_SCOPE, 1);
+	            }
+			}
+		}
+		
         private long getTimeRemaining( long deadline )
         {
             long timeleft;
