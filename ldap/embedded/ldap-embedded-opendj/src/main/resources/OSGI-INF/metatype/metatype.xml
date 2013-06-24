@@ -15,7 +15,7 @@
  -->
 <metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
 
-  <OCD name="LDAP Server Settings" id="ddf.ldap.embedded.server.LDAPManager">
+  <OCD name="LDAP Server" id="ddf.ldap.embedded.server.LDAPManager">
     <AD description="Port to listen for LDAP requests. Set to 0 to disable connector." name="LDAP Port" id="ldap.port" required="true"
       type="int" default="1389" />
     <AD description="Port to listen for LDAPS requests. Set to 0 to disable connector." name="LDAPS Port" id="ldaps.port" required="true"

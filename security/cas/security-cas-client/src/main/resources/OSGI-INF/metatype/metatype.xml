@@ -13,7 +13,7 @@
 -->
 <metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
 
-	<OCD description="DDF CAS Client Configuration" name="DDF CAS Client Configuration" id="ddf.security.cas">
+	<OCD description="DDF CAS Client Configuration" name="Security CAS Client" id="ddf.security.cas">
 	    
 	    <AD name="Server Name:" id="serverName" required="true" type="String"
 	      default="https://server:8993" 

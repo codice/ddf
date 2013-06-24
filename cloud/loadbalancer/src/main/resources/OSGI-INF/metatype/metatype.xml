@@ -15,7 +15,7 @@
  -->
 <metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
 
-	<OCD name="HTTP Load Balancer" id="ddf.cloud.loadbalancer.HttpLoadBalancer">
+	<OCD name="Platform HTTP Load Balancer" id="ddf.cloud.loadbalancer.HttpLoadBalancer">
 	  
 	  <AD name="Load Balancer Port" id="loadPort" required="true" default="8080"
       type="String" description="The port number of the load balancer"/>
@@ -31,7 +31,7 @@
 	</Designate>
 	
 	
-	<OCD name="HTTPS Load Balancer" id="ddf.cloud.loadbalancer.HttpsLoadBalancer">
+	<OCD name="Platform HTTPS Load Balancer" id="ddf.cloud.loadbalancer.HttpsLoadBalancer">
 	  
 	 <AD name="Load Balancer Host" id="loadHost" required="true" default="localhost"
       type="String" description="The hostname or IP address of the load balancer"/>

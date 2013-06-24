@@ -15,7 +15,7 @@
  -->
 <metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
 
-	<OCD name="Solr Catalog Provider Configuration Properties" id="ddf.catalog.solr.external.SolrHttpCatalogProvider">
+	<OCD name="Catalog External Solr Catalog Provider" id="ddf.catalog.solr.external.SolrHttpCatalogProvider">
 		<AD description="HTTP URL of standalone Solr 4.x Server." name="HTTP URL" id="url"
 			required="true" type="String" default="http://localhost:8181/solr" />
 		<AD

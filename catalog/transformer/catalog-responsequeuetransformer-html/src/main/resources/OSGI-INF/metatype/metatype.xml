@@ -15,7 +15,7 @@
  -->
 <metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
 
-	<OCD name="Query Response HTML Transformer" id="query.response.transformer.properties">
+	<OCD name="Catalog HTML Query Reponse Transformer" id="query.response.transformer.properties">
 		<AD
 			description="Specifies the header text to be rendered on the generated Query Page"
 			name="Header" id="header" required="true" type="String" 
