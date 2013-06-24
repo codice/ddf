@@ -50,7 +50,9 @@
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
 						<Embed-Dependency>metrics-core;scope=compile|runtime;artifactId=!slf4j-api</Embed-Dependency> 
 						<Embed-Transitive>true</Embed-Transitive>
-                        <Export-Package />
+                        <Export-Package>
+                            ddf.catalog.metrics.internal
+                        </Export-Package>
 					</instructions>
 				</configuration>
 			</plugin>

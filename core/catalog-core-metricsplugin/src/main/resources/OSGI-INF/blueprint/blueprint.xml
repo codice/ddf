@@ -26,5 +26,34 @@
 	<service ref="catalogMetrics" interface="ddf.catalog.plugin.PostQueryPlugin" />
     <service ref="catalogMetrics" interface="ddf.catalog.plugin.PostIngestPlugin" />
     <service ref="catalogMetrics" interface="ddf.catalog.plugin.PostResourcePlugin" />
+    
+    
+    <reference id="configAdminService" interface="org.osgi.service.cm.ConfigurationAdmin" />
+    
+    <bean id="sourceMetrics" class="ddf.catalog.metrics.SourceMetricsImpl"
+    			init-method="init"  destroy-method="destroy">
+    	<argument ref="configAdminService" />
+    </bean>
+    
+    <service ref="sourceMetrics" interface="ddf.catalog.metrics.internal.SourceMetrics" />
+    
+    <!--
+    NOTE: ConnectedSources are explicitly not monitored because their sourceId overlaps
+    with the local catalog provider. 
+    -->
+    
+    <reference-list interface="ddf.catalog.source.CatalogProvider" availability="optional" >
+    	<reference-listener 
+    		ref="sourceMetrics"
+    		bind-method="addingSource" 
+    		unbind-method="deletingSource"    />
+    </reference-list>
+        
+    <reference-list interface="ddf.catalog.source.FederatedSource" availability="optional" >
+    	<reference-listener 
+    		ref="sourceMetrics"
+    		bind-method="addingSource" 
+    		unbind-method="deletingSource"    />
+    </reference-list>
 
 </blueprint>

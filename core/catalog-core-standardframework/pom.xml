@@ -35,6 +35,11 @@
             <artifactId>catalog-core-commons</artifactId>
 		</dependency>
 		<dependency>
+            <groupId>ddf.catalog.core</groupId>
+            <artifactId>catalog-core-metricsplugin</artifactId>
+            <version>${project.version}</version>
+		</dependency>
+		<dependency>
 			<groupId>ddf.catalog.core</groupId>
 			<artifactId>ddf-pubsub</artifactId>
 		</dependency>
@@ -65,7 +70,8 @@
 							ddf.catalog,
 							ddf.catalog.event,
 							ddf.catalog.federation,
-							ddf.catalog.federation.impl, 
+							ddf.catalog.federation.impl,
+							ddf.catalog.metrics.internal, 
 							ddf.catalog.plugin,
 							ddf.catalog.pubsub, 
 							ddf.catalog.resource,

@@ -56,6 +56,7 @@ import ddf.catalog.data.Result;
 import ddf.catalog.federation.AbstractFederationStrategy;
 import ddf.catalog.federation.FederationException;
 import ddf.catalog.federation.FederationStrategy;
+import ddf.catalog.metrics.internal.SourceMetrics;
 import ddf.catalog.operation.CreateRequestImpl;
 import ddf.catalog.operation.CreateResponse;
 import ddf.catalog.operation.Query;
@@ -91,11 +92,19 @@ public class FederationStrategyTest {
 	private static final ExecutorService EXECUTOR = Executors.newFixedThreadPool(2);
 	
     private static final Logger LOGGER = Logger.getLogger( FederationStrategyTest.class.getName() );
+    
+//    private ConfigurationAdmin configAdmin;
+//    private Metrics metrics;
+    private SourceMetrics sourceMetrics;
 	
 	@Before
 	public void initialize() {
 		BasicConfigurator.configure();
 		Logger.getRootLogger().setLevel(Level.TRACE);
+		
+//		configAdmin = mock(ConfigurationAdmin.class);
+//		metrics = mock(Metrics.class);
+		sourceMetrics = mock(SourceMetrics.class);
 	}
 
 	/**
@@ -116,8 +125,8 @@ public class FederationStrategyTest {
 		SourcePoller poller = new SourcePoller(runner);
 		runner.bind(provider);
 		
-		// Must have more than one thread or sleeps will block the monitor
-		FederationStrategy fedStrategy = new SortedFederationStrategy(EXECUTOR);
+		// Must have more than one thread or sleeps will block the monitor		
+		FederationStrategy fedStrategy = new SortedFederationStrategy(EXECUTOR, sourceMetrics);
 		
 		CatalogFrameworkImpl framework = new CatalogFrameworkImpl(
 				Collections.singletonList((CatalogProvider) provider), null,
@@ -197,7 +206,7 @@ public class FederationStrategyTest {
 		List<Source> sources = new ArrayList<Source>();
 		sources.add(mockProvider);
 		
-		FederationStrategy strategy = new SortedFederationStrategy(EXECUTOR);
+		FederationStrategy strategy = new SortedFederationStrategy(EXECUTOR, sourceMetrics);
 		QueryResponse fedResponse = strategy.federate(sources, fedQueryRequest);
 		assertEquals(1, fedResponse.getResults().size());
 		
@@ -291,7 +300,7 @@ public class FederationStrategyTest {
         QueryResponseImpl offsetResultQueue = new QueryResponseImpl(queryRequest, null);
         PowerMockito.whenNew(QueryResponseImpl.class).withArguments( queryRequest, (Map<String, Serializable>) null ).thenReturn(mockOriginalResults, offsetResultQueue);
 
-        FederationStrategy strategy = new SortedFederationStrategy( EXECUTOR );
+        FederationStrategy strategy = new SortedFederationStrategy( EXECUTOR, sourceMetrics );
         
         // Run Test
         QueryResponse federatedResponse = strategy.federate( sources, queryRequest );
@@ -370,7 +379,7 @@ public class FederationStrategyTest {
         List<Source> sources = new ArrayList<Source>(1);
         sources.add( mockSource1 );
 
-        FederationStrategy strategy = new SortedFederationStrategy( EXECUTOR );
+        FederationStrategy strategy = new SortedFederationStrategy( EXECUTOR, sourceMetrics );
         
         // Run Test
         QueryResponse federatedResponse = strategy.federate( sources, queryRequest );
@@ -473,7 +482,7 @@ public class FederationStrategyTest {
         sources.add( mockSource1 );
         sources.add( mockSource2 );
         
-        FederationStrategy strategy = new SortedFederationStrategy( EXECUTOR );
+        FederationStrategy strategy = new SortedFederationStrategy( EXECUTOR, sourceMetrics );
         
         // Run Test
         QueryResponse federatedResponse = strategy.federate( sources, queryRequest );
@@ -540,7 +549,7 @@ public class FederationStrategyTest {
         List<Source> sources = new ArrayList<Source>(1);
         sources.add( mockSource1 );
 
-        FederationStrategy strategy = new SortedFederationStrategy( EXECUTOR );
+        FederationStrategy strategy = new SortedFederationStrategy( EXECUTOR, sourceMetrics );
         
         // Run Test
         QueryResponse federatedResponse = strategy.federate( sources, queryRequest );
