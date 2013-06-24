@@ -570,5 +570,9 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
     public void setSortPolicy(SortBy sortBy) {
         this.sortBy = sortBy;
     }
+
+    public static SolrFilterDelegate newInstance(DynamicSchemaResolver resolver) {
+        return new SolrFilterDelegate(resolver);
+    }
 	
 }

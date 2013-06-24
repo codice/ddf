@@ -35,6 +35,7 @@ import ddf.catalog.source.solr.ConfigurationStore;
 import ddf.catalog.source.solr.Library;
 import ddf.catalog.source.solr.MockMetacard;
 import ddf.catalog.source.solr.SolrCatalogProvider;
+import ddf.catalog.source.solr.SolrFilterDelegateFactoryImpl;
 import ddf.catalog.source.solr.SolrProviderTestCase;
 import ddf.catalog.source.solr.SolrServerFactory;
 
@@ -56,7 +57,8 @@ public class TestTextPath extends SolrProviderTestCase {
         provider = new SolrCatalogProvider(
                 SolrServerFactory.getEmbeddedSolrServer("solrconfig.xml",
                         "schema.xml", configurationFileProxy),
-                new GeotoolsFilterAdapterImpl());
+                new GeotoolsFilterAdapterImpl(),
+                new SolrFilterDelegateFactoryImpl());
 
         provider.setId(MASKED_ID);
 

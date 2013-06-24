@@ -67,7 +67,8 @@ public abstract class SolrProviderTestCase {
         provider = new SolrCatalogProvider(
                 SolrServerFactory.getEmbeddedSolrServer("solrconfig.xml",
                         "schema.xml", configurationFileProxy),
-                new GeotoolsFilterAdapterImpl());
+                new GeotoolsFilterAdapterImpl(),
+                new SolrFilterDelegateFactoryImpl());
 
         // Mask the id, this is something that the CatalogFramework would
         // usually do

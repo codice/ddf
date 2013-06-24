@@ -214,7 +214,8 @@ public class DdfConfigurationManager
 			// Add the read-only settings to list to be pushed out to watchers
 			this.configuration.putAll( readOnlySettings );
 		}
-		
+
+        logger.debug("Invoking ddfConfigurationUpdated on " + (services == null ? "0" : services.size()) + " services");
 		for ( DdfConfigurationWatcher service : services ) 
 		{
 			service.ddfConfigurationUpdated( this.configuration );

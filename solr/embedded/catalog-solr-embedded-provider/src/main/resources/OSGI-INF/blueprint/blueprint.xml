@@ -43,13 +43,12 @@
 		destroy-method="shutdown">
 		<argument ref="solrServer" />
 		<argument ref="filterAdapter" />
-		<argument ref="metacardTypeRegistry" />
+		<argument>
+			<bean class="ddf.catalog.source.solr.SolrFilterDelegateFactoryImpl"/>
+		</argument>
 	</bean>
 
 	<!-- Register the Catalog Provider in the OSGi Service Registry -->
 	<service ref="solrCatalogProvider" interface="ddf.catalog.source.CatalogProvider" />
 	
-	<!-- Register supported MetacardTypes -->
-	<reference id="metacardTypeRegistry" interface="ddf.catalog.data.MetacardTypeRegistry" availability="optional" />
-
 </blueprint>
