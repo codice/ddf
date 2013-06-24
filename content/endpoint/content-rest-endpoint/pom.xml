@@ -20,8 +20,8 @@
     <version>2.2.0.RC3-SNAPSHOT</version>
   </parent>
   
-  <artifactId>content-endpoint-rest</artifactId>
-  <name>DDF :: Content :: Endpoint :: REST</name>
+  <artifactId>content-rest-endpoint</artifactId>
+  <name>DDF :: Content :: REST :: Endpoint</name>
   <packaging>bundle</packaging>
 
 	<dependencies>		

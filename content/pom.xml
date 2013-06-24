@@ -27,7 +27,7 @@
 	<name>DDF Content</name>
 
 	<modules>
-		<module>core</module>
         <module>endpoint</module>
+        <module>core</module>
 	</modules>
 </project>

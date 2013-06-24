@@ -29,6 +29,7 @@
     <module>console-branding</module>
     <module>webconsole-branding</module>
     <module>webconsole-branding-plugin</module>
+    <module>webconsole-plugins</module>
     <module>ddf-common</module>
     <module>kernel</module>
     <module>ddf</module>
@@ -47,7 +48,7 @@
 	  <modules>
 	  	<module>ddf-distro-src</module>
 	  	<module>ddf-distro-repo</module>
-	  </modules>      
+	  </modules>
   
     </profile>
   </profiles>

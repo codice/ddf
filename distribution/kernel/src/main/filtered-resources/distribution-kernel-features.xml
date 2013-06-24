@@ -15,8 +15,16 @@
 
 	<repository>mvn:org.apache.karaf.assemblies.features/standard/${karaf.version}/xml/features</repository>
 
-	<feature name="kernel-webconsolebranding" version="${project.version}" description="DDF Web Admin Console branding">
-		<feature>webconsole</feature>
+    <feature name="ddf-webconsole" description="Karaf WebConsole for administration and monitoring" version="${project.version}">
+        <feature version="${karaf.version}">webconsole-base</feature>
+        <bundle start-level="30">mvn:ddf.karaf.distribution/ddf.org.apache.karaf.webconsole.admin/${karaf.version}</bundle>
+        <bundle start-level="30">mvn:ddf.karaf.distribution/ddf.org.apache.karaf.webconsole.features/${karaf.version}</bundle>
+        <bundle start-level="30">mvn:ddf.karaf.distribution/ddf.org.apache.karaf.webconsole.gogo/${karaf.version}</bundle>
+        <bundle start-level="30">mvn:org.apache.felix/org.apache.felix.webconsole.plugins.event/${felix.eventadmin-plugin.version}</bundle>
+    </feature>
+
+    <feature name="kernel-webconsolebranding" version="${project.version}" description="DDF Web Admin Console branding">
+		<feature>ddf-webconsole</feature>
 		<bundle>mvn:commons-io/commons-io/${commons-io.version}</bundle>
 		<bundle>mvn:ddf.distribution/webconsole-branding/${project.version}</bundle>
 		<bundle>mvn:ddf.distribution/webconsole-branding-plugin/${project.version}</bundle>

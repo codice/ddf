@@ -66,25 +66,25 @@ import ddf.catalog.source.solr.textpath.SimplePathIndexer;
  */
 public class DynamicSchemaResolver {
 
-	private static final char FIRST_CHAR_OF_SUFFIX = '_';
-	private static final String COULD_NOT_READ_METACARD_TYPE_MESSAGE = "Could not read MetacardType.";
-	private static final String FIELDS_KEY = "fields";
-	private static final String COULD_NOT_SERIALIZE_OBJECT_MESSAGE = "Could not serialize object";
+    protected static final char FIRST_CHAR_OF_SUFFIX = '_';
+    protected static final String COULD_NOT_READ_METACARD_TYPE_MESSAGE = "Could not read MetacardType.";
+	protected static final String FIELDS_KEY = "fields";
+	protected static final String COULD_NOT_SERIALIZE_OBJECT_MESSAGE = "Could not serialize object";
 	private static final String SOLR_CLOUD_VERSION_FIELD = "_version_";
     private static final List<String> PRIVATE_SOLR_FIELDS = Arrays.asList(SOLR_CLOUD_VERSION_FIELD,
             SchemaFields.METACARD_TYPE_FIELD_NAME, SchemaFields.METACARD_TYPE_OBJECT_FIELD_NAME);
 
 	private static final Logger LOGGER = Logger.getLogger(DynamicSchemaResolver.class);
 
-	private Set<String> fieldsCache = new HashSet<String>();
+	protected Set<String> fieldsCache = new HashSet<String>();
 
-	private SchemaFields schemaFields;
+	protected SchemaFields schemaFields;
 
-	private Map<String, MetacardType> metacardTypesCache = new HashMap<String, MetacardType>();
+	protected Map<String, MetacardType> metacardTypesCache = new HashMap<String, MetacardType>();
 
-	private Map<String, byte[]> metacardTypeNameToSerialCache = new HashMap<String, byte[]>();
+	protected Map<String, byte[]> metacardTypeNameToSerialCache = new HashMap<String, byte[]>();
 
-	private static XMLInputFactory2 xmlInputFactory = null;
+	protected static XMLInputFactory2 xmlInputFactory = null;
 
 	static {
 		ClassLoader tccl = Thread.currentThread().getContextClassLoader();
@@ -105,6 +105,9 @@ public class DynamicSchemaResolver {
 	}
 
 	public DynamicSchemaResolver(SolrServer server) {
+        if (server == null) {
+            throw new IllegalArgumentException("SolrServer cannot be null.");
+        }
 
 		this.schemaFields = new SchemaFields();
 
@@ -159,17 +162,22 @@ public class DynamicSchemaResolver {
 				    String formatIndexName = ad.getName() + getFieldSuffix(format);
 				    
     				if (AttributeFormat.XML.equals(format)) {
+    				    // raw
                         solrInputDocument.addField(formatIndexName, attributeValue);
                         
+                        // textpath
                         SimplePathIndexer textPathIndexer = new SimplePathIndexer(xmlInputFactory);
                         String textPathIndexName = formatIndexName + getSpecialIndexSuffix(format);
                         solrInputDocument.addField(textPathIndexName,
                                 textPathIndexer.indexTextPath(attributeValue.toString()));
 
+                        // text
                         String specialStringIndexName = ad.getName() + getFieldSuffix(AttributeFormat.STRING)
                                 + getSpecialIndexSuffix(AttributeFormat.STRING);
                         String parsedText = parseTextFrom(attributeValue.toString());
                         solrInputDocument.addField(specialStringIndexName, parsedText);
+                        
+                        // text case sensitive
                         solrInputDocument.addField(getCaseSensitiveField(specialStringIndexName), parsedText);
                     } else if (AttributeFormat.GEOMETRY.equals(format)) {
     				    String wkt = WktNormalizer.normalizeWkt((String) attributeValue);
@@ -411,7 +419,7 @@ public class DynamicSchemaResolver {
 		return mappedPropertyName + SchemaFields.HAS_CASE;
 	}
 
-	private String getSpecialIndexSuffix(AttributeFormat format) {
+	protected String getSpecialIndexSuffix(AttributeFormat format) {
 
 		switch (format) {
             case STRING:
@@ -506,7 +514,7 @@ public class DynamicSchemaResolver {
 	 *            XML as a {@code String}
 	 * @return parsed CDATA and element text
 	 */
-	private String parseTextFrom(String xmlData) {
+	protected String parseTextFrom(String xmlData) {
 
 		StringBuilder builder = new StringBuilder();
 

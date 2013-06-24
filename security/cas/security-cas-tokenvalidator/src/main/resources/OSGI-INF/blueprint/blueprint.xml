@@ -17,6 +17,8 @@
     <cm:property-placeholder persistent-id="ddf.security.cas.webSSOTokenValidator" placeholder-prefix="$sts{" update-strategy="reload">
         <cm:default-properties>
             <cm:property name="casServerUrl" value="https://localhost:8443/cas/"/>
+            <cm:property name="keyStorePassword" value="ENC(gVSowR80cHSRgHLUarq36AhKpXc56QSg)" />
+            <cm:property name="trustStorePassword" value="ENC(gVSowR80cHSRgHLUarq36AhKpXc56QSg)" />
         </cm:default-properties>
     </cm:property-placeholder>
 
@@ -25,6 +27,8 @@
     <bean id="webSsoTokenValidator" class="ddf.security.cas.WebSSOTokenValidator">
         <property name="casServerUrl" value="$sts{casServerUrl}" />
         <property name="encryptionService" ref="encryptionService" />
+        <property name="keyStorePassword" value="$sts{keyStorePassword}" />
+        <property name="trustStorePassword" value="$sts{trustStorePassword}" />
     </bean>
     
     <service ref="webSsoTokenValidator">

@@ -39,6 +39,7 @@
     <repository>mvn:ddf.catalog.solr.server/catalog-solr-server-app/${project.version}/xml/features</repository>
     <repository>mvn:ddf.security.pep/security-pep-app/${project.version}/xml/features</repository>
 	<repository>mvn:ddf.security.pdp/security-pdp-app/${project.version}/xml/features</repository>
+	<repository>mvn:ddf.catalog.plugin/catalog-federationreplication-app/${project.version}/xml/features</repository>
 
 	<feature name="ddf-framework" version="${project.version}"
 		description="Default features of DDF out-of-the-box.  
@@ -73,13 +74,5 @@
 	    <feature>catalog-transformer-resource</feature>
 	    
 	</feature>
-
-	<feature name="content-rest-endpoint" version="${project.version}" description="REST Endpoint provides CRUD operations for content storage.">
-		<bundle>mvn:ddf.content.endpoint/content-endpoint-rest/${project.version}</bundle>
-	</feature>
-
-	<feature name="catalog-plugin-federationreplication" version="${project.version}" description="">
-		<bundle>mvn:ddf.catalog.plugin/plugin-federation-replication/${project.version}</bundle>
-	</feature>
-
+     
 </features>

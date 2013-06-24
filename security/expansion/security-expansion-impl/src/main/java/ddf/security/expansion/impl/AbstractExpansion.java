@@ -14,6 +14,7 @@ package ddf.security.expansion.impl;
 import ddf.security.expansion.Expansion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.apache.commons.io.IOUtils;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -183,7 +184,7 @@ public abstract class AbstractExpansion implements Expansion
     public Map<String, List<String[]>> getExpansionMap()
     {
         if (expansionTable == null)
-            return null;
+            return new HashMap<String, List<String[]>>();
 
         return Collections.unmodifiableMap(expansionTable);
     }
@@ -450,16 +451,7 @@ public abstract class AbstractExpansion implements Expansion
             setExpansionMap(null);
         } finally
         {
-            if (br != null)
-            {
-                try
-                {
-                    br.close();
-                } catch (IOException e)
-                {
-                    LOGGER.warn("Error closing mapping configuration file: {}", e.getMessage());
-                }
-            }
+            IOUtils.closeQuietly(br);
         }
     }
 }

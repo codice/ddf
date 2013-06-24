@@ -189,7 +189,7 @@
 		<maven.war.plugin.version>2.2</maven.war.plugin.version>
 
         <!-- Dependency Management Versions -->
-		<org.slf4j.version>1.6.1</org.slf4j.version>
+		<org.slf4j.version>1.7.1</org.slf4j.version>
 		<org.geotools.version>8.4</org.geotools.version>
 		<jts.version>1.12</jts.version>
 		<saxon.version>9.1.0.8</saxon.version>
@@ -204,7 +204,7 @@
         <!-- Bundle Dependency Properties-->
         <!-- Karaf 2.2.7 upgrade <org.apache.servicemix.bundles.asm.version>3.3_2</org.apache.servicemix.bundles.asm.version> -->
 		<org.apache.servicemix.bundles.asm.version>3.3.1_1</org.apache.servicemix.bundles.asm.version>
-		<org.apache.servicemix.specs.version>2.0.0</org.apache.servicemix.specs.version>
+		<org.apache.servicemix.specs.version>2.2.0</org.apache.servicemix.specs.version>
 		<org.apache.servicemix.bundles.oro.version>2.0.8_6</org.apache.servicemix.bundles.oro.version>
 		<org.springframework.ldap.version>1.3.1.RELEASE</org.springframework.ldap.version>
 		<org.apache.servicemix.bundles.dom4j.version>1.6.1_5</org.apache.servicemix.bundles.dom4j.version>
@@ -230,9 +230,9 @@
         <!-- when upgrading the karaf version, ensure that the properties and cfg files in package-commons/.../distribution/etc/ are updated and compatible with the
         latest karaf version.  Those configuration files in package-commons/.../distribution/etc have been copied from a previous version of Karaf, and are
         source controlled because of some slight customizations that have been made to them.  -->
-		<karaf.version>2.2.9</karaf.version>
-		<camel.version>2.10.4</camel.version>
-		<cellar.version>2.2.6</cellar.version>
+		<karaf.version>2.3.1</karaf.version>
+		<camel.version>2.11.0</camel.version>
+		<cellar.version>2.3.0</cellar.version>
 
         <!--
         Default properties for Version.txt (this is the file containing the build number and
@@ -1593,7 +1593,14 @@
 				<type>zip</type>
 			</dependency>
 
-			<dependency>
+            <dependency>
+                <groupId>org.apache.karaf.tooling.exam</groupId>
+                <artifactId>exam</artifactId>
+                <version>${karaf.version}</version>
+                <scope>test</scope>
+            </dependency>
+
+            <dependency>
 				<groupId>org.apache.camel</groupId>
 				<artifactId>camel-parent</artifactId>
 				<version>${camel.version}</version>

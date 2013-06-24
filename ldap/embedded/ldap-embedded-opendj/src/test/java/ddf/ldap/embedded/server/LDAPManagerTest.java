@@ -12,17 +12,32 @@
 package ddf.ldap.embedded.server;
 
 
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
+
+import java.io.File;
+import java.io.FileFilter;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.util.Arrays;
+import java.util.Enumeration;
+import java.util.List;
+
 import org.apache.camel.test.AvailablePortFinder;
+import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.mockito.Mockito;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
 
 
 public class LDAPManagerTest
@@ -49,13 +64,11 @@ public class LDAPManagerTest
         logger.info("Using ldaps port: " + adminPort);
     }
 
-    //tests temporarily ignored to figure out a way to resolve the keystore issue
-    @Ignore
     @Test
     public void TestStartServer()
     {
         logger.info("Testing starting and stopping server.");
-        LDAPBundleContext mockContext = new LDAPBundleContext(folder.newFolder(TMP_FOLDER_NAME).getAbsolutePath());
+        BundleContext mockContext = createMockContext(folder.newFolder(TMP_FOLDER_NAME));
         LDAPManager manager = new LDAPManager(mockContext);
         manager.setAdminPort(adminPort);
         manager.setLDAPPort(ldapPort);
@@ -80,12 +93,11 @@ public class LDAPManagerTest
 
     }
 
-    @Ignore
     @Test
     public void TestStopStopped()
     {
         logger.info("Testing case to stop an already stopped server.");
-        LDAPBundleContext mockContext = new LDAPBundleContext(folder.newFolder(TMP_FOLDER_NAME).getAbsolutePath());
+        BundleContext mockContext = createMockContext(folder.newFolder(TMP_FOLDER_NAME));
         LDAPManager manager = new LDAPManager(mockContext);
         manager.setAdminPort(adminPort);
         manager.setLDAPPort(ldapPort);
@@ -101,28 +113,109 @@ public class LDAPManagerTest
         }
     }
 
-    @Ignore
-    @Test
-    public void TestNoDataFile()
+    @Test( expected = LDAPException.class )
+    public void TestNoDataFile() throws LDAPException
     {
         logger.info("Testing case where no location is given to store data.");
-        LDAPBundleContext mockContext = new LDAPBundleContext(null);
+        BundleContext mockContext = createMockContext(null);
         LDAPManager manager = new LDAPManager(mockContext);
         manager.setAdminPort(adminPort);
         manager.setLDAPPort(ldapPort);
         manager.setLDAPSPort(ldapsPort);
         assertNotNull(manager);
-        try
+        logger.info("Starting Server.");
+        manager.startServer();
+        logger.info("Successfully started server, now stopping.");
+        manager.stopServer();
+        fail("Sever should not successfully start with null data file.");
+    }
+
+    private BundleContext createMockContext( final File dataFolderPath )
+    {
+        Bundle mockBundle = Mockito.mock(Bundle.class);
+        Mockito.when(mockBundle.findEntries(Mockito.anyString(), Mockito.anyString(), Mockito.anyBoolean())).then(
+            new Answer<Enumeration<URL>>()
+            {
+
+                @Override
+                public Enumeration<URL> answer( InvocationOnMock invocation ) throws Throwable
+                {
+
+                    Object[] arguments = invocation.getArguments();
+                    String path = arguments[0].toString();
+                    String filePattern = arguments[1].toString();
+                    boolean recurse = (Boolean) arguments[2];
+                    final URL url = this.getClass().getResource(path);
+                    File pathFile = null;
+                    try
+                    {
+                        pathFile = new File(url.toURI());
+                    }
+                    catch (URISyntaxException e)
+                    {
+                        throw new RuntimeException("Unable to resolve file path", e);
+                    }
+                    final File[] files = pathFile.listFiles((FileFilter) new WildcardFileFilter(filePattern));
+                    Enumeration<URL> enumer = new Enumeration<URL>()
+                    {
+                        int place = 0;
+                        List<File> urlList = Arrays.asList(files);
+
+                        @Override
+                        public boolean hasMoreElements()
+                        {
+                            return place < urlList.size();
+                        }
+
+                        @Override
+                        public URL nextElement()
+                        {
+                            File file = urlList.get(place++);
+                            try
+                            {
+                                return file.toURL();
+                            }
+                            catch (MalformedURLException e)
+                            {
+                                throw new RuntimeException("Unable to convert to URL", e);
+                            }
+                        }
+                    };
+                    return enumer;
+                }
+
+            });
+        Mockito.when(mockBundle.getResource(Mockito.anyString())).then(new Answer<URL>()
         {
-            logger.info("Starting Server.");
-            manager.startServer();
-            logger.info("Successfully started server, now stopping.");
-            manager.stopServer();
-            fail("Sever should not successfully start with null data file.");
-        }
-        catch (LDAPException le)
+
+            @Override
+            public URL answer( InvocationOnMock invocation ) throws Throwable
+            {
+                return this.getClass().getResource((String) invocation.getArguments()[0]);
+            }
+
+        });
+        BundleContext mockContext = Mockito.mock(BundleContext.class);
+        Mockito.when(mockContext.getDataFile(Mockito.anyString())).then(new Answer<File>()
         {
-            logger.info("Server successfully failed startup.");
-        }
+
+            @Override
+            public File answer( InvocationOnMock invocation ) throws Throwable
+            {
+                String filename = invocation.getArguments()[0].toString();
+                if (dataFolderPath != null)
+                {
+                    return new File(dataFolderPath + "/" + filename);
+                }
+                else
+                {
+                    return null;
+                }
+            }
+
+        });
+        Mockito.when(mockContext.getBundle()).thenReturn(mockBundle);
+
+        return mockContext;
     }
 }

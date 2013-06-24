@@ -45,15 +45,12 @@ import com.spatial4j.core.distance.DistanceUtils;
 
 import ddf.catalog.data.AttributeImpl;
 import ddf.catalog.data.AttributeType.AttributeFormat;
-import ddf.catalog.data.BasicTypes;
 import ddf.catalog.data.ContentType;
 import ddf.catalog.data.ContentTypeImpl;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardCreationException;
 import ddf.catalog.data.MetacardImpl;
 import ddf.catalog.data.MetacardType;
-import ddf.catalog.data.MetacardTypeRegistry;
-import ddf.catalog.data.QualifiedMetacardTypeImpl;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.ResultImpl;
 import ddf.catalog.filter.FilterAdapter;
@@ -115,7 +112,7 @@ public class SolrCatalogProvider extends MaskableImpl implements
 
     private SolrServer server;
 
-    private MetacardTypeRegistry metacardTypeRegistry;
+    private SolrFilterDelegateFactory solrFilterDelegateFactory;
 
     private static Properties describableProperties = new Properties();
 
@@ -129,37 +126,43 @@ public class SolrCatalogProvider extends MaskableImpl implements
 
     }
 
+    /**
+     * Constructor that creates a new instance and allows for a custom
+     * {@link DynamicSchemaResolver}
+     * 
+     * @param server
+     * @param adapter
+     *            injected implementation of FilterAdapter
+     * @param resolver
+     */
     public SolrCatalogProvider(SolrServer server, FilterAdapter adapter,
-            MetacardTypeRegistry metacardTypeRegistry) {
+            SolrFilterDelegateFactory solrFilterDelegateFactory,
+            DynamicSchemaResolver resolver) {
 
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("Constructing " + SolrCatalogProvider.class.getName()
                     + " with server [" + server + "]");
-            LOGGER.debug("Provided Metacard Type Registry: "
-                    + metacardTypeRegistry);
-        }
-
-        if (server == null) {
-            throw new IllegalArgumentException("SolrServer cannot be null.");
         }
 
         this.server = server;
         this.filterAdapter = adapter;
-
-        this.resolver = new DynamicSchemaResolver(server);
-
-        this.metacardTypeRegistry = metacardTypeRegistry;
-
-        if (this.metacardTypeRegistry != null) {
-            metacardTypeRegistry.register(new QualifiedMetacardTypeImpl(
-                    BasicTypes.BASIC_METACARD));
-        }
+        this.solrFilterDelegateFactory = solrFilterDelegateFactory;
+        this.resolver = resolver;
     }
+    
+    /**
+     * Convenience constructor that creates a new DynamicSchemaResolver
+     * 
+     * @param server
+     * @param adapter
+     *            injected implementation of FilterAdapter
+     */
+    public SolrCatalogProvider(SolrServer server, FilterAdapter adapter, SolrFilterDelegateFactory solrFilterDelegateFactory) {
 
-    public SolrCatalogProvider(SolrServer server, FilterAdapter adapter) {
-        this(server, adapter, null);
+        this(server, adapter, solrFilterDelegateFactory, new DynamicSchemaResolver(
+                server));
     }
-
+    
     @Override
     public Set<ContentType> getContentTypes() {
 
@@ -289,7 +292,7 @@ public class SolrCatalogProvider extends MaskableImpl implements
 
         List<Result> results = new ArrayList<Result>();
 
-        SolrFilterDelegate solrFilterDelegate = new SolrFilterDelegate(resolver);
+        SolrFilterDelegate solrFilterDelegate = solrFilterDelegateFactory.newInstance(resolver);
 
         solrFilterDelegate.setSortPolicy(request.getQuery().getSortBy());
 
