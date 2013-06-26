@@ -327,10 +327,18 @@ ${response.setHeader("Content-Type", "text/html")}
 					<#assign count = 10>
 					<#list url?matches("[&?]([^=]+)=([^&]*)") as m>
 						<#if m?groups[1]?matches("start")>
-							<#assign start = m?groups[2]?number>
+							<#attempt>
+								<#assign start = m?groups[2]?number>
+							<#recover>
+								<#assign start = 1>  
+							</#attempt>
 						</#if>
 						<#if m?groups[1]?matches("count")>
-							<#assign count = m?groups[2]?number>
+							<#attempt>
+								<#assign count = m?groups[2]?number>
+							<#recover>
+								<#assign count = 10>
+							</#attempt>
 						</#if>
 					</#list>
 					<#assign hits = request.body.hits>
@@ -361,17 +369,17 @@ ${response.setHeader("Content-Type", "text/html")}
 						<div class="pagination pull-right span6">
 							<ul>
 								<#if (currentPage <= 1)>
-									<li class="disabled"><a href="${url?replace(startString, "start=" + (1 + (count * (currentPage - 1)))?string)}">Prev</a></li>
+									<li class="disabled"><a href="${url?replace(startString, "start=" + (1 + (count * (currentPage - 1)))?c)}">Prev</a></li>
 								<#else>
-									<li><a href="${url?replace(startString, "start=" + (1 + (count * (currentPage - 2)))?string)}"><abbr title="Previous">Prev</abbr></a></li>
+									<li><a href="${url?replace(startString, "start=" + (1 + (count * (currentPage - 2)))?c)}"><abbr title="Previous">Prev</abbr></a></li>
 								</#if>
 								<#list startingPage..endingPage as pageNum>
-									<li <#if pageNum==currentPage>class="active"</#if>><a href="${url?replace(startString, "start=" + (1 + (count * (pageNum - 1)))?string)}">${pageNum}</a></li>
+									<li <#if pageNum==currentPage>class="active"</#if>><a href="${url?replace(startString, "start=" + (1 + (count * (pageNum - 1)))?c)}">${pageNum}</a></li>
 								</#list>								
 								<#if (currentPage >= maxPage)>
-									<li class="disabled"><a href="${url?replace(startString, "start=" + (1 + (count * (currentPage - 1)))?string)}">Next</a></li>
+									<li class="disabled"><a href="${url?replace(startString, "start=" + (1 + (count * (currentPage - 1)))?c)}">Next</a></li>
 								<#else>
-									<li><a href="${url?replace(startString, "start=" + (1 + (count * currentPage))?string)}">Next</a></li>
+									<li><a href="${url?replace(startString, "start=" + (1 + (count * currentPage))?c)}">Next</a></li>
 								</#if>
 							</ul>
 						</div>
