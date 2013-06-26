@@ -212,7 +212,6 @@
 		<org.apache.servicemix.bundles.bcprov-jdk15.version>1.46_3</org.apache.servicemix.bundles.bcprov-jdk15.version>
 		<org.opensaml.xmltooling.version>1.3.2-1</org.opensaml.xmltooling.version>
 		<org.ops4j.pax.url.classpath.version>1.3.5</org.ops4j.pax.url.classpath.version>
-		<org.apache.felix.compendium.version>1.4.0</org.apache.felix.compendium.version>
 		<org.ops4j.pax.swissbox.version>1.3.1</org.ops4j.pax.swissbox.version>
 		<org.ops4j-base-lang>1.2.2</org.ops4j-base-lang>
 		<geronimo-j2ee-connector_1.5_spec.version>2.0.0</geronimo-j2ee-connector_1.5_spec.version>
