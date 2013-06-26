@@ -38,6 +38,12 @@
 		    <artifactId>filter-proxy</artifactId>
 		    <scope>test</scope>
 		</dependency>
+		<dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>0.9.24</version>
+            <scope>test</scope>
+        </dependency>
 	</dependencies>
 	
 	<build>
