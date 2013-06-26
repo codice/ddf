@@ -49,7 +49,7 @@ import ddf.metrics.reporting.internal.CollectorException;
  * Sample config stanza for a JmxCollector:
  * <pre>
  * {@code
- *  <config name="ddf.metrics.reporting.internal.rrd4j.JmxCollector-UsageThreshold">
+ *  <config name="MetricsJmxCollector-UsageThreshold">
  *          mbeanName = java.lang:type=MemoryPool,name=Code Cache
  *          mbeanAttributeName = UsageThreshold
  *          rrdPath = usageThreshold.rrd

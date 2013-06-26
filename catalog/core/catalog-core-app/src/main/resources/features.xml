@@ -54,28 +54,28 @@
         <bundle>mvn:ddf.catalog.core/catalog-core-metricsplugin/${project.version}</bundle>
 
         <!-- Exception Metrics -->
-        <config name="ddf.metrics.reporting.internal.rrd4j.JmxCollector-CatalogExceptions">
+        <config name="MetricsJmxCollector-CatalogExceptions">
             mbeanName = ddf.metrics.catalog:name=Exceptions
             mbeanAttributeName = Count
             rrdPath = catalogExceptions.rrd
             rrdDataSourceName = data
             rrdDataSourceType = COUNTER
         </config>
-        <config name="ddf.metrics.reporting.internal.rrd4j.JmxCollector-CatalogExceptionsFederation">
+        <config name="MetricsJmxCollector-CatalogExceptionsFederation">
             mbeanName = ddf.metrics.catalog:name=Exceptions.Federation
             mbeanAttributeName = Count
             rrdPath = catalogExceptionsFederation.rrd
             rrdDataSourceName = data
             rrdDataSourceType = COUNTER
         </config>
-        <config name="ddf.metrics.reporting.internal.rrd4j.JmxCollector-CatalogExceptionsSourceUnavailable">
+        <config name="MetricsJmxCollector-CatalogExceptionsSourceUnavailable">
             mbeanName = ddf.metrics.catalog:name=Exceptions.SourceUnavailable
             mbeanAttributeName = Count
             rrdPath = catalogExceptionsSourceUnavailable.rrd
             rrdDataSourceName = data
             rrdDataSourceType = COUNTER
         </config>
-        <config name="ddf.metrics.reporting.internal.rrd4j.JmxCollector-CatalogExceptionsUnsupportedQuery">
+        <config name="MetricsJmxCollector-CatalogExceptionsUnsupportedQuery">
             mbeanName = ddf.metrics.catalog:name=Exceptions.UnsupportedQuery
             mbeanAttributeName = Count
             rrdPath = catalogExceptionsUnsupportedQuery.rrd
@@ -84,56 +84,56 @@
         </config>
         
         <!-- Query Metrics -->
-        <config name="ddf.metrics.reporting.internal.rrd4j.JmxCollector-CatalogQueries">
+        <config name="MetricsJmxCollector-CatalogQueries">
             mbeanName = ddf.metrics.catalog:name=Queries
             mbeanAttributeName = Count
             rrdPath = catalogQueries.rrd
             rrdDataSourceName = data
             rrdDataSourceType = COUNTER
         </config>
-        <config name="ddf.metrics.reporting.internal.rrd4j.JmxCollector-CatalogQueriesFederated">
+        <config name="MetricsJmxCollector-CatalogQueriesFederated">
             mbeanName = ddf.metrics.catalog:name=Queries.Federated
             mbeanAttributeName = Count
             rrdPath = catalogQueriesFederated.rrd
             rrdDataSourceName = data
             rrdDataSourceType = COUNTER
         </config>
-        <config name="ddf.metrics.reporting.internal.rrd4j.JmxCollector-CatalogQueriesComparison">
+        <config name="MetricsJmxCollector-CatalogQueriesComparison">
             mbeanName = ddf.metrics.catalog:name=Queries.Comparison
             mbeanAttributeName = Count
             rrdPath = catalogQueriesComparison.rrd
             rrdDataSourceName = data
             rrdDataSourceType = COUNTER
         </config>
-        <config name="ddf.metrics.reporting.internal.rrd4j.JmxCollector-CatalogQueriesFuzzy">
+        <config name="MetricsJmxCollector-CatalogQueriesFuzzy">
             mbeanName = ddf.metrics.catalog:name=Queries.Fuzzy
             mbeanAttributeName = Count
             rrdPath = catalogQueriesFuzzy.rrd
             rrdDataSourceName = data
             rrdDataSourceType = COUNTER
         </config>
-        <config name="ddf.metrics.reporting.internal.rrd4j.JmxCollector-CatalogQueriesTemporal">
+        <config name="MetricsJmxCollector-CatalogQueriesTemporal">
             mbeanName = ddf.metrics.catalog:name=Queries.Temporal
             mbeanAttributeName = Count
             rrdPath = catalogQueriesTemporal.rrd
             rrdDataSourceName = data
             rrdDataSourceType = COUNTER
         </config>
-        <config name="ddf.metrics.reporting.internal.rrd4j.JmxCollector-CatalogQueriesSpatial">
+        <config name="MetricsJmxCollector-CatalogQueriesSpatial">
             mbeanName = ddf.metrics.catalog:name=Queries.Spatial
             mbeanAttributeName = Count
             rrdPath = catalogQueriesSpatial.rrd
             rrdDataSourceName = data
             rrdDataSourceType = COUNTER
         </config>
-        <config name="ddf.metrics.reporting.internal.rrd4j.JmxCollector-CatalogQueriesXpath">
+        <config name="MetricsJmxCollector-CatalogQueriesXpath">
             mbeanName = ddf.metrics.catalog:name=Queries.Xpath
             mbeanAttributeName = Count
             rrdPath = catalogQueriesXpath.rrd
             rrdDataSourceName = data
             rrdDataSourceType = COUNTER
         </config>
-        <config name="ddf.metrics.reporting.internal.rrd4j.JmxCollector-CatalogQueriesTotalResults">
+        <config name="MetricsJmxCollector-CatalogQueriesTotalResults">
             mbeanName = ddf.metrics.catalog:name=Queries.TotalResults
             mbeanAttributeName = Mean
             rrdPath = catalogQueriesTotalResults.rrd
@@ -142,21 +142,21 @@
         </config>
         
         <!-- Ingest Metrics -->
-        <config name="ddf.metrics.reporting.internal.rrd4j.JmxCollector-CatalogIngestCreated">
+        <config name="MetricsJmxCollector-CatalogIngestCreated">
             mbeanName = ddf.metrics.catalog:name=Ingest.Created
             mbeanAttributeName = Count
             rrdPath = catalogIngestCreated.rrd
             rrdDataSourceName = data
             rrdDataSourceType = COUNTER
         </config>
-        <config name="ddf.metrics.reporting.internal.rrd4j.JmxCollector-CatalogIngestUpdated">
+        <config name="MetricsJmxCollector-CatalogIngestUpdated">
             mbeanName = ddf.metrics.catalog:name=Ingest.Updated
             mbeanAttributeName = Count
             rrdPath = catalogIngestUpdated.rrd
             rrdDataSourceName = data
             rrdDataSourceType = COUNTER
         </config>
-        <config name="ddf.metrics.reporting.internal.rrd4j.JmxCollector-CatalogIngestDeleted">
+        <config name="MetricsJmxCollector-CatalogIngestDeleted">
             mbeanName = ddf.metrics.catalog:name=Ingest.Deleted
             mbeanAttributeName = Count
             rrdPath = catalogIngestDeleted.rrd
@@ -165,7 +165,7 @@
         </config>
         
         <!-- Resource Retrieval Metrics -->
-        <config name="ddf.metrics.reporting.internal.rrd4j.JmxCollector-CatalogResourceRetrival">
+        <config name="MetricsJmxCollector-CatalogResourceRetrival">
             mbeanName = ddf.metrics.catalog:name=Resource
             mbeanAttributeName = Count
             rrdPath = catalogResourceRetrieval.rrd

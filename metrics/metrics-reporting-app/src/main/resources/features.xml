@@ -25,7 +25,7 @@
         description="cxf interceptors to capture metrics.">
         <bundle>mvn:ddf.metrics.interceptor/metrics-interceptor/${project.version}</bundle>
         
-        <config name="ddf.metrics.reporting.internal.rrd4j.JmxCollector-ServicesLatency">
+        <config name="MetricsJmxCollector-ServicesLatency">
             mbeanName = ddf.metrics.services:name=Latency
             mbeanAttributeName = Mean
             rrdPath = ServicesLatency.rrd
