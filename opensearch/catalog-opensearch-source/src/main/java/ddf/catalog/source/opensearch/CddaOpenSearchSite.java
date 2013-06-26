@@ -315,7 +315,7 @@ public final class CddaOpenSearchSite implements FederatedSource
             {
                 logger.catching(ce);
                 logger
-                    .warn("Error occured while trying to translate response from server, marking site as NOT available");
+                    .warn("Error occurred while trying to translate response from server, marking site as NOT available");
                 isAvailable = false;
             }
             finally
