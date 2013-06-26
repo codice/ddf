@@ -49,7 +49,7 @@ public class SourceMetricsImplTest {
     public static void init() {
         ch.qos.logback.classic.Logger root = (ch.qos.logback.classic.Logger) LoggerFactory
                 .getLogger(Logger.ROOT_LOGGER_NAME);
-        root.setLevel(ch.qos.logback.classic.Level.TRACE);
+        root.setLevel(ch.qos.logback.classic.Level.INFO);
     }
 
 	@Test
