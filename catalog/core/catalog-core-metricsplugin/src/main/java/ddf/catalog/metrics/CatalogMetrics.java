@@ -50,14 +50,14 @@ import ddf.catalog.util.DdfConfigurationWatcher;
 public final class CatalogMetrics implements PreQueryPlugin, PostQueryPlugin,
         PostIngestPlugin, PostResourcePlugin, DdfConfigurationWatcher {
 
-    private static final String EXCEPTIONS_SCOPE = "Exceptions";
-    private static final String QUERIES_SCOPE = "Queries";
-    private static final String INGEST_SCOPE = "Ingest";
-    private static final String RESOURCE_SCOPE = "Resource";
+	protected static final String EXCEPTIONS_SCOPE = "Exceptions";
+	protected static final String QUERIES_SCOPE = "Queries";
+	protected static final String INGEST_SCOPE = "Ingest";
+	protected static final String RESOURCE_SCOPE = "Resource";
         
-    private final MetricRegistry metrics = new MetricRegistry(
+    protected final MetricRegistry metrics = new MetricRegistry(
             "ddf.metrics.catalog");
-    private final JmxReporter reporter = JmxReporter.forRegistry(metrics)
+    protected final JmxReporter reporter = JmxReporter.forRegistry(metrics)
             .build();
     
     private FilterAdapter filterAdapter;
