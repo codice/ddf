@@ -98,7 +98,7 @@ public class FederationStrategyTest {
 	@Before
 	public void initialize() {
 		BasicConfigurator.configure();
-		Logger.getRootLogger().setLevel(Level.TRACE);
+		Logger.getRootLogger().setLevel(Level.DEBUG);
 		
 		sourceMetrics = mock(SourceMetrics.class);
 	}
