@@ -93,8 +93,6 @@ public class FederationStrategyTest {
 	
     private static final Logger LOGGER = Logger.getLogger( FederationStrategyTest.class.getName() );
     
-//    private ConfigurationAdmin configAdmin;
-//    private Metrics metrics;
     private SourceMetrics sourceMetrics;
 	
 	@Before
@@ -102,8 +100,6 @@ public class FederationStrategyTest {
 		BasicConfigurator.configure();
 		Logger.getRootLogger().setLevel(Level.TRACE);
 		
-//		configAdmin = mock(ConfigurationAdmin.class);
-//		metrics = mock(Metrics.class);
 		sourceMetrics = mock(SourceMetrics.class);
 	}
 

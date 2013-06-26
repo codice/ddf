@@ -39,15 +39,6 @@
             <artifactId>catalog-core-metricsplugin</artifactId>
             <version>${project.version}</version>
 		</dependency>
-		<!-- 
-		<dependency>
-			<groupId>ddf.metrics.internal</groupId>
-			<artifactId>metrics-internal</artifactId>
-			<version>${project.version}</version>
-			<type>jar</type>
-			<scope>compile</scope>
-		</dependency>
-		-->
 		<dependency>
 			<groupId>org.osgi</groupId>
 			<artifactId>org.osgi.core</artifactId>
