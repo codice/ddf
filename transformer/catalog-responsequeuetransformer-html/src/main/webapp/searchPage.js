@@ -13,7 +13,7 @@
 $('.search-controls').partialaffix({
 	offset: {
 		top: 63,
-		bottom: 30,
+		bottom: 30
 	}
 });
 
@@ -398,7 +398,7 @@ function getTimeInMillis(offset, units) {
 }
 
 function validateNumber(numberElement, revertValue) {
-	var val = validateNumberInRange(numberElement.attr("min"), numberElement.attr("max"), numberElement.val().trim(), revertValue);
+	var val = validateNumberInRange(numberElement.attr("min"), numberElement.attr("max"), $.trim(numberElement.val()), revertValue);
 	numberElement.val(val);
 	return val;
 }
@@ -431,7 +431,7 @@ function validateNumberInRange(min, max, value, revertValue, revertIfOutOfRange)
 }
 
 function validatePositiveInteger(posIntElement, revertValue) {
-	var val = validateNumberInRange(0, Number.MAX_VALUE, posIntElement.val().trim(), revertValue, true);
+	var val = validateNumberInRange(0, Number.MAX_VALUE, $.trim(posIntElement.val()), revertValue, true);
 	if(Number(val) == 0) {
 		val = "";
 	}
