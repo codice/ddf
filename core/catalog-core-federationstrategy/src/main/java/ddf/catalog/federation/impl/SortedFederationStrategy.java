@@ -76,11 +76,6 @@ public class SortedFederationStrategy extends AbstractFederationStrategy
 
     private static XLogger logger = new XLogger(LoggerFactory.getLogger(SortedFederationStrategy.class));
 
-//    private static final String MBEAN_PACKAGE_NAME = "ddf.metrics.catalog.source";
-//	private static final String EXCEPTIONS_SCOPE = "Exceptions";
-//    private static final String QUERIES_SCOPE = "Queries";
-    
-//    private Metrics metrics;
     private SourceMetrics sourceMetrics;
 	
 
@@ -90,11 +85,9 @@ public class SortedFederationStrategy extends AbstractFederationStrategy
      * 
      * @param queryExecutorService the {@link ExecutorService} for queries
      */
-//    public SortedFederationStrategy( ExecutorService queryExecutorService, ConfigurationAdmin configurationAdmin )
     public SortedFederationStrategy( ExecutorService queryExecutorService, SourceMetrics sourceMetrics)
     {
         super(queryExecutorService);
-//        metrics = new Metrics(MBEAN_PACKAGE_NAME, configurationAdmin);
         this.sourceMetrics = sourceMetrics;
 
     }
@@ -226,13 +219,10 @@ public class SortedFederationStrategy extends AbstractFederationStrategy
 		private void updateQueryMetrics(String sourceId,
 				SourceResponse sourceResponse) {
 			
-//			String metricName = sourceId + "." + sourceMetrics.QUERIES_SCOPE;
 			sourceMetrics.updateMetric(sourceId, sourceMetrics.QUERIES_SCOPE, 1);
 			
 			if (sourceResponse != null) {
-//				metricName = sourceId + "." + sourceMetrics.QUERIES_TOTAL_RESULTS_SCOPE;
 				sourceMetrics.updateMetric(sourceId, sourceMetrics.QUERIES_TOTAL_RESULTS_SCOPE, (int) sourceResponse.getHits());
-				//logger.debug(sourceId + ".Queries.TotalResults count = " + resultCount.getCount());
 			}
 		}
         
@@ -247,7 +237,6 @@ public class SortedFederationStrategy extends AbstractFederationStrategy
 	            ProcessingDetails next = iterator.next();
 	            if (next != null && next.getException() != null) {
 					String sourceId = next.getSourceId();
-//					String metricName = sourceId + "." + sourceMetrics.EXCEPTIONS_SCOPE;
 					sourceMetrics.updateMetric(sourceId, sourceMetrics.EXCEPTIONS_SCOPE, 1);
 	            }
 			}
