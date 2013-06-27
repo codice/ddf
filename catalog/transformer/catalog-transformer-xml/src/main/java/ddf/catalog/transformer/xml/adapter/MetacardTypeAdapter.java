@@ -15,12 +15,20 @@ import java.util.List;
 
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import ddf.catalog.data.BasicTypes;
 import ddf.catalog.data.MetacardType;
 import ddf.catalog.transform.CatalogTransformerException;
 
 public class MetacardTypeAdapter extends XmlAdapter<String, MetacardType> {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(MetacardTypeAdapter.class);
+    
 	private List<MetacardType> types;
 
 	public MetacardTypeAdapter(List<MetacardType> types) {
@@ -40,26 +48,27 @@ public class MetacardTypeAdapter extends XmlAdapter<String, MetacardType> {
 		return type.getName();
 	}
 
-	@Override
-	public MetacardType unmarshal(String typeName)
-			throws CatalogTransformerException {
+    @Override
+    public MetacardType unmarshal(String typeName) throws CatalogTransformerException {
 
-		if (typeName == null
-				|| typeName.equals(BasicTypes.BASIC_METACARD.getName())) {
-			return BasicTypes.BASIC_METACARD;
-		}
+        LOGGER.debug("typeName: '{}'", typeName);
+        LOGGER.debug("types: {}", types);
 
-		if (types != null && types.size() > 0) {
-			for (MetacardType type : types) {
-				if (typeName.equals(type.getName())) {
-					return type;
-				}
-			}
-		}
+        if (StringUtils.isEmpty(typeName) || CollectionUtils.isEmpty(types)
+                || typeName.equals(BasicTypes.BASIC_METACARD.getName())) {
+            return BasicTypes.BASIC_METACARD;
+        }
 
-		throw new CatalogTransformerException(
-				"Could not transform XML into Metacard.  Metacard Type '"
-						+ typeName + "' is not registered.");
-	}
+        LOGGER.debug("Searching through registerd metacard types {} for '{}'.", types, typeName);
+        for (MetacardType type : types) {
+            if (typeName.equals(type.getName())) {
+                return type;
+            }
+        }
 
+        LOGGER.debug("Metacard type '{}' is not registered.  Using metacard type of '{}'.",
+                typeName, BasicTypes.BASIC_METACARD.getName());
+
+        return BasicTypes.BASIC_METACARD;
+    }
 }
