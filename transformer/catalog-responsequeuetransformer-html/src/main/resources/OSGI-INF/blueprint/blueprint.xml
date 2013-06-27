@@ -43,8 +43,8 @@
 			<setProperty propertyName="background"><constant>{{background}}</constant></setProperty>
 			<setProperty propertyName="catalog"><simple>ref:catalog</simple></setProperty>
 			<setProperty propertyName="branding"><simple>ref:branding</simple></setProperty>
-			<setProperty propertyName="sourceInfoReq"><simple>ref:sourceInfoRequestLocal</simple></setProperty>
-			<setProperty propertyName="federatedSites"><simple>ref:federatedSources</simple></setProperty>
+			<setProperty propertyName="sourceInfoReqEnterprise"><simple>ref:sourceInfoRequestEnterprise</simple></setProperty>
+			
             <setProperty propertyName="htmlActionProviderList"><simple>ref:htmlActionProviderList</simple></setProperty>
 			<setProperty propertyName="metacardActionProviderList"><simple>ref:metacardActionProviderList</simple></setProperty>
 			<setProperty propertyName="thumbnailActionProviderList"><simple>ref:thumbnailActionProviderList</simple></setProperty>
@@ -59,14 +59,13 @@
 	<reference-list id="thumbnailActionProviderList" interface="ddf.action.ActionProvider" filter="(id=catalog.data.metacard.thumbnail)" availability="optional"/>
 	<reference-list id="resourceActionProviderList" interface="ddf.action.ActionProvider" filter="(id=catalog.data.metacard.resource)" availability="optional"/>
 
-	<bean id="sourceInfoRequestLocal" class="ddf.catalog.operation.SourceInfoRequestLocal">
+	<bean id="sourceInfoRequestEnterprise" class="ddf.catalog.operation.SourceInfoRequestEnterprise">
 		<argument value="true" />
 	</bean>
+
 
 	<reference id="catalog" interface="ddf.catalog.CatalogFramework"/>
 
 	<reference id="branding" interface="org.apache.felix.webconsole.BrandingPlugin"/>
-
-	<reference-list id="federatedSources" interface="ddf.catalog.source.FederatedSource" availability="optional"/>
 
 </blueprint>

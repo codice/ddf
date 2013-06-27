@@ -18,20 +18,13 @@ ${response.setHeader("Content-Type", "text/html")}
 
 <#-- building 'sets' of sites and content types... doing it in variables and hashes to filter duplicates -->
 <#assign typeList = {} />
-<#assign siteList = {exchange.getProperty("catalog").getId():""} />
-<#list exchange.getProperty("catalog").getSourceInfo(exchange.getProperty("sourceInfoReq")).getSourceInfo() as srcDesc>
+<#assign siteList = {} />
+<#list exchange.getProperty("catalog").getSourceInfo(exchange.getProperty("sourceInfoReqEnterprise")).getSourceInfo() as srcDesc>
+	<#assign siteList = siteList + {srcDesc.getSourceId():srcDesc.isAvailable()} />
+
 	<#list srcDesc.getContentTypes() as contentType>
 		<#assign typeList = typeList + {contentType.getName():""} />
 	</#list>
-</#list>
-								
-<#list exchange.getProperty("federatedSites") as site>
-	<#assign siteList = siteList + {site.getId():""} />
-	<#if site.getContentTypes()??>
-		<#list site.getContentTypes() as contentType>
-			<#assign typeList = typeList + {contentType.getName():""} />
-		</#list>
-	</#if>
 </#list>
 
 <title><#if exchange.getProperty("branding")??>${exchange.getProperty("branding").getProductName()}</#if> Search</title>
@@ -278,7 +271,11 @@ ${response.setHeader("Content-Type", "text/html")}
 								<div id="sources" class="tab-pane">
 									<select name="federationSources" multiple="multiple" onchange="updateFederation()" class="span12">
 										<#list siteList?keys as site>
-											<option>${site}</option>
+											<#if siteList[site] >
+												<option>${site}</option>
+											<#else>
+												<option disabled="disabled" class="disabled_option">${site}</option>
+											</#if>
 										</#list>
 									</select>
 									<div class="alert alert-block" id="federationListWarning">
