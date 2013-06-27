@@ -43,7 +43,7 @@ public class BundleProxyClassLoader extends ClassLoader {
 	// the boot classloader. As a result, BundleProxyClassLoader.getResources(...) 
 	// might return duplicate results from the boot classloader. Prior to Java 5 
 	// Classloader.getResources was marked final. If your target environment requires
-	// at least Java 5 you can prevent the occurence of duplicate boot classloader 
+	// at least Java 5 you can prevent the occurrence of duplicate boot classloader 
 	// resources by overriding ClassLoader.getResources(...) instead of 
 	// ClassLoader.findResources(...).   
 	public Enumeration findResources(String name) throws IOException {
