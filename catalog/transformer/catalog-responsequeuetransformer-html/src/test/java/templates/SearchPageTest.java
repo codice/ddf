@@ -45,10 +45,9 @@ import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.ContentType;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
-import ddf.catalog.operation.SourceInfoRequestLocal;
+import ddf.catalog.operation.SourceInfoRequestEnterprise;
 import ddf.catalog.operation.SourceInfoResponse;
 import ddf.catalog.operation.SourceResponse;
-import ddf.catalog.source.FederatedSource;
 import ddf.catalog.source.SourceDescriptor;
 import ddf.catalog.source.SourceUnavailableException;
 import freemarker.template.Configuration;
@@ -107,6 +106,7 @@ public class SearchPageTest {
         out.flush();
         
         generatedHtml = out.toString();
+        System.out.println(generatedHtml);
     }
     
     @Test 
@@ -119,12 +119,14 @@ public class SearchPageTest {
     	assertTrue(generatedHtml.contains("<div class=\"navbar-fixed-bottom banner\">" + FOOTER + "</div>"));
     }
     
-    @Test 
+    @Test
     public void testSites() {
-    	// contains each site once and only once
-    	assertTrue(containsExactlyOnce(generatedHtml, "<option>" + LOCAL_ID + "</option>"));
-    	assertTrue(containsExactlyOnce(generatedHtml, "<option>" + FED_SOURCE_1_ID + "</option>"));
-    	assertTrue(containsExactlyOnce(generatedHtml, "<option>" + FED_SOURCE_2_ID + "</option>"));
+        // contains each site once and only once
+        assertTrue(containsExactlyOnce(generatedHtml, "<option>" + LOCAL_ID + "</option>"));
+        assertTrue(containsExactlyOnce(generatedHtml, "<option>" + FED_SOURCE_1_ID + "</option>"));
+        assertTrue(containsExactlyOnce(generatedHtml,
+                "<option disabled=\"disabled\" class=\"disabled_option\">" + FED_SOURCE_2_ID
+                        + "</option>"));
     }
 
     @Test 
@@ -282,71 +284,76 @@ public class SearchPageTest {
 		return metacards;
 	}
 	
-	private static Exchange createExchange() {
+    private static Exchange createExchange() {
 
-		Set<ContentType> contentTypes = new HashSet<ContentType>();
-		ContentType a = mock(ContentType.class);
-		when(a.getName()).thenReturn(CONTENT_TYPE_1);
-		ContentType b = mock(ContentType.class);
-		when(b.getName()).thenReturn(CONTENT_TYPE_2);
-		ContentType c = mock(ContentType.class);
-		when(c.getName()).thenReturn(CONTENT_TYPE_3);
-		ContentType d = mock(ContentType.class);
-		when(d.getName()).thenReturn(CONTENT_TYPE_3); // duplicate should be filtered
+        Set<ContentType> contentTypes = new HashSet<ContentType>();
+        ContentType a = mock(ContentType.class);
+        when(a.getName()).thenReturn(CONTENT_TYPE_1);
+        ContentType b = mock(ContentType.class);
+        when(b.getName()).thenReturn(CONTENT_TYPE_2);
+        ContentType c = mock(ContentType.class);
+        when(c.getName()).thenReturn(CONTENT_TYPE_3);
+        ContentType d = mock(ContentType.class);
+        when(d.getName()).thenReturn(CONTENT_TYPE_3); // duplicate should be
+                                                      // filtered
 
-		contentTypes.add(a);
-		contentTypes.add(b);
-		contentTypes.add(c);
-		contentTypes.add(d);
+        contentTypes.add(a);
+        contentTypes.add(b);
+        contentTypes.add(c);
+        contentTypes.add(d);
 
         List<ActionProvider> htmlActionProviderList = new ArrayList<ActionProvider>();
         htmlActionProviderList.add(buildActionProvider(HTML_ACTION));
-		List<ActionProvider> metacardActionProviderList = new ArrayList<ActionProvider>();
-		metacardActionProviderList.add(buildActionProvider(METACARD_ACTION));
-		List<ActionProvider> thumbnailActionProviderList = new ArrayList<ActionProvider>();		
-		List<ActionProvider> resourceActionProviderList = new ArrayList<ActionProvider>();
-		resourceActionProviderList.add(buildActionProvider(RESOURCE_ACTION, true));
-		
-		List<FederatedSource> federatedSourceList = new ArrayList<FederatedSource>();
-		FederatedSource fedSource1 = mock(FederatedSource.class);
-		when(fedSource1.getId()).thenReturn(FED_SOURCE_1_ID);		
-		federatedSourceList.add(fedSource1);
-		federatedSourceList.add(fedSource1); // add it twice, should be filtered
-		FederatedSource fedSource2 = mock(FederatedSource.class);
-		when(fedSource2.getId()).thenReturn(FED_SOURCE_2_ID);		
-		when(fedSource2.getContentTypes()).thenReturn(contentTypes);		
-		federatedSourceList.add(fedSource2);
-		
+        List<ActionProvider> metacardActionProviderList = new ArrayList<ActionProvider>();
+        metacardActionProviderList.add(buildActionProvider(METACARD_ACTION));
+        List<ActionProvider> thumbnailActionProviderList = new ArrayList<ActionProvider>();
+        List<ActionProvider> resourceActionProviderList = new ArrayList<ActionProvider>();
+        resourceActionProviderList.add(buildActionProvider(RESOURCE_ACTION, true));
 
-		SourceInfoRequestLocal sourceInfoRequestLocal = mock(SourceInfoRequestLocal.class);
-		CatalogFramework catalog = mock(CatalogFramework.class);
-		SourceInfoResponse localSourceInfoResponse = mock(SourceInfoResponse.class);
-		
-		when(catalog.getId()).thenReturn(LOCAL_ID);
-		Set<SourceDescriptor> localSrcSet = new HashSet<SourceDescriptor>();
-		SourceDescriptor localSrc = mock(SourceDescriptor.class);
-		localSrcSet.add(localSrc);
-		when(localSrc.getContentTypes()).thenReturn(contentTypes);		
-		when(localSourceInfoResponse.getSourceInfo()).thenReturn(localSrcSet);
-		try {
-			when(catalog.getSourceInfo(sourceInfoRequestLocal)).thenReturn(localSourceInfoResponse);
-		} catch (SourceUnavailableException e) {
-		}
+        SourceInfoRequestEnterprise sourceInfoRequest = mock(SourceInfoRequestEnterprise.class);
+        CatalogFramework catalog = mock(CatalogFramework.class);
+        SourceInfoResponse sourceInfoResponse = mock(SourceInfoResponse.class);
 
-		Exchange exchange = mock(Exchange.class);
-		when(exchange.getProperty("title")).thenReturn(TITLE);
-		when(exchange.getProperty("header")).thenReturn(HEADER);
-		when(exchange.getProperty("footer")).thenReturn(FOOTER);
-		when(exchange.getProperty("catalog")).thenReturn(catalog);
-		when(exchange.getProperty("sourceInfoReq")).thenReturn(sourceInfoRequestLocal);
-		when(exchange.getProperty("federatedSites")).thenReturn(federatedSourceList);
-		when(exchange.getProperty("htmlActionProviderList")).thenReturn(htmlActionProviderList);
-		when(exchange.getProperty("metacardActionProviderList")).thenReturn(metacardActionProviderList);
-		when(exchange.getProperty("thumbnailActionProviderList")).thenReturn(thumbnailActionProviderList);
-		when(exchange.getProperty("resourceActionProviderList")).thenReturn(resourceActionProviderList);	
+        Set<SourceDescriptor> srcSet = new HashSet<SourceDescriptor>();
+        when(catalog.getId()).thenReturn(LOCAL_ID);
+        SourceDescriptor localSrc = mock(SourceDescriptor.class);
+        when(localSrc.getSourceId()).thenReturn(LOCAL_ID);
+        when(localSrc.isAvailable()).thenReturn(true);
+        when(localSrc.getContentTypes()).thenReturn(contentTypes);
+        srcSet.add(localSrc);
+        SourceDescriptor fedSource1 = mock(SourceDescriptor.class);
+        when(fedSource1.getSourceId()).thenReturn(FED_SOURCE_1_ID);
+        when(fedSource1.isAvailable()).thenReturn(true);
+        srcSet.add(fedSource1);
+        srcSet.add(fedSource1); // add it twice, should be filtered
+        SourceDescriptor fedSource2 = mock(SourceDescriptor.class);
+        when(fedSource2.getSourceId()).thenReturn(FED_SOURCE_2_ID);
+        when(fedSource2.getContentTypes()).thenReturn(new HashSet<ContentType>());
+        when(fedSource2.isAvailable()).thenReturn(false);
+        srcSet.add(fedSource2);
 
-		return exchange;
-	}
+        when(sourceInfoResponse.getSourceInfo()).thenReturn(srcSet);
+        try {
+            when(catalog.getSourceInfo(sourceInfoRequest)).thenReturn(sourceInfoResponse);
+        } catch (SourceUnavailableException e) {
+        }
+
+        Exchange exchange = mock(Exchange.class);
+        when(exchange.getProperty("title")).thenReturn(TITLE);
+        when(exchange.getProperty("header")).thenReturn(HEADER);
+        when(exchange.getProperty("footer")).thenReturn(FOOTER);
+        when(exchange.getProperty("catalog")).thenReturn(catalog);
+        when(exchange.getProperty("sourceInfoReqEnterprise")).thenReturn(sourceInfoRequest);
+        when(exchange.getProperty("htmlActionProviderList")).thenReturn(htmlActionProviderList);
+        when(exchange.getProperty("metacardActionProviderList")).thenReturn(
+                metacardActionProviderList);
+        when(exchange.getProperty("thumbnailActionProviderList")).thenReturn(
+                thumbnailActionProviderList);
+        when(exchange.getProperty("resourceActionProviderList")).thenReturn(
+                resourceActionProviderList);
+
+        return exchange;
+    }
 
 	private static ActionProvider buildActionProvider(String actionStr) {
 		return buildActionProvider(actionStr, false);
