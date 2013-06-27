@@ -11,12 +11,14 @@
  **/
 package ddf.catalog.transform.xml;
 
+import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.startsWith;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -27,7 +29,6 @@ import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;
 import org.geotools.data.Base64;
 import org.junit.Test;
-import org.slf4j.LoggerFactory;
 
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.AttributeDescriptor;
@@ -48,7 +49,7 @@ public class TestXmlInputTransformer {
     }
     
 
-    @Test(expected = CatalogTransformerException.class)
+    @Test
     public void testTransformWithInvalidMetacardType() throws IOException,
             CatalogTransformerException {
         XmlInputTransformer xit = new XmlInputTransformer();
@@ -66,6 +67,7 @@ public class TestXmlInputTransformer {
                     + ((attribute == null) ? attribute : attribute.getValue()));
         }
 
+        assertThat(metacard.getMetacardType().getName(), is(BasicTypes.BASIC_METACARD.getName()));
     }
 
     @Test
@@ -137,6 +139,50 @@ public class TestXmlInputTransformer {
                 (new SimpleDateFormat("MMM d, yyyy HH:mm:ss.SSS z"))
                         .parse("Dec 27, 2012 16:31:01.641 MST"),
                 metacard.getAttribute(Metacard.EXPIRATION).getValue());
+    }
+    
+    @Test
+    public void testFallbackToBasicMetacardForUnknowMetacardType() throws FileNotFoundException,
+            IOException, CatalogTransformerException, ParseException {
+        XmlInputTransformer xit = new XmlInputTransformer();
+        List<MetacardType> metacardTypes = new ArrayList<MetacardType>(1);
+        metacardTypes.add(BasicTypes.BASIC_METACARD);
+        xit.setMetacardTypes(metacardTypes);
+
+        Metacard metacard = xit.transform(new FileInputStream(
+                "src/test/resources/unknownMetacard1.xml"));
+
+        LOGGER.info("ID: " + metacard.getId());
+        LOGGER.info("Type: " + metacard.getMetacardType().getName());
+        LOGGER.info("Source: " + metacard.getSourceId());
+        LOGGER.info("Attributes: ");
+        for (AttributeDescriptor descriptor : metacard.getMetacardType().getAttributeDescriptors()) {
+            Attribute attribute = metacard.getAttribute(descriptor.getName());
+            LOGGER.info("\t" + descriptor.getName() + ": "
+                    + ((attribute == null) ? attribute : attribute.getValue()));
+        }
+
+        assertThat(metacard.getMetacardType().getName(), is(BasicTypes.BASIC_METACARD.getName()));
+
+        assertThat("1234567890987654321", is(metacard.getId()));
+        assertThat("foobar", is(metacard.getSourceId()));
+
+        assertThat("POLYGON ((35 10, 10 20, 15 40, 45 45, 35 10), (20 30, 35 35, 30 20, 20 30))",
+                is(metacard.getAttribute(Metacard.GEOGRAPHY).getValue()));
+
+        assertThat("Title!", is(metacard.getAttribute(Metacard.TITLE).getValue()));
+
+        assertArrayEquals(
+                Base64.decode("AAABAAABAQEAAQAAAQEBAAEAAAEBAQABAAABAQEAAQAAAQEBAAEAAAEBAQABAAABAQE="),
+                (byte[]) metacard.getAttribute(Metacard.THUMBNAIL).getValue());
+
+        assertThat(metacard.getAttribute(Metacard.METADATA).getValue().toString(),
+                startsWith("<foo xmlns=\"http://foo.com\">"));
+
+        assertThat(
+                (new SimpleDateFormat("MMM d, yyyy HH:mm:ss.SSS z"))
+                        .parse("Dec 27, 2012 16:31:01.641 MST"),
+                is(metacard.getAttribute(Metacard.EXPIRATION).getValue()));
     }
 
 }
