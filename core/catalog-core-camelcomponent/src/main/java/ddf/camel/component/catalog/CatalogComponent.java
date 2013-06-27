@@ -13,13 +13,13 @@ package ddf.camel.component.catalog;
 
 import java.util.Map;
 
-import ddf.catalog.CatalogFramework;
 import org.apache.camel.Endpoint;
 import org.apache.camel.impl.DefaultComponent;
 import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ddf.catalog.CatalogFramework;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.mime.MimeTypeToTransformerMapper;
 
@@ -129,17 +129,6 @@ public class CatalogComponent extends DefaultComponent
     {
         LOGGER.debug( "Setting mimeTypeToTransformerMapper" );
         this.mimeTypeToTransformerMapper = mimeTypeToTransformerMapper;
-    }
-
-
-    /**
-     * Retrieves the catalog framework
-     *
-     * @return the catalog framework
-     */
-    public CatalogFramework getCatalogFramework()
-    {
-        return catalogFramework;
     }
 
 
