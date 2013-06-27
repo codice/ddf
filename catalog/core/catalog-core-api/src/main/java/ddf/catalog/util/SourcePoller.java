@@ -28,7 +28,7 @@ import ddf.catalog.source.Source;
  * interval to determine their availability. It is created by the CatalogFramework's blueprint.
  * 
  * An isAvailable() method is included in this class so that the caller, nominally the CatalogFramework,
- * can retrieve the cached availibility of a specific source, or have it polled on demand if there is
+ * can retrieve the cached availability of a specific source, or have it polled on demand if there is
  * no availability status cached.
  * 
  * @author ddf.isgs@lmco.com
