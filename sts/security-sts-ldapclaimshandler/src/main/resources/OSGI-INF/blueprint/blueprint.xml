@@ -46,30 +46,7 @@
             <cm:property name="ldapUrl" value="ldap://localhost:1389"/>
             <cm:property name="ldapBindUserDn" value="cn=admin"/>
             <cm:property name="ldapBindUserPass" value="ENC(c+GitDfYAMTDRESXSDDsMw==)"/>
-            <cm:property name="attributeMap">
-                <list>
-                    <value>http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier=uid</value>
-                    <value>http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress=mail</value>
-                    <value>http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname=sn</value>
-                    <value>http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname=givenName</value>
-                    <value>http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=groups</value>
-                    <value>AdminOrganization=organizationName</value>
-                    <value>AuthorityCategory=poa</value>
-                    <value>ATOStatus=organizationalStatus</value>
-                    <value>AICP=cleared</value>
-                    <value>Clearance=clearance</value>
-                    <value>CountryOfAffiliation=countryOfAffiliation</value>
-                    <value>DigitalIdentifier=ds-certificate-subject-dn</value>
-                    <value>DutyOrganization=extendedGroup</value>
-                    <value>EntityType=employeeType</value>
-                    <value>isICMember=cleared</value>
-                    <value>FineAccessControls=SCIControls</value>
-                    <value>Role=extendedFunctionalRole</value>
-                    <value>Region=geographicSubRegion</value>
-                    <value>LifeCycleStatus=citizenshipStatus</value>
-                    <value>Topic=nipfTopic</value>
-                </list>
-            </cm:property>
+            <cm:property name="attributeMapFile" value="etc/ws-security/attributeMap.properties" />
             <cm:property name="securityAttributeClaimType" value="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"/>
         </cm:default-properties>
     </cm:property-placeholder>
@@ -89,7 +66,7 @@
 
     <bean id="roleClaimsHandler" class="ddf.security.sts.claimsHandler.RoleClaimsHandler">
         <property name="ldapTemplate" ref="ldapTemplate" />
-        <property name="attributeMapping" value="$ch{attributeMap}"/>
+        <property name="propertyFileLocation" value="$ch{attributeMapFile}"/> 
         <property name="userBaseDn" value="$ch{userBaseDn}" />
         <property name="userNameAttribute" value="$ch{userNameAttribute}" />
         <property name="groupBaseDn" value="$ch{groupBaseDn}" />
@@ -97,7 +74,7 @@
 
     <bean id="ldapClaimsHandler" class="ddf.security.sts.claimsHandler.LdapClaimsHandler">
         <property name="ldapTemplate" ref="ldapTemplate" />
-        <property name="attributeMapping" value="$ch{attributeMap}"/>
+        <property name="propertyFileLocation" value="$ch{attributeMapFile}"/> 
         <property name="userBaseDN" value="$ch{userBaseDn}" />
         <property name="userNameAttribute" value="$ch{userNameAttribute}" />
     </bean>

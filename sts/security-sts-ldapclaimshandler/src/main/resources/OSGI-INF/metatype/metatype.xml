@@ -46,31 +46,12 @@
 	      default="ou=groups\,dc=example\,dc=com"
 	      description="Full LDAP path to where groups can be found.">
 	    </AD>
-	    
-        <AD name="User Attribute Map:" id="attributeMap" required="true"
-            type="String" cardinality="-100"
-            default="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier=uid,
-            http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress=mail,
-            http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname=sn,
-            http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname=givenName,
-            http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=role,
-            AdminOrganization=organizationName,
-            AuthorityCategory=poa,
-            ATOStatus=organizationalStatus,
-            AICP=cleared,
-            Clearance=clearance,
-            CountryOfAffiliation=countryOfAffiliation,
-            DigitalIdentifier=ds-certificate-subject-dn,
-            DutyOrganization=extendedGroup,
-            EntityType=employeeType,
-            isICMember=cleared,
-            FineAccessControls=SCIControls,
-            Role=extendedFunctionalRole,
-            Region=geographicSubRegion,
-            LifeCycleStatus=citizenshipStatus,
-            Topic=nipfTopic"
-            description="Map used to determine the claims (attributes) to role (group) mapping of a user in LDAP. One attribute must map to the Security Claim Type.">
+      
+        <AD name="Attribute Map File:" id="attributeMapFile" required="true" type="String" 
+          default="etc/ws-security/attributeMap.properties"
+          description="Location of the file which contains user attribute maps to use.">
         </AD>
+	    
 	</OCD>
 	
 	<Designate pid="ddf.security.sts.claimsHandler">

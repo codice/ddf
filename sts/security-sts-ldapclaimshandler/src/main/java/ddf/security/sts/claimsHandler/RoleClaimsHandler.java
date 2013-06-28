@@ -11,7 +11,6 @@
  **/
 package ddf.security.sts.claimsHandler;
 
-import ddf.security.common.util.PropertiesLoader;
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.sts.claims.Claim;
 import org.apache.cxf.sts.claims.ClaimCollection;
@@ -42,9 +41,7 @@ import java.util.StringTokenizer;
 
 public class RoleClaimsHandler implements ClaimsHandler {
 
-    private static final String ATTRIBUTE_DELIMITER = ", ";
 
-    private static final String EQUALS_DELIMITER = "=";
 
     private final Logger logger = Logger.getLogger(RoleClaimsHandler.class);
 
@@ -89,10 +86,7 @@ public class RoleClaimsHandler implements ClaimsHandler {
     public void setPropertyFileLocation(String propertyFileLocation) {
         if (propertyFileLocation != null
                 && !propertyFileLocation.isEmpty() && !propertyFileLocation.equals(this.propertyFileLocation)) {
-            Map<String, String> mapping = PropertiesLoader
-                    .toMap(PropertiesLoader
-                            .loadProperties(propertyFileLocation));
-            setClaimsLdapAttributeMapping(mapping);
+            setClaimsLdapAttributeMapping(AttributeMapLoader.buildClaimsMapFile(propertyFileLocation));
         }
         this.propertyFileLocation = propertyFileLocation;
     }
@@ -104,22 +98,9 @@ public class RoleClaimsHandler implements ClaimsHandler {
     public void setAttributeMapping(String attributesToMap) {
         if (attributesToMap != null
                 && !attributesToMap.isEmpty() && !attributesToMap.equals(this.attributeMapping)) {
-            setClaimsLdapAttributeMapping(buildLdapClaimsMap(attributesToMap));
+            setClaimsLdapAttributeMapping(AttributeMapLoader.buildClaimsMap(attributesToMap));
         }
         this.attributeMapping = attributesToMap;
-    }
-
-    private Map<String, String> buildLdapClaimsMap(String attributesToMap) {
-        // Remove first and last character since they are "[" and "]"
-        String cleanedAttributesToMap = attributesToMap.substring(1,
-                attributesToMap.length() - 1);
-        String[] attributes = cleanedAttributesToMap.split(ATTRIBUTE_DELIMITER);
-        Map<String, String> map = new HashMap<String, String>();
-        for (String attribute : attributes) {
-            String[] attrSplit = attribute.split(EQUALS_DELIMITER);
-            map.put(attrSplit[0], attrSplit[1]);
-        }
-        return map;
     }
 
     public String getRoleClaimType() {

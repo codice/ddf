@@ -14,6 +14,7 @@
 <features name="${project.artifactId}-${project.version}">
 
 	<feature name="security-sts-server" version="${project.version}" description="DDF Security STS.">
+        <configfile finalname="/etc/ws-security/attributeMap.properties">mvn:ddf.security.sts/security-sts-ldapclaimshandler/${project.version}/properties/attributeMap</configfile>
 		<feature>cxf-sts</feature>
 		<feature>spring-tx</feature>
         <feature>security-sts-ldaplogin</feature>
