@@ -11,7 +11,22 @@
  **/
 package ddf.security.sts.claimsHandler;
 
-import ddf.security.common.util.PropertiesLoader;
+import java.net.URI;
+import java.security.Principal;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.StringTokenizer;
+
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.SearchControls;
+import javax.security.auth.kerberos.KerberosPrincipal;
+import javax.security.auth.x500.X500Principal;
+
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.sts.claims.Claim;
 import org.apache.cxf.sts.claims.ClaimCollection;
@@ -24,28 +39,9 @@ import org.springframework.ldap.core.LdapTemplate;
 import org.springframework.ldap.filter.AndFilter;
 import org.springframework.ldap.filter.EqualsFilter;
 
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.SearchControls;
-import javax.security.auth.kerberos.KerberosPrincipal;
-import javax.security.auth.x500.X500Principal;
-import java.net.URI;
-import java.security.Principal;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.StringTokenizer;
-
 public class LdapClaimsHandler extends org.apache.cxf.sts.claims.LdapClaimsHandler
 {
     private static final Logger LOGGER = Logger.getLogger(LdapClaimsHandler.class);
-    
-    private static final String ATTRIBUTE_DELIMITER = ", ";
-
-    private static final String EQUALS_DELIMITER = "=";
 
     private String attributeMapping;
 
@@ -85,8 +81,7 @@ public class LdapClaimsHandler extends org.apache.cxf.sts.claims.LdapClaimsHandl
     {
         if(propertyFileLocation != null && !propertyFileLocation.isEmpty() && !propertyFileLocation.equals(this.propertyFileLocation))
         {
-            Map<String,String> mapping = PropertiesLoader.toMap(PropertiesLoader.loadProperties(propertyFileLocation));
-            setClaimsLdapAttributeMapping(mapping);
+            setClaimsLdapAttributeMapping(AttributeMapLoader.buildClaimsMapFile(propertyFileLocation));
         }
         this.propertyFileLocation = propertyFileLocation;
     }
@@ -98,38 +93,9 @@ public class LdapClaimsHandler extends org.apache.cxf.sts.claims.LdapClaimsHandl
     public void setAttributeMapping(String attributesToMap) {
         if (attributesToMap != null
                 && !attributesToMap.isEmpty() && !attributesToMap.equals(this.attributeMapping)) {
-            setClaimsLdapAttributeMapping(buildLdapClaimsMap(attributesToMap));
+            setClaimsLdapAttributeMapping(AttributeMapLoader.buildClaimsMap(attributesToMap));
         }
         this.attributeMapping = attributesToMap;
-    }
-
-    private Map<String, String> buildLdapClaimsMap(String attributesToMap) {
-        // Remove first and last character since they are "[" and "]"
-        String cleanedAttributesToMap = attributesToMap.substring(1,
-                attributesToMap.length() - 1);
-        String[] attributes = cleanedAttributesToMap.split(ATTRIBUTE_DELIMITER);
-        Map<String, String> map = new HashMap<String, String>();
-        for (String attribute : attributes) {
-            String[] attrSplit = attribute.split(EQUALS_DELIMITER);
-            map.put(attrSplit[0], attrSplit[1]);
-        }
-        
-        if( LOGGER.isDebugEnabled() )
-        {
-            LOGGER.debug( logLdapClaimsMap( map ) );
-        }
-        
-        return map;
-    }
-    
-    private String logLdapClaimsMap( Map<String, String> map ) {
-        StringBuilder builder = new StringBuilder();
-        builder.append( "LDAP claims map:\n" );
-        for( String claim : map.keySet() ) {
-            builder.append( "claim: " + claim + "; " + "LDAP mapping: " + map.get( claim ) + "\n" );
-        }
-        
-         return builder.toString();
     }
     
 	@Override
