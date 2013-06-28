@@ -497,6 +497,24 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
 		if (operands == null || operands.size() < 1) {
 			throw new UnsupportedOperationException("[" + operator + "] operation must contain 1 or more filters.");
 		}
+		
+		//Due to a bug in how solr parses queries, spatial operands must come first in the query
+		//expression, so we must reorder the operand list accordingly.
+		int setIndex = 0;
+		for (int i = 0; i < operands.size(); i++) {
+			SolrQuery operand = operands.get(i);
+			if (operand == null) {
+				throw new UnsupportedOperationException("Null operand found");
+			}
+			String operandAsString = operand.toString();
+			if (operandAsString.contains(LUCENE_SPATIAL_INDEX) || operandAsString.contains(JTS_SPATIAL_INDEX)) {
+				SolrQuery temp = operands.get(setIndex);
+				operands.set(setIndex, operand);
+				operands.set(i, temp);
+				setIndex++;
+			}
+		}
+		
 
 		int startIndex = 0;
 		SolrQuery query = operands.get(startIndex);
@@ -505,7 +523,7 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
 		if (query == null) {
 			throw new UnsupportedOperationException("Query was not interpreted properly. Query should not be null.");
 		}
-
+		
 		StringBuilder builder = new StringBuilder();
 		//Solr does not support outside parenthesis in certain queries and throws EOF exception. 
 		//Restore line when bug fixed in Solr.
