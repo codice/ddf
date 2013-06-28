@@ -26,8 +26,7 @@ http://www.springframework.org/schema/osgi-compendium http://www.springframework
        
   
   <osgix:managed-service-factory id="jmxCollector_MSF" 
-      factory-pid="ddf.metrics.reporting.internal.rrd4j.JmxCollector">
-      <!-- update-strategy="bean-managed" update-method="updateCallback"> -->
+      factory-pid="MetricsJmxCollector">
 
       <osgix:interfaces>
           <beans:value>ddf.metrics.reporting.internal.Collector</beans:value>

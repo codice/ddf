@@ -136,7 +136,8 @@
         <bundle start-level='25'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xmlresolver/1.2_5</bundle>
         <bundle start-level='30' dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xerces/2.9.1_5</bundle>
         <bundle start-level='30' dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.bcel/5.2_4</bundle>
-        <bundle start-level='30' dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xalan/2.7.1_6</bundle>
+        <!-- Upgraded xalan version (from 2.7.1_6) to remove 'annoying error message': https://jira.talendforge.org/browse/TESB-9086 -->
+        <bundle start-level='30' dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xalan/2.7.1_7</bundle>
         <bundle start-level='30' dependency="true">mvn:org.apache.santuario/xmlsec/1.5.4</bundle>
         <bundle start-level='30'>mvn:org.apache.ws.security/wss4j/1.6.10</bundle>
     </feature>
@@ -523,7 +524,6 @@
 		<bundle>mvn:org.slf4j/slf4j-ext/${org.slf4j.version}</bundle>
 		<bundle>mvn:commons-io/commons-io/${commons-io.version}</bundle>
 		<bundle>mvn:commons-lang/commons-lang/2.6</bundle>
-		<bundle>mvn:org.apache.felix/org.osgi.compendium/${org.apache.felix.compendium.version}</bundle>
 		<bundle>mvn:org.ops4j.base/ops4j-base-lang/${org.ops4j-base-lang}</bundle>
 		<bundle>mvn:org.ops4j.pax.swissbox/pax-swissbox-lifecycle/${org.ops4j.pax.swissbox.version}</bundle>
 		<bundle>mvn:org.ops4j.pax.swissbox/pax-swissbox-optional-jcl/${org.ops4j.pax.swissbox.version}</bundle>

@@ -32,7 +32,7 @@
         always increment (e.g., query count). GAUGE is for metrics that can wax and wane,
         e.g., response time.
         -->
-        <config name="ddf.metrics.reporting.internal.rrd4j.JmxCollector-PointRadiusQueries">
+        <config name="MetricsJmxCollector-PointRadiusQueries">
             mbeanName = sdk.metrics.sample:name=Queries.PointRadius
             mbeanAttributeName = Count
             rrdPath = pointRadiusQueries.rrd
@@ -45,7 +45,7 @@
         
         WARNING: The JmxCollector interface is not final and may change in the future.
         -->
-        <config name="ddf.metrics.reporting.internal.rrd4j.JmxCollector-JvmUptime">
+        <config name="MetricsJmxCollector-JvmUptime">
             mbeanName = java.lang:type=Runtime
             mbeanAttributeName = Uptime
             rrdPath = jvmUptime.rrd

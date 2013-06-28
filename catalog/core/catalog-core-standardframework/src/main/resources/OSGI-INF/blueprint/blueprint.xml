@@ -115,11 +115,14 @@
 	<bean id="pool" class="java.util.concurrent.Executors"
 		factory-method="newCachedThreadPool" />
 
+	<reference id="sourceMetrics" interface="ddf.catalog.metrics.internal.SourceMetrics" />
+
 	<bean id="sorted" class="ddf.catalog.federation.impl.SortedFederationStrategy">
 		<cm:managed-properties
 			persistent-id="ddf.catalog.federation.impl.SortedFederationStrategy"
 			update-strategy="container-managed" />
 		<argument ref="pool" />
+		<argument ref="sourceMetrics" />
 		<property name="maxStartIndex" value="50000" />
 	</bean>
 

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version. 
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+
+ -->
+<metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
+
+    <!--
+    Do not want these JMX Collectors to be edited by end user, but latest Apache Felix updates
+    now display *all* managed service [factories] whether they have a metatype.xml file or not.
+    So this metatype.xml file allows the configuration popup to be displayed (vs. an error), but
+    displays no fields that can be edited.
+    
+    Furthermore, the "~" in front of the name forces this managed service factory to be displayed
+    last (in lexicographical order) on the Configurations tab of web admin console.
+    -->
+    <OCD name="~Metrics JMX Collector" id="MetricsJmxCollector" description="Metrics JMX Collector">
+    </OCD>
+    
+    <Designate pid="MetricsJmxCollector" factoryPid="MetricsJmxCollector">
+        <Object ocdref="MetricsJmxCollector" />
+    </Designate>
+
+</metatype:MetaData>

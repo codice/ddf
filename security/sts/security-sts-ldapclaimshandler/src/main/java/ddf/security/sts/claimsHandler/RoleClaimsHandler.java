@@ -11,26 +11,6 @@
  **/
 package ddf.security.sts.claimsHandler;
 
-import ddf.security.common.util.PropertiesLoader;
-import org.apache.cxf.helpers.CastUtils;
-import org.apache.cxf.sts.claims.Claim;
-import org.apache.cxf.sts.claims.ClaimCollection;
-import org.apache.cxf.sts.claims.ClaimsHandler;
-import org.apache.cxf.sts.claims.ClaimsParameters;
-import org.apache.cxf.sts.claims.RequestClaimCollection;
-import org.apache.log4j.Logger;
-import org.springframework.ldap.core.AttributesMapper;
-import org.springframework.ldap.core.LdapTemplate;
-import org.springframework.ldap.filter.AndFilter;
-import org.springframework.ldap.filter.EqualsFilter;
-
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.SearchControls;
-import javax.security.auth.kerberos.KerberosPrincipal;
-import javax.security.auth.x500.X500Principal;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.Principal;
@@ -38,15 +18,29 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.StringTokenizer;
+
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.SearchControls;
+
+import org.apache.cxf.helpers.CastUtils;
+import org.apache.cxf.sts.claims.Claim;
+import org.apache.cxf.sts.claims.ClaimCollection;
+import org.apache.cxf.sts.claims.ClaimsHandler;
+import org.apache.cxf.sts.claims.ClaimsParameters;
+import org.apache.cxf.sts.claims.RequestClaimCollection;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.ldap.core.AttributesMapper;
+import org.springframework.ldap.core.LdapTemplate;
+import org.springframework.ldap.filter.AndFilter;
+import org.springframework.ldap.filter.EqualsFilter;
 
 public class RoleClaimsHandler implements ClaimsHandler {
 
-    private static final String ATTRIBUTE_DELIMITER = ", ";
-
-    private static final String EQUALS_DELIMITER = "=";
-
-    private final Logger logger = Logger.getLogger(RoleClaimsHandler.class);
+    private final Logger logger = LoggerFactory.getLogger(RoleClaimsHandler.class);
 
     private Map<String, String> claimsLdapAttributeMapping;
 
@@ -70,8 +64,6 @@ public class RoleClaimsHandler implements ClaimsHandler {
 
     private String propertyFileLocation;
 
-    private String attributeMapping;
-
     public URI getRoleURI() {
         URI uri = null;
         try {
@@ -89,37 +81,9 @@ public class RoleClaimsHandler implements ClaimsHandler {
     public void setPropertyFileLocation(String propertyFileLocation) {
         if (propertyFileLocation != null
                 && !propertyFileLocation.isEmpty() && !propertyFileLocation.equals(this.propertyFileLocation)) {
-            Map<String, String> mapping = PropertiesLoader
-                    .toMap(PropertiesLoader
-                            .loadProperties(propertyFileLocation));
-            setClaimsLdapAttributeMapping(mapping);
+            setClaimsLdapAttributeMapping(AttributeMapLoader.buildClaimsMapFile(propertyFileLocation));
         }
         this.propertyFileLocation = propertyFileLocation;
-    }
-
-    public String getAttributeMapping() {
-        return attributeMapping;
-    }
-
-    public void setAttributeMapping(String attributesToMap) {
-        if (attributesToMap != null
-                && !attributesToMap.isEmpty() && !attributesToMap.equals(this.attributeMapping)) {
-            setClaimsLdapAttributeMapping(buildLdapClaimsMap(attributesToMap));
-        }
-        this.attributeMapping = attributesToMap;
-    }
-
-    private Map<String, String> buildLdapClaimsMap(String attributesToMap) {
-        // Remove first and last character since they are "[" and "]"
-        String cleanedAttributesToMap = attributesToMap.substring(1,
-                attributesToMap.length() - 1);
-        String[] attributes = cleanedAttributesToMap.split(ATTRIBUTE_DELIMITER);
-        Map<String, String> map = new HashMap<String, String>();
-        for (String attribute : attributes) {
-            String[] attrSplit = attribute.split(EQUALS_DELIMITER);
-            map.put(attrSplit[0], attrSplit[1]);
-        }
-        return map;
     }
 
     public String getRoleClaimType() {
@@ -219,47 +183,11 @@ public class RoleClaimsHandler implements ClaimsHandler {
         try {
             Principal principal = parameters.getPrincipal();
 
-            String user = null;
-            if (principal instanceof KerberosPrincipal) {
-                KerberosPrincipal kp = (KerberosPrincipal) principal;
-                StringTokenizer st = new StringTokenizer(kp.getName(), "@");
-                user = st.nextToken();
-            } else if (principal instanceof X500Principal) {
-                // 1.2.840.113549.1.9.1=#160d69346365406c6d636f2e636f6d,CN=client,OU=I4CE,O=Lockheed
-                // Martin,L=Goodyear,ST=Arizona,C=US
-                X500Principal x500p = (X500Principal)principal;
-                StringTokenizer st = new StringTokenizer(x500p.getName(), ",");
-                while(st.hasMoreElements())
-                {
-                    //token is in the format:
-                    //syntaxAndUniqueId
-                    //cn
-                    //ou
-                    //o
-                    //loc
-                    //state
-                    //country
-                    String[] strArr = st.nextToken().split("=");
-                    if(strArr.length > 1 && strArr[0].equalsIgnoreCase("cn"))
-                    {
-                        user = strArr[1];
-                        break;
-                    }
-                }
-            } else if (principal != null) {
-                user = principal.getName();
-            } else {
-                logger.info("Principal is null");
+            String user = AttributeMapLoader.getUser(principal);
+            if(user == null)
+            {
+                logger.warn("Could not determine user name, possible authentication error. Returning no claims.");
                 return new ClaimCollection();
-            }
-
-            if (user == null) {
-                logger.warn("User must not be null");
-                return new ClaimCollection();
-            } else {
-                if (logger.isTraceEnabled()) {
-                    logger.trace("Retrieve role claims for user " + user);
-                }
             }
 
             AndFilter filter = new AndFilter();
@@ -292,9 +220,7 @@ public class RoleClaimsHandler implements ClaimsHandler {
 
                 Attribute attr = ldapAttributes.get(groupNameAttribute);
                 if (attr == null) {
-                    if (logger.isTraceEnabled()) {
-                        logger.trace("Claim '" + roleClaimType + "' is null");
-                    }
+                    logger.trace("Claim '{}' is null", roleClaimType);
                 } else {
                     Claim c = new Claim();
                     c.setClaimType(getRoleURI());
@@ -307,9 +233,7 @@ public class RoleClaimsHandler implements ClaimsHandler {
                         while (list.hasMore()) {
                             Object obj = list.next();
                             if (!(obj instanceof String)) {
-                                logger.warn("LDAP attribute '"
-                                        + groupNameAttribute
-                                        + "' has got an unsupported value type");
+                                logger.warn("LDAP attribute '{}' has got an unsupported value type", groupNameAttribute);
                                 break;
                             }
                             claimValue.append((String) obj);
@@ -318,8 +242,7 @@ public class RoleClaimsHandler implements ClaimsHandler {
                             }
                         }
                     } catch (NamingException ex) {
-                        logger.warn("Failed to read value of LDAP attribute '"
-                                + groupNameAttribute + "'");
+                        logger.warn("Failed to read value of LDAP attribute '{}'", groupNameAttribute);
                     }
 
                     c.setValue(claimValue.toString());

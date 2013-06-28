@@ -11,43 +11,36 @@
  **/
 package ddf.security.sts.claimsHandler;
 
-import ddf.security.common.util.PropertiesLoader;
-import org.apache.cxf.helpers.CastUtils;
-import org.apache.cxf.sts.claims.Claim;
-import org.apache.cxf.sts.claims.ClaimCollection;
-import org.apache.cxf.sts.claims.ClaimsParameters;
-import org.apache.cxf.sts.claims.RequestClaim;
-import org.apache.cxf.sts.claims.RequestClaimCollection;
-import org.apache.log4j.Logger;
-import org.springframework.ldap.core.AttributesMapper;
-import org.springframework.ldap.core.LdapTemplate;
-import org.springframework.ldap.filter.AndFilter;
-import org.springframework.ldap.filter.EqualsFilter;
-
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.SearchControls;
-import javax.security.auth.kerberos.KerberosPrincipal;
-import javax.security.auth.x500.X500Principal;
 import java.net.URI;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.StringTokenizer;
+
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.SearchControls;
+import javax.security.auth.x500.X500Principal;
+
+import org.apache.cxf.helpers.CastUtils;
+import org.apache.cxf.sts.claims.Claim;
+import org.apache.cxf.sts.claims.ClaimCollection;
+import org.apache.cxf.sts.claims.ClaimsParameters;
+import org.apache.cxf.sts.claims.RequestClaim;
+import org.apache.cxf.sts.claims.RequestClaimCollection;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.ldap.core.AttributesMapper;
+import org.springframework.ldap.core.LdapTemplate;
+import org.springframework.ldap.filter.AndFilter;
+import org.springframework.ldap.filter.EqualsFilter;
 
 public class LdapClaimsHandler extends org.apache.cxf.sts.claims.LdapClaimsHandler
 {
-    private static final Logger LOGGER = Logger.getLogger(LdapClaimsHandler.class);
-    
-    private static final String ATTRIBUTE_DELIMITER = ", ";
-
-    private static final String EQUALS_DELIMITER = "=";
-
-    private String attributeMapping;
+    private static final Logger LOGGER = LoggerFactory.getLogger(LdapClaimsHandler.class);
 
     private String propertyFileLocation;
     
@@ -85,51 +78,9 @@ public class LdapClaimsHandler extends org.apache.cxf.sts.claims.LdapClaimsHandl
     {
         if(propertyFileLocation != null && !propertyFileLocation.isEmpty() && !propertyFileLocation.equals(this.propertyFileLocation))
         {
-            Map<String,String> mapping = PropertiesLoader.toMap(PropertiesLoader.loadProperties(propertyFileLocation));
-            setClaimsLdapAttributeMapping(mapping);
+            setClaimsLdapAttributeMapping(AttributeMapLoader.buildClaimsMapFile(propertyFileLocation));
         }
         this.propertyFileLocation = propertyFileLocation;
-    }
-
-    public String getAttributeMapping() {
-        return attributeMapping;
-    }
-
-    public void setAttributeMapping(String attributesToMap) {
-        if (attributesToMap != null
-                && !attributesToMap.isEmpty() && !attributesToMap.equals(this.attributeMapping)) {
-            setClaimsLdapAttributeMapping(buildLdapClaimsMap(attributesToMap));
-        }
-        this.attributeMapping = attributesToMap;
-    }
-
-    private Map<String, String> buildLdapClaimsMap(String attributesToMap) {
-        // Remove first and last character since they are "[" and "]"
-        String cleanedAttributesToMap = attributesToMap.substring(1,
-                attributesToMap.length() - 1);
-        String[] attributes = cleanedAttributesToMap.split(ATTRIBUTE_DELIMITER);
-        Map<String, String> map = new HashMap<String, String>();
-        for (String attribute : attributes) {
-            String[] attrSplit = attribute.split(EQUALS_DELIMITER);
-            map.put(attrSplit[0], attrSplit[1]);
-        }
-        
-        if( LOGGER.isDebugEnabled() )
-        {
-            LOGGER.debug( logLdapClaimsMap( map ) );
-        }
-        
-        return map;
-    }
-    
-    private String logLdapClaimsMap( Map<String, String> map ) {
-        StringBuilder builder = new StringBuilder();
-        builder.append( "LDAP claims map:\n" );
-        for( String claim : map.keySet() ) {
-            builder.append( "claim: " + claim + "; " + "LDAP mapping: " + map.get( claim ) + "\n" );
-        }
-        
-         return builder.toString();
     }
     
 	@Override
@@ -138,45 +89,11 @@ public class LdapClaimsHandler extends org.apache.cxf.sts.claims.LdapClaimsHandl
 
 		Principal principal = parameters.getPrincipal();
 
-		String user = null;
-		if (principal instanceof KerberosPrincipal) {
-			KerberosPrincipal kp = (KerberosPrincipal) principal;
-			StringTokenizer st = new StringTokenizer(kp.getName(), "@");
-			user = st.nextToken();
-		} else if (principal instanceof X500Principal) {
-			X500Principal x500p = (X500Principal) principal;
-            StringTokenizer st = new StringTokenizer(x500p.getName(), ",");
-            while(st.hasMoreElements())
-            {
-                //token is in the format:
-                //syntaxAndUniqueId
-                //cn
-                //ou
-                //o
-                //loc
-                //state
-                //country
-                String[] strArr = st.nextToken().split("=");
-                if(strArr.length > 1 && strArr[0].equalsIgnoreCase("cn"))
-                {
-                    user = strArr[1];
-                    break;
-                }
-            }
-		} else if (principal != null) {
-			user = principal.getName();
-		} else {
-			LOGGER.info("Principal is null");
-			return new ClaimCollection();
-		}
-
-		if (user == null) {
-			LOGGER.warn("User must not be null");
-			return new ClaimCollection();
-		} else {
-			if (LOGGER.isTraceEnabled()) {
-				LOGGER.trace("Retrieve claims for user " + user);
-			}
+		String user = AttributeMapLoader.getUser(principal);
+		if(user == null)
+		{
+		    LOGGER.warn("Could not determine user name, possible authentication error. Returning no claims.");
+		    return new ClaimCollection();
 		}
 
 		AndFilter filter = new AndFilter();
@@ -190,9 +107,7 @@ public class LdapClaimsHandler extends org.apache.cxf.sts.claims.LdapClaimsHandl
 				searchAttributeList.add(getClaimsLdapAttributeMapping().get(
 						claim.getClaimType().toString()));
 			} else {
-				if (LOGGER.isDebugEnabled()) {
-					LOGGER.debug("Unsupported claim: " + claim.getClaimType());
-				}
+				LOGGER.debug("Unsupported claim: {}", claim.getClaimType());
 			}
 		}
 
@@ -222,7 +137,7 @@ public class LdapClaimsHandler extends org.apache.cxf.sts.claims.LdapClaimsHandl
 		if (result != null && result.size() > 0) {
 			ldapAttributes = CastUtils.cast((Map<?, ?>) result.get(0));
 		} else {
-		    LOGGER.debug("No results returned from LDAP search for user [" + user + "].  Returning empty claims collection.");
+		    LOGGER.debug("No results returned from LDAP search for user [{}].  Returning empty claims collection.", user);
 		    return new ClaimCollection();
 		}
 
@@ -234,9 +149,7 @@ public class LdapClaimsHandler extends org.apache.cxf.sts.claims.LdapClaimsHandl
 					claimType.toString());
 			Attribute attr = ldapAttributes.get(ldapAttribute);
 			if (attr == null) {
-				if (LOGGER.isTraceEnabled()) {
-					LOGGER.trace("Claim '" + claim.getClaimType() + "' is null");
-				}
+				LOGGER.trace("Claim '{}' is null", claim.getClaimType());
 			} else {
 				Claim c = new Claim();
 				c.setClaimType(claimType);
@@ -248,8 +161,7 @@ public class LdapClaimsHandler extends org.apache.cxf.sts.claims.LdapClaimsHandl
 					while (list.hasMore()) {
 						Object obj = list.next();
 						if (!(obj instanceof String)) {
-							LOGGER.warn("LDAP attribute '" + ldapAttribute
-									+ "' has got an unsupported value type");
+							LOGGER.warn("LDAP attribute '{}' has got an unsupported value type", ldapAttribute);
 							break;
 						}
 						String itemValue = (String) obj;
@@ -269,8 +181,7 @@ public class LdapClaimsHandler extends org.apache.cxf.sts.claims.LdapClaimsHandl
 						c.addValue(itemValue);
 					}
 				} catch (NamingException ex) {
-					LOGGER.warn("Failed to read value of LDAP attribute '"
-							+ ldapAttribute + "'");
+					LOGGER.warn("Failed to read value of LDAP attribute '{}'", ldapAttribute);
 				}
 
 				// c.setIssuer(issuer);
