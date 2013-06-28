@@ -14,10 +14,17 @@ package ddf.security.sts.claimsHandler;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.io.FileNotFoundException;
+import java.security.Principal;
 import java.util.Map;
+
+import javax.security.auth.kerberos.KerberosPrincipal;
+import javax.security.auth.x500.X500Principal;
 
 import org.junit.Test;
 
@@ -27,7 +34,14 @@ public class AttributeMapLoaderTest
 
     private static final String BAD_KEY = "BAD_KEY";
     private static final String MAP_FILE = "testMap.properties";
-    private static final String attributeString = "[http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier=uid, http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress=mail, http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname=sn, http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname=givenName]";
+    private static final String NO_MAP_FILE = "noMap.properties";
+    
+    private static final String TEST_USER = "testuser";
+    
+    private static final String KERBEROS_USER = "test/ddf.org";
+    private static final String KERBEROS_PRINCIPAL = KERBEROS_USER + "@REALM";
+    
+    private static final String X500_DN = "CN=" + TEST_USER + ", OU=LDAP, O=DDF, C=US";
 
     /**
      * Tests loading the attributes from a file.
@@ -35,7 +49,7 @@ public class AttributeMapLoaderTest
      * @throws FileNotFoundException
      */
     @Test
-    public void testAttributeFile() throws FileNotFoundException
+    public void testAttributeFile()
     {
         Map<String, String> returnedMap = AttributeMapLoader.buildClaimsMapFile(MAP_FILE);
         assertEquals("uid", returnedMap.get("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"));
@@ -44,15 +58,39 @@ public class AttributeMapLoaderTest
     }
 
     /**
-     * Tests loading the attributes from a string.
+     * Tests Loading the attributes from a non-existing file. Should return an empty map.
      */
     @Test
-    public void testAttributeString()
+    public void testNoAttributeFile()
     {
-        Map<String, String> returnedMap = AttributeMapLoader.buildClaimsMap(attributeString);
-        assertEquals(returnedMap.get("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"), "uid");
-        // took role out of string
-        assertFalse(returnedMap.containsKey("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role"));
-        assertFalse(returnedMap.containsKey(BAD_KEY));
+        Map<String, String> returnedMap = AttributeMapLoader.buildClaimsMapFile(NO_MAP_FILE);
+        assertNotNull(returnedMap);
+        assertTrue(returnedMap.isEmpty());
     }
+    
+    @Test
+    public void testPlainGetUser()
+    {
+        Principal principal = mock(Principal.class);
+        when(principal.getName()).thenReturn(TEST_USER);
+        
+        assertEquals(TEST_USER,AttributeMapLoader.getUser(principal));
+    }
+    
+    @Test
+    public void testKerberosGetUser()
+    {
+        Principal principal = new KerberosPrincipal(KERBEROS_PRINCIPAL);
+        
+        assertEquals(KERBEROS_USER,AttributeMapLoader.getUser(principal));
+    }
+    
+    @Test
+    public void testX500GetUser()
+    {
+        Principal principal = new X500Principal(X500_DN);
+        
+        assertEquals(TEST_USER, AttributeMapLoader.getUser(principal));
+    }
+    
 }
