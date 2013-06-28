@@ -51,6 +51,7 @@ import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.source.FederatedSource;
 import ddf.catalog.source.SourceDescriptor;
 import ddf.catalog.source.SourceUnavailableException;
+import freemarker.ext.beans.BeansWrapper;
 import freemarker.template.Configuration;
 import freemarker.template.DefaultObjectWrapper;
 import freemarker.template.Template;
@@ -107,6 +108,7 @@ public class SearchPageTest {
         out.flush();
         
         generatedHtml = out.toString();
+        System.out.println(generatedHtml);
     }
     
     @Test 
@@ -333,11 +335,14 @@ public class SearchPageTest {
 		} catch (SourceUnavailableException e) {
 		}
 
+		BeansWrapper beansWrapper = new BeansWrapper();
+		
 		Exchange exchange = mock(Exchange.class);
 		when(exchange.getProperty("title")).thenReturn(TITLE);
 		when(exchange.getProperty("header")).thenReturn(HEADER);
 		when(exchange.getProperty("footer")).thenReturn(FOOTER);
 		when(exchange.getProperty("catalog")).thenReturn(catalog);
+		when(exchange.getProperty("beansWrapper")).thenReturn(beansWrapper);
 		when(exchange.getProperty("sourceInfoReq")).thenReturn(sourceInfoRequestLocal);
 		when(exchange.getProperty("federatedSites")).thenReturn(federatedSourceList);
 		when(exchange.getProperty("htmlActionProviderList")).thenReturn(htmlActionProviderList);
