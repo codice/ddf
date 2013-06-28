@@ -38,6 +38,12 @@
 		    <artifactId>filter-proxy</artifactId>
 		    <scope>test</scope>
 		</dependency>
+		<dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>0.9.24</version>
+            <scope>test</scope>
+        </dependency>
 	</dependencies>
 	
 	<build>
@@ -50,7 +56,9 @@
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
 						<Embed-Dependency>metrics-core;scope=compile|runtime;artifactId=!slf4j-api</Embed-Dependency> 
 						<Embed-Transitive>true</Embed-Transitive>
-                        <Export-Package />
+                        <Export-Package>
+                            ddf.catalog.metrics.internal
+                        </Export-Package>
 					</instructions>
 				</configuration>
 			</plugin>

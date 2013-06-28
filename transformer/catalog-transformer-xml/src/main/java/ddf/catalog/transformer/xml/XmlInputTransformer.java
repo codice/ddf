@@ -21,7 +21,6 @@ import javax.xml.bind.helpers.DefaultValidationEventHandler;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;
 
 import ddf.catalog.data.AttributeImpl;
@@ -51,6 +50,7 @@ public class XmlInputTransformer extends AbstractXmlTransformer implements
 		Metacard metacard = null;
 		ClassLoader tccl = Thread.currentThread().getContextClassLoader();
 		try {
+
 			Unmarshaller unmarshaller = CONTEXT.createUnmarshaller();
 			unmarshaller.setAdapter(MetacardTypeAdapter.class,
 					new MetacardTypeAdapter(metacardTypes));

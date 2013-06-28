@@ -97,9 +97,12 @@
 
 	<bean id="pool" class="java.util.concurrent.Executors"
 		factory-method="newCachedThreadPool" />
+		
+	<reference id="sourceMetrics" interface="ddf.catalog.metrics.internal.SourceMetrics" />
 
 	<bean id="sorted" class="ddf.catalog.federation.impl.SortedFederationStrategy">
 		<argument ref="pool" />
+		<argument ref="sourceMetrics" />
 	</bean>
 
 	<service ref="sorted" interface="ddf.catalog.federation.FederationStrategy">

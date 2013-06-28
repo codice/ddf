@@ -11,9 +11,10 @@
  **/
 package ddf.catalog.metrics;
 
-import static org.hamcrest.MatcherAssert.*;
-import static org.hamcrest.Matchers.*;
-import static org.mockito.Mockito.*;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -24,9 +25,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.opengis.filter.Filter;
+
+import com.yammer.metrics.MetricRegistry;
 
 import ddf.catalog.data.Metacard;
 import ddf.catalog.federation.FederationException;
@@ -69,6 +73,50 @@ public class CatalogMetricsTest {
     @Before
     public void setup() {
         underTest = new CatalogMetrics(filterAdapter);
+    }
+    
+    @After
+    public void tearDown() {
+    	
+    	// Remove the metrics created when setup() instantiated CatalogMetrics -
+    	// otherwise get lots of exceptions that metric already exists which fill
+    	// up the log to point of Travis CI build failing
+    	
+    	underTest.metrics.remove(MetricRegistry.name(CatalogMetrics.QUERIES_SCOPE,
+                "TotalResults"));
+    	
+    	underTest.metrics.remove(MetricRegistry.name(CatalogMetrics.QUERIES_SCOPE));
+    	underTest.metrics.remove(MetricRegistry.name(CatalogMetrics.QUERIES_SCOPE,
+    			"Federated"));
+    	underTest.metrics.remove(MetricRegistry.name(CatalogMetrics.QUERIES_SCOPE,
+    			"Comparison"));
+    	underTest.metrics.remove(MetricRegistry.name(CatalogMetrics.QUERIES_SCOPE,
+    			"Spatial"));
+    	underTest.metrics.remove(MetricRegistry.name(CatalogMetrics.QUERIES_SCOPE,
+    			"Xpath"));
+    	underTest.metrics.remove(MetricRegistry.name(CatalogMetrics.QUERIES_SCOPE,
+    			"Fuzzy"));
+    	underTest.metrics.remove(MetricRegistry.name(CatalogMetrics.QUERIES_SCOPE,
+    			"Temporal"));
+    	
+    	underTest.metrics.remove(MetricRegistry.name(CatalogMetrics.EXCEPTIONS_SCOPE));
+    	underTest.metrics.remove(MetricRegistry.name(CatalogMetrics.EXCEPTIONS_SCOPE,
+    			"UnsupportedQuery"));
+    	underTest.metrics.remove(MetricRegistry.name(CatalogMetrics.EXCEPTIONS_SCOPE,
+    			"SourceUnavailable"));
+    	underTest.metrics.remove(MetricRegistry.name(CatalogMetrics.EXCEPTIONS_SCOPE,
+    			"Federation"));
+    	
+    	underTest.metrics.remove(MetricRegistry.name(CatalogMetrics.INGEST_SCOPE,
+    			"Created"));
+    	underTest.metrics.remove(MetricRegistry.name(CatalogMetrics.INGEST_SCOPE,
+    			"Updated"));
+    	underTest.metrics.remove(MetricRegistry.name(CatalogMetrics.INGEST_SCOPE,
+    			"Deleted"));
+
+    	underTest.metrics.remove(MetricRegistry.name(CatalogMetrics.RESOURCE_SCOPE));
+        
+        underTest.reporter.stop();
     }
 
     @Test
