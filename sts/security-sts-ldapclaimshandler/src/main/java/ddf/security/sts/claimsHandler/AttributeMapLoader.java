@@ -12,8 +12,12 @@
 package ddf.security.sts.claimsHandler;
 
 
-import java.util.HashMap;
+import java.security.Principal;
 import java.util.Map;
+import java.util.StringTokenizer;
+
+import javax.security.auth.kerberos.KerberosPrincipal;
+import javax.security.auth.x500.X500Principal;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,29 +33,18 @@ import ddf.security.common.util.PropertiesLoader;
 public class AttributeMapLoader
 {
 
-    private static final String ATTRIBUTE_DELIMITER = ", ";
-
-    private static final String EQUALS_DELIMITER = "=";
-
     private static final Logger LOGGER = LoggerFactory.getLogger(AttributeMapLoader.class);
 
     /**
-     * Parses a string of attributes and returns them as a map.
+     * Parses a file of attributes and returns them as a map.
      * 
-     * @param attributesToMap String of attributes separated by a ,
-     * @return Map containing the fully populated attribute map.
+     * @param attributeMapFile File of the listed attributes
+     * @return Map containing the fully populated attributes or empty map if
+     *         file does not exist.
      */
-    public static Map<String, String> buildClaimsMap( String attributesToMap )
+    public static Map<String, String> buildClaimsMapFile( String attributeMapFile )
     {
-        // Remove first and last character since they are "[" and "]"
-        String cleanedAttributesToMap = attributesToMap.substring(1, attributesToMap.length() - 1);
-        String[] attributes = cleanedAttributesToMap.split(ATTRIBUTE_DELIMITER);
-        Map<String, String> map = new HashMap<String, String>();
-        for ( String attribute : attributes )
-        {
-            String[] attrSplit = attribute.split(EQUALS_DELIMITER);
-            map.put(attrSplit[0], attrSplit[1]);
-        }
+        Map<String, String> map = PropertiesLoader.toMap(PropertiesLoader.loadProperties(attributeMapFile));
 
         if (LOGGER.isDebugEnabled())
         {
@@ -62,21 +55,50 @@ public class AttributeMapLoader
     }
 
     /**
-     * Parses a file of attributes and returns them as a map.
+     * Obtains the user name from the principal.
      * 
-     * @param attributeMapFile File of the listed attributes
-     * @return Map containing the fully populated attributes.
+     * @param principal Describing the current user that should be used for
+     *            retrieving claims.
+     * @return the user name if the principal has one, null if no name is
+     *         specified or if principal is null.
      */
-    public static Map<String, String> buildClaimsMapFile( String attributeMapFile )
+    public static String getUser( Principal principal )
     {
-        Map<String, String> map = PropertiesLoader.toMap(PropertiesLoader.loadProperties(attributeMapFile));
-        
-        if (LOGGER.isDebugEnabled())
+        String user = null;
+        if (principal instanceof KerberosPrincipal)
         {
-            LOGGER.debug(logLdapClaimsMap(map));
+            KerberosPrincipal kp = (KerberosPrincipal) principal;
+            StringTokenizer st = new StringTokenizer(kp.getName(), "@");
+            user = st.nextToken();
         }
-        
-        return map;
+        else if (principal instanceof X500Principal)
+        {
+            X500Principal x500p = (X500Principal) principal;
+            StringTokenizer st = new StringTokenizer(x500p.getName(), ",");
+            while (st.hasMoreElements())
+            {
+                // token is in the format:
+                // syntaxAndUniqueId
+                // cn
+                // ou
+                // o
+                // loc
+                // state
+                // country
+                String[] strArr = st.nextToken().split("=");
+                if (strArr.length > 1 && strArr[0].equalsIgnoreCase("cn"))
+                {
+                    user = strArr[1];
+                    break;
+                }
+            }
+        }
+        else if (principal != null)
+        {
+            user = principal.getName();
+        }
+
+        return user;
     }
 
     private static String logLdapClaimsMap( Map<String, String> map )
@@ -90,4 +112,5 @@ public class AttributeMapLoader
 
         return builder.toString();
     }
+
 }
