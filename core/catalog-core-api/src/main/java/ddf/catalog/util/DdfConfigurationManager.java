@@ -215,8 +215,7 @@ public class DdfConfigurationManager
 			this.configuration.putAll( readOnlySettings );
 		}
 
-        logger.debug("Invoking ddfConfigurationUpdated on " + (services == null ? "0" : services.size()) + " services");
-		for ( DdfConfigurationWatcher service : services ) 
+		for ( DdfConfigurationWatcher service : services )
 		{
 			service.ddfConfigurationUpdated( this.configuration );
 		}
