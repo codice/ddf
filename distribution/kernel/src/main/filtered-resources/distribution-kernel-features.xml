@@ -15,7 +15,7 @@
 
 	<repository>mvn:org.apache.karaf.assemblies.features/standard/${karaf.version}/xml/features</repository>
 
-    <feature name="ddf-webconsole" description="Karaf WebConsole for administration and monitoring" version="${project.version}">
+    <feature name="webconsole-patched" description="Karaf WebConsole for administration and monitoring" version="${project.version}">
         <feature version="${karaf.version}">webconsole-base</feature>
         <bundle start-level="30">mvn:ddf.karaf.distribution/ddf.org.apache.karaf.webconsole.admin/${karaf.version}</bundle>
         <bundle start-level="30">mvn:ddf.karaf.distribution/ddf.org.apache.karaf.webconsole.features/${karaf.version}</bundle>
@@ -24,7 +24,15 @@
     </feature>
 
     <feature name="kernel-webconsolebranding" version="${project.version}" description="DDF Web Admin Console branding">
-		<feature>ddf-webconsole</feature>
+        <!--
+            This is the standard webconsole feature distributed as part of Karaf. We currently have a patched version that brings
+            in three plugins from the 2.3.x branch to take advantage of fixes that have not been backported to 2.3.1. The next time
+            that Karaf is upgraded (to a version greater than 2.3.1), this line should be reinstated and the webconsole-patched
+            feature that follows it should be removed.
+
+        <feature>webconsole</feature>
+        -->
+		<feature>webconsole-patched</feature>
 		<bundle>mvn:commons-io/commons-io/${commons-io.version}</bundle>
 		<bundle>mvn:ddf.distribution/webconsole-branding/${project.version}</bundle>
 		<bundle>mvn:ddf.distribution/webconsole-branding-plugin/${project.version}</bundle>

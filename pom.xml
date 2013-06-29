@@ -1600,6 +1600,13 @@
             </dependency>
 
             <dependency>
+                <groupId>org.apache.karaf.tooling.exam</groupId>
+                <artifactId>org.apache.karaf.tooling.exam.container</artifactId>
+                <version>${karaf.version}</version>
+                <scope>test</scope>
+            </dependency>
+
+            <dependency>
 				<groupId>org.apache.camel</groupId>
 				<artifactId>camel-parent</artifactId>
 				<version>${camel.version}</version>

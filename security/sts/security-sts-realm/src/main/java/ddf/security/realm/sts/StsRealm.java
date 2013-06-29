@@ -204,63 +204,93 @@ public class StsRealm extends AuthenticatingRealm implements DdfConfigurationWat
         String value;
         value = (String) properties.get(DdfConfigurationManager.TRUST_STORE);
         if (value != null)
+        {
             trustStorePath = value;
+        }
 
         value = (String) properties.get(DdfConfigurationManager.TRUST_STORE_PASSWORD);
         if (value != null)
+        {
             trustStorePassword = value;
+        }
 
         value = (String) properties.get(DdfConfigurationManager.KEY_STORE);
         if (value != null)
+        {
             keyStorePath = value;
+        }
 
         value = (String) properties.get(DdfConfigurationManager.KEY_STORE_PASSWORD);
         if (value != null)
+        {
             keyStorePassword = value;
+        }
 
         value = (String) properties.get(STSClientConfigurationManager.STS_ADDRESS);
         if (value != null)
+        {
             stsAddress = value;
+        }
 
         value = (String) properties.get(STSClientConfigurationManager.STS_SERVICE_NAME);
         if (value != null)
+        {
             stsServiceName = value;
+        }
 
         value = (String) properties.get(STSClientConfigurationManager.STS_ENDPOINT_NAME);
         if (value != null)
+        {
             stsEndpointName = value;
+        }
 
         value = (String) properties.get(SecurityConstants.SIGNATURE_PROPERTIES);
         if (value != null)
+        {
             signaturePropertiesPath = value;
+        }
 
         value = (String) properties.get(SecurityConstants.ENCRYPT_PROPERTIES);
         if (value != null)
+        {
             encryptionPropertiesPath = value;
+        }
 
         value = (String) properties.get(SecurityConstants.STS_TOKEN_PROPERTIES);
         if (value != null)
+        {
             stsPropertiesPath = value;
+        }
 
         value = (String) properties.get(SecurityConstants.USERNAME);
         if (value != null)
+        {
             wssUsername = value;
+        }
 
         value = (String) properties.get(SecurityConstants.PASSWORD);
         if (value != null)
+        {
             wssPassword = value;
+        }
 
         value = (String) properties.get(SecurityConstants.SIGNATURE_USERNAME);
         if (value != null)
+        {
             signatureUsername = value;
+        }
 
         value = (String) properties.get(SecurityConstants.ENCRYPT_USERNAME);
         if (value != null)
+        {
             encryptionUsername = value;
+        }
 
         value = (String) properties.get(SecurityConstants.STS_TOKEN_USERNAME);
         if (value != null)
+        {
             stsTokenUsername = value;
+        }
     }
 
     /**
@@ -678,7 +708,7 @@ public class StsRealm extends AuthenticatingRealm implements DdfConfigurationWat
         String setWssPassword = (String) properties.get( SecurityConstants.PASSWORD );
         if ( setWssPassword != null )
         {
-        	LOGGER.debug( "Setting wss password: " + setWssPassword );
+        	LOGGER.debug( "Setting wss password." );
             this.wssPassword = setWssPassword;
         }
 
@@ -768,7 +798,6 @@ public class StsRealm extends AuthenticatingRealm implements DdfConfigurationWat
         String setTrustStorePassword = (String) properties.get( DdfConfigurationManager.TRUST_STORE_PASSWORD );
         if ( setTrustStorePassword != null )
         {
-            LOGGER.debug("Changing trust store password from {} to {}", this.trustStorePassword, setTrustStorePassword); /*** DEBUG ONLY ***/
             if(encryptionService == null)
     		{
     		    LOGGER.error("The StsRealm has a null Encryption Service. Unable to decrypt the encrypted " +
@@ -793,7 +822,6 @@ public class StsRealm extends AuthenticatingRealm implements DdfConfigurationWat
         String setKeyStorePassword = (String) properties.get( DdfConfigurationManager.KEY_STORE_PASSWORD );
         if ( setKeyStorePassword != null )
         {
-            LOGGER.debug("Changing key store password from {} to {}", this.keyStorePassword, setKeyStorePassword); /*** DEBUG ONLY ***/
             if(encryptionService == null)
     		{
     		    LOGGER.error("The StsRealm has a null Encryption Service. Unable to decrypt the encrypted " +
@@ -881,7 +909,7 @@ public class StsRealm extends AuthenticatingRealm implements DdfConfigurationWat
     {
         if ( wssPassword != null && !wssPassword.isEmpty() )
         {
-            LOGGER.debug( "Setting password on STSClient: " + wssPassword );
+            LOGGER.debug( "Setting password on STSClient." );
             map.put( SecurityConstants.PASSWORD, wssPassword );
         }
     }

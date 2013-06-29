@@ -247,7 +247,6 @@ public class WebSSOTokenValidator implements TokenValidator, DdfConfigurationWat
         String setTrustStorePassword = (String) properties.get(DdfConfigurationManager.TRUST_STORE_PASSWORD);
         if (setTrustStorePassword != null)
         {
-            LOGGER.debug("Changing trust store password from {} to {}", this.trustStorePassword, setTrustStorePassword); /*** DEBUG ONLY ***/
             this.trustStorePassword = setTrustStorePassword;
     		if(encryptionService == null)
     		{
@@ -273,7 +272,6 @@ public class WebSSOTokenValidator implements TokenValidator, DdfConfigurationWat
         String setKeyStorePassword = (String) properties.get(DdfConfigurationManager.KEY_STORE_PASSWORD);
         if (setKeyStorePassword != null)
         {
-            LOGGER.debug("Changing key store password from {} to {}", this.keyStorePassword, setKeyStorePassword); /*** DEBUG ONLY ***/
             this.keyStorePassword = setKeyStorePassword;
     		if(encryptionService == null)
     		{

@@ -40,7 +40,7 @@
     <setup.folder>target/dependencies</setup.folder>
     <win.setup.folder>target/temp/win</win.setup.folder>
 
-    <!-- Added to support the custom ddf-webconsole feature - remove once karaf is upgraded to greater than 2.3.1 -->
+    <!-- Added to support the custom webconsole-patched feature - remove once karaf is upgraded to greater than 2.3.1 -->
     <felix.eventadmin.version>1.3.2</felix.eventadmin.version>
     <felix.eventadmin-plugin.version>1.0.2</felix.eventadmin-plugin.version>
 
