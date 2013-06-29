@@ -299,6 +299,12 @@ public class SolrCatalogProvider extends MaskableImpl implements
         SolrQuery query = filterAdapter.adapt(request.getQuery(),
                 solrFilterDelegate);
 
+        // Solr does not support outside parenthesis in certain queries and throws EOF exception.
+        String queryPhrase = query.getQuery().trim();
+        if (queryPhrase.matches("\\(\\s*\\{!.*\\)")) {
+            query.setQuery(queryPhrase.replaceAll("^\\(\\s*|\\s*\\)$", ""));
+        }
+
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("Prepared Query: " + query.getQuery());
         }
