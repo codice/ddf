@@ -115,7 +115,7 @@ public class FrameworkProducer extends DefaultProducer {
     }
 
     @Override
-    public void process(Exchange exchange) {
+    public void process(Exchange exchange) throws FrameworkProducerException {
         try {
             LOGGER.debug("Entering process method");
 
@@ -125,10 +125,11 @@ public class FrameworkProducer extends DefaultProducer {
 
             if (operationValueObj == null) {
                 exchange.getIn().setBody(new ArrayList<Metacard>());
-                LOGGER.debug(
-                        "Missing expected header \"operation:<CREATE|UPDATE|DELETE>\" but received {}",
-                        operation);
-                return;
+
+                throw new FrameworkProducerException(
+                        String.format(
+                                "Missing expected header \"operation:<CREATE|UPDATE|DELETE>\" but received {}",
+                                operation));
             }
 
             operation = operationValueObj.toString();
@@ -168,18 +169,20 @@ public class FrameworkProducer extends DefaultProducer {
      *            {@link java.util.List} of Metacard or a single Metacard.
      * @throws ddf.catalog.source.SourceUnavailableException
      * @throws ddf.catalog.source.IngestException
+     * @throws ddf.camel.component.catalog.framework.FrameworkProducerException
      */
     private void create(final Exchange exchange)
-            throws SourceUnavailableException, IngestException {
+            throws SourceUnavailableException, IngestException,
+            FrameworkProducerException {
         CreateResponse createResponse = null;
 
         // read in data
         final List<Metacard> metacardsToBeCreated = readBodyDataAsMetacards(exchange);
 
         if (!validateList(metacardsToBeCreated, Metacard.class)) {
-            LOGGER.debug("Validation of Metacard list failed");
             processCatalogResponse(createResponse, exchange);
-            return;
+            throw new FrameworkProducerException(
+                    "Validation of Metacard list failed");
         }
 
         LOGGER.debug("Validation of Metacard list passed...");
@@ -234,9 +237,11 @@ public class FrameworkProducer extends DefaultProducer {
      *            {@link java.util.List} of Metacard or a single Metacard.
      * @throws ddf.catalog.source.SourceUnavailableException
      * @throws ddf.catalog.source.IngestException
+     * @throws ddf.camel.component.catalog.framework.FrameworkProducerException
      */
     private void update(final Exchange exchange)
-            throws SourceUnavailableException, IngestException {
+            throws SourceUnavailableException, IngestException,
+            FrameworkProducerException {
         UpdateResponse updateResponse = null;
 
         // read in data from exchange
@@ -244,9 +249,9 @@ public class FrameworkProducer extends DefaultProducer {
 
         // process data if valid
         if (!validateList(metacardsToBeUpdated, Metacard.class)) {
-            LOGGER.debug("Validation of Metacard list failed");
             processCatalogResponse(updateResponse, exchange);
-            return;
+            throw new FrameworkProducerException(
+                    "Validation of Metacard list failed");
         }
 
         LOGGER.debug("Validation of Metacard list passed...");
@@ -309,9 +314,11 @@ public class FrameworkProducer extends DefaultProducer {
      *            be deleted.
      * @throws ddf.catalog.source.SourceUnavailableException
      * @throws ddf.catalog.source.IngestException
+     * @throws ddf.camel.component.catalog.framework.FrameworkProducerException
      */
     private void delete(final Exchange exchange)
-            throws SourceUnavailableException, IngestException {
+            throws SourceUnavailableException, IngestException,
+            FrameworkProducerException {
         DeleteResponse deleteResponse = null;
 
         // read in data
@@ -321,7 +328,8 @@ public class FrameworkProducer extends DefaultProducer {
         if (!validateList(metacardIdsToBeDeleted, String.class)) {
             LOGGER.debug("Validation of Metacard id list failed");
             processCatalogResponse(deleteResponse, exchange);
-            return;
+            throw new FrameworkProducerException(
+                    "Validation of Metacard id list failed");
         }
 
         LOGGER.debug("Validation of Metacard id list passed...");
