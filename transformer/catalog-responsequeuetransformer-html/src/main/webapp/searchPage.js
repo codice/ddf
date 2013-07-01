@@ -197,7 +197,7 @@ function resetForm() {
 	jQuery(':hidden').val('');
 	
 	$('input[name=format]').val("querypage");
-	$('input[name=count]').val("10");
+	$('select[name=count]').val("10");
 	$('input[name=start]').val("1");
 	
 	$('button[name=noLocationButton]').click();
