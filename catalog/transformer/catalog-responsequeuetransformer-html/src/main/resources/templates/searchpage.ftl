@@ -17,21 +17,15 @@
 ${response.setHeader("Content-Type", "text/html")}
 
 <#-- building 'sets' of sites and content types... doing it in variables and hashes to filter duplicates -->
+<#assign statics=exchange.getProperty("beansWrapper").getStaticModels() />
 <#assign typeList = {} />
-<#assign siteList = {exchange.getProperty("catalog").getId():""} />
-<#list exchange.getProperty("catalog").getSourceInfo(exchange.getProperty("sourceInfoReq")).getSourceInfo() as srcDesc>
+<#assign siteList = {} />
+<#list exchange.getProperty("catalog").getSourceInfo(exchange.getProperty("sourceInfoReqEnterprise")).getSourceInfo() as srcDesc>
+	<#assign siteList = siteList + {srcDesc.getSourceId():srcDesc.isAvailable()} />
+
 	<#list srcDesc.getContentTypes() as contentType>
 		<#assign typeList = typeList + {contentType.getName():""} />
 	</#list>
-</#list>
-								
-<#list exchange.getProperty("federatedSites") as site>
-	<#assign siteList = siteList + {site.getId():""} />
-	<#if site.getContentTypes()??>
-		<#list site.getContentTypes() as contentType>
-			<#assign typeList = typeList + {contentType.getName():""} />
-		</#list>
-	</#if>
 </#list>
 
 <title><#if exchange.getProperty("branding")??>${exchange.getProperty("branding").getProductName()}</#if> Search</title>
@@ -278,7 +272,11 @@ ${response.setHeader("Content-Type", "text/html")}
 								<div id="sources" class="tab-pane">
 									<select name="federationSources" multiple="multiple" onchange="updateFederation()" class="span12">
 										<#list siteList?keys as site>
-											<option>${site}</option>
+											<#if siteList[site] >
+												<option>${site}</option>
+											<#else>
+												<option disabled="disabled" class="disabled_option">${site}</option>
+											</#if>
 										</#list>
 									</select>
 									<div class="alert alert-block" id="federationListWarning">
@@ -327,10 +325,18 @@ ${response.setHeader("Content-Type", "text/html")}
 					<#assign count = 10>
 					<#list url?matches("[&?]([^=]+)=([^&]*)") as m>
 						<#if m?groups[1]?matches("start")>
-							<#assign start = m?groups[2]?number>
+							<#attempt>
+								<#assign start = m?groups[2]?number>
+							<#recover>
+								<#assign start = 1>  
+							</#attempt>
 						</#if>
 						<#if m?groups[1]?matches("count")>
-							<#assign count = m?groups[2]?number>
+							<#attempt>
+								<#assign count = m?groups[2]?number>
+							<#recover>
+								<#assign count = 10>
+							</#attempt>
 						</#if>
 					</#list>
 					<#assign hits = request.body.hits>
@@ -361,17 +367,17 @@ ${response.setHeader("Content-Type", "text/html")}
 						<div class="pagination pull-right span6">
 							<ul>
 								<#if (currentPage <= 1)>
-									<li class="disabled"><a href="${url?replace(startString, "start=" + (1 + (count * (currentPage - 1)))?string)}">Prev</a></li>
+									<li class="disabled"><a href="${url?replace(startString, "start=" + (1 + (count * (currentPage - 1)))?c)}">Prev</a></li>
 								<#else>
-									<li><a href="${url?replace(startString, "start=" + (1 + (count * (currentPage - 2)))?string)}"><abbr title="Previous">Prev</abbr></a></li>
+									<li><a href="${url?replace(startString, "start=" + (1 + (count * (currentPage - 2)))?c)}"><abbr title="Previous">Prev</abbr></a></li>
 								</#if>
 								<#list startingPage..endingPage as pageNum>
-									<li <#if pageNum==currentPage>class="active"</#if>><a href="${url?replace(startString, "start=" + (1 + (count * (pageNum - 1)))?string)}">${pageNum}</a></li>
+									<li <#if pageNum==currentPage>class="active"</#if>><a href="${url?replace(startString, "start=" + (1 + (count * (pageNum - 1)))?c)}">${pageNum}</a></li>
 								</#list>								
 								<#if (currentPage >= maxPage)>
-									<li class="disabled"><a href="${url?replace(startString, "start=" + (1 + (count * (currentPage - 1)))?string)}">Next</a></li>
+									<li class="disabled"><a href="${url?replace(startString, "start=" + (1 + (count * (currentPage - 1)))?c)}">Next</a></li>
 								<#else>
-									<li><a href="${url?replace(startString, "start=" + (1 + (count * currentPage))?string)}">Next</a></li>
+									<li><a href="${url?replace(startString, "start=" + (1 + (count * currentPage))?c)}">Next</a></li>
 								</#if>
 							</ul>
 						</div>
@@ -411,12 +417,8 @@ ${response.setHeader("Content-Type", "text/html")}
 										    Received: ${result.metacard.createdDate?string("yyyy-MM-dd HH:mm:ss zzz")}</td>
 										</#if>
 									<td>
-										<#if result.metacard.thumbnail?? && result.metacard.thumbnail[0]??>
-											<#if (exchange.getProperty("thumbnailActionProviderList")?size > 0) && 
-												(exchange.getProperty("thumbnailActionProviderList")[0].getAction(result.metacard)??) &&
-												(exchange.getProperty("thumbnailActionProviderList")[0].getAction(result.metacard).getUrl()??) >
-												<img class="thumbnail" src="${exchange.getProperty("thumbnailActionProviderList")[0].getAction(result.metacard).getUrl()?string}" alt=""/>
-											</#if>
+										<#if result.metacard.thumbnail?? && result.metacard.thumbnail[0]??>												
+											<img class="thumbnail" src="data:image/jpeg;charset=utf-8;base64, ${statics["javax.xml.bind.DatatypeConverter"].printBase64Binary(result.metacard.thumbnail)}" alt=""/>
 										</#if>
 									</td>
 									<td>
