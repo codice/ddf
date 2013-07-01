@@ -19,6 +19,7 @@ import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ddf.catalog.CatalogFramework;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.mime.MimeTypeToTransformerMapper;
 
@@ -46,6 +47,7 @@ public class CatalogComponent extends DefaultComponent
     
     private MimeTypeToTransformerMapper mimeTypeToTransformerMapper;
 
+    private CatalogFramework catalogFramework;
 
     public CatalogComponent() 
     {
@@ -71,7 +73,7 @@ public class CatalogComponent extends DefaultComponent
         
         LOGGER.debug( "transformerId = " + transformerId );
         
-        Endpoint endpoint = new CatalogEndpoint( uri, this, transformerId, mimeType, contextPath );
+        Endpoint endpoint = new CatalogEndpoint( uri, this, transformerId, mimeType, contextPath, catalogFramework );
         try {
         setProperties( endpoint, parameters );
 		} catch (Exception e) {
@@ -127,5 +129,16 @@ public class CatalogComponent extends DefaultComponent
     {
         LOGGER.debug( "Setting mimeTypeToTransformerMapper" );
         this.mimeTypeToTransformerMapper = mimeTypeToTransformerMapper;
+    }
+
+
+    /**
+     * Sets the catalog framework
+     *
+     * @param catalogFramework  the catalog framework
+     */
+    public void setCatalogFramework(CatalogFramework catalogFramework)
+    {
+        this.catalogFramework = catalogFramework;
     }
 }
