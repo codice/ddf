@@ -41,6 +41,7 @@
 			<setProperty propertyName="footer"><constant>{{footer}}</constant></setProperty>
 			<setProperty propertyName="color"><constant>{{color}}</constant></setProperty>
 			<setProperty propertyName="background"><constant>{{background}}</constant></setProperty>
+			<setProperty propertyName="beansWrapper"><simple>ref:beansWrapper</simple></setProperty>
 			<setProperty propertyName="catalog"><simple>ref:catalog</simple></setProperty>
 			<setProperty propertyName="branding"><simple>ref:branding</simple></setProperty>
 			<setProperty propertyName="sourceInfoReqEnterprise"><simple>ref:sourceInfoRequestEnterprise</simple></setProperty>

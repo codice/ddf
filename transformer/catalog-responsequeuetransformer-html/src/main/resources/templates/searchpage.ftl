@@ -34,6 +34,7 @@ ${response.setHeader("Content-Type", "text/html")}
 <meta name="author" content="">
 
 <link href="/search/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+<link href="/search/font-awesome/css/font-awesome.min.css" rel="stylesheet">
 <link href="/search/jquery/css/smoothness/jquery-ui-1.9.1.custom.css" rel="stylesheet">
 <link href="/search/jquery/css/plugin/jquery-ui-timepicker-addon.css" rel="stylesheet">
 
@@ -52,7 +53,10 @@ ${response.setHeader("Content-Type", "text/html")}
 <!--[if lt IE 9]>
 		<script src="/search/shim/html5.js"></script>
 	<![endif]-->
-	
+<!--[if IE 7]>
+  <link rel="stylesheet" href=/search/font-awesome/css/font-awesome-ie7.min.css">
+<![endif]-->
+
 </head>
 <body>
 	<div class="navbar navbar-inverse navbar-fixed-top">
@@ -427,7 +431,7 @@ ${response.setHeader("Content-Type", "text/html")}
 												(exchange.getProperty("resourceActionProviderList")[0].getAction(result.metacard)??) &&
 												(exchange.getProperty("resourceActionProviderList")[0].getAction(result.metacard).getUrl()??) >
 												<a href="${exchange.getProperty("resourceActionProviderList")[0].getAction(result.metacard).getUrl()?string}" target="_blank">
-													<i class="icon-download-alt"></i>
+													<i class="icon-download-alt icon-2x"></i>
 												</a>
 											</#if>
 										</#if>
