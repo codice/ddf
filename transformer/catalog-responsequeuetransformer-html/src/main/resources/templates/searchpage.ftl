@@ -23,9 +23,11 @@ ${response.setHeader("Content-Type", "text/html")}
 <#list exchange.getProperty("catalog").getSourceInfo(exchange.getProperty("sourceInfoReqEnterprise")).getSourceInfo() as srcDesc>
 	<#assign siteList = siteList + {srcDesc.getSourceId():srcDesc.isAvailable()} />
 
-	<#list srcDesc.getContentTypes() as contentType>
-		<#assign typeList = typeList + {contentType.getName():""} />
-	</#list>
+	<#if srcDesc.getContentTypes()??>
+		<#list srcDesc.getContentTypes() as contentType>
+			<#assign typeList = typeList + {contentType.getName():""} />
+		</#list>
+	</#if>
 </#list>
 
 <title><#if exchange.getProperty("branding")??>${exchange.getProperty("branding").getProductName()}</#if> Search</title>
@@ -427,7 +429,8 @@ ${response.setHeader("Content-Type", "text/html")}
 									</td>
 									<td>
 										<#if result.metacard.resourceURI??>
-											<#if (exchange.getProperty("resourceActionProviderList")?size > 0) &&
+											<#if (statics["java.net.URI"].create(result.metacard.resourceURI).isAbsolute()) &&
+												(exchange.getProperty("resourceActionProviderList")?size > 0) &&
 												(exchange.getProperty("resourceActionProviderList")[0].getAction(result.metacard)??) &&
 												(exchange.getProperty("resourceActionProviderList")[0].getAction(result.metacard).getUrl()??) >
 												<a href="${exchange.getProperty("resourceActionProviderList")[0].getAction(result.metacard).getUrl()?string}" target="_blank">
