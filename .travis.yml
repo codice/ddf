@@ -1,4 +1,5 @@
 install: mvn install --quiet -DskipTests=true -B
+test: mvn test --quiet -B
 language: java
 jdk:
   - openjdk6
