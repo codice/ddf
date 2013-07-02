@@ -11,6 +11,8 @@
  **/
 package ddf.catalog.source.solr;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -55,7 +57,8 @@ import ddf.measure.Distance.LinearUnit;
  */
 public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
 
-    private static final GeometryFactory GEOMETRY_FACTORY = new GeometryFactory();
+    private static final String SCORE_DISTANCE = "{! score=distance}";
+	private static final GeometryFactory GEOMETRY_FACTORY = new GeometryFactory();
     // *, ?, and / are escaped by the filter adapter
     private static final String[] LUCENE_SPECIAL_CHARACTERS = new String[]{"+", "-", "&&", "||", "!", "(", ")", 
             "{", "}", "[", "]", "^", "\"", "~", ":"};
@@ -406,7 +409,7 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
                 && Result.DISTANCE.equals(sortBy.getPropertyName()
                         .getPropertyName())) {
     
-            String spatialQueryWithDistance = "{! score=distance}"
+            String spatialQueryWithDistance = SCORE_DISTANCE
                     + givenSpatialString;
     
             SolrQuery solrQuery = new SolrQuery(spatialQueryWithDistance);
@@ -497,6 +500,27 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
 		if (operands == null || operands.size() < 1) {
 			throw new UnsupportedOperationException("[" + operator + "] operation must contain 1 or more filters.");
 		}
+		
+		//Due to a bug in how solr parses queries, a sorted spatial operand (combined with any other operand)
+		//must come first in any given expression, so we have to add it to the beginning of the operand list.
+		for (int i = 0; i < operands.size(); i++) {
+			SolrQuery operand = operands.get(i);
+			if (operand == null) {
+				throw new UnsupportedOperationException("Null operand found");
+			}
+			String operandAsString = operand.toString();
+			try {
+				if (operandAsString.contains(URLEncoder.encode(SCORE_DISTANCE, "UTF-8"))) {
+					SolrQuery temp = operands.get(0);
+					operands.set(0, operand);
+					operands.set(i, temp);
+					break;
+				}
+			} catch (UnsupportedEncodingException e) {
+				LOGGER.info("Unable to encode " + SCORE_DISTANCE, e);
+			}
+		}
+		
 
 		int startIndex = 0;
 		SolrQuery query = operands.get(startIndex);
@@ -505,7 +529,7 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
 		if (query == null) {
 			throw new UnsupportedOperationException("Query was not interpreted properly. Query should not be null.");
 		}
-
+		
 		StringBuilder builder = new StringBuilder();
 		builder.append(START_PAREN);
 		builder.append(query.getQuery());
