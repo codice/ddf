@@ -1984,7 +1984,7 @@
 		<repository>
 			<id>codice</id>
 			<name>Codice Repository</name>
-			<url>https://tools.codice.org/artifacts/content/groups/public/</url>
+			<url>http://artifacts.codice.org/content/groups/public/</url>
 		</repository>
 	</repositories>    
 </project>
