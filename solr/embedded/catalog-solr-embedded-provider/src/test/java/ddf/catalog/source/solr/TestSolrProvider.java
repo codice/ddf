@@ -3240,10 +3240,46 @@ public class TestSolrProvider extends SolrProviderTestCase {
 		assertEquals(1, sourceResponse.getResults().size());
 	}
 	
+	@Test
+	public void testSortedPointRadiusWithContentType() throws Exception {
+		deleteAllIn(provider);
+		MetacardImpl metacard1 = new MockMetacard(Library.getFlagstaffRecord());
+		MetacardImpl metacard2 = new MockMetacard(Library.getTampaRecord());
+		MetacardImpl metacard3 = new MockMetacard(Library.getShowLowRecord());
+
+		// Add in the geometry
+		metacard1.setLocation(FLAGSTAFF_AIRPORT_POINT_WKT);
+		metacard2.setLocation(TAMPA_AIRPORT_POINT_WKT);
+		metacard3.setLocation(SHOW_LOW_AIRPORT_POINT_WKT);
+		
+		// Add in a content type
+		metacard1.setAttribute(Metacard.CONTENT_TYPE, "product");
+
+		List<Metacard> list = Arrays.asList((Metacard) metacard1, metacard2, metacard3);
+		
+		/** CREATE **/
+		create(list);
+		
+		//create a filter that has spatial and content type criteria
+    	Filter contentFilter = filterBuilder.attribute(Metacard.CONTENT_TYPE).is().text("product");
+    	Filter spatialFilter = filterBuilder.attribute(Metacard.GEOGRAPHY).intersecting().wkt(FLAGSTAFF_AIRPORT_POINT_WKT);
+    	
+		Filter finalFilter = filterBuilder.allOf(contentFilter, spatialFilter);
+		
+		// sort by distance
+		QueryImpl query = new QueryImpl(finalFilter);
+        SortBy sortby = new ddf.catalog.filter.SortByImpl(Result.DISTANCE, org.opengis.filter.sort.SortOrder.DESCENDING);
+        query.setSortBy(sortby);
+        
+		SourceResponse sourceResponse = provider.query(new QueryRequestImpl(
+				query));
+		
+		assertEquals(sourceResponse.getResults().size(), 1);
+	}
 
     @Test
     public void testSpatialNearestNeighbor() throws Exception {
-        deleteAllIn(provider);
+        deleteAllIn(provider); 
         
         MetacardImpl metacard1 = new MockMetacard(Library.getFlagstaffRecord());
         MetacardImpl metacard2 = new MockMetacard(Library.getTampaRecord());
