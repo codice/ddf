@@ -66,7 +66,7 @@
               </div>
 			  <h4>The Search Page contains several panels</h4>
 			  <dl class="dl-horizontal">
-				<dt>Classification Banners</dt><dd>A optional Banner along the top and bottom which states the maximum classification of data available from this system</dd>
+				<dt>Classification Banners</dt><dd>A optional banner along the top and bottom which states the maximum classification of data available from this system</dd>
 				<dt>Menu Bar</dt><dd>Includes links to this help page and back to the search page</dd>
 				<dt><a href="#inputs">Query Pane</a></dt><dd>A panel on the left side of the page which provides a form for entering query parameters</dd>
 				<dt><a href="#results">Query Results Table</a></dt><dd>A panel to the right of the Query Pane for displaying results from the current query in tabular form</dd>
@@ -74,39 +74,39 @@
 			</section>
 			<section id="inputs">
 			  <div class="page-header">
-                <h2>Search Page Query Input Form</h2>
-              </div>
+				<h2>Search Page Query Input Form</h2>
+			  </div>
 			  <h4>The Input form allows the user to specify keyword, geospatial, temporal, and type query parameters.  It also allows the user to select the sources to search and the number of results to return.</h4>
 			  <dl class="dl-horizontal">
-				<dt>Keyword Search</dt><dd>A text box allowing the user to enter a textual query.  This supports the use of (*) wildcards.  If blank, the query will contain to contextual component</dd>
-				<dt>Temporal Query</dt><dd>Select from any, relative, or absolute.  Any results in no temporal restrictions to the query, relative allows the user to query a period from some length of time in the past until now, and absolute allows the user to specify a start and stop date range</dd>
-				<dt>Spatial Search</dt><dd>Select from any, point-radius, and bounding box.  Any results in no spatial restrictions to the query, point-radius allows the user to specify a lat/lon and radius to search, and a bounding box allows the user to specify an eastern, western, southern and northern boundary to search within</dd>
-				<dt>Type Search</dt><dd>Select from any, or a specific type.  Any results in no type restrictions to the query, and specific types shows a list of known content types on the federation, and allows the user to select a specific type to search for</dd>
-				<dt>Sources</dt><dd>Select from none, all sources, or specific sources.  None results in querying only the local provider, all sources results in an enterprise search where all federations are queried, and specific sources allows the user to select which sources are queried</dd>
-				<dt>Results per Page</dt><dd>Select the number of results to be returned by a single query</dd> 
-				<dt>Submit</dt><dd>Submits the search, and refresh with the result</dd>
-				<dt>Clear</dt><dd>Removes all user entered data from the query form</dd>
+				<dt>Keyword Search</dt><dd>A text box allowing the user to enter a textual query.  This supports the use of (*) wildcards.  If blank, the query will contain no contextual component.</dd>
+				<dt>Temporal Query</dt><dd>Select from Any, Relative, or Absolute.  Any results in no temporal restrictions to the query, Relative allows the user to query a period from some length of time in the past until now, and Absolute allows the user to specify a start and stop date range.</dd>
+				<dt>Spatial Search</dt><dd>Select from Any, Point-Radius, and Bounding Box.  Any results in no spatial restrictions to the query, Point-Radius allows the user to specify a position (latitude and longitude) and radius to search, and a Bounding Box allows the user to specify an eastern, western, southern and northern boundary to search within.</dd>
+				<dt>Type Search</dt><dd>Select from Any, or a Specific Type.  Any results in no type restrictions to the query, and Specific Types shows a list of known content types on the federation, and allows the user to select a specific type to search for.</dd>
+				<dt>Sources</dt><dd>Select from none, all sources, or specific sources.  None results in querying only the local provider, all sources results in an enterprise search where all federations are queried, and specific sources allows the user to select which sources are queried.</dd>
+				<dt>Results per Page</dt><dd>Select the number of results to be returned by a single query.</dd> 
+				<dt>Search</dt><dd>Submits the search, and refresh with the result.</dd>
+				<dt>Clear</dt><dd>Removes all user entered data from the query form.</dd>
 			  </dl>
 			</section>
 			<section id="results">
 			  <div class="page-header">
-                <h2>Search Page Results Table</h2>
-              </div>
+				<h2>Search Page Results Table</h2>
+			  </div>
 			  <h4>The table of results shows the details of the results found, as well as links (if available) to download the metadata or product.</h4>
-       		  <dl class="dl-horizontal">
-				<dt>Result Count</dt><dd>Total Number of Results available for this query.  If There are more results than the number displayed per page (10) then a page navigation links will appear to the right</dd>
-				<dt>Pages</dt><dd>Provides page navigation, which generate queries for requesting additional pages of results</dd>
+			    <dl class="dl-horizontal">
+				<dt>Total Results</dt><dd>Total number of results available for this query.  If there are more results than the specified Results per Page, then page navigation links will appear to the right</dd>
+				<dt>Pages</dt><dd>Provides page navigation, which generate requests for additional pages of results.</dd>
 				<dt>Results List</dt><dd>This provides a preview and links of the results</dd>
-			  </dl>
+			    </dl>
 			  <h4>The following is a list of columns in in the results table</h4>
-			  <dl class="dl-horizontal">
+			    <dl class="dl-horizontal">
 				<dt>Title</dt><dd>Displays title of the metacard.  This will be a link* which can clicked to download the metacard</dd>
 				<dt>Source</dt><dd>Displays where the metadata came from, which could be the local provider or a federated source</dd>
-				<dt>Location</dt><dd>Displays the WKT Location of the metacard, if available</dd>
+				<dt>Location</dt><dd>Displays the location (in OGC Well Known Text format) of the metacard, if available</dd>
 				<dt>Time</dt><dd>Shows the Received (Created) and Effective times of the metacard, if available</dd>
-				<dt>Thumbnail</dt><dd>Shows the thumbnail* of the metacard, if available</dd>
+				<dt>Thumbnail</dt><dd>Shows a thumbnail image * of the metacard, if available</dd>
 				<dt>Download</dt><dd>A download link* to retrieve the product associated with the metacard, when applicable, if available</dd>
-			  </dl>
+			    </dl>
 	* An Action Provider must be enabled via the DDF Web console for this to be available.
 			</section>
 		
