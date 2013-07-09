@@ -61,6 +61,14 @@ public class SourceMetricsImpl implements SourceMetrics {
 	
     public static final String JMX_COLLECTOR_FACTORY_PID = "MetricsJmxCollector";
     
+    public static final String COUNTER_DATA_SOURCE_TYPE = "COUNTER";
+    
+    public static final String GAUGE_DATA_SOURCE_TYPE = "GAUGE";
+    
+    public static final String COUNT_MBEAN_ATTRIBUTE_NAME = "Count";
+    
+    public static final String MEAN_MBEAN_ATTRIBUTE_NAME = "Mean";
+    
     private static final String ALPHA_NUMERIC_REGEX = "[^a-zA-Z0-9]";
     
     private static final String RRD_FILENAME_EXTENSION = ".rrd";
@@ -280,11 +288,11 @@ public class SourceMetricsImpl implements SourceMetrics {
 		if (!metrics.containsKey(key)) {
 			if (type == MetricType.HISTOGRAM){ 
 				Histogram histogram = metricsRegistry.histogram(MetricRegistry.name(sourceId, mbeanName));
-				String pid = createMetricsCollector(sourceId, mbeanName);
+				String pid = createGaugeMetricsCollector(sourceId, mbeanName);
 				metrics.put(key, new SourceMetric(histogram, sourceId, pid, true));
 			} else if (type == MetricType.METER) {
 				Meter meter = metricsRegistry.meter(MetricRegistry.name(sourceId, mbeanName));
-				String pid = createMetricsCollector(sourceId, mbeanName);
+				String pid = createCounterMetricsCollector(sourceId, mbeanName);
 				metrics.put(key, new SourceMetric(meter, sourceId, pid));
 			} else {
 				LOGGER.debug("Metric " + key
@@ -297,17 +305,45 @@ public class SourceMetricsImpl implements SourceMetrics {
     }
     
     /**
-     * Creates the JMX Collector for an associated metric's JMX MBean.
+     * Creates the Counter JMX Collector for an associated metric's JMX MBean.
      * 
      * @param sourceId
      * @param collectorName
      * @return the PID of the JmxCollector Managed Service Factory created
      */
-    private String createMetricsCollector(String sourceId, String collectorName) {
+    private String createCounterMetricsCollector(String sourceId, String collectorName) {
+    	return createMetricsCollector(sourceId, collectorName, 
+    			COUNT_MBEAN_ATTRIBUTE_NAME, COUNTER_DATA_SOURCE_TYPE);
+    }
+    
+    /**
+     * Creates the Gauge JMX Collector for an associated metric's JMX MBean.
+     * 
+     * @param sourceId
+     * @param collectorName
+     * @return the PID of the JmxCollector Managed Service Factory created
+     */
+    private String createGaugeMetricsCollector(String sourceId, String collectorName) {
+    	return createMetricsCollector(sourceId, collectorName, 
+    			MEAN_MBEAN_ATTRIBUTE_NAME, GAUGE_DATA_SOURCE_TYPE);
+    }
+    
+    /**
+     * Creates the JMX Collector for an associated metric's JMX MBean.
+     * 
+     * @param sourceId
+     * @param collectorName
+     * @param mbeanAttributeName usually "Count" or "Mean"
+     * @param dataSourceType only "COUNTER" or "GAUGE" are supported
+     * @return the PID of the JmxCollector Managed Service Factory created
+     */
+	private String createMetricsCollector(String sourceId,
+			String collectorName, String mbeanAttributeName,
+			String dataSourceType) {
     	
 		LOGGER.trace(
-				"ENTERING: createMetricsCollector - sourceId = {},   collectorName = {}",
-				sourceId, collectorName);
+				"ENTERING: createMetricsCollector - sourceId = {},   collectorName = {},   mbeanAttributeName = {},   dataSourceType = {}",
+				sourceId, collectorName, mbeanAttributeName, dataSourceType);
 		
     	String pid = null;
     	
@@ -319,10 +355,10 @@ public class SourceMetricsImpl implements SourceMetrics {
 			Configuration config = configurationAdmin.createFactoryConfiguration(JMX_COLLECTOR_FACTORY_PID, null);
 			Dictionary<String,String> props = new Hashtable<String,String>();
 			props.put("mbeanName", MBEAN_PACKAGE_NAME + ":name=" + sourceId + "." + collectorName);
-			props.put("mbeanAttributeName", "Count");
+			props.put("mbeanAttributeName", mbeanAttributeName);
 			props.put("rrdPath", rrdPath);
 			props.put("rrdDataSourceName", "data");
-			props.put("rrdDataSourceType", "COUNTER");
+			props.put("rrdDataSourceType", dataSourceType);
 			config.update(props);
 			pid = config.getPid();
 			LOGGER.debug("JmxCollector pid = {} for sourceId = {}", pid, sourceId);
@@ -330,7 +366,7 @@ public class SourceMetricsImpl implements SourceMetrics {
 			LOGGER.warn("Unable to create " + collectorName + " JmxCollector for source " + sourceId, e);
 		}
     	
-    	LOGGER.trace("EXITING: createMetricsCollector");
+    	LOGGER.trace("EXITING: createMetricsCollector - sourceId = {}", sourceId);
     	
     	return pid;
     }
