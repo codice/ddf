@@ -43,12 +43,12 @@ import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.opengis.filter.Filter;
 
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.AttributeImpl;
-import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardCreationException;
 import ddf.catalog.data.Result;
@@ -60,7 +60,13 @@ import ddf.catalog.operation.DeleteRequestImpl;
 import ddf.catalog.operation.QueryImpl;
 import ddf.catalog.operation.QueryRequestImpl;
 import ddf.catalog.operation.QueryResponse;
+import ddf.catalog.operation.ResourceRequest;
+import ddf.catalog.operation.ResourceRequestById;
+import ddf.catalog.operation.ResourceResponse;
 import ddf.catalog.operation.UpdateRequestImpl;
+import ddf.catalog.resource.Resource;
+import ddf.catalog.resource.ResourceNotFoundException;
+import ddf.catalog.resource.ResourceNotSupportedException;
 import ddf.catalog.source.IngestException;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
@@ -76,7 +82,6 @@ import ddf.security.service.TokenRequestHandler;
 @Path("/")
 public class RESTEndpoint {
 
-	private static final String DEFAULT_METACARD_TRANSFORMER = "xml";
 	private static final Logger LOGGER = Logger.getLogger(RESTEndpoint.class);
     
 	private SecurityManager securityManager;
@@ -131,7 +136,6 @@ public class RESTEndpoint {
 			@QueryParam("transform") String transformerParam,
 			@Context UriInfo uriInfo, @Context HttpServletRequest httpRequest) {
 	
-		BinaryContent content;
 		Response response;
 		QueryResponse queryResponse;
 		Metacard card = null;
@@ -161,10 +165,6 @@ public class RESTEndpoint {
 
 			// default to xml if no transformer specified
 			try {
-				String transformer = DEFAULT_METACARD_TRANSFORMER;
-				if (transformerParam != null) {
-					transformer = transformerParam;
-				}
 				Filter filter = getFilterBuilder().attribute(Metacard.ID).is().equalTo().text(id);
 				
 				Collection<String> sources = null;
@@ -199,18 +199,49 @@ public class RESTEndpoint {
 					throw new ServerErrorException("Unable to retrieve requested metacard.", Status.NOT_FOUND);
 				}
 
-				LOGGER.debug("Calling transform.");
-				content = catalogFramework.transform(card, transformer, convertedMap);
+				LOGGER.debug("executing resource request with id '" + card.getId() + "'");
+				final ResourceRequest resourceRequest = new ResourceRequestById(card.getId(), convertedMap);
+
+				ResourceResponse resourceResponse = null;
+
+				String sourceName = card.getSourceId();
+
+				if (StringUtils.isBlank(sourceName)) {
+					sourceName = catalogFramework.getId();
+				}
+
+				LOGGER.error("Calling getResource with sourceName = " + sourceName);
+				try {
+					resourceResponse = catalogFramework.getResource(resourceRequest, sourceName);
+				} catch (IOException e) {
+					String exceptionMessage = "Unable to retrieve resource for the requested metacard with id: '" + id + "': " + e.getMessage();
+					LOGGER.warn(exceptionMessage, e);
+					throw new ServerErrorException(exceptionMessage, Status.INTERNAL_SERVER_ERROR);
+				} catch (ResourceNotFoundException e) {
+					String exceptionMessage = "Unable to retrieve resource for the requested metacard with id: '" + id + "': " + e.getMessage();
+					LOGGER.warn(exceptionMessage, e);
+					throw new ServerErrorException(exceptionMessage, Status.INTERNAL_SERVER_ERROR);
+				} catch (ResourceNotSupportedException e) {
+					String exceptionMessage = "Unable to retrieve resource for the requested metacard with id: '" + id + "': " + e.getMessage();
+					LOGGER.warn(exceptionMessage, e);
+					throw new ServerErrorException(exceptionMessage, Status.INTERNAL_SERVER_ERROR);
+				}
+
+				if (resourceResponse == null) {
+					String exceptionMessage = "Resource response is null: Unable to retrieve the product for the metacard with id: '" + id + "'.";
+					LOGGER.warn(exceptionMessage);
+					throw new ServerErrorException(exceptionMessage, Status.INTERNAL_SERVER_ERROR);
+				}
+
+				final Resource resource = resourceResponse.getResource();
 				
-				LOGGER.debug("Read and transform complete, preparing response.");
-				response = Response.ok(content.getInputStream(), content.getMimeTypeValue()).build();
+				LOGGER.debug("Read and getResource complete, preparing response.");
+				Response.ResponseBuilder responseBuilder = Response.ok(resource.getInputStream(), resource.getMimeTypeValue());
+				responseBuilder.header("Content-Disposition", "inline; filename=\"" + resource.getName() + "\"");
+				response = responseBuilder.build();
 			} catch (FederationException e) {
 				String exceptionMessage = "READ failed due to unexpected exception: " + e.getMessage();
 				LOGGER.warn(exceptionMessage, e);
-				throw new ServerErrorException(exceptionMessage, Status.INTERNAL_SERVER_ERROR);
-			} catch (CatalogTransformerException e) {
-				String exceptionMessage = "Unable to transform Metacard.  Try different transformer: " + e.getMessage();
-				LOGGER.warn(exceptionMessage);
 				throw new ServerErrorException(exceptionMessage, Status.INTERNAL_SERVER_ERROR);
 			} catch (SourceUnavailableException e) {
 				String exceptionMessage = "Cannot obtain query results because source is unavailable: "
