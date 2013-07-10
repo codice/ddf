@@ -42,9 +42,10 @@ import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
-import org.apache.log4j.Logger;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.BinaryContent;
@@ -59,6 +60,11 @@ import ddf.catalog.operation.CreateRequest;
 import ddf.catalog.operation.CreateResponseImpl;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.QueryResponse;
+import ddf.catalog.operation.ResourceRequest;
+import ddf.catalog.operation.ResourceResponse;
+import ddf.catalog.resource.Resource;
+import ddf.catalog.resource.ResourceNotFoundException;
+import ddf.catalog.resource.ResourceNotSupportedException;
 import ddf.catalog.source.IngestException;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
@@ -80,7 +86,7 @@ public class TestRestEndpoint {
 
 	private static final String ENDPOINT_ADDRESS = "http://localhost:8181/services/catalog";
 
-	private static final Logger LOGGER = Logger.getLogger(TestRestEndpoint.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(TestRestEndpoint.class);
 	
 	private static final String LOCAL_RETRIEVE_ADDRESS = "http://localhost:8181/services/catalog";
 	private static final String FED_RETRIEVE_ADDRESS = "http://localhost:8181/services/catalog/sources/test/abc123456def";
@@ -91,6 +97,9 @@ public class TestRestEndpoint {
 	private static final String GET_MIME_TYPE = "text/xml";
 	private static final String GET_TRANSFORM_TYPE = "xml";
 	private static final String GET_TYPE_OUTPUT = "{Content-Type=[text/xml]}";
+	private static final String GET_FILENAME = "example.xml";
+	private static final String GET_RESOURCE_TYPE_OUTPUT = "{Content-Type=[text/xml], Content-Disposition=[inline; filename=\"" +
+			GET_FILENAME + "\"]}";
 
 	@BeforeClass
 	public static void initialize() throws Exception {
@@ -207,9 +216,9 @@ public class TestRestEndpoint {
 		try {
 			when(transformer.transform(isA(InputStream.class))).thenThrow(CatalogTransformerException.class);
 		} catch (IOException e) {
-			LOGGER.debug(e);
+			LOGGER.debug(e.toString());
 		} catch (CatalogTransformerException e) {
-			LOGGER.debug(e);
+			LOGGER.debug(e.toString());
 		}
 
 		when(matchingService.findMatches(eq(InputTransformer.class), isA(MimeType.class))).thenReturn((List)Arrays.asList(transformer));
@@ -254,9 +263,9 @@ public class TestRestEndpoint {
 		try {
 			when(transformer.transform(isA(InputStream.class))).thenThrow(IOException.class);
 		} catch (IOException e) {
-			LOGGER.debug(e);
+			LOGGER.debug(e.toString());
 		} catch (CatalogTransformerException e) {
-			LOGGER.debug(e);
+			LOGGER.debug(e.toString());
 		}
 
 		when(matchingService.findMatches(eq(InputTransformer.class), isA(MimeType.class))).thenReturn((List)Arrays.asList(transformer));
@@ -300,15 +309,19 @@ public class TestRestEndpoint {
 	 * @throws URISyntaxException
 	 * @throws SourceUnavailableException
 	 * @throws IngestException
+	 * @throws ResourceNotSupportedException
+	 * @throws ResourceNotFoundException
+	 * @throws IOException
 	 */
 	@Test(expected = ServerErrorException.class)
 	public void testGetDocumentLocalNullQueryResponse() throws URISyntaxException,
 			IngestException, SourceUnavailableException,
 			UnsupportedQueryException, FederationException,
-			CatalogTransformerException, UnsupportedEncodingException {
+			CatalogTransformerException, IOException,
+			ResourceNotFoundException, ResourceNotSupportedException {
 		
 		CatalogFramework framework = givenCatalogFramework(SAMPLE_ID);
-		mockTestSetup(framework, true, true, false, false);
+		mockTestSetup(framework, true, TestType.QUERY_RESPONSE_TEST);
 	}
 
 	/**
@@ -320,16 +333,19 @@ public class TestRestEndpoint {
 	 * @throws UnsupportedQueryException
 	 * @throws FederationException
 	 * @throws CatalogTransformerException
-	 * @throws UnsupportedEncodingException
+	 * @throws ResourceNotSupportedException
+	 * @throws ResourceNotFoundException
+	 * @throws IOException
 	 */
 	@Test(expected = ServerErrorException.class)
 	public void testGetDocumentFedNullQueryResponse() throws URISyntaxException,
 			IngestException, SourceUnavailableException,
 			UnsupportedQueryException, FederationException,
-			CatalogTransformerException, UnsupportedEncodingException {
+			CatalogTransformerException, IOException,
+			ResourceNotFoundException, ResourceNotSupportedException {
 		
 		CatalogFramework framework = givenCatalogFramework(SAMPLE_ID);
-		mockTestSetup(framework, false, true, false, false);
+		mockTestSetup(framework, false, TestType.QUERY_RESPONSE_TEST);
 	}
 	
 	/**
@@ -341,16 +357,19 @@ public class TestRestEndpoint {
 	 * @throws UnsupportedQueryException
 	 * @throws FederationException
 	 * @throws CatalogTransformerException
-	 * @throws UnsupportedEncodingException
+	 * @throws ResourceNotSupportedException
+	 * @throws ResourceNotFoundException
+	 * @throws IOException
 	 */
 	@Test(expected = ServerErrorException.class)
 	public void testGetDocumentLocalNullMetacard() throws URISyntaxException,
 			IngestException, SourceUnavailableException,
 			UnsupportedQueryException, FederationException,
-			CatalogTransformerException, UnsupportedEncodingException {
+			CatalogTransformerException, IOException,
+			ResourceNotFoundException, ResourceNotSupportedException {
 		
 		CatalogFramework framework = givenCatalogFramework(SAMPLE_ID);
-		mockTestSetup(framework, true, false, true, false);
+		mockTestSetup(framework, true, TestType.METACARD_TEST);
 	}
 
 	/**
@@ -362,16 +381,19 @@ public class TestRestEndpoint {
 	 * @throws UnsupportedQueryException
 	 * @throws FederationException
 	 * @throws CatalogTransformerException
-	 * @throws UnsupportedEncodingException
+	 * @throws ResourceNotSupportedException
+	 * @throws ResourceNotFoundException
+	 * @throws IOException
 	 */
 	@Test(expected = ServerErrorException.class)
 	public void testGetDocumentFedNullMetacard() throws URISyntaxException,
 			IngestException, SourceUnavailableException,
 			UnsupportedQueryException, FederationException,
-			CatalogTransformerException, UnsupportedEncodingException {
+			CatalogTransformerException, IOException,
+			ResourceNotFoundException, ResourceNotSupportedException {
 		
 		CatalogFramework framework = givenCatalogFramework(SAMPLE_ID);
-		mockTestSetup(framework, false, false, true, false);
+		mockTestSetup(framework, false, TestType.METACARD_TEST);
 	}
 	
 	/**
@@ -383,16 +405,19 @@ public class TestRestEndpoint {
 	 * @throws UnsupportedQueryException
 	 * @throws FederationException
 	 * @throws CatalogTransformerException
-	 * @throws UnsupportedEncodingException
+	 * @throws ResourceNotSupportedException
+	 * @throws ResourceNotFoundException
+	 * @throws IOException
 	 */
 	@Test
 	public void testGetDocumentLocalSuccess() throws URISyntaxException,
 			IngestException, SourceUnavailableException,
 			UnsupportedQueryException, FederationException,
-			CatalogTransformerException, UnsupportedEncodingException {
+			CatalogTransformerException, IOException,
+			ResourceNotFoundException, ResourceNotSupportedException {
 		
 		CatalogFramework framework = givenCatalogFramework(SAMPLE_ID);
-		Response response = mockTestSetup(framework, true, false, false, true);
+		Response response = mockTestSetup(framework, true, TestType.SUCCESS_TEST);
 
 		String responseMessage = byteArrayConvert((ByteArrayInputStream) response.getEntity());
 		assertEquals(responseMessage, GET_STREAM);
@@ -409,21 +434,82 @@ public class TestRestEndpoint {
 	 * @throws UnsupportedQueryException
 	 * @throws FederationException
 	 * @throws CatalogTransformerException
-	 * @throws UnsupportedEncodingException
+	 * @throws ResourceNotSupportedException
+	 * @throws ResourceNotFoundException
+	 * @throws IOException
 	 */
 	@Test
 	public void testGetDocumentFedSuccess() throws URISyntaxException,
 			IngestException, SourceUnavailableException,
 			UnsupportedQueryException, FederationException,
-			CatalogTransformerException, UnsupportedEncodingException {
+			CatalogTransformerException, IOException,
+			ResourceNotFoundException, ResourceNotSupportedException {
 		
 		CatalogFramework framework = givenCatalogFramework(SAMPLE_ID);
-		Response response = mockTestSetup(framework, false, false, false, true);
+		Response response = mockTestSetup(framework, false, TestType.SUCCESS_TEST);
 
 		String responseMessage = byteArrayConvert((ByteArrayInputStream) response.getEntity());
 		assertEquals(responseMessage, GET_STREAM);
 		assertEquals(response.getStatus(), 200);
 		assertEquals(response.getMetadata().toString(), GET_TYPE_OUTPUT);
+	}
+
+	/**
+	 * Tests retrieving a local resource with a successful response
+	 * 
+	 * @throws URISyntaxException
+	 * @throws IngestException
+	 * @throws SourceUnavailableException
+	 * @throws UnsupportedQueryException
+	 * @throws FederationException
+	 * @throws CatalogTransformerException
+	 * @throws ResourceNotSupportedException
+	 * @throws ResourceNotFoundException
+	 * @throws IOException
+	 */
+	@Test
+	public void testGetDocumentResourceLocalSuccess() throws URISyntaxException,
+			IngestException, SourceUnavailableException,
+			UnsupportedQueryException, FederationException,
+			CatalogTransformerException, IOException,
+			ResourceNotFoundException, ResourceNotSupportedException {
+
+		CatalogFramework framework = givenCatalogFramework(SAMPLE_ID);
+		Response response = mockTestSetup(framework, true, TestType.RESOURCE_TEST);
+
+		String responseMessage = byteArrayConvert((ByteArrayInputStream) response.getEntity());
+		assertEquals(responseMessage, GET_STREAM);
+		assertEquals(response.getStatus(), 200);
+		assertEquals(response.getMetadata().toString(), GET_RESOURCE_TYPE_OUTPUT);
+	}
+
+	/**
+	 * Tests retrieving a federated resource with a successful response
+	 * 
+	 * @throws URISyntaxException
+	 * @throws IngestException
+	 * @throws SourceUnavailableException
+	 * @throws UnsupportedQueryException
+	 * @throws FederationException
+	 * @throws CatalogTransformerException
+	 * @throws ResourceNotSupportedException
+	 * @throws ResourceNotFoundException
+	 * @throws IOException
+	 */
+	@Test
+	public void testGetDocumentResourceFedSuccess() throws URISyntaxException,
+			IngestException, SourceUnavailableException,
+			UnsupportedQueryException, FederationException,
+			CatalogTransformerException, IOException,
+			ResourceNotFoundException, ResourceNotSupportedException {
+
+		CatalogFramework framework = givenCatalogFramework(SAMPLE_ID);
+		Response response = mockTestSetup(framework, false, TestType.RESOURCE_TEST);
+
+		String responseMessage = byteArrayConvert((ByteArrayInputStream) response.getEntity());
+		assertEquals(responseMessage, GET_STREAM);
+		assertEquals(response.getStatus(), 200);
+		assertEquals(response.getMetadata().toString(), GET_RESOURCE_TYPE_OUTPUT);
 	}
 
 	/**
@@ -463,6 +549,13 @@ public class TestRestEndpoint {
 		return uriInfo;
 	}
 
+	protected enum TestType {
+		QUERY_RESPONSE_TEST,
+		METACARD_TEST,
+		SUCCESS_TEST,
+		RESOURCE_TEST
+	};
+
 	/**
 	 * Creates the mock setup for the GET tests above. Parameters specify whether
 	 * the test will be for a local retrieve or a federated retrieve. Parameters 
@@ -477,52 +570,78 @@ public class TestRestEndpoint {
 	 * @throws SourceUnavailableException
 	 * @throws UnsupportedQueryException
 	 * @throws FederationException
-	 * @throws UnsupportedEncodingException
 	 * @throws CatalogTransformerException
 	 * @throws URISyntaxException
+	 * @throws ResourceNotSupportedException
+	 * @throws ResourceNotFoundException
+	 * @throws IOException
 	 */
-	protected Response mockTestSetup(CatalogFramework framework, boolean local,
-			boolean queryResponseTest, boolean metacardTest, boolean successTest)
+	protected Response mockTestSetup(CatalogFramework framework, boolean local, TestType testType)
 			throws SourceUnavailableException, UnsupportedQueryException,
-			FederationException, UnsupportedEncodingException,
-			CatalogTransformerException, URISyntaxException 
+			FederationException, CatalogTransformerException, URISyntaxException,
+			IOException, ResourceNotFoundException, ResourceNotSupportedException
 	{
+		String transformer = null;
 		QueryResponse queryResponse = mock(QueryResponse.class);
 		when(framework.query(isA(QueryRequest.class), isNull(FederationStrategy.class))).thenReturn(
 				queryResponse);
 
-		if(queryResponseTest)
-		{
-			List<Result> list = null;
+		List<Result> list = null;
+		MetacardImpl metacard = null;
+		Result result = mock(Result.class);
+		InputStream inputStream = null;
+
+		switch (testType) {
+		case QUERY_RESPONSE_TEST:
 			when(queryResponse.getResults()).thenReturn(list);
-		}
-		else if(metacardTest)
-		{
-			List<Result> list = new ArrayList<Result>();
-			Result result = mock(Result.class);
+			break;
+
+		case METACARD_TEST:
+			list = new ArrayList<Result>();
 			list.add(result);
 			when(queryResponse.getResults()).thenReturn(list);
 
-			MetacardImpl metacard = null;
 			when(result.getMetacard()).thenReturn(metacard);
-		}
-		else if(successTest)
-		{
-			List<Result> list = new ArrayList<Result>();
-			Result result = mock(Result.class);
+			break;
+
+		case SUCCESS_TEST:
+			list = new ArrayList<Result>();
 			list.add(result);
 			when(queryResponse.getResults()).thenReturn(list);
 
-			MetacardImpl metacard = new MetacardImpl();
+			metacard = new MetacardImpl();
 			when(result.getMetacard()).thenReturn(metacard);
 
 			BinaryContent binaryContent = mock(BinaryContent.class);
-			InputStream inputStream = new ByteArrayInputStream(GET_STREAM.getBytes(GET_OUTPUT_TYPE));
+			inputStream = new ByteArrayInputStream(GET_STREAM.getBytes(GET_OUTPUT_TYPE));
 			when(binaryContent.getInputStream()).thenReturn(inputStream);
 			when(binaryContent.getMimeTypeValue()).thenReturn(GET_MIME_TYPE);
 			when(framework.transform(isA(Metacard.class), eq(GET_TRANSFORM_TYPE), isA(Map.class)))
 					.thenReturn(binaryContent);
-		}	
+			break;
+
+		case RESOURCE_TEST:
+			list = new ArrayList<Result>();
+			list.add(result);
+			when(queryResponse.getResults()).thenReturn(list);
+
+			metacard = new MetacardImpl();
+			metacard.setSourceId(GET_SITENAME);
+			when(result.getMetacard()).thenReturn(metacard);
+
+			ResourceResponse resourceResponse = mock(ResourceResponse.class);
+			Resource resource = mock(Resource.class);
+			inputStream = new ByteArrayInputStream(GET_STREAM.getBytes(GET_OUTPUT_TYPE));
+			when(resource.getInputStream()).thenReturn(inputStream);
+			when(resource.getMimeTypeValue()).thenReturn(GET_MIME_TYPE);
+			when(resource.getName()).thenReturn(GET_FILENAME);
+			when(resourceResponse.getResource()).thenReturn(resource);
+			when(framework.getResource(isA(ResourceRequest.class), eq(GET_SITENAME)))
+					.thenReturn(resourceResponse);
+
+			transformer = "resource";
+			break;
+		}
 		
 		RESTEndpoint restEndpoint = new RESTEndpoint(framework);
 		FilterBuilder filterBuilder = new GeotoolsFilterBuilder();
@@ -533,12 +652,12 @@ public class TestRestEndpoint {
 		if(local)
 		{
 			uriInfo = createSpecificUriInfo(LOCAL_RETRIEVE_ADDRESS);
-			response = restEndpoint.getDocument(GET_ID, null, uriInfo, null);
+			response = restEndpoint.getDocument(GET_ID, transformer, uriInfo, null);
 		}
 		else
 		{
 			uriInfo = createSpecificUriInfo(FED_RETRIEVE_ADDRESS);
-			response = restEndpoint.getDocument(GET_SITENAME, GET_ID, null, uriInfo, null);
+			response = restEndpoint.getDocument(GET_SITENAME, GET_ID, transformer, uriInfo, null);
 		}
 
 		return response;
@@ -601,9 +720,9 @@ public class TestRestEndpoint {
 			when(inputTransformer.transform(isA(InputStream.class))).thenReturn(generatedMetacard);
 			when(inputTransformer.transform(isA(InputStream.class), isA(String.class))).thenReturn(generatedMetacard);
 		} catch (IOException e) {
-			LOGGER.debug(e);
+			LOGGER.debug(e.toString());
 		} catch (CatalogTransformerException e) {
-			LOGGER.debug(e);
+			LOGGER.debug(e.toString());
 		}
 		return inputTransformer;
 	}
