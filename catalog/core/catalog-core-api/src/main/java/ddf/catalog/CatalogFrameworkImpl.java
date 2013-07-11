@@ -569,7 +569,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements DdfConfigur
                         isAvailable = poller.isAvailable(source);
                     } else {
                         // if the poller is not set, get availability directly
-                        // form the source
+                        // from the source
                         isAvailable = source.isAvailable();
                     }
                     // only get the ContentTypes and Version if the source is
