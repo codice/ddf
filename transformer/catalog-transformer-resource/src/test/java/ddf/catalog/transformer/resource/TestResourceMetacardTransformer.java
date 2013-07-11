@@ -271,6 +271,7 @@ public class TestResourceMetacardTransformer {
    private Resource getResource( MimeType mimeType, URI uri) throws Exception {
       Resource resource = mock(Resource.class);
       when( resource.getMimeType() ).thenReturn(mimeType);
+      when( resource.getMimeTypeValue() ).thenReturn((mimeType == null) ? null : mimeType.getBaseType());
       when( resource.getInputStream() ).thenReturn( uri.toURL().openConnection().getInputStream() );
       return resource;
    }

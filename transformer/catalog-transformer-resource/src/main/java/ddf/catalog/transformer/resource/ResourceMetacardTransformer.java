@@ -12,7 +12,6 @@
 package ddf.catalog.transformer.resource;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.Serializable;
 import java.util.Map;
 
@@ -23,12 +22,12 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import ddf.catalog.CatalogFramework;
-import ddf.catalog.data.BinaryContent;
-import ddf.catalog.data.BinaryContentImpl;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.operation.ResourceRequest;
 import ddf.catalog.operation.ResourceRequestById;
 import ddf.catalog.operation.ResourceResponse;
+import ddf.catalog.resource.Resource;
+import ddf.catalog.resource.ResourceImpl;
 import ddf.catalog.resource.ResourceNotFoundException;
 import ddf.catalog.resource.ResourceNotSupportedException;
 import ddf.catalog.transform.CatalogTransformerException;
@@ -64,7 +63,7 @@ public class ResourceMetacardTransformer implements MetacardTransformer {
    }
 
    @Override
-   public BinaryContent transform(Metacard metacard,
+   public Resource transform(Metacard metacard,
          Map<String, Serializable> arguments)
          throws CatalogTransformerException {
 
@@ -75,8 +74,6 @@ public class ResourceMetacardTransformer implements MetacardTransformer {
       }
       
       String id = metacard.getId();
-      
-      BinaryContent transformedContent = null;
 
       if (LOGGER.isDebugEnabled()) {
          LOGGER.debug("executing resource request with id '" + id + "'");
@@ -110,12 +107,15 @@ public class ResourceMetacardTransformer implements MetacardTransformer {
                "Resource response is null: Unable to retrieve the product for the metacard with id: '" + id + "'.");
       }
 
-      final InputStream inputStream = resourceResponse.getResource().getInputStream();
-      MimeType mimeType = resourceResponse.getResource().getMimeType();
+      Resource transformedContent = resourceResponse.getResource();
+      MimeType mimeType = transformedContent.getMimeType();
 
       if (mimeType == null) {
          try {
             mimeType = new MimeType(DEFAULT_MIME_TYPE_STR);
+            // There is no method to set the MIME type, so in order to set it to our default one, we need to create a new object.
+            transformedContent = new ResourceImpl(transformedContent.getInputStream(),
+                    mimeType, transformedContent.getName());
          } catch (MimeTypeParseException e) {
             throw new CatalogTransformerException( "Could not create default mime type upon null mimeType, for default mime type '" + DEFAULT_MIME_TYPE_STR + "'.", e);
          }
@@ -125,7 +125,7 @@ public class ResourceMetacardTransformer implements MetacardTransformer {
                    " for product of metacard with id: '" + id + "'." +
                    "\nGetting associated resource from input stream. \n");
       }
-      transformedContent = new BinaryContentImpl(inputStream, mimeType);
+
       if ( LOGGER.isTraceEnabled() ) {
          LOGGER.trace("Exiting resource transform for metacard id: '"
             + id + "'");
