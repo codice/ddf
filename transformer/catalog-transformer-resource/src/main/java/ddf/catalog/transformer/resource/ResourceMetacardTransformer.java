@@ -22,6 +22,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import ddf.catalog.CatalogFramework;
+import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.operation.ResourceRequest;
 import ddf.catalog.operation.ResourceRequestById;
@@ -63,7 +64,7 @@ public class ResourceMetacardTransformer implements MetacardTransformer {
    }
 
    @Override
-   public Resource transform(Metacard metacard,
+   public BinaryContent transform(Metacard metacard,
          Map<String, Serializable> arguments)
          throws CatalogTransformerException {
 
