@@ -11,6 +11,45 @@
  **/
 package ddf.catalog;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasEntry;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyMap;
+import static org.mockito.Matchers.isA;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.io.Serializable;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.AbstractMap.SimpleEntry;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
+import org.junit.Ignore;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.MethodRule;
+import org.junit.rules.TestWatchman;
+import org.junit.runners.model.FrameworkMethod;
+import org.mockito.ArgumentCaptor;
+
 import ddf.catalog.data.ContentType;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardImpl;
@@ -56,42 +95,6 @@ import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.util.SourcePoller;
 import ddf.catalog.util.SourcePollerRunner;
-import org.apache.log4j.Logger;
-import org.junit.Ignore;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.MethodRule;
-import org.junit.rules.TestWatchman;
-import org.junit.runners.model.FrameworkMethod;
-import org.mockito.ArgumentCaptor;
-
-import java.io.Serializable;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.AbstractMap.SimpleEntry;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasEntry;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyMap;
-import static org.mockito.Matchers.isA;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 public class CatalogFrameworkImplTest {
 	private static final Logger LOGGER = Logger
@@ -619,6 +622,48 @@ public class CatalogFrameworkImplTest {
 		// site info is included in the SourceDescriptos list.
 		assertEquals(federatedSources.size() + 1, sourceDescriptors.size());
 	}
+
+    @Test
+    public void testGetUnavailableFederatedSources() {
+        List<FederatedSource> federatedSources = createDefaultFederatedSourceList(false);
+
+        // Mock register the federated sources in the container
+        SourcePollerRunner runner = new SourcePollerRunner();
+        SourcePoller poller = new SourcePoller(runner);
+        for (FederatedSource source : federatedSources) {
+            runner.bind(source);
+        }
+
+        CatalogFrameworkImpl framework = new CatalogFrameworkImpl(null, (CatalogProvider) null,
+                new ArrayList<PreIngestPlugin>(), new ArrayList<PostIngestPlugin>(),
+                new ArrayList<PreQueryPlugin>(), new ArrayList<PostQueryPlugin>(),
+                new ArrayList<PreResourcePlugin>(), new ArrayList<PostResourcePlugin>(),
+                new ArrayList<ConnectedSource>(), federatedSources,
+                new ArrayList<ResourceReader>(), null, null, poller);
+
+        SourceInfoRequest request = new SourceInfoRequestEnterprise(true);
+        SourceInfoResponse response = null;
+        try {
+            response = framework.getSourceInfo(request);
+        } catch (SourceUnavailableException e) {
+            fail();
+        }
+        Set<SourceDescriptor> sourceDescriptors = response.getSourceInfo();
+        for (SourceDescriptor descriptor : sourceDescriptors) {
+            LOGGER.debug("Descriptor id: " + descriptor.getSourceId());
+            if (StringUtils.isNotBlank(descriptor.getId())) {
+                assertFalse(descriptor.isAvailable());
+                // No contentTypes should be listed if the source is unavailable
+                assertTrue(descriptor.getContentTypes().isEmpty());
+            }
+        }
+
+        // The "+1" is to account for the CatalogFramework source descriptor.
+        // Even if no local catalog provider is configured, the catalog
+        // framework's
+        // site info is included in the SourceDescriptos list.
+        assertEquals(federatedSources.size() + 1, sourceDescriptors.size());
+    }
 
 	@Test
 	public void testGetFederatedSourcesDuplicates() {
