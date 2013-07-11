@@ -25,7 +25,6 @@ import static org.mockito.Mockito.*;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -48,7 +47,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ddf.catalog.CatalogFramework;
-import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardImpl;
 import ddf.catalog.data.Result;
@@ -60,8 +58,6 @@ import ddf.catalog.operation.CreateRequest;
 import ddf.catalog.operation.CreateResponseImpl;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.QueryResponse;
-import ddf.catalog.operation.ResourceRequest;
-import ddf.catalog.operation.ResourceResponse;
 import ddf.catalog.resource.Resource;
 import ddf.catalog.resource.ResourceNotFoundException;
 import ddf.catalog.resource.ResourceNotSupportedException;
@@ -95,7 +91,6 @@ public class TestRestEndpoint {
 	private static final String GET_STREAM = "Test string for inputstream.";
 	private static final String GET_OUTPUT_TYPE = "UTF-8";
 	private static final String GET_MIME_TYPE = "text/xml";
-	private static final String GET_TRANSFORM_TYPE = "xml";
 	private static final String GET_TYPE_OUTPUT = "{Content-Type=[text/xml]}";
 	private static final String GET_FILENAME = "example.xml";
 	private static final String GET_RESOURCE_TYPE_OUTPUT = "{Content-Type=[text/xml], Content-Disposition=[inline; filename=\"" +
@@ -604,23 +599,10 @@ public class TestRestEndpoint {
 			when(result.getMetacard()).thenReturn(metacard);
 			break;
 
-		case SUCCESS_TEST:
-			list = new ArrayList<Result>();
-			list.add(result);
-			when(queryResponse.getResults()).thenReturn(list);
-
-			metacard = new MetacardImpl();
-			when(result.getMetacard()).thenReturn(metacard);
-
-			BinaryContent binaryContent = mock(BinaryContent.class);
-			inputStream = new ByteArrayInputStream(GET_STREAM.getBytes(GET_OUTPUT_TYPE));
-			when(binaryContent.getInputStream()).thenReturn(inputStream);
-			when(binaryContent.getMimeTypeValue()).thenReturn(GET_MIME_TYPE);
-			when(framework.transform(isA(Metacard.class), eq(GET_TRANSFORM_TYPE), isA(Map.class)))
-					.thenReturn(binaryContent);
-			break;
-
 		case RESOURCE_TEST:
+			transformer = "resource";
+			/* FALLTHRU */
+		case SUCCESS_TEST:
 			list = new ArrayList<Result>();
 			list.add(result);
 			when(queryResponse.getResults()).thenReturn(list);
@@ -629,17 +611,13 @@ public class TestRestEndpoint {
 			metacard.setSourceId(GET_SITENAME);
 			when(result.getMetacard()).thenReturn(metacard);
 
-			ResourceResponse resourceResponse = mock(ResourceResponse.class);
 			Resource resource = mock(Resource.class);
 			inputStream = new ByteArrayInputStream(GET_STREAM.getBytes(GET_OUTPUT_TYPE));
 			when(resource.getInputStream()).thenReturn(inputStream);
 			when(resource.getMimeTypeValue()).thenReturn(GET_MIME_TYPE);
 			when(resource.getName()).thenReturn(GET_FILENAME);
-			when(resourceResponse.getResource()).thenReturn(resource);
-			when(framework.getResource(isA(ResourceRequest.class), eq(GET_SITENAME)))
-					.thenReturn(resourceResponse);
-
-			transformer = "resource";
+			when(framework.transform(isA(Metacard.class), anyString(), isA(Map.class)))
+					.thenReturn(resource);
 			break;
 		}
 		

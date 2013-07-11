@@ -43,7 +43,6 @@ import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
 import org.opengis.filter.Filter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,13 +61,8 @@ import ddf.catalog.operation.DeleteRequestImpl;
 import ddf.catalog.operation.QueryImpl;
 import ddf.catalog.operation.QueryRequestImpl;
 import ddf.catalog.operation.QueryResponse;
-import ddf.catalog.operation.ResourceRequest;
-import ddf.catalog.operation.ResourceRequestById;
-import ddf.catalog.operation.ResourceResponse;
 import ddf.catalog.operation.UpdateRequestImpl;
 import ddf.catalog.resource.Resource;
-import ddf.catalog.resource.ResourceNotFoundException;
-import ddf.catalog.resource.ResourceNotSupportedException;
 import ddf.catalog.source.IngestException;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
@@ -206,55 +200,21 @@ public class RESTEndpoint {
 					throw new ServerErrorException("Unable to retrieve requested metacard.", Status.NOT_FOUND);
 				}
 
-				// If we requested a resource, we can't use a transformer, because we need the original filename.
-				if ("resource".equals(transformer)) {
-					LOGGER.debug("executing resource request with id '" + card.getId() + "'");
-					final ResourceRequest resourceRequest = new ResourceRequestById(card.getId(), convertedMap);
+				LOGGER.debug("Calling transform.");
+				BinaryContent content = catalogFramework.transform(card, transformer, convertedMap);
 
-					ResourceResponse resourceResponse = null;
+				LOGGER.debug("Read and transform complete, preparing response.");
+				Response.ResponseBuilder responseBuilder = Response.ok(content.getInputStream(), content.getMimeTypeValue());
 
-					String sourceName = card.getSourceId();
-
-					if (StringUtils.isBlank(sourceName)) {
-						sourceName = catalogFramework.getId();
+				// If we requested a resource (and we actually got one), we need to extract the filename.
+				if ("resource".equals(transformer) && content instanceof Resource) {
+					String name = ((Resource)content).getName();
+					if (name != null) {
+						responseBuilder.header("Content-Disposition", "inline; filename=\"" + name + "\"");
 					}
-
-					try {
-						resourceResponse = catalogFramework.getResource(resourceRequest, sourceName);
-					} catch (IOException e) {
-						String exceptionMessage = "Unable to retrieve resource for the requested metacard with id: '" + id + "': " + e.getMessage();
-						LOGGER.warn(exceptionMessage, e);
-						throw new ServerErrorException(exceptionMessage, Status.INTERNAL_SERVER_ERROR);
-					} catch (ResourceNotFoundException e) {
-						String exceptionMessage = "Unable to retrieve resource for the requested metacard with id: '" + id + "': " + e.getMessage();
-						LOGGER.warn(exceptionMessage, e);
-						throw new ServerErrorException(exceptionMessage, Status.INTERNAL_SERVER_ERROR);
-					} catch (ResourceNotSupportedException e) {
-						String exceptionMessage = "Unable to retrieve resource for the requested metacard with id: '" + id + "': " + e.getMessage();
-						LOGGER.warn(exceptionMessage, e);
-						throw new ServerErrorException(exceptionMessage, Status.INTERNAL_SERVER_ERROR);
-					}
-
-					if (resourceResponse == null) {
-						String exceptionMessage = "Resource response is null: Unable to retrieve the product for the metacard with id: '" + id + "'.";
-						LOGGER.warn(exceptionMessage);
-						throw new ServerErrorException(exceptionMessage, Status.INTERNAL_SERVER_ERROR);
-					}
-
-					final Resource resource = resourceResponse.getResource();
-				
-					LOGGER.debug("Read and getResource complete, preparing response.");
-					Response.ResponseBuilder responseBuilder = Response.ok(resource.getInputStream(), resource.getMimeTypeValue());
-					responseBuilder.header("Content-Disposition", "inline; filename=\"" + resource.getName() + "\"");
-					response = responseBuilder.build();
-				} else {
-					// Here we can use a transformer, since we don't care about the file name.
-					LOGGER.debug("Calling transform.");
-					BinaryContent content = catalogFramework.transform(card, transformer, convertedMap);
-
-					LOGGER.debug("Read and transform complete, preparing response.");
-					response = Response.ok(content.getInputStream(), content.getMimeTypeValue()).build();
 				}
+
+				response = responseBuilder.build();
 			} catch (FederationException e) {
 				String exceptionMessage = "READ failed due to unexpected exception: " + e.getMessage();
 				LOGGER.warn(exceptionMessage, e);
