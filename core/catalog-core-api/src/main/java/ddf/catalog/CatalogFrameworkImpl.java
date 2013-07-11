@@ -564,7 +564,6 @@ public class CatalogFrameworkImpl extends DescribableImpl implements DdfConfigur
                     logger.debug("adding sourceId: " + sourceId);
                     boolean isAvailable = false;
                     // use the poller to cache the availability
-                    // TODO Make a property
                     if (poller != null) {
                         isAvailable = poller.isAvailable(source);
                     } else {
