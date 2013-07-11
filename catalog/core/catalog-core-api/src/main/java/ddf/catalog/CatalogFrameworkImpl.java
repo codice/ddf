@@ -561,28 +561,35 @@ public class CatalogFrameworkImpl extends DescribableImpl implements DdfConfigur
 			for (FederatedSource source : sources) {
 				if (source != null) {
 				    String sourceId = source.getId();
-				    logger.debug("adding sourceId: " + sourceId);	    
-					sourceDescriptor = new SourceDescriptorImpl(
-							source.getId(), source.getContentTypes());
-					sourceDescriptor.setVersion(source.getVersion());
-					
-					//use the poller to cache the availability
-					//TODO Make a property 
-					if(poller != null)
-					{
-					  sourceDescriptor.setAvailable(poller.isAvailable(source));
-					}  else {
-						//if the poller is not set, get availability directly form the source
-						sourceDescriptor.setAvailable(source.isAvailable());
-					}
-					sourceDescriptors.add(sourceDescriptor);
-				}
-			}
-		} 
-		if(addCatalogProviderDescriptor)
-		{
-			addCatalogSourceDescriptor(sourceDescriptors);
-		}
+                    logger.debug("adding sourceId: " + sourceId);
+                    boolean isAvailable = false;
+                    // use the poller to cache the availability
+                    if (poller != null) {
+                        isAvailable = poller.isAvailable(source);
+                    } else {
+                        // if the poller is not set, get availability directly
+                        // from the source
+                        isAvailable = source.isAvailable();
+                    }
+                    // only get the ContentTypes and Version if the source is
+                    // available
+                    if (isAvailable) {
+                        sourceDescriptor = new SourceDescriptorImpl(source.getId(),
+                                source.getContentTypes());
+                        sourceDescriptor.setVersion(source.getVersion());
+                    } else {
+                        // If the source is not available only set the ID
+                        sourceDescriptor = new SourceDescriptorImpl(sourceId,
+                                Collections.<ContentType> emptySet());
+                    }
+                    sourceDescriptor.setAvailable(isAvailable);
+                    sourceDescriptors.add(sourceDescriptor);
+                }
+            }
+        }
+        if (addCatalogProviderDescriptor) {
+            addCatalogSourceDescriptor(sourceDescriptors);
+        }
 		
 		return sourceDescriptors;
 		
