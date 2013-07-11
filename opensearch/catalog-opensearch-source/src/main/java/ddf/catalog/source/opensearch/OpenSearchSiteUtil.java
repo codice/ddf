@@ -134,6 +134,7 @@ public final class OpenSearchSiteUtil
         String maxPerPage = null;
         String routeTo = "";
         String timeout = null;
+        String start = "1";
         String dn = null;
         String filterStr = "";
         String sortStr = null;
@@ -151,6 +152,8 @@ public final class OpenSearchSiteUtil
                 maxTotalSize = String.valueOf(DEFAULT_TOTAL_MAX);
             }
 
+            start = Integer.toString(query.getStartIndex());
+            
             timeout = Long.toString(query.getTimeoutMillis());
 
             sortStr = translateToOpenSearchSort(query.getSortBy());
@@ -167,6 +170,7 @@ public final class OpenSearchSiteUtil
                 }
             }
         }
+        checkAndReplace(url, start, START_INDEX);
         checkAndReplace(url, maxPerPage, COUNT);
         checkAndReplace(url, maxTotalSize, MAX_RESULTS);
         checkAndReplace(url, routeTo, SRC);
