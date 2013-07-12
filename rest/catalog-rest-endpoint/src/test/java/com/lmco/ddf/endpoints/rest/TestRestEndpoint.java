@@ -91,9 +91,8 @@ public class TestRestEndpoint {
 	private static final String GET_STREAM = "Test string for inputstream.";
 	private static final String GET_OUTPUT_TYPE = "UTF-8";
 	private static final String GET_MIME_TYPE = "text/xml";
-	private static final String GET_TYPE_OUTPUT = "{Content-Type=[text/xml]}";
 	private static final String GET_FILENAME = "example.xml";
-	private static final String GET_RESOURCE_TYPE_OUTPUT = "{Content-Type=[text/xml], Content-Disposition=[inline; filename=\"" +
+	private static final String GET_TYPE_OUTPUT = "{Content-Type=[text/xml], Content-Disposition=[inline; filename=\"" +
 			GET_FILENAME + "\"]}";
 
 	@BeforeClass
@@ -475,7 +474,7 @@ public class TestRestEndpoint {
 		String responseMessage = byteArrayConvert((ByteArrayInputStream) response.getEntity());
 		assertEquals(responseMessage, GET_STREAM);
 		assertEquals(response.getStatus(), 200);
-		assertEquals(response.getMetadata().toString(), GET_RESOURCE_TYPE_OUTPUT);
+		assertEquals(response.getMetadata().toString(), GET_TYPE_OUTPUT);
 	}
 
 	/**
@@ -504,7 +503,7 @@ public class TestRestEndpoint {
 		String responseMessage = byteArrayConvert((ByteArrayInputStream) response.getEntity());
 		assertEquals(responseMessage, GET_STREAM);
 		assertEquals(response.getStatus(), 200);
-		assertEquals(response.getMetadata().toString(), GET_RESOURCE_TYPE_OUTPUT);
+		assertEquals(response.getMetadata().toString(), GET_TYPE_OUTPUT);
 	}
 
 	/**
