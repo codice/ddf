@@ -108,6 +108,9 @@ if(urlVals.param('radius')) {
 }
 
 var src = urlVals.param('src');
+if(!src && src !=="") {
+	src = "local";
+}
 $('input[name=src]').val(src);
 if(!src) {
 	$('button[name=enterpriseFederationButton]').click();
