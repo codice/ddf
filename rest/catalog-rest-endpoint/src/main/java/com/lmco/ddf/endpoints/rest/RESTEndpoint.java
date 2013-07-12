@@ -206,8 +206,8 @@ public class RESTEndpoint {
 				LOGGER.debug("Read and transform complete, preparing response.");
 				Response.ResponseBuilder responseBuilder = Response.ok(content.getInputStream(), content.getMimeTypeValue());
 
-				// If we requested a resource (and we actually got one), we need to extract the filename.
-				if ("resource".equals(transformer) && content instanceof Resource) {
+				// If we got a resource, we can extract the filename.
+				if (content instanceof Resource) {
 					String name = ((Resource)content).getName();
 					if (name != null) {
 						responseBuilder.header("Content-Disposition", "inline; filename=\"" + name + "\"");
