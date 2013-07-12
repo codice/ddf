@@ -119,7 +119,7 @@ public class OpenSearchEndpoint implements DdfConfigurationWatcher {
 
     private static final String DEFAULT_FORMAT = "atom";
 
-    private static final long DEFAULT_TIMEOUT = 30000;
+    private static final long DEFAULT_TIMEOUT = 300000;
 
     private static final int DEFAULT_COUNT = 10;
 
