@@ -14,6 +14,8 @@ package ddf.util;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang.StringUtils;
+
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.io.ParseException;
 import com.vividsolutions.jts.io.WKTReader;
@@ -35,70 +37,72 @@ import com.vividsolutions.jts.io.WKTReader;
  */
 public class WktStandard {
 
-	private static final GeometryFactory GEOMETRY_FACTORY = new GeometryFactory();
-	private static final Pattern WKT_MULTIPOINT_PATTERN = Pattern
-			.compile(
-					"MULTIPOINT\\s*\\(((\\s*\\(\\s*\\-?\\d+(\\.\\d*)?\\s+\\-?\\d+(\\.\\d*)?\\s*\\)\\s*,?\\s*)+)\\)",
-					Pattern.CASE_INSENSITIVE);
-	
-	/**
-	 * Hiding class constructor since this is a utility class
-	 */
-	private WktStandard() {
-	    
-	}
+    private static final GeometryFactory GEOMETRY_FACTORY = new GeometryFactory();
 
-	/**
-	 * Normalize the given WKT to conform to the WKT grammar.
-	 * 
-	 * 
-	 * @param wkt
-	 *            WKT to normalize
-	 * @return normalized WKT
-	 */
-	public static String normalize(String wkt) {
-		if (wkt == null) {
-			return wkt;
-		}
-		
-		WKTReader wktReader = new WKTReader(GEOMETRY_FACTORY);
-		try {
-			// using JTS to normalize WKT into the correct format
-			return wktReader.read(wkt).toText();
-		} catch (ParseException e) {
-			throw new IllegalArgumentException("Cannot parse wkt.", e);
-		}
-	}
+    private static final Pattern WKT_MULTIPOINT_PATTERN = Pattern
+            .compile(
+                    "MULTIPOINT\\s*\\(((\\s*\\(\\s*\\-?\\d+(\\.\\d*)?\\s+\\-?\\d+(\\.\\d*)?\\s*\\)\\s*,?\\s*)+)\\)",
+                    Pattern.CASE_INSENSITIVE);
 
-	/**
-	 * Denormalize the given WKT to support backwards compatibility.
-	 * 
-	 * @param wkt
-	 *            wkt to denormalize
-	 * @return denormalized WKT
-	 */
-	public static String denormalize(String wkt) {
-		if (wkt == null) {
-			return wkt;
-		}
-		
-		Matcher matcher = WKT_MULTIPOINT_PATTERN.matcher(wkt);
-		if (matcher.find()) {
-			matcher.reset();
-			StringBuffer resultWkt = new StringBuffer(wkt.length());
-			while (matcher.find()) {
-				String currentMultiPoint = matcher.group(0);
-				String currentMultiPointText = matcher.group(1);
+    /**
+     * Hiding class constructor since this is a utility class
+     */
+    private WktStandard() {
 
-				matcher.appendReplacement(resultWkt, currentMultiPoint.replace(
-						currentMultiPointText,
-						currentMultiPointText.replaceAll("[\\(\\)]", "")));
-			}
-			matcher.appendTail(resultWkt);
+    }
 
-			return resultWkt.toString();
-		} else {
-			return wkt;
-		}
-	}
+    /**
+     * Normalize the given WKT to conform to the WKT grammar.
+     * 
+     * 
+     * @param wkt
+     *            WKT to normalize
+     * @return normalized WKT
+     */
+    public static String normalize(String wkt) {
+        if (StringUtils.isBlank(wkt)) {
+            return wkt;
+        }
+
+        WKTReader wktReader = new WKTReader(GEOMETRY_FACTORY);
+        try {
+            // using JTS to normalize WKT into the correct format
+            return wktReader.read(wkt).toText();
+        } catch (ParseException e) {
+            throw new IllegalArgumentException("Cannot parse wkt.", e);
+        }
+    }
+
+    /**
+     * Denormalize the given WKT to support backwards compatibility.
+     * 
+     * @param wkt
+     *            wkt to denormalize
+     * @return denormalized WKT
+     */
+    public static String denormalize(String wkt) {
+        if (wkt == null) {
+            return wkt;
+        }
+
+        Matcher matcher = WKT_MULTIPOINT_PATTERN.matcher(wkt);
+        if (matcher.find()) {
+            matcher.reset();
+            StringBuffer resultWkt = new StringBuffer(wkt.length());
+            while (matcher.find()) {
+                String currentMultiPoint = matcher.group(0);
+                String currentMultiPointText = matcher.group(1);
+
+                matcher.appendReplacement(
+                        resultWkt,
+                        currentMultiPoint.replace(currentMultiPointText,
+                                currentMultiPointText.replaceAll("[\\(\\)]", "")));
+            }
+            matcher.appendTail(resultWkt);
+
+            return resultWkt.toString();
+        } else {
+            return wkt;
+        }
+    }
 }
