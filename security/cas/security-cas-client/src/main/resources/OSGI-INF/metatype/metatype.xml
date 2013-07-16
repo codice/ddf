@@ -17,17 +17,17 @@
 	    
 	    <AD name="Server Name:" id="serverName" required="true" type="String"
 	      default="https://server:8993" 
-	      description="CAS client server name.">
+	      description="URL of the server that is calling CAS.">
 	    </AD>
+       
+        <AD name="CAS Server URL:" id="casServerUrl" required="true" type="String"
+          default="https://localhost:8443/cas" 
+          description="URL to the CAS server (generally ends in /cas)">
+        </AD>
 	    
-	    <AD name="CAS Server Login URL:" id="casServerLoginUrl" required="true" type="String"
-	      default="https://localhost:8443/cas/login" 
-	      description="Login URL of the CAS server.">
-	    </AD>
-	    
-	    <AD name="CAS Server URL Prefix:" id="casServerUrlPrefix" required="true" type="String"
-	      default="http://localhost:8080/cas" 
-	      description="Used when constructing validation URL.">
+	    <AD name="CAS Server Login URL:" id="casServerLoginSuffix" required="true" type="String"
+	      default="/login" 
+	      description="Suffix to the login page of CAS, appended to the server URL.">
 	    </AD>
 	    
 	    <AD name="Proxy Callback URL:" id="proxyCallbackUrl" required="true" type="String"

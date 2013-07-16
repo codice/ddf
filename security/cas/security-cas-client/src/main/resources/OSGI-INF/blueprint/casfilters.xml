@@ -19,8 +19,8 @@
     <cm:property-placeholder persistent-id="ddf.security.cas" placeholder-prefix="$cas{" update-strategy="reload">
     	<cm:default-properties>
     		<cm:property name="serverName" value="https://server:8993"/>
-    		<cm:property name="casServerLoginUrl" value="https://localhost:8443/cas/login"/>
-			<cm:property name="casServerUrlPrefix" value="http://localhost:8080/cas"/>
+    		<cm:property name="casServerLoginSuffix" value="/login"/>
+			<cm:property name="casServerUrl" value="https://localhost:8443/cas"/>
     		<cm:property name="proxyCallbackUrl" value="https://server:8993/sso"/>
     		<cm:property name="proxyReceptorUrl" value="/sso"/>
     	</cm:default-properties>
@@ -31,7 +31,7 @@
 	<bean id="casAuthenticationFilter"
 		class="org.jasig.cas.client.authentication.AuthenticationFilter">
   		<property name="serverName" value="$cas{serverName}" />		
-	    <property name="casServerLoginUrl" value="$cas{casServerLoginUrl}" />
+	    <property name="casServerLoginUrl" value="$cas{casServerUrl}$cas{casServerLoginSuffix}" />
 		<property name="renew" value="false" />
 		<property name="gateway" value="false" />
 		<property name="ignoreInitConfiguration" value="true" />
@@ -49,7 +49,7 @@
 
 	<bean id="cas20ServiceTicketValidator"
 		class="org.jasig.cas.client.validation.Cas20ServiceTicketValidator">
-		<argument value="$cas{casServerUrlPrefix}" />		
+		<argument value="$cas{casServerUrl}" />		
 		<property  name="proxyCallbackUrl" value="$cas{proxyCallbackUrl}" />		
 		<property name="proxyGrantingTicketStorage" ref="proxyStorage" />
 	</bean>
