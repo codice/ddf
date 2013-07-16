@@ -91,6 +91,8 @@
 							org.hamcrest.object;version="${hamcrest.version}",
 							org.hamcrest.text;version="${hamcrest.version}",
 							org.hamcrest.xml;version="${hamcrest.version}",
+							javax.xml.bind,
+							javax.xml.bind.annotation,
 							*;resolution:=optional
 						</Import-Package>
 					</instructions>
