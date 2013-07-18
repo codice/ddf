@@ -31,6 +31,7 @@ import org.apache.solr.client.solrj.SolrRequest.METHOD;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.request.AbstractUpdateRequest.ACTION;
+import org.apache.solr.client.solrj.response.FacetField;
 import org.apache.solr.client.solrj.response.PivotField;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.client.solrj.response.SolrPingResponse;
@@ -190,28 +191,54 @@ public class SolrCatalogProvider extends MaskableImpl implements
 
         try {
             QueryResponse solrResponse = server.query(query, METHOD.POST);
-
+            List<FacetField> facetFields = solrResponse.getFacetFields();
             for (Entry<String, List<PivotField>> entry : solrResponse
                     .getFacetPivot()) {
 
-                for (PivotField pf : entry.getValue()) {
+        	// if no content types have an associated version, the list of pivot fields will be empty.
+        	// however, the content type names can still be obtained via that facet fields.
+        	if(entry.getValue() == null || entry.getValue().isEmpty()){
+        	    LOGGER.debug("No content type versions found associated with any available content types.");
+        	    
+        	    if(facetFields != null && !facetFields.isEmpty()){
+        		//only one facet field was added that facet field may contain multiple values (content type names)
+        		for(FacetField.Count currContentType : facetFields.get(0).getValues()){
+        		    //unknown version, so setting it null
+                            ContentTypeImpl contentType = new ContentTypeImpl(currContentType.getName(), null);
 
-                    String contentTypeName = pf.getValue().toString();
-
-                    LOGGER.debug("contentTypeName:" + contentTypeName);
-
-                    for (PivotField innerPf : pf.getPivot()) {
-
-                        LOGGER.debug("inner pivot field contentTypeName:"
-                                + innerPf.getValue());
-
-                        ContentTypeImpl contentType = new ContentTypeImpl(
-                                contentTypeName, innerPf.getValue().toString());
-
-                        finalSet.add(contentType);
+                            finalSet.add(contentType);
+        		}
+        	    }
+        	}
+        	else{
+                    for (PivotField pf : entry.getValue()) {
+    
+                        String contentTypeName = pf.getValue().toString();
+                        LOGGER.debug("contentTypeName:" + contentTypeName);
+                        
+                        if(pf.getPivot() == null || pf.getPivot().isEmpty()){
+                            //if there are no sub-pivots, that means that there are no content type versions 
+                            //associated with this content type name
+                            LOGGER.debug("Content type does not have associated contentTypeVersion: " + contentTypeName);
+                            ContentTypeImpl contentType = new ContentTypeImpl(contentTypeName, null);
+    
+                            finalSet.add(contentType);
+                            
+                        }
+                        else {
+                            for (PivotField innerPf : pf.getPivot()) {
+        
+                                LOGGER.debug("contentTypeVersion:"
+                                        + innerPf.getValue() + ". For contentTypeName: " + contentTypeName);
+        
+                                ContentTypeImpl contentType = new ContentTypeImpl(
+                                        contentTypeName, innerPf.getValue().toString());
+        
+                                finalSet.add(contentType);
+                            }
+                        }
                     }
-                }
-
+        	}
             }
 
         } catch (SolrServerException e) {
@@ -457,7 +484,7 @@ public class SolrCatalogProvider extends MaskableImpl implements
                 metacard.setAttribute(new AttributeImpl(Metacard.ID,
                         generatePrimaryKey()));
             }
-
+            
             SolrInputDocument solrInputDocument = new SolrInputDocument();
 
             // TODO: register metacard type here.
