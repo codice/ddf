@@ -3795,6 +3795,55 @@ public class TestSolrProvider extends SolrProviderTestCase {
 	}
 
 	@Test
+	public void testGetContentTypesOneNoVersion() throws Exception {
+
+		deleteAllIn(provider);
+
+		MockMetacard metacard1 = new MockMetacard(Library.getFlagstaffRecord());
+
+		metacard1.setContentTypeName(SAMPLE_CONTENT_TYPE_1);
+		metacard1.setContentTypeVersion("");
+
+		List<Metacard> list = Arrays.asList((Metacard) metacard1);
+
+		create(list);
+
+		Set<ContentType> contentTypes = provider.getContentTypes();
+		assertEquals(1, contentTypes.size());
+
+		assertThat(contentTypes, hasItem((ContentType) new ContentTypeImpl(SAMPLE_CONTENT_TYPE_1,"")));
+	}
+	
+	@Test
+	public void testGetContentTypesVersionsAndNoVersions() throws Exception {
+
+		deleteAllIn(provider);
+
+		MockMetacard metacard1 = new MockMetacard(Library.getFlagstaffRecord());
+		MockMetacard metacard2 = new MockMetacard(Library.getShowLowRecord());
+		MockMetacard metacard3 = new MockMetacard(Library.getTampaRecord());
+
+		metacard1.setContentTypeName(SAMPLE_CONTENT_TYPE_1);
+		metacard1.setContentTypeVersion(null);
+		metacard2.setContentTypeName(SAMPLE_CONTENT_TYPE_2);
+		metacard3.setContentTypeName(SAMPLE_CONTENT_TYPE_2);
+		metacard3.setContentTypeVersion(SAMPLE_CONTENT_VERSION_3);
+
+		List<Metacard> list = Arrays.asList((Metacard) metacard1, metacard2, metacard3);
+
+		create(list);
+
+		Set<ContentType> contentTypes = provider.getContentTypes();
+		assertEquals(3, contentTypes.size());
+
+		assertThat(contentTypes, hasItem((ContentType) new ContentTypeImpl(SAMPLE_CONTENT_TYPE_1, null)));
+		assertThat(contentTypes, hasItem((ContentType) new ContentTypeImpl(SAMPLE_CONTENT_TYPE_2, 
+			MockMetacard.DEFAULT_VERSION)));
+		assertThat(contentTypes, hasItem((ContentType) new ContentTypeImpl(SAMPLE_CONTENT_TYPE_2,
+			SAMPLE_CONTENT_VERSION_3)));
+	}
+	
+	@Test
 	public void testGetContentTypesNone() throws Exception {
 
 		deleteAllIn(provider);
