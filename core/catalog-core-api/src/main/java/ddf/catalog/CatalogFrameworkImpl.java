@@ -538,7 +538,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements DdfConfigur
 					sourceDescriptors);
 
 		} catch (RuntimeException re) {
-			logger.warn("Exception during runtime while performing create", re);
+			logger.warn("Exception during runtime while performing getSourceInfo", re);
 			throw new SourceUnavailableException(
 					"Exception during runtime while performing getSourceInfo");
 
