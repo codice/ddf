@@ -200,6 +200,7 @@
             <entry key="ws-security.signature.properties" value="$sts{signatureProperties}"/>
             <entry key="ws-security.encryption.properties" value="$sts{encryptionProperties}"/>
             <entry key="ws-security.signature.username" value="$sts{signatureUsername}"/>
+            <entry key="ws-security.enableRevocation" value="true" />
             <entry key="ws-security.encryption.username" value="useReqSigCert" />
             <entry key="ws-security.is-bsp-compliant" value="false"/>
             <entry key="ws-security.role.classifier" value="RolePrincipal" />
