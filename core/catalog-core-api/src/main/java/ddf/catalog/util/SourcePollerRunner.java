@@ -11,160 +11,194 @@
  **/
 package ddf.catalog.util;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import org.slf4j.LoggerFactory;
 import org.slf4j.ext.XLogger;
 
-import ddf.catalog.source.CatalogProvider;
-import ddf.catalog.source.ConnectedSource;
-import ddf.catalog.source.FederatedSource;
 import ddf.catalog.source.Source;
 import ddf.catalog.source.SourceMonitor;
 
 /**
- * The poller to check the availability of all configured sources. This class is instantiated
- * by the CatalogFramework's blueprint and is scheduled by the {@link SourcePoller} to execute
- * at a fixed rate, i.e., the polling interval. 
+ * The poller to check the availability of all configured sources. This class is
+ * instantiated by the CatalogFramework's blueprint and is scheduled by the
+ * {@link SourcePoller} to execute at a fixed rate, i.e., the polling interval.
  * 
- * This class maintains a list of all of the sources
- * to be polled for their availability. Sources are added to this list when they come online and
- * when they are deleted. A cached map is maintained of all the sources and their last availability
- * states.
+ * This class maintains a list of all of the sources to be polled for their
+ * availability. Sources are added to this list when they come online and when
+ * they are deleted. A cached map is maintained of all the sources and their
+ * last availability states.
  * 
  * @author ddf.isgs@lmco.com
- *
+ * 
  */
 public class SourcePollerRunner implements Runnable {
 
-	private List<Source> sources;
-	private Map<Source, SourceStatus> status = new ConcurrentHashMap<Source, SourceStatus>();
-	private static XLogger logger = new XLogger(LoggerFactory.getLogger(SourcePollerRunner.class));
+    // copyonwrite source list
+    private List<Source> sources;
 
-	
-	/**
-	 * Creates an empty list of {@link Source} sources to be polled for availability.
-	 * This constructor is invoked by the CatalogFramework's blueprint.
-	 */
-	public SourcePollerRunner() {
+    private Map<Source, SourceStatus> status = new ConcurrentHashMap<Source, SourceStatus>();
 
-		logger.info("Creating source poller runner.");
-		sources = new ArrayList<Source>();
+    private static XLogger logger = new XLogger(
+            LoggerFactory.getLogger(SourcePollerRunner.class));
 
-	}
+    private ExecutorService pool;
 
-	
-	/**
-	 * Checks the availability of each source in the list of sources
-	 * to be polled.
-	 */
-	@Override
-	public void run() {
+    /**
+     * Creates an empty list of {@link Source} sources to be polled for
+     * availability. This constructor is invoked by the CatalogFramework's
+     * blueprint.
+     */
+    public SourcePollerRunner() {
 
-		logger.trace("RUNNER checking source statuses");
+        logger.info("Creating source poller runner.");
+        sources = new CopyOnWriteArrayList<Source>();
 
-		for (Source source : sources) {
+    }
 
-			if (source != null) {
+    /**
+     * Checks the availability of each source in the list of sources to be
+     * polled.
+     */
+    @Override
+    public void run() {
 
-				checkStatus(source);
+        logger.trace("RUNNER checking source statuses");
 
-			}
+        for (Source source : sources) {
 
-		}
+            if (source != null) {
 
-	}
+                checkStatus(source);
 
-	
-	/**
-	 * Checks if the specified source is available, updating the internally maintained
-	 * map of sources and their status.
-	 * 
-	 * @param source the source to check if it is available
-	 */
-	private void checkStatus(final Source source) {
+            }
 
-		boolean available = false ;
-		
-		try {
-			
-			SourceMonitor monitor = new SourceMonitor(){
+        }
 
-				@Override
-				public void setAvailable() {
-					status.put(source, SourceStatus.AVAILABLE);
-					logger.info("Source [" + source+ "] with id ["+ source.getId() + "] is AVAILABLE");
-				}
+    }
 
-				@Override
-				public void setUnavailable() {
-					status.put(source, SourceStatus.UNAVAILABLE);
-					logger.info("Source [" + source+ "] with id ["+ source.getId() + "] is UNAVAILABLE");
-				}
-			};
-				
-			available = source.isAvailable(monitor);
-			
-		} catch (Exception e) {
-			logger.debug("Source [" + source + "] did not return properly with availability.",e) ;
-		} 
+    /**
+     * Checks if the specified source is available, updating the internally
+     * maintained map of sources and their status.
+     * 
+     * @param source
+     *            the source to check if it is available
+     */
+    private void checkStatus(final Source source) {
 
-		logger.trace("Source [" + source+ "] with id ["
-				+ source.getId() + "] isAvailable? " + available);
+        if (pool == null) {
+            pool = Executors.newCachedThreadPool();
 
-		if (available) {
-			status.put(source, SourceStatus.AVAILABLE);
-		} else {
-			status.put(source, SourceStatus.UNAVAILABLE);
-		}
+        }
 
-	}
-	
-	
-	/**
-	 * Adds the {@link Source} instance to the list and sets its current status
-	 * to UNCHECKED, indicating it will checked at the next polling interval.
-	 * 
-	 * @param source the source to add to the list
-	 */
-	public void bind(Source source) {
-		
-		logger.info("Binding source: " + source);
-		if (source != null) {
-			logger.debug("Marking new source " + source+ " as UNCHECKED.") ;
-			sources.add(source);
-			status.put(source, SourceStatus.UNCHECKED);
-		}
-	}
-	
-	
-	/**
-	 * Removes the {@link Source} instance from the list of references
-	 * so that its availability is no longer polled.
-	 * 
-	 * @param source the source to remove from the list
-	 */
-	public void unbind(Source source) {
-		logger.info("Unbinding source [" + source +"]");
-		if(source != null) {
-			status.remove(source) ;
-			sources.remove(source);
-		}
-	}
+        final Runnable statusRunner = new Runnable() {
+            public void run() {
+                boolean available = false;
 
-	
-	/**
-	 * Retrieve the current availability of the specified source.
-	 * 
-	 * @param source the source to retrieve the availability for
-	 * 
-	 * @return the source's status
-	 */
-	public SourceStatus getStatus(Source source) {
-		return status.get(source);
-	}
-	
+                try {
+                    logger.debug("Checking Source [" + source + "] with id ["
+                            + source.getId() + "] availability.");
+                    SourceMonitor monitor = new SourceMonitor() {
+
+                        @Override
+                        public void setAvailable() {
+                            status.put(source, SourceStatus.AVAILABLE);
+                            logger.info("Source [" + source + "] with id ["
+                                    + source.getId() + "] is AVAILABLE");
+                        }
+
+                        @Override
+                        public void setUnavailable() {
+                            status.put(source, SourceStatus.UNAVAILABLE);
+                            logger.info("Source [" + source + "] with id ["
+                                    + source.getId() + "] is UNAVAILABLE");
+                        }
+                    };
+
+                    available = source.isAvailable(monitor);
+
+                } catch (Exception e) {
+                    logger.debug("Source [" + source
+                            + "] did not return properly with availability.", e);
+                }
+
+                logger.debug("Source [" + source + "] with id ["
+                        + source.getId() + "] isAvailable? " + available);
+
+                if (available) {
+                    status.put(source, SourceStatus.AVAILABLE);
+                } else {
+                    status.put(source, SourceStatus.UNAVAILABLE);
+                }
+            }
+        };
+
+        logger.info("Executing new source status thread for " + source.getId());
+        pool.execute(statusRunner);
+
+    }
+
+    /**
+     * Adds the {@link Source} instance to the list and sets its current status
+     * to UNCHECKED, indicating it will checked at the next polling interval.
+     * 
+     * @param source
+     *            the source to add to the list
+     */
+    public void bind(Source source) {
+
+        logger.info("Binding source: " + source);
+        if (source != null) {
+            logger.debug("Marking new source " + source + " as UNCHECKED.");
+            sources.add(source);
+            status.put(source, SourceStatus.UNCHECKED);
+
+            checkStatus(source);
+        }
+    }
+
+    /**
+     * Removes the {@link Source} instance from the list of references so that
+     * its availability is no longer polled.
+     * 
+     * @param source
+     *            the source to remove from the list
+     */
+    public void unbind(Source source) {
+        logger.info("Unbinding source [" + source + "]");
+        if (source != null) {
+            status.remove(source);
+            sources.remove(source);
+        }
+    }
+
+    /**
+     * Retrieve the current availability of the specified source.
+     * 
+     * @param source
+     *            the source to retrieve the availability for
+     * 
+     * @return the source's status
+     */
+    public SourceStatus getStatus(Source source) {
+        return status.get(source);
+    }
+
+    /**
+     * 
+     * Calls the @link ExecutorService to shutdown immediately
+     */
+    public void shutdown() {
+        logger.trace("Shutting down status threads");
+        if (pool != null) {
+            pool.shutdownNow();
+        }
+        logger.trace("Status threads shut down");
+    }
+
 }
