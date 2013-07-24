@@ -66,6 +66,12 @@ public class ContextualPredicate implements Predicate
 		
 		ContextualEvaluationCriteria cec = null;
 		Map<String, Object> contextualMap = (Map<String, Object>) properties.getProperty( PubSubConstants.HEADER_CONTEXTUAL_KEY );
+		
+		if(contextualMap == null){
+		    logger.debug("No contextual metadata to search against.");
+		    return false;
+		}
+		
 		String operation = (String) properties.getProperty( PubSubConstants.HEADER_OPERATION_KEY );
 		logger.debug( "operation = " + operation );
 		String metadata = (String) contextualMap.get( "METADATA" );
