@@ -74,7 +74,6 @@ public class TemporalPredicate implements Predicate
         if(contextualMap != null)
         {
             String metadata = (String) contextualMap.get( "METADATA" );
-            logger.debug( "metadata = [" + metadata + "]" );
 
             // If deleting a catalog entry and the entry's location data is NULL is only the word "deleted" (i.e., the
             // source is deleting the catalog entry and did not send any location data with the delete event), then
