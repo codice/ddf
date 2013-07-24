@@ -24,135 +24,140 @@ import ddf.catalog.CatalogFramework;
 import ddf.catalog.source.Source;
 
 /**
- * The SourcePoller is the scheduler of the task to poll all configured sources at a fixed
- * interval to determine their availability. It is created by the CatalogFramework's blueprint.
+ * The SourcePoller is the scheduler of the task to poll all configured sources
+ * at a fixed interval to determine their availability. It is created by the
+ * CatalogFramework's blueprint.
  * 
- * An isAvailable() method is included in this class so that the caller, nominally the CatalogFramework,
- * can retrieve the cached availibility of a specific source, or have it polled on demand if there is
- * no availability status cached.
+ * An isAvailable() method is included in this class so that the caller,
+ * nominally the CatalogFramework, can retrieve the cached availibility of a
+ * specific source, or have it polled on demand if there is no availability
+ * status cached.
  * 
  * @author ddf.isgs@lmco.com
- *
+ * 
  */
 public class SourcePoller {
 
-	private static final int INTERVAL = 60;
-	private static final int INITIAL_DELAY = 0;
-	private ScheduledExecutorService scheduler;
-	
-	private ScheduledFuture<?> handle;
-	
-	private static XLogger logger = new XLogger(LoggerFactory.getLogger(SourcePoller.class));
-	private SourcePollerRunner runner;
+    private static final int INTERVAL = 60;
 
-	
-	/**
-	 * Constructor to schedule the SourcePollerRunner to execute immediately and at a fixed interval,
-	 * currently set at every 60 seconds. This constructor is invoked by the CatalogFramework's blueprint.
-	 * 
-	 * @param incomingRunner the SourcePollerRunner to use for polling
-	 */
-	public SourcePoller(SourcePollerRunner incomingRunner)
-	{
+    private static final int INITIAL_DELAY = 0;
 
-		this.runner = incomingRunner ;
-		
-		scheduler = Executors.newScheduledThreadPool(1);
+    private ScheduledExecutorService scheduler;
 
-		handle = scheduler.scheduleAtFixedRate(runner, INITIAL_DELAY, INTERVAL, TimeUnit.SECONDS);
+    private ScheduledFuture<?> handle;
 
-	}
-	
-	
-	/**
-	 * Checks the availability of the specified source. Returns the last source status
-	 * retrieved during the last polling interval. If the specified source has never been polled
-	 * (i.e., UNCHECKED status, this method runs the poller immediately for the source and gets 
-	 * its current availability.
-	 * 
-	 * @param source the source to check the availability for
-	 * 
-	 * @return true if source is available, false otherwise
-	 */
-	public boolean isAvailable(Source source) {
-		boolean result = false;
-		logger.trace("Checking source."	) ;
-		
-		if (source != null) {
-			SourceStatus sourceStatus = runner.getStatus(source);
-			
-			if(sourceStatus == null) {
-				
-				logger.debug("Unrecognized source [" + source +"/id="+source.getId() +"]" );
-				
-				/*
-				 * If the sourceStatus equals null, then we don't have information
-				 * as to whether that source exists, therefore we return true so as
-				 * to not stop threads from doing their own check.
-				 */
-				result = true;
-			} else if (sourceStatus == SourceStatus.AVAILABLE) {
-				result = true;
-			}
-			else if (sourceStatus == SourceStatus.UNAVAILABLE) {
-				result = false;
-			} else if(sourceStatus == SourceStatus.UNCHECKED) {
-				runner.run();
-				if(SourceStatus.UNAVAILABLE.equals(runner.getStatus(source))) {
-					result = false;
-				} else {
-					result = true; 
-				}  
-			}
-		} else {
-			logger.debug(" Source is null. Returning false. ");
-			result = false;
-		}
-		return result;
-	}
-	
+    private static XLogger logger = new XLogger(
+            LoggerFactory.getLogger(SourcePoller.class));
 
-	/**
-	 * Cancels the {@link SourcePollerRunner} thread that had been previously scheduled to run at specific intervals.
-	 * Invoked by the CatalogFramework's blueprint when the framework is unregistered/uninstalled.
-	 * 
-	 * @param framework unused, but required by blueprint
-	 * @param properties unused, but required by blueprint
-	 */
-	public void cancel(CatalogFramework framework, Map properties) {
-		
-		logger.info("Cancelling scheduled polling.");
-		
-		handle.cancel(true) ;
-		
-		scheduler.shutdownNow() ;
-		
-	}
-	
-	
-	/** 
-	 * Start method for this poller, invoked by the CatalogFramework's blueprint when the framework
-	 * is registered/installed. No logic is executed except for logging the framework name.
-	 * 
-	 * @param framework the catalog framework being started
-	 * @param properties unused, but required by blueprint
-	 */
-	public void start(CatalogFramework framework, Map properties)	 {
-		String frameworkString = "" ;
-		if(framework != null) {
-			frameworkString = framework.toString();
-		}
-		logger.debug("Framework started for ["+frameworkString+"]") ;
-		
-	}
-	
+    private SourcePollerRunner runner;
+
+    /**
+     * Constructor to schedule the SourcePollerRunner to execute immediately and
+     * at a fixed interval, currently set at every 60 seconds. This constructor
+     * is invoked by the CatalogFramework's blueprint.
+     * 
+     * @param incomingRunner
+     *            the SourcePollerRunner to use for polling
+     */
+    public SourcePoller(SourcePollerRunner incomingRunner) {
+
+        this.runner = incomingRunner;
+
+        scheduler = Executors.newScheduledThreadPool(1);
+
+        handle = scheduler.scheduleAtFixedRate(runner, INITIAL_DELAY, INTERVAL,
+                TimeUnit.SECONDS);
+    }
+
+    /**
+     * Checks the availability of the specified source. Returns the last source
+     * status retrieved during the last polling interval. If the specified
+     * source has never been polled (i.e., UNCHECKED status, this method runs
+     * the poller immediately for the source and gets its current availability.
+     * 
+     * @param source
+     *            the source to check the availability for
+     * 
+     * @return true if source is available, false otherwise
+     */
+    public boolean isAvailable(Source source) {
+        boolean result = false;
+        logger.trace("Checking source.");
+
+        if (source != null) {
+            SourceStatus sourceStatus = runner.getStatus(source);
+
+            if (sourceStatus == null) {
+
+                logger.debug("Unrecognized source [" + source + "/id="
+                        + source.getId() + "]");
+
+                /*
+                 * If the sourceStatus equals null, then we don't have
+                 * information as to whether that source exists, therefore we
+                 * return true so as to not stop threads from doing their own
+                 * check.
+                 */
+                result = true;
+            } else if (sourceStatus == SourceStatus.AVAILABLE) {
+                result = true;
+            } else if (sourceStatus == SourceStatus.UNAVAILABLE
+                    || sourceStatus == SourceStatus.UNCHECKED) {
+                result = false;
+            }
+        } else {
+            logger.debug(" Source is null. Returning false. ");
+            result = false;
+        }
+        return result;
+    }
+
+    /**
+     * Cancels the {@link SourcePollerRunner} thread that had been previously
+     * scheduled to run at specific intervals. Invoked by the CatalogFramework's
+     * blueprint when the framework is unregistered/uninstalled.
+     * 
+     * @param framework
+     *            unused, but required by blueprint
+     * @param properties
+     *            unused, but required by blueprint
+     */
+    public void cancel(CatalogFramework framework, Map properties) {
+
+        logger.info("Cancelling scheduled polling.");
+
+        runner.shutdown();
+
+        handle.cancel(true);
+
+        scheduler.shutdownNow();
+
+    }
+
+    /**
+     * Start method for this poller, invoked by the CatalogFramework's blueprint
+     * when the framework is registered/installed. No logic is executed except
+     * for logging the framework name.
+     * 
+     * @param framework
+     *            the catalog framework being started
+     * @param properties
+     *            unused, but required by blueprint
+     */
+    public void start(CatalogFramework framework, Map properties) {
+        String frameworkString = "";
+        if (framework != null) {
+            frameworkString = framework.toString();
+        }
+        logger.debug("Framework started for [" + frameworkString + "]");
+
+    }
+
 }
 
-
-// States that a source (Catalog Provider, Federated Source, or Connected Source) can be in
+// States that a source (Catalog Provider, Federated Source, or Connected
+// Source) can be in
 enum SourceStatus {
 
-	UNCHECKED, AVAILABLE, UNAVAILABLE
+    UNCHECKED, AVAILABLE, UNAVAILABLE
 }
-
-
