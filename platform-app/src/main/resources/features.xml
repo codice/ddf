@@ -134,7 +134,7 @@
         <bundle start-level='25' dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.opensaml/2.5.3_1</bundle>
         <bundle start-level='25'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.saaj-impl/1.3.20_1</bundle>
         <bundle start-level='25'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xmlresolver/1.2_5</bundle>
-        <bundle start-level='30' dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xerces/2.9.1_5</bundle>
+        <!--<bundle start-level='30' dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xerces/2.11.0_1</bundle>-->
         <bundle start-level='30' dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.bcel/5.2_4</bundle>
         <!-- Upgraded xalan version (from 2.7.1_6) to remove 'annoying error message': https://jira.talendforge.org/browse/TESB-9086 -->
         <bundle start-level='30' dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xalan/2.7.1_7</bundle>
@@ -493,7 +493,7 @@
 -->
     <feature name="cellar-webconsole" description="Cellar plugin for Karaf WebConsole" version="2.3.0" resolver="(obr)">
         <feature version="2.3.0">cellar</feature>
-        <feature>webconsole-patched</feature>
+        <feature>webconsole</feature>
         <bundle>mvn:org.apache.karaf.cellar/org.apache.karaf.cellar.webconsole/2.3.0</bundle>
     </feature>
 <!-- End Cellar Features -->
@@ -509,7 +509,7 @@
 		<feature>management</feature>
 		<feature>kar</feature>
 		<feature>ssh</feature>
-		<feature>webconsole-patched</feature>
+		<feature>webconsole</feature>
 		<feature>jasypt-encryption</feature>
 		<feature>war</feature>
 	</feature>
