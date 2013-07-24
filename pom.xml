@@ -1960,16 +1960,16 @@
 			<name>Open Source Geospatial Foundation Repository</name>
 			<url>http://download.osgeo.org/webdav/geotools/</url>
 		</repository>
-		<repository>
-			<id>spring-source-external</id>
-			<name>SpringSource EBR External</name>
-			<url>http://repository.springsource.com</url>
-		</repository>
-		<repository>
-			<id>spring-source-release</id>
-			<name>SpringSource EBR Releases</name>
-			<url>http://repository.springsource.com/maven/bundles/release/</url>
-		</repository>
+        <repository>
+            <id>com.springsource.repository.bundles.release</id>
+            <name>SpringSource Enterprise Bundle Repository - SpringSource Bundle Releases</name>
+            <url>http://repository.springsource.com/maven/bundles/release</url>
+        </repository>
+        <repository>
+            <id>com.springsource.repository.bundles.external</id>
+            <name>SpringSource Enterprise Bundle Repository - External Bundle Releases</name>
+            <url>http://repository.springsource.com/maven/bundles/external</url>
+        </repository>
 		<repository>
 			<id>forgerock</id>
 			<name>Forgerock Releases</name>
