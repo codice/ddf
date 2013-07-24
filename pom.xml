@@ -1966,6 +1966,11 @@
 			<url>http://repository.springsource.com</url>
 		</repository>
 		<repository>
+			<id>spring-source-release</id>
+			<name>SpringSource EBR Releases</name>
+			<url>http://repository.springsource.com/maven/bundles/release/</url>
+		</repository>
+		<repository>
 			<id>forgerock</id>
 			<name>Forgerock Releases</name>
 			<url>http://maven.forgerock.org/repo/releases/</url>
