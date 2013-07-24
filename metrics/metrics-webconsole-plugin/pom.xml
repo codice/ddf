@@ -89,7 +89,6 @@
             <Import-Package>
                javax.servlet;version="[2.5,3)",
                javax.servlet.http;version="[2.5,3)",
-               org.apache.felix.webconsole;version="[4,5)",
                *
             </Import-Package>           
             <Export-Package />

@@ -202,7 +202,6 @@
 		<xml-resolver.version>1.2</xml-resolver.version>
 
         <!-- Bundle Dependency Properties-->
-        <!-- Karaf 2.2.7 upgrade <org.apache.servicemix.bundles.asm.version>3.3_2</org.apache.servicemix.bundles.asm.version> -->
 		<org.apache.servicemix.bundles.asm.version>3.3.1_1</org.apache.servicemix.bundles.asm.version>
 		<org.apache.servicemix.specs.version>2.2.0</org.apache.servicemix.specs.version>
 		<org.apache.servicemix.bundles.oro.version>2.0.8_6</org.apache.servicemix.bundles.oro.version>
@@ -220,7 +219,7 @@
 
 		<!-- ddf thirdparty bundle versions.  these should only be used in the feature xml files.
 			any bundle dependent on classes from these jars should depend on the jar itself and not the bundalized version.  -->
-		<org.geotools.bundle.version>${org.geotools.version}_2</org.geotools.bundle.version>
+		<org.geotools.bundle.version>${org.geotools.version}_3</org.geotools.bundle.version>
 		<opengis.bundle.version>${org.geotools.version}_2</opengis.bundle.version>
 		<jts.bundle.version>${jts.version}_1</jts.bundle.version>
 
@@ -229,7 +228,7 @@
         <!-- when upgrading the karaf version, ensure that the properties and cfg files in package-commons/.../distribution/etc/ are updated and compatible with the
         latest karaf version.  Those configuration files in package-commons/.../distribution/etc have been copied from a previous version of Karaf, and are
         source controlled because of some slight customizations that have been made to them.  -->
-		<karaf.version>2.3.1</karaf.version>
+		<karaf.version>2.3.2</karaf.version>
 		<camel.version>2.11.0</camel.version>
 		<cellar.version>2.3.0</cellar.version>
 
