@@ -91,7 +91,7 @@ public class RrdMetricsRetrieverTest extends XMLTestCase
         ((PatternLayout) ((Appender) Logger.getRootLogger().getAllAppenders().nextElement()).getLayout())
                 .setConversionPattern("[%30.30t] %-30.30c{1} %-5p %m%n");
 
-        Logger.getRootLogger().setLevel(Level.DEBUG);
+        Logger.getRootLogger().setLevel(Level.INFO);
     }
 
     @After
