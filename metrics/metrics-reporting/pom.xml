@@ -37,7 +37,7 @@
 	<dependency>
 		<groupId>org.apache.servicemix.bundles</groupId>
 		<artifactId>org.apache.servicemix.bundles.poi</artifactId>
-		<version>3.6_2</version>
+		<version>3.9_2</version>
 	</dependency>                
 	
 	<dependency>
