@@ -58,13 +58,13 @@ public class SourceMetricsImplTest {
 		String metricName = SourceMetrics.QUERIES_SCOPE;
 		
 		sourceMetrics = configureSourceMetrics(sourceId);
-		sourceMetrics.addingSource(catalogProvider, null);
+		addSource();  
 		
 		String key = sourceId + "." + metricName;
 		SourceMetric sourceMetric = sourceMetrics.metrics.get(key);
 		assertThat(sourceMetric, not(nullValue()));
 		
-		sourceMetrics.deletingSource(catalogProvider, null);
+		sourceMetrics.deletingSource(catalogProvider, null);  
 		sourceMetric = sourceMetrics.metrics.get(key);
 		assertThat(sourceMetric, is(nullValue()));
 	}
@@ -88,7 +88,7 @@ public class SourceMetricsImplTest {
 		sourceMetrics = configureSourceMetrics(sourceId);
 		
 		// Simulate initial creation of Source
-		sourceMetrics.addingSource(catalogProvider, null);
+		addSource();
 		
 		// Simulate changing Source's name
 		String newSourceId = "cp-new";
@@ -107,7 +107,7 @@ public class SourceMetricsImplTest {
 		sourceMetrics = configureSourceMetrics(sourceId);
 		
 		// Simulate initial creation of Source
-		sourceMetrics.addingSource(catalogProvider, null);
+		addSource();
 		
 		// Simulate changing Source's name
 		String newSourceId = "cp-1";
@@ -162,7 +162,7 @@ public class SourceMetricsImplTest {
 		
 		sourceMetrics = configureSourceMetrics(sourceId);
 		
-		sourceMetrics.addingSource(catalogProvider, null);
+		addSource();
 	
 		sourceMetrics.updateMetric(sourceId, "invalid-metric", 1);
 		
@@ -197,7 +197,7 @@ public class SourceMetricsImplTest {
 		String metricName = SourceMetrics.QUERIES_SCOPE;
 		
 		sourceMetrics = configureSourceMetrics(sourceId);
-		sourceMetrics.addingSource(catalogProvider, null);
+		addSource();
 		
 		// Simulate Source returning empty sourceId
 		when(catalogProvider.getId()).thenReturn("");
@@ -273,6 +273,14 @@ public class SourceMetricsImplTest {
 		assertThat(sourceMetrics, not(nullValue()));
 		
 		return sourceMetrics;
+	}
+	
+	private void addSource() throws Exception {
+		// Do not call addingSource() because it starts createSourceMetrics()
+		// in a separate thread hence predictable results are not assured
+		//sourceMetrics.addingSource(catalogProvider, null);
+		
+		sourceMetrics.createSourceMetrics(catalogProvider); 
 	}
 	
 	private void assertMetricCount(String sourceId, String metricName, int expectedCount) {
