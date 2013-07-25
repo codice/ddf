@@ -74,7 +74,7 @@ public interface EventProcessor {
 	 * <b>Note:</b> <em>{@link Subscription}s are transient, not durable,
 	 * i.e., only maintained in memory and will be lost if DDF is shutdown.</em><br/>
 	 * Durability must be implemented by the client bundle (typically an
-	 * endpoint - refer to {@link DurableSubscription} for an exmaple).
+	 * endpoint - refer to {@link DurableSubscription} for an example).
 	 * </p>
 	 * 
 	 * <p>
