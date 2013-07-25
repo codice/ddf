@@ -11,17 +11,18 @@
  **/
 package ddf.catalog.util;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.slf4j.LoggerFactory;
 import org.slf4j.ext.XLogger;
 
-import ddf.catalog.source.CatalogProvider;
-import ddf.catalog.source.ConnectedSource;
-import ddf.catalog.source.FederatedSource;
 import ddf.catalog.source.Source;
 import ddf.catalog.source.SourceMonitor;
 
@@ -44,6 +45,10 @@ public class SourcePollerRunner implements Runnable {
 	private Map<Source, SourceStatus> status = new ConcurrentHashMap<Source, SourceStatus>();
 	private static XLogger logger = new XLogger(LoggerFactory.getLogger(SourcePollerRunner.class));
 
+    private ExecutorService pool;
+    private Map<Source, Lock> sourceStatusThreadLocks = new ConcurrentHashMap<Source, Lock>();
+
+
 	
 	/**
 	 * Creates an empty list of {@link Source} sources to be polled for availability.
@@ -52,8 +57,7 @@ public class SourcePollerRunner implements Runnable {
 	public SourcePollerRunner() {
 
 		logger.info("Creating source poller runner.");
-		sources = new ArrayList<Source>();
-
+        sources = new CopyOnWriteArrayList<Source>();
 	}
 
 	
@@ -81,47 +85,82 @@ public class SourcePollerRunner implements Runnable {
 	
 	/**
 	 * Checks if the specified source is available, updating the internally maintained
-	 * map of sources and their status.
+	 * map of sources and their status.  Lock ensures only one status thread is running
+	 * per source.
 	 * 
 	 * @param source the source to check if it is available
 	 */
-	private void checkStatus(final Source source) {
+    private void checkStatus(final Source source) {
 
-		boolean available = false ;
-		
-		try {
-			
-			SourceMonitor monitor = new SourceMonitor(){
+        if (pool == null) {
+            pool = Executors.newCachedThreadPool();
 
-				@Override
-				public void setAvailable() {
-					status.put(source, SourceStatus.AVAILABLE);
-					logger.info("Source [" + source+ "] with id ["+ source.getId() + "] is AVAILABLE");
-				}
+        }
+        final Runnable statusRunner = new Runnable() {
 
-				@Override
-				public void setUnavailable() {
-					status.put(source, SourceStatus.UNAVAILABLE);
-					logger.info("Source [" + source+ "] with id ["+ source.getId() + "] is UNAVAILABLE");
-				}
-			};
-				
-			available = source.isAvailable(monitor);
-			
-		} catch (Exception e) {
-			logger.debug("Source [" + source + "] did not return properly with availability.",e) ;
-		} 
+            public void run() {
 
-		logger.trace("Source [" + source+ "] with id ["
-				+ source.getId() + "] isAvailable? " + available);
+                Lock sourceStatusThreadLock = sourceStatusThreadLocks.get(source);
+                if (sourceStatusThreadLock.tryLock()) {
+                    logger.debug("Acquired lock for Source [" + source
+                            + "] with id [" + source.getId() + "] ");
+                    boolean available = false;
 
-		if (available) {
-			status.put(source, SourceStatus.AVAILABLE);
-		} else {
-			status.put(source, SourceStatus.UNAVAILABLE);
-		}
+                    try {
+                        logger.debug("Checking Source [" + source
+                                + "] with id [" + source.getId()
+                                + "] availability.");
+                        SourceMonitor monitor = new SourceMonitor() {
 
-	}
+                            @Override
+                            public void setAvailable() {
+                                status.put(source, SourceStatus.AVAILABLE);
+                                logger.info("Source [" + source + "] with id ["
+                                        + source.getId() + "] is AVAILABLE");
+                            }
+
+                            @Override
+                            public void setUnavailable() {
+                                status.put(source, SourceStatus.UNAVAILABLE);
+                                logger.info("Source [" + source + "] with id ["
+                                        + source.getId() + "] is UNAVAILABLE");
+                            }
+                        };
+
+                        available = source.isAvailable(monitor);
+
+                        logger.debug("Source [" + source + "] with id ["
+                                + source.getId() + "] isAvailable? "
+                                + available);
+                        
+                        if (available) {
+                            status.put(source, SourceStatus.AVAILABLE);
+                        } else {
+                            status.put(source, SourceStatus.UNAVAILABLE);
+                        }
+                        
+                    } catch (Exception e) {
+                        status.put(source, SourceStatus.UNAVAILABLE);
+                        logger.debug(
+                                "Source ["
+                                        + source
+                                        + "] did not return properly with availability.",
+                                e);
+                    } finally {
+                        // release the lock acquired initially
+                        sourceStatusThreadLock.unlock();
+                        logger.debug("Released lock for Source [" + source
+                                + "] with id [" + source.getId() + "] ");
+
+                    }
+                } else {
+                    logger.debug("Unable to get lock for Source [" + source
+                            + "] with id [" + source.getId() + "].  A status thread is already running.");
+                }
+            }
+        };
+        pool.execute(statusRunner);
+    }
 	
 	
 	/**
@@ -136,7 +175,10 @@ public class SourcePollerRunner implements Runnable {
 		if (source != null) {
 			logger.debug("Marking new source " + source+ " as UNCHECKED.") ;
 			sources.add(source);
+			sourceStatusThreadLocks.put(source, new ReentrantLock());
 			status.put(source, SourceStatus.UNCHECKED);
+            checkStatus(source);
+
 		}
 	}
 	
@@ -152,6 +194,7 @@ public class SourcePollerRunner implements Runnable {
 		if(source != null) {
 			status.remove(source) ;
 			sources.remove(source);
+			sourceStatusThreadLocks.remove(source);
 		}
 	}
 
@@ -166,5 +209,17 @@ public class SourcePollerRunner implements Runnable {
 	public SourceStatus getStatus(Source source) {
 		return status.get(source);
 	}
+	
+    /**
+     * 
+     * Calls the @link ExecutorService to shutdown immediately
+     */
+    public void shutdown() {
+        logger.trace("Shutting down status threads");
+        if (pool != null) {
+            pool.shutdownNow();
+        }
+        logger.trace("Status threads shut down");
+    }
 	
 }

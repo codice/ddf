@@ -136,9 +136,10 @@ public class CatalogFrameworkImplTest {
 				new Date());
 
 		// Mock register the provider in the container
-		SourcePollerRunner runner = new SourcePollerRunner();
-		SourcePoller poller = new SourcePoller(runner);
-		runner.bind(provider);
+        // Mock the source poller
+        SourcePoller mockPoller = mock(SourcePoller.class);
+        when(mockPoller.isAvailable(isA(Source.class)))
+                .thenReturn(Boolean.TRUE);
 
 		ArrayList<PostIngestPlugin> postIngestPlugins = new ArrayList<PostIngestPlugin>();
 		postIngestPlugins.add(eventAdmin);
@@ -153,7 +154,7 @@ public class CatalogFrameworkImplTest {
 				new ArrayList<PostResourcePlugin>(),
 				new ArrayList<ConnectedSource>(),
 				new ArrayList<FederatedSource>(),
-				new ArrayList<ResourceReader>(), null, null, poller);
+				new ArrayList<ResourceReader>(), null, null, mockPoller);
 		framework.bind( provider );
 
 		List<Metacard> metacards = new ArrayList<Metacard>();
@@ -190,9 +191,10 @@ public class CatalogFrameworkImplTest {
 				new Date());
 
 		// Mock register the provider in the container
-		SourcePollerRunner runner = new SourcePollerRunner();
-		SourcePoller poller = new SourcePoller(runner);
-		runner.bind(provider);
+        // Mock the source poller
+        SourcePoller mockPoller = mock(SourcePoller.class);
+        when(mockPoller.isAvailable(isA(Source.class)))
+                .thenReturn(Boolean.TRUE);
 
 		ArrayList<PostIngestPlugin> postIngestPlugins = new ArrayList<PostIngestPlugin>();
 		postIngestPlugins.add(eventAdmin);
@@ -207,7 +209,7 @@ public class CatalogFrameworkImplTest {
 				new ArrayList<PostResourcePlugin>(),
 				new ArrayList<ConnectedSource>(),
 				new ArrayList<FederatedSource>(),
-				new ArrayList<ResourceReader>(), null, null, poller);
+				new ArrayList<ResourceReader>(), null, null, mockPoller);
 		framework.bind( provider );
 
 		List<Metacard> metacards = new ArrayList<Metacard>();
@@ -251,9 +253,10 @@ public class CatalogFrameworkImplTest {
 				new Date());
 
 		// Mock register the provider in the container
-		SourcePollerRunner runner = new SourcePollerRunner();
-		SourcePoller poller = new SourcePoller(runner);
-		runner.bind(provider);
+        // Mock the source poller
+        SourcePoller mockPoller = mock(SourcePoller.class);
+        when(mockPoller.isAvailable(isA(Source.class)))
+                .thenReturn(Boolean.TRUE);
 
 		ArrayList<PostIngestPlugin> postIngestPlugins = new ArrayList<PostIngestPlugin>();
 		postIngestPlugins.add(eventAdmin);
@@ -268,7 +271,7 @@ public class CatalogFrameworkImplTest {
 				new ArrayList<PostResourcePlugin>(),
 				new ArrayList<ConnectedSource>(),
 				new ArrayList<FederatedSource>(),
-				new ArrayList<ResourceReader>(), null, null, poller);
+				new ArrayList<ResourceReader>(), null, null, mockPoller);
 		framework.bind( provider );
 
 		List<Metacard> metacards = new ArrayList<Metacard>();
@@ -308,9 +311,10 @@ public class CatalogFrameworkImplTest {
 				new Date());
 
 		// Mock register the provider in the container
-		SourcePollerRunner runner = new SourcePollerRunner();
-		SourcePoller poller = new SourcePoller(runner);
-		runner.bind(provider);
+        // Mock the source poller
+        SourcePoller mockPoller = mock(SourcePoller.class);
+        when(mockPoller.isAvailable(isA(Source.class)))
+                .thenReturn(Boolean.TRUE);
 
 		ArrayList<PostIngestPlugin> postIngestPlugins = new ArrayList<PostIngestPlugin>();
 		postIngestPlugins.add(eventAdmin);
@@ -325,7 +329,7 @@ public class CatalogFrameworkImplTest {
 				new ArrayList<PostResourcePlugin>(),
 				new ArrayList<ConnectedSource>(),
 				new ArrayList<FederatedSource>(),
-				new ArrayList<ResourceReader>(), null, null, poller);
+				new ArrayList<ResourceReader>(), null, null, mockPoller);
 		framework.bind( provider );
 
 		List<Metacard> metacards = new ArrayList<Metacard>();
@@ -534,14 +538,10 @@ public class CatalogFrameworkImplTest {
 		// expectedSourceSet.addAll(federatedSources);
 
 		// Mock register the provider in the container
-		SourcePollerRunner runner = new SourcePollerRunner();
-		SourcePoller poller = new SourcePoller(runner);
-		runner.bind(provider);
-
-		// Mock register the federated sources
-		for (FederatedSource source : federatedSources) {
-			runner.bind(source);
-		}
+        // Mock the source poller
+        SourcePoller mockPoller = mock(SourcePoller.class);
+        when(mockPoller.isAvailable(isA(Source.class)))
+                .thenReturn(Boolean.TRUE);
 
 		CatalogFrameworkImpl framework = new CatalogFrameworkImpl(
 		        Collections.singletonList( (CatalogProvider) provider ), 
@@ -553,7 +553,7 @@ public class CatalogFrameworkImplTest {
 				new ArrayList<PreResourcePlugin>(),
 				new ArrayList<PostResourcePlugin>(),
 				new ArrayList<ConnectedSource>(), federatedSources,
-				new ArrayList<ResourceReader>(), null, null, poller);
+				new ArrayList<ResourceReader>(), null, null, mockPoller);
 		framework.bind( provider );
 		framework.setId("ddf");
 
@@ -589,11 +589,10 @@ public class CatalogFrameworkImplTest {
 		List<FederatedSource> federatedSources = createDefaultFederatedSourceList(true);
 
 		// Mock register the federated sources in the container
-		SourcePollerRunner runner = new SourcePollerRunner();
-		SourcePoller poller = new SourcePoller(runner);
-		for (FederatedSource source : federatedSources) {
-			runner.bind(source);
-		}
+        // Mock the source poller
+        SourcePoller mockPoller = mock(SourcePoller.class);
+        when(mockPoller.isAvailable(isA(Source.class)))
+                .thenReturn(Boolean.TRUE);
 
 		CatalogFrameworkImpl framework = new CatalogFrameworkImpl(null, (CatalogProvider) null,
 				new ArrayList<PreIngestPlugin>(),
@@ -603,7 +602,7 @@ public class CatalogFrameworkImplTest {
 				new ArrayList<PreResourcePlugin>(),
 				new ArrayList<PostResourcePlugin>(),
 				new ArrayList<ConnectedSource>(), federatedSources,
-				new ArrayList<ResourceReader>(), null, null, poller);
+				new ArrayList<ResourceReader>(), null, null, mockPoller);
 
 		SourceInfoRequest request = new SourceInfoRequestEnterprise(true);
 		SourceInfoResponse response = null;
@@ -677,11 +676,10 @@ public class CatalogFrameworkImplTest {
 		List<FederatedSource> expectedSources = createDefaultFederatedSourceList(true);
 
 		// Mock register the federated sources in the container
-		SourcePollerRunner runner = new SourcePollerRunner();
-		SourcePoller poller = new SourcePoller(runner);
-		for (FederatedSource source : expectedSources) {
-			runner.bind(source);
-		}
+        // Mock the source poller
+        SourcePoller mockPoller = mock(SourcePoller.class);
+        when(mockPoller.isAvailable(isA(Source.class)))
+                .thenReturn(Boolean.TRUE);
 
 		CatalogFrameworkImpl framework = new CatalogFrameworkImpl(null, (CatalogProvider) null,
 				new ArrayList<PreIngestPlugin>(),
@@ -691,7 +689,7 @@ public class CatalogFrameworkImplTest {
 				new ArrayList<PreResourcePlugin>(),
 				new ArrayList<PostResourcePlugin>(),
 				new ArrayList<ConnectedSource>(), expectedSources,
-				new ArrayList<ResourceReader>(), null, null, poller);
+				new ArrayList<ResourceReader>(), null, null, mockPoller);
 
 		// Returned Sites
 		SourceInfoRequest request = new SourceInfoRequestEnterprise(true);
@@ -727,14 +725,10 @@ public class CatalogFrameworkImplTest {
 		}
 
 		// Mock register the provider in the container
-		SourcePollerRunner runner = new SourcePollerRunner();
-		SourcePoller poller = new SourcePoller(runner);
-		runner.bind(provider);
-
-		// Mock register the federated sources.
-		for (FederatedSource source : federatedSources) {
-			runner.bind(source);
-		}
+        // Mock the source poller
+        SourcePoller mockPoller = mock(SourcePoller.class);
+        when(mockPoller.isAvailable(isA(Source.class)))
+                .thenReturn(Boolean.TRUE);
 
 		CatalogFrameworkImpl framework = new CatalogFrameworkImpl(
 				Collections.singletonList( provider ), 
@@ -746,7 +740,7 @@ public class CatalogFrameworkImplTest {
 				new ArrayList<PreResourcePlugin>(),
 				new ArrayList<PostResourcePlugin>(),
 				new ArrayList<ConnectedSource>(), federatedSources,
-				new ArrayList<ResourceReader>(), null, null, poller);
+				new ArrayList<ResourceReader>(), null, null, mockPoller);
 		framework.bind( provider );
 		framework.setId(frameworkName);
 
@@ -795,7 +789,7 @@ public class CatalogFrameworkImplTest {
 				"Provider", "v1.0", "DDF", new HashSet<ContentType>(), false,
 				null);
 		CatalogFramework framework = createDummyCatalogFramework(provider,
-				eventAdmin);
+				eventAdmin, false);
 		List<Metacard> metacards = new ArrayList<Metacard>();
 		MetacardImpl newCard = new MetacardImpl();
 		newCard.setId(null);
@@ -827,7 +821,7 @@ public class CatalogFrameworkImplTest {
 				"Provider", "v1.0", "DDF", new HashSet<ContentType>(), false,
 				null);
 		CatalogFramework framework = this.createDummyCatalogFramework(provider,
-				eventAdmin);
+				eventAdmin, false);
 		List<Metacard> metacards = new ArrayList<Metacard>();
 		List<URI> uris = new ArrayList<URI>();
 		// expected to throw exception due to catalog provider being unavailable
@@ -864,7 +858,7 @@ public class CatalogFrameworkImplTest {
 				"Provider", "v1.0", "DDF", new HashSet<ContentType>(), false,
 				null);
 		CatalogFramework framework = this.createDummyCatalogFramework(provider,
-				eventAdmin);
+				eventAdmin, false);
 		List<Metacard> metacards = new ArrayList<Metacard>();
 		List<URI> uris = new ArrayList<URI>();
 
@@ -902,7 +896,7 @@ public class CatalogFrameworkImplTest {
 				"Provider", "v1.0", "DDF", new HashSet<ContentType>(), false,
 				null);
 		CatalogFramework framework = this.createDummyCatalogFramework(provider,
-				eventAdmin);
+				eventAdmin, false);
 		List<String> ids = new ArrayList<String>();
 		ids.add("1234");
 
@@ -933,7 +927,7 @@ public class CatalogFrameworkImplTest {
 				"Provider", "v1.0", "DDF", new HashSet<ContentType>(), false,
 				null);
 		CatalogFramework framework = this.createDummyCatalogFramework(provider,
-				eventAdmin);
+				eventAdmin, false);
 		List<URI> uris = new ArrayList<URI>();
 		try {
 			uris.add(new URI("id://1234"));
@@ -964,7 +958,7 @@ public class CatalogFrameworkImplTest {
 	public void testNoSitesAvailableFederatedQuery()
 			throws SourceUnavailableException {
 		CatalogFramework framework = this.createDummyCatalogFramework(null,
-				null);
+				null, false);
 
 		QueryRequest request = new QueryRequestImpl(null);
 
@@ -991,7 +985,7 @@ public class CatalogFrameworkImplTest {
 				isAvailable, new Date());
 
 		CatalogFramework framework = this.createDummyCatalogFramework(provider,
-				null);
+				null, true);
 
 		try {
 			framework.query(null);
@@ -1017,7 +1011,7 @@ public class CatalogFrameworkImplTest {
 		createDefaultFederatedSourceList(isAvailable);
 
 		CatalogFramework framework = this.createDummyCatalogFramework(provider,
-				null);
+				null, true);
 
 		try {
 			framework.query(null, null);
@@ -1049,7 +1043,7 @@ public class CatalogFrameworkImplTest {
 				"Provider", "v1.0", "DDF", new HashSet<ContentType>(), true,
 				new Date());
 		CatalogFramework framework = this.createDummyCatalogFramework(provider,
-				eventAdmin);
+				eventAdmin, true);
 
 		// call framework with null request
 		try {
@@ -1066,7 +1060,7 @@ public class CatalogFrameworkImplTest {
 				"Provider", "v1.0", "DDF", new HashSet<ContentType>(), true,
 				new Date());
 		CatalogFramework framework = this.createDummyCatalogFramework(provider,
-				eventAdmin);
+				eventAdmin, true);
 
 		// call framework with null request
 		try {
@@ -1083,7 +1077,7 @@ public class CatalogFrameworkImplTest {
 				"Provider", "v1.0", "DDF", new HashSet<ContentType>(), true,
 				new Date());
 		CatalogFramework framework = this.createDummyCatalogFramework(provider,
-				eventAdmin);
+				eventAdmin, true);
 
 		// call framework with null request
 		try {
@@ -1101,7 +1095,7 @@ public class CatalogFrameworkImplTest {
 				"Provider", "v1.0", "DDF", new HashSet<ContentType>(), true,
 				null);
 		CatalogFramework framework = this.createDummyCatalogFramework(provider,
-				eventAdmin);
+				eventAdmin, true);
 		List<Metacard> metacards = new ArrayList<Metacard>();
 		MetacardImpl newCard = new MetacardImpl();
 		newCard.setId(null);
@@ -1146,7 +1140,7 @@ public class CatalogFrameworkImplTest {
 				"Provider", "v1.0", "DDF", new HashSet<ContentType>(), true,
 				null);
 		CatalogFramework framework = this.createDummyCatalogFramework(provider,
-				eventAdmin);
+				eventAdmin, true);
 		List<Entry<Object, Metacard>> metacards = new ArrayList<Entry<Object, Metacard>>();
 		HashMap<Object, Metacard> map = new HashMap<Object, Metacard>();
 
@@ -1177,7 +1171,7 @@ public class CatalogFrameworkImplTest {
 				"Provider", "v1.0", "DDF", new HashSet<ContentType>(), true,
 				null);
 		CatalogFramework framework = this.createDummyCatalogFramework(provider,
-				eventAdmin);
+				eventAdmin, true);
 		List<Entry<Object, Metacard>> metacards = new ArrayList<Entry<Object, Metacard>>();
 		HashMap<Object, Metacard> map = new HashMap<Object, Metacard>();
 
@@ -1208,7 +1202,7 @@ public class CatalogFrameworkImplTest {
 				"Provider", "v1.0", "DDF", new HashSet<ContentType>(), true,
 				null);
 		CatalogFramework framework = this.createDummyCatalogFramework(provider,
-				eventAdmin);
+				eventAdmin, true);
 		List<String> ids = new ArrayList<String>();
 		ids.add("1234");
 
@@ -1232,7 +1226,7 @@ public class CatalogFrameworkImplTest {
 				"Provider", "v1.0", "DDF", new HashSet<ContentType>(), true,
 				null);
 		CatalogFramework framework = this.createDummyCatalogFramework(provider,
-				eventAdmin);
+				eventAdmin, true);
 		//List<MetacardType> identifiers = new ArrayList<MetacardType>();
 		// identifiers.add( new MetacardTypeImpl( "id", "1234" ) );
 		ArrayList<URI> uris = new ArrayList<URI>();
@@ -1257,7 +1251,7 @@ public class CatalogFrameworkImplTest {
 				new Date());
 		// TODO pass in bundle context
 		CatalogFramework framework = this.createDummyCatalogFramework(provider,
-				eventAdmin);
+				eventAdmin, true);
 		MetacardImpl newCard = new MetacardImpl();
 		newCard.setId(null);
 
@@ -1307,14 +1301,10 @@ public class CatalogFrameworkImplTest {
         federatedSources.add(federatedSource1);
      
         // Mock register the provider in the container
-        SourcePollerRunner runner = new SourcePollerRunner();
-        SourcePoller poller = new SourcePoller(runner);
-        runner.bind(provider);
-    
-        // Mock register the federated sources
-        for (FederatedSource source : federatedSources) {
-            runner.bind(source);
-        }
+        // Mock the source poller
+        SourcePoller mockPoller = mock(SourcePoller.class);
+        when(mockPoller.isAvailable(isA(Source.class)))
+                .thenReturn(Boolean.TRUE);
         
         Metacard metacard = mock(Metacard.class);
         when(metacard.getId()).thenReturn(metacardId);
@@ -1347,7 +1337,7 @@ public class CatalogFrameworkImplTest {
                 new ArrayList<PreResourcePlugin>(),
                 new ArrayList<PostResourcePlugin>(),
                 new ArrayList<ConnectedSource>(), federatedSources,
-                resourceReaders, strategy, null, poller);
+                resourceReaders, strategy, null, mockPoller);
         framework.bind( provider );
         framework.setId("ddf");
     
@@ -1402,9 +1392,10 @@ public class CatalogFrameworkImplTest {
         when(provider.isAvailable()).thenReturn(true);
 
 	    // Mock register the provider in the container
-	    SourcePollerRunner runner = new SourcePollerRunner();
-	    SourcePoller poller = new SourcePoller(runner);
-	    runner.bind(provider);
+        // Mock the source poller
+        SourcePoller mockPoller = mock(SourcePoller.class);
+        when(mockPoller.isAvailable(isA(Source.class)))
+                .thenReturn(Boolean.TRUE);
 	    
 	    // Create two ResourceReaders.  The first should not return anything
 	    // and the second should.
@@ -1468,7 +1459,7 @@ public class CatalogFrameworkImplTest {
                 new ArrayList<PreResourcePlugin>(),
                 new ArrayList<PostResourcePlugin>(),
                 new ArrayList<ConnectedSource>(), null,
-                resourceReaders, strategy, null, poller);
+                resourceReaders, strategy, null, mockPoller);
         framework.bind( provider );
         framework.setId(DDF);
         
@@ -1502,11 +1493,13 @@ public class CatalogFrameworkImplTest {
 	}
 
 	private CatalogFramework createDummyCatalogFramework(
-			CatalogProvider provider, MockEventProcessor admin) {
+			CatalogProvider provider, MockEventProcessor admin,
+			boolean sourceAvailability) {
 		// Mock register the provider in the container
-		SourcePollerRunner runner = new SourcePollerRunner();
-		SourcePoller poller = new SourcePoller(runner);
-		runner.bind(provider);
+        // Mock the source poller
+        SourcePoller mockPoller = mock(SourcePoller.class);
+        when(mockPoller.isAvailable(isA(Source.class)))
+                .thenReturn(sourceAvailability);
 
 		CatalogFrameworkImpl framework =  new CatalogFrameworkImpl( 
 		        Collections.singletonList( provider ),
@@ -1519,7 +1512,7 @@ public class CatalogFrameworkImplTest {
 				new ArrayList<PostResourcePlugin>(),
 				new ArrayList<ConnectedSource>(),
 				new ArrayList<FederatedSource>(),
-				new ArrayList<ResourceReader>(), null, null, poller);
+				new ArrayList<ResourceReader>(), null, null, mockPoller);
 		framework.bind( provider );
 		
 		return framework;

@@ -93,17 +93,10 @@ public class SourcePoller {
 				result = true;
 			} else if (sourceStatus == SourceStatus.AVAILABLE) {
 				result = true;
-			}
-			else if (sourceStatus == SourceStatus.UNAVAILABLE) {
-				result = false;
-			} else if(sourceStatus == SourceStatus.UNCHECKED) {
-				runner.run();
-				if(SourceStatus.UNAVAILABLE.equals(runner.getStatus(source))) {
-					result = false;
-				} else {
-					result = true; 
-				}  
-			}
+			} else if (sourceStatus == SourceStatus.UNAVAILABLE
+                || sourceStatus == SourceStatus.UNCHECKED) {
+                result = false;
+            }
 		} else {
 			logger.debug(" Source is null. Returning false. ");
 			result = false;
@@ -123,6 +116,8 @@ public class SourcePoller {
 		
 		logger.info("Cancelling scheduled polling.");
 		
+        runner.shutdown();
+
 		handle.cancel(true) ;
 		
 		scheduler.shutdownNow() ;
