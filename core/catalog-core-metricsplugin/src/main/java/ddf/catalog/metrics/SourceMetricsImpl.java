@@ -19,6 +19,9 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang.StringUtils;
 import org.osgi.service.cm.Configuration;
@@ -95,6 +98,7 @@ public class SourceMetricsImpl implements SourceMetrics {
     // Map of sourceId to Source's metric data
     protected Map<String, SourceMetric> metrics = new HashMap<String, SourceMetric>();
     
+    private ExecutorService executorPool;
 
 	/**
 	 * 
@@ -223,26 +227,28 @@ public class SourceMetricsImpl implements SourceMetrics {
 	 * @param source
 	 * @param props
 	 */
-	public void addingSource(Source source, Map props) {
-		LOGGER.trace("ENTERING: addingService");
+	public void addingSource(final Source source, Map props) {
+		LOGGER.trace("ENTERING: addingSource");
+				
+		if (executorPool == null)
+        {
+			executorPool = Executors.newCachedThreadPool();        
+        }
+        
+		// Creating JmxCollectors for all of the source metrics can be time consuming,
+		// so do this in a separate thread to prevent blacklisting by EventAdmin
+        final Runnable metricsCreator = new Runnable() 
+        {
+            public void run() 
+            { 				
+				createSourceMetrics(source);
+            }
+        };
+        
+        LOGGER.debug("Start metricsCreator thread for Source {}", source.getId());
+        executorPool.execute(metricsCreator);
 		
-		if (source == null || StringUtils.isBlank(source.getId())) {
-			LOGGER.info("Not adding metrics for NULL or blank source");
-			return;
-		}
-		
-		String sourceId = source.getId();
-		
-		LOGGER.debug("sourceId = {}", sourceId);
-		
-		createMetric(sourceId, QUERIES_TOTAL_RESULTS_SCOPE, MetricType.HISTOGRAM);
-		createMetric(sourceId, QUERIES_SCOPE, MetricType.METER);
-		createMetric(sourceId, EXCEPTIONS_SCOPE, MetricType.METER);
-		
-		// Add new source to internal map used when updating metrics by sourceId
-		sourceToSourceIdMap.put(source, sourceId);
-		
-		LOGGER.trace("EXITING: addingService");
+		LOGGER.trace("EXITING: addingSource");
 	}
 	
     /**
@@ -253,8 +259,8 @@ public class SourceMetricsImpl implements SourceMetrics {
      * @param source
      * @param props
      */
-    public void deletingSource(Source source, Map props) {
-    	LOGGER.trace("ENTERING: deletingService");
+    public void deletingSource(final Source source, final Map props) {
+    	LOGGER.trace("ENTERING: deletingSource");
     	
     	if (source == null || StringUtils.isBlank(source.getId())) {
 			LOGGER.info("Not deleting metrics for NULL or blank source");
@@ -272,8 +278,28 @@ public class SourceMetricsImpl implements SourceMetrics {
     	// Delete source from internal map used when updating metrics by sourceId
     	sourceToSourceIdMap.remove(source);
     	
-    	LOGGER.trace("EXITING: deletingService");
+    	LOGGER.trace("EXITING: deletingSource");
 	}
+    
+    // Separate, package-scope method to allow unit testing
+    void createSourceMetrics(final Source source) {
+    	
+    	if (source == null || StringUtils.isBlank(source.getId())) {
+			LOGGER.info("Not adding metrics for NULL or blank source");
+			return;
+		}
+    	
+    	String sourceId = source.getId();
+		
+		LOGGER.debug("sourceId = {}", sourceId);
+		
+		createMetric(sourceId, QUERIES_TOTAL_RESULTS_SCOPE, MetricType.HISTOGRAM);
+		createMetric(sourceId, QUERIES_SCOPE, MetricType.METER);
+		createMetric(sourceId, EXCEPTIONS_SCOPE, MetricType.METER);
+		
+		// Add new source to internal map used when updating metrics by sourceId
+		sourceToSourceIdMap.put(source, sourceId);
+    }
     
     private void createMetric(String sourceId, String mbeanName, MetricType type) {
         
