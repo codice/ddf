@@ -15,6 +15,10 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
+import static org.mockito.Matchers.isA;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -56,8 +60,8 @@ import ddf.catalog.source.FederatedSource;
 import ddf.catalog.source.IngestException;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
+import ddf.catalog.source.Source;
 import ddf.catalog.util.SourcePoller;
-import ddf.catalog.util.SourcePollerRunner;
 
 
 public class CatalogFrameworkQueryTest {
@@ -72,9 +76,10 @@ public class CatalogFrameworkQueryTest {
 				new Date());
 
 		// Mock register the provider in the container
-		SourcePollerRunner runner = new SourcePollerRunner();
-		SourcePoller poller = new SourcePoller(runner);
-		runner.bind(provider);
+        // Mock the source poller
+        SourcePoller mockPoller = mock(SourcePoller.class);
+        when(mockPoller.isAvailable(isA(Source.class)))
+                .thenReturn(Boolean.TRUE);
 		ArrayList<PostIngestPlugin> postIngestPlugins = new ArrayList<PostIngestPlugin>();
 		framework = new CatalogFrameworkImpl(
 		        Collections.singletonList( (CatalogProvider) provider ), 
@@ -88,7 +93,7 @@ public class CatalogFrameworkQueryTest {
 				new ArrayList<ConnectedSource>(),
 				new ArrayList<FederatedSource>(),
 				new ArrayList<ResourceReader>(), new MockFederationStrategy(),
-				null, poller);
+				null, mockPoller);
 		framework.bind( provider );
 	}
 	
