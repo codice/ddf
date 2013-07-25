@@ -46,7 +46,7 @@ public class SourcePollerRunner implements Runnable {
 	private static XLogger logger = new XLogger(LoggerFactory.getLogger(SourcePollerRunner.class));
 
     private ExecutorService pool;
-    private Map<Source, Lock> locks = new ConcurrentHashMap<Source, Lock>();
+    private Map<Source, Lock> sourceStatusThreadLocks = new ConcurrentHashMap<Source, Lock>();
 
 
 	
@@ -100,8 +100,8 @@ public class SourcePollerRunner implements Runnable {
 
             public void run() {
 
-                Lock lock = locks.get(source);
-                if (lock.tryLock()) {
+                Lock sourceStatusThreadLock = sourceStatusThreadLocks.get(source);
+                if (sourceStatusThreadLock.tryLock()) {
                     logger.debug("Acquired lock for Source [" + source
                             + "] with id [" + source.getId() + "] ");
                     boolean available = false;
@@ -132,27 +132,30 @@ public class SourcePollerRunner implements Runnable {
                         logger.debug("Source [" + source + "] with id ["
                                 + source.getId() + "] isAvailable? "
                                 + available);
-
+                        
+                        if (available) {
+                            status.put(source, SourceStatus.AVAILABLE);
+                        } else {
+                            status.put(source, SourceStatus.UNAVAILABLE);
+                        }
+                        
                     } catch (Exception e) {
+                        status.put(source, SourceStatus.UNAVAILABLE);
                         logger.debug(
                                 "Source ["
                                         + source
                                         + "] did not return properly with availability.",
                                 e);
                     } finally {
-
-                        if (available) {
-                            status.put(source, SourceStatus.AVAILABLE);
-                        } else {
-                            status.put(source, SourceStatus.UNAVAILABLE);
-                        }
-
                         // release the lock acquired initially
-                        lock.unlock();
+                        sourceStatusThreadLock.unlock();
                         logger.debug("Released lock for Source [" + source
                                 + "] with id [" + source.getId() + "] ");
 
                     }
+                } else {
+                    logger.debug("Unable to get lock for Source [" + source
+                            + "] with id [" + source.getId() + "].  A status thread is already running.");
                 }
             }
         };
@@ -172,7 +175,7 @@ public class SourcePollerRunner implements Runnable {
 		if (source != null) {
 			logger.debug("Marking new source " + source+ " as UNCHECKED.") ;
 			sources.add(source);
-			locks.put(source, new ReentrantLock());
+			sourceStatusThreadLocks.put(source, new ReentrantLock());
 			status.put(source, SourceStatus.UNCHECKED);
             checkStatus(source);
 
@@ -191,7 +194,7 @@ public class SourcePollerRunner implements Runnable {
 		if(source != null) {
 			status.remove(source) ;
 			sources.remove(source);
-			locks.remove(source);
+			sourceStatusThreadLocks.remove(source);
 		}
 	}
 
