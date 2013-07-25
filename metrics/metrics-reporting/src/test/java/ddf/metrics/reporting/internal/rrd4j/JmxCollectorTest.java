@@ -61,7 +61,7 @@ public class JmxCollectorTest
         ((PatternLayout) ((Appender) Logger.getRootLogger().getAllAppenders().nextElement()).getLayout())
                 .setConversionPattern("[%30.30t] %-30.30c{1} %-5p %m%n");
 
-        Logger.getRootLogger().setLevel(Level.TRACE);
+        Logger.getRootLogger().setLevel(Level.INFO);
         
         // To add appender that logs to a log file in addition to Console
 //        Layout layout = (PatternLayout)((Appender) Logger.getRootLogger().getAllAppenders().nextElement()).getLayout();
