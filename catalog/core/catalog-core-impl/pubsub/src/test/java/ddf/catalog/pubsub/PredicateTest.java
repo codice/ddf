@@ -90,11 +90,7 @@ public class PredicateTest
         properties.put(PubSubConstants.HEADER_CONTENT_TYPE_KEY, "type1,version1");
         properties.put(PubSubConstants.HEADER_OPERATION_KEY, PubSubConstants.CREATE);
         
-        //Below Pulled from PubSubProviderImpl
-        Directory index = ContextualEvaluator.buildIndex( metacard.getMetadata() );
-        Map<String, Object> contextualMap = new HashMap<String, Object>();
-        contextualMap.put( "DEFAULT_INDEX", index );
-        contextualMap.put(  "METADATA", metacard.getMetadata() );
+        Map<String, Object> contextualMap = constructContextualMap(metacard);
         properties.put( PubSubConstants.HEADER_CONTEXTUAL_KEY, contextualMap );
         //Above Pulled from PubSubProviderImpl
 
@@ -191,6 +187,28 @@ public class PredicateTest
         
         logger.debug( "***************  END: " + methodName + "  *****************" );
     }
+    
+    @Test
+    public void testContentTypeEvaluationNullOperation() throws IOException
+    {
+        String methodName = "testContentTypeEvaluationNullOperation";
+        logger.debug( "***************  START: " + methodName + "  *****************" );
+        
+        MetacardImpl metacard = new MetacardImpl();
+        metacard.setMetadata(TestDataLibrary.getCatAndDogEntry());
+        
+        ContentTypePredicate ctp = new ContentTypePredicate("type1", "version1");
+        HashMap<String, Object> properties = new HashMap<String, Object>();
+        properties.put(PubSubConstants.HEADER_CONTENT_TYPE_KEY, "type1,version1");
+        properties.put(PubSubConstants.HEADER_OPERATION_KEY, null);
+        Map<String, Object> contextualMap = constructContextualMap(metacard);
+        properties.put( PubSubConstants.HEADER_CONTEXTUAL_KEY, contextualMap );
+
+        Event testEvent = new Event("topic",properties );
+        assertTrue(ctp.matches(testEvent));
+        
+        logger.debug( "***************  END: " + methodName + "  *****************" );
+    }
      
 
     @Test
@@ -223,10 +241,7 @@ public class PredicateTest
         properties.put(PubSubConstants.HEADER_OPERATION_KEY, PubSubConstants.CREATE);
         
         //Below Pulled from PubSubProviderImpl
-        Directory index = ContextualEvaluator.buildIndex( metacard.getMetadata() );
-        Map<String, Object> contextualMap = new HashMap<String, Object>();
-        contextualMap.put( "DEFAULT_INDEX", index );
-        contextualMap.put(  "METADATA", metacard.getMetadata() );
+        Map<String, Object> contextualMap = constructContextualMap(metacard);
         properties.put( PubSubConstants.HEADER_CONTEXTUAL_KEY, contextualMap );
         //Above Pulled from PubSubProviderImpl
 
@@ -256,6 +271,15 @@ public class PredicateTest
         
         logger.debug( "***************  END: " + methodName + "  *****************" );
     }
+
+    private Map<String, Object> constructContextualMap(MetacardImpl metacard)
+	    throws IOException {
+	Directory index = ContextualEvaluator.buildIndex( metacard.getMetadata() );
+        Map<String, Object> contextualMap = new HashMap<String, Object>();
+        contextualMap.put( "DEFAULT_INDEX", index );
+        contextualMap.put(  "METADATA", metacard.getMetadata() );
+	return contextualMap;
+    }
     
     
     @Test
@@ -284,11 +308,7 @@ public class PredicateTest
         HashMap<String, Object> properties = new HashMap<String, Object>();
         properties.put(PubSubConstants.HEADER_OPERATION_KEY, PubSubConstants.CREATE);
         
-        //Below Pulled from PubSubProviderImpl
-        Directory index = ContextualEvaluator.buildIndex( metacard.getMetadata() );
-        Map<String, Object> contextualMap = new HashMap<String, Object>();
-        contextualMap.put( "DEFAULT_INDEX", index );
-        contextualMap.put(  "METADATA", metacard.getMetadata() );
+        Map<String, Object> contextualMap = constructContextualMap(metacard);
         properties.put( PubSubConstants.HEADER_CONTEXTUAL_KEY, contextualMap );
         //Above Pulled from PubSubProviderImpl
 
@@ -348,11 +368,7 @@ public class PredicateTest
         HashMap<String, Object> properties = new HashMap<String, Object>();
         properties.put(PubSubConstants.HEADER_OPERATION_KEY, PubSubConstants.CREATE);
         
-        //Below Pulled from PubSubProviderImpl
-        Directory index = ContextualEvaluator.buildIndex( metacard.getMetadata() );
-        Map<String, Object> contextualMap = new HashMap<String, Object>();
-        contextualMap.put( "DEFAULT_INDEX", index );
-        contextualMap.put(  "METADATA", metacard.getMetadata() );
+        Map<String, Object> contextualMap = constructContextualMap(metacard);
         properties.put( PubSubConstants.HEADER_CONTEXTUAL_KEY, contextualMap );
         //Above Pulled from PubSubProviderImpl
 
@@ -459,11 +475,7 @@ public class PredicateTest
         HashMap<String, Object> properties = new HashMap<String, Object>();
         properties.put(PubSubConstants.HEADER_OPERATION_KEY, PubSubConstants.CREATE);
         
-        //Below Pulled from PubSubProviderImpl
-        Directory index = ContextualEvaluator.buildIndex( metacard.getMetadata() );
-        Map<String, Object> contextualMap = new HashMap<String, Object>();
-        contextualMap.put( "DEFAULT_INDEX", index );
-        contextualMap.put(  "METADATA", metacard.getMetadata() );
+        Map<String, Object> contextualMap = constructContextualMap(metacard);
         properties.put( PubSubConstants.HEADER_CONTEXTUAL_KEY, contextualMap );
         //Above Pulled from PubSubProviderImpl
 
@@ -555,11 +567,7 @@ public class PredicateTest
         HashMap<String, Object> properties = new HashMap<String, Object>();
         properties.put(PubSubConstants.HEADER_OPERATION_KEY, PubSubConstants.CREATE);
         
-        //Below Pulled from PubSubProviderImpl
-        Directory index = ContextualEvaluator.buildIndex( metacard.getMetadata() );
-        Map<String, Object> contextualMap = new HashMap<String, Object>();
-        contextualMap.put( "DEFAULT_INDEX", index );
-        contextualMap.put(  "METADATA", metacard.getMetadata() );
+        Map<String, Object> contextualMap = constructContextualMap(metacard);
         properties.put( PubSubConstants.HEADER_CONTEXTUAL_KEY, contextualMap );
         //Above Pulled from PubSubProviderImpl
  
@@ -623,6 +631,56 @@ public class PredicateTest
         properties.put(PubSubConstants.HEADER_OPERATION_KEY, PubSubConstants.CREATE);
         // no contextual map containing indexed contextual data
  
+        properties.put(PubSubConstants.HEADER_ENTRY_KEY, metacard);
+        Event testEvent = new Event("topic",properties );
+        boolean b = pred.matches(testEvent);
+        assertTrue(b);
+        
+        
+        logger.debug( "***************  END: " + methodName + "  *****************" );
+    }
+    
+    @Test
+    public void testTemporalNullOperation() throws Exception
+    {
+        String methodName = "testTemporalNullOperation";
+        logger.debug( "***************  START: " + methodName + "  *****************" );
+        
+        MockQuery query = new MockQuery();       
+        
+        DatatypeFactory df = DatatypeFactory.newInstance();
+        XMLGregorianCalendar start = df.newXMLGregorianCalendarDate( 2011, 10, 25, 0 );
+        XMLGregorianCalendar end = df.newXMLGregorianCalendarDate( 2011, 10, 27, 0 );
+        query.addTemporalFilter( start, end, Metacard.EFFECTIVE );
+        
+        SubscriptionFilterVisitor visitor = new SubscriptionFilterVisitor();
+        Predicate pred = (Predicate) query.getFilter().accept(visitor, null);
+        System.out.println("resulting predicate: " + pred);
+        
+        Filter filter = query.getFilter();
+        FilterTransformer transform = new FilterTransformer();
+        transform.setIndentation( 2 );
+        String filterXml = transform.transform( filter );
+        System.out.println( filterXml );
+        
+        //input that passes temporal
+        logger.debug("\npass temporal.\n");
+        MetacardImpl metacard = new MetacardImpl();
+        metacard.setCreatedDate(new Date());
+        metacard.setExpirationDate(new Date());
+        metacard.setModifiedDate(new Date());
+        metacard.setMetadata(TestDataLibrary.getCatAndDogEntry());
+        
+        XMLGregorianCalendar cal = df.newXMLGregorianCalendarDate(2011, 10, 26, 0);
+        Date effectiveDate = cal.toGregorianCalendar().getTime();
+        metacard.setEffectiveDate(effectiveDate);
+        
+        HashMap<String, Object> properties = new HashMap<String, Object>();
+        properties.put(PubSubConstants.HEADER_OPERATION_KEY, null);
+        Map<String, Object> contextualMap = constructContextualMap(metacard);
+        properties.put( PubSubConstants.HEADER_CONTEXTUAL_KEY, contextualMap );
+
+        
         properties.put(PubSubConstants.HEADER_ENTRY_KEY, metacard);
         Event testEvent = new Event("topic",properties );
         boolean b = pred.matches(testEvent);
@@ -715,11 +773,7 @@ public class PredicateTest
         HashMap<String, Object> properties = new HashMap<String, Object>();
         properties.put(PubSubConstants.HEADER_OPERATION_KEY, PubSubConstants.CREATE);
         
-        //Below Pulled from PubSubProviderImpl
-        Directory index = ContextualEvaluator.buildIndex( metacard.getMetadata() );
-        Map<String, Object> contextualMap = new HashMap<String, Object>();
-        contextualMap.put( "DEFAULT_INDEX", index );
-        contextualMap.put(  "METADATA", metacard.getMetadata() );
+        Map<String, Object> contextualMap = constructContextualMap(metacard);
         properties.put( PubSubConstants.HEADER_CONTEXTUAL_KEY, contextualMap );
         //Above Pulled from PubSubProviderImpl
 
@@ -902,11 +956,7 @@ public class PredicateTest
         properties.put(PubSubConstants.HEADER_ENTRY_KEY, metacard);
         properties.put(PubSubConstants.HEADER_OPERATION_KEY, PubSubConstants.CREATE);
         
-        //Below Pulled from PubSubProviderImpl
-        Directory index = ContextualEvaluator.buildIndex( metacard.getMetadata() );
-        Map<String, Object> contextualMap = new HashMap<String, Object>();
-        contextualMap.put( "DEFAULT_INDEX", index );
-        contextualMap.put(  "METADATA", metacard.getMetadata() );
+        Map<String, Object> contextualMap = constructContextualMap(metacard);
         properties.put( PubSubConstants.HEADER_CONTEXTUAL_KEY, contextualMap );
         //Above Pulled from PubSubProviderImpl
         
@@ -934,10 +984,7 @@ public class PredicateTest
         properties.put(PubSubConstants.HEADER_OPERATION_KEY, PubSubConstants.CREATE);
         
         //Below Pulled from PubSubProviderImpl
-        index = ContextualEvaluator.buildIndex( metacard.getMetadata() );
-        contextualMap = new HashMap<String, Object>();
-        contextualMap.put( "DEFAULT_INDEX", index );
-        contextualMap.put(  "METADATA", metacard.getMetadata() );
+        contextualMap = constructContextualMap(metacard);
         properties.put( PubSubConstants.HEADER_CONTEXTUAL_KEY, contextualMap );
         //Above Pulled from PubSubProviderImpl
 
@@ -955,10 +1002,7 @@ public class PredicateTest
         properties.put(PubSubConstants.HEADER_OPERATION_KEY, PubSubConstants.CREATE);
         
         //Below Pulled from PubSubProviderImpl
-        index = ContextualEvaluator.buildIndex( metacard.getMetadata() );
-        contextualMap = new HashMap<String, Object>();
-        contextualMap.put( "DEFAULT_INDEX", index );
-        contextualMap.put(  "METADATA", metacard.getMetadata() );
+        contextualMap = constructContextualMap(metacard);
         properties.put( PubSubConstants.HEADER_CONTEXTUAL_KEY, contextualMap );
         //Above Pulled from PubSubProviderImpl
 
@@ -977,10 +1021,7 @@ public class PredicateTest
         properties.put(PubSubConstants.HEADER_OPERATION_KEY, PubSubConstants.CREATE);
         
         //Below Pulled from PubSubProviderImpl
-        index = ContextualEvaluator.buildIndex( metacard.getMetadata() );
-        contextualMap = new HashMap<String, Object>();
-        contextualMap.put( "DEFAULT_INDEX", index );
-        contextualMap.put(  "METADATA", metacard.getMetadata() );
+        contextualMap = constructContextualMap(metacard);
         properties.put( PubSubConstants.HEADER_CONTEXTUAL_KEY, contextualMap );
         //Above Pulled from PubSubProviderImpl
 
@@ -1014,11 +1055,7 @@ public class PredicateTest
         properties.put(PubSubConstants.HEADER_OPERATION_KEY, PubSubConstants.CREATE);
         
         
-        //Below Pulled from PubSubProviderImpl
-        Directory index = ContextualEvaluator.buildIndex( metacard.getMetadata() );
-        Map<String, Object> contextualMap = new HashMap<String, Object>();
-        contextualMap.put( "DEFAULT_INDEX", index );
-        contextualMap.put(  "METADATA", metacard.getMetadata() );
+        Map<String, Object> contextualMap = constructContextualMap(metacard);
         properties.put( PubSubConstants.HEADER_CONTEXTUAL_KEY, contextualMap );
         //Above Pulled from PubSubProviderImpl
         
@@ -1143,6 +1180,34 @@ public class PredicateTest
         properties.put(PubSubConstants.HEADER_ENTRY_KEY, metacard);
         // No Contextual map added to properties containing indexed metadata
 
+        Event testEvent = new Event("topic",properties );
+        assertTrue(predicate.matches(testEvent));
+        
+        logger.debug( "***************  END: " + methodName + "  *****************" );
+    }
+    
+    @Test
+    public void testGeospatialPredicateNullOperation() throws IOException
+    {
+        String methodName = "testGeospatialPredicateNullOperation";
+        logger.debug( "***************  START: " + methodName + "  *****************" );
+        
+        String geometryWkt = "POLYGON ((40 34, 40 33, 44.5 33, 44.5 34, 40 34))";
+        String operation = "overlaps";
+        double distance = 0.0;
+        GeospatialPredicate predicate = new GeospatialPredicate(geometryWkt, operation, distance);
+        
+        MetacardImpl metacard = new MetacardImpl();
+        metacard.setLocation("POINT (41 34)");
+        metacard.setMetadata(TestDataLibrary.getCatAndDogEntry());
+        
+        HashMap<String, Object> properties = new HashMap<String, Object>();
+        properties.put(PubSubConstants.HEADER_CONTENT_TYPE_KEY, "type1,version1");
+        properties.put(PubSubConstants.HEADER_OPERATION_KEY, null);
+        properties.put(PubSubConstants.HEADER_ENTRY_KEY, metacard);
+        Map<String, Object> contextualMap = constructContextualMap(metacard);
+        properties.put( PubSubConstants.HEADER_CONTEXTUAL_KEY, contextualMap );
+        
         Event testEvent = new Event("topic",properties );
         assertTrue(predicate.matches(testEvent));
         
