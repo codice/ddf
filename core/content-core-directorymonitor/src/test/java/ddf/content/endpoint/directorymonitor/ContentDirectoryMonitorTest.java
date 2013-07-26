@@ -53,18 +53,7 @@ public class ContentDirectoryMonitorTest extends CamelTestSupport
     
     private CamelContext camelContext;
     private ContentDirectoryMonitor contentDirectoryMonitor;
-    
-   
-    @BeforeClass
-    static public void oneTimeSetup() {
-        // Format logger output
-        BasicConfigurator.configure();
-        ((PatternLayout) ((Appender) Logger.getRootLogger().getAllAppenders().nextElement()).getLayout())
-                .setConversionPattern("[%30.30t] %-30.30c{1} %-5p %m%n");
-
-        Logger.getRootLogger().setLevel(Level.DEBUG);
-    }
-    
+      
     
     @After
     public void tearDown()
