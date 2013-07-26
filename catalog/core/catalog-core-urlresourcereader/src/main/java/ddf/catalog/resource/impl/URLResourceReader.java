@@ -57,6 +57,9 @@ public class URLResourceReader implements ResourceReader {
     private static final String ORGANIZATION = "DDF";
     private static final String DEFAULT_MIME_TYPE = "application/octet-stream";
     private static final int QUALIFIER_SET_SIZE = 3;
+    
+    private static final String CONTENT_DISPOSITION = "Content-Disposition";
+    private static final String FILENAME_STR = "filename=\"";
 
     private static Set<String> qualifierSet;
     static {
@@ -179,14 +182,14 @@ public class URLResourceReader implements ResourceReader {
     	if (resourceURI.getScheme().equals(URL_HTTP_SCHEME) || resourceURI.getScheme().equals(URL_HTTPS_SCHEME)) {
     	    logger.debug("Resource URI is HTTP or HTTPS");
     	    URL url = resourceURI.toURL();
-    	    logger.debug("resource name: " + url.getFile());
+    	    logger.debug("resource name: {}", url.getFile());
     	    return doRetrieveProduct(resourceURI, url.getFile());
     
     	} else if (resourceURI.getScheme().equals(URL_FILE_SCHEME)) {
     	    logger.debug("Resource URI is a File");
     	    File filePathName = new File(resourceURI);
     	    String fileName = filePathName.getName();
-    	    logger.debug("resource name: " + fileName);
+    	    logger.debug("resource name: {}", fileName);
     	    return doRetrieveProduct(resourceURI, fileName);
     	} else {
     	    ResourceNotFoundException ce = new ResourceNotFoundException("Resource qualifier ( "
@@ -208,10 +211,10 @@ public class URLResourceReader implements ResourceReader {
 	try {
 	    URLConnection connection = null;
 	    
-	    logger.debug("Creating URL for path: " + resourceURI.getPath());
+	    logger.debug("Creating URL for path: {}", resourceURI.getPath());
 	    URL url = resourceURI.toURL();
-	    logger.debug("Opening connection to: " + resourceURI.toString());
-	    
+	    logger.debug("Opening connection to: {}", resourceURI.toString());
+
 	    // If the connection is not null it indicates that a unit test is 
 	    // being run and we don't need to set it.
 	    if (null == conn) 
@@ -226,6 +229,23 @@ public class URLResourceReader implements ResourceReader {
 	        // in subsequent calls to this method
 	        conn = null;
 	    }
+	    
+	    // Check Connection headers for filename
+	    String contentHeader = connection.getHeaderField(CONTENT_DISPOSITION);
+        if(contentHeader != null)
+        {
+            int nameStart = contentHeader.indexOf(FILENAME_STR);
+            if(nameStart != -1)
+            {
+                nameStart += FILENAME_STR.length();
+                int nameEnd = contentHeader.indexOf("\"", nameStart);
+                if (nameEnd != -1)
+                {
+                    productName = contentHeader.substring(nameStart, nameEnd);
+                    logger.debug("Found content disposition header, changing resource name to {}", productName);
+                }
+            }
+        }
 
 	    // Determine the mime type in a hierarchical fashion. The hierarchy is based on the
 	    // most accurate mime type resolution being used and lesser accurate approaches being used
@@ -242,14 +262,14 @@ public class URLResourceReader implements ResourceReader {
 	    }
 	    else
 	    {
-	        // Extract the file extension (if any) from the URL's file
-	        int index = url.getFile().lastIndexOf( "." );
+	        // Extract the file extension (if any) from the URL's filename
+	        int index = productName.lastIndexOf( "." );
 	        
 	        // If there is a file extension, attempt to get mime type based on the file extension,
 	        // using the MimeTypeMapper so that any custom MimeTypeResolvers are consulted
 	        if ( index > -1 )
 	        {
-    	        String fileExtension = url.getFile().substring( index + 1 );
+    	        String fileExtension = productName.substring( index + 1 );
     	        
     	        // Handle case where "." or ".." could be in the URL path and there is no
     	        // valid file extension.
@@ -258,19 +278,12 @@ public class URLResourceReader implements ResourceReader {
     	        // When this occurs move on to alternate mime type resolution approaches.
     	        if ( !fileExtension.contains( "\\" ) && !fileExtension.contains( "/") )
     	        {
-        	        if ( logger.isDebugEnabled() )
-        	        {
-        	            logger.debug( "url.getFile() = " + url.getFile() + ",   fileExtension = " + fileExtension );
-        	        }
+        	        logger.debug( "url.getFile() = {},   fileExtension = {}", productName, fileExtension );
         	        mimeType = mimeTypeMapper.getMimeTypeForFileExtension( fileExtension );
     	        }
     	        else
     	        {
-    	            if ( logger.isDebugEnabled() )
-                    {
-                        logger.debug( "fileExtension = " + fileExtension + 
-                            " is not valid - proceeding with alternate mime type resolution" );
-                    } 
+                    logger.debug( "fileExtension = {} is not valid - proceeding with alternate mime type resolution", fileExtension );
     	        }
 	        }
 	    }
@@ -283,21 +296,18 @@ public class URLResourceReader implements ResourceReader {
 	        // Use Apache Tika to detect mime type from URL
 	        Tika tika = new Tika();
             mimeType = tika.detect( url );
-            logger.debug( "Tika determined mimeType for url = " + mimeType );
+            logger.debug( "Tika determined mimeType for url = {}", mimeType );
 	    }
 	    else
 	    {
-	        if ( logger.isDebugEnabled() )
-            {
-                logger.debug( "mimeType = " + mimeType + " set by MimeTypeMapper" );
-            }
+            logger.debug( "mimeType = {} set by MimeTypeMapper", mimeType );
 	    }
 	    
-	    // DDF-1400: Legacy default is application/unknown but URLConnection returns content/unknown
+	    // Legacy default is application/unknown but URLConnection returns content/unknown
 	    // as default when mime type does not map to a file extension. To maintain legacy
 	    // compatibility, change content/unknown to application/unknown
 	    
-	    // DDF-1525: With switching to use MimeTypeMapper vs. URLConnection.getContentType() and guessContentTypeFromName()
+	    // With switching to use MimeTypeMapper vs. URLConnection.getContentType() and guessContentTypeFromName()
 	    // the underlying TikaMimeTypeResolver will always return at least application/octet-stream as the default
 	    // mime type for an unknown file extension. Hence, application/unknown will probably never be returned.
 	    if ( mimeType == null || mimeType.equals( "content/unknown" ) )
@@ -305,15 +315,11 @@ public class URLResourceReader implements ResourceReader {
 	        mimeType = "application/unknown";
 	    }
 	    
-	    if(logger.isDebugEnabled()) {
-	    	logger.debug("mimeType set to: " + mimeType);
-	    }
+	    logger.debug("mimeType set to: {}", mimeType);
 	    
 	    InputStream is = connection.getInputStream();
 	    
-	    if(logger.isDebugEnabled()) {
-	    	logger.debug("url file: " + url.getFile());
-	    }
+	    logger.debug("url file: {}", url.getFile());
 
         File filePathName = new File(productName);
         String fileName = filePathName.getName();

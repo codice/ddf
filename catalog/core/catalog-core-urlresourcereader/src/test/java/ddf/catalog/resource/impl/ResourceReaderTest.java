@@ -29,13 +29,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.MethodRule;
 import org.junit.rules.TestWatchman;
 import org.junit.runners.model.FrameworkMethod;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ddf.catalog.operation.ResourceResponse;
 import ddf.catalog.resource.Resource;
@@ -50,7 +51,7 @@ import ddf.mime.tika.TikaMimeTypeResolver;
 public class ResourceReaderTest
 {
 
-    private static final Logger LOGGER = Logger.getLogger(ResourceReaderTest.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ResourceReaderTest.class);
     private static final String TEST_PATH = "/src/test/resources/data/";
     private static final String DEFAULT_MIME_TYPE = "application/octet-stream";
     private static final String JPEG_MIME_TYPE = "image/jpeg";
@@ -67,7 +68,9 @@ public class ResourceReaderTest
     private static final String HTTP_SCHEME_PLUS_SEP = "http://";
     private static final String FILE_SCHEME_PLUS_SEP = "file:///";
     private static final String ABSOLUTE_PATH = new File(".").getAbsolutePath();
-    private static final String HOST = "172.18.14.53";
+    private static final String HOST = "127.0.0.1";
+    private static final String BAD_FILE_NAME = "mydata?uri=63f30ff4dc85436ea507fceeb1396940_blahblahblah&this=that";
+    private static final String CONTENT_DISPOSITION = "Content-Disposition";
 
     private MimeTypeMapper mimeTypeMapper;
 
@@ -86,11 +89,6 @@ public class ResourceReaderTest
             LOGGER.debug("***************************  END: {}  **************************\n" + method.getName());
         }
     };
-
-    static
-    {
-        org.apache.log4j.BasicConfigurator.configure();
-    }
 
     @Before
     public void setUp()
@@ -304,6 +302,19 @@ public class ResourceReaderTest
     }
     
     @Test
+    public void testNameInContentDisposition() throws URISyntaxException, IOException, ResourceNotFoundException
+    {        
+        URI uri = new URI(HTTP_SCHEME_PLUS_SEP + HOST + TEST_PATH + BAD_FILE_NAME);
+        URLConnection conn = mock(URLConnection.class);
+        
+        when(conn.getHeaderField(CONTENT_DISPOSITION)).thenReturn("inline; filename=\"" + JPEG_FILE_NAME_1 + "\"");
+        when(conn.getInputStream()).thenReturn(null);
+        
+        verifyFileFromURLResourceReader(uri, JPEG_FILE_NAME_1, JPEG_MIME_TYPE, conn);
+        
+    }
+    
+    @Test
     public void testURLResourceReaderQualifierSet()
     {
         URLResourceReader resourceReader = new URLResourceReader(mimeTypeMapper);
@@ -356,11 +367,16 @@ public class ResourceReaderTest
             fail();
         }
     }
-
+    
     private void verifyFileFromURLResourceReader( URI uri, String filename, String expectedMimeType ) throws URISyntaxException, IOException, ResourceNotFoundException
     {
         URLConnection conn = mock(URLConnection.class);
         when(conn.getInputStream()).thenReturn(null);
+        verifyFileFromURLResourceReader(uri, filename, expectedMimeType, conn);
+    }
+
+    private void verifyFileFromURLResourceReader( URI uri, String filename, String expectedMimeType, URLConnection conn ) throws URISyntaxException, IOException, ResourceNotFoundException
+    {
                 
         URLResourceReader resourceReader = new URLResourceReader(mimeTypeMapper);
 
