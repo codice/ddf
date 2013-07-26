@@ -59,10 +59,7 @@ import ddf.measure.Distance;
 
 public class PredicateTest 
 {
-    static
-    {
-        org.apache.log4j.BasicConfigurator.configure();
-    }
+
     
     private static final Logger logger = Logger.getLogger(PredicateTest.class);
 
@@ -515,13 +512,13 @@ public class PredicateTest
         
         SubscriptionFilterVisitor visitor = new SubscriptionFilterVisitor();
         Predicate pred = (Predicate) query.getFilter().accept(visitor, null);
-        System.out.println("resulting predicate: " + pred);
+        logger.debug("resulting predicate: " + pred);
         
         Filter filter = query.getFilter();
         FilterTransformer transform = new FilterTransformer();
         transform.setIndentation( 2 );
         String filterXml = transform.transform( filter );
-        System.out.println( filterXml );
+        logger.debug( filterXml );
         
         //input that passes temporal
         logger.debug("\npass temporal.\n");
@@ -589,13 +586,13 @@ public class PredicateTest
         
         SubscriptionFilterVisitor visitor = new SubscriptionFilterVisitor();
         Predicate pred = (Predicate) query.getFilter().accept(visitor, null);
-        System.out.println("resulting predicate: " + pred);
+        logger.debug("resulting predicate: " + pred);
         
         Filter filter = query.getFilter();
         FilterTransformer transform = new FilterTransformer();
         transform.setIndentation( 2 );
         String filterXml = transform.transform( filter );
-        System.out.println( filterXml );
+        logger.debug( filterXml );
     }
     
     
@@ -628,13 +625,13 @@ public class PredicateTest
                 
         SubscriptionFilterVisitor visitor = new SubscriptionFilterVisitor();
         Predicate pred = (Predicate) query.getFilter().accept(visitor, null);
-        System.out.println("resulting predicate: " + pred);
+        logger.debug("resulting predicate: " + pred);
         
         Filter filter = query.getFilter();
         FilterTransformer transform = new FilterTransformer();
         transform.setIndentation( 2 );
         String filterXml = transform.transform( filter );
-        System.out.println( filterXml );
+        logger.debug( filterXml );
         
         //input that passes both temporal and content type
         logger.debug("\npass temporal and pass content type.\n");
@@ -851,13 +848,13 @@ public class PredicateTest
         //input passes temporal, id, and geo
         SubscriptionFilterVisitor visitor = new SubscriptionFilterVisitor();
         Predicate pred = (Predicate) query.getFilter().accept(visitor, null);
-        System.out.println("resulting predicate: " + pred);
+        logger.debug("resulting predicate: " + pred);
         
         Filter filter = query.getFilter();
         FilterTransformer transform = new FilterTransformer();
         transform.setIndentation( 2 );
         String filterXml = transform.transform( filter );
-        System.out.println( filterXml );
+        logger.debug( filterXml );
         
         assertTrue(pred.matches(testEvent));
         
@@ -1294,14 +1291,14 @@ public class PredicateTest
     {  
         List<MockTypeVersionsExtension> extensions = new ArrayList<MockTypeVersionsExtension>();
         
-        System.out.println( "typesVersions = " + typesVersions );
+        logger.debug( "typesVersions = " + typesVersions );
         String[] typeVersionPairs = typesVersions.split( "\\|" );
         for ( String typeVersionPair : typeVersionPairs )
         {
-            System.out.println( "typeVersionPair = " + typeVersionPair );
+            logger.debug( "typeVersionPair = " + typeVersionPair );
             MockTypeVersionsExtension ext = null;
             String[] pair = typeVersionPair.split( "," );
-            System.out.println( "pair.length = " + pair.length );
+            logger.debug( "pair.length = " + pair.length );
             String type = pair[0];
             String version = null;
             if ( pair.length == 2 )
