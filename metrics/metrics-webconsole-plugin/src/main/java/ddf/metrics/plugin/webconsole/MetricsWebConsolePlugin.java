@@ -14,6 +14,7 @@ package ddf.metrics.plugin.webconsole;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
+import java.net.URLEncoder;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -297,12 +298,12 @@ public class MetricsWebConsolePlugin extends AbstractWebConsolePlugin
         for (int i=1; i <= numWeeklyReports; i++)
         {
             DateMidnight startOfLastWeek = new DateMidnight(input.minusWeeks(i).withDayOfWeek(DateTimeConstants.MONDAY));
-            String startDate = startOfLastWeek.toString(ISODateTimeFormat.dateTimeNoMillis());
+            String startDate = URLEncoder.encode(startOfLastWeek.toString(ISODateTimeFormat.dateTimeNoMillis()));
             String startDateText = startOfLastWeek.toString("MMMM dd");
             LOGGER.debug("Previous Week " + i + "(start):  " + startDate);
           
             DateMidnight endOfLastWeek = startOfLastWeek.plusDays(DateTimeConstants.DAYS_PER_WEEK - 1);
-            String endDate = endOfLastWeek.toString(ISODateTimeFormat.dateTimeNoMillis());
+            String endDate = URLEncoder.encode(endOfLastWeek.toString(ISODateTimeFormat.dateTimeNoMillis()));
             String endDateText = endOfLastWeek.toString("MMMM dd");
             LOGGER.debug("Previous Week " + i + " (end):  " + endDate);
           
@@ -332,12 +333,12 @@ public class MetricsWebConsolePlugin extends AbstractWebConsolePlugin
         for (int i=1; i <= numMonthlyReports; i++)
         {
             DateMidnight startOfLastMonth = new DateMidnight(input.minusMonths(i).withDayOfMonth(1));
-            String startDate = startOfLastMonth.toString(ISODateTimeFormat.dateTimeNoMillis());
+            String startDate = URLEncoder.encode(startOfLastMonth.toString(ISODateTimeFormat.dateTimeNoMillis()));
             String urlText = startOfLastMonth.toString("MMMM, yyyy");
             LOGGER.debug("Previous Month (start):  " + startDate + "   (ms = " + startOfLastMonth.getMillis() + ")");
             
             DateMidnight endOfLastMonth = startOfLastMonth.plusMonths(1).minusDays(1);
-            String endDate = endOfLastMonth.toString(ISODateTimeFormat.dateTimeNoMillis());
+            String endDate = URLEncoder.encode(endOfLastMonth.toString(ISODateTimeFormat.dateTimeNoMillis()));
             LOGGER.debug("Previous Month (end):  " + endOfLastMonth + "   (ms = " + endOfLastMonth.getMillis() + ")");
             
             LOGGER.debug("URL text = [" + urlText + "]");
@@ -366,10 +367,10 @@ public class MetricsWebConsolePlugin extends AbstractWebConsolePlugin
         for (int i=1; i <= numYearlyReports; i++)
         {
             DateMidnight startOfLastYear = new DateMidnight(input.minusYears(1).withDayOfYear(1));
-            String startDate = startOfLastYear.toString(ISODateTimeFormat.dateTimeNoMillis());
+            String startDate = URLEncoder.encode(startOfLastYear.toString(ISODateTimeFormat.dateTimeNoMillis()));
             LOGGER.debug("Previous Year (start):  " + startOfLastYear + "   (ms = " + startOfLastYear.getMillis() + ")");
             DateMidnight endOfLastYear = startOfLastYear.plusYears(1).minusDays(1);
-            String endDate = endOfLastYear.toString(ISODateTimeFormat.dateTimeNoMillis());
+            String endDate = URLEncoder.encode(endOfLastYear.toString(ISODateTimeFormat.dateTimeNoMillis()));
             LOGGER.debug("Previous Year (end):  " + endOfLastYear + "   (ms = " + endOfLastYear.getMillis() + ")");
             
             String urlText = startOfLastYear.toString("yyyy");
