@@ -3802,7 +3802,7 @@ public class TestSolrProvider extends SolrProviderTestCase {
 		MockMetacard metacard1 = new MockMetacard(Library.getFlagstaffRecord());
 
 		metacard1.setContentTypeName(SAMPLE_CONTENT_TYPE_1);
-		metacard1.setContentTypeVersion("");
+		metacard1.setContentTypeVersion(null);
 
 		List<Metacard> list = Arrays.asList((Metacard) metacard1);
 
@@ -3811,11 +3811,11 @@ public class TestSolrProvider extends SolrProviderTestCase {
 		Set<ContentType> contentTypes = provider.getContentTypes();
 		assertEquals(1, contentTypes.size());
 
-		assertThat(contentTypes, hasItem((ContentType) new ContentTypeImpl(SAMPLE_CONTENT_TYPE_1,"")));
+		assertThat(contentTypes, hasItem((ContentType) new ContentTypeImpl(SAMPLE_CONTENT_TYPE_1,null)));
 	}
 	
 	@Test
-	public void testGetContentTypesVersionsAndNoVersions() throws Exception {
+	public void testGetContentTypesVersionsAndNullVersions() throws Exception {
 
 		deleteAllIn(provider);
 

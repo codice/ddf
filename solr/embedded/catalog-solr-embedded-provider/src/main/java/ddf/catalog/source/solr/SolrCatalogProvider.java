@@ -24,6 +24,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.log4j.Logger;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrQuery.ORDER;
@@ -195,50 +196,50 @@ public class SolrCatalogProvider extends MaskableImpl implements
             for (Entry<String, List<PivotField>> entry : solrResponse
                     .getFacetPivot()) {
 
-        	// if no content types have an associated version, the list of pivot fields will be empty.
-        	// however, the content type names can still be obtained via that facet fields.
-        	if(entry.getValue() == null || entry.getValue().isEmpty()){
-        	    LOGGER.debug("No content type versions found associated with any available content types.");
-        	    
-        	    if(facetFields != null && !facetFields.isEmpty()){
-        		//only one facet field was added that facet field may contain multiple values (content type names)
-        		for(FacetField.Count currContentType : facetFields.get(0).getValues()){
-        		    //unknown version, so setting it null
+                // if no content types have an associated version, the list of pivot fields will be empty.
+                // however, the content type names can still be obtained via the facet fields.
+                if(CollectionUtils.isEmpty(entry.getValue())){
+                    LOGGER.debug("No content type versions found associated with any available content types.");
+
+                    if(CollectionUtils.isNotEmpty(facetFields)){
+                        //Only one facet field was added. That facet field may contain multiple values (content type names).
+                        for(FacetField.Count currContentType : facetFields.get(0).getValues()){
+                            //unknown version, so setting it to null
                             ContentTypeImpl contentType = new ContentTypeImpl(currContentType.getName(), null);
 
                             finalSet.add(contentType);
-        		}
-        	    }
-        	}
-        	else{
+                        }
+                    }
+                }
+                else{
                     for (PivotField pf : entry.getValue()) {
-    
+
                         String contentTypeName = pf.getValue().toString();
                         LOGGER.debug("contentTypeName:" + contentTypeName);
-                        
-                        if(pf.getPivot() == null || pf.getPivot().isEmpty()){
-                            //if there are no sub-pivots, that means that there are no content type versions 
+
+                        if(CollectionUtils.isEmpty(pf.getPivot())){
+                            //if there are no sub-pivots, that means that there are no content type versions
                             //associated with this content type name
                             LOGGER.debug("Content type does not have associated contentTypeVersion: " + contentTypeName);
                             ContentTypeImpl contentType = new ContentTypeImpl(contentTypeName, null);
-    
+
                             finalSet.add(contentType);
-                            
+
                         }
                         else {
                             for (PivotField innerPf : pf.getPivot()) {
-        
+
                                 LOGGER.debug("contentTypeVersion:"
                                         + innerPf.getValue() + ". For contentTypeName: " + contentTypeName);
-        
+
                                 ContentTypeImpl contentType = new ContentTypeImpl(
                                         contentTypeName, innerPf.getValue().toString());
-        
+
                                 finalSet.add(contentType);
                             }
                         }
                     }
-        	}
+                }
             }
 
         } catch (SolrServerException e) {
