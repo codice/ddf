@@ -65,6 +65,8 @@ import ddf.metrics.reporting.internal.CollectorException;
  */
 public class JmxCollector implements Collector
 {
+	private static final int MILLIS_PER_SECOND = 1000;
+	
     private static final int FIVE_MINUTES_MILLIS = 300000;
 
     private static final Logger LOGGER = Logger.getLogger(JmxCollector.class);
@@ -119,6 +121,7 @@ public class JmxCollector implements Collector
     
     private String metricsDir;
     private int sampleRate;
+    private long minimumUpdateTimeDelta;
     private int rrdStep;
     private MBeanServer localMBeanServer;    
     private final RrdDbPool pool;
@@ -133,10 +136,13 @@ public class JmxCollector implements Collector
         metricsDir = DEFAULT_METRICS_DIR;
         localMBeanServer = getLocalMBeanServer();
         
-        // Only expose this value via setter/getter methods for unit
+        // Only expose these values via setter/getter methods for unit
         // testing purposes so that unit tests can run in seconds vs. minutes
-        // by using a faster (lower value) sample rate.
+        // by using a faster (lower value) sample rate and no (zero)
+        // minimum update time delta so that sample updates always occur during
+        // unit tests.
         this.sampleRate = 60;
+        this.minimumUpdateTimeDelta = 1;
         
         // Should always be the same as the sample rate
         rrdStep = this.sampleRate;
@@ -450,8 +456,22 @@ public class JmxCollector implements Collector
                     
                     try 
                     {
+                    	long now = System.currentTimeMillis()/MILLIS_PER_SECOND;
+                        long lastUpdateTime = rrdDb.getLastUpdateTime();
+                        
                         // Add metric's sample to RRD file with current timestamp (i.e., "NOW")
-                        sample.setAndUpdate("NOW:" + val);
+                        //sample.setAndUpdate("NOW:" + val);
+                        
+                        if (now - rrdDb.getLastUpdateTime() >= minimumUpdateTimeDelta) {                        
+                            sample.setTime(now);
+                            sample.setValue(rrdDataSourceName, val);
+                            sample.update();
+                        }
+                        else
+                        {
+                        	LOGGER.trace("Skipping sample update because time between updates is less than " + minimumUpdateTimeDelta + " seconds");
+                            LOGGER.trace("now = " + now + ",   lastUpdateTime = " + lastUpdateTime);
+                        }
                     } 
                     catch (IllegalArgumentException iae) 
                     {
@@ -583,9 +603,15 @@ public class JmxCollector implements Collector
         this.sampleRate = sampleRate;
         this.rrdStep = this.sampleRate;
     }
+    
+    
+    public void setMinimumUpdateTimeDelta(long minimumUpdateTimeDelta) 
+    {
+		this.minimumUpdateTimeDelta = minimumUpdateTimeDelta;
+	}
 
 
-    void setMbeanTimeoutMillis(long mbeanTimeoutMillis) {
+	void setMbeanTimeoutMillis(long mbeanTimeoutMillis) {
         this.mbeanTimeoutMillis = mbeanTimeoutMillis;
     }
 

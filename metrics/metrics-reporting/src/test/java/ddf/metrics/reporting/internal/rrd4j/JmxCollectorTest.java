@@ -413,6 +413,16 @@ public class JmxCollectorTest
         collectData(4);       
     }
     
+    @Test
+    @Ignore
+    public void testManyUpdatesInRapidSuccession() throws Exception {
+    	createJmxCollector( "Uptime", JmxCollector.COUNTER_DATA_SOURCE_TYPE, 60);
+    	jmxCollector.updateSamples();
+    	jmxCollector.updateSamples();
+    	jmxCollector.updateSamples();
+    	jmxCollector.updateSamples();
+    	
+    }
     
 /******************************************************************************************/
     
@@ -429,6 +439,7 @@ public class JmxCollectorTest
         jmxCollector.setRrdDataSourceName(dataSourceName);
         jmxCollector.setRrdDataSourceType(dataSourceType);
         jmxCollector.setSampleRate(sampleRate);
+        jmxCollector.setMinimumUpdateTimeDelta(0);
         jmxCollector.setMetricsDir(TEST_DIR);
         
         // Simulates what Spring beans container would do
