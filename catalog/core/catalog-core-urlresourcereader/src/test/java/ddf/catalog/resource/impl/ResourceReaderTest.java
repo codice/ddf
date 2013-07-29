@@ -70,7 +70,6 @@ public class ResourceReaderTest
     private static final String ABSOLUTE_PATH = new File(".").getAbsolutePath();
     private static final String HOST = "127.0.0.1";
     private static final String BAD_FILE_NAME = "mydata?uri=63f30ff4dc85436ea507fceeb1396940_blahblahblah&this=that";
-    private static final String CONTENT_DISPOSITION = "Content-Disposition";
 
     private MimeTypeMapper mimeTypeMapper;
 
@@ -307,7 +306,7 @@ public class ResourceReaderTest
         URI uri = new URI(HTTP_SCHEME_PLUS_SEP + HOST + TEST_PATH + BAD_FILE_NAME);
         URLConnection conn = mock(URLConnection.class);
         
-        when(conn.getHeaderField(CONTENT_DISPOSITION)).thenReturn("inline; filename=\"" + JPEG_FILE_NAME_1 + "\"");
+        when(conn.getHeaderField(URLResourceReader.CONTENT_DISPOSITION)).thenReturn("inline; filename=\"" + JPEG_FILE_NAME_1 + "\"");
         when(conn.getInputStream()).thenReturn(null);
         
         verifyFileFromURLResourceReader(uri, JPEG_FILE_NAME_1, JPEG_MIME_TYPE, conn);
