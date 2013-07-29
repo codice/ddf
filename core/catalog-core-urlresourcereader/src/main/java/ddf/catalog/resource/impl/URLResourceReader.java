@@ -24,6 +24,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.tika.Tika;
 import org.slf4j.LoggerFactory;
 import org.slf4j.ext.XLogger;
@@ -58,7 +59,7 @@ public class URLResourceReader implements ResourceReader {
     private static final String DEFAULT_MIME_TYPE = "application/octet-stream";
     private static final int QUALIFIER_SET_SIZE = 3;
     
-    private static final String CONTENT_DISPOSITION = "Content-Disposition";
+    protected static final String CONTENT_DISPOSITION = "Content-Disposition";
     private static final String FILENAME_STR = "filename=\"";
 
     private static Set<String> qualifierSet;
@@ -171,8 +172,7 @@ public class URLResourceReader implements ResourceReader {
     @Override
     public ResourceResponse retrieveResource(URI resourceURI, Map<String, Serializable> properties) throws IOException,
 	    ResourceNotFoundException {
-    	String methodName = "getResource";
-    	logger.entry(methodName);
+    	logger.entry();
     
     	if (resourceURI == null) {
     	    logger.warn("Resource URI was null");
@@ -181,9 +181,9 @@ public class URLResourceReader implements ResourceReader {
     
     	if (resourceURI.getScheme().equals(URL_HTTP_SCHEME) || resourceURI.getScheme().equals(URL_HTTPS_SCHEME)) {
     	    logger.debug("Resource URI is HTTP or HTTPS");
-    	    URL url = resourceURI.toURL();
-    	    logger.debug("resource name: {}", url.getFile());
-    	    return doRetrieveProduct(resourceURI, url.getFile());
+            String fileAddress = resourceURI.toURL().getFile();
+    	    logger.debug("resource name: {}", fileAddress);
+    	    return doRetrieveProduct(resourceURI, fileAddress);
     
     	} else if (resourceURI.getScheme().equals(URL_FILE_SCHEME)) {
     	    logger.debug("Resource URI is a File");
@@ -197,7 +197,7 @@ public class URLResourceReader implements ResourceReader {
     		    + " requires a qualifier of " + URL_HTTP_SCHEME + " or " + URL_HTTPS_SCHEME + " or "
     		    + URL_FILE_SCHEME);
     	    logger.throwing(XLogger.Level.DEBUG, ce);
-    	    logger.exit(methodName);
+    	    logger.exit();
     	    throw ce;
     	}
     }
@@ -207,7 +207,7 @@ public class URLResourceReader implements ResourceReader {
 	{
         
         
-	logger.trace("ENTERING: doRetrieveProduct");
+	logger.entry();
 	try {
 	    URLConnection connection = null;
 	    
@@ -232,7 +232,7 @@ public class URLResourceReader implements ResourceReader {
 	    
 	    // Check Connection headers for filename
 	    String contentHeader = connection.getHeaderField(CONTENT_DISPOSITION);
-        if(contentHeader != null)
+        if(StringUtils.isNotBlank(contentHeader))
         {
             int nameStart = contentHeader.indexOf(FILENAME_STR);
             if(nameStart != -1)
@@ -324,7 +324,7 @@ public class URLResourceReader implements ResourceReader {
         File filePathName = new File(productName);
         String fileName = filePathName.getName();
 	    
-	    logger.trace("EXITING: doRetrieveProduct");
+	    logger.exit();
 	    
 	    return new ResourceResponseImpl(
 	        new ResourceImpl(new BufferedInputStream(is), mimeType, fileName));
