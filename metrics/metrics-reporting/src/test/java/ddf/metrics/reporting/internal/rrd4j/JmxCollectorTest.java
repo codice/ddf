@@ -61,7 +61,7 @@ public class JmxCollectorTest
         ((PatternLayout) ((Appender) Logger.getRootLogger().getAllAppenders().nextElement()).getLayout())
                 .setConversionPattern("[%30.30t] %-30.30c{1} %-5p %m%n");
 
-        Logger.getRootLogger().setLevel(Level.INFO);
+        Logger.getRootLogger().setLevel(Level.DEBUG);
         
         // To add appender that logs to a log file in addition to Console
 //        Layout layout = (PatternLayout)((Appender) Logger.getRootLogger().getAllAppenders().nextElement()).getLayout();
@@ -414,14 +414,20 @@ public class JmxCollectorTest
     }
     
     @Test
-    @Ignore
     public void testManyUpdatesInRapidSuccession() throws Exception {
-    	createJmxCollector( "Uptime", JmxCollector.COUNTER_DATA_SOURCE_TYPE, 60);
-    	jmxCollector.updateSamples();
-    	jmxCollector.updateSamples();
-    	jmxCollector.updateSamples();
-    	jmxCollector.updateSamples();
+    	createJmxCollector( "Uptime", JmxCollector.COUNTER_DATA_SOURCE_TYPE, 1);
     	
+    	// Set high update delta time so that samples will be skipped
+    	jmxCollector.setMinimumUpdateTimeDelta(3);
+    	
+    	// Sleep long enough for some data to be collected
+    	long numRrdSamples = 4;
+    	Thread.sleep(numRrdSamples * 1000);
+    	
+    	// Expected skip count is 2 because first sample is always accepted and
+    	// num samples is one more than minimum update time delta
+    	long expectedSampleSkipCount = numRrdSamples - 2;
+        assertThat(jmxCollector.getSampleSkipCount(), is(expectedSampleSkipCount));
     }
     
 /******************************************************************************************/

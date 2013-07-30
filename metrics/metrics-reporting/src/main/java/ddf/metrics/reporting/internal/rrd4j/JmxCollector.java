@@ -122,6 +122,7 @@ public class JmxCollector implements Collector
     private String metricsDir;
     private int sampleRate;
     private long minimumUpdateTimeDelta;
+    private long sampleSkipCount;
     private int rrdStep;
     private MBeanServer localMBeanServer;    
     private final RrdDbPool pool;
@@ -143,6 +144,7 @@ public class JmxCollector implements Collector
         // unit tests.
         this.sampleRate = 60;
         this.minimumUpdateTimeDelta = 1;
+        this.sampleSkipCount = 0;
         
         // Should always be the same as the sample rate
         rrdStep = this.sampleRate;
@@ -462,15 +464,20 @@ public class JmxCollector implements Collector
                         // Add metric's sample to RRD file with current timestamp (i.e., "NOW")
                         //sample.setAndUpdate("NOW:" + val);
                         
-                        if (now - rrdDb.getLastUpdateTime() >= minimumUpdateTimeDelta) {                        
+                        if (now - rrdDb.getLastUpdateTime() >= minimumUpdateTimeDelta) {   
+                        	LOGGER.debug("Sample time is " + now);
                             sample.setTime(now);
                             sample.setValue(rrdDataSourceName, val);
                             sample.update();
                         }
                         else
                         {
-                        	LOGGER.trace("Skipping sample update because time between updates is less than " + minimumUpdateTimeDelta + " seconds");
-                            LOGGER.trace("now = " + now + ",   lastUpdateTime = " + lastUpdateTime);
+                        	LOGGER.debug("Skipping sample update because time between updates is less than " + minimumUpdateTimeDelta + " seconds");
+
+                            sampleSkipCount++;
+                            
+                            LOGGER.debug("now = " + now + ",   lastUpdateTime = " + lastUpdateTime + 
+                            		"   (sampleSkipCount = " + sampleSkipCount + ")");
                         }
                     } 
                     catch (IllegalArgumentException iae) 
@@ -492,8 +499,7 @@ public class JmxCollector implements Collector
         
         LOGGER.trace("EXITING: updateSamples");
     }
-    
-    
+            
     /**
      * @return local MBean server
      */
@@ -602,6 +608,10 @@ public class JmxCollector implements Collector
     {
         this.sampleRate = sampleRate;
         this.rrdStep = this.sampleRate;
+    }
+    
+    protected long getSampleSkipCount() {
+    	return sampleSkipCount;
     }
     
     
