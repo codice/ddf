@@ -38,10 +38,7 @@ public class KeyValueCollectionPermission extends CollectionPermission
      */
     public KeyValueCollectionPermission(KeyValuePermission... permissions)
     {
-        for(KeyValuePermission permission : permissions)
-        {
-            permissionList.add(permission);
-        }
+        super(permissions);
     }
 
     /**
@@ -53,11 +50,7 @@ public class KeyValueCollectionPermission extends CollectionPermission
      */
     public KeyValueCollectionPermission(Map<String, List<String>> map)
     {
-        Set<String> keys = map.keySet();
-        for(String key : keys)
-        {
-            permissionList.add(new KeyValuePermission(key, map.get(key)));
-        }
+        addAll(map);
     }
 
     /**
@@ -68,7 +61,7 @@ public class KeyValueCollectionPermission extends CollectionPermission
      */
     public KeyValueCollectionPermission(Collection<KeyValuePermission> permissions)
     {
-        permissionList.addAll(permissions);
+        super(permissions);
     }
 
     /**
@@ -81,4 +74,21 @@ public class KeyValueCollectionPermission extends CollectionPermission
     {
         return (List<T>) Collections.unmodifiableList(permissionList);
     }
+    
+    /**
+     * Adds all of the incoming key value map entries to this KeyValueCollectionPermission. 
+     * Each key and associated list of values is turned into a KeyValuePermission
+     * and added to the newly created collection.
+     * @param map collection of keys and their associated list of values to be added to the
+     *            newly created collection
+     */
+    public void addAll(Map<String, List<String>> map)
+    {
+        Set<String> keys = map.keySet();
+        for(String key : keys)
+        {
+            permissionList.add(new KeyValuePermission(key, map.get(key)));
+        }
+    }
+    
 }
