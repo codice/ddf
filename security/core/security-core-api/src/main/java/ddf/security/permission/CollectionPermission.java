@@ -52,9 +52,9 @@ public class CollectionPermission implements Permission
      * permissions in the provided collection are added to the newly created collection.
      * @param permissions  existing collection of permission objects
      */
-    public CollectionPermission(Collection<Permission> permissions)
+    public CollectionPermission(Collection<? extends Permission> permissions)
     {
-        permissionList.addAll(permissions);
+        addAll(permissions);
     }
 
     /**
@@ -132,5 +132,22 @@ public class CollectionPermission implements Permission
             sb.append("] ");
         }
         return sb.toString();
+    }
+    
+    /**
+     * Clears out all of the permissions currently in this collection.
+     */
+    public void clear()
+    {
+        permissionList.clear();
+    }
+    
+    /**
+     * Adds all of the incoming permissions to this collection.
+     * @param permissions The permissions that should be added.
+     */
+    public void addAll(Collection<? extends Permission> permissions)
+    {
+        permissionList.addAll(permissions);
     }
 }
