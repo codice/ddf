@@ -60,7 +60,7 @@ public class URLResourceReader implements ResourceReader {
     private static final int QUALIFIER_SET_SIZE = 3;
     
     protected static final String CONTENT_DISPOSITION = "Content-Disposition";
-    private static final String FILENAME_STR = "filename=\"";
+    private static final String FILENAME_STR = "filename=";
 
     private static Set<String> qualifierSet;
     static {
@@ -231,19 +231,34 @@ public class URLResourceReader implements ResourceReader {
 	    }
 	    
 	    // Check Connection headers for filename
+	    // Content-Disposition format defined in spec RFC 6266 (http://tools.ietf.org/html/rfc6266#section-4.1)
+	    // Examples of typical Content-Disposition header values include:
+	    //     inline;filename="xyz.jpg"   (quoted filename)
+	    //     attachment;filename=xyz.jpg;  (unquoted filename, ending semi-colon)
 	    String contentHeader = connection.getHeaderField(CONTENT_DISPOSITION);
-        if(StringUtils.isNotBlank(contentHeader))
+	    contentHeader = StringUtils.stripEnd(contentHeader, ";");
+        if (StringUtils.isNotBlank(contentHeader))
         {
             int nameStart = contentHeader.indexOf(FILENAME_STR);
-            if(nameStart != -1)
+            if (nameStart != -1)
             {
                 nameStart += FILENAME_STR.length();
-                int nameEnd = contentHeader.indexOf("\"", nameStart);
-                if (nameEnd != -1)
+                // If filename starts with a double quote
+                if (contentHeader.charAt(nameStart) == '\"') 
                 {
-                    productName = contentHeader.substring(nameStart, nameEnd);
-                    logger.debug("Found content disposition header, changing resource name to {}", productName);
+                	// Skip opening double quote and look for ending quote
+                	nameStart++;
+                    int nameEnd = contentHeader.indexOf("\"", nameStart);
+                    if (nameEnd != -1)
+                    {
+                        productName = contentHeader.substring(nameStart, nameEnd);
+                    }
                 }
+                else
+                {
+                	productName = contentHeader.substring(nameStart);
+                }
+                logger.debug("Found content disposition header, changing resource name to {}", productName);
             }
         }
 
