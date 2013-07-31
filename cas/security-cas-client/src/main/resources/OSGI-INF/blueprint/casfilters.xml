@@ -20,7 +20,7 @@
     	<cm:default-properties>
     		<cm:property name="serverName" value="https://server:8993"/>
     		<cm:property name="casServerLoginSuffix" value="/login"/>
-			<cm:property name="casServerUrl" value="https://localhost:8443/cas"/>
+			<cm:property name="casServerUrl" value="https://cas:8443/cas"/>
     		<cm:property name="proxyCallbackUrl" value="https://server:8993/sso"/>
     		<cm:property name="proxyReceptorUrl" value="/sso"/>
     	</cm:default-properties>

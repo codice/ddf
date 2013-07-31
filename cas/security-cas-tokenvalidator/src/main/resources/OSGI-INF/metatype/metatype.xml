@@ -17,7 +17,7 @@
 	<OCD description="DDF CAS WebSSOTokenValidator Configuration" name="Security STS CAS Token Validator" id="ddf.security.cas.webSSOTokenValidator">
 	
         <AD name="CAS Server URL:" id="casServerUrl" required="true" type="String"
-            default="https://localhost:8443/cas/"
+            default="https://cas:8443/cas/"
             description="The URL of CAS server to validate tickets against.">
         </AD>
         

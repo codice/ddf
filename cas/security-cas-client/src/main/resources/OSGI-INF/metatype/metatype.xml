@@ -21,7 +21,7 @@
 	    </AD>
        
         <AD name="CAS Server URL:" id="casServerUrl" required="true" type="String"
-          default="https://localhost:8443/cas" 
+          default="https://cas:8443/cas" 
           description="URL to the CAS server (generally ends in /cas)">
         </AD>
 	    

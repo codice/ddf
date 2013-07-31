@@ -16,7 +16,7 @@
 
     <cm:property-placeholder persistent-id="ddf.security.cas.webSSOTokenValidator" placeholder-prefix="$sts{" update-strategy="reload">
         <cm:default-properties>
-            <cm:property name="casServerUrl" value="https://localhost:8443/cas/"/>
+            <cm:property name="casServerUrl" value="https://cas:8443/cas/"/>
             <cm:property name="keyStorePassword" value="ENC(gVSowR80cHSRgHLUarq36AhKpXc56QSg)" />
             <cm:property name="trustStorePassword" value="ENC(gVSowR80cHSRgHLUarq36AhKpXc56QSg)" />
         </cm:default-properties>
