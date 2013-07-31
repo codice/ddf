@@ -29,6 +29,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -310,7 +311,30 @@ public class ResourceReaderTest
         when(conn.getInputStream()).thenReturn(null);
         
         verifyFileFromURLResourceReader(uri, JPEG_FILE_NAME_1, JPEG_MIME_TYPE, conn);
+    }
+    
+    @Test
+    public void testUnquotedNameInContentDisposition() throws URISyntaxException, IOException, ResourceNotFoundException
+    {        
+        URI uri = new URI(HTTP_SCHEME_PLUS_SEP + HOST + TEST_PATH + BAD_FILE_NAME);
+        URLConnection conn = mock(URLConnection.class);
         
+        when(conn.getHeaderField(URLResourceReader.CONTENT_DISPOSITION)).thenReturn("inline; filename=" + JPEG_FILE_NAME_1);
+        when(conn.getInputStream()).thenReturn(null);
+        
+        verifyFileFromURLResourceReader(uri, JPEG_FILE_NAME_1, JPEG_MIME_TYPE, conn);  
+    }
+    
+    @Test
+    public void testUnquotedNameEndingSemicolonInContentDisposition() throws URISyntaxException, IOException, ResourceNotFoundException
+    {        
+        URI uri = new URI(HTTP_SCHEME_PLUS_SEP + HOST + TEST_PATH + BAD_FILE_NAME);
+        URLConnection conn = mock(URLConnection.class);
+        
+        when(conn.getHeaderField(URLResourceReader.CONTENT_DISPOSITION)).thenReturn("inline;filename=" + JPEG_FILE_NAME_1 + ";");
+        when(conn.getInputStream()).thenReturn(null);
+        
+        verifyFileFromURLResourceReader(uri, JPEG_FILE_NAME_1, JPEG_MIME_TYPE, conn);  
     }
     
     @Test
