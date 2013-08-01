@@ -11,42 +11,6 @@
  **/
 package com.lmco.ddf.endpoints.rest;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.Serializable;
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
-import javax.activation.MimeType;
-import javax.activation.MimeTypeParseException;
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.ResponseBuilder;
-import javax.ws.rs.core.Response.Status;
-import javax.ws.rs.core.UriBuilder;
-import javax.ws.rs.core.UriInfo;
-
-import org.apache.commons.io.IOUtils;
-import org.opengis.filter.Filter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.AttributeImpl;
 import ddf.catalog.data.BinaryContent;
@@ -74,6 +38,40 @@ import ddf.security.Subject;
 import ddf.security.service.SecurityManager;
 import ddf.security.service.SecurityServiceException;
 import ddf.security.service.TokenRequestHandler;
+import org.apache.commons.io.IOUtils;
+import org.opengis.filter.Filter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.activation.MimeType;
+import javax.activation.MimeTypeParseException;
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.ResponseBuilder;
+import javax.ws.rs.core.Response.Status;
+import javax.ws.rs.core.UriBuilder;
+import javax.ws.rs.core.UriInfo;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.Serializable;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 @Path("/")
 public class RESTEndpoint {
@@ -234,6 +232,16 @@ public class RESTEndpoint {
 				LOGGER.warn(exceptionMessage, e.getCause());
 				throw new ServerErrorException(exceptionMessage, Status.BAD_REQUEST);
 			}
+            //The catalog framework will throw this if any of the transformers blow up. We need to catch this exception
+            //here or else execution will return to CXF and we'll lose this message and end up with a huge stack trace
+            //in a GUI or whatever else is connected to this endpoint
+            catch (IllegalArgumentException e)
+            {
+                String exceptionMessage = "Unable to transform Metacard.  Try different transformer: "
+                        + e.getMessage();
+                LOGGER.warn(exceptionMessage, e.getCause());
+                throw new ServerErrorException(exceptionMessage, Status.BAD_REQUEST);
+            }
 		} else {
 			LOGGER.warn("Error: id entered is NULL");
 			throw new ServerErrorException("No ID specified.", Status.BAD_REQUEST);
