@@ -141,6 +141,10 @@ public class SolrCatalogProvider extends MaskableImpl implements
             SolrFilterDelegateFactory solrFilterDelegateFactory,
             DynamicSchemaResolver resolver) {
 
+        if (server == null) {
+            throw new IllegalArgumentException("SolrServer cannot be null.");
+        }
+
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("Constructing " + SolrCatalogProvider.class.getName()
                     + " with server [" + server + "]");
