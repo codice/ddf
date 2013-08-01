@@ -150,6 +150,7 @@ public class SolrCatalogProvider extends MaskableImpl implements
         this.filterAdapter = adapter;
         this.solrFilterDelegateFactory = solrFilterDelegateFactory;
         this.resolver = resolver;
+        resolver.addFieldsFromServer(server);
     }
     
     /**
@@ -160,9 +161,7 @@ public class SolrCatalogProvider extends MaskableImpl implements
      *            injected implementation of FilterAdapter
      */
     public SolrCatalogProvider(SolrServer server, FilterAdapter adapter, SolrFilterDelegateFactory solrFilterDelegateFactory) {
-
-        this(server, adapter, solrFilterDelegateFactory, new DynamicSchemaResolver(
-                server));
+        this(server, adapter, solrFilterDelegateFactory, new DynamicSchemaResolver());
     }
     
     @Override
