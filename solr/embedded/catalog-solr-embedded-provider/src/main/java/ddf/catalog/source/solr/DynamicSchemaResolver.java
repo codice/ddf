@@ -113,9 +113,16 @@ public class DynamicSchemaResolver {
 		fieldsCache.add(Metacard.ID + SchemaFields.TEXT_SUFFIX + SchemaFields.TOKENIZED + SchemaFields.HAS_CASE);
 	}
 
+	/**
+	 * Adds the fields that are already in the server to the cache. This method should be called once
+	 * the SolrServer is up to ensure the cache is synchronized with the server.
+	 *
+	 * @param server the SolrServer we are working with
+	 */
 	public void addFieldsFromServer(SolrServer server) {
 		if (server == null) {
-			throw new IllegalArgumentException("SolrServer cannot be null.");
+			LOGGER.warn("Server is null, could not add fields to cache.");
+			return;
 		}
 
 		SolrQuery query = new SolrQuery();
