@@ -39,6 +39,7 @@ import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
+import org.apache.solr.common.SolrException;
 import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.common.util.SimpleOrderedMap;
 import org.codehaus.stax2.XMLInputFactory2;
@@ -104,16 +105,18 @@ public class DynamicSchemaResolver {
 		}
 	}
 
-	public DynamicSchemaResolver(SolrServer server) {
-        if (server == null) {
-            throw new IllegalArgumentException("SolrServer cannot be null.");
-        }
-
+	public DynamicSchemaResolver() {
 		this.schemaFields = new SchemaFields();
 
 		fieldsCache.add(Metacard.ID + SchemaFields.TEXT_SUFFIX);
 		fieldsCache.add(Metacard.ID + SchemaFields.TEXT_SUFFIX + SchemaFields.TOKENIZED);
 		fieldsCache.add(Metacard.ID + SchemaFields.TEXT_SUFFIX + SchemaFields.TOKENIZED + SchemaFields.HAS_CASE);
+	}
+
+	public void addFieldsFromServer(SolrServer server) {
+		if (server == null) {
+			throw new IllegalArgumentException("SolrServer cannot be null.");
+		}
 
 		SolrQuery query = new SolrQuery();
 
@@ -135,10 +138,11 @@ public class DynamicSchemaResolver {
 			for (Entry<String, ?> e : ((SimpleOrderedMap<?>) (response.getResponse().get(FIELDS_KEY)))) {
 				fieldsCache.add(e.getKey());
 			}
-		} catch (SolrServerException e1) {
-			LOGGER.warn("Could not update cache for field names.", e1);
+		} catch (SolrServerException e) {
+			LOGGER.warn("Could not update cache for field names.", e);
+		} catch (SolrException e) {
+			LOGGER.warn("Could not update cache for field names.", e);
 		}
-
 	}
 
 	/**
