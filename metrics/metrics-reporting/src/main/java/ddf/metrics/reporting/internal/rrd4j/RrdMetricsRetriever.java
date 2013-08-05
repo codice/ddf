@@ -33,6 +33,7 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.WordUtils;
 import org.apache.log4j.Logger;
 import org.apache.poi.hslf.model.Picture;
 import org.apache.poi.hslf.model.Slide;
@@ -450,11 +451,13 @@ public class RrdMetricsRetriever implements MetricsRetriever
         
         Collections.sort(metricNames);
         
-        for (String metricName : metricNames)
+        for (int i = 0; i < metricNames.size(); i++)
         {
+            String metricName = metricNames.get(i);
             String rrdFilename = metricsDir + metricName + ".rrd";
+            String displayName = i + metricName;
             
-            createSheet(wb, metricName, rrdFilename, startTime, endTime);
+            createSheet(wb, displayName, rrdFilename, startTime, endTime);
         }
         
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -787,7 +790,7 @@ public class RrdMetricsRetriever implements MetricsRetriever
     { 
         String[] parts = StringUtils.splitByCharacterTypeCamelCase(input);
         String convertedStr = StringUtils.join(parts, " ");
-        convertedStr = StringUtils.capitalize(convertedStr).trim();
+        convertedStr = WordUtils.capitalizeFully(convertedStr).trim();
         
         return convertedStr;
     }

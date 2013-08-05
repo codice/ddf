@@ -559,7 +559,7 @@ public class MetricsEndpointTest extends XMLTestCase
         
         HSSFWorkbook wb = new HSSFWorkbook(is);
         assertThat(wb.getNumberOfSheets(), equalTo(1));
-        HSSFSheet sheet = wb.getSheet("Uptime");
+        HSSFSheet sheet = wb.getSheet("0 Uptime");
         assertThat(sheet, not(nullValue()));
     }   
 
