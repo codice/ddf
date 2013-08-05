@@ -52,7 +52,7 @@ public class SecurityProperties extends HashMap<String, Serializable>
             }
             else
             {
-                LOGGER.info("Did not receive a proper subject from the message. Instead got this: " + subjectObj);
+                LOGGER.debug("Did not receive a proper subject from the message. Instead got this: {}", subjectObj);
             }
         }
         else
