@@ -119,6 +119,10 @@ public class TestSolrProvider extends SolrProviderTestCase {
             + GULF_OF_GUINEA_POINT_WKT + ", " + GULF_OF_GUINEA_LINESTRING_WKT + ", " + GULF_OF_GUINEA_MULTIPOLYGON_WKT
             + ")";
     protected static final String LAS_VEGAS_POINT_WKT = "POINT (-115.136389 36.175)";
+    protected static final String MIDWAY_ISLANDS_POINT_WKT = "POINT (-177.372736 28.208365)";
+    protected static final String ACROSS_INTERNATIONAL_DATELINE_LARGE_CCW_WKT = "POLYGON ((175 30, 175 25, -175 25, -175 30, 175 30))";
+    protected static final String ACROSS_INTERNATIONAL_DATELINE_LARGE_CW_WKT = "POLYGON ((175 30, -175 30, -175 25, 175 25, 175 30))";
+    protected static final String ACROSS_INTERNATIONAL_DATELINE_SMALL_WKT = "POLYGON ((179.5 30, 179.5 29, -179.5 29, -179.5 30, 179.5 30))";
     protected static final String PHOENIX_POINT_WKT = "POINT (-112.066667 33.45)";
     protected static final String COUNTERCLOCKWISE_ARIZONA_RECTANGLE_WKT = "POLYGON ((-108.08349609374837 30.90222470517274, -108.08349609374837 37.45741810263027, -115.70800781249432 37.45741810263027, -115.70800781249432 30.90222470517274, -108.08349609374837 30.90222470517274))";
     protected static final String CLOCKWISE_ARIZONA_RECTANGLE_WKT = "POLYGON ((-115.72998046874625 30.921076375385542, -115.72998046874625 37.47485808497204, -108.12744140624321 37.47485808497204, -108.12744140624321 30.921076375385542, -115.72998046874625 30.921076375385542))";
@@ -3453,6 +3457,66 @@ public class TestSolrProvider extends SolrProviderTestCase {
 			assertTrue("Wrong record, Flagstaff keyword was not found.", ALL_RESULTS != r.getMetacard().getMetadata()
 					.indexOf(FLAGSTAFF_QUERY_PHRASE));
 		}
+	}
+	
+	/**
+	 * This test is ignored until a fix is made to enable querying across the
+	 * international date line. Ticket DDF-118
+	 * 
+	 * @throws Exception
+	 */
+	@Test
+	@Ignore
+	public void testSpatialQueryAcrossInternationalDateLine() throws Exception {
+		deleteAllIn(provider);
+
+		MetacardImpl metacard = new MockMetacard(Library.getFlagstaffRecord());
+		metacard.setLocation(MIDWAY_ISLANDS_POINT_WKT);
+		List<Metacard> list = Arrays.asList((Metacard) metacard);
+
+		create(list);
+
+		/** POSITIVE - Counter Clockwise Orientation **/
+		Filter filter = filterBuilder.attribute(Metacard.GEOGRAPHY)
+				.intersecting().wkt(ACROSS_INTERNATIONAL_DATELINE_LARGE_CCW_WKT);
+		SourceResponse sourceResponse = provider.query(new QueryRequestImpl(
+				new QueryImpl(filter)));
+
+		assertEquals("Failed to find the correct record. ", 1, sourceResponse
+				.getResults().size());
+
+		for (Result r : sourceResponse.getResults()) {
+			assertTrue(
+					"Wrong record, Flagstaff keyword was not found.",
+					ALL_RESULTS != r.getMetacard().getMetadata()
+							.indexOf(FLAGSTAFF_QUERY_PHRASE));
+		}
+
+		/** POSITIVE - Clockwise Orientation **/
+		filter = filterBuilder.attribute(Metacard.GEOGRAPHY).intersecting()
+				.wkt(ACROSS_INTERNATIONAL_DATELINE_LARGE_CW_WKT);
+		sourceResponse = provider.query(new QueryRequestImpl(new QueryImpl(
+				filter)));
+
+		assertEquals("Failed to find the correct record. ", 1, sourceResponse
+				.getResults().size());
+
+		for (Result r : sourceResponse.getResults()) {
+			assertTrue(
+					"Wrong record, Flagstaff keyword was not found.",
+					ALL_RESULTS != r.getMetacard().getMetadata()
+							.indexOf(FLAGSTAFF_QUERY_PHRASE));
+		}
+
+		/** NEGATIVE **/
+		filter = filterBuilder.attribute(Metacard.GEOGRAPHY).intersecting()
+				.wkt(ACROSS_INTERNATIONAL_DATELINE_SMALL_WKT);
+		sourceResponse = provider.query(new QueryRequestImpl(new QueryImpl(
+				filter)));
+
+		assertEquals("Should not find a record. ", 0, sourceResponse
+				.getResults().size());
+
 	}
 	
 	@Test
