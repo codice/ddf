@@ -254,7 +254,7 @@ public class JmxCollectorTest
         jmxCollector2.setMetricsDir(TEST_DIR);
         
         // Simulates what Spring beans container would do
-        jmxCollector2.init();
+        jmxCollector2.configureCollector();
         
         // Verify the 2 JMX Collectors are using the same RRD file
         String rrdFilename2 = jmxCollector2.getRrdPath();
@@ -283,7 +283,7 @@ public class JmxCollectorTest
         jmxCollector.setMbeanTimeoutMillis(50);
         
         // Simulates what Spring beans container would do
-        jmxCollector.init();
+        jmxCollector.configureCollector();
     }
     
     
@@ -304,7 +304,7 @@ public class JmxCollectorTest
         jmxCollector.setMetricsDir(TEST_DIR);
         
         // Simulates what Spring beans container would do
-        jmxCollector.init();
+        jmxCollector.configureCollector();
     }    
     
     
@@ -325,7 +325,7 @@ public class JmxCollectorTest
         jmxCollector.setMetricsDir(TEST_DIR);
         
         // Simulates what Spring beans container would do
-        jmxCollector.init();
+        jmxCollector.configureCollector();
     }
     
     
@@ -346,7 +346,7 @@ public class JmxCollectorTest
         jmxCollector.setMetricsDir(TEST_DIR);
         
         // Simulates what Spring beans container would do
-        jmxCollector.init();
+        jmxCollector.configureCollector();
     }
 
     
@@ -367,7 +367,7 @@ public class JmxCollectorTest
         jmxCollector.setMetricsDir(TEST_DIR);
         
         // Simulates what Spring beans container would do
-        jmxCollector.init();
+        jmxCollector.configureCollector();
     }
 
     
@@ -388,7 +388,7 @@ public class JmxCollectorTest
         jmxCollector.setMetricsDir(TEST_DIR);
         
         // Simulates what Spring beans container would do
-        jmxCollector.init();
+        jmxCollector.configureCollector();
     }    
     
     
@@ -449,7 +449,7 @@ public class JmxCollectorTest
         jmxCollector.setMetricsDir(TEST_DIR);
         
         // Simulates what Spring beans container would do
-        jmxCollector.init();
+        jmxCollector.configureCollector();
     }
     
     

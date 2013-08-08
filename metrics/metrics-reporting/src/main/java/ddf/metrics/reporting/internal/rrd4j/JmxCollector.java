@@ -16,6 +16,8 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
@@ -130,6 +132,7 @@ public class JmxCollector implements Collector
     private Sample sample = null;    
     private ScheduledThreadPoolExecutor executor;
     private long mbeanTimeoutMillis = FIVE_MINUTES_MILLIS;
+    private ExecutorService executorPool;
     
     
     public JmxCollector()
@@ -162,10 +165,42 @@ public class JmxCollector implements Collector
     /**
      * Initialization when the JmxCollector is created. Called by blueprint.
      */
-    public void init() throws IOException, CollectorException
+    public void init()
     {
         LOGGER.trace("ENTERING: init()");
         
+        if (executorPool == null)
+        {
+			executorPool = Executors.newCachedThreadPool();        
+        }
+        
+		// Creating JmxCollector can be time consuming,
+		// so do this in a separate thread to prevent holding up creation
+        // of Sources or the Catalog
+        final Runnable jmxCollectorCreator = new Runnable() 
+        {
+            public void run()
+            { 				
+            	try {
+					configureCollector();
+				} catch (CollectorException e) {
+					// Ignore, it has already been logged
+				} catch (IOException e) {
+					// Ignore, it has already been logged
+				}
+            }
+        };
+        
+        LOGGER.debug("Start configureCollector thread for JmxCollector " + mbeanAttributeName);
+        executorPool.execute(jmxCollectorCreator);
+        
+        LOGGER.trace("EXITING: init()");
+    }
+    
+    void configureCollector() throws CollectorException, IOException
+    {
+    	LOGGER.trace("ENTERING: configureCollector() for collector " + mbeanAttributeName);
+    	
         if (!isMbeanAccessible())
         {
             LOGGER.warn("MBean attribute " + mbeanAttributeName + " is not accessible - no collector will be configured for it.");
@@ -174,16 +209,16 @@ public class JmxCollector implements Collector
         
         if (rrdDataSourceType == null)
         {
-            throw new CollectorException("Data Source type for the RRD file cnnot be null - must be either COUNTER or GAUGE.");
+        	LOGGER.warn("Unable to configure collector for MBean attribute " + mbeanAttributeName + "\nData Source type for the RRD file cannot be null - must be either COUNTER or GAUGE.");
+        	throw new CollectorException("Unable to configure collector for MBean attribute " + mbeanAttributeName + "\nData Source type for the RRD file cannot be null - must be either COUNTER or GAUGE.");
         }
         
         createRrdFile(rrdPath, rrdDataSourceName, DsType.valueOf(rrdDataSourceType));
         
-        updateSamples();
+        updateSamples();      
         
-        LOGGER.trace("EXITING: init()");
+        LOGGER.trace("EXITING: configureCollector() for collector " + mbeanAttributeName);
     }
-    
     
     /**
      * Cleanup when the JmxCollector is destroyed. Called by blueprint.
