@@ -63,7 +63,7 @@ mvn install
 ```
 
 This will compile DDF and run all of the tests in the DDF source distribution. It usually takes some time for maven to download required dependencies in the first build.
-The distribution will be available under "distribution/ddf-standard/target" directory.
+The distribution will be available under "distribution/ddf/target" directory.
 
 ## How to Run
 * Unzip the distribution. 
@@ -72,7 +72,7 @@ The distribution will be available under "distribution/ddf-standard/target" dire
 ## Additional information
 The [wiki](https://tools.codice.org/wiki/display/DDF) is the right place to find any documentation about DDF.
 
-Discussions can be found on the [Annoucements forum](http://groups.google.com/group/ddf-announcements),  [Users forum](http://groups.google.com/group/ddf-users), and  [Developers forum](http://groups.google.com/group/ddf-developers).
+Discussions can be found on the [Announcements forum](http://groups.google.com/group/ddf-announcements),  [Users forum](http://groups.google.com/group/ddf-users), and  [Developers forum](http://groups.google.com/group/ddf-developers).
 
 For a DDF binary distribution, please read  the release notes on the wiki for a list of supported and unsupported features.
 
