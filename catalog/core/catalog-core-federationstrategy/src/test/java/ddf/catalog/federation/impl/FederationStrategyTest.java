@@ -56,7 +56,6 @@ import ddf.catalog.data.Result;
 import ddf.catalog.federation.AbstractFederationStrategy;
 import ddf.catalog.federation.FederationException;
 import ddf.catalog.federation.FederationStrategy;
-import ddf.catalog.metrics.internal.SourceMetrics;
 import ddf.catalog.operation.CreateRequestImpl;
 import ddf.catalog.operation.CreateResponse;
 import ddf.catalog.operation.Query;
@@ -78,6 +77,7 @@ import ddf.catalog.source.ConnectedSource;
 import ddf.catalog.source.FederatedSource;
 import ddf.catalog.source.IngestException;
 import ddf.catalog.source.Source;
+import ddf.catalog.source.SourceMetrics;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.util.SourcePoller;
@@ -122,7 +122,8 @@ public class FederationStrategyTest {
 		runner.bind(provider);
 		
 		// Must have more than one thread or sleeps will block the monitor		
-		FederationStrategy fedStrategy = new SortedFederationStrategy(EXECUTOR, sourceMetrics);
+		SortedFederationStrategy fedStrategy = new SortedFederationStrategy(EXECUTOR);
+		fedStrategy.setSourceMetrics(Collections.singletonList(sourceMetrics));
 		
 		CatalogFrameworkImpl framework = new CatalogFrameworkImpl(
 				Collections.singletonList((CatalogProvider) provider), null,
@@ -202,12 +203,13 @@ public class FederationStrategyTest {
 		List<Source> sources = new ArrayList<Source>();
 		sources.add(mockProvider);
 		
-		FederationStrategy strategy = new SortedFederationStrategy(EXECUTOR, sourceMetrics);
-		QueryResponse fedResponse = strategy.federate(sources, fedQueryRequest);
+		SortedFederationStrategy sortedStrategy = new SortedFederationStrategy(EXECUTOR);
+		sortedStrategy.setSourceMetrics(Collections.singletonList(sourceMetrics));
+		QueryResponse fedResponse = sortedStrategy.federate(sources, fedQueryRequest);
 		assertEquals(1, fedResponse.getResults().size());
 		
-		strategy = new FifoFederationStrategy(EXECUTOR);
-		fedResponse = strategy.federate(sources, fedQueryRequest);
+		FifoFederationStrategy fifoStrategy = new FifoFederationStrategy(EXECUTOR);
+		fedResponse = fifoStrategy.federate(sources, fedQueryRequest);
 		assertEquals(1, fedResponse.getResults().size());
 	}
     
@@ -296,7 +298,8 @@ public class FederationStrategyTest {
         QueryResponseImpl offsetResultQueue = new QueryResponseImpl(queryRequest, null);
         PowerMockito.whenNew(QueryResponseImpl.class).withArguments( queryRequest, (Map<String, Serializable>) null ).thenReturn(mockOriginalResults, offsetResultQueue);
 
-        FederationStrategy strategy = new SortedFederationStrategy( EXECUTOR, sourceMetrics );
+        SortedFederationStrategy strategy = new SortedFederationStrategy( EXECUTOR );
+        strategy.setSourceMetrics(Collections.singletonList(sourceMetrics));
         
         // Run Test
         QueryResponse federatedResponse = strategy.federate( sources, queryRequest );
@@ -375,7 +378,8 @@ public class FederationStrategyTest {
         List<Source> sources = new ArrayList<Source>(1);
         sources.add( mockSource1 );
 
-        FederationStrategy strategy = new SortedFederationStrategy( EXECUTOR, sourceMetrics );
+        SortedFederationStrategy strategy = new SortedFederationStrategy(EXECUTOR);
+        strategy.setSourceMetrics(Collections.singletonList(sourceMetrics));
         
         // Run Test
         QueryResponse federatedResponse = strategy.federate( sources, queryRequest );
@@ -478,7 +482,8 @@ public class FederationStrategyTest {
         sources.add( mockSource1 );
         sources.add( mockSource2 );
         
-        FederationStrategy strategy = new SortedFederationStrategy( EXECUTOR, sourceMetrics );
+        SortedFederationStrategy strategy = new SortedFederationStrategy(EXECUTOR);
+        strategy.setSourceMetrics(Collections.singletonList(sourceMetrics));
         
         // Run Test
         QueryResponse federatedResponse = strategy.federate( sources, queryRequest );
@@ -545,7 +550,8 @@ public class FederationStrategyTest {
         List<Source> sources = new ArrayList<Source>(1);
         sources.add( mockSource1 );
 
-        FederationStrategy strategy = new SortedFederationStrategy( EXECUTOR, sourceMetrics );
+        SortedFederationStrategy strategy = new SortedFederationStrategy(EXECUTOR);
+        strategy.setSourceMetrics(Collections.singletonList(sourceMetrics));
         
         // Run Test
         QueryResponse federatedResponse = strategy.federate( sources, queryRequest );

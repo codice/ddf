@@ -99,7 +99,6 @@
 							ddf.catalog.source,
 							ddf.catalog.util,
 							ddf.catalog.data,
-							ddf.catalog.metrics.internal,
 							ddf.catalog.operation, 
 							org.opengis.filter, 
 							org.opengis.filter.expression, 

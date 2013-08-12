@@ -35,10 +35,10 @@ import com.yammer.metrics.Meter;
 import com.yammer.metrics.Metric;
 import com.yammer.metrics.MetricRegistry;
 
-import ddf.catalog.metrics.internal.SourceMetrics;
 import ddf.catalog.source.CatalogProvider;
 import ddf.catalog.source.FederatedSource;
 import ddf.catalog.source.Source;
+import ddf.catalog.source.SourceMetrics;
 
 /**
  * This class manages the metrics for individual {@link CatalogProvider} and {@link FederatedSource}
