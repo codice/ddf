@@ -38,13 +38,13 @@ import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.federation.AbstractFederationStrategy;
 import ddf.catalog.federation.FederationStrategy;
-import ddf.catalog.metrics.internal.SourceMetrics;
 import ddf.catalog.operation.ProcessingDetails;
 import ddf.catalog.operation.ProcessingDetailsImpl;
 import ddf.catalog.operation.Query;
 import ddf.catalog.operation.QueryResponseImpl;
 import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.source.Source;
+import ddf.catalog.source.SourceMetrics;
 import ddf.catalog.util.DistanceResultComparator;
 import ddf.catalog.util.RelevanceResultComparator;
 import ddf.catalog.util.TemporalResultComparator;
@@ -76,7 +76,7 @@ public class SortedFederationStrategy extends AbstractFederationStrategy
 
     private static XLogger logger = new XLogger(LoggerFactory.getLogger(SortedFederationStrategy.class));
 
-    private SourceMetrics sourceMetrics;
+    private List<SourceMetrics> sourceMetrics;
 	
 
     /**
@@ -85,11 +85,13 @@ public class SortedFederationStrategy extends AbstractFederationStrategy
      * 
      * @param queryExecutorService the {@link ExecutorService} for queries
      */
-    public SortedFederationStrategy( ExecutorService queryExecutorService, SourceMetrics sourceMetrics)
+    public SortedFederationStrategy( ExecutorService queryExecutorService)
     {
         super(queryExecutorService);
-        this.sourceMetrics = sourceMetrics;
-
+    }
+    
+    public void setSourceMetrics(List<SourceMetrics> sourceMetrics) {
+    	this.sourceMetrics = sourceMetrics;
     }
 
     @Override
@@ -201,6 +203,7 @@ public class SortedFederationStrategy extends AbstractFederationStrategy
                     logger.warn("search timed out: " + new Date() + " on site " + site.getId());
                     processingDetails.add(new ProcessingDetailsImpl(site.getId(), e));
                 }
+                
                 updateQueryMetrics(site.getId(), sourceResponse);
             }
             logger.debug("all sites finished returning results: " + resultList.size());
@@ -218,11 +221,13 @@ public class SortedFederationStrategy extends AbstractFederationStrategy
         
 		private void updateQueryMetrics(String sourceId,
 				SourceResponse sourceResponse) {
-			
-			sourceMetrics.updateMetric(sourceId, sourceMetrics.QUERIES_SCOPE, 1);
-			
-			if (sourceResponse != null) {
-				sourceMetrics.updateMetric(sourceId, sourceMetrics.QUERIES_TOTAL_RESULTS_SCOPE, (int) sourceResponse.getHits());
+			if (sourceMetrics.size() > 0) {
+				SourceMetrics sourceMetricsProxy = sourceMetrics.get(0);
+				sourceMetricsProxy.updateMetric(sourceId, sourceMetricsProxy.QUERIES_SCOPE, 1);
+				
+				if (sourceResponse != null) {
+					sourceMetricsProxy.updateMetric(sourceId, sourceMetricsProxy.QUERIES_TOTAL_RESULTS_SCOPE, (int) sourceResponse.getHits());
+				}
 			}
 		}
         
@@ -232,13 +237,16 @@ public class SortedFederationStrategy extends AbstractFederationStrategy
 	            return;
 	        }
 			
-			Iterator<ProcessingDetails> iterator = processingDetails.iterator();
-	        while (iterator.hasNext()) {
-	            ProcessingDetails next = iterator.next();
-	            if (next != null && next.getException() != null) {
-					String sourceId = next.getSourceId();
-					sourceMetrics.updateMetric(sourceId, sourceMetrics.EXCEPTIONS_SCOPE, 1);
-	            }
+			if (sourceMetrics.size() > 0) {
+				SourceMetrics sourceMetricsProxy = sourceMetrics.get(0);
+				Iterator<ProcessingDetails> iterator = processingDetails.iterator();
+		        while (iterator.hasNext()) {
+		            ProcessingDetails next = iterator.next();
+		            if (next != null && next.getException() != null) {
+						String sourceId = next.getSourceId();
+						sourceMetricsProxy.updateMetric(sourceId, sourceMetricsProxy.EXCEPTIONS_SCOPE, 1);
+		            }
+				}
 			}
 		}
 		

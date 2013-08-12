@@ -71,7 +71,6 @@
 							ddf.catalog.event,
 							ddf.catalog.federation,
 							ddf.catalog.federation.impl,
-							ddf.catalog.metrics.internal, 
 							ddf.catalog.plugin,
 							ddf.catalog.pubsub, 
 							ddf.catalog.resource,

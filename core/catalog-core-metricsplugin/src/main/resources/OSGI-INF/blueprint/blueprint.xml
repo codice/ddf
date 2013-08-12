@@ -62,6 +62,6 @@
     	<property name="federatedSources" ref="federatedSources" />
     </bean>
   
-    <service ref="sourceMetrics" interface="ddf.catalog.metrics.internal.SourceMetrics" />
+    <service ref="sourceMetrics" interface="ddf.catalog.source.SourceMetrics" />
 
 </blueprint>

@@ -33,9 +33,9 @@ import com.yammer.metrics.Histogram;
 import com.yammer.metrics.Meter;
 
 import ddf.catalog.metrics.SourceMetricsImpl.SourceMetric;
-import ddf.catalog.metrics.internal.SourceMetrics;
 import ddf.catalog.source.CatalogProvider;
 import ddf.catalog.source.FederatedSource;
+import ddf.catalog.source.SourceMetrics;
 
 public class SourceMetricsImplTest {
 	
