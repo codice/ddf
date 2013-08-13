@@ -71,6 +71,7 @@ public class SecurityManagerImplTest
         thrown.expect(org.apache.shiro.authc.AuthenticationException.class);
         thrown.expectMessage("Authentication failed for token submission");
         AuthenticationToken token = mock(AuthenticationToken.class);
+        when(token.getCredentials()).thenReturn("testUser");
         AuthenticationInfo info = mock(AuthenticationInfo.class);
         Realm realm = mock(Realm.class);
         when(realm.getAuthenticationInfo(token)).thenReturn(info);
@@ -92,6 +93,7 @@ public class SecurityManagerImplTest
         principals.add(secToken, REALM_NAME);
 
         AuthenticationToken authToken = mock(AuthenticationToken.class);
+        when(authToken.getCredentials()).thenReturn("testUser");
         AuthenticationInfo info = mock(AuthenticationInfo.class);
         when(info.getPrincipals()).thenReturn(principals);
 

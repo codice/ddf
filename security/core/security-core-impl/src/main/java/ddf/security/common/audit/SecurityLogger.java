@@ -14,10 +14,12 @@ package ddf.security.common.audit;
 
 import ddf.security.SecurityConstants;
 import ddf.security.assertion.SecurityAssertion;
+import ddf.security.assertion.impl.SecurityAssertionImpl;
 import ddf.security.service.impl.SecurityAssertionStore;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.PhaseInterceptorChain;
 import org.apache.cxf.transport.http.AbstractHTTPDestination;
+import org.apache.cxf.ws.security.tokenstore.SecurityToken;
 import org.apache.log4j.Logger;
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
@@ -61,6 +63,8 @@ public final class SecurityLogger
     /**
      * Log all of the information associated with the security assertion for
      * this message
+     * 
+     * @param message CXF Message containing the SAML assertion.
      */
     public static void logSecurityAssertionInfo( Message message )
     {
@@ -71,29 +75,36 @@ public final class SecurityLogger
 
             // grab the SAML assertion associated with this Message from the
             // token store
-            if (assertion != null)
+            if (assertion.getSecurityToken() != null)
             {
                 String logMessage = "SAML assertion successfully extracted from incoming Message.";
                 logMessage += requestLogInfo;
                 SECURITY_LOGGER.info(logMessage);
-                if(SECURITY_LOGGER.isDebugEnabled())
-                {
-                    SECURITY_LOGGER.debug(getFormattedXml(assertion.getSecurityToken().getToken()));
-                }
+                logSecurityAssertionInfo(assertion.getSecurityToken());
             }
             else
             {
-                String logMessage = "No SAML assertion exists on the incoming Message. ";
+                String logMessage = "No SAML assertion exists on the incoming Message.";
                 logMessage += requestLogInfo;
                 SECURITY_LOGGER.info(logMessage);
             }
+        }
+    }
+    
+    public static void logSecurityAssertionInfo( SecurityToken token )
+    {
+        SecurityAssertion assertion = new SecurityAssertionImpl( token );
+
+        if(SECURITY_LOGGER.isDebugEnabled())
+        {
+            SECURITY_LOGGER.debug(getFormattedXml(assertion.getSecurityToken().getToken()));
         }
     }
 
     /**
      * Transform into formatted XML.
      */
-    private static String getFormattedXml( Node node )
+    public static String getFormattedXml( Node node )
     {
         Document document = node.getOwnerDocument().getImplementation().createDocument("", "fake", null);
         Element copy = (Element) document.importNode(node, true);
