@@ -13,8 +13,6 @@ package ddf.security.realm.sts;
 
 import ddf.catalog.util.DdfConfigurationManager;
 import ddf.catalog.util.DdfConfigurationWatcher;
-import ddf.security.assertion.SecurityAssertion;
-import ddf.security.assertion.impl.SecurityAssertionImpl;
 import ddf.security.common.audit.SecurityLogger;
 import ddf.security.common.callback.CommonCallbackHandler;
 import ddf.security.common.util.CommonSSLFactory;
@@ -44,6 +42,7 @@ import org.apache.shiro.authc.SimpleAuthenticationInfo;
 import org.apache.shiro.authc.credential.CredentialsMatcher;
 import org.apache.shiro.realm.AuthenticatingRealm;
 import org.apache.shiro.subject.SimplePrincipalCollection;
+import org.apache.tika.io.IOUtils;
 import org.apache.ws.security.WSConstants;
 import org.apache.ws.security.util.Base64;
 import org.slf4j.LoggerFactory;
@@ -303,15 +302,15 @@ public class StsRealm extends AuthenticatingRealm implements DdfConfigurationWat
 
         if ( supported )
         {
-            LOGGER.debug( "Token " + token.getClass() + " is supported by " + StsRealm.class.getName() + "." );
+            LOGGER.debug( "Token {} is supported by {}.", token.getClass(), StsRealm.class.getName() );
         }
         else if( token != null )
         {
-            LOGGER.debug( "Token " + token.getClass() + " is not supported by " + StsRealm.class.getName() + "." );
+            LOGGER.debug( "Token {} is not supported by {}.", token.getClass(), StsRealm.class.getName() );
         }
         else
         {
-            LOGGER.debug( "The supplied authentication token is null." );
+            LOGGER.debug( "The supplied authentication token is null. Sending back not supported." );
         }
 
         return supported;
@@ -331,11 +330,12 @@ public class StsRealm extends AuthenticatingRealm implements DdfConfigurationWat
         if( token.getCredentials() != null )
         {
             credential = token.getCredentials().toString();
-            LOGGER.debug( "Received credential [" + credential + "]." );
+            LOGGER.debug( "Received credential [{}].", credential );
         }
         else
         {
-            String msg = "Unable to authentication credential.  A NULL credential was provided in the supplied authentication token.";
+            String msg = "Unable to authenticate credential.  A NULL credential was provided in the supplied authentication token. This may be due to an error with the SSO server that created the token.";
+            LOGGER.error(msg);
             throw new AuthenticationException( msg );
         }
 
@@ -387,10 +387,7 @@ public class StsRealm extends AuthenticatingRealm implements DdfConfigurationWat
                 LOGGER.debug( "Finished requesting security token." );
                 SecurityLogger.logInfo("Finished requesting security token.");
 
-                if( LOGGER.isDebugEnabled() )
-                {
-                    logSecurityAssertionInfo( token );
-                }
+                SecurityLogger.logSecurityAssertionInfo(token);
             }
         }
         catch ( Exception e )
@@ -541,13 +538,7 @@ public class StsRealm extends AuthenticatingRealm implements DdfConfigurationWat
             }
             finally
             {
-                try
-                {
-                    fis.close();
-                }
-                catch ( IOException ignore )
-                {
-                }
+                IOUtils.closeQuietly(fis);
             }
         }
     }
@@ -605,13 +596,7 @@ public class StsRealm extends AuthenticatingRealm implements DdfConfigurationWat
             }
             finally
             {
-                try
-                {
-                    fis.close();
-                }
-                catch ( IOException ignore )
-                {
-                }
+                IOUtils.closeQuietly(fis);
             }
 
         }
@@ -1117,24 +1102,7 @@ public class StsRealm extends AuthenticatingRealm implements DdfConfigurationWat
         }
 
         return binarySecurityToken;
-    }
-
-
-    /**
-     * Log all of the information associated with the security assertion for
-     * this message
-     */
-    private void logSecurityAssertionInfo( SecurityToken token )
-    {
-        if( LOGGER.isDebugEnabled() )
-        {
-            SecurityAssertion assertion = new SecurityAssertionImpl( token );
-            String msg = "SAML assertion successfully extracted from incoming Message:\n" + this.getFormattedXml( assertion.getSecurityToken().getToken() );
-            LOGGER.debug( msg );
-            SecurityLogger.logDebug( msg );
-        }
-    }
-    
+    }   
     
     /**
      * Set the claims on the sts client.

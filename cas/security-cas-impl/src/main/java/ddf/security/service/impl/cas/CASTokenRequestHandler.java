@@ -49,8 +49,15 @@ public class CASTokenRequestHandler implements TokenRequestHandler, DdfConfigura
         {
             LOGGER.debug("Getting proxy ticket for {}", stsAddress);
             proxyTicket = attributePrincipal.getProxyTicketFor(stsAddress);
-            LOGGER.debug("Retrieved proxy ticket: {}", proxyTicket);
-            return new CasAuthenticationToken(proxyTicket);
+            if(proxyTicket != null)
+            {
+                LOGGER.debug("Retrieved proxy ticket: {}", proxyTicket);
+                return new CasAuthenticationToken(proxyTicket);
+            }
+            else
+            {
+                throw new SecurityServiceException("Could not get Proxy Ticket from CAS server. Check CAS log for error.");
+            }
         }
         else
         {

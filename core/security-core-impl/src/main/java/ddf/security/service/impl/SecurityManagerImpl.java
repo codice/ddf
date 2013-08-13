@@ -84,6 +84,11 @@ public class SecurityManagerImpl implements SecurityManager
 
     private Subject getSubject( AuthenticationToken token ) throws SecurityServiceException
     {
+        if(token.getCredentials() == null)
+        {
+            throw new SecurityServiceException("CANNOT AUTHENTICATE USER: Authentication token did not contain any credentials. " +
+            		"This is generally due to an error on the authentication server.");
+        }
         // authenticate the token - this will call the stsrealm
         AuthenticationInfo info = internalManager.authenticate(token);
         SecurityToken secToken = info.getPrincipals().oneByType(SecurityToken.class);
