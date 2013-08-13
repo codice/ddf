@@ -9,7 +9,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-package ddf.catalog.metrics;
+package ddf.catalog.metrics.source;
 
 
 import java.io.IOException;

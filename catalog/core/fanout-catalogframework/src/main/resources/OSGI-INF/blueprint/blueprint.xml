@@ -98,11 +98,19 @@
 	<bean id="pool" class="java.util.concurrent.Executors"
 		factory-method="newCachedThreadPool" />
 		
-	<reference id="sourceMetrics" interface="ddf.catalog.metrics.internal.SourceMetrics" />
+    <!--
+    SourceMetrics is a reference-list vs. reference, even though only one sourceMetrics
+    will ever be in the list, because want to be able to uninstall the catalog-core-sourcemetrics
+    without taking down the strategy or framework. If this remained a reference the blueprint
+    proxy would remain non-null after uninstalling the sourcemetrics and the strategy would
+    continue to try and update the source metrics. See Codice DDF-120 for further details. 
+    -->
+	<reference-list id="sourceMetrics" interface="ddf.catalog.source.SourceMetrics" 
+	    availability="optional" />
 
 	<bean id="sorted" class="ddf.catalog.federation.impl.SortedFederationStrategy">
 		<argument ref="pool" />
-		<argument ref="sourceMetrics" />
+		<property name="sourceMetrics" ref="sourceMetrics" />
 	</bean>
 
 	<service ref="sorted" interface="ddf.catalog.federation.FederationStrategy">

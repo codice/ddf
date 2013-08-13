@@ -27,41 +27,4 @@
     <service ref="catalogMetrics" interface="ddf.catalog.plugin.PostIngestPlugin" />
     <service ref="catalogMetrics" interface="ddf.catalog.plugin.PostResourcePlugin" />
     
-    
-    <reference id="configAdminService" interface="org.osgi.service.cm.ConfigurationAdmin" />
-    
-    <!--
-    NOTE: ConnectedSources are explicitly not monitored because their sourceId overlaps
-    with the local catalog provider. 
-    -->
-     
-    <reference-list id="catalogProviders" interface="ddf.catalog.source.CatalogProvider" 
-        availability="optional" > 
-    	<reference-listener 
-    		ref="sourceMetrics"
-    		bind-method="addingSource" 
-    		unbind-method="deletingSource" />
-    </reference-list>
-        
-    <reference-list id="federatedSources" interface="ddf.catalog.source.FederatedSource" 
-        availability="optional" >
-    	<reference-listener 
-    		ref="sourceMetrics"
-    		bind-method="addingSource" 
-    		unbind-method="deletingSource" />
-    </reference-list>
-    
-    <bean id="sourceMetrics" class="ddf.catalog.metrics.SourceMetricsImpl"
-    			init-method="init"  destroy-method="destroy">
-    	<argument ref="configAdminService" />
-    	<!-- 
-    	Must be properties vs. constructor args to prevent circular reference with
-    	CatalogProvider in catalog-core-standardframework blueprint.  
-    	-->
-    	<property name="catalogProviders" ref="catalogProviders" />
-    	<property name="federatedSources" ref="federatedSources" />
-    </bean>
-  
-    <service ref="sourceMetrics" interface="ddf.catalog.source.SourceMetrics" />
-
 </blueprint>
