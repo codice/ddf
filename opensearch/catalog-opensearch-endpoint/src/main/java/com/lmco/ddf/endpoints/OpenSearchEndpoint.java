@@ -235,7 +235,7 @@ public class OpenSearchEndpoint implements DdfConfigurationWatcher {
         subject = getSubject(request);
         if (subject == null)
         {
-            LOGGER.info("Could not set security attributes for user, performing query with no permissions set.");
+            LOGGER.debug("Could not set security attributes for user, performing query with no permissions set.");
         }
 
         // DDF-1904: honor maxResults if count is not specified
@@ -378,7 +378,7 @@ public class OpenSearchEndpoint implements DdfConfigurationWatcher {
                 } 
                 catch (SecurityServiceException sse)
                 {
-                    LOGGER.warn("Could not create subject from request handler, trying other handlers if available." );
+                    LOGGER.warn("Could not create subject from request handler, trying other handlers if available.", sse );
                 }
             }
         }
