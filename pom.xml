@@ -187,6 +187,7 @@
 		<jaxws.plugin.version>1.12</jaxws.plugin.version>
 		<cobertura.plugin.version>2.5.1</cobertura.plugin.version>
 		<maven.war.plugin.version>2.2</maven.war.plugin.version>
+		<umlgraph.doclet.version>5.6.6</umlgraph.doclet.version>
 
         <!-- Dependency Management Versions -->
 		<org.slf4j.version>1.7.1</org.slf4j.version>
@@ -350,7 +351,7 @@
 					<configuration>
 						<autoVersionSubmodules>true</autoVersionSubmodules>
 						<preparationGoals>clean verify install</preparationGoals>
-						<arguments>-Prelease</arguments>
+						<arguments>-Pgenerate_uml_javadoc</arguments>
 						<pushChanges>false</pushChanges>
 					</configuration>
 				</plugin>

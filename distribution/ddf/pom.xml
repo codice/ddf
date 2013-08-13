@@ -42,7 +42,7 @@
   <build>
     <resources>
       <!--
-      Resources for this DDF Standard distribution include its features XML file and the Apache Karaf
+      Resources for this distribution include its features XML file and the Apache Karaf
       .cfg file that defines the feature repositories and list of features to install at startup.
       -->
       <resource>
@@ -114,7 +114,7 @@
   
   <profiles>
 		<profile>
-			<id>release</id>
+			<id>generate_uml_javadoc</id>
 			<build>
 				<plugins>
 					<plugin>
@@ -136,6 +136,41 @@
 											<type>javadoc</type>
 											<outputDirectory>${setup.folder}/catalog_api_javadoc</outputDirectory>
 										</artifactItem>
+										<artifactItem>
+											<groupId>ddf.mime.core</groupId>
+											<artifactId>mime-core-api</artifactId>
+											<version>${project.version}</version>
+											<type>javadoc</type>
+											<outputDirectory>${setup.folder}/mime_api_javadoc</outputDirectory>
+										</artifactItem>
+										<artifactItem>
+											<groupId>ddf.action.core</groupId>
+											<artifactId>action-core-api</artifactId>
+											<version>${project.version}</version>
+											<type>javadoc</type>
+											<outputDirectory>${setup.folder}/action_api_javadoc</outputDirectory>
+										</artifactItem>
+										<artifactItem>
+											<groupId>ddf.content.core</groupId>
+											<artifactId>content-core-api</artifactId>
+											<version>${project.version}</version>
+											<type>javadoc</type>
+											<outputDirectory>${setup.folder}/content_api_javadoc</outputDirectory>
+										</artifactItem>				
+										<artifactItem>
+											<groupId>ddf.security.core</groupId>
+											<artifactId>security-core-api</artifactId>
+											<version>${project.version}</version>
+											<type>javadoc</type>
+											<outputDirectory>${setup.folder}/security_api_javadoc</outputDirectory>
+										</artifactItem>													
+										<artifactItem>
+											<groupId>ddf.security.encryption</groupId>
+											<artifactId>security-encryption-api</artifactId>
+											<version>${project.version}</version>
+											<type>javadoc</type>
+											<outputDirectory>${setup.folder}/encryption_api_javadoc</outputDirectory>
+										</artifactItem>																			
 									</artifactItems>
 								</configuration>
 							</execution>

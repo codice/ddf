@@ -11,16 +11,16 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-
  -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<artifactId>action-core-pom</artifactId>
 		<groupId>ddf.action.core</groupId>
 		<version>2.2.0.RC6-SNAPSHOT</version>
 	</parent>
-	
+
 	<artifactId>action-core-api</artifactId>
 	<packaging>bundle</packaging>
 	<name>DDF :: Action :: API</name>
@@ -40,4 +40,50 @@
 			</plugin>
 		</plugins>
 	</build>
+	<profiles>
+		<profile>
+			<id>generate_uml_javadoc</id>
+			<build>
+				<plugins>
+					<!-- In order for the diagrams to be included within the javadocs, Graphviz 
+						must be installed and on the command line path. No spaces must exist in the 
+						path. Last known version to work with build is 2.26.3. 
+						http://www.graphviz.org/pub/graphviz/stable/ -->
+
+					<plugin>
+						<artifactId>maven-javadoc-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>attach-javadocs</id>
+								<goals>
+									<goal>jar</goal>
+								</goals>
+							</execution>
+						</executions>
+						<configuration>
+							<aggregate>true</aggregate>
+							<show>protected</show>
+							<doclet>org.umlgraph.doclet.UmlGraphDoc</doclet>
+							<docletArtifact>
+								<groupId>org.umlgraph</groupId>
+								<artifactId>umlgraph</artifactId>
+								<version>${umlgraph.doclet.version}</version>
+							</docletArtifact>
+							<additionalparam>
+								-inferrel -attributes -types -visibility
+								-inferdep
+								-operations -enumconstants
+								-quiet -hide java.*
+								-collapsible
+								-collpackages java.util.*
+								-postfixpackage
+								-nodefontsize 9
+								-nodefontpackagesize 7
+							</additionalparam>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 </project>
