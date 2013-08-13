@@ -111,5 +111,39 @@
 
     </plugins>
   </build>
+  
+  <profiles>
+		<profile>
+			<id>release</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-dependency-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>unpack-javadoc</id>
+								<phase>generate-resources</phase>
+								<goals>
+									<goal>unpack</goal>
+								</goals>
+								<configuration>
+									<artifactItems>
+										<artifactItem>
+											<groupId>ddf.catalog.core</groupId>
+											<artifactId>catalog-core-api</artifactId>
+											<version>${project.version}</version>
+											<type>javadoc</type>
+											<outputDirectory>${setup.folder}/catalog_api_javadoc</outputDirectory>
+										</artifactItem>
+									</artifactItems>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 
 </project>
