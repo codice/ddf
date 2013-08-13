@@ -9,7 +9,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-package ddf.catalog.metrics;
+package ddf.catalog.metrics.source;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
@@ -32,7 +32,8 @@ import org.slf4j.LoggerFactory;
 import com.yammer.metrics.Histogram;
 import com.yammer.metrics.Meter;
 
-import ddf.catalog.metrics.SourceMetricsImpl.SourceMetric;
+import ddf.catalog.metrics.source.SourceMetricsImpl;
+import ddf.catalog.metrics.source.SourceMetricsImpl.SourceMetric;
 import ddf.catalog.source.CatalogProvider;
 import ddf.catalog.source.FederatedSource;
 import ddf.catalog.source.SourceMetrics;

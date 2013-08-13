@@ -173,5 +173,10 @@
             rrdDataSourceType = COUNTER
         </config>
     </feature>
+    
+    <feature name="catalog-core-sourcemetrics" version="${project.version}"
+        description="Capture metrics about individual source operations.">
+        <bundle>mvn:ddf.catalog.core/catalog-core-sourcemetrics/${project.version}</bundle>
+    </feature>
 	
 </features>
