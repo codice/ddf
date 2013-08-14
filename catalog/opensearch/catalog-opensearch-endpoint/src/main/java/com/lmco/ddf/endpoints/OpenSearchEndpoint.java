@@ -238,7 +238,7 @@ public class OpenSearchEndpoint implements DdfConfigurationWatcher {
             LOGGER.debug("Could not set security attributes for user, performing query with no permissions set.");
         }
 
-        // DDF-1904: honor maxResults if count is not specified
+        // honor maxResults if count is not specified
         if ((StringUtils.isEmpty(localCount))
                 && (!(StringUtils.isEmpty(maxResults)))) {
             LOGGER.debug("setting count to: " + maxResults);
@@ -537,7 +537,7 @@ public class OpenSearchEndpoint implements DdfConfigurationWatcher {
         Integer count = DEFAULT_COUNT;
         long maxTimeout = DEFAULT_TIMEOUT;
 
-        // DDF-1938: Updated to use the passed in index if valid (=> 1)
+        // Updated to use the passed in index if valid (=> 1)
         // and to use the default if no value, or an invalid value (< 1)
         // is specified
         if (!(StringUtils.isEmpty(startIndexStr))
