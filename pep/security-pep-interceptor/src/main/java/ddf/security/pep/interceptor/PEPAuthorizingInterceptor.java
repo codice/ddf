@@ -111,7 +111,7 @@ public class PEPAuthorizingInterceptor extends AbstractPhaseInterceptor<Message>
                 catch (Exception e)
                 {
                     logger.warn("Caught exception when trying to perform AuthZ.", e);
-                    SecurityLogger.logWarn("Denying access : Caught exception when trying to perform AuthZ for user ["+user.getPrincipal()+"] for service "+ action.getAction());
+                    SecurityLogger.logWarn("Denying access : Caught exception when trying to perform AuthZ for user ["+user.getPrincipal()+"] for service "+ action.getAction(), e);
                     throw new AccessDeniedException("Unauthorized");
                 }
                 if (!isPermitted)

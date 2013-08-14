@@ -93,11 +93,9 @@ public final class SecurityLogger
     
     public static void logSecurityAssertionInfo( SecurityToken token )
     {
-        SecurityAssertion assertion = new SecurityAssertionImpl( token );
-
-        if(SECURITY_LOGGER.isDebugEnabled())
+        if(SECURITY_LOGGER.isDebugEnabled() && token != null)
         {
-            SECURITY_LOGGER.debug(getFormattedXml(assertion.getSecurityToken().getToken()));
+            SECURITY_LOGGER.debug(getFormattedXml(token.getToken()));
         }
     }
 
