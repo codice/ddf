@@ -15,6 +15,8 @@ import java.util.Date;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.joda.time.format.DateTimeFormatter;
+import org.joda.time.format.DateTimeFormatterBuilder;
+import org.joda.time.format.DateTimeParser;
 import org.joda.time.format.ISODateTimeFormat;
 import org.slf4j.LoggerFactory;
 import org.slf4j.ext.XLogger;
@@ -27,6 +29,22 @@ public class TemporalFilter //implements Filter
     private Date endDate;
     
     private static XLogger logger = new XLogger( LoggerFactory.getLogger( TemporalFilter.class ) );
+    
+    private static DateTimeFormatter formatter;
+    /*
+     * The OpenSearch specification uses RFC 3339, which is a specific profile of the ISO 8601 standard and
+     * corresponds to the second and (as a "rarely used option") the first parser below. We additionally
+     * support the corresponding ISO 8601 Basic profiles.
+     */
+    static {
+        DateTimeParser[] parsers = {
+                ISODateTimeFormat.dateTime().getParser(),
+                ISODateTimeFormat.dateTimeNoMillis().getParser(),
+                ISODateTimeFormat.basicDateTime().getParser(),
+                ISODateTimeFormat.basicDateTimeNoMillis().getParser()
+        };
+        formatter = new DateTimeFormatterBuilder().append( null, parsers ).toFormatter();
+    }
     
     
     /**
@@ -111,8 +129,7 @@ public class TemporalFilter //implements Filter
         {
             try
             {
-                DateTimeFormatter dateFormatter = ISODateTimeFormat.dateTime();
-                returnDate = dateFormatter.parseDateTime( date ).toDate();
+                returnDate = formatter.parseDateTime( date ).toDate();
             }
             catch ( IllegalArgumentException iae )
             {
