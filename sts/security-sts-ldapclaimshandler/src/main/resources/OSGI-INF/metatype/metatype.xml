@@ -19,7 +19,7 @@
 	<OCD description="STS Ldap and Roles Claims Handler Configuration" name="Security STS LDAP and Roles Claims Handler" id="ddf.security.sts.claimsHandler">
 	    
 	    <AD name="LDAP URL:" id="ldapUrl" required="true" type="String"
-	      default="ldap://localhost:1389"
+	      default="ldap://ldap:1389"
 	      description="LDAP or LDAPS server and port">
 	    </AD>
 	    
