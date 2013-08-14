@@ -23,9 +23,9 @@ import ddf.action.impl.ActionImpl;
 public class MetacardTransformerActionProvider extends
         AbstractMetacardActionProvider {
 
-    static final String DESCRIPTION_PREFIX = "Gets the Metacard as ";
+    static final String DESCRIPTION_PREFIX = "Gets the Metacard ";
 
-    static final String TITLE_PREFIX = "Get as ";
+    static final String TITLE_PREFIX = "Get ";
 
     private String metacardTransformerId;
 
