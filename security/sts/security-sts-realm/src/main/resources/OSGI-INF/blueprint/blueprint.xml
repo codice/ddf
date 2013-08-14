@@ -16,9 +16,11 @@
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0" xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.0.0">
 
     <reference id="encryptionService" interface="ddf.security.encryption.EncryptionService" />
+    <reference id="stsClientConfig" interface="ddf.security.sts.client.configuration.STSClientConfiguration" />
     
 	<bean id="stsRealm" class="ddf.security.realm.sts.StsRealm">
 	    <property name="encryptionService" ref="encryptionService" />
+        <property name="stsClientConfig" ref="stsClientConfig" />
 	</bean>
 
 	<service ref="stsRealm" interface="ddf.catalog.util.DdfConfigurationWatcher" />

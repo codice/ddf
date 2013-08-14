@@ -16,7 +16,7 @@ import ddf.catalog.util.DdfConfigurationWatcher;
 import ddf.security.common.audit.SecurityLogger;
 import ddf.security.common.util.CommonSSLFactory;
 import ddf.security.encryption.EncryptionService;
-import ddf.security.sts.client.configuration.STSClientConfigurationManager;
+import ddf.security.sts.client.configuration.STSClientConfiguration;
 import org.apache.cxf.sts.STSPropertiesMBean;
 import org.apache.cxf.sts.request.ReceivedToken;
 import org.apache.cxf.sts.request.ReceivedToken.STATE;
@@ -55,8 +55,6 @@ public class WebSSOTokenValidator implements TokenValidator, DdfConfigurationWat
 
     private String casServerUrl;
 
-    private String stsAddress;
-
     private String trustStorePath;
 
     private String trustStorePassword;
@@ -68,6 +66,8 @@ public class WebSSOTokenValidator implements TokenValidator, DdfConfigurationWat
     private static final Logger LOGGER = LoggerFactory.getLogger(WebSSOTokenValidator.class);
 
 	private EncryptionService encryptionService;
+	
+	private STSClientConfiguration stsClientConfig;
 
     public String getCasServerUrl()
     {
@@ -83,6 +83,11 @@ public class WebSSOTokenValidator implements TokenValidator, DdfConfigurationWat
 	{
 		this.encryptionService = encryptionService;
 	}
+	
+	public void setStsClientConfiguration(STSClientConfiguration stsClientConfig)
+	{
+	    this.stsClientConfig = stsClientConfig;
+	}
 
     public void setKeyStorePassword(String pw)
     {
@@ -92,11 +97,6 @@ public class WebSSOTokenValidator implements TokenValidator, DdfConfigurationWat
     public void setTrustStorePassword(String pw)
     {
         this.trustStorePassword = pw;
-    }
-
-    public void setStsAddress(String stsAddress)
-    {
-        this.stsAddress = stsAddress;
     }
 
     public void setTrustStorePath(String trustStorePath)
@@ -197,6 +197,7 @@ public class WebSSOTokenValidator implements TokenValidator, DdfConfigurationWat
         //
         try
         {
+            String stsAddress = stsClientConfig.getAddress();
             //Assertion assertion = casValidator.validate(ticket, service);
             LOGGER.debug("Validating ticket [{}] for service [{}].", decodedToken, stsAddress);
             SecurityLogger.logInfo("Validating ticket [" + decodedToken + "] for service [" + stsAddress + "].");
@@ -285,13 +286,6 @@ public class WebSSOTokenValidator implements TokenValidator, DdfConfigurationWat
                 LOGGER.debug("Setting key store password.");
                 this.keyStorePassword = setKeyStorePassword;
     		}
-        }
-
-        String setStsAddress = (String) properties.get(STSClientConfigurationManager.STS_ADDRESS);
-        if (setStsAddress != null)
-        {
-            LOGGER.debug("Setting STS address: " + setStsAddress);
-            this.stsAddress = setStsAddress;
         }
     }
 
