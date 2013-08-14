@@ -43,7 +43,7 @@
             <cm:property name="userBaseDn" value="ou=users,dc=example,dc=com"/>
             <cm:property name="groupBaseDn" value="ou=groups,dc=example,dc=com"/>
             <cm:property name="userNameAttribute" value="uid"/>
-            <cm:property name="ldapUrl" value="ldap://localhost:1389"/>
+            <cm:property name="ldapUrl" value="ldap://ldap:1389"/>
             <cm:property name="ldapBindUserDn" value="cn=admin"/>
             <cm:property name="ldapBindUserPass" value="ENC(c+GitDfYAMTDRESXSDDsMw==)"/>
             <cm:property name="attributeMapFile" value="etc/ws-security/attributeMap.properties" />
@@ -53,7 +53,7 @@
 
     <reference id="encryptionService" interface="ddf.security.encryption.EncryptionService" />
     
-    <bean id="contextSource" class=" ddf.security.sts.claimsHandler.ContextSourceDecrypt" init-method="afterPropertiesSet">
+    <bean id="contextSource" class="ddf.security.sts.claimsHandler.ContextSourceDecrypt" init-method="afterPropertiesSet">
         <property name="encryptionService" ref="encryptionService" />
         <property name="url" value="$ch{ldapUrl}" />
         <property name="userDn" value="$ch{ldapBindUserDn}" />

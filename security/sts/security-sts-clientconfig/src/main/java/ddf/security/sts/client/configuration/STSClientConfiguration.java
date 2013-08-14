@@ -11,59 +11,228 @@
  **/
 package ddf.security.sts.client.configuration;
 
+
 import java.util.List;
 
+
+/**
+ * Interface for service containing STS client configurations. This can be used
+ * by clients to an STS when they want to communicate with it.
+ * 
+ */
 public interface STSClientConfiguration
 {
-    
+    /**
+     * Retrieves the address of the STS server.
+     * 
+     * @return String-based URL of the STS endpoint with no "WSDL" on the end.
+     */
     public String getAddress();
-    
-    public void setAddress(String address);
-    
+
+    /**
+     * Sets the address of the STS server.
+     * 
+     * @param address String-based URL of the STS endpoint with no "WSDL" on the
+     *            end.
+     */
+    public void setAddress( String address );
+
+    /**
+     * Retrieves the endpoint name of the STS service.
+     * <p/>
+     * Default is
+     * <b>{http://docs.oasis-open.org/ws-sx/ws-trust/200512/}STS_Port</b>
+     * 
+     * @return String-based endpoint name
+     */
     public String getEndpointName();
-    
-    public void setEndpointName(String endpointName);
-    
+
+    /**
+     * Sets the endpoint name of the STS service.
+     * 
+     * @param endpointName String-based endpoint name.
+     */
+    public void setEndpointName( String endpointName );
+
+    /**
+     * Retrieves the service name of the STS service.
+     * <p/>
+     * Default is <b>{http://docs.oasis-open.org/ws-sx/ws-trust/200512/}
+     * SecurityTokenService</b>
+     * 
+     * @return String-based service name
+     */
     public String getServiceName();
-    
-    public void setServiceName(String serviceName);
-    
+
+    /**
+     * Sets the service name of the STS service.
+     * 
+     * @param serviceName String-based service name
+     */
+    public void setServiceName( String serviceName );
+
+    /**
+     * Retrieves the user's name for performing operations on the STS.
+     * 
+     * @return username
+     */
     public String getUsername();
-    
-    public void setUsername(String username);
-    
+
+    /**
+     * Sets the user's name to use for performing STS operations.
+     * 
+     * @param username
+     */
+    public void setUsername( String username );
+
+    /**
+     * Retrieves the password for the associated username set in
+     * {@link #setUsername()}
+     * 
+     * @return password
+     */
     public String getPassword();
-    
-    public void setPassword(String password);
-    
+
+    /**
+     * Sets the password for the current user.
+     * 
+     * @param password
+     */
+    public void setPassword( String password );
+
+    /**
+     * Per <a
+     * href="http://cxf.apache.org/docs/ws-securitypolicy.html">WS-Security
+     * Policy</a>:
+     * <p/>
+     * The user's name for signature. It is used as the alias name in the
+     * keystore to get the user's cert and private key for signature.
+     * 
+     * @return username
+     */
     public String getSignatureUsername();
-    
-    public void setSignatureUsername(String signatureUsername);
-    
+
+    /**
+     * Sets the user's signature name.
+     * 
+     * @param signatureUsername
+     */
+    public void setSignatureUsername( String signatureUsername );
+
+    /**
+     * Per <a
+     * href="http://cxf.apache.org/docs/ws-securitypolicy.html">WS-Security
+     * Policy</a>:
+     * <p/>
+     * Location of the crypto property configuration to use for signature.
+     * 
+     * @return Location of the property file.
+     */
     public String getSignatureProperties();
-    
-    public void setSignatureProperties(String signatureProperties);
-    
+
+    /**
+     * Sets the location of the signature properties file.
+     * 
+     * @param signatureProperties
+     */
+    public void setSignatureProperties( String signatureProperties );
+
+    /**
+     * Per <a
+     * href="http://cxf.apache.org/docs/ws-securitypolicy.html">WS-Security
+     * Policy</a>:
+     * <p/>
+     * The user's name for encryption. It is used as the alias name in the
+     * keystore to get the user's public key for encryption.
+     * 
+     * @return user's name for encryption.
+     */
     public String getEncryptionUsername();
-    
-    public void setEncryptionUsername(String encryptionUsername);
-    
+
+    /**
+     * Sets the user's name for encryption.
+     * 
+     * @param encryptionUsername
+     */
+    public void setEncryptionUsername( String encryptionUsername );
+
+    /**
+     * Per <a
+     * href="http://cxf.apache.org/docs/ws-securitypolicy.html">WS-Security
+     * Policy</a>:
+     * <p/>
+     * Location of the crypto property configuration to use for encryption.
+     * 
+     * @return Location of the property file.
+     */
     public String getEncryptionProperties();
-    
-    public void setEncryptionProperties(String encryptionProperties);
-    
+
+    /**
+     * Sets the location of the encryption properties file.
+     * 
+     * @param encryptionProperties
+     */
+    public void setEncryptionProperties( String encryptionProperties );
+
+    /**
+     * Per <a
+     * href="http://cxf.apache.org/docs/ws-securitypolicy.html">WS-Security
+     * Policy</a>:
+     * <p/>
+     * The alias name in the keystore to get the user's public key to send to
+     * the STS for the PublicKey KeyType case.
+     * 
+     * @return user's name for the publickey.
+     */
     public String getTokenUsername();
-    
-    public void setTokenUsername(String tokenUsername);
-    
+
+    /**
+     * Sets the alias name for the user's public key.
+     * 
+     * @param tokenUsername
+     */
+    public void setTokenUsername( String tokenUsername );
+
+    /**
+     * Per <a
+     * href="http://cxf.apache.org/docs/ws-securitypolicy.html">WS-Security
+     * Policy</a>:
+     * <p/>
+     * Location of the crypto property configuration used by the STSClient to
+     * send/process any RSA/DSAKeyValue tokens used if the KeyType is
+     * "PublicKey".
+     * 
+     * @return Location of the property file.
+     */
     public String getTokenProperties();
-    
-    public void setTokenProperties(String tokenProperties);
-    
+
+    /**
+     * Sets the location of the token properties file.
+     * 
+     * @param tokenProperties
+     */
+    public void setTokenProperties( String tokenProperties );
+
+    /**
+     * Retrieves the list of claims that should be requested from the STS.
+     * 
+     * @return List of string-based claim URIs.
+     */
     public List<String> getClaims();
-    
-    public void setClaims(List<String> claims);
-    
-    public void setClaims(String claims);
+
+    /**
+     * Sets the claim list with the incoming list.
+     * 
+     * @param claims
+     */
+    public void setClaims( List<String> claims );
+
+    /**
+     * Sets the claim list with the incoming comma-delimieted string of URI
+     * values.
+     * 
+     * @param claims
+     */
+    public void setClaims( String claims );
 
 }
