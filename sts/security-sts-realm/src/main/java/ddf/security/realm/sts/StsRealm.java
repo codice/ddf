@@ -11,14 +11,35 @@
  **/
 package ddf.security.realm.sts;
 
-import ddf.catalog.util.DdfConfigurationManager;
-import ddf.catalog.util.DdfConfigurationWatcher;
-import ddf.security.common.audit.SecurityLogger;
-import ddf.security.common.callback.CommonCallbackHandler;
-import ddf.security.common.util.CommonSSLFactory;
-import ddf.security.common.util.PropertiesLoader;
-import ddf.security.encryption.EncryptionService;
-import ddf.security.sts.client.configuration.STSClientConfigurationManager;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.StringWriter;
+import java.io.Writer;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.UnrecoverableKeyException;
+import java.security.cert.CertificateException;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.KeyManager;
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.TrustManagerFactory;
+import javax.xml.bind.JAXB;
+import javax.xml.bind.JAXBElement;
+import javax.xml.namespace.QName;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.stream.XMLStreamException;
+
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusException;
 import org.apache.cxf.BusFactory;
@@ -54,34 +75,14 @@ import org.w3c.dom.Node;
 import org.w3c.dom.ls.DOMImplementationLS;
 import org.w3c.dom.ls.LSSerializer;
 
-import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.KeyManager;
-import javax.net.ssl.KeyManagerFactory;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.TrustManagerFactory;
-import javax.xml.bind.JAXB;
-import javax.xml.bind.JAXBElement;
-import javax.xml.namespace.QName;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.stream.XMLStreamException;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.StringWriter;
-import java.io.Writer;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.UnrecoverableKeyException;
-import java.security.cert.CertificateException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
+import ddf.catalog.util.DdfConfigurationManager;
+import ddf.catalog.util.DdfConfigurationWatcher;
+import ddf.security.common.audit.SecurityLogger;
+import ddf.security.common.callback.CommonCallbackHandler;
+import ddf.security.common.util.CommonSSLFactory;
+import ddf.security.common.util.PropertiesLoader;
+import ddf.security.encryption.EncryptionService;
+import ddf.security.sts.client.configuration.STSClientConfiguration;
 
 /**
  *  The STS Realm is the main piece of the security framework responsible for exchanging a binary security token for a SAML assertion.
@@ -114,28 +115,6 @@ public class StsRealm extends AuthenticatingRealm implements DdfConfigurationWat
 
     private Bus bus;
 
-    private String stsAddress;
-
-    private String stsServiceName;
-
-    private String stsEndpointName;
-
-    private String signaturePropertiesPath;
-
-    private String encryptionPropertiesPath;
-
-    private String stsPropertiesPath;
-
-    private String wssUsername;
-
-    private String wssPassword;
-
-    private String signatureUsername;
-
-    private String encryptionUsername;
-
-    private String stsTokenUsername;
-
     private String trustStorePath;
 
     private String trustStorePassword;
@@ -143,12 +122,12 @@ public class StsRealm extends AuthenticatingRealm implements DdfConfigurationWat
     private String keyStorePath;
 
     private String keyStorePassword;
-    
-    private List<String> claims;
 
     private boolean settingsConfigured;
     
 	private EncryptionService encryptionService;
+    
+    private STSClientConfiguration stsClientConfig;
     
     public StsRealm()
     {
@@ -156,10 +135,15 @@ public class StsRealm extends AuthenticatingRealm implements DdfConfigurationWat
         setCredentialsMatcher(new STSCredentialsMatcher());
     }
     
-	public void setEncryptionService(EncryptionService encryptionService) 
-	{
-		this.encryptionService = encryptionService;
-	}
+    public void setEncryptionService(EncryptionService encryptionService) 
+    {
+        this.encryptionService = encryptionService;
+    }
+    
+    public void setStsClientConfig(STSClientConfiguration stsClientConfig)
+    {
+        this.stsClientConfig = stsClientConfig;
+    }
 
     /**
      * Watch for changes in System Settings and STS Client Settings from the configuration 
@@ -179,20 +163,17 @@ public class StsRealm extends AuthenticatingRealm implements DdfConfigurationWat
 			if (isDdfConfigurationUpdate(properties)) {
 				LOGGER.debug("Got system configuration update.");
 				setDdfPropertiesFromConfigAdmin(properties);
-
-				if (this.areAllStsClientPropertiesSet()) {
-					configureStsClient();
-					settingsConfigured = true;
+				try
+				{
+				    configureStsClient();
+				    settingsConfigured = true;
 				}
-			} else {
-				LOGGER.debug("Got STS Client configuration update.");
-				setStsPropertiesFromConfigAdmin(properties);
-
-				if (this.areAllStsClientPropertiesSet()) {
-					configureStsClient();
-					settingsConfigured = true;
+				catch (Exception e)
+				{
+				    LOGGER.debug("STS was not available during configuration update, will try again when realm is called. Full stack trace is available at the TRACE level.");
+				    LOGGER.trace("Could not create STS client", e);
 				}
-			}
+			} 
 		} else {
 			LOGGER.debug("properties are NULL or empty");
 		}
@@ -224,72 +205,7 @@ public class StsRealm extends AuthenticatingRealm implements DdfConfigurationWat
         {
             keyStorePassword = value;
         }
-
-        value = (String) properties.get(STSClientConfigurationManager.STS_ADDRESS);
-        if (value != null)
-        {
-            stsAddress = value;
-        }
-
-        value = (String) properties.get(STSClientConfigurationManager.STS_SERVICE_NAME);
-        if (value != null)
-        {
-            stsServiceName = value;
-        }
-
-        value = (String) properties.get(STSClientConfigurationManager.STS_ENDPOINT_NAME);
-        if (value != null)
-        {
-            stsEndpointName = value;
-        }
-
-        value = (String) properties.get(SecurityConstants.SIGNATURE_PROPERTIES);
-        if (value != null)
-        {
-            signaturePropertiesPath = value;
-        }
-
-        value = (String) properties.get(SecurityConstants.ENCRYPT_PROPERTIES);
-        if (value != null)
-        {
-            encryptionPropertiesPath = value;
-        }
-
-        value = (String) properties.get(SecurityConstants.STS_TOKEN_PROPERTIES);
-        if (value != null)
-        {
-            stsPropertiesPath = value;
-        }
-
-        value = (String) properties.get(SecurityConstants.USERNAME);
-        if (value != null)
-        {
-            wssUsername = value;
-        }
-
-        value = (String) properties.get(SecurityConstants.PASSWORD);
-        if (value != null)
-        {
-            wssPassword = value;
-        }
-
-        value = (String) properties.get(SecurityConstants.SIGNATURE_USERNAME);
-        if (value != null)
-        {
-            signatureUsername = value;
-        }
-
-        value = (String) properties.get(SecurityConstants.ENCRYPT_USERNAME);
-        if (value != null)
-        {
-            encryptionUsername = value;
-        }
-
-        value = (String) properties.get(SecurityConstants.STS_TOKEN_USERNAME);
-        if (value != null)
-        {
-            stsTokenUsername = value;
-        }
+        
     }
 
     /**
@@ -371,6 +287,7 @@ public class StsRealm extends AuthenticatingRealm implements DdfConfigurationWat
     private SecurityToken requestSecurityToken( String binarySecurityToken )
     {
         SecurityToken token = null;
+        String stsAddress = stsClientConfig.getAddress();
 
         try
         {
@@ -380,6 +297,7 @@ public class StsRealm extends AuthenticatingRealm implements DdfConfigurationWat
             {
                 LOGGER.debug( "Telling the STS to request a security token on behalf of the binary security token:\n" + binarySecurityToken );
                 SecurityLogger.logInfo( "Telling the STS to request a security token on behalf of the binary security token:\n" + binarySecurityToken );
+                stsClient.setWsdlLocation( stsAddress + WSDL_URL_EXTENSION );
                 stsClient.setOnBehalfOf( binarySecurityToken );
                 stsClient.setTokenType( "http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0" );
                 stsClient.setKeyType( "http://docs.oasis-open.org/ws-sx/ws-trust/200512/PublicKey" );
@@ -417,33 +335,6 @@ public class StsRealm extends AuthenticatingRealm implements DdfConfigurationWat
         }
 
         LOGGER.debug( builder.toString() );
-    }
-
-
-    /**
-     * Determine if all of the required properties are set to create an STS client.
-     */
-    private boolean areAllStsClientPropertiesSet()
-    {
-        boolean areAllStsClientPropertiesSet = false;
-
-		if (stsAddress != null && stsServiceName != null &&	stsEndpointName != null && 
-			signaturePropertiesPath != null && encryptionPropertiesPath != null && 
-			stsPropertiesPath != null && signatureUsername != null && 
-			encryptionUsername != null && stsTokenUsername != null && 
-			trustStorePath != null && trustStorePassword != null && 
-			keyStorePath != null && keyStorePassword != null) 
-		{
-       	    areAllStsClientPropertiesSet = true;
-        }
-        else
-        {
-            areAllStsClientPropertiesSet = false;
-        }
-
-        LOGGER.debug("Are all of the required properties set to configure the STS client? " + areAllStsClientPropertiesSet);
-
-        return areAllStsClientPropertiesSet;
     }
 
 
@@ -633,140 +524,7 @@ public class StsRealm extends AuthenticatingRealm implements DdfConfigurationWat
         setupCipherSuiteFilters( tlsParams );
 
         httpConduit.setTlsClientParameters( tlsParams );
-    }
-
-
-    /**
-     *  Set properties based on DDF STS Client setting updates.
-     */
-    private void setStsPropertiesFromConfigAdmin( @SuppressWarnings( "rawtypes" ) Map properties )
-    {
-        String setStsAddress = (String) properties.get( STSClientConfigurationManager.STS_ADDRESS );
-        if ( setStsAddress != null )
-        {
-        	LOGGER.debug( "Setting STS address: " + setStsAddress );
-            this.stsAddress = setStsAddress;
-        }
-
-        String setStsServiceName = (String) properties.get( STSClientConfigurationManager.STS_SERVICE_NAME );
-        if ( setStsServiceName != null )
-        {
-        	LOGGER.debug( "Setting STS service name: " + setStsServiceName );
-            this.stsServiceName = setStsServiceName;
-        }
-
-        String setStsEndpointName = (String) properties.get( STSClientConfigurationManager.STS_ENDPOINT_NAME );
-        if ( setStsEndpointName != null )
-        {
-        	LOGGER.debug( "Setting STS endpoint name: " + setStsEndpointName );
-            this.stsEndpointName = setStsEndpointName;
-        }
-
-        String setSignaturePropertiesPath = (String) properties.get( SecurityConstants.SIGNATURE_PROPERTIES );
-        if ( setSignaturePropertiesPath != null )
-        {
-        	LOGGER.debug( "Setting signature properties path: " + setSignaturePropertiesPath );
-            this.signaturePropertiesPath = setSignaturePropertiesPath;
-        }
-
-        String setEncryptionPropertiesPath = (String) properties.get( SecurityConstants.ENCRYPT_PROPERTIES );
-        if ( setEncryptionPropertiesPath != null )
-        {
-        	LOGGER.debug( "Setting encryption properties path: " + setEncryptionPropertiesPath );
-            this.encryptionPropertiesPath = setEncryptionPropertiesPath;
-        }
-
-        String setStsPropertiesPath = (String) properties.get( SecurityConstants.STS_TOKEN_PROPERTIES );
-        if ( setStsPropertiesPath != null )
-        {
-        	LOGGER.debug( "Setting STS crypto properties path: " + setStsPropertiesPath );
-            this.stsPropertiesPath = setStsPropertiesPath;
-        }
-
-        String setWssUsername = (String) properties.get( SecurityConstants.USERNAME );
-        if ( setWssUsername != null )
-        {
-        	LOGGER.debug( "Setting WSS username: " + setWssUsername );
-            this.wssUsername = setWssUsername;
-        }
-
-        String setWssPassword = (String) properties.get( SecurityConstants.PASSWORD );
-        if ( setWssPassword != null )
-        {
-        	LOGGER.debug( "Setting wss password." );
-            this.wssPassword = setWssPassword;
-        }
-
-        String setSignatureUsername = (String) properties.get( SecurityConstants.SIGNATURE_USERNAME );
-        if ( setSignatureUsername != null )
-        {
-        	LOGGER.debug( "Setting signature username: " + setSignatureUsername );
-            this.signatureUsername = setSignatureUsername;
-        }
-
-        String setEncryptionUsername = (String) properties.get( SecurityConstants.ENCRYPT_USERNAME );
-        if ( setEncryptionUsername != null )
-        {
-        	LOGGER.debug( "Setting encryption username: " + setEncryptionUsername );
-            this.encryptionUsername = setEncryptionUsername;
-        }
-
-        String setStsTokenUsername = (String) properties.get( SecurityConstants.STS_TOKEN_USERNAME );
-        if ( setStsTokenUsername != null )
-        {
-        	LOGGER.debug( "Setting STS token username: " + setStsTokenUsername );
-            this.stsTokenUsername = setStsTokenUsername;
-        }
-        
-        if( properties.get( STSClientConfigurationManager.STS_CLAIMS ) instanceof List )
-        {
-            @SuppressWarnings( "unchecked" )
-            List<String> claimsProp = (List<String>) properties.get( STSClientConfigurationManager.STS_CLAIMS );
-            List<String> setClaims = new ArrayList<String>();
-            
-            if ( claimsProp != null )
-            {
-            	LOGGER.debug( "{} property: {}", STSClientConfigurationManager.STS_CLAIMS, claimsProp );
-                
-                for( String claim : claimsProp )
-                {
-                    setClaims.addAll( getListFromString( claim ) );
-                }
-                
-                LOGGER.debug( "Setting claims: {}", setClaims );
-                this.claims = setClaims;
-            }
-        }
-        else if ( properties.get( STSClientConfigurationManager.STS_CLAIMS ) instanceof String )
-        {
-            List<String> setClaims = getListFromString( (String) properties.get( STSClientConfigurationManager.STS_CLAIMS ) );
-            if ( setClaims != null )
-            {
-            	LOGGER.debug( "Setting claims: {}", setClaims );
-                this.claims = setClaims;
-            }
-        }
-    }
-    
-
-    /**
-     * Creates a list from a comma delimited string. Trims leading and trailing whitespace from each element.
-     */
-    private List<String> getListFromString( String claimsListAsString )
-    {
-        List<String> setClaims = new ArrayList<String>();
-
-        for( String claim : claimsListAsString.split( "," ) )
-        {
-            claim = claim.trim();
-            LOGGER.debug( "Adding claim [{}] to claims list.", claim );
-            setClaims.add( claim );
-        }
-
-        LOGGER.debug( "Returning claims: {}", setClaims );
-        return setClaims;
-    }
-    
+    }    
 
     /**
      * Set properties based on DDF System Setting updates.
@@ -841,6 +599,7 @@ public class StsRealm extends AuthenticatingRealm implements DdfConfigurationWat
      */
     private void addSignatureProperties( Map<String, Object> map )
     {
+        String signaturePropertiesPath = stsClientConfig.getSignatureProperties();
         if ( signaturePropertiesPath != null && !signaturePropertiesPath.isEmpty() )
         {
             LOGGER.debug( "Setting signature properties on STSClient: " + signaturePropertiesPath );
@@ -854,6 +613,7 @@ public class StsRealm extends AuthenticatingRealm implements DdfConfigurationWat
      */
     private void addEncryptionProperties( Map<String, Object> map )
     {
+        String encryptionPropertiesPath = stsClientConfig.getEncryptionProperties();
         if ( encryptionPropertiesPath != null && !encryptionPropertiesPath.isEmpty() )
         {
             LOGGER.debug( "Setting encryption properties on STSClient: " + encryptionPropertiesPath );
@@ -867,71 +627,12 @@ public class StsRealm extends AuthenticatingRealm implements DdfConfigurationWat
      */
     private void addStsCryptoProperties( Map<String, Object> map )
     {
+        String stsPropertiesPath = stsClientConfig.getTokenProperties();
         if ( stsPropertiesPath != null && !stsPropertiesPath.isEmpty() )
         {
             LOGGER.debug( "Setting sts properties on STSClient: " + stsPropertiesPath );
             Properties stsProperties = PropertiesLoader.loadProperties( stsPropertiesPath );
             map.put( SecurityConstants.STS_TOKEN_PROPERTIES, stsProperties );
-        }
-    }
-
-    /**
-     * Helper method to setup STS Client.
-     */
-    private void addWssUsername( Map<String, Object> map )
-    {
-        if ( wssUsername != null && !wssUsername.isEmpty() )
-        {
-            LOGGER.debug( "Setting username on STSClient: " + wssUsername );
-            map.put( SecurityConstants.USERNAME, wssUsername );
-        }
-    }
-
-    /**
-     * Helper method to setup STS Client.
-     */
-    private void addWssPassword( Map<String, Object> map )
-    {
-        if ( wssPassword != null && !wssPassword.isEmpty() )
-        {
-            LOGGER.debug( "Setting password on STSClient." );
-            map.put( SecurityConstants.PASSWORD, wssPassword );
-        }
-    }
-
-    /**
-     * Helper method to setup STS Client.
-     */
-    private void addSignatureUsername( Map<String, Object> map )
-    {
-        if ( signatureUsername != null && !signatureUsername.isEmpty() )
-        {
-            LOGGER.debug( "Setting signature username on STSClient: " + signatureUsername );
-            map.put( SecurityConstants.SIGNATURE_USERNAME, signatureUsername );
-        }
-    }
-
-    /**
-     * Helper method to setup STS Client.
-     */
-    private void addEncryptionUsername( Map<String, Object> map )
-    {
-        if ( encryptionUsername != null && !encryptionUsername.isEmpty() )
-        {
-            LOGGER.debug( "Setting encryption username on STSClient: " + encryptionUsername );
-            map.put( SecurityConstants.ENCRYPT_USERNAME, encryptionUsername );
-        }
-    }
-
-    /**
-     * Helper method to setup STS Client.
-     */
-    private void addStsTokenUsername( Map<String, Object> map )
-    {
-        if ( stsTokenUsername != null && !stsTokenUsername.isEmpty() )
-        {
-            LOGGER.debug( "Setting sts token username on STSClient: " + stsTokenUsername );
-            map.put( SecurityConstants.STS_TOKEN_USERNAME, stsTokenUsername );
         }
     }
 
@@ -966,16 +667,6 @@ public class StsRealm extends AuthenticatingRealm implements DdfConfigurationWat
 
         addStsCryptoProperties( map );
 
-        addWssUsername(map);
-
-        addWssPassword( map );
-
-        addSignatureUsername( map );
-
-        addEncryptionUsername( map );
-
-        addStsTokenUsername( map );
-
         addCallbackHandler( map );
 
         addUseCertForKeyInfo( map );
@@ -989,6 +680,9 @@ public class StsRealm extends AuthenticatingRealm implements DdfConfigurationWat
     private void configureBaseStsClient()
     {
         stsClient = new STSClient( bus );
+        String stsAddress = stsClientConfig.getAddress();
+        String stsServiceName = stsClientConfig.getServiceName();
+        String stsEndpointName = stsClientConfig.getEndpointName();
 
         if ( stsAddress != null )
         {
@@ -1043,7 +737,7 @@ public class StsRealm extends AuthenticatingRealm implements DdfConfigurationWat
             LOGGER.debug( "STS address is null, unable to create STS Client" );
         }
 
-        if ( LOGGER.isDebugEnabled() && areAllStsClientPropertiesSet() )
+        if ( LOGGER.isDebugEnabled() )
         {
             logStsClientConfiguration();
         }
@@ -1109,12 +803,15 @@ public class StsRealm extends AuthenticatingRealm implements DdfConfigurationWat
      */
     private void setClaimsOnStsClient( Element claimsElement )
     {
-        if( LOGGER.isDebugEnabled() )
+        if(claimsElement != null)
         {
-            LOGGER.debug(" Setting STS claims to:\n" + this.getFormattedXml( claimsElement ) );
+            if( LOGGER.isDebugEnabled() )
+            {
+                LOGGER.debug(" Setting STS claims to:\n" + this.getFormattedXml( claimsElement ) );
+            }
+    
+            stsClient.setClaims( claimsElement );
         }
-
-        stsClient.setClaims( claimsElement );
     }
     
     /**
@@ -1123,6 +820,7 @@ public class StsRealm extends AuthenticatingRealm implements DdfConfigurationWat
     private Element createClaimsElement()
     {
         Element claimsElement = null;
+        List<String> claims = stsClientConfig.getClaims();
 
         if ( claims != null && claims.size() != 0 )
         {
