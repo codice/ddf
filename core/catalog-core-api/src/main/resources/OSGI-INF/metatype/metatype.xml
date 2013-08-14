@@ -30,13 +30,13 @@
 
         <AD name="Port" id="port" required="true" type="String" description="The port that DDF is running on." />
 
-        <AD name="Trust Store:" id="trustStore" description="Trust Store location. Path is relative to ddf.home - for default (development-only) trust store, use etc/keystores/clientTruststore.jks." required="false" type="String">
+        <AD name="Trust Store:" id="trustStore" description="Trust Store location. Path is relative to ddf.home - for default (development-only) trust store, use etc/keystores/serverTruststore.jks." required="false" type="String">
         </AD>
 
         <AD name="Trust Store Password:" id="trustStorePassword" description="Trust Store password" required="false" type="Password">
         </AD>
 
-        <AD name="Key Store:" id="keyStore" description="Key Store location. Path is relative to ddf.home - for default (development-only) key store, use etc/keystores/clientKeystore.jks." required="false" type="String">
+        <AD name="Key Store:" id="keyStore" description="Key Store location. Path is relative to ddf.home - for default (development-only) key store, use etc/keystores/serverKeystore.jks." required="false" type="String">
         </AD>
 
         <AD name="Key Store Password:" id="keyStorePassword" description="Key Store password." required="false" type="Password">
