@@ -19,9 +19,6 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.log4j.BasicConfigurator;
@@ -31,14 +28,13 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import ddf.security.service.SecurityServiceException;
+import ddf.security.sts.client.configuration.STSClientConfiguration;
 
 
 public class CASTokenRequestHandlerTest
 {
 
     private static final String SAMPLE_TICKET = "ST-956-Lyg0BdLkgdrBO9W17bXS";
-    private static final String SAMPLE_SERVICE = "http://localhost/test";
-    private static final String DEFAULT_SERVICE = "https://server:8993/services/SecurityTokenService";
 
     @BeforeClass( )
     public static void setupLogging()
@@ -61,6 +57,7 @@ public class CASTokenRequestHandlerTest
         when(request.getUserPrincipal()).thenReturn(principal);
 
         CASTokenRequestHandler handler = new CASTokenRequestHandler();
+        handler.setStsClientConfiguration(mock(STSClientConfiguration.class));
         Object token = handler.createToken(request);
         assertTrue(token instanceof AuthenticationToken);
         assertEquals(SAMPLE_TICKET, ((AuthenticationToken) token).getCredentials());
@@ -77,34 +74,9 @@ public class CASTokenRequestHandlerTest
     {
         HttpServletRequest request = mock(HttpServletRequest.class);
         CASTokenRequestHandler handler = new CASTokenRequestHandler();
+        handler.setStsClientConfiguration(mock(STSClientConfiguration.class));
         handler.createToken(request);
         fail("No Principal was added to request, code should throw an exception.");
     }
 
-    /**
-     * Tests that when the settings are updated, the new address is used. If the
-     * default address is used by the code, the mock principal will throw a
-     * runtime exception.
-     * 
-     * @throws SecurityServiceException
-     */
-    @Test
-    public void testUpdatedAddress() throws SecurityServiceException
-    {
-        Map<String, String> properties = new HashMap<String, String>();
-        properties.put("sts.address", SAMPLE_SERVICE);
-        // setup mock classes
-        AttributePrincipal principal = mock(AttributePrincipal.class);
-        when(principal.getProxyTicketFor(SAMPLE_SERVICE)).thenReturn(SAMPLE_TICKET);
-        when(principal.getProxyTicketFor(DEFAULT_SERVICE)).thenThrow(
-            new IllegalArgumentException("Code should have used updated service instead of default service."));
-        HttpServletRequest request = mock(HttpServletRequest.class);
-        when(request.getUserPrincipal()).thenReturn(principal);
-
-        CASTokenRequestHandler handler = new CASTokenRequestHandler();
-        handler.ddfConfigurationUpdated(properties);
-        Object token = handler.createToken(request);
-        assertTrue(token instanceof AuthenticationToken);
-        assertEquals(SAMPLE_TICKET, ((AuthenticationToken) token).getCredentials());
-    }
 }

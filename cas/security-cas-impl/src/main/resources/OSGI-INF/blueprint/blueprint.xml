@@ -14,10 +14,12 @@
 
  -->
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0" xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.0.0">
-    
-  <bean id="casRequestHandler" class="ddf.security.service.impl.cas.CASTokenRequestHandler" />
   
-  <service ref="casRequestHandler" interface="ddf.catalog.util.DdfConfigurationWatcher" />
+  <reference id="stsClientConfig" interface="ddf.security.sts.client.configuration.STSClientConfiguration" />
+ 
+  <bean id="casRequestHandler" class="ddf.security.service.impl.cas.CASTokenRequestHandler">
+    <property name="stsClientConfiguration" ref="stsClientConfig" />
+  </bean>
   
   <service ref="casRequestHandler" interface="ddf.security.service.TokenRequestHandler" />
 

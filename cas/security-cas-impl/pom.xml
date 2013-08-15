@@ -31,6 +31,10 @@
       <artifactId>security-core-api</artifactId>
     </dependency>
     <dependency>
+      <groupId>ddf.security.sts</groupId>
+      <artifactId>security-sts-clientconfig</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.jasig.cas</groupId>
       <artifactId>cas-client-core</artifactId>
     </dependency>

@@ -14,6 +14,8 @@ package ddf.security.sts.client.configuration.impl;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
+
 import ddf.security.sts.client.configuration.STSClientConfiguration;
 
 public class STSClientConfigurationImpl implements STSClientConfiguration
@@ -183,10 +185,13 @@ public class STSClientConfigurationImpl implements STSClientConfiguration
     public void setClaims (String claimsListAsString)
     {
         List<String> setClaims = new ArrayList<String>();
-        for( String claim : claimsListAsString.split( "," ) )
+        if (StringUtils.isNotBlank(claimsListAsString))
         {
-            claim = claim.trim();
-            setClaims.add( claim );
+            for( String claim : claimsListAsString.split( "," ) )
+            {
+                claim = claim.trim();
+                setClaims.add( claim );
+            }
         }
         this.claims = setClaims;
     }

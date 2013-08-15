@@ -12,18 +12,15 @@
 package ddf.security.service.impl.cas;
 
 
-import java.util.Map;
-
 import javax.servlet.http.HttpServletRequest;
 
 import org.jasig.cas.client.authentication.AttributePrincipal;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ddf.catalog.util.DdfConfigurationManager;
-import ddf.catalog.util.DdfConfigurationWatcher;
 import ddf.security.service.SecurityServiceException;
 import ddf.security.service.TokenRequestHandler;
+import ddf.security.sts.client.configuration.STSClientConfiguration;
 
 
 /**
@@ -33,17 +30,18 @@ import ddf.security.service.TokenRequestHandler;
  * be used to create a subject.
  * 
  */
-public class CASTokenRequestHandler implements TokenRequestHandler, DdfConfigurationWatcher
+public class CASTokenRequestHandler implements TokenRequestHandler
 {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CASTokenRequestHandler.class);
-    private String stsAddress = "https://server:8993/services/SecurityTokenService";
+    private STSClientConfiguration stsClientConfig;
 
     @Override
     public Object createToken( HttpServletRequest request ) throws SecurityServiceException
     {
         AttributePrincipal attributePrincipal = (AttributePrincipal) request.getUserPrincipal();
         String proxyTicket = null;
+        String stsAddress = stsClientConfig.getAddress();
 
         if (attributePrincipal != null)
         {
@@ -65,48 +63,10 @@ public class CASTokenRequestHandler implements TokenRequestHandler, DdfConfigura
         }
 
     }
-
-    @Override
-    public void ddfConfigurationUpdated( @SuppressWarnings( "rawtypes" ) Map properties )
+    
+    public void setStsClientConfiguration(STSClientConfiguration stsClientConfig)
     {
-        // only want to update based on the STS Client Settings
-        if (!isDdfConfigurationUpdate(properties))
-        {
-            setStsPropertiesFromConfigAdmin(properties);
-        }
-
-    }
-
-    /**
-     * Determines if the received update is a DDF System Settings update.
-     * 
-     * @param properties
-     * @return true if update was specific to DDF, false if it was another type
-     *         of configuration update (for STS).
-     */
-    private boolean isDdfConfigurationUpdate( @SuppressWarnings( "rawtypes" ) Map properties )
-    {
-
-        return (properties.containsKey(DdfConfigurationManager.TRUST_STORE)
-                && properties.containsKey(DdfConfigurationManager.TRUST_STORE_PASSWORD)
-                && properties.containsKey(DdfConfigurationManager.KEY_STORE) && properties
-            .containsKey(DdfConfigurationManager.KEY_STORE_PASSWORD));
-    }
-
-    /**
-     * Set properties based on DDF STS Client setting updates.
-     * 
-     * @param properties
-     */
-    private void setStsPropertiesFromConfigAdmin( @SuppressWarnings( "rawtypes" ) Map properties )
-    {
-        String setStsAddress = (String) properties.get("sts.address");
-        if (setStsAddress != null)
-        {
-            LOGGER.debug("Setting STS address for use in the CAS Proxy Ticket: " + setStsAddress);
-            this.stsAddress = setStsAddress;
-        }
-
+        this.stsClientConfig = stsClientConfig;
     }
 
 }

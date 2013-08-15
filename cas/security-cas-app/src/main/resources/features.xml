@@ -24,6 +24,7 @@
   </feature>
   
   <feature name="security-cas-cxfservletfilter" version="${project.version}" description="DDF Security CAS Servlet Filter for CXF.">
+    <feature>security-cas-client</feature>
     <bundle>mvn:ddf.security.cas/security-cas-cxfservletfilter/${project.version}</bundle>
   </feature>
 
