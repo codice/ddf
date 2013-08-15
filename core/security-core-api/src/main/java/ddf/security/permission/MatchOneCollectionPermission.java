@@ -13,6 +13,8 @@ package ddf.security.permission;
 
 import org.apache.shiro.authz.Permission;
 
+import ddf.security.common.audit.SecurityLogger;
+
 import java.util.Collection;
 
 /**
@@ -39,7 +41,10 @@ public class MatchOneCollectionPermission extends CollectionPermission
     public boolean implies(Permission p)
     {
         if (permissionList.isEmpty())
+        {
+            SecurityLogger.logDebug(PERMISSION_START_MSG + toString() + PERMISSION_NOT_IMPLIES_MSG + p.toString() + PERMISSION_END_MSG);
             return false;
+        }
 
         if (p instanceof CollectionPermission)
         {
@@ -56,8 +61,12 @@ public class MatchOneCollectionPermission extends CollectionPermission
                     }
                 }
                 if (!result)
+                {
+                    SecurityLogger.logDebug(PERMISSION_START_MSG + toString() + PERMISSION_NOT_IMPLIES_MSG + p.toString() + PERMISSION_END_MSG);
                     return false;
+                }
             }
+            SecurityLogger.logDebug(PERMISSION_START_MSG + toString() + PERMISSION_IMPLIES_MSG + p.toString() + PERMISSION_END_MSG);
             return true;
         }
 
@@ -66,9 +75,11 @@ public class MatchOneCollectionPermission extends CollectionPermission
             //Shiro permissions are always a "match all" condition so we need to flip the implies to make it match one
             if(p.implies(permission))
             {
+                SecurityLogger.logDebug(PERMISSION_START_MSG + toString() + PERMISSION_IMPLIES_MSG + p.toString() + PERMISSION_END_MSG);
                 return true;
             }
         }
+        SecurityLogger.logDebug(PERMISSION_START_MSG + toString() + PERMISSION_NOT_IMPLIES_MSG + p.toString() + PERMISSION_END_MSG);
         return false;
     }
 }

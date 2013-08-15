@@ -13,6 +13,8 @@ package ddf.security.permission;
 
 import org.apache.shiro.authz.Permission;
 
+import ddf.security.common.audit.SecurityLogger;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -26,7 +28,12 @@ import java.util.List;
 public class CollectionPermission implements Permission
 {
 
+    protected static final String PERMISSION_START_MSG = "Permission [";
+    protected static final String PERMISSION_IMPLIES_MSG = "] implies permission [";
+    protected static final String PERMISSION_NOT_IMPLIES_MSG = "] does not imply permission [";
+    protected static final String PERMISSION_END_MSG = "].";
     protected List<Permission> permissionList = new ArrayList<Permission>();
+    
 
     /**
      * Default constructor creating an empty collection of permissions.
@@ -77,7 +84,10 @@ public class CollectionPermission implements Permission
     public boolean implies(Permission p)
     {
         if (permissionList.isEmpty())
+        {
+            SecurityLogger.logDebug(PERMISSION_START_MSG + toString() + PERMISSION_NOT_IMPLIES_MSG + p.toString() + PERMISSION_END_MSG);
             return false;
+        }
 
         if (p instanceof CollectionPermission)
         {
@@ -93,8 +103,12 @@ public class CollectionPermission implements Permission
                     }
                 }
                 if (!result)
+                {
+                    SecurityLogger.logDebug(PERMISSION_START_MSG + toString() + PERMISSION_NOT_IMPLIES_MSG + p.toString() + PERMISSION_END_MSG);
                     return false;
+                }
             }
+            SecurityLogger.logDebug(PERMISSION_START_MSG + toString() + PERMISSION_IMPLIES_MSG + p.toString() + PERMISSION_END_MSG);
             return true;
         }
 
@@ -102,9 +116,11 @@ public class CollectionPermission implements Permission
         {
             if(permission.implies(p))
             {
+                SecurityLogger.logDebug(PERMISSION_START_MSG + toString() + PERMISSION_IMPLIES_MSG + p.toString() + PERMISSION_END_MSG);
                 return true;
             }
         }
+        SecurityLogger.logDebug(PERMISSION_START_MSG + toString() + PERMISSION_NOT_IMPLIES_MSG + p.toString() + PERMISSION_END_MSG);
         return false;
     }
 

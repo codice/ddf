@@ -53,6 +53,10 @@ public class SimpleAuthzRealm extends AbstractAuthorizingRealm
     private static final XLogger LOGGER = new XLogger( LoggerFactory.getLogger(SimpleAuthzRealm.class) );
 
     private static final String ACCESS_DENIED_MSG = "User not authorized";
+    
+    private static final String PERMISSION_FINISH_1_MSG = "Finished permission check for user [";
+    
+    private static final String PERMISSION_FINISH_2_MSG = "]. Result is that permission [";
 
     /**
      * Identifies the key used to retrieve a List of Strings that represent the mapping between metacard
@@ -214,7 +218,7 @@ public class SimpleAuthzRealm extends AbstractAuthorizingRealm
         int i = 0;
         for (Permission permission : permissions)
         {
-            results[i++] = isPermitted(permission, info);
+            results[i++] = isPermitted(subjectPrincipal, permission, info);
         }
 
         return results;
@@ -227,9 +231,15 @@ public class SimpleAuthzRealm extends AbstractAuthorizingRealm
      * @param info          the application-specific subject/user identifier.
      * @return true if the user is permitted
      */
-    private boolean isPermitted(Permission permission, AuthorizationInfo info)
+    private boolean isPermitted(PrincipalCollection subjectPrincipal, Permission permission, AuthorizationInfo info)
     {
         Collection<Permission> perms = getPermissions(info);
+        String curUser = "<user>";
+        if(subjectPrincipal != null && subjectPrincipal.getPrimaryPrincipal() != null)
+        {
+            curUser = subjectPrincipal.getPrimaryPrincipal().toString();
+        }
+        SecurityLogger.logInfo("Starting permissions check for user [" + curUser + "]");
         if (perms != null && !perms.isEmpty())
         {
             if(permission instanceof KeyValuePermission)
@@ -276,10 +286,10 @@ public class SimpleAuthzRealm extends AbstractAuthorizingRealm
                 boolean matchOne = subjectOneCollection.implies(matchOneCollection);
                 if (matchAll && matchOne)
                 {
-                    SecurityLogger.logInfo("Permission ["+ permission +"] implied");
+                    SecurityLogger.logInfo(PERMISSION_FINISH_1_MSG + curUser + PERMISSION_FINISH_2_MSG + permission +"] is implied.");
                 } else
                 {
-                    SecurityLogger.logInfo("Permission [" + permission + "] not implied");
+                    SecurityLogger.logInfo(PERMISSION_FINISH_1_MSG + curUser + PERMISSION_FINISH_2_MSG + permission + "] is not implied.");
                 }
                 return (matchAll && matchOne);
             }
@@ -288,22 +298,22 @@ public class SimpleAuthzRealm extends AbstractAuthorizingRealm
             {
                 if(permission instanceof ActionPermission && isPermitted((ActionPermission) permission, info))
                 {
-                    SecurityLogger.logInfo("Permission ["+ permission +"] implied");
+                    SecurityLogger.logInfo(PERMISSION_FINISH_1_MSG + curUser + PERMISSION_FINISH_2_MSG + permission +"] is implied.");
                     return true;
                 }
                 else if (perm.implies(permission))
                 {
-                    SecurityLogger.logInfo("Permission ["+ permission +"] implied");
+                    SecurityLogger.logInfo(PERMISSION_FINISH_1_MSG + curUser + PERMISSION_FINISH_2_MSG + permission +"] is implied.");
                     return true;
                 }
             }
         }
         else if(permission instanceof ActionPermission && isPermitted((ActionPermission) permission, info))
         {
-            SecurityLogger.logInfo("Permission ["+ permission +"] implied");
+            SecurityLogger.logInfo(PERMISSION_FINISH_1_MSG + curUser + PERMISSION_FINISH_2_MSG + permission +"] is implied.");
             return true;
         }
-        SecurityLogger.logInfo("Permission ["+ permission +"] not implied");
+        SecurityLogger.logInfo(PERMISSION_FINISH_1_MSG + curUser + PERMISSION_FINISH_2_MSG + permission +"] is not implied.");
         return false;
     }
 
@@ -319,7 +329,7 @@ public class SimpleAuthzRealm extends AbstractAuthorizingRealm
                 {
                     if(action.indexOf(openAction) != -1)
                     {
-                        SecurityLogger.logInfo("Action permission ["+ actionPermission +"] implied as an open action");
+                        SecurityLogger.logInfo("Action permission ["+ actionPermission +"] implied as an open action.");
                         return true;
                     }
                 }
@@ -338,7 +348,7 @@ public class SimpleAuthzRealm extends AbstractAuthorizingRealm
                 }
             }
         }
-        SecurityLogger.logInfo("Action permission ["+ actionPermission +"] not implied");
+        SecurityLogger.logInfo("Action permission ["+ actionPermission +"] not implied.");
         return false;
     }
 
