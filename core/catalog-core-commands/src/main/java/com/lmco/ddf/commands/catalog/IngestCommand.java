@@ -84,7 +84,7 @@ public class IngestCommand extends CatalogCommands {
         if (!inputFile.exists()) {
             console.println(Ansi.ansi().fg(Ansi.Color.RED).toString()
                     + "File or directory [" + filePath + "] must exist."
-                    + Ansi.ansi().fg(Ansi.Color.DEFAULT).toString());
+                    + Ansi.ansi().reset().toString());
             console.println("If the file does indeed exist, try putting the path in quotes.");
             return null;
         }

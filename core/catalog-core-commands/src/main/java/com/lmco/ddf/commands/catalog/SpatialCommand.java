@@ -163,11 +163,11 @@ public class SpatialCommand extends CatalogCommands {
 //	protected void printToConsole(PrintStream console,
 //			BlockingQueue<Response<Result>> responseQ, long start, long end) {
 //		console.println() ;
-//		console.printf("%s %d%s result(s) in %3.3f seconds" ,Ansi.ansi().fg(Ansi.Color.CYAN).toString(),(responseQ.size()-1),Ansi.ansi().fg(Ansi.Color.DEFAULT).toString(),(end-start)/1000.0);
+//		console.printf("%s %d%s result(s) in %3.3f seconds" ,Ansi.ansi().fg(Ansi.Color.CYAN).toString(),(responseQ.size()-1),Ansi.ansi().reset().toString(),(end-start)/1000.0);
 //        console.printf(FORMAT, "", "", "", "");
 //        console.print(Ansi.ansi().fg(Ansi.Color.CYAN).toString()) ;
 //        console.printf(FORMAT, ID, DATE, TITLE, WKT);
-//        console.print(Ansi.ansi().fg(Ansi.Color.DEFAULT).toString()) ;
+//        console.print(Ansi.ansi().reset().toString()) ;
 //		while (!responseQ.peek().isTerminator()) {
 //			Result result = responseQ.poll().getContent();
 //			

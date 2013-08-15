@@ -69,7 +69,7 @@ public class RangeCommand extends CatalogCommands {
 		console.printf(formatString, "", "", "", "");
 		console.print(Ansi.ansi().fg(Ansi.Color.CYAN).toString());
 		console.printf(formatString, NUMBER, ID, attributeName, TITLE);
-		console.print(Ansi.ansi().fg(Ansi.Color.DEFAULT).toString());
+		console.print(Ansi.ansi().reset().toString());
 
 		CatalogFacade catalogProvider = getCatalog();
 		FilterBuilder builder = getFilterBuilder();

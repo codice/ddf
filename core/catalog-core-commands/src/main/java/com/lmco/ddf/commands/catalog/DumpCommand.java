@@ -179,7 +179,7 @@ public class DumpCommand extends OsgiCommandSupport {
 
     private void printRed(String message) {
         console.println(Ansi.ansi().fg(Ansi.Color.RED).toString() + message
-                + Ansi.ansi().fg(Ansi.Color.DEFAULT).toString());
+                + Ansi.ansi().reset().toString());
     }
 
     private List<MetacardTransformer> getTransformers() {

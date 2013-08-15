@@ -110,11 +110,14 @@ public class CatalogCommands extends OsgiCommandSupport {
     }
 
     protected void printColor(PrintStream console, Color color, String message) {
-        if (color == null) {
-            color = Ansi.Color.DEFAULT;
+        String colorString;
+        if (color == null || color.equals(Ansi.Color.DEFAULT)) {
+            colorString = Ansi.ansi().reset().toString();
+        } else {
+            colorString = Ansi.ansi().fg(color).toString();
         }
-        console.print(Ansi.ansi().fg(color).toString());
+        console.print(colorString);
         console.print(message);
-        console.println(Ansi.ansi().fg(Ansi.Color.DEFAULT).toString());
+        console.println(Ansi.ansi().reset().toString());
     }
 }

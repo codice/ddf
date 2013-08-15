@@ -90,11 +90,11 @@ public class SearchCommand extends CatalogCommands {
 
 		console.println();
 		console.printf(" %d result(s) out of %s%d%s in %3.3f seconds", (size), Ansi.ansi().fg(Ansi.Color.CYAN)
-				.toString(), response.getHits(), Ansi.ansi().fg(Ansi.Color.DEFAULT).toString(), (end - start) / MILLISECONDS_PER_SECOND);
+				.toString(), response.getHits(), Ansi.ansi().reset().toString(), (end - start) / MILLISECONDS_PER_SECOND);
 		console.printf(formatString, "", "", "", "");
 		console.print(Ansi.ansi().fg(Ansi.Color.CYAN).toString());
 		console.printf(formatString, ID, DATE, TITLE, EXCERPT);
-		console.print(Ansi.ansi().fg(Ansi.Color.DEFAULT).toString());
+		console.print(Ansi.ansi().reset().toString());
 
 		for (Result result : response.getResults()) {
 			Metacard metacard = result.getMetacard();
@@ -120,7 +120,7 @@ public class SearchCommand extends CatalogCommands {
 				excerpt = "..." + indexedText.substring(Math.max(index - contextLength, 0), index);
 				excerpt = excerpt + Ansi.ansi().fg(Ansi.Color.GREEN).toString();
 				excerpt = excerpt + indexedText.substring(index, index + normalizedSearchPhrase.length());
-				excerpt = excerpt + Ansi.ansi().fg(Ansi.Color.DEFAULT).toString();
+				excerpt = excerpt + Ansi.ansi().reset().toString();
 				excerpt = excerpt
 						+ indexedText
 								.substring(
