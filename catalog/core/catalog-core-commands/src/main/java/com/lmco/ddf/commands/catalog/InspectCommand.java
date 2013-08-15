@@ -139,7 +139,7 @@ public class InspectCommand extends CatalogCommands {
 	}
 
 	protected String defaultColor() {
-		return Ansi.ansi().fg(Ansi.Color.DEFAULT).toString();
+		return Ansi.ansi().reset().toString();
 	}
 
 	protected String color() {

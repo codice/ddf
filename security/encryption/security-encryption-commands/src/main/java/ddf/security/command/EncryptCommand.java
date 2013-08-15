@@ -43,7 +43,7 @@ public class EncryptCommand extends OsgiCommandSupport
         String encryptedValue = encryptionService.encrypt( plainTextValue );
         System.out.print( Ansi.ansi().fg( Ansi.Color.YELLOW ).toString() );
         System.out.println( encryptedValue );
-        System.out.print( Ansi.ansi().fg( Ansi.Color.DEFAULT ).toString() );
+        System.out.print( Ansi.ansi().reset().toString() );
 
         return null;
     }

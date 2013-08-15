@@ -52,7 +52,7 @@ public class ExpansionsCommand extends OsgiCommandSupport
                         }
                     }
                 }
-                System.out.print( Ansi.ansi().fg( Ansi.Color.DEFAULT ).toString() );
+                System.out.print( Ansi.ansi().reset().toString() );
             }
         } else
         {

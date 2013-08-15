@@ -27,7 +27,7 @@ import ddf.catalog.event.Subscriber;
 @Command(scope = SubscriptionsCommand.NAMESPACE, name = "delete", description = "Allows users to delete registered subscriptions.")
 public class DeleteCommand extends SubscriptionsCommand
 {
-    static final String DEFAULT_CONSOLE_COLOR = Ansi.ansi().fg(Ansi.Color.DEFAULT).toString();
+    static final String DEFAULT_CONSOLE_COLOR = Ansi.ansi().reset().toString();
 
     static final String RED_CONSOLE_COLOR = Ansi.ansi().fg(Ansi.Color.RED).toString();
     

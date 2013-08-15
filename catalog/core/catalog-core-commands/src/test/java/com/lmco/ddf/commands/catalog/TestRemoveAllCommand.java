@@ -53,7 +53,7 @@ import ddf.catalog.operation.QueryResponse;
 public class TestRemoveAllCommand {
 
     static final String DEFAULT_CONSOLE_COLOR = Ansi.ansi()
-            .fg(Ansi.Color.DEFAULT).toString();
+            .reset().toString();
 
     static final String RED_CONSOLE_COLOR = Ansi.ansi().fg(Ansi.Color.RED)
             .toString();

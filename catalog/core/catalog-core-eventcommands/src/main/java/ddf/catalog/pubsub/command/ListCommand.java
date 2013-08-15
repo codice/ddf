@@ -24,7 +24,7 @@ import org.fusesource.jansi.Ansi;
 @Command(scope = SubscriptionsCommand.NAMESPACE, name = "list", description = "Allows users to view registered subscriptions.")
 public class ListCommand extends SubscriptionsCommand
 {
-    static final String DEFAULT_CONSOLE_COLOR = Ansi.ansi().fg(Ansi.Color.DEFAULT).toString();
+    static final String DEFAULT_CONSOLE_COLOR = Ansi.ansi().reset().toString();
 
     static final String RED_CONSOLE_COLOR = Ansi.ansi().fg(Ansi.Color.RED).toString();
     

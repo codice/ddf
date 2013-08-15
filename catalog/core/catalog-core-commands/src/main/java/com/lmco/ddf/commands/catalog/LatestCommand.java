@@ -60,7 +60,7 @@ public class LatestCommand extends CatalogCommands {
         console.printf(formatString, "", "", "", "");
         console.print(Ansi.ansi().fg(Ansi.Color.CYAN).toString());
         console.printf(formatString, NUMBER, ID, DATE, TITLE);
-        console.print(Ansi.ansi().fg(Ansi.Color.DEFAULT).toString());
+        console.print(Ansi.ansi().reset().toString());
 
         CatalogFacade catalogProvider = getCatalog();
 
