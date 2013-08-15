@@ -56,7 +56,7 @@ public class ExpandCommand extends OsgiCommandSupport
                 Set<String> expandedValues = expansion.expand(key, values);
                 System.out.print( Ansi.ansi().fg( Ansi.Color.YELLOW ).toString() );
                 System.out.println( expandedValues );
-                System.out.print( Ansi.ansi().fg( Ansi.Color.DEFAULT ).toString() );
+                System.out.print( Ansi.ansi().reset().toString() );
             }
         } else
         {
