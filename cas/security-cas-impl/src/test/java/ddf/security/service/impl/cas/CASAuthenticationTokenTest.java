@@ -45,8 +45,8 @@ public class CASAuthenticationTokenTest
     {
         CasAuthenticationToken token = new CasAuthenticationToken(TEST_TICKET, TEST_SERVICE);
         assertEquals(TEST_TICKET, token.getTicket());
-        assertEquals(TEST_TICKET, token.getCredentials());
-        assertEquals(TEST_TICKET, token.getPrincipal());
+        assertEquals(TEST_TICKET+"|"+TEST_SERVICE, token.getCredentials());
+        assertEquals(TEST_TICKET+"|"+TEST_SERVICE, token.getPrincipal());
         assertEquals(TEST_SERVICE, token.getService());
     }
 }

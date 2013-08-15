@@ -50,7 +50,7 @@ public class CASTokenRequestHandler implements TokenRequestHandler
             if(proxyTicket != null)
             {
                 LOGGER.debug("Retrieved proxy ticket: {}", proxyTicket);
-                return new CasAuthenticationToken(proxyTicket);
+                return new CasAuthenticationToken(proxyTicket, stsAddress);
             }
             else
             {

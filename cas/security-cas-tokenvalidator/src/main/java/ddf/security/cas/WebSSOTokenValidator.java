@@ -16,7 +16,8 @@ import ddf.catalog.util.DdfConfigurationWatcher;
 import ddf.security.common.audit.SecurityLogger;
 import ddf.security.common.util.CommonSSLFactory;
 import ddf.security.encryption.EncryptionService;
-import ddf.security.sts.client.configuration.STSClientConfiguration;
+
+import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.sts.STSPropertiesMBean;
 import org.apache.cxf.sts.request.ReceivedToken;
 import org.apache.cxf.sts.request.ReceivedToken.STATE;
@@ -52,6 +53,8 @@ public class WebSSOTokenValidator implements TokenValidator, DdfConfigurationWat
 
     // The Supported SSO Token Types
     public static final String CAS_TYPE = "#CAS";
+    
+    public static final String CAS_BST_SEP = "|";
 
     private String casServerUrl;
 
@@ -66,8 +69,6 @@ public class WebSSOTokenValidator implements TokenValidator, DdfConfigurationWat
     private static final Logger LOGGER = LoggerFactory.getLogger(WebSSOTokenValidator.class);
 
 	private EncryptionService encryptionService;
-	
-	private STSClientConfiguration stsClientConfig;
 
     public String getCasServerUrl()
     {
@@ -83,31 +84,6 @@ public class WebSSOTokenValidator implements TokenValidator, DdfConfigurationWat
 	{
 		this.encryptionService = encryptionService;
 	}
-	
-	public void setStsClientConfiguration(STSClientConfiguration stsClientConfig)
-	{
-	    this.stsClientConfig = stsClientConfig;
-	}
-
-    public void setKeyStorePassword(String pw)
-    {
-        this.keyStorePassword = pw;
-    }
-
-    public void setTrustStorePassword(String pw)
-    {
-        this.trustStorePassword = pw;
-    }
-
-    public void setTrustStorePath(String trustStorePath)
-    {
-        this.trustStorePath = trustStorePath;
-    }
-
-    public void setKeyStorePath(String keyStorePath)
-    {
-        this.keyStorePath = keyStorePath;
-    }
 
     /*
      * Return true if this TokenValidator implementation is capable of
@@ -138,7 +114,6 @@ public class WebSSOTokenValidator implements TokenValidator, DdfConfigurationWat
             }
             LOGGER.debug("Cannot handle token type of: " + ((BinarySecurityTokenType) token).getValueType());
         }
-
         return false;
     }
 
@@ -179,42 +154,53 @@ public class WebSSOTokenValidator implements TokenValidator, DdfConfigurationWat
         //
         LOGGER.debug("Decoding binary security token.");
         String base64Token = binarySecurityToken.getValue();
-        String decodedToken = null;
+        String ticket = null;
+        String service = null;
         try
         {
-            decodedToken = new String(Base64.decode(base64Token), Charset.forName("UTF-8"));
-            LOGGER.debug("Binary security token successfully decoded: " + decodedToken);
+            String decodedToken = new String(Base64.decode(base64Token), Charset.forName("UTF-8"));
+            if(StringUtils.isNotBlank(decodedToken))
+            {
+                LOGGER.debug("Binary security token successfully decoded: {}", decodedToken);
+                // Token is in the format ticket|service
+                String[] parts = StringUtils.split(decodedToken, CAS_BST_SEP);
+                if(parts.length == 2)
+                {
+                    ticket = parts[0];
+                    service = parts[1];
+                }
+                else
+                {
+                    throw new WSSecurityException("Was not able to parse out BST propertly. Should be in ticket|service format.");
+                }
+            }
+            else
+            {
+                throw new WSSecurityException("Binary security token NOT successfully decoded, is empty or null.");
+            }
         }
-        catch (WSSecurityException e)
+        catch (WSSecurityException wsse)
         {
-            LOGGER.error("Unable to decode BST.", e);
+            String msg = "Unable to decode BST into ticket and service for validation to CAS.";
+            LOGGER.error(msg, wsse);
+            SecurityLogger.logError(msg, wsse);
+            return response;
         }
 
         //
         // Do some validation of the token here
         //
-        // Token is in the format ticket|service
-        //
         try
         {
-            String stsAddress = stsClientConfig.getAddress();
-            //Assertion assertion = casValidator.validate(ticket, service);
-            LOGGER.debug("Validating ticket [{}] for service [{}].", decodedToken, stsAddress);
-            SecurityLogger.logInfo("Validating ticket [" + decodedToken + "] for service [" + stsAddress + "].");
+            LOGGER.debug("Validating ticket [{}] for service [{}].", ticket, service);
+            SecurityLogger.logInfo("Validating ticket [" + ticket + "] for service [" + service + "].");
             
             //validate either returns an assertion or throws an exception
-            Assertion assertion = validate(decodedToken, stsAddress);
+            Assertion assertion = validate(ticket, service);
 
             AttributePrincipal principal = assertion.getPrincipal();
-            LOGGER.debug("principal name: " + principal.getName());
-            
-            LOGGER.debug("Principal {} has {} attribute(s).", principal.getName(), principal.getAttributes().size());
-            SecurityLogger.logInfo("Principal " + principal.getName() + " has " + principal.getAttributes().size() +" attribute(s).");
-            
-            for(Object key : principal.getAttributes().keySet())
-            {
-                LOGGER.debug("Key [{}], value [{}].", key, principal.getAttributes().get( key ));
-            }
+            LOGGER.debug("User name retrieved from CAS: {}", principal.getName());
+            SecurityLogger.logInfo("User name retrieved from CAS: " + principal.getName());
             
             response.setPrincipal(principal);
             LOGGER.debug("CAS ticket successfully validated, setting state to valid.");
