@@ -32,11 +32,6 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.cxf</groupId>
-            <artifactId>cxf-rt-transports-http</artifactId>
-        </dependency>
-
-        <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-core</artifactId>
         </dependency>
@@ -112,7 +107,6 @@
                             ddf.security.assertion.impl;version=${project.version},
                             ddf.security.common;version=${project.version},
                             ddf.security.common.assertion;version=${project.version},
-                            ddf.security.common.audit;version=${project.version},
                             ddf.security.common.callback;version=${project.version},
                             ddf.security.common.util;version=${project.version},
                             ddf.security.service.impl;version=${project.version},

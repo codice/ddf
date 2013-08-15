@@ -13,14 +13,18 @@ package ddf.security.common.audit;
 
 
 import ddf.security.SecurityConstants;
-import ddf.security.assertion.SecurityAssertion;
-import ddf.security.assertion.impl.SecurityAssertionImpl;
-import ddf.security.service.impl.SecurityAssertionStore;
+
+import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.PhaseInterceptorChain;
+import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.transport.http.AbstractHTTPDestination;
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
+import org.apache.cxf.ws.security.tokenstore.TokenStore;
+import org.apache.cxf.ws.security.tokenstore.TokenStoreFactory;
+import org.apache.cxf.ws.security.wss4j.WSS4JInInterceptor;
 import org.apache.log4j.Logger;
+import org.apache.ws.security.SAMLTokenPrincipal;
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -70,17 +74,17 @@ public final class SecurityLogger
     {
         if (message != null)
         {
-            SecurityAssertion assertion = SecurityAssertionStore.getSecurityAssertion(message);
+            SecurityToken token = getToken(message);
             String requestLogInfo = requestIpAndPortMessage(message);
 
             // grab the SAML assertion associated with this Message from the
             // token store
-            if (assertion.getSecurityToken() != null)
+            if (token != null)
             {
                 String logMessage = "SAML assertion successfully extracted from incoming Message.";
                 logMessage += requestLogInfo;
                 SECURITY_LOGGER.info(logMessage);
-                logSecurityAssertionInfo(assertion.getSecurityToken());
+                logSecurityAssertionInfo(token);
             }
             else
             {
@@ -174,6 +178,40 @@ public final class SecurityLogger
     {
         Message message = PhaseInterceptorChain.getCurrentMessage();
         SECURITY_LOGGER.error(log+requestIpAndPortMessage(message));
+    }
+    
+    private static SecurityToken getToken(Message message)
+    {
+        TokenStore tokenStore = getTokenStore(message);
+        SAMLTokenPrincipal principal = (SAMLTokenPrincipal) message.get(WSS4JInInterceptor.PRINCIPAL_RESULT);
+        if(tokenStore != null && principal != null)
+        {
+            return tokenStore.getToken(principal.getId());
+        }
+        else
+        {
+            return null;
+        }
+    }
+    
+    private static TokenStore getTokenStore(Message message)
+    {
+        EndpointInfo info = message.getExchange().get(Endpoint.class).getEndpointInfo();
+        synchronized (info)
+        {
+            TokenStore tokenStore = (TokenStore) message.getContextualProperty(org.apache.cxf.ws.security.SecurityConstants.TOKEN_STORE_CACHE_INSTANCE);
+            if (tokenStore == null)
+            {
+                tokenStore = (TokenStore) info.getProperty(org.apache.cxf.ws.security.SecurityConstants.TOKEN_STORE_CACHE_INSTANCE);
+            }
+            if (tokenStore == null)
+            {
+                TokenStoreFactory tokenStoreFactory = TokenStoreFactory.newInstance();
+                tokenStore = tokenStoreFactory.newTokenStore(org.apache.cxf.ws.security.SecurityConstants.TOKEN_STORE_CACHE_INSTANCE, message);
+                info.setProperty(org.apache.cxf.ws.security.SecurityConstants.TOKEN_STORE_CACHE_INSTANCE, tokenStore);
+            }
+            return tokenStore;
+        }
     }
 
 }
