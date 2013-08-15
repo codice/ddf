@@ -21,6 +21,8 @@ public class CasAuthenticationToken implements AuthenticationToken
 {
 
     private static final long serialVersionUID = 1L;
+    
+        private static final String CAS_SEP = "|";
 
         private String ticket;
         
@@ -50,13 +52,27 @@ public class CasAuthenticationToken implements AuthenticationToken
         @Override
         public Object getCredentials()
         {
-            return ticket;
+            if(service != null)
+            {
+                return ticket + CAS_SEP + service;
+            }
+            else
+            {
+                return ticket;
+            }
         }
 
         @Override
         public Object getPrincipal()
         {
-            return ticket;
+            if(service != null)
+            {
+                return ticket + CAS_SEP + service;
+            }
+            else
+            {
+                return ticket;
+            }
         }
         
         /**
