@@ -18,21 +18,21 @@
     <OCD description="AuthZ Security Settings"
     	 name="Security Simple AuthZ Realm"
     	 id="ddf.security.pdp.realm.SimpleAuthzRealm">
-        <AD description="Roles that a user could have in order to be permitted for restricted actions. Defaults to admin."
+        <AD description="Comma-delimited list of roles that a user could have in order to be permitted for restricted actions. Defaults to admin."
             name="Roles" id="accessRoleList" required="true"
-            type="String" cardinality="-100" default="admin" />
+            type="String" default="admin" />
 
-        <AD description="Actions that are open for any role to access. No actions are set by default."
+        <AD description="Comma-delimited list of actions that are open for any role to access. No actions are set by default."
             name="Open Action List" id="openAccessActionList" required="true"
-            type="String" cardinality="-100" default="" />
+            type="String" default="" />
 
-        <AD description="Match-All subject attribute to Metacard attribute mapping. All values of this metacard key must be present in the corresponding subject key values. Format is subjectAttrName=metacardAttrName."
+        <AD description="Comma-delimited list of 'Match-All' subject attribute to Metacard attribute mapping. All values of this metacard key must be present in the corresponding subject key values. Format is subjectAttrName=metacardAttrName."
             name="Match-All Mappings" id="matchAllMappings" required="false"
-            type="String" cardinality="-100" default="" />
+            type="String" default="" />
 
-        <AD description="Match-One subject attribute to Metacard attribute mapping. One value of this metacard key must be present in the corresponding subject key values. Format is subjectAttrName=metacardAttrName."
+        <AD description="Comma-delimited list of 'Match-One' subject attribute to Metacard attribute mapping. One value of this metacard key must be present in the corresponding subject key values. Format is subjectAttrName=metacardAttrName."
             name="Match-One Mappings" id="matchOneMappings" required="false"
-            type="String" cardinality="-100" default="" />
+            type="String" default="" />
     </OCD>
 
     <Designate pid="ddf.security.pdp.realm.SimpleAuthzRealm">

@@ -448,6 +448,17 @@ public class SimpleAuthzRealm extends AbstractAuthorizingRealm
     {
         this.accessRoleList = accessRoleList;
     }
+    
+    /**
+     * Takes in a comma-delimited string of privileged access roles.
+     * 
+     * @see SimpleAuthzRealm#setAccessRoleList(List)
+     * @param commaStr
+     */
+    public void setAccessRoleList(String commaStr)
+    {
+        setAccessRoleList(convertToList(commaStr));
+    }
 
     /**
      * Sets the list of SOAP actions that are open for users in any role to access.
@@ -459,6 +470,17 @@ public class SimpleAuthzRealm extends AbstractAuthorizingRealm
     public void setOpenAccessActionList(List<String> openAccessActionList)
     {
         this.openAccessActionList = openAccessActionList;
+    }
+    
+    /**
+     * Takes in a comma-delimited string of open access roles.
+     * 
+     * @see SimpleAuthzRealm#setOpenAccessActionList(List)
+     * @param Comma-delimited string of open access roles.
+     */
+    public void setOpenAccessActionList(String commaStr)
+    {
+        setOpenAccessActionList(convertToList(commaStr));
     }
 
     /**
@@ -492,6 +514,18 @@ public class SimpleAuthzRealm extends AbstractAuthorizingRealm
             }
         }
     }
+    
+    /**
+     * Takes in a comma-delimited string of match all mappings.
+     * 
+     * @see SimpleAuthzRealm#setMatchAllMappings(List)
+     * @param commaStr
+     */
+    public void setMatchAllMappings(String commaStr)
+    {
+        setMatchAllMappings(convertToList(commaStr));
+    }
+    
     /**
      * Sets the mappings used by the "match one" evaluation to determine if this user should be authorized
      * to access requested data.
@@ -522,5 +556,30 @@ public class SimpleAuthzRealm extends AbstractAuthorizingRealm
                 }
             }
         }
+    }
+    
+    /**
+     * Takes in a comma-delimited string of match one mappings.
+     * 
+     * @see SimpleAuthzRealm#setMatchOneMappings(List)
+     * @param commaStr
+     */
+    public void setMatchOneMappings(String commaStr)
+    {
+        setMatchOneMappings(convertToList(commaStr));
+    }
+    
+    private List<String> convertToList(String commaStr)
+    {
+        List<String> list = new ArrayList<String>();
+        if(commaStr != null)
+        {
+            for( String curValue : commaStr.split( "," ) )
+            {
+                curValue = curValue.trim();
+                list.add( curValue );
+            }
+        }
+        return list;
     }
 }
