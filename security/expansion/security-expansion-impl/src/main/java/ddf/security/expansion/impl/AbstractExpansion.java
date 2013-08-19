@@ -62,6 +62,8 @@ public abstract class AbstractExpansion implements Expansion
     protected static final Logger LOGGER = LoggerFactory.getLogger(RegexExpansion.class);
     protected Pattern rulePattern = Pattern.compile(RULE_SPLIT_REGEX);  //("\\[(.+)\\|(.*)\\]");
     protected Map<String, List<String[]>> expansionTable;
+    private static final String ATTRIBUTE_SEPARATOR = "attributeSeparator";
+    private static final String EXPANSION_FILE_NAME = "expansionFileName";
     private String key;
     private String attributeSeparator = DEFAULT_VALUE_SEPARATOR;
     private String expansionFilename = DEFAULT_CONFIG_FILE_NAME;
@@ -401,6 +403,20 @@ public abstract class AbstractExpansion implements Expansion
             expansionTable.clear();
         }
     }
+    
+    public void update (Map<String,String> properties)
+    {
+        LOGGER.debug("Updating Expansion Properties.");
+        if(properties.containsKey(ATTRIBUTE_SEPARATOR))
+        {
+            setAttributeSeparator(properties.get(ATTRIBUTE_SEPARATOR));
+        }
+        if(properties.containsKey(EXPANSION_FILE_NAME))
+        {
+            setExpansionFileName(properties.get(EXPANSION_FILE_NAME));
+        }
+        
+    }
 
     /**
      * Does the work of reading the configuration file and configuring the expansion map and attribute separator.
@@ -421,8 +437,22 @@ public abstract class AbstractExpansion implements Expansion
             expansionTable.clear();
         try
         {
-
-            File file = new File(filename);
+            File file = null;
+            if(!filename.startsWith("/") && !filename.startsWith("\\"))
+            {
+                //relative path
+                String relPath = System.getProperty("ddf.home");
+                if(relPath == null || relPath.isEmpty())
+                {
+                    LOGGER.warn("ddf.home property was not set or is NULL, loading of properties may be impacted.");
+                }
+                file = new File(relPath, filename);
+            }
+            else
+            {
+                //absolute path
+                file = new File(filename);
+            }
             br = new BufferedReader(new FileReader(file));
             if (br != null)
             {
