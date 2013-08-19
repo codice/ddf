@@ -579,6 +579,56 @@
 			</build>
 		</profile>
 
+		<!-- Added to allow UML Javadocs to be created on Macs that
+		 are running JDK6 and/or tools.jar is not accessible.
+		 jdk tools.jar is required for the new umlgraph doclet to work (5.6.6)-->
+		
+		<profile>
+			<id>jdk6</id>
+			<activation>
+				<jdk>1.6</jdk>
+			</activation>
+			<build>
+				<pluginManagement>
+					<plugins>
+						<plugin>
+							<artifactId>maven-javadoc-plugin</artifactId>
+							<version>${maven.javadoc.plugin.version}</version>
+							<executions>
+								<execution>
+									<id>attach-javadocs</id>
+									<goals>
+										<goal>jar</goal>
+									</goals>
+								</execution>
+							</executions>
+							<configuration>
+								<aggregate>true</aggregate>
+								<show>protected</show>
+								<doclet>org.umlgraph.doclet.UmlGraphDoc</doclet>
+								<!-- This version of the doclet does not run on JDK 1.7 -->
+								<docletArtifact>
+									<groupId>org.umlgraph</groupId>
+									<artifactId>doclet</artifactId>
+									<version>5.1</version>
+								</docletArtifact>
+								<additionalparam>
+									-inferrel -attributes -types -visibility
+									-inferdep
+									-operations -enumconstants
+									-quiet -hide java.*
+									-collapsible
+									-collpackages java.util.*
+									-postfixpackage
+									-nodefontsize 9
+									-nodefontpackagesize 7
+								</additionalparam>
+							</configuration>
+						</plugin>
+					</plugins>
+				</pluginManagement>
+			</build>
+		</profile>
 	</profiles>
 
 	<dependencyManagement>
@@ -1006,4 +1056,5 @@
 			<url>http://artifacts.codice.org/content/groups/public/</url>
 		</repository>
 	</repositories>    
+	
 </project>
