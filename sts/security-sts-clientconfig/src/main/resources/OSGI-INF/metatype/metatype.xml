@@ -20,7 +20,7 @@
          id="ddf.security.sts.client.configuration">
 
         <AD name="STS Address:" id="address" description="STS Address" required="false" type="String"
-            default="https://tokenissuer:8993/services/SecurityTokenService" />
+            default="https://server:8993/services/SecurityTokenService" />
             
         <AD name="STS Endpoint Name:" id="endpointName" description="STS Endpoint Name." required="false"
             type="String" default="{http://docs.oasis-open.org/ws-sx/ws-trust/200512/}STS_Port" />
