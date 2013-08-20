@@ -19,7 +19,7 @@
 	<parent>
 		<artifactId>action-core-pom</artifactId>
 		<groupId>ddf.action.core</groupId>
-		<version>2.3.0-SNAPSHOT</version>
+		<version>2.2.1-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>action-core-app</artifactId>
