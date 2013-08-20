@@ -31,6 +31,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -42,6 +43,7 @@ import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+import org.geotools.filter.FilterFactoryImpl;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
@@ -49,6 +51,9 @@ import org.junit.rules.MethodRule;
 import org.junit.rules.TestWatchman;
 import org.junit.runners.model.FrameworkMethod;
 import org.mockito.ArgumentCaptor;
+import org.opengis.filter.Filter;
+import org.opengis.filter.FilterFactory;
+import org.osgi.framework.BundleContext;
 
 import ddf.catalog.data.ContentType;
 import ddf.catalog.data.Metacard;
@@ -61,9 +66,13 @@ import ddf.catalog.operation.CreateRequestImpl;
 import ddf.catalog.operation.CreateResponse;
 import ddf.catalog.operation.DeleteRequest;
 import ddf.catalog.operation.DeleteRequestImpl;
+import ddf.catalog.operation.ProcessingDetails;
+import ddf.catalog.operation.Query;
+import ddf.catalog.operation.QueryImpl;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.QueryRequestImpl;
 import ddf.catalog.operation.QueryResponse;
+import ddf.catalog.operation.QueryResponseImpl;
 import ddf.catalog.operation.ResourceRequest;
 import ddf.catalog.operation.ResourceResponse;
 import ddf.catalog.operation.ResourceResponseImpl;
@@ -71,16 +80,20 @@ import ddf.catalog.operation.SourceInfoRequest;
 import ddf.catalog.operation.SourceInfoRequestEnterprise;
 import ddf.catalog.operation.SourceInfoRequestSources;
 import ddf.catalog.operation.SourceInfoResponse;
+import ddf.catalog.operation.SourceResponse;
+import ddf.catalog.operation.SourceResponseImpl;
 import ddf.catalog.operation.Update;
 import ddf.catalog.operation.UpdateRequest;
 import ddf.catalog.operation.UpdateRequestImpl;
 import ddf.catalog.operation.UpdateResponse;
+import ddf.catalog.plugin.PluginExecutionException;
 import ddf.catalog.plugin.PostIngestPlugin;
 import ddf.catalog.plugin.PostQueryPlugin;
 import ddf.catalog.plugin.PostResourcePlugin;
 import ddf.catalog.plugin.PreIngestPlugin;
 import ddf.catalog.plugin.PreQueryPlugin;
 import ddf.catalog.plugin.PreResourcePlugin;
+import ddf.catalog.plugin.StopProcessingException;
 import ddf.catalog.resource.Resource;
 import ddf.catalog.resource.ResourceReader;
 import ddf.catalog.source.CatalogProvider;
@@ -389,7 +402,7 @@ public class CatalogFrameworkImplTest {
 	}
 
 	/*
-	 * Test for ticket DDF-1540: ResourceResponse returns null ResourceRequest in the PostResourcePlugin.
+	 * Test for "ResourceResponse returns null ResourceRequest in the PostResourcePlugin"
 	 * 
 	 * The error this test case addresses is as follows:
 	 *    The PostResourcePlugin receives a ResourceResponse with a null ResourceRequest. 
@@ -498,10 +511,105 @@ public class CatalogFrameworkImplTest {
         //assertNotNull("ResourceResponse.getResource() returned a ResourceResponse with a null ResourceRequest.", resourceResponse.getRequest());
 	}
 
-	@Ignore
-	@Test
-	public void testFederateQuery() {
-		// TODO create
+	@Test(expected = FederationException.class)
+	public void testPreQuery_StopExecution() throws UnsupportedQueryException,
+			FederationException {
+
+		SourcePoller poller = mock(SourcePoller.class);
+		when(poller.isAvailable(isA(Source.class))).thenReturn(Boolean.TRUE);
+		MockMemoryProvider provider = new MockMemoryProvider("Provider",
+				"Provider", "v1.0", "DDF", new HashSet<ContentType>(), true,
+				new Date());
+		BundleContext context = null;
+
+		FederationStrategy federationStrategy = mock(FederationStrategy.class);
+
+		QueryRequest request = mock(QueryRequest.class);
+
+		when(request.getQuery()).thenReturn(mock(Query.class));
+
+		PreQueryPlugin stopQueryPlugin = new PreQueryPlugin() {
+
+			@Override
+			public QueryRequest process(QueryRequest input)
+					throws PluginExecutionException, StopProcessingException {
+				throw new StopProcessingException(
+						"Testing that the framework will stop the query.");
+			}
+		};
+
+		CatalogFrameworkImpl framework = new CatalogFrameworkImpl(
+				Collections.singletonList((CatalogProvider) provider), context,
+				new ArrayList<PreIngestPlugin>(),
+				new ArrayList<PostIngestPlugin>(),
+				Arrays.asList(stopQueryPlugin),
+				new ArrayList<PostQueryPlugin>(),
+				new ArrayList<PreResourcePlugin>(),
+				new ArrayList<PostResourcePlugin>(),
+				new ArrayList<ConnectedSource>(),
+				new ArrayList<FederatedSource>(),
+				new ArrayList<ResourceReader>(), federationStrategy, null,
+				poller);
+
+		framework.bind(provider);
+		framework.query(request);
+	}
+	
+	@Test(expected = FederationException.class)
+	public void testPostQuery_StopExecution() throws UnsupportedQueryException,
+			FederationException {
+
+		SourcePoller poller = mock(SourcePoller.class);
+		
+		when(poller.isAvailable(isA(Source.class))).thenReturn(Boolean.TRUE);
+		
+		BundleContext context = null;
+
+		FilterFactory filterFactory = new FilterFactoryImpl();
+
+	    Filter filter = filterFactory.like(filterFactory.property(Metacard.METADATA),
+	                "goodyear", "*", "?","/", false);
+		
+		QueryRequest request = new QueryRequestImpl(new QueryImpl(filter));
+		
+		SourceResponseImpl sourceResponse = new SourceResponseImpl(request, new ArrayList<Result>());
+		
+		QueryResponseImpl queryResponse = new QueryResponseImpl(sourceResponse, "anyId");
+		
+		CatalogProvider provider = mock(CatalogProvider.class);
+		
+		when(provider.query(isA(QueryRequest.class))).thenReturn(sourceResponse);
+		
+		FederationStrategy federationStrategy = mock(FederationStrategy.class);
+		
+		when(federationStrategy.federate(isA(List.class),isA(QueryRequest.class))).thenReturn(queryResponse);
+
+		PostQueryPlugin stopQueryPlugin = new PostQueryPlugin() {
+
+			@Override
+			public QueryResponse process(QueryResponse input)
+					throws PluginExecutionException, StopProcessingException {
+				throw new StopProcessingException(
+						"Testing that the framework will stop the query.");
+			}
+			
+		};
+		
+		CatalogFrameworkImpl framework = new CatalogFrameworkImpl(
+				Collections.singletonList((CatalogProvider) provider), context,
+				new ArrayList<PreIngestPlugin>(),
+				new ArrayList<PostIngestPlugin>(),
+				new ArrayList<PreQueryPlugin>(),
+				Arrays.asList(stopQueryPlugin),
+				new ArrayList<PreResourcePlugin>(),
+				new ArrayList<PostResourcePlugin>(),
+				new ArrayList<ConnectedSource>(),
+				new ArrayList<FederatedSource>(),
+				new ArrayList<ResourceReader>(), federationStrategy, null,
+				poller);
+
+		framework.bind(provider);
+		framework.query(request);
 	}
 
 	@Ignore

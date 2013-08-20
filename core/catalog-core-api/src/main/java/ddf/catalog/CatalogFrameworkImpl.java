@@ -888,18 +888,16 @@ public class CatalogFrameworkImpl extends DescribableImpl implements DdfConfigur
 		try {
 			validateQueryRequest(queryReq);
 
-			try {
-				for (PreQueryPlugin service : preQuery) {
-					try {
-						queryReq = service.process(queryReq);
-					} catch (PluginExecutionException see) {
-						logger.warn(
-								"Error executing PreQueryPlugin: "
-										+ see.getMessage(), see);
-					}
+			for (PreQueryPlugin service : preQuery) {
+				try {
+					queryReq = service.process(queryReq);
+				} catch (PluginExecutionException see) {
+					logger.warn(
+							"Error executing PreQueryPlugin: "
+									+ see.getMessage(), see);
+				} catch (StopProcessingException e) {
+					throw new FederationException("Query could not be executed.", e);
 				}
-			} catch (StopProcessingException e) {
-				failOperation(e);
 			}
 
 			validateQueryRequest(queryReq);
@@ -919,19 +917,18 @@ public class CatalogFrameworkImpl extends DescribableImpl implements DdfConfigur
 
 			validateFixQueryResponse(queryResponse, queryReq);
 
-			try {
-				for (PostQueryPlugin service : postQuery) {
-					try {
-						queryResponse = service.process(queryResponse);
-					} catch (PluginExecutionException see) {
-						logger.warn(
-								"Error executing PreQueryPlugin: "
-										+ see.getMessage(), see);
-					}
+			for (PostQueryPlugin service : postQuery) {
+				try {
+					queryResponse = service.process(queryResponse);
+				} catch (PluginExecutionException see) {
+					logger.warn(
+							"Error executing PreQueryPlugin: "
+									+ see.getMessage(), see);
+				} catch (StopProcessingException e) {
+					throw new FederationException("Query could not be executed.", e);
 				}
-			} catch (StopProcessingException e) {
-				failOperation(e);
 			}
+			
 
 		} catch (RuntimeException re) {
 			logger.warn("Exception during runtime while performing query", re);
@@ -944,11 +941,6 @@ public class CatalogFrameworkImpl extends DescribableImpl implements DdfConfigur
 
 		return queryResponse;
 
-	}
-
-	private void failOperation(StopProcessingException spe) {
-		// TODO throw new OperationFailureException();
-		logger.warn("Plugin stopped processing: ", spe);
 	}
 
 	/**
