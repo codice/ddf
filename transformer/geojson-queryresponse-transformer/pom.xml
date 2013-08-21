@@ -21,8 +21,8 @@
 		<version>2.3.0-SNAPSHOT</version>
 	</parent>
 	
-	<artifactId>geojson-metacard-transformer</artifactId>
-	<name>DDF :: Catalog :: Transformer :: Metacard :: GeoJson</name>
+	<artifactId>geojson-queryresponse-transformer</artifactId>
+	<name>DDF :: Catalog :: Transformer :: QueryResponse :: GeoJson</name>
 	<packaging>bundle</packaging>
 
 	<dependencies>
@@ -31,8 +31,17 @@
 			<artifactId>catalog-core-api</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>ddf.catalog.transformer</groupId>
+			<artifactId>geojson-metacard-transformer</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
 			<groupId>ddf.catalog.common</groupId>
 			<artifactId>geo-formatter</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>net.minidev</groupId>
+			<artifactId>json-smart</artifactId>
 		</dependency>
 	</dependencies>
 
@@ -45,7 +54,8 @@
 				<configuration>
 					<instructions>
 						<Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-						<Export-Package>ddf.catalog.transformer.metacard.geojson;version=${project.version}</Export-Package>
+						<Embed-Dependency>json-smart</Embed-Dependency>
+						<Export-Package />
 					</instructions>
 				</configuration>
 			</plugin>
