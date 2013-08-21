@@ -42,6 +42,7 @@
 		<module>tika-input-transformer</module>
 		<module>geojson-input-transformer</module>
 		<module>geojson-metacard-transformer</module>
+		<module>geojson-queryresponse-transformer</module>
 		<module>service-atom-transformer</module>
 		<module>service-xslt-transformer</module>
 		<module>service-html-transformer</module>

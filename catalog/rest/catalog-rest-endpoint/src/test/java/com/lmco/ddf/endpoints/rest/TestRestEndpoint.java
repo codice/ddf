@@ -12,15 +12,19 @@
 package com.lmco.ddf.endpoints.rest;
 
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.notNullValue;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.isA;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.isNull;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.*;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -29,8 +33,10 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.activation.MimeType;
 import javax.ws.rs.core.HttpHeaders;
@@ -41,12 +47,18 @@ import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
+import net.minidev.json.JSONArray;
+import net.minidev.json.JSONObject;
+import net.minidev.json.parser.JSONParser;
+import net.minidev.json.parser.ParseException;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ddf.catalog.CatalogFramework;
+import ddf.catalog.data.ContentType;
+import ddf.catalog.data.ContentTypeImpl;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardImpl;
 import ddf.catalog.data.Result;
@@ -61,7 +73,12 @@ import ddf.catalog.operation.QueryResponse;
 import ddf.catalog.resource.Resource;
 import ddf.catalog.resource.ResourceNotFoundException;
 import ddf.catalog.resource.ResourceNotSupportedException;
+import ddf.catalog.operation.SourceInfoRequestEnterprise;
+import ddf.catalog.operation.SourceInfoResponse;
+import ddf.catalog.operation.SourceInfoResponseImpl;
 import ddf.catalog.source.IngestException;
+import ddf.catalog.source.SourceDescriptor;
+import ddf.catalog.source.SourceDescriptorImpl;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.transform.CatalogTransformerException;
@@ -447,6 +464,91 @@ public class TestRestEndpoint {
 		assertEquals(response.getStatus(), 200);
 		assertEquals(response.getMetadata().toString(), GET_TYPE_OUTPUT);
 	}
+
+    /**
+     * Tests getting source information
+     * 
+     * @throws URISyntaxException
+     * @throws IngestException
+     * @throws SourceUnavailableException
+     * @throws UnsupportedQueryException
+     * @throws FederationException
+     * @throws CatalogTransformerException
+     * @throws UnsupportedEncodingException
+     * @throws ParseException 
+     */
+    @Test
+    public void testGetDocumentSourcesSuccess() throws SourceUnavailableException, 
+            UnsupportedQueryException, FederationException,
+            CatalogTransformerException, URISyntaxException, ParseException {
+        
+        final String LOCAL_SOURCE_ID = "local";
+        final String FED1_SOURCE_ID = "fed1";
+        final String FED2_SOURCE_ID = "fed2";
+        final String VERSION = "4.0";
+        final String JSON_MIME_TYPE_STRING = "application/json";
+
+        Set<ContentType> contentTypes = new HashSet<ContentType>();
+        contentTypes.add(new ContentTypeImpl("ct1", "v1"));
+        contentTypes.add(new ContentTypeImpl("ct2", "v2"));
+        contentTypes.add(new ContentTypeImpl("ct3", null));
+        JSONArray contentTypesInJSON = new JSONArray();
+        for(ContentType ct : contentTypes) {
+            JSONObject ob = new JSONObject();
+            ob.put("name", ct.getName());
+            ob.put("version", ct.getVersion() != null ? ct.getVersion() : "");
+            contentTypesInJSON.add(ob);
+        }
+
+        Set<SourceDescriptor> sourceDescriptors = new HashSet<SourceDescriptor>();
+        SourceDescriptorImpl localDescriptor = new SourceDescriptorImpl(LOCAL_SOURCE_ID, contentTypes);
+        localDescriptor.setVersion(VERSION);
+        SourceDescriptorImpl fed1Descriptor = new SourceDescriptorImpl(FED1_SOURCE_ID, contentTypes);
+        fed1Descriptor.setVersion(VERSION);
+        SourceDescriptorImpl fed2Descriptor = new SourceDescriptorImpl(FED2_SOURCE_ID, null);
+
+        sourceDescriptors.add(localDescriptor);
+        sourceDescriptors.add(fed1Descriptor);
+        sourceDescriptors.add(fed2Descriptor);
+        
+        SourceInfoResponse sourceInfoResponse = new SourceInfoResponseImpl(null, null, sourceDescriptors);
+
+        CatalogFramework framework = mock(CatalogFramework.class);
+        when(framework.getSourceInfo(isA(SourceInfoRequestEnterprise.class))).thenReturn(sourceInfoResponse);
+
+        RESTEndpoint restEndpoint = new RESTEndpoint(framework);
+
+        Response response = restEndpoint.getDocument(null, null);
+        assertEquals(response.getStatus(), 200);
+        assertEquals(response.getMetadata().get("Content-Type").get(0), JSON_MIME_TYPE_STRING);
+
+        String responseMessage = byteArrayConvert((ByteArrayInputStream) response.getEntity());
+        JSONArray srcList = (JSONArray) new JSONParser().parse(responseMessage);
+
+        assertEquals(3, srcList.size());
+
+        for(Object o : srcList) {
+            JSONObject src = (JSONObject) o; 
+            assertEquals(true, src.get("available"));
+            String id = (String) src.get("id");
+            if (id.equals(LOCAL_SOURCE_ID)) {
+                assertThat((Iterable<Object>) src.get("contentTypes"),
+                        hasItems(contentTypesInJSON.toArray()));
+                assertEquals(contentTypes.size(), ((JSONArray) src.get("contentTypes")).size());
+                assertEquals(VERSION, src.get("version"));
+            } else if (id.equals(FED1_SOURCE_ID)) {
+                assertThat((Iterable<Object>) src.get("contentTypes"),
+                        hasItems(contentTypesInJSON.toArray()));
+                assertEquals(contentTypes.size(), ((JSONArray) src.get("contentTypes")).size());
+                assertEquals(VERSION, src.get("version"));
+            } else if (id.equals(FED2_SOURCE_ID)) {
+                assertEquals(0, ((JSONArray) src.get("contentTypes")).size());
+                assertEquals("", src.get("version"));
+            } else {
+                fail("Invalid ID returned");
+            }
+        }
+    }
 
 	/**
 	 * Tests retrieving a local resource with a successful response

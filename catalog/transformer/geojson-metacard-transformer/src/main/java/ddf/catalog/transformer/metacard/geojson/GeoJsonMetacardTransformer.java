@@ -79,6 +79,15 @@ public class GeoJsonMetacardTransformer implements MetacardTransformer {
 	public BinaryContent transform(Metacard metacard, Map<String, Serializable> arguments)
 			throws CatalogTransformerException {
 
+		JSONObject rootObject = convertToJSON(metacard);
+
+		String jsonText = JSONValue.toJSONString(rootObject);
+
+		return new ddf.catalog.data.BinaryContentImpl(new ByteArrayInputStream(jsonText.getBytes()), DEFAULT_MIME_TYPE);
+	}
+
+	public static JSONObject convertToJSON(Metacard metacard)
+			throws CatalogTransformerException {
 		if (metacard == null) {
 			throw new CatalogTransformerException("Cannot transform null metacard.");
 		}
@@ -165,10 +174,7 @@ public class GeoJsonMetacardTransformer implements MetacardTransformer {
         }
 
 		rootObject.put(CompositeGeometry.PROPERTIES_KEY, properties);
-
-		String jsonText = JSONValue.toJSONString(rootObject);
-
-		return new ddf.catalog.data.BinaryContentImpl(new ByteArrayInputStream(jsonText.getBytes()), DEFAULT_MIME_TYPE);
+		return rootObject;
 	}
 
 	@Override

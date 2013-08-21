@@ -24,6 +24,7 @@
     <feature name="catalog-transformer-json" version="${project.version}" description="DDF GeoJSON Transformer translates metacards into GeoJSON.">
         <feature>catalog-transformer-geoformatter</feature>
         <bundle>mvn:ddf.catalog.transformer/geojson-metacard-transformer/${project.version}</bundle>
+        <bundle>mvn:ddf.catalog.transformer/geojson-queryresponse-transformer/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.transformer/geojson-input-transformer/${project.version}</bundle>
     </feature>
     
