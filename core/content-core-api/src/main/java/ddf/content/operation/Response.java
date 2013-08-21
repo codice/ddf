@@ -18,8 +18,6 @@ import java.util.Set;
 /**
  * Marker interface to differentiate {@link Request}s from {@link Response}s.
  * 
- * @since 2.1.0
- * 
  * @author Hugh Rodgers
  * @author ddf.isgs@lmco.com
  *

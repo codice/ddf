@@ -20,8 +20,6 @@ import java.util.Set;
  * Defines how to access the properties, if any, associated with a content CRUD 
  * {@link Request} or {@link Response} operation.
  * 
- * @since 2.1.0
- * 
  * @author Hugh Rodgers, Lockheed Martin
  * @author ddf.isgs@lmco.com
  */
