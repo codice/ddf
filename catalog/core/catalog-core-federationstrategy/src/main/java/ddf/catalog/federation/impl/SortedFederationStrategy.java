@@ -43,6 +43,8 @@ import ddf.catalog.operation.ProcessingDetailsImpl;
 import ddf.catalog.operation.Query;
 import ddf.catalog.operation.QueryResponseImpl;
 import ddf.catalog.operation.SourceResponse;
+import ddf.catalog.plugin.PostFederatedQueryPlugin;
+import ddf.catalog.plugin.PreFederatedQueryPlugin;
 import ddf.catalog.source.Source;
 import ddf.catalog.source.SourceMetrics;
 import ddf.catalog.util.DistanceResultComparator;
@@ -85,9 +87,10 @@ public class SortedFederationStrategy extends AbstractFederationStrategy
      * 
      * @param queryExecutorService the {@link ExecutorService} for queries
      */
-    public SortedFederationStrategy( ExecutorService queryExecutorService)
+    public SortedFederationStrategy(ExecutorService queryExecutorService, 
+    		List<PreFederatedQueryPlugin> preQuery, List<PostFederatedQueryPlugin> postQuery)
     {
-        super(queryExecutorService);
+        super(queryExecutorService, preQuery, postQuery);
     }
     
     public void setSourceMetrics(List<SourceMetrics> sourceMetrics) {
