@@ -16,9 +16,6 @@ package ddf.content;
  * The ContentFrameworkException is used to signal errors during Content
  * Framework CRUD operations.
  * 
- * @version 0.1.0
- * @since 2.1.0
- * 
  * @author Hugh Rodgers, Lockheed Martin
  * @author ddf.isgs@lmco.com
  */

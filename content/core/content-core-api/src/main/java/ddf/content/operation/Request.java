@@ -15,9 +15,6 @@ package ddf.content.operation;
 /**
  * Marker interface to differentiate {@link Request}s from {@link Response}s.
  * 
- * @version 0.1.0
- * @since 2.1.0
- * 
  * @author michael.menousek@lmco.com
  *
  */

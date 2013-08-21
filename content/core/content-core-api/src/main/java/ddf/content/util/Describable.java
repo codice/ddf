@@ -17,9 +17,6 @@ package ddf.content.util;
  * a how the Describable interface is used view the {@link StorageProvider} interface and the
  * {@link DescribableImpl} class.
  * 
- * @version 0.1.0
- * @since 2.1.0
- * 
  * @author Hugh Rodgers, Lockheed Martin
  * @author ddf.isgs@lmco.com
  *
