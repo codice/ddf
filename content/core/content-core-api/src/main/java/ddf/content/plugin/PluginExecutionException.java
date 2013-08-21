@@ -16,9 +16,6 @@ package ddf.content.plugin;
  * Exception thrown when a {@link ContentPlugin} encounters problems during its
  * execution.
  * 
- * @version 0.1.0
- * @since 2.1.0
- * 
  * @author Hugh Rodgers, Lockheed Martin
  * @author ddf.isgs@lmco.com
  *

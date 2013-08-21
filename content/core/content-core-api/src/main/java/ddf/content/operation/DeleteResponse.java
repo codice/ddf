@@ -18,9 +18,6 @@ import ddf.content.data.ContentItem;
  * Defines a Delete Response object which contains response information that should be
  * returned on a {@link DeleteRequest} operation.
  * 
- * @version 0.1.0
- * @since 2.1.0
- * 
  * @author Hugh Rodgers, Lockheed Martin
  * @author ddf.isgs@lmco.com
  */
