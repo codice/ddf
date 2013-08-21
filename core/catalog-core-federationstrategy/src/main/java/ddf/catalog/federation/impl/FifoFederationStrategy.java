@@ -11,6 +11,7 @@
  **/
 package ddf.catalog.federation.impl;
 
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
@@ -23,6 +24,8 @@ import ddf.catalog.federation.AbstractFederationStrategy;
 import ddf.catalog.operation.Query;
 import ddf.catalog.operation.QueryResponseImpl;
 import ddf.catalog.operation.SourceResponse;
+import ddf.catalog.plugin.PostFederatedQueryPlugin;
+import ddf.catalog.plugin.PreFederatedQueryPlugin;
 import ddf.catalog.source.Source;
 
 /**
@@ -44,8 +47,9 @@ public class FifoFederationStrategy extends AbstractFederationStrategy{
      * 
      * @param queryExecutorService the {@link ExecutorService} for queries
      */
-    public FifoFederationStrategy( ExecutorService queryExecutorService ) {
-        super( queryExecutorService );
+    public FifoFederationStrategy( ExecutorService queryExecutorService, 
+    		List<PreFederatedQueryPlugin> preQuery, List<PostFederatedQueryPlugin> postQuery ) {
+        super(queryExecutorService, preQuery, postQuery);
     }
 
     @Override

@@ -33,6 +33,12 @@
 	<bean id="postQuerySortedList" class="ddf.catalog.util.SortedServiceList">
 		<argument ref="blueprintBundleContext" />
 	</bean>	
+		<bean id="preFederatedQuerySortedList" class="ddf.catalog.util.SortedServiceList">
+		<argument ref="blueprintBundleContext" />
+	</bean>
+	<bean id="postFederatedQuerySortedList" class="ddf.catalog.util.SortedServiceList">
+		<argument ref="blueprintBundleContext" />
+	</bean>	
 	<bean id="preResourceSortedList" class="ddf.catalog.util.SortedServiceList">
 		<argument ref="blueprintBundleContext" />
 	</bean>	
@@ -82,6 +88,18 @@
 		<reference-listener bind-method="bindPlugin"
 			unbind-method="unbindPlugin" ref="postQuerySortedList" />	
 	</reference-list>
+	<!-- PRE FEDERATED QUERY REFERENCE -->
+	<reference-list id="preFederatedQuery" interface="ddf.catalog.plugin.PreFederatedQueryPlugin"
+		availability="optional">
+		<reference-listener bind-method="bindPlugin"
+			unbind-method="unbindPlugin" ref="preFederatedQuerySortedList" />		
+	</reference-list>
+	<!-- POST FEDERATED QUERY REFERENCE -->
+	<reference-list id="postFederatedQuery" interface="ddf.catalog.plugin.PostFederatedQueryPlugin"
+		availability="optional" >
+		<reference-listener bind-method="bindPlugin"
+			unbind-method="unbindPlugin" ref="postFederatedQuerySortedList" />	
+	</reference-list>	
 	<!-- PRERESOURCE REFERENCE -->
 	<reference-list id="preResource"
 		interface="ddf.catalog.plugin.PreResourcePlugin" availability="optional" >
@@ -121,16 +139,18 @@
     without taking down the strategy or framework. If this remained a reference the blueprint
     proxy would remain non-null after uninstalling the sourcemetrics and the strategy would
     continue to try and update the source metrics. See Codice DDF-120 for further details. 
-    -->
+
 	<reference-list id="sourceMetrics" interface="ddf.catalog.source.SourceMetrics" 
 	    availability="optional" />
-
+    -->
 	<bean id="sorted" class="ddf.catalog.federation.impl.SortedFederationStrategy">
 		<cm:managed-properties
 			persistent-id="ddf.catalog.federation.impl.SortedFederationStrategy"
 			update-strategy="container-managed" />
 		<argument ref="pool" />
-		<property name="sourceMetrics" ref="sourceMetrics" />
+		<argument ref="preFederatedQuerySortedList" />
+		<argument ref="postFederatedQuerySortedList" />
+		<!-- <property name="sourceMetrics" ref="sourceMetrics" /> -->
 		<property name="maxStartIndex" value="50000" />
 	</bean>
 

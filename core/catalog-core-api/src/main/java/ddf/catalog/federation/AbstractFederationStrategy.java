@@ -20,8 +20,8 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.ext.XLogger;
 
 import ddf.catalog.data.Result;
 import ddf.catalog.operation.Query;
@@ -31,6 +31,10 @@ import ddf.catalog.operation.QueryRequestImpl;
 import ddf.catalog.operation.QueryResponse;
 import ddf.catalog.operation.QueryResponseImpl;
 import ddf.catalog.operation.SourceResponse;
+import ddf.catalog.plugin.PluginExecutionException;
+import ddf.catalog.plugin.PostFederatedQueryPlugin;
+import ddf.catalog.plugin.PreFederatedQueryPlugin;
+import ddf.catalog.plugin.StopProcessingException;
 import ddf.catalog.source.Source;
 
 
@@ -44,12 +48,24 @@ import ddf.catalog.source.Source;
  */
 public abstract class AbstractFederationStrategy implements FederationStrategy
 {
-
-    private static XLogger logger = new XLogger(LoggerFactory.getLogger(AbstractFederationStrategy.class));
+	private static final Logger logger = LoggerFactory.getLogger(AbstractFederationStrategy.class);
+    //private static XLogger logger = new XLogger(LoggerFactory.getLogger(AbstractFederationStrategy.class));
     private static final String CLASS_NAME = AbstractFederationStrategy.class.getName();
     private ExecutorService queryExecutorService;
     private static final int DEFAULT_MAX_START_INDEX = 50000;
     private int maxStartIndex;
+
+    /**
+     * The {@link List} of pre-federated query plugins to execute on the query request before the query is
+     * executed on the {@link Source}.
+     */
+	protected List<PreFederatedQueryPlugin> preQuery;
+    
+    /**
+     * The {@link List} of post-federated query plugins to execute on the query request after the query is
+     * executed on the {@link Source}.
+     */
+	protected List<PostFederatedQueryPlugin> postQuery;
 
     /**
      * Instantiates an {@code AbstractFederationStrategy} with the provided
@@ -57,9 +73,12 @@ public abstract class AbstractFederationStrategy implements FederationStrategy
      * 
      * @param queryExecutorService the {@link ExecutorService} for queries
      */
-    public AbstractFederationStrategy( ExecutorService queryExecutorService )
+    public AbstractFederationStrategy(ExecutorService queryExecutorService, 
+    		List<PreFederatedQueryPlugin> preQuery, List<PostFederatedQueryPlugin> postQuery)
     {
         this.queryExecutorService = queryExecutorService;
+        this.preQuery = preQuery;
+        this.postQuery = postQuery;
         this.maxStartIndex = DEFAULT_MAX_START_INDEX;
     }
 
@@ -79,14 +98,14 @@ public abstract class AbstractFederationStrategy implements FederationStrategy
     public QueryResponse federate( List<Source> sources, final QueryRequest queryRequest )
     {
         final String methodName = "federate";
-        logger.entry(methodName);
+        logger.trace("ENTERING: {}", methodName);
         if (logger.isDebugEnabled())
         {
             for ( Source source : sources )
             {
                 if (source != null)
                 {
-                    logger.debug("source to query: " + source.getId());
+                    logger.debug("source to query: {}", source.getId());
                 }
             }
         }
@@ -108,6 +127,10 @@ public abstract class AbstractFederationStrategy implements FederationStrategy
         Map<Source, Future<SourceResponse>> futures = new HashMap<Source, Future<SourceResponse>>();
 
         Query modifiedQuery = getModifiedQuery(originalQuery, sources.size(), offset, pageSize);
+        QueryRequest modifiedQueryRequest = 
+        		new QueryRequestImpl(modifiedQuery, queryRequest.isEnterprise(), 
+        				queryRequest.getSourceIds(), queryRequest.getProperties());
+
 
         // Do NOT call source.isAvailable() when checking sources
         for ( final Source source : sources )
@@ -117,6 +140,20 @@ public abstract class AbstractFederationStrategy implements FederationStrategy
                 if (!futures.containsKey(source))
                 {
                     logger.debug("running query on source: " + source.getId());
+
+                    try {
+        				for (PreFederatedQueryPlugin service : preQuery) {
+        					try {
+        						modifiedQueryRequest = service.process(source, modifiedQueryRequest);
+        					} catch (PluginExecutionException e) {
+        						logger.warn(
+        								"Error executing PreFederatedQueryPlugin: "
+        										+ e.getMessage(), e);
+        					}
+        				}
+        			} catch (StopProcessingException e) {
+        				logger.warn("Plugin stopped processing: ", e);
+        			}
 
                     futures.put(source, queryExecutorService.submit(new CallableSourceResponse(source, modifiedQuery,
                         queryRequest.getProperties())));
@@ -141,25 +178,46 @@ public abstract class AbstractFederationStrategy implements FederationStrategy
 
         queryExecutorService.submit(createMonitor(queryExecutorService, futures, queryResponseQueue, modifiedQuery));
 
+        QueryResponse queryResponse = null;
         if (offset > 1 && sources.size() > 1)
         {
-            if (logger.isDebugEnabled())
-            {
-                logger.debug("returning offsetResults: " + offsetResults);
-                logger.exit(CLASS_NAME + "." + "federate");
-            }
+        	queryResponse = offsetResults;
 
-            return offsetResults;
+        	logger.debug("returning offsetResults");
+        	
+            //logger.debug("returning offsetResults: {}", queryResponse);
+            //logger.trace("EXITING: {}.federate", CLASS_NAME);
+
+            //return offsetResults;
         }
         else
         {
-            if (logger.isDebugEnabled())
-            {
-                logger.debug("returning returnResults: " + queryResponseQueue);
-                logger.exit(CLASS_NAME + "." + "federate");
+        	queryResponse = queryResponseQueue;
+        	
+            //logger.debug("returning returnResults: {}", queryResponse);
+            //logger.trace("EXITING: {}.federate", CLASS_NAME);
+
+            //return queryResponseQueue;
             }
-            return queryResponseQueue;
+        
+        try {
+			for (PostFederatedQueryPlugin service : postQuery) {
+				try {
+					queryResponse = service.process(queryResponse);
+				} catch (PluginExecutionException e) {
+					logger.warn(
+							"Error executing PostFederatedQueryPlugin: "
+									+ e.getMessage(), e);
         }
+			}
+		} catch (StopProcessingException e) {
+			logger.warn("Plugin stopped processing: ", e);
+		}
+
+        logger.debug("returning Query Results: {}", queryResponse);
+        logger.trace("EXITING: {}.federate", CLASS_NAME);
+        
+        return queryResponse;
 
     }
 
