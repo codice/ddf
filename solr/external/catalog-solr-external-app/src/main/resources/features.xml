@@ -14,7 +14,7 @@
 <features name="${project.artifactId}-${project.version}">
 
 	<feature name="catalog-solr-external-provider" version="${project.version}" description="Catalog Provider to interface with an external Solr ${solr.version} Server">
-		<bundle>mvn:ddf.thirdparty/jts/${jts.bundle.version}</bundle>
+		<bundle>mvn:org.codice.thirdparty/jts/${jts.bundle.version}</bundle>
 		<!-- Servicemix bundle states the wrong name in the container, but it is the right packages. -->
 		<bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.spatial4j/0.3_2</bundle>
 		<bundle>mvn:com.sun.msv/com.springsource.com.sun.msv.grammar/1.0.6</bundle>
