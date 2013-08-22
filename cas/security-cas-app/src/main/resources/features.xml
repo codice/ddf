@@ -14,7 +14,7 @@
 <features name="${project.artifactId}-${project.version}">
 
   <feature name="security-cas-client" version="${project.version}" description="DDF Security CAS Client.">
-    <bundle>mvn:ddf.thirdparty/cas-client-core/${cas.client.bundle.version}</bundle>
+    <bundle>mvn:org.codice.thirdparty/cas-client-core/${cas.client.bundle.version}</bundle>
     <bundle>mvn:ddf.security.cas/security-cas-impl/${project.version}</bundle>
     <bundle>mvn:ddf.security.cas/security-cas-client/${project.version}/war</bundle>
   </feature>
