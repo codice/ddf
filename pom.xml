@@ -219,7 +219,7 @@
 
 		<!-- ddf thirdparty bundle versions.  these should only be used in the feature xml files.
 			any bundle dependent on classes from these jars should depend on the jar itself and not the bundalized version.  -->
-		<org.geotools.bundle.version>${org.geotools.version}_3</org.geotools.bundle.version>
+		<org.geotools.bundle.version>${org.geotools.version}_4</org.geotools.bundle.version>
 		<opengis.bundle.version>${org.geotools.version}_2</opengis.bundle.version>
 		<jts.bundle.version>${jts.version}_1</jts.bundle.version>
 
