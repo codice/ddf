@@ -28,7 +28,7 @@
 		<bundle>mvn:ddf.catalog.core/catalog-core-commons/${project.version}</bundle>
 		<bundle>mvn:ddf.catalog.core/catalog-core-camelcomponent/${project.version}</bundle>		
 		<bundle>mvn:ddf.measure/measure-api/${project.version}</bundle>
-		<bundle>mvn:ddf.thirdparty/picocontainer/1.2_1</bundle>
+		<bundle>mvn:ddf.thirdparty/picocontainer/1.2_2</bundle>
 		<bundle>mvn:ddf.thirdparty/vecmath/1.3.2_1</bundle> <!-- for GeoTools -->
 		<bundle>mvn:ddf.thirdparty/geotools-suite/${org.geotools.bundle.version}</bundle>
 		<bundle>mvn:ddf.thirdparty/jts/${jts.bundle.version}</bundle>
