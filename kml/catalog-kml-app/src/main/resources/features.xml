@@ -21,7 +21,7 @@
 	<feature name="catalog-kml-networklinkendpoint" version="${project.version}"
 		description="KML Network Link Endpoint generates view-based KML Network Links for dynamic query results in KML viewer.">
 		<feature>catalog-kml-metacardtransformer</feature>
-		<bundle>mvn:ddf.thirdparty/jts/${jts.bundle.version}</bundle>
+		<bundle>mvn:org.codice.thirdparty/jts/${jts.bundle.version}</bundle>
 		<bundle>mvn:ddf.catalog.kml/catalog-kml-networklinkendpoint/${project.version}</bundle>
 	</feature>
 

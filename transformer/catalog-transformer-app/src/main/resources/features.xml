@@ -46,7 +46,7 @@
         <bundle>mvn:ddf.catalog.common/geo-formatter/${project.version}</bundle>
         <bundle>mvn:org.apache.abdera/abdera-extensions-geo/${abdera.version}</bundle>
         <bundle>mvn:com.googlecode.json-simple/json-simple/1.1.1</bundle>
-        <bundle>mvn:ddf.thirdparty/jts/${jts.bundle.version}</bundle>
+        <bundle>mvn:org.codice.thirdparty/jts/${jts.bundle.version}</bundle>
     </feature>
 
     <feature name="abdera" version="${project.version}" description="Apache Abdera">
@@ -63,7 +63,7 @@
         <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.abdera-parser/1.1.2_1</bundle>
         <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.dom4j/1.6.1_5</bundle>
         <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jdom/1.1.2_1</bundle>
-        <bundle>mvn:ddf.thirdparty/commons-httpclient/3.1.0_1</bundle>
+        <bundle>mvn:org.codice.thirdparty/commons-httpclient/3.1.0_1</bundle>
     </feature>
     
     <feature name="catalog-transformer-metadata" version="${project.version}" description="Retrieves the attribute, Metadata, from the Metacard.">
@@ -89,4 +89,3 @@
    </feature>
         
 </features>
-    

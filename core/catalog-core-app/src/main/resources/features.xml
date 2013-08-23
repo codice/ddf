@@ -18,7 +18,7 @@
 		<bundle>mvn:ddf.mime.core/mime-core-api/${project.version}</bundle>
 		<bundle>mvn:org.apache.tika/tika-core/${tika.version}</bundle>
 		<bundle>mvn:org.apache.tika/tika-bundle/${tika.version}</bundle>
-		<bundle>mvn:ddf.thirdparty/gt-opengis/${opengis.bundle.version}</bundle>
+		<bundle>mvn:org.codice.thirdparty/gt-opengis/${opengis.bundle.version}</bundle>
 	</feature>
 	
 	<feature name="catalog-core" version="${project.version}"
@@ -28,12 +28,12 @@
 		<bundle>mvn:ddf.catalog.core/catalog-core-commons/${project.version}</bundle>
 		<bundle>mvn:ddf.catalog.core/catalog-core-camelcomponent/${project.version}</bundle>		
 		<bundle>mvn:ddf.measure/measure-api/${project.version}</bundle>
-		<bundle>mvn:ddf.thirdparty/picocontainer/1.2_1</bundle>
-		<bundle>mvn:ddf.thirdparty/vecmath/1.3.2_1</bundle> <!-- for GeoTools -->
-		<bundle>mvn:ddf.thirdparty/geotools-suite/${org.geotools.bundle.version}</bundle>
-		<bundle>mvn:ddf.thirdparty/jts/${jts.bundle.version}</bundle>
+		<bundle>mvn:org.codice.thirdparty/picocontainer/1.2_1</bundle>
+		<bundle>mvn:org.codice.thirdparty/vecmath/1.3.2_1</bundle> <!-- for GeoTools -->
+		<bundle>mvn:org.codice.thirdparty/geotools-suite/${org.geotools.bundle.version}</bundle>
+		<bundle>mvn:org.codice.thirdparty/jts/${jts.bundle.version}</bundle>
 		<bundle>mvn:ddf.catalog.core/catalog-core-federationstrategy/${project.version}</bundle>
-		<bundle>mvn:ddf.thirdparty/lucene-core/3.0.2_1</bundle>
+		<bundle>mvn:org.codice.thirdparty/lucene-core/3.0.2_1</bundle>
 		<bundle>mvn:ddf.catalog.core/ddf-pubsub/${project.version}</bundle>
 		<bundle>mvn:ddf.catalog.core/catalog-core-eventcommands/${project.version}</bundle>
 		<bundle>mvn:ddf.catalog.core/ddf-pubsub-tracker/${project.version}</bundle>
