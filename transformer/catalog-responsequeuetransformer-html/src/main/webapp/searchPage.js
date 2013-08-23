@@ -229,7 +229,7 @@ function resetForm() {
 function restoreFederationSelections(src) {	
 	if(src) {
 		var sources = src.split(",");
-		$("select[name=federationSources").val(sources);
+		$("select[name=federationSources]").val(sources);
 	}
 	updateFederationWarning(src);
 }
