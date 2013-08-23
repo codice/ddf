@@ -80,6 +80,7 @@ public class SearchPageTest {
 	private static final String CONTENT_TYPE_2 = "contentType 2";
 	private static final String CONTENT_TYPE_3 = "contentType 3";
 	private static final String METACARD_LOCATION = "POINT(1 2)";
+	private static final String RESOURCE_SIZE = "10240";
 	private static final String METACARD_TITLE = "Metacard";
 
 
@@ -164,9 +165,10 @@ public class SearchPageTest {
     	for(Metacard metacard : getMetacards()) {
     		if(null == metacard.getResourceURI() || count >= PAGE_SIZE && hasResource(metacard)) {
     			assertFalse(generatedHtml.contains("<a href=\"" + generateActionUrl(RESOURCE_ACTION, metacard) + "\">"));
+    			assertFalse(generatedHtml.contains("<div style=\"visibility: hidden;\" class=\"resourceSize\">"+RESOURCE_SIZE+count+"</div>"));          
     		} else {
-    			
     			assertTrue(generatedHtml.contains("<a href=\"" + generateActionUrl(RESOURCE_ACTION, metacard) + "\" target=\"_blank\">"));
+    			assertTrue(generatedHtml.contains("<div style=\"visibility: hidden;\" class=\"resourceSize\">"+RESOURCE_SIZE+count+"</div>"));          
     		}
     		count++;
 		}
@@ -276,6 +278,7 @@ public class SearchPageTest {
 					try {
 						URI uri = generateActionUrl(RESOURCE_ACTION, metacard).toURI();
 						when(metacard.getResourceURI()).thenReturn(uri);
+						when(metacard.getResourceSize()).thenReturn(RESOURCE_SIZE+i);
 					} catch (URISyntaxException e) {
 					}	 				
 				}

@@ -437,7 +437,10 @@ ${response.setHeader("Content-Type", "text/html")}
 												(exchange.getProperty("resourceActionProviderList")[0].getAction(result.metacard).getUrl()??) >
 												<a href="${exchange.getProperty("resourceActionProviderList")[0].getAction(result.metacard).getUrl()?string}" target="_blank">
 													<i class="icon-download-alt icon-2x"></i>
-												</a>
+												</a><br>
+												<#if result.metacard.resourceSize??>
+													<div style="visibility: hidden;" class="resourceSize">${result.metacard.resourceSize}</div>
+												</#if>
 											</#if>
 										</#if>
 									</td>

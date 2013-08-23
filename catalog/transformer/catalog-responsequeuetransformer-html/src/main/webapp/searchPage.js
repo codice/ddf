@@ -54,6 +54,14 @@ var urlVals = $.url();
 
 $('input[name=q]').val(urlVals.param('q'));
 
+// format the resource size for display and make it visible
+var divs = document.getElementsByClassName('resourceSize');
+for ( var i = 0; i < divs.length; i++) {
+	var formattedSize = formatResourceSize(divs[i].innerHTML);
+	divs[i].innerHTML = formattedSize;
+	divs[i].style.visibility = "visible";
+}
+
 
 var relOffsetEntry = getPositiveIntValue(urlVals.param('offsetTime'));
 $('input[name=offsetTime]').val(relOffsetEntry);
@@ -458,6 +466,25 @@ function isNonNegativeInteger(value) {
 	var val = Number(value);
 	var intVal = ~~val;
 	return val == intVal && intVal >= 0;
+}
+
+// return a formatted (human readable) string for the resource size in bytes
+function formatResourceSize(resourceSize) {
+	var SizePrefixes = ' KMGTPEZYXWVU';
+
+	if (resourceSize.toLowerCase().indexOf("n/a") >= 0)
+		return '';
+
+	// if the size is not a number, and it isn't 'n/a', assume it is
+	// already formatted, ie "10 MB"
+	if (isNaN(resourceSize))
+		return resourceSize;
+
+	if (resourceSize <= 0)
+		return '0';
+	var t2 = Math.min(Math.round(Math.log(resourceSize) / Math.log(1024)), 12);
+	return (Math.round(resourceSize * 100 / Math.pow(1024, t2)) / 100)
+			+ SizePrefixes.charAt(t2).replace(' ', '') + 'B';
 }
 
 
