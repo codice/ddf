@@ -32,7 +32,7 @@
 	<repository>mvn:ddf.security.core/security-core-app/${project.version}/xml/features</repository>
     <repository>mvn:ddf.security.encryption/security-encryption-app/${project.version}/xml/features</repository>
     <repository>mvn:ddf.security.expansion/security-expansion-app/${project.version}/xml/features</repository>
-    <repository>mvn:ddf.ldap.embedded/ldap-embedded-app/${project.version}/xml/features</repository>
+    <repository>mvn:org.codice.opendj.embedded/opendj-embedded-app/1.0.0/xml/features</repository>
     <repository>mvn:ddf.security.cas/security-cas-app/${project.version}/xml/features</repository>
     <repository>mvn:ddf.security.sts/security-sts-app/${project.version}/xml/features</repository>
     <repository>mvn:ddf.catalog.solr.external/catalog-solr-external-app/${project.version}/xml/features</repository>
