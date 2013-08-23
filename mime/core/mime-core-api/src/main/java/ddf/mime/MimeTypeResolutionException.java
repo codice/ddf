@@ -17,8 +17,6 @@ package ddf.mime;
  * Exception thrown when a {@link MimeTypeResolver} encounters problems during its
  * execution.
  * 
- * @since 2.1.0
- * 
  * @author Hugh Rodgers, Lockheed Martin
  * @author ddf.isgs@lmco.com
  *

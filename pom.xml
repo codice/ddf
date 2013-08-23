@@ -152,13 +152,12 @@
 
 		<!-- DDF API versions -->
 		<ddf.action.api.version>1.0.0</ddf.action.api.version>
-		<ddf.catalog.api.version>2.0.11-SNAPSHOT</ddf.catalog.api.version>
-		<ddf.content.core.api.version>1.0.0-SNAPSHOT</ddf.content.core.api.version>
-		<ddf.mime.api.version>2.0.0.RC1-SNAPSHOT</ddf.mime.api.version>
+		<ddf.catalog.api.version>2.0.11</ddf.catalog.api.version>
+		<ddf.content.core.api.version>1.0.0</ddf.content.core.api.version>
+		<ddf.mime.api.version>2.0.0</ddf.mime.api.version>
 		<ddf.security.encryption.service.api.version>1.0.0</ddf.security.encryption.service.api.version>
-		<ddf.security.pdp.api.version>1.0.0-SNAPSHOT</ddf.security.pdp.api.version>
-		<ddf.security.core.api.version>1.0.0-SNAPSHOT</ddf.security.core.api.version>
-        <ddf.security.expansion.service.api.version>1.0.0-SNAPSHOT</ddf.security.expansion.service.api.version>
+		<ddf.security.core.api.version>1.0.0</ddf.security.core.api.version>
+        <ddf.security.expansion.service.api.version>1.0.0</ddf.security.expansion.service.api.version>
 
         <!-- Do NOT set karaf.data or karaf.base -->
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -220,8 +219,8 @@
 
 		<!-- ddf thirdparty bundle versions.  these should only be used in the feature xml files.
 			any bundle dependent on classes from these jars should depend on the jar itself and not the bundalized version.  -->
-		<org.geotools.bundle.version>${org.geotools.version}_3</org.geotools.bundle.version>
-		<opengis.bundle.version>${org.geotools.version}_2</opengis.bundle.version>
+		<org.geotools.bundle.version>${org.geotools.version}_1</org.geotools.bundle.version>
+		<opengis.bundle.version>${org.geotools.version}_1</opengis.bundle.version>
 		<jts.bundle.version>${jts.version}_1</jts.bundle.version>
 
         <!-- Features Versions -->

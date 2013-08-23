@@ -18,7 +18,6 @@ import javax.activation.MimeType;
 /**
  * @author Ashraf Barakat
  * @author ddf.isgs@lmco.com
- * @since 2.1.2
  */
 public interface MimeTypeToTransformerMapper {
 

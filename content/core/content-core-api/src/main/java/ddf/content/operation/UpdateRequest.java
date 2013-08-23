@@ -17,9 +17,6 @@ import ddf.content.data.ContentItem;
 /**
  * Defines an Update Request object which can be sent to the {@link ContentFramework#update ContentFramework.update}
  * 
- * @version 0.1.0
- * @since 2.1.0
- * 
  * @author Hugh Rodgers, Lockheed Martin
  * @author ddf.isgs@lmco.com
  */

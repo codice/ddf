@@ -22,7 +22,7 @@
 		<configfile finalname="/solr/collection1/conf/stopwords.txt">mvn:ddf.catalog.solr.embedded/catalog-solr-embedded-provider/${project.version}/txt/stopwords</configfile>
 		<configfile finalname="/solr/collection1/conf/synonyms.txt">mvn:ddf.catalog.solr.embedded/catalog-solr-embedded-provider/${project.version}/txt/synonyms</configfile>
 
-		<bundle>mvn:ddf.thirdparty/jts/${jts.bundle.version}</bundle>
+		<bundle>mvn:org.codice.thirdparty/jts/${jts.bundle.version}</bundle>
 		<!-- Servicemix bundle states the wrong name in the container, but it is the right packages. -->
 		<bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.spatial4j/0.3_2</bundle>
 		<bundle>mvn:${project.groupId}/catalog-solr-server-standalone/${project.version}/war</bundle>

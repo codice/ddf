@@ -16,9 +16,6 @@ package ddf.mime;
  * Interface defining a mapper that accesses {@link MimeTypeResolver}s to retieve
  * file extension for a given mime type, and vice versa.
  * 
- * @version 0.1.0
- * @since 2.1.0
- * 
  * @author Hugh Rodgers, Lockheed Martin
  * @author ddf.isgs@lmco.com
  *

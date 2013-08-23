@@ -11,14 +11,9 @@
  **/
 package ddf.mime;
 
-//import org.apache.tika.mime.MimeTypeException;
-
-
 /**
  * Interface defining an OSGi service that can map a list of file extensions
  * to their corresponding mime types, and vice versa.
- * 
- * @since 2.1.0
  * 
  * @author Hugh Rodgers, Lockheed Martin
  * @author ddf.isgs@lmco.com
@@ -50,9 +45,8 @@ public interface MimeTypeResolver
      * 
      * @param contentType the mime type
      * @return the file extension, including the period in the extension
-     * @throws MimeTypeException
      */
-    public String getFileExtensionForMimeType( String contentType ); //throws MimeTypeException;
+    public String getFileExtensionForMimeType( String contentType );
     
     
     /**
@@ -60,7 +54,6 @@ public interface MimeTypeResolver
      * 
      * @param fileExtension the file extension without the period in it
      * @return the mime type
-     * @throws MimeTypeException
      */
-    public String getMimeTypeForFileExtension( String fileExtension ); //throws MimeTypeException;
+    public String getMimeTypeForFileExtension( String fileExtension ); 
 }

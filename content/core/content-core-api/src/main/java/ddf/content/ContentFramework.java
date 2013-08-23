@@ -47,9 +47,6 @@ import ddf.content.storage.StorageProvider;
  * </ul>
  * </p>
  * 
- * @version 0.1.0
- * @since 2.1.0
- * 
  * @author Hugh Rodgers, Lockheed Martin
  * @author ddf.isgs@lmco.com
  */
