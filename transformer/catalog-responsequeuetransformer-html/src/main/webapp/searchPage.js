@@ -221,10 +221,7 @@ function resetForm() {
 function restoreFederationSelections(src) {	
 	if(src) {
 		var sources = src.split(",");
-	
-		$.each(sources, function() {
-			$("select[name=federationSources] option:contains('" + this + "')").attr("selected", "selected");
-		});
+		$("select[name=federationSources").val(sources);
 	}
 	updateFederationWarning(src);
 }
