@@ -45,7 +45,6 @@ public interface MimeTypeResolver
      * 
      * @param contentType the mime type
      * @return the file extension, including the period in the extension
-     * @throws MimeTypeException
      */
     public String getFileExtensionForMimeType( String contentType );
     
@@ -55,7 +54,6 @@ public interface MimeTypeResolver
      * 
      * @param fileExtension the file extension without the period in it
      * @return the mime type
-     * @throws MimeTypeException
      */
     public String getMimeTypeForFileExtension( String fileExtension ); 
 }
