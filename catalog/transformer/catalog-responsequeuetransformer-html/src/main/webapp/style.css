@@ -99,3 +99,9 @@ html, body {
 	vertical-align: bottom;
 	overflow: auto !important;
 }
+
+div.resourceSize {
+	color: #999999;
+	font-size: 11px;
+}
+
