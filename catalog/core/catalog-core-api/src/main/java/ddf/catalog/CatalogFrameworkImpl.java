@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -99,6 +100,7 @@ import ddf.catalog.util.DdfConfigurationManager;
 import ddf.catalog.util.DdfConfigurationWatcher;
 import ddf.catalog.util.DescribableImpl;
 import ddf.catalog.util.Masker;
+import ddf.catalog.util.SourceDescriptorComparator;
 import ddf.catalog.util.SourcePoller;
 
 
@@ -592,7 +594,11 @@ public class CatalogFrameworkImpl extends DescribableImpl implements DdfConfigur
             addCatalogSourceDescriptor(sourceDescriptors);
         }
 		
-		return sourceDescriptors;
+        Set<SourceDescriptor> orderedDescriptors = new TreeSet<SourceDescriptor>(
+                new SourceDescriptorComparator());
+
+        orderedDescriptors.addAll(sourceDescriptors);
+        return orderedDescriptors;
 		
 	}
 
@@ -1258,12 +1264,12 @@ public class CatalogFrameworkImpl extends DescribableImpl implements DdfConfigur
 
 	@Override
 	public Set<String> getSourceIds() {
-		Set<String> sources = new HashSet<String>(federatedSources.size() + 1);
+        Set<String> sources = new HashSet<String>(federatedSources.size() + 1);
 		sources.add(getId());
 		for (FederatedSource source : federatedSources) {
 			sources.add(source.getId());
 		}
-		return sources;
+        return new TreeSet<String>(sources);
 	}
 
 	//TODO this should be protected

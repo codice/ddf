@@ -13,10 +13,13 @@ package ddf.catalog.operation;
 
 import java.io.Serializable;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 import ddf.catalog.source.SourceDescriptor;
+import ddf.catalog.util.SourceDescriptorComparator;
 
 /**
  * The SourceInfoResponseImpl provides a default implementation of a {@link SourceInfoResponse}.
@@ -27,7 +30,8 @@ import ddf.catalog.source.SourceDescriptor;
  */
 public class SourceInfoResponseImpl extends ResponseImpl<SourceInfoRequest> implements SourceInfoResponse {
 
-	protected Set<SourceDescriptor> sourceInfos;
+    protected Set<SourceDescriptor> sourceInfos = new TreeSet<SourceDescriptor>(
+            new SourceDescriptorComparator());
 
 	/**
 	 * Instantiates a new SourceInfoResponseImpl

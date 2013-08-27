@@ -13,6 +13,7 @@ package ddf.catalog;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasEntry;
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -42,8 +43,8 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
 import org.geotools.filter.FilterFactoryImpl;
+import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
@@ -54,6 +55,8 @@ import org.mockito.ArgumentCaptor;
 import org.opengis.filter.Filter;
 import org.opengis.filter.FilterFactory;
 import org.osgi.framework.BundleContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ddf.catalog.data.ContentType;
 import ddf.catalog.data.Metacard;
@@ -110,8 +113,8 @@ import ddf.catalog.util.SourcePoller;
 import ddf.catalog.util.SourcePollerRunner;
 
 public class CatalogFrameworkImplTest {
-	private static final Logger LOGGER = Logger
-			.getLogger(CatalogFrameworkImplTest.class);
+    private static final Logger LOGGER = LoggerFactory
+            .getLogger(CatalogFrameworkImplTest.class);
 
 	// Test proper use-cases
 
@@ -133,6 +136,13 @@ public class CatalogFrameworkImplTest {
 					+ method.getName());
 		}
 	};
+
+    @BeforeClass
+    public static void init() {
+        ch.qos.logback.classic.Logger root = (ch.qos.logback.classic.Logger) LoggerFactory
+                .getLogger(Logger.ROOT_LOGGER_NAME);
+        root.setLevel(ch.qos.logback.classic.Level.INFO);
+    }
 
 
 	// Start testing MetacardWriter
@@ -681,14 +691,21 @@ public class CatalogFrameworkImplTest {
 		}
 		Set<SourceDescriptor> sourceDescriptors = response.getSourceInfo();
 
+        List<String> siteNames = new ArrayList<String>();
 		for (SourceDescriptor descriptor : sourceDescriptors) {
 			LOGGER.debug("Descriptor id: " + descriptor.getSourceId());
+            siteNames.add(descriptor.getSourceId());
 		}
 
 		// add a plus one for now to simulate that the framework is ad
 		// assertTrue( sourceDescriptor.containsAll( federatedSources ) );
 		// assertTrue( sourceDescriptor.containsAll( expectedSourceSet ) );
 		assertEquals(ids.size(), sourceDescriptors.size());
+
+        String[] expectedOrdering = {"A", "B", "C", framework.getId()};
+
+        assertArrayEquals(expectedOrdering,
+                siteNames.toArray(new String[siteNames.size()]));
 
 	}
 
@@ -1594,9 +1611,10 @@ public class CatalogFrameworkImplTest {
 		FederatedSource siteC = new MockSource("C", "Site C", "v1.0", "DDF",
 				null, isAvailable, new Date());
 		ArrayList<FederatedSource> federatedSources = new ArrayList<FederatedSource>();
+        federatedSources.add(siteC);
+        federatedSources.add(siteB);
 		federatedSources.add(siteA);
-		federatedSources.add(siteB);
-		federatedSources.add(siteC);
+
 		return federatedSources;
 	}
 
