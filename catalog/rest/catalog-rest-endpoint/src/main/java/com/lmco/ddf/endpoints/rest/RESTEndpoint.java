@@ -237,10 +237,8 @@ public class RESTEndpoint {
             //in a GUI or whatever else is connected to this endpoint
             catch (IllegalArgumentException e)
             {
-                String exceptionMessage = "Unable to transform Metacard.  Try different transformer: "
-                        + e.getMessage();
-                LOGGER.warn(exceptionMessage, e.getCause());
-                throw new ServerErrorException(exceptionMessage, Status.BAD_REQUEST);
+                LOGGER.warn(e.getMessage(), e.getCause());
+                throw new ServerErrorException(e.getMessage(), Status.BAD_REQUEST);
             }
 		} else {
 			LOGGER.warn("Error: id entered is NULL");
