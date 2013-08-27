@@ -25,7 +25,7 @@ public class ServerErrorException extends WebApplicationException {
 
 	public ServerErrorException(String message, Status status) {
          super(Response.status(status).
-           entity("<pre>"+message+"/pre>").type(MediaType.TEXT_HTML).build());
+           entity("<pre>"+message+"</pre>").type(MediaType.TEXT_HTML).build());
          
      }
 }
