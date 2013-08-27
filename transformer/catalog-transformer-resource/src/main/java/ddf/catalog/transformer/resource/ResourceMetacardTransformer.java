@@ -89,24 +89,31 @@ public class ResourceMetacardTransformer implements MetacardTransformer {
           sourceName = catalogFramework.getId();
       }
       
-      try {
-         resourceResponse = catalogFramework.getResource(resourceRequest,
-                 sourceName);
-      } catch (IOException e) {
-         throw new CatalogTransformerException(
-               "Unable to retrieve resource for the requested metacard with id: '" + id + "'.", e);
-      } catch (ResourceNotFoundException e) {
-         throw new CatalogTransformerException(
-               "Unable to retrieve resource for the requested metacard with id: '" + id + "'.", e);
-      } catch (ResourceNotSupportedException e) {
-         throw new CatalogTransformerException(
-               "Unable to retrieve resource for the requested metacard with id: '" + id + "'.", e);
-      }
+        try {
+            resourceResponse = catalogFramework.getResource(resourceRequest,
+                    sourceName);
+        } catch (IOException e) {
+            throw new CatalogTransformerException(
+                    retrieveResourceFailureMessage(id, sourceName, metacard
+                            .getResourceURI().toASCIIString(), e.getMessage()),
+                    e);
+        } catch (ResourceNotFoundException e) {
+            throw new CatalogTransformerException(
+                    retrieveResourceFailureMessage(id, sourceName, metacard
+                            .getResourceURI().toASCIIString(), e.getMessage()),
+                    e);
+        } catch (ResourceNotSupportedException e) {
+            throw new CatalogTransformerException(
+                    retrieveResourceFailureMessage(id, sourceName, metacard
+                            .getResourceURI().toASCIIString(), e.getMessage()),
+                    e);
+        }
 
-      if (resourceResponse == null) {
-         throw new CatalogTransformerException(
-               "Resource response is null: Unable to retrieve the product for the metacard with id: '" + id + "'.");
-      }
+        if (resourceResponse == null) {
+            throw new CatalogTransformerException(
+                    retrieveResourceFailureMessage(id, sourceName, metacard
+                            .getResourceURI().toASCIIString()));
+        }
 
       Resource transformedContent = resourceResponse.getResource();
       MimeType mimeType = transformedContent.getMimeType();
@@ -154,4 +161,19 @@ public class ResourceMetacardTransformer implements MetacardTransformer {
      return valid;
    }
 
+    private String retrieveResourceFailureMessage(final String id,
+            final String sourceId, final String resourceUri) {
+        return retrieveResourceFailureMessage(id, sourceId, resourceUri, null);
+    }
+
+    private String retrieveResourceFailureMessage(final String id,
+            final String sourceId, final String resourceUri,
+            final String details) {
+        StringBuffer msg = new StringBuffer("Unable to retrieve resource.");
+        msg.append("\n\tMetacard id: " + (id == null ? "" : id));
+        msg.append("\n\tUri: " + (resourceUri == null ? "" : resourceUri));
+        msg.append("\n\tSource: " + (sourceId == null ? "" : sourceId));
+        msg.append("\n\tDetails: " + (details == null ? "" : details));
+        return msg.toString();
+    }
 }

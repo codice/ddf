@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -1176,9 +1177,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements DdfConfigur
 			} catch (CatalogTransformerException e) {
 				logger.warn("Transformation Failed for transformer: "
 						+ transformerShortname, e);
-				throw new IllegalArgumentException(
-						"Transformation Failed for transformer: "
-								+ transformerShortname);
+				throw new IllegalArgumentException(e.getMessage());
 			}
 		}
 	}
@@ -1216,9 +1215,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements DdfConfigur
 			} catch (CatalogTransformerException e) {
 				logger.warn("Transformation Failed for transformer: "
 						+ transformerShortname, e);
-				throw new IllegalArgumentException(
-						"Transformation Failed for transformer: "
-								+ transformerShortname);
+				throw new IllegalArgumentException(e.getMessage());
 			}
 		}
 	}
@@ -1456,6 +1453,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements DdfConfigur
 		Iterator<ResourceReader> iterator = resourceReaders.iterator();
 		while (iterator.hasNext() && resource == null) {
 			ResourceReader reader = iterator.next();
+
 			String scheme = resourceUri.getScheme();
 			if (reader.getSupportedSchemes().contains(scheme)) {
 				try {
@@ -1482,9 +1480,11 @@ public class CatalogFrameworkImpl extends DescribableImpl implements DdfConfigur
 			}
 		}
 		if (resource == null) {
+		    logger.error("Resource Readers could not find resource (or returned null resource) for URI: "
+                            + resourceUri.toASCIIString() +". Scheme: "+resourceUri.getScheme());
 			throw new ResourceNotFoundException(
-					"Resource Readers could not find resource (or returned null resource) for URI: "
-							+ resourceUri);
+					"Unable to retrieve resource with URI: "
+							+ resourceUri.toASCIIString());
 		}
 		logger.debug("Received resource, sending back: "
 				+ resource.getResource().getName());
