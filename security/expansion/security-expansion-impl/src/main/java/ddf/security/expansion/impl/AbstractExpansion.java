@@ -15,6 +15,7 @@ import ddf.security.expansion.Expansion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -438,11 +439,12 @@ public abstract class AbstractExpansion implements Expansion
         try
         {
             File file = null;
-            if(!filename.startsWith("/") && !filename.startsWith("\\"))
+            filename = StringUtils.strip(filename);
+            if(!StringUtils.startsWith(filename,"/") && !StringUtils.startsWith(filename,"\\"))
             {
                 //relative path
                 String relPath = System.getProperty("ddf.home");
-                if(relPath == null || relPath.isEmpty())
+                if(StringUtils.isBlank(relPath))
                 {
                     LOGGER.warn("ddf.home property was not set or is NULL, loading of properties may be impacted.");
                 }
