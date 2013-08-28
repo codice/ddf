@@ -484,7 +484,7 @@ function formatResourceSize(resourceSize) {
 		return '0';
 	var t2 = Math.min(Math.round(Math.log(resourceSize) / Math.log(1024)), 12);
 	return (Math.round(resourceSize * 100 / Math.pow(1024, t2)) / 100)
-			+ SizePrefixes.charAt(t2).replace(' ', '') + 'B';
+			+ ' ' + SizePrefixes.charAt(t2).replace(' ', '') + 'B';
 }
 
 
