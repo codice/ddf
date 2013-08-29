@@ -30,10 +30,11 @@ public class SourceDescriptorComparator implements Comparator<SourceDescriptor> 
     private Logger logger = LoggerFactory
             .getLogger(SourceDescriptorComparator.class);
 
-    @Override
     /**
-     * use the String#compareTo on the lower-cased sourceId fields to sort 
+     * Uses the {@link String}#compareTo method on the lower-cased sourceId
+     * fields to sort
      */
+    @Override
     public int compare(SourceDescriptor one, SourceDescriptor two) {
         if (one.getSourceId() != null && two.getSourceId() != null)
             return one.getSourceId().toLowerCase()
