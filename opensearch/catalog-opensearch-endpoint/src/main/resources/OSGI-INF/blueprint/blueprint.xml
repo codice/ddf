@@ -30,6 +30,16 @@
     <jaxrs:serviceBeans>
       <ref component-id="OsSvc" />
     </jaxrs:serviceBeans>
+
+      <jaxrs:inInterceptors>
+          <bean class="org.apache.cxf.jaxrs.provider.jsonp.JsonpInInterceptor">
+              <property name="callbackParam" value="callback"/>
+          </bean>
+      </jaxrs:inInterceptors>
+      <jaxrs:outInterceptors>
+          <bean class="org.apache.cxf.jaxrs.provider.jsonp.JsonpPreStreamInterceptor"/>
+          <bean class="org.apache.cxf.jaxrs.provider.jsonp.JsonpPostStreamInterceptor"/>
+      </jaxrs:outInterceptors>
   </jaxrs:server>
 
   <service id="OsOsgiSvc" ref="OsSvc" interface="ddf.catalog.util.DdfConfigurationWatcher" />

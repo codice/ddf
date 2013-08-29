@@ -46,7 +46,17 @@
 		<jaxrs:serviceBeans>
 			<ref component-id="restSvc" />
 		</jaxrs:serviceBeans>
-	</jaxrs:server>
+
+        <jaxrs:inInterceptors>
+            <bean class="org.apache.cxf.jaxrs.provider.jsonp.JsonpInInterceptor">
+                <property name="callbackParam" value="callback"/>
+            </bean>
+        </jaxrs:inInterceptors>
+        <jaxrs:outInterceptors>
+            <bean class="org.apache.cxf.jaxrs.provider.jsonp.JsonpPreStreamInterceptor"/>
+            <bean class="org.apache.cxf.jaxrs.provider.jsonp.JsonpPostStreamInterceptor"/>
+        </jaxrs:outInterceptors>
+    </jaxrs:server>
 
 	<bean id="viewActionProvider" class="com.lmco.ddf.endpoints.rest.action.ViewMetacardActionProvider">
 		<argument value="catalog.data.metacard.view" />
