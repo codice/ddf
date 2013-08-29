@@ -14,6 +14,8 @@ package com.lmco.ddf.endpoints.rest;
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.AttributeImpl;
 import ddf.catalog.data.BinaryContent;
+import ddf.catalog.data.BinaryContentImpl;
+import ddf.catalog.data.ContentType;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardCreationException;
 import ddf.catalog.data.Result;
@@ -25,9 +27,12 @@ import ddf.catalog.operation.DeleteRequestImpl;
 import ddf.catalog.operation.QueryImpl;
 import ddf.catalog.operation.QueryRequestImpl;
 import ddf.catalog.operation.QueryResponse;
+import ddf.catalog.operation.SourceInfoRequestEnterprise;
+import ddf.catalog.operation.SourceInfoResponse;
 import ddf.catalog.operation.UpdateRequestImpl;
 import ddf.catalog.resource.Resource;
 import ddf.catalog.source.IngestException;
+import ddf.catalog.source.SourceDescriptor;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.transform.CatalogTransformerException;
@@ -38,6 +43,10 @@ import ddf.security.Subject;
 import ddf.security.service.SecurityManager;
 import ddf.security.service.SecurityServiceException;
 import ddf.security.service.TokenRequestHandler;
+import net.minidev.json.JSONArray;
+import net.minidev.json.JSONObject;
+import net.minidev.json.JSONValue;
+
 import org.apache.commons.io.IOUtils;
 import org.opengis.filter.Filter;
 import org.slf4j.Logger;
@@ -78,6 +87,8 @@ public class RESTEndpoint {
 
 	private static final String DEFAULT_METACARD_TRANSFORMER = "xml";
 	private static final Logger LOGGER = LoggerFactory.getLogger(RESTEndpoint.class);
+    private static String JSON_MIME_TYPE_STRING = "application/json";
+    private static MimeType JSON_MIME_TYPE = null;
     
 	private SecurityManager securityManager;
     
@@ -87,6 +98,17 @@ public class RESTEndpoint {
 	private CatalogFramework catalogFramework;
 	private MimeTypeToTransformerMapper mimeTypeToTransformerMapper;
 
+    static {
+        MimeType mime = null;
+        try {
+            mime = new MimeType(JSON_MIME_TYPE_STRING);
+        } catch (MimeTypeParseException e) {
+            LOGGER.warn("Failed to create json mimetype.");
+        }
+        JSON_MIME_TYPE = mime;
+
+    }
+	
 	public RESTEndpoint(CatalogFramework framework) {
 		LOGGER.debug("constructing rest endpoint");
 		this.catalogFramework = framework;
@@ -112,6 +134,62 @@ public class RESTEndpoint {
 		return getDocument(null, id, transformerParam, uriInfo, httpRequest);
 	}
 	
+    /**
+     * REST Get. Retrieves information regarding sources available.
+     * 
+     * @param uriInfo
+     * @param httpRequest
+     * @return
+     */
+    @GET
+    @Path("/sources")
+    public Response getDocument(@Context
+    UriInfo uriInfo, @Context
+    HttpServletRequest httpRequest) {
+        BinaryContent content;
+        Response response;
+        String sourcesString = null;
+
+        JSONArray resultsList = new JSONArray();
+        SourceInfoResponse sources;
+        try {
+            sources = catalogFramework
+                    .getSourceInfo(new SourceInfoRequestEnterprise(true));
+            for (SourceDescriptor source : sources.getSourceInfo()) {
+                JSONObject sourceObj = new JSONObject();
+                sourceObj.put("id", source.getSourceId());
+                sourceObj.put("version",
+                        source.getVersion() != null ? source.getVersion() : "");
+                sourceObj.put("available", new Boolean(source.isAvailable()));
+                JSONArray contentTypesObj = new JSONArray();
+                if (source.getContentTypes() != null) {
+                    for (ContentType contentType : source.getContentTypes()) {
+                        if (contentType != null
+                                && contentType.getName() != null) {
+                            JSONObject contentTypeObj = new JSONObject();
+                            contentTypeObj.put("name", contentType.getName());
+                            contentTypeObj
+                                    .put("version",
+                                            contentType.getVersion() != null ? contentType
+                                                    .getVersion() : "");
+                            contentTypesObj.add(contentTypeObj);
+                        }
+                    }
+                }
+                sourceObj.put("contentTypes", contentTypesObj);
+                resultsList.add(sourceObj);
+            }
+        } catch (SourceUnavailableException e) {
+            LOGGER.warn("Unable to retrieve Sources", e);
+        }
+
+        sourcesString = JSONValue.toJSONString(resultsList);
+        content = new BinaryContentImpl(new ByteArrayInputStream(
+                sourcesString.getBytes()), JSON_MIME_TYPE);
+        response = Response.ok(content.getInputStream(),
+                content.getMimeTypeValue()).build();
+        return response;
+    }
 
 	/**
 	 * REST Get. Retrieves the metadata entry specified by the id from the

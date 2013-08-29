@@ -213,6 +213,8 @@
 		<org.ops4j.pax.swissbox.version>1.3.1</org.ops4j.pax.swissbox.version>
 		<org.ops4j-base-lang>1.2.2</org.ops4j-base-lang>
 		<geronimo-j2ee-connector_1.5_spec.version>2.0.0</geronimo-j2ee-connector_1.5_spec.version>
+		<com.googlecode.json-simple.version>1.1.1</com.googlecode.json-simple.version>
+		<net.minidev.json-smart.version>1.1.1</net.minidev.json-smart.version>
 		<saxon.bundle.plugin>${saxon.version}_1</saxon.bundle.plugin>
 		<servicemix.specs.version>${org.apache.servicemix.specs.version}</servicemix.specs.version>
 
@@ -889,6 +891,18 @@
 				<groupId>org.geotools.xsd</groupId>
 				<artifactId>gt-xsd-gml3</artifactId>
 				<version>${org.geotools.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>com.googlecode.json-simple</groupId>
+				<artifactId>json-simple</artifactId>
+				<version>1.1.1</version>
+			</dependency>
+
+			<dependency>
+				<groupId>net.minidev</groupId>
+				<artifactId>json-smart</artifactId>
+				<version>${net.minidev.json-smart.version}</version>
 			</dependency>
 
 			<dependency>
