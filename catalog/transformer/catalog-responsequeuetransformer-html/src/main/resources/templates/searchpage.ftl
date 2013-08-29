@@ -429,8 +429,7 @@ ${response.setHeader("Content-Type", "text/html")}
 									</td>
 									<td>
 										<#if result.metacard.resourceURI??>
-											<#if (statics["java.net.URI"].create(result.metacard.resourceURI).isAbsolute()) &&
-												(exchange.getProperty("resourceActionProviderList")?size > 0) &&
+											<#if (exchange.getProperty("resourceActionProviderList")?size > 0) &&
 												(exchange.getProperty("resourceActionProviderList")[0].getAction(result.metacard)??) &&
 												(exchange.getProperty("resourceActionProviderList")[0].getAction(result.metacard).getUrl()??) >
 												<a href="${exchange.getProperty("resourceActionProviderList")[0].getAction(result.metacard).getUrl()?string}" target="_blank">
