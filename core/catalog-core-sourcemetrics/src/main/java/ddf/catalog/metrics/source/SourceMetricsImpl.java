@@ -17,11 +17,12 @@ import java.util.ArrayList;
 import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang.StringUtils;
 import org.osgi.service.cm.Configuration;
@@ -35,10 +36,15 @@ import com.yammer.metrics.Meter;
 import com.yammer.metrics.Metric;
 import com.yammer.metrics.MetricRegistry;
 
+import ddf.catalog.data.Result;
+import ddf.catalog.operation.ProcessingDetails;
+import ddf.catalog.operation.QueryResponse;
+import ddf.catalog.plugin.PluginExecutionException;
+import ddf.catalog.plugin.PostFederatedQueryPlugin;
+import ddf.catalog.plugin.StopProcessingException;
 import ddf.catalog.source.CatalogProvider;
 import ddf.catalog.source.FederatedSource;
 import ddf.catalog.source.Source;
-import ddf.catalog.source.SourceMetrics;
 
 /**
  * This class manages the metrics for individual {@link CatalogProvider} and {@link FederatedSource}
@@ -58,9 +64,37 @@ import ddf.catalog.source.SourceMetrics;
  * @author ddf.isgs@lmco.com
  *
  */
-public class SourceMetricsImpl implements SourceMetrics {
+public class SourceMetricsImpl implements PostFederatedQueryPlugin {  //implements SourceMetrics {
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(SourceMetricsImpl.class);
+	
+	/**
+	 * Package name for the JMX MBean where metrics for {@link Source}s are stored.
+	 */
+	public static final String MBEAN_PACKAGE_NAME = "ddf.metrics.catalog.source";
+	
+	/**
+	 * Name of the JMX MBean scope for source-level metrics tracking exceptions
+	 * while querying a specific {@link Source}
+	 */
+	public static final String EXCEPTIONS_SCOPE = "Exceptions";
+	
+	/**
+	 * Name of the JMX MBean scope for source-level metrics tracking query count
+	 * while querying a specific {@link Source}
+	 */
+	public static final String QUERIES_SCOPE = "Queries";
+	
+	/**
+	 * Name of the JMX MBean scope for source-level metrics tracking total results
+	 * returned while querying a specific {@link Source}
+	 */
+	public static final String QUERIES_TOTAL_RESULTS_SCOPE = "Queries.TotalResults";
+	
+	public static final double EXCEPTIONS_MAX_VALUE = 10000;
+	public static final double QUERIES_MAX_VALUE = 50000;
+	public static final double QUERIES_TOTAL_RESULTS_MAX_VALUE = 1000000;
+	
 	
     public static final String JMX_COLLECTOR_FACTORY_PID = "MetricsJmxCollector";
     
@@ -140,6 +174,51 @@ public class SourceMetricsImpl implements SourceMetrics {
 	}
 
 	@Override
+	public QueryResponse process(QueryResponse input)
+			throws PluginExecutionException, StopProcessingException {
+		
+		LOGGER.trace("ENTERING: process (for PostFederatedQueryPlugin)");
+		
+		Set<ProcessingDetails> processingDetails = input.getProcessingDetails();
+		List<Result> results = input.getResults();
+		
+		// Total Exceptions metric per Source
+		Iterator<ProcessingDetails> iterator = processingDetails.iterator();
+        while (iterator.hasNext()) {
+            ProcessingDetails next = iterator.next();
+            if (next != null && next.getException() != null) {
+				String sourceId = next.getSourceId();
+				updateMetric(sourceId, EXCEPTIONS_SCOPE, 1);
+            }
+		}
+		
+        Map<String, Integer> totalHitsPerSource = new HashMap<String, Integer>();
+        
+        // Number of Queries metric per Source
+		for (Result result : results) {
+			String sourceId = result.getMetacard().getSourceId();
+			if (totalHitsPerSource.containsKey(sourceId)) {
+				totalHitsPerSource.put(sourceId, totalHitsPerSource.get(sourceId) + 1);
+			} else {
+				// First detection of this new source ID in the results list -
+				// Update metric indicating this Source had a query executed, and
+				// initialize the Total Query Result Count for this Source
+				updateMetric(sourceId, QUERIES_SCOPE, 1);
+				totalHitsPerSource.put(sourceId, 1);
+			}
+		}
+		
+		// Total Query Results metric per Source
+		for (String sourceId : totalHitsPerSource.keySet()) {
+			updateMetric(sourceId, QUERIES_TOTAL_RESULTS_SCOPE, totalHitsPerSource.get(sourceId));
+		}
+		
+		LOGGER.trace("EXITING: process (for PostFederatedQueryPlugin)");
+		
+		return input;
+	}
+
+	//@Override
 	public void updateMetric(String sourceId, String name, int incrementAmount) {
 				
 		LOGGER.debug("sourceId = {},   name = {}", sourceId, name);
@@ -152,6 +231,7 @@ public class SourceMetricsImpl implements SourceMetrics {
     	SourceMetric sourceMetric = metrics.get(mapKey);
     	
     	if (sourceMetric == null) {
+    		LOGGER.debug("sourceMetric is null for " + mapKey + " - creating metric now");
     		// Loop through list of all sources until find the sourceId whose metric is being updated
     		boolean created = createMetric(catalogProviders, sourceId);
     		if (!created) {
@@ -190,9 +270,9 @@ public class SourceMetricsImpl implements SourceMetrics {
 			    	deleteMetric(oldSourceId, EXCEPTIONS_SCOPE);
 			    	
 			    	// Create metrics for Source with new sourceId
-			    	createMetric(sourceId, QUERIES_TOTAL_RESULTS_SCOPE, MetricType.HISTOGRAM);
-					createMetric(sourceId, QUERIES_SCOPE, MetricType.METER);
-					createMetric(sourceId, EXCEPTIONS_SCOPE, MetricType.METER);
+			    	createMetric(sourceId, QUERIES_TOTAL_RESULTS_SCOPE, MetricType.HISTOGRAM, 0, QUERIES_TOTAL_RESULTS_MAX_VALUE);
+					createMetric(sourceId, QUERIES_SCOPE, MetricType.METER, 0, QUERIES_MAX_VALUE);
+					createMetric(sourceId, EXCEPTIONS_SCOPE, MetricType.METER, 0, EXCEPTIONS_MAX_VALUE);
 					
 					// Add Source to map with its new sourceId
 					sourceToSourceIdMap.put(source, sourceId);
@@ -204,9 +284,9 @@ public class SourceMetricsImpl implements SourceMetrics {
 					// needs updating because client, e.g., SortedFederationStrategy, knows the 
 					// Source exists.)
 					LOGGER.debug("CASE 3: New source " + sourceId + " detected - creating metrics");
-					createMetric(sourceId, QUERIES_TOTAL_RESULTS_SCOPE, MetricType.HISTOGRAM);
-					createMetric(sourceId, QUERIES_SCOPE, MetricType.METER);
-					createMetric(sourceId, EXCEPTIONS_SCOPE, MetricType.METER);
+					createMetric(sourceId, QUERIES_TOTAL_RESULTS_SCOPE, MetricType.HISTOGRAM, 0, QUERIES_TOTAL_RESULTS_MAX_VALUE);
+					createMetric(sourceId, QUERIES_SCOPE, MetricType.METER, 0, QUERIES_MAX_VALUE);
+					createMetric(sourceId, EXCEPTIONS_SCOPE, MetricType.METER, 0, EXCEPTIONS_MAX_VALUE);
 					
 					sourceToSourceIdMap.put(source, sourceId);
 				}
@@ -293,15 +373,15 @@ public class SourceMetricsImpl implements SourceMetrics {
 		
 		LOGGER.debug("sourceId = {}", sourceId);
 		
-		createMetric(sourceId, QUERIES_TOTAL_RESULTS_SCOPE, MetricType.HISTOGRAM);
-		createMetric(sourceId, QUERIES_SCOPE, MetricType.METER);
-		createMetric(sourceId, EXCEPTIONS_SCOPE, MetricType.METER);
+		createMetric(sourceId, QUERIES_TOTAL_RESULTS_SCOPE, MetricType.HISTOGRAM, 0, QUERIES_TOTAL_RESULTS_MAX_VALUE);
+		createMetric(sourceId, QUERIES_SCOPE, MetricType.METER, 0, QUERIES_MAX_VALUE);
+		createMetric(sourceId, EXCEPTIONS_SCOPE, MetricType.METER, 0, EXCEPTIONS_MAX_VALUE);
 		
 		// Add new source to internal map used when updating metrics by sourceId
 		sourceToSourceIdMap.put(source, sourceId);
     }
     
-    private void createMetric(String sourceId, String mbeanName, MetricType type) {
+    private void createMetric(String sourceId, String mbeanName, MetricType type, double minValue, double maxValue) {
         
 		// Create source-specific metrics for this source
 		// (Must be done prior to creating metrics collector so that
@@ -314,11 +394,11 @@ public class SourceMetricsImpl implements SourceMetrics {
 		if (!metrics.containsKey(key)) {
 			if (type == MetricType.HISTOGRAM){ 
 				Histogram histogram = metricsRegistry.histogram(MetricRegistry.name(sourceId, mbeanName));
-				String pid = createGaugeMetricsCollector(sourceId, mbeanName);
+				String pid = createGaugeMetricsCollector(sourceId, mbeanName, minValue, maxValue);
 				metrics.put(key, new SourceMetric(histogram, sourceId, pid, true));
 			} else if (type == MetricType.METER) {
 				Meter meter = metricsRegistry.meter(MetricRegistry.name(sourceId, mbeanName));
-				String pid = createCounterMetricsCollector(sourceId, mbeanName);
+				String pid = createCounterMetricsCollector(sourceId, mbeanName, minValue, maxValue);
 				metrics.put(key, new SourceMetric(meter, sourceId, pid));
 			} else {
 				LOGGER.debug("Metric " + key
@@ -337,9 +417,10 @@ public class SourceMetricsImpl implements SourceMetrics {
      * @param collectorName
      * @return the PID of the JmxCollector Managed Service Factory created
      */
-    private String createCounterMetricsCollector(String sourceId, String collectorName) {
+    private String createCounterMetricsCollector(String sourceId, String collectorName, 
+    		double minValue, double maxValue) {
     	return createMetricsCollector(sourceId, collectorName, 
-    			COUNT_MBEAN_ATTRIBUTE_NAME, COUNTER_DATA_SOURCE_TYPE);
+    			COUNT_MBEAN_ATTRIBUTE_NAME, COUNTER_DATA_SOURCE_TYPE, minValue, maxValue);
     }
     
     /**
@@ -349,9 +430,10 @@ public class SourceMetricsImpl implements SourceMetrics {
      * @param collectorName
      * @return the PID of the JmxCollector Managed Service Factory created
      */
-    private String createGaugeMetricsCollector(String sourceId, String collectorName) {
+    private String createGaugeMetricsCollector(String sourceId, String collectorName, 
+    		double minValue, double maxValue) {
     	return createMetricsCollector(sourceId, collectorName, 
-    			MEAN_MBEAN_ATTRIBUTE_NAME, GAUGE_DATA_SOURCE_TYPE);
+    			MEAN_MBEAN_ATTRIBUTE_NAME, GAUGE_DATA_SOURCE_TYPE, minValue, maxValue);
     }
     
     /**
@@ -365,7 +447,7 @@ public class SourceMetricsImpl implements SourceMetrics {
      */
 	private String createMetricsCollector(String sourceId,
 			String collectorName, String mbeanAttributeName,
-			String dataSourceType) {
+			String dataSourceType, double minValue, double maxValue) {
     	
 		LOGGER.trace(
 				"ENTERING: createMetricsCollector - sourceId = {},   collectorName = {},   mbeanAttributeName = {},   dataSourceType = {}",
@@ -385,6 +467,8 @@ public class SourceMetricsImpl implements SourceMetrics {
 			props.put("rrdPath", rrdPath);
 			props.put("rrdDataSourceName", "data");
 			props.put("rrdDataSourceType", dataSourceType);
+			props.put("rrdDataSourceMinValue", String.valueOf(minValue));
+			props.put("rrdDataSourceMaxValue", String.valueOf(maxValue));
 			config.update(props);
 			pid = config.getPid();
 			LOGGER.debug("JmxCollector pid = {} for sourceId = {}", pid, sourceId);

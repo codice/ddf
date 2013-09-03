@@ -391,7 +391,7 @@ public class RESTEndpoint {
 
 				response = responseBuilder.build();
 
-				LOGGER.info("Entry successfully saved, id: " + id);
+				LOGGER.debug("Entry successfully saved, id: " + id);
 
 			} else {
 				String errorMessage = "No content found, cannot do CREATE.";

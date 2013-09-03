@@ -13,6 +13,7 @@ package ddf.catalog.federation;
 
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -72,6 +73,19 @@ public abstract class AbstractFederationStrategy implements FederationStrategy
      * {@link ExecutorService}.
      * 
      * @param queryExecutorService the {@link ExecutorService} for queries
+     * @deprecated - only to provide support for deprecated FifoFederationStrategy and SortedFederationStrategy
+     */
+    public AbstractFederationStrategy(ExecutorService queryExecutorService)
+    {
+    	this(queryExecutorService, 
+    			new ArrayList<PreFederatedQueryPlugin>(), new ArrayList<PostFederatedQueryPlugin>());
+    }
+    
+    /**
+     * Instantiates an {@code AbstractFederationStrategy} with the provided
+     * {@link ExecutorService}.
+     * 
+     * @param queryExecutorService the {@link ExecutorService} for queries
      */
     public AbstractFederationStrategy(ExecutorService queryExecutorService, 
     		List<PreFederatedQueryPlugin> preQuery, List<PostFederatedQueryPlugin> postQuery)
@@ -111,7 +125,6 @@ public abstract class AbstractFederationStrategy implements FederationStrategy
         }
 
         Query originalQuery = queryRequest.getQuery();
-        // final long queryTimeoutMillis = query.getTimeoutMillis();
 
         int offset = originalQuery.getStartIndex();
         final int pageSize = originalQuery.getPageSize();
@@ -155,8 +168,9 @@ public abstract class AbstractFederationStrategy implements FederationStrategy
         				logger.warn("Plugin stopped processing: ", e);
         			}
 
-                    futures.put(source, queryExecutorService.submit(new CallableSourceResponse(source, modifiedQuery,
-                        queryRequest.getProperties())));
+                    futures.put(source, queryExecutorService.submit(new CallableSourceResponse(source, 
+                    	modifiedQueryRequest.getQuery(),
+                    	modifiedQueryRequest.getProperties())));
                 }
                 else
                 {
@@ -176,28 +190,18 @@ public abstract class AbstractFederationStrategy implements FederationStrategy
             queryExecutorService.submit(new OffsetResultHandler(queryResponseQueue, offsetResults, pageSize, offset));
         }
 
-        queryExecutorService.submit(createMonitor(queryExecutorService, futures, queryResponseQueue, modifiedQuery));
+        queryExecutorService.submit(createMonitor(queryExecutorService, futures, queryResponseQueue, modifiedQueryRequest.getQuery()));
 
         QueryResponse queryResponse = null;
         if (offset > 1 && sources.size() > 1)
         {
         	queryResponse = offsetResults;
-
         	logger.debug("returning offsetResults");
-        	
-            //logger.debug("returning offsetResults: {}", queryResponse);
-            //logger.trace("EXITING: {}.federate", CLASS_NAME);
-
-            //return offsetResults;
         }
         else
         {
         	queryResponse = queryResponseQueue;
-        	
-            //logger.debug("returning returnResults: {}", queryResponse);
-            //logger.trace("EXITING: {}.federate", CLASS_NAME);
-
-            //return queryResponseQueue;
+            logger.debug("returning returnResults: {}", queryResponse);
             }
         
         try {
@@ -218,7 +222,6 @@ public abstract class AbstractFederationStrategy implements FederationStrategy
         logger.trace("EXITING: {}.federate", CLASS_NAME);
         
         return queryResponse;
-
     }
 
     private Query getModifiedQuery( Query originalQuery, int numberOfSources, int offset, int pageSize )
