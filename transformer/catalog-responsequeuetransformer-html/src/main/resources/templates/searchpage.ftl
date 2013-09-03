@@ -279,9 +279,9 @@ ${response.setHeader("Content-Type", "text/html")}
 									<select name="federationSources" multiple="multiple" onchange="updateFederation()" class="span12">
 										<#list siteList?keys as site>
 											<#if siteList[site] >
-												<option>${site}</option>
+												<option title="${site}">${site}</option>
 											<#else>
-												<option disabled="disabled" class="disabled_option">${site}</option>
+												<option disabled="disabled" class="disabled_option" title="${site}">${site}</option>
 											</#if>
 										</#list>
 									</select>
