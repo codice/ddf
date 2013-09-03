@@ -354,6 +354,8 @@ public final class OpenSearchSource implements FederatedSource
         }
 
         logger.exit( methodName );
+        
+        this.isRestSearch = false;
 
         return response;
     }
@@ -442,7 +444,6 @@ public final class OpenSearchSource implements FederatedSource
             }
             
             if(delegate != null) {
-                
                 try {
                     filterAdapter.adapt(query, delegate);
                     this.isRestSearch = true;
