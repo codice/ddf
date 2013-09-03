@@ -49,6 +49,6 @@
     	<property name="federatedSources" ref="federatedSources" />
     </bean>
   
-    <service ref="sourceMetrics" interface="ddf.catalog.source.SourceMetrics" />
+    <service ref="sourceMetrics" interface="ddf.catalog.plugin.PostFederatedQueryPlugin" />
 
 </blueprint>

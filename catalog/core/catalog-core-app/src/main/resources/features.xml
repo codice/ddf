@@ -58,29 +58,21 @@
             mbeanName = ddf.metrics.catalog:name=Exceptions
             mbeanAttributeName = Count
             rrdPath = catalogExceptions.rrd
-            rrdDataSourceName = data
-            rrdDataSourceType = COUNTER
         </config>
         <config name="MetricsJmxCollector-CatalogExceptionsFederation">
             mbeanName = ddf.metrics.catalog:name=Exceptions.Federation
             mbeanAttributeName = Count
             rrdPath = catalogExceptionsFederation.rrd
-            rrdDataSourceName = data
-            rrdDataSourceType = COUNTER
         </config>
         <config name="MetricsJmxCollector-CatalogExceptionsSourceUnavailable">
             mbeanName = ddf.metrics.catalog:name=Exceptions.SourceUnavailable
             mbeanAttributeName = Count
             rrdPath = catalogExceptionsSourceUnavailable.rrd
-            rrdDataSourceName = data
-            rrdDataSourceType = COUNTER
         </config>
         <config name="MetricsJmxCollector-CatalogExceptionsUnsupportedQuery">
             mbeanName = ddf.metrics.catalog:name=Exceptions.UnsupportedQuery
             mbeanAttributeName = Count
             rrdPath = catalogExceptionsUnsupportedQuery.rrd
-            rrdDataSourceName = data
-            rrdDataSourceType = COUNTER
         </config>
         
         <!-- Query Metrics -->
@@ -88,57 +80,41 @@
             mbeanName = ddf.metrics.catalog:name=Queries
             mbeanAttributeName = Count
             rrdPath = catalogQueries.rrd
-            rrdDataSourceName = data
-            rrdDataSourceType = COUNTER
         </config>
         <config name="MetricsJmxCollector-CatalogQueriesFederated">
             mbeanName = ddf.metrics.catalog:name=Queries.Federated
             mbeanAttributeName = Count
             rrdPath = catalogQueriesFederated.rrd
-            rrdDataSourceName = data
-            rrdDataSourceType = COUNTER
         </config>
         <config name="MetricsJmxCollector-CatalogQueriesComparison">
             mbeanName = ddf.metrics.catalog:name=Queries.Comparison
             mbeanAttributeName = Count
             rrdPath = catalogQueriesComparison.rrd
-            rrdDataSourceName = data
-            rrdDataSourceType = COUNTER
         </config>
         <config name="MetricsJmxCollector-CatalogQueriesFuzzy">
             mbeanName = ddf.metrics.catalog:name=Queries.Fuzzy
             mbeanAttributeName = Count
             rrdPath = catalogQueriesFuzzy.rrd
-            rrdDataSourceName = data
-            rrdDataSourceType = COUNTER
         </config>
         <config name="MetricsJmxCollector-CatalogQueriesTemporal">
             mbeanName = ddf.metrics.catalog:name=Queries.Temporal
             mbeanAttributeName = Count
             rrdPath = catalogQueriesTemporal.rrd
-            rrdDataSourceName = data
-            rrdDataSourceType = COUNTER
         </config>
         <config name="MetricsJmxCollector-CatalogQueriesSpatial">
             mbeanName = ddf.metrics.catalog:name=Queries.Spatial
             mbeanAttributeName = Count
             rrdPath = catalogQueriesSpatial.rrd
-            rrdDataSourceName = data
-            rrdDataSourceType = COUNTER
         </config>
         <config name="MetricsJmxCollector-CatalogQueriesXpath">
             mbeanName = ddf.metrics.catalog:name=Queries.Xpath
             mbeanAttributeName = Count
             rrdPath = catalogQueriesXpath.rrd
-            rrdDataSourceName = data
-            rrdDataSourceType = COUNTER
         </config>
         <config name="MetricsJmxCollector-CatalogQueriesTotalResults">
             mbeanName = ddf.metrics.catalog:name=Queries.TotalResults
             mbeanAttributeName = Mean
             rrdPath = catalogQueriesTotalResults.rrd
-            rrdDataSourceName = data
-            rrdDataSourceType = GAUGE
         </config>
         
         <!-- Ingest Metrics -->
@@ -146,22 +122,16 @@
             mbeanName = ddf.metrics.catalog:name=Ingest.Created
             mbeanAttributeName = Count
             rrdPath = catalogIngestCreated.rrd
-            rrdDataSourceName = data
-            rrdDataSourceType = COUNTER
         </config>
         <config name="MetricsJmxCollector-CatalogIngestUpdated">
             mbeanName = ddf.metrics.catalog:name=Ingest.Updated
             mbeanAttributeName = Count
             rrdPath = catalogIngestUpdated.rrd
-            rrdDataSourceName = data
-            rrdDataSourceType = COUNTER
         </config>
         <config name="MetricsJmxCollector-CatalogIngestDeleted">
             mbeanName = ddf.metrics.catalog:name=Ingest.Deleted
             mbeanAttributeName = Count
             rrdPath = catalogIngestDeleted.rrd
-            rrdDataSourceName = data
-            rrdDataSourceType = COUNTER
         </config>
         
         <!-- Resource Retrieval Metrics -->
@@ -169,8 +139,6 @@
             mbeanName = ddf.metrics.catalog:name=Resource
             mbeanAttributeName = Count
             rrdPath = catalogResourceRetrieval.rrd
-            rrdDataSourceName = data
-            rrdDataSourceType = COUNTER
         </config>
     </feature>
     

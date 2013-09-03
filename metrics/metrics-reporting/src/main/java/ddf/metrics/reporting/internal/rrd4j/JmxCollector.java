@@ -83,6 +83,22 @@ public class JmxCollector implements Collector
     
     public static final int TEN_YEARS_IN_HOURS = ONE_YEAR_IN_15_MINUTE_STEPS * 10;
     
+    /**
+     * RRD default X-Files factor.
+     * he X-Files factor defines what part of an RRD consolidation interval may be made up from *UNKNOWN* data while 
+     * the consolidated value is still regarded as known. It is given as the ratio of allowed *UNKNOWN* 
+     * Primary Data Points (PDPs) to the number of PDPs in the interval. Thus, it ranges from 0 <= xff < 1.
+     * 
+     * Examples:
+     *     0.5  -->  50%  -->  half of the intervals used may be unknown to build one, known interval 
+     *
+	 *     0.0  -->  0%  -->  every PDP must be known in order to build a known Consolidated Data Point (CDP). 
+	 *
+     *     0.999 --> almost 100% --> a known CDP is built even if there's 
+     *         only one known PDP out of many PDPs. 
+     */
+    private static final double DEFAULT_XFF_FACTOR = 0.5;
+    
     
     /** 
      * Name of the JMX MBean that contains the metric being collected. 
@@ -121,6 +137,10 @@ public class JmxCollector implements Collector
      */
     private String rrdDataSourceType;
     
+
+
+
+
     private String metricsDir;
     private int sampleRate;
     private long minimumUpdateTimeDelta;
@@ -153,10 +173,9 @@ public class JmxCollector implements Collector
         rrdStep = this.sampleRate;
         pool = RrdDbPool.getInstance();
         
-        // Set to default - should be overridden by the <config> in the 
-        // metrics-reporting-app features.xml file, which will call this
-        // attribute's setter method.
+
         this.rrdDataSourceType = COUNTER_DATA_SOURCE_TYPE;
+
                 
         LOGGER.trace("EXITING: JmxCollector default constructor");
     }
@@ -300,6 +319,11 @@ public class JmxCollector implements Collector
         return attr != null;
     }
 
+    private void createRrdFile(final String path, final String dsName, final DsType dsType) 
+            throws IOException, CollectorException 
+    {
+    	createRrdFile(path, dsName, dsType, 0, Double.NaN);
+    }
     
     /**
      * Create an RRD file based on the metric's name (path) in the DDF metrics sub-directory.
@@ -312,11 +336,16 @@ public class JmxCollector implements Collector
      * @param dsName data source name for the RRD file. This is required.
      * @param dsType data source type, i.e., COUNTER or GAUGE (This is required.)
      *       (DERIVE and ABSOLUTE are not currently supported)
+     * @param minValue the minimum value that will be stored in the data source; any values smaller
+     *     than this will be stored as NaN (aka Unknown)
+     * @param maxValue the maximum value that will be stored in the data source; any values larger
+     *     than this will be stored as NaN (aka Unknown)
      *       
      * @throws IOException
      * @throws CollectorException
      */
-    private void createRrdFile(final String path, final String dsName, final DsType dsType) 
+    private void createRrdFile(final String path, final String dsName, final DsType dsType,
+    		double minValue, double maxValue) 
         throws IOException, CollectorException 
     {
         LOGGER.trace("ENTERING: createRrdFile");
@@ -355,7 +384,7 @@ public class JmxCollector implements Collector
             
             // NOTE: Currently restrict each RRD file to only have one data source
             // (even though RRD supports multiple data sources in a single RRD file)
-            def.addDatasource(dsName, dsType, 90, 0, Double.NaN);
+            def.addDatasource(dsName, dsType, 90, minValue, maxValue);
 
             // NOTE: Separate code segments based on dsType in case in future
             // we want more or less archivers based on data source type.
@@ -364,28 +393,28 @@ public class JmxCollector implements Collector
             if (dsType == DsType.COUNTER)
             {
                 // 1 minute resolution for last 60 minutes
-                def.addArchive(ConsolFun.TOTAL, 0.5, 1, 60);  
+                def.addArchive(ConsolFun.TOTAL, DEFAULT_XFF_FACTOR, 1, 60);  
     
                 // 15 minute resolution for the last year
-                def.addArchive(ConsolFun.TOTAL, 0.5, 15, ONE_YEAR_IN_15_MINUTE_STEPS);
+                def.addArchive(ConsolFun.TOTAL, DEFAULT_XFF_FACTOR, 15, ONE_YEAR_IN_15_MINUTE_STEPS);
     
                 // 1 minute resolution for last 60 minutes
-                def.addArchive(ConsolFun.AVERAGE, 0.5, 1, 60);  
+                def.addArchive(ConsolFun.AVERAGE, DEFAULT_XFF_FACTOR, 1, 60);  
     
                 // 15 minute resolution for the last year
-                def.addArchive(ConsolFun.AVERAGE, 0.5, 15, ONE_YEAR_IN_15_MINUTE_STEPS);
+                def.addArchive(ConsolFun.AVERAGE, DEFAULT_XFF_FACTOR, 15, ONE_YEAR_IN_15_MINUTE_STEPS);
                 
                 // 1 minute resolution for last 60 minutes
-                def.addArchive(ConsolFun.MAX, 0.5, 1, 60);  
+                def.addArchive(ConsolFun.MAX, DEFAULT_XFF_FACTOR, 1, 60);  
     
                 // 15 minute resolution for the last year
-                def.addArchive(ConsolFun.MAX, 0.5, 15, ONE_YEAR_IN_15_MINUTE_STEPS);
+                def.addArchive(ConsolFun.MAX, DEFAULT_XFF_FACTOR, 15, ONE_YEAR_IN_15_MINUTE_STEPS);
     
                 // 1 minute resolution for last 60 minutes
-                def.addArchive(ConsolFun.MIN, 0.5, 1, 60);  
+                def.addArchive(ConsolFun.MIN, DEFAULT_XFF_FACTOR, 1, 60);  
     
                 // 15 minute resolution for the last year
-                def.addArchive(ConsolFun.MIN, 0.5, 15, ONE_YEAR_IN_15_MINUTE_STEPS);
+                def.addArchive(ConsolFun.MIN, DEFAULT_XFF_FACTOR, 15, ONE_YEAR_IN_15_MINUTE_STEPS);
             }
             
             // Use a GAUGE to store the values we measure directly as they are,
@@ -396,28 +425,28 @@ public class JmxCollector implements Collector
                 // If you want to know the rate, look at the maximum.
                 
                 // 1 minute resolution for last 60 minutes
-                def.addArchive(ConsolFun.TOTAL, 0.5, 1, 60);  
+                def.addArchive(ConsolFun.TOTAL, DEFAULT_XFF_FACTOR, 1, 60);  
     
                 // 15 minute resolution for the last year
-                def.addArchive(ConsolFun.TOTAL, 0.5, 15, ONE_YEAR_IN_15_MINUTE_STEPS);
+                def.addArchive(ConsolFun.TOTAL, DEFAULT_XFF_FACTOR, 15, ONE_YEAR_IN_15_MINUTE_STEPS);
                 
                 // 1 minute resolution for last 60 minutes
-                def.addArchive(ConsolFun.AVERAGE, 0.5, 1, 60);  
+                def.addArchive(ConsolFun.AVERAGE, DEFAULT_XFF_FACTOR, 1, 60);  
     
                 // 15 minute resolution for the last year
-                def.addArchive(ConsolFun.AVERAGE, 0.5, 15, ONE_YEAR_IN_15_MINUTE_STEPS);
+                def.addArchive(ConsolFun.AVERAGE, DEFAULT_XFF_FACTOR, 15, ONE_YEAR_IN_15_MINUTE_STEPS);
                 
                 // 1 minute resolution for last 60 minutes
-                def.addArchive(ConsolFun.MAX, 0.5, 1, 60);  
+                def.addArchive(ConsolFun.MAX, DEFAULT_XFF_FACTOR, 1, 60);  
     
                 // 15 minute resolution for the last year
-                def.addArchive(ConsolFun.MAX, 0.5, 15, ONE_YEAR_IN_15_MINUTE_STEPS);
+                def.addArchive(ConsolFun.MAX, DEFAULT_XFF_FACTOR, 15, ONE_YEAR_IN_15_MINUTE_STEPS);
     
                 // 1 minute resolution for last 60 minutes
-                def.addArchive(ConsolFun.MIN, 0.5, 1, 60);  
+                def.addArchive(ConsolFun.MIN, DEFAULT_XFF_FACTOR, 1, 60);  
     
                 // 15 minute resolution for the last year
-                def.addArchive(ConsolFun.MIN, 0.5, 15, ONE_YEAR_IN_15_MINUTE_STEPS);
+                def.addArchive(ConsolFun.MIN, DEFAULT_XFF_FACTOR, 15, ONE_YEAR_IN_15_MINUTE_STEPS);
             }
 
             // Create RRD file based on the RRD file definition
@@ -496,14 +525,9 @@ public class JmxCollector implements Collector
                     	long now = System.currentTimeMillis()/MILLIS_PER_SECOND;
                         long lastUpdateTime = rrdDb.getLastUpdateTime();
                         
-                        // Add metric's sample to RRD file with current timestamp (i.e., "NOW")
-                        //sample.setAndUpdate("NOW:" + val);
-                        
+                        // Add metric's sample to RRD file with current timestamp
                         if (now - rrdDb.getLastUpdateTime() >= minimumUpdateTimeDelta) {   
-                        	LOGGER.debug("Sample time is " + now);
-                            sample.setTime(now);
-                            sample.setValue(rrdDataSourceName, val);
-                            sample.update();
+                        	updateSample(now, val);
                         }
                         else
                         {
@@ -533,6 +557,17 @@ public class JmxCollector implements Collector
         executor.scheduleWithFixedDelay(updater, 0, sampleRate, TimeUnit.SECONDS);
         
         LOGGER.trace("EXITING: updateSamples");
+    }
+            
+    private void updateSample(long now, double val) throws IOException {
+    		LOGGER.debug("Sample time is [" + RrdMetricsRetriever.getCalendarTime(now) + 
+    				"], updating metric [" + mbeanName + "] with value [" + val + "]");   	}
+    	
+    	// Can go ahead and attempt to update sample even if value is out of range.
+    	// RRD will enforce min/max value limits and record UNKNOWN if they are exceeded
+        sample.setTime(now);
+        sample.setValue(rrdDataSourceName, val);
+        sample.update();
     }
             
     /**
@@ -633,6 +668,27 @@ public class JmxCollector implements Collector
     }
     
     
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     protected int getSampleRate()
     {
         return sampleRate;

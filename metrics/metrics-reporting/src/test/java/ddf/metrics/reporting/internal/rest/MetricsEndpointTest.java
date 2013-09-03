@@ -97,7 +97,7 @@ public class MetricsEndpointTest extends XMLTestCase
         ((PatternLayout) ((Appender) Logger.getRootLogger().getAllAppenders().nextElement()).getLayout())
                 .setConversionPattern("[%30.30t] %-30.30c{1} %-5p %m%n");
 
-        Logger.getRootLogger().setLevel(Level.DEBUG);
+        Logger.getRootLogger().setLevel(Level.INFO);
     }
     
     
@@ -529,7 +529,7 @@ public class MetricsEndpointTest extends XMLTestCase
         for (int i=0; i < samples.size(); i++)
         {
             JSONObject sample = (JSONObject) samples.get(i);
-            LOGGER.debug("timestamp = " + (String) sample.get("timestamp") + ",   value = " + (Long) sample.get("value"));
+            LOGGER.debug("timestamp = " + (String) sample.get("timestamp") + ",   value = " + sample.get("value"));
             assertThat(sample.get("timestamp"), not(nullValue()));
             assertThat(sample.get("value"), not(nullValue()));
         }                

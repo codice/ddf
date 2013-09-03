@@ -231,10 +231,11 @@ public class RrdMetricsRetriever implements MetricsRetriever
         for (int i=0; i < timestamps.size(); i++)
         {
             String timestamp = getCalendarTime(timestamps.get(i));
-            csv.append(timestamp + "," + new Double(values.get(i)).longValue() + "\n");
+            //csv.append(timestamp + "," + new Double(values.get(i)).longValue() + "\n");
+            csv.append(timestamp + "," + new Double(values.get(i)) + "\n");
         }        
         
-        LOGGER.debug("csv = " + csv.toString());
+        LOGGER.trace("csv = " + csv.toString());
         
         LOGGER.trace("EXITING: createCsvData");
         
@@ -288,7 +289,8 @@ public class RrdMetricsRetriever implements MetricsRetriever
                 
                 Element valueElement = doc.createElement("value");
                 long value = new Double(values.get(i)).longValue();
-                valueElement.appendChild(doc.createTextNode(String.valueOf(value)));
+                //valueElement.appendChild(doc.createTextNode(String.valueOf(value)));
+                valueElement.appendChild(doc.createTextNode(String.valueOf(values.get(i))));
                 sampleElement.appendChild(valueElement);
             }        
             
@@ -317,7 +319,7 @@ public class RrdMetricsRetriever implements MetricsRetriever
             tfe.printStackTrace();
         }
         
-        LOGGER.debug("xml = " + sw.toString());
+        LOGGER.trace("xml = " + sw.toString());
         
         LOGGER.trace("EXITING: createXmlData");
         
@@ -419,7 +421,8 @@ public class RrdMetricsRetriever implements MetricsRetriever
             sample.put("timestamp", timestamp);
             
             // convert value to a long to prevent fractional values
-            sample.put("value", new Double(values.get(i)).longValue());
+            //sample.put("value", new Double(values.get(i)).longValue());
+            sample.put("value", new Double(values.get(i)));
             samples.add(sample);
         }
         obj.put("data", samples);        
@@ -433,7 +436,7 @@ public class RrdMetricsRetriever implements MetricsRetriever
         obj.writeJSONString(writer);
         String jsonText = writer.toString();
         
-        LOGGER.debug("jsonText = " + jsonText);
+        LOGGER.trace("jsonText = " + jsonText);
         
         LOGGER.trace("EXITING: createJsonData");
         
@@ -542,7 +545,8 @@ public class RrdMetricsRetriever implements MetricsRetriever
             row.createCell(0).setCellValue(timestamp);
             
             // convert value to a long to prevent fractional values
-            row.createCell(1).setCellValue(new Double(values.get(i)).longValue());
+            //row.createCell(1).setCellValue(new Double(values.get(i)).longValue());
+            row.createCell(1).setCellValue(new Double(values.get(i)));
             rowCount++;
         }
         
@@ -754,7 +758,7 @@ public class RrdMetricsRetriever implements MetricsRetriever
      * 
      * @return formatted date/time string of the form MMM DD YYYY hh:mm:ss
      */
-    private String getCalendarTime(long timestamp)
+    static String getCalendarTime(long timestamp)
     {
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(timestamp * 1000);
@@ -771,7 +775,7 @@ public class RrdMetricsRetriever implements MetricsRetriever
     }
     
     
-    private String addLeadingZero(int value)
+    static String addLeadingZero(int value)
     {
         if (value < 10)
         {

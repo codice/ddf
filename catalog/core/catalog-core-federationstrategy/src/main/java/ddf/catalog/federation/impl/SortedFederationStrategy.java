@@ -46,7 +46,6 @@ import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.plugin.PostFederatedQueryPlugin;
 import ddf.catalog.plugin.PreFederatedQueryPlugin;
 import ddf.catalog.source.Source;
-import ddf.catalog.source.SourceMetrics;
 import ddf.catalog.util.DistanceResultComparator;
 import ddf.catalog.util.RelevanceResultComparator;
 import ddf.catalog.util.TemporalResultComparator;
@@ -78,9 +77,7 @@ public class SortedFederationStrategy extends AbstractFederationStrategy
 
     private static XLogger logger = new XLogger(LoggerFactory.getLogger(SortedFederationStrategy.class));
 
-    private List<SourceMetrics> sourceMetrics;
 	
-
     /**
      * Instantiates a {@code SortedFederationStrategy} with the provided
      * {@link ExecutorService}.
@@ -93,10 +90,6 @@ public class SortedFederationStrategy extends AbstractFederationStrategy
         super(queryExecutorService, preQuery, postQuery);
     }
     
-    public void setSourceMetrics(List<SourceMetrics> sourceMetrics) {
-    	this.sourceMetrics = sourceMetrics;
-    }
-
     @Override
     protected Runnable createMonitor( final ExecutorService pool, final Map<Source, Future<SourceResponse>> futures,
         final QueryResponseImpl returnResults, final Query query )
@@ -206,13 +199,9 @@ public class SortedFederationStrategy extends AbstractFederationStrategy
                     logger.warn("search timed out: " + new Date() + " on site " + site.getId());
                     processingDetails.add(new ProcessingDetailsImpl(site.getId(), e));
                 }
-                
-                updateQueryMetrics(site.getId(), sourceResponse);
             }
             logger.debug("all sites finished returning results: " + resultList.size());
             
-            updateExceptionsMetrics(processingDetails);
-
             Collections.sort(resultList, coreComparator);
 
             returnResults.setHits(totalHits);
@@ -222,37 +211,7 @@ public class SortedFederationStrategy extends AbstractFederationStrategy
                 true);
         }
         
-		private void updateQueryMetrics(String sourceId,
-				SourceResponse sourceResponse) {
-			if (sourceMetrics.size() > 0) {
-				SourceMetrics sourceMetricsProxy = sourceMetrics.get(0);
-				sourceMetricsProxy.updateMetric(sourceId, sourceMetricsProxy.QUERIES_SCOPE, 1);
 				
-				if (sourceResponse != null) {
-					sourceMetricsProxy.updateMetric(sourceId, sourceMetricsProxy.QUERIES_TOTAL_RESULTS_SCOPE, (int) sourceResponse.getHits());
-				}
-			}
-		}
-        
-		private void updateExceptionsMetrics(Set<ProcessingDetails> processingDetails) {
-
-			if (processingDetails == null || processingDetails.iterator() == null) {
-	            return;
-	        }
-			
-			if (sourceMetrics.size() > 0) {
-				SourceMetrics sourceMetricsProxy = sourceMetrics.get(0);
-				Iterator<ProcessingDetails> iterator = processingDetails.iterator();
-		        while (iterator.hasNext()) {
-		            ProcessingDetails next = iterator.next();
-		            if (next != null && next.getException() != null) {
-						String sourceId = next.getSourceId();
-						sourceMetricsProxy.updateMetric(sourceId, sourceMetricsProxy.EXCEPTIONS_SCOPE, 1);
-		            }
-				}
-			}
-		}
-		
         private long getTimeRemaining( long deadline )
         {
             long timeleft;

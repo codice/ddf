@@ -198,7 +198,7 @@ public class RrdMetricsRetrieverTest extends XMLTestCase
         for (int i=0; i < samples.size(); i++)
         {
             JSONObject sample = (JSONObject) samples.get(i);
-            LOGGER.debug("timestamp = " + (String) sample.get("timestamp") + ",   value = " + (Long) sample.get("value"));
+            LOGGER.debug("timestamp = " + (String) sample.get("timestamp") + ",   value = " + sample.get("value"));
             assertThat(sample.get("timestamp"), not(nullValue()));
             assertThat(sample.get("value"), not(nullValue()));
         }  
