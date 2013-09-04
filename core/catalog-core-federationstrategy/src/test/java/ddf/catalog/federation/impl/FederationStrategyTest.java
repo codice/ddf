@@ -78,7 +78,6 @@ import ddf.catalog.source.ConnectedSource;
 import ddf.catalog.source.FederatedSource;
 import ddf.catalog.source.IngestException;
 import ddf.catalog.source.Source;
-import ddf.catalog.source.SourceMetrics;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.util.SourcePoller;
@@ -94,14 +93,11 @@ public class FederationStrategyTest {
 	
     private static final Logger LOGGER = Logger.getLogger( FederationStrategyTest.class.getName() );
     
-    private SourceMetrics sourceMetrics;
 	
 	@Before
 	public void initialize() {
 		BasicConfigurator.configure();
 		Logger.getRootLogger().setLevel(Level.DEBUG);
-		
-		sourceMetrics = mock(SourceMetrics.class);
 	}
 
 	/**
@@ -126,7 +122,6 @@ public class FederationStrategyTest {
 		SortedFederationStrategy fedStrategy = new SortedFederationStrategy(EXECUTOR, 
 				new ArrayList<PreFederatedQueryPlugin>(),
 				new ArrayList<PostFederatedQueryPlugin>());
-		fedStrategy.setSourceMetrics(Collections.singletonList(sourceMetrics));
 		
 		CatalogFrameworkImpl framework = new CatalogFrameworkImpl(
 				Collections.singletonList((CatalogProvider) provider), null,
@@ -209,7 +204,7 @@ public class FederationStrategyTest {
 		SortedFederationStrategy sortedStrategy = new SortedFederationStrategy(EXECUTOR, 
 				new ArrayList<PreFederatedQueryPlugin>(),
 				new ArrayList<PostFederatedQueryPlugin>());
-		sortedStrategy.setSourceMetrics(Collections.singletonList(sourceMetrics));
+
 		QueryResponse fedResponse = sortedStrategy.federate(sources, fedQueryRequest);
 		assertEquals(1, fedResponse.getResults().size());
 		
@@ -308,7 +303,6 @@ public class FederationStrategyTest {
         SortedFederationStrategy strategy = new SortedFederationStrategy(EXECUTOR, 
 				new ArrayList<PreFederatedQueryPlugin>(),
 				new ArrayList<PostFederatedQueryPlugin>());
-        strategy.setSourceMetrics(Collections.singletonList(sourceMetrics));
         
         // Run Test
         QueryResponse federatedResponse = strategy.federate( sources, queryRequest );
@@ -390,7 +384,6 @@ public class FederationStrategyTest {
         SortedFederationStrategy strategy = new SortedFederationStrategy(EXECUTOR, 
 				new ArrayList<PreFederatedQueryPlugin>(),
 				new ArrayList<PostFederatedQueryPlugin>());
-        strategy.setSourceMetrics(Collections.singletonList(sourceMetrics));
         
         // Run Test
         QueryResponse federatedResponse = strategy.federate( sources, queryRequest );
@@ -496,7 +489,6 @@ public class FederationStrategyTest {
         SortedFederationStrategy strategy = new SortedFederationStrategy(EXECUTOR, 
 				new ArrayList<PreFederatedQueryPlugin>(),
 				new ArrayList<PostFederatedQueryPlugin>());
-        strategy.setSourceMetrics(Collections.singletonList(sourceMetrics));
         
         // Run Test
         QueryResponse federatedResponse = strategy.federate( sources, queryRequest );
@@ -566,7 +558,6 @@ public class FederationStrategyTest {
         SortedFederationStrategy strategy = new SortedFederationStrategy(EXECUTOR, 
 				new ArrayList<PreFederatedQueryPlugin>(),
 				new ArrayList<PostFederatedQueryPlugin>());
-        strategy.setSourceMetrics(Collections.singletonList(sourceMetrics));
         
         // Run Test
         QueryResponse federatedResponse = strategy.federate( sources, queryRequest );

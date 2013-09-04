@@ -64,7 +64,7 @@ import ddf.catalog.source.Source;
  * @author ddf.isgs@lmco.com
  *
  */
-public class SourceMetricsImpl implements PostFederatedQueryPlugin {  //implements SourceMetrics {
+public class SourceMetricsImpl implements PostFederatedQueryPlugin {
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(SourceMetricsImpl.class);
 	
