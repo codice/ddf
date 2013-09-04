@@ -94,6 +94,7 @@ public class MatchOneCollectionPermission extends CollectionPermission
             return true;
         }
 
+        //default catch all permission check
         for(Permission permission : permissionList)
         {
             //Shiro permissions are always a "match all" condition so we need to flip the implies to make it match one
