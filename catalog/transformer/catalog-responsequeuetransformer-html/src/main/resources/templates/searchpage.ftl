@@ -337,7 +337,7 @@ ${response.setHeader("Content-Type", "text/html")}
 								<#assign start = 1>  
 							</#attempt>
 						</#if>
-						<#if m?groups[1]?matches("count")>
+						<#if (m?groups[1]?matches("count")) && (m?groups[2]??) && (m?groups[2]?has_content)>
 							<#attempt>
 								<#assign count = m?groups[2]?number>
 							<#recover>
