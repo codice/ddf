@@ -146,6 +146,7 @@ public class SimpleAuthzRealmTest
         String ruleClaim = "FineAccessControls";
         String countryClaim = "CountryOfAffiliation";
 
+        //create a new user here with multiple country permissions to test
         List<Permission> permissions = new ArrayList<Permission>();
         KeyValuePermission rulePermission = new KeyValuePermission( ruleClaim );
         rulePermission.addValue( "A" );
