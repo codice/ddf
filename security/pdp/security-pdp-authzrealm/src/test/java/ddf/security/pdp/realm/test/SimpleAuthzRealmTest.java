@@ -92,7 +92,6 @@ public class SimpleAuthzRealmTest
         KeyValueCollectionPermission kvcp = new KeyValueCollectionPermission(metacard.getSecurity());
         permissionList.add(kvcp);
         PrincipalCollection mockSubjectPrincipal = Mockito.mock(PrincipalCollection.class);
-//        when(testRealm.getAuthorizationInfo(any(PrincipalCollection.class))).thenReturn(authorizationInfo);
 
         boolean[] permittedArray = testRealm.isPermitted( mockSubjectPrincipal, permissionList );
 
@@ -109,7 +108,6 @@ public class SimpleAuthzRealmTest
         KeyValuePermission kvp = new KeyValuePermission("rule", Arrays.asList("A", "B"));
         permissionList.add(kvp);
         PrincipalCollection mockSubjectPrincipal = Mockito.mock(PrincipalCollection.class);
-//        when(testRealm.getAuthorizationInfo(any(PrincipalCollection.class))).thenReturn(authorizationInfo);
 
         boolean[] permittedArray = testRealm.isPermitted( mockSubjectPrincipal, permissionList );
 
@@ -126,7 +124,6 @@ public class SimpleAuthzRealmTest
         KeyValuePermission kvp = new KeyValuePermission("country", Arrays.asList("AUS","CAN","GBR"));
         permissionList.add(kvp);
         PrincipalCollection mockSubjectPrincipal = Mockito.mock(PrincipalCollection.class);
-//        when(testRealm.getAuthorizationInfo(any(PrincipalCollection.class))).thenReturn(authorizationInfo);
 
         boolean[] permittedArray = testRealm.isPermitted( mockSubjectPrincipal, permissionList );
 
@@ -165,7 +162,6 @@ public class SimpleAuthzRealmTest
         testRealm.setAuthorizationInfo(authorizationInfo);
 
         PrincipalCollection mockSubjectPrincipal = Mockito.mock(PrincipalCollection.class);
-//        when(testRealm.getAuthorizationInfo(any(PrincipalCollection.class))).thenReturn(authorizationInfo);
 
         boolean[] permittedArray = testRealm.isPermitted( mockSubjectPrincipal, permissionList );
 
@@ -219,7 +215,6 @@ public class SimpleAuthzRealmTest
         permissionList.clear();
         permissionList.add(kvcp);
         PrincipalCollection mockSubjectPrincipal = Mockito.mock(PrincipalCollection.class);
-//        when(testRealm.getAuthorizationInfo(any(PrincipalCollection.class))).thenReturn(authorizationInfo);
 
         boolean[] permittedArray = testRealm.isPermitted( mockSubjectPrincipal, permissionList );
 
