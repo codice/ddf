@@ -11,9 +11,8 @@
  **/
 package ddf.security.permission;
 
-import org.apache.shiro.authz.Permission;
-
 import ddf.security.common.audit.SecurityLogger;
+import org.apache.shiro.authz.Permission;
 
 import java.util.Collection;
 
@@ -53,11 +52,36 @@ public class MatchOneCollectionPermission extends CollectionPermission
                 boolean result = false;
                 for (Permission ourPerm : permissionList)
                 {
-                    //Shiro permissions are always a "match all" condition so we need to flip the implies to make it match one
-                    if (perm.implies(ourPerm))
+                    //we only care about the key value permission here, because that one can have multiple values
+                    //mapped to a single key. In the case of "match one" we only need one of those values to satisfy
+                    //the permission.
+                    if(ourPerm instanceof KeyValuePermission)
                     {
-                        result = true;
-                        break;
+                        for(String value : ((KeyValuePermission) ourPerm).getValues())
+                        {
+                            //Since this is "match one" we know that only one of these values needs to match in order
+                            //for the entire permission at that key to be implied
+                            //So here we loop through all of the values assigned to that key and create new
+                            //single valued key value permissions
+                            KeyValuePermission kvp = new KeyValuePermission(((KeyValuePermission) ourPerm).getKey());
+                            kvp.addValue(value);
+                            if (perm.implies(kvp))
+                            {
+                                result = true;
+                                break;
+                            }
+                        }
+                    }
+                    //Currently we use key value permissions for everything. However, we still need to be able to handle
+                    //permissions other than KV, so this else block will serve as the catch all for everything else.
+                    else
+                    {
+                        //Shiro permissions are always a "match all" condition so we need to flip the implies to make it match one
+                        if (perm.implies(ourPerm))
+                        {
+                            result = true;
+                            break;
+                        }
                     }
                 }
                 if (!result)

@@ -137,6 +137,44 @@ public class SimpleAuthzRealmTest
     }
 
     @Test
+    public void testIsPermittedOneMultiple()
+    {
+        permissionList.clear();
+        KeyValuePermission kvp = new KeyValuePermission("country", Arrays.asList("AUS","CAN","GBR"));
+        permissionList.add(kvp);
+
+        String ruleClaim = "FineAccessControls";
+        String countryClaim = "CountryOfAffiliation";
+
+        List<Permission> permissions = new ArrayList<Permission>();
+        KeyValuePermission rulePermission = new KeyValuePermission( ruleClaim );
+        rulePermission.addValue( "A" );
+        rulePermission.addValue( "B" );
+        permissions.add( rulePermission );
+        KeyValuePermission countryPermission = new KeyValuePermission( countryClaim );
+        countryPermission.addValue( "USA" );
+        countryPermission.addValue( "AUS" );
+        permissions.add( countryPermission );
+
+        SimpleAuthorizationInfo authorizationInfo = new SimpleAuthorizationInfo();
+        authorizationInfo.addObjectPermission(rulePermission);
+        authorizationInfo.addObjectPermission(countryPermission);
+        authorizationInfo.addRole("admin");
+
+        testRealm.setAuthorizationInfo(authorizationInfo);
+
+        PrincipalCollection mockSubjectPrincipal = Mockito.mock(PrincipalCollection.class);
+//        when(testRealm.getAuthorizationInfo(any(PrincipalCollection.class))).thenReturn(authorizationInfo);
+
+        boolean[] permittedArray = testRealm.isPermitted( mockSubjectPrincipal, permissionList );
+
+        for( boolean permitted : permittedArray )
+        {
+            Assert.assertEquals(true, permitted);
+        }
+    }
+
+    @Test
     public void testIsActionPermitted()
     {
         permissionList.clear();
