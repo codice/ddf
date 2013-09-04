@@ -29,7 +29,6 @@
             mbeanName = ddf.metrics.services:name=Latency
             mbeanAttributeName = Mean
             rrdPath = ServicesLatency.rrd
-            rrdDataSourceName = data
             rrdDataSourceType = GAUGE
         </config>
     </feature>

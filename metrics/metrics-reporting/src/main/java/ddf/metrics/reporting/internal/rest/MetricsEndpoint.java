@@ -134,6 +134,7 @@ public class MetricsEndpoint
     
     private MetricsRetriever metricsRetriever = new RrdMetricsRetriever();
  
+    private double metricsMaxThreshold;
 
 
     /**
@@ -724,9 +725,14 @@ public class MetricsEndpoint
         this.metricsRetriever = metricsRetriever;
     }
     
+	public void setMetricsMaxThreshold(double metricsMaxThreshold) {
+		LOGGER.info("Creating new RrdMetricsRetriever with metricsMaxThreshold = " + metricsMaxThreshold);
+		this.metricsMaxThreshold = metricsMaxThreshold;
+		metricsRetriever = new RrdMetricsRetriever(metricsMaxThreshold);
+	}
     
     /**
-     * Compoarator used to sort metric time ranges by chronological order
+     * Comparator used to sort metric time ranges by chronological order
      * rather than the default lexigraphical order.
      *
      */

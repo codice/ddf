@@ -92,6 +92,15 @@ public class RrdMetricsRetriever implements MetricsRetriever
 {
     private static final transient Logger LOGGER = Logger.getLogger(RrdMetricsRetriever.class);
     
+    private static final double DEFAULT_METRICS_MAX_THRESHOLD = 4000000000.0;
+    private static final int RRD_STEP = 60;
+    
+    /**
+     * Max threshold for a metric's sample value. Used to filter out spike data that typically
+     * has a value of 4.2E+09 or higher.
+     */
+    private double metricsMaxThreshold;
+    
     /**
      * Used for formatting long timestamps into more readable calendar dates/times.
      */
@@ -102,6 +111,15 @@ public class RrdMetricsRetriever implements MetricsRetriever
         "Sep", "Oct", "Nov", "Dec"
     }; 
     
+    
+    public RrdMetricsRetriever() {
+    	this(DEFAULT_METRICS_MAX_THRESHOLD);
+    }
+    
+    public RrdMetricsRetriever(double metricsMaxThreshold) {
+    	LOGGER.info("Setting metricsMaxThreshold = " + metricsMaxThreshold);
+    	this.metricsMaxThreshold = metricsMaxThreshold;
+    }
     
     @Override
     public byte[] createGraph(String metricName, String rrdFilename, long startTime, long endTime) 
@@ -135,7 +153,7 @@ public class RrdMetricsRetriever implements MetricsRetriever
         graphDef.setTimeSpan(startTime, endTime);
         graphDef.setImageFormat("PNG");
         graphDef.setShowSignature(false);
-        graphDef.setStep(60);
+        graphDef.setStep(RRD_STEP);
         graphDef.setVerticalLabel(verticalAxisLabel);
         graphDef.setHeight(500);
         graphDef.setWidth(1000);
@@ -148,6 +166,11 @@ public class RrdMetricsRetriever implements MetricsRetriever
         // generated graph by default will show data per rrdStep interval)
         if (dataSourceType == DsType.COUNTER)
         {    
+            if (LOGGER.isTraceEnabled()) {      	
+            	dumpData(ConsolFun.TOTAL, "TOTAL", rrdDb, dataSourceType.name(), 
+            		     startTime, endTime);
+            }
+
             // If we ever needed to adjust the metric's data collected by RRD by the archive step
             // (which is the rrdStep * archiveSampleCount) this is how to do it.
 //            FetchRequest fetchRequest = rrdDb.createFetchRequest(ConsolFun.AVERAGE, startTime, endTime);
@@ -168,7 +191,13 @@ public class RrdMetricsRetriever implements MetricsRetriever
             // the average of the totals.
             graphDef.datasource("myTotal", rrdFilename, "data", ConsolFun.TOTAL);
             graphDef.datasource("realTotal", "myTotal," + rrdStep + ",*");
-            graphDef.line("realTotal", Color.BLUE, convertCamelCase(metricName), 2);
+
+            // If real total exceeds the threshold value used to constrain/filter spike data out,
+            // then set total to UNKNOWN, which means this sample will not be graphed. This prevents
+            // spike data that is typically 4.2E+09 (graphed as 4.3G) from corrupting the RRD graph.
+            graphDef.datasource("constrainedTotal", 
+            		"realTotal," + metricsMaxThreshold + ",GT,UNKN,realTotal,IF");
+            graphDef.line("constrainedTotal", Color.BLUE, convertCamelCase(metricName), 2);
 
             // Add some spacing between the graph and the summary stats shown beneath the graph
             graphDef.comment("\\s");
@@ -176,12 +205,17 @@ public class RrdMetricsRetriever implements MetricsRetriever
             graphDef.comment("\\c");
             
             // Average, Min, and Max over all of the TOTAL data - displayed at bottom of the graph
-            graphDef.gprint("realTotal", ConsolFun.AVERAGE, "Average = %.3f%s");  
-            graphDef.gprint("realTotal", ConsolFun.MIN, "Min = %.3f%s");
-            graphDef.gprint("realTotal", ConsolFun.MAX, "Max = %.3f%s");
+            graphDef.gprint("constrainedTotal", ConsolFun.AVERAGE, "Average = %.3f%s");  
+            graphDef.gprint("constrainedTotal", ConsolFun.MIN, "Min = %.3f%s");
+            graphDef.gprint("constrainedTotal", ConsolFun.MAX, "Max = %.3f%s");
         }
         else if (dataSourceType == DsType.GAUGE)
         {
+            if (LOGGER.isTraceEnabled()) {      	
+            	dumpData(ConsolFun.AVERAGE, "AVERAGE", rrdDb, dataSourceType.name(), 
+            		     startTime, endTime);
+            }
+
             graphDef.datasource("myAverage", rrdFilename, "data", ConsolFun.AVERAGE);
             graphDef.line("myAverage", Color.RED, convertCamelCase(metricName), 2);
             
@@ -798,4 +832,53 @@ public class RrdMetricsRetriever implements MetricsRetriever
         
         return convertedStr;
     }
+    
+    public void setMetricsMaxThreshold(double metricsMaxThreshold) {
+    	LOGGER.info("Setting metricsMaxThreshold = " + metricsMaxThreshold);
+    	this.metricsMaxThreshold = metricsMaxThreshold;
+}
+	 
+	private void dumpData(ConsolFun consolFun, String dataType, RrdDb rrdDb, String dsType, 
+	     long startTime, long endTime)
+	 {
+		String rrdFilename = rrdDb.getPath();
+		LOGGER.trace("***********  START Dump of RRD file:  [" + rrdFilename + "]  ***************");
+		LOGGER.trace("metricsMaxThreshold = " + metricsMaxThreshold);
+		
+		FetchRequest fetchRequest = rrdDb.createFetchRequest(consolFun, startTime, endTime);
+		try {
+	        FetchData fetchData = fetchRequest.fetchData();
+	        LOGGER.trace("************  " + dsType + ": " + dataType + "  **************");
+	//		        LOGGER.trace(fetchData.dump());
+	        
+	        int rrdStep = RRD_STEP;  // in seconds
+	        long[] timestamps = fetchData.getTimestamps();
+	        double[] values = fetchData.getValues(0);
+	        double[] adjustedValues = new double[values.length];
+	        for (int i=0; i < values.length; i++)
+	        {
+		       	 double adjustedValue = values[i] * rrdStep;
+		       	 adjustedValues[i] = adjustedValue;
+		
+		       	LOGGER.trace(getCalendarTime(timestamps[i]) + ":  " + values[i] + 
+		        			 "   (adjusted value = " + adjustedValue + 
+		        			 ",   floor = " + Math.floor(adjustedValue) +
+		        			 ",   round = " + Math.round(adjustedValue) +
+		        			 ")");
+	        }
+	        
+	        LOGGER.trace("adjustedValues.length = " + adjustedValues.length);
+	
+	        for (int i=0; i < adjustedValues.length; i++)
+	        {
+		       	 //LOGGER.trace("adjustedValue[" + i + "] = " + adjustedValues[i]);
+		       	 if (adjustedValues[i] > metricsMaxThreshold) {
+		       		LOGGER.trace("Value [" + adjustedValues[i] + "] is an OUTLIER");
+		       	 }
+	        }
+
+		} catch (IOException e) {}
+		
+        LOGGER.trace("***********  END Dump of RRD file:  [" + rrdFilename + "]  ***************");
+	 }
 }

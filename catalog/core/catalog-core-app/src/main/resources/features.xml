@@ -115,6 +115,7 @@
             mbeanName = ddf.metrics.catalog:name=Queries.TotalResults
             mbeanAttributeName = Mean
             rrdPath = catalogQueriesTotalResults.rrd
+            rrdDataSourceType = GAUGE
         </config>
         
         <!-- Ingest Metrics -->

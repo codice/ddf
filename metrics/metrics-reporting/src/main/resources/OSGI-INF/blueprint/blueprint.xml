@@ -27,6 +27,9 @@
 	</jaxrs:server>
 	
 	<bean id="MetricsService" class="ddf.metrics.reporting.internal.rest.MetricsEndpoint">
+		<cm:managed-properties persistent-id="MetricsReporting"
+				update-strategy="container-managed" />
+		<property name="metricsMaxThreshold" value="4000000000" />
 	</bean>
 
 </blueprint>

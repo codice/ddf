@@ -55,8 +55,7 @@ import ddf.metrics.reporting.internal.CollectorException;
  *          mbeanName = java.lang:type=MemoryPool,name=Code Cache
  *          mbeanAttributeName = UsageThreshold
  *          rrdPath = usageThreshold.rrd
- *          rrdDataSourceName = data
- *          rrdDataSourceType = COUNTER
+ *          rrdDataSourceType = GAUGE
  * </config>
  * }
  * </pre>
@@ -76,6 +75,8 @@ public class JmxCollector implements Collector
     public static final String DEFAULT_METRICS_DIR = "data/metrics/";
     
     public static final String COUNTER_DATA_SOURCE_TYPE = "COUNTER";
+    
+    public static final String DEFAULT_COUNTER_DATA_SOURCE_NAME = "data";
     
     public static final String GAUGE_DATA_SOURCE_TYPE = "GAUGE";
     
@@ -139,8 +140,6 @@ public class JmxCollector implements Collector
     
 
 
-
-
     private String metricsDir;
     private int sampleRate;
     private long minimumUpdateTimeDelta;
@@ -173,7 +172,7 @@ public class JmxCollector implements Collector
         rrdStep = this.sampleRate;
         pool = RrdDbPool.getInstance();
         
-
+        this.rrdDataSourceName = DEFAULT_COUNTER_DATA_SOURCE_NAME;
         this.rrdDataSourceType = COUNTER_DATA_SOURCE_TYPE;
 
                 
@@ -232,6 +231,7 @@ public class JmxCollector implements Collector
         	throw new CollectorException("Unable to configure collector for MBean attribute " + mbeanAttributeName + "\nData Source type for the RRD file cannot be null - must be either COUNTER or GAUGE.");
         }
         
+        LOGGER.info("rrdDataSourceType = " + rrdDataSourceType);
         createRrdFile(rrdPath, rrdDataSourceName, DsType.valueOf(rrdDataSourceType));
         
         updateSamples();      
@@ -356,6 +356,7 @@ public class JmxCollector implements Collector
         }
         else
         {
+        	//TODO rrdPath = generateRrdFilename();
             rrdPath = metricsDir + path;
         }
         
@@ -461,6 +462,30 @@ public class JmxCollector implements Collector
         LOGGER.trace("EXITING: createRrdFile");
     }
     
+    private String generateRrdFilename() throws CollectorException {
+    
+    	String[] mbeanNameParts = mbeanName.split(":");
+    	if (mbeanNameParts.length != 2) {
+    		throw new CollectorException("mbeanName [" + mbeanName + 
+    				"] invalid - mbeanName expected to have 2 parts, delimited by a colon, e.g., ddf.metrics.catalog:name=Queries.Federated");
+    	}
+    	
+    	String rrdFilenamePart1 = StringUtils.substringAfterLast(mbeanNameParts[0], ".");
+    	if (StringUtils.isBlank(rrdFilenamePart1)) {
+    		throw new CollectorException("mbeanName [" + mbeanName + 
+    				"] invalid - mbeanName expected to have part before colon that is similar to Java package name, e.g., ddf.metrics.catalog");
+    	}
+    	
+    	String[] mbeanNameAttrParts = mbeanNameParts[1].split("=");
+    	if (mbeanNameAttrParts.length != 2 || StringUtils.isBlank(mbeanNameAttrParts[1])) {
+    		throw new CollectorException("mbeanName [" + mbeanName + 
+    				"] invalid - mbeanName expected to have part after colon that describes the metric, e.g., name=Queries.Federated");
+    	}
+    	String rrdFilenamePart2 = mbeanNameAttrParts[1].replace(".", "");
+    	
+    	return metricsDir + rrdFilenamePart1 + rrdFilenamePart2;
+    }
+    
     
     /**
      * Configures a scheduled threaded executor to poll the metric's MBean periodically
@@ -560,6 +585,7 @@ public class JmxCollector implements Collector
     }
             
     private void updateSample(long now, double val) throws IOException {
+
     		LOGGER.debug("Sample time is [" + RrdMetricsRetriever.getCalendarTime(now) + 
     				"], updating metric [" + mbeanName + "] with value [" + val + "]");   	}
     	
@@ -643,14 +669,7 @@ public class JmxCollector implements Collector
     }
 
 
-    public String getRrdDataSourceName()
-    {
-        return rrdDataSourceName;
-    }
-
-
-    public void setRrdDataSourceName( String rrdDataSourceName )
-    {
+    public void setRrdDataSourceName(String rrdDataSourceName) {
         this.rrdDataSourceName = rrdDataSourceName;
     }
 
@@ -668,14 +687,6 @@ public class JmxCollector implements Collector
     }
     
     
-
-
-
-
-
-
-
-
 
 
 

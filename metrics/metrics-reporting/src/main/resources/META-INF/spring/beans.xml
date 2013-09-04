@@ -37,8 +37,9 @@ http://www.springframework.org/schema/osgi-compendium http://www.springframework
           <beans:property name="mbeanName" value="" />
           <beans:property name="mbeanAttributeName" value="" />
           <beans:property name="rrdPath" value="" />
-          <beans:property name="rrdDataSourceName" value="" /> 
-          <beans:property name="rrdDataSourceType" value="" />
+          <beans:property name="rrdDataSourceType" value="COUNTER" />
+          <osgix:managed-properties persistent-id="ddf.metrics.reporting.MetricsMaxThreshold"
+              update-strategy="container-managed"/>
       </beans:bean>
     
   </osgix:managed-service-factory>

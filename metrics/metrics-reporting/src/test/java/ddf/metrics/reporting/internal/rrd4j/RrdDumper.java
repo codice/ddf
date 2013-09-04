@@ -34,7 +34,9 @@ public class RrdDumper {
 	private static final String months[] = { 
         "Jan", "Feb", "Mar", "Apr", 
         "May", "Jun", "Jul", "Aug", 
-        "Sep", "Oct", "Nov", "Dec"}; 
+        "Sep", "Oct", "Nov", "Dec"};
+	
+	private static final double METRICS_MAX_THRESHOLD = 4000000000.0; 
 	
 	
 	public static void main(String[] args) throws Exception {
@@ -42,21 +44,31 @@ public class RrdDumper {
 		//String rrdFilename = args[0];
 		String[] rrdFilenames = new String[]
 		{
-			"C:/DDF/rrd_SAVE/spikes/catalogExceptions.rrd",
+			//"C:/DDF/rrd_SAVE/spikes/catalogExceptions.rrd",
 			"C:/DDF/rrd_SAVE/spikes/sourceDib30rhel58Queries.rrd"
 		};
 		//String rrdFilename = "C:/workspaces/dib_git/distribution/dib/target/dib-4.0.2.RC7-SNAPSHOT/data/metrics/sourceDib30rhel58Queries.rrd";
 
 		for (String rrdFilename : rrdFilenames) {
 	        RrdDb rrdDb = new RrdDb(rrdFilename, true);
-	        long endTime = System.currentTimeMillis()/1000;
-	        long duration = TimeUnit.SECONDS.convert(24L, TimeUnit.HOURS);
-	        long startTime = endTime - duration;
+//	        long endTime = System.currentTimeMillis()/1000;
+//	        long duration = TimeUnit.SECONDS.convert(24L, TimeUnit.DAYS);
+//	        long startTime = endTime - duration;
+	        
+	        Calendar cal = Calendar.getInstance();
+	        cal.set(2013, 7, 21, 15, 40);
+	        long startTime = cal.getTimeInMillis()/1000;
+	        cal.set(2013, 7, 22, 8, 0);
+	        long endTime = cal.getTimeInMillis()/1000;
 	        
 	        System.out.println("\n\n>>>>>>>>>>>>>>>>>>>  RRD File:  " + rrdFilename + "  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n\n");
 	        dumpData(ConsolFun.TOTAL, "TOTAL", rrdDb, "COUNTER", startTime, endTime);
 	        
 	        displayGraph("Metric Name", rrdFilename, startTime, endTime, "Y-Axis Label", "Graph Title");
+	        
+//	        MetricsRetriever metricsRetriever = new RrdMetricsRetriever();
+//	        OutputStream os = metricsRetriever.createXlsData("Metric Name", rrdFilename, startTime, endTime);
+//	        FileOutputStream fos = new FileOutputStream("C:/DDF/rrd_SAVE/spikes/")
 		}
 	}
 	 
@@ -71,13 +83,27 @@ public class RrdDumper {
          int rrdStep = 60;  // in seconds
          long[] timestamps = fetchData.getTimestamps();
          double[] values = fetchData.getValues(0);
-         for (int i=0; i < timestamps.length; i++)
+         double[] adjustedValues = new double[values.length];
+         for (int i=0; i < values.length; i++)
          {
+        	 double adjustedValue = values[i] * rrdStep;
+        	 adjustedValues[i] = adjustedValue;
+
          	 System.out.println(getCalendarTime(timestamps[i]) + ":  " + values[i] + 
-         			 "   (adjusted value = " + values[i] * rrdStep + 
-         			 ",   floor = " + Math.floor(values[i] * rrdStep) +
-         			 ",   round = " + Math.round(values[i] * rrdStep) +
+         			 "   (adjusted value = " + adjustedValue + 
+         			 ",   floor = " + Math.floor(adjustedValue) +
+         			 ",   round = " + Math.round(adjustedValue) +
          			 ")");
+         }
+         
+         System.out.println("adjustedValues.length = " + adjustedValues.length);
+
+         for (int i=0; i < adjustedValues.length; i++)
+         {
+        	 //System.out.println("adjustedValue[" + i + "] = " + adjustedValues[i]);
+        	 if (adjustedValues[i] > METRICS_MAX_THRESHOLD) {
+        		 System.out.println("Value [" + adjustedValues[i] + "] is an OUTLIER");
+        	 }
          }
 	 }
     
@@ -146,7 +172,8 @@ public class RrdDumper {
             // the average of the totals.
             graphDef.datasource("myTotal", rrdFilename, "data", ConsolFun.TOTAL);
             graphDef.datasource("realTotal", "myTotal," + rrdStep + ",*");
-            graphDef.line("realTotal", Color.BLUE, convertCamelCase(metricName), 2);
+            graphDef.datasource("validTotal", "realTotal," + METRICS_MAX_THRESHOLD + ",GT,UNKN,realTotal,IF");
+            graphDef.line("validTotal", Color.BLUE, convertCamelCase(metricName), 2);
 
             // Add some spacing between the graph and the summary stats shown beneath the graph
             graphDef.comment("\\s");
@@ -154,9 +181,9 @@ public class RrdDumper {
             graphDef.comment("\\c");
             
             // Average, Min, and Max over all of the TOTAL data - displayed at bottom of the graph
-            graphDef.gprint("realTotal", ConsolFun.AVERAGE, "Average = %.3f%s");  
-            graphDef.gprint("realTotal", ConsolFun.MIN, "Min = %.3f%s");
-            graphDef.gprint("realTotal", ConsolFun.MAX, "Max = %.3f%s");
+            graphDef.gprint("validTotal", ConsolFun.AVERAGE, "Average = %.3f%s");  
+            graphDef.gprint("validTotal", ConsolFun.MIN, "Min = %.3f%s");
+            graphDef.gprint("validTotal", ConsolFun.MAX, "Max = %.3f%s");
         }
         else if (dataSourceType == DsType.GAUGE)
         {
