@@ -276,7 +276,8 @@ ${response.setHeader("Content-Type", "text/html")}
 							<div class="tab-content">
 								<div id="nofed" class="tab-pane"></div>
 								<div id="sources" class="tab-pane">
-									<select name="federationSources" multiple="multiple" onchange="updateFederation()" class="span12">
+								<div id="scrollableSources" class="scrollable">
+									<select name="federationSources" multiple="multiple" onchange="updateFederation()">
 										<#list siteList?keys as site>
 											<#if siteList[site] >
 												<option title="${site}">${site}</option>
@@ -285,6 +286,7 @@ ${response.setHeader("Content-Type", "text/html")}
 											</#if>
 										</#list>
 									</select>
+								</div>
 									<div class="alert alert-block" id="federationListWarning">
 										Warning! If no selections are made, the search will use 'All Sources'
 									</div>
