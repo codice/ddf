@@ -121,7 +121,6 @@ public final class OpenSearchSource implements FederatedSource
     private Configuration siteSecurityConfig;
     private SecureRemoteConnection connection;
     private FilterAdapter filterAdapter;
-    private boolean isRestSearch;
     
     // expensive creation, meant to be done once
     private static final Abdera ABDERA = new Abdera();
@@ -331,7 +330,19 @@ public final class OpenSearchSource implements FederatedSource
         SourceResponseImpl response = new SourceResponseImpl( queryRequest, new ArrayList<Result>() );
         Subject user = (Subject) queryRequest.getPropertyValue(Constants.SUBJECT_PROPERTY);
 
-        String url = createUrl( query, user );
+        String url = createOpenSearchUrl( query, user );
+
+        // Used in the processResponse() method to determine how to handle the input stream.
+        // ie. Is it a metacard (REST search) or an atom feed (Open Search)?
+        boolean isRestSearch = false;
+
+        // if url is null, request cannot be done by OpenSearch, try REST
+        if ( url == null ) {
+            url = createRestUrl( query );
+            isRestSearch = true;
+        } else {
+            isRestSearch = false;
+        }
 
         // If the url is non-null, then it is valid and can be used to search the site.
         if ( url != null )
@@ -347,7 +358,7 @@ public final class OpenSearchSource implements FederatedSource
             } catch (IOException e) {
                throw new UnsupportedQueryException("Could not complete query.", e);
             }
-            response = processResponse( data.getInputStream(), queryRequest );
+            response = processResponse(data.getInputStream(), queryRequest , isRestSearch);
         }
         else {
             logger.debug("URL created was null.");
@@ -355,15 +366,13 @@ public final class OpenSearchSource implements FederatedSource
 
         logger.exit( methodName );
         
-        this.isRestSearch = false;
-
         return response;
     }
 
 
 
     // Refactored from query() and made protected so JUnit tests could be written for this logic
-    protected String createUrl( Query query, Subject user )
+    protected String createOpenSearchUrl( Query query, Subject user )
     {
         if (logger.isDebugEnabled())
         {
@@ -431,32 +440,32 @@ public final class OpenSearchSource implements FederatedSource
             urlStr = url.toString();
         }
 
-        logger.debug( "Populated URL being called: " + urlStr );
-        
-        // if it cannot be done by OpenSearch, possibly by REST
-        if(urlStr == null) {
-            
-            RestFilterDelegate delegate = null;
-            RestUrl restUrl = newRestUrl();
-            
-            if(restUrl != null) {
-                delegate = new RestFilterDelegate(restUrl);
-            }
-            
-            if(delegate != null) {
-                try {
-                    filterAdapter.adapt(query, delegate);
-                    this.isRestSearch = true;
-                    urlStr = delegate.getRestUrl().buildUrl();
-                } catch (UnsupportedQueryException e) {
-                    logger.debug("Not a REST request.", e);
-                }
-                
-            }
-            
-        }
+        logger.debug( "Open search url: {}.", urlStr );
 
         return urlStr;
+    }
+    
+    private String createRestUrl(Query query) {
+
+        String url = null;
+        RestFilterDelegate delegate = null;
+        RestUrl restUrl = newRestUrl();
+
+        if (restUrl != null) {
+            delegate = new RestFilterDelegate(restUrl);
+        }
+
+        if (delegate != null) {
+            try {
+                filterAdapter.adapt(query, delegate);
+                url = delegate.getRestUrl().buildUrl();
+            } catch (UnsupportedQueryException e) {
+                logger.debug("Not a REST request.", e);
+            }
+
+        }
+
+        return url;
     }
 
 
@@ -489,10 +498,12 @@ public final class OpenSearchSource implements FederatedSource
      * @return
      * @throws ddf.catalog.source.UnsupportedQueryException
      */
-    private SourceResponseImpl processResponse( InputStream is, QueryRequest queryRequest ) throws UnsupportedQueryException
+    private SourceResponseImpl processResponse( InputStream is, QueryRequest queryRequest , boolean isRestSearch ) throws UnsupportedQueryException
     {
         List<Result> resultQueue = new ArrayList<Result>();
 
+        logger.debug("isRestSearch: {}.", isRestSearch);
+        
         if (isRestSearch) {
             Metacard metacard = null;
             try {
@@ -722,7 +733,6 @@ public final class OpenSearchSource implements FederatedSource
         }
         return result;
     }
-
 
     /**
      * Set URL of the endpoint.
