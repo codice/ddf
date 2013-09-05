@@ -99,3 +99,13 @@ html, body {
 	vertical-align: bottom;
 	overflow: auto !important;
 }
+
+.scrollable {
+	overflow-x: auto;
+}
+
+.scrollable select {
+	width: auto;
+	min-width: 100%;
+	margin-bottom: 0;
+}
