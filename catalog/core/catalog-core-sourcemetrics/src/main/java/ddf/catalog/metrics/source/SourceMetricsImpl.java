@@ -38,9 +38,11 @@ import com.yammer.metrics.MetricRegistry;
 
 import ddf.catalog.data.Result;
 import ddf.catalog.operation.ProcessingDetails;
+import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.QueryResponse;
 import ddf.catalog.plugin.PluginExecutionException;
 import ddf.catalog.plugin.PostFederatedQueryPlugin;
+import ddf.catalog.plugin.PreFederatedQueryPlugin;
 import ddf.catalog.plugin.StopProcessingException;
 import ddf.catalog.source.CatalogProvider;
 import ddf.catalog.source.FederatedSource;
@@ -64,7 +66,7 @@ import ddf.catalog.source.Source;
  * @author ddf.isgs@lmco.com
  *
  */
-public class SourceMetricsImpl implements PostFederatedQueryPlugin {
+public class SourceMetricsImpl implements PreFederatedQueryPlugin, PostFederatedQueryPlugin {
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(SourceMetricsImpl.class);
 	
@@ -91,14 +93,9 @@ public class SourceMetricsImpl implements PostFederatedQueryPlugin {
 	 */
 	public static final String QUERIES_TOTAL_RESULTS_SCOPE = "Queries.TotalResults";
 	
-	public static final double EXCEPTIONS_MAX_VALUE = 10000;
-	public static final double QUERIES_MAX_VALUE = 50000;
-	public static final double QUERIES_TOTAL_RESULTS_MAX_VALUE = 1000000;
-	
-	
     public static final String JMX_COLLECTOR_FACTORY_PID = "MetricsJmxCollector";
     
-    public static final String COUNTER_DATA_SOURCE_TYPE = "COUNTER";
+    public static final String DERIVE_DATA_SOURCE_TYPE = "DERIVE";
     
     public static final String GAUGE_DATA_SOURCE_TYPE = "GAUGE";
     
@@ -173,6 +170,22 @@ public class SourceMetricsImpl implements PostFederatedQueryPlugin {
 		reporter.stop();
 	}
 
+	// PreFederatedQuery
+	@Override
+	public QueryRequest process(Source source, QueryRequest input)
+			throws PluginExecutionException, StopProcessingException {
+        
+		LOGGER.trace("ENTERING: process (for PreFederatedQueryPlugin)");
+		
+        // Number of Queries metric per Source
+		updateMetric(source.getId(), QUERIES_SCOPE, 1);
+		
+		LOGGER.trace("EXITING: process (for PreFederatedQueryPlugin)");
+		
+		return input;
+	}
+	
+	// PostFederatedQuery
 	@Override
 	public QueryResponse process(QueryResponse input)
 			throws PluginExecutionException, StopProcessingException {
@@ -194,16 +207,13 @@ public class SourceMetricsImpl implements PostFederatedQueryPlugin {
 		
         Map<String, Integer> totalHitsPerSource = new HashMap<String, Integer>();
         
-        // Number of Queries metric per Source
 		for (Result result : results) {
 			String sourceId = result.getMetacard().getSourceId();
 			if (totalHitsPerSource.containsKey(sourceId)) {
 				totalHitsPerSource.put(sourceId, totalHitsPerSource.get(sourceId) + 1);
 			} else {
 				// First detection of this new source ID in the results list -
-				// Update metric indicating this Source had a query executed, and
 				// initialize the Total Query Result Count for this Source
-				updateMetric(sourceId, QUERIES_SCOPE, 1);
 				totalHitsPerSource.put(sourceId, 1);
 			}
 		}
@@ -218,7 +228,6 @@ public class SourceMetricsImpl implements PostFederatedQueryPlugin {
 		return input;
 	}
 
-	//@Override
 	public void updateMetric(String sourceId, String name, int incrementAmount) {
 				
 		LOGGER.debug("sourceId = {},   name = {}", sourceId, name);
@@ -270,9 +279,9 @@ public class SourceMetricsImpl implements PostFederatedQueryPlugin {
 			    	deleteMetric(oldSourceId, EXCEPTIONS_SCOPE);
 			    	
 			    	// Create metrics for Source with new sourceId
-			    	createMetric(sourceId, QUERIES_TOTAL_RESULTS_SCOPE, MetricType.HISTOGRAM, 0, QUERIES_TOTAL_RESULTS_MAX_VALUE);
-					createMetric(sourceId, QUERIES_SCOPE, MetricType.METER, 0, QUERIES_MAX_VALUE);
-					createMetric(sourceId, EXCEPTIONS_SCOPE, MetricType.METER, 0, EXCEPTIONS_MAX_VALUE);
+			    	createMetric(sourceId, QUERIES_TOTAL_RESULTS_SCOPE, MetricType.HISTOGRAM);
+					createMetric(sourceId, QUERIES_SCOPE, MetricType.METER);
+					createMetric(sourceId, EXCEPTIONS_SCOPE, MetricType.METER);
 					
 					// Add Source to map with its new sourceId
 					sourceToSourceIdMap.put(source, sourceId);
@@ -284,9 +293,9 @@ public class SourceMetricsImpl implements PostFederatedQueryPlugin {
 					// needs updating because client, e.g., SortedFederationStrategy, knows the 
 					// Source exists.)
 					LOGGER.debug("CASE 3: New source " + sourceId + " detected - creating metrics");
-					createMetric(sourceId, QUERIES_TOTAL_RESULTS_SCOPE, MetricType.HISTOGRAM, 0, QUERIES_TOTAL_RESULTS_MAX_VALUE);
-					createMetric(sourceId, QUERIES_SCOPE, MetricType.METER, 0, QUERIES_MAX_VALUE);
-					createMetric(sourceId, EXCEPTIONS_SCOPE, MetricType.METER, 0, EXCEPTIONS_MAX_VALUE);
+					createMetric(sourceId, QUERIES_TOTAL_RESULTS_SCOPE, MetricType.HISTOGRAM);
+					createMetric(sourceId, QUERIES_SCOPE, MetricType.METER);
+					createMetric(sourceId, EXCEPTIONS_SCOPE, MetricType.METER);
 					
 					sourceToSourceIdMap.put(source, sourceId);
 				}
@@ -373,15 +382,15 @@ public class SourceMetricsImpl implements PostFederatedQueryPlugin {
 		
 		LOGGER.debug("sourceId = {}", sourceId);
 		
-		createMetric(sourceId, QUERIES_TOTAL_RESULTS_SCOPE, MetricType.HISTOGRAM, 0, QUERIES_TOTAL_RESULTS_MAX_VALUE);
-		createMetric(sourceId, QUERIES_SCOPE, MetricType.METER, 0, QUERIES_MAX_VALUE);
-		createMetric(sourceId, EXCEPTIONS_SCOPE, MetricType.METER, 0, EXCEPTIONS_MAX_VALUE);
+		createMetric(sourceId, QUERIES_TOTAL_RESULTS_SCOPE, MetricType.HISTOGRAM);
+		createMetric(sourceId, QUERIES_SCOPE, MetricType.METER);
+		createMetric(sourceId, EXCEPTIONS_SCOPE, MetricType.METER);
 		
 		// Add new source to internal map used when updating metrics by sourceId
 		sourceToSourceIdMap.put(source, sourceId);
     }
     
-    private void createMetric(String sourceId, String mbeanName, MetricType type, double minValue, double maxValue) {
+    private void createMetric(String sourceId, String mbeanName, MetricType type) {
         
 		// Create source-specific metrics for this source
 		// (Must be done prior to creating metrics collector so that
@@ -394,11 +403,11 @@ public class SourceMetricsImpl implements PostFederatedQueryPlugin {
 		if (!metrics.containsKey(key)) {
 			if (type == MetricType.HISTOGRAM){ 
 				Histogram histogram = metricsRegistry.histogram(MetricRegistry.name(sourceId, mbeanName));
-				String pid = createGaugeMetricsCollector(sourceId, mbeanName, minValue, maxValue);
+				String pid = createGaugeMetricsCollector(sourceId, mbeanName);
 				metrics.put(key, new SourceMetric(histogram, sourceId, pid, true));
 			} else if (type == MetricType.METER) {
 				Meter meter = metricsRegistry.meter(MetricRegistry.name(sourceId, mbeanName));
-				String pid = createCounterMetricsCollector(sourceId, mbeanName, minValue, maxValue);
+				String pid = createCounterMetricsCollector(sourceId, mbeanName);
 				metrics.put(key, new SourceMetric(meter, sourceId, pid));
 			} else {
 				LOGGER.debug("Metric " + key
@@ -417,10 +426,9 @@ public class SourceMetricsImpl implements PostFederatedQueryPlugin {
      * @param collectorName
      * @return the PID of the JmxCollector Managed Service Factory created
      */
-    private String createCounterMetricsCollector(String sourceId, String collectorName, 
-    		double minValue, double maxValue) {
+    private String createCounterMetricsCollector(String sourceId, String collectorName) {
     	return createMetricsCollector(sourceId, collectorName, 
-    			COUNT_MBEAN_ATTRIBUTE_NAME, COUNTER_DATA_SOURCE_TYPE, minValue, maxValue);
+    			COUNT_MBEAN_ATTRIBUTE_NAME, DERIVE_DATA_SOURCE_TYPE);
     }
     
     /**
@@ -430,10 +438,9 @@ public class SourceMetricsImpl implements PostFederatedQueryPlugin {
      * @param collectorName
      * @return the PID of the JmxCollector Managed Service Factory created
      */
-    private String createGaugeMetricsCollector(String sourceId, String collectorName, 
-    		double minValue, double maxValue) {
+    private String createGaugeMetricsCollector(String sourceId, String collectorName) {
     	return createMetricsCollector(sourceId, collectorName, 
-    			MEAN_MBEAN_ATTRIBUTE_NAME, GAUGE_DATA_SOURCE_TYPE, minValue, maxValue);
+    			MEAN_MBEAN_ATTRIBUTE_NAME, GAUGE_DATA_SOURCE_TYPE);
     }
     
     /**
@@ -442,12 +449,12 @@ public class SourceMetricsImpl implements PostFederatedQueryPlugin {
      * @param sourceId
      * @param collectorName
      * @param mbeanAttributeName usually "Count" or "Mean"
-     * @param dataSourceType only "COUNTER" or "GAUGE" are supported
+     * @param dataSourceType only "DERIVE", "COUNTER" or "GAUGE" are supported
      * @return the PID of the JmxCollector Managed Service Factory created
      */
 	private String createMetricsCollector(String sourceId,
 			String collectorName, String mbeanAttributeName,
-			String dataSourceType, double minValue, double maxValue) {
+			String dataSourceType) {
     	
 		LOGGER.trace(
 				"ENTERING: createMetricsCollector - sourceId = {},   collectorName = {},   mbeanAttributeName = {},   dataSourceType = {}",
@@ -467,8 +474,6 @@ public class SourceMetricsImpl implements PostFederatedQueryPlugin {
 			props.put("rrdPath", rrdPath);
 			props.put("rrdDataSourceName", "data");
 			props.put("rrdDataSourceType", dataSourceType);
-			props.put("rrdDataSourceMinValue", String.valueOf(minValue));
-			props.put("rrdDataSourceMaxValue", String.valueOf(maxValue));
 			config.update(props);
 			pid = config.getPid();
 			LOGGER.debug("JmxCollector pid = {} for sourceId = {}", pid, sourceId);
