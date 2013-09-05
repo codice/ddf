@@ -16,6 +16,7 @@ import static org.hamcrest.Matchers.endsWith;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.isA;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -43,6 +44,7 @@ import org.mockito.stubbing.Answer;
 import org.opengis.filter.Filter;
 
 import ddf.catalog.data.BinaryContent;
+import ddf.catalog.data.BinaryContentImpl;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.filter.FilterAdapter;
 import ddf.catalog.filter.FilterBuilder;
@@ -52,7 +54,6 @@ import ddf.catalog.operation.QueryImpl;
 import ddf.catalog.operation.QueryRequestImpl;
 import ddf.catalog.operation.ResourceResponse;
 import ddf.catalog.operation.SourceResponse;
-import ddf.catalog.resource.BinaryContentImpl;
 import ddf.catalog.resource.ResourceNotFoundException;
 import ddf.catalog.resource.ResourceNotSupportedException;
 import ddf.catalog.source.UnsupportedQueryException;
@@ -281,6 +282,46 @@ public class TestOpenSearchSource {
             assertThat(e.getMessage(), containsString(OpenSearchSource.BAD_URL_MESSAGE));
         }
         
+    }
+    
+    // DDF-161
+    @Test
+    public void testQuery_QueryByMetacardIdFollowedByAnyTextQuery() throws MalformedURLException,
+            IOException, UnsupportedQueryException {
+
+        // Setup
+        SecureRemoteConnection mockConnection = mock(SecureRemoteConnection.class);
+
+        // For the first query, return a metacard as XML. For the second query,
+        // return
+        // an atom feed containing a metacard.
+        when(mockConnection.getData(any(String.class))).thenReturn(
+                new BinaryContentImpl(getSampleXmlStream())).thenReturn(
+                new BinaryContentImpl(getSampleAtomStream()));
+
+        OpenSearchSource source = new OpenSearchSource(mockConnection, FILTER_ADAPTER);
+        source.setLocalQueryOnly(true);
+        source.setInputTransformer(DEFAULT_INPUT_TRANSFORMER);
+        source.init();
+
+        // Metacard ID filter
+        Filter idFilter = filterBuilder.attribute(Metacard.ID).equalTo().text(SAMPLE_ID);
+
+        // Any text filter
+        Filter anyTextFilter = filterBuilder.attribute(Metacard.ANY_TEXT).like()
+                .text(SAMPLE_SEARCH_PHRASE);
+
+        // Perform Test (Query by ID followed by Any Text Query)
+        SourceResponse response1 = source.query(new QueryRequestImpl(new QueryImpl(idFilter)));
+        SourceResponse response2 = source.query(new QueryRequestImpl(new QueryImpl(anyTextFilter)));
+
+        // Verification - Verify that we don't see any exceptions when
+        // processing the input stream from the endpoint.
+        // Verify 1 metacard is in the results
+        assertThat(response1.getResults().size(), is(1));
+
+        // Verify that the atom feed is converted into 1 metacard result
+        assertThat(response2.getResults().size(), is(1));
     }
 
     private NameValuePair pair(String name, String value) {
