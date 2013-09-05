@@ -161,10 +161,10 @@ public class RrdMetricsRetriever implements MetricsRetriever
 
         DsType dataSourceType = rrdDb.getDatasource(0).getType();
         
-        // Determine if the Data Source for this RRD file is a COUNTER or GAUGE
-        // (Need to know this because COUNTER data is averaged across samples and the vertical axis of the
+        // Determine the type of Data Source for this RRD file
+        // (Need to know this because COUNTER and DERIVE data is averaged across samples and the vertical axis of the
         // generated graph by default will show data per rrdStep interval)
-        if (dataSourceType == DsType.COUNTER)
+        if (dataSourceType == DsType.COUNTER || dataSourceType == DsType.DERIVE)
         {    
             if (LOGGER.isTraceEnabled()) {      	
             	dumpData(ConsolFun.TOTAL, "TOTAL", rrdDb, dataSourceType.name(), 
@@ -233,7 +233,7 @@ public class RrdMetricsRetriever implements MetricsRetriever
         {
             rrdDb.close();
             throw new MetricsGraphException("Unsupported data source type " + dataSourceType.name() + " in RRD file " + 
-                rrdFilename + ", only COUNTER and GAUGE data source types supported.");
+                rrdFilename + ", only DERIVE, COUNTER and GAUGE data source types supported.");
         }
         
         rrdDb.close();
@@ -635,7 +635,7 @@ public class RrdMetricsRetriever implements MetricsRetriever
         // The step (sample) interval that determines how often RRD collects the metric's data
         long rrdStep = rrdDb.getRrdDef().getStep();
 
-        // Retrieve the RRD file's data source type (COUNTER or GAUGE) to determine how (later)
+        // Retrieve the RRD file's data source type to determine how (later)
         // to store the metric's data for presentation.
         DsType dataSourceType = rrdDb.getDatasource(0).getType();
         
@@ -656,7 +656,7 @@ public class RrdMetricsRetriever implements MetricsRetriever
         long totalCount = 0;
         MetricData metricData = new MetricData();
         
-        if (dataSourceType == DsType.COUNTER)
+        if (dataSourceType == DsType.COUNTER || dataSourceType == DsType.DERIVE)
         {    
             // Counters are for constantly incrementing data, hence they can 
             // have a summation of their totals

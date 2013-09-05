@@ -469,13 +469,13 @@ public class RrdMetricsRetrieverTest extends XMLTestCase
     public void testInvalidDataSourceType() throws Exception
     {
         String dataSourceName = "data";
-        String rrdFilename = TEST_DIR + "dummy_Derive" + RRD_FILE_EXTENSION;
+        String rrdFilename = TEST_DIR + "dummy_Absolute" + RRD_FILE_EXTENSION;
         int rrdStep = 60;  // in seconds
         long startTime = 900000000L;
         
         RrdDef rrdDef = new RrdDef(rrdFilename, rrdStep);
         rrdDef.setStartTime(startTime - 1);
-        rrdDef.addDatasource(dataSourceName, DsType.DERIVE, 90, 0, Double.NaN);
+        rrdDef.addDatasource(dataSourceName, DsType.ABSOLUTE, 90, 0, Double.NaN);
         
         // 1 step, 60 seconds per step, for 5 minutes  
         rrdDef.addArchive(ConsolFun.AVERAGE, 0.5, 1, 5);  

@@ -36,8 +36,6 @@
             mbeanName = sdk.metrics.sample:name=Queries.PointRadius
             mbeanAttributeName = Count
             rrdPath = pointRadiusQueries.rrd
-            rrdDataSourceName = data
-            rrdDataSourceType = COUNTER
         </config>
         
         <!-- 
@@ -49,8 +47,6 @@
             mbeanName = java.lang:type=Runtime
             mbeanAttributeName = Uptime
             rrdPath = jvmUptime.rrd
-            rrdDataSourceName = data
-            rrdDataSourceType = COUNTER
         </config>
     </feature>
 	
