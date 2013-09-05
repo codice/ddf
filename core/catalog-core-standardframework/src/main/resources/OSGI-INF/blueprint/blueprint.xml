@@ -33,7 +33,7 @@
 	<bean id="postQuerySortedList" class="ddf.catalog.util.SortedServiceList">
 		<argument ref="blueprintBundleContext" />
 	</bean>	
-		<bean id="preFederatedQuerySortedList" class="ddf.catalog.util.SortedServiceList">
+	<bean id="preFederatedQuerySortedList" class="ddf.catalog.util.SortedServiceList">
 		<argument ref="blueprintBundleContext" />
 	</bean>
 	<bean id="postFederatedQuerySortedList" class="ddf.catalog.util.SortedServiceList">
