@@ -74,8 +74,6 @@ public class JmxCollector implements Collector
     
     public static final String DEFAULT_METRICS_DIR = "data/metrics/";
     
-    public static final String COUNTER_DATA_SOURCE_TYPE = "COUNTER";
-    
     public static final String DERIVE_DATA_SOURCE_TYPE = "DERIVE";
     
     public static final String DEFAULT_DATA_SOURCE_NAME = "data";
@@ -176,7 +174,6 @@ public class JmxCollector implements Collector
         
         this.rrdDataSourceName = DEFAULT_DATA_SOURCE_NAME;
         this.rrdDataSourceType = DERIVE_DATA_SOURCE_TYPE;
-
                 
         LOGGER.trace("EXITING: JmxCollector default constructor");
     }
@@ -662,19 +659,6 @@ public class JmxCollector implements Collector
         LOGGER.debug("rrdDataSourceType = " + rrdDataSourceType);
     }
     
-    
-
-
-
-
-
-
-
-
-
-
-
-
 
     protected int getSampleRate()
     {
