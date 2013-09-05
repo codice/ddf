@@ -11,35 +11,14 @@
  **/
 package ddf.security.realm.sts;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.StringWriter;
-import java.io.Writer;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.UnrecoverableKeyException;
-import java.security.cert.CertificateException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-
-import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.KeyManager;
-import javax.net.ssl.KeyManagerFactory;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.TrustManagerFactory;
-import javax.xml.bind.JAXB;
-import javax.xml.bind.JAXBElement;
-import javax.xml.namespace.QName;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.stream.XMLStreamException;
-
+import ddf.catalog.util.DdfConfigurationManager;
+import ddf.catalog.util.DdfConfigurationWatcher;
+import ddf.security.common.audit.SecurityLogger;
+import ddf.security.common.callback.CommonCallbackHandler;
+import ddf.security.common.util.CommonSSLFactory;
+import ddf.security.common.util.PropertiesLoader;
+import ddf.security.encryption.EncryptionService;
+import ddf.security.sts.client.configuration.STSClientConfiguration;
 import org.apache.commons.io.IOUtils;
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusException;
@@ -75,14 +54,33 @@ import org.w3c.dom.Node;
 import org.w3c.dom.ls.DOMImplementationLS;
 import org.w3c.dom.ls.LSSerializer;
 
-import ddf.catalog.util.DdfConfigurationManager;
-import ddf.catalog.util.DdfConfigurationWatcher;
-import ddf.security.common.audit.SecurityLogger;
-import ddf.security.common.callback.CommonCallbackHandler;
-import ddf.security.common.util.CommonSSLFactory;
-import ddf.security.common.util.PropertiesLoader;
-import ddf.security.encryption.EncryptionService;
-import ddf.security.sts.client.configuration.STSClientConfiguration;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.KeyManager;
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.TrustManagerFactory;
+import javax.xml.bind.JAXB;
+import javax.xml.bind.JAXBElement;
+import javax.xml.namespace.QName;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.stream.XMLStreamException;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.StringWriter;
+import java.io.Writer;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.UnrecoverableKeyException;
+import java.security.cert.CertificateException;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
 
 /**
  *  The STS Realm is the main piece of the security framework responsible for exchanging a binary security token for a SAML assertion.
@@ -92,8 +90,6 @@ public class StsRealm extends AuthenticatingRealm implements DdfConfigurationWat
     private static final XLogger LOGGER = new XLogger( LoggerFactory.getLogger( StsRealm.class ) );
 
     private static final String NAME = StsRealm.class.getSimpleName();
-
-    private static final String WSDL_URL_EXTENSION = "?wsdl";
 
     private static final String HTTPS = "https";
 
@@ -297,7 +293,7 @@ public class StsRealm extends AuthenticatingRealm implements DdfConfigurationWat
             {
                 LOGGER.debug( "Telling the STS to request a security token on behalf of the binary security token:\n" + binarySecurityToken );
                 SecurityLogger.logInfo( "Telling the STS to request a security token on behalf of the binary security token:\n" + binarySecurityToken );
-                stsClient.setWsdlLocation( stsAddress + WSDL_URL_EXTENSION );
+                stsClient.setWsdlLocation( stsAddress );
                 stsClient.setOnBehalfOf( binarySecurityToken );
                 stsClient.setTokenType( "http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0" );
                 stsClient.setKeyType( "http://docs.oasis-open.org/ws-sx/ws-trust/200512/PublicKey" );
@@ -686,8 +682,8 @@ public class StsRealm extends AuthenticatingRealm implements DdfConfigurationWat
 
         if ( stsAddress != null )
         {
-            LOGGER.debug( "Setting WSDL location on STSClient: " + stsAddress + WSDL_URL_EXTENSION );
-            stsClient.setWsdlLocation( stsAddress + WSDL_URL_EXTENSION );
+            LOGGER.debug( "Setting WSDL location on STSClient: " + stsAddress );
+            stsClient.setWsdlLocation( stsAddress );
         }
 
         if ( stsServiceName != null )
