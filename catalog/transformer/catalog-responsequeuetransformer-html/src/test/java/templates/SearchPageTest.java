@@ -123,11 +123,13 @@ public class SearchPageTest {
     @Test
     public void testSites() {
         // contains each site once and only once
-        assertTrue(containsExactlyOnce(generatedHtml, "<option>" + LOCAL_ID + "</option>"));
-        assertTrue(containsExactlyOnce(generatedHtml, "<option>" + FED_SOURCE_1_ID + "</option>"));
+        assertTrue(containsExactlyOnce(generatedHtml, "<option title=\"" + LOCAL_ID + "\">"
+                + LOCAL_ID + "</option>"));
+        assertTrue(containsExactlyOnce(generatedHtml, "<option title=\"" + FED_SOURCE_1_ID + "\">"
+                + FED_SOURCE_1_ID + "</option>"));
         assertTrue(containsExactlyOnce(generatedHtml,
-                "<option disabled=\"disabled\" class=\"disabled_option\">" + FED_SOURCE_2_ID
-                        + "</option>"));
+                "<option disabled=\"disabled\" class=\"disabled_option\" title=\""
+                        + FED_SOURCE_2_ID + "\">" + FED_SOURCE_2_ID + "</option>"));
     }
 
     @Test 
