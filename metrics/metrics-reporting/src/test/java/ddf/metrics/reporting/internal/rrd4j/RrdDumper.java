@@ -44,32 +44,25 @@ public class RrdDumper {
 		//String rrdFilename = args[0];
 		String[] rrdFilenames = new String[]
 		{
-			"C:/DDF/rrd_SAVE/spikes/catalogQueries.rrd"
-			//"C:/DDF/rrd_SAVE/spikes/catalogExceptions.rrd",
-			//"C:/DDF/rrd_SAVE/spikes/sourceDib30rhel58Queries.rrd"
+			"C:/DDF/jvmUptime.rrd"
 		};
-		//String rrdFilename = "C:/workspaces/dib_git/distribution/dib/target/dib-4.0.2.RC7-SNAPSHOT/data/metrics/sourceDib30rhel58Queries.rrd";
 
 		for (String rrdFilename : rrdFilenames) {
 	        RrdDb rrdDb = new RrdDb(rrdFilename, true);
-//	        long endTime = System.currentTimeMillis()/1000;
-//	        long duration = TimeUnit.SECONDS.convert(24L, TimeUnit.DAYS);
-//	        long startTime = endTime - duration;
-	        
-	        Calendar cal = Calendar.getInstance();
-	        cal.set(2013, 7, 21, 15, 40);
-	        long startTime = cal.getTimeInMillis()/1000;
-	        cal.set(2013, 7, 22, 8, 0);
-	        long endTime = cal.getTimeInMillis()/1000;
+	        long endTime = System.currentTimeMillis()/1000;
+	        long duration = TimeUnit.SECONDS.convert(24L, TimeUnit.DAYS);
+	        long startTime = endTime - duration;
+//	        
+//	        Calendar cal = Calendar.getInstance();
+//	        cal.set(2013, 7, 21, 15, 40);
+//	        long startTime = cal.getTimeInMillis()/1000;
+//	        cal.set(2013, 7, 22, 8, 0);
+//	        long endTime = cal.getTimeInMillis()/1000;
 	        
 	        System.out.println("\n\n>>>>>>>>>>>>>>>>>>>  RRD File:  " + rrdFilename + "  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n\n");
 	        dumpData(ConsolFun.TOTAL, "TOTAL", rrdDb, "COUNTER", startTime, endTime);
 	        
 	        displayGraph("Metric Name", rrdFilename, startTime, endTime, "Y-Axis Label", "Graph Title");
-	        
-//	        MetricsRetriever metricsRetriever = new RrdMetricsRetriever();
-//	        OutputStream os = metricsRetriever.createXlsData("Metric Name", rrdFilename, startTime, endTime);
-//	        FileOutputStream fos = new FileOutputStream("C:/DDF/rrd_SAVE/spikes/")
 		}
 	}
 	 
@@ -167,7 +160,7 @@ public class RrdDumper {
         // Determine if the Data Source for this RRD file is a COUNTER or GAUGE
         // (Need to know this because COUNTER data is averaged across samples and the vertical axis of the
         // generated graph by default will show data per rrdStep interval)
-        if (dataSourceType == DsType.COUNTER)
+        if (dataSourceType == DsType.DERIVE)
         {    
             long rrdStep = rrdDb.getRrdDef().getStep();
           
@@ -219,7 +212,6 @@ public class RrdDumper {
         RrdGraph graph = new RrdGraph(graphDef); 
         BufferedImage bi = new BufferedImage(100,100,BufferedImage.TYPE_INT_RGB);
         graph.render(bi.getGraphics());
-        //return graph.getRrdGraphInfo().getBytes();
     }
     
     static public String convertCamelCase(String input)
