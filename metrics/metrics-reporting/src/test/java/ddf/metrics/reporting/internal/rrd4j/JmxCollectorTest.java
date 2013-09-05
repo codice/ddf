@@ -62,20 +62,6 @@ public class JmxCollectorTest
                 .setConversionPattern("[%30.30t] %-30.30c{1} %-5p %m%n");
 
         Logger.getRootLogger().setLevel(Level.INFO);
-        
-        // To add appender that logs to a log file in addition to Console
-//        Layout layout = (PatternLayout)((Appender) Logger.getRootLogger().getAllAppenders().nextElement()).getLayout();
-//        FileAppender appender;
-//        try
-//        {
-//            appender = new FileAppender(layout, "test.log", true);
-//            Logger.getRootLogger().addAppender(appender);
-//        }
-//        catch (IOException e)
-//        {
-//            // TODO Auto-generated catch block
-//            e.printStackTrace();
-//        }
     }
     
     
@@ -122,16 +108,16 @@ public class JmxCollectorTest
     {
         JmxCollector jmxCollector = new JmxCollector();
         assertThat(jmxCollector, not(nullValue()));
-        assertThat(jmxCollector.getRrdDataSourceType(), is(JmxCollector.COUNTER_DATA_SOURCE_TYPE));
+        assertThat(jmxCollector.getRrdDataSourceType(), is(JmxCollector.DERIVE_DATA_SOURCE_TYPE));
     }
     
     
     @Test
-    public void testRrdFileCreationForCounterDataSource() throws Exception
+    public void testRrdFileCreationForDeriveDataSource() throws Exception
     {
         // Set sample rate to 1 sec (default is 60 seconds) so that unit test runs quickly
         int sampleRate = 1;
-        createJmxCollector( "Uptime", JmxCollector.COUNTER_DATA_SOURCE_TYPE, sampleRate);
+        createJmxCollector( "Uptime", JmxCollector.DERIVE_DATA_SOURCE_TYPE, sampleRate);
         
         String rrdFilename = jmxCollector.getRrdPath();
         assertThat(rrdFilename, is(TEST_DIR + rrdPath));
@@ -148,7 +134,7 @@ public class JmxCollectorTest
         Datasource dataSource = rrdDb.getDatasource(dataSourceName);
         assertThat(dataSource, not(nullValue()));
         DsType dataSourceType = dataSource.getType();
-        assertThat(dataSourceType, is(DsType.COUNTER));
+        assertThat(dataSourceType, is(DsType.DERIVE));
         
         assertThat(rrdDb.getArcCount(), is(8));
         
@@ -230,7 +216,7 @@ public class JmxCollectorTest
     {
         // Set sample rate to 1 sec (default is 60 seconds) so that unit test runs quickly
         int sampleRate = 1;
-        createJmxCollector( "Uptime", JmxCollector.COUNTER_DATA_SOURCE_TYPE, sampleRate);
+        createJmxCollector( "Uptime", JmxCollector.DERIVE_DATA_SOURCE_TYPE, sampleRate);
         
         String rrdFilename1 = jmxCollector.getRrdPath();
         assertThat(rrdFilename1, is(TEST_DIR + rrdPath));
@@ -249,7 +235,7 @@ public class JmxCollectorTest
         jmxCollector2.setMbeanAttributeName("Uptime");
         jmxCollector2.setRrdPath(rrdPath);
         jmxCollector2.setRrdDataSourceName(dataSourceName);
-        jmxCollector2.setRrdDataSourceType(JmxCollector.COUNTER_DATA_SOURCE_TYPE);
+        jmxCollector2.setRrdDataSourceType(JmxCollector.DERIVE_DATA_SOURCE_TYPE);
         jmxCollector2.setSampleRate(sampleRate);
         jmxCollector2.setMetricsDir(TEST_DIR);
         
@@ -277,7 +263,7 @@ public class JmxCollectorTest
         jmxCollector.setMbeanAttributeName(mbeanAttributeName);
         jmxCollector.setRrdPath(rrdPath);
         jmxCollector.setRrdDataSourceName(dataSourceName);
-        jmxCollector.setRrdDataSourceType(JmxCollector.COUNTER_DATA_SOURCE_TYPE);
+        jmxCollector.setRrdDataSourceType(JmxCollector.DERIVE_DATA_SOURCE_TYPE);
         jmxCollector.setSampleRate(1);
         jmxCollector.setMetricsDir(TEST_DIR);
         jmxCollector.setMbeanTimeoutMillis(50);
@@ -299,7 +285,7 @@ public class JmxCollectorTest
         jmxCollector.setMbeanAttributeName(mbeanAttributeName);
         jmxCollector.setRrdPath(rrdPath);
         jmxCollector.setRrdDataSourceName(dataSourceName);
-        jmxCollector.setRrdDataSourceType(JmxCollector.COUNTER_DATA_SOURCE_TYPE);
+        jmxCollector.setRrdDataSourceType(JmxCollector.DERIVE_DATA_SOURCE_TYPE);
         jmxCollector.setSampleRate(1);
         jmxCollector.setMetricsDir(TEST_DIR);
         
@@ -320,7 +306,7 @@ public class JmxCollectorTest
         jmxCollector.setMbeanAttributeName(mbeanAttributeName);
         jmxCollector.setRrdPath(rrdPath);
         jmxCollector.setRrdDataSourceName(dataSourceName);
-        jmxCollector.setRrdDataSourceType(JmxCollector.COUNTER_DATA_SOURCE_TYPE);
+        jmxCollector.setRrdDataSourceType(JmxCollector.DERIVE_DATA_SOURCE_TYPE);
         jmxCollector.setSampleRate(1);
         jmxCollector.setMetricsDir(TEST_DIR);
         
@@ -341,7 +327,7 @@ public class JmxCollectorTest
         jmxCollector.setMbeanAttributeName(mbeanAttributeName);
         jmxCollector.setRrdPath(rrdPath);
         jmxCollector.setRrdDataSourceName(dataSourceName);
-        jmxCollector.setRrdDataSourceType(JmxCollector.COUNTER_DATA_SOURCE_TYPE);
+        jmxCollector.setRrdDataSourceType(JmxCollector.DERIVE_DATA_SOURCE_TYPE);
         jmxCollector.setSampleRate(1);
         jmxCollector.setMetricsDir(TEST_DIR);
         
@@ -383,7 +369,7 @@ public class JmxCollectorTest
         jmxCollector.setMbeanAttributeName(mbeanAttributeName);
         jmxCollector.setRrdPath(rrdPath);
         jmxCollector.setRrdDataSourceName(dataSourceName);
-        jmxCollector.setRrdDataSourceType("DERIVE");
+        jmxCollector.setRrdDataSourceType("ABSOLUTE");
         jmxCollector.setSampleRate(1);
         jmxCollector.setMetricsDir(TEST_DIR);
         
@@ -396,7 +382,7 @@ public class JmxCollectorTest
     public void testCounterDataSourceCollection() throws Exception
     {
         // Set sample rate to 1 sec (default is 60 seconds) so that unit test runs quickly
-        createJmxCollector( "Uptime", JmxCollector.COUNTER_DATA_SOURCE_TYPE, 1);
+        createJmxCollector( "Uptime", JmxCollector.DERIVE_DATA_SOURCE_TYPE, 1);
         
         // Wait for "n" iterations of RRDB's sample rate, then see if MBean value was collected
         collectData(4);
@@ -415,7 +401,7 @@ public class JmxCollectorTest
     
     @Test
     public void testManyUpdatesInRapidSuccession() throws Exception {
-    	createJmxCollector( "Uptime", JmxCollector.COUNTER_DATA_SOURCE_TYPE, 1);
+    	createJmxCollector( "Uptime", JmxCollector.DERIVE_DATA_SOURCE_TYPE, 1);
     	
     	// Set high update delta time so that samples will be skipped
     	jmxCollector.setMinimumUpdateTimeDelta(3);

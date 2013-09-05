@@ -76,7 +76,9 @@ public class JmxCollector implements Collector
     
     public static final String COUNTER_DATA_SOURCE_TYPE = "COUNTER";
     
-    public static final String DEFAULT_COUNTER_DATA_SOURCE_NAME = "data";
+    public static final String DERIVE_DATA_SOURCE_TYPE = "DERIVE";
+    
+    public static final String DEFAULT_DATA_SOURCE_NAME = "data";
     
     public static final String GAUGE_DATA_SOURCE_TYPE = "GAUGE";
     
@@ -131,7 +133,7 @@ public class JmxCollector implements Collector
     
     /** 
      * Type of RRD data source to use for the metric's data being collected. A
-     * COUNTER type is used for metrics that always increment, e.g., query count.
+     * DERIVE type is used for metrics that always increment, e.g., query count.
      * A GAUGE is used for metrics whose value can vary up or down at any time, e.g.,
      * query response time.
      * (Should be set by <config> stanza in metrics-reporting-app features.xml file)
@@ -172,8 +174,8 @@ public class JmxCollector implements Collector
         rrdStep = this.sampleRate;
         pool = RrdDbPool.getInstance();
         
-        this.rrdDataSourceName = DEFAULT_COUNTER_DATA_SOURCE_NAME;
-        this.rrdDataSourceType = COUNTER_DATA_SOURCE_TYPE;
+        this.rrdDataSourceName = DEFAULT_DATA_SOURCE_NAME;
+        this.rrdDataSourceType = DERIVE_DATA_SOURCE_TYPE;
 
                 
         LOGGER.trace("EXITING: JmxCollector default constructor");
@@ -227,11 +229,11 @@ public class JmxCollector implements Collector
         
         if (rrdDataSourceType == null)
         {
-        	LOGGER.warn("Unable to configure collector for MBean attribute " + mbeanAttributeName + "\nData Source type for the RRD file cannot be null - must be either COUNTER or GAUGE.");
-        	throw new CollectorException("Unable to configure collector for MBean attribute " + mbeanAttributeName + "\nData Source type for the RRD file cannot be null - must be either COUNTER or GAUGE.");
+        	LOGGER.warn("Unable to configure collector for MBean attribute " + mbeanAttributeName + "\nData Source type for the RRD file cannot be null - must be either DERIVE, COUNTER or GAUGE.");
+        	throw new CollectorException("Unable to configure collector for MBean attribute " + mbeanAttributeName + "\nData Source type for the RRD file cannot be null - must be either DERIVE, COUNTER or GAUGE.");
         }
         
-        LOGGER.info("rrdDataSourceType = " + rrdDataSourceType);
+        LOGGER.trace("rrdDataSourceType = " + rrdDataSourceType);
         createRrdFile(rrdPath, rrdDataSourceName, DsType.valueOf(rrdDataSourceType));
         
         updateSamples();      
@@ -334,8 +336,8 @@ public class JmxCollector implements Collector
      * 
      * @param path path where the RRD file is to be created. This is required.
      * @param dsName data source name for the RRD file. This is required.
-     * @param dsType data source type, i.e., COUNTER or GAUGE (This is required.)
-     *       (DERIVE and ABSOLUTE are not currently supported)
+     * @param dsType data source type, i.e., DERIVE, COUNTER or GAUGE (This is required.)
+     *       (ABSOLUTE is not currently supported)
      * @param minValue the minimum value that will be stored in the data source; any values smaller
      *     than this will be stored as NaN (aka Unknown)
      * @param maxValue the maximum value that will be stored in the data source; any values larger
@@ -365,9 +367,9 @@ public class JmxCollector implements Collector
             throw new CollectorException("The name of the data source used in the RRD file must be specified.");
         }
         
-        if (!dsType.equals(DsType.COUNTER) && !dsType.equals(DsType.GAUGE))
+        if (!dsType.equals(DsType.COUNTER) && !dsType.equals(DsType.GAUGE) && !dsType.equals(DsType.DERIVE))
         {
-            throw new CollectorException("Data Source type for the RRD file must be either COUNTER or GAUGE.");
+            throw new CollectorException("Data Source type for the RRD file must be either DERIVE, COUNTER or GAUGE.");
         }
 
         File file = new File(rrdPath);
@@ -390,8 +392,8 @@ public class JmxCollector implements Collector
             // NOTE: Separate code segments based on dsType in case in future
             // we want more or less archivers based on data source type.
             
-            // Use a COUNTER for continuous incrementing counters, e.g., number of queries
-            if (dsType == DsType.COUNTER)
+            // Use a COUNTER or DERIVE (preferred) for continuous incrementing counters, e.g., number of queries
+            if (dsType == DsType.COUNTER || dsType == DsType.DERIVE)
             {
                 // 1 minute resolution for last 60 minutes
                 def.addArchive(ConsolFun.TOTAL, DEFAULT_XFF_FACTOR, 1, 60);  
@@ -460,30 +462,6 @@ public class JmxCollector implements Collector
         }
         
         LOGGER.trace("EXITING: createRrdFile");
-    }
-    
-    private String generateRrdFilename() throws CollectorException {
-    
-    	String[] mbeanNameParts = mbeanName.split(":");
-    	if (mbeanNameParts.length != 2) {
-    		throw new CollectorException("mbeanName [" + mbeanName + 
-    				"] invalid - mbeanName expected to have 2 parts, delimited by a colon, e.g., ddf.metrics.catalog:name=Queries.Federated");
-    	}
-    	
-    	String rrdFilenamePart1 = StringUtils.substringAfterLast(mbeanNameParts[0], ".");
-    	if (StringUtils.isBlank(rrdFilenamePart1)) {
-    		throw new CollectorException("mbeanName [" + mbeanName + 
-    				"] invalid - mbeanName expected to have part before colon that is similar to Java package name, e.g., ddf.metrics.catalog");
-    	}
-    	
-    	String[] mbeanNameAttrParts = mbeanNameParts[1].split("=");
-    	if (mbeanNameAttrParts.length != 2 || StringUtils.isBlank(mbeanNameAttrParts[1])) {
-    		throw new CollectorException("mbeanName [" + mbeanName + 
-    				"] invalid - mbeanName expected to have part after colon that describes the metric, e.g., name=Queries.Federated");
-    	}
-    	String rrdFilenamePart2 = mbeanNameAttrParts[1].replace(".", "");
-    	
-    	return metricsDir + rrdFilenamePart1 + rrdFilenamePart2;
     }
     
     
@@ -586,11 +564,9 @@ public class JmxCollector implements Collector
             
     private void updateSample(long now, double val) throws IOException {
 
-    		LOGGER.debug("Sample time is [" + RrdMetricsRetriever.getCalendarTime(now) + 
-    				"], updating metric [" + mbeanName + "] with value [" + val + "]");   	}
+		LOGGER.debug("Sample time is [" + RrdMetricsRetriever.getCalendarTime(now) + 
+				"], updating metric [" + mbeanName + "] with value [" + val + "]");
     	
-    	// Can go ahead and attempt to update sample even if value is out of range.
-    	// RRD will enforce min/max value limits and record UNKNOWN if they are exceeded
         sample.setTime(now);
         sample.setValue(rrdDataSourceName, val);
         sample.update();

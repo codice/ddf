@@ -117,7 +117,7 @@ public class RrdMetricsRetriever implements MetricsRetriever
     }
     
     public RrdMetricsRetriever(double metricsMaxThreshold) {
-    	LOGGER.info("Setting metricsMaxThreshold = " + metricsMaxThreshold);
+    	LOGGER.trace("Setting metricsMaxThreshold = " + metricsMaxThreshold);
     	this.metricsMaxThreshold = metricsMaxThreshold;
     }
     
@@ -834,7 +834,7 @@ public class RrdMetricsRetriever implements MetricsRetriever
     }
     
     public void setMetricsMaxThreshold(double metricsMaxThreshold) {
-    	LOGGER.info("Setting metricsMaxThreshold = " + metricsMaxThreshold);
+    	LOGGER.trace("Setting metricsMaxThreshold = " + metricsMaxThreshold);
     	this.metricsMaxThreshold = metricsMaxThreshold;
 }
 	 

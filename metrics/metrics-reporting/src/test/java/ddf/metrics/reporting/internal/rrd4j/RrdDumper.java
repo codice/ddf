@@ -44,8 +44,9 @@ public class RrdDumper {
 		//String rrdFilename = args[0];
 		String[] rrdFilenames = new String[]
 		{
+			"C:/DDF/rrd_SAVE/spikes/catalogQueries.rrd"
 			//"C:/DDF/rrd_SAVE/spikes/catalogExceptions.rrd",
-			"C:/DDF/rrd_SAVE/spikes/sourceDib30rhel58Queries.rrd"
+			//"C:/DDF/rrd_SAVE/spikes/sourceDib30rhel58Queries.rrd"
 		};
 		//String rrdFilename = "C:/workspaces/dib_git/distribution/dib/target/dib-4.0.2.RC7-SNAPSHOT/data/metrics/sourceDib30rhel58Queries.rrd";
 
@@ -105,6 +106,9 @@ public class RrdDumper {
         		 System.out.println("Value [" + adjustedValues[i] + "] is an OUTLIER");
         	 }
          }
+         
+         System.out.println("*******  RRDB dump  **********");
+         System.out.println(rrdDb.dump());
 	 }
     
     static private String getCalendarTime(long timestamp)
