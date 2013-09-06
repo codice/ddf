@@ -271,8 +271,6 @@ public class RESTEndpoint {
 				}
 
 				if (card == null) {
-					// unable to get the latest result
-					LOGGER.warn("Unable to retrieve requested metacard.");
 					throw new ServerErrorException("Unable to retrieve requested metacard.", Status.NOT_FOUND);
 				}
 
@@ -293,21 +291,17 @@ public class RESTEndpoint {
 				response = responseBuilder.build();
 			} catch (FederationException e) {
 				String exceptionMessage = "READ failed due to unexpected exception: " + e.getMessage();
-				LOGGER.warn(exceptionMessage, e);
 				throw new ServerErrorException(exceptionMessage, Status.INTERNAL_SERVER_ERROR);
 			} catch (CatalogTransformerException e) {
 				String exceptionMessage = "Unable to transform Metacard.  Try different transformer: " + e.getMessage();
-				LOGGER.warn(exceptionMessage);
 				throw new ServerErrorException(exceptionMessage, Status.INTERNAL_SERVER_ERROR);
 			} catch (SourceUnavailableException e) {
 				String exceptionMessage = "Cannot obtain query results because source is unavailable: "
 						+ e.getMessage();
-				LOGGER.warn(exceptionMessage, e.getCause());
 				throw new ServerErrorException(exceptionMessage, Status.INTERNAL_SERVER_ERROR);
 			} catch (UnsupportedQueryException e) {
 				String exceptionMessage = "Specified query is unsupported.  Change query and resubmit: "
 						+ e.getMessage();
-				LOGGER.warn(exceptionMessage, e.getCause());
 				throw new ServerErrorException(exceptionMessage, Status.BAD_REQUEST);
 			}
             //The catalog framework will throw this if any of the transformers blow up. We need to catch this exception
@@ -315,11 +309,9 @@ public class RESTEndpoint {
             //in a GUI or whatever else is connected to this endpoint
             catch (IllegalArgumentException e)
             {
-                LOGGER.warn(e.getMessage(), e.getCause());
-                throw new ServerErrorException(e.getMessage(), Status.BAD_REQUEST);
+                throw new ServerErrorException(e, Status.BAD_REQUEST);
             }
 		} else {
-			LOGGER.warn("Error: id entered is NULL");
 			throw new ServerErrorException("No ID specified.", Status.BAD_REQUEST);
 		}
 		return response;

@@ -1163,7 +1163,6 @@ public class CatalogFrameworkImpl extends DescribableImpl implements DdfConfigur
 							+ "(" + Constants.SERVICE_ID + "=" + transformerShortname + ")"
 							+ ")");
 		} catch (InvalidSyntaxException e) {
-			logger.warn("Invalid transformer shortName or ID", e);
 			throw new IllegalArgumentException(
 					"Invalid transformer shortName: " + transformerShortname);
 		}
@@ -1181,8 +1180,6 @@ public class CatalogFrameworkImpl extends DescribableImpl implements DdfConfigur
 				}
 
 			} catch (CatalogTransformerException e) {
-				logger.warn("Transformation Failed for transformer: "
-						+ transformerShortname, e);
 				throw new IllegalArgumentException(e.getMessage());
 			}
 		}
@@ -1200,7 +1197,6 @@ public class CatalogFrameworkImpl extends DescribableImpl implements DdfConfigur
 							+ "(" + Constants.SERVICE_ID + "=" + transformerShortname + ")"
 							+ ")");
 		} catch (InvalidSyntaxException e) {
-			logger.warn("Invalid transformer shortName or ID", e);
 			throw new IllegalArgumentException(
 					"Invalid transformer id: " + transformerShortname);
 		}
@@ -1219,8 +1215,6 @@ public class CatalogFrameworkImpl extends DescribableImpl implements DdfConfigur
 				}
 
 			} catch (CatalogTransformerException e) {
-				logger.warn("Transformation Failed for transformer: "
-						+ transformerShortname, e);
 				throw new IllegalArgumentException(e.getMessage());
 			}
 		}
@@ -1384,10 +1378,8 @@ public class CatalogFrameworkImpl extends DescribableImpl implements DdfConfigur
 			}
 	    
 		} catch (RuntimeException e) {
-			logger.error("Error in getResource()", e);
 			throw new ResourceNotFoundException("Unable to find resource");
 		} catch (StopProcessingException e) {
-			logger.warn(FAILED_BY_GET_RESOURCE_PLUGIN + e.getMessage());
 			throw new ResourceNotSupportedException(
 					FAILED_BY_GET_RESOURCE_PLUGIN + e.getMessage());
 		}
@@ -1486,11 +1478,8 @@ public class CatalogFrameworkImpl extends DescribableImpl implements DdfConfigur
 			}
 		}
 		if (resource == null) {
-		    logger.error("Resource Readers could not find resource (or returned null resource) for URI: "
+		    throw new ResourceNotFoundException("Resource Readers could not find resource (or returned null resource) for URI: "
                             + resourceUri.toASCIIString() +". Scheme: "+resourceUri.getScheme());
-			throw new ResourceNotFoundException(
-					"Unable to retrieve resource with URI: "
-							+ resourceUri.toASCIIString());
 		}
 		logger.debug("Received resource, sending back: "
 				+ resource.getResource().getName());
