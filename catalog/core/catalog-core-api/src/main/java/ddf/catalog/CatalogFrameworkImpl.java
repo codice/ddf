@@ -1156,7 +1156,6 @@ public class CatalogFrameworkImpl extends DescribableImpl implements DdfConfigur
 							+ "(" + Constants.SERVICE_ID + "=" + transformerShortname + ")"
 							+ ")");
 		} catch (InvalidSyntaxException e) {
-			logger.warn("Invalid transformer shortName or ID", e);
 			throw new IllegalArgumentException(
 					"Invalid transformer shortName: " + transformerShortname);
 		}
@@ -1174,11 +1173,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements DdfConfigur
 				}
 
 			} catch (CatalogTransformerException e) {
-				logger.warn("Transformation Failed for transformer: "
-						+ transformerShortname, e);
-				throw new IllegalArgumentException(
-						"Transformation Failed for transformer: "
-								+ transformerShortname);
+				throw new IllegalArgumentException(e.getMessage());
 			}
 		}
 	}
@@ -1195,7 +1190,6 @@ public class CatalogFrameworkImpl extends DescribableImpl implements DdfConfigur
 							+ "(" + Constants.SERVICE_ID + "=" + transformerShortname + ")"
 							+ ")");
 		} catch (InvalidSyntaxException e) {
-			logger.warn("Invalid transformer shortName or ID", e);
 			throw new IllegalArgumentException(
 					"Invalid transformer id: " + transformerShortname);
 		}
@@ -1214,11 +1208,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements DdfConfigur
 				}
 
 			} catch (CatalogTransformerException e) {
-				logger.warn("Transformation Failed for transformer: "
-						+ transformerShortname, e);
-				throw new IllegalArgumentException(
-						"Transformation Failed for transformer: "
-								+ transformerShortname);
+				throw new IllegalArgumentException(e.getMessage());
 			}
 		}
 	}
@@ -1381,10 +1371,8 @@ public class CatalogFrameworkImpl extends DescribableImpl implements DdfConfigur
 			}
 	    
 		} catch (RuntimeException e) {
-			logger.error("Error in getResource()", e);
 			throw new ResourceNotFoundException("Unable to find resource");
 		} catch (StopProcessingException e) {
-			logger.warn(FAILED_BY_GET_RESOURCE_PLUGIN + e.getMessage());
 			throw new ResourceNotSupportedException(
 					FAILED_BY_GET_RESOURCE_PLUGIN + e.getMessage());
 		}
@@ -1456,6 +1444,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements DdfConfigur
 		Iterator<ResourceReader> iterator = resourceReaders.iterator();
 		while (iterator.hasNext() && resource == null) {
 			ResourceReader reader = iterator.next();
+
 			String scheme = resourceUri.getScheme();
 			if (reader.getSupportedSchemes().contains(scheme)) {
 				try {
@@ -1482,9 +1471,8 @@ public class CatalogFrameworkImpl extends DescribableImpl implements DdfConfigur
 			}
 		}
 		if (resource == null) {
-			throw new ResourceNotFoundException(
-					"Resource Readers could not find resource (or returned null resource) for URI: "
-							+ resourceUri);
+		    throw new ResourceNotFoundException("Resource Readers could not find resource (or returned null resource) for URI: "
+                            + resourceUri.toASCIIString() +". Scheme: "+resourceUri.getScheme());
 		}
 		logger.debug("Received resource, sending back: "
 				+ resource.getResource().getName());
