@@ -14,7 +14,6 @@ package com.lmco.ddf.endpoints.rest;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.Response.Status;
 
 public class ServerErrorException extends WebApplicationException {
@@ -28,4 +27,9 @@ public class ServerErrorException extends WebApplicationException {
            entity("<pre>"+message+"</pre>").type(MediaType.TEXT_HTML).build());
          
      }
+	
+	   public ServerErrorException(Throwable t, Status status) {
+	         super(t, Response.status(status).
+	           entity("<pre>"+t.getMessage()+"</pre>").type(MediaType.TEXT_HTML).build());
+	}
 }
