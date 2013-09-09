@@ -32,7 +32,6 @@
     <module>ddf-common</module>
     <module>kernel</module>
     <module>ddf</module>
-	<module>ddf-standalone-loadbalancer</module>
   </modules>
   
   <profiles>
