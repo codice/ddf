@@ -25,8 +25,7 @@
       description="Comma delimited list of IP address and port in format: [IP_Address]:[Port] (e.g. 127.0.0.1:8181,192.168.1.1:8181)"/>  	
 	</OCD>
 
-	<Designate pid="ddf.cloud.loadbalancer.HttpLoadBalancer" 
-	           factoryPid="ddf.cloud.loadbalancer.HttpLoadBalancer">
+	<Designate pid="ddf.cloud.loadbalancer.HttpLoadBalancer">
 		<Object ocdref="ddf.cloud.loadbalancer.HttpLoadBalancer" />
 	</Designate>
 	
@@ -45,8 +44,7 @@
 	  		
 	</OCD>
 
-	<Designate pid="ddf.cloud.loadbalancer.HttpsLoadBalancer" 
-	           factoryPid="ddf.cloud.loadbalancer.HttpsLoadBalancer">
+	<Designate pid="ddf.cloud.loadbalancer.HttpsLoadBalancer">
 		<Object ocdref="ddf.cloud.loadbalancer.HttpsLoadBalancer" />
 	</Designate>
 

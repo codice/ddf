@@ -106,13 +106,13 @@ public class LoadBalancerDynamicRouteBuilder extends RouteBuilder {
 		String[] uriList = new String[serverUris.length];
 		for (int i = 0; i < serverUris.length; ++i) {
 			String uri = "jetty:" + protocol + "://" + serverUris[i]
-					+ "?bridgeEndpoint=true&throwExceptionOnFailure=false";
+					+ "?bridgeEndpoint=true&throwExceptionOnFailure=false&enableMultipartFilter=false";
 			uriList[i] = uri;
 		}
 
 		// Create Camel Route
 		from(jettyFromUri).loadBalance()
-				.failover(MAX_FAIL_ATTEMPTS, false, true).to(uriList);
+		    .failover(uriList.length, false, true, java.net.ConnectException.class).to(uriList);
 
 	}
 
