@@ -15,10 +15,10 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-import com.yammer.metrics.Histogram;
-import com.yammer.metrics.JmxReporter;
-import com.yammer.metrics.Meter;
-import com.yammer.metrics.MetricRegistry;
+import com.codahale.metrics.Histogram;
+import com.codahale.metrics.JmxReporter;
+import com.codahale.metrics.Meter;
+import com.codahale.metrics.MetricRegistry;
 
 import ddf.catalog.federation.FederationException;
 import ddf.catalog.filter.FilterAdapter;
@@ -50,15 +50,15 @@ import ddf.catalog.util.DdfConfigurationWatcher;
 public final class CatalogMetrics implements PreQueryPlugin, PostQueryPlugin,
         PostIngestPlugin, PostResourcePlugin, DdfConfigurationWatcher {
 
+	protected static final String CATALOG_METRICS_PACKAGE_NAME = "ddf.metrics.catalog";
 	protected static final String EXCEPTIONS_SCOPE = "Exceptions";
 	protected static final String QUERIES_SCOPE = "Queries";
 	protected static final String INGEST_SCOPE = "Ingest";
 	protected static final String RESOURCE_SCOPE = "Resource";
         
-    protected final MetricRegistry metrics = new MetricRegistry(
-            "ddf.metrics.catalog");
-    protected final JmxReporter reporter = JmxReporter.forRegistry(metrics)
-            .build();
+    protected final MetricRegistry metrics = new MetricRegistry();
+    protected final JmxReporter reporter =
+    		JmxReporter.forRegistry(metrics).inDomain("ddf.metrics.catalog").build();
     
     private FilterAdapter filterAdapter;
     private String localSourceId;
@@ -81,6 +81,7 @@ public final class CatalogMetrics implements PreQueryPlugin, PostQueryPlugin,
     protected final Meter resourceRetrival;
 
     public CatalogMetrics(FilterAdapter filterAdapter) {
+    	
         this.filterAdapter = filterAdapter;
         
         resultCount = metrics.histogram(MetricRegistry.name(QUERIES_SCOPE,
@@ -102,11 +103,11 @@ public final class CatalogMetrics implements PreQueryPlugin, PostQueryPlugin,
 
         exceptions = metrics.meter(MetricRegistry.name(EXCEPTIONS_SCOPE));
         unsupportedQueryExceptions = metrics.meter(MetricRegistry.name(
-                EXCEPTIONS_SCOPE, "UnsupportedQuery"));
+        		EXCEPTIONS_SCOPE, "UnsupportedQuery"));
         sourceUnavailableExceptions = metrics.meter(MetricRegistry.name(
-                EXCEPTIONS_SCOPE, "SourceUnavailable"));
+        		EXCEPTIONS_SCOPE, "SourceUnavailable"));
         federationExceptions = metrics.meter(MetricRegistry.name(
-                EXCEPTIONS_SCOPE, "Federation"));
+        		EXCEPTIONS_SCOPE, "Federation"));
         
         createdMetacards = metrics.meter(MetricRegistry.name(INGEST_SCOPE,
                 "Created"));

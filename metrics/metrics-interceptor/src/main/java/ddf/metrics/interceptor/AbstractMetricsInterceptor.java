@@ -16,9 +16,9 @@ import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.log4j.Logger;
 
-import com.yammer.metrics.Histogram;
-import com.yammer.metrics.JmxReporter;
-import com.yammer.metrics.MetricRegistry;
+import com.codahale.metrics.Histogram;
+import com.codahale.metrics.JmxReporter;
+import com.codahale.metrics.MetricRegistry;
 
 /**
  * This class is extended by the metrics interceptors used for capturing round
@@ -36,10 +36,9 @@ public abstract class AbstractMetricsInterceptor extends
     private static final String REGISTRY_NAME = "ddf.metrics.services";
     private static final String HISTOGRAM_NAME = "Latency";
 
-    private static final MetricRegistry metrics = new MetricRegistry(
-            REGISTRY_NAME);
+    private static final MetricRegistry metrics = new MetricRegistry();
     private static final JmxReporter reporter = JmxReporter
-            .forRegistry(metrics).build();
+            .forRegistry(metrics).inDomain(REGISTRY_NAME).build();
 
     final Histogram messageLatency;
 

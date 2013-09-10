@@ -30,7 +30,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.opengis.filter.Filter;
 
-import com.yammer.metrics.MetricRegistry;
+import com.codahale.metrics.MetricRegistry;
 
 import ddf.catalog.data.Metacard;
 import ddf.catalog.federation.FederationException;

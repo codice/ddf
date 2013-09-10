@@ -13,9 +13,9 @@ package ddf.sdk.metrics;
 
 import org.apache.log4j.Logger;
 
-import com.yammer.metrics.JmxReporter;
-import com.yammer.metrics.Meter;
-import com.yammer.metrics.MetricRegistry;
+import com.codahale.metrics.JmxReporter;
+import com.codahale.metrics.Meter;
+import com.codahale.metrics.MetricRegistry;
 
 import ddf.catalog.filter.FilterAdapter;
 import ddf.catalog.operation.QueryRequest;
@@ -29,9 +29,10 @@ public class SampleMetrics implements PreQueryPlugin
 {
     private static final Logger LOGGER = Logger.getLogger(SampleMetrics.class);
     
-    private final MetricRegistry metrics = new MetricRegistry("sdk.metrics.sample");
+    private final MetricRegistry metrics = new MetricRegistry();
     
-    private final JmxReporter reporter = JmxReporter.forRegistry(metrics).build();
+    private final JmxReporter reporter = JmxReporter.forRegistry(metrics).
+    		inDomain("sdk.metrics.sample").build();
     
     protected final Meter pointRadiusQueries;
 
