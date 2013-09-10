@@ -78,21 +78,18 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
 	private static final String OR = " OR ";
 	private static final String AND = " AND ";
 	private static final String TO = " TO ";
-	private static final String TOKENIZED = "_tokenized";
 	private static final String QUOTE = "\"";
 	private static DateField dateFormatter = new DateField();
 	private static final String SOLR_WILDCARD_CHAR = "*";
 	private static final String SOLR_SINGLE_WILDCARD_CHAR = "?";
 	public static final Map<String, String> FIELD_MAP;
-	public static final String TOKENIZED_METADATA_FIELD = Metacard.METADATA + "_txt" + TOKENIZED;
+	private static final String ANY_TEXT_FIELD = "any_text";
     private static final double DEFAULT_ERROR_IN_METERS = 1;
     private static final double DEFAULT_ERROR_IN_DEGREES = metersToDegrees(DEFAULT_ERROR_IN_METERS);
 
 	static {
 		Map<String, String> tempMap = new HashMap<String, String>();
-		// right now we don't search all text fields, so we give the most
-		// popular
-		tempMap.put(Metacard.ANY_TEXT, TOKENIZED_METADATA_FIELD);
+		tempMap.put(Metacard.ANY_TEXT, ANY_TEXT_FIELD);
 		tempMap.put(Metacard.ANY_GEO, Metacard.GEOGRAPHY + JTS_SPATIAL_INDEX);
 		FIELD_MAP = Collections.unmodifiableMap(tempMap);
 	}
@@ -492,7 +489,6 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
 
 		String mappedPropertyName = resolver
 				.getField(propertyName, format, isSearchedAsExactString);
-
 		return mappedPropertyName;
 	}
 

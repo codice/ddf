@@ -11,14 +11,17 @@
  **/
 package ddf.catalog.source.solr;
 
-import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.stub;
+import static org.mockito.Mockito.when;
 
 import org.apache.solr.client.solrj.SolrQuery;
 import org.junit.Test;
 
 import ddf.catalog.data.AttributeType.AttributeFormat;
+import ddf.catalog.data.Metacard;
 
 public class TestSolrFilterDelegate {
 
@@ -85,6 +88,49 @@ public class TestSolrFilterDelegate {
         assertThat(
                 likeQuery.getQuery(),
                 is("testProperty_txt_index_tokenized:(\\+ \\- \\&& \\|| \\! \\( \\) \\{ \\} \\[ \\] \\^ \\\" \\~ \\: \\*?)"));
+    }
+    
+    @Test
+    public void testPropertyIsEqualTo_AnyText_CaseSensitive() {
+        String expectedQuery = "any_text:\"mySearchPhrase\"";
+        String searchPhrase = "mySearchPhrase";
+        boolean isCaseSensitive = true;
+        SolrQuery equalToQuery = toTest.propertyIsEqualTo(Metacard.ANY_TEXT, searchPhrase, isCaseSensitive);
+        assertThat(equalToQuery.getQuery(), is(expectedQuery));
+    }
+    
+    @Test(expected = UnsupportedOperationException.class)
+    public void testPropertyIsEqualTo_AnyText_CaseInsensitive() {
+        String searchPhrase = "mySearchPhrase";
+        boolean isCaseSensitive = false;
+        toTest.propertyIsEqualTo(Metacard.ANY_TEXT, searchPhrase, isCaseSensitive);
+    }
+    
+    @Test
+    public void testPropertyIsFuzzy_AnyText() {
+        String expectedQuery = "+any_text:mysearchphrase~ ";
+        String searchPhrase = "mySearchPhrase";
+        SolrQuery fuzzyQuery = toTest.propertyIsFuzzy(Metacard.ANY_TEXT, searchPhrase);
+        assertThat(fuzzyQuery.getQuery(), is(expectedQuery));
+    }
+    
+    @Test
+    public void testPropertyIsLike_AnyText_CaseInsensitive() {
+        String expectedQuery = "any_text:\"mySearchPhrase\"";
+        String searchPhrase = "mySearchPhrase";
+        boolean isCaseSensitive = false;
+        SolrQuery isLikeQuery = toTest.propertyIsLike(Metacard.ANY_TEXT, searchPhrase, isCaseSensitive);
+        assertThat(isLikeQuery.getQuery(), is(expectedQuery));
+    }
+    
+    @Test
+    public void testPropertyIsLike_AnyText_CaseSensitive() {
+        String expectedQuery = "any_text_has_case:\"mySearchPhrase\"";
+        String searchPhrase = "mySearchPhrase";
+        boolean isCaseSensitive = true;
+        when(mockResolver.getCaseSensitiveField("any_text")).thenReturn("any_text" + SchemaFields.HAS_CASE);
+        SolrQuery isLikeQuery = toTest.propertyIsLike(Metacard.ANY_TEXT, searchPhrase, isCaseSensitive);
+        assertThat(isLikeQuery.getQuery(), is(expectedQuery));
     }
 
 }
