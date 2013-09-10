@@ -276,7 +276,7 @@ ${response.setHeader("Content-Type", "text/html")}
 							<div class="tab-content">
 								<div id="nofed" class="tab-pane"></div>
 								<div id="sources" class="tab-pane">
-								<div id="scrollableSources" class="scrollable">
+								<div class="scrollable">
 									<select name="federationSources" multiple="multiple" onchange="updateFederation()">
 										<#list siteList?keys as site>
 											<#if siteList[site] >
