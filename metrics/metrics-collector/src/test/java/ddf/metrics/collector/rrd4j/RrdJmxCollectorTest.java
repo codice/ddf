@@ -9,10 +9,11 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-package ddf.metrics.reporting.internal.rrd4j;
+package ddf.metrics.collector.rrd4j;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
@@ -21,14 +22,11 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Calendar;
 
-import org.apache.log4j.Appender;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.apache.log4j.PatternLayout;
 import org.junit.After;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.rrd4j.ConsolFun;
 import org.rrd4j.DsType;
@@ -39,16 +37,17 @@ import org.rrd4j.core.FetchRequest;
 import org.rrd4j.core.Header;
 import org.rrd4j.core.RrdDb;
 
-import ddf.metrics.reporting.internal.CollectorException;
+import ddf.metrics.collector.CollectorException;
 
 
-public class JmxCollectorTest
+public class RrdJmxCollectorTest
 {
-    private static final transient Logger LOGGER = Logger.getLogger(JmxCollectorTest.class);
+
+    private static final transient Logger LOGGER = Logger.getLogger(RrdJmxCollectorTest.class);
     
     private static final String TEST_DIR = "target/";
     
-    public JmxCollector jmxCollector;
+    public RrdJmxCollector jmxCollector;
     public RrdDb rrdDb;
     public String rrdPath;
     public String dataSourceName;
@@ -58,9 +57,6 @@ public class JmxCollectorTest
     static public void oneTimeSetup() {
         // Format logger output
         BasicConfigurator.configure();
-        ((PatternLayout) ((Appender) Logger.getRootLogger().getAllAppenders().nextElement()).getLayout())
-                .setConversionPattern("[%30.30t] %-30.30c{1} %-5p %m%n");
-
         Logger.getRootLogger().setLevel(Level.INFO);
     }
     
@@ -106,9 +102,9 @@ public class JmxCollectorTest
     @Test
     public void testConstruction()
     {
-        JmxCollector jmxCollector = new JmxCollector();
+        RrdJmxCollector jmxCollector = new RrdJmxCollector("java.lang:type=Runtime", "Uptime", "jvmUptime");
         assertThat(jmxCollector, not(nullValue()));
-        assertThat(jmxCollector.getRrdDataSourceType(), is(JmxCollector.DERIVE_DATA_SOURCE_TYPE));
+        assertThat(jmxCollector.getRrdDataSourceType(), is(RrdJmxCollector.DERIVE_DATA_SOURCE_TYPE));
     }
     
     
@@ -116,11 +112,13 @@ public class JmxCollectorTest
     public void testRrdFileCreationForDeriveDataSource() throws Exception
     {
         // Set sample rate to 1 sec (default is 60 seconds) so that unit test runs quickly
+    	String mbeanAttributeName = "Uptime";
+    	String metricName = "jvmUptime";
         int sampleRate = 1;
-        createJmxCollector( "Uptime", JmxCollector.DERIVE_DATA_SOURCE_TYPE, sampleRate);
+        createJmxCollector(mbeanAttributeName, metricName, RrdJmxCollector.DERIVE_DATA_SOURCE_TYPE, sampleRate);
         
         String rrdFilename = jmxCollector.getRrdPath();
-        assertThat(rrdFilename, is(TEST_DIR + rrdPath));
+        assertThat(rrdFilename, is(TEST_DIR + metricName + RrdJmxCollector.RRD_FILENAME_SUFFIX));
         
         rrdDb = new RrdDb(rrdFilename);
         assertThat(rrdDb, not(nullValue()));
@@ -144,7 +142,7 @@ public class JmxCollectorTest
         
         archive = rrdDb.getArchive(ConsolFun.AVERAGE, 15);
         assertThat(archive, not(nullValue()));
-        assertThat(archive.getRows(), is(JmxCollector.ONE_YEAR_IN_15_MINUTE_STEPS));
+        assertThat(archive.getRows(), is(RrdJmxCollector.ONE_YEAR_IN_15_MINUTE_STEPS));
         
         archive = rrdDb.getArchive(ConsolFun.TOTAL, 1);
         assertThat(archive, not(nullValue()));
@@ -152,21 +150,23 @@ public class JmxCollectorTest
         
         archive = rrdDb.getArchive(ConsolFun.TOTAL, 15);
         assertThat(archive, not(nullValue()));
-        assertThat(archive.getRows(), is(JmxCollector.ONE_YEAR_IN_15_MINUTE_STEPS));
+        assertThat(archive.getRows(), is(RrdJmxCollector.ONE_YEAR_IN_15_MINUTE_STEPS));
         
         //LOGGER.debug(rrdDb.dump());
     }
     
-    
+  
     @Test
     public void testRrdFileCreationForGaugeDataSource() throws Exception
     {
         // Set sample rate to 1 sec (default is 60 seconds) so that unit test runs quickly
+        String mbeanAttributeName = "Uptime";
+    	String metricName = "jvmUptime";
         int sampleRate = 1;
-        createJmxCollector( "Uptime", JmxCollector.GAUGE_DATA_SOURCE_TYPE, sampleRate);
+        createJmxCollector(mbeanAttributeName, metricName, RrdJmxCollector.GAUGE_DATA_SOURCE_TYPE, sampleRate);
         
         String rrdFilename = jmxCollector.getRrdPath();
-        assertThat(rrdFilename, is(TEST_DIR + rrdPath));
+        assertThat(rrdFilename, is(TEST_DIR + metricName + RrdJmxCollector.RRD_FILENAME_SUFFIX));
         
         rrdDb = new RrdDb(rrdFilename);
         assertThat(rrdDb, not(nullValue()));
@@ -174,7 +174,7 @@ public class JmxCollectorTest
         
         Header header = rrdDb.getHeader();
         assertThat(header, not(nullValue()));
-        assertThat(header.getStep(), is((long) sampleRate));  // verify 60 second sample rate
+        assertThat(header.getStep(), is((long) sampleRate));
         
         assertThat(rrdDb.getDsCount(), is(1));
         Datasource dataSource = rrdDb.getDatasource(dataSourceName);
@@ -190,7 +190,7 @@ public class JmxCollectorTest
         
         archive = rrdDb.getArchive(ConsolFun.MIN, 15);
         assertThat(archive, not(nullValue()));
-        assertThat(archive.getRows(), is(JmxCollector.ONE_YEAR_IN_15_MINUTE_STEPS));
+        assertThat(archive.getRows(), is(RrdJmxCollector.ONE_YEAR_IN_15_MINUTE_STEPS));
         
         archive = rrdDb.getArchive(ConsolFun.MAX, 1);
         assertThat(archive, not(nullValue()));
@@ -198,7 +198,7 @@ public class JmxCollectorTest
         
         archive = rrdDb.getArchive(ConsolFun.MAX, 15);
         assertThat(archive, not(nullValue()));
-        assertThat(archive.getRows(), is(JmxCollector.ONE_YEAR_IN_15_MINUTE_STEPS));
+        assertThat(archive.getRows(), is(RrdJmxCollector.ONE_YEAR_IN_15_MINUTE_STEPS));
         
         archive = rrdDb.getArchive(ConsolFun.AVERAGE, 1);
         assertThat(archive, not(nullValue()));
@@ -206,20 +206,21 @@ public class JmxCollectorTest
         
         archive = rrdDb.getArchive(ConsolFun.AVERAGE, 15);
         assertThat(archive, not(nullValue()));
-        assertThat(archive.getRows(), is(JmxCollector.ONE_YEAR_IN_15_MINUTE_STEPS));        
+        assertThat(archive.getRows(), is(RrdJmxCollector.ONE_YEAR_IN_15_MINUTE_STEPS));        
     }
     
-    
+      
     @Test
-    @Ignore
     public void testRrdFileCreationWhenRrdFileAlreadyExists() throws Exception
     {
         // Set sample rate to 1 sec (default is 60 seconds) so that unit test runs quickly
+    	String mbeanAttributeName = "Uptime";
+    	String metricName = "jvmUptime";
         int sampleRate = 1;
-        createJmxCollector( "Uptime", JmxCollector.DERIVE_DATA_SOURCE_TYPE, sampleRate);
+        createJmxCollector(mbeanAttributeName, metricName, RrdJmxCollector.DERIVE_DATA_SOURCE_TYPE, sampleRate);
         
         String rrdFilename1 = jmxCollector.getRrdPath();
-        assertThat(rrdFilename1, is(TEST_DIR + rrdPath));
+        assertThat(rrdFilename1, is(TEST_DIR + metricName + RrdJmxCollector.RRD_FILENAME_SUFFIX));
         
         rrdDb = new RrdDb(rrdFilename1);
         assertThat(rrdDb, not(nullValue()));
@@ -227,30 +228,25 @@ public class JmxCollectorTest
         
         // Attempt to create again
         LOGGER.debug("Creating JmxCollector again ...");
-        dataSourceName = "uptime";
-        rrdPath = dataSourceName + ".rrd";
+        dataSourceName = mbeanAttributeName.toLowerCase();
         
-        JmxCollector jmxCollector2 = new JmxCollector();
-        jmxCollector2.setMbeanName("java.lang:type=Runtime");
-        jmxCollector2.setMbeanAttributeName("Uptime");
-        jmxCollector2.setRrdPath(rrdPath);
-        jmxCollector2.setRrdDataSourceName(dataSourceName);
-        jmxCollector2.setRrdDataSourceType(JmxCollector.DERIVE_DATA_SOURCE_TYPE);
+        RrdJmxCollector jmxCollector2 = new RrdJmxCollector("java.lang:type=Runtime", mbeanAttributeName, 
+        		metricName, RrdJmxCollector.DERIVE_DATA_SOURCE_TYPE, dataSourceName);
         jmxCollector2.setSampleRate(sampleRate);
         jmxCollector2.setMetricsDir(TEST_DIR);
         
-        // Simulates what Spring beans container would do
+        // Simulates what blueprint would do
         jmxCollector2.configureCollector();
         
         // Verify the 2 JMX Collectors are using the same RRD file
         String rrdFilename2 = jmxCollector2.getRrdPath();
-        assertThat(rrdFilename2, is(TEST_DIR + rrdPath));
+        assertThat(rrdFilename2, is(TEST_DIR + metricName + RrdJmxCollector.RRD_FILENAME_SUFFIX));
         assertThat(rrdFilename1, equalTo(rrdFilename2));
         
         jmxCollector2.destroy();
     }
     
-    
+
     @Test(expected = CollectorException.class)
     public void testInaccessibleMbeanAttribute() throws IOException, CollectorException
     {    
@@ -258,101 +254,43 @@ public class JmxCollectorTest
         dataSourceName = mbeanAttributeName.toLowerCase();
         rrdPath = dataSourceName + ".rrd";
         
-        jmxCollector = new JmxCollector();
-        jmxCollector.setMbeanName("java.lang:type=Runtime");
-        jmxCollector.setMbeanAttributeName(mbeanAttributeName);
+        jmxCollector = new RrdJmxCollector("java.lang:type=Runtime", mbeanAttributeName, "jvmUptime", 
+        		RrdJmxCollector.DERIVE_DATA_SOURCE_TYPE, dataSourceName);
         jmxCollector.setRrdPath(rrdPath);
-        jmxCollector.setRrdDataSourceName(dataSourceName);
-        jmxCollector.setRrdDataSourceType(JmxCollector.DERIVE_DATA_SOURCE_TYPE);
         jmxCollector.setSampleRate(1);
         jmxCollector.setMetricsDir(TEST_DIR);
         jmxCollector.setMbeanTimeoutMillis(50);
         
-        // Simulates what Spring beans container would do
+        // Simulates what blueprint would do
         jmxCollector.configureCollector();
     }
     
-    
+
     @Test(expected = CollectorException.class)
     public void testNonNumericMbeanAttribute() throws IOException, CollectorException
     {    
         String mbeanAttributeName = "ClassPath";
-        dataSourceName = mbeanAttributeName.toLowerCase();
-        rrdPath = dataSourceName + ".rrd";
+        String metricName = mbeanAttributeName.toLowerCase();
         
-        jmxCollector = new JmxCollector();
-        jmxCollector.setMbeanName("java.lang:type=Runtime");
-        jmxCollector.setMbeanAttributeName(mbeanAttributeName);
-        jmxCollector.setRrdPath(rrdPath);
-        jmxCollector.setRrdDataSourceName(dataSourceName);
-        jmxCollector.setRrdDataSourceType(JmxCollector.DERIVE_DATA_SOURCE_TYPE);
+        jmxCollector = new RrdJmxCollector("java.lang:type=Runtime", mbeanAttributeName, metricName);
         jmxCollector.setSampleRate(1);
         jmxCollector.setMetricsDir(TEST_DIR);
         
-        // Simulates what Spring beans container would do
+        // Simulates what blueprint would do
         jmxCollector.configureCollector();
     }    
     
     
     @Test(expected = CollectorException.class)
-    public void testNullRrdPath() throws IOException, CollectorException
+    public void testNullMetricName() throws IOException, CollectorException
     {    
         String mbeanAttributeName = "Uptime";
-        dataSourceName = mbeanAttributeName.toLowerCase();
-        rrdPath = null;
         
-        jmxCollector = new JmxCollector();
-        jmxCollector.setMbeanName("java.lang:type=Runtime");
-        jmxCollector.setMbeanAttributeName(mbeanAttributeName);
-        jmxCollector.setRrdPath(rrdPath);
-        jmxCollector.setRrdDataSourceName(dataSourceName);
-        jmxCollector.setRrdDataSourceType(JmxCollector.DERIVE_DATA_SOURCE_TYPE);
+        jmxCollector = new RrdJmxCollector("java.lang:type=Runtime", mbeanAttributeName, null);
         jmxCollector.setSampleRate(1);
         jmxCollector.setMetricsDir(TEST_DIR);
         
-        // Simulates what Spring beans container would do
-        jmxCollector.configureCollector();
-    }
-    
-    
-    @Test(expected = CollectorException.class)
-    public void testNullDataSourceName() throws IOException, CollectorException
-    {    
-        String mbeanAttributeName = "Uptime";
-        dataSourceName = null;
-        rrdPath = "uptime.rrd";
-        
-        jmxCollector = new JmxCollector();
-        jmxCollector.setMbeanName("java.lang:type=Runtime");
-        jmxCollector.setMbeanAttributeName(mbeanAttributeName);
-        jmxCollector.setRrdPath(rrdPath);
-        jmxCollector.setRrdDataSourceName(dataSourceName);
-        jmxCollector.setRrdDataSourceType(JmxCollector.DERIVE_DATA_SOURCE_TYPE);
-        jmxCollector.setSampleRate(1);
-        jmxCollector.setMetricsDir(TEST_DIR);
-        
-        // Simulates what Spring beans container would do
-        jmxCollector.configureCollector();
-    }
-
-    
-    @Test(expected = CollectorException.class)
-    public void testNullDataSourceType() throws IOException, CollectorException
-    {    
-        String mbeanAttributeName = "Uptime";
-        dataSourceName = mbeanAttributeName.toLowerCase();
-        rrdPath = dataSourceName + ".rrd";
-        
-        jmxCollector = new JmxCollector();
-        jmxCollector.setMbeanName("java.lang:type=Runtime");
-        jmxCollector.setMbeanAttributeName(mbeanAttributeName);
-        jmxCollector.setRrdPath(rrdPath);
-        jmxCollector.setRrdDataSourceName(dataSourceName);
-        jmxCollector.setRrdDataSourceType(null);
-        jmxCollector.setSampleRate(1);
-        jmxCollector.setMetricsDir(TEST_DIR);
-        
-        // Simulates what Spring beans container would do
+        // Simulates what blueprint would do
         jmxCollector.configureCollector();
     }
 
@@ -361,47 +299,41 @@ public class JmxCollectorTest
     public void testUnsupportedDataSourceType() throws IOException, CollectorException
     {    
         String mbeanAttributeName = "Uptime";
-        dataSourceName = mbeanAttributeName.toLowerCase();
-        rrdPath = dataSourceName + ".rrd";
+        String metricName = mbeanAttributeName.toLowerCase();
         
-        jmxCollector = new JmxCollector();
-        jmxCollector.setMbeanName("java.lang:type=Runtime");
-        jmxCollector.setMbeanAttributeName(mbeanAttributeName);
-        jmxCollector.setRrdPath(rrdPath);
-        jmxCollector.setRrdDataSourceName(dataSourceName);
-        jmxCollector.setRrdDataSourceType("ABSOLUTE");
+        jmxCollector = new RrdJmxCollector("java.lang:type=Runtime", mbeanAttributeName, metricName, "ABSOLUTE");
         jmxCollector.setSampleRate(1);
         jmxCollector.setMetricsDir(TEST_DIR);
         
-        // Simulates what Spring beans container would do
+        // Simulates what blueprint would do
         jmxCollector.configureCollector();
     }    
     
-    
+
     @Test
     public void testCounterDataSourceCollection() throws Exception
     {
         // Set sample rate to 1 sec (default is 60 seconds) so that unit test runs quickly
-        createJmxCollector( "Uptime", JmxCollector.DERIVE_DATA_SOURCE_TYPE, 1);
+        createJmxCollector("Uptime", "jvmUptime", RrdJmxCollector.DERIVE_DATA_SOURCE_TYPE, 1);
         
         // Wait for "n" iterations of RRDB's sample rate, then see if MBean value was collected
         collectData(4);
     }
     
-    
+
     @Test
     public void testGaugeDataSourceCollection() throws Exception
     {
         // Set sample rate to 1 sec (default is 60 seconds) so that unit test runs quickly
-        createJmxCollector( "Uptime", JmxCollector.GAUGE_DATA_SOURCE_TYPE, 1);
+        createJmxCollector("Uptime", "jvmUptime", RrdJmxCollector.GAUGE_DATA_SOURCE_TYPE, 1);
         
         // Wait for "n" iterations of RRDB's sample rate, then see if MBean value was collected
         collectData(4);       
     }
-    
+
     @Test
     public void testManyUpdatesInRapidSuccession() throws Exception {
-    	createJmxCollector( "Uptime", JmxCollector.DERIVE_DATA_SOURCE_TYPE, 1);
+    	createJmxCollector("Uptime", "jvmUptime", RrdJmxCollector.DERIVE_DATA_SOURCE_TYPE, 1);
     	
     	// Set high update delta time so that samples will be skipped
     	jmxCollector.setMinimumUpdateTimeDelta(3);
@@ -410,31 +342,25 @@ public class JmxCollectorTest
     	long numRrdSamples = 4;
     	Thread.sleep(numRrdSamples * 1000);
     	
-    	// Expected skip count is 2 because first sample is always accepted and
-    	// num samples is one more than minimum update time delta
-    	long expectedSampleSkipCount = numRrdSamples - 2;
-        assertThat(jmxCollector.getSampleSkipCount(), is(expectedSampleSkipCount));
+        assertThat(jmxCollector.getSampleSkipCount(), is(greaterThan(0L)));
     }
     
-/******************************************************************************************/
+/****************************************************************************************/
     
-    private void createJmxCollector(String mbeanAttributeName, String dataSourceType, int sampleRate) 
+    
+    private void createJmxCollector(String mbeanAttributeName, String metricName, String dataSourceType, int sampleRate) 
         throws Exception
     {
         dataSourceName = mbeanAttributeName.toLowerCase();
-        rrdPath = dataSourceName + ".rrd";
         
-        jmxCollector = new JmxCollector();
-        jmxCollector.setMbeanName("java.lang:type=Runtime");
-        jmxCollector.setMbeanAttributeName(mbeanAttributeName);
-        jmxCollector.setRrdPath(rrdPath);
-        jmxCollector.setRrdDataSourceName(dataSourceName);
-        jmxCollector.setRrdDataSourceType(dataSourceType);
+        jmxCollector = new RrdJmxCollector("java.lang:type=Runtime", mbeanAttributeName, metricName, 
+        		dataSourceType, dataSourceName);
+
         jmxCollector.setSampleRate(sampleRate);
         jmxCollector.setMinimumUpdateTimeDelta(0);
         jmxCollector.setMetricsDir(TEST_DIR);
         
-        // Simulates what Spring beans container would do
+        // Simulates what blueprint would do
         jmxCollector.configureCollector();
     }
     
@@ -501,4 +427,5 @@ public class JmxCollectorTest
         
         LOGGER.debug(fetchData.exportXml());
     }
+    
 }

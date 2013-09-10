@@ -150,7 +150,7 @@
 
 		<!-- DDF API versions -->
 		<ddf.action.api.version>1.0.0</ddf.action.api.version>
-		<ddf.catalog.api.version>2.0.11</ddf.catalog.api.version>
+		<ddf.catalog.api.version>2.0.12</ddf.catalog.api.version>
 		<ddf.content.core.api.version>1.0.0</ddf.content.core.api.version>
 		<ddf.mime.api.version>2.0.0</ddf.mime.api.version>
 		<ddf.security.encryption.service.api.version>1.0.0</ddf.security.encryption.service.api.version>

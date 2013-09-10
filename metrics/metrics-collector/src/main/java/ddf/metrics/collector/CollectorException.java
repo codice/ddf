@@ -9,8 +9,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-package ddf.metrics.reporting.internal;
-
+package ddf.metrics.collector;
 
 
 /**

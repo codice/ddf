@@ -24,13 +24,6 @@
     <feature name="metrics-services" version="${project.version}"
         description="cxf interceptors to capture metrics.">
         <bundle>mvn:ddf.metrics.interceptor/metrics-interceptor/${project.version}</bundle>
-        
-        <config name="MetricsJmxCollector-ServicesLatency">
-            mbeanName = ddf.metrics.services:name=Latency
-            mbeanAttributeName = Mean
-            rrdPath = ServicesLatency.rrd
-            rrdDataSourceType = GAUGE
-        </config>
     </feature>
     
 </features>

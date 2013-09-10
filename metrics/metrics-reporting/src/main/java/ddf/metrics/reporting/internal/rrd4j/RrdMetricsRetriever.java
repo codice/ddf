@@ -34,7 +34,6 @@ import javax.xml.transform.stream.StreamResult;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.WordUtils;
-import org.apache.log4j.Logger;
 import org.apache.poi.hslf.model.Picture;
 import org.apache.poi.hslf.model.Slide;
 import org.apache.poi.hslf.model.TextBox;
@@ -57,6 +56,8 @@ import org.rrd4j.core.FetchRequest;
 import org.rrd4j.core.RrdDb;
 import org.rrd4j.graph.RrdGraph;
 import org.rrd4j.graph.RrdGraphDef;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -90,7 +91,7 @@ import ddf.metrics.reporting.internal.MetricsRetriever;
  */
 public class RrdMetricsRetriever implements MetricsRetriever
 {
-    private static final transient Logger LOGGER = Logger.getLogger(RrdMetricsRetriever.class);
+    private static final transient Logger LOGGER = LoggerFactory.getLogger(RrdMetricsRetriever.class);
     
     private static final double DEFAULT_METRICS_MAX_THRESHOLD = 4000000000.0;
     private static final int RRD_STEP = 60;
@@ -117,7 +118,7 @@ public class RrdMetricsRetriever implements MetricsRetriever
     }
     
     public RrdMetricsRetriever(double metricsMaxThreshold) {
-    	LOGGER.trace("Setting metricsMaxThreshold = " + metricsMaxThreshold);
+    	LOGGER.trace("Setting metricsMaxThreshold = {}", metricsMaxThreshold);
     	this.metricsMaxThreshold = metricsMaxThreshold;
     }
     
@@ -178,7 +179,7 @@ public class RrdMetricsRetriever implements MetricsRetriever
 //            long archiveStep = archive.getArcStep();
 //            LOGGER.debug("archiveStep = " + archiveStep);
             long rrdStep = rrdDb.getRrdDef().getStep();
-            LOGGER.debug("rrdStep = " + rrdStep);
+            LOGGER.debug("rrdStep = {}", rrdStep);
             
             // Still TBD if we want to graph the AVERAGE data on the same graph
 //            graphDef.comment(metricName + "   ");
@@ -265,11 +266,10 @@ public class RrdMetricsRetriever implements MetricsRetriever
         for (int i=0; i < timestamps.size(); i++)
         {
             String timestamp = getCalendarTime(timestamps.get(i));
-            //csv.append(timestamp + "," + new Double(values.get(i)).longValue() + "\n");
             csv.append(timestamp + "," + new Double(values.get(i)) + "\n");
         }        
         
-        LOGGER.trace("csv = " + csv.toString());
+        LOGGER.trace("csv = {}", csv.toString());
         
         LOGGER.trace("EXITING: createCsvData");
         
@@ -322,8 +322,6 @@ public class RrdMetricsRetriever implements MetricsRetriever
                 sampleElement.appendChild(timestampElement);
                 
                 Element valueElement = doc.createElement("value");
-                long value = new Double(values.get(i)).longValue();
-                //valueElement.appendChild(doc.createTextNode(String.valueOf(value)));
                 valueElement.appendChild(doc.createTextNode(String.valueOf(values.get(i))));
                 sampleElement.appendChild(valueElement);
             }        
@@ -353,7 +351,7 @@ public class RrdMetricsRetriever implements MetricsRetriever
             tfe.printStackTrace();
         }
         
-        LOGGER.trace("xml = " + sw.toString());
+        LOGGER.trace("xml = {}", sw.toString());
         
         LOGGER.trace("EXITING: createXmlData");
         
@@ -453,9 +451,6 @@ public class RrdMetricsRetriever implements MetricsRetriever
             String timestamp = getCalendarTime(timestamps.get(i));            
             JSONObject sample = new JSONObject();
             sample.put("timestamp", timestamp);
-            
-            // convert value to a long to prevent fractional values
-            //sample.put("value", new Double(values.get(i)).longValue());
             sample.put("value", new Double(values.get(i)));
             samples.add(sample);
         }
@@ -470,7 +465,7 @@ public class RrdMetricsRetriever implements MetricsRetriever
         obj.writeJSONString(writer);
         String jsonText = writer.toString();
         
-        LOGGER.trace("jsonText = " + jsonText);
+        LOGGER.trace("jsonText = {}", jsonText);
         
         LOGGER.trace("EXITING: createJsonData");
         
@@ -577,9 +572,6 @@ public class RrdMetricsRetriever implements MetricsRetriever
             String timestamp = getCalendarTime(timestamps.get(i));
             row = sheet.createRow((short) rowCount);
             row.createCell(0).setCellValue(timestamp);
-            
-            // convert value to a long to prevent fractional values
-            //row.createCell(1).setCellValue(new Double(values.get(i)).longValue());
             row.createCell(1).setCellValue(new Double(values.get(i)));
             rowCount++;
         }
@@ -728,20 +720,13 @@ public class RrdMetricsRetriever implements MetricsRetriever
             java.awt.Dimension pgsize = ppt.getPageSize();
             int pgx = pgsize.width; //slide width (720)
             int pgy = pgsize.height; //slide height (540)
-            LOGGER.debug("ppt page width = " + pgx);
-            LOGGER.debug("ppt page height = " + pgy);
+            LOGGER.debug("ppt page width = {}", pgx);
+            LOGGER.debug("ppt page height = {}", pgy);
         }
         
         // Convert title, if it is in camelCase, to individual words with each word
         // starting with a capital letter
         String slideTitle = convertCamelCase(title);
-//        String[] titleParts = StringUtils.splitByCharacterTypeCamelCase(title);
-//        String slideTitle = "";
-//        for (String titlePart : titleParts)
-//        {
-//            slideTitle += titlePart + " ";
-//        }
-//        slideTitle = StringUtils.capitalize(slideTitle);
 
         Slide slide = ppt.createSlide();
         
@@ -834,7 +819,7 @@ public class RrdMetricsRetriever implements MetricsRetriever
     }
     
     public void setMetricsMaxThreshold(double metricsMaxThreshold) {
-    	LOGGER.trace("Setting metricsMaxThreshold = " + metricsMaxThreshold);
+    	LOGGER.trace("Setting metricsMaxThreshold = {}", metricsMaxThreshold);
     	this.metricsMaxThreshold = metricsMaxThreshold;
 }
 	 
@@ -842,13 +827,13 @@ public class RrdMetricsRetriever implements MetricsRetriever
 	     long startTime, long endTime)
 	 {
 		String rrdFilename = rrdDb.getPath();
-		LOGGER.trace("***********  START Dump of RRD file:  [" + rrdFilename + "]  ***************");
-		LOGGER.trace("metricsMaxThreshold = " + metricsMaxThreshold);
+		LOGGER.trace("***********  START Dump of RRD file:  [{}]  ***************", rrdFilename);
+		LOGGER.trace("metricsMaxThreshold = {}", metricsMaxThreshold);
 		
 		FetchRequest fetchRequest = rrdDb.createFetchRequest(consolFun, startTime, endTime);
 		try {
 	        FetchData fetchData = fetchRequest.fetchData();
-	        LOGGER.trace("************  " + dsType + ": " + dataType + "  **************");
+	        LOGGER.trace("************  {}: {}  **************", dsType, dataType);
 	//		        LOGGER.trace(fetchData.dump());
 	        
 	        int rrdStep = RRD_STEP;  // in seconds
@@ -867,18 +852,18 @@ public class RrdMetricsRetriever implements MetricsRetriever
 		        			 ")");
 	        }
 	        
-	        LOGGER.trace("adjustedValues.length = " + adjustedValues.length);
+	        LOGGER.trace("adjustedValues.length = {}", adjustedValues.length);
 	
 	        for (int i=0; i < adjustedValues.length; i++)
 	        {
-		       	 //LOGGER.trace("adjustedValue[" + i + "] = " + adjustedValues[i]);
+		       	 //LOGGER.trace("adjustedValue[{}] = {}", i, adjustedValues[i]);
 		       	 if (adjustedValues[i] > metricsMaxThreshold) {
-		       		LOGGER.trace("Value [" + adjustedValues[i] + "] is an OUTLIER");
+		       		LOGGER.trace("Value [{}] is an OUTLIER", adjustedValues[i]);
 		       	 }
 	        }
 
 		} catch (IOException e) {}
 		
-        LOGGER.trace("***********  END Dump of RRD file:  [" + rrdFilename + "]  ***************");
+        LOGGER.trace("***********  END Dump of RRD file:  [{}]  ***************", rrdFilename);
 	 }
 }

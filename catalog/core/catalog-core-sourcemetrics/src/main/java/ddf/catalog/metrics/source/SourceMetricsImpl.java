@@ -12,11 +12,8 @@
 package ddf.catalog.metrics.source;
 
 
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Dictionary;
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -25,8 +22,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import org.apache.commons.lang.StringUtils;
-import org.osgi.service.cm.Configuration;
-import org.osgi.service.cm.ConfigurationAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,6 +42,8 @@ import ddf.catalog.plugin.StopProcessingException;
 import ddf.catalog.source.CatalogProvider;
 import ddf.catalog.source.FederatedSource;
 import ddf.catalog.source.Source;
+import ddf.metrics.collector.JmxCollector;
+import ddf.metrics.collector.rrd4j.RrdJmxCollector;
 
 /**
  * This class manages the metrics for individual {@link CatalogProvider} and {@link FederatedSource}
@@ -92,8 +89,6 @@ public class SourceMetricsImpl implements PreFederatedQueryPlugin, PostFederated
 	 * returned while querying a specific {@link Source}
 	 */
 	public static final String QUERIES_TOTAL_RESULTS_SCOPE = "Queries.TotalResults";
-	
-    public static final String JMX_COLLECTOR_FACTORY_PID = "MetricsJmxCollector";
     
     public static final String DERIVE_DATA_SOURCE_TYPE = "DERIVE";
     
@@ -104,8 +99,6 @@ public class SourceMetricsImpl implements PreFederatedQueryPlugin, PostFederated
     public static final String MEAN_MBEAN_ATTRIBUTE_NAME = "Mean";
     
     private static final String ALPHA_NUMERIC_REGEX = "[^a-zA-Z0-9]";
-    
-    private static final String RRD_FILENAME_EXTENSION = ".rrd";
 	
 	private final MetricRegistry metricsRegistry = new MetricRegistry(
 			MBEAN_PACKAGE_NAME);
@@ -115,8 +108,6 @@ public class SourceMetricsImpl implements PreFederatedQueryPlugin, PostFederated
     
     // The types of Yammer Metrics supported
     private enum MetricType { HISTOGRAM, METER };
-    
-    private ConfigurationAdmin configurationAdmin;
     
     // Injected list of CatalogProviders and FederatedSources 
     // that is kept updated by container, e.g., with latest sourceIds
@@ -131,16 +122,6 @@ public class SourceMetricsImpl implements PreFederatedQueryPlugin, PostFederated
     
     private ExecutorService executorPool;
 
-	/**
-	 * 
-	 * @param configurationAdmin
-	 */
-	public SourceMetricsImpl(ConfigurationAdmin configurationAdmin) {
-		
-		LOGGER.trace("INSIDE: SourceTracker constructor");
-		
-		this.configurationAdmin = configurationAdmin;
-	}
 
 	public List<CatalogProvider> getCatalogProviders() {
 		return catalogProviders;
@@ -403,12 +384,12 @@ public class SourceMetricsImpl implements PreFederatedQueryPlugin, PostFederated
 		if (!metrics.containsKey(key)) {
 			if (type == MetricType.HISTOGRAM){ 
 				Histogram histogram = metricsRegistry.histogram(MetricRegistry.name(sourceId, mbeanName));
-				String pid = createGaugeMetricsCollector(sourceId, mbeanName);
-				metrics.put(key, new SourceMetric(histogram, sourceId, pid, true));
+				RrdJmxCollector collector = createGaugeMetricsCollector(sourceId, mbeanName);
+				metrics.put(key, new SourceMetric(histogram, sourceId, collector, true));
 			} else if (type == MetricType.METER) {
 				Meter meter = metricsRegistry.meter(MetricRegistry.name(sourceId, mbeanName));
-				String pid = createCounterMetricsCollector(sourceId, mbeanName);
-				metrics.put(key, new SourceMetric(meter, sourceId, pid));
+				RrdJmxCollector collector = createCounterMetricsCollector(sourceId, mbeanName);
+				metrics.put(key, new SourceMetric(meter, sourceId, collector));
 			} else {
 				LOGGER.debug("Metric " + key
 						+ " not created because unknown metric type " + type
@@ -424,9 +405,9 @@ public class SourceMetricsImpl implements PreFederatedQueryPlugin, PostFederated
      * 
      * @param sourceId
      * @param collectorName
-     * @return the PID of the JmxCollector Managed Service Factory created
+     * @return the JmxCollector created
      */
-    private String createCounterMetricsCollector(String sourceId, String collectorName) {
+    private RrdJmxCollector createCounterMetricsCollector(String sourceId, String collectorName) {
     	return createMetricsCollector(sourceId, collectorName, 
     			COUNT_MBEAN_ATTRIBUTE_NAME, DERIVE_DATA_SOURCE_TYPE);
     }
@@ -436,9 +417,9 @@ public class SourceMetricsImpl implements PreFederatedQueryPlugin, PostFederated
      * 
      * @param sourceId
      * @param collectorName
-     * @return the PID of the JmxCollector Managed Service Factory created
+     * @return the JmxCollector created
      */
-    private String createGaugeMetricsCollector(String sourceId, String collectorName) {
+    private RrdJmxCollector createGaugeMetricsCollector(String sourceId, String collectorName) {
     	return createMetricsCollector(sourceId, collectorName, 
     			MEAN_MBEAN_ATTRIBUTE_NAME, GAUGE_DATA_SOURCE_TYPE);
     }
@@ -450,40 +431,25 @@ public class SourceMetricsImpl implements PreFederatedQueryPlugin, PostFederated
      * @param collectorName
      * @param mbeanAttributeName usually "Count" or "Mean"
      * @param dataSourceType only "DERIVE", "COUNTER" or "GAUGE" are supported
-     * @return the PID of the JmxCollector Managed Service Factory created
+     * @return the JmxCollector created
      */
-	private String createMetricsCollector(String sourceId,
+	private RrdJmxCollector createMetricsCollector(String sourceId,
 			String collectorName, String mbeanAttributeName,
 			String dataSourceType) {
     	
 		LOGGER.trace(
 				"ENTERING: createMetricsCollector - sourceId = {},   collectorName = {},   mbeanAttributeName = {},   dataSourceType = {}",
 				sourceId, collectorName, mbeanAttributeName, dataSourceType);
-		
-    	String pid = null;
     	
     	String rrdPath = getRrdFilename(sourceId, collectorName);
     	    	
-    	// Create the Managed Service Factory for the JmxCollector, setting its service properties
-    	// to the MBean it will poll and the RRD file it will populate
-    	try {
-			Configuration config = configurationAdmin.createFactoryConfiguration(JMX_COLLECTOR_FACTORY_PID, null);
-			Dictionary<String,String> props = new Hashtable<String,String>();
-			props.put("mbeanName", MBEAN_PACKAGE_NAME + ":name=" + sourceId + "." + collectorName);
-			props.put("mbeanAttributeName", mbeanAttributeName);
-			props.put("rrdPath", rrdPath);
-			props.put("rrdDataSourceName", "data");
-			props.put("rrdDataSourceType", dataSourceType);
-			config.update(props);
-			pid = config.getPid();
-			LOGGER.debug("JmxCollector pid = {} for sourceId = {}", pid, sourceId);
-		} catch (IOException e) {
-			LOGGER.warn("Unable to create " + collectorName + " JmxCollector for source " + sourceId, e);
-		}
+    	RrdJmxCollector collector = new RrdJmxCollector(MBEAN_PACKAGE_NAME + ":name=" + sourceId + "." + collectorName,
+    			mbeanAttributeName, rrdPath, dataSourceType);
+    	collector.init();
     	
     	LOGGER.trace("EXITING: createMetricsCollector - sourceId = {}", sourceId);
     	
-    	return pid;
+    	return collector;
     }
     
     protected String getRrdFilename(String sourceId, String collectorName) {
@@ -494,7 +460,7 @@ public class SourceMetricsImpl implements PreFederatedQueryPlugin, PostFederated
     	// non-alphanumeric capitalized.
     	// Example:
     	//     Given sourceId = dib30rhel-58 and collectorName = Queries.TotalResults
-    	//     The resulting RRD filename would be: sourceDib30rhel58QueriesTotalResults.rrd
+    	//     The resulting RRD filename would be: sourceDib30rhel58QueriesTotalResults
     	String[] sourceIdParts = sourceId.split(ALPHA_NUMERIC_REGEX);
     	String newSourceId = "";
     	for (String part : sourceIdParts) {
@@ -506,7 +472,6 @@ public class SourceMetricsImpl implements PreFederatedQueryPlugin, PostFederated
     	// Sterilize RRD path name by removing any non-alphanumeric characters - this would confuse the
     	// URL being generated for this RRD path in the Metrics tab of Admin console.
     	rrdPath = rrdPath.replaceAll(ALPHA_NUMERIC_REGEX, "");
-    	rrdPath += RRD_FILENAME_EXTENSION;
     	LOGGER.debug("AFTER: rrdPath = " + rrdPath);
 
     	return rrdPath;
@@ -531,8 +496,7 @@ public class SourceMetricsImpl implements PreFederatedQueryPlugin, PostFederated
     }
     
     /**
-     * Delete the JmxCollector Managed Service Factory for the specified Source and
-     * MBean.
+     * Delete the JmxCollector for the specified Source and MBean.
      * 
      * @param sourceId
      * @param metricName
@@ -540,16 +504,9 @@ public class SourceMetricsImpl implements PreFederatedQueryPlugin, PostFederated
     private void deleteCollector(String sourceId, String metricName) {
     	String mapKey = sourceId + "." + metricName;
     	SourceMetric sourceMetric = metrics.get(mapKey);
-    	try {
-			Configuration config = configurationAdmin.getConfiguration(sourceMetric.getPid());
-			if (config != null) {
-				LOGGER.debug("Deleting " + metricName + " JmxCollector for source " + sourceId);
-				config.delete();
-			}
-		} catch (IOException e) {
-			LOGGER.warn("Unable to delete " + metricName + " JmxCollector for source " + sourceId, e);
-		}
-      metrics.remove(mapKey);
+    	LOGGER.debug("Deleting " + metricName + " JmxCollector for source " + sourceId);
+    	sourceMetric.getCollector().destroy();
+        metrics.remove(mapKey);
     }    
     
     /**
@@ -567,30 +524,29 @@ public class SourceMetricsImpl implements PreFederatedQueryPlugin, PostFederated
     	// is affiliated with
     	private String sourceId;
     	
-    	// The PID of the JmxCollector Managed Service Factory polling this metric's
-    	// MBean
-    	private String pid;
+    	// The JmxCollector polling this metric's MBean
+    	private RrdJmxCollector collector;
     	
     	// Whether this metric is a Histogram or Meter
     	private boolean isHistogram = false;
     	
-    	public SourceMetric(Metric metric, String sourceId, String pid) {
-    		this(metric, sourceId, pid, false);
+    	public SourceMetric(Metric metric, String sourceId, RrdJmxCollector collector) {
+    		this(metric, sourceId, collector, false);
     	}
     	
-    	public SourceMetric(Metric metric, String sourceId, String pid, boolean isHistogram) {
+    	public SourceMetric(Metric metric, String sourceId, RrdJmxCollector collector, boolean isHistogram) {
     		this.metric = metric;
     		this.sourceId = sourceId;
-    		this.pid = pid;
+    		this.collector = collector;
     		this.isHistogram = isHistogram;
     	}
     	
 		public Metric getMetric() {
 			return metric;
 		}
-				
-		public String getPid() {
-			return pid;
+		
+		public RrdJmxCollector getCollector() {
+			return collector;
 		}
 		
 		public boolean isHistogram() {

@@ -9,9 +9,15 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-package ddf.metrics.reporting.internal;
+package ddf.metrics.collector;
 
-public interface Collector
-{
+public interface JmxCollector {
 
+	public String getMbeanName();
+	
+	public String getMbeanAttributeName();
+	
+	public String getMetricName();
+	
+	public String getMetricType();
 }

@@ -9,7 +9,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-package ddf.metrics.reporting.internal.rrd4j;
+package ddf.metrics.collector.rrd4j;
 
 
 import java.io.File;
@@ -26,53 +26,46 @@ import javax.management.ObjectName;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
-import org.apache.log4j.Logger;
 import org.rrd4j.ConsolFun;
 import org.rrd4j.DsType;
 import org.rrd4j.core.RrdDb;
 import org.rrd4j.core.RrdDbPool;
 import org.rrd4j.core.RrdDef;
 import org.rrd4j.core.Sample;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import ddf.metrics.reporting.internal.Collector;
-import ddf.metrics.reporting.internal.CollectorException;
+import ddf.metrics.collector.CollectorException;
+import ddf.metrics.collector.JmxCollector;
+import ddf.metrics.collector.MetricsUtil;
 
+public class RrdJmxCollector implements JmxCollector {
+	
+	private static final Logger LOGGER = LoggerFactory.getLogger(RrdJmxCollector.class);
 
-/**
- * Periodically collects a metrics data from its associated JMX MBean attribute and
- * stores this data in an RRD (Round Robin Database) file.
- * 
- * NOTE: This is an internal class (as noted in its package name) that is not intended 
- * for external use by third party developers.
- * 
- * The configuration parameters for a JmxCollector are typically configured in the
- * {@code <config>} stanzas of the catalog-core-app features.xml file.
- * 
- * Sample config stanza for a JmxCollector:
- * <pre>
- * {@code
- *  <config name="MetricsJmxCollector-UsageThreshold">
- *          mbeanName = java.lang:type=MemoryPool,name=Code Cache
- *          mbeanAttributeName = UsageThreshold
- *          rrdPath = usageThreshold.rrd
- *          rrdDataSourceType = GAUGE
- * </config>
- * }
- * </pre>
- *  
- * @author rodgersh
- * @author ddf.isgs@lmco.com
- *
- */
-public class JmxCollector implements Collector
-{
-	private static final int MILLIS_PER_SECOND = 1000;
+    /** 
+     * Name of the JMX MBean that contains the metric being collected. 
+     * (Should be set by <config> stanza in metrics-reporting-app features.xml file)
+     */
+    private String mbeanName;
+    
+    /** 
+     * Name of the JMX MBean attribute that maps to the metric being collected. 
+     * (Should be set by <config> stanza in metrics-reporting-app features.xml file)
+     */
+    private String mbeanAttributeName;
+
+    private String metricName;
+    
+    private String metricType;
+    
+    private static final int MILLIS_PER_SECOND = 1000;
 	
     private static final int FIVE_MINUTES_MILLIS = 300000;
-
-    private static final Logger LOGGER = Logger.getLogger(JmxCollector.class);
     
     public static final String DEFAULT_METRICS_DIR = "data/metrics/";
+    
+    public static final String RRD_FILENAME_SUFFIX = ".rrd";
     
     public static final String DERIVE_DATA_SOURCE_TYPE = "DERIVE";
     
@@ -100,19 +93,7 @@ public class JmxCollector implements Collector
      */
     private static final double DEFAULT_XFF_FACTOR = 0.5;
     
-    
-    /** 
-     * Name of the JMX MBean that contains the metric being collected. 
-     * (Should be set by <config> stanza in metrics-reporting-app features.xml file)
-     */
-    private String mbeanName;
-    
-    /** 
-     * Name of the JMX MBean attribute that maps to the metric being collected. 
-     * (Should be set by <config> stanza in metrics-reporting-app features.xml file)
-     */
-    private String mbeanAttributeName;
-    
+        
     /** 
      * Name of the RRD file to store the metric's data being collected. The
      * DDF metrics base directory will be prepended to this filename.
@@ -137,8 +118,6 @@ public class JmxCollector implements Collector
      * (Should be set by <config> stanza in metrics-reporting-app features.xml file)
      */
     private String rrdDataSourceType;
-    
-
 
     private String metricsDir;
     private int sampleRate;
@@ -152,11 +131,29 @@ public class JmxCollector implements Collector
     private ScheduledThreadPoolExecutor executor;
     private long mbeanTimeoutMillis = FIVE_MINUTES_MILLIS;
     private ExecutorService executorPool;
+
     
+    public RrdJmxCollector(String mbeanName, String mbeanAttributeName, String metricName) {
+    	this(mbeanName, mbeanAttributeName, metricName, DERIVE_DATA_SOURCE_TYPE, DEFAULT_DATA_SOURCE_NAME);
+    }
     
-    public JmxCollector()
-    {
-        metricsDir = DEFAULT_METRICS_DIR;
+    public RrdJmxCollector(String mbeanName, String mbeanAttributeName, 
+    		String metricName, String metricType) {
+    	this(mbeanName, mbeanAttributeName, metricName, metricType, DEFAULT_DATA_SOURCE_NAME);
+    }
+    
+    public RrdJmxCollector(String mbeanName, String mbeanAttributeName, 
+    		String metricName, String metricType, String dataSourceName) {
+    	
+    	LOGGER.debug("Creating RrdJmxCollector for {}, {}, {}, {}", 
+    			mbeanName, mbeanAttributeName, metricName, metricType);
+    	
+    	this.mbeanName = mbeanName;
+    	this.mbeanAttributeName = mbeanAttributeName;
+    	this.metricName = metricName;
+    	this.metricType = metricType;
+    	
+    	metricsDir = DEFAULT_METRICS_DIR;
         localMBeanServer = getLocalMBeanServer();
         
         // Only expose these values via setter/getter methods for unit
@@ -172,19 +169,37 @@ public class JmxCollector implements Collector
         rrdStep = this.sampleRate;
         pool = RrdDbPool.getInstance();
         
-        this.rrdDataSourceName = DEFAULT_DATA_SOURCE_NAME;
-        this.rrdDataSourceType = DERIVE_DATA_SOURCE_TYPE;
-                
-        LOGGER.trace("EXITING: JmxCollector default constructor");
+        this.rrdDataSourceName = dataSourceName;
+        this.rrdDataSourceType = metricType;
     }
- 
+
+	@Override
+	public String getMbeanName() {
+		return mbeanName;
+	}
+	
+	@Override
+    public String getMbeanAttributeName() {
+        return mbeanAttributeName;
+    }
+
+	@Override
+	public String getMetricName() {
+		return metricName;
+	}
+
+	@Override
+	public String getMetricType() {
+		return metricType;
+	}
+	 
 
     /**
      * Initialization when the JmxCollector is created. Called by blueprint.
      */
     public void init()
     {
-        LOGGER.trace("ENTERING: init()");
+        LOGGER.trace("ENTERING: init() for metric {}", metricName);
         
         if (executorPool == null)
         {
@@ -208,7 +223,7 @@ public class JmxCollector implements Collector
             }
         };
         
-        LOGGER.debug("Start configureCollector thread for JmxCollector " + mbeanAttributeName);
+        LOGGER.debug("Start configureCollector thread for JmxCollector {}", mbeanAttributeName);
         executorPool.execute(jmxCollectorCreator);
         
         LOGGER.trace("EXITING: init()");
@@ -216,34 +231,34 @@ public class JmxCollector implements Collector
     
     void configureCollector() throws CollectorException, IOException
     {
-    	LOGGER.trace("ENTERING: configureCollector() for collector " + mbeanAttributeName);
+    	LOGGER.trace("ENTERING: configureCollector() for collector {}", mbeanAttributeName);
     	
         if (!isMbeanAccessible())
         {
-            LOGGER.warn("MBean attribute " + mbeanAttributeName + " is not accessible - no collector will be configured for it.");
+            LOGGER.warn("MBean attribute {} is not accessible - no collector will be configured for it.", mbeanAttributeName);
             throw new CollectorException("MBean attribute " + mbeanAttributeName + " is not accessible - no collector will be configured for it.");
         }
         
         if (rrdDataSourceType == null)
         {
-        	LOGGER.warn("Unable to configure collector for MBean attribute " + mbeanAttributeName + "\nData Source type for the RRD file cannot be null - must be either DERIVE, COUNTER or GAUGE.");
+        	LOGGER.warn("Unable to configure collector for MBean attribute {}\nData Source type for the RRD file cannot be null - must be either DERIVE, COUNTER or GAUGE.", mbeanAttributeName);
         	throw new CollectorException("Unable to configure collector for MBean attribute " + mbeanAttributeName + "\nData Source type for the RRD file cannot be null - must be either DERIVE, COUNTER or GAUGE.");
         }
         
-        LOGGER.trace("rrdDataSourceType = " + rrdDataSourceType);
-        createRrdFile(rrdPath, rrdDataSourceName, DsType.valueOf(rrdDataSourceType));
+        LOGGER.trace("rrdDataSourceType = {}", rrdDataSourceType);
+        createRrdFile(metricName, rrdDataSourceName, DsType.valueOf(rrdDataSourceType));
         
         updateSamples();      
         
-        LOGGER.trace("EXITING: configureCollector() for collector " + mbeanAttributeName);
+        LOGGER.trace("EXITING: configureCollector() for collector {}", mbeanAttributeName);
     }
     
     /**
-     * Cleanup when the JmxCollector is destroyed. Called by blueprint.
+     * Cleanup when the JmxCollector is destroyed, e.g., when system is shutdown. Called by blueprint.
      */
     public void destroy()
     {
-        LOGGER.trace("ENTERING: destroy()");
+        LOGGER.trace("ENTERING: destroy() for metric {}", metricName);
         
         // Shutdown the scheduled threaded executor that is polling the MBean attribute (metric)
         if (executor != null)
@@ -251,7 +266,7 @@ public class JmxCollector implements Collector
             List<Runnable> tasks = executor.shutdownNow();
             if (tasks != null)
             {
-                LOGGER.debug("Num tasks awaiting execution = " + tasks.size());
+                LOGGER.debug("Num tasks awaiting execution = {}", tasks.size());
             }
             else
             {
@@ -294,7 +309,7 @@ public class JmxCollector implements Collector
                 
                 if (!isNumeric(attr))
                 {
-                    LOGGER.debug(mbeanAttributeName + " from MBean " + mbeanName + " has non-numeric data");
+                    LOGGER.debug("{} from MBean {} has non-numeric data", mbeanAttributeName, mbeanName);
                     return false;
                 }
                 
@@ -307,7 +322,7 @@ public class JmxCollector implements Collector
             catch (Exception e)
             {
                 try {
-                    LOGGER.trace("MBean [" + mbeanName +"] not found, sleeping...");
+                    LOGGER.trace("MBean [{}] not found, sleeping...", mbeanName);
                     Thread.sleep(1000);
                 } catch (InterruptedException ie) {
                     // Ignore this
@@ -318,10 +333,10 @@ public class JmxCollector implements Collector
         return attr != null;
     }
 
-    private void createRrdFile(final String path, final String dsName, final DsType dsType) 
+    private void createRrdFile(final String metricName, final String dsName, final DsType dsType) 
             throws IOException, CollectorException 
     {
-    	createRrdFile(path, dsName, dsType, 0, Double.NaN);
+    	createRrdFile(metricName, dsName, dsType, 0, Double.NaN);
     }
     
     /**
@@ -343,20 +358,19 @@ public class JmxCollector implements Collector
      * @throws IOException
      * @throws CollectorException
      */
-    private void createRrdFile(final String path, final String dsName, final DsType dsType,
+    private void createRrdFile(final String metricName, final String dsName, final DsType dsType,
     		double minValue, double maxValue) 
         throws IOException, CollectorException 
     {
         LOGGER.trace("ENTERING: createRrdFile");
         
-        if (StringUtils.isEmpty(path))
+        if (StringUtils.isEmpty(metricName))
         {
             throw new CollectorException("Path where RRD file is to be created must be specified.");
         }
         else
         {
-        	//TODO rrdPath = generateRrdFilename();
-            rrdPath = metricsDir + path;
+            rrdPath = metricsDir + metricName + RRD_FILENAME_SUFFIX;
         }
         
         if (StringUtils.isEmpty(dsName))
@@ -378,7 +392,7 @@ public class JmxCollector implements Collector
                 file.getParentFile().mkdirs();
             }
 
-            LOGGER.debug("Creating new RRD file " + rrdPath);
+            LOGGER.debug("Creating new RRD file {}", rrdPath);
 
             RrdDef def = new RrdDef(rrdPath, rrdStep);
             
@@ -454,7 +468,7 @@ public class JmxCollector implements Collector
         }
         else
         {
-            LOGGER.debug("rrd file " + path + " already exists - absolute path = " + file.getAbsolutePath());
+            LOGGER.debug("rrd file {} already exists - absolute path = {}", rrdPath, file.getAbsolutePath());
             rrdDb = pool.requestRrdDb(rrdPath);
         }
         
@@ -486,7 +500,7 @@ public class JmxCollector implements Collector
                 {
                     attr = localMBeanServer.getAttribute(new ObjectName(mbeanName), mbeanAttributeName);
                     
-                    LOGGER.trace("Sampling attribute " + mbeanAttributeName + " from MBean " + mbeanName);
+                    LOGGER.trace("Sampling attribute {} from MBean {}", mbeanAttributeName, mbeanName);
                     
                     // Cast the metric's sampled value to the appropriate data type
                     double val = 0;
@@ -511,7 +525,7 @@ public class JmxCollector implements Collector
                         throw new IllegalArgumentException("Unsupported type " + attr + " for attribute " + mbeanAttributeName);
                     }
                     
-                    LOGGER.trace("MBean attribute " + mbeanAttributeName + " has value = " + val);
+                    LOGGER.trace("MBean attribute {} has value = {}", mbeanAttributeName, val);
                     
                     // If first time this metric has been sampled, then need to create a
                     // sample in the RRD file
@@ -531,12 +545,11 @@ public class JmxCollector implements Collector
                         }
                         else
                         {
-                        	LOGGER.debug("Skipping sample update because time between updates is less than " + minimumUpdateTimeDelta + " seconds");
+                        	LOGGER.debug("Skipping sample update because time between updates is less than {} seconds", minimumUpdateTimeDelta);
 
                             sampleSkipCount++;
                             
-                            LOGGER.debug("now = " + now + ",   lastUpdateTime = " + lastUpdateTime + 
-                            		"   (sampleSkipCount = " + sampleSkipCount + ")");
+                            LOGGER.debug("now = {},   lastUpdateTime = {}   (sampleSkipCount = {})", now, lastUpdateTime, sampleSkipCount);
                         }
                     } 
                     catch (IllegalArgumentException iae) 
@@ -553,7 +566,7 @@ public class JmxCollector implements Collector
         
         // Setup threaded scheduler to retrieve this MBean attribute's value
         // at the specified sample rate
-        LOGGER.debug("Setup ScheduledThreadPoolExecutor for MBean " + mbeanName);
+        LOGGER.debug("Setup ScheduledThreadPoolExecutor for MBean {}", mbeanName);
         executor.scheduleWithFixedDelay(updater, 0, sampleRate, TimeUnit.SECONDS);
         
         LOGGER.trace("EXITING: updateSamples");
@@ -561,8 +574,8 @@ public class JmxCollector implements Collector
             
     private void updateSample(long now, double val) throws IOException {
 
-		LOGGER.debug("Sample time is [" + RrdMetricsRetriever.getCalendarTime(now) + 
-				"], updating metric [" + mbeanName + "] with value [" + val + "]");
+		LOGGER.debug("Sample time is [{}], updating metric [{}] with value [{}]", 
+				MetricsUtil.getCalendarTime(now), mbeanName, val);
     	
         sample.setTime(now);
         sample.setValue(rrdDataSourceName, val);
@@ -597,26 +610,6 @@ public class JmxCollector implements Collector
                 ((value instanceof String) && NumberUtils.isNumber((String) value)));
     }
     
-    
-    public void setMbeanName(String mbeanName)
-    {
-        LOGGER.trace("Setting mbeanName to " + mbeanName);
-        
-        this.mbeanName = mbeanName;
-    }
-    
-    
-    public String getMbeanAttributeName()
-    {
-        return mbeanAttributeName;
-    }
-
-
-    public void setMbeanAttributeName( String mbeanAttributeName )
-    {
-        this.mbeanAttributeName = mbeanAttributeName;
-    }
-
 
     public String getMetricsDir()
     {
@@ -624,40 +617,37 @@ public class JmxCollector implements Collector
     }
 
 
-    public void setMetricsDir( String metricsDir )
+    void setMetricsDir( String metricsDir )
     {
         this.metricsDir = metricsDir;
     }
-
 
     public String getRrdPath()
     {
         return rrdPath;
     }
 
-
-    public void setRrdPath( String rrdPath )
+    void setRrdPath( String rrdPath )
     {
         this.rrdPath = rrdPath;
     }
 
 
-    public void setRrdDataSourceName(String rrdDataSourceName) {
-        this.rrdDataSourceName = rrdDataSourceName;
-    }
-
+//    void setRrdDataSourceName(String rrdDataSourceName) {
+//        this.rrdDataSourceName = rrdDataSourceName;
+//    }
 
     public String getRrdDataSourceType()
     {
         return rrdDataSourceType;
     }
-
-
-    public void setRrdDataSourceType( String rrdDataSourceType )
-    {
-        this.rrdDataSourceType = rrdDataSourceType;
-        LOGGER.debug("rrdDataSourceType = " + rrdDataSourceType);
-    }
+//
+//
+//    public void setRrdDataSourceType( String rrdDataSourceType )
+//    {
+//        this.rrdDataSourceType = rrdDataSourceType;
+//        LOGGER.debug("rrdDataSourceType = {}", rrdDataSourceType);
+//    }
     
 
     protected int getSampleRate()
