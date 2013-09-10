@@ -56,7 +56,7 @@ public class ITestScheduledTask {
             scheduler = StdSchedulerFactory.getDefaultScheduler();
             scheduler.start();
         } catch (SchedulerException e) {
-            e.printStackTrace();
+        	LOGGER.error("Error while starting scheduler", e);
         }
 
     }
@@ -133,7 +133,7 @@ public class ITestScheduledTask {
             when(session.execute(isA(CharSequence.class))).then(captureInput);
 
         } catch (Exception e) {
-            e.printStackTrace();
+        	LOGGER.error("Exception occurred during command session", e);
         }
         return session;
     }

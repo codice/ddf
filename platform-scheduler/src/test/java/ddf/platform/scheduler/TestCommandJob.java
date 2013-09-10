@@ -30,6 +30,8 @@ import org.junit.Test;
 import org.mockito.stubbing.Answer;
 import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Tests the {@link CommandJob} class.
@@ -43,6 +45,9 @@ public class TestCommandJob {
     static {
         BasicConfigurator.configure();
     }
+    private static final Logger LOGGER = LoggerFactory
+            .getLogger(TestCommandJob.class);
+    
     
     /**
      * Do no execution when no command processor available
@@ -180,7 +185,7 @@ public class TestCommandJob {
             when(session.execute(isA(CharSequence.class))).then(captureInput);
 
         } catch (Exception e) {
-            e.printStackTrace();
+        	LOGGER.error("Exception occurred during command session", e);
         }
         return session;
     }
