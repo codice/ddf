@@ -300,8 +300,8 @@ public class MetricsWebConsolePlugin extends AbstractWebConsolePlugin {
                 String startDate = urlEncodeDate(startOfLastWeek);
                 LOGGER.debug("Previous Week " + i + "(start):  " + startDate);
 
-                DateMidnight endOfLastWeek = startOfLastWeek
-                        .plusDays(DateTimeConstants.DAYS_PER_WEEK - 1);
+                DateTime endOfLastWeek = startOfLastWeek.plusDays(DateTimeConstants.DAYS_PER_WEEK)
+                        .toDateTime().minus(1 /* millisecond */);
                 String endDate = urlEncodeDate(endOfLastWeek);
                 LOGGER.debug("Previous Week " + i + " (end):  " + endDate);
 
@@ -328,7 +328,7 @@ public class MetricsWebConsolePlugin extends AbstractWebConsolePlugin {
                 LOGGER.debug("Previous Month (start):  " + startDate + "   (ms = "
                         + startOfLastMonth.getMillis() + ")");
 
-                DateMidnight endOfLastMonth = startOfLastMonth.plusMonths(1).minusDays(1);
+                DateTime endOfLastMonth = startOfLastMonth.plusMonths(1).toDateTime().minus(1 /* millisecond */);
                 String endDate = urlEncodeDate(endOfLastMonth);
                 LOGGER.debug("Previous Month (end):  " + endOfLastMonth + "   (ms = "
                         + endOfLastMonth.getMillis() + ")");
@@ -356,7 +356,7 @@ public class MetricsWebConsolePlugin extends AbstractWebConsolePlugin {
                 LOGGER.debug("Previous Year (start):  " + startOfLastYear + "   (ms = "
                         + startOfLastYear.getMillis() + ")");
 
-                DateMidnight endOfLastYear = startOfLastYear.plusYears(1).minusDays(1);
+                DateTime endOfLastYear = startOfLastYear.plusYears(1).toDateTime().minus(1 /* millisecond */);
                 String endDate = urlEncodeDate(endOfLastYear);
                 LOGGER.debug("Previous Year (end):  " + endOfLastYear + "   (ms = "
                         + endOfLastYear.getMillis() + ")");
@@ -385,7 +385,7 @@ public class MetricsWebConsolePlugin extends AbstractWebConsolePlugin {
         pw.println("<tr class=\"" + tableStriping + " ui-state-default\">");
     }
 
-    void addCellLabelForRange(PrintWriter pw, DateMidnight startDate, DateMidnight endDate)
+    void addCellLabelForRange(PrintWriter pw, DateMidnight startDate, DateTime endDate)
     {
         DateTimeFormatter dateFormatter = DateTimeFormat.forStyle(DATE_DISPLAY_FORMAT);
         String urlText = dateFormatter.print(startDate) + " - " + dateFormatter.print(endDate);
@@ -416,6 +416,11 @@ public class MetricsWebConsolePlugin extends AbstractWebConsolePlugin {
     }
 
     static String urlEncodeDate(DateMidnight date) throws UnsupportedEncodingException
+    {
+        return URLEncoder.encode(date.toString(ISODateTimeFormat.dateTimeNoMillis()), CharEncoding.UTF_8);
+    }
+
+    static String urlEncodeDate(DateTime date) throws UnsupportedEncodingException
     {
         return URLEncoder.encode(date.toString(ISODateTimeFormat.dateTimeNoMillis()), CharEncoding.UTF_8);
     }
