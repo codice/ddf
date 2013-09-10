@@ -51,6 +51,7 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.rrd4j.ConsolFun;
 import org.rrd4j.DsType;
+import org.rrd4j.core.Datasource;
 import org.rrd4j.core.FetchData;
 import org.rrd4j.core.FetchRequest;
 import org.rrd4j.core.RrdDb;
@@ -160,7 +161,10 @@ public class RrdMetricsRetriever implements MetricsRetriever
         graphDef.setWidth(1000);
         graphDef.setTitle(title);
 
-        DsType dataSourceType = rrdDb.getDatasource(0).getType();
+        // Since we have verified only one datasource in RRD file/RRDb, then know
+        // that we can index by zero safely and get the metric's data
+        Datasource dataSource = rrdDb.getDatasource(0);
+        DsType dataSourceType = dataSource.getType();
         
         // Determine the type of Data Source for this RRD file
         // (Need to know this because COUNTER and DERIVE data is averaged across samples and the vertical axis of the
@@ -190,7 +194,7 @@ public class RrdMetricsRetriever implements MetricsRetriever
             // Multiplied by the rrdStep to "undo" the automatic averaging that RRD does
             // when it collects TOTAL data - we want the actual totals for the step, not
             // the average of the totals.
-            graphDef.datasource("myTotal", rrdFilename, "data", ConsolFun.TOTAL);
+            graphDef.datasource("myTotal", rrdFilename, dataSource.getName(), ConsolFun.TOTAL);
             graphDef.datasource("realTotal", "myTotal," + rrdStep + ",*");
 
             // If real total exceeds the threshold value used to constrain/filter spike data out,
@@ -217,7 +221,7 @@ public class RrdMetricsRetriever implements MetricsRetriever
             		     startTime, endTime);
             }
 
-            graphDef.datasource("myAverage", rrdFilename, "data", ConsolFun.AVERAGE);
+            graphDef.datasource("myAverage", rrdFilename, dataSource.getName(), ConsolFun.AVERAGE);
             graphDef.line("myAverage", Color.RED, convertCamelCase(metricName), 2);
             
             // Add some spacing between the graph and the summary stats shown beneath the graph

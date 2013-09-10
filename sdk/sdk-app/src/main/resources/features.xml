@@ -16,38 +16,6 @@
     <feature name="sdk-metrics" version="${project.version}"
         description="SDK sample metrics.">
         <bundle>mvn:ddf.sdk/sample-metrics/${project.version}</bundle>
-
-        <!-- 
-        SDK Metrics: example of adding a more refined metric for spatial, 
-        here Point Radius queries count.
-        
-        WARNING: The JmxCollector interface is not final and may change in the future.
-        
-        Should rarely, if ever, need to change rrdDataSourceName from "data".
-        
-        rrdPath should be a descriptive name of what metric is being collected and always
-        end with the .rrd file extension.
-        
-        rrdDataSourceType can only be COUNTER or GAUGE. COUNTER is for metrics that
-        always increment (e.g., query count). GAUGE is for metrics that can wax and wane,
-        e.g., response time.
-        -->
-        <config name="MetricsJmxCollector-PointRadiusQueries">
-            mbeanName = sdk.metrics.sample:name=Queries.PointRadius
-            mbeanAttributeName = Count
-            rrdPath = pointRadiusQueries.rrd
-        </config>
-        
-        <!-- 
-        SDK Metrics: example of adding an existing metric, here the JVM uptime 
-        
-        WARNING: The JmxCollector interface is not final and may change in the future.
-        -->
-        <config name="MetricsJmxCollector-JvmUptime">
-            mbeanName = java.lang:type=Runtime
-            mbeanAttributeName = Uptime
-            rrdPath = jvmUptime.rrd
-        </config>
     </feature>
 	
 </features>
