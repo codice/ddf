@@ -16,7 +16,6 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -24,15 +23,12 @@ import java.util.Collections;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.osgi.service.cm.Configuration;
-import org.osgi.service.cm.ConfigurationAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.yammer.metrics.Histogram;
 import com.yammer.metrics.Meter;
 
-import ddf.catalog.metrics.source.SourceMetricsImpl;
 import ddf.catalog.metrics.source.SourceMetricsImpl.SourceMetric;
 import ddf.catalog.source.CatalogProvider;
 import ddf.catalog.source.FederatedSource;
@@ -225,7 +221,7 @@ public class SourceMetricsImplTest {
 		
 		String rrdFilename = sourceMetrics.getRrdFilename(sourceId, collectorName);
 		
-		assertThat(rrdFilename, equalTo("sourceCp1QueriesTotalResults.rrd"));
+		assertThat(rrdFilename, equalTo("sourceCp1QueriesTotalResults"));
 	}
 	
 	@Test
@@ -237,7 +233,7 @@ public class SourceMetricsImplTest {
 		
 		String rrdFilename = sourceMetrics.getRrdFilename(sourceId, collectorName);
 		
-		assertThat(rrdFilename, equalTo("sourceDib30rhel58QueriesTotalResults.rrd"));
+		assertThat(rrdFilename, equalTo("sourceDib30rhel58QueriesTotalResults"));
 	}
 	
 	@Test
@@ -249,25 +245,20 @@ public class SourceMetricsImplTest {
 		
 		String rrdFilename = sourceMetrics.getRrdFilename(sourceId, collectorName);
 		
-		assertThat(rrdFilename, equalTo("sourceDib30rhEL58QueriesTotalResults.rrd"));
+		assertThat(rrdFilename, equalTo("sourceDib30rhEL58QueriesTotalResults"));
 	}
 	
 /************************************************************************************/
 	
 	private SourceMetricsImpl configureSourceMetrics(String sourceId) throws Exception {
-		ConfigurationAdmin configAdmin = mock(ConfigurationAdmin.class);
-		Configuration config = mock(Configuration.class);
-		when(configAdmin.createFactoryConfiguration(anyString(), anyString())).thenReturn(config);
-		when(configAdmin.getConfiguration(anyString())).thenReturn(config);
-		when(config.getPid()).thenReturn(SourceMetricsImpl.JMX_COLLECTOR_FACTORY_PID + "-123");
-		
+
 		catalogProvider = mock(CatalogProvider.class);
 		when(catalogProvider.getId()).thenReturn(sourceId);
 		
 		fedSource = mock(FederatedSource.class);
 		when(fedSource.getId()).thenReturn("fs-1");
 		
-		sourceMetrics = new SourceMetricsImpl(configAdmin);
+		sourceMetrics = new SourceMetricsImpl();
 		sourceMetrics.setCatalogProviders(Collections.singletonList(catalogProvider));
 		sourceMetrics.setFederatedSources(Collections.singletonList(fedSource));
 		

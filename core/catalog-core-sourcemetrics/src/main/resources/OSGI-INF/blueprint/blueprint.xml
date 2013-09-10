@@ -14,9 +14,7 @@
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
 	xmlns:cxf="http://cxf.apache.org/blueprint/core"
 	xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0">
-    
-    <reference id="configAdminService" interface="org.osgi.service.cm.ConfigurationAdmin" />
-    
+        
     <!--
     NOTE: ConnectedSources are explicitly not monitored because their sourceId overlaps
     with the local catalog provider. 
@@ -40,7 +38,6 @@
     
     <bean id="sourceMetrics" class="ddf.catalog.metrics.source.SourceMetricsImpl"
     			init-method="init"  destroy-method="destroy">
-    	<argument ref="configAdminService" />
     	<!-- 
     	Must be properties vs. constructor args to prevent circular reference with
     	CatalogProvider in catalog-core-standardframework blueprint.  
