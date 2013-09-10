@@ -21,7 +21,6 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.net.URLEncoder;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -51,19 +50,20 @@ import ddf.catalog.operation.SourceResponse;
 
 public class TestCddaOpenSearchSite
 {
-    private static final XLogger logger = new XLogger(LoggerFactory.getLogger(TestCddaOpenSearchSite.class));
-
+    private static final XLogger LOGGER = new XLogger(LoggerFactory.getLogger(TestCddaOpenSearchSite.class));
+    private static final String UNEXPECTED_EXCEPTION_MSG = "unexpected expception";
+    
     @Rule
     public MethodRule watchman = new TestWatchman()
     {
         public void starting( FrameworkMethod method )
         {
-            logger.debug("***************************  STARTING: {}  **************************", method.getName());
+            LOGGER.debug("***************************  STARTING: {}  **************************", method.getName());
         }
 
         public void finished( FrameworkMethod method )
         {
-            logger.debug("***************************  END: {}  **************************", method.getName());
+            LOGGER.debug("***************************  END: {}  **************************", method.getName());
         }
     };
 
@@ -93,7 +93,7 @@ public class TestCddaOpenSearchSite
             FilterTransformer transform = new FilterTransformer();
             transform.setIndentation(2);
             String filterXml = transform.transform(filter);
-            logger.debug(filterXml);
+            LOGGER.debug(filterXml);
 
             QueryRequest queryRequest = new QueryRequestImpl(query);
 
@@ -104,7 +104,7 @@ public class TestCddaOpenSearchSite
         }
         catch (Exception e)
         {
-            e.printStackTrace();
+        	LOGGER.error(UNEXPECTED_EXCEPTION_MSG,e);
             fail("Got an exception: " + e.getMessage());
         }
     }
@@ -130,7 +130,7 @@ public class TestCddaOpenSearchSite
             FilterTransformer transform = new FilterTransformer();
             transform.setIndentation(2);
             String filterXml = transform.transform(filter);
-            logger.debug(filterXml);
+            LOGGER.debug(filterXml);
             QueryRequest queryRequest = new QueryRequestImpl(query);
 
             SourceResponse responses = site.query(queryRequest);
@@ -183,7 +183,7 @@ public class TestCddaOpenSearchSite
         }
         catch (Exception e)
         {
-            e.printStackTrace();
+        	LOGGER.error("unexpected exception",e);
             fail("Got an exception: " + e.getMessage());
         }
     }
@@ -213,7 +213,7 @@ public class TestCddaOpenSearchSite
         }
         catch (Exception e)
         {
-            e.printStackTrace();
+        	LOGGER.error(UNEXPECTED_EXCEPTION_MSG,e);
             fail("Got an exception: " + e.getMessage());
         }
     }
@@ -243,7 +243,7 @@ public class TestCddaOpenSearchSite
         }
         catch (Exception e)
         {
-            e.printStackTrace();
+        	LOGGER.error(UNEXPECTED_EXCEPTION_MSG,e);
             fail("Got an exception: " + e.getMessage());
         }
     }
@@ -274,7 +274,7 @@ public class TestCddaOpenSearchSite
         }
         catch (Exception e)
         {
-            e.printStackTrace();
+        	LOGGER.error(UNEXPECTED_EXCEPTION_MSG,e);
             fail("Got an exception: " + e.getMessage());
         }
     }
@@ -311,7 +311,7 @@ public class TestCddaOpenSearchSite
         }
         catch (Exception e)
         {
-            e.printStackTrace();
+        	LOGGER.error(UNEXPECTED_EXCEPTION_MSG,e);
             fail("Got an exception: " + e.getMessage());
         }
     }
@@ -345,7 +345,7 @@ public class TestCddaOpenSearchSite
         }
         catch (Exception e)
         {
-            e.printStackTrace();
+        	LOGGER.error(UNEXPECTED_EXCEPTION_MSG,e);
             fail("Got an exception: " + e.getMessage());
         }
     }
@@ -382,7 +382,7 @@ public class TestCddaOpenSearchSite
         }
         catch (Exception e)
         {
-            e.printStackTrace();
+        	LOGGER.error(UNEXPECTED_EXCEPTION_MSG,e);
             fail("Got an exception: " + e.getMessage());
         }
     }
@@ -405,7 +405,7 @@ public class TestCddaOpenSearchSite
             Date endDate = calendar.getTime();
             String start = reformatDate(startDate);
             String end = reformatDate(endDate);
-            logger.debug("start = " + start + ",   end = " + end);
+            LOGGER.debug("start = " + start + ",   end = " + end);
             query.addTemporalFilter(start, end, null);
 
             String url = site.createUrl(query, null);
@@ -417,7 +417,7 @@ public class TestCddaOpenSearchSite
         }
         catch (Exception e)
         {
-            e.printStackTrace();
+        	LOGGER.error(UNEXPECTED_EXCEPTION_MSG,e);
             fail("Got an exception: " + e.getMessage());
         }
     }
@@ -446,7 +446,7 @@ public class TestCddaOpenSearchSite
         }
         catch (Exception e)
         {
-            e.printStackTrace();
+        	LOGGER.error(UNEXPECTED_EXCEPTION_MSG,e);
             fail("Got an exception: " + e.getMessage());
         }
     }
@@ -478,7 +478,7 @@ public class TestCddaOpenSearchSite
         }
         catch (Exception e)
         {
-            e.printStackTrace();
+        	LOGGER.error(UNEXPECTED_EXCEPTION_MSG,e);
             fail("Got an exception: " + e.getMessage());
         }
     }
@@ -524,7 +524,7 @@ public class TestCddaOpenSearchSite
         }
         catch (Exception e)
         {
-            e.printStackTrace();
+        	LOGGER.error(UNEXPECTED_EXCEPTION_MSG,e);
             fail("Got an exception: " + e.getMessage());
         }
     }
@@ -560,7 +560,7 @@ public class TestCddaOpenSearchSite
         }
         catch (Exception e)
         {
-            e.printStackTrace();
+        	LOGGER.error(UNEXPECTED_EXCEPTION_MSG,e);
             fail("Got an exception: " + e.getMessage());
         }
     }
@@ -594,7 +594,7 @@ public class TestCddaOpenSearchSite
         }
         catch (Exception e)
         {
-            e.printStackTrace();
+        	LOGGER.error(UNEXPECTED_EXCEPTION_MSG,e);
             fail("Got an exception: " + e.getMessage());
         }
     }
@@ -627,7 +627,7 @@ public class TestCddaOpenSearchSite
         }
         catch (Exception e)
         {
-            e.printStackTrace();
+        	LOGGER.error(UNEXPECTED_EXCEPTION_MSG,e);
             fail("Got an exception: " + e.getMessage());
         }
     }
@@ -654,7 +654,7 @@ public class TestCddaOpenSearchSite
             Date endDate = calendar.getTime();
             String start = reformatDate(startDate);
             String end = reformatDate(endDate);
-            logger.debug("start = " + start + ",   end = " + end);
+            LOGGER.debug("start = " + start + ",   end = " + end);
             query.addTemporalFilter(start, end, null);
 
             String url = site.createUrl(query, null);
@@ -668,7 +668,7 @@ public class TestCddaOpenSearchSite
         }
         catch (Exception e)
         {
-            e.printStackTrace();
+        	LOGGER.error(UNEXPECTED_EXCEPTION_MSG,e);
             fail("Got an exception: " + e.getMessage());
         }
     }
@@ -764,7 +764,7 @@ public class TestCddaOpenSearchSite
         DateTimeFormatter fmt = ISODateTimeFormat.dateTime();
         String formattedDate = fmt.print(date.getTime());
 
-        logger.debug("formattedDate = {}", formattedDate);
+        LOGGER.debug("formattedDate = {}", formattedDate);
         return formattedDate;
     }
 

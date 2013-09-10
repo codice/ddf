@@ -471,7 +471,7 @@ public class KMLTransformerImpl implements KMLTransformer {
    // * context.getServiceReferences
    // * (null,"(org.springframework.context.service.name=endpoint-rest)"); }
    // * catch (InvalidSyntaxException e) { // TODO Auto-generated catch block
-   // * e.printStackTrace(); } System.out.println("looking for serviceref");
+   // } System.out.println("looking for serviceref");
    // *
    // * if (null != serviceRef) { System.out.println("found " +
    // * serviceRef.length + " serviceref(s)"); for (String key :

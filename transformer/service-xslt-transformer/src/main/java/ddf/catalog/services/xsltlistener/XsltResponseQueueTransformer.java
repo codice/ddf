@@ -31,10 +31,11 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
 import org.apache.commons.codec.binary.Base64;
-import org.apache.log4j.Logger;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
 import org.osgi.framework.Bundle;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -57,8 +58,7 @@ public class XsltResponseQueueTransformer extends AbstractXsltTransformer
     // private static final String XML_RESULTS_NAMESPACE =
     // "http://ddf/xslt-response-queue-transformer";
     private static final String XML_RESULTS_NAMESPACE = null;
-	protected static Logger logger = Logger
-			.getLogger(XsltResponseQueueTransformer.class);
+	protected static Logger LOGGER = LoggerFactory.getLogger(XsltResponseQueueTransformer.class);
 
 	public XsltResponseQueueTransformer() {
     }
@@ -72,7 +72,7 @@ public class XsltResponseQueueTransformer extends AbstractXsltTransformer
 			SourceResponse upstreamResponse, Map<String, Serializable> arguments)
 			throws CatalogTransformerException {
 
-		logger.debug("Transforming ResponseQueue with XSLT tranformer");
+		LOGGER.debug("Transforming ResponseQueue with XSLT tranformer");
 
 		long grandTotal = -1;
 
@@ -138,8 +138,7 @@ public class XsltResponseQueueTransformer extends AbstractXsltTransformer
 							metacardElement.appendChild(createElement(doc,
 									XML_RESULTS_NAMESPACE, "product", metacard.getResourceURI().toString()));
 						} catch (DOMException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
+							LOGGER.warn(" Unable to create resource uri element",e);
 						}
                     }
 					if (metacard.getThumbnail() != null) {
@@ -187,21 +186,21 @@ public class XsltResponseQueueTransformer extends AbstractXsltTransformer
 									.getFirstChild(), true);
 					documentElement.appendChild(importedNode);
 				} else {
-					logger.debug("Null content/document returned to XSLT ResponseQueueTransformer");
+					LOGGER.debug("Null content/document returned to XSLT ResponseQueueTransformer");
                             continue;
                         }
                     }
 
-			if (logger.isDebugEnabled()) {
+			if (LOGGER.isDebugEnabled()) {
 				DOMImplementationLS domImplementation = (DOMImplementationLS) doc
 						.getImplementation();
 				LSSerializer lsSerializer = domImplementation
 						.createLSSerializer();
-				logger.debug("Generated XML input for transform: "
+				LOGGER.debug("Generated XML input for transform: "
 						+ lsSerializer.writeToString(doc));
             }
 
-			logger.debug("Starting responsequeue xslt transform.");
+			LOGGER.debug("Starting responsequeue xslt transform.");
 
             Transformer transformer;
 
@@ -227,8 +226,8 @@ public class XsltResponseQueueTransformer extends AbstractXsltTransformer
 
 			if (mergedMap != null && !mergedMap.isEmpty()) {
 				for (Map.Entry<String, Object> entry : mergedMap.entrySet()) {
-					if (logger.isDebugEnabled()) {
-						logger.debug("Adding parameter to transform {"
+					if (LOGGER.isDebugEnabled()) {
+						LOGGER.debug("Adding parameter to transform {"
 								+ entry.getKey() + ":" + entry.getValue() + "}");
                     }
 					transformer.setParameter(entry.getKey(), entry.getValue());
@@ -238,10 +237,10 @@ public class XsltResponseQueueTransformer extends AbstractXsltTransformer
 			try {
 				transformer.transform(source, resultOutput);
                 byte[] bytes = baos.toByteArray();
-				logger.debug("Transform complete.");
+				LOGGER.debug("Transform complete.");
 				resultContent = new XsltTransformedContent(bytes, mimeType);
 			} catch (TransformerException te) {
-				logger.error(
+				LOGGER.error(
 						"Could not perform Xslt transform: "
 								+ te.getException(), te.getCause());
 				throw new CatalogTransformerException(
@@ -255,7 +254,7 @@ public class XsltResponseQueueTransformer extends AbstractXsltTransformer
 
             return resultContent;
 		} catch (ParserConfigurationException e) {
-			logger.warn("Error creating new document: " + e.getMessage(),
+			LOGGER.warn("Error creating new document: " + e.getMessage(),
 					e.getCause());
 			throw new CatalogTransformerException(
 					"Error merging entries to xml feed.", e);

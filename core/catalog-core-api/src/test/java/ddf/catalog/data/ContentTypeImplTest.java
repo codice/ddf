@@ -18,13 +18,13 @@ import static org.junit.Assert.assertTrue;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-import org.apache.log4j.Logger;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ContentTypeImplTest {
-	private static final Logger LOGGER = Logger
-			.getLogger(ContentTypeImplTest.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(ContentTypeImplTest.class);
 	URI testUri;
 	String testName;
 	String testVersion;
@@ -37,7 +37,7 @@ public class ContentTypeImplTest {
 			testUri = new URI("http://ddf.catalog.data/junitTest");
 		} catch (URISyntaxException e) {
 			// Don't use an invalid uri here!
-			e.printStackTrace();
+			LOGGER.error("URI  syntax error",e);
 		}
 		
 	}

@@ -38,6 +38,8 @@ import org.apache.camel.Exchange;
 import org.apache.camel.Message;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ddf.action.Action;
 import ddf.action.ActionProvider;
@@ -83,6 +85,7 @@ public class SearchPageTest {
 	private static final String RESOURCE_SIZE = "10240";
 	private static final String METACARD_TITLE = "Metacard";
 
+	private static final Logger LOGGER = LoggerFactory.getLogger(SearchPageTest.class);
 
 	private static List<Metacard> metacards;	
 	private static Date runTimeDate = new Date();
@@ -385,10 +388,10 @@ public class SearchPageTest {
 		try {
 			return new URI(SCHEME, null, HOST, PORT, actionStr, null, metacard.getTitle()).toURL();
 		} catch (MalformedURLException e) {
-			e.printStackTrace();
+			LOGGER.error("Malformed URL",e);
 			return null;
 		} catch (URISyntaxException e) {
-			e.printStackTrace();
+			LOGGER.error("URI Syntax error",e);
 			return null;
 		}
 	}

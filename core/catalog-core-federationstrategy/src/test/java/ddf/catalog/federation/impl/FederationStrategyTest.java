@@ -32,11 +32,7 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
 import org.geotools.filter.FilterFactoryImpl;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -46,6 +42,8 @@ import org.opengis.filter.sort.SortOrder;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ddf.catalog.CatalogFrameworkImpl;
 import ddf.catalog.MockDelayProvider;
@@ -91,15 +89,8 @@ public class FederationStrategyTest {
 	private static final FilterFactory FILTER_FACTORY = new FilterFactoryImpl();
 	private static final ExecutorService EXECUTOR = Executors.newFixedThreadPool(2);
 	
-    private static final Logger LOGGER = Logger.getLogger( FederationStrategyTest.class.getName() );
-    
-	
-	@Before
-	public void initialize() {
-		BasicConfigurator.configure();
-		Logger.getRootLogger().setLevel(Level.DEBUG);
-	}
-
+    private static final Logger LOGGER = LoggerFactory.getLogger( FederationStrategyTest.class.getName() );
+   
 	/**
 	 * Tests that the framework properly times out using the default federation
 	 * strategy.
@@ -173,7 +164,7 @@ public class FederationStrategyTest {
 		} catch (UnsupportedQueryException e) {
 			fail();
 		} catch (FederationException e) {
-		    e.printStackTrace();
+			LOGGER.error("Unexpected federation exception during test");
 			fail();
 		}
 	}
@@ -450,7 +441,7 @@ public class FederationStrategyTest {
         
         for( Result result : mockSource1Results )
         {
-            LOGGER.debug( result );
+            LOGGER.debug( result.toString() );
         }
 
         Source mockSource1 = mock( Source.class );
@@ -474,7 +465,7 @@ public class FederationStrategyTest {
         
         for( Result result : mockSource2Results )
         {
-            LOGGER.debug( result );
+            LOGGER.debug( result.toString()  );
         }
         
         Source mockSource2 = mock( Source.class );

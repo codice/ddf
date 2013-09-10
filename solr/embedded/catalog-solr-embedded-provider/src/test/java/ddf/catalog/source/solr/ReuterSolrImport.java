@@ -20,13 +20,13 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
 import org.apache.solr.client.solrj.SolrServer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
 import ddf.catalog.data.Metacard;
@@ -40,12 +40,10 @@ public class ReuterSolrImport implements Runnable {
 	private SolrServer solrServer;
 	private SolrCatalogProvider solrProvider;
 	private File[] arrayOfFile;
-
+	private final static Logger LOGGER = LoggerFactory.getLogger(ReuterSolrImport.class);
+	private final static String UNABLE_TO_READ_DIR_EXCEPTION_MSG = "unable to read directory";
 	public ReuterSolrImport(File[] arrayOfFile) {
-		Logger log = Logger.getLogger("");
-		log.log(Level.INFO, "Changing log level to SEVERE");
-		log.setLevel(Level.SEVERE);
-
+		
 		this.arrayOfFile = arrayOfFile;
 
 		try {
@@ -99,20 +97,19 @@ public class ReuterSolrImport implements Runnable {
 			try {
 				allFiles = readDirectory(localFile);
 			} catch (XPathExpressionException e) {
-				
-				e.printStackTrace();
+				LOGGER.error(UNABLE_TO_READ_DIR_EXCEPTION_MSG, e);
 			} catch (IOException e) {
 				
-				e.printStackTrace();
+				LOGGER.error(UNABLE_TO_READ_DIR_EXCEPTION_MSG, e);
 			} catch (ParserConfigurationException e) {
 				
-				e.printStackTrace();
+				LOGGER.error(UNABLE_TO_READ_DIR_EXCEPTION_MSG, e);
 			} catch (SAXException e) {
 				
-				e.printStackTrace();
+				LOGGER.error(UNABLE_TO_READ_DIR_EXCEPTION_MSG, e);
 			} catch (ParseException e) {
 				
-				e.printStackTrace();
+				LOGGER.error(UNABLE_TO_READ_DIR_EXCEPTION_MSG, e);
 			}
 
 //			int threadCount = 1;
@@ -148,7 +145,6 @@ public class ReuterSolrImport implements Runnable {
 //					threads[i].join();
 //				} catch (InterruptedException e) {
 //					
-//					e.printStackTrace();
 //				}
 //			}
 
@@ -193,7 +189,7 @@ public class ReuterSolrImport implements Runnable {
 				// System.out.println("No location set.");
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			LOGGER.error("Unable to read file", e);
 		}
 		return null;
 	}
@@ -214,7 +210,7 @@ public class ReuterSolrImport implements Runnable {
 						
 		} catch (IngestException e) {
 			
-			e.printStackTrace();
+			LOGGER.error("Unexpected IngestException", e);
 		}
 		solrServer.shutdown();
 
@@ -236,7 +232,7 @@ public class ReuterSolrImport implements Runnable {
 						
 		} catch (IngestException e) {
 			
-			e.printStackTrace();
+			LOGGER.error("Unexpected IngestException", e);
 		}
 		solrServer.shutdown();
 
