@@ -11,15 +11,18 @@
  **/
 package ddf.catalog.transformer.response.query.atom;
 
-import ddf.catalog.data.Metacard;
-import ddf.catalog.data.MetacardImpl;
-
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import ddf.catalog.data.Metacard;
+import ddf.catalog.data.MetacardImpl;
 
 public class MetacardStub extends MetacardImpl {
 
@@ -32,6 +35,8 @@ public class MetacardStub extends MetacardImpl {
     public static final HashMap<String, String> DEFAULT_SECURITY_ONE = new HashMap<String, String>();
 	private static final long serialVersionUID = -189776439741244547L;
 
+	private static final Logger LOGGER = LoggerFactory.getLogger(MetacardStub.class);
+	
 	public MetacardStub(String metadata) {
 		// make a simple metacard
 		this.setCreatedDate(Calendar.getInstance().getTime());
@@ -50,7 +55,7 @@ public class MetacardStub extends MetacardImpl {
 		try {
 			this.setResourceURI(new URI("http://example.com"));
 		} catch (URISyntaxException e) {
-			e.printStackTrace();
+			LOGGER.error("URI Syntax error",e);
 		}
 	}
 

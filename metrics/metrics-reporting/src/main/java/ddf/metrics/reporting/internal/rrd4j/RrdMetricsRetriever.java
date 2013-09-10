@@ -348,11 +348,11 @@ public class RrdMetricsRetriever implements MetricsRetriever
         } 
         catch (ParserConfigurationException pce) 
         {
-            pce.printStackTrace();
+        	LOGGER.error("Parsing error while creating xml data", pce);
         } 
         catch (TransformerException tfe) 
         {
-            tfe.printStackTrace();
+        	LOGGER.error("Transformer error wile creating xml data", tfe);
         }
         
         LOGGER.trace("xml = {}", sw.toString());
@@ -813,7 +813,7 @@ public class RrdMetricsRetriever implements MetricsRetriever
      * Convert string, if it is in camelCase, to individual words with each word
      * starting with a capital letter
      */
-    static public String convertCamelCase(String input)
+    public static String convertCamelCase(String input)
     { 
         String[] parts = StringUtils.splitByCharacterTypeCamelCase(input);
         String convertedStr = StringUtils.join(parts, " ");

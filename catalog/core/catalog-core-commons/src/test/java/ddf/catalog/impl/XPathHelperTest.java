@@ -25,23 +25,23 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 
-import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 
-import ddf.util.NamespaceResolver;
 import ddf.util.XPathCache;
 import ddf.util.XPathHelper;
 
 
 public class XPathHelperTest
 {
-    private static final Logger logger = Logger.getLogger( XPathHelperTest.class );
+    private static final Logger LOGGER = LoggerFactory.getLogger( XPathHelperTest.class );
     
     private static final String TEST_DATA_PATH = "src/test/resources/data/";
     
@@ -92,14 +92,13 @@ public class XPathHelperTest
             Document document = getDocument( INPUT_FILE );
             
             XPathHelper xHelper = new XPathHelper( document );
-            //logger.debug( XPathHelper.xmlToString( xHelper.getDocument() ) );
             NodeList nodeList = (NodeList) xHelper.evaluate( XPATH_EXPRESSION, XPathConstants.NODESET, new MockNamespaceResolver() );
-            logger.debug(  "testXPathHelper_WithDocument() - nodeList length = " + nodeList.getLength() );
+            LOGGER.debug(  "testXPathHelper_WithDocument() - nodeList length = {}", nodeList.getLength() );
             assertEquals( 6, nodeList.getLength() );
         } 
         catch ( Exception e1 ) 
         {
-            e1.printStackTrace();
+        	LOGGER.error("Exception thrown during testXPathHelper_WithDocument", e1 );
         } 
     }
 
@@ -113,12 +112,12 @@ public class XPathHelperTest
 
             XPathHelper xHelper = new XPathHelper( xmlString );
             NodeList nodeList = (NodeList) xHelper.evaluate( XPATH_EXPRESSION, XPathConstants.NODESET, new MockNamespaceResolver() );
-            logger.debug( "testXPathHelper_WithXmlFile() - nodeList length = " + nodeList.getLength() );
+            LOGGER.debug( "testXPathHelper_WithXmlFile() - nodeList length = {}", nodeList.getLength() );
             assertEquals( 6, nodeList.getLength() );
         } 
         catch ( Exception e1 ) 
         {
-            e1.printStackTrace();
+        	LOGGER.error("Exception thrown during testXPathHelper_WithXmlFile", e1 );
         } 
     }
 
@@ -132,13 +131,13 @@ public class XPathHelperTest
 
             XPathHelper xHelper = new XPathHelper( xmlString );
             NodeList nodeList = (NodeList) xHelper.evaluate( "//fileTitle", XPathConstants.NODESET, new MockNamespaceResolver() );
-            logger.debug(  "testXPathHelper_WithNoNamespaceTextPath() - nodeList length = " + nodeList.getLength() );
+            LOGGER.debug(  "testXPathHelper_WithNoNamespaceTextPath() - nodeList length = {}", nodeList.getLength() );
             assertEquals( 0, nodeList.getLength() );
             
         } 
         catch ( Exception e1 ) 
         {
-            e1.printStackTrace();
+        	LOGGER.error("Exception thrown during testXPathHelper_WithNoNamespaceTextPath", e1 );
         } 
     }
 
@@ -152,12 +151,12 @@ public class XPathHelperTest
 
             XPathHelper xHelper = new XPathHelper( xmlString );
             NodeList nodeList = (NodeList) xHelper.evaluate( "//abc:fileTitle", XPathConstants.NODESET, new MockNamespaceResolver() );
-            logger.debug(  "testXPathHelper_WithNamespaceTextPath() - nodeList length = " + nodeList.getLength() );
+            LOGGER.debug(  "testXPathHelper_WithNamespaceTextPath() - nodeList length = {}", nodeList.getLength() );
             assertEquals( 1, nodeList.getLength() );
         } 
         catch ( Exception e1 ) 
         {
-            e1.printStackTrace();
+        	LOGGER.error("Exception thrown during testXPathHelper_WithNamespaceTextPath", e1 );
         } 
     }
 
@@ -171,12 +170,12 @@ public class XPathHelperTest
 
             XPathHelper xHelper = new XPathHelper( xmlString );
             NodeList nodeList = (NodeList) xHelper.evaluate( "//xyz:fileTitle", XPathConstants.NODESET );
-            logger.debug(  "testXPathHelper_WithAnyNamespaceTextPath() - nodeList length = " + nodeList.getLength() );
+            LOGGER.debug(  "testXPathHelper_WithAnyNamespaceTextPath() - nodeList length = {}", nodeList.getLength() );
             fail( "Expected an XPathExpressionException" );
         } 
         catch ( XPathExpressionException e1 ) 
         {
-            //e1.printStackTrace();
+        	LOGGER.error("Exception thrown during testXPathHelper_WithAnyNamespaceTextPath", e1 );
         } 
     }
 
@@ -190,13 +189,13 @@ public class XPathHelperTest
 
             XPathHelper xHelper = new XPathHelper( xmlString );
             String title = (String) xHelper.evaluate( "//ns1:title", new MockNamespaceResolver() );
-            logger.debug( "testXPathHelper_NoTitle() - title = [" + title + "]" );
+            LOGGER.debug( "testXPathHelper_NoTitle() - title = [" + title + "]" );
             assertNotNull( title );
             assertTrue( title.length() == 0 );
         } 
         catch ( XPathExpressionException e1 ) 
         {
-            //e1.printStackTrace();
+        	LOGGER.error("Exception thrown during testXPathHelper_NoTitle", e1 );
         } 
     }
 

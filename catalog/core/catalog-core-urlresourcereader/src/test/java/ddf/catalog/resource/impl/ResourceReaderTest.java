@@ -29,7 +29,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.lang.StringUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -385,8 +384,7 @@ public class ResourceReaderTest
         }
         catch (ResourceNotFoundException e)
         {
-            LOGGER.info("Caught unexpected ResourceNotFoundException");
-            e.printStackTrace();
+            LOGGER.info("Caught unexpected ResourceNotFoundException", e);
             fail();
         }
     }

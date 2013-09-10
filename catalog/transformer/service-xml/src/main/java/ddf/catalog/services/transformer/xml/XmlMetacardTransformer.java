@@ -156,7 +156,6 @@ public class XmlMetacardTransformer implements MetacardTransformer {
 						finalByteArray.write(CDATA_CLOSING.getBytes("UTF-8"));
 					} catch (IOException e) {
 						logger.error("IOException building byte array.", e);
-						e.printStackTrace();
 					}
 					binaryPayload.setValue(finalByteArray.toByteArray());
 					xmlMetacard.getBinary().add(binaryPayload);
@@ -183,7 +182,6 @@ public class XmlMetacardTransformer implements MetacardTransformer {
 						finalByteArray.write(CDATA_CLOSING.getBytes("UTF-8"));
 					} catch (IOException e) {
 						logger.error("IOException building byte array.", e);
-						e.printStackTrace();
 					}
 					binaryPayload.setValue(finalByteArray.toByteArray());
 					xmlMetacard.getObject().add(binaryPayload);

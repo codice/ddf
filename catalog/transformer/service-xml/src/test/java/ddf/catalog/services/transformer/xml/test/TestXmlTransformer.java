@@ -11,7 +11,7 @@
  **/
 package ddf.catalog.services.transformer.xml.test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.fail;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -58,8 +58,7 @@ public class TestXmlTransformer {
 				in.close();
 				System.out.println("\n* * * END XML METACARD REPRESENTATION * * * \n");
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				LOGGER.error("IOException while reading binary content",e);
 			}
 		}
 	}

@@ -45,7 +45,6 @@ public class TestKmlRestEndpoint extends TestCase
     // }
     // catch(Exception e)
     // {
-    // e.printStackTrace();
     // }
          
          assertTrue(true);

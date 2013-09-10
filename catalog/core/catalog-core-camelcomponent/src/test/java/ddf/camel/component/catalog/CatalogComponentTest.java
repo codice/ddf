@@ -11,8 +11,8 @@
  **/
 package ddf.camel.component.catalog;
 
-import static org.mockito.Matchers.isA;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.isA;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -23,7 +23,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
-import java.util.Properties;
 
 import javax.activation.MimeType;
 
@@ -192,7 +191,7 @@ public class CatalogComponentTest extends CamelTestSupport {
 			template.sendBody("catalog:unknown?mimeType=text/xml&id=identity", "<xml></xml>");
 			fail("Should have thrown a FailedToCreateProducerException");
 		} catch (FailedToCreateProducerException e) {
-			e.printStackTrace();
+			LOGGER.error("Failed to create producer", e);
 			assertTrue("Should be an IllegalArgumentException exception",
 					e.getCause() instanceof IllegalArgumentException);
 			assertEquals("Unable to create producer for context path [unknown]", e.getCause().getMessage());
@@ -206,7 +205,7 @@ public class CatalogComponentTest extends CamelTestSupport {
 			context.getEndpoint("catalog:unknown?mimeType=text/xml&id=identity").createProducer();
 			fail("Should have thrown a IllegalArgumentException");
 		} catch (Exception e) {
-			e.printStackTrace();
+			LOGGER.error("Failed testInvalidContextPathForProducer2", e);
 			assertTrue("Should be an IllegalArgumentException exception", e instanceof IllegalArgumentException);
 			assertEquals("Unable to create producer for context path [unknown]", e.getMessage());
 		}
@@ -222,7 +221,7 @@ public class CatalogComponentTest extends CamelTestSupport {
 			});
 			fail("Should have thrown a IllegalArgumentException");
 		} catch (Exception e) {
-			e.printStackTrace();
+			LOGGER.error("Failed testInvalidContextPathForConsumer", e);
 			assertTrue("Should be an IllegalArgumentException exception", e instanceof IllegalArgumentException);
 			assertEquals("Unable to create consumer for context path [unknown]", e.getMessage());
 		}

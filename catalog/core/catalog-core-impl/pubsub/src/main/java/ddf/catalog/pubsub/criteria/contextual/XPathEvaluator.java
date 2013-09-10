@@ -15,14 +15,17 @@ package ddf.catalog.pubsub.criteria.contextual;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
-
 import ddf.util.XPathHelper;
 
 
 
 public class XPathEvaluator 
 {
+    private static final Logger LOGGER = LoggerFactory.getLogger( XPathEvaluator.class );
+
 	
 	public static boolean evaluate( XPathEvaluationCriteria xpathCriteria )	
 	{
@@ -38,7 +41,7 @@ public class XPathEvaluator
 		} 
 		catch ( XPathExpressionException e ) 
 		{
-			e.printStackTrace();
+			LOGGER.error("Unable to evaluate xpath", e);
 		} 
 		
 		return false ;

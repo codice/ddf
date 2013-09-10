@@ -34,8 +34,9 @@ import javax.xml.bind.Unmarshaller;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.cxf.jaxrs.model.wadl.ElementClass;
-import org.apache.log4j.Logger;
 import org.osgi.framework.BundleContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ddf.catalog.event.EventProcessor;
 import ddf.catalog.event.Subscription;
@@ -68,7 +69,7 @@ import ddf.subscriptions.GetSubscriptionIdsResponse;
 public class SubscriptionService
 {
     /** The logger for this class */
-    private static final Logger logger = Logger.getLogger( SubscriptionService.class );
+    private static final Logger LOGGER = LoggerFactory.getLogger( SubscriptionService.class );
     
     /** 
      * Time (in milliseconds) to wait for the subscription's DeliveryMethod callback service to come up
@@ -103,7 +104,7 @@ public class SubscriptionService
         }
         catch ( JAXBException e )
         {
-            logger.warn( e.getMessage(), e );
+            LOGGER.warn( e.getMessage(), e );
         }       
 
     }
@@ -114,7 +115,7 @@ public class SubscriptionService
     public boolean createSubscription( InputStream message )
     {
         String methodName = "createSubscription";
-        logger.debug( "ENTERING: " + methodName );
+        LOGGER.debug( "ENTERING: " + methodName );
 
 //        Response response = null;
 
@@ -123,7 +124,7 @@ public class SubscriptionService
             if ( message != null )
             {
                 String request = IOUtils.toString( message );
-                logger.debug( "request:\n" + request );
+                LOGGER.debug( "request:\n" + request );
                 
                 Subscription subscription = (Subscription) unmarshaller.unmarshal( new StringReader( request ) );
                 performCreateSubscription( subscription );
@@ -134,16 +135,16 @@ public class SubscriptionService
             } 
             else 
             {
-                logger.warn( "message is NULL" );
+                LOGGER.warn( "message is NULL" );
             }
         }
         catch ( Exception e )
         {
-            logger.error( "Exception processing create subscription request", e );
+            LOGGER.error( "Exception processing create subscription request", e );
 //            response = Response.serverError().build();
         }
 
-        logger.debug( "EXITING: " + methodName );
+        LOGGER.debug( "EXITING: " + methodName );
 
 //        return response;
         return true;
@@ -156,7 +157,7 @@ public class SubscriptionService
     public int createSubscriptions( InputStream message )
     {
         String methodName = "createSubscriptions";
-        logger.debug( "ENTERING: " + methodName );
+        LOGGER.debug( "ENTERING: " + methodName );
 
 //        Response response = null;
         int numSubscriptionsCreated = 0;
@@ -166,10 +167,10 @@ public class SubscriptionService
             if ( message != null )
             {
                 String request = IOUtils.toString( message );
-                logger.debug( "request:\n" + request );
+                LOGGER.debug( "request:\n" + request );
                 
                 List<Subscription> subscriptions = (List<Subscription>) unmarshaller.unmarshal( new StringReader( request ) );
-                logger.debug( "subscriptions.size() = " + subscriptions.size() );
+                LOGGER.debug( "subscriptions.size() = " + subscriptions.size() );
                 
                 if ( subscriptions != null && !subscriptions.isEmpty() )
                 {
@@ -185,16 +186,16 @@ public class SubscriptionService
             } 
             else 
             {
-                logger.warn( "message is NULL" );
+                LOGGER.warn( "message is NULL" );
             }
         }
         catch ( Exception e )
         {
-            logger.error( "Exception processing create subscription request", e );
+            LOGGER.error( "Exception processing create subscription request", e );
 //            response = Response.serverError().build();
         }
 
-        logger.debug( "EXITING: " + methodName );
+        LOGGER.debug( "EXITING: " + methodName );
 
 //        return response;
         return numSubscriptionsCreated;
@@ -209,9 +210,9 @@ public class SubscriptionService
     public Response updateSubscription( @PathParam( "subscriptionId" ) String subscriptionId, InputStream message )
     {
         String methodName = "updateSubscription";
-        logger.debug( "ENTERING: " + methodName );
+        LOGGER.debug( "ENTERING: " + methodName );
 
-        logger.debug( "subscriptionId:\n" + subscriptionId );
+        LOGGER.debug( "subscriptionId:\n" + subscriptionId );
 
         Response response = null;
         
@@ -220,7 +221,7 @@ public class SubscriptionService
             if ( message != null )
             {
                 String request = IOUtils.toString( message );
-                logger.debug( "request:\n" + request );
+                LOGGER.debug( "request:\n" + request );
 
                 // Delete the existing subscription
                 eventProcessor.deleteSubscription( subscriptionId );
@@ -234,16 +235,16 @@ public class SubscriptionService
             } 
             else 
             {
-                logger.warn( "message is NULL" );
+                LOGGER.warn( "message is NULL" );
             }
         }
         catch ( Exception e )
         {
-            logger.error( "Exception processing update subscription request", e );
+            LOGGER.error( "Exception processing update subscription request", e );
             response = Response.serverError().build();
         }
 
-        logger.debug( "EXITING: " + methodName );
+        LOGGER.debug( "EXITING: " + methodName );
 
         return response;
     }
@@ -255,9 +256,9 @@ public class SubscriptionService
     public boolean deleteSubscription( @PathParam( "subscriptionId" ) String subscriptionId )
     {
         String methodName = "deleteSubscription";
-        logger.debug( "ENTERING: " + methodName );
+        LOGGER.debug( "ENTERING: " + methodName );
 
-        logger.debug( "subscriptionId:\n" + subscriptionId );
+        LOGGER.debug( "subscriptionId:\n" + subscriptionId );
         
         boolean status = false;
 
@@ -269,8 +270,8 @@ public class SubscriptionService
             status = true;
 
 		} catch (SubscriptionNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+	        LOGGER.error( "SubscriptionNotFoundExeption", e );
+
 		}
         
         
@@ -278,7 +279,7 @@ public class SubscriptionService
 //        Response.ResponseBuilder responseBuilder = Response.noContent();
 //        response = responseBuilder.build();
 
-        logger.debug( "EXITING: " + methodName );
+        LOGGER.debug( "EXITING: " + methodName );
 
 //        return response;
         return status;
@@ -291,9 +292,9 @@ public class SubscriptionService
     public int deleteSubscriptions( @QueryParam("subscriptionIds") List<String> subscriptionIds )
     {
         String methodName = "deleteSubscriptions";
-        logger.debug( "ENTERING: " + methodName );
+        LOGGER.debug( "ENTERING: " + methodName );
         
-        logger.debug( "subscriptionIds.size() = " + subscriptionIds.size() );
+        LOGGER.debug( "subscriptionIds.size() = " + subscriptionIds.size() );
 
 //        Response response = null;
         int numSubscriptionsDeleted = 0;
@@ -303,13 +304,13 @@ public class SubscriptionService
         {
             for ( String subscriptionId : subscriptionIds )
             {
-                logger.debug( "Deleting subscription for ID = " + subscriptionId );
+                LOGGER.debug( "Deleting subscription for ID = " + subscriptionId );
                  try {
 					eventProcessor.deleteSubscription( subscriptionId );
                     numSubscriptionsDeleted++;
 				} catch (SubscriptionNotFoundException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+			        LOGGER.error( "SubscriptionNotFoundExeption", e );
+
 				}
                 
                 
@@ -319,7 +320,7 @@ public class SubscriptionService
 //        Response.ResponseBuilder responseBuilder = Response.noContent();
 //        response = responseBuilder.build();
 
-        logger.debug( "EXITING: " + methodName );
+        LOGGER.debug( "EXITING: " + methodName );
 
 //        return response;
         return numSubscriptionsDeleted;
@@ -334,7 +335,7 @@ public class SubscriptionService
         throws SubscriptionServiceException
     {
         String methodName = "getSubscription - HUGH";
-        logger.debug( "ENTERING: " + methodName );
+        LOGGER.debug( "ENTERING: " + methodName );
 
 //        Response response = null;
 //
@@ -356,7 +357,7 @@ public class SubscriptionService
 //            throw new SubscriptionServiceException( e.getMessage(), e );
 //        }
 //        
-        logger.debug( "EXITING: " + methodName );
+        LOGGER.debug( "EXITING: " + methodName );
 
 //        return response;
         return subscriptionXml;
@@ -373,7 +374,7 @@ public class SubscriptionService
         throws SubscriptionServiceException
     {
         String methodName = "getSubscriptions - HUGH";
-        logger.debug( "ENTERING: " + methodName );
+        LOGGER.debug( "ENTERING: " + methodName );
 
 //        Response response = null;
         GetAllSubscriptionsResponse getAllSubscriptionsResponse = new GetAllSubscriptionsResponse();
@@ -407,7 +408,7 @@ public class SubscriptionService
 //            logger.warn( e.getMessage(), e );
 //        }
 
-        logger.debug( "EXITING: " + methodName );
+        LOGGER.debug( "EXITING: " + methodName );
 
 //        return response;
         return getAllSubscriptionsResponse;
@@ -424,7 +425,7 @@ public class SubscriptionService
         throws SubscriptionServiceException
     {
         String methodName = "getSubscriptionIds - HUGH";
-        logger.debug( "ENTERING: " + methodName );
+        LOGGER.debug( "ENTERING: " + methodName );
 
 //        Response response = null;
         GetSubscriptionIdsResponse getSubscriptionIdsResponse = new GetSubscriptionIdsResponse();
@@ -458,7 +459,7 @@ public class SubscriptionService
 //            logger.warn( e.getMessage(), e );
 //        }
 
-        logger.debug( "EXITING: " + methodName );
+        LOGGER.debug( "EXITING: " + methodName );
 
 //        return response;
         return getSubscriptionIdsResponse;
@@ -469,7 +470,7 @@ public class SubscriptionService
     private void performCreateSubscription( Subscription subscription )
     {
         String methodName = "performCreateSubscription";
-        logger.debug( "ENTERING: " + methodName );
+        LOGGER.debug( "ENTERING: " + methodName );
         //TODO UPDATE to new OGC FILTER
 //        
 //        try
@@ -548,7 +549,7 @@ public class SubscriptionService
 //            logger.warn( "Error creating subscription", e );
 //        }
 //        
-        logger.debug( "EXITING: " + methodName );
+        LOGGER.debug( "EXITING: " + methodName );
     }
     
 }
