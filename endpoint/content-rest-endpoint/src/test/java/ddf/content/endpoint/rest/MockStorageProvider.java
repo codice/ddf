@@ -33,7 +33,7 @@ import ddf.content.storage.StorageProvider;
 
 public class MockStorageProvider implements StorageProvider
 {
-    private static XLogger logger = new XLogger( LoggerFactory.getLogger( MockStorageProvider.class ) );
+    private static final XLogger LOGGER = new XLogger( LoggerFactory.getLogger( MockStorageProvider.class ) );
     
     
     @Override
@@ -42,14 +42,13 @@ public class MockStorageProvider implements StorageProvider
         ContentItem item = createRequest.getContentItem();
       try
       {
-          logger.debug( "item mime type = " + item.getMimeType() );
+          LOGGER.debug( "item mime type = " + item.getMimeType() );
           String data = IOUtils.toString( item.getInputStream() );
-          logger.debug( "input stream has " + data.length() + " bytes" );
+          LOGGER.debug( "input stream has " + data.length() + " bytes" );
       }
       catch (IOException e1)
       {
-          // TODO Auto-generated catch block
-          e1.printStackTrace();
+		LOGGER.warn("IOException while obtaining content item",e1);
       }
       CreateResponse response = new CreateResponseImpl( createRequest, item, null, null );
       
