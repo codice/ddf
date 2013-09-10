@@ -145,8 +145,8 @@ public class RrdJmxCollector implements JmxCollector {
     public RrdJmxCollector(String mbeanName, String mbeanAttributeName, 
     		String metricName, String metricType, String dataSourceName) {
     	
-    	LOGGER.debug("Creating RrdJmxCollector for {}, {}, {}, {}", 
-    			mbeanName, mbeanAttributeName, metricName, metricType);
+    	LOGGER.debug("Creating RrdJmxCollector for {}, {}, {}, {}, {}", 
+    			mbeanName, mbeanAttributeName, metricName, metricType, dataSourceName);
     	
     	this.mbeanName = mbeanName;
     	this.mbeanAttributeName = mbeanAttributeName;

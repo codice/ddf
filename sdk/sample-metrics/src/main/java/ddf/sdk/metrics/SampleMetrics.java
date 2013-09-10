@@ -45,8 +45,8 @@ public class SampleMetrics implements PreQueryPlugin
         this.filterAdapter = filterAdapter;
         
         // Maps to the MBean's ObjectName, i.e., sdk.metrics.sample:name=Queries.PointRadius
-        // NOTE: Also look in the sdk-app project's features.xml file for how the configuration
-        // of the JmxCollector for this MBean is setup in the <config> stanza
+        // NOTE: Also look in the sdk-app project's blueprint.xml file for how the configuration
+        // of the JmxCollector for this MBean is setup
         pointRadiusQueries = metrics.meter(MetricRegistry.name("Queries", "PointRadius"));
         
         reporter.start();

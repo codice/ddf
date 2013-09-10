@@ -47,7 +47,17 @@
 		<artifactId>metrics-core</artifactId>
 		<version>3.0.0-BETA1</version>
 	</dependency>
-
+	
+    <dependency>
+	    <groupId>ddf.metrics.collector</groupId>
+		<artifactId>metrics-collector</artifactId>
+		<version>${project.version}</version>
+	</dependency>
+	<dependency>
+		<groupId>org.rrd4j</groupId>
+		<artifactId>rrd4j</artifactId>
+		<version>2.0.7</version>
+	</dependency>
   </dependencies>
   
   
@@ -62,8 +72,22 @@
 			<configuration>
 				<instructions>
 					<Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-					<Embed-Dependency>metrics-core;scope=compile|runtime;artifactId=!slf4j-api</Embed-Dependency> 
-					<Embed-Transitive>true</Embed-Transitive>
+					<Embed-Dependency>
+						    metrics-core,
+						    metrics-collector,
+						    rrd4j;scope=compile|runtime;artifactId=!slf4j-api
+						</Embed-Dependency> 
+						<Embed-Transitive>true</Embed-Transitive>
+						<Import-Package>
+						    <!-- START: imports specific for embedding rrd4j -->
+							!com.mongodb, 
+							!com.sleepycat.je, 
+							sun.misc;resolution:=optional,
+							sun.nio.ch;resolution:=optional,
+							com.sun.image.codec.jpeg;resolution:=optional,
+							<!-- END: imports specific for embedding rrd4j -->
+							*
+			            </Import-Package>
                     <Export-Package />					
 				</instructions>
 			</configuration>
