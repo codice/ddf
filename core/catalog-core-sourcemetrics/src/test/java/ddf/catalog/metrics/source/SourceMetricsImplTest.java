@@ -26,8 +26,8 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.yammer.metrics.Histogram;
-import com.yammer.metrics.Meter;
+import com.codahale.metrics.Histogram;
+import com.codahale.metrics.Meter;
 
 import ddf.catalog.metrics.source.SourceMetricsImpl.SourceMetric;
 import ddf.catalog.source.CatalogProvider;

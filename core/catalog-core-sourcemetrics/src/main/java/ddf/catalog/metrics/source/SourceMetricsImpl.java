@@ -25,11 +25,11 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.yammer.metrics.Histogram;
-import com.yammer.metrics.JmxReporter;
-import com.yammer.metrics.Meter;
-import com.yammer.metrics.Metric;
-import com.yammer.metrics.MetricRegistry;
+import com.codahale.metrics.Histogram;
+import com.codahale.metrics.JmxReporter;
+import com.codahale.metrics.Meter;
+import com.codahale.metrics.Metric;
+import com.codahale.metrics.MetricRegistry;
 
 import ddf.catalog.data.Result;
 import ddf.catalog.operation.ProcessingDetails;
@@ -100,10 +100,9 @@ public class SourceMetricsImpl implements PreFederatedQueryPlugin, PostFederated
     
     private static final String ALPHA_NUMERIC_REGEX = "[^a-zA-Z0-9]";
 	
-	private final MetricRegistry metricsRegistry = new MetricRegistry(
-			MBEAN_PACKAGE_NAME);
+	private final MetricRegistry metricsRegistry = new MetricRegistry();
 	
-    private final JmxReporter reporter = JmxReporter.forRegistry(metricsRegistry)
+    private final JmxReporter reporter = JmxReporter.forRegistry(metricsRegistry).inDomain(MBEAN_PACKAGE_NAME)
             .build();
     
     // The types of Yammer Metrics supported
@@ -122,7 +121,7 @@ public class SourceMetricsImpl implements PreFederatedQueryPlugin, PostFederated
     
     private ExecutorService executorPool;
 
-
+    
 	public List<CatalogProvider> getCatalogProviders() {
 		return catalogProviders;
 	}
@@ -383,11 +382,13 @@ public class SourceMetricsImpl implements PreFederatedQueryPlugin, PostFederated
 		// as the local catalog provider).
 		if (!metrics.containsKey(key)) {
 			if (type == MetricType.HISTOGRAM){ 
-				Histogram histogram = metricsRegistry.histogram(MetricRegistry.name(sourceId, mbeanName));
+				Histogram histogram = metricsRegistry.histogram(
+						MetricRegistry.name(sourceId, mbeanName));
 				RrdJmxCollector collector = createGaugeMetricsCollector(sourceId, mbeanName);
 				metrics.put(key, new SourceMetric(histogram, sourceId, collector, true));
 			} else if (type == MetricType.METER) {
-				Meter meter = metricsRegistry.meter(MetricRegistry.name(sourceId, mbeanName));
+				Meter meter = metricsRegistry.meter(MetricRegistry.name(
+						sourceId, mbeanName));
 				RrdJmxCollector collector = createCounterMetricsCollector(sourceId, mbeanName);
 				metrics.put(key, new SourceMetric(meter, sourceId, collector));
 			} else {
