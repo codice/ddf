@@ -400,14 +400,18 @@ public class MetricsWebConsolePlugin extends AbstractWebConsolePlugin {
 
     private void addXLSCellLink(PrintWriter pw, String startDate, String endDate, String metricsServiceUrl)
     {
-        String reportUrl = metricsServiceUrl + "/report.xls?startDate=" + startDate + "&endDate=" + endDate;
-        pw.println("<td><a class=\"ui-state-default ui-corner-all\" href=\"" + reportUrl + "\">XLS</a></td>");
+        addCellLink(pw, startDate, endDate, metricsServiceUrl, "XLS");
     }
 
     private void addPPTCellLink(PrintWriter pw, String startDate, String endDate, String metricsServiceUrl)
     {
-        String reportUrl = metricsServiceUrl + "/report.ppt?startDate=" + startDate + "&endDate=" + endDate;
-        pw.println("<td><a class=\"ui-state-default ui-corner-all\" href=\"" + reportUrl + "\">PPT</a></td>");
+        addCellLink(pw, startDate, endDate, metricsServiceUrl, "PPT");
+    }
+
+    private void addCellLink(PrintWriter pw, String startDate, String endDate, String metricsServiceUrl, String extension)
+    {
+        String reportUrl = metricsServiceUrl + "/report." + extension.toLowerCase() + "?startDate=" + startDate + "&endDate=" + endDate;
+        pw.println("<td><a class=\"ui-state-default ui-corner-all\" href=\"" + reportUrl + "\">" + extension + "</a></td>");
     }
 
     private void endTableRow(PrintWriter pw)
