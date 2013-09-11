@@ -50,7 +50,6 @@ import ddf.catalog.util.DdfConfigurationWatcher;
 public final class CatalogMetrics implements PreQueryPlugin, PostQueryPlugin,
         PostIngestPlugin, PostResourcePlugin, DdfConfigurationWatcher {
 
-	protected static final String CATALOG_METRICS_PACKAGE_NAME = "ddf.metrics.catalog";
 	protected static final String EXCEPTIONS_SCOPE = "Exceptions";
 	protected static final String QUERIES_SCOPE = "Queries";
 	protected static final String INGEST_SCOPE = "Ingest";
