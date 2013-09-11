@@ -558,9 +558,9 @@
    
    <field name="metacard_type_object" type="binary" indexed="false" stored="true" required="true"/>
    
-   <!-- DDF-1603 Support for ANY TEXT searches -->
-   <field name="any_text" type="text_general" indexed="true" stored="false" multiValued="true"/>
-   <field name="any_text_has_case" type="text_general_has_case" indexed="true" stored="false" multiValued="true"/>
+   <!-- DDF-42 Support for ANY TEXT searches -->
+   <field name="any_text" type="text_general" indexed="true" stored="false" multiValued="true" required="false"/>
+   <field name="any_text_has_case" type="text_general_has_case" indexed="true" stored="false" multiValued="true" required="false"/>
    
    <!-- Common metadata fields, named specifically to match up with
      SolrCell metadata when parsing rich documents such as Word, PDF.
@@ -657,12 +657,10 @@
    <copyField source="*_geo" dest="*_geo_index"/>
    <copyField source="*_geo" dest="*_geohash_index"/>
    
-   <!-- DDF-1603 Support for ANY TEXT searches -->
+   <!-- DDF-42 Support for ANY TEXT searches -->
    <copyField source="*_txt" dest="any_text"/>
    <copyField source="*_txt_tokenized" dest="any_text"/>
-   <copyField source="*_txt_tokenized_has_case" dest="any_text"/>
    <copyField source="*_txt" dest="any_text_has_case"/>
-   <copyField source="*_txt_tokenized" dest="any_text_has_case"/>
    <copyField source="*_txt_tokenized_has_case" dest="any_text_has_case"/>
    
    <!-- Above, multiple source fields are copied to the [text] field. 
