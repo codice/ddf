@@ -78,11 +78,23 @@
 			<organization>Lockheed Martin</organization>		
 		</developer>
 		<developer>
-			<name>Khoa Tran</name>
+			<name>Jason Smith</name>
+			<organization>Lockheed Martin</organization>
+		</developer>
+		<developer>
+			<name>Jay McNallie</name>
 			<organization>Lockheed Martin</organization>
 		</developer>
 		<developer>
 			<name>Jesse Kim</name>
+			<organization>Lockheed Martin</organization>
+		</developer>
+		<developer>
+			<name>Keith Wire</name>
+			<organization>Lockheed Martin</organization>
+		</developer>
+		<developer>
+			<name>Khoa Tran</name>
 			<organization>Lockheed Martin</organization>
 		</developer>
 		<developer>
@@ -112,7 +124,19 @@
 	</developers>
 
 	<contributors>
+	    <contributor>
+	       <name>Brad Hards</name>
+		   <organization>Sigma Bravo</organization>		
+	    </contributor>
 		<contributor>
+			<name>Jeff Vettraino</name>
+			<organization>Cohesive Integrations</organization>		
+		</contributor>
+		<contributor>
+			<name>Sam Patel</name>
+			<organization>Lockheed Martin</organization>		
+		</contributor>
+	    <contributor>
 			<name>Sam Snyder</name>
 			<organization>Aviture</organization>		
 		</contributor>
