@@ -2014,8 +2014,7 @@ public class TestSolrProvider extends SolrProviderTestCase {
 	 * @throws Exception
 	 */
 	@Test
-	@Ignore
-	public void testContextualAnyText() throws Exception {
+	public void testContextualAnyText_ContentType() throws Exception {
 
 		deleteAllIn(provider);
 
@@ -2039,6 +2038,72 @@ public class TestSolrProvider extends SolrProviderTestCase {
 
 		queryAndVerifyCount(1, filterBuilder.attribute(Metacard.ANY_TEXT).is().like().text(sought_word));
 	}
+	
+    @Test
+    public void testContextualAnyText_ContentTypeVersion() throws Exception {
+
+        deleteAllIn(provider);
+
+        List<Metacard> list = new ArrayList<Metacard>();
+
+        MockMetacard metacard1 = new MockMetacard(Library.getFlagstaffRecord());
+        String contentTypeVersion = "DIB20";
+        metacard1.setContentTypeVersion(contentTypeVersion);
+
+        list.add(metacard1);
+
+        MockMetacard metacard2 = new MockMetacard(Library.getTampaRecord());
+
+        list.add(metacard2);
+
+        MockMetacard metacard3 = new MockMetacard(Library.getShowLowRecord());
+
+        list.add(metacard3);
+
+        create(list);
+
+        queryAndVerifyCount(1,
+                filterBuilder.attribute(Metacard.ANY_TEXT).is().like().text(contentTypeVersion));
+    }
+    
+    @Test
+    public void testContextualAnyText_CaseSensitive_SearchPhraseExistsInRecord() throws Exception {
+
+        deleteAllIn(provider);
+        
+        List<Metacard> list = new ArrayList<Metacard>();
+
+        MockMetacard metacard1 = new MockMetacard(Library.getFlagstaffRecord());
+
+        list.add(metacard1);
+
+        create(list);
+
+        String searchPhrase = "Commerce";
+        
+        queryAndVerifyCount(1,
+                filterBuilder.attribute(Metacard.ANY_TEXT).is().like().caseSensitiveText(searchPhrase));
+    }
+    
+    @Test
+    public void testContextualAnyText_CaseSensitive_SearchPhraseDoesntExistInRecord() throws Exception {
+
+        deleteAllIn(provider);
+        
+        List<Metacard> list = new ArrayList<Metacard>();
+
+        MockMetacard metacard1 = new MockMetacard(Library.getFlagstaffRecord());
+
+        list.add(metacard1);
+
+        create(list);
+
+        // commerce (case sensitive) doesn't exist in record, but Commerce (case sensitive) does.
+        String searchPhrase = "commerce";
+        
+        queryAndVerifyCount(0,
+                filterBuilder.attribute(Metacard.ANY_TEXT).is().like().caseSensitiveText(searchPhrase));
+    }
 
 	/**
 	 * Testing case sensitive index.
