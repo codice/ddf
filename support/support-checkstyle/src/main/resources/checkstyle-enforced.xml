@@ -28,6 +28,12 @@
         <property name="fileExtensions" value="java, xml" />
     </module>
 	
+	<module name="RegexpMultiline">
+      <property name="format" value="\.printStackTrace\(\s*\)"/>
+      <property name="message" value="printStackTrace directs output to the console and should be replaced with logger debugging."/>
+    </module>
+	
+	
 	<module name="TreeWalker">
 
 	</module>

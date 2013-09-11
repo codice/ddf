@@ -19,7 +19,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
-import java.util.Vector;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.Source;
@@ -47,8 +46,8 @@ import ddf.catalog.operation.DeleteRequest;
 import ddf.catalog.operation.UpdateRequest;
 import ddf.catalog.plugin.PreIngestPlugin;
 import ddf.catalog.plugin.StopProcessingException;
-import ddf.catalog.validation.ValidationException;
 import ddf.catalog.validation.MetacardValidator;
+import ddf.catalog.validation.ValidationException;
 
 
 /**
@@ -103,7 +102,7 @@ public class SchematronValidationService implements PreIngestPlugin, MetacardVal
 	private Templates validator;
 	
 	/** Generated xsl:messages from the preprocessor */
-	private Vector<String> warnings = new Vector<String>();
+	private List<String> warnings = new ArrayList<String>();
 	
 	/** Report generated during transformation/validation of input XML against precompiled .sch file */
 	private SchematronReport report;
@@ -150,9 +149,9 @@ public class SchematronValidationService implements PreIngestPlugin, MetacardVal
         throws SchematronInitializationException
     {
     	String methodName = "constructor";
-    	LOGGER.debug( "ENTERING: " + CLASS_NAME + "." + methodName );
-    	LOGGER.debug( "schematronSchemaFilename = " + schematronSchemaFilename );
-    	LOGGER.debug( "suppressWarnings = " + suppressWarnings );
+    	LOGGER.debug( "ENTERING: {}.{}", CLASS_NAME,methodName );
+    	LOGGER.debug( "schematronSchemaFilename = {}", schematronSchemaFilename );
+    	LOGGER.debug( "suppressWarnings = {}", suppressWarnings );
     	
     	this.schematronSchemaFilename = schematronSchemaFilename;
     	this.suppressWarnings = suppressWarnings;
@@ -160,7 +159,7 @@ public class SchematronValidationService implements PreIngestPlugin, MetacardVal
     	
     	init( bundle, schematronSchemaFilename );
     	
-    	LOGGER.debug( "EXITING: " + CLASS_NAME + "." + methodName );
+    	LOGGER.debug( "EXITING: {}.{}", CLASS_NAME, methodName );
     }
     
     
@@ -174,7 +173,7 @@ public class SchematronValidationService implements PreIngestPlugin, MetacardVal
         throws SchematronInitializationException
     {
     	String methodName = "init";
-    	LOGGER.debug( "ENTERING: " + CLASS_NAME + "." + methodName );
+    	LOGGER.debug( "ENTERING: {}.{}", CLASS_NAME, methodName );
     	
     	// Initialize TransformerFactory if not already done
 		if ( transformerFactory == null ) 
@@ -192,27 +191,27 @@ public class SchematronValidationService implements PreIngestPlugin, MetacardVal
 				@Override
 				public Source resolve( String href, String base ) throws TransformerException 
 				{
-					LOGGER.debug( "URIResolver:  href = " + href + ",   base = " + base );
+					LOGGER.debug( "URIResolver:  href = {}, base = {}", href, base );
 					
 					// If href starts with "./" strip it off because the bundle class loader does not
 					// know how to handle this prefix
 					if ( href.startsWith( "./" ) )
 					{
 						href = href.substring( "./".length() );
-						LOGGER.debug( "URIResolver:  (Modified) href = " + href );
+						LOGGER.debug( "URIResolver:  (Modified) href = {}", href );
 					}
 					
 					try 
 					{
 						URL resourceAddressURL = bundle.getResource(href);
 						String resourceAddress = resourceAddressURL.toString();
-						LOGGER.debug( "Resolved resource address:" + resourceAddress );
+						LOGGER.debug( "Resolved resource address: {}", resourceAddress );
 
 						return new StreamSource( resourceAddress );
 					} 
 					catch (Exception e) 
 					{
-						LOGGER.error( "URIResolver error: " + e.getMessage() );
+						LOGGER.error( "URIResolver error ", e );
 						return null ;
 					}
 				}
@@ -269,7 +268,7 @@ public class SchematronValidationService implements PreIngestPlugin, MetacardVal
 			throw new SchematronInitializationException( "Error trying to create SchematronValidationService using sch file " + this.schematronSchemaFilename, e );
 		}
 		
-		LOGGER.debug( "EXITING: " + CLASS_NAME + "." + methodName );
+		LOGGER.debug( "EXITING: {}.{}", CLASS_NAME, methodName );
     }
     
     
@@ -290,8 +289,8 @@ public class SchematronValidationService implements PreIngestPlugin, MetacardVal
 		throws TransformerException, TransformerConfigurationException, ParserConfigurationException, SchematronInitializationException
 	{
     	String methodName = "performStage";
-    	LOGGER.debug( "ENTERING: " + CLASS_NAME + "." + methodName );
-    	LOGGER.debug( "preprocessorFilename = " + preprocessorFilename );
+    	LOGGER.debug( "ENTERING: {}.{}", CLASS_NAME, methodName );
+    	LOGGER.debug( "preprocessorFilename = {}", preprocessorFilename );
     	
 		// Retrieve the preprocessor XSL file
 		URL preprocessorUrl = bundle.getResource( preprocessorFilename );
@@ -302,12 +301,12 @@ public class SchematronValidationService implements PreIngestPlugin, MetacardVal
 		}
 		else
 		{
-			LOGGER.debug( "URL = " + preprocessorUrl.toString() );
+			LOGGER.debug( "URL = {}", preprocessorUrl.toString() );
 		}
 		Source preprocessorSource = new StreamSource( preprocessorUrl.toString() );
 
 		// Initialize container for warnings we may receive during transformation of input
-		warnings = new Vector<String>();
+		warnings = new ArrayList<String>();
 		
 		// Create a transformer for this preprocessor
 		TransformerFactory transformerFactory = TransformerFactory.newInstance();
@@ -321,7 +320,7 @@ public class SchematronValidationService implements PreIngestPlugin, MetacardVal
 		DOMResult domResult = new DOMResult();
 		transformer.transform( input, domResult );
 		
-		LOGGER.debug( "EXITING: " + CLASS_NAME + "." + methodName );
+		LOGGER.debug( "EXITING: {}.{} ", CLASS_NAME, methodName );
 		
 		return domResult;
 	}  
@@ -336,7 +335,7 @@ public class SchematronValidationService implements PreIngestPlugin, MetacardVal
 	    throws StopProcessingException 
 	{
     	String methodName = "processCreate";
-    	LOGGER.debug( "ENTERING: " + CLASS_NAME + "." + methodName );
+    	LOGGER.debug( "ENTERING: {}.{}", CLASS_NAME, methodName );
     	
     	if(create == null)
     	{
@@ -344,7 +343,7 @@ public class SchematronValidationService implements PreIngestPlugin, MetacardVal
     	}
 		validateEntryList( create.getMetacards() );
 		
-		LOGGER.debug( "EXITING: " + CLASS_NAME + "." + methodName );
+		LOGGER.debug( "EXITING: {}.{}", CLASS_NAME, methodName );
 		
 		return create;
     }
@@ -359,7 +358,7 @@ public class SchematronValidationService implements PreIngestPlugin, MetacardVal
 	    throws StopProcessingException 
 	{
     	String methodName = "processUpdate";
-    	LOGGER.debug( "ENTERING: " + CLASS_NAME + "." + methodName );
+    	LOGGER.debug( "ENTERING: {}.{}", CLASS_NAME, methodName );
     	if(update == null)
     	{
     		throw new StopProcessingException("Null updateRequest");
@@ -374,7 +373,7 @@ public class SchematronValidationService implements PreIngestPlugin, MetacardVal
             }    	
             validateEntryList(requestMetacards );
     	}
-		LOGGER.debug( "EXITING: " + CLASS_NAME + "." + methodName );
+		LOGGER.debug( "EXITING: {}.{}", CLASS_NAME, methodName );
 		
 		return update;
     }
@@ -386,7 +385,7 @@ public class SchematronValidationService implements PreIngestPlugin, MetacardVal
     public DeleteRequest process( DeleteRequest delete )
 	{
     	String methodName = "processDelete";
-    	LOGGER.debug( "ENTERING: " + CLASS_NAME + "." + methodName );
+    	LOGGER.debug( "ENTERING: {}.{}", CLASS_NAME, methodName );
     	
 		// no validation to perform
 		return delete;
@@ -405,7 +404,7 @@ public class SchematronValidationService implements PreIngestPlugin, MetacardVal
 	    throws StopProcessingException 
 	{
     	String methodName = "validateEntryList";
-    	LOGGER.debug( "ENTERING: " + CLASS_NAME + "." + methodName );
+    	LOGGER.debug( "ENTERING: {}.{}", CLASS_NAME, methodName );
     	
 		Iterator<Metacard> iter = entries.iterator();
 		Metacard curEntry;
@@ -420,7 +419,7 @@ public class SchematronValidationService implements PreIngestPlugin, MetacardVal
 		    performSchematronValidation( catalogEntryNum, curEntry );
 		}
 		
-		LOGGER.debug( "EXITING: " + CLASS_NAME + "." + methodName );
+		LOGGER.debug( "EXITING: {}.{}", CLASS_NAME, methodName );
     }
 
     
@@ -435,9 +434,9 @@ public class SchematronValidationService implements PreIngestPlugin, MetacardVal
     public void performSchematronValidation( int catalogEntryNum, Metacard catalogEntry ) throws StopProcessingException 
     {
     	String methodName = "performSchematronValidation";
-    	LOGGER.debug( "ENTERING: " + CLASS_NAME + "." + methodName );
+    	LOGGER.debug( "ENTERING:{}.{}", CLASS_NAME, methodName );
     	
-    	LOGGER.debug( "Using .sch ruleset: " + this.schematronSchemaFilename );
+    	LOGGER.debug( "Using .sch ruleset: {}", this.schematronSchemaFilename );
     	
     	// Convert the catalog entry's Document to a String
 		String entryDocument = catalogEntry.getMetadata();
@@ -454,7 +453,7 @@ public class SchematronValidationService implements PreIngestPlugin, MetacardVal
 			transformer.transform( new StreamSource( entryDocumentReader ), schematronResult );
 			this.report = new SvrlReport( schematronResult );
 
-			LOGGER.trace( "SVRL Report:\n\n" + report.getReportAsText() );
+			LOGGER.trace( "SVRL Report:\n\n{}", report.getReportAsText() );
 			
 			// If the Schematron validation failed, then throw an exception with details of the errors
 			// and warnings from the Schematron report included in the exception that is thrown to the client.
@@ -473,10 +472,10 @@ public class SchematronValidationService implements PreIngestPlugin, MetacardVal
 				if ( !this.suppressWarnings )
 				{
 					List<String> warnings = this.report.getWarnings();
-					LOGGER.debug( "warnings.size() = " + warnings.size() );
+					LOGGER.debug( "warnings.size() = {}", warnings.size() );
 					for ( String warning : warnings )
 					{
-						LOGGER.debug( "warning = " + warning );
+						LOGGER.debug( "warning = {}", warning );
 						errorMessage.append( warning );
 						errorMessage.append( "\n" );
 					}
@@ -489,12 +488,12 @@ public class SchematronValidationService implements PreIngestPlugin, MetacardVal
 		catch ( TransformerException te ) 
 		{
 			LOGGER.debug("Unable to setup validator", te);
-			LOGGER.debug( "EXITING: " + CLASS_NAME + "." + methodName );
+			LOGGER.debug( "EXITING: {}.{}", CLASS_NAME, methodName );
 			
 		    throw new StopProcessingException( "Could not setup validator to perform validation." );
 		}
 		
-		LOGGER.debug( "EXITING: " + CLASS_NAME + "." + methodName );
+		LOGGER.debug( "EXITING: {}.{}", CLASS_NAME, methodName );
     }
     
     
@@ -533,7 +532,7 @@ public class SchematronValidationService implements PreIngestPlugin, MetacardVal
     public void setSuppressWarnings( boolean suppressWarnings )
     {
     	LOGGER.debug( "ENTERING: setSuppressWarnings" );
-    	LOGGER.debug( "suppressWarnings = " + suppressWarnings + "(sch filename = " + this.schematronSchemaFilename +")" );
+    	LOGGER.debug( "suppressWarnings = {} (sch filename = {})", suppressWarnings, this.schematronSchemaFilename);
     	
     	this.suppressWarnings = suppressWarnings;
     	
@@ -563,7 +562,7 @@ public class SchematronValidationService implements PreIngestPlugin, MetacardVal
     public void setPriority( int priority )
     {
     	String methodName = "setPriority";
-    	LOGGER.debug( "ENTERING: " + CLASS_NAME + "." + methodName );
+    	LOGGER.debug( "ENTERING: {}.{}", CLASS_NAME, methodName );
     	LOGGER.debug( "Setting priority = " + priority );
     	
     	this.priority = priority;
@@ -572,7 +571,7 @@ public class SchematronValidationService implements PreIngestPlugin, MetacardVal
     	if ( this.priority > 100 ) this.priority = 100;
     	else if ( this.priority < 1 ) this.priority = 1;
     	
-    	LOGGER.debug( "EXITING: " + CLASS_NAME + "." + methodName );
+    	LOGGER.debug( "EXITING: {}.{}", CLASS_NAME, methodName );
     }
     
     
@@ -618,11 +617,11 @@ public class SchematronValidationService implements PreIngestPlugin, MetacardVal
 	@Override
 	public void validate(Metacard metacard) throws ValidationException {
     	//TODO Refactor this method
-		LOGGER.debug( "Using .sch ruleset: " + this.schematronSchemaFilename );
+		LOGGER.debug( "Using .sch ruleset: {}", this.schematronSchemaFilename );
     	
     	// Convert the metacard's metadata to a String
 		String metadata = metacard.getMetadata();
-		LOGGER.debug("metadata: " + metadata);
+		LOGGER.debug("metadata: {}", metadata);
 		
 		// Create a Reader for the catalog entry's contents
 		StringReader metadataReader = new StringReader( metadata );
@@ -635,7 +634,7 @@ public class SchematronValidationService implements PreIngestPlugin, MetacardVal
 			transformer.transform( new StreamSource( metadataReader ), schematronResult );
 			this.report = new SvrlReport( schematronResult );
 
-			LOGGER.trace( "SVRL Report:\n\n" + report.getReportAsText() );
+			LOGGER.trace( "SVRL Report:\n\n{}", report.getReportAsText() );
 			
 			// If the Schematron validation failed, then throw an exception with details of the errors
 			// and warnings from the Schematron report included in the exception that is thrown to the client.
@@ -646,7 +645,7 @@ public class SchematronValidationService implements PreIngestPlugin, MetacardVal
 				StringBuffer errorMessage =  new StringBuffer( "Schematron validation failed.\n\n" );
 				List<String> errors = this.report.getErrors();
 				
-				LOGGER.debug( "errors.size() = " + errors.size() );
+				LOGGER.debug( "errors.size() = {}", errors.size() );
 				for ( String error : errors )
 				{
 					errorMessage.append( error );
@@ -656,10 +655,10 @@ public class SchematronValidationService implements PreIngestPlugin, MetacardVal
 				if ( !this.suppressWarnings )
 				{
 					warnings = this.report.getWarnings();
-					LOGGER.debug( "warnings.size() = " + warnings.size() );
+					LOGGER.debug( "warnings.size() = {}", warnings.size() );
 					for ( String warning : warnings )
 					{
-						LOGGER.debug( "warning = " + warning );
+						LOGGER.debug( "warning = {}", warning );
 						errorMessage.append( warning );
 						errorMessage.append( "\n" );
 					}
