@@ -196,8 +196,8 @@ public class XsltResponseQueueTransformer extends AbstractXsltTransformer
 						.getImplementation();
 				LSSerializer lsSerializer = domImplementation
 						.createLSSerializer();
-				LOGGER.debug("Generated XML input for transform: "
-						+ lsSerializer.writeToString(doc));
+				LOGGER.debug("Generated XML input for transform: {}",
+						lsSerializer.writeToString(doc));
             }
 
 			LOGGER.debug("Starting responsequeue xslt transform.");
@@ -227,8 +227,8 @@ public class XsltResponseQueueTransformer extends AbstractXsltTransformer
 			if (mergedMap != null && !mergedMap.isEmpty()) {
 				for (Map.Entry<String, Object> entry : mergedMap.entrySet()) {
 					if (LOGGER.isDebugEnabled()) {
-						LOGGER.debug("Adding parameter to transform {"
-								+ entry.getKey() + ":" + entry.getValue() + "}");
+						LOGGER.debug("Adding parameter to transform [{}:{}]", entry.getKey(),
+								entry.getValue());
                     }
 					transformer.setParameter(entry.getKey(), entry.getValue());
                 }
@@ -241,8 +241,7 @@ public class XsltResponseQueueTransformer extends AbstractXsltTransformer
 				resultContent = new XsltTransformedContent(bytes, mimeType);
 			} catch (TransformerException te) {
 				LOGGER.error(
-						"Could not perform Xslt transform: "
-								+ te.getException(), te.getCause());
+						"Could not perform Xslt transform: {}", te);
 				throw new CatalogTransformerException(
 						"Could not perform Xslt transform: "
 								+ te.getException(), te.getCause());
@@ -254,7 +253,7 @@ public class XsltResponseQueueTransformer extends AbstractXsltTransformer
 
             return resultContent;
 		} catch (ParserConfigurationException e) {
-			LOGGER.warn("Error creating new document: " + e.getMessage(),
+			LOGGER.warn("Error creating new document: ", e,
 					e.getCause());
 			throw new CatalogTransformerException(
 					"Error merging entries to xml feed.", e);

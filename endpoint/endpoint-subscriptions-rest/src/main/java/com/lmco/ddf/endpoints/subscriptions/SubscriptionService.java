@@ -115,23 +115,17 @@ public class SubscriptionService
     public boolean createSubscription( InputStream message )
     {
         String methodName = "createSubscription";
-        LOGGER.debug( "ENTERING: " + methodName );
-
-//        Response response = null;
+        LOGGER.debug( "ENTERING:{} ", methodName );
 
         try
         {
             if ( message != null )
             {
                 String request = IOUtils.toString( message );
-                LOGGER.debug( "request:\n" + request );
+                LOGGER.debug( "request:\n{}", request );
                 
                 Subscription subscription = (Subscription) unmarshaller.unmarshal( new StringReader( request ) );
                 performCreateSubscription( subscription );
-//                performCreateSubscription( request );
-                
-//                Response.ResponseBuilder responseBuilder = Response.ok();
-//                response = responseBuilder.build();
             } 
             else 
             {
@@ -141,10 +135,9 @@ public class SubscriptionService
         catch ( Exception e )
         {
             LOGGER.error( "Exception processing create subscription request", e );
-//            response = Response.serverError().build();
         }
 
-        LOGGER.debug( "EXITING: " + methodName );
+        LOGGER.debug( "EXITING: {}", methodName );
 
 //        return response;
         return true;
@@ -157,7 +150,7 @@ public class SubscriptionService
     public int createSubscriptions( InputStream message )
     {
         String methodName = "createSubscriptions";
-        LOGGER.debug( "ENTERING: " + methodName );
+        LOGGER.debug( "ENTERING: {}", methodName );
 
 //        Response response = null;
         int numSubscriptionsCreated = 0;
@@ -170,7 +163,7 @@ public class SubscriptionService
                 LOGGER.debug( "request:\n" + request );
                 
                 List<Subscription> subscriptions = (List<Subscription>) unmarshaller.unmarshal( new StringReader( request ) );
-                LOGGER.debug( "subscriptions.size() = " + subscriptions.size() );
+                LOGGER.debug( "subscriptions.size() = {}", subscriptions.size() );
                 
                 if ( subscriptions != null && !subscriptions.isEmpty() )
                 {
@@ -195,7 +188,7 @@ public class SubscriptionService
 //            response = Response.serverError().build();
         }
 
-        LOGGER.debug( "EXITING: " + methodName );
+        LOGGER.debug( "EXITING: {}", methodName );
 
 //        return response;
         return numSubscriptionsCreated;
@@ -210,7 +203,7 @@ public class SubscriptionService
     public Response updateSubscription( @PathParam( "subscriptionId" ) String subscriptionId, InputStream message )
     {
         String methodName = "updateSubscription";
-        LOGGER.debug( "ENTERING: " + methodName );
+        LOGGER.debug( "ENTERING: {}", methodName );
 
         LOGGER.debug( "subscriptionId:\n" + subscriptionId );
 
@@ -244,7 +237,7 @@ public class SubscriptionService
             response = Response.serverError().build();
         }
 
-        LOGGER.debug( "EXITING: " + methodName );
+        LOGGER.debug( "EXITING: {}", methodName );
 
         return response;
     }
@@ -256,9 +249,9 @@ public class SubscriptionService
     public boolean deleteSubscription( @PathParam( "subscriptionId" ) String subscriptionId )
     {
         String methodName = "deleteSubscription";
-        LOGGER.debug( "ENTERING: " + methodName );
+        LOGGER.debug( "ENTERING: {}", methodName );
 
-        LOGGER.debug( "subscriptionId:\n" + subscriptionId );
+        LOGGER.debug( "subscriptionId:\n {}", subscriptionId );
         
         boolean status = false;
 
@@ -279,7 +272,7 @@ public class SubscriptionService
 //        Response.ResponseBuilder responseBuilder = Response.noContent();
 //        response = responseBuilder.build();
 
-        LOGGER.debug( "EXITING: " + methodName );
+        LOGGER.debug( "EXITING: {}", methodName );
 
 //        return response;
         return status;
@@ -292,9 +285,9 @@ public class SubscriptionService
     public int deleteSubscriptions( @QueryParam("subscriptionIds") List<String> subscriptionIds )
     {
         String methodName = "deleteSubscriptions";
-        LOGGER.debug( "ENTERING: " + methodName );
+        LOGGER.debug( "ENTERING: {}", methodName );
         
-        LOGGER.debug( "subscriptionIds.size() = " + subscriptionIds.size() );
+        LOGGER.debug( "subscriptionIds.size() = {}", subscriptionIds.size() );
 
 //        Response response = null;
         int numSubscriptionsDeleted = 0;
@@ -304,7 +297,7 @@ public class SubscriptionService
         {
             for ( String subscriptionId : subscriptionIds )
             {
-                LOGGER.debug( "Deleting subscription for ID = " + subscriptionId );
+                LOGGER.debug( "Deleting subscription for ID = {}", subscriptionId );
                  try {
 					eventProcessor.deleteSubscription( subscriptionId );
                     numSubscriptionsDeleted++;
@@ -320,7 +313,7 @@ public class SubscriptionService
 //        Response.ResponseBuilder responseBuilder = Response.noContent();
 //        response = responseBuilder.build();
 
-        LOGGER.debug( "EXITING: " + methodName );
+        LOGGER.debug( "EXITING: {}", methodName );
 
 //        return response;
         return numSubscriptionsDeleted;
@@ -334,8 +327,8 @@ public class SubscriptionService
     public String getSubscription( @PathParam( "subscriptionId" ) String subscriptionId )
         throws SubscriptionServiceException
     {
-        String methodName = "getSubscription - HUGH";
-        LOGGER.debug( "ENTERING: " + methodName );
+        String methodName = "getSubscription";
+        LOGGER.debug( "ENTERING: {}", methodName );
 
 //        Response response = null;
 //
@@ -357,7 +350,7 @@ public class SubscriptionService
 //            throw new SubscriptionServiceException( e.getMessage(), e );
 //        }
 //        
-        LOGGER.debug( "EXITING: " + methodName );
+        LOGGER.debug( "EXITING: {}", methodName );
 
 //        return response;
         return subscriptionXml;
@@ -373,8 +366,8 @@ public class SubscriptionService
     public GetAllSubscriptionsResponse getSubscriptions()
         throws SubscriptionServiceException
     {
-        String methodName = "getSubscriptions - HUGH";
-        LOGGER.debug( "ENTERING: " + methodName );
+        String methodName = "getSubscriptions";
+        LOGGER.debug( "ENTERING: {}", methodName );
 
 //        Response response = null;
         GetAllSubscriptionsResponse getAllSubscriptionsResponse = new GetAllSubscriptionsResponse();
@@ -408,7 +401,7 @@ public class SubscriptionService
 //            logger.warn( e.getMessage(), e );
 //        }
 
-        LOGGER.debug( "EXITING: " + methodName );
+        LOGGER.debug( "EXITING: {}", methodName );
 
 //        return response;
         return getAllSubscriptionsResponse;
@@ -424,8 +417,8 @@ public class SubscriptionService
     public GetSubscriptionIdsResponse getSubscriptionIds()
         throws SubscriptionServiceException
     {
-        String methodName = "getSubscriptionIds - HUGH";
-        LOGGER.debug( "ENTERING: " + methodName );
+        String methodName = "getSubscriptionIds";
+        LOGGER.debug( "ENTERING: {}", methodName );
 
 //        Response response = null;
         GetSubscriptionIdsResponse getSubscriptionIdsResponse = new GetSubscriptionIdsResponse();
@@ -459,7 +452,7 @@ public class SubscriptionService
 //            logger.warn( e.getMessage(), e );
 //        }
 
-        LOGGER.debug( "EXITING: " + methodName );
+        LOGGER.debug( "EXITING: {}", methodName );
 
 //        return response;
         return getSubscriptionIdsResponse;
@@ -470,7 +463,7 @@ public class SubscriptionService
     private void performCreateSubscription( Subscription subscription )
     {
         String methodName = "performCreateSubscription";
-        LOGGER.debug( "ENTERING: " + methodName );
+        LOGGER.debug( "ENTERING: {}", methodName );
         //TODO UPDATE to new OGC FILTER
 //        
 //        try
@@ -549,7 +542,7 @@ public class SubscriptionService
 //            logger.warn( "Error creating subscription", e );
 //        }
 //        
-        LOGGER.debug( "EXITING: " + methodName );
+        LOGGER.debug( "EXITING: {}", methodName );
     }
     
 }

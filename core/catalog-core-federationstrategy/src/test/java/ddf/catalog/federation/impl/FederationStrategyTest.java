@@ -164,7 +164,7 @@ public class FederationStrategyTest {
 		} catch (UnsupportedQueryException e) {
 			fail();
 		} catch (FederationException e) {
-			LOGGER.error("Unexpected federation exception during test");
+			LOGGER.error("Unexpected federation exception during test", e);
 			fail();
 		}
 	}
@@ -436,14 +436,7 @@ public class FederationStrategyTest {
         SourceResponse mockSource1Response = mock( SourceResponse.class );
         List<Result> mockSource1Results = Arrays.asList(mockSource1Result1, mockSource1Result2, mockSource1Result3, mockSource1Result4);
         when(mockSource1Response.getResults()).thenReturn(mockSource1Results);
-        
-        LOGGER.debug( "Source 1 results:" );
-        
-        for( Result result : mockSource1Results )
-        {
-            LOGGER.debug( result.toString() );
-        }
-
+      
         Source mockSource1 = mock( Source.class );
         when( mockSource1.query( any( QueryRequest.class ) ) ).thenReturn( mockSource1Response );
         when( mockSource1.getId() ).thenReturn( "####### MOCK SOURCE 1.4 #######" );
@@ -460,13 +453,6 @@ public class FederationStrategyTest {
         SourceResponse mockSource2Response = mock( SourceResponse.class );
         List<Result> mockSource2Results = Arrays.asList(mockSource2Result1, mockSource2Result2, mockSource2Result3, mockSource2Result4);
         when(mockSource2Response.getResults()).thenReturn(mockSource2Results);
-       
-        LOGGER.debug( "Source 2 results:" );
-        
-        for( Result result : mockSource2Results )
-        {
-            LOGGER.debug( result.toString()  );
-        }
         
         Source mockSource2 = mock( Source.class );
         when( mockSource2.query( any( QueryRequest.class ) ) ).thenReturn( mockSource2Response );
