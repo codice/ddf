@@ -16,7 +16,7 @@
                    xsi:schemaLocation="http://www.osgi.org/xmlns/metatype/v1.2.0 http://www.osgi.org/xmlns/metatype/v1.2.0"
                    xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.2.0">
 
-	<OCD description="STS Ldap and Roles Claims Handler Configuration" name="Security STS LDAP and Roles Claims Handler" id="ddf.security.sts.claimsHandler">
+	<OCD description="STS Ldap and Roles Claims Handler Configuration. WARNING: The server must be restarted for the changes to take affect." name="Security STS LDAP and Roles Claims Handler" id="ddf.security.sts.claimsHandler">
 	    
 	    <AD name="LDAP URL:" id="ldapUrl" required="true" type="String"
 	      default="ldap://ldap:1389"
