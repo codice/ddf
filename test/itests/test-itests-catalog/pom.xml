@@ -17,7 +17,7 @@
 	<parent>
 		<groupId>ddf.test.itests</groupId>
 		<artifactId>itests</artifactId>
-		<version>2.2.1</version>
+		<version>2.2.2-SNAPSHOT</version>
 	</parent>
 	<artifactId>test-itests-catalog</artifactId>
 	<name>DDF :: Test :: Integration :: Catalog</name>
