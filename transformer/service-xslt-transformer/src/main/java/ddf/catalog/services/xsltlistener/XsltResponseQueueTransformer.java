@@ -241,7 +241,7 @@ public class XsltResponseQueueTransformer extends AbstractXsltTransformer
 				resultContent = new XsltTransformedContent(bytes, mimeType);
 			} catch (TransformerException te) {
 				LOGGER.error(
-						"Could not perform Xslt transform: {}", te);
+						"Could not perform Xslt transform", te);
 				throw new CatalogTransformerException(
 						"Could not perform Xslt transform: "
 								+ te.getException(), te.getCause());
