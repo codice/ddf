@@ -375,7 +375,7 @@ public class MetricsWebConsolePlugin extends AbstractWebConsolePlugin {
         }
     }
 
-    void startTableRow(PrintWriter pw, int rowNumber)
+    private void startTableRow(PrintWriter pw, int rowNumber)
     {
         String tableStriping = "odd";
         if ((rowNumber % 2) == 0)
@@ -385,7 +385,7 @@ public class MetricsWebConsolePlugin extends AbstractWebConsolePlugin {
         pw.println("<tr class=\"" + tableStriping + " ui-state-default\">");
     }
 
-    void addCellLabelForRange(PrintWriter pw, DateMidnight startDate, DateTime endDate)
+    private void addCellLabelForRange(PrintWriter pw, DateMidnight startDate, DateTime endDate)
     {
         DateTimeFormatter dateFormatter = DateTimeFormat.forStyle(DATE_DISPLAY_FORMAT);
         String urlText = dateFormatter.print(startDate) + " - " + dateFormatter.print(endDate);
@@ -393,34 +393,34 @@ public class MetricsWebConsolePlugin extends AbstractWebConsolePlugin {
         addCellLabel(pw, urlText);
     }
 
-    void addCellLabel(PrintWriter pw, String cellLabel)
+    private void addCellLabel(PrintWriter pw, String cellLabel)
     {
         pw.println("<td>" + cellLabel + "</td>");
     }
 
-    void addXLSCellLink(PrintWriter pw, String startDate, String endDate, String metricsServiceUrl)
+    private void addXLSCellLink(PrintWriter pw, String startDate, String endDate, String metricsServiceUrl)
     {
         String reportUrl = metricsServiceUrl + "/report.xls?startDate=" + startDate + "&endDate=" + endDate;
         pw.println("<td><a class=\"ui-state-default ui-corner-all\" href=\"" + reportUrl + "\">XLS</a></td>");
     }
 
-    void addPPTCellLink(PrintWriter pw, String startDate, String endDate, String metricsServiceUrl)
+    private void addPPTCellLink(PrintWriter pw, String startDate, String endDate, String metricsServiceUrl)
     {
         String reportUrl = metricsServiceUrl + "/report.ppt?startDate=" + startDate + "&endDate=" + endDate;
         pw.println("<td><a class=\"ui-state-default ui-corner-all\" href=\"" + reportUrl + "\">PPT</a></td>");
     }
 
-    void endTableRow(PrintWriter pw)
+    private void endTableRow(PrintWriter pw)
     {
         pw.println("</tr>");
     }
 
-    static String urlEncodeDate(DateMidnight date) throws UnsupportedEncodingException
+    private static String urlEncodeDate(DateMidnight date) throws UnsupportedEncodingException
     {
-        return URLEncoder.encode(date.toString(ISODateTimeFormat.dateTimeNoMillis()), CharEncoding.UTF_8);
+        return urlEncodeDate(date.toDateTime());
     }
 
-    static String urlEncodeDate(DateTime date) throws UnsupportedEncodingException
+    private static String urlEncodeDate(DateTime date) throws UnsupportedEncodingException
     {
         return URLEncoder.encode(date.toString(ISODateTimeFormat.dateTimeNoMillis()), CharEncoding.UTF_8);
     }
