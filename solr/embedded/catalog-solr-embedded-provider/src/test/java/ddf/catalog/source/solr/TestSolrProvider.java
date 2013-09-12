@@ -2047,7 +2047,7 @@ public class TestSolrProvider extends SolrProviderTestCase {
         List<Metacard> list = new ArrayList<Metacard>();
 
         MockMetacard metacard1 = new MockMetacard(Library.getFlagstaffRecord());
-        String contentTypeVersion = "ABC20";
+        String contentTypeVersion = "ABC";
         metacard1.setContentTypeVersion(contentTypeVersion);
 
         list.add(metacard1);
