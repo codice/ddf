@@ -72,6 +72,7 @@ public class SourceMetricsImplTest {
 		String metricName = SourceMetrics.QUERIES_SCOPE;
 		
 		sourceMetrics = configureSourceMetrics(sourceId);
+		addSource();
 		sourceMetrics.updateMetric(sourceId, metricName, 1);
 		
 		assertMetricCount(sourceId, metricName, 1);
@@ -96,24 +97,25 @@ public class SourceMetricsImplTest {
 		assertMetricCount(newSourceId, metricName, 1);
 	}
 
-	@Test
-	public void testSourceCreatedWithNullId() throws Exception {
-		String sourceId = null;
-		String metricName = SourceMetrics.QUERIES_TOTAL_RESULTS_SCOPE;
-		
-		sourceMetrics = configureSourceMetrics(sourceId);
-		
-		// Simulate initial creation of Source
-		addSource();
-		
-		// Simulate changing Source's name
-		String newSourceId = "cp-1";
-		when(catalogProvider.getId()).thenReturn(newSourceId);
-	
-		sourceMetrics.updateMetric(newSourceId, metricName, 1);
-		
-		assertMetricCount(newSourceId, metricName, 1);
-	}
+	// Not a valid test because cannot create Source with null or blank ID
+//	@Test
+//	public void testSourceCreatedWithNullId() throws Exception {
+//		String sourceId = null;
+//		String metricName = SourceMetrics.QUERIES_TOTAL_RESULTS_SCOPE;
+//		
+//		sourceMetrics = configureSourceMetrics(sourceId);
+//		
+//		// Simulate initial creation of Source that has null ID
+//		addSource();
+//		
+//		// Simulate changing Source's name
+//		String newSourceId = "cp-1";
+//		when(catalogProvider.getId()).thenReturn(newSourceId);
+//	
+//		sourceMetrics.updateMetric(newSourceId, metricName, 1);
+//		
+//		assertMetricCount(newSourceId, metricName, 1);
+//	}
 	
 	@Test
 	public void testUpdateNonExistingSourceMetric() throws Exception {
@@ -177,6 +179,7 @@ public class SourceMetricsImplTest {
 		String metricName = "invalid-metric";
 		
 		SourceMetricsImpl sourceMetrics = configureSourceMetrics(sourceId);
+		addSource();
 	
 		sourceMetrics.updateMetric(sourceId, metricName, 1);
 		
@@ -259,8 +262,8 @@ public class SourceMetricsImplTest {
 		when(fedSource.getId()).thenReturn("fs-1");
 		
 		sourceMetrics = new SourceMetricsImpl();
-		sourceMetrics.setCatalogProviders(Collections.singletonList(catalogProvider));
-		sourceMetrics.setFederatedSources(Collections.singletonList(fedSource));
+//		sourceMetrics.setCatalogProviders(Collections.singletonList(catalogProvider));
+//		sourceMetrics.setFederatedSources(Collections.singletonList(fedSource));
 		
 		assertThat(sourceMetrics, not(nullValue()));
 		

@@ -108,10 +108,9 @@ public class SourceMetricsImpl implements PreFederatedQueryPlugin, PostFederated
     // The types of Yammer Metrics supported
     private enum MetricType { HISTOGRAM, METER };
     
-    // Injected list of CatalogProviders and FederatedSources 
-    // that is kept updated by container, e.g., with latest sourceIds
-    private List<CatalogProvider> catalogProviders = new ArrayList<CatalogProvider>();
-    private List<FederatedSource> federatedSources = new ArrayList<FederatedSource>();
+    // Internal list of Sources maintained as they are added/deleted; especially useful
+    // for handling when Sources are renamed by user.
+    private List<Source> sources = new ArrayList<Source>();
     
     // Map of Source to sourceId - used to detect if sourceId has been changed since last metric update
     private Map<Source, String> sourceToSourceIdMap = new HashMap<Source, String>();
@@ -122,21 +121,9 @@ public class SourceMetricsImpl implements PreFederatedQueryPlugin, PostFederated
     private ExecutorService executorPool;
 
     
-	public List<CatalogProvider> getCatalogProviders() {
-		return catalogProviders;
-	}
-
-	public void setCatalogProviders(List<CatalogProvider> catalogProviders) {
-		this.catalogProviders = catalogProviders;
-	}
-
-	public List<FederatedSource> getFederatedSources() {
-		return federatedSources;
-	}
-
-	public void setFederatedSources(List<FederatedSource> federatedSources) {
-		this.federatedSources = federatedSources;
-	}
+    public SourceMetricsImpl() {
+    	LOGGER.trace("INSIDE constructor");
+    }
 
 	public void init() {
 		LOGGER.trace("INSIDE: init");
@@ -145,9 +132,33 @@ public class SourceMetricsImpl implements PreFederatedQueryPlugin, PostFederated
 	}
 	
 	public void destroy() {
-		LOGGER.trace("INSIDE: destroy");
+		LOGGER.trace("ENTERING: destroy");
+		
+		// Stop collectors
+		if (metrics != null && metrics.size() > 0) {
+			for (String sourceId : metrics.keySet()) {
+				SourceMetric sourceMetric = metrics.get(sourceId);
+				LOGGER.trace("Deleting collector for source " + sourceId);
+				sourceMetric.getCollector().destroy();
+			}
+		}
 		
 		reporter.stop();
+		
+		if (executorPool != null)
+        {
+            List<Runnable> tasks = executorPool.shutdownNow();
+            if (tasks != null)
+            {
+                LOGGER.debug("Num tasks awaiting execution = {}", tasks.size());
+            }
+            else
+            {
+                LOGGER.debug("No tasks awaiting execution");
+            }
+        }
+		
+		LOGGER.trace("EXITING: destroy");
 	}
 
 	// PreFederatedQuery
@@ -218,14 +229,10 @@ public class SourceMetricsImpl implements PreFederatedQueryPlugin, PostFederated
 		
 		String mapKey = sourceId + "." + name;
     	SourceMetric sourceMetric = metrics.get(mapKey);
-    	
+
     	if (sourceMetric == null) {
     		LOGGER.debug("sourceMetric is null for " + mapKey + " - creating metric now");
-    		// Loop through list of all sources until find the sourceId whose metric is being updated
-    		boolean created = createMetric(catalogProviders, sourceId);
-    		if (!created) {
-    			createMetric(federatedSources, sourceId);
-    		}
+    		createMetric(sources, sourceId);
     		sourceMetric = metrics.get(mapKey);
     	}
     	
@@ -358,6 +365,7 @@ public class SourceMetricsImpl implements PreFederatedQueryPlugin, PostFederated
 			return;
 		}
     	
+    	sources.add(source);
     	String sourceId = source.getId();
 		
 		LOGGER.debug("sourceId = {}", sourceId);
@@ -468,12 +476,10 @@ public class SourceMetricsImpl implements PreFederatedQueryPlugin, PostFederated
     		newSourceId += StringUtils.capitalize(part);
     	}
     	String rrdPath = "source" + newSourceId + collectorName;
-    	LOGGER.debug("BEFORE: rrdPath = " + rrdPath);
     	
     	// Sterilize RRD path name by removing any non-alphanumeric characters - this would confuse the
     	// URL being generated for this RRD path in the Metrics tab of Admin console.
     	rrdPath = rrdPath.replaceAll(ALPHA_NUMERIC_REGEX, "");
-    	LOGGER.debug("AFTER: rrdPath = " + rrdPath);
 
     	return rrdPath;
     }

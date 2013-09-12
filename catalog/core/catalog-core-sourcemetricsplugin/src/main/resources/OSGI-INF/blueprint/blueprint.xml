@@ -28,7 +28,7 @@
     		unbind-method="deletingSource" />
     </reference-list>
         
-    <reference-list id="federatedSources" interface="ddf.catalog.source.FederatedSource" 
+    <reference-list id="federatedSourceList" interface="ddf.catalog.source.FederatedSource" 
         availability="optional" >
     	<reference-listener 
     		ref="sourceMetrics"
@@ -38,12 +38,6 @@
     
     <bean id="sourceMetrics" class="ddf.catalog.metrics.source.SourceMetricsImpl"
     			init-method="init"  destroy-method="destroy">
-    	<!-- 
-    	Must be properties vs. constructor args to prevent circular reference with
-    	CatalogProvider in catalog-core-standardframework blueprint.  
-    	-->
-    	<property name="catalogProviders" ref="catalogProviders" />
-    	<property name="federatedSources" ref="federatedSources" />
     </bean>
   
     <service ref="sourceMetrics" interface="ddf.catalog.plugin.PreFederatedQueryPlugin" />

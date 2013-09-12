@@ -54,9 +54,9 @@
         <bundle>mvn:ddf.catalog.core/catalog-core-metricsplugin/${project.version}</bundle>
     </feature>
     
-    <feature name="catalog-core-sourcemetrics" version="${project.version}"
+    <feature name="catalog-core-sourcemetricsplugin" version="${project.version}"
         description="Capture metrics about individual source operations.">
-        <bundle>mvn:ddf.catalog.core/catalog-core-sourcemetrics/${project.version}</bundle>
+        <bundle>mvn:ddf.catalog.core/catalog-core-sourcemetricsplugin/${project.version}</bundle>
     </feature>
 	
 </features>

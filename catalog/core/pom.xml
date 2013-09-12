@@ -75,7 +75,7 @@
 		<module>catalog-core-impl</module>
 		<module>catalog-core-metacardgroomerplugin</module>
         <module>catalog-core-metricsplugin</module>
-        <module>catalog-core-sourcemetrics</module>
+        <module>catalog-core-sourcemetricsplugin</module>
 		<module>catalog-core-app</module>
 	</modules>
 </project>
