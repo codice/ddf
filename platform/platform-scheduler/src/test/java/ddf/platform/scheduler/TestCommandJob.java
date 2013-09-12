@@ -25,7 +25,6 @@ import java.io.PrintStream;
 
 import org.apache.felix.service.command.CommandProcessor;
 import org.apache.felix.service.command.CommandSession;
-import org.apache.log4j.BasicConfigurator;
 import org.junit.Test;
 import org.mockito.stubbing.Answer;
 import org.quartz.JobDataMap;
@@ -42,9 +41,6 @@ import org.slf4j.LoggerFactory;
  */
 public class TestCommandJob {
     
-    static {
-        BasicConfigurator.configure();
-    }
     private static final Logger LOGGER = LoggerFactory
             .getLogger(TestCommandJob.class);
     
