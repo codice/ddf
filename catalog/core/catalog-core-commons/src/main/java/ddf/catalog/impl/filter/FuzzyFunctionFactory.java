@@ -1,16 +1,18 @@
 /**
  * Copyright (c) Codice Foundation
- *
- * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
- * version 3 of the License, or any later version. 
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * 
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
+ * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
+ * 
  **/
 package ddf.catalog.impl.filter;
-
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -25,48 +27,40 @@ import org.opengis.filter.expression.Expression;
 import org.opengis.filter.expression.Function;
 import org.opengis.filter.expression.Literal;
 
+public class FuzzyFunctionFactory implements FunctionFactory {
+    private static Logger logger = Logger.getLogger(FuzzyFunctionFactory.class);
 
-public class FuzzyFunctionFactory implements FunctionFactory
-{
-    private static Logger logger = Logger.getLogger( FuzzyFunctionFactory.class );
-    
-
-    public List<FunctionName> getFunctionNames()
-    {
+    public List<FunctionName> getFunctionNames() {
         String methodName = "getFunctionNames";
-        logger.debug( "ENTERING: " + methodName );
-        
+        logger.debug("ENTERING: " + methodName);
+
         List<FunctionName> functionList = new ArrayList<FunctionName>();
-        functionList.add( FuzzyFunction.NAME );
-        
-        logger.debug( "EXITING: " + methodName );
-        
-        return Collections.unmodifiableList( functionList );
+        functionList.add(FuzzyFunction.NAME);
+
+        logger.debug("EXITING: " + methodName);
+
+        return Collections.unmodifiableList(functionList);
     }
 
-
-    public Function function( String name, List<Expression> args, Literal fallback )
-    {
-        logger.debug( "INSIDE: function(String name, ...)" );
-        return function( new NameImpl( name ), args, fallback );
+    public Function function(String name, List<Expression> args, Literal fallback) {
+        logger.debug("INSIDE: function(String name, ...)");
+        return function(new NameImpl(name), args, fallback);
     }
 
-
-    public Function function( Name name, List<Expression> args, Literal fallback )
-    {
+    public Function function(Name name, List<Expression> args, Literal fallback) {
         String methodName = "function";
-        logger.debug( "ENTERING: " + methodName );
-        
-        logger.debug( "Comparing [" + FuzzyFunction.NAME.getName() + "] to [" + name.getLocalPart() + "]" );
-        
-        if ( FuzzyFunction.NAME.getName().equals( name.getLocalPart() ) )
-        {
-            logger.debug( "EXITING: " + methodName + "    - returning FuzzyFunction instance" );
-            return new FuzzyFunction( args, fallback );
+        logger.debug("ENTERING: " + methodName);
+
+        logger.debug("Comparing [" + FuzzyFunction.NAME.getName() + "] to [" + name.getLocalPart()
+                + "]");
+
+        if (FuzzyFunction.NAME.getName().equals(name.getLocalPart())) {
+            logger.debug("EXITING: " + methodName + "    - returning FuzzyFunction instance");
+            return new FuzzyFunction(args, fallback);
         }
-        
-        logger.debug( "EXITING: " + methodName + "    - returning null" );
-        
+
+        logger.debug("EXITING: " + methodName + "    - returning null");
+
         return null; // we do not implement that function
     }
 }

@@ -1,13 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- *
- * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
- * version 3 of the License, or any later version. 
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * 
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
+ * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
+ * 
  **/
 package ddf.catalog.transformer.input.geojson;
 
@@ -15,8 +18,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
-
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -33,129 +35,139 @@ import com.vividsolutions.jts.io.ParseException;
 import com.vividsolutions.jts.io.WKTReader;
 
 import ddf.catalog.data.Metacard;
-import ddf.catalog.data.QualifiedMetacardType;
 import ddf.catalog.data.MetacardTypeRegistry;
+import ddf.catalog.data.QualifiedMetacardType;
 import ddf.catalog.data.metacardtype.MetacardTypeRegistryImpl;
 import ddf.catalog.transform.CatalogTransformerException;
 
 public class TestGeoJsonInputTransformer {
-	private static final String SAMPLE_ID = "myId";
-	private static final String DEFAULT_URI = "http://example.com";
-	public static final String DEFAULT_TITLE = "myTitle";
-	public static final String DEFAULT_VERSION = "myVersion";
-	public static final String DEFAULT_TYPE = "myType";
-	public static final byte[] DEFAULT_BYTES = { 8 };
-	private static final BundleContext context = mock(BundleContext.class);
-	private static List<QualifiedMetacardType> qmtList = new ArrayList<QualifiedMetacardType>();
-	private static final MetacardTypeRegistry mtr = MetacardTypeRegistryImpl.getInstance();
+    private static final String SAMPLE_ID = "myId";
 
-	@Test(expected = CatalogTransformerException.class)
-	public void testNullInput() throws IOException, CatalogTransformerException {
-		new GeoJsonInputTransformer(mtr).transform(null);
-	}
+    private static final String DEFAULT_URI = "http://example.com";
 
-	@Test(expected = CatalogTransformerException.class)
-	public void testBadInput() throws IOException, CatalogTransformerException {
-		new GeoJsonInputTransformer(mtr).transform(new ByteArrayInputStream("{key=".getBytes()));
-	}
+    public static final String DEFAULT_TITLE = "myTitle";
 
-	@Test(expected = CatalogTransformerException.class)
-	public void testFeatureCollectionType() throws IOException, CatalogTransformerException {
-		new GeoJsonInputTransformer(mtr).transform(new ByteArrayInputStream(sampleFeatureCollectionJsonText().getBytes()));
-	}
+    public static final String DEFAULT_VERSION = "myVersion";
 
-	@Test(expected = CatalogTransformerException.class)
-	public void testNoType() throws IOException, CatalogTransformerException {
-		new GeoJsonInputTransformer(mtr).transform(new ByteArrayInputStream(noTypeJsonText().getBytes()));
-	}
+    public static final String DEFAULT_TYPE = "myType";
 
-	@Test(expected = CatalogTransformerException.class)
-	public void testNoProperties() throws IOException, CatalogTransformerException {
-		new GeoJsonInputTransformer(mtr).transform(new ByteArrayInputStream("{ \"type\": \"FeatureCollection\"}"
-				.getBytes()));
-	}
+    public static final byte[] DEFAULT_BYTES = {8};
 
-	@Test()
-	public void testNoGeo() throws IOException, CatalogTransformerException {
+    private static final BundleContext context = mock(BundleContext.class);
 
-		Metacard metacard = new GeoJsonInputTransformer(mtr)
-				.transform(new ByteArrayInputStream(noGeoJsonText().getBytes()));
+    private static List<QualifiedMetacardType> qmtList = new ArrayList<QualifiedMetacardType>();
 
-		verifyBasics(metacard);
+    private static final MetacardTypeRegistry mtr = MetacardTypeRegistryImpl.getInstance();
 
-	}
+    @Test(expected = CatalogTransformerException.class)
+    public void testNullInput() throws IOException, CatalogTransformerException {
+        new GeoJsonInputTransformer(mtr).transform(null);
+    }
 
-	@Test()
-	public void testPointGeo() throws IOException, CatalogTransformerException, ParseException {
+    @Test(expected = CatalogTransformerException.class)
+    public void testBadInput() throws IOException, CatalogTransformerException {
+        new GeoJsonInputTransformer(mtr).transform(new ByteArrayInputStream("{key=".getBytes()));
+    }
 
-		Metacard metacard = new GeoJsonInputTransformer(mtr).transform(new ByteArrayInputStream(samplePointJsonText()
-				.getBytes()));
+    @Test(expected = CatalogTransformerException.class)
+    public void testFeatureCollectionType() throws IOException, CatalogTransformerException {
+        new GeoJsonInputTransformer(mtr).transform(new ByteArrayInputStream(
+                sampleFeatureCollectionJsonText().getBytes()));
+    }
 
-		verifyBasics(metacard);
+    @Test(expected = CatalogTransformerException.class)
+    public void testNoType() throws IOException, CatalogTransformerException {
+        new GeoJsonInputTransformer(mtr).transform(new ByteArrayInputStream(noTypeJsonText()
+                .getBytes()));
+    }
 
-		WKTReader reader = new WKTReader();
+    @Test(expected = CatalogTransformerException.class)
+    public void testNoProperties() throws IOException, CatalogTransformerException {
+        new GeoJsonInputTransformer(mtr).transform(new ByteArrayInputStream(
+                "{ \"type\": \"FeatureCollection\"}".getBytes()));
+    }
 
-		Geometry geometry = reader.read(metacard.getLocation());
+    @Test()
+    public void testNoGeo() throws IOException, CatalogTransformerException {
 
-		assertThat(geometry.getCoordinate().x, is(30.0));
+        Metacard metacard = new GeoJsonInputTransformer(mtr).transform(new ByteArrayInputStream(
+                noGeoJsonText().getBytes()));
 
-		assertThat(geometry.getCoordinate().y, is(10.0));
+        verifyBasics(metacard);
 
-	}
+    }
 
-	@Test
-	public void testLineStringGeo() throws IOException, CatalogTransformerException, ParseException {
+    @Test()
+    public void testPointGeo() throws IOException, CatalogTransformerException, ParseException {
 
-		GeoJsonInputTransformer transformer = new GeoJsonInputTransformer(mtr);
+        Metacard metacard = new GeoJsonInputTransformer(mtr).transform(new ByteArrayInputStream(
+                samplePointJsonText().getBytes()));
 
-		InputStream inputStream = new ByteArrayInputStream(sampleLineStringJsonText().getBytes());
+        verifyBasics(metacard);
 
-		Metacard metacard = transformer.transform(inputStream);
+        WKTReader reader = new WKTReader();
 
-		verifyBasics(metacard);
+        Geometry geometry = reader.read(metacard.getLocation());
 
-		WKTReader reader = new WKTReader();
+        assertThat(geometry.getCoordinate().x, is(30.0));
 
-		Geometry geometry = reader.read(metacard.getLocation());
+        assertThat(geometry.getCoordinate().y, is(10.0));
 
-		Coordinate[] coords = geometry.getCoordinates();
+    }
 
-		assertThat(coords[0].x, is(30.0));
-		assertThat(coords[0].y, is(10.0));
+    @Test
+    public void testLineStringGeo() throws IOException, CatalogTransformerException, ParseException {
 
-		assertThat(coords[1].x, is(10.0));
-		assertThat(coords[1].y, is(30.0));
+        GeoJsonInputTransformer transformer = new GeoJsonInputTransformer(mtr);
 
-		assertThat(coords[2].x, is(40.0));
-		assertThat(coords[2].y, is(40.0));
-	}
+        InputStream inputStream = new ByteArrayInputStream(sampleLineStringJsonText().getBytes());
 
-	@Test
-	public void testSetId() throws IOException, CatalogTransformerException {
+        Metacard metacard = transformer.transform(inputStream);
 
-		Metacard metacard = new GeoJsonInputTransformer(mtr).transform(new ByteArrayInputStream(samplePointJsonText()
-				.getBytes()), SAMPLE_ID);
+        verifyBasics(metacard);
 
-		verifyBasics(metacard);
+        WKTReader reader = new WKTReader();
 
-		assertEquals(SAMPLE_ID, metacard.getId());
+        Geometry geometry = reader.read(metacard.getLocation());
 
-	}
+        Coordinate[] coords = geometry.getCoordinates();
 
-	protected void verifyBasics(Metacard metacard) {
-		assertEquals(DEFAULT_TITLE, metacard.getTitle());
-		assertEquals(DEFAULT_URI, metacard.getResourceURI().toString());
-		assertEquals(DEFAULT_TYPE, metacard.getContentTypeName());
-		assertEquals(DEFAULT_VERSION, metacard.getContentTypeVersion());
-		assertEquals("<xml></xml>", metacard.getMetadata());
-		assertEquals("2012-09-01T00:09:19.368+0000",
-				GeoJsonInputTransformer.ISO_8601_DATE_FORMAT.format(metacard.getCreatedDate()));
-		assertEquals("2012-09-01T00:09:19.368+0000",
-				GeoJsonInputTransformer.ISO_8601_DATE_FORMAT.format(metacard.getModifiedDate()));
-		assertArrayEquals(DEFAULT_BYTES, metacard.getThumbnail());
-	}
+        assertThat(coords[0].x, is(30.0));
+        assertThat(coords[0].y, is(10.0));
 
-	// @formatter:off
+        assertThat(coords[1].x, is(10.0));
+        assertThat(coords[1].y, is(30.0));
+
+        assertThat(coords[2].x, is(40.0));
+        assertThat(coords[2].y, is(40.0));
+    }
+
+    @Test
+    public void testSetId() throws IOException, CatalogTransformerException {
+
+        Metacard metacard = new GeoJsonInputTransformer(mtr).transform(new ByteArrayInputStream(
+                samplePointJsonText().getBytes()), SAMPLE_ID);
+
+        verifyBasics(metacard);
+
+        assertEquals(SAMPLE_ID, metacard.getId());
+
+    }
+
+    protected void verifyBasics(Metacard metacard) {
+        assertEquals(DEFAULT_TITLE, metacard.getTitle());
+        assertEquals(DEFAULT_URI, metacard.getResourceURI().toString());
+        assertEquals(DEFAULT_TYPE, metacard.getContentTypeName());
+        assertEquals(DEFAULT_VERSION, metacard.getContentTypeVersion());
+        assertEquals("<xml></xml>", metacard.getMetadata());
+        assertEquals("2012-09-01T00:09:19.368+0000",
+                GeoJsonInputTransformer.ISO_8601_DATE_FORMAT.format(metacard.getCreatedDate()));
+        assertEquals("2012-09-01T00:09:19.368+0000",
+                GeoJsonInputTransformer.ISO_8601_DATE_FORMAT.format(metacard.getModifiedDate()));
+        assertArrayEquals(DEFAULT_BYTES, metacard.getThumbnail());
+    }
+
+    // @formatter:off
 	private static final String noTypeJsonText() {
 		return "{" + 
 				"    \"properties\":{" + 

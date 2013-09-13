@@ -26,6 +26,9 @@
     <name>DDF Support</name>
     <description>DDF Support module contains support files for builds and site report generation</description>
     <packaging>pom</packaging>
+    <properties>
+        <checkstyle.skip>true</checkstyle.skip>
+    </properties>
 
     <modules>
         <module>support-checkstyle</module>

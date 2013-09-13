@@ -1,13 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- *
- * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
- * version 3 of the License, or any later version. 
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * 
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
+ * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
+ * 
  **/
 package ddf.catalog.transform.xml;
 
@@ -41,137 +44,128 @@ import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transformer.xml.XmlMetacardTransformer;
 
 public class TestXmlMetacardTransformer {
-	
-	private static final Logger LOGGER = Logger
-			.getLogger(TestXmlMetacardTransformer.class);
 
-	
-	static {
-		BasicConfigurator.configure();
-	}
-	
-	
+    private static final Logger LOGGER = Logger.getLogger(TestXmlMetacardTransformer.class);
 
-	@Test
-	public void testNonDdms() throws CatalogTransformerException {
+    static {
+        BasicConfigurator.configure();
+    }
 
-		MetacardImpl mc = new MetacardImpl();
+    @Test
+    public void testNonDdms() throws CatalogTransformerException {
 
-		mc.setId("1234567890987654321");
-		mc.setSourceId("FooBarSource");
-		mc.setTitle("Title!");
-		mc.setExpirationDate(new Date());
-		mc.setLocation("POLYGON ((35 10, 10 20, 15 40, 45 45, 35 10),(20 30, 35 35, 30 20, 20 30))");
-		mc.setMetadata("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><foo><bar/></foo>");
-		byte[] bytes = { 0, 0, 1, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 1, 1, 0, 1, 0,
-				0, 1, 1, 1, 0, 1, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 1, 1, 0, 1, 0,
-				0, 1, 1, 1, 0, 1, 0, 0, 1, 1, 1 };
-		mc.setThumbnail(bytes);
+        MetacardImpl mc = new MetacardImpl();
 
-		Metacard mci = (Metacard) mc;
+        mc.setId("1234567890987654321");
+        mc.setSourceId("FooBarSource");
+        mc.setTitle("Title!");
+        mc.setExpirationDate(new Date());
+        mc.setLocation("POLYGON ((35 10, 10 20, 15 40, 45 45, 35 10),(20 30, 35 35, 30 20, 20 30))");
+        mc.setMetadata("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><foo><bar/></foo>");
+        byte[] bytes = {0, 0, 1, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 1, 1, 0, 1, 0,
+            0, 1, 1, 1, 0, 1, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 1, 1};
+        mc.setThumbnail(bytes);
 
-		XmlMetacardTransformer transformer = new XmlMetacardTransformer();
+        Metacard mci = (Metacard) mc;
 
-		BinaryContent bc = transformer.transform(mci, null);
+        XmlMetacardTransformer transformer = new XmlMetacardTransformer();
 
-		if (bc == null) {
-			fail("Binary Content is null.");
-		}
+        BinaryContent bc = transformer.transform(mci, null);
 
-		// TODO add assertions. Use XMLunit?
+        if (bc == null) {
+            fail("Binary Content is null.");
+        }
 
-		BufferedReader in = new BufferedReader(new InputStreamReader(
-				bc.getInputStream()));
-		String inputLine;
-		try {
-			LOGGER.debug("\n* * * START XML METACARD REPRESENTATION * * * \n");
-			while ((inputLine = in.readLine()) != null) {
-				LOGGER.debug(inputLine);
-			}
-			in.close();
-			LOGGER.debug("\n* * * END XML METACARD REPRESENTATION * * * \n");
-		} catch (IOException e) { // TODO Auto-generated catch block
-			LOGGER.error(e);
-		}
+        // TODO add assertions. Use XMLunit?
 
-	}
+        BufferedReader in = new BufferedReader(new InputStreamReader(bc.getInputStream()));
+        String inputLine;
+        try {
+            LOGGER.debug("\n* * * START XML METACARD REPRESENTATION * * * \n");
+            while ((inputLine = in.readLine()) != null) {
+                LOGGER.debug(inputLine);
+            }
+            in.close();
+            LOGGER.debug("\n* * * END XML METACARD REPRESENTATION * * * \n");
+        } catch (IOException e) { // TODO Auto-generated catch block
+            LOGGER.error(e);
+        }
 
-	@Test
-	public void testDdms() throws Exception {
+    }
 
-		MetacardImpl mc = new MetacardImpl();
+    @Test
+    public void testDdms() throws Exception {
 
-		final String testId = "1234567890987654321";
-		final String testSource = "FooBarSource";
-		final String testTitle = "Title!";
-		final Date testDate = new Date();
-		final String testLocation = "POLYGON ((35 10, 10 20, 15 40, 45 45, 35 10),(20 30, 35 35, 30 20, 20 30))";
-		final byte[] testThumbnail = { 0, 0, 1, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1,
-				1, 1, 0, 1, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1,
-				1, 1, 0, 1, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 1, 1 };
+        MetacardImpl mc = new MetacardImpl();
 
-		mc.setId(testId);
-		mc.setSourceId(testSource);
-		mc.setTitle(testTitle);
-		mc.setExpirationDate(testDate);
-		mc.setLocation(testLocation);
-		mc.setThumbnail(testThumbnail);
+        final String testId = "1234567890987654321";
+        final String testSource = "FooBarSource";
+        final String testTitle = "Title!";
+        final Date testDate = new Date();
+        final String testLocation = "POLYGON ((35 10, 10 20, 15 40, 45 45, 35 10),(20 30, 35 35, 30 20, 20 30))";
+        final byte[] testThumbnail = {0, 0, 1, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1,
+            1, 1, 0, 1, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 1,
+            1};
 
-		String metadata = null;
-		FileInputStream stream = new FileInputStream(new File(
-				"src/test/resources/ddms.xml"));
-		try {
-			FileChannel fc = stream.getChannel();
-			MappedByteBuffer bb = fc.map(FileChannel.MapMode.READ_ONLY, 0,
-					fc.size());
-			/* Instead of using default, pass in a decoder. */
-			metadata = Charset.defaultCharset().decode(bb).toString();
-		} finally {
-			stream.close();
-		}
+        mc.setId(testId);
+        mc.setSourceId(testSource);
+        mc.setTitle(testTitle);
+        mc.setExpirationDate(testDate);
+        mc.setLocation(testLocation);
+        mc.setThumbnail(testThumbnail);
 
-		mc.setMetadata(metadata);
+        String metadata = null;
+        FileInputStream stream = new FileInputStream(new File("src/test/resources/ddms.xml"));
+        try {
+            FileChannel fc = stream.getChannel();
+            MappedByteBuffer bb = fc.map(FileChannel.MapMode.READ_ONLY, 0, fc.size());
+            /* Instead of using default, pass in a decoder. */
+            metadata = Charset.defaultCharset().decode(bb).toString();
+        } finally {
+            stream.close();
+        }
 
-		Metacard mci = (Metacard) mc;
+        mc.setMetadata(metadata);
 
-		XmlMetacardTransformer transformer = new XmlMetacardTransformer();
+        Metacard mci = (Metacard) mc;
 
-		BinaryContent bc = transformer.transform(mci, null);
+        XmlMetacardTransformer transformer = new XmlMetacardTransformer();
 
-		if (bc == null) {
-			fail("Binary Content is null.");
-		}
+        BinaryContent bc = transformer.transform(mci, null);
 
-		String outputXml = new String(bc.getByteArray());
+        if (bc == null) {
+            fail("Binary Content is null.");
+        }
 
-		LOGGER.debug("\n* * * START XML METACARD REPRESENTATION * * * \n");
-		LOGGER.debug(outputXml);
-		LOGGER.debug("\n* * * END XML METACARD REPRESENTATION * * * \n");
+        String outputXml = new String(bc.getByteArray());
 
-		Map<String, String> m = new HashMap<String, String>();
-		m.put("gml", "http://www.opengis.net/gml");
-		m.put("m", "urn:catalog:metacard");
-		m.put("", "urn:catalog:metacard");
-		NamespaceContext ctx = new SimpleNamespaceContext(m);
-		XMLUnit.setXpathNamespaceContext(ctx);
+        LOGGER.debug("\n* * * START XML METACARD REPRESENTATION * * * \n");
+        LOGGER.debug(outputXml);
+        LOGGER.debug("\n* * * END XML METACARD REPRESENTATION * * * \n");
 
-		assertXpathEvaluatesTo(testId, "/m:metacard/@gml:id", outputXml);
-		assertXpathEvaluatesTo(testSource, "/m:metacard/m:source", outputXml);
-		assertXpathEvaluatesTo(testTitle,
-				"/m:metacard/m:string[@name='title']/m:value", outputXml);
+        Map<String, String> m = new HashMap<String, String>();
+        m.put("gml", "http://www.opengis.net/gml");
+        m.put("m", "urn:catalog:metacard");
+        m.put("", "urn:catalog:metacard");
+        NamespaceContext ctx = new SimpleNamespaceContext(m);
+        XMLUnit.setXpathNamespaceContext(ctx);
 
-		// TODO convert GML representation?
-		// assertXpathEvaluatesTo(testLocation,"/m:metacard/m:geometry[@name='location']/m:value",
-		// outputXml);
-		assertXpathExists("/m:metacard/m:geometry[@name='location']/m:value", outputXml);
+        assertXpathEvaluatesTo(testId, "/m:metacard/@gml:id", outputXml);
+        assertXpathEvaluatesTo(testSource, "/m:metacard/m:source", outputXml);
+        assertXpathEvaluatesTo(testTitle, "/m:metacard/m:string[@name='title']/m:value", outputXml);
 
-		// TODO Base64 check?
-		// assertXpathEvaluatesTo(testThumbnail,
-		// "/metacard/base64Binary[@id='thumbnail']", outputXml);
-		assertXpathExists("/m:metacard/m:base64Binary[@name='thumbnail']/m:value", outputXml);
+        // TODO convert GML representation?
+        // assertXpathEvaluatesTo(testLocation,"/m:metacard/m:geometry[@name='location']/m:value",
+        // outputXml);
+        assertXpathExists("/m:metacard/m:geometry[@name='location']/m:value", outputXml);
 
-		// TODO XML Date representation?
-		assertXpathExists("/m:metacard/m:dateTime[@name='expiration']/m:value", outputXml);
+        // TODO Base64 check?
+        // assertXpathEvaluatesTo(testThumbnail,
+        // "/metacard/base64Binary[@id='thumbnail']", outputXml);
+        assertXpathExists("/m:metacard/m:base64Binary[@name='thumbnail']/m:value", outputXml);
 
-	}
+        // TODO XML Date representation?
+        assertXpathExists("/m:metacard/m:dateTime[@name='expiration']/m:value", outputXml);
+
+    }
 }

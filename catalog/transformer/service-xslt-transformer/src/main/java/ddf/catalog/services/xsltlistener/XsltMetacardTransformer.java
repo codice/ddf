@@ -1,16 +1,18 @@
 /**
  * Copyright (c) Codice Foundation
- *
- * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
- * version 3 of the License, or any later version. 
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * 
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
+ * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
+ * 
  **/
 package ddf.catalog.services.xsltlistener;
-
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -39,91 +41,79 @@ import ddf.catalog.data.Metacard;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.MetacardTransformer;
 
+public class XsltMetacardTransformer extends AbstractXsltTransformer implements MetacardTransformer {
 
-public class XsltMetacardTransformer extends AbstractXsltTransformer implements MetacardTransformer
-{
+    protected static Logger logger = Logger.getLogger(XsltMetacardTransformer.class);
 
-    protected static Logger logger = Logger.getLogger( XsltMetacardTransformer.class );
     private Map<String, Object> localMap = new ConcurrentHashMap<String, Object>();
 
-
-    public XsltMetacardTransformer()
-    {
+    public XsltMetacardTransformer() {
     }
 
-
-    public XsltMetacardTransformer( Bundle bundle, String xslFile )
-    {
-        super( bundle, xslFile );
+    public XsltMetacardTransformer(Bundle bundle, String xslFile) {
+        super(bundle, xslFile);
     }
 
     private String getValueOrEmptyString(Object value) {
-    	return (value==null)?"":value.toString();
+        return (value == null) ? "" : value.toString();
     }
 
     @Override
-    public BinaryContent transform( Metacard metacard, Map<String, Serializable> arguments ) throws CatalogTransformerException
-        
+    public BinaryContent transform(Metacard metacard, Map<String, Serializable> arguments)
+        throws CatalogTransformerException
+
     {
-        logger.debug( "Entering metacard xslt transform." );
+        logger.debug("Entering metacard xslt transform.");
 
         Transformer transformer;
-        Map<String, Object> mergedMap = new HashMap<String, Object>( localMap );
+        Map<String, Object> mergedMap = new HashMap<String, Object>(localMap);
 
-        if ( arguments != null )
-        {
-            mergedMap.putAll( arguments );
+        if (arguments != null) {
+            mergedMap.putAll(arguments);
         }
 
         // adding metacard data not in document
-        mergedMap.put( "id", getValueOrEmptyString(metacard.getId()));
-        mergedMap.put( "siteName", getValueOrEmptyString(metacard.getSourceId()));
-        mergedMap.put( "title",getValueOrEmptyString(metacard.getTitle()));
-        mergedMap.put( "type", getValueOrEmptyString(metacard.getMetacardType()));
-        mergedMap.put( "date", getValueOrEmptyString(metacard.getCreatedDate()));
-        mergedMap.put( "product", getValueOrEmptyString(metacard.getResourceURI()));
-        mergedMap.put( "thumbnail", getValueOrEmptyString(metacard.getThumbnail()));
-        mergedMap.put( "geometry", getValueOrEmptyString(metacard.getLocation()));
-        
+        mergedMap.put("id", getValueOrEmptyString(metacard.getId()));
+        mergedMap.put("siteName", getValueOrEmptyString(metacard.getSourceId()));
+        mergedMap.put("title", getValueOrEmptyString(metacard.getTitle()));
+        mergedMap.put("type", getValueOrEmptyString(metacard.getMetacardType()));
+        mergedMap.put("date", getValueOrEmptyString(metacard.getCreatedDate()));
+        mergedMap.put("product", getValueOrEmptyString(metacard.getResourceURI()));
+        mergedMap.put("thumbnail", getValueOrEmptyString(metacard.getThumbnail()));
+        mergedMap.put("geometry", getValueOrEmptyString(metacard.getLocation()));
+
         ServiceReference[] refs = null;
-        try
-        {
-            logger.debug( "Searching for other Metacard Transformers." );
-            //TODO INJECT THESE!!!
-            refs = context.getServiceReferences( MetacardTransformer.class.getName(), null );
-        }
-        catch ( InvalidSyntaxException e )
-        {
+        try {
+            logger.debug("Searching for other Metacard Transformers.");
+            // TODO INJECT THESE!!!
+            refs = context.getServiceReferences(MetacardTransformer.class.getName(), null);
+        } catch (InvalidSyntaxException e) {
             // can't happen because filter is null
         }
 
-        if ( refs != null )
-        {
+        if (refs != null) {
             List<String> serviceList = new ArrayList<String>();
-            logger.debug( "Found other Metacard transformers, adding them to a service reference list." );
-            for( ServiceReference ref : refs )
-            {
-                if ( ref != null )
-                {
+            logger.debug("Found other Metacard transformers, adding them to a service reference list.");
+            for (ServiceReference ref : refs) {
+                if (ref != null) {
                     String title = null;
-                    String shortName = (String) ref.getProperty( Constants.SERVICE_SHORTNAME );
+                    String shortName = (String) ref.getProperty(Constants.SERVICE_SHORTNAME);
 
-                    if ( ( title = (String) ref.getProperty( Constants.SERVICE_TITLE ) ) == null )
-                    {
+                    if ((title = (String) ref.getProperty(Constants.SERVICE_TITLE)) == null) {
                         title = "View as " + shortName.toUpperCase();
                     }
 
-                    String url = "/services/catalog/" + metacard.getId() + "?transform=" + shortName;
+                    String url = "/services/catalog/" + metacard.getId() + "?transform="
+                            + shortName;
 
                     // define the services
-                    serviceList.add( title );
-                    serviceList.add( url );
+                    serviceList.add(title);
+                    serviceList.add(url);
                 }
             }
-            mergedMap.put( "services", serviceList );
-        }
-        else
-            logger.debug( "No other Metacard transformers were found." );
+            mergedMap.put("services", serviceList);
+        } else
+            logger.debug("No other Metacard transformers were found.");
 
         // TODO: maybe add updated, type, and uuid here?
         // map.put("updated", fmt.print(result.getPostedDate().getTime()));
@@ -131,46 +121,38 @@ public class XsltMetacardTransformer extends AbstractXsltTransformer implements 
 
         BinaryContent resultContent;
         StreamResult resultOutput = null;
-        Source source = new StreamSource( new ByteArrayInputStream( metacard.getMetadata().getBytes() ) );
+        Source source = new StreamSource(
+                new ByteArrayInputStream(metacard.getMetadata().getBytes()));
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
-        resultOutput = new StreamResult( baos );
+        resultOutput = new StreamResult(baos);
 
-        try
-        {
+        try {
             transformer = templates.newTransformer();
-        }
-        catch ( TransformerConfigurationException tce )
-        {
-            throw new CatalogTransformerException( "Could not perform Xslt transform: " + tce.getException(),
-                tce.getCause() );
+        } catch (TransformerConfigurationException tce) {
+            throw new CatalogTransformerException("Could not perform Xslt transform: "
+                    + tce.getException(), tce.getCause());
         }
 
-        if ( !mergedMap.isEmpty() )
-        {
-            for( Map.Entry<String, Object> entry : mergedMap.entrySet() )
-            {
-                if ( logger.isDebugEnabled() )
-                    logger.debug( "Adding parameter to transform {" + entry.getKey() + ":" + entry.getValue() + "}" );
-                transformer.setParameter( entry.getKey(), entry.getValue() );
+        if (!mergedMap.isEmpty()) {
+            for (Map.Entry<String, Object> entry : mergedMap.entrySet()) {
+                if (logger.isDebugEnabled())
+                    logger.debug("Adding parameter to transform {" + entry.getKey() + ":"
+                            + entry.getValue() + "}");
+                transformer.setParameter(entry.getKey(), entry.getValue());
             }
         }
 
-        try
-        {
-            transformer.transform( source, resultOutput );
+        try {
+            transformer.transform(source, resultOutput);
             byte[] bytes = baos.toByteArray();
-            IOUtils.closeQuietly( baos );
-            logger.debug( "Transform complete." );
-            resultContent = new XsltTransformedContent( bytes, mimeType );
-        }
-        catch ( TransformerException te )
-        {
-            throw new CatalogTransformerException( "Could not perform Xslt transform: " + te.getMessage(),
-                te.getCause() );
-        }
-        finally
-        {
+            IOUtils.closeQuietly(baos);
+            logger.debug("Transform complete.");
+            resultContent = new XsltTransformedContent(bytes, mimeType);
+        } catch (TransformerException te) {
+            throw new CatalogTransformerException("Could not perform Xslt transform: "
+                    + te.getMessage(), te.getCause());
+        } finally {
             // TODO: if we ever start to reuse transformers, we should add this
             // code back in
             // transformer.reset();
@@ -179,27 +161,22 @@ public class XsltMetacardTransformer extends AbstractXsltTransformer implements 
         return resultContent;
     }
 
-
     /**
-     * Sets the dataItemStatus value that is passed to the translation and put
-     * in the dataItemStatus element.
+     * Sets the dataItemStatus value that is passed to the translation and put in the dataItemStatus
+     * element.
      * 
      * @param dataItemStatus
      */
-    public void setDataItemStatus( String dataItemStatus )
-    {
-        localMap.put( "dataItemStatus", dataItemStatus );
+    public void setDataItemStatus(String dataItemStatus) {
+        localMap.put("dataItemStatus", dataItemStatus);
     }
-
 
     /**
      * Gets the dataItemStatus value.
      * 
-     * @return String representation of the dataItemStatus value (defaults to
-     *         "Unknown")
+     * @return String representation of the dataItemStatus value (defaults to "Unknown")
      */
-    public String getDataItemStatus()
-    {
-        return localMap.get( "dataItemStatus" ).toString();
+    public String getDataItemStatus() {
+        return localMap.get("dataItemStatus").toString();
     }
 }

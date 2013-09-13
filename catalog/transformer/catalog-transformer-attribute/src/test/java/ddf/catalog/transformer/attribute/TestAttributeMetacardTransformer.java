@@ -1,13 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- *
- * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
- * version 3 of the License, or any later version. 
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * 
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
+ * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
+ * 
  **/
 package ddf.catalog.transformer.attribute;
 
@@ -35,187 +38,197 @@ import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.MetacardTransformer;
 
 /**
- * Unit tests the {@link AttributeMetacardTransformer} 
+ * Unit tests the {@link AttributeMetacardTransformer}
+ * 
  * @author Ashraf Barakat
  * @author ddf.isgs@lmco.com
- *
+ * 
  */
 public class TestAttributeMetacardTransformer {
 
-	private static MimeType jpegMimeType = null;
-	private static MimeType xmlMimeType = null;
-	private static final Logger LOGGER = Logger.getLogger(TestAttributeMetacardTransformer.class);
+    private static MimeType jpegMimeType = null;
 
-	static {
-		BasicConfigurator.configure();
-		try {
-			jpegMimeType = new MimeType("image/jpeg");
-			xmlMimeType = new MimeType("application/xml");
-		} catch (MimeTypeParseException e) {
-			LOGGER.warn(e);
-		}
-	}
-	private static final AttributeMetacardTransformer THUMBNAIL_TRANSFORMER = new AttributeMetacardTransformer(
-			Metacard.THUMBNAIL, Metacard.THUMBNAIL, jpegMimeType);
-	private static final AttributeMetacardTransformer METADATA_TRANSFORMER = new AttributeMetacardTransformer(
-			Metacard.METADATA, Metacard.METADATA, xmlMimeType);
+    private static MimeType xmlMimeType = null;
 
-	/**
-	 * Tests case of null {@link Metacard}
-	 * 
-	 * @throws CatalogTransformerException
-	 */
-	@Test(expected = CatalogTransformerException.class)
-	public void testNullMetacard() throws CatalogTransformerException {
-		THUMBNAIL_TRANSFORMER.transform(null, null);
-	}
+    private static final Logger LOGGER = Logger.getLogger(TestAttributeMetacardTransformer.class);
 
-	/**
-	 * Tests case where metacard's thumbnail is null.
-	 * 
-	 * @throws CatalogTransformerException
-	 */
-	@Test(expected = CatalogTransformerException.class)
-	public void testNullMetacardThumbnail() throws CatalogTransformerException {
-		Metacard mockMetacard = mock(Metacard.class);
+    static {
+        BasicConfigurator.configure();
+        try {
+            jpegMimeType = new MimeType("image/jpeg");
+            xmlMimeType = new MimeType("application/xml");
+        } catch (MimeTypeParseException e) {
+            LOGGER.warn(e);
+        }
+    }
 
-		THUMBNAIL_TRANSFORMER.transform(mockMetacard, null);
-	}
+    private static final AttributeMetacardTransformer THUMBNAIL_TRANSFORMER = new AttributeMetacardTransformer(
+            Metacard.THUMBNAIL, Metacard.THUMBNAIL, jpegMimeType);
 
-	/**
-	 * Tests case where metacard's metadata is null.
-	 * 
-	 * @throws CatalogTransformerException
-	 */
-	@Test(expected = CatalogTransformerException.class)
-	public void testNullMetacardMetadata() throws CatalogTransformerException {
-		Metacard mockMetacard = mock(Metacard.class);
+    private static final AttributeMetacardTransformer METADATA_TRANSFORMER = new AttributeMetacardTransformer(
+            Metacard.METADATA, Metacard.METADATA, xmlMimeType);
 
-		METADATA_TRANSFORMER.transform(mockMetacard, null);
-	}
-	/**
-	 * Tests that the bytes returned are correct and MIME Type is correct.
-	 * 
-	 * @throws CatalogTransformerException
-	 * @throws IOException
-	 */
-	@Test()
-	public void testMetacardThumbnail() throws CatalogTransformerException, IOException {
-		byte[] thumbnailBytes = "sample".getBytes();
-		simpleBytesTransform(thumbnailBytes);
+    /**
+     * Tests case of null {@link Metacard}
+     * 
+     * @throws CatalogTransformerException
+     */
+    @Test(expected = CatalogTransformerException.class)
+    public void testNullMetacard() throws CatalogTransformerException {
+        THUMBNAIL_TRANSFORMER.transform(null, null);
+    }
 
-	}
-	/**
-	 * Tests that the String returned is correct and MIME Type is correct.
-	 * 
-	 * @throws CatalogTransformerException
-	 * @throws IOException
-	 */
-	@Test()
-	public void testMetacardMetadata() throws CatalogTransformerException, IOException {
-		
-		simpleStringTransform("String");
+    /**
+     * Tests case where metacard's thumbnail is null.
+     * 
+     * @throws CatalogTransformerException
+     */
+    @Test(expected = CatalogTransformerException.class)
+    public void testNullMetacardThumbnail() throws CatalogTransformerException {
+        Metacard mockMetacard = mock(Metacard.class);
 
-	}
-	
-	/**
-	 * Tests that the bytes are faithfully returned with correct MIME Type.
-	 * 
-	 * @throws CatalogTransformerException
-	 * @throws IOException
-	 */
-	@Test()
-	public void testEmptyArray() throws CatalogTransformerException, IOException {
-		byte[] thumbnailBytes = {};
-		simpleBytesTransform(thumbnailBytes);
+        THUMBNAIL_TRANSFORMER.transform(mockMetacard, null);
+    }
 
-	}
-	
-	/**
-	 * Tests correct behavior of empty string for metadata
-	 * 
-	 * @throws CatalogTransformerException
-	 * @throws IOException
-	 */
-	@Test()
-	public void testEmptyString() throws CatalogTransformerException, IOException {
-		simpleStringTransform("");
+    /**
+     * Tests case where metacard's metadata is null.
+     * 
+     * @throws CatalogTransformerException
+     */
+    @Test(expected = CatalogTransformerException.class)
+    public void testNullMetacardMetadata() throws CatalogTransformerException {
+        Metacard mockMetacard = mock(Metacard.class);
 
-	}
-	
-	/**
-	 * Tests exception thrown for {@code null} string
-	 * 
-	 * @throws CatalogTransformerException
-	 * @throws IOException
-	 */
-	@Test(expected = CatalogTransformerException.class)
-	public void testNullString() throws CatalogTransformerException, IOException {
-		simpleStringTransform(null);
+        METADATA_TRANSFORMER.transform(mockMetacard, null);
+    }
 
-	}
-	
-	/**
-	 * Tests exception thrown for {@code null} string
-	 * 
-	 * @throws CatalogTransformerException
-	 * @throws IOException
-	 */
-	@Test(expected = CatalogTransformerException.class)
-	public void testNotAString() throws CatalogTransformerException, IOException {
-				
-		Metacard mockMetacard = mock(Metacard.class);
-		
-		when(mockMetacard.getAttribute(isA(String.class))).thenReturn(
-				new AttributeImpl(Metacard.METADATA, new Date()));
-	
-		METADATA_TRANSFORMER.transform(mockMetacard, null);
+    /**
+     * Tests that the bytes returned are correct and MIME Type is correct.
+     * 
+     * @throws CatalogTransformerException
+     * @throws IOException
+     */
+    @Test()
+    public void testMetacardThumbnail() throws CatalogTransformerException, IOException {
+        byte[] thumbnailBytes = "sample".getBytes();
+        simpleBytesTransform(thumbnailBytes);
 
-	}
+    }
 
-	/**
-	 * Tests toString
-	 * 
-	 * @throws CatalogTransformerException
-	 * @throws IOException
-	 */
-	@Test()
-	public void testThumbnailToString() throws CatalogTransformerException, IOException {
+    /**
+     * Tests that the String returned is correct and MIME Type is correct.
+     * 
+     * @throws CatalogTransformerException
+     * @throws IOException
+     */
+    @Test()
+    public void testMetacardMetadata() throws CatalogTransformerException, IOException {
 
-		String transformerToString = THUMBNAIL_TRANSFORMER.toString();
+        simpleStringTransform("String");
 
-		LOGGER.debug(transformerToString);
+    }
 
-		assertEquals(MetacardTransformer.class.getName() + " {Impl=" + AttributeMetacardTransformer.class.getName()
-				+ ", attributeName=" + Metacard.THUMBNAIL + ", id=" + Metacard.THUMBNAIL + ", MIME Type="
-				+ jpegMimeType + "}", transformerToString);
+    /**
+     * Tests that the bytes are faithfully returned with correct MIME Type.
+     * 
+     * @throws CatalogTransformerException
+     * @throws IOException
+     */
+    @Test()
+    public void testEmptyArray() throws CatalogTransformerException, IOException {
+        byte[] thumbnailBytes = {};
+        simpleBytesTransform(thumbnailBytes);
 
-	}
+    }
 
-	private void simpleBytesTransform(byte[] thumbnailBytes) throws CatalogTransformerException, IOException {
-		Metacard mockMetacard = mock(Metacard.class);
-	
-		when(mockMetacard.getThumbnail()).thenReturn(thumbnailBytes);
-		when(mockMetacard.getAttribute(Metacard.THUMBNAIL)).thenReturn(
-				new AttributeImpl(Metacard.THUMBNAIL, thumbnailBytes));
-	
-		BinaryContent content = THUMBNAIL_TRANSFORMER.transform(mockMetacard, null);
-	
-		assertArrayEquals(thumbnailBytes, IOUtils.toByteArray(content.getInputStream()));
-	
-		assertEquals("Mime type failed to match.", jpegMimeType, content.getMimeType());
-	}
-	
-	private void simpleStringTransform(String metadata) throws CatalogTransformerException, IOException {
-		Metacard mockMetacard = mock(Metacard.class);
-	
-		when(mockMetacard.getAttribute(isA(String.class))).thenReturn(
-				new AttributeImpl(Metacard.METADATA, metadata));
-	
-		BinaryContent content = METADATA_TRANSFORMER.transform(mockMetacard, null);
-	
-		assertEquals(metadata, IOUtils.toString(content.getInputStream()));
-	
-		assertEquals("Mime type failed to match.", xmlMimeType, content.getMimeType());
-	}
+    /**
+     * Tests correct behavior of empty string for metadata
+     * 
+     * @throws CatalogTransformerException
+     * @throws IOException
+     */
+    @Test()
+    public void testEmptyString() throws CatalogTransformerException, IOException {
+        simpleStringTransform("");
+
+    }
+
+    /**
+     * Tests exception thrown for {@code null} string
+     * 
+     * @throws CatalogTransformerException
+     * @throws IOException
+     */
+    @Test(expected = CatalogTransformerException.class)
+    public void testNullString() throws CatalogTransformerException, IOException {
+        simpleStringTransform(null);
+
+    }
+
+    /**
+     * Tests exception thrown for {@code null} string
+     * 
+     * @throws CatalogTransformerException
+     * @throws IOException
+     */
+    @Test(expected = CatalogTransformerException.class)
+    public void testNotAString() throws CatalogTransformerException, IOException {
+
+        Metacard mockMetacard = mock(Metacard.class);
+
+        when(mockMetacard.getAttribute(isA(String.class))).thenReturn(
+                new AttributeImpl(Metacard.METADATA, new Date()));
+
+        METADATA_TRANSFORMER.transform(mockMetacard, null);
+
+    }
+
+    /**
+     * Tests toString
+     * 
+     * @throws CatalogTransformerException
+     * @throws IOException
+     */
+    @Test()
+    public void testThumbnailToString() throws CatalogTransformerException, IOException {
+
+        String transformerToString = THUMBNAIL_TRANSFORMER.toString();
+
+        LOGGER.debug(transformerToString);
+
+        assertEquals(MetacardTransformer.class.getName() + " {Impl="
+                + AttributeMetacardTransformer.class.getName() + ", attributeName="
+                + Metacard.THUMBNAIL + ", id=" + Metacard.THUMBNAIL + ", MIME Type=" + jpegMimeType
+                + "}", transformerToString);
+
+    }
+
+    private void simpleBytesTransform(byte[] thumbnailBytes) throws CatalogTransformerException,
+        IOException {
+        Metacard mockMetacard = mock(Metacard.class);
+
+        when(mockMetacard.getThumbnail()).thenReturn(thumbnailBytes);
+        when(mockMetacard.getAttribute(Metacard.THUMBNAIL)).thenReturn(
+                new AttributeImpl(Metacard.THUMBNAIL, thumbnailBytes));
+
+        BinaryContent content = THUMBNAIL_TRANSFORMER.transform(mockMetacard, null);
+
+        assertArrayEquals(thumbnailBytes, IOUtils.toByteArray(content.getInputStream()));
+
+        assertEquals("Mime type failed to match.", jpegMimeType, content.getMimeType());
+    }
+
+    private void simpleStringTransform(String metadata) throws CatalogTransformerException,
+        IOException {
+        Metacard mockMetacard = mock(Metacard.class);
+
+        when(mockMetacard.getAttribute(isA(String.class))).thenReturn(
+                new AttributeImpl(Metacard.METADATA, metadata));
+
+        BinaryContent content = METADATA_TRANSFORMER.transform(mockMetacard, null);
+
+        assertEquals(metadata, IOUtils.toString(content.getInputStream()));
+
+        assertEquals("Mime type failed to match.", xmlMimeType, content.getMimeType());
+    }
 }

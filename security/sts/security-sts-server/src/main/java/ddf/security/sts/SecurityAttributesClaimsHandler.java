@@ -1,13 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- *
- * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
- * version 3 of the License, or any later version. 
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * 
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
+ * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
+ * 
  **/
 package ddf.security.sts;
 
@@ -42,15 +45,14 @@ import java.util.Map.Entry;
 import java.util.StringTokenizer;
 
 /**
- * The {@link SecurityAttributesClaimsHandler} is called by the ClaimsManager to
- * handle the securityAttributeClaimType. This class will retrieve the security
- * attributes from LDAP for a specified user. The Claim Type is configurable.
+ * The {@link SecurityAttributesClaimsHandler} is called by the ClaimsManager to handle the
+ * securityAttributeClaimType. This class will retrieve the security attributes from LDAP for a
+ * specified user. The Claim Type is configurable.
  * 
  */
 public class SecurityAttributesClaimsHandler implements ClaimsHandler {
 
-    private final Logger logger = Logger
-            .getLogger(SecurityAttributesClaimsHandler.class);
+    private final Logger logger = Logger.getLogger(SecurityAttributesClaimsHandler.class);
 
     public static final String DEFAULT_SECURITY_CLAIM_TYPE = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/uid";
 
@@ -113,8 +115,7 @@ public class SecurityAttributesClaimsHandler implements ClaimsHandler {
     }
 
     public void setAttributeMapping(String attributesToMap) {
-        if (attributesToMap != null
-                && !attributesToMap.equals(this.attributeMapping)) {
+        if (attributesToMap != null && !attributesToMap.equals(this.attributeMapping)) {
             setClaimsLdapAttributeMapping(buildLdapClaimsMap(attributesToMap));
         }
         this.attributeMapping = attributesToMap;
@@ -122,8 +123,7 @@ public class SecurityAttributesClaimsHandler implements ClaimsHandler {
 
     private Map<String, String> buildLdapClaimsMap(String attributesToMap) {
         // Remove first and last character since they are "[" and "]"
-        String cleanedAttributesToMap = attributesToMap.substring(1,
-                attributesToMap.length() - 1);
+        String cleanedAttributesToMap = attributesToMap.substring(1, attributesToMap.length() - 1);
         String[] attributes = cleanedAttributesToMap.split(ATTRIBUTE_DELIMITER);
         Map<String, String> map = new HashMap<String, String>();
         for (String attribute : attributes) {
@@ -169,8 +169,7 @@ public class SecurityAttributesClaimsHandler implements ClaimsHandler {
         // Get the attribute values from the map.
         String[] attributes = new String[claimsLdapAttributeMapping.size()];
         int index = 0;
-        for (Entry<String, String> entry : claimsLdapAttributeMapping
-                .entrySet()) {
+        for (Entry<String, String> entry : claimsLdapAttributeMapping.entrySet()) {
             attributes[index] = entry.getValue();
             index++;
         }
@@ -179,8 +178,7 @@ public class SecurityAttributesClaimsHandler implements ClaimsHandler {
 
     private static class DdfAttributesMapper implements AttributesMapper {
 
-        public Object mapFromAttributes(Attributes attrs)
-                throws NamingException {
+        public Object mapFromAttributes(Attributes attrs) throws NamingException {
             Map<String, Attribute> map = new HashMap<String, Attribute>();
             NamingEnumeration<? extends Attribute> attrEnum = attrs.getAll();
             while (attrEnum.hasMore()) {
@@ -205,8 +203,7 @@ public class SecurityAttributesClaimsHandler implements ClaimsHandler {
                 return claimsColl;
             } else {
                 if (logger.isTraceEnabled()) {
-                    logger.trace("Retrieve securityAttributes claims for user "
-                            + user);
+                    logger.trace("Retrieve securityAttributes claims for user " + user);
                 }
             }
 
@@ -214,22 +211,19 @@ public class SecurityAttributesClaimsHandler implements ClaimsHandler {
 
             AttributesMapper mapper = new DdfAttributesMapper();
 
-            List<?> results = ldapTemplate.search(userBaseDn,
-                    filter.toString(), SearchControls.SUBTREE_SCOPE,
-                    attributes, mapper);
+            List<?> results = ldapTemplate.search(userBaseDn, filter.toString(),
+                    SearchControls.SUBTREE_SCOPE, attributes, mapper);
 
             for (Object result : results) {
                 Map<String, Attribute> ldapAttributes = null;
                 ldapAttributes = CastUtils.cast((Map<?, ?>) result);
 
                 // Get each of the mapped Attributes from the result.
-                for (Entry<String, String> claimAttr : claimsLdapAttributeMapping
-                        .entrySet()) {
+                for (Entry<String, String> claimAttr : claimsLdapAttributeMapping.entrySet()) {
                     Attribute attr = ldapAttributes.get(claimAttr.getValue());
                     if (attr == null) {
                         if (logger.isTraceEnabled()) {
-                            logger.trace("Claim '" + claimAttr.getKey()
-                                    + "' is null");
+                            logger.trace("Claim '" + claimAttr.getKey() + "' is null");
                         }
                     } else {
                         Claim c = buildClaim(parameters, claimAttr, attr);
@@ -246,9 +240,8 @@ public class SecurityAttributesClaimsHandler implements ClaimsHandler {
     /*
      * Helper method to build a Claim.
      */
-    private Claim buildClaim(ClaimsParameters parameters,
-            Entry<String, String> claimAttr, Attribute attr)
-            throws URISyntaxException {
+    private Claim buildClaim(ClaimsParameters parameters, Entry<String, String> claimAttr,
+            Attribute attr) throws URISyntaxException {
         Claim c = new Claim();
         c.setClaimType(new URI(claimAttr.getKey()));
         c.setPrincipal(parameters.getPrincipal());
@@ -269,8 +262,7 @@ public class SecurityAttributesClaimsHandler implements ClaimsHandler {
                 }
             }
         } catch (NamingException ex) {
-            logger.warn("Failed to read value of LDAP attribute '"
-                    + claimAttr.getValue() + "'");
+            logger.warn("Failed to read value of LDAP attribute '" + claimAttr.getValue() + "'");
         }
 
         c.setValue(claimValue.toString());
@@ -287,10 +279,8 @@ public class SecurityAttributesClaimsHandler implements ClaimsHandler {
         Principal principal = parameters.getPrincipal();
         String user = null;
         if (parameters.getAdditionalProperties() != null
-                && parameters.getAdditionalProperties().containsKey(
-                        WSConstants.USERNAME_LN)) {
-            user = (String) parameters.getAdditionalProperties().get(
-                    WSConstants.USERNAME_LN);
+                && parameters.getAdditionalProperties().containsKey(WSConstants.USERNAME_LN)) {
+            user = (String) parameters.getAdditionalProperties().get(WSConstants.USERNAME_LN);
         } else {
             if (principal instanceof KerberosPrincipal) {
                 KerberosPrincipal kp = (KerberosPrincipal) principal;
@@ -302,7 +292,7 @@ public class SecurityAttributesClaimsHandler implements ClaimsHandler {
                 X500Principal xp = (X500Principal) principal;
                 StringTokenizer st = new StringTokenizer(xp.getName(), ",");
                 @SuppressWarnings("unused")
-				String syntaxAndUniqueId = st.nextToken();
+                String syntaxAndUniqueId = st.nextToken();
                 String cn = st.nextToken();
                 // String ou = st.nextToken();
                 // String o = st.nextToken();
@@ -324,19 +314,18 @@ public class SecurityAttributesClaimsHandler implements ClaimsHandler {
     }
 
     /*
-     * Method to determine the filter clause for LDAP. If an objectClassName is
-     * provided the query will be built as
-     * "(&(objectclass=<ocName>)(uid=<username>))". If the objectClassName is
-     * not provided the filter will be built as "(&(uid=<username>))". The
-     * uidAttribute is also configurable for different LDAP implementations.
+     * Method to determine the filter clause for LDAP. If an objectClassName is provided the query
+     * will be built as "(&(objectclass=<ocName>)(uid=<username>))". If the objectClassName is not
+     * provided the filter will be built as "(&(uid=<username>))". The uidAttribute is also
+     * configurable for different LDAP implementations.
      */
     private AndFilter buildLdapFilter(String user) {
         AndFilter filter = new AndFilter();
         if (getObjectClassName() == null || getObjectClassName().isEmpty()) {
             filter.and(new EqualsFilter(getUidAttribute(), user));
         } else {
-            filter.and(new EqualsFilter("objectClass", getObjectClassName()))
-                    .and(new EqualsFilter(getUidAttribute(), user));
+            filter.and(new EqualsFilter("objectClass", getObjectClassName())).and(
+                    new EqualsFilter(getUidAttribute(), user));
         }
         return filter;
     }

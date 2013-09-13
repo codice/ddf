@@ -1,16 +1,18 @@
 /**
  * Copyright (c) Codice Foundation
- *
- * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
- * version 3 of the License, or any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * 
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
+ * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
+ * 
  **/
 package ddf.catalog;
-
 
 import java.util.List;
 
@@ -29,33 +31,27 @@ import ddf.catalog.operation.UpdateResponse;
 import ddf.catalog.plugin.PluginExecutionException;
 import ddf.catalog.plugin.PostIngestPlugin;
 
+public class MockEventProcessor implements EventProcessor, PostIngestPlugin {
 
-public class MockEventProcessor implements EventProcessor, PostIngestPlugin
-{
+    private static Logger logger = Logger.getLogger(MockEventProcessor.class);
 
-	private static Logger logger = Logger.getLogger(MockEventProcessor.class);
     private boolean wasPosted = false;
+
     private boolean wasSent = false;
+
     private Metacard lastEvent;
 
-
-    public Metacard getLastEvent()
-    {
+    public Metacard getLastEvent() {
         return lastEvent;
     }
 
-
-    public boolean wasEventPosted()
-    {
+    public boolean wasEventPosted() {
         return wasPosted;
     }
 
-
-    public boolean wasEventSent()
-    {
+    public boolean wasEventSent() {
         return wasSent;
     }
-
 
     @Override
     public String createSubscription(Subscription subscription) throws InvalidSubscriptionException {
@@ -63,106 +59,95 @@ public class MockEventProcessor implements EventProcessor, PostIngestPlugin
         return null;
     }
 
-
     @Override
-    public void createSubscription(Subscription subscription, String subscriptionId) throws InvalidSubscriptionException, SubscriptionExistsException {
+    public void createSubscription(Subscription subscription, String subscriptionId)
+        throws InvalidSubscriptionException, SubscriptionExistsException {
         // TODO Auto-generated method stub
-        
-    }
 
+    }
 
     @Override
     public void deleteSubscription(String subscriptionId) throws SubscriptionNotFoundException {
         // TODO Auto-generated method stub
-        
-    }
 
+    }
 
     @Override
     public void notifyCreated(Metacard newMetacard) {
-		logger.trace("ENTERING: notifyCreated");
+        logger.trace("ENTERING: notifyCreated");
 
         wasSent = true;
         wasPosted = true;
         lastEvent = newMetacard;
-		logger.trace("EXITING: notifyCreated");
+        logger.trace("EXITING: notifyCreated");
 
     }
 
-
     @Override
     public void notifyDeleted(Metacard oldMetacard) {
-		logger.trace("ENTERING: notifyDeleted");
+        logger.trace("ENTERING: notifyDeleted");
 
         wasSent = true;
         wasPosted = true;
         lastEvent = oldMetacard;
-		logger.trace("EXITING: notifyDeleted");
+        logger.trace("EXITING: notifyDeleted");
 
-        
     }
-
 
     @Override
     public void notifyUpdated(Metacard newMetacard, Metacard oldMetacard) {
-		logger.trace("ENTERING: notifyUpdated");
+        logger.trace("ENTERING: notifyUpdated");
 
-    	wasSent = true;
+        wasSent = true;
         wasPosted = true;
         lastEvent = newMetacard;
-		logger.trace("EXITING: notifyUpdated");
-       
-    }
+        logger.trace("EXITING: notifyUpdated");
 
+    }
 
     @Override
-    public void updateSubscription(Subscription subscription, String subcriptionId) throws SubscriptionNotFoundException {
+    public void updateSubscription(Subscription subscription, String subcriptionId)
+        throws SubscriptionNotFoundException {
         // TODO Auto-generated method stub
-        
+
     }
 
-
-	@Override
-	public CreateResponse process(CreateResponse input)
-			throws PluginExecutionException {
-		logger.trace("ENTERING: process (CreateResponse)");
-		List<Metacard> createdMetacards = input.getCreatedMetacards();
+    @Override
+    public CreateResponse process(CreateResponse input) throws PluginExecutionException {
+        logger.trace("ENTERING: process (CreateResponse)");
+        List<Metacard> createdMetacards = input.getCreatedMetacards();
         wasSent = true;
         wasPosted = true;
         lastEvent = createdMetacards.get(createdMetacards.size() - 1);
-		logger.trace("EXITING: process (CreateResponse)");
+        logger.trace("EXITING: process (CreateResponse)");
 
         return input;
-	}
+    }
 
-
-	@Override
-	public UpdateResponse process(UpdateResponse input)
-			throws PluginExecutionException {
-		logger.trace("ENTERING: process (UpdateResponse)");
-		List<Update> updates = input.getUpdatedMetacards();
-		Update lastUpdate = updates.get(updates.size() - 1);
+    @Override
+    public UpdateResponse process(UpdateResponse input) throws PluginExecutionException {
+        logger.trace("ENTERING: process (UpdateResponse)");
+        List<Update> updates = input.getUpdatedMetacards();
+        Update lastUpdate = updates.get(updates.size() - 1);
         wasSent = true;
         wasPosted = true;
         lastEvent = lastUpdate.getNewMetacard();
-		logger.trace("EXITING: process (UpdateResponse)");
+        logger.trace("EXITING: process (UpdateResponse)");
 
         return input;
-	}
+    }
 
+    @Override
+    public DeleteResponse process(DeleteResponse input) throws PluginExecutionException {
+        logger.trace("ENTERING: process (DeleteResponse)");
 
-	@Override
-	public DeleteResponse process(DeleteResponse input)
-			throws PluginExecutionException {
-		logger.trace("ENTERING: process (DeleteResponse)");
-
-		List<Metacard> deletedMetacards = input.getDeletedMetacards();
+        List<Metacard> deletedMetacards = input.getDeletedMetacards();
         wasSent = true;
         wasPosted = true;
         lastEvent = deletedMetacards.get(deletedMetacards.size() - 1);
-		logger.trace("EXITING: process (DeleteResponse)");
+        logger.trace("EXITING: process (DeleteResponse)");
 
-		return input;
-	}
+        return input;
+    }
 
 }

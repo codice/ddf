@@ -1,13 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- *
- * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
- * version 3 of the License, or any later version. 
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * 
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
+ * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
+ * 
  **/
 
 package ddf.service.kml;
@@ -46,165 +49,160 @@ import ddf.catalog.data.Metacard;
 import ddf.catalog.transform.MetacardTransformer;
 
 /**
- * This class is meant to be used by clients who want to override the base default
- * transformation
+ * This class is meant to be used by clients who want to override the base default transformation
  * 
  * @author abarakat
  * 
  */
 public class KMLEntryTransformerImpl implements KMLEntryTransformer {
 
-	private static final TransformerFactory tFactory = TransformerFactory.newInstance( net.sf.saxon.TransformerFactoryImpl.class.getName(),
-			net.sf.saxon.TransformerFactoryImpl.class.getClassLoader() );
-	
-	private Templates templates;
-	private String styling;
+    private static final TransformerFactory tFactory = TransformerFactory.newInstance(
+            net.sf.saxon.TransformerFactoryImpl.class.getName(),
+            net.sf.saxon.TransformerFactoryImpl.class.getClassLoader());
 
-	private static final Logger logger = Logger.getLogger(KMLEntryTransformerImpl.class);
-	private BundleContext context;
+    private Templates templates;
 
-	public KMLEntryTransformerImpl(final Bundle bundle, String xsltFileName) {
-		this(bundle, xsltFileName, "");
-	}
+    private String styling;
 
-	public KMLEntryTransformerImpl(final Bundle bundle, String xsltFileName, String styleFileName) {
+    private static final Logger logger = Logger.getLogger(KMLEntryTransformerImpl.class);
 
-		context = bundle.getBundleContext();
-		
-		// Retrieve the styling information
-		if (styleFileName.equals("")) {
-			this.styling = "";
-		} else {
+    private BundleContext context;
 
-			URL stylingUrl = bundle.getResource(styleFileName);
-			
-			logger.debug("The stylingURL: " +  stylingUrl) ;
+    public KMLEntryTransformerImpl(final Bundle bundle, String xsltFileName) {
+        this(bundle, xsltFileName, "");
+    }
 
-			try {
-				this.styling = KMLTransformerImpl.extractStringFrom(stylingUrl);
-			} catch (IOException e) {
-				logger.warn("Could not retrieve styling file: " + stylingUrl, e);
-				this.styling = "";
-			}
-		}
+    public KMLEntryTransformerImpl(final Bundle bundle, String xsltFileName, String styleFileName) {
 
-		// initialize TransformerFactory if not already done
-		/*if (tFactory == null) {
-			tFactory = TransformerFactory.newInstance();
-		}*/
+        context = bundle.getBundleContext();
 
-		// Retrieve the xslt
-		URL xsltUrl = bundle.getResource(xsltFileName);
-		Source xsltSource = new StreamSource(xsltUrl.toString());
+        // Retrieve the styling information
+        if (styleFileName.equals("")) {
+            this.styling = "";
+        } else {
 
-		// Build the resolver to resolve any address for those who call base xlsts from extension bundles
-		try {
-			URIResolver resolver = new URIResolver() {
+            URL stylingUrl = bundle.getResource(styleFileName);
 
-				@Override
-				public Source resolve(String href, String base) throws TransformerException {
+            logger.debug("The stylingURL: " + stylingUrl);
 
-					try {
-						URL resourceAddressURL = bundle.getResource(href);
-						String resourceAddress = resourceAddressURL.toString();
-						logger.info("Resolved resource address:" + resourceAddress);
+            try {
+                this.styling = KMLTransformerImpl.extractStringFrom(stylingUrl);
+            } catch (IOException e) {
+                logger.warn("Could not retrieve styling file: " + stylingUrl, e);
+                this.styling = "";
+            }
+        }
 
-						return new StreamSource(resourceAddress);
-					} catch (Exception e) {
-						return null ;
-					}
+        // initialize TransformerFactory if not already done
+        /*
+         * if (tFactory == null) { tFactory = TransformerFactory.newInstance(); }
+         */
 
-				}
-			};
+        // Retrieve the xslt
+        URL xsltUrl = bundle.getResource(xsltFileName);
+        Source xsltSource = new StreamSource(xsltUrl.toString());
 
-			tFactory.setURIResolver(resolver);
-			Configuration config = ((TransformerFactoryImpl)tFactory).getConfiguration() ;
-			DynamicLoader dynamicLoader = new DynamicLoader() ;
-			dynamicLoader.setClassLoader(new BundleProxyClassLoader(bundle)) ;
-			config.setDynamicLoader(dynamicLoader) ;
-			// Precompile this template 
-			this.templates = tFactory.newTemplates(xsltSource);
+        // Build the resolver to resolve any address for those who call base xlsts from extension
+        // bundles
+        try {
+            URIResolver resolver = new URIResolver() {
 
-		} catch (TransformerConfigurationException e) {
-			logger.error("Couldn't create transfomer", e);
-		}
-	}
+                @Override
+                public Source resolve(String href, String base) throws TransformerException {
 
-	@Override
-	public String getKMLContent(Metacard metacard, Map<String, Serializable> arguments) {
+                    try {
+                        URL resourceAddressURL = bundle.getResource(href);
+                        String resourceAddress = resourceAddressURL.toString();
+                        logger.info("Resolved resource address:" + resourceAddress);
 
-		String entryDocument = metacard.getMetadata();
+                        return new StreamSource(resourceAddress);
+                    } catch (Exception e) {
+                        return null;
+                    }
 
-		ByteArrayOutputStream resultOS = new ByteArrayOutputStream();
-		StringReader entryDocumentReader = new StringReader(entryDocument);
-		List<String> serviceList = new ArrayList<String>();
+                }
+            };
 
-		try {
+            tFactory.setURIResolver(resolver);
+            Configuration config = ((TransformerFactoryImpl) tFactory).getConfiguration();
+            DynamicLoader dynamicLoader = new DynamicLoader();
+            dynamicLoader.setClassLoader(new BundleProxyClassLoader(bundle));
+            config.setDynamicLoader(dynamicLoader);
+            // Precompile this template
+            this.templates = tFactory.newTemplates(xsltSource);
 
-			StreamResult result = new StreamResult(resultOS);
-			Transformer transformer = templates.newTransformer();
-			transformer.setOutputProperty(javax.xml.transform.OutputKeys.OMIT_XML_DECLARATION, "yes") ;
-			transformer.setParameter("id", metacard.getId());
-			transformer.setParameter("site", metacard.getSourceId()); 
+        } catch (TransformerConfigurationException e) {
+            logger.error("Couldn't create transfomer", e);
+        }
+    }
 
-			for (Map.Entry<String,Serializable> entry : arguments.entrySet())
-			{
-				transformer.setParameter(entry.getKey(), entry.getValue());
-			}
-			
-			
-			ServiceReference[] refs = null;
-	        try
-			{
-				refs = context.getServiceReferences(MetacardTransformer.class.getName(), null);
-			} catch (InvalidSyntaxException e)
-			{
-				//can't happen because filter is null
-			}
-			
-			if (refs != null)
-			{
-				for (ServiceReference  ref : refs)
-				{
-					if (ref != null)
-					{
-						String title = null;
-						String shortName = (String) ref.getProperty(Constants.SERVICE_SHORTNAME);
-						
-						if((title = (String) ref.getProperty(Constants.SERVICE_TITLE)) == null)
-						{
-							title = "View as " + shortName.toUpperCase();	
-						}
-												
-						String url = "/services/catalog/" + metacard.getId() + "?transform=" + shortName;
-				        
-				        //define the services
-				        serviceList.add(title);
-				        serviceList.add(url);
-					}
-				}
-			}
-	        
-			//pass in the list of server-side services
-			transformer.setParameter("services", serviceList);
-			
-			
-			
-			transformer.transform(new StreamSource(entryDocumentReader), result);
+    @Override
+    public String getKMLContent(Metacard metacard, Map<String, Serializable> arguments) {
 
-			return ((ByteArrayOutputStream) (result.getOutputStream())).toString();
+        String entryDocument = metacard.getMetadata();
 
-		} catch (TransformerException te) {
+        ByteArrayOutputStream resultOS = new ByteArrayOutputStream();
+        StringReader entryDocumentReader = new StringReader(entryDocument);
+        List<String> serviceList = new ArrayList<String>();
 
-			logger.warn("TransformerException", te);
-		}
+        try {
 
-		return null;
-	}
+            StreamResult result = new StreamResult(resultOS);
+            Transformer transformer = templates.newTransformer();
+            transformer.setOutputProperty(javax.xml.transform.OutputKeys.OMIT_XML_DECLARATION,
+                    "yes");
+            transformer.setParameter("id", metacard.getId());
+            transformer.setParameter("site", metacard.getSourceId());
 
-	@Override
-	public String getKMLStyle() {
-		return this.styling;
-	}
+            for (Map.Entry<String, Serializable> entry : arguments.entrySet()) {
+                transformer.setParameter(entry.getKey(), entry.getValue());
+            }
+
+            ServiceReference[] refs = null;
+            try {
+                refs = context.getServiceReferences(MetacardTransformer.class.getName(), null);
+            } catch (InvalidSyntaxException e) {
+                // can't happen because filter is null
+            }
+
+            if (refs != null) {
+                for (ServiceReference ref : refs) {
+                    if (ref != null) {
+                        String title = null;
+                        String shortName = (String) ref.getProperty(Constants.SERVICE_SHORTNAME);
+
+                        if ((title = (String) ref.getProperty(Constants.SERVICE_TITLE)) == null) {
+                            title = "View as " + shortName.toUpperCase();
+                        }
+
+                        String url = "/services/catalog/" + metacard.getId() + "?transform="
+                                + shortName;
+
+                        // define the services
+                        serviceList.add(title);
+                        serviceList.add(url);
+                    }
+                }
+            }
+
+            // pass in the list of server-side services
+            transformer.setParameter("services", serviceList);
+
+            transformer.transform(new StreamSource(entryDocumentReader), result);
+
+            return ((ByteArrayOutputStream) (result.getOutputStream())).toString();
+
+        } catch (TransformerException te) {
+
+            logger.warn("TransformerException", te);
+        }
+
+        return null;
+    }
+
+    @Override
+    public String getKMLStyle() {
+        return this.styling;
+    }
 
 }

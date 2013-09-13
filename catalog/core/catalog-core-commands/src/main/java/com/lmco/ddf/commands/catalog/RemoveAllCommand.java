@@ -1,13 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- *
- * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
- * version 3 of the License, or any later version. 
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * 
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
+ * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
+ * 
  **/
 package com.lmco.ddf.commands.catalog;
 
@@ -97,10 +100,8 @@ public class RemoveAllCommand extends CatalogCommands {
 
         FilterBuilder filterBuilder = getFilterBuilder();
 
-        QueryRequest firstQuery = getIntendedQuery(filterBuilder, batchSize,
-                expired, true);
-        QueryRequest subsequentQuery = getIntendedQuery(filterBuilder,
-                batchSize, expired, false);
+        QueryRequest firstQuery = getIntendedQuery(filterBuilder, batchSize, expired, true);
+        QueryRequest subsequentQuery = getIntendedQuery(filterBuilder, batchSize, expired, false);
 
         long totalAmountDeleted = 0;
         long start = System.currentTimeMillis();
@@ -109,10 +110,8 @@ public class RemoveAllCommand extends CatalogCommands {
         try {
             response = catalog.query(firstQuery);
         } catch (UnsupportedQueryException e) {
-            firstQuery = getAlternateQuery(filterBuilder, batchSize, expired,
-                    true);
-            subsequentQuery = getAlternateQuery(filterBuilder, batchSize,
-                    expired, false);
+            firstQuery = getAlternateQuery(filterBuilder, batchSize, expired, true);
+            subsequentQuery = getAlternateQuery(filterBuilder, batchSize, expired, false);
 
             response = catalog.query(firstQuery);
         }
@@ -123,10 +122,8 @@ public class RemoveAllCommand extends CatalogCommands {
         }
 
         if (needsAlternateQueryAndResponse(response)) {
-            firstQuery = getAlternateQuery(filterBuilder, batchSize, expired,
-                    true);
-            subsequentQuery = getAlternateQuery(filterBuilder, batchSize,
-                    expired, false);
+            firstQuery = getAlternateQuery(filterBuilder, batchSize, expired, true);
+            subsequentQuery = getAlternateQuery(filterBuilder, batchSize, expired, false);
 
             response = catalog.query(firstQuery);
         }
@@ -147,16 +144,14 @@ public class RemoveAllCommand extends CatalogCommands {
             }
 
             // Delete the records
-            DeleteRequestImpl request = new DeleteRequestImpl(
-                    ids.toArray(new String[ids.size()]));
+            DeleteRequestImpl request = new DeleteRequestImpl(ids.toArray(new String[ids.size()]));
 
             DeleteResponse deleteResponse = catalog.delete(request);
 
             int amountDeleted = deleteResponse.getDeletedMetacards().size();
 
             totalAmountDeleted += amountDeleted;
-            console.print(String.format(PROGRESS_FORMAT, totalAmountDeleted,
-                    totalAmount));
+            console.print(String.format(PROGRESS_FORMAT, totalAmountDeleted, totalAmount));
             console.flush();
 
             // Break out if there are no more records to delete
@@ -172,8 +167,8 @@ public class RemoveAllCommand extends CatalogCommands {
 
         console.println();
 
-        console.printf(" %d file(s) removed in %3.3f seconds%n",
-                totalAmountDeleted, (end - start) / MILLISECONDS_PER_SECOND);
+        console.printf(" %d file(s) removed in %3.3f seconds%n", totalAmountDeleted, (end - start)
+                / MILLISECONDS_PER_SECOND);
 
         return null;
 
@@ -196,11 +191,8 @@ public class RemoveAllCommand extends CatalogCommands {
             if (next != null
                     && next.getException() != null
                     && next.getException().getMessage() != null
-                    && next.getException()
-                            .getMessage()
-                            .contains(
-                                    UnsupportedQueryException.class
-                                            .getSimpleName())) {
+                    && next.getException().getMessage()
+                            .contains(UnsupportedQueryException.class.getSimpleName())) {
                 return true;
             }
 
@@ -212,8 +204,7 @@ public class RemoveAllCommand extends CatalogCommands {
     boolean isAccidentalRemoval(PrintStream console) throws IOException {
         if (!force) {
             StringBuffer buffer = new StringBuffer();
-            System.err.println(String.format(WARNING_MESSAGE_FORMAT,
-                    (expired ? "expired " : "")));
+            System.err.println(String.format(WARNING_MESSAGE_FORMAT, (expired ? "expired " : "")));
             System.err.flush();
             for (;;) {
                 int byteOfData = session.getKeyboard().read();
@@ -247,16 +238,13 @@ public class RemoveAllCommand extends CatalogCommands {
         return Long.toString(hits);
     }
 
-    private QueryRequest getIntendedQuery(FilterBuilder filterBuilder,
-            int batchSize, boolean isRequestForExpired,
-            boolean isRequestForTotal) throws InterruptedException {
+    private QueryRequest getIntendedQuery(FilterBuilder filterBuilder, int batchSize,
+            boolean isRequestForExpired, boolean isRequestForTotal) throws InterruptedException {
 
-        Filter filter = filterBuilder.attribute(Metacard.ID).is().like()
-                .text("*");
+        Filter filter = filterBuilder.attribute(Metacard.ID).is().like().text("*");
 
         if (isRequestForExpired) {
-            filter = filterBuilder.attribute(Metacard.EXPIRATION).before()
-                    .date(new Date());
+            filter = filterBuilder.attribute(Metacard.EXPIRATION).before().date(new Date());
         }
 
         QueryImpl query = new QueryImpl(filter);
@@ -268,12 +256,10 @@ public class RemoveAllCommand extends CatalogCommands {
         return new QueryRequestImpl(query);
     }
 
-    private QueryRequest getAlternateQuery(FilterBuilder filterBuilder,
-            int batchSize, boolean isRequestForExpired,
-            boolean isRequestForTotal) throws InterruptedException {
+    private QueryRequest getAlternateQuery(FilterBuilder filterBuilder, int batchSize,
+            boolean isRequestForExpired, boolean isRequestForTotal) throws InterruptedException {
 
-        Filter filter = filterBuilder.attribute(Metacard.ANY_TEXT).is().like()
-                .text("*");
+        Filter filter = filterBuilder.attribute(Metacard.ANY_TEXT).is().like().text("*");
 
         if (isRequestForExpired) {
             DateTime twoThousandYearsAgo = new DateTime().minusYears(2000);

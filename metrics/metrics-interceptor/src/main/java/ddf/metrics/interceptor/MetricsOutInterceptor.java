@@ -1,13 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- *
- * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
- * version 3 of the License, or any later version. 
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * 
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
+ * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
+ * 
  **/
 package ddf.metrics.interceptor;
 
@@ -21,8 +24,8 @@ import org.apache.cxf.phase.Phase;
  * 
  * CXF out interceptor used to capture HTTP message latency metrics.
  * 
- * The {@link MetricsInInterceptor} records the time that a message is received
- * and the out interceptor calculates the total time and saves the result.
+ * The {@link MetricsInInterceptor} records the time that a message is received and the out
+ * interceptor calculates the total time and saves the result.
  * 
  * @author willisod
  * 
@@ -37,8 +40,8 @@ public class MetricsOutInterceptor extends AbstractMetricsInterceptor {
 
     /**
      * Handle the out message, including one way messages. Methods on
-     * {@link AbstractMetricsInterceptor} are used to get the numbers and save
-     * them to YAMMER objects.
+     * {@link AbstractMetricsInterceptor} are used to get the numbers and save them to YAMMER
+     * objects.
      * 
      */
     @Override
@@ -68,8 +71,7 @@ public class MetricsOutInterceptor extends AbstractMetricsInterceptor {
 
     }
 
-    public class OneWayMessageEndingInterceptor extends
-            AbstractPhaseInterceptor<Message> {
+    public class OneWayMessageEndingInterceptor extends AbstractPhaseInterceptor<Message> {
 
         public OneWayMessageEndingInterceptor() {
             super(Phase.PREPARE_SEND_ENDING);
@@ -86,5 +88,5 @@ public class MetricsOutInterceptor extends AbstractMetricsInterceptor {
         }
 
     }
-    
+
 }

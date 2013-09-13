@@ -1,13 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- *
- * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
- * version 3 of the License, or any later version. 
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * 
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
+ * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
+ * 
  **/
 package ddf.catalog.filter.delegate;
 
@@ -19,25 +22,18 @@ import org.opengis.filter.Filter;
 import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.filter.FilterDelegate;
 
-
-public class CopyFilterDelegate extends FilterDelegate<Filter>
-{
+public class CopyFilterDelegate extends FilterDelegate<Filter> {
     protected FilterBuilder filterBuilder;
-    
-    
+
     // Prevent usage of default constructor
-    private CopyFilterDelegate()
-    {
-        
+    private CopyFilterDelegate() {
+
     }
-    
-    
-    public CopyFilterDelegate( FilterBuilder filterBuilder )
-    {
+
+    public CopyFilterDelegate(FilterBuilder filterBuilder) {
         this.filterBuilder = filterBuilder;
     }
-    
-    
+
     // Logical operators
     @Override
     public Filter include() {
@@ -64,7 +60,6 @@ public class CopyFilterDelegate extends FilterDelegate<Filter>
         return filterBuilder.anyOf(filters);
     }
 
-
     // PropertyIsNull
     @Override
     public Filter propertyIsNull(String propertyName) {
@@ -73,10 +68,8 @@ public class CopyFilterDelegate extends FilterDelegate<Filter>
 
     // PropertyIsLike
     @Override
-    public Filter propertyIsLike(String propertyName, String pattern,
-            boolean isCaseSensitive) {
-        if (isCaseSensitive)
-        {
+    public Filter propertyIsLike(String propertyName, String pattern, boolean isCaseSensitive) {
+        if (isCaseSensitive) {
             return filterBuilder.attribute(propertyName).is().like().caseSensitiveText(pattern);
         }
         return filterBuilder.attribute(propertyName).is().like().text(pattern);
@@ -90,8 +83,7 @@ public class CopyFilterDelegate extends FilterDelegate<Filter>
 
     // PropertyIsEqualTo
     @Override
-    public Filter propertyIsEqualTo(String propertyName, String literal,
-            boolean isCaseSensitive) {
+    public Filter propertyIsEqualTo(String propertyName, String literal, boolean isCaseSensitive) {
         return filterBuilder.attribute(propertyName).equalTo().text(literal);
     }
 
@@ -101,10 +93,9 @@ public class CopyFilterDelegate extends FilterDelegate<Filter>
     }
 
     @Override
-    public Filter propertyIsEqualTo(String propertyName, Date startDate,
-            Date endDate) {
+    public Filter propertyIsEqualTo(String propertyName, Date startDate, Date endDate) {
         throw new UnsupportedOperationException(
-             "propertyIsEqualTo(String,Date,Date) not supported by CopyFilterDelegate.");
+                "propertyIsEqualTo(String,Date,Date) not supported by CopyFilterDelegate.");
     }
 
     @Override
@@ -145,13 +136,12 @@ public class CopyFilterDelegate extends FilterDelegate<Filter>
     @Override
     public Filter propertyIsEqualTo(String propertyName, Object literal) {
         throw new UnsupportedOperationException(
-            "propertyIsEqualTo(String,Object) not supported by CopyFilterDelegate.");
+                "propertyIsEqualTo(String,Object) not supported by CopyFilterDelegate.");
     }
 
     // PropertyIsNotEqualTo
     @Override
-    public Filter propertyIsNotEqualTo(String propertyName, String literal,
-            boolean isCaseSensitive) {
+    public Filter propertyIsNotEqualTo(String propertyName, String literal, boolean isCaseSensitive) {
         return filterBuilder.attribute(propertyName).notEqualTo().text(literal);
     }
 
@@ -159,12 +149,11 @@ public class CopyFilterDelegate extends FilterDelegate<Filter>
     public Filter propertyIsNotEqualTo(String propertyName, Date literal) {
         return filterBuilder.attribute(propertyName).notEqualTo().date(literal);
     }
-    
+
     @Override
-    public Filter propertyIsNotEqualTo(String propertyName, Date startDate,
-            Date endDate) {
+    public Filter propertyIsNotEqualTo(String propertyName, Date startDate, Date endDate) {
         throw new UnsupportedOperationException(
-           "propertyIsNotEqualTo(String,Date,Date) not supported by CopyFilterDelegate."); 
+                "propertyIsNotEqualTo(String,Date,Date) not supported by CopyFilterDelegate.");
     }
 
     @Override
@@ -179,7 +168,7 @@ public class CopyFilterDelegate extends FilterDelegate<Filter>
 
     @Override
     public Filter propertyIsNotEqualTo(String propertyName, long literal) {
-        //TODO: is it ok to convert long to int here? alternatives?
+        // TODO: is it ok to convert long to int here? alternatives?
         return filterBuilder.attribute(propertyName).notEqualTo().number(literal);
     }
 
@@ -205,23 +194,23 @@ public class CopyFilterDelegate extends FilterDelegate<Filter>
 
     @Override
     public Filter propertyIsNotEqualTo(String propertyName, Object literal) {
-        //TODO
+        // TODO
         throw new UnsupportedOperationException(
-            "propertyIsNotEqualTo(String,Object) not supported by CopyFilterDelegate.");
+                "propertyIsNotEqualTo(String,Object) not supported by CopyFilterDelegate.");
     }
 
     // PropertyIsGreaterThan
     @Override
     public Filter propertyIsGreaterThan(String propertyName, String literal) {
         throw new UnsupportedOperationException(
-            "propertyIsGreaterThan(String,String) not supported by CopyFilterDelegate.");
+                "propertyIsGreaterThan(String,String) not supported by CopyFilterDelegate.");
     }
 
     @Override
     public Filter propertyIsGreaterThan(String propertyName, Date literal) {
         // Because after() is inclusive of the date; use GreaterThanOrEqualTo
         throw new UnsupportedOperationException(
-           "propertyIsGreaterThan(String,Date) not supported by CopyFilterDelegate.");
+                "propertyIsGreaterThan(String,Date) not supported by CopyFilterDelegate.");
     }
 
     @Override
@@ -252,73 +241,65 @@ public class CopyFilterDelegate extends FilterDelegate<Filter>
     @Override
     public Filter propertyIsGreaterThan(String propertyName, Object literal) {
         throw new UnsupportedOperationException(
-            "propertyIsGreaterThan(String,Object) not supported by CopyFilterDelegate.");
+                "propertyIsGreaterThan(String,Object) not supported by CopyFilterDelegate.");
     }
 
     // PropertyIsGreaterThanOrEqualTo
     @Override
-    public Filter propertyIsGreaterThanOrEqualTo(String propertyName,
-            String literal) {
+    public Filter propertyIsGreaterThanOrEqualTo(String propertyName, String literal) {
         throw new UnsupportedOperationException(
-            "propertyIsGreaterThanOrEqualTo(String,String) not supported by CopyFilterDelegate.");
+                "propertyIsGreaterThanOrEqualTo(String,String) not supported by CopyFilterDelegate.");
     }
 
     @Override
-    public Filter propertyIsGreaterThanOrEqualTo(String propertyName,
-            Date literal) {
+    public Filter propertyIsGreaterThanOrEqualTo(String propertyName, Date literal) {
         throw new UnsupportedOperationException(
-            "propertyIsGreaterThanOrEqualTo(String,Date) not supported by CopyFilterDelegate. Should use after() for Date comparisons.");
+                "propertyIsGreaterThanOrEqualTo(String,Date) not supported by CopyFilterDelegate. Should use after() for Date comparisons.");
     }
 
     @Override
-    public Filter propertyIsGreaterThanOrEqualTo(String propertyName,
-            int literal) {
+    public Filter propertyIsGreaterThanOrEqualTo(String propertyName, int literal) {
         return filterBuilder.attribute(propertyName).greaterThanOrEqualTo().number(literal);
     }
 
     @Override
-    public Filter propertyIsGreaterThanOrEqualTo(String propertyName,
-            short literal) {
+    public Filter propertyIsGreaterThanOrEqualTo(String propertyName, short literal) {
         return filterBuilder.attribute(propertyName).greaterThanOrEqualTo().number(literal);
     }
 
     @Override
-    public Filter propertyIsGreaterThanOrEqualTo(String propertyName,
-            long literal) {
+    public Filter propertyIsGreaterThanOrEqualTo(String propertyName, long literal) {
         return filterBuilder.attribute(propertyName).greaterThanOrEqualTo().number(literal);
     }
 
     @Override
-    public Filter propertyIsGreaterThanOrEqualTo(String propertyName,
-            double literal) {
+    public Filter propertyIsGreaterThanOrEqualTo(String propertyName, double literal) {
         return filterBuilder.attribute(propertyName).greaterThanOrEqualTo().number(literal);
     }
 
     @Override
-    public Filter propertyIsGreaterThanOrEqualTo(String propertyName,
-            float literal) {
+    public Filter propertyIsGreaterThanOrEqualTo(String propertyName, float literal) {
         return filterBuilder.attribute(propertyName).greaterThanOrEqualTo().number(literal);
     }
 
     @Override
-    public Filter propertyIsGreaterThanOrEqualTo(String propertyName,
-            Object literal) {
+    public Filter propertyIsGreaterThanOrEqualTo(String propertyName, Object literal) {
         throw new UnsupportedOperationException(
-            "propertyIsGreaterThanOrEqualTo(String,Object) not supported by CopyFilterDelegate.");
+                "propertyIsGreaterThanOrEqualTo(String,Object) not supported by CopyFilterDelegate.");
     }
 
     // PropertyIsLessThan
     @Override
     public Filter propertyIsLessThan(String propertyName, String literal) {
         throw new UnsupportedOperationException(
-            "propertyIsLessThan(String,String) not supported by CopyFilterDelegate.");
+                "propertyIsLessThan(String,String) not supported by CopyFilterDelegate.");
     }
 
     @Override
     public Filter propertyIsLessThan(String propertyName, Date literal) {
         // Because before() is inclusive of the date
         throw new UnsupportedOperationException(
-            "propertyIsLessThan(String,Date) not supported by CopyFilterDelegate.");
+                "propertyIsLessThan(String,Date) not supported by CopyFilterDelegate.");
     }
 
     @Override
@@ -340,7 +321,7 @@ public class CopyFilterDelegate extends FilterDelegate<Filter>
     public Filter propertyIsLessThan(String propertyName, double literal) {
         return filterBuilder.attribute(propertyName).lessThan().number(literal);
     }
-    
+
     @Override
     public Filter propertyIsLessThan(String propertyName, float literal) {
         return filterBuilder.attribute(propertyName).lessThan().number(literal);
@@ -349,21 +330,20 @@ public class CopyFilterDelegate extends FilterDelegate<Filter>
     @Override
     public Filter propertyIsLessThan(String propertyName, Object literal) {
         throw new UnsupportedOperationException(
-            "propertyIsLessThan(String,Object) not supported by CopyFilterDelegate.");
+                "propertyIsLessThan(String,Object) not supported by CopyFilterDelegate.");
     }
 
     // PropertyIsLessThanOrEqualTo
     @Override
-    public Filter propertyIsLessThanOrEqualTo(String propertyName,
-            String literal) {
+    public Filter propertyIsLessThanOrEqualTo(String propertyName, String literal) {
         throw new UnsupportedOperationException(
-            "propertyIsLessThanOrEqualTo(String,String) not supported by CopyFilterDelegate.");
+                "propertyIsLessThanOrEqualTo(String,String) not supported by CopyFilterDelegate.");
     }
 
     @Override
     public Filter propertyIsLessThanOrEqualTo(String propertyName, Date literal) {
         throw new UnsupportedOperationException(
-            "propertyIsLessThanOrEqualTo(String,Date) not supported by CopyFilterDelegate. Should use before() for Date comparisons.");
+                "propertyIsLessThanOrEqualTo(String,Date) not supported by CopyFilterDelegate. Should use before() for Date comparisons.");
     }
 
     @Override
@@ -382,8 +362,7 @@ public class CopyFilterDelegate extends FilterDelegate<Filter>
     }
 
     @Override
-    public Filter propertyIsLessThanOrEqualTo(String propertyName,
-            double literal) {
+    public Filter propertyIsLessThanOrEqualTo(String propertyName, double literal) {
         return filterBuilder.attribute(propertyName).lessThanOrEqualTo().number(literal);
     }
 
@@ -393,64 +372,59 @@ public class CopyFilterDelegate extends FilterDelegate<Filter>
     }
 
     @Override
-    public Filter propertyIsLessThanOrEqualTo(String propertyName,
-            Object literal) {
+    public Filter propertyIsLessThanOrEqualTo(String propertyName, Object literal) {
         throw new UnsupportedOperationException(
-            "propertyIsLessThanOrEqualTo(String,Object) not supported by CopyFilterDelegate.");
+                "propertyIsLessThanOrEqualTo(String,Object) not supported by CopyFilterDelegate.");
     }
 
     // PropertyIsBetween
     @Override
-    public Filter propertyIsBetween(String propertyName, String lowerBoundary,
-            String upperBoundary) {
+    public Filter propertyIsBetween(String propertyName, String lowerBoundary, String upperBoundary) {
         throw new UnsupportedOperationException(
-            "propertyIsBetween(String,String lowerBoundary,String upperBoundary) not supported by CopyFilterDelegate.");
+                "propertyIsBetween(String,String lowerBoundary,String upperBoundary) not supported by CopyFilterDelegate.");
     }
 
     @Override
-    public Filter propertyIsBetween(String propertyName, Date lowerBoundary,
-            Date upperBoundary) {
+    public Filter propertyIsBetween(String propertyName, Date lowerBoundary, Date upperBoundary) {
         throw new UnsupportedOperationException(
-            "propertyIsBetween(String,Date,Date) not supported by CopyFilterDelegate. Should use during() for Date comparisons.");
+                "propertyIsBetween(String,Date,Date) not supported by CopyFilterDelegate. Should use during() for Date comparisons.");
     }
 
     @Override
-    public Filter propertyIsBetween(String propertyName, int lowerBoundary,
-            int upperBoundary) {
-        return filterBuilder.attribute(propertyName).between().numbers(lowerBoundary, upperBoundary);
+    public Filter propertyIsBetween(String propertyName, int lowerBoundary, int upperBoundary) {
+        return filterBuilder.attribute(propertyName).between()
+                .numbers(lowerBoundary, upperBoundary);
     }
 
     @Override
-    public Filter propertyIsBetween(String propertyName, short lowerBoundary,
-            short upperBoundary) {
-        return filterBuilder.attribute(propertyName).between().numbers(lowerBoundary, upperBoundary);
+    public Filter propertyIsBetween(String propertyName, short lowerBoundary, short upperBoundary) {
+        return filterBuilder.attribute(propertyName).between()
+                .numbers(lowerBoundary, upperBoundary);
     }
 
     @Override
-    public Filter propertyIsBetween(String propertyName, long lowerBoundary,
-            long upperBoundary) {
-        return filterBuilder.attribute(propertyName).between().numbers(lowerBoundary, upperBoundary);
+    public Filter propertyIsBetween(String propertyName, long lowerBoundary, long upperBoundary) {
+        return filterBuilder.attribute(propertyName).between()
+                .numbers(lowerBoundary, upperBoundary);
     }
 
     @Override
-    public Filter propertyIsBetween(String propertyName, float lowerBoundary,
-            float upperBoundary) {
-        return filterBuilder.attribute(propertyName).between().numbers(lowerBoundary, upperBoundary);
+    public Filter propertyIsBetween(String propertyName, float lowerBoundary, float upperBoundary) {
+        return filterBuilder.attribute(propertyName).between()
+                .numbers(lowerBoundary, upperBoundary);
     }
 
     @Override
-    public Filter propertyIsBetween(String propertyName, double lowerBoundary,
-            double upperBoundary) {
-        return filterBuilder.attribute(propertyName).between().numbers(lowerBoundary, upperBoundary);
+    public Filter propertyIsBetween(String propertyName, double lowerBoundary, double upperBoundary) {
+        return filterBuilder.attribute(propertyName).between()
+                .numbers(lowerBoundary, upperBoundary);
     }
 
     @Override
-    public Filter propertyIsBetween(String propertyName, Object lowerBoundary,
-            Object upperBoundary) {
+    public Filter propertyIsBetween(String propertyName, Object lowerBoundary, Object upperBoundary) {
         throw new UnsupportedOperationException(
-            "propertyIsBetween(String,Object) not supported by CopyFilterDelegate.");
+                "propertyIsBetween(String,Object) not supported by CopyFilterDelegate.");
     }
-
 
     // XpathExists
     @Override
@@ -460,10 +434,8 @@ public class CopyFilterDelegate extends FilterDelegate<Filter>
 
     // XpathIsLike
     @Override
-    public Filter xpathIsLike(String xpathExpression, String pattern,
-            boolean isCaseSensitive) {
-        if (isCaseSensitive)
-        {
+    public Filter xpathIsLike(String xpathExpression, String pattern, boolean isCaseSensitive) {
+        if (isCaseSensitive) {
             return filterBuilder.xpath(xpathExpression).is().like().caseSensitiveText(pattern);
         }
         return filterBuilder.xpath(xpathExpression).is().like().text(pattern);
@@ -504,26 +476,26 @@ public class CopyFilterDelegate extends FilterDelegate<Filter>
     @Override
     public Filter crosses(String propertyName, String wkt) {
         throw new UnsupportedOperationException(
-            "crosses(String,String) not supported by CopyFilterDelegate.");
+                "crosses(String,String) not supported by CopyFilterDelegate.");
     }
 
     @Override
     public Filter disjoint(String propertyName, String wkt) {
         throw new UnsupportedOperationException(
-            "disjoint(String,String) not supported by CopyFilterDelegate.");
+                "disjoint(String,String) not supported by CopyFilterDelegate.");
     }
 
     @Override
     public Filter overlaps(String propertyName, String wkt) {
-        //TODO: need to add support for this
+        // TODO: need to add support for this
         throw new UnsupportedOperationException(
-            "overlaps(String,String) not supported by CopyFilterDelegate.");
+                "overlaps(String,String) not supported by CopyFilterDelegate.");
     }
 
     @Override
     public Filter touches(String propertyName, String wkt) {
         throw new UnsupportedOperationException(
-            "touches(String,String) not supported by CopyFilterDelegate.");
+                "touches(String,String) not supported by CopyFilterDelegate.");
     }
 
     // Temporal filters

@@ -1,13 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- *
- * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
- * version 3 of the License, or any later version. 
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * 
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
+ * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
+ * 
  **/
 package ddf.platform.scheduler;
 
@@ -25,6 +28,7 @@ import java.io.PrintStream;
 
 import org.apache.felix.service.command.CommandProcessor;
 import org.apache.felix.service.command.CommandSession;
+import org.apache.log4j.BasicConfigurator;
 import org.junit.Test;
 import org.mockito.stubbing.Answer;
 import org.quartz.JobDataMap;
@@ -40,11 +44,13 @@ import org.slf4j.LoggerFactory;
  * 
  */
 public class TestCommandJob {
-    
-    private static final Logger LOGGER = LoggerFactory
-            .getLogger(TestCommandJob.class);
-    
-    
+
+    static {
+        BasicConfigurator.configure();
+    }
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(TestCommandJob.class);
+
     /**
      * Do no execution when no command processor available
      * 
@@ -57,7 +63,7 @@ public class TestCommandJob {
         String command = "info";
 
         CommandJob job = new CommandJob();
-        
+
         // when
         job.execute(getJobExecutionContext(command));
 
@@ -157,9 +163,8 @@ public class TestCommandJob {
      *            TODO
      * @throws Exception
      */
-    void verifySessionCalls(String command, CommandSession session,
-            int expectedAmountOfCalls, int expectedTimesToClose)
-            throws Exception {
+    void verifySessionCalls(String command, CommandSession session, int expectedAmountOfCalls,
+            int expectedTimesToClose) throws Exception {
         verify(session, times(expectedAmountOfCalls)).execute(command);
         verify(session, times(expectedTimesToClose)).close();
     }
@@ -168,9 +173,8 @@ public class TestCommandJob {
         CommandProcessor processor = mock(CommandProcessor.class);
 
         when(
-                processor.createSession(isNull(InputStream.class),
-                        isA(PrintStream.class), isA(PrintStream.class)))
-                .thenReturn(session);
+                processor.createSession(isNull(InputStream.class), isA(PrintStream.class),
+                        isA(PrintStream.class))).thenReturn(session);
         return processor;
     }
 
@@ -181,7 +185,7 @@ public class TestCommandJob {
             when(session.execute(isA(CharSequence.class))).then(captureInput);
 
         } catch (Exception e) {
-        	LOGGER.error("Exception occurred during command session", e);
+            LOGGER.error("Exception occurred during command session", e);
         }
         return session;
     }
@@ -200,9 +204,9 @@ public class TestCommandJob {
     }
 
     private void setCommandProcessor(CommandSession session) {
-        
+
         ServiceStore store = ServiceStore.getInstance();
-        
+
         store.setObject(getCommandProcessor(session));
     }
 }

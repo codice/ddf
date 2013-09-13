@@ -1,13 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- *
- * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
- * version 3 of the License, or any later version. 
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * 
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
+ * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
+ * 
  **/
 package ddf.catalog.test;
 
@@ -70,8 +73,7 @@ import ddf.catalog.source.FederatedSource;
 @ExamReactorStrategy(EagerSingleStagedReactorFactory.class)
 public class TestFederation extends AbstractIntegrationTest {
 
-    private static XLogger LOGGER = new XLogger(
-            LoggerFactory.getLogger(TestFederation.class));
+    private static XLogger LOGGER = new XLogger(LoggerFactory.getLogger(TestFederation.class));
 
     private static final String SAMPLE_DATA = "sample data";
 
@@ -80,8 +82,7 @@ public class TestFederation extends AbstractIntegrationTest {
     private static final int GEOJSON_RECORD_INDEX = 0;
 
     /*
-     * Temporary fix - Added separate ports to not clash with other distros
-     * running.
+     * Temporary fix - Added separate ports to not clash with other distros running.
      */
     protected static final String HTTP_PORT = "9082";
 
@@ -105,8 +106,7 @@ public class TestFederation extends AbstractIntegrationTest {
 
     private static final String CATALOG_SYMBOLIC_NAME_PREFIX = "catalog-";
 
-    private static final String SERVICE_ROOT = "http://localhost:" + HTTP_PORT
-            + "/services";
+    private static final String SERVICE_ROOT = "http://localhost:" + HTTP_PORT + "/services";
 
     private static final String REST_PATH = SERVICE_ROOT + "/catalog/";
 
@@ -115,8 +115,7 @@ public class TestFederation extends AbstractIntegrationTest {
     private static final String REMOTE_SITE_NAME = "remoteSite";
 
     /*
-     * The fields must be static if they are purposely used across all test
-     * methods.
+     * The fields must be static if they are purposely used across all test methods.
      */
     private static boolean ranBefore = false;
 
@@ -157,8 +156,8 @@ public class TestFederation extends AbstractIntegrationTest {
     }
 
     /**
-     * Runs each time before each test, items that don't need to be run each
-     * time have a conditional flag.
+     * Runs each time before each test, items that don't need to be run each time have a conditional
+     * flag.
      * 
      * @throws InterruptedException
      * @throws IOException
@@ -175,30 +174,28 @@ public class TestFederation extends AbstractIntegrationTest {
 
             FederatedSourceProperties sourceProperties = new FederatedSourceProperties();
 
-            createManagedService(
-                    FederatedSourceProperties.FACTORY_PID,
-                    sourceProperties.createDefaultProperties(
-                            String.valueOf(HTTP_PORT), REMOTE_SITE_NAME), 1000);
+            createManagedService(FederatedSourceProperties.FACTORY_PID,
+                    sourceProperties.createDefaultProperties(String.valueOf(HTTP_PORT),
+                            REMOTE_SITE_NAME), 1000);
 
             this.source = waitForFederatedSource(5000);
             File file = new File("sample.txt");
             file.createNewFile();
             FileUtils.write(file, SAMPLE_DATA);
             String fileLocation = file.toURI().toURL().toString();
-            metacardIds[GEOJSON_RECORD_INDEX] = ingest(
-                    Library.getSimpleGeoJson(), "application/json");
+            metacardIds[GEOJSON_RECORD_INDEX] = ingest(Library.getSimpleGeoJson(),
+                    "application/json");
 
             LOGGER.debug("File Location: {}", fileLocation);
-            metacardIds[XML_RECORD_INDEX] = ingest(
-                    Library.getSimpleXml(fileLocation), "text/xml");
+            metacardIds[XML_RECORD_INDEX] = ingest(Library.getSimpleXml(fileLocation), "text/xml");
             ranBefore = true;
         }
 
     }
 
     /**
-     * Given what was ingested in beforeTest(), tests that a Federated wildcard
-     * search will return all appropriate record(s).
+     * Given what was ingested in beforeTest(), tests that a Federated wildcard search will return
+     * all appropriate record(s).
      * 
      * @throws Exception
      */
@@ -208,23 +205,21 @@ public class TestFederation extends AbstractIntegrationTest {
         // given
 
         // when
-        String queryUrl = OPENSEARCH_PATH + "?q=*&format=xml&src="
-                + REMOTE_SITE_NAME;
+        String queryUrl = OPENSEARCH_PATH + "?q=*&format=xml&src=" + REMOTE_SITE_NAME;
 
         String result = read(queryUrl);
 
         // then
         assertNotNull(result);
-        assertTrue("Record should include the first record title.",
-                result.contains(RECORD_TITLE_1));
+        assertTrue("Record should include the first record title.", result.contains(RECORD_TITLE_1));
         assertTrue("Record should include the second record title.",
                 result.contains(RECORD_TITLE_2));
 
     }
 
     /**
-     * Given what was ingested in beforeTest(), tests that a Federated search
-     * phrase will return the appropriate record(s).
+     * Given what was ingested in beforeTest(), tests that a Federated search phrase will return the
+     * appropriate record(s).
      * 
      * @throws Exception
      */
@@ -234,15 +229,14 @@ public class TestFederation extends AbstractIntegrationTest {
         // given
 
         // when
-        String queryUrl = OPENSEARCH_PATH + "?q=" + DEFAULT_KEYWORD
-                + "&format=xml&src=" + REMOTE_SITE_NAME;
+        String queryUrl = OPENSEARCH_PATH + "?q=" + DEFAULT_KEYWORD + "&format=xml&src="
+                + REMOTE_SITE_NAME;
 
         String result = read(queryUrl);
 
         // then
         assertNotNull(result);
-        assertTrue("Record should include the first record title.",
-                result.contains(RECORD_TITLE_1));
+        assertTrue("Record should include the first record title.", result.contains(RECORD_TITLE_1));
         assertTrue("Record should include the second record title.",
                 result.contains(RECORD_TITLE_2));
 
@@ -260,14 +254,13 @@ public class TestFederation extends AbstractIntegrationTest {
 
         // when
         String negativeSearchPhrase = "negative";
-        String queryUrl = OPENSEARCH_PATH + "?q=" + negativeSearchPhrase
-                + "&format=xml&src=" + REMOTE_SITE_NAME;
+        String queryUrl = OPENSEARCH_PATH + "?q=" + negativeSearchPhrase + "&format=xml&src="
+                + REMOTE_SITE_NAME;
         String result = read(queryUrl);
 
         // then
         assertNotNull(result);
-        assertTrue("No records should have been returned.",
-                !result.contains(RECORD_TITLE_1));
+        assertTrue("No records should have been returned.", !result.contains(RECORD_TITLE_1));
 
     }
 
@@ -290,8 +283,7 @@ public class TestFederation extends AbstractIntegrationTest {
         // then
         assertNotNull(result);
         LOGGER.debug("testFederatedQueryById result\n" + result);
-        assertTrue("Record should include the right title.",
-                result.contains(RECORD_TITLE_1));
+        assertTrue("Record should include the right title.", result.contains(RECORD_TITLE_1));
 
     }
 
@@ -308,15 +300,13 @@ public class TestFederation extends AbstractIntegrationTest {
         requestProperties.put(Metacard.ID, metacardIds[XML_RECORD_INDEX]);
 
         // when
-        ResourceResponse response = source.retrieveResource(null,
-                requestProperties);
+        ResourceResponse response = source.retrieveResource(null, requestProperties);
 
         // then
         String mimeTypeValue = response.getResource().getMimeTypeValue();
         LOGGER.info("MimeType returned [{}]", mimeTypeValue);
         assertEquals("text/plain", mimeTypeValue);
-        assertEquals(SAMPLE_DATA,
-                IOUtils.toString(response.getResource().getInputStream()));
+        assertEquals(SAMPLE_DATA, IOUtils.toString(response.getResource().getInputStream()));
     }
 
     /**
@@ -339,10 +329,8 @@ public class TestFederation extends AbstractIntegrationTest {
         // exception thrown, see expected
     }
 
-    private FederatedSource waitForFederatedSource(long timeout)
-            throws InterruptedException {
-        ServiceTracker st = new ServiceTracker(bundleCtx,
-                FederatedSource.class.getName(), null);
+    private FederatedSource waitForFederatedSource(long timeout) throws InterruptedException {
+        ServiceTracker st = new ServiceTracker(bundleCtx, FederatedSource.class.getName(), null);
 
         st.open();
 
@@ -363,8 +351,7 @@ public class TestFederation extends AbstractIntegrationTest {
         return source;
     }
 
-    private String read(String getUrl) throws IOException,
-            ClientProtocolException {
+    private String read(String getUrl) throws IOException, ClientProtocolException {
         DefaultHttpClient httpclient = new DefaultHttpClient();
 
         HttpGet getCall = new HttpGet(getUrl);
@@ -375,9 +362,8 @@ public class TestFederation extends AbstractIntegrationTest {
         return result;
     }
 
-    private String ingest(String data, String mimeType)
-            throws UnsupportedEncodingException, IOException,
-            ClientProtocolException {
+    private String ingest(String data, String mimeType) throws UnsupportedEncodingException,
+        IOException, ClientProtocolException {
 
         DefaultHttpClient httpclient = new DefaultHttpClient();
         HttpPost postCall = new HttpPost(REST_PATH);
@@ -392,8 +378,7 @@ public class TestFederation extends AbstractIntegrationTest {
     }
 
     private void setSolrSoftCommit() throws IOException {
-        Configuration solrConfig = configAdmin.getConfiguration(
-                SOLR_CONFIG_PID, null);
+        Configuration solrConfig = configAdmin.getConfiguration(SOLR_CONFIG_PID, null);
         Dictionary<String, Object> properties = new Hashtable<String, Object>();
         properties.put("forceAutoCommit", "true");
         solrConfig.update(properties);
@@ -403,8 +388,7 @@ public class TestFederation extends AbstractIntegrationTest {
 
         public static final String FACTORY_PID = "OpenSearchSource";
 
-        public Dictionary<String, Object> createDefaultProperties(String port,
-                String remoteSiteName) {
+        public Dictionary<String, Object> createDefaultProperties(String port, String remoteSiteName) {
 
             this.put(
                     "endpointUrl",

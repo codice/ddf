@@ -1,13 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- *
- * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
- * version 3 of the License, or any later version. 
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * 
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
+ * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
+ * 
  **/
 package ddf.security.common.util;
 
@@ -34,19 +37,18 @@ import ddf.security.SecurityConstants;
  * Creates a new SSLSocketFactory
  * 
  */
-public final class CommonSSLFactory
-{
+public final class CommonSSLFactory {
     private static Logger logger = Logger.getLogger(SecurityConstants.SECURITY_LOGGER);
+
     private static String exiting = "EXITING: ";
-    
-    private CommonSSLFactory()
-    {
+
+    private CommonSSLFactory() {
 
     }
 
     /**
-     * Creates a new SSLSocketFactory from a truststore and keystore. This is
-     * used during SSL communication.
+     * Creates a new SSLSocketFactory from a truststore and keystore. This is used during SSL
+     * communication.
      * 
      * @param trustStoreLoc
      *            File path to the truststore.
@@ -56,17 +58,15 @@ public final class CommonSSLFactory
      *            File path to the keystore.
      * @param keyStorePass
      *            Password to the keystore.
-     * @return new SSLSocketFactory instance containing the trust and key
-     *         stores.
+     * @return new SSLSocketFactory instance containing the trust and key stores.
      * @throws IOException
      */
-    public static SSLSocketFactory createSocket(String trustStoreLoc, String trustStorePass, String keyStoreLoc, String keyStorePass) throws IOException
-    {
+    public static SSLSocketFactory createSocket(String trustStoreLoc, String trustStorePass,
+            String keyStoreLoc, String keyStorePass) throws IOException {
         String methodName = "createSocket";
         logger.debug("ENTERING: " + methodName);
 
-        try
-        {
+        try {
             logger.debug("trustStoreLoc = " + trustStoreLoc);
             FileInputStream trustFIS = new FileInputStream(trustStoreLoc);
             logger.debug("keyStoreLoc = " + keyStoreLoc);
@@ -74,40 +74,34 @@ public final class CommonSSLFactory
 
             // truststore stuff
             KeyStore trustStore = KeyStore.getInstance(KeyStore.getDefaultType());
-            try
-            {
+            try {
                 logger.debug("Loading trustStore");
                 trustStore.load(trustFIS, trustStorePass.toCharArray());
-            }
-            catch (CertificateException e)
-            {
-                throw new IOException("Unable to load certificates from truststore. "+trustStoreLoc, e);
-            }
-            finally
-            {
+            } catch (CertificateException e) {
+                throw new IOException("Unable to load certificates from truststore. "
+                        + trustStoreLoc, e);
+            } finally {
                 IOUtils.closeQuietly(trustFIS);
             }
 
-            TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+            TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory
+                    .getDefaultAlgorithm());
             tmf.init(trustStore);
             logger.debug("trust manager factory initialized");
 
             // keystore stuff
             KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
-            try
-            {
+            try {
                 logger.debug("Loading keyStore");
                 keyStore.load(keyFIS, keyStorePass.toCharArray());
-            }
-            catch (CertificateException e)
-            {
-                throw new IOException("Unable to load certificates from keystore. "+keyStoreLoc, e);
-            }
-            finally
-            {
+            } catch (CertificateException e) {
+                throw new IOException("Unable to load certificates from keystore. " + keyStoreLoc,
+                        e);
+            } finally {
                 IOUtils.closeQuietly(keyFIS);
             }
-            KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
+            KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory
+                    .getDefaultAlgorithm());
             kmf.init(keyStore, keyStorePass.toCharArray());
             logger.debug("key manager factory initialized");
 
@@ -119,27 +113,21 @@ public final class CommonSSLFactory
             logger.debug(exiting + methodName);
 
             return sslCtx.getSocketFactory();
-        }
-        catch (KeyManagementException e)
-        {
+        } catch (KeyManagementException e) {
             logger.debug(exiting + methodName);
             throw new IOException("Unable to initialize the SSL context.", e);
-        }
-        catch (NoSuchAlgorithmException e)
-        {
+        } catch (NoSuchAlgorithmException e) {
             logger.debug(exiting + methodName);
-            throw new IOException("Problems creating SSL socket. Usually this is " +
-                    "referring to the certificate sent by the server not being trusted by the client.", e);
-        }
-        catch (UnrecoverableKeyException e)
-        {
+            throw new IOException(
+                    "Problems creating SSL socket. Usually this is "
+                            + "referring to the certificate sent by the server not being trusted by the client.",
+                    e);
+        } catch (UnrecoverableKeyException e) {
             logger.debug(exiting + methodName);
-            throw new IOException("Unable to load keystore. "+keyStoreLoc, e);
-        }
-        catch (KeyStoreException e)
-        {
+            throw new IOException("Unable to load keystore. " + keyStoreLoc, e);
+        } catch (KeyStoreException e) {
             logger.debug(exiting + methodName);
-            throw new IOException("Unable to read keystore. "+keyStoreLoc, e);
+            throw new IOException("Unable to read keystore. " + keyStoreLoc, e);
         }
     }
 }

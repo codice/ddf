@@ -1,13 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- *
- * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
- * version 3 of the License, or any later version. 
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * 
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
+ * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
+ * 
  **/
 package ddf.catalog.transformer.resource;
 
@@ -53,38 +56,46 @@ import ddf.catalog.transform.CatalogTransformerException;
  * 
  * @author Tim Anderson
  * @author Ashraf Barakat
- *
+ * 
  */
 public class TestResourceMetacardTransformer {
-   
-   private static final String TEST_ID = "123456";
-   private static final String TEST_SITE = "ddf";
-   private static final Logger LOGGER = Logger.getLogger(TestResourceMetacardTransformer.class);
-   
-   private static final String TEST_PATH = "/src/test/resources/data/";
-   private static final String ABSOLUTE_PATH = new File(".").getAbsolutePath();
-   private static final String JPEG_FILE_NAME_1 = "flower.jpg";
-   private static final String JPEG_MIME_TYPE = "image/jpeg";
-   private static final String VIDEO_MIME_TYPE = "video/mpeg";   
-   private static final String DEFAULT_MIME_TYPE = "application/octet-stream";
-   private static final String TS_FILE_NAME_1 = "transport-stream.ts";
-   
-   @Rule public ExpectedException thrown = ExpectedException.none();
 
-   @Test
-   public void testGetResourceJpeg() throws Exception {
-         String filePath = ABSOLUTE_PATH + TEST_PATH + JPEG_FILE_NAME_1;
-         URI uri = getUri( filePath );
-         Metacard metacard = getMockMetacard(uri);
-         boolean expectSuccess = true;
-         MimeType mimeType = getMimeType(JPEG_MIME_TYPE);
-         CatalogFramework framework = getFramework(getResourceResponse(getResource(mimeType, uri)));
-         testGetResource( metacard, filePath, mimeType, framework, expectSuccess );
-   }
+    private static final String TEST_ID = "123456";
+
+    private static final String TEST_SITE = "ddf";
+
+    private static final Logger LOGGER = Logger.getLogger(TestResourceMetacardTransformer.class);
+
+    private static final String TEST_PATH = "/src/test/resources/data/";
+
+    private static final String ABSOLUTE_PATH = new File(".").getAbsolutePath();
+
+    private static final String JPEG_FILE_NAME_1 = "flower.jpg";
+
+    private static final String JPEG_MIME_TYPE = "image/jpeg";
+
+    private static final String VIDEO_MIME_TYPE = "video/mpeg";
+
+    private static final String DEFAULT_MIME_TYPE = "application/octet-stream";
+
+    private static final String TS_FILE_NAME_1 = "transport-stream.ts";
+
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
+
+    @Test
+    public void testGetResourceJpeg() throws Exception {
+        String filePath = ABSOLUTE_PATH + TEST_PATH + JPEG_FILE_NAME_1;
+        URI uri = getUri(filePath);
+        Metacard metacard = getMockMetacard(uri);
+        boolean expectSuccess = true;
+        MimeType mimeType = getMimeType(JPEG_MIME_TYPE);
+        CatalogFramework framework = getFramework(getResourceResponse(getResource(mimeType, uri)));
+        testGetResource(metacard, filePath, mimeType, framework, expectSuccess);
+    }
 
     /**
-     * Tests that the metacard source name is passed to the
-     * {@link CatalogFramework}
+     * Tests that the metacard source name is passed to the {@link CatalogFramework}
      * 
      * @throws Exception
      */
@@ -100,41 +111,39 @@ public class TestResourceMetacardTransformer {
         ArgumentCapture capture = new ArgumentCapture(
                 getResourceResponse(getResource(mimeType, uri)));
         CatalogFramework framework = givenFramework(capture);
-        ResourceMetacardTransformer resourceTransformer = new ResourceMetacardTransformer(
-                framework);
+        ResourceMetacardTransformer resourceTransformer = new ResourceMetacardTransformer(framework);
 
         // when
-        resourceTransformer.transform(metacard,
-                new HashMap<String, Serializable>());
+        resourceTransformer.transform(metacard, new HashMap<String, Serializable>());
 
         // then
         assertEquals(federatedSourceId, capture.inputArgs[1]);
     }
-   
-   @Test
-   public void testGetResourceTransportStream() throws Exception {
-      String filePath = ABSOLUTE_PATH + TEST_PATH + TS_FILE_NAME_1;
-      URI uri = getUri( filePath );
-      Metacard metacard = getMockMetacard(uri);
-      boolean expectSuccess = true;
-      MimeType mimeType = getMimeType(VIDEO_MIME_TYPE);
-      CatalogFramework framework = getFramework(getResourceResponse(getResource(mimeType, uri)));
-      testGetResource( metacard, filePath, mimeType, framework, expectSuccess );      
-   }
-   
-   @Test
-   public void testNullMetacard() throws Exception {
-      thrown.expect(CatalogTransformerException.class);
-      thrown.expectMessage("Could not transform metacard to a resource because the metacard is not valid.");
-      String filePath = ABSOLUTE_PATH + TEST_PATH + TS_FILE_NAME_1;
-      URI uri = getUri( filePath );
-      Metacard metacard = null;
-      boolean expectSuccess = false;
-      MimeType mimeType = getMimeType(VIDEO_MIME_TYPE);
-      CatalogFramework framework = getFramework(getResourceResponse(getResource(mimeType, uri)));
-      testGetResource( metacard, filePath, mimeType, framework, expectSuccess );
-   }
-   
+
+    @Test
+    public void testGetResourceTransportStream() throws Exception {
+        String filePath = ABSOLUTE_PATH + TEST_PATH + TS_FILE_NAME_1;
+        URI uri = getUri(filePath);
+        Metacard metacard = getMockMetacard(uri);
+        boolean expectSuccess = true;
+        MimeType mimeType = getMimeType(VIDEO_MIME_TYPE);
+        CatalogFramework framework = getFramework(getResourceResponse(getResource(mimeType, uri)));
+        testGetResource(metacard, filePath, mimeType, framework, expectSuccess);
+    }
+
+    @Test
+    public void testNullMetacard() throws Exception {
+        thrown.expect(CatalogTransformerException.class);
+        thrown.expectMessage("Could not transform metacard to a resource because the metacard is not valid.");
+        String filePath = ABSOLUTE_PATH + TEST_PATH + TS_FILE_NAME_1;
+        URI uri = getUri(filePath);
+        Metacard metacard = null;
+        boolean expectSuccess = false;
+        MimeType mimeType = getMimeType(VIDEO_MIME_TYPE);
+        CatalogFramework framework = getFramework(getResourceResponse(getResource(mimeType, uri)));
+        testGetResource(metacard, filePath, mimeType, framework, expectSuccess);
+    }
+
     @Test
     public void testNullMetacardId() throws Exception {
         thrown.expect(CatalogTransformerException.class);
@@ -145,11 +154,10 @@ public class TestResourceMetacardTransformer {
         when(metacard.getId()).thenReturn(null);
         boolean expectSuccess = false;
         MimeType mimeType = getMimeType(VIDEO_MIME_TYPE);
-        CatalogFramework framework = getFramework(getResourceResponse(getResource(
-                mimeType, uri)));
+        CatalogFramework framework = getFramework(getResourceResponse(getResource(mimeType, uri)));
         testGetResource(metacard, filePath, mimeType, framework, expectSuccess);
     }
-   
+
     @Test
     public void testNullResourceResponse() throws Exception {
 
@@ -167,7 +175,7 @@ public class TestResourceMetacardTransformer {
         testGetResource(metacard, filePath, mimeType, framework, expectSuccess);
 
     }
-   
+
     @Test
     public void testFrameworkThrowsIoException() throws Exception {
 
@@ -182,12 +190,11 @@ public class TestResourceMetacardTransformer {
 
         boolean expectSuccess = false;
         MimeType mimeType = getMimeType(JPEG_MIME_TYPE);
-        CatalogFramework framework = getFrameworkException(new IOException(
-                "Test IO Exception"));
+        CatalogFramework framework = getFrameworkException(new IOException("Test IO Exception"));
         testGetResource(metacard, filePath, mimeType, framework, expectSuccess);
 
     }
-   
+
     @Test
     public void testFrameworkThrowsResourceNotFoundException() throws Exception {
         String filePath = ABSOLUTE_PATH + TEST_PATH + JPEG_FILE_NAME_1;
@@ -208,8 +215,7 @@ public class TestResourceMetacardTransformer {
     }
 
     @Test
-    public void testFrameworkThrowsResourceNotSupportedException()
-            throws Exception {
+    public void testFrameworkThrowsResourceNotSupportedException() throws Exception {
 
         String filePath = ABSOLUTE_PATH + TEST_PATH + JPEG_FILE_NAME_1;
         URI uri = getUri(filePath);
@@ -225,92 +231,92 @@ public class TestResourceMetacardTransformer {
                 "Test Resource Not Supported Exception"));
         testGetResource(metacard, filePath, mimeType, framework, expectSuccess);
     }
-   
-   @Test
-   public void testResourceHasNullMimeType() throws Exception {
-      String filePath = ABSOLUTE_PATH + TEST_PATH + TS_FILE_NAME_1;
-      URI uri = getUri( filePath );
-      Metacard metacard = getMockMetacard(uri);
-      boolean expectSuccess = true;
-      MimeType mimeType = getMimeType(DEFAULT_MIME_TYPE);
-      CatalogFramework framework = getFramework(getResourceResponse(getResource(null, uri)));
-      testGetResource( metacard, filePath, mimeType, framework, expectSuccess );
-   }
-   
-   private void testGetResource( Metacard metacard, String filePath, MimeType mimeType, CatalogFramework framework, boolean expectSuccess ) throws Exception
-   {
-         
-      ResourceMetacardTransformer resourceTransformer = new ResourceMetacardTransformer( framework );
-      
-      BinaryContent binaryContent = resourceTransformer.transform(metacard, new HashMap<String, Serializable>());
-      
-      byte[] fileContents = FileUtils.readFileToByteArray(new File(filePath));
-      
-      byte[] contentsFromResults = IOUtils.toByteArray(binaryContent.getInputStream()) ;
-      if ( expectSuccess  ) 
-      {
-         assertEquals( binaryContent.getMimeTypeValue(), mimeType.toString());
-         assertTrue(Arrays.equals(fileContents, contentsFromResults));
-      }
-      
-   }
-   
-   private ResourceResponse getResourceResponse( Resource resource ) {
-      ResourceResponse resourceResponse = mock(ResourceResponse.class);
-      when( resourceResponse.getResource() ).thenReturn(resource);
-      return resourceResponse;
-   }
-   
-    private CatalogFramework givenFramework(ArgumentCapture answer)
-            throws IOException, ResourceNotFoundException,
-            ResourceNotSupportedException {
-        
+
+    @Test
+    public void testResourceHasNullMimeType() throws Exception {
+        String filePath = ABSOLUTE_PATH + TEST_PATH + TS_FILE_NAME_1;
+        URI uri = getUri(filePath);
+        Metacard metacard = getMockMetacard(uri);
+        boolean expectSuccess = true;
+        MimeType mimeType = getMimeType(DEFAULT_MIME_TYPE);
+        CatalogFramework framework = getFramework(getResourceResponse(getResource(null, uri)));
+        testGetResource(metacard, filePath, mimeType, framework, expectSuccess);
+    }
+
+    private void testGetResource(Metacard metacard, String filePath, MimeType mimeType,
+            CatalogFramework framework, boolean expectSuccess) throws Exception {
+
+        ResourceMetacardTransformer resourceTransformer = new ResourceMetacardTransformer(framework);
+
+        BinaryContent binaryContent = resourceTransformer.transform(metacard,
+                new HashMap<String, Serializable>());
+
+        byte[] fileContents = FileUtils.readFileToByteArray(new File(filePath));
+
+        byte[] contentsFromResults = IOUtils.toByteArray(binaryContent.getInputStream());
+        if (expectSuccess) {
+            assertEquals(binaryContent.getMimeTypeValue(), mimeType.toString());
+            assertTrue(Arrays.equals(fileContents, contentsFromResults));
+        }
+
+    }
+
+    private ResourceResponse getResourceResponse(Resource resource) {
+        ResourceResponse resourceResponse = mock(ResourceResponse.class);
+        when(resourceResponse.getResource()).thenReturn(resource);
+        return resourceResponse;
+    }
+
+    private CatalogFramework givenFramework(ArgumentCapture answer) throws IOException,
+        ResourceNotFoundException, ResourceNotSupportedException {
+
         CatalogFramework framework = mock(CatalogFramework.class);
-        
+
         when(framework.getId()).thenReturn(TEST_SITE);
-        
-        when(
-                framework.getResource(any(ResourceRequest.class),
-                        isA(String.class))).thenAnswer(answer);
-        
+
+        when(framework.getResource(any(ResourceRequest.class), isA(String.class))).thenAnswer(
+                answer);
+
         return framework;
 
     }
 
-    private CatalogFramework getFramework( ResourceResponse resourceResponse ) throws Exception {
-          CatalogFramework framework = mock(CatalogFramework.class);
-          when(framework.getId()).thenReturn(TEST_SITE);
-          when(framework.getResource(any(ResourceRequest.class), eq(TEST_SITE))).thenReturn( resourceResponse );
-          return framework;
-       }
-   
-   private CatalogFramework getFrameworkException( Exception e ) throws Exception {
-      CatalogFramework framework = mock(CatalogFramework.class);
-      when(framework.getId()).thenReturn(TEST_SITE);
-      when(framework.getResource(any(ResourceRequest.class), eq(TEST_SITE))).thenThrow(e);
-      return framework;
-   }
-   
-   private Resource getResource( MimeType mimeType, URI uri) throws Exception {
-      Resource resource = mock(Resource.class);
-      when( resource.getMimeType() ).thenReturn(mimeType);
-      when( resource.getMimeTypeValue() ).thenReturn((mimeType == null) ? null : mimeType.getBaseType());
-      when( resource.getInputStream() ).thenReturn( uri.toURL().openConnection().getInputStream() );
-      return resource;
-   }
-   
-   private Metacard getMockMetacard(URI resourceUri, String sourceName ) {
-      Metacard metacard = mock(Metacard.class);
-      when(metacard.getId()).thenReturn(TEST_ID);
-      when(metacard.getResourceURI()).thenReturn(resourceUri);
-      when(metacard.getSourceId()).thenReturn(sourceName);
-      return metacard;
-   }
-   
+    private CatalogFramework getFramework(ResourceResponse resourceResponse) throws Exception {
+        CatalogFramework framework = mock(CatalogFramework.class);
+        when(framework.getId()).thenReturn(TEST_SITE);
+        when(framework.getResource(any(ResourceRequest.class), eq(TEST_SITE))).thenReturn(
+                resourceResponse);
+        return framework;
+    }
+
+    private CatalogFramework getFrameworkException(Exception e) throws Exception {
+        CatalogFramework framework = mock(CatalogFramework.class);
+        when(framework.getId()).thenReturn(TEST_SITE);
+        when(framework.getResource(any(ResourceRequest.class), eq(TEST_SITE))).thenThrow(e);
+        return framework;
+    }
+
+    private Resource getResource(MimeType mimeType, URI uri) throws Exception {
+        Resource resource = mock(Resource.class);
+        when(resource.getMimeType()).thenReturn(mimeType);
+        when(resource.getMimeTypeValue()).thenReturn(
+                (mimeType == null) ? null : mimeType.getBaseType());
+        when(resource.getInputStream()).thenReturn(uri.toURL().openConnection().getInputStream());
+        return resource;
+    }
+
+    private Metacard getMockMetacard(URI resourceUri, String sourceName) {
+        Metacard metacard = mock(Metacard.class);
+        when(metacard.getId()).thenReturn(TEST_ID);
+        when(metacard.getResourceURI()).thenReturn(resourceUri);
+        when(metacard.getSourceId()).thenReturn(sourceName);
+        return metacard;
+    }
+
     private Metacard getMockMetacard(URI resourceUri) {
         return getMockMetacard(resourceUri, null);
     }
-   
+
     private MimeType getMimeType(String mimeTypeStr) throws Exception {
         return new MimeType(mimeTypeStr);
     }
@@ -336,8 +342,7 @@ public class TestResourceMetacardTransformer {
         }
 
         @Override
-        public ResourceResponse answer(InvocationOnMock invocation)
-                throws Throwable {
+        public ResourceResponse answer(InvocationOnMock invocation) throws Throwable {
             this.inputArgs = invocation.getArguments();
 
             return this.resourceResponse;

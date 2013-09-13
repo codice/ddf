@@ -1,13 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- *
- * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
- * version 3 of the License, or any later version. 
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * 
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
+ * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
+ * 
  **/
 package ddf.catalog.metrics;
 
@@ -59,63 +62,55 @@ import ddf.catalog.util.DdfConfigurationManager;
  * 
  * @author Phillip Klinefelter
  * @author ddf.isgs@lmco.com
- *
+ * 
  */
 public class CatalogMetricsTest {
 
     private CatalogMetrics underTest;
+
     private static FilterAdapter filterAdapter = new GeotoolsFilterAdapterImpl();
+
     private static FilterBuilder filterBuilder = new GeotoolsFilterBuilder();
 
-    private static Filter idFilter = filterBuilder.attribute(Metacard.ID).is()
-            .equalTo().text("metacardId");
+    private static Filter idFilter = filterBuilder.attribute(Metacard.ID).is().equalTo()
+            .text("metacardId");
 
     @Before
     public void setup() {
         underTest = new CatalogMetrics(filterAdapter);
     }
-    
+
     @After
     public void tearDown() {
-    	
-    	// Remove the metrics created when setup() instantiated CatalogMetrics -
-    	// otherwise get lots of exceptions that metric already exists which fill
-    	// up the log to point of Travis CI build failing
-    	
-    	underTest.metrics.remove(MetricRegistry.name(CatalogMetrics.QUERIES_SCOPE,
-                "TotalResults"));
-    	
-    	underTest.metrics.remove(MetricRegistry.name(CatalogMetrics.QUERIES_SCOPE));
-    	underTest.metrics.remove(MetricRegistry.name(CatalogMetrics.QUERIES_SCOPE,
-    			"Federated"));
-    	underTest.metrics.remove(MetricRegistry.name(CatalogMetrics.QUERIES_SCOPE,
-    			"Comparison"));
-    	underTest.metrics.remove(MetricRegistry.name(CatalogMetrics.QUERIES_SCOPE,
-    			"Spatial"));
-    	underTest.metrics.remove(MetricRegistry.name(CatalogMetrics.QUERIES_SCOPE,
-    			"Xpath"));
-    	underTest.metrics.remove(MetricRegistry.name(CatalogMetrics.QUERIES_SCOPE,
-    			"Fuzzy"));
-    	underTest.metrics.remove(MetricRegistry.name(CatalogMetrics.QUERIES_SCOPE,
-    			"Temporal"));
-    	
-    	underTest.metrics.remove(MetricRegistry.name(CatalogMetrics.EXCEPTIONS_SCOPE));
-    	underTest.metrics.remove(MetricRegistry.name(CatalogMetrics.EXCEPTIONS_SCOPE,
-    			"UnsupportedQuery"));
-    	underTest.metrics.remove(MetricRegistry.name(CatalogMetrics.EXCEPTIONS_SCOPE,
-    			"SourceUnavailable"));
-    	underTest.metrics.remove(MetricRegistry.name(CatalogMetrics.EXCEPTIONS_SCOPE,
-    			"Federation"));
-    	
-    	underTest.metrics.remove(MetricRegistry.name(CatalogMetrics.INGEST_SCOPE,
-    			"Created"));
-    	underTest.metrics.remove(MetricRegistry.name(CatalogMetrics.INGEST_SCOPE,
-    			"Updated"));
-    	underTest.metrics.remove(MetricRegistry.name(CatalogMetrics.INGEST_SCOPE,
-    			"Deleted"));
 
-    	underTest.metrics.remove(MetricRegistry.name(CatalogMetrics.RESOURCE_SCOPE));
-        
+        // Remove the metrics created when setup() instantiated CatalogMetrics -
+        // otherwise get lots of exceptions that metric already exists which fill
+        // up the log to point of Travis CI build failing
+
+        underTest.metrics.remove(MetricRegistry.name(CatalogMetrics.QUERIES_SCOPE, "TotalResults"));
+
+        underTest.metrics.remove(MetricRegistry.name(CatalogMetrics.QUERIES_SCOPE));
+        underTest.metrics.remove(MetricRegistry.name(CatalogMetrics.QUERIES_SCOPE, "Federated"));
+        underTest.metrics.remove(MetricRegistry.name(CatalogMetrics.QUERIES_SCOPE, "Comparison"));
+        underTest.metrics.remove(MetricRegistry.name(CatalogMetrics.QUERIES_SCOPE, "Spatial"));
+        underTest.metrics.remove(MetricRegistry.name(CatalogMetrics.QUERIES_SCOPE, "Xpath"));
+        underTest.metrics.remove(MetricRegistry.name(CatalogMetrics.QUERIES_SCOPE, "Fuzzy"));
+        underTest.metrics.remove(MetricRegistry.name(CatalogMetrics.QUERIES_SCOPE, "Temporal"));
+
+        underTest.metrics.remove(MetricRegistry.name(CatalogMetrics.EXCEPTIONS_SCOPE));
+        underTest.metrics.remove(MetricRegistry.name(CatalogMetrics.EXCEPTIONS_SCOPE,
+                "UnsupportedQuery"));
+        underTest.metrics.remove(MetricRegistry.name(CatalogMetrics.EXCEPTIONS_SCOPE,
+                "SourceUnavailable"));
+        underTest.metrics
+                .remove(MetricRegistry.name(CatalogMetrics.EXCEPTIONS_SCOPE, "Federation"));
+
+        underTest.metrics.remove(MetricRegistry.name(CatalogMetrics.INGEST_SCOPE, "Created"));
+        underTest.metrics.remove(MetricRegistry.name(CatalogMetrics.INGEST_SCOPE, "Updated"));
+        underTest.metrics.remove(MetricRegistry.name(CatalogMetrics.INGEST_SCOPE, "Deleted"));
+
+        underTest.metrics.remove(MetricRegistry.name(CatalogMetrics.RESOURCE_SCOPE));
+
         underTest.reporter.stop();
     }
 
@@ -133,29 +128,26 @@ public class CatalogMetricsTest {
         QueryRequest query = new QueryRequestImpl(new QueryImpl(idFilter), true);
         underTest.process(query);
 
-        query = new QueryRequestImpl(new QueryImpl(idFilter),
-                Arrays.asList("fedSourceId"));
+        query = new QueryRequestImpl(new QueryImpl(idFilter), Arrays.asList("fedSourceId"));
         underTest.process(query);
 
-        query = new QueryRequestImpl(new QueryImpl(idFilter), Arrays.asList(
-                "fedSource1Id", "fedSource2Id"));
+        query = new QueryRequestImpl(new QueryImpl(idFilter), Arrays.asList("fedSource1Id",
+                "fedSource2Id"));
         underTest.process(query);
 
         assertThat(underTest.federatedQueries.getCount(), is(3L));
     }
-    
+
     @Test
     public void catalogFederatedQueryMetricForLocalQueries() throws Exception {
         QueryRequest query = new QueryRequestImpl(new QueryImpl(idFilter), Arrays.asList(""));
         underTest.process(query);
 
-        query = new QueryRequestImpl(new QueryImpl(idFilter),
-                Arrays.asList((String) null));
+        query = new QueryRequestImpl(new QueryImpl(idFilter), Arrays.asList((String) null));
         underTest.process(query);
 
         setLocalCatalogId("localSourceId");
-        query = new QueryRequestImpl(new QueryImpl(idFilter),
-                Arrays.asList("localSourceId"));
+        query = new QueryRequestImpl(new QueryImpl(idFilter), Arrays.asList("localSourceId"));
         underTest.process(query);
 
         assertThat(underTest.federatedQueries.getCount(), is(0L));
@@ -180,8 +172,8 @@ public class CatalogMetricsTest {
 
     @Test
     public void catalogTemporalQueryMetric() throws Exception {
-        Filter temporalFilter = filterBuilder.attribute(Metacard.ANY_DATE)
-                .before().date(new Date());
+        Filter temporalFilter = filterBuilder.attribute(Metacard.ANY_DATE).before()
+                .date(new Date());
 
         QueryRequest query = new QueryRequestImpl(new QueryImpl(temporalFilter));
         underTest.process(query);
@@ -201,8 +193,7 @@ public class CatalogMetricsTest {
 
     @Test
     public void catalogFuzzyQueryMetric() throws Exception {
-        Filter fuzzyFilter = filterBuilder.attribute(Metacard.ANY_TEXT).like()
-                .fuzzyText("fuzzy");
+        Filter fuzzyFilter = filterBuilder.attribute(Metacard.ANY_TEXT).like().fuzzyText("fuzzy");
 
         QueryRequest query = new QueryRequestImpl(new QueryImpl(fuzzyFilter));
         underTest.process(query);
@@ -213,8 +204,7 @@ public class CatalogMetricsTest {
     @Test
     public void catalogResultCountMetric() throws Exception {
         QueryRequest query = new QueryRequestImpl(new QueryImpl(idFilter));
-        QueryResponse response = new QueryResponseImpl(query, new ArrayList(),
-                50);
+        QueryResponse response = new QueryResponseImpl(query, new ArrayList(), 50);
 
         underTest.process(response);
 
@@ -224,18 +214,15 @@ public class CatalogMetricsTest {
 
     @Test
     public void catalogExceptionMetric() throws Exception {
-        QueryResponse response = new QueryResponseImpl(new QueryRequestImpl(
-                new QueryImpl(idFilter)));
+        QueryResponse response = new QueryResponseImpl(
+                new QueryRequestImpl(new QueryImpl(idFilter)));
         Set<ProcessingDetails> details = response.getProcessingDetails();
 
         details.addAll(new HashSet<ProcessingDetails>() {
             {
-                add(new ProcessingDetailsImpl("source1",
-                        new UnsupportedQueryException()));
-                add(new ProcessingDetailsImpl("source2",
-                        new SourceUnavailableException()));
-                add(new ProcessingDetailsImpl("source3",
-                        new FederationException()));
+                add(new ProcessingDetailsImpl("source1", new UnsupportedQueryException()));
+                add(new ProcessingDetailsImpl("source2", new SourceUnavailableException()));
+                add(new ProcessingDetailsImpl("source3", new FederationException()));
                 add(new ProcessingDetailsImpl("source4", new Exception()));
             }
         });
@@ -247,43 +234,43 @@ public class CatalogMetricsTest {
         assertThat(underTest.sourceUnavailableExceptions.getCount(), is(1L));
         assertThat(underTest.federationExceptions.getCount(), is(1L));
     }
-    
+
     @Test
     public void catalogCreateMetric() throws Exception {
         CreateResponse response = mock(CreateResponse.class);
         List<Metacard> createdList = mock(List.class);
         when(createdList.size()).thenReturn(100);
         when(response.getCreatedMetacards()).thenReturn(createdList);
-        
+
         underTest.process(response);
-        
+
         assertThat(underTest.createdMetacards.getCount(), is(100L));
     }
-    
+
     @Test
     public void catalogUpdateMetric() throws Exception {
         UpdateResponse response = mock(UpdateResponse.class);
         List<Update> updatedList = mock(List.class);
         when(updatedList.size()).thenReturn(100);
         when(response.getUpdatedMetacards()).thenReturn(updatedList);
-        
+
         underTest.process(response);
-        
+
         assertThat(underTest.updatedMetacards.getCount(), is(100L));
     }
-    
+
     @Test
     public void catalogDeleteMetric() throws Exception {
         DeleteResponse response = mock(DeleteResponse.class);
-        List<Metacard> DeletedList = mock(List.class);
-        when(DeletedList.size()).thenReturn(100);
-        when(response.getDeletedMetacards()).thenReturn(DeletedList);
-        
+        List<Metacard> deletedList = mock(List.class);
+        when(deletedList.size()).thenReturn(100);
+        when(response.getDeletedMetacards()).thenReturn(deletedList);
+
         underTest.process(response);
-        
+
         assertThat(underTest.deletedMetacards.getCount(), is(100L));
     }
-    
+
     @Test
     public void catalogResourceRetrievalMetric() throws Exception {
         ResourceResponse response = mock(ResourceResponse.class);

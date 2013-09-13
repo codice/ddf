@@ -1,13 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- *
- * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
- * version 3 of the License, or any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * 
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
+ * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
+ * 
  **/
 package ddf.catalog.source.solr.textpath;
 
@@ -28,35 +31,35 @@ import ddf.catalog.source.solr.textpath.TextPathIndexer;
 
 public class TestTextPathIndexer {
 
-	private static XMLInputFactory2 xmlInputFactory = null;
-	
-	private static final Logger LOGGER = Logger.getLogger(TestTextPathIndexer.class);
+    private static XMLInputFactory2 xmlInputFactory = null;
 
-	@BeforeClass
-	public static void setup() {
-		xmlInputFactory = (XMLInputFactory2) XMLInputFactory2.newInstance();
-		xmlInputFactory.setProperty(XMLInputFactory.IS_REPLACING_ENTITY_REFERENCES, Boolean.FALSE);
-		xmlInputFactory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, Boolean.FALSE);
-		xmlInputFactory.setProperty(XMLInputFactory.IS_COALESCING, Boolean.TRUE);
-		xmlInputFactory.setProperty(XMLInputFactory.IS_VALIDATING, Boolean.FALSE);
-		xmlInputFactory.configureForSpeed();
-	}
+    private static final Logger LOGGER = Logger.getLogger(TestTextPathIndexer.class);
 
-	@Test
-	public void testIndexingRecord() {
+    @BeforeClass
+    public static void setup() {
+        xmlInputFactory = (XMLInputFactory2) XMLInputFactory2.newInstance();
+        xmlInputFactory.setProperty(XMLInputFactory.IS_REPLACING_ENTITY_REFERENCES, Boolean.FALSE);
+        xmlInputFactory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, Boolean.FALSE);
+        xmlInputFactory.setProperty(XMLInputFactory.IS_COALESCING, Boolean.TRUE);
+        xmlInputFactory.setProperty(XMLInputFactory.IS_VALIDATING, Boolean.FALSE);
+        xmlInputFactory.configureForSpeed();
+    }
 
-		TextPathIndexer indexer = new TextPathIndexer(xmlInputFactory);
+    @Test
+    public void testIndexingRecord() {
 
-		List<String> output = indexer.indexTextPath(Library.getIndexingRecord());
+        TextPathIndexer indexer = new TextPathIndexer(xmlInputFactory);
 
-		assertThat("The amount of leaves is incorrect.", output.size(), is(27));
+        List<String> output = indexer.indexTextPath(Library.getIndexingRecord());
 
-		LOGGER.debug("OUTPUT");
+        assertThat("The amount of leaves is incorrect.", output.size(), is(27));
 
-		for (String o : output) {
-			LOGGER.debug("[" + o + "]");
-		}
+        LOGGER.debug("OUTPUT");
 
-	}
+        for (String o : output) {
+            LOGGER.debug("[" + o + "]");
+        }
+
+    }
 
 }

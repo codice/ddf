@@ -1,13 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- *
- * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
- * version 3 of the License, or any later version. 
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * 
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
+ * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
+ * 
  **/
 package ddf.catalog.metrics;
 
@@ -45,85 +48,94 @@ import ddf.catalog.util.DdfConfigurationWatcher;
  * 
  * @author Phillip Klinefelter
  * @author ddf.isgs@lmco.com
- *
+ * 
  */
-public final class CatalogMetrics implements PreQueryPlugin, PostQueryPlugin,
-        PostIngestPlugin, PostResourcePlugin, DdfConfigurationWatcher {
+public final class CatalogMetrics implements PreQueryPlugin, PostQueryPlugin, PostIngestPlugin,
+        PostResourcePlugin, DdfConfigurationWatcher {
 
-	protected static final String EXCEPTIONS_SCOPE = "Exceptions";
-	protected static final String QUERIES_SCOPE = "Queries";
-	protected static final String INGEST_SCOPE = "Ingest";
-	protected static final String RESOURCE_SCOPE = "Resource";
-        
+    protected static final String EXCEPTIONS_SCOPE = "Exceptions";
+
+    protected static final String QUERIES_SCOPE = "Queries";
+
+    protected static final String INGEST_SCOPE = "Ingest";
+
+    protected static final String RESOURCE_SCOPE = "Resource";
+
     protected final MetricRegistry metrics = new MetricRegistry();
-    protected final JmxReporter reporter =
-    		JmxReporter.forRegistry(metrics).inDomain("ddf.metrics.catalog").build();
-    
+
+    protected final JmxReporter reporter = JmxReporter.forRegistry(metrics)
+            .inDomain("ddf.metrics.catalog").build();
+
     private FilterAdapter filterAdapter;
+
     private String localSourceId;
-    
+
     protected final Histogram resultCount;
+
     protected final Meter exceptions;
+
     protected final Meter unsupportedQueryExceptions;
+
     protected final Meter sourceUnavailableExceptions;
+
     protected final Meter federationExceptions;
+
     protected final Meter queries;
+
     protected final Meter federatedQueries;
+
     protected final Meter comparisonQueries;
+
     protected final Meter spatialQueries;
+
     protected final Meter xpathQueries;
+
     protected final Meter fuzzyQueries;
+
     protected final Meter temporalQueries;
+
     protected final Meter createdMetacards;
+
     protected final Meter updatedMetacards;
+
     protected final Meter deletedMetacards;
+
     protected final Meter resourceRetrival;
 
     public CatalogMetrics(FilterAdapter filterAdapter) {
-    	
+
         this.filterAdapter = filterAdapter;
-        
-        resultCount = metrics.histogram(MetricRegistry.name(QUERIES_SCOPE,
-                "TotalResults"));
+
+        resultCount = metrics.histogram(MetricRegistry.name(QUERIES_SCOPE, "TotalResults"));
 
         queries = metrics.meter(MetricRegistry.name(QUERIES_SCOPE));
-        federatedQueries = metrics.meter(MetricRegistry.name(QUERIES_SCOPE,
-                "Federated"));
-        comparisonQueries = metrics.meter(MetricRegistry.name(QUERIES_SCOPE,
-                "Comparison"));
-        spatialQueries = metrics.meter(MetricRegistry.name(QUERIES_SCOPE,
-                "Spatial"));
-        xpathQueries = metrics.meter(MetricRegistry
-                .name(QUERIES_SCOPE, "Xpath"));
-        fuzzyQueries = metrics.meter(MetricRegistry
-                .name(QUERIES_SCOPE, "Fuzzy"));
-        temporalQueries = metrics.meter(MetricRegistry.name(QUERIES_SCOPE,
-                "Temporal"));
+        federatedQueries = metrics.meter(MetricRegistry.name(QUERIES_SCOPE, "Federated"));
+        comparisonQueries = metrics.meter(MetricRegistry.name(QUERIES_SCOPE, "Comparison"));
+        spatialQueries = metrics.meter(MetricRegistry.name(QUERIES_SCOPE, "Spatial"));
+        xpathQueries = metrics.meter(MetricRegistry.name(QUERIES_SCOPE, "Xpath"));
+        fuzzyQueries = metrics.meter(MetricRegistry.name(QUERIES_SCOPE, "Fuzzy"));
+        temporalQueries = metrics.meter(MetricRegistry.name(QUERIES_SCOPE, "Temporal"));
 
         exceptions = metrics.meter(MetricRegistry.name(EXCEPTIONS_SCOPE));
-        unsupportedQueryExceptions = metrics.meter(MetricRegistry.name(
-        		EXCEPTIONS_SCOPE, "UnsupportedQuery"));
-        sourceUnavailableExceptions = metrics.meter(MetricRegistry.name(
-        		EXCEPTIONS_SCOPE, "SourceUnavailable"));
-        federationExceptions = metrics.meter(MetricRegistry.name(
-        		EXCEPTIONS_SCOPE, "Federation"));
-        
-        createdMetacards = metrics.meter(MetricRegistry.name(INGEST_SCOPE,
-                "Created"));
-        updatedMetacards = metrics.meter(MetricRegistry.name(INGEST_SCOPE,
-                "Updated"));
-        deletedMetacards = metrics.meter(MetricRegistry.name(INGEST_SCOPE,
-                "Deleted"));
-        
+        unsupportedQueryExceptions = metrics.meter(MetricRegistry.name(EXCEPTIONS_SCOPE,
+                "UnsupportedQuery"));
+        sourceUnavailableExceptions = metrics.meter(MetricRegistry.name(EXCEPTIONS_SCOPE,
+                "SourceUnavailable"));
+        federationExceptions = metrics.meter(MetricRegistry.name(EXCEPTIONS_SCOPE, "Federation"));
+
+        createdMetacards = metrics.meter(MetricRegistry.name(INGEST_SCOPE, "Created"));
+        updatedMetacards = metrics.meter(MetricRegistry.name(INGEST_SCOPE, "Updated"));
+        deletedMetacards = metrics.meter(MetricRegistry.name(INGEST_SCOPE, "Deleted"));
+
         resourceRetrival = metrics.meter(MetricRegistry.name(RESOURCE_SCOPE));
-        
+
         reporter.start();
     }
 
     // PostQuery
     @Override
-    public QueryResponse process(QueryResponse input)
-            throws PluginExecutionException, StopProcessingException {
+    public QueryResponse process(QueryResponse input) throws PluginExecutionException,
+        StopProcessingException {
         resultCount.update(input.getHits());
         recordSourceQueryExceptions(input);
 
@@ -132,13 +144,13 @@ public final class CatalogMetrics implements PreQueryPlugin, PostQueryPlugin,
 
     // PreQuery
     @Override
-    public QueryRequest process(QueryRequest input)
-            throws PluginExecutionException, StopProcessingException {
+    public QueryRequest process(QueryRequest input) throws PluginExecutionException,
+        StopProcessingException {
         if (isFederated(input)) {
             federatedQueries.mark();
         }
         queries.mark();
-        
+
         QueryTypeFilterDelegate queryType = new QueryTypeFilterDelegate();
         try {
             filterAdapter.adapt(input.getQuery(), queryType);
@@ -166,36 +178,33 @@ public final class CatalogMetrics implements PreQueryPlugin, PostQueryPlugin,
 
     // PostCreate
     @Override
-    public CreateResponse process(CreateResponse input)
-            throws PluginExecutionException {
+    public CreateResponse process(CreateResponse input) throws PluginExecutionException {
         createdMetacards.mark(input.getCreatedMetacards().size());
         return input;
     }
-    
+
     // PostUpdate
     @Override
-    public UpdateResponse process(UpdateResponse input)
-            throws PluginExecutionException {
+    public UpdateResponse process(UpdateResponse input) throws PluginExecutionException {
         updatedMetacards.mark(input.getUpdatedMetacards().size());
         return input;
     }
-    
+
     // PostDelete
     @Override
-    public DeleteResponse process(DeleteResponse input)
-            throws PluginExecutionException {
+    public DeleteResponse process(DeleteResponse input) throws PluginExecutionException {
         deletedMetacards.mark(input.getDeletedMetacards().size());
         return input;
     }
-    
+
     // PostResource
     @Override
-    public ResourceResponse process(ResourceResponse input)
-            throws PluginExecutionException, StopProcessingException {
+    public ResourceResponse process(ResourceResponse input) throws PluginExecutionException,
+        StopProcessingException {
         resourceRetrival.mark();
         return input;
     }
-    
+
     private void recordSourceQueryExceptions(QueryResponse response) {
         Set<ProcessingDetails> processingDetails = (Set<ProcessingDetails>) response
                 .getProcessingDetails();
@@ -221,7 +230,7 @@ public final class CatalogMetrics implements PreQueryPlugin, PostQueryPlugin,
 
         return;
     }
-    
+
     private boolean isFederated(QueryRequest queryRequest) {
         Set<String> sourceIds = queryRequest.getSourceIds();
 
@@ -232,8 +241,7 @@ public final class CatalogMetrics implements PreQueryPlugin, PostQueryPlugin,
         } else {
             return (sourceIds.size() > 1)
                     || (sourceIds.size() == 1 && !sourceIds.contains("")
-                            && !sourceIds.contains(null) && !sourceIds
-                                .contains(localSourceId));
+                            && !sourceIds.contains(null) && !sourceIds.contains(localSourceId));
         }
     }
 

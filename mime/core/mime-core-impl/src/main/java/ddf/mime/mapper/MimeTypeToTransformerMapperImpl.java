@@ -1,13 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- *
- * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
- * version 3 of the License, or any later version. 
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * 
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
+ * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
+ * 
  **/
 package ddf.mime.mapper;
 
@@ -28,8 +31,8 @@ import org.osgi.framework.ServiceReference;
 import ddf.mime.MimeTypeToTransformerMapper;
 
 /**
- * {@link MimeTypeToTransformerMapper} Implementation that finds mimeType
- * matches among transformer services
+ * {@link MimeTypeToTransformerMapper} Implementation that finds mimeType matches among transformer
+ * services
  * 
  * @author Ashraf Barakat
  * @author ddf.isgs@lmco.com
@@ -37,138 +40,137 @@ import ddf.mime.MimeTypeToTransformerMapper;
  */
 public class MimeTypeToTransformerMapperImpl implements MimeTypeToTransformerMapper {
 
+    private BundleContext bundleContext;
 
-	private BundleContext bundleContext;
+    private static final Logger LOGGER = Logger.getLogger(MimeTypeToTransformerMapperImpl.class);
 
-	private static final Logger LOGGER = Logger.getLogger(MimeTypeToTransformerMapperImpl.class);
+    public MimeTypeToTransformerMapperImpl(BundleContext bundleContext) {
 
-	public MimeTypeToTransformerMapperImpl(BundleContext bundleContext) {
+        this.bundleContext = bundleContext;
 
-		this.bundleContext = bundleContext;
+    }
 
-	}
+    @Override
+    public <T> List<T> findMatches(Class<T> clazz, MimeType userMimeType) {
 
-	@Override
-	public <T> List<T> findMatches(Class<T> clazz, MimeType userMimeType) {
+        ServiceReference[] refs = null;
+        List<T> list = new ArrayList<T>();
 
-		ServiceReference[] refs = null;
-		List<T> list = new ArrayList<T>();
+        if (bundleContext == null) {
+            LOGGER.debug("Cannot find matches, bundle context is null.");
+            return list;
+        }
+        if (clazz == null) {
+            LOGGER.warn("Cannot find matches, service argument is null.");
+            throw new IllegalArgumentException("Invalid argument supplied, null service argument");
+        }
 
-		if (bundleContext == null) {
-			LOGGER.debug("Cannot find matches, bundle context is null.");
-			return list;
-		}
-		if (clazz == null) {
-			LOGGER.warn("Cannot find matches, service argument is null.");
-			throw new IllegalArgumentException("Invalid argument supplied, null service argument");
-		}
+        /*
+         * Extract the services using the bundle context.
+         */
+        try {
+            refs = bundleContext.getServiceReferences(clazz.getName(), null);
+        } catch (InvalidSyntaxException e) {
+            LOGGER.warn("Invalid filter syntax ", e);
+            throw new IllegalArgumentException("Invalid syntax supplied: "
+                    + userMimeType.toString());
+        }
+        /*
+         * Sort the list of service references based in it's Comparable interface.
+         */
+        Arrays.sort(refs, Collections.reverseOrder());
 
-		/* 
-		 * Extract the services using the bundle context.
-		 */
-		try {
-			refs = bundleContext.getServiceReferences(clazz.getName(), null);
-		} catch (InvalidSyntaxException e) {
-				LOGGER.warn("Invalid filter syntax ", e);
-				throw new IllegalArgumentException("Invalid syntax supplied: " + userMimeType.toString());
-		}
-		/*
-		 * Sort the list of service references based in it's Comparable interface.
-		 */
-		Arrays.sort(refs, Collections.reverseOrder());
+        /*
+         * If the mime type is null return the whole list of service references
+         */
+        if (userMimeType == null) {
+            if (refs.length > 0) {
+                for (ServiceReference ref : refs) {
+                    Object service = (bundleContext.getService(ref));
+                    T typedService = clazz.cast(service);
+                    list.add(typedService);
+                }
+            }
+            return list;
+        }
 
-		/*
-		 * If the mime type is null return the whole list of service references
-		 */
-		if (userMimeType == null) {
-			if (refs.length > 0) {
-				for (ServiceReference ref : refs) {
-					Object service = (bundleContext.getService(ref));
-					T typedService = clazz.cast(service);
-					list.add(typedService);
-				}
-			}
-			return list;
-		}
+        String userIdValue = userMimeType.getParameter(MimeTypeToTransformerMapper.ID_KEY);
+        List<T> strictlyMatching = new ArrayList<T>();
 
-		String userIdValue = userMimeType.getParameter(MimeTypeToTransformerMapper.ID_KEY);
-		List<T> strictlyMatching = new ArrayList<T>();
+        for (ServiceReference ref : refs) {
 
-		for (ServiceReference ref : refs) {
+            List<String> mimeTypesServicePropertyList = getServiceMimeTypesList(ref);
 
-			List<String> mimeTypesServicePropertyList = getServiceMimeTypesList(ref);
+            String serviceId = getServiceId(ref);
 
-			String serviceId = getServiceId(ref);
+            for (String mimeTypeRawEntry : mimeTypesServicePropertyList) {
 
-			for (String mimeTypeRawEntry : mimeTypesServicePropertyList) {
+                MimeType mimeTypeEntry = constructMimeType(mimeTypeRawEntry);
 
-				MimeType mimeTypeEntry = constructMimeType(mimeTypeRawEntry);
+                if (mimeTypeEntry != null
+                        && StringUtils.equals(mimeTypeEntry.getBaseType(),
+                                userMimeType.getBaseType())
+                        && (userIdValue == null || StringUtils.equals(userIdValue, serviceId))) {
 
-				if (mimeTypeEntry != null
-						&& StringUtils.equals(mimeTypeEntry.getBaseType(), userMimeType.getBaseType())
-						&& (userIdValue == null || StringUtils.equals(userIdValue, serviceId))) {
+                    try {
+                        T service = clazz.cast(bundleContext.getService(ref));
+                        strictlyMatching.add(service);
+                        break; // found exact mimetype, no need to continue within
+                        // the same service
 
-					try {
-						T service = clazz.cast(bundleContext.getService(ref));
-						strictlyMatching.add(service);
-						break; // found exact mimetype, no need to continue within
-						// the same service
+                    } catch (ClassCastException cce) {
+                        LOGGER.debug("Caught illegal cast to transformer type. ", cce);
+                    }
+                }
+            }
+        }
 
-					} catch (ClassCastException cce) {
-						LOGGER.debug("Caught illegal cast to transformer type. ", cce);
-					}
-				}
-			}
-		}
+        return strictlyMatching;
+    }
 
-		return strictlyMatching;
-	}
+    private MimeType constructMimeType(String mimeTypeRawEntry) {
 
-	private MimeType constructMimeType(String mimeTypeRawEntry) {
+        try {
+            return new MimeType(mimeTypeRawEntry);
+        } catch (MimeTypeParseException e) {
+            LOGGER.debug(e);
+        }
 
-		try {
-			return new MimeType(mimeTypeRawEntry);
-		} catch (MimeTypeParseException e) {
-			LOGGER.debug(e);
-		}
+        return null;
+    }
 
-		return null;
-	}
+    private List<String> getServiceMimeTypesList(ServiceReference ref) {
 
-	private List<String> getServiceMimeTypesList(ServiceReference ref) {
+        Object mimeTypeServiceProperty = ref.getProperty(MIME_TYPE_KEY);
 
-		Object mimeTypeServiceProperty = ref.getProperty(MIME_TYPE_KEY);
+        if (mimeTypeServiceProperty != null) {
 
-		if (mimeTypeServiceProperty != null) {
+            if (mimeTypeServiceProperty instanceof String) {
+                /*
+                 * We cannot enforce how the property is given to us whether it is a list or a
+                 * single property. This case catches the single mime-type property.
+                 */
+                return Arrays.asList(mimeTypeServiceProperty.toString());
+            }
 
-			if (mimeTypeServiceProperty instanceof String) {
-				/*
-				 * We cannot enforce how the property is given to us whether it
-				 * is a list or a single property. This case catches the single
-				 * mime-type property.
-				 */
-				return Arrays.asList(mimeTypeServiceProperty.toString());
-			}
+            return (List<String>) mimeTypeServiceProperty;
+        }
 
-			return (List<String>) mimeTypeServiceProperty;
-		}
+        /*
+         * An empty list is returned, if the call to getProperty has returned with a null value.
+         */
+        return new ArrayList<String>();
+    }
 
-		/*
-		 * An empty list is returned, if the call to getProperty has returned with
-		 * a null value.
-		 */
-		return new ArrayList<String>();
-	}
+    private String getServiceId(ServiceReference ref) {
+        Object idServiceProperty = ref.getProperty(ID_KEY);
 
-	private String getServiceId(ServiceReference ref) {
-		Object idServiceProperty = ref.getProperty(ID_KEY);
+        if (idServiceProperty != null) {
 
-		if (idServiceProperty != null) {
+            return idServiceProperty.toString();
+        }
 
-			return idServiceProperty.toString();
-		}
-
-		return null;
-	}
+        return null;
+    }
 
 }

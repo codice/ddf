@@ -1,13 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- *
- * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
- * version 3 of the License, or any later version. 
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * 
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
+ * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
+ * 
  **/
 package ddf.catalog.metrics;
 
@@ -26,58 +29,64 @@ import ddf.catalog.filter.FilterDelegate;
 public class QueryTypeFilterDelegate extends FilterDelegate<Boolean> {
 
     private boolean isSpatial = false;
+
     private boolean isTemporal = false;
+
     private boolean isXpath = false;
+
     private boolean isLogical = false;
+
     private boolean isFuzzy = false;
+
     private boolean isCaseSensitive = false;
+
     private boolean isComparison = false;
-    
+
     @Override
     public Boolean nearestNeighbor(String propertyName, String wkt) {
         return isSpatial = true;
     }
-    
+
     @Override
     public Boolean beyond(String propertyName, String wkt, double distance) {
         return isSpatial = true;
     }
-    
+
     @Override
     public Boolean contains(String propertyName, String wkt) {
         return isSpatial = true;
     }
-    
+
     @Override
     public Boolean crosses(String propertyName, String wkt) {
         return isSpatial = true;
     }
-    
+
     @Override
     public Boolean disjoint(String propertyName, String wkt) {
         return isSpatial = true;
     }
-    
+
     @Override
     public Boolean dwithin(String propertyName, String wkt, double distance) {
         return isSpatial = true;
     }
-    
+
     @Override
     public Boolean intersects(String propertyName, String wkt) {
         return isSpatial = true;
     }
-    
+
     @Override
     public Boolean overlaps(String propertyName, String wkt) {
         return isSpatial = true;
     }
-    
+
     @Override
     public Boolean touches(String propertyName, String wkt) {
         return isSpatial = true;
     }
-    
+
     @Override
     public Boolean within(String propertyName, String wkt) {
         return isSpatial = true;
@@ -89,8 +98,7 @@ public class QueryTypeFilterDelegate extends FilterDelegate<Boolean> {
     }
 
     @Override
-    public Boolean xpathIsLike(String xpath, String pattern,
-            boolean isCaseSensitive) {
+    public Boolean xpathIsLike(String xpath, String pattern, boolean isCaseSensitive) {
         return isXpath = true;
     }
 
@@ -145,8 +153,7 @@ public class QueryTypeFilterDelegate extends FilterDelegate<Boolean> {
     }
 
     @Override
-    public Boolean propertyIsEqualTo(String propertyName, String literal,
-            boolean isCaseSensitive) {
+    public Boolean propertyIsEqualTo(String propertyName, String literal, boolean isCaseSensitive) {
         if (isCaseSensitive) {
             this.isCaseSensitive = true;
         }
@@ -159,8 +166,7 @@ public class QueryTypeFilterDelegate extends FilterDelegate<Boolean> {
     }
 
     @Override
-    public Boolean propertyIsEqualTo(String propertyName, Date startDate,
-            Date endDate) {
+    public Boolean propertyIsEqualTo(String propertyName, Date startDate, Date endDate) {
         return isComparison = true;
     }
 
@@ -205,8 +211,7 @@ public class QueryTypeFilterDelegate extends FilterDelegate<Boolean> {
     }
 
     @Override
-    public Boolean propertyIsNotEqualTo(String propertyName, String literal,
-            boolean isCaseSensitive) {
+    public Boolean propertyIsNotEqualTo(String propertyName, String literal, boolean isCaseSensitive) {
         if (isCaseSensitive) {
             this.isCaseSensitive = true;
         }
@@ -219,8 +224,7 @@ public class QueryTypeFilterDelegate extends FilterDelegate<Boolean> {
     }
 
     @Override
-    public Boolean propertyIsNotEqualTo(String propertyName, Date startDate,
-            Date endDate) {
+    public Boolean propertyIsNotEqualTo(String propertyName, Date startDate, Date endDate) {
         return isComparison = true;
     }
 
@@ -305,50 +309,42 @@ public class QueryTypeFilterDelegate extends FilterDelegate<Boolean> {
     }
 
     @Override
-    public Boolean propertyIsGreaterThanOrEqualTo(String propertyName,
-            String literal) {
+    public Boolean propertyIsGreaterThanOrEqualTo(String propertyName, String literal) {
         return isComparison = true;
     }
 
     @Override
-    public Boolean propertyIsGreaterThanOrEqualTo(String propertyName,
-            Date literal) {
+    public Boolean propertyIsGreaterThanOrEqualTo(String propertyName, Date literal) {
         return isComparison = true;
     }
 
     @Override
-    public Boolean propertyIsGreaterThanOrEqualTo(String propertyName,
-            int literal) {
+    public Boolean propertyIsGreaterThanOrEqualTo(String propertyName, int literal) {
         return isComparison = true;
     }
 
     @Override
-    public Boolean propertyIsGreaterThanOrEqualTo(String propertyName,
-            short literal) {
+    public Boolean propertyIsGreaterThanOrEqualTo(String propertyName, short literal) {
         return isComparison = true;
     }
 
     @Override
-    public Boolean propertyIsGreaterThanOrEqualTo(String propertyName,
-            long literal) {
+    public Boolean propertyIsGreaterThanOrEqualTo(String propertyName, long literal) {
         return isComparison = true;
     }
 
     @Override
-    public Boolean propertyIsGreaterThanOrEqualTo(String propertyName,
-            float literal) {
+    public Boolean propertyIsGreaterThanOrEqualTo(String propertyName, float literal) {
         return isComparison = true;
     }
 
     @Override
-    public Boolean propertyIsGreaterThanOrEqualTo(String propertyName,
-            double literal) {
+    public Boolean propertyIsGreaterThanOrEqualTo(String propertyName, double literal) {
         return isComparison = true;
     }
 
     @Override
-    public Boolean propertyIsGreaterThanOrEqualTo(String propertyName,
-            Object literal) {
+    public Boolean propertyIsGreaterThanOrEqualTo(String propertyName, Object literal) {
         return isComparison = true;
     }
 
@@ -393,8 +389,7 @@ public class QueryTypeFilterDelegate extends FilterDelegate<Boolean> {
     }
 
     @Override
-    public Boolean propertyIsLessThanOrEqualTo(String propertyName,
-            String literal) {
+    public Boolean propertyIsLessThanOrEqualTo(String propertyName, String literal) {
         return isComparison = true;
     }
 
@@ -409,8 +404,7 @@ public class QueryTypeFilterDelegate extends FilterDelegate<Boolean> {
     }
 
     @Override
-    public Boolean propertyIsLessThanOrEqualTo(String propertyName,
-            short literal) {
+    public Boolean propertyIsLessThanOrEqualTo(String propertyName, short literal) {
         return isComparison = true;
     }
 
@@ -420,68 +414,57 @@ public class QueryTypeFilterDelegate extends FilterDelegate<Boolean> {
     }
 
     @Override
-    public Boolean propertyIsLessThanOrEqualTo(String propertyName,
-            float literal) {
+    public Boolean propertyIsLessThanOrEqualTo(String propertyName, float literal) {
         return isComparison = true;
     }
 
     @Override
-    public Boolean propertyIsLessThanOrEqualTo(String propertyName,
-            double literal) {
+    public Boolean propertyIsLessThanOrEqualTo(String propertyName, double literal) {
         return isComparison = true;
     }
 
     @Override
-    public Boolean propertyIsLessThanOrEqualTo(String propertyName,
-            Object literal) {
+    public Boolean propertyIsLessThanOrEqualTo(String propertyName, Object literal) {
         return isComparison = true;
     }
 
     @Override
-    public Boolean propertyIsBetween(String propertyName, String lowerBoundary,
-            String upperBoundary) {
+    public Boolean propertyIsBetween(String propertyName, String lowerBoundary, String upperBoundary) {
         return isComparison = true;
     }
 
     @Override
-    public Boolean propertyIsBetween(String propertyName, Date lowerBoundary,
-            Date upperBoundary) {
+    public Boolean propertyIsBetween(String propertyName, Date lowerBoundary, Date upperBoundary) {
         return isComparison = true;
     }
 
     @Override
-    public Boolean propertyIsBetween(String propertyName, int lowerBoundary,
-            int upperBoundary) {
+    public Boolean propertyIsBetween(String propertyName, int lowerBoundary, int upperBoundary) {
         return isComparison = true;
     }
 
     @Override
-    public Boolean propertyIsBetween(String propertyName, short lowerBoundary,
-            short upperBoundary) {
+    public Boolean propertyIsBetween(String propertyName, short lowerBoundary, short upperBoundary) {
         return isComparison = true;
     }
 
     @Override
-    public Boolean propertyIsBetween(String propertyName, long lowerBoundary,
-            long upperBoundary) {
+    public Boolean propertyIsBetween(String propertyName, long lowerBoundary, long upperBoundary) {
         return isComparison = true;
     }
 
     @Override
-    public Boolean propertyIsBetween(String propertyName, float lowerBoundary,
-            float upperBoundary) {
+    public Boolean propertyIsBetween(String propertyName, float lowerBoundary, float upperBoundary) {
         return isComparison = true;
     }
 
     @Override
-    public Boolean propertyIsBetween(String propertyName, double lowerBoundary,
-            double upperBoundary) {
+    public Boolean propertyIsBetween(String propertyName, double lowerBoundary, double upperBoundary) {
         return isComparison = true;
     }
 
     @Override
-    public Boolean propertyIsBetween(String propertyName, Object lowerBoundary,
-            Object upperBoundary) {
+    public Boolean propertyIsBetween(String propertyName, Object lowerBoundary, Object upperBoundary) {
         return isComparison = true;
     }
 
@@ -491,8 +474,7 @@ public class QueryTypeFilterDelegate extends FilterDelegate<Boolean> {
     }
 
     @Override
-    public Boolean propertyIsLike(String propertyName, String pattern,
-            boolean isCaseSensitive) {
+    public Boolean propertyIsLike(String propertyName, String pattern, boolean isCaseSensitive) {
         if (isCaseSensitive) {
             this.isCaseSensitive = true;
         }
@@ -532,5 +514,5 @@ public class QueryTypeFilterDelegate extends FilterDelegate<Boolean> {
     public boolean isComparison() {
         return isComparison;
     }
-    
+
 }

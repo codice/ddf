@@ -1,16 +1,18 @@
 /**
  * Copyright (c) Codice Foundation
- *
- * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
- * version 3 of the License, or any later version. 
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * 
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
+ * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
+ * 
  **/
 package ddf.security.assertion.impl;
-
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -27,19 +29,20 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
+public class SecurityAssertionImplTest {
 
-public class SecurityAssertionImplTest
-{
-    
     private static final String ISSUER = "tokenissuer";
+
     private static final String PRINCIPAL = "CN=client,OU=I4CE,O=Lockheed Martin,L=Goodyear,ST=Arizona,C=US";
+
     private static final int NUM_ATTRIBUTES = 1;
+
     private static final int NUM_NAUTH = 1;
+
     private static final int NUM_AUTHZ = 0;
 
     @Test
-    public void testEmptyAssertion()
-    {
+    public void testEmptyAssertion() {
         SecurityAssertionImpl assertion = new SecurityAssertionImpl();
         assertEquals(null, assertion.getIssuer());
         assertEquals(0, assertion.getAttibuteStatements().size());
@@ -49,15 +52,14 @@ public class SecurityAssertionImplTest
     }
 
     @Test
-    public void testSampleAssertion() throws Exception
-    {
+    public void testSampleAssertion() throws Exception {
         Element issuedAssertion = this.readDocument("/saml.xml").getDocumentElement();
         String assertionId = issuedAssertion.getAttributeNodeNS(null, "ID").getNodeValue();
         SecurityToken token = new SecurityToken(assertionId, issuedAssertion, null);
         SecurityAssertionImpl assertion = new SecurityAssertionImpl(token);
         assertNotNull(assertion.getSecurityToken());
         assertEquals(token, assertion.getSecurityToken());
-        assertEquals(ISSUER,assertion.getIssuer());
+        assertEquals(ISSUER, assertion.getIssuer());
         assertEquals(PRINCIPAL, assertion.getPrincipal().getName());
         assertEquals(PRINCIPAL, assertion.getPrincipal().toString());
         assertEquals(NUM_ATTRIBUTES, assertion.getAttibuteStatements().size());
@@ -70,10 +72,11 @@ public class SecurityAssertionImplTest
     /**
      * Reads a classpath resource into a Document.
      * 
-     * @param name the name of the classpath resource
+     * @param name
+     *            the name of the classpath resource
      */
-    protected Document readDocument( String name ) throws SAXException, IOException, ParserConfigurationException
-    {
+    protected Document readDocument(String name) throws SAXException, IOException,
+        ParserConfigurationException {
         InputStream inStream = getClass().getResourceAsStream(name);
         return DOMUtils.readXml(inStream);
     }

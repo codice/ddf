@@ -1,13 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- *
- * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
- * version 3 of the License, or any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * 
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
+ * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
+ * 
  **/
 
 package ddf.catalog.source.solr;
@@ -15,23 +18,23 @@ package ddf.catalog.source.solr;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 public class Library {
 
-   /**
-    * Logger for this class.
-    */
-   private static final Logger LOG = LoggerFactory.getLogger(Library.class.getName());
+    /**
+     * Logger for this class.
+     */
+    private static final Logger LOG = LoggerFactory.getLogger(Library.class.getName());
 
-	public Library() {
+    public Library() {
 
-	}
+    }
 
-	/**
+    /**
 	 *
 	 */
-	private static final long serialVersionUID = -7160191237539812384L;
-	// @formatter:off
+    private static final long serialVersionUID = -7160191237539812384L;
+
+    // @formatter:off
 	public static String getIndexingRecord() {
 		return  
 				"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + 
@@ -256,7 +259,7 @@ public class Library {
     			"				length=\"30000\" type=\"image/jpeg\"></enclosure>\r\n" + 
     			"		</item>\r\n" + 
     			"	</channel>\r\n" + 
-    			"</rss>" ;
+    			"</rss>";
     }
     
     // from http://docs.oracle.com/cd/B19306_01/appdev.102/b14259/xdb09sea.htm

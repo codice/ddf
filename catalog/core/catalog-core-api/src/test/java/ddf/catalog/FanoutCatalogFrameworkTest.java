@@ -1,13 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- *
- * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
- * version 3 of the License, or any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * 
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
+ * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
+ * 
  **/
 package ddf.catalog;
 
@@ -47,8 +50,11 @@ import ddf.catalog.util.SourcePollerRunner;
 
 public class FanoutCatalogFrameworkTest {
     private static final String OLD_SOURCE_ID = "oldSourceId";
+
     private static final String NEW_SOURCE_ID = "newSourceId";
+
     private static final Double RELEVANCE_SCORE = 2.0;
+
     private static final Double DISTANCE_SCORE = 3.0;
 
     private FanoutCatalogFramework framework;
@@ -60,16 +66,12 @@ public class FanoutCatalogFrameworkTest {
         SourcePollerRunner runner = new SourcePollerRunner();
         SourcePoller poller = new SourcePoller(runner);
         ArrayList<PostIngestPlugin> postIngestPlugins = new ArrayList<PostIngestPlugin>();
-        framework = new FanoutCatalogFramework(null,
-                new ArrayList<PreIngestPlugin>(), postIngestPlugins,
-                new ArrayList<PreQueryPlugin>(),
-                new ArrayList<PostQueryPlugin>(),
-                new ArrayList<PreResourcePlugin>(),
-                new ArrayList<PostResourcePlugin>(),
-                new ArrayList<ConnectedSource>(),
-                new ArrayList<FederatedSource>(),
-                new ArrayList<ResourceReader>(), new MockFederationStrategy(),
-                null, poller);
+        framework = new FanoutCatalogFramework(null, new ArrayList<PreIngestPlugin>(),
+                postIngestPlugins, new ArrayList<PreQueryPlugin>(),
+                new ArrayList<PostQueryPlugin>(), new ArrayList<PreResourcePlugin>(),
+                new ArrayList<PostResourcePlugin>(), new ArrayList<ConnectedSource>(),
+                new ArrayList<FederatedSource>(), new ArrayList<ResourceReader>(),
+                new MockFederationStrategy(), null, poller);
         framework.setId(NEW_SOURCE_ID);
     }
 
@@ -194,18 +196,17 @@ public class FanoutCatalogFrameworkTest {
     }
 
     /**
-     * This test is to verify that an NPE will not be thrown if 
-     * {@code source.getContentTypes} returns null.
+     * This test is to verify that an NPE will not be thrown if {@code source.getContentTypes}
+     * returns null.
+     * 
      * @throws SourceUnavailableException
      */
     @Test
-    public void testNullContentTypesInGetSourceInfo()
-            throws SourceUnavailableException {
+    public void testNullContentTypesInGetSourceInfo() throws SourceUnavailableException {
         SourceInfoRequest request = new SourceInfoRequestEnterprise(true);
         List<FederatedSource> fedSources = new ArrayList<FederatedSource>();
 
-        FederatedSource mockFederatedSource = Mockito
-                .mock(FederatedSource.class);
+        FederatedSource mockFederatedSource = Mockito.mock(FederatedSource.class);
         Mockito.when(mockFederatedSource.isAvailable()).thenReturn(true);
 
         // Mockito would not accept Collections.emptySet() as the parameter for
@@ -216,8 +217,8 @@ public class FanoutCatalogFrameworkTest {
         framework.federatedSources = fedSources;
 
         // Assert not null simply to prove that we returned an object.
-        assertNotNull(framework.getSourceInfo(request));       
-        
+        assertNotNull(framework.getSourceInfo(request));
+
     }
 
 }

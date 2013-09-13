@@ -1,13 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- *
- * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
- * version 3 of the License, or any later version. 
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * 
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
+ * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
+ * 
  **/
 package ddf.catalog.test;
 
@@ -49,8 +52,7 @@ import org.osgi.util.tracker.ServiceTracker;
 import ddf.catalog.source.CatalogProvider;
 
 /**
- * Abstract integration test with helper methods and configuration at the
- * container level.
+ * Abstract integration test with helper methods and configuration at the container level.
  * 
  * @author Ashraf Barakat
  * @author Phillip Klinefelter
@@ -61,8 +63,7 @@ public abstract class AbstractIntegrationTest {
 
     private static final int CONFIG_UPDATE_WAIT_INTERVAL = 5;
 
-    protected static final Logger LOGGER = Logger
-            .getLogger(AbstractIntegrationTest.class);
+    protected static final Logger LOGGER = Logger.getLogger(AbstractIntegrationTest.class);
 
     protected static final String LOG_CONFIG_PID = "org.ops4j.pax.logging";
 
@@ -141,31 +142,28 @@ public abstract class AbstractIntegrationTest {
         // @formatter:on
     }
 
-    protected KarafDistributionKitConfigurationOption getPlatformOption(
-            Platform platform) {
+    protected KarafDistributionKitConfigurationOption getPlatformOption(Platform platform) {
         String ddfScript = "bin/ddf";
         String adminScript = "bin/admin";
 
         if (platform.equals(Platform.WINDOWS)) {
             ddfScript = FilenameUtils.separatorsToWindows(ddfScript) + ".bat";
-            adminScript = FilenameUtils.separatorsToWindows(adminScript)
-                    + ".bat";
+            adminScript = FilenameUtils.separatorsToWindows(adminScript) + ".bat";
         }
 
-        MavenUrlReference ddf = maven().groupId("ddf.distribution")
-                .artifactId("ddf").type("zip").versionAsInProject();
+        MavenUrlReference ddf = maven().groupId("ddf.distribution").artifactId("ddf").type("zip")
+                .versionAsInProject();
         KarafDistributionKitConfigurationOption platformOption = new KarafDistributionKitConfigurationOption(
-                ddf, "ddf", KARAF_VERSION, platform).executable(ddfScript)
-                .filesToMakeExecutable(adminScript);
+                ddf, "ddf", KARAF_VERSION, platform).executable(ddfScript).filesToMakeExecutable(
+                adminScript);
         platformOption.unpackDirectory(new File("target/exam"));
 
         return platformOption;
     }
 
     /**
-     * Creates a Managed Service that is created from a Managed Service Factory.
-     * Waits for the asynchronous call that the properties have been updated and
-     * the service can be used.
+     * Creates a Managed Service that is created from a Managed Service Factory. Waits for the
+     * asynchronous call that the properties have been updated and the service can be used.
      * 
      * @param factoryPid
      *            the factory pid of the Managed Service Factory
@@ -175,18 +173,15 @@ public abstract class AbstractIntegrationTest {
      *             if access to persistent storage fails
      * @throws InterruptedException
      */
-    public void createManagedService(String factoryPid,
-            Dictionary<String, Object> properties, long timeout)
-            throws IOException, InterruptedException {
+    public void createManagedService(String factoryPid, Dictionary<String, Object> properties,
+            long timeout) throws IOException, InterruptedException {
 
-        final Configuration sourceConfig = configAdmin
-                .createFactoryConfiguration(factoryPid, null);
+        final Configuration sourceConfig = configAdmin.createFactoryConfiguration(factoryPid, null);
 
         ServiceConfigurationListener listener = new ServiceConfigurationListener(
                 sourceConfig.getPid());
 
-        bundleCtx.registerService(ConfigurationListener.class.getName(),
-                listener, null);
+        bundleCtx.registerService(ConfigurationListener.class.getName(), listener, null);
 
         sourceConfig.update(properties);
 
@@ -198,8 +193,7 @@ public abstract class AbstractIntegrationTest {
             } catch (InterruptedException e) {
                 LOGGER.info(e);
             }
-            LOGGER.info("Waiting for configuration to be updated..." + millis
-                    + "ms");
+            LOGGER.info("Waiting for configuration to be updated..." + millis + "ms");
         }
 
         if (!listener.isUpdated()) {
@@ -212,21 +206,18 @@ public abstract class AbstractIntegrationTest {
     }
 
     protected void setLogLevels() throws IOException {
-        Configuration logConfig = configAdmin.getConfiguration(LOG_CONFIG_PID,
-                null);
+        Configuration logConfig = configAdmin.getConfiguration(LOG_CONFIG_PID, null);
         Dictionary<String, Object> properties = logConfig.getProperties();
         properties.put(LOGGER_PREFIX + "ddf", "TRACE");
         properties.put(LOGGER_PREFIX + "com.lmco", "TRACE");
         logConfig.update(properties);
     }
 
-    protected void waitForRequiredBundles(String symbolicNamePrefix)
-            throws InterruptedException {
+    protected void waitForRequiredBundles(String symbolicNamePrefix) throws InterruptedException {
         boolean ready = false;
         if (blueprintListener == null) {
             blueprintListener = new BlueprintListener();
-            bundleCtx.registerService(
-                    "org.osgi.service.blueprint.container.BlueprintListener",
+            bundleCtx.registerService("org.osgi.service.blueprint.container.BlueprintListener",
                     blueprintListener, null);
         }
 
@@ -237,24 +228,19 @@ public abstract class AbstractIntegrationTest {
             ready = true;
             for (Bundle bundle : bundles) {
                 if (bundle.getSymbolicName().startsWith(symbolicNamePrefix)) {
-                    String bundleName = (String) bundle.getHeaders().get(
-                            Constants.BUNDLE_NAME);
+                    String bundleName = (String) bundle.getHeaders().get(Constants.BUNDLE_NAME);
                     String blueprintState = blueprintListener.getState(bundle);
                     if (blueprintState != null) {
-                        if (BlueprintState.Failure.toString().equals(
-                                blueprintState)) {
+                        if (BlueprintState.Failure.toString().equals(blueprintState)) {
                             fail("The blueprint for " + bundleName + " failed.");
-                        } else if (!BlueprintState.Created.toString().equals(
-                                blueprintState)) {
-                            LOGGER.info(bundleName
-                                    + " blueprint not ready with state "
+                        } else if (!BlueprintState.Created.toString().equals(blueprintState)) {
+                            LOGGER.info(bundleName + " blueprint not ready with state "
                                     + blueprintState);
                             ready = false;
                         }
                     }
 
-                    if (!((bundle.getHeaders().get("Fragment-Host") != null && bundle
-                            .getState() == Bundle.RESOLVED) || bundle
+                    if (!((bundle.getHeaders().get("Fragment-Host") != null && bundle.getState() == Bundle.RESOLVED) || bundle
                             .getState() == Bundle.ACTIVE)) {
                         LOGGER.info(bundleName + " bundle not ready yet");
                         ready = false;
@@ -272,10 +258,8 @@ public abstract class AbstractIntegrationTest {
         }
     }
 
-    protected CatalogProvider waitForCatalogProviderToBeAvailable()
-            throws InterruptedException {
-        ServiceTracker st = new ServiceTracker(bundleCtx,
-                CatalogProvider.class.getName(), null);
+    protected CatalogProvider waitForCatalogProviderToBeAvailable() throws InterruptedException {
+        ServiceTracker st = new ServiceTracker(bundleCtx, CatalogProvider.class.getName(), null);
         st.open();
 
         CatalogProvider provider = (CatalogProvider) st.waitForService(5000);
@@ -293,7 +277,7 @@ public abstract class AbstractIntegrationTest {
         }
 
         return provider;
-        
+
     }
 
     private class ServiceConfigurationListener implements ConfigurationListener {
@@ -309,8 +293,7 @@ public abstract class AbstractIntegrationTest {
         @Override
         public void configurationEvent(ConfigurationEvent event) {
             System.out.println(event);
-            if (event.getPid().equals(pid)
-                    && event.CM_UPDATED == event.getType()) {
+            if (event.getPid().equals(pid) && event.CM_UPDATED == event.getType()) {
                 updated = true;
             }
         }

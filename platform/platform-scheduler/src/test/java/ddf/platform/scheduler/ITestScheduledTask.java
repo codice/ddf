@@ -1,13 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- *
- * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
- * version 3 of the License, or any later version. 
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * 
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
+ * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
+ * 
  **/
 package ddf.platform.scheduler;
 
@@ -43,9 +46,8 @@ public class ITestScheduledTask {
 
     private static Scheduler scheduler;
 
-    private static final Logger LOGGER = LoggerFactory
-            .getLogger(CommandJob.class);
-    
+    private static final Logger LOGGER = LoggerFactory.getLogger(CommandJob.class);
+
     static {
         BasicConfigurator.configure();
     }
@@ -56,7 +58,7 @@ public class ITestScheduledTask {
             scheduler = StdSchedulerFactory.getDefaultScheduler();
             scheduler.start();
         } catch (SchedulerException e) {
-        	LOGGER.error("Error while starting scheduler", e);
+            LOGGER.error("Error while starting scheduler", e);
         }
 
     }
@@ -77,8 +79,7 @@ public class ITestScheduledTask {
 
         int numberOfSeconds = 1;
 
-        ScheduledCommandTask task = new ScheduledCommandTask(scheduler,
-                CommandJob.class);
+        ScheduledCommandTask task = new ScheduledCommandTask(scheduler, CommandJob.class);
 
         task.setIntervalInSeconds(numberOfSeconds);
 
@@ -92,11 +93,10 @@ public class ITestScheduledTask {
 
         task.newTask();
 
-        Thread.sleep((expectedRuns - 1) * numberOfSeconds
-                * MILLISECONDS_IN_ONE_SECOND + buffer);
+        Thread.sleep((expectedRuns - 1) * numberOfSeconds * MILLISECONDS_IN_ONE_SECOND + buffer);
 
         LOGGER.info("Verifying {} command was run", command);
-        
+
         verify(session, times(expectedRuns)).execute(command);
 
         // UPDATE
@@ -108,8 +108,8 @@ public class ITestScheduledTask {
 
         task.updateTask(new HashMap<String, Object>());
 
-        Thread.sleep((updatedExpectedRuns - 1) * numberOfSeconds
-                * MILLISECONDS_IN_ONE_SECOND + buffer);
+        Thread.sleep((updatedExpectedRuns - 1) * numberOfSeconds * MILLISECONDS_IN_ONE_SECOND
+                + buffer);
 
         LOGGER.debug("Verifying {} command was run", newCommand);
         verify(session, times(updatedExpectedRuns)).execute(newCommand);
@@ -119,8 +119,8 @@ public class ITestScheduledTask {
         // DELETE
         task.deleteTask();
 
-        Thread.sleep((updatedExpectedRuns - 1) * numberOfSeconds
-                * MILLISECONDS_IN_ONE_SECOND + buffer);
+        Thread.sleep((updatedExpectedRuns - 1) * numberOfSeconds * MILLISECONDS_IN_ONE_SECOND
+                + buffer);
 
         verify(session, times(updatedExpectedRuns)).execute(newCommand);
         verify(session, times(expectedRuns)).execute(command);
@@ -133,7 +133,7 @@ public class ITestScheduledTask {
             when(session.execute(isA(CharSequence.class))).then(captureInput);
 
         } catch (Exception e) {
-        	LOGGER.error("Exception occurred during command session", e);
+            LOGGER.error("Exception occurred during command session", e);
         }
         return session;
     }
@@ -142,9 +142,8 @@ public class ITestScheduledTask {
         CommandProcessor processor = mock(CommandProcessor.class);
 
         when(
-                processor.createSession(isNull(InputStream.class),
-                        isA(PrintStream.class), isA(PrintStream.class)))
-                .thenReturn(session);
+                processor.createSession(isNull(InputStream.class), isA(PrintStream.class),
+                        isA(PrintStream.class))).thenReturn(session);
         return processor;
 
     }

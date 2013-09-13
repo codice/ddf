@@ -12,23 +12,24 @@
  *
  **/
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  <parent>
-	<artifactId>mime-core-pom</artifactId>
-	<groupId>ddf.mime.core</groupId>
-	<version>2.3.0-SNAPSHOT</version>
-  </parent>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<artifactId>mime-core-pom</artifactId>
+		<groupId>ddf.mime.core</groupId>
+		<version>2.3.0-SNAPSHOT</version>
+	</parent>
 
-  <artifactId>mime-core-configurableresolver</artifactId>
-  <name>DDF :: MIME :: Core :: ConfigurableResolver</name>
-  <packaging>bundle</packaging>
-  
-    <dependencies>	
-        <dependency>
+	<artifactId>mime-core-configurableresolver</artifactId>
+	<name>DDF :: MIME :: Core :: ConfigurableResolver</name>
+	<packaging>bundle</packaging>
+
+	<dependencies>
+		<dependency>
 			<groupId>ddf.mime.core</groupId>
 			<artifactId>mime-core-api</artifactId>
-		</dependency>	
+		</dependency>
 		<dependency>
 			<groupId>commons-io</groupId>
 			<artifactId>commons-io</artifactId>
@@ -65,10 +66,10 @@
 						<Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
 						<Export-Package />
 						<Import-Package>
-						    ddf.mime,
-						    org.apache.commons.io,
-						    org.apache.commons.lang,
-						    org.slf4j, 
+							ddf.mime,
+							org.apache.commons.io,
+							org.apache.commons.lang,
+							org.slf4j,
 							org.slf4j.ext,
 							org.osgi.service.blueprint,
 							org.osgi.service.cm,

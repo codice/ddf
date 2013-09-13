@@ -1,13 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- *
- * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
- * version 3 of the License, or any later version. 
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * 
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
+ * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
+ * 
  **/
 package ddf.metrics.interceptor;
 
@@ -21,30 +24,29 @@ import com.codahale.metrics.JmxReporter;
 import com.codahale.metrics.MetricRegistry;
 
 /**
- * This class is extended by the metrics interceptors used for capturing round
- * trip message latency.
+ * This class is extended by the metrics interceptors used for capturing round trip message latency.
  * 
  * @author willisod
  * 
  */
-public abstract class AbstractMetricsInterceptor extends
-        AbstractPhaseInterceptor<Message> {
+public abstract class AbstractMetricsInterceptor extends AbstractPhaseInterceptor<Message> {
 
-    private static final Logger LOGGER = Logger
-            .getLogger(AbstractMetricsInterceptor.class);
+    private static final Logger LOGGER = Logger.getLogger(AbstractMetricsInterceptor.class);
 
     private static final String REGISTRY_NAME = "ddf.metrics.services";
+
     private static final String HISTOGRAM_NAME = "Latency";
 
     private static final MetricRegistry metrics = new MetricRegistry();
-    private static final JmxReporter reporter = JmxReporter
-            .forRegistry(metrics).inDomain(REGISTRY_NAME).build();
+
+    private static final JmxReporter reporter = JmxReporter.forRegistry(metrics)
+            .inDomain(REGISTRY_NAME).build();
 
     final Histogram messageLatency;
 
     /**
-     * Constructor to pass the phase to {@code AbstractPhaseInterceptor} and
-     * creates a new histogram.
+     * Constructor to pass the phase to {@code AbstractPhaseInterceptor} and creates a new
+     * histogram.
      * 
      * @param phase
      */
@@ -58,7 +60,7 @@ public abstract class AbstractMetricsInterceptor extends
     }
 
     protected boolean isClient(Message msg) {
-        return msg == null ? false : Boolean.TRUE.equals(msg.get(Message.REQUESTOR_ROLE));        
+        return msg == null ? false : Boolean.TRUE.equals(msg.get(Message.REQUESTOR_ROLE));
     }
 
     protected void beginHandlingMessage(Exchange ex) {

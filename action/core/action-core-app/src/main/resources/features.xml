@@ -14,7 +14,7 @@
 	<feature name="action-core-api" version="${project.version}" description="DDF Action API">
 		<bundle>mvn:ddf.action.core/action-core-api/${project.version}</bundle>
 	</feature>
-	
+
 	<feature name="action-core-impl" version="${project.version}" description="DDF Action Core.">
 		<feature>action-core-api</feature>
 		<bundle>mvn:ddf.action.core/action-core-impl/${project.version}</bundle>

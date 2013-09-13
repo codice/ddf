@@ -1,16 +1,18 @@
 /**
  * Copyright (c) Codice Foundation
- *
- * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
- * version 3 of the License, or any later version. 
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * 
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
+ * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
+ * 
  **/
 package ddf.catalog.source.opensearch;
-
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,10 +45,7 @@ import ddf.catalog.impl.filter.SpatialFilter;
 import ddf.catalog.impl.filter.TemporalFilter;
 import ddf.catalog.operation.Query;
 
-
-
-public class MockQuery implements Query
-{
+public class MockQuery implements Query {
     // PLACEHOLDER for security
     private Subject user;
 
@@ -63,251 +62,204 @@ public class MockQuery implements Query
     private SortBy sortBy;
 
     public static final FilterFactory filterFactory = new FilterFactoryImpl();
+
     protected Filter filter;
+
     private List<Filter> filters;
 
-    private static XLogger logger = new XLogger( LoggerFactory.getLogger( MockQuery.class ) );
+    private static XLogger logger = new XLogger(LoggerFactory.getLogger(MockQuery.class));
 
     private static String MODIFIED_DATE = "modifiedDate";
-    
 
-    public MockQuery()
-    {
-        this( null, 0, 10, "RELEVANCE", SortOrder.DESCENDING, 30000 );
+    public MockQuery() {
+        this(null, 0, 10, "RELEVANCE", SortOrder.DESCENDING, 30000);
     }
-    
-    
-    public MockQuery( Subject user, int startIndex, int count, String sortField, SortOrder sortOrder, long maxTimeout )
-    {
+
+    public MockQuery(Subject user, int startIndex, int count, String sortField,
+            SortOrder sortOrder, long maxTimeout) {
         this.user = user;
         this.startIndex = startIndex;
-        this.count = count;  
-        if ( sortField != null && sortOrder != null )
-        {
-            this.sortBy = filterFactory.sort( sortField.toUpperCase(), sortOrder );  // RELEVANCE or TEMPORAL
+        this.count = count;
+        if (sortField != null && sortOrder != null) {
+            this.sortBy = filterFactory.sort(sortField.toUpperCase(), sortOrder); // RELEVANCE or
+                                                                                  // TEMPORAL
         }
         this.maxTimeout = maxTimeout;
         this.filters = new ArrayList<Filter>();
     }
 
-    
-    public void addContextualFilter( String searchTerm, String selector )
-    {
+    public void addContextualFilter(String searchTerm, String selector) {
         Filter filter = null;
-        
-        if ( selector != null )
-        {
+
+        if (selector != null) {
             List<Filter> xpathFilters = new ArrayList<Filter>();
-            String[] selectors = selector.split( "," );
-            for( int i = 0; i < selectors.length; i++ )
-            {
-                Expression xpathRef = new AttributeExpressionImpl( selectors[i] );
-                filter = filterFactory.like( xpathRef, searchTerm );
-                xpathFilters.add( filter );
+            String[] selectors = selector.split(",");
+            for (int i = 0; i < selectors.length; i++) {
+                Expression xpathRef = new AttributeExpressionImpl(selectors[i]);
+                filter = filterFactory.like(xpathRef, searchTerm);
+                xpathFilters.add(filter);
             }
-            filter = filterFactory.or( xpathFilters );
+            filter = filterFactory.or(xpathFilters);
+        } else {
+            filter = filterFactory.like(filterFactory.property(Metacard.ANY_TEXT), searchTerm);
         }
-        else
-        {
-            filter = filterFactory.like( filterFactory.property( Metacard.ANY_TEXT ), searchTerm );
-        }
-        
-        if ( filter != null )
-        {
-            filters.add( filter );
+
+        if (filter != null) {
+            filters.add(filter);
             this.filter = getFilter();
         }
     }
 
-    
-    public void addTemporalFilter( String dateStart, String dateEnd, String dateOffset )
-    {
+    public void addTemporalFilter(String dateStart, String dateEnd, String dateOffset) {
         TemporalFilter temporalFilter = null;
-        
-        if ( dateStart != null || dateEnd != null )
-        {
-            temporalFilter = new TemporalFilter( dateStart, dateEnd );
+
+        if (dateStart != null || dateEnd != null) {
+            temporalFilter = new TemporalFilter(dateStart, dateEnd);
+        } else if (dateOffset != null) {
+            temporalFilter = new TemporalFilter(Long.parseLong(dateOffset));
         }
-        else if ( dateOffset != null )
-        {
-            temporalFilter = new TemporalFilter( Long.parseLong( dateOffset ) );
-        }
-                
-        addTemporalFilter( temporalFilter );
+
+        addTemporalFilter(temporalFilter);
     }
 
-    
-    public void addTemporalFilter( TemporalFilter temporalFilter )
-    {
-        if ( temporalFilter != null )
-        {
+    public void addTemporalFilter(TemporalFilter temporalFilter) {
+        if (temporalFilter != null) {
             // t1.start < timeType instance < t1.end
-            Instant startInstant = new DefaultInstant( new DefaultPosition( temporalFilter.getStartDate() ) );
-            Instant endInstant = new DefaultInstant( new DefaultPosition( temporalFilter.getEndDate() ) );
-            Period period = new DefaultPeriod( startInstant, endInstant );
-            
-            Filter filter = filterFactory.during( filterFactory.property( MODIFIED_DATE ), filterFactory.literal( period ) );
-            
-            filters.add( filter );
-            this.filter = getFilter();
-        }
-    }
-    
-    
-    public void addSpatialFilter( String geometryWkt )
-    {
-        SpatialFilter spatialFilter = new SpatialFilter( geometryWkt );
-        
-        Geometry geometry = spatialFilter.getGeometry();
-        
-        if ( geometry != null )
-        {
-            Filter filter = filterFactory.contains( Metacard.ANY_GEO, geometry );
-            
-            filters.add( filter );
+            Instant startInstant = new DefaultInstant(new DefaultPosition(
+                    temporalFilter.getStartDate()));
+            Instant endInstant = new DefaultInstant(
+                    new DefaultPosition(temporalFilter.getEndDate()));
+            Period period = new DefaultPeriod(startInstant, endInstant);
+
+            Filter filter = filterFactory.during(filterFactory.property(MODIFIED_DATE),
+                    filterFactory.literal(period));
+
+            filters.add(filter);
             this.filter = getFilter();
         }
     }
 
-    
-    public void addSpatialDistanceFilter( String lon, String lat, String radius )
-    {
-        SpatialDistanceFilter distanceFilter = new SpatialDistanceFilter( lon, lat, radius );
+    public void addSpatialFilter(String geometryWkt) {
+        SpatialFilter spatialFilter = new SpatialFilter(geometryWkt);
+
+        Geometry geometry = spatialFilter.getGeometry();
+
+        if (geometry != null) {
+            Filter filter = filterFactory.contains(Metacard.ANY_GEO, geometry);
+
+            filters.add(filter);
+            this.filter = getFilter();
+        }
+    }
+
+    public void addSpatialDistanceFilter(String lon, String lat, String radius) {
+        SpatialDistanceFilter distanceFilter = new SpatialDistanceFilter(lon, lat, radius);
 
         Geometry geometry = distanceFilter.getGeometry();
-        
-        if ( geometry != null )
-        {
-            Filter filter = filterFactory.dwithin( Metacard.ANY_GEO, geometry, Double.parseDouble( radius ), UomOgcMapping.METRE.getSEString() );
-            
-            filters.add( filter );
+
+        if (geometry != null) {
+            Filter filter = filterFactory.dwithin(Metacard.ANY_GEO, geometry,
+                    Double.parseDouble(radius), UomOgcMapping.METRE.getSEString());
+
+            filters.add(filter);
             this.filter = getFilter();
         }
     }
-    
-    
-    public void addTypeFilter( String type, String versions )
-    {
+
+    public void addTypeFilter(String type, String versions) {
         Filter filter = null;
-        
-        if ( versions != null && !versions.isEmpty() )
-        {
-            String[] typeVersions = versions.split( "," );
+
+        if (versions != null && !versions.isEmpty()) {
+            String[] typeVersions = versions.split(",");
             List<Filter> typeVersionPairsFilters = new ArrayList<Filter>();
-            
-            for ( String version : typeVersions )
-            {
-                PropertyIsEqualTo typeFilter = filterFactory.equals( filterFactory.property( Metacard.CONTENT_TYPE ), filterFactory.literal( type ) );
-                PropertyIsEqualTo versionFilter = filterFactory.equals( filterFactory.property( Metacard.CONTENT_TYPE_VERSION ), filterFactory.literal( version ) );
-                typeVersionPairsFilters.add( filterFactory.and( typeFilter, versionFilter) );
+
+            for (String version : typeVersions) {
+                PropertyIsEqualTo typeFilter = filterFactory.equals(
+                        filterFactory.property(Metacard.CONTENT_TYPE), filterFactory.literal(type));
+                PropertyIsEqualTo versionFilter = filterFactory.equals(
+                        filterFactory.property(Metacard.CONTENT_TYPE_VERSION),
+                        filterFactory.literal(version));
+                typeVersionPairsFilters.add(filterFactory.and(typeFilter, versionFilter));
             }
-            
-            if ( !typeVersionPairsFilters.isEmpty() )
-            {
-                filter = filterFactory.or( typeVersionPairsFilters );
+
+            if (!typeVersionPairsFilters.isEmpty()) {
+                filter = filterFactory.or(typeVersionPairsFilters);
+            } else {
+                filter = filterFactory.equals(filterFactory.property(Metacard.CONTENT_TYPE),
+                        filterFactory.literal(type));
             }
-            else
-            {
-                filter = filterFactory.equals( filterFactory.property(Metacard.CONTENT_TYPE), filterFactory.literal( type ) );
-            }
+        } else {
+            filter = filterFactory.equals(filterFactory.property(Metacard.CONTENT_TYPE),
+                    filterFactory.literal(type));
         }
-        else
-        {
-            filter = filterFactory.equals( filterFactory.property(Metacard.CONTENT_TYPE), filterFactory.literal( type ) );
-        }
-        
-        if ( filter != null )
-        {
-            filters.add( filter );
+
+        if (filter != null) {
+            filters.add(filter);
             this.filter = getFilter();
         }
     }
-    
-    
+
     @Override
-    public Object accept( FilterVisitor visitor, Object obj )
-    {
-        logger.debug( "accept" );
-        return filter.accept( visitor, obj );
+    public Object accept(FilterVisitor visitor, Object obj) {
+        logger.debug("accept");
+        return filter.accept(visitor, obj);
     }
 
-
     @Override
-    public boolean evaluate( Object object )
-    {
-        return filter.evaluate( object );
+    public boolean evaluate(Object object) {
+        return filter.evaluate(object);
     }
 
-
     @Override
-    public int getStartIndex()
-    {
+    public int getStartIndex() {
         return startIndex;
     }
 
-
     @Override
-    public int getPageSize()
-    {
+    public int getPageSize() {
         return count;
     }
 
-
     @Override
-    public boolean requestsTotalResultsCount()
-    {
+    public boolean requestsTotalResultsCount() {
         // always send back total count
         return true;
     }
 
-
     @Override
-    public long getTimeoutMillis()
-    {
+    public long getTimeoutMillis() {
         return maxTimeout;
     }
 
-
-    public void setSiteIds( Set<String> siteIds )
-    {
+    public void setSiteIds(Set<String> siteIds) {
         this.siteIds = siteIds;
     }
 
-
-
-    public void setIsEnterprise( boolean isEnterprise )
-    {
+    public void setIsEnterprise(boolean isEnterprise) {
         this.isEnterprise = isEnterprise;
     }
 
-
     @Override
-    public SortBy getSortBy()
-    {
+    public SortBy getSortBy() {
         return sortBy;
     }
 
-
-    public Filter getFilter()
-    {
+    public Filter getFilter() {
         // If multiple filters, then AND them all together
-        if ( filters.size() > 1 )
-        {
-            return filterFactory.and( filters );
+        if (filters.size() > 1) {
+            return filterFactory.and(filters);
         }
-        
+
         // If only one filter, then just return it
         // (AND'ing it would create an erroneous </ogc:and> closing tag)
-        else if ( filters.size() == 1 )
-        {
-            return (Filter) filters.get( 0 );
+        else if (filters.size() == 1) {
+            return (Filter) filters.get(0);
         }
-        
+
         // Otherwise, no filters
-        else
-        {
+        else {
             return null;
         }
     }
-    
+
 }

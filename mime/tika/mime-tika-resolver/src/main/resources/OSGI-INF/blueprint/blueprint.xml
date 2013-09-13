@@ -19,10 +19,10 @@
 			<cm:managed-properties
 			persistent-id="ddf.mime.tika.TikaMimeTypeResolver"
 			update-strategy="container-managed"/>
-    -->		
-        <property name="priority" value="-1" />	
-	</bean> 
-	
+    -->
+		<property name="priority" value="-1" />
+	</bean>
+
 	<service ref="tikaMimeTypeResolver" interface="ddf.mime.MimeTypeResolver" />
 
 </blueprint>

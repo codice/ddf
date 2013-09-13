@@ -1,17 +1,21 @@
 /**
  * Copyright (c) Codice Foundation
- *
- * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
- * version 3 of the License, or any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * 
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
+ * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
+ * 
  **/
 package ddf.catalog.source.solr.textpath;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
 import java.util.List;
@@ -48,17 +52,14 @@ import ddf.catalog.source.solr.SolrServerFactory;
 public class TestTextPath extends SolrProviderTestCase {
 
     @BeforeClass
-    public static void setup() throws IngestException,
-            UnsupportedQueryException {
-        ConfigurationFileProxy configurationFileProxy = new ConfigurationFileProxy(
-                null, ConfigurationStore.getInstance());
+    public static void setup() throws IngestException, UnsupportedQueryException {
+        ConfigurationFileProxy configurationFileProxy = new ConfigurationFileProxy(null,
+                ConfigurationStore.getInstance());
         ConfigurationStore.getInstance().setDataDirectoryPath("target/solr");
 
-        provider = new SolrCatalogProvider(
-                SolrServerFactory.getEmbeddedSolrServer("solrconfig.xml",
-                        "schema.xml", configurationFileProxy),
-                new GeotoolsFilterAdapterImpl(),
-                new SolrFilterDelegateFactoryImpl());
+        provider = new SolrCatalogProvider(SolrServerFactory.getEmbeddedSolrServer(
+                "solrconfig.xml", "schema.xml", configurationFileProxy),
+                new GeotoolsFilterAdapterImpl(), new SolrFilterDelegateFactoryImpl());
 
         provider.setId(MASKED_ID);
 
@@ -66,11 +67,9 @@ public class TestTextPath extends SolrProviderTestCase {
         MetacardImpl metacard1 = new MockMetacard(Library.getFlagstaffRecord());
         MetacardImpl metacard2 = new MockMetacard(Library.getTampaRecord());
         MetacardImpl metacard3 = new MockMetacard(Library.getShowLowRecord());
-        MetacardImpl metacard4 = new MockMetacard(
-                Library.getPurchaseOrderRecord());
+        MetacardImpl metacard4 = new MockMetacard(Library.getPurchaseOrderRecord());
 
-        List<Metacard> list = Arrays.asList((Metacard) metacard1, metacard2,
-                metacard3, metacard4);
+        List<Metacard> list = Arrays.asList((Metacard) metacard1, metacard2, metacard3, metacard4);
 
         createIn(list, provider);
     }
@@ -196,37 +195,30 @@ public class TestTextPath extends SolrProviderTestCase {
         assertTextPath("  //  items  /  item  [  @  partNum  =  \"872-AA\"  ]  /  comment  ");
     }
 
-    private void assertTextPath(String textPath)
-            throws UnsupportedQueryException {
+    private void assertTextPath(String textPath) throws UnsupportedQueryException {
         assertXpathFilter(filterBuilder.xpath(textPath).exists());
     }
 
-    private void assertTextPath(String textPath, String value)
-            throws UnsupportedQueryException {
+    private void assertTextPath(String textPath, String value) throws UnsupportedQueryException {
         assertXpathFilter(filterBuilder.xpath(textPath).is().like().text(value));
     }
 
-    private void assertXpathFilter(Filter xpathFilter)
-            throws UnsupportedQueryException {
-        SourceResponse sourceResponse = provider.query(new QueryRequestImpl(
-                new QueryImpl(xpathFilter)));
-        assertEquals("Failed to find metacard with correct XML node.", 1,
-                sourceResponse.getResults().size());
+    private void assertXpathFilter(Filter xpathFilter) throws UnsupportedQueryException {
+        SourceResponse sourceResponse = provider.query(new QueryRequestImpl(new QueryImpl(
+                xpathFilter)));
+        assertEquals("Failed to find metacard with correct XML node.", 1, sourceResponse
+                .getResults().size());
 
         for (Result r : sourceResponse.getResults()) {
-            assertTrue(
-                    "Wrong record, Purchase order keyword was not found.",
-                    ALL_RESULTS != r.getMetacard().getMetadata()
-                            .indexOf("872-AA"));
+            assertTrue("Wrong record, Purchase order keyword was not found.", ALL_RESULTS != r
+                    .getMetacard().getMetadata().indexOf("872-AA"));
         }
     }
 
-    private void assertNotTextPath(String textPath)
-            throws UnsupportedQueryException {
-        SourceResponse sourceResponse = provider.query(new QueryRequestImpl(
-                new QueryImpl(filterBuilder.xpath(textPath).exists())));
-        assertEquals("Found a metacard and should not have.", 0, sourceResponse
-                .getResults().size());
+    private void assertNotTextPath(String textPath) throws UnsupportedQueryException {
+        SourceResponse sourceResponse = provider.query(new QueryRequestImpl(new QueryImpl(
+                filterBuilder.xpath(textPath).exists())));
+        assertEquals("Found a metacard and should not have.", 0, sourceResponse.getResults().size());
     }
 
 }

@@ -1,13 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- *
- * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
- * version 3 of the License, or any later version. 
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * 
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
+ * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
+ * 
  **/
 package com.lmco.ddf.endpoints.rest.action;
 
@@ -20,8 +23,7 @@ import ddf.action.Action;
 import ddf.action.ActionProvider;
 import ddf.action.impl.ActionImpl;
 
-public class MetacardTransformerActionProvider extends
-        AbstractMetacardActionProvider {
+public class MetacardTransformerActionProvider extends AbstractMetacardActionProvider {
 
     static final String DESCRIPTION_PREFIX = "Gets the Metacard ";
 
@@ -35,8 +37,7 @@ public class MetacardTransformerActionProvider extends
      * @param actionProviderId
      * @param metacardTransformerId
      */
-    public MetacardTransformerActionProvider(String actionProviderId,
-            String metacardTransformerId) {
+    public MetacardTransformerActionProvider(String actionProviderId, String metacardTransformerId) {
 
         this.actionProviderId = actionProviderId;
         this.metacardTransformerId = metacardTransformerId;
@@ -49,9 +50,8 @@ public class MetacardTransformerActionProvider extends
         URL url = null;
         try {
 
-            URI uri = new URI(protocol + host + ':' + port + contextRoot + PATH
-                    + "/" + metacardSource + "/" + metacardId + "?transform="
-                    + metacardTransformerId);
+            URI uri = new URI(protocol + host + ':' + port + contextRoot + PATH + "/"
+                    + metacardSource + "/" + metacardId + "?transform=" + metacardTransformerId);
             url = uri.toURL();
 
         } catch (MalformedURLException e) {
@@ -62,8 +62,8 @@ public class MetacardTransformerActionProvider extends
             return null;
         }
 
-        return new ActionImpl(getId(), TITLE_PREFIX + metacardTransformerId,
-                DESCRIPTION_PREFIX + metacardTransformerId, url);
+        return new ActionImpl(getId(), TITLE_PREFIX + metacardTransformerId, DESCRIPTION_PREFIX
+                + metacardTransformerId, url);
 
     }
 

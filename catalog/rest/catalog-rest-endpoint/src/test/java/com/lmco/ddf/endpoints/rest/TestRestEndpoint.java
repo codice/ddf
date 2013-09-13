@@ -1,13 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- *
- * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
- * version 3 of the License, or any later version. 
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * 
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
+ * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
+ * 
  **/
 package com.lmco.ddf.endpoints.rest;
 
@@ -93,377 +96,389 @@ import ddf.mime.MimeTypeToTransformerMapper;
  * 
  */
 public class TestRestEndpoint {
-	private static final int INTERNAL_SERVER_ERROR = 500;
+    private static final int INTERNAL_SERVER_ERROR = 500;
 
-	private static final String SAMPLE_ID = "12345678900987654321abcdeffedcba";
+    private static final String SAMPLE_ID = "12345678900987654321abcdeffedcba";
 
-	private static final String ENDPOINT_ADDRESS = "http://localhost:8181/services/catalog";
+    private static final String ENDPOINT_ADDRESS = "http://localhost:8181/services/catalog";
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(TestRestEndpoint.class);
-	
-	private static final String LOCAL_RETRIEVE_ADDRESS = "http://localhost:8181/services/catalog";
-	private static final String FED_RETRIEVE_ADDRESS = "http://localhost:8181/services/catalog/sources/test/abc123456def";
-	private static final String GET_SITENAME = "test";
-	private static final String GET_ID = "abc123456def";
-	private static final String GET_STREAM = "Test string for inputstream.";
-	private static final String GET_OUTPUT_TYPE = "UTF-8";
-	private static final String GET_MIME_TYPE = "text/xml";
-	private static final String GET_FILENAME = "example.xml";
-	private static final String GET_TYPE_OUTPUT = "{Content-Type=[text/xml], Content-Disposition=[inline; filename=\"" +
-			GET_FILENAME + "\"]}";
+    private static final Logger LOGGER = LoggerFactory.getLogger(TestRestEndpoint.class);
 
-	@BeforeClass
-	public static void initialize() throws Exception {
-	}
+    private static final String LOCAL_RETRIEVE_ADDRESS = "http://localhost:8181/services/catalog";
 
-	/**
-	 * Tests a null mimetype is sent to matching service.
-	 * 
-	 * @throws URISyntaxException
-	 * @throws SourceUnavailableException
-	 * @throws IngestException
-	 */
-	@Test
-	public void testNullMimeType() throws URISyntaxException, IngestException, SourceUnavailableException {
+    private static final String FED_RETRIEVE_ADDRESS = "http://localhost:8181/services/catalog/sources/test/abc123456def";
 
-		CatalogFramework framework = givenCatalogFramework(SAMPLE_ID);
+    private static final String GET_SITENAME = "test";
 
-		RESTEndpoint rest = new RESTEndpoint(framework);
+    private static final String GET_ID = "abc123456def";
 
-		MimeTypeToTransformerMapper matchingService = mock(MimeTypeToTransformerMapper.class);
+    private static final String GET_STREAM = "Test string for inputstream.";
 
-		List list = Arrays.asList(getSimpleTransformer());
+    private static final String GET_OUTPUT_TYPE = "UTF-8";
 
-		when(matchingService.findMatches(eq(InputTransformer.class), isNull(MimeType.class))).thenReturn(list);
+    private static final String GET_MIME_TYPE = "text/xml";
 
-		rest.setMimeTypeToTransformerMapper(matchingService);
+    private static final String GET_FILENAME = "example.xml";
 
-		HttpHeaders headers = mock(HttpHeaders.class);
+    private static final String GET_TYPE_OUTPUT = "{Content-Type=[text/xml], Content-Disposition=[inline; filename=\""
+            + GET_FILENAME + "\"]}";
 
-		rest.addDocument(headers, givenUriInfo(SAMPLE_ID), new ByteArrayInputStream("".getBytes()));
+    @BeforeClass
+    public static void initialize() throws Exception {
+    }
 
-		verify(matchingService, atLeastOnce()).findMatches(eq(InputTransformer.class), isNull(MimeType.class));
-	}
+    /**
+     * Tests a null mimetype is sent to matching service.
+     * 
+     * @throws URISyntaxException
+     * @throws SourceUnavailableException
+     * @throws IngestException
+     */
+    @Test
+    public void testNullMimeType() throws URISyntaxException, IngestException,
+        SourceUnavailableException {
 
-	/**
-	 * Tests a null mimetype is sent to matching service when a MimeType could
-	 * not be parsed
-	 * 
-	 * @throws URISyntaxException
-	 * @throws SourceUnavailableException
-	 * @throws IngestException
-	 */
-	@Test
-	public void testInvalidMimeType() throws URISyntaxException, IngestException, SourceUnavailableException {
+        CatalogFramework framework = givenCatalogFramework(SAMPLE_ID);
 
-		CatalogFramework framework = givenCatalogFramework(SAMPLE_ID);
+        RESTEndpoint rest = new RESTEndpoint(framework);
 
-		RESTEndpoint rest = new RESTEndpoint(framework);
+        MimeTypeToTransformerMapper matchingService = mock(MimeTypeToTransformerMapper.class);
 
-		MimeTypeToTransformerMapper matchingService = mock(MimeTypeToTransformerMapper.class);
+        List list = Arrays.asList(getSimpleTransformer());
 
-		List list = Arrays.asList(getSimpleTransformer());
-		
-		when(matchingService.findMatches(eq(InputTransformer.class), isNull(MimeType.class))).thenReturn(list);
+        when(matchingService.findMatches(eq(InputTransformer.class), isNull(MimeType.class)))
+                .thenReturn(list);
 
-		rest.setMimeTypeToTransformerMapper(matchingService);
+        rest.setMimeTypeToTransformerMapper(matchingService);
 
-		HttpHeaders headers = createHeaders(Arrays.asList("!INVALID!"));
+        HttpHeaders headers = mock(HttpHeaders.class);
 
-		rest.addDocument(headers, givenUriInfo(SAMPLE_ID), new ByteArrayInputStream("".getBytes()));
+        rest.addDocument(headers, givenUriInfo(SAMPLE_ID), new ByteArrayInputStream("".getBytes()));
 
-		verify(matchingService, atLeastOnce()).findMatches(eq(InputTransformer.class), isNull(MimeType.class));
-	}
+        verify(matchingService, atLeastOnce()).findMatches(eq(InputTransformer.class),
+                isNull(MimeType.class));
+    }
 
-	@Test(expected = ServerErrorException.class)
-	public void testAddDocumentNullMessage() {
+    /**
+     * Tests a null mimetype is sent to matching service when a MimeType could not be parsed
+     * 
+     * @throws URISyntaxException
+     * @throws SourceUnavailableException
+     * @throws IngestException
+     */
+    @Test
+    public void testInvalidMimeType() throws URISyntaxException, IngestException,
+        SourceUnavailableException {
 
-		CatalogFramework framework = mock(CatalogFramework.class);
+        CatalogFramework framework = givenCatalogFramework(SAMPLE_ID);
 
-		RESTEndpoint rest = new RESTEndpoint(framework);
+        RESTEndpoint rest = new RESTEndpoint(framework);
 
-		HttpHeaders headers = mock(HttpHeaders.class);
+        MimeTypeToTransformerMapper matchingService = mock(MimeTypeToTransformerMapper.class);
 
-		rest.addDocument(headers, mock(UriInfo.class), null);
+        List list = Arrays.asList(getSimpleTransformer());
 
-	}
+        when(matchingService.findMatches(eq(InputTransformer.class), isNull(MimeType.class)))
+                .thenReturn(list);
 
-	@Test(expected = ServerErrorException.class)
-	public void testAddDocumentNoTransformer() {
+        rest.setMimeTypeToTransformerMapper(matchingService);
 
-		CatalogFramework framework = mock(CatalogFramework.class);
+        HttpHeaders headers = createHeaders(Arrays.asList("!INVALID!"));
 
-		HttpHeaders headers = createHeaders(Arrays.asList(MediaType.APPLICATION_JSON));
+        rest.addDocument(headers, givenUriInfo(SAMPLE_ID), new ByteArrayInputStream("".getBytes()));
 
-		RESTEndpoint rest = new RESTEndpoint(framework);
+        verify(matchingService, atLeastOnce()).findMatches(eq(InputTransformer.class),
+                isNull(MimeType.class));
+    }
 
-		MimeTypeToTransformerMapper matchingService = mock(MimeTypeToTransformerMapper.class);
+    @Test(expected = ServerErrorException.class)
+    public void testAddDocumentNullMessage() {
 
-		List list = new ArrayList<InputTransformer>();
-		
-		when(matchingService.findMatches(eq(InputTransformer.class), isA(MimeType.class))).thenReturn(list);
+        CatalogFramework framework = mock(CatalogFramework.class);
 
-		rest.setMimeTypeToTransformerMapper(matchingService);
+        RESTEndpoint rest = new RESTEndpoint(framework);
 
-		InputStream is = new ByteArrayInputStream("".getBytes());
+        HttpHeaders headers = mock(HttpHeaders.class);
 
-		rest.addDocument(headers, mock(UriInfo.class), is);
+        rest.addDocument(headers, mock(UriInfo.class), null);
 
-	}
+    }
 
-	@Test(expected = ServerErrorException.class)
-	public void testAddDocumentNoMatchingTransformer() {
+    @Test(expected = ServerErrorException.class)
+    public void testAddDocumentNoTransformer() {
 
-		CatalogFramework framework = mock(CatalogFramework.class);
+        CatalogFramework framework = mock(CatalogFramework.class);
 
-		HttpHeaders headers = createHeaders(Arrays.asList(MediaType.APPLICATION_JSON));
+        HttpHeaders headers = createHeaders(Arrays.asList(MediaType.APPLICATION_JSON));
 
-		RESTEndpoint rest = new RESTEndpoint(framework);
+        RESTEndpoint rest = new RESTEndpoint(framework);
 
-		MimeTypeToTransformerMapper matchingService = mock(MimeTypeToTransformerMapper.class);
+        MimeTypeToTransformerMapper matchingService = mock(MimeTypeToTransformerMapper.class);
 
-		InputTransformer transformer = mock(InputTransformer.class);
+        List list = new ArrayList<InputTransformer>();
 
-		try {
-			when(transformer.transform(isA(InputStream.class))).thenThrow(CatalogTransformerException.class);
-		} catch (IOException e) {
-			LOGGER.debug(e.toString());
-		} catch (CatalogTransformerException e) {
-			LOGGER.debug(e.toString());
-		}
+        when(matchingService.findMatches(eq(InputTransformer.class), isA(MimeType.class)))
+                .thenReturn(list);
 
-		when(matchingService.findMatches(eq(InputTransformer.class), isA(MimeType.class))).thenReturn((List)Arrays.asList(transformer));
+        rest.setMimeTypeToTransformerMapper(matchingService);
 
-		rest.setMimeTypeToTransformerMapper(matchingService);
+        InputStream is = new ByteArrayInputStream("".getBytes());
 
-		InputStream is = new ByteArrayInputStream("".getBytes());
+        rest.addDocument(headers, mock(UriInfo.class), is);
 
-		rest.addDocument(headers, mock(UriInfo.class), is);
+    }
 
-	}
+    @Test(expected = ServerErrorException.class)
+    public void testAddDocumentNoMatchingTransformer() {
 
-	@Test()
-	public void testAddDocumentFrameworkIngestException() throws IngestException, SourceUnavailableException,
-			URISyntaxException {
+        CatalogFramework framework = mock(CatalogFramework.class);
 
-		assertExceptionThrown(IngestException.class);
+        HttpHeaders headers = createHeaders(Arrays.asList(MediaType.APPLICATION_JSON));
 
-	}
+        RESTEndpoint rest = new RESTEndpoint(framework);
 
-	@Test()
-	public void testAddDocumentFrameworkSourceUnavailableException() throws IngestException,
-			SourceUnavailableException, URISyntaxException {
+        MimeTypeToTransformerMapper matchingService = mock(MimeTypeToTransformerMapper.class);
 
-		assertExceptionThrown(SourceUnavailableException.class);
+        InputTransformer transformer = mock(InputTransformer.class);
 
-	}
+        try {
+            when(transformer.transform(isA(InputStream.class))).thenThrow(
+                    CatalogTransformerException.class);
+        } catch (IOException e) {
+            LOGGER.debug(e.toString());
+        } catch (CatalogTransformerException e) {
+            LOGGER.debug(e.toString());
+        }
 
-	@Test(expected = ServerErrorException.class)
-	public void testAddDocumentNoMatchingTransformer2() {
+        when(matchingService.findMatches(eq(InputTransformer.class), isA(MimeType.class)))
+                .thenReturn((List) Arrays.asList(transformer));
 
-		CatalogFramework framework = mock(CatalogFramework.class);
+        rest.setMimeTypeToTransformerMapper(matchingService);
 
-		HttpHeaders headers = createHeaders(Arrays.asList(MediaType.APPLICATION_JSON));
+        InputStream is = new ByteArrayInputStream("".getBytes());
 
-		RESTEndpoint rest = new RESTEndpoint(framework);
+        rest.addDocument(headers, mock(UriInfo.class), is);
 
-		MimeTypeToTransformerMapper matchingService = mock(MimeTypeToTransformerMapper.class);
+    }
 
-		InputTransformer transformer = mock(InputTransformer.class);
+    @Test()
+    public void testAddDocumentFrameworkIngestException() throws IngestException,
+        SourceUnavailableException, URISyntaxException {
 
-		try {
-			when(transformer.transform(isA(InputStream.class))).thenThrow(IOException.class);
-		} catch (IOException e) {
-			LOGGER.debug(e.toString());
-		} catch (CatalogTransformerException e) {
-			LOGGER.debug(e.toString());
-		}
+        assertExceptionThrown(IngestException.class);
 
-		when(matchingService.findMatches(eq(InputTransformer.class), isA(MimeType.class))).thenReturn((List)Arrays.asList(transformer));
+    }
 
-		rest.setMimeTypeToTransformerMapper(matchingService);
+    @Test()
+    public void testAddDocumentFrameworkSourceUnavailableException() throws IngestException,
+        SourceUnavailableException, URISyntaxException {
 
-		InputStream is = new ByteArrayInputStream("".getBytes());
+        assertExceptionThrown(SourceUnavailableException.class);
 
-		rest.addDocument(headers, mock(UriInfo.class), is);
+    }
 
-	}
+    @Test(expected = ServerErrorException.class)
+    public void testAddDocumentNoMatchingTransformer2() {
 
-	@Test()
-	public void testAddDocumentPositiveCase() throws IOException, CatalogTransformerException, IngestException,
-			SourceUnavailableException, URISyntaxException {
+        CatalogFramework framework = mock(CatalogFramework.class);
 
-		CatalogFramework framework = givenCatalogFramework(SAMPLE_ID);
+        HttpHeaders headers = createHeaders(Arrays.asList(MediaType.APPLICATION_JSON));
 
-		HttpHeaders headers = createHeaders(Arrays.asList(MediaType.APPLICATION_JSON));
+        RESTEndpoint rest = new RESTEndpoint(framework);
 
-		RESTEndpoint rest = new RESTEndpoint(framework);
-
-		addMatchingService(rest,Arrays.asList(getSimpleTransformer()));
-
-		UriInfo info = givenUriInfo(SAMPLE_ID);
-
-		Response response = rest.addDocument(headers, info, new ByteArrayInputStream("".getBytes()));
-
-		LOGGER.debug(ToStringBuilder.reflectionToString(response));
-
-		assertThat(response.getStatus(), equalTo(201));
-
-		assertThat(response.getMetadata(), notNullValue());
-
-		assertThat(response.getMetadata().get(Metacard.ID).get(0).toString(), equalTo(SAMPLE_ID));
-	}
-
-	/**
-	 * Tests local retrieve with a null QueryResponse
-	 * 
-	 * @throws URISyntaxException
-	 * @throws SourceUnavailableException
-	 * @throws IngestException
-	 * @throws ResourceNotSupportedException
-	 * @throws ResourceNotFoundException
-	 * @throws IOException
-	 */
-	@Test(expected = ServerErrorException.class)
-	public void testGetDocumentLocalNullQueryResponse() throws URISyntaxException,
-			IngestException, SourceUnavailableException,
-			UnsupportedQueryException, FederationException,
-			CatalogTransformerException, IOException,
-			ResourceNotFoundException, ResourceNotSupportedException {
-		
-		CatalogFramework framework = givenCatalogFramework(SAMPLE_ID);
-		mockTestSetup(framework, true, TestType.QUERY_RESPONSE_TEST);
-	}
-
-	/**
-	 * Tests federated retrieve with a null QueryResponse
-	 * 
-	 * @throws URISyntaxException
-	 * @throws IngestException
-	 * @throws SourceUnavailableException
-	 * @throws UnsupportedQueryException
-	 * @throws FederationException
-	 * @throws CatalogTransformerException
-	 * @throws ResourceNotSupportedException
-	 * @throws ResourceNotFoundException
-	 * @throws IOException
-	 */
-	@Test(expected = ServerErrorException.class)
-	public void testGetDocumentFedNullQueryResponse() throws URISyntaxException,
-			IngestException, SourceUnavailableException,
-			UnsupportedQueryException, FederationException,
-			CatalogTransformerException, IOException,
-			ResourceNotFoundException, ResourceNotSupportedException {
-		
-		CatalogFramework framework = givenCatalogFramework(SAMPLE_ID);
-		mockTestSetup(framework, false, TestType.QUERY_RESPONSE_TEST);
-	}
-	
-	/**
-	 * Tests local retrieve with a null Metacard
-	 * 
-	 * @throws URISyntaxException
-	 * @throws IngestException
-	 * @throws SourceUnavailableException
-	 * @throws UnsupportedQueryException
-	 * @throws FederationException
-	 * @throws CatalogTransformerException
-	 * @throws ResourceNotSupportedException
-	 * @throws ResourceNotFoundException
-	 * @throws IOException
-	 */
-	@Test(expected = ServerErrorException.class)
-	public void testGetDocumentLocalNullMetacard() throws URISyntaxException,
-			IngestException, SourceUnavailableException,
-			UnsupportedQueryException, FederationException,
-			CatalogTransformerException, IOException,
-			ResourceNotFoundException, ResourceNotSupportedException {
-		
-		CatalogFramework framework = givenCatalogFramework(SAMPLE_ID);
-		mockTestSetup(framework, true, TestType.METACARD_TEST);
-	}
-
-	/**
-	 * Tests federated retrieve with a null Metacard
-	 * 
-	 * @throws URISyntaxException
-	 * @throws IngestException
-	 * @throws SourceUnavailableException
-	 * @throws UnsupportedQueryException
-	 * @throws FederationException
-	 * @throws CatalogTransformerException
-	 * @throws ResourceNotSupportedException
-	 * @throws ResourceNotFoundException
-	 * @throws IOException
-	 */
-	@Test(expected = ServerErrorException.class)
-	public void testGetDocumentFedNullMetacard() throws URISyntaxException,
-			IngestException, SourceUnavailableException,
-			UnsupportedQueryException, FederationException,
-			CatalogTransformerException, IOException,
-			ResourceNotFoundException, ResourceNotSupportedException {
-		
-		CatalogFramework framework = givenCatalogFramework(SAMPLE_ID);
-		mockTestSetup(framework, false, TestType.METACARD_TEST);
-	}
-	
-	/**
-	 * Tests local retrieve with a successful response
-	 * 
-	 * @throws URISyntaxException
-	 * @throws IngestException
-	 * @throws SourceUnavailableException
-	 * @throws UnsupportedQueryException
-	 * @throws FederationException
-	 * @throws CatalogTransformerException
-	 * @throws ResourceNotSupportedException
-	 * @throws ResourceNotFoundException
-	 * @throws IOException
-	 */
-	@Test
-	public void testGetDocumentLocalSuccess() throws URISyntaxException,
-			IngestException, SourceUnavailableException,
-			UnsupportedQueryException, FederationException,
-			CatalogTransformerException, IOException,
-			ResourceNotFoundException, ResourceNotSupportedException {
-		
-		CatalogFramework framework = givenCatalogFramework(SAMPLE_ID);
-		Response response = mockTestSetup(framework, true, TestType.SUCCESS_TEST);
-
-		String responseMessage = byteArrayConvert((ByteArrayInputStream) response.getEntity());
-		assertEquals(responseMessage, GET_STREAM);
-		assertEquals(response.getStatus(), 200);
-		assertEquals(response.getMetadata().toString(),	GET_TYPE_OUTPUT);
-	}
-
-	/**
-	 * Tests federated retrieve with a successful response
-	 * 
-	 * @throws URISyntaxException
-	 * @throws IngestException
-	 * @throws SourceUnavailableException
-	 * @throws UnsupportedQueryException
-	 * @throws FederationException
-	 * @throws CatalogTransformerException
-	 * @throws ResourceNotSupportedException
-	 * @throws ResourceNotFoundException
-	 * @throws IOException
-	 */
-	@Test
-	public void testGetDocumentFedSuccess() throws URISyntaxException,
-			IngestException, SourceUnavailableException,
-			UnsupportedQueryException, FederationException,
-			CatalogTransformerException, IOException,
-			ResourceNotFoundException, ResourceNotSupportedException {
-		
-		CatalogFramework framework = givenCatalogFramework(SAMPLE_ID);
-		Response response = mockTestSetup(framework, false, TestType.SUCCESS_TEST);
-
-		String responseMessage = byteArrayConvert((ByteArrayInputStream) response.getEntity());
-		assertEquals(responseMessage, GET_STREAM);
-		assertEquals(response.getStatus(), 200);
-		assertEquals(response.getMetadata().toString(), GET_TYPE_OUTPUT);
-	}
+        MimeTypeToTransformerMapper matchingService = mock(MimeTypeToTransformerMapper.class);
+
+        InputTransformer transformer = mock(InputTransformer.class);
+
+        try {
+            when(transformer.transform(isA(InputStream.class))).thenThrow(IOException.class);
+        } catch (IOException e) {
+            LOGGER.debug(e.toString());
+        } catch (CatalogTransformerException e) {
+            LOGGER.debug(e.toString());
+        }
+
+        when(matchingService.findMatches(eq(InputTransformer.class), isA(MimeType.class)))
+                .thenReturn((List) Arrays.asList(transformer));
+
+        rest.setMimeTypeToTransformerMapper(matchingService);
+
+        InputStream is = new ByteArrayInputStream("".getBytes());
+
+        rest.addDocument(headers, mock(UriInfo.class), is);
+
+    }
+
+    @Test()
+    public void testAddDocumentPositiveCase() throws IOException, CatalogTransformerException,
+        IngestException, SourceUnavailableException, URISyntaxException {
+
+        CatalogFramework framework = givenCatalogFramework(SAMPLE_ID);
+
+        HttpHeaders headers = createHeaders(Arrays.asList(MediaType.APPLICATION_JSON));
+
+        RESTEndpoint rest = new RESTEndpoint(framework);
+
+        addMatchingService(rest, Arrays.asList(getSimpleTransformer()));
+
+        UriInfo info = givenUriInfo(SAMPLE_ID);
+
+        Response response = rest
+                .addDocument(headers, info, new ByteArrayInputStream("".getBytes()));
+
+        LOGGER.debug(ToStringBuilder.reflectionToString(response));
+
+        assertThat(response.getStatus(), equalTo(201));
+
+        assertThat(response.getMetadata(), notNullValue());
+
+        assertThat(response.getMetadata().get(Metacard.ID).get(0).toString(), equalTo(SAMPLE_ID));
+    }
+
+    /**
+     * Tests local retrieve with a null QueryResponse
+     * 
+     * @throws URISyntaxException
+     * @throws SourceUnavailableException
+     * @throws IngestException
+     * @throws ResourceNotSupportedException
+     * @throws ResourceNotFoundException
+     * @throws IOException
+     */
+    @Test(expected = ServerErrorException.class)
+    public void testGetDocumentLocalNullQueryResponse() throws URISyntaxException, IngestException,
+        SourceUnavailableException, UnsupportedQueryException, FederationException,
+        CatalogTransformerException, IOException, ResourceNotFoundException,
+        ResourceNotSupportedException {
+
+        CatalogFramework framework = givenCatalogFramework(SAMPLE_ID);
+        mockTestSetup(framework, true, TestType.QUERY_RESPONSE_TEST);
+    }
+
+    /**
+     * Tests federated retrieve with a null QueryResponse
+     * 
+     * @throws URISyntaxException
+     * @throws IngestException
+     * @throws SourceUnavailableException
+     * @throws UnsupportedQueryException
+     * @throws FederationException
+     * @throws CatalogTransformerException
+     * @throws ResourceNotSupportedException
+     * @throws ResourceNotFoundException
+     * @throws IOException
+     */
+    @Test(expected = ServerErrorException.class)
+    public void testGetDocumentFedNullQueryResponse() throws URISyntaxException, IngestException,
+        SourceUnavailableException, UnsupportedQueryException, FederationException,
+        CatalogTransformerException, IOException, ResourceNotFoundException,
+        ResourceNotSupportedException {
+
+        CatalogFramework framework = givenCatalogFramework(SAMPLE_ID);
+        mockTestSetup(framework, false, TestType.QUERY_RESPONSE_TEST);
+    }
+
+    /**
+     * Tests local retrieve with a null Metacard
+     * 
+     * @throws URISyntaxException
+     * @throws IngestException
+     * @throws SourceUnavailableException
+     * @throws UnsupportedQueryException
+     * @throws FederationException
+     * @throws CatalogTransformerException
+     * @throws ResourceNotSupportedException
+     * @throws ResourceNotFoundException
+     * @throws IOException
+     */
+    @Test(expected = ServerErrorException.class)
+    public void testGetDocumentLocalNullMetacard() throws URISyntaxException, IngestException,
+        SourceUnavailableException, UnsupportedQueryException, FederationException,
+        CatalogTransformerException, IOException, ResourceNotFoundException,
+        ResourceNotSupportedException {
+
+        CatalogFramework framework = givenCatalogFramework(SAMPLE_ID);
+        mockTestSetup(framework, true, TestType.METACARD_TEST);
+    }
+
+    /**
+     * Tests federated retrieve with a null Metacard
+     * 
+     * @throws URISyntaxException
+     * @throws IngestException
+     * @throws SourceUnavailableException
+     * @throws UnsupportedQueryException
+     * @throws FederationException
+     * @throws CatalogTransformerException
+     * @throws ResourceNotSupportedException
+     * @throws ResourceNotFoundException
+     * @throws IOException
+     */
+    @Test(expected = ServerErrorException.class)
+    public void testGetDocumentFedNullMetacard() throws URISyntaxException, IngestException,
+        SourceUnavailableException, UnsupportedQueryException, FederationException,
+        CatalogTransformerException, IOException, ResourceNotFoundException,
+        ResourceNotSupportedException {
+
+        CatalogFramework framework = givenCatalogFramework(SAMPLE_ID);
+        mockTestSetup(framework, false, TestType.METACARD_TEST);
+    }
+
+    /**
+     * Tests local retrieve with a successful response
+     * 
+     * @throws URISyntaxException
+     * @throws IngestException
+     * @throws SourceUnavailableException
+     * @throws UnsupportedQueryException
+     * @throws FederationException
+     * @throws CatalogTransformerException
+     * @throws ResourceNotSupportedException
+     * @throws ResourceNotFoundException
+     * @throws IOException
+     */
+    @Test
+    public void testGetDocumentLocalSuccess() throws URISyntaxException, IngestException,
+        SourceUnavailableException, UnsupportedQueryException, FederationException,
+        CatalogTransformerException, IOException, ResourceNotFoundException,
+        ResourceNotSupportedException {
+
+        CatalogFramework framework = givenCatalogFramework(SAMPLE_ID);
+        Response response = mockTestSetup(framework, true, TestType.SUCCESS_TEST);
+
+        String responseMessage = byteArrayConvert((ByteArrayInputStream) response.getEntity());
+        assertEquals(responseMessage, GET_STREAM);
+        assertEquals(response.getStatus(), 200);
+        assertEquals(response.getMetadata().toString(), GET_TYPE_OUTPUT);
+    }
+
+    /**
+     * Tests federated retrieve with a successful response
+     * 
+     * @throws URISyntaxException
+     * @throws IngestException
+     * @throws SourceUnavailableException
+     * @throws UnsupportedQueryException
+     * @throws FederationException
+     * @throws CatalogTransformerException
+     * @throws ResourceNotSupportedException
+     * @throws ResourceNotFoundException
+     * @throws IOException
+     */
+    @Test
+    public void testGetDocumentFedSuccess() throws URISyntaxException, IngestException,
+        SourceUnavailableException, UnsupportedQueryException, FederationException,
+        CatalogTransformerException, IOException, ResourceNotFoundException,
+        ResourceNotSupportedException {
+
+        CatalogFramework framework = givenCatalogFramework(SAMPLE_ID);
+        Response response = mockTestSetup(framework, false, TestType.SUCCESS_TEST);
+
+        String responseMessage = byteArrayConvert((ByteArrayInputStream) response.getEntity());
+        assertEquals(responseMessage, GET_STREAM);
+        assertEquals(response.getStatus(), 200);
+        assertEquals(response.getMetadata().toString(), GET_TYPE_OUTPUT);
+    }
 
     /**
      * Tests getting source information
@@ -475,13 +490,13 @@ public class TestRestEndpoint {
      * @throws FederationException
      * @throws CatalogTransformerException
      * @throws UnsupportedEncodingException
-     * @throws ParseException 
+     * @throws ParseException
      */
     @Test
-    public void testGetDocumentSourcesSuccess() throws SourceUnavailableException, 
-            UnsupportedQueryException, FederationException,
-            CatalogTransformerException, URISyntaxException, ParseException {
-        
+    public void testGetDocumentSourcesSuccess() throws SourceUnavailableException,
+        UnsupportedQueryException, FederationException, CatalogTransformerException,
+        URISyntaxException, ParseException {
+
         final String LOCAL_SOURCE_ID = "local";
         final String FED1_SOURCE_ID = "fed1";
         final String FED2_SOURCE_ID = "fed2";
@@ -493,7 +508,7 @@ public class TestRestEndpoint {
         contentTypes.add(new ContentTypeImpl("ct2", "v2"));
         contentTypes.add(new ContentTypeImpl("ct3", null));
         JSONArray contentTypesInJSON = new JSONArray();
-        for(ContentType ct : contentTypes) {
+        for (ContentType ct : contentTypes) {
             JSONObject ob = new JSONObject();
             ob.put("name", ct.getName());
             ob.put("version", ct.getVersion() != null ? ct.getVersion() : "");
@@ -501,7 +516,8 @@ public class TestRestEndpoint {
         }
 
         Set<SourceDescriptor> sourceDescriptors = new HashSet<SourceDescriptor>();
-        SourceDescriptorImpl localDescriptor = new SourceDescriptorImpl(LOCAL_SOURCE_ID, contentTypes);
+        SourceDescriptorImpl localDescriptor = new SourceDescriptorImpl(LOCAL_SOURCE_ID,
+                contentTypes);
         localDescriptor.setVersion(VERSION);
         SourceDescriptorImpl fed1Descriptor = new SourceDescriptorImpl(FED1_SOURCE_ID, contentTypes);
         fed1Descriptor.setVersion(VERSION);
@@ -510,11 +526,13 @@ public class TestRestEndpoint {
         sourceDescriptors.add(localDescriptor);
         sourceDescriptors.add(fed1Descriptor);
         sourceDescriptors.add(fed2Descriptor);
-        
-        SourceInfoResponse sourceInfoResponse = new SourceInfoResponseImpl(null, null, sourceDescriptors);
+
+        SourceInfoResponse sourceInfoResponse = new SourceInfoResponseImpl(null, null,
+                sourceDescriptors);
 
         CatalogFramework framework = mock(CatalogFramework.class);
-        when(framework.getSourceInfo(isA(SourceInfoRequestEnterprise.class))).thenReturn(sourceInfoResponse);
+        when(framework.getSourceInfo(isA(SourceInfoRequestEnterprise.class))).thenReturn(
+                sourceInfoResponse);
 
         RESTEndpoint restEndpoint = new RESTEndpoint(framework);
 
@@ -527,8 +545,8 @@ public class TestRestEndpoint {
 
         assertEquals(3, srcList.size());
 
-        for(Object o : srcList) {
-            JSONObject src = (JSONObject) o; 
+        for (Object o : srcList) {
+            JSONObject src = (JSONObject) o;
             assertEquals(true, src.get("available"));
             String id = (String) src.get("id");
             if (id.equals(LOCAL_SOURCE_ID)) {
@@ -550,307 +568,304 @@ public class TestRestEndpoint {
         }
     }
 
-	/**
-	 * Tests retrieving a local resource with a successful response
-	 * 
-	 * @throws URISyntaxException
-	 * @throws IngestException
-	 * @throws SourceUnavailableException
-	 * @throws UnsupportedQueryException
-	 * @throws FederationException
-	 * @throws CatalogTransformerException
-	 * @throws ResourceNotSupportedException
-	 * @throws ResourceNotFoundException
-	 * @throws IOException
-	 */
-	@Test
-	public void testGetDocumentResourceLocalSuccess() throws URISyntaxException,
-			IngestException, SourceUnavailableException,
-			UnsupportedQueryException, FederationException,
-			CatalogTransformerException, IOException,
-			ResourceNotFoundException, ResourceNotSupportedException {
+    /**
+     * Tests retrieving a local resource with a successful response
+     * 
+     * @throws URISyntaxException
+     * @throws IngestException
+     * @throws SourceUnavailableException
+     * @throws UnsupportedQueryException
+     * @throws FederationException
+     * @throws CatalogTransformerException
+     * @throws ResourceNotSupportedException
+     * @throws ResourceNotFoundException
+     * @throws IOException
+     */
+    @Test
+    public void testGetDocumentResourceLocalSuccess() throws URISyntaxException, IngestException,
+        SourceUnavailableException, UnsupportedQueryException, FederationException,
+        CatalogTransformerException, IOException, ResourceNotFoundException,
+        ResourceNotSupportedException {
 
-		CatalogFramework framework = givenCatalogFramework(SAMPLE_ID);
-		Response response = mockTestSetup(framework, true, TestType.RESOURCE_TEST);
+        CatalogFramework framework = givenCatalogFramework(SAMPLE_ID);
+        Response response = mockTestSetup(framework, true, TestType.RESOURCE_TEST);
 
-		String responseMessage = byteArrayConvert((ByteArrayInputStream) response.getEntity());
-		assertEquals(responseMessage, GET_STREAM);
-		assertEquals(response.getStatus(), 200);
-		assertEquals(response.getMetadata().toString(), GET_TYPE_OUTPUT);
-	}
+        String responseMessage = byteArrayConvert((ByteArrayInputStream) response.getEntity());
+        assertEquals(responseMessage, GET_STREAM);
+        assertEquals(response.getStatus(), 200);
+        assertEquals(response.getMetadata().toString(), GET_TYPE_OUTPUT);
+    }
 
-	/**
-	 * Tests retrieving a federated resource with a successful response
-	 * 
-	 * @throws URISyntaxException
-	 * @throws IngestException
-	 * @throws SourceUnavailableException
-	 * @throws UnsupportedQueryException
-	 * @throws FederationException
-	 * @throws CatalogTransformerException
-	 * @throws ResourceNotSupportedException
-	 * @throws ResourceNotFoundException
-	 * @throws IOException
-	 */
-	@Test
-	public void testGetDocumentResourceFedSuccess() throws URISyntaxException,
-			IngestException, SourceUnavailableException,
-			UnsupportedQueryException, FederationException,
-			CatalogTransformerException, IOException,
-			ResourceNotFoundException, ResourceNotSupportedException {
+    /**
+     * Tests retrieving a federated resource with a successful response
+     * 
+     * @throws URISyntaxException
+     * @throws IngestException
+     * @throws SourceUnavailableException
+     * @throws UnsupportedQueryException
+     * @throws FederationException
+     * @throws CatalogTransformerException
+     * @throws ResourceNotSupportedException
+     * @throws ResourceNotFoundException
+     * @throws IOException
+     */
+    @Test
+    public void testGetDocumentResourceFedSuccess() throws URISyntaxException, IngestException,
+        SourceUnavailableException, UnsupportedQueryException, FederationException,
+        CatalogTransformerException, IOException, ResourceNotFoundException,
+        ResourceNotSupportedException {
 
-		CatalogFramework framework = givenCatalogFramework(SAMPLE_ID);
-		Response response = mockTestSetup(framework, false, TestType.RESOURCE_TEST);
+        CatalogFramework framework = givenCatalogFramework(SAMPLE_ID);
+        Response response = mockTestSetup(framework, false, TestType.RESOURCE_TEST);
 
-		String responseMessage = byteArrayConvert((ByteArrayInputStream) response.getEntity());
-		assertEquals(responseMessage, GET_STREAM);
-		assertEquals(response.getStatus(), 200);
-		assertEquals(response.getMetadata().toString(), GET_TYPE_OUTPUT);
-	}
+        String responseMessage = byteArrayConvert((ByteArrayInputStream) response.getEntity());
+        assertEquals(responseMessage, GET_STREAM);
+        assertEquals(response.getStatus(), 200);
+        assertEquals(response.getMetadata().toString(), GET_TYPE_OUTPUT);
+    }
 
-	/**
-	 * Converts a ByteArrayInputStream into a readable/printable String
-	 * @param content
-	 * @return
-	 */
-	protected String byteArrayConvert(ByteArrayInputStream content) {
-		int streamSize = content.available();
-		char[] charArray = new char[streamSize];
-		byte[] byteArray = new byte[streamSize];
+    /**
+     * Converts a ByteArrayInputStream into a readable/printable String
+     * 
+     * @param content
+     * @return
+     */
+    protected String byteArrayConvert(ByteArrayInputStream content) {
+        int streamSize = content.available();
+        char[] charArray = new char[streamSize];
+        byte[] byteArray = new byte[streamSize];
 
-		content.read(byteArray, 0, streamSize);
-		for (int i = 0; i < streamSize;) {
-			charArray[i] = (char) (byteArray[i++] & 0xff);
-		}
+        content.read(byteArray, 0, streamSize);
+        for (int i = 0; i < streamSize;) {
+            charArray[i] = (char) (byteArray[i++] & 0xff);
+        }
 
-		return new String(charArray);
-	}
-	
-	/**
-	 * Creates a UriInfo with a user specified URL
-	 * 
-	 * @param url
-	 * @return
-	 * @throws URISyntaxException
-	 */
-	protected UriInfo createSpecificUriInfo(String url)
-			throws URISyntaxException {
+        return new String(charArray);
+    }
 
-		UriInfo uriInfo = mock(UriInfo.class);
-		URI uri = new URI(url);
+    /**
+     * Creates a UriInfo with a user specified URL
+     * 
+     * @param url
+     * @return
+     * @throws URISyntaxException
+     */
+    protected UriInfo createSpecificUriInfo(String url) throws URISyntaxException {
 
-		when(uriInfo.getAbsolutePath()).thenReturn(uri);
-		when(uriInfo.getQueryParameters()).thenReturn(mock(MultivaluedMap.class));
+        UriInfo uriInfo = mock(UriInfo.class);
+        URI uri = new URI(url);
 
-		return uriInfo;
-	}
+        when(uriInfo.getAbsolutePath()).thenReturn(uri);
+        when(uriInfo.getQueryParameters()).thenReturn(mock(MultivaluedMap.class));
 
-	protected enum TestType {
-		QUERY_RESPONSE_TEST,
-		METACARD_TEST,
-		SUCCESS_TEST,
-		RESOURCE_TEST
-	};
+        return uriInfo;
+    }
 
-	/**
-	 * Creates the mock setup for the GET tests above. Parameters specify whether
-	 * the test will be for a local retrieve or a federated retrieve. Parameters 
-	 * also specify which test case is being run.
-	 * 
-	 * @param framework
-	 * @param local
-	 * @param queryResponseTest
-	 * @param metacardTest
-	 * @param successTest
-	 * @return
-	 * @throws SourceUnavailableException
-	 * @throws UnsupportedQueryException
-	 * @throws FederationException
-	 * @throws CatalogTransformerException
-	 * @throws URISyntaxException
-	 * @throws ResourceNotSupportedException
-	 * @throws ResourceNotFoundException
-	 * @throws IOException
-	 */
-	protected Response mockTestSetup(CatalogFramework framework, boolean local, TestType testType)
-			throws SourceUnavailableException, UnsupportedQueryException,
-			FederationException, CatalogTransformerException, URISyntaxException,
-			IOException, ResourceNotFoundException, ResourceNotSupportedException
-	{
-		String transformer = null;
-		QueryResponse queryResponse = mock(QueryResponse.class);
-		when(framework.query(isA(QueryRequest.class), isNull(FederationStrategy.class))).thenReturn(
-				queryResponse);
+    protected enum TestType {
+        QUERY_RESPONSE_TEST, METACARD_TEST, SUCCESS_TEST, RESOURCE_TEST
+    };
 
-		List<Result> list = null;
-		MetacardImpl metacard = null;
-		Result result = mock(Result.class);
-		InputStream inputStream = null;
+    /**
+     * Creates the mock setup for the GET tests above. Parameters specify whether the test will be
+     * for a local retrieve or a federated retrieve. Parameters also specify which test case is
+     * being run.
+     * 
+     * @param framework
+     * @param local
+     * @param queryResponseTest
+     * @param metacardTest
+     * @param successTest
+     * @return
+     * @throws SourceUnavailableException
+     * @throws UnsupportedQueryException
+     * @throws FederationException
+     * @throws CatalogTransformerException
+     * @throws URISyntaxException
+     * @throws ResourceNotSupportedException
+     * @throws ResourceNotFoundException
+     * @throws IOException
+     */
+    protected Response mockTestSetup(CatalogFramework framework, boolean local, TestType testType)
+        throws SourceUnavailableException, UnsupportedQueryException, FederationException,
+        CatalogTransformerException, URISyntaxException, IOException, ResourceNotFoundException,
+        ResourceNotSupportedException {
+        String transformer = null;
+        QueryResponse queryResponse = mock(QueryResponse.class);
+        when(framework.query(isA(QueryRequest.class), isNull(FederationStrategy.class)))
+                .thenReturn(queryResponse);
 
-		switch (testType) {
-		case QUERY_RESPONSE_TEST:
-			when(queryResponse.getResults()).thenReturn(list);
-			break;
+        List<Result> list = null;
+        MetacardImpl metacard = null;
+        Result result = mock(Result.class);
+        InputStream inputStream = null;
 
-		case METACARD_TEST:
-			list = new ArrayList<Result>();
-			list.add(result);
-			when(queryResponse.getResults()).thenReturn(list);
+        switch (testType) {
+        case QUERY_RESPONSE_TEST:
+            when(queryResponse.getResults()).thenReturn(list);
+            break;
 
-			when(result.getMetacard()).thenReturn(metacard);
-			break;
+        case METACARD_TEST:
+            list = new ArrayList<Result>();
+            list.add(result);
+            when(queryResponse.getResults()).thenReturn(list);
 
-		case RESOURCE_TEST:
-			transformer = "resource";
-			/* FALLTHRU */
-		case SUCCESS_TEST:
-			list = new ArrayList<Result>();
-			list.add(result);
-			when(queryResponse.getResults()).thenReturn(list);
+            when(result.getMetacard()).thenReturn(metacard);
+            break;
 
-			metacard = new MetacardImpl();
-			metacard.setSourceId(GET_SITENAME);
-			when(result.getMetacard()).thenReturn(metacard);
+        case RESOURCE_TEST:
+            transformer = "resource";
+            /* FALLTHRU */
+        case SUCCESS_TEST:
+            list = new ArrayList<Result>();
+            list.add(result);
+            when(queryResponse.getResults()).thenReturn(list);
 
-			Resource resource = mock(Resource.class);
-			inputStream = new ByteArrayInputStream(GET_STREAM.getBytes(GET_OUTPUT_TYPE));
-			when(resource.getInputStream()).thenReturn(inputStream);
-			when(resource.getMimeTypeValue()).thenReturn(GET_MIME_TYPE);
-			when(resource.getName()).thenReturn(GET_FILENAME);
-			when(framework.transform(isA(Metacard.class), anyString(), isA(Map.class)))
-					.thenReturn(resource);
-			break;
-		}
-		
-		RESTEndpoint restEndpoint = new RESTEndpoint(framework);
-		FilterBuilder filterBuilder = new GeotoolsFilterBuilder();
-		restEndpoint.setFilterBuilder(filterBuilder);
+            metacard = new MetacardImpl();
+            metacard.setSourceId(GET_SITENAME);
+            when(result.getMetacard()).thenReturn(metacard);
 
-		UriInfo uriInfo;
-		Response response;
-		if(local)
-		{
-			uriInfo = createSpecificUriInfo(LOCAL_RETRIEVE_ADDRESS);
-			response = restEndpoint.getDocument(GET_ID, transformer, uriInfo, null);
-		}
-		else
-		{
-			uriInfo = createSpecificUriInfo(FED_RETRIEVE_ADDRESS);
-			response = restEndpoint.getDocument(GET_SITENAME, GET_ID, transformer, uriInfo, null);
-		}
+            Resource resource = mock(Resource.class);
+            inputStream = new ByteArrayInputStream(GET_STREAM.getBytes(GET_OUTPUT_TYPE));
+            when(resource.getInputStream()).thenReturn(inputStream);
+            when(resource.getMimeTypeValue()).thenReturn(GET_MIME_TYPE);
+            when(resource.getName()).thenReturn(GET_FILENAME);
+            when(framework.transform(isA(Metacard.class), anyString(), isA(Map.class))).thenReturn(
+                    resource);
+            break;
+        }
 
-		return response;
-	}
-	
-	protected void assertExceptionThrown(Class<? extends Throwable> klass) throws IngestException,
-			SourceUnavailableException, URISyntaxException {
+        RESTEndpoint restEndpoint = new RESTEndpoint(framework);
+        FilterBuilder filterBuilder = new GeotoolsFilterBuilder();
+        restEndpoint.setFilterBuilder(filterBuilder);
 
-		CatalogFramework framework = mock(CatalogFramework.class);
+        UriInfo uriInfo;
+        Response response;
+        if (local) {
+            uriInfo = createSpecificUriInfo(LOCAL_RETRIEVE_ADDRESS);
+            response = restEndpoint.getDocument(GET_ID, transformer, uriInfo, null);
+        } else {
+            uriInfo = createSpecificUriInfo(FED_RETRIEVE_ADDRESS);
+            response = restEndpoint.getDocument(GET_SITENAME, GET_ID, transformer, uriInfo, null);
+        }
 
-		when(framework.create(isA(CreateRequest.class))).thenThrow(klass);
+        return response;
+    }
 
-		HttpHeaders headers = createHeaders(Arrays.asList(MediaType.APPLICATION_JSON));
+    protected void assertExceptionThrown(Class<? extends Throwable> klass) throws IngestException,
+        SourceUnavailableException, URISyntaxException {
 
-		RESTEndpoint rest = new RESTEndpoint(framework);
+        CatalogFramework framework = mock(CatalogFramework.class);
 
-		addMatchingService(rest, Arrays.asList(getSimpleTransformer()));
+        when(framework.create(isA(CreateRequest.class))).thenThrow(klass);
 
-		UriInfo info = givenUriInfo(SAMPLE_ID);
+        HttpHeaders headers = createHeaders(Arrays.asList(MediaType.APPLICATION_JSON));
 
-		try {
-			rest.addDocument(headers, info, new ByteArrayInputStream("".getBytes()));
-			fail();
-		} catch (ServerErrorException e) {
-			assertThat(e.getResponse().getStatus(), equalTo(INTERNAL_SERVER_ERROR));
-		}
-	}
-	
-	protected CatalogFramework givenCatalogFramework(String returnId) throws IngestException, SourceUnavailableException {
-		CatalogFramework framework = mock(CatalogFramework.class);
+        RESTEndpoint rest = new RESTEndpoint(framework);
 
-		Metacard returnMetacard = mock(Metacard.class);
+        addMatchingService(rest, Arrays.asList(getSimpleTransformer()));
 
-		when(returnMetacard.getId()).thenReturn(returnId);
+        UriInfo info = givenUriInfo(SAMPLE_ID);
 
-		when(framework.create(isA(CreateRequest.class))).thenReturn(
-				new CreateResponseImpl(null, null, Arrays.asList(returnMetacard)));
-		return framework;
-	}
+        try {
+            rest.addDocument(headers, info, new ByteArrayInputStream("".getBytes()));
+            fail();
+        } catch (ServerErrorException e) {
+            assertThat(e.getResponse().getStatus(), equalTo(INTERNAL_SERVER_ERROR));
+        }
+    }
 
-	protected UriInfo givenUriInfo(String metacardId) throws URISyntaxException {
-		UriInfo info = mock(UriInfo.class);
+    protected CatalogFramework givenCatalogFramework(String returnId) throws IngestException,
+        SourceUnavailableException {
+        CatalogFramework framework = mock(CatalogFramework.class);
 
-		UriBuilder builder = mock(UriBuilder.class);
+        Metacard returnMetacard = mock(Metacard.class);
 
-		when(builder.path("/" + metacardId)).thenReturn(builder);
+        when(returnMetacard.getId()).thenReturn(returnId);
 
-		when(builder.build()).thenReturn(new URI(ENDPOINT_ADDRESS));
-		
-		when(info.getAbsolutePathBuilder()).thenReturn(builder);
-		return info;
-	}
+        when(framework.create(isA(CreateRequest.class))).thenReturn(
+                new CreateResponseImpl(null, null, Arrays.asList(returnMetacard)));
+        return framework;
+    }
 
-	protected InputTransformer getMockInputTransformer() {
-		InputTransformer inputTransformer = mock(InputTransformer.class);
+    protected UriInfo givenUriInfo(String metacardId) throws URISyntaxException {
+        UriInfo info = mock(UriInfo.class);
 
-		Metacard generatedMetacard = getSimpleMetacard();
+        UriBuilder builder = mock(UriBuilder.class);
 
-		try {
-			when(inputTransformer.transform(isA(InputStream.class))).thenReturn(generatedMetacard);
-			when(inputTransformer.transform(isA(InputStream.class), isA(String.class))).thenReturn(generatedMetacard);
-		} catch (IOException e) {
-			LOGGER.debug(e.toString());
-		} catch (CatalogTransformerException e) {
-			LOGGER.debug(e.toString());
-		}
-		return inputTransformer;
-	}
+        when(builder.path("/" + metacardId)).thenReturn(builder);
 
-	protected Metacard getSimpleMetacard() {
-		MetacardImpl generatedMetacard = new MetacardImpl();
-		generatedMetacard.setMetadata(getSample());
-		generatedMetacard.setId(SAMPLE_ID);
+        when(builder.build()).thenReturn(new URI(ENDPOINT_ADDRESS));
 
-		return generatedMetacard;
-	}
+        when(info.getAbsolutePathBuilder()).thenReturn(builder);
+        return info;
+    }
 
-	private InputTransformer getSimpleTransformer() {
-		return new InputTransformer() {
+    protected InputTransformer getMockInputTransformer() {
+        InputTransformer inputTransformer = mock(InputTransformer.class);
 
-			@Override
-			public Metacard transform(InputStream input, String id) throws IOException, CatalogTransformerException {
-				return getSimpleMetacard();
-			}
+        Metacard generatedMetacard = getSimpleMetacard();
 
-			@Override
-			public Metacard transform(InputStream input) throws IOException, CatalogTransformerException {
-				return getSimpleMetacard();
-			}
-		};
-	}
+        try {
+            when(inputTransformer.transform(isA(InputStream.class))).thenReturn(generatedMetacard);
+            when(inputTransformer.transform(isA(InputStream.class), isA(String.class))).thenReturn(
+                    generatedMetacard);
+        } catch (IOException e) {
+            LOGGER.debug(e.toString());
+        } catch (CatalogTransformerException e) {
+            LOGGER.debug(e.toString());
+        }
+        return inputTransformer;
+    }
 
-	private MimeTypeToTransformerMapper addMatchingService(RESTEndpoint rest, List<InputTransformer> sortedListOfTransformers) {
+    protected Metacard getSimpleMetacard() {
+        MetacardImpl generatedMetacard = new MetacardImpl();
+        generatedMetacard.setMetadata(getSample());
+        generatedMetacard.setId(SAMPLE_ID);
 
-		MimeTypeToTransformerMapper matchingService = mock(MimeTypeToTransformerMapper.class);
+        return generatedMetacard;
+    }
 
-		when(matchingService.findMatches(eq(InputTransformer.class), isA(MimeType.class))).thenReturn((List)sortedListOfTransformers);
+    private InputTransformer getSimpleTransformer() {
+        return new InputTransformer() {
 
-		rest.setMimeTypeToTransformerMapper(matchingService);
+            @Override
+            public Metacard transform(InputStream input, String id) throws IOException,
+                CatalogTransformerException {
+                return getSimpleMetacard();
+            }
 
-		return matchingService;
-	}
+            @Override
+            public Metacard transform(InputStream input) throws IOException,
+                CatalogTransformerException {
+                return getSimpleMetacard();
+            }
+        };
+    }
 
-	private HttpHeaders createHeaders(List<String> mimeTypeList) {
+    private MimeTypeToTransformerMapper addMatchingService(RESTEndpoint rest,
+            List<InputTransformer> sortedListOfTransformers) {
 
-		HttpHeaders headers = mock(HttpHeaders.class);
+        MimeTypeToTransformerMapper matchingService = mock(MimeTypeToTransformerMapper.class);
 
-		when(headers.getRequestHeader(HttpHeaders.CONTENT_TYPE)).thenReturn(mimeTypeList);
+        when(matchingService.findMatches(eq(InputTransformer.class), isA(MimeType.class)))
+                .thenReturn((List) sortedListOfTransformers);
 
-		return headers;
-	}
+        rest.setMimeTypeToTransformerMapper(matchingService);
 
-	private String getSample() {
-		return "<xml></xml>";
-	}
+        return matchingService;
+    }
+
+    private HttpHeaders createHeaders(List<String> mimeTypeList) {
+
+        HttpHeaders headers = mock(HttpHeaders.class);
+
+        when(headers.getRequestHeader(HttpHeaders.CONTENT_TYPE)).thenReturn(mimeTypeList);
+
+        return headers;
+    }
+
+    private String getSample() {
+        return "<xml></xml>";
+    }
 
 }

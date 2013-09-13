@@ -1,39 +1,36 @@
 /**
  * Copyright (c) Codice Foundation
- *
- * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
- * version 3 of the License, or any later version. 
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * 
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
+ * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
+ * 
  **/
 
 package ddf.catalog.pubsub.criteria.entry;
 
-public class EntryEvaluationCriteriaImpl implements EntryEvaluationCriteria 
-{
-	private String id;
-	private String inputId;
+public class EntryEvaluationCriteriaImpl implements EntryEvaluationCriteria {
+    private String id;
 
-	
-	public EntryEvaluationCriteriaImpl( String id, String inputId ) 
-	{
-		this.id = id;
-		this.inputId = inputId;
-	}
+    private String inputId;
 
-	
-	public String getId() 
-	{
-		return id;
-	}
+    public EntryEvaluationCriteriaImpl(String id, String inputId) {
+        this.id = id;
+        this.inputId = inputId;
+    }
 
-	
-	public String getInputId() 
-	{
-		return inputId;
-	}
+    public String getId() {
+        return id;
+    }
+
+    public String getInputId() {
+        return inputId;
+    }
 
 }

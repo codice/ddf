@@ -1,16 +1,18 @@
 /**
  * Copyright (c) Codice Foundation
- *
- * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
- * version 3 of the License, or any later version. 
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * 
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
+ * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
+ * 
  **/
 package com.lmco.ddf.ui;
-
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -23,17 +25,15 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
 
-
 /**
- * This a a very simple example of a servlet protected by CAS that can be used
- * to query for metacards using metacard ids.
+ * This a a very simple example of a servlet protected by CAS that can be used to query for
+ * metacards using metacard ids.
  * 
- * The main query form page that allows a user to enter a metacard id which will
- * be used to query for the associated metacard.
+ * The main query form page that allows a user to enter a metacard id which will be used to query
+ * for the associated metacard.
  * 
  */
-public class QueryForm extends HttpServlet
-{
+public class QueryForm extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
     private static final Logger LOGGER = Logger.getLogger(QueryForm.class);
@@ -43,16 +43,14 @@ public class QueryForm extends HttpServlet
     private static final String TICKET_PARAM = "ticket";
 
     @Override
-    protected void doGet( HttpServletRequest request, HttpServletResponse response ) throws ServletException,
-        IOException
-    {
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+        throws ServletException, IOException {
         doPost(request, response);
     }
 
     @Override
-    protected void doPost( HttpServletRequest request, HttpServletResponse response ) throws ServletException,
-        IOException
-    {
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+        throws ServletException, IOException {
         response.setContentType("text/html");
         PrintWriter writer = response.getWriter();
         String html = createPage(request);
@@ -60,14 +58,14 @@ public class QueryForm extends HttpServlet
     }
 
     /**
-     * This method creates the main query form page which allows a user to enter
-     * a metacard id which will be used to query for the associated metacard.
+     * This method creates the main query form page which allows a user to enter a metacard id which
+     * will be used to query for the associated metacard.
      * 
-     * @param request The Http servlet request.
+     * @param request
+     *            The Http servlet request.
      * @return Returns the html representation of the query form page.
      */
-    private String createPage( HttpServletRequest request )
-    {
+    private String createPage(HttpServletRequest request) {
         StringBuilder sb = new StringBuilder();
 
         sb.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
@@ -116,22 +114,18 @@ public class QueryForm extends HttpServlet
     /**
      * Gets the user name of the user that is logged into the query widget.
      * 
-     * @param request The Http servlet request
-     * @return Return the user name of the user that is logged into the query
-     *         widget.
+     * @param request
+     *            The Http servlet request
+     * @return Return the user name of the user that is logged into the query widget.
      */
-    private String getUserName( HttpServletRequest request )
-    {
+    private String getUserName(HttpServletRequest request) {
         Principal principal = request.getUserPrincipal();
         String userName = null;
 
-        if (principal != null)
-        {
+        if (principal != null) {
             userName = principal.getName();
             LOGGER.info("user name: " + userName);
-        }
-        else
-        {
+        } else {
             LOGGER.error("principal is null!");
             userName = "user";
         }
@@ -140,27 +134,24 @@ public class QueryForm extends HttpServlet
     }
 
     /**
-     * Gets the CAS proxy ticket that will be used by the STS to get a SAML
-     * assertion.
+     * Gets the CAS proxy ticket that will be used by the STS to get a SAML assertion.
      * 
-     * @param request The Http servlet request.
-     * @return Returns the CAS proxy ticket that will be used by the STS to get
-     *         a SAML assertion.
+     * @param request
+     *            The Http servlet request.
+     * @return Returns the CAS proxy ticket that will be used by the STS to get a SAML assertion.
      */
-    private String getProxyTicket( HttpServletRequest request )
-    {
+    private String getProxyTicket(HttpServletRequest request) {
         return request.getParameter(TICKET_PARAM);
     }
 
     /**
-     * Retrieves the url request of the service so that the ticket can be
-     * validated later on.
+     * Retrieves the url request of the service so that the ticket can be validated later on.
      * 
-     * @param request The Http servlet request.
+     * @param request
+     *            The Http servlet request.
      * @return Returns the service that the ticket was created for.
      */
-    private String getService( HttpServletRequest request )
-    {
+    private String getService(HttpServletRequest request) {
         return request.getRequestURL().toString();
     }
 }

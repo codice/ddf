@@ -1,13 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- *
- * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
- * version 3 of the License, or any later version. 
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * 
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
+ * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
+ * 
  **/
 package ddf.catalog.source.solr.textpath;
 
@@ -25,61 +28,69 @@ import org.codehaus.stax2.XMLStreamReader2;
 
 /**
  * Class is used to create simple text path index strings to be searched upon.
- *  
+ * 
  * @author Phillip Klinefelter
  * @author ddf.isgs@lmco.com
- *
+ * 
  */
 public class SimplePathIndexer {
 
-	public static final char SELECTOR = '/';
-	public static final char LEAF_TEXT_DELIMITER = '|';
-	private XMLInputFactory2 xmlInputFactory = null;
-	private final Deque<String> stack = new ArrayDeque<String>();
-	private static final Logger LOGGER = Logger.getLogger(SimplePathIndexer.class);
+    public static final char SELECTOR = '/';
 
-	public SimplePathIndexer(XMLInputFactory2 xmlInputFactory) {
-		this.xmlInputFactory = xmlInputFactory;
-	}
+    public static final char LEAF_TEXT_DELIMITER = '|';
 
-	public List<String> indexTextPath(String xmlData) {
-		XMLStreamReader2 xmlStreamReader;
-		TextPathState state = new TextPathState();
+    private XMLInputFactory2 xmlInputFactory = null;
 
-		try {
-			// xml parser does not handle leading whitespace
-			xmlStreamReader = (XMLStreamReader2) xmlInputFactory.createXMLStreamReader(new StringReader(xmlData));
+    private final Deque<String> stack = new ArrayDeque<String>();
 
-			while (xmlStreamReader.hasNext()) {
-				int event = xmlStreamReader.next();
+    private static final Logger LOGGER = Logger.getLogger(SimplePathIndexer.class);
 
-				if (event == XMLStreamConstants.START_ELEMENT) {
-					StringBuffer element = new StringBuffer();
-					element.append(previous()).append(SELECTOR).append(xmlStreamReader.getPrefixedName());
-					stack.push(element.toString());
-					state.startElement(stack.peek());
-				}
+    public SimplePathIndexer(XMLInputFactory2 xmlInputFactory) {
+        this.xmlInputFactory = xmlInputFactory;
+    }
 
-				if (event == XMLStreamConstants.CHARACTERS) {
-					state.setCharacters(xmlStreamReader.getText());
-				}
+    public List<String> indexTextPath(String xmlData) {
+        XMLStreamReader2 xmlStreamReader;
+        TextPathState state = new TextPathState();
 
-				if (event == XMLStreamConstants.END_ELEMENT) {
-					stack.pop();
-					state.endElement(LEAF_TEXT_DELIMITER);
-				}
+        try {
+            // xml parser does not handle leading whitespace
+            xmlStreamReader = (XMLStreamReader2) xmlInputFactory
+                    .createXMLStreamReader(new StringReader(xmlData));
 
-			}
-		} catch (XMLStreamException e1) {
-			LOGGER.warn("Failure occurred in parsing the XML data. No data has been stored or indexed.", e1);
-		}
+            while (xmlStreamReader.hasNext()) {
+                int event = xmlStreamReader.next();
 
-		assert stack.isEmpty();
-		return state.getTextPathValues();
-	}
+                if (event == XMLStreamConstants.START_ELEMENT) {
+                    StringBuffer element = new StringBuffer();
+                    element.append(previous()).append(SELECTOR)
+                            .append(xmlStreamReader.getPrefixedName());
+                    stack.push(element.toString());
+                    state.startElement(stack.peek());
+                }
 
-	protected String previous() {
-		return (stack.peek() != null) ? stack.peek() : "";
-	}
+                if (event == XMLStreamConstants.CHARACTERS) {
+                    state.setCharacters(xmlStreamReader.getText());
+                }
+
+                if (event == XMLStreamConstants.END_ELEMENT) {
+                    stack.pop();
+                    state.endElement(LEAF_TEXT_DELIMITER);
+                }
+
+            }
+        } catch (XMLStreamException e1) {
+            LOGGER.warn(
+                    "Failure occurred in parsing the XML data. No data has been stored or indexed.",
+                    e1);
+        }
+
+        assert stack.isEmpty();
+        return state.getTextPathValues();
+    }
+
+    protected String previous() {
+        return (stack.peek() != null) ? stack.peek() : "";
+    }
 
 }

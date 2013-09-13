@@ -11,7 +11,9 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
---><project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>ddf</groupId>
@@ -50,20 +52,24 @@
 
 	<developers>
 		<developer>
+			<name>Keith C Wire</name>
+			<organization>Lockheed Martin</organization>
+		</developer>
+		<developer>
 			<name>Ashraf Barakat</name>
 			<organization>Lockheed Martin</organization>
 		</developer>
 		<developer>
 			<name>Bruce Beyeler</name>
-			<organization>Lockheed Martin</organization>			
+			<organization>Lockheed Martin</organization>
 		</developer>
 		<developer>
 			<name>Damon Jones</name>
-			<organization>Lockheed Martin</organization>			
+			<organization>Lockheed Martin</organization>
 		</developer>
 		<developer>
 			<name>Dan Figliola</name>
-			<organization>Lockheed Martin</organization>			
+			<organization>Lockheed Martin</organization>
 		</developer>
 		<developer>
 			<name>Dave Willison</name>
@@ -75,7 +81,7 @@
 		</developer>
 		<developer>
 			<name>Ian Barnett</name>
-			<organization>Lockheed Martin</organization>		
+			<organization>Lockheed Martin</organization>
 		</developer>
 		<developer>
 			<name>Jason Smith</name>
@@ -99,7 +105,7 @@
 		</developer>
 		<developer>
 			<name>Matthew Ramey</name>
-			<organization>Lockheed Martin</organization>			
+			<organization>Lockheed Martin</organization>
 		</developer>
 		<developer>
 			<name>Michael Menousek</name>
@@ -138,18 +144,18 @@
 		</contributor>
 	    <contributor>
 			<name>Sam Snyder</name>
-			<organization>Aviture</organization>		
+			<organization>Aviture</organization>
 		</contributor>
 		<contributor>
 			<name>Timothy Anderson</name>
-			<organization>Lockheed Martin</organization>		
+			<organization>Lockheed Martin</organization>
 		</contributor>
 		<contributor>
 			<name>William Miller</name>
-			<organization>Lockheed Martin</organization>		
-		</contributor>		
+			<organization>Lockheed Martin</organization>
+		</contributor>
 	</contributors>
-	
+
 	<modules>
 		<module>support</module>
 		<module>platform</module>
@@ -157,9 +163,9 @@
 		<module>mime</module>
 		<module>measure</module>
 		<module>metrics</module>
-        <module>content</module>
+		<module>content</module>
 		<module>catalog</module>
-        <module>security</module>
+		<module>security</module>
 		<module>distribution</module>
 		<module>sdk</module>
 		<module>test</module>
@@ -179,13 +185,13 @@
 		<ddf.mime.api.version>2.0.0</ddf.mime.api.version>
 		<ddf.security.encryption.service.api.version>1.0.0</ddf.security.encryption.service.api.version>
 		<ddf.security.core.api.version>1.0.0</ddf.security.core.api.version>
-        <ddf.security.expansion.service.api.version>1.0.0</ddf.security.expansion.service.api.version>
+		<ddf.security.expansion.service.api.version>1.0.0</ddf.security.expansion.service.api.version>
 
         <!-- Do NOT set karaf.data or karaf.base -->
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <!-- Plugins -->
-        <maven.checkstyle.plugin.version>2.9.1</maven.checkstyle.plugin.version>
+		<maven.checkstyle.plugin.version>2.9.1</maven.checkstyle.plugin.version>
 		<maven.assembly.plugin.version>2.2.2</maven.assembly.plugin.version>
 		<maven.clean.plugin.version>2.4.1</maven.clean.plugin.version>
 		<maven.resources.plugin.version>2.5</maven.resources.plugin.version>
@@ -276,8 +282,8 @@
 		<url>https://github.com/codice/ddf.git</url>
 		<connection>scm:git:git://github.com/codice/ddf.git</connection>
 		<developerConnection>scm:git:git://github.com/codice/ddf.git</developerConnection>
-	  <tag>HEAD</tag>
-  </scm>
+		<tag>HEAD</tag>
+	</scm>
 
 	<distributionManagement>
 		<snapshotRepository>
@@ -293,18 +299,18 @@
 	<build>
 		<pluginManagement>
 			<plugins>
-                <plugin>
-                    <groupId>org.apache.felix</groupId>
-                    <artifactId>maven-bundle-plugin</artifactId>
-                    <version>${felix.plugin.version}</version>
-                    <extensions>true</extensions>
-                    <configuration>
-                        <instructions>
-                            <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+				<plugin>
+					<groupId>org.apache.felix</groupId>
+					<artifactId>maven-bundle-plugin</artifactId>
+					<version>${felix.plugin.version}</version>
+					<extensions>true</extensions>
+					<configuration>
+						<instructions>
+							<Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
 <!--                             <Export-Package /> -->
-                        </instructions>
-                    </configuration>
-                </plugin>
+						</instructions>
+					</configuration>
+				</plugin>
 
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
@@ -318,7 +324,7 @@
 						<encoding>${project.build.sourceEncoding}</encoding>
 					</configuration>
 				</plugin>
-				
+
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-checkstyle-plugin</artifactId>
@@ -343,23 +349,45 @@
 								<configLocation>checkstyle-enforced.xml</configLocation>
 								<headerLocation>lpgl-header-check.txt</headerLocation>
 								<sourceDirectory>${basedir}</sourceDirectory>
-								<includes>src/**/*.java, src/**/*.xml, pom.xml</includes>
+								<includes>src/**/*.java</includes>
 								<consoleOutput>true</consoleOutput>
 								<failsOnError>true</failsOnError>
 								<linkXRef>false</linkXRef>
+								<aggregate>true</aggregate>
+							</configuration>
+						</execution>
+						<execution>
+							<id>checkstyle-check-xml</id>
+							<phase>verify</phase>
+							<goals>
+								<goal>check</goal>
+							</goals>
+							<configuration>
+								<!-- This configures the plugin for mvn install -->
+								<configLocation>checkstyle-enforced-xml.xml</configLocation>
+								<headerLocation>lpgl-header-check-xml.txt</headerLocation>
+								<sourceDirectory>${basedir}</sourceDirectory>
+								<includes>src/**/*.xml, pom.xml</includes>
+								<consoleOutput>true</consoleOutput>
+								<failsOnError>true</failsOnError>
+								<linkXRef>false</linkXRef>
+								<aggregate>true</aggregate>
 							</configuration>
 						</execution>
 					</executions>
+					<!--  
 					<configuration>
-						<!-- This configures the plugin for mvn checkstyle:checkstyle -->
+						 This configures the plugin for mvn checkstyle:checkstyle 
 						<configLocation>checkstyle-enforced.xml</configLocation>
 						<headerLocation>lpgl-header-check.txt</headerLocation>
 						<sourceDirectory>${basedir}</sourceDirectory>
 						<includes>src/**/*.java, src/**/*.xml, pom.xml</includes>
 						<consoleOutput>true</consoleOutput>
-						<failsOnError>false</failsOnError>
+						<failsOnError>true</failsOnError>
 						<linkXRef>false</linkXRef>
+						<aggregate>true</aggregate>
 					</configuration>
+					-->
 				</plugin>
 
 				<plugin>
@@ -433,13 +461,13 @@
 					<artifactId>cobertura-maven-plugin</artifactId>
 					<version>${cobertura.plugin.version}</version>
 				</plugin>
-				
+
 				<plugin>
 					<groupId>org.apache.karaf.tooling</groupId>
 					<artifactId>features-maven-plugin</artifactId>
 					<version>${karaf.version}</version>
 				</plugin>
-				
+
 				<plugin>
 					<groupId>org.codehaus.mojo</groupId>
 					<artifactId>build-helper-maven-plugin</artifactId>
@@ -515,6 +543,12 @@
 						<id>checkstyle-check</id>
 						<phase>none</phase>
 					</execution>
+					<!--  
+					<execution>
+						<id>checkstyle-check-xml</id>
+						<phase>none</phase>
+					</execution>
+					-->
 				</executions>
 			</plugin>
 		</plugins>
@@ -526,13 +560,40 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-checkstyle-plugin</artifactId>
 				<version>${maven.checkstyle.plugin.version}</version>
-				<configuration>
-					<!-- This configures the plugin for mvn site -->
-					<configLocation>config/sun_checks.xml</configLocation>
-					<consoleOutput>false</consoleOutput>
-					<failsOnError>false</failsOnError>
-					<linkXRef>true</linkXRef>
-				</configuration>
+				<!--  
+				<reportSets>
+					<reportSet>
+						<id>checkstyle-check-java</id>
+						<reports>
+							<report>checkstyle</report>
+						</reports>
+						<configuration>
+							<configLocation>checkstyle-enforced.xml</configLocation>
+							<headerLocation>lpgl-header-check.txt</headerLocation>
+							<sourceDirectory>${basedir}</sourceDirectory>
+							<includes>src/**/*.java</includes>
+							<consoleOutput>true</consoleOutput>
+							<failsOnError>false</failsOnError>
+							<linkXRef>false</linkXRef>
+						</configuration>
+					</reportSet>
+					<reportSet>
+						<id>checkstyle-check-xml</id>
+						<reports>
+							<report>checkstyle</report>
+						</reports>
+						<configuration>
+							<configLocation>checkstyle-enforced-xml.xml</configLocation>
+							<headerLocation>lpgl-header-check-xml.txt</headerLocation>
+							<sourceDirectory>${basedir}</sourceDirectory>
+							<includes>src/**/*.xml, pom.xml</includes>
+							<consoleOutput>true</consoleOutput>
+							<failsOnError>false</failsOnError>
+							<linkXRef>false</linkXRef>
+						</configuration>
+					</reportSet>
+				</reportSets>
+				-->
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -606,7 +667,7 @@
 		<!-- Added to allow UML Javadocs to be created on Macs that
 		 are running JDK6 and/or tools.jar is not accessible.
 		 jdk tools.jar is required for the new umlgraph doclet to work (5.6.6)-->
-		
+
 		<profile>
 			<id>jdk6</id>
 			<activation>
@@ -680,21 +741,21 @@
 				<type>zip</type>
 			</dependency>
 
-            <dependency>
-                <groupId>org.apache.karaf.tooling.exam</groupId>
-                <artifactId>exam</artifactId>
-                <version>${karaf.version}</version>
-                <scope>test</scope>
-            </dependency>
+			<dependency>
+				<groupId>org.apache.karaf.tooling.exam</groupId>
+				<artifactId>exam</artifactId>
+				<version>${karaf.version}</version>
+				<scope>test</scope>
+			</dependency>
 
-            <dependency>
-                <groupId>org.apache.karaf.tooling.exam</groupId>
-                <artifactId>org.apache.karaf.tooling.exam.container</artifactId>
-                <version>${karaf.version}</version>
-                <scope>test</scope>
-            </dependency>
+			<dependency>
+				<groupId>org.apache.karaf.tooling.exam</groupId>
+				<artifactId>org.apache.karaf.tooling.exam.container</artifactId>
+				<version>${karaf.version}</version>
+				<scope>test</scope>
+			</dependency>
 
-            <dependency>
+			<dependency>
 				<groupId>org.apache.camel</groupId>
 				<artifactId>camel-parent</artifactId>
 				<version>${camel.version}</version>
@@ -709,13 +770,13 @@
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
-      
-            <dependency>
-                <groupId>org.apache.cxf</groupId>
-                <artifactId>cxf-api</artifactId>
-                <version>${cxf.version}</version>
-            </dependency>
-			
+
+			<dependency>
+				<groupId>org.apache.cxf</groupId>
+				<artifactId>cxf-api</artifactId>
+				<version>${cxf.version}</version>
+			</dependency>
+
 			<dependency>
 				<groupId>org.apache.cxf</groupId>
 				<artifactId>cxf-bundle</artifactId>
@@ -745,13 +806,13 @@
 				<artifactId>cxf-services-sts-core</artifactId>
 				<version>${cxf.version}</version>
 			</dependency>
-			
+
 			<dependency>
 				<groupId>org.apache.cxf</groupId>
 				<artifactId>cxf-rt-core</artifactId>
 				<version>${cxf.version}</version>
 			</dependency>
-	   
+
 			<dependency>
 				<groupId>org.apache.cxf</groupId>
 				<artifactId>cxf-rt-transports-http</artifactId>
@@ -825,7 +886,7 @@
 				<artifactId>mime-core-impl</artifactId>
 				<version>${project.version}</version>
 			</dependency>
-			
+
 			<dependency>
 				<groupId>ddf.security.core</groupId>
 				<artifactId>security-core-impl</artifactId>
@@ -1048,15 +1109,15 @@
 		</dependency>
 	</dependencies>
 	<repositories>
-	    <repository>
-	      <id>central</id>
-	      <name>Central Repository</name>
-	      <url>http://repo.maven.apache.org/maven2</url>
-	      <layout>default</layout>
-	      <snapshots>
-	        <enabled>false</enabled>
-	      </snapshots>
-	    </repository>   
+		<repository>
+			<id>central</id>
+			<name>Central Repository</name>
+			<url>http://repo.maven.apache.org/maven2</url>
+			<layout>default</layout>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+		</repository>
 		<repository>
 			<id>maven2-repository.dev.java.net</id>
 			<name>Java.net repository</name>
@@ -1067,16 +1128,16 @@
 			<name>Open Source Geospatial Foundation Repository</name>
 			<url>http://download.osgeo.org/webdav/geotools/</url>
 		</repository>
-        <repository>
-            <id>com.springsource.repository.bundles.release</id>
-            <name>SpringSource Enterprise Bundle Repository - SpringSource Bundle Releases</name>
-            <url>http://repository.springsource.com/maven/bundles/release</url>
-        </repository>
-        <repository>
-            <id>com.springsource.repository.bundles.external</id>
-            <name>SpringSource Enterprise Bundle Repository - External Bundle Releases</name>
-            <url>http://repository.springsource.com/maven/bundles/external</url>
-        </repository>	
+		<repository>
+			<id>com.springsource.repository.bundles.release</id>
+			<name>SpringSource Enterprise Bundle Repository - SpringSource Bundle Releases</name>
+			<url>http://repository.springsource.com/maven/bundles/release</url>
+		</repository>
+		<repository>
+			<id>com.springsource.repository.bundles.external</id>
+			<name>SpringSource Enterprise Bundle Repository - External Bundle Releases</name>
+			<url>http://repository.springsource.com/maven/bundles/external</url>
+		</repository>
 		<repository>
 			<id>jfrog-plugin</id>
 			<name>JFrog Plugin Releases</name>
@@ -1092,6 +1153,6 @@
 			<name>Codice Repository</name>
 			<url>http://artifacts.codice.org/content/groups/public/</url>
 		</repository>
-	</repositories>    
-	
+	</repositories>
+
 </project>

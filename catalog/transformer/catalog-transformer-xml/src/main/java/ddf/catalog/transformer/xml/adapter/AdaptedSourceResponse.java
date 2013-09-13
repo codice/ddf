@@ -1,13 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- *
- * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
- * version 3 of the License, or any later version. 
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * 
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
+ * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
+ * 
  **/
 package ddf.catalog.transformer.xml.adapter;
 
@@ -55,8 +58,7 @@ public class AdaptedSourceResponse implements SourceResponse {
 
     private static final String METACARD_URI = "urn:catalog:metacard";
 
-    private static final Logger LOGGER = LoggerFactory
-            .getLogger(AdaptedSourceResponse.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AdaptedSourceResponse.class);
 
     private SourceResponse delegate;
 
@@ -125,7 +127,7 @@ public class AdaptedSourceResponse implements SourceResponse {
             element.setSource(metacard.getSourceId());
 
             if (metacard.getMetacardType() != null) {
-                
+
                 String metacardTypeName = BasicTypes.BASIC_METACARD.getName();
 
                 if (isNotBlank(metacard.getMetacardType().getName())) {
@@ -134,16 +136,15 @@ public class AdaptedSourceResponse implements SourceResponse {
 
                 element.setType(metacardTypeName);
 
-                AttributeAdapter attributeAdapter = new AttributeAdapter(
-                        metacard.getMetacardType());
+                AttributeAdapter attributeAdapter = new AttributeAdapter(metacard.getMetacardType());
 
-                for (AttributeDescriptor descriptor : metacard
-                        .getMetacardType().getAttributeDescriptors()) {
+                for (AttributeDescriptor descriptor : metacard.getMetacardType()
+                        .getAttributeDescriptors()) {
 
                     try {
-                        element.getAttributes().add(
-                                attributeAdapter.marshal(metacard
-                                        .getAttribute(descriptor.getName())));
+                        element.getAttributes()
+                                .add(attributeAdapter.marshal(metacard.getAttribute(descriptor
+                                        .getName())));
                     } catch (CatalogTransformerException e) {
                         LOGGER.info("Marshalling error with attribute", e);
                     }

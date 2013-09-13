@@ -1,13 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- *
- * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
- * version 3 of the License, or any later version. 
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * 
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
+ * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
+ * 
  **/
 package ddf.content.plugin.cataloger;
 
@@ -41,173 +44,139 @@ import ddf.content.plugin.ContentPlugin;
 import ddf.content.plugin.PluginExecutionException;
 import ddf.mime.MimeTypeToTransformerMapper;
 
-
-public class CatalogContentPlugin implements ContentPlugin
-{
-    private static final XLogger LOGGER = new XLogger( LoggerFactory.getLogger( CatalogContentPlugin.class ) );
+public class CatalogContentPlugin implements ContentPlugin {
+    private static final XLogger LOGGER = new XLogger(
+            LoggerFactory.getLogger(CatalogContentPlugin.class));
 
     private static final String CATALOG_ID = "Catalog-ID";
-    
+
     private Cataloger cataloger;
-    
-    private MimeTypeToTransformerMapper mimeTypeToTransformerMapper; 
-    
-    
-    public CatalogContentPlugin( CatalogFramework catalogFramework, MimeTypeToTransformerMapper mimeTypeToTransformerMapper )
-    {
-        LOGGER.trace( "INSIDE: CatalogContentPlugin constructor" );
-        
-        this.cataloger = new Cataloger( catalogFramework );
+
+    private MimeTypeToTransformerMapper mimeTypeToTransformerMapper;
+
+    public CatalogContentPlugin(CatalogFramework catalogFramework,
+            MimeTypeToTransformerMapper mimeTypeToTransformerMapper) {
+        LOGGER.trace("INSIDE: CatalogContentPlugin constructor");
+
+        this.cataloger = new Cataloger(catalogFramework);
         this.mimeTypeToTransformerMapper = mimeTypeToTransformerMapper;
     }
-    
 
     @Override
-    public CreateResponse process( CreateResponse input ) throws PluginExecutionException
-    {
-        LOGGER.trace( "ENTERING: process(CreateResponse)" );
-        
+    public CreateResponse process(CreateResponse input) throws PluginExecutionException {
+        LOGGER.trace("ENTERING: process(CreateResponse)");
+
         ContentItem createdContentItem = input.getCreatedContentItem();
-        CreateResponseImpl response = new CreateResponseImpl( input );
+        CreateResponseImpl response = new CreateResponseImpl(input);
         MimeType mimeType = createdContentItem.getMimeType();
         InputStream stream = null;
-        try
-        {
+        try {
             stream = createdContentItem.getInputStream();
+        } catch (IOException e) {
+            throw new PluginExecutionException(
+                    "Unable to read InputStream in created content item.", e);
         }
-        catch ( IOException e )
-        {
-            throw new PluginExecutionException( "Unable to read InputStream in created content item.", e );
+
+        if (stream == null) {
+            throw new PluginExecutionException("InputStream is null in created content item.");
         }
-        
-        if ( stream == null ) 
-        {
-            throw new PluginExecutionException( "InputStream is null in created content item." );
-        }
-               
-        try
-        {
+
+        try {
             Metacard metacard = generateMetacard(mimeType, createdContentItem.getUri(), stream);
-            String catalogId = cataloger.createMetacard( metacard );
-            LOGGER.debug( "catalogId = " + catalogId );
+            String catalogId = cataloger.createMetacard(metacard);
+            LOGGER.debug("catalogId = " + catalogId);
             Map<String, String> properties = response.getResponseProperties();
-            properties.put( CATALOG_ID, catalogId );
-            response.setResponseProperties( properties );
-        }
-        catch (MetacardCreationException e)
-        {
-             LOGGER.warn( e.getMessage(), e );
-             throw new PluginExecutionException( e.getMessage(), e );
-        }
-        finally
-        {
-            if (stream != null)
-            {
-                try
-                {
+            properties.put(CATALOG_ID, catalogId);
+            response.setResponseProperties(properties);
+        } catch (MetacardCreationException e) {
+            LOGGER.warn(e.getMessage(), e);
+            throw new PluginExecutionException(e.getMessage(), e);
+        } finally {
+            if (stream != null) {
+                try {
                     stream.close();
-                }
-                catch (IOException e)
-                {
+                } catch (IOException e) {
                 }
             }
         }
-        
-        LOGGER.trace( "EXITING: process(CreateResponse)" );
-        
+
+        LOGGER.trace("EXITING: process(CreateResponse)");
+
         return response;
     }
 
-    
     @Override
-    public UpdateResponse process( UpdateResponse input ) throws PluginExecutionException
-    {
-        LOGGER.trace( "ENTERING: process(UpdateResponse)" );
-        
+    public UpdateResponse process(UpdateResponse input) throws PluginExecutionException {
+        LOGGER.trace("ENTERING: process(UpdateResponse)");
+
         ContentItem updatedContentItem = input.getUpdatedContentItem();
-        UpdateResponseImpl response = new UpdateResponseImpl( input );
+        UpdateResponseImpl response = new UpdateResponseImpl(input);
         MimeType mimeType = updatedContentItem.getMimeType();
         InputStream stream = null;
-        try
-        {
+        try {
             stream = updatedContentItem.getInputStream();
+        } catch (IOException e) {
+            throw new PluginExecutionException(
+                    "Unable to read InputStream in updated content item.", e);
         }
-        catch ( IOException e )
-        {
-            throw new PluginExecutionException( "Unable to read InputStream in updated content item.", e );
+
+        if (stream == null) {
+            throw new PluginExecutionException("InputStream is null in updated content item.");
         }
-        
-        if ( stream == null ) 
-        {
-            throw new PluginExecutionException( "InputStream is null in updated content item." );
-        }
-        
-        try
-        {
+
+        try {
             Metacard metacard = generateMetacard(mimeType, updatedContentItem.getUri(), stream);
-            String catalogId = cataloger.updateMetacard( updatedContentItem.getUri(), metacard );
-            LOGGER.debug( "catalogId = " + catalogId );
+            String catalogId = cataloger.updateMetacard(updatedContentItem.getUri(), metacard);
+            LOGGER.debug("catalogId = " + catalogId);
             Map<String, String> properties = response.getResponseProperties();
-            properties.put( CATALOG_ID, catalogId );
-            response.setResponseProperties( properties );
-        }
-        catch (MetacardCreationException e)
-        {
-             LOGGER.warn( e.getMessage(), e );
-             throw new PluginExecutionException( e.getMessage(), e );
-        }
-        finally
-        {
-            if (stream != null)
-            {
-                try
-                {
+            properties.put(CATALOG_ID, catalogId);
+            response.setResponseProperties(properties);
+        } catch (MetacardCreationException e) {
+            LOGGER.warn(e.getMessage(), e);
+            throw new PluginExecutionException(e.getMessage(), e);
+        } finally {
+            if (stream != null) {
+                try {
                     stream.close();
-                }
-                catch (IOException e)
-                {
+                } catch (IOException e) {
                 }
             }
         }
-        
-        LOGGER.trace( "EXITING: process(UpdateResponse)" );
-        
+
+        LOGGER.trace("EXITING: process(UpdateResponse)");
+
         return response;
     }
 
-    
     @Override
-    public DeleteResponse process( DeleteResponse input ) throws PluginExecutionException
-    {
-        LOGGER.trace( "ENTERING: process(DeleteResponse)" );
-        
-        DeleteResponseImpl response = new DeleteResponseImpl( input );
+    public DeleteResponse process(DeleteResponse input) throws PluginExecutionException {
+        LOGGER.trace("ENTERING: process(DeleteResponse)");
 
-        String catalogId = cataloger.deleteMetacard( input.getContentItem().getUri() );
-        if ( catalogId != null && !catalogId.isEmpty() )
-        {
+        DeleteResponseImpl response = new DeleteResponseImpl(input);
+
+        String catalogId = cataloger.deleteMetacard(input.getContentItem().getUri());
+        if (catalogId != null && !catalogId.isEmpty()) {
             // Create response indicating file (actually, catalog entry) was deleted
-            response = new DeleteResponseImpl( input.getRequest(), input.getContentItem(), true, 
-                input.getResponseProperties(), input.getProperties() );
+            response = new DeleteResponseImpl(input.getRequest(), input.getContentItem(), true,
+                    input.getResponseProperties(), input.getProperties());
         }
-        
-        LOGGER.debug( "catalogId = " + catalogId );
+
+        LOGGER.debug("catalogId = " + catalogId);
         Map<String, String> properties = response.getResponseProperties();
-        properties.put( CATALOG_ID, catalogId );
-        response.setResponseProperties( properties );
-        
-        LOGGER.trace( "EXITING: process(DeleteResponse)" );
-        
+        properties.put(CATALOG_ID, catalogId);
+        response.setResponseProperties(properties);
+
+        LOGGER.trace("EXITING: process(DeleteResponse)");
+
         return response;
     }
 
-    
     private Metacard generateMetacard(MimeType mimeType, String uri, InputStream message)
-            throws MetacardCreationException 
-    {
+        throws MetacardCreationException {
         LOGGER.trace("ENTERING: generateMetacard");
-        
-        List<InputTransformer> listOfCandidates = mimeTypeToTransformerMapper.findMatches(InputTransformer.class, mimeType);
+
+        List<InputTransformer> listOfCandidates = mimeTypeToTransformerMapper.findMatches(
+                InputTransformer.class, mimeType);
 
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("List of matches for mimeType [" + mimeType + "]:" + listOfCandidates);
@@ -243,7 +212,8 @@ public class CatalogContentPlugin implements ContentPlugin
         }
 
         if (generatedMetacard == null) {
-            throw new MetacardCreationException("Could not create metacard with mimeType " + mimeType + ". No valid transformers found.");
+            throw new MetacardCreationException("Could not create metacard with mimeType "
+                    + mimeType + ". No valid transformers found.");
         }
 
         if (uri != null) {
@@ -251,10 +221,10 @@ public class CatalogContentPlugin implements ContentPlugin
         } else {
             LOGGER.debug("Metacard had a null uri");
         }
-        
+
         LOGGER.trace("EXITING: generateMetacard");
-        
+
         return generatedMetacard;
     }
-    
+
 }

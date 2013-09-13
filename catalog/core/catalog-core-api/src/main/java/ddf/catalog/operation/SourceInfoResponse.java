@@ -1,13 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- *
- * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
- * version 3 of the License, or any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * 
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
+ * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
+ * 
  **/
 package ddf.catalog.operation;
 
@@ -16,17 +19,16 @@ import java.util.Set;
 import ddf.catalog.source.SourceDescriptor;
 
 /**
- * The SourceInfoResponse is used to return {@link Source} information 
- * on an operation.
+ * The SourceInfoResponse is used to return {@link Source} information on an operation.
  * 
  * @see SourceDescriptor
  * @see Source
  */
-public interface SourceInfoResponse extends Response<SourceInfoRequest>{
-    
+public interface SourceInfoResponse extends Response<SourceInfoRequest> {
+
     /**
      * Gets the source(s) information.
-     *
+     * 
      * @return a {@link Set} of {@link SourceDescriptor}
      */
     public Set<SourceDescriptor> getSourceInfo();

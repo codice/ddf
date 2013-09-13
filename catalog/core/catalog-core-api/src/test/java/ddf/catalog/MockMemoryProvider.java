@@ -1,13 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- *
- * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
- * version 3 of the License, or any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * 
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
+ * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
+ * 
  **/
 package ddf.catalog;
 
@@ -68,453 +71,442 @@ import ddf.catalog.source.CatalogProvider;
 
 public class MockMemoryProvider extends MockSource implements CatalogProvider {
 
-	private static Logger LOGGER = Logger.getLogger(MockMemoryProvider.class);
-	private HashMap<Serializable, Metacard> store;
-	private boolean hasReceivedRead = false;
-	private boolean hasReceivedCreate = false;
-	private boolean hasReceivedUpdate = false;
-	private boolean hasReceivedDelete = false;
-	private boolean hasReceivedUpdateByIdentifier = false;
-	private boolean hasReceivedDeleteByIdentifier = false;
-	private boolean hasReceivedQuery = false;
-	private String sourceId = "mockMemoryProvider";
+    private static Logger LOGGER = Logger.getLogger(MockMemoryProvider.class);
 
-	/**
-	 * Mock provider, saves entries in memory. Cannot perform queries.
-	 * 
-	 * @param shortName
-	 * @param title
-	 * @param version
-	 * @param organization
-	 * @param catalogTypes
-	 * @param isAvailable
-	 * @param lastAvailability
-	 */
-	public MockMemoryProvider(String shortName, String title, String version,
-			String organization, Set<ContentType> catalogTypes,
-			boolean isAvailable, Date lastAvailability) {
-		super(shortName, title, version, organization, catalogTypes,
-				isAvailable, lastAvailability);
-		store = new HashMap<Serializable, Metacard>();
-	}
+    private HashMap<Serializable, Metacard> store;
 
-	// public BlockingQueue<Response<Metacard>> read( Subject user, List<String>
-	// ids ) throws CatalogException
-	// {
-	// hasReceivedRead = true;
-	// int foundEntries = 0;
-	// LinkedBlockingQueue<Response<Metacard>> returnQueue = new
-	// LinkedBlockingQueue<Response<Metacard>>();
-	// for( String id : ids )
-	// {
-	// if ( store.containsKey( UUID.fromString( id ) ) )
-	// {
-	// foundEntries++;
-	// try
-	// {
-	// returnQueue.put( new ResponseImpl<Metacard>( store.get( id ),
-	// foundEntries ) );
-	// }
-	// catch ( InterruptedException ie )
-	// {
-	// throw new CatalogException( "Problems during read:" + ie.getMessage(),
-	// ie.getCause() );
-	// }
-	// }
-	// }
-	//
-	// return returnQueue;
-	// }
+    private boolean hasReceivedRead = false;
 
-	@Override
-	public CreateResponse create(CreateRequest request) {
-		List<Metacard> oldCards = request.getMetacards();
-		hasReceivedCreate = true;
-		List<Metacard> returnedMetacards = new ArrayList<Metacard>(
-				oldCards.size());
-		Map<String, Serializable> properties = new HashMap<String, Serializable>();
+    private boolean hasReceivedCreate = false;
 
-		for (Metacard curCard : oldCards) {
-			UUID id = UUID.randomUUID();
+    private boolean hasReceivedUpdate = false;
 
-			MetacardImpl card = new MetacardImpl(curCard);
-			card.setId(id.toString());
-			LOGGER.debug("Storing metacard with id: " + id.toString());
-			store.put(id.toString(), card);
-			properties.put(id.toString(), card);
-			returnedMetacards.add(card);
+    private boolean hasReceivedDelete = false;
 
-		}
+    private boolean hasReceivedUpdateByIdentifier = false;
 
-		CreateResponse ingestResponseImpl = new CreateResponseImpl(request,
-				properties, returnedMetacards);
+    private boolean hasReceivedDeleteByIdentifier = false;
 
-		return ingestResponseImpl;
-	}
+    private boolean hasReceivedQuery = false;
 
-	@Override
-	public UpdateResponse update(UpdateRequest request) {
-		String methodName = "update";
-		LOGGER.debug("Entering: " + methodName);
-		hasReceivedUpdate = true;
-		hasReceivedUpdateByIdentifier = true;
-		List<Entry<Serializable, Metacard>> updatedCards = request.getUpdates();
-		Map<String, Serializable> properties = new HashMap<String, Serializable>();
+    private String sourceId = "mockMemoryProvider";
 
-		List<Update> returnedMetacards = new ArrayList<Update>(
-				updatedCards.size());
-		for (Entry<Serializable, Metacard> curCard : updatedCards) {
-			if (store.containsKey(curCard.getValue().getId())) {
-				LOGGER.debug("Store contains the key");
-				Metacard oldMetacard = store.get(curCard.getValue().getId());
-				store.put(curCard.getValue().getId(), curCard.getValue());
-				properties.put(curCard.getValue().getId(), curCard.getValue());
-				LOGGER.debug("adding returnedMetacard");
-				returnedMetacards.add(new UpdateImpl(curCard.getValue(),
-						oldMetacard));
-			} else {
-				LOGGER.debug("Key not contained in the store");
-			}
-		}
+    /**
+     * Mock provider, saves entries in memory. Cannot perform queries.
+     * 
+     * @param shortName
+     * @param title
+     * @param version
+     * @param organization
+     * @param catalogTypes
+     * @param isAvailable
+     * @param lastAvailability
+     */
+    public MockMemoryProvider(String shortName, String title, String version, String organization,
+            Set<ContentType> catalogTypes, boolean isAvailable, Date lastAvailability) {
+        super(shortName, title, version, organization, catalogTypes, isAvailable, lastAvailability);
+        store = new HashMap<Serializable, Metacard>();
+    }
 
-		UpdateResponse response = new UpdateResponseImpl(request, properties,
-				returnedMetacards);
-		LOGGER.debug("Exiting:" + methodName);
-		return response;
-	}
+    // public BlockingQueue<Response<Metacard>> read( Subject user, List<String>
+    // ids ) throws CatalogException
+    // {
+    // hasReceivedRead = true;
+    // int foundEntries = 0;
+    // LinkedBlockingQueue<Response<Metacard>> returnQueue = new
+    // LinkedBlockingQueue<Response<Metacard>>();
+    // for( String id : ids )
+    // {
+    // if ( store.containsKey( UUID.fromString( id ) ) )
+    // {
+    // foundEntries++;
+    // try
+    // {
+    // returnQueue.put( new ResponseImpl<Metacard>( store.get( id ),
+    // foundEntries ) );
+    // }
+    // catch ( InterruptedException ie )
+    // {
+    // throw new CatalogException( "Problems during read:" + ie.getMessage(),
+    // ie.getCause() );
+    // }
+    // }
+    // }
+    //
+    // return returnQueue;
+    // }
 
-	@Override
-	public DeleteResponse delete(DeleteRequest deleteRequest) {
-		hasReceivedDelete = true;
-		@SuppressWarnings("unchecked")
-		List<String> ids = (List<String>) deleteRequest.getAttributeValues();
+    @Override
+    public CreateResponse create(CreateRequest request) {
+        List<Metacard> oldCards = request.getMetacards();
+        hasReceivedCreate = true;
+        List<Metacard> returnedMetacards = new ArrayList<Metacard>(oldCards.size());
+        Map<String, Serializable> properties = new HashMap<String, Serializable>();
 
-		Map<String, Serializable> properties = new HashMap<String, Serializable>();
+        for (Metacard curCard : oldCards) {
+            UUID id = UUID.randomUUID();
 
-		List<Metacard> returnedMetacards = new ArrayList<Metacard>(ids.size());
-		for (int i = 0; i < ids.size(); i++) {
-			String id = (String) ids.get(i);
-			UUID curUUID = UUID.fromString(id);
-			if (store.containsKey(curUUID.toString())) {
-				Metacard card = store.remove(curUUID.toString());
-				if (card != null) {
-					returnedMetacards.add(card);
-				}
-			}
-		}
+            MetacardImpl card = new MetacardImpl(curCard);
+            card.setId(id.toString());
+            LOGGER.debug("Storing metacard with id: " + id.toString());
+            store.put(id.toString(), card);
+            properties.put(id.toString(), card);
+            returnedMetacards.add(card);
 
-		DeleteResponse response = new DeleteResponseImpl(deleteRequest,
-				properties, returnedMetacards);
+        }
 
-		return response;
-	}
-	
-	@Override
-	public SourceResponse query(QueryRequest query) {
-		// TODO currently returning all metacards, not using queryrequest
-		List<Result> results = new ArrayList<Result>();
+        CreateResponse ingestResponseImpl = new CreateResponseImpl(request, properties,
+                returnedMetacards);
 
-		MockMemoryFilterVisitor mockMemoryFilterVisitor = new MockMemoryFilterVisitor();
-		Set<Metacard> filteredMetacards = (Set<Metacard>) query.getQuery()
-				.accept(mockMemoryFilterVisitor, store.values());
-		for (Metacard metacard : filteredMetacards) {
-			results.add(new ResultImpl(metacard));
-		}
-		return new SourceResponseImpl(query, results);
-	}
-	
-	public int size() {
-		return store.size();
-	}
+        return ingestResponseImpl;
+    }
 
-	public boolean hasReceivedQuery() {
-		return hasReceivedQuery;
-	}
+    @Override
+    public UpdateResponse update(UpdateRequest request) {
+        String methodName = "update";
+        LOGGER.debug("Entering: " + methodName);
+        hasReceivedUpdate = true;
+        hasReceivedUpdateByIdentifier = true;
+        List<Entry<Serializable, Metacard>> updatedCards = request.getUpdates();
+        Map<String, Serializable> properties = new HashMap<String, Serializable>();
 
-	public boolean hasReceivedRead() {
-		return hasReceivedRead;
-	}
+        List<Update> returnedMetacards = new ArrayList<Update>(updatedCards.size());
+        for (Entry<Serializable, Metacard> curCard : updatedCards) {
+            if (store.containsKey(curCard.getValue().getId())) {
+                LOGGER.debug("Store contains the key");
+                Metacard oldMetacard = store.get(curCard.getValue().getId());
+                store.put(curCard.getValue().getId(), curCard.getValue());
+                properties.put(curCard.getValue().getId(), curCard.getValue());
+                LOGGER.debug("adding returnedMetacard");
+                returnedMetacards.add(new UpdateImpl(curCard.getValue(), oldMetacard));
+            } else {
+                LOGGER.debug("Key not contained in the store");
+            }
+        }
 
-	public boolean hasReceivedCreate() {
-		return hasReceivedCreate;
-	}
+        UpdateResponse response = new UpdateResponseImpl(request, properties, returnedMetacards);
+        LOGGER.debug("Exiting:" + methodName);
+        return response;
+    }
 
-	public boolean hasReceivedUpdate() {
-		return hasReceivedUpdate;
-	}
+    @Override
+    public DeleteResponse delete(DeleteRequest deleteRequest) {
+        hasReceivedDelete = true;
+        @SuppressWarnings("unchecked")
+        List<String> ids = (List<String>) deleteRequest.getAttributeValues();
 
-	public boolean hasReceivedDelete() {
-		return hasReceivedDelete;
-	}
+        Map<String, Serializable> properties = new HashMap<String, Serializable>();
 
-	public boolean hasReceivedUpdateByIdentifier() {
-		return hasReceivedUpdateByIdentifier;
-	}
+        List<Metacard> returnedMetacards = new ArrayList<Metacard>(ids.size());
+        for (int i = 0; i < ids.size(); i++) {
+            String id = (String) ids.get(i);
+            UUID curUUID = UUID.fromString(id);
+            if (store.containsKey(curUUID.toString())) {
+                Metacard card = store.remove(curUUID.toString());
+                if (card != null) {
+                    returnedMetacards.add(card);
+                }
+            }
+        }
 
-	public boolean hasReceivedDeleteByIdentifier() {
-		return hasReceivedDeleteByIdentifier;
-	}
+        DeleteResponse response = new DeleteResponseImpl(deleteRequest, properties,
+                returnedMetacards);
 
-	@Override
-	public String getId() {
-		return sourceId;
-	}
+        return response;
+    }
 
-	@Override
-	public void maskId(String sourceId) {
-		this.sourceId = sourceId;
+    @Override
+    public SourceResponse query(QueryRequest query) {
+        // TODO currently returning all metacards, not using queryrequest
+        List<Result> results = new ArrayList<Result>();
 
-	}
+        MockMemoryFilterVisitor mockMemoryFilterVisitor = new MockMemoryFilterVisitor();
+        Set<Metacard> filteredMetacards = (Set<Metacard>) query.getQuery().accept(
+                mockMemoryFilterVisitor, store.values());
+        for (Metacard metacard : filteredMetacards) {
+            results.add(new ResultImpl(metacard));
+        }
+        return new SourceResponseImpl(query, results);
+    }
 
-	@Override
-	public Set<ContentType> getContentTypes() {
-		return new HashSet<ContentType>();
+    public int size() {
+        return store.size();
+    }
 
-	}
+    public boolean hasReceivedQuery() {
+        return hasReceivedQuery;
+    }
 
-	class MockMemoryFilterVisitor extends DefaultFilterVisitor {
-		Set<Metacard> filteredMetacards = new HashSet<Metacard>();
+    public boolean hasReceivedRead() {
+        return hasReceivedRead;
+    }
 
-		@Override
-		public Object visit(Not filter, Object data) {
-			LOGGER.trace("entry " + filter + "," + data);
-			Set<Metacard> notFilteredSet = new HashSet<Metacard>();
-			notFilteredSet.addAll((Collection<? extends Metacard>) data);
-			Set<Metacard> filteredSet = (Set<Metacard>) filter.getFilter()
-					.accept(this, data);
-			notFilteredSet.removeAll(filteredSet);
-			LOGGER.trace("exit " + notFilteredSet.size());
-			return notFilteredSet;
-		}
+    public boolean hasReceivedCreate() {
+        return hasReceivedCreate;
+    }
 
-		@Override
-		public Object visit(After after, Object data) {
-			LOGGER.trace("entry " + after + "," + data);
-			Set<Metacard> filteredSet = new HashSet<Metacard>();
-			PropertyName propName = (PropertyName) after.getExpression1();
-			Object obj = ((Literal) after.getExpression2()).getValue();
-			Date afterFilter = null;
-			LOGGER.debug("what is object? " + obj);
-			if (obj instanceof Period) {
-				afterFilter = ((Period) obj).getEnding().getPosition()
-						.getDate();
-			} else {
-				afterFilter = ((Instant) obj).getPosition().getDate();
-			}
-			if (data instanceof Collection<?>) {
-				Collection<Metacard> mcData = (Collection<Metacard>) data;
-				for (Metacard mc : mcData) {
-					Date mcDate = getMetacardDate(mc,
-							propName.getPropertyName());
-					if (mcDate != null) {
-						if (mcDate.after(afterFilter)) {
-							filteredSet.add(mc);
-						}
-					}
-				}
-			}
-			LOGGER.trace("exit " + filteredSet);
-			return filteredSet;
-		}
+    public boolean hasReceivedUpdate() {
+        return hasReceivedUpdate;
+    }
 
-		@Override
-		public Object visit(Before before, Object data) {
-			LOGGER.trace("entry " + before + "," + data);
-			Set<Metacard> filteredSet = new HashSet<Metacard>();
-			PropertyName propName = (PropertyName) before.getExpression1();
-			Object obj = ((Literal) before.getExpression2()).getValue();
-			Date beforeFilter = null;
-			if (obj instanceof Period) {
-				beforeFilter = ((Period) obj).getBeginning().getPosition()
-						.getDate();
-			} else {
-				beforeFilter = ((Instant) obj).getPosition().getDate();
-			}
-			if (data instanceof Collection<?>) {
-				Collection<Metacard> mcData = (Collection<Metacard>) data;
-				for (Metacard mc : mcData) {
-					Date mcDate = getMetacardDate(mc,
-							propName.getPropertyName());
-					if (mcDate != null) {
-						if (mcDate.before(beforeFilter)) {
-							filteredSet.add(mc);
-						}
-					}
-				}
-			}
-			LOGGER.trace("exit " + filteredSet);
-			return filteredSet;
-		}
+    public boolean hasReceivedDelete() {
+        return hasReceivedDelete;
+    }
 
-		@Override
-		public Object visit(Begins begins, Object data) {
-			LOGGER.trace("entry " + begins + "," + data);
-			Set<Metacard> filteredSet = new HashSet<Metacard>();
-			PropertyName propName = (PropertyName) begins.getExpression1();
-			Object obj = ((Literal) begins.getExpression2()).getValue();
-			Date beginsFilter = ((Period) obj).getBeginning().getPosition()
-					.getDate();
-			if (data instanceof Collection<?>) {
-				Collection<Metacard> mcData = (Collection<Metacard>) data;
-				for (Metacard mc : mcData) {
-					Date mcDate = getMetacardDate(mc,
-							propName.getPropertyName());
-					if (mcDate != null) {
-						if (mcDate.equals(beginsFilter)) {
-							filteredSet.add(mc);
-						}
-					}
-				}
-			}
-			LOGGER.trace("exit " + filteredSet);
-			return filteredSet;
-		}
+    public boolean hasReceivedUpdateByIdentifier() {
+        return hasReceivedUpdateByIdentifier;
+    }
 
-		@Override
-		public Object visit(BegunBy begunBy, Object data) {
-			// API dictates that BegunBy filters only on period data fields.
-			// Metacard currently has no period fields.
-			return super.visit(begunBy, data);
-		}
+    public boolean hasReceivedDeleteByIdentifier() {
+        return hasReceivedDeleteByIdentifier;
+    }
 
-		@Override
-		public Object visit(During during, Object data) {
-			LOGGER.trace("entry " + during + "," + data);
-			Set<Metacard> filteredSet = new HashSet<Metacard>();
-			PropertyName propName = (PropertyName) during.getExpression1();
-			Period filterPeriod = (Period) ((Literal) during.getExpression2())
-					.getValue();
-			Date startFilter = filterPeriod.getBeginning().getPosition()
-					.getDate();
-			Date endFilter = filterPeriod.getEnding().getPosition().getDate();
-			if (data instanceof Collection<?>) {
-				Collection<Metacard> mcData = (Collection<Metacard>) data;
-				for (Metacard mc : mcData) {
-					Date mcDate = getMetacardDate(mc,
-							propName.getPropertyName());
-					if (mcDate != null) {
-						if (mcDate.after(startFilter)
-								&& mcDate.before(endFilter)) {
-							filteredSet.add(mc);
-						}
-					}
-				}
-			}
-			LOGGER.trace("exit " + filteredSet);
-			return filteredSet;
-		}
+    @Override
+    public String getId() {
+        return sourceId;
+    }
 
-		@Override
-		public Object visit(EndedBy endedBy, Object data) {
-			// API dictates that EndedBy filters only on period data fields.
-			// Metacard currently has no period fields.
-			return super.visit(endedBy, data);
-		}
+    @Override
+    public void maskId(String sourceId) {
+        this.sourceId = sourceId;
 
-		@Override
-		public Object visit(Ends ends, Object data) {
-			LOGGER.trace("entry " + ends + "," + data);
-			Set<Metacard> filteredSet = new HashSet<Metacard>();
-			PropertyName propName = (PropertyName) ends.getExpression1();
-			Object obj = ((Literal) ends.getExpression2()).getValue();
-			Date endsFilter = ((Period) obj).getEnding().getPosition()
-					.getDate();
-			if (data instanceof Collection<?>) {
-				Collection<Metacard> mcData = (Collection<Metacard>) data;
-				for (Metacard mc : mcData) {
-					Date mcDate = getMetacardDate(mc,
-							propName.getPropertyName());
-					if (mcDate != null) {
-						if (mcDate.equals(endsFilter)) {
-							filteredSet.add(mc);
-						}
-					}
-				}
-			}
-			LOGGER.trace("exit " + filteredSet);
-			return filteredSet;
-		}
+    }
 
-		@Override
-		public Object visit(Meets meets, Object data) {
-			// API dictates that Meets filters only on period data fields.
-			// Metacard currently has no period fields.
-			return super.visit(meets, data);
-		}
+    @Override
+    public Set<ContentType> getContentTypes() {
+        return new HashSet<ContentType>();
 
-		@Override
-		public Object visit(MetBy metBy, Object data) {
-			// API dictates that MetBy filters only on period data fields.
-			// Metacard currently has no period fields.
-			return super.visit(metBy, data);
-		}
+    }
 
-		@Override
-		public Object visit(OverlappedBy overlappedBy, Object data) {
-			// API dictates that OverlappedBy filters only on period data
-			// fields.
-			// Metacard currently has no period fields.
-			return super.visit(overlappedBy, data);
-		}
+    class MockMemoryFilterVisitor extends DefaultFilterVisitor {
+        Set<Metacard> filteredMetacards = new HashSet<Metacard>();
 
-		@Override
-		public Object visit(TContains contains, Object data) {
-			// API dictates that TContains filters only on period data fields.
-			// Metacard currently has no period fields.
-			return super.visit(contains, data);
-		}
+        @Override
+        public Object visit(Not filter, Object data) {
+            LOGGER.trace("entry " + filter + "," + data);
+            Set<Metacard> notFilteredSet = new HashSet<Metacard>();
+            notFilteredSet.addAll((Collection<? extends Metacard>) data);
+            Set<Metacard> filteredSet = (Set<Metacard>) filter.getFilter().accept(this, data);
+            notFilteredSet.removeAll(filteredSet);
+            LOGGER.trace("exit " + notFilteredSet.size());
+            return notFilteredSet;
+        }
 
-		@Override
-		public Object visit(TEquals equals, Object data) {
-			LOGGER.trace("entry " + equals + "," + data);
-			Set<Metacard> filteredSet = new HashSet<Metacard>();
-			PropertyName propName = (PropertyName) equals.getExpression1();
-			Object obj = ((Literal) equals.getExpression2()).getValue();
-			Date equalsFilter = ((Instant) obj).getPosition().getDate();
-			if (data instanceof Collection<?>) {
-				Collection<Metacard> mcData = (Collection<Metacard>) data;
-				for (Metacard mc : mcData) {
-					Date mcDate = getMetacardDate(mc,
-							propName.getPropertyName());
-					if (mcDate != null) {
-						if (mcDate.equals(equalsFilter)) {
-							filteredSet.add(mc);
-						}
-					}
-				}
-			}
-			LOGGER.trace("exit " + filteredSet);
-			return filteredSet;
-		}
+        @Override
+        public Object visit(After after, Object data) {
+            LOGGER.trace("entry " + after + "," + data);
+            Set<Metacard> filteredSet = new HashSet<Metacard>();
+            PropertyName propName = (PropertyName) after.getExpression1();
+            Object obj = ((Literal) after.getExpression2()).getValue();
+            Date afterFilter = null;
+            LOGGER.debug("what is object? " + obj);
+            if (obj instanceof Period) {
+                afterFilter = ((Period) obj).getEnding().getPosition().getDate();
+            } else {
+                afterFilter = ((Instant) obj).getPosition().getDate();
+            }
+            if (data instanceof Collection<?>) {
+                Collection<Metacard> mcData = (Collection<Metacard>) data;
+                for (Metacard mc : mcData) {
+                    Date mcDate = getMetacardDate(mc, propName.getPropertyName());
+                    if (mcDate != null) {
+                        if (mcDate.after(afterFilter)) {
+                            filteredSet.add(mc);
+                        }
+                    }
+                }
+            }
+            LOGGER.trace("exit " + filteredSet);
+            return filteredSet;
+        }
 
-		@Override
-		public Object visit(TOverlaps contains, Object data) {
-			// API dictates that TOverlaps filters only on period data fields.
-			// Metacard currently has no period fields.
-			return super.visit(contains, data);
-		}
+        @Override
+        public Object visit(Before before, Object data) {
+            LOGGER.trace("entry " + before + "," + data);
+            Set<Metacard> filteredSet = new HashSet<Metacard>();
+            PropertyName propName = (PropertyName) before.getExpression1();
+            Object obj = ((Literal) before.getExpression2()).getValue();
+            Date beforeFilter = null;
+            if (obj instanceof Period) {
+                beforeFilter = ((Period) obj).getBeginning().getPosition().getDate();
+            } else {
+                beforeFilter = ((Instant) obj).getPosition().getDate();
+            }
+            if (data instanceof Collection<?>) {
+                Collection<Metacard> mcData = (Collection<Metacard>) data;
+                for (Metacard mc : mcData) {
+                    Date mcDate = getMetacardDate(mc, propName.getPropertyName());
+                    if (mcDate != null) {
+                        if (mcDate.before(beforeFilter)) {
+                            filteredSet.add(mc);
+                        }
+                    }
+                }
+            }
+            LOGGER.trace("exit " + filteredSet);
+            return filteredSet;
+        }
 
-		private Date getMetacardDate(Metacard mc, String propName) {
-			LOGGER.trace("entry");
-			Date d = null;
-			if (propName != null && !propName.isEmpty()) {
-				if (propName.equals(Metacard.CREATED)) {
-					d = mc.getCreatedDate();
-				} else if (propName.equals(Metacard.EFFECTIVE)) {
-					d = mc.getEffectiveDate();
-				} else if (propName.equals(Metacard.EXPIRATION)) {
-					d = mc.getExpirationDate();
-				} else if (propName.equals(Metacard.MODIFIED)) {
-					d = mc.getModifiedDate();
-				}
-			}
-			LOGGER.trace("exit " + d);
-			return d;
-		}
+        @Override
+        public Object visit(Begins begins, Object data) {
+            LOGGER.trace("entry " + begins + "," + data);
+            Set<Metacard> filteredSet = new HashSet<Metacard>();
+            PropertyName propName = (PropertyName) begins.getExpression1();
+            Object obj = ((Literal) begins.getExpression2()).getValue();
+            Date beginsFilter = ((Period) obj).getBeginning().getPosition().getDate();
+            if (data instanceof Collection<?>) {
+                Collection<Metacard> mcData = (Collection<Metacard>) data;
+                for (Metacard mc : mcData) {
+                    Date mcDate = getMetacardDate(mc, propName.getPropertyName());
+                    if (mcDate != null) {
+                        if (mcDate.equals(beginsFilter)) {
+                            filteredSet.add(mc);
+                        }
+                    }
+                }
+            }
+            LOGGER.trace("exit " + filteredSet);
+            return filteredSet;
+        }
 
-		@Override
-		public Object visit(PropertyIsNil arg0, Object arg1) {
-			return null;
-		}
-	}
+        @Override
+        public Object visit(BegunBy begunBy, Object data) {
+            // API dictates that BegunBy filters only on period data fields.
+            // Metacard currently has no period fields.
+            return super.visit(begunBy, data);
+        }
+
+        @Override
+        public Object visit(During during, Object data) {
+            LOGGER.trace("entry " + during + "," + data);
+            Set<Metacard> filteredSet = new HashSet<Metacard>();
+            PropertyName propName = (PropertyName) during.getExpression1();
+            Period filterPeriod = (Period) ((Literal) during.getExpression2()).getValue();
+            Date startFilter = filterPeriod.getBeginning().getPosition().getDate();
+            Date endFilter = filterPeriod.getEnding().getPosition().getDate();
+            if (data instanceof Collection<?>) {
+                Collection<Metacard> mcData = (Collection<Metacard>) data;
+                for (Metacard mc : mcData) {
+                    Date mcDate = getMetacardDate(mc, propName.getPropertyName());
+                    if (mcDate != null) {
+                        if (mcDate.after(startFilter) && mcDate.before(endFilter)) {
+                            filteredSet.add(mc);
+                        }
+                    }
+                }
+            }
+            LOGGER.trace("exit " + filteredSet);
+            return filteredSet;
+        }
+
+        @Override
+        public Object visit(EndedBy endedBy, Object data) {
+            // API dictates that EndedBy filters only on period data fields.
+            // Metacard currently has no period fields.
+            return super.visit(endedBy, data);
+        }
+
+        @Override
+        public Object visit(Ends ends, Object data) {
+            LOGGER.trace("entry " + ends + "," + data);
+            Set<Metacard> filteredSet = new HashSet<Metacard>();
+            PropertyName propName = (PropertyName) ends.getExpression1();
+            Object obj = ((Literal) ends.getExpression2()).getValue();
+            Date endsFilter = ((Period) obj).getEnding().getPosition().getDate();
+            if (data instanceof Collection<?>) {
+                Collection<Metacard> mcData = (Collection<Metacard>) data;
+                for (Metacard mc : mcData) {
+                    Date mcDate = getMetacardDate(mc, propName.getPropertyName());
+                    if (mcDate != null) {
+                        if (mcDate.equals(endsFilter)) {
+                            filteredSet.add(mc);
+                        }
+                    }
+                }
+            }
+            LOGGER.trace("exit " + filteredSet);
+            return filteredSet;
+        }
+
+        @Override
+        public Object visit(Meets meets, Object data) {
+            // API dictates that Meets filters only on period data fields.
+            // Metacard currently has no period fields.
+            return super.visit(meets, data);
+        }
+
+        @Override
+        public Object visit(MetBy metBy, Object data) {
+            // API dictates that MetBy filters only on period data fields.
+            // Metacard currently has no period fields.
+            return super.visit(metBy, data);
+        }
+
+        @Override
+        public Object visit(OverlappedBy overlappedBy, Object data) {
+            // API dictates that OverlappedBy filters only on period data
+            // fields.
+            // Metacard currently has no period fields.
+            return super.visit(overlappedBy, data);
+        }
+
+        @Override
+        public Object visit(TContains contains, Object data) {
+            // API dictates that TContains filters only on period data fields.
+            // Metacard currently has no period fields.
+            return super.visit(contains, data);
+        }
+
+        @Override
+        public Object visit(TEquals equals, Object data) {
+            LOGGER.trace("entry " + equals + "," + data);
+            Set<Metacard> filteredSet = new HashSet<Metacard>();
+            PropertyName propName = (PropertyName) equals.getExpression1();
+            Object obj = ((Literal) equals.getExpression2()).getValue();
+            Date equalsFilter = ((Instant) obj).getPosition().getDate();
+            if (data instanceof Collection<?>) {
+                Collection<Metacard> mcData = (Collection<Metacard>) data;
+                for (Metacard mc : mcData) {
+                    Date mcDate = getMetacardDate(mc, propName.getPropertyName());
+                    if (mcDate != null) {
+                        if (mcDate.equals(equalsFilter)) {
+                            filteredSet.add(mc);
+                        }
+                    }
+                }
+            }
+            LOGGER.trace("exit " + filteredSet);
+            return filteredSet;
+        }
+
+        @Override
+        public Object visit(TOverlaps contains, Object data) {
+            // API dictates that TOverlaps filters only on period data fields.
+            // Metacard currently has no period fields.
+            return super.visit(contains, data);
+        }
+
+        private Date getMetacardDate(Metacard mc, String propName) {
+            LOGGER.trace("entry");
+            Date d = null;
+            if (propName != null && !propName.isEmpty()) {
+                if (propName.equals(Metacard.CREATED)) {
+                    d = mc.getCreatedDate();
+                } else if (propName.equals(Metacard.EFFECTIVE)) {
+                    d = mc.getEffectiveDate();
+                } else if (propName.equals(Metacard.EXPIRATION)) {
+                    d = mc.getExpirationDate();
+                } else if (propName.equals(Metacard.MODIFIED)) {
+                    d = mc.getModifiedDate();
+                }
+            }
+            LOGGER.trace("exit " + d);
+            return d;
+        }
+
+        @Override
+        public Object visit(PropertyIsNil arg0, Object arg1) {
+            return null;
+        }
+    }
 }

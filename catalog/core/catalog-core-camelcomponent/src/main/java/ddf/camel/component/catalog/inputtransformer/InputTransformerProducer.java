@@ -1,13 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- *
- * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
- * version 3 of the License, or any later version. 
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * 
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
+ * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
+ * 
  **/
 package ddf.camel.component.catalog.inputtransformer;
 
@@ -34,9 +37,8 @@ import ddf.catalog.transform.InputTransformer;
 import ddf.mime.MimeTypeToTransformerMapper;
 
 /**
- * Producer for the custom Camel CatalogComponent. This
- * {@link org.apache.camel.Producer} would map to a Camel <to> route node with a
- * URI like <code>catalog:inputtransformer</code>
+ * Producer for the custom Camel CatalogComponent. This {@link org.apache.camel.Producer} would map
+ * to a Camel <to> route node with a URI like <code>catalog:inputtransformer</code>
  * 
  * @author Hugh Rodgers, Lockheed Martin
  * @author William Miller, Lockheed Martin
@@ -44,54 +46,53 @@ import ddf.mime.MimeTypeToTransformerMapper;
  * 
  */
 public class InputTransformerProducer extends TransformerProducer {
-	private static final transient Logger LOGGER = LoggerFactory.getLogger(InputTransformerProducer.class);
+    private static final transient Logger LOGGER = LoggerFactory
+            .getLogger(InputTransformerProducer.class);
 
-	/**
-	 * Constructs the {@link Producer} for the custom Camel CatalogComponent.
-	 * This producer would map to a Camel <to> route node with a URI like
-	 * <code>catalog:inputtransformer</code>
-	 * 
-	 * @param endpoint
-	 *            the Camel endpoint that created this consumer
-	 */
-	public InputTransformerProducer(CatalogEndpoint endpoint) {
-		super(endpoint);
-	}
+    /**
+     * Constructs the {@link Producer} for the custom Camel CatalogComponent. This producer would
+     * map to a Camel <to> route node with a URI like <code>catalog:inputtransformer</code>
+     * 
+     * @param endpoint
+     *            the Camel endpoint that created this consumer
+     */
+    public InputTransformerProducer(CatalogEndpoint endpoint) {
+        super(endpoint);
+    }
 
-	protected Object transform(Message in, Object obj, String mimeType, String transformerId,
-			MimeTypeToTransformerMapper mapper) throws MimeTypeParseException, IOException, CatalogTransformerException {
-		// Look up the InputTransformer for the request's mime type.
-		// If a transformer is found, then transform the request's payload into
-		// a Metacard.
-		// Otherwise, throw an exception.
+    protected Object transform(Message in, Object obj, String mimeType, String transformerId,
+            MimeTypeToTransformerMapper mapper) throws MimeTypeParseException, IOException,
+        CatalogTransformerException {
+        // Look up the InputTransformer for the request's mime type.
+        // If a transformer is found, then transform the request's payload into
+        // a Metacard.
+        // Otherwise, throw an exception.
 
-		MimeType derivedMimeType = new MimeType(mimeType);
+        MimeType derivedMimeType = new MimeType(mimeType);
 
-		if (transformerId != null) {
-			derivedMimeType = new MimeType(mimeType + ";" + MimeTypeToTransformerMapper.ID_KEY + "=" + transformerId);
-		}
+        if (transformerId != null) {
+            derivedMimeType = new MimeType(mimeType + ";" + MimeTypeToTransformerMapper.ID_KEY
+                    + "=" + transformerId);
+        }
 
-		Metacard metacard = null;
-        try
-        {
+        Metacard metacard = null;
+        try {
             metacard = generateMetacard(derivedMimeType, mapper, in.getBody(InputStream.class));
+        } catch (MetacardCreationException e) {
+            throw new CatalogTransformerException(
+                    "Did not find an InputTransformer for MIME Type [" + mimeType + "] and "
+                            + MimeTypeToTransformerMapper.ID_KEY + " [" + transformerId + "]", e);
         }
-        catch (MetacardCreationException e)
-        {
-             throw new CatalogTransformerException("Did not find an InputTransformer for MIME Type [" + mimeType
-                 + "] and " + MimeTypeToTransformerMapper.ID_KEY + " [" + transformerId + "]", e);
-        }
-		
-		return metacard;
-	}
 
-    
-    private Metacard generateMetacard(MimeType mimeType, MimeTypeToTransformerMapper mapper, InputStream message)
-            throws MetacardCreationException 
-    {
+        return metacard;
+    }
+
+    private Metacard generateMetacard(MimeType mimeType, MimeTypeToTransformerMapper mapper,
+            InputStream message) throws MetacardCreationException {
         LOGGER.trace("ENTERING: generateMetacard");
-        
-        List<InputTransformer> listOfCandidates = mapper.findMatches(InputTransformer.class, mimeType);
+
+        List<InputTransformer> listOfCandidates = mapper.findMatches(InputTransformer.class,
+                mimeType);
 
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("List of matches for mimeType [" + mimeType + "]:" + listOfCandidates);
@@ -127,12 +128,13 @@ public class InputTransformerProducer extends TransformerProducer {
         }
 
         if (generatedMetacard == null) {
-            throw new MetacardCreationException("Could not create metacard with mimeType " + mimeType + ". No valid transformers found.");
+            throw new MetacardCreationException("Could not create metacard with mimeType "
+                    + mimeType + ". No valid transformers found.");
         }
-        
+
         LOGGER.trace("EXITING: generateMetacard");
-        
+
         return generatedMetacard;
     }
-    
+
 }

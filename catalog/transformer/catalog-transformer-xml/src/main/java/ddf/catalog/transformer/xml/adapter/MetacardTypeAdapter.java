@@ -1,13 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- *
- * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
- * version 3 of the License, or any later version. 
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * 
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
+ * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
+ * 
  **/
 package ddf.catalog.transformer.xml.adapter;
 
@@ -28,25 +31,25 @@ import ddf.catalog.transform.CatalogTransformerException;
 public class MetacardTypeAdapter extends XmlAdapter<String, MetacardType> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MetacardTypeAdapter.class);
-    
-	private List<MetacardType> types;
 
-	public MetacardTypeAdapter(List<MetacardType> types) {
-		this.types = types;
-	}
+    private List<MetacardType> types;
 
-	public MetacardTypeAdapter() {
-		this(null);
-	}
+    public MetacardTypeAdapter(List<MetacardType> types) {
+        this.types = types;
+    }
 
-	@Override
-	public String marshal(MetacardType type) throws CatalogTransformerException {
-		if (type == null) {
-			throw new CatalogTransformerException(
-					"Could not transform XML into Metacard.  Invalid MetacardType");
-		}
-		return type.getName();
-	}
+    public MetacardTypeAdapter() {
+        this(null);
+    }
+
+    @Override
+    public String marshal(MetacardType type) throws CatalogTransformerException {
+        if (type == null) {
+            throw new CatalogTransformerException(
+                    "Could not transform XML into Metacard.  Invalid MetacardType");
+        }
+        return type.getName();
+    }
 
     @Override
     public MetacardType unmarshal(String typeName) throws CatalogTransformerException {

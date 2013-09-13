@@ -1,19 +1,21 @@
 /**
  * Copyright (c) Codice Foundation
- *
- * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
- * version 3 of the License, or any later version. 
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * 
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
+ * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
+ * 
  **/
 
 package ddf.catalog.pubsub.predicate;
 
 import org.osgi.service.event.Event;
-
 
 /**
  * A Predicate that always returns false. Utility Class.
@@ -21,15 +23,13 @@ import org.osgi.service.event.Event;
  * @author abarakat
  * 
  */
-public class FalsePredicate implements Predicate 
-{
+public class FalsePredicate implements Predicate {
 
-	/**
-	 * This method always returns false.
-	 */
-	public boolean matches( Event properties ) 
-	{
-		return false;
-	}
+    /**
+     * This method always returns false.
+     */
+    public boolean matches(Event properties) {
+        return false;
+    }
 
 }

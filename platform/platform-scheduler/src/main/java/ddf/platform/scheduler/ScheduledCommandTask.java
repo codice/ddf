@@ -1,19 +1,25 @@
 /**
  * Copyright (c) Codice Foundation
- *
- * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
- * version 3 of the License, or any later version. 
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * 
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
+ * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
+ * 
  **/
 package ddf.platform.scheduler;
 
+import static org.quartz.JobBuilder.newJob;
+import static org.quartz.SimpleScheduleBuilder.simpleSchedule;
+import static org.quartz.TriggerBuilder.newTrigger;
+
 import java.util.Map;
 
-import org.quartz.CronScheduleBuilder;
 import org.quartz.Job;
 import org.quartz.JobDetail;
 import org.quartz.JobKey;
@@ -24,15 +30,12 @@ import org.quartz.TriggerKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.quartz.JobBuilder.*;
-import static org.quartz.TriggerBuilder.*;
-import static org.quartz.SimpleScheduleBuilder.*;
-
 /**
  * Schedules a Command task
+ * 
  * @author Ashraf Barakat
  * @author ddf.isgs@lmco.com
- *
+ * 
  */
 public class ScheduledCommandTask implements ScheduledTask {
 
@@ -58,8 +61,7 @@ public class ScheduledCommandTask implements ScheduledTask {
 
     private TriggerKey triggerKey;
 
-    private static final Logger LOGGER = LoggerFactory
-            .getLogger(ScheduledCommandTask.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ScheduledCommandTask.class);
 
     /**
      * 
@@ -79,11 +81,9 @@ public class ScheduledCommandTask implements ScheduledTask {
 
         long identifier = System.currentTimeMillis();
 
-        this.jobKey = new JobKey("job" + identifier,
-                classObject.getSimpleName());
+        this.jobKey = new JobKey("job" + identifier, classObject.getSimpleName());
 
-        this.triggerKey = new TriggerKey("trigger" + identifier,
-                classObject.getSimpleName());
+        this.triggerKey = new TriggerKey("trigger" + identifier, classObject.getSimpleName());
 
         JobDetail jobDetail = createJob();
 
@@ -151,7 +151,7 @@ public class ScheduledCommandTask implements ScheduledTask {
                 .withIdentity(triggerKey)
                 .startNow()
                 .withSchedule(
-                        simpleSchedule().withIntervalInSeconds(
-                                intervalInSeconds).repeatForever()).build();
+                        simpleSchedule().withIntervalInSeconds(intervalInSeconds).repeatForever())
+                .build();
     }
 }

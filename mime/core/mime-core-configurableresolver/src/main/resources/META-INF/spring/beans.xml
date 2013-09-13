@@ -13,30 +13,28 @@
  **/
 
  -->
-<beans:beans xmlns="http://www.springframework.org/schema/osgi" 
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xmlns:osgix="http://www.springframework.org/schema/osgi-compendium" 
-  xmlns:beans="http://www.springframework.org/schema/beans"
-  xsi:schemaLocation="
+<beans:beans xmlns="http://www.springframework.org/schema/osgi" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:osgix="http://www.springframework.org/schema/osgi-compendium" xmlns:beans="http://www.springframework.org/schema/beans"
+	xsi:schemaLocation="
 http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd 
 http://www.springframework.org/schema/osgi http://www.springframework.org/schema/osgi/spring-osgi.xsd
 http://www.springframework.org/schema/osgi-compendium http://www.springframework.org/schema/osgi-compendium/spring-osgi-compendium.xsd">
-  
 
-  <osgix:managed-service-factory id="customMimeTypeResolver" factory-pid="DDF_Custom_Mime_Type_Resolver"
-    update-strategy="container-managed" >
 
-    <osgix:interfaces>
-      <beans:value>ddf.mime.MimeTypeResolver</beans:value>
-    </osgix:interfaces>
+	<osgix:managed-service-factory id="customMimeTypeResolver"
+		factory-pid="DDF_Custom_Mime_Type_Resolver" update-strategy="container-managed">
 
-    <beans:bean id="DDF_Custom_Mime_Type_Resolver" class="ddf.mime.custom.CustomMimeTypeResolver" 
-    init-method="init" destroy-method="destroy">
-    	<beans:property name="name" value="DDF Custom Mime Type Resolver" />
-    	<beans:property name="priority" value="10" />
+		<osgix:interfaces>
+			<beans:value>ddf.mime.MimeTypeResolver</beans:value>
+		</osgix:interfaces>
+
+		<beans:bean id="DDF_Custom_Mime_Type_Resolver" class="ddf.mime.custom.CustomMimeTypeResolver"
+			init-method="init" destroy-method="destroy">
+			<beans:property name="name" value="DDF Custom Mime Type Resolver" />
+			<beans:property name="priority" value="10" />
     	<!-- <beans:property name="customMimeTypes" value="" /> -->
-    </beans:bean>
-    
-  </osgix:managed-service-factory>
+		</beans:bean>
+
+	</osgix:managed-service-factory>
 
 </beans:beans>

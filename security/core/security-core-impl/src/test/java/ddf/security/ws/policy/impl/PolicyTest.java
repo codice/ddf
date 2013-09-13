@@ -1,16 +1,18 @@
 /**
  * Copyright (c) Codice Foundation
- *
- * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
- * version 3 of the License, or any later version. 
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * 
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
+ * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
+ * 
  **/
 package ddf.security.ws.policy.impl;
-
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -45,20 +47,22 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Node;
 
-
 /**
  * Tests the policy adding logic (loading policies and converting the WSDLs).
  * 
  */
-public class PolicyTest
-{
+public class PolicyTest {
 
     private static BundleContext mockContext;
+
     private static Bundle mockBundle;
 
     private static final String POLICY_LOCATION = "/policies/ddf_sample_policy.xml";
+
     private static final String BAD_POLICY_LOCATION = "/policies/bad_policy.xml";
+
     private static final String TXT_POLICY_LOCATION = "/policies/notXmlPolicy.txt";
+
     private static final String WSDL_LOCATION = "/wsdl/w3c_example.wsdl";
 
     private Logger logger = LoggerFactory.getLogger(PolicyTest.class);
@@ -67,15 +71,12 @@ public class PolicyTest
     public ExpectedException thrown = ExpectedException.none();
 
     @BeforeClass
-    public static void setup()
-    {
+    public static void setup() {
         mockContext = mock(BundleContext.class);
         mockBundle = mock(Bundle.class);
-        when(mockBundle.getResource(anyString())).thenAnswer(new Answer<URL>()
-        {
+        when(mockBundle.getResource(anyString())).thenAnswer(new Answer<URL>() {
             @Override
-            public URL answer( InvocationOnMock invocation ) throws Throwable
-            {
+            public URL answer(InvocationOnMock invocation) throws Throwable {
                 Object[] args = invocation.getArguments();
                 return (URL) this.getClass().getResource((String) args[0]);
             }
@@ -84,15 +85,11 @@ public class PolicyTest
     }
 
     @Test
-    public void filePolicyLoaderTest()
-    {
-        try
-        {
+    public void filePolicyLoaderTest() {
+        try {
             FilePolicyLoader loader = new FilePolicyLoader(mockContext, POLICY_LOCATION);
             assertNotNull(loader.getPolicy());
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             logger.error("Exception while loading policy: ", e);
             fail("Exception while loading policy: " + e.getMessage());
 
@@ -100,38 +97,33 @@ public class PolicyTest
     }
 
     @Test
-    public void combinePolicyTest()
-    {
-        try
-        {
+    public void combinePolicyTest() {
+        try {
             FilePolicyLoader loader = new FilePolicyLoader(mockContext, POLICY_LOCATION);
             FilePolicyLoader wsdlLoader = new FilePolicyLoader(mockContext, WSDL_LOCATION);
             assertNotNull(loader.getPolicy());
             assertNotNull(wsdlLoader.getPolicy());
             PolicyWSDLGetInterceptor interceptor = new PolicyWSDLGetInterceptor(loader);
-            Node combinedNode = interceptor.addPolicyToWSDL(wsdlLoader.getPolicy(), loader.getPolicy());
+            Node combinedNode = interceptor.addPolicyToWSDL(wsdlLoader.getPolicy(),
+                    loader.getPolicy());
             assertNotNull(combinedNode);
             assertFalse(combinedNode.equals(wsdlLoader.getPolicy()));
             assertFalse(combinedNode.equals(loader.getPolicy()));
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             logger.error("Exception while combining policy: ", e);
             fail("Exception while combining policy " + e.getMessage());
 
         }
     }
 
-    @Test( expected = IOException.class )
-    public void badFileLocationTest() throws IOException
-    {
+    @Test(expected = IOException.class)
+    public void badFileLocationTest() throws IOException {
         new FilePolicyLoader(mockContext, BAD_POLICY_LOCATION);
         fail("Should have thrown an exception when passed in a bad file location.");
     }
 
-    @Test( expected = IOException.class )
-    public void notXmlFile() throws IOException
-    {
+    @Test(expected = IOException.class)
+    public void notXmlFile() throws IOException {
         new FilePolicyLoader(mockContext, TXT_POLICY_LOCATION);
         fail("Should have thrown an exception when passed in a non-xml file.");
     }

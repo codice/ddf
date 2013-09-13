@@ -1,27 +1,27 @@
 /**
  * Copyright (c) Codice Foundation
- *
- * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
- * version 3 of the License, or any later version. 
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * 
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
+ * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
+ * 
  **/
 package ddf.security.sts.client.configuration;
 
-
 import java.util.List;
 
-
 /**
- * Interface for service containing STS client configurations. This can be used
- * by clients to an STS when they want to communicate with it.
+ * Interface for service containing STS client configurations. This can be used by clients to an STS
+ * when they want to communicate with it.
  * 
  */
-public interface STSClientConfiguration
-{
+public interface STSClientConfiguration {
     /**
      * Retrieves the address of the STS server.
      * 
@@ -32,16 +32,15 @@ public interface STSClientConfiguration
     /**
      * Sets the address of the STS server.
      * 
-     * @param address String-based URL of the STS endpoint with no "WSDL" on the
-     *            end.
+     * @param address
+     *            String-based URL of the STS endpoint with no "WSDL" on the end.
      */
-    public void setAddress( String address );
+    public void setAddress(String address);
 
     /**
      * Retrieves the endpoint name of the STS service.
      * <p/>
-     * Default is
-     * <b>{http://docs.oasis-open.org/ws-sx/ws-trust/200512/}STS_Port</b>
+     * Default is <b>{http://docs.oasis-open.org/ws-sx/ws-trust/200512/}STS_Port</b>
      * 
      * @return String-based endpoint name
      */
@@ -50,15 +49,15 @@ public interface STSClientConfiguration
     /**
      * Sets the endpoint name of the STS service.
      * 
-     * @param endpointName String-based endpoint name.
+     * @param endpointName
+     *            String-based endpoint name.
      */
-    public void setEndpointName( String endpointName );
+    public void setEndpointName(String endpointName);
 
     /**
      * Retrieves the service name of the STS service.
      * <p/>
-     * Default is <b>{http://docs.oasis-open.org/ws-sx/ws-trust/200512/}
-     * SecurityTokenService</b>
+     * Default is <b>{http://docs.oasis-open.org/ws-sx/ws-trust/200512/} SecurityTokenService</b>
      * 
      * @return String-based service name
      */
@@ -67,9 +66,10 @@ public interface STSClientConfiguration
     /**
      * Sets the service name of the STS service.
      * 
-     * @param serviceName String-based service name
+     * @param serviceName
+     *            String-based service name
      */
-    public void setServiceName( String serviceName );
+    public void setServiceName(String serviceName);
 
     /**
      * Retrieves the user's name for performing operations on the STS.
@@ -83,11 +83,10 @@ public interface STSClientConfiguration
      * 
      * @param username
      */
-    public void setUsername( String username );
+    public void setUsername(String username);
 
     /**
-     * Retrieves the password for the associated username set in
-     * {@link #setUsername()}
+     * Retrieves the password for the associated username set in {@link #setUsername()}
      * 
      * @return password
      */
@@ -98,15 +97,13 @@ public interface STSClientConfiguration
      * 
      * @param password
      */
-    public void setPassword( String password );
+    public void setPassword(String password);
 
     /**
-     * Per <a
-     * href="http://cxf.apache.org/docs/ws-securitypolicy.html">WS-Security
-     * Policy</a>:
+     * Per <a href="http://cxf.apache.org/docs/ws-securitypolicy.html">WS-Security Policy</a>:
      * <p/>
-     * The user's name for signature. It is used as the alias name in the
-     * keystore to get the user's cert and private key for signature.
+     * The user's name for signature. It is used as the alias name in the keystore to get the user's
+     * cert and private key for signature.
      * 
      * @return username
      */
@@ -117,12 +114,10 @@ public interface STSClientConfiguration
      * 
      * @param signatureUsername
      */
-    public void setSignatureUsername( String signatureUsername );
+    public void setSignatureUsername(String signatureUsername);
 
     /**
-     * Per <a
-     * href="http://cxf.apache.org/docs/ws-securitypolicy.html">WS-Security
-     * Policy</a>:
+     * Per <a href="http://cxf.apache.org/docs/ws-securitypolicy.html">WS-Security Policy</a>:
      * <p/>
      * Location of the crypto property configuration to use for signature.
      * 
@@ -135,15 +130,13 @@ public interface STSClientConfiguration
      * 
      * @param signatureProperties
      */
-    public void setSignatureProperties( String signatureProperties );
+    public void setSignatureProperties(String signatureProperties);
 
     /**
-     * Per <a
-     * href="http://cxf.apache.org/docs/ws-securitypolicy.html">WS-Security
-     * Policy</a>:
+     * Per <a href="http://cxf.apache.org/docs/ws-securitypolicy.html">WS-Security Policy</a>:
      * <p/>
-     * The user's name for encryption. It is used as the alias name in the
-     * keystore to get the user's public key for encryption.
+     * The user's name for encryption. It is used as the alias name in the keystore to get the
+     * user's public key for encryption.
      * 
      * @return user's name for encryption.
      */
@@ -154,12 +147,10 @@ public interface STSClientConfiguration
      * 
      * @param encryptionUsername
      */
-    public void setEncryptionUsername( String encryptionUsername );
+    public void setEncryptionUsername(String encryptionUsername);
 
     /**
-     * Per <a
-     * href="http://cxf.apache.org/docs/ws-securitypolicy.html">WS-Security
-     * Policy</a>:
+     * Per <a href="http://cxf.apache.org/docs/ws-securitypolicy.html">WS-Security Policy</a>:
      * <p/>
      * Location of the crypto property configuration to use for encryption.
      * 
@@ -172,15 +163,13 @@ public interface STSClientConfiguration
      * 
      * @param encryptionProperties
      */
-    public void setEncryptionProperties( String encryptionProperties );
+    public void setEncryptionProperties(String encryptionProperties);
 
     /**
-     * Per <a
-     * href="http://cxf.apache.org/docs/ws-securitypolicy.html">WS-Security
-     * Policy</a>:
+     * Per <a href="http://cxf.apache.org/docs/ws-securitypolicy.html">WS-Security Policy</a>:
      * <p/>
-     * The alias name in the keystore to get the user's public key to send to
-     * the STS for the PublicKey KeyType case.
+     * The alias name in the keystore to get the user's public key to send to the STS for the
+     * PublicKey KeyType case.
      * 
      * @return user's name for the publickey.
      */
@@ -191,16 +180,13 @@ public interface STSClientConfiguration
      * 
      * @param tokenUsername
      */
-    public void setTokenUsername( String tokenUsername );
+    public void setTokenUsername(String tokenUsername);
 
     /**
-     * Per <a
-     * href="http://cxf.apache.org/docs/ws-securitypolicy.html">WS-Security
-     * Policy</a>:
+     * Per <a href="http://cxf.apache.org/docs/ws-securitypolicy.html">WS-Security Policy</a>:
      * <p/>
-     * Location of the crypto property configuration used by the STSClient to
-     * send/process any RSA/DSAKeyValue tokens used if the KeyType is
-     * "PublicKey".
+     * Location of the crypto property configuration used by the STSClient to send/process any
+     * RSA/DSAKeyValue tokens used if the KeyType is "PublicKey".
      * 
      * @return Location of the property file.
      */
@@ -211,7 +197,7 @@ public interface STSClientConfiguration
      * 
      * @param tokenProperties
      */
-    public void setTokenProperties( String tokenProperties );
+    public void setTokenProperties(String tokenProperties);
 
     /**
      * Retrieves the list of claims that should be requested from the STS.
@@ -225,14 +211,13 @@ public interface STSClientConfiguration
      * 
      * @param claims
      */
-    public void setClaims( List<String> claims );
+    public void setClaims(List<String> claims);
 
     /**
-     * Sets the claim list with the incoming comma-delimieted string of URI
-     * values.
+     * Sets the claim list with the incoming comma-delimieted string of URI values.
      * 
      * @param claims
      */
-    public void setClaims( String claims );
+    public void setClaims(String claims);
 
 }

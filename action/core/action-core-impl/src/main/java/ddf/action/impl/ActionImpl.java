@@ -1,13 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- *
- * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
- * version 3 of the License, or any later version. 
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * 
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
+ * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
+ * 
  **/
 package ddf.action.impl;
 
@@ -17,52 +20,55 @@ import ddf.action.Action;
 
 public class ActionImpl implements Action {
 
-	private URL url;
-	private String title;
-	private String description;
-	private String id;
+    private URL url;
 
-	public ActionImpl(String providerId, String title, String description, URL url) {
-		this.id = providerId;
-		this.title = title;
-		this.description = description;
-		this.url = url;
-	}
+    private String title;
 
-	public void setTitle(String title) {
-		this.title = title;
-	}
+    private String description;
 
-	public void setDescription(String description) {
-		this.description = description;
-	}
+    private String id;
 
-	public void setUrl(URL url) {
-		this.url = url;
-	}
+    public ActionImpl(String providerId, String title, String description, URL url) {
+        this.id = providerId;
+        this.title = title;
+        this.description = description;
+        this.url = url;
+    }
 
-	public void setId(String id) {
-		this.id = id;
-	}
+    public void setTitle(String title) {
+        this.title = title;
+    }
 
-	@Override
-	public URL getUrl() {
-		return this.url;
-	}
+    public void setDescription(String description) {
+        this.description = description;
+    }
 
-	@Override
-	public String getTitle() {
-		return this.title;
-	}
+    public void setUrl(URL url) {
+        this.url = url;
+    }
 
-	@Override
-	public String getDescription() {
-		return this.description;
-	}
+    public void setId(String id) {
+        this.id = id;
+    }
 
-	@Override
-	public String getId() {
-		return this.id;
-	}
+    @Override
+    public URL getUrl() {
+        return this.url;
+    }
+
+    @Override
+    public String getTitle() {
+        return this.title;
+    }
+
+    @Override
+    public String getDescription() {
+        return this.description;
+    }
+
+    @Override
+    public String getId() {
+        return this.id;
+    }
 
 }

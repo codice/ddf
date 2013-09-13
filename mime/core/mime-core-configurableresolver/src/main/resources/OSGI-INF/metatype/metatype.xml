@@ -15,23 +15,20 @@
  -->
 <metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
 
-  <OCD description="DDF Custom Mime Types" name="MIME Custom Types"
-    id="DDF_Custom_Mime_Type_Resolver">    
-     
-    <AD name="Resolver Name" id="name" required="false" default="DDF Custom Resolver"
-      type="String" />
-           
-    <AD name="Priority" id="priority" required="true" default="10"
-      type="Integer" />
-       
-    <AD name="File Extensions to Mime Types" id="customMimeTypes" required="true"
-      type="String" cardinality="100"
-      description="List of key/value pairs where key is the file extension and value is the mime type, e.g., nitf=image/nitf"/>  
+	<OCD description="DDF Custom Mime Types" name="MIME Custom Types" id="DDF_Custom_Mime_Type_Resolver">
 
-  </OCD>
+		<AD name="Resolver Name" id="name" required="false" default="DDF Custom Resolver" type="String" />
 
-  <Designate pid="DDF_Custom_Mime_Type_Resolver" factoryPid="DDF_Custom_Mime_Type_Resolver">
-    <Object ocdref="DDF_Custom_Mime_Type_Resolver" />
-  </Designate>
-  
-  </metatype:MetaData>
+		<AD name="Priority" id="priority" required="true" default="10" type="Integer" />
+
+		<AD name="File Extensions to Mime Types" id="customMimeTypes" required="true" type="String"
+			cardinality="100"
+			description="List of key/value pairs where key is the file extension and value is the mime type, e.g., nitf=image/nitf" />
+
+	</OCD>
+
+	<Designate pid="DDF_Custom_Mime_Type_Resolver" factoryPid="DDF_Custom_Mime_Type_Resolver">
+		<Object ocdref="DDF_Custom_Mime_Type_Resolver" />
+	</Designate>
+
+</metatype:MetaData>

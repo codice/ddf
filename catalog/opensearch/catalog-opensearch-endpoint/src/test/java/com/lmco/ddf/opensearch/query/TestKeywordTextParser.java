@@ -1,13 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- *
- * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
- * version 3 of the License, or any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * 
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
+ * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
+ * 
  **/
 package com.lmco.ddf.opensearch.query;
 
@@ -46,51 +49,44 @@ import static org.hamcrest.Matchers.greaterThan;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
-public class TestKeywordTextParser
-{
-    //private static final Logger LOGGER = Logger.getLogger(TestKeywordTextParser.class);
-	private static final XLogger LOGGER = new XLogger( LoggerFactory.getLogger(  OpenSearchQueryTest.class ) );
-    
-	@Rule public MethodRule watchman = new TestWatchman() 
-    {
-        public void starting( FrameworkMethod method ) 
-        {
-          LOGGER.debug( "***************************  STARTING: {}  **************************", method.getName() );
+public class TestKeywordTextParser {
+    // private static final Logger LOGGER = Logger.getLogger(TestKeywordTextParser.class);
+    private static final XLogger LOGGER = new XLogger(
+            LoggerFactory.getLogger(OpenSearchQueryTest.class));
+
+    @Rule
+    public MethodRule watchman = new TestWatchman() {
+        public void starting(FrameworkMethod method) {
+            LOGGER.debug("***************************  STARTING: {}  **************************",
+                    method.getName());
         }
-        
-        public void finished( FrameworkMethod method ) 
-        {
-          LOGGER.debug( "***************************  END: {}  **************************", method.getName() );
+
+        public void finished(FrameworkMethod method) {
+            LOGGER.debug("***************************  END: {}  **************************",
+                    method.getName());
         }
     };
-	
-	@BeforeClass
-    public static void setUpBeforeClass() throws Exception
-    {
-    }
 
+    @BeforeClass
+    public static void setUpBeforeClass() throws Exception {
+    }
 
     @AfterClass
-    public static void tearDownAfterClass() throws Exception
-    {
+    public static void tearDownAfterClass() throws Exception {
     }
-
 
     @Before
-    public void setUp() throws Exception
-    {
+    public void setUp() throws Exception {
     }
-
 
     @After
-    public void tearDown() throws Exception
-    {
+    public void tearDown() throws Exception {
     }
-	
+
     @Test
     public void testPositives() {
 
-        //TODO add more expressions to test
+        // TODO add more expressions to test
 
         List<String> inputs = new ArrayList<String>();
         inputs.add("נּ€");
@@ -119,8 +115,8 @@ public class TestKeywordTextParser
         inputs.add("A AND B AND C AND D OR E NOT F");
         inputs.add("A B AND C D OR E NOT F");
         inputs.add("(A B AND C D) OR E NOT F");
-		inputs.add("A NOT A");
-		inputs.add("A (NOT C) D");
+        inputs.add("A NOT A");
+        inputs.add("A (NOT C) D");
         inputs.add("(((Apple) AND (((Orange) OR Banana))))");
         inputs.add("A  B");
         inputs.add("(\"A14356377856nyin8o789l;;l453      234l56;23$$#%#$@^#@&&!\" B) OR C");
@@ -143,9 +139,9 @@ public class TestKeywordTextParser
             KeywordTextParser parser = Parboiled.createParser(KeywordTextParser.class);
 
             ParsingResult<?> result = new ReportingParseRunner(parser.InputPhrase()).run(input);
-            LOGGER.debug("input = " + input+ "\t\t=====>result matched = " + result.matched);
-            assertEquals("Failed on input [" + input + "]. Parse Error [" + getErrorOutput(result) + "]", 0,
-                    result.parseErrors.size());
+            LOGGER.debug("input = " + input + "\t\t=====>result matched = " + result.matched);
+            assertEquals("Failed on input [" + input + "]. Parse Error [" + getErrorOutput(result)
+                    + "]", 0, result.parseErrors.size());
             assertEquals("Failed to parse [" + input + "] properly.", input,
                     ParseTreeUtils.getNodeText(result.parseTreeRoot, result.inputBuffer));
 
@@ -155,17 +151,17 @@ public class TestKeywordTextParser
 
     @Test
     public void testNegatives() {
-        //TODO add more expressions to test
+        // TODO add more expressions to test
 
         List<String> inputs = new ArrayList<String>();
 
-        //these should fail even with loose parsing
+        // these should fail even with loose parsing
         inputs.add("");
         inputs.add("()");
         inputs.add("( )");
         inputs.add("  ");
 
-		inputs.add("( Keyword");
+        inputs.add("( Keyword");
         inputs.add("(Keyword");
         inputs.add("Keyword)");
         inputs.add("Keyword )");
@@ -174,10 +170,12 @@ public class TestKeywordTextParser
         inputs.add("(A AND B) NOT ((C\" AND (B NOT A)) OR E");
         inputs.add("(A AND B) NOT (\"C\" AND \"B)) OR E");
         inputs.add("(A AND B) NOT (\"A \"C\"\" AND (B)) OR E");
-        inputs.add("(\"A)()()(((()))()((()))))()(((((()))((\" B) OR C"); //this could be made valid if an escape character were introduced
+        inputs.add("(\"A)()()(((()))()((()))))()(((((()))((\" B) OR C"); // this could be made valid
+                                                                         // if an escape character
+                                                                         // were introduced
         inputs.add("() (stuff) OR C");
-        inputs.add("(((((((((((stuff))))))))))) OR C)"); //one missing leading parenthesis
-        inputs.add("((((((((((((stuff)))))))))) OR C)");  //one missing trailing parenthesis
+        inputs.add("(((((((((((stuff))))))))))) OR C)"); // one missing leading parenthesis
+        inputs.add("((((((((((((stuff)))))))))) OR C)"); // one missing trailing parenthesis
         inputs.add("((((((((((((\"stuff (stuff2)\"))))))))))) OR C)");
         inputs.add("(\"A)()()(((()))()((()))))()(((((()))((\" B) OR C");
 
@@ -188,10 +186,11 @@ public class TestKeywordTextParser
             KeywordTextParser parser = Parboiled.createParser(KeywordTextParser.class);
 
             ParsingResult<?> result = new ReportingParseRunner(parser.InputPhrase()).run(input);
-			
-			LOGGER.debug("input = " + input+ "\t\t=====>result matched = " + result.matched);
 
-            assertThat("[" + input + "] should have failed.", result.parseErrors.size(), greaterThan(0));
+            LOGGER.debug("input = " + input + "\t\t=====>result matched = " + result.matched);
+
+            assertThat("[" + input + "] should have failed.", result.parseErrors.size(),
+                    greaterThan(0));
 
         }
 
@@ -199,7 +198,7 @@ public class TestKeywordTextParser
 
     @Test
     public void testSpacing() {
-        //TODO add more expressions to test
+        // TODO add more expressions to test
         List<String> inputs = new ArrayList<String>();
         inputs.add(" A B OR C");
         inputs.add(" A B OR C ");
@@ -209,21 +208,19 @@ public class TestKeywordTextParser
         inputs.add("A B      OR            C           ");
         inputs.add("    A                 B   OR   C     NOT D AND           E   ");
 
-
         for (String input : inputs) {
             KeywordTextParser parser = Parboiled.createParser(KeywordTextParser.class);
 
             ParsingResult<?> result = new ReportingParseRunner(parser.InputPhrase()).run(input);
 
-            assertEquals("Failed on input [" + input + "]. Parse Error [" + getErrorOutput(result) + "]", 0,
-                    result.parseErrors.size());
+            assertEquals("Failed on input [" + input + "]. Parse Error [" + getErrorOutput(result)
+                    + "]", 0, result.parseErrors.size());
             assertEquals("Failed to parse [" + input + "] properly.", input,
                     ParseTreeUtils.getNodeText(result.parseTreeRoot, result.inputBuffer));
 
         }
 
     }
-
 
     // We have been using this for debugging purposes, its not meant to be a test.
     @Ignore
@@ -234,33 +231,31 @@ public class TestKeywordTextParser
         FilterBuilder filterBuilder = new GeotoolsFilterBuilder();
 
         List<String> inputs = new ArrayList<String>();
-        //inputs.add("A \"(test test2)\" OR test2");
+        // inputs.add("A \"(test test2)\" OR test2");
         inputs.add("A B  C D");
 
-        for (String input : inputs)
-        {
+        for (String input : inputs) {
             KeywordTextParser parser = Parboiled.createParser(KeywordTextParser.class);
 
             ParsingResult<ASTNode> result = new TracingParseRunner(parser.InputPhrase()).run(input);
-//            ParsingResult<ASTNode> result = new ReportingParseRunner(parser.InputPhrase()).run(input);
+            // ParsingResult<ASTNode> result = new
+            // ReportingParseRunner(parser.InputPhrase()).run(input);
 
             KeywordFilterGenerator kfg = new KeywordFilterGenerator(filterBuilder);
             Filter filter = kfg.getFilterFromASTNode(result.resultValue);
 
             inputToOutput.put(input, filter.toString());
-//          visualize(result);
+            // visualize(result);
         }
 
-        for (Map.Entry<String, String> iteration : inputToOutput.entrySet())
-        {
+        for (Map.Entry<String, String> iteration : inputToOutput.entrySet()) {
             System.out.println(iteration.getKey() + " : " + iteration.getValue());
         }
     }
 
     /**
-     * Use this method when you want the tree to be printed to System.out for
-     * debugging purposes
-     *
+     * Use this method when you want the tree to be printed to System.out for debugging purposes
+     * 
      * @param result
      */
     protected void visualize(ParsingResult<?> result) {
@@ -270,7 +265,8 @@ public class TestKeywordTextParser
         System.out.println(output);
 
         System.out.println("PARSE ERROR: "
-                + (!result.parseErrors.isEmpty() ? ErrorUtils.printParseError(result.parseErrors.get(0)) : "NOTHING"));
+                + (!result.parseErrors.isEmpty() ? ErrorUtils.printParseError(result.parseErrors
+                        .get(0)) : "NOTHING"));
 
     }
 

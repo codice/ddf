@@ -1,16 +1,18 @@
 /**
  * Copyright (c) Codice Foundation
- *
- * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
- * version 3 of the License, or any later version. 
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * 
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
+ * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
+ * 
  **/
 package ddf.catalog.source.opensearch;
-
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -48,15 +50,13 @@ import ddf.catalog.impl.filter.SpatialDistanceFilter;
 import ddf.catalog.impl.filter.SpatialFilter;
 import ddf.catalog.impl.filter.TemporalFilter;
 
-
-public class OpenSearchFilterVisitor extends DefaultFilterVisitor
-{
-    private static XLogger logger = new XLogger(LoggerFactory.getLogger(OpenSearchFilterVisitor.class));
+public class OpenSearchFilterVisitor extends DefaultFilterVisitor {
+    private static XLogger logger = new XLogger(
+            LoggerFactory.getLogger(OpenSearchFilterVisitor.class));
 
     private static final String ONLY_AND_MSG = "Opensearch only supports AND operations for non-contextual criteria.";
 
-    private enum NestedTypes
-    {
+    private enum NestedTypes {
         AND, OR, NOT
     }
 
@@ -64,13 +64,14 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor
 
     // Can only have one each of each type of filter in an OpenSearch query
     private ContextualSearch contextualSearch;
+
     private TemporalFilter temporalSearch;
+
     private SpatialFilter spatialSearch;
 
     private NestedTypes curNest = null;
 
-    public OpenSearchFilterVisitor()
-    {
+    public OpenSearchFilterVisitor() {
         filters = new ArrayList<Filter>();
 
         contextualSearch = null;
@@ -79,8 +80,7 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor
     }
 
     @Override
-    public Object visit( Not filter, Object data )
-    {
+    public Object visit(Not filter, Object data) {
         Object newData;
         NestedTypes parentNest = curNest;
         logger.debug("ENTERING: NOT filter");
@@ -94,8 +94,7 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor
     }
 
     @Override
-    public Object visit( Or filter, Object data )
-    {
+    public Object visit(Or filter, Object data) {
         Object newData;
         NestedTypes parentNest = curNest;
         logger.debug("ENTERING: OR filter");
@@ -109,8 +108,7 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor
     }
 
     @Override
-    public Object visit( And filter, Object data )
-    {
+    public Object visit(And filter, Object data) {
         Object newData;
         NestedTypes parentNest = curNest;
         logger.debug("ENTERING: AND filter");
@@ -127,11 +125,9 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor
      * DWithin filter maps to a Point/Radius distance Spatial search criteria.
      */
     @Override
-    public Object visit( DWithin filter, Object data )
-    {
+    public Object visit(DWithin filter, Object data) {
         logger.debug("ENTERING: DWithin filter");
-        if (curNest == null || NestedTypes.AND.equals(curNest))
-        {
+        if (curNest == null || NestedTypes.AND.equals(curNest)) {
             // The geometric point is wrapped in a <Literal> element, so have to
             // get geometry expression as literal and then evaluate it to get
             // the geometry.
@@ -152,9 +148,7 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor
             this.spatialSearch = new SpatialDistanceFilter(coords[0], coords[1], distance);
 
             filters.add(filter);
-        }
-        else
-        {
+        } else {
             logger.warn(ONLY_AND_MSG);
         }
 
@@ -167,11 +161,9 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor
      * Contains filter maps to a Polygon or BBox Spatial search criteria.
      */
     @Override
-    public Object visit( Contains filter, Object data )
-    {
+    public Object visit(Contains filter, Object data) {
         logger.debug("ENTERING: Contains filter");
-        if (curNest == null || NestedTypes.AND.equals(curNest))
-        {
+        if (curNest == null || NestedTypes.AND.equals(curNest)) {
             // The geometric point is wrapped in a <Literal> element, so have to
             // get geometry expression as literal and then evaluate it to get
             // the geometry.
@@ -182,21 +174,18 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor
 
             StringBuffer geometryWkt = new StringBuffer();
 
-            if (geometryExpression instanceof SurfaceImpl)
-            {
+            if (geometryExpression instanceof SurfaceImpl) {
                 SurfaceImpl polygon = (SurfaceImpl) literalWrapper.evaluate(null);
 
                 Coordinate[] coords = polygon.getJTSGeometry().getCoordinates();
 
                 geometryWkt.append("POLYGON((");
-                for ( int i = 0; i < coords.length; i++ )
-                {
+                for (int i = 0; i < coords.length; i++) {
                     geometryWkt.append(coords[i].x);
                     geometryWkt.append(" ");
                     geometryWkt.append(coords[i].y);
 
-                    if (i != (coords.length - 1))
-                    {
+                    if (i != (coords.length - 1)) {
                         geometryWkt.append(",");
                     }
                 }
@@ -207,14 +196,10 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor
 
                 filters.add(filter);
 
-            }
-            else
-            {
+            } else {
                 logger.warn("Only POLYGON geometry WKT for Contains filter is supported");
             }
-        }
-        else
-        {
+        } else {
             logger.warn(ONLY_AND_MSG);
         }
 
@@ -227,11 +212,9 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor
      * Intersects filter maps to a Polygon or BBox Spatial search criteria.
      */
     @Override
-    public Object visit( Intersects filter, Object data )
-    {
+    public Object visit(Intersects filter, Object data) {
         logger.debug("ENTERING: Intersects filter");
-        if (curNest == null || NestedTypes.AND.equals(curNest))
-        {
+        if (curNest == null || NestedTypes.AND.equals(curNest)) {
             // The geometric point is wrapped in a <Literal> element, so have to
             // get geometry expression as literal and then evaluate it to get
             // the geometry.
@@ -242,21 +225,18 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor
 
             StringBuffer geometryWkt = new StringBuffer();
 
-            if (geometryExpression instanceof SurfaceImpl)
-            {
+            if (geometryExpression instanceof SurfaceImpl) {
                 SurfaceImpl polygon = (SurfaceImpl) literalWrapper.evaluate(null);
 
                 Coordinate[] coords = polygon.getJTSGeometry().getCoordinates();
 
                 geometryWkt.append("POLYGON((");
-                for ( int i = 0; i < coords.length; i++ )
-                {
+                for (int i = 0; i < coords.length; i++) {
                     geometryWkt.append(coords[i].x);
                     geometryWkt.append(" ");
                     geometryWkt.append(coords[i].y);
 
-                    if (i != (coords.length - 1))
-                    {
+                    if (i != (coords.length - 1)) {
                         geometryWkt.append(",");
                     }
                 }
@@ -266,14 +246,10 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor
                 logger.debug("geometryWkt = [" + geometryWkt.toString() + "]");
 
                 filters.add(filter);
-            }
-            else
-            {
+            } else {
                 logger.warn("Only POLYGON geometry WKT for Intersects filter is supported");
             }
-        }
-        else
-        {
+        } else {
             logger.warn(ONLY_AND_MSG);
         }
 
@@ -283,19 +259,14 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor
     }
 
     /**
-     * TOverlaps filter maps to a Temporal (Absolute and Offset) search
-     * criteria.
+     * TOverlaps filter maps to a Temporal (Absolute and Offset) search criteria.
      */
     @Override
-    public Object visit( TOverlaps filter, Object data )
-    {
+    public Object visit(TOverlaps filter, Object data) {
         logger.debug("ENTERING: TOverlaps filter");
-        if (curNest == null || NestedTypes.AND.equals(curNest))
-        {
+        if (curNest == null || NestedTypes.AND.equals(curNest)) {
             handleTemporal(filter);
-        }
-        else
-        {
+        } else {
             logger.warn(ONLY_AND_MSG);
         }
         logger.debug("EXITING: TOverlaps filter");
@@ -307,15 +278,11 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor
      * During filter maps to a Temporal (Absolute and Offset) search criteria.
      */
     @Override
-    public Object visit( During filter, Object data )
-    {
+    public Object visit(During filter, Object data) {
         logger.debug("ENTERING: TOverlaps filter");
-        if (curNest == null || NestedTypes.AND.equals(curNest))
-        {
+        if (curNest == null || NestedTypes.AND.equals(curNest)) {
             handleTemporal(filter);
-        }
-        else
-        {
+        } else {
             logger.warn(ONLY_AND_MSG);
         }
         logger.debug("EXITING: TOverlaps filter");
@@ -323,15 +290,13 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor
         return super.visit(filter, data);
     }
 
-    private void handleTemporal( BinaryTemporalOperator filter )
-    {
+    private void handleTemporal(BinaryTemporalOperator filter) {
 
         Literal literalWrapper = (Literal) filter.getExpression2();
         logger.debug("literalWrapper.getValue() = " + literalWrapper.getValue());
 
         Object literal = literalWrapper.evaluate(null);
-        if (literal instanceof Period)
-        {
+        if (literal instanceof Period) {
             Period period = (Period) literal;
 
             // Extract the start and end dates from the filter
@@ -341,9 +306,7 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor
             temporalSearch = new TemporalFilter(start, end);
 
             filters.add(filter);
-        }
-        else if (literal instanceof PeriodDuration)
-        {
+        } else if (literal instanceof PeriodDuration) {
 
             DefaultPeriodDuration duration = (DefaultPeriodDuration) literal;
 
@@ -362,8 +325,7 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor
      * PropertyIsEqualTo filter maps to a Type/Version(s) search criteria.
      */
     @Override
-    public Object visit( PropertyIsEqualTo filter, Object data )
-    {
+    public Object visit(PropertyIsEqualTo filter, Object data) {
         logger.debug("ENTERING: PropertyIsEqualTo filter");
 
         filters.add(filter);
@@ -377,8 +339,7 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor
      * PropertyIsLike filter maps to a Contextual search criteria.
      */
     @Override
-    public Object visit( PropertyIsLike filter, Object data )
-    {
+    public Object visit(PropertyIsLike filter, Object data) {
         logger.debug("ENTERING: PropertyIsLike filter");
 
         LikeFilterImpl likeFilter = (LikeFilterImpl) filter;
@@ -389,14 +350,12 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor
 
         String searchPhrase = likeFilter.getLiteral();
         logger.debug("searchPhrase = [" + searchPhrase + "]");
-        if (contextualSearch != null)
-        {
-            contextualSearch.setSearchPhrase(contextualSearch.getSearchPhrase() + " " + curNest.toString() + " "
-                    + searchPhrase);
-        }
-        else
-        {
-            contextualSearch = new ContextualSearch(selectors, searchPhrase, likeFilter.isMatchingCase());
+        if (contextualSearch != null) {
+            contextualSearch.setSearchPhrase(contextualSearch.getSearchPhrase() + " "
+                    + curNest.toString() + " " + searchPhrase);
+        } else {
+            contextualSearch = new ContextualSearch(selectors, searchPhrase,
+                    likeFilter.isMatchingCase());
         }
 
         logger.debug("EXITING: PropertyIsLike filter");
@@ -405,8 +364,7 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor
     }
 
     @Override
-    public Object visit( PropertyName expression, Object data )
-    {
+    public Object visit(PropertyName expression, Object data) {
         logger.debug("ENTERING: PropertyName expression");
 
         // countOccurrence( expression );
@@ -417,8 +375,7 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor
     }
 
     @Override
-    public Object visit( Literal expression, Object data )
-    {
+    public Object visit(Literal expression, Object data) {
         logger.debug("ENTERING: Literal expression");
 
         // countOccurrence( expression );
@@ -428,23 +385,19 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor
         return data;
     }
 
-    public List<Filter> getFilters()
-    {
+    public List<Filter> getFilters() {
         return filters;
     }
 
-    public ContextualSearch getContextualSearch()
-    {
+    public ContextualSearch getContextualSearch() {
         return contextualSearch;
     }
 
-    public TemporalFilter getTemporalSearch()
-    {
+    public TemporalFilter getTemporalSearch() {
         return temporalSearch;
     }
 
-    public SpatialFilter getSpatialSearch()
-    {
+    public SpatialFilter getSpatialSearch() {
         return spatialSearch;
     }
 

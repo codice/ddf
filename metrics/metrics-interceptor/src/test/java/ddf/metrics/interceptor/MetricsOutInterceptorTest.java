@@ -1,13 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- *
- * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
- * version 3 of the License, or any later version. 
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * 
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
+ * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
+ * 
  **/
 package ddf.metrics.interceptor;
 
@@ -45,8 +48,7 @@ import org.mockito.Mockito;
 public class MetricsOutInterceptorTest {
 
     /**
-     * Test method for
-     * {@link ddf.metrics.interceptor.MetricsOutInterceptor#MetricsOutInterceptor()}
+     * Test method for {@link ddf.metrics.interceptor.MetricsOutInterceptor#MetricsOutInterceptor()}
      * .
      */
     @Test
@@ -76,8 +78,7 @@ public class MetricsOutInterceptorTest {
         Exchange ex = new ExchangeImpl();
 
         when(mockMessage.getExchange()).thenReturn(ex);
-        when(mockMessage.get(Message.PARTIAL_RESPONSE_MESSAGE)).thenReturn(
-                "true");
+        when(mockMessage.get(Message.PARTIAL_RESPONSE_MESSAGE)).thenReturn("true");
 
         // Perform test
         outInterceptor.handleMessage(mockMessage);
@@ -110,8 +111,7 @@ public class MetricsOutInterceptorTest {
 
         when(mockBus.getId()).thenReturn("bus_id");
         when(mockMessage.getExchange()).thenReturn(ex);
-        when(mockMessage.get(Message.PARTIAL_RESPONSE_MESSAGE)).thenReturn(
-                "false");
+        when(mockMessage.get(Message.PARTIAL_RESPONSE_MESSAGE)).thenReturn("false");
         when(mockMessage.get(Message.REQUESTOR_ROLE)).thenReturn(true);
 
         // Perform test
@@ -142,8 +142,7 @@ public class MetricsOutInterceptorTest {
 
         when(mockBus.getId()).thenReturn("bus_id");
         when(mockMessage.getExchange()).thenReturn(ex);
-        when(mockMessage.get(Message.PARTIAL_RESPONSE_MESSAGE)).thenReturn(
-                "false");
+        when(mockMessage.get(Message.PARTIAL_RESPONSE_MESSAGE)).thenReturn("false");
         when(mockMessage.get(Message.REQUESTOR_ROLE)).thenReturn(true);
 
         // Perform test
@@ -151,8 +150,7 @@ public class MetricsOutInterceptorTest {
 
         // validate that an instance of LatencyTimeRecorder was put onto the
         // exchange
-        assertThat(ex.get(LatencyTimeRecorder.class),
-                instanceOf(LatencyTimeRecorder.class));
+        assertThat(ex.get(LatencyTimeRecorder.class), instanceOf(LatencyTimeRecorder.class));
     }
 
     /**
@@ -178,8 +176,7 @@ public class MetricsOutInterceptorTest {
 
         when(mockBus.getId()).thenReturn("bus_id");
         when(mockMessage.getExchange()).thenReturn(ex);
-        when(mockMessage.get(Message.PARTIAL_RESPONSE_MESSAGE)).thenReturn(
-                "false");
+        when(mockMessage.get(Message.PARTIAL_RESPONSE_MESSAGE)).thenReturn("false");
         when(mockMessage.get(Message.REQUESTOR_ROLE)).thenReturn(true);
         when(mockMessage.getInterceptorChain()).thenReturn(mockIc);
 
@@ -206,8 +203,7 @@ public class MetricsOutInterceptorTest {
         Message mockMessage = mock(Message.class);
 
         when(mockMessage.getExchange()).thenReturn(null);
-        when(mockMessage.get(Message.PARTIAL_RESPONSE_MESSAGE)).thenReturn(
-                "false");
+        when(mockMessage.get(Message.PARTIAL_RESPONSE_MESSAGE)).thenReturn("false");
         when(mockMessage.get(Message.REQUESTOR_ROLE)).thenReturn("false");
 
         // Perform test
@@ -239,8 +235,7 @@ public class MetricsOutInterceptorTest {
 
         when(mockBus.getId()).thenReturn("bus_id");
         when(mockMessage.getExchange()).thenReturn(ex);
-        when(mockMessage.get(Message.PARTIAL_RESPONSE_MESSAGE)).thenReturn(
-                "false");
+        when(mockMessage.get(Message.PARTIAL_RESPONSE_MESSAGE)).thenReturn("false");
         when(mockMessage.get(Message.REQUESTOR_ROLE)).thenReturn("false");
 
         // Perform test

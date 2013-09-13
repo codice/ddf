@@ -1,13 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- *
- * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
- * version 3 of the License, or any later version. 
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * 
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
+ * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
+ * 
  **/
 package ddf.catalog.source.solr;
 
@@ -51,8 +54,7 @@ public final class SolrServerFactory {
 
     private static final String DEFAULT_SOLRCONFIG_XML = "solrconfig.xml";
 
-    private static final Logger LOGGER = Logger
-            .getLogger(SolrServerFactory.class);
+    private static final Logger LOGGER = Logger.getLogger(SolrServerFactory.class);
 
     /** Hiding constructor **/
     private SolrServerFactory() {
@@ -77,8 +79,8 @@ public final class SolrServerFactory {
     }
 
     /**
-     * Creates an {@link HttpSolrServer} with the
-     * {@link SolrServerFactory#DEFAULT_HTTP_ADDRESS} url.
+     * Creates an {@link HttpSolrServer} with the {@link SolrServerFactory#DEFAULT_HTTP_ADDRESS}
+     * url.
      * 
      * @return SolrServer
      */
@@ -88,29 +90,25 @@ public final class SolrServerFactory {
     }
 
     /**
-     * Provides an already instantiated {@link SolrServer} object. If an
-     * instance has not already been instantiated, then the single instance will
-     * be instantiated with the provided configuration file. If an instance
-     * already exists, it cannot be overwritten with a new configuration.
+     * Provides an already instantiated {@link SolrServer} object. If an instance has not already
+     * been instantiated, then the single instance will be instantiated with the provided
+     * configuration file. If an instance already exists, it cannot be overwritten with a new
+     * configuration.
      * 
      * @param solrConfigFileName
-     *            the name of the solr configuration filename such as
-     *            solrconfig.xml
+     *            the name of the solr configuration filename such as solrconfig.xml
      * @param schemaXml
      *            filename of the schema such as schema.xml
      * @param givenConfigFileProxy
-     *            a ConfigurationFileProxy instance. If instance is
-     *            <code>null</code>, a new {@link ConfigurationFileProxy} is
-     *            used instead.
+     *            a ConfigurationFileProxy instance. If instance is <code>null</code>, a new
+     *            {@link ConfigurationFileProxy} is used instead.
      * @return {@link SolrServer} instance
      */
-    public static EmbeddedSolrServer getEmbeddedSolrServer(
-            String solrConfigXml, String schemaXml,
+    public static EmbeddedSolrServer getEmbeddedSolrServer(String solrConfigXml, String schemaXml,
             ConfigurationFileProxy givenConfigFileProxy) {
 
-        LOGGER.info("Retrieving embedded solr with the following properties: ["
-                + solrConfigXml + "," + schemaXml + "," + givenConfigFileProxy
-                + "]");
+        LOGGER.info("Retrieving embedded solr with the following properties: [" + solrConfigXml
+                + "," + schemaXml + "," + givenConfigFileProxy + "]");
 
         String solrConfigFileName = DEFAULT_SOLRCONFIG_XML;
 
@@ -131,8 +129,7 @@ public final class SolrServerFactory {
         ConfigurationFileProxy configProxy = givenConfigFileProxy;
 
         if (givenConfigFileProxy == null) {
-            configProxy = new ConfigurationFileProxy(null,
-                    ConfigurationStore.getInstance());
+            configProxy = new ConfigurationFileProxy(null, ConfigurationStore.getInstance());
         }
 
         File configurationDir = new File(ConfigurationFileProxy.DEFAULT_SOLR_CONFIG_PARENT_DIR,
@@ -155,13 +152,11 @@ public final class SolrServerFactory {
         IndexSchema indexSchema = null;
         ClassLoader tccl = Thread.currentThread().getContextClassLoader();
         try {
-            Thread.currentThread().setContextClassLoader(
-                    SolrServerFactory.class.getClassLoader());
+            Thread.currentThread().setContextClassLoader(SolrServerFactory.class.getClassLoader());
 
             // NamedSPILoader uses the thread context classloader to lookup
             // codecs, posting formats, and analyzers
-            solrConfig = new SolrConfig(solrConfigHome.getParent(),
-                    solrConfigFileName, null);
+            solrConfig = new SolrConfig(solrConfigHome.getParent(), solrConfigFileName, null);
             indexSchema = new IndexSchema(solrConfig, schemaFileName, null);
         } catch (ParserConfigurationException e) {
             LOGGER.warn(e);
@@ -180,15 +175,15 @@ public final class SolrServerFactory {
                 initShardHandler(null);
             }
         };
-        CoreDescriptor dcore = new CoreDescriptor(container, "", solrConfig
-                .getResourceLoader().getInstanceDir());
+        CoreDescriptor dcore = new CoreDescriptor(container, "", solrConfig.getResourceLoader()
+                .getInstanceDir());
         dcore.setConfigName(solrConfig.getResourceName());
         dcore.setSchemaName(indexSchema.getResourceName());
 
         File dataDir = configProxy.getDataDirectory();
         LOGGER.info("Using data directory [" + dataDir + "]");
-        SolrCore core = new SolrCore(null, dataDir.getAbsolutePath(),
-                solrConfig, indexSchema, dcore);
+        SolrCore core = new SolrCore(null, dataDir.getAbsolutePath(), solrConfig, indexSchema,
+                dcore);
         container.register("core1", core, false);
 
         return new EmbeddedSolrServer(container, "core1");

@@ -1,16 +1,18 @@
 /**
  * Copyright (c) Codice Foundation
- *
- * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
- * version 3 of the License, or any later version. 
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * 
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
+ * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
+ * 
  **/
-package ddf.sdk.plugin.preingest;  //TODO: Change package name.
-
+package ddf.sdk.plugin.preingest; // TODO: Change package name.
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -29,166 +31,155 @@ import ddf.catalog.plugin.PluginExecutionException;
 import ddf.catalog.plugin.PreIngestPlugin;
 
 /***************************************************************************************
-* Follow DDF Developer's Guide for examples
-****************************************************************************************/
+ * Follow DDF Developer's Guide for examples
+ ****************************************************************************************/
 
-public class DummyPreIngestPlugin implements PreIngestPlugin 
-{
-	//TODO: Fill in all methods with appropriate logic 
-	private static Logger logger = Logger.getLogger( DummyPreIngestPlugin.class.getName() );
+public class DummyPreIngestPlugin implements PreIngestPlugin {
+    // TODO: Fill in all methods with appropriate logic
+    private static Logger logger = Logger.getLogger(DummyPreIngestPlugin.class.getName());
 
-	public DummyPreIngestPlugin(){
-		
-	}
+    public DummyPreIngestPlugin() {
 
-	
-	public int getPriority() {
-		// In this example we give this service the second highest priority
-		return 2;
-	}
+    }
 
-	
-	public CreateRequest process( CreateRequest input ) throws PluginExecutionException 
-	{
-		String methodName = "process(CreateRequest)";
-		logger.debug("ENTERING: " + methodName);
-		
-		CreateRequest newRequest = input;
-		if(input != null) {
-			
-			List<Metacard> filteredCards = filterOutMetacards(input.getMetacards());
-			newRequest = new CreateRequestImpl( filteredCards);
-		}
-		
-		logger.debug( "EXITING: " + methodName );
-		
-		return newRequest;
-	}
+    public int getPriority() {
+        // In this example we give this service the second highest priority
+        return 2;
+    }
 
-	
-	public UpdateRequest process( UpdateRequest input ) throws PluginExecutionException 
-	{		
-		String methodName = "process(UpdateRequest)";
-		logger.debug("ENTERING: " + methodName);
-		
-		UpdateRequest newRequest = input;
-        
-		if(newRequest != null) {
-			List<Entry<Serializable, Metacard>> updates = newRequest
-			.getUpdates();
-			
-			List<Metacard> updatedMetacards = new ArrayList<Metacard>();
+    public CreateRequest process(CreateRequest input) throws PluginExecutionException {
+        String methodName = "process(CreateRequest)";
+        logger.debug("ENTERING: " + methodName);
 
-			for (Entry<Serializable, Metacard> updateEntry : updates) {
-				Metacard metacard = updateEntry.getValue();
-				updatedMetacards.add(metacard);
-			}
-			
-			// Loop to get all ids
-			List<String> ids = new ArrayList<String>();
-			int i = 0;
-			for (Entry<Serializable, Metacard> updateEntry : updates) {
-				
-					if(i % 2 == 0) {
-						ids.add((String) updateEntry.getKey());;
-					}
-					i++;
-				
-			}
-			
-			updatedMetacards = this.filterOutMetacards(updatedMetacards);
-			logger.debug("Returning new update request with id list size: " + ids.size() + " and metacard list size: " + updatedMetacards.size());
-			newRequest = new UpdateRequestImpl((String[])(ids.toArray(new String[ids.size()])), updatedMetacards );
-		}
-		
-		logger.debug( "EXITING: " + methodName );
-		
-		return newRequest;
-	}
+        CreateRequest newRequest = input;
+        if (input != null) {
 
-	
-	public DeleteRequest process( DeleteRequest input ) throws PluginExecutionException 
-	{
-		String methodName = "process(DeleteRequest)";
-		logger.debug("ENTERING: " + methodName);
-		
-		
-		DeleteRequest newRequest = input;
-		
-//		List<String> results = new ArrayList<String>();
-//		if(idsToDelete != null) 
-//		{
-//			int size = idsToDelete.size();
-//			
-//			//In this example, we demonstrate filtering out every other
-//			//id in the list
-//			for(int i = 0; i < size; i++) {
-//				if(i % 2 == 0) {
-//					results.add(idsToDelete.get(i));
-//				}
-//			}	
-//		}
-		
-		logger.debug("EXITING: " + methodName);
-//		
-//		return results;
-		return newRequest;
-	}
+            List<Metacard> filteredCards = filterOutMetacards(input.getMetacards());
+            newRequest = new CreateRequestImpl(filteredCards);
+        }
 
-	
-	
-	
-	private List<Metacard> filterOutMetacards(List<Metacard> cards) {
-		String methodName = "filterOutMetacards";
-		logger.debug("ENTERING: " + methodName);
-		
-		List<Metacard> results = new ArrayList<Metacard>();
-		if(cards != null) {
-			int size = cards.size();
-			
-			//In this example, we demonstrate filtering out every other
-			//metacard in the list
-			for(int i = 0; i < size; i++) {
-				if(i % 2 == 0) {
-					results.add(cards.get(i));
-				}
-			}	
-			
-			if(logger.isDebugEnabled()) {
-				logger.debug("Original size of Metacard list: " + size );
-				logger.debug("Filtered size of Metacard list: " + results.size() );
-			}
-		}
-		
-		logger.debug("EXITING: " + methodName);
-		
-		return results;
-	}
-	
-	private List<Metacard> filterOutIds(List<Metacard> cards) {
-		String methodName = "filterOutMetacards";
-		logger.debug("ENTERING: " + methodName);
-		
-		List<Metacard> results = new ArrayList<Metacard>();
-		if(cards != null) {
-			int size = cards.size();
-			
-			//In this example, we demonstrate filtering out every other
-			//metacard in the list
-			for(int i = 0; i < size; i++) {
-				if(i % 2 == 0) {
-					results.add(cards.get(i));
-				}
-			}	
-			
-			if(logger.isDebugEnabled()) {
-				logger.debug("Original size of Metacard list: " + size );
-				logger.debug("Filtered size of Metacard list: " + results.size() );
-			}
-		}
-		
-		logger.debug("EXITING: " + methodName);
-		
-		return results;
-	}
+        logger.debug("EXITING: " + methodName);
+
+        return newRequest;
+    }
+
+    public UpdateRequest process(UpdateRequest input) throws PluginExecutionException {
+        String methodName = "process(UpdateRequest)";
+        logger.debug("ENTERING: " + methodName);
+
+        UpdateRequest newRequest = input;
+
+        if (newRequest != null) {
+            List<Entry<Serializable, Metacard>> updates = newRequest.getUpdates();
+
+            List<Metacard> updatedMetacards = new ArrayList<Metacard>();
+
+            for (Entry<Serializable, Metacard> updateEntry : updates) {
+                Metacard metacard = updateEntry.getValue();
+                updatedMetacards.add(metacard);
+            }
+
+            // Loop to get all ids
+            List<String> ids = new ArrayList<String>();
+            int i = 0;
+            for (Entry<Serializable, Metacard> updateEntry : updates) {
+
+                if (i % 2 == 0) {
+                    ids.add((String) updateEntry.getKey());
+                }
+                i++;
+
+            }
+
+            updatedMetacards = this.filterOutMetacards(updatedMetacards);
+            logger.debug("Returning new update request with id list size: " + ids.size()
+                    + " and metacard list size: " + updatedMetacards.size());
+            newRequest = new UpdateRequestImpl((String[]) (ids.toArray(new String[ids.size()])),
+                    updatedMetacards);
+        }
+
+        logger.debug("EXITING: " + methodName);
+
+        return newRequest;
+    }
+
+    public DeleteRequest process(DeleteRequest input) throws PluginExecutionException {
+        String methodName = "process(DeleteRequest)";
+        logger.debug("ENTERING: " + methodName);
+
+        DeleteRequest newRequest = input;
+
+        // List<String> results = new ArrayList<String>();
+        // if(idsToDelete != null)
+        // {
+        // int size = idsToDelete.size();
+        //
+        // //In this example, we demonstrate filtering out every other
+        // //id in the list
+        // for(int i = 0; i < size; i++) {
+        // if(i % 2 == 0) {
+        // results.add(idsToDelete.get(i));
+        // }
+        // }
+        // }
+
+        logger.debug("EXITING: " + methodName);
+        //
+        // return results;
+        return newRequest;
+    }
+
+    private List<Metacard> filterOutMetacards(List<Metacard> cards) {
+        String methodName = "filterOutMetacards";
+        logger.debug("ENTERING: " + methodName);
+
+        List<Metacard> results = new ArrayList<Metacard>();
+        if (cards != null) {
+            int size = cards.size();
+
+            // In this example, we demonstrate filtering out every other
+            // metacard in the list
+            for (int i = 0; i < size; i++) {
+                if (i % 2 == 0) {
+                    results.add(cards.get(i));
+                }
+            }
+
+            if (logger.isDebugEnabled()) {
+                logger.debug("Original size of Metacard list: " + size);
+                logger.debug("Filtered size of Metacard list: " + results.size());
+            }
+        }
+
+        logger.debug("EXITING: " + methodName);
+
+        return results;
+    }
+
+    private List<Metacard> filterOutIds(List<Metacard> cards) {
+        String methodName = "filterOutMetacards";
+        logger.debug("ENTERING: " + methodName);
+
+        List<Metacard> results = new ArrayList<Metacard>();
+        if (cards != null) {
+            int size = cards.size();
+
+            // In this example, we demonstrate filtering out every other
+            // metacard in the list
+            for (int i = 0; i < size; i++) {
+                if (i % 2 == 0) {
+                    results.add(cards.get(i));
+                }
+            }
+
+            if (logger.isDebugEnabled()) {
+                logger.debug("Original size of Metacard list: " + size);
+                logger.debug("Filtered size of Metacard list: " + results.size());
+            }
+        }
+
+        logger.debug("EXITING: " + methodName);
+
+        return results;
+    }
 }

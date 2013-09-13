@@ -1,13 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- *
- * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
- * version 3 of the License, or any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * 
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
+ * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
+ * 
  **/
 package ddf.security.pep.redaction.plugin.test;
 
@@ -61,99 +64,84 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
- * User: tustisos
- * Date: 3/20/13
- * Time: 3:24 PM
+ * User: tustisos Date: 3/20/13 Time: 3:24 PM
  */
-public class RedactionPluginTest
-{
-    private static final Logger logger = Logger.getLogger( RedactionPluginTest.class );
+public class RedactionPluginTest {
+    private static final Logger logger = Logger.getLogger(RedactionPluginTest.class);
 
     RedactionPlugin plugin;
+
     QueryResponseImpl incomingResponse;
 
     @BeforeClass()
-    public static void setupLogging()
-    {
+    public static void setupLogging() {
         BasicConfigurator.configure();
-        logger.setLevel( Level.TRACE );
+        logger.setLevel(Level.TRACE);
     }
 
     @Before
-    public void setup()
-    {
+    public void setup() {
         plugin = new RedactionPlugin();
 
-        QueryRequestImpl request = new QueryRequestImpl(new Query()
-        {
+        QueryRequestImpl request = new QueryRequestImpl(new Query() {
             @Override
-            public int getStartIndex()
-            {
+            public int getStartIndex() {
                 return 0;
             }
 
             @Override
-            public int getPageSize()
-            {
+            public int getPageSize() {
                 return 10;
             }
 
             @Override
-            public SortBy getSortBy()
-            {
+            public SortBy getSortBy() {
                 return null;
             }
 
             @Override
-            public boolean requestsTotalResultsCount()
-            {
+            public boolean requestsTotalResultsCount() {
                 return false;
             }
 
             @Override
-            public long getTimeoutMillis()
-            {
+            public long getTimeoutMillis() {
                 return 0;
             }
 
             @Override
-            public boolean evaluate(Object o)
-            {
+            public boolean evaluate(Object o) {
                 return true;
             }
 
             @Override
-            public Object accept(FilterVisitor filterVisitor, Object o)
-            {
+            public Object accept(FilterVisitor filterVisitor, Object o) {
                 return null;
             }
         });
 
-        Map<String,Serializable> properties = new HashMap<String,Serializable>();
+        Map<String, Serializable> properties = new HashMap<String, Serializable>();
 
         Realm realm = new SimpleAuthzRealm();
-        ((SimpleAuthzRealm) realm).setAuthorizationInfo(new AuthorizationInfo()
-        {
+        ((SimpleAuthzRealm) realm).setAuthorizationInfo(new AuthorizationInfo() {
             @Override
-            public Collection<String> getRoles()
-            {
+            public Collection<String> getRoles() {
                 return null;
             }
 
             @Override
-            public Collection<String> getStringPermissions()
-            {
+            public Collection<String> getStringPermissions() {
                 return null;
             }
 
             @Override
-            public Collection<Permission> getObjectPermissions()
-            {
+            public Collection<Permission> getObjectPermissions() {
                 Collection<Permission> permissions = new ArrayList<Permission>();
                 KeyValuePermission keyValuePermission = new KeyValuePermission("FineAccessControls");
                 keyValuePermission.addValue("A");
                 keyValuePermission.addValue("B");
-                KeyValuePermission keyValuePermission1 = new KeyValuePermission("CountryOfAffiliation");
+                KeyValuePermission keyValuePermission1 = new KeyValuePermission(
+                        "CountryOfAffiliation");
                 keyValuePermission1.addValue("GBR");
                 permissions.add(keyValuePermission);
                 permissions.add(keyValuePermission1);
@@ -166,17 +154,16 @@ public class RedactionPluginTest
         DefaultSecurityManager manager = new DefaultSecurityManager();
         manager.setRealms(realms);
 
-        SimplePrincipalCollection principalCollection = new SimplePrincipalCollection(new Principal()
-        {
-            @Override
-            public String getName()
-            {
-                return "testuser";
-            }
-        }, realm.getName());
+        SimplePrincipalCollection principalCollection = new SimplePrincipalCollection(
+                new Principal() {
+                    @Override
+                    public String getName() {
+                        return "testuser";
+                    }
+                }, realm.getName());
 
         Subject subject = new MockSubject(manager, principalCollection);
-        properties.put(SecurityConstants.SECURITY_SUBJECT, subject); 
+        properties.put(SecurityConstants.SECURITY_SUBJECT, subject);
         request.setProperties(properties);
 
         incomingResponse = new QueryResponseImpl(request);
@@ -188,53 +175,44 @@ public class RedactionPluginTest
         incomingResponse.addResult(result2, false);
         incomingResponse.addResult(result3, true);
 
-        ((SimpleAuthzRealm)realm).setMatchAllMappings(Arrays.asList("FineAccessControls=rule"));
-        ((SimpleAuthzRealm)realm).setMatchOneMappings(Arrays.asList("CountryOfAffiliation=country"));
+        ((SimpleAuthzRealm) realm).setMatchAllMappings(Arrays.asList("FineAccessControls=rule"));
+        ((SimpleAuthzRealm) realm).setMatchOneMappings(Arrays
+                .asList("CountryOfAffiliation=country"));
     }
 
     @Test
-    public void testPluginFilter()
-    {
+    public void testPluginFilter() {
 
-        try
-        {
+        try {
             QueryResponse response = plugin.process(incomingResponse);
             verifyFilterResponse(response);
-        }
-        catch (PluginExecutionException e)
-        {
+        } catch (PluginExecutionException e) {
             logger.error("Error while processing the redaction plugin", e);
-        }
-        catch (StopProcessingException e)
-        {
+        } catch (StopProcessingException e) {
             logger.error("Stopped processing the redaction plugin", e);
         }
     }
 
-    public void verifyFilterResponse(QueryResponse response)
-    {
-        System.out.println("Filtered with "+response.getResults().size()+" out of 3 original.");
+    public void verifyFilterResponse(QueryResponse response) {
+        System.out.println("Filtered with " + response.getResults().size() + " out of 3 original.");
         System.out.println("Checking Results");
         Assert.assertEquals(1, response.getResults().size());
         System.out.println("Filtering succeeded.");
     }
 
-    public Metacard getHighMetacard()
-    {
+    public Metacard getHighMetacard() {
         MetacardImpl metacard = new MetacardImpl();
         metacard.setResourceSize("100");
-        try
-        {
+        try {
             metacard.setResourceURI(new URI("http://some.fancy.uri/goes/here"));
-        }
-        catch (URISyntaxException e)
-        {
+        } catch (URISyntaxException e) {
             logger.error("", e);
         }
         metacard.setContentTypeName("Resource");
         metacard.setTitle("Metacard 1");
         metacard.setContentTypeVersion("1");
-        metacard.setType(new MetacardTypeImpl(MetacardType.DEFAULT_METACARD_TYPE_NAME, new HashSet<AttributeDescriptor>()));
+        metacard.setType(new MetacardTypeImpl(MetacardType.DEFAULT_METACARD_TYPE_NAME,
+                new HashSet<AttributeDescriptor>()));
         HashMap<String, List<String>> security = new HashMap<String, List<String>>();
         security.put("rule", Arrays.asList("A", "B", "CR", "WS"));
         security.put("country", Arrays.asList("AUS", "CAN", "GBR"));
@@ -242,22 +220,19 @@ public class RedactionPluginTest
         return metacard;
     }
 
-    public Metacard getLowMetacard()
-    {
+    public Metacard getLowMetacard() {
         MetacardImpl metacard = new MetacardImpl();
         metacard.setResourceSize("100");
-        try
-        {
+        try {
             metacard.setResourceURI(new URI("http://some.fancy.uri/goes/here"));
-        }
-        catch (URISyntaxException e)
-        {
+        } catch (URISyntaxException e) {
             logger.error("", e);
         }
         metacard.setContentTypeName("Resource");
         metacard.setTitle("Metacard 1");
         metacard.setContentTypeVersion("1");
-        metacard.setType(new MetacardTypeImpl(MetacardType.DEFAULT_METACARD_TYPE_NAME, new HashSet<AttributeDescriptor>()));
+        metacard.setType(new MetacardTypeImpl(MetacardType.DEFAULT_METACARD_TYPE_NAME,
+                new HashSet<AttributeDescriptor>()));
 
         HashMap<String, List<String>> security = new HashMap<String, List<String>>();
         security.put("rule", Arrays.asList("A", "B"));
@@ -266,22 +241,19 @@ public class RedactionPluginTest
         return metacard;
     }
 
-    public Metacard getLowMetacardReleaseToOne()
-    {
+    public Metacard getLowMetacardReleaseToOne() {
         MetacardImpl metacard = new MetacardImpl();
         metacard.setResourceSize("100");
-        try
-        {
+        try {
             metacard.setResourceURI(new URI("http://some.fancy.uri/goes/here"));
-        }
-        catch (URISyntaxException e)
-        {
+        } catch (URISyntaxException e) {
             logger.error("", e);
         }
         metacard.setContentTypeName("Resource");
         metacard.setTitle("Metacard 1");
         metacard.setContentTypeVersion("1");
-        metacard.setType(new MetacardTypeImpl(MetacardType.DEFAULT_METACARD_TYPE_NAME, new HashSet<AttributeDescriptor>()));
+        metacard.setType(new MetacardTypeImpl(MetacardType.DEFAULT_METACARD_TYPE_NAME,
+                new HashSet<AttributeDescriptor>()));
 
         HashMap<String, List<String>> security = new HashMap<String, List<String>>();
         security.put("rule", Arrays.asList("A", "B"));
@@ -290,11 +262,9 @@ public class RedactionPluginTest
         return metacard;
     }
 
-    private class MockSubject extends DelegatingSubject implements Subject
-    {
+    private class MockSubject extends DelegatingSubject implements Subject {
 
-        public MockSubject(SecurityManager manager, PrincipalCollection principals )
-        {
+        public MockSubject(SecurityManager manager, PrincipalCollection principals) {
             super(principals, true, null, new SimpleSession(UUID.randomUUID().toString()), manager);
         }
 

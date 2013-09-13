@@ -1,16 +1,18 @@
 /**
  * Copyright (c) Codice Foundation
- *
- * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
- * version 3 of the License, or any later version. 
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * 
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
+ * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
+ * 
  **/
 package ddf.security.pdp.xacml.processor;
-
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -45,368 +47,364 @@ import org.junit.rules.TemporaryFolder;
 import ddf.security.pdp.xacml.PdpException;
 import ddf.security.pdp.xacml.processor.BalanaPdp;
 
+public class BalanaPdpTest {
+    private static final Logger LOGGER = Logger.getLogger(BalanaPdpTest.class);
 
-public class BalanaPdpTest
-{
-    private static final Logger LOGGER = Logger.getLogger( BalanaPdpTest.class );
     private static final String ROLE_CLAIM = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role";
+
     private static final String STRING_DATA_TYPE = "http://www.w3.org/2001/XMLSchema#string";
+
     private static final String ACTION_CATEGORY = "urn:oasis:names:tc:xacml:3.0:attribute-category:action";
+
     private static final String ACTION_ID = "urn:oasis:names:tc:xacml:1.0:action:action-id";
+
     private static final String SUBJECT_CATEGORY = "urn:oasis:names:tc:xacml:1.0:subject-category:access-subject";
+
     private static final String SUBJECT_ID = "urn:oasis:names:tc:xacml:1.0:subject:subject-id";
+
     private static final String PERMISSIONS_CATEGORY = "http://example.com/category";
+
     private static final String CITIZENSHIP_ATTRIBUTE = "http://www.opm.gov/feddata/CountryOfCitizenship";
+
     private static final String RELATIVE_POLICIES_DIR = "src/test/resources";
+
     private static final String TEMP_DIR_NAME = "tempDir";
+
     private static final String TEST_CREATION_DIR = "target/temp";
+
     private static final String QUERY_ACTION = "query";
+
     private static final String TEST_USER_1 = "testuser1";
+
     private static final String TEST_USER_2 = "testuser2";
+
     private static final String ROLE = "user";
+
     private static final String POLICY_FILE = "query-policy.xml";
+
     private static String PROJECT_HOME;
+
     private static final String US_COUNTRY = "USA";
 
-    
-
     @BeforeClass
-    public static void init()
-    {
+    public static void init() {
         BasicConfigurator.configure();
-        LOGGER.setLevel( Level.TRACE );
-        
-        try
-        {
-            PROJECT_HOME = new File( "." ).getCanonicalFile().getPath();
-            LOGGER.debug( "PROJECT_HOME: " + PROJECT_HOME );
-        }
-        catch ( IOException e )
-        {
-           LOGGER.debug( e.getMessage(), e );
+        LOGGER.setLevel(Level.TRACE);
+
+        try {
+            PROJECT_HOME = new File(".").getCanonicalFile().getPath();
+            LOGGER.debug("PROJECT_HOME: " + PROJECT_HOME);
+        } catch (IOException e) {
+            LOGGER.debug(e.getMessage(), e);
         }
     }
 
-
     @Test
-    public void testEvaluate_role_user_action_query_citizenship_US() throws Exception
-    {
-        LOGGER.debug( "\n\n\n##### testEvaluate_role_user_action_query_citizenship_US" );
-                
+    public void testEvaluate_role_user_action_query_citizenship_US() throws Exception {
+        LOGGER.debug("\n\n\n##### testEvaluate_role_user_action_query_citizenship_US");
+
         // Setup
-        File destDir = folder.newFolder( TEMP_DIR_NAME );
-        LOGGER.debug( "Making directory: " + destDir.getPath() );
+        File destDir = folder.newFolder(TEMP_DIR_NAME);
+        LOGGER.debug("Making directory: " + destDir.getPath());
         destDir.mkdir();
-        File srcFile = new File( PROJECT_HOME + File.separator + RELATIVE_POLICIES_DIR + File.separator + POLICY_FILE );
-        FileUtils.copyFileToDirectory( srcFile, destDir );
-        
+        File srcFile = new File(PROJECT_HOME + File.separator + RELATIVE_POLICIES_DIR
+                + File.separator + POLICY_FILE);
+        FileUtils.copyFileToDirectory(srcFile, destDir);
+
         RequestType xacmlRequestType = new RequestType();
-        xacmlRequestType.setCombinedDecision( false );
-        xacmlRequestType.setReturnPolicyIdList( false );
+        xacmlRequestType.setCombinedDecision(false);
+        xacmlRequestType.setReturnPolicyIdList(false);
 
         AttributesType actionAttributes = new AttributesType();
-        actionAttributes.setCategory( ACTION_CATEGORY );
+        actionAttributes.setCategory(ACTION_CATEGORY);
         AttributeType actionAttribute = new AttributeType();
-        actionAttribute.setAttributeId( ACTION_ID );
-        actionAttribute.setIncludeInResult( false );
+        actionAttribute.setAttributeId(ACTION_ID);
+        actionAttribute.setIncludeInResult(false);
         AttributeValueType actionValue = new AttributeValueType();
-        actionValue.setDataType( STRING_DATA_TYPE );
-        actionValue.getContent().add( QUERY_ACTION );
-        actionAttribute.getAttributeValue().add( actionValue );
-        actionAttributes.getAttribute().add( actionAttribute );
+        actionValue.setDataType(STRING_DATA_TYPE);
+        actionValue.getContent().add(QUERY_ACTION);
+        actionAttribute.getAttributeValue().add(actionValue);
+        actionAttributes.getAttribute().add(actionAttribute);
 
         AttributesType subjectAttributes = new AttributesType();
-        subjectAttributes.setCategory( SUBJECT_CATEGORY );
+        subjectAttributes.setCategory(SUBJECT_CATEGORY);
         AttributeType subjectAttribute = new AttributeType();
-        subjectAttribute.setAttributeId( SUBJECT_ID );
-        subjectAttribute.setIncludeInResult( false );
+        subjectAttribute.setAttributeId(SUBJECT_ID);
+        subjectAttribute.setIncludeInResult(false);
         AttributeValueType subjectValue = new AttributeValueType();
-        subjectValue.setDataType( STRING_DATA_TYPE );
-        subjectValue.getContent().add( TEST_USER_1 );
-        subjectAttribute.getAttributeValue().add( subjectValue );
-        subjectAttributes.getAttribute().add( subjectAttribute );
+        subjectValue.setDataType(STRING_DATA_TYPE);
+        subjectValue.getContent().add(TEST_USER_1);
+        subjectAttribute.getAttributeValue().add(subjectValue);
+        subjectAttributes.getAttribute().add(subjectAttribute);
 
         AttributeType roleAttribute = new AttributeType();
-        roleAttribute.setAttributeId( ROLE_CLAIM );
-        roleAttribute.setIncludeInResult( false );
+        roleAttribute.setAttributeId(ROLE_CLAIM);
+        roleAttribute.setIncludeInResult(false);
         AttributeValueType roleValue = new AttributeValueType();
-        roleValue.setDataType( STRING_DATA_TYPE );
-        roleValue.getContent().add( ROLE );
-        roleAttribute.getAttributeValue().add( roleValue );
-        subjectAttributes.getAttribute().add( roleAttribute );
+        roleValue.setDataType(STRING_DATA_TYPE);
+        roleValue.getContent().add(ROLE);
+        roleAttribute.getAttributeValue().add(roleValue);
+        subjectAttributes.getAttribute().add(roleAttribute);
 
         AttributesType categoryAttributes = new AttributesType();
-        categoryAttributes.setCategory( PERMISSIONS_CATEGORY );
+        categoryAttributes.setCategory(PERMISSIONS_CATEGORY);
         AttributeType citizenshipAttribute = new AttributeType();
-        citizenshipAttribute.setAttributeId( CITIZENSHIP_ATTRIBUTE );
-        citizenshipAttribute.setIncludeInResult( false );
+        citizenshipAttribute.setAttributeId(CITIZENSHIP_ATTRIBUTE);
+        citizenshipAttribute.setIncludeInResult(false);
         AttributeValueType citizenshipValue = new AttributeValueType();
-        citizenshipValue.setDataType( STRING_DATA_TYPE );
-        citizenshipValue.getContent().add( US_COUNTRY );
-        citizenshipAttribute.getAttributeValue().add( citizenshipValue );
-        categoryAttributes.getAttribute().add( citizenshipAttribute );
+        citizenshipValue.setDataType(STRING_DATA_TYPE);
+        citizenshipValue.getContent().add(US_COUNTRY);
+        citizenshipAttribute.getAttributeValue().add(citizenshipValue);
+        categoryAttributes.getAttribute().add(citizenshipAttribute);
 
-        xacmlRequestType.getAttributes().add( actionAttributes );
-        xacmlRequestType.getAttributes().add( subjectAttributes );
-        xacmlRequestType.getAttributes().add( categoryAttributes );
-        
-        BalanaPdp pdp = new BalanaPdp( destDir );
-        
+        xacmlRequestType.getAttributes().add(actionAttributes);
+        xacmlRequestType.getAttributes().add(subjectAttributes);
+        xacmlRequestType.getAttributes().add(categoryAttributes);
+
+        BalanaPdp pdp = new BalanaPdp(destDir);
+
         // Perform Test
-        ResponseType xacmlResponse = pdp.evaluate( xacmlRequestType );
+        ResponseType xacmlResponse = pdp.evaluate(xacmlRequestType);
 
         // Verify
-        JAXBContext jaxbContext = JAXBContext.newInstance( ResponseType.class );
+        JAXBContext jaxbContext = JAXBContext.newInstance(ResponseType.class);
         Marshaller marshaller = jaxbContext.createMarshaller();
         ObjectFactory objectFactory = new ObjectFactory();
         Writer writer = new StringWriter();
-        marshaller.marshal( objectFactory.createResponse( xacmlResponse ), writer );
-        LOGGER.debug( "\nXACML 3.0 Response:\n" + writer.toString() );
-        assertEquals( xacmlResponse.getResult().get( 0 ).getDecision(), DecisionType.PERMIT );
-        
+        marshaller.marshal(objectFactory.createResponse(xacmlResponse), writer);
+        LOGGER.debug("\nXACML 3.0 Response:\n" + writer.toString());
+        assertEquals(xacmlResponse.getResult().get(0).getDecision(), DecisionType.PERMIT);
+
         // Cleanup
-        LOGGER.debug( "Deleting directory: " + destDir );
-        FileUtils.deleteDirectory( destDir );
+        LOGGER.debug("Deleting directory: " + destDir);
+        FileUtils.deleteDirectory(destDir);
     }
 
+    @Test
+    public void testEvaluate_role_user_action_query_citizenship_CA() throws Exception {
+        LOGGER.debug("\n\n\n##### testEvaluate_role_user_action_query_citizenship_CA");
 
-    @Test 
-    public void testEvaluate_role_user_action_query_citizenship_CA() throws Exception
-    {
-        LOGGER.debug( "\n\n\n##### testEvaluate_role_user_action_query_citizenship_CA" );
-        
         final String COUNTRY = "CA";
-        
+
         testSetup();
-        
+
         RequestType xacmlRequestType = new RequestType();
-        xacmlRequestType.setCombinedDecision( false );
-        xacmlRequestType.setReturnPolicyIdList( false );
+        xacmlRequestType.setCombinedDecision(false);
+        xacmlRequestType.setReturnPolicyIdList(false);
 
         AttributesType actionAttributes = new AttributesType();
-        actionAttributes.setCategory( ACTION_CATEGORY );
+        actionAttributes.setCategory(ACTION_CATEGORY);
         AttributeType actionAttribute = new AttributeType();
-        actionAttribute.setAttributeId( ACTION_ID );
-        actionAttribute.setIncludeInResult( false );
+        actionAttribute.setAttributeId(ACTION_ID);
+        actionAttribute.setIncludeInResult(false);
         AttributeValueType actionValue = new AttributeValueType();
-        actionValue.setDataType( STRING_DATA_TYPE );
-        actionValue.getContent().add( QUERY_ACTION );
-        actionAttribute.getAttributeValue().add( actionValue );
-        actionAttributes.getAttribute().add( actionAttribute );
+        actionValue.setDataType(STRING_DATA_TYPE);
+        actionValue.getContent().add(QUERY_ACTION);
+        actionAttribute.getAttributeValue().add(actionValue);
+        actionAttributes.getAttribute().add(actionAttribute);
 
         AttributesType subjectAttributes = new AttributesType();
-        subjectAttributes.setCategory( SUBJECT_CATEGORY );
+        subjectAttributes.setCategory(SUBJECT_CATEGORY);
         AttributeType subjectAttribute = new AttributeType();
-        subjectAttribute.setAttributeId( SUBJECT_ID );
-        subjectAttribute.setIncludeInResult( false );
+        subjectAttribute.setAttributeId(SUBJECT_ID);
+        subjectAttribute.setIncludeInResult(false);
         AttributeValueType subjectValue = new AttributeValueType();
-        subjectValue.setDataType( STRING_DATA_TYPE );
-        subjectValue.getContent().add( TEST_USER_2 );
-        subjectAttribute.getAttributeValue().add( subjectValue );
-        subjectAttributes.getAttribute().add( subjectAttribute );
+        subjectValue.setDataType(STRING_DATA_TYPE);
+        subjectValue.getContent().add(TEST_USER_2);
+        subjectAttribute.getAttributeValue().add(subjectValue);
+        subjectAttributes.getAttribute().add(subjectAttribute);
 
         AttributeType roleAttribute = new AttributeType();
-        roleAttribute.setAttributeId( ROLE_CLAIM );
-        roleAttribute.setIncludeInResult( false );
+        roleAttribute.setAttributeId(ROLE_CLAIM);
+        roleAttribute.setIncludeInResult(false);
         AttributeValueType roleValue = new AttributeValueType();
-        roleValue.setDataType( STRING_DATA_TYPE );
-        roleValue.getContent().add( ROLE );
-        roleAttribute.getAttributeValue().add( roleValue );
-        subjectAttributes.getAttribute().add( roleAttribute );
+        roleValue.setDataType(STRING_DATA_TYPE);
+        roleValue.getContent().add(ROLE);
+        roleAttribute.getAttributeValue().add(roleValue);
+        subjectAttributes.getAttribute().add(roleAttribute);
 
         AttributesType categoryAttributes = new AttributesType();
-        categoryAttributes.setCategory( PERMISSIONS_CATEGORY );
+        categoryAttributes.setCategory(PERMISSIONS_CATEGORY);
         AttributeType citizenshipAttribute = new AttributeType();
-        citizenshipAttribute.setAttributeId( CITIZENSHIP_ATTRIBUTE );
-        citizenshipAttribute.setIncludeInResult( false );
+        citizenshipAttribute.setAttributeId(CITIZENSHIP_ATTRIBUTE);
+        citizenshipAttribute.setIncludeInResult(false);
         AttributeValueType citizenshipValue = new AttributeValueType();
-        citizenshipValue.setDataType( STRING_DATA_TYPE );
-        citizenshipValue.getContent().add( COUNTRY );
-        citizenshipAttribute.getAttributeValue().add( citizenshipValue );
-        categoryAttributes.getAttribute().add( citizenshipAttribute );
+        citizenshipValue.setDataType(STRING_DATA_TYPE);
+        citizenshipValue.getContent().add(COUNTRY);
+        citizenshipAttribute.getAttributeValue().add(citizenshipValue);
+        categoryAttributes.getAttribute().add(citizenshipAttribute);
 
-        xacmlRequestType.getAttributes().add( actionAttributes );
-        xacmlRequestType.getAttributes().add( subjectAttributes );
-        xacmlRequestType.getAttributes().add( categoryAttributes );
+        xacmlRequestType.getAttributes().add(actionAttributes);
+        xacmlRequestType.getAttributes().add(subjectAttributes);
+        xacmlRequestType.getAttributes().add(categoryAttributes);
 
-        BalanaPdp pdp = new BalanaPdp( tempDir );
-        
+        BalanaPdp pdp = new BalanaPdp(tempDir);
+
         // Perform Test
-        ResponseType xacmlResponse = pdp.evaluate( xacmlRequestType );
+        ResponseType xacmlResponse = pdp.evaluate(xacmlRequestType);
 
         // Verify
-        JAXBContext jaxbContext = JAXBContext.newInstance( ResponseType.class );
+        JAXBContext jaxbContext = JAXBContext.newInstance(ResponseType.class);
         Marshaller marshaller = jaxbContext.createMarshaller();
         ObjectFactory objectFactory = new ObjectFactory();
         Writer writer = new StringWriter();
-        marshaller.marshal( objectFactory.createResponse( xacmlResponse ), writer );
-        LOGGER.debug( "\nXACML 3.0 Response:\n" + writer.toString() );
-        assertEquals( xacmlResponse.getResult().get( 0 ).getDecision(), DecisionType.DENY );
-        
+        marshaller.marshal(objectFactory.createResponse(xacmlResponse), writer);
+        LOGGER.debug("\nXACML 3.0 Response:\n" + writer.toString());
+        assertEquals(xacmlResponse.getResult().get(0).getDecision(), DecisionType.DENY);
+
     }
-    
+
     @Test
-    public void testBalanaPdp_policies_directory_does_not_exist() throws PdpException, IOException
-    {
-        LOGGER.debug( "\n\n\n##### testBalanaPdp_policies_directory_does_not_exist" );
-        
-        // Perform Test on new directory 
+    public void testBalanaPdp_policies_directory_does_not_exist() throws PdpException, IOException {
+        LOGGER.debug("\n\n\n##### testBalanaPdp_policies_directory_does_not_exist");
+
+        // Perform Test on new directory
         // Expect directory to be created
-        new BalanaPdp( TEST_CREATION_DIR );
-        
-        //Delete the directory that was just created
-        FileUtils.forceDelete( new File (TEST_CREATION_DIR) );
+        new BalanaPdp(TEST_CREATION_DIR);
+
+        // Delete the directory that was just created
+        FileUtils.forceDelete(new File(TEST_CREATION_DIR));
     }
-    
-    
+
     @Test
     /**
      * No longer expect an exception thrown here since we can start with an empty directory
      */
-    public void testBalanaPdp_policies_directory_exists_and_is_empty() throws Exception
-    {
-        LOGGER.debug( "\n\n\n##### testBalanaPdp_policies_directory_exists_and_is_empty" );
-        
+    public void testBalanaPdp_policies_directory_exists_and_is_empty() throws Exception {
+        LOGGER.debug("\n\n\n##### testBalanaPdp_policies_directory_exists_and_is_empty");
+
         // Setup
-        File dir = folder.newFolder( TEMP_DIR_NAME );
-        LOGGER.debug( "Making directory: " + dir.getPath() );
+        File dir = folder.newFolder(TEMP_DIR_NAME);
+        LOGGER.debug("Making directory: " + dir.getPath());
         dir.mkdir();
-        
-        assertTrue( dir.isDirectory() );
-        assertTrue( isDirEmpty( dir ) );
-        
+
+        assertTrue(dir.isDirectory());
+        assertTrue(isDirEmpty(dir));
+
         // Perform Test
-        new BalanaPdp( dir );
-        
+        new BalanaPdp(dir);
+
         // Cleanup
-        LOGGER.debug( "Deleting directory: " +  dir.getPath() );
+        LOGGER.debug("Deleting directory: " + dir.getPath());
         dir.delete();
     }
-    
+
     @Test
-    public void testBalanaPdp_policies_directory_policy_added() throws Exception
-    {
-        LOGGER.debug( "\n\n\n##### testBalanaPdp_policies_directory_policy_added" );
-        
-        
+    public void testBalanaPdp_policies_directory_policy_added() throws Exception {
+        LOGGER.debug("\n\n\n##### testBalanaPdp_policies_directory_policy_added");
+
         File policyDir = folder.newFolder("tempDir");
-        
+
         // Perform Test
-        BalanaPdp pdp = new BalanaPdp( policyDir);
-        
-        File srcFile = new File( PROJECT_HOME + File.separator + RELATIVE_POLICIES_DIR + File.separator + POLICY_FILE );
-        FileUtils.copyFileToDirectory( srcFile, policyDir );
-       
-        //By setting the polling interval to a second
-        //the policy will be loaded
+        BalanaPdp pdp = new BalanaPdp(policyDir);
+
+        File srcFile = new File(PROJECT_HOME + File.separator + RELATIVE_POLICIES_DIR
+                + File.separator + POLICY_FILE);
+        FileUtils.copyFileToDirectory(srcFile, policyDir);
+
+        // By setting the polling interval to a second
+        // the policy will be loaded
         pdp.setPollingInterval(1);
-        
+
         RequestType xacmlRequestType = new RequestType();
-        xacmlRequestType.setCombinedDecision( false );
-        xacmlRequestType.setReturnPolicyIdList( false );
+        xacmlRequestType.setCombinedDecision(false);
+        xacmlRequestType.setReturnPolicyIdList(false);
 
         AttributesType actionAttributes = new AttributesType();
-        actionAttributes.setCategory( ACTION_CATEGORY );
+        actionAttributes.setCategory(ACTION_CATEGORY);
         AttributeType actionAttribute = new AttributeType();
-        actionAttribute.setAttributeId( ACTION_ID );
-        actionAttribute.setIncludeInResult( false );
+        actionAttribute.setAttributeId(ACTION_ID);
+        actionAttribute.setIncludeInResult(false);
         AttributeValueType actionValue = new AttributeValueType();
-        actionValue.setDataType( STRING_DATA_TYPE );
-        actionValue.getContent().add( QUERY_ACTION );
-        actionAttribute.getAttributeValue().add( actionValue );
-        actionAttributes.getAttribute().add( actionAttribute );
+        actionValue.setDataType(STRING_DATA_TYPE);
+        actionValue.getContent().add(QUERY_ACTION);
+        actionAttribute.getAttributeValue().add(actionValue);
+        actionAttributes.getAttribute().add(actionAttribute);
 
         AttributesType subjectAttributes = new AttributesType();
-        subjectAttributes.setCategory( SUBJECT_CATEGORY );
+        subjectAttributes.setCategory(SUBJECT_CATEGORY);
         AttributeType subjectAttribute = new AttributeType();
-        subjectAttribute.setAttributeId( SUBJECT_ID );
-        subjectAttribute.setIncludeInResult( false );
+        subjectAttribute.setAttributeId(SUBJECT_ID);
+        subjectAttribute.setIncludeInResult(false);
         AttributeValueType subjectValue = new AttributeValueType();
-        subjectValue.setDataType( STRING_DATA_TYPE );
-        subjectValue.getContent().add( TEST_USER_1 );
-        subjectAttribute.getAttributeValue().add( subjectValue );
-        subjectAttributes.getAttribute().add( subjectAttribute );
+        subjectValue.setDataType(STRING_DATA_TYPE);
+        subjectValue.getContent().add(TEST_USER_1);
+        subjectAttribute.getAttributeValue().add(subjectValue);
+        subjectAttributes.getAttribute().add(subjectAttribute);
 
         AttributeType roleAttribute = new AttributeType();
-        roleAttribute.setAttributeId( ROLE_CLAIM );
-        roleAttribute.setIncludeInResult( false );
+        roleAttribute.setAttributeId(ROLE_CLAIM);
+        roleAttribute.setIncludeInResult(false);
         AttributeValueType roleValue = new AttributeValueType();
-        roleValue.setDataType( STRING_DATA_TYPE );
-        roleValue.getContent().add( ROLE );
-        roleAttribute.getAttributeValue().add( roleValue );
-        subjectAttributes.getAttribute().add( roleAttribute );
+        roleValue.setDataType(STRING_DATA_TYPE);
+        roleValue.getContent().add(ROLE);
+        roleAttribute.getAttributeValue().add(roleValue);
+        subjectAttributes.getAttribute().add(roleAttribute);
 
         AttributesType categoryAttributes = new AttributesType();
-        categoryAttributes.setCategory( PERMISSIONS_CATEGORY );
+        categoryAttributes.setCategory(PERMISSIONS_CATEGORY);
         AttributeType citizenshipAttribute = new AttributeType();
-        citizenshipAttribute.setAttributeId( CITIZENSHIP_ATTRIBUTE );
-        citizenshipAttribute.setIncludeInResult( false );
+        citizenshipAttribute.setAttributeId(CITIZENSHIP_ATTRIBUTE);
+        citizenshipAttribute.setIncludeInResult(false);
         AttributeValueType citizenshipValue = new AttributeValueType();
-        citizenshipValue.setDataType( STRING_DATA_TYPE );
-        citizenshipValue.getContent().add( US_COUNTRY );
-        citizenshipAttribute.getAttributeValue().add( citizenshipValue );
-        categoryAttributes.getAttribute().add( citizenshipAttribute );
+        citizenshipValue.setDataType(STRING_DATA_TYPE);
+        citizenshipValue.getContent().add(US_COUNTRY);
+        citizenshipAttribute.getAttributeValue().add(citizenshipValue);
+        categoryAttributes.getAttribute().add(citizenshipAttribute);
 
-        xacmlRequestType.getAttributes().add( actionAttributes );
-        xacmlRequestType.getAttributes().add( subjectAttributes );
-        xacmlRequestType.getAttributes().add( categoryAttributes );
-                
+        xacmlRequestType.getAttributes().add(actionAttributes);
+        xacmlRequestType.getAttributes().add(subjectAttributes);
+        xacmlRequestType.getAttributes().add(categoryAttributes);
+
         // Perform Test
-        ResponseType xacmlResponse = pdp.evaluate( xacmlRequestType );
+        ResponseType xacmlResponse = pdp.evaluate(xacmlRequestType);
 
         // Verify - The policy was loaded to allow a permit decision
-        JAXBContext jaxbContext = JAXBContext.newInstance( ResponseType.class );
+        JAXBContext jaxbContext = JAXBContext.newInstance(ResponseType.class);
         Marshaller marshaller = jaxbContext.createMarshaller();
         ObjectFactory objectFactory = new ObjectFactory();
         Writer writer = new StringWriter();
-        marshaller.marshal( objectFactory.createResponse( xacmlResponse ), writer );
-        LOGGER.debug( "\nXACML 3.0 Response:\n" + writer.toString() );
-        assertEquals( xacmlResponse.getResult().get( 0 ).getDecision(), DecisionType.PERMIT );
-        
-        FileUtils.deleteDirectory( policyDir );
+        marshaller.marshal(objectFactory.createResponse(xacmlResponse), writer);
+        LOGGER.debug("\nXACML 3.0 Response:\n" + writer.toString());
+        assertEquals(xacmlResponse.getResult().get(0).getDecision(), DecisionType.PERMIT);
+
+        FileUtils.deleteDirectory(policyDir);
     }
-    
-    
+
     @After
-    public void cleanup() throws IOException
-    {    
-        if( tempDir != null && tempDir.exists() )
-        {
-            LOGGER.debug( "Deleting directory: " + tempDir );
-            FileUtils.deleteDirectory( tempDir );
-        }    
+    public void cleanup() throws IOException {
+        if (tempDir != null && tempDir.exists()) {
+            LOGGER.debug("Deleting directory: " + tempDir);
+            FileUtils.deleteDirectory(tempDir);
+        }
     }
-    
-    private void testSetup() throws IOException
-    {
+
+    private void testSetup() throws IOException {
         // Setup
-    	tempDir = folder.newFolder(TEMP_DIR_NAME );
-        LOGGER.debug( "Making directory: " + tempDir.getPath() );
+        tempDir = folder.newFolder(TEMP_DIR_NAME);
+        LOGGER.debug("Making directory: " + tempDir.getPath());
         tempDir.mkdir();
-        File srcFile = new File( PROJECT_HOME + File.separator + RELATIVE_POLICIES_DIR + File.separator + POLICY_FILE );
-        FileUtils.copyFileToDirectory( srcFile, tempDir );
+        File srcFile = new File(PROJECT_HOME + File.separator + RELATIVE_POLICIES_DIR
+                + File.separator + POLICY_FILE);
+        FileUtils.copyFileToDirectory(srcFile, tempDir);
     }
-    
-    private boolean isDirEmpty( File dir )
-    {
-        return dir != null && dir.isDirectory() && dir.listFiles( getXmlFilenameFilter() ).length == 0;
+
+    private boolean isDirEmpty(File dir) {
+        return dir != null && dir.isDirectory()
+                && dir.listFiles(getXmlFilenameFilter()).length == 0;
     }
-    
-    
-    private FilenameFilter getXmlFilenameFilter()
-    {
-        FilenameFilter filter = new FilenameFilter() 
-        {
+
+    private FilenameFilter getXmlFilenameFilter() {
+        FilenameFilter filter = new FilenameFilter() {
             @Override
-            public boolean accept(File dir, String name) 
-            {
-                return name.toLowerCase().endsWith( ".xml" );
+            public boolean accept(File dir, String name) {
+                return name.toLowerCase().endsWith(".xml");
             }
         };
-        
+
         return filter;
     }
-    
+
     @Rule
     public TemporaryFolder folder = new TemporaryFolder();
 

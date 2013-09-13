@@ -1,13 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- *
- * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
- * version 3 of the License, or any later version. 
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * 
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
+ * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
+ * 
  **/
 package ddf.catalog.transformer.resource;
 
@@ -36,139 +39,132 @@ import ddf.catalog.transform.MetacardTransformer;
 
 /**
  * 
- * This transformer uses the Catalog Framework to obtain and return
- * the resource based on the metacard id.
+ * This transformer uses the Catalog Framework to obtain and return the resource based on the
+ * metacard id.
  * 
  * @author Tim Anderson
  * @author Ashraf Barakat
  * @author ddf.isgs@lmco.com
- *
+ * 
  */
 public class ResourceMetacardTransformer implements MetacardTransformer {
 
-   private static final Logger LOGGER = Logger
-         .getLogger(ResourceMetacardTransformer.class);
+    private static final Logger LOGGER = Logger.getLogger(ResourceMetacardTransformer.class);
 
-   private CatalogFramework catalogFramework;
-   
-   private static final String DEFAULT_MIME_TYPE_STR = "application/octet-stream";
+    private CatalogFramework catalogFramework;
+
+    private static final String DEFAULT_MIME_TYPE_STR = "application/octet-stream";
 
     /**
      * Construct instance with required framework to resolve the resource
      * 
      * @param framework
      */
-   public ResourceMetacardTransformer(CatalogFramework framework) {
-      LOGGER.debug("constructing resource metacard transformer");
-      this.catalogFramework = framework;
-   }
+    public ResourceMetacardTransformer(CatalogFramework framework) {
+        LOGGER.debug("constructing resource metacard transformer");
+        this.catalogFramework = framework;
+    }
 
-   @Override
-   public BinaryContent transform(Metacard metacard,
-         Map<String, Serializable> arguments)
-         throws CatalogTransformerException {
+    @Override
+    public BinaryContent transform(Metacard metacard, Map<String, Serializable> arguments)
+        throws CatalogTransformerException {
 
-      LOGGER.trace("Entering resource ResourceMetacardTransformer.transform");
-      
-      if ( ! isValid( metacard )) {
-         throw new CatalogTransformerException( "Could not transform metacard to a resource because the metacard is not valid.");
-      }
-      
-      String id = metacard.getId();
+        LOGGER.trace("Entering resource ResourceMetacardTransformer.transform");
 
-      if (LOGGER.isDebugEnabled()) {
-         LOGGER.debug("executing resource request with id '" + id + "'");
-      }
-      final ResourceRequest resourceRequest = new ResourceRequestById(id, arguments);
-      
-      ResourceResponse resourceResponse = null;
+        if (!isValid(metacard)) {
+            throw new CatalogTransformerException(
+                    "Could not transform metacard to a resource because the metacard is not valid.");
+        }
 
-      String sourceName = metacard.getSourceId();
-      
-      if(StringUtils.isBlank(sourceName)){
-          sourceName = catalogFramework.getId();
-      }
-      
+        String id = metacard.getId();
+
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("executing resource request with id '" + id + "'");
+        }
+        final ResourceRequest resourceRequest = new ResourceRequestById(id, arguments);
+
+        ResourceResponse resourceResponse = null;
+
+        String sourceName = metacard.getSourceId();
+
+        if (StringUtils.isBlank(sourceName)) {
+            sourceName = catalogFramework.getId();
+        }
+
         try {
-            resourceResponse = catalogFramework.getResource(resourceRequest,
-                    sourceName);
+            resourceResponse = catalogFramework.getResource(resourceRequest, sourceName);
         } catch (IOException e) {
-            throw new CatalogTransformerException(
-                    retrieveResourceFailureMessage(id, sourceName, metacard
-                            .getResourceURI().toASCIIString(), e.getMessage()),
-                    e);
+            throw new CatalogTransformerException(retrieveResourceFailureMessage(id, sourceName,
+                    metacard.getResourceURI().toASCIIString(), e.getMessage()), e);
         } catch (ResourceNotFoundException e) {
-            throw new CatalogTransformerException(
-                    retrieveResourceFailureMessage(id, sourceName, metacard
-                            .getResourceURI().toASCIIString(), e.getMessage()),
-                    e);
+            throw new CatalogTransformerException(retrieveResourceFailureMessage(id, sourceName,
+                    metacard.getResourceURI().toASCIIString(), e.getMessage()), e);
         } catch (ResourceNotSupportedException e) {
-            throw new CatalogTransformerException(
-                    retrieveResourceFailureMessage(id, sourceName, metacard
-                            .getResourceURI().toASCIIString(), e.getMessage()),
-                    e);
+            throw new CatalogTransformerException(retrieveResourceFailureMessage(id, sourceName,
+                    metacard.getResourceURI().toASCIIString(), e.getMessage()), e);
         }
 
         if (resourceResponse == null) {
-            throw new CatalogTransformerException(
-                    retrieveResourceFailureMessage(id, sourceName, metacard
-                            .getResourceURI().toASCIIString()));
+            throw new CatalogTransformerException(retrieveResourceFailureMessage(id, sourceName,
+                    metacard.getResourceURI().toASCIIString()));
         }
 
-      Resource transformedContent = resourceResponse.getResource();
-      MimeType mimeType = transformedContent.getMimeType();
+        Resource transformedContent = resourceResponse.getResource();
+        MimeType mimeType = transformedContent.getMimeType();
 
-      if (mimeType == null) {
-         try {
-            mimeType = new MimeType(DEFAULT_MIME_TYPE_STR);
-            // There is no method to set the MIME type, so in order to set it to our default one, we need to create a new object.
-            transformedContent = new ResourceImpl(transformedContent.getInputStream(),
-                    mimeType, transformedContent.getName());
-         } catch (MimeTypeParseException e) {
-            throw new CatalogTransformerException( "Could not create default mime type upon null mimeType, for default mime type '" + DEFAULT_MIME_TYPE_STR + "'.", e);
-         }
-      }
-      if ( LOGGER.isDebugEnabled() ) {
-         LOGGER.debug("Found mime type: '" + mimeType.toString() + "'" + 
-                   " for product of metacard with id: '" + id + "'." +
-                   "\nGetting associated resource from input stream. \n");
-      }
+        if (mimeType == null) {
+            try {
+                mimeType = new MimeType(DEFAULT_MIME_TYPE_STR);
+                // There is no method to set the MIME type, so in order to set it to our default
+                // one, we need to create a new object.
+                transformedContent = new ResourceImpl(transformedContent.getInputStream(),
+                        mimeType, transformedContent.getName());
+            } catch (MimeTypeParseException e) {
+                throw new CatalogTransformerException(
+                        "Could not create default mime type upon null mimeType, for default mime type '"
+                                + DEFAULT_MIME_TYPE_STR + "'.", e);
+            }
+        }
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Found mime type: '" + mimeType.toString() + "'"
+                    + " for product of metacard with id: '" + id + "'."
+                    + "\nGetting associated resource from input stream. \n");
+        }
 
-      if ( LOGGER.isTraceEnabled() ) {
-         LOGGER.trace("Exiting resource transform for metacard id: '"
-            + id + "'");
-      }
-      return transformedContent;
-   }
-   
-   /**
-    * Checks to see whether the given metacard is valid.  If it is not valid,
-    * it will return false, otherwise true.
-    * 
-    * @param metacard The metacard to be validated.
-    * @return boolean indicating valid.
-    */
-   private boolean isValid(Metacard metacard ) {
-      boolean valid = true;
-      if ( metacard == null ) {
-         LOGGER.warn("Metacard cannot be null");
-         return false;
-      }
-      if ( metacard.getId() == null ) {
-         LOGGER.warn("Metacard id cannot be null");
-         return false;
-      }
-     return valid;
-   }
+        if (LOGGER.isTraceEnabled()) {
+            LOGGER.trace("Exiting resource transform for metacard id: '" + id + "'");
+        }
+        return transformedContent;
+    }
 
-    private String retrieveResourceFailureMessage(final String id,
-            final String sourceId, final String resourceUri) {
+    /**
+     * Checks to see whether the given metacard is valid. If it is not valid, it will return false,
+     * otherwise true.
+     * 
+     * @param metacard
+     *            The metacard to be validated.
+     * @return boolean indicating valid.
+     */
+    private boolean isValid(Metacard metacard) {
+        boolean valid = true;
+        if (metacard == null) {
+            LOGGER.warn("Metacard cannot be null");
+            return false;
+        }
+        if (metacard.getId() == null) {
+            LOGGER.warn("Metacard id cannot be null");
+            return false;
+        }
+        return valid;
+    }
+
+    private String retrieveResourceFailureMessage(final String id, final String sourceId,
+            final String resourceUri) {
         return retrieveResourceFailureMessage(id, sourceId, resourceUri, null);
     }
 
-    private String retrieveResourceFailureMessage(final String id,
-            final String sourceId, final String resourceUri,
-            final String details) {
+    private String retrieveResourceFailureMessage(final String id, final String sourceId,
+            final String resourceUri, final String details) {
         StringBuffer msg = new StringBuffer("Unable to retrieve resource.");
         msg.append("\n\tMetacard id: " + (id == null ? "" : id));
         msg.append("\n\tUri: " + (resourceUri == null ? "" : resourceUri));

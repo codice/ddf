@@ -1,13 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- *
- * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
- * version 3 of the License, or any later version. 
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * 
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
+ * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
+ * 
  **/
 package ddf.util;
 
@@ -37,13 +40,13 @@ public class WktStandardTest {
     private static final GeometryFactory GEO_FACTORY = new GeometryFactory();
 
     private static final Coordinate[] WHOLE_NUMBER_COORDINATES = new Coordinate[] {
-            new Coordinate(10, 10), new Coordinate(20, 20), new Coordinate(30, 30)};
+        new Coordinate(10, 10), new Coordinate(20, 20), new Coordinate(30, 30)};
 
     private static final MultiPoint WHOLE_NUMBER_MULTIPOINT = GEO_FACTORY
             .createMultiPoint(WHOLE_NUMBER_COORDINATES);
 
     private static final Coordinate[] DECIMAL_NUMBER_COORDINATES = new Coordinate[] {
-            new Coordinate(10.1, 10.2), new Coordinate(20.22, 20.33)};
+        new Coordinate(10.1, 10.2), new Coordinate(20.22, 20.33)};
 
     private static final MultiPoint DECIMAL_NUMBER_MULTIPOINT = GEO_FACTORY
             .createMultiPoint(DECIMAL_NUMBER_COORDINATES);
@@ -89,7 +92,7 @@ public class WktStandardTest {
     @Test
     public void denormalizeGeometryCollection() {
         Geometry[] geometries = new Geometry[] {WHOLE_NUMBER_MULTIPOINT,
-                GEO_FACTORY.createPoint(new Coordinate(5, 20)), DECIMAL_NUMBER_MULTIPOINT};
+            GEO_FACTORY.createPoint(new Coordinate(5, 20)), DECIMAL_NUMBER_MULTIPOINT};
 
         assertThat(
                 WktStandard.denormalize(GEO_FACTORY.createGeometryCollection(geometries).toText()),
