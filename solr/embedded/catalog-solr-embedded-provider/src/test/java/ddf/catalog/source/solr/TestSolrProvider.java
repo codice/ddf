@@ -2510,6 +2510,8 @@ public class TestSolrProvider extends SolrProviderTestCase {
 
     @Test
     public void testTextPathQuery() throws Exception {
+
+        ConfigurationStore.getInstance().setDisableTextPath(false);
         deleteAllIn(provider);
 
         MetacardImpl flagstaffMetacard = new MockMetacard(Library.getFlagstaffRecord());
@@ -4126,6 +4128,96 @@ public class TestSolrProvider extends SolrProviderTestCase {
 
         assertNotNull(provider.getTitle());
 
+    }
+
+    /**
+     * Checks if it flag is false, text path indexing works
+     * 
+     * @throws Exception
+     */
+    @Test
+    public void testDisableTextPathFalse() throws Exception {
+
+        ConfigurationStore.getInstance().setDisableTextPath(false);
+
+        deleteAllIn(provider);
+
+        MetacardImpl flagstaffMetacard = new MockMetacard(Library.getFlagstaffRecord());
+        MetacardImpl poMetacard = new MockMetacard(Library.getPurchaseOrderRecord());
+        List<Metacard> list = Arrays.asList((Metacard) flagstaffMetacard, (Metacard) poMetacard);
+
+        /** CREATE **/
+        create(list);
+
+        assertTextPath("//comment");
+
+        assertNotTextPath("//foo");
+    }
+
+    /**
+     * If we disable text path support, we expect exceptions.
+     * 
+     * @throws Exception
+     */
+    @Test(expected = UnsupportedQueryException.class)
+    public void testDisableTextPathTrue_ExistsFilter() throws Exception {
+        ConfigurationStore.getInstance().setDisableTextPath(true);
+
+        assertTextPath("//comment");
+
+    }
+
+    /**
+     * If we disable text path support, we expect exceptions.
+     * 
+     * @throws Exception
+     */
+    @Test(expected = UnsupportedQueryException.class)
+    public void testDisableTextPathTrue_LikeFilter() throws Exception {
+        ConfigurationStore.getInstance().setDisableTextPath(true);
+
+        assertTextPath("//comment", "Hurry, my lawn is going wild!");
+
+    }
+
+    /**
+     * If we disable text path support, we expect exceptions.
+     * 
+     * @throws Exception
+     */
+    @Test(expected = UnsupportedQueryException.class)
+    public void testDisableTextPathTrue_Fuzzy() throws Exception {
+        ConfigurationStore.getInstance().setDisableTextPath(true);
+
+        assertXpathFilter(filterBuilder.xpath("//comment").is().like()
+                .fuzzyText("Hurry, my lawn is going wild!"));
+
+    }
+
+    private void assertTextPath(String textPath) throws UnsupportedQueryException {
+        assertXpathFilter(filterBuilder.xpath(textPath).exists());
+    }
+
+    private void assertTextPath(String textPath, String value) throws UnsupportedQueryException {
+        assertXpathFilter(filterBuilder.xpath(textPath).is().like().text(value));
+    }
+
+    private void assertXpathFilter(Filter xpathFilter) throws UnsupportedQueryException {
+        SourceResponse sourceResponse = provider.query(new QueryRequestImpl(new QueryImpl(
+                xpathFilter)));
+        assertEquals("Failed to find metacard with correct XML node.", 1, sourceResponse
+                .getResults().size());
+
+        for (Result r : sourceResponse.getResults()) {
+            assertTrue("Wrong record, Purchase order keyword was not found.", ALL_RESULTS != r
+                    .getMetacard().getMetadata().indexOf("872-AA"));
+        }
+    }
+
+    private void assertNotTextPath(String textPath) throws UnsupportedQueryException {
+        SourceResponse sourceResponse = provider.query(new QueryRequestImpl(new QueryImpl(
+                filterBuilder.xpath(textPath).exists())));
+        assertEquals("Found a metacard and should not have.", 0, sourceResponse.getResults().size());
     }
 
     private void verifyDeletedRecord(MockMetacard metacard, CreateResponse createResponse,
