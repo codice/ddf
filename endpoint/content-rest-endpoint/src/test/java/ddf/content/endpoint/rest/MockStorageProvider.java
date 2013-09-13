@@ -1,13 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- *
- * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
- * version 3 of the License, or any later version. 
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * 
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
+ * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
+ * 
  **/
 package ddf.content.endpoint.rest;
 
@@ -30,49 +33,39 @@ import ddf.content.operation.impl.CreateResponseImpl;
 import ddf.content.storage.StorageException;
 import ddf.content.storage.StorageProvider;
 
+public class MockStorageProvider implements StorageProvider {
+    private static final XLogger LOGGER = new XLogger(
+            LoggerFactory.getLogger(MockStorageProvider.class));
 
-public class MockStorageProvider implements StorageProvider
-{
-    private static final XLogger LOGGER = new XLogger( LoggerFactory.getLogger( MockStorageProvider.class ) );
-    
-    
     @Override
-    public CreateResponse create( CreateRequest createRequest ) throws StorageException
-    {
+    public CreateResponse create(CreateRequest createRequest) throws StorageException {
         ContentItem item = createRequest.getContentItem();
-      try
-      {
-          LOGGER.debug( "item mime type = " + item.getMimeType() );
-          String data = IOUtils.toString( item.getInputStream() );
-          LOGGER.debug( "input stream has " + data.length() + " bytes" );
-      }
-      catch (IOException e1)
-      {
-		LOGGER.warn("IOException while obtaining content item",e1);
-      }
-      CreateResponse response = new CreateResponseImpl( createRequest, item, null, null );
-      
+        try {
+            LOGGER.debug("item mime type = " + item.getMimeType());
+            String data = IOUtils.toString(item.getInputStream());
+            LOGGER.debug("input stream has " + data.length() + " bytes");
+        } catch (IOException e1) {
+            LOGGER.warn("IOException while obtaining content item", e1);
+        }
+        CreateResponse response = new CreateResponseImpl(createRequest, item, null, null);
+
         return response;
     }
-    
 
     @Override
-    public ReadResponse read( ReadRequest readRequest ) throws StorageException
-    {
+    public ReadResponse read(ReadRequest readRequest) throws StorageException {
         // TODO Auto-generated method stub
         return null;
     }
 
     @Override
-    public UpdateResponse update( UpdateRequest updateRequest ) throws StorageException
-    {
+    public UpdateResponse update(UpdateRequest updateRequest) throws StorageException {
         // TODO Auto-generated method stub
         return null;
     }
 
     @Override
-    public DeleteResponse delete( DeleteRequest deleteRequest ) throws StorageException
-    {
+    public DeleteResponse delete(DeleteRequest deleteRequest) throws StorageException {
         // TODO Auto-generated method stub
         return null;
     }
