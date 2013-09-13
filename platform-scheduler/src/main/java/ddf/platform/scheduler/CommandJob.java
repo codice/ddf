@@ -1,13 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- *
- * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
- * version 3 of the License, or any later version. 
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * 
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
+ * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
+ * 
  **/
 package ddf.platform.scheduler;
 
@@ -34,16 +37,14 @@ import org.slf4j.LoggerFactory;
  */
 public class CommandJob implements Job {
 
-    public final static String COMMAND_KEY = "command";
+    public static final String COMMAND_KEY = "command";
 
     private CommandProcessor commandProcessor;
 
-    private static final Logger LOGGER = LoggerFactory
-            .getLogger(CommandJob.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CommandJob.class);
 
     @Override
-    public void execute(JobExecutionContext context)
-            throws JobExecutionException {
+    public void execute(JobExecutionContext context) throws JobExecutionException {
 
         String commandInput = null;
         try {
@@ -60,16 +61,14 @@ public class CommandJob implements Job {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         PrintStream output = new PrintStream(byteArrayOutputStream);
 
-        CommandSession commandSession = getCommandProcessor().createSession(
-                null, output, output);
+        CommandSession commandSession = getCommandProcessor().createSession(null, output, output);
 
         try {
             if (commandInput != null) {
                 try {
                     LOGGER.info("Executing command [{}]", commandInput);
                     commandSession.execute(commandInput);
-                    LOGGER.info("Execution Output: {}",
-                            byteArrayOutputStream.toString());
+                    LOGGER.info("Execution Output: {}", byteArrayOutputStream.toString());
                 } catch (CommandNotFoundException e) {
                     LOGGER.info(
                             "Command could not be found. Make sure the command's library has been loaded and try again: {}",
@@ -101,8 +100,7 @@ public class CommandJob implements Job {
 
         String key = CommandProcessor.class.getSimpleName();
 
-        Object commandProcessorObject = ServiceStore.getInstance().getObject(
-                key);
+        Object commandProcessorObject = ServiceStore.getInstance().getObject(key);
 
         if (commandProcessorObject != null) {
             this.commandProcessor = (CommandProcessor) commandProcessorObject;
@@ -112,8 +110,7 @@ public class CommandJob implements Job {
         return null;
     }
 
-    private String checkInput(JobExecutionContext context)
-            throws CommandException {
+    private String checkInput(JobExecutionContext context) throws CommandException {
 
         String command = null;
 
@@ -126,8 +123,7 @@ public class CommandJob implements Job {
         JobDataMap mergedJobDataMap = context.getMergedJobDataMap();
 
         if (mergedJobDataMap == null) {
-            LOGGER.warn("No input found. Could not fire {}",
-                    CommandJob.class.getSimpleName());
+            LOGGER.warn("No input found. Could not fire {}", CommandJob.class.getSimpleName());
             throw new CommandException();
         }
 
