@@ -42,7 +42,7 @@ Distributed Data Framework (DDF) is an open source, modular integration framewor
 * Make sure that your JAVA\_HOME environment variable is set to the newly installed JDK location, and that your PATH includes %JAVA\_HOME%\bin (Windows) or $JAVA\_HOME$/bin (\*NIX).
 * [Install Maven 3.0.3 \(or later\)](http://maven.apache.org/download.html). Make sure that your PATH includes the MVN\_HOME/bin directory.
 * Set the MAVEN_OPTS variable with the appropriate memory settings
-* The DDF Eclipse Code Formatter - located under support/support-checkstyle/src/main/resources/ddf-eclipse-code-formatter.xml
+* The DDF Eclipse Code Formatter - [ddf-eclipse-code-formatter.xml](https://github.com/codice/ddf/blob/master/support/support-checkstyle/src/main/resources/ddf-eclipse-code-formatter.xml)
 
 *NIX
 ```
