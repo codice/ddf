@@ -26,9 +26,6 @@
     <name>DDF Support</name>
     <description>DDF Support module contains support files for builds and site report generation</description>
     <packaging>pom</packaging>
-    <properties>
-        <checkstyle.skip>true</checkstyle.skip>
-    </properties>
 
     <modules>
         <module>support-checkstyle</module>
@@ -44,6 +41,12 @@
 						<!-- Match the execution defined in the pluginManagment and override it-->
 						<!-- Prevents the check and doesn't attempt to download the checkstyle artifact. -->
 						<id>checkstyle-check</id>
+						<phase>none</phase>
+					</execution>
+					<execution>
+						<!-- Match the execution defined in the pluginManagment and override it-->
+						<!-- Prevents the check and doesn't attempt to download the checkstyle artifact. -->
+						<id>checkstyle-check-xml</id>
 						<phase>none</phase>
 					</execution>
 				</executions>
