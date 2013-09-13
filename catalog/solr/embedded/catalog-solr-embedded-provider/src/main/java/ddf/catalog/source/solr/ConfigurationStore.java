@@ -25,11 +25,41 @@ import org.apache.log4j.Logger;
  */
 public class ConfigurationStore {
 
+    private static final Logger LOGGER = Logger.getLogger(ConfigurationStore.class);
+
+    private static ConfigurationStore uniqueInstance;
+
     private String dataDirectoryPath;
 
     private boolean forceAutoCommit;
 
-    private static final Logger LOGGER = Logger.getLogger(ConfigurationStore.class);
+    private boolean disableTextPath;
+
+    private ConfigurationStore() {
+    }
+
+    /**
+     * @return a unique instance of {@link ConfigurationStore}
+     */
+    public static synchronized ConfigurationStore getInstance() {
+
+        if (uniqueInstance == null) {
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Creating new instance of " + ConfigurationStore.class.getSimpleName());
+            }
+            uniqueInstance = new ConfigurationStore();
+        }
+
+        return uniqueInstance;
+    }
+
+    public boolean isDisableTextPath() {
+        return disableTextPath;
+    }
+
+    public void setDisableTextPath(boolean disableTextPath) {
+        this.disableTextPath = disableTextPath;
+    }
 
     public String getDataDirectoryPath() {
         return dataDirectoryPath;
@@ -45,27 +75,6 @@ public class ConfigurationStore {
 
     public void setForceAutoCommit(boolean forceAutoCommit) {
         this.forceAutoCommit = forceAutoCommit;
-    }
-
-    private static ConfigurationStore uniqueInstance;
-
-    private ConfigurationStore() {
-    }
-
-    /**
-     * 
-     * @return a unique instance of {@link ConfigurationStore}
-     */
-    public static synchronized ConfigurationStore getInstance() {
-
-        if (uniqueInstance == null) {
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("Creating new instance of " + ConfigurationStore.class.getSimpleName());
-            }
-            uniqueInstance = new ConfigurationStore();
-        }
-
-        return uniqueInstance;
     }
 
     public Object clone() throws CloneNotSupportedException {

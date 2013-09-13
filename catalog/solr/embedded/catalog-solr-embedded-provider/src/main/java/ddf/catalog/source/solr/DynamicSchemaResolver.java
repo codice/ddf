@@ -190,10 +190,15 @@ public class DynamicSchemaResolver {
                         solrInputDocument.addField(formatIndexName, attributeValue);
 
                         // textpath
-                        SimplePathIndexer textPathIndexer = new SimplePathIndexer(xmlInputFactory);
-                        String textPathIndexName = formatIndexName + getSpecialIndexSuffix(format);
-                        solrInputDocument.addField(textPathIndexName,
-                                textPathIndexer.indexTextPath(attributeValue.toString()));
+                        if(!ConfigurationStore.getInstance().isDisableTextPath()) {
+                        	
+                        	LOGGER.debug("Text Path not disabled, proceeding with indexing tpt information.");
+                        	
+                        	SimplePathIndexer textPathIndexer = new SimplePathIndexer(xmlInputFactory);
+                            String textPathIndexName = formatIndexName + getSpecialIndexSuffix(format);
+                            solrInputDocument.addField(textPathIndexName,
+                                    textPathIndexer.indexTextPath(attributeValue.toString()));
+                        }
 
                         // text
                         String specialStringIndexName = ad.getName()

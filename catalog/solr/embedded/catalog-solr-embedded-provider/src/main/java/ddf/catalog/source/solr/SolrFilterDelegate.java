@@ -418,6 +418,7 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
 
     @Override
     public SolrQuery xpathExists(String xpath) {
+    	
         return getTextPathQuery(xpath, null);
     }
 
@@ -463,6 +464,10 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
     }
 
     private SolrQuery getTextPathQuery(String textPath, String searchPhrase) {
+    	
+        if(ConfigurationStore.getInstance().isDisableTextPath()) {
+        	throw new UnsupportedOperationException("TextPath support has been disabled.");
+        }
         SimplePathParser parser = Parboiled.createParser(SimplePathParser.class);
         ParsingResult<SimplePathNode> result = new BasicParseRunner<SimplePathNode>(
                 parser.TextPath()).run(textPath);

@@ -118,10 +118,21 @@ public class SolrHttpCatalogProvider extends MaskableImpl implements CatalogProv
         }
     }
 
+    /**
+	 * Used to signal to the Solr server to commit on every transaction. Updates
+	 * the underlying ConfigurationStore so that the property is propagated
+	 * throughout the Solr Catalog Provider code
+	 * 
+	 * @param forceAutoCommit
+	 */
     public void setForceAutoCommit(boolean forceAutoCommit) {
         ConfigurationStore.getInstance().setForceAutoCommit(forceAutoCommit);
     }
 
+    public void setDisableTextPath(boolean disableTextPath) {
+    	ConfigurationStore.getInstance().setDisableTextPath(disableTextPath);
+    }
+    
     @Override
     public Set<ContentType> getContentTypes() {
         return getProvider().getContentTypes();
