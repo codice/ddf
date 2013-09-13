@@ -1,31 +1,30 @@
 /**
  * Copyright (c) Codice Foundation
- *
- * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
- * version 3 of the License, or any later version. 
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * 
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
+ * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
+ * 
  **/
 /**
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements. See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership. The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License. You may obtain a copy of the License at
- *
+ * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional information regarding
+ * copyright ownership. The ASF licenses this file to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License. You may obtain a
+ * copy of the License at
+ * 
  * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ * 
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
  */
 package ddf.security.sts;
 
@@ -104,8 +103,7 @@ public class StsIssueTest {
 
     // Enum defining the Wsdl Locations
     public enum WsdlLocations {
-        TRANSPORT(
-                "https://localhost:8993/services/SecurityTokenService/Transport?wsdl"), UT_ENCRYPTED(
+        TRANSPORT("https://localhost:8993/services/SecurityTokenService/Transport?wsdl"), UT_ENCRYPTED(
                 "https://localhost:8993/services/SecurityTokenService/UTEncrypted?wsdl"), X509(
                 "https://localhost:8993/services/SecurityTokenService/X509?wsdl"), UT(
                 "https://localhost:8993/services/SecurityTokenService/UT?wsdl");
@@ -124,8 +122,7 @@ public class StsIssueTest {
 
     // Enum defining the STS Endpoints
     public enum EndPoints {
-        TRANSPORT(
-                "{http://docs.oasis-open.org/ws-sx/ws-trust/200512/}Transport_Port"), UT_ENCRYPTED(
+        TRANSPORT("{http://docs.oasis-open.org/ws-sx/ws-trust/200512/}Transport_Port"), UT_ENCRYPTED(
                 "{http://docs.oasis-open.org/ws-sx/ws-trust/200512/}UTEncrypted_Port"), X509(
                 "{http://docs.oasis-open.org/ws-sx/ws-trust/200512/}X509_Port"), UT(
                 "{http://docs.oasis-open.org/ws-sx/ws-trust/200512/}UT_Port");
@@ -144,8 +141,7 @@ public class StsIssueTest {
 
     // Enum defining the STS Addresses
     public enum StsAddresses {
-        TRANSPORT(
-                "http://localhost:8993/services/SecurityTokenServices/Transport"), UT_ENCRYPTED(
+        TRANSPORT("http://localhost:8993/services/SecurityTokenServices/Transport"), UT_ENCRYPTED(
                 "https://localhost:8993/services/SecurityTokenServices/UTEncrypted"), X509(
                 "https://localhost:8993/services/SecurityTokenServices/X509"), UT(
                 "https://localhost:8993/services/SecurityTokenServices/UT");
@@ -165,8 +161,7 @@ public class StsIssueTest {
     /**
      * Test the Username Token
      */
-    public void testBearerUsernameTokenSaml2(StsPortTypes portType)
-            throws Exception {
+    public void testBearerUsernameTokenSaml2(StsPortTypes portType) throws Exception {
         SpringBusFactory bf = new SpringBusFactory();
         URL busFile = StsIssueTest.class.getResource("/cxf-client.xml");
 
@@ -179,8 +174,8 @@ public class StsIssueTest {
         Document doc = builder.newDocument();
 
         // Create a Username Token
-        org.apache.ws.security.message.token.UsernameToken oboToken = new UsernameToken(
-                false, doc, WSConstants.PASSWORD_TEXT);
+        org.apache.ws.security.message.token.UsernameToken oboToken = new UsernameToken(false, doc,
+                WSConstants.PASSWORD_TEXT);
         oboToken.setName("pangerer");
         oboToken.setPassword("password");
 
@@ -195,18 +190,16 @@ public class StsIssueTest {
         writer.writeStartElement(IC, CLAIM_TYPE, IDENTITY_URI);
         // writer.writeAttribute("Uri",
         // "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role");
-        writer.writeAttribute(URI,
-                SecurityAttributesClaimsHandler.DEFAULT_SECURITY_CLAIM_TYPE);
+        writer.writeAttribute(URI, SecurityAttributesClaimsHandler.DEFAULT_SECURITY_CLAIM_TYPE);
         writer.writeEndElement();
 
         Element claims = writer.getDocument().getDocumentElement();
 
         // Get a token
-        SecurityToken token = requestSecurityToken(SAML2_TOKEN_TYPE,
-                BEARER_KEYTYPE, oboToken.getElement(), bus, StsAddresses
-                        .valueOf(portType.toString()).toString(), WsdlLocations
-                        .valueOf(portType.toString()).toString(), EndPoints
-                        .valueOf(portType.toString()).toString(), claims);
+        SecurityToken token = requestSecurityToken(SAML2_TOKEN_TYPE, BEARER_KEYTYPE,
+                oboToken.getElement(), bus, StsAddresses.valueOf(portType.toString()).toString(),
+                WsdlLocations.valueOf(portType.toString()).toString(),
+                EndPoints.valueOf(portType.toString()).toString(), claims);
 
         if (token != null) {
             validateSecurityToken(token);
@@ -217,8 +210,7 @@ public class StsIssueTest {
     /**
      * Test the Web SSO Token
      */
-    public void testBearerWebSsoTokenSaml2(StsPortTypes portType)
-            throws Exception {
+    public void testBearerWebSsoTokenSaml2(StsPortTypes portType) throws Exception {
         SpringBusFactory bf = new SpringBusFactory();
         URL busFile = StsIssueTest.class.getResource("/cxf-client.xml");
 
@@ -231,8 +223,8 @@ public class StsIssueTest {
         Document doc = builder.newDocument();
 
         // Create a Username Token
-        org.apache.ws.security.message.token.UsernameToken oboToken = new UsernameToken(
-                false, doc, WSConstants.PASSWORD_TEXT);
+        org.apache.ws.security.message.token.UsernameToken oboToken = new UsernameToken(false, doc,
+                WSConstants.PASSWORD_TEXT);
 
         // Workout the details of how to fill out the username token
         // ID - the Key that tells the validator its an SSO token
@@ -251,18 +243,16 @@ public class StsIssueTest {
         writer.writeStartElement(IC, CLAIM_TYPE, IDENTITY_URI);
         // writer.writeAttribute("Uri",
         // "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role");
-        writer.writeAttribute(URI,
-                SecurityAttributesClaimsHandler.DEFAULT_SECURITY_CLAIM_TYPE);
+        writer.writeAttribute(URI, SecurityAttributesClaimsHandler.DEFAULT_SECURITY_CLAIM_TYPE);
         writer.writeEndElement();
 
         Element claims = writer.getDocument().getDocumentElement();
 
         // Get a token
-        SecurityToken token = requestSecurityToken(SAML2_TOKEN_TYPE,
-                BEARER_KEYTYPE, oboToken.getElement(), bus, StsAddresses
-                        .valueOf(portType.toString()).toString(), WsdlLocations
-                        .valueOf(portType.toString()).toString(), EndPoints
-                        .valueOf(portType.toString()).toString(), claims);
+        SecurityToken token = requestSecurityToken(SAML2_TOKEN_TYPE, BEARER_KEYTYPE,
+                oboToken.getElement(), bus, StsAddresses.valueOf(portType.toString()).toString(),
+                WsdlLocations.valueOf(portType.toString()).toString(),
+                EndPoints.valueOf(portType.toString()).toString(), claims);
 
         if (token != null) {
             validateSecurityToken(token);
@@ -294,8 +284,7 @@ public class StsIssueTest {
 
         // Add the Role claim
         writer.writeStartElement(IC, CLAIM_TYPE, IDENTITY_URI);
-        writer.writeAttribute("URI",
-        		"http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role");
+        writer.writeAttribute("URI", "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role");
         writer.writeEndElement();
 
         Element claims = writer.getDocument().getDocumentElement();
@@ -309,11 +298,10 @@ public class StsIssueTest {
         oboToken.setX509Certificate(certs[0]);
 
         // Get a token
-        SecurityToken token = requestSecurityToken(SAML2_TOKEN_TYPE,
-                BEARER_KEYTYPE, oboToken.getElement(), bus, StsAddresses
-                        .valueOf(portType.toString()).toString(), WsdlLocations
-                        .valueOf(portType.toString()).toString(), EndPoints
-                        .valueOf(portType.toString()).toString(), claims);
+        SecurityToken token = requestSecurityToken(SAML2_TOKEN_TYPE, BEARER_KEYTYPE,
+                oboToken.getElement(), bus, StsAddresses.valueOf(portType.toString()).toString(),
+                WsdlLocations.valueOf(portType.toString()).toString(),
+                EndPoints.valueOf(portType.toString()).toString(), claims);
         if (token != null) {
             validateSecurityToken(token);
         }
@@ -348,10 +336,9 @@ public class StsIssueTest {
         }
     }
 
-    private SecurityToken requestSecurityToken(String tokenType,
-            String keyType, Element supportingToken, Bus bus,
-            String endpointAddress, String wsdlLocation, String endpointName,
-            Element claims) {
+    private SecurityToken requestSecurityToken(String tokenType, String keyType,
+            Element supportingToken, Bus bus, String endpointAddress, String wsdlLocation,
+            String endpointName, Element claims) {
         STSClient stsClient = new STSClient(bus);
 
         stsClient.setWsdlLocation(wsdlLocation);
@@ -400,7 +387,7 @@ public class StsIssueTest {
      * Method to validate the retrieved token.
      */
     private List<WSSecurityEngineResult> processToken(SecurityToken token)
-            throws WSSecurityException {
+        throws WSSecurityException {
         RequestData requestData = new RequestData();
         WSSConfig wssConfig = WSSConfig.getNewInstance();
         wssConfig.setWsiBSPCompliant(false);
@@ -412,7 +399,7 @@ public class StsIssueTest {
         requestData.setSigCrypto(crypto);
 
         Processor processor = new SAMLTokenProcessor();
-        return processor.handleToken(token.getToken(), requestData,
-                new WSDocInfo(token.getToken().getOwnerDocument()));
+        return processor.handleToken(token.getToken(), requestData, new WSDocInfo(token.getToken()
+                .getOwnerDocument()));
     }
 }

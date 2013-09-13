@@ -1,13 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- *
- * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
- * version 3 of the License, or any later version. 
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * 
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
+ * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
+ * 
  **/
 package ddf.security.pdp.xacml.processor;
 
@@ -31,18 +34,16 @@ import org.wso2.balana.finder.impl.FileBasedPolicyFinderModule;
  * @author Shaun Morris
  * @author ddf.isgs@lmco.com
  * 
- * This class Polls Directories for policies. It is used with the PDP to
- * poll directories for changes to polices or the policy set in the
- * directories.
+ *         This class Polls Directories for policies. It is used with the PDP to poll directories
+ *         for changes to polices or the policy set in the directories.
  * 
  */
-public class PollingPolicyFinderModule extends FileBasedPolicyFinderModule
-        implements FileAlterationListener {
-    private static final Logger LOGGER = LoggerFactory
-            .getLogger(PollingPolicyFinderModule.class);
+public class PollingPolicyFinderModule extends FileBasedPolicyFinderModule implements
+        FileAlterationListener {
+    private static final Logger LOGGER = LoggerFactory.getLogger(PollingPolicyFinderModule.class);
 
     private static final int MULTIPLIER = 1000;
-    
+
     private FileAlterationMonitor monitor;
 
     private Set<String> xacmlPolicyDirectories;
@@ -54,25 +55,22 @@ public class PollingPolicyFinderModule extends FileBasedPolicyFinderModule
      * @param pollingInterval
      *            - in seconds
      */
-    public PollingPolicyFinderModule(Set<String> xacmlPolicyDirectories,
-            long pollingInterval) {
+    public PollingPolicyFinderModule(Set<String> xacmlPolicyDirectories, long pollingInterval) {
         super(xacmlPolicyDirectories);
         this.xacmlPolicyDirectories = xacmlPolicyDirectories;
         initialize(xacmlPolicyDirectories, pollingInterval);
     }
 
-    private void initialize(Set<String> xacmlPolicyDirectories,
-            long pollingInterval) {
-        LOGGER.debug("initializing polling: {}, every {}",
-                xacmlPolicyDirectories, pollingInterval);
+    private void initialize(Set<String> xacmlPolicyDirectories, long pollingInterval) {
+        LOGGER.debug("initializing polling: {}, every {}", xacmlPolicyDirectories, pollingInterval);
         monitor = new FileAlterationMonitor(pollingInterval * MULTIPLIER);
 
         Iterator<String> iterator = xacmlPolicyDirectories.iterator();
 
         while (iterator.hasNext()) {
             File directoryToMonitor = new File(iterator.next());
-            FileAlterationObserver observer = new FileAlterationObserver(
-                    directoryToMonitor, getXmlFileFilter());
+            FileAlterationObserver observer = new FileAlterationObserver(directoryToMonitor,
+                    getXmlFileFilter());
             observer.addListener(this);
             monitor.addObserver(observer);
             LOGGER.debug("Monitoring directory: " + directoryToMonitor);
@@ -89,8 +87,7 @@ public class PollingPolicyFinderModule extends FileBasedPolicyFinderModule
 
     public void onDirectoryChange(File changedDir) {
         try {
-            LOGGER.debug("Directory " + changedDir.getCanonicalPath()
-                    + " changed.");
+            LOGGER.debug("Directory " + changedDir.getCanonicalPath() + " changed.");
         } catch (IOException e) {
             LOGGER.error(e.getMessage(), e);
         }
@@ -100,8 +97,7 @@ public class PollingPolicyFinderModule extends FileBasedPolicyFinderModule
 
     public void onDirectoryCreate(File createdDir) {
         try {
-            LOGGER.debug("Directory " + createdDir.getCanonicalPath()
-                    + " was created.");
+            LOGGER.debug("Directory " + createdDir.getCanonicalPath() + " was created.");
         } catch (IOException e) {
             LOGGER.error(e.getMessage(), e);
         }
@@ -109,8 +105,7 @@ public class PollingPolicyFinderModule extends FileBasedPolicyFinderModule
 
     public void onDirectoryDelete(File deletedDir) {
         try {
-            LOGGER.debug("Directory " + deletedDir.getCanonicalPath()
-                    + " was deleted.");
+            LOGGER.debug("Directory " + deletedDir.getCanonicalPath() + " was deleted.");
         } catch (IOException e) {
             LOGGER.error(e.getMessage(), e);
         }
@@ -128,8 +123,7 @@ public class PollingPolicyFinderModule extends FileBasedPolicyFinderModule
 
     public void onFileCreate(File createdFile) {
         try {
-            LOGGER.debug("File " + createdFile.getCanonicalPath()
-                    + " was created.");
+            LOGGER.debug("File " + createdFile.getCanonicalPath() + " was created.");
         } catch (IOException e) {
             LOGGER.error(e.getMessage(), e);
         }
@@ -139,8 +133,7 @@ public class PollingPolicyFinderModule extends FileBasedPolicyFinderModule
 
     public void onFileDelete(File deleteFile) {
         try {
-            LOGGER.debug("File " + deleteFile.getCanonicalPath()
-                    + " was deleted.");
+            LOGGER.debug("File " + deleteFile.getCanonicalPath() + " was deleted.");
         } catch (IOException e) {
             LOGGER.error(e.getMessage(), e);
         }
@@ -152,10 +145,11 @@ public class PollingPolicyFinderModule extends FileBasedPolicyFinderModule
         try {
             String directoryPath = observer.getDirectory().getCanonicalPath();
             LOGGER.trace("starting to check directory for xacml policy update(s) " + directoryPath);
-                     
-            if(!xacmlPolicyDirectories.isEmpty() && isXacmlPoliciesDirectoryEmpty(xacmlPolicyDirectories.iterator().next())) {
-	            LOGGER.warn("No XACML Policies found in: {}", directoryPath);
-            }       
+
+            if (!xacmlPolicyDirectories.isEmpty()
+                    && isXacmlPoliciesDirectoryEmpty(xacmlPolicyDirectories.iterator().next())) {
+                LOGGER.warn("No XACML Policies found in: {}", directoryPath);
+            }
         } catch (IOException e) {
             LOGGER.error(e.getMessage(), e);
         }
@@ -163,8 +157,7 @@ public class PollingPolicyFinderModule extends FileBasedPolicyFinderModule
 
     public void onStop(FileAlterationObserver observer) {
         try {
-            LOGGER.trace("Done checking directory "
-                    + observer.getDirectory().getCanonicalPath());
+            LOGGER.trace("Done checking directory " + observer.getDirectory().getCanonicalPath());
         } catch (IOException e) {
             LOGGER.error(e.getMessage(), e);
         }
@@ -182,7 +175,7 @@ public class PollingPolicyFinderModule extends FileBasedPolicyFinderModule
                 && xacmlPoliciesDirectory.listFiles(getXmlFilenameFilter()).length == 0;
 
     }
-    
+
     /**
      * Checks if the XACML policy directory is empty.
      * 
@@ -202,11 +195,10 @@ public class PollingPolicyFinderModule extends FileBasedPolicyFinderModule
      *            The directory containing the XACML policy.
      * @return true if the directory is empty and false otherwise.
      */
-    private boolean isXacmlPoliciesDirectoriesEmpty(
-            Set<String> xacmlPoliciesDirectories) {
-    	
-    	//This method is currently not called, but remains in case
-    	//multiple directories are supported
+    private boolean isXacmlPoliciesDirectoriesEmpty(Set<String> xacmlPoliciesDirectories) {
+
+        // This method is currently not called, but remains in case
+        // multiple directories are supported
         for (String xacmlPolicyDirectory : xacmlPoliciesDirectories) {
             if (!isXacmlPoliciesDirectoryEmpty(xacmlPolicyDirectory)) {
                 return false;

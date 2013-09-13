@@ -1,16 +1,18 @@
 /**
  * Copyright (c) Codice Foundation
- *
- * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
- * version 3 of the License, or any later version. 
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * 
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
+ * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
+ * 
  **/
 package ddf.security.service.impl;
-
 
 import java.util.Collection;
 import java.util.UUID;
@@ -35,12 +37,12 @@ import ddf.security.impl.SubjectImpl;
 import ddf.security.service.SecurityManager;
 import ddf.security.service.SecurityServiceException;
 
-
-public class SecurityManagerImpl implements SecurityManager
-{
+public class SecurityManagerImpl implements SecurityManager {
 
     private DefaultSecurityManager internalManager;
+
     private Collection<Realm> realms;
+
     private SimplePrincipalCollection principals = new SimplePrincipalCollection();
 
     private Logger logger = LoggerFactory.getLogger(SecurityManagerImpl.class);
@@ -48,108 +50,88 @@ public class SecurityManagerImpl implements SecurityManager
     /**
      * Creates a new security manager with the collection of given realms.
      * 
-     * @param realms The realms used for the backing authZ and authN operations.
+     * @param realms
+     *            The realms used for the backing authZ and authN operations.
      */
-    public SecurityManagerImpl()
-    {
+    public SecurityManagerImpl() {
         // create the new security manager
         internalManager = new DefaultSecurityManager();
     }
 
-    @SuppressWarnings( "unchecked" )
-    public void setRealms( Collection<Realm> realms )
-    {
+    @SuppressWarnings("unchecked")
+    public void setRealms(Collection<Realm> realms) {
         this.realms = realms;
         // update the default manager with current realm list
         logger.debug("Updating manager with {} realms.", realms.size());
         internalManager.setRealms(realms);
     }
 
-    public Subject getSubject( Object token ) throws SecurityServiceException
-    {
-        if (token instanceof AuthenticationToken)
-        {
+    public Subject getSubject(Object token) throws SecurityServiceException {
+        if (token instanceof AuthenticationToken) {
             return getSubject((AuthenticationToken) token);
-        }
-        else if (token instanceof SecurityToken)
-        {
+        } else if (token instanceof SecurityToken) {
             return getSubject((SecurityToken) token);
-        }
-        else
-        {
+        } else {
             throw new SecurityServiceException(
-                "Incoming token object NOT supported by security manager implementation. Currently supported types are AuthenticationToken and SecurityToken");
+                    "Incoming token object NOT supported by security manager implementation. Currently supported types are AuthenticationToken and SecurityToken");
         }
     }
 
-    private Subject getSubject( AuthenticationToken token ) throws SecurityServiceException
-    {
-        if(token.getCredentials() == null)
-        {
-            throw new SecurityServiceException("CANNOT AUTHENTICATE USER: Authentication token did not contain any credentials. " +
-            		"This is generally due to an error on the authentication server.");
+    private Subject getSubject(AuthenticationToken token) throws SecurityServiceException {
+        if (token.getCredentials() == null) {
+            throw new SecurityServiceException(
+                    "CANNOT AUTHENTICATE USER: Authentication token did not contain any credentials. "
+                            + "This is generally due to an error on the authentication server.");
         }
         // authenticate the token - this will call the stsrealm
         AuthenticationInfo info = internalManager.authenticate(token);
         SecurityToken secToken = info.getPrincipals().oneByType(SecurityToken.class);
-        if (secToken == null)
-        {
-            throw new SecurityServiceException("Did not receive a security token back, cannot complete authentication.");
+        if (secToken == null) {
+            throw new SecurityServiceException(
+                    "Did not receive a security token back, cannot complete authentication.");
         }
-        try
-        {
+        try {
             updateWithToken(secToken);
             // create the subject that will be returned back to the user
-            return new SubjectImpl(principals, true, new SimpleSession(UUID.randomUUID().toString()),
-                internalManager);
-        }
-        catch (Exception e)
-        {
+            return new SubjectImpl(principals, true,
+                    new SimpleSession(UUID.randomUUID().toString()), internalManager);
+        } catch (Exception e) {
             throw new SecurityServiceException("Could not create a new subject", e);
         }
     }
 
-    private Subject getSubject( SecurityToken token ) throws SecurityServiceException
-    {
-        try
-        {
+    private Subject getSubject(SecurityToken token) throws SecurityServiceException {
+        try {
             updateWithToken(token);
             // return the newly created subject
-            return new SubjectImpl(principals, true, new SimpleSession(UUID.randomUUID().toString()),
-                internalManager);
-        }
-        catch (Exception e)
-        {
+            return new SubjectImpl(principals, true,
+                    new SimpleSession(UUID.randomUUID().toString()), internalManager);
+        } catch (Exception e) {
             throw new SecurityServiceException("Could not create a new subject", e);
         }
     }
 
     /**
-     * Updates the principal collection and realm settings that will be used to
-     * create a new subject.
+     * Updates the principal collection and realm settings that will be used to create a new
+     * subject.
      * 
-     * @param token SecurityToken contain the principals describing the current
-     *            user performing operations.
+     * @param token
+     *            SecurityToken contain the principals describing the current user performing
+     *            operations.
      */
-    private void updateWithToken( SecurityToken token )
-    {
+    private void updateWithToken(SecurityToken token) {
         principals.clear();
-        for ( Realm curRealm : realms )
-        {
-            try
-            {
-                logger.debug("Configuring settings for realm name: {} type: {}", curRealm.getName(), curRealm
-                    .getClass().toString());
-                logger.debug("Is authorizer: {}, is AuthorizingRealm: {}", curRealm instanceof Authorizer,
-                    curRealm instanceof AuthorizingRealm);
-                principals.add(new AssertionWrapper(token.getToken()).getSaml2().getSubject().getNameID().getValue(),
-                    curRealm.getName());
+        for (Realm curRealm : realms) {
+            try {
+                logger.debug("Configuring settings for realm name: {} type: {}",
+                        curRealm.getName(), curRealm.getClass().toString());
+                logger.debug("Is authorizer: {}, is AuthorizingRealm: {}",
+                        curRealm instanceof Authorizer, curRealm instanceof AuthorizingRealm);
+                principals.add(new AssertionWrapper(token.getToken()).getSaml2().getSubject()
+                        .getNameID().getValue(), curRealm.getName());
                 principals.add(new SecurityAssertionImpl(token), curRealm.getName());
-            }
-            catch (WSSecurityException wsse)
-            {
-                logger
-                    .warn(
+            } catch (WSSecurityException wsse) {
+                logger.warn(
                         "Could not add principal for realm ({}). This may cause an authorization failure when the realm is called.",
                         curRealm.getName());
             }

@@ -1,13 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- *
- * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
- * version 3 of the License, or any later version. 
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * 
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
+ * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
+ * 
  **/
 package ddf.security.sts.claimsHandler;
 
@@ -79,9 +82,10 @@ public class RoleClaimsHandler implements ClaimsHandler {
     }
 
     public void setPropertyFileLocation(String propertyFileLocation) {
-        if (propertyFileLocation != null
-                && !propertyFileLocation.isEmpty() && !propertyFileLocation.equals(this.propertyFileLocation)) {
-            setClaimsLdapAttributeMapping(AttributeMapLoader.buildClaimsMapFile(propertyFileLocation));
+        if (propertyFileLocation != null && !propertyFileLocation.isEmpty()
+                && !propertyFileLocation.equals(this.propertyFileLocation)) {
+            setClaimsLdapAttributeMapping(AttributeMapLoader
+                    .buildClaimsMapFile(propertyFileLocation));
         }
         this.propertyFileLocation = propertyFileLocation;
     }
@@ -158,8 +162,7 @@ public class RoleClaimsHandler implements ClaimsHandler {
         this.userBaseDn = userBaseDn;
     }
 
-    public void setClaimsLdapAttributeMapping(
-            Map<String, String> ldapClaimMapping) {
+    public void setClaimsLdapAttributeMapping(Map<String, String> ldapClaimMapping) {
         this.claimsLdapAttributeMapping = ldapClaimMapping;
     }
 
@@ -184,24 +187,20 @@ public class RoleClaimsHandler implements ClaimsHandler {
             Principal principal = parameters.getPrincipal();
 
             String user = AttributeMapLoader.getUser(principal);
-            if(user == null)
-            {
+            if (user == null) {
                 logger.warn("Could not determine user name, possible authentication error. Returning no claims.");
                 return new ClaimCollection();
             }
 
             AndFilter filter = new AndFilter();
             filter.and(new EqualsFilter("objectClass", getObjectClass())).and(
-                    new EqualsFilter(getMemberNameAttribute(),
-                            getUserNameAttribute() + "=" + user + ","
-                                    + getUserBaseDn()));
+                    new EqualsFilter(getMemberNameAttribute(), getUserNameAttribute() + "=" + user
+                            + "," + getUserBaseDn()));
 
             AttributesMapper mapper = new AttributesMapper() {
-                public Object mapFromAttributes(Attributes attrs)
-                        throws NamingException {
+                public Object mapFromAttributes(Attributes attrs) throws NamingException {
                     Map<String, Attribute> map = new HashMap<String, Attribute>();
-                    NamingEnumeration<? extends Attribute> attrEnum = attrs
-                            .getAll();
+                    NamingEnumeration<? extends Attribute> attrEnum = attrs.getAll();
                     while (attrEnum.hasMore()) {
                         Attribute att = attrEnum.next();
                         map.put(att.getID(), att);
@@ -210,9 +209,8 @@ public class RoleClaimsHandler implements ClaimsHandler {
                 }
             };
 
-            List<?> results = ldapTemplate.search(groupBaseDn,
-                    filter.toString(), SearchControls.SUBTREE_SCOPE,
-                    attributes, mapper);
+            List<?> results = ldapTemplate.search(groupBaseDn, filter.toString(),
+                    SearchControls.SUBTREE_SCOPE, attributes, mapper);
 
             for (Object result : results) {
                 Map<String, Attribute> ldapAttributes = null;
@@ -228,12 +226,13 @@ public class RoleClaimsHandler implements ClaimsHandler {
 
                     StringBuilder claimValue = new StringBuilder();
                     try {
-                        NamingEnumeration<?> list = (NamingEnumeration<?>) attr
-                                .getAll();
+                        NamingEnumeration<?> list = (NamingEnumeration<?>) attr.getAll();
                         while (list.hasMore()) {
                             Object obj = list.next();
                             if (!(obj instanceof String)) {
-                                logger.warn("LDAP attribute '{}' has got an unsupported value type", groupNameAttribute);
+                                logger.warn(
+                                        "LDAP attribute '{}' has got an unsupported value type",
+                                        groupNameAttribute);
                                 break;
                             }
                             claimValue.append((String) obj);
@@ -242,7 +241,8 @@ public class RoleClaimsHandler implements ClaimsHandler {
                             }
                         }
                     } catch (NamingException ex) {
-                        logger.warn("Failed to read value of LDAP attribute '{}'", groupNameAttribute);
+                        logger.warn("Failed to read value of LDAP attribute '{}'",
+                                groupNameAttribute);
                     }
 
                     c.setValue(claimValue.toString());

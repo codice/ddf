@@ -1,13 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- *
- * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
- * version 3 of the License, or any later version. 
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * 
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
+ * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
+ * 
  **/
 package ddf.security.cas;
 
@@ -45,15 +48,14 @@ import java.util.Map;
 
 /**
  * Validates Web Single Sign-On Tokens.
- *
+ * 
  * @author kcwire
  */
-public class WebSSOTokenValidator implements TokenValidator, DdfConfigurationWatcher
-{
+public class WebSSOTokenValidator implements TokenValidator, DdfConfigurationWatcher {
 
     // The Supported SSO Token Types
     public static final String CAS_TYPE = "#CAS";
-    
+
     public static final String CAS_BST_SEP = "|";
 
     private String casServerUrl;
@@ -68,51 +70,45 @@ public class WebSSOTokenValidator implements TokenValidator, DdfConfigurationWat
 
     private static final Logger LOGGER = LoggerFactory.getLogger(WebSSOTokenValidator.class);
 
-	private EncryptionService encryptionService;
+    private EncryptionService encryptionService;
 
-    public String getCasServerUrl()
-    {
+    public String getCasServerUrl() {
         return casServerUrl;
     }
 
-    public void setCasServerUrl(String casServerUrl)
-    {
+    public void setCasServerUrl(String casServerUrl) {
         this.casServerUrl = casServerUrl;
     }
 
-	public void setEncryptionService(EncryptionService encryptionService) 
-	{
-		this.encryptionService = encryptionService;
-	}
+    public void setEncryptionService(EncryptionService encryptionService) {
+        this.encryptionService = encryptionService;
+    }
 
     /*
-     * Return true if this TokenValidator implementation is capable of
-     * validating the ReceivedToken argument.
+     * Return true if this TokenValidator implementation is capable of validating the ReceivedToken
+     * argument.
      */
     @Override
-    public boolean canHandleToken(ReceivedToken validateTarget)
-    {
+    public boolean canHandleToken(ReceivedToken validateTarget) {
         return canHandleToken(validateTarget, null);
     }
 
     /*
-     * Return true if this TokenValidator implementation is capable of
-     * validating the ReceivedToken argument. The realm is ignored in this token
-     * Validator.
+     * Return true if this TokenValidator implementation is capable of validating the ReceivedToken
+     * argument. The realm is ignored in this token Validator.
      */
     @Override
-    public boolean canHandleToken(ReceivedToken validateTarget, String realm)
-    {
+    public boolean canHandleToken(ReceivedToken validateTarget, String realm) {
         final Object token = validateTarget.getToken();
         // Check the ValueType to see if this is a supported SSO Token.
-        if ((token instanceof BinarySecurityTokenType))
-        {
-            if (CAS_TYPE.equalsIgnoreCase(((BinarySecurityTokenType) token).getValueType()))
-            {
-                LOGGER.debug("Can handle token type of: " + ((BinarySecurityTokenType) token).getValueType());
+        if ((token instanceof BinarySecurityTokenType)) {
+            if (CAS_TYPE.equalsIgnoreCase(((BinarySecurityTokenType) token).getValueType())) {
+                LOGGER.debug("Can handle token type of: "
+                        + ((BinarySecurityTokenType) token).getValueType());
                 return true;
             }
-            LOGGER.debug("Cannot handle token type of: " + ((BinarySecurityTokenType) token).getValueType());
+            LOGGER.debug("Cannot handle token type of: "
+                    + ((BinarySecurityTokenType) token).getValueType());
         }
         return false;
     }
@@ -121,9 +117,7 @@ public class WebSSOTokenValidator implements TokenValidator, DdfConfigurationWat
      * Validate a Token using the given TokenValidatorParameters.
      */
     @Override
-    public TokenValidatorResponse validateToken(
-            TokenValidatorParameters tokenParameters)
-    {
+    public TokenValidatorResponse validateToken(TokenValidatorParameters tokenParameters) {
         LOGGER.debug("Validating SSO Token");
         STSPropertiesMBean stsProperties = tokenParameters.getStsProperties();
         Crypto sigCrypto = stsProperties.getSignatureCrypto();
@@ -141,13 +135,13 @@ public class WebSSOTokenValidator implements TokenValidator, DdfConfigurationWat
         validateTarget.setState(STATE.INVALID);
         response.setToken(validateTarget);
 
-        if (!validateTarget.isBinarySecurityToken())
-        {
+        if (!validateTarget.isBinarySecurityToken()) {
             LOGGER.debug("Validate target is not a binary security token, returning invalid response.");
             return response;
         }
         LOGGER.debug("Getting binary security token from validate target");
-        BinarySecurityTokenType binarySecurityToken = (BinarySecurityTokenType) validateTarget.getToken();
+        BinarySecurityTokenType binarySecurityToken = (BinarySecurityTokenType) validateTarget
+                .getToken();
 
         //
         // Decode the token
@@ -156,31 +150,24 @@ public class WebSSOTokenValidator implements TokenValidator, DdfConfigurationWat
         String base64Token = binarySecurityToken.getValue();
         String ticket = null;
         String service = null;
-        try
-        {
+        try {
             String decodedToken = new String(Base64.decode(base64Token), Charset.forName("UTF-8"));
-            if(StringUtils.isNotBlank(decodedToken))
-            {
+            if (StringUtils.isNotBlank(decodedToken)) {
                 LOGGER.debug("Binary security token successfully decoded: {}", decodedToken);
                 // Token is in the format ticket|service
                 String[] parts = StringUtils.split(decodedToken, CAS_BST_SEP);
-                if(parts.length == 2)
-                {
+                if (parts.length == 2) {
                     ticket = parts[0];
                     service = parts[1];
+                } else {
+                    throw new WSSecurityException(
+                            "Was not able to parse out BST propertly. Should be in ticket|service format.");
                 }
-                else
-                {
-                    throw new WSSecurityException("Was not able to parse out BST propertly. Should be in ticket|service format.");
-                }
+            } else {
+                throw new WSSecurityException(
+                        "Binary security token NOT successfully decoded, is empty or null.");
             }
-            else
-            {
-                throw new WSSecurityException("Binary security token NOT successfully decoded, is empty or null.");
-            }
-        }
-        catch (WSSecurityException wsse)
-        {
+        } catch (WSSecurityException wsse) {
             String msg = "Unable to decode BST into ticket and service for validation to CAS.";
             LOGGER.error(msg, wsse);
             SecurityLogger.logError(msg, wsse);
@@ -190,26 +177,24 @@ public class WebSSOTokenValidator implements TokenValidator, DdfConfigurationWat
         //
         // Do some validation of the token here
         //
-        try
-        {
+        try {
             LOGGER.debug("Validating ticket [{}] for service [{}].", ticket, service);
-            SecurityLogger.logInfo("Validating ticket [" + ticket + "] for service [" + service + "].");
-            
-            //validate either returns an assertion or throws an exception
+            SecurityLogger.logInfo("Validating ticket [" + ticket + "] for service [" + service
+                    + "].");
+
+            // validate either returns an assertion or throws an exception
             Assertion assertion = validate(ticket, service);
 
             AttributePrincipal principal = assertion.getPrincipal();
             LOGGER.debug("User name retrieved from CAS: {}", principal.getName());
             SecurityLogger.logInfo("User name retrieved from CAS: " + principal.getName());
-            
+
             response.setPrincipal(principal);
             LOGGER.debug("CAS ticket successfully validated, setting state to valid.");
             SecurityLogger.logInfo("CAS ticket successfully validated, setting state to valid.");
             validateTarget.setState(STATE.VALID);
 
-        }
-        catch (TicketValidationException e)
-        {
+        } catch (TicketValidationException e) {
             LOGGER.error("Unable to validate CAS token.", e);
             SecurityLogger.logError("Unable to validate CAS token.");
         }
@@ -219,86 +204,76 @@ public class WebSSOTokenValidator implements TokenValidator, DdfConfigurationWat
 
     /**
      * Updates SSL settings from the DDF ConfigurationManager
+     * 
      * @param properties
      */
     @Override
-    public void ddfConfigurationUpdated(@SuppressWarnings("rawtypes") Map properties)
-    {
+    public void ddfConfigurationUpdated(@SuppressWarnings("rawtypes")
+    Map properties) {
         String setTrustStorePath = (String) properties.get(DdfConfigurationManager.TRUST_STORE);
-        if (setTrustStorePath != null)
-        {
+        if (setTrustStorePath != null) {
             LOGGER.debug("Setting trust store path: " + setTrustStorePath);
             this.trustStorePath = setTrustStorePath;
         }
 
-        String setTrustStorePassword = (String) properties.get(DdfConfigurationManager.TRUST_STORE_PASSWORD);
-        if (setTrustStorePassword != null)
-        {
+        String setTrustStorePassword = (String) properties
+                .get(DdfConfigurationManager.TRUST_STORE_PASSWORD);
+        if (setTrustStorePassword != null) {
             this.trustStorePassword = setTrustStorePassword;
-    		if(encryptionService == null)
-    		{
-    		    LOGGER.error("The WebSSOTokenValidator has a null Encryption Service. Unable to decrypt " +
-    		    		"the encrypted trustStore password. Setting decrypted password to null.");
-    		    this.trustStorePassword = null;
-    		}
-    		else
-    		{
-        	    setTrustStorePassword = encryptionService.decryptValue(setTrustStorePassword);
+            if (encryptionService == null) {
+                LOGGER.error("The WebSSOTokenValidator has a null Encryption Service. Unable to decrypt "
+                        + "the encrypted trustStore password. Setting decrypted password to null.");
+                this.trustStorePassword = null;
+            } else {
+                setTrustStorePassword = encryptionService.decryptValue(setTrustStorePassword);
                 LOGGER.debug("Setting trust store password.");
                 this.trustStorePassword = setTrustStorePassword;
-    		}
+            }
         }
 
         String setKeyStorePath = (String) properties.get(DdfConfigurationManager.KEY_STORE);
-        if (setKeyStorePath != null)
-        {
+        if (setKeyStorePath != null) {
             LOGGER.debug("Setting key store path: " + setKeyStorePath);
             this.keyStorePath = setKeyStorePath;
         }
 
-        String setKeyStorePassword = (String) properties.get(DdfConfigurationManager.KEY_STORE_PASSWORD);
-        if (setKeyStorePassword != null)
-        {
+        String setKeyStorePassword = (String) properties
+                .get(DdfConfigurationManager.KEY_STORE_PASSWORD);
+        if (setKeyStorePassword != null) {
             this.keyStorePassword = setKeyStorePassword;
-    		if(encryptionService == null)
-    		{
-    		    LOGGER.error("The WebSSOTokenValidator has a null Encryption Service. Unable to decrypt " +
-    		    		"the encrypted keyStore password. Setting decrypted password to null.");
-    		    this.keyStorePassword = null;
-    		}
-    		else
-    		{
-        	    setKeyStorePassword = encryptionService.decryptValue(setKeyStorePassword);
+            if (encryptionService == null) {
+                LOGGER.error("The WebSSOTokenValidator has a null Encryption Service. Unable to decrypt "
+                        + "the encrypted keyStore password. Setting decrypted password to null.");
+                this.keyStorePassword = null;
+            } else {
+                setKeyStorePassword = encryptionService.decryptValue(setKeyStorePassword);
                 LOGGER.debug("Setting key store password.");
                 this.keyStorePassword = setKeyStorePassword;
-    		}
+            }
         }
     }
 
     /**
      * Validate the CAS ticket and service
+     * 
      * @param ticket
      * @param service
      * @return
      * @throws TicketValidationException
      */
-    public Assertion validate(String ticket, String service)
-            throws TicketValidationException
-    {
+    public Assertion validate(String ticket, String service) throws TicketValidationException {
         LOGGER.trace("CAS Server URL = " + casServerUrl);
-        try{
-            HttpsURLConnection.setDefaultSSLSocketFactory(CommonSSLFactory.createSocket(trustStorePath, trustStorePassword,
-            keyStorePath, keyStorePassword));
-        }
-        catch (IOException ioe)
-        {
+        try {
+            HttpsURLConnection.setDefaultSSLSocketFactory(CommonSSLFactory.createSocket(
+                    trustStorePath, trustStorePassword, keyStorePath, keyStorePassword));
+        } catch (IOException ioe) {
             throw new TicketValidationException("Could not set up connection to CAS Server.", ioe);
         }
-   
+
         Cas20ProxyTicketValidator casValidator = new Cas20ProxyTicketValidator(casServerUrl);
         casValidator.setAcceptAnyProxy(true);
-        
-        return casValidator.validate(ticket, service); 
+
+        return casValidator.validate(ticket, service);
     }
 
 }

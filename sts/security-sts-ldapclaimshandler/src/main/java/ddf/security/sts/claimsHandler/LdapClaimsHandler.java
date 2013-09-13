@@ -1,13 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- *
- * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
- * version 3 of the License, or any later version. 
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * 
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
+ * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
+ * 
  **/
 package ddf.security.sts.claimsHandler;
 
@@ -38,159 +41,150 @@ import org.springframework.ldap.core.LdapTemplate;
 import org.springframework.ldap.filter.AndFilter;
 import org.springframework.ldap.filter.EqualsFilter;
 
-public class LdapClaimsHandler extends org.apache.cxf.sts.claims.LdapClaimsHandler
-{
+public class LdapClaimsHandler extends org.apache.cxf.sts.claims.LdapClaimsHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(LdapClaimsHandler.class);
 
     private String propertyFileLocation;
-    
+
     private LdapTemplate ldap;
-    
+
     private String userBaseDn;
-    
-    public LdapClaimsHandler()
-    {
+
+    public LdapClaimsHandler() {
         super();
     }
-    
-	public void setLdapTemplate(LdapTemplate ldapTemplate) {
-		this.ldap = ldapTemplate;
-	}
 
-	public LdapTemplate getLdapTemplate() {
-		return ldap;
-	}
+    public void setLdapTemplate(LdapTemplate ldapTemplate) {
+        this.ldap = ldapTemplate;
+    }
 
-	public void setUserBaseDn(String userBaseDN) {
-		this.userBaseDn = userBaseDN;
-	}
+    public LdapTemplate getLdapTemplate() {
+        return ldap;
+    }
 
-	public String getUserBaseDn() {
-		return userBaseDn;
-	}
-    
-    public String getPropertyFileLocation()
-    {
+    public void setUserBaseDn(String userBaseDN) {
+        this.userBaseDn = userBaseDN;
+    }
+
+    public String getUserBaseDn() {
+        return userBaseDn;
+    }
+
+    public String getPropertyFileLocation() {
         return propertyFileLocation;
     }
-    
-    public void setPropertyFileLocation(String propertyFileLocation)
-    {
-        if(propertyFileLocation != null && !propertyFileLocation.isEmpty() && !propertyFileLocation.equals(this.propertyFileLocation))
-        {
-            setClaimsLdapAttributeMapping(AttributeMapLoader.buildClaimsMapFile(propertyFileLocation));
+
+    public void setPropertyFileLocation(String propertyFileLocation) {
+        if (propertyFileLocation != null && !propertyFileLocation.isEmpty()
+                && !propertyFileLocation.equals(this.propertyFileLocation)) {
+            setClaimsLdapAttributeMapping(AttributeMapLoader
+                    .buildClaimsMapFile(propertyFileLocation));
         }
         this.propertyFileLocation = propertyFileLocation;
     }
-    
-	@Override
-	public ClaimCollection retrieveClaimValues(RequestClaimCollection claims,
-			ClaimsParameters parameters) {
 
-		Principal principal = parameters.getPrincipal();
+    @Override
+    public ClaimCollection retrieveClaimValues(RequestClaimCollection claims,
+            ClaimsParameters parameters) {
 
-		String user = AttributeMapLoader.getUser(principal);
-		if(user == null)
-		{
-		    LOGGER.warn("Could not determine user name, possible authentication error. Returning no claims.");
-		    return new ClaimCollection();
-		}
+        Principal principal = parameters.getPrincipal();
 
-		AndFilter filter = new AndFilter();
-		filter.and(new EqualsFilter("objectclass", this.getObjectClass())).and(
-				new EqualsFilter(this.getUserNameAttribute(), user));
+        String user = AttributeMapLoader.getUser(principal);
+        if (user == null) {
+            LOGGER.warn("Could not determine user name, possible authentication error. Returning no claims.");
+            return new ClaimCollection();
+        }
 
-		List<String> searchAttributeList = new ArrayList<String>();
-		for (RequestClaim claim : claims) {
-			if (getClaimsLdapAttributeMapping().keySet().contains(
-					claim.getClaimType().toString())) {
-				searchAttributeList.add(getClaimsLdapAttributeMapping().get(
-						claim.getClaimType().toString()));
-			} else {
-				LOGGER.debug("Unsupported claim: {}", claim.getClaimType());
-			}
-		}
+        AndFilter filter = new AndFilter();
+        filter.and(new EqualsFilter("objectclass", this.getObjectClass())).and(
+                new EqualsFilter(this.getUserNameAttribute(), user));
 
-		String[] searchAttributes = null;
-		searchAttributes = searchAttributeList
-				.toArray(new String[searchAttributeList.size()]);
+        List<String> searchAttributeList = new ArrayList<String>();
+        for (RequestClaim claim : claims) {
+            if (getClaimsLdapAttributeMapping().keySet().contains(claim.getClaimType().toString())) {
+                searchAttributeList.add(getClaimsLdapAttributeMapping().get(
+                        claim.getClaimType().toString()));
+            } else {
+                LOGGER.debug("Unsupported claim: {}", claim.getClaimType());
+            }
+        }
 
-		AttributesMapper mapper = new AttributesMapper() {
-			public Object mapFromAttributes(Attributes attrs)
-					throws NamingException {
-				Map<String, Attribute> map = new HashMap<String, Attribute>();
-				NamingEnumeration<? extends Attribute> attrEnum = attrs
-						.getAll();
-				while (attrEnum.hasMore()) {
-					Attribute att = attrEnum.next();
-					map.put(att.getID(), att);
-				}
-				return map;
-			}
-		};
+        String[] searchAttributes = null;
+        searchAttributes = searchAttributeList.toArray(new String[searchAttributeList.size()]);
 
-		List<?> result = ldap.search((this.userBaseDn == null) ? ""
-				: this.userBaseDn, filter.toString(),
-				SearchControls.SUBTREE_SCOPE, searchAttributes, mapper);
+        AttributesMapper mapper = new AttributesMapper() {
+            public Object mapFromAttributes(Attributes attrs) throws NamingException {
+                Map<String, Attribute> map = new HashMap<String, Attribute>();
+                NamingEnumeration<? extends Attribute> attrEnum = attrs.getAll();
+                while (attrEnum.hasMore()) {
+                    Attribute att = attrEnum.next();
+                    map.put(att.getID(), att);
+                }
+                return map;
+            }
+        };
 
-		Map<String, Attribute> ldapAttributes = null;
-		if (result != null && result.size() > 0) {
-			ldapAttributes = CastUtils.cast((Map<?, ?>) result.get(0));
-		} else {
-		    LOGGER.debug("No results returned from LDAP search for user [{}].  Returning empty claims collection.", user);
-		    return new ClaimCollection();
-		}
+        List<?> result = ldap.search((this.userBaseDn == null) ? "" : this.userBaseDn,
+                filter.toString(), SearchControls.SUBTREE_SCOPE, searchAttributes, mapper);
 
-		ClaimCollection claimsColl = new ClaimCollection();
+        Map<String, Attribute> ldapAttributes = null;
+        if (result != null && result.size() > 0) {
+            ldapAttributes = CastUtils.cast((Map<?, ?>) result.get(0));
+        } else {
+            LOGGER.debug(
+                    "No results returned from LDAP search for user [{}].  Returning empty claims collection.",
+                    user);
+            return new ClaimCollection();
+        }
 
-		for (RequestClaim claim : claims) {
-			URI claimType = claim.getClaimType();
-			String ldapAttribute = getClaimsLdapAttributeMapping().get(
-					claimType.toString());
-			Attribute attr = ldapAttributes.get(ldapAttribute);
-			if (attr == null) {
-				LOGGER.trace("Claim '{}' is null", claim.getClaimType());
-			} else {
-				Claim c = new Claim();
-				c.setClaimType(claimType);
-				c.setPrincipal(principal);
+        ClaimCollection claimsColl = new ClaimCollection();
 
-				try {
-					NamingEnumeration<?> list = (NamingEnumeration<?>) attr
-							.getAll();
-					while (list.hasMore()) {
-						Object obj = list.next();
-						if (!(obj instanceof String)) {
-							LOGGER.warn("LDAP attribute '{}' has got an unsupported value type", ldapAttribute);
-							break;
-						}
-						String itemValue = (String) obj;
-						if (this.isX500FilterEnabled()) {
-							try {
-								X500Principal x500p = new X500Principal(
-										itemValue);
-								itemValue = x500p.getName();
-								int index = itemValue.indexOf('=');
-								itemValue = itemValue.substring(index + 1,
-										itemValue.indexOf(',', index));
-							} catch (Exception ex) {
-								// Ignore, not X500 compliant thus use the whole
-								// string as the value
-							}
-						}						
-						c.addValue(itemValue);
-					}
-				} catch (NamingException ex) {
-					LOGGER.warn("Failed to read value of LDAP attribute '{}'", ldapAttribute);
-				}
+        for (RequestClaim claim : claims) {
+            URI claimType = claim.getClaimType();
+            String ldapAttribute = getClaimsLdapAttributeMapping().get(claimType.toString());
+            Attribute attr = ldapAttributes.get(ldapAttribute);
+            if (attr == null) {
+                LOGGER.trace("Claim '{}' is null", claim.getClaimType());
+            } else {
+                Claim c = new Claim();
+                c.setClaimType(claimType);
+                c.setPrincipal(principal);
 
-				// c.setIssuer(issuer);
-				// c.setOriginalIssuer(originalIssuer);
-				// c.setNamespace(namespace);
-				claimsColl.add(c);
-			}
-		}
+                try {
+                    NamingEnumeration<?> list = (NamingEnumeration<?>) attr.getAll();
+                    while (list.hasMore()) {
+                        Object obj = list.next();
+                        if (!(obj instanceof String)) {
+                            LOGGER.warn("LDAP attribute '{}' has got an unsupported value type",
+                                    ldapAttribute);
+                            break;
+                        }
+                        String itemValue = (String) obj;
+                        if (this.isX500FilterEnabled()) {
+                            try {
+                                X500Principal x500p = new X500Principal(itemValue);
+                                itemValue = x500p.getName();
+                                int index = itemValue.indexOf('=');
+                                itemValue = itemValue.substring(index + 1,
+                                        itemValue.indexOf(',', index));
+                            } catch (Exception ex) {
+                                // Ignore, not X500 compliant thus use the whole
+                                // string as the value
+                            }
+                        }
+                        c.addValue(itemValue);
+                    }
+                } catch (NamingException ex) {
+                    LOGGER.warn("Failed to read value of LDAP attribute '{}'", ldapAttribute);
+                }
 
-		return claimsColl;
-	}
+                // c.setIssuer(issuer);
+                // c.setOriginalIssuer(originalIssuer);
+                // c.setNamespace(namespace);
+                claimsColl.add(c);
+            }
+        }
+
+        return claimsColl;
+    }
 }

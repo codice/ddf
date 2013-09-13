@@ -1,13 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- *
- * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
- * version 3 of the License, or any later version. 
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * 
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
+ * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
+ * 
  **/
 package ddf.security.realm.sts;
 
@@ -83,11 +86,11 @@ import java.util.Properties;
 import java.util.Set;
 
 /**
- *  The STS Realm is the main piece of the security framework responsible for exchanging a binary security token for a SAML assertion.
+ * The STS Realm is the main piece of the security framework responsible for exchanging a binary
+ * security token for a SAML assertion.
  */
-public class StsRealm extends AuthenticatingRealm implements DdfConfigurationWatcher
-{
-    private static final XLogger LOGGER = new XLogger( LoggerFactory.getLogger( StsRealm.class ) );
+public class StsRealm extends AuthenticatingRealm implements DdfConfigurationWatcher {
+    private static final XLogger LOGGER = new XLogger(LoggerFactory.getLogger(StsRealm.class));
 
     private static final String NAME = StsRealm.class.getSimpleName();
 
@@ -97,15 +100,10 @@ public class StsRealm extends AuthenticatingRealm implements DdfConfigurationWat
 
     // AES is the best encryption but isn't always supported, 3DES is widely
     // supported and is very difficult to crack
-    private static final String[] SSL_ALLOWED_ALGORITHMS =
-    {
-            ".*_EXPORT_.*", ".*_WITH_AES_.*", ".*_WITH_3DES_.*"
-    };
+    private static final String[] SSL_ALLOWED_ALGORITHMS = {".*_EXPORT_.*", ".*_WITH_AES_.*",
+        ".*_WITH_3DES_.*"};
 
-    private static final String[] SSL_DISALLOWED_ALGORITHMS =
-    {
-            ".*_WITH_NULL_.*", ".*_DH_anon_.*"
-    };
+    private static final String[] SSL_DISALLOWED_ALGORITHMS = {".*_WITH_NULL_.*", ".*_DH_anon_.*"};
 
     private STSClient stsClient;
 
@@ -120,381 +118,329 @@ public class StsRealm extends AuthenticatingRealm implements DdfConfigurationWat
     private String keyStorePassword;
 
     private boolean settingsConfigured;
-    
-	private EncryptionService encryptionService;
-    
+
+    private EncryptionService encryptionService;
+
     private STSClientConfiguration stsClientConfig;
-    
-    public StsRealm()
-    {
+
+    public StsRealm() {
         this.bus = getBus();
         setCredentialsMatcher(new STSCredentialsMatcher());
     }
-    
-    public void setEncryptionService(EncryptionService encryptionService) 
-    {
+
+    public void setEncryptionService(EncryptionService encryptionService) {
         this.encryptionService = encryptionService;
     }
-    
-    public void setStsClientConfig(STSClientConfiguration stsClientConfig)
-    {
+
+    public void setStsClientConfig(STSClientConfiguration stsClientConfig) {
         this.stsClientConfig = stsClientConfig;
     }
 
     /**
-     * Watch for changes in System Settings and STS Client Settings from the configuration 
-     * page in the DDF console.
+     * Watch for changes in System Settings and STS Client Settings from the configuration page in
+     * the DDF console.
      */
     @Override
-    public void ddfConfigurationUpdated( @SuppressWarnings( "rawtypes" ) Map properties )
-    {
-		settingsConfigured = false;
+    public void ddfConfigurationUpdated(@SuppressWarnings("rawtypes")
+    Map properties) {
+        settingsConfigured = false;
 
-		if (properties != null && !properties.isEmpty()) {
+        if (properties != null && !properties.isEmpty()) {
 
-			if (LOGGER.isDebugEnabled()) {
-				logIncomingProperties(properties);
-			}
+            if (LOGGER.isDebugEnabled()) {
+                logIncomingProperties(properties);
+            }
 
-			if (isDdfConfigurationUpdate(properties)) {
-				LOGGER.debug("Got system configuration update.");
-				setDdfPropertiesFromConfigAdmin(properties);
-				try
-				{
-				    configureStsClient();
-				    settingsConfigured = true;
-				}
-				catch (Exception e)
-				{
-				    LOGGER.debug("STS was not available during configuration update, will try again when realm is called. Full stack trace is available at the TRACE level.");
-				    LOGGER.trace("Could not create STS client", e);
-				}
-			} 
-		} else {
-			LOGGER.debug("properties are NULL or empty");
-		}
-	}
+            if (isDdfConfigurationUpdate(properties)) {
+                LOGGER.debug("Got system configuration update.");
+                setDdfPropertiesFromConfigAdmin(properties);
+                try {
+                    configureStsClient();
+                    settingsConfigured = true;
+                } catch (Exception e) {
+                    LOGGER.debug("STS was not available during configuration update, will try again when realm is called. Full stack trace is available at the TRACE level.");
+                    LOGGER.trace("Could not create STS client", e);
+                }
+            }
+        } else {
+            LOGGER.debug("properties are NULL or empty");
+        }
+    }
 
-    public void setDefaultConfiguration( @SuppressWarnings( "rawtypes" ) Map properties)
-    {
+    public void setDefaultConfiguration(@SuppressWarnings("rawtypes")
+    Map properties) {
         String value;
         value = (String) properties.get(DdfConfigurationManager.TRUST_STORE);
-        if (value != null)
-        {
+        if (value != null) {
             trustStorePath = value;
         }
 
         value = (String) properties.get(DdfConfigurationManager.TRUST_STORE_PASSWORD);
-        if (value != null)
-        {
+        if (value != null) {
             trustStorePassword = value;
         }
 
         value = (String) properties.get(DdfConfigurationManager.KEY_STORE);
-        if (value != null)
-        {
+        if (value != null) {
             keyStorePath = value;
         }
 
         value = (String) properties.get(DdfConfigurationManager.KEY_STORE_PASSWORD);
-        if (value != null)
-        {
+        if (value != null) {
             keyStorePassword = value;
         }
-        
+
     }
 
     /**
-     *  Determine if the supplied token is supported by this realm. 
+     * Determine if the supplied token is supported by this realm.
      */
     @Override
-    public boolean supports( AuthenticationToken token )
-    {
-        boolean supported = token != null && AuthenticationToken.class.isAssignableFrom( token.getClass() ) ? true : false;
+    public boolean supports(AuthenticationToken token) {
+        boolean supported = token != null
+                && AuthenticationToken.class.isAssignableFrom(token.getClass()) ? true : false;
 
-        if ( supported )
-        {
-            LOGGER.debug( "Token {} is supported by {}.", token.getClass(), StsRealm.class.getName() );
-        }
-        else if( token != null )
-        {
-            LOGGER.debug( "Token {} is not supported by {}.", token.getClass(), StsRealm.class.getName() );
-        }
-        else
-        {
-            LOGGER.debug( "The supplied authentication token is null. Sending back not supported." );
+        if (supported) {
+            LOGGER.debug("Token {} is supported by {}.", token.getClass(), StsRealm.class.getName());
+        } else if (token != null) {
+            LOGGER.debug("Token {} is not supported by {}.", token.getClass(),
+                    StsRealm.class.getName());
+        } else {
+            LOGGER.debug("The supplied authentication token is null. Sending back not supported.");
         }
 
         return supported;
     }
-    
+
     /**
      * Perform authentication based on the supplied token.
      */
     @Override
-    protected AuthenticationInfo doGetAuthenticationInfo( AuthenticationToken token )
-    {
+    protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken token) {
         String method = "doGetAuthenticationInfo( AuthenticationToken token )";
-        LOGGER.entry( method );
-        
+        LOGGER.entry(method);
+
         String credential = null;
-        
-        if( token.getCredentials() != null )
-        {
+
+        if (token.getCredentials() != null) {
             credential = token.getCredentials().toString();
-            LOGGER.debug( "Received credential [{}].", credential );
-        }
-        else
-        {
+            LOGGER.debug("Received credential [{}].", credential);
+        } else {
             String msg = "Unable to authenticate credential.  A NULL credential was provided in the supplied authentication token. This may be due to an error with the SSO server that created the token.";
             LOGGER.error(msg);
-            throw new AuthenticationException( msg );
+            throw new AuthenticationException(msg);
         }
 
-        String binarySecurityToken = getBinarySecurityToken( credential );
+        String binarySecurityToken = getBinarySecurityToken(credential);
 
-        if(!settingsConfigured)
-        {
-        	configureStsClient();
-        	settingsConfigured = true;
+        if (!settingsConfigured) {
+            configureStsClient();
+            settingsConfigured = true;
         }
-        
-        SecurityToken securityToken = requestSecurityToken( binarySecurityToken );
 
-        LOGGER.debug( "Creating token authentication information with SAML." );
-        SimpleAuthenticationInfo simpleAuthenticationInfo = new SimpleAuthenticationInfo( );
+        SecurityToken securityToken = requestSecurityToken(binarySecurityToken);
+
+        LOGGER.debug("Creating token authentication information with SAML.");
+        SimpleAuthenticationInfo simpleAuthenticationInfo = new SimpleAuthenticationInfo();
         SimplePrincipalCollection principals = new SimplePrincipalCollection();
-        principals.add( token.getPrincipal(), NAME );
-        principals.add( securityToken, NAME);
-        simpleAuthenticationInfo.setPrincipals( principals );
-        simpleAuthenticationInfo.setCredentials( credential );
+        principals.add(token.getPrincipal(), NAME);
+        principals.add(securityToken, NAME);
+        simpleAuthenticationInfo.setPrincipals(principals);
+        simpleAuthenticationInfo.setCredentials(credential);
 
-        LOGGER.exit( method );
+        LOGGER.exit(method);
         return simpleAuthenticationInfo;
     }
-
 
     /**
      * Request a security token (SAML assertion) from the STS.
      * 
-     * @param binarySecurityToken  The subject the security token is being request for.
+     * @param binarySecurityToken
+     *            The subject the security token is being request for.
      * @return security token (SAML assertion)
      */
-    private SecurityToken requestSecurityToken( String binarySecurityToken )
-    {
+    private SecurityToken requestSecurityToken(String binarySecurityToken) {
         SecurityToken token = null;
         String stsAddress = stsClientConfig.getAddress();
 
-        try
-        {
-            LOGGER.debug( "Requesting security token from STS at: " + stsAddress + "." );
+        try {
+            LOGGER.debug("Requesting security token from STS at: " + stsAddress + ".");
 
-            if ( binarySecurityToken != null )
-            {
-                LOGGER.debug( "Telling the STS to request a security token on behalf of the binary security token:\n" + binarySecurityToken );
-                SecurityLogger.logInfo( "Telling the STS to request a security token on behalf of the binary security token:\n" + binarySecurityToken );
-                stsClient.setWsdlLocation( stsAddress );
-                stsClient.setOnBehalfOf( binarySecurityToken );
-                stsClient.setTokenType( "http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0" );
-                stsClient.setKeyType( "http://docs.oasis-open.org/ws-sx/ws-trust/200512/PublicKey" );
-                token = stsClient.requestSecurityToken( stsAddress );
-                LOGGER.debug( "Finished requesting security token." );
+            if (binarySecurityToken != null) {
+                LOGGER.debug("Telling the STS to request a security token on behalf of the binary security token:\n"
+                        + binarySecurityToken);
+                SecurityLogger
+                        .logInfo("Telling the STS to request a security token on behalf of the binary security token:\n"
+                                + binarySecurityToken);
+                stsClient.setWsdlLocation(stsAddress);
+                stsClient.setOnBehalfOf(binarySecurityToken);
+                stsClient
+                        .setTokenType("http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0");
+                stsClient.setKeyType("http://docs.oasis-open.org/ws-sx/ws-trust/200512/PublicKey");
+                token = stsClient.requestSecurityToken(stsAddress);
+                LOGGER.debug("Finished requesting security token.");
                 SecurityLogger.logInfo("Finished requesting security token.");
 
                 SecurityLogger.logSecurityAssertionInfo(token);
             }
-        }
-        catch ( Exception e )
-        {
+        } catch (Exception e) {
             String msg = "Error requesting the security token from STS at: " + stsAddress + ".";
-            LOGGER.error( msg, e );
-            SecurityLogger.logError( msg );
-            throw new AuthenticationException( msg, e );
+            LOGGER.error(msg, e);
+            SecurityLogger.logError(msg);
+            throw new AuthenticationException(msg, e);
         }
 
         return token;
     }
 
-
     /**
      * Log properties from DDF configuration updates.
      */
-    private void logIncomingProperties( @SuppressWarnings( "rawtypes" ) Map properties )
-    {
-        @SuppressWarnings( "unchecked" )
+    private void logIncomingProperties(@SuppressWarnings("rawtypes")
+    Map properties) {
+        @SuppressWarnings("unchecked")
         Set<String> keys = properties.keySet();
         StringBuilder builder = new StringBuilder();
         builder.append("\nIncoming properties:\n");
-        for( String key : keys )
-        {
-            builder.append( "key: " + key + "; value: " + properties.get( key ) + "\n" );
+        for (String key : keys) {
+            builder.append("key: " + key + "; value: " + properties.get(key) + "\n");
         }
 
-        LOGGER.debug( builder.toString() );
+        LOGGER.debug(builder.toString());
     }
-
 
     /**
      * Logs the current STS client configuration.
      */
-    private void logStsClientConfiguration()
-    {
+    private void logStsClientConfiguration() {
         StringBuilder builder = new StringBuilder();
 
-        builder.append( "\nSTS Client configuration:\n" );
-        builder.append( "STS WSDL location: " + stsClient.getWsdlLocation() + "\n" );
-        builder.append( "STS service name: " + stsClient.getServiceQName() + "\n" );
-        builder.append( "STS endpoint name: " + stsClient.getEndpointQName() + "\n" );
-        builder.append( "STS claims: " + getFormattedXml( stsClient.getClaims() ) + "\n" );
+        builder.append("\nSTS Client configuration:\n");
+        builder.append("STS WSDL location: " + stsClient.getWsdlLocation() + "\n");
+        builder.append("STS service name: " + stsClient.getServiceQName() + "\n");
+        builder.append("STS endpoint name: " + stsClient.getEndpointQName() + "\n");
+        builder.append("STS claims: " + getFormattedXml(stsClient.getClaims()) + "\n");
 
         Map<String, Object> map = stsClient.getProperties();
         Set<String> keys = map.keySet();
-        builder.append( "\nSTS Client properties:\n" );
-        for( String key : keys )
-        {
-            builder.append( "key: " + key + "; value: " + map.get( key ) + "\n" );
+        builder.append("\nSTS Client properties:\n");
+        for (String key : keys) {
+            builder.append("key: " + key + "; value: " + map.get(key) + "\n");
         }
 
-        LOGGER.debug( builder.toString() );
+        LOGGER.debug(builder.toString());
     }
-
 
     /**
      * Determines if the received update is a DDF System Settings update.
      */
-    private boolean isDdfConfigurationUpdate( @SuppressWarnings( "rawtypes" ) Map properties )
-    {
+    private boolean isDdfConfigurationUpdate(@SuppressWarnings("rawtypes")
+    Map properties) {
         boolean updated = false;
 
-        if ( properties.containsKey( DdfConfigurationManager.TRUST_STORE ) && properties.containsKey( DdfConfigurationManager.TRUST_STORE_PASSWORD ) && properties.containsKey( DdfConfigurationManager.KEY_STORE ) && properties.containsKey( DdfConfigurationManager.KEY_STORE_PASSWORD ) )
-        {
+        if (properties.containsKey(DdfConfigurationManager.TRUST_STORE)
+                && properties.containsKey(DdfConfigurationManager.TRUST_STORE_PASSWORD)
+                && properties.containsKey(DdfConfigurationManager.KEY_STORE)
+                && properties.containsKey(DdfConfigurationManager.KEY_STORE_PASSWORD)) {
             updated = true;
-        }
-        else
-        {
+        } else {
             updated = false;
         }
 
         return updated;
     }
 
-
     /**
      * Setup trust store for SSL client.
      */
-    private void setupTrustStore( TLSClientParameters tlsParams, String trustStorePath, String trustStorePassword )
-    {
-        File trustStoreFile = new File( trustStorePath );
-        if ( trustStoreFile.exists() && trustStorePassword != null )
-        {
+    private void setupTrustStore(TLSClientParameters tlsParams, String trustStorePath,
+            String trustStorePassword) {
+        File trustStoreFile = new File(trustStorePath);
+        if (trustStoreFile.exists() && trustStorePassword != null) {
             KeyStore trustStore = null;
             FileInputStream fis = null;
 
-            try
-            {
-                trustStore = KeyStore.getInstance( KeyStore.getDefaultType() );
-                fis = new FileInputStream( trustStoreFile );
-                LOGGER.debug( "Loading trustStore" );
-                trustStore.load( fis, trustStorePassword.toCharArray() );
-                TrustManagerFactory trustFactory = TrustManagerFactory.getInstance( TrustManagerFactory.getDefaultAlgorithm() );
-                trustFactory.init( trustStore );
-                LOGGER.debug( "trust manager factory initialized" );
+            try {
+                trustStore = KeyStore.getInstance(KeyStore.getDefaultType());
+                fis = new FileInputStream(trustStoreFile);
+                LOGGER.debug("Loading trustStore");
+                trustStore.load(fis, trustStorePassword.toCharArray());
+                TrustManagerFactory trustFactory = TrustManagerFactory
+                        .getInstance(TrustManagerFactory.getDefaultAlgorithm());
+                trustFactory.init(trustStore);
+                LOGGER.debug("trust manager factory initialized");
                 TrustManager[] tm = trustFactory.getTrustManagers();
                 tlsParams.setTrustManagers(tm);
 
-            }
-            catch ( FileNotFoundException e )
-            {
-                LOGGER.error( "Unable to find SSL store: " + trustStorePath, e );
-            }
-            catch ( IOException e )
-            {
-                LOGGER.error( "Unable to load trust store. " + trustStore, e );
-            }
-            catch ( CertificateException e )
-            {
-                LOGGER.error( "Unable to load certificates from trust store. " + trustStore, e );
-            }
-            catch ( KeyStoreException e )
-            {
-                LOGGER.error( "Unable to read trust store: ", e );
-            }
-            catch ( NoSuchAlgorithmException e )
-            {
-                LOGGER.error( "Problems creating SSL socket. Usually this is " + "referring to the certificate sent by the server not being trusted by the client.", e );
-            }
-            finally
-            {
+            } catch (FileNotFoundException e) {
+                LOGGER.error("Unable to find SSL store: " + trustStorePath, e);
+            } catch (IOException e) {
+                LOGGER.error("Unable to load trust store. " + trustStore, e);
+            } catch (CertificateException e) {
+                LOGGER.error("Unable to load certificates from trust store. " + trustStore, e);
+            } catch (KeyStoreException e) {
+                LOGGER.error("Unable to read trust store: ", e);
+            } catch (NoSuchAlgorithmException e) {
+                LOGGER.error(
+                        "Problems creating SSL socket. Usually this is "
+                                + "referring to the certificate sent by the server not being trusted by the client.",
+                        e);
+            } finally {
                 IOUtils.closeQuietly(fis);
             }
         }
     }
-
 
     /**
      * Setup key store for SSL client.
      */
-    private void setupKeyStore( TLSClientParameters tlsParams, String keyStorePath, String keyStorePassword )
-    {
-        File keyStoreFile = new File( keyStorePath );
+    private void setupKeyStore(TLSClientParameters tlsParams, String keyStorePath,
+            String keyStorePassword) {
+        File keyStoreFile = new File(keyStorePath);
 
-        if ( keyStoreFile.exists() && keyStorePassword != null )
-        {
+        if (keyStoreFile.exists() && keyStorePassword != null) {
             FileInputStream fis = null;
             KeyStore keyStore = null;
 
-            try
-            {
-                keyStore = KeyStore.getInstance( KeyStore.getDefaultType() );
-                fis = new FileInputStream( keyStoreFile );
+            try {
+                keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
+                fis = new FileInputStream(keyStoreFile);
 
-                LOGGER.debug( "Loading keyStore" );
-                keyStore.load( fis, keyStorePassword.toCharArray() );
+                LOGGER.debug("Loading keyStore");
+                keyStore.load(fis, keyStorePassword.toCharArray());
 
-                KeyManagerFactory keyFactory = KeyManagerFactory.getInstance( KeyManagerFactory.getDefaultAlgorithm() );
-                keyFactory.init( keyStore, keyStorePassword.toCharArray() );
-                LOGGER.debug( "key manager factory initialized" );
+                KeyManagerFactory keyFactory = KeyManagerFactory.getInstance(KeyManagerFactory
+                        .getDefaultAlgorithm());
+                keyFactory.init(keyStore, keyStorePassword.toCharArray());
+                LOGGER.debug("key manager factory initialized");
                 KeyManager[] km = keyFactory.getKeyManagers();
-                tlsParams.setKeyManagers( km );
-            }
-            catch ( FileNotFoundException e )
-            {
-                LOGGER.error( "Unable to find SSL store: " + keyStorePath, e );
-            }
-            catch ( IOException e )
-            {
-                LOGGER.error( "Unable to load key store. " + keyStoreFile, e );
-            }
-            catch ( CertificateException e )
-            {
-                LOGGER.error( "Unable to load certificates from key store. " + keyStoreFile, e );
-            }
-            catch ( KeyStoreException e )
-            {
-                LOGGER.error( "Unable to read key store: ", e );
-            }
-            catch ( NoSuchAlgorithmException e )
-            {
-                LOGGER.error( "Problems creating SSL socket. Usually this is " + "referring to the certificate sent by the server not being trusted by the client.", e );
-            }
-            catch ( UnrecoverableKeyException e )
-            {
-                LOGGER.error( "Unable to read key store: ", e );
-            }
-            finally
-            {
+                tlsParams.setKeyManagers(km);
+            } catch (FileNotFoundException e) {
+                LOGGER.error("Unable to find SSL store: " + keyStorePath, e);
+            } catch (IOException e) {
+                LOGGER.error("Unable to load key store. " + keyStoreFile, e);
+            } catch (CertificateException e) {
+                LOGGER.error("Unable to load certificates from key store. " + keyStoreFile, e);
+            } catch (KeyStoreException e) {
+                LOGGER.error("Unable to read key store: ", e);
+            } catch (NoSuchAlgorithmException e) {
+                LOGGER.error(
+                        "Problems creating SSL socket. Usually this is "
+                                + "referring to the certificate sent by the server not being trusted by the client.",
+                        e);
+            } catch (UnrecoverableKeyException e) {
+                LOGGER.error("Unable to read key store: ", e);
+            } finally {
                 IOUtils.closeQuietly(fis);
             }
 
         }
     }
 
-
     /**
-     *  Setup cipher suites filter for SSL client. 
+     * Setup cipher suites filter for SSL client.
      */
-    private void setupCipherSuiteFilters( TLSClientParameters tlsParams )
-    {
+    private void setupCipherSuiteFilters(TLSClientParameters tlsParams) {
         // this sets the algorithms that we accept for SSL
         FiltersType filter = new FiltersType();
         filter.getInclude().addAll(Arrays.asList(SSL_ALLOWED_ALGORITHMS));
@@ -502,90 +448,78 @@ public class StsRealm extends AuthenticatingRealm implements DdfConfigurationWat
         tlsParams.setCipherSuitesFilter(filter);
     }
 
-
     /**
-     *  Configure SSL on the client. 
+     * Configure SSL on the client.
      */
-    private void configureSslOnClient( Client client )
-    {
+    private void configureSslOnClient(Client client) {
         HTTPConduit httpConduit = (HTTPConduit) client.getConduit();
 
         TLSClientParameters tlsParams = new TLSClientParameters();
-        tlsParams.setDisableCNCheck( true );
+        tlsParams.setDisableCNCheck(true);
 
-        setupTrustStore( tlsParams, trustStorePath, trustStorePassword );
+        setupTrustStore(tlsParams, trustStorePath, trustStorePassword);
 
-        setupKeyStore( tlsParams, keyStorePath, keyStorePassword );
+        setupKeyStore(tlsParams, keyStorePath, keyStorePassword);
 
-        setupCipherSuiteFilters( tlsParams );
+        setupCipherSuiteFilters(tlsParams);
 
-        httpConduit.setTlsClientParameters( tlsParams );
-    }    
+        httpConduit.setTlsClientParameters(tlsParams);
+    }
 
     /**
      * Set properties based on DDF System Setting updates.
      */
-    private void setDdfPropertiesFromConfigAdmin( @SuppressWarnings( "rawtypes" ) Map properties )
-    {
-        String setTrustStorePath = (String) properties.get( DdfConfigurationManager.TRUST_STORE );
-        if ( setTrustStorePath != null )
-        {
-            LOGGER.debug( "Setting trust store path: " + setTrustStorePath );
+    private void setDdfPropertiesFromConfigAdmin(@SuppressWarnings("rawtypes")
+    Map properties) {
+        String setTrustStorePath = (String) properties.get(DdfConfigurationManager.TRUST_STORE);
+        if (setTrustStorePath != null) {
+            LOGGER.debug("Setting trust store path: " + setTrustStorePath);
             this.trustStorePath = setTrustStorePath;
         }
 
-        String setTrustStorePassword = (String) properties.get( DdfConfigurationManager.TRUST_STORE_PASSWORD );
-        if ( setTrustStorePassword != null )
-        {
-            if(encryptionService == null)
-    		{
-    		    LOGGER.error("The StsRealm has a null Encryption Service. Unable to decrypt the encrypted " +
-    		    		"trustStore password. Setting decrypted password to null.");
-    		    this.trustStorePassword = null;
-    		}
-    		else
-    		{
-    	        setTrustStorePassword = encryptionService.decryptValue(setTrustStorePassword);
-                LOGGER.debug( "Setting trust store password.");
+        String setTrustStorePassword = (String) properties
+                .get(DdfConfigurationManager.TRUST_STORE_PASSWORD);
+        if (setTrustStorePassword != null) {
+            if (encryptionService == null) {
+                LOGGER.error("The StsRealm has a null Encryption Service. Unable to decrypt the encrypted "
+                        + "trustStore password. Setting decrypted password to null.");
+                this.trustStorePassword = null;
+            } else {
+                setTrustStorePassword = encryptionService.decryptValue(setTrustStorePassword);
+                LOGGER.debug("Setting trust store password.");
                 this.trustStorePassword = setTrustStorePassword;
-    		}
+            }
         }
 
-        String setKeyStorePath = (String) properties.get( DdfConfigurationManager.KEY_STORE );
-        if ( setKeyStorePath != null )
-        {
-            LOGGER.debug( "Setting key store path: " + setKeyStorePath );
+        String setKeyStorePath = (String) properties.get(DdfConfigurationManager.KEY_STORE);
+        if (setKeyStorePath != null) {
+            LOGGER.debug("Setting key store path: " + setKeyStorePath);
             this.keyStorePath = setKeyStorePath;
         }
 
-        String setKeyStorePassword = (String) properties.get( DdfConfigurationManager.KEY_STORE_PASSWORD );
-        if ( setKeyStorePassword != null )
-        {
-            if(encryptionService == null)
-    		{
-    		    LOGGER.error("The StsRealm has a null Encryption Service. Unable to decrypt the encrypted " +
-    		    		"keyStore password. Setting decrypted password to null.");
-    		    this.keyStorePassword = null;
-    		}
-    		else
-    		{
-       	        setKeyStorePassword = encryptionService.decryptValue(setKeyStorePassword);
-                LOGGER.debug( "Setting key store password.");
+        String setKeyStorePassword = (String) properties
+                .get(DdfConfigurationManager.KEY_STORE_PASSWORD);
+        if (setKeyStorePassword != null) {
+            if (encryptionService == null) {
+                LOGGER.error("The StsRealm has a null Encryption Service. Unable to decrypt the encrypted "
+                        + "keyStore password. Setting decrypted password to null.");
+                this.keyStorePassword = null;
+            } else {
+                setKeyStorePassword = encryptionService.decryptValue(setKeyStorePassword);
+                LOGGER.debug("Setting key store password.");
                 this.keyStorePassword = setKeyStorePassword;
-    		}
+            }
         }
     }
-
 
     /**
      * Helper method to setup STS Client.
      */
-    private Bus getBus()
-    {
+    private Bus getBus() {
         BusFactory bf = new CXFBusFactory();
         Bus setBus = bf.createBus();
-        SpringBusFactory.setDefaultBus( setBus );
-        SpringBusFactory.setThreadDefaultBus( setBus );
+        SpringBusFactory.setDefaultBus(setBus);
+        SpringBusFactory.setThreadDefaultBus(setBus);
 
         return setBus;
     }
@@ -593,79 +527,72 @@ public class StsRealm extends AuthenticatingRealm implements DdfConfigurationWat
     /**
      * Helper method to setup STS Client.
      */
-    private void addSignatureProperties( Map<String, Object> map )
-    {
+    private void addSignatureProperties(Map<String, Object> map) {
         String signaturePropertiesPath = stsClientConfig.getSignatureProperties();
-        if ( signaturePropertiesPath != null && !signaturePropertiesPath.isEmpty() )
-        {
-            LOGGER.debug( "Setting signature properties on STSClient: " + signaturePropertiesPath );
-            Properties signatureProperties = PropertiesLoader.loadProperties( signaturePropertiesPath );
-            map.put( SecurityConstants.SIGNATURE_PROPERTIES, signatureProperties );
+        if (signaturePropertiesPath != null && !signaturePropertiesPath.isEmpty()) {
+            LOGGER.debug("Setting signature properties on STSClient: " + signaturePropertiesPath);
+            Properties signatureProperties = PropertiesLoader
+                    .loadProperties(signaturePropertiesPath);
+            map.put(SecurityConstants.SIGNATURE_PROPERTIES, signatureProperties);
         }
     }
 
     /**
      * Helper method to setup STS Client.
      */
-    private void addEncryptionProperties( Map<String, Object> map )
-    {
+    private void addEncryptionProperties(Map<String, Object> map) {
         String encryptionPropertiesPath = stsClientConfig.getEncryptionProperties();
-        if ( encryptionPropertiesPath != null && !encryptionPropertiesPath.isEmpty() )
-        {
-            LOGGER.debug( "Setting encryption properties on STSClient: " + encryptionPropertiesPath );
-            Properties encryptionProperties = PropertiesLoader.loadProperties( encryptionPropertiesPath );
-            map.put( SecurityConstants.ENCRYPT_PROPERTIES, encryptionProperties );
+        if (encryptionPropertiesPath != null && !encryptionPropertiesPath.isEmpty()) {
+            LOGGER.debug("Setting encryption properties on STSClient: " + encryptionPropertiesPath);
+            Properties encryptionProperties = PropertiesLoader
+                    .loadProperties(encryptionPropertiesPath);
+            map.put(SecurityConstants.ENCRYPT_PROPERTIES, encryptionProperties);
         }
     }
 
     /**
      * Helper method to setup STS Client.
      */
-    private void addStsCryptoProperties( Map<String, Object> map )
-    {
+    private void addStsCryptoProperties(Map<String, Object> map) {
         String stsPropertiesPath = stsClientConfig.getTokenProperties();
-        if ( stsPropertiesPath != null && !stsPropertiesPath.isEmpty() )
-        {
-            LOGGER.debug( "Setting sts properties on STSClient: " + stsPropertiesPath );
-            Properties stsProperties = PropertiesLoader.loadProperties( stsPropertiesPath );
-            map.put( SecurityConstants.STS_TOKEN_PROPERTIES, stsProperties );
+        if (stsPropertiesPath != null && !stsPropertiesPath.isEmpty()) {
+            LOGGER.debug("Setting sts properties on STSClient: " + stsPropertiesPath);
+            Properties stsProperties = PropertiesLoader.loadProperties(stsPropertiesPath);
+            map.put(SecurityConstants.STS_TOKEN_PROPERTIES, stsProperties);
         }
     }
 
     /**
      * Helper method to setup STS Client.
      */
-    private void addCallbackHandler( Map<String, Object> map )
-    {
-        LOGGER.debug( "Setting callback handler on STSClient" );
-        map.put( SecurityConstants.CALLBACK_HANDLER, new CommonCallbackHandler() );
+    private void addCallbackHandler(Map<String, Object> map) {
+        LOGGER.debug("Setting callback handler on STSClient");
+        map.put(SecurityConstants.CALLBACK_HANDLER, new CommonCallbackHandler());
     }
 
     /**
      * Helper method to setup STS Client.
      */
-    private void addUseCertForKeyInfo( Map<String, Object> map )
-    {
-        LOGGER.debug( "Setting STS TOKEN USE CERT FOR KEY INFO to \"true\"" );
+    private void addUseCertForKeyInfo(Map<String, Object> map) {
+        LOGGER.debug("Setting STS TOKEN USE CERT FOR KEY INFO to \"true\"");
         map.put(SecurityConstants.STS_TOKEN_USE_CERT_FOR_KEYINFO, Boolean.TRUE.toString());
     }
 
     /**
      * Helper method to setup STS Client.
      */
-    private void addStsProperties()
-    {
+    private void addStsProperties() {
         Map<String, Object> map = new HashMap<String, Object>();
 
-        addSignatureProperties( map );
+        addSignatureProperties(map);
 
-        addEncryptionProperties( map );
+        addEncryptionProperties(map);
 
-        addStsCryptoProperties( map );
+        addStsCryptoProperties(map);
 
-        addCallbackHandler( map );
+        addCallbackHandler(map);
 
-        addUseCertForKeyInfo( map );
+        addUseCertForKeyInfo(map);
 
         stsClient.setProperties(map);
     }
@@ -673,68 +600,58 @@ public class StsRealm extends AuthenticatingRealm implements DdfConfigurationWat
     /**
      * Helper method to setup STS Client.
      */
-    private void configureBaseStsClient()
-    {
-        stsClient = new STSClient( bus );
+    private void configureBaseStsClient() {
+        stsClient = new STSClient(bus);
         String stsAddress = stsClientConfig.getAddress();
         String stsServiceName = stsClientConfig.getServiceName();
         String stsEndpointName = stsClientConfig.getEndpointName();
 
-        if ( stsAddress != null )
-        {
-            LOGGER.debug( "Setting WSDL location on STSClient: " + stsAddress );
-            stsClient.setWsdlLocation( stsAddress );
+        if (stsAddress != null) {
+            LOGGER.debug("Setting WSDL location on STSClient: " + stsAddress);
+            stsClient.setWsdlLocation(stsAddress);
         }
 
-        if ( stsServiceName != null )
-        {
-            LOGGER.debug( "Setting service name on STSClient: " + stsServiceName );
-            stsClient.setServiceName( stsServiceName );
+        if (stsServiceName != null) {
+            LOGGER.debug("Setting service name on STSClient: " + stsServiceName);
+            stsClient.setServiceName(stsServiceName);
         }
 
-        if ( stsEndpointName != null )
-        {
-            LOGGER.debug( "Setting endpoint name on STSClient: " + stsEndpointName );
-            stsClient.setEndpointName( stsEndpointName );
+        if (stsEndpointName != null) {
+            LOGGER.debug("Setting endpoint name on STSClient: " + stsEndpointName);
+            stsClient.setEndpointName(stsEndpointName);
         }
 
-        LOGGER.debug( "Setting addressing namespace on STSClient: " + ADDRESSING_NAMESPACE );
-        stsClient.setAddressingNamespace( ADDRESSING_NAMESPACE );
+        LOGGER.debug("Setting addressing namespace on STSClient: " + ADDRESSING_NAMESPACE);
+        stsClient.setAddressingNamespace(ADDRESSING_NAMESPACE);
     }
 
     /**
      * Helper method to setup STS Client.
      */
-    private void configureStsClient()
-    {
-        LOGGER.debug( "Configuring the STS client." );
+    private void configureStsClient() {
+        LOGGER.debug("Configuring the STS client.");
 
-        try
-        {
-            HttpsURLConnection.setDefaultSSLSocketFactory( CommonSSLFactory.createSocket( trustStorePath, trustStorePassword, keyStorePath, keyStorePassword ) );
-        }
-        catch ( IOException ioe )
-        {
-            throw new RuntimeException( "Could not create SSL connection with given trust/key stores.", ioe );
+        try {
+            HttpsURLConnection.setDefaultSSLSocketFactory(CommonSSLFactory.createSocket(
+                    trustStorePath, trustStorePassword, keyStorePath, keyStorePassword));
+        } catch (IOException ioe) {
+            throw new RuntimeException(
+                    "Could not create SSL connection with given trust/key stores.", ioe);
         }
 
         configureBaseStsClient();
 
         addStsProperties();
 
-        setClaimsOnStsClient( createClaimsElement() );
+        setClaimsOnStsClient(createClaimsElement());
 
-        if ( stsClient.getWsdlLocation() != null && stsClient.getWsdlLocation().startsWith( HTTPS ) )
-        {
+        if (stsClient.getWsdlLocation() != null && stsClient.getWsdlLocation().startsWith(HTTPS)) {
             setupSslOnStsClientHttpConduit();
-        }
-        else
-        {
-            LOGGER.debug( "STS address is null, unable to create STS Client" );
+        } else {
+            LOGGER.debug("STS address is null, unable to create STS Client");
         }
 
-        if ( LOGGER.isDebugEnabled() )
-        {
+        if (LOGGER.isDebugEnabled()) {
             logStsClientConfiguration();
         }
     }
@@ -742,165 +659,141 @@ public class StsRealm extends AuthenticatingRealm implements DdfConfigurationWat
     /**
      * Helper method to setup STS Client.
      */
-    private void setupSslOnStsClientHttpConduit()
-    {
-        LOGGER.debug( "Setting up SSL on the STSClient HTTP conduit" );
+    private void setupSslOnStsClientHttpConduit() {
+        LOGGER.debug("Setting up SSL on the STSClient HTTP conduit");
 
-        try
-        {
+        try {
             Client client = stsClient.getClient();
 
-            if ( client != null )
-            {
-                configureSslOnClient( client );
+            if (client != null) {
+                configureSslOnClient(client);
+            } else {
+                LOGGER.debug("CXF STS endpoint client is null.  Unable to setup SSL on the STSClient HTTP conduit.");
             }
-            else
-            {
-                LOGGER.debug( "CXF STS endpoint client is null.  Unable to setup SSL on the STSClient HTTP conduit." );
-            }
-        }
-        catch ( BusException e )
-        {
-            LOGGER.error( "Unable to create STS client.", e );
-        }
-        catch ( EndpointException e )
-        {
-            LOGGER.error( "Unable to create STS client endpoint.", e );
+        } catch (BusException e) {
+            LOGGER.error("Unable to create STS client.", e);
+        } catch (EndpointException e) {
+            LOGGER.error("Unable to create STS client endpoint.", e);
         }
     }
-
 
     /**
      * Creates a binary security token based on the provided credential.
      */
-    private String getBinarySecurityToken( String credential )
-    {
+    private String getBinarySecurityToken(String credential) {
         BinarySecurityTokenType binarySecurityTokenType = new BinarySecurityTokenType();
-        binarySecurityTokenType.setValueType( "#CAS" );
+        binarySecurityTokenType.setValueType("#CAS");
         binarySecurityTokenType.setEncodingType(WSConstants.SOAPMESSAGE_NS + "#Base64Binary");
-        binarySecurityTokenType.setId( "CAS" );
-        binarySecurityTokenType.setValue( Base64.encode( credential.getBytes() ) );
-        JAXBElement<BinarySecurityTokenType> binarySecurityTokenElement = new JAXBElement<BinarySecurityTokenType>( new QName( "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd", "BinarySecurityToken" ), BinarySecurityTokenType.class, binarySecurityTokenType );
+        binarySecurityTokenType.setId("CAS");
+        binarySecurityTokenType.setValue(Base64.encode(credential.getBytes()));
+        JAXBElement<BinarySecurityTokenType> binarySecurityTokenElement = new JAXBElement<BinarySecurityTokenType>(
+                new QName(
+                        "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd",
+                        "BinarySecurityToken"), BinarySecurityTokenType.class,
+                binarySecurityTokenType);
         Writer writer = new StringWriter();
-        JAXB.marshal( binarySecurityTokenElement, writer );
+        JAXB.marshal(binarySecurityTokenElement, writer);
 
         String binarySecurityToken = writer.toString();
-        
-        if( LOGGER.isDebugEnabled() )
-        {
-            LOGGER.debug( "Binary Security Token: " + binarySecurityToken );
+
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Binary Security Token: " + binarySecurityToken);
         }
 
         return binarySecurityToken;
-    }   
-    
+    }
+
     /**
      * Set the claims on the sts client.
      */
-    private void setClaimsOnStsClient( Element claimsElement )
-    {
-        if(claimsElement != null)
-        {
-            if( LOGGER.isDebugEnabled() )
-            {
-                LOGGER.debug(" Setting STS claims to:\n" + this.getFormattedXml( claimsElement ) );
+    private void setClaimsOnStsClient(Element claimsElement) {
+        if (claimsElement != null) {
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug(" Setting STS claims to:\n" + this.getFormattedXml(claimsElement));
             }
-    
-            stsClient.setClaims( claimsElement );
+
+            stsClient.setClaims(claimsElement);
         }
     }
-    
+
     /**
-     * Create the claims element with the claims provided in the STS client configuration in the admin console.
+     * Create the claims element with the claims provided in the STS client configuration in the
+     * admin console.
      */
-    private Element createClaimsElement()
-    {
+    private Element createClaimsElement() {
         Element claimsElement = null;
         List<String> claims = stsClientConfig.getClaims();
 
-        if ( claims != null && claims.size() != 0 )
-        {
+        if (claims != null && claims.size() != 0) {
             W3CDOMStreamWriter writer = null;
 
-            try
-            {
+            try {
                 writer = new W3CDOMStreamWriter();
 
-                writer.writeStartElement( "wst", "Claims", STSUtils.WST_NS_05_12 );
-                writer.writeNamespace( "wst", STSUtils.WST_NS_05_12 );
-                writer.writeNamespace( "ic", "http://schemas.xmlsoap.org/ws/2005/05/identity" );
-                writer.writeAttribute( "Dialect", "http://schemas.xmlsoap.org/ws/2005/05/identity" );
+                writer.writeStartElement("wst", "Claims", STSUtils.WST_NS_05_12);
+                writer.writeNamespace("wst", STSUtils.WST_NS_05_12);
+                writer.writeNamespace("ic", "http://schemas.xmlsoap.org/ws/2005/05/identity");
+                writer.writeAttribute("Dialect", "http://schemas.xmlsoap.org/ws/2005/05/identity");
 
-                for( String claim : claims )
-                {
-                    LOGGER.trace( "Claim: " + claim );
-                    writer.writeStartElement("ic", "ClaimType", "http://schemas.xmlsoap.org/ws/2005/05/identity");
+                for (String claim : claims) {
+                    LOGGER.trace("Claim: " + claim);
+                    writer.writeStartElement("ic", "ClaimType",
+                            "http://schemas.xmlsoap.org/ws/2005/05/identity");
                     writer.writeAttribute("Uri", claim);
-                    writer.writeAttribute( "Optional", "true");
+                    writer.writeAttribute("Optional", "true");
                     writer.writeEndElement();
                 }
 
                 writer.writeEndElement();
 
                 claimsElement = writer.getDocument().getDocumentElement();
-            }
-            catch ( ParserConfigurationException e )
-            {
+            } catch (ParserConfigurationException e) {
                 String msg = "Unable to create claims.";
-                LOGGER.error( msg, e );
+                LOGGER.error(msg, e);
                 claimsElement = null;
-            }
-            catch ( XMLStreamException e )
-            {
+            } catch (XMLStreamException e) {
                 String msg = "Unable to create claims.";
-                LOGGER.error( msg, e );
+                LOGGER.error(msg, e);
                 claimsElement = null;
             }
 
-            if ( LOGGER.isDebugEnabled() )
-            {
-                LOGGER.debug( "\nClaims:\n" + getFormattedXml( claimsElement ) );
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("\nClaims:\n" + getFormattedXml(claimsElement));
             }
-        }
-        else
-        {
-            LOGGER.debug( "There are no claims to process." );
+        } else {
+            LOGGER.debug("There are no claims to process.");
             claimsElement = null;
         }
 
         return claimsElement;
     }
 
-    
     /**
      * Transform into formatted XML.
      */
-    private String getFormattedXml( Node node )
-    {
-        Document document = node.getOwnerDocument().getImplementation().createDocument( "", "fake", null );
-        Element copy = (Element) document.importNode( node, true );
-        document.importNode( node, false );
-        document.removeChild( document.getDocumentElement() );
-        document.appendChild( copy );
+    private String getFormattedXml(Node node) {
+        Document document = node.getOwnerDocument().getImplementation()
+                .createDocument("", "fake", null);
+        Element copy = (Element) document.importNode(node, true);
+        document.importNode(node, false);
+        document.removeChild(document.getDocumentElement());
+        document.appendChild(copy);
         DOMImplementation domImpl = document.getImplementation();
-        DOMImplementationLS domImplLs = (DOMImplementationLS) domImpl.getFeature( "LS", "3.0" );
+        DOMImplementationLS domImplLs = (DOMImplementationLS) domImpl.getFeature("LS", "3.0");
         LSSerializer serializer = domImplLs.createLSSerializer();
-        serializer.getDomConfig().setParameter( "format-pretty-print", true );
-        return serializer.writeToString( document );
+        serializer.getDomConfig().setParameter("format-pretty-print", true);
+        return serializer.writeToString(document);
     }
-    
 
     /**
-     * Credentials matcher class that ensures the AuthInfo received from the STS matches the AuthToken
+     * Credentials matcher class that ensures the AuthInfo received from the STS matches the
+     * AuthToken
      */
-    private static class STSCredentialsMatcher implements CredentialsMatcher
-    {
+    private static class STSCredentialsMatcher implements CredentialsMatcher {
 
         @Override
-        public boolean doCredentialsMatch(AuthenticationToken token, AuthenticationInfo info)
-        {
-            if(token.getCredentials() != null && info.getCredentials() != null)
-            {
+        public boolean doCredentialsMatch(AuthenticationToken token, AuthenticationInfo info) {
+            if (token.getCredentials() != null && info.getCredentials() != null) {
                 return token.getCredentials().equals(info.getCredentials());
             }
             return false;
