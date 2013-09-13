@@ -543,12 +543,10 @@
 						<id>checkstyle-check</id>
 						<phase>none</phase>
 					</execution>
-					<!--  
 					<execution>
 						<id>checkstyle-check-xml</id>
 						<phase>none</phase>
 					</execution>
-					-->
 				</executions>
 			</plugin>
 		</plugins>
