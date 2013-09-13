@@ -1,13 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- *
- * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
- * version 3 of the License, or any later version. 
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * 
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
+ * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
+ * 
  **/
 package com.lmco.ddf.commands.catalog;
 
@@ -46,21 +49,19 @@ import ddf.catalog.operation.QueryResponse;
 
 /**
  * Tests the {@link RemoveAllCommand} output.
+ * 
  * @author Ashraf Barakat
  * @author ddf.isgs@lmco.com
- *
+ * 
  */
 public class TestRemoveAllCommand {
 
-    static final String DEFAULT_CONSOLE_COLOR = Ansi.ansi()
-            .reset().toString();
+    static final String DEFAULT_CONSOLE_COLOR = Ansi.ansi().reset().toString();
 
-    static final String RED_CONSOLE_COLOR = Ansi.ansi().fg(Ansi.Color.RED)
-            .toString();
-    
+    static final String RED_CONSOLE_COLOR = Ansi.ansi().fg(Ansi.Color.RED).toString();
+
     /**
-     * If it is possible to give bad batch size, this test checks the proper
-     * outcome.
+     * If it is possible to give bad batch size, this test checks the proper outcome.
      * 
      * @throws Exception
      */
@@ -84,10 +85,8 @@ public class TestRemoveAllCommand {
 
         // then
         try {
-            String message = String.format(
-                    RemoveAllCommand.BATCH_SIZE_ERROR_MESSAGE_FORMAT, 0);
-            String expectedPrintOut = RED_CONSOLE_COLOR + message
-                    + DEFAULT_CONSOLE_COLOR;
+            String message = String.format(RemoveAllCommand.BATCH_SIZE_ERROR_MESSAGE_FORMAT, 0);
+            String expectedPrintOut = RED_CONSOLE_COLOR + message + DEFAULT_CONSOLE_COLOR;
             assertThat(consoleOutput.getOutput(), startsWith(expectedPrintOut));
 
         } finally {
@@ -109,16 +108,13 @@ public class TestRemoveAllCommand {
 
         when(queryResponse.getResults()).thenReturn(getResultList(10));
 
-        when(catalogFramework.query(isA(QueryRequest.class))).thenReturn(
-                queryResponse);
+        when(catalogFramework.query(isA(QueryRequest.class))).thenReturn(queryResponse);
 
         DeleteResponse deleteResponse = mock(DeleteResponse.class);
 
-        when(deleteResponse.getDeletedMetacards()).thenReturn(
-                getMetacardList(10));
+        when(deleteResponse.getDeletedMetacards()).thenReturn(getMetacardList(10));
 
-        when(catalogFramework.delete(isA(DeleteRequest.class))).thenReturn(
-                deleteResponse);
+        when(catalogFramework.delete(isA(DeleteRequest.class))).thenReturn(deleteResponse);
 
         RemoveAllCommand removeAllCommand = new RemoveAllCommand() {
             @Override
@@ -127,8 +123,7 @@ public class TestRemoveAllCommand {
             }
 
             @Override
-            protected FilterBuilder getFilterBuilder()
-                    throws InterruptedException {
+            protected FilterBuilder getFilterBuilder() throws InterruptedException {
                 return new GeotoolsFilterBuilder();
             }
         };
@@ -181,11 +176,10 @@ public class TestRemoveAllCommand {
 
         BundleContext context = mock(BundleContext.class);
 
-        when(context.getServiceReference(eq(CatalogFramework.class.getName())))
-                .thenReturn(mock(ServiceReference.class));
+        when(context.getServiceReference(eq(CatalogFramework.class.getName()))).thenReturn(
+                mock(ServiceReference.class));
 
-        when(context.getService(isA(ServiceReference.class))).thenReturn(
-                framework);
+        when(context.getService(isA(ServiceReference.class))).thenReturn(framework);
 
         return context;
 

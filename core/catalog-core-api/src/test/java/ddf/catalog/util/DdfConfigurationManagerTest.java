@@ -1,13 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- *
- * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
- * version 3 of the License, or any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * 
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
+ * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
+ * 
  **/
 package ddf.catalog.util;
 
@@ -27,106 +30,108 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 public class DdfConfigurationManagerTest {
-	MockDdfConfigurationWatcher mockWatcher;
-	DdfConfigurationManager ddfConfigMgr;
-	String key;
-	Map<Object,Object> config1;
-	Map<Object,Object> config2;
+    MockDdfConfigurationWatcher mockWatcher;
 
-	@Before
-	public void setUp() throws Exception {
-		key = DdfConfigurationManagerTest.class.getSimpleName() + "Key";
-		mockWatcher = new MockDdfConfigurationWatcher();
-		List<DdfConfigurationWatcher> watchers = new ArrayList<DdfConfigurationWatcher>();
-		watchers.add(mockWatcher);
-		ddfConfigMgr = new DdfConfigurationManager(watchers, null);
-		config1 = new Hashtable<Object, Object>();
-		config1.put(key, "config1");
-		config2 = new Hashtable<Object, Object>();
-		config2.put(key, "config2");
-		mockWatcher.ddfConfigurationUpdated(config1);
-	}
+    DdfConfigurationManager ddfConfigMgr;
 
-	@Ignore
-	@Test
-	public void testDdfConfigurationManager() {
-		assertNotNull(ddfConfigMgr);
-		assertTrue(null == ddfConfigMgr.getConfigurationAdmin());
-	}
+    String key;
 
-	@Ignore
-	@Test
-	public void testUpdated() {
-		assertEquals(mockWatcher.getConfigValue(key), config1.get(key));
-/*
-        Not Sure what these should do, but they fail currently. 
-        May be a bugs. May be bad tests.
-*/
-        
-		ddfConfigMgr.updated(null);
-		assertEquals(mockWatcher.getConfigValue(key), config1.get(key));
+    Map<Object, Object> config1;
 
-		ddfConfigMgr.updated(new HashMap());
-		assertEquals(mockWatcher.getConfigValue(key), config1.get(key));
+    Map<Object, Object> config2;
 
-		ddfConfigMgr.updated(config2);
-		assertEquals(mockWatcher.getConfigValue(key), config2.get(key));
-		
-		ddfConfigMgr = new DdfConfigurationManager(null, null);
-		try{
-			ddfConfigMgr.updated(config1);
-		}catch(NullPointerException npe){
-			fail();
-		}
-		
-		
-	}
+    @Before
+    public void setUp() throws Exception {
+        key = DdfConfigurationManagerTest.class.getSimpleName() + "Key";
+        mockWatcher = new MockDdfConfigurationWatcher();
+        List<DdfConfigurationWatcher> watchers = new ArrayList<DdfConfigurationWatcher>();
+        watchers.add(mockWatcher);
+        ddfConfigMgr = new DdfConfigurationManager(watchers, null);
+        config1 = new Hashtable<Object, Object>();
+        config1.put(key, "config1");
+        config2 = new Hashtable<Object, Object>();
+        config2.put(key, "config2");
+        mockWatcher.ddfConfigurationUpdated(config1);
+    }
 
-	@Ignore
-	@Test
-	public void testBind() {
-		assertEquals(mockWatcher.getConfigValue(key), config1.get(key));
+    @Ignore
+    @Test
+    public void testDdfConfigurationManager() {
+        assertNotNull(ddfConfigMgr);
+        assertTrue(null == ddfConfigMgr.getConfigurationAdmin());
+    }
 
-  		ddfConfigMgr.bind(mockWatcher, null);
- 
-		assertEquals(mockWatcher.getConfigValue(key), config1.get(key));
-		ddfConfigMgr.bind(null, config2);
-		assertEquals(mockWatcher.getConfigValue(key), config1.get(key));
-		ddfConfigMgr.bind(null, null);
-		assertEquals(mockWatcher.getConfigValue(key), config1.get(key));
-		ddfConfigMgr.bind(mockWatcher, config2);
-		assertEquals(mockWatcher.getConfigValue(key), config2.get(key));
-		assertTrue(config2.size()>1); // should have read-only props too.
+    @Ignore
+    @Test
+    public void testUpdated() {
+        assertEquals(mockWatcher.getConfigValue(key), config1.get(key));
+        /*
+         * Not Sure what these should do, but they fail currently. May be a bugs. May be bad tests.
+         */
 
-		ddfConfigMgr = new DdfConfigurationManager(null, null);
-		try{
-			ddfConfigMgr.bind(mockWatcher, config1);
-			assertEquals(mockWatcher.getConfigValue(key), config1.get(key));
-			ddfConfigMgr.bind(mockWatcher, config2);
-			assertEquals(mockWatcher.getConfigValue(key), config2.get(key));
-		}catch(NullPointerException npe){
-			fail();
-		}
+        ddfConfigMgr.updated(null);
+        assertEquals(mockWatcher.getConfigValue(key), config1.get(key));
 
-	}
+        ddfConfigMgr.updated(new HashMap());
+        assertEquals(mockWatcher.getConfigValue(key), config1.get(key));
 
-	@Ignore
-	@Test
-	public void testGetConfigurationAdmin() {
-		assertEquals(null, ddfConfigMgr.getConfigurationAdmin());
-		//TODO: Make a mock config admin.
-	}
+        ddfConfigMgr.updated(config2);
+        assertEquals(mockWatcher.getConfigValue(key), config2.get(key));
 
-	@Ignore
-	@Test
-	public void testSetConfigurationAdmin() {
-		//TODO: Make a mock config admin.
-	}
+        ddfConfigMgr = new DdfConfigurationManager(null, null);
+        try {
+            ddfConfigMgr.updated(config1);
+        } catch (NullPointerException npe) {
+            fail();
+        }
 
-	@Ignore
-	@Test
-	public void testGetConfigurationValue() {
-		ddfConfigMgr.getConfigurationValue("1234", key);
-	}
+    }
+
+    @Ignore
+    @Test
+    public void testBind() {
+        assertEquals(mockWatcher.getConfigValue(key), config1.get(key));
+
+        ddfConfigMgr.bind(mockWatcher, null);
+
+        assertEquals(mockWatcher.getConfigValue(key), config1.get(key));
+        ddfConfigMgr.bind(null, config2);
+        assertEquals(mockWatcher.getConfigValue(key), config1.get(key));
+        ddfConfigMgr.bind(null, null);
+        assertEquals(mockWatcher.getConfigValue(key), config1.get(key));
+        ddfConfigMgr.bind(mockWatcher, config2);
+        assertEquals(mockWatcher.getConfigValue(key), config2.get(key));
+        assertTrue(config2.size() > 1); // should have read-only props too.
+
+        ddfConfigMgr = new DdfConfigurationManager(null, null);
+        try {
+            ddfConfigMgr.bind(mockWatcher, config1);
+            assertEquals(mockWatcher.getConfigValue(key), config1.get(key));
+            ddfConfigMgr.bind(mockWatcher, config2);
+            assertEquals(mockWatcher.getConfigValue(key), config2.get(key));
+        } catch (NullPointerException npe) {
+            fail();
+        }
+
+    }
+
+    @Ignore
+    @Test
+    public void testGetConfigurationAdmin() {
+        assertEquals(null, ddfConfigMgr.getConfigurationAdmin());
+        // TODO: Make a mock config admin.
+    }
+
+    @Ignore
+    @Test
+    public void testSetConfigurationAdmin() {
+        // TODO: Make a mock config admin.
+    }
+
+    @Ignore
+    @Test
+    public void testGetConfigurationValue() {
+        ddfConfigMgr.getConfigurationValue("1234", key);
+    }
 
 }

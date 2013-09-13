@@ -1,13 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- *
- * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
- * version 3 of the License, or any later version. 
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * 
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
+ * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
+ * 
  **/
 package ddf.catalog.solr.external;
 
@@ -43,15 +46,13 @@ import ddf.catalog.source.solr.SolrFilterDelegateFactoryImpl;
 import ddf.catalog.util.MaskableImpl;
 
 /**
- * Catalog Provider that interfaces with a Standalone external (HTTP) Solr
- * Server
+ * Catalog Provider that interfaces with a Standalone external (HTTP) Solr Server
  * 
  * @author Ashraf Barakat, Lockheed Martin
  * @author ddf.isgs@lmco.com
  * 
  */
-public class SolrHttpCatalogProvider extends MaskableImpl implements
-        CatalogProvider {
+public class SolrHttpCatalogProvider extends MaskableImpl implements CatalogProvider {
 
     private static final String PING_ERROR_MESSAGE = "Solr Server ping failed.";
 
@@ -72,9 +73,8 @@ public class SolrHttpCatalogProvider extends MaskableImpl implements
     private SolrFilterDelegateFactory solrFilterDelegateFactory;
 
     private DynamicSchemaResolver resolver;
-    
-    private static final Logger LOGGER = LoggerFactory
-            .getLogger(SolrHttpCatalogProvider.class);
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(SolrHttpCatalogProvider.class);
 
     private static Properties describableProperties = new Properties();
 
@@ -95,9 +95,8 @@ public class SolrHttpCatalogProvider extends MaskableImpl implements
      * @param server
      *            - {@link SolrServer} to handle requests
      */
-    public SolrHttpCatalogProvider(FilterAdapter filterAdapter,
-            SolrServer server, SolrFilterDelegateFactory solrFilterDelegateFactory,
-            DynamicSchemaResolver resolver) {
+    public SolrHttpCatalogProvider(FilterAdapter filterAdapter, SolrServer server,
+            SolrFilterDelegateFactory solrFilterDelegateFactory, DynamicSchemaResolver resolver) {
 
         this.filterAdapter = filterAdapter;
         this.server = server;
@@ -105,17 +104,16 @@ public class SolrHttpCatalogProvider extends MaskableImpl implements
         this.solrFilterDelegateFactory = solrFilterDelegateFactory;
         this.resolver = resolver;
     }
-    
-    public SolrHttpCatalogProvider(FilterAdapter filterAdapter,
-            SolrServer server, SolrFilterDelegateFactory solrFilterDelegateFactory) {
+
+    public SolrHttpCatalogProvider(FilterAdapter filterAdapter, SolrServer server,
+            SolrFilterDelegateFactory solrFilterDelegateFactory) {
         this(filterAdapter, server, solrFilterDelegateFactory, null);
     }
 
     @Override
     public void maskId(String id) {
         super.maskId(id);
-        if (provider != null
-                && !(provider instanceof UnconfiguredCatalogProvider)) {
+        if (provider != null && !(provider instanceof UnconfiguredCatalogProvider)) {
             provider.maskId(id);
         }
     }
@@ -140,8 +138,7 @@ public class SolrHttpCatalogProvider extends MaskableImpl implements
     }
 
     @Override
-    public SourceResponse query(QueryRequest queryRequest)
-            throws UnsupportedQueryException {
+    public SourceResponse query(QueryRequest queryRequest) throws UnsupportedQueryException {
 
         return getProvider().query(queryRequest);
     }
@@ -171,20 +168,17 @@ public class SolrHttpCatalogProvider extends MaskableImpl implements
     }
 
     @Override
-    public CreateResponse create(CreateRequest createRequest)
-            throws IngestException {
+    public CreateResponse create(CreateRequest createRequest) throws IngestException {
         return getProvider().create(createRequest);
     }
 
     @Override
-    public DeleteResponse delete(DeleteRequest deleteRequest)
-            throws IngestException {
+    public DeleteResponse delete(DeleteRequest deleteRequest) throws IngestException {
         return getProvider().delete(deleteRequest);
     }
 
     @Override
-    public UpdateResponse update(UpdateRequest updateRequest)
-            throws IngestException {
+    public UpdateResponse update(UpdateRequest updateRequest) throws IngestException {
         return getProvider().update(updateRequest);
     }
 
@@ -199,9 +193,9 @@ public class SolrHttpCatalogProvider extends MaskableImpl implements
     }
 
     /**
-     * This method exists only as a workaround to a Aries Blueprint bug. If
-     * Blueprint is upgraded or fixed, this method should be removed and a
-     * different update(Map properties) method should be called directly.
+     * This method exists only as a workaround to a Aries Blueprint bug. If Blueprint is upgraded or
+     * fixed, this method should be removed and a different update(Map properties) method should be
+     * called directly.
      * 
      * @param url
      */
@@ -222,40 +216,42 @@ public class SolrHttpCatalogProvider extends MaskableImpl implements
      */
     public void updateServer(String urlValue) {
         LOGGER.info("New url {}", urlValue);
-        
+
         if (urlValue != null) {
-    
+
             if (!StringUtils.equalsIgnoreCase(urlValue.trim(), url)) {
-    
+
                 this.url = urlValue.trim();
-    
+
                 if (server != null) {
-    
+
                     LOGGER.info("Shutting down the connection manager to the Solr Server and releasing allocated resources.");
                     server.shutdown();
                     LOGGER.info("Shutdown complete.");
                 }
-    
+
                 server = new HttpSolrServer(url);
-                
+
                 firstUse = true;
-    
+
             }
-    
+
         } else {
             // sets to null
             this.url = urlValue;
         }
-    
+
     }
 
     private CatalogProvider getProvider() {
         if (firstUse) {
             if (isServerUp(this.server)) {
-                if( resolver == null) {
-                    provider = new SolrCatalogProvider(server, filterAdapter, solrFilterDelegateFactory);
+                if (resolver == null) {
+                    provider = new SolrCatalogProvider(server, filterAdapter,
+                            solrFilterDelegateFactory);
                 } else {
-                    provider = new SolrCatalogProvider(server, filterAdapter, solrFilterDelegateFactory, resolver);
+                    provider = new SolrCatalogProvider(server, filterAdapter,
+                            solrFilterDelegateFactory, resolver);
                 }
                 provider.maskId(getId());
                 this.firstUse = false;
@@ -264,7 +260,7 @@ public class SolrHttpCatalogProvider extends MaskableImpl implements
             return new UnconfiguredCatalogProvider();
         }
         return provider;
-    
+
     }
 
     private boolean isServerUp(SolrServer solrServer) {
@@ -274,12 +270,11 @@ public class SolrHttpCatalogProvider extends MaskableImpl implements
         }
 
         try {
-            return OK_STATUS.equals(solrServer.ping().getResponse()
-                    .get("status"));
+            return OK_STATUS.equals(solrServer.ping().getResponse().get("status"));
         } catch (Exception e) {
             /*
-             * if we get any type of exception, whether declared by Solr or not,
-             * we do not want to fail, we just want to return false
+             * if we get any type of exception, whether declared by Solr or not, we do not want to
+             * fail, we just want to return false
              */
             LOGGER.warn(PING_ERROR_MESSAGE, e);
         }
@@ -287,9 +282,9 @@ public class SolrHttpCatalogProvider extends MaskableImpl implements
     }
 
     /**
-     * This class is used to signify an unconfigured CatalogProvider instance.
-     * If a user tries to unsuccessfully connect to a Solr Server, then a
-     * message will be displayed to check the connection.
+     * This class is used to signify an unconfigured CatalogProvider instance. If a user tries to
+     * unsuccessfully connect to a Solr Server, then a message will be displayed to check the
+     * connection.
      * 
      * @author Ashraf Barakat, Lockheed Martin
      * @author ddf.isgs@lmco.com
@@ -315,8 +310,7 @@ public class SolrHttpCatalogProvider extends MaskableImpl implements
         }
 
         @Override
-        public SourceResponse query(QueryRequest arg0)
-                throws UnsupportedQueryException {
+        public SourceResponse query(QueryRequest arg0) throws UnsupportedQueryException {
             throw new IllegalArgumentException(SERVER_DISCONNECTED_MESSAGE);
         }
 

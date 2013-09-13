@@ -1,13 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- *
- * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
- * version 3 of the License, or any later version. 
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * 
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
+ * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
+ * 
  **/
 package ddf.catalog.solr.external;
 
@@ -76,37 +79,32 @@ public class TestSolrHttpCatalogProvider {
     }
 
     @Test
-    public void testUnconfiguredCreate() throws IngestException,
-            SolrServerException, IOException {
+    public void testUnconfiguredCreate() throws IngestException, SolrServerException, IOException {
         SolrServer givenServer = givenSolrServer(false);
-        CatalogProvider provider = new SolrHttpCatalogProvider(null,
-                givenServer, null);
+        CatalogProvider provider = new SolrHttpCatalogProvider(null, givenServer, null);
 
         try {
             provider.create(mock(CreateRequest.class));
         } catch (IllegalArgumentException e) {
-            assertThat(e.getMessage(),
-                    containsString("Solr Server is not connected"));
+            assertThat(e.getMessage(), containsString("Solr Server is not connected"));
         }
 
     }
 
     /**
-     * Tests what happens when a {@link SolrException} is thrown when Solr is
-     * pinged
+     * Tests what happens when a {@link SolrException} is thrown when Solr is pinged
      * 
      * @throws IngestException
      * @throws SolrServerException
      * @throws IOException
      */
     @Test
-    public void testUnconfiguredCreate_SolrException() throws IngestException,
-            SolrServerException, IOException {
+    public void testUnconfiguredCreate_SolrException() throws IngestException, SolrServerException,
+        IOException {
         // given
         SolrServer givenServer = mock(SolrServer.class);
         when(givenServer.ping()).thenThrow(SolrException.class);
-        CatalogProvider provider = new SolrHttpCatalogProvider(null,
-                givenServer, null);
+        CatalogProvider provider = new SolrHttpCatalogProvider(null, givenServer, null);
 
         // when
         String message = null;
@@ -170,8 +168,7 @@ public class TestSolrHttpCatalogProvider {
 
     @Test()
     public void testUpdateConfigurationNullProperties() throws IngestException {
-        SolrHttpCatalogProvider provider = new SolrHttpCatalogProvider(null,
-                null, null);
+        SolrHttpCatalogProvider provider = new SolrHttpCatalogProvider(null, null, null);
 
         provider.updateServer(null);
 
@@ -180,11 +177,11 @@ public class TestSolrHttpCatalogProvider {
     }
 
     @Test()
-    public void testUpdateConfigurationUrlPropertyNull() throws IngestException, SolrServerException, IOException {
+    public void testUpdateConfigurationUrlPropertyNull() throws IngestException,
+        SolrServerException, IOException {
         // given
         SolrServer givenServer = givenSolrServer(true);
-        SolrHttpCatalogProvider provider = new SolrHttpCatalogProvider(null,
-                givenServer, null);
+        SolrHttpCatalogProvider provider = new SolrHttpCatalogProvider(null, givenServer, null);
 
         // when
         provider.updateServer(null);
@@ -205,34 +202,30 @@ public class TestSolrHttpCatalogProvider {
     @Test()
     public void testForceAutoCommit() throws IngestException {
 
-        SolrHttpCatalogProvider provider = new SolrHttpCatalogProvider(null,
-                null, null);
+        SolrHttpCatalogProvider provider = new SolrHttpCatalogProvider(null, null, null);
 
         provider.setForceAutoCommit(true);
 
-        assertThat(ConfigurationStore.getInstance().isForceAutoCommit(),
-                is(true));
+        assertThat(ConfigurationStore.getInstance().isForceAutoCommit(), is(true));
 
     }
 
     /**
-     * If the first connection was a failure, do a ping and attempt to connect
-     * to the new address.
+     * If the first connection was a failure, do a ping and attempt to connect to the new address.
      * 
      * @throws IngestException
      * @throws SolrServerException
      * @throws IOException
      */
     @Test()
-    public void testReAttemptSolrConnectionOnFail() throws IngestException,
-            SolrServerException, IOException {
+    public void testReAttemptSolrConnectionOnFail() throws IngestException, SolrServerException,
+        IOException {
 
         // given
         String badAddress = "http://localhost:8183/solr";
         boolean serverStatus = false;
         SolrServer givenServer = givenSolrServer(serverStatus);
-        SolrHttpCatalogProvider provider = new SolrHttpCatalogProvider(null,
-                givenServer, null);
+        SolrHttpCatalogProvider provider = new SolrHttpCatalogProvider(null, givenServer, null);
         // when
         try {
             provider.create(mock(CreateRequest.class));
@@ -250,8 +243,7 @@ public class TestSolrHttpCatalogProvider {
     public void testShutdown() throws SolrServerException, IOException {
         boolean serverStatus = true;
         SolrServer givenServer = givenSolrServer(serverStatus);
-        SolrHttpCatalogProvider provider = new SolrHttpCatalogProvider(null,
-                givenServer, null);
+        SolrHttpCatalogProvider provider = new SolrHttpCatalogProvider(null, givenServer, null);
 
         provider.shutdown();
         verify(givenServer, times(1)).shutdown();
@@ -262,8 +254,7 @@ public class TestSolrHttpCatalogProvider {
      * @throws IOException
      * @throws SolrServerException
      */
-    private SolrServer givenSolrServer(boolean ok) throws SolrServerException,
-            IOException {
+    private SolrServer givenSolrServer(boolean ok) throws SolrServerException, IOException {
         SolrServer server = mock(SolrServer.class);
 
         SolrPingResponse pingResponse = mock(SolrPingResponse.class);

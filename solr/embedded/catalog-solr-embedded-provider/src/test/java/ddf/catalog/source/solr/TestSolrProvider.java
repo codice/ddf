@@ -1,13 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- *
- * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
- * version 3 of the License, or any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * 
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
+ * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
+ * 
  **/
 package ddf.catalog.source.solr;
 
@@ -96,8 +99,8 @@ import ddf.catalog.source.UnsupportedQueryException;
 /**
  * Tests the {@link SolrCatalogProvider}.
  * <p>
- * Uses the {@link RandomBlockJUnit4ClassRunner} to run the methods randomly so
- * that the order does not matter when testing.
+ * Uses the {@link RandomBlockJUnit4ClassRunner} to run the methods randomly so that the order does
+ * not matter when testing.
  * </p>
  * 
  * @author Ashraf Barakat
@@ -105,1122 +108,1179 @@ import ddf.catalog.source.UnsupportedQueryException;
  */
 @RunWith(RandomBlockJUnit4ClassRunner.class)
 public class TestSolrProvider extends SolrProviderTestCase {
-	
+
     protected static final String SHOW_LOW_AIRPORT_POINT_WKT = "POINT (-110.00540924072266 34.265270233154297)";
+
     protected static final String TAMPA_AIRPORT_POINT_WKT = "POINT (-82.533248901367188 27.975471496582031)";
+
     protected static final String GULF_OF_GUINEA_POLYGON_WKT = "POLYGON ((1 1,2 1,2 2,1 2,1 1))";
+
     protected static final String GULF_OF_GUINEA_MULTIPOLYGON_WKT = "MULTIPOLYGON (((1 1,2 1,2 2,1 2,1 1)), ((0 0,1 1,2 0,0 0)))";
+
     protected static final String GULF_OF_GUINEA_LINESTRING_WKT = "LINESTRING (1 1,2 1)";
+
     protected static final String GULF_OF_GUINEA_MULTILINESTRING_WKT = "MULTILINESTRING ((1 1, 2 1), (1 2, 0 0))";
+
     protected static final String GULF_OF_GUINEA_POINT_WKT = "POINT (1 1)";
+
     protected static final String GULF_OF_GUINEA_MULTIPOINT_WKT = "MULTIPOINT ((1 1), (0 0), (2 2))";
+
     protected static final String GULF_OF_GUINEA_MULTIPOINT_SINGLE_WKT = "MULTIPOINT ((1 1))";
+
     protected static final String GULF_OF_GUINEA_GEOMETRYCOLLECTION_WKT = "GEOMETRYCOLLECTION ("
-            + GULF_OF_GUINEA_POINT_WKT + ", " + GULF_OF_GUINEA_LINESTRING_WKT + ", " + GULF_OF_GUINEA_MULTIPOLYGON_WKT
-            + ")";
+            + GULF_OF_GUINEA_POINT_WKT + ", " + GULF_OF_GUINEA_LINESTRING_WKT + ", "
+            + GULF_OF_GUINEA_MULTIPOLYGON_WKT + ")";
+
     protected static final String LAS_VEGAS_POINT_WKT = "POINT (-115.136389 36.175)";
+
     protected static final String MIDWAY_ISLANDS_POINT_WKT = "POINT (-177.372736 28.208365)";
+
     protected static final String ACROSS_INTERNATIONAL_DATELINE_LARGE_CCW_WKT = "POLYGON ((175 30, 175 25, -175 25, -175 30, 175 30))";
+
     protected static final String ACROSS_INTERNATIONAL_DATELINE_LARGE_CW_WKT = "POLYGON ((175 30, -175 30, -175 25, 175 25, 175 30))";
+
     protected static final String ACROSS_INTERNATIONAL_DATELINE_SMALL_WKT = "POLYGON ((179.5 30, 179.5 29, -179.5 29, -179.5 30, 179.5 30))";
+
     protected static final String PHOENIX_POINT_WKT = "POINT (-112.066667 33.45)";
+
     protected static final String COUNTERCLOCKWISE_ARIZONA_RECTANGLE_WKT = "POLYGON ((-108.08349609374837 30.90222470517274, -108.08349609374837 37.45741810263027, -115.70800781249432 37.45741810263027, -115.70800781249432 30.90222470517274, -108.08349609374837 30.90222470517274))";
+
     protected static final String CLOCKWISE_ARIZONA_RECTANGLE_WKT = "POLYGON ((-115.72998046874625 30.921076375385542, -115.72998046874625 37.47485808497204, -108.12744140624321 37.47485808497204, -108.12744140624321 30.921076375385542, -115.72998046874625 30.921076375385542))";
+
     protected static final String ARIZONA_INTERSECTING_LINESTING_WKT = "LINESTRING (-115.33642578125 33.28662109375,-108.17333984375 35.83544921875)";
+
     protected static final String ARIZONA_INTERSECTING_MULTILINESTING_WKT = "MULTILINESTRING ((-115.33642578125 33.28662109375,-108.17333984375 35.83544921875), (-119.15527356533 36.906984126196, -114.40917981533 39.455812251196, -117.22167981533 39.719484126196, -117.26562512783 39.719484126196))";
+
     protected static final String FLAGSTAFF_AIRPORT_POINT_WKT = "POINT (-111.67121887207031 35.138454437255859)";
+
     protected static final String PHOENIX_AND_LAS_VEGAS_MULTIPOINT_WKT = "MULTIPOINT ((-112.066667 33.45), (-115.136389 36.175))";
+
     protected static final String ARIZONA_INTERSECTING_POLYGON_WKT = "POLYGON ((-116.26171901822 34.658206701279, -113.80078151822 38.261722326279, -110.15332058072 35.625003576279, -110.06542995572 33.251956701279, -113.97656276822 32.812503576279, -116.26171901822 34.658206701279))";
+
     protected static final String ARIZONA_INTERSECTING_MULTIPOLYGON_WKT = "MULTIPOLYGON (((-116.26171901822 34.658206701279, -113.80078151822 38.261722326279, -110.15332058072 35.625003576279, -110.06542995572 33.251956701279, -113.97656276822 32.812503576279, -116.26171901822 34.658206701279)), ((-117.88085950283 35.588624751196, -117.66113294033 40.554445063696, -120.60546887783 37.654054438696, -117.88085950283 35.588624751196)))";
+
     protected static final String ARIZONA_INTERSECTING_GEOMETRYCOLLECTION_WKT = "GEOMETRYCOLLECTION ("
-            + FLAGSTAFF_AIRPORT_POINT_WKT + ", " + ARIZONA_INTERSECTING_LINESTING_WKT + ", "
+            + FLAGSTAFF_AIRPORT_POINT_WKT
+            + ", "
+            + ARIZONA_INTERSECTING_LINESTING_WKT
+            + ", "
             + ARIZONA_INTERSECTING_MULTIPOLYGON_WKT + ")";
+
     protected static final String ARIZONA_POLYGON_WKT = "POLYGON ((-114.52062730304343 33.02770735822419, -114.55908930307925 33.03678235823264, -114.6099253031266 33.027002358223534, -114.63396730314898 33.03356735822965, -114.6451593031594 33.044412358239754, -114.66395130317692 33.038922358234636, -114.71135530322107 33.09538235828722, -114.70946330321931 33.122375358312354, -114.6781203031901 33.16725035835415, -114.6800513031919 33.224595358407555, -114.68771130319904 33.23925835842121, -114.67769330318971 33.268016358447994, -114.73542730324348 33.3057083584831, -114.70360330321384 33.352418358526606, -114.7249363032337 33.41105935858121, -114.64509230315934 33.419116358588724, -114.63057330314584 33.439425358607636, -114.621089303137 33.468599358634805, -114.59808630311556 33.48612735865113, -114.5870613031053 33.50944535867285, -114.52942030305162 33.56007335872, -114.5402473030617 33.58050735873903, -114.52717030304953 33.622136358777794, -114.52526330304775 33.66550435881818, -114.53643330305815 33.682735358834236, -114.49567630302019 33.70836935885811, -114.5102873030338 33.74320035889055, -114.50455830302846 33.7717143589171, -114.5211223030439 33.82603135896769, -114.51172230303513 33.84196535898253, -114.52096230304375 33.862926359002046, -114.49818830302253 33.925036359059895, -114.5256323030481 33.95241335908539, -114.51820830304118 33.96506335909717, -114.42898030295808 34.02984435915751, -114.42402930295347 34.07833235920266, -114.41016630294055 34.10265435922531, -114.32279930285918 34.1412973592613, -114.28536830282434 34.17123135928918, -114.23577630277813 34.186222359303144, -114.14991230269818 34.266979359378354, -114.12523030267519 34.272621359383606, -114.13412730268348 34.31454835942266, -114.15341530270143 34.33644735944305, -114.18208030272814 34.36520635946984, -114.2578423027987 34.40548835950735, -114.2833943028225 34.41206935951348, -114.30286530284062 34.43575435953554, -114.33263630286835 34.454873359553346, -114.3765073029092 34.45967935955782, -114.38386230291606 34.47708535957403, -114.3768283029095 34.536563359629426, -114.40974230294016 34.58372335967334, -114.43430230296303 34.59896335968754, -114.42227030295183 34.61089535969865, -114.46563730299222 34.70987335979083, -114.49780430302218 34.74475735982332, -114.52555330304801 34.74891135982719, -114.54204030306337 34.759958359837476, -114.5702173030896 34.83186035990444, -114.62726330314274 34.875533359945116, -114.63047530314574 34.919501359986064, -114.62100730313692 34.943609360008516, -114.63227630314742 34.997651360058846, -114.62106830313698 34.99891436006002, -114.63378030314881 35.041863360100024, -114.59563230311329 35.07605836013187, -114.6359093031508 35.11865536017154, -114.62644130314197 35.13390636018575, -114.58261630310116 35.132560360184485, -114.57225530309151 35.14006736019148, -114.56104030308107 35.17434636022341, -114.5595833030797 35.22018336026609, -114.58789030310608 35.304768360344866, -114.58958430310764 35.358378360394795, -114.64539630315963 35.450760360480835, -114.6722153031846 35.515754360541365, -114.64979230316374 35.54663736057013, -114.65313430316684 35.5848333606057, -114.63986630315449 35.611348360630394, -114.65406630316771 35.64658436066321, -114.66848630318114 35.65639936067235, -114.66509130317797 35.69309936070653, -114.68882030320007 35.73259536074332, -114.68273930319441 35.76470336077322, -114.68986730320105 35.84744236085027, -114.66246230317552 35.870960360872175, -114.66160030317472 35.88047336088104, -114.69927630320981 35.91161236091004, -114.7362123032442 35.987648360980856, -114.71767330322695 36.036758361026585, -114.72896630323746 36.058753361047074, -114.7281503032367 36.08596236107242, -114.71276130322238 36.10518136109032, -114.62161030313749 36.141966361124574, -114.59893530311636 36.13833536112119, -114.5305733030527 36.15509036113679, -114.46661330299312 36.1247113611085, -114.44394530297203 36.1210533611051, -114.38080330291321 36.15099136113298, -114.34423430287916 36.137480361120396, -114.31609530285294 36.11143836109614, -114.30385730284155 36.08710836107348, -114.30758730284502 36.06223336105032, -114.233472302776 36.01833136100943, -114.20676930275113 36.017255361008424, -114.12902330267872 36.04173036103122, -114.10777530265894 36.12109036110513, -114.04510530260056 36.19397836117301, -114.03739230259339 36.21602336119354, -114.04371630259928 36.84184936177639, -114.04393930259948 36.99653836192046, -112.89998330153409 36.99622736192016, -112.54252130120118 36.99799436192181, -112.23725830091688 36.995492361919474, -111.3561643000963 37.001709361925265, -110.7400632995225 37.002488361926, -110.48408929928411 37.003926361927334, -110.45223629925445 36.991746361915986, -109.99707629883055 36.99206736191629, -109.0484802979471 36.99664136192055, -109.0478462979465 35.99666436098925, -109.04664129794538 34.95464636001879, -109.04865229794726 34.59178035968085, -109.05034929794884 33.7833023589279, -109.050526297949 33.20516435838946, -109.05134629794976 32.779550357993074, -109.04949529794804 32.44204435767875, -109.04561529794442 31.34345335665561, -110.45257829925477 31.33766035665021, -111.07196429983162 31.335634356648328, -111.36952130010873 31.431531356737636, -113.32911130193375 32.04362135730769, -114.82176130332388 32.487169357720774, -114.80939430331236 32.6160443578408, -114.72204930323102 32.720857357938414, -114.71269530322232 32.7350133579516, -114.69404030320493 32.74142535795757, -114.60394230312102 32.72628535794347, -114.60352230312063 32.73588635795241, -114.57195930309123 32.73743935795386, -114.57221030309148 32.74882935796447, -114.56075130308079 32.74893635796457, -114.56158230308156 32.760753357975574, -114.54300430306427 32.76074935797557, -114.54318730306444 32.77123235798533, -114.53009530305225 32.7714113579855, -114.53507730305688 32.788047358000995, -114.52621930304863 32.80991235802135, -114.4614363029883 32.84542235805443, -114.47644430300228 32.9359083581387, -114.46838730299478 32.9777893581777, -114.52062730304343 33.02770735822419))";
+
     protected static final String WEST_USA_CONTAINING_POLYGON_WKT = "POLYGON ((-125 49, -125 30, -100 30, -100 49, -125 49))";
-	
+
     protected static final String AIRPORT_QUERY_PHRASE = "Airport";
-	protected static final String TAMPA_QUERY_PHRASE = "Tampa";
-	protected static final String FLAGSTAFF_QUERY_PHRASE = "Flagstaff";
-	protected static final String PURCHASE_ORDER_QUERY_PHRASE = "Lawnmower";
-
-	protected static final String SAMPLE_CONTENT_TYPE_1 = "contentType1";
-	protected static final String SAMPLE_CONTENT_TYPE_2 = "contentType2";
-	protected static final String SAMPLE_CONTENT_TYPE_3 = "content-Type";
-
-	protected static final String SAMPLE_CONTENT_TYPE_4 = "ct1=3";
-	protected static final String SAMPLE_CONTENT_VERSION_1 = "version1";
-	protected static final String SAMPLE_CONTENT_VERSION_2 = "vers:ion2";
-	protected static final String SAMPLE_CONTENT_VERSION_3 = "DDFv20";
-	protected static final String SAMPLE_CONTENT_VERSION_4 = "vers+4";
-
-	protected static final String DEFAULT_TEST_ESCAPE = "\\";
-	protected static final String DEFAULT_TEST_SINGLE_WILDCARD = "?";
-	protected static final String DEFAULT_TEST_WILDCARD = "*";
-
-	protected static final long MINUTES_IN_MILLISECONDS = 60000;
-	protected static final double METERS_PER_KM = 1000.0;
-
-	protected static final Logger LOGGER = Logger.getLogger(TestSolrProvider.class);
-
-	protected static final int ONE_HIT = 1;
-
-	/**
-	 * Testing that you cannot instantiate with a null Server.
-	 * 
-	 */
-	@Test(expected = IllegalArgumentException.class)
-	public void testSolrServerNull() {
-		new SolrCatalogProvider(null, null, null);
-	}
-
-	/**
-	 * Testing that if we create a record, it is truly ingested and we can
-	 * retrieve all the fields we intend to be retrievable.
-	 * 
-	 * @throws IngestException
-	 * @throws UnsupportedQueryException
-	 */
-	@Test
-	public void testCreateOperation() throws IngestException, UnsupportedQueryException {
 
-		deleteAllIn(provider);
-
-		MockMetacard metacard = new MockMetacard(Library.getFlagstaffRecord());
-
-		create(metacard);
-
-		FilterFactory filterFactory = new FilterFactoryImpl();
+    protected static final String TAMPA_QUERY_PHRASE = "Tampa";
 
-		// SIMPLE TITLE SEARCH
-		Filter filter = filterFactory.like(filterFactory.property(Metacard.TITLE), MockMetacard.DEFAULT_TITLE,
-				DEFAULT_TEST_WILDCARD, DEFAULT_TEST_SINGLE_WILDCARD, DEFAULT_TEST_ESCAPE, false);
+    protected static final String FLAGSTAFF_QUERY_PHRASE = "Flagstaff";
 
-		QueryImpl query = new QueryImpl(filter);
-
-		query.setStartIndex(1);
-
-		SourceResponse sourceResponse = provider.query(new QueryRequestImpl(query));
-
-		List<Result> results = sourceResponse.getResults();
-		Metacard mResult = results.get(0).getMetacard();
-		assertEquals(1, results.size());
-		assertNotNull(mResult.getId());
-		assertEquals(MockMetacard.DEFAULT_TITLE, mResult.getTitle());
-		assertEquals(MockMetacard.DEFAULT_LOCATION, mResult.getLocation());
-		assertEquals(MockMetacard.DEFAULT_TYPE, mResult.getContentTypeName());
-		assertEquals(MockMetacard.DEFAULT_VERSION, mResult.getContentTypeVersion());
-		assertNotNull(mResult.getMetadata());
-		assertThat(mResult.getMetadata(), containsString("<title>Flagstaff Chamber of Commerce</title>"));
-		assertTrue(!mResult.getMetadata().isEmpty());
-		assertFalse(mResult.getCreatedDate().after(new Date()));
-		assertFalse(mResult.getModifiedDate().after(new Date()));
-		assertEquals(metacard.getEffectiveDate(), mResult.getEffectiveDate());
-		assertEquals(metacard.getExpirationDate(), mResult.getExpirationDate());
-		assertTrue(Arrays.equals(metacard.getThumbnail(), mResult.getThumbnail()));
-		assertEquals(metacard.getLocation(), mResult.getLocation());
-		assertEquals(MASKED_ID, mResult.getSourceId());
+    protected static final String PURCHASE_ORDER_QUERY_PHRASE = "Lawnmower";
 
-		// --- Simple KEYWORD SEARCH
-		filter = filterFactory.like(filterFactory.property(Metacard.METADATA), MockMetacard.DEFAULT_TITLE,
-				DEFAULT_TEST_WILDCARD, DEFAULT_TEST_SINGLE_WILDCARD, DEFAULT_TEST_ESCAPE, false);
+    protected static final String SAMPLE_CONTENT_TYPE_1 = "contentType1";
 
-		query = new QueryImpl(filter);
-
-		query.setStartIndex(1);
-
-		sourceResponse = provider.query(new QueryRequestImpl(query));
-
-		results = sourceResponse.getResults();
-		mResult = results.get(0).getMetacard();
-		assertEquals(1, results.size());
-		assertNotNull(mResult.getId());
-		assertEquals(MockMetacard.DEFAULT_TITLE, mResult.getTitle());
-		assertEquals(MockMetacard.DEFAULT_LOCATION, mResult.getLocation());
-		assertEquals(MockMetacard.DEFAULT_TYPE, mResult.getContentTypeName());
-		assertEquals(MockMetacard.DEFAULT_VERSION, mResult.getContentTypeVersion());
-		assertNotNull(mResult.getMetadata());
-		assertTrue(!mResult.getMetadata().isEmpty());
-		assertFalse(mResult.getCreatedDate().after(new Date()));
-		assertFalse(mResult.getModifiedDate().after(new Date()));
-		assertEquals(metacard.getEffectiveDate(), mResult.getEffectiveDate());
-		assertEquals(metacard.getExpirationDate(), mResult.getExpirationDate());
-		assertTrue(Arrays.equals(metacard.getThumbnail(), mResult.getThumbnail()));
-		assertEquals(metacard.getLocation(), mResult.getLocation());
-		assertEquals(MASKED_ID, mResult.getSourceId());
-
-	}
-	
-
-	@Test(expected = IngestException.class)
-	public void testCreateOperationWithSourceIdNoId() throws IngestException, UnsupportedQueryException {
-
-		deleteAllIn(provider);
+    protected static final String SAMPLE_CONTENT_TYPE_2 = "contentType2";
 
-		MockMetacard metacard = new MockMetacard(Library.getFlagstaffRecord());
+    protected static final String SAMPLE_CONTENT_TYPE_3 = "content-Type";
 
-		metacard.setSourceId("ddfChild");
+    protected static final String SAMPLE_CONTENT_TYPE_4 = "ct1=3";
 
-		Date oneDayAgo = new DateTime().minusDays(1).toDate();
-		metacard.setCreatedDate(oneDayAgo);
-		metacard.setExpirationDate(oneDayAgo);
-		metacard.setEffectiveDate(oneDayAgo);
-		metacard.setModifiedDate(oneDayAgo);
+    protected static final String SAMPLE_CONTENT_VERSION_1 = "version1";
 
-		create(metacard);
+    protected static final String SAMPLE_CONTENT_VERSION_2 = "vers:ion2";
 
-	}
+    protected static final String SAMPLE_CONTENT_VERSION_3 = "DDFv20";
 
-	@Test
-	public void testCreateOperationWithSourceId() throws IngestException, UnsupportedQueryException {
+    protected static final String SAMPLE_CONTENT_VERSION_4 = "vers+4";
 
-		deleteAllIn(provider);
+    protected static final String DEFAULT_TEST_ESCAPE = "\\";
 
-		MockMetacard metacard = new MockMetacard(Library.getFlagstaffRecord());
+    protected static final String DEFAULT_TEST_SINGLE_WILDCARD = "?";
 
-		metacard.setId("12345678900987654321abcdefgabcdefg");
+    protected static final String DEFAULT_TEST_WILDCARD = "*";
 
-		metacard.setSourceId("ddfChild");
+    protected static final long MINUTES_IN_MILLISECONDS = 60000;
 
-		Date oneDayAgo = new DateTime().minusDays(1).toDate();
-		metacard.setCreatedDate(oneDayAgo);
-		metacard.setExpirationDate(oneDayAgo);
-		metacard.setEffectiveDate(oneDayAgo);
-		metacard.setModifiedDate(oneDayAgo);
+    protected static final double METERS_PER_KM = 1000.0;
 
-		CreateResponse createResponse = create(metacard);
+    protected static final Logger LOGGER = Logger.getLogger(TestSolrProvider.class);
 
-		Metacard createdMetacard = createResponse.getCreatedMetacards().get(0);
+    protected static final int ONE_HIT = 1;
 
-		assertNotNull(createdMetacard.getId());
-		assertEquals(MockMetacard.DEFAULT_TITLE, createdMetacard.getTitle());
-		assertEquals(MockMetacard.DEFAULT_LOCATION, createdMetacard.getLocation());
-		assertEquals(MockMetacard.DEFAULT_TYPE, createdMetacard.getContentTypeName());
-		assertEquals(MockMetacard.DEFAULT_VERSION, createdMetacard.getContentTypeVersion());
-		assertNotNull(createdMetacard.getMetadata());
-		assertThat(createdMetacard.getMetadata(), containsString("<title>Flagstaff Chamber of Commerce</title>"));
-		assertThat(createdMetacard.getMetadata().isEmpty(), is(not(true)));
-		assertThat(createdMetacard.getCreatedDate(), is(oneDayAgo));
-		assertThat(createdMetacard.getModifiedDate(), is(oneDayAgo));
-		assertThat(createdMetacard.getEffectiveDate(), is(oneDayAgo));
-		assertThat(createdMetacard.getExpirationDate(), is(oneDayAgo));
-		assertTrue(Arrays.equals(metacard.getThumbnail(), createdMetacard.getThumbnail()));
-		assertEquals(metacard.getLocation(), createdMetacard.getLocation());
-		assertThat(createdMetacard.getSourceId(), is(metacard.getSourceId()));
+    /**
+     * Testing that you cannot instantiate with a null Server.
+     * 
+     */
+    @Test(expected = IllegalArgumentException.class)
+    public void testSolrServerNull() {
+        new SolrCatalogProvider(null, null, null);
+    }
 
-		// --------------------
+    /**
+     * Testing that if we create a record, it is truly ingested and we can retrieve all the fields
+     * we intend to be retrievable.
+     * 
+     * @throws IngestException
+     * @throws UnsupportedQueryException
+     */
+    @Test
+    public void testCreateOperation() throws IngestException, UnsupportedQueryException {
 
-		FilterFactory filterFactory = new FilterFactoryImpl();
+        deleteAllIn(provider);
 
-		// SIMPLE TITLE SEARCH
-		Filter filter = filterFactory.like(filterFactory.property(Metacard.TITLE), MockMetacard.DEFAULT_TITLE,
-				DEFAULT_TEST_WILDCARD, DEFAULT_TEST_SINGLE_WILDCARD, DEFAULT_TEST_ESCAPE, false);
+        MockMetacard metacard = new MockMetacard(Library.getFlagstaffRecord());
 
-		QueryImpl query = new QueryImpl(filter);
+        create(metacard);
 
-		query.setStartIndex(1);
+        FilterFactory filterFactory = new FilterFactoryImpl();
 
-		SourceResponse sourceResponse = provider.query(new QueryRequestImpl(query));
+        // SIMPLE TITLE SEARCH
+        Filter filter = filterFactory.like(filterFactory.property(Metacard.TITLE),
+                MockMetacard.DEFAULT_TITLE, DEFAULT_TEST_WILDCARD, DEFAULT_TEST_SINGLE_WILDCARD,
+                DEFAULT_TEST_ESCAPE, false);
 
-		List<Result> results = sourceResponse.getResults();
-		Metacard mResult = results.get(0).getMetacard();
-		assertEquals(1, results.size());
-		assertNotNull(mResult.getId());
-		assertEquals(MockMetacard.DEFAULT_TITLE, mResult.getTitle());
-		assertEquals(MockMetacard.DEFAULT_LOCATION, mResult.getLocation());
-		assertEquals(MockMetacard.DEFAULT_TYPE, mResult.getContentTypeName());
-		assertEquals(MockMetacard.DEFAULT_VERSION, mResult.getContentTypeVersion());
-		assertNotNull(mResult.getMetadata());
-		assertThat(mResult.getMetadata(), containsString("<title>Flagstaff Chamber of Commerce</title>"));
-		assertThat(mResult.getMetadata().isEmpty(), is(not(true)));
-		assertThat(mResult.getCreatedDate(), is(oneDayAgo));
-		assertThat(mResult.getModifiedDate(), is(oneDayAgo));
-		assertThat(mResult.getEffectiveDate(), is(oneDayAgo));
-		assertThat(mResult.getExpirationDate(), is(oneDayAgo));
-		assertTrue(Arrays.equals(metacard.getThumbnail(), mResult.getThumbnail()));
-		assertEquals(metacard.getLocation(), mResult.getLocation());
-		// assertThat(mResult.getSourceId(), is("ddf"));
+        QueryImpl query = new QueryImpl(filter);
 
-	}
+        query.setStartIndex(1);
 
-	/**
-	 * Tests what happens when the whole request is null.
-	 * 
-	 * @throws IngestException
-	 * @throws UnsupportedQueryException
-	 */
-	@Test(expected = IngestException.class)
-	public void testCreateNull() throws IngestException, UnsupportedQueryException {
+        SourceResponse sourceResponse = provider.query(new QueryRequestImpl(query));
 
-		deleteAllIn(provider);
-
-		provider.create(null);
+        List<Result> results = sourceResponse.getResults();
+        Metacard mResult = results.get(0).getMetacard();
+        assertEquals(1, results.size());
+        assertNotNull(mResult.getId());
+        assertEquals(MockMetacard.DEFAULT_TITLE, mResult.getTitle());
+        assertEquals(MockMetacard.DEFAULT_LOCATION, mResult.getLocation());
+        assertEquals(MockMetacard.DEFAULT_TYPE, mResult.getContentTypeName());
+        assertEquals(MockMetacard.DEFAULT_VERSION, mResult.getContentTypeVersion());
+        assertNotNull(mResult.getMetadata());
+        assertThat(mResult.getMetadata(),
+                containsString("<title>Flagstaff Chamber of Commerce</title>"));
+        assertTrue(!mResult.getMetadata().isEmpty());
+        assertFalse(mResult.getCreatedDate().after(new Date()));
+        assertFalse(mResult.getModifiedDate().after(new Date()));
+        assertEquals(metacard.getEffectiveDate(), mResult.getEffectiveDate());
+        assertEquals(metacard.getExpirationDate(), mResult.getExpirationDate());
+        assertTrue(Arrays.equals(metacard.getThumbnail(), mResult.getThumbnail()));
+        assertEquals(metacard.getLocation(), mResult.getLocation());
+        assertEquals(MASKED_ID, mResult.getSourceId());
 
-		fail();
+        // --- Simple KEYWORD SEARCH
+        filter = filterFactory.like(filterFactory.property(Metacard.METADATA),
+                MockMetacard.DEFAULT_TITLE, DEFAULT_TEST_WILDCARD, DEFAULT_TEST_SINGLE_WILDCARD,
+                DEFAULT_TEST_ESCAPE, false);
 
-	}
+        query = new QueryImpl(filter);
 
-	@Test
-	public void testCreateNullList() throws IngestException, UnsupportedQueryException {
+        query.setStartIndex(1);
 
-		deleteAllIn(provider);
+        sourceResponse = provider.query(new QueryRequestImpl(query));
 
-		CreateResponse response = provider.create(new CreateRequest() {
+        results = sourceResponse.getResults();
+        mResult = results.get(0).getMetacard();
+        assertEquals(1, results.size());
+        assertNotNull(mResult.getId());
+        assertEquals(MockMetacard.DEFAULT_TITLE, mResult.getTitle());
+        assertEquals(MockMetacard.DEFAULT_LOCATION, mResult.getLocation());
+        assertEquals(MockMetacard.DEFAULT_TYPE, mResult.getContentTypeName());
+        assertEquals(MockMetacard.DEFAULT_VERSION, mResult.getContentTypeVersion());
+        assertNotNull(mResult.getMetadata());
+        assertTrue(!mResult.getMetadata().isEmpty());
+        assertFalse(mResult.getCreatedDate().after(new Date()));
+        assertFalse(mResult.getModifiedDate().after(new Date()));
+        assertEquals(metacard.getEffectiveDate(), mResult.getEffectiveDate());
+        assertEquals(metacard.getExpirationDate(), mResult.getExpirationDate());
+        assertTrue(Arrays.equals(metacard.getThumbnail(), mResult.getThumbnail()));
+        assertEquals(metacard.getLocation(), mResult.getLocation());
+        assertEquals(MASKED_ID, mResult.getSourceId());
+
+    }
+
+    @Test(expected = IngestException.class)
+    public void testCreateOperationWithSourceIdNoId() throws IngestException,
+        UnsupportedQueryException {
+
+        deleteAllIn(provider);
+
+        MockMetacard metacard = new MockMetacard(Library.getFlagstaffRecord());
+
+        metacard.setSourceId("ddfChild");
+
+        Date oneDayAgo = new DateTime().minusDays(1).toDate();
+        metacard.setCreatedDate(oneDayAgo);
+        metacard.setExpirationDate(oneDayAgo);
+        metacard.setEffectiveDate(oneDayAgo);
+        metacard.setModifiedDate(oneDayAgo);
+
+        create(metacard);
 
-			@Override
-			public boolean hasProperties() {
-				return false;
-			}
+    }
 
-			@Override
-			public Serializable getPropertyValue(String name) {
-				return null;
-			}
+    @Test
+    public void testCreateOperationWithSourceId() throws IngestException, UnsupportedQueryException {
 
-			@Override
-			public Set<String> getPropertyNames() {
-				return null;
-			}
+        deleteAllIn(provider);
 
-			@Override
-			public Map<String, Serializable> getProperties() {
-				return null;
-			}
+        MockMetacard metacard = new MockMetacard(Library.getFlagstaffRecord());
 
-			@Override
-			public boolean containsPropertyName(String name) {
-				return false;
-			}
+        metacard.setId("12345678900987654321abcdefgabcdefg");
+
+        metacard.setSourceId("ddfChild");
 
-			@Override
-			public List<Metacard> getMetacards() {
-				return null;
-			}
-		});
+        Date oneDayAgo = new DateTime().minusDays(1).toDate();
+        metacard.setCreatedDate(oneDayAgo);
+        metacard.setExpirationDate(oneDayAgo);
+        metacard.setEffectiveDate(oneDayAgo);
+        metacard.setModifiedDate(oneDayAgo);
+
+        CreateResponse createResponse = create(metacard);
+
+        Metacard createdMetacard = createResponse.getCreatedMetacards().get(0);
+
+        assertNotNull(createdMetacard.getId());
+        assertEquals(MockMetacard.DEFAULT_TITLE, createdMetacard.getTitle());
+        assertEquals(MockMetacard.DEFAULT_LOCATION, createdMetacard.getLocation());
+        assertEquals(MockMetacard.DEFAULT_TYPE, createdMetacard.getContentTypeName());
+        assertEquals(MockMetacard.DEFAULT_VERSION, createdMetacard.getContentTypeVersion());
+        assertNotNull(createdMetacard.getMetadata());
+        assertThat(createdMetacard.getMetadata(),
+                containsString("<title>Flagstaff Chamber of Commerce</title>"));
+        assertThat(createdMetacard.getMetadata().isEmpty(), is(not(true)));
+        assertThat(createdMetacard.getCreatedDate(), is(oneDayAgo));
+        assertThat(createdMetacard.getModifiedDate(), is(oneDayAgo));
+        assertThat(createdMetacard.getEffectiveDate(), is(oneDayAgo));
+        assertThat(createdMetacard.getExpirationDate(), is(oneDayAgo));
+        assertTrue(Arrays.equals(metacard.getThumbnail(), createdMetacard.getThumbnail()));
+        assertEquals(metacard.getLocation(), createdMetacard.getLocation());
+        assertThat(createdMetacard.getSourceId(), is(metacard.getSourceId()));
+
+        // --------------------
+
+        FilterFactory filterFactory = new FilterFactoryImpl();
+
+        // SIMPLE TITLE SEARCH
+        Filter filter = filterFactory.like(filterFactory.property(Metacard.TITLE),
+                MockMetacard.DEFAULT_TITLE, DEFAULT_TEST_WILDCARD, DEFAULT_TEST_SINGLE_WILDCARD,
+                DEFAULT_TEST_ESCAPE, false);
+
+        QueryImpl query = new QueryImpl(filter);
+
+        query.setStartIndex(1);
 
-		assertThat(response.getCreatedMetacards().size(), is(0));
-	}
+        SourceResponse sourceResponse = provider.query(new QueryRequestImpl(query));
 
-	@Test
-	public void testCreatedDates() throws Exception {
+        List<Result> results = sourceResponse.getResults();
+        Metacard mResult = results.get(0).getMetacard();
+        assertEquals(1, results.size());
+        assertNotNull(mResult.getId());
+        assertEquals(MockMetacard.DEFAULT_TITLE, mResult.getTitle());
+        assertEquals(MockMetacard.DEFAULT_LOCATION, mResult.getLocation());
+        assertEquals(MockMetacard.DEFAULT_TYPE, mResult.getContentTypeName());
+        assertEquals(MockMetacard.DEFAULT_VERSION, mResult.getContentTypeVersion());
+        assertNotNull(mResult.getMetadata());
+        assertThat(mResult.getMetadata(),
+                containsString("<title>Flagstaff Chamber of Commerce</title>"));
+        assertThat(mResult.getMetadata().isEmpty(), is(not(true)));
+        assertThat(mResult.getCreatedDate(), is(oneDayAgo));
+        assertThat(mResult.getModifiedDate(), is(oneDayAgo));
+        assertThat(mResult.getEffectiveDate(), is(oneDayAgo));
+        assertThat(mResult.getExpirationDate(), is(oneDayAgo));
+        assertTrue(Arrays.equals(metacard.getThumbnail(), mResult.getThumbnail()));
+        assertEquals(metacard.getLocation(), mResult.getLocation());
+        // assertThat(mResult.getSourceId(), is("ddf"));
+
+    }
 
-		deleteAllIn(provider);
+    /**
+     * Tests what happens when the whole request is null.
+     * 
+     * @throws IngestException
+     * @throws UnsupportedQueryException
+     */
+    @Test(expected = IngestException.class)
+    public void testCreateNull() throws IngestException, UnsupportedQueryException {
+
+        deleteAllIn(provider);
+
+        provider.create(null);
+
+        fail();
+
+    }
+
+    @Test
+    public void testCreateNullList() throws IngestException, UnsupportedQueryException {
 
-		/* ALL NULL */
-		MockMetacard mockMetacard = new MockMetacard(Library.getFlagstaffRecord());
-		mockMetacard.setEffectiveDate(null);
-		mockMetacard.setExpirationDate(null);
-		mockMetacard.setCreatedDate(null);
-		mockMetacard.setModifiedDate(null);
-		List<Metacard> list = Arrays.asList((Metacard) mockMetacard);
+        deleteAllIn(provider);
 
-		CreateResponse createResponse = create(list);
+        CreateResponse response = provider.create(new CreateRequest() {
 
-		assertEquals(1, createResponse.getCreatedMetacards().size());
+            @Override
+            public boolean hasProperties() {
+                return false;
+            }
 
-		Metacard createdMetacard = createResponse.getCreatedMetacards().get(0);
+            @Override
+            public Serializable getPropertyValue(String name) {
+                return null;
+            }
 
-		assertNotNull(createdMetacard.getId());
-		assertEquals(MockMetacard.DEFAULT_TITLE, createdMetacard.getTitle());
-		assertEquals(MockMetacard.DEFAULT_LOCATION, createdMetacard.getLocation());
-		assertEquals(MockMetacard.DEFAULT_TYPE, createdMetacard.getContentTypeName());
-		assertEquals(MockMetacard.DEFAULT_VERSION, createdMetacard.getContentTypeVersion());
-		assertNotNull(createdMetacard.getMetadata());
-		assertTrue(!createdMetacard.getMetadata().isEmpty());
+            @Override
+            public Set<String> getPropertyNames() {
+                return null;
+            }
 
-		// DATES
-		assertEquals(mockMetacard.getCreatedDate(), createdMetacard.getCreatedDate());
-		assertThat(createdMetacard.getCreatedDate(), nullValue());
+            @Override
+            public Map<String, Serializable> getProperties() {
+                return null;
+            }
 
-		assertEquals(mockMetacard.getModifiedDate(), createdMetacard.getModifiedDate());
-		assertThat(createdMetacard.getModifiedDate(), nullValue());
+            @Override
+            public boolean containsPropertyName(String name) {
+                return false;
+            }
 
-		assertEquals(mockMetacard.getEffectiveDate(), createdMetacard.getEffectiveDate());
-		assertThat(createdMetacard.getEffectiveDate(), nullValue());
+            @Override
+            public List<Metacard> getMetacards() {
+                return null;
+            }
+        });
 
-		assertEquals(mockMetacard.getExpirationDate(), createdMetacard.getExpirationDate());
-		assertThat(createdMetacard.getExpirationDate(), nullValue());
+        assertThat(response.getCreatedMetacards().size(), is(0));
+    }
 
-		assertTrue(Arrays.equals(mockMetacard.getThumbnail(), createdMetacard.getThumbnail()));
-		assertEquals(mockMetacard.getLocation(), createdMetacard.getLocation());
-		assertEquals(MASKED_ID, createdMetacard.getSourceId());
-	}
+    @Test
+    public void testCreatedDates() throws Exception {
 
-	/**
-	 * Testing that if records are properly updated.
-	 * 
-	 * @throws IngestException
-	 * @throws UnsupportedQueryException
-	 */
-	@Test
-	public void testUpdateOperationSimple() throws IngestException, UnsupportedQueryException {
+        deleteAllIn(provider);
 
-		// Single Update
+        /* ALL NULL */
+        MockMetacard mockMetacard = new MockMetacard(Library.getFlagstaffRecord());
+        mockMetacard.setEffectiveDate(null);
+        mockMetacard.setExpirationDate(null);
+        mockMetacard.setCreatedDate(null);
+        mockMetacard.setModifiedDate(null);
+        List<Metacard> list = Arrays.asList((Metacard) mockMetacard);
 
-		deleteAllIn(provider);
+        CreateResponse createResponse = create(list);
 
-		MockMetacard metacard = new MockMetacard(Library.getFlagstaffRecord());
+        assertEquals(1, createResponse.getCreatedMetacards().size());
 
-		CreateResponse createResponse = create(metacard);
+        Metacard createdMetacard = createResponse.getCreatedMetacards().get(0);
 
-		String id = createResponse.getCreatedMetacards().get(0).getId();
+        assertNotNull(createdMetacard.getId());
+        assertEquals(MockMetacard.DEFAULT_TITLE, createdMetacard.getTitle());
+        assertEquals(MockMetacard.DEFAULT_LOCATION, createdMetacard.getLocation());
+        assertEquals(MockMetacard.DEFAULT_TYPE, createdMetacard.getContentTypeName());
+        assertEquals(MockMetacard.DEFAULT_VERSION, createdMetacard.getContentTypeVersion());
+        assertNotNull(createdMetacard.getMetadata());
+        assertTrue(!createdMetacard.getMetadata().isEmpty());
 
-		metacard.setContentTypeName("newContentType");
+        // DATES
+        assertEquals(mockMetacard.getCreatedDate(), createdMetacard.getCreatedDate());
+        assertThat(createdMetacard.getCreatedDate(), nullValue());
 
-		UpdateResponse response = update(id, metacard);
+        assertEquals(mockMetacard.getModifiedDate(), createdMetacard.getModifiedDate());
+        assertThat(createdMetacard.getModifiedDate(), nullValue());
 
-		Update update = response.getUpdatedMetacards().get(0);
+        assertEquals(mockMetacard.getEffectiveDate(), createdMetacard.getEffectiveDate());
+        assertThat(createdMetacard.getEffectiveDate(), nullValue());
 
-		Metacard newMetacard = update.getNewMetacard();
+        assertEquals(mockMetacard.getExpirationDate(), createdMetacard.getExpirationDate());
+        assertThat(createdMetacard.getExpirationDate(), nullValue());
 
-		Metacard oldMetacard = update.getOldMetacard();
+        assertTrue(Arrays.equals(mockMetacard.getThumbnail(), createdMetacard.getThumbnail()));
+        assertEquals(mockMetacard.getLocation(), createdMetacard.getLocation());
+        assertEquals(MASKED_ID, createdMetacard.getSourceId());
+    }
 
-		assertEquals(1, response.getUpdatedMetacards().size());
+    /**
+     * Testing that if records are properly updated.
+     * 
+     * @throws IngestException
+     * @throws UnsupportedQueryException
+     */
+    @Test
+    public void testUpdateOperationSimple() throws IngestException, UnsupportedQueryException {
 
-		assertEquals("newContentType", newMetacard.getContentTypeName());
-		assertEquals(MockMetacard.DEFAULT_TYPE, oldMetacard.getContentTypeName());
+        // Single Update
 
-	}
+        deleteAllIn(provider);
 
-	/**
-	 * Tests if a partial update is handled appropriately.
-	 * 
-	 * @throws IngestException
-	 * @throws UnsupportedQueryException
-	 */
-	@Test
-	public void testUpdatePartial() throws IngestException, UnsupportedQueryException {
+        MockMetacard metacard = new MockMetacard(Library.getFlagstaffRecord());
 
-		deleteAllIn(provider);
+        CreateResponse createResponse = create(metacard);
 
-		MockMetacard metacard = new MockMetacard(Library.getFlagstaffRecord());
+        String id = createResponse.getCreatedMetacards().get(0).getId();
 
-		CreateResponse createResponse = create(metacard);
+        metacard.setContentTypeName("newContentType");
 
-		String id = createResponse.getCreatedMetacards().get(0).getId();
+        UpdateResponse response = update(id, metacard);
 
-		metacard.setContentTypeName("newContentType");
+        Update update = response.getUpdatedMetacards().get(0);
 
-		String[] ids = { id, "no_such_record" };
-		
-		UpdateResponse response = update(ids, Arrays.asList((Metacard) metacard,
-						metacard));
+        Metacard newMetacard = update.getNewMetacard();
 
-		assertEquals(1, response.getUpdatedMetacards().size());
+        Metacard oldMetacard = update.getOldMetacard();
 
-	}
+        assertEquals(1, response.getUpdatedMetacards().size());
 
-	/**
-	 * Tests what happens when the whole request is null.
-	 * 
-	 * @throws IngestException
-	 * @throws UnsupportedQueryException
-	 */
-	@Test(expected = IngestException.class)
-	public void testUpdateNull() throws IngestException, UnsupportedQueryException {
+        assertEquals("newContentType", newMetacard.getContentTypeName());
+        assertEquals(MockMetacard.DEFAULT_TYPE, oldMetacard.getContentTypeName());
 
-		deleteAllIn(provider);
+    }
 
-		provider.update(null);
+    /**
+     * Tests if a partial update is handled appropriately.
+     * 
+     * @throws IngestException
+     * @throws UnsupportedQueryException
+     */
+    @Test
+    public void testUpdatePartial() throws IngestException, UnsupportedQueryException {
 
-		fail();
+        deleteAllIn(provider);
 
-	}
+        MockMetacard metacard = new MockMetacard(Library.getFlagstaffRecord());
 
-	/**
-	 * Tests null list in UpdateRequest
-	 * 
-	 * @throws IngestException
-	 * @throws UnsupportedQueryException
-	 */
-	@Test
-	public void testUpdateNullList() throws IngestException, UnsupportedQueryException {
+        CreateResponse createResponse = create(metacard);
 
-		deleteAllIn(provider);
+        String id = createResponse.getCreatedMetacards().get(0).getId();
 
-		UpdateResponse response = provider.update(new UpdateRequestImpl(null, Metacard.ID, null));
+        metacard.setContentTypeName("newContentType");
 
-		assertEquals(0, response.getUpdatedMetacards().size());
+        String[] ids = {id, "no_such_record"};
 
-	}
+        UpdateResponse response = update(ids, Arrays.asList((Metacard) metacard, metacard));
 
-	/**
-	 * Tests empty list in UpdateRequest
-	 * 
-	 * @throws IngestException
-	 * @throws UnsupportedQueryException
-	 */
-	@Test
-	public void testUpdateEmptyList() throws IngestException, UnsupportedQueryException {
+        assertEquals(1, response.getUpdatedMetacards().size());
 
-		deleteAllIn(provider);
+    }
 
-		UpdateResponse response = provider.update(new UpdateRequestImpl(new ArrayList<Entry<Serializable, Metacard>>(),
-				Metacard.ID, null));
+    /**
+     * Tests what happens when the whole request is null.
+     * 
+     * @throws IngestException
+     * @throws UnsupportedQueryException
+     */
+    @Test(expected = IngestException.class)
+    public void testUpdateNull() throws IngestException, UnsupportedQueryException {
 
-		assertEquals(0, response.getUpdatedMetacards().size());
+        deleteAllIn(provider);
 
-	}
+        provider.update(null);
 
-	@Test
-	public void testUpdateByMetacardId() throws Exception {
+        fail();
 
-		deleteAllIn(provider);
+    }
 
-		MockMetacard metacard1 = new MockMetacard(Library.getFlagstaffRecord());
-		MockMetacard metacard2 = new MockMetacard(Library.getShowLowRecord());
+    /**
+     * Tests null list in UpdateRequest
+     * 
+     * @throws IngestException
+     * @throws UnsupportedQueryException
+     */
+    @Test
+    public void testUpdateNullList() throws IngestException, UnsupportedQueryException {
 
-		String uri1 = "http://youwillfindme.com/here";
-		String uri2 = "http://youwillfindme.com/there";
+        deleteAllIn(provider);
 
-		metacard1.setResourceURI(new URI(uri1));
-		metacard1.setContentTypeName("oldNitf");
-		metacard2.setResourceURI(new URI(uri2));
-		metacard2.setContentTypeName("oldNitf2");
-		metacard2.setResourceSize("25L");
+        UpdateResponse response = provider.update(new UpdateRequestImpl(null, Metacard.ID, null));
 
-		List<Metacard> list = Arrays.asList((Metacard) metacard1, metacard2);
+        assertEquals(0, response.getUpdatedMetacards().size());
 
-		CreateResponse createResponse = create(list);
+    }
 
-		List<String> responseStrings = MockMetacard.toStringList(createResponse.getCreatedMetacards());
+    /**
+     * Tests empty list in UpdateRequest
+     * 
+     * @throws IngestException
+     * @throws UnsupportedQueryException
+     */
+    @Test
+    public void testUpdateEmptyList() throws IngestException, UnsupportedQueryException {
 
-		assertEquals(2, responseStrings.size());
+        deleteAllIn(provider);
 
-		/** UPDATE **/
+        UpdateResponse response = provider.update(new UpdateRequestImpl(
+                new ArrayList<Entry<Serializable, Metacard>>(), Metacard.ID, null));
 
-		MockMetacard updatedMetacard1 = new MockMetacard(Library.getTampaRecord());
-		MockMetacard updatedMetacard2 = new MockMetacard(Library.getFlagstaffRecord());
+        assertEquals(0, response.getUpdatedMetacards().size());
 
-		updatedMetacard1.setId(metacard1.getId());
-		updatedMetacard1.setContentTypeName("nitf");
+    }
 
-		updatedMetacard2.setId(metacard2.getId());
-		updatedMetacard2.setResourceURI(new URI(uri2));
-		updatedMetacard2.setContentTypeName("nitf2");
-		updatedMetacard2.setResourceSize("50L");
+    @Test
+    public void testUpdateByMetacardId() throws Exception {
 
-		list = Arrays.asList((Metacard) updatedMetacard1, updatedMetacard2);
+        deleteAllIn(provider);
 
-		String[] ids = { metacard1.getId(), metacard2.getId() };
+        MockMetacard metacard1 = new MockMetacard(Library.getFlagstaffRecord());
+        MockMetacard metacard2 = new MockMetacard(Library.getShowLowRecord());
 
-		UpdateResponse updateResponse = update(ids, list);
+        String uri1 = "http://youwillfindme.com/here";
+        String uri2 = "http://youwillfindme.com/there";
 
-		assertEquals("Testing Update operation: ", 2, updateResponse.getUpdatedMetacards().size());
+        metacard1.setResourceURI(new URI(uri1));
+        metacard1.setContentTypeName("oldNitf");
+        metacard2.setResourceURI(new URI(uri2));
+        metacard2.setContentTypeName("oldNitf2");
+        metacard2.setResourceSize("25L");
 
-		List<Update> updatedMetacards = updateResponse.getUpdatedMetacards();
+        List<Metacard> list = Arrays.asList((Metacard) metacard1, metacard2);
 
-		for (Update up : updatedMetacards) {
+        CreateResponse createResponse = create(list);
 
-			Metacard newCard = up.getNewMetacard();
-			Metacard oldCard = up.getOldMetacard();
+        List<String> responseStrings = MockMetacard.toStringList(createResponse
+                .getCreatedMetacards());
 
-			assertNotNull(oldCard.getResourceURI());
-			assertEquals(provider.getId(), oldCard.getSourceId());
-			assertEquals(provider.getId(), newCard.getSourceId());
+        assertEquals(2, responseStrings.size());
 
-			if (oldCard.getContentTypeName().equals("oldNitf")) {
+        /** UPDATE **/
 
-				assertEquals("nitf", newCard.getContentTypeName());
+        MockMetacard updatedMetacard1 = new MockMetacard(Library.getTampaRecord());
+        MockMetacard updatedMetacard2 = new MockMetacard(Library.getFlagstaffRecord());
 
-				// TPA is unique to the document
-				assertTrue(newCard.getMetadata().indexOf("TPA") != ALL_RESULTS);
-				assertThat(newCard.getResourceURI(), is(nullValue()));
-				assertThat(oldCard.getResourceURI().toString(), equalTo(uri1));
+        updatedMetacard1.setId(metacard1.getId());
+        updatedMetacard1.setContentTypeName("nitf");
 
-				assertEquals(oldCard.getId(), newCard.getId());
-				// Title
-				assertEquals(MockMetacard.DEFAULT_TITLE, oldCard.getTitle());
-				assertEquals(MockMetacard.DEFAULT_TITLE, newCard.getTitle());
-				// Location (decimal points make them not exact Strings POINT(1
-				// 0) as opposed to POINT( 1.0 0.0) )
-				assertEquals(MockMetacard.DEFAULT_LOCATION.substring(0, 8), oldCard.getLocation().substring(0, 8));
-				assertEquals(MockMetacard.DEFAULT_LOCATION.substring(0, 8), newCard.getLocation().substring(0, 8));
-				// Metadata
-				assertNotNull(oldCard.getMetadata());
-				assertNotNull(newCard.getMetadata());
-				assertTrue(!oldCard.getMetadata().isEmpty());
-				assertTrue(!newCard.getMetadata().isEmpty());
-				// Created Date
-				assertFalse(oldCard.getCreatedDate().after(new Date()));
-				assertFalse(newCard.getCreatedDate().after(new Date()));
-				assertTrue(newCard.getCreatedDate().equals(oldCard.getCreatedDate()));
-				// Modified Date
-				assertTrue(newCard.getModifiedDate().after(oldCard.getModifiedDate()));
-				// Effective Date
-				assertTrue(newCard.getEffectiveDate().after(oldCard.getEffectiveDate()));
-				// Expiration Date
-				assertTrue(newCard.getExpirationDate().after(oldCard.getExpirationDate()));
-				// Thumbnail
-				assertTrue(Arrays.equals(newCard.getThumbnail(), oldCard.getThumbnail()));
+        updatedMetacard2.setId(metacard2.getId());
+        updatedMetacard2.setResourceURI(new URI(uri2));
+        updatedMetacard2.setContentTypeName("nitf2");
+        updatedMetacard2.setResourceSize("50L");
 
-			} else if (oldCard.getContentTypeName().equals("oldNitf2")) {
+        list = Arrays.asList((Metacard) updatedMetacard1, updatedMetacard2);
 
-				assertEquals("nitf2", newCard.getContentTypeName());
+        String[] ids = {metacard1.getId(), metacard2.getId()};
 
-				// Cardinals is unique to the document
-				assertTrue(newCard.getMetadata().indexOf("Cardinals") != ALL_RESULTS);
+        UpdateResponse updateResponse = update(ids, list);
 
-				assertTrue("50L".equals(newCard.getResourceSize()));
+        assertEquals("Testing Update operation: ", 2, updateResponse.getUpdatedMetacards().size());
 
-				assertEquals(uri2, newCard.getResourceURI().toString());
+        List<Update> updatedMetacards = updateResponse.getUpdatedMetacards();
 
-				assertEquals(oldCard.getId(), newCard.getId());
-				// Title
-				assertEquals(MockMetacard.DEFAULT_TITLE, oldCard.getTitle());
-				assertEquals(MockMetacard.DEFAULT_TITLE, newCard.getTitle());
-				// Location (decimal points make them not exact in Strings
-				assertEquals(MockMetacard.DEFAULT_LOCATION.substring(0, 8), oldCard.getLocation().substring(0, 8));
-				assertEquals(MockMetacard.DEFAULT_LOCATION.substring(0, 8), newCard.getLocation().substring(0, 8));
-				// Metadata
-				assertNotNull(oldCard.getMetadata());
-				assertNotNull(newCard.getMetadata());
-				assertTrue(!oldCard.getMetadata().isEmpty());
-				assertTrue(!newCard.getMetadata().isEmpty());
-				// Created Date
-				assertFalse(oldCard.getCreatedDate().after(new Date()));
-				assertFalse(newCard.getCreatedDate().after(new Date()));
-				assertTrue(newCard.getCreatedDate().equals(oldCard.getCreatedDate()));
-				// Modified Date
-				assertTrue(newCard.getModifiedDate().after(oldCard.getModifiedDate()));
-				// Effective Date
-				assertTrue(newCard.getEffectiveDate().after(oldCard.getEffectiveDate()));
-				// Expiration Date
-				assertTrue(newCard.getExpirationDate().after(oldCard.getExpirationDate()));
-				// Thumbnail
-				assertTrue(Arrays.equals(newCard.getThumbnail(), oldCard.getThumbnail()));
+        for (Update up : updatedMetacards) {
 
-			} else {
-				Assert.fail("Expecting one or the other of the updated records.");
-			}
+            Metacard newCard = up.getNewMetacard();
+            Metacard oldCard = up.getOldMetacard();
 
-		}
+            assertNotNull(oldCard.getResourceURI());
+            assertEquals(provider.getId(), oldCard.getSourceId());
+            assertEquals(provider.getId(), newCard.getSourceId());
 
-		/** READ **/
-		CommonQueryBuilder builder = new CommonQueryBuilder();
+            if (oldCard.getContentTypeName().equals("oldNitf")) {
 
-		QueryImpl query = builder.queryByProperty(Metacard.RESOURCE_URI, uri2);
+                assertEquals("nitf", newCard.getContentTypeName());
 
-		QueryRequestImpl queryRequest = new QueryRequestImpl(query);
-		SourceResponse sourceResponse = provider.query(queryRequest);
+                // TPA is unique to the document
+                assertTrue(newCard.getMetadata().indexOf("TPA") != ALL_RESULTS);
+                assertThat(newCard.getResourceURI(), is(nullValue()));
+                assertThat(oldCard.getResourceURI().toString(), equalTo(uri1));
 
-		assertEquals(1, sourceResponse.getResults().size());
+                assertEquals(oldCard.getId(), newCard.getId());
+                // Title
+                assertEquals(MockMetacard.DEFAULT_TITLE, oldCard.getTitle());
+                assertEquals(MockMetacard.DEFAULT_TITLE, newCard.getTitle());
+                // Location (decimal points make them not exact Strings POINT(1
+                // 0) as opposed to POINT( 1.0 0.0) )
+                assertEquals(MockMetacard.DEFAULT_LOCATION.substring(0, 8), oldCard.getLocation()
+                        .substring(0, 8));
+                assertEquals(MockMetacard.DEFAULT_LOCATION.substring(0, 8), newCard.getLocation()
+                        .substring(0, 8));
+                // Metadata
+                assertNotNull(oldCard.getMetadata());
+                assertNotNull(newCard.getMetadata());
+                assertTrue(!oldCard.getMetadata().isEmpty());
+                assertTrue(!newCard.getMetadata().isEmpty());
+                // Created Date
+                assertFalse(oldCard.getCreatedDate().after(new Date()));
+                assertFalse(newCard.getCreatedDate().after(new Date()));
+                assertTrue(newCard.getCreatedDate().equals(oldCard.getCreatedDate()));
+                // Modified Date
+                assertTrue(newCard.getModifiedDate().after(oldCard.getModifiedDate()));
+                // Effective Date
+                assertTrue(newCard.getEffectiveDate().after(oldCard.getEffectiveDate()));
+                // Expiration Date
+                assertTrue(newCard.getExpirationDate().after(oldCard.getExpirationDate()));
+                // Thumbnail
+                assertTrue(Arrays.equals(newCard.getThumbnail(), oldCard.getThumbnail()));
 
-		for (Result r : sourceResponse.getResults()) {
+            } else if (oldCard.getContentTypeName().equals("oldNitf2")) {
 
-			assertTrue(r.getMetacard().getMetadata().indexOf("Cardinals") != ALL_RESULTS);
+                assertEquals("nitf2", newCard.getContentTypeName());
 
-			assertEquals(uri2, r.getMetacard().getResourceURI().toString());
-		}
+                // Cardinals is unique to the document
+                assertTrue(newCard.getMetadata().indexOf("Cardinals") != ALL_RESULTS);
 
-		/** UPDATE with null thumbnail **/
-		updatedMetacard1.setThumbnail(null);
-		updateResponse = update(updatedMetacard1.getId(), updatedMetacard1);
+                assertTrue("50L".equals(newCard.getResourceSize()));
 
-		assertEquals("Testing Update operation: ", 1, updateResponse.getUpdatedMetacards().size());
+                assertEquals(uri2, newCard.getResourceURI().toString());
 
-		Metacard newCard = updateResponse.getUpdatedMetacards().get(0).getNewMetacard();
-		Metacard oldCard = updateResponse.getUpdatedMetacards().get(0).getOldMetacard();
+                assertEquals(oldCard.getId(), newCard.getId());
+                // Title
+                assertEquals(MockMetacard.DEFAULT_TITLE, oldCard.getTitle());
+                assertEquals(MockMetacard.DEFAULT_TITLE, newCard.getTitle());
+                // Location (decimal points make them not exact in Strings
+                assertEquals(MockMetacard.DEFAULT_LOCATION.substring(0, 8), oldCard.getLocation()
+                        .substring(0, 8));
+                assertEquals(MockMetacard.DEFAULT_LOCATION.substring(0, 8), newCard.getLocation()
+                        .substring(0, 8));
+                // Metadata
+                assertNotNull(oldCard.getMetadata());
+                assertNotNull(newCard.getMetadata());
+                assertTrue(!oldCard.getMetadata().isEmpty());
+                assertTrue(!newCard.getMetadata().isEmpty());
+                // Created Date
+                assertFalse(oldCard.getCreatedDate().after(new Date()));
+                assertFalse(newCard.getCreatedDate().after(new Date()));
+                assertTrue(newCard.getCreatedDate().equals(oldCard.getCreatedDate()));
+                // Modified Date
+                assertTrue(newCard.getModifiedDate().after(oldCard.getModifiedDate()));
+                // Effective Date
+                assertTrue(newCard.getEffectiveDate().after(oldCard.getEffectiveDate()));
+                // Expiration Date
+                assertTrue(newCard.getExpirationDate().after(oldCard.getExpirationDate()));
+                // Thumbnail
+                assertTrue(Arrays.equals(newCard.getThumbnail(), oldCard.getThumbnail()));
 
-		assertNotNull(oldCard.getThumbnail());
-		assertEquals(null, newCard.getThumbnail());
+            } else {
+                Assert.fail("Expecting one or the other of the updated records.");
+            }
 
-		/** UPDATE with null WKT **/
-		// updatedMetacard1.setLocation(null);
-		// updateResponse = provider.update(new
-		// UpdateRequestImpl(updatedMetacard1.getId(), updatedMetacard1));
-		//
-		// 
-		//
-		// assertEquals("Testing Update operation: ", 1,
-		// updateResponse.getUpdatedMetacards().size());
-		//
-		// newCard =
-		// updateResponse.getUpdatedMetacards().get(0).getNewMetacard();
-		// oldCard =
-		// updateResponse.getUpdatedMetacards().get(0).getOldMetacard();
-		//
-		// assertNotNull(oldCard.getResourceURI());
-		// assertNotNull(newCard.getResourceURI());
-		// assertEquals(oldCard.getResourceURI().toString(),
-		// newCard.getResourceURI().toString());
-		// assertEquals(provider.getId(), oldCard.getSourceId());
-		// assertEquals(provider.getId(), newCard.getSourceId());
-		// LOGGER.info("New Metacard location: " + newCard.getLocation());
-		// LOGGER.info("Old Metacard location: " + oldCard.getLocation());
-		// assertTrue(oldCard.getLocation().contains("POINT"));
-		// assertEquals(null, newCard.getLocation());
+        }
 
-		/** UPDATE with null expiration date **/
-		updatedMetacard1.setExpirationDate(null);
-		updateResponse = update(updatedMetacard1.getId(), updatedMetacard1);
+        /** READ **/
+        CommonQueryBuilder builder = new CommonQueryBuilder();
 
-		assertEquals("Testing Update operation: ", ONE_HIT, updateResponse.getUpdatedMetacards().size());
+        QueryImpl query = builder.queryByProperty(Metacard.RESOURCE_URI, uri2);
 
-		newCard = updateResponse.getUpdatedMetacards().get(0).getNewMetacard();
-		oldCard = updateResponse.getUpdatedMetacards().get(0).getOldMetacard();
+        QueryRequestImpl queryRequest = new QueryRequestImpl(query);
+        SourceResponse sourceResponse = provider.query(queryRequest);
 
-		assertNotNull(oldCard.getExpirationDate());
-		assertEquals(null, newCard.getExpirationDate());
+        assertEquals(1, sourceResponse.getResults().size());
 
-		/** UPDATE with null content type **/
-		updatedMetacard1.setContentTypeName(null);
-		updateResponse = update(updatedMetacard1.getId(), updatedMetacard1);
+        for (Result r : sourceResponse.getResults()) {
 
-		assertEquals("Testing Update operation: ", ONE_HIT, updateResponse.getUpdatedMetacards().size());
+            assertTrue(r.getMetacard().getMetadata().indexOf("Cardinals") != ALL_RESULTS);
 
-		newCard = updateResponse.getUpdatedMetacards().get(0).getNewMetacard();
-		oldCard = updateResponse.getUpdatedMetacards().get(0).getOldMetacard();
+            assertEquals(uri2, r.getMetacard().getResourceURI().toString());
+        }
 
-		assertNotNull(oldCard.getContentTypeName());
-		assertThat(newCard.getContentTypeName(), nullValue());
+        /** UPDATE with null thumbnail **/
+        updatedMetacard1.setThumbnail(null);
+        updateResponse = update(updatedMetacard1.getId(), updatedMetacard1);
 
-		/** UPDATE with empty content type **/
-		updatedMetacard1.setContentTypeName("");
-		updateResponse = update(updatedMetacard1.getId(), updatedMetacard1);
+        assertEquals("Testing Update operation: ", 1, updateResponse.getUpdatedMetacards().size());
 
-		assertEquals("Testing Update operation: ", ONE_HIT, updateResponse.getUpdatedMetacards().size());
+        Metacard newCard = updateResponse.getUpdatedMetacards().get(0).getNewMetacard();
+        Metacard oldCard = updateResponse.getUpdatedMetacards().get(0).getOldMetacard();
 
-		newCard = updateResponse.getUpdatedMetacards().get(0).getNewMetacard();
-		oldCard = updateResponse.getUpdatedMetacards().get(0).getOldMetacard();
+        assertNotNull(oldCard.getThumbnail());
+        assertEquals(null, newCard.getThumbnail());
 
-		assertThat(oldCard.getContentTypeName(), nullValue());
-		assertThat(newCard.getContentTypeName(), is(""));
+        /** UPDATE with null WKT **/
+        // updatedMetacard1.setLocation(null);
+        // updateResponse = provider.update(new
+        // UpdateRequestImpl(updatedMetacard1.getId(), updatedMetacard1));
+        //
+        //
+        //
+        // assertEquals("Testing Update operation: ", 1,
+        // updateResponse.getUpdatedMetacards().size());
+        //
+        // newCard =
+        // updateResponse.getUpdatedMetacards().get(0).getNewMetacard();
+        // oldCard =
+        // updateResponse.getUpdatedMetacards().get(0).getOldMetacard();
+        //
+        // assertNotNull(oldCard.getResourceURI());
+        // assertNotNull(newCard.getResourceURI());
+        // assertEquals(oldCard.getResourceURI().toString(),
+        // newCard.getResourceURI().toString());
+        // assertEquals(provider.getId(), oldCard.getSourceId());
+        // assertEquals(provider.getId(), newCard.getSourceId());
+        // LOGGER.info("New Metacard location: " + newCard.getLocation());
+        // LOGGER.info("Old Metacard location: " + oldCard.getLocation());
+        // assertTrue(oldCard.getLocation().contains("POINT"));
+        // assertEquals(null, newCard.getLocation());
 
-		/** UPDATE with null content type version **/
-		updatedMetacard1.setContentTypeVersion(null);
-		updateResponse = update(updatedMetacard1.getId(), updatedMetacard1);
+        /** UPDATE with null expiration date **/
+        updatedMetacard1.setExpirationDate(null);
+        updateResponse = update(updatedMetacard1.getId(), updatedMetacard1);
 
-		assertEquals("Testing Update operation: ", ONE_HIT, updateResponse.getUpdatedMetacards().size());
+        assertEquals("Testing Update operation: ", ONE_HIT, updateResponse.getUpdatedMetacards()
+                .size());
 
-		newCard = updateResponse.getUpdatedMetacards().get(0).getNewMetacard();
-		oldCard = updateResponse.getUpdatedMetacards().get(0).getOldMetacard();
+        newCard = updateResponse.getUpdatedMetacards().get(0).getNewMetacard();
+        oldCard = updateResponse.getUpdatedMetacards().get(0).getOldMetacard();
 
-		assertNotNull(oldCard.getContentTypeVersion());
-		assertThat(newCard.getContentTypeVersion(), nullValue());
+        assertNotNull(oldCard.getExpirationDate());
+        assertEquals(null, newCard.getExpirationDate());
 
-		/** UPDATE with empty content type version **/
-		updatedMetacard1.setContentTypeVersion("");
-		updateResponse = update(updatedMetacard1.getId(), updatedMetacard1);
+        /** UPDATE with null content type **/
+        updatedMetacard1.setContentTypeName(null);
+        updateResponse = update(updatedMetacard1.getId(), updatedMetacard1);
 
-		assertEquals("Testing Update operation: ", ONE_HIT, updateResponse.getUpdatedMetacards().size());
+        assertEquals("Testing Update operation: ", ONE_HIT, updateResponse.getUpdatedMetacards()
+                .size());
 
-		newCard = updateResponse.getUpdatedMetacards().get(0).getNewMetacard();
-		oldCard = updateResponse.getUpdatedMetacards().get(0).getOldMetacard();
+        newCard = updateResponse.getUpdatedMetacards().get(0).getNewMetacard();
+        oldCard = updateResponse.getUpdatedMetacards().get(0).getOldMetacard();
 
-		assertThat(oldCard.getContentTypeVersion(), nullValue());
-		assertThat(newCard.getContentTypeVersion(), is(""));
+        assertNotNull(oldCard.getContentTypeName());
+        assertThat(newCard.getContentTypeName(), nullValue());
 
-		/** UPDATE with new resource uri **/
-		updatedMetacard1.setResourceURI(new URI(uri1 + "Now"));
-		updateResponse = update(updatedMetacard1.getId(), updatedMetacard1);
+        /** UPDATE with empty content type **/
+        updatedMetacard1.setContentTypeName("");
+        updateResponse = update(updatedMetacard1.getId(), updatedMetacard1);
 
-		assertEquals("Testing Update operation: ", ONE_HIT, updateResponse.getUpdatedMetacards().size());
+        assertEquals("Testing Update operation: ", ONE_HIT, updateResponse.getUpdatedMetacards()
+                .size());
 
-		newCard = updateResponse.getUpdatedMetacards().get(0).getNewMetacard();
-		oldCard = updateResponse.getUpdatedMetacards().get(0).getOldMetacard();
+        newCard = updateResponse.getUpdatedMetacards().get(0).getNewMetacard();
+        oldCard = updateResponse.getUpdatedMetacards().get(0).getOldMetacard();
 
-		assertThat(oldCard.getResourceURI(), is(nullValue()));
-		assertEquals(uri1 + "Now", newCard.getResourceURI().toString());
+        assertThat(oldCard.getContentTypeName(), nullValue());
+        assertThat(newCard.getContentTypeName(), is(""));
 
-		/** TEST NULL UPDATE **/
-		updateResponse = provider.update(new UpdateRequest() {
-			@Override
-			public boolean hasProperties() {
-				return false;
-			}
+        /** UPDATE with null content type version **/
+        updatedMetacard1.setContentTypeVersion(null);
+        updateResponse = update(updatedMetacard1.getId(), updatedMetacard1);
 
-			@Override
-			public Serializable getPropertyValue(String name) {
-				return null;
-			}
+        assertEquals("Testing Update operation: ", ONE_HIT, updateResponse.getUpdatedMetacards()
+                .size());
 
-			@Override
-			public Set<String> getPropertyNames() {
-				return null;
-			}
+        newCard = updateResponse.getUpdatedMetacards().get(0).getNewMetacard();
+        oldCard = updateResponse.getUpdatedMetacards().get(0).getOldMetacard();
 
-			@Override
-			public Map<String, Serializable> getProperties() {
-				return null;
-			}
+        assertNotNull(oldCard.getContentTypeVersion());
+        assertThat(newCard.getContentTypeVersion(), nullValue());
 
-			@Override
-			public boolean containsPropertyName(String name) {
-				return false;
-			}
+        /** UPDATE with empty content type version **/
+        updatedMetacard1.setContentTypeVersion("");
+        updateResponse = update(updatedMetacard1.getId(), updatedMetacard1);
 
-			@Override
-			public List<Entry<Serializable, Metacard>> getUpdates() {
-				return null;
-			}
+        assertEquals("Testing Update operation: ", ONE_HIT, updateResponse.getUpdatedMetacards()
+                .size());
 
-			@Override
-			public String getAttributeName() {
-				return UpdateRequest.UPDATE_BY_ID;
-			}
-		});
+        newCard = updateResponse.getUpdatedMetacards().get(0).getNewMetacard();
+        oldCard = updateResponse.getUpdatedMetacards().get(0).getOldMetacard();
 
-		assertTrue(updateResponse.getUpdatedMetacards().isEmpty());
-	}
+        assertThat(oldCard.getContentTypeVersion(), nullValue());
+        assertThat(newCard.getContentTypeVersion(), is(""));
 
-	/**
-	 * Testing that if no records are found to update, the provider returns an
-	 * empty list.
-	 * 
-	 * @throws IngestException
-	 * @throws UnsupportedQueryException
-	 */
-	@Test
-	public void testUpdateOperationWithNoResults() throws IngestException, UnsupportedQueryException {
+        /** UPDATE with new resource uri **/
+        updatedMetacard1.setResourceURI(new URI(uri1 + "Now"));
+        updateResponse = update(updatedMetacard1.getId(), updatedMetacard1);
 
-		deleteAllIn(provider);
+        assertEquals("Testing Update operation: ", ONE_HIT, updateResponse.getUpdatedMetacards()
+                .size());
 
-		MockMetacard metacard = new MockMetacard(Library.getFlagstaffRecord());
+        newCard = updateResponse.getUpdatedMetacards().get(0).getNewMetacard();
+        oldCard = updateResponse.getUpdatedMetacards().get(0).getOldMetacard();
 
-		UpdateResponse response = update("BAD_ID", metacard);
+        assertThat(oldCard.getResourceURI(), is(nullValue()));
+        assertEquals(uri1 + "Now", newCard.getResourceURI().toString());
 
-		assertEquals(0, response.getUpdatedMetacards().size());
+        /** TEST NULL UPDATE **/
+        updateResponse = provider.update(new UpdateRequest() {
+            @Override
+            public boolean hasProperties() {
+                return false;
+            }
 
-	}
+            @Override
+            public Serializable getPropertyValue(String name) {
+                return null;
+            }
 
-	/**
-	 * Testing update operation of alternative attribute. Should return positive
-	 * results.
-	 * 
-	 * @throws IngestException
-	 * @throws UnsupportedQueryException
-	 */
-	@Test
-	public void testUpdateAlternativeAttribute() throws IngestException, UnsupportedQueryException {
+            @Override
+            public Set<String> getPropertyNames() {
+                return null;
+            }
 
-		deleteAllIn(provider);
+            @Override
+            public Map<String, Serializable> getProperties() {
+                return null;
+            }
 
-		final MockMetacard metacard = new MockMetacard(Library.getFlagstaffRecord());
+            @Override
+            public boolean containsPropertyName(String name) {
+                return false;
+            }
 
-		create(metacard);
+            @Override
+            public List<Entry<Serializable, Metacard>> getUpdates() {
+                return null;
+            }
 
-		UpdateResponse response = provider.update(new UpdateRequest() {
+            @Override
+            public String getAttributeName() {
+                return UpdateRequest.UPDATE_BY_ID;
+            }
+        });
 
-			@Override
-			public boolean hasProperties() {
-				return false;
-			}
+        assertTrue(updateResponse.getUpdatedMetacards().isEmpty());
+    }
 
-			@Override
-			public Serializable getPropertyValue(String name) {
-				return null;
-			}
+    /**
+     * Testing that if no records are found to update, the provider returns an empty list.
+     * 
+     * @throws IngestException
+     * @throws UnsupportedQueryException
+     */
+    @Test
+    public void testUpdateOperationWithNoResults() throws IngestException,
+        UnsupportedQueryException {
 
-			@Override
-			public Set<String> getPropertyNames() {
-				return null;
-			}
+        deleteAllIn(provider);
 
-			@Override
-			public Map<String, Serializable> getProperties() {
-				return null;
-			}
+        MockMetacard metacard = new MockMetacard(Library.getFlagstaffRecord());
 
-			@Override
-			public boolean containsPropertyName(String name) {
-				return false;
-			}
+        UpdateResponse response = update("BAD_ID", metacard);
 
-			@Override
-			public List<Entry<Serializable, Metacard>> getUpdates() {
+        assertEquals(0, response.getUpdatedMetacards().size());
 
-				MetacardImpl newMetacard = new MetacardImpl(metacard);
+    }
 
-				newMetacard.setContentTypeName("newContentName");
+    /**
+     * Testing update operation of alternative attribute. Should return positive results.
+     * 
+     * @throws IngestException
+     * @throws UnsupportedQueryException
+     */
+    @Test
+    public void testUpdateAlternativeAttribute() throws IngestException, UnsupportedQueryException {
 
-				List<Entry<Serializable, Metacard>> updateList = new ArrayList<Entry<Serializable, Metacard>>();
+        deleteAllIn(provider);
 
-				updateList.add(new SimpleEntry<Serializable, Metacard>(MockMetacard.DEFAULT_TITLE, newMetacard));
+        final MockMetacard metacard = new MockMetacard(Library.getFlagstaffRecord());
 
-				return updateList;
-			}
+        create(metacard);
 
-			@Override
-			public String getAttributeName() {
-				return Metacard.TITLE;
-			}
-		});
+        UpdateResponse response = provider.update(new UpdateRequest() {
 
-		
+            @Override
+            public boolean hasProperties() {
+                return false;
+            }
 
-		Update update = response.getUpdatedMetacards().get(0);
+            @Override
+            public Serializable getPropertyValue(String name) {
+                return null;
+            }
 
-		assertThat(update.getNewMetacard().getId(), is(equalTo(update.getOldMetacard().getId())));
+            @Override
+            public Set<String> getPropertyNames() {
+                return null;
+            }
 
-		assertEquals(1, response.getUpdatedMetacards().size());
+            @Override
+            public Map<String, Serializable> getProperties() {
+                return null;
+            }
 
-	}
+            @Override
+            public boolean containsPropertyName(String name) {
+                return false;
+            }
 
-	/**
-	 * Tests if we catch properly the case that the attribute value matches
-	 * multiple Metacards.
-	 * 
-	 * @throws IngestException
-	 * @throws UnsupportedQueryException
-	 */
-	@Test(expected = IngestException.class)
-	public void testUpdateNonUniqueAttributeValue() throws IngestException, UnsupportedQueryException {
+            @Override
+            public List<Entry<Serializable, Metacard>> getUpdates() {
 
-		deleteAllIn(provider);
+                MetacardImpl newMetacard = new MetacardImpl(metacard);
 
-		MockMetacard m1 = new MockMetacard(Library.getFlagstaffRecord());
-		MockMetacard m2 = new MockMetacard(Library.getFlagstaffRecord());
-		MockMetacard m3 = new MockMetacard(Library.getFlagstaffRecord());
+                newMetacard.setContentTypeName("newContentName");
 
-		List<Metacard> list = Arrays.asList((Metacard) m1, m2, m3);
+                List<Entry<Serializable, Metacard>> updateList = new ArrayList<Entry<Serializable, Metacard>>();
 
-		create(list);
+                updateList.add(new SimpleEntry<Serializable, Metacard>(MockMetacard.DEFAULT_TITLE,
+                        newMetacard));
 
-		provider.update(new UpdateRequest() {
+                return updateList;
+            }
 
-			@Override
-			public boolean hasProperties() {
-				return false;
-			}
+            @Override
+            public String getAttributeName() {
+                return Metacard.TITLE;
+            }
+        });
 
-			@Override
-			public Serializable getPropertyValue(String name) {
-				return null;
-			}
+        Update update = response.getUpdatedMetacards().get(0);
 
-			@Override
-			public Set<String> getPropertyNames() {
-				return null;
-			}
+        assertThat(update.getNewMetacard().getId(), is(equalTo(update.getOldMetacard().getId())));
 
-			@Override
-			public Map<String, Serializable> getProperties() {
-				return null;
-			}
+        assertEquals(1, response.getUpdatedMetacards().size());
 
-			@Override
-			public boolean containsPropertyName(String name) {
-				return false;
-			}
+    }
 
-			@Override
-			public List<Entry<Serializable, Metacard>> getUpdates() {
+    /**
+     * Tests if we catch properly the case that the attribute value matches multiple Metacards.
+     * 
+     * @throws IngestException
+     * @throws UnsupportedQueryException
+     */
+    @Test(expected = IngestException.class)
+    public void testUpdateNonUniqueAttributeValue() throws IngestException,
+        UnsupportedQueryException {
 
-				MockMetacard newMetacard = new MockMetacard(Library.getShowLowRecord());
+        deleteAllIn(provider);
 
-				List<Entry<Serializable, Metacard>> updateList = new ArrayList<Entry<Serializable, Metacard>>();
+        MockMetacard m1 = new MockMetacard(Library.getFlagstaffRecord());
+        MockMetacard m2 = new MockMetacard(Library.getFlagstaffRecord());
+        MockMetacard m3 = new MockMetacard(Library.getFlagstaffRecord());
 
-				updateList.add(new SimpleEntry<Serializable, Metacard>(MockMetacard.DEFAULT_TITLE, newMetacard));
+        List<Metacard> list = Arrays.asList((Metacard) m1, m2, m3);
 
-				return updateList;
-			}
+        create(list);
 
-			@Override
-			public String getAttributeName() {
-				return Metacard.TITLE;
-			}
-		});
-	}
+        provider.update(new UpdateRequest() {
 
-	/**
-	 * Tests if we catch a rare case where some attribute value match multiple
-	 * Metacards while others do not match any records.
-	 * 
-	 * @throws IngestException
-	 * @throws UnsupportedQueryException
-	 */
-	@Test(expected = IngestException.class)
-	public void testUpdateNonUniqueAttributeValue2() throws IngestException, UnsupportedQueryException {
+            @Override
+            public boolean hasProperties() {
+                return false;
+            }
 
-		deleteAllIn(provider);
+            @Override
+            public Serializable getPropertyValue(String name) {
+                return null;
+            }
 
-		MockMetacard m1 = new MockMetacard(Library.getFlagstaffRecord());
-		MockMetacard m2 = new MockMetacard(Library.getFlagstaffRecord());
+            @Override
+            public Set<String> getPropertyNames() {
+                return null;
+            }
 
-		List<Metacard> list = Arrays.asList((Metacard) m1, m2);
+            @Override
+            public Map<String, Serializable> getProperties() {
+                return null;
+            }
 
-		create(list);
+            @Override
+            public boolean containsPropertyName(String name) {
+                return false;
+            }
 
-		provider.update(new UpdateRequest() {
+            @Override
+            public List<Entry<Serializable, Metacard>> getUpdates() {
 
-			@Override
-			public boolean hasProperties() {
-				return false;
-			}
+                MockMetacard newMetacard = new MockMetacard(Library.getShowLowRecord());
 
-			@Override
-			public Serializable getPropertyValue(String name) {
-				return null;
-			}
+                List<Entry<Serializable, Metacard>> updateList = new ArrayList<Entry<Serializable, Metacard>>();
 
-			@Override
-			public Set<String> getPropertyNames() {
-				return null;
-			}
+                updateList.add(new SimpleEntry<Serializable, Metacard>(MockMetacard.DEFAULT_TITLE,
+                        newMetacard));
 
-			@Override
-			public Map<String, Serializable> getProperties() {
-				return null;
-			}
+                return updateList;
+            }
 
-			@Override
-			public boolean containsPropertyName(String name) {
-				return false;
-			}
+            @Override
+            public String getAttributeName() {
+                return Metacard.TITLE;
+            }
+        });
+    }
 
-			@Override
-			public List<Entry<Serializable, Metacard>> getUpdates() {
+    /**
+     * Tests if we catch a rare case where some attribute value match multiple Metacards while
+     * others do not match any records.
+     * 
+     * @throws IngestException
+     * @throws UnsupportedQueryException
+     */
+    @Test(expected = IngestException.class)
+    public void testUpdateNonUniqueAttributeValue2() throws IngestException,
+        UnsupportedQueryException {
 
-				MockMetacard newMetacard = new MockMetacard(Library.getShowLowRecord());
+        deleteAllIn(provider);
 
-				List<Entry<Serializable, Metacard>> updateList = new ArrayList<Entry<Serializable, Metacard>>();
+        MockMetacard m1 = new MockMetacard(Library.getFlagstaffRecord());
+        MockMetacard m2 = new MockMetacard(Library.getFlagstaffRecord());
 
-				updateList.add(new SimpleEntry<Serializable, Metacard>(MockMetacard.DEFAULT_TITLE, newMetacard));
-				updateList.add(new SimpleEntry<Serializable, Metacard>(TAMPA_QUERY_PHRASE, newMetacard));
+        List<Metacard> list = Arrays.asList((Metacard) m1, m2);
 
-				return updateList;
-			}
+        create(list);
 
-			@Override
-			public String getAttributeName() {
-				return Metacard.TITLE;
-			}
-		});
-	}
+        provider.update(new UpdateRequest() {
 
-	/**
-	 * Testing update operation of unknown attribute. Should return no results.
-	 * 
-	 * @throws IngestException
-	 * @throws UnsupportedQueryException
-	 */
-	public void testUpdateUnknownAttribute() throws IngestException, UnsupportedQueryException {
+            @Override
+            public boolean hasProperties() {
+                return false;
+            }
 
-		deleteAllIn(provider);
+            @Override
+            public Serializable getPropertyValue(String name) {
+                return null;
+            }
 
-		UpdateResponse response = provider.update(new UpdateRequest() {
+            @Override
+            public Set<String> getPropertyNames() {
+                return null;
+            }
 
-			@Override
-			public boolean hasProperties() {
-				return false;
-			}
+            @Override
+            public Map<String, Serializable> getProperties() {
+                return null;
+            }
 
-			@Override
-			public Serializable getPropertyValue(String name) {
-				return null;
-			}
+            @Override
+            public boolean containsPropertyName(String name) {
+                return false;
+            }
 
-			@Override
-			public Set<String> getPropertyNames() {
-				return null;
-			}
+            @Override
+            public List<Entry<Serializable, Metacard>> getUpdates() {
 
-			@Override
-			public Map<String, Serializable> getProperties() {
-				return null;
-			}
+                MockMetacard newMetacard = new MockMetacard(Library.getShowLowRecord());
 
-			@Override
-			public boolean containsPropertyName(String name) {
-				return false;
-			}
+                List<Entry<Serializable, Metacard>> updateList = new ArrayList<Entry<Serializable, Metacard>>();
 
-			@Override
-			public List<Entry<Serializable, Metacard>> getUpdates() {
-				MockMetacard newMetacard = new MockMetacard(Library.getShowLowRecord());
+                updateList.add(new SimpleEntry<Serializable, Metacard>(MockMetacard.DEFAULT_TITLE,
+                        newMetacard));
+                updateList.add(new SimpleEntry<Serializable, Metacard>(TAMPA_QUERY_PHRASE,
+                        newMetacard));
 
-				List<Entry<Serializable, Metacard>> updateList = new ArrayList<Entry<Serializable, Metacard>>();
+                return updateList;
+            }
 
-				updateList.add(new SimpleEntry<Serializable, Metacard>(MockMetacard.DEFAULT_TITLE, newMetacard));
+            @Override
+            public String getAttributeName() {
+                return Metacard.TITLE;
+            }
+        });
+    }
 
-				return updateList;
-			}
+    /**
+     * Testing update operation of unknown attribute. Should return no results.
+     * 
+     * @throws IngestException
+     * @throws UnsupportedQueryException
+     */
+    public void testUpdateUnknownAttribute() throws IngestException, UnsupportedQueryException {
 
-			@Override
-			public String getAttributeName() {
-				return "dataAccess";
-			}
-		});
-		
-		
+        deleteAllIn(provider);
 
-		assertEquals(0, response.getUpdatedMetacards().size());
+        UpdateResponse response = provider.update(new UpdateRequest() {
 
-	}
+            @Override
+            public boolean hasProperties() {
+                return false;
+            }
 
-	/**
-	 * Testing if exception is thrown with a <code>null</code> property.
-	 * 
-	 * @throws IngestException
-	 */
-	@Test(expected = IngestException.class)
-	public void testUpdateNullAttribute() throws IngestException, UnsupportedQueryException {
-		provider.update(new UpdateRequest() {
+            @Override
+            public Serializable getPropertyValue(String name) {
+                return null;
+            }
 
-			@Override
-			public boolean hasProperties() {
-				return false;
-			}
+            @Override
+            public Set<String> getPropertyNames() {
+                return null;
+            }
 
-			@Override
-			public Serializable getPropertyValue(String name) {
-				return null;
-			}
+            @Override
+            public Map<String, Serializable> getProperties() {
+                return null;
+            }
 
-			@Override
-			public Set<String> getPropertyNames() {
-				return null;
-			}
+            @Override
+            public boolean containsPropertyName(String name) {
+                return false;
+            }
 
-			@Override
-			public Map<String, Serializable> getProperties() {
-				return null;
-			}
+            @Override
+            public List<Entry<Serializable, Metacard>> getUpdates() {
+                MockMetacard newMetacard = new MockMetacard(Library.getShowLowRecord());
 
-			@Override
-			public boolean containsPropertyName(String name) {
-				return false;
-			}
+                List<Entry<Serializable, Metacard>> updateList = new ArrayList<Entry<Serializable, Metacard>>();
 
-			@Override
-			public List<Entry<Serializable, Metacard>> getUpdates() {
-				return null;
-			}
+                updateList.add(new SimpleEntry<Serializable, Metacard>(MockMetacard.DEFAULT_TITLE,
+                        newMetacard));
 
-			@Override
-			public String getAttributeName() {
-				return null;
-			}
-		});
+                return updateList;
+            }
 
-	}
+            @Override
+            public String getAttributeName() {
+                return "dataAccess";
+            }
+        });
 
-	/**
-	 * Testing that if records are properly deleted.
-	 * 
-	 * @throws IngestException
-	 * @throws UnsupportedQueryException
-	 */
-	@Test
-	public void testDeleteOperation() throws IngestException, UnsupportedQueryException {
+        assertEquals(0, response.getUpdatedMetacards().size());
 
-		// Single Deletion
+    }
 
-		deleteAllIn(provider);
+    /**
+     * Testing if exception is thrown with a <code>null</code> property.
+     * 
+     * @throws IngestException
+     */
+    @Test(expected = IngestException.class)
+    public void testUpdateNullAttribute() throws IngestException, UnsupportedQueryException {
+        provider.update(new UpdateRequest() {
 
-		MockMetacard metacard = new MockMetacard(Library.getFlagstaffRecord());
+            @Override
+            public boolean hasProperties() {
+                return false;
+            }
 
-		CreateResponse createResponse = create(metacard);
+            @Override
+            public Serializable getPropertyValue(String name) {
+                return null;
+            }
 
-		DeleteResponse deleteResponse = delete(createResponse.getCreatedMetacards()
-				.get(0).getId());
+            @Override
+            public Set<String> getPropertyNames() {
+                return null;
+            }
 
-		Metacard deletedMetacard = deleteResponse.getDeletedMetacards().get(0);
+            @Override
+            public Map<String, Serializable> getProperties() {
+                return null;
+            }
 
-		verifyDeletedRecord(metacard, createResponse, deleteResponse, deletedMetacard);
+            @Override
+            public boolean containsPropertyName(String name) {
+                return false;
+            }
 
-	}
-	
+            @Override
+            public List<Entry<Serializable, Metacard>> getUpdates() {
+                return null;
+            }
+
+            @Override
+            public String getAttributeName() {
+                return null;
+            }
+        });
+
+    }
+
+    /**
+     * Testing that if records are properly deleted.
+     * 
+     * @throws IngestException
+     * @throws UnsupportedQueryException
+     */
+    @Test
+    public void testDeleteOperation() throws IngestException, UnsupportedQueryException {
+
+        // Single Deletion
+
+        deleteAllIn(provider);
+
+        MockMetacard metacard = new MockMetacard(Library.getFlagstaffRecord());
+
+        CreateResponse createResponse = create(metacard);
+
+        DeleteResponse deleteResponse = delete(createResponse.getCreatedMetacards().get(0).getId());
+
+        Metacard deletedMetacard = deleteResponse.getDeletedMetacards().get(0);
+
+        verifyDeletedRecord(metacard, createResponse, deleteResponse, deletedMetacard);
+
+    }
+
     @Test
     public void testDeleteList() throws IngestException, UnsupportedQueryException {
         int metacardCount = 20;
@@ -1241,425 +1301,462 @@ public class TestSolrProvider extends SolrProviderTestCase {
 
         DeleteResponse deleteResponse = delete(ids.toArray(new String[metacardCount]));
         assertThat(deleteResponse.getDeletedMetacards().size(), is(metacards.size()));
-        
+
         for (int i = 0; i < metacardCount; i++) {
             assertThat(deleteResponse.getDeletedMetacards().get(i).getId(), is(ids.get(i)));
         }
     }
 
-	/**
-	 * Tests what happens when the whole request is null.
-	 * 
-	 * @throws IngestException
-	 * @throws UnsupportedQueryException
-	 */
-	@Test(expected = IngestException.class)
-	public void testDeleteNull() throws IngestException, UnsupportedQueryException {
+    /**
+     * Tests what happens when the whole request is null.
+     * 
+     * @throws IngestException
+     * @throws UnsupportedQueryException
+     */
+    @Test(expected = IngestException.class)
+    public void testDeleteNull() throws IngestException, UnsupportedQueryException {
 
-		deleteAllIn(provider);
+        deleteAllIn(provider);
 
-		provider.delete(null);
+        provider.delete(null);
 
-		fail();
+        fail();
 
-	}
+    }
 
-	/**
-	 * Tests the provider will allow you to delete nothing.
-	 * 
-	 * @throws IngestException
-	 * @throws UnsupportedQueryException
-	 */
-	@Test
-	public void testDeleteNothing() throws IngestException, UnsupportedQueryException {
+    /**
+     * Tests the provider will allow you to delete nothing.
+     * 
+     * @throws IngestException
+     * @throws UnsupportedQueryException
+     */
+    @Test
+    public void testDeleteNothing() throws IngestException, UnsupportedQueryException {
 
-		// Single Deletion
+        // Single Deletion
 
-		deleteAllIn(provider);
+        deleteAllIn(provider);
 
-		DeleteResponse deleteResponse = delete("no_such_record");
+        DeleteResponse deleteResponse = delete("no_such_record");
 
-		assertThat(deleteResponse.getDeletedMetacards().size(), equalTo(0));
+        assertThat(deleteResponse.getDeletedMetacards().size(), equalTo(0));
 
-	}
+    }
 
+    /**
+     * Testing if another attribute can be used to delete records other than {@link Metacard#ID}
+     * 
+     * @throws IngestException
+     * @throws UnsupportedQueryException
+     */
+    @Test
+    public void testDeleteAlternativeAttribute() throws IngestException, UnsupportedQueryException {
 
-	/**
-	 * Testing if another attribute can be used to delete records other than
-	 * {@link Metacard#ID}
-	 * 
-	 * @throws IngestException
-	 * @throws UnsupportedQueryException
-	 */
-	@Test
-	public void testDeleteAlternativeAttribute() throws IngestException, UnsupportedQueryException {
+        deleteAllIn(provider);
 
-		deleteAllIn(provider);
+        MockMetacard metacard = new MockMetacard(Library.getFlagstaffRecord());
 
-		MockMetacard metacard = new MockMetacard(Library.getFlagstaffRecord());
+        CreateResponse createResponse = create(metacard);
 
-		CreateResponse createResponse = create(metacard);
+        DeleteResponse deleteResponse = provider.delete(new DeleteRequest() {
 
-		DeleteResponse deleteResponse = provider.delete(new DeleteRequest() {
+            @Override
+            public boolean hasProperties() {
+                return false;
+            }
 
-			@Override
-			public boolean hasProperties() {
-				return false;
-			}
+            @Override
+            public Serializable getPropertyValue(String name) {
+                return null;
+            }
 
-			@Override
-			public Serializable getPropertyValue(String name) {
-				return null;
-			}
+            @Override
+            public Set<String> getPropertyNames() {
+                return null;
+            }
 
-			@Override
-			public Set<String> getPropertyNames() {
-				return null;
-			}
+            @Override
+            public Map<String, Serializable> getProperties() {
+                return null;
+            }
 
-			@Override
-			public Map<String, Serializable> getProperties() {
-				return null;
-			}
+            @Override
+            public boolean containsPropertyName(String name) {
+                return false;
+            }
 
-			@Override
-			public boolean containsPropertyName(String name) {
-				return false;
-			}
+            @Override
+            public List<? extends Serializable> getAttributeValues() {
+                return Arrays.asList(MockMetacard.DEFAULT_TITLE);
+            }
 
-			@Override
-			public List<? extends Serializable> getAttributeValues() {
-				return Arrays.asList(MockMetacard.DEFAULT_TITLE);
-			}
+            @Override
+            public String getAttributeName() {
+                return Metacard.TITLE;
+            }
+        }
 
-			@Override
-			public String getAttributeName() {
-				return Metacard.TITLE;
-			}
-		}
+        );
 
-		);
+        Metacard deletedMetacard = deleteResponse.getDeletedMetacards().get(0);
 
-		
+        verifyDeletedRecord(metacard, createResponse, deleteResponse, deletedMetacard);
 
-		Metacard deletedMetacard = deleteResponse.getDeletedMetacards().get(0);
+        // verify it is really not in SOLR
 
-		verifyDeletedRecord(metacard, createResponse, deleteResponse, deletedMetacard);
+        Filter filter = filterBuilder.attribute(Metacard.TITLE).like()
+                .text(MockMetacard.DEFAULT_TITLE);
 
-		// verify it is really not in SOLR
+        QueryImpl query = new QueryImpl(filter);
 
-		Filter filter = filterBuilder.attribute(Metacard.TITLE).like().text(MockMetacard.DEFAULT_TITLE);
+        SourceResponse sourceResponse = provider.query(new QueryRequestImpl(query));
 
-		QueryImpl query = new QueryImpl(filter);
+        List<Result> results = sourceResponse.getResults();
+        assertEquals(0, results.size());
 
-		SourceResponse sourceResponse = provider.query(new QueryRequestImpl(query));
+    }
 
-		List<Result> results = sourceResponse.getResults();
-		assertEquals(0, results.size());
+    @Test
+    public void testDeleteNoList() throws IngestException, UnsupportedQueryException {
 
-	}
+        /* EMPTY */
+        DeleteRequestImpl deleteRequest = new DeleteRequestImpl(new String[0]);
 
-	@Test
-	public void testDeleteNoList() throws IngestException, UnsupportedQueryException {
+        DeleteResponse results = provider.delete(deleteRequest);
 
-		/* EMPTY */
-		DeleteRequestImpl deleteRequest = new DeleteRequestImpl(new String[0]);
+        assertNotNull(results.getDeletedMetacards());
 
-		DeleteResponse results = provider.delete(deleteRequest);
+        assertEquals(0, results.getDeletedMetacards().size());
 
-		assertNotNull(results.getDeletedMetacards());
+        assertEquals(deleteRequest, results.getRequest());
 
-		assertEquals(0, results.getDeletedMetacards().size());
+        /* EMPTY */
+        DeleteRequestImpl emptyDeleteRequest = new DeleteRequestImpl(new ArrayList<Serializable>(),
+                DeleteRequest.DELETE_BY_ID, null);
 
-		assertEquals(deleteRequest, results.getRequest());
+        results = provider.delete(emptyDeleteRequest);
 
-		/* EMPTY */
-		DeleteRequestImpl emptyDeleteRequest = new DeleteRequestImpl(new ArrayList<Serializable>(),
-				DeleteRequest.DELETE_BY_ID, null);
+        assertNotNull(results.getDeletedMetacards());
 
-		results = provider.delete(emptyDeleteRequest);
+        assertEquals(0, results.getDeletedMetacards().size());
 
-		assertNotNull(results.getDeletedMetacards());
+        assertEquals(emptyDeleteRequest, results.getRequest());
 
-		assertEquals(0, results.getDeletedMetacards().size());
+        /* NULL */
+        DeleteRequest nullDeleteRequest = new DeleteRequestImpl(null, DeleteRequest.DELETE_BY_ID,
+                null);
 
-		assertEquals(emptyDeleteRequest, results.getRequest());
+        results = provider.delete(nullDeleteRequest);
 
-		/* NULL */
-		DeleteRequest nullDeleteRequest = new DeleteRequestImpl(null, DeleteRequest.DELETE_BY_ID, null);
+        assertNotNull(results.getDeletedMetacards());
 
-		results = provider.delete(nullDeleteRequest);
+        assertEquals(0, results.getDeletedMetacards().size());
 
-		assertNotNull(results.getDeletedMetacards());
+        assertEquals(nullDeleteRequest, results.getRequest());
 
-		assertEquals(0, results.getDeletedMetacards().size());
+    }
 
-		assertEquals(nullDeleteRequest, results.getRequest());
+    @Test
+    public void testExtensibleMetacards() throws IngestException, UnsupportedQueryException {
 
-	}
+        deleteAllIn(provider);
 
-	@Test
-	public void testExtensibleMetacards() throws IngestException, UnsupportedQueryException {
+        String brandNewField1 = "description";
+        String brandNewFieldValue1 = "myDescription";
 
-		deleteAllIn(provider);
+        /* BASIC STRINGS */
+        Set<AttributeDescriptor> descriptors = new HashSet<AttributeDescriptor>();
+        descriptors.add(new AttributeDescriptorImpl(Metacard.ID, true, true, true, false,
+                BasicTypes.STRING_TYPE));
+        descriptors.add(new AttributeDescriptorImpl(brandNewField1, true, true, true, false,
+                BasicTypes.STRING_TYPE));
+        MetacardTypeImpl mType = new MetacardTypeImpl("custom1", descriptors);
+        MetacardImpl customMetacard = new MetacardImpl(mType);
+        // customMetacard.setAttribute("id", "44567880");
+        customMetacard.setAttribute(brandNewField1, brandNewFieldValue1);
 
-		String brandNewField1 = "description";
-		String brandNewFieldValue1 = "myDescription";
+        create(customMetacard);
 
-		/* BASIC STRINGS */
-		Set<AttributeDescriptor> descriptors = new HashSet<AttributeDescriptor>();
-		descriptors.add(new AttributeDescriptorImpl(Metacard.ID, true, true, true, false, BasicTypes.STRING_TYPE));
-		descriptors.add(new AttributeDescriptorImpl(brandNewField1, true, true, true, false, BasicTypes.STRING_TYPE));
-		MetacardTypeImpl mType = new MetacardTypeImpl("custom1", descriptors);
-		MetacardImpl customMetacard = new MetacardImpl(mType);
-		// customMetacard.setAttribute("id", "44567880");
-		customMetacard.setAttribute(brandNewField1, brandNewFieldValue1);
+        // search id
+        Query query = new QueryImpl(filterBuilder.attribute("id").like().text("*"));
 
-		create(customMetacard);
+        QueryRequest request = new QueryRequestImpl(query);
 
-		// search id
-		Query query = new QueryImpl(filterBuilder.attribute("id").like().text("*"));
+        SourceResponse response = provider.query(request);
 
-		QueryRequest request = new QueryRequestImpl(query);
+        assertEquals(1, response.getResults().size());
 
-		SourceResponse response = provider.query(request);
+        assertEquals("custom1", response.getResults().get(0).getMetacard().getMetacardType()
+                .getName());
 
-		assertEquals(1, response.getResults().size());
+        assertThat(response.getResults().get(0).getMetacard().getMetacardType()
+                .getAttributeDescriptors(), equalTo(descriptors));
 
-		assertEquals("custom1", response.getResults().get(0).getMetacard().getMetacardType().getName());
+        // search title - *
+        query = new QueryImpl(filterBuilder.attribute(brandNewField1).like().text("*"));
 
-		assertThat(response.getResults().get(0).getMetacard().getMetacardType().getAttributeDescriptors(),
-				equalTo(descriptors));
+        request = new QueryRequestImpl(query);
 
-		// search title - *
-		query = new QueryImpl(filterBuilder.attribute(brandNewField1).like().text("*"));
+        response = provider.query(request);
 
-		request = new QueryRequestImpl(query);
+        assertEquals(1, response.getResults().size());
 
-		response = provider.query(request);
+        assertEquals("custom1", response.getResults().get(0).getMetacard().getMetacardType()
+                .getName());
 
-		assertEquals(1, response.getResults().size());
+        assertThat(response.getResults().get(0).getMetacard().getMetacardType()
+                .getAttributeDescriptors(), equalTo(descriptors));
 
-		assertEquals("custom1", response.getResults().get(0).getMetacard().getMetacardType().getName());
+        // search title - exact
+        query = new QueryImpl(filterBuilder.attribute(brandNewField1).equalTo()
+                .text(brandNewFieldValue1));
 
-		assertThat(response.getResults().get(0).getMetacard().getMetacardType().getAttributeDescriptors(),
-				equalTo(descriptors));
+        request = new QueryRequestImpl(query);
 
-		// search title - exact
-		query = new QueryImpl(filterBuilder.attribute(brandNewField1).equalTo().text(brandNewFieldValue1));
+        response = provider.query(request);
 
-		request = new QueryRequestImpl(query);
+        assertEquals(1, response.getResults().size());
 
-		response = provider.query(request);
+        // search negative
 
-		assertEquals(1, response.getResults().size());
+        query = new QueryImpl(filterBuilder.attribute(brandNewField1).like().text("no"));
 
-		// search negative
+        request = new QueryRequestImpl(query);
 
-		query = new QueryImpl(filterBuilder.attribute(brandNewField1).like().text("no"));
+        response = provider.query(request);
 
-		request = new QueryRequestImpl(query);
+        assertEquals(0, response.getResults().size());
 
-		response = provider.query(request);
+        // NEW TYPE
 
-		assertEquals(0, response.getResults().size());
+        String brandNewXmlField1 = "author";
+        String brandNewXmlFieldValue1 = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n"
+                + "<author>john doe</author>";
 
-		// NEW TYPE
+        descriptors = new HashSet<AttributeDescriptor>();
+        descriptors.add(new AttributeDescriptorImpl(Metacard.ID, true, true, true, false,
+                BasicTypes.STRING_TYPE));
+        descriptors.add(new AttributeDescriptorImpl(brandNewXmlField1, true, true, true, false,
+                BasicTypes.XML_TYPE));
+        mType = new MetacardTypeImpl("34ga$^TGHfg:/", descriptors);
+        customMetacard = new MetacardImpl(mType);
+        // customMetacard.setAttribute(Metacard.ID, "44567880");
+        customMetacard.setAttribute(brandNewXmlField1, brandNewXmlFieldValue1);
 
-		String brandNewXmlField1 = "author";
-		String brandNewXmlFieldValue1 = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + "<author>john doe</author>";
+        create(customMetacard);
 
-		descriptors = new HashSet<AttributeDescriptor>();
-		descriptors.add(new AttributeDescriptorImpl(Metacard.ID, true, true, true, false, BasicTypes.STRING_TYPE));
-		descriptors.add(new AttributeDescriptorImpl(brandNewXmlField1, true, true, true, false, BasicTypes.XML_TYPE));
-		mType = new MetacardTypeImpl("34ga$^TGHfg:/", descriptors);
-		customMetacard = new MetacardImpl(mType);
-		// customMetacard.setAttribute(Metacard.ID, "44567880");
-		customMetacard.setAttribute(brandNewXmlField1, brandNewXmlFieldValue1);
+        // Two Ids
+        query = new QueryImpl(filterBuilder.attribute(Metacard.ID).like().text("*"));
 
-		create(customMetacard);
+        request = new QueryRequestImpl(query);
 
-		// Two Ids
-		query = new QueryImpl(filterBuilder.attribute(Metacard.ID).like().text("*"));
+        response = provider.query(request);
 
-		request = new QueryRequestImpl(query);
+        assertEquals(2, response.getResults().size());
 
-		response = provider.query(request);
+        // search xml
+        query = new QueryImpl(filterBuilder.attribute(brandNewXmlField1).like()
+                .caseSensitiveText("doe"));
 
-		assertEquals(2, response.getResults().size());
+        request = new QueryRequestImpl(query);
 
-		// search xml
-		query = new QueryImpl(filterBuilder.attribute(brandNewXmlField1).like().caseSensitiveText("doe"));
+        response = provider.query(request);
 
-		request = new QueryRequestImpl(query);
+        assertEquals(1, response.getResults().size());
 
-		response = provider.query(request);
+        assertEquals("34ga$^TGHfg:/", response.getResults().get(0).getMetacard().getMetacardType()
+                .getName());
 
-		assertEquals(1, response.getResults().size());
+        assertThat(response.getResults().get(0).getMetacard().getMetacardType()
+                .getAttributeDescriptors(), equalTo(descriptors));
 
-		assertEquals("34ga$^TGHfg:/", response.getResults().get(0).getMetacard().getMetacardType().getName());
+        // search xml - negative
+        query = new QueryImpl(filterBuilder.attribute(brandNewXmlField1).like().text("author"));
 
-		assertThat(response.getResults().get(0).getMetacard().getMetacardType().getAttributeDescriptors(),
-				equalTo(descriptors));
+        request = new QueryRequestImpl(query);
 
-		// search xml - negative
-		query = new QueryImpl(filterBuilder.attribute(brandNewXmlField1).like().text("author"));
+        response = provider.query(request);
 
-		request = new QueryRequestImpl(query);
+        assertEquals(0, response.getResults().size());
 
-		response = provider.query(request);
+        // EVERYTHING ELSE type
+        String doubleField = "hertz";
+        double doubleFieldValue = 16065.435;
 
-		assertEquals(0, response.getResults().size());
+        String floatField = "inches";
+        float floatFieldValue = 4.435f;
 
-		// EVERYTHING ELSE type
-		String doubleField = "hertz";
-		double doubleFieldValue = 16065.435;
+        String intField = "count";
+        int intFieldValue = 4;
 
-		String floatField = "inches";
-		float floatFieldValue = 4.435f;
+        String longField = "milliseconds";
+        long longFieldValue = 987654322111L;
 
-		String intField = "count";
-		int intFieldValue = 4;
+        String byteField = "bytes";
+        byte[] byteFieldValue = {86};
 
-		String longField = "milliseconds";
-		long longFieldValue = 987654322111L;
+        String booleanField = "expected";
+        boolean booleanFieldValue = true;
 
-		String byteField = "bytes";
-		byte[] byteFieldValue = { 86 };
+        String dateField = "lost";
+        Date dateFieldValue = new Date();
 
-		String booleanField = "expected";
-		boolean booleanFieldValue = true;
+        String geoField = "geo";
+        String geoFieldValue = GULF_OF_GUINEA_POINT_WKT;
 
-		String dateField = "lost";
-		Date dateFieldValue = new Date();
+        String shortField = "daysOfTheWeek";
+        short shortFieldValue = 1;
 
-		String geoField = "geo";
-		String geoFieldValue = GULF_OF_GUINEA_POINT_WKT;
+        String objectField = "payload";
+        BevelBorder objectFieldValue = new BevelBorder(BevelBorder.RAISED);
 
-		String shortField = "daysOfTheWeek";
-		short shortFieldValue = 1;
+        descriptors = new HashSet<AttributeDescriptor>();
+        descriptors.add(new AttributeDescriptorImpl(Metacard.ID, true, true, true, false,
+                BasicTypes.STRING_TYPE));
+        descriptors.add(new AttributeDescriptorImpl(doubleField, true, true, false, false,
+                BasicTypes.DOUBLE_TYPE));
+        descriptors.add(new AttributeDescriptorImpl(floatField, true, true, false, false,
+                BasicTypes.FLOAT_TYPE));
+        descriptors.add(new AttributeDescriptorImpl(intField, true, true, false, false,
+                BasicTypes.INTEGER_TYPE));
+        descriptors.add(new AttributeDescriptorImpl(longField, true, true, false, false,
+                BasicTypes.LONG_TYPE));
+        descriptors.add(new AttributeDescriptorImpl(byteField, false, true, false, false,
+                BasicTypes.BINARY_TYPE));
+        descriptors.add(new AttributeDescriptorImpl(booleanField, true, true, false, false,
+                BasicTypes.BOOLEAN_TYPE));
+        descriptors.add(new AttributeDescriptorImpl(dateField, true, true, false, false,
+                BasicTypes.DATE_TYPE));
+        descriptors.add(new AttributeDescriptorImpl(geoField, true, true, false, false,
+                BasicTypes.GEO_TYPE));
+        descriptors.add(new AttributeDescriptorImpl(shortField, true, true, false, false,
+                BasicTypes.SHORT_TYPE));
+        descriptors.add(new AttributeDescriptorImpl(objectField, false, true, false, false,
+                BasicTypes.OBJECT_TYPE));
 
-		String objectField = "payload";
-		BevelBorder objectFieldValue = new BevelBorder(BevelBorder.RAISED);
+        mType = new MetacardTypeImpl("numbersMT", descriptors);
 
-		descriptors = new HashSet<AttributeDescriptor>();
-		descriptors.add(new AttributeDescriptorImpl(Metacard.ID, true, true, true, false, BasicTypes.STRING_TYPE));
-		descriptors.add(new AttributeDescriptorImpl(doubleField, true, true, false, false, BasicTypes.DOUBLE_TYPE));
-		descriptors.add(new AttributeDescriptorImpl(floatField, true, true, false, false, BasicTypes.FLOAT_TYPE));
-		descriptors.add(new AttributeDescriptorImpl(intField, true, true, false, false, BasicTypes.INTEGER_TYPE));
-		descriptors.add(new AttributeDescriptorImpl(longField, true, true, false, false, BasicTypes.LONG_TYPE));
-		descriptors.add(new AttributeDescriptorImpl(byteField, false, true, false, false, BasicTypes.BINARY_TYPE));
-		descriptors.add(new AttributeDescriptorImpl(booleanField, true, true, false, false, BasicTypes.BOOLEAN_TYPE));
-		descriptors.add(new AttributeDescriptorImpl(dateField, true, true, false, false, BasicTypes.DATE_TYPE));
-		descriptors.add(new AttributeDescriptorImpl(geoField, true, true, false, false, BasicTypes.GEO_TYPE));
-		descriptors.add(new AttributeDescriptorImpl(shortField, true, true, false, false, BasicTypes.SHORT_TYPE));
-		descriptors.add(new AttributeDescriptorImpl(objectField, false, true, false, false, BasicTypes.OBJECT_TYPE));
+        customMetacard = new MetacardImpl(mType);
+        // customMetacard.setAttribute(Metacard.ID, "245gasg324");
+        customMetacard.setAttribute(doubleField, doubleFieldValue);
+        customMetacard.setAttribute(floatField, floatFieldValue);
+        customMetacard.setAttribute(intField, intFieldValue);
+        customMetacard.setAttribute(longField, longFieldValue);
+        customMetacard.setAttribute(byteField, byteFieldValue);
+        customMetacard.setAttribute(booleanField, booleanFieldValue);
+        customMetacard.setAttribute(dateField, dateFieldValue);
+        customMetacard.setAttribute(geoField, geoFieldValue);
+        customMetacard.setAttribute(shortField, shortFieldValue);
+        customMetacard.setAttribute(objectField, objectFieldValue);
 
-		mType = new MetacardTypeImpl("numbersMT", descriptors);
+        create(customMetacard);
 
-		customMetacard = new MetacardImpl(mType);
-		// customMetacard.setAttribute(Metacard.ID, "245gasg324");
-		customMetacard.setAttribute(doubleField, doubleFieldValue);
-		customMetacard.setAttribute(floatField, floatFieldValue);
-		customMetacard.setAttribute(intField, intFieldValue);
-		customMetacard.setAttribute(longField, longFieldValue);
-		customMetacard.setAttribute(byteField, byteFieldValue);
-		customMetacard.setAttribute(booleanField, booleanFieldValue);
-		customMetacard.setAttribute(dateField, dateFieldValue);
-		customMetacard.setAttribute(geoField, geoFieldValue);
-		customMetacard.setAttribute(shortField, shortFieldValue);
-		customMetacard.setAttribute(objectField, objectFieldValue);
+        // Three Ids
+        query = new QueryImpl(filterBuilder.attribute(Metacard.ID).like().text("*"));
 
-		create(customMetacard);
+        request = new QueryRequestImpl(query);
 
-		// Three Ids
-		query = new QueryImpl(filterBuilder.attribute(Metacard.ID).like().text("*"));
+        response = provider.query(request);
 
-		request = new QueryRequestImpl(query);
+        assertEquals(3, response.getResults().size());
 
-		response = provider.query(request);
+        // search double
+        query = new QueryImpl(filterBuilder.attribute(doubleField).greaterThan()
+                .number(doubleFieldValue - 1.0));
 
-		assertEquals(3, response.getResults().size());
+        request = new QueryRequestImpl(query);
 
-		// search double
-		query = new QueryImpl(filterBuilder.attribute(doubleField).greaterThan().number(doubleFieldValue - 1.0));
+        response = provider.query(request);
 
-		request = new QueryRequestImpl(query);
+        assertEquals(1, response.getResults().size());
 
-		response = provider.query(request);
+        // search int
+        query = new QueryImpl(filterBuilder.attribute(intField).greaterThan()
+                .number(intFieldValue - 1));
 
-		assertEquals(1, response.getResults().size());
+        request = new QueryRequestImpl(query);
 
-		// search int
-		query = new QueryImpl(filterBuilder.attribute(intField).greaterThan().number(intFieldValue - 1));
+        response = provider.query(request);
 
-		request = new QueryRequestImpl(query);
+        assertEquals(1, response.getResults().size());
 
-		response = provider.query(request);
+        Metacard resultMetacard = response.getResults().get(0).getMetacard();
 
-		assertEquals(1, response.getResults().size());
+        assertThat(resultMetacard.getAttribute(Metacard.ID), notNullValue());
+        assertThat((Double) (resultMetacard.getAttribute(doubleField).getValue()),
+                equalTo(doubleFieldValue));
+        assertThat((Integer) (resultMetacard.getAttribute(intField).getValue()),
+                equalTo(intFieldValue));
+        assertThat((Float) (resultMetacard.getAttribute(floatField).getValue()),
+                equalTo(floatFieldValue));
+        assertThat((Long) (resultMetacard.getAttribute(longField).getValue()),
+                equalTo(longFieldValue));
+        assertThat((byte[]) (resultMetacard.getAttribute(byteField).getValue()),
+                equalTo(byteFieldValue));
+        assertThat((Boolean) (resultMetacard.getAttribute(booleanField).getValue()),
+                equalTo(booleanFieldValue));
+        assertThat((Date) (resultMetacard.getAttribute(dateField).getValue()),
+                equalTo(dateFieldValue));
+        assertThat((String) (resultMetacard.getAttribute(geoField).getValue()),
+                equalTo(geoFieldValue));
+        assertThat((Short) (resultMetacard.getAttribute(shortField).getValue()),
+                equalTo(shortFieldValue));
+        assertThat((BevelBorder) (resultMetacard.getAttribute(objectField).getValue()),
+                instanceOf(BevelBorder.class));
 
-		Metacard resultMetacard = response.getResults().get(0).getMetacard();
+        /*
+         * Going to use the XMLEncoder. If it writes out the objects the same way in xml, then they
+         * are the same.
+         */
+        ByteArrayOutputStream beveledBytesStreamFromSolr = new ByteArrayOutputStream();
+        XMLEncoder solrXMLEncoder = new XMLEncoder(new BufferedOutputStream(
+                beveledBytesStreamFromSolr));
+        solrXMLEncoder.writeObject((resultMetacard.getAttribute(objectField).getValue()));
+        solrXMLEncoder.close();
 
-		assertThat(resultMetacard.getAttribute(Metacard.ID), notNullValue());
-		assertThat((Double) (resultMetacard.getAttribute(doubleField).getValue()), equalTo(doubleFieldValue));
-		assertThat((Integer) (resultMetacard.getAttribute(intField).getValue()), equalTo(intFieldValue));
-		assertThat((Float) (resultMetacard.getAttribute(floatField).getValue()), equalTo(floatFieldValue));
-		assertThat((Long) (resultMetacard.getAttribute(longField).getValue()), equalTo(longFieldValue));
-		assertThat((byte[]) (resultMetacard.getAttribute(byteField).getValue()), equalTo(byteFieldValue));
-		assertThat((Boolean) (resultMetacard.getAttribute(booleanField).getValue()), equalTo(booleanFieldValue));
-		assertThat((Date) (resultMetacard.getAttribute(dateField).getValue()), equalTo(dateFieldValue));
-		assertThat((String) (resultMetacard.getAttribute(geoField).getValue()), equalTo(geoFieldValue));
-		assertThat((Short) (resultMetacard.getAttribute(shortField).getValue()), equalTo(shortFieldValue));
-		assertThat((BevelBorder) (resultMetacard.getAttribute(objectField).getValue()), instanceOf(BevelBorder.class));
+        ByteArrayOutputStream beveledBytesStreamOriginal = new ByteArrayOutputStream();
+        XMLEncoder currendEncoder = new XMLEncoder(new BufferedOutputStream(
+                beveledBytesStreamOriginal));
+        currendEncoder.writeObject(objectFieldValue);
+        currendEncoder.close();
 
-		/*
-		 * Going to use the XMLEncoder. If it writes out the objects the same
-		 * way in xml, then they are the same.
-		 */
-		ByteArrayOutputStream beveledBytesStreamFromSolr = new ByteArrayOutputStream();
-		XMLEncoder solrXMLEncoder = new XMLEncoder(new BufferedOutputStream(beveledBytesStreamFromSolr));
-		solrXMLEncoder.writeObject((resultMetacard.getAttribute(objectField).getValue()));
-		solrXMLEncoder.close();
+        assertThat(beveledBytesStreamFromSolr.toByteArray(),
+                equalTo(beveledBytesStreamOriginal.toByteArray()));
 
-		ByteArrayOutputStream beveledBytesStreamOriginal = new ByteArrayOutputStream();
-		XMLEncoder currendEncoder = new XMLEncoder(new BufferedOutputStream(beveledBytesStreamOriginal));
-		currendEncoder.writeObject(objectFieldValue);
-		currendEncoder.close();
+        // search short
+        query = new QueryImpl(filterBuilder.attribute(shortField).greaterThanOrEqualTo()
+                .number(shortFieldValue));
 
-		assertThat(beveledBytesStreamFromSolr.toByteArray(), equalTo(beveledBytesStreamOriginal.toByteArray()));
+        request = new QueryRequestImpl(query);
 
-		// search short
-		query = new QueryImpl(filterBuilder.attribute(shortField).greaterThanOrEqualTo().number(shortFieldValue));
+        response = provider.query(request);
 
-		request = new QueryRequestImpl(query);
+        assertEquals(1, response.getResults().size());
 
-		response = provider.query(request);
+        resultMetacard = response.getResults().get(0).getMetacard();
 
-		assertEquals(1, response.getResults().size());
+    }
 
-		resultMetacard = response.getResults().get(0).getMetacard();
-
-	}
-
-	@Test
-	public void testQueryIsNull() throws Exception {
+    @Test
+    public void testQueryIsNull() throws Exception {
         SourceResponse response = provider.query(new QueryRequestImpl(null));
         assertEquals(0, response.getHits());
 
         response = provider.query(null);
         assertEquals(0, response.getHits());
-	}
-	
+    }
+
     @Test
     public void testQueryHasLuceneSpecialCharacters() throws Exception {
         deleteAllIn(provider);
-        
-        List<Metacard> list = Arrays.asList((Metacard) new MockMetacard(Library.getFlagstaffRecord()),
+
+        List<Metacard> list = Arrays.asList(
+                (Metacard) new MockMetacard(Library.getFlagstaffRecord()),
                 new MockMetacard(Library.getTampaRecord()));
         create(list);
 
-        // if + is escaped, this query will be an implicit OR otherwise both both terms would be required
+        // if + is escaped, this query will be an implicit OR otherwise both both terms would be
+        // required
         Filter txtFilter = filterBuilder.attribute(Metacard.ANY_TEXT).like()
                 .text("+Flag?taff +" + TAMPA_QUERY_PHRASE);
 
@@ -1667,322 +1764,343 @@ public class TestSolrProvider extends SolrProviderTestCase {
 
         assertEquals(1, response.getResults().size());
     }
-	
-	/**
-	 * Searching Solr with a field not known to the server should return 0
-	 * results and should not give an error.
-	 * 
-	 * @throws IngestException
-	 * @throws UnsupportedQueryException
-	 */
-	@Test
-	public void testQueryMissingField() throws IngestException, UnsupportedQueryException {
 
-		deleteAllIn(provider);
+    /**
+     * Searching Solr with a field not known to the server should return 0 results and should not
+     * give an error.
+     * 
+     * @throws IngestException
+     * @throws UnsupportedQueryException
+     */
+    @Test
+    public void testQueryMissingField() throws IngestException, UnsupportedQueryException {
 
-		// TXT FORMAT
-		Filter txtFilter = filterBuilder.attribute("missingField").like().text("*");
+        deleteAllIn(provider);
 
-		SourceResponse response = provider.query(quickQuery(txtFilter));
+        // TXT FORMAT
+        Filter txtFilter = filterBuilder.attribute("missingField").like().text("*");
 
-		assertEquals(0, response.getResults().size());
+        SourceResponse response = provider.query(quickQuery(txtFilter));
 
-		// DATE FORMAT
-		Filter dateFilter = filterBuilder.attribute("missingField").before().date(new Date());
+        assertEquals(0, response.getResults().size());
 
-		response = provider.query(quickQuery(dateFilter));
+        // DATE FORMAT
+        Filter dateFilter = filterBuilder.attribute("missingField").before().date(new Date());
 
-		assertEquals(0, response.getResults().size());
+        response = provider.query(quickQuery(dateFilter));
 
-		// GEO FORMAT
-		Filter geoFilter = filterBuilder.attribute("missingField").intersecting().wkt("POINT ( 1 0 ) ");
+        assertEquals(0, response.getResults().size());
 
-		response = provider.query(quickQuery(geoFilter));
+        // GEO FORMAT
+        Filter geoFilter = filterBuilder.attribute("missingField").intersecting()
+                .wkt("POINT ( 1 0 ) ");
 
-		assertEquals(0, response.getResults().size());
+        response = provider.query(quickQuery(geoFilter));
 
-		// NUMERICAL FORMAT
-		Filter numericalFilter = filterBuilder.attribute("missingField").greaterThanOrEqualTo().number(23L);
+        assertEquals(0, response.getResults().size());
 
-		response = provider.query(quickQuery(numericalFilter));
+        // NUMERICAL FORMAT
+        Filter numericalFilter = filterBuilder.attribute("missingField").greaterThanOrEqualTo()
+                .number(23L);
 
-		assertEquals(0, response.getResults().size());
+        response = provider.query(quickQuery(numericalFilter));
 
-	}
+        assertEquals(0, response.getResults().size());
 
-	@Test
-	public void testQueryMissingSortField() throws IngestException, UnsupportedQueryException {
+    }
 
-		deleteAllIn(provider);
+    @Test
+    public void testQueryMissingSortField() throws IngestException, UnsupportedQueryException {
 
-		MockMetacard m = new MockMetacard(Library.getTampaRecord());
-		m.setTitle("Tampa");
+        deleteAllIn(provider);
 
-		List<Metacard> list = Arrays.asList((Metacard) m, new MockMetacard(Library.getFlagstaffRecord()));
+        MockMetacard m = new MockMetacard(Library.getTampaRecord());
+        m.setTitle("Tampa");
 
-		create(list);
+        List<Metacard> list = Arrays.asList((Metacard) m,
+                new MockMetacard(Library.getFlagstaffRecord()));
 
-		Filter txtFilter = filterBuilder.attribute("id").like().text("*");
+        create(list);
 
-		QueryImpl query = new QueryImpl(txtFilter);
+        Filter txtFilter = filterBuilder.attribute("id").like().text("*");
 
-		query.setSortBy(new ddf.catalog.filter.SortByImpl("unknownField", SortOrder.ASCENDING));
+        QueryImpl query = new QueryImpl(txtFilter);
 
-		SourceResponse response = provider.query(new QueryRequestImpl(query));
+        query.setSortBy(new ddf.catalog.filter.SortByImpl("unknownField", SortOrder.ASCENDING));
 
-		assertEquals(2, response.getResults().size());
+        SourceResponse response = provider.query(new QueryRequestImpl(query));
 
-	}
+        assertEquals(2, response.getResults().size());
 
-	/**
-	 * Testing if the temporal search does not fail when no schema field can be
-	 * found and/or there is no data in the index
-	 * 
-	 * @throws IngestException
-	 * @throws UnsupportedQueryException
-	 */
-	@Test
-	public void testQueryMissingSortFieldTemporal() throws IngestException, UnsupportedQueryException {
+    }
 
-		/*
-		 * I have tested this with an empty schema and without an empty schema -
-		 * both pass, but there is no regression test for the empty schema
-		 * scenario 
-		 * TODO there should probably be an automated test that creates
-		 * a fresh cache, that would be a better test
-		 */
+    /**
+     * Testing if the temporal search does not fail when no schema field can be found and/or there
+     * is no data in the index
+     * 
+     * @throws IngestException
+     * @throws UnsupportedQueryException
+     */
+    @Test
+    public void testQueryMissingSortFieldTemporal() throws IngestException,
+        UnsupportedQueryException {
 
-		deleteAllIn(provider);
+        /*
+         * I have tested this with an empty schema and without an empty schema - both pass, but
+         * there is no regression test for the empty schema scenario TODO there should probably be
+         * an automated test that creates a fresh cache, that would be a better test
+         */
 
-		Filter txtFilter = filterBuilder.attribute("id").like().text("*");
+        deleteAllIn(provider);
 
-		QueryImpl query = new QueryImpl(txtFilter);
+        Filter txtFilter = filterBuilder.attribute("id").like().text("*");
 
-		query.setSortBy(new ddf.catalog.filter.SortByImpl(Result.TEMPORAL, SortOrder.ASCENDING));
+        QueryImpl query = new QueryImpl(txtFilter);
 
-		SourceResponse response = provider.query(new QueryRequestImpl(query));
+        query.setSortBy(new ddf.catalog.filter.SortByImpl(Result.TEMPORAL, SortOrder.ASCENDING));
 
-		assertEquals(0, response.getResults().size());
+        SourceResponse response = provider.query(new QueryRequestImpl(query));
 
-	}
+        assertEquals(0, response.getResults().size());
 
-	/**
-	 * If parts of a query can be understood, the query should be executed
-	 * whereas the part that has a missing property should return 0 results.
-	 * 
-	 * @throws Exception
-	 */
-	@Test
-	public void testTwoQueriesWithOneMissingField() throws Exception {
+    }
 
-		deleteAllIn(provider);
+    /**
+     * If parts of a query can be understood, the query should be executed whereas the part that has
+     * a missing property should return 0 results.
+     * 
+     * @throws Exception
+     */
+    @Test
+    public void testTwoQueriesWithOneMissingField() throws Exception {
 
-		MockMetacard m = new MockMetacard(Library.getTampaRecord());
-		m.setTitle("Tampa");
+        deleteAllIn(provider);
 
-		List<Metacard> list = Arrays.asList((Metacard) m, new MockMetacard(Library.getFlagstaffRecord()));
+        MockMetacard m = new MockMetacard(Library.getTampaRecord());
+        m.setTitle("Tampa");
 
-		create(list);
+        List<Metacard> list = Arrays.asList((Metacard) m,
+                new MockMetacard(Library.getFlagstaffRecord()));
 
-		Filter filter = filterBuilder.anyOf(filterBuilder.attribute(Metacard.TITLE).text("Tampa"), filterBuilder
-				.attribute("missingField").text("someText"));
+        create(list);
 
-		SourceResponse sourceResponse = provider.query(new QueryRequestImpl(new QueryImpl(filter)));
+        Filter filter = filterBuilder.anyOf(filterBuilder.attribute(Metacard.TITLE).text("Tampa"),
+                filterBuilder.attribute("missingField").text("someText"));
 
-		assertEquals("Tampa should be found", 1, sourceResponse.getResults().size());
+        SourceResponse sourceResponse = provider.query(new QueryRequestImpl(new QueryImpl(filter)));
 
-	}
+        assertEquals("Tampa should be found", 1, sourceResponse.getResults().size());
 
-	@Test(expected = IngestException.class)
-	public void testDeleteNullAttribute() throws IngestException, UnsupportedQueryException {
+    }
 
-		provider.delete(new DeleteRequest() {
+    @Test(expected = IngestException.class)
+    public void testDeleteNullAttribute() throws IngestException, UnsupportedQueryException {
 
-			@Override
-			public boolean hasProperties() {
-				return false;
-			}
+        provider.delete(new DeleteRequest() {
 
-			@Override
-			public Serializable getPropertyValue(String name) {
-				return null;
-			}
+            @Override
+            public boolean hasProperties() {
+                return false;
+            }
 
-			@Override
-			public Set<String> getPropertyNames() {
-				return null;
-			}
+            @Override
+            public Serializable getPropertyValue(String name) {
+                return null;
+            }
 
-			@Override
-			public Map<String, Serializable> getProperties() {
-				return null;
-			}
+            @Override
+            public Set<String> getPropertyNames() {
+                return null;
+            }
 
-			@Override
-			public boolean containsPropertyName(String name) {
-				return false;
-			}
+            @Override
+            public Map<String, Serializable> getProperties() {
+                return null;
+            }
 
-			@Override
-			public List<? extends Serializable> getAttributeValues() {
-				return null;
-			}
+            @Override
+            public boolean containsPropertyName(String name) {
+                return false;
+            }
 
-			@Override
-			public String getAttributeName() {
-				return null;
-			}
-		});
+            @Override
+            public List<? extends Serializable> getAttributeValues() {
+                return null;
+            }
 
-	}
+            @Override
+            public String getAttributeName() {
+                return null;
+            }
+        });
 
-	@Test
-	public void testContextualSimpleWithLogicOperators() throws Exception {
+    }
 
-		deleteAllIn(provider);
+    @Test
+    public void testContextualSimpleWithLogicOperators() throws Exception {
 
-		MockMetacard m = new MockMetacard(Library.getTampaRecord());
-		m.setTitle("Tampa");
+        deleteAllIn(provider);
 
-		List<Metacard> list = Arrays.asList((Metacard) new MockMetacard(Library.getFlagstaffRecord()), m);
+        MockMetacard m = new MockMetacard(Library.getTampaRecord());
+        m.setTitle("Tampa");
 
-		assertEquals(2, create(list).getCreatedMetacards().size());
+        List<Metacard> list = Arrays.asList(
+                (Metacard) new MockMetacard(Library.getFlagstaffRecord()), m);
 
-		/** CONTEXTUAL QUERY - AND negative **/
+        assertEquals(2, create(list).getCreatedMetacards().size());
 
-		String wildcard = DEFAULT_TEST_WILDCARD;
-		String singleChar = DEFAULT_TEST_SINGLE_WILDCARD;
-		String escape = DEFAULT_TEST_ESCAPE;
+        /** CONTEXTUAL QUERY - AND negative **/
 
-		FilterFactory filterFactory = new FilterFactoryImpl();
+        String wildcard = DEFAULT_TEST_WILDCARD;
+        String singleChar = DEFAULT_TEST_SINGLE_WILDCARD;
+        String escape = DEFAULT_TEST_ESCAPE;
 
-		Filter filter = filterFactory.and(filterFactory.like(filterFactory.property(Metacard.METADATA),
-				FLAGSTAFF_QUERY_PHRASE, wildcard, singleChar, escape, false), filterFactory.like(
-				filterFactory.property(Metacard.METADATA), TAMPA_QUERY_PHRASE, wildcard, singleChar, escape, false));
+        FilterFactory filterFactory = new FilterFactoryImpl();
 
-		SourceResponse sourceResponse = provider.query(new QueryRequestImpl(new QueryImpl(filter)));
+        Filter filter = filterFactory.and(filterFactory.like(
+                filterFactory.property(Metacard.METADATA), FLAGSTAFF_QUERY_PHRASE, wildcard,
+                singleChar, escape, false), filterFactory.like(
+                filterFactory.property(Metacard.METADATA), TAMPA_QUERY_PHRASE, wildcard,
+                singleChar, escape, false));
 
-		assertEquals("Flagstaff and Tampa", 0, sourceResponse.getResults().size());
+        SourceResponse sourceResponse = provider.query(new QueryRequestImpl(new QueryImpl(filter)));
 
-		/** CONTEXTUAL QUERY - AND positive **/
+        assertEquals("Flagstaff and Tampa", 0, sourceResponse.getResults().size());
 
-		filter = filterFactory.and(filterFactory.like(filterFactory.property(Metacard.METADATA),
-				FLAGSTAFF_QUERY_PHRASE, wildcard, singleChar, escape, false), filterFactory.like(
-				filterFactory.property(Metacard.METADATA), AIRPORT_QUERY_PHRASE, wildcard, singleChar, escape, false));
+        /** CONTEXTUAL QUERY - AND positive **/
 
-		sourceResponse = provider.query(new QueryRequestImpl(new QueryImpl(filter)));
+        filter = filterFactory.and(filterFactory.like(filterFactory.property(Metacard.METADATA),
+                FLAGSTAFF_QUERY_PHRASE, wildcard, singleChar, escape, false), filterFactory.like(
+                filterFactory.property(Metacard.METADATA), AIRPORT_QUERY_PHRASE, wildcard,
+                singleChar, escape, false));
 
-		assertEquals("Flagstaff and Airport", ONE_HIT, sourceResponse.getResults().size());
+        sourceResponse = provider.query(new QueryRequestImpl(new QueryImpl(filter)));
 
-		/** CONTEXTUAL QUERY - OR positive **/
+        assertEquals("Flagstaff and Airport", ONE_HIT, sourceResponse.getResults().size());
 
-		filter = filterFactory.or(filterFactory.like(filterFactory.property(Metacard.METADATA), FLAGSTAFF_QUERY_PHRASE,
-				wildcard, singleChar, escape, false), filterFactory.like(filterFactory.property(Metacard.METADATA),
-				TAMPA_QUERY_PHRASE, wildcard, singleChar, escape, false));
+        /** CONTEXTUAL QUERY - OR positive **/
 
-		sourceResponse = provider.query(new QueryRequestImpl(new QueryImpl(filter)));
+        filter = filterFactory.or(filterFactory.like(filterFactory.property(Metacard.METADATA),
+                FLAGSTAFF_QUERY_PHRASE, wildcard, singleChar, escape, false), filterFactory.like(
+                filterFactory.property(Metacard.METADATA), TAMPA_QUERY_PHRASE, wildcard,
+                singleChar, escape, false));
 
-		assertEquals("Flagstaff OR Tampa", 2, sourceResponse.getResults().size());
+        sourceResponse = provider.query(new QueryRequestImpl(new QueryImpl(filter)));
 
-		/** CONTEXTUAL QUERY - AND / OR positive **/
+        assertEquals("Flagstaff OR Tampa", 2, sourceResponse.getResults().size());
 
-		filter = filterFactory.or(filterFactory.and(filterFactory.like(filterFactory.property(Metacard.METADATA),
-				AIRPORT_QUERY_PHRASE, wildcard, singleChar, escape, false), filterFactory.like(
-				filterFactory.property(Metacard.METADATA), "AZ", wildcard, singleChar, escape, false)), filterFactory
-				.like(filterFactory.property(Metacard.METADATA), FLAGSTAFF_QUERY_PHRASE, wildcard, singleChar, escape,
-						false));
+        /** CONTEXTUAL QUERY - AND / OR positive **/
 
-		sourceResponse = provider.query(new QueryRequestImpl(new QueryImpl(filter)));
+        filter = filterFactory.or(filterFactory.and(filterFactory.like(
+                filterFactory.property(Metacard.METADATA), AIRPORT_QUERY_PHRASE, wildcard,
+                singleChar, escape, false), filterFactory.like(
+                filterFactory.property(Metacard.METADATA), "AZ", wildcard, singleChar, escape,
+                false)), filterFactory.like(filterFactory.property(Metacard.METADATA),
+                FLAGSTAFF_QUERY_PHRASE, wildcard, singleChar, escape, false));
 
-		assertEquals("Failed: (Airport AND AZ) or Flagstaff", ONE_HIT, sourceResponse.getResults().size());
-		
-		/** COMPLEX CONTEXTUAL QUERY **/
+        sourceResponse = provider.query(new QueryRequestImpl(new QueryImpl(filter)));
 
-		filter = filterFactory.and(filterFactory.like(filterFactory.property(Metacard.METADATA),
-				AIRPORT_QUERY_PHRASE, wildcard, singleChar, escape, false),
-				filterFactory.and(filterFactory.like(filterFactory.property(Metacard.METADATA),
-				"AZ", wildcard, singleChar, escape, false),filterFactory.or (filterFactory.like(filterFactory.property(Metacard.METADATA),
-				FLAGSTAFF_QUERY_PHRASE, wildcard, singleChar, escape, false), filterFactory.like(
-				filterFactory.property(Metacard.METADATA),  TAMPA_QUERY_PHRASE, wildcard, singleChar, escape, false)) ));
+        assertEquals("Failed: (Airport AND AZ) or Flagstaff", ONE_HIT, sourceResponse.getResults()
+                .size());
 
-		sourceResponse = provider.query(new QueryRequestImpl(new QueryImpl(filter)));
+        /** COMPLEX CONTEXTUAL QUERY **/
 
-		assertEquals("(Airport AND (AZ AND (Flagstaff OR TAMPA)))", ONE_HIT, sourceResponse.getResults().size());
-		
+        filter = filterFactory.and(filterFactory.like(filterFactory.property(Metacard.METADATA),
+                AIRPORT_QUERY_PHRASE, wildcard, singleChar, escape, false), filterFactory.and(
+                filterFactory.like(filterFactory.property(Metacard.METADATA), "AZ", wildcard,
+                        singleChar, escape, false), filterFactory.or(filterFactory.like(
+                        filterFactory.property(Metacard.METADATA), FLAGSTAFF_QUERY_PHRASE,
+                        wildcard, singleChar, escape, false), filterFactory.like(
+                        filterFactory.property(Metacard.METADATA), TAMPA_QUERY_PHRASE, wildcard,
+                        singleChar, escape, false))));
 
-		/** CONTEXTUAL QUERY - NOT positive **/
+        sourceResponse = provider.query(new QueryRequestImpl(new QueryImpl(filter)));
 
-		filter = filterFactory.and(filterFactory.like(filterFactory.property(Metacard.METADATA),
-				FLAGSTAFF_QUERY_PHRASE, wildcard, singleChar, escape, false), filterFactory.not(filterFactory.like(
-				filterFactory.property(Metacard.METADATA), TAMPA_QUERY_PHRASE, wildcard, singleChar, escape, false)));
+        assertEquals("(Airport AND (AZ AND (Flagstaff OR TAMPA)))", ONE_HIT, sourceResponse
+                .getResults().size());
 
-		sourceResponse = provider.query(new QueryRequestImpl(new QueryImpl(filter)));
+        /** CONTEXTUAL QUERY - NOT positive **/
 
-		assertEquals("Did not find Flagstaff NOT Tampa", ONE_HIT, sourceResponse.getResults().size());
+        filter = filterFactory.and(filterFactory.like(filterFactory.property(Metacard.METADATA),
+                FLAGSTAFF_QUERY_PHRASE, wildcard, singleChar, escape, false), filterFactory
+                .not(filterFactory.like(filterFactory.property(Metacard.METADATA),
+                        TAMPA_QUERY_PHRASE, wildcard, singleChar, escape, false)));
 
-		/** CONTEXTUAL QUERY - NOT negative **/
+        sourceResponse = provider.query(new QueryRequestImpl(new QueryImpl(filter)));
 
-		filter = filterFactory.and(filterFactory.like(filterFactory.property(Metacard.METADATA),
-				FLAGSTAFF_QUERY_PHRASE, wildcard, singleChar, escape, false), filterFactory.not(filterFactory.like(
-				filterFactory.property(Metacard.METADATA), AIRPORT_QUERY_PHRASE, wildcard, singleChar, escape, false)));
+        assertEquals("Did not find Flagstaff NOT Tampa", ONE_HIT, sourceResponse.getResults()
+                .size());
 
-		sourceResponse = provider.query(new QueryRequestImpl(new QueryImpl(filter)));
+        /** CONTEXTUAL QUERY - NOT negative **/
 
-		assertEquals("Wrongly found Flagstaff NOT Airport", 0, sourceResponse.getResults().size());
+        filter = filterFactory.and(filterFactory.like(filterFactory.property(Metacard.METADATA),
+                FLAGSTAFF_QUERY_PHRASE, wildcard, singleChar, escape, false), filterFactory
+                .not(filterFactory.like(filterFactory.property(Metacard.METADATA),
+                        AIRPORT_QUERY_PHRASE, wildcard, singleChar, escape, false)));
 
-		/** CONTEXTUAL QUERY - Single NOT positive **/
+        sourceResponse = provider.query(new QueryRequestImpl(new QueryImpl(filter)));
 
-		filter = filterFactory.not(filterFactory.like(filterFactory.property(Metacard.METADATA), TAMPA_QUERY_PHRASE,
-				wildcard, singleChar, escape, false));
+        assertEquals("Wrongly found Flagstaff NOT Airport", 0, sourceResponse.getResults().size());
 
-		sourceResponse = provider.query(new QueryRequestImpl(new QueryImpl(filter)));
+        /** CONTEXTUAL QUERY - Single NOT positive **/
 
-		assertEquals("Did not find Flagstaff", ONE_HIT, sourceResponse.getResults().size());
-		assertTrue(sourceResponse.getResults().get(0).getMetacard().getMetadata().contains(FLAGSTAFF_QUERY_PHRASE));
+        filter = filterFactory.not(filterFactory.like(filterFactory.property(Metacard.METADATA),
+                TAMPA_QUERY_PHRASE, wildcard, singleChar, escape, false));
 
-		/** CONTEXTUAL QUERY - NOT multi **/
-		LinkedList<Filter> filters = new LinkedList<Filter>();
-		filters.add(filterFactory.like(filterFactory.property(Metacard.METADATA), FLAGSTAFF_QUERY_PHRASE, wildcard,
-				singleChar, escape, false));
-		filters.add(filterFactory.not(filterFactory.like(filterFactory.property(Metacard.METADATA), TAMPA_QUERY_PHRASE,
-				wildcard, singleChar, escape, false)));
-		filters.add(filterFactory.not(filterFactory.like(filterFactory.property(Metacard.METADATA), "Pennsylvania",
-				wildcard, singleChar, escape, false)));
+        sourceResponse = provider.query(new QueryRequestImpl(new QueryImpl(filter)));
 
-		filter = filterFactory.and(filters);
+        assertEquals("Did not find Flagstaff", ONE_HIT, sourceResponse.getResults().size());
+        assertTrue(sourceResponse.getResults().get(0).getMetacard().getMetadata()
+                .contains(FLAGSTAFF_QUERY_PHRASE));
 
-		sourceResponse = provider.query(new QueryRequestImpl(new QueryImpl(filter)));
+        /** CONTEXTUAL QUERY - NOT multi **/
+        LinkedList<Filter> filters = new LinkedList<Filter>();
+        filters.add(filterFactory.like(filterFactory.property(Metacard.METADATA),
+                FLAGSTAFF_QUERY_PHRASE, wildcard, singleChar, escape, false));
+        filters.add(filterFactory.not(filterFactory.like(filterFactory.property(Metacard.METADATA),
+                TAMPA_QUERY_PHRASE, wildcard, singleChar, escape, false)));
+        filters.add(filterFactory.not(filterFactory.like(filterFactory.property(Metacard.METADATA),
+                "Pennsylvania", wildcard, singleChar, escape, false)));
 
-		assertEquals("Did not find Flagstaff NOT Tampa", ONE_HIT, sourceResponse.getResults().size());
+        filter = filterFactory.and(filters);
 
-		/** CONTEXTUAL QUERY - AND / OR **/
+        sourceResponse = provider.query(new QueryRequestImpl(new QueryImpl(filter)));
 
-		filter = filterFactory.or(filterFactory.and(filterFactory.like(filterFactory.property(Metacard.METADATA),
-				AIRPORT_QUERY_PHRASE, wildcard, singleChar, escape, false), filterFactory.like(
-				filterFactory.property(Metacard.METADATA), "AZ", wildcard, singleChar, escape, false)), filterFactory
-				.or(filterFactory.like(filterFactory.property(Metacard.METADATA), FLAGSTAFF_QUERY_PHRASE, wildcard,
-						singleChar, escape, false), filterFactory.like(filterFactory.property(Metacard.METADATA), "AZ",
-						wildcard, singleChar, escape, false)));
+        assertEquals("Did not find Flagstaff NOT Tampa", ONE_HIT, sourceResponse.getResults()
+                .size());
 
-		sourceResponse = provider.query(new QueryRequestImpl(new QueryImpl(filter)));
+        /** CONTEXTUAL QUERY - AND / OR **/
 
-		assertEquals("Failed: ( Airport )  AND  ( AZ )  OR  ( Flagstaff )  OR  ( AZ ) ", ONE_HIT, sourceResponse
-				.getResults().size());
+        filter = filterFactory.or(filterFactory.and(filterFactory.like(
+                filterFactory.property(Metacard.METADATA), AIRPORT_QUERY_PHRASE, wildcard,
+                singleChar, escape, false), filterFactory.like(
+                filterFactory.property(Metacard.METADATA), "AZ", wildcard, singleChar, escape,
+                false)), filterFactory.or(filterFactory.like(
+                filterFactory.property(Metacard.METADATA), FLAGSTAFF_QUERY_PHRASE, wildcard,
+                singleChar, escape, false), filterFactory.like(
+                filterFactory.property(Metacard.METADATA), "AZ", wildcard, singleChar, escape,
+                false)));
 
-		/** CONTEXTUAL QUERY - OR Then NOT **/
+        sourceResponse = provider.query(new QueryRequestImpl(new QueryImpl(filter)));
 
-		filter = filterFactory.or(filterFactory.like(filterFactory.property(Metacard.METADATA), FLAGSTAFF_QUERY_PHRASE,
-				wildcard, singleChar, escape, false), filterFactory.and(filterFactory.like(
-				filterFactory.property(Metacard.METADATA), "AZ", wildcard, singleChar, escape, false), filterFactory
-				.not(filterFactory.like(filterFactory.property(Metacard.METADATA), TAMPA_QUERY_PHRASE, wildcard,
-						singleChar, escape, false))));
+        assertEquals("Failed: ( Airport )  AND  ( AZ )  OR  ( Flagstaff )  OR  ( AZ ) ", ONE_HIT,
+                sourceResponse.getResults().size());
 
-		sourceResponse = provider.query(new QueryRequestImpl(new QueryImpl(filter)));
+        /** CONTEXTUAL QUERY - OR Then NOT **/
 
-		assertEquals("Failed: ( Flagstaff )  OR  ( AZ )  NOT  (  ( Tampa )  )  ", ONE_HIT, sourceResponse.getResults()
-				.size());
-	}
-	
+        filter = filterFactory.or(filterFactory.like(filterFactory.property(Metacard.METADATA),
+                FLAGSTAFF_QUERY_PHRASE, wildcard, singleChar, escape, false), filterFactory.and(
+                filterFactory.like(filterFactory.property(Metacard.METADATA), "AZ", wildcard,
+                        singleChar, escape, false), filterFactory.not(filterFactory.like(
+                        filterFactory.property(Metacard.METADATA), TAMPA_QUERY_PHRASE, wildcard,
+                        singleChar, escape, false))));
+
+        sourceResponse = provider.query(new QueryRequestImpl(new QueryImpl(filter)));
+
+        assertEquals("Failed: ( Flagstaff )  OR  ( AZ )  NOT  (  ( Tampa )  )  ", ONE_HIT,
+                sourceResponse.getResults().size());
+    }
+
     /**
      * Testing attributes are properly indexed.
      * 
@@ -1996,59 +2114,35 @@ public class TestSolrProvider extends SolrProviderTestCase {
 
         List<Metacard> list = new ArrayList<Metacard>();
 
-        String sought_word = "self";
-        
+        String soughtWord = "self";
+
         MockMetacard metacard1 = new MockMetacard(Library.getFlagstaffRecord());
 
         list.add(metacard1);
 
         create(list);
 
-        queryAndVerifyCount(1, filterBuilder.attribute(Metacard.METADATA).is().like().text(sought_word));
+        queryAndVerifyCount(1,
+                filterBuilder.attribute(Metacard.METADATA).is().like().text(soughtWord));
     }
-	
-	/**
-	 * Testing {@link Metacard#ANY_TEXT}
-	 * 
-	 * @param bundleContext
-	 * @throws Exception
-	 */
-	@Test
-	public void testContextualAnyText_ContentType() throws Exception {
 
-		deleteAllIn(provider);
-
-		List<Metacard> list = new ArrayList<Metacard>();
-
-		MockMetacard metacard1 = new MockMetacard(Library.getFlagstaffRecord());
-		String sought_word = "nitf";
-		metacard1.setContentTypeName(sought_word);
-
-		list.add(metacard1);
-
-		MockMetacard metacard2 = new MockMetacard(Library.getTampaRecord());
-
-		list.add(metacard2);
-
-		MockMetacard metacard3 = new MockMetacard(Library.getShowLowRecord());
-
-		list.add(metacard3);
-
-		create(list);
-
-		queryAndVerifyCount(1, filterBuilder.attribute(Metacard.ANY_TEXT).is().like().text(sought_word));
-	}
-	
+    /**
+     * Testing {@link Metacard#ANY_TEXT}
+     * 
+     * @param bundleContext
+     * @throws Exception
+     */
     @Test
-    public void testContextualAnyText_ContentTypeVersion() throws Exception {
+    @Ignore
+    public void testContextualAnyText() throws Exception {
 
         deleteAllIn(provider);
 
         List<Metacard> list = new ArrayList<Metacard>();
 
         MockMetacard metacard1 = new MockMetacard(Library.getFlagstaffRecord());
-        String contentTypeVersion = "ABC";
-        metacard1.setContentTypeVersion(contentTypeVersion);
+        String soughtWord = "nitf";
+        metacard1.setContentTypeName(soughtWord);
 
         list.add(metacard1);
 
@@ -2063,376 +2157,357 @@ public class TestSolrProvider extends SolrProviderTestCase {
         create(list);
 
         queryAndVerifyCount(1,
-                filterBuilder.attribute(Metacard.ANY_TEXT).is().like().text(contentTypeVersion));
+                filterBuilder.attribute(Metacard.ANY_TEXT).is().like().text(soughtWord));
     }
-    
+
+    /**
+     * Testing case sensitive index.
+     * 
+     * @param bundleContext
+     * @throws Exception
+     */
     @Test
-    public void testContextualAnyText_CaseSensitive_SearchPhraseExistsInRecord() throws Exception {
+    public void testContextualCaseSensitiveSimple() throws Exception {
 
         deleteAllIn(provider);
-        
-        List<Metacard> list = new ArrayList<Metacard>();
 
-        MockMetacard metacard1 = new MockMetacard(Library.getFlagstaffRecord());
-
-        list.add(metacard1);
+        List<Metacard> list = Arrays.asList(
+                (Metacard) new MockMetacard(Library.getFlagstaffRecord()),
+                (Metacard) new MockMetacard(Library.getTampaRecord()));
 
         create(list);
 
-        String searchPhrase = "Commerce";
-        
-        queryAndVerifyCount(1,
-                filterBuilder.attribute(Metacard.ANY_TEXT).is().like().caseSensitiveText(searchPhrase));
+        CommonQueryBuilder queryBuilder = new CommonQueryBuilder();
+
+        boolean isCaseSensitive = true;
+        boolean isFuzzy = false;
+
+        QueryImpl query = null;
+        SourceResponse sourceResponse = null;
+
+        /** CONTEXTUAL QUERY - REGRESSION TEST OF SIMPLE TERMS **/
+
+        // Find one
+        query = queryBuilder.like(Metacard.METADATA, FLAGSTAFF_QUERY_PHRASE, isCaseSensitive,
+                isFuzzy);
+        sourceResponse = provider.query(new QueryRequestImpl(query));
+        assertEquals(1, sourceResponse.getResults().size());
+
+        // Find the other
+        query = queryBuilder.like(Metacard.METADATA, TAMPA_QUERY_PHRASE, isCaseSensitive, isFuzzy);
+        sourceResponse = provider.query(new QueryRequestImpl(query));
+        assertEquals(1, sourceResponse.getResults().size());
+
+        // Find nothing
+        query = queryBuilder.like(Metacard.METADATA, "NO_SUCH_WORD", isCaseSensitive, isFuzzy);
+        sourceResponse = provider.query(new QueryRequestImpl(query));
+        assertEquals(0, sourceResponse.getResults().size());
+
+        // Find both
+        query = queryBuilder
+                .like(Metacard.METADATA, AIRPORT_QUERY_PHRASE, isCaseSensitive, isFuzzy);
+        sourceResponse = provider.query(new QueryRequestImpl(query));
+        assertEquals(2, sourceResponse.getResults().size());
+
+        // Phrase
+        query = queryBuilder.like(Metacard.METADATA, "Airport TPA in FL", isCaseSensitive, isFuzzy);
+        sourceResponse = provider.query(new QueryRequestImpl(query));
+        assertEquals(1, sourceResponse.getResults().size());
+
+        /** NEGATIVE CASES **/
+
+        query = queryBuilder.like(Metacard.METADATA, "Tamp", isCaseSensitive, isFuzzy);
+        query.setStartIndex(1);
+        sourceResponse = provider.query(new QueryRequestImpl(query));
+        assertEquals(0, sourceResponse.getResults().size());
+
+        query = queryBuilder.like(Metacard.METADATA, "TAmpa", isCaseSensitive, isFuzzy);
+        query.setStartIndex(1);
+        sourceResponse = provider.query(new QueryRequestImpl(query));
+        assertEquals(0, sourceResponse.getResults().size());
+
+        query = queryBuilder.like(Metacard.METADATA, "AIrport TPA in FL", isCaseSensitive, isFuzzy);
+        query.setStartIndex(1);
+        sourceResponse = provider.query(new QueryRequestImpl(query));
+        assertEquals(0, sourceResponse.getResults().size());
+
     }
-    
+
     @Test
-    public void testContextualAnyText_CaseSensitive_SearchPhraseDoesntExistInRecord() throws Exception {
+    public void testContextualFuzzy() throws Exception {
+        deleteAllIn(provider);
+
+        List<Metacard> list = Arrays.asList(
+                (Metacard) new MockMetacard(Library.getFlagstaffRecord()),
+                (Metacard) new MockMetacard(Library.getTampaRecord()));
+
+        /** CREATE **/
+        create(list);
+
+        /** CONTEXTUAL QUERY - FUZZY **/
+        Filter filter = filterBuilder.attribute(Metacard.METADATA).like()
+                .fuzzyText(FLAGSTAFF_QUERY_PHRASE);
+        SourceResponse sourceResponse = provider.query(new QueryRequestImpl(new QueryImpl(filter)));
+        assertEquals("Expected one hit for fuzzy term 'Flagstaff'", ONE_HIT, sourceResponse
+                .getResults().size());
+
+        /** CONTEXTUAL QUERY - FUZZY PHRASE **/
+        filter = filterBuilder.attribute(Metacard.METADATA).like().fuzzyText("Flagstaff Chamber");
+        sourceResponse = provider.query(new QueryRequestImpl(new QueryImpl(filter)));
+        assertEquals("Expected one hit for fuzzy term 'Flagstaff Chamber'", ONE_HIT, sourceResponse
+                .getResults().size());
+
+        /** CONTEXTUAL QUERY - FUZZY PHRASE, multiple spaces **/
+        filter = filterBuilder.attribute(Metacard.METADATA).like()
+                .fuzzyText("Flagstaff    Chamber");
+        sourceResponse = provider.query(new QueryRequestImpl(new QueryImpl(filter)));
+        assertEquals("Expected one hit for fuzzy term 'Flagstaff    Chamber'", ONE_HIT,
+                sourceResponse.getResults().size());
+
+        /** CONTEXTUAL QUERY - FUZZY PHRASE, upper case with insertion **/
+        filter = filterBuilder.attribute(Metacard.METADATA).like().fuzzyText("FLGD");
+        sourceResponse = provider.query(new QueryRequestImpl(new QueryImpl(filter)));
+        assertEquals("Expected two hits for fuzzy term 'FLGD'", 2, sourceResponse.getResults()
+                .size());
+
+        /** CONTEXTUAL QUERY - FUZZY PHRASE, second word missing **/
+        filter = filterBuilder.attribute(Metacard.METADATA).like().fuzzyText("Flagstaff Igloo");
+        sourceResponse = provider.query(new QueryRequestImpl(new QueryImpl(filter)));
+        assertEquals("Expected zero hits for fuzzy term 'Flagstaff Igloo'", 0, sourceResponse
+                .getResults().size());
+
+        /** CONTEXTUAL QUERY - FUZZY - Possible POSITIVE CASE **/
+        // Possible matches are:
+        // Tampa record has word 'company'
+        // Flagstaff has word 'camp'
+        filter = filterBuilder.attribute(Metacard.METADATA).like().fuzzyText("comp");
+        sourceResponse = provider.query(new QueryRequestImpl(new QueryImpl(filter)));
+        assertThat("Expected to find any hits for fuzzy 'comp'",
+                sourceResponse.getResults().size(), is(greaterThanOrEqualTo(1)));
+
+        /** CONTEXTUAL QUERY - FUZZY - Bad fuzzy field **/
+        filter = filterBuilder.attribute(Metacard.CREATED).like().fuzzyText(new Date().toString());
+        try {
+            sourceResponse = provider.query(new QueryRequestImpl(new QueryImpl(filter)));
+            fail("Should not be allowed to run a fuzzy on a date field.");
+        } catch (UnsupportedQueryException e) {
+            LOGGER.info("Properly received exception.");
+        }
+    }
+
+    @Test
+    public void testContextualWildcard() throws Exception {
 
         deleteAllIn(provider);
-        
-        List<Metacard> list = new ArrayList<Metacard>();
 
-        MockMetacard metacard1 = new MockMetacard(Library.getFlagstaffRecord());
-
-        list.add(metacard1);
+        List<Metacard> list = Arrays.asList(
+                (Metacard) new MockMetacard(Library.getFlagstaffRecord()),
+                (Metacard) new MockMetacard(Library.getTampaRecord()));
 
         create(list);
 
-        // commerce (case sensitive) doesn't exist in record, but Commerce (case sensitive) does.
-        String searchPhrase = "commerce";
-        
+        /** CONTEXTUAL QUERY - SIMPLE TERMS **/
+
+        CommonQueryBuilder queryBuilder = new CommonQueryBuilder();
+
+        boolean isCaseSensitive = false;
+        boolean isFuzzy = false;
+
+        QueryImpl query = null;
+        SourceResponse sourceResponse = null;
+
+        query = queryBuilder.like(Metacard.METADATA, "Flag*ff Chamber", isCaseSensitive, isFuzzy);
+        query.setStartIndex(1);
+        sourceResponse = provider.query(new QueryRequestImpl(query));
+        assertEquals(1, sourceResponse.getResults().size());
+
+        // FIX FOR THIS IS IN https://issues.apache.org/jira/browse/SOLR-1604
+        // Either roll this in yourself or wait for it to come in with Solr
+        query = queryBuilder.like(Metacard.METADATA, "Flag*ff Pulliam", isCaseSensitive, isFuzzy);
+        query.setStartIndex(1);
+        sourceResponse = provider.query(new QueryRequestImpl(query));
+        // assertEquals(0, sourceResponse.getResults().size());
+
+        query = queryBuilder.like(Metacard.METADATA, "*rport", isCaseSensitive, isFuzzy);
+        query.setStartIndex(1);
+        sourceResponse = provider.query(new QueryRequestImpl(query));
+        assertEquals(2, sourceResponse.getResults().size());
+
+        query = queryBuilder.like(Metacard.METADATA, "*rpor*", isCaseSensitive, isFuzzy);
+        query.setStartIndex(1);
+        sourceResponse = provider.query(new QueryRequestImpl(query));
+        assertEquals(2, sourceResponse.getResults().size());
+
+        query = queryBuilder.like(Metacard.METADATA, "*", isCaseSensitive, isFuzzy);
+        query.setStartIndex(1);
+        sourceResponse = provider.query(new QueryRequestImpl(query));
+        assertEquals(2, sourceResponse.getResults().size());
+
+        query = queryBuilder.like(Metacard.METADATA, "airpo*t", isCaseSensitive, isFuzzy);
+        query.setStartIndex(1);
+        sourceResponse = provider.query(new QueryRequestImpl(query));
+        assertEquals(2, sourceResponse.getResults().size());
+
+        query = queryBuilder.like(Metacard.METADATA, "Airpo*t", isCaseSensitive, isFuzzy);
+        query.setStartIndex(1);
+        sourceResponse = provider.query(new QueryRequestImpl(query));
+        assertEquals(2, sourceResponse.getResults().size());
+
+    }
+
+    @Test
+    public void testPropertyIsLike() throws Exception {
+        deleteAllIn(provider);
+
+        List<Metacard> list = new ArrayList<Metacard>();
+
+        MockMetacard metacard1 = new MockMetacard(Library.getFlagstaffRecord());
+        metacard1.setTitle("Mary");
+
+        list.add(metacard1);
+
+        MockMetacard metacard2 = new MockMetacard(Library.getTampaRecord());
+        metacard2.setTitle("Mary had a little");
+
+        list.add(metacard2);
+
+        MockMetacard metacard3 = new MockMetacard(Library.getShowLowRecord());
+        metacard3.setTitle("Mary had a little l!@#$%^&*()_mb");
+
+        list.add(metacard3);
+
+        create(list);
+
+        queryAndVerifyCount(3, filterBuilder.attribute(Metacard.TITLE).is().like().text("Mary"));
+        queryAndVerifyCount(2, filterBuilder.attribute(Metacard.TITLE).is().like().text("little"));
+        queryAndVerifyCount(0, filterBuilder.attribute(Metacard.TITLE).is().like().text("gary"));
+
+    }
+
+    @Test
+    public void testPropertyIsEqualTo() throws Exception {
+        deleteAllIn(provider);
+
+        List<Metacard> list = new ArrayList<Metacard>();
+
+        /* STRINGS */
+
+        MockMetacard metacard1 = new MockMetacard(Library.getFlagstaffRecord());
+        metacard1.setTitle("Mary");
+        Date exactEffectiveDate = new DateTime().minusMinutes(1).toDate();
+        metacard1.setEffectiveDate(exactEffectiveDate);
+
+        list.add(metacard1);
+
+        MockMetacard metacard2 = new MockMetacard(Library.getTampaRecord());
+        metacard2.setTitle("Mary had a little");
+
+        list.add(metacard2);
+
+        MockMetacard metacard3 = new MockMetacard(Library.getShowLowRecord());
+        metacard3.setTitle("Mary had a little l!@#$%^&*()_mb");
+
+        list.add(metacard3);
+
+        create(list);
+
+        queryAndVerifyCount(1, filterBuilder.attribute(Metacard.TITLE).is().equalTo().text("Mary"));
+
+        queryAndVerifyCount(0, filterBuilder.attribute(Metacard.TITLE).is().equalTo().text("Mar"));
+
         queryAndVerifyCount(0,
-                filterBuilder.attribute(Metacard.ANY_TEXT).is().like().caseSensitiveText(searchPhrase));
+                filterBuilder.attribute(Metacard.TITLE).is().equalTo().text("Mary had"));
+
+        queryAndVerifyCount(1,
+                filterBuilder.attribute(Metacard.TITLE).is().equalTo().text("Mary had a little"));
+
+        queryAndVerifyCount(
+                1,
+                filterBuilder.attribute(Metacard.TITLE).is().equalTo()
+                        .text("Mary had a little l!@#$%^&*()_mb"));
+
+        /* DATES */
+
+        queryAndVerifyCount(1,
+                filterBuilder.attribute(Metacard.EFFECTIVE).is().equalTo().date(exactEffectiveDate));
+
     }
 
-	/**
-	 * Testing case sensitive index.
-	 * 
-	 * @param bundleContext
-	 * @throws Exception
-	 */
-	@Test
-	public void testContextualCaseSensitiveSimple() throws Exception {
-
-		deleteAllIn(provider);
-
-		List<Metacard> list = Arrays.asList((Metacard) new MockMetacard(Library.getFlagstaffRecord()),
-				(Metacard) new MockMetacard(Library.getTampaRecord()));
-
-		create(list);
-
-		CommonQueryBuilder queryBuilder = new CommonQueryBuilder();
-
-		boolean isCaseSensitive = true;
-		boolean isFuzzy = false;
-
-		QueryImpl query = null;
-		SourceResponse sourceResponse = null;
-
-		/** CONTEXTUAL QUERY - REGRESSION TEST OF SIMPLE TERMS **/
-
-		// Find one
-		query = queryBuilder.like(Metacard.METADATA, FLAGSTAFF_QUERY_PHRASE, isCaseSensitive, isFuzzy);
-		sourceResponse = provider.query(new QueryRequestImpl(query));
-		assertEquals(1, sourceResponse.getResults().size());
-
-		// Find the other
-		query = queryBuilder.like(Metacard.METADATA, TAMPA_QUERY_PHRASE, isCaseSensitive, isFuzzy);
-		sourceResponse = provider.query(new QueryRequestImpl(query));
-		assertEquals(1, sourceResponse.getResults().size());
-
-		// Find nothing
-		query = queryBuilder.like(Metacard.METADATA, "NO_SUCH_WORD", isCaseSensitive, isFuzzy);
-		sourceResponse = provider.query(new QueryRequestImpl(query));
-		assertEquals(0, sourceResponse.getResults().size());
-
-		// Find both
-		query = queryBuilder.like(Metacard.METADATA, AIRPORT_QUERY_PHRASE, isCaseSensitive, isFuzzy);
-		sourceResponse = provider.query(new QueryRequestImpl(query));
-		assertEquals(2, sourceResponse.getResults().size());
-
-		// Phrase
-		query = queryBuilder.like(Metacard.METADATA, "Airport TPA in FL", isCaseSensitive, isFuzzy);
-		sourceResponse = provider.query(new QueryRequestImpl(query));
-		assertEquals(1, sourceResponse.getResults().size());
-
-		/** NEGATIVE CASES **/
-
-		query = queryBuilder.like(Metacard.METADATA, "Tamp", isCaseSensitive, isFuzzy);
-		query.setStartIndex(1);
-		sourceResponse = provider.query(new QueryRequestImpl(query));
-		assertEquals(0, sourceResponse.getResults().size());
-
-		query = queryBuilder.like(Metacard.METADATA, "TAmpa", isCaseSensitive, isFuzzy);
-		query.setStartIndex(1);
-		sourceResponse = provider.query(new QueryRequestImpl(query));
-		assertEquals(0, sourceResponse.getResults().size());
-
-		query = queryBuilder.like(Metacard.METADATA, "AIrport TPA in FL", isCaseSensitive, isFuzzy);
-		query.setStartIndex(1);
-		sourceResponse = provider.query(new QueryRequestImpl(query));
-		assertEquals(0, sourceResponse.getResults().size());
-
-	}
-
-	@Test
-	public void testContextualFuzzy() throws Exception {
-		deleteAllIn(provider);
-
-		List<Metacard> list = Arrays.asList((Metacard) new MockMetacard(Library.getFlagstaffRecord()),
-				(Metacard) new MockMetacard(Library.getTampaRecord()));
-
-		/** CREATE **/
-		create(list);
-
-		/** CONTEXTUAL QUERY - FUZZY **/
-		Filter filter = filterBuilder.attribute(Metacard.METADATA).like().fuzzyText(FLAGSTAFF_QUERY_PHRASE);
-		SourceResponse sourceResponse = provider.query(new QueryRequestImpl(new QueryImpl(filter)));
-		assertEquals("Expected one hit for fuzzy term 'Flagstaff'", ONE_HIT, sourceResponse.getResults().size());
-		
-		/** CONTEXTUAL QUERY - FUZZY PHRASE **/
-		filter = filterBuilder.attribute(Metacard.METADATA).like().fuzzyText("Flagstaff Chamber");
-		sourceResponse = provider.query(new QueryRequestImpl(new QueryImpl(filter)));
-		assertEquals("Expected one hit for fuzzy term 'Flagstaff Chamber'", ONE_HIT, sourceResponse.getResults().size());
-
-		/** CONTEXTUAL QUERY - FUZZY PHRASE, multiple spaces **/
-		filter = filterBuilder.attribute(Metacard.METADATA).like().fuzzyText("Flagstaff    Chamber");
-		sourceResponse = provider.query(new QueryRequestImpl(new QueryImpl(filter)));
-		assertEquals("Expected one hit for fuzzy term 'Flagstaff    Chamber'", ONE_HIT, sourceResponse.getResults().size());
-
-		/** CONTEXTUAL QUERY - FUZZY PHRASE, upper case with insertion **/
-		filter = filterBuilder.attribute(Metacard.METADATA).like().fuzzyText("FLGD");
-		sourceResponse = provider.query(new QueryRequestImpl(new QueryImpl(filter)));
-		assertEquals("Expected two hits for fuzzy term 'FLGD'", 2, sourceResponse.getResults().size());
-		
-		/** CONTEXTUAL QUERY - FUZZY PHRASE, second word missing **/
-		filter = filterBuilder.attribute(Metacard.METADATA).like().fuzzyText("Flagstaff Igloo");
-		sourceResponse = provider.query(new QueryRequestImpl(new QueryImpl(filter)));
-		assertEquals("Expected zero hits for fuzzy term 'Flagstaff Igloo'", 0, sourceResponse.getResults().size());
+    @Test(expected = UnsupportedQueryException.class)
+    public void testPropertyIsEqualToCaseSensitive() throws Exception {
+        deleteAllIn(provider);
 
-		/** CONTEXTUAL QUERY - FUZZY - Possible POSITIVE CASE **/
-		// Possible matches are:
-		// Tampa record has word 'company'
-		// Flagstaff has word 'camp'
-		filter = filterBuilder.attribute(Metacard.METADATA).like().fuzzyText("comp");
-		sourceResponse = provider.query(new QueryRequestImpl(new QueryImpl(filter)));
-		assertThat("Expected to find any hits for fuzzy 'comp'", sourceResponse.getResults().size(),
-				is(greaterThanOrEqualTo(1)));
+        CommonQueryBuilder commonBuilder = new CommonQueryBuilder();
 
-		/** CONTEXTUAL QUERY - FUZZY - Bad fuzzy field **/
-		filter = filterBuilder.attribute(Metacard.CREATED).like().fuzzyText(new Date().toString());
-		try {
-			sourceResponse = provider.query(new QueryRequestImpl(new QueryImpl(filter)));
-			fail("Should not be allowed to run a fuzzy on a date field.");
-		} catch (UnsupportedQueryException e) {
-			LOGGER.info("Properly received exception.");
-		}
-	}
+        // Expect an exception
+        queryAndVerifyCount(0, commonBuilder.equalTo(Metacard.TITLE, "Mary", false));
 
-	@Test
-	public void testContextualWildcard() throws Exception {
+    }
 
-		deleteAllIn(provider);
+    @Test
+    public void testTemporalDuring() throws Exception {
 
-		List<Metacard> list = Arrays.asList((Metacard) new MockMetacard(Library.getFlagstaffRecord()),
-				(Metacard) new MockMetacard(Library.getTampaRecord()));
+        deleteAllIn(provider);
 
-		create(list);
+        Metacard metacard = new MockMetacard(Library.getFlagstaffRecord());
+        List<Metacard> list = Arrays.asList(metacard);
 
-		/** CONTEXTUAL QUERY - SIMPLE TERMS **/
+        /** CREATE **/
+        create(list);
 
-		CommonQueryBuilder queryBuilder = new CommonQueryBuilder();
+        /** TEMPORAL QUERY - DURING FILTER (Period) - AKA ABSOLUTE **/
+        FilterFactory filterFactory = new FilterFactoryImpl();
 
-		boolean isCaseSensitive = false;
-		boolean isFuzzy = false;
+        int minutes = 3;
 
-		QueryImpl query = null;
-		SourceResponse sourceResponse = null;
+        DateTime startDT = new DateTime().plusMinutes(ALL_RESULTS * minutes);
 
-		query = queryBuilder.like(Metacard.METADATA, "Flag*ff Chamber", isCaseSensitive, isFuzzy);
-		query.setStartIndex(1);
-		sourceResponse = provider.query(new QueryRequestImpl(query));
-		assertEquals(1, sourceResponse.getResults().size());
+        DateTime endDT = new DateTime();
 
-		// FIX FOR THIS IS IN https://issues.apache.org/jira/browse/SOLR-1604
-		// Either roll this in yourself or wait for it to come in with Solr
-		query = queryBuilder.like(Metacard.METADATA, "Flag*ff Pulliam", isCaseSensitive, isFuzzy);
-		query.setStartIndex(1);
-		sourceResponse = provider.query(new QueryRequestImpl(query));
-		// assertEquals(0, sourceResponse.getResults().size());
+        CommonQueryBuilder queryBuilder = new CommonQueryBuilder();
 
-		query = queryBuilder.like(Metacard.METADATA, "*rport", isCaseSensitive, isFuzzy);
-		query.setStartIndex(1);
-		sourceResponse = provider.query(new QueryRequestImpl(query));
-		assertEquals(2, sourceResponse.getResults().size());
+        QueryImpl query = queryBuilder.during(Metacard.MODIFIED, startDT.toDate(), endDT.toDate());
 
-		query = queryBuilder.like(Metacard.METADATA, "*rpor*", isCaseSensitive, isFuzzy);
-		query.setStartIndex(1);
-		sourceResponse = provider.query(new QueryRequestImpl(query));
-		assertEquals(2, sourceResponse.getResults().size());
+        query.setStartIndex(1);
 
-		query = queryBuilder.like(Metacard.METADATA, "*", isCaseSensitive, isFuzzy);
-		query.setStartIndex(1);
-		sourceResponse = provider.query(new QueryRequestImpl(query));
-		assertEquals(2, sourceResponse.getResults().size());
+        SourceResponse sourceResponse = provider.query(new QueryRequestImpl(query));
 
-		query = queryBuilder.like(Metacard.METADATA, "airpo*t", isCaseSensitive, isFuzzy);
-		query.setStartIndex(1);
-		sourceResponse = provider.query(new QueryRequestImpl(query));
-		assertEquals(2, sourceResponse.getResults().size());
+        assertEquals(1, sourceResponse.getResults().size());
 
-		query = queryBuilder.like(Metacard.METADATA, "Airpo*t", isCaseSensitive, isFuzzy);
-		query.setStartIndex(1);
-		sourceResponse = provider.query(new QueryRequestImpl(query));
-		assertEquals(2, sourceResponse.getResults().size());
+        for (Result content : sourceResponse.getResults()) {
+            String term = FLAGSTAFF_QUERY_PHRASE;
 
-	}
+            LOGGER.debug("RESULT returned: " + content);
+            String metadata = content.getMetacard().getMetadata();
+            assertTrue("Testing if contents has term [" + term + "]",
+                    ALL_RESULTS != metadata.indexOf(term));
+        }
 
-	@Test
-	public void testPropertyIsLike() throws Exception {
-		deleteAllIn(provider);
+        /** TEMPORAL QUERY - DURING FILTER (Duration) - AKA RELATIVE **/
+        DefaultPeriodDuration duration = new DefaultPeriodDuration(minutes
+                * MINUTES_IN_MILLISECONDS);
 
-		List<Metacard> list = new ArrayList<Metacard>();
+        Filter filter = filterFactory.during(filterFactory.property(Metacard.MODIFIED),
+                filterFactory.literal(duration));
 
-		MockMetacard metacard1 = new MockMetacard(Library.getFlagstaffRecord());
-		metacard1.setTitle("Mary");
+        query = new QueryImpl(filter);
 
-		list.add(metacard1);
+        sourceResponse = provider.query(new QueryRequestImpl(query));
 
-		MockMetacard metacard2 = new MockMetacard(Library.getTampaRecord());
-		metacard2.setTitle("Mary had a little");
+        assertEquals(1, sourceResponse.getResults().size());
 
-		list.add(metacard2);
+        for (Result content : sourceResponse.getResults()) {
+            String term = FLAGSTAFF_QUERY_PHRASE;
 
-		MockMetacard metacard3 = new MockMetacard(Library.getShowLowRecord());
-		metacard3.setTitle("Mary had a little l!@#$%^&*()_mb");
+            LOGGER.debug("RESULT returned: " + content);
+            String metadata = content.getMetacard().getMetadata();
+            assertTrue("Testing if contents has term [" + term + "]",
+                    ALL_RESULTS != metadata.indexOf(term));
+        }
 
-		list.add(metacard3);
+        provider.isAvailable();
+    }
 
-		create(list);
-
-		queryAndVerifyCount(3, filterBuilder.attribute(Metacard.TITLE).is().like().text("Mary"));
-		queryAndVerifyCount(2, filterBuilder.attribute(Metacard.TITLE).is().like().text("little"));
-		queryAndVerifyCount(0, filterBuilder.attribute(Metacard.TITLE).is().like().text("gary"));
-
-	}
-
-	@Test
-	public void testPropertyIsEqualTo() throws Exception {
-		deleteAllIn(provider);
-
-		List<Metacard> list = new ArrayList<Metacard>();
-
-		/* STRINGS */
-
-		MockMetacard metacard1 = new MockMetacard(Library.getFlagstaffRecord());
-		metacard1.setTitle("Mary");
-		Date exactEffectiveDate = new DateTime().minusMinutes(1).toDate();
-		metacard1.setEffectiveDate(exactEffectiveDate);
-
-		list.add(metacard1);
-
-		MockMetacard metacard2 = new MockMetacard(Library.getTampaRecord());
-		metacard2.setTitle("Mary had a little");
-
-		list.add(metacard2);
-
-		MockMetacard metacard3 = new MockMetacard(Library.getShowLowRecord());
-		metacard3.setTitle("Mary had a little l!@#$%^&*()_mb");
-
-		list.add(metacard3);
-
-		create(list);
-
-		queryAndVerifyCount(1, filterBuilder.attribute(Metacard.TITLE).is().equalTo().text("Mary"));
-
-		queryAndVerifyCount(0, filterBuilder.attribute(Metacard.TITLE).is().equalTo().text("Mar"));
-
-		queryAndVerifyCount(0, filterBuilder.attribute(Metacard.TITLE).is().equalTo().text("Mary had"));
-
-		queryAndVerifyCount(1, filterBuilder.attribute(Metacard.TITLE).is().equalTo().text("Mary had a little"));
-
-		queryAndVerifyCount(1,
-				filterBuilder.attribute(Metacard.TITLE).is().equalTo().text("Mary had a little l!@#$%^&*()_mb"));
-
-		/* DATES */
-
-		queryAndVerifyCount(1, filterBuilder.attribute(Metacard.EFFECTIVE).is().equalTo().date(exactEffectiveDate));
-
-	}
-
-	@Test(expected = UnsupportedQueryException.class)
-	public void testPropertyIsEqualToCaseSensitive() throws Exception {
-		deleteAllIn(provider);
-
-		CommonQueryBuilder commonBuilder = new CommonQueryBuilder();
-
-		// Expect an exception
-		queryAndVerifyCount(0, commonBuilder.equalTo(Metacard.TITLE, "Mary", false));
-
-	}
-
-	@Test
-	public void testTemporalDuring() throws Exception {
-
-		deleteAllIn(provider);
-
-		Metacard metacard = new MockMetacard(Library.getFlagstaffRecord());
-		List<Metacard> list = Arrays.asList(metacard);
-
-		/** CREATE **/
-		create(list);
-
-		/** TEMPORAL QUERY - DURING FILTER (Period) - AKA ABSOLUTE **/
-		FilterFactory filterFactory = new FilterFactoryImpl();
-
-		int minutes = 3;
-
-		DateTime startDT = new DateTime().plusMinutes(ALL_RESULTS * minutes);
-
-		DateTime endDT = new DateTime();
-
-		CommonQueryBuilder queryBuilder = new CommonQueryBuilder();
-
-		QueryImpl query = queryBuilder.during(Metacard.MODIFIED, startDT.toDate(), endDT.toDate());
-
-		query.setStartIndex(1);
-
-		SourceResponse sourceResponse = provider.query(new QueryRequestImpl(query));
-
-		assertEquals(1, sourceResponse.getResults().size());
-
-		for (Result content : sourceResponse.getResults()) {
-			String term = FLAGSTAFF_QUERY_PHRASE;
-
-			LOGGER.debug("RESULT returned: " + content);
-			String metadata = content.getMetacard().getMetadata();
-			assertTrue("Testing if contents has term [" + term + "]", ALL_RESULTS != metadata.indexOf(term));
-		}
-
-		/** TEMPORAL QUERY - DURING FILTER (Duration) - AKA RELATIVE **/
-		DefaultPeriodDuration duration = new DefaultPeriodDuration(minutes * MINUTES_IN_MILLISECONDS);
-
-		Filter filter = filterFactory
-				.during(filterFactory.property(Metacard.MODIFIED), filterFactory.literal(duration));
-
-		query = new QueryImpl(filter);
-
-		sourceResponse = provider.query(new QueryRequestImpl(query));
-
-		assertEquals(1, sourceResponse.getResults().size());
-
-		for (Result content : sourceResponse.getResults()) {
-			String term = FLAGSTAFF_QUERY_PHRASE;
-
-			LOGGER.debug("RESULT returned: " + content);
-			String metadata = content.getMetacard().getMetadata();
-			assertTrue("Testing if contents has term [" + term + "]", ALL_RESULTS != metadata.indexOf(term));
-		}
-
-		provider.isAvailable();
-	}
-	
     @Test
     public void testTextPathQuery() throws Exception {
         deleteAllIn(provider);
@@ -2445,7 +2520,7 @@ public class TestSolrProvider extends SolrProviderTestCase {
         create(list);
 
         /** POSITIVE **/
-        testTextPathPositiveExists("/rss//item",FLAGSTAFF_QUERY_PHRASE);
+        testTextPathPositiveExists("/rss//item", FLAGSTAFF_QUERY_PHRASE);
         testTextPathPositiveExists("/purchaseOrder/comment", PURCHASE_ORDER_QUERY_PHRASE);
         testTextPathPositiveExists("/purchaseOrder//comment", PURCHASE_ORDER_QUERY_PHRASE);
         testTextPathPositiveExists("/purchaseOrder/items//comment", PURCHASE_ORDER_QUERY_PHRASE);
@@ -2456,40 +2531,46 @@ public class TestSolrProvider extends SolrProviderTestCase {
         testTextPathPositiveExists("purchaseOrder/items/item", PURCHASE_ORDER_QUERY_PHRASE);
         testTextPathPositiveExists("/purchaseOrder/items/item", PURCHASE_ORDER_QUERY_PHRASE);
         testTextPathPositiveExists("./purchaseOrder/items/item", PURCHASE_ORDER_QUERY_PHRASE);
-        
-        testTextPathPositiveWithSearchPhrase("/purchaseOrder/comment", "Hurry, my lawn is going wild!",
+
+        testTextPathPositiveWithSearchPhrase("/purchaseOrder/comment",
+                "Hurry, my lawn is going wild!", PURCHASE_ORDER_QUERY_PHRASE);
+        testTextPathPositiveWithSearchPhrase("/purchaseOrder/items//comment",
+                "Confirm this is electric", PURCHASE_ORDER_QUERY_PHRASE);
+        testTextPathPositiveWithSearchPhrase("//comment", "Hurry, my lawn is going wild!",
                 PURCHASE_ORDER_QUERY_PHRASE);
-        testTextPathPositiveWithSearchPhrase("/purchaseOrder/items//comment", "Confirm this is electric",
+        testTextPathPositiveWithSearchPhrase("//comment", "Confirm this is electric",
                 PURCHASE_ORDER_QUERY_PHRASE);
-        testTextPathPositiveWithSearchPhrase("//comment", "Hurry, my lawn is going wild!", PURCHASE_ORDER_QUERY_PHRASE);
-        testTextPathPositiveWithSearchPhrase("//comment", "Confirm this is electric", PURCHASE_ORDER_QUERY_PHRASE);
-        testTextPathPositiveWithSearchPhrase("/purchaseOrder//item/USPrice", "148.95", PURCHASE_ORDER_QUERY_PHRASE);
-        testTextPathPositiveWithSearchPhrase("/purchaseOrder//item/USPrice", "39.98", PURCHASE_ORDER_QUERY_PHRASE);
-        
+        testTextPathPositiveWithSearchPhrase("/purchaseOrder//item/USPrice", "148.95",
+                PURCHASE_ORDER_QUERY_PHRASE);
+        testTextPathPositiveWithSearchPhrase("/purchaseOrder//item/USPrice", "39.98",
+                PURCHASE_ORDER_QUERY_PHRASE);
+
         /** NEGATIVE **/
         testTextPathNegativeExists("/*/invalid");
         testTextPathNegativeExists("//electric");
         testTextPathNegativeExists("//partNum");
-        
+
         testTextPathNegativeWithSearchPhrase("/purchaseOrder/comment", "invalid");
         testTextPathNegativeWithSearchPhrase("//comment", "invalid");
         testTextPathNegativeWithSearchPhrase("/purchaseOrder//item/USPrice", "invalid");
         testTextPathNegativeWithSearchPhrase("/purchaseOrder/billTo", "95819");
     }
-    
+
     public void testTextPathPositiveExists(String xpath, String recordMatchPhrase) throws Exception {
         SourceResponse sourceResponse = queryXpathExists(xpath);
-        assertEquals("Failed to find record for xpath: " + xpath, 1, sourceResponse.getResults().size());
+        assertEquals("Failed to find record for xpath: " + xpath, 1, sourceResponse.getResults()
+                .size());
 
         for (Result r : sourceResponse.getResults()) {
-            assertTrue("Wrong record, keyword was not found.", ALL_RESULTS != r.getMetacard().getMetadata()
-                    .indexOf(recordMatchPhrase));
-        }        
+            assertTrue("Wrong record, keyword was not found.", ALL_RESULTS != r.getMetacard()
+                    .getMetadata().indexOf(recordMatchPhrase));
+        }
     }
-    
+
     public void testTextPathNegativeExists(String xpath) throws Exception {
         SourceResponse sourceResponse = queryXpathExists(xpath);
-        assertEquals("Should not have found record for xpath: " + xpath, 0, sourceResponse.getResults().size());       
+        assertEquals("Should not have found record for xpath: " + xpath, 0, sourceResponse
+                .getResults().size());
     }
 
     private SourceResponse queryXpathExists(String xpath) throws UnsupportedQueryException {
@@ -2497,859 +2578,887 @@ public class TestSolrProvider extends SolrProviderTestCase {
         SourceResponse sourceResponse = provider.query(new QueryRequestImpl(new QueryImpl(filter)));
         return sourceResponse;
     }
-    
-    public void testTextPathPositiveWithSearchPhrase(String xpath, String searchPhrase, String recordMatchPhrase)
-            throws Exception {
+
+    public void testTextPathPositiveWithSearchPhrase(String xpath, String searchPhrase,
+            String recordMatchPhrase) throws Exception {
         SourceResponse sourceResponse = queryXpathWithSearchPhrase(xpath, searchPhrase);
-        assertEquals("Failed to find record for xpath: " + xpath, 1, sourceResponse.getResults().size());
+        assertEquals("Failed to find record for xpath: " + xpath, 1, sourceResponse.getResults()
+                .size());
 
         for (Result r : sourceResponse.getResults()) {
-            assertTrue("Wrong record, keyword was not found.", ALL_RESULTS != r.getMetacard().getMetadata()
-                    .indexOf(recordMatchPhrase));
-        }        
+            assertTrue("Wrong record, keyword was not found.", ALL_RESULTS != r.getMetacard()
+                    .getMetadata().indexOf(recordMatchPhrase));
+        }
     }
-    
+
     public void testTextPathNegativeWithSearchPhrase(String xpath, String searchPhrase)
-            throws Exception {
+        throws Exception {
         SourceResponse sourceResponse = queryXpathWithSearchPhrase(xpath, searchPhrase);
-        assertEquals("Should not have found record for xpath: " + xpath, 0, sourceResponse.getResults().size());
+        assertEquals("Should not have found record for xpath: " + xpath, 0, sourceResponse
+                .getResults().size());
     }
 
     private SourceResponse queryXpathWithSearchPhrase(String xpath, String searchPhrase)
-            throws UnsupportedQueryException {
+        throws UnsupportedQueryException {
         Filter filter = filterBuilder.xpath(xpath).is().like().text(searchPhrase);
         SourceResponse sourceResponse = provider.query(new QueryRequestImpl(new QueryImpl(filter)));
         return sourceResponse;
-    }    
+    }
 
-	@Test
-	public void testNumericalFields() throws Exception {
-		deleteAllIn(provider);
+    @Test
+    public void testNumericalFields() throws Exception {
+        deleteAllIn(provider);
 
-		/* SETUP */
-		String doubleField = "hertz";
-		double doubleFieldValue = 16065.435;
+        /* SETUP */
+        String doubleField = "hertz";
+        double doubleFieldValue = 16065.435;
 
-		String floatField = "inches";
-		float floatFieldValue = 4.435f;
+        String floatField = "inches";
+        float floatFieldValue = 4.435f;
 
-		String intField = "count";
-		int intFieldValue = 4;
+        String intField = "count";
+        int intFieldValue = 4;
 
-		String longField = "milliseconds";
-		long longFieldValue = 9876543293L;
+        String longField = "milliseconds";
+        long longFieldValue = 9876543293L;
 
-		String shortField = "daysOfTheWeek";
-		short shortFieldValue = 1;
+        String shortField = "daysOfTheWeek";
+        short shortFieldValue = 1;
 
-		Set<AttributeDescriptor> descriptors = numericalDescriptors(doubleField, floatField, intField, longField,
-				shortField);
+        Set<AttributeDescriptor> descriptors = numericalDescriptors(doubleField, floatField,
+                intField, longField, shortField);
 
-		MetacardTypeImpl mType = new MetacardTypeImpl("numberMetacardType", descriptors);
+        MetacardTypeImpl mType = new MetacardTypeImpl("numberMetacardType", descriptors);
 
-		MetacardImpl customMetacard1 = new MetacardImpl(mType);
-		customMetacard1.setAttribute(Metacard.ID, "");
-		customMetacard1.setAttribute(doubleField, doubleFieldValue);
-		customMetacard1.setAttribute(floatField, floatFieldValue);
-		customMetacard1.setAttribute(intField, intFieldValue);
-		customMetacard1.setAttribute(longField, longFieldValue);
-		customMetacard1.setAttribute(shortField, shortFieldValue);
+        MetacardImpl customMetacard1 = new MetacardImpl(mType);
+        customMetacard1.setAttribute(Metacard.ID, "");
+        customMetacard1.setAttribute(doubleField, doubleFieldValue);
+        customMetacard1.setAttribute(floatField, floatFieldValue);
+        customMetacard1.setAttribute(intField, intFieldValue);
+        customMetacard1.setAttribute(longField, longFieldValue);
+        customMetacard1.setAttribute(shortField, shortFieldValue);
 
-		create(Arrays.asList((Metacard) customMetacard1));
+        create(Arrays.asList((Metacard) customMetacard1));
 
-		// searching double field with int value
-		greaterThanQueryAssertion(doubleField, intFieldValue, 1);
+        // searching double field with int value
+        greaterThanQueryAssertion(doubleField, intFieldValue, 1);
 
-		// searching float field with double value
-		greaterThanQueryAssertion(floatField, 4.0, 1);
+        // searching float field with double value
+        greaterThanQueryAssertion(floatField, 4.0, 1);
 
-		// searching long field with int value
-		greaterThanQueryAssertion(longField, intFieldValue, 1);
+        // searching long field with int value
+        greaterThanQueryAssertion(longField, intFieldValue, 1);
 
-		// searching int field with long value
-		greaterThanQueryAssertion(intField, 3L, 1);
+        // searching int field with long value
+        greaterThanQueryAssertion(intField, 3L, 1);
 
-		// searching int field with long value
-		greaterThanQueryAssertion(shortField, 0L, 1);
-	}
+        // searching int field with long value
+        greaterThanQueryAssertion(shortField, 0L, 1);
+    }
 
-	@Test()
-	public void testNumericalOperations() throws Exception {
-
-		deleteAllIn(provider);
-
-		/* SETUP */
-		String doubleField = "hertz";
-		double doubleFieldValue = 16065.435;
-
-		String floatField = "inches";
-		float floatFieldValue = 4.435f;
-
-		String intField = "count";
-		int intFieldValue = 4;
-
-		String longField = "milliseconds";
-		long longFieldValue = 9876543293L;
-
-		String shortField = "daysOfTheWeek";
-		short shortFieldValue = 1;
-
-		Set<AttributeDescriptor> descriptors = numericalDescriptors(doubleField, floatField, intField, longField,
-				shortField);
-
-		MetacardTypeImpl mType = new MetacardTypeImpl("anotherCustom", descriptors);
-
-		MetacardImpl customMetacard1 = new MetacardImpl(mType);
-		customMetacard1.setAttribute(Metacard.ID, "");
-		customMetacard1.setAttribute(doubleField, doubleFieldValue);
-		customMetacard1.setAttribute(floatField, floatFieldValue);
-		customMetacard1.setAttribute(intField, intFieldValue);
-		customMetacard1.setAttribute(longField, longFieldValue);
-		customMetacard1.setAttribute(shortField, shortFieldValue);
-
-		MetacardImpl customMetacard2 = new MetacardImpl(mType);
-		customMetacard2.setAttribute(Metacard.ID, "");
-		customMetacard2.setAttribute(doubleField, doubleFieldValue + 10.0);
-		customMetacard2.setAttribute(floatField, (floatFieldValue + 10.0f));
-		customMetacard2.setAttribute(intField, intFieldValue + 1);
-		customMetacard2.setAttribute(longField, longFieldValue + 10L);
-		customMetacard2.setAttribute(shortField, (shortFieldValue + 1));
-
-		create(Arrays.asList((Metacard) customMetacard1, customMetacard2));
-
-		// on exact DOUBLE
-		greaterThanQueryAssertion(doubleField, doubleFieldValue, 1);
-		greaterThanOrEqualToQueryAssertion(doubleField, doubleFieldValue, 2);
-
-		// beyond the DOUBLE
-		greaterThanQueryAssertion(doubleField, doubleFieldValue - 0.00000001, 2);
-		greaterThanOrEqualToQueryAssertion(doubleField, doubleFieldValue - 0.00000001, 2);
-		greaterThanQueryAssertion(doubleField, doubleFieldValue + 12.0, 0);
-		greaterThanOrEqualToQueryAssertion(doubleField, doubleFieldValue + 12.0, 0);
-
-		// on exact FLOAT
-		greaterThanQueryAssertion(floatField, floatFieldValue, 1);
-		greaterThanOrEqualToQueryAssertion(floatField, floatFieldValue, 2);
-
-		// beyond the FLOAT
-		greaterThanQueryAssertion(floatField, floatFieldValue - 0.00001f, 2);
-		greaterThanOrEqualToQueryAssertion(floatField, floatFieldValue - 0.00001f, 2);
-		greaterThanQueryAssertion(floatField, floatFieldValue + 12.0f, 0);
-		greaterThanOrEqualToQueryAssertion(floatField, floatFieldValue + 12.0f, 0);
-
-		// on exact LONG
-		greaterThanQueryAssertion(longField, longFieldValue, 1);
-		greaterThanOrEqualToQueryAssertion(longField, longFieldValue, 2);
-
-		// beyond the LONG
-		greaterThanQueryAssertion(longField, longFieldValue - 1L, 2);
-		greaterThanOrEqualToQueryAssertion(longField, longFieldValue - 1L, 2);
-		greaterThanQueryAssertion(longField, longFieldValue + 12L, 0);
-		greaterThanOrEqualToQueryAssertion(longField, longFieldValue + 12L, 0);
-
-		// on exact INT
-		greaterThanQueryAssertion(intField, intFieldValue, 1);
-		greaterThanOrEqualToQueryAssertion(intField, intFieldValue, 2);
-
-		// beyond the INT
-		greaterThanQueryAssertion(intField, intFieldValue - 1, 2);
-		greaterThanOrEqualToQueryAssertion(intField, intFieldValue - 1, 2);
-		greaterThanQueryAssertion(intField, intFieldValue + 2, 0);
-		greaterThanOrEqualToQueryAssertion(intField, intFieldValue + 2, 0);
+    @Test()
+    public void testNumericalOperations() throws Exception {
+
+        deleteAllIn(provider);
+
+        /* SETUP */
+        String doubleField = "hertz";
+        double doubleFieldValue = 16065.435;
+
+        String floatField = "inches";
+        float floatFieldValue = 4.435f;
+
+        String intField = "count";
+        int intFieldValue = 4;
+
+        String longField = "milliseconds";
+        long longFieldValue = 9876543293L;
+
+        String shortField = "daysOfTheWeek";
+        short shortFieldValue = 1;
+
+        Set<AttributeDescriptor> descriptors = numericalDescriptors(doubleField, floatField,
+                intField, longField, shortField);
+
+        MetacardTypeImpl mType = new MetacardTypeImpl("anotherCustom", descriptors);
+
+        MetacardImpl customMetacard1 = new MetacardImpl(mType);
+        customMetacard1.setAttribute(Metacard.ID, "");
+        customMetacard1.setAttribute(doubleField, doubleFieldValue);
+        customMetacard1.setAttribute(floatField, floatFieldValue);
+        customMetacard1.setAttribute(intField, intFieldValue);
+        customMetacard1.setAttribute(longField, longFieldValue);
+        customMetacard1.setAttribute(shortField, shortFieldValue);
+
+        MetacardImpl customMetacard2 = new MetacardImpl(mType);
+        customMetacard2.setAttribute(Metacard.ID, "");
+        customMetacard2.setAttribute(doubleField, doubleFieldValue + 10.0);
+        customMetacard2.setAttribute(floatField, (floatFieldValue + 10.0f));
+        customMetacard2.setAttribute(intField, intFieldValue + 1);
+        customMetacard2.setAttribute(longField, longFieldValue + 10L);
+        customMetacard2.setAttribute(shortField, (shortFieldValue + 1));
+
+        create(Arrays.asList((Metacard) customMetacard1, customMetacard2));
+
+        // on exact DOUBLE
+        greaterThanQueryAssertion(doubleField, doubleFieldValue, 1);
+        greaterThanOrEqualToQueryAssertion(doubleField, doubleFieldValue, 2);
+
+        // beyond the DOUBLE
+        greaterThanQueryAssertion(doubleField, doubleFieldValue - 0.00000001, 2);
+        greaterThanOrEqualToQueryAssertion(doubleField, doubleFieldValue - 0.00000001, 2);
+        greaterThanQueryAssertion(doubleField, doubleFieldValue + 12.0, 0);
+        greaterThanOrEqualToQueryAssertion(doubleField, doubleFieldValue + 12.0, 0);
+
+        // on exact FLOAT
+        greaterThanQueryAssertion(floatField, floatFieldValue, 1);
+        greaterThanOrEqualToQueryAssertion(floatField, floatFieldValue, 2);
+
+        // beyond the FLOAT
+        greaterThanQueryAssertion(floatField, floatFieldValue - 0.00001f, 2);
+        greaterThanOrEqualToQueryAssertion(floatField, floatFieldValue - 0.00001f, 2);
+        greaterThanQueryAssertion(floatField, floatFieldValue + 12.0f, 0);
+        greaterThanOrEqualToQueryAssertion(floatField, floatFieldValue + 12.0f, 0);
+
+        // on exact LONG
+        greaterThanQueryAssertion(longField, longFieldValue, 1);
+        greaterThanOrEqualToQueryAssertion(longField, longFieldValue, 2);
+
+        // beyond the LONG
+        greaterThanQueryAssertion(longField, longFieldValue - 1L, 2);
+        greaterThanOrEqualToQueryAssertion(longField, longFieldValue - 1L, 2);
+        greaterThanQueryAssertion(longField, longFieldValue + 12L, 0);
+        greaterThanOrEqualToQueryAssertion(longField, longFieldValue + 12L, 0);
+
+        // on exact INT
+        greaterThanQueryAssertion(intField, intFieldValue, 1);
+        greaterThanOrEqualToQueryAssertion(intField, intFieldValue, 2);
+
+        // beyond the INT
+        greaterThanQueryAssertion(intField, intFieldValue - 1, 2);
+        greaterThanOrEqualToQueryAssertion(intField, intFieldValue - 1, 2);
+        greaterThanQueryAssertion(intField, intFieldValue + 2, 0);
+        greaterThanOrEqualToQueryAssertion(intField, intFieldValue + 2, 0);
+
+        // on exact SHORT
+        greaterThanQueryAssertion(shortField, shortFieldValue, 1);
+        greaterThanOrEqualToQueryAssertion(shortField, shortFieldValue, 2);
+
+        // beyond the SHORT
+        greaterThanQueryAssertion(shortField, (short) (shortFieldValue - 1), 2);
+        greaterThanOrEqualToQueryAssertion(shortField, (short) (shortFieldValue - 1), 2);
+        greaterThanQueryAssertion(shortField, (short) (shortFieldValue + 2), 0);
+        greaterThanOrEqualToQueryAssertion(shortField, (short) (shortFieldValue + 2), 0);
+    }
+
+    private Set<AttributeDescriptor> numericalDescriptors(String doubleField, String floatField,
+            String intField, String longField, String shortField) {
+        Set<AttributeDescriptor> descriptors = new HashSet<AttributeDescriptor>();
+        descriptors.add(new AttributeDescriptorImpl(Metacard.ID, true, true, true, false,
+                BasicTypes.STRING_TYPE));
+        descriptors.add(new AttributeDescriptorImpl(doubleField, true, true, true, false,
+                BasicTypes.DOUBLE_TYPE));
+        descriptors.add(new AttributeDescriptorImpl(floatField, true, true, true, false,
+                BasicTypes.FLOAT_TYPE));
+        descriptors.add(new AttributeDescriptorImpl(intField, true, true, true, false,
+                BasicTypes.INTEGER_TYPE));
+        descriptors.add(new AttributeDescriptorImpl(longField, true, true, true, false,
+                BasicTypes.LONG_TYPE));
+        descriptors.add(new AttributeDescriptorImpl(shortField, true, true, true, false,
+                BasicTypes.SHORT_TYPE));
+        return descriptors;
+    }
+
+    private void greaterThanQueryAssertion(String fieldName, Serializable fieldValue, int count)
+        throws UnsupportedQueryException {
+
+        Filter filter = null;
+
+        if (fieldValue instanceof Double) {
+            filter = filterBuilder.attribute(fieldName).greaterThan().number((Double) fieldValue);
+        } else if (fieldValue instanceof Integer) {
+            filter = filterBuilder.attribute(fieldName).greaterThan().number((Integer) fieldValue);
+        } else if (fieldValue instanceof Short) {
+            filter = filterBuilder.attribute(fieldName).greaterThan().number((Short) fieldValue);
+        } else if (fieldValue instanceof Long) {
+            filter = filterBuilder.attribute(fieldName).greaterThan().number((Long) fieldValue);
+        } else if (fieldValue instanceof Float) {
+            filter = filterBuilder.attribute(fieldName).greaterThan().number((Float) fieldValue);
+        }
 
-		// on exact SHORT
-		greaterThanQueryAssertion(shortField, shortFieldValue, 1);
-		greaterThanOrEqualToQueryAssertion(shortField, shortFieldValue, 2);
+        SourceResponse response = provider.query(new QueryRequestImpl(new QueryImpl(filter)));
 
-		// beyond the SHORT
-		greaterThanQueryAssertion(shortField, (short) (shortFieldValue - 1), 2);
-		greaterThanOrEqualToQueryAssertion(shortField, (short) (shortFieldValue - 1), 2);
-		greaterThanQueryAssertion(shortField, (short) (shortFieldValue + 2), 0);
-		greaterThanOrEqualToQueryAssertion(shortField, (short) (shortFieldValue + 2), 0);
-	}
-
-	private Set<AttributeDescriptor> numericalDescriptors(String doubleField, String floatField, String intField,
-			String longField, String shortField) {
-		Set<AttributeDescriptor> descriptors = new HashSet<AttributeDescriptor>();
-		descriptors.add(new AttributeDescriptorImpl(Metacard.ID, true, true, true, false, BasicTypes.STRING_TYPE));
-		descriptors.add(new AttributeDescriptorImpl(doubleField, true, true, true, false, BasicTypes.DOUBLE_TYPE));
-		descriptors.add(new AttributeDescriptorImpl(floatField, true, true, true, false, BasicTypes.FLOAT_TYPE));
-		descriptors.add(new AttributeDescriptorImpl(intField, true, true, true, false, BasicTypes.INTEGER_TYPE));
-		descriptors.add(new AttributeDescriptorImpl(longField, true, true, true, false, BasicTypes.LONG_TYPE));
-		descriptors.add(new AttributeDescriptorImpl(shortField, true, true, true, false, BasicTypes.SHORT_TYPE));
-		return descriptors;
-	}
+        assertThat(response.getResults().size(), is(equalTo(count)));
+    }
 
-	private void greaterThanQueryAssertion(String fieldName, Serializable fieldValue, int count)
-			throws UnsupportedQueryException {
+    private void greaterThanOrEqualToQueryAssertion(String fieldName, Serializable fieldValue,
+            int count) throws UnsupportedQueryException {
 
-		Filter filter = null;
+        Filter filter = null;
 
-		if (fieldValue instanceof Double) {
-			filter = filterBuilder.attribute(fieldName).greaterThan().number((Double) fieldValue);
-		} else if (fieldValue instanceof Integer) {
-			filter = filterBuilder.attribute(fieldName).greaterThan().number((Integer) fieldValue);
-		} else if (fieldValue instanceof Short) {
-			filter = filterBuilder.attribute(fieldName).greaterThan().number((Short) fieldValue);
-		} else if (fieldValue instanceof Long) {
-			filter = filterBuilder.attribute(fieldName).greaterThan().number((Long) fieldValue);
-		} else if (fieldValue instanceof Float) {
-			filter = filterBuilder.attribute(fieldName).greaterThan().number((Float) fieldValue);
-		}
+        if (fieldValue instanceof Double) {
+            filter = filterBuilder.attribute(fieldName).greaterThanOrEqualTo()
+                    .number((Double) fieldValue);
+        } else if (fieldValue instanceof Integer) {
+            filter = filterBuilder.attribute(fieldName).greaterThanOrEqualTo()
+                    .number((Integer) fieldValue);
+        } else if (fieldValue instanceof Short) {
+            filter = filterBuilder.attribute(fieldName).greaterThanOrEqualTo()
+                    .number((Short) fieldValue);
+        } else if (fieldValue instanceof Long) {
+            filter = filterBuilder.attribute(fieldName).greaterThanOrEqualTo()
+                    .number((Long) fieldValue);
+        } else if (fieldValue instanceof Float) {
+            filter = filterBuilder.attribute(fieldName).greaterThanOrEqualTo()
+                    .number((Float) fieldValue);
+        }
 
-		SourceResponse response = provider.query(new QueryRequestImpl(new QueryImpl(filter)));
+        SourceResponse response = provider.query(new QueryRequestImpl(new QueryImpl(filter)));
 
-		assertThat(response.getResults().size(), is(equalTo(count)));
-	}
+        assertThat(response.getResults().size(), is(equalTo(count)));
+    }
 
-	private void greaterThanOrEqualToQueryAssertion(String fieldName, Serializable fieldValue, int count)
-			throws UnsupportedQueryException {
+    @Test()
+    public void testTemporalBefore() throws Exception {
 
-		Filter filter = null;
+        deleteAllIn(provider);
 
-		if (fieldValue instanceof Double) {
-			filter = filterBuilder.attribute(fieldName).greaterThanOrEqualTo().number((Double) fieldValue);
-		} else if (fieldValue instanceof Integer) {
-			filter = filterBuilder.attribute(fieldName).greaterThanOrEqualTo().number((Integer) fieldValue);
-		} else if (fieldValue instanceof Short) {
-			filter = filterBuilder.attribute(fieldName).greaterThanOrEqualTo().number((Short) fieldValue);
-		} else if (fieldValue instanceof Long) {
-			filter = filterBuilder.attribute(fieldName).greaterThanOrEqualTo().number((Long) fieldValue);
-		} else if (fieldValue instanceof Float) {
-			filter = filterBuilder.attribute(fieldName).greaterThanOrEqualTo().number((Float) fieldValue);
-		}
+        Metacard metacard = new MockMetacard(Library.getFlagstaffRecord());
+        List<Metacard> list = Arrays.asList(metacard);
 
-		SourceResponse response = provider.query(new QueryRequestImpl(new QueryImpl(filter)));
+        create(list);
 
-		assertThat(response.getResults().size(), is(equalTo(count)));
-	}
+        /** POSITIVE CASE **/
+        Filter filter = filterBuilder.attribute(Metacard.MODIFIED).before()
+                .date(new DateTime().plus(1).toDate());
 
-	@Test()
-	public void testTemporalBefore() throws Exception {
+        QueryImpl query = new QueryImpl(filter);
 
-		deleteAllIn(provider);
+        SourceResponse sourceResponse = provider.query(new QueryRequestImpl(query));
 
-		Metacard metacard = new MockMetacard(Library.getFlagstaffRecord());
-		List<Metacard> list = Arrays.asList(metacard);
+        assertEquals(1, sourceResponse.getResults().size());
 
-		create(list);
+        /** NEGATIVE CASE **/
+        filter = filterBuilder.attribute(Metacard.MODIFIED).before()
+                .date(new DateTime().minus(10000).toDate());
 
-		/** POSITIVE CASE **/
-		Filter filter = filterBuilder.attribute(Metacard.MODIFIED).before().date(new DateTime().plus(1).toDate());
+        query = new QueryImpl(filter);
 
-		QueryImpl query = new QueryImpl(filter);
+        sourceResponse = provider.query(new QueryRequestImpl(query));
 
-		SourceResponse sourceResponse = provider.query(new QueryRequestImpl(query));
+        assertEquals(0, sourceResponse.getResults().size());
 
-		assertEquals(1, sourceResponse.getResults().size());
+        /** Test Sort **/
 
-		/** NEGATIVE CASE **/
-		filter = filterBuilder.attribute(Metacard.MODIFIED).before().date(new DateTime().minus(10000).toDate());
+    }
 
-		query = new QueryImpl(filter);
+    /**
+     * Test for a specific IRAD problem.
+     * 
+     * @throws Exception
+     */
+    @Test
+    public void testSortById() throws Exception {
 
-		sourceResponse = provider.query(new QueryRequestImpl(query));
+        deleteAllIn(provider);
 
-		assertEquals(0, sourceResponse.getResults().size());
+        List<Metacard> list = new ArrayList<Metacard>();
 
-		/** Test Sort **/
+        DateTime now = new DateTime();
 
-	}
+        for (int i = 0; i < 5; i++) {
 
-	/**
-	 * Test for a specific IRAD problem.
-	 * @throws Exception
-	 */
-	@Test
-	public void testSortById() throws Exception {
-		
-		deleteAllIn(provider);
-		
-		List<Metacard> list = new ArrayList<Metacard>();
+            MockMetacard m = new MockMetacard(Library.getFlagstaffRecord());
 
-		DateTime now = new DateTime();
+            m.setEffectiveDate(now.minus(5L * i).toDate());
 
-		for (int i = 0; i < 5; i++) {
+            m.setTitle("Record " + i);
 
-			MockMetacard m = new MockMetacard(Library.getFlagstaffRecord());
+            list.add(m);
 
-			m.setEffectiveDate(now.minus(5L * i).toDate());
+        }
 
-			m.setTitle("Record " + i);
+        create(list);
 
-			list.add(m);
+        Filter filter = filterBuilder.attribute(Metacard.EFFECTIVE).before().date(now.toDate());
 
-		}
+        QueryImpl query = new QueryImpl(filter);
 
-		create(list);
-		
-		Filter filter = filterBuilder.attribute(Metacard.EFFECTIVE).before().date(now.toDate());
+        query.setSortBy(new ddf.catalog.filter.SortByImpl(Metacard.ID, SortOrder.ASCENDING.name()));
 
-		QueryImpl query = new QueryImpl(filter);
+        SourceResponse sourceResponse = provider.query(new QueryRequestImpl(query));
 
-		query.setSortBy(new ddf.catalog.filter.SortByImpl(Metacard.ID, SortOrder.ASCENDING.name()));
+        assertEquals(list.size(), sourceResponse.getResults().size());
 
-		SourceResponse sourceResponse = provider.query(new QueryRequestImpl(query));
+        String currentId = "";
 
-		assertEquals(list.size(), sourceResponse.getResults().size());
-		
-		String currentId = "" ;
-		
-		for(Result r : sourceResponse.getResults() ){
-			
-			assertTrue(currentId.compareTo( r.getMetacard().getId() ) < 0 );
-			currentId = r.getMetacard().getId();
-		}
-		
-	}
-	
-	@Test
-	public void testSorting() throws Exception {
+        for (Result r : sourceResponse.getResults()) {
 
-		deleteAllIn(provider);
+            assertTrue(currentId.compareTo(r.getMetacard().getId()) < 0);
+            currentId = r.getMetacard().getId();
+        }
 
-		List<Metacard> list = new ArrayList<Metacard>();
+    }
 
-		DateTime now = new DateTime();
+    @Test
+    public void testSorting() throws Exception {
 
-		for (int i = 0; i < 5; i++) {
+        deleteAllIn(provider);
 
-			MockMetacard m = new MockMetacard(Library.getFlagstaffRecord());
+        List<Metacard> list = new ArrayList<Metacard>();
 
-			m.setEffectiveDate(now.minus(5L * i).toDate());
+        DateTime now = new DateTime();
 
-			m.setTitle("Record " + i);
+        for (int i = 0; i < 5; i++) {
 
-			list.add(m);
+            MockMetacard m = new MockMetacard(Library.getFlagstaffRecord());
 
-		}
+            m.setEffectiveDate(now.minus(5L * i).toDate());
 
-		create(list);
+            m.setTitle("Record " + i);
 
-		Filter filter = null;
-		QueryImpl query = null;
-		SourceResponse sourceResponse = null;
+            list.add(m);
 
-		// Sort all TEMPORAL DESC
+        }
 
-		filter = filterBuilder.attribute(Metacard.EFFECTIVE).before().date(now.toDate());
+        create(list);
 
-		query = new QueryImpl(filter);
+        Filter filter = null;
+        QueryImpl query = null;
+        SourceResponse sourceResponse = null;
 
-		query.setSortBy(new ddf.catalog.filter.SortByImpl(Metacard.EFFECTIVE, SortOrder.DESCENDING.name()));
+        // Sort all TEMPORAL DESC
 
-		sourceResponse = provider.query(new QueryRequestImpl(query));
+        filter = filterBuilder.attribute(Metacard.EFFECTIVE).before().date(now.toDate());
 
-		assertEquals(list.size(), sourceResponse.getResults().size());
+        query = new QueryImpl(filter);
 
-		for (int i = 0; i < list.size(); i++) {
-			Result r = sourceResponse.getResults().get(i);
-			assertEquals("Record " + i, r.getMetacard().getTitle());
-		}
+        query.setSortBy(new ddf.catalog.filter.SortByImpl(Metacard.EFFECTIVE, SortOrder.DESCENDING
+                .name()));
 
-		// Sort all TEMPORAL ASC
+        sourceResponse = provider.query(new QueryRequestImpl(query));
 
-		query.setSortBy(new ddf.catalog.filter.SortByImpl(Metacard.EFFECTIVE, SortOrder.ASCENDING.name()));
+        assertEquals(list.size(), sourceResponse.getResults().size());
 
-		sourceResponse = provider.query(new QueryRequestImpl(query));
+        for (int i = 0; i < list.size(); i++) {
+            Result r = sourceResponse.getResults().get(i);
+            assertEquals("Record " + i, r.getMetacard().getTitle());
+        }
 
-		assertEquals(list.size(), sourceResponse.getResults().size());
+        // Sort all TEMPORAL ASC
 
-		int index = 0;
-		for (int i = (list.size() - 1); i >= 0; i--) {
-			Result r = sourceResponse.getResults().get(index);
-			assertEquals("Record " + i, r.getMetacard().getTitle());
-			index++;
-		}
+        query.setSortBy(new ddf.catalog.filter.SortByImpl(Metacard.EFFECTIVE, SortOrder.ASCENDING
+                .name()));
 
-		// Sort all Relevancy score DESC
+        sourceResponse = provider.query(new QueryRequestImpl(query));
 
-		filter = filterBuilder.attribute(Metacard.METADATA).like().text(FLAGSTAFF_QUERY_PHRASE);
+        assertEquals(list.size(), sourceResponse.getResults().size());
 
-		query = new QueryImpl(filter);
+        int index = 0;
+        for (int i = (list.size() - 1); i >= 0; i--) {
+            Result r = sourceResponse.getResults().get(index);
+            assertEquals("Record " + i, r.getMetacard().getTitle());
+            index++;
+        }
 
-		query.setSortBy(new ddf.catalog.filter.SortByImpl(Result.RELEVANCE, SortOrder.DESCENDING.name()));
+        // Sort all Relevancy score DESC
 
-		sourceResponse = provider.query(new QueryRequestImpl(query));
+        filter = filterBuilder.attribute(Metacard.METADATA).like().text(FLAGSTAFF_QUERY_PHRASE);
 
-		assertEquals(list.size(), sourceResponse.getResults().size());
+        query = new QueryImpl(filter);
 
-		double currentScore = Integer.MAX_VALUE;
-		for (Result r : sourceResponse.getResults()) {
+        query.setSortBy(new ddf.catalog.filter.SortByImpl(Result.RELEVANCE, SortOrder.DESCENDING
+                .name()));
 
-			assertThat(currentScore, greaterThanOrEqualTo(r.getRelevanceScore()));
-			currentScore = r.getRelevanceScore();
-		}
+        sourceResponse = provider.query(new QueryRequestImpl(query));
 
-		// Sort all Relevancy score DESC
+        assertEquals(list.size(), sourceResponse.getResults().size());
 
-		filter = filterBuilder.attribute(Metacard.METADATA).like().text(FLAGSTAFF_QUERY_PHRASE);
+        double currentScore = Integer.MAX_VALUE;
+        for (Result r : sourceResponse.getResults()) {
 
-		query = new QueryImpl(filter);
+            assertThat(currentScore, greaterThanOrEqualTo(r.getRelevanceScore()));
+            currentScore = r.getRelevanceScore();
+        }
 
-		query.setSortBy(new ddf.catalog.filter.SortByImpl(Result.RELEVANCE, SortOrder.ASCENDING.name()));
+        // Sort all Relevancy score DESC
 
-		sourceResponse = provider.query(new QueryRequestImpl(query));
+        filter = filterBuilder.attribute(Metacard.METADATA).like().text(FLAGSTAFF_QUERY_PHRASE);
 
-		assertEquals(list.size(), sourceResponse.getResults().size());
+        query = new QueryImpl(filter);
 
-		currentScore = 0;
-		for (Result r : sourceResponse.getResults()) {
+        query.setSortBy(new ddf.catalog.filter.SortByImpl(Result.RELEVANCE, SortOrder.ASCENDING
+                .name()));
 
-			assertThat(currentScore, lessThanOrEqualTo(r.getRelevanceScore()));
-			currentScore = r.getRelevanceScore();
-		}
-	}
+        sourceResponse = provider.query(new QueryRequestImpl(query));
 
-	@Test
-	public void testStartIndexWithSorting() throws Exception {
-		deleteAllIn(provider);
+        assertEquals(list.size(), sourceResponse.getResults().size());
 
-		List<Metacard> metacards = new ArrayList<Metacard>();
+        currentScore = 0;
+        for (Result r : sourceResponse.getResults()) {
 
-		DateTime dt = new DateTime(1985, 1, 1, 1, 1, 1, 1, DateTimeZone.UTC);
+            assertThat(currentScore, lessThanOrEqualTo(r.getRelevanceScore()));
+            currentScore = r.getRelevanceScore();
+        }
+    }
 
-		TreeSet<Date> calculatedDates = new TreeSet<Date>();
+    @Test
+    public void testStartIndexWithSorting() throws Exception {
+        deleteAllIn(provider);
 
-		for (int j = 0; j < 10; j++) {
-			for (int i = 0; i < 100; i = i + 10) {
+        List<Metacard> metacards = new ArrayList<Metacard>();
 
-				MetacardImpl metacard = new MockMetacard(Library.getFlagstaffRecord());
+        DateTime dt = new DateTime(1985, 1, 1, 1, 1, 1, 1, DateTimeZone.UTC);
 
-				// ingest sporadically the effective dates so the default return
-				// order won't be ordered
-				Date calculatedDate = dt.plusDays(100 - i + 10 - j).toDate();
-				calculatedDates.add(calculatedDate);
-				metacard.setEffectiveDate(calculatedDate);
-				metacards.add(metacard);
+        TreeSet<Date> calculatedDates = new TreeSet<Date>();
 
-			}
-		}
+        for (int j = 0; j < 10; j++) {
+            for (int i = 0; i < 100; i = i + 10) {
 
-		// The TreeSet will sort them, the array will give me access to everyone
-		// without an iterator
-		Date[] dates = new Date[calculatedDates.size()];
-		calculatedDates.toArray(dates);
+                MetacardImpl metacard = new MockMetacard(Library.getFlagstaffRecord());
 
-		/** CREATE **/
-		CreateResponse response = create(metacards);
+                // ingest sporadically the effective dates so the default return
+                // order won't be ordered
+                Date calculatedDate = dt.plusDays(100 - i + 10 - j).toDate();
+                calculatedDates.add(calculatedDate);
+                metacard.setEffectiveDate(calculatedDate);
+                metacards.add(metacard);
 
-		LOGGER.info("CREATED " + response.getCreatedMetacards().size() + " records.");
+            }
+        }
 
-		CommonQueryBuilder queryBuilder = new CommonQueryBuilder();
+        // The TreeSet will sort them, the array will give me access to everyone
+        // without an iterator
+        Date[] dates = new Date[calculatedDates.size()];
+        calculatedDates.toArray(dates);
 
-		QueryImpl query = queryBuilder.queryByProperty(Metacard.CONTENT_TYPE, MockMetacard.DEFAULT_TYPE);
+        /** CREATE **/
+        CreateResponse response = create(metacards);
 
-		int maxSize = 20;
-		int startIndex = 2;
+        LOGGER.info("CREATED " + response.getCreatedMetacards().size() + " records.");
 
-		// STARTINDEX=2, MAXSIZE=20
-		query.setPageSize(maxSize);
-		query.setStartIndex(startIndex);
-		SortByImpl sortBy = new SortByImpl(queryBuilder.filterFactory.property(Metacard.EFFECTIVE),
-				org.opengis.filter.sort.SortOrder.ASCENDING);
-		query.setSortBy(sortBy);
+        CommonQueryBuilder queryBuilder = new CommonQueryBuilder();
 
-		SourceResponse sourceResponse = provider.query(new QueryRequestImpl(query));
+        QueryImpl query = queryBuilder.queryByProperty(Metacard.CONTENT_TYPE,
+                MockMetacard.DEFAULT_TYPE);
 
-		assertEquals(maxSize, sourceResponse.getResults().size());
+        int maxSize = 20;
+        int startIndex = 2;
 
-		for (int i = 0; i < sourceResponse.getResults().size(); i++) {
+        // STARTINDEX=2, MAXSIZE=20
+        query.setPageSize(maxSize);
+        query.setStartIndex(startIndex);
+        SortByImpl sortBy = new SortByImpl(queryBuilder.filterFactory.property(Metacard.EFFECTIVE),
+                org.opengis.filter.sort.SortOrder.ASCENDING);
+        query.setSortBy(sortBy);
 
-			Result r = sourceResponse.getResults().get(i);
+        SourceResponse sourceResponse = provider.query(new QueryRequestImpl(query));
 
-			Date effectiveDate = r.getMetacard().getEffectiveDate();
+        assertEquals(maxSize, sourceResponse.getResults().size());
 
-			DateTime currentDate = new DateTime(effectiveDate.getTime());
+        for (int i = 0; i < sourceResponse.getResults().size(); i++) {
 
-			LOGGER.debug("Testing current index: " + (startIndex + i));
+            Result r = sourceResponse.getResults().get(i);
 
-			assertEquals(new DateTime(dates[startIndex - 1 + i].getTime()).getDayOfYear(), currentDate.getDayOfYear());
+            Date effectiveDate = r.getMetacard().getEffectiveDate();
 
-		}
+            DateTime currentDate = new DateTime(effectiveDate.getTime());
 
-		// STARTINDEX=20, MAXSIZE=5
-		// a match-all queryByProperty
-		query = queryBuilder.queryByProperty(Metacard.CONTENT_TYPE, MockMetacard.DEFAULT_TYPE);
+            LOGGER.debug("Testing current index: " + (startIndex + i));
 
-		maxSize = 5;
-		startIndex = 20;
-		query.setPageSize(maxSize);
-		query.setStartIndex(startIndex);
-		sortBy = new SortByImpl(queryBuilder.filterFactory.property(Metacard.EFFECTIVE),
-				org.opengis.filter.sort.SortOrder.ASCENDING);
-		query.setSortBy(sortBy);
+            assertEquals(new DateTime(dates[startIndex - 1 + i].getTime()).getDayOfYear(),
+                    currentDate.getDayOfYear());
 
-		sourceResponse = provider.query(new QueryRequestImpl(query));
+        }
 
-		assertEquals(maxSize, sourceResponse.getResults().size());
+        // STARTINDEX=20, MAXSIZE=5
+        // a match-all queryByProperty
+        query = queryBuilder.queryByProperty(Metacard.CONTENT_TYPE, MockMetacard.DEFAULT_TYPE);
 
-		for (int i = 0; i < sourceResponse.getResults().size(); i++) {
+        maxSize = 5;
+        startIndex = 20;
+        query.setPageSize(maxSize);
+        query.setStartIndex(startIndex);
+        sortBy = new SortByImpl(queryBuilder.filterFactory.property(Metacard.EFFECTIVE),
+                org.opengis.filter.sort.SortOrder.ASCENDING);
+        query.setSortBy(sortBy);
 
-			Result r = sourceResponse.getResults().get(i);
+        sourceResponse = provider.query(new QueryRequestImpl(query));
 
-			Date effectiveDate = r.getMetacard().getEffectiveDate();
+        assertEquals(maxSize, sourceResponse.getResults().size());
 
-			DateTime currentDate = new DateTime(effectiveDate.getTime());
+        for (int i = 0; i < sourceResponse.getResults().size(); i++) {
 
-			LOGGER.debug("Testing current index: " + (startIndex + i));
+            Result r = sourceResponse.getResults().get(i);
 
-			assertEquals(new DateTime(dates[startIndex - 1 + i].getTime()).getDayOfYear(), currentDate.getDayOfYear());
+            Date effectiveDate = r.getMetacard().getEffectiveDate();
 
-		}
+            DateTime currentDate = new DateTime(effectiveDate.getTime());
 
-		// STARTINDEX=80, MAXSIZE=20
-		// a match-all queryByProperty
-		query = queryBuilder.queryByProperty(Metacard.CONTENT_TYPE, MockMetacard.DEFAULT_TYPE);
+            LOGGER.debug("Testing current index: " + (startIndex + i));
 
-		maxSize = 20;
-		startIndex = 80;
-		query.setPageSize(maxSize);
-		query.setStartIndex(startIndex);
-		sortBy = new SortByImpl(queryBuilder.filterFactory.property(Metacard.EFFECTIVE),
-				org.opengis.filter.sort.SortOrder.ASCENDING);
-		query.setSortBy(sortBy);
+            assertEquals(new DateTime(dates[startIndex - 1 + i].getTime()).getDayOfYear(),
+                    currentDate.getDayOfYear());
 
-		sourceResponse = provider.query(new QueryRequestImpl(query));
+        }
 
-		assertEquals(maxSize, sourceResponse.getResults().size());
+        // STARTINDEX=80, MAXSIZE=20
+        // a match-all queryByProperty
+        query = queryBuilder.queryByProperty(Metacard.CONTENT_TYPE, MockMetacard.DEFAULT_TYPE);
 
-		for (int i = 0; i < sourceResponse.getResults().size(); i++) {
+        maxSize = 20;
+        startIndex = 80;
+        query.setPageSize(maxSize);
+        query.setStartIndex(startIndex);
+        sortBy = new SortByImpl(queryBuilder.filterFactory.property(Metacard.EFFECTIVE),
+                org.opengis.filter.sort.SortOrder.ASCENDING);
+        query.setSortBy(sortBy);
 
-			Result r = sourceResponse.getResults().get(i);
+        sourceResponse = provider.query(new QueryRequestImpl(query));
 
-			Date effectiveDate = r.getMetacard().getEffectiveDate();
+        assertEquals(maxSize, sourceResponse.getResults().size());
 
-			DateTime currentDate = new DateTime(effectiveDate.getTime());
+        for (int i = 0; i < sourceResponse.getResults().size(); i++) {
 
-			LOGGER.debug("Testing current index: " + (startIndex + i));
+            Result r = sourceResponse.getResults().get(i);
 
-			assertEquals(new DateTime(dates[startIndex - 1 + i].getTime()).getDayOfYear(), currentDate.getDayOfYear());
+            Date effectiveDate = r.getMetacard().getEffectiveDate();
 
-		}
+            DateTime currentDate = new DateTime(effectiveDate.getTime());
 
-		// STARTINDEX=1, MAXSIZE=100
-		// a match-all queryByProperty
-		query = queryBuilder.queryByProperty(Metacard.CONTENT_TYPE, MockMetacard.DEFAULT_TYPE);
+            LOGGER.debug("Testing current index: " + (startIndex + i));
 
-		maxSize = 100;
-		startIndex = 1;
-		query.setPageSize(maxSize);
-		query.setStartIndex(startIndex);
-		sortBy = new SortByImpl(queryBuilder.filterFactory.property(Metacard.EFFECTIVE),
-				org.opengis.filter.sort.SortOrder.ASCENDING);
-		query.setSortBy(sortBy);
+            assertEquals(new DateTime(dates[startIndex - 1 + i].getTime()).getDayOfYear(),
+                    currentDate.getDayOfYear());
 
-		sourceResponse = provider.query(new QueryRequestImpl(query));
+        }
 
-		assertEquals(maxSize, sourceResponse.getResults().size());
+        // STARTINDEX=1, MAXSIZE=100
+        // a match-all queryByProperty
+        query = queryBuilder.queryByProperty(Metacard.CONTENT_TYPE, MockMetacard.DEFAULT_TYPE);
 
-		for (int i = 0; i < sourceResponse.getResults().size(); i++) {
+        maxSize = 100;
+        startIndex = 1;
+        query.setPageSize(maxSize);
+        query.setStartIndex(startIndex);
+        sortBy = new SortByImpl(queryBuilder.filterFactory.property(Metacard.EFFECTIVE),
+                org.opengis.filter.sort.SortOrder.ASCENDING);
+        query.setSortBy(sortBy);
 
-			Result r = sourceResponse.getResults().get(i);
+        sourceResponse = provider.query(new QueryRequestImpl(query));
 
-			Date effectiveDate = r.getMetacard().getEffectiveDate();
+        assertEquals(maxSize, sourceResponse.getResults().size());
 
-			DateTime currentDate = new DateTime(effectiveDate.getTime());
+        for (int i = 0; i < sourceResponse.getResults().size(); i++) {
 
-			LOGGER.debug("Testing current index: " + (startIndex + i));
+            Result r = sourceResponse.getResults().get(i);
 
-			assertEquals(new DateTime(dates[startIndex - 1 + i].getTime()).getDayOfYear(), currentDate.getDayOfYear());
+            Date effectiveDate = r.getMetacard().getEffectiveDate();
 
-		}
-	}
+            DateTime currentDate = new DateTime(effectiveDate.getTime());
 
-	/**
-	 * Tests the offset aka start index (startIndex) functionality.
-	 * 
-	 * @param bundleContext
-	 * @throws Exception
-	 */
-	@Test
-	public void testStartIndex() throws Exception {
+            LOGGER.debug("Testing current index: " + (startIndex + i));
 
-		deleteAllIn(provider);
+            assertEquals(new DateTime(dates[startIndex - 1 + i].getTime()).getDayOfYear(),
+                    currentDate.getDayOfYear());
 
-		List<Metacard> list = Arrays.asList((Metacard) new MockMetacard(Library.getFlagstaffRecord()),
-				(Metacard) new MockMetacard(Library.getFlagstaffRecord()),
-				(Metacard) new MockMetacard(Library.getFlagstaffRecord()),
-				(Metacard) new MockMetacard(Library.getFlagstaffRecord()),
-				(Metacard) new MockMetacard(Library.getFlagstaffRecord()),
-				(Metacard) new MockMetacard(Library.getFlagstaffRecord()),
-				(Metacard) new MockMetacard(Library.getFlagstaffRecord()),
-				(Metacard) new MockMetacard(Library.getFlagstaffRecord()),
-				(Metacard) new MockMetacard(Library.getFlagstaffRecord()));
+        }
+    }
 
-		/** CREATE **/
-		create(list);
+    /**
+     * Tests the offset aka start index (startIndex) functionality.
+     * 
+     * @param bundleContext
+     * @throws Exception
+     */
+    @Test
+    public void testStartIndex() throws Exception {
 
-		/** CONTEXTUAL QUERY **/
+        deleteAllIn(provider);
 
-		CommonQueryBuilder queryBuilder = new CommonQueryBuilder();
+        List<Metacard> list = Arrays.asList(
+                (Metacard) new MockMetacard(Library.getFlagstaffRecord()),
+                (Metacard) new MockMetacard(Library.getFlagstaffRecord()),
+                (Metacard) new MockMetacard(Library.getFlagstaffRecord()),
+                (Metacard) new MockMetacard(Library.getFlagstaffRecord()),
+                (Metacard) new MockMetacard(Library.getFlagstaffRecord()),
+                (Metacard) new MockMetacard(Library.getFlagstaffRecord()),
+                (Metacard) new MockMetacard(Library.getFlagstaffRecord()),
+                (Metacard) new MockMetacard(Library.getFlagstaffRecord()),
+                (Metacard) new MockMetacard(Library.getFlagstaffRecord()));
 
-		QueryImpl query = queryBuilder.queryByProperty(Metacard.TITLE, FLAGSTAFF_QUERY_PHRASE);
+        /** CREATE **/
+        create(list);
 
-		int index = 0;
-		int maxSize = 9;
-		int startIndex = 1;
+        /** CONTEXTUAL QUERY **/
 
-		query.setPageSize(maxSize);
-		query.setStartIndex(startIndex);
-		query.setRequestsTotalResultsCount(true);
+        CommonQueryBuilder queryBuilder = new CommonQueryBuilder();
 
-		SourceResponse sourceResponse = provider.query(new QueryRequestImpl(query));
+        QueryImpl query = queryBuilder.queryByProperty(Metacard.TITLE, FLAGSTAFF_QUERY_PHRASE);
 
-		assertEquals(9, sourceResponse.getResults().size());
-		assertEquals(9L, sourceResponse.getHits());
+        int index = 0;
+        int maxSize = 9;
+        int startIndex = 1;
 
-		LinkedList<Result> allItems = new LinkedList<Result>();
+        query.setPageSize(maxSize);
+        query.setStartIndex(startIndex);
+        query.setRequestsTotalResultsCount(true);
 
-		for (Result r : sourceResponse.getResults()) {
-			allItems.add(r);
-		}
+        SourceResponse sourceResponse = provider.query(new QueryRequestImpl(query));
 
-		// 1
-		maxSize = 1;
-		startIndex = 2;
-		index = startIndex - 1;
+        assertEquals(9, sourceResponse.getResults().size());
+        assertEquals(9L, sourceResponse.getHits());
 
-		query.setPageSize(maxSize);
-		query.setStartIndex(startIndex);
-		query.setRequestsTotalResultsCount(true);
+        LinkedList<Result> allItems = new LinkedList<Result>();
 
-		sourceResponse = provider.query(new QueryRequestImpl(query));
+        for (Result r : sourceResponse.getResults()) {
+            allItems.add(r);
+        }
 
-		assertEquals(ONE_HIT, sourceResponse.getResults().size());
-		assertEquals(9L, sourceResponse.getHits());
+        // 1
+        maxSize = 1;
+        startIndex = 2;
+        index = startIndex - 1;
 
-		for (Result r : sourceResponse.getResults()) {
+        query.setPageSize(maxSize);
+        query.setStartIndex(startIndex);
+        query.setRequestsTotalResultsCount(true);
 
-			assertEquals("Testing when startIndex = " + startIndex, allItems.get(index).getMetacard().getMetadata(), r
-					.getMetacard().getMetadata());
-			index++;
-		}
+        sourceResponse = provider.query(new QueryRequestImpl(query));
 
-		// 4
-		maxSize = 1;
-		startIndex = 4;
-		index = startIndex - 1;
-		query.setPageSize(maxSize);
-		query.setStartIndex(startIndex);
-		query.setRequestsTotalResultsCount(false);
+        assertEquals(ONE_HIT, sourceResponse.getResults().size());
+        assertEquals(9L, sourceResponse.getHits());
 
-		sourceResponse = provider.query(new QueryRequestImpl(query));
+        for (Result r : sourceResponse.getResults()) {
 
-		assertEquals(ONE_HIT, sourceResponse.getResults().size());
-		assertThat(sourceResponse.getHits(), anyOf(equalTo(-1L), equalTo(9L)));
+            assertEquals("Testing when startIndex = " + startIndex, allItems.get(index)
+                    .getMetacard().getMetadata(), r.getMetacard().getMetadata());
+            index++;
+        }
 
-		for (Result r : sourceResponse.getResults()) {
+        // 4
+        maxSize = 1;
+        startIndex = 4;
+        index = startIndex - 1;
+        query.setPageSize(maxSize);
+        query.setStartIndex(startIndex);
+        query.setRequestsTotalResultsCount(false);
 
-			assertEquals("Testing when startIndex = " + startIndex, allItems.get(index).getMetacard().getMetadata(), r
-					.getMetacard().getMetadata());
-			index++;
-		}
+        sourceResponse = provider.query(new QueryRequestImpl(query));
 
-		// 5
-		maxSize = 5;
-		startIndex = 5;
-		index = startIndex - 1;
-		query.setPageSize(maxSize);
-		query.setStartIndex(startIndex);
+        assertEquals(ONE_HIT, sourceResponse.getResults().size());
+        assertThat(sourceResponse.getHits(), anyOf(equalTo(-1L), equalTo(9L)));
 
-		sourceResponse = provider.query(new QueryRequestImpl(query));
+        for (Result r : sourceResponse.getResults()) {
 
-		assertEquals(5, sourceResponse.getResults().size());
+            assertEquals("Testing when startIndex = " + startIndex, allItems.get(index)
+                    .getMetacard().getMetadata(), r.getMetacard().getMetadata());
+            index++;
+        }
 
-		for (Result r : sourceResponse.getResults()) {
+        // 5
+        maxSize = 5;
+        startIndex = 5;
+        index = startIndex - 1;
+        query.setPageSize(maxSize);
+        query.setStartIndex(startIndex);
 
-			assertEquals("Testing when startIndex = " + startIndex, allItems.get(index).getMetacard().getMetadata(), r
-					.getMetacard().getMetadata());
-			index++;
-		}
+        sourceResponse = provider.query(new QueryRequestImpl(query));
 
-		// 9
-		maxSize = 9;
-		startIndex = 9;
-		index = startIndex - 1;
-		query.setPageSize(maxSize);
-		query.setStartIndex(startIndex);
+        assertEquals(5, sourceResponse.getResults().size());
 
-		sourceResponse = provider.query(new QueryRequestImpl(query));
+        for (Result r : sourceResponse.getResults()) {
 
-		assertEquals(ONE_HIT, sourceResponse.getResults().size());
+            assertEquals("Testing when startIndex = " + startIndex, allItems.get(index)
+                    .getMetacard().getMetadata(), r.getMetacard().getMetadata());
+            index++;
+        }
 
-		for (Result r : sourceResponse.getResults()) {
+        // 9
+        maxSize = 9;
+        startIndex = 9;
+        index = startIndex - 1;
+        query.setPageSize(maxSize);
+        query.setStartIndex(startIndex);
 
-			assertEquals("Testing when startIndex = " + startIndex, allItems.get(index).getMetacard().getMetadata(), r
-					.getMetacard().getMetadata());
-			index++;
-		}
+        sourceResponse = provider.query(new QueryRequestImpl(query));
 
-		// Max size is very large
-		maxSize = 100;
-		startIndex = 9;
-		index = startIndex - 1;
-		query.setPageSize(maxSize);
-		query.setStartIndex(startIndex);
+        assertEquals(ONE_HIT, sourceResponse.getResults().size());
 
-		sourceResponse = provider.query(new QueryRequestImpl(query));
+        for (Result r : sourceResponse.getResults()) {
 
-		assertEquals(ONE_HIT, sourceResponse.getResults().size());
+            assertEquals("Testing when startIndex = " + startIndex, allItems.get(index)
+                    .getMetacard().getMetadata(), r.getMetacard().getMetadata());
+            index++;
+        }
 
-		for (Result r : sourceResponse.getResults()) {
+        // Max size is very large
+        maxSize = 100;
+        startIndex = 9;
+        index = startIndex - 1;
+        query.setPageSize(maxSize);
+        query.setStartIndex(startIndex);
 
-			assertEquals(allItems.get(index).getMetacard().getMetadata(), r.getMetacard().getMetadata());
-			index++;
-		}
+        sourceResponse = provider.query(new QueryRequestImpl(query));
 
-		// bad start index
-		maxSize = 2;
-		startIndex = ALL_RESULTS;
-		index = startIndex - 1;
-		query.setPageSize(maxSize);
-		query.setStartIndex(startIndex);
+        assertEquals(ONE_HIT, sourceResponse.getResults().size());
 
-		try {
-			sourceResponse = provider.query(new QueryRequestImpl(query));
-			Assert.fail("Expected an exception stating that the start index should be greater than 0. ");
-		} catch (UnsupportedQueryException e) {
-			assertTrue(e.getMessage().indexOf("greater than 0") != ALL_RESULTS);
-		}
+        for (Result r : sourceResponse.getResults()) {
 
-	}
-	
-	@Test
-	public void testSpatialPointRadius() throws Exception {
+            assertEquals(allItems.get(index).getMetacard().getMetadata(), r.getMetacard()
+                    .getMetadata());
+            index++;
+        }
 
-		deleteAllIn(provider);
-		MetacardImpl metacard1 = new MockMetacard(Library.getFlagstaffRecord());
-		MetacardImpl metacard2 = new MockMetacard(Library.getTampaRecord());
-		MetacardImpl metacard3 = new MockMetacard(Library.getShowLowRecord());
+        // bad start index
+        maxSize = 2;
+        startIndex = ALL_RESULTS;
+        index = startIndex - 1;
+        query.setPageSize(maxSize);
+        query.setStartIndex(startIndex);
 
-		// Add in the geometry
-		metacard1.setLocation(FLAGSTAFF_AIRPORT_POINT_WKT);
-		metacard2.setLocation(TAMPA_AIRPORT_POINT_WKT);
-		metacard3.setLocation(SHOW_LOW_AIRPORT_POINT_WKT);
+        try {
+            sourceResponse = provider.query(new QueryRequestImpl(query));
+            Assert.fail("Expected an exception stating that the start index should be greater than 0. ");
+        } catch (UnsupportedQueryException e) {
+            assertTrue(e.getMessage().indexOf("greater than 0") != ALL_RESULTS);
+        }
 
-		List<Metacard> list = Arrays.asList((Metacard) metacard1, metacard2, metacard3);
+    }
 
-		/** CREATE **/
-		create(list);
-		
-		Filter filter = filterBuilder.attribute(Metacard.ID).is().like().text("*");
-		SourceResponse sourceResponse = provider.query(new QueryRequestImpl(
-				new QueryImpl(filter)));
-		assertEquals("Failed to find all records.", 3, sourceResponse.getResults().size());
-		
-		CommonQueryBuilder builder = new CommonQueryBuilder();
+    @Test
+    public void testSpatialPointRadius() throws Exception {
 
-		// Right on Flagstaff
-		QueryImpl query = builder.pointRadius(-111.67121887207031, 35.138454437255859, 10.0);
-		query.setPageSize(1);
-		sourceResponse = provider.query(new QueryRequestImpl(query));
+        deleteAllIn(provider);
+        MetacardImpl metacard1 = new MockMetacard(Library.getFlagstaffRecord());
+        MetacardImpl metacard2 = new MockMetacard(Library.getTampaRecord());
+        MetacardImpl metacard3 = new MockMetacard(Library.getShowLowRecord());
 
-		assertEquals("Failed to find Flagstaff record only.", 1, sourceResponse.getResults().size());
+        // Add in the geometry
+        metacard1.setLocation(FLAGSTAFF_AIRPORT_POINT_WKT);
+        metacard2.setLocation(TAMPA_AIRPORT_POINT_WKT);
+        metacard3.setLocation(SHOW_LOW_AIRPORT_POINT_WKT);
 
-		for (Result r : sourceResponse.getResults()) {
-			assertTrue("Wrong record, Flagstaff keyword was not found.", ALL_RESULTS != r.getMetacard().getMetadata()
-					.indexOf(FLAGSTAFF_QUERY_PHRASE));
-			LOGGER.info("Distance to Flagstaff: " + r.getDistanceInMeters());
-			// assertTrue(r.getDistanceInMeters() != null);
-		}
+        List<Metacard> list = Arrays.asList((Metacard) metacard1, metacard2, metacard3);
 
-		// Right on Flagstaff, finding 2 records with 195 km radius
-		query = builder.pointRadius(-111.67121887207031, 35.138454437255859, 195000);
-		query.setSortBy(new ddf.catalog.filter.SortByImpl("foo", SortOrder.ASCENDING));
-		sourceResponse = provider.query(new QueryRequestImpl(query));
+        /** CREATE **/
+        create(list);
 
-		assertEquals("Failed to find the two records.", 2, sourceResponse.getResults().size());
+        Filter filter = filterBuilder.attribute(Metacard.ID).is().like().text("*");
+        SourceResponse sourceResponse = provider.query(new QueryRequestImpl(new QueryImpl(filter)));
+        assertEquals("Failed to find all records.", 3, sourceResponse.getResults().size());
 
-		ArrayList<Result> results = new ArrayList<Result>();
-		for (Result r : sourceResponse.getResults()) {
-			results.add(r);
-		}
+        CommonQueryBuilder builder = new CommonQueryBuilder();
 
-		// must be in order because that was specified by the Sortby in the
-		// querybuilder
-		for (int i = 0; i < 2; i++) {
-			Result result = results.get(i);
+        // Right on Flagstaff
+        QueryImpl query = builder.pointRadius(-111.67121887207031, 35.138454437255859, 10.0);
+        query.setPageSize(1);
+        sourceResponse = provider.query(new QueryRequestImpl(query));
 
-			LOGGER.info("Distance of [" + i + "]: " + result.getDistanceInMeters());
+        assertEquals("Failed to find Flagstaff record only.", 1, sourceResponse.getResults().size());
 
-			if (i == 0) {
-				assertTrue("Grabbed the wrong record.",
-						ALL_RESULTS != result.getMetacard().getMetadata().indexOf(FLAGSTAFF_QUERY_PHRASE));
-			}
-			if (i == 1) {
-				assertTrue("Grabbed the wrong record - should be Show Low.", ALL_RESULTS != result.getMetacard()
-						.getMetadata().indexOf("Show Low"));
-			}
-		}
+        for (Result r : sourceResponse.getResults()) {
+            assertTrue("Wrong record, Flagstaff keyword was not found.", ALL_RESULTS != r
+                    .getMetacard().getMetadata().indexOf(FLAGSTAFF_QUERY_PHRASE));
+            LOGGER.info("Distance to Flagstaff: " + r.getDistanceInMeters());
+            // assertTrue(r.getDistanceInMeters() != null);
+        }
 
-		// NEGATIVE CASE
-		query = builder.pointRadius(80.1, 25, 195000);
-		query.setPageSize(3);
-		sourceResponse = provider.query(new QueryRequestImpl(query));
+        // Right on Flagstaff, finding 2 records with 195 km radius
+        query = builder.pointRadius(-111.67121887207031, 35.138454437255859, 195000);
+        query.setSortBy(new ddf.catalog.filter.SortByImpl("foo", SortOrder.ASCENDING));
+        sourceResponse = provider.query(new QueryRequestImpl(query));
 
-		assertEquals("Should have not found any records.", 0, sourceResponse.getResults().size());
+        assertEquals("Failed to find the two records.", 2, sourceResponse.getResults().size());
 
-		// FEET
-		double[] coords = { -111.67121887207031, 35.138454437255859 };
-		query = new QueryImpl(builder.filterFactory.dwithin(Metacard.ANY_GEO, new PointImpl(new DirectPositionImpl(
-				coords), DefaultGeographicCRS.WGS84), 195000, UomOgcMapping.FOOT.name()));
+        ArrayList<Result> results = new ArrayList<Result>();
+        for (Result r : sourceResponse.getResults()) {
+            results.add(r);
+        }
 
-		query.setStartIndex(1);
+        // must be in order because that was specified by the Sortby in the
+        // querybuilder
+        for (int i = 0; i < 2; i++) {
+            Result result = results.get(i);
 
-		SortByImpl sortby = new SortByImpl(builder.filterFactory.property(Result.DISTANCE),
-				org.opengis.filter.sort.SortOrder.ASCENDING);
-		query.setSortBy(sortby);
-		query.setPageSize(3);
-		sourceResponse = provider.query(new QueryRequestImpl(query));
+            LOGGER.info("Distance of [" + i + "]: " + result.getDistanceInMeters());
 
-		assertEquals(1, sourceResponse.getResults().size());
-	}
-	
-	@Test
-	public void testSortedPointRadiusWithContentType() throws Exception {
-		deleteAllIn(provider);
-		MetacardImpl metacard1 = new MockMetacard(Library.getFlagstaffRecord());
-		MetacardImpl metacard2 = new MockMetacard(Library.getTampaRecord());
-		MetacardImpl metacard3 = new MockMetacard(Library.getShowLowRecord());
+            if (i == 0) {
+                assertTrue("Grabbed the wrong record.", ALL_RESULTS != result.getMetacard()
+                        .getMetadata().indexOf(FLAGSTAFF_QUERY_PHRASE));
+            }
+            if (i == 1) {
+                assertTrue("Grabbed the wrong record - should be Show Low.", ALL_RESULTS != result
+                        .getMetacard().getMetadata().indexOf("Show Low"));
+            }
+        }
 
-		// Add in the geometry
-		metacard1.setLocation(FLAGSTAFF_AIRPORT_POINT_WKT);
-		metacard2.setLocation(TAMPA_AIRPORT_POINT_WKT);
-		metacard3.setLocation(SHOW_LOW_AIRPORT_POINT_WKT);
-		
-		// Add in a content type
-		metacard1.setAttribute(Metacard.CONTENT_TYPE, "product");
+        // NEGATIVE CASE
+        query = builder.pointRadius(80.1, 25, 195000);
+        query.setPageSize(3);
+        sourceResponse = provider.query(new QueryRequestImpl(query));
 
-		List<Metacard> list = Arrays.asList((Metacard) metacard1, metacard2, metacard3);
-		
-		/** CREATE **/
-		create(list);
-		
-		//create a filter that has spatial and content type criteria
-    	Filter contentFilter = filterBuilder.attribute(Metacard.CONTENT_TYPE).is().text("product");
-    	Filter spatialFilter = filterBuilder.attribute(Metacard.GEOGRAPHY).intersecting().wkt(FLAGSTAFF_AIRPORT_POINT_WKT);
-    	
-		Filter finalFilter = filterBuilder.allOf(contentFilter, spatialFilter);
-		
-		// sort by distance
-		QueryImpl query = new QueryImpl(finalFilter);
-        SortBy sortby = new ddf.catalog.filter.SortByImpl(Result.DISTANCE, org.opengis.filter.sort.SortOrder.DESCENDING);
+        assertEquals("Should have not found any records.", 0, sourceResponse.getResults().size());
+
+        // FEET
+        double[] coords = {-111.67121887207031, 35.138454437255859};
+        query = new QueryImpl(builder.filterFactory.dwithin(Metacard.ANY_GEO, new PointImpl(
+                new DirectPositionImpl(coords), DefaultGeographicCRS.WGS84), 195000,
+                UomOgcMapping.FOOT.name()));
+
+        query.setStartIndex(1);
+
+        SortByImpl sortby = new SortByImpl(builder.filterFactory.property(Result.DISTANCE),
+                org.opengis.filter.sort.SortOrder.ASCENDING);
         query.setSortBy(sortby);
-        
-		SourceResponse sourceResponse = provider.query(new QueryRequestImpl(
-				query));
-		
-		assertEquals(sourceResponse.getResults().size(), 1);
-	}
+        query.setPageSize(3);
+        sourceResponse = provider.query(new QueryRequestImpl(query));
+
+        assertEquals(1, sourceResponse.getResults().size());
+    }
+
+    @Test
+    public void testSortedPointRadiusWithContentType() throws Exception {
+        deleteAllIn(provider);
+        MetacardImpl metacard1 = new MockMetacard(Library.getFlagstaffRecord());
+        MetacardImpl metacard2 = new MockMetacard(Library.getTampaRecord());
+        MetacardImpl metacard3 = new MockMetacard(Library.getShowLowRecord());
+
+        // Add in the geometry
+        metacard1.setLocation(FLAGSTAFF_AIRPORT_POINT_WKT);
+        metacard2.setLocation(TAMPA_AIRPORT_POINT_WKT);
+        metacard3.setLocation(SHOW_LOW_AIRPORT_POINT_WKT);
+
+        // Add in a content type
+        metacard1.setAttribute(Metacard.CONTENT_TYPE, "product");
+
+        List<Metacard> list = Arrays.asList((Metacard) metacard1, metacard2, metacard3);
+
+        /** CREATE **/
+        create(list);
+
+        // create a filter that has spatial and content type criteria
+        Filter contentFilter = filterBuilder.attribute(Metacard.CONTENT_TYPE).is().text("product");
+        Filter spatialFilter = filterBuilder.attribute(Metacard.GEOGRAPHY).intersecting()
+                .wkt(FLAGSTAFF_AIRPORT_POINT_WKT);
+
+        Filter finalFilter = filterBuilder.allOf(contentFilter, spatialFilter);
+
+        // sort by distance
+        QueryImpl query = new QueryImpl(finalFilter);
+        SortBy sortby = new ddf.catalog.filter.SortByImpl(Result.DISTANCE,
+                org.opengis.filter.sort.SortOrder.DESCENDING);
+        query.setSortBy(sortby);
+
+        SourceResponse sourceResponse = provider.query(new QueryRequestImpl(query));
+
+        assertEquals(sourceResponse.getResults().size(), 1);
+    }
 
     @Test
     public void testSpatialNearestNeighbor() throws Exception {
-        deleteAllIn(provider); 
-        
+        deleteAllIn(provider);
+
         MetacardImpl metacard1 = new MockMetacard(Library.getFlagstaffRecord());
         MetacardImpl metacard2 = new MockMetacard(Library.getTampaRecord());
         MetacardImpl metacard3 = new MockMetacard(Library.getShowLowRecord());
@@ -3361,33 +3470,43 @@ public class TestSolrProvider extends SolrProviderTestCase {
 
         List<Metacard> list = Arrays.asList((Metacard) metacard1, metacard2, metacard3);
         create(list);
-        
+
         // Ascending
-        Filter positiveFilter = filterBuilder.attribute(Metacard.GEOGRAPHY).beyond().wkt(PHOENIX_POINT_WKT, 0);
+        Filter positiveFilter = filterBuilder.attribute(Metacard.GEOGRAPHY).beyond()
+                .wkt(PHOENIX_POINT_WKT, 0);
         QueryImpl query = new QueryImpl(positiveFilter);
         SourceResponse sourceResponse = provider.query(new QueryRequestImpl(query));
 
-        assertEquals("Failed to find two records within 1000 nautical miles.", 2, sourceResponse.getResults().size());
-        assertTrue("Flagstaff record was not first in ascending order.", sourceResponse.getResults().get(0)
-                .getMetacard().getMetadata().indexOf(FLAGSTAFF_QUERY_PHRASE) > 0);
+        assertEquals("Failed to find two records within 1000 nautical miles.", 2, sourceResponse
+                .getResults().size());
+        assertTrue(
+                "Flagstaff record was not first in ascending order.",
+                sourceResponse.getResults().get(0).getMetacard().getMetadata()
+                        .indexOf(FLAGSTAFF_QUERY_PHRASE) > 0);
 
         // Descending
-        SortBy sortby = new ddf.catalog.filter.SortByImpl(Result.DISTANCE, org.opengis.filter.sort.SortOrder.DESCENDING);
+        SortBy sortby = new ddf.catalog.filter.SortByImpl(Result.DISTANCE,
+                org.opengis.filter.sort.SortOrder.DESCENDING);
         query.setSortBy(sortby);
         sourceResponse = provider.query(new QueryRequestImpl(query));
-        
-        assertEquals("Failed to find two records within 1000 nautical miles.", 2, sourceResponse.getResults().size());
-        assertTrue("Flagstaff record was not last in descending order.", sourceResponse.getResults().get(1)
-                .getMetacard().getMetadata().indexOf(FLAGSTAFF_QUERY_PHRASE) > 0);
-        
+
+        assertEquals("Failed to find two records within 1000 nautical miles.", 2, sourceResponse
+                .getResults().size());
+        assertTrue(
+                "Flagstaff record was not last in descending order.",
+                sourceResponse.getResults().get(1).getMetacard().getMetadata()
+                        .indexOf(FLAGSTAFF_QUERY_PHRASE) > 0);
+
         // Using WKT polygon
-        positiveFilter = filterBuilder.attribute(Metacard.GEOGRAPHY).beyond().wkt(ARIZONA_POLYGON_WKT, 0);
+        positiveFilter = filterBuilder.attribute(Metacard.GEOGRAPHY).beyond()
+                .wkt(ARIZONA_POLYGON_WKT, 0);
         query = new QueryImpl(positiveFilter);
         sourceResponse = provider.query(new QueryRequestImpl(query));
 
-        assertEquals("Failed to find two records based on polygon centroid.", 2, sourceResponse.getResults().size());
+        assertEquals("Failed to find two records based on polygon centroid.", 2, sourceResponse
+                .getResults().size());
     }
-	
+
     @Test
     public void testSpatialDistanceWithinPolygon() throws Exception {
         Filter positiveFilter = filterBuilder.attribute(Metacard.GEOGRAPHY).withinBuffer()
@@ -3404,8 +3523,8 @@ public class TestSolrProvider extends SolrProviderTestCase {
         // given
         double radiusInKilometers = 50;
         double radiusInMeters = radiusInKilometers * METERS_PER_KM;
-        Filter positiveFilter = filterBuilder.attribute(Metacard.GEOGRAPHY)
-                .withinBuffer().wkt(LAS_VEGAS_POINT_WKT, radiusInMeters);
+        Filter positiveFilter = filterBuilder.attribute(Metacard.GEOGRAPHY).withinBuffer()
+                .wkt(LAS_VEGAS_POINT_WKT, radiusInMeters);
 
         MetacardImpl metacard = new MockMetacard(Library.getFlagstaffRecord());
         metacard.setLocation(LAS_VEGAS_POINT_WKT);
@@ -3414,39 +3533,35 @@ public class TestSolrProvider extends SolrProviderTestCase {
         create(list);
 
         QueryImpl query = new QueryImpl(positiveFilter);
-        query.setSortBy(new ddf.catalog.filter.SortByImpl(Result.DISTANCE,
-                SortOrder.ASCENDING));
+        query.setSortBy(new ddf.catalog.filter.SortByImpl(Result.DISTANCE, SortOrder.ASCENDING));
 
         // when
-        SourceResponse sourceResponse = provider.query(new QueryRequestImpl(
-                query));
+        SourceResponse sourceResponse = provider.query(new QueryRequestImpl(query));
 
         // then
-        assertEquals("Failed to find metacard WKT with filter", 1,
-                sourceResponse.getResults().size());
+        assertEquals("Failed to find metacard WKT with filter", 1, sourceResponse.getResults()
+                .size());
         Result result = sourceResponse.getResults().get(0);
 
         assertThat(result.getDistanceInMeters(), is(notNullValue()));
         assertThat("Point radius search should be less than the radius given.",
-                result.getDistanceInMeters(),
-                is(lessThanOrEqualTo(radiusInMeters)));
+                result.getDistanceInMeters(), is(lessThanOrEqualTo(radiusInMeters)));
 
         double oneMeter = 1.0;
-        assertThat(
-                "The distance should be close to zero since we are right upon the point.",
+        assertThat("The distance should be close to zero since we are right upon the point.",
                 result.getDistanceInMeters(), is(lessThanOrEqualTo(oneMeter)));
 
     }
-    
+
     @Test
     public void testSpatialDistanceCalculation_BetweenTwoPoints() throws Exception {
         deleteAllIn(provider);
 
         // given
-        double radiusInKilometers = 500 ;
+        double radiusInKilometers = 500;
         double radiusInMeters = radiusInKilometers * METERS_PER_KM;
-        Filter positiveFilter = filterBuilder.attribute(Metacard.GEOGRAPHY)
-                .withinBuffer().wkt(PHOENIX_POINT_WKT, radiusInMeters);
+        Filter positiveFilter = filterBuilder.attribute(Metacard.GEOGRAPHY).withinBuffer()
+                .wkt(PHOENIX_POINT_WKT, radiusInMeters);
 
         MetacardImpl metacard = new MockMetacard(Library.getFlagstaffRecord());
         metacard.setLocation(LAS_VEGAS_POINT_WKT);
@@ -3455,137 +3570,119 @@ public class TestSolrProvider extends SolrProviderTestCase {
         create(list);
 
         QueryImpl query = new QueryImpl(positiveFilter);
-        query.setSortBy(new ddf.catalog.filter.SortByImpl(Result.DISTANCE,
-                SortOrder.ASCENDING));
+        query.setSortBy(new ddf.catalog.filter.SortByImpl(Result.DISTANCE, SortOrder.ASCENDING));
 
         // when
-        SourceResponse sourceResponse = provider.query(new QueryRequestImpl(
-                query));
+        SourceResponse sourceResponse = provider.query(new QueryRequestImpl(query));
 
         // then
-        assertEquals("Failed to find metacard WKT with filter", 1,
-                sourceResponse.getResults().size());
+        assertEquals("Failed to find metacard WKT with filter", 1, sourceResponse.getResults()
+                .size());
         Result result = sourceResponse.getResults().get(0);
 
         assertThat(result.getDistanceInMeters(), is(notNullValue()));
         assertThat("Point radius search should be less than the radius given.",
-                result.getDistanceInMeters(),
-                is(lessThanOrEqualTo(radiusInMeters)));
+                result.getDistanceInMeters(), is(lessThanOrEqualTo(radiusInMeters)));
 
         // expected distance calculated from
         // http://www.movable-type.co.uk/scripts/latlong.html
         double expectedDistanceBetweenCitiesInMeters = 412700;
         double precisionPercentage = .001; // +/-0.1%
-        double lowerBound = expectedDistanceBetweenCitiesInMeters
-                * (1 - precisionPercentage);
-        double upperBound = expectedDistanceBetweenCitiesInMeters
-                * (1 + precisionPercentage);
+        double lowerBound = expectedDistanceBetweenCitiesInMeters * (1 - precisionPercentage);
+        double upperBound = expectedDistanceBetweenCitiesInMeters * (1 + precisionPercentage);
 
-        assertThat(
-                "The distance returned should at least be above the lower bound of error.",
-                result.getDistanceInMeters(),
-                is(greaterThanOrEqualTo(lowerBound)));
-        assertThat(
-                "The distance returned should at least be below the upper bound of error.",
+        assertThat("The distance returned should at least be above the lower bound of error.",
+                result.getDistanceInMeters(), is(greaterThanOrEqualTo(lowerBound)));
+        assertThat("The distance returned should at least be below the upper bound of error.",
                 result.getDistanceInMeters(), is(lessThanOrEqualTo(upperBound)));
 
     }
-    
+
     @Test
     public void testSpatialWithin() throws Exception {
-        Filter positiveFilter = filterBuilder.attribute(Metacard.GEOGRAPHY).within().wkt(ARIZONA_POLYGON_WKT);
-        Filter negativeFilter = filterBuilder.attribute(Metacard.GEOGRAPHY).within().wkt(GULF_OF_GUINEA_POLYGON_WKT);
+        Filter positiveFilter = filterBuilder.attribute(Metacard.GEOGRAPHY).within()
+                .wkt(ARIZONA_POLYGON_WKT);
+        Filter negativeFilter = filterBuilder.attribute(Metacard.GEOGRAPHY).within()
+                .wkt(GULF_OF_GUINEA_POLYGON_WKT);
         testSpatialWithWkt(FLAGSTAFF_AIRPORT_POINT_WKT, positiveFilter, negativeFilter);
     }
-	
-	@Test
-	public void testSpatialQueryWithClockwiseRectangle() throws Exception {
-		deleteAllIn(provider);
 
-		MetacardImpl metacard = new MockMetacard(Library.getFlagstaffRecord());
-		metacard.setLocation(FLAGSTAFF_AIRPORT_POINT_WKT);
-		List<Metacard> list = Arrays.asList((Metacard) metacard);
+    @Test
+    public void testSpatialQueryWithClockwiseRectangle() throws Exception {
+        deleteAllIn(provider);
 
-		/** CREATE **/
-		create(list);
+        MetacardImpl metacard = new MockMetacard(Library.getFlagstaffRecord());
+        metacard.setLocation(FLAGSTAFF_AIRPORT_POINT_WKT);
+        List<Metacard> list = Arrays.asList((Metacard) metacard);
 
-		/** POSITIVE **/
-		Filter filter = filterBuilder
-				.attribute(Metacard.GEOGRAPHY)
-				.intersecting()
-				.wkt(CLOCKWISE_ARIZONA_RECTANGLE_WKT);
-		SourceResponse sourceResponse = provider.query(new QueryRequestImpl(new QueryImpl(filter)));
+        /** CREATE **/
+        create(list);
 
-		assertEquals("Failed to find Flagstaff record.", 1, sourceResponse.getResults().size());
+        /** POSITIVE **/
+        Filter filter = filterBuilder.attribute(Metacard.GEOGRAPHY).intersecting()
+                .wkt(CLOCKWISE_ARIZONA_RECTANGLE_WKT);
+        SourceResponse sourceResponse = provider.query(new QueryRequestImpl(new QueryImpl(filter)));
 
-		for (Result r : sourceResponse.getResults()) {
-			assertTrue("Wrong record, Flagstaff keyword was not found.", ALL_RESULTS != r.getMetacard().getMetadata()
-					.indexOf(FLAGSTAFF_QUERY_PHRASE));
-		}
-	}
-	
-	/**
-	 * This test is ignored until a fix is made to enable querying across the
-	 * international date line. Ticket DDF-118
-	 * 
-	 * @throws Exception
-	 */
-	@Test
-	@Ignore
-	public void testSpatialQueryAcrossInternationalDateLine() throws Exception {
-		deleteAllIn(provider);
+        assertEquals("Failed to find Flagstaff record.", 1, sourceResponse.getResults().size());
 
-		MetacardImpl metacard = new MockMetacard(Library.getFlagstaffRecord());
-		metacard.setLocation(MIDWAY_ISLANDS_POINT_WKT);
-		List<Metacard> list = Arrays.asList((Metacard) metacard);
+        for (Result r : sourceResponse.getResults()) {
+            assertTrue("Wrong record, Flagstaff keyword was not found.", ALL_RESULTS != r
+                    .getMetacard().getMetadata().indexOf(FLAGSTAFF_QUERY_PHRASE));
+        }
+    }
 
-		create(list);
+    /**
+     * This test is ignored until a fix is made to enable querying across the international date
+     * line. Ticket DDF-118
+     * 
+     * @throws Exception
+     */
+    @Test
+    @Ignore
+    public void testSpatialQueryAcrossInternationalDateLine() throws Exception {
+        deleteAllIn(provider);
 
-		/** POSITIVE - Counter Clockwise Orientation **/
-		Filter filter = filterBuilder.attribute(Metacard.GEOGRAPHY)
-				.intersecting().wkt(ACROSS_INTERNATIONAL_DATELINE_LARGE_CCW_WKT);
-		SourceResponse sourceResponse = provider.query(new QueryRequestImpl(
-				new QueryImpl(filter)));
+        MetacardImpl metacard = new MockMetacard(Library.getFlagstaffRecord());
+        metacard.setLocation(MIDWAY_ISLANDS_POINT_WKT);
+        List<Metacard> list = Arrays.asList((Metacard) metacard);
 
-		assertEquals("Failed to find the correct record. ", 1, sourceResponse
-				.getResults().size());
+        create(list);
 
-		for (Result r : sourceResponse.getResults()) {
-			assertTrue(
-					"Wrong record, Flagstaff keyword was not found.",
-					ALL_RESULTS != r.getMetacard().getMetadata()
-							.indexOf(FLAGSTAFF_QUERY_PHRASE));
-		}
+        /** POSITIVE - Counter Clockwise Orientation **/
+        Filter filter = filterBuilder.attribute(Metacard.GEOGRAPHY).intersecting()
+                .wkt(ACROSS_INTERNATIONAL_DATELINE_LARGE_CCW_WKT);
+        SourceResponse sourceResponse = provider.query(new QueryRequestImpl(new QueryImpl(filter)));
 
-		/** POSITIVE - Clockwise Orientation **/
-		filter = filterBuilder.attribute(Metacard.GEOGRAPHY).intersecting()
-				.wkt(ACROSS_INTERNATIONAL_DATELINE_LARGE_CW_WKT);
-		sourceResponse = provider.query(new QueryRequestImpl(new QueryImpl(
-				filter)));
+        assertEquals("Failed to find the correct record. ", 1, sourceResponse.getResults().size());
 
-		assertEquals("Failed to find the correct record. ", 1, sourceResponse
-				.getResults().size());
+        for (Result r : sourceResponse.getResults()) {
+            assertTrue("Wrong record, Flagstaff keyword was not found.", ALL_RESULTS != r
+                    .getMetacard().getMetadata().indexOf(FLAGSTAFF_QUERY_PHRASE));
+        }
 
-		for (Result r : sourceResponse.getResults()) {
-			assertTrue(
-					"Wrong record, Flagstaff keyword was not found.",
-					ALL_RESULTS != r.getMetacard().getMetadata()
-							.indexOf(FLAGSTAFF_QUERY_PHRASE));
-		}
+        /** POSITIVE - Clockwise Orientation **/
+        filter = filterBuilder.attribute(Metacard.GEOGRAPHY).intersecting()
+                .wkt(ACROSS_INTERNATIONAL_DATELINE_LARGE_CW_WKT);
+        sourceResponse = provider.query(new QueryRequestImpl(new QueryImpl(filter)));
 
-		/** NEGATIVE **/
-		filter = filterBuilder.attribute(Metacard.GEOGRAPHY).intersecting()
-				.wkt(ACROSS_INTERNATIONAL_DATELINE_SMALL_WKT);
-		sourceResponse = provider.query(new QueryRequestImpl(new QueryImpl(
-				filter)));
+        assertEquals("Failed to find the correct record. ", 1, sourceResponse.getResults().size());
 
-		assertEquals("Should not find a record. ", 0, sourceResponse
-				.getResults().size());
+        for (Result r : sourceResponse.getResults()) {
+            assertTrue("Wrong record, Flagstaff keyword was not found.", ALL_RESULTS != r
+                    .getMetacard().getMetadata().indexOf(FLAGSTAFF_QUERY_PHRASE));
+        }
 
-	}
-	
-	@Test
-	public void testSpatialCreateAndUpdateWithClockwiseRectangle() throws Exception {
+        /** NEGATIVE **/
+        filter = filterBuilder.attribute(Metacard.GEOGRAPHY).intersecting()
+                .wkt(ACROSS_INTERNATIONAL_DATELINE_SMALL_WKT);
+        sourceResponse = provider.query(new QueryRequestImpl(new QueryImpl(filter)));
+
+        assertEquals("Should not find a record. ", 0, sourceResponse.getResults().size());
+
+    }
+
+    @Test
+    public void testSpatialCreateAndUpdateWithClockwiseRectangle() throws Exception {
         deleteAllIn(provider);
 
         /** CREATE **/
@@ -3594,10 +3691,8 @@ public class TestSolrProvider extends SolrProviderTestCase {
 
         CreateResponse createResponse = create(Arrays.asList((Metacard) metacard));
         assertEquals(1, createResponse.getCreatedMetacards().size());
-        
-        Filter filter = filterBuilder
-                .attribute(Metacard.GEOGRAPHY)
-                .intersecting()
+
+        Filter filter = filterBuilder.attribute(Metacard.GEOGRAPHY).intersecting()
                 .wkt(FLAGSTAFF_AIRPORT_POINT_WKT);
         SourceResponse sourceResponse = provider.query(new QueryRequestImpl(new QueryImpl(filter)));
 
@@ -3607,68 +3702,63 @@ public class TestSolrProvider extends SolrProviderTestCase {
         MockMetacard updatedMetacard = new MockMetacard(Library.getTampaRecord());
         updatedMetacard.setLocation(CLOCKWISE_ARIZONA_RECTANGLE_WKT);
 
-        String[] ids = { metacard.getId() };
+        String[] ids = {metacard.getId()};
         UpdateResponse updateResponse = update(ids, Arrays.asList((Metacard) updatedMetacard));
         assertEquals(1, updateResponse.getUpdatedMetacards().size());
-        
-        filter = filterBuilder
-                .attribute(Metacard.GEOGRAPHY)
-                .intersecting()
+
+        filter = filterBuilder.attribute(Metacard.GEOGRAPHY).intersecting()
                 .wkt(FLAGSTAFF_AIRPORT_POINT_WKT);
         sourceResponse = provider.query(new QueryRequestImpl(new QueryImpl(filter)));
 
         assertEquals("Failed to find correct record.", 1, sourceResponse.getResults().size());
-	}
-	
-	@Test
-	public void testSpatialQueryWithCounterClockwiseRectangle() throws Exception {
-		deleteAllIn(provider);
+    }
 
-		MetacardImpl metacard = new MockMetacard(Library.getFlagstaffRecord());
-		metacard.setLocation(FLAGSTAFF_AIRPORT_POINT_WKT);
-		List<Metacard> list = Arrays.asList((Metacard) metacard);
+    @Test
+    public void testSpatialQueryWithCounterClockwiseRectangle() throws Exception {
+        deleteAllIn(provider);
 
-		/** CREATE **/
-		create(list);
+        MetacardImpl metacard = new MockMetacard(Library.getFlagstaffRecord());
+        metacard.setLocation(FLAGSTAFF_AIRPORT_POINT_WKT);
+        List<Metacard> list = Arrays.asList((Metacard) metacard);
 
-		/** POSITIVE **/
-		Filter filter = filterBuilder
-				.attribute(Metacard.GEOGRAPHY)
-				.intersecting()
-				.wkt(COUNTERCLOCKWISE_ARIZONA_RECTANGLE_WKT);
-		SourceResponse sourceResponse = provider.query(new QueryRequestImpl(new QueryImpl(filter)));
+        /** CREATE **/
+        create(list);
 
-		assertEquals("Failed to find Flagstaff record.", 1, sourceResponse.getResults().size());
+        /** POSITIVE **/
+        Filter filter = filterBuilder.attribute(Metacard.GEOGRAPHY).intersecting()
+                .wkt(COUNTERCLOCKWISE_ARIZONA_RECTANGLE_WKT);
+        SourceResponse sourceResponse = provider.query(new QueryRequestImpl(new QueryImpl(filter)));
 
-		for (Result r : sourceResponse.getResults()) {
-			assertTrue("Wrong record, Flagstaff keyword was not found.", ALL_RESULTS != r.getMetacard().getMetadata()
-					.indexOf(FLAGSTAFF_QUERY_PHRASE));
-		}
-	}
+        assertEquals("Failed to find Flagstaff record.", 1, sourceResponse.getResults().size());
+
+        for (Result r : sourceResponse.getResults()) {
+            assertTrue("Wrong record, Flagstaff keyword was not found.", ALL_RESULTS != r
+                    .getMetacard().getMetadata().indexOf(FLAGSTAFF_QUERY_PHRASE));
+        }
+    }
 
     @Test
     public void testSpatialPointIntersectsPoint() throws Exception {
-        testSpatialIntersectsWithWkt(FLAGSTAFF_AIRPORT_POINT_WKT,
-                FLAGSTAFF_AIRPORT_POINT_WKT, GULF_OF_GUINEA_POINT_WKT);
+        testSpatialIntersectsWithWkt(FLAGSTAFF_AIRPORT_POINT_WKT, FLAGSTAFF_AIRPORT_POINT_WKT,
+                GULF_OF_GUINEA_POINT_WKT);
     }
 
     @Test
     public void testSpatialMultiPointIntersectsPoint() throws Exception {
-        testSpatialIntersectsWithWkt(GULF_OF_GUINEA_POINT_WKT,
-                GULF_OF_GUINEA_MULTIPOINT_WKT, FLAGSTAFF_AIRPORT_POINT_WKT);
+        testSpatialIntersectsWithWkt(GULF_OF_GUINEA_POINT_WKT, GULF_OF_GUINEA_MULTIPOINT_WKT,
+                FLAGSTAFF_AIRPORT_POINT_WKT);
     }
 
     @Test
     public void testSpatialMultiPointSingleIntersectsPoint() throws Exception {
         testSpatialIntersectsWithWkt(GULF_OF_GUINEA_POINT_WKT,
-                GULF_OF_GUINEA_MULTIPOINT_SINGLE_WKT,
-                FLAGSTAFF_AIRPORT_POINT_WKT);
+                GULF_OF_GUINEA_MULTIPOINT_SINGLE_WKT, FLAGSTAFF_AIRPORT_POINT_WKT);
     }
 
     @Test
     public void testSpatialPolygonIntersectsPoint() throws Exception {
-        testSpatialIntersectsWithWkt(ARIZONA_POLYGON_WKT,
-                FLAGSTAFF_AIRPORT_POINT_WKT, GULF_OF_GUINEA_POINT_WKT);
+        testSpatialIntersectsWithWkt(ARIZONA_POLYGON_WKT, FLAGSTAFF_AIRPORT_POINT_WKT,
+                GULF_OF_GUINEA_POINT_WKT);
     }
 
     @Test
@@ -3682,30 +3772,31 @@ public class TestSolrProvider extends SolrProviderTestCase {
         testSpatialIntersectsWithWkt(ARIZONA_POLYGON_WKT, ARIZONA_INTERSECTING_POLYGON_WKT,
                 GULF_OF_GUINEA_POLYGON_WKT);
     }
-    
+
     @Test
     public void testSpatialPolygonIntersectsMultiPoint() throws Exception {
         testSpatialIntersectsWithWkt(ARIZONA_POLYGON_WKT, PHOENIX_AND_LAS_VEGAS_MULTIPOINT_WKT,
                 GULF_OF_GUINEA_MULTIPOINT_WKT);
     }
-    
+
     @Test
     public void testSpatialPolygonIntersectsMultiLineString() throws Exception {
         testSpatialIntersectsWithWkt(ARIZONA_POLYGON_WKT, ARIZONA_INTERSECTING_MULTILINESTING_WKT,
                 GULF_OF_GUINEA_MULTILINESTRING_WKT);
     }
-    
+
     @Test
     public void testSpatialPolygonIntersectsMultiPolygon() throws Exception {
         testSpatialIntersectsWithWkt(ARIZONA_POLYGON_WKT, ARIZONA_INTERSECTING_MULTIPOLYGON_WKT,
                 GULF_OF_GUINEA_MULTIPOLYGON_WKT);
     }
-    
+
     @Test
-    @Ignore // GeometryCollection is not supported by Spatial4j at this time
+    @Ignore
+    // GeometryCollection is not supported by Spatial4j at this time
     public void testSpatialPolygonIntersectsGeometryCollection() throws Exception {
-        testSpatialIntersectsWithWkt(ARIZONA_POLYGON_WKT, ARIZONA_INTERSECTING_GEOMETRYCOLLECTION_WKT,
-                GULF_OF_GUINEA_GEOMETRYCOLLECTION_WKT);
+        testSpatialIntersectsWithWkt(ARIZONA_POLYGON_WKT,
+                ARIZONA_INTERSECTING_GEOMETRYCOLLECTION_WKT, GULF_OF_GUINEA_GEOMETRYCOLLECTION_WKT);
     }
 
     @Test
@@ -3716,8 +3807,8 @@ public class TestSolrProvider extends SolrProviderTestCase {
 
     @Test
     public void testSpatialLineStringWithinPolygon() throws Exception {
-        testSpatialWithinWithWkt(ARIZONA_INTERSECTING_LINESTING_WKT, WEST_USA_CONTAINING_POLYGON_WKT,
-                GULF_OF_GUINEA_POLYGON_WKT);
+        testSpatialWithinWithWkt(ARIZONA_INTERSECTING_LINESTING_WKT,
+                WEST_USA_CONTAINING_POLYGON_WKT, GULF_OF_GUINEA_POLYGON_WKT);
     }
 
     @Test
@@ -3728,62 +3819,69 @@ public class TestSolrProvider extends SolrProviderTestCase {
 
     @Test
     public void testSpatialMultiPointWithinPolygon() throws Exception {
-        testSpatialWithinWithWkt(PHOENIX_AND_LAS_VEGAS_MULTIPOINT_WKT, WEST_USA_CONTAINING_POLYGON_WKT,
-                GULF_OF_GUINEA_POLYGON_WKT);
+        testSpatialWithinWithWkt(PHOENIX_AND_LAS_VEGAS_MULTIPOINT_WKT,
+                WEST_USA_CONTAINING_POLYGON_WKT, GULF_OF_GUINEA_POLYGON_WKT);
     }
 
     @Test
     public void testSpatialMultiLineStringWithinPolygon() throws Exception {
-        testSpatialWithinWithWkt(ARIZONA_INTERSECTING_MULTILINESTING_WKT, WEST_USA_CONTAINING_POLYGON_WKT,
-                GULF_OF_GUINEA_POLYGON_WKT);
+        testSpatialWithinWithWkt(ARIZONA_INTERSECTING_MULTILINESTING_WKT,
+                WEST_USA_CONTAINING_POLYGON_WKT, GULF_OF_GUINEA_POLYGON_WKT);
     }
 
     @Test
     public void testSpatialMultiPolygonWithinPolygon() throws Exception {
-        testSpatialWithinWithWkt(ARIZONA_INTERSECTING_MULTIPOLYGON_WKT, WEST_USA_CONTAINING_POLYGON_WKT,
-                GULF_OF_GUINEA_POLYGON_WKT);
+        testSpatialWithinWithWkt(ARIZONA_INTERSECTING_MULTIPOLYGON_WKT,
+                WEST_USA_CONTAINING_POLYGON_WKT, GULF_OF_GUINEA_POLYGON_WKT);
     }
 
     @Test
-    @Ignore // GeometryCollection is not supported by Spatial4j at this time
+    @Ignore
+    // GeometryCollection is not supported by Spatial4j at this time
     public void testSpatialGeometryCollectionWithinPolygon() throws Exception {
-        testSpatialWithinWithWkt(ARIZONA_INTERSECTING_GEOMETRYCOLLECTION_WKT, WEST_USA_CONTAINING_POLYGON_WKT,
-                GULF_OF_GUINEA_POLYGON_WKT);
+        testSpatialWithinWithWkt(ARIZONA_INTERSECTING_GEOMETRYCOLLECTION_WKT,
+                WEST_USA_CONTAINING_POLYGON_WKT, GULF_OF_GUINEA_POLYGON_WKT);
     }
 
     @Test
     public void testSpatialPolygonContainsPoint() throws Exception {
         Filter positiveFilter = filterBuilder.attribute(Metacard.GEOGRAPHY).containing()
                 .wkt(FLAGSTAFF_AIRPORT_POINT_WKT);
-        Filter negativeFilter = filterBuilder.attribute(Metacard.GEOGRAPHY).containing().wkt(GULF_OF_GUINEA_POINT_WKT);
+        Filter negativeFilter = filterBuilder.attribute(Metacard.GEOGRAPHY).containing()
+                .wkt(GULF_OF_GUINEA_POINT_WKT);
         testSpatialWithWkt(ARIZONA_POLYGON_WKT, positiveFilter, negativeFilter);
     }
 
     @Test
     public void testSpatialAnyGeo() throws Exception {
-        Filter positiveFilter = filterBuilder.attribute(Metacard.ANY_GEO).within().wkt(ARIZONA_POLYGON_WKT);
-        Filter negativeFilter = filterBuilder.attribute(Metacard.ANY_GEO).within().wkt(GULF_OF_GUINEA_POLYGON_WKT);
+        Filter positiveFilter = filterBuilder.attribute(Metacard.ANY_GEO).within()
+                .wkt(ARIZONA_POLYGON_WKT);
+        Filter negativeFilter = filterBuilder.attribute(Metacard.ANY_GEO).within()
+                .wkt(GULF_OF_GUINEA_POLYGON_WKT);
         testSpatialWithWkt(FLAGSTAFF_AIRPORT_POINT_WKT, positiveFilter, negativeFilter);
     }
 
     private void testSpatialWithinWithWkt(String metacardWkt, String positiveWkt, String negativeWkt)
-            throws Exception {
+        throws Exception {
         Filter positiveFilter = filterBuilder.attribute(Metacard.ANY_GEO).within().wkt(positiveWkt);
         Filter negativeFilter = filterBuilder.attribute(Metacard.ANY_GEO).within().wkt(negativeWkt);
         testSpatialWithWkt(metacardWkt, positiveFilter, negativeFilter);
     }
-    
-    private void testSpatialIntersectsWithWkt(String metacardWkt, String positiveWkt, String negativeWkt)
-            throws Exception {
-        Filter positiveFilter = filterBuilder.attribute(Metacard.ANY_GEO).intersecting().wkt(positiveWkt);
-        Filter negativeFilter = filterBuilder.attribute(Metacard.ANY_GEO).intersecting().wkt(negativeWkt);
+
+    private void testSpatialIntersectsWithWkt(String metacardWkt, String positiveWkt,
+            String negativeWkt) throws Exception {
+        Filter positiveFilter = filterBuilder.attribute(Metacard.ANY_GEO).intersecting()
+                .wkt(positiveWkt);
+        Filter negativeFilter = filterBuilder.attribute(Metacard.ANY_GEO).intersecting()
+                .wkt(negativeWkt);
         testSpatialWithWkt(metacardWkt, positiveFilter, negativeFilter);
 
         positiveFilter = filterBuilder.attribute(Metacard.ANY_GEO).intersecting().wkt(metacardWkt);
         testSpatialWithWkt(positiveWkt, positiveFilter, negativeFilter);
     }
-	
-    private void testSpatialWithWkt(String metacardWkt, Filter positiveFilter, Filter negativeFilter) throws Exception {
+
+    private void testSpatialWithWkt(String metacardWkt, Filter positiveFilter, Filter negativeFilter)
+        throws Exception {
         deleteAllIn(provider, 4);
 
         MetacardImpl metacard = new MockMetacard(Library.getFlagstaffRecord());
@@ -3792,255 +3890,259 @@ public class TestSolrProvider extends SolrProviderTestCase {
 
         create(list);
 
-        SourceResponse sourceResponse = provider.query(new QueryRequestImpl(new QueryImpl(positiveFilter)));
-        assertEquals("Failed to find metacard WKT with filter", 1, sourceResponse.getResults().size());
+        SourceResponse sourceResponse = provider.query(new QueryRequestImpl(new QueryImpl(
+                positiveFilter)));
+        assertEquals("Failed to find metacard WKT with filter", 1, sourceResponse.getResults()
+                .size());
 
         sourceResponse = provider.query(new QueryRequestImpl(new QueryImpl(negativeFilter)));
-        assertEquals("Should not have found metacard record.", 0, sourceResponse.getResults().size());
+        assertEquals("Should not have found metacard record.", 0, sourceResponse.getResults()
+                .size());
     }
-	
-	@Test
-	public void testGetContentTypesSimple() throws Exception {
-
-		deleteAllIn(provider);
-
-		MockMetacard metacard1 = new MockMetacard(Library.getFlagstaffRecord());
-		MockMetacard metacard2 = new MockMetacard(Library.getShowLowRecord());
-		MockMetacard metacard3 = new MockMetacard(Library.getTampaRecord());
-
-		metacard1.setContentTypeName(SAMPLE_CONTENT_TYPE_1);
-		metacard2.setContentTypeName(SAMPLE_CONTENT_TYPE_2);
-		metacard3.setContentTypeName(SAMPLE_CONTENT_TYPE_2);
-		metacard3.setContentTypeVersion(SAMPLE_CONTENT_VERSION_3);
-
-		List<Metacard> list = Arrays.asList((Metacard) metacard1, metacard2, metacard3);
-
-		create(list);
-
-		Set<ContentType> contentTypes = provider.getContentTypes();
-		assertEquals(3, contentTypes.size());
-
-		assertThat(contentTypes, hasItem((ContentType) new ContentTypeImpl(SAMPLE_CONTENT_TYPE_1,
-				MockMetacard.DEFAULT_VERSION)));
-		assertThat(contentTypes, hasItem((ContentType) new ContentTypeImpl(SAMPLE_CONTENT_TYPE_2,
-				MockMetacard.DEFAULT_VERSION)));
-		assertThat(contentTypes, hasItem((ContentType) new ContentTypeImpl(SAMPLE_CONTENT_TYPE_2,
-				SAMPLE_CONTENT_VERSION_3)));
-
-	}
-
-	@Test
-	public void testGetContentTypesComplicated() throws Exception {
-
-		deleteAllIn(provider);
-
-		List<Metacard> list = new ArrayList<Metacard>();
-
-		// Single content type and version
-		MockMetacard metacard1 = new MockMetacard(Library.getFlagstaffRecord());
-		metacard1.setContentTypeName(SAMPLE_CONTENT_TYPE_1);
-		metacard1.setContentTypeVersion(SAMPLE_CONTENT_VERSION_1);
-		list.add(metacard1);
 
-		// one content type with multiple versions
-		metacard1 = new MockMetacard(Library.getFlagstaffRecord());
-		metacard1.setContentTypeName(SAMPLE_CONTENT_TYPE_2);
-		metacard1.setContentTypeVersion(SAMPLE_CONTENT_VERSION_1);
-		list.add(metacard1);
-		MockMetacard metacard2 = new MockMetacard(Library.getFlagstaffRecord());
-		metacard2.setContentTypeName(SAMPLE_CONTENT_TYPE_2);
-		metacard2.setContentTypeVersion(SAMPLE_CONTENT_VERSION_2);
-		list.add(metacard2);
-
-		// multiple records with different content type but same version
-		metacard1 = new MockMetacard(Library.getFlagstaffRecord());
-		metacard1.setContentTypeName(SAMPLE_CONTENT_TYPE_3);
-		metacard1.setContentTypeVersion(SAMPLE_CONTENT_VERSION_3);
-		list.add(metacard1);
-		metacard2 = new MockMetacard(Library.getFlagstaffRecord());
-		metacard2.setContentTypeName(SAMPLE_CONTENT_TYPE_3);
-		metacard2.setContentTypeVersion(SAMPLE_CONTENT_VERSION_4);
-		list.add(metacard2);
+    @Test
+    public void testGetContentTypesSimple() throws Exception {
+
+        deleteAllIn(provider);
+
+        MockMetacard metacard1 = new MockMetacard(Library.getFlagstaffRecord());
+        MockMetacard metacard2 = new MockMetacard(Library.getShowLowRecord());
+        MockMetacard metacard3 = new MockMetacard(Library.getTampaRecord());
+
+        metacard1.setContentTypeName(SAMPLE_CONTENT_TYPE_1);
+        metacard2.setContentTypeName(SAMPLE_CONTENT_TYPE_2);
+        metacard3.setContentTypeName(SAMPLE_CONTENT_TYPE_2);
+        metacard3.setContentTypeVersion(SAMPLE_CONTENT_VERSION_3);
+
+        List<Metacard> list = Arrays.asList((Metacard) metacard1, metacard2, metacard3);
+
+        create(list);
+
+        Set<ContentType> contentTypes = provider.getContentTypes();
+        assertEquals(3, contentTypes.size());
+
+        assertThat(contentTypes, hasItem((ContentType) new ContentTypeImpl(SAMPLE_CONTENT_TYPE_1,
+                MockMetacard.DEFAULT_VERSION)));
+        assertThat(contentTypes, hasItem((ContentType) new ContentTypeImpl(SAMPLE_CONTENT_TYPE_2,
+                MockMetacard.DEFAULT_VERSION)));
+        assertThat(contentTypes, hasItem((ContentType) new ContentTypeImpl(SAMPLE_CONTENT_TYPE_2,
+                SAMPLE_CONTENT_VERSION_3)));
+
+    }
+
+    @Test
+    public void testGetContentTypesComplicated() throws Exception {
+
+        deleteAllIn(provider);
 
-		// multiple records with different content type and different version
-		metacard1 = new MockMetacard(Library.getFlagstaffRecord());
-		metacard1.setContentTypeName(SAMPLE_CONTENT_TYPE_4);
-		metacard1.setContentTypeVersion(SAMPLE_CONTENT_VERSION_1);
-		list.add(metacard1);
-		metacard2 = new MockMetacard(Library.getFlagstaffRecord());
-		metacard2.setContentTypeName(SAMPLE_CONTENT_TYPE_1);
-		metacard2.setContentTypeVersion(SAMPLE_CONTENT_VERSION_4);
-		list.add(metacard2);
-		metacard1 = new MockMetacard(Library.getFlagstaffRecord());
-		metacard1.setContentTypeName(SAMPLE_CONTENT_TYPE_4);
-		metacard1.setContentTypeVersion(SAMPLE_CONTENT_VERSION_1);
-		list.add(metacard1);
-		metacard2 = new MockMetacard(Library.getFlagstaffRecord());
-		metacard2.setContentTypeName(SAMPLE_CONTENT_TYPE_1);
-		metacard2.setContentTypeVersion(SAMPLE_CONTENT_VERSION_4);
-		list.add(metacard2);
+        List<Metacard> list = new ArrayList<Metacard>();
 
-		create(list);
+        // Single content type and version
+        MockMetacard metacard1 = new MockMetacard(Library.getFlagstaffRecord());
+        metacard1.setContentTypeName(SAMPLE_CONTENT_TYPE_1);
+        metacard1.setContentTypeVersion(SAMPLE_CONTENT_VERSION_1);
+        list.add(metacard1);
 
-		Set<ContentType> contentTypes = provider.getContentTypes();
-		assertEquals(7, contentTypes.size());
+        // one content type with multiple versions
+        metacard1 = new MockMetacard(Library.getFlagstaffRecord());
+        metacard1.setContentTypeName(SAMPLE_CONTENT_TYPE_2);
+        metacard1.setContentTypeVersion(SAMPLE_CONTENT_VERSION_1);
+        list.add(metacard1);
+        MockMetacard metacard2 = new MockMetacard(Library.getFlagstaffRecord());
+        metacard2.setContentTypeName(SAMPLE_CONTENT_TYPE_2);
+        metacard2.setContentTypeVersion(SAMPLE_CONTENT_VERSION_2);
+        list.add(metacard2);
 
-		assertThat(contentTypes, hasItem((ContentType) new ContentTypeImpl(SAMPLE_CONTENT_TYPE_1,
-				SAMPLE_CONTENT_VERSION_1)));
-		assertThat(contentTypes, hasItem((ContentType) new ContentTypeImpl(SAMPLE_CONTENT_TYPE_2,
-				SAMPLE_CONTENT_VERSION_1)));
-		assertThat(contentTypes, hasItem((ContentType) new ContentTypeImpl(SAMPLE_CONTENT_TYPE_2,
-				SAMPLE_CONTENT_VERSION_2)));
-		assertThat(contentTypes, hasItem((ContentType) new ContentTypeImpl(SAMPLE_CONTENT_TYPE_3,
-				SAMPLE_CONTENT_VERSION_3)));
-		assertThat(contentTypes, hasItem((ContentType) new ContentTypeImpl(SAMPLE_CONTENT_TYPE_3,
-				SAMPLE_CONTENT_VERSION_4)));
-		assertThat(contentTypes, hasItem((ContentType) new ContentTypeImpl(SAMPLE_CONTENT_TYPE_4,
-				SAMPLE_CONTENT_VERSION_1)));
-		assertThat(contentTypes, hasItem((ContentType) new ContentTypeImpl(SAMPLE_CONTENT_TYPE_1,
-				SAMPLE_CONTENT_VERSION_4)));
+        // multiple records with different content type but same version
+        metacard1 = new MockMetacard(Library.getFlagstaffRecord());
+        metacard1.setContentTypeName(SAMPLE_CONTENT_TYPE_3);
+        metacard1.setContentTypeVersion(SAMPLE_CONTENT_VERSION_3);
+        list.add(metacard1);
+        metacard2 = new MockMetacard(Library.getFlagstaffRecord());
+        metacard2.setContentTypeName(SAMPLE_CONTENT_TYPE_3);
+        metacard2.setContentTypeVersion(SAMPLE_CONTENT_VERSION_4);
+        list.add(metacard2);
 
-	}
+        // multiple records with different content type and different version
+        metacard1 = new MockMetacard(Library.getFlagstaffRecord());
+        metacard1.setContentTypeName(SAMPLE_CONTENT_TYPE_4);
+        metacard1.setContentTypeVersion(SAMPLE_CONTENT_VERSION_1);
+        list.add(metacard1);
+        metacard2 = new MockMetacard(Library.getFlagstaffRecord());
+        metacard2.setContentTypeName(SAMPLE_CONTENT_TYPE_1);
+        metacard2.setContentTypeVersion(SAMPLE_CONTENT_VERSION_4);
+        list.add(metacard2);
+        metacard1 = new MockMetacard(Library.getFlagstaffRecord());
+        metacard1.setContentTypeName(SAMPLE_CONTENT_TYPE_4);
+        metacard1.setContentTypeVersion(SAMPLE_CONTENT_VERSION_1);
+        list.add(metacard1);
+        metacard2 = new MockMetacard(Library.getFlagstaffRecord());
+        metacard2.setContentTypeName(SAMPLE_CONTENT_TYPE_1);
+        metacard2.setContentTypeVersion(SAMPLE_CONTENT_VERSION_4);
+        list.add(metacard2);
 
-	@Test
-	public void testGetContentTypesOne() throws Exception {
+        create(list);
 
-		deleteAllIn(provider);
+        Set<ContentType> contentTypes = provider.getContentTypes();
+        assertEquals(7, contentTypes.size());
 
-		MockMetacard metacard1 = new MockMetacard(Library.getFlagstaffRecord());
+        assertThat(contentTypes, hasItem((ContentType) new ContentTypeImpl(SAMPLE_CONTENT_TYPE_1,
+                SAMPLE_CONTENT_VERSION_1)));
+        assertThat(contentTypes, hasItem((ContentType) new ContentTypeImpl(SAMPLE_CONTENT_TYPE_2,
+                SAMPLE_CONTENT_VERSION_1)));
+        assertThat(contentTypes, hasItem((ContentType) new ContentTypeImpl(SAMPLE_CONTENT_TYPE_2,
+                SAMPLE_CONTENT_VERSION_2)));
+        assertThat(contentTypes, hasItem((ContentType) new ContentTypeImpl(SAMPLE_CONTENT_TYPE_3,
+                SAMPLE_CONTENT_VERSION_3)));
+        assertThat(contentTypes, hasItem((ContentType) new ContentTypeImpl(SAMPLE_CONTENT_TYPE_3,
+                SAMPLE_CONTENT_VERSION_4)));
+        assertThat(contentTypes, hasItem((ContentType) new ContentTypeImpl(SAMPLE_CONTENT_TYPE_4,
+                SAMPLE_CONTENT_VERSION_1)));
+        assertThat(contentTypes, hasItem((ContentType) new ContentTypeImpl(SAMPLE_CONTENT_TYPE_1,
+                SAMPLE_CONTENT_VERSION_4)));
 
-		metacard1.setContentTypeName(SAMPLE_CONTENT_TYPE_1);
+    }
 
-		List<Metacard> list = Arrays.asList((Metacard) metacard1);
+    @Test
+    public void testGetContentTypesOne() throws Exception {
 
-		create(list);
+        deleteAllIn(provider);
 
-		Set<ContentType> contentTypes = provider.getContentTypes();
-		assertEquals(1, contentTypes.size());
+        MockMetacard metacard1 = new MockMetacard(Library.getFlagstaffRecord());
 
-		assertThat(contentTypes, hasItem((ContentType) new ContentTypeImpl(SAMPLE_CONTENT_TYPE_1,
-				MockMetacard.DEFAULT_VERSION)));
+        metacard1.setContentTypeName(SAMPLE_CONTENT_TYPE_1);
 
-	}
+        List<Metacard> list = Arrays.asList((Metacard) metacard1);
 
-	@Test
-	public void testGetContentTypesOneNoVersion() throws Exception {
+        create(list);
 
-		deleteAllIn(provider);
+        Set<ContentType> contentTypes = provider.getContentTypes();
+        assertEquals(1, contentTypes.size());
 
-		MockMetacard metacard1 = new MockMetacard(Library.getFlagstaffRecord());
+        assertThat(contentTypes, hasItem((ContentType) new ContentTypeImpl(SAMPLE_CONTENT_TYPE_1,
+                MockMetacard.DEFAULT_VERSION)));
 
-		metacard1.setContentTypeName(SAMPLE_CONTENT_TYPE_1);
-		metacard1.setContentTypeVersion(null);
+    }
 
-		List<Metacard> list = Arrays.asList((Metacard) metacard1);
+    @Test
+    public void testGetContentTypesOneNoVersion() throws Exception {
 
-		create(list);
+        deleteAllIn(provider);
 
-		Set<ContentType> contentTypes = provider.getContentTypes();
-		assertEquals(1, contentTypes.size());
+        MockMetacard metacard1 = new MockMetacard(Library.getFlagstaffRecord());
 
-		assertThat(contentTypes, hasItem((ContentType) new ContentTypeImpl(SAMPLE_CONTENT_TYPE_1,null)));
-	}
-	
-	@Test
-	public void testGetContentTypesVersionsAndNullVersions() throws Exception {
+        metacard1.setContentTypeName(SAMPLE_CONTENT_TYPE_1);
+        metacard1.setContentTypeVersion(null);
 
-		deleteAllIn(provider);
+        List<Metacard> list = Arrays.asList((Metacard) metacard1);
 
-		MockMetacard metacard1 = new MockMetacard(Library.getFlagstaffRecord());
-		MockMetacard metacard2 = new MockMetacard(Library.getShowLowRecord());
-		MockMetacard metacard3 = new MockMetacard(Library.getTampaRecord());
+        create(list);
 
-		metacard1.setContentTypeName(SAMPLE_CONTENT_TYPE_1);
-		metacard1.setContentTypeVersion(null);
-		metacard2.setContentTypeName(SAMPLE_CONTENT_TYPE_2);
-		metacard3.setContentTypeName(SAMPLE_CONTENT_TYPE_2);
-		metacard3.setContentTypeVersion(SAMPLE_CONTENT_VERSION_3);
+        Set<ContentType> contentTypes = provider.getContentTypes();
+        assertEquals(1, contentTypes.size());
 
-		List<Metacard> list = Arrays.asList((Metacard) metacard1, metacard2, metacard3);
+        assertThat(contentTypes, hasItem((ContentType) new ContentTypeImpl(SAMPLE_CONTENT_TYPE_1,
+                null)));
+    }
 
-		create(list);
+    @Test
+    public void testGetContentTypesVersionsAndNullVersions() throws Exception {
 
-		Set<ContentType> contentTypes = provider.getContentTypes();
-		assertEquals(3, contentTypes.size());
+        deleteAllIn(provider);
 
-		assertThat(contentTypes, hasItem((ContentType) new ContentTypeImpl(SAMPLE_CONTENT_TYPE_1, null)));
-		assertThat(contentTypes, hasItem((ContentType) new ContentTypeImpl(SAMPLE_CONTENT_TYPE_2, 
-			MockMetacard.DEFAULT_VERSION)));
-		assertThat(contentTypes, hasItem((ContentType) new ContentTypeImpl(SAMPLE_CONTENT_TYPE_2,
-			SAMPLE_CONTENT_VERSION_3)));
-	}
-	
-	@Test
-	public void testGetContentTypesNone() throws Exception {
+        MockMetacard metacard1 = new MockMetacard(Library.getFlagstaffRecord());
+        MockMetacard metacard2 = new MockMetacard(Library.getShowLowRecord());
+        MockMetacard metacard3 = new MockMetacard(Library.getTampaRecord());
 
-		deleteAllIn(provider);
+        metacard1.setContentTypeName(SAMPLE_CONTENT_TYPE_1);
+        metacard1.setContentTypeVersion(null);
+        metacard2.setContentTypeName(SAMPLE_CONTENT_TYPE_2);
+        metacard3.setContentTypeName(SAMPLE_CONTENT_TYPE_2);
+        metacard3.setContentTypeVersion(SAMPLE_CONTENT_VERSION_3);
 
-		assertEquals(0, provider.getContentTypes().size());
+        List<Metacard> list = Arrays.asList((Metacard) metacard1, metacard2, metacard3);
 
-	}
+        create(list);
 
-	@Test
-	public void testIsAvalaible() throws Exception {
+        Set<ContentType> contentTypes = provider.getContentTypes();
+        assertEquals(3, contentTypes.size());
 
-		assertTrue(provider.isAvailable());
+        assertThat(contentTypes, hasItem((ContentType) new ContentTypeImpl(SAMPLE_CONTENT_TYPE_1,
+                null)));
+        assertThat(contentTypes, hasItem((ContentType) new ContentTypeImpl(SAMPLE_CONTENT_TYPE_2,
+                MockMetacard.DEFAULT_VERSION)));
+        assertThat(contentTypes, hasItem((ContentType) new ContentTypeImpl(SAMPLE_CONTENT_TYPE_2,
+                SAMPLE_CONTENT_VERSION_3)));
+    }
 
-	}
+    @Test
+    public void testGetContentTypesNone() throws Exception {
 
-	/**
-	 * Test that makes sure sourceId is returned for deletions, creates, and
-	 * updates.
-	 * 
-	 * @throws Exception
-	 */
-	@Test
-	public void testSourceId() throws Exception {
+        deleteAllIn(provider);
 
-		assertThat(provider.getId(), notNullValue());
+        assertEquals(0, provider.getContentTypes().size());
 
-		// need more here, how can we test this further
+    }
 
-	}
+    @Test
+    public void testIsAvalaible() throws Exception {
 
-	@Test
-	public void testDescribable() throws Exception {
+        assertTrue(provider.isAvailable());
 
-		LOGGER.debug("version: " + provider.getVersion());
+    }
 
-		LOGGER.debug("description: " + provider.getDescription());
+    /**
+     * Test that makes sure sourceId is returned for deletions, creates, and updates.
+     * 
+     * @throws Exception
+     */
+    @Test
+    public void testSourceId() throws Exception {
 
-		LOGGER.debug("org: " + provider.getOrganization());
+        assertThat(provider.getId(), notNullValue());
 
-		LOGGER.debug("name: " + provider.getTitle());
+        // need more here, how can we test this further
 
-		assertNotNull(provider.getOrganization());
+    }
 
-		assertNotNull(provider.getVersion());
+    @Test
+    public void testDescribable() throws Exception {
 
-		assertNotNull(provider.getDescription());
+        LOGGER.debug("version: " + provider.getVersion());
 
-		assertNotNull(provider.getOrganization());
+        LOGGER.debug("description: " + provider.getDescription());
 
-		assertNotNull(provider.getTitle());
+        LOGGER.debug("org: " + provider.getOrganization());
 
-	}
+        LOGGER.debug("name: " + provider.getTitle());
 
-	private void verifyDeletedRecord(MockMetacard metacard, CreateResponse createResponse,
-			DeleteResponse deleteResponse, Metacard deletedMetacard) {
-		assertEquals(1, deleteResponse.getDeletedMetacards().size());
-		assertEquals(createResponse.getCreatedMetacards().get(0).getId(), deletedMetacard.getId());
-		assertEquals(MockMetacard.DEFAULT_TITLE, deletedMetacard.getTitle());
-		assertEquals(MockMetacard.DEFAULT_LOCATION, deletedMetacard.getLocation());
-		assertEquals(MockMetacard.DEFAULT_TYPE, deletedMetacard.getContentTypeName());
-		assertEquals(MockMetacard.DEFAULT_VERSION, deletedMetacard.getContentTypeVersion());
-		assertNotNull(deletedMetacard.getMetadata());
-		assertTrue(!deletedMetacard.getMetadata().isEmpty());
-		assertFalse(deletedMetacard.getCreatedDate().after(new Date()));
-		assertFalse(deletedMetacard.getModifiedDate().after(new Date()));
-		assertEquals(metacard.getEffectiveDate(), deletedMetacard.getEffectiveDate());
-		assertEquals(metacard.getExpirationDate(), deletedMetacard.getExpirationDate());
-		assertTrue(Arrays.equals(metacard.getThumbnail(), deletedMetacard.getThumbnail()));
-		assertEquals(metacard.getLocation(), deletedMetacard.getLocation());
-	}
+        assertNotNull(provider.getOrganization());
+
+        assertNotNull(provider.getVersion());
+
+        assertNotNull(provider.getDescription());
+
+        assertNotNull(provider.getOrganization());
+
+        assertNotNull(provider.getTitle());
+
+    }
+
+    private void verifyDeletedRecord(MockMetacard metacard, CreateResponse createResponse,
+            DeleteResponse deleteResponse, Metacard deletedMetacard) {
+        assertEquals(1, deleteResponse.getDeletedMetacards().size());
+        assertEquals(createResponse.getCreatedMetacards().get(0).getId(), deletedMetacard.getId());
+        assertEquals(MockMetacard.DEFAULT_TITLE, deletedMetacard.getTitle());
+        assertEquals(MockMetacard.DEFAULT_LOCATION, deletedMetacard.getLocation());
+        assertEquals(MockMetacard.DEFAULT_TYPE, deletedMetacard.getContentTypeName());
+        assertEquals(MockMetacard.DEFAULT_VERSION, deletedMetacard.getContentTypeVersion());
+        assertNotNull(deletedMetacard.getMetadata());
+        assertTrue(!deletedMetacard.getMetadata().isEmpty());
+        assertFalse(deletedMetacard.getCreatedDate().after(new Date()));
+        assertFalse(deletedMetacard.getModifiedDate().after(new Date()));
+        assertEquals(metacard.getEffectiveDate(), deletedMetacard.getEffectiveDate());
+        assertEquals(metacard.getExpirationDate(), deletedMetacard.getExpirationDate());
+        assertTrue(Arrays.equals(metacard.getThumbnail(), deletedMetacard.getThumbnail()));
+        assertEquals(metacard.getLocation(), deletedMetacard.getLocation());
+    }
 }

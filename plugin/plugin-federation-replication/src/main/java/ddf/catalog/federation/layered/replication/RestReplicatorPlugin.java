@@ -1,13 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- *
- * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
- * version 3 of the License, or any later version. 
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * 
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
+ * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
+ * 
  **/
 package ddf.catalog.federation.layered.replication;
 
@@ -35,181 +38,184 @@ import ddf.catalog.transform.MetacardTransformer;
 
 public class RestReplicatorPlugin implements PostIngestPlugin {
 
-	/**
-	 * A configurable property of parent's location.
-	 */
-	private String parentAddress = null;
+    /**
+     * A configurable property of parent's location.
+     */
+    private String parentAddress = null;
 
-	private MetacardTransformer transformer = null;
+    private MetacardTransformer transformer = null;
 
-	private static final Logger LOGGER = Logger.getLogger(RestReplicatorPlugin.class);
-	private WebClient client;
+    private static final Logger LOGGER = Logger.getLogger(RestReplicatorPlugin.class);
 
-	public RestReplicatorPlugin(String endpointAddress) {
-		setParentAddress(endpointAddress);
-	}
+    private WebClient client;
 
-	@Override
-	public CreateResponse process(CreateResponse input) throws PluginExecutionException {
+    public RestReplicatorPlugin(String endpointAddress) {
+        setParentAddress(endpointAddress);
+    }
 
-		if (client != null && transformer != null) {
+    @Override
+    public CreateResponse process(CreateResponse input) throws PluginExecutionException {
 
-			for (Metacard m : input.getCreatedMetacards()) {
+        if (client != null && transformer != null) {
 
-				String data = transform(m, client);
+            for (Metacard m : input.getCreatedMetacards()) {
 
-				Response r = client.post(data);
-				
-				if (LOGGER.isDebugEnabled()) {
-					LOGGER.debug("Posted the following GeoJSON: \n" + data );
-					LOGGER.debug("RESPONSE: [" + ToStringBuilder.reflectionToString(r) + "]");
-				}
-			}
-		}
+                String data = transform(m, client);
 
-		return input;
-	}
+                Response r = client.post(data);
 
-	@Override
-	public UpdateResponse process(UpdateResponse input) throws PluginExecutionException {
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("Posted the following GeoJSON: \n" + data);
+                    LOGGER.debug("RESPONSE: [" + ToStringBuilder.reflectionToString(r) + "]");
+                }
+            }
+        }
 
-		if (client != null && transformer != null) {
+        return input;
+    }
 
-			WebClient updateClient = WebClient.fromClient(client);
+    @Override
+    public UpdateResponse process(UpdateResponse input) throws PluginExecutionException {
 
-			updateClient.type(MediaType.APPLICATION_JSON);
+        if (client != null && transformer != null) {
 
-			List<Update> updates = input.getUpdatedMetacards();
+            WebClient updateClient = WebClient.fromClient(client);
 
-			if (updates == null) {
-				return input;
-			}
+            updateClient.type(MediaType.APPLICATION_JSON);
 
-			UpdateRequest request = input.getRequest();
-			if (request != null && !Metacard.ID.equals(request.getAttributeName())) {
-				throw new PluginExecutionException(new UnsupportedOperationException(
-						"Cannot replicate records that are not updated by " + Metacard.ID));
-			}
+            List<Update> updates = input.getUpdatedMetacards();
 
-			for (int i = 0; i < updates.size(); i++) {
+            if (updates == null) {
+                return input;
+            }
 
-				Update update = updates.get(i);
+            UpdateRequest request = input.getRequest();
+            if (request != null && !Metacard.ID.equals(request.getAttributeName())) {
+                throw new PluginExecutionException(new UnsupportedOperationException(
+                        "Cannot replicate records that are not updated by " + Metacard.ID));
+            }
 
-				if (request != null && request.getUpdates() != null && request.getUpdates().get(i) != null
-						&& request.getUpdates().get(i).getKey() != null) {
+            for (int i = 0; i < updates.size(); i++) {
 
-					updateClient.path(request.getUpdates().get(i).getKey());
+                Update update = updates.get(i);
 
-					Metacard newMetacard = update.getNewMetacard();
+                if (request != null && request.getUpdates() != null
+                        && request.getUpdates().get(i) != null
+                        && request.getUpdates().get(i).getKey() != null) {
 
-					String newData = transform(newMetacard, updateClient);
+                    updateClient.path(request.getUpdates().get(i).getKey());
 
-					Response r = updateClient.put(newData);
+                    Metacard newMetacard = update.getNewMetacard();
 
-					if (LOGGER.isDebugEnabled()) {
-						LOGGER.debug("RESPONSE: [" + ToStringBuilder.reflectionToString(r) + "]");
-					}
-				}
+                    String newData = transform(newMetacard, updateClient);
 
-			}
-		}
+                    Response r = updateClient.put(newData);
 
-		return input;
-	}
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug("RESPONSE: [" + ToStringBuilder.reflectionToString(r) + "]");
+                    }
+                }
 
-	@Override
-	public DeleteResponse process(DeleteResponse input) throws PluginExecutionException {
+            }
+        }
 
-		if (client != null) {
+        return input;
+    }
 
-			WebClient updateClient = WebClient.fromClient(client);
+    @Override
+    public DeleteResponse process(DeleteResponse input) throws PluginExecutionException {
 
-			updateClient.type(MediaType.APPLICATION_JSON);
+        if (client != null) {
 
-			if (input == null || input.getDeletedMetacards() == null || input.getDeletedMetacards().isEmpty()) {
-				return input;
-			}
+            WebClient updateClient = WebClient.fromClient(client);
 
-			for (int i = 0; i < input.getDeletedMetacards().size(); i++) {
+            updateClient.type(MediaType.APPLICATION_JSON);
 
-				Metacard metacard = input.getDeletedMetacards().get(i);
+            if (input == null || input.getDeletedMetacards() == null
+                    || input.getDeletedMetacards().isEmpty()) {
+                return input;
+            }
 
-				if (metacard != null && metacard.getId() != null) {
+            for (int i = 0; i < input.getDeletedMetacards().size(); i++) {
 
-					updateClient.path(metacard.getId());
+                Metacard metacard = input.getDeletedMetacards().get(i);
 
-					Response r = updateClient.delete();
+                if (metacard != null && metacard.getId() != null) {
 
-					if (LOGGER.isDebugEnabled()) {
-						LOGGER.debug("RESPONSE: [" + ToStringBuilder.reflectionToString(r) + "]");
-					}
-				}
+                    updateClient.path(metacard.getId());
 
-			}
-		}
+                    Response r = updateClient.delete();
 
-		return input;
-	}
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug("RESPONSE: [" + ToStringBuilder.reflectionToString(r) + "]");
+                    }
+                }
 
-	public String getParentAddress() {
-		return parentAddress;
-	}
+            }
+        }
 
-	public void setParentAddress(String endpointAddress) {
+        return input;
+    }
 
-		if (endpointAddress == null) {
+    public String getParentAddress() {
+        return parentAddress;
+    }
 
-			this.parentAddress = endpointAddress;
+    public void setParentAddress(String endpointAddress) {
 
-			client = null;
+        if (endpointAddress == null) {
 
-		} else if (!endpointAddress.equals(this.parentAddress)) {
+            this.parentAddress = endpointAddress;
 
-			String previous = this.parentAddress;
+            client = null;
 
-			this.parentAddress = endpointAddress;
+        } else if (!endpointAddress.equals(this.parentAddress)) {
 
-			client = WebClient.create(this.parentAddress, true);
+            String previous = this.parentAddress;
 
-			if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug("Changed the parent address property from [" + previous + "]  to [" + this.parentAddress
-						+ "]");
-			}
-		}
+            this.parentAddress = endpointAddress;
 
-	}
+            client = WebClient.create(this.parentAddress, true);
 
-	public MetacardTransformer getTransformer() {
-		return transformer;
-	}
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Changed the parent address property from [" + previous + "]  to ["
+                        + this.parentAddress + "]");
+            }
+        }
 
-	public void setTransformer(MetacardTransformer transformer) {
-		this.transformer = transformer;
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("Changed transformer to [" + this.transformer + "]");
-		}
-	}
+    }
 
-	private String transform(Metacard m, WebClient client) throws PluginExecutionException {
+    public MetacardTransformer getTransformer() {
+        return transformer;
+    }
 
-		BinaryContent binaryContent;
-		try {
-			binaryContent = transformer.transform(m, null);
-			client.type(getValidMimeType(binaryContent.getMimeTypeValue()));
-			return new String(binaryContent.getByteArray());
-		} catch (IOException e) {
-			LOGGER.warn("Could not understand metacard.", e);
-			throw new PluginExecutionException("Could not send metacard.");
-		} catch (CatalogTransformerException e) {
-			LOGGER.warn("Could not transform metacard.", e);
-			throw new PluginExecutionException("Could not send metacard.");
-		}
-	}
+    public void setTransformer(MetacardTransformer transformer) {
+        this.transformer = transformer;
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Changed transformer to [" + this.transformer + "]");
+        }
+    }
 
-	private String getValidMimeType(String mimeTypeValue) {
-		if (mimeTypeValue == null) {
-			return MediaType.APPLICATION_OCTET_STREAM;
-		}
-		return mimeTypeValue;
-	}
+    private String transform(Metacard m, WebClient client) throws PluginExecutionException {
+
+        BinaryContent binaryContent;
+        try {
+            binaryContent = transformer.transform(m, null);
+            client.type(getValidMimeType(binaryContent.getMimeTypeValue()));
+            return new String(binaryContent.getByteArray());
+        } catch (IOException e) {
+            LOGGER.warn("Could not understand metacard.", e);
+            throw new PluginExecutionException("Could not send metacard.");
+        } catch (CatalogTransformerException e) {
+            LOGGER.warn("Could not transform metacard.", e);
+            throw new PluginExecutionException("Could not send metacard.");
+        }
+    }
+
+    private String getValidMimeType(String mimeTypeValue) {
+        if (mimeTypeValue == null) {
+            return MediaType.APPLICATION_OCTET_STREAM;
+        }
+        return mimeTypeValue;
+    }
 }

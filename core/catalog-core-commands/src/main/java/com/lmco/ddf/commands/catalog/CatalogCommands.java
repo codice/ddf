@@ -1,13 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- *
- * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
- * version 3 of the License, or any later version. 
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * 
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
+ * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
+ * 
  **/
 package com.lmco.ddf.commands.catalog;
 
@@ -30,9 +33,8 @@ import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.source.CatalogProvider;
 
 /**
- * Parent object to all Catalog Commands. Provides common methods and instance
- * variables as well as the extension of {@link OsgiCommandSupport} that Catalog
- * Commands can use.
+ * Parent object to all Catalog Commands. Provides common methods and instance variables as well as
+ * the extension of {@link OsgiCommandSupport} that Catalog Commands can use.
  * 
  * @author Ashraf Barakat
  * @author ddf.isgs@lmco.com
@@ -79,11 +81,9 @@ public class CatalogCommands extends OsgiCommandSupport {
         return getService(FilterBuilder.class);
     }
 
-    protected <T> T getService(Class<T> classObject)
-            throws InterruptedException {
+    protected <T> T getService(Class<T> classObject) throws InterruptedException {
 
-        ServiceTracker st = new ServiceTracker(getBundleContext(),
-                classObject.getName(), null);
+        ServiceTracker st = new ServiceTracker(getBundleContext(), classObject.getName(), null);
         st.open();
 
         @SuppressWarnings("unchecked")

@@ -1,13 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- *
- * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
- * version 3 of the License, or any later version. 
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * 
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
+ * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
+ * 
  **/
 package ddf.catalog.source.solr;
 
@@ -27,9 +30,8 @@ import org.apache.log4j.Logger;
 import org.osgi.framework.BundleContext;
 
 /**
- * Abstraction layer for accessing files or directories on disk. Provides
- * different implementations depending on if the code is run within an OSGi
- * container or not.
+ * Abstraction layer for accessing files or directories on disk. Provides different implementations
+ * depending on if the code is run within an OSGi container or not.
  * 
  * @author Ashraf Barakat
  * @author ddf.isgs@lmco.com
@@ -47,34 +49,28 @@ public class ConfigurationFileProxy {
 
     private File dataDirectory = null;
 
-    private static final Logger LOGGER = Logger
-            .getLogger(ConfigurationFileProxy.class);
+    private static final Logger LOGGER = Logger.getLogger(ConfigurationFileProxy.class);
 
     /**
      * Constructor for the proxy
      * 
      * @param bundleContext
-     *            This is mandatory for running in an OSGi container; the
-     *            BundleContext is used to find the location of configuration
-     *            files within this bundle
+     *            This is mandatory for running in an OSGi container; the BundleContext is used to
+     *            find the location of configuration files within this bundle
      */
-    public ConfigurationFileProxy(BundleContext bundleContext,
-            ConfigurationStore configurationStore) {
+    public ConfigurationFileProxy(BundleContext bundleContext, ConfigurationStore configurationStore) {
 
         if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Creating new instance of "
-                    + ConfigurationFileProxy.class.getSimpleName());
+            LOGGER.debug("Creating new instance of " + ConfigurationFileProxy.class.getSimpleName());
         }
 
         this.bundleContext = bundleContext;
 
-        String storedDataDirectoryPath = configurationStore
-                .getDataDirectoryPath();
+        String storedDataDirectoryPath = configurationStore.getDataDirectoryPath();
 
         if (isNotBlank(storedDataDirectoryPath)) {
             this.dataDirectory = new File(storedDataDirectoryPath);
-            LOGGER.info("dataDirectory set to [" + storedDataDirectoryPath
-                    + "]");
+            LOGGER.info("dataDirectory set to [" + storedDataDirectoryPath + "]");
         } else {
             this.dataDirectory = new File(DEFAULT_SOLR_DATA_PARENT_DIR, "solr");
         }
@@ -82,11 +78,10 @@ public class ConfigurationFileProxy {
     }
 
     /**
-     * Writes the solr configuration files out of the bundle onto the disk. This
-     * method requires that the dataDirectoryPath has been set. If the code is
-     * run in an OSGi container, it will automatically have a default
-     * dataDirectory location set and will not require setting dataDirectory
-     * ahead of time.
+     * Writes the solr configuration files out of the bundle onto the disk. This method requires
+     * that the dataDirectoryPath has been set. If the code is run in an OSGi container, it will
+     * automatically have a default dataDirectory location set and will not require setting
+     * dataDirectory ahead of time.
      */
     public void writeBundleFilesTo(File configDir) {
         if (bundleContext != null && configDir != null) {
@@ -116,9 +111,8 @@ public class ConfigurationFileProxy {
 
                         try {
                             outputStream = new FileOutputStream(currentFile);
-                            
-                            long byteCount = IOUtils.copyLarge(inputStream,
-                                    outputStream);
+
+                            long byteCount = IOUtils.copyLarge(inputStream, outputStream);
 
                             LOGGER.debug("Wrote out " + byteCount + " bytes.");
 
@@ -139,8 +133,7 @@ public class ConfigurationFileProxy {
 
     /**
      * 
-     * @return the File of the directory where data can be written, should never
-     *         return {@code null}
+     * @return the File of the directory where data can be written, should never return {@code null}
      */
     public File getDataDirectory() {
 
@@ -152,23 +145,20 @@ public class ConfigurationFileProxy {
         if (bundleContext != null) {
 
             try {
-                return new File(new File(new File(
-                        DEFAULT_SOLR_CONFIG_PARENT_DIR, "solr"), "conf"), name)
-                        .toURI().toURL();
+                return new File(new File(new File(DEFAULT_SOLR_CONFIG_PARENT_DIR, "solr"), "conf"),
+                        name).toURI().toURL();
             } catch (MalformedURLException e) {
                 LOGGER.warn(e);
             }
         }
 
-        return this.getClass().getClassLoader()
-                .getResource("solr/conf/" + name);
+        return this.getClass().getClassLoader().getResource("solr/conf/" + name);
 
     }
 
     @Override
     public String toString() {
 
-        return this.getClass().getSimpleName() + "-->[" + getDataDirectory()
-                + "]";
+        return this.getClass().getSimpleName() + "-->[" + getDataDirectory() + "]";
     }
 }

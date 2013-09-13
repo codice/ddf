@@ -1,13 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- *
- * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
- * version 3 of the License, or any later version. 
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * 
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
+ * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
+ * 
  **/
 package ddf.catalog.federation.layered;
 
@@ -62,219 +65,228 @@ import ddf.catalog.transform.MetacardTransformer;
 
 public class TestPlugin {
 
-	private static MockRestEndpoint endpoint;
-	private static final Logger LOGGER = Logger.getLogger(TestPlugin.class);
-	// I changed the port so that it would not conflict in testing with other services
-	private static final String ENDPOINT_ADDRESS = "http://localhost:8282/services/catalog";
-	private static final String WADL_ADDRESS = ENDPOINT_ADDRESS + "?_wadl";
-	private static Server server;
-	private static RestReplicatorPlugin plugin;
-	private static MetacardTransformer transformer;
-	private static Metacard metacard;
+    private static MockRestEndpoint endpoint;
 
-	@BeforeClass
-	public static void initialize() throws InterruptedException {
-		//startServer();
-		//waitForWADL();
-	}
-	
-	private static void startServer() {
-		LOGGER.info("Starting server.");
+    private static final Logger LOGGER = Logger.getLogger(TestPlugin.class);
 
-		endpoint = mock(MockRestEndpoint.class);
+    // I changed the port so that it would not conflict in testing with other services
+    private static final String ENDPOINT_ADDRESS = "http://localhost:8282/services/catalog";
 
-		JAXRSServerFactoryBean sf = new JAXRSServerFactoryBean();
+    private static final String WADL_ADDRESS = ENDPOINT_ADDRESS + "?_wadl";
 
-		sf.setResourceClasses(MockRestEndpoint.class);
+    private static Server server;
 
-		sf.setAddress(ENDPOINT_ADDRESS);
+    private static RestReplicatorPlugin plugin;
 
-		sf.setResourceProvider(MockRestEndpoint.class, new SingletonResourceProvider(endpoint, true));
+    private static MetacardTransformer transformer;
 
-		LOGGER.info("Creating server.");
-		server = sf.create();
-	}
+    private static Metacard metacard;
 
-	// Optional step - may be needed to ensure that by the time individual
-	// tests start running the endpoint has been fully initialized
-	private static void waitForWADL() throws InterruptedException {
-		LOGGER.info("Waiting for wadl");
-		WebClient client = WebClient.create(WADL_ADDRESS);
-		// wait for 20 secs or so
-		for (int i = 0; i < 20; i++) {
-			Thread.currentThread().sleep(200);
-			Response response = client.get();
-			if (response.getStatus() == 200) {
-				break;
-			}
-		}
-		// no WADL is available yet - throw an exception or give tests a chance
-		// to run anyway
-	}
-	
-	
-	@AfterClass
-	public static void destroy() {
+    @BeforeClass
+    public static void initialize() throws InterruptedException {
+        // startServer();
+        // waitForWADL();
+    }
 
-		if (server != null) {
-			server.stop();
-			server.destroy();
-		}
+    private static void startServer() {
+        LOGGER.info("Starting server.");
 
-	}
+        endpoint = mock(MockRestEndpoint.class);
 
-	
-	@Before
-	public void setup(){
-		// given
-		plugin = new RestReplicatorPlugin(ENDPOINT_ADDRESS);
-		transformer = mock(MetacardTransformer.class);
-		BinaryContent bc = mock(BinaryContent.class);
-		byte[] bytes = { 86 };
-		try{
-			when(bc.getByteArray()).thenReturn(bytes);
-			when(transformer.transform(isA(Metacard.class), isNull(Map.class))).thenReturn(bc);
-		}
-		catch(Exception e){
-			Assert.fail(e.getLocalizedMessage());
-		}
-		
-		plugin.setTransformer(transformer);
-		metacard = getMockMetacard();
-	}
-	
-	private Metacard getMockMetacard() {
-		Metacard metacard = mock(Metacard.class);
-		when(metacard.getMetadata()).thenReturn(getSample());
-		return metacard;
-	}
+        JAXRSServerFactoryBean sf = new JAXRSServerFactoryBean();
 
-	private String getSample() {
-		return "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<xml></xml>\r\n";
-	}
+        sf.setResourceClasses(MockRestEndpoint.class);
 
-	
+        sf.setAddress(ENDPOINT_ADDRESS);
 
-	@Test
-	@Ignore
-	public void testUpdateNullRequest() throws PluginExecutionException,
-			IngestException, SourceUnavailableException {
-		// given
-		UpdateResponse updateResponse = new UpdateResponseImpl(null, null,
-				Arrays.asList(metacard), Arrays.asList(metacard));
-	
-		// when
-		UpdateResponse response = plugin.process(updateResponse);
-	
-		// then
-		verify(endpoint, never()).updateDocument(isA(String.class), isA(HttpHeaders.class), isA(InputStream.class));
-	
-		assertThat(response, sameInstance(updateResponse));
-	}
+        sf.setResourceProvider(MockRestEndpoint.class,
+                new SingletonResourceProvider(endpoint, true));
 
-	@Test
-	@Ignore
-	public void testUpdate() throws PluginExecutionException, 
-			IngestException, SourceUnavailableException {
-		// given
-		UpdateResponse updateResponse = new UpdateResponseImpl(new UpdateRequestImpl("23", metacard), null,
-				Arrays.asList(metacard), Arrays.asList(metacard));
-	
-		// when
-		UpdateResponse response = plugin.process(updateResponse);
-	
-		// then
-		verify(endpoint).updateDocument(argThat(is("23")), isA(HttpHeaders.class), isA(InputStream.class));
-	
-		assertThat(response, sameInstance(updateResponse));
-	}
-	
-	@Test
-	@Ignore
-	public void testCreateNullParent() throws PluginExecutionException,
-			IngestException, SourceUnavailableException {
-		// given
-		CreateResponse createResponse = new CreateResponseImpl(new CreateRequestImpl(metacard), null,
-				Arrays.asList(metacard));
+        LOGGER.info("Creating server.");
+        server = sf.create();
+    }
 
-		// when
-		plugin.process(createResponse);
+    // Optional step - may be needed to ensure that by the time individual
+    // tests start running the endpoint has been fully initialized
+    private static void waitForWADL() throws InterruptedException {
+        LOGGER.info("Waiting for wadl");
+        WebClient client = WebClient.create(WADL_ADDRESS);
+        // wait for 20 secs or so
+        for (int i = 0; i < 20; i++) {
+            Thread.currentThread().sleep(200);
+            Response response = client.get();
+            if (response.getStatus() == 200) {
+                break;
+            }
+        }
+        // no WADL is available yet - throw an exception or give tests a chance
+        // to run anyway
+    }
 
-		// then
-		verify(endpoint, never()).addDocument(isA(HttpHeaders.class), isA(UriInfo.class), isA(InputStream.class));
-	}
+    @AfterClass
+    public static void destroy() {
 
-	@Test
-	@Ignore
-	public void testCreateNullTransformer() throws PluginExecutionException, 
-			IngestException, SourceUnavailableException {
-		// given
-		plugin = new RestReplicatorPlugin(null);
-		CreateResponse createResponse = new CreateResponseImpl(new CreateRequestImpl(metacard), null,
-				Arrays.asList(metacard));
+        if (server != null) {
+            server.stop();
+            server.destroy();
+        }
 
-		// when
-		plugin.process(createResponse);
+    }
 
-		// then
-		verify(endpoint, never()).addDocument(isA(HttpHeaders.class), isA(UriInfo.class), isA(InputStream.class));
-	}
+    @Before
+    public void setup() {
+        // given
+        plugin = new RestReplicatorPlugin(ENDPOINT_ADDRESS);
+        transformer = mock(MetacardTransformer.class);
+        BinaryContent bc = mock(BinaryContent.class);
+        byte[] bytes = {86};
+        try {
+            when(bc.getByteArray()).thenReturn(bytes);
+            when(transformer.transform(isA(Metacard.class), isNull(Map.class))).thenReturn(bc);
+        } catch (Exception e) {
+            Assert.fail(e.getLocalizedMessage());
+        }
 
-	@Test(expected = PluginExecutionException.class)
-	public void testCreateBadTransform() throws PluginExecutionException, CatalogTransformerException, IOException,
-			IngestException, SourceUnavailableException {
-		// given
-		when(transformer.transform(isA(Metacard.class), isNull(Map.class)))
-				.thenThrow(CatalogTransformerException.class);
-		CreateResponse createResponse = new CreateResponseImpl(new CreateRequestImpl(metacard), null,
-				Arrays.asList(metacard));
+        plugin.setTransformer(transformer);
+        metacard = getMockMetacard();
+    }
 
-		// when
-		plugin.process(createResponse);
+    private Metacard getMockMetacard() {
+        Metacard metacard = mock(Metacard.class);
+        when(metacard.getMetadata()).thenReturn(getSample());
+        return metacard;
+    }
 
-	}
+    private String getSample() {
+        return "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<xml></xml>\r\n";
+    }
 
-	@Test
-	@Ignore
-	public void testCreate() throws PluginExecutionException, CatalogTransformerException, IOException,
-			IngestException, SourceUnavailableException {
-		// given
-		CreateResponse createResponse = new CreateResponseImpl(new CreateRequestImpl(metacard), null,
-				Arrays.asList(metacard));
+    @Test
+    @Ignore
+    public void testUpdateNullRequest() throws PluginExecutionException, IngestException,
+        SourceUnavailableException {
+        // given
+        UpdateResponse updateResponse = new UpdateResponseImpl(null, null, Arrays.asList(metacard),
+                Arrays.asList(metacard));
 
-		// when
-		CreateResponse response = plugin.process(createResponse);
+        // when
+        UpdateResponse response = plugin.process(updateResponse);
 
-		// then
-		verify(endpoint).addDocument(isA(HttpHeaders.class), isA(UriInfo.class), isA(InputStream.class));
+        // then
+        verify(endpoint, never()).updateDocument(isA(String.class), isA(HttpHeaders.class),
+                isA(InputStream.class));
 
-		assertThat(response, sameInstance(createResponse));
-	}
-	
-	@Test
-	@Ignore
-	public void testDelete() throws PluginExecutionException, CatalogTransformerException, IOException,
-			IngestException, SourceUnavailableException {
-		// given
-		when(metacard.getId()).thenReturn("23");
-	
-		DeleteResponse deleteResponse = new DeleteResponseImpl(null, null, Arrays.asList(metacard));
-	
-		// when
-		DeleteResponse response = plugin.process(deleteResponse);
-	
-		// then
-		verify(endpoint).deleteDocument(argThat(is("23")));
-	
-		assertThat(response, sameInstance(deleteResponse));
-	}
-	
-	@Test
-	@Ignore
-	public void testParentAddress() {
-		// given
-		plugin.setParentAddress(null);
-		
-		plugin.setParentAddress(ENDPOINT_ADDRESS);
-	}
+        assertThat(response, sameInstance(updateResponse));
+    }
+
+    @Test
+    @Ignore
+    public void testUpdate() throws PluginExecutionException, IngestException,
+        SourceUnavailableException {
+        // given
+        UpdateResponse updateResponse = new UpdateResponseImpl(
+                new UpdateRequestImpl("23", metacard), null, Arrays.asList(metacard),
+                Arrays.asList(metacard));
+
+        // when
+        UpdateResponse response = plugin.process(updateResponse);
+
+        // then
+        verify(endpoint).updateDocument(argThat(is("23")), isA(HttpHeaders.class),
+                isA(InputStream.class));
+
+        assertThat(response, sameInstance(updateResponse));
+    }
+
+    @Test
+    @Ignore
+    public void testCreateNullParent() throws PluginExecutionException, IngestException,
+        SourceUnavailableException {
+        // given
+        CreateResponse createResponse = new CreateResponseImpl(new CreateRequestImpl(metacard),
+                null, Arrays.asList(metacard));
+
+        // when
+        plugin.process(createResponse);
+
+        // then
+        verify(endpoint, never()).addDocument(isA(HttpHeaders.class), isA(UriInfo.class),
+                isA(InputStream.class));
+    }
+
+    @Test
+    @Ignore
+    public void testCreateNullTransformer() throws PluginExecutionException, IngestException,
+        SourceUnavailableException {
+        // given
+        plugin = new RestReplicatorPlugin(null);
+        CreateResponse createResponse = new CreateResponseImpl(new CreateRequestImpl(metacard),
+                null, Arrays.asList(metacard));
+
+        // when
+        plugin.process(createResponse);
+
+        // then
+        verify(endpoint, never()).addDocument(isA(HttpHeaders.class), isA(UriInfo.class),
+                isA(InputStream.class));
+    }
+
+    @Test(expected = PluginExecutionException.class)
+    public void testCreateBadTransform() throws PluginExecutionException,
+        CatalogTransformerException, IOException, IngestException, SourceUnavailableException {
+        // given
+        when(transformer.transform(isA(Metacard.class), isNull(Map.class))).thenThrow(
+                CatalogTransformerException.class);
+        CreateResponse createResponse = new CreateResponseImpl(new CreateRequestImpl(metacard),
+                null, Arrays.asList(metacard));
+
+        // when
+        plugin.process(createResponse);
+
+    }
+
+    @Test
+    @Ignore
+    public void testCreate() throws PluginExecutionException, CatalogTransformerException,
+        IOException, IngestException, SourceUnavailableException {
+        // given
+        CreateResponse createResponse = new CreateResponseImpl(new CreateRequestImpl(metacard),
+                null, Arrays.asList(metacard));
+
+        // when
+        CreateResponse response = plugin.process(createResponse);
+
+        // then
+        verify(endpoint).addDocument(isA(HttpHeaders.class), isA(UriInfo.class),
+                isA(InputStream.class));
+
+        assertThat(response, sameInstance(createResponse));
+    }
+
+    @Test
+    @Ignore
+    public void testDelete() throws PluginExecutionException, CatalogTransformerException,
+        IOException, IngestException, SourceUnavailableException {
+        // given
+        when(metacard.getId()).thenReturn("23");
+
+        DeleteResponse deleteResponse = new DeleteResponseImpl(null, null, Arrays.asList(metacard));
+
+        // when
+        DeleteResponse response = plugin.process(deleteResponse);
+
+        // then
+        verify(endpoint).deleteDocument(argThat(is("23")));
+
+        assertThat(response, sameInstance(deleteResponse));
+    }
+
+    @Test
+    @Ignore
+    public void testParentAddress() {
+        // given
+        plugin.setParentAddress(null);
+
+        plugin.setParentAddress(ENDPOINT_ADDRESS);
+    }
 }

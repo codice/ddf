@@ -1,13 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- *
- * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
- * version 3 of the License, or any later version. 
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * 
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
+ * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
+ * 
  **/
 package ddf.catalog.source.opensearch;
 
@@ -61,9 +64,10 @@ import ddf.catalog.transformer.xml.XmlInputTransformer;
 
 /**
  * Tests parts of the {@link OpenSearchSource}
+ * 
  * @author Ashraf Barakat
  * @author ddf.isgs@lmco.com
- *
+ * 
  */
 public class TestOpenSearchSource {
 
@@ -85,60 +89,53 @@ public class TestOpenSearchSource {
      * @throws MalformedURLException
      */
     @Test
-    public void testQuery_ById() throws UnsupportedQueryException,
-            MalformedURLException, IOException {
+    public void testQuery_ById() throws UnsupportedQueryException, MalformedURLException,
+        IOException {
 
         // given
         FirstArgumentCapture answer = new FirstArgumentCapture();
 
         OpenSearchSource source = givenSource(answer);
 
-        Filter filter = filterBuilder.attribute(Metacard.ID).equalTo()
-                .text(SAMPLE_ID);
+        Filter filter = filterBuilder.attribute(Metacard.ID).equalTo().text(SAMPLE_ID);
 
         // when
-        SourceResponse response = source.query(new QueryRequestImpl(
-                new QueryImpl(filter)));
+        SourceResponse response = source.query(new QueryRequestImpl(new QueryImpl(filter)));
 
         // then
-        assertThat(answer.getInputArg(), endsWith("services/catalog/"
-                + SAMPLE_ID));
+        assertThat(answer.getInputArg(), endsWith("services/catalog/" + SAMPLE_ID));
 
     }
 
     @Test
     @Ignore
     // Ignored because Content Type support has yet to be added.
-    public void testQuery_ByContentType() throws UnsupportedQueryException,
-            MalformedURLException, IOException, URISyntaxException {
-    
+    public void testQuery_ByContentType() throws UnsupportedQueryException, MalformedURLException,
+        IOException, URISyntaxException {
+
         // given
-        FirstArgumentCapture answer = new FirstArgumentCapture(
-                getSampleAtomStream());
-    
+        FirstArgumentCapture answer = new FirstArgumentCapture(getSampleAtomStream());
+
         OpenSearchSource source = givenSource(answer);
-    
-        Filter filter = filterBuilder.attribute(Metacard.CONTENT_TYPE)
-                .equalTo().text(SAMPLE_ID);
-    
+
+        Filter filter = filterBuilder.attribute(Metacard.CONTENT_TYPE).equalTo().text(SAMPLE_ID);
+
         // when
-        SourceResponse response = source.query(new QueryRequestImpl(
-                new QueryImpl(filter)));
-    
+        SourceResponse response = source.query(new QueryRequestImpl(new QueryImpl(filter)));
+
         // then
         List<NameValuePair> pairs = extractQueryParams(answer);
-    
-        verifyOpenSearchUrl(pairs, pair("type", SAMPLE_ID) );
-    
+
+        verifyOpenSearchUrl(pairs, pair("type", SAMPLE_ID));
+
     }
 
     @Test
-    public void testQuery_BySearchPhrase() throws UnsupportedQueryException,
-            URISyntaxException, IOException {
+    public void testQuery_BySearchPhrase() throws UnsupportedQueryException, URISyntaxException,
+        IOException {
 
         // given
-        FirstArgumentCapture answer = new FirstArgumentCapture(
-                getSampleAtomStream());
+        FirstArgumentCapture answer = new FirstArgumentCapture(getSampleAtomStream());
 
         OpenSearchSource source = givenSource(answer);
 
@@ -146,8 +143,7 @@ public class TestOpenSearchSource {
                 .text(SAMPLE_SEARCH_PHRASE);
 
         // when
-        SourceResponse response = source.query(new QueryRequestImpl(
-                new QueryImpl(filter)));
+        SourceResponse response = source.query(new QueryRequestImpl(new QueryImpl(filter)));
 
         // then
         List<NameValuePair> pairs = extractQueryParams(answer);
@@ -157,12 +153,11 @@ public class TestOpenSearchSource {
     }
 
     @Test
-    public void testQueryAnyText() throws UnsupportedQueryException,
-            URISyntaxException, IOException {
+    public void testQueryAnyText() throws UnsupportedQueryException, URISyntaxException,
+        IOException {
 
         // given
-        FirstArgumentCapture answer = new FirstArgumentCapture(
-                getSampleAtomStream());
+        FirstArgumentCapture answer = new FirstArgumentCapture(getSampleAtomStream());
 
         OpenSearchSource source = givenSource(answer);
 
@@ -170,8 +165,7 @@ public class TestOpenSearchSource {
                 .text(SAMPLE_SEARCH_PHRASE);
 
         // when
-        SourceResponse response = source.query(new QueryRequestImpl(
-                new QueryImpl(filter)));
+        SourceResponse response = source.query(new QueryRequestImpl(new QueryImpl(filter)));
 
         // then
         List<NameValuePair> pairs = extractQueryParams(answer);
@@ -179,115 +173,124 @@ public class TestOpenSearchSource {
         verifyOpenSearchUrl(pairs, pair("q", SAMPLE_SEARCH_PHRASE));
 
     }
-    
+
     /**
      * Basic retrieve product case. Tests the url sent to the connection is correct.
+     * 
      * @throws ResourceNotSupportedException
      * @throws IOException
      * @throws ResourceNotFoundException
      */
     @Test
-    public void testRetrieveResource() throws ResourceNotSupportedException, IOException, ResourceNotFoundException {
-        
+    public void testRetrieveResource() throws ResourceNotSupportedException, IOException,
+        ResourceNotFoundException {
+
         // given
-        FirstArgumentCapture answer = new FirstArgumentCapture(
-                getBinaryData());
+        FirstArgumentCapture answer = new FirstArgumentCapture(getBinaryData());
 
         OpenSearchSource source = givenSource(answer);
-        
-        Map<String,Serializable> requestProperties = new HashMap<String,Serializable>();
-        
+
+        Map<String, Serializable> requestProperties = new HashMap<String, Serializable>();
+
         requestProperties.put(Metacard.ID, SAMPLE_ID);
-        
-        // when 
+
+        // when
         ResourceResponse response = source.retrieveResource(null, requestProperties);
-        
+
         // then
-        assertThat(answer.getInputArg(), endsWith("services/catalog/"
-                + SAMPLE_ID +"?" + RestUrl.RESOURCE_QUERY_PARAM));
+        assertThat(answer.getInputArg(), endsWith("services/catalog/" + SAMPLE_ID + "?"
+                + RestUrl.RESOURCE_QUERY_PARAM));
     }
-    
+
     /**
      * Given all null params, nothing will be returned, expect an exception.
+     * 
      * @throws ResourceNotSupportedException
      */
     @Test
     public void testRetrieveNullProduct() throws ResourceNotSupportedException {
-        //given
-        OpenSearchSource source = new OpenSearchSource(mock(SecureRemoteConnection.class), mock(FilterAdapter.class));
-        
-        //when 
+        // given
+        OpenSearchSource source = new OpenSearchSource(mock(SecureRemoteConnection.class),
+                mock(FilterAdapter.class));
+
+        // when
         try {
             source.retrieveResource(null, null);
-            
-        // then 
-            fail("Should have thrown " + ResourceNotFoundException.class.getName() + " because of null uri.") ;
+
+            // then
+            fail("Should have thrown " + ResourceNotFoundException.class.getName()
+                    + " because of null uri.");
         } catch (ResourceNotFoundException e) {
             /*
              * this exception should have been thrown.
              */
-            assertThat(e.getMessage(), containsString(OpenSearchSource.COULD_NOT_RETRIEVE_RESOURCE_MESSAGE));
+            assertThat(e.getMessage(),
+                    containsString(OpenSearchSource.COULD_NOT_RETRIEVE_RESOURCE_MESSAGE));
             assertThat(e.getMessage(), containsString("null"));
         }
-        
+
     }
-    
+
     @Test
     public void testRetrieveProductUriSyntaxException() throws ResourceNotSupportedException {
-        //given
-        OpenSearchSource source = new OpenSearchSource(mock(SecureRemoteConnection.class), mock(FilterAdapter.class));
-        
+        // given
+        OpenSearchSource source = new OpenSearchSource(mock(SecureRemoteConnection.class),
+                mock(FilterAdapter.class));
+
         source.setEndpointUrl("http://example.com/q?s=^LMT");
-        
-        Map<String,Serializable> requestProperties = new HashMap<String,Serializable>();
-        
+
+        Map<String, Serializable> requestProperties = new HashMap<String, Serializable>();
+
         requestProperties.put(Metacard.ID, SAMPLE_ID);
-        
-        //when 
+
+        // when
         try {
             source.retrieveResource(null, requestProperties);
-            
-        // then 
-            fail("Should have thrown " + ResourceNotFoundException.class.getName() + " because of null uri.") ;
+
+            // then
+            fail("Should have thrown " + ResourceNotFoundException.class.getName()
+                    + " because of null uri.");
         } catch (ResourceNotFoundException e) {
             /*
              * this exception should have been thrown.
              */
             assertThat(e.getMessage(), containsString(OpenSearchSource.BAD_URL_MESSAGE));
         }
-        
+
     }
-    
+
     @Test
     public void testRetrieveProductMalformedUrlException() throws ResourceNotSupportedException {
-        //given
-        OpenSearchSource source = new OpenSearchSource(mock(SecureRemoteConnection.class), mock(FilterAdapter.class));
-        
+        // given
+        OpenSearchSource source = new OpenSearchSource(mock(SecureRemoteConnection.class),
+                mock(FilterAdapter.class));
+
         source.setEndpointUrl("unknownProtocol://localhost:8181/services/catalog/query");
-        
-        Map<String,Serializable> requestProperties = new HashMap<String,Serializable>();
-        
+
+        Map<String, Serializable> requestProperties = new HashMap<String, Serializable>();
+
         requestProperties.put(Metacard.ID, SAMPLE_ID);
-        
-        //when 
+
+        // when
         try {
             source.retrieveResource(null, requestProperties);
-            
-        // then 
-            fail("Should have thrown " + ResourceNotFoundException.class.getName() + " because of null uri.") ;
+
+            // then
+            fail("Should have thrown " + ResourceNotFoundException.class.getName()
+                    + " because of null uri.");
         } catch (ResourceNotFoundException e) {
             /*
              * this exception should have been thrown.
              */
             assertThat(e.getMessage(), containsString(OpenSearchSource.BAD_URL_MESSAGE));
         }
-        
+
     }
-    
+
     // DDF-161
     @Test
     public void testQuery_QueryByMetacardIdFollowedByAnyTextQuery() throws MalformedURLException,
-            IOException, UnsupportedQueryException {
+        IOException, UnsupportedQueryException {
 
         // Setup
         SecureRemoteConnection mockConnection = mock(SecureRemoteConnection.class);
@@ -329,7 +332,7 @@ public class TestOpenSearchSource {
     }
 
     private List<NameValuePair> extractQueryParams(FirstArgumentCapture answer)
-            throws MalformedURLException, URISyntaxException {
+        throws MalformedURLException, URISyntaxException {
         URL url = new URI(answer.getInputArg()).toURL();
         ParameterParser paramParser = new ParameterParser();
         List<NameValuePair> pairs = paramParser.parse(url.getQuery(), '&');
@@ -339,8 +342,8 @@ public class TestOpenSearchSource {
     private void verifyOpenSearchUrl(List<NameValuePair> pairs, NameValuePair... answers) {
 
         ConcurrentHashMap<String, String> nvpMap = createMapFor(pairs);
-        
-        for(NameValuePair answerPair : answers){
+
+        for (NameValuePair answerPair : answers) {
             assertThat(nvpMap.get(answerPair.getName()), is(answerPair.getValue()));
             nvpMap.remove(answerPair.getName());
         }
@@ -355,6 +358,7 @@ public class TestOpenSearchSource {
         verifyAllEntriesBlank(nvpMap);
 
     }
+
     /**
      * Verifies that the rest of the entries don't have a corresponding value
      * 
@@ -370,8 +374,7 @@ public class TestOpenSearchSource {
         }
     }
 
-    private ConcurrentHashMap<String, String> createMapFor(
-            List<NameValuePair> pairs) {
+    private ConcurrentHashMap<String, String> createMapFor(List<NameValuePair> pairs) {
         ConcurrentHashMap<String, String> map = new ConcurrentHashMap<String, String>();
 
         for (NameValuePair pair : pairs) {
@@ -381,9 +384,9 @@ public class TestOpenSearchSource {
     }
 
     private OpenSearchSource givenSource(Answer<BinaryContent> answer)
-            throws MalformedURLException, IOException {
-        OpenSearchSource source = new OpenSearchSource(
-                givenRemoteConnection(answer), FILTER_ADAPTER);
+        throws MalformedURLException, IOException {
+        OpenSearchSource source = new OpenSearchSource(givenRemoteConnection(answer),
+                FILTER_ADAPTER);
         source.setEndpointUrl("http://localhost:8181/services/catalog/query?q={searchTerms}&src={fs:routeTo?}&mr={fs:maxResults?}&count={count?}&mt={fs:maxTimeout?}&dn={idn:userDN?}&lat={geo:lat?}&lon={geo:lon?}&radius={geo:radius?}&bbox={geo:box?}&polygon={geo:polygon?}&dtstart={time:start?}&dtend={time:end?}&dateName={cat:dateName?}&filter={fsa:filter?}&sort={fsa:sort?}");
         source.init();
         source.setLocalQueryOnly(true);
@@ -391,9 +394,8 @@ public class TestOpenSearchSource {
         return source;
     }
 
-    private SecureRemoteConnection givenRemoteConnection(
-            Answer<BinaryContent> answer) throws MalformedURLException,
-            IOException {
+    private SecureRemoteConnection givenRemoteConnection(Answer<BinaryContent> answer)
+        throws MalformedURLException, IOException {
 
         SecureRemoteConnection connection = mock(SecureRemoteConnection.class);
 
@@ -463,16 +465,15 @@ public class TestOpenSearchSource {
                 + "                    <ns3:value>Example title</ns3:value>\r\n"
                 + "                </ns3:string>\r\n"
                 + "            </ns3:metacard>\r\n"
-                + "        </content>\r\n"
-                + "    </entry>\r\n" + "</feed>";
+                + "        </content>\r\n" + "    </entry>\r\n" + "</feed>";
         return new ByteArrayInputStream(response.getBytes());
 
     }
-    
+
     private static InputStream getBinaryData() {
-        
-        byte[] sampleBytes = {80,81,82};
-        
+
+        byte[] sampleBytes = {80, 81, 82};
+
         return new ByteArrayInputStream(sampleBytes);
     }
 
@@ -512,34 +513,22 @@ public class TestOpenSearchSource {
                 + "               </ddms:TimePeriod>\r\n"
                 + "            </ddms:temporalCoverage>\r\n"
                 + "            <ddms:security ICISM:classification=\"U\" ICISM:ownerProducer=\"USA\"/>\r\n"
-                + "         </ddms:Resource>\r\n"
-                + "      </ns3:value>\r\n"
-                + "   </ns3:stringxml>\r\n"
-                + "   <ns3:string name=\"resource-size\">\r\n"
-                + "      <ns3:value>N/A</ns3:value>\r\n"
-                + "   </ns3:string>\r\n"
-                + "   <ns3:geometry name=\"location\">\r\n"
-                + "      <ns3:value>\r\n"
-                + "         <ns1:Point>\r\n"
-                + "            <ns1:pos>2.0 1.0</ns1:pos>\r\n"
-                + "         </ns1:Point>\r\n"
-                + "      </ns3:value>\r\n"
-                + "   </ns3:geometry>\r\n"
+                + "         </ddms:Resource>\r\n" + "      </ns3:value>\r\n"
+                + "   </ns3:stringxml>\r\n" + "   <ns3:string name=\"resource-size\">\r\n"
+                + "      <ns3:value>N/A</ns3:value>\r\n" + "   </ns3:string>\r\n"
+                + "   <ns3:geometry name=\"location\">\r\n" + "      <ns3:value>\r\n"
+                + "         <ns1:Point>\r\n" + "            <ns1:pos>2.0 1.0</ns1:pos>\r\n"
+                + "         </ns1:Point>\r\n" + "      </ns3:value>\r\n" + "   </ns3:geometry>\r\n"
                 + "   <ns3:dateTime name=\"created\">\r\n"
                 + "      <ns3:value>2013-01-29T17:09:19.980-07:00</ns3:value>\r\n"
-                + "   </ns3:dateTime>\r\n"
-                + "   <ns3:string name=\"resource-uri\">\r\n"
-                + "      <ns3:value>http://example.com</ns3:value>\r\n"
-                + "   </ns3:string>\r\n"
+                + "   </ns3:dateTime>\r\n" + "   <ns3:string name=\"resource-uri\">\r\n"
+                + "      <ns3:value>http://example.com</ns3:value>\r\n" + "   </ns3:string>\r\n"
                 + "   <ns3:string name=\"metadata-content-type-version\">\r\n"
-                + "      <ns3:value>v2.0</ns3:value>\r\n"
-                + "   </ns3:string>\r\n"
+                + "      <ns3:value>v2.0</ns3:value>\r\n" + "   </ns3:string>\r\n"
                 + "   <ns3:string name=\"title\">\r\n"
-                + "      <ns3:value>Example Title</ns3:value>\r\n"
-                + "   </ns3:string>\r\n"
+                + "      <ns3:value>Example Title</ns3:value>\r\n" + "   </ns3:string>\r\n"
                 + "   <ns3:string name=\"metadata-content-type\">\r\n"
-                + "      <ns3:value>Resource</ns3:value>\r\n"
-                + "   </ns3:string>\r\n"
+                + "      <ns3:value>Resource</ns3:value>\r\n" + "   </ns3:string>\r\n"
                 + "   <ns3:dateTime name=\"effective\">\r\n"
                 + "      <ns3:value>2013-01-29T17:09:19.980-07:00</ns3:value>\r\n"
                 + "   </ns3:dateTime>\r\n" + "</ns3:metacard>";
@@ -568,7 +557,7 @@ public class TestOpenSearchSource {
         @Override
         public BinaryContent answer(InvocationOnMock invocation) throws Throwable {
             this.inputArg = (String) invocation.getArguments()[0];
-            
+
             return new BinaryContentImpl(returnInputStream);
 
         }

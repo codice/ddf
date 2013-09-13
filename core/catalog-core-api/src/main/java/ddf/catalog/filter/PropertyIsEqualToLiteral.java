@@ -1,13 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- *
- * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
- * version 3 of the License, or any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * 
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
+ * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
+ * 
  **/
 package ddf.catalog.filter;
 
@@ -18,7 +21,6 @@ import org.opengis.filter.expression.Expression;
 import org.opengis.filter.expression.Literal;
 import org.opengis.filter.expression.PropertyName;
 
-
 /**
  * Simple implementation of filter that does not depend on GeoTools. Please use
  * {@link FilterBuilder} instead to create filters.
@@ -28,57 +30,58 @@ import org.opengis.filter.expression.PropertyName;
  */
 public class PropertyIsEqualToLiteral implements PropertyIsEqualTo {
 
-	private PropertyName propertyName;
-	private Literal literal;
+    private PropertyName propertyName;
 
-	/**
-	 * Create PropertyIsEqualTo filter with property name as expression 1 and
-	 * literal as expression 2.
-	 * 
-	 * @param propertyName
-	 *            property name
-	 * @param literal
-	 *            literal
-	 */
-	public PropertyIsEqualToLiteral(PropertyName propertyName, Literal literal) {
-		this.propertyName = propertyName;
-		this.literal = literal;
-	}
+    private Literal literal;
 
-	@XmlElement("expression")
-	public Expression getExpression1() {
-		return propertyName;
-	}
+    /**
+     * Create PropertyIsEqualTo filter with property name as expression 1 and literal as expression
+     * 2.
+     * 
+     * @param propertyName
+     *            property name
+     * @param literal
+     *            literal
+     */
+    public PropertyIsEqualToLiteral(PropertyName propertyName, Literal literal) {
+        this.propertyName = propertyName;
+        this.literal = literal;
+    }
 
-	@XmlElement("expression")
-	public Expression getExpression2() {
-		return literal;
-	}
+    @XmlElement("expression")
+    public Expression getExpression1() {
+        return propertyName;
+    }
 
-	@XmlElement("matchCase")
-	public boolean isMatchingCase() {
-		return true;
-	}
+    @XmlElement("expression")
+    public Expression getExpression2() {
+        return literal;
+    }
 
-	@XmlElement("matchAction")
-	public MatchAction getMatchAction() {
-		return MatchAction.ANY;
-	}
+    @XmlElement("matchCase")
+    public boolean isMatchingCase() {
+        return true;
+    }
 
-	public boolean evaluate(Object object) {
-		if (object == null || literal == null || literal.getValue() == null) {
-			return false;
-		}
+    @XmlElement("matchAction")
+    public MatchAction getMatchAction() {
+        return MatchAction.ANY;
+    }
 
-		if (object.equals(literal.getValue())) {
-			return true;
-		}
+    public boolean evaluate(Object object) {
+        if (object == null || literal == null || literal.getValue() == null) {
+            return false;
+        }
 
-		return false;
-	}
+        if (object.equals(literal.getValue())) {
+            return true;
+        }
 
-	public Object accept(FilterVisitor visitor, Object extraData) {
-		return visitor.visit(this, extraData);
-	}
+        return false;
+    }
+
+    public Object accept(FilterVisitor visitor, Object extraData) {
+        return visitor.visit(this, extraData);
+    }
 
 }

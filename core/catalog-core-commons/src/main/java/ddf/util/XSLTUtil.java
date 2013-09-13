@@ -1,13 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- *
- * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
- * version 3 of the License, or any later version. 
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * 
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
+ * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
+ * 
  **/
 package ddf.util;
 
@@ -28,19 +31,18 @@ import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 
+public final class XSLTUtil {
+    private static final DocumentBuilderFactory DBF = DocumentBuilderFactory.newInstance(
+            org.apache.xerces.jaxp.DocumentBuilderFactoryImpl.class.getName(),
+            org.apache.xerces.jaxp.DocumentBuilderFactoryImpl.class.getClassLoader());
 
-public final class XSLTUtil 
-{
-	private static final DocumentBuilderFactory DBF = DocumentBuilderFactory.newInstance(org.apache.xerces.jaxp.DocumentBuilderFactoryImpl.class.getName(), org.apache.xerces.jaxp.DocumentBuilderFactoryImpl.class.getClassLoader());
-    private static Logger logger = Logger.getLogger( XSLTUtil.class );
+    private static Logger logger = Logger.getLogger(XSLTUtil.class);
 
-    
-    private XSLTUtil()
-    {
-        throw new UnsupportedOperationException( "This is a utility class - it should never be instantiated" );
+    private XSLTUtil() {
+        throw new UnsupportedOperationException(
+                "This is a utility class - it should never be instantiated");
     }
-    
-    
+
     /**
      * Performs an xsl transformation against an XML document
      * 
@@ -53,57 +55,54 @@ public final class XSLTUtil
      * @return the transformed document.
      * @throws TransformerException
      */
-    public static Document transform( Templates template, Document xmlDoc, Map<String, Object> parameters ) 
-        throws TransformerException 
-    {
+    public static Document transform(Templates template, Document xmlDoc,
+            Map<String, Object> parameters) throws TransformerException {
         ByteArrayOutputStream baos;
         ByteArrayInputStream bais = null;
         Document resultDoc;
         try {
             Transformer transformer = template.newTransformer();
-            
-            DBF.setNamespaceAware( true );
+
+            DBF.setNamespaceAware(true);
             DocumentBuilder builder = DBF.newDocumentBuilder();
             StreamResult resultOutput = null;
-            Source source = new DOMSource( xmlDoc );
+            Source source = new DOMSource(xmlDoc);
             baos = new ByteArrayOutputStream();
             try {
-                resultOutput = new StreamResult( baos );
-                if ( parameters != null && !parameters.isEmpty() ) {
-                    for ( Map.Entry<String, Object> entry : parameters.entrySet() ) {
-                        logger.debug( "Adding parameter key: " + entry.getKey() + " value: " + entry.getValue() );
+                resultOutput = new StreamResult(baos);
+                if (parameters != null && !parameters.isEmpty()) {
+                    for (Map.Entry<String, Object> entry : parameters.entrySet()) {
+                        logger.debug("Adding parameter key: " + entry.getKey() + " value: "
+                                + entry.getValue());
                         String key = entry.getKey();
                         Object value = entry.getValue();
-                        if ( key != null && !key.isEmpty() && value != null ) {
-                            transformer.setParameter( key, value );
+                        if (key != null && !key.isEmpty() && value != null) {
+                            transformer.setParameter(key, value);
                         } else {
-                            logger.debug( "Null or empty value for parameter: " + entry.getKey() );
+                            logger.debug("Null or empty value for parameter: " + entry.getKey());
 
                         }
                     }
                 } else {
-                    logger.warn( "All properties were null.  Using \"last-resort\" defaults: U, USA, MTS" );
+                    logger.warn("All properties were null.  Using \"last-resort\" defaults: U, USA, MTS");
                 }
 
-                transformer.transform( source, resultOutput );
-                bais = new ByteArrayInputStream( baos.toByteArray() );
-                resultDoc = builder.parse( bais );
+                transformer.transform(source, resultOutput);
+                bais = new ByteArrayInputStream(baos.toByteArray());
+                resultDoc = builder.parse(bais);
             } finally {
-                IOUtils.closeQuietly( bais );
-                IOUtils.closeQuietly( baos );
+                IOUtils.closeQuietly(bais);
+                IOUtils.closeQuietly(baos);
             }
 
             return resultDoc;
-        } 
-        catch ( TransformerException e ) 
-        {
-            logger.warn( e.getMessage(), e );
+        } catch (TransformerException e) {
+            logger.warn(e.getMessage(), e);
             throw e;
-        }
-        catch ( Exception e ) 
-        {
-            logger.warn( e.getMessage(), e );
-            throw new TransformerException( "Error while transforming document: " + e.getMessage(), e );
+        } catch (Exception e) {
+            logger.warn(e.getMessage(), e);
+            throw new TransformerException("Error while transforming document: " + e.getMessage(),
+                    e);
         }
     }
 

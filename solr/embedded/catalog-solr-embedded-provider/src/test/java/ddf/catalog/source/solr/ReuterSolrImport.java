@@ -1,13 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- *
- * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
- * version 3 of the License, or any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * 
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
+ * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
+ * 
  **/
 package ddf.catalog.source.solr;
 
@@ -37,206 +40,213 @@ import ddf.catalog.source.IngestException;
 
 public class ReuterSolrImport implements Runnable {
 
-	private SolrServer solrServer;
-	private SolrCatalogProvider solrProvider;
-	private File[] arrayOfFile;
-	private final static Logger LOGGER = LoggerFactory.getLogger(ReuterSolrImport.class);
-	private final static String UNABLE_TO_READ_DIR_EXCEPTION_MSG = "unable to read directory";
-	public ReuterSolrImport(File[] arrayOfFile) {
-		
-		this.arrayOfFile = arrayOfFile;
+    private SolrServer solrServer;
 
-		try {
+    private SolrCatalogProvider solrProvider;
 
-			this.solrServer = SolrServerFactory.getEmbeddedSolrServer("solrconfigSoft.xml", "schema.xml", new ConfigurationFileProxy(null, ConfigurationStore.getInstance()));
+    private File[] arrayOfFile;
 
-			this.solrProvider = new SolrCatalogProvider(this.solrServer, new GeotoolsFilterAdapterImpl(), new SolrFilterDelegateFactoryImpl());
+    private static final Logger LOGGER = LoggerFactory.getLogger(ReuterSolrImport.class);
 
-		} catch (Exception localException) {
-			throw new RuntimeException("unable to connect to solr server: " , localException);
-		}
-	}
+    private static final String UNABLE_TO_READ_DIR_EXCEPTION_MSG = "unable to read directory";
 
-	public static void main2(String[] paramArrayOfString) {
-		long start = System.currentTimeMillis();
-		for (int i = 0; i < 1; i++) {
-			System.out.println(Integer.toString(i) + " start");
-			main2(paramArrayOfString);
-			System.out.println(Integer.toString(i) + " done");
-		}
+    public ReuterSolrImport(File[] arrayOfFile) {
 
-		long elapsedTimeMillis = System.currentTimeMillis() - start;
+        this.arrayOfFile = arrayOfFile;
 
-		// Get elapsed time in seconds
-		float elapsedTimeSec = elapsedTimeMillis / 1000F;
-		System.out.println(Float.toString(elapsedTimeSec) + " seconds");
-		System.out.println(Float.toString(elapsedTimeSec / 60F) + " minutes");
-	}
+        try {
 
-	/**
-	 * @param args
-	 */
-	public static void main(String[] paramArrayOfString) {
-		String str = "Usage: java -jar reutersparser.jar <datadir>";
+            this.solrServer = SolrServerFactory.getEmbeddedSolrServer("solrconfigSoft.xml",
+                    "schema.xml",
+                    new ConfigurationFileProxy(null, ConfigurationStore.getInstance()));
 
-		File localFile = null;
-		try {
-			localFile = new File(paramArrayOfString[0]);
-			if ((!localFile.exists()) || (!localFile.isDirectory())) {
-				System.out.println("Second argument needs to be an existing directory!");
-				System.out.println(str);
-			}
-		} catch (Exception localException2) {
-			System.out.println("Second argument needs to be an existing directory!");
-			System.out.println(str);
-		}
+            this.solrProvider = new SolrCatalogProvider(this.solrServer,
+                    new GeotoolsFilterAdapterImpl(), new SolrFilterDelegateFactoryImpl());
 
-		if ((localFile != null) && (localFile.exists()) && (localFile.isDirectory())) {
+        } catch (Exception localException) {
+            throw new RuntimeException("unable to connect to solr server: ", localException);
+        }
+    }
 
-			File[] allFiles = null;
-			try {
-				allFiles = readDirectory(localFile);
-			} catch (XPathExpressionException e) {
-				LOGGER.error(UNABLE_TO_READ_DIR_EXCEPTION_MSG, e);
-			} catch (IOException e) {
-				
-				LOGGER.error(UNABLE_TO_READ_DIR_EXCEPTION_MSG, e);
-			} catch (ParserConfigurationException e) {
-				
-				LOGGER.error(UNABLE_TO_READ_DIR_EXCEPTION_MSG, e);
-			} catch (SAXException e) {
-				
-				LOGGER.error(UNABLE_TO_READ_DIR_EXCEPTION_MSG, e);
-			} catch (ParseException e) {
-				
-				LOGGER.error(UNABLE_TO_READ_DIR_EXCEPTION_MSG, e);
-			}
+    public static void main2(String[] paramArrayOfString) {
+        long start = System.currentTimeMillis();
+        for (int i = 0; i < 1; i++) {
+            System.out.println(Integer.toString(i) + " start");
+            main2(paramArrayOfString);
+            System.out.println(Integer.toString(i) + " done");
+        }
 
-//			int threadCount = 1;
-//			Thread[] threads = new Thread[threadCount];
+        long elapsedTimeMillis = System.currentTimeMillis() - start;
 
-//
-//			for (int i = 0; i < threadCount; i++) {
-//				int from = i * count;
-//				int to = from + count;
-//				File[] threadFiles = Arrays.copyOfRange(allFiles, from, to);
-//				threads[i] = new Thread(new ReuterSolrImport(threadFiles));
-//				threads[i].start();
-//			}
-//
-//			if (allFiles.length % threadCount > 0) {
-//				int remainder = allFiles.length % threadCount;
-//				int from = allFiles.length - remainder;
-//				int to = allFiles.length;
-//				File[] threadFiles = Arrays.copyOfRange(allFiles, from, to);
-//				threads[threads.length - 1] = new Thread(new ReuterSolrImport(threadFiles));
-//				threads[threads.length - 1].start();
-//			}
-//			
+        // Get elapsed time in seconds
+        float elapsedTimeSec = elapsedTimeMillis / 1000F;
+        System.out.println(Float.toString(elapsedTimeSec) + " seconds");
+        System.out.println(Float.toString(elapsedTimeSec / 60F) + " minutes");
+    }
 
-			ReuterSolrImport importer = new ReuterSolrImport(allFiles) ;
-			
-			System.out.println("Starting ingest.");
-			long start = System.currentTimeMillis();
-			importer.ingest();
+    /**
+     * @param args
+     */
+    public static void main(String[] paramArrayOfString) {
+        String str = "Usage: java -jar reutersparser.jar <datadir>";
 
-//			for (int i = 0; i < threads.length; i++) {
-//				try {
-//					threads[i].join();
-//				} catch (InterruptedException e) {
-//					
-//				}
-//			}
+        File localFile = null;
+        try {
+            localFile = new File(paramArrayOfString[0]);
+            if ((!localFile.exists()) || (!localFile.isDirectory())) {
+                System.out.println("Second argument needs to be an existing directory!");
+                System.out.println(str);
+            }
+        } catch (Exception localException2) {
+            System.out.println("Second argument needs to be an existing directory!");
+            System.out.println(str);
+        }
 
-			long elapsedTimeMillis = System.currentTimeMillis() - start;
+        if ((localFile != null) && (localFile.exists()) && (localFile.isDirectory())) {
 
-			// Get elapsed time in seconds
-			float elapsedTimeSec = elapsedTimeMillis / 1000F;
-			System.out.println(Float.toString(elapsedTimeSec) + " seconds");
-			System.out.println("records/sec = " + 21578F/elapsedTimeSec);
+            File[] allFiles = null;
+            try {
+                allFiles = readDirectory(localFile);
+            } catch (XPathExpressionException e) {
+                LOGGER.error(UNABLE_TO_READ_DIR_EXCEPTION_MSG, e);
+            } catch (IOException e) {
 
-			System.out.println("Done!");
-		}
+                LOGGER.error(UNABLE_TO_READ_DIR_EXCEPTION_MSG, e);
+            } catch (ParserConfigurationException e) {
 
-	}
+                LOGGER.error(UNABLE_TO_READ_DIR_EXCEPTION_MSG, e);
+            } catch (SAXException e) {
 
-	public static File[] readDirectory(File paramFile) throws XPathExpressionException, IOException,
-			ParserConfigurationException, SAXException, ParseException {
-		File[] allFiles = paramFile.listFiles(new FileFilter() {
-			public boolean accept(File paramFile) {
-				return paramFile.getName().contains(".dat");
-			}
-		});
-		if (allFiles.length == 0) {
-			throw new RuntimeException("Directory doesn't contain sgml files!");
-		}
-		Arrays.sort(allFiles);
-		return allFiles;
-	}
+                LOGGER.error(UNABLE_TO_READ_DIR_EXCEPTION_MSG, e);
+            } catch (ParseException e) {
 
-	private Metacard readFile(File localFile) {
-		MetacardImpl mc = null;
-		try {
-			FileInputStream fin = new FileInputStream(localFile);
-			ObjectInputStream ois = new ObjectInputStream(fin);
-			mc = (MetacardImpl) ois.readObject();
-			ois.close();
-			if (mc.getLocation() != null && mc.getLocation().length() != 0) {
-				// solrProvider.create(new CreateRequestImpl(mc));
-				return mc;
-			} else {
-				return null;
-				// System.out.println("No location set.");
-			}
-		} catch (Exception e) {
-			LOGGER.error("Unable to read file", e);
-		}
-		return null;
-	}
+                LOGGER.error(UNABLE_TO_READ_DIR_EXCEPTION_MSG, e);
+            }
 
-	public void run() {
-		List<Metacard> metacards = new ArrayList<Metacard>();
-		for (int i = 0; i < arrayOfFile.length; i++) {
-			File localFile = arrayOfFile[i];
-			// System.out.println(localFile.getName());
-			Metacard mc = readFile(localFile);
-			if (mc != null) {
-				metacards.add(mc);
-			}
-		}
-		try {
-			
-			solrProvider.create(new CreateRequestImpl(metacards));
-						
-		} catch (IngestException e) {
-			
-			LOGGER.error("Unexpected IngestException", e);
-		}
-		solrServer.shutdown();
+            // int threadCount = 1;
+            // Thread[] threads = new Thread[threadCount];
 
-	}
+            //
+            // for (int i = 0; i < threadCount; i++) {
+            // int from = i * count;
+            // int to = from + count;
+            // File[] threadFiles = Arrays.copyOfRange(allFiles, from, to);
+            // threads[i] = new Thread(new ReuterSolrImport(threadFiles));
+            // threads[i].start();
+            // }
+            //
+            // if (allFiles.length % threadCount > 0) {
+            // int remainder = allFiles.length % threadCount;
+            // int from = allFiles.length - remainder;
+            // int to = allFiles.length;
+            // File[] threadFiles = Arrays.copyOfRange(allFiles, from, to);
+            // threads[threads.length - 1] = new Thread(new ReuterSolrImport(threadFiles));
+            // threads[threads.length - 1].start();
+            // }
+            //
 
-	public void ingest() {
-		List<Metacard> metacards = new ArrayList<Metacard>();
-		for (int i = 0; i < arrayOfFile.length; i++) {
-			File localFile = arrayOfFile[i];
-			// System.out.println(localFile.getName());
-			Metacard mc = readFile(localFile);
-			if (mc != null) {
-				metacards.add(mc);
-			}
-		}
-		try {
-			
-			solrProvider.create(new CreateRequestImpl(metacards));
-						
-		} catch (IngestException e) {
-			
-			LOGGER.error("Unexpected IngestException", e);
-		}
-		solrServer.shutdown();
+            ReuterSolrImport importer = new ReuterSolrImport(allFiles);
 
-	}
-	
-	
+            System.out.println("Starting ingest.");
+            long start = System.currentTimeMillis();
+            importer.ingest();
+
+            // for (int i = 0; i < threads.length; i++) {
+            // try {
+            // threads[i].join();
+            // } catch (InterruptedException e) {
+            //
+            // }
+            // }
+
+            long elapsedTimeMillis = System.currentTimeMillis() - start;
+
+            // Get elapsed time in seconds
+            float elapsedTimeSec = elapsedTimeMillis / 1000F;
+            System.out.println(Float.toString(elapsedTimeSec) + " seconds");
+            System.out.println("records/sec = " + 21578F / elapsedTimeSec);
+
+            System.out.println("Done!");
+        }
+
+    }
+
+    public static File[] readDirectory(File paramFile) throws XPathExpressionException,
+        IOException, ParserConfigurationException, SAXException, ParseException {
+        File[] allFiles = paramFile.listFiles(new FileFilter() {
+            public boolean accept(File paramFile) {
+                return paramFile.getName().contains(".dat");
+            }
+        });
+        if (allFiles.length == 0) {
+            throw new RuntimeException("Directory doesn't contain sgml files!");
+        }
+        Arrays.sort(allFiles);
+        return allFiles;
+    }
+
+    private Metacard readFile(File localFile) {
+        MetacardImpl mc = null;
+        try {
+            FileInputStream fin = new FileInputStream(localFile);
+            ObjectInputStream ois = new ObjectInputStream(fin);
+            mc = (MetacardImpl) ois.readObject();
+            ois.close();
+            if (mc.getLocation() != null && mc.getLocation().length() != 0) {
+                // solrProvider.create(new CreateRequestImpl(mc));
+                return mc;
+            } else {
+                return null;
+                // System.out.println("No location set.");
+            }
+        } catch (Exception e) {
+            LOGGER.error("Unable to read file", e);
+        }
+        return null;
+    }
+
+    public void run() {
+        List<Metacard> metacards = new ArrayList<Metacard>();
+        for (int i = 0; i < arrayOfFile.length; i++) {
+            File localFile = arrayOfFile[i];
+            // System.out.println(localFile.getName());
+            Metacard mc = readFile(localFile);
+            if (mc != null) {
+                metacards.add(mc);
+            }
+        }
+        try {
+
+            solrProvider.create(new CreateRequestImpl(metacards));
+
+        } catch (IngestException e) {
+
+            LOGGER.error("Unexpected IngestException", e);
+        }
+        solrServer.shutdown();
+
+    }
+
+    public void ingest() {
+        List<Metacard> metacards = new ArrayList<Metacard>();
+        for (int i = 0; i < arrayOfFile.length; i++) {
+            File localFile = arrayOfFile[i];
+            // System.out.println(localFile.getName());
+            Metacard mc = readFile(localFile);
+            if (mc != null) {
+                metacards.add(mc);
+            }
+        }
+        try {
+
+            solrProvider.create(new CreateRequestImpl(metacards));
+
+        } catch (IngestException e) {
+
+            LOGGER.error("Unexpected IngestException", e);
+        }
+        solrServer.shutdown();
+
+    }
+
 }

@@ -1,13 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- *
- * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
- * version 3 of the License, or any later version. 
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * 
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
+ * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
+ * 
  **/
 
 package ddf.catalog.source.opensearch;
@@ -31,7 +34,7 @@ public class RestUrl {
     private String id;
 
     private boolean retrieveResource;
-    
+
     static final String RESOURCE_QUERY_PARAM = "transform=resource";
 
     public RestUrl(String protocol, String host, String port, String contextPath) {
@@ -50,11 +53,11 @@ public class RestUrl {
      * @throws URISyntaxException
      * @throws MalformedURLException
      */
-    public static RestUrl newInstance(String urlTemplate)
-            throws URISyntaxException, MalformedURLException {
+    public static RestUrl newInstance(String urlTemplate) throws URISyntaxException,
+        MalformedURLException {
 
         int indexOf = urlTemplate.indexOf('{');
-        if(indexOf == -1) {
+        if (indexOf == -1) {
             indexOf = urlTemplate.length();
         }
         URI uri = new URI(urlTemplate.substring(0, indexOf));
@@ -65,8 +68,8 @@ public class RestUrl {
         int port = url.getPort();
         String path = url.getPath();
 
-        return new RestUrl(protocol, host, Integer.toString(port),
-                path.substring(0, path.lastIndexOf('/') + 1));
+        return new RestUrl(protocol, host, Integer.toString(port), path.substring(0,
+                path.lastIndexOf('/') + 1));
     }
 
     public void setId(String literal) {
@@ -80,7 +83,7 @@ public class RestUrl {
     public void setRetrieveResource(boolean retrieveResource) {
         this.retrieveResource = retrieveResource;
     }
-    
+
     public boolean isRetrieveResource() {
         return retrieveResource;
     }
@@ -95,7 +98,7 @@ public class RestUrl {
         if (id != null) {
             url.append(id);
         }
-        if(retrieveResource){
+        if (retrieveResource) {
             url.append("?" + RESOURCE_QUERY_PARAM);
         }
 

@@ -1,13 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- *
- * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
- * version 3 of the License, or any later version. 
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * 
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
+ * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
+ * 
  **/
 package com.lmco.ddf.endpoints.rest;
 
@@ -85,18 +88,23 @@ import java.util.Map;
 @Path("/")
 public class RESTEndpoint {
 
-	private static final String DEFAULT_METACARD_TRANSFORMER = "xml";
-	private static final Logger LOGGER = LoggerFactory.getLogger(RESTEndpoint.class);
+    private static final String DEFAULT_METACARD_TRANSFORMER = "xml";
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(RESTEndpoint.class);
+
     private static String JSON_MIME_TYPE_STRING = "application/json";
+
     private static MimeType JSON_MIME_TYPE = null;
-    
-	private SecurityManager securityManager;
-    
+
+    private SecurityManager securityManager;
+
     private List<TokenRequestHandler> requestHandlerList;
 
-	private FilterBuilder filterBuilder;
-	private CatalogFramework catalogFramework;
-	private MimeTypeToTransformerMapper mimeTypeToTransformerMapper;
+    private FilterBuilder filterBuilder;
+
+    private CatalogFramework catalogFramework;
+
+    private MimeTypeToTransformerMapper mimeTypeToTransformerMapper;
 
     static {
         MimeType mime = null;
@@ -108,32 +116,34 @@ public class RESTEndpoint {
         JSON_MIME_TYPE = mime;
 
     }
-	
-	public RESTEndpoint(CatalogFramework framework) {
-		LOGGER.debug("constructing rest endpoint");
-		this.catalogFramework = framework;
-	}
 
-	/**
-	 * REST Get. Retrieves the metadata entry specified by the id. Transformer
-	 * argument is optional, but is used to specify what format the data should
-	 * be returned.
-	 * 
-	 * @param id
-	 * @param transformerParam
-	 *            (OPTIONAL)
-	 * @param uriInfo
-	 * @return
-	 * @throws ServerErrorException
-	 */
-	@GET
-	@Path("/{id:.*}")
-	public Response getDocument(@PathParam("id") String id,	@QueryParam("transform") String transformerParam,
-			@Context UriInfo uriInfo, @Context HttpServletRequest httpRequest) {
-		
-		return getDocument(null, id, transformerParam, uriInfo, httpRequest);
-	}
-	
+    public RESTEndpoint(CatalogFramework framework) {
+        LOGGER.debug("constructing rest endpoint");
+        this.catalogFramework = framework;
+    }
+
+    /**
+     * REST Get. Retrieves the metadata entry specified by the id. Transformer argument is optional,
+     * but is used to specify what format the data should be returned.
+     * 
+     * @param id
+     * @param transformerParam
+     *            (OPTIONAL)
+     * @param uriInfo
+     * @return
+     * @throws ServerErrorException
+     */
+    @GET
+    @Path("/{id:.*}")
+    public Response getDocument(@PathParam("id")
+    String id, @QueryParam("transform")
+    String transformerParam, @Context
+    UriInfo uriInfo, @Context
+    HttpServletRequest httpRequest) {
+
+        return getDocument(null, id, transformerParam, uriInfo, httpRequest);
+    }
+
     /**
      * REST Get. Retrieves information regarding sources available.
      * 
@@ -153,25 +163,21 @@ public class RESTEndpoint {
         JSONArray resultsList = new JSONArray();
         SourceInfoResponse sources;
         try {
-            sources = catalogFramework
-                    .getSourceInfo(new SourceInfoRequestEnterprise(true));
+            sources = catalogFramework.getSourceInfo(new SourceInfoRequestEnterprise(true));
             for (SourceDescriptor source : sources.getSourceInfo()) {
                 JSONObject sourceObj = new JSONObject();
                 sourceObj.put("id", source.getSourceId());
-                sourceObj.put("version",
-                        source.getVersion() != null ? source.getVersion() : "");
+                sourceObj.put("version", source.getVersion() != null ? source.getVersion() : "");
                 sourceObj.put("available", new Boolean(source.isAvailable()));
                 JSONArray contentTypesObj = new JSONArray();
                 if (source.getContentTypes() != null) {
                     for (ContentType contentType : source.getContentTypes()) {
-                        if (contentType != null
-                                && contentType.getName() != null) {
+                        if (contentType != null && contentType.getName() != null) {
                             JSONObject contentTypeObj = new JSONObject();
                             contentTypeObj.put("name", contentType.getName());
-                            contentTypeObj
-                                    .put("version",
-                                            contentType.getVersion() != null ? contentType
-                                                    .getVersion() : "");
+                            contentTypeObj.put("version",
+                                    contentType.getVersion() != null ? contentType.getVersion()
+                                            : "");
                             contentTypesObj.add(contentTypeObj);
                         }
                     }
@@ -184,410 +190,419 @@ public class RESTEndpoint {
         }
 
         sourcesString = JSONValue.toJSONString(resultsList);
-        content = new BinaryContentImpl(new ByteArrayInputStream(
-                sourcesString.getBytes()), JSON_MIME_TYPE);
-        response = Response.ok(content.getInputStream(),
-                content.getMimeTypeValue()).build();
+        content = new BinaryContentImpl(new ByteArrayInputStream(sourcesString.getBytes()),
+                JSON_MIME_TYPE);
+        response = Response.ok(content.getInputStream(), content.getMimeTypeValue()).build();
         return response;
     }
 
-	/**
-	 * REST Get. Retrieves the metadata entry specified by the id from the
-	 * federated source specified by sourceid. Transformer argument is optional,
-	 * but is used to specify what format the data should be returned.
-	 * 
-	 * @param sourceid
-	 * @param id
-	 * @param transformerParam
-	 * @param uriInfo
-	 * @return
-	 */
-	@GET
-	@Path("/sources/{sourceid}/{id:.*}")
-	public Response getDocument(@PathParam("sourceid") String sourceid,
-			@PathParam("id") String id,
-			@QueryParam("transform") String transformerParam,
-			@Context UriInfo uriInfo, @Context HttpServletRequest httpRequest) {
-	
-		Response response;
-		QueryResponse queryResponse;
-		Metacard card = null;
-		Subject subject;
+    /**
+     * REST Get. Retrieves the metadata entry specified by the id from the federated source
+     * specified by sourceid. Transformer argument is optional, but is used to specify what format
+     * the data should be returned.
+     * 
+     * @param sourceid
+     * @param id
+     * @param transformerParam
+     * @param uriInfo
+     * @return
+     */
+    @GET
+    @Path("/sources/{sourceid}/{id:.*}")
+    public Response getDocument(@PathParam("sourceid")
+    String sourceid, @PathParam("id")
+    String id, @QueryParam("transform")
+    String transformerParam, @Context
+    UriInfo uriInfo, @Context
+    HttpServletRequest httpRequest) {
 
-		LOGGER.debug("GET");
-		URI absolutePath = uriInfo.getAbsolutePath();
-		MultivaluedMap<String, String> map = uriInfo.getQueryParameters();
+        Response response;
+        QueryResponse queryResponse;
+        Metacard card = null;
+        Subject subject;
 
-		if (id != null) {
-			if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug("Got id: " + id);
-				LOGGER.debug("Got service: " + transformerParam);
-				LOGGER.debug("Map of query parameters: \n" + map.toString());
-			}
-			
-			subject = getSubject(httpRequest);
-	        if (subject == null)
-	        {
-	            LOGGER.info("Could not set security attributes for user, performing query with no permissions set.");
-	        }
+        LOGGER.debug("GET");
+        URI absolutePath = uriInfo.getAbsolutePath();
+        MultivaluedMap<String, String> map = uriInfo.getQueryParameters();
 
-			Map<String, Serializable> convertedMap = convert(map);
-			convertedMap.put("url", absolutePath.toString());
+        if (id != null) {
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Got id: " + id);
+                LOGGER.debug("Got service: " + transformerParam);
+                LOGGER.debug("Map of query parameters: \n" + map.toString());
+            }
 
-			LOGGER.debug("Map converted, retrieving product.");
+            subject = getSubject(httpRequest);
+            if (subject == null) {
+                LOGGER.info("Could not set security attributes for user, performing query with no permissions set.");
+            }
 
-			// default to xml if no transformer specified
-			try {
-				String transformer = DEFAULT_METACARD_TRANSFORMER;
-				if (transformerParam != null) {
-					transformer = transformerParam;
-				}
-				Filter filter = getFilterBuilder().attribute(Metacard.ID).is().equalTo().text(id);
-				
-				Collection<String> sources = null;
-				if(sourceid != null)
-				{
-					sources = new ArrayList<String>();
-					sources.add(sourceid);
-				}
+            Map<String, Serializable> convertedMap = convert(map);
+            convertedMap.put("url", absolutePath.toString());
 
-				QueryRequestImpl request = new QueryRequestImpl(new QueryImpl(filter), sources);
-				request.setProperties(convertedMap);
-                if(subject != null)
-                {
-                    LOGGER.debug("Adding " + SecurityConstants.SECURITY_SUBJECT + " property with value " + subject
-                        + " to request.");
+            LOGGER.debug("Map converted, retrieving product.");
+
+            // default to xml if no transformer specified
+            try {
+                String transformer = DEFAULT_METACARD_TRANSFORMER;
+                if (transformerParam != null) {
+                    transformer = transformerParam;
+                }
+                Filter filter = getFilterBuilder().attribute(Metacard.ID).is().equalTo().text(id);
+
+                Collection<String> sources = null;
+                if (sourceid != null) {
+                    sources = new ArrayList<String>();
+                    sources.add(sourceid);
+                }
+
+                QueryRequestImpl request = new QueryRequestImpl(new QueryImpl(filter), sources);
+                request.setProperties(convertedMap);
+                if (subject != null) {
+                    LOGGER.debug("Adding " + SecurityConstants.SECURITY_SUBJECT
+                            + " property with value " + subject + " to request.");
                     request.getProperties().put(SecurityConstants.SECURITY_SUBJECT, subject);
                 }
-				queryResponse = catalogFramework.query(request, null);
-				
-				// pull the metacard out of the blocking queue
-				List<Result> results = queryResponse.getResults();				
+                queryResponse = catalogFramework.query(request, null);
 
-				// TODO: should be poll? do we want to specify a timeout? (will
-				// return null if timeout elapsed)
-				if (results != null && !results.isEmpty()) {
-					card = results.get(0).getMetacard();
-				}
+                // pull the metacard out of the blocking queue
+                List<Result> results = queryResponse.getResults();
 
-				if (card == null) {
-					throw new ServerErrorException("Unable to retrieve requested metacard.", Status.NOT_FOUND);
-				}
+                // TODO: should be poll? do we want to specify a timeout? (will
+                // return null if timeout elapsed)
+                if (results != null && !results.isEmpty()) {
+                    card = results.get(0).getMetacard();
+                }
 
-				LOGGER.debug("Calling transform.");
-				BinaryContent content = catalogFramework.transform(card, transformer, convertedMap);
+                if (card == null) {
+                    throw new ServerErrorException("Unable to retrieve requested metacard.",
+                            Status.NOT_FOUND);
+                }
 
-				LOGGER.debug("Read and transform complete, preparing response.");
-				Response.ResponseBuilder responseBuilder = Response.ok(content.getInputStream(), content.getMimeTypeValue());
+                LOGGER.debug("Calling transform.");
+                BinaryContent content = catalogFramework.transform(card, transformer, convertedMap);
 
-				// If we got a resource, we can extract the filename.
-				if (content instanceof Resource) {
-					String name = ((Resource)content).getName();
-					if (name != null) {
-						responseBuilder.header("Content-Disposition", "inline; filename=\"" + name + "\"");
-					}
-				}
+                LOGGER.debug("Read and transform complete, preparing response.");
+                Response.ResponseBuilder responseBuilder = Response.ok(content.getInputStream(),
+                        content.getMimeTypeValue());
 
-				response = responseBuilder.build();
-			} catch (FederationException e) {
-				String exceptionMessage = "READ failed due to unexpected exception: " + e.getMessage();
-				throw new ServerErrorException(exceptionMessage, Status.INTERNAL_SERVER_ERROR);
-			} catch (CatalogTransformerException e) {
-				String exceptionMessage = "Unable to transform Metacard.  Try different transformer: " + e.getMessage();
-				throw new ServerErrorException(exceptionMessage, Status.INTERNAL_SERVER_ERROR);
-			} catch (SourceUnavailableException e) {
-				String exceptionMessage = "Cannot obtain query results because source is unavailable: "
-						+ e.getMessage();
-				throw new ServerErrorException(exceptionMessage, Status.INTERNAL_SERVER_ERROR);
-			} catch (UnsupportedQueryException e) {
-				String exceptionMessage = "Specified query is unsupported.  Change query and resubmit: "
-						+ e.getMessage();
-				throw new ServerErrorException(exceptionMessage, Status.BAD_REQUEST);
-			}
-            //The catalog framework will throw this if any of the transformers blow up. We need to catch this exception
-            //here or else execution will return to CXF and we'll lose this message and end up with a huge stack trace
-            //in a GUI or whatever else is connected to this endpoint
-            catch (IllegalArgumentException e)
-            {
+                // If we got a resource, we can extract the filename.
+                if (content instanceof Resource) {
+                    String name = ((Resource) content).getName();
+                    if (name != null) {
+                        responseBuilder.header("Content-Disposition", "inline; filename=\"" + name
+                                + "\"");
+                    }
+                }
+
+                response = responseBuilder.build();
+            } catch (FederationException e) {
+                String exceptionMessage = "READ failed due to unexpected exception: "
+                        + e.getMessage();
+                throw new ServerErrorException(exceptionMessage, Status.INTERNAL_SERVER_ERROR);
+            } catch (CatalogTransformerException e) {
+                String exceptionMessage = "Unable to transform Metacard.  Try different transformer: "
+                        + e.getMessage();
+                throw new ServerErrorException(exceptionMessage, Status.INTERNAL_SERVER_ERROR);
+            } catch (SourceUnavailableException e) {
+                String exceptionMessage = "Cannot obtain query results because source is unavailable: "
+                        + e.getMessage();
+                throw new ServerErrorException(exceptionMessage, Status.INTERNAL_SERVER_ERROR);
+            } catch (UnsupportedQueryException e) {
+                String exceptionMessage = "Specified query is unsupported.  Change query and resubmit: "
+                        + e.getMessage();
+                throw new ServerErrorException(exceptionMessage, Status.BAD_REQUEST);
+            }
+            // The catalog framework will throw this if any of the transformers blow up. We need to
+            // catch this exception
+            // here or else execution will return to CXF and we'll lose this message and end up with
+            // a huge stack trace
+            // in a GUI or whatever else is connected to this endpoint
+            catch (IllegalArgumentException e) {
                 throw new ServerErrorException(e, Status.BAD_REQUEST);
             }
-		} else {
-			throw new ServerErrorException("No ID specified.", Status.BAD_REQUEST);
-		}
-		return response;
-	}
+        } else {
+            throw new ServerErrorException("No ID specified.", Status.BAD_REQUEST);
+        }
+        return response;
+    }
 
-	/**
-	 * REST Put. Updates the specified metadata entry with the provided
-	 * metadata.
-	 * 
-	 * @param id
-	 * @param message
-	 * @return
-	 */
-	@PUT
-	@Path("/{id:.*}")
-	public Response updateDocument(@PathParam("id") String id, @Context HttpHeaders headers, InputStream message) {
-		LOGGER.debug("PUT");
-		Response response;
-		
-		try {
-			if (id != null && message != null) {
-				MimeType mimeType = getMimeType(headers);
-				UpdateRequestImpl updateReq = new UpdateRequestImpl(id, generateMetacard(mimeType, id, message));
-				catalogFramework.update(updateReq);
-				response = Response.ok().build();
-			} else {
-				String errorResponseString = "Both ID and content are needed to perform UPDATE.";
-				LOGGER.warn(errorResponseString);
-				throw new ServerErrorException(errorResponseString, Status.BAD_REQUEST);
-			}
-		} catch (SourceUnavailableException e) {
-			String exceptionMessage = "Cannot updated catalog entry because source is unavailable: " + e.getMessage();
-			LOGGER.warn(exceptionMessage, e.getCause());
-			throw new ServerErrorException(exceptionMessage, Status.INTERNAL_SERVER_ERROR);
-		} catch (MetacardCreationException e) {
-			String exceptionMessage = "Unable to update Metacard with provided metadata: " + e.getMessage();
-			LOGGER.warn(exceptionMessage, e.getCause());
-			throw new ServerErrorException(exceptionMessage, Status.BAD_REQUEST);
-		} catch (IngestException e) {
-			String exceptionMessage = "Error cataloging updated metadata: " + e.getMessage();
-			LOGGER.warn(exceptionMessage, e.getCause());
-			throw new ServerErrorException(exceptionMessage, Status.INTERNAL_SERVER_ERROR);
-		}
-		return response;
-	}
+    /**
+     * REST Put. Updates the specified metadata entry with the provided metadata.
+     * 
+     * @param id
+     * @param message
+     * @return
+     */
+    @PUT
+    @Path("/{id:.*}")
+    public Response updateDocument(@PathParam("id")
+    String id, @Context
+    HttpHeaders headers, InputStream message) {
+        LOGGER.debug("PUT");
+        Response response;
 
-	/**
-	 * REST Post. Creates a new metadata entry in the catalog.
-	 * 
-	 * @param message
-	 * @return
-	 */
-	@POST
-	public Response addDocument(@Context HttpHeaders headers, @Context UriInfo requestUriInfo, InputStream message) {
-		LOGGER.debug("POST");
-		Response response;
+        try {
+            if (id != null && message != null) {
+                MimeType mimeType = getMimeType(headers);
+                UpdateRequestImpl updateReq = new UpdateRequestImpl(id, generateMetacard(mimeType,
+                        id, message));
+                catalogFramework.update(updateReq);
+                response = Response.ok().build();
+            } else {
+                String errorResponseString = "Both ID and content are needed to perform UPDATE.";
+                LOGGER.warn(errorResponseString);
+                throw new ServerErrorException(errorResponseString, Status.BAD_REQUEST);
+            }
+        } catch (SourceUnavailableException e) {
+            String exceptionMessage = "Cannot updated catalog entry because source is unavailable: "
+                    + e.getMessage();
+            LOGGER.warn(exceptionMessage, e.getCause());
+            throw new ServerErrorException(exceptionMessage, Status.INTERNAL_SERVER_ERROR);
+        } catch (MetacardCreationException e) {
+            String exceptionMessage = "Unable to update Metacard with provided metadata: "
+                    + e.getMessage();
+            LOGGER.warn(exceptionMessage, e.getCause());
+            throw new ServerErrorException(exceptionMessage, Status.BAD_REQUEST);
+        } catch (IngestException e) {
+            String exceptionMessage = "Error cataloging updated metadata: " + e.getMessage();
+            LOGGER.warn(exceptionMessage, e.getCause());
+            throw new ServerErrorException(exceptionMessage, Status.INTERNAL_SERVER_ERROR);
+        }
+        return response;
+    }
 
-		MimeType mimeType = getMimeType(headers);
+    /**
+     * REST Post. Creates a new metadata entry in the catalog.
+     * 
+     * @param message
+     * @return
+     */
+    @POST
+    public Response addDocument(@Context
+    HttpHeaders headers, @Context
+    UriInfo requestUriInfo, InputStream message) {
+        LOGGER.debug("POST");
+        Response response;
 
-		try {
-			if (message != null) {
-				CreateRequestImpl createReq = new CreateRequestImpl(generateMetacard(mimeType, null, message));
+        MimeType mimeType = getMimeType(headers);
 
-				CreateResponse createResponse = catalogFramework.create(createReq);
+        try {
+            if (message != null) {
+                CreateRequestImpl createReq = new CreateRequestImpl(generateMetacard(mimeType,
+                        null, message));
 
-				String id = createResponse.getCreatedMetacards().get(0).getId();
+                CreateResponse createResponse = catalogFramework.create(createReq);
 
-				if (LOGGER.isDebugEnabled()) {
-					LOGGER.debug("Create Response id [" + id + "]");
-				}
+                String id = createResponse.getCreatedMetacards().get(0).getId();
 
-				UriBuilder uriBuilder = requestUriInfo.getAbsolutePathBuilder().path("/" + id);
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("Create Response id [" + id + "]");
+                }
 
-				ResponseBuilder responseBuilder = Response.created(uriBuilder.build());
+                UriBuilder uriBuilder = requestUriInfo.getAbsolutePathBuilder().path("/" + id);
 
-				responseBuilder.header(Metacard.ID, id);
+                ResponseBuilder responseBuilder = Response.created(uriBuilder.build());
 
-				response = responseBuilder.build();
+                responseBuilder.header(Metacard.ID, id);
 
-				LOGGER.debug("Entry successfully saved, id: " + id);
+                response = responseBuilder.build();
 
-			} else {
-				String errorMessage = "No content found, cannot do CREATE.";
-				LOGGER.warn(errorMessage);
-				throw new ServerErrorException(errorMessage, Status.BAD_REQUEST);
-			}
-		} catch (SourceUnavailableException e) {
-			String exceptionMessage = "Cannot create catalog entry because source is unavailable: " + e.getMessage();
-			LOGGER.warn(exceptionMessage, e.getCause());
-			throw new ServerErrorException(exceptionMessage, Status.INTERNAL_SERVER_ERROR);
-		} catch (IngestException e) {
-			String exceptionMessage = "Error while storing entry in catalog: " + e.getMessage();
-			LOGGER.warn(exceptionMessage, e.getCause());
-			throw new ServerErrorException(exceptionMessage, Status.INTERNAL_SERVER_ERROR);
-		} catch (MetacardCreationException e) {
-			String exceptionMessage = "Unable to create Metacard from provided metadata: " + e.getMessage();
-			LOGGER.warn(exceptionMessage, e.getCause());
-			throw new ServerErrorException(exceptionMessage, Status.BAD_REQUEST);
-		}
+                LOGGER.debug("Entry successfully saved, id: " + id);
 
-		return response;
-	}
+            } else {
+                String errorMessage = "No content found, cannot do CREATE.";
+                LOGGER.warn(errorMessage);
+                throw new ServerErrorException(errorMessage, Status.BAD_REQUEST);
+            }
+        } catch (SourceUnavailableException e) {
+            String exceptionMessage = "Cannot create catalog entry because source is unavailable: "
+                    + e.getMessage();
+            LOGGER.warn(exceptionMessage, e.getCause());
+            throw new ServerErrorException(exceptionMessage, Status.INTERNAL_SERVER_ERROR);
+        } catch (IngestException e) {
+            String exceptionMessage = "Error while storing entry in catalog: " + e.getMessage();
+            LOGGER.warn(exceptionMessage, e.getCause());
+            throw new ServerErrorException(exceptionMessage, Status.INTERNAL_SERVER_ERROR);
+        } catch (MetacardCreationException e) {
+            String exceptionMessage = "Unable to create Metacard from provided metadata: "
+                    + e.getMessage();
+            LOGGER.warn(exceptionMessage, e.getCause());
+            throw new ServerErrorException(exceptionMessage, Status.BAD_REQUEST);
+        }
 
-	/**
-	 * REST Delete. Deletes a record from the catalog.
-	 * 
-	 * @param id
-	 * @return
-	 */
-	@DELETE
-	@Path("/{id:.*}")
-	public Response deleteDocument(@PathParam("id") String id) {
-		LOGGER.debug("DELETE");
-		Response response;
-		try {
-			if (id != null) {
-				DeleteRequestImpl deleteReq = new DeleteRequestImpl(id);
-				catalogFramework.delete(deleteReq);
-				response = Response.ok(id).build();
-			} else {
-				String errorMessage = "ID of entry not specified, cannot do DELETE.";
-				LOGGER.warn(errorMessage);
-				throw new ServerErrorException(errorMessage, Status.BAD_REQUEST);
-			}
-		} catch (SourceUnavailableException ce) {
-			String exceptionMessage = "Could not delete entry from catalog since the source is unavailable: "
-					+ ce.getMessage();
-			LOGGER.warn(exceptionMessage, ce.getCause());
-			throw new ServerErrorException(exceptionMessage, Status.INTERNAL_SERVER_ERROR);
-		} catch (IngestException e) {
-			String exceptionMessage = "Error deleting entry from catalog: " + e.getMessage();
-			LOGGER.warn(exceptionMessage, e.getCause());
-			throw new ServerErrorException(exceptionMessage, Status.INTERNAL_SERVER_ERROR);
-		}
-		return response;
-	}
+        return response;
+    }
 
-	private Map<String, Serializable> convert(MultivaluedMap<String, String> map) {
-		Map<String, Serializable> convertedMap = new HashMap<String, Serializable>();
+    /**
+     * REST Delete. Deletes a record from the catalog.
+     * 
+     * @param id
+     * @return
+     */
+    @DELETE
+    @Path("/{id:.*}")
+    public Response deleteDocument(@PathParam("id")
+    String id) {
+        LOGGER.debug("DELETE");
+        Response response;
+        try {
+            if (id != null) {
+                DeleteRequestImpl deleteReq = new DeleteRequestImpl(id);
+                catalogFramework.delete(deleteReq);
+                response = Response.ok(id).build();
+            } else {
+                String errorMessage = "ID of entry not specified, cannot do DELETE.";
+                LOGGER.warn(errorMessage);
+                throw new ServerErrorException(errorMessage, Status.BAD_REQUEST);
+            }
+        } catch (SourceUnavailableException ce) {
+            String exceptionMessage = "Could not delete entry from catalog since the source is unavailable: "
+                    + ce.getMessage();
+            LOGGER.warn(exceptionMessage, ce.getCause());
+            throw new ServerErrorException(exceptionMessage, Status.INTERNAL_SERVER_ERROR);
+        } catch (IngestException e) {
+            String exceptionMessage = "Error deleting entry from catalog: " + e.getMessage();
+            LOGGER.warn(exceptionMessage, e.getCause());
+            throw new ServerErrorException(exceptionMessage, Status.INTERNAL_SERVER_ERROR);
+        }
+        return response;
+    }
 
-		for (Map.Entry<String, List<String>> entry : map.entrySet()) {
-			String key = entry.getKey();
-			List<String> value = entry.getValue();
+    private Map<String, Serializable> convert(MultivaluedMap<String, String> map) {
+        Map<String, Serializable> convertedMap = new HashMap<String, Serializable>();
 
-			if (value.size() == 1) {
-				convertedMap.put(key, value.get(0));
-			} else {
-				// List is not serializable so we make it a String array
-				convertedMap.put(key, value.toArray());
-			}
-		}
+        for (Map.Entry<String, List<String>> entry : map.entrySet()) {
+            String key = entry.getKey();
+            List<String> value = entry.getValue();
 
-		return convertedMap;
-	}
+            if (value.size() == 1) {
+                convertedMap.put(key, value.get(0));
+            } else {
+                // List is not serializable so we make it a String array
+                convertedMap.put(key, value.toArray());
+            }
+        }
 
-	private Metacard generateMetacard(MimeType mimeType, String id, InputStream message)
-			throws MetacardCreationException {
+        return convertedMap;
+    }
 
-		List<InputTransformer> listOfCandidates = mimeTypeToTransformerMapper.findMatches(InputTransformer.class, mimeType);
+    private Metacard generateMetacard(MimeType mimeType, String id, InputStream message)
+        throws MetacardCreationException {
 
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("List of matches for mimeType [" + mimeType + "]:" + listOfCandidates);
-		}
+        List<InputTransformer> listOfCandidates = mimeTypeToTransformerMapper.findMatches(
+                InputTransformer.class, mimeType);
 
-		Metacard generatedMetacard = null;
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("List of matches for mimeType [" + mimeType + "]:" + listOfCandidates);
+        }
 
-		byte[] messageBytes;
-		try {
-			messageBytes = IOUtils.toByteArray(message);
-		} catch (IOException e) {
-			throw new MetacardCreationException("Could not copy bytes of content message.", e);
-		}
+        Metacard generatedMetacard = null;
 
-		Iterator<InputTransformer> it = listOfCandidates.iterator();
-		
-		while (it.hasNext()) {
+        byte[] messageBytes;
+        try {
+            messageBytes = IOUtils.toByteArray(message);
+        } catch (IOException e) {
+            throw new MetacardCreationException("Could not copy bytes of content message.", e);
+        }
 
-			InputStream inputStreamMessageCopy = new ByteArrayInputStream(messageBytes);
-			InputTransformer transformer = null;
+        Iterator<InputTransformer> it = listOfCandidates.iterator();
 
-			try {
-				transformer = (InputTransformer)it.next();
-				generatedMetacard = transformer.transform(inputStreamMessageCopy);
-			} catch (CatalogTransformerException e) {
-				LOGGER.debug("Transformer [" + transformer + "] could not create metacard.", e);
-			} catch (IOException e) {
-				LOGGER.debug("Transformer [" + transformer + "] could not create metacard. ", e);
-			}
-			if (generatedMetacard != null) {
-				break;
-			}
-		}
+        while (it.hasNext()) {
 
-		if (generatedMetacard == null) {
-			throw new MetacardCreationException("Could not create metacard with mimeType " + mimeType + ". No valid transformers found.");
-		}
+            InputStream inputStreamMessageCopy = new ByteArrayInputStream(messageBytes);
+            InputTransformer transformer = null;
 
-		if (id != null) {
-			generatedMetacard.setAttribute(new AttributeImpl(Metacard.ID, id));
-		} else {
-			LOGGER.debug("Metacard had a null id");
-		}
-		return generatedMetacard;
+            try {
+                transformer = (InputTransformer) it.next();
+                generatedMetacard = transformer.transform(inputStreamMessageCopy);
+            } catch (CatalogTransformerException e) {
+                LOGGER.debug("Transformer [" + transformer + "] could not create metacard.", e);
+            } catch (IOException e) {
+                LOGGER.debug("Transformer [" + transformer + "] could not create metacard. ", e);
+            }
+            if (generatedMetacard != null) {
+                break;
+            }
+        }
 
-	}
+        if (generatedMetacard == null) {
+            throw new MetacardCreationException("Could not create metacard with mimeType "
+                    + mimeType + ". No valid transformers found.");
+        }
 
-	private MimeType getMimeType(HttpHeaders headers) {
-		List<String> contentTypeList = headers.getRequestHeader(HttpHeaders.CONTENT_TYPE);
+        if (id != null) {
+            generatedMetacard.setAttribute(new AttributeImpl(Metacard.ID, id));
+        } else {
+            LOGGER.debug("Metacard had a null id");
+        }
+        return generatedMetacard;
 
-		String singleMimeType = null;
+    }
 
-		if (contentTypeList != null && !contentTypeList.isEmpty()) {
-			singleMimeType = contentTypeList.get(0);
-			LOGGER.debug("Encountered [" + singleMimeType + "] " + HttpHeaders.CONTENT_TYPE);
-		}
+    private MimeType getMimeType(HttpHeaders headers) {
+        List<String> contentTypeList = headers.getRequestHeader(HttpHeaders.CONTENT_TYPE);
 
-		MimeType mimeType = null;
+        String singleMimeType = null;
 
-		// Sending a null argument to MimeType causes NPE
-		if (singleMimeType != null) {
-			try {
-				mimeType = new MimeType(singleMimeType);
-			} catch (MimeTypeParseException e) {
-				LOGGER.debug("Could not parse mime type from headers.", e);
-			}
-		}
+        if (contentTypeList != null && !contentTypeList.isEmpty()) {
+            singleMimeType = contentTypeList.get(0);
+            LOGGER.debug("Encountered [" + singleMimeType + "] " + HttpHeaders.CONTENT_TYPE);
+        }
 
-		return mimeType;
-	}
-	
-    private Subject getSubject(HttpServletRequest request)
-    {
+        MimeType mimeType = null;
+
+        // Sending a null argument to MimeType causes NPE
+        if (singleMimeType != null) {
+            try {
+                mimeType = new MimeType(singleMimeType);
+            } catch (MimeTypeParseException e) {
+                LOGGER.debug("Could not parse mime type from headers.", e);
+            }
+        }
+
+        return mimeType;
+    }
+
+    private Subject getSubject(HttpServletRequest request) {
         Subject subject = null;
-        if(request != null)
-        {
-            for(TokenRequestHandler curHandler : requestHandlerList)
-            {
-                try
-                {
+        if (request != null) {
+            for (TokenRequestHandler curHandler : requestHandlerList) {
+                try {
                     subject = securityManager.getSubject(curHandler.createToken(request));
                     LOGGER.debug("Able to get populated subject from incoming request.");
                     break;
-                } 
-                catch (SecurityServiceException sse)
-                {
-                    LOGGER.warn("Could not create subject from request handler, trying other handlers if available." );
+                } catch (SecurityServiceException sse) {
+                    LOGGER.warn("Could not create subject from request handler, trying other handlers if available.");
                 }
             }
         }
         return subject;
     }
-	
-    public void setSecurityManager( SecurityManager securityManager )
-    {
+
+    public void setSecurityManager(SecurityManager securityManager) {
         LOGGER.debug("Got a security manager");
         this.securityManager = securityManager;
     }
-    
-    public void setRequestHandlers (List<TokenRequestHandler> requestHandlerList)
-    {
+
+    public void setRequestHandlers(List<TokenRequestHandler> requestHandlerList) {
         this.requestHandlerList = requestHandlerList;
     }
 
-	public MimeTypeToTransformerMapper getMimeTypeToTransformerMapper() {
-		return mimeTypeToTransformerMapper;
-	}
+    public MimeTypeToTransformerMapper getMimeTypeToTransformerMapper() {
+        return mimeTypeToTransformerMapper;
+    }
 
-	public void setMimeTypeToTransformerMapper(MimeTypeToTransformerMapper mimeTypeToTransformerMapper) {
-		this.mimeTypeToTransformerMapper = mimeTypeToTransformerMapper;
-	}
+    public void setMimeTypeToTransformerMapper(
+            MimeTypeToTransformerMapper mimeTypeToTransformerMapper) {
+        this.mimeTypeToTransformerMapper = mimeTypeToTransformerMapper;
+    }
 
-	public FilterBuilder getFilterBuilder() {
-		return filterBuilder;
-	}
+    public FilterBuilder getFilterBuilder() {
+        return filterBuilder;
+    }
 
-	public void setFilterBuilder(FilterBuilder filterBuilder) {
-		this.filterBuilder = filterBuilder;
-	}
+    public void setFilterBuilder(FilterBuilder filterBuilder) {
+        this.filterBuilder = filterBuilder;
+    }
 }

@@ -1,13 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- *
- * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
- * version 3 of the License, or any later version. 
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * 
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
+ * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
+ * 
  **/
 package com.lmco.ddf.commands.catalog;
 
@@ -64,8 +67,8 @@ public class IngestCommand extends CatalogCommands {
 
     private PrintStream console = System.out;
 
-    @Argument(name = "File path or Directory path", description = "File path to a record or a directory of files to be ingested. Paths are absolute and must be in quotes." +
-    		" This command can only detect roughly 2 billion records in one folder. Individual operating system limits might also apply.", index = 0, multiValued = false, required = true)
+    @Argument(name = "File path or Directory path", description = "File path to a record or a directory of files to be ingested. Paths are absolute and must be in quotes."
+            + " This command can only detect roughly 2 billion records in one folder. Individual operating system limits might also apply.", index = 0, multiValued = false, required = true)
     String filePath = null;
 
     @Argument(name = "Batch size", description = "Number of Metacards to ingest at a time. Change this argument based on system memory and catalog provider limits.", index = 1, multiValued = false, required = false)
@@ -82,9 +85,8 @@ public class IngestCommand extends CatalogCommands {
         File inputFile = new File(filePath);
 
         if (!inputFile.exists()) {
-            console.println(Ansi.ansi().fg(Ansi.Color.RED).toString()
-                    + "File or directory [" + filePath + "] must exist."
-                    + Ansi.ansi().reset().toString());
+            console.println(Ansi.ansi().fg(Ansi.Color.RED).toString() + "File or directory ["
+                    + filePath + "] must exist." + Ansi.ansi().reset().toString());
             console.println("If the file does indeed exist, try putting the path in quotes.");
             return null;
         }
@@ -121,12 +123,11 @@ public class IngestCommand extends CatalogCommands {
             }
             printProgressAndFlush(startTime, fileList, ingestCount);
             console.println();
-            
 
             long end = System.currentTimeMillis();
 
-            console.printf(" %d file(s) ingested in %3.3f seconds%n",
-                    ingestCount, (end - startTime) / MILLISECONDS_PER_SECOND);
+            console.printf(" %d file(s) ingested in %3.3f seconds%n", ingestCount,
+                    (end - startTime) / MILLISECONDS_PER_SECOND);
             return null;
         }
 
@@ -136,10 +137,8 @@ public class IngestCommand extends CatalogCommands {
                 metacards.add(result);
             }
             if (metacards.size() > 0) {
-                CreateResponse createResponse = createMetacards(catalog,
-                        metacards);
-                List<Metacard> recordsCreated = createResponse
-                        .getCreatedMetacards();
+                CreateResponse createResponse = createMetacards(catalog, metacards);
+                List<Metacard> recordsCreated = createResponse.getCreatedMetacards();
                 console.println(recordsCreated.size() + " file(s) created.");
                 for (Metacard record : recordsCreated) {
                     console.println("ID: " + record.getId() + " created.");
@@ -158,13 +157,11 @@ public class IngestCommand extends CatalogCommands {
         console.flush();
     }
 
-    private String getProgressBar(int ingestCount, int totalPossible,
-            long start, long end) {
+    private String getProgressBar(int ingestCount, int totalPossible, long start, long end) {
 
         int notches = calculateNotches(ingestCount, totalPossible);
 
-        int progressPercentage = calculateProgressPercentage(ingestCount,
-                totalPossible);
+        int progressPercentage = calculateProgressPercentage(ingestCount, totalPossible);
 
         int rate = calculateRecordsPerSecond(ingestCount, start, end);
 
@@ -191,23 +188,20 @@ public class IngestCommand extends CatalogCommands {
         return (int) ((new Double(ingestCount) / new Double(totalPossible)) * PROGESS_BAR_NOTCH_LENGTH);
     }
 
-    private CreateResponse createMetacards(CatalogFacade catalog,
-            List<Metacard> listOfMetaCards) throws IngestException,
-            SourceUnavailableException {
+    private CreateResponse createMetacards(CatalogFacade catalog, List<Metacard> listOfMetaCards)
+        throws IngestException, SourceUnavailableException {
         CreateRequest createRequest = new CreateRequestImpl(listOfMetaCards);
         return catalog.create(createRequest);
     }
 
-    private Metacard readMetacard(File file) throws FileNotFoundException,
-            ClassNotFoundException, MimeTypeParseException,
-            MetacardCreationException, InterruptedException,
-            CatalogTransformerException {
+    private Metacard readMetacard(File file) throws FileNotFoundException, ClassNotFoundException,
+        MimeTypeParseException, MetacardCreationException, InterruptedException,
+        CatalogTransformerException {
         Metacard result = null;
 
         try {
             if (DEFAULT_TRANSFORMER_ID.matches(transformerId)) {
-                ObjectInputStream ois = new ObjectInputStream(
-                        new FileInputStream(file));
+                ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file));
                 result = (Metacard) ois.readObject();
                 ois.close();
             } else {
@@ -222,30 +216,25 @@ public class IngestCommand extends CatalogCommands {
         return result;
     }
 
-    private Metacard generateMetacard(InputStream message)
-            throws MetacardCreationException, IOException,
-            CatalogTransformerException, InterruptedException {
+    private Metacard generateMetacard(InputStream message) throws MetacardCreationException,
+        IOException, CatalogTransformerException, InterruptedException {
 
         BundleContext bundleContext = getBundleContext();
 
         ServiceReference[] refs = null;
 
         try {
-            refs = bundleContext.getServiceReferences(
-                    InputTransformer.class.getName(), "(|" + "("
-                            + Constants.SERVICE_ID + "=" + transformerId + ")"
-                            + ")");
+            refs = bundleContext.getServiceReferences(InputTransformer.class.getName(), "(|" + "("
+                    + Constants.SERVICE_ID + "=" + transformerId + ")" + ")");
         } catch (InvalidSyntaxException e) {
-            throw new IllegalArgumentException(
-                    "Invalid transformer transformerId: " + transformerId, e);
+            throw new IllegalArgumentException("Invalid transformer transformerId: "
+                    + transformerId, e);
         }
         if (refs == null || refs.length == 0) {
-            throw new IllegalArgumentException("Transformer " + transformerId
-                    + " not found");
+            throw new IllegalArgumentException("Transformer " + transformerId + " not found");
         } else {
             try {
-                InputTransformer transformer = (InputTransformer) bundleContext
-                        .getService(refs[0]);
+                InputTransformer transformer = (InputTransformer) bundleContext.getService(refs[0]);
                 if (message != null) {
                     return transformer.transform(message);
                 } else {
@@ -253,9 +242,8 @@ public class IngestCommand extends CatalogCommands {
                 }
 
             } catch (CatalogTransformerException e) {
-                throw new IllegalArgumentException(
-                        "Transformation Failed for transformer: "
-                                + transformerId, e);
+                throw new IllegalArgumentException("Transformation Failed for transformer: "
+                        + transformerId, e);
             }
         }
 

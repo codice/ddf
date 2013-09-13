@@ -1,17 +1,19 @@
 /**
  * Copyright (c) Codice Foundation
- *
- * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
- * version 3 of the License, or any later version. 
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * 
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
+ * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
+ * 
  **/
 
 package com.lmco.ddf.endpoints.rest.kml;
-
 
 import ddf.catalog.Constants;
 import ddf.catalog.data.Metacard;
@@ -72,46 +74,62 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-
 /**
- * Endpoint used to create a KML Network Link in order to receive updated query
- * results from the DDF. The KML Network Link will link Google Earth to DDF
- * through the OpenSearch Endpoint. As a users changes the Google Earth view,
- * the query results will be updated for that view.
+ * Endpoint used to create a KML Network Link in order to receive updated query results from the
+ * DDF. The KML Network Link will link Google Earth to DDF through the OpenSearch Endpoint. As a
+ * users changes the Google Earth view, the query results will be updated for that view.
  * 
  * @author Ian Barnett
  * 
  */
-@Path( "/" )
-public class KmlEndpoint implements DdfConfigurationWatcher
-{
+@Path("/")
+public class KmlEndpoint implements DdfConfigurationWatcher {
 
     private static final String URL_KEY = "url";
-	private static final String FORWARD_SLASH = "/";
-	private static final String CATALOG_URL_PATH = "catalog";
-	private static final int DEFAULT_MAX_SESSION_LENGTH = -1; // -1 indicates do
+
+    private static final String FORWARD_SLASH = "/";
+
+    private static final String CATALOG_URL_PATH = "catalog";
+
+    private static final int DEFAULT_MAX_SESSION_LENGTH = -1; // -1 indicates do
                                                               // not terminate
                                                               // session
                                                               // explicitly
+
     private static final String NETWORK_LINK_FOLDER_NAME = "DDF OpenSearch Network Link";
+
     private static final String DOCUMENT_ID_POSTFIX = "-doc";
+
     private static final String ENCODED_COMMA = "%2C";
 
     private static final String SUBSCRIPTION_QUERY_PARAM = "subscription";
+
     private static final String GEO_QUERY_PARAM = "geometry";
+
     private static final String RADIUS_QUERY_PARAM = "radius";
+
     private static final String POLYGON_QUERY_PARAM = "polygon";
+
     private static final String LAT_QUERY_PARAM = "lat";
+
     private static final String LONG_QUERY_PARAM = "lon";
+
     private static final String BBOX_QUERY_PARAM = "bbox";
+
     private static final String SOURCES_QUERY_PARAM = "src";
 
     private static final String KML_MIME_TYPE = "application/vnd.google-earth.kml+xml";
+
     private static final String KML_TRANSFORM_PARAM = "kml";
+
     private static final String KML_URL_PATH = "kml";
+
     private static final String OPENSEARCH_URL_PATH = "query";
+
     private static final String OPENSEARCH_SORT_KEY = "sort";
+
     private static final String OPENSEARCH_DEFAULT_SORT = "date:desc";
+
     private static final String OPENSEARCH_FORMAT_KEY = "format";
 
     private static final long TIMEOUT_MS = 1000 * 60 * 10; // 10 Minutes
@@ -120,25 +138,30 @@ public class KmlEndpoint implements DdfConfigurationWatcher
     private static final double DEFAULT_VIEW_REFRESH_TIME = 2.0;
 
     /**
-     * The format of the bounding box query parameters Google Earth attaches to
-     * the end of the query URL.
+     * The format of the bounding box query parameters Google Earth attaches to the end of the query
+     * URL.
      */
     private static final String VIEW_FORMAT_STRING = "bbox=[bboxWest],[bboxSouth],[bboxEast],[bboxNorth]";
 
     private BundleContext context;
 
     private Map<String, URL> hrefMap;
+
     private ConcurrentHashMap<String, Long> lastUpdated;
+
     private KMLTransformer kmlTransformer;
+
     private ExecutorService executorService;
-	private String ddfHost;
-	private String ddfPort;
-	private String servicesContextRoot;
+
+    private String ddfHost;
+
+    private String ddfPort;
+
+    private String servicesContextRoot;
 
     private static final Logger LOGGER = Logger.getLogger(KmlEndpoint.class);
 
-    public KmlEndpoint( BundleContext context, KMLTransformer kmlTransformer )
-    {
+    public KmlEndpoint(BundleContext context, KMLTransformer kmlTransformer) {
         LOGGER.trace("ENTERING: KML Enpoint Constructor");
         this.context = context;
         this.kmlTransformer = kmlTransformer;
@@ -149,8 +172,7 @@ public class KmlEndpoint implements DdfConfigurationWatcher
         LOGGER.trace("EXITING: KML Enpoint Constructor");
     }
 
-    private String marshalKml( Kml kmlResult )
-    {
+    private String marshalKml(Kml kmlResult) {
         String kmlResultString = null;
 
         StringWriter writer = new StringWriter();
@@ -161,19 +183,18 @@ public class KmlEndpoint implements DdfConfigurationWatcher
     }
 
     /**
-     * Kml REST Get. Returns a KML Network Link to the DDF OpenSearch Endpoint
-     * Any query parameters passed in will be used in the OpenSearch query.
+     * Kml REST Get. Returns a KML Network Link to the DDF OpenSearch Endpoint Any query parameters
+     * passed in will be used in the OpenSearch query.
      * 
      * @param uriInfo
      * @return KML Network Link
      */
     @GET
-    @Path( FORWARD_SLASH )
-    public Response getKmlNetworkLink( @Context UriInfo uriInfo )
-    {
+    @Path(FORWARD_SLASH)
+    public Response getKmlNetworkLink(@Context
+    UriInfo uriInfo) {
         LOGGER.trace("ENTERING: getKmlNetworkLink");
-        try
-        {
+        try {
             // Create and keep track of subscription id
             String subId = UUID.randomUUID().toString();
             URL networkLinkUrl = createKmlQueryUrl(uriInfo, subId);
@@ -187,14 +208,11 @@ public class KmlEndpoint implements DdfConfigurationWatcher
 
             LOGGER.trace("EXITING: getKmlNetworkLink");
             return Response.ok(kml, KML_MIME_TYPE).build();
-        }
-        catch (UnknownHostException e){
-        	//TODO: Return informative error message
-        	LOGGER.error("Unable to determine DDF Host.");
-        	throw new WebApplicationException();
-        }
-        catch (Exception e)
-        {
+        } catch (UnknownHostException e) {
+            // TODO: Return informative error message
+            LOGGER.error("Unable to determine DDF Host.");
+            throw new WebApplicationException();
+        } catch (Exception e) {
             LOGGER.error("Error obtaining KML NetworkLink.", e);
             throw new WebApplicationException();
         }
@@ -208,8 +226,8 @@ public class KmlEndpoint implements DdfConfigurationWatcher
      * @throws JAXBException
      * @throws PluginExecutionException
      */
-    private String generateViewBasedNetworkLink( URL networkLinkUrl ) throws JAXBException, PluginExecutionException
-    {
+    private String generateViewBasedNetworkLink(URL networkLinkUrl) throws JAXBException,
+        PluginExecutionException {
         // create folder and give it a name
         Kml kml = KmlFactory.createKml();
         Folder folder = KmlFactory.createFolder();
@@ -237,29 +255,26 @@ public class KmlEndpoint implements DdfConfigurationWatcher
     }
 
     /**
-     * Creates a URL to the DDF OpenSearch Endpoint for the KML NetworkLink to
-     * obtain query results.
+     * Creates a URL to the DDF OpenSearch Endpoint for the KML NetworkLink to obtain query results.
      * 
      * @param queryUriInfo
      * @param subscriptionId
-     * @return URL to the DDF OpenSearch Endpoint specifying format=kml and the
-     *         query parameters passed in to the initial request to obtain the
-     *         NetworkLink.
+     * @return URL to the DDF OpenSearch Endpoint specifying format=kml and the query parameters
+     *         passed in to the initial request to obtain the NetworkLink.
      * @throws UnknownHostException
      * @throws MalformedURLException
      */
-    protected URL createKmlQueryUrl( UriInfo queryUriInfo, String subscriptionId ) throws UnknownHostException,
-        MalformedURLException
-    {
-    	LOGGER.debug("ENTERING: createKmlQueryUrl");
+    protected URL createKmlQueryUrl(UriInfo queryUriInfo, String subscriptionId)
+        throws UnknownHostException, MalformedURLException {
+        LOGGER.debug("ENTERING: createKmlQueryUrl");
         UriBuilder builder = UriBuilder.fromUri(queryUriInfo.getBaseUri());
 
-        builder = generateDdfEndpointUrl(servicesContextRoot + FORWARD_SLASH + CATALOG_URL_PATH + FORWARD_SLASH + OPENSEARCH_URL_PATH, builder);
-        
+        builder = generateDdfEndpointUrl(servicesContextRoot + FORWARD_SLASH + CATALOG_URL_PATH
+                + FORWARD_SLASH + OPENSEARCH_URL_PATH, builder);
+
         MultivaluedMap<String, String> queryParams = queryUriInfo.getQueryParameters(false);
         Set<Entry<String, List<String>>> entrySet = queryParams.entrySet();
-        for ( Entry<String, List<String>> currParam : entrySet )
-        {
+        for (Entry<String, List<String>> currParam : entrySet) {
             List<String> currQueryVal = currParam.getValue();
             String currQueryKey = currParam.getKey();
 
@@ -268,21 +283,16 @@ public class KmlEndpoint implements DdfConfigurationWatcher
             // The bounding box determined by the view in Google Earth will
             // determine the geometry to search over.
             if (GEO_QUERY_PARAM.equals(currQueryKey) || POLYGON_QUERY_PARAM.equals(currQueryKey)
-                    || RADIUS_QUERY_PARAM.equals(currQueryKey) || LAT_QUERY_PARAM.equals(currQueryKey)
-                    || LONG_QUERY_PARAM.equals(currQueryKey) || BBOX_QUERY_PARAM.equals(currQueryKey))
-            {
-                LOGGER
-                    .info("Geometry based query parameter received.  "
-                            + "Since the view-based NetworkLink will determine the desired query geometry, this param will be ignored.");
-            }
-            else
-            {
-                if (currQueryVal.size() == 1)
-                {
+                    || RADIUS_QUERY_PARAM.equals(currQueryKey)
+                    || LAT_QUERY_PARAM.equals(currQueryKey)
+                    || LONG_QUERY_PARAM.equals(currQueryKey)
+                    || BBOX_QUERY_PARAM.equals(currQueryKey)) {
+                LOGGER.info("Geometry based query parameter received.  "
+                        + "Since the view-based NetworkLink will determine the desired query geometry, this param will be ignored.");
+            } else {
+                if (currQueryVal.size() == 1) {
                     builder = builder.queryParam(currQueryKey, currParam.getValue().get(0));
-                }
-                else
-                {
+                } else {
                     builder = builder.queryParam(currQueryKey, currParam.getValue());
                 }
             }
@@ -304,15 +314,14 @@ public class KmlEndpoint implements DdfConfigurationWatcher
 
         URI resultingUri = builder.build();
         LOGGER.debug("network link url: " + resultingUri);
-        
+
         LOGGER.debug("EXITING: createKmlQueryUrl");
         return resultingUri.toURL();
     }
 
     /**
-     * REST operation located at /update. Used to obtain a NetworkLinkControl
-     * object for the purposes of updating entries obtained from the view-based
-     * NetworkLink
+     * REST operation located at /update. Used to obtain a NetworkLinkControl object for the
+     * purposes of updating entries obtained from the view-based NetworkLink
      * 
      * @param uriInfo
      * @param subIdQueryParam
@@ -320,45 +329,42 @@ public class KmlEndpoint implements DdfConfigurationWatcher
      * @return HTTP response containing NetworkLinkControl xml element.
      */
     @GET
-    @Path( "/update" )
-    public Response getKmlNetworkLinkUpdate( @Context UriInfo uriInfo,
-        @QueryParam( SUBSCRIPTION_QUERY_PARAM ) String subIdQueryParam,
-        @QueryParam( BBOX_QUERY_PARAM ) String incomingBoundingBox )
-    {
-        try
-        {
+    @Path("/update")
+    public Response getKmlNetworkLinkUpdate(@Context
+    UriInfo uriInfo, @QueryParam(SUBSCRIPTION_QUERY_PARAM)
+    String subIdQueryParam, @QueryParam(BBOX_QUERY_PARAM)
+    String incomingBoundingBox) {
+        try {
             LOGGER.trace("ENTERING: getKmlNetworkLinkUpdate");
-            String kmlResult = generateNetworkLinkControl(subIdQueryParam, incomingBoundingBox, uriInfo);
+            String kmlResult = generateNetworkLinkControl(subIdQueryParam, incomingBoundingBox,
+                    uriInfo);
             LOGGER.debug("KML Update Response: " + kmlResult);
 
             LOGGER.trace("EXITING: getKmlNetworkLinkUpdate");
             return Response.ok(kmlResult, "application/vnd.google-earth.kml+xml").build();
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             LOGGER.error("Error performing network link update", e);
             throw new WebApplicationException(e);
         }
     }
 
     /**
-     * Creates NetworkLinkControl xml by accessing the specified Subscription's
-     * DeliveryMethod and obtaining all Metacards that were updated, created, or
-     * deleted in the provided interval.
+     * Creates NetworkLinkControl xml by accessing the specified Subscription's DeliveryMethod and
+     * obtaining all Metacards that were updated, created, or deleted in the provided interval.
      * 
      * @param subIdQueryParam
      * @param incomingBoundingBox
      * @param uriInfo
-     * @return NetworkLinkControl xml containing the Update element with
-     *         Changes, Creates, and Deletes
+     * @return NetworkLinkControl xml containing the Update element with Changes, Creates, and
+     *         Deletes
      * @throws JAXBException
      * @throws URISyntaxException
      * @throws InvalidSyntaxException
      * @throws PluginExecutionException
      */
-    private String generateNetworkLinkControl( String subIdQueryParam, String incomingBoundingBox, UriInfo uriInfo )
-        throws JAXBException, URISyntaxException, InvalidSyntaxException, PluginExecutionException
-    {
+    private String generateNetworkLinkControl(String subIdQueryParam, String incomingBoundingBox,
+            UriInfo uriInfo) throws JAXBException, URISyntaxException, InvalidSyntaxException,
+        PluginExecutionException {
         LOGGER.trace("ENTERING: generateNetworkLinkControl");
 
         URL targetHref = hrefMap.get(subIdQueryParam);
@@ -378,8 +384,8 @@ public class KmlEndpoint implements DdfConfigurationWatcher
 
         // Generate Update and add to NetworkLinkControl
         Update update = generateUpdateKml(targetHrefString, subIdQueryParam, uriInfo);
-        if (update.getCreateOrDeleteOrChange() != null && update.getCreateOrDeleteOrChange().isEmpty())
-        {
+        if (update.getCreateOrDeleteOrChange() != null
+                && update.getCreateOrDeleteOrChange().isEmpty()) {
             return null;
         }
         netLinkControl.setUpdate(update);
@@ -390,7 +396,8 @@ public class KmlEndpoint implements DdfConfigurationWatcher
         // This is needed to compensate for a bug in GE and JAK. If a
         // NetworkLinkControl element has this namespace
         // declared, it will not work as of Google Earth 6.0.3.2197
-        kmlResultString = kmlResultString.replaceAll("xmlns:xal=\"urn:oasis:names:tc:ciq:xsdschema:xAL:2\\.0\"", "");
+        kmlResultString = kmlResultString.replaceAll(
+                "xmlns:xal=\"urn:oasis:names:tc:ciq:xsdschema:xAL:2\\.0\"", "");
         LOGGER.debug("updating last-updated time.");
         lastUpdated.put(subIdQueryParam, System.currentTimeMillis());
 
@@ -399,8 +406,7 @@ public class KmlEndpoint implements DdfConfigurationWatcher
     }
 
     /**
-     * Used to create the KML "Update" element and all its Change, Create and
-     * Delete child elements
+     * Used to create the KML "Update" element and all its Change, Create and Delete child elements
      * 
      * @param subscriptionId
      * @param updateType
@@ -408,201 +414,193 @@ public class KmlEndpoint implements DdfConfigurationWatcher
      * @throws InvalidSyntaxException
      * @throws PluginExecutionException
      */
-    private Update generateUpdateKml( String targetHref, String subscriptionId, UriInfo uriInfo )
-        throws InvalidSyntaxException, PluginExecutionException
-    {
+    private Update generateUpdateKml(String targetHref, String subscriptionId, UriInfo uriInfo)
+        throws InvalidSyntaxException, PluginExecutionException {
         LOGGER.trace("ENTERING: generateUpdateKml");
         List<Object> updateList = new ArrayList<Object>();
         KmlSubscription currentSubscription = getSubscription(subscriptionId);
-        KmlUpdateDeliveryMethod delMethod = (KmlUpdateDeliveryMethod) currentSubscription.getDeliveryMethod();
+        KmlUpdateDeliveryMethod delMethod = (KmlUpdateDeliveryMethod) currentSubscription
+                .getDeliveryMethod();
         Map<String, Serializable> arguments = new HashMap<String, Serializable>();
 
-        try
-        {
-        // Handle Created events
-        Queue<Metacard> createdQueue = delMethod.getCreated();
-	        LOGGER.debug("created entries: " + createdQueue.size());
-        while (!createdQueue.isEmpty())
-        {
-	            Metacard currCreatedMetacard = createdQueue.poll();	
-            if (currCreatedMetacard != null)
-            {
-                // create "Create" type and add to "Update" list
-                Create create = KmlFactory.createCreate();
-                updateList.add(create);
-                Folder createFolder = create.createAndAddFolder();
-                createFolder.setTargetId(subscriptionId);
-	
-                // Add Invocation URL and subscription id to arguments
-                try
-                {
-                    String restUrlToMetacard = createRestLinkToMetacard(uriInfo, currCreatedMetacard.getId());
-                    LOGGER.debug("rest url to metacard: " + restUrlToMetacard);
-		    arguments.put(URL_KEY, restUrlToMetacard);
-                }
-                catch (UnknownHostException e)
-                {
-	                    LOGGER.warn("Error creating URL to REST service, KML will not have link to Metacard.");
-                }
-                arguments.put(Constants.SUBSCRIPTION_KEY, subscriptionId);
-	
-                // create "Document" and add "Placemark" to the document
-                Document doc = kmlTransformer.transformEntry(null, currCreatedMetacard, arguments);
-                createFolder.addToFeature(doc);
-            }
-        }
-	
-        // Handle deleted events
-        Queue<Metacard> deletedQueue = delMethod.getDeleted();
-	        LOGGER.debug("deleted entries: " + deletedQueue.size());
-        while (!deletedQueue.isEmpty())
-        {
-	            Metacard currDeletedMetacard = deletedQueue.poll();	
-            if (currDeletedMetacard != null)
-            {
-                // create "Delete" type and add to "Update" list
-                Delete delete = KmlFactory.createDelete();
-                // List<JAXBElement<? extends AbstractFeatureType>>
-                // deletedPlacemarks = delete.getAbstractFeatureGroup();
-                updateList.add(delete);
-	
-                // create "Placemark" and add to "Delete"
-                // All metacards are currently wrapped in a Document, to delete
-                // the document the id is needed
-                Document doc = KmlFactory.createDocument();
-                delete.addToFeature(doc);
-                // "-doc" is needed to distinguish from placemark
-                doc.setTargetId(currDeletedMetacard.getId() + DOCUMENT_ID_POSTFIX);
-	
-                Placemark placemark = KmlFactory.createPlacemark();
-                doc.addToFeature(placemark);
-                placemark.setTargetId(currDeletedMetacard.getId());
-            }
-        }
-        // Handle updated events
-        Queue<Metacard> changeQueue = delMethod.getUpdated();
-	        LOGGER.debug("updated entries: " + changeQueue.size());	
-        while (!changeQueue.isEmpty())
-        {
-            Metacard currChangedMetacard = changeQueue.poll();
-            if (currChangedMetacard != null)
-	            {	
-                // Add Invocation URL and subscription id to arguments
-	                arguments = new HashMap<String, Serializable>();
-                try
-                {
-                    arguments.put(URL_KEY, createRestLinkToMetacard(uriInfo, currChangedMetacard.getId()));
-                }
-                catch (UnknownHostException e)
-                {
-	                    LOGGER.warn("Error creating URL to REST service, KML will not have link to Metacard.");
-                }
-                arguments.put(Constants.SUBSCRIPTION_KEY, subscriptionId);
-	
-                // create "Create" type and add to "Update" list
-                Change change = KmlFactory.createChange();
-                updateList.add(change);
-	
-                Document doc = kmlTransformer.transformEntry(null, currChangedMetacard, arguments);
-                List<Feature> features = doc.getFeature();
-                if (features != null && !features.isEmpty())
-                {
-                    Placemark placemark = (Placemark) features.get(0);
-                    String id = placemark.getId();
-                    placemark.setTargetId(id);
-                    placemark.setId(null);
-                    change.addToAbstractObject(placemark);
+        try {
+            // Handle Created events
+            Queue<Metacard> createdQueue = delMethod.getCreated();
+            LOGGER.debug("created entries: " + createdQueue.size());
+            while (!createdQueue.isEmpty()) {
+                Metacard currCreatedMetacard = createdQueue.poll();
+                if (currCreatedMetacard != null) {
+                    // create "Create" type and add to "Update" list
+                    Create create = KmlFactory.createCreate();
+                    updateList.add(create);
+                    Folder createFolder = create.createAndAddFolder();
+                    createFolder.setTargetId(subscriptionId);
+
+                    // Add Invocation URL and subscription id to arguments
+                    try {
+                        String restUrlToMetacard = createRestLinkToMetacard(uriInfo,
+                                currCreatedMetacard.getId());
+                        LOGGER.debug("rest url to metacard: " + restUrlToMetacard);
+                        arguments.put(URL_KEY, restUrlToMetacard);
+                    } catch (UnknownHostException e) {
+                        LOGGER.warn("Error creating URL to REST service, KML will not have link to Metacard.");
+                    }
+                    arguments.put(Constants.SUBSCRIPTION_KEY, subscriptionId);
+
+                    // create "Document" and add "Placemark" to the document
+                    Document doc = kmlTransformer.transformEntry(null, currCreatedMetacard,
+                            arguments);
+                    createFolder.addToFeature(doc);
                 }
             }
+
+            // Handle deleted events
+            Queue<Metacard> deletedQueue = delMethod.getDeleted();
+            LOGGER.debug("deleted entries: " + deletedQueue.size());
+            while (!deletedQueue.isEmpty()) {
+                Metacard currDeletedMetacard = deletedQueue.poll();
+                if (currDeletedMetacard != null) {
+                    // create "Delete" type and add to "Update" list
+                    Delete delete = KmlFactory.createDelete();
+                    // List<JAXBElement<? extends AbstractFeatureType>>
+                    // deletedPlacemarks = delete.getAbstractFeatureGroup();
+                    updateList.add(delete);
+
+                    // create "Placemark" and add to "Delete"
+                    // All metacards are currently wrapped in a Document, to delete
+                    // the document the id is needed
+                    Document doc = KmlFactory.createDocument();
+                    delete.addToFeature(doc);
+                    // "-doc" is needed to distinguish from placemark
+                    doc.setTargetId(currDeletedMetacard.getId() + DOCUMENT_ID_POSTFIX);
+
+                    Placemark placemark = KmlFactory.createPlacemark();
+                    doc.addToFeature(placemark);
+                    placemark.setTargetId(currDeletedMetacard.getId());
+                }
+            }
+            // Handle updated events
+            Queue<Metacard> changeQueue = delMethod.getUpdated();
+            LOGGER.debug("updated entries: " + changeQueue.size());
+            while (!changeQueue.isEmpty()) {
+                Metacard currChangedMetacard = changeQueue.poll();
+                if (currChangedMetacard != null) {
+                    // Add Invocation URL and subscription id to arguments
+                    arguments = new HashMap<String, Serializable>();
+                    try {
+                        arguments.put(URL_KEY,
+                                createRestLinkToMetacard(uriInfo, currChangedMetacard.getId()));
+                    } catch (UnknownHostException e) {
+                        LOGGER.warn("Error creating URL to REST service, KML will not have link to Metacard.");
+                    }
+                    arguments.put(Constants.SUBSCRIPTION_KEY, subscriptionId);
+
+                    // create "Create" type and add to "Update" list
+                    Change change = KmlFactory.createChange();
+                    updateList.add(change);
+
+                    Document doc = kmlTransformer.transformEntry(null, currChangedMetacard,
+                            arguments);
+                    List<Feature> features = doc.getFeature();
+                    if (features != null && !features.isEmpty()) {
+                        Placemark placemark = (Placemark) features.get(0);
+                        String id = placemark.getId();
+                        placemark.setTargetId(id);
+                        placemark.setId(null);
+                        change.addToAbstractObject(placemark);
+                    }
+                }
+            }
+        } catch (CatalogTransformerException e) {
+            LOGGER.warn("CatalogTransformerException thrown while generatingKML", e);
         }
-	      } catch (CatalogTransformerException e) {
-			LOGGER.warn("CatalogTransformerException thrown while generatingKML", e);
-		}
 
         LOGGER.trace("EXITING: generateUpdateKml");
         return KmlFactory.createUpdate(targetHref, updateList);
     }
-    
-//  TODO break up handling events  private void handleUpdatedEvents(KmlUpdateDeliveryMethod delMethod, List<Object> updateList, UriInfo uriInfo, String subscriptionId  )
-//    {
-//    	HashMap<String, Serializable> arguments = new HashMap<String, Serializable>();
-//        Queue<Metacard> changeQueue = delMethod.getUpdated();
-//        LOGGER.debug("updated entries: " + changeQueue.size());	
-//        try
-//        {
-//	        while (!changeQueue.isEmpty())
-//	        {
-//	            Metacard currChangedMetacard = changeQueue.poll();
-//	            if (currChangedMetacard != null)
-//	            {	
-//	                // Add Invocation URL and subscription id to arguments
-//	                arguments = new HashMap<String, Serializable>();
-//	                try
-//	                {
-//	                    arguments.put("url", createRestUrl(uriInfo, currChangedMetacard.getId()));
-//	                }
-//	                catch (UnknownHostException e)
-//	                {
-//	                    LOGGER.warn("Error creating URL to REST service, KML will not have link to Metacard.");
-//	                }
-//	                arguments.put(Constants.SUBSCRIPTION_KEY, subscriptionId);
-//	
-//	                // create "Create" type and add to "Update" list
-//	                Change change = KmlFactory.createChange();
-//	                updateList.add(change);
-//	
-//	                Document doc = kmlTransformer.transformEntry(null, currChangedMetacard, arguments);
-//	                List<Feature> features = doc.getFeature();
-//	                if (features != null && !features.isEmpty())
-//	                {
-//	                    Placemark placemark = (Placemark) features.get(0);
-//	                    String id = placemark.getId();
-//	                    placemark.setTargetId(id);
-//	                    placemark.setId(null);
-//	                    change.addToAbstractObject(placemark);
-//	                }
-//	            }
-//	        }
-//        } catch (Exception e) {
-//        	LOGGER.warn("Unable to handle update events", e);
-//        }
-//    }
 
-    private String createRestLinkToMetacard( UriInfo uriInfo, String metacardId ) throws UnknownHostException
-    {
-    	LOGGER.trace("ENTERING: createRestLinkToMetacard");
+    // TODO break up handling events private void handleUpdatedEvents(KmlUpdateDeliveryMethod
+    // delMethod, List<Object> updateList, UriInfo uriInfo, String subscriptionId )
+    // {
+    // HashMap<String, Serializable> arguments = new HashMap<String, Serializable>();
+    // Queue<Metacard> changeQueue = delMethod.getUpdated();
+    // LOGGER.debug("updated entries: " + changeQueue.size());
+    // try
+    // {
+    // while (!changeQueue.isEmpty())
+    // {
+    // Metacard currChangedMetacard = changeQueue.poll();
+    // if (currChangedMetacard != null)
+    // {
+    // // Add Invocation URL and subscription id to arguments
+    // arguments = new HashMap<String, Serializable>();
+    // try
+    // {
+    // arguments.put("url", createRestUrl(uriInfo, currChangedMetacard.getId()));
+    // }
+    // catch (UnknownHostException e)
+    // {
+    // LOGGER.warn("Error creating URL to REST service, KML will not have link to Metacard.");
+    // }
+    // arguments.put(Constants.SUBSCRIPTION_KEY, subscriptionId);
+    //
+    // // create "Create" type and add to "Update" list
+    // Change change = KmlFactory.createChange();
+    // updateList.add(change);
+    //
+    // Document doc = kmlTransformer.transformEntry(null, currChangedMetacard, arguments);
+    // List<Feature> features = doc.getFeature();
+    // if (features != null && !features.isEmpty())
+    // {
+    // Placemark placemark = (Placemark) features.get(0);
+    // String id = placemark.getId();
+    // placemark.setTargetId(id);
+    // placemark.setId(null);
+    // change.addToAbstractObject(placemark);
+    // }
+    // }
+    // }
+    // } catch (Exception e) {
+    // LOGGER.warn("Unable to handle update events", e);
+    // }
+    // }
+
+    private String createRestLinkToMetacard(UriInfo uriInfo, String metacardId)
+        throws UnknownHostException {
+        LOGGER.trace("ENTERING: createRestLinkToMetacard");
         UriBuilder restUriBuilder = uriInfo.getAbsolutePathBuilder();
-        
-        restUriBuilder = generateDdfEndpointUrl(servicesContextRoot + FORWARD_SLASH + CATALOG_URL_PATH + FORWARD_SLASH + metacardId, restUriBuilder);
-        
+
+        restUriBuilder = generateDdfEndpointUrl(servicesContextRoot + FORWARD_SLASH
+                + CATALOG_URL_PATH + FORWARD_SLASH + metacardId, restUriBuilder);
+
         LOGGER.trace("EXITING: createRestLinkToMetacard");
         return restUriBuilder.build().toString();
     }
 
-	private UriBuilder generateDdfEndpointUrl(String path, UriBuilder uriBuilder) throws UnknownHostException {
-		LOGGER.trace("ENTERING: generateDdfEndpointUrl");
-		if(ddfHost != null && ddfPort != null && servicesContextRoot != null){
-        	uriBuilder = uriBuilder.host(ddfHost);
-        	
-        	try {
-        		int portInt = Integer.parseInt(ddfPort);
-        		uriBuilder = uriBuilder.port(portInt);
-        	}
-        	catch (NumberFormatException nfe){
-        		LOGGER.debug("Cannot convert the current DDF port: " + ddfPort + " to an integer.  Defaulting to port in invocation.");
-        		throw new UnknownHostException("Unable to determine port DDF is using.");
-        	}
-        	
-        	uriBuilder = uriBuilder.replacePath(path);
+    private UriBuilder generateDdfEndpointUrl(String path, UriBuilder uriBuilder)
+        throws UnknownHostException {
+        LOGGER.trace("ENTERING: generateDdfEndpointUrl");
+        if (ddfHost != null && ddfPort != null && servicesContextRoot != null) {
+            uriBuilder = uriBuilder.host(ddfHost);
+
+            try {
+                int portInt = Integer.parseInt(ddfPort);
+                uriBuilder = uriBuilder.port(portInt);
+            } catch (NumberFormatException nfe) {
+                LOGGER.debug("Cannot convert the current DDF port: " + ddfPort
+                        + " to an integer.  Defaulting to port in invocation.");
+                throw new UnknownHostException("Unable to determine port DDF is using.");
+            }
+
+            uriBuilder = uriBuilder.replacePath(path);
+        } else {
+            LOGGER.debug("DDF Port is null, unable to determine host DDF is running on.");
+            throw new UnknownHostException("Unable to determine port DDF is using.");
         }
-        else {
-        	LOGGER.debug("DDF Port is null, unable to determine host DDF is running on.");
-        	throw new UnknownHostException("Unable to determine port DDF is using.");	
-        }
-		
-		LOGGER.trace("EXITING: generateDdfEndpointUrl");
-		return uriBuilder;
-	}
+
+        LOGGER.trace("EXITING: generateDdfEndpointUrl");
+        return uriBuilder;
+    }
 
     // private Placemark generatePlacemark( Metacard metacard )
     // {
@@ -693,22 +691,21 @@ public class KmlEndpoint implements DdfConfigurationWatcher
      * @throws InvalidSyntaxException
      * @throws PluginExecutionException
      */
-    private KmlSubscription getSubscription( String subscriptionId ) throws InvalidSyntaxException,
-        PluginExecutionException
-    {
+    private KmlSubscription getSubscription(String subscriptionId) throws InvalidSyntaxException,
+        PluginExecutionException {
         LOGGER.debug("obtaining subscription: " + subscriptionId);
         String filter = "(subscription-id=" + subscriptionId + ")";
-        ServiceReference[] serviceRefs = this.context.getServiceReferences(Subscription.class.getName(), filter);
-        if (serviceRefs == null)
-        {
+        ServiceReference[] serviceRefs = this.context.getServiceReferences(
+                Subscription.class.getName(), filter);
+        if (serviceRefs == null) {
             LOGGER.error("Unable to obtain update data for this network link: no subscription found.");
             throw new PluginExecutionException(
-                "Unable to obtain update data for this network link: no subscription found.");
+                    "Unable to obtain update data for this network link: no subscription found.");
         }
-        
-        Object service =  this.context.getService(serviceRefs[0]);
-        
-        return (KmlSubscription)service;
+
+        Object service = this.context.getService(serviceRefs[0]);
+
+        return (KmlSubscription) service;
     }
 
     // public long getTimeoutMs()
@@ -721,33 +718,28 @@ public class KmlEndpoint implements DdfConfigurationWatcher
     // this.timeoutMs = timeoutMillis;
     // }
 
-    private class SubscriptionTimeoutTracker implements Runnable
-    {
+    private class SubscriptionTimeoutTracker implements Runnable {
 
         private String subscriptionId;
+
         private BundleContext context;
 
-        public SubscriptionTimeoutTracker( BundleContext context, String subscriptionId )
-        {
+        public SubscriptionTimeoutTracker(BundleContext context, String subscriptionId) {
             this.context = context;
             this.subscriptionId = subscriptionId;
         }
 
         @Override
-        public void run()
-        {
+        public void run() {
             LOGGER.trace("ENTERING: SubscriptionTimeoutTracker");
             boolean keepRunning = true;
-            try
-            {
-                while (keepRunning)
-                {
-                	Long subscriptionLastUpdated = lastUpdated.get(this.subscriptionId);
-                	//lastUpdated should not return null
-                	if(subscriptionLastUpdated == null)
-                	{
-                		subscriptionLastUpdated = Long.valueOf(0);
-                	}
+            try {
+                while (keepRunning) {
+                    Long subscriptionLastUpdated = lastUpdated.get(this.subscriptionId);
+                    // lastUpdated should not return null
+                    if (subscriptionLastUpdated == null) {
+                        subscriptionLastUpdated = Long.valueOf(0);
+                    }
                     long deadline = subscriptionLastUpdated + TIMEOUT_MS;
                     long remainingTime = deadline - System.currentTimeMillis();
                     // logger.debug("timeout thread deadline: " + deadline);
@@ -760,89 +752,69 @@ public class KmlEndpoint implements DdfConfigurationWatcher
                     // logger.debug("timeout thread last-updated: " +
                     // lastUpdated.get(this.subscriptionId));
 
-                    if (System.currentTimeMillis() >= (TIMEOUT_MS + subscriptionLastUpdated))
-                    {
-                        LOGGER.info("KML Subscription timed out.  Removing subscription: " + this.subscriptionId);
+                    if (System.currentTimeMillis() >= (TIMEOUT_MS + subscriptionLastUpdated)) {
+                        LOGGER.info("KML Subscription timed out.  Removing subscription: "
+                                + this.subscriptionId);
                         keepRunning = false;
                         String filter = "(subscription-id=" + subscriptionId + ")";
-                        try
-                        {
+                        try {
                             ServiceReference[] serviceRefs = this.context.getServiceReferences(
-                                Subscription.class.getName(), filter);
-                            if (serviceRefs != null && serviceRefs.length > 0)
-                            {
+                                    Subscription.class.getName(), filter);
+                            if (serviceRefs != null && serviceRefs.length > 0) {
                                 LOGGER.info("Found subscription, unregistering.");
                                 ServiceRegistration subscriptionSvcReg = (ServiceRegistration) this.context
-                                    .getService(serviceRefs[0]);
+                                        .getService(serviceRefs[0]);
                                 subscriptionSvcReg.unregister();
-                            }
-                            else
-                            {
+                            } else {
                                 LOGGER.info("Could not find subscription, ending timeout.");
                             }
 
-                        }
-                        catch (InvalidSyntaxException e)
-                        {
+                        } catch (InvalidSyntaxException e) {
                             LOGGER.error("Error unregistering subscription.", e);
                         }
 
                     }
                 }
                 LOGGER.trace("EXITING: SubscriptionTimeoutTracker");
-            }
-            catch (InterruptedException e)
-            {
+            } catch (InterruptedException e) {
                 LOGGER.debug("Timeout interrupted, ending timeout.");
             }
         }
     }
 
-	@Override
-	public void ddfConfigurationUpdated(Map properties) {
-		String methodName = "ddfConfigurationUpdated";
-		LOGGER.debug( "ENTERING: " + methodName );
-        
-        if ( properties != null && !properties.isEmpty() )
-        {
-            Object value = properties.get( DdfConfigurationManager.HOST );
-            if ( value != null )
-            {
+    @Override
+    public void ddfConfigurationUpdated(Map properties) {
+        String methodName = "ddfConfigurationUpdated";
+        LOGGER.debug("ENTERING: " + methodName);
+
+        if (properties != null && !properties.isEmpty()) {
+            Object value = properties.get(DdfConfigurationManager.HOST);
+            if (value != null) {
                 this.ddfHost = value.toString();
-                LOGGER.debug( "ddfHost = " + this.ddfHost );
+                LOGGER.debug("ddfHost = " + this.ddfHost);
+            } else {
+                LOGGER.debug("ddfHost = NULL");
             }
-            else
-            {
-            	LOGGER.debug( "ddfHost = NULL" );
-            }
-            
-            value = properties.get( DdfConfigurationManager.PORT );
-            if ( value != null )
-            {
+
+            value = properties.get(DdfConfigurationManager.PORT);
+            if (value != null) {
                 this.ddfPort = value.toString();
-                LOGGER.debug( "ddfPort = " + this.ddfPort );
+                LOGGER.debug("ddfPort = " + this.ddfPort);
+            } else {
+                LOGGER.debug("ddfPort = NULL");
             }
-            else
-            {
-            	LOGGER.debug( "ddfPort = NULL" );
-            }
-            
-            value = properties.get( DdfConfigurationManager.SERVICES_CONTEXT_ROOT );
-            if ( value != null )
-            {
+
+            value = properties.get(DdfConfigurationManager.SERVICES_CONTEXT_ROOT);
+            if (value != null) {
                 this.servicesContextRoot = value.toString();
-                LOGGER.debug( "servicesContextRoot = " + this.servicesContextRoot );
+                LOGGER.debug("servicesContextRoot = " + this.servicesContextRoot);
+            } else {
+                LOGGER.debug("servicesContextRoot = NULL");
             }
-            else
-            {
-            	LOGGER.debug( "servicesContextRoot = NULL" );
-            }
+        } else {
+            LOGGER.debug("properties are NULL or empty");
         }
-        else
-        {
-        	LOGGER.debug( "properties are NULL or empty" );
-        }
-        
-        LOGGER.debug( "EXITING: " + methodName );
-	}
+
+        LOGGER.debug("EXITING: " + methodName);
+    }
 }

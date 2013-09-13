@@ -1,13 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- *
- * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
- * version 3 of the License, or any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * 
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
+ * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
+ * 
  **/
 package ddf.camel.component.catalog.framework;
 
@@ -23,29 +26,35 @@ import org.slf4j.LoggerFactory;
 
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.Metacard;
-import ddf.catalog.operation.*;
+import ddf.catalog.operation.CreateRequest;
+import ddf.catalog.operation.CreateRequestImpl;
+import ddf.catalog.operation.CreateResponse;
+import ddf.catalog.operation.DeleteRequest;
+import ddf.catalog.operation.DeleteRequestImpl;
+import ddf.catalog.operation.DeleteResponse;
+import ddf.catalog.operation.Update;
+import ddf.catalog.operation.UpdateRequest;
+import ddf.catalog.operation.UpdateRequestImpl;
+import ddf.catalog.operation.UpdateResponse;
 import ddf.catalog.source.IngestException;
 import ddf.catalog.source.SourceUnavailableException;
 
 /**
- * Producer for the custom Camel CatalogComponent. This
- * {@link org.apache.camel.Producer} would map to a Camel <to> route node with a
- * URI like <code>catalog:framework</code>. The message sent to this component
- * should have header named "operation" with a value of "CREATE", "UPDATE" or
+ * Producer for the custom Camel CatalogComponent. This {@link org.apache.camel.Producer} would map
+ * to a Camel <to> route node with a URI like <code>catalog:framework</code>. The message sent to
+ * this component should have header named "operation" with a value of "CREATE", "UPDATE" or
  * "DELETE".
  * 
- * For the CREATE and UPDATE operation, the message body can contain a
- * {@link java.util.List} of Metacards or a single Metacard object.
+ * For the CREATE and UPDATE operation, the message body can contain a {@link java.util.List} of
+ * Metacards or a single Metacard object.
  * 
- * For the DELETE operation, the message body can contain a
- * {@link java.util.List} of {@link String} or a single {@link String} object.
- * The {@link String} objects represent the IDs of Metacards that you would want
- * to delete.
+ * For the DELETE operation, the message body can contain a {@link java.util.List} of {@link String}
+ * or a single {@link String} object. The {@link String} objects represent the IDs of Metacards that
+ * you would want to delete.
  * 
- * The exchange's "in" message will be set with the affected Metacards. In the
- * case of a CREATE, it will be updated with the created Metacards. In the case
- * of the UPDATE, it will be updated with the updated Metacards and with the
- * DELETE it will contain the deleted Metacards.
+ * The exchange's "in" message will be set with the affected Metacards. In the case of a CREATE, it
+ * will be updated with the created Metacards. In the case of the UPDATE, it will be updated with
+ * the updated Metacards and with the DELETE it will contain the deleted Metacards.
  * 
  * <table border="1">
  * <tr>
@@ -60,24 +69,21 @@ import ddf.catalog.source.SourceUnavailableException;
  * <td>catalog:framework</td>
  * <td>operation:CREATE</td>
  * <td>List&ltMetacard&gt or Metacard</td>
- * <td>exchange.getIn().getBody() updated with {@link java.util.List} of
- * Metacards created</td>
+ * <td>exchange.getIn().getBody() updated with {@link java.util.List} of Metacards created</td>
  * </tr>
  * <tr>
  * <td>Update Metacard(s)</td>
  * <td>catalog:framework</td>
  * <td>operation:UPDATE</td>
  * <td>List&ltMetacard&gt or Metacard</td>
- * <td>exchange.getIn().getBody() updated with {@link java.util.List} of
- * Metacards updated</td>
+ * <td>exchange.getIn().getBody() updated with {@link java.util.List} of Metacards updated</td>
  * </tr>
  * <tr>
  * <td>Delete Metacard(s)</td>
  * <td>catalog:framework</td>
  * <td>operation:DELETE</td>
  * <td>List&ltString&gt or String (IDs of Metacards to delete)</td>
- * <td>exchange.getIn().getBody() updated with {@link java.util.List} of
- * Metacards deleted</td>
+ * <td>exchange.getIn().getBody() updated with {@link java.util.List} of Metacards deleted</td>
  * </tr>
  * </table>
  * 
@@ -86,8 +92,7 @@ import ddf.catalog.source.SourceUnavailableException;
  */
 public class FrameworkProducer extends DefaultProducer {
 
-    private static final transient Logger LOGGER = LoggerFactory
-            .getLogger(FrameworkProducer.class);
+    private static final transient Logger LOGGER = LoggerFactory.getLogger(FrameworkProducer.class);
 
     private static final String CREATE_OPERATION = "CREATE";
 
@@ -100,16 +105,14 @@ public class FrameworkProducer extends DefaultProducer {
     private CatalogFramework catalogFramework;
 
     /**
-     * Constructs the {@link org.apache.camel.Producer} for the custom Camel
-     * CatalogComponent.
+     * Constructs the {@link org.apache.camel.Producer} for the custom Camel CatalogComponent.
      * 
      * @param endpoint
      *            the Camel endpoint that created this consumer
      * @param catalogFramework
      *            the DDF Catalog Framework to use
      */
-    public FrameworkProducer(Endpoint endpoint,
-            CatalogFramework catalogFramework) {
+    public FrameworkProducer(Endpoint endpoint, CatalogFramework catalogFramework) {
         super(endpoint);
         this.catalogFramework = catalogFramework;
     }
@@ -119,8 +122,7 @@ public class FrameworkProducer extends DefaultProducer {
         try {
             LOGGER.debug("Entering process method");
 
-            final Object operationValueObj = exchange.getIn().getHeader(
-                    OPERATION_HEADER_KEY);
+            final Object operationValueObj = exchange.getIn().getHeader(OPERATION_HEADER_KEY);
             String operation = null;
 
             if (operationValueObj == null) {
@@ -165,15 +167,14 @@ public class FrameworkProducer extends DefaultProducer {
      * 
      * @param exchange
      *            The {@link org.apache.camel.Exchange} can contain a
-     *            {@link org.apache.camel.Message} with a body of type
-     *            {@link java.util.List} of Metacard or a single Metacard.
+     *            {@link org.apache.camel.Message} with a body of type {@link java.util.List} of
+     *            Metacard or a single Metacard.
      * @throws ddf.catalog.source.SourceUnavailableException
      * @throws ddf.catalog.source.IngestException
      * @throws ddf.camel.component.catalog.framework.FrameworkProducerException
      */
-    private void create(final Exchange exchange)
-            throws SourceUnavailableException, IngestException,
-            FrameworkProducerException {
+    private void create(final Exchange exchange) throws SourceUnavailableException,
+        IngestException, FrameworkProducerException {
         CreateResponse createResponse = null;
 
         // read in data
@@ -181,14 +182,12 @@ public class FrameworkProducer extends DefaultProducer {
 
         if (!validateList(metacardsToBeCreated, Metacard.class)) {
             processCatalogResponse(createResponse, exchange);
-            throw new FrameworkProducerException(
-                    "Validation of Metacard list failed");
+            throw new FrameworkProducerException("Validation of Metacard list failed");
         }
 
         LOGGER.debug("Validation of Metacard list passed...");
 
-        final CreateRequest createRequest = new CreateRequestImpl(
-                metacardsToBeCreated);
+        final CreateRequest createRequest = new CreateRequestImpl(metacardsToBeCreated);
         int expectedNumberOfCreatedMetacards = metacardsToBeCreated.size();
 
         if (expectedNumberOfCreatedMetacards < 1) {
@@ -206,8 +205,7 @@ public class FrameworkProducer extends DefaultProducer {
             return;
         }
 
-        final List<Metacard> createdMetacards = createResponse
-                .getCreatedMetacards();
+        final List<Metacard> createdMetacards = createResponse.getCreatedMetacards();
 
         if (createdMetacards == null) {
             LOGGER.debug("CreateResponse returned null metacards list");
@@ -217,8 +215,7 @@ public class FrameworkProducer extends DefaultProducer {
 
         final int numberOfCreatedMetacards = createdMetacards.size();
         if (numberOfCreatedMetacards != expectedNumberOfCreatedMetacards) {
-            LOGGER.debug(
-                    "Expected {} metacards created but only {} were successfully created",
+            LOGGER.debug("Expected {} metacards created but only {} were successfully created",
                     expectedNumberOfCreatedMetacards, numberOfCreatedMetacards);
             processCatalogResponse(createResponse, exchange);
             return;
@@ -233,15 +230,14 @@ public class FrameworkProducer extends DefaultProducer {
      * 
      * @param exchange
      *            The {@link org.apache.camel.Exchange} can contain a
-     *            {@link org.apache.camel.Message} with a body of type
-     *            {@link java.util.List} of Metacard or a single Metacard.
+     *            {@link org.apache.camel.Message} with a body of type {@link java.util.List} of
+     *            Metacard or a single Metacard.
      * @throws ddf.catalog.source.SourceUnavailableException
      * @throws ddf.catalog.source.IngestException
      * @throws ddf.camel.component.catalog.framework.FrameworkProducerException
      */
-    private void update(final Exchange exchange)
-            throws SourceUnavailableException, IngestException,
-            FrameworkProducerException {
+    private void update(final Exchange exchange) throws SourceUnavailableException,
+        IngestException, FrameworkProducerException {
         UpdateResponse updateResponse = null;
 
         // read in data from exchange
@@ -250,8 +246,7 @@ public class FrameworkProducer extends DefaultProducer {
         // process data if valid
         if (!validateList(metacardsToBeUpdated, Metacard.class)) {
             processCatalogResponse(updateResponse, exchange);
-            throw new FrameworkProducerException(
-                    "Validation of Metacard list failed");
+            throw new FrameworkProducerException("Validation of Metacard list failed");
         }
 
         LOGGER.debug("Validation of Metacard list passed...");
@@ -261,10 +256,8 @@ public class FrameworkProducer extends DefaultProducer {
             metacardIds[i] = metacardsToBeUpdated.get(i).getId();
         }
 
-        final UpdateRequest updateRequest = new UpdateRequestImpl(metacardIds,
-                metacardsToBeUpdated);
-        final int expectedNumberOfUpdatedMetacards = metacardsToBeUpdated
-                .size();
+        final UpdateRequest updateRequest = new UpdateRequestImpl(metacardIds, metacardsToBeUpdated);
+        final int expectedNumberOfUpdatedMetacards = metacardsToBeUpdated.size();
 
         if (expectedNumberOfUpdatedMetacards < 1) {
             LOGGER.debug("Empty list of Metacards...nothing to process");
@@ -281,8 +274,7 @@ public class FrameworkProducer extends DefaultProducer {
             return;
         }
 
-        final List<Update> updatedMetacards = updateResponse
-                .getUpdatedMetacards();
+        final List<Update> updatedMetacards = updateResponse.getUpdatedMetacards();
 
         if (updatedMetacards == null) {
             LOGGER.debug("UpdateResponse returned null metacards list");
@@ -292,8 +284,7 @@ public class FrameworkProducer extends DefaultProducer {
 
         final int numberOfUpdatedMetacards = updatedMetacards.size();
         if (numberOfUpdatedMetacards != expectedNumberOfUpdatedMetacards) {
-            LOGGER.debug(
-                    "Expected {} metacards updated but only {} were successfully updated",
+            LOGGER.debug("Expected {} metacards updated but only {} were successfully updated",
                     expectedNumberOfUpdatedMetacards, numberOfUpdatedMetacards);
             processCatalogResponse(updateResponse, exchange);
             return;
@@ -308,17 +299,15 @@ public class FrameworkProducer extends DefaultProducer {
      * 
      * @param exchange
      *            The {@link org.apache.camel.Exchange} can contain a
-     *            {@link org.apache.camel.Message} with a body of type
-     *            {@link java.util.List} of {@link String} or a single
-     *            {@link String}. Each String represents the ID of a Metacard to
-     *            be deleted.
+     *            {@link org.apache.camel.Message} with a body of type {@link java.util.List} of
+     *            {@link String} or a single {@link String}. Each String represents the ID of a
+     *            Metacard to be deleted.
      * @throws ddf.catalog.source.SourceUnavailableException
      * @throws ddf.catalog.source.IngestException
      * @throws ddf.camel.component.catalog.framework.FrameworkProducerException
      */
-    private void delete(final Exchange exchange)
-            throws SourceUnavailableException, IngestException,
-            FrameworkProducerException {
+    private void delete(final Exchange exchange) throws SourceUnavailableException,
+        IngestException, FrameworkProducerException {
         DeleteResponse deleteResponse = null;
 
         // read in data
@@ -328,18 +317,15 @@ public class FrameworkProducer extends DefaultProducer {
         if (!validateList(metacardIdsToBeDeleted, String.class)) {
             LOGGER.debug("Validation of Metacard id list failed");
             processCatalogResponse(deleteResponse, exchange);
-            throw new FrameworkProducerException(
-                    "Validation of Metacard id list failed");
+            throw new FrameworkProducerException("Validation of Metacard id list failed");
         }
 
         LOGGER.debug("Validation of Metacard id list passed...");
 
-        final String[] metacardIdsToBeDeletedArray = new String[metacardIdsToBeDeleted
-                .size()];
+        final String[] metacardIdsToBeDeletedArray = new String[metacardIdsToBeDeleted.size()];
         final DeleteRequest deleteRequest = new DeleteRequestImpl(
                 metacardIdsToBeDeleted.toArray(metacardIdsToBeDeletedArray));
-        final int expectedNumberOfDeletedMetacards = metacardIdsToBeDeleted
-                .size();
+        final int expectedNumberOfDeletedMetacards = metacardIdsToBeDeleted.size();
 
         if (expectedNumberOfDeletedMetacards < 1) {
             LOGGER.debug("Empty list of Metacard id...nothing to process");
@@ -356,8 +342,7 @@ public class FrameworkProducer extends DefaultProducer {
             return;
         }
 
-        final List<Metacard> deletedMetacards = deleteResponse
-                .getDeletedMetacards();
+        final List<Metacard> deletedMetacards = deleteResponse.getDeletedMetacards();
 
         if (deletedMetacards == null) {
             LOGGER.debug("DeleteResponse returned null metacards list");
@@ -368,8 +353,7 @@ public class FrameworkProducer extends DefaultProducer {
         final int numberOfDeletedMetacards = deletedMetacards.size();
 
         if (numberOfDeletedMetacards != expectedNumberOfDeletedMetacards) {
-            LOGGER.debug(
-                    "Expected {} metacards deleted but only {} were successfully deleted",
+            LOGGER.debug("Expected {} metacards deleted but only {} were successfully deleted",
                     expectedNumberOfDeletedMetacards, numberOfDeletedMetacards);
             processCatalogResponse(deleteResponse, exchange);
             return;
@@ -380,16 +364,13 @@ public class FrameworkProducer extends DefaultProducer {
     }
 
     /**
-     * Makes sure that a Metacard or Metacard ID list contains objects of a
-     * particular type
+     * Makes sure that a Metacard or Metacard ID list contains objects of a particular type
      * 
      * @param list
      *            {@link java.util.List} of Metacard IDs
      * @param cls
-     *            {@link java.lang.Class} type that the objects inside the list
-     *            should be
-     * @return true if the list is not empty and has valid types inside, else
-     *         false.
+     *            {@link java.lang.Class} type that the objects inside the list should be
+     * @return true if the list is not empty and has valid types inside, else false.
      */
     private boolean validateList(List<?> list, Class<?> cls) {
         if (list.size() == 0) {
@@ -410,16 +391,14 @@ public class FrameworkProducer extends DefaultProducer {
     }
 
     /**
-     * Processes the response from the Catalog Framework and updates the
-     * exchange accordingly.
+     * Processes the response from the Catalog Framework and updates the exchange accordingly.
      * 
      * @param response
      *            response of type CreateResponse
      * @param exchange
      *            the exchange to update
      */
-    private void processCatalogResponse(final CreateResponse response,
-            final Exchange exchange) {
+    private void processCatalogResponse(final CreateResponse response, final Exchange exchange) {
         if (response == null) {
             LOGGER.debug("Catalog response object is null");
             exchange.getIn().setBody((List) (new ArrayList<Metacard>()));
@@ -436,16 +415,14 @@ public class FrameworkProducer extends DefaultProducer {
     }
 
     /**
-     * Processes the response from the Catalog Framework and updates the
-     * exchange accordingly.
+     * Processes the response from the Catalog Framework and updates the exchange accordingly.
      * 
      * @param response
      *            response of type UpdateResponse
      * @param exchange
      *            the exchange to update
      */
-    private void processCatalogResponse(final UpdateResponse response,
-            final Exchange exchange) {
+    private void processCatalogResponse(final UpdateResponse response, final Exchange exchange) {
         if (response == null) {
             LOGGER.debug("Catalog response object is null");
             exchange.getIn().setBody((List) (new ArrayList<Metacard>()));
@@ -462,16 +439,14 @@ public class FrameworkProducer extends DefaultProducer {
     }
 
     /**
-     * Processes the response from the Catalog Framework and updates the
-     * exchange accordingly.
+     * Processes the response from the Catalog Framework and updates the exchange accordingly.
      * 
      * @param response
      *            response of type DeleteResponse
      * @param exchange
      *            the exchange to update
      */
-    private void processCatalogResponse(final DeleteResponse response,
-            final Exchange exchange) {
+    private void processCatalogResponse(final DeleteResponse response, final Exchange exchange) {
         if (response == null) {
             LOGGER.debug("Catalog response object is null");
             exchange.getIn().setBody((List) (new ArrayList<Metacard>()));
@@ -492,8 +467,7 @@ public class FrameworkProducer extends DefaultProducer {
      * 
      * @param exchange
      *            the exchange with the message payload
-     * @return {@link java.util.List} of {@link String} representing Metacard
-     *         IDs
+     * @return {@link java.util.List} of {@link String} representing Metacard IDs
      */
     private List<String> readBodyDataAsMetacardIds(final Exchange exchange) {
         List<String> metacardIdsToBeProcessed = new ArrayList<String>();
@@ -516,8 +490,7 @@ public class FrameworkProducer extends DefaultProducer {
             LOGGER.debug("Reading in body data as String...");
 
             // if we get here, see if we have a single ID as a String
-            final String metacardIdToBeProcessed = exchange.getIn().getBody(
-                    String.class);
+            final String metacardIdToBeProcessed = exchange.getIn().getBody(String.class);
 
             if (metacardIdToBeProcessed != null) {
                 metacardIdsToBeProcessed = new ArrayList<String>();
@@ -530,9 +503,7 @@ public class FrameworkProducer extends DefaultProducer {
             // default list
             metacardIdsToBeProcessed = new ArrayList<String>();
         } catch (TypeConversionException tce1) {
-            LOGGER.debug(
-                    "Invalid message body. Expected either String or List<String>",
-                    tce1);
+            LOGGER.debug("Invalid message body. Expected either String or List<String>", tce1);
         }
 
         return metacardIdsToBeProcessed;
@@ -556,8 +527,7 @@ public class FrameworkProducer extends DefaultProducer {
 
             // first try to read in a single Metacard
             LOGGER.debug("Reading in body data as Metacard...");
-            final Metacard metacardToProcess = exchange.getIn().getBody(
-                    Metacard.class);
+            final Metacard metacardToProcess = exchange.getIn().getBody(Metacard.class);
 
             if (metacardToProcess != null) {
                 metacardsToProcess.add(metacardToProcess);
@@ -577,9 +547,7 @@ public class FrameworkProducer extends DefaultProducer {
             }
             LOGGER.debug("Successfully read in body data as List<?>");
         } catch (TypeConversionException tce1) {
-            LOGGER.debug(
-                    "Invalid message body. Expected either Metacard or List<Metacard>",
-                    tce1);
+            LOGGER.debug("Invalid message body. Expected either Metacard or List<Metacard>", tce1);
         }
 
         return metacardsToProcess;

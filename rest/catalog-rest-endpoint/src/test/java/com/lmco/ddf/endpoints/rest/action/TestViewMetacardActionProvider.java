@@ -1,13 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- *
- * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
- * version 3 of the License, or any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * 
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
+ * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
+ * 
  **/
 package com.lmco.ddf.endpoints.rest.action;
 
@@ -33,11 +36,9 @@ public class TestViewMetacardActionProvider extends AbstractActionProviderTest {
 
     @Test
     public void testMetacardNull() {
-        assertEquals(null,
-                new ViewMetacardActionProvider(ACTION_PROVIDER_ID)
-                        .getAction(null));
+        assertEquals(null, new ViewMetacardActionProvider(ACTION_PROVIDER_ID).getAction(null));
     }
-    
+
     @Test
     public void testUriSyntaxException() {
 
@@ -48,12 +49,10 @@ public class TestViewMetacardActionProvider extends AbstractActionProviderTest {
         AbstractMetacardActionProvider actionProvider = new ViewMetacardActionProvider(
                 ACTION_PROVIDER_ID);
 
-        actionProvider
-                .ddfConfigurationUpdated(createMap(SAMPLE_PROTOCOL, "23^&*#",
-                        SAMPLE_PORT, SAMPLE_SERVICES_ROOT, SAMPLE_SOURCE_NAME));
+        actionProvider.ddfConfigurationUpdated(createMap(SAMPLE_PROTOCOL, "23^&*#", SAMPLE_PORT,
+                SAMPLE_SERVICES_ROOT, SAMPLE_SOURCE_NAME));
 
-        assertNull(
-                "A bad url should have been caught and a null action returned.",
+        assertNull("A bad url should have been caught and a null action returned.",
                 actionProvider.getAction(metacard));
 
     }
@@ -106,8 +105,7 @@ public class TestViewMetacardActionProvider extends AbstractActionProviderTest {
         AbstractMetacardActionProvider actionProvider = configureActionProvider(new ViewMetacardActionProvider(
                 ACTION_PROVIDER_ID));
 
-        assertNull(
-                "An action should not have been created when no id is provided.",
+        assertNull("An action should not have been created when no id is provided.",
                 actionProvider.getAction(metacard));
 
     }
@@ -136,8 +134,8 @@ public class TestViewMetacardActionProvider extends AbstractActionProviderTest {
         AbstractMetacardActionProvider actionProvider = new ViewMetacardActionProvider(
                 ACTION_PROVIDER_ID);
 
-        actionProvider.ddfConfigurationUpdated(createMap(SAMPLE_PROTOCOL, null,
-                SAMPLE_PORT, SAMPLE_SERVICES_ROOT, SAMPLE_SOURCE_NAME));
+        actionProvider.ddfConfigurationUpdated(createMap(SAMPLE_PROTOCOL, null, SAMPLE_PORT,
+                SAMPLE_SERVICES_ROOT, SAMPLE_SOURCE_NAME));
 
         assertNull("An action should not have been created when ip is null.",
                 actionProvider.getAction(metacard));
@@ -154,12 +152,10 @@ public class TestViewMetacardActionProvider extends AbstractActionProviderTest {
         AbstractMetacardActionProvider actionProvider = new ViewMetacardActionProvider(
                 ACTION_PROVIDER_ID);
 
-        actionProvider.ddfConfigurationUpdated(createMap(SAMPLE_PROTOCOL,
-                "0.0.0.0", SAMPLE_PORT, SAMPLE_SERVICES_ROOT,
-                SAMPLE_SOURCE_NAME));
+        actionProvider.ddfConfigurationUpdated(createMap(SAMPLE_PROTOCOL, "0.0.0.0", SAMPLE_PORT,
+                SAMPLE_SERVICES_ROOT, SAMPLE_SOURCE_NAME));
 
-        assertNull(
-                "An action should not have been created when ip is unknown (0.0.0.0).",
+        assertNull("An action should not have been created when ip is unknown (0.0.0.0).",
                 actionProvider.getAction(metacard));
 
     }
@@ -174,8 +170,8 @@ public class TestViewMetacardActionProvider extends AbstractActionProviderTest {
         AbstractMetacardActionProvider actionProvider = new ViewMetacardActionProvider(
                 ACTION_PROVIDER_ID);
 
-        actionProvider.ddfConfigurationUpdated(createMap(SAMPLE_PROTOCOL,
-                SAMPLE_IP, null, SAMPLE_SERVICES_ROOT, SAMPLE_SOURCE_NAME));
+        actionProvider.ddfConfigurationUpdated(createMap(SAMPLE_PROTOCOL, SAMPLE_IP, null,
+                SAMPLE_SERVICES_ROOT, SAMPLE_SOURCE_NAME));
 
         assertNull("An action should not have been created when port is null.",
                 actionProvider.getAction(metacard));
@@ -192,11 +188,10 @@ public class TestViewMetacardActionProvider extends AbstractActionProviderTest {
         AbstractMetacardActionProvider actionProvider = new ViewMetacardActionProvider(
                 ACTION_PROVIDER_ID);
 
-        actionProvider.ddfConfigurationUpdated(createMap(SAMPLE_PROTOCOL,
-                SAMPLE_IP, SAMPLE_PORT, null, SAMPLE_SOURCE_NAME));
+        actionProvider.ddfConfigurationUpdated(createMap(SAMPLE_PROTOCOL, SAMPLE_IP, SAMPLE_PORT,
+                null, SAMPLE_SOURCE_NAME));
 
-        assertNull(
-                "An action should not have been created when context root is null.",
+        assertNull("An action should not have been created when context root is null.",
                 actionProvider.getAction(metacard));
 
     }
@@ -228,10 +223,8 @@ public class TestViewMetacardActionProvider extends AbstractActionProviderTest {
 
         // then
         assertEquals(ViewMetacardActionProvider.TITLE, action.getTitle());
-        assertEquals(ViewMetacardActionProvider.DESCRIPTION,
-                action.getDescription());
-        assertThat(action.getUrl().toString(),
-                is(expectedDefaultAddressWith(metacard.getId())));
+        assertEquals(ViewMetacardActionProvider.DESCRIPTION, action.getDescription());
+        assertThat(action.getUrl().toString(), is(expectedDefaultAddressWith(metacard.getId())));
         assertEquals(ACTION_PROVIDER_ID, actionProvider.getId());
 
     }
@@ -255,8 +248,7 @@ public class TestViewMetacardActionProvider extends AbstractActionProviderTest {
 
         // then
         assertEquals(ViewMetacardActionProvider.TITLE, action.getTitle());
-        assertEquals(ViewMetacardActionProvider.DESCRIPTION,
-                action.getDescription());
+        assertEquals(ViewMetacardActionProvider.DESCRIPTION, action.getDescription());
         assertThat(action.getUrl().toString(),
                 is(expectedDefaultAddressWith(metacard.getId(), newSourceName)));
         assertEquals(ACTION_PROVIDER_ID, actionProvider.getId());
@@ -275,12 +267,10 @@ public class TestViewMetacardActionProvider extends AbstractActionProviderTest {
         Action action = actionProvider.getAction(metacard);
 
         assertEquals(ViewMetacardActionProvider.TITLE, action.getTitle());
-        assertEquals(ViewMetacardActionProvider.DESCRIPTION,
-                action.getDescription());
-        assertEquals(SAMPLE_SECURE_PROTOCOL + SAMPLE_IP + ":"
-                + SAMPLE_SECURE_PORT + SAMPLE_SERVICES_ROOT + SAMPLE_PATH
-                + SAMPLE_SOURCE_NAME + "/" + metacard.getId(), action.getUrl()
-                .toString());
+        assertEquals(ViewMetacardActionProvider.DESCRIPTION, action.getDescription());
+        assertEquals(SAMPLE_SECURE_PROTOCOL + SAMPLE_IP + ":" + SAMPLE_SECURE_PORT
+                + SAMPLE_SERVICES_ROOT + SAMPLE_PATH + SAMPLE_SOURCE_NAME + "/" + metacard.getId(),
+                action.getUrl().toString());
         assertEquals(ACTION_PROVIDER_ID, actionProvider.getId());
 
     }
@@ -295,8 +285,8 @@ public class TestViewMetacardActionProvider extends AbstractActionProviderTest {
         AbstractMetacardActionProvider actionProvider = new ViewMetacardActionProvider(
                 ACTION_PROVIDER_ID);
 
-        actionProvider.ddfConfigurationUpdated(createMap(null, SAMPLE_IP,
-                SAMPLE_SECURE_PORT, SAMPLE_SERVICES_ROOT, SAMPLE_SOURCE_NAME));
+        actionProvider.ddfConfigurationUpdated(createMap(null, SAMPLE_IP, SAMPLE_SECURE_PORT,
+                SAMPLE_SERVICES_ROOT, SAMPLE_SOURCE_NAME));
 
         Action action = actionProvider.getAction(metacard);
 
@@ -304,8 +294,8 @@ public class TestViewMetacardActionProvider extends AbstractActionProviderTest {
     }
 
     private String expectedDefaultAddressWith(String id, String sourceName) {
-        return SAMPLE_PROTOCOL + SAMPLE_IP + ":" + SAMPLE_PORT
-                + SAMPLE_SERVICES_ROOT + SAMPLE_PATH + sourceName + "/" + id;
+        return SAMPLE_PROTOCOL + SAMPLE_IP + ":" + SAMPLE_PORT + SAMPLE_SERVICES_ROOT + SAMPLE_PATH
+                + sourceName + "/" + id;
     }
 
     private String expectedDefaultAddressWith(String id) {

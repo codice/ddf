@@ -1,13 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- *
- * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
- * version 3 of the License, or any later version. 
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * 
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
+ * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
+ * 
  **/
 package com.lmco.ddf.endpoints;
 
@@ -59,9 +62,9 @@ import ddf.security.service.TokenRequestHandler;
 
 @Path("/")
 public class OpenSearchEndpoint implements DdfConfigurationWatcher {
-    
+
     private SecurityManager securityManager;
-    
+
     private List<TokenRequestHandler> requestHandlerList;
 
     private static final String UPDATE_QUERY_INTERVAL = "interval";
@@ -132,8 +135,7 @@ public class OpenSearchEndpoint implements DdfConfigurationWatcher {
     // DDF Site Name
     private String localSiteName = null;
 
-    public OpenSearchEndpoint(CatalogFramework framework,
-            FilterBuilder filterBuilder) {
+    public OpenSearchEndpoint(CatalogFramework framework, FilterBuilder filterBuilder) {
         this.framework = framework;
         this.filterBuilder = filterBuilder;
     }
@@ -143,64 +145,53 @@ public class OpenSearchEndpoint implements DdfConfigurationWatcher {
      * @param searchTerms
      *            Space delimited list of search terms.
      * @param maxResults
-     *            Maximum # of results to return. If count is also specified,
-     *            the count value will take precedence over the maxResults value
+     *            Maximum # of results to return. If count is also specified, the count value will
+     *            take precedence over the maxResults value
      * @param sources
-     *            Comma delimited list of data sources to query (default:
-     *            default sources selected).
+     *            Comma delimited list of data sources to query (default: default sources selected).
      * @param maxTimeout
-     *            Maximum timeout (msec) for query to respond (default:
-     *            mt=30000).
+     *            Maximum timeout (msec) for query to respond (default: mt=30000).
      * @param startIndex
-     *            Index of first result to return. Integer >= 0 (default:
-     *            start=1).
+     *            Index of first result to return. Integer >= 0 (default: start=1).
      * @param count
      *            Number of results to retrieve per page (default: count=10).
      * @param geometry
      *            WKT Geometries (Support POINT and POLYGON).
      * @param bbox
-     *            Comma delimited list of lat/lon (deg) bounding box coordinates
-     *            (geo format: geo:bbox ~ West,South,East,North).
+     *            Comma delimited list of lat/lon (deg) bounding box coordinates (geo format:
+     *            geo:bbox ~ West,South,East,North).
      * @param polygon
-     *            Comma delimited list of lat/lon (deg) pairs, in clockwise
-     *            order around the polygon, with the last point being the same
-     *            as the first in order to close the polygon.
+     *            Comma delimited list of lat/lon (deg) pairs, in clockwise order around the
+     *            polygon, with the last point being the same as the first in order to close the
+     *            polygon.
      * @param lat
-     *            Latitude in decimal degrees (typical GPS receiver WGS84
-     *            coordinates).
+     *            Latitude in decimal degrees (typical GPS receiver WGS84 coordinates).
      * @param lon
-     *            Longitude in decimal degrees (typical GPS receiver WGS84
-     *            coordinates).
+     *            Longitude in decimal degrees (typical GPS receiver WGS84 coordinates).
      * @param radius
-     *            The radius (m) parameter, used with the lat and lon
-     *            parameters, specifies the search distance from this point
-     *            (default: radius=5000).
+     *            The radius (m) parameter, used with the lat and lon parameters, specifies the
+     *            search distance from this point (default: radius=5000).
      * @param dateStart
-     *            Specifies the beginning of the time slice of the search on the
-     *            modified time field (RFC-3339 - Date and Time format, i.e.
-     *            YYYY-MM-DDTHH:mm:ssZ). Default value of "1970-01-01T00:00:00Z"
-     *            is used when dtend is indicated but dtstart is not specified
+     *            Specifies the beginning of the time slice of the search on the modified time field
+     *            (RFC-3339 - Date and Time format, i.e. YYYY-MM-DDTHH:mm:ssZ). Default value of
+     *            "1970-01-01T00:00:00Z" is used when dtend is indicated but dtstart is not
+     *            specified
      * @param dateEnd
-     *            Specifies the ending of the time slice of the search on the
-     *            modified time field (RFC-3339 - Date and Time format, i.e.
-     *            YYYY-MM-DDTHH:mm:ssZ). Current GMT date/time is used when
-     *            dtstart is specified but not dtend.
+     *            Specifies the ending of the time slice of the search on the modified time field
+     *            (RFC-3339 - Date and Time format, i.e. YYYY-MM-DDTHH:mm:ssZ). Current GMT
+     *            date/time is used when dtstart is specified but not dtend.
      * @param dateOffset
-     *            Specifies an offset, backwards from the current time, to
-     *            search on the modified time field for entries. Defined in
-     *            milliseconds.
+     *            Specifies an offset, backwards from the current time, to search on the modified
+     *            time field for entries. Defined in milliseconds.
      * @param sort
-     *            Specifies sort by field as sort=<sbfield>:<sborder>, where
-     *            <sbfield> may be 'date' or 'relevance' (default is
-     *            'relevance'). The conditional param <sborder> is optional but
-     *            has a value of 'asc' or 'desc' (default is 'desc'). When
-     *            <sbfield> is 'relevance', <sborder> must be 'desc'.
+     *            Specifies sort by field as sort=<sbfield>:<sborder>, where <sbfield> may be 'date'
+     *            or 'relevance' (default is 'relevance'). The conditional param <sborder> is
+     *            optional but has a value of 'asc' or 'desc' (default is 'desc'). When <sbfield> is
+     *            'relevance', <sborder> must be 'desc'.
      * @param format
-     *            Defines the format that the return type should be in.
-     *            (example:atom, html)
+     *            Defines the format that the return type should be in. (example:atom, html)
      * @param selector
-     *            Defines a comma delimited list of XPath selectors to narrow
-     *            the query.
+     *            Defines a comma delimited list of XPath selectors to narrow the query.
      * @param type
      *            Specifies the type of data to search for. (example: nitf)
      * @param versions
@@ -208,52 +199,55 @@ public class OpenSearchEndpoint implements DdfConfigurationWatcher {
      * @return
      */
     @GET
-    public Response processQuery(@QueryParam(PHRASE) String searchTerms,
-            @QueryParam(MAX_RESULTS) String maxResults,
-            @QueryParam(SOURCES) String sources,
-            @QueryParam(MAX_TIMEOUT) String maxTimeout,
-            @QueryParam(START_INDEX) String startIndex,
-            @QueryParam(COUNT) String count,
-            @QueryParam(GEOMETRY) String geometry,
-            @QueryParam(BBOX) String bbox, @QueryParam(POLYGON) String polygon,
-            @QueryParam(LAT) String lat, @QueryParam(LON) String lon,
-            @QueryParam(RADIUS) String radius,
-            @QueryParam(DATE_START) String dateStart,
-            @QueryParam(DATE_END) String dateEnd,
-            @QueryParam(DATE_OFFSET) String dateOffset,
-            @QueryParam(SORT) String sort, @QueryParam(FORMAT) String format,
-            @QueryParam(SELECTOR) String selector, @Context UriInfo ui,
-            @QueryParam(TYPE) String type, @QueryParam(VERSION) String versions,
-            @Context HttpServletRequest request) {
+    public Response processQuery(@QueryParam(PHRASE)
+    String searchTerms, @QueryParam(MAX_RESULTS)
+    String maxResults, @QueryParam(SOURCES)
+    String sources, @QueryParam(MAX_TIMEOUT)
+    String maxTimeout, @QueryParam(START_INDEX)
+    String startIndex, @QueryParam(COUNT)
+    String count, @QueryParam(GEOMETRY)
+    String geometry, @QueryParam(BBOX)
+    String bbox, @QueryParam(POLYGON)
+    String polygon, @QueryParam(LAT)
+    String lat, @QueryParam(LON)
+    String lon, @QueryParam(RADIUS)
+    String radius, @QueryParam(DATE_START)
+    String dateStart, @QueryParam(DATE_END)
+    String dateEnd, @QueryParam(DATE_OFFSET)
+    String dateOffset, @QueryParam(SORT)
+    String sort, @QueryParam(FORMAT)
+    String format, @QueryParam(SELECTOR)
+    String selector, @Context
+    UriInfo ui, @QueryParam(TYPE)
+    String type, @QueryParam(VERSION)
+    String versions, @Context
+    HttpServletRequest request) {
         final String methodName = "processQuery";
         LOGGER.entry(methodName);
         Response response;
         String localCount = count;
         Subject subject;
         LOGGER.debug("request url: " + ui.getRequestUri());
-        
+
         subject = getSubject(request);
-        if (subject == null)
-        {
+        if (subject == null) {
             LOGGER.debug("Could not set security attributes for user, performing query with no permissions set.");
         }
 
         // honor maxResults if count is not specified
-        if ((StringUtils.isEmpty(localCount))
-                && (!(StringUtils.isEmpty(maxResults)))) {
+        if ((StringUtils.isEmpty(localCount)) && (!(StringUtils.isEmpty(maxResults)))) {
             LOGGER.debug("setting count to: " + maxResults);
             localCount = maxResults;
         }
 
         try {
             String queryFormat = format;
-            OpenSearchQuery query = createNewQuery(startIndex, localCount,
-                    sort, maxTimeout);
+            OpenSearchQuery query = createNewQuery(startIndex, localCount, sort, maxTimeout);
 
             if (!(StringUtils.isEmpty(sources))) {
                 LOGGER.debug("Received site names from client.");
-                Set<String> siteSet = new HashSet<String>(
-                        Arrays.asList(StringUtils.stripAll(sources.split(","))));
+                Set<String> siteSet = new HashSet<String>(Arrays.asList(StringUtils
+                        .stripAll(sources.split(","))));
 
                 // This code block is for backward compatibility to support
                 // src=local.
@@ -261,8 +255,7 @@ public class OpenSearchEndpoint implements DdfConfigurationWatcher {
                 // need to
                 // eventually remove support for it.
                 if (siteSet.remove(LOCAL)) {
-                    LOGGER.debug("Found 'local' alias, replacing with "
-                            + localSiteName + ".");
+                    LOGGER.debug("Found 'local' alias, replacing with " + localSiteName + ".");
                     siteSet.add(localSiteName);
                 }
 
@@ -309,12 +302,10 @@ public class OpenSearchEndpoint implements DdfConfigurationWatcher {
         } catch (IllegalArgumentException iae) {
             LOGGER.warn("Bad input found while executing a query", iae);
             response = Response.status(Response.Status.BAD_REQUEST)
-                    .entity(wrapStringInPreformattedTags(iae.getMessage()))
-                    .build();
+                    .entity(wrapStringInPreformattedTags(iae.getMessage())).build();
         } catch (RuntimeException re) {
             LOGGER.warn("Exception while executing a query", re);
-            response = Response.serverError()
-                    .entity(wrapStringInPreformattedTags(re.getMessage()))
+            response = Response.serverError().entity(wrapStringInPreformattedTags(re.getMessage()))
                     .build();
         }
         LOGGER.exit(methodName);
@@ -323,8 +314,7 @@ public class OpenSearchEndpoint implements DdfConfigurationWatcher {
     }
 
     /**
-     * Creates SpatialCriterion based on the input parameters, any null values
-     * will be ignored
+     * Creates SpatialCriterion based on the input parameters, any null values will be ignored
      * 
      * @param geometry
      *            - the geo to search over
@@ -340,8 +330,8 @@ public class OpenSearchEndpoint implements DdfConfigurationWatcher {
      *            - the longitude of the point.
      * @return - the spatialCriterion created, can be null
      */
-    private void addSpatialFilter(OpenSearchQuery query, String geometry,
-            String polygon, String bbox, String radius, String lat, String lon) {
+    private void addSpatialFilter(OpenSearchQuery query, String geometry, String polygon,
+            String bbox, String radius, String lat, String lon) {
         if (geometry != null && !geometry.trim().isEmpty()) {
             LOGGER.debug("Adding SpatialCriterion geometry: " + geometry);
             query.addGeometrySpatialFilter(geometry);
@@ -351,8 +341,7 @@ public class OpenSearchEndpoint implements DdfConfigurationWatcher {
         } else if (polygon != null && !polygon.trim().isEmpty()) {
             LOGGER.debug("Adding SpatialCriterion polygon: " + polygon);
             query.addPolygonSpatialFilter(polygon);
-        } else if (lat != null && !lat.trim().isEmpty() && lon != null
-                && !lon.trim().isEmpty()) {
+        } else if (lat != null && !lat.trim().isEmpty() && lon != null && !lon.trim().isEmpty()) {
             if (radius == null || radius.trim().isEmpty()) {
                 LOGGER.debug("Adding default radius");
                 query.addSpatialDistanceFilter(lon, lat, DEFAULT_RADIUS);
@@ -362,59 +351,54 @@ public class OpenSearchEndpoint implements DdfConfigurationWatcher {
             }
         }
     }
-    
-    private Subject getSubject(HttpServletRequest request)
-    {
+
+    private Subject getSubject(HttpServletRequest request) {
         Subject subject = null;
-        if(request != null)
-        {
-            for(TokenRequestHandler curHandler : requestHandlerList)
-            {
-                try
-                {
+        if (request != null) {
+            for (TokenRequestHandler curHandler : requestHandlerList) {
+                try {
                     subject = securityManager.getSubject(curHandler.createToken(request));
                     LOGGER.debug("Able to get populated subject from incoming request.");
                     break;
-                } 
-                catch (SecurityServiceException sse)
-                {
-                    LOGGER.warn("Could not create subject from request handler, trying other handlers if available.", sse );
+                } catch (SecurityServiceException sse) {
+                    LOGGER.warn(
+                            "Could not create subject from request handler, trying other handlers if available.",
+                            sse);
                 }
             }
         }
         return subject;
     }
-    
-    public void setSecurityManager( SecurityManager securityManager )
-    {
+
+    public void setSecurityManager(SecurityManager securityManager) {
         LOGGER.debug("Got a security manager");
         this.securityManager = securityManager;
     }
-    
-    public void setRequestHandlers (List<TokenRequestHandler> requestHandlerList)
-    {
+
+    public void setRequestHandlers(List<TokenRequestHandler> requestHandlerList) {
         this.requestHandlerList = requestHandlerList;
     }
 
     /**
      * Executes the OpenSearchQuery and formulates the response
      * 
-     * @param format - of the results in the response
+     * @param format
+     *            - of the results in the response
      * 
-     * @param query - the query to execute
+     * @param query
+     *            - the query to execute
      * 
-     * @param ui -the ui information to use to format the results
+     * @param ui
+     *            -the ui information to use to format the results
      * 
      * @return the response on the query
      */
-    private Response executeQuery(String format, OpenSearchQuery query,
-            UriInfo ui, Subject subject) {
+    private Response executeQuery(String format, OpenSearchQuery query, UriInfo ui, Subject subject) {
         Response response;
         String queryFormat = format;
 
         MultivaluedMap<String, String> queryParams = ui.getQueryParameters();
-        List<String> subscriptionList = queryParams
-                .get(Constants.SUBSCRIPTION_KEY);
+        List<String> subscriptionList = queryParams.get(Constants.SUBSCRIPTION_KEY);
 
         try {
             Map<String, Serializable> arguments = new HashMap<String, Serializable>();
@@ -434,8 +418,7 @@ public class OpenSearchEndpoint implements DdfConfigurationWatcher {
                 String subscription = subscriptionList.get(0);
                 LOGGER.debug("Subscription: " + subscription);
                 arguments.put(Constants.SUBSCRIPTION_KEY, subscription);
-                List<String> intervalList = queryParams
-                        .get(UPDATE_QUERY_INTERVAL);
+                List<String> intervalList = queryParams.get(UPDATE_QUERY_INTERVAL);
                 if (intervalList != null && !intervalList.isEmpty()) {
                     arguments.put(UPDATE_QUERY_INTERVAL, intervalList.get(0));
                 }
@@ -446,14 +429,13 @@ public class OpenSearchEndpoint implements DdfConfigurationWatcher {
             }
 
             if (query.getFilter() != null) {
-                QueryRequest queryRequest = new QueryRequestImpl(query,
-                        query.isEnterprise(), query.getSiteIds(), null);
+                QueryRequest queryRequest = new QueryRequestImpl(query, query.isEnterprise(),
+                        query.getSiteIds(), null);
                 QueryResponse queryResponse;
-                
-                if(subject != null)
-                {
-                    LOGGER.debug("Adding " + SecurityConstants.SECURITY_SUBJECT + " property with value " + subject
-                        + " to request.");
+
+                if (subject != null) {
+                    LOGGER.debug("Adding " + SecurityConstants.SECURITY_SUBJECT
+                            + " property with value " + subject + " to request.");
                     queryRequest.getProperties().put(SecurityConstants.SECURITY_SUBJECT, subject);
                 }
 
@@ -461,54 +443,46 @@ public class OpenSearchEndpoint implements DdfConfigurationWatcher {
                 queryResponse = framework.query(queryRequest);
 
                 // pass in the format for the transform
-                BinaryContent content = framework.transform(queryResponse,
-                        queryFormat, arguments);
-                response = Response.ok(content.getInputStream(),
-                        content.getMimeTypeValue()).build();
+                BinaryContent content = framework.transform(queryResponse, queryFormat, arguments);
+                response = Response.ok(content.getInputStream(), content.getMimeTypeValue())
+                        .build();
             } else {
                 // No query was specified
-                QueryRequest queryRequest = new QueryRequestImpl(query,
-                        query.isEnterprise(), query.getSiteIds(), null);
+                QueryRequest queryRequest = new QueryRequestImpl(query, query.isEnterprise(),
+                        query.getSiteIds(), null);
 
                 // Create a dummy QueryResponse with zero results
-                QueryResponseImpl queryResponseQueue = new QueryResponseImpl(
-                        queryRequest, new ArrayList<Result>(), 0);
+                QueryResponseImpl queryResponseQueue = new QueryResponseImpl(queryRequest,
+                        new ArrayList<Result>(), 0);
 
                 // pass in the format for the transform
-                BinaryContent content = framework.transform(queryResponseQueue,
-                        queryFormat, arguments);
-                response = Response.ok(content.getInputStream(),
-                        content.getMimeTypeValue()).build();
+                BinaryContent content = framework.transform(queryResponseQueue, queryFormat,
+                        arguments);
+                response = Response.ok(content.getInputStream(), content.getMimeTypeValue())
+                        .build();
             }
         } catch (UnsupportedQueryException ce) {
             LOGGER.warn("Error executing query", ce);
-            response = Response.serverError()
-                    .entity(wrapStringInPreformattedTags(ce.getMessage()))
+            response = Response.serverError().entity(wrapStringInPreformattedTags(ce.getMessage()))
                     .build();
         } catch (CatalogTransformerException e) {
             LOGGER.warn("Error tranforming response", e);
-            response = Response.serverError()
-                    .entity(wrapStringInPreformattedTags(e.getMessage()))
+            response = Response.serverError().entity(wrapStringInPreformattedTags(e.getMessage()))
                     .build();
         } catch (FederationException e) {
             LOGGER.warn("Error executing query", e);
-            response = Response.serverError()
-                    .entity(wrapStringInPreformattedTags(e.getMessage()))
+            response = Response.serverError().entity(wrapStringInPreformattedTags(e.getMessage()))
                     .build();
         } catch (SourceUnavailableException e) {
-            LOGGER.warn(
-                    "Error executing query because the underlying source was unavailable.",
-                    e);
-            response = Response.serverError()
-                    .entity(wrapStringInPreformattedTags(e.getMessage()))
+            LOGGER.warn("Error executing query because the underlying source was unavailable.", e);
+            response = Response.serverError().entity(wrapStringInPreformattedTags(e.getMessage()))
                     .build();
         } catch (RuntimeException e) {
             // Account for any runtime exceptions and send back a server error
             // this prevents full stacktraces returning to the client
             // this allows for a graceful server error to be returned
             LOGGER.warn("RuntimeException on executing query", e);
-            response = Response.serverError()
-                    .entity(wrapStringInPreformattedTags(e.getMessage()))
+            response = Response.serverError().entity(wrapStringInPreformattedTags(e.getMessage()))
                     .build();
         }
         return response;
@@ -528,8 +502,8 @@ public class OpenSearchEndpoint implements DdfConfigurationWatcher {
      *            - timeout value on the query execution
      * @return - the new query
      */
-    private OpenSearchQuery createNewQuery(String startIndexStr,
-            String countStr, String sortStr, String maxTimeoutStr) {
+    private OpenSearchQuery createNewQuery(String startIndexStr, String countStr, String sortStr,
+            String maxTimeoutStr) {
         // default values
         String sortField = DEFAULT_SORT_FIELD;
         String sortOrder = DEFAULT_SORT_ORDER;
@@ -540,8 +514,7 @@ public class OpenSearchEndpoint implements DdfConfigurationWatcher {
         // Updated to use the passed in index if valid (=> 1)
         // and to use the default if no value, or an invalid value (< 1)
         // is specified
-        if (!(StringUtils.isEmpty(startIndexStr))
-                && (Integer.parseInt(startIndexStr) > 0)) {
+        if (!(StringUtils.isEmpty(startIndexStr)) && (Integer.parseInt(startIndexStr) > 0)) {
             startIndex = Integer.parseInt(startIndexStr);
         }
         if (!(StringUtils.isEmpty(countStr))) {
@@ -557,10 +530,10 @@ public class OpenSearchEndpoint implements DdfConfigurationWatcher {
         if (!(StringUtils.isEmpty(maxTimeoutStr))) {
             maxTimeout = Long.parseLong(maxTimeoutStr);
         }
-        LOGGER.debug("Retrieved query settings: \n" + "sortField:" + sortField
-                + "\nsortOrder:" + sortOrder);
-        return new OpenSearchQuery(null, startIndex, count, sortField,
-                sortOrder, maxTimeout, filterBuilder);
+        LOGGER.debug("Retrieved query settings: \n" + "sortField:" + sortField + "\nsortOrder:"
+                + sortOrder);
+        return new OpenSearchQuery(null, startIndex, count, sortField, sortOrder, maxTimeout,
+                filterBuilder);
     }
 
     @Override
@@ -571,8 +544,7 @@ public class OpenSearchEndpoint implements DdfConfigurationWatcher {
         // Need the id aka sitename property for the query
 
         if (ddfProperties != null && !ddfProperties.isEmpty()) {
-            Object idEntry = ddfProperties
-                    .get(DdfConfigurationManager.SITE_NAME);
+            Object idEntry = ddfProperties.get(DdfConfigurationManager.SITE_NAME);
 
             if (idEntry != null) {
 

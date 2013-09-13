@@ -1,13 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- *
- * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
- * version 3 of the License, or any later version. 
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * 
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
+ * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
+ * 
  **/
 package ddf.catalog.source.solr;
 
@@ -44,8 +47,7 @@ import org.osgi.framework.BundleContext;
  */
 public class TestConfigurationFileProxy {
 
-    private static final Logger LOGGER = Logger
-            .getLogger(TestConfigurationFileProxy.class);
+    private static final Logger LOGGER = Logger.getLogger(TestConfigurationFileProxy.class);
 
     private static final String FILE_NAME_1 = "something.txt";
 
@@ -59,8 +61,8 @@ public class TestConfigurationFileProxy {
 
         BundleContext bundleContext = givenBundleContext();
 
-        ConfigurationFileProxy proxy = new ConfigurationFileProxy(
-                bundleContext, ConfigurationStore.getInstance());
+        ConfigurationFileProxy proxy = new ConfigurationFileProxy(bundleContext,
+                ConfigurationStore.getInstance());
 
         File tempLocation = new File("target/temp");
 
@@ -70,8 +72,8 @@ public class TestConfigurationFileProxy {
     }
 
     /**
-     * Tests that if a change was made to a file or if the file already exists,
-     * the bundle would not overwrite that file.
+     * Tests that if a change was made to a file or if the file already exists, the bundle would not
+     * overwrite that file.
      * 
      * @throws IOException
      */
@@ -87,8 +89,8 @@ public class TestConfigurationFileProxy {
 
         BundleContext bundleContext = givenBundleContext();
 
-        ConfigurationFileProxy proxy = new ConfigurationFileProxy(
-                bundleContext, ConfigurationStore.getInstance());
+        ConfigurationFileProxy proxy = new ConfigurationFileProxy(bundleContext,
+                ConfigurationStore.getInstance());
 
         proxy.writeBundleFilesTo(tempLocation);
 
@@ -97,7 +99,7 @@ public class TestConfigurationFileProxy {
         LOGGER.info("Contents Before Writing:" + FileUtils.readFileToString(file1));
 
         String newContents = FILE_NAME_2;
-        
+
         FileUtils.writeStringToFile(file1, newContents);
 
         LOGGER.info("Contents switched to:" + FileUtils.readFileToString(file1));
@@ -113,8 +115,8 @@ public class TestConfigurationFileProxy {
     }
 
     /**
-     * Tests if a file is missing that the bundle would write onto disk the
-     * config file for the user.
+     * Tests if a file is missing that the bundle would write onto disk the config file for the
+     * user.
      * 
      * @throws IOException
      */
@@ -135,8 +137,8 @@ public class TestConfigurationFileProxy {
 
         BundleContext bundleContext = givenBundleContext();
 
-        ConfigurationFileProxy proxy = new ConfigurationFileProxy(
-                bundleContext, ConfigurationStore.getInstance());
+        ConfigurationFileProxy proxy = new ConfigurationFileProxy(bundleContext,
+                ConfigurationStore.getInstance());
 
         // when
         proxy.writeBundleFilesTo(tempLocation);
@@ -169,20 +171,16 @@ public class TestConfigurationFileProxy {
         when(bundleContext.getBundle()).thenReturn(bundle);
 
         // needs to return a new Enumeration each time
-        when(
-                bundle.findEntries(isA(String.class), isA(String.class),
-                        isA(Boolean.class))).then(new Answer<Enumeration>() {
-            @Override
-            public Enumeration answer(InvocationOnMock invocation)
-                    throws Throwable {
-                List<URL> urls = new ArrayList<URL>();
-                urls.add(TestConfigurationFileProxy.class.getResource("/"
-                        + FILE_NAME_1));
-                urls.add(TestConfigurationFileProxy.class.getResource("/"
-                        + FILE_NAME_2));
-                return new EnumerationStub(urls);
-            }
-        });
+        when(bundle.findEntries(isA(String.class), isA(String.class), isA(Boolean.class))).then(
+                new Answer<Enumeration>() {
+                    @Override
+                    public Enumeration answer(InvocationOnMock invocation) throws Throwable {
+                        List<URL> urls = new ArrayList<URL>();
+                        urls.add(TestConfigurationFileProxy.class.getResource("/" + FILE_NAME_1));
+                        urls.add(TestConfigurationFileProxy.class.getResource("/" + FILE_NAME_2));
+                        return new EnumerationStub(urls);
+                    }
+                });
         return bundleContext;
     }
 

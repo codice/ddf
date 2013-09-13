@@ -1,13 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- *
- * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
- * version 3 of the License, or any later version. 
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * 
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
+ * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
+ * 
  **/
 package ddf.catalog.transformer.xml.adapter;
 
@@ -43,123 +46,116 @@ import ddf.catalog.transformer.xml.binding.StringxmlElement.Value;
 
 public class StringxmlAdapter extends XmlAdapter<StringxmlElement, Attribute> {
 
-	private static final String TRANSFORMATION_FAILED_ERROR_MESSAGE = "Transformation failed.  Could not transform XML Attribute.";
-	private static DocumentBuilderFactory factory;
-	private static Templates templates = null;
+    private static final String TRANSFORMATION_FAILED_ERROR_MESSAGE = "Transformation failed.  Could not transform XML Attribute.";
 
-	static {
-		factory = DocumentBuilderFactory.newInstance();
-		factory.setNamespaceAware(true);
+    private static DocumentBuilderFactory factory;
 
-		// Create Transformer
-		TransformerFactory transFactory = TransformerFactory.newInstance();
-		Source xsltSource = new StreamSource(StringxmlAdapter.class
-				.getClassLoader().getResourceAsStream("stringxml.xslt"));
-		try {
-			templates = transFactory.newTemplates(xsltSource);
-		} catch (TransformerConfigurationException e) {
-		}
+    private static Templates templates = null;
 
-	}
+    static {
+        factory = DocumentBuilderFactory.newInstance();
+        factory.setNamespaceAware(true);
 
-	@Override
-	public StringxmlElement marshal(Attribute attribute) throws CatalogTransformerException {
-		return marshalFrom(attribute);
-	}
+        // Create Transformer
+        TransformerFactory transFactory = TransformerFactory.newInstance();
+        Source xsltSource = new StreamSource(StringxmlAdapter.class.getClassLoader()
+                .getResourceAsStream("stringxml.xslt"));
+        try {
+            templates = transFactory.newTemplates(xsltSource);
+        } catch (TransformerConfigurationException e) {
+        }
 
-	/**
-	 * @param attribute
-	 * @return JAXB representable attribute
-	 * @throws CatalogTransformerException
-	 */
-	public static StringxmlElement marshalFrom(Attribute attribute)
-			throws CatalogTransformerException {
+    }
 
-		StringxmlElement element = new StringxmlElement();
-		element.setName(attribute.getName());
-		if (attribute.getValue() != null) {
-			for (Serializable value : attribute.getValues()) {
-				if (!(value instanceof String)) {
-					continue;
-				}
-				String xmlString = (String) value;
-				Element anyElement = null;
-				DocumentBuilder builder = null;
-				try {
-					synchronized (factory) {
-						builder = factory.newDocumentBuilder();
-					}
-					anyElement = builder.parse(
-							new ByteArrayInputStream(xmlString.getBytes()))
-							.getDocumentElement();
-				} catch (ParserConfigurationException e) {
-					throw new CatalogTransformerException(
-							TRANSFORMATION_FAILED_ERROR_MESSAGE,
-							e);
-				} catch (SAXException e) {
-					throw new CatalogTransformerException(
-							TRANSFORMATION_FAILED_ERROR_MESSAGE,
-							e);
-				} catch (IOException e) {
-					throw new CatalogTransformerException(
-							TRANSFORMATION_FAILED_ERROR_MESSAGE,
-							e);
-				} 
-				Value anyValue = new StringxmlElement.Value();
-				anyValue.setAny(anyElement);
-				element.getValue().add(anyValue);
-			}
-		}
-		return element;
-	}
+    @Override
+    public StringxmlElement marshal(Attribute attribute) throws CatalogTransformerException {
+        return marshalFrom(attribute);
+    }
 
-	@Override
-	public Attribute unmarshal(StringxmlElement element) throws CatalogTransformerException, TransformerException, JAXBException {
-		return unmarshalFrom(element);
-	}
+    /**
+     * @param attribute
+     * @return JAXB representable attribute
+     * @throws CatalogTransformerException
+     */
+    public static StringxmlElement marshalFrom(Attribute attribute)
+        throws CatalogTransformerException {
 
-	public static Attribute unmarshalFrom(StringxmlElement element)
-			throws CatalogTransformerException, TransformerException,
-			JAXBException {
-		AttributeImpl attribute = null;
+        StringxmlElement element = new StringxmlElement();
+        element.setName(attribute.getName());
+        if (attribute.getValue() != null) {
+            for (Serializable value : attribute.getValues()) {
+                if (!(value instanceof String)) {
+                    continue;
+                }
+                String xmlString = (String) value;
+                Element anyElement = null;
+                DocumentBuilder builder = null;
+                try {
+                    synchronized (factory) {
+                        builder = factory.newDocumentBuilder();
+                    }
+                    anyElement = builder.parse(new ByteArrayInputStream(xmlString.getBytes()))
+                            .getDocumentElement();
+                } catch (ParserConfigurationException e) {
+                    throw new CatalogTransformerException(TRANSFORMATION_FAILED_ERROR_MESSAGE, e);
+                } catch (SAXException e) {
+                    throw new CatalogTransformerException(TRANSFORMATION_FAILED_ERROR_MESSAGE, e);
+                } catch (IOException e) {
+                    throw new CatalogTransformerException(TRANSFORMATION_FAILED_ERROR_MESSAGE, e);
+                }
+                Value anyValue = new StringxmlElement.Value();
+                anyValue.setAny(anyElement);
+                element.getValue().add(anyValue);
+            }
+        }
+        return element;
+    }
 
-		if (templates == null) {
-			throw new CatalogTransformerException(
-					"Could not transform XML due to internal configuration error.");
-		}
+    @Override
+    public Attribute unmarshal(StringxmlElement element) throws CatalogTransformerException,
+        TransformerException, JAXBException {
+        return unmarshalFrom(element);
+    }
 
-		for (Value xmlValue : element.getValue()) {
+    public static Attribute unmarshalFrom(StringxmlElement element)
+        throws CatalogTransformerException, TransformerException, JAXBException {
+        AttributeImpl attribute = null;
 
-			String xmlString = "";
+        if (templates == null) {
+            throw new CatalogTransformerException(
+                    "Could not transform XML due to internal configuration error.");
+        }
 
-			Element anyNode = xmlValue.getAny();
+        for (Value xmlValue : element.getValue()) {
 
-			StringWriter buffer = new StringWriter();
+            String xmlString = "";
 
-			Transformer transformer = templates.newTransformer();
-			transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION,
-					"yes");
-			transformer.transform(new DOMSource(anyNode), new StreamResult(
-					buffer));
-			xmlString = buffer.toString();
+            Element anyNode = xmlValue.getAny();
 
-			// Document document = anyNode.getOwnerDocument();
-			// DOMImplementationLS domImplLS = (DOMImplementationLS) document
-			// .getImplementation();
-			// LSSerializer serializer = domImplLS.createLSSerializer();
-			// DOMConfiguration domConfig = serializer.getDomConfig();
-			//
-			// domConfig.setParameter("xml-declaration", Boolean.FALSE);
-			//
-			// xmlString = serializer.writeToString(anyNode);
+            StringWriter buffer = new StringWriter();
 
-			if (attribute == null) {
-				attribute = new AttributeImpl(element.getName(), xmlString);
-			} else {
-				attribute.addValue(xmlString);
-			}
-		}
-		return attribute;
-	}
+            Transformer transformer = templates.newTransformer();
+            transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
+            transformer.transform(new DOMSource(anyNode), new StreamResult(buffer));
+            xmlString = buffer.toString();
+
+            // Document document = anyNode.getOwnerDocument();
+            // DOMImplementationLS domImplLS = (DOMImplementationLS) document
+            // .getImplementation();
+            // LSSerializer serializer = domImplLS.createLSSerializer();
+            // DOMConfiguration domConfig = serializer.getDomConfig();
+            //
+            // domConfig.setParameter("xml-declaration", Boolean.FALSE);
+            //
+            // xmlString = serializer.writeToString(anyNode);
+
+            if (attribute == null) {
+                attribute = new AttributeImpl(element.getName(), xmlString);
+            } else {
+                attribute.addValue(xmlString);
+            }
+        }
+        return attribute;
+    }
 
 }

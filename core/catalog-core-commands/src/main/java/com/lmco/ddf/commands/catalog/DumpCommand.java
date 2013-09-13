@@ -1,13 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- *
- * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
- * version 3 of the License, or any later version. 
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * 
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
+ * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
+ * 
  **/
 package com.lmco.ddf.commands.catalog;
 
@@ -62,7 +65,7 @@ public class DumpCommand extends OsgiCommandSupport {
 
     @Option(name = "Transformer", required = false, aliases = {"-t"}, multiValued = false, description = "The metacard transformer ID to use to transform metacards into data files. The default metacard transformer is the Java serialization transformer.")
     String transformerId = DEFAULT_TRANSFORMER_ID;
-    
+
     @Option(name = "Extension", required = false, aliases = {"-e"}, multiValued = false, description = "The file extension of the data files.")
     String fileExtension = null;
 
@@ -84,8 +87,7 @@ public class DumpCommand extends OsgiCommandSupport {
         if (!DEFAULT_TRANSFORMER_ID.matches(transformerId)) {
             transformers = getTransformers();
             if (transformers == null) {
-                console.println(transformerId
-                        + " is an invalid metacard transformer.");
+                console.println(transformerId + " is an invalid metacard transformer.");
                 return null;
             }
         }
@@ -130,36 +132,34 @@ public class DumpCommand extends OsgiCommandSupport {
         }
 
         long end = System.currentTimeMillis();
-        console.printf(" %d file(s) dumped in %3.3f seconds%n", resultCount,
-                (end - start) / MILLISECONDS_PER_SECOND);
+        console.printf(" %d file(s) dumped in %3.3f seconds%n", resultCount, (end - start)
+                / MILLISECONDS_PER_SECOND);
 
         return null;
     }
 
-    private void exportMetacard(File dumpLocation, Metacard metacard)
-            throws IOException, CatalogTransformerException {
-        
+    private void exportMetacard(File dumpLocation, Metacard metacard) throws IOException,
+        CatalogTransformerException {
+
         String extension = "";
         if (fileExtension != null) {
-            extension = "." + fileExtension;    
+            extension = "." + fileExtension;
         }
 
         if (DEFAULT_TRANSFORMER_ID.matches(transformerId)) {
-            ObjectOutputStream oos = new ObjectOutputStream(
-                    new FileOutputStream(new File(dumpLocation, metacard
-                            .getId() + extension)));
+            ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(new File(
+                    dumpLocation, metacard.getId() + extension)));
             try {
                 oos.writeObject(new MetacardImpl(metacard));
 
-            }
-            finally {
+            } finally {
                 oos.flush();
                 oos.close();
             }
         } else {
 
-            FileOutputStream fos = new FileOutputStream(new File(dumpLocation,
-                    metacard.getId() + extension));
+            FileOutputStream fos = new FileOutputStream(new File(dumpLocation, metacard.getId()
+                    + extension));
             BinaryContent binaryContent;
             try {
                 if (metacard != null) {
@@ -187,10 +187,8 @@ public class DumpCommand extends OsgiCommandSupport {
         BundleContext bundleContext = getBundleContext();
         ServiceReference[] refs = null;
         try {
-            refs = bundleContext.getAllServiceReferences(
-                    MetacardTransformer.class.getName(), "(|" + "("
-                            + Constants.SERVICE_ID + "=" + transformerId + ")"
-                            + ")");
+            refs = bundleContext.getAllServiceReferences(MetacardTransformer.class.getName(), "(|"
+                    + "(" + Constants.SERVICE_ID + "=" + transformerId + ")" + ")");
 
         } catch (InvalidSyntaxException e) {
             console.printf("Fail to get MetacardTransformer references. ", e);
@@ -202,23 +200,20 @@ public class DumpCommand extends OsgiCommandSupport {
         List<MetacardTransformer> metacardTransformerList = new ArrayList<MetacardTransformer>();
         for (int i = 0; i < refs.length; i++) {
 
-            metacardTransformerList.add((MetacardTransformer) bundleContext
-                    .getService(refs[i]));
+            metacardTransformerList.add((MetacardTransformer) bundleContext.getService(refs[i]));
         }
 
         return metacardTransformerList;
     }
 
     protected <T> T getService(Class<T> clazz) throws InterruptedException {
-        ServiceTracker st = new ServiceTracker(getBundleContext(),
-                clazz.getName(), null);
+        ServiceTracker st = new ServiceTracker(getBundleContext(), clazz.getName(), null);
         st.open();
 
         @SuppressWarnings("unchecked")
         T service = (T) st.waitForService(1000);
         if (service == null) {
-            throw new InterruptedException("Could not find a service for: "
-                    + clazz.getName());
+            throw new InterruptedException("Could not find a service for: " + clazz.getName());
         }
         st.close();
 
