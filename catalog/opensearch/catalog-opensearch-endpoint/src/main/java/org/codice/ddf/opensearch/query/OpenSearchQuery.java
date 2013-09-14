@@ -12,13 +12,14 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  * 
  **/
-package com.lmco.ddf.opensearch.query;
 
-import com.lmco.ddf.endpoints.ASTNode;
-import com.lmco.ddf.endpoints.KeywordFilterGenerator;
-import com.lmco.ddf.endpoints.KeywordTextParser;
-import com.lmco.ddf.opensearch.query.filter.BBoxSpatialFilter;
-import com.lmco.ddf.opensearch.query.filter.PolygonSpatialFilter;
+package org.codice.ddf.opensearch.query;
+
+import org.codice.ddf.endpoints.ASTNode;
+import org.codice.ddf.endpoints.KeywordFilterGenerator;
+import org.codice.ddf.endpoints.KeywordTextParser;
+import org.codice.ddf.opensearch.query.filter.BBoxSpatialFilter;
+import org.codice.ddf.opensearch.query.filter.PolygonSpatialFilter;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.federation.FederationStrategy;
@@ -466,19 +467,15 @@ public class OpenSearchQuery implements Query {
     }
 
     public Filter getFilter() {
-        // If multiple filters, then AND them all together
         if (filters.size() > 1) {
+            // If multiple filters, then AND them all together
             return FILTER_FACTORY.and(filters);
-        }
-
-        // If only one filter, then just return it
-        // (AND'ing it would create an erroneous </ogc:and> closing tag)
-        else if (filters.size() == 1) {
+        } else if (filters.size() == 1) {
+            // If only one filter, then just return it
+            // (AND'ing it would create an erroneous </ogc:and> closing tag)
             return filters.get(0);
-        }
-
-        // Otherwise, no filters
-        else {
+        } else {
+            // Otherwise, no filters
             return null;
         }
     }

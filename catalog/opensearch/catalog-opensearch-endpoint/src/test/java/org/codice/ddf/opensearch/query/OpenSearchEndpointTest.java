@@ -12,7 +12,8 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  * 
  **/
-package com.lmco.ddf.opensearch.query;
+
+package org.codice.ddf.opensearch.query;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyMap;
@@ -40,7 +41,7 @@ import org.opengis.filter.Filter;
 import org.slf4j.LoggerFactory;
 import org.slf4j.ext.XLogger;
 
-import com.lmco.ddf.endpoints.OpenSearchEndpoint;
+import org.codice.ddf.endpoints.OpenSearchEndpoint;
 
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.BinaryContent;
@@ -67,7 +68,7 @@ public class OpenSearchEndpointTest {
 
     /**
      * Test method for
-     * {@link com.lmco.ddf.endpoints.OpenSearchEndpoint#processQuery(java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, javax.ws.rs.core.UriInfo, java.lang.String, java.lang.String)}
+     * {@link org.codice.ddf.endpoints.OpenSearchEndpoint#processQuery(java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, javax.ws.rs.core.UriInfo, java.lang.String, java.lang.String)}
      * .
      * 
      * This test will verify that the string "local" in the sources passed to

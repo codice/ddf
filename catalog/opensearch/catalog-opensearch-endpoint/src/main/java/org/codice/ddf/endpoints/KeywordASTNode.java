@@ -12,29 +12,32 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  * 
  **/
-package com.lmco.ddf.endpoints;
+package org.codice.ddf.endpoints;
 
 /**
- * ASTNode that denotes the beginning of a phrase in the stack.
+ * ASTNode that holds a keyword.
  */
-public class PhraseDelimiterASTNode extends ASTNode {
-    public PhraseDelimiterASTNode() {
+public class KeywordASTNode extends ASTNode {
+    private final String keyword;
+
+    public KeywordASTNode(String keyword) {
         super(null, null);
+        this.keyword = keyword;
     }
 
     @Override
     public String getKeyword() {
-        return null;
+        return keyword;
     }
 
     @Override
-    public ASTNode.Operator getOperator() {
+    public Operator getOperator() {
         return null;
     }
 
     @Override
     public boolean isKeyword() {
-        return false;
+        return true;
     }
 
     @Override
@@ -44,11 +47,11 @@ public class PhraseDelimiterASTNode extends ASTNode {
 
     @Override
     public boolean isPhraseStartDelimiter() {
-        return true;
+        return false;
     }
 
     @Override
     public String toString() {
-        return "Phrase Start Delimiter";
+        return "Keyword: " + keyword;
     }
 }

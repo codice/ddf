@@ -45,7 +45,7 @@
 
     <service id="OsOsgiSvc" ref="OsSvc" interface="ddf.catalog.util.DdfConfigurationWatcher"/>
 
-    <bean id="OsSvc" class="com.lmco.ddf.endpoints.OpenSearchEndpoint">
+    <bean id="OsSvc" class="org.codice.ddf.endpoints.OpenSearchEndpoint">
         <argument ref="ddf"/>
         <argument ref="filterBuilder"/>
         <property name="securityManager" ref="securityManager"/>

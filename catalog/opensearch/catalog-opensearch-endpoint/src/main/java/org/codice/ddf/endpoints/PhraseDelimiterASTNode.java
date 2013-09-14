@@ -12,22 +12,14 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  * 
  **/
-package com.lmco.ddf.endpoints;
+package org.codice.ddf.endpoints;
 
 /**
- * ASTNode that holds a boolean operator.
+ * ASTNode that denotes the beginning of a phrase in the stack.
  */
-public class OperatorASTNode extends ASTNode {
-    private final Operator operator;
-
-    public OperatorASTNode(Operator operator, ASTNode left, ASTNode right) {
-        super(left, right);
-        this.operator = operator;
-    }
-
-    public OperatorASTNode(String operator, ASTNode left, ASTNode right) {
-        super(left, right);
-        this.operator = Operator.getOperatorFromString(operator);
+public class PhraseDelimiterASTNode extends ASTNode {
+    public PhraseDelimiterASTNode() {
+        super(null, null);
     }
 
     @Override
@@ -37,7 +29,7 @@ public class OperatorASTNode extends ASTNode {
 
     @Override
     public ASTNode.Operator getOperator() {
-        return operator;
+        return null;
     }
 
     @Override
@@ -47,16 +39,16 @@ public class OperatorASTNode extends ASTNode {
 
     @Override
     public boolean isOperator() {
-        return true;
-    }
-
-    @Override
-    public boolean isPhraseStartDelimiter() {
         return false;
     }
 
     @Override
+    public boolean isPhraseStartDelimiter() {
+        return true;
+    }
+
+    @Override
     public String toString() {
-        return "Operator: " + operator.toString();
+        return "Phrase Start Delimiter";
     }
 }

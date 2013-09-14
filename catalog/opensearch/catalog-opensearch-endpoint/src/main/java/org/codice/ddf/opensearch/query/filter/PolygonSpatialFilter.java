@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  * 
  **/
-package com.lmco.ddf.opensearch.query.filter;
+package org.codice.ddf.opensearch.query.filter;
 
 import ddf.catalog.impl.filter.SpatialFilter;
 

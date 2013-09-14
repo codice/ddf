@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  * 
  **/
-package com.lmco.ddf.endpoints;
+package org.codice.ddf.endpoints;
 
 import ddf.catalog.data.Metacard;
 import ddf.catalog.filter.FilterBuilder;
