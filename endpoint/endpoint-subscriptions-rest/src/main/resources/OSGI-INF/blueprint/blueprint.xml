@@ -37,7 +37,7 @@
     </jaxrs:providers> 
 	</jaxrs:server>
 
-	<bean id="SubscriptionServiceBean" class="com.lmco.ddf.endpoints.subscriptions.SubscriptionService">
+	<bean id="SubscriptionServiceBean" class="org.codice.ddf.endpoints.subscriptions.SubscriptionService">
 		<argument ref="bundleContext" />
 		<argument ref="eventProcessor" />
 	</bean>
