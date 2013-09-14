@@ -22,7 +22,7 @@
 		<version>2.2.0.ALPHA5-SNAPSHOT</version>
 	</parent>
 
-	<groupId>com.lmco.ddf.ui</groupId>
+	<groupId>org.codice.ddf.ui</groupId>
 	<artifactId>ddf-sso-widget</artifactId>
 	<name>DDF :: SDK :: UI :: SSO Widget</name>
 	<description>DDF SSO Widget</description>

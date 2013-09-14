@@ -19,9 +19,9 @@
 	<reference id="filterBuilder" interface="ddf.catalog.filter.FilterBuilder" />
     <reference id="securityManager" interface="ddf.security.service.SecurityManager" />
 
-	<bean id="exampleQueryFormBean" class="com.lmco.ddf.ui.QueryForm" />
+	<bean id="exampleQueryFormBean" class="org.codice.ddf.ui.QueryForm" />
 	
-	<bean id="exampleQueryBean" class="com.lmco.ddf.ui.Query" >
+	<bean id="exampleQueryBean" class="org.codice.ddf.ui.Query" >
 		<property name="catalogFramework" ref="catalogFramework" />
 		<property name="filterBuilder" ref="filterBuilder" />
         <property name="securityManager" ref="securityManager" />

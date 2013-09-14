@@ -48,7 +48,7 @@
 	<reference id="catalog" interface="ddf.catalog.CatalogFramework" />
 	<reference id="filterBuilder" interface="ddf.catalog.filter.FilterBuilder" />
 
-	<bean id="restSvc" class="com.lmco.ddf.endpoints.rest.RESTEndpoint">
+	<bean id="restSvc" class="org.codice.ddf.endpoints.rest.RESTEndpoint">
 		<argument ref="catalog" />
 		<property name="filterBuilder" ref="filterBuilder" />
 		<property name="mimeTypeToTransformerMapper" ref="transformerMapper" />

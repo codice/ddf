@@ -28,13 +28,13 @@
 
 	<reference-list id="metacardTransformerRefList" interface="ddf.catalog.transform.MetacardTransformer" availability="optional">
 		<reference-listener bind-method="bind" unbind-method="unbind">
-			<bean class="com.lmco.ddf.endpoints.rest.action.ActionProviderRegistryProxy">
+			<bean class="org.codice.ddf.endpoints.rest.action.ActionProviderRegistryProxy">
 				<argument ref="blueprintBundleContext"/>
 			</bean>
 		</reference-listener>
 	</reference-list>
 
-	<bean id="restSvc" class="com.lmco.ddf.endpoints.rest.RESTEndpoint">
+	<bean id="restSvc" class="org.codice.ddf.endpoints.rest.RESTEndpoint">
 		<argument ref="catalog" />
 		<property name="filterBuilder" ref="filterBuilder" />
 		<property name="mimeTypeToTransformerMapper" ref="transformerMapper" />
@@ -58,7 +58,7 @@
         </jaxrs:outInterceptors>
     </jaxrs:server>
 
-	<bean id="viewActionProvider" class="com.lmco.ddf.endpoints.rest.action.ViewMetacardActionProvider">
+	<bean id="viewActionProvider" class="org.codice.ddf.endpoints.rest.action.ViewMetacardActionProvider">
 		<argument value="catalog.data.metacard.view" />
 	</bean>
 

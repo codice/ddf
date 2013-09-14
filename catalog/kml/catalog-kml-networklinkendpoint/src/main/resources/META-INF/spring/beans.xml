@@ -32,7 +32,7 @@ http://www.springframework.org/schema/osgi http://www.springframework.org/schema
 		</jaxrs:serviceBeans>
 	</jaxrs:server>
 
-	<bean id="restSvc" class="com.lmco.ddf.endpoints.rest.kml.KmlEndpoint" >
+	<bean id="restSvc" class="org.codice.ddf.endpoints.rest.kml.KmlEndpoint" >
 		<constructor-arg ref="bundleContext"/>
 		<constructor-arg ref="kmlTransformer" />
 	</bean>

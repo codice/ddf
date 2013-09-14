@@ -15,7 +15,7 @@
 
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
 
-	<bean id="ExampleSSOBean" class="com.lmco.ddf.ui.ExampleSSOWidget" />
+	<bean id="ExampleSSOBean" class="org.codice.ddf.ui.ExampleSSOWidget" />
 
 	<service id="ExampleSSOService" ref="ExampleSSOBean"
 		interface="javax.servlet.http.HttpServlet">

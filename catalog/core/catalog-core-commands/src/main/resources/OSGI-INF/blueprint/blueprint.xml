@@ -17,47 +17,47 @@
 	<command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.0.0">
 
 		<command name="catalog/ingest">
-			<action class="com.lmco.ddf.commands.catalog.IngestCommand" />
+			<action class="org.codice.ddf.commands.catalog.IngestCommand" />
 		</command>
 
 		<command name="catalog/inspect">
-			<action class="com.lmco.ddf.commands.catalog.InspectCommand" />
+			<action class="org.codice.ddf.commands.catalog.InspectCommand" />
 		</command>
 
 		<command name="catalog/latest">
-			<action class="com.lmco.ddf.commands.catalog.LatestCommand" />
+			<action class="org.codice.ddf.commands.catalog.LatestCommand" />
 		</command>
 
 		<command name="catalog/remove">
-			<action class="com.lmco.ddf.commands.catalog.RemoveCommand" />
+			<action class="org.codice.ddf.commands.catalog.RemoveCommand" />
 		</command>
 
 		<command name="catalog/removeall">
-			<action class="com.lmco.ddf.commands.catalog.RemoveAllCommand" />
+			<action class="org.codice.ddf.commands.catalog.RemoveAllCommand" />
 		</command>
 
 		<command name="catalog/search">
-			<action class="com.lmco.ddf.commands.catalog.SearchCommand" />
+			<action class="org.codice.ddf.commands.catalog.SearchCommand" />
 		</command>
 
 		<command name="catalog/spatial">
-			<action class="com.lmco.ddf.commands.catalog.SpatialCommand" />
+			<action class="org.codice.ddf.commands.catalog.SpatialCommand" />
 		</command>
 
 		<command name="catalog/envlist">
-			<action class="com.lmco.ddf.commands.catalog.EnvListCommand" />
+			<action class="org.codice.ddf.commands.catalog.EnvListCommand" />
 		</command>
 
 		<command name="catalog/describe">
-			<action class="com.lmco.ddf.commands.catalog.DescribeCommand" />
+			<action class="org.codice.ddf.commands.catalog.DescribeCommand" />
 		</command>
 		
 		<command name="catalog/dump">
-			<action class="com.lmco.ddf.commands.catalog.DumpCommand" />
+			<action class="org.codice.ddf.commands.catalog.DumpCommand" />
 		</command>
 
 		<command name="catalog/range">
-			<action class="com.lmco.ddf.commands.catalog.RangeCommand" />
+			<action class="org.codice.ddf.commands.catalog.RangeCommand" />
 		</command>
 	</command-bundle>
 

@@ -14,7 +14,7 @@
 -->
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
 	
-	<bean id="brandingImpl" class="com.lmco.ddf.webconsole.branding.DDFBrandingPlugin"
+	<bean id="brandingImpl" class="org.codice.ddf.webconsole.branding.DDFBrandingPlugin"
 		init-method="init" destroy-method="destroy">
 	</bean>
 	

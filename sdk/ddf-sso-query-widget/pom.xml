@@ -20,7 +20,7 @@
     <version>2.3.0-SNAPSHOT</version>
   </parent>
 
-  <groupId>com.lmco.ddf.ui</groupId>
+  <groupId>org.codice.ddf.ui</groupId>
   <artifactId>ddf-sso-query-widget</artifactId>
   <name>DDF :: SDK :: UI :: SSO Query Widget</name>
   <description>DDF SSO Query Widget</description>

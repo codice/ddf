@@ -209,7 +209,7 @@ public abstract class AbstractIntegrationTest {
         Configuration logConfig = configAdmin.getConfiguration(LOG_CONFIG_PID, null);
         Dictionary<String, Object> properties = logConfig.getProperties();
         properties.put(LOGGER_PREFIX + "ddf", "TRACE");
-        properties.put(LOGGER_PREFIX + "com.lmco", "TRACE");
+        properties.put(LOGGER_PREFIX + "org.codice", "TRACE");
         logConfig.update(properties);
     }
 

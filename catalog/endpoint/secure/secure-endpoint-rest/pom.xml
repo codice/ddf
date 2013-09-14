@@ -43,7 +43,7 @@
             <Import-Package>	            
             	ddf.catalog, 
             	ddf.catalog.filter,
-	            com.lmco.ddf.endpoints.rest,
+	            org.codice.ddf.endpoints.rest,
 	            ddf.catalog.transform,
 	            ddf.mime,
 	            org.apache.cxf.rs.security.oauth2.filters;version="[2.6.1,3.0.0)",
