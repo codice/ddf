@@ -40,7 +40,9 @@ public abstract class ASTNode extends ImmutableBinaryTreeNode<ASTNode> {
                 return Operator.OR;
             } else if (operatorString.trim().equals(KeywordTextParser.NOT_STRING)) {
                 return Operator.NOT;
-            } else if (operatorString.contains(KeywordTextParser.SPACE_STRING) // if the string is all spaces, it's an AND
+            } else if (operatorString.contains(KeywordTextParser.SPACE_STRING) // if the string is
+                                                                               // all spaces, it's
+                                                                               // an AND
                     && operatorString.trim().isEmpty()) {
                 return Operator.AND;
             } else {
