@@ -22,7 +22,7 @@
 			description="WARNING: Performance Impact. Only in special cases should auto-commit be forced. Forcing auto-commit makes the search results visible immediately."
 			name="Force Auto Commit" id="forceAutoCommit" required="true" type="Boolean" default="" />				
 		<AD
-			description="Disables the ability to make Text Path queries by disabling the Text Path index. Disabling textPath indexing typically increases ingest performance."
+			description="Disables the ability to make Text Path queries by disabling the Text Path index. Disabling Text Path indexing typically increases ingest performance."
 			name="Disable Text Path indexing" id="disableTextPath" required="true" type="Boolean" default="" />						
 	</OCD>
 
