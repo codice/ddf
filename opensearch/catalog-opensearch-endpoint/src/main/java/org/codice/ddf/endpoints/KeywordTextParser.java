@@ -29,7 +29,7 @@ import org.parboiled.support.StringVar;
  * whitespace handling and to make parsing more efficient.
  */
 
-@SuppressWarnings({ "InfiniteRecursion" })
+@SuppressWarnings({"InfiniteRecursion"})
 @BuildParseTree
 public class KeywordTextParser extends BaseParser<ASTNode> {
     protected static final String OR_STRING = "OR";
