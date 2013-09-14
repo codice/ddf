@@ -12,7 +12,8 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  * 
  **/
-package com.lmco.ddf.opensearch.query;
+
+package org.codice.ddf.opensearch.query;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -62,8 +63,8 @@ import org.opengis.temporal.Period;
 import org.slf4j.LoggerFactory;
 import org.slf4j.ext.XLogger;
 
-import com.lmco.ddf.opensearch.query.filter.BBoxSpatialFilter;
-import com.lmco.ddf.opensearch.query.filter.PolygonSpatialFilter;
+import org.codice.ddf.opensearch.query.filter.BBoxSpatialFilter;
+import org.codice.ddf.opensearch.query.filter.PolygonSpatialFilter;
 import com.vividsolutions.jts.geom.Coordinate;
 
 import ddf.catalog.data.Metacard;
@@ -986,7 +987,7 @@ public class OpenSearchQueryTest {
     @Ignore
     public void testOgcFilterEvaluate_Contextual_Like() throws Exception {
         // String input = "abc_cat_dog_xyz";
-        String input = "<ns1:thing xmlns:ns1=\"http://ddf.lmco.com/mynamespace\">cat</ns1:thing>";
+        String input = "<ns1:thing xmlns:ns1=\"http://ddf.codice.org/mynamespace\">cat</ns1:thing>";
         // String searchTerm = "cat";
         // List<Filter> filters = new ArrayList<Filter>();
         FilterFactory filterFactory = new FilterFactoryImpl();

@@ -12,7 +12,8 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  * 
  **/
-package com.lmco.ddf.opensearch.query;
+
+package org.codice.ddf.opensearch.query;
 
 import java.util.HashMap;
 import java.util.Map;

@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  * 
  **/
-package com.lmco.ddf.endpoints;
+package org.codice.ddf.endpoints;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -37,7 +37,7 @@ import org.parboiled.errors.ParsingException;
 import org.slf4j.LoggerFactory;
 import org.slf4j.ext.XLogger;
 
-import com.lmco.ddf.opensearch.query.OpenSearchQuery;
+import org.codice.ddf.opensearch.query.OpenSearchQuery;
 
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.Constants;
@@ -200,28 +200,28 @@ public class OpenSearchEndpoint implements DdfConfigurationWatcher {
      */
     @GET
     public Response processQuery(@QueryParam(PHRASE)
-    String searchTerms, @QueryParam(MAX_RESULTS)
-    String maxResults, @QueryParam(SOURCES)
-    String sources, @QueryParam(MAX_TIMEOUT)
-    String maxTimeout, @QueryParam(START_INDEX)
-    String startIndex, @QueryParam(COUNT)
-    String count, @QueryParam(GEOMETRY)
-    String geometry, @QueryParam(BBOX)
-    String bbox, @QueryParam(POLYGON)
-    String polygon, @QueryParam(LAT)
-    String lat, @QueryParam(LON)
-    String lon, @QueryParam(RADIUS)
-    String radius, @QueryParam(DATE_START)
-    String dateStart, @QueryParam(DATE_END)
-    String dateEnd, @QueryParam(DATE_OFFSET)
-    String dateOffset, @QueryParam(SORT)
-    String sort, @QueryParam(FORMAT)
-    String format, @QueryParam(SELECTOR)
-    String selector, @Context
-    UriInfo ui, @QueryParam(TYPE)
-    String type, @QueryParam(VERSION)
-    String versions, @Context
-    HttpServletRequest request) {
+        String searchTerms, @QueryParam(MAX_RESULTS)
+        String maxResults, @QueryParam(SOURCES)
+        String sources, @QueryParam(MAX_TIMEOUT)
+        String maxTimeout, @QueryParam(START_INDEX)
+        String startIndex, @QueryParam(COUNT)
+        String count, @QueryParam(GEOMETRY)
+        String geometry, @QueryParam(BBOX)
+        String bbox, @QueryParam(POLYGON)
+        String polygon, @QueryParam(LAT)
+        String lat, @QueryParam(LON)
+        String lon, @QueryParam(RADIUS)
+        String radius, @QueryParam(DATE_START)
+        String dateStart, @QueryParam(DATE_END)
+        String dateEnd, @QueryParam(DATE_OFFSET)
+        String dateOffset, @QueryParam(SORT)
+        String sort, @QueryParam(FORMAT)
+        String format, @QueryParam(SELECTOR)
+        String selector, @Context
+        UriInfo ui, @QueryParam(TYPE)
+        String type, @QueryParam(VERSION)
+        String versions, @Context
+        HttpServletRequest request) {
         final String methodName = "processQuery";
         LOGGER.entry(methodName);
         Response response;

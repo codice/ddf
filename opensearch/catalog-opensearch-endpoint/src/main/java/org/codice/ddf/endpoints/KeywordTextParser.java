@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  * 
  **/
-package com.lmco.ddf.endpoints;
+package org.codice.ddf.endpoints;
 
 import org.parboiled.Action;
 import org.parboiled.BaseParser;
@@ -29,7 +29,7 @@ import org.parboiled.support.StringVar;
  * whitespace handling and to make parsing more efficient.
  */
 
-@SuppressWarnings({"InfiniteRecursion"})
+@SuppressWarnings({ "InfiniteRecursion" })
 @BuildParseTree
 public class KeywordTextParser extends BaseParser<ASTNode> {
     protected static final String OR_STRING = "OR";

@@ -12,11 +12,12 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  * 
  **/
-package com.lmco.ddf.opensearch.query;
 
-import com.lmco.ddf.endpoints.ASTNode;
-import com.lmco.ddf.endpoints.KeywordFilterGenerator;
-import com.lmco.ddf.endpoints.KeywordTextParser;
+package org.codice.ddf.opensearch.query;
+
+import org.codice.ddf.endpoints.ASTNode;
+import org.codice.ddf.endpoints.KeywordFilterGenerator;
+import org.codice.ddf.endpoints.KeywordTextParser;
 import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
 import org.apache.log4j.Logger;

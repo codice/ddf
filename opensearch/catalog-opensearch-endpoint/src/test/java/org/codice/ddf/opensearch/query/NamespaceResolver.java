@@ -12,7 +12,8 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  * 
  **/
-package com.lmco.ddf.opensearch.query;
+
+package org.codice.ddf.opensearch.query;
 
 import org.apache.xml.utils.PrefixResolver;
 import org.slf4j.LoggerFactory;

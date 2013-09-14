@@ -12,37 +12,43 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  * 
  **/
-package com.lmco.ddf.endpoints;
+ 
+package org.codice.ddf.endpoints;
 
 /**
- * ASTNode that holds a keyword.
+ * ASTNode that holds a boolean operator.
  */
-public class KeywordASTNode extends ASTNode {
-    private final String keyword;
+public class OperatorASTNode extends ASTNode {
+    private final Operator operator;
 
-    public KeywordASTNode(String keyword) {
-        super(null, null);
-        this.keyword = keyword;
+    public OperatorASTNode(Operator operator, ASTNode left, ASTNode right) {
+        super(left, right);
+        this.operator = operator;
+    }
+
+    public OperatorASTNode(String operator, ASTNode left, ASTNode right) {
+        super(left, right);
+        this.operator = Operator.getOperatorFromString(operator);
     }
 
     @Override
     public String getKeyword() {
-        return keyword;
-    }
-
-    @Override
-    public Operator getOperator() {
         return null;
     }
 
     @Override
+    public ASTNode.Operator getOperator() {
+        return operator;
+    }
+
+    @Override
     public boolean isKeyword() {
-        return true;
+        return false;
     }
 
     @Override
     public boolean isOperator() {
-        return false;
+        return true;
     }
 
     @Override
@@ -52,6 +58,6 @@ public class KeywordASTNode extends ASTNode {
 
     @Override
     public String toString() {
-        return "Keyword: " + keyword;
+        return "Operator: " + operator.toString();
     }
 }

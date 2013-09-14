@@ -12,7 +12,8 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  * 
  **/
-package com.lmco.ddf.endpoints;
+
+package org.codice.ddf.endpoints;
 
 import org.parboiled.trees.ImmutableBinaryTreeNode;
 
@@ -39,9 +40,7 @@ public abstract class ASTNode extends ImmutableBinaryTreeNode<ASTNode> {
                 return Operator.OR;
             } else if (operatorString.trim().equals(KeywordTextParser.NOT_STRING)) {
                 return Operator.NOT;
-            }
-            // if the string is all spaces, it's an AND
-            else if (operatorString.contains(KeywordTextParser.SPACE_STRING)
+            } else if (operatorString.contains(KeywordTextParser.SPACE_STRING) // if the string is all spaces, it's an AND
                     && operatorString.trim().isEmpty()) {
                 return Operator.AND;
             } else {
