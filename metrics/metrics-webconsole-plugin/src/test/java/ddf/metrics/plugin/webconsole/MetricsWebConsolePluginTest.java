@@ -1,14 +1,18 @@
 /**
  * Copyright (c) Codice Foundation
- *
- * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
- * version 3 of the License, or any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * 
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
+ * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
+ * 
  **/
+
 package ddf.metrics.plugin.webconsole;
 
 import java.io.PrintWriter;
@@ -112,7 +116,7 @@ public class MetricsWebConsolePluginTest extends TestCase {
         assertEquals(threeWeeklyReportsFor12March_en_AU, sw.toString());
     }
 
-    public void testAddWeeklyReportUrls_US() throws Exception {
+    public void testAddWeeklyReportUrlsUS() throws Exception {
         DateTimeZone defaultDTZ = DateTimeZone.getDefault();
         DateTimeZone.setDefault(DateTimeZone.forID("Etc/GMT+7"));
         Locale.setDefault(new Locale("en", "US"));
@@ -134,7 +138,7 @@ public class MetricsWebConsolePluginTest extends TestCase {
         assertEquals(threeWeeklyReportsFor12March_en_US, sw.toString());
     }
 
-    public void testAddWeeklyReportUrls_DE() throws Exception {
+    public void testAddWeeklyReportUrlsDE() throws Exception {
         DateTimeZone defaultDTZ = DateTimeZone.getDefault();
         DateTimeZone.setDefault(DateTimeZone.forID("Etc/GMT-1"));
         Locale.setDefault(new Locale("de", "DE"));
@@ -241,7 +245,7 @@ public class MetricsWebConsolePluginTest extends TestCase {
         assertEquals(fourMonthlyReports13April2013, sw.toString());
     }
 
-    public void testAddMonthlyReportUrls_DE() throws Exception {
+    public void testAddMonthlyReportUrlsDE() throws Exception {
         DateTimeZone defaultDTZ = DateTimeZone.getDefault();
         DateTimeZone.setDefault(DateTimeZone.forID("Etc/GMT-1"));
         Locale.setDefault(new Locale("de", "DE"));
@@ -263,7 +267,7 @@ public class MetricsWebConsolePluginTest extends TestCase {
         assertEquals(fourMonthlyReports13April2013_de, sw.toString());
     }
 
-    public void testAddMonthlyReportUrls_US() throws Exception {
+    public void testAddMonthlyReportUrlsUS() throws Exception {
         DateTimeZone defaultDTZ = DateTimeZone.getDefault();
         DateTimeZone.setDefault(DateTimeZone.forID("Etc/GMT+7"));
         Locale.setDefault(new Locale("en", "US"));

@@ -86,7 +86,6 @@ public class MetricsWebConsolePlugin extends AbstractWebConsolePlugin {
 
 
     public void setBundleContext(BundleContext bundleContext) {
-    {
         this.bundleContext = bundleContext;
     }
 
@@ -375,57 +374,47 @@ public class MetricsWebConsolePlugin extends AbstractWebConsolePlugin {
         }
     }
 
-    private void startTableRow(PrintWriter pw, int rowNumber)
-    {
+    private void startTableRow(PrintWriter pw, int rowNumber) {
         String tableStriping = "odd";
-        if ((rowNumber % 2) == 0)
-        {
+        if ((rowNumber % 2) == 0) {
             tableStriping = "even";
         }
         pw.println("<tr class=\"" + tableStriping + " ui-state-default\">");
     }
 
-    private void addCellLabelForRange(PrintWriter pw, DateMidnight startDate, DateTime endDate)
-    {
+    private void addCellLabelForRange(PrintWriter pw, DateMidnight startDate, DateTime endDate) {
         DateTimeFormatter dateFormatter = DateTimeFormat.forStyle(DATE_DISPLAY_FORMAT);
         String urlText = dateFormatter.print(startDate) + " - " + dateFormatter.print(endDate);
         LOGGER.debug("URL text = [" + urlText + "]");
         addCellLabel(pw, urlText);
     }
 
-    private void addCellLabel(PrintWriter pw, String cellLabel)
-    {
+    private void addCellLabel(PrintWriter pw, String cellLabel) {
         pw.println("<td>" + cellLabel + "</td>");
     }
 
-    private void addXLSCellLink(PrintWriter pw, String startDate, String endDate, String metricsServiceUrl)
-    {
+    private void addXLSCellLink(PrintWriter pw, String startDate, String endDate, String metricsServiceUrl) {
         addCellLink(pw, startDate, endDate, metricsServiceUrl, "XLS");
     }
 
-    private void addPPTCellLink(PrintWriter pw, String startDate, String endDate, String metricsServiceUrl)
-    {
+    private void addPPTCellLink(PrintWriter pw, String startDate, String endDate, String metricsServiceUrl) {
         addCellLink(pw, startDate, endDate, metricsServiceUrl, "PPT");
     }
 
-    private void addCellLink(PrintWriter pw, String startDate, String endDate, String metricsServiceUrl, String extension)
-    {
+    private void addCellLink(PrintWriter pw, String startDate, String endDate, String metricsServiceUrl, String extension) {
         String reportUrl = metricsServiceUrl + "/report." + extension.toLowerCase() + "?startDate=" + startDate + "&endDate=" + endDate;
         pw.println("<td><a class=\"ui-state-default ui-corner-all\" href=\"" + reportUrl + "\">" + extension + "</a></td>");
     }
 
-    private void endTableRow(PrintWriter pw)
-    {
+    private void endTableRow(PrintWriter pw) {
         pw.println("</tr>");
     }
 
-    private static String urlEncodeDate(DateMidnight date) throws UnsupportedEncodingException
-    {
+    private static String urlEncodeDate(DateMidnight date) throws UnsupportedEncodingException {
         return urlEncodeDate(date.toDateTime());
     }
 
-    private static String urlEncodeDate(DateTime date) throws UnsupportedEncodingException
-    {
+    private static String urlEncodeDate(DateTime date) throws UnsupportedEncodingException {
         return URLEncoder.encode(date.toString(ISODateTimeFormat.dateTimeNoMillis()), CharEncoding.UTF_8);
     }
 }
