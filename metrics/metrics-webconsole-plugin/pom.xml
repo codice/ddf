@@ -74,6 +74,13 @@
       <groupId>joda-time</groupId>
       <artifactId>joda-time</artifactId>
     </dependency>
+    
+    <dependency>
+        <groupId>xmlunit</groupId>
+        <artifactId>xmlunit</artifactId>
+        <version>1.4</version>
+        <scope>test</scope>
+    </dependency>
      
   </dependencies>
   
