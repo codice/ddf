@@ -53,10 +53,20 @@ public class ConfigurationStore {
         return uniqueInstance;
     }
 
+    /**
+     * 
+     * @return true, if text path indexing has been disabled
+     */
     public boolean isDisableTextPath() {
         return disableTextPath;
     }
 
+    /**
+     * 
+     * @param disableTextPath
+     *            When set to true, this will turn off text path indexing for every subsequent
+     *            update or insert.
+     */
     public void setDisableTextPath(boolean disableTextPath) {
         this.disableTextPath = disableTextPath;
     }
@@ -69,10 +79,20 @@ public class ConfigurationStore {
         this.dataDirectoryPath = dataDirectoryPath;
     }
 
+    /**
+     * 
+     * @return true, if forcing auto commit is turned on
+     */
     public boolean isForceAutoCommit() {
         return forceAutoCommit;
     }
 
+    /**
+     * 
+     * @param forceAutoCommit
+     *            When set to true, this will force a soft commit upon every solr transaction such
+     *            as insert, delete,
+     */
     public void setForceAutoCommit(boolean forceAutoCommit) {
         this.forceAutoCommit = forceAutoCommit;
     }
