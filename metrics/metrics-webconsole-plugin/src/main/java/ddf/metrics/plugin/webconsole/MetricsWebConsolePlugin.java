@@ -41,6 +41,8 @@ import org.apache.log4j.Logger;
 import org.joda.time.DateMidnight;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeConstants;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
 import org.json.simple.JSONValue;
 import org.json.simple.parser.ContainerFactory;
@@ -74,7 +76,14 @@ public class MetricsWebConsolePlugin extends AbstractWebConsolePlugin {
 
     public static final String LABEL = "Metrics";
 
+    private static final String DATE_DISPLAY_FORMAT = "L-";
+
+    private static final int NUMBER_OF_WEEKLY_REPORTS = 4;
+    private static final int NUMBER_OF_MONTHLY_REPORTS = 12;
+    private static final int NUMBER_OF_YEARLY_REPORTS = 1;
+
     private BundleContext bundleContext;
+
 
     public void setBundleContext(BundleContext bundleContext) {
         this.bundleContext = bundleContext;
@@ -236,7 +245,7 @@ public class MetricsWebConsolePlugin extends AbstractWebConsolePlugin {
             pw.println("<tr>");
             pw.println("<th colspan=\"3\">Weekly Reports</th>");
             pw.println("</tr>");
-            addWeeklyReportUrls(pw, 4, metricsServiceUrl);
+            addWeeklyReportUrls(pw, NUMBER_OF_WEEKLY_REPORTS, metricsServiceUrl);
 
             // blank line for spacing between tables
             pw.println("<tr><td colspan=\"3\">&nbsp;</td></tr>");
@@ -244,7 +253,8 @@ public class MetricsWebConsolePlugin extends AbstractWebConsolePlugin {
             pw.println("<tr>");
             pw.println("<th colspan=\"3\">Monthly Reports</th>");
             pw.println("</tr>");
-            addMonthlyReportUrls(pw, 12, metricsServiceUrl);
+
+            addMonthlyReportUrls(pw, NUMBER_OF_MONTHLY_REPORTS, metricsServiceUrl);
 
             // blank line for spacing between tables
             pw.println("<tr><td colspan=\"3\">&nbsp;</td></tr>");
@@ -252,7 +262,8 @@ public class MetricsWebConsolePlugin extends AbstractWebConsolePlugin {
             pw.println("<tr>");
             pw.println("<th colspan=\"3\">Yearly Reports</th>");
             pw.println("</tr>");
-            addYearlyReportUrls(pw, 1, metricsServiceUrl);
+
+            addYearlyReportUrls(pw, NUMBER_OF_YEARLY_REPORTS, metricsServiceUrl);
 
             // blank line for spacing between tables
             pw.println("<tr><td colspan=\"3\">&nbsp;</td></tr>");
@@ -285,37 +296,19 @@ public class MetricsWebConsolePlugin extends AbstractWebConsolePlugin {
             try {
                 DateMidnight startOfLastWeek = new DateMidnight(input.minusWeeks(i).withDayOfWeek(
                         DateTimeConstants.MONDAY));
-                String startDate = URLEncoder.encode(
-                        startOfLastWeek.toString(ISODateTimeFormat.dateTimeNoMillis()),
-                        CharEncoding.UTF_8);
-                String startDateText = startOfLastWeek.toString("MMMM dd");
+                String startDate = urlEncodeDate(startOfLastWeek);
                 LOGGER.debug("Previous Week " + i + "(start):  " + startDate);
 
-                DateMidnight endOfLastWeek = startOfLastWeek
-                        .plusDays(DateTimeConstants.DAYS_PER_WEEK - 1);
-                String endDate = URLEncoder.encode(
-                        endOfLastWeek.toString(ISODateTimeFormat.dateTimeNoMillis()),
-                        CharEncoding.UTF_8);
-                String endDateText = endOfLastWeek.toString("MMMM dd");
+                DateTime endOfLastWeek = startOfLastWeek.plusDays(DateTimeConstants.DAYS_PER_WEEK)
+                        .toDateTime().minus(1 /* millisecond */);
+                String endDate = urlEncodeDate(endOfLastWeek);
                 LOGGER.debug("Previous Week " + i + " (end):  " + endDate);
 
-                LOGGER.debug("URL text = [" + startDateText + " - " + endDateText + "]");
-
-                String tableStriping = "odd";
-                if ((i % 2) == 0) {
-                    tableStriping = "even";
-                }
-                pw.println("<tr class=\"" + tableStriping + " ui-state-default\">");
-                pw.println("<td>" + startDateText + " - " + endDateText + "</td>");
-                String reportUrl = metricsServiceUrl + "/report.xls?startDate=" + startDate
-                        + "&endDate=" + endDate;
-                pw.println("<td><a class=\"ui-state-default ui-corner-all\" href=\"" + reportUrl
-                        + "\">XLS</a></td>");
-                reportUrl = metricsServiceUrl + "/report.ppt?startDate=" + startDate + "&endDate="
-                        + endDate;
-                pw.println("<td><a class=\"ui-state-default ui-corner-all\" href=\"" + reportUrl
-                        + "\">PPT</a></td>");
-                pw.println("</tr>");
+                startTableRow(pw, i);
+                addCellLabelForRange(pw, startOfLastWeek, endOfLastWeek);
+                addXLSCellLink(pw, startDate, endDate, metricsServiceUrl);
+                addPPTCellLink(pw, startDate, endDate, metricsServiceUrl);
+                endTableRow(pw);
             } catch (UnsupportedEncodingException e) {
                 LOGGER.info(e);
             }
@@ -330,37 +323,20 @@ public class MetricsWebConsolePlugin extends AbstractWebConsolePlugin {
             try {
                 DateMidnight startOfLastMonth = new DateMidnight(input.minusMonths(i)
                         .withDayOfMonth(1));
-                String startDate = URLEncoder.encode(
-                        startOfLastMonth.toString(ISODateTimeFormat.dateTimeNoMillis()),
-                        CharEncoding.UTF_8);
-                String urlText = startOfLastMonth.toString("MMMM, yyyy");
+                String startDate = urlEncodeDate(startOfLastMonth);
                 LOGGER.debug("Previous Month (start):  " + startDate + "   (ms = "
                         + startOfLastMonth.getMillis() + ")");
 
-                DateMidnight endOfLastMonth = startOfLastMonth.plusMonths(1).minusDays(1);
-                String endDate = URLEncoder.encode(
-                        endOfLastMonth.toString(ISODateTimeFormat.dateTimeNoMillis()),
-                        CharEncoding.UTF_8);
+                DateTime endOfLastMonth = startOfLastMonth.plusMonths(1).toDateTime().minus(1 /* millisecond */);
+                String endDate = urlEncodeDate(endOfLastMonth);
                 LOGGER.debug("Previous Month (end):  " + endOfLastMonth + "   (ms = "
                         + endOfLastMonth.getMillis() + ")");
 
-                LOGGER.debug("URL text = [" + urlText + "]");
-
-                String tableStriping = "odd";
-                if ((i % 2) == 0) {
-                    tableStriping = "even";
-                }
-                pw.println("<tr class=\"" + tableStriping + " ui-state-default\">");
-                pw.println("<td>" + urlText + "</td>");
-                String reportUrl = metricsServiceUrl + "/report.xls?startDate=" + startDate
-                        + "&endDate=" + endDate;
-                pw.println("<td><a class=\"ui-state-default ui-corner-all\" href=\"" + reportUrl
-                        + "\">XLS</a></td>");
-                reportUrl = metricsServiceUrl + "/report.ppt?startDate=" + startDate + "&endDate="
-                        + endDate;
-                pw.println("<td><a class=\"ui-state-default ui-corner-all\" href=\"" + reportUrl
-                        + "\">PPT</a></td>");
-                pw.println("</tr>");
+                startTableRow(pw, i);
+                addCellLabelForRange(pw, startOfLastMonth, endOfLastMonth);
+                addXLSCellLink(pw, startDate, endDate, metricsServiceUrl);
+                addPPTCellLink(pw, startDate, endDate, metricsServiceUrl);
+                endTableRow(pw);
             } catch (UnsupportedEncodingException e) {
                 LOGGER.info(e);
             }
@@ -375,39 +351,70 @@ public class MetricsWebConsolePlugin extends AbstractWebConsolePlugin {
             try {
                 DateMidnight startOfLastYear = new DateMidnight(input.minusYears(1)
                         .withDayOfYear(1));
-                String startDate = URLEncoder.encode(
-                        startOfLastYear.toString(ISODateTimeFormat.dateTimeNoMillis()),
-                        CharEncoding.UTF_8);
+                String startDate = urlEncodeDate(startOfLastYear);
                 LOGGER.debug("Previous Year (start):  " + startOfLastYear + "   (ms = "
                         + startOfLastYear.getMillis() + ")");
-                DateMidnight endOfLastYear = startOfLastYear.plusYears(1).minusDays(1);
-                String endDate = URLEncoder.encode(
-                        endOfLastYear.toString(ISODateTimeFormat.dateTimeNoMillis()),
-                        CharEncoding.UTF_8);
+
+                DateTime endOfLastYear = startOfLastYear.plusYears(1).toDateTime().minus(1 /* millisecond */);
+                String endDate = urlEncodeDate(endOfLastYear);
                 LOGGER.debug("Previous Year (end):  " + endOfLastYear + "   (ms = "
                         + endOfLastYear.getMillis() + ")");
 
                 String urlText = startOfLastYear.toString("yyyy");
                 LOGGER.debug("URL text = [" + urlText + "]");
 
-                String tableStriping = "odd";
-                if ((i % 2) == 0) {
-                    tableStriping = "even";
-                }
-                pw.println("<tr class=\"" + tableStriping + " ui-state-default\">");
-                pw.println("<td>" + urlText + "</td>");
-                String reportUrl = metricsServiceUrl + "/report.xls?startDate=" + startDate
-                        + "&endDate=" + endDate;
-                pw.println("<td><a class=\"ui-state-default ui-corner-all\" href=\"" + reportUrl
-                        + "\">XLS</a></td>");
-                reportUrl = metricsServiceUrl + "/report.ppt?startDate=" + startDate + "&endDate="
-                        + endDate;
-                pw.println("<td><a class=\"ui-state-default ui-corner-all\" href=\"" + reportUrl
-                        + "\">PPT</a></td>");
-                pw.println("</tr>");
+                startTableRow(pw, i);
+                addCellLabel(pw, urlText);
+                addXLSCellLink(pw, startDate, endDate, metricsServiceUrl);
+                addPPTCellLink(pw, startDate, endDate, metricsServiceUrl);
+                endTableRow(pw);
             } catch (UnsupportedEncodingException e) {
                 LOGGER.info(e);
             }
         }
+    }
+
+    private void startTableRow(PrintWriter pw, int rowNumber) {
+        String tableStriping = "odd";
+        if ((rowNumber % 2) == 0) {
+            tableStriping = "even";
+        }
+        pw.println("<tr class=\"" + tableStriping + " ui-state-default\">");
+    }
+
+    private void addCellLabelForRange(PrintWriter pw, DateMidnight startDate, DateTime endDate) {
+        DateTimeFormatter dateFormatter = DateTimeFormat.forStyle(DATE_DISPLAY_FORMAT);
+        String urlText = dateFormatter.print(startDate) + " - " + dateFormatter.print(endDate);
+        LOGGER.debug("URL text = [" + urlText + "]");
+        addCellLabel(pw, urlText);
+    }
+
+    private void addCellLabel(PrintWriter pw, String cellLabel) {
+        pw.println("<td>" + cellLabel + "</td>");
+    }
+
+    private void addXLSCellLink(PrintWriter pw, String startDate, String endDate, String metricsServiceUrl) {
+        addCellLink(pw, startDate, endDate, metricsServiceUrl, "XLS");
+    }
+
+    private void addPPTCellLink(PrintWriter pw, String startDate, String endDate, String metricsServiceUrl) {
+        addCellLink(pw, startDate, endDate, metricsServiceUrl, "PPT");
+    }
+
+    private void addCellLink(PrintWriter pw, String startDate, String endDate, String metricsServiceUrl, String extension) {
+        String reportUrl = metricsServiceUrl + "/report." + extension.toLowerCase() + "?startDate=" + startDate + "&endDate=" + endDate;
+        pw.println("<td><a class=\"ui-state-default ui-corner-all\" href=\"" + reportUrl + "\">" + extension + "</a></td>");
+    }
+
+    private void endTableRow(PrintWriter pw) {
+        pw.println("</tr>");
+    }
+
+    private static String urlEncodeDate(DateMidnight date) throws UnsupportedEncodingException {
+        return urlEncodeDate(date.toDateTime());
+    }
+
+    private static String urlEncodeDate(DateTime date) throws UnsupportedEncodingException {
+        return URLEncoder.encode(date.toString(ISODateTimeFormat.dateTimeNoMillis()), CharEncoding.UTF_8);
     }
 }
