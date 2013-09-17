@@ -223,6 +223,7 @@
 		<saxon.version>9.1.0.8</saxon.version>
 		<commons-io.version>2.1</commons-io.version>
 		<joda-time.version>1.6.2</joda-time.version>
+                <xmlunit.version>1.4</xmlunit.version>
 
 		<!-- Endorsed Dependencies -->
 		<xalan.version>2.7.1</xalan.version>
@@ -1071,6 +1072,12 @@
 				<version>${joda-time.version}</version>
 			</dependency>
 			
+                        <dependency>
+                                <groupId>xmlunit</groupId>
+                                <artifactId>xmlunit</artifactId>
+                                <version>${xmlunit.version}</version>
+                        </dependency>
+
 			<dependency>
 	            <groupId>com.codahale.metrics</groupId>
 	            <artifactId>metrics-core</artifactId>
