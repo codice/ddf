@@ -98,24 +98,25 @@ public class RrdJmxCollector implements JmxCollector {
 
     /**
      * Name of the RRD file to store the metric's data being collected. The DDF metrics base
-     * directory will be prepended to this filename. (Should be set by <config> stanza in
-     * metrics-reporting-app features.xml file)
+     * directory will be prepended to this filename.
      */
     private String rrdPath;
 
     /**
      * The name of the RRD data source to use for the metric being collected. This can (and should)
      * be the same for all metrics configured, e.g., "data", since there should only be one data
-     * source per RRD file they do not need to be unique data source names. (Should be set by
-     * <config> stanza in metrics-reporting-app features.xml file)
+     * source per RRD file they do not need to be unique data source names.
      */
     private String rrdDataSourceName;
 
     /**
      * Type of RRD data source to use for the metric's data being collected. A DERIVE type is used
      * for metrics that always increment, e.g., query count. A GAUGE is used for metrics whose value
-     * can vary up or down at any time, e.g., query response time. (Should be set by <config> stanza
-     * in metrics-reporting-app features.xml file)
+     * can vary up or down at any time, e.g., query response time.
+     * NOTE: DERIVE data source type is preferred over COUNTER because it does not rollover when the
+     * underlying MBean counter's value is reset to zero, causing spikes in the
+     * RRD graph (and the MBean value gets reset to zero after every system restart
+     * since all JMX MBeans are recreated).
      */
     private String rrdDataSourceType;
 
@@ -399,7 +400,11 @@ public class RrdJmxCollector implements JmxCollector {
             // we want more or less archivers based on data source type.
 
             // Use a COUNTER or DERIVE (preferred) for continuous incrementing counters, e.g.,
-            // number of queries
+            // number of queries.
+            // DERIVE data source type is preferred because it does not rollover when the
+            // underlying MBean counter's value is reset to zero, causing spikes in the
+            // RRD graph (and the MBean value gets reset to zero after every system restart
+            // since all JMX MBeans are recreated).
             if (dsType == DsType.COUNTER || dsType == DsType.DERIVE) {
                 // 1 minute resolution for last 60 minutes
                 def.addArchive(ConsolFun.TOTAL, DEFAULT_XFF_FACTOR, 1, 60);

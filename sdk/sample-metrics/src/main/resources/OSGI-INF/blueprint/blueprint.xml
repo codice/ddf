@@ -50,7 +50,12 @@
     
     metricType (fourth argument) can only be DERIVE or GAUGE. DERIVE is for metrics that
     always increment (e.g., query count). GAUGE is for metrics that can wax and wane,
-    e.g., response time.
+    e.g., response time. 
+    
+    NOTE: DERIVE data source type is preferred over COUNTER because it does not rollover when the
+    underlying MBean counter's value is reset to zero, causing spikes in the
+    RRD graph (and the MBean value gets reset to zero after every system restart
+    since all JMX MBeans are recreated).
     
     dataSourceName (fifth argument) if name of the data source in the RRD file, usually
     the same as the MBean attribute name (second argument), but all lower case.
