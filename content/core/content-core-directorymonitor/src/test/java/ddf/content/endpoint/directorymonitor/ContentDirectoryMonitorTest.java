@@ -25,23 +25,18 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.camel.CamelContext;
 import org.apache.camel.Exchange;
 import org.apache.camel.builder.AdviceWithRouteBuilder;
 import org.apache.camel.component.mock.MockComponent;
 import org.apache.camel.model.FromDefinition;
+import org.apache.camel.model.ModelCamelContext;
 import org.apache.camel.model.ProcessorDefinition;
 import org.apache.camel.model.RouteDefinition;
 import org.apache.camel.model.SetHeaderDefinition;
 import org.apache.camel.test.junit4.CamelTestSupport;
 import org.apache.commons.io.FileUtils;
-import org.apache.log4j.Appender;
-import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.apache.log4j.PatternLayout;
 import org.junit.After;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import ddf.content.core.directorymonitor.ContentDirectoryMonitor;
@@ -54,7 +49,7 @@ public class ContentDirectoryMonitorTest extends CamelTestSupport {
 
     private static final String INPUT_FILEPATH = "target/" + INPUT_FILENAME;
 
-    private CamelContext camelContext;
+    private ModelCamelContext camelContext;
 
     private ContentDirectoryMonitor contentDirectoryMonitor;
 
@@ -99,7 +94,8 @@ public class ContentDirectoryMonitorTest extends CamelTestSupport {
         String directive = "PROCESS";
         boolean copyIngestedFiles = true;
 
-        camelContext = super.createCamelContext();
+        camelContext = (ModelCamelContext) super.createCamelContext();
+        camelContext.start();
 
         // Map the "content" scheme to a mock component so that we do not have to
         // mock the entire custom ContentComponent and include its implementation
@@ -123,7 +119,8 @@ public class ContentDirectoryMonitorTest extends CamelTestSupport {
         String directive = "";
         boolean copyIngestedFiles = true;
 
-        camelContext = super.createCamelContext();
+        camelContext = (ModelCamelContext) super.createCamelContext();
+        camelContext.start();
 
         // Map the "content" scheme to a mock component so that we do not have to
         // mock the entire custom ContentComponent and include its implementation
@@ -342,7 +339,8 @@ public class ContentDirectoryMonitorTest extends CamelTestSupport {
 
     private RouteDefinition createRouteWithAdvice(String monitoredDirectory, String directive,
             boolean copyIngestedFiles) throws Exception {
-        camelContext = super.createCamelContext();
+        camelContext = (ModelCamelContext) super.createCamelContext();
+        camelContext.start();
 
         contentDirectoryMonitor = new ContentDirectoryMonitor(camelContext);
         contentDirectoryMonitor.setMonitoredDirectoryPath(monitoredDirectory);
@@ -379,7 +377,8 @@ public class ContentDirectoryMonitorTest extends CamelTestSupport {
 
     private RouteDefinition createRoute(String monitoredDirectory, String directive,
             boolean copyIngestedFiles) throws Exception {
-        camelContext = super.createCamelContext();
+        camelContext = (ModelCamelContext) super.createCamelContext();
+        camelContext.start();
 
         // Map the "content" scheme to a mock component so that we do not have to
         // mock the entire custom ContentComponent and include its implementation
