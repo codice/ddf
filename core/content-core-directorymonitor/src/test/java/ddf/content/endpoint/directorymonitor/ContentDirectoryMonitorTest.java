@@ -17,10 +17,7 @@ package ddf.content.endpoint.directorymonitor;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
-import java.io.Writer;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -54,9 +51,13 @@ public class ContentDirectoryMonitorTest extends CamelTestSupport {
     private ContentDirectoryMonitor contentDirectoryMonitor;
 
     @After
-    public void tearDown() {
+    public void tearDown() throws Exception {
         LOGGER.debug("INSIDE tearDown");
-        context = null;
+        //context = null;
+        
+        // This will also stop all routes/components/endpoints, etc. 
+        // and clear internal state/cache
+        camelContext.stop();
         camelContext = null;
     }
 
@@ -70,8 +71,6 @@ public class ContentDirectoryMonitorTest extends CamelTestSupport {
                 copyIngestedFiles);
 
         verifyRoute(routeDefinition, monitoredDirectory, directive, copyIngestedFiles);
-
-        camelContext.removeRouteDefinition(routeDefinition);
     }
 
     @Test
@@ -84,8 +83,6 @@ public class ContentDirectoryMonitorTest extends CamelTestSupport {
                 copyIngestedFiles);
 
         verifyRoute(routeDefinition, monitoredDirectory, directive, copyIngestedFiles);
-
-        camelContext.removeRouteDefinition(routeDefinition);
     }
 
     @Test
@@ -139,11 +136,6 @@ public class ContentDirectoryMonitorTest extends CamelTestSupport {
     }
 
     @Test
-    public void testDirectiveSetting() {
-
-    }
-
-    @Test
     public void testMoveFolder() throws Exception {
         String monitoredDirectory = "target/inbox";
         String directive = "PROCESS";
@@ -154,7 +146,8 @@ public class ContentDirectoryMonitorTest extends CamelTestSupport {
 
         // Put file in monitored directory
         String fileContents = "Dummy data in a text file";
-        File file = writeTextFile(INPUT_FILEPATH, fileContents);
+        FileUtils.writeStringToFile(new File(INPUT_FILEPATH), fileContents);
+        
         template.sendBodyAndHeader("file://" + monitoredDirectory, fileContents,
                 Exchange.FILE_NAME, INPUT_FILENAME);
 
@@ -166,7 +159,6 @@ public class ContentDirectoryMonitorTest extends CamelTestSupport {
 
         // Cleanup
         FileUtils.deleteDirectory(new File(monitoredDirectory));
-        camelContext.removeRouteDefinition(routeDefinition);
     }
 
     /**
@@ -241,7 +233,7 @@ public class ContentDirectoryMonitorTest extends CamelTestSupport {
 
         // Put file in monitored directory
         String fileContents = "Dummy data in a text file";
-        File file = writeTextFile(INPUT_FILEPATH, fileContents);
+        FileUtils.writeStringToFile(new File(INPUT_FILEPATH), fileContents);
         template.sendBodyAndHeader("file://" + monitoredDirectory, fileContents,
                 Exchange.FILE_NAME, INPUT_FILENAME);
 
@@ -261,7 +253,7 @@ public class ContentDirectoryMonitorTest extends CamelTestSupport {
 
         // Put file in new monitored directory
         fileContents = "Dummy data in second text file";
-        file = writeTextFile("target/input_2.txt", fileContents);
+        FileUtils.writeStringToFile(new File("target/input_2.txt"), fileContents);
         template.sendBodyAndHeader("file://" + newMonitoredDirectory, fileContents,
                 Exchange.FILE_NAME, "input_2.txt");
 
@@ -273,7 +265,7 @@ public class ContentDirectoryMonitorTest extends CamelTestSupport {
 
         // Put file in original monitored directory
         fileContents = "Dummy data in third text file";
-        file = writeTextFile("target/input_3.txt", fileContents);
+        FileUtils.writeStringToFile(new File("target/input_3.txt"), fileContents);
         template.sendBodyAndHeader("file://" + monitoredDirectory, fileContents,
                 Exchange.FILE_NAME, "input_3.txt");
 
@@ -289,7 +281,6 @@ public class ContentDirectoryMonitorTest extends CamelTestSupport {
         // Cleanup
         FileUtils.deleteDirectory(new File(monitoredDirectory));
         FileUtils.deleteDirectory(new File(newMonitoredDirectory));
-        camelContext.removeRouteDefinition(routeDefinition);
     }
 
     @Test
@@ -310,12 +301,12 @@ public class ContentDirectoryMonitorTest extends CamelTestSupport {
 
         // Put file in first monitored directory
         String fileContents = "text file 1";
-        File file = writeTextFile(INPUT_FILEPATH, fileContents);
+        FileUtils.writeStringToFile(new File(INPUT_FILEPATH), fileContents);
         template.sendBodyAndHeader("file://" + firstMonitoredDirectory, fileContents,
                 Exchange.FILE_NAME, INPUT_FILENAME);
 
         fileContents = "text file 2";
-        file = writeTextFile("target/input_2.txt", fileContents);
+        FileUtils.writeStringToFile(new File("target/input_2.txt"), fileContents);
         template.sendBodyAndHeader("file://" + secondMonitoredDirectory, fileContents,
                 Exchange.FILE_NAME, "input_2.txt");
 
@@ -331,8 +322,6 @@ public class ContentDirectoryMonitorTest extends CamelTestSupport {
         // Cleanup
         FileUtils.deleteDirectory(new File(firstMonitoredDirectory));
         FileUtils.deleteDirectory(new File(secondMonitoredDirectory));
-        camelContext.removeRouteDefinition(firstRouteDefinition);
-        camelContext.removeRouteDefinition(secondRouteDefinition);
     }
 
     /************************************************************************************/
@@ -377,6 +366,9 @@ public class ContentDirectoryMonitorTest extends CamelTestSupport {
 
     private RouteDefinition createRoute(String monitoredDirectory, String directive,
             boolean copyIngestedFiles) throws Exception {
+        
+        // Simulates what container would do for <camel:camelContext id="camelContext">
+        // declaration in beans.xml file
         camelContext = (ModelCamelContext) super.createCamelContext();
         camelContext.start();
 
@@ -450,12 +442,4 @@ public class ContentDirectoryMonitorTest extends CamelTestSupport {
         // assertThat(shd.getExpression().getExpression(), equalTo("create"));
     }
 
-    private File writeTextFile(String filename, String contents) throws Exception {
-        File file = new File(filename);
-        Writer output = new BufferedWriter(new FileWriter(file));
-        output.write(contents);
-        output.close();
-
-        return file;
-    }
 }
