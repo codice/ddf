@@ -46,6 +46,15 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
     private static final Logger LOGGER = Logger.getLogger(ContentDirectoryMonitor.class);
 
     
+    /**
+     * Constructs a monitor for a specific directory that will ingest files into
+     * the Content Framework.
+     * 
+     * @param camelContext the Camel context to use across all Content Directory
+     * Monitors. Note that if Apache changes this ModelCamelContext interface there
+     * is no guarantee that whatever DM is being used (Spring in this case) will be
+     * updated accordingly.
+     */
     public ContentDirectoryMonitor(final ModelCamelContext camelContext) {
         this.camelContext = camelContext;
         LOGGER.trace("ContentDirectoryMonitor(CamelContext) constructor done");
