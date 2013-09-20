@@ -67,6 +67,8 @@
 				<exclude>version/Version.txt</exclude>
 				<exclude>bin/ddf</exclude>
 				<exclude>bin/ddf.bat</exclude>
+				<exclude>bin/setenv</exclude>
+				<exclude>bin/setenv.bat</exclude>
 			   </excludes>
         </resource>
       	<!-- 
