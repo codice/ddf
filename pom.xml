@@ -166,6 +166,7 @@
 		<module>content</module>
 		<module>catalog</module>
 		<module>security</module>
+		<module>ui</module>
 		<module>distribution</module>
 		<module>sdk</module>
 		<module>test</module>
