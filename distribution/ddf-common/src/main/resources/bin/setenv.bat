@@ -43,11 +43,11 @@ SET KARAF_TITLE=${command.prompt.title}
 rem Minimum memory for the JVM
 rem SET JAVA_MIN_MEM
 rem Maximum memory for the JVM
-SET JAVA_MAX_MEM=2048M
+rem SET JAVA_MAX_MEM=2048M
 rem Minimum perm memory for the JVM
-SET JAVA_PERM_MEM=128M
+rem SET JAVA_PERM_MEM=128M
 rem Maximum memory for the JVM
-SET JAVA_MAX_PERM_MEM=512M
+rem SET JAVA_MAX_PERM_MEM=512M
 rem Karaf home folder
 rem SET KARAF_HOME
 rem Karaf data folder
@@ -57,3 +57,5 @@ rem SET KARAF_BASE
 rem Additional available Karaf options
 rem SET KARAF_OPTS=-Dderby.system.home="..\data\derby"  -Dderby.storage.fileSyncTransactionLog=true -Dcom.sun.management.jmxremote -Dfile.encoding=UTF8 -Dddf.home=%DDF_HOME%
 
+set JAVA_OPTS=-server -XX:PermSize=128m -XX:MaxPermSize=512m -Xmx2048M -Dderby.system.home="%DDF_HOME%\data\derby"  -Dderby.storage.fileSyncTransactionLog=true -Dcom.sun.management.jmxremote -Dfile.encoding=UTF8 -Dddf.home=%DDF_HOME%
+:: set JAVA_OPTS=-server -XX:PermSize=128m -XX:MaxPermSize=512m -Xmx2048M -Dfile.encoding=UTF8 -Djavax.net.ssl.keyStore=../etc/keystores/serverKeystore.jks -Djavax.net.ssl.keyStorePassword=changeit -Djavax.net.ssl.trustStore=../etc/keystores/serverTruststore.jks -Djavax.net.ssl.trustStorePassword=changeit -Dddf.home=%DDF_HOME%
