@@ -554,31 +554,20 @@ public class CatalogFrameworkImpl extends DescribableImpl implements DdfConfigur
         SourceDescriptorImpl sourceDescriptor = null;
         Set<SourceDescriptor> sourceDescriptors = new HashSet<SourceDescriptor>();
         if (sources != null) {
-            for (FederatedSource source : sources) {
+            for (Source source : sources) {
                 if (source != null) {
                     String sourceId = source.getId();
                     logger.debug("adding sourceId: " + sourceId);
-                    boolean isAvailable = false;
-                    // use the poller to cache the availability
-                    if (poller != null) {
-                        isAvailable = poller.isAvailable(source);
-                    } else {
-                        // if the poller is not set, get availability directly
-                        // from the source
-                        isAvailable = source.isAvailable();
+
+                    // check the poller for cached information
+                    if (poller != null && poller.getCachedSource(source) != null) {
+                        source = poller.getCachedSource(source);
                     }
-                    // only get the ContentTypes and Version if the source is
-                    // available
-                    if (isAvailable) {
-                        sourceDescriptor = new SourceDescriptorImpl(source.getId(),
-                                source.getContentTypes());
-                        sourceDescriptor.setVersion(source.getVersion());
-                    } else {
-                        // If the source is not available only set the ID
-                        sourceDescriptor = new SourceDescriptorImpl(sourceId,
-                                Collections.<ContentType> emptySet());
-                    }
-                    sourceDescriptor.setAvailable(isAvailable);
+
+                    sourceDescriptor = new SourceDescriptorImpl(sourceId, source.getContentTypes());
+                    sourceDescriptor.setVersion(source.getVersion());
+                    sourceDescriptor.setAvailable(source.isAvailable());
+                    
                     sourceDescriptors.add(sourceDescriptor);
                 }
             }
@@ -1579,7 +1568,13 @@ public class CatalogFrameworkImpl extends DescribableImpl implements DdfConfigur
                 logger.debug("Checking if source \"" + source.getId() + "\" is available...");
             }
 
-            boolean available = poller.isAvailable(source);
+            // source is considered available unless we have checked and seen otherwise
+            boolean available = true;
+            Source cachedSource = poller.getCachedSource(source);
+            if(cachedSource != null) {
+                available = cachedSource.isAvailable();
+            }
+            
             if (!available) {
                 logger.warn("source \"" + source.getId() + "\" is not available");
             }
