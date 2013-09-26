@@ -27,7 +27,6 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.ext.XLogger;
 
 import ddf.catalog.source.Source;
-import ddf.catalog.source.SourceMonitor;
 
 /**
  * The poller to check the availability of all configured sources. This class is instantiated by the
@@ -45,7 +44,7 @@ public class SourcePollerRunner implements Runnable {
 
     private List<Source> sources;
 
-    private Map<Source, SourceStatus> status = new ConcurrentHashMap<Source, SourceStatus>();
+    private Map<Source, CachedSource> cachedSources = new ConcurrentHashMap<Source, CachedSource>();
 
     private static XLogger logger = new XLogger(LoggerFactory.getLogger(SourcePollerRunner.class));
 
@@ -100,57 +99,31 @@ public class SourcePollerRunner implements Runnable {
 
             public void run() {
 
-                Lock sourceStatusThreadLock = sourceStatusThreadLocks.get(source);
-                if (sourceStatusThreadLock.tryLock()) {
-                    logger.debug("Acquired lock for Source [" + source + "] with id ["
-                            + source.getId() + "] ");
-                    boolean available = false;
+                final CachedSource cachedSource = cachedSources.get(source);
+                if (cachedSource != null) {
+                    Lock sourceStatusThreadLock = sourceStatusThreadLocks
+                            .get(source);
 
-                    try {
-                        logger.debug("Checking Source [" + source + "] with id [" + source.getId()
-                                + "] availability.");
-                        SourceMonitor monitor = new SourceMonitor() {
+                    if (sourceStatusThreadLock.tryLock()) {
+                        logger.debug(
+                                "Acquired lock for Source [{}] with id [{}]",
+                                source, source.getId());
 
-                            @Override
-                            public void setAvailable() {
-                                status.put(source, SourceStatus.AVAILABLE);
-                                logger.info("Source [" + source + "] with id [" + source.getId()
-                                        + "] is AVAILABLE");
-                            }
-
-                            @Override
-                            public void setUnavailable() {
-                                status.put(source, SourceStatus.UNAVAILABLE);
-                                logger.info("Source [" + source + "] with id [" + source.getId()
-                                        + "] is UNAVAILABLE");
-                            }
-                        };
-
-                        available = source.isAvailable(monitor);
-
-                        logger.debug("Source [" + source + "] with id [" + source.getId()
-                                + "] isAvailable? " + available);
-
-                        if (available) {
-                            status.put(source, SourceStatus.AVAILABLE);
-                        } else {
-                            status.put(source, SourceStatus.UNAVAILABLE);
+                        try {
+                            cachedSource.checkStatus();
+                        } finally {
+                            // release the lock acquired initially
+                            sourceStatusThreadLock.unlock();
+                            logger.debug(
+                                    "Released lock for Source [{}] with id [{}]",
+                                    source, source.getId());
                         }
-
-                    } catch (Exception e) {
-                        status.put(source, SourceStatus.UNAVAILABLE);
-                        logger.debug("Source [" + source
-                                + "] did not return properly with availability.", e);
-                    } finally {
-                        // release the lock acquired initially
-                        sourceStatusThreadLock.unlock();
-                        logger.debug("Released lock for Source [" + source + "] with id ["
-                                + source.getId() + "] ");
-
+                    } else {
+                        logger.debug(
+                                "Unable to get lock for Source [{}] with id [{}]." +
+                                "  A status thread is already running.",
+                                source, source.getId());
                     }
-                } else {
-                    logger.debug("Unable to get lock for Source [" + source + "] with id ["
-                            + source.getId() + "].  A status thread is already running.");
                 }
             }
         };
@@ -166,12 +139,12 @@ public class SourcePollerRunner implements Runnable {
      */
     public void bind(Source source) {
 
-        logger.info("Binding source: " + source);
+        logger.info("Binding source: {}", source);
         if (source != null) {
-            logger.debug("Marking new source " + source + " as UNCHECKED.");
+            logger.debug("Marking new source {} as UNCHECKED.", source);
             sources.add(source);
             sourceStatusThreadLocks.put(source, new ReentrantLock());
-            status.put(source, SourceStatus.UNCHECKED);
+            cachedSources.put(source, new CachedSource(source));
             checkStatus(source);
 
         }
@@ -185,26 +158,28 @@ public class SourcePollerRunner implements Runnable {
      *            the source to remove from the list
      */
     public void unbind(Source source) {
-        logger.info("Unbinding source [" + source + "]");
+        logger.info("Unbinding source [{}]", source);
         if (source != null) {
-            status.remove(source);
+            cachedSources.remove(source);
             sources.remove(source);
             sourceStatusThreadLocks.remove(source);
         }
     }
 
     /**
-     * Retrieve the current availability of the specified source.
+     * Retrieves a {@link CachedSource} which contains cached values from the 
+     * specified {@link Source}. Returns a {@link Source} with values from the 
+     * last polling interval. If the {@link Source} is not known, null is returned.
      * 
      * @param source
-     *            the source to retrieve the availability for
+     *            the source to get the {@link CachedSource} for
      * 
-     * @return the source's status
+     * @return a {@link CachedSource} which contains cached values
      */
-    public SourceStatus getStatus(Source source) {
-        return status.get(source);
+    public CachedSource getCachedSource(Source source) {
+        return cachedSources.get(source);
     }
-
+    
     /**
      * 
      * Calls the @link ExecutorService to shutdown immediately
@@ -216,5 +191,4 @@ public class SourcePollerRunner implements Runnable {
         }
         logger.trace("Status threads shut down");
     }
-
 }

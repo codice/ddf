@@ -64,6 +64,7 @@ import ddf.catalog.source.IngestException;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.source.Source;
+import ddf.catalog.util.CachedSource;
 import ddf.catalog.util.SourcePoller;
 
 public class CatalogFrameworkQueryTest {
@@ -79,7 +80,9 @@ public class CatalogFrameworkQueryTest {
         // Mock register the provider in the container
         // Mock the source poller
         SourcePoller mockPoller = mock(SourcePoller.class);
-        when(mockPoller.isAvailable(isA(Source.class))).thenReturn(Boolean.TRUE);
+        CachedSource source = mock(CachedSource.class);
+        when(source.isAvailable()).thenReturn(Boolean.TRUE);        
+        when(mockPoller.getCachedSource(isA(Source.class))).thenReturn(source);
         ArrayList<PostIngestPlugin> postIngestPlugins = new ArrayList<PostIngestPlugin>();
         framework = new CatalogFrameworkImpl(Collections.singletonList((CatalogProvider) provider),
                 null, new ArrayList<PreIngestPlugin>(), postIngestPlugins,
