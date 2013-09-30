@@ -26,9 +26,9 @@
             <Option label="https" value="https://"/>
         </AD>
 
-        <AD name="Host" id="host" required="true" type="String" description="The host name or IP address of the machine that DDF is running on. Do not enter localhost." />
+        <AD name="Host" id="host" required="true" type="String" description="The host name or IP address used to advertise the system. Possibilities include the address of a single node of that of a load balancer in a multi-node deployment. NOTE: Does not change the address the system runs on." />
 
-        <AD name="Port" id="port" required="true" type="String" description="The port that DDF is running on." />
+        <AD name="Port" id="port" required="true" type="String" description="The port used to advertise the system. Possibilities include the port of a single node of that of a load balancer in a multi-node deployment. NOTE: Does not change the port the system runs on." />
 
         <AD name="Trust Store:" id="trustStore" description="Trust Store location. Path is relative to ddf.home - for default (development-only) trust store, use etc/keystores/serverTruststore.jks." required="false" type="String">
         </AD>
