@@ -40,7 +40,8 @@
     <repository>mvn:ddf.security.pep/security-pep-app/${project.version}/xml/features</repository>
 	<repository>mvn:ddf.security.pdp/security-pdp-app/${project.version}/xml/features</repository>
 	<repository>mvn:ddf.catalog.plugin/catalog-federationreplication-app/${project.version}/xml/features</repository>
-
+	<repository>mvn:ddf.ui.search-ui/search-app/${project.version}/xml/features</repository>
+	
 	<feature name="ddf-framework" version="${project.version}"
 		description="Default features of DDF out-of-the-box.  
 	    Comprises the reference implementation of the DDF Catalog specification with the Eventing Engine among several other features.">
