@@ -112,6 +112,7 @@ import ddf.catalog.source.SourceMonitor;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.transform.CatalogTransformerException;
+import ddf.catalog.util.CachedSource;
 import ddf.catalog.util.SourcePoller;
 import ddf.catalog.util.SourcePollerRunner;
 
@@ -160,7 +161,7 @@ public class CatalogFrameworkImplTest {
         // Mock register the provider in the container
         // Mock the source poller
         SourcePoller mockPoller = mock(SourcePoller.class);
-        when(mockPoller.isAvailable(isA(Source.class))).thenReturn(Boolean.TRUE);
+        when(mockPoller.getCachedSource(isA(Source.class))).thenReturn(null);
 
         ArrayList<PostIngestPlugin> postIngestPlugins = new ArrayList<PostIngestPlugin>();
         postIngestPlugins.add(eventAdmin);
@@ -206,7 +207,7 @@ public class CatalogFrameworkImplTest {
         // Mock register the provider in the container
         // Mock the source poller
         SourcePoller mockPoller = mock(SourcePoller.class);
-        when(mockPoller.isAvailable(isA(Source.class))).thenReturn(Boolean.TRUE);
+        when(mockPoller.getCachedSource(isA(Source.class))).thenReturn(null);
 
         ArrayList<PostIngestPlugin> postIngestPlugins = new ArrayList<PostIngestPlugin>();
         postIngestPlugins.add(eventAdmin);
@@ -257,7 +258,7 @@ public class CatalogFrameworkImplTest {
         // Mock register the provider in the container
         // Mock the source poller
         SourcePoller mockPoller = mock(SourcePoller.class);
-        when(mockPoller.isAvailable(isA(Source.class))).thenReturn(Boolean.TRUE);
+        when(mockPoller.getCachedSource(isA(Source.class))).thenReturn(null);
 
         ArrayList<PostIngestPlugin> postIngestPlugins = new ArrayList<PostIngestPlugin>();
         postIngestPlugins.add(eventAdmin);
@@ -307,7 +308,7 @@ public class CatalogFrameworkImplTest {
         // Mock register the provider in the container
         // Mock the source poller
         SourcePoller mockPoller = mock(SourcePoller.class);
-        when(mockPoller.isAvailable(isA(Source.class))).thenReturn(Boolean.TRUE);
+        when(mockPoller.getCachedSource(isA(Source.class))).thenReturn(null);
 
         ArrayList<PostIngestPlugin> postIngestPlugins = new ArrayList<PostIngestPlugin>();
         postIngestPlugins.add(eventAdmin);
@@ -485,7 +486,8 @@ public class CatalogFrameworkImplTest {
     public void testPreQuery_StopExecution() throws UnsupportedQueryException, FederationException {
 
         SourcePoller poller = mock(SourcePoller.class);
-        when(poller.isAvailable(isA(Source.class))).thenReturn(Boolean.TRUE);
+        when(poller.getCachedSource(isA(Source.class))).thenReturn(null);
+
         MockMemoryProvider provider = new MockMemoryProvider("Provider", "Provider", "v1.0", "DDF",
                 new HashSet<ContentType>(), true, new Date());
         BundleContext context = null;
@@ -522,7 +524,8 @@ public class CatalogFrameworkImplTest {
 
         SourcePoller poller = mock(SourcePoller.class);
 
-        when(poller.isAvailable(isA(Source.class))).thenReturn(Boolean.TRUE);
+        when(poller.getCachedSource(isA(Source.class))).thenReturn(null);
+
 
         BundleContext context = null;
 
@@ -603,7 +606,8 @@ public class CatalogFrameworkImplTest {
         // Mock register the provider in the container
         // Mock the source poller
         SourcePoller mockPoller = mock(SourcePoller.class);
-        when(mockPoller.isAvailable(isA(Source.class))).thenReturn(Boolean.TRUE);
+        when(mockPoller.getCachedSource(isA(Source.class))).thenReturn(null);
+
 
         CatalogFrameworkImpl framework = new CatalogFrameworkImpl(
                 Collections.singletonList((CatalogProvider) provider), null,
@@ -655,7 +659,7 @@ public class CatalogFrameworkImplTest {
         // Mock register the federated sources in the container
         // Mock the source poller
         SourcePoller mockPoller = mock(SourcePoller.class);
-        when(mockPoller.isAvailable(isA(Source.class))).thenReturn(Boolean.TRUE);
+        when(mockPoller.getCachedSource(isA(Source.class))).thenReturn(null);
 
         CatalogFrameworkImpl framework = new CatalogFrameworkImpl(null, (CatalogProvider) null,
                 new ArrayList<PreIngestPlugin>(), new ArrayList<PostIngestPlugin>(),
@@ -738,7 +742,8 @@ public class CatalogFrameworkImplTest {
         // Mock register the federated sources in the container
         // Mock the source poller
         SourcePoller mockPoller = mock(SourcePoller.class);
-        when(mockPoller.isAvailable(isA(Source.class))).thenReturn(Boolean.TRUE);
+        when(mockPoller.getCachedSource(isA(Source.class))).thenReturn(null);
+
 
         CatalogFrameworkImpl framework = new CatalogFrameworkImpl(null, (CatalogProvider) null,
                 new ArrayList<PreIngestPlugin>(), new ArrayList<PostIngestPlugin>(),
@@ -782,7 +787,7 @@ public class CatalogFrameworkImplTest {
         // Mock register the provider in the container
         // Mock the source poller
         SourcePoller mockPoller = mock(SourcePoller.class);
-        when(mockPoller.isAvailable(isA(Source.class))).thenReturn(Boolean.TRUE);
+        when(mockPoller.getCachedSource(isA(Source.class))).thenReturn(null);
 
         CatalogFrameworkImpl framework = new CatalogFrameworkImpl(
                 Collections.singletonList(provider), null, new ArrayList<PreIngestPlugin>(),
@@ -1302,7 +1307,7 @@ public class CatalogFrameworkImplTest {
         // Mock register the provider in the container
         // Mock the source poller
         SourcePoller mockPoller = mock(SourcePoller.class);
-        when(mockPoller.isAvailable(isA(Source.class))).thenReturn(Boolean.TRUE);
+        when(mockPoller.getCachedSource(isA(Source.class))).thenReturn(null);
 
         Metacard metacard = mock(Metacard.class);
         when(metacard.getId()).thenReturn(metacardId);
@@ -1391,7 +1396,7 @@ public class CatalogFrameworkImplTest {
         // Mock register the provider in the container
         // Mock the source poller
         SourcePoller mockPoller = mock(SourcePoller.class);
-        when(mockPoller.isAvailable(isA(Source.class))).thenReturn(Boolean.TRUE);
+        when(mockPoller.getCachedSource(isA(Source.class))).thenReturn(null);
 
         // Create two ResourceReaders. The first should not return anything
         // and the second should.
@@ -1491,7 +1496,9 @@ public class CatalogFrameworkImplTest {
         // Mock register the provider in the container
         // Mock the source poller
         SourcePoller mockPoller = mock(SourcePoller.class);
-        when(mockPoller.isAvailable(isA(Source.class))).thenReturn(sourceAvailability);
+        CachedSource mockSource = mock(CachedSource.class);
+        when(mockSource.isAvailable()).thenReturn(sourceAvailability);
+        when(mockPoller.getCachedSource(isA(Source.class))).thenReturn(mockSource);
 
         CatalogFrameworkImpl framework = new CatalogFrameworkImpl(
                 Collections.singletonList(provider), null, new ArrayList<PreIngestPlugin>(),

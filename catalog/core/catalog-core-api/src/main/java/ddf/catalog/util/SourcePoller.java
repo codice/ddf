@@ -70,44 +70,17 @@ public class SourcePoller {
     }
 
     /**
-     * Checks the availability of the specified source. Returns the last source status retrieved
-     * during the last polling interval. If the specified source has never been polled (i.e.,
-     * UNCHECKED status, this method runs the poller immediately for the source and gets its current
-     * availability.
+     * Retrieves a {@link CachedSource} which contains cached values from the 
+     * specified {@link Source}. Returns a {@link Source} with values from the 
+     * last polling interval. If the {@link Source} is not known, null is returned.
      * 
      * @param source
-     *            the source to check the availability for
+     *            the source to get the {@link CachedSource} for
      * 
-     * @return true if source is available, false otherwise
+     * @return a {@link CachedSource} which contains cached values
      */
-    public boolean isAvailable(Source source) {
-        boolean result = false;
-        logger.trace("Checking source.");
-
-        if (source != null) {
-            SourceStatus sourceStatus = runner.getStatus(source);
-
-            if (sourceStatus == null) {
-
-                logger.debug("Unrecognized source [" + source + "/id=" + source.getId() + "]");
-
-                /*
-                 * If the sourceStatus equals null, then we don't have information as to whether
-                 * that source exists, therefore we return true so as to not stop threads from doing
-                 * their own check.
-                 */
-                result = true;
-            } else if (sourceStatus == SourceStatus.AVAILABLE) {
-                result = true;
-            } else if (sourceStatus == SourceStatus.UNAVAILABLE
-                    || sourceStatus == SourceStatus.UNCHECKED) {
-                result = false;
-            }
-        } else {
-            logger.debug(" Source is null. Returning false. ");
-            result = false;
-        }
-        return result;
+    public CachedSource getCachedSource(Source source) {
+        return runner.getCachedSource(source);
     }
 
     /**
@@ -142,18 +115,7 @@ public class SourcePoller {
      *            unused, but required by blueprint
      */
     public void start(CatalogFramework framework, Map properties) {
-        String frameworkString = "";
-        if (framework != null) {
-            frameworkString = framework.toString();
-        }
-        logger.debug("Framework started for [" + frameworkString + "]");
-
+        logger.debug("Framework started for [{}]", framework);
     }
 
-}
-
-// States that a source (Catalog Provider, Federated Source, or Connected Source) can be in
-enum SourceStatus {
-
-    UNCHECKED, AVAILABLE, UNAVAILABLE
 }
