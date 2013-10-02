@@ -95,7 +95,7 @@ public class LoadBalancerDynamicRouteBuilder extends RouteBuilder {
 		 * component to match on a given url with any prefix
 		 */
 		String jettyFromUri = "jetty:" + protocol + "://" + host + ":" + port
-				+ "?matchOnUriPrefix=true";
+				+ "?matchOnUriPrefix=true&continuationTimeout=0";
 
 		// Create fully qualified URIs to connect to nodes
 		/*************************************************************************************************************
