@@ -1145,11 +1145,6 @@
 			<url>http://repository.springsource.com/maven/bundles/external</url>
 		</repository>
 		<repository>
-			<id>jfrog-plugin</id>
-			<name>JFrog Plugin Releases</name>
-			<url>http://repo.jfrog.org/artifactory/plugins-releases/</url>
-		</repository>
-		<repository>
 			<id>servicemix</id>
 			<name>ServiceMix Releases</name>
 			<url>http://svn.apache.org/repos/asf/servicemix/m2-repo</url>
