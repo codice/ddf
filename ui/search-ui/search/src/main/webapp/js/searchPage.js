@@ -315,7 +315,7 @@ function formatResourceSize(resourceSize) {
 
 function showResourceSizes(){
 	//format the resource size for display and make it visible
-	divs = document.getElementsByClassName('resourceSize');
+	divs = $('.resourceSize');
 	var i;
 	for ( i = 0; i < divs.length; i++) {
 	        formattedSize = formatResourceSize(divs[i].innerHTML);

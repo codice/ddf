@@ -51,10 +51,10 @@
 
 <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
 <!--[if lt IE 9]>
-		<script src="/search/shim/html5.js"></script>
+		<script src="lib/shim/html5.js"></script>
 	<![endif]-->
 <!--[if IE 7]>
-  <link rel="stylesheet" href=/search/font-awesome/css/font-awesome-ie7.min.css">
+  <link rel="stylesheet" href="lib/font-awesome/css/font-awesome-ie7.min.css">
 <![endif]-->
 
 </head>
