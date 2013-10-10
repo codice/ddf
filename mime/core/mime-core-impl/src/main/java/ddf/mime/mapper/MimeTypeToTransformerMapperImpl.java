@@ -75,6 +75,13 @@ public class MimeTypeToTransformerMapperImpl implements MimeTypeToTransformerMap
             throw new IllegalArgumentException("Invalid syntax supplied: "
                     + userMimeType.toString());
         }
+        
+        // If no InputTransformers found, return empty list
+        if (refs == null) {
+            LOGGER.debug("No " + clazz.getName() + " services found - return empty list");
+            return list;
+        }
+        
         /*
          * Sort the list of service references based in it's Comparable interface.
          */

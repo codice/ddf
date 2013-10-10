@@ -572,6 +572,32 @@ public class TestMimeTypeToTransformerMapperImpl {
 
     }
 
+    /**
+     * We expect a null services list to be returned when no services have been registered in the
+     * service registry
+     *
+     * @throws MimeTypeParseException
+     * @throws InvalidSyntaxException
+     */
+    @Test
+    public void testNullServiceList() throws MimeTypeParseException, InvalidSyntaxException {
+ 
+        // given
+        BundleContext context = mock(BundleContext.class);
+        ServiceReference[] refs = null;
+ 
+        // when
+        when(context.getServiceReferences(isA(String.class), isNull(String.class)))
+                .thenReturn(refs);
+        MimeTypeToTransformerMapper matcher = new MimeTypeToTransformerMapperImpl(context);
+        List<InputTransformer> matches = matcher.findMatches(InputTransformer.class, new MimeType(
+                MediaType.APPLICATION_ATOM_XML));
+ 
+        // then
+        assertThat(matches.isEmpty(), is(true));
+ 
+    }    
+    
     private ServiceReference createMockReference(int i, List<String> mimeTypesSupported, String id) {
 
         ServiceReference ref = mock(ServiceReference.class);
