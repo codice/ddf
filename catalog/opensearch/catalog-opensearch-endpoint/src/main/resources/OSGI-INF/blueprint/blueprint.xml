@@ -23,7 +23,7 @@
 
     <reference id="ddf" interface="ddf.catalog.CatalogFramework"/>
     <reference id="filterBuilder" interface="ddf.catalog.filter.FilterBuilder"/>
-    <reference id="securityManager" interface="ddf.security.service.SecurityManager"/>
+    <reference id="securityManager" interface="ddf.security.service.SecurityManager" availability="optional" />
     <reference-list id="requestHandlerList" interface="ddf.security.service.TokenRequestHandler"
                     availability="optional"/>
 

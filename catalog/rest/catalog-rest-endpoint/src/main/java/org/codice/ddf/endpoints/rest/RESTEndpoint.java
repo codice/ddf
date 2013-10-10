@@ -234,7 +234,7 @@ public class RESTEndpoint {
 
             subject = getSubject(httpRequest);
             if (subject == null) {
-                LOGGER.info("Could not set security attributes for user, performing query with no permissions set.");
+                LOGGER.debug("Could not set security attributes for user, performing query with no permissions set.");
             }
 
             Map<String, Serializable> convertedMap = convert(map);
@@ -564,9 +564,9 @@ public class RESTEndpoint {
         return mimeType;
     }
 
-    private Subject getSubject(HttpServletRequest request) {
+    protected Subject getSubject(HttpServletRequest request) {
         Subject subject = null;
-        if (request != null) {
+        if (request != null && securityManager != null) {
             for (TokenRequestHandler curHandler : requestHandlerList) {
                 try {
                     subject = securityManager.getSubject(curHandler.createToken(request));
