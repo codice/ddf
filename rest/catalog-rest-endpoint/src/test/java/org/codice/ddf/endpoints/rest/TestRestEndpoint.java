@@ -18,6 +18,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.eq;
@@ -42,6 +43,7 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.activation.MimeType;
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
@@ -622,6 +624,25 @@ public class TestRestEndpoint {
         assertEquals(responseMessage, GET_STREAM);
         assertEquals(response.getStatus(), 200);
         assertEquals(response.getMetadata().toString(), GET_TYPE_OUTPUT);
+    }
+    
+    /**
+     * Tests a null mimetype is sent to matching service.
+     * 
+     * @throws URISyntaxException
+     * @throws SourceUnavailableException
+     * @throws IngestException
+     */
+    @Test
+    public void testNullgetSubject() throws URISyntaxException, IngestException,
+        SourceUnavailableException {
+
+        CatalogFramework framework = givenCatalogFramework(SAMPLE_ID);
+        HttpServletRequest request = mock(HttpServletRequest.class);
+
+        RESTEndpoint rest = new RESTEndpoint(framework);
+
+        assertNull(rest.getSubject(request));
     }
 
     /**

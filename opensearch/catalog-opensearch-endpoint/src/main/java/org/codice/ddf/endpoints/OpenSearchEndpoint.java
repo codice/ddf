@@ -352,9 +352,9 @@ public class OpenSearchEndpoint implements DdfConfigurationWatcher {
         }
     }
 
-    private Subject getSubject(HttpServletRequest request) {
+    protected Subject getSubject(HttpServletRequest request) {
         Subject subject = null;
-        if (request != null) {
+        if (request != null && securityManager != null) {
             for (TokenRequestHandler curHandler : requestHandlerList) {
                 try {
                     subject = securityManager.getSubject(curHandler.createToken(request));
