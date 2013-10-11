@@ -113,8 +113,8 @@ function RecordView(metacard){
 		var productLink, productLinkHref;
 		productLink = "";
 
-		if(typeof(getDDFServer) === 'function'){
-			productLinkHref = getDDFServer() + "/services/catalog/sources/" + this.properties["source-id"] + "/" + this.properties.id + "?transform=resource";
+		if(typeof(getServicesUrl) === 'function'){
+			productLinkHref = getServicesUrl() + "/services/catalog/sources/" + this.properties["source-id"] + "/" + this.properties.id + "?transform=resource";
 			productLink = "<a target='blank' href='"+productLinkHref+"'><i class='icon-download-alt icon-2x'></i></a>";
 		}else{
 			productLink = "<a class='btn btn-small btn-danger'>server not found</a>";
