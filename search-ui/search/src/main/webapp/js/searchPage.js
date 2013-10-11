@@ -27,13 +27,13 @@ $("#contentView").on("click", ".tree-toggle", function () {
 $("#errorView").hide();
 $("#loadingView").hide();
 
-function getDDFServer() {
+function getServicesUrl() {
 	return "";
 }
 
 $.ajax(
 	{
-		url: getDDFServer() + "/services/catalog/sources",
+		url: getServicesUrl() + "/services/catalog/sources",
 		dataType: "jsonp"
 	}).done(function(data){
 		var sources, types, type, to, i, j, id, o;
@@ -273,7 +273,7 @@ function createRow(index) {
 	productLink = $("<a>");
 	product.append(productLink);
 	productLink.attr("target", "_blank"); 
-	productLink.attr("href", getDDFServer() + "/services/catalog/sources/" + props["source-id"] + "/" + props.id + "?transform=resource");
+	productLink.attr("href", getServicesUrl() + "/services/catalog/sources/" + props["source-id"] + "/" + props.id + "?transform=resource");
 	productIcon = $("<i>");
 	productIcon.attr("class", "icon-download-alt icon-2x");
 	productLink.append(productIcon);
@@ -354,7 +354,7 @@ function getResults(startVal, showList) {
 
 	//Do the AJAX post
 	pendingRequest = $.ajax({
-		url:  getDDFServer() + $("#searchForm").attr("action"),
+		url:  getServicesUrl() + $("#searchForm").attr("action"),
 		data: $("#searchForm").serialize(),
 		dataType: "jsonp",
 		timeout:300000
