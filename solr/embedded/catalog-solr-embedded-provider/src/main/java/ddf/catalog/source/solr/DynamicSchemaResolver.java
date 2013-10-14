@@ -92,7 +92,7 @@ public class DynamicSchemaResolver {
 
     protected Map<String, byte[]> metacardTypeNameToSerialCache = new HashMap<String, byte[]>();
 
-    protected static XMLInputFactory2 xmlInputFactory = null;
+    protected static XMLInputFactory xmlInputFactory = null;
 
     static {
         ClassLoader tccl = Thread.currentThread().getContextClassLoader();
@@ -100,7 +100,8 @@ public class DynamicSchemaResolver {
             Thread.currentThread().setContextClassLoader(
                     DynamicSchemaResolver.class.getClassLoader());
 
-            xmlInputFactory = (XMLInputFactory2) XMLInputFactory2.newInstance();
+            //MODULARITY: not casting to XmlInputFactory2, which had issues with ClassCastException
+            xmlInputFactory = XMLInputFactory2.newInstance();
             xmlInputFactory.setProperty(XMLInputFactory.IS_REPLACING_ENTITY_REFERENCES,
                     Boolean.FALSE);
             xmlInputFactory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES,
@@ -108,7 +109,8 @@ public class DynamicSchemaResolver {
             xmlInputFactory.setProperty(XMLInputFactory.IS_COALESCING, Boolean.FALSE);
             // TODO verify the performance impact of this
             // xmlInputFactory.setProperty(XMLInputFactory.IS_VALIDATING, Boolean.FALSE);
-            xmlInputFactory.configureForSpeed();
+            //MODULARITY: Not available if not casting to XmlInputFactory2
+            //xmlInputFactory.configureForSpeed();
 
         } finally {
             Thread.currentThread().setContextClassLoader(tccl);
