@@ -25,7 +25,54 @@
 	<artifactId>platform-app</artifactId>
 	<name>DDF :: Platform :: App</name>
 	<packaging>pom</packaging>
-
+    
+    <properties>
+        <!-- 
+        Copied from apache-cxf-2.7.7-src/parent/pom.xml - used in platform-app's features.xml
+        DO NOT EDIT 
+        -->
+        <cxf.servicemix.specs.version>2.2.0</cxf.servicemix.specs.version>
+        <cxf.geronimo.annotation.version>1.1.1</cxf.geronimo.annotation.version>
+        <cxf.javax.mail.version>1.4.4</cxf.javax.mail.version>
+        <cxf.jaxb.bundle.version>2.2.1.1_2</cxf.jaxb.bundle.version>
+        <cxf.woodstox.core.version>4.2.0</cxf.woodstox.core.version>
+        <cxf.woodstox.stax2-api.version>3.1.1</cxf.woodstox.stax2-api.version>
+        <cxf.commons-codec.version>1.7</cxf.commons-codec.version>
+        <cxf.abdera.version>1.1.3</cxf.abdera.version>
+        <cxf.james.mim4j.version>0.7.2</cxf.james.mim4j.version>
+        <cxf.dom4j.bundle.version>1.6.1_5</cxf.dom4j.bundle.version>
+        <cxf.jdom.bundle.version>1.1_4</cxf.jdom.bundle.version>
+        <cxf.wss4j.version>1.6.12</cxf.wss4j.version>
+        <cxf.joda.time.version>1.6.2</cxf.joda.time.version>
+        <cxf.joda.time.version2>2.1</cxf.joda.time.version2>
+        <cxf.xmlsec.bundle.version>1.5.5</cxf.xmlsec.bundle.version>
+        <cxf.opensaml.osgi.version>2.5.3_1</cxf.opensaml.osgi.version>
+        <cxf.saaj-impl.bundle.version>1.3.21_1</cxf.saaj-impl.bundle.version>
+        <cxf.xmlresolver.bundle.version>1.2_5</cxf.xmlresolver.bundle.version>
+        <cxf.xerces.bundle.version>2.11.0_1</cxf.xerces.bundle.version>
+        <cxf.bcel.bundle.version>5.2_4</cxf.bcel.bundle.version>
+        <cxf.xalan.bundle.version>2.7.1_7</cxf.xalan.bundle.version>
+        <cxf.xmlschema.version>2.0.3</cxf.xmlschema.version>
+        <cxf.wsdl4j.bundle.version>1.6.3_1</cxf.wsdl4j.bundle.version>
+        <cxf.fastinfoset.bundle.version>1.2.7_4</cxf.fastinfoset.bundle.version>
+        <cxf.neethi.version>3.0.2</cxf.neethi.version>
+        <cxf.ehcache.bundle.version>2.5.1_1</cxf.ehcache.bundle.version>
+        <cxf.httpcomponents.client.version>4.2.5</cxf.httpcomponents.client.version>
+        <cxf.httpcomponents.core.version>4.2.4</cxf.httpcomponents.core.version>
+        <cxf.httpcomponents.asyncclient.version>4.0-beta3</cxf.httpcomponents.asyncclient.version>
+        <cxf.jettison.version>1.3.4</cxf.jettison.version>
+        <cxf.xpp3.bundle.version>1.1.4c_6</cxf.xpp3.bundle.version>
+        <cxf.jibx.version>1.2.4.5</cxf.jibx.version>
+        <cxf.xmlbeans.bundle.version>2.6.0_2</cxf.xmlbeans.bundle.version>
+        <cxf.rhino.bundle.version>1.7R2_3</cxf.rhino.bundle.version>
+        <cxf.commons-lang.version>2.6</cxf.commons-lang.version>
+        <cxf.commons-collections.version>3.2.1</cxf.commons-collections.version>
+        <cxf.xjc-utils.version>2.6.1</cxf.xjc-utils.version>
+        <cxf.velocity.version>1.7</cxf.velocity.version>
+        <cxf.hazelcast.version>1.9.4</cxf.hazelcast.version>
+        <!-- END CXF properties -->
+    </properties>
+    
 	<build>
 		<plugins>
 			<plugin>
@@ -45,32 +92,6 @@
 									<filtering>true</filtering>
 								</resource>
 							</resources>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-
-			<plugin>
-				<groupId>org.apache.karaf.tooling</groupId>
-				<artifactId>features-maven-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>add-features-to-repo</id>
-						<phase>generate-resources</phase>
-						<goals>
-							<goal>add-features-to-repo</goal>
-						</goals>
-						<configuration>
-							<inherited>false</inherited>
-							<descriptors>
-								<descriptor>file:${basedir}/target/classes/features.xml</descriptor>
-							</descriptors>
-							<features>
-								<!-- Adding only the CXF feature since create-kar will include Camel features and 
-									Karaf is already included in the system repo. -->
-								<feature>cxf</feature>
-							</features>
-							<repository>${basedir}/target/resources/repository</repository>
 						</configuration>
 					</execution>
 				</executions>
