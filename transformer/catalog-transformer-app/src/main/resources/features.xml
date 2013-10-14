@@ -13,44 +13,27 @@
  -->
 <features name="${project.artifactId}-${project.version}">
 
-    <feature name="catalog-transformer-html" version="${project.version}" description="DDF HTML Transformer translates query results into HTML.">
+    <feature name="catalog-transformer-html" install="auto" version="${project.version}" description="DDF HTML Transformer translates query results into HTML.">
         <bundle>mvn:ddf.catalog.transformer/service-html-transformer/${project.version}</bundle>
     </feature>
 
-    <feature name="catalog-transformer-tika" version="${project.version}" description="DDF default Input Transformer.">
+    <feature name="catalog-transformer-tika" install="manual" version="${project.version}" description="DDF default Input Transformer.">
         <bundle>mvn:ddf.catalog.transformer/tika-input-transformer/${project.version}</bundle>
     </feature>
 
-    <feature name="catalog-transformer-json" version="${project.version}" description="DDF GeoJSON Transformer translates metacards into GeoJSON.">
+    <feature name="catalog-transformer-json" install="auto" version="${project.version}" description="DDF GeoJSON Transformer translates metacards into GeoJSON.">
         <feature>catalog-transformer-geoformatter</feature>
         <bundle>mvn:ddf.catalog.transformer/geojson-metacard-transformer/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.transformer/geojson-queryresponse-transformer/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.transformer/geojson-input-transformer/${project.version}</bundle>
     </feature>
     
-    <feature name="catalog-transformer-ui" version="${project.version}" description="HTML Query Response Transformer.">
-    	<feature>camel-freemarker</feature>
-		<bundle>mvn:ddf.catalog.transformer/catalog-responsequeuetransformer-html/${project.version}</bundle>
-    </feature>
-
-    <feature name="catalog-transformer-atom" version="${project.version}" description="Atom Query Response Transformer.">
-        <feature>catalog-transformer-geoformatter</feature>
-        <bundle>mvn:ddf.catalog.transformer/service-atom-transformer/${project.version}</bundle>
-        <bundle>mvn:org.apache.abdera/abdera-extensions-opensearch/${abdera.version}</bundle>
-        <bundle>mvn:org.apache.abdera/abdera-extensions-geo/${abdera.version}</bundle>
-        <bundle>mvn:org.apache.abdera/abdera-server/${abdera.version}</bundle>
+    <feature name="catalog-transformer-ui" install="auto" version="${project.version}" description="HTML Query Response Transformer.">
+        <feature>camel-freemarker</feature>
+        <bundle>mvn:ddf.catalog.transformer/catalog-responsequeuetransformer-html/${project.version}</bundle>
     </feature>
     
-    <feature name="catalog-transformer-geoformatter" version="${project.version}"
-        description="DDF Geo library to help with conversion of geometry objects into various formats such GeoJson, GeoRSS, etc.">
-        <feature>abdera</feature>
-        <bundle>mvn:ddf.catalog.common/geo-formatter/${project.version}</bundle>
-        <bundle>mvn:org.apache.abdera/abdera-extensions-geo/${abdera.version}</bundle>
-        <bundle>mvn:com.googlecode.json-simple/json-simple/1.1.1</bundle>
-        <bundle>mvn:org.codice.thirdparty/jts/${jts.bundle.version}</bundle>
-    </feature>
-
-    <feature name="abdera" version="${project.version}" description="Apache Abdera">
+    <feature name="abdera" install="auto" version="${project.version}" description="Apache Abdera">
         <bundle>mvn:commons-codec/commons-codec/1.4</bundle>
         <!-- This bundle <bundle>mvn:org.apache.ws.commons.axiom/axiom-impl/1.2.10</bundle>
         does not export any classes. Must use the servicemix version. -->
@@ -67,26 +50,35 @@
         <bundle>mvn:org.codice.thirdparty/commons-httpclient/3.1.0_1</bundle>
     </feature>
     
-    <feature name="catalog-transformer-metadata" version="${project.version}" description="Retrieves the attribute, Metadata, from the Metacard.">
-		<bundle>mvn:ddf.catalog.transformer/catalog-transformer-metadata/${project.version}</bundle>
-	</feature>
-	
-    <feature name="catalog-transformer-thumbnail" version="${project.version}" description="Retrieves the attribute, Thumbnail, from the Metacard.">
-		<bundle>mvn:ddf.catalog.transformer/catalog-transformer-thumbnail/${project.version}</bundle>
-	</feature>
-	
-	<feature name="catalog-transformer-xsltengine" version="${project.version}" description="Provides XSLT transformer engine.">
-	  	<bundle>mvn:ddf.catalog.transformer/service-xslt-transformer/${project.version}</bundle>
-	</feature>
-	
-	<feature name="catalog-transformer-xml" version="${project.version}"
-		description="XML MetacardTransformer and InputTransformer">
-		<bundle>mvn:ddf.catalog.transformer/catalog-transformer-xml/${project.version}</bundle>
-	</feature>
-        
-   <feature name="catalog-transformer-resource" version="${project.version}"
-      description="Resource MetacardTransformer and InputTransformer">
-      <bundle>mvn:ddf.catalog.transformer/catalog-transformer-resource/${project.version}</bundle>
-   </feature>
-        
+    <feature name="catalog-transformer-atom" install="auto" version="${project.version}" description="Atom Query Response Transformer.">
+        <feature>catalog-transformer-geoformatter</feature>
+        <bundle>mvn:ddf.catalog.transformer/service-atom-transformer/${project.version}</bundle>
+        <bundle>mvn:org.apache.abdera/abdera-extensions-opensearch/${abdera.version}</bundle>
+        <bundle>mvn:org.apache.abdera/abdera-extensions-geo/${abdera.version}</bundle>
+        <bundle>mvn:org.apache.abdera/abdera-server/${abdera.version}</bundle>
+    </feature>
+    
+    <feature name="catalog-transformer-geoformatter" install="auto" version="${project.version}"
+        description="DDF Geo library to help with conversion of geometry objects into various formats such GeoJson, GeoRSS, etc.">
+        <feature>abdera</feature>
+        <bundle>mvn:ddf.catalog.common/geo-formatter/${ddf.esb.app.version}</bundle>
+        <bundle>mvn:org.apache.abdera/abdera-extensions-geo/${abdera.version}</bundle>
+        <bundle>mvn:com.googlecode.json-simple/json-simple/1.1.1</bundle>
+        <bundle>mvn:org.codice.thirdparty/jts/${jts.bundle.version}</bundle>
+    </feature>
+    
+    <feature name="catalog-transformer-xml" install="auto" version="${project.version}"
+        description="XML MetacardTransformer and InputTransformer">
+        <bundle>mvn:ddf.catalog.transformer/catalog-transformer-xml/${project.version}</bundle>
+    </feature>
+   
+    <feature name="transformers-app" install="auto" version="${project.version}"
+        description="DDF Transformers application default installations">
+        <feature>catalog-transformer-html</feature>
+        <feature>catalog-transformer-json</feature>
+        <feature>catalog-transformer-ui</feature> 
+        <feature>catalog-transformer-atom</feature>
+        <feature>catalog-transformer-geoformatter</feature>
+        <feature>catalog-transformer-xml</feature>
+    </feature>        
 </features>
