@@ -49,6 +49,7 @@ import org.opengis.filter.Filter;
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.BinaryContentImpl;
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.MetacardImpl;
 import ddf.catalog.filter.FilterAdapter;
 import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.filter.proxy.adapter.GeotoolsFilterAdapterImpl;
@@ -60,7 +61,8 @@ import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.resource.ResourceNotFoundException;
 import ddf.catalog.resource.ResourceNotSupportedException;
 import ddf.catalog.source.UnsupportedQueryException;
-import ddf.catalog.transformer.xml.XmlInputTransformer;
+import ddf.catalog.transform.CatalogTransformerException;
+import ddf.catalog.transform.InputTransformer;
 
 /**
  * Tests parts of the {@link OpenSearchSource}
@@ -70,8 +72,6 @@ import ddf.catalog.transformer.xml.XmlInputTransformer;
  * 
  */
 public class TestOpenSearchSource {
-
-    private static final XmlInputTransformer DEFAULT_INPUT_TRANSFORMER = new XmlInputTransformer();
 
     private static final GeotoolsFilterAdapterImpl FILTER_ADAPTER = new GeotoolsFilterAdapterImpl();
 
@@ -304,7 +304,7 @@ public class TestOpenSearchSource {
 
         OpenSearchSource source = new OpenSearchSource(mockConnection, FILTER_ADAPTER);
         source.setLocalQueryOnly(true);
-        source.setInputTransformer(DEFAULT_INPUT_TRANSFORMER);
+        source.setInputTransformer(getMockInputTransformer());
         source.init();
 
         // Metacard ID filter
@@ -390,10 +390,39 @@ public class TestOpenSearchSource {
         source.setEndpointUrl("http://localhost:8181/services/catalog/query?q={searchTerms}&src={fs:routeTo?}&mr={fs:maxResults?}&count={count?}&mt={fs:maxTimeout?}&dn={idn:userDN?}&lat={geo:lat?}&lon={geo:lon?}&radius={geo:radius?}&bbox={geo:box?}&polygon={geo:polygon?}&dtstart={time:start?}&dtend={time:end?}&dateName={cat:dateName?}&filter={fsa:filter?}&sort={fsa:sort?}");
         source.init();
         source.setLocalQueryOnly(true);
-        source.setInputTransformer(DEFAULT_INPUT_TRANSFORMER);
+        source.setInputTransformer(getMockInputTransformer());
         return source;
     }
 
+    protected InputTransformer getMockInputTransformer() {
+        InputTransformer inputTransformer = mock(InputTransformer.class);
+
+        Metacard generatedMetacard = getSimpleMetacard();
+
+        try {
+            when(inputTransformer.transform(isA(InputStream.class))).thenReturn(generatedMetacard);
+            when(inputTransformer.transform(isA(InputStream.class), isA(String.class))).thenReturn(
+                    generatedMetacard);
+        } catch (IOException e) {
+            fail();
+        } catch (CatalogTransformerException e) {
+            fail();
+        }
+        return inputTransformer;
+    }
+
+    protected Metacard getSimpleMetacard() {
+        MetacardImpl generatedMetacard = new MetacardImpl();
+        generatedMetacard.setMetadata(getSample());
+        generatedMetacard.setId(SAMPLE_ID);
+
+        return generatedMetacard;
+    }
+
+    private String getSample() {
+        return "<xml></xml>";
+    }
+    
     private SecureRemoteConnection givenRemoteConnection(Answer<BinaryContent> answer)
         throws MalformedURLException, IOException {
 
