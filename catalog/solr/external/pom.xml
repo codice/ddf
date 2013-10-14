@@ -44,7 +44,6 @@
 
 	<modules>
         <module>catalog-solr-external-provider</module>
-        <module>catalog-solr-external-app</module>
 	</modules>
 	
 </project>

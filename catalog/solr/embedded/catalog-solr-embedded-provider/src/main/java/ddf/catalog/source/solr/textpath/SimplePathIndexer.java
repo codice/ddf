@@ -19,12 +19,13 @@ import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.List;
 
+import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
 
 import org.apache.log4j.Logger;
 import org.codehaus.stax2.XMLInputFactory2;
-import org.codehaus.stax2.XMLStreamReader2;
 
 /**
  * Class is used to create simple text path index strings to be searched upon.
@@ -39,23 +40,24 @@ public class SimplePathIndexer {
 
     public static final char LEAF_TEXT_DELIMITER = '|';
 
-    private XMLInputFactory2 xmlInputFactory = null;
+    //MODULARITY: changed from XmlInputFactory2
+    private XMLInputFactory xmlInputFactory = null;
 
     private final Deque<String> stack = new ArrayDeque<String>();
 
     private static final Logger LOGGER = Logger.getLogger(SimplePathIndexer.class);
 
-    public SimplePathIndexer(XMLInputFactory2 xmlInputFactory) {
+    public SimplePathIndexer(XMLInputFactory xmlInputFactory) {
         this.xmlInputFactory = xmlInputFactory;
     }
 
     public List<String> indexTextPath(String xmlData) {
-        XMLStreamReader2 xmlStreamReader;
+        XMLStreamReader xmlStreamReader;
         TextPathState state = new TextPathState();
 
         try {
             // xml parser does not handle leading whitespace
-            xmlStreamReader = (XMLStreamReader2) xmlInputFactory
+            xmlStreamReader = xmlInputFactory
                     .createXMLStreamReader(new StringReader(xmlData));
 
             while (xmlStreamReader.hasNext()) {
@@ -63,8 +65,15 @@ public class SimplePathIndexer {
 
                 if (event == XMLStreamConstants.START_ELEMENT) {
                     StringBuffer element = new StringBuffer();
-                    element.append(previous()).append(SELECTOR)
-                            .append(xmlStreamReader.getPrefixedName());
+                    //MODULARITY: Only available with XmlStreamReader2
+//                    element.append(previous()).append(SELECTOR)
+//                            .append(xmlStreamReader.getPrefixedName());
+                    String prefix = xmlStreamReader.getPrefix();
+                    String prefixName = xmlStreamReader.getLocalName();
+                    if (prefix != null && prefix.length() > 0) {
+                        prefixName = prefix + ":" + prefixName;
+                    }
+                    element.append(previous()).append(SELECTOR).append(prefixName);
                     stack.push(element.toString());
                     state.startElement(stack.peek());
                 }

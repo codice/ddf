@@ -28,7 +28,6 @@
 
 	<modules>
         <module>catalog-solr-embedded-provider</module>
-        <module>catalog-solr-embedded-app</module>
 	</modules>
 	
 </project>
