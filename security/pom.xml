@@ -15,17 +15,20 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 	<parent>
-		<artifactId>ddf</artifactId>
 		<groupId>ddf</groupId>
-		<version>2.3.0-SNAPSHOT</version>
+        <artifactId>ddf-parent</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+        <relativePath>../../ddf-parent/pom.xml</relativePath>
 	</parent>
+	
 	<groupId>ddf.security</groupId>
 	<artifactId>security</artifactId>
-
+    <version>2.3.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>DDF Security</name>
 	
 	<properties>
+	    <ddf.esb.app.version>2.3.0-SNAPSHOT</ddf.esb.app.version>
 		<shiro.version>1.2.1</shiro.version>
 		<cas.client.version>3.1.10</cas.client.version>
         <cas.client.bundle.version>${cas.client.version}_1</cas.client.bundle.version>
@@ -56,12 +59,12 @@
 			<dependency>
 				<groupId>ddf.security.encryption</groupId>
 				<artifactId>security-encryption-impl</artifactId>
-				<version>${project.version}</version>
+				<version>${ddf.esb.app.version}</version>
 			</dependency>
             <dependency>
                 <groupId>ddf.security.encryption</groupId>
                 <artifactId>security-encryption-api</artifactId>
-                <version>${project.version}</version>
+                <version>${ddf.esb.app.version}</version>
             </dependency>
             <dependency>
                 <groupId>ddf.security.expansion</groupId>
@@ -71,6 +74,21 @@
             <dependency>
                 <groupId>ddf.security.expansion</groupId>
                 <artifactId>security-expansion-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>ddf.catalog.core</groupId>
+                <artifactId>catalog-core-api</artifactId>
+                <version>${ddf.esb.app.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>ddf.security.core</groupId>
+                <artifactId>security-core-api</artifactId>
+                <version>${ddf.esb.app.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>ddf.security.core</groupId>
+                <artifactId>security-core-impl</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
@@ -89,12 +107,15 @@
 	</dependencyManagement>
 
 	<modules>
-        <module>encryption</module>
         <module>expansion</module>
-        <module>core</module>
+        <!-- 
+        API moved to DDF ESB app because OpenSearch and REST endpoints will need it;
+        Impl kept in Security Services app because DefaultSecurityManager requires non-empty realms list -->
+        <module>core/security-core-impl</module>  
         <module>sts</module>
-		<module>cas</module>
+        <module>cas</module>
         <module>pdp</module>
-		<module>pep</module>
+        <module>pep</module>
+        <module>security-services-app</module>
     </modules>
 </project>
