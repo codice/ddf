@@ -28,7 +28,6 @@
 
 	<modules>
         <module>catalog-solr-server-standalone</module>
-        <module>catalog-solr-server-app</module>
 	</modules>
 	
 </project>
