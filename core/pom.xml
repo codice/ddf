@@ -16,9 +16,10 @@
   <modelVersion>4.0.0</modelVersion>
   
   <parent>
-    <artifactId>content</artifactId>
-    <groupId>ddf.content</groupId>
-    <version>2.3.0-SNAPSHOT</version>
+        <groupId>ddf.esb</groupId>
+        <artifactId>esb</artifactId>
+        <version>2.3.0-SNAPSHOT</version>
+        <relativePath>../../esb/pom.xml</relativePath>
   </parent>
   
   <groupId>ddf.content.core</groupId>
@@ -29,12 +30,8 @@
   <modules> 
     <module>content-core-api</module>
     <module>content-core-impl</module>
-    <module>content-core-filestorageprovider</module>
-    <module>content-core-directorymonitor</module>
     <module>content-core-standardframework</module>
     <module>content-core-camelcomponent</module>
-	<module>content-core-catalogerplugin</module>
-    <module>content-core-app</module>
   </modules>
   
   <build>
