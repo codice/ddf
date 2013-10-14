@@ -146,14 +146,14 @@
       <module>../metrics/metrics-collector</module>  <!-- needed by catalog-core-metricsplugin -->
       <module>../catalog/common</module>
       <module>../catalog/core</module>
-      <module>../catalog/fanout</module>
+      <!-- <module>../catalog/fanout</module>  NEEDED??? -->
       <module>../catalog/schematron</module>
       <module>../catalog/transformer/catalog-transformer-attribute</module>
       <module>../catalog/transformer/service-xslt-transformer</module>
       <module>../catalog/transformer/catalog-transformer-resource</module>
       <module>../catalog/transformer/catalog-transformer-metadata</module>
       <module>../catalog/transformer/catalog-transformer-thumbnail</module>
-      <module>../security/expansion</module>
+      <!-- <module>../security/expansion</module>  Moved to security services app??? -->
       <module>../security/core/security-core-api</module>
       <module>../content/core</module>
       <module>../security/encryption</module>

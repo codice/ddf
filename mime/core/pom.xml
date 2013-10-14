@@ -31,7 +31,6 @@
 		<module>mime-core-api</module>
 		<module>mime-core-impl</module>
 		<module>mime-core-configurableresolver</module>
-		<module>mime-core-app</module>
 	</modules>
 
 </project>

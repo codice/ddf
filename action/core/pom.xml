@@ -30,7 +30,6 @@
 	<modules>
 		<module>action-core-api</module>
 		<module>action-core-impl</module>
-		<module>action-core-app</module>
 	</modules>
 
 </project>
