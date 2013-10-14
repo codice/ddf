@@ -1,0 +1,168 @@
+<!-- /**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version. 
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/ -->
+<features name="${project.artifactId}-${project.version}">
+
+    <feature name="action-core-api" install="auto" version="${project.version}" description="DDF Action API">
+        <bundle>mvn:ddf.action.core/action-core-api/${project.version}</bundle>
+    </feature>
+
+    <feature name="action-core-impl" install="auto" version="${project.version}" description="DDF Action Core">
+        <feature>action-core-api</feature>
+        <bundle>mvn:ddf.action.core/action-core-impl/${project.version}</bundle>
+    </feature>
+    
+    <feature name="mime-core-api" install="auto" version="${project.version}" description="DDF MIME API">
+        <bundle>mvn:ddf.mime.core/mime-core-api/${project.version}</bundle>
+    </feature>
+
+    <feature name="mime-core" install="auto" version="${project.version}" description="DDF MIME Core">
+        <feature>mime-core-api</feature>
+        <bundle>mvn:ddf.mime.core/mime-core-impl/${project.version}</bundle>
+        <bundle>mvn:ddf.mime.core/mime-core-configurableresolver/${project.version}</bundle>
+        <config name="DDF_Custom_Mime_Type_Resolver-NitfCustomMimeTypes">
+            name = NITF Content Resolver
+            priority = 10
+            customMimeTypes = nitf=image/nitf,ntf=image/nitf
+        </config>
+        <config name="DDF_Custom_Mime_Type_Resolver-Ddmsv20CustomMimeTypes">
+            name = DDMS v2.0 Content Resolver
+            priority = 10
+            customMimeTypes = xml=text/xml;id=ddms
+        </config>
+        <config name="DDF_Custom_Mime_Type_Resolver-GeoJsonCustomMimeTypes">
+            name = GeoJson Content Resolver
+            priority = 10
+            customMimeTypes = json=application/json;id=geojson
+        </config>
+    </feature>
+    
+    <feature name="mime-tika-resolver" install="auto" version="${project.version}" description="DDF Tika MIME Resolver.">
+        <bundle>mvn:ddf.mime.tika/mime-tika-resolver/${project.version}</bundle>
+    </feature>
+    
+    <feature name="catalog-core-api" install="auto" version="${project.version}" description="Catalog API interfaces and simple implementations.">
+        <bundle>mvn:ddf.catalog.core/catalog-core-api/${project.version}</bundle>
+        <bundle>mvn:ddf.mime.core/mime-core-api/${project.version}</bundle>
+        <bundle>mvn:org.apache.tika/tika-core/${tika.version}</bundle>
+        <bundle>mvn:org.apache.tika/tika-bundle/${tika.version}</bundle>
+        <bundle>mvn:org.codice.thirdparty/gt-opengis/${opengis.bundle.version}</bundle>
+    </feature>
+    
+    <feature name="catalog-core" install="auto" version="${project.version}"
+        description="Catalog Core feature containing the API, third party bundles necessary to run ddf-core.">
+        <feature>catalog-core-api</feature>
+        <feature>cxf-tools</feature>
+        <bundle>mvn:ddf.catalog.core/catalog-core-commons/${project.version}</bundle>
+        <bundle>mvn:ddf.catalog.core/catalog-core-camelcomponent/${project.version}</bundle>        
+        <bundle>mvn:ddf.measure/measure-api/${project.version}</bundle>
+        <bundle>mvn:org.codice.thirdparty/picocontainer/1.2_1</bundle>
+        <bundle>mvn:org.codice.thirdparty/vecmath/1.3.2_1</bundle> <!-- for GeoTools -->
+        <bundle>mvn:org.codice.thirdparty/geotools-suite/${org.geotools.bundle.version}</bundle>
+        <bundle>mvn:org.codice.thirdparty/jts/${jts.bundle.version}</bundle>
+        <bundle>mvn:ddf.catalog.core/catalog-core-federationstrategy/${project.version}</bundle>
+        <bundle>mvn:org.codice.thirdparty/lucene-core/3.0.2_1</bundle>
+        <bundle>mvn:ddf.catalog.core/ddf-pubsub/${project.version}</bundle>
+        <bundle>mvn:ddf.catalog.core/catalog-core-eventcommands/${project.version}</bundle>
+        <bundle>mvn:ddf.catalog.core/ddf-pubsub-tracker/${project.version}</bundle>
+        <bundle>mvn:ddf.catalog.core/catalog-core-urlresourcereader/${project.version}</bundle>
+        <bundle>mvn:ddf.catalog.core/filter-proxy/${project.version}</bundle>
+        <bundle>mvn:ddf.catalog.core/catalog-core-commands/${project.version}</bundle>
+        <bundle>mvn:ddf.catalog.core/catalog-core-metacardgroomerplugin/${project.version}</bundle>
+        <bundle>mvn:ddf.catalog.core/metacard-type-registry/${project.version}</bundle>
+    </feature>
+    
+    <feature name="catalog-core-standardframework" install="auto" version="${project.version}"
+        description="DDF Catalog Framework: the reference implementation of the DDF Catalog specification.">
+        <bundle>mvn:ddf.catalog.core/catalog-core-standardframework/${project.version}</bundle>
+    </feature>
+    
+    <feature name="catalog-core-fanoutframework" install="auto" version="${project.version}"
+        description="Fanout Catalog Framework: fanout implementation of the DDF Catalog specification.">
+        <bundle>mvn:ddf.catalog.core/fanout-catalogframework/${project.version}</bundle>
+    </feature>
+
+    <feature name="catalog-core-metricsplugin" install="auto" version="${project.version}"
+        description="Catalog plug-in to capture metrics about catalog operations.">
+        <bundle>mvn:ddf.catalog.core/catalog-core-metricsplugin/${project.version}</bundle>
+    </feature>
+    
+    <feature name="catalog-core-sourcemetricsplugin" install="auto" version="${project.version}"
+        description="Capture metrics about individual source operations.">
+        <bundle>mvn:ddf.catalog.core/catalog-core-sourcemetricsplugin/${project.version}</bundle>
+    </feature>
+    
+    <feature name="catalog-schematron-plugin" install="auto" version="${project.version}" description="Schematron pre-ingest validation plugin.">
+        <bundle>mvn:ddf.catalog.schematron/catalog-schematron-plugin/${project.version}</bundle>
+    </feature>
+    
+    <feature name="content-core-api" install="auto" version="${project.version}" description="Content API">
+        <bundle>mvn:ddf.content.core/content-core-api/${project.version}</bundle>
+    </feature>
+
+    <feature name="content-core" install="auto" version="${project.version}" description="Content Core">
+        <feature>content-core-api</feature>
+        <bundle>mvn:ddf.content.core/content-core-impl/${project.version}</bundle>
+        <bundle>mvn:ddf.content.core/content-core-standardframework/${project.version}</bundle>
+        <bundle>mvn:ddf.camel.component/content-core-camelcomponent/${project.version}</bundle>
+    </feature>
+    
+    <feature name="catalog-transformer-metadata" install="auto" version="${project.version}" description="Retrieves the attribute, Metadata, from the Metacard.">
+        <bundle>mvn:ddf.catalog.transformer/catalog-transformer-metadata/${project.version}</bundle>
+    </feature>
+    
+    <feature name="catalog-transformer-thumbnail" install="auto" version="${project.version}" description="Retrieves the attribute, Thumbnail, from the Metacard.">
+        <bundle>mvn:ddf.catalog.transformer/catalog-transformer-thumbnail/${project.version}</bundle>
+    </feature>
+    
+    <feature name="catalog-transformer-xsltengine" install="auto" version="${project.version}" description="Provides XSLT transformer engine.">
+        <bundle>mvn:ddf.catalog.transformer/service-xslt-transformer/${project.version}</bundle>
+    </feature>
+        
+    <feature name="catalog-transformer-resource" install="auto" version="${project.version}"
+        description="Resource MetacardTransformer and InputTransformer">
+        <bundle>mvn:ddf.catalog.transformer/catalog-transformer-resource/${project.version}</bundle>
+    </feature>  
+    
+    <feature name="security-core-api" install="auto" version="${project.version}" description="DDF Security Core">
+        <feature>cxf-rt-security</feature>
+        <bundle>mvn:org.apache.shiro/shiro-core/${shiro.version}</bundle>
+        <bundle>mvn:ddf.security.core/security-core-api/${project.version}</bundle>
+        <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jaxen/${org.apache.servicemix.bundles.jaxen.version}</bundle>
+    </feature>  
+    
+    <feature name="security-encryption" install="auto" version="${project.version}" description="DDF Security Encryption">
+        <bundle>mvn:ddf.security.encryption/security-encryption-api/${project.version}</bundle>
+        <bundle>mvn:ddf.security.encryption/security-encryption-impl/${project.version}</bundle>
+        <bundle>mvn:ddf.security.encryption/security-encryption-commands/${project.version}</bundle>
+    </feature>
+    
+    <feature name="ddf-esb" install="auto" version="${project.version}"
+        description="DDF Enterprise Service Bus (Core).">
+        <feature>action-core-api</feature>
+        <feature>action-core-impl</feature>
+        <feature>mime-core</feature>
+        <feature>mime-tika-resolver</feature>
+        <feature>catalog-core</feature>
+        <feature>catalog-core-standardframework</feature>
+        <feature>catalog-core-metricsplugin</feature>
+        <feature>catalog-core-sourcemetricsplugin</feature>
+        <feature>content-core</feature>
+        <feature>catalog-transformer-thumbnail</feature>    
+        <feature>catalog-transformer-metadata</feature>
+        <feature>catalog-transformer-xsltengine</feature>
+        <feature>catalog-transformer-resource</feature>
+        <feature>security-encryption</feature>
+        <feature>security-core-api</feature>
+    </feature>
+
+</features>
+    
