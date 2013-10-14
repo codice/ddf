@@ -31,7 +31,6 @@
     <module>security-cas-impl</module>
     <module>security-cas-tokenvalidator</module>
     <module>security-cas-cxfservletfilter</module>
-    <module>security-cas-app</module>
   </modules>
 
 </project>

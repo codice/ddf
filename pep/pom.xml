@@ -31,7 +31,6 @@
     <module>security-pep-redaction</module>
     <module>security-pep-userattr-map</module>
     <module>security-pep-metacardattr-map</module>
-    <module>security-pep-app</module>
   </modules>
 
 </project>
