@@ -34,7 +34,6 @@
     <module>security-sts-x509validator</module>
     <module>security-sts-ldapclaimshandler</module>
     <module>security-sts-ldaplogin</module>
-    <module>security-sts-app</module>
   </modules>
 
 </project>

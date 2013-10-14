@@ -30,7 +30,6 @@
   <modules>
     <module>security-pdp-xacmlrealm</module>
     <module>security-pdp-authzrealm</module>
-    <module>security-pdp-app</module>
   </modules>
 
 </project>

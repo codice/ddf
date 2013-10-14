@@ -30,7 +30,6 @@
     <module>security-expansion-api</module>
     <module>security-expansion-impl</module>
     <module>security-expansion-commands</module>
-    <module>security-expansion-app</module>
   </modules>
 
 </project>
