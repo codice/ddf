@@ -27,7 +27,6 @@
 	<modules>
         <module>catalog-opensearch-endpoint</module>
         <module>catalog-opensearch-source</module>
-        <module>catalog-opensearch-app</module>
 	</modules>
 	
 </project>
