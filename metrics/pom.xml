@@ -16,9 +16,10 @@
   <modelVersion>4.0.0</modelVersion>
   
   <parent>
-    <artifactId>ddf</artifactId>
-    <groupId>ddf</groupId>
-    <version>2.3.0-SNAPSHOT</version>
+    <groupId>ddf.catalog</groupId>
+        <artifactId>catalog</artifactId>
+        <version>2.3.0-SNAPSHOT</version>
+        <relativePath>../catalog/pom.xml</relativePath>
   </parent>
   
   <groupId>ddf.metrics</groupId>
@@ -27,11 +28,9 @@
   <name>DDF Metrics</name>
   
   <modules>
-      <module>metrics-collector</module>
       <module>metrics-reporting</module>
       <module>metrics-webconsole-plugin</module>
       <module>metrics-interceptor</module>
-      <module>metrics-reporting-app</module>
   </modules>
   
 </project>
