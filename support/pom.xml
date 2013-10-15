@@ -17,12 +17,15 @@
 	
 	<parent>
 		<groupId>ddf</groupId>
-		<artifactId>ddf</artifactId>
-		<version>2.3.0-SNAPSHOT</version>
+        <artifactId>ddf-parent</artifactId>
+        <version>2.0.0-SNAPSHOT</version>
+        <relativePath>../ddf-parent/pom.xml</relativePath>
 	</parent>
 
     <groupId>ddf.support</groupId>
     <artifactId>support-pom</artifactId>
+    <!-- Manually maintained and must be manually updated in the ddf-parent pom.xml properties -->
+    <version>2.3.0-SNAPSHOT</version>
     <name>DDF Support</name>
     <description>DDF Support module contains support files for builds and site report generation</description>
     <packaging>pom</packaging>
