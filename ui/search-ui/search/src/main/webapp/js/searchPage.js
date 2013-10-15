@@ -239,7 +239,7 @@ function formatDate(dateStr) {
 
 function createRow(index) {
 	var metacard, props, row, title, link, source,location, date, thumbnail,
-			product, productLink, productIcon, thumbnailLink, javascript;
+			product, productLink, productIcon, thumbnailLink, thumbnailImage, javascript;
 	
 	javascript = "javascript";
 	metacard = resultsMapping[index];
@@ -262,11 +262,15 @@ function createRow(index) {
 	
 	thumbnail = $("<td>");
 	if(props.thumbnail) {
-		thumbnailLink = $("<img>");
+		thumbnailLink = $("<a>");
 		thumbnail.append(thumbnailLink);
-		thumbnailLink.attr("class", "thumbnail");
-		thumbnailLink.attr("alt", "");
-		thumbnailLink.attr("src", "data:image/jpeg;charset=utf-8;base64, " + props.thumbnail);
+		thumbnailLink.attr("href", javascript + ":showThumbnailByIndex(" + index + ")");
+
+		thumbnailImage = $("<img>");
+		thumbnailLink.append(thumbnailImage);
+		thumbnailImage.attr("class", "thumbnail");
+		thumbnailImage.attr("alt", "");
+		thumbnailImage.attr("src", "data:image/jpeg;charset=utf-8;base64, " + props.thumbnail);
 	}
 
 	product = $("<td>");
@@ -290,6 +294,7 @@ function createRow(index) {
 	
 	return row;
 }
+
 
 //return a formatted (human readable) string for the resource size in bytes
 function formatResourceSize(resourceSize) {
@@ -407,6 +412,17 @@ function showResults(results) {
 	buildRows(results.start, results.start + results.results.length - 1);
 
 	hideLoading(results.start, results.showList);	
+}
+
+function showThumbnail(title, thumbnail) {
+    $('#metacardModal .modal-header h3').text(title);
+    $('#metacardModal .modal-body').html("<img alt=\"\" src=\"data:image/jpeg;charset=utf-8;base64, " + thumbnail + "\"></img");
+    $('#metacardModal').modal('show');
+}
+
+function showThumbnailByIndex(index) {
+	var props = getMetacard(index).properties;
+	showThumbnail(props.title, props.thumbnail);
 }
 
 function updateFederationWarning(src) {

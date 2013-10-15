@@ -87,10 +87,9 @@
 		aria-labelledby="myModalLabel" aria-hidden="true">
 		<div class="modal-header">
 			<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-			<h3>Record Metadata</h3>
+			<h3>title</h3>
 		</div>
 		<div class="modal-body"></div>
-		<div class="modal-footer"></div>
 	</div>
 
 	<div class="main" class="container-fluid clear-top">
@@ -477,7 +476,8 @@
 	<script type="text/javascript" src="js/viewSwitcher.js"></script>
 	<script type="text/javascript" src="js/searchPage.js"></script>
  -->
+
  	<script type="text/javascript" src="js/Search-min.js"></script>
- 
+
 </body>
 </html>
