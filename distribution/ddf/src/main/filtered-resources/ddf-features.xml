@@ -15,6 +15,16 @@
 <features name="ddf-${project.version}">
 	
 	<repository>mvn:ddf.distribution/distribution-kernel/${project.version}/xml/features</repository>
+	<repository>mvn:ddf.platform/platform-app/${ddf.platform.app.version}/xml/features</repository>
+    <repository>mvn:ddf.esb/esb-app/${ddf.esb.app.version}/xml/features</repository>
+    <repository>mvn:ddf.catalog/catalog-services-app/${ddf.catalog.services.app.version}/xml/features</repository>
+    <repository>mvn:ddf.catalog.transformer/catalog-transformer-app/${ddf.transformers.app.version}/xml/features</repository>
+    <repository>mvn:ddf.content/content-services-app/${ddf.content.services.app.version}/xml/features</repository>
+    <repository>mvn:ddf.security/security-services-app/${ddf.security.services.app.version}/xml/features</repository>
+    <repository>mvn:ddf.catalog.solr/catalog-solr-app/${ddf.solr.catalog.app.version}/xml/features</repository>
+    <repository>mvn:org.codice.opendj.embedded/opendj-embedded-app/1.0.0/xml/features</repository>
+    
+    <!-- MODULARITY
 	<repository>mvn:ddf.platform/platform-app/${project.version}/xml/features</repository>
     <repository>mvn:ddf.content.core/content-core-app/${project.version}/xml/features</repository>
 	<repository>mvn:ddf.action.core/action-core-app/${project.version}/xml/features</repository>
@@ -63,7 +73,7 @@
 		<feature>security-core</feature>
         <feature>security-sts-realm</feature>
 
-		<!-- Standard Transformers -->
+	
 		<feature>catalog-transformer-html</feature>
         <feature>catalog-transformer-json</feature>   
         <feature>catalog-transformer-ui</feature>
@@ -76,5 +86,6 @@
 	    <feature>catalog-transformer-resource</feature>
 	    
 	</feature>
+	END MODULARITY -->
      
 </features>
