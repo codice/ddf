@@ -72,7 +72,7 @@
         <bundle>mvn:ddf.catalog.transformer/catalog-transformer-xml/${project.version}</bundle>
     </feature>
    
-    <feature name="transformers-app" install="auto" version="${project.version}"
+    <feature name="catalog-transformers-app" install="auto" version="${project.version}"
         description="DDF Transformers application default installations">
         <feature>catalog-transformer-html</feature>
         <feature>catalog-transformer-json</feature>
