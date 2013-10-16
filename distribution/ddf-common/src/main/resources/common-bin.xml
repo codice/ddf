@@ -33,7 +33,8 @@
         <exclude>etc/org.apache.karaf.log.cfg</exclude>
         <exclude>etc/org.ops4j.pax.web.cfg</exclude>
         <exclude>etc/users.properties</exclude>
-        <exclude>etc/system.properties</exclude>
+        <exclude>etc/system.properties</exclude> 
+        <exclude>etc/startup.properties</exclude>
         <!-- Karaf comes with a README in deploy folder which throws warnings in log -->
         <exclude>deploy/*</exclude>
         <!-- All Karaf distributions take out the extra files when being distributed -->
