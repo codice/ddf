@@ -39,6 +39,7 @@
         <module>catalog</module>  <!-- Catalog Services app -->
         <module>content</module>  <!-- Content Services app -->
         <module>catalog/solr</module>   <!-- Solr Catalog app  -->
+		<module>ui</module>
         <module>distribution</module>  <!-- single DDF distro zip -->
         <!-- TODO
         <module>sdk</module>
