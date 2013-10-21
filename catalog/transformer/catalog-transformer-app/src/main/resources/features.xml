@@ -27,12 +27,12 @@
         <bundle>mvn:ddf.catalog.transformer/geojson-queryresponse-transformer/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.transformer/geojson-input-transformer/${project.version}</bundle>
     </feature>
-    
+<!--     
     <feature name="catalog-transformer-ui" install="auto" version="${project.version}" description="HTML Query Response Transformer.">
         <feature>camel-freemarker</feature>
         <bundle>mvn:ddf.catalog.transformer/catalog-responsequeuetransformer-html/${project.version}</bundle>
     </feature>
-    
+-->    
     <feature name="abdera" install="auto" version="${project.version}" description="Apache Abdera">
         <bundle>mvn:commons-codec/commons-codec/1.4</bundle>
         <!-- This bundle <bundle>mvn:org.apache.ws.commons.axiom/axiom-impl/1.2.10</bundle>
@@ -76,7 +76,7 @@
         description="DDF Transformers application default installations">
         <feature>catalog-transformer-html</feature>
         <feature>catalog-transformer-json</feature>
-        <feature>catalog-transformer-ui</feature> 
+        <!-- <feature>catalog-transformer-ui</feature> -->
         <feature>catalog-transformer-atom</feature>
         <feature>catalog-transformer-geoformatter</feature>
         <feature>catalog-transformer-xml</feature>
