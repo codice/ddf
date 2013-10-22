@@ -27,7 +27,7 @@
 
   <modules>
     <module>plugin-federation-replication</module>
-	<module>catalog-federationreplication-app</module>
+	<!-- <module>catalog-federationreplication-app</module> -->
   </modules>
   
 </project>

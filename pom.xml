@@ -33,11 +33,13 @@
     <modules>
         <module>support</module>
         <module>platform</module>
-        <module>esb</module>  <!-- DDF ESB app  -->
-        <module>catalog/transformer</module>  <!-- Transformers app -->
-        <module>security</module>  <!-- Security Services app  -->
+        <!-- <module>esb</module>  -->  <!-- DDF ESB app  -->
+        <!-- <module>catalog/transformer</module> -->  <!-- Transformers app -->
+        <!-- <module>security</module> -->  <!-- Security Services app  -->
         <module>catalog</module>  <!-- Catalog Services app -->
         <module>content</module>  <!-- Content Services app -->
+        <module>content-catalogger-plugin</module>  <!-- NEW -->
+        <module>spatial</module>
         <module>catalog/solr</module>   <!-- Solr Catalog app  -->
 		<module>ui</module>
         <module>distribution</module>  <!-- single DDF distro zip -->

@@ -29,35 +29,37 @@
 	<name>DDF Content</name>
     
     <properties>
-        <ddf.esb.app.version>2.3.0-SNAPSHOT</ddf.esb.app.version>
+        <ddf.platform.app.version>2.3.0-SNAPSHOT</ddf.platform.app.version>
     </properties>
 
     <dependencyManagement>
         <dependencies>
+        <!-- 
             <dependency>
                 <groupId>ddf.catalog.core</groupId>
                 <artifactId>catalog-core-api</artifactId>
                 <version>${ddf.esb.app.version}</version>
             </dependency>
+        -->
             <dependency>
                 <groupId>ddf.content.core</groupId>
                 <artifactId>content-core-api</artifactId>
-                <version>${ddf.esb.app.version}</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>ddf.mime.core</groupId>
                 <artifactId>mime-core-api</artifactId>
-                <version>${ddf.esb.app.version}</version>
+                <version>${ddf.platform.app.version}</version>
             </dependency>
             <dependency>
                 <groupId>ddf.content.core</groupId>
                 <artifactId>content-core-impl</artifactId>
-                <version>${ddf.esb.app.version}</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>ddf.mime.core</groupId>
                 <artifactId>mime-core-impl</artifactId>
-                <version>${ddf.esb.app.version}</version>
+                <version>${ddf.platform.app.version}</version>
             </dependency>
             
         </dependencies>
@@ -66,9 +68,12 @@
     
     <modules>
         <module>endpoint</module>
+        <module>core</module>
+        <!-- 
         <module>core/content-core-filestorageprovider</module>
         <module>core/content-core-directorymonitor</module>
-        <module>core/content-core-catalogerplugin</module>
+        -->
+        <!-- <module>core/content-core-catalogerplugin</module>  Moved to its own app -->
         <module>content-services-app</module>
     </modules>
     
