@@ -22,7 +22,7 @@
 		<relativePath>../../spatial/pom.xml</relativePath>
 	</parent>
 
-	<artifactId>catalog-kml-pom</artifactId>
+	<artifactId>catalog-kml-pom</artifactId> 
 	<groupId>ddf.catalog.kml</groupId>
 	<name>DDF Catalog KML</name>
 	<packaging>pom</packaging>
