@@ -16,9 +16,10 @@
 	<modelVersion>4.0.0</modelVersion>
 	
 	<parent>
-		<artifactId>transformer</artifactId>
-		<groupId>ddf.catalog.transformer</groupId>
-		<version>2.3.0-SNAPSHOT</version>
+		<groupId>ddf.catalog</groupId>
+        <artifactId>catalog</artifactId>
+        <version>2.3.0-SNAPSHOT</version>
+        <relativePath>../../pom.xml</relativePath>
 	</parent>
 	
 	<artifactId>geojson-queryresponse-transformer</artifactId>
