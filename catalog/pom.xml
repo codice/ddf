@@ -29,7 +29,7 @@
 	<name>DDF Catalog</name>
 
 	<properties>
-	    <ddf.esb.app.version>2.3.0-SNAPSHOT</ddf.esb.app.version>
+	    <ddf.platform.app.version>2.3.0-SNAPSHOT</ddf.platform.app.version>
 	</properties>
 
 	<dependencyManagement>
@@ -37,32 +37,42 @@
             <dependency>
                 <groupId>ddf.catalog.core</groupId>
                 <artifactId>catalog-core-api</artifactId>
-                <version>${ddf.esb.app.version}</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>ddf.mime.core</groupId>
                 <artifactId>mime-core-api</artifactId>
-                <version>${ddf.esb.app.version}</version>
+                <version>${ddf.platform.app.version}</version>
             </dependency>
+            <dependency>
+	            <groupId>ddf.mime.core</groupId>
+	            <artifactId>mime-core-impl</artifactId>
+	            <version>${ddf.platform.app.version}</version>
+	        </dependency>                    
+	        <dependency>
+	            <groupId>ddf.measure</groupId>
+	            <artifactId>measure-api</artifactId>
+	            <version>${project.version}</version>
+	        </dependency>
             <dependency>
                 <groupId>ddf.security.core</groupId>
                 <artifactId>security-core-api</artifactId>
-                <version>${ddf.esb.app.version}</version>
+                <version>${ddf.platform.app.version}</version>
             </dependency>
             <dependency>
                 <groupId>ddf.action.core</groupId>
                 <artifactId>action-core-impl</artifactId>
-                <version>${ddf.esb.app.version}</version>
+                <version>${ddf.platform.app.version}</version>
             </dependency>
             <dependency>
                 <groupId>ddf.catalog.core</groupId>
                 <artifactId>catalog-core-commons</artifactId>
-                <version>${ddf.esb.app.version}</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>ddf.catalog.core</groupId>
                 <artifactId>filter-proxy</artifactId>
-                <version>${ddf.esb.app.version}</version>
+                <version>${project.version}</version>
             </dependency>
 			<dependency>
 				<groupId>org.apache.cxf</groupId>
@@ -74,11 +84,29 @@
 	</dependencyManagement>
 
 	<modules>
+	    <!-- NEW -->
+	    <module>../measure</module>
+	    <module>../catalog/common</module>
+        <module>../catalog/core</module>
+        <module>../catalog/schematron</module>
+        <module>../catalog/transformer/catalog-transformer-attribute</module>
+        <module>../catalog/transformer/service-xslt-transformer</module>
+        <module>../catalog/transformer/catalog-transformer-resource</module>
+        <module>../catalog/transformer/catalog-transformer-metadata</module>
+        <module>../catalog/transformer/catalog-transformer-thumbnail</module>
+        <module>../catalog/transformer/tika-input-transformer</module>
+        <module>../catalog/transformer/geojson-input-transformer</module>
+        <module>../catalog/transformer/geojson-metacard-transformer</module>
+        <module>../catalog/transformer/geojson-queryresponse-transformer</module>
+        <module>../catalog/transformer/service-atom-transformer</module>
+        <module>../catalog/transformer/catalog-transformer-xml-binding</module>
+        <module>../catalog/transformer/catalog-transformer-xml</module>
+        <!--  END NEW -->
         <module>plugin</module>
-        <module>kml</module>
+        <!-- <module>kml</module> -->
         <module>opensearch</module>
         <module>rest</module>
-        <module>../metrics</module>
+        <!-- <module>../metrics</module> -->
         <module>catalog-services-app</module>
 	</modules>
 

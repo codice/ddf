@@ -1,0 +1,34 @@
+<!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version. 
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+ -->
+<features name="${project.artifactId}-${project.version}">
+    
+    <feature name="catalog-kml-metacardtransformer" install="auto" version="${project.version}"
+        description="KML Transformer transforms metacards and query results into KML.">
+        <bundle>mvn:ddf.catalog.kml/catalog-kml-transformer/${project.version}</bundle>
+    </feature>
+
+    <feature name="catalog-kml-networklinkendpoint" install="auto" version="${project.version}"
+        description="KML Network Link Endpoint generates view-based KML Network Links for dynamic query results in KML viewer.">
+        <feature>catalog-kml-metacardtransformer</feature>
+        <bundle>mvn:org.codice.thirdparty/jts/${jts.bundle.version}</bundle>
+        <bundle>mvn:ddf.catalog.kml/catalog-kml-networklinkendpoint/${project.version}</bundle>
+    </feature>
+
+    <feature name="spatial-app"  install="auto" version="${project.version}"
+        description="DDF Catalog Services application default installations">
+        <feature>catalog-kml-metacardtransformer</feature>
+        <feature>catalog-kml-networklinkendpoint</feature>
+    </feature>
+    
+</features>
