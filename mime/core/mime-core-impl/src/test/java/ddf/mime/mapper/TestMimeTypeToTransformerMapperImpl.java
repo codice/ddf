@@ -21,9 +21,6 @@ import static org.mockito.Matchers.isNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -37,10 +34,6 @@ import org.osgi.framework.Constants;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 
-import ddf.catalog.data.Metacard;
-import ddf.catalog.data.MetacardImpl;
-import ddf.catalog.transform.CatalogTransformerException;
-import ddf.catalog.transform.InputTransformer;
 import ddf.mime.MimeTypeToTransformerMapper;
 
 public class TestMimeTypeToTransformerMapperImpl {
@@ -58,7 +51,7 @@ public class TestMimeTypeToTransformerMapperImpl {
 
         // when
         MimeTypeToTransformerMapper matcher = new MimeTypeToTransformerMapperImpl(context);
-        List<InputTransformer> matches = matcher.findMatches(InputTransformer.class, null);
+        List<Object> matches = matcher.findMatches(Object.class, null);
 
         // then
         assertThat(matches.isEmpty(), is(true));
@@ -83,7 +76,7 @@ public class TestMimeTypeToTransformerMapperImpl {
         when(context.getServiceReferences(isA(String.class), isNull(String.class)))
                 .thenReturn(refs);
         MimeTypeToTransformerMapper matcher = new MimeTypeToTransformerMapperImpl(context);
-        List<InputTransformer> matches = matcher.findMatches(InputTransformer.class, new MimeType(
+        List<Object> matches = matcher.findMatches(Object.class, new MimeType(
                 MediaType.APPLICATION_ATOM_XML));
 
         // then
@@ -124,9 +117,9 @@ public class TestMimeTypeToTransformerMapperImpl {
          */
         ServiceReference[] refs = {ref2, ref3, ref1};
 
-        InputTransformer simpleTransformer1 = getSimpleTransformer("1");
-        InputTransformer simpleTransformer2 = getSimpleTransformer("2");
-        InputTransformer simpleTransformer3 = getSimpleTransformer("3");
+        Object simpleTransformer1 = new Object();
+        Object simpleTransformer2 = new Object();
+        Object simpleTransformer3 = new Object();
 
         // when
         when(context.getService(ref1)).thenReturn(simpleTransformer1);
@@ -136,7 +129,7 @@ public class TestMimeTypeToTransformerMapperImpl {
         when(context.getServiceReferences(isA(String.class), isNull(String.class)))
                 .thenReturn(refs);
         MimeTypeToTransformerMapper matcher = new MimeTypeToTransformerMapperImpl(context);
-        List<InputTransformer> matches = matcher.findMatches(InputTransformer.class, null);
+        List<Object> matches = matcher.findMatches(Object.class, null);
 
         // then
         assertThat(matches.size(), is(3));
@@ -167,7 +160,7 @@ public class TestMimeTypeToTransformerMapperImpl {
         when(context.getServiceReferences(isA(String.class), isNull(String.class)))
                 .thenReturn(refs);
         MimeTypeToTransformerMapper matcher = new MimeTypeToTransformerMapperImpl(context);
-        List<InputTransformer> matches = matcher.findMatches(InputTransformer.class, null);
+        List<Object> matches = matcher.findMatches(Object.class, null);
 
         // then
         assertThat(matches.isEmpty(), is(true));
@@ -201,8 +194,8 @@ public class TestMimeTypeToTransformerMapperImpl {
 
         ServiceReference[] refs = {ref1, ref2};
 
-        InputTransformer simpleTransformer1 = getSimpleTransformer("1");
-        InputTransformer simpleTransformer2 = getSimpleTransformer("2");
+        Object simpleTransformer1 = new Object();
+        Object simpleTransformer2 = new Object();
 
         // when
         when(context.getService(ref1)).thenReturn(simpleTransformer1);
@@ -211,7 +204,7 @@ public class TestMimeTypeToTransformerMapperImpl {
         when(context.getServiceReferences(isA(String.class), isNull(String.class)))
                 .thenReturn(refs);
         MimeTypeToTransformerMapper matcher = new MimeTypeToTransformerMapperImpl(context);
-        List<InputTransformer> matches = matcher.findMatches(InputTransformer.class, new MimeType(
+        List<Object> matches = matcher.findMatches(Object.class, new MimeType(
                 MediaType.APPLICATION_XML));
 
         // then
@@ -247,7 +240,7 @@ public class TestMimeTypeToTransformerMapperImpl {
                 Arrays.asList(MediaType.APPLICATION_ATOM_XML), "a1");
         ServiceReference[] refs = {ref1};
 
-        InputTransformer simpleTransformer1 = getSimpleTransformer("1");
+        Object simpleTransformer1 = new Object();
 
         // when
         when(context.getService(ref1)).thenReturn(simpleTransformer1);
@@ -255,7 +248,7 @@ public class TestMimeTypeToTransformerMapperImpl {
         when(context.getServiceReferences(isA(String.class), isNull(String.class)))
                 .thenReturn(refs);
         MimeTypeToTransformerMapper matcher = new MimeTypeToTransformerMapperImpl(context);
-        List<InputTransformer> matches = matcher.findMatches(InputTransformer.class, new MimeType(
+        List<Object> matches = matcher.findMatches(Object.class, new MimeType(
                 MediaType.APPLICATION_XML));
 
         // then
@@ -291,7 +284,7 @@ public class TestMimeTypeToTransformerMapperImpl {
                 Arrays.asList(MediaType.APPLICATION_ATOM_XML), "a1");
         ServiceReference[] refs = {ref1};
 
-        InputTransformer simpleTransformer1 = getSimpleTransformer("1");
+        Object simpleTransformer1 = new Object();
 
         // when
         when(context.getService(ref1)).thenReturn(simpleTransformer1);
@@ -299,7 +292,7 @@ public class TestMimeTypeToTransformerMapperImpl {
         when(context.getServiceReferences(isA(String.class), isNull(String.class)))
                 .thenReturn(refs);
         MimeTypeToTransformerMapper matcher = new MimeTypeToTransformerMapperImpl(context);
-        List<InputTransformer> matches = matcher.findMatches(InputTransformer.class, new MimeType(
+        List<Object> matches = matcher.findMatches(Object.class, new MimeType(
                 MediaType.APPLICATION_ATOM_XML + "; id=a2"));
 
         // then
@@ -326,9 +319,9 @@ public class TestMimeTypeToTransformerMapperImpl {
         ServiceReference ref3 = createMockReference(3, null, null);
         ServiceReference[] refs = {ref2, ref3, ref1};
 
-        InputTransformer simpleTransformer1 = getSimpleTransformer("1");
-        InputTransformer simpleTransformer2 = getSimpleTransformer("2");
-        InputTransformer simpleTransformer3 = getSimpleTransformer("3");
+        Object simpleTransformer1 = new Object();
+        Object simpleTransformer2 = new Object();
+        Object simpleTransformer3 = new Object();
 
         // when
         when(context.getService(ref1)).thenReturn(simpleTransformer1);
@@ -338,7 +331,7 @@ public class TestMimeTypeToTransformerMapperImpl {
         when(context.getServiceReferences(isA(String.class), isNull(String.class)))
                 .thenReturn(refs);
         MimeTypeToTransformerMapper matcher = new MimeTypeToTransformerMapperImpl(context);
-        List<InputTransformer> matches = matcher.findMatches(InputTransformer.class, new MimeType(
+        List<Object> matches = matcher.findMatches(Object.class, new MimeType(
                 MediaType.APPLICATION_JSON));
 
         // then
@@ -367,9 +360,9 @@ public class TestMimeTypeToTransformerMapperImpl {
                 "a3");
         ServiceReference[] refs = {ref2, ref3, ref1};
 
-        InputTransformer simpleTransformer1 = getSimpleTransformer("1");
-        InputTransformer simpleTransformer2 = getSimpleTransformer("2");
-        InputTransformer simpleTransformer3 = getSimpleTransformer("3");
+        Object simpleTransformer1 = new Object();
+        Object simpleTransformer2 = new Object();
+        Object simpleTransformer3 = new Object();
 
         // when
         when(context.getService(ref1)).thenReturn(simpleTransformer1);
@@ -385,7 +378,7 @@ public class TestMimeTypeToTransformerMapperImpl {
         when(context.getServiceReferences(isA(String.class), isNull(String.class)))
                 .thenReturn(refs);
         MimeTypeToTransformerMapper matcher = new MimeTypeToTransformerMapperImpl(context);
-        List<InputTransformer> matches = matcher.findMatches(InputTransformer.class, new MimeType(
+        List<Object> matches = matcher.findMatches(Object.class, new MimeType(
                 MediaType.APPLICATION_JSON));
 
         // then
@@ -414,9 +407,9 @@ public class TestMimeTypeToTransformerMapperImpl {
         ServiceReference ref3 = createMockReference(3, null, null);
         ServiceReference[] refs = {ref2, ref3, ref1};
 
-        InputTransformer simpleTransformer1 = getSimpleTransformer("1");
-        InputTransformer simpleTransformer2 = getSimpleTransformer("2");
-        InputTransformer simpleTransformer3 = getSimpleTransformer("3");
+        Object simpleTransformer1 = new Object();
+        Object simpleTransformer2 = new Object();
+        Object simpleTransformer3 = new Object();
 
         // when
         when(context.getService(ref1)).thenReturn(simpleTransformer1);
@@ -426,7 +419,7 @@ public class TestMimeTypeToTransformerMapperImpl {
         when(context.getServiceReferences(isA(String.class), isNull(String.class)))
                 .thenReturn(refs);
         MimeTypeToTransformerMapper matcher = new MimeTypeToTransformerMapperImpl(context);
-        List<InputTransformer> matches = matcher.findMatches(InputTransformer.class, new MimeType(
+        List<Object> matches = matcher.findMatches(Object.class, new MimeType(
                 MediaType.APPLICATION_JSON + "; id=a1"));
 
         // then
@@ -445,14 +438,14 @@ public class TestMimeTypeToTransformerMapperImpl {
         ServiceReference ref1 = createMockReference(1, Arrays.asList("!INVALID@!"), null);
         ServiceReference[] refs = {ref1};
 
-        InputTransformer simpleTransformer1 = getSimpleTransformer("1");
+        Object simpleTransformer1 = new Object();
 
         // when
         when(context.getService(ref1)).thenReturn(simpleTransformer1);
         when(context.getServiceReferences(isA(String.class), isNull(String.class)))
                 .thenReturn(refs);
         MimeTypeToTransformerMapper matcher = new MimeTypeToTransformerMapperImpl(context);
-        List<InputTransformer> matches = matcher.findMatches(InputTransformer.class, new MimeType(
+        List<Object> matches = matcher.findMatches(Object.class, new MimeType(
                 MediaType.APPLICATION_JSON + "; id=a1"));
 
         // then
@@ -480,7 +473,7 @@ public class TestMimeTypeToTransformerMapperImpl {
         when(ref.getProperty(MimeTypeToTransformerMapper.MIME_TYPE_KEY)).thenReturn(
                 MediaType.APPLICATION_JSON);
 
-        InputTransformer simpleTransformer1 = getSimpleTransformer("1");
+        Object simpleTransformer1 = new Object();
 
         // when
         when(context.getService(ref)).thenReturn(simpleTransformer1);
@@ -488,7 +481,7 @@ public class TestMimeTypeToTransformerMapperImpl {
         when(context.getServiceReferences(isA(String.class), isNull(String.class)))
                 .thenReturn(refs);
         MimeTypeToTransformerMapper matcher = new MimeTypeToTransformerMapperImpl(context);
-        List<InputTransformer> matches = matcher.findMatches(InputTransformer.class, new MimeType(
+        List<Object> matches = matcher.findMatches(Object.class, new MimeType(
                 MediaType.APPLICATION_JSON));
 
         // then
@@ -507,8 +500,8 @@ public class TestMimeTypeToTransformerMapperImpl {
                 Arrays.asList(MediaType.APPLICATION_JSON, MediaType.APPLICATION_JSON), "a1");
         ServiceReference[] refs = {ref2, ref1};
 
-        InputTransformer simpleTransformer1 = getSimpleTransformer("1");
-        InputTransformer simpleTransformer2 = getSimpleTransformer("2");
+        Object simpleTransformer1 = new Object();
+        Object simpleTransformer2 = new Object();
 
         // when
         when(context.getService(ref1)).thenReturn(simpleTransformer1);
@@ -517,7 +510,7 @@ public class TestMimeTypeToTransformerMapperImpl {
         when(context.getServiceReferences(isA(String.class), isNull(String.class)))
                 .thenReturn(refs);
         MimeTypeToTransformerMapper matcher = new MimeTypeToTransformerMapperImpl(context);
-        List<InputTransformer> matches = matcher.findMatches(InputTransformer.class, new MimeType(
+        List<Object> matches = matcher.findMatches(Object.class, new MimeType(
                 MediaType.APPLICATION_JSON + "; id=a1"));
 
         // then
@@ -545,9 +538,12 @@ public class TestMimeTypeToTransformerMapperImpl {
         ServiceReference ref3 = createMockReference(3, null, null);
         ServiceReference[] refs = {ref3, ref2, ref1};
 
-        InputTransformer simpleTransformer1 = getSimpleTransformer("1");
-        InputTransformer simpleTransformer2 = getSimpleTransformer("2");
-        InputTransformer simpleTransformer3 = getSimpleTransformer("3");
+//        InputTransformer simpleTransformer1 = getSimpleTransformer("1");
+//        InputTransformer simpleTransformer2 = getSimpleTransformer("2");
+//        InputTransformer simpleTransformer3 = getSimpleTransformer("3");
+        Object simpleTransformer1 = new Object();
+        Object simpleTransformer2 = new Object();
+        Object simpleTransformer3 = new Object();
 
         // when
         when(context.getService(ref1)).thenReturn(simpleTransformer1);
@@ -562,7 +558,7 @@ public class TestMimeTypeToTransformerMapperImpl {
         when(context.getServiceReferences(isA(String.class), isNull(String.class)))
                 .thenReturn(refs);
         MimeTypeToTransformerMapper matcher = new MimeTypeToTransformerMapperImpl(context);
-        List<InputTransformer> matches = matcher.findMatches(InputTransformer.class, new MimeType(
+        List<Object> matches = matcher.findMatches(Object.class, new MimeType(
                 MediaType.APPLICATION_JSON + "; id=a1;charset=UTF-8"));
 
         // then
@@ -590,7 +586,7 @@ public class TestMimeTypeToTransformerMapperImpl {
         when(context.getServiceReferences(isA(String.class), isNull(String.class)))
                 .thenReturn(refs);
         MimeTypeToTransformerMapper matcher = new MimeTypeToTransformerMapperImpl(context);
-        List<InputTransformer> matches = matcher.findMatches(InputTransformer.class, new MimeType(
+        List<Object> matches = matcher.findMatches(Object.class, new MimeType(
                 MediaType.APPLICATION_ATOM_XML));
  
         // then
@@ -610,45 +606,4 @@ public class TestMimeTypeToTransformerMapperImpl {
         return ref;
     }
 
-    /**
-     * 
-     * @param givenId
-     * @return
-     */
-
-    private InputTransformer getSimpleTransformer(final String givenId) {
-        return new InputTransformer() {
-
-            @Override
-            public Metacard transform(InputStream input, String id) throws IOException,
-                CatalogTransformerException {
-                return getSimpleMetacard(givenId);
-            }
-
-            @Override
-            public Metacard transform(InputStream input) throws IOException,
-                CatalogTransformerException {
-                return getSimpleMetacard(givenId);
-            }
-        };
-    }
-
-    private Metacard getSimpleMetacard(String id) {
-        MetacardImpl generatedMetacard = new MetacardImpl();
-        generatedMetacard.setMetadata("<xml>sample text</xml>");
-        generatedMetacard.setId(id);
-
-        return generatedMetacard;
-    }
-
-    private List<ServiceReference> createList(ServiceReference... refList) {
-
-        List<ServiceReference> sortedList = new ArrayList<ServiceReference>();
-
-        for (ServiceReference ref : refList) {
-            sortedList.add(ref);
-        }
-
-        return sortedList;
-    }
 }
