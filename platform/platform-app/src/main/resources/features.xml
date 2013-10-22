@@ -537,10 +537,177 @@
 		<bundle>mvn:ddf.platform/platform-scheduler/${project.version}</bundle>
 	</feature>
 	
+    <feature name="action-core-api" install="auto" version="${project.version}" description="DDF Action API">
+        <bundle>mvn:ddf.action.core/action-core-api/${project.version}</bundle>
+    </feature>
+
+    <feature name="action-core-impl" install="auto" version="${project.version}" description="DDF Action Core">
+        <feature>action-core-api</feature>
+        <bundle>mvn:ddf.action.core/action-core-impl/${project.version}</bundle>
+    </feature>
+    
+    <feature name="mime-core-api" install="auto" version="${project.version}" description="DDF MIME API">
+        <bundle>mvn:ddf.mime.core/mime-core-api/${project.version}</bundle>
+    </feature>
+
+    <feature name="mime-core" install="auto" version="${project.version}" description="DDF MIME Core">
+        <feature>mime-core-api</feature>
+        <bundle>mvn:ddf.mime.core/mime-core-impl/${project.version}</bundle>
+        <bundle>mvn:ddf.mime.core/mime-core-configurableresolver/${project.version}</bundle>
+        <config name="DDF_Custom_Mime_Type_Resolver-NitfCustomMimeTypes">
+            name = NITF Content Resolver
+            priority = 10
+            customMimeTypes = nitf=image/nitf,ntf=image/nitf
+        </config>
+        <config name="DDF_Custom_Mime_Type_Resolver-Ddmsv20CustomMimeTypes">
+            name = DDMS v2.0 Content Resolver
+            priority = 10
+            customMimeTypes = xml=text/xml;id=ddms
+        </config>
+        <config name="DDF_Custom_Mime_Type_Resolver-GeoJsonCustomMimeTypes">
+            name = GeoJson Content Resolver
+            priority = 10
+            customMimeTypes = json=application/json;id=geojson
+        </config>
+    </feature>
+    
+    <feature name="mime-tika-resolver" install="auto" version="${project.version}" description="DDF Tika MIME Resolver.">
+        <bundle>mvn:ddf.mime.tika/mime-tika-resolver/${project.version}</bundle>
+    </feature>	
+    
+    <feature name="security-core-api" install="auto" version="${project.version}" description="DDF Security Core">
+        <feature>cxf-rt-security</feature>
+        <bundle>mvn:org.apache.shiro/shiro-core/${shiro.version}</bundle>
+        <bundle>mvn:ddf.security.core/security-core-api/${project.version}</bundle>
+        <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jaxen/${org.apache.servicemix.bundles.jaxen.version}</bundle>
+    </feature>  
+    
+    <feature name="security-encryption" install="auto" version="${project.version}" description="DDF Security Encryption">
+        <bundle>mvn:ddf.security.encryption/security-encryption-api/${project.version}</bundle>
+        <bundle>mvn:ddf.security.encryption/security-encryption-impl/${project.version}</bundle>
+        <bundle>mvn:ddf.security.encryption/security-encryption-commands/${project.version}</bundle>
+    </feature>
+	
+  <feature name="security-core" install="auto" version="${project.version}" description="DDF Security Core">
+    <feature>cxf-rt-security</feature>
+    <bundle>mvn:org.apache.shiro/shiro-core/${shiro.version}</bundle>
+    <bundle>mvn:ddf.security.core/security-core-api/${project.version}</bundle>
+    <bundle>mvn:ddf.security.expansion/security-expansion-api/${project.version}</bundle>
+    <bundle>mvn:ddf.security.core/security-core-impl/${project.version}</bundle>    
+    <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jaxen/${org.apache.servicemix.bundles.jaxen.version}</bundle>
+  </feature>
+  
+  <feature name="security-expansion" install="manual" version="${project.version}" description="DDF Security Expansion">
+        <bundle>mvn:ddf.security.expansion/security-expansion-api/${project.version}</bundle>
+        <bundle>mvn:ddf.security.expansion/security-expansion-impl/${project.version}</bundle>
+        <bundle>mvn:ddf.security.expansion/security-expansion-commands/${project.version}</bundle>
+    </feature>
+  
+  <feature name="security-cas-client" install="manual" version="${project.version}" description="DDF Security CAS Client.">
+    <bundle>mvn:org.codice.thirdparty/cas-client-core/${cas.client.bundle.version}</bundle>
+    <bundle>mvn:ddf.security.cas/security-cas-impl/${project.version}</bundle>
+    <bundle>mvn:ddf.security.cas/security-cas-client/${project.version}/war</bundle>
+  </feature>
+
+  <feature name="security-cas-tokenvalidator" install="manual" version="${project.version}" description="DDF Security CAS Validator for the STS.">
+    <bundle>mvn:ddf.security.cas/security-cas-tokenvalidator/${project.version}</bundle>
+  </feature>
+  
+  <feature name="security-cas-cxfservletfilter" install="manual" version="${project.version}" description="DDF Security CAS Servlet Filter for CXF.">
+    <feature>security-cas-client</feature>
+    <bundle>mvn:ddf.security.cas/security-cas-cxfservletfilter/${project.version}</bundle>
+  </feature>
+  
+  <feature name="security-pdp-xacml" install="manual" version="${project.version}" description="DDF Security XACML-based PDP.">
+      <bundle>mvn:ddf.security.pdp/security-pdp-xacmlrealm/${project.version}</bundle>
+  </feature>
+
+  <feature name="security-pdp-java" install="manual" version="${project.version}" description="DDF Security Java-based PDP.">
+      <bundle>mvn:ddf.security.pdp/security-pdp-authzrealm/${project.version}</bundle>
+  </feature>
+
+  <feature name="security-pep-serviceauthz" install="manual" version="${project.version}" description="DDF Security PEP Service AuthZ">
+      <bundle>mvn:ddf.security.pep/security-pep-interceptor/${project.version}</bundle>
+  </feature>
+
+  <feature name="security-pep-redaction" install="manual" version="${project.version}" description="DDF Security PEP Redaction/Filtering">
+      <bundle>mvn:ddf.security.pep/security-pep-redaction/${project.version}</bundle>
+  </feature>
+
+  <feature name="security-pep-user-attributes" install="manual" version="${project.version}" description="DDF Security PEP User Attributes Expansion">
+      <bundle>mvn:ddf.security.pep/security-pep-userattr-map/${project.version}</bundle>
+  </feature>
+  
+  <feature name="security-pep-metacard-attributes" install="manual" version="${project.version}" description="DDF Security PEP Metacard Attributes Expansion">
+      <bundle>mvn:ddf.security.pep/security-pep-metacardattr-map/${project.version}</bundle>
+  </feature>
+    
+  <feature name="security-sts-server" install="manual" version="${project.version}" description="DDF Security STS.">
+      <configfile finalname="/etc/ws-security/attributeMap.properties">mvn:ddf.security.sts/security-sts-ldapclaimshandler/${project.version}/properties/attributeMap</configfile>
+      <feature>cxf-sts</feature>
+      <feature>spring-tx</feature>
+      <feature>security-sts-ldaplogin</feature>
+      <bundle>mvn:ddf.security.sts/security-sts-server/${project.version}</bundle>
+      <bundle dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.bcprov-jdk15/${org.apache.servicemix.bundles.bcprov-jdk15.version}</bundle>
+      <bundle dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.dom4j/${org.apache.servicemix.bundles.dom4j.version}</bundle>
+      <bundle dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.oro/${org.apache.servicemix.bundles.oro.version}</bundle>
+      <bundle>wrap:mvn:org.springframework.ldap/spring-ldap-core/${org.springframework.ldap.version}</bundle>
+      <bundle>wrap:mvn:org.opensaml/xmltooling/${org.opensaml.xmltooling.version}</bundle>
+      <bundle>mvn:org.ops4j.pax.url/pax-url-classpath/${org.ops4j.pax.url.classpath.version}</bundle>
+      <bundle>mvn:ddf.security.sts/security-sts-samlvalidator/${project.version}</bundle>
+      <bundle>mvn:ddf.security.sts/security-sts-x509validator/${project.version}</bundle>
+      <bundle>mvn:ddf.security.sts/security-sts-ldapclaimshandler/${project.version}</bundle>
+  </feature>
+
+  <feature name="security-sts-realm" install="auto" version="${project.version}" description="DDF Security STS Realm.">
+      <bundle>mvn:ddf.security.sts/security-sts-clientconfig/${project.version}</bundle>
+      <bundle>mvn:ddf.security.sts/security-sts-realm/${project.version}</bundle>
+  </feature>
+  
+  <feature name="security-sts-ldaplogin" install="manual" version="${project.version}" description="DDF Security STS JAAS LDAP Login.">
+      <bundle>mvn:ddf.security.sts/security-sts-ldaplogin/${project.version}</bundle>
+  </feature>  
+
+    <feature name="metrics-reporting" install="auto" version="${project.version}"
+        description="Metrics reporting for DDF.">
+        <bundle>mvn:joda-time/joda-time/2.2</bundle>
+        <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.poi/3.9_2</bundle>
+        <bundle>mvn:com.googlecode.json-simple/json-simple/1.1.1</bundle>
+        <bundle>mvn:ddf.metrics.reporting/metrics-reporting/${project.version}</bundle>
+        <bundle>mvn:ddf.metrics.webconsoleplugin/metrics-webconsole-plugin/${project.version}</bundle>
+    </feature>
+    
+    <feature name="metrics-services" install="auto" version="${project.version}"
+        description="cxf interceptors to capture metrics.">
+        <bundle>mvn:ddf.metrics.interceptor/metrics-interceptor/${project.version}</bundle>
+    </feature> 
+        
+    <!-- TEMP: move back to catalog app eventually -->
+    <feature name="catalog-core-api" install="auto" version="${project.version}" description="Catalog API interfaces and simple implementations.">
+        <bundle>mvn:ddf.catalog.core/catalog-core-api/${project.version}</bundle>
+        <bundle>mvn:ddf.mime.core/mime-core-api/${project.version}</bundle>
+        <bundle>mvn:org.apache.tika/tika-core/${tika.version}</bundle>
+        <bundle>mvn:org.apache.tika/tika-bundle/${tika.version}</bundle>
+        <bundle>mvn:org.codice.thirdparty/gt-opengis/${opengis.bundle.version}</bundle>
+    </feature>
+    
+  
+	
 	<feature name="platform-app" install="auto" version="${project.version}" description="DDF platform boot features">
 		<feature>cxf</feature>
 		<feature>camel</feature>
 		<feature>platform-scheduler</feature>
+		<feature>catalog-core-api</feature>
+		<feature>action-core-api</feature>
+        <feature>action-core-impl</feature>
+        <feature>mime-core</feature>
+        <feature>mime-tika-resolver</feature>
+        <feature>security-encryption</feature>
+        <feature>security-core-api</feature>
+        <feature>security-core</feature>  
+        <feature>security-sts-realm</feature>
+        <feature>metrics-reporting</feature>
+        <feature>metrics-services</feature>
 		
 		<bundle>mvn:ch.qos.cal10n/cal10n-api/0.7.4</bundle> <!-- for slf4j-ext -->
 		<bundle>mvn:org.slf4j/slf4j-ext/${org.slf4j.version}</bundle>
