@@ -22,6 +22,7 @@
         <relativePath>../../pom.xml</relativePath>
 	</parent>
 	
+	<groupId>ddf.catalog.transformer</groupId>
 	<artifactId>geojson-queryresponse-transformer</artifactId>
 	<name>DDF :: Catalog :: Transformer :: QueryResponse :: GeoJson</name>
 	<packaging>bundle</packaging>

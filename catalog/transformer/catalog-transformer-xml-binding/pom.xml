@@ -21,6 +21,7 @@
         <relativePath>../../pom.xml</relativePath>
 	</parent>
 
+	<groupId>ddf.catalog.transformer</groupId>
 	<artifactId>catalog-transformer-xml-binding</artifactId>
 	<packaging>jar</packaging>
 	<name>DDF :: Catalog :: Transformer :: XML Binding</name>

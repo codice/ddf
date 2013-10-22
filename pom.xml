@@ -33,7 +33,7 @@
 	<description>Distributed Data Framework (DDF) is an open source, modular integration framework</description>
 
 	<modules>
-        <!-- <module>support</module> -->
+        <module>support</module>
 		<module>parent</module>
 		<module>platform</module>
         <!-- <module>esb</module>  -->  <!-- DDF ESB app  -->

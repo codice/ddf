@@ -22,6 +22,7 @@
         <relativePath>../../../content-catalogger-plugin/pom.xml</relativePath>
   </parent>
 
+  <groupId>ddf.content.core</groupId>
   <artifactId>content-core-catalogerplugin</artifactId>
   <name>DDF :: Content :: Core :: CatalogerPlugin</name>
   <packaging>bundle</packaging>

@@ -23,9 +23,11 @@
   <description>Distributed Data Framework (DDF) Parent</description>
   <inceptionYear>2010</inceptionYear>
   
+  <!--
   <modules>
       <module>../support</module>
   </modules>
+  -->
 
 	<organization>
 		<name>Codice Foundation</name>
@@ -175,9 +177,8 @@
 		<ddf.security.core.api.version>1.0.0</ddf.security.core.api.version>
 		<ddf.security.expansion.service.api.version>1.0.0</ddf.security.expansion.service.api.version>
 		
-		<!-- TBD
-		<ddf.support.checkstyle.version>2.3.0</ddf.support.checkstyle.version>
-		-->
+		<!-- Must MANUALLY update this if the ddf/support project's version changes -->
+		<ddf.support.checkstyle.version>1.2.0-SNAPSHOT</ddf.support.checkstyle.version>
 
         <!-- Do NOT set karaf.data or karaf.base -->
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -328,7 +329,10 @@
 						<dependency>
 							<groupId>ddf.support</groupId>
 							<artifactId>support-checkstyle</artifactId>
-							<version>${project.version}</version>  <!-- used to be project.version -->
+							<!-- 
+							Used to be project.version but cannot do that if parent pom and the individual DDF apps all have different versions. 
+							-->
+							<version>${ddf.support.checkstyle.version}</version>  
 							<optional>true</optional>
 						</dependency>
 					</dependencies>
