@@ -21,6 +21,7 @@
         <relativePath>../../pom.xml</relativePath>
   </parent>
   
+  <groupId>ddf.catalog.transformer</groupId>
   <artifactId>tika-input-transformer</artifactId>
   <name>DDF :: Catalog :: Transformer :: Input :: Tika</name>
   <packaging>bundle</packaging>

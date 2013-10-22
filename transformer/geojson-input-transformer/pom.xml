@@ -22,6 +22,7 @@
         <relativePath>../../pom.xml</relativePath>
 	</parent>
 	
+	<groupId>ddf.catalog.transformer</groupId>
 	<artifactId>geojson-input-transformer</artifactId>
 	<name>DDF :: Catalog :: Transformer :: Input :: GeoJson</name>
 	<packaging>bundle</packaging>
