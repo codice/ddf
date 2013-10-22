@@ -1,0 +1,1043 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version. 
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  
+  <groupId>ddf</groupId>
+  <artifactId>ddf-parent</artifactId>
+  <version>1.0.0-SNAPSHOT</version>
+  <packaging>pom</packaging>
+  <name>DDF Parent</name>
+  <description>Distributed Data Framework (DDF) Parent</description>
+  <inceptionYear>2010</inceptionYear>
+  
+  <modules>
+      <module>../support</module>
+  </modules>
+
+	<organization>
+		<name>Codice Foundation</name>
+		<url>http://codice.org</url>
+	</organization>
+
+	<licenses>
+		<license>
+			<name>GNU Lesser General Public v3</name>
+			<url>http://www.gnu.org/licenses/lgpl.html</url>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
+
+	<issueManagement>
+		<system>Jira</system>
+		<url>https://tools.codice.org/jira/browse/DDF</url>
+	</issueManagement>
+
+	<mailingLists>
+		<mailingList>
+			<name>Google Groups Mailing List</name>
+			<archive>http://groups.google.com/group/ddf-codice</archive>
+			<subscribe>http://groups.google.com/group/ddf-codice/subscribe</subscribe>
+		</mailingList>
+	</mailingLists>
+
+	<developers>
+		<developer>
+			<name>Keith C Wire</name>
+			<organization>Lockheed Martin</organization>
+		</developer>
+		<developer>
+			<name>Ashraf Barakat</name>
+			<organization>Lockheed Martin</organization>
+		</developer>
+		<developer>
+			<name>Bruce Beyeler</name>
+			<organization>Lockheed Martin</organization>
+		</developer>
+		<developer>
+			<name>Damon Jones</name>
+			<organization>Lockheed Martin</organization>
+		</developer>
+		<developer>
+			<name>Dan Figliola</name>
+			<organization>Lockheed Martin</organization>
+		</developer>
+		<developer>
+			<name>Dave Willison</name>
+			<organization>Aviture</organization>
+		</developer>
+		<developer>
+			<name>Hugh Rodgers</name>
+			<organization>Lockheed Martin</organization>
+		</developer>
+		<developer>
+			<name>Ian Barnett</name>
+			<organization>Lockheed Martin</organization>
+		</developer>
+		<developer>
+			<name>Jason Smith</name>
+			<organization>Lockheed Martin</organization>
+		</developer>
+		<developer>
+			<name>Jay McNallie</name>
+			<organization>Lockheed Martin</organization>
+		</developer>
+		<developer>
+			<name>Jesse Kim</name>
+			<organization>Lockheed Martin</organization>
+		</developer>
+		<developer>
+			<name>Keith Wire</name>
+			<organization>Lockheed Martin</organization>
+		</developer>
+		<developer>
+			<name>Khoa Tran</name>
+			<organization>Lockheed Martin</organization>
+		</developer>
+		<developer>
+			<name>Matthew Ramey</name>
+			<organization>Lockheed Martin</organization>
+		</developer>
+		<developer>
+			<name>Michael Menousek</name>
+			<organization>Lockheed Martin</organization>
+		</developer>
+		<developer>
+			<name>Phillip Klinefelter</name>
+			<organization>Lockheed Martin</organization>
+		</developer>
+		<developer>
+			<name>Rhett Olschner</name>
+			<organization>Lockheed Martin</organization>
+		</developer>
+		<developer>
+			<name>Scott Tustison</name>
+			<organization>Lockheed Martin</organization>
+		</developer>
+		<developer>
+			<name>Shaun Morris</name>
+			<organization>Lockheed Martin</organization>
+		</developer>
+	</developers>
+
+	<contributors>
+	    <contributor>
+	       <name>Brad Hards</name>
+		   <organization>Sigma Bravo</organization>		
+	    </contributor>
+		<contributor>
+			<name>Jeff Vettraino</name>
+			<organization>Cohesive Integrations</organization>		
+		</contributor>
+		<contributor>
+			<name>Sam Patel</name>
+			<organization>Lockheed Martin</organization>		
+		</contributor>
+	    <contributor>
+			<name>Sam Snyder</name>
+			<organization>Aviture</organization>
+		</contributor>
+		<contributor>
+			<name>Timothy Anderson</name>
+			<organization>Lockheed Martin</organization>
+		</contributor>
+		<contributor>
+			<name>William Miller</name>
+			<organization>Lockheed Martin</organization>
+		</contributor>
+	</contributors>
+
+	<properties>
+		
+	    <!--  default URL properties -->
+		<ddf.scm.connection.url />
+		<snapshots.repository.url />
+		<sitename.default>${project.groupId}</sitename.default>
+
+		<!-- DDF API versions -->
+		<ddf.action.api.version>1.0.0</ddf.action.api.version>
+		<ddf.catalog.api.version>2.0.12</ddf.catalog.api.version>
+		<ddf.content.core.api.version>1.0.0</ddf.content.core.api.version>
+		<ddf.mime.api.version>2.0.0</ddf.mime.api.version>
+		<ddf.security.encryption.service.api.version>1.0.0</ddf.security.encryption.service.api.version>
+		<ddf.security.core.api.version>1.0.0</ddf.security.core.api.version>
+		<ddf.security.expansion.service.api.version>1.0.0</ddf.security.expansion.service.api.version>
+		
+		<!-- TBD
+		<ddf.support.checkstyle.version>2.3.0</ddf.support.checkstyle.version>
+		-->
+
+        <!-- Do NOT set karaf.data or karaf.base -->
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+        <!-- Plugins -->
+		<maven.checkstyle.plugin.version>2.9.1</maven.checkstyle.plugin.version>
+		<maven.assembly.plugin.version>2.2.2</maven.assembly.plugin.version>
+		<maven.clean.plugin.version>2.4.1</maven.clean.plugin.version>
+		<maven.resources.plugin.version>2.5</maven.resources.plugin.version>
+		<maven.jar.plugin.version>2.4</maven.jar.plugin.version>
+		<maven.javadoc.plugin.version>2.7</maven.javadoc.plugin.version>
+		<maven.release.plugin.version>2.4.1</maven.release.plugin.version>
+		<maven.site.plugin.version>3.2</maven.site.plugin.version>
+		<maven.dependency.plugin.version>2.4</maven.dependency.plugin.version>
+		<maven.compiler.plugin.version>2.3.2</maven.compiler.plugin.version>
+		<maven.deploy.plugin.version>2.6</maven.deploy.plugin.version>
+		<maven.install.plugin.version>2.3.1</maven.install.plugin.version>
+		<maven.surefire.plugin.version>2.8.1</maven.surefire.plugin.version>
+		<maven.scm.plugin.version>1.7</maven.scm.plugin.version>
+		<maven.replacer.plugin.version>1.5.0</maven.replacer.plugin.version>
+		<maven.buildnumber.plugin.version>1.1</maven.buildnumber.plugin.version>
+		<maven.svn.revision.number.plugin.version>1.6</maven.svn.revision.number.plugin.version>
+		<build.helper.plugin.version>1.5</build.helper.plugin.version>
+		<felix.plugin.version>2.3.5</felix.plugin.version>
+		<jaxb.plugin.version>0.8.0</jaxb.plugin.version>
+		<jaxws.plugin.version>1.12</jaxws.plugin.version>
+		<cobertura.plugin.version>2.5.1</cobertura.plugin.version>
+		<maven.war.plugin.version>2.2</maven.war.plugin.version>
+		<umlgraph.doclet.version>5.6.6</umlgraph.doclet.version>
+
+        <!-- Dependency Management Versions -->
+		<org.slf4j.version>1.7.1</org.slf4j.version>
+		<org.geotools.version>8.4</org.geotools.version>
+		<jts.version>1.12</jts.version>
+		<saxon.version>9.1.0.8</saxon.version>
+		<commons-io.version>2.1</commons-io.version>
+		<joda-time.version>1.6.2</joda-time.version>
+        <xmlunit.version>1.4</xmlunit.version>
+		<tika.version>1.2</tika.version>
+		<abdera.version>1.1.2</abdera.version>  <!-- Moved from catalog/pom.xml since now used by atom transformer and opensearch source -->
+
+		<!-- Endorsed Dependencies -->
+		<xalan.version>2.7.1</xalan.version>
+		<xerces.version>2.9.1</xerces.version>
+		<xml-resolver.version>1.2</xml-resolver.version>
+
+        <!-- Bundle Dependency Properties-->
+		<org.apache.servicemix.bundles.asm.version>3.3.1_1</org.apache.servicemix.bundles.asm.version>
+		<org.apache.servicemix.specs.version>2.2.0</org.apache.servicemix.specs.version>
+		<org.apache.servicemix.bundles.oro.version>2.0.8_6</org.apache.servicemix.bundles.oro.version>
+		<org.springframework.ldap.version>1.3.1.RELEASE</org.springframework.ldap.version>
+		<org.apache.servicemix.bundles.dom4j.version>1.6.1_5</org.apache.servicemix.bundles.dom4j.version>
+		<org.apache.servicemix.bundles.jaxen.version>1.1.3_1</org.apache.servicemix.bundles.jaxen.version>
+		<org.apache.servicemix.bundles.bcprov-jdk15.version>1.46_3</org.apache.servicemix.bundles.bcprov-jdk15.version>
+		<org.opensaml.xmltooling.version>1.3.2-1</org.opensaml.xmltooling.version>
+		<org.ops4j.pax.url.classpath.version>1.3.5</org.ops4j.pax.url.classpath.version>
+		<org.ops4j.pax.swissbox.version>1.3.1</org.ops4j.pax.swissbox.version>
+		<org.ops4j-base-lang>1.2.2</org.ops4j-base-lang>
+		<geronimo-j2ee-connector_1.5_spec.version>2.0.0</geronimo-j2ee-connector_1.5_spec.version>
+		<com.googlecode.json-simple.version>1.1.1</com.googlecode.json-simple.version>
+		<net.minidev.json-smart.version>1.1.1</net.minidev.json-smart.version>
+		<saxon.bundle.plugin>${saxon.version}_1</saxon.bundle.plugin>
+		<servicemix.specs.version>${org.apache.servicemix.specs.version}</servicemix.specs.version>
+
+		<!-- ddf thirdparty bundle versions.  these should only be used in the feature xml files.
+			any bundle dependent on classes from these jars should depend on the jar itself and not the bundalized version.  -->
+		<org.geotools.bundle.version>${org.geotools.version}_1</org.geotools.bundle.version>
+		<opengis.bundle.version>${org.geotools.version}_1</opengis.bundle.version>
+		<jts.bundle.version>${jts.version}_1</jts.bundle.version>
+
+        <!-- Features Versions -->
+		<cxf.version>2.7.5</cxf.version>
+        <!-- when upgrading the karaf version, ensure that the properties and cfg files in package-commons/.../distribution/etc/ are updated and compatible with the
+        latest karaf version.  Those configuration files in package-commons/.../distribution/etc have been copied from a previous version of Karaf, and are
+        source controlled because of some slight customizations that have been made to them.  -->
+		<karaf.version>2.3.2</karaf.version>
+		<camel.version>2.11.0</camel.version>
+		<cellar.version>2.3.0</cellar.version>
+
+        <!--
+        Default properties for Version.txt (this is the file containing the build number and
+        svn revision number for the ddf-common project).
+        These properties are overwritten during the actual release process (by specifying
+        the ddf-prepare-release profile).
+        -->
+		<maven.build.timestamp.format>yyyyMMdd-HHmm</maven.build.timestamp.format>
+		<buildNumber>${maven.build.timestamp}</buildNumber>
+		<prefix.revision>DEV</prefix.revision>
+
+	</properties>
+
+	<!--
+	NOTE: The properties ddf.scm.connection.url, snapshots.repository.url and releases.repository.url should be defined
+	in your .m2/settings.xml file.
+	-->
+	<scm>
+		<url>https://github.com/codice/ddf.git</url>
+		<connection>scm:git:git://github.com/codice/ddf.git</connection>
+		<developerConnection>scm:git:git://github.com/codice/ddf.git</developerConnection>
+		<tag>HEAD</tag>
+	</scm>
+
+	<distributionManagement>
+		<snapshotRepository>
+			<id>snapshots</id>
+			<url>${snapshots.repository.url}</url>
+		</snapshotRepository>
+		<repository>
+			<id>releases</id>
+			<url>${releases.repository.url}</url>
+		</repository>
+	</distributionManagement>
+
+	<build>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.apache.felix</groupId>
+					<artifactId>maven-bundle-plugin</artifactId>
+					<version>${felix.plugin.version}</version>
+					<extensions>true</extensions>
+					<configuration>
+						<instructions>
+							<Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+<!--                             <Export-Package /> -->
+						</instructions>
+					</configuration>
+				</plugin>
+
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-compiler-plugin</artifactId>
+					<version>${maven.compiler.plugin.version}</version>
+					<configuration>
+						<source>1.6</source>
+						<target>1.6</target>
+						<maxmem>512M</maxmem>
+						<fork>${compiler.fork}</fork>
+						<encoding>${project.build.sourceEncoding}</encoding>
+					</configuration>
+				</plugin>
+
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-checkstyle-plugin</artifactId>
+					<version>${maven.checkstyle.plugin.version}</version>
+					<dependencies>
+						<dependency>
+							<groupId>ddf.support</groupId>
+							<artifactId>support-checkstyle</artifactId>
+							<version>${project.version}</version>  <!-- used to be project.version -->
+							<optional>true</optional>
+						</dependency>
+					</dependencies>
+					<executions>
+						<execution>
+							<id>checkstyle-check</id>
+							<phase>verify</phase>
+							<goals>
+								<goal>check</goal>
+							</goals>
+							<configuration>
+								<!-- This configures the plugin for mvn install -->
+								<configLocation>checkstyle-enforced.xml</configLocation>
+								<headerLocation>lpgl-header-check.txt</headerLocation>
+								<sourceDirectory>${basedir}</sourceDirectory>
+								<includes>src/**/*.java</includes>
+								<consoleOutput>true</consoleOutput>
+								<failsOnError>true</failsOnError>
+								<linkXRef>false</linkXRef>
+								<aggregate>true</aggregate>
+							</configuration>
+						</execution>
+						<execution>
+							<id>checkstyle-check-xml</id>
+							<phase>verify</phase>
+							<goals>
+								<goal>check</goal>
+							</goals>
+							<configuration>
+								<!-- This configures the plugin for mvn install -->
+								<configLocation>checkstyle-enforced-xml.xml</configLocation>
+								<headerLocation>lpgl-header-check-xml.txt</headerLocation>
+								<sourceDirectory>${basedir}</sourceDirectory>
+								<includes>src/**/*.xml, pom.xml</includes>
+								<consoleOutput>true</consoleOutput>
+								<failsOnError>true</failsOnError>
+								<linkXRef>false</linkXRef>
+								<aggregate>true</aggregate>
+							</configuration>
+						</execution>
+					</executions>
+					<!--  
+					<configuration>
+						 This configures the plugin for mvn checkstyle:checkstyle 
+						<configLocation>checkstyle-enforced.xml</configLocation>
+						<headerLocation>lpgl-header-check.txt</headerLocation>
+						<sourceDirectory>${basedir}</sourceDirectory>
+						<includes>src/**/*.java, src/**/*.xml, pom.xml</includes>
+						<consoleOutput>true</consoleOutput>
+						<failsOnError>true</failsOnError>
+						<linkXRef>false</linkXRef>
+						<aggregate>true</aggregate>
+					</configuration>
+					-->
+				</plugin>
+
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-deploy-plugin</artifactId>
+					<version>${maven.deploy.plugin.version}</version>
+				</plugin>
+
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-release-plugin</artifactId>
+					<version>${maven.release.plugin.version}</version>
+					<configuration>
+						<autoVersionSubmodules>true</autoVersionSubmodules>
+						<preparationGoals>clean verify install</preparationGoals>
+						<arguments>-Pgenerate_uml_javadoc</arguments>
+						<pushChanges>false</pushChanges>
+					</configuration>
+				</plugin>
+
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-clean-plugin</artifactId>
+					<version>${maven.clean.plugin.version}</version>
+				</plugin>
+
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-assembly-plugin</artifactId>
+					<version>${maven.assembly.plugin.version}</version>
+				</plugin>
+
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-site-plugin</artifactId>
+					<version>${maven.site.plugin.version}</version>
+				</plugin>
+
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-dependency-plugin</artifactId>
+					<version>${maven.dependency.plugin.version}</version>
+				</plugin>
+
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-resources-plugin</artifactId>
+					<version>${maven.resources.plugin.version}</version>
+				</plugin>
+
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-jar-plugin</artifactId>
+					<version>${maven.jar.plugin.version}</version>
+				</plugin>
+
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-install-plugin</artifactId>
+					<version>${maven.install.plugin.version}</version>
+				</plugin>
+
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-surefire-plugin</artifactId>
+					<version>${maven.surefire.plugin.version}</version>
+				</plugin>
+
+				<plugin>
+					<groupId>org.codehaus.mojo</groupId>
+					<artifactId>cobertura-maven-plugin</artifactId>
+					<version>${cobertura.plugin.version}</version>
+				</plugin>
+
+				<plugin>
+					<groupId>org.apache.karaf.tooling</groupId>
+					<artifactId>features-maven-plugin</artifactId>
+					<version>${karaf.version}</version>
+				</plugin>
+
+				<plugin>
+					<groupId>org.codehaus.mojo</groupId>
+					<artifactId>build-helper-maven-plugin</artifactId>
+					<version>${build.helper.plugin.version}</version>
+				</plugin>
+
+				<plugin>
+					<groupId>org.jvnet.jaxb2.maven2</groupId>
+					<artifactId>maven-jaxb2-plugin</artifactId>
+					<version>${jaxb.plugin.version}</version>
+				</plugin>
+				
+				<!-- In order for the diagrams to be included within the javadocs, Graphviz 
+						must be installed and on the command line path. No spaces must exist in the 
+						path. Last known version to work with build is 2.26.3. 
+						http://www.graphviz.org/pub/graphviz/stable/ -->
+
+				<plugin>
+					<artifactId>maven-javadoc-plugin</artifactId>
+					<version>${maven.javadoc.plugin.version}</version>
+					<executions>
+						<execution>
+							<id>attach-javadocs</id>
+							<goals>
+								<goal>jar</goal>
+							</goals>
+						</execution>
+					</executions>
+					<configuration>
+						<aggregate>true</aggregate>
+						<show>protected</show>
+						<doclet>org.umlgraph.doclet.UmlGraphDoc</doclet>
+						<docletArtifact>
+							<groupId>org.umlgraph</groupId>
+							<artifactId>umlgraph</artifactId>
+							<version>${umlgraph.doclet.version}</version>
+						</docletArtifact>
+						<additionalparam>
+							-inferrel -attributes -types -visibility
+							-inferdep
+							-operations -enumconstants
+							-quiet -hide java.*
+							-collapsible
+							-collpackages java.util.*
+							-postfixpackage
+							-nodefontsize 9
+							-nodefontpackagesize 7
+						</additionalparam>
+					</configuration>
+				</plugin>
+
+				<plugin>
+					<groupId>org.apache.cxf</groupId>
+					<artifactId>cxf-codegen-plugin</artifactId>
+					<version>${cxf.version}</version>
+				</plugin>
+
+			</plugins>
+		</pluginManagement>
+
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-checkstyle-plugin</artifactId>
+				<!--  We don't want to inherit this *change* to the plugin configuration. -->
+				<!--  Sub modules will still inherit the plugin and the configuration from pluginManagment -->
+
+				<inherited>false</inherited>
+				<executions>
+					<execution>
+						<!-- Match the execution defined in the pluginManagment and override it-->
+						<!-- Prevents the check here. -->
+						<id>checkstyle-check</id>
+						<phase>none</phase>
+					</execution>
+					<execution>
+						<id>checkstyle-check-xml</id>
+						<phase>none</phase>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+
+	<reporting>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-checkstyle-plugin</artifactId>
+				<version>${maven.checkstyle.plugin.version}</version>
+				<!--  
+				<reportSets>
+					<reportSet>
+						<id>checkstyle-check-java</id>
+						<reports>
+							<report>checkstyle</report>
+						</reports>
+						<configuration>
+							<configLocation>checkstyle-enforced.xml</configLocation>
+							<headerLocation>lpgl-header-check.txt</headerLocation>
+							<sourceDirectory>${basedir}</sourceDirectory>
+							<includes>src/**/*.java</includes>
+							<consoleOutput>true</consoleOutput>
+							<failsOnError>false</failsOnError>
+							<linkXRef>false</linkXRef>
+						</configuration>
+					</reportSet>
+					<reportSet>
+						<id>checkstyle-check-xml</id>
+						<reports>
+							<report>checkstyle</report>
+						</reports>
+						<configuration>
+							<configLocation>checkstyle-enforced-xml.xml</configLocation>
+							<headerLocation>lpgl-header-check-xml.txt</headerLocation>
+							<sourceDirectory>${basedir}</sourceDirectory>
+							<includes>src/**/*.xml, pom.xml</includes>
+							<consoleOutput>true</consoleOutput>
+							<failsOnError>false</failsOnError>
+							<linkXRef>false</linkXRef>
+						</configuration>
+					</reportSet>
+				</reportSets>
+				-->
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-project-info-reports-plugin</artifactId>
+				<version>2.7</version>
+				<configuration>
+					<dependencyDetailsEnabled>false</dependencyDetailsEnabled>
+					<dependencyLocationsEnabled>false</dependencyLocationsEnabled>
+				</configuration>
+			</plugin>
+		</plugins>
+	</reporting>
+
+	<profiles>
+<!-- Uncomment this profile when a test module is added.  This way this profile can be used to facilitate the release. -->
+<!--         <profile> -->
+<!--             Enable this profile to run the integration tests, for example:-->
+<!--             mvn clean install -P ddf-integration-test -->
+<!--             OR -->
+<!--             set and activate this profile in your ~/.m2/settings.xml -->
+<!--             -->
+<!--             <id>ddf-integration-test</id> -->
+<!--             <activation> -->
+<!--                 <property> -->
+<!--                     <name>ddf-integration-test</name> -->
+<!--                 </property> -->
+<!--             </activation> -->
+<!--             Add the test module. Only build if this profile is enabled. -->
+<!--             <modules> -->
+<!--                 <module>test</module> -->
+<!--             </modules> -->
+<!--         </profile> -->
+
+
+		<profile>
+			<id>bundleSource</id>
+			<build>
+				<plugins>
+					<plugin>
+                        <!-- NOTE: We don't need a groupId specification because the group is
+                            org.apache.maven.plugins ...which is assumed by default.
+                        -->
+						<artifactId>maven-assembly-plugin</artifactId>
+						<version>${maven.assembly.plugin.version}</version>
+						<configuration>
+							<descriptorRefs>
+								<descriptorRef>project</descriptorRef>
+							</descriptorRefs>
+							<formats>
+								<format>zip</format>
+							</formats>
+							<runOnlyAtExecutionRoot>true</runOnlyAtExecutionRoot>
+						</configuration>
+						<executions>
+							<execution>
+								<id>make-assembly</id>
+                                <!-- this is used for inheritance merges -->
+								<phase>package</phase>
+                                <!-- append to the packaging phase. -->
+								<goals>
+									<goal>single</goal>
+                                    <!-- goals == mojos -->
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+
+		<!-- Added to allow UML Javadocs to be created on Macs that
+		 are running JDK6 and/or tools.jar is not accessible.
+		 jdk tools.jar is required for the new umlgraph doclet to work (5.6.6)-->
+
+		<profile>
+			<id>jdk6</id>
+			<activation>
+				<jdk>1.6</jdk>
+			</activation>
+			<build>
+				<pluginManagement>
+					<plugins>
+						<plugin>
+							<artifactId>maven-javadoc-plugin</artifactId>
+							<version>${maven.javadoc.plugin.version}</version>
+							<executions>
+								<execution>
+									<id>attach-javadocs</id>
+									<goals>
+										<goal>jar</goal>
+									</goals>
+								</execution>
+							</executions>
+							<configuration>
+								<aggregate>true</aggregate>
+								<show>protected</show>
+								<doclet>org.umlgraph.doclet.UmlGraphDoc</doclet>
+								<!-- This version of the doclet does not run on JDK 1.7 -->
+								<docletArtifact>
+									<groupId>org.umlgraph</groupId>
+									<artifactId>doclet</artifactId>
+									<version>5.1</version>
+								</docletArtifact>
+								<additionalparam>
+									-inferrel -attributes -types -visibility
+									-inferdep
+									-operations -enumconstants
+									-quiet -hide java.*
+									-collapsible
+									-collpackages java.util.*
+									-postfixpackage
+									-nodefontsize 9
+									-nodefontpackagesize 7
+								</additionalparam>
+							</configuration>
+						</plugin>
+					</plugins>
+				</pluginManagement>
+			</build>
+		</profile>
+	</profiles>
+
+	<dependencyManagement>
+		<dependencies>
+
+			<dependency>
+				<artifactId>karaf</artifactId>
+				<groupId>org.apache.karaf</groupId>
+				<version>${karaf.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+
+			<dependency>
+				<groupId>org.apache.karaf</groupId>
+				<artifactId>apache-karaf</artifactId>
+				<version>${karaf.version}</version>
+				<type>tar.gz</type>
+			</dependency>
+
+			<dependency>
+				<groupId>org.apache.karaf</groupId>
+				<artifactId>apache-karaf</artifactId>
+				<version>${karaf.version}</version>
+				<type>zip</type>
+			</dependency>
+
+			<dependency>
+				<groupId>org.apache.karaf.tooling.exam</groupId>
+				<artifactId>exam</artifactId>
+				<version>${karaf.version}</version>
+				<scope>test</scope>
+			</dependency>
+
+			<dependency>
+				<groupId>org.apache.karaf.tooling.exam</groupId>
+				<artifactId>org.apache.karaf.tooling.exam.container</artifactId>
+				<version>${karaf.version}</version>
+				<scope>test</scope>
+			</dependency>
+
+			<dependency>
+				<groupId>org.apache.camel</groupId>
+				<artifactId>camel-parent</artifactId>
+				<version>${camel.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+
+			<dependency>
+				<groupId>org.apache.cxf</groupId>
+				<artifactId>cxf-parent</artifactId>
+				<version>${cxf.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+
+			<dependency>
+				<groupId>org.apache.cxf</groupId>
+				<artifactId>cxf-api</artifactId>
+				<version>${cxf.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.apache.cxf</groupId>
+				<artifactId>cxf-bundle</artifactId>
+				<version>${cxf.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.apache.cxf</groupId>
+				<artifactId>cxf-bundle-jaxrs</artifactId>
+				<version>${cxf.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.apache.cxf</groupId>
+				<artifactId>cxf-rt-security</artifactId>
+				<version>${cxf.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.apache.cxf</groupId>
+				<artifactId>cxf-rt-ws-security</artifactId>
+				<version>${cxf.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.apache.cxf.services.sts</groupId>
+				<artifactId>cxf-services-sts-core</artifactId>
+				<version>${cxf.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.apache.cxf</groupId>
+				<artifactId>cxf-rt-core</artifactId>
+				<version>${cxf.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.apache.cxf</groupId>
+				<artifactId>cxf-rt-transports-http</artifactId>
+				<version>${cxf.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.apache.cxf</groupId>
+				<artifactId>cxf-rt-frontend-jaxrs</artifactId>
+				<version>${cxf.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.springframework.osgi</groupId>
+				<artifactId>spring-osgi-mock</artifactId>
+				<version>1.2.1</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+
+			<dependency>
+				<groupId>com.vividsolutions</groupId>
+				<artifactId>jts</artifactId>
+				<version>1.12</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.geotools</groupId>
+				<artifactId>gt-jts-wrapper</artifactId>
+				<version>${org.geotools.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.geotools</groupId>
+				<artifactId>gt-opengis</artifactId>
+				<version>${org.geotools.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.geotools</groupId>
+				<artifactId>gt-main</artifactId>
+				<version>${org.geotools.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.geotools.xsd</groupId>
+				<artifactId>gt-xsd-gml3</artifactId>
+				<version>${org.geotools.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>com.googlecode.json-simple</groupId>
+				<artifactId>json-simple</artifactId>
+				<version>1.1.1</version>
+			</dependency>
+
+			<dependency>
+				<groupId>net.minidev</groupId>
+				<artifactId>json-smart</artifactId>
+				<version>${net.minidev.json-smart.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>xalan</groupId>
+				<artifactId>xalan</artifactId>
+				<version>${xalan.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>xalan</groupId>
+				<artifactId>serializer</artifactId>
+				<version>${xalan.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>xerces</groupId>
+				<artifactId>xercesImpl</artifactId>
+				<version>${xerces.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>net.sf.saxon</groupId>
+				<artifactId>saxon</artifactId>
+				<version>${saxon.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>net.sf.saxon</groupId>
+				<artifactId>saxon-dom</artifactId>
+				<version>${saxon.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>javax.servlet</groupId>
+				<artifactId>servlet-api</artifactId>
+				<version>2.5</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.slf4j</groupId>
+				<artifactId>slf4j-api</artifactId>
+				<version>${org.slf4j.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.slf4j</groupId>
+				<artifactId>slf4j-simple</artifactId>
+				<version>${org.slf4j.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.slf4j</groupId>
+				<artifactId>slf4j-ext</artifactId>
+				<version>${org.slf4j.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.slf4j</groupId>
+				<artifactId>slf4j-jdk14</artifactId>
+				<version>${org.slf4j.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.slf4j</groupId>
+				<artifactId>slf4j-log4j12</artifactId>
+				<version>${org.slf4j.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.apache.servicemix.specs</groupId>
+				<artifactId>org.apache.servicemix.specs.jsr311-api-1.1</artifactId>
+				<version>2.0.0</version>
+			</dependency>
+
+			<dependency>
+				<groupId>commons-io</groupId>
+				<artifactId>commons-io</artifactId>
+				<version>${commons-io.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>joda-time</groupId>
+				<artifactId>joda-time</artifactId>
+				<version>${joda-time.version}</version>
+			</dependency>
+			
+			<dependency>
+					<groupId>xmlunit</groupId>
+					<artifactId>xmlunit</artifactId>
+					<version>${xmlunit.version}</version>
+			</dependency>
+
+			<dependency>
+	            <groupId>com.codahale.metrics</groupId>
+	            <artifactId>metrics-core</artifactId>
+	            <version>3.0.1</version>
+	        </dependency>
+
+		</dependencies>
+	</dependencyManagement>
+
+    <!--
+    Dependencies listed here will always be used in all sub poms. 
+    You should not redeclare them in the sub pom's dependencies section.
+    -->
+	<dependencies>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.8</version>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.hamcrest</groupId>
+			<artifactId>hamcrest-all</artifactId>
+			<version>1.1</version>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-all</artifactId>
+			<version>1.9.0</version>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+	<repositories>
+		<repository>
+			<id>central</id>
+			<name>Central Repository</name>
+			<url>http://repo.maven.apache.org/maven2</url>
+			<layout>default</layout>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+		</repository>
+		<repository>
+			<id>maven2-repository.dev.java.net</id>
+			<name>Java.net repository</name>
+			<url>http://download.java.net/maven/2</url>
+		</repository>
+		<repository>
+			<id>osgeo</id>
+			<name>Open Source Geospatial Foundation Repository</name>
+			<url>http://download.osgeo.org/webdav/geotools/</url>
+		</repository>
+		<repository>
+			<id>com.springsource.repository.bundles.release</id>
+			<name>SpringSource Enterprise Bundle Repository - SpringSource Bundle Releases</name>
+			<url>http://repository.springsource.com/maven/bundles/release</url>
+		</repository>
+		<repository>
+			<id>com.springsource.repository.bundles.external</id>
+			<name>SpringSource Enterprise Bundle Repository - External Bundle Releases</name>
+			<url>http://repository.springsource.com/maven/bundles/external</url>
+		</repository>
+		<repository>
+			<id>jfrog-plugin</id>
+			<name>JFrog Plugin Releases</name>
+			<url>http://repo.jfrog.org/artifactory/plugins-releases/</url>
+		</repository>
+		<repository>
+			<id>servicemix</id>
+			<name>ServiceMix Releases</name>
+			<url>http://svn.apache.org/repos/asf/servicemix/m2-repo</url>
+		</repository>
+		<repository>
+			<id>codice</id>
+			<name>Codice Repository</name>
+			<url>http://artifacts.codice.org/content/groups/public/</url>
+		</repository>
+	</repositories>
+	
+</project>
