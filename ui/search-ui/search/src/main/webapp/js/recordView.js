@@ -74,11 +74,14 @@ function RecordView(metacard){
 	    }
 	};
 	
+
 	this._buildThumbnail = function(data){
 		var srcString, thumbnailLink;
 		if(data){
 			srcString = "data:image/jpeg;charset=utf-8;base64, " + data;
-			thumbnailLink = "<img class='thumbnail' alt='' src='" + srcString+"'></img>";
+
+			thumbnailLink = "<a href='javascript:showThumbnail(\"" + this.properties.title + "\", \"" + 
+					this.properties.thumbnail + "\")'><img class='thumbnail' alt='' src='" + srcString+"'></img><a>";
 			return thumbnailLink;
 		}else{
 			return "<i>No image available</i>";
