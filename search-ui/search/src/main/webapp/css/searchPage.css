@@ -94,31 +94,6 @@ html, body {
 	padding-top: 72px;
 }
 
-#metacardModal {
-	position: fixed;
-	top: 10%;
-	left: 10%;
-	margin: 0px;
-	width: 80%;
-	height: 70%;
-}
-
-#metacardModal > .modal-body {
-	position: relative;
-	height: 100%;
-	max-height: 100%;
-	padding: 0px;
-	background: white;
-}
-
-#metacardIframe {
-	height: 100%;
-	width: 100%;
-	display: block;
-	vertical-align: bottom;
-	overflow: auto !important;
-}
-
 div.resourceSize {
         color: #999999;
         font-size: 11px;
