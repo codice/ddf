@@ -18,8 +18,9 @@
 	<parent>
 		<groupId>ddf</groupId>
         <artifactId>ddf-parent</artifactId>
-        <version>2.0.0-SNAPSHOT</version>
-        <relativePath>../../ddf-parent/pom.xml</relativePath>
+        <version>1.0.0-SNAPSHOT</version>
+<!--         <relativePath>../../ddf-parent/pom.xml</relativePath> -->
+        <relativePath>../parent/pom.xml</relativePath>
 	</parent>
 
 	<groupId>ddf.content</groupId>
@@ -34,13 +35,6 @@
 
     <dependencyManagement>
         <dependencies>
-        <!-- 
-            <dependency>
-                <groupId>ddf.catalog.core</groupId>
-                <artifactId>catalog-core-api</artifactId>
-                <version>${ddf.esb.app.version}</version>
-            </dependency>
-        -->
             <dependency>
                 <groupId>ddf.content.core</groupId>
                 <artifactId>content-core-api</artifactId>
@@ -69,11 +63,6 @@
     <modules>
         <module>endpoint</module>
         <module>core</module>
-        <!-- 
-        <module>core/content-core-filestorageprovider</module>
-        <module>core/content-core-directorymonitor</module>
-        -->
-        <!-- <module>core/content-core-catalogerplugin</module>  Moved to its own app -->
         <module>content-services-app</module>
     </modules>
     
