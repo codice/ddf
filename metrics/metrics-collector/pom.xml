@@ -16,10 +16,9 @@
   <modelVersion>4.0.0</modelVersion>
   
   <parent>
-    <groupId>ddf.esb</groupId>
-    <artifactId>esb</artifactId>
+    <artifactId>metrics</artifactId>
+    <groupId>ddf.metrics</groupId>
     <version>2.3.0-SNAPSHOT</version>
-    <relativePath>../../esb/pom.xml</relativePath>
   </parent>
   
   <groupId>ddf.metrics.collector</groupId>

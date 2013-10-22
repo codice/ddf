@@ -22,8 +22,9 @@
 		<relativePath>../../../platform/pom.xml</relativePath>
 	</parent>
 
-	<name>DDF :: Catalog :: Core :: API</name>
+	<groupId>ddf.catalog.core</groupId>
 	<artifactId>catalog-core-api</artifactId>
+    <name>DDF :: Catalog :: Core :: API</name>
 	<packaging>bundle</packaging>
 
 	<dependencies>

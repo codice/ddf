@@ -126,9 +126,9 @@
   
   <modules>
       <module>../action</module>
+	  <module>../catalog/core/catalog-core-api</module>
       <module>../mime</module>
       <module>../metrics</module>
-      <module>../catalog/core/catalog-core-api</module>
       <module>../security</module>
 	  <module>platform-scheduler</module> 	  	
       <module>platform-app</module>

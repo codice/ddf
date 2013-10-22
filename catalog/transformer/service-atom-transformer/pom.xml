@@ -21,6 +21,7 @@
         <relativePath>../../pom.xml</relativePath>
 	</parent>
 
+	<groupId>ddf.catalog.transformer</groupId>
 	<artifactId>service-atom-transformer</artifactId>
 	<name>DDF :: Catalog :: Transformer :: ATOM</name>
 	<packaging>bundle</packaging>
