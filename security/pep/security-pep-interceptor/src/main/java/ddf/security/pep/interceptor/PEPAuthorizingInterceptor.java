@@ -29,7 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
 
-import ddf.catalog.Constants;
+import ddf.security.SecurityConstants;
 import ddf.security.Subject;
 import ddf.security.assertion.SecurityAssertion;
 import ddf.security.common.audit.SecurityLogger;
@@ -103,9 +103,9 @@ public class PEPAuthorizingInterceptor extends AbstractPhaseInterceptor<Message>
                     SecurityLogger.logInfo("Is user [" + user.getPrincipal() + "] permitted: "
                             + isPermitted);
                     // store the subject so the DDF framework can use it later
-                    message.put(Constants.SAML_ASSERTION, user);
+                    message.put(SecurityConstants.SAML_ASSERTION, user);
                     logger.debug("Added assertion information to message at key {}",
-                            Constants.SAML_ASSERTION);
+                            SecurityConstants.SAML_ASSERTION);
                 } catch (Exception e) {
                     logger.warn("Caught exception when trying to perform AuthZ.", e);
                     SecurityLogger.logWarn(

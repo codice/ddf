@@ -21,7 +21,6 @@ import org.apache.cxf.message.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ddf.catalog.Constants;
 import ddf.security.SecurityConstants;
 import ddf.security.Subject;
 
@@ -43,7 +42,7 @@ public class SecurityProperties extends HashMap<String, Serializable> {
         if (message != null) {
             // grab the SAML assertion associated with this Message from the
             // token store
-            Object subjectObj = message.get(Constants.SAML_ASSERTION);
+            Object subjectObj = message.get(SecurityConstants.SAML_ASSERTION);
             if ((subjectObj != null) && (subjectObj instanceof Subject)) {
                 LOGGER.debug("Found subject on message, adding to query request.");
                 put(SecurityConstants.SECURITY_SUBJECT, (Subject) subjectObj);
