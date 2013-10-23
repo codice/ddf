@@ -19,7 +19,7 @@
     <version>2.3.0-SNAPSHOT</version>
   </parent>
   
-  <modelVersion>4.0.0</modelVersion>
+  <modelVersion>4.0.0</modelVersion> <!-- comment -->
   <groupId>ddf.sdk</groupId>
   <artifactId>sdk</artifactId>
   <packaging>pom</packaging>
