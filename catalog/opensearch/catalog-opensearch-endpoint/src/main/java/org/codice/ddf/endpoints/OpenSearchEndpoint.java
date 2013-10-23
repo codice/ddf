@@ -354,18 +354,24 @@ public class OpenSearchEndpoint implements DdfConfigurationWatcher {
 
     protected Subject getSubject(HttpServletRequest request) {
         Subject subject = null;
-        if (request != null && securityManager != null) {
-            for (TokenRequestHandler curHandler : requestHandlerList) {
-                try {
-                    subject = securityManager.getSubject(curHandler.createToken(request));
-                    LOGGER.debug("Able to get populated subject from incoming request.");
-                    break;
-                } catch (SecurityServiceException sse) {
-                    LOGGER.warn(
-                            "Could not create subject from request handler, trying other handlers if available.",
-                            sse);
+        if (request != null) {
+            if (securityManager != null) {
+                for (TokenRequestHandler curHandler : requestHandlerList) {
+                    try {
+                        subject = securityManager.getSubject(curHandler.createToken(request));
+                        LOGGER.debug("Able to get populated subject from incoming request.");
+                        break;
+                    } catch (SecurityServiceException sse) {
+                        LOGGER.warn(
+                                "Could not create subject from request handler, trying other handlers if available.",
+                                sse);
+                    }
                 }
+            } else {
+                LOGGER.debug("No security manager was passed in, cannot obtain security credentials for user.");
             }
+        } else {
+            LOGGER.debug("No servlet request found, cannot obtain user credentials.");
         }
         return subject;
     }
