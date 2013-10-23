@@ -135,8 +135,6 @@ public final class Constants {
      */
     public static final String MIME_TYPE_JPEG = "image/jpeg";
 
-    public static final String SAML_ASSERTION = "saml.assertion";
-
     public static final String OAUTH_RESOURCE_OWNER_USERNAME = "resource.owner.username";
 
 }
