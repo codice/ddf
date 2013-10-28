@@ -19,7 +19,6 @@
 		<groupId>ddf</groupId>
         <artifactId>ddf-parent</artifactId>
         <version>1.0.0-SNAPSHOT</version>
-<!--         <relativePath>../../ddf-parent/pom.xml</relativePath> -->
         <relativePath>../parent/pom.xml</relativePath>
 	</parent>	
 
@@ -38,7 +37,7 @@
             <dependency>
                 <groupId>ddf.catalog.core</groupId>
                 <artifactId>catalog-core-api</artifactId>
-                <version>${project.version}</version>
+                <version>${ddf.platform.app.version}</version>
             </dependency>
 			<dependency>
 				<groupId>ddf.catalog.common</groupId>
@@ -110,7 +109,6 @@
 	</dependencyManagement>
 
 	<modules>
-	    <!-- NEW -->
 	    <module>../measure</module>
 	    <module>../catalog/common</module>
         <module>../catalog/core</module>
@@ -127,12 +125,9 @@
         <module>../catalog/transformer/service-atom-transformer</module>
         <module>../catalog/transformer/catalog-transformer-xml-binding</module>
         <module>../catalog/transformer/catalog-transformer-xml</module>
-        <!--  END NEW -->
         <module>plugin</module>
-        <!-- <module>kml</module> -->
         <module>opensearch</module>
         <module>rest</module>
-        <!-- <module>../metrics</module> -->
         <module>catalog-services-app</module>
 	</modules>
 
