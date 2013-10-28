@@ -28,7 +28,7 @@
   <packaging>bundle</packaging>
   
   <properties>
-        <ddf.catalog.services.app.version>2.3.0-SNAPSHOT</ddf.catalog.services.app.version>
+        <ddf.platform.services.app.version>2.3.0-SNAPSHOT</ddf.platform.services.app.version>
         <ddf.content.services.app.version>2.3.0-SNAPSHOT</ddf.content.services.app.version>
   </properties>
   
@@ -46,7 +46,7 @@
 		<dependency>
 			<groupId>ddf.catalog.core</groupId>
 			<artifactId>catalog-core-api</artifactId>
-			<version>${ddf.catalog.services.app.version}</version>
+			<version>${ddf.platform.services.app.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.osgi</groupId>

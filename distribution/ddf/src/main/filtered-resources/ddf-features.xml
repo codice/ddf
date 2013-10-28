@@ -16,12 +16,9 @@
 	
 	<repository>mvn:ddf.distribution/distribution-kernel/${project.version}/xml/features</repository>
 	<repository>mvn:ddf.platform/platform-app/${ddf.platform.app.version}/xml/features</repository>
-    <!-- <repository>mvn:ddf.esb/esb-app/${ddf.esb.app.version}/xml/features</repository>  -->
     <repository>mvn:ddf.catalog/catalog-services-app/${ddf.catalog.services.app.version}/xml/features</repository>
-    <!-- <repository>mvn:ddf.catalog.transformer/catalog-transformer-app/${ddf.transformers.app.version}/xml/features</repository>  -->
     <repository>mvn:ddf.content/content-services-app/${ddf.content.services.app.version}/xml/features</repository>
     <repository>mvn:ddf.content/content-catalogger-plugin-app/${ddf.content.catalogger.plugin.app.version}/xml/features</repository>
-    <!-- <repository>mvn:ddf.security/security-services-app/${ddf.security.services.app.version}/xml/features</repository>  -->
     <repository>mvn:ddf.catalog.solr/catalog-solr-app/${ddf.solr.catalog.app.version}/xml/features</repository>
     <repository>mvn:org.codice.opendj.embedded/opendj-embedded-app/1.0.0/xml/features</repository>
     <repository>mvn:ddf.ui.search-ui/search-app/${ddf.searchui.app.version}/xml/features</repository>

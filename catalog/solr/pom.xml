@@ -19,7 +19,6 @@
 		<groupId>ddf</groupId>
         <artifactId>ddf-parent</artifactId>
         <version>1.0.0-SNAPSHOT</version>
-        <!-- <relativePath>../../../ddf-parent/pom.xml</relativePath> -->
         <relativePath>../../parent/pom.xml</relativePath>
 	</parent>
 
@@ -30,7 +29,8 @@
 	<packaging>pom</packaging>
 
 	<properties>
-	    <ddf.esb.app.version>2.3.0-SNAPSHOT</ddf.esb.app.version>
+	    <ddf.platform.app.version>2.3.0-SNAPSHOT</ddf.platform.app.version>
+	    <ddf.catalog.app.version>2.3.0-SNAPSHOT</ddf.catalog.app.version>
 		<solr.version>4.1.0</solr.version>
 	</properties>
 
@@ -39,22 +39,22 @@
             <dependency>
                 <groupId>ddf.catalog.core</groupId>
                 <artifactId>catalog-core-api</artifactId>
-                <version>${ddf.esb.app.version}</version>
+                <version>${ddf.platform.app.version}</version>
             </dependency>
             <dependency>
                 <groupId>ddf.measure</groupId>
                 <artifactId>measure-api</artifactId>
-                <version>${ddf.esb.app.version}</version>
+                <version>${ddf.catalog.app.version}</version>
             </dependency>
             <dependency>
                 <groupId>ddf.catalog.core</groupId>
                 <artifactId>catalog-core-commons</artifactId>
-                <version>${ddf.esb.app.version}</version>
+                <version>${ddf.catalog.app.version}</version>
             </dependency>
             <dependency>
                 <groupId>ddf.catalog.core</groupId>
                 <artifactId>filter-proxy</artifactId>
-                <version>${ddf.esb.app.version}</version>
+                <version>${ddf.catalog.app.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

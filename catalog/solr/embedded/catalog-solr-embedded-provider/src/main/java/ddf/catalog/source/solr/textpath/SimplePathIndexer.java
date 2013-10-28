@@ -25,7 +25,6 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 
 import org.apache.log4j.Logger;
-import org.codehaus.stax2.XMLInputFactory2;
 
 /**
  * Class is used to create simple text path index strings to be searched upon.
@@ -40,7 +39,7 @@ public class SimplePathIndexer {
 
     public static final char LEAF_TEXT_DELIMITER = '|';
 
-    //MODULARITY: changed from XmlInputFactory2
+    //DDF-216 MODULARITY: changed from XmlInputFactory2
     private XMLInputFactory xmlInputFactory = null;
 
     private final Deque<String> stack = new ArrayDeque<String>();
@@ -65,7 +64,7 @@ public class SimplePathIndexer {
 
                 if (event == XMLStreamConstants.START_ELEMENT) {
                     StringBuffer element = new StringBuffer();
-                    //MODULARITY: Only available with XmlStreamReader2
+                    //DDF-216 MODULARITY: Only available with XmlStreamReader2
 //                    element.append(previous()).append(SELECTOR)
 //                            .append(xmlStreamReader.getPrefixedName());
                     String prefix = xmlStreamReader.getPrefix();

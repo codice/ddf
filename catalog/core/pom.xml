@@ -35,19 +35,19 @@
 			<dependency>
 				<groupId>ddf.catalog.core</groupId>
 				<artifactId>catalog-core-api</artifactId>
-				<version>${project.version}</version>
+				<version>${ddf.platform.app.version}</version>
 				<type>test-jar</type>
 			</dependency>
 			<dependency>
 				<groupId>ddf.mime.core</groupId>
 				<artifactId>mime-core-configurableresolver</artifactId>
-				<version>${project.version}</version>
+				<version>${ddf.platform.app.version}</version>
 				<scope>test</scope>
 			</dependency>
 			<dependency>
 				<groupId>ddf.mime.tika</groupId>
 				<artifactId>mime-tika-resolver</artifactId>
-				<version>${project.version}</version>
+				<version>${ddf.platform.app.version}</version>
 				<scope>test</scope>
 			</dependency>
 			<dependency>

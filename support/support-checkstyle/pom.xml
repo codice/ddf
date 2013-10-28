@@ -21,7 +21,6 @@
 		<version>2.3.0-SNAPSHOT</version>
 	</parent>
 
-	<groupId>ddf.support</groupId>
 	<artifactId>support-checkstyle</artifactId>
 	<name>DDF Support Checkstyle</name>
 	<description>DDF checkstyle contains file for checking builds</description>

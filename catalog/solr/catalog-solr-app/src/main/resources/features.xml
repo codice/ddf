@@ -11,6 +11,18 @@
  *
  **/
  -->
+ 
+<!--
+     NOTE: This features XML file uses the Karaf "install" attribute to specify whether a feature
+     is automatically installed when an app's KAR file is hot deployed.
+     
+     Description of the install attribute from the Karaf features XSD:
+     
+     "Installation mode. Can be either manual or auto. Specifies whether the feature should be 
+     automatically installed when dropped inside the deploy folder. Note: This attribute doesn't 
+     affect feature descriptors that are installed from the command line or as part of the 
+     org.apache.karaf.features.cfg." 
+--> 
 <features name="${project.artifactId}-${project.version}">
 
     <feature name="catalog-solr-embedded-provider" install="auto" version="${project.version}" description="Catalog Provider with locally Embedded Solr Server, implemented using Solr ${solr.version}.">

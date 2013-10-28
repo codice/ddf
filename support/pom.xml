@@ -19,7 +19,6 @@
 		<groupId>ddf</groupId>
         <artifactId>ddf-parent</artifactId>
         <version>1.0.0-SNAPSHOT</version>
-        <!-- <relativePath>../ddf-parent/pom.xml</relativePath> -->
 		<relativePath>../parent/pom.xml</relativePath>
 	</parent>
 
@@ -38,28 +37,100 @@
     <modules>
         <module>support-checkstyle</module>
     </modules>
-	
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-checkstyle-plugin</artifactId>
-				<executions>
-					<execution>
-						<!-- Match the execution defined in the pluginManagment and override it-->
-						<!-- Prevents the check and doesn't attempt to download the checkstyle artifact. -->
-						<id>checkstyle-check</id>
-						<phase>none</phase>
-					</execution>
-					<execution>
-						<!-- Match the execution defined in the pluginManagment and override it-->
-						<!-- Prevents the check and doesn't attempt to download the checkstyle artifact. -->
-						<id>checkstyle-check-xml</id>
-						<phase>none</phase>
-					</execution>
-				</executions>
-			</plugin>
-		</plugins>
-	</build>
+    
+    <properties>
+        <maven.assembly.plugin.version>2.2.2</maven.assembly.plugin.version>
+        <maven.clean.plugin.version>2.4.1</maven.clean.plugin.version>
+        <maven.resources.plugin.version>2.5</maven.resources.plugin.version>
+        <maven.javadoc.plugin.version>2.7</maven.javadoc.plugin.version>
+        <maven.release.plugin.version>2.4.1</maven.release.plugin.version>
+        <maven.site.plugin.version>3.2</maven.site.plugin.version>
+        <maven.dependency.plugin.version>2.4</maven.dependency.plugin.version>
+        <maven.compiler.plugin.version>2.3.2</maven.compiler.plugin.version>
+        <maven.deploy.plugin.version>2.6</maven.deploy.plugin.version>
+        <maven.install.plugin.version>2.3.1</maven.install.plugin.version>
+        <maven.surefire.plugin.version>2.8.1</maven.surefire.plugin.version>
+    </properties>
+    
+    <scm>
+        <url>https://github.com/codice/ddf.git</url>
+        <connection>scm:git:git://github.com/codice/ddf.git</connection>
+        <developerConnection>scm:git:git://github.com/codice/ddf.git</developerConnection>
+        <tag>HEAD</tag>
+    </scm>
+
+    <distributionManagement>
+        <snapshotRepository>
+            <id>snapshots</id>
+            <url>${snapshots.repository.url}</url>
+        </snapshotRepository>
+        <repository>
+            <id>releases</id>
+            <url>${releases.repository.url}</url>
+        </repository>
+    </distributionManagement>
+    
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-deploy-plugin</artifactId>
+                    <version>${maven.deploy.plugin.version}</version>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-release-plugin</artifactId>
+                    <version>${maven.release.plugin.version}</version>
+                    <configuration>
+                        <autoVersionSubmodules>true</autoVersionSubmodules>
+                        <preparationGoals>clean verify install</preparationGoals>
+                        <arguments>-Pgenerate_uml_javadoc</arguments>
+                        <pushChanges>false</pushChanges>
+                    </configuration>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-clean-plugin</artifactId>
+                    <version>${maven.clean.plugin.version}</version>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-assembly-plugin</artifactId>
+                    <version>${maven.assembly.plugin.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-site-plugin</artifactId>
+                    <version>${maven.site.plugin.version}</version>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-dependency-plugin</artifactId>
+                    <version>${maven.dependency.plugin.version}</version>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-resources-plugin</artifactId>
+                    <version>${maven.resources.plugin.version}</version>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-install-plugin</artifactId>
+                    <version>${maven.install.plugin.version}</version>
+                </plugin>
+
+            </plugins>
+        </pluginManagement>
+        
+        <plugins>
+        </plugins>
+    </build>
 
 </project>
