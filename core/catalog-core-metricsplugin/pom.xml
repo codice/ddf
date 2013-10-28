@@ -35,7 +35,7 @@
 		<dependency>
 		    <groupId>ddf.metrics.collector</groupId>
 			<artifactId>metrics-collector</artifactId>
-			<version>${project.version}</version>
+			<version>${ddf.platform.app.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.rrd4j</groupId>
