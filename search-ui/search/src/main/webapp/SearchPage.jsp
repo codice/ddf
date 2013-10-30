@@ -376,19 +376,6 @@
 					<!--  this div contains the 'record view.'  Eventually we want to
 							make this re-usable somehow. -->
 					<div id="recordContentDiv">
-						<div class="panel-primary">
-							<div class="panel-heading"><h2></h2></div>
-							<div id=tablePanel class="panel-info">
-								<table class="table-striped record-table">
-									<thead class="custom-thead">
-										<th class="table-header">Property</th>
-										<th class="table-header">Value</th>
-									</thead>
-									<tbody>
-									</tbody>
-								</table>
-							</div>
-						</div>
 					</div>
 					<!-- End 'record view' area -->
 	
@@ -464,6 +451,7 @@
 	<script type="text/javascript" src="lib/jquery/js/plugin/purl.js"></script>
 	<script type="text/javascript" src="lib/jquery/js/plugin/jquery-ui-datepicker-4digitYearOverride-addon.js"></script>
 	<script type="text/javascript" src="lib/jquery/js/plugin/jquery-ui-timepicker-addon.js"></script>
+	<script type="text/javascript" src="lib/handlebars-1.0.0/handlebars.js"></script>
 
 <!-- These scripts have been compressed and aggregated into Search-min.js.  The list is here for easy modification for
      the sake of debugging.  
