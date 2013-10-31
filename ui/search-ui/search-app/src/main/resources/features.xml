@@ -16,6 +16,7 @@
 
     <feature name="search" version="${project.version}" description="Search UI">
         <bundle>mvn:ddf.ui.search-ui/search/${project.version}</bundle>
+        <bundle>mvn:ddf.ui.search-ui/mapsearch/${project.version}</bundle>
     </feature>
 
 </features>
