@@ -28,6 +28,7 @@
     <packaging>pom</packaging>
     <modules>
         <module>search</module>
+        <module>mapsearch</module>
         <module>search-app</module>
     </modules>
 

@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+ -->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>ddf.ui.search-ui</groupId>
+        <artifactId>search-ui</artifactId>
+        <version>2.3.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>mapsearch</artifactId>
+    <name>DDF :: UI :: Search UI :: Map Search</name>
+    <packaging>bundle</packaging>
+
+    <properties>
+        <checkstyle.skip>true</checkstyle.skip>
+    </properties>
+    <dependencies>
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.compendium</artifactId>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>net.alchim31.maven</groupId>
+                <artifactId>yuicompressor-maven-plugin</artifactId>
+                <version>1.3.2</version>
+                <executions>
+                    <execution>
+                        <id>compress</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>compress</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <linebreakpos>-1</linebreakpos>
+                    <encoding>UTF-8</encoding>
+                    <force>true</force>
+                    <jswarn>false</jswarn>
+                    <excludes>
+                        <exclude>lib/</exclude>
+                        <exclude>properties/</exclude>
+                        <exclude>server.js/</exclude>
+                        <exclude>Cesium/</exclude>
+                    </excludes>
+                    <webappDirectory>${project.build.directory}/${project.build.finalName}</webappDirectory>
+                    <aggregations>
+                        <aggregation>
+                            <insertNewLine>false</insertNewLine>
+                            <output>${project.build.directory}/${project.build.finalName}/js/Search-min.js</output>
+                            <inputDir>${project.build.directory}/${project.build.finalName}/js</inputDir>
+                            <includes>
+                                <include>**/*-min.js</include>
+                            </includes>
+                        </aggregation>
+                        <aggregation>
+                            <insertNewLine>false</insertNewLine>
+                            <output>${project.build.directory}/${project.build.finalName}/css/Search-min.css</output>
+                            <inputDir>${project.build.directory}/${project.build.finalName}/css</inputDir>
+                            <includes>
+                                <include>**/*.css</include>
+                            </includes>
+                        </aggregation>
+                    </aggregations>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>jslint-maven-plugin</artifactId>
+                <version>1.0.1</version>
+                <configuration>
+                    <sourceJsFolder>${basedir}/src/main/webapp/js</sourceJsFolder>
+                    <disallowUndefinedVariables>false</disallowUndefinedVariables>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>jslint</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <configuration>
+                    <instructions>
+                        <Web-ContextPath>/searchui2</Web-ContextPath>
+                        <_wab>src/main/webapp,${project.build.directory}/${project.build.finalName}</_wab>
+                        <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+                        <Import-Package>
+                            org.osgi.service.blueprint
+                        </Import-Package>
+                        <Export-Package />
+                    </instructions>
+                </configuration>
+            </plugin>
+
+        </plugins>
+    </build>
+</project>
