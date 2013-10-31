@@ -25,6 +25,14 @@
 	<artifactId>platform-app</artifactId>
 	<name>DDF :: Platform :: App</name>
 	<packaging>pom</packaging>
+  
+    <dependencies>
+      <dependency>
+        <groupId>ddf.security.core</groupId>
+        <artifactId>security-core-api</artifactId>
+        <version>${ddf.security.app.version}</version>
+      </dependency>
+    </dependencies>
     
     <properties>
         <!-- 
