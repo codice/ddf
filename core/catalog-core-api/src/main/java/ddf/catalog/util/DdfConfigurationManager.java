@@ -14,15 +14,15 @@
  **/
 package ddf.catalog.util;
 
-import org.apache.log4j.Logger;
-import org.osgi.service.cm.Configuration;
-import org.osgi.service.cm.ConfigurationAdmin;
-
 import java.io.IOException;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+
+import org.apache.log4j.Logger;
+import org.osgi.service.cm.Configuration;
+import org.osgi.service.cm.ConfigurationAdmin;
 
 /**
  * The DDF Configuration Manager manages the DDF system settings. Some of these settings are
@@ -37,8 +37,12 @@ import java.util.Map;
  * 
  * @author ddf.isgs@lmco.com
  * 
+ * @deprecated since 2.3.0. New implementations should use ConfigurationManager in platform application.
+ * @see org.codice.ddf.configuration.ConfigurationManager
+ * 
  */
-public class DdfConfigurationManager {
+@Deprecated 
+public class DdfConfigurationManager implements org.codice.ddf.configuration.ConfigurationWatcher{
     private static final Logger logger = Logger.getLogger(DdfConfigurationManager.class);
 
     // Constants for the DDF system settings appearing in the Admin Console
@@ -306,5 +310,11 @@ public class DdfConfigurationManager {
         logger.info("EXITING: " + methodName + "    value = [" + value + "]");
 
         return value;
+    }
+    
+    @Override
+    public void configurationUpdateCallback(Map<String, String> properties) {
+        logger.debug("Calling update to send properties to all legacy watchers.");
+        updated(properties);
     }
 }

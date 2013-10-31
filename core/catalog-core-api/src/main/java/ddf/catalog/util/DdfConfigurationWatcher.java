@@ -26,7 +26,12 @@ import java.util.Map;
  * 
  * @author ddf.isgs@lmco.com
  * 
+ * @deprecated Since 2.3.0. New implementations should use ConfigurationWatcher located in the platform application.
+ * 
+ * @see org.codice.ddf.configuration.ConfigurationWatcher
+ * 
  */
+@Deprecated
 public interface DdfConfigurationWatcher {
 
     // TODO parameterize this raw type

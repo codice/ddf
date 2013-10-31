@@ -64,7 +64,7 @@
 	</dependencyManagement>
 
 	<modules>
-		<!-- <module>catalog-core-api</module>  Moved to platform-app temporarily -->
+		<module>catalog-core-api</module>
         <module>catalog-core-commons</module>
         <module>catalog-core-commands</module>
         <module>catalog-core-urlresourcereader</module>

@@ -43,11 +43,11 @@
     <list id="ddfManagedServiceList" interface="ddf.catalog.util.DdfConfigurationWatcher" cardinality="0..N"/>
 	
 	<beans:bean name="ddfConfigurationManager"  class="ddf.catalog.util.DdfConfigurationManager">
-		<osgix:managed-properties persistent-id="ddf.catalog.config" 
-					update-strategy="bean-managed" update-method="updated"/>
 		<beans:constructor-arg ref="ddfManagedServiceList" />
 		<beans:constructor-arg ref="configurationAdmin" />
  	</beans:bean>
+  
+    <service ref="ddfConfigurationManager" interface="org.codice.ddf.configuration.ConfigurationWatcher" />
 	
 </beans:beans>
 
