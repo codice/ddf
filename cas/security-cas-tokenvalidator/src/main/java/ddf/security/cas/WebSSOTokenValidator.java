@@ -14,11 +14,12 @@
  **/
 package ddf.security.cas;
 
-import ddf.catalog.util.DdfConfigurationManager;
-import ddf.catalog.util.DdfConfigurationWatcher;
-import ddf.security.common.audit.SecurityLogger;
-import ddf.security.common.util.CommonSSLFactory;
-import ddf.security.encryption.EncryptionService;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.util.Map;
+
+import javax.net.ssl.HttpsURLConnection;
+import javax.security.auth.callback.CallbackHandler;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.sts.STSPropertiesMBean;
@@ -33,6 +34,8 @@ import org.apache.ws.security.WSSecurityException;
 import org.apache.ws.security.components.crypto.Crypto;
 import org.apache.ws.security.handler.RequestData;
 import org.apache.ws.security.util.Base64;
+import org.codice.ddf.configuration.ConfigurationManager;
+import org.codice.ddf.configuration.ConfigurationWatcher;
 import org.jasig.cas.client.authentication.AttributePrincipal;
 import org.jasig.cas.client.validation.Assertion;
 import org.jasig.cas.client.validation.Cas20ProxyTicketValidator;
@@ -40,18 +43,16 @@ import org.jasig.cas.client.validation.TicketValidationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.net.ssl.HttpsURLConnection;
-import javax.security.auth.callback.CallbackHandler;
-import java.io.IOException;
-import java.nio.charset.Charset;
-import java.util.Map;
+import ddf.security.common.audit.SecurityLogger;
+import ddf.security.common.util.CommonSSLFactory;
+import ddf.security.encryption.EncryptionService;
 
 /**
  * Validates Web Single Sign-On Tokens.
  * 
  * @author kcwire
  */
-public class WebSSOTokenValidator implements TokenValidator, DdfConfigurationWatcher {
+public class WebSSOTokenValidator implements TokenValidator, ConfigurationWatcher {
 
     // The Supported SSO Token Types
     public static final String CAS_TYPE = "#CAS";
@@ -208,16 +209,15 @@ public class WebSSOTokenValidator implements TokenValidator, DdfConfigurationWat
      * @param properties
      */
     @Override
-    public void ddfConfigurationUpdated(@SuppressWarnings("rawtypes")
-    Map properties) {
-        String setTrustStorePath = (String) properties.get(DdfConfigurationManager.TRUST_STORE);
+    public void configurationUpdateCallback(Map<String, String> properties) {
+        String setTrustStorePath = (String) properties.get(ConfigurationManager.TRUST_STORE);
         if (setTrustStorePath != null) {
             LOGGER.debug("Setting trust store path: " + setTrustStorePath);
             this.trustStorePath = setTrustStorePath;
         }
 
         String setTrustStorePassword = (String) properties
-                .get(DdfConfigurationManager.TRUST_STORE_PASSWORD);
+                .get(ConfigurationManager.TRUST_STORE_PASSWORD);
         if (setTrustStorePassword != null) {
             this.trustStorePassword = setTrustStorePassword;
             if (encryptionService == null) {
@@ -231,14 +231,14 @@ public class WebSSOTokenValidator implements TokenValidator, DdfConfigurationWat
             }
         }
 
-        String setKeyStorePath = (String) properties.get(DdfConfigurationManager.KEY_STORE);
+        String setKeyStorePath = (String) properties.get(ConfigurationManager.KEY_STORE);
         if (setKeyStorePath != null) {
             LOGGER.debug("Setting key store path: " + setKeyStorePath);
             this.keyStorePath = setKeyStorePath;
         }
 
         String setKeyStorePassword = (String) properties
-                .get(DdfConfigurationManager.KEY_STORE_PASSWORD);
+                .get(ConfigurationManager.KEY_STORE_PASSWORD);
         if (setKeyStorePassword != null) {
             this.keyStorePassword = setKeyStorePassword;
             if (encryptionService == null) {
