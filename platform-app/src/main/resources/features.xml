@@ -548,6 +548,10 @@
 	<feature name="platform-scheduler" install="auto" version="${project.version}" description="Schedules tasks">
 		<bundle>mvn:ddf.platform/platform-scheduler/${project.version}</bundle>
 	</feature>
+  
+    <feature name="platform-configuration" install="auto" version="${project.version}" description="Schedules tasks">
+      <bundle>mvn:ddf.platform/platform-configuration/${project.version}</bundle>
+    </feature>
 	
     <feature name="action-core-api" install="auto" version="${project.version}" description="DDF Action API">
         <bundle>mvn:ddf.action.core/action-core-api/${project.version}</bundle>
@@ -692,24 +696,13 @@
     <feature name="metrics-services" install="auto" version="${project.version}"
         description="cxf interceptors to capture metrics.">
         <bundle>mvn:ddf.metrics.interceptor/metrics-interceptor/${project.version}</bundle>
-    </feature> 
-        
-    <!-- TEMP: move back to catalog app eventually -->
-    <feature name="catalog-core-api" install="auto" version="${project.version}" description="Catalog API interfaces and simple implementations.">
-        <bundle>mvn:ddf.catalog.core/catalog-core-api/${project.version}</bundle>
-        <bundle>mvn:ddf.mime.core/mime-core-api/${project.version}</bundle>
-        <bundle>mvn:org.apache.tika/tika-core/${tika.version}</bundle>
-        <bundle>mvn:org.apache.tika/tika-bundle/${tika.version}</bundle>
-        <bundle>mvn:org.codice.thirdparty/gt-opengis/${opengis.bundle.version}</bundle>
-    </feature>
-    
-  
+    </feature>   
 	
 	<feature name="platform-app" install="auto" version="${project.version}" description="DDF platform boot features">
 		<feature>cxf</feature>
 		<feature>camel</feature>
 		<feature>platform-scheduler</feature>
-		<feature>catalog-core-api</feature>
+        <feature>platform-configuration</feature>
 		<feature>action-core-api</feature>
         <feature>action-core-impl</feature>
         <feature>mime-core</feature>
