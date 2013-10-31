@@ -14,7 +14,6 @@
  **/
 package ddf.security.pdp.realm.test;
 
-import ddf.catalog.data.MetacardImpl;
 import ddf.security.pdp.realm.SimpleAuthzRealm;
 import ddf.security.permission.ActionPermission;
 import ddf.security.permission.KeyValueCollectionPermission;
@@ -42,8 +41,8 @@ public class SimpleAuthzRealmTest {
     SimpleAuthzRealm testRealm;
 
     List<Permission> permissionList;
-
-    MetacardImpl metacard;
+    
+    HashMap<String, List<String>> security;
 
     @BeforeClass()
     public static void setupLogging() {
@@ -75,11 +74,9 @@ public class SimpleAuthzRealmTest {
 
         // setup the resource permissions
         permissionList = new ArrayList<Permission>();
-        metacard = new MetacardImpl();
-        HashMap<String, List<String>> security = new HashMap<String, List<String>>();
+        security = new HashMap<String, List<String>>();
         security.put("country", Arrays.asList("AUS", "CAN", "GBR"));
         security.put("rule", Arrays.asList("A", "B"));
-        metacard.setSecurity(security);
         testRealm.setAuthorizationInfo(authorizationInfo);
         testRealm.setMatchOneMappings(Arrays.asList("CountryOfAffiliation=country"));
         testRealm.setMatchAllMappings(Arrays.asList("FineAccessControls=rule"));
@@ -88,7 +85,7 @@ public class SimpleAuthzRealmTest {
     @Test
     public void testIsPermitted() {
         permissionList.clear();
-        KeyValueCollectionPermission kvcp = new KeyValueCollectionPermission(metacard.getSecurity());
+        KeyValueCollectionPermission kvcp = new KeyValueCollectionPermission(security);
         permissionList.add(kvcp);
         PrincipalCollection mockSubjectPrincipal = Mockito.mock(PrincipalCollection.class);
 
