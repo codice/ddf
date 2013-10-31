@@ -12,38 +12,34 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  * 
  **/
-package ddf.catalog.util;
+package org.codice.ddf.configuration;
+
+import org.osgi.service.cm.Configuration;
+import org.osgi.service.cm.ConfigurationAdmin;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.Dictionary;
-import java.util.Hashtable;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
-import org.osgi.service.cm.Configuration;
-import org.osgi.service.cm.ConfigurationAdmin;
-
 /**
- * The DDF Configuration Manager manages the DDF system settings. Some of these settings are
- * displayed in the Web Admin Console's Configuration tab under the DDF System Settings
- * configuration. Other settings are read-only, not displayed in the DDF System Settings
- * configuration (but appear in other OSGi bundle configurations such as CXF). These read-only
- * settings are included in the list of configuration settings pushed to registered listeners.
+ * The DDF Configuration Manager manages the DDF system settings. Some of these
+ * settings are displayed in the Web Admin Console's Configuration tab under the
+ * DDF System Settings configuration. Other settings are read-only, not
+ * displayed in the DDF System Settings configuration (but appear in other OSGi
+ * bundle configurations such as CXF). These read-only settings are included in
+ * the list of configuration settings pushed to registered listeners.
  * 
- * Registered listeners implement the DdfConfigurationWatcher interface and have these DDF
- * configuration settings pushed to them when they come online (aka bind) and when one or more of
- * the settings are changed in the Admin Console.
- * 
- * @author ddf.isgs@lmco.com
- * 
- * @deprecated since 2.3.0. New implementations should use ConfigurationManager in platform application.
- * @see org.codice.ddf.configuration.ConfigurationManager
+ * Registered listeners implement the DdfConfigurationWatcher interface and have
+ * these DDF configuration settings pushed to them when they come online (aka
+ * bind) and when one or more of the settings are changed in the Admin Console.
  * 
  */
-@Deprecated 
-public class DdfConfigurationManager implements org.codice.ddf.configuration.ConfigurationWatcher{
-    private static final Logger logger = Logger.getLogger(DdfConfigurationManager.class);
+public class ConfigurationManager {
+    private static final Logger logger = LoggerFactory.getLogger(ConfigurationManager.class);
 
     // Constants for the DDF system settings appearing in the Admin Console
 
@@ -58,7 +54,8 @@ public class DdfConfigurationManager implements org.codice.ddf.configuration.Con
     public static final String HOME_DIR = "homeDir";
 
     /**
-     * The port number that CXF's underlying Jetty server is listening on, e.g., 8181
+     * The port number that CXF's underlying Jetty server is listening on, e.g.,
+     * 8181
      */
     public static final String HTTP_PORT = "httpPort";
 
@@ -118,30 +115,6 @@ public class DdfConfigurationManager implements org.codice.ddf.configuration.Con
      */
     public static final String ORGANIZATION = "organization";
 
-    /**
-     * The first preference for the type of federated source to create when the CAB registry client
-     * attempts to create a source.
-     * 
-     * @deprecated
-     */
-    public static final String FIRST_FEDERATED_SOURCE_PREFERENCE = "firstSourcePreference";
-
-    /**
-     * The second preference for the type of federated source to create when the CAB registry client
-     * attempts to create a source.
-     * 
-     * @deprecated
-     */
-    public static final String SECOND_FEDERATED_SOURCE_PREFERENCE = "secondSourcePreference";
-
-    /**
-     * The third preference for the type of federated source to create when the CAB registry client
-     * attempts to create a source.
-     * 
-     * @deprecated
-     */
-    public static final String THIRD_FEDERATED_SOURCE_PREFERENCE = "thirdSourcePreference";
-
     // Constants for the read-only DDF system settings
     private static final String DDF_HOME_ENVIRONMENT_VARIABLE = "DDF_HOME";
 
@@ -156,52 +129,53 @@ public class DdfConfigurationManager implements org.codice.ddf.configuration.Con
     /**
      * List of DdfManagedServices to push the DDF system settings to.
      */
-    protected List<DdfConfigurationWatcher> services;
+    protected List<ConfigurationWatcher> services;
 
     /**
      * The map of DDF system settings, including the read-only settings.
      */
-    protected Map configuration;
+    protected Map<String, String> configuration;
 
     /**
-     * The map of DDF system settings that are read-only, i.e., they are set in OSGi system bundles,
-     * not displayed in Admin Console's DDF System Settings configuration, but are pushed out in the
-     * configuration settings to DdfConfigurationWatchers.
+     * The map of DDF system settings that are read-only, i.e., they are set in
+     * OSGi system bundles, not displayed in Admin Console's DDF System Settings
+     * configuration, but are pushed out in the configuration settings to
+     * DdfConfigurationWatchers.
      */
-    protected Map readOnlySettings;
+    protected Map<String, String> readOnlySettings;
 
     protected ConfigurationAdmin configurationAdmin;
 
     /**
      * Default Constructor
      */
-    protected DdfConfigurationManager() {
+    protected ConfigurationManager() {
 
     }
 
     /**
-     * Constructs the list of DDF system Settings (read-only and configurable settings) to be pushed
-     * to registered DdfConfigurationWatchers.
+     * Constructs the list of DDF system Settings (read-only and configurable
+     * settings) to be pushed to registered DdfConfigurationWatchers.
      * 
      * @param services
      *            the list of watchers of changes to the DDF System Settings
      * @param configurationAdmin
      *            the OSGi Configuration Admin service handle
      */
-    public DdfConfigurationManager(List<DdfConfigurationWatcher> services,
+    public ConfigurationManager(List<ConfigurationWatcher> services,
             ConfigurationAdmin configurationAdmin) {
         logger.info("ENTERING: ctor");
         this.services = services;
         this.configurationAdmin = configurationAdmin;
 
-        this.readOnlySettings = new Hashtable();
+        this.readOnlySettings = new HashMap<String, String>();
         readOnlySettings.put(HOME_DIR, System.getenv(DDF_HOME_ENVIRONMENT_VARIABLE));
         readOnlySettings
                 .put(HTTP_PORT, getConfigurationValue(PAX_WEB_SERVICE_PID, JETTY_HTTP_PORT));
         readOnlySettings.put(SERVICES_CONTEXT_ROOT,
                 getConfigurationValue(CXF_SERVICE_PID, CXF_SERVLET_CONTEXT));
 
-        this.configuration = new Hashtable();
+        this.configuration = new HashMap<String, String>();
 
         // Append the read-only settings to the DDF System Settings so that all
         // settings are pushed to registered listeners
@@ -209,44 +183,51 @@ public class DdfConfigurationManager implements org.codice.ddf.configuration.Con
     }
 
     /**
-     * Invoked when the DDF system settings are changed in the Admin Console, this method then
-     * pushes those DDF system settings to each of the registered DdfConfigurationWatchers.
+     * Invoked when the DDF system settings are changed in the Admin Console,
+     * this method then pushes those DDF system settings to each of the
+     * registered DdfConfigurationWatchers.
      * 
-     * @param configuration
-     *            list of DDF system settings, not including the read-only settings
+     * @param updatedConfig
+     *            list of DDF system settings, not including the read-only
+     *            settings
      */
-    public void updated(Map configuration) {
+    public void updated(Map<String, ?> updatedConfig) {
         String methodName = "updated";
         logger.info("ENTERING: " + methodName);
 
-        if (configuration != null && !configuration.isEmpty()) {
-            this.configuration = configuration;
+        if (updatedConfig != null && !updatedConfig.isEmpty()) {
+            configuration.clear();
+            
+            for(Map.Entry<String, ?> entry : updatedConfig.entrySet()) {
+                if(entry.getValue() != null) {
+                    configuration.put(entry.getKey(), entry.getValue().toString());
+                }
+            }
 
             // Add the read-only settings to list to be pushed out to watchers
-            this.configuration.putAll(readOnlySettings);
+            configuration.putAll(readOnlySettings);
         }
-
-        for (DdfConfigurationWatcher service : services) {
-            service.ddfConfigurationUpdated(this.configuration);
+        for (ConfigurationWatcher service : services) {
+            service.configurationUpdateCallback(configuration);
         }
 
         logger.info("EXITING: " + methodName);
     }
 
     /**
-     * Invoked when a DdfConfigurationWatcher first comes online, e.g., when a federated source is
-     * configured, this method pushes the DDF system settings to the newly registered (bound)
-     * DdfConfigurationWatcher.
+     * Invoked when a DdfConfigurationWatcher first comes online, e.g., when a
+     * federated source is configured, this method pushes the DDF system
+     * settings to the newly registered (bound) DdfConfigurationWatcher.
      * 
      * @param service
      * @param properties
      */
-    public void bind(DdfConfigurationWatcher service, Map properties) {
+    public void bind(ConfigurationWatcher service, Map properties) {
         String methodName = "bind";
         logger.info("ENTERING: " + methodName);
 
         if (service != null) {
-            service.ddfConfigurationUpdated(this.configuration);
+            service.configurationUpdateCallback(this.configuration);
         }
 
         logger.info("EXITING: " + methodName);
@@ -289,7 +270,7 @@ public class DdfConfigurationManager implements org.codice.ddf.configuration.Con
                         .getConfiguration(servicePid);
 
                 if (currentConfiguration != null) {
-                    Dictionary properties = currentConfiguration.getProperties();
+                    Dictionary<String, Object> properties = currentConfiguration.getProperties();
 
                     if (properties != null && properties.get(propertyName) != null) {
                         value = (String) properties.get(propertyName);
@@ -304,17 +285,11 @@ public class DdfConfigurationManager implements org.codice.ddf.configuration.Con
                 logger.debug("configurationAdmin is NULL");
             }
         } catch (IOException e) {
-            logger.warn(e);
+            logger.warn("Exception while getting configuration value.", e);
         }
 
         logger.info("EXITING: " + methodName + "    value = [" + value + "]");
 
         return value;
-    }
-    
-    @Override
-    public void configurationUpdateCallback(Map<String, String> properties) {
-        logger.debug("Calling update to send properties to all legacy watchers.");
-        updated(properties);
     }
 }

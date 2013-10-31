@@ -29,7 +29,7 @@
     
     <service ref="webSsoTokenValidator">
         <interfaces>
-            <value>ddf.catalog.util.DdfConfigurationWatcher</value>
+            <value>org.codice.ddf.configuration.ConfigurationWatcher</value>
             <value>org.apache.cxf.sts.token.validator.TokenValidator</value>
         </interfaces>
     </service>

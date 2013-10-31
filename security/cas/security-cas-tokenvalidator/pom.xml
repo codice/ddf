@@ -47,10 +47,10 @@
       <groupId>org.jasig.cas</groupId>
       <artifactId>cas-client-core</artifactId>
     </dependency>
-
-    <dependency>
-      <groupId>ddf.catalog.core</groupId>
-      <artifactId>catalog-core-api</artifactId>
+    
+     <dependency>
+      <groupId>ddf.platform</groupId>
+      <artifactId>platform-configuration</artifactId>
     </dependency>
 
     <dependency>

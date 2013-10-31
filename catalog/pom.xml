@@ -49,6 +49,11 @@
                 <artifactId>action-core-api</artifactId>
                 <version>${ddf.platform.app.version}</version>
             </dependency>
+            <dependency>
+                <groupId>ddf.platform</groupId>
+                <artifactId>platform-configuration</artifactId>
+                <version>${ddf.platform.app.version}</version>
+            </dependency>
 			<dependency>
                 <groupId>ddf.catalog.transformer</groupId>
                 <artifactId>catalog-transformer-xml-binding</artifactId>

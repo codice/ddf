@@ -14,14 +14,35 @@
  **/
 package ddf.security.realm.sts;
 
-import ddf.catalog.util.DdfConfigurationManager;
-import ddf.catalog.util.DdfConfigurationWatcher;
-import ddf.security.common.audit.SecurityLogger;
-import ddf.security.common.callback.CommonCallbackHandler;
-import ddf.security.common.util.CommonSSLFactory;
-import ddf.security.common.util.PropertiesLoader;
-import ddf.security.encryption.EncryptionService;
-import ddf.security.sts.client.configuration.STSClientConfiguration;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.StringWriter;
+import java.io.Writer;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.UnrecoverableKeyException;
+import java.security.cert.CertificateException;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.KeyManager;
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.TrustManagerFactory;
+import javax.xml.bind.JAXB;
+import javax.xml.bind.JAXBElement;
+import javax.xml.namespace.QName;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.stream.XMLStreamException;
+
 import org.apache.commons.io.IOUtils;
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusException;
@@ -48,6 +69,8 @@ import org.apache.shiro.realm.AuthenticatingRealm;
 import org.apache.shiro.subject.SimplePrincipalCollection;
 import org.apache.ws.security.WSConstants;
 import org.apache.ws.security.util.Base64;
+import org.codice.ddf.configuration.ConfigurationManager;
+import org.codice.ddf.configuration.ConfigurationWatcher;
 import org.slf4j.LoggerFactory;
 import org.slf4j.ext.XLogger;
 import org.w3c.dom.DOMImplementation;
@@ -57,39 +80,18 @@ import org.w3c.dom.Node;
 import org.w3c.dom.ls.DOMImplementationLS;
 import org.w3c.dom.ls.LSSerializer;
 
-import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.KeyManager;
-import javax.net.ssl.KeyManagerFactory;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.TrustManagerFactory;
-import javax.xml.bind.JAXB;
-import javax.xml.bind.JAXBElement;
-import javax.xml.namespace.QName;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.stream.XMLStreamException;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.StringWriter;
-import java.io.Writer;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.UnrecoverableKeyException;
-import java.security.cert.CertificateException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
+import ddf.security.common.audit.SecurityLogger;
+import ddf.security.common.callback.CommonCallbackHandler;
+import ddf.security.common.util.CommonSSLFactory;
+import ddf.security.common.util.PropertiesLoader;
+import ddf.security.encryption.EncryptionService;
+import ddf.security.sts.client.configuration.STSClientConfiguration;
 
 /**
  * The STS Realm is the main piece of the security framework responsible for exchanging a binary
  * security token for a SAML assertion.
  */
-public class StsRealm extends AuthenticatingRealm implements DdfConfigurationWatcher {
+public class StsRealm extends AuthenticatingRealm implements ConfigurationWatcher {
     private static final XLogger LOGGER = new XLogger(LoggerFactory.getLogger(StsRealm.class));
 
     private static final String NAME = StsRealm.class.getSimpleName();
@@ -141,8 +143,7 @@ public class StsRealm extends AuthenticatingRealm implements DdfConfigurationWat
      * the DDF console.
      */
     @Override
-    public void ddfConfigurationUpdated(@SuppressWarnings("rawtypes")
-    Map properties) {
+    public void configurationUpdateCallback(Map<String, String> properties) {
         settingsConfigured = false;
 
         if (properties != null && !properties.isEmpty()) {
@@ -170,22 +171,22 @@ public class StsRealm extends AuthenticatingRealm implements DdfConfigurationWat
     public void setDefaultConfiguration(@SuppressWarnings("rawtypes")
     Map properties) {
         String value;
-        value = (String) properties.get(DdfConfigurationManager.TRUST_STORE);
+        value = (String) properties.get(ConfigurationManager.TRUST_STORE);
         if (value != null) {
             trustStorePath = value;
         }
 
-        value = (String) properties.get(DdfConfigurationManager.TRUST_STORE_PASSWORD);
+        value = (String) properties.get(ConfigurationManager.TRUST_STORE_PASSWORD);
         if (value != null) {
             trustStorePassword = value;
         }
 
-        value = (String) properties.get(DdfConfigurationManager.KEY_STORE);
+        value = (String) properties.get(ConfigurationManager.KEY_STORE);
         if (value != null) {
             keyStorePath = value;
         }
 
-        value = (String) properties.get(DdfConfigurationManager.KEY_STORE_PASSWORD);
+        value = (String) properties.get(ConfigurationManager.KEY_STORE_PASSWORD);
         if (value != null) {
             keyStorePassword = value;
         }
@@ -338,10 +339,10 @@ public class StsRealm extends AuthenticatingRealm implements DdfConfigurationWat
     Map properties) {
         boolean updated = false;
 
-        if (properties.containsKey(DdfConfigurationManager.TRUST_STORE)
-                && properties.containsKey(DdfConfigurationManager.TRUST_STORE_PASSWORD)
-                && properties.containsKey(DdfConfigurationManager.KEY_STORE)
-                && properties.containsKey(DdfConfigurationManager.KEY_STORE_PASSWORD)) {
+        if (properties.containsKey(ConfigurationManager.TRUST_STORE)
+                && properties.containsKey(ConfigurationManager.TRUST_STORE_PASSWORD)
+                && properties.containsKey(ConfigurationManager.KEY_STORE)
+                && properties.containsKey(ConfigurationManager.KEY_STORE_PASSWORD)) {
             updated = true;
         } else {
             updated = false;
@@ -471,14 +472,14 @@ public class StsRealm extends AuthenticatingRealm implements DdfConfigurationWat
      */
     private void setDdfPropertiesFromConfigAdmin(@SuppressWarnings("rawtypes")
     Map properties) {
-        String setTrustStorePath = (String) properties.get(DdfConfigurationManager.TRUST_STORE);
+        String setTrustStorePath = (String) properties.get(ConfigurationManager.TRUST_STORE);
         if (setTrustStorePath != null) {
             LOGGER.debug("Setting trust store path: " + setTrustStorePath);
             this.trustStorePath = setTrustStorePath;
         }
 
         String setTrustStorePassword = (String) properties
-                .get(DdfConfigurationManager.TRUST_STORE_PASSWORD);
+                .get(ConfigurationManager.TRUST_STORE_PASSWORD);
         if (setTrustStorePassword != null) {
             if (encryptionService == null) {
                 LOGGER.error("The StsRealm has a null Encryption Service. Unable to decrypt the encrypted "
@@ -491,14 +492,14 @@ public class StsRealm extends AuthenticatingRealm implements DdfConfigurationWat
             }
         }
 
-        String setKeyStorePath = (String) properties.get(DdfConfigurationManager.KEY_STORE);
+        String setKeyStorePath = (String) properties.get(ConfigurationManager.KEY_STORE);
         if (setKeyStorePath != null) {
             LOGGER.debug("Setting key store path: " + setKeyStorePath);
             this.keyStorePath = setKeyStorePath;
         }
 
         String setKeyStorePassword = (String) properties
-                .get(DdfConfigurationManager.KEY_STORE_PASSWORD);
+                .get(ConfigurationManager.KEY_STORE_PASSWORD);
         if (setKeyStorePassword != null) {
             if (encryptionService == null) {
                 LOGGER.error("The StsRealm has a null Encryption Service. Unable to decrypt the encrypted "

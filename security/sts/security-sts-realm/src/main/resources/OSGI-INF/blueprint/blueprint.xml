@@ -23,7 +23,7 @@
         <property name="stsClientConfig" ref="stsClientConfig" />
 	</bean>
 
-	<service ref="stsRealm" interface="ddf.catalog.util.DdfConfigurationWatcher" />
+	<service ref="stsRealm" interface="org.codice.ddf.configuration.ConfigurationWatcher" />
 	
 	<service ref="stsRealm" interface="org.apache.shiro.realm.Realm" />
 

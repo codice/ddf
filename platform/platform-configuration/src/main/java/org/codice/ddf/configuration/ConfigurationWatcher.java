@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  * 
  **/
-package ddf.catalog.util;
+package org.codice.ddf.configuration;
 
 import java.util.Map;
 
@@ -21,28 +21,20 @@ import java.util.Map;
  * configuration settings. Whenever the source is configured, or updates are made to the DDF System
  * Settings, the source will receive the entire list of the most current DDF system settings.
  * 
- * It is up to the DdfConfigurationWatcher to determine which DDF system settings are of interest,
+ * It is up to the ConfigurationWatcher to determine which DDF system settings are of interest,
  * if their values have changed, and how to react to their values.
  * 
- * @author ddf.isgs@lmco.com
- * 
- * @deprecated Since 2.3.0. New implementations should use ConfigurationWatcher located in the platform application.
- * 
- * @see org.codice.ddf.configuration.ConfigurationWatcher
- * 
  */
-@Deprecated
-public interface DdfConfigurationWatcher {
+public interface ConfigurationWatcher {
 
-    // TODO parameterize this raw type
     /**
-     * Invoked by the DdfConfigurationManager when the DDF System Settings are modified. The Map of
+     * Invoked by the ConfigurationManager when the DDF System Settings are modified. The Map of
      * configuration properties contains the entire list of system settings, not just the ones that
      * have changed.
      * 
      * @param configuration
      *            the entire list of DDF system settings
      */
-    public void ddfConfigurationUpdated(Map configuration);
+    public void configurationUpdateCallback(Map<String, String> configuration);
 
 }
