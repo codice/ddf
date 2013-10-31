@@ -30,6 +30,7 @@
 
 	<properties>
 	    <ddf.platform.app.version>2.3.0-SNAPSHOT</ddf.platform.app.version>
+        <ddf.security.app.version>2.3.0-SNAPSHOT</ddf.security.app.version>
 	</properties>
 
 	<dependencyManagement>
@@ -133,6 +134,7 @@
         <module>plugin</module>
         <module>opensearch</module>
         <module>rest</module>
+        <module>../security/pep/security-pep-redaction</module>
         <module>catalog-services-app</module>
 	</modules>
 

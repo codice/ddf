@@ -29,19 +29,13 @@
   <name>DDF Platform</name>
   <packaging>pom</packaging>
   
-  <properties>
+     <properties>
       <shiro.version>1.2.1</shiro.version>
-      <cas.client.version>3.1.10</cas.client.version>
-      <cas.client.bundle.version>${cas.client.version}_1</cas.client.bundle.version>
-  </properties>
+      <ddf.security.app.version>2.3.0-SNAPSHOT</ddf.security.app.version>
+    </properties>
 
     <dependencyManagement>
         <dependencies>
-        <dependency>
-            <groupId>ddf.catalog.core</groupId>
-            <artifactId>catalog-core-api</artifactId>
-            <version>${project.version}</version>
-        </dependency>
         <dependency>
             <groupId>ddf.platform</groupId>
             <artifactId>platform-configuration</artifactId>
@@ -64,68 +58,7 @@
             <artifactId>mime-core-impl</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
-              <groupId>org.apache.shiro</groupId>
-              <artifactId>shiro-core</artifactId>
-              <version>${shiro.version}</version>
-          </dependency>
-          <dependency>
-              <groupId>org.jasig.cas</groupId>
-              <artifactId>cas-client-core</artifactId>
-              <version>${cas.client.version}</version>
-          </dependency>
-          <dependency>
-              <groupId>ddf.security.sts</groupId>
-              <artifactId>security-sts-clientconfig</artifactId>
-              <version>${project.version}</version>
-          </dependency>
-          <dependency>
-              <groupId>ddf.security.pdp</groupId>
-              <artifactId>security-pdp-authzrealm</artifactId>
-              <version>${project.version}</version>
-          </dependency>
-          <dependency>
-              <groupId>ddf.security.encryption</groupId>
-              <artifactId>security-encryption-impl</artifactId>
-              <version>${project.version}</version>
-          </dependency>
-          <dependency>
-              <groupId>ddf.security.encryption</groupId>
-              <artifactId>security-encryption-api</artifactId>
-              <version>${project.version}</version>
-          </dependency>
-          <dependency>
-              <groupId>ddf.security.expansion</groupId>
-              <artifactId>security-expansion-impl</artifactId>
-              <version>${project.version}</version>
-          </dependency>
-          <dependency>
-              <groupId>ddf.security.expansion</groupId>
-              <artifactId>security-expansion-api</artifactId>
-              <version>${project.version}</version>
-          </dependency>
-          <dependency>
-              <groupId>ddf.security.core</groupId>
-              <artifactId>security-core-api</artifactId>
-              <version>${project.version}</version>
-          </dependency>
-          <dependency>
-              <groupId>ddf.security.core</groupId>
-              <artifactId>security-core-impl</artifactId>
-              <version>${project.version}</version>
-          </dependency>
-
-          <!-- CXF Libraries  -->
-          <dependency>
-              <groupId>org.apache.cxf</groupId>
-              <artifactId>cxf-rt-ws-policy</artifactId>
-              <version>${cxf.version}</version>
-          </dependency>
-          <dependency>
-              <groupId>org.apache.cxf</groupId>
-              <artifactId>cxf-rt-frontend-jaxws</artifactId>
-              <version>${cxf.version}</version>
-          </dependency>
+        
         </dependencies>
     </dependencyManagement>
   
@@ -134,7 +67,6 @@
       <module>../action</module>
       <module>../mime</module>
       <module>../metrics</module>
-      <module>../security</module>
 	  <module>platform-scheduler</module> 	  	
       <module>platform-app</module>
   </modules>

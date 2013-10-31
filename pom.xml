@@ -37,6 +37,7 @@
         <module>support</module>
 		<module>parent</module>
 		<module>platform</module>
+        <module>security</module>
         <module>catalog</module>
         <module>content</module>
         <module>content-catalogger-plugin</module>

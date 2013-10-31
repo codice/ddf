@@ -28,7 +28,6 @@
 
   <modules>
     <module>security-pep-interceptor</module>
-    <module>security-pep-redaction</module>
     <module>security-pep-userattr-map</module>
     <module>security-pep-metacardattr-map</module>
   </modules>

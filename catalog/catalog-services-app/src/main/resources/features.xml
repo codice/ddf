@@ -167,6 +167,10 @@
         description="XML MetacardTransformer and InputTransformer">
         <bundle>mvn:ddf.catalog.transformer/catalog-transformer-xml/${project.version}</bundle>
     </feature>
+    
+    <feature name="security-pep-redaction" install="manual" version="${project.version}" description="DDF Security PEP Redaction/Filtering">
+      <bundle>mvn:ddf.security.pep/security-pep-redaction/${ddf.security.app.version}</bundle>
+    </feature>
         
     
     <feature name="catalog-services-app"  install="auto" version="${project.version}"

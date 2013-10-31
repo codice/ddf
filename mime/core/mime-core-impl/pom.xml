@@ -35,10 +35,6 @@
 			<artifactId>ddf-catalog-api</artifactId>
 		</dependency>
 		-->
-        <dependency>
-            <groupId>ddf.catalog.core</groupId>
-            <artifactId>catalog-core-api</artifactId>
-        </dependency>
 		<dependency>
 			<groupId>ddf.mime.core</groupId>
 			<artifactId>mime-core-api</artifactId>
@@ -78,13 +74,6 @@
 			<version>0.9.24</version>
 			<scope>test</scope>
 		</dependency>
-<!-- 
-		<dependency>
-			<groupId>ddf.catalog.core</groupId>
-			<artifactId>catalog-core-api</artifactId>
-			<scope>test</scope>
-		</dependency>
--->
 		<dependency>
 			<groupId>org.apache.servicemix.specs</groupId>
 			<artifactId>org.apache.servicemix.specs.jsr311-api-1.1</artifactId>

@@ -12,16 +12,11 @@
  **/
  -->
 <features name="${project.artifactId}-${project.version}">
-  
-  <feature name="security-core" install="auto" version="${project.version}" description="DDF Security Core">
-    <feature>cxf-rt-security</feature>
-    <bundle>mvn:org.apache.shiro/shiro-core/${shiro.version}</bundle>
-    <!-- NEEDED???
-    <bundle>mvn:ddf.security.core/security-core-api/${ddf.esb.app.version}</bundle>
-    -->
+ 
+  <feature name="security-core" install="manual" version="${project.version}" description="DDF Security Core">
+    <feature>security-core-api</feature>
     <bundle>mvn:ddf.security.expansion/security-expansion-api/${project.version}</bundle>
     <bundle>mvn:ddf.security.core/security-core-impl/${project.version}</bundle>    
-    <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jaxen/${org.apache.servicemix.bundles.jaxen.version}</bundle>
   </feature>
   
   <feature name="security-expansion" install="manual" version="${project.version}" description="DDF Security Expansion">
@@ -57,10 +52,6 @@
       <bundle>mvn:ddf.security.pep/security-pep-interceptor/${project.version}</bundle>
   </feature>
 
-  <feature name="security-pep-redaction" install="manual" version="${project.version}" description="DDF Security PEP Redaction/Filtering">
-      <bundle>mvn:ddf.security.pep/security-pep-redaction/${project.version}</bundle>
-  </feature>
-
   <feature name="security-pep-user-attributes" install="manual" version="${project.version}" description="DDF Security PEP User Attributes Expansion">
       <bundle>mvn:ddf.security.pep/security-pep-userattr-map/${project.version}</bundle>
   </feature>
@@ -86,7 +77,7 @@
       <bundle>mvn:ddf.security.sts/security-sts-ldapclaimshandler/${project.version}</bundle>
   </feature>
 
-  <feature name="security-sts-realm" install="auto" version="${project.version}" description="DDF Security STS Realm.">
+  <feature name="security-sts-realm" install="manual" version="${project.version}" description="DDF Security STS Realm.">
       <bundle>mvn:ddf.security.sts/security-sts-clientconfig/${project.version}</bundle>
       <bundle>mvn:ddf.security.sts/security-sts-realm/${project.version}</bundle>
   </feature>
@@ -97,24 +88,8 @@
   
   <feature name="security-services-app" install="auto" version="${project.version}"
         description="DDF Security Services application default installations">
-        <!--
-        <feature>security-cas-client</feature>
-        <feature>security-cas-tokenvalidator</feature>
-        <feature>security-cas-cxfservletfilter</feature>
-        <feature>security-pdp-java</feature>
-        <feature>security-pdp-xacml</feature>
-        <feature>security-pdp-java</feature>
-        <feature>security-pep-serviceauthz</feature>
-        <feature>security-pep-redaction</feature>
-        <feature>security-pep-metacard-attributes</feature>
-        <feature>security-sts-server</feature>
-        -->
-        <!-- API and Impl split betw DDF ESB app and Security Services app respectively -->
         <feature>security-core</feature>  
         <feature>security-sts-realm</feature>
-        <!--
-        <feature>security-sts-ldaplogin</feature>
-        -->
   </feature>
         
 </features>
