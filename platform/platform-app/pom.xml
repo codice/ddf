@@ -32,6 +32,21 @@
         <artifactId>security-core-api</artifactId>
         <version>${ddf.security.app.version}</version>
       </dependency>
+      <dependency>
+        <groupId>ddf.security.encryption</groupId>
+        <artifactId>security-encryption-api</artifactId>
+        <version>${ddf.security.app.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>ddf.security.encryption</groupId>
+        <artifactId>security-encryption-impl</artifactId>
+        <version>${ddf.security.app.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>ddf.security.encryption</groupId>
+        <artifactId>security-encryption-commands</artifactId>
+        <version>${ddf.security.app.version}</version>
+      </dependency>
     </dependencies>
     
     <properties>
