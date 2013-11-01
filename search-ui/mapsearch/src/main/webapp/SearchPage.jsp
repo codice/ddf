@@ -166,6 +166,7 @@
 
     <script type="text/javascript" src="js/model/Metacard.js"></script>
     <script type="text/javascript" src="js/view/MetacardList.view.js"></script>
+    <script type="text/javascript" src="js/view/Map.view.js"></script>
     <script type="text/javascript" src="js/view/Query.view.js"></script>
     <script type="text/javascript" src="js/view/Metacard.view.js"></script>
     <script type="text/javascript" src="js/view/MetacardDetail.view.js"></script>

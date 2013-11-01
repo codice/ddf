@@ -8,7 +8,7 @@ var MapView = Backbone.View.extend({
     },
     render: function() {
         //this isn't a standard backbone view, this is only here as a bridge to the map
-        createResultsOnMap()
+        createResultsOnMap();
     },
     createResultsOnMap: function(startAt, finishAt) {
         var i, metacard, jsonDataSource, goeJson, viewer, defaultPoint, defaultLine, defaultPolygon, billboard;

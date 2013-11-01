@@ -38,15 +38,15 @@ var SearchControlView = Backbone.View.extend({
     },
     forward: function(results) {
         if(results) {
-            if(this.views[1])
-            {
-                this.views[1].destroy();
-            }
+//            if(this.views[1])
+//            {
+//                this.views[1].destroy();
+//            }
             this.views[1] = new MetacardListView(results);
-            if(this.mapView)
-            {
-                this.mapView.destroy();
-            }
+//            if(this.mapView)
+//            {
+//                this.mapView.destroy();
+//            }
             this.mapView = new MapView(results);
         }
         this.selectedView = this.views[1];
@@ -95,6 +95,6 @@ var SearchControlView = Backbone.View.extend({
         return parseInt($('select[name=count]').val(), 10);
     },
     getPageStartIndex: function (index) {
-        return 1 + (getItemsPerPage() * Math.floor((index - 1) / getItemsPerPage()));
+        return 1 + (this.getItemsPerPage() * Math.floor((index - 1) / this.getItemsPerPage()));
     }
 });
