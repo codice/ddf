@@ -120,6 +120,21 @@ div.resourceSize {
         font-size: 11px;
 }
 
+.small-text {
+    display: inline-block;
+    padding: 2px 4px;
+    font-size: 12px;
+    color: #555555;
+    vertical-align: baseline;
+    white-space: nowrap;
+}
+
+.hr-small {
+    border: 0;
+    border-top: 1px solid #eeeeee;
+    border-bottom: 1px solid #ffffff;
+}
+
 .scrollable {
         overflow-x: auto;
 }
@@ -144,7 +159,11 @@ div.resourceSize {
     right: 10px;
 }
 
-.auto-width {
+.top-pad {
+    top: 80px;
+}
+
+.width-auto {
     width: auto;
 }
 
