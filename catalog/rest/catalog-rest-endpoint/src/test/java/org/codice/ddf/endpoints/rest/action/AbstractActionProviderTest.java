@@ -17,7 +17,7 @@ package org.codice.ddf.endpoints.rest.action;
 import java.util.HashMap;
 import java.util.Map;
 
-import ddf.catalog.util.DdfConfigurationManager;
+import org.codice.ddf.configuration.ConfigurationManager;
 
 public class AbstractActionProviderTest {
 
@@ -44,7 +44,7 @@ public class AbstractActionProviderTest {
     protected AbstractMetacardActionProvider configureActionProvider(
             AbstractMetacardActionProvider actionProvider) {
 
-        actionProvider.ddfConfigurationUpdated(getDefaultSettings());
+        actionProvider.configurationUpdateCallback(getDefaultSettings());
 
         return actionProvider;
     }
@@ -53,33 +53,33 @@ public class AbstractActionProviderTest {
         AbstractMetacardActionProvider actionProvider = new ViewMetacardActionProvider(
                 ACTION_PROVIDER_ID);
 
-        actionProvider.ddfConfigurationUpdated(getDefaultSecureSettings());
+        actionProvider.configurationUpdateCallback(getDefaultSecureSettings());
 
         return actionProvider;
     }
 
-    protected Map getDefaultSettings() {
+    protected Map<String, String> getDefaultSettings() {
 
         return createMap(SAMPLE_PROTOCOL, SAMPLE_IP, SAMPLE_PORT, SAMPLE_SERVICES_ROOT,
                 SAMPLE_SOURCE_NAME);
     }
 
-    private Map getDefaultSecureSettings() {
+    private Map<String, String> getDefaultSecureSettings() {
 
         return createMap(SAMPLE_SECURE_PROTOCOL, SAMPLE_IP, SAMPLE_SECURE_PORT,
                 SAMPLE_SERVICES_ROOT, SAMPLE_SOURCE_NAME);
     }
 
-    protected Map createMap(String protocol, String ip, String port, String contextRoot,
+    protected Map<String, String> createMap(String protocol, String ip, String port, String contextRoot,
             String sourceName) {
 
         Map<String, String> settings = new HashMap<String, String>();
 
-        settings.put(DdfConfigurationManager.PROTOCOL, protocol);
-        settings.put(DdfConfigurationManager.HOST, ip);
-        settings.put(DdfConfigurationManager.PORT, port);
-        settings.put(DdfConfigurationManager.SERVICES_CONTEXT_ROOT, contextRoot);
-        settings.put(DdfConfigurationManager.SITE_NAME, sourceName);
+        settings.put(ConfigurationManager.PROTOCOL, protocol);
+        settings.put(ConfigurationManager.HOST, ip);
+        settings.put(ConfigurationManager.PORT, port);
+        settings.put(ConfigurationManager.SERVICES_CONTEXT_ROOT, contextRoot);
+        settings.put(ConfigurationManager.SITE_NAME, sourceName);
 
         return settings;
     }

@@ -14,9 +14,38 @@
  **/
 package ddf.catalog.transformer.response.query.atom;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+
+import javax.activation.MimeType;
+import javax.activation.MimeTypeParseException;
+import javax.xml.namespace.QName;
+
+import org.apache.abdera.Abdera;
+import org.apache.abdera.ext.geo.GeoHelper;
+import org.apache.abdera.ext.geo.GeoHelper.Encoding;
+import org.apache.abdera.ext.geo.Position;
+import org.apache.abdera.ext.opensearch.OpenSearchConstants;
+import org.apache.abdera.model.Content.Type;
+import org.apache.abdera.model.Element;
+import org.apache.abdera.model.Entry;
+import org.apache.abdera.model.Feed;
+import org.apache.abdera.model.Link;
+import org.apache.commons.io.output.ByteArrayOutputStream;
+import org.apache.log4j.Logger;
+import org.codice.ddf.configuration.ConfigurationManager;
+import org.codice.ddf.configuration.ConfigurationWatcher;
+
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.io.ParseException;
 import com.vividsolutions.jts.io.WKTReader;
+
 import ddf.action.Action;
 import ddf.action.ActionProvider;
 import ddf.catalog.data.Attribute;
@@ -30,33 +59,7 @@ import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.MetacardTransformer;
 import ddf.catalog.transform.QueryResponseTransformer;
-import ddf.catalog.util.DdfConfigurationManager;
-import ddf.catalog.util.DdfConfigurationWatcher;
 import ddf.geo.formatter.CompositeGeometry;
-import org.apache.abdera.Abdera;
-import org.apache.abdera.ext.geo.GeoHelper;
-import org.apache.abdera.ext.geo.GeoHelper.Encoding;
-import org.apache.abdera.ext.geo.Position;
-import org.apache.abdera.ext.opensearch.OpenSearchConstants;
-import org.apache.abdera.model.Content.Type;
-import org.apache.abdera.model.Element;
-import org.apache.abdera.model.Entry;
-import org.apache.abdera.model.Feed;
-import org.apache.abdera.model.Link;
-import org.apache.commons.io.output.ByteArrayOutputStream;
-import org.apache.log4j.Logger;
-
-import javax.activation.MimeType;
-import javax.activation.MimeTypeParseException;
-import javax.xml.namespace.QName;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
 
 /**
  * This is a {@link QueryResponseTransformer} that transforms query results into an Atom formatted
@@ -68,7 +71,7 @@ import java.util.UUID;
  * @author ddf.isgs@lmco.com
  * 
  */
-public class AtomTransformer implements QueryResponseTransformer, DdfConfigurationWatcher {
+public class AtomTransformer implements QueryResponseTransformer, ConfigurationWatcher {
 
     private static final String FEDERATION_EXTENSION_NAMESPACE = "http://a9.com/-/opensearch/extensions/federation/1.0/";
 
@@ -459,12 +462,12 @@ public class AtomTransformer implements QueryResponseTransformer, DdfConfigurati
     }
 
     @Override
-    public void ddfConfigurationUpdated(Map configuration) {
+    public void configurationUpdateCallback(Map<String, String> configuration) {
 
         if (configuration != null) {
-            Object organizationMapValue = configuration.get(DdfConfigurationManager.ORGANIZATION);
-            Object versionMapValue = configuration.get(DdfConfigurationManager.VERSION);
-            Object siteMapValue = configuration.get(DdfConfigurationManager.SITE_NAME);
+            Object organizationMapValue = configuration.get(ConfigurationManager.ORGANIZATION);
+            Object versionMapValue = configuration.get(ConfigurationManager.VERSION);
+            Object siteMapValue = configuration.get(ConfigurationManager.SITE_NAME);
 
             if (organizationMapValue != null) {
                 this.organization = organizationMapValue.toString();

@@ -40,7 +40,7 @@ public class TestMetacardTransformerActionProvider extends AbstractActionProvide
         AbstractMetacardActionProvider actionProvider = new MetacardTransformerActionProvider(
                 ACTION_PROVIDER_ID, SAMPLE_TRANSFORMER_ID);
 
-        actionProvider.ddfConfigurationUpdated(createMap("badProtocol", SAMPLE_IP, SAMPLE_PORT,
+        actionProvider.configurationUpdateCallback(createMap("badProtocol", SAMPLE_IP, SAMPLE_PORT,
                 SAMPLE_SERVICES_ROOT, SAMPLE_SOURCE_NAME));
 
         assertNull("A bad url should have been caught and a null action returned.",
@@ -57,7 +57,7 @@ public class TestMetacardTransformerActionProvider extends AbstractActionProvide
         AbstractMetacardActionProvider actionProvider = new MetacardTransformerActionProvider(
                 ACTION_PROVIDER_ID, SAMPLE_TRANSFORMER_ID);
 
-        actionProvider.ddfConfigurationUpdated(createMap(SAMPLE_PROTOCOL, "23^&*#", SAMPLE_PORT,
+        actionProvider.configurationUpdateCallback(createMap(SAMPLE_PROTOCOL, "23^&*#", SAMPLE_PORT,
                 SAMPLE_SERVICES_ROOT, SAMPLE_SOURCE_NAME));
 
         assertNull("A bad url should have been caught and a null action returned.",

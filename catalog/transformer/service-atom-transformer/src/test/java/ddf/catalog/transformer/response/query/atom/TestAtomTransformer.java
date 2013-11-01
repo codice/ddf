@@ -14,6 +14,55 @@
  **/
 package ddf.catalog.transformer.response.query.atom;
 
+import static org.custommonkey.xmlunit.XMLAssert.assertXpathEvaluatesTo;
+import static org.custommonkey.xmlunit.XMLAssert.assertXpathExists;
+import static org.custommonkey.xmlunit.XMLAssert.assertXpathNotExists;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
+import static org.mockito.Matchers.isA;
+import static org.mockito.Matchers.isNull;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.net.URL;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.TimeZone;
+
+import javax.xml.XMLConstants;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.Source;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamSource;
+import javax.xml.validation.Schema;
+import javax.xml.validation.SchemaFactory;
+import javax.xml.validation.Validator;
+
+import org.apache.abdera.model.Link;
+import org.apache.commons.io.IOUtils;
+import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.Logger;
+import org.codice.ddf.configuration.ConfigurationManager;
+import org.custommonkey.xmlunit.NamespaceContext;
+import org.custommonkey.xmlunit.SimpleNamespaceContext;
+import org.custommonkey.xmlunit.XMLUnit;
+import org.custommonkey.xmlunit.exceptions.XpathException;
+import org.joda.time.DateTime;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.w3c.dom.Document;
+import org.xml.sax.SAXException;
+
 import ddf.action.Action;
 import ddf.action.ActionProvider;
 import ddf.catalog.data.BinaryContent;
@@ -28,53 +77,6 @@ import ddf.catalog.operation.QueryRequestImpl;
 import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.MetacardTransformer;
-import ddf.catalog.util.DdfConfigurationManager;
-import org.apache.abdera.model.Link;
-import org.apache.commons.io.IOUtils;
-import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.Logger;
-import org.custommonkey.xmlunit.NamespaceContext;
-import org.custommonkey.xmlunit.SimpleNamespaceContext;
-import org.custommonkey.xmlunit.XMLUnit;
-import org.custommonkey.xmlunit.exceptions.XpathException;
-import org.joda.time.DateTime;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.w3c.dom.Document;
-import org.xml.sax.SAXException;
-
-import javax.xml.XMLConstants;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.Source;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamSource;
-import javax.xml.validation.Schema;
-import javax.xml.validation.SchemaFactory;
-import javax.xml.validation.Validator;
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.net.URL;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.TimeZone;
-
-import static org.custommonkey.xmlunit.XMLAssert.assertXpathEvaluatesTo;
-import static org.custommonkey.xmlunit.XMLAssert.assertXpathExists;
-import static org.custommonkey.xmlunit.XMLAssert.assertXpathNotExists;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
-import static org.mockito.Matchers.isA;
-import static org.mockito.Matchers.isNull;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class TestAtomTransformer {
 
@@ -498,7 +500,7 @@ public class TestAtomTransformer {
         AtomTransformer transformer = new AtomTransformer();
         MetacardTransformer metacardTransformer = getXmlMetacardTransformerStub();
         transformer.setMetacardTransformer(metacardTransformer);
-        transformer.ddfConfigurationUpdated(getDefaultSystemConfiguration());
+        transformer.configurationUpdateCallback(getDefaultSystemConfiguration());
 
         SourceResponse response = mock(SourceResponse.class);
 
@@ -545,7 +547,7 @@ public class TestAtomTransformer {
         AtomTransformer transformer = new AtomTransformer();
         MetacardTransformer metacardTransformer = getXmlMetacardTransformerStub();
         transformer.setMetacardTransformer(metacardTransformer);
-        transformer.ddfConfigurationUpdated(getDefaultSystemConfiguration());
+        transformer.configurationUpdateCallback(getDefaultSystemConfiguration());
 
         SourceResponse response = mock(SourceResponse.class);
 
@@ -592,7 +594,7 @@ public class TestAtomTransformer {
         AtomTransformer transformer = new AtomTransformer();
         MetacardTransformer metacardTransformer = getXmlMetacardTransformerStub();
         transformer.setMetacardTransformer(metacardTransformer);
-        transformer.ddfConfigurationUpdated(getDefaultSystemConfiguration());
+        transformer.configurationUpdateCallback(getDefaultSystemConfiguration());
 
         SourceResponse response = mock(SourceResponse.class);
 
@@ -636,7 +638,7 @@ public class TestAtomTransformer {
         AtomTransformer transformer = new AtomTransformer();
         MetacardTransformer metacardTransformer = getXmlMetacardTransformerStub();
         transformer.setMetacardTransformer(metacardTransformer);
-        transformer.ddfConfigurationUpdated(getDefaultSystemConfiguration());
+        transformer.configurationUpdateCallback(getDefaultSystemConfiguration());
 
         SourceResponse response = mock(SourceResponse.class);
 
@@ -742,7 +744,7 @@ public class TestAtomTransformer {
         MetacardTransformer metacardTransformer = getXmlMetacardTransformerStub();
         transformer.setMetacardTransformer(metacardTransformer);
 
-        transformer.ddfConfigurationUpdated(getDefaultSystemConfiguration());
+        transformer.configurationUpdateCallback(getDefaultSystemConfiguration());
 
         SourceResponse response = mock(SourceResponse.class);
 
@@ -797,7 +799,7 @@ public class TestAtomTransformer {
         MetacardTransformer metacardTransformer = getXmlMetacardTransformerStub();
         transformer.setMetacardTransformer(metacardTransformer);
 
-        transformer.ddfConfigurationUpdated(getDefaultSystemConfiguration());
+        transformer.configurationUpdateCallback(getDefaultSystemConfiguration());
 
         SourceResponse response = mock(SourceResponse.class);
 
@@ -898,7 +900,7 @@ public class TestAtomTransformer {
         MetacardTransformer metacardTransformer = getXmlMetacardTransformerStub();
         transformer.setMetacardTransformer(metacardTransformer);
 
-        transformer.ddfConfigurationUpdated(getDefaultSystemConfiguration());
+        transformer.configurationUpdateCallback(getDefaultSystemConfiguration());
 
         SourceResponse response = mock(SourceResponse.class);
 
@@ -953,7 +955,7 @@ public class TestAtomTransformer {
 
         transformer.setMetacardTransformer(metacardTransformer);
 
-        transformer.ddfConfigurationUpdated(getDefaultSystemConfiguration());
+        transformer.configurationUpdateCallback(getDefaultSystemConfiguration());
 
         SourceResponse response1 = mock(SourceResponse.class);
 
@@ -1056,7 +1058,7 @@ public class TestAtomTransformer {
 
         transformer.setThumbnailActionProvider(thumbnailActionProvider);
 
-        transformer.ddfConfigurationUpdated(getDefaultSystemConfiguration());
+        transformer.configurationUpdateCallback(getDefaultSystemConfiguration());
 
         SourceResponse response1 = mock(SourceResponse.class);
 
@@ -1146,7 +1148,7 @@ public class TestAtomTransformer {
 
         atomTransformer.setMetacardTransformer(getXmlMetacardTransformerStub());
 
-        atomTransformer.ddfConfigurationUpdated(getDefaultSystemConfiguration());
+        atomTransformer.configurationUpdateCallback(getDefaultSystemConfiguration());
 
         SourceResponse response = getSourceResponseStub(SAMPLE_ID,
                 "POLYGON ((30 10, 10 20, 20 40, 40 40, 30 10))");
@@ -1178,7 +1180,7 @@ public class TestAtomTransformer {
 
         atomTransformer.setMetacardTransformer(getXmlMetacardTransformerStub());
 
-        atomTransformer.ddfConfigurationUpdated(getDefaultSystemConfiguration());
+        atomTransformer.configurationUpdateCallback(getDefaultSystemConfiguration());
 
         SourceResponse response = getSourceResponseStub(SAMPLE_ID, null);
 
@@ -1202,7 +1204,7 @@ public class TestAtomTransformer {
 
         atomTransformer.setMetacardTransformer(getXmlMetacardTransformerStub());
 
-        atomTransformer.ddfConfigurationUpdated(getDefaultSystemConfiguration());
+        atomTransformer.configurationUpdateCallback(getDefaultSystemConfiguration());
 
         SourceResponse response = getSourceResponseStub(SAMPLE_ID, BAD_WKT);
 
@@ -1239,7 +1241,7 @@ public class TestAtomTransformer {
             Map systemConfiguration) {
         AtomTransformer transformer = new AtomTransformer();
         transformer.setMetacardTransformer(metacardTransformer);
-        transformer.ddfConfigurationUpdated(systemConfiguration);
+        transformer.configurationUpdateCallback(systemConfiguration);
         return transformer;
     }
 
@@ -1273,7 +1275,7 @@ public class TestAtomTransformer {
         MetacardTransformer metacardTransformer = getXmlMetacardTransformerStub();
         transformer.setMetacardTransformer(metacardTransformer);
 
-        transformer.ddfConfigurationUpdated(getDefaultSystemConfiguration());
+        transformer.configurationUpdateCallback(getDefaultSystemConfiguration());
 
         SourceResponse response = mock(SourceResponse.class);
 
@@ -1424,11 +1426,11 @@ public class TestAtomTransformer {
         return metacardTransformer;
     }
 
-    protected Map getDefaultSystemConfiguration() {
-        Map configuration = new HashMap();
-        configuration.put(DdfConfigurationManager.ORGANIZATION, DEFAULT_TEST_ORGANIZATION);
-        configuration.put(DdfConfigurationManager.SITE_NAME, DEFAULT_TEST_SITE);
-        configuration.put(DdfConfigurationManager.VERSION, DEFAULT_TEST_VERSION);
+    protected Map<String, String> getDefaultSystemConfiguration() {
+        Map<String, String> configuration = new HashMap<String, String>();
+        configuration.put(ConfigurationManager.ORGANIZATION, DEFAULT_TEST_ORGANIZATION);
+        configuration.put(ConfigurationManager.SITE_NAME, DEFAULT_TEST_SITE);
+        configuration.put(ConfigurationManager.VERSION, DEFAULT_TEST_VERSION);
         return configuration;
     }
 

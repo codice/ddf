@@ -30,6 +30,10 @@
 			<groupId>ddf.catalog.core</groupId>
 			<artifactId>catalog-core-api</artifactId>
 		</dependency>
+        <dependency>
+          <groupId>ddf.platform</groupId>
+          <artifactId>platform-configuration</artifactId>
+        </dependency>
 		<dependency>
             <groupId>ddf.catalog.core</groupId>
             <artifactId>catalog-core-commons</artifactId>
@@ -76,6 +80,7 @@
 							ddf.catalog.resource,
 							ddf.catalog.source,
 							ddf.catalog.util,
+                            org.codice.ddf.configuration,
 							org.osgi.service.blueprint,
 							org.osgi.service.cm,
 							org.osgi.service.event

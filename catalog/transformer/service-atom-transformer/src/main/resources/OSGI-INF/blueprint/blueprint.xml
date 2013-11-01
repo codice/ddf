@@ -39,6 +39,6 @@
 		</service-properties>
 	</service>
 	
-	<service ref="transformer" interface="ddf.catalog.util.DdfConfigurationWatcher"/>
+	<service ref="transformer" interface="org.codice.ddf.configuration.ConfigurationWatcher"/>
 
 </blueprint>

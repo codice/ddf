@@ -49,7 +49,7 @@ public class TestViewMetacardActionProvider extends AbstractActionProviderTest {
         AbstractMetacardActionProvider actionProvider = new ViewMetacardActionProvider(
                 ACTION_PROVIDER_ID);
 
-        actionProvider.ddfConfigurationUpdated(createMap(SAMPLE_PROTOCOL, "23^&*#", SAMPLE_PORT,
+        actionProvider.configurationUpdateCallback(createMap(SAMPLE_PROTOCOL, "23^&*#", SAMPLE_PORT,
                 SAMPLE_SERVICES_ROOT, SAMPLE_SOURCE_NAME));
 
         assertNull("A bad url should have been caught and a null action returned.",
@@ -134,7 +134,7 @@ public class TestViewMetacardActionProvider extends AbstractActionProviderTest {
         AbstractMetacardActionProvider actionProvider = new ViewMetacardActionProvider(
                 ACTION_PROVIDER_ID);
 
-        actionProvider.ddfConfigurationUpdated(createMap(SAMPLE_PROTOCOL, null, SAMPLE_PORT,
+        actionProvider.configurationUpdateCallback(createMap(SAMPLE_PROTOCOL, null, SAMPLE_PORT,
                 SAMPLE_SERVICES_ROOT, SAMPLE_SOURCE_NAME));
 
         assertNull("An action should not have been created when ip is null.",
@@ -152,7 +152,7 @@ public class TestViewMetacardActionProvider extends AbstractActionProviderTest {
         AbstractMetacardActionProvider actionProvider = new ViewMetacardActionProvider(
                 ACTION_PROVIDER_ID);
 
-        actionProvider.ddfConfigurationUpdated(createMap(SAMPLE_PROTOCOL, "0.0.0.0", SAMPLE_PORT,
+        actionProvider.configurationUpdateCallback(createMap(SAMPLE_PROTOCOL, "0.0.0.0", SAMPLE_PORT,
                 SAMPLE_SERVICES_ROOT, SAMPLE_SOURCE_NAME));
 
         assertNull("An action should not have been created when ip is unknown (0.0.0.0).",
@@ -170,7 +170,7 @@ public class TestViewMetacardActionProvider extends AbstractActionProviderTest {
         AbstractMetacardActionProvider actionProvider = new ViewMetacardActionProvider(
                 ACTION_PROVIDER_ID);
 
-        actionProvider.ddfConfigurationUpdated(createMap(SAMPLE_PROTOCOL, SAMPLE_IP, null,
+        actionProvider.configurationUpdateCallback(createMap(SAMPLE_PROTOCOL, SAMPLE_IP, null,
                 SAMPLE_SERVICES_ROOT, SAMPLE_SOURCE_NAME));
 
         assertNull("An action should not have been created when port is null.",
@@ -188,7 +188,7 @@ public class TestViewMetacardActionProvider extends AbstractActionProviderTest {
         AbstractMetacardActionProvider actionProvider = new ViewMetacardActionProvider(
                 ACTION_PROVIDER_ID);
 
-        actionProvider.ddfConfigurationUpdated(createMap(SAMPLE_PROTOCOL, SAMPLE_IP, SAMPLE_PORT,
+        actionProvider.configurationUpdateCallback(createMap(SAMPLE_PROTOCOL, SAMPLE_IP, SAMPLE_PORT,
                 null, SAMPLE_SOURCE_NAME));
 
         assertNull("An action should not have been created when context root is null.",
@@ -285,7 +285,7 @@ public class TestViewMetacardActionProvider extends AbstractActionProviderTest {
         AbstractMetacardActionProvider actionProvider = new ViewMetacardActionProvider(
                 ACTION_PROVIDER_ID);
 
-        actionProvider.ddfConfigurationUpdated(createMap(null, SAMPLE_IP, SAMPLE_SECURE_PORT,
+        actionProvider.configurationUpdateCallback(createMap(null, SAMPLE_IP, SAMPLE_SECURE_PORT,
                 SAMPLE_SERVICES_ROOT, SAMPLE_SOURCE_NAME));
 
         Action action = actionProvider.getAction(metacard);

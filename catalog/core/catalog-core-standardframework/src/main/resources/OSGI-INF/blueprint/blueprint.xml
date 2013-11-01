@@ -190,7 +190,7 @@
 			registration-method="start" unregistration-method="cancel" />
 	</service>
 	
-	<service ref="ddf" interface="ddf.catalog.util.DdfConfigurationWatcher">
+	<service ref="ddf" interface="org.codice.ddf.configuration.ConfigurationWatcher">
 	</service>
 	
 	

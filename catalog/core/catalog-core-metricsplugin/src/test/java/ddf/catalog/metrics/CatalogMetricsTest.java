@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.codice.ddf.configuration.ConfigurationManager;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -55,7 +56,6 @@ import ddf.catalog.operation.Update;
 import ddf.catalog.operation.UpdateResponse;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
-import ddf.catalog.util.DdfConfigurationManager;
 
 /**
  * Tests {@link CatalogMetrics}
@@ -155,8 +155,8 @@ public class CatalogMetricsTest {
 
     private void setLocalCatalogId(String catalogId) {
         Map<String, String> settings = new HashMap<String, String>();
-        settings.put(DdfConfigurationManager.SITE_NAME, catalogId);
-        underTest.ddfConfigurationUpdated(settings);
+        settings.put(ConfigurationManager.SITE_NAME, catalogId);
+        underTest.configurationUpdateCallback(settings);
     }
 
     @Test

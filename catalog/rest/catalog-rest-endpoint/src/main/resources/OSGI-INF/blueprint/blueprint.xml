@@ -69,6 +69,6 @@
 		</service-properties>
 	</service>
 
-	<service ref="viewActionProvider" interface="ddf.catalog.util.DdfConfigurationWatcher" />
+	<service ref="viewActionProvider" interface="org.codice.ddf.configuration.ConfigurationWatcher" />
 
 </blueprint>

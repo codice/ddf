@@ -18,6 +18,9 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
+import org.codice.ddf.configuration.ConfigurationManager;
+import org.codice.ddf.configuration.ConfigurationWatcher;
+
 import com.codahale.metrics.Histogram;
 import com.codahale.metrics.JmxReporter;
 import com.codahale.metrics.Meter;
@@ -40,8 +43,6 @@ import ddf.catalog.plugin.PreQueryPlugin;
 import ddf.catalog.plugin.StopProcessingException;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
-import ddf.catalog.util.DdfConfigurationManager;
-import ddf.catalog.util.DdfConfigurationWatcher;
 
 /**
  * Catalog plug-in to capture metrics on catalog operations.
@@ -51,7 +52,7 @@ import ddf.catalog.util.DdfConfigurationWatcher;
  * 
  */
 public final class CatalogMetrics implements PreQueryPlugin, PostQueryPlugin, PostIngestPlugin,
-        PostResourcePlugin, DdfConfigurationWatcher {
+        PostResourcePlugin, ConfigurationWatcher {
 
     protected static final String EXCEPTIONS_SCOPE = "Exceptions";
 
@@ -246,9 +247,9 @@ public final class CatalogMetrics implements PreQueryPlugin, PostQueryPlugin, Po
     }
 
     @Override
-    public void ddfConfigurationUpdated(Map configuration) {
+    public void configurationUpdateCallback(Map<String, String> configuration) {
         if (configuration != null && !configuration.isEmpty()) {
-            Object value = configuration.get(DdfConfigurationManager.SITE_NAME);
+            Object value = configuration.get(ConfigurationManager.SITE_NAME);
             if (value != null) {
                 localSourceId = value.toString();
             }

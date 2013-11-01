@@ -21,15 +21,15 @@ import java.util.Map;
 import org.apache.commons.lang.CharEncoding;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+import org.codice.ddf.configuration.ConfigurationManager;
+import org.codice.ddf.configuration.ConfigurationWatcher;
 
 import ddf.action.Action;
 import ddf.action.ActionProvider;
 import ddf.catalog.data.Metacard;
-import ddf.catalog.util.DdfConfigurationManager;
-import ddf.catalog.util.DdfConfigurationWatcher;
 
 public abstract class AbstractMetacardActionProvider implements ActionProvider,
-        DdfConfigurationWatcher {
+        ConfigurationWatcher {
 
     protected String protocol;
 
@@ -52,15 +52,15 @@ public abstract class AbstractMetacardActionProvider implements ActionProvider,
     protected abstract Action getAction(String metacardId, String metacardSource);
 
     @Override
-    public void ddfConfigurationUpdated(Map configuration) {
+    public void configurationUpdateCallback(Map<String, String> configuration) {
 
         if (configuration != null) {
-            Object protocolMapValue = configuration.get(DdfConfigurationManager.PROTOCOL);
-            Object hostMapValue = configuration.get(DdfConfigurationManager.HOST);
-            Object portMapValue = configuration.get(DdfConfigurationManager.PORT);
+            Object protocolMapValue = configuration.get(ConfigurationManager.PROTOCOL);
+            Object hostMapValue = configuration.get(ConfigurationManager.HOST);
+            Object portMapValue = configuration.get(ConfigurationManager.PORT);
             Object serviceContextMapValue = configuration
-                    .get(DdfConfigurationManager.SERVICES_CONTEXT_ROOT);
-            Object sourceNameValue = configuration.get(DdfConfigurationManager.SITE_NAME);
+                    .get(ConfigurationManager.SERVICES_CONTEXT_ROOT);
+            Object sourceNameValue = configuration.get(ConfigurationManager.SITE_NAME);
 
             if (hostMapValue != null) {
                 this.host = hostMapValue.toString();

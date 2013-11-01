@@ -33,6 +33,8 @@ import java.util.concurrent.Executors;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
+import org.codice.ddf.configuration.ConfigurationManager;
+import org.codice.ddf.configuration.ConfigurationWatcher;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
@@ -98,8 +100,6 @@ import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.MetacardTransformer;
 import ddf.catalog.transform.QueryResponseTransformer;
-import ddf.catalog.util.DdfConfigurationManager;
-import ddf.catalog.util.DdfConfigurationWatcher;
 import ddf.catalog.util.DescribableImpl;
 import ddf.catalog.util.Masker;
 import ddf.catalog.util.SourceDescriptorComparator;
@@ -114,7 +114,7 @@ import ddf.catalog.util.SourcePoller;
  * 
  */
 @SuppressWarnings("deprecation")
-public class CatalogFrameworkImpl extends DescribableImpl implements DdfConfigurationWatcher,
+public class CatalogFrameworkImpl extends DescribableImpl implements ConfigurationWatcher,
         CatalogFramework {
 
     // TODO make this private
@@ -2094,11 +2094,9 @@ public class CatalogFrameworkImpl extends DescribableImpl implements DdfConfigur
         }
     }
 
-    @SuppressWarnings("rawtypes")
-    // TODO parameterize this Map in {@link DdfConfigurationWatcher}
     @Override
-    public void ddfConfigurationUpdated(Map properties) {
-        String methodName = "ddfConfigurationUpdated";
+    public void configurationUpdateCallback(Map<String, String> properties) {
+        String methodName = "configurationUpdateCallback";
         logger.debug("ENTERING: " + methodName);
 
         if (properties != null && !properties.isEmpty()) {
@@ -2106,21 +2104,21 @@ public class CatalogFrameworkImpl extends DescribableImpl implements DdfConfigur
                 logger.debug(properties.toString());
             }
 
-            Object value = properties.get(DdfConfigurationManager.SITE_NAME);
+            Object value = properties.get(ConfigurationManager.SITE_NAME);
             if (value != null) {
                 String ddfSiteName = value.toString();
                 logger.debug("ddfSiteName = " + ddfSiteName);
                 this.setId(ddfSiteName);
             }
 
-            value = properties.get(DdfConfigurationManager.VERSION);
+            value = properties.get(ConfigurationManager.VERSION);
             if (value != null) {
                 String ddfVersion = value.toString();
                 logger.debug("ddfVersion = " + ddfVersion);
                 this.setVersion(ddfVersion);
             }
 
-            value = properties.get(DdfConfigurationManager.ORGANIZATION);
+            value = properties.get(ConfigurationManager.ORGANIZATION);
             if (value != null) {
                 String ddfOrganization = value.toString();
                 logger.debug("ddfOrganization = " + ddfOrganization);

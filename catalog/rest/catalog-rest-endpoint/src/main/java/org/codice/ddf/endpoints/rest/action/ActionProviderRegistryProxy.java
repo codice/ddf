@@ -17,18 +17,16 @@ package org.codice.ddf.endpoints.rest.action;
 import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Hashtable;
-import java.util.List;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
+import org.codice.ddf.configuration.ConfigurationWatcher;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
 
 import ddf.action.ActionProvider;
 import ddf.catalog.Constants;
-import ddf.catalog.transform.MetacardTransformer;
-import ddf.catalog.util.DdfConfigurationWatcher;
 
 /**
  * Registers {@link ActionProvider} objects into the Service Registry based upon the services
@@ -40,7 +38,7 @@ import ddf.catalog.util.DdfConfigurationWatcher;
  */
 public class ActionProviderRegistryProxy {
 
-    private static final String WATCHER_INTERFACE_NAME = DdfConfigurationWatcher.class.getName();
+    private static final String WATCHER_INTERFACE_NAME = ConfigurationWatcher.class.getName();
 
     private static final String PROVIDER_INTERFACE_NAME = ActionProvider.class.getName();
 
