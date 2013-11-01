@@ -1,0 +1,6 @@
+[
+    {
+        "name": "metacardRow",
+        "template": "<td><div style='clear:both'><a href='#' class='metacardLink'>{{metacard.properties.title}}</a></div><div style='float:left'><span class='small-text'>{{metacard.properties.source-id}}</span></div><div style='float:right'><span class='small-text'>&nbsp;&nbsp;&nbsp;{{metacard.properties.created}}</span></div><"
+    }
+]

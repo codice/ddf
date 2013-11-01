@@ -1,0 +1,71 @@
+var MetacardRow = Backbone.View.extend({
+    tagName: "tr",
+    events: {
+        'click .metacardLink' : 'viewMetacard'
+    },
+    render: function() {
+        this.$el.html(ich.metacardRow(this.model.toJSON()));
+        return this;
+    },
+    viewMetacard: function() {
+        //do something to view the metacard, worry about that later
+    }
+});
+
+var MetacardTable = Backbone.View.extend({
+    metacardRows: [],
+    initialize: function(){
+        _.bindAll(this, 'appendCard', 'render', 'removeCard', 'changeCard');
+        this.collection.bind("add", this.appendCard);
+        this.collection.bind("remove", this.removeCard);
+        this.collection.bind("change", this.changeCard);
+    },
+    render: function() {
+        var m = null,
+            newRow = null;
+        for(m in this.collection.models){
+            newRow = new MetacardRow({model: this.collection.models[m]});
+            this.metacardRows.push(newRow);
+            this.$el.append(newRow.render().el);
+        }
+        return this;
+    },
+    appendCard: function(card) {
+        var newRow = new MetacardRow({model: card.metacard});
+        this.metacardRows.push(newRow);
+        this.$el.append(newRow.render().el);
+    },
+    removeCard: function(card) {
+        var i = null;
+        for(i in this.metacardRows) {
+            if(this.metacardRows[i].model.id === card.id) {
+                this.metacardRows[i].remove();
+                this.metacardRows.splice(i,1);
+                break;
+            }
+        }
+    },
+    changeCard: function(change) {
+        this.removeCard(change);
+        this.appendCard(new Metacard(change.attributes));
+    }
+});
+
+var MetacardListView = Backbone.View.extend({
+    initialize: function(options) {
+        _.bindAll(this, "render");
+        if(options && options.results)
+        {
+            this.model = new SearchResult(options);
+        }
+    },
+    render: function() {
+        this.$el.html(ich.resultListTemplate(this.model.toJSON()));
+        var metacardTable = new MetacardTable({
+            collection: this.model.results,
+            el: this.$(".resultTable").children("tbody")
+        });
+        metacardTable.render();
+        return this;
+    }
+});

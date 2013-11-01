@@ -26,8 +26,8 @@
     <script src="Cesium/Cesium.js"></script>
     <style>
         @import url(Cesium/Widgets/CesiumWidget/CesiumWidget.css);
-
         @import url(lib/cesium/bucket.css);
+
         #toolbar {
             opacity: 0.85;
         }
@@ -61,10 +61,12 @@
     <link href="css/Search-min.css" rel="stylesheet">
 
     <style media=screen type="text/css">
-        .banner {
-            color: <%=org.codice.ddf.ui.searchui.search.properties.ConfigurationStore.getInstance().getColor()%>;
-            background: <%=org.codice.ddf.ui.searchui.search.properties.ConfigurationStore.getInstance().getBackground()%>;
-        }
+    .banner {
+        color: <%=org.codice.ddf.ui.searchui.search.properties.ConfigurationStore
+                            .getInstance().getColor()%>;
+        background: <%=org.codice.ddf.ui.searchui.search.properties.ConfigurationStore
+                            .getInstance().getBackground()%>;
+    }
     </style>
 
 
@@ -79,376 +81,130 @@
 </head>
 <body>
 
-<div class="navbar navbar-inverse navbar-fixed-top">
+    <div class="navbar navbar-inverse navbar-fixed-top">
         <%
-		    String h = org.codice.ddf.ui.searchui.search.properties.ConfigurationStore
-								.getInstance().getHeader();
-						if (h != null && h.trim().length() > 0)
-							out.println("<div class=\"banner\">" + h + "</div>");
-		%>
+        String h = org.codice.ddf.ui.searchui.search.properties.ConfigurationStore
+        .getInstance().getHeader();
+        if (h != null && h.trim().length() > 0)
+        out.println("<div class=\"banner\">" + h + "</div>");
+        %>
 
-    <div class="navbar-inner">
-        <a class="brand" href="#"><i class="icon-globe icon-white"></i>DDF</a>
+        <div class="navbar-inner">
+            <a class="brand" href="#"><i style="padding-left: 25px" class="icon-globe icon-white"></i>DDF</a>
 
-        <div class="nav-collapse collapse">
-            <ul class="nav">
-                <li class="active"><a href="#">Search</a></li>
-            </ul>
-            <ul class="nav pull-right">
-                <li><a href="SearchHelp.html?title=DDF">Help</a></li>
-            </ul>
+            <div class="nav-collapse collapse">
+                <ul class="nav">
+                    <li class="active"><a href="#">Search</a></li>
+                </ul>
+                <ul class="nav pull-right">
+                    <li><a href="SearchHelp.html?title=DDF">Help</a></li>
+                </ul>
+            </div>
         </div>
     </div>
-</div>
 
-<!-- Metacard Modal -->
-<div id="metacardModal" class="modal hide" tabindex="-1" role="dialog"
-     aria-labelledby="myModalLabel" aria-hidden="true">
-    <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal"
-                aria-hidden="true">&times;</button>
-        <h3>Record Metadata</h3>
+    <!-- Metacard Modal -->
+    <div id="metacardModal" class="modal hide" tabindex="-1" role="dialog"
+         aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal"
+                    aria-hidden="true">&times;</button>
+            <h3>Record Metadata</h3>
+        </div>
+        <div class="modal-body"></div>
+        <div class="modal-footer"></div>
     </div>
-    <div class="modal-body"></div>
-    <div class="modal-footer"></div>
-</div>
 
 
-
-<div id="cesiumContainer">
-    <div id="toolbar"></div>
-</div>
-
-    <form id="searchForm" class="partialaffix span3 search-controls row-fluid auto-width"
-    action="/services/catalog/query" method="get">
-    <ul class="nav nav-list well well-small">
-    <input type="hidden" name="format" value="geojson">
-    <input type="hidden" name="start" value="1">
-
-
-    <li class="nav-header">Keywords</li>
-    <li>
-    <div class="input-append">
-    <input name="q" type="text">
+    <div id="cesiumContainer">
+        <div id="toolbar"></div>
     </div>
-    </li>
 
-    <li class="divider"></li>
+    <div id="searchControls" class="partialaffix span3 search-controls row-fluid width-auto top-pad">
+    </div>
 
-    <li class="nav-header">Time</li>
-    <li>
-    <div class="btn-group" data-toggle="buttons-radio">
-    <button type="button" class="btn btn-mini active"
-    name="noTemporalButton" data-target="#notemporal"
-    data-toggle="tab">Any</button>
-    <button type="button" class="btn btn-mini"
-    name="relativeTimeButton" data-target="#time_relative"
-    data-toggle="tab">Relative</button>
-    <button type="button" class="btn btn-mini"
-    name="absoluteTimeButton" data-target="#time_absolute"
-    data-toggle="tab">Absolute</button>
-    </div>
-    <div class="tab-content">
-    <div id="notemporal" name="notemporal" class="tab-pane"></div>
-    <div id="time_absolute" name="time_absolute" class="tab-pane">
-    <input type="hidden" name="dtstart" value=""> <input
-    type="hidden" name="dtend" value="">
+    <%
+    String f = org.codice.ddf.ui.searchui.search.properties.ConfigurationStore
+    .getInstance().getFooter();
+    if (f != null && f.trim().length() > 0)
+    out.println("<div class=\"navbar-fixed-bottom banner\">" + f + "</div>");
+    %>
 
-    <div class="input-prepend">
-    <span class="add-on add-on-label">Begin <i
-    class="icon-time"></i></span> <input id="absoluteStartTime"
-    name="absoluteStartTime" type="text" class="span8" />
-    </div>
-    <div class="input-prepend">
-    <span class="add-on add-on-label">End <i
-    class="icon-time"></i></span> <input id="absoluteEndTime"
-    name="absoluteEndTime" type="text" class="span8" />
-    </div>
-    <div class="alert alert-block span11" id="timeAbsoluteWarning">
-    Warning! If either value is unpopulated, the search will not
-    use any temporal filters</div>
+    <!-- Placed at the end of the document so the pages load faster -->
 
-    </div>
-    <div id="time_relative" name="time_relative" class="tab-pane">
-    <div class="row-fluid">
-    <input type="hidden" name="dtoffset" value="">
-    <div class="span11 input-prepend input-append">
-    <div class="span7">
-    <span class="add-on add-on-label">Last</span> <input
-    id="offsetTime" class="span5" name="offsetTime"
-    type="number" onchange="updateOffset()" />
-    </div>
-    <select id="offsetTimeUnits" class="add-on span3"
-    name="offsetTimeUnits" onchange="updateOffset()">
-    <option value="seconds">seconds</option>
-    <option value="minutes" selected="selected">minutes</option>
-    <option value="hours">hours</option>
-    <option value="days">days</option>
-    <option value="weeks">weeks</option>
-    <option value="months">months</option>
-    <option value="years">years</option>
-    </select>
-    </div>
-    <div class="alert alert-block span11" id="timeRelativeWarning">
-    Warning! If the 'Last' duration is unpopulated, the search
-    will not use any temporal filters</div>
-    </div>
-    </div>
-    </div>
-    </li>
+    <script type="text/javascript" src="lib/jquery/js/jquery-1.9.1.min.js"></script>
+    <script type="text/javascript"
+            src="lib/jquery/js/jquery-ui-1.9.1.custom.min.js"></script>
 
-    <li class="divider"></li>
 
-    <li class="nav-header">Location</li>
-    <li>
-    <div class="btn-group" data-toggle="buttons-radio">
-    <button type="button" name="noLocationButton"
-    class="btn btn-mini active" data-target="#nogeo"
-    data-toggle="tab">Any</button>
-    <button type="button" name="pointRadiusButton"
-    class="btn btn-mini" data-target="#pointradius"
-    data-toggle="tab">Point-Radius</button>
-    <button type="button" name="bboxButton" class="btn btn-mini"
-    data-target="#boundingbox" data-toggle="tab">Bounding
-    Box</button>
-    <!--
-    <button type="button" name="wktButton" class="btn btn-mini" data-target="#wkt" data-toggle="tab">WKT</button>
+    <script type="text/javascript"
+            src="lib/bootstrap-2.3.1/js/bootstrap.min.js"></script>
+    <script type="text/javascript"
+            src="lib/bootstrap-extensions/js/partial-affix.js"></script>
+    <script type="text/javascript" src="lib/jquery/js/plugin/purl.js"></script>
+    <script type="text/javascript"
+            src="lib/jquery/js/plugin/jquery-ui-datepicker-4digitYearOverride-addon.js"></script>
+    <script type="text/javascript"
+            src="lib/jquery/js/plugin/jquery-ui-timepicker-addon.js"></script>
+
+    <!-- These scripts have been compressed and aggregated into Search-min.js.  The list is here for easy modification for
+     the sake of debugging.
+     TODO: Leverage something like http://www.html5rocks.com/en/tutorials/developertools/sourcemaps/  for a better solution
     -->
-    </div>
-    <div class="tab-content">
-    <div id="nogeo" class="tab-pane"></div>
-    <div id="pointradius" class="tab-pane">
-    <input type="hidden" name="radius" value=""> <input
-    type="hidden" name="lat" value=""> <input
-    type="hidden" name="lon" value="">
-
-    <div class="span11 input-prepend input-append">
-    <span class="add-on add-on-label">Latitude<i
-    class="icon-globe"></i></span> <input class="span7" id="latitude"
-    name="latitude" type="number" min="-90" max="90" step="any"
-    onchange="updatePointRadius()" placeholder="" /> <label
-    class="add-on">&deg;</label>
-    </div>
-    <div class="span11 input-prepend input-append">
-    <span class="add-on add-on-label">Longitude<i
-    class="icon-globe"></i></span> <input class="span7" id="longitude"
-    name="longitude" type="number" min="-180" max="180"
-    step="any" onchange="updatePointRadius()" placeholder="" />
-    <label class="add-on">&deg;</label>
-    </div>
-
-    <div class="span11 input-prepend input-append">
-    <div class="span7">
-    <span class="add-on add-on-label">Radius<i
-    class="icon-plus"></i></span> <input class="span5" id="radiusValue"
-    name="radiusValue" type="number" placeholder=""
-    onchange="updatePointRadius()" />
-    </div>
-    <select id="radiusUnits" class="add-on span4"
-    name="radiusUnits" onchange="updatePointRadius()">
-    <option value="meters" selected="selected">meters</option>
-    <option value="kilometers">kilometers</option>
-    <option value="feet">feet</option>
-    <option value="yards">yards</option>
-    <option value="miles">miles</option>
-    </select>
-    </div>
-    <div class="alert alert-block span11" id="pointRadiusWarning">
-    Warning! If any Point-Radius value is unpopulated, the search
-    will not use any location filters</div>
-    </div>
-
-    <div id="boundingbox" class="tab-pane">
-    <input type="hidden" name="bbox" value="">
-    <div class="span11 input-prepend input-append">
-    <span class="add-on add-on-label">West <i
-    class="icon-globe"></i></span> <input class="span7" id="west"
-    name="west" type="number" min="-180" max="180" step="any"
-    onchange="updateBoundingBox()" placeholder="" /> <label
-    class="add-on">&deg;</label>
-    </div>
-    <div class="span11 input-prepend input-append">
-    <span class="add-on add-on-label">South <i
-    class="icon-globe"></i></span> <input class="span7" id="south"
-    name="south" type="number" min="-90" max="90" step="any"
-    onchange="updateBoundingBox()" placeholder="" /> <label
-    class="add-on">&deg;</label>
-    </div>
-    <div class="span11 input-prepend input-append">
-    <span class="add-on add-on-label">East <i
-    class="icon-globe"></i></span> <input class="span7" id="east"
-    name="east" type="number" min="-180" max="180" step="any"
-    onchange="updateBoundingBox()" placeholder="" /> <label
-    class="add-on">&deg;</label>
-    </div>
-    <div class="span11 input-prepend input-append">
-    <span class="add-on add-on-label">North <i
-    class="icon-globe"></i></span> <input class="span7" id="north"
-    name="north" type="number" min="-90" max="90" step="any"
-    onchange="updateBoundingBox()" placeholder="" /> <label
-    class="add-on">&deg;</label>
-    </div>
-    <div class="alert alert-block span11" id="boundingBoxWarning">
-    Warning! If any field is unpopulated, the search will not use
-    any location filters</div>
-    </div>
-
-    <div id="wkt" class="tab-pane">
-    <textarea rows="3" class="span12"></textarea>
-    </div>
-    </div>
-    </li>
-
-    <li class="divider"></li>
-
-    <li class="nav-header">Type</li>
-    <li>
-    <div class="btn-group" data-toggle="buttons-radio">
-    <button type="button" name="noTypeButton"
-    class="btn btn-mini active" data-target="#noTypeTab"
-    data-toggle="tab">Any</button>
-    <button type="button" name="typeButton" class="btn btn-mini"
-    data-target="#typeTab" data-toggle="tab">Specific
-    Types</button>
-    </div>
-    <div class="tab-content">
-    <div id="noTypeTab" class="tab-pane"></div>
-    <div id="typeTab" class="tab-pane">
-    <input type="hidden" name="type" value=""> <select
-    id="typeList" name="typeList" class="span12"
-    onchange="updateType()">
-    </select>
-    </div>
-    </div>
-    </li>
-
-    <li class="divider"></li>
-
-    <li class="nav-header">Additional Sources</li>
-    <li><input type="hidden" name="src" value="">
-    <div class="btn-group" data-toggle="buttons-radio">
-    <button type="button" class="btn btn-mini active"
-    name="noFederationButton" data-target="#nofed"
-    data-toggle="tab">None</button>
-    <button type="button" class="btn btn-mini"
-    name="enterpriseFederationButton" data-target="#nofed"
-    data-toggle="tab">All Sources</button>
-    <button type="button" class="btn btn-mini"
-    name="selectedFederationButton" data-target="#sources"
-    data-toggle="tab">Specific Sources</button>
-    </div>
-    <div class="tab-content">
-    <div id="nofed" class="tab-pane"></div>
-    <div id="sources" class="tab-pane">
-    <div id="scrollableSources" class="scrollable">
-    <select id="federationSources" multiple="multiple"
-    onchange="updateFederation()">
-    </select>
-    </div>
-    <div class="alert alert-block" id="federationListWarning">
-    Warning! If no selections are made, the search will use 'All
-    Sources'</div>
-    </div>
-    </div></li>
-
-    <li class="divider"></li>
-
-    <li class="nav-header">Page Size</li>
-    <li>
-    <div class="input-prepend">
-    <span class="add-on">Results per Page</span>
-    <select id="count" type="number" name="count">
-    <option value="5">5</option>
-    <option value="10" selected="selected">10</option>
-    <option value="25">25</option>
-    <option value="100">100</option>
-    <option value="500">500</option>
-    <option value="1000">1000</option>
-    </select>
-    </div>
-    </li>
-
-    <li>
-    <div class="form-actions">
-    <button class="btn btn-primary " type="submit">
-    <i class="icon-search icon-white"></i> Search
-    </button>
-    <button class="btn " type="reset" onClick="resetForm()">Clear</button>
-    </div>
-    </li>
-    </ul>
-    </form>
-
-    <%--<div id="resultsView" class="span2 modal right">--%>
-    <%--<div class="affix results-header row-fluid">--%>
-
-    <%--<div class="resultsCount pull-left span6">--%>
-    <%--<p id="countTotal" class="lead">Total Results: 0</p>--%>
-    <%--</div>--%>
-
-    <%--<div class="pagination pull-right span6">--%>
-    <%--<ul id="pages">--%>
-    <%--</ul>--%>
-    <%--</div>--%>
-    <%--</div>--%>
-    <%--<div class="row-fluid results">--%>
-    <%--<table class="table table-striped">--%>
-    <%--<thead>--%>
-    <%--<tr>--%>
-    <%--<th>Title</th>--%>
-    <%--<th>Source</th>--%>
-    <%--<th>Location</th>--%>
-    <%--<th>Time</th>--%>
-    <%--</tr>--%>
-    <%--</thead>--%>
-    <%--<tbody id="resultsList">--%>
-    <%--</tbody>--%>
-    <%--</table>--%>
-    <%--</div>--%>
-    <%--<div class="row-fluid">--%>
-    <%--<p class="pull-right">--%>
-    <%--<a href="#">Back to top</a>--%>
-    <%--</p>--%>
-    <%--<br>--%>
-    <%--</div>--%>
-    <%--</div>--%>
-
-        <%
-	    String f = org.codice.ddf.ui.searchui.search.properties.ConfigurationStore
-	                .getInstance().getFooter();
-	        if (f != null && f.trim().length() > 0)
-	            out.println("<div class=\"navbar-fixed-bottom banner\">" + f + "</div>");
-	%>
-
-<!-- Placed at the end of the document so the pages load faster -->
-
-<script type="text/javascript" src="lib/jquery/js/jquery-1.8.2.min.js"></script>
-<script type="text/javascript"
-        src="lib/jquery/js/jquery-ui-1.9.1.custom.min.js"></script>
+    <script type="text/javascript" src="js/searchMessagingDirect.js"></script>
+    <script type="text/javascript" src="js/recordView.js"></script>
+    <script type="text/javascript" src="js/metadataHelper.js"></script>
+    <script type="text/javascript" src="js/viewSwitcher.js"></script>
+    <%--<script type="text/javascript" src="js/searchPage.js"></script>--%>
 
 
-<script type="text/javascript"
-        src="lib/bootstrap-2.3.1/js/bootstrap.min.js"></script>
-<script type="text/javascript"
-        src="lib/bootstrap-extensions/js/partial-affix.js"></script>
-<script type="text/javascript" src="lib/jquery/js/plugin/purl.js"></script>
-<script type="text/javascript"
-        src="lib/jquery/js/plugin/jquery-ui-datepicker-4digitYearOverride-addon.js"></script>
-<script type="text/javascript"
-        src="lib/jquery/js/plugin/jquery-ui-timepicker-addon.js"></script>
+    <script type="text/javascript" src="lib/underscore/underscore.js"></script>
+    <script type="text/javascript" src="lib/icanhaz/ICanHaz.min.js"></script>
+    <script type="text/javascript" src="lib/backbone/backbone.js"></script>
+    <script type="text/javascript" src="lib/modelbinder/Backbone.ModelBinder.min.js"></script>
+    <script type="text/javascript" src="lib/modelbinder/Backbone.CollectionBinder.min.js"></script>
 
-<!-- These scripts have been compressed and aggregated into Search-min.js.  The list is here for easy modification for
- the sake of debugging.
- TODO: Leverage something like http://www.html5rocks.com/en/tutorials/developertools/sourcemaps/  for a better solution
--->
-<script type="text/javascript" src="js/searchMessagingDirect.js"></script>
-<script type="text/javascript" src="js/recordView.js"></script>
-<script type="text/javascript" src="js/metadataHelper.js"></script>
-<script type="text/javascript" src="js/viewSwitcher.js"></script>
-<script type="text/javascript" src="js/searchPage.js"></script>
+    <script type="text/javascript" src="js/model/Metacard.js"></script>
+    <script type="text/javascript" src="js/view/MetacardList.view.js"></script>
+    <script type="text/javascript" src="js/view/Query.view.js"></script>
+    <script type="text/javascript" src="js/view/Metacard.view.js"></script>
+    <script type="text/javascript" src="js/view/MetacardDetail.view.js"></script>
+
+
 <!--
  <script type="text/javascript" src="js/Search-min.js"></script>
 -->
+    <script>
+    $(document).ready(function(){
+        var promises = [];
+
+        promises.push($.ajax("templates/resultList.html"));
+        promises.push($.ajax("templates/searchForm.html"));
+        promises.push($.ajax({url: "templates/templates.json", dataType:"json"}));
+        $.when.apply(null, promises).done(function(template1, template2, template3, data){
+            if (template1 && template1.length > 0 && template2 && template2.length > 0 && template3 && template3.length > 0) {
+
+                ich.addTemplate("resultListTemplate", template1[0]);
+                ich.addTemplate("searchFormTemplate", template2[0]);
+                _.each(template3[0], function(template) {
+                    ich.addTemplate(template.name, template.template);
+                });
+            }
+
+            init();
+        }).fail(function(error){
+            alert("Error " + error.statusText);
+        });
+
+    });
+    init = function() {
+        var viewSwitcher = new ViewSwitcher("resultsView", "recordView", "cesiumContainer");
+        viewSwitcher.showMapView();
+
+        var searchControlView = new SearchControlView();
+        searchControlView.render();
+    }
+    </script>
 
 </body>
 </html>

@@ -50,6 +50,8 @@ var ViewSwitcher = function (resultsDivId, recordDivId, mapDivId) {
             credit: 'Black Marble imagery courtesy NASA Earth Observatory'
         }));
 
+        //dev.virtualearth.net
+
         /* TODO: install and use proxy for WMS to resolve cross domain restrictions
          this._addAddtionalLayer(imageryLayerCollection, new Cesium.WebMapServiceImageryProvider({
          url: 'https://home2.gvs.dev/OGCOverlay/wms',
@@ -106,48 +108,48 @@ var ViewSwitcher = function (resultsDivId, recordDivId, mapDivId) {
         transitioner = viewer.sceneTransitioner;
 
         // Create toolbar template
-        $('#toolbar')
-            .html(
-                '<button id="mode3D" class="cesium-button aButton">3D globe</button> '
-                    + '<button id="modeColumbus" class="cesium-button aButton">Columbus view</button> '
-                    + '<button id="mode2D" class="cesium-button aButton">2D map</button>');
+//        $('#toolbar')
+//            .html(
+//                '<button id="mode3D" class="cesium-button aButton">3D globe</button> '
+//                    + '<button id="modeColumbus" class="cesium-button aButton">Columbus view</button> '
+//                    + '<button id="mode2D" class="cesium-button aButton">2D map</button>');
 
         // Activate toolbar buttons with jQuery UI
-        $(".aButton").button({
-            text: true,
-            icons: {
-                primary: "ui-icon-blank"
-            }
-        }).click(function () {
-                // Emulate radio buttons
-                $(".aButton").button("option", {
-                    icons: {
-                        primary: "ui-icon-blank"
-                    }
-                });
-                $(this).button("option", {
-                    icons: {
-                        primary: "ui-icon-check"
-                    }
-                });
-            });
+//        $(".aButton").button({
+//            text: true,
+//            icons: {
+//                primary: "ui-icon-blank"
+//            }
+//        }).click(function () {
+//                // Emulate radio buttons
+//                $(".aButton").button("option", {
+//                    icons: {
+//                        primary: "ui-icon-blank"
+//                    }
+//                });
+//                $(this).button("option", {
+//                    icons: {
+//                        primary: "ui-icon-check"
+//                    }
+//                });
+//            });
 
         // 3D is the default view
-        $('#mode3D').button("option", {
-            icons: {
-                primary: "ui-icon-check"
-            }
-        }).click(function () {
-                transitioner.morphTo3D();
-            });
-
-        $('#modeColumbus').click(function () {
-            transitioner.morphToColumbusView();
-        });
-
-        $('#mode2D').click(function () {
-            transitioner.morphTo2D();
-        });
+//        $('#mode3D').button("option", {
+//            icons: {
+//                primary: "ui-icon-check"
+//            }
+//        }).click(function () {
+//                transitioner.morphTo3D();
+//            });
+//
+//        $('#modeColumbus').click(function () {
+//            transitioner.morphToColumbusView();
+//        });
+//
+//        $('#mode2D').click(function () {
+//            transitioner.morphTo2D();
+//        });
 
 
         return viewer;
