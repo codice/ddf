@@ -50,6 +50,11 @@
       <groupId>ddf.catalog.core</groupId>
       <artifactId>catalog-core-api</artifactId>
     </dependency>
+    
+    <dependency>
+      <groupId>ddf.platform</groupId>
+      <artifactId>platform-configuration</artifactId>
+    </dependency>
 
     <dependency>
       <groupId>ddf.catalog.core</groupId>

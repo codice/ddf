@@ -33,11 +33,12 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import org.apache.commons.lang.StringUtils;
+import org.codice.ddf.configuration.ConfigurationManager;
+import org.codice.ddf.configuration.ConfigurationWatcher;
+import org.codice.ddf.opensearch.query.OpenSearchQuery;
 import org.parboiled.errors.ParsingException;
 import org.slf4j.LoggerFactory;
 import org.slf4j.ext.XLogger;
-
-import org.codice.ddf.opensearch.query.OpenSearchQuery;
 
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.Constants;
@@ -52,8 +53,6 @@ import ddf.catalog.operation.QueryResponseImpl;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.transform.CatalogTransformerException;
-import ddf.catalog.util.DdfConfigurationManager;
-import ddf.catalog.util.DdfConfigurationWatcher;
 import ddf.security.SecurityConstants;
 import ddf.security.Subject;
 import ddf.security.service.SecurityManager;
@@ -61,7 +60,7 @@ import ddf.security.service.SecurityServiceException;
 import ddf.security.service.TokenRequestHandler;
 
 @Path("/")
-public class OpenSearchEndpoint implements DdfConfigurationWatcher {
+public class OpenSearchEndpoint implements ConfigurationWatcher {
 
     private SecurityManager securityManager;
 
@@ -543,14 +542,14 @@ public class OpenSearchEndpoint implements DdfConfigurationWatcher {
     }
 
     @Override
-    public void ddfConfigurationUpdated(Map ddfProperties) {
-        String methodName = "ddfConfigurationUpdated";
+    public void configurationUpdateCallback(Map<String, String> ddfProperties) {
+        String methodName = "configurationUpdateCallback";
         LOGGER.trace("ENTERING: " + methodName);
 
         // Need the id aka sitename property for the query
 
         if (ddfProperties != null && !ddfProperties.isEmpty()) {
-            Object idEntry = ddfProperties.get(DdfConfigurationManager.SITE_NAME);
+            Object idEntry = ddfProperties.get(ConfigurationManager.SITE_NAME);
 
             if (idEntry != null) {
 

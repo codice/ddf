@@ -21,7 +21,7 @@
         <argument ref="filterAdapter" />
     </bean>
 
-    <service ref="catalogMetrics" interface="ddf.catalog.util.DdfConfigurationWatcher" />
+    <service ref="catalogMetrics" interface="org.codice.ddf.configuration.ConfigurationWatcher" />
     <service ref="catalogMetrics" interface="ddf.catalog.plugin.PreQueryPlugin" />
 	<service ref="catalogMetrics" interface="ddf.catalog.plugin.PostQueryPlugin" />
     <service ref="catalogMetrics" interface="ddf.catalog.plugin.PostIngestPlugin" />

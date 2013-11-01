@@ -156,7 +156,7 @@ public class OpenSearchEndpointTest {
         // local to be replaced with
         Map<String, String> ddfProperties = new HashMap<String, String>();
         ddfProperties.put("id", TEST_SITE_NAME);
-        osEndPoint.ddfConfigurationUpdated(ddfProperties);
+        osEndPoint.configurationUpdateCallback(ddfProperties);
 
         // ***Test Execution***
         osEndPoint

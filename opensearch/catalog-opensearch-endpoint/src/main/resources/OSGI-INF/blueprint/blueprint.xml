@@ -43,7 +43,7 @@
         </jaxrs:outInterceptors>
     </jaxrs:server>
 
-    <service id="OsOsgiSvc" ref="OsSvc" interface="ddf.catalog.util.DdfConfigurationWatcher"/>
+    <service id="OsOsgiSvc" ref="OsSvc" interface="org.codice.ddf.configuration.ConfigurationWatcher"/>
 
     <bean id="OsSvc" class="org.codice.ddf.endpoints.OpenSearchEndpoint">
         <argument ref="ddf"/>
