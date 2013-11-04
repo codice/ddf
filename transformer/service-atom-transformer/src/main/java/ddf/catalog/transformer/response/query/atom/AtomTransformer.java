@@ -38,6 +38,7 @@ import org.apache.abdera.model.Entry;
 import org.apache.abdera.model.Feed;
 import org.apache.abdera.model.Link;
 import org.apache.commons.io.output.ByteArrayOutputStream;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.codice.ddf.configuration.ConfigurationManager;
 import org.codice.ddf.configuration.ConfigurationWatcher;
@@ -465,20 +466,20 @@ public class AtomTransformer implements QueryResponseTransformer, ConfigurationW
     public void configurationUpdateCallback(Map<String, String> configuration) {
 
         if (configuration != null) {
-            Object organizationMapValue = configuration.get(ConfigurationManager.ORGANIZATION);
-            Object versionMapValue = configuration.get(ConfigurationManager.VERSION);
-            Object siteMapValue = configuration.get(ConfigurationManager.SITE_NAME);
+            String organizationMapValue = configuration.get(ConfigurationManager.ORGANIZATION);
+            String versionMapValue = configuration.get(ConfigurationManager.VERSION);
+            String siteMapValue = configuration.get(ConfigurationManager.SITE_NAME);
 
-            if (organizationMapValue != null) {
+            if (StringUtils.isNotBlank(organizationMapValue)) {
                 this.organization = organizationMapValue.toString();
             }
 
-            if (versionMapValue != null) {
-                this.version = versionMapValue.toString();
+            if (StringUtils.isNotBlank(versionMapValue)) {
+                this.version = versionMapValue;
             }
 
-            if (siteMapValue != null) {
-                this.source = siteMapValue.toString();
+            if (StringUtils.isNotBlank(siteMapValue)) {
+                this.source = siteMapValue;
             }
         }
     }

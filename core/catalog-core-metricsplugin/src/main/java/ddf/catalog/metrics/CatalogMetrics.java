@@ -18,6 +18,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.configuration.ConfigurationManager;
 import org.codice.ddf.configuration.ConfigurationWatcher;
 
@@ -249,9 +250,9 @@ public final class CatalogMetrics implements PreQueryPlugin, PostQueryPlugin, Po
     @Override
     public void configurationUpdateCallback(Map<String, String> configuration) {
         if (configuration != null && !configuration.isEmpty()) {
-            Object value = configuration.get(ConfigurationManager.SITE_NAME);
-            if (value != null) {
-                localSourceId = value.toString();
+            String siteName = configuration.get(ConfigurationManager.SITE_NAME);
+            if (StringUtils.isNotBlank(siteName)) {
+                localSourceId = siteName;
             }
         }
     }

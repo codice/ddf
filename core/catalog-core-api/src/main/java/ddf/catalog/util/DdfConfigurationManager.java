@@ -16,6 +16,7 @@ package ddf.catalog.util;
 
 import java.io.IOException;
 import java.util.Dictionary;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
@@ -25,24 +26,26 @@ import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 
 /**
- * The DDF Configuration Manager manages the DDF system settings. Some of these settings are
- * displayed in the Web Admin Console's Configuration tab under the DDF System Settings
- * configuration. Other settings are read-only, not displayed in the DDF System Settings
- * configuration (but appear in other OSGi bundle configurations such as CXF). These read-only
- * settings are included in the list of configuration settings pushed to registered listeners.
+ * The DDF Configuration Manager manages the DDF system settings. Some of these
+ * settings are displayed in the Web Admin Console's Configuration tab under the
+ * DDF System Settings configuration. Other settings are read-only, not
+ * displayed in the DDF System Settings configuration (but appear in other OSGi
+ * bundle configurations such as CXF). These read-only settings are included in
+ * the list of configuration settings pushed to registered listeners.
  * 
- * Registered listeners implement the DdfConfigurationWatcher interface and have these DDF
- * configuration settings pushed to them when they come online (aka bind) and when one or more of
- * the settings are changed in the Admin Console.
+ * Registered listeners implement the DdfConfigurationWatcher interface and have
+ * these DDF configuration settings pushed to them when they come online (aka
+ * bind) and when one or more of the settings are changed in the Admin Console.
  * 
  * @author ddf.isgs@lmco.com
  * 
- * @deprecated since 2.3.0. New implementations should use ConfigurationManager in platform application.
+ * @deprecated since 2.3.0. New implementations should use ConfigurationManager
+ *             in platform application.
  * @see org.codice.ddf.configuration.ConfigurationManager
  * 
  */
-@Deprecated 
-public class DdfConfigurationManager implements org.codice.ddf.configuration.ConfigurationWatcher{
+@Deprecated
+public class DdfConfigurationManager implements org.codice.ddf.configuration.ConfigurationWatcher {
     private static final Logger logger = Logger.getLogger(DdfConfigurationManager.class);
 
     // Constants for the DDF system settings appearing in the Admin Console
@@ -58,7 +61,8 @@ public class DdfConfigurationManager implements org.codice.ddf.configuration.Con
     public static final String HOME_DIR = "homeDir";
 
     /**
-     * The port number that CXF's underlying Jetty server is listening on, e.g., 8181
+     * The port number that CXF's underlying Jetty server is listening on, e.g.,
+     * 8181
      */
     public static final String HTTP_PORT = "httpPort";
 
@@ -119,24 +123,24 @@ public class DdfConfigurationManager implements org.codice.ddf.configuration.Con
     public static final String ORGANIZATION = "organization";
 
     /**
-     * The first preference for the type of federated source to create when the CAB registry client
-     * attempts to create a source.
+     * The first preference for the type of federated source to create when the
+     * CAB registry client attempts to create a source.
      * 
      * @deprecated
      */
     public static final String FIRST_FEDERATED_SOURCE_PREFERENCE = "firstSourcePreference";
 
     /**
-     * The second preference for the type of federated source to create when the CAB registry client
-     * attempts to create a source.
+     * The second preference for the type of federated source to create when the
+     * CAB registry client attempts to create a source.
      * 
      * @deprecated
      */
     public static final String SECOND_FEDERATED_SOURCE_PREFERENCE = "secondSourcePreference";
 
     /**
-     * The third preference for the type of federated source to create when the CAB registry client
-     * attempts to create a source.
+     * The third preference for the type of federated source to create when the
+     * CAB registry client attempts to create a source.
      * 
      * @deprecated
      */
@@ -164,9 +168,10 @@ public class DdfConfigurationManager implements org.codice.ddf.configuration.Con
     protected Map configuration;
 
     /**
-     * The map of DDF system settings that are read-only, i.e., they are set in OSGi system bundles,
-     * not displayed in Admin Console's DDF System Settings configuration, but are pushed out in the
-     * configuration settings to DdfConfigurationWatchers.
+     * The map of DDF system settings that are read-only, i.e., they are set in
+     * OSGi system bundles, not displayed in Admin Console's DDF System Settings
+     * configuration, but are pushed out in the configuration settings to
+     * DdfConfigurationWatchers.
      */
     protected Map readOnlySettings;
 
@@ -180,8 +185,8 @@ public class DdfConfigurationManager implements org.codice.ddf.configuration.Con
     }
 
     /**
-     * Constructs the list of DDF system Settings (read-only and configurable settings) to be pushed
-     * to registered DdfConfigurationWatchers.
+     * Constructs the list of DDF system Settings (read-only and configurable
+     * settings) to be pushed to registered DdfConfigurationWatchers.
      * 
      * @param services
      *            the list of watchers of changes to the DDF System Settings
@@ -209,11 +214,13 @@ public class DdfConfigurationManager implements org.codice.ddf.configuration.Con
     }
 
     /**
-     * Invoked when the DDF system settings are changed in the Admin Console, this method then
-     * pushes those DDF system settings to each of the registered DdfConfigurationWatchers.
+     * Invoked when the DDF system settings are changed in the Admin Console,
+     * this method then pushes those DDF system settings to each of the
+     * registered DdfConfigurationWatchers.
      * 
      * @param configuration
-     *            list of DDF system settings, not including the read-only settings
+     *            list of DDF system settings, not including the read-only
+     *            settings
      */
     public void updated(Map configuration) {
         String methodName = "updated";
@@ -234,9 +241,9 @@ public class DdfConfigurationManager implements org.codice.ddf.configuration.Con
     }
 
     /**
-     * Invoked when a DdfConfigurationWatcher first comes online, e.g., when a federated source is
-     * configured, this method pushes the DDF system settings to the newly registered (bound)
-     * DdfConfigurationWatcher.
+     * Invoked when a DdfConfigurationWatcher first comes online, e.g., when a
+     * federated source is configured, this method pushes the DDF system
+     * settings to the newly registered (bound) DdfConfigurationWatcher.
      * 
      * @param service
      * @param properties
@@ -311,10 +318,10 @@ public class DdfConfigurationManager implements org.codice.ddf.configuration.Con
 
         return value;
     }
-    
+
     @Override
     public void configurationUpdateCallback(Map<String, String> properties) {
         logger.debug("Calling update to send properties to all legacy watchers.");
-        updated(properties);
+        updated(new HashMap<String, String>(properties));
     }
 }

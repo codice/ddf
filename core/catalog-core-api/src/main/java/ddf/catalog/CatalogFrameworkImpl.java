@@ -2104,23 +2104,20 @@ public class CatalogFrameworkImpl extends DescribableImpl implements Configurati
                 logger.debug(properties.toString());
             }
 
-            Object value = properties.get(ConfigurationManager.SITE_NAME);
-            if (value != null) {
-                String ddfSiteName = value.toString();
+            String ddfSiteName = properties.get(ConfigurationManager.SITE_NAME);
+            if (StringUtils.isNotBlank(ddfSiteName)) {
                 logger.debug("ddfSiteName = " + ddfSiteName);
                 this.setId(ddfSiteName);
             }
 
-            value = properties.get(ConfigurationManager.VERSION);
-            if (value != null) {
-                String ddfVersion = value.toString();
+            String ddfVersion = properties.get(ConfigurationManager.VERSION);
+            if (StringUtils.isNotBlank(ddfVersion)) {
                 logger.debug("ddfVersion = " + ddfVersion);
                 this.setVersion(ddfVersion);
             }
 
-            value = properties.get(ConfigurationManager.ORGANIZATION);
-            if (value != null) {
-                String ddfOrganization = value.toString();
+            String ddfOrganization = properties.get(ConfigurationManager.ORGANIZATION);
+            if (StringUtils.isNotBlank(ddfOrganization)) {
                 logger.debug("ddfOrganization = " + ddfOrganization);
                 this.setOrganization(ddfOrganization);
             }
