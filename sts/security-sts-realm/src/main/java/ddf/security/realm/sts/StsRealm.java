@@ -44,6 +44,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLStreamException;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusException;
 import org.apache.cxf.BusFactory;
@@ -168,6 +169,13 @@ public class StsRealm extends AuthenticatingRealm implements ConfigurationWatche
         }
     }
 
+    /**
+     * Sets the configuration properties with an incoming property map. Users of this method should use {@link #configurationUpdateCallback(Map)} instead.
+     * @param properties
+     * 
+     * @deprecated Since version 2.3.0.
+     */
+    @Deprecated
     public void setDefaultConfiguration(@SuppressWarnings("rawtypes")
     Map properties) {
         String value;
@@ -470,17 +478,16 @@ public class StsRealm extends AuthenticatingRealm implements ConfigurationWatche
     /**
      * Set properties based on DDF System Setting updates.
      */
-    private void setDdfPropertiesFromConfigAdmin(@SuppressWarnings("rawtypes")
-    Map properties) {
-        String setTrustStorePath = (String) properties.get(ConfigurationManager.TRUST_STORE);
-        if (setTrustStorePath != null) {
+    private void setDdfPropertiesFromConfigAdmin(Map<String, String> properties) {
+        String setTrustStorePath = properties.get(ConfigurationManager.TRUST_STORE);
+        if (StringUtils.isNotBlank(setTrustStorePath)) {
             LOGGER.debug("Setting trust store path: " + setTrustStorePath);
             this.trustStorePath = setTrustStorePath;
         }
 
-        String setTrustStorePassword = (String) properties
+        String setTrustStorePassword = properties
                 .get(ConfigurationManager.TRUST_STORE_PASSWORD);
-        if (setTrustStorePassword != null) {
+        if (StringUtils.isNotBlank(setTrustStorePassword)) {
             if (encryptionService == null) {
                 LOGGER.error("The StsRealm has a null Encryption Service. Unable to decrypt the encrypted "
                         + "trustStore password. Setting decrypted password to null.");
@@ -492,15 +499,15 @@ public class StsRealm extends AuthenticatingRealm implements ConfigurationWatche
             }
         }
 
-        String setKeyStorePath = (String) properties.get(ConfigurationManager.KEY_STORE);
-        if (setKeyStorePath != null) {
+        String setKeyStorePath = properties.get(ConfigurationManager.KEY_STORE);
+        if (StringUtils.isNotBlank(setKeyStorePath)) {
             LOGGER.debug("Setting key store path: " + setKeyStorePath);
             this.keyStorePath = setKeyStorePath;
         }
 
-        String setKeyStorePassword = (String) properties
+        String setKeyStorePassword = properties
                 .get(ConfigurationManager.KEY_STORE_PASSWORD);
-        if (setKeyStorePassword != null) {
+        if (StringUtils.isNotBlank(setKeyStorePassword)) {
             if (encryptionService == null) {
                 LOGGER.error("The StsRealm has a null Encryption Service. Unable to decrypt the encrypted "
                         + "keyStore password. Setting decrypted password to null.");
