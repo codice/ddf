@@ -154,7 +154,7 @@
     <script type="text/javascript" src="js/searchMessagingDirect.js"></script>
     <script type="text/javascript" src="js/recordView.js"></script>
     <script type="text/javascript" src="js/metadataHelper.js"></script>
-    <script type="text/javascript" src="js/viewSwitcher.js"></script>
+    <%--<script type="text/javascript" src="js/viewSwitcher.js"></script>--%>
     <%--<script type="text/javascript" src="js/searchPage.js"></script>--%>
 
 
@@ -199,8 +199,8 @@
 
     });
     init = function() {
-        var viewSwitcher = new ViewSwitcher("resultsView", "recordView", "cesiumContainer");
-        viewSwitcher.showMapView();
+        //var viewSwitcher = new ViewSwitcher("resultsView", "recordView", "cesiumContainer");
+        //viewSwitcher.showMapView();
 
         var searchControlView = new SearchControlView();
         searchControlView.render();
