@@ -27,7 +27,7 @@
 	</feature>
 	
 	<feature name="ddf-system-settings-config" version="${project.version}" description="Sets the DDF System Settings with default values">
-		<config name="ddf.catalog.config">
+		<config name="ddf.platform.config">
 			version=${project.version}
 			ddfHost=0.0.0.0
 			ddfPort=8181

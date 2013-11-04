@@ -216,9 +216,9 @@ public class WebSSOTokenValidator implements TokenValidator, ConfigurationWatche
             this.trustStorePath = setTrustStorePath;
         }
 
-        String setTrustStorePassword = (String) properties
+        String setTrustStorePassword = properties
                 .get(ConfigurationManager.TRUST_STORE_PASSWORD);
-        if (setTrustStorePassword != null) {
+        if (StringUtils.isNotBlank(setTrustStorePassword)) {
             this.trustStorePassword = setTrustStorePassword;
             if (encryptionService == null) {
                 LOGGER.error("The WebSSOTokenValidator has a null Encryption Service. Unable to decrypt "
@@ -231,15 +231,15 @@ public class WebSSOTokenValidator implements TokenValidator, ConfigurationWatche
             }
         }
 
-        String setKeyStorePath = (String) properties.get(ConfigurationManager.KEY_STORE);
-        if (setKeyStorePath != null) {
+        String setKeyStorePath = properties.get(ConfigurationManager.KEY_STORE);
+        if (StringUtils.isNotBlank(setKeyStorePath)) {
             LOGGER.debug("Setting key store path: " + setKeyStorePath);
             this.keyStorePath = setKeyStorePath;
         }
 
-        String setKeyStorePassword = (String) properties
+        String setKeyStorePassword = properties
                 .get(ConfigurationManager.KEY_STORE_PASSWORD);
-        if (setKeyStorePassword != null) {
+        if (StringUtils.isNotBlank(setKeyStorePassword)) {
             this.keyStorePassword = setKeyStorePassword;
             if (encryptionService == null) {
                 LOGGER.error("The WebSSOTokenValidator has a null Encryption Service. Unable to decrypt "

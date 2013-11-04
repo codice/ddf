@@ -18,6 +18,7 @@
 
   <reference id="configurationAdmin" interface="org.osgi.service.cm.ConfigurationAdmin" />
 
+  <!-- This list was added to prevent a circular dependency where the internal bind references ddfConfigurationManager while ddfConfigurationManager references this list.  -->
   <reference-list id="listenerList" interface="org.codice.ddf.configuration.ConfigurationWatcher"
     availability="optional">
     <reference-listener bind-method="bind" ref="ddfConfigurationManager" />
@@ -27,10 +28,10 @@
     availability="optional" />
 
   <bean id="ddfConfigurationManager" class="org.codice.ddf.configuration.ConfigurationManager">
-    <cm:managed-properties persistent-id="ddf.catalog.config" update-strategy="component-managed"
+    <cm:managed-properties persistent-id="ddf.platform.config" update-strategy="component-managed"
       update-method="updated" />
     <argument ref="ddfManagedServiceList" />
     <argument ref="configurationAdmin" />
   </bean>
-  
+
 </blueprint>

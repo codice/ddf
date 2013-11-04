@@ -549,11 +549,11 @@ public class OpenSearchEndpoint implements ConfigurationWatcher {
         // Need the id aka sitename property for the query
 
         if (ddfProperties != null && !ddfProperties.isEmpty()) {
-            Object idEntry = ddfProperties.get(ConfigurationManager.SITE_NAME);
 
-            if (idEntry != null) {
+            String siteName = ddfProperties.get(ConfigurationManager.SITE_NAME);
+            if (StringUtils.isNotBlank(siteName)) {
 
-                this.localSiteName = idEntry.toString();
+                this.localSiteName = siteName;
             }
 
         } else {

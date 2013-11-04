@@ -55,31 +55,31 @@ public abstract class AbstractMetacardActionProvider implements ActionProvider,
     public void configurationUpdateCallback(Map<String, String> configuration) {
 
         if (configuration != null) {
-            Object protocolMapValue = configuration.get(ConfigurationManager.PROTOCOL);
-            Object hostMapValue = configuration.get(ConfigurationManager.HOST);
-            Object portMapValue = configuration.get(ConfigurationManager.PORT);
-            Object serviceContextMapValue = configuration
+            String protocolMapValue = configuration.get(ConfigurationManager.PROTOCOL);
+            String hostMapValue = configuration.get(ConfigurationManager.HOST);
+            String portMapValue = configuration.get(ConfigurationManager.PORT);
+            String serviceContextMapValue = configuration
                     .get(ConfigurationManager.SERVICES_CONTEXT_ROOT);
-            Object sourceNameValue = configuration.get(ConfigurationManager.SITE_NAME);
+            String sourceNameValue = configuration.get(ConfigurationManager.SITE_NAME);
 
-            if (hostMapValue != null) {
-                this.host = hostMapValue.toString();
+            if (StringUtils.isNotBlank(configuration.get(ConfigurationManager.PROTOCOL))) {
+                this.host = hostMapValue;
             }
 
-            if (portMapValue != null) {
-                this.port = portMapValue.toString();
+            if (StringUtils.isNotBlank(portMapValue)) {
+                this.port = portMapValue;
             }
 
-            if (serviceContextMapValue != null) {
-                this.contextRoot = serviceContextMapValue.toString();
+            if (StringUtils.isNotBlank(serviceContextMapValue)) {
+                this.contextRoot = serviceContextMapValue;
             }
 
-            if (protocolMapValue != null) {
-                this.protocol = protocolMapValue.toString();
+            if (StringUtils.isNotBlank(protocolMapValue)) {
+                this.protocol = protocolMapValue;
             }
 
-            if (sourceNameValue != null) {
-                this.currentSourceName = sourceNameValue.toString();
+            if (StringUtils.isNotBlank(sourceNameValue)) {
+                this.currentSourceName = sourceNameValue;
             }
         }
     }
