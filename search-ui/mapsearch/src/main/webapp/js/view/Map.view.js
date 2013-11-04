@@ -89,11 +89,11 @@ var MapView = Backbone.View.extend({
 
     },
     addAdditionalLayers: function (imageryLayerCollection) {
-        this.addAddtionalLayer(imageryLayerCollection, new Cesium.TileMapServiceImageryProvider({
-            url: 'http://cesium.agi.com/blackmarble',
-            maximumLevel: 8,
-            credit: 'Black Marble imagery courtesy NASA Earth Observatory'
-        }));
+//        this.addAddtionalLayer(imageryLayerCollection, new Cesium.TileMapServiceImageryProvider({
+//            url: 'http://cesium.agi.com/blackmarble',
+//            maximumLevel: 8,
+//            credit: 'Black Marble imagery courtesy NASA Earth Observatory'
+//        }));
 
         //dev.virtualearth.net
 
