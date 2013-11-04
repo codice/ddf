@@ -18,7 +18,7 @@
                    xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.2.0">
     <OCD description="Site"
          name="Platform Global Configuration"
-         id="ddf.catalog.config">
+         id="ddf.platform.config">
 
         <AD name="Protocol" id="protocol" type="String" required="true"
             description="Default protocol to use for services." default="http">
@@ -49,9 +49,9 @@
         <AD name="Organization" id="organization" required="true" type="String" />
     </OCD>
     <Designate
-            pid="ddf.catalog.config">
+            pid="ddf.platform.config">
         <Object
-                ocdref="ddf.catalog.config" />
+                ocdref="ddf.platform.config" />
     </Designate>
 
 

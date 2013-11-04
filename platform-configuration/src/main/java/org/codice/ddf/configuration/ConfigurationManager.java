@@ -20,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.List;
@@ -33,7 +34,7 @@ import java.util.Map;
  * bundle configurations such as CXF). These read-only settings are included in
  * the list of configuration settings pushed to registered listeners.
  * 
- * Registered listeners implement the DdfConfigurationWatcher interface and have
+ * Registered listeners implement the ConfigurationWatcher interface and have
  * these DDF configuration settings pushed to them when they come online (aka
  * bind) and when one or more of the settings are changed in the Admin Console.
  * 
@@ -46,7 +47,7 @@ public class ConfigurationManager {
     /**
      * Service PID to use to look up System Settings Configuration.
      */
-    public static final String PID = "ddf.catalog.config";
+    public static final String PID = "ddf.platform.config";
 
     /**
      * The directory where DDF is installed
@@ -140,22 +141,15 @@ public class ConfigurationManager {
      * The map of DDF system settings that are read-only, i.e., they are set in
      * OSGi system bundles, not displayed in Admin Console's DDF System Settings
      * configuration, but are pushed out in the configuration settings to
-     * DdfConfigurationWatchers.
+     * ConfigurationWatchers.
      */
     protected Map<String, String> readOnlySettings;
 
     protected ConfigurationAdmin configurationAdmin;
 
     /**
-     * Default Constructor
-     */
-    protected ConfigurationManager() {
-
-    }
-
-    /**
      * Constructs the list of DDF system Settings (read-only and configurable
-     * settings) to be pushed to registered DdfConfigurationWatchers.
+     * settings) to be pushed to registered ConfigurationWatchers.
      * 
      * @param services
      *            the list of watchers of changes to the DDF System Settings
@@ -164,7 +158,7 @@ public class ConfigurationManager {
      */
     public ConfigurationManager(List<ConfigurationWatcher> services,
             ConfigurationAdmin configurationAdmin) {
-        logger.info("ENTERING: ctor");
+        logger.debug("ENTERING: ctor");
         this.services = services;
         this.configurationAdmin = configurationAdmin;
 
@@ -180,12 +174,14 @@ public class ConfigurationManager {
         // Append the read-only settings to the DDF System Settings so that all
         // settings are pushed to registered listeners
         configuration.putAll(readOnlySettings);
+        
+        logger.debug("EXITING: ctor");
     }
 
     /**
      * Invoked when the DDF system settings are changed in the Admin Console,
      * this method then pushes those DDF system settings to each of the
-     * registered DdfConfigurationWatchers.
+     * registered ConfigurationWatchers.
      * 
      * @param updatedConfig
      *            list of DDF system settings, not including the read-only
@@ -193,7 +189,7 @@ public class ConfigurationManager {
      */
     public void updated(Map<String, ?> updatedConfig) {
         String methodName = "updated";
-        logger.info("ENTERING: " + methodName);
+        logger.debug("ENTERING: " + methodName);
 
         if (updatedConfig != null && !updatedConfig.isEmpty()) {
             configuration.clear();
@@ -207,30 +203,31 @@ public class ConfigurationManager {
             // Add the read-only settings to list to be pushed out to watchers
             configuration.putAll(readOnlySettings);
         }
+        Map<String, String> readOnlyConfig = Collections.unmodifiableMap(this.configuration);
         for (ConfigurationWatcher service : services) {
-            service.configurationUpdateCallback(configuration);
+            service.configurationUpdateCallback(readOnlyConfig);
         }
 
-        logger.info("EXITING: " + methodName);
+        logger.debug("EXITING: " + methodName);
     }
 
     /**
-     * Invoked when a DdfConfigurationWatcher first comes online, e.g., when a
+     * Invoked when a ConfigurationWatcher first comes online, e.g., when a
      * federated source is configured, this method pushes the DDF system
-     * settings to the newly registered (bound) DdfConfigurationWatcher.
+     * settings to the newly registered (bound) ConfigurationWatcher.
      * 
      * @param service
      * @param properties
      */
-    public void bind(ConfigurationWatcher service, Map properties) {
+    public void bind(ConfigurationWatcher service, @SuppressWarnings("rawtypes") Map properties) {
         String methodName = "bind";
-        logger.info("ENTERING: " + methodName);
+        logger.debug("ENTERING: " + methodName);
 
         if (service != null) {
-            service.configurationUpdateCallback(this.configuration);
+            service.configurationUpdateCallback(Collections.unmodifiableMap(this.configuration));
         }
 
-        logger.info("EXITING: " + methodName);
+        logger.debug("EXITING: " + methodName);
     }
 
     /**
@@ -259,7 +256,7 @@ public class ConfigurationManager {
      */
     public String getConfigurationValue(String servicePid, String propertyName) {
         String methodName = "getConfigurationValue";
-        logger.info("ENTERING: " + methodName + "   servicePid = " + servicePid
+        logger.debug("ENTERING: " + methodName + "   servicePid = " + servicePid
                 + ",  propertyName = " + propertyName);
 
         String value = "";
@@ -288,7 +285,7 @@ public class ConfigurationManager {
             logger.warn("Exception while getting configuration value.", e);
         }
 
-        logger.info("EXITING: " + methodName + "    value = [" + value + "]");
+        logger.debug("EXITING: " + methodName + "    value = [" + value + "]");
 
         return value;
     }
