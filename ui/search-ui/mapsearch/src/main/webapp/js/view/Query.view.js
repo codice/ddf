@@ -27,6 +27,7 @@ var SearchControlView = Backbone.View.extend({
     initialize: function() {
         _.bindAll(this, "render", "back", "forward", "search", "reset");
         this.selectedView = this.views[0];
+        this.mapView.render();
     },
     render: function() {
         this.$el.html(this.selectedView.render().el);
@@ -38,16 +39,18 @@ var SearchControlView = Backbone.View.extend({
     },
     forward: function(results) {
         if(results) {
-//            if(this.views[1])
-//            {
-//                this.views[1].destroy();
-//            }
-            this.views[1] = new MetacardListView(results);
 //            if(this.mapView)
 //            {
 //                this.mapView.destroy();
 //            }
-            this.mapView = new MapView(results);
+            this.mapView.createResultsOnMap(results);
+
+//            if(this.views[1])
+//            {
+//                this.views[1].destroy();
+//            }
+            this.views[1] = new MetacardListView({ results: results, mapView: this.mapView });
+
         }
         this.selectedView = this.views[1];
         this.render();

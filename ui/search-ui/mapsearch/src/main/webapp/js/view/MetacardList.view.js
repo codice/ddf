@@ -54,9 +54,15 @@ var MetacardTable = Backbone.View.extend({
 var MetacardListView = Backbone.View.extend({
     initialize: function(options) {
         _.bindAll(this, "render");
-        if(options && options.results)
+        //options should be -> { results: results, mapView: mapView }
+        if(options && options.results && options.results.results)
         {
-            this.model = new SearchResult(options);
+            this.model = new SearchResult(options.results);
+        }
+        if(options && options.mapView)
+        {
+            //we can control what results are displayed on the map as we page
+            this.mapView = options.mapView;
         }
     },
     render: function() {
