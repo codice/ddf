@@ -120,7 +120,15 @@
         <div id="toolbar"></div>
     </div>
 
-    <div id="searchControls" class="partialaffix span3 search-controls row-fluid width-auto top-pad">
+    <div id="searchControls" class="partialaffix span3 search-controls row-fluid nav nav-list well well-small top-pad">
+        <table class="nav-table width-full">
+            <tr>
+                <td><a href="#" class="back nav-link hide"><i class="icon-chevron-left"></i>&nbsp;<span class="backNavText"></span></a></td>
+                <td><a href="#" class="forward nav-link pull-right hide"><span class="forwardNavText"></span>&nbsp;<i class="icon-chevron-right"></i></a></td>
+            </tr>
+        </table>
+        <hr class="nav-divider" />
+        <div id="searchPages"></div>
     </div>
 
     <%
@@ -175,6 +183,9 @@
  <script type="text/javascript" src="js/Search-min.js"></script>
 -->
     <script>
+    //TODO figure out another way to do this, this is just for now
+    var mapView;
+
     $(document).ready(function(){
         var promises = [];
 
@@ -198,8 +209,8 @@
 
     });
     init = function() {
-        //var viewSwitcher = new ViewSwitcher("resultsView", "recordView", "cesiumContainer");
-        //viewSwitcher.showMapView();
+        mapView = new MapView();
+        mapView.render();
 
         var searchControlView = new SearchControlView();
         searchControlView.render();

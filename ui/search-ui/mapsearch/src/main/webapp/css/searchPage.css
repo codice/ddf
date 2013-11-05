@@ -24,10 +24,6 @@ div.tab-content {
 	padding-top: 10px;
 }
 
-div.results {
-    padding-top:70px;	
-}
-
 option.disabled_option {
 	color:red;
 	background:LightGray;
@@ -38,19 +34,19 @@ img.thumbnail {
 	border-style:none;
 }
 
-div.resultsCount {
-	padding-top:20px;
-}
-
 div.results-header {
 	background: white;
 	margin-top:-2px;
 }
 
 .search-controls {
-	padding-top: 2px;
-	padding-left: 2px;
+	/*padding-top: 2px;*/
+	/*padding-left: 2px;*/
 	position: fixed;
+    top: 80px;
+    left: 25px;
+    width: 300px;
+    padding: 0px;
 }
 
 .pagination {
@@ -159,12 +155,28 @@ div.resourceSize {
     right: 10px;
 }
 
-.top-pad {
-    top: 80px;
-}
-
 .width-auto {
     width: auto;
+}
+
+.width-full {
+    width: 100%;
+}
+
+.margin-no {
+    margin: 0px;
+}
+
+.margin-small {
+    margin: 5px;
+}
+
+.margin-med {
+    margin: 10px;
+}
+
+.margin-large {
+    margin: 20px;
 }
 
 .cesium-button {
@@ -195,6 +207,22 @@ div.resourceSize {
     background:-o-linear-gradient(top, #dedede 5%, #f9f9f9 100%);
     background:-ms-linear-gradient(top, #dedede 5%, #f9f9f9 100%);
     background:linear-gradient(to bottom, #dedede 5%, #f9f9f9 100%);
+}
+
+.nav-divider {
+    width: 100%;
+    margin: 0px;
+    border: 0;
+    border-top: 1px solid #eeeeee;
+    border-bottom: 1px solid #ffffff;
+}
+
+.nav-table {
+    height: 22px;
+}
+
+.nav-link:hover, .nav-link:visited, .nav-link:active, nav-link:link, nav-link:focus {
+    text-decoration: none;
 }
 
 #toolbar {

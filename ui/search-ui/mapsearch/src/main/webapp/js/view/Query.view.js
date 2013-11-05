@@ -14,46 +14,77 @@ var QueryFormView = Backbone.View.extend({
 var SearchControlView = Backbone.View.extend({
     el: $('#searchControls'),
     events: {
-        'click #backButton' : 'back',
-        'click #forwardButton' : 'forward',
+        'click .back': 'back',
+        'click .forward': 'forward',
         'click #searchButton': 'search',
         'click #resetButton': 'reset'
     },
-    views: [
-        new QueryFormView(),
-        new MetacardListView()
-    ],
-    mapView: new MapView(),
+    views: {
+        'queryForm': new QueryFormView(),
+        'resultList': new MetacardListView(),
+        'metacardDetail': 'put the detail page here',
+        'map': 'placeholder' //TODO this should go away when we do something else with the map
+    },
     initialize: function() {
-        _.bindAll(this, "render", "back", "forward", "search", "reset");
-        this.selectedView = this.views[0];
-        this.mapView.render();
+        _.bindAll(this, "render", "showQuery", "showResults", "search", "reset", "showMetacardDetail", "back", "forward");
+        this.selectedView = "queryForm";
+        this.views.map = mapView;
     },
     render: function() {
-        this.$el.html(this.selectedView.render().el);
+        this.$el.children('#searchPages').html(this.views[this.selectedView].render().el);
         return this;
     },
     back: function() {
-        this.selectedView = this.views[0];
+//        if(this.selectedView === "queryForm")
+//        {
+//            //we don't have anything behind this page yet
+//        }
+        if(this.selectedView === "resultList")
+        {
+            //go back to query
+            this.showQuery();
+        }
+        else if(this.selectedView === "metacardDetail")
+        {
+            this.showResults();
+        }
+    },
+    forward: function() {
+        if(this.selectedView === "queryForm")
+        {
+            this.showResults();
+        }
+//        else if(this.selectedView === "resultList")
+//        {
+//            //no forward here
+//        }
+//        else if(this.selectedView === "metacardDetail")
+//        {
+//            //no forward here
+//        }
+    },
+    showQuery: function() {
+        $(".back").hide();
+        $(".forward").show();
+        $(".forwardNavText").text("Results ("+this.views.resultList.model.get("hits")+")");
+        this.selectedView = "queryForm";
         this.render();
     },
-    forward: function(results) {
+    showResults: function(results) {
+        $(".forward").hide();
+        $(".back").show();
+        $(".backNavText").text("Query");
         if(results) {
-//            if(this.mapView)
-//            {
-//                this.mapView.destroy();
-//            }
-            this.mapView.createResultsOnMap(results);
-
-//            if(this.views[1])
-//            {
-//                this.views[1].destroy();
-//            }
-            this.views[1] = new MetacardListView({ results: results, mapView: this.mapView });
-
+            this.views.map.createResultsOnMap(results);
+            this.views.resultList = new MetacardListView({ results: results, mapView: this.mapView });
         }
-        this.selectedView = this.views[1];
+        this.selectedView = "resultList";
         this.render();
+    },
+    showMetacardDetail: function(metacard) { //just guessing at what this method sig might be
+        $(".back").show();
+        $(".forward").hide();
+        $(".backNavText").text("Results");
     },
     search: function() {
         //get results
@@ -68,7 +99,7 @@ var SearchControlView = Backbone.View.extend({
         }).done(function (results) {
             results.itemsPerPage = view.getItemsPerPage();
             results.startIndex = view.getPageStartIndex(1);
-            view.forward(results);
+            view.showResults(results);
         }).fail(function () {
             showError("Failed to get results from server");
         });
