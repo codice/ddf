@@ -38,9 +38,9 @@ import java.util.Map;
  * 
  * @author tustisos
  */
-public class RedactionPlugin implements PostQueryPlugin {
+public class FilterPlugin implements PostQueryPlugin {
 
-    private final Logger logger = LoggerFactory.getLogger(RedactionPlugin.class);
+    private final Logger logger = LoggerFactory.getLogger(FilterPlugin.class);
 
     /**
      * Processes a {@link ddf.catalog.operation.QueryResponse} after the execution of the
