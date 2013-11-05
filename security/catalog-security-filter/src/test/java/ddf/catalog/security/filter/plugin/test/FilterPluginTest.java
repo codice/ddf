@@ -65,7 +65,7 @@ import ddf.catalog.operation.QueryResponse;
 import ddf.catalog.operation.QueryResponseImpl;
 import ddf.catalog.plugin.PluginExecutionException;
 import ddf.catalog.plugin.StopProcessingException;
-import ddf.catalog.security.filter.plugin.RedactionPlugin;
+import ddf.catalog.security.filter.plugin.FilterPlugin;
 import ddf.security.SecurityConstants;
 import ddf.security.Subject;
 import ddf.security.permission.KeyValueCollectionPermission;
@@ -74,10 +74,10 @@ import ddf.security.permission.KeyValuePermission;
 /**
  * User: tustisos Date: 3/20/13 Time: 3:24 PM
  */
-public class RedactionPluginTest {
-    private static final Logger logger = Logger.getLogger(RedactionPluginTest.class);
+public class FilterPluginTest {
+    private static final Logger logger = Logger.getLogger(FilterPluginTest.class);
 
-    RedactionPlugin plugin;
+    FilterPlugin plugin;
 
     QueryResponseImpl incomingResponse;
 
@@ -89,7 +89,7 @@ public class RedactionPluginTest {
 
     @Before
     public void setup() {
-        plugin = new RedactionPlugin();
+        plugin = new FilterPlugin();
         QueryRequestImpl request = getSampleRequest();
         Map<String, Serializable> properties = new HashMap<String, Serializable>();
 

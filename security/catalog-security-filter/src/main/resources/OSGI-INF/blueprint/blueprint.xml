@@ -14,9 +14,8 @@
 -->
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
 
-    <bean id="redactionPluggin" class="ddf.security.pep.redaction.plugin.RedactionPlugin">
-    </bean>
+    <bean id="filterPlugin" class="ddf.catalog.security.filter.plugin.FilterPlugin" />
 
-    <service ref="redactionPluggin" auto-export="interfaces" ranking="0" />
+    <service ref="filterPlugin" auto-export="interfaces" ranking="0" />
 
 </blueprint>
