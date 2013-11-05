@@ -25,7 +25,7 @@
 -->
 <features name="${project.artifactId}-${project.version}">
     
-    <feature name="catalog-core-api" install="auto" version="${project.version}" description="Catalog API interfaces and simple implementations.">
+    <feature name="catalog-core-api" install="manual" version="${project.version}" description="Catalog API interfaces and simple implementations.">
         <bundle>mvn:ddf.catalog.core/catalog-core-api/${project.version}</bundle>
         <bundle>mvn:ddf.mime.core/mime-core-api/${project.version}</bundle>
         <bundle>mvn:org.apache.tika/tika-core/${tika.version}</bundle>
@@ -33,7 +33,7 @@
         <bundle>mvn:org.codice.thirdparty/gt-opengis/${opengis.bundle.version}</bundle>
     </feature>
     
-    <feature name="catalog-core" install="auto" version="${project.version}"
+    <feature name="catalog-core" install="manual" version="${project.version}"
         description="Catalog Core feature containing the API, third party bundles necessary to run ddf-core.">
         <feature>catalog-core-api</feature>
         <feature>cxf-tools</feature>
@@ -56,48 +56,48 @@
         <bundle>mvn:ddf.catalog.core/metacard-type-registry/${project.version}</bundle>
     </feature>
     
-    <feature name="catalog-core-standardframework" install="auto" version="${project.version}"
+    <feature name="catalog-core-standardframework" install="manual" version="${project.version}"
         description="DDF Catalog Framework: the reference implementation of the DDF Catalog specification.">
         <bundle>mvn:ddf.catalog.core/catalog-core-standardframework/${project.version}</bundle>
     </feature>
     
-    <feature name="catalog-core-fanoutframework" install="auto" version="${project.version}"
+    <feature name="catalog-core-fanoutframework" install="manual" version="${project.version}"
         description="Fanout Catalog Framework: fanout implementation of the DDF Catalog specification.">
         <bundle>mvn:ddf.catalog.core/fanout-catalogframework/${project.version}</bundle>
     </feature>
 
-    <feature name="catalog-core-metricsplugin" install="auto" version="${project.version}"
+    <feature name="catalog-core-metricsplugin" install="manual" version="${project.version}"
         description="Catalog plug-in to capture metrics about catalog operations.">
         <bundle>mvn:ddf.catalog.core/catalog-core-metricsplugin/${project.version}</bundle>
     </feature>
     
-    <feature name="catalog-core-sourcemetricsplugin" install="auto" version="${project.version}"
+    <feature name="catalog-core-sourcemetricsplugin" install="manual" version="${project.version}"
         description="Capture metrics about individual source operations.">
         <bundle>mvn:ddf.catalog.core/catalog-core-sourcemetricsplugin/${project.version}</bundle>
     </feature>
     
-    <feature name="catalog-schematron-plugin" install="auto" version="${project.version}" description="Schematron pre-ingest validation plugin.">
+    <feature name="catalog-schematron-plugin" install="manual" version="${project.version}" description="Schematron pre-ingest validation plugin.">
         <bundle>mvn:ddf.catalog.schematron/catalog-schematron-plugin/${project.version}</bundle>
     </feature>
 
-    <feature name="catalog-rest-endpoint" install="auto" version="${project.version}" description="REST Endpoint provides CRUD operations on the Catalog Framework.">
+    <feature name="catalog-rest-endpoint" install="manual" version="${project.version}" description="REST Endpoint provides CRUD operations on the Catalog Framework.">
         <bundle>mvn:ddf.catalog.rest/catalog-rest-endpoint/${project.version}</bundle>
     </feature>
     
-    <feature name="catalog-opensearch-endpoint" install="auto" version="${project.version}" description="OpenSearch Query Endpoint with Atom Transformer.">
+    <feature name="catalog-opensearch-endpoint" install="manual" version="${project.version}" description="OpenSearch Query Endpoint with Atom Transformer.">
         <bundle>mvn:ddf.catalog.opensearch/catalog-opensearch-endpoint/${project.version}</bundle>
         <feature>abdera</feature>
         <bundle>mvn:org.apache.abdera/abdera-extensions-opensearch/${abdera.version}</bundle>
         <bundle>mvn:org.apache.abdera/abdera-server/${abdera.version}</bundle>
     </feature>
 
-    <feature name="catalog-opensearch-source" install="auto" version="${project.version}" description="OpenSearch Federated Source queries a Federated Source using OpenSearch.">
+    <feature name="catalog-opensearch-source" install="manual" version="${project.version}" description="OpenSearch Federated Source queries a Federated Source using OpenSearch.">
         <feature>abdera</feature>
         <bundle>mvn:org.apache.abdera/abdera-server/${abdera.version}</bundle>
         <bundle>mvn:ddf.catalog.opensearch/catalog-opensearch-source/${project.version}</bundle>
     </feature>
     
-    <feature name="abdera" install="auto" version="${project.version}" description="Apache Abdera">
+    <feature name="abdera" install="manual" version="${project.version}" description="Apache Abdera">
         <bundle>mvn:commons-codec/commons-codec/1.4</bundle>
         <!-- This bundle <bundle>mvn:org.apache.ws.commons.axiom/axiom-impl/1.2.10</bundle>
         does not export any classes. Must use the servicemix version. -->
@@ -118,19 +118,19 @@
         <bundle>mvn:ddf.catalog.plugin/plugin-federation-replication/${project.version}</bundle>
     </feature>
     
-    <feature name="catalog-transformer-metadata" install="auto" version="${project.version}" description="Retrieves the attribute, Metadata, from the Metacard.">
+    <feature name="catalog-transformer-metadata" install="manual" version="${project.version}" description="Retrieves the attribute, Metadata, from the Metacard.">
         <bundle>mvn:ddf.catalog.transformer/catalog-transformer-metadata/${project.version}</bundle>
     </feature>
     
-    <feature name="catalog-transformer-thumbnail" install="auto" version="${project.version}" description="Retrieves the attribute, Thumbnail, from the Metacard.">
+    <feature name="catalog-transformer-thumbnail" install="manual" version="${project.version}" description="Retrieves the attribute, Thumbnail, from the Metacard.">
         <bundle>mvn:ddf.catalog.transformer/catalog-transformer-thumbnail/${project.version}</bundle>
     </feature>
     
-    <feature name="catalog-transformer-xsltengine" install="auto" version="${project.version}" description="Provides XSLT transformer engine.">
+    <feature name="catalog-transformer-xsltengine" install="manual" version="${project.version}" description="Provides XSLT transformer engine.">
         <bundle>mvn:ddf.catalog.transformer/service-xslt-transformer/${project.version}</bundle>
     </feature>
         
-    <feature name="catalog-transformer-resource" install="auto" version="${project.version}"
+    <feature name="catalog-transformer-resource" install="manual" version="${project.version}"
         description="Resource MetacardTransformer and InputTransformer">
         <bundle>mvn:ddf.catalog.transformer/catalog-transformer-resource/${project.version}</bundle>
     </feature>  
@@ -139,14 +139,14 @@
         <bundle>mvn:ddf.catalog.transformer/tika-input-transformer/${project.version}</bundle>
     </feature>
 
-    <feature name="catalog-transformer-json" install="auto" version="${project.version}" description="DDF GeoJSON Transformer translates metacards into GeoJSON.">
+    <feature name="catalog-transformer-json" install="manual" version="${project.version}" description="DDF GeoJSON Transformer translates metacards into GeoJSON.">
         <feature>catalog-transformer-geoformatter</feature>
         <bundle>mvn:ddf.catalog.transformer/geojson-metacard-transformer/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.transformer/geojson-queryresponse-transformer/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.transformer/geojson-input-transformer/${project.version}</bundle>
     </feature>
     
-    <feature name="catalog-transformer-atom" install="auto" version="${project.version}" description="Atom Query Response Transformer.">
+    <feature name="catalog-transformer-atom" install="manual" version="${project.version}" description="Atom Query Response Transformer.">
         <feature>catalog-transformer-geoformatter</feature>
         <bundle>mvn:ddf.catalog.transformer/service-atom-transformer/${project.version}</bundle>
         <bundle>mvn:org.apache.abdera/abdera-extensions-opensearch/${abdera.version}</bundle>
@@ -154,7 +154,7 @@
         <bundle>mvn:org.apache.abdera/abdera-server/${abdera.version}</bundle>
     </feature>
     
-    <feature name="catalog-transformer-geoformatter" install="auto" version="${project.version}"
+    <feature name="catalog-transformer-geoformatter" install="manual" version="${project.version}"
         description="DDF Geo library to help with conversion of geometry objects into various formats such GeoJson, GeoRSS, etc.">
         <feature>abdera</feature>
         <bundle>mvn:ddf.catalog.common/geo-formatter/${project.version}</bundle>
@@ -163,13 +163,13 @@
         <bundle>mvn:org.codice.thirdparty/jts/${jts.bundle.version}</bundle>
     </feature>
     
-    <feature name="catalog-transformer-xml" install="auto" version="${project.version}"
+    <feature name="catalog-transformer-xml" install="manual" version="${project.version}"
         description="XML MetacardTransformer and InputTransformer">
         <bundle>mvn:ddf.catalog.transformer/catalog-transformer-xml/${project.version}</bundle>
     </feature>
     
-    <feature name="security-pep-redaction" install="manual" version="${project.version}" description="DDF Security PEP Redaction/Filtering">
-      <bundle>mvn:ddf.security.pep/security-pep-redaction/${ddf.security.app.version}</bundle>
+    <feature name="catalog-security-filter" install="manual" version="${project.version}" description="DDF Catalog Security Filtering">
+      <bundle>mvn:ddf.catalog.security/catalog-security-filter/${project.version}</bundle>
     </feature>
         
     

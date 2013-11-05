@@ -29,11 +29,9 @@
   <name>DDF Security</name>
 
   <properties>
-    <shiro.version>1.2.1</shiro.version>
     <cas.client.version>3.1.10</cas.client.version>
     <cas.client.bundle.version>${cas.client.version}_1</cas.client.bundle.version>
     <ddf.platform.app.version>2.3.0-SNAPSHOT</ddf.platform.app.version>
-    <ddf.catalog.app.version>2.3.0-SNAPSHOT</ddf.catalog.app.version>
   </properties>
 
   <dependencyManagement>
@@ -42,16 +40,6 @@
         <groupId>ddf.platform</groupId>
         <artifactId>platform-configuration</artifactId>
         <version>${ddf.platform.app.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>ddf.catalog.core</groupId>
-        <artifactId>catalog-core-api</artifactId>
-        <version>${ddf.catalog.app.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.shiro</groupId>
-        <artifactId>shiro-core</artifactId>
-        <version>${shiro.version}</version>
       </dependency>
       <dependency>
         <groupId>org.jasig.cas</groupId>

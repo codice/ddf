@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  * 
  **/
-package ddf.security.pep.redaction.plugin;
+package ddf.catalog.security.filter.plugin;
 
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
@@ -61,42 +61,45 @@ public class RedactionPlugin implements PostQueryPlugin {
     @Override
     public QueryResponse process(QueryResponse input) throws PluginExecutionException,
         StopProcessingException {
-        if (input.getRequest() != null && input.getRequest().getProperties() != null) {
-            Object securityAssertion = input.getRequest().getProperties()
-                    .get(SecurityConstants.SECURITY_SUBJECT);
-            Subject subject;
-            if (securityAssertion instanceof Subject) {
-                subject = (Subject) securityAssertion;
-                logger.debug("Redaction plugin found Subject for query response.");
-            } else {
-                throw new StopProcessingException(
-                        "Unable to redact contents of current message, no user Subject available.");
-            }
-
-            List<Result> results = input.getResults();
-            List<Result> newResults = new ArrayList<Result>(results.size());
-            Metacard metacard;
-            KeyValueCollectionPermission securityPermission = new KeyValueCollectionPermission();
-            for (Result result : results) {
-                metacard = result.getMetacard();
-                Attribute attr = metacard.getAttribute(Metacard.SECURITY);
-                Map<String, List<String>> map = (Map<String, List<String>>) attr.getValue();
-                if (map != null && !map.isEmpty()) {
-                    securityPermission = new KeyValueCollectionPermission(map);
-                }
-                if (!subject.isPermitted(securityPermission)) {
-                    logger.debug("Filtering metacard {}", metacard.getId());
-                    SecurityLogger.logInfo("Filtering metacard " + metacard.getId());
-                } else {
-                    SecurityLogger.logInfo("Allowing metacard " + metacard.getId());
-                    newResults.add(result);
-                }
-            }
-
-            input.getResults().clear();
-            input.getResults().addAll(newResults);
-            newResults.clear();
+        if (input.getRequest() == null || input.getRequest().getProperties() == null) {
+            throw new StopProcessingException(
+                    "Unable to redact contents of current message, no user Subject available.");
         }
+        Object securityAssertion = input.getRequest().getProperties()
+                .get(SecurityConstants.SECURITY_SUBJECT);
+        Subject subject;
+        if (securityAssertion instanceof Subject) {
+            subject = (Subject) securityAssertion;
+            logger.debug("Redaction plugin found Subject for query response.");
+        } else {
+            throw new StopProcessingException(
+                    "Unable to redact contents of current message, no user Subject available.");
+        }
+
+        List<Result> results = input.getResults();
+        List<Result> newResults = new ArrayList<Result>(results.size());
+        Metacard metacard;
+        KeyValueCollectionPermission securityPermission = new KeyValueCollectionPermission();
+        for (Result result : results) {
+            metacard = result.getMetacard();
+            Attribute attr = metacard.getAttribute(Metacard.SECURITY);
+            Map<String, List<String>> map = (Map<String, List<String>>) attr.getValue();
+            if (map != null && !map.isEmpty()) {
+                securityPermission = new KeyValueCollectionPermission(map);
+            }
+            if (!subject.isPermitted(securityPermission)) {
+                logger.debug("Filtering metacard {}", metacard.getId());
+                SecurityLogger.logInfo("Filtering metacard " + metacard.getId());
+            } else {
+                SecurityLogger.logInfo("Allowing metacard " + metacard.getId());
+                newResults.add(result);
+            }
+            securityPermission.clear();
+        }
+
+        input.getResults().clear();
+        input.getResults().addAll(newResults);
+        newResults.clear();
         return input;
     }
 }
