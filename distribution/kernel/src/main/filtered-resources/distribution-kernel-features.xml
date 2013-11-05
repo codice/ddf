@@ -25,15 +25,5 @@
 		<bundle>mvn:ddf.distribution/webconsole-branding/${project.version}</bundle>
 		<bundle>mvn:ddf.distribution/webconsole-branding-plugin/${project.version}</bundle>
 	</feature>
-	
-	<feature name="ddf-system-settings-config" version="${project.version}" description="Sets the DDF System Settings with default values">
-		<config name="ddf.platform.config">
-			version=${project.version}
-			ddfHost=0.0.0.0
-			ddfPort=8181
-			id=${sitename.default}
-			organization=${organization.name}
-		</config>
-	</feature>
 
 </features>

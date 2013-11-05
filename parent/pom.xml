@@ -160,7 +160,7 @@
 	    <!--  default URL properties -->
 		<ddf.scm.connection.url />
 		<snapshots.repository.url />
-		<sitename.default>${project.groupId}</sitename.default>
+		<sitename.default>ddf.distribution</sitename.default>
 
 		<!-- DDF API versions -->
 		<ddf.action.api.version>1.0.0</ddf.action.api.version>
@@ -246,8 +246,8 @@
 
         <!-- Features Versions -->
 		<cxf.version>2.7.5</cxf.version>
-        <!-- when upgrading the karaf version, ensure that the properties and cfg files in package-commons/.../distribution/etc/ are updated and compatible with the
-        latest karaf version.  Those configuration files in package-commons/.../distribution/etc have been copied from a previous version of Karaf, and are
+        <!-- when upgrading the karaf version, ensure that the properties and cfg files in ddf-commons/.../distribution/etc/ are updated and compatible with the
+        latest karaf version.  Those configuration files in ddf-commons/.../distribution/etc have been copied from a previous version of Karaf, and are
         source controlled because of some slight customizations that have been made to them.  -->
 		<karaf.version>2.3.2</karaf.version>
 		<camel.version>2.11.0</camel.version>
