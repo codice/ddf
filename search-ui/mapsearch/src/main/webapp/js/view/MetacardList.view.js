@@ -9,6 +9,10 @@ var MetacardRow = Backbone.View.extend({
     },
     viewMetacard: function() {
         //do something to view the metacard, worry about that later
+        var latitude, longitude;
+        longitude = this.model.metacard.get("geometry").coordinates[0];
+        latitude = this.model.metacard.get("geometry").coordinates[1];
+        mapView.flyToLocation(longitude, latitude);
     }
 });
 

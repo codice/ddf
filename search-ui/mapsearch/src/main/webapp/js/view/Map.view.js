@@ -1,6 +1,6 @@
 var MapView = Backbone.View.extend({
     initialize: function(options) {
-        _.bindAll(this, "render", "createResultsOnMap", "addAdditionalLayers");
+        _.bindAll(this, "render", "createResultsOnMap", "addAdditionalLayers", "flyToLocation");
     },
     render: function() {
         this.mapViewer = this.createMap("cesiumContainer");
@@ -49,7 +49,7 @@ var MapView = Backbone.View.extend({
         }
     },
     createMap: function(mapDivId) {
-        var viewer, transitioner;
+        var viewer;
         viewer = new Cesium.Viewer(mapDivId, {
             // Start in Columbus Viewer
             // sceneMode : Cesium.SceneMode.COLUMBUS_VIEW,
@@ -116,5 +116,14 @@ var MapView = Backbone.View.extend({
 
         layer.alpha = 0.5;
         layer.brightness = 2.0;
+    },
+    flyToLocation: function(longitude, latitude) {
+        var destination, flight;
+        destination = Cesium.Cartographic.fromDegrees(longitude, latitude, 15000.0);
+
+        flight = Cesium.CameraFlightPath.createAnimationCartographic(this.mapViewer.scene, {
+            destination : destination
+        });
+        this.mapViewer.scene.getAnimations().add(flight);
     }
 });
