@@ -71,7 +71,7 @@ function addAttributes(node, html) {
 			if($.type(node.attributes[i]) !== "function" && 
 					node.attributes[i].name !== undefined) {
 				attr = node.attributes[i];
-				wrapper = $("<div class=\"input-prepend input-append\"></span> ");
+				wrapper = $("<div class=\"input-prepend input-append\"></div> ");
 				span = $("<span class=\"add-on\"></span> ");
 				iconTag = $("<i class=\"icon-tag\"></i>");
 				value = $("<span class=\"add-on attributeValue\"></span> ");

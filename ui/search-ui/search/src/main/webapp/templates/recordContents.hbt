@@ -1,0 +1,88 @@
+<div class="panel-primary">
+	<div class="panel-heading"><h2>{{properties.title}}</h2></div>
+	<div id=tablePanel class="panel-info">
+		<table class="table-striped record-table">
+			<thead class="custom-thead">
+				<th class="table-header">Property</th>
+				<th class="table-header">Value</th>
+			</thead>
+			<tbody>
+				<tr>
+					<td class='property-td'>Title</td>
+					<td class='value-td'><div class=value-div>{{properties.title}}</div></td>
+				</tr>
+				<tr>
+					<td class='property-td'>Thumbnail</td>
+					<td class='value-td'><div class=value-div>
+						{{#if properties.thumbnail}}
+							<a href='javascript:showThumbnail("{{properties.title}}", "{{{properties.thumbnail}}}")'>
+								<img class='thumbnail' alt='' src='data:image/jpeg;charset=utf-8;base64, {{{properties.thumbnail}}}'></img>
+							<a>
+						{{else}}
+							<i>No image available</i>
+						{{/if}}	
+					</div></td>
+				</tr>
+				<tr>
+					<td class='property-td'>Metadata Content Type</td>
+					<td class='value-td'><div class=value-div>{{properties.metadata-content-type}}</div></td>
+				</tr>
+				<tr>
+					<td class='property-td'>Geometry</td>
+					<td class='value-td'><div class=value-div>{{formatGeometry geometry}}</div></td>
+				</tr>
+				<tr>
+					<td class='property-td'>ID</td>
+					<td class='value-td'><div class=value-div>{{properties.id}}</div></td>
+				</tr>
+				<tr>
+					<td class='property-td'>Source ID</td>
+					<td class='value-td'><div class=value-div>{{properties.source-id}}</div></td>
+				</tr>
+				<tr>
+					<td class='property-td'>Created</td>
+					<td class='value-td'><div class=value-div>{{formatDate properties.created}}</div></td>
+				</tr>
+				<tr>
+					<td class='property-td'>Last Modified</td>
+					<td class='value-td'><div class=value-div>{{formatDate properties.modified}}</div></td>
+				</tr>
+				<tr>
+					<td class='property-td'>Resource</td><td class='value-td'><div class=value-div>
+					{{#hasServicesUrl}}
+					    <a target='blank' href='{{servicesUrl}}/services/catalog/sources/{{properties.source-id}}/{{properties.id}}?transform=resource'><i class='icon-download-alt icon-2x'></i></a>
+					{{else}}
+						<a class='btn btn-small btn-danger'>server not found</a>
+					{{/hasServicesUrl}}	
+					</div></td>
+				</tr>
+				{{#if properties.resource-uri}}
+					<tr>
+						<td class='property-td'>Resource URI</td>
+						<td class='value-td'><div class=value-div>{{properties.resource-uri}}</div></td>
+					</tr>
+				{{/if}}
+				<tr>
+					<td class='property-td'>Resource Size</td>
+					<td class='value-td'><div class=value-div>{{properties.resource-size}}</div></td>
+				</tr>
+				<tr>
+					<td class='property-td'>Type</td>
+					<td class='value-td'><div class=value-div>{{properties.type}}</div></td>
+				</tr>
+				<tr>
+					<td class='property-td'>Metadata</td>
+					<td class='value-td'><div class=value-div>
+						<div class="well">
+							<div id='metadataContents' style='display: none'>
+								{{buildMetadata properties.metadata}}
+							</div>
+							<a class='btn btn-small btn-info' id='metadataExpandButton' onClick='toggleMetadata()'>expand</a>
+						</div>
+					
+					</div></td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+</div>
