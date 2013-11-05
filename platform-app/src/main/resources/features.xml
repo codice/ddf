@@ -642,5 +642,14 @@
 		<bundle>mvn:org.ops4j.pax.swissbox/pax-swissbox-extender/${org.ops4j.pax.swissbox.version}</bundle>
 		<bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.saxon/${saxon.bundle.plugin}</bundle>
 	</feature>
-
+	<feature name="platform-settings-config" version="${project.version}" description="Sets the DDF System Settings with default values">
+		<config name="ddf.platform.config">
+			version=${project.version}
+			host=0.0.0.0
+			port=8181
+			id=${sitename.default}
+			organization=${organization.name}
+		</config>
+	</feature>
+	
 </features>
