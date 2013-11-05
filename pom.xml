@@ -30,7 +30,6 @@
   <packaging>pom</packaging>
   
      <properties>
-      <shiro.version>1.2.1</shiro.version>
       <ddf.security.app.version>2.3.0-SNAPSHOT</ddf.security.app.version>
     </properties>
 
