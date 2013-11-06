@@ -31,10 +31,9 @@
     <module>content-core-impl</module>
     <module>content-core-standardframework</module>
     <module>content-core-camelcomponent</module>
-    <!-- NEW -->
     <module>content-core-directorymonitor</module>
     <module>content-core-filestorageprovider</module>
-    <!-- END NEW -->
+    <module>content-core-catalogerplugin</module>
   </modules>
   
   <build>
