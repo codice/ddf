@@ -20,9 +20,9 @@
     <version>2.3.0-SNAPSHOT</version>
   </parent>
   
-  <artifactId>catalog-services-app</artifactId>
+  <artifactId>catalog-app</artifactId>
   <packaging>pom</packaging>
-  <name>DDF :: Catalog Services App</name>
+  <name>DDF :: Catalog App</name>
   
     <build>
         <plugins>
