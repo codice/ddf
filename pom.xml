@@ -134,7 +134,8 @@
         <module>opensearch</module>
         <module>rest</module>
         <module>security</module>
-        <module>catalog-services-app</module>
+        <module>../ui/search-ui</module>
+        <module>catalog-app</module>
 	</modules>
 
 </project>
