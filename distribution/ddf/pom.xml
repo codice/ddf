@@ -18,7 +18,7 @@
   <parent>
     <artifactId>distribution-kernel</artifactId>
     <groupId>ddf.distribution</groupId>
-    <version>2.3.0-SNAPSHOT</version>
+    <version>2.3.0.ALPHA1-SNAPSHOT</version>
     <relativePath>../kernel/pom.xml</relativePath>
   </parent>
 
@@ -36,13 +36,13 @@
 
   <properties>
     <distribution.file.name>ddf-${project.version}</distribution.file.name>
-    <ddf.platform.app.version>2.3.0-SNAPSHOT</ddf.platform.app.version>
-    <ddf.security.app.version>2.3.0-SNAPSHOT</ddf.security.app.version>
-    <ddf.content.app.version>2.3.0-SNAPSHOT</ddf.content.app.version>
-    <ddf.catalog.app.version>2.3.0-SNAPSHOT</ddf.catalog.app.version>
-    <ddf.solr.catalog.app.version>2.3.0-SNAPSHOT</ddf.solr.catalog.app.version>
-    <ddf.searchui.app.version>2.3.0-SNAPSHOT</ddf.searchui.app.version>
-    <ddf.spatial.app.version>2.3.0-SNAPSHOT</ddf.spatial.app.version>
+    <ddf.platform.app.version>2.3.0.ALPHA1-SNAPSHOT</ddf.platform.app.version>
+    <ddf.security.app.version>2.3.0.ALPHA1-SNAPSHOT</ddf.security.app.version>
+    <ddf.content.app.version>2.3.0.ALPHA1-SNAPSHOT</ddf.content.app.version>
+    <ddf.catalog.app.version>2.3.0.ALPHA1-SNAPSHOT</ddf.catalog.app.version>
+    <ddf.solr.catalog.app.version>2.3.0.ALPHA1-SNAPSHOT</ddf.solr.catalog.app.version>
+    <ddf.searchui.app.version>2.3.0.ALPHA1-SNAPSHOT</ddf.searchui.app.version>
+    <ddf.spatial.app.version>2.3.0.ALPHA1-SNAPSHOT</ddf.spatial.app.version>
   </properties>
 
 
