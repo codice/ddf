@@ -4,10 +4,31 @@
 var QueryFormView = Backbone.View.extend({
     events: {
         'click #searchButton': 'search',
-        'click #resetButton': 'reset'
+        'click #resetButton': 'reset',
+        'click button[name=noTemporalButton]': 'noTemporalEvent',
+        'click button[name=relativeTimeButton]': 'relativeTimeEvent',
+        'click button[name=absoluteTimeButton]': 'absoluteTimeEvent',
+        'click button[name=noLocationButton]': 'noLocationEvent',
+        'click button[name=pointRadiusButton]': 'pointRadiusEvent',
+        'click button[name=bboxButton]': 'bboxEvent',
+        'click button[name=noTypeButton]': 'noTypeEvent',
+        'click button[name=typeButton]': 'typeEvent',
+        'click button[name=noFederationButton]': 'noFederationEvent',
+        'click button[name=selectedFederationButton]': 'selectedFederationEvent',
+        'click button[name=enterpriseFederationButton]': 'enterpriseFederationEvent'
     },
     initialize: function(options) {
-        _.bindAll(this, "render");
+        _.bindAll(this, "render", "search", "reset", "noTemporalEvent", "noTypeEvent",
+            "typeEvent","relativeTimeEvent", "absoluteTimeEvent", "noLocationEvent",
+            "pointRadiusEvent", "bboxEvent", "noFederationEvent", "selectedFederationEvent",
+            "enterpriseFederationEvent", "updateType", "updateFederation", "updateFederationWarning",
+            "updateAbsoluteTime", "updateOffset", "validatePositiveInteger", "getPositiveIntValue",
+            "validateNumberInRange", "clearAbsoluteTime", "clearOffset", "clearBoundingBox",
+            "clearPointRadius", "clearType", "getItemsPerPage", "getPageStartIndex", "updatePointRadius");
+    },
+    render: function() {
+        this.$el.html(ich.searchFormTemplate());
+
         $('#absoluteStartTime').datetimepicker({
             dateFormat: $.datepicker.ATOM,
             timeFormat: "HH:mm:ss.lz",
@@ -39,9 +60,36 @@ var QueryFormView = Backbone.View.extend({
             maxDate: new Date(9999, 11, 30),
             onClose: this.updateAbsoluteTime
         });
-    },
-    render: function() {
-        this.$el.html(ich.searchFormTemplate());
+
+        $.ajax({
+            url: "/services/catalog/sources",
+            dataType: "jsonp"
+        }).done(function (data) {
+                var sources, types, type, to, i, j, id, o;
+                sources = data;
+                types = {};
+
+                for (i = 0; i < sources.length; i++) {
+                    id = sources[i].id;
+                    o = new Option(id, id);
+                    $(o).html(id);
+                    if (!sources[i].available) {
+                        $(o).attr("disabled", "disabled");
+                        $(o).attr("class", "disabled_option");
+                    }
+                    $("#federationSources").append(o);
+
+                    for (j = 0; j < sources[i].contentTypes.length; j++) {
+                        types[sources[i].contentTypes[j].name] = true;
+                    }
+                }
+
+                for (type in types) {
+                    to = new Option(type, type);
+                    $(to).html(type);
+                    $("#typeList").append(to);
+                }
+            });
         return this;
     },
     search: function() {
@@ -63,8 +111,9 @@ var QueryFormView = Backbone.View.extend({
             });
     },
     reset: function() {
-        $(':hidden').val('');
+        jQuery(':hidden').val('');
 
+        $('input[name=q]').val("");
         $('input[name=format]').val("geojson");
         $('select[name=count]').val("10");
         $('input[name=start]').val("1");
@@ -89,6 +138,62 @@ var QueryFormView = Backbone.View.extend({
         $('button[name=noTypeButton]').click();
         this.clearType();
     },
+    noTemporalEvent: function() {
+        this.clearOffset();
+        this.clearAbsoluteTime();
+    },
+    relativeTimeEvent: function() {
+        this.updateOffset();
+        this.clearAbsoluteTime();
+    },
+    absoluteTimeEvent: function() {
+        this.updateAbsoluteTime();
+        this.clearOffset();
+    },
+    noLocationEvent: function() {
+        this.clearPointRadius();
+        this.clearBoundingBox();
+    },
+    pointRadiusEvent: function() {
+        this.updatePointRadius();
+        this.clearBoundingBox();
+    },
+    bboxEvent: function() {
+        this.clearPointRadius();
+        this.updateBoundingBox();
+    },
+    noTypeEvent: function() {
+        this.clearType();
+    },
+    typeEvent: function() {
+        this.updateType();
+    },
+    noFederationEvent: function() {
+        $('input[name=src]').val("local");
+    },
+    selectedFederationEvent: function() {
+        this.updateFederation();
+    },
+    enterpriseFederationEvent: function() {
+        $('input[name=src]').val("");
+    },
+    updateType: function () {
+        $('input[name=type]').val($('select[name=typeList]').val());
+    },
+    updateFederation: function () {
+        var src = $("select[id=federationSources] :selected").map(function () {
+            return this.value;
+        }).get().join(",");
+        $('input[name=src]').val(src);
+        this.updateFederationWarning(src);
+    },
+    updateFederationWarning: function (src) {
+        if (src) {
+            $('#federationListWarning').hide();
+        } else {
+            $('#federationListWarning').show();
+        }
+    },
     updateAbsoluteTime: function() {
         var start, end;
 
@@ -109,6 +214,97 @@ var QueryFormView = Backbone.View.extend({
             $('#timeAbsoluteWarning').show();
             this.clearAbsoluteTime();
         }
+    },
+    updateOffset: function() {
+        var relOffsetEntry = this.validatePositiveInteger($('input[name=offsetTime]'), 1);
+        if (relOffsetEntry) {
+            $('input[name=dtoffset]').val(
+                this.getTimeInMillis(relOffsetEntry, $(
+                    'select[name=offsetTimeUnits]').val()));
+            $('#timeRelativeWarning').hide();
+        } else {
+            this.clearOffset();
+            $('#timeRelativeWarning').show();
+        }
+    },
+    updatePointRadius: function () {
+        var pointRadiusLatitude, pointRadiusLongitude, radiusValue;
+        pointRadiusLatitude = this.validateNumber($('input[name=latitude]'),
+            0);
+        pointRadiusLongitude = this.validateNumber($('input[name=longitude]'),
+            0);
+        radiusValue = this.validatePositiveInteger($('input[name=radiusValue]'),
+            1);
+
+        if (pointRadiusLatitude && pointRadiusLongitude && radiusValue) {
+            $('input[name=lat]').val(pointRadiusLatitude);
+            $('input[name=lon]').val(pointRadiusLongitude);
+            $('input[name=radius]').val(
+                this.getDistanceInMeters(radiusValue, $('select[name=radiusUnits]').val()));
+            $('#pointRadiusWarning').hide();
+        } else {
+            this.clearPointRadius();
+            $('#pointRadiusWarning').show();
+        }
+    },
+    getDistanceInMeters: function (distance, units) {
+
+        switch (units) {
+            case "meters":
+                return distance;
+            case "kilometers":
+                return distance * 1000;
+            case "feet":
+                return Math.ceil(distance * 0.3048);
+            case "yards":
+                return Math.ceil(distance * 0.9144);
+            case "miles":
+                return Math.ceil(distance * 1609.34);
+            default:
+                return distance;
+        }
+    },
+    validatePositiveInteger: function (posIntElement, revertValue) {
+        var val = this.validateNumberInRange(0, Number.MAX_VALUE, $.trim(posIntElement.val()), revertValue, true);
+        if (Number(val) === 0) {
+            val = "";
+        }
+        val = this.getPositiveIntValue(val);
+        posIntElement.val(val);
+        return val;
+    },
+    getPositiveIntValue: function (offset) {
+        var offsetValue, offsetIntValue;
+        offsetValue = Number(offset);
+        offsetIntValue = Math.floor(offsetValue);
+
+        if (offsetIntValue > 0) {
+            return offsetIntValue;
+        } else {
+            return "";
+        }
+    },
+    validateNumberInRange: function (min, max, value, revertValue, revertIfOutOfRange) {
+        var newValue = value;
+        if (!value) {
+            newValue = "";
+        } else if (isNaN(value)) {
+            newValue = revertValue;
+        } else if (!isNaN(min) && Number(min) > Number(value)) {
+            if (revertIfOutOfRange) {
+                newValue = revertValue;
+            } else {
+                newValue = Number(min);
+            }
+        } else if (!isNaN(max) && Number(max) < Number(value)) {
+            if (revertIfOutOfRange) {
+                newValue = revertValue;
+            } else {
+                newValue = Number(max);
+            }
+        }
+
+        return newValue;
     },
     clearOffset: function() {
         $('input[name=dtoffset]').val("");
@@ -133,82 +329,5 @@ var QueryFormView = Backbone.View.extend({
     },
     getPageStartIndex: function(index) {
         return 1 + (this.getItemsPerPage() * Math.floor((index - 1) / this.getItemsPerPage()));
-    }
-});
-
-var SearchControlView = Backbone.View.extend({
-    el: $('#searchControls'),
-    events: {
-        'click .back': 'back',
-        'click .forward': 'forward'
-    },
-    views: {
-        'queryForm': 'queryForm',
-        'resultList': 'resultList',
-        'metacardDetail': 'metacardDetail',
-        'map': 'placeholder' //TODO this should go away when we do something else with the map
-    },
-    initialize: function() {
-        _.bindAll(this, "render", "showQuery", "showResults", "showMetacardDetail", "back", "forward");
-        this.selectedView = "queryForm";
-        this.views.queryForm = new QueryFormView({searchControlView: this, el: this.$el.children('#searchPages')});
-        this.views.resultList = new MetacardListView({searchControlView: this, el: this.$el.children('#searchPages')});
-        this.views.map = mapView;
-    },
-    render: function() {
-        this.views[this.selectedView].render();
-        return this;
-    },
-    back: function() {
-//        if(this.selectedView === "queryForm")
-//        {
-//            //we don't have anything behind this page yet
-//        }
-        if(this.selectedView === "resultList")
-        {
-            //go back to query
-            this.showQuery();
-        }
-        else if(this.selectedView === "metacardDetail")
-        {
-            this.showResults();
-        }
-    },
-    forward: function() {
-        if(this.selectedView === "queryForm")
-        {
-            this.showResults();
-        }
-//        else if(this.selectedView === "resultList")
-//        {
-//            //no forward here
-//        }
-//        else if(this.selectedView === "metacardDetail")
-//        {
-//            //no forward here
-//        }
-    },
-    showQuery: function() {
-        $(".back").hide();
-        $(".forward").show();
-        $(".forwardNavText").text("Results ("+this.views.resultList.model.get("hits")+")");
-        this.selectedView = "queryForm";
-        this.render();
-    },
-    showResults: function(results) {
-        $(".forward").hide();
-        $(".back").show();
-        $(".backNavText").text("Query");
-        if(results) {
-            this.views.map.createResultsOnMap(results);
-            this.views.resultList = new MetacardListView({ results: results, mapView: this.mapView, searchControlView: this, el: this.$el.children('#searchPages') });
-        }
-        this.selectedView = "resultList";
-        this.render();
-    },
-    showMetacardDetail: function(metacard) { //just guessing at what this method sig might be
-        $(".back").show();
-        $(".forward").hide();
-        $(".backNavText").text("Results");
     }
 });
