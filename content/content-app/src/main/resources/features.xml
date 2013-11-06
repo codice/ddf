@@ -48,12 +48,16 @@
         <bundle>mvn:ddf.content.endpoint/content-rest-endpoint/${project.version}</bundle>
     </feature>
     
-    <feature name="content-services-app" install="auto" version="${project.version}"
-        description="DDF Content Services application default installations">
+    <feature name="content-catalogerplugin" install="auto" version="${project.version}" description="Content Plugin provides post-CUD operations after content storage.">
+        <bundle>mvn:ddf.content.core/content-core-catalogerplugin/${project.version}</bundle>
+    </feature>
+    
+    <feature name="content-app" install="auto" version="${project.version}"
+        description="DDF Content application default installations">
         <feature>content-core</feature>
         <feature>content-core-filesystemstorageprovider</feature>
         <feature>content-core-directorymonitor</feature>
-        <!-- <feature>content-core-catalogerplugin</feature> -->
+        <feature>content-catalogerplugin</feature>
     </feature>
 
 </features>
