@@ -20,9 +20,9 @@
     <version>2.3.0-SNAPSHOT</version>
   </parent>
   
-  <artifactId>content-services-app</artifactId>
+  <artifactId>content-app</artifactId>
   <packaging>pom</packaging>
-  <name>DDF :: Content Services App</name>
+  <name>DDF :: Content App</name>
   
     <build>
         <plugins>
