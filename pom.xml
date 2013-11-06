@@ -172,7 +172,7 @@
 		<ddf.security.expansion.service.api.version>1.0.0</ddf.security.expansion.service.api.version>
 		
 		<!-- Must MANUALLY update this if the ddf/support project's version changes -->
-		<ddf.support.checkstyle.version>2.3.0-SNAPSHOT</ddf.support.checkstyle.version>
+		<ddf.support.checkstyle.version>2.3.0.ALPHA1-SNAPSHOT</ddf.support.checkstyle.version>
 
         <!-- Do NOT set karaf.data or karaf.base -->
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
