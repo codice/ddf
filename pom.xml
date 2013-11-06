@@ -40,10 +40,8 @@
         <module>security</module>
         <module>catalog</module>
         <module>content</module>
-        <module>content-catalogger-plugin</module>
         <module>spatial</module>
         <module>catalog/solr</module>
-		<module>ui</module>
         <module>distribution</module>
         <!-- TODO
 		<module>sdk</module>

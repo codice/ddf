@@ -16,10 +16,9 @@
   <modelVersion>4.0.0</modelVersion>
   
   <parent>
-        <groupId>ddf.content</groupId>
-        <artifactId>content-catalogger-plugin</artifactId>
+        <artifactId>content-core-pom</artifactId>
+        <groupId>ddf.content.core</groupId>
         <version>2.3.0-SNAPSHOT</version>
-        <relativePath>../../../content-catalogger-plugin/pom.xml</relativePath>
   </parent>
 
   <groupId>ddf.content.core</groupId>
@@ -29,19 +28,18 @@
   
   <properties>
         <ddf.platform.services.app.version>2.3.0-SNAPSHOT</ddf.platform.services.app.version>
-        <ddf.content.services.app.version>2.3.0-SNAPSHOT</ddf.content.services.app.version>
   </properties>
   
   <dependencies>
         <dependency>
             <groupId>ddf.content.core</groupId>
             <artifactId>content-core-api</artifactId>
-            <version>${ddf.content.services.app.version}</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>ddf.content.core</groupId>
             <artifactId>content-core-impl</artifactId>
-            <version>${ddf.content.services.app.version}</version>
+            <version>${project.version}</version>
         </dependency>
 		<dependency>
 			<groupId>ddf.catalog.core</groupId>
