@@ -171,7 +171,7 @@
 	</service>
 	
 	
-	<service ref="ddf-fanout" interface="ddf.catalog.util.DdfConfigurationWatcher">
+	<service ref="ddf-fanout" interface="org.codice.ddf.configuration.ConfigurationWatcher">
 	</service>
 
 	
