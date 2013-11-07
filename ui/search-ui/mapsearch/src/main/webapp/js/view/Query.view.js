@@ -15,7 +15,19 @@ var QueryFormView = Backbone.View.extend({
         'click button[name=typeButton]': 'typeEvent',
         'click button[name=noFederationButton]': 'noFederationEvent',
         'click button[name=selectedFederationButton]': 'selectedFederationEvent',
-        'click button[name=enterpriseFederationButton]': 'enterpriseFederationEvent'
+        'click button[name=enterpriseFederationButton]': 'enterpriseFederationEvent',
+        'change input[name=offsetTime]': 'updateOffset',
+        'change select[name=offsetTimeUnits]': 'updateOffset',
+        'change input[name=latitude]': 'updatePointRadius',
+        'change input[name=longitude]': 'updatePointRadius',
+        'change input[name=radiusValue]': 'updatePointRadius',
+        'change select[name=radiusUnits]': 'updatePointRadius',
+        'change input[name=north]': 'updateBoundingBox',
+        'change input[name=south]': 'updateBoundingBox',
+        'change input[name=east]': 'updateBoundingBox',
+        'change input[name=west]': 'updateBoundingBox',
+        'change select[name=typeList]': 'updateType',
+        'change select[name=federationSources]': 'updateFederation'
     },
     initialize: function(options) {
         _.bindAll(this, "render", "search", "reset", "noTemporalEvent", "noTypeEvent",
@@ -23,8 +35,8 @@ var QueryFormView = Backbone.View.extend({
             "pointRadiusEvent", "bboxEvent", "noFederationEvent", "selectedFederationEvent",
             "enterpriseFederationEvent", "updateType", "updateFederation", "updateFederationWarning",
             "updateAbsoluteTime", "updateOffset", "validatePositiveInteger", "getPositiveIntValue",
-            "validateNumberInRange", "clearAbsoluteTime", "clearOffset", "clearBoundingBox",
-            "clearPointRadius", "clearType", "getItemsPerPage", "getPageStartIndex", "updatePointRadius");
+            "validateNumberInRange", "validateNumber","clearAbsoluteTime", "clearOffset", "clearBoundingBox",
+            "clearPointRadius", "clearType", "getItemsPerPage", "getPageStartIndex", "updatePointRadius", "updateBoundingBox");
     },
     render: function() {
         this.$el.html(ich.searchFormTemplate());
@@ -95,20 +107,35 @@ var QueryFormView = Backbone.View.extend({
     search: function() {
         //get results
 
-        var view = this;
+        var view = this, result, options;
 
-        $.ajax({
+//        $.ajax({
+//            url: $("#searchForm").attr("action"),
+//            data: $("#searchForm").serialize(),
+//            dataType: "jsonp",
+//            timeout: 300000
+//        }).done(function (results) {
+//                results.itemsPerPage = view.getItemsPerPage();
+//                results.startIndex = view.getPageStartIndex(1);
+//                view.options.searchControlView.showResults(results);
+//            }).fail(function () {
+//                showError("Failed to get results from server");
+//            });
+        options = {
+            'itemsPerPage': view.getItemsPerPage(),
+            'startIndex': view.getPageStartIndex(1),
+            'queryParams': $("#searchForm").serialize()
+        };
+        result = new SearchResult(options);
+        result.fetch({
             url: $("#searchForm").attr("action"),
             data: $("#searchForm").serialize(),
             dataType: "jsonp",
             timeout: 300000
-        }).done(function (results) {
-                results.itemsPerPage = view.getItemsPerPage();
-                results.startIndex = view.getPageStartIndex(1);
-                view.options.searchControlView.showResults(results);
-            }).fail(function () {
-                showError("Failed to get results from server");
+        }).complete(function(){
+                view.options.searchControlView.showResults(result);
             });
+
     },
     reset: function() {
         jQuery(':hidden').val('');
@@ -247,6 +274,31 @@ var QueryFormView = Backbone.View.extend({
             $('#pointRadiusWarning').show();
         }
     },
+    updateBoundingBox: function () {
+        var bboxWest, bboxSouth, bboxEast, bboxNorth, tmp;
+        bboxWest = this.validateNumber($('input[name=west]'), 0);
+        bboxSouth = this.validateNumber($('input[name=south]'), 0);
+        bboxEast = this.validateNumber($('input[name=east]'), 0);
+        bboxNorth = this.validateNumber($('input[name=north]'), 0);
+
+        if (bboxNorth && bboxSouth && Number(bboxSouth) > Number(bboxNorth)) {
+            tmp = bboxSouth;
+            bboxSouth = bboxNorth;
+            bboxNorth = tmp;
+
+            $('input[name=north]').val(bboxNorth);
+            $('input[name=south]').val(bboxSouth);
+        }
+
+        if (bboxWest && bboxSouth && bboxEast && bboxNorth) {
+            $('input[name=bbox]').val(
+                bboxWest + "," + bboxSouth + "," + bboxEast + "," + bboxNorth);
+            $('#boundingBoxWarning').hide();
+        } else {
+            this.clearBoundingBox();
+            $('#boundingBoxWarning').show();
+        }
+    },
     getDistanceInMeters: function (distance, units) {
 
         switch (units) {
@@ -305,6 +357,12 @@ var QueryFormView = Backbone.View.extend({
         }
 
         return newValue;
+    },
+    validateNumber: function (numberElement, revertValue) {
+        var val = this.validateNumberInRange(numberElement.attr("min"), numberElement
+            .attr("max"), $.trim(numberElement.val()), revertValue);
+        numberElement.val(val);
+        return val;
     },
     clearOffset: function() {
         $('input[name=dtoffset]').val("");

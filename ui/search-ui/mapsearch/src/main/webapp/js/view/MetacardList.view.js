@@ -9,9 +9,10 @@ var MetacardRow = Backbone.View.extend({
     },
     viewMetacard: function() {
         //do something to view the metacard, worry about that later
-        var latitude, longitude;
-        longitude = this.model.metacard.get("geometry").coordinates[0];
-        latitude = this.model.metacard.get("geometry").coordinates[1];
+        var latitude, longitude, geometry;
+        geometry = this.model.get("metacard").get("geometry");
+        longitude = geometry.get("coordinates")[0];
+        latitude = geometry.get("coordinates")[1];
         mapView.flyToLocation(longitude, latitude);
     }
 });
@@ -59,9 +60,9 @@ var MetacardListView = Backbone.View.extend({
     initialize: function(options) {
         _.bindAll(this, "render");
         //options should be -> { results: results, mapView: mapView }
-        if(options && options.results && options.results.results)
+        if(options && options.result)
         {
-            this.model = new SearchResult(options.results);
+            this.model = options.result;
         }
         if(options && options.mapView)
         {
@@ -72,7 +73,7 @@ var MetacardListView = Backbone.View.extend({
     render: function() {
         this.$el.html(ich.resultListTemplate(this.model.toJSON()));
         var metacardTable = new MetacardTable({
-            collection: this.model.results,
+            collection: this.model.get("results"),
             el: this.$(".resultTable").children("tbody")
         });
         metacardTable.render();
