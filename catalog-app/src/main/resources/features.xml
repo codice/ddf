@@ -191,5 +191,10 @@
         <feature>catalog-transformer-geoformatter</feature>
         <feature>catalog-transformer-xml</feature>
     </feature>
+    
+     <feature name="search" version="${project.version}" description="Search UI">
+        <bundle>mvn:ddf.ui.search-ui/search/${project.version}</bundle>
+    </feature>
+    
         
 </features>
