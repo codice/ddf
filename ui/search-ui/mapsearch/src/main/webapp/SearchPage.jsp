@@ -159,12 +159,6 @@
      the sake of debugging.
      TODO: Leverage something like http://www.html5rocks.com/en/tutorials/developertools/sourcemaps/  for a better solution
     -->
-    <script type="text/javascript" src="js/searchMessagingDirect.js"></script>
-    <script type="text/javascript" src="js/recordView.js"></script>
-    <script type="text/javascript" src="js/metadataHelper.js"></script>
-    <%--<script type="text/javascript" src="js/viewSwitcher.js"></script>--%>
-    <%--<script type="text/javascript" src="js/searchPage.js"></script>--%>
-
 
     <script type="text/javascript" src="lib/underscore/underscore.js"></script>
     <script type="text/javascript" src="lib/icanhaz/ICanHaz.min.js"></script>
