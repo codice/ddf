@@ -119,13 +119,28 @@ var MapView = Backbone.View.extend({
         layer.alpha = 0.5;
         layer.brightness = 2.0;
     },
-    flyToLocation: function(longitude, latitude) {
-        var destination, flight;
-        destination = Cesium.Cartographic.fromDegrees(longitude, latitude, 15000.0);
+    flyToLocation: function(geometry) {
+        var i, destination, flight, extent, cartArray = [];
 
-        flight = Cesium.CameraFlightPath.createAnimationCartographic(this.mapViewer.scene, {
-            destination : destination
-        });
+        //polygon
+        if(geometry.get("coordinates").length === 1 && geometry.get("coordinates")[0].length > 1)
+        {
+            for(i in geometry.get("coordinates")[0]) {
+                cartArray.push(Cesium.Cartographic.fromDegrees(geometry.get("coordinates")[0][i][0], geometry.get("coordinates")[0][i][1], 15000.0));
+            }
+            extent = Cesium.Extent.fromCartographicArray(cartArray);
+            flight = Cesium.CameraFlightPath.createAnimationExtent(this.mapViewer.scene, {
+                destination : extent
+            });
+        }
+        else {
+            destination = Cesium.Cartographic.fromDegrees(geometry.get("coordinates")[0], geometry.get("coordinates")[1], 15000.0);
+            flight = Cesium.CameraFlightPath.createAnimationCartographic(this.mapViewer.scene, {
+                destination : destination
+            });
+        }
+
+
         this.mapViewer.scene.getAnimations().add(flight);
     }
 });
