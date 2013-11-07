@@ -57,10 +57,10 @@
                             <div class="span7">
                                 <span class="add-on add-on-label">Last</span> <input
                                     id="offsetTime" class="span5" name="offsetTime"
-                                    type="number" onchange="updateOffset()"/>
+                                    type="number"/>
                             </div>
                             <select id="offsetTimeUnits" class="add-on span3"
-                                    name="offsetTimeUnits" onchange="updateOffset()">
+                                    name="offsetTimeUnits">
                                 <option value="seconds">seconds</option>
                                 <option value="minutes" selected="selected">minutes</option>
                                 <option value="hours">hours</option>
@@ -109,21 +109,21 @@
 
                     <div class="span11 input-prepend input-append">
                         <span class="add-on add-on-label">Latitude<i class="icon-globe"></i></span>
-                        <input class="span7" id="latitude" name="latitude" type="number" min="-90" max="90" step="any" onchange="updatePointRadius()" placeholder=""/>
+                        <input class="span7" id="latitude" name="latitude" type="number" min="-90" max="90" step="any" placeholder=""/>
                         <label class="add-on">&deg;</label>
                     </div>
                     <div class="span11 input-prepend input-append">
                         <span class="add-on add-on-label">Longitude<i class="icon-globe"></i></span>
-                        <input class="span7" id="longitude" name="longitude" type="number" min="-180" max="180" step="any" onchange="updatePointRadius()" placeholder=""/>
+                        <input class="span7" id="longitude" name="longitude" type="number" min="-180" max="180" step="any" placeholder=""/>
                         <label class="add-on">&deg;</label>
                     </div>
 
                     <div class="span11 input-prepend input-append">
                         <div class="span7">
                             <span class="add-on add-on-label">Radius<i class="icon-plus"></i></span>
-                            <input class="span5" id="radiusValue" name="radiusValue" type="number" placeholder="" onchange="updatePointRadius()"/>
+                            <input class="span5" id="radiusValue" name="radiusValue" type="number" placeholder=""/>
                         </div>
-                        <select id="radiusUnits" class="add-on span4" name="radiusUnits" onchange="updatePointRadius()">
+                        <select id="radiusUnits" class="add-on span4" name="radiusUnits">
                             <option value="meters" selected="selected">meters</option>
                             <option value="kilometers">kilometers</option>
                             <option value="feet">feet</option>
@@ -142,22 +142,22 @@
 
                     <div class="span11 input-prepend input-append">
                         <span class="add-on add-on-label">West <i class="icon-globe"></i></span>
-                        <input class="span7" id="west" name="west" type="number" min="-180" max="180" step="any" onchange="updateBoundingBox()" placeholder=""/>
+                        <input class="span7" id="west" name="west" type="number" min="-180" max="180" step="any" placeholder=""/>
                         <label class="add-on">&deg;</label>
                     </div>
                     <div class="span11 input-prepend input-append">
                         <span class="add-on add-on-label">South <i class="icon-globe"></i></span>
-                        <input class="span7" id="south" name="south" type="number" min="-90" max="90" step="any" onchange="updateBoundingBox()" placeholder=""/>
+                        <input class="span7" id="south" name="south" type="number" min="-90" max="90" step="any" placeholder=""/>
                         <label class="add-on">&deg;</label>
                     </div>
                     <div class="span11 input-prepend input-append">
                         <span class="add-on add-on-label">East <i class="icon-globe"></i></span>
-                        <input class="span7" id="east" name="east" type="number" min="-180" max="180" step="any" onchange="updateBoundingBox()" placeholder=""/>
+                        <input class="span7" id="east" name="east" type="number" min="-180" max="180" step="any" placeholder=""/>
                         <label class="add-on">&deg;</label>
                     </div>
                     <div class="span11 input-prepend input-append">
                         <span class="add-on add-on-label">North <i class="icon-globe"></i></span>
-                        <input class="span7" id="north" name="north" type="number" min="-90" max="90" step="any" onchange="updateBoundingBox()" placeholder=""/>
+                        <input class="span7" id="north" name="north" type="number" min="-90" max="90" step="any" placeholder=""/>
                         <label class="add-on">&deg;</label>
                     </div>
                     <div class="alert alert-block span11" id="boundingBoxWarning">
@@ -190,8 +190,7 @@
                 <div id="noTypeTab" class="tab-pane"></div>
                 <div id="typeTab" class="tab-pane">
                     <input type="hidden" name="type" value=""> <select
-                        id="typeList" name="typeList" class="span12"
-                        onchange="updateType()">
+                        id="typeList" name="typeList" class="span12">
                 </select>
                 </div>
             </div>
@@ -220,8 +219,7 @@
                 <div id="nofed" class="tab-pane"></div>
                 <div id="sources" class="tab-pane">
                     <div id="scrollableSources" class="scrollable">
-                        <select id="federationSources" multiple="multiple"
-                                onchange="updateFederation()">
+                        <select id="federationSources" multiple="multiple" name="federationSources">
                         </select>
                     </div>
                     <div class="alert alert-block" id="federationListWarning">

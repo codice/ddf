@@ -58,13 +58,13 @@ var SearchControlView = Backbone.View.extend({
         this.selectedView = "queryForm";
         this.render();
     },
-    showResults: function(results) {
+    showResults: function(result) {
         $(".forward").hide();
         $(".back").show();
         $(".backNavText").text("Query");
-        if(results) {
-            this.views.map.createResultsOnMap(results);
-            this.views.resultList = new MetacardListView({ results: results, mapView: this.mapView, searchControlView: this, el: this.$el.children('#searchPages') });
+        if(result) {
+            this.views.map.createResultsOnMap(result);
+            this.views.resultList = new MetacardListView({ result: result, mapView: this.mapView, searchControlView: this, el: this.$el.children('#searchPages') });
         }
         this.selectedView = "resultList";
         this.render();

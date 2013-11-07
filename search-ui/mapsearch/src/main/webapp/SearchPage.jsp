@@ -169,6 +169,7 @@
     <script type="text/javascript" src="lib/underscore/underscore.js"></script>
     <script type="text/javascript" src="lib/icanhaz/ICanHaz.min.js"></script>
     <script type="text/javascript" src="lib/backbone/backbone.js"></script>
+    <script type="text/javascript" src="lib/backbone-relational/backbone-relational.js"></script>
     <script type="text/javascript" src="lib/modelbinder/Backbone.ModelBinder.min.js"></script>
     <script type="text/javascript" src="lib/modelbinder/Backbone.CollectionBinder.min.js"></script>
 

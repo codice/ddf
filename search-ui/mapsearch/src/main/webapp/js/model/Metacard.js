@@ -1,25 +1,44 @@
-var Metacard = Backbone.Model.extend({
+var Geometry = Backbone.RelationalModel.extend({
 
 });
 
-var MetacardResult = Backbone.Model.extend({
-    initialize: function(options) {
-        if(!_.isUndefined(options) && !_.isUndefined(options.metacard))
+var Properties = Backbone.RelationalModel.extend({
+
+});
+
+var Metacard = Backbone.RelationalModel.extend({
+    relations: [
         {
-            this.metacard = new Metacard(options.metacard);
+            type: Backbone.HasOne,
+            key: 'geometry',
+            relatedModel: Geometry
+        },
+        {
+            type: Backbone.HasOne,
+            key: 'properties',
+            relatedModel: Properties
         }
-    }
+    ]
+});
+
+var MetacardResult = Backbone.RelationalModel.extend({
+    relations: [{
+        type: Backbone.HasOne,
+        key: 'metacard',
+        relatedModel: Metacard
+    }]
 });
 
 var MetacardList = Backbone.Collection.extend({
     model: MetacardResult
 });
 
-var SearchResult = Backbone.Model.extend({
-    initialize: function(options) {
-        if(!_.isUndefined(options) && !_.isUndefined(options.results))
-        {
-            this.results = new MetacardList(options.results);
-        }
-    }
+var SearchResult = Backbone.RelationalModel.extend({
+    relations: [{
+        type: Backbone.HasMany,
+        key: 'results',
+        relatedModel: MetacardResult,
+        collectionType: MetacardList
+    }],
+    url: "/services/catalog/query"
 });

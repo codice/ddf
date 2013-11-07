@@ -8,20 +8,21 @@ var MapView = Backbone.View.extend({
         this.addAdditionalLayers(this.mapViewer.centralBody.getImageryLayers());
     },
     createResultsOnMap: function(options) {
-        var startAt, finishAt, i, metacardResult, jsonDataSource;
-        if(options && options.results)
+        var startAt, finishAt, i, metacardResult, metacard, jsonDataSource;
+        this.model = options;
+//        if(options && options.result)
+//        {
+//            this.model = options.result;
+//        }
+        if(options && options.startIndex)
         {
-            this.model = new SearchResult(options);
-        }
-        if(options && options.startAt)
-        {
-            startAt = options.startAt;
+            startAt = options.startIndex;
         }
         else
         {
             startAt = 0;
         }
-        finishAt = startAt + this.model.results.length - 1;
+        finishAt = startAt + this.model.get("itemsPerPage") - 1;
         // TODO: need to do some of this initialization in ViewSwitcher
         this.mapViewer.dataSources.removeAll();
 
@@ -37,12 +38,13 @@ var MapView = Backbone.View.extend({
         for (i = startAt; i <= finishAt; i++) {
 
             //this object contains the metacard and the relevance
-            metacardResult = this.model.results.at(i);
+            metacardResult = this.model.get("results").at(i);
             if (metacardResult) {
                 jsonDataSource = new Cesium.GeoJsonDataSource();
 
                 // jsonDataSource.load(testGeoJson, 'Test JSON');
-                jsonDataSource.load(metacardResult.get("metacard"), metacardResult.get("metacard").properties.title);
+                metacard = metacardResult.get("metacard");
+                jsonDataSource.load(metacard.toJSON(), metacard.get("properties").get("title"));
 
                 this.mapViewer.dataSources.add(jsonDataSource);
             }
