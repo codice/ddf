@@ -161,7 +161,8 @@
     -->
 
     <script type="text/javascript" src="lib/underscore/underscore.js"></script>
-    <script type="text/javascript" src="lib/icanhaz/ICanHaz.min.js"></script>
+    <script type="text/javascript" src="lib/handlebars/handlebars-v1.1.2.js"></script>
+    <script type="text/javascript" src="lib/icanhaz/ICanHandlebarz.js"></script>
     <script type="text/javascript" src="lib/backbone/backbone.js"></script>
     <script type="text/javascript" src="lib/backbone-relational/backbone-relational.js"></script>
     <script type="text/javascript" src="lib/modelbinder/Backbone.ModelBinder.min.js"></script>
@@ -185,9 +186,9 @@
     $(document).ready(function(){
         var promises = [];
 
-        promises.push($.ajax("templates/resultList.html"));
-        promises.push($.ajax("templates/searchForm.html"));
-        promises.push($.ajax({url: "templates/templates.json", dataType:"json"}));
+        promises.push($.ajax("templates/resultList.handlebars"));
+        promises.push($.ajax("templates/searchForm.handlebars"));
+        promises.push($.ajax({url: "templates/templates.handlebars", dataType:"json"}));
         $.when.apply(null, promises).done(function(template1, template2, template3, data){
             if (template1 && template1.length > 0 && template2 && template2.length > 0 && template3 && template3.length > 0) {
 
@@ -200,6 +201,7 @@
 
             init();
         }).fail(function(error){
+            //TODO This needs to be improved somehow. The one time I had it fail on me, the message was "Error OK", not terribly useful.
             alert("Error " + error.statusText);
         });
 
