@@ -145,7 +145,11 @@
         <bundle>mvn:ddf.catalog.transformer/geojson-queryresponse-transformer/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.transformer/geojson-input-transformer/${project.version}</bundle>
     </feature>
-    
+
+    <feature name="catalog-transformer-html" install="manual" version="${project.version}" description="HTML Query Response Transformer.">
+        <bundle>mvn:ddf.catalog.transformer/service-html-transformer/${project.version}</bundle>
+    </feature>
+
     <feature name="catalog-transformer-atom" install="manual" version="${project.version}" description="Atom Query Response Transformer.">
         <feature>catalog-transformer-geoformatter</feature>
         <bundle>mvn:ddf.catalog.transformer/service-atom-transformer/${project.version}</bundle>

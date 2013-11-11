@@ -120,6 +120,7 @@
         <module>../catalog/schematron</module>
         <module>../catalog/transformer/catalog-transformer-attribute</module>
         <module>../catalog/transformer/service-xslt-transformer</module>
+        <module>../catalog/transformer/service-html-transformer</module>
         <module>../catalog/transformer/catalog-transformer-resource</module>
         <module>../catalog/transformer/catalog-transformer-metadata</module>
         <module>../catalog/transformer/catalog-transformer-thumbnail</module>
