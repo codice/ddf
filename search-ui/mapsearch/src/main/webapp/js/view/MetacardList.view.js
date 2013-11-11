@@ -4,7 +4,7 @@ var MetacardRow = Backbone.View.extend({
         'click .metacardLink' : 'viewMetacard'
     },
     render: function() {
-        this.$el.html(ich.metacardRow(this.model.toJSON()));
+        this.$el.html(ich.resultListItem(this.model.toJSON()));
         return this;
     },
     viewMetacard: function() {

@@ -167,6 +167,7 @@
     <script type="text/javascript" src="lib/backbone-relational/backbone-relational.js"></script>
     <script type="text/javascript" src="lib/modelbinder/Backbone.ModelBinder.min.js"></script>
     <script type="text/javascript" src="lib/modelbinder/Backbone.CollectionBinder.min.js"></script>
+    <script type="text/javascript" src="lib/moment/moment.js"></script>
 
     <script type="text/javascript" src="js/model/Metacard.js"></script>
     <script type="text/javascript" src="js/view/MetacardList.view.js"></script>
@@ -174,6 +175,7 @@
     <script type="text/javascript" src="js/view/Query.view.js"></script>
     <script type="text/javascript" src="js/view/SearchControl.view.js"></script>
     <script type="text/javascript" src="js/view/MetacardDetail.view.js"></script>
+    <script type="text/javascript" src="js/HandlebarsHelpers.js"></script>
 
 
 <!--
@@ -188,13 +190,15 @@
 
         promises.push($.ajax("templates/resultList.handlebars"));
         promises.push($.ajax("templates/searchForm.handlebars"));
+        promises.push($.ajax("templates/resultListItem.handlebars"));
         promises.push($.ajax({url: "templates/templates.handlebars", dataType:"json"}));
-        $.when.apply(null, promises).done(function(template1, template2, template3, data){
+        $.when.apply(null, promises).done(function(template1, template2, template3, template4){
             if (template1 && template1.length > 0 && template2 && template2.length > 0 && template3 && template3.length > 0) {
 
                 ich.addTemplate("resultListTemplate", template1[0]);
                 ich.addTemplate("searchFormTemplate", template2[0]);
-                _.each(template3[0], function(template) {
+                ich.addTemplate("resultListItem", template3[0]);
+                _.each(template4[0], function(template) {
                     ich.addTemplate(template.name, template.template);
                 });
             }
@@ -202,7 +206,7 @@
             init();
         }).fail(function(error){
             //TODO This needs to be improved somehow. The one time I had it fail on me, the message was "Error OK", not terribly useful.
-            alert("Error " + error.statusText);
+            alert("Error " + error);
         });
 
     });
