@@ -7,34 +7,40 @@
         paths : {
 
             // backbone
-            backbone : 'core/assets/js/components/backbone/backbone',
-            backbonerelational : 'core/assets/js/components/backbone-relational/backbone-relational',
-            underscore : 'core/assets/js/components/lodash/dist/lodash.underscore',
+            backbone : 'lib/backbone/backbone',
+            backbonerelational : 'lib/backbone-relational/backbone-relational',
+            underscore : 'lib/lodash/dist/lodash.underscore',
+            marionette : 'lib/marionette/lib/backbone.marionette',
+            // TODO test combining
+            modelbinder : 'lib/modelbinder/Backbone.ModelBinder.min',
+            collectionbinder : 'lib/modelbinder/Backbone.CollectionBinder.min',
 
             // jquery
-            jquery : 'core/assets/js/components/jquery/jquery',
-            bootstrap : 'core/assets/js/components/bootstrap/docs/assets/js/bootstrap',
-            jqueryui : 'core/assets/js/components/jquery-ui/ui/jquery-ui',
+            jquery : 'lib/jquery/js/jquery-1.9.1.min',
+            bootstrap : 'lib/bootstrap-2.3.1/js/bootstrap.min',
+            partialaffix : 'lib/bootstrap-extensions/js/partial-affix',
+            datepickerOverride : 'lib/jquery/js/plugin/jquery-ui-datepicker-4digitYearOverride-addon',
+            datepickerAddon : 'lib/jquery/js/plugin/jquery-ui-timepicker-addon',
+            purl : 'lib/jquery/js/plugin/purl',
+            jqueryui : 'lib/jquery/js/jquery-ui-1.9.1.custom.min',
 
-            icanhaz : 'core/assets/js/libs/icanhaz',
-            moment : 'core/assets/js/components/moment/moment',
-            q : 'core/assets/js/components/q/q',
+            // handlebars
+            handlebars : 'lib/handlebars/handlebars-v1.1.2',
+            icanhaz : 'lib/icanhaz/ICanHandlebarz',
 
+            moment : 'lib/moment/moment',
+            q : 'lib/q/q',
+
+            ddf : 'js/ddf',
             // require plugins
-            text : 'core/assets/js/components/requirejs-plugins/lib/text',
+            text : 'lib/requirejs-plugins/lib/text'
 
-            properties: './oviz/properties',
-
-            // templates
-            templates : 'oviz/assets/templates',
-
-            aviture : 'core/aviture'
 
         },
 
 
         packages : [
-            { name: 'cesium',      location: 'core/assets/js/components/cesium/Source' }
+            { name: 'cesium',      location: 'lib/cesium/Source' }
         ],
 
         shim :  {
@@ -49,8 +55,6 @@
             underscore: {
                 exports: '_'
             },
-
-
             icanhaz: {
                 deps: ['underscore', 'backbone', 'jquery'],
                 exports: 'ich'
@@ -61,8 +65,12 @@
             },
 
             jqueryui: ['jquery'],
-            bootstrap: ['jqueryui']
+            bootstrap: ['jqueryui'],
+            partialaffix : ['bootstrap'],
+            purl : ['jquery'],
 
+            datepickerOverride : ['jquery'],
+            datepickerAddon : ['jquery']
 
         },
 
