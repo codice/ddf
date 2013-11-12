@@ -59,7 +59,7 @@ define(function(require) {
             console.log('rendering cesium view now');
             var mapView = ddf.app.mapView = new MapView().render(),
 
-                searchControlView = new SearchControlView({map: mapView});
+                searchControlView = new SearchControlView({map: mapView, el: $('#searchControls')});
             searchControlView.render();
 
 //            var DrawExtent = require('js/widgets/draw.extent');

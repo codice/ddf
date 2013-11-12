@@ -7,6 +7,7 @@ define(function (require) {
         _ = require('underscore'),
         ich = require('icanhaz'),
         MetaCardListView = require('js/view/MetacardList.view'),
+        MetaCard = require('js/model/Metacard'),
         QueryFormView;
     ich.addTemplate('searchFormTemplate', require('text!templates/searchForm.handlebars'));
 
@@ -140,7 +141,7 @@ define(function (require) {
             'startIndex': view.getPageStartIndex(1),
             'queryParams': $("#searchForm").serialize()
         };
-        result = new MetaCardListView.SearchResult(options);
+        result = new MetaCard.SearchResult(options);
         result.fetch({
             url: $("#searchForm").attr("action"),
             data: $("#searchForm").serialize(),

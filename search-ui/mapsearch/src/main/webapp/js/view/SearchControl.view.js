@@ -10,7 +10,7 @@ define(function (require) {
 
 
     SearchControlView = Backbone.View.extend({
-    el: $('#searchControls'),
+
     events: {
         'click .back': 'back',
         'click .forward': 'forward'
