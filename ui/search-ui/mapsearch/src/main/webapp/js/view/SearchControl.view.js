@@ -1,5 +1,15 @@
+/*global define*/
 
-var SearchControlView = Backbone.View.extend({
+define(function (require) {
+    "use strict";
+    var $ = require('jquery'),
+        Backbone = require('backbone'),
+        _ = require('underscore'),
+        QueryFormView = require('js/view/Query.view'),
+        MetacardList = require('js/view/MetacardList.view'),
+
+
+    SearchControlView = Backbone.View.extend({
     el: $('#searchControls'),
     events: {
         'click .back': 'back',
@@ -11,12 +21,12 @@ var SearchControlView = Backbone.View.extend({
         'metacardDetail': 'metacardDetail',
         'map': 'placeholder' //TODO this should go away when we do something else with the map
     },
-    initialize: function() {
+    initialize: function(options) {
         _.bindAll(this, "render", "showQuery", "showResults", "showMetacardDetail", "back", "forward");
         this.selectedView = "queryForm";
         this.views.queryForm = new QueryFormView({searchControlView: this, el: this.$el.children('#searchPages')});
-        this.views.resultList = new MetacardListView({searchControlView: this, el: this.$el.children('#searchPages')});
-        this.views.map = mapView;
+        this.views.resultList = new MetacardList.MetacardListView({searchControlView: this, el: this.$el.children('#searchPages')});
+        this.views.map = options.map;
     },
     render: function() {
         this.views[this.selectedView].render();
@@ -64,7 +74,7 @@ var SearchControlView = Backbone.View.extend({
         $(".backNavText").text("Query");
         if(result) {
             this.views.map.createResultsOnMap(result);
-            this.views.resultList = new MetacardListView({ result: result, mapView: this.mapView, searchControlView: this, el: this.$el.children('#searchPages') });
+            this.views.resultList = new MetacardList.MetacardListView({ result: result, mapView: this.mapView, searchControlView: this, el: this.$el.children('#searchPages') });
         }
         this.selectedView = "resultList";
         this.render();
@@ -74,4 +84,7 @@ var SearchControlView = Backbone.View.extend({
         $(".forward").hide();
         $(".backNavText").text("Results");
     }
+});
+
+    return SearchControlView;
 });

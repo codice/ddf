@@ -10,6 +10,7 @@ define(function(require) {
         Marionette = require('marionette'),
         Application = require('js/application'),
         MapView = require('js/view/Map.view'),
+        SearchControlView = require('js/view/SearchControl.view'),
         ApplicationController;
 
     ApplicationController = Marionette.Controller.extend({
@@ -22,10 +23,10 @@ define(function(require) {
                 mainView = new Application.Views.Main({
                     model : ddf.app.model
                 }),
-                navbarView = new Application.Views.NavBar({
-                    model: ddf.app.model
-                }),
-                navbarLayout = new Application.Views.NavBarLayout(),
+//                navbarView = new Application.Views.NavBar({
+//                    model: ddf.app.model
+//                }),
+//                navbarLayout = new Application.Views.NavBarLayout(),
                 footerLayout = new Application.Views.FooterLayout();
 
             // Once the main application view has been attached to the DOM, set up the dependent views.
@@ -33,19 +34,20 @@ define(function(require) {
                 controller.renderGeospatialViews(mainView);
             });
 
-            // Set up the menus on the navigation bar once the frame is loaded.
-            navbarView.on('show', function() {
-                controller.renderNavBarSubviews(navbarView);
-            });
+//            // Set up the menus on the navigation bar once the frame is loaded.
+//            navbarView.on('show', function() {
+//                controller.renderNavBarSubviews(navbarView);
+//            });
 
             ddf.app.mainRegion.show(mainView);
 
-            ddf.app.headerRegion.show(navbarLayout);
-            navbarLayout.classification.show(new Application.Views.ClassificationBanner());
-            navbarLayout.navbar.show(navbarView);
+//            ddf.app.headerRegion.show(navbarLayout);
+//            navbarLayout.classification.show(new Application.Views.ClassificationBanner());
+//            navbarLayout.navbar.show(navbarView);
 
             ddf.app.footerRegion.show(footerLayout);
             footerLayout.classification.show(new Application.Views.ClassificationBanner());
+
 
 
 
@@ -55,10 +57,14 @@ define(function(require) {
         renderGeospatialViews : function(mainView) {
            // render cesium code here
             console.log('rendering cesium view now');
-            ddf.app.mapView = new MapView().render();
-            var DrawExtent = require('js/widgets/draw.extent');
+            var mapView = ddf.app.mapView = new MapView().render(),
 
-            var drawExtent = new DrawExtent.Controller({viewer: ddf.app.mapView.mapViewer})();
+                searchControlView = new SearchControlView({map: mapView});
+            searchControlView.render();
+
+//            var DrawExtent = require('js/widgets/draw.extent');
+
+//            var drawExtent = new DrawExtent.Controller({viewer: ddf.app.mapView.mapViewer})();
 
 
         },

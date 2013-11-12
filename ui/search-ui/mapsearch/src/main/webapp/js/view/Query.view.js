@@ -1,7 +1,21 @@
+/*global define*/
+
+define(function (require) {
+    "use strict";
+    var $ = require('jquery'),
+        Backbone = require('backbone'),
+        _ = require('underscore'),
+        ich = require('icanhaz'),
+        MetaCardListView = require('js/view/MetacardList.view'),
+        QueryFormView;
+    ich.addTemplate('searchFormTemplate', require('text!templates/searchForm.handlebars'));
+
+    require('datepickerOverride');
+    require('datepickerAddon');
 
 //the form should probably be a Backbone.Form but in the name of urgency I am leaving it
 //as a jquery form and just wrapping it with this view
-var QueryFormView = Backbone.View.extend({
+    QueryFormView = Backbone.View.extend({
     events: {
         'click #searchButton': 'search',
         'click #resetButton': 'reset',
@@ -126,7 +140,7 @@ var QueryFormView = Backbone.View.extend({
             'startIndex': view.getPageStartIndex(1),
             'queryParams': $("#searchForm").serialize()
         };
-        result = new SearchResult(options);
+        result = new MetaCardListView.SearchResult(options);
         result.fetch({
             url: $("#searchForm").attr("action"),
             data: $("#searchForm").serialize(),
@@ -138,7 +152,7 @@ var QueryFormView = Backbone.View.extend({
 
     },
     reset: function() {
-        jQuery(':hidden').val('');
+        $(':hidden').val('');
 
         $('input[name=q]').val("");
         $('input[name=format]').val("geojson");
@@ -388,4 +402,6 @@ var QueryFormView = Backbone.View.extend({
     getPageStartIndex: function(index) {
         return 1 + (this.getItemsPerPage() * Math.floor((index - 1) / this.getItemsPerPage()));
     }
+});
+    return QueryFormView;
 });
