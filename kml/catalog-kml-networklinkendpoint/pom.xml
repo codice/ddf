@@ -62,7 +62,7 @@
     <dependency>
         <groupId>ddf.catalog.kml</groupId>
         <artifactId>catalog-kml-transformer</artifactId>
-        <version>2.3.0.ALPHA1-SNAPSHOT</version>
+        <version>${project.version}</version>
     </dependency>
 	
     <dependency>
