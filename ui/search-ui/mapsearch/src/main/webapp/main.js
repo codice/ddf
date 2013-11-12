@@ -7,11 +7,17 @@
         require([
             'jquery',
             'backbone',
-            'application',
-            'js/controllers/application.controller'
-        ], function ($, Backbone, Application, ApplicationController) {
+            'marionette',
+            'js/application',
+            'js/controllers/application.controller',
+            'icanhaz'
+        ], function ($, Backbone, Marionette, Application, ApplicationController) {
             var ddf = require('ddf'),
                 app = ddf.app;
+
+            Marionette.Renderer.render = function (template, data) {
+                return ich[template](data);
+            };
 
             // Set up the main regions that will be available at the Application level.
             app.addRegions({

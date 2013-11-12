@@ -51,12 +51,15 @@
             },
 
             backbonerelational:  ['backbone'],
-
+            marionette : {
+                deps : ['jquery', 'underscore', 'backbone'],
+                exports : 'Marionette'
+            },
             underscore: {
                 exports: '_'
             },
             icanhaz: {
-                deps: ['underscore', 'backbone', 'jquery'],
+                deps: ['handlebars'],
                 exports: 'ich'
             },
 

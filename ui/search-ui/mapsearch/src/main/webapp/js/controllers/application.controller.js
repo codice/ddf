@@ -1,14 +1,14 @@
-/*global define */
+/*global define, console */
 
 define(function(require) {
     'use strict';
 
     // Load attached libs and application modules
-    var aviture = require('aviture'),
+    var ddf = require('ddf'),
         $ = require('jquery'),
         _ = require('underscore'),
         Marionette = require('marionette'),
-        Application = require('app/application'),
+        Application = require('js/application'),
         ApplicationController;
 
     ApplicationController = Marionette.Controller.extend({
@@ -19,10 +19,10 @@ define(function(require) {
         renderApplicationViews : function() {
             var controller = this,
                 mainView = new Application.Views.Main({
-                    model : aviture.app.model
+                    model : ddf.app.model
                 }),
                 navbarView = new Application.Views.NavBar({
-                    model: aviture.app.model
+                    model: ddf.app.model
                 }),
                 navbarLayout = new Application.Views.NavBarLayout(),
                 footerLayout = new Application.Views.FooterLayout();
@@ -37,13 +37,13 @@ define(function(require) {
                 controller.renderNavBarSubviews(navbarView);
             });
 
-            aviture.app.mainRegion.show(mainView);
+            ddf.app.mainRegion.show(mainView);
 
-            aviture.app.headerRegion.show(navbarLayout);
+            ddf.app.headerRegion.show(navbarLayout);
             navbarLayout.classification.show(new Application.Views.ClassificationBanner());
             navbarLayout.navbar.show(navbarView);
 
-            aviture.app.footerRegion.show(footerLayout);
+            ddf.app.footerRegion.show(footerLayout);
             footerLayout.classification.show(new Application.Views.ClassificationBanner());
 
 
