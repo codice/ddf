@@ -35,7 +35,7 @@
             // Set up the frame of the application.
             app.addInitializer(function() {
                 app.controllers.applicationController.renderApplicationViews();
-
+                
             });
 
             // Start up the main Application Router
