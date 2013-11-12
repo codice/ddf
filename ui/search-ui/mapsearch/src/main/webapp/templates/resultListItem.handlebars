@@ -1,6 +1,12 @@
 <td>
     <div style="clear:both;">
-        <a href="#" style="white-space:nowrap;text-overflow:ellipsis;width:350px;display: block;overflow: hidden;" class="metacardLink">{{metacard.properties.title}}</a>
+        <a href="#" style="white-space:nowrap;text-overflow:ellipsis;width:350px;display: block;overflow: hidden;" class="metacardLink">
+            {{#isNotBlank metacard.properties.title}}
+                {{metacard.properties.title}}
+            {{else}}
+                {{metacard.properties.id}}
+            {{/isNotBlank}}
+        </a>
     </div>
     <div style="float:left"><span class="small-text">{{metacard.properties.source-id}}</span></div>
     <div style="float:right">

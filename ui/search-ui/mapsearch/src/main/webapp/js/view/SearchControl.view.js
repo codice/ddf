@@ -54,7 +54,11 @@ var SearchControlView = Backbone.View.extend({
     showQuery: function() {
         $(".back").hide();
         $(".forward").show();
-        $(".forwardNavText").text("Results ("+this.views.resultList.model.get("hits")+")");
+        if(this.views.resultList)
+        {
+            $(".forwardNavText").text("Results ("+this.views.resultList.model.get("hits")+")");
+        }
+        $(".centerNavText").text("Query");
         this.selectedView = "queryForm";
         this.render();
     },
@@ -66,6 +70,7 @@ var SearchControlView = Backbone.View.extend({
             this.views.map.createResultsOnMap(result);
             this.views.resultList = new MetacardListView({ result: result, mapView: this.mapView, searchControlView: this, el: this.$el.children('#searchPages') });
         }
+        $(".centerNavText").text("Results ("+this.views.resultList.model.get("hits")+")");
         this.selectedView = "resultList";
         this.render();
     },
@@ -73,5 +78,6 @@ var SearchControlView = Backbone.View.extend({
         $(".back").show();
         $(".forward").hide();
         $(".backNavText").text("Results");
+        $(".centerNavText").text("Metacard");
     }
 });
