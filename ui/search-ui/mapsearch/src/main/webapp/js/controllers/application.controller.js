@@ -56,6 +56,9 @@ define(function(require) {
            // render cesium code here
             console.log('rendering cesium view now');
             ddf.app.mapView = new MapView().render();
+            var DrawExtent = require('js/widgets/draw.extent');
+
+            var drawExtent = new DrawExtent.Controller({viewer: ddf.app.mapView.mapViewer})();
 
 
         },

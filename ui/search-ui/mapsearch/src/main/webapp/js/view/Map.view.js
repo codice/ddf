@@ -26,6 +26,7 @@ define(function (require) {
             this.mapViewer = this.createMap('geospatial-main');
             this.createPicker(this.mapViewer.scene, this.mapViewer.centralBody.getEllipsoid());
             this.addAdditionalLayers(this.mapViewer.centralBody.getImageryLayers());
+            return this;
         },
         createResultsOnMap: function (options) {
             var startAt, finishAt, i, metacardResult, metacard, jsonDataSource;
