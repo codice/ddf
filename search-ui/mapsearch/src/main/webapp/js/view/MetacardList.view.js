@@ -112,7 +112,7 @@ define(function (require) {
         },
         render: function() {
             this.$el.html(ich.resultListTemplate(this.model.toJSON()));
-            var metacardTable = new MetacardTable({
+            var metacardTable = new MetaCardListView.MetacardTable({
                 collection: this.model.get("results"),
                 el: this.$(".resultTable").children("tbody")
             });
