@@ -1,0 +1,192 @@
+/*global defineSuite*/
+defineSuite([
+         'Core/EllipsoidTangentPlane',
+         'Core/Ellipsoid',
+         'Core/Cartesian2',
+         'Core/Cartesian3',
+         'Core/Cartographic'
+     ], function(
+         EllipsoidTangentPlane,
+         Ellipsoid,
+         Cartesian2,
+         Cartesian3,
+         Cartographic) {
+    "use strict";
+    /*global jasmine,describe,xdescribe,it,xit,expect,beforeEach,afterEach,beforeAll,afterAll,spyOn,runs,waits,waitsFor*/
+
+    it('constructor defaults to WGS84', function() {
+        var origin = new Cartesian3(Ellipsoid.WGS84.getRadii().x, 0, 0);
+        var tangentPlane = new EllipsoidTangentPlane(origin);
+        expect(tangentPlane.getEllipsoid()).toBe(Ellipsoid.WGS84);
+        expect(tangentPlane.getOrigin()).toEqual(origin);
+    });
+
+    it('constructor sets expected values', function() {
+        var tangentPlane = new EllipsoidTangentPlane(Cartesian3.UNIT_X, Ellipsoid.UNIT_SPHERE);
+        expect(tangentPlane.getEllipsoid()).toBe(Ellipsoid.UNIT_SPHERE);
+        expect(tangentPlane.getOrigin()).toEqual(Cartesian3.UNIT_X);
+    });
+
+    it('fromPoints sets expected values', function() {
+        var points = [new Cartesian3(2, 0, 0), new Cartesian3(0, 0, 0)];
+        var tangentPlane = EllipsoidTangentPlane.fromPoints(points, Ellipsoid.UNIT_SPHERE);
+        expect(tangentPlane.getEllipsoid()).toBe(Ellipsoid.UNIT_SPHERE);
+        expect(tangentPlane.getOrigin()).toEqual(Cartesian3.UNIT_X);
+    });
+
+    it('projectPointOntoPlane returns undefined for points not on the plane', function () {
+        var ellipsoid = Ellipsoid.UNIT_SPHERE;
+        var origin = new Cartesian3(1, 0, 0);
+        var tangentPlane = new EllipsoidTangentPlane(origin, ellipsoid);
+        var positions = new Cartesian3(0, 0, 1);
+        var returnedResult = tangentPlane.projectPointOntoPlane(positions);
+        expect(returnedResult).toBeUndefined();
+    });
+
+    it('projectPointOntoPlane works without a result parameter', function () {
+        var ellipsoid = Ellipsoid.UNIT_SPHERE;
+        var origin = new Cartesian3(1, 0, 0);
+        var tangentPlane = new EllipsoidTangentPlane(origin, ellipsoid);
+
+        var positions = new Cartesian3(1, 0, 1);
+        var expectedResult = new Cartesian2(0, 1);
+        var returnedResult = tangentPlane.projectPointOntoPlane(positions);
+        expect(returnedResult).toEqual(expectedResult);
+    });
+
+    it('projectPointOntoPlane works with a result parameter', function () {
+        var ellipsoid = Ellipsoid.UNIT_SPHERE;
+        var origin = new Cartesian3(1, 0, 0);
+        var tangentPlane = new EllipsoidTangentPlane(origin, ellipsoid);
+
+        var positions = new Cartesian3(1, 0, 1);
+        var expectedResult = new Cartesian2(0, 1);
+        var result = new Cartesian2();
+        var returnedResult = tangentPlane.projectPointOntoPlane(positions, result);
+        expect(result).toBe(returnedResult);
+        expect(returnedResult).toEqual(expectedResult);
+    });
+
+    it('projectPointsOntoPlane works without a result parameter', function () {
+        var ellipsoid = Ellipsoid.UNIT_SPHERE;
+        var origin = new Cartesian3(1, 0, 0);
+        var tangentPlane = new EllipsoidTangentPlane(origin, ellipsoid);
+
+        var positions = [new Cartesian3(1, 0, 1), new Cartesian3(1, 0, 0), new Cartesian3(1, 1, 0)];
+        var expectedResults = [new Cartesian2(0, 1), new Cartesian2(0, 0), new Cartesian2(1, 0)];
+        var returnedResults = tangentPlane.projectPointsOntoPlane(positions);
+        expect(returnedResults).toEqual(expectedResults);
+    });
+
+    it('projectPointsOntoPlane works with a result parameter', function () {
+        var ellipsoid = Ellipsoid.UNIT_SPHERE;
+        var origin = new Cartesian3(1, 0, 0);
+        var tangentPlane = new EllipsoidTangentPlane(origin, ellipsoid);
+
+        var positions = [new Cartesian3(1, 0, 1), new Cartesian3(1, 0, 0), new Cartesian3(1, 1, 0)];
+        var expectedResults = [new Cartesian2(0, 1), new Cartesian2(0, 0), new Cartesian2(1, 0)];
+
+        var index0 = new Cartesian2();
+        var result = [index0];
+        var returnedResults = tangentPlane.projectPointsOntoPlane(positions, result);
+        expect(result).toBe(returnedResults);
+        expect(result[0]).toBe(index0);
+        expect(returnedResults).toEqual(expectedResults);
+    });
+
+    it('projectPointsOntoPlane works when some points not on plane', function () {
+        var ellipsoid = Ellipsoid.UNIT_SPHERE;
+        var origin = new Cartesian3(1, 0, 0);
+        var tangentPlane = new EllipsoidTangentPlane(origin, ellipsoid);
+
+        var positions = [new Cartesian3(1, 0, 1), new Cartesian3(1, 0, 0), new Cartesian3(0, 0, 1), new Cartesian3(1, 1, 0), new Cartesian3(0, 1, 0)];
+        var expectedResults = [new Cartesian2(0, 1), new Cartesian2(0, 0), new Cartesian2(1, 0)];
+        var returnedResults = tangentPlane.projectPointsOntoPlane(positions);
+        expect(returnedResults).toEqual(expectedResults);
+    });
+
+    it('projectPointsOntoEllipsoid works without a result parameter', function () {
+        var ellipsoid = Ellipsoid.UNIT_SPHERE;
+        var origin = new Cartesian3(1, 0, 0);
+        var tangentPlane = new EllipsoidTangentPlane(origin, ellipsoid);
+
+        var positions = [new Cartesian3(2, -2, 0), new Cartesian3(2, 2, 0)];
+        var expectedResults = [new Cartesian3(1/3, 2/3, -2/3), new Cartesian3(1/3, 2/3,  2/3)];
+        var returnedResults = tangentPlane.projectPointsOntoEllipsoid(positions);
+        expect(returnedResults).toEqual(expectedResults);
+    });
+
+    it('projectPointsOntoEllipsoid works with a result parameter', function () {
+        var ellipsoid = Ellipsoid.UNIT_SPHERE;
+        var origin = new Cartesian3(1, 0, 0);
+        var tangentPlane = new EllipsoidTangentPlane(origin, ellipsoid);
+
+        var positions = [new Cartesian3(2, -2, 0), new Cartesian3(2, 2, 0)];
+        var expectedResults = [new Cartesian3(1/3, 2/3, -2/3), new Cartesian3(1/3, 2/3,  2/3)];
+        var index0 = new Cartesian3();
+        var result = [index0];
+        var returnedResults = tangentPlane.projectPointsOntoEllipsoid(positions, result);
+        expect(result).toBe(returnedResults);
+        expect(result[0]).toBe(index0);
+        expect(returnedResults).toEqual(expectedResults);
+    });
+
+    it('constructor throws without origin', function() {
+        expect(function() {
+            return new EllipsoidTangentPlane(undefined, Ellipsoid.WGS84);
+        }).toThrow();
+    });
+
+    it('constructor throws if origin is at the center of the ellipsoid', function() {
+        expect(function() {
+            return new EllipsoidTangentPlane(Cartesian3.ZERO, Ellipsoid.WGS84);
+        }).toThrow();
+    });
+
+    it('fromPoints throws without cartesians', function() {
+        expect(function() {
+            return EllipsoidTangentPlane.fromPoints(undefined, Ellipsoid.WGS84);
+        }).toThrow();
+    });
+
+    it('projectPointOntoPlane throws without cartesian', function() {
+        var tangentPlane = new EllipsoidTangentPlane(Cartesian3.UNIT_X, Ellipsoid.UNIT_SPHERE);
+        expect(function() {
+            return tangentPlane.projectPointOntoPlane(undefined);
+        }).toThrow();
+    });
+
+    it('projectPointsOntoPlane throws without cartesians', function() {
+        var tangentPlane = new EllipsoidTangentPlane(Cartesian3.UNIT_X, Ellipsoid.UNIT_SPHERE);
+        expect(function() {
+            return tangentPlane.projectPointsOntoPlane(undefined);
+        }).toThrow();
+    });
+
+    it('projectPointsOntoEllipsoid throws without cartesians', function() {
+        var tangentPlane = new EllipsoidTangentPlane(Cartesian3.UNIT_X, Ellipsoid.UNIT_SPHERE);
+        expect(function() {
+            return tangentPlane.projectPointsOntoEllipsoid(undefined);
+        }).toThrow();
+    });
+
+    it('projectPointsOntoEllipsoid works with an arbitrary ellipsoid using fromPoints', function () {
+        var ellipsoid = Ellipsoid.WGS84;
+
+        var points = ellipsoid.cartographicArrayToCartesianArray([
+            Cartographic.fromDegrees(-72.0, 40.0),
+            Cartographic.fromDegrees(-68.0, 35.0),
+            Cartographic.fromDegrees(-75.0, 30.0),
+            Cartographic.fromDegrees(-70.0, 30.0),
+            Cartographic.fromDegrees(-68.0, 40.0)
+        ]);
+
+        var tangentPlane = EllipsoidTangentPlane.fromPoints(points, ellipsoid);
+        var points2D = tangentPlane.projectPointsOntoPlane(points);
+        var positionsBack = tangentPlane.projectPointsOntoEllipsoid(points2D);
+
+        expect(positionsBack[0].x).toBeCloseTo(points[0].x);
+        expect(positionsBack[0].y).toBeCloseTo(points[0].y);
+        expect(positionsBack[0].z).toBeCloseTo(points[0].z);
+    });
+});
