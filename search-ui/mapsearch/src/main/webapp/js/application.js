@@ -26,13 +26,10 @@ define(function(require) {
 
 
     // Setup templates
-//    ich.addTemplate('main', require('text!templates/main.html'));
     ich.addTemplate('main', require('text!templates/main.html'));
-    ich.addTemplate('footer', require('text!core/assets/templates/footer.html'));
-    ich.addTemplate('navbarLayout', require('text!core/assets/templates/navbar.layout.html'));
-    ich.addTemplate('footerLayout', require('text!core/assets/templates/footer.layout.html'));
-    ich.addTemplate('workspacePopover', require('text!core/assets/templates/navbar/workspace/workspace.popover.html'));
-    ich.addTemplate('classificationBanner', require('text!core/assets/templates/classification/classification-banner.html'));
+    ich.addTemplate('navbarLayout', require('text!templates/navbar.layout.html'));
+    ich.addTemplate('footerLayout', require('text!templates/footer.layout.html'));
+    ich.addTemplate('classificationBanner', require('text!templates/classification/classification-banner.html'));
 
     var Application = ddf.module();
 

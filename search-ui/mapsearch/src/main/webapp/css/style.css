@@ -1,0 +1,21 @@
+.classification-container {
+    text-align : center;
+    color : white;
+}
+
+.unclassified{
+    background-color : darkgreen;
+}
+
+
+.confidential {
+    background-color : blue;
+}
+
+.secret {
+    background-color : darkred;
+}
+
+.topsecret {
+    background-color : darkorange;
+}
