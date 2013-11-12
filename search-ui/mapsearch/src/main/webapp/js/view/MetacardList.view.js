@@ -29,6 +29,13 @@ define(function (require) {
             //do something to view the metacard, worry about that later
             var geometry = this.model.get("metacard").get("geometry");
             this.mapView.flyToLocation(geometry);
+        },
+        close: function() {
+            this.remove();
+            this.stopListening();
+            this.unbind();
+            this.model.unbind();
+            this.model.destroy();
         }
     });
 
@@ -70,31 +77,59 @@ define(function (require) {
         changeCard: function (change) {
             this.removeCard(change);
             this.appendCard(new MetaCardListView.Metacard(change.attributes));
+        },
+        close: function() {
+            var i;
+            this.remove();
+            this.stopListening();
+            this.unbind();
+            this.collection.unbind();
+            for(i in this.metacardRows) {
+                this.metacardRows[i].close();
+            }
         }
+        
     });
 
     MetaCardListView.MetacardListView = Backbone.View.extend({
-        initialize: function (options) {
-            _.bindAll(this, "render");
+        tagName: "div id='resultPage' class='height-full'",
+        events: {
+            'click .load-more-link': 'loadMoreResults'
+        },
+        initialize: function(options) {
+            _.bindAll(this, "render", "loadMoreResults");
             //options should be -> { results: results, mapView: mapView }
-            if (options && options.result) {
+            if(options && options.result)
+            {
                 this.model = options.result;
             }
-            if (options && options.mapView) {
+            if(options && options.mapView)
+            {
                 //we can control what results are displayed on the map as we page
                 this.mapView = options.mapView;
             }
+            this.listenTo(this.model, 'change', this.render);
         },
-        render: function () {
+        render: function() {
             this.$el.html(ich.resultListTemplate(this.model.toJSON()));
-            var metacardTable = new MetaCardListView.MetacardTable({
+            var metacardTable = new MetacardTable({
                 collection: this.model.get("results"),
-                el: this.$(".resultTable").children("tbody"),
-                mapView : this.mapView
-
+                el: this.$(".resultTable").children("tbody")
             });
             metacardTable.render();
+            this.metacardTable = metacardTable;
             return this;
+        },
+        close: function() {
+            this.remove();
+            this.stopListening();
+            this.unbind();
+            this.model.unbind();
+            this.model.destroy();
+            this.metacardTable.close();
+        },
+        loadMoreResults: function() {
+            this.model.loadMoreResults();
         }
     });
     return MetaCardListView;

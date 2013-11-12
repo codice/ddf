@@ -16,20 +16,15 @@ define(function (require) {
         'click .forward': 'forward'
     },
     views: {
-        'queryForm': 'queryForm',
-        'resultList': 'resultList',
-        'metacardDetail': 'metacardDetail',
-        'map': 'placeholder' //TODO this should go away when we do something else with the map
     },
     initialize: function(options) {
         _.bindAll(this, "render", "showQuery", "showResults", "showMetacardDetail", "back", "forward");
         this.selectedView = "queryForm";
-        this.views.queryForm = new QueryFormView({searchControlView: this, el: this.$el.children('#searchPages')});
-        this.views.resultList = new MetacardList.MetacardListView({searchControlView: this, el: this.$el.children('#searchPages')});
+        this.views.queryForm = new QueryFormView({searchControlView: this});
         this.views.map = options.map;
     },
     render: function() {
-        this.views[this.selectedView].render();
+        this.$el.children("#searchPages").append(this.views[this.selectedView].render().el);
         return this;
     },
     back: function() {
@@ -64,7 +59,13 @@ define(function (require) {
     showQuery: function() {
         $(".back").hide();
         $(".forward").show();
-        $(".forwardNavText").text("Results ("+this.views.resultList.model.get("hits")+")");
+        this.views.queryForm.$el.show();
+        if(this.views.resultList)
+        {
+            this.views.resultList.$el.hide();
+            $(".forwardNavText").text("Results ("+this.views.resultList.model.get("hits")+")");
+        }
+        $(".centerNavText").text("Query");
         this.selectedView = "queryForm";
         this.render();
     },
@@ -72,10 +73,16 @@ define(function (require) {
         $(".forward").hide();
         $(".back").show();
         $(".backNavText").text("Query");
+        this.views.queryForm.$el.hide();
         if(result) {
             this.views.map.createResultsOnMap(result);
-            this.views.resultList = new MetacardList.MetacardListView({ result: result, mapView: this.mapView, searchControlView: this, el: this.$el.children('#searchPages') });
+            if(this.views.resultList) {
+                this.views.resultList.close();
+            }
+            this.views.resultList = new MetacardList.MetacardListView({ result: result, mapView: this.mapView, searchControlView: this });
         }
+        this.views.resultList.$el.show();
+        $(".centerNavText").text("Results ("+this.views.resultList.model.get("hits")+")");
         this.selectedView = "resultList";
         this.render();
     },
@@ -83,6 +90,8 @@ define(function (require) {
         $(".back").show();
         $(".forward").hide();
         $(".backNavText").text("Results");
+        $(".centerNavText").text("Metacard");
+        this.selectedView = "metacardDetail";
     }
 });
 

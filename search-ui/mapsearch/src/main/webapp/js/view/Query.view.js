@@ -17,6 +17,7 @@ define(function (require) {
 //the form should probably be a Backbone.Form but in the name of urgency I am leaving it
 //as a jquery form and just wrapping it with this view
     QueryFormView = Backbone.View.extend({
+    tagName: "div id='queryPage' class='height-full'",
     events: {
         'click #searchButton': 'search',
         'click #resetButton': 'reset',
@@ -54,7 +55,10 @@ define(function (require) {
             "clearPointRadius", "clearType", "getItemsPerPage", "getPageStartIndex", "updatePointRadius", "updateBoundingBox");
     },
     render: function() {
-        this.$el.html(ich.searchFormTemplate());
+        if(this.$el.html() === "")
+        {
+            this.$el.html(ich.searchFormTemplate());
+        }
 
         $('#absoluteStartTime').datetimepicker({
             dateFormat: $.datepicker.ATOM,
@@ -123,19 +127,6 @@ define(function (require) {
         //get results
 
         var view = this, result, options;
-
-//        $.ajax({
-//            url: $("#searchForm").attr("action"),
-//            data: $("#searchForm").serialize(),
-//            dataType: "jsonp",
-//            timeout: 300000
-//        }).done(function (results) {
-//                results.itemsPerPage = view.getItemsPerPage();
-//                results.startIndex = view.getPageStartIndex(1);
-//                view.options.searchControlView.showResults(results);
-//            }).fail(function () {
-//                showError("Failed to get results from server");
-//            });
         options = {
             'itemsPerPage': view.getItemsPerPage(),
             'startIndex': view.getPageStartIndex(1),
