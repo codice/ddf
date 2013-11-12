@@ -41,7 +41,7 @@ div.results-header {
 */
 .search-controls {
 	position: absolute;
-    top: 50px;
+    top: 0px;
     left: 0px;
     width: 400px;
     height: 100%;
@@ -240,10 +240,23 @@ div.resourceSize {
     right: 0px;
 }
 
+.logo {
+    position: relative;
+    padding-left: 400px;
+    white-space: nowrap;
+}
+
+.cesium-widget-credits {
+    left: 400px;
+}
+
+.resultTable {
+
+}
+
 .resultListScroll {
     overflow: hidden;
     overflow-y: scroll;
-    /*max-height: 500px;*/
     height: 100%;
 
     background:
