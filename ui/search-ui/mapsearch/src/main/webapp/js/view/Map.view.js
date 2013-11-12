@@ -2,11 +2,9 @@
 
 define(function (require) {
     "use strict";
-    console.log(require('cesium'));
     var $ = require('jquery'),
         Backbone = require('backbone'),
         _ = require('underscore'),
-
         SceneMode = require('cesium').SceneMode,
         Cartographic = require('cesium').Cartographic,
         OpenStreetMapImageryProvider = require('cesium').OpenStreetMapImageryProvider,
