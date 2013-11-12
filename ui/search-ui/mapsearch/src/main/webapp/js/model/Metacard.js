@@ -53,6 +53,6 @@ define(function (require) {
     url: "/services/catalog/query"
 });
 
-
+    return MetaCard;
 
 });
