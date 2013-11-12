@@ -22,7 +22,8 @@ define(function(require) {
         ddf = require('ddf'),
         Marionette = require('marionette'),
         Backbone = require('backbone'),
-        ich = require('icanhaz');
+        ich = require('icanhaz'),
+        Application = ddf.module();
 
 
     // Setup templates
@@ -30,9 +31,6 @@ define(function(require) {
     ich.addTemplate('navbarLayout', require('text!templates/navbar.layout.html'));
     ich.addTemplate('footerLayout', require('text!templates/footer.layout.html'));
     ich.addTemplate('classificationBanner', require('text!templates/classification/classification-banner.html'));
-
-    var Application = ddf.module();
-
 
 
     Application.Router = Backbone.Router.extend({

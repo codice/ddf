@@ -16,14 +16,14 @@ define(function (require) {
         CameraFlightPath = require('cesium/Scene/CameraFlightPath'),
         Extent = require('cesium/Core/Extent'),
 
-        CesiumViewer = require('cesium/Widgets/Viewer/Viewer');
+        CesiumViewer = require('cesium/Widgets/Viewer/Viewer'),
 
-    var MapView = Backbone.View.extend({
+        MapView = Backbone.View.extend({
         initialize: function (options) {
             _.bindAll(this, "render", "createResultsOnMap", "addAdditionalLayers", "flyToLocation");
         },
         render: function () {
-            this.mapViewer = this.createMap('geospatial-main');
+            this.mapViewer = this.createMap('cesiumContainer');
             this.createPicker(this.mapViewer.scene, this.mapViewer.centralBody.getEllipsoid());
             this.addAdditionalLayers(this.mapViewer.centralBody.getImageryLayers());
             return this;

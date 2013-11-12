@@ -1,37 +1,48 @@
 <div class="row-fluid no-select">
-    <!--<div class="left-flyout dark hide overlay-content-container left widget-color"></div>-->
-    <!--<div class="left-main-container fade-on-map-drag">-->
-        <!--<ul class="vertical-menu left">-->
-            <!--<li><button id="objective-view-toggle" class="btn widget-color" ><i class="icon-white icon-flag"></i><span>Objective Viewer</span></button></li>-->
-        <!--</ul>-->
-    <!--</div>-->
-    <div id="geospatial-main" class="geospatial-main">
-        <div class="toolbar"></div>
-        <canvas class="cesiumContainer"></canvas>
-        <div class="playback playback-slider">
-            <div class="animation-disabled"></div>
+
+    <div class="navbar navbar-inverse navbar-fixed-top">
+
+
+    <div class="navbar-inner">
+        <a class="brand" href="#"><i style="padding-left: 25px" class="icon-globe icon-white"></i>DDF</a>
+
+        <div class="nav-collapse collapse">
+            <ul class="nav">
+                <li class="active"><a href="#">Search</a></li>
+            </ul>
+            <ul class="nav pull-right">
+                <li><a href="SearchHelp.html?title=DDF">Help</a></li>
+            </ul>
         </div>
-        <!--<div class="snapshot-controls"></div>-->
-        <!--<div class="annotation-panel widget-color"></div>-->
-        <!--<div class="timeline"><button class="btn widget-color expand-timeline"><i class="icon-white icon-arrow-up" /></button></div>-->
-        <!--<div id="timeline-panel" class="timeline-panel widget-color"><div class="timeline-bar-container"><div class="timeline-bar-inner"></div></div><div class="thumb-line"></div></div>-->
-
     </div>
-    <!--<div class="right-main-container fade-on-map-drag">-->
-        <!--<ul class="vertical-menu right">-->
-            <!--<li><button id="info-inspector-toggle" class="btn widget-color" ><i class="icon-info icon-white"></i><span>Inspector</span></button></li>-->
-            <!--<li><button id="camera-views-toggle" class="btn widget-color hidden" ><i class="icon-picture icon-white"></i><span>Camera Views</span></button></li>-->
-            <!--<li><button id="snapshot-toggle" class="btn widget-color hidden" ><i class="icon-camera icon-white"></i><span>Snapshots</span></button></li>-->
-            <!--<li><button id="collaboration-toggle" class="btn widget-color" ><i class="icon-group icon-white"></i><span>Collaboration</span></button></li>-->
-            <!--<li><button id="search-results-toggle" class="btn widget-color hidden" ><i class="icon-search icon-white"></i><span>Search Results</span></button></li>-->
-        <!--</ul>-->
-        <!--<div class="bottom-right broadcast-icon">-->
-            <!--<img src="assets/images/icons/broadcast-green.png">-->
-        <!--</div>-->
-        <!--<div class="bottom-right follow-icon">-->
-            <!--<i class="icon-link icon-4x"></i>-->
-        <!--</div>-->
-    <!--</div>-->
+</div>
 
-    <div class="clear"></div>
+<!-- Metacard Modal -->
+<div id="metacardModal" class="modal hide" tabindex="-1" role="dialog"
+     aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal"
+                aria-hidden="true">&times;</button>
+        <h3>Record Metadata</h3>
+    </div>
+    <div class="modal-body"></div>
+    <div class="modal-footer"></div>
+</div>
+
+
+<div id="cesiumContainer">
+    <div id="toolbar"></div>
+</div>
+
+<div id="searchControls" class="partialaffix span3 search-controls row-fluid nav nav-list well well-small top-pad">
+    <table class="nav-table width-full">
+        <tr>
+            <td><a href="#" class="back nav-link hide"><i class="icon-chevron-left"></i>&nbsp;<span class="backNavText"></span></a></td>
+            <td><a href="#" class="forward nav-link pull-right hide"><span class="forwardNavText"></span>&nbsp;<i class="icon-chevron-right"></i></a></td>
+        </tr>
+    </table>
+    <hr class="nav-divider" />
+    <div id="searchPages"></div>
+</div>
+
 </div>

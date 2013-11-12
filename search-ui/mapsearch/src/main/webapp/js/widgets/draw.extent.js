@@ -4,9 +4,9 @@ define(function (require) {
     "use strict";
     var Marionette = require('marionette'),
         Backbone = require('backbone'),
-        ddf = require('ddf');
+        ddf = require('ddf'),
 
-    var Draw = {};
+        Draw = {};
 
     Draw.Views = {};
 
