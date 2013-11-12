@@ -40,5 +40,8 @@ var SearchResult = Backbone.RelationalModel.extend({
         relatedModel: MetacardResult,
         collectionType: MetacardList
     }],
-    url: "/services/catalog/query"
+    url: "/services/catalog/query",
+    loadMoreResults: function() {
+        var dosomething = null;
+    }
 });

@@ -6,20 +6,15 @@ var SearchControlView = Backbone.View.extend({
         'click .forward': 'forward'
     },
     views: {
-        'queryForm': 'queryForm',
-        'resultList': 'resultList',
-        'metacardDetail': 'metacardDetail',
-        'map': 'placeholder' //TODO this should go away when we do something else with the map
     },
     initialize: function() {
         _.bindAll(this, "render", "showQuery", "showResults", "showMetacardDetail", "back", "forward");
         this.selectedView = "queryForm";
-        this.views.queryForm = new QueryFormView({searchControlView: this, el: this.$el.children('#searchPages')});
-        this.views.resultList = new MetacardListView({searchControlView: this, el: this.$el.children('#searchPages')});
+        this.views.queryForm = new QueryFormView({searchControlView: this});
         this.views.map = mapView;
     },
     render: function() {
-        this.views[this.selectedView].render();
+        this.$el.children("#searchPages").append(this.views[this.selectedView].render().el);
         return this;
     },
     back: function() {
@@ -54,8 +49,10 @@ var SearchControlView = Backbone.View.extend({
     showQuery: function() {
         $(".back").hide();
         $(".forward").show();
+        this.views.queryForm.$el.show();
         if(this.views.resultList)
         {
+            this.views.resultList.$el.hide();
             $(".forwardNavText").text("Results ("+this.views.resultList.model.get("hits")+")");
         }
         $(".centerNavText").text("Query");
@@ -66,10 +63,15 @@ var SearchControlView = Backbone.View.extend({
         $(".forward").hide();
         $(".back").show();
         $(".backNavText").text("Query");
+        this.views.queryForm.$el.hide();
         if(result) {
             this.views.map.createResultsOnMap(result);
-            this.views.resultList = new MetacardListView({ result: result, mapView: this.mapView, searchControlView: this, el: this.$el.children('#searchPages') });
+            if(this.views.resultList) {
+                this.views.resultList.close();
+            }
+            this.views.resultList = new MetacardListView({ result: result, mapView: this.mapView, searchControlView: this });
         }
+        this.views.resultList.$el.show();
         $(".centerNavText").text("Results ("+this.views.resultList.model.get("hits")+")");
         this.selectedView = "resultList";
         this.render();
@@ -79,5 +81,6 @@ var SearchControlView = Backbone.View.extend({
         $(".forward").hide();
         $(".backNavText").text("Results");
         $(".centerNavText").text("Metacard");
+        this.selectedView = "metacardDetail";
     }
 });

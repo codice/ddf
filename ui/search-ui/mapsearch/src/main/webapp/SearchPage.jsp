@@ -121,7 +121,7 @@
     </div>
 
     <div id="searchControls" class="partialaffix span3 search-controls row-fluid nav nav-list well well-small">
-        <div class="logo">
+        <div class="searchSideBar">
             <i class="icon-globe icon-white"></i>DDF
         </div>
         <table class="nav-table width-full">
@@ -132,7 +132,11 @@
             </tr>
         </table>
         <hr class="nav-divider" />
-        <div id="searchPages" class="height-full"></div>
+        <div id="searchPages" class="height-full">
+            <%--<div id="queryPage" class="height-full"></div>--%>
+            <%--<div id="resultPage" class="height-full"></div>--%>
+            <%--<div id="metacardPage" class="height-full"></div>--%>
+        </div>
     </div>
 
     <%
