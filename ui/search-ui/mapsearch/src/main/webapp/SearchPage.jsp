@@ -81,27 +81,27 @@
 </head>
 <body>
 
-    <div class="navbar navbar-inverse navbar-fixed-top">
+    <%--<div class="navbar navbar-inverse navbar-fixed-top">--%>
         <%
         String h = org.codice.ddf.ui.searchui.search.properties.ConfigurationStore
         .getInstance().getHeader();
         if (h != null && h.trim().length() > 0)
-        out.println("<div class=\"banner\">" + h + "</div>");
+        out.println("<div class=\"navbar-fixed-top banner\">" + h + "</div>");
         %>
 
-        <div class="navbar-inner">
-            <a class="brand" href="#"><i style="padding-left: 25px" class="icon-globe icon-white"></i>DDF</a>
+        <%--<div class="navbar-inner">--%>
+            <%--<a class="brand" href="#"><i style="padding-left: 25px" class="icon-globe icon-white"></i>DDF</a>--%>
 
-            <div class="nav-collapse collapse">
-                <ul class="nav">
-                    <li class="active"><a href="#">Search</a></li>
-                </ul>
-                <ul class="nav pull-right">
-                    <li><a href="SearchHelp.html?title=DDF">Help</a></li>
-                </ul>
-            </div>
-        </div>
-    </div>
+            <%--<div class="nav-collapse collapse">--%>
+                <%--<ul class="nav">--%>
+                    <%--<li class="active"><a href="#">Search</a></li>--%>
+                <%--</ul>--%>
+                <%--<ul class="nav pull-right">--%>
+                    <%--<li><a href="SearchHelp.html?title=DDF">Help</a></li>--%>
+                <%--</ul>--%>
+            <%--</div>--%>
+        <%--</div>--%>
+    <%--</div>--%>
 
     <!-- Metacard Modal -->
     <div id="metacardModal" class="modal hide" tabindex="-1" role="dialog"
@@ -116,19 +116,27 @@
     </div>
 
 
-    <div id="cesiumContainer">
+    <div id="cesiumContainer" class="height-full width-full">
         <div id="toolbar"></div>
     </div>
 
-    <div id="searchControls" class="partialaffix span3 search-controls row-fluid nav nav-list well well-small top-pad">
+    <div id="searchControls" class="partialaffix span3 search-controls row-fluid nav nav-list well well-small">
+        <div class="searchSideBar">
+            <i class="icon-globe icon-white"></i>DDF
+        </div>
         <table class="nav-table width-full">
             <tr>
-                <td><a href="#" class="back nav-link hide"><i class="icon-chevron-left"></i>&nbsp;<span class="backNavText"></span></a></td>
-                <td><a href="#" class="forward nav-link pull-right hide"><span class="forwardNavText"></span>&nbsp;<i class="icon-chevron-right"></i></a></td>
+                <td style="width:50.1%"><a href="#" class="back nav-link hide"><i class="icon-chevron-left"></i>&nbsp;<span class="backNavText"></span></a></td>
+                <td style="white-space:nowrap"><span class="centerNavText">Query</span></td>
+                <td style="width:50.1%"><a href="#" class="forward nav-link pull-right hide"><span class="forwardNavText"></span>&nbsp;<i class="icon-chevron-right"></i></a></td>
             </tr>
         </table>
         <hr class="nav-divider" />
-        <div id="searchPages"></div>
+        <div id="searchPages" class="height-full">
+            <%--<div id="queryPage" class="height-full"></div>--%>
+            <%--<div id="resultPage" class="height-full"></div>--%>
+            <%--<div id="metacardPage" class="height-full"></div>--%>
+        </div>
     </div>
 
     <%

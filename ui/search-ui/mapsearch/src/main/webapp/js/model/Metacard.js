@@ -50,9 +50,11 @@ define(function (require) {
         relatedModel: MetaCard.MetacardResult,
         collectionType: MetaCard.MetacardList
     }],
-    url: "/services/catalog/query"
+    url: "/services/catalog/query",
+    loadMoreResults: function() {
+        var dosomething = null;
+    }
 });
-
     return MetaCard;
 
 });

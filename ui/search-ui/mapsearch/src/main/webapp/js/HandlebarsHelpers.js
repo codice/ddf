@@ -29,6 +29,14 @@ var helper, helpers = {
             }
         }
         return date;
+    },
+    isNotBlank: function(context, block) {
+        if(context && context !== "") {
+            return block.fn(this);
+        }
+        else {
+            return block.inverse(this);
+        }
     }
 };
 
