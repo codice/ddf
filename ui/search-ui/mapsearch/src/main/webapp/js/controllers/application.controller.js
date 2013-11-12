@@ -9,6 +9,7 @@ define(function(require) {
         _ = require('underscore'),
         Marionette = require('marionette'),
         Application = require('js/application'),
+        MapView = require('js/view/Map.view'),
         ApplicationController;
 
     ApplicationController = Marionette.Controller.extend({
@@ -54,6 +55,7 @@ define(function(require) {
         renderGeospatialViews : function(mainView) {
            // render cesium code here
             console.log('rendering cesium view now');
+            ddf.app.mapView = new MapView().render();
 
 
         },
