@@ -2,21 +2,23 @@
 
 define(function (require) {
     "use strict";
+    console.log(require('cesium'));
     var $ = require('jquery'),
         Backbone = require('backbone'),
         _ = require('underscore'),
-        SceneMode = require('cesium/Scene/SceneMode'),
-        Cartographic = require('cesium/Core/Cartographic'),
-        OpenStreetMapImageryProvider = require('cesium/Scene/OpenStreetMapImageryProvider'),
-        LabelCollection  = require('cesium/Scene/LabelCollection'),
-        GeoJsonDataSource = require('cesium/DynamicScene/GeoJsonDataSource'),
-        ScreenSpaceEventHandler = require('cesium/Core/ScreenSpaceEventHandler'),
-        CesiumMath = require('cesium/Core/Math'),
-        ScreenSpaceEventType = require('cesium/Core/ScreenSpaceEventType'),
-        CameraFlightPath = require('cesium/Scene/CameraFlightPath'),
-        Extent = require('cesium/Core/Extent'),
 
-        CesiumViewer = require('cesium/Widgets/Viewer/Viewer'),
+        SceneMode = require('cesium').SceneMode,
+        Cartographic = require('cesium').Cartographic,
+        OpenStreetMapImageryProvider = require('cesium').OpenStreetMapImageryProvider,
+        LabelCollection  = require('cesium').LabelCollection,
+        GeoJsonDataSource = require('cesium').GeoJsonDataSource,
+        ScreenSpaceEventHandler = require('cesium').ScreenSpaceEventHandler,
+        CesiumMath = require('cesium').Math,
+        ScreenSpaceEventType = require('cesium').ScreenSpaceEventType,
+        CameraFlightPath = require('cesium').CameraFlightPath,
+        Extent = require('cesium').Extent,
+
+        CesiumViewer = require('cesium').Viewer,
 
         MapView = Backbone.View.extend({
         initialize: function (options) {

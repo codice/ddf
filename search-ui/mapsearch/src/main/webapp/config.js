@@ -33,21 +33,22 @@
 
             ddf : 'js/ddf',
             // require plugins
-            text : 'lib/requirejs-plugins/lib/text'
-
+            text : 'lib/requirejs-plugins/lib/text',
+            cesium : 'Cesium/Cesium'
 
         },
 
 
-        packages : [
-            { name: 'cesium',      location: 'lib/cesium/Source' }
-        ],
 
         shim :  {
 
             backbone : {
                 deps: ['underscore', 'jquery'],
                 exports: 'Backbone'
+            },
+
+            cesium : {
+                exports : 'Cesium'
             },
 
             backbonerelational:  ['backbone'],
