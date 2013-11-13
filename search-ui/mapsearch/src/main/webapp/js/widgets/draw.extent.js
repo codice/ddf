@@ -19,8 +19,8 @@ define(function(require) {
                 initialize : function(options) {
                     this.canvas = options.scene.getCanvas();
                     this.scene = options.scene;
-                    this.ellipsoid = options.scene.getPrimitives().getCentralBody()
-                            .getEllipsoid();
+                    this.ellipsoid = options.scene.getPrimitives()
+                            .getCentralBody().getEllipsoid();
                     this.mouseHandler = new Cesium.ScreenSpaceEventHandler(
                             this.canvas);
                     this.extentPrimitive = new Cesium.ExtentPrimitive();
@@ -46,9 +46,8 @@ define(function(require) {
                     controller.enableLook = false;
                 },
                 getExtent : function(mn, mx) {
-                    var e = new Cesium.Extent(),
-                        epsilon = Cesium.Math.EPSILON7,
-                        modelProps;
+
+                    var e = new Cesium.Extent(), epsilon = Cesium.Math.EPSILON7, modelProps;
 
                     // Re-order so west < east and south < north
                     e.west = Math.min(mn.longitude, mx.longitude);
@@ -57,7 +56,7 @@ define(function(require) {
                     e.north = Math.max(mn.latitude, mx.latitude);
 
                     // Check for approx equal (shouldn't require abs due to
-                    // re-order) 
+                    // re-order)
 
                     if ((e.east - e.west) < epsilon) {
                         e.east += epsilon * 2.0;
@@ -76,9 +75,9 @@ define(function(require) {
                     this.extentPrimitive.extent = this.getExtent(mn, mx);
                 },
                 setToDegrees : function(w, s, e, n) {
-                    var toRad = Cesium.Math.toRadians,
-                       mn = new Cesium.Cartographic(toRad(w), toRad(s)),
-                       mx = new Cesium.Cartographic(toRad(e), toRad(n));
+                    var toRad = Cesium.Math.toRadians, mn = new Cesium.Cartographic(
+                            toRad(w), toRad(s)), mx = new Cesium.Cartographic(
+                            toRad(e), toRad(n));
                     this.setPolyPts(mn, mx);
                 },
                 handleRegionStop : function(movement) {
@@ -105,10 +104,9 @@ define(function(require) {
                 },
                 handleRegionStart : function(movement) {
                     var cartesian = this.scene.getCamera().controller
-                            .pickEllipsoid(movement.position, this.ellipsoid),
-                            that = this;
+                            .pickEllipsoid(movement.position, this.ellipsoid), that = this;
                     if (cartesian) {
-                        //var that = this;
+                        // var that = this;
                         this.click1 = this.ellipsoid
                                 .cartesianToCartographic(cartesian);
                         this.mouseHandler.setInputAction(function(movement) {
@@ -132,21 +130,22 @@ define(function(require) {
 
             });
 
-    Draw.Controller = Marionette.Controller.extend({
-        initialize : function(options) {
-            this.viewer = options.viewer;
-        },
+    Draw.Controller = Marionette.Controller
+            .extend({
+                initialize : function(options) {
+                    this.viewer = options.viewer;
+                },
 
-        drawExtent : function() {
-            var model = new Draw.ExtentModel(),
-                view = new Draw.Views.ExtentView({
-                scene : this.viewer.scene,
-                model : model
+                drawExtent : function() {
+                    var model = new Draw.ExtentModel(), view = new Draw.Views.ExtentView(
+                            {
+                                scene : this.viewer.scene,
+                                model : model
+                            });
+                    view.start();
+                    return model;
+                }
             });
-            view.start();
-            return model;
-        }
-    });
 
     Draw.Views.ButtonView = Backbone.View.extend({
 
