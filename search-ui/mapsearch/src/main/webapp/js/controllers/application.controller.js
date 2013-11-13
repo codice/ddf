@@ -11,6 +11,7 @@ define(function(require) {
         Application = require('js/application'),
         MapView = require('js/view/Map.view'),
         SearchControlView = require('js/view/SearchControl.view'),
+        DrawExtent = require('js/widgets/draw.extent'),
         ApplicationController;
 
     ApplicationController = Marionette.Controller.extend({
@@ -53,21 +54,21 @@ define(function(require) {
         },
 
         // Render the Geospatial Views within the Main View.
-        renderGeospatialViews : function(mainView) {
+        renderGeospatialViews: function (mainView) {
             // render cesium code here
             console.log('rendering cesium view now');
             var mapView = ddf.app.mapView = new MapView().render(),
 
                 searchControlView = new SearchControlView({
-                    map : mapView,
-                    el : $('#searchControls')
+                    map: mapView,
+                    el: $('#searchControls')
                 });
             searchControlView.render();
 
-            ddf.app.controllers.DrawExentController = new DrawExtent.Controller(
+            ddf.app.controllers.drawExentController = new DrawExtent.Controller(
                 {
-                    viewer : ddf.app.mapView.mapViewer
-                })();
+                    viewer: ddf.app.mapView.mapViewer
+                });
 
         },
 

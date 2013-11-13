@@ -7,12 +7,26 @@ define(function (require) {
         _ = require('underscore'),
         ich = require('icanhaz'),
         MetaCardListView = require('js/view/MetacardList.view'),
+        ddf = require('ddf'),
         MetaCard = require('js/model/Metacard'),
         QueryFormView;
     ich.addTemplate('searchFormTemplate', require('text!templates/searchForm.handlebars'));
 
     require('datepickerOverride');
     require('datepickerAddon');
+    require('modelbinder');
+
+    var BoundingBoxModel = Backbone.Model.extend({
+        // really for documentation only
+        defaults : {
+            north : undefined,
+            east : undefined,
+            west : undefined,
+            south : undefined
+        }
+    });
+
+
 
 //the form should probably be a Backbone.Form but in the name of urgency I am leaving it
 //as a jquery form and just wrapping it with this view
@@ -46,14 +60,22 @@ define(function (require) {
         'change select[name=typeList]': 'updateType',
         'change select[name=federationSources]': 'updateFederation'
     },
+
     initialize: function() {
         _.bindAll(this);
+
+        this.boundingBoxModel = new BoundingBoxModel();
+        this.bboxModelBinder = new Backbone.ModelBinder();
+
+
     },
     render: function() {
         if(this.$el.html() === "")
         {
             this.$el.html(ich.searchFormTemplate());
         }
+
+        this.bboxModelBinder.bind(this.boundingBoxModel,this.el);
 
         $('#absoluteStartTime').datetimepicker({
             dateFormat: $.datepicker.ATOM,
@@ -195,6 +217,7 @@ define(function (require) {
     bboxEvent: function() {
         this.clearPointRadius();
         this.updateBoundingBox();
+        ddf.app.controllers.drawExentController.drawExtent(this.boundingBoxModel);
     },
     noTypeEvent: function() {
         this.clearType();
@@ -385,6 +408,7 @@ define(function (require) {
     },
     clearBoundingBox: function() {
         $('input[name=bbox]').val("");
+        this.boundingBoxModel.clear();
     },
     clearType: function() {
         $('input[name=type]').val("");
