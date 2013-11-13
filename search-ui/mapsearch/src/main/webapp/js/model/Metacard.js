@@ -52,7 +52,15 @@ define(function (require) {
     }],
     url: "/services/catalog/query",
     loadMoreResults: function() {
-        var dosomething = null;
+        var queryParams = this.get("queryParams");
+        this.set("count", this.get("count") + this.get("itemsPerPage"));
+        queryParams = queryParams.replace(new RegExp("&count=\\d*", "g"), "&count="+this.get("count"));
+        this.fetch({
+            url: this.url,
+            data: queryParams,
+            dataType: "jsonp",
+            timeout: 300000
+        });
     }
 });
     return MetaCard;

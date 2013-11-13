@@ -168,8 +168,9 @@ define(function (require) {
 
         var view = this, result, options;
         options = {
-            'itemsPerPage': view.getItemsPerPage(),
-            'startIndex': view.getPageStartIndex(1),
+            'itemsPerPage': parseInt(view.getItemsPerPage(), 10),
+            'count': parseInt(view.getItemsPerPage(), 10),
+            'startIndex': parseInt(view.getPageStartIndex(1), 10),
             'queryParams': $("#searchForm").serialize()
         };
         result = new MetaCard.SearchResult(options);
