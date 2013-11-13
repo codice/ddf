@@ -32,6 +32,7 @@ define(function (require) {
         'click button[name=noFederationButton]': 'noFederationEvent',
         'click button[name=selectedFederationButton]': 'selectedFederationEvent',
         'click button[name=enterpriseFederationButton]': 'enterpriseFederationEvent',
+        'keypress .input-append' : 'filterOnEnter',
         'change input[name=offsetTime]': 'updateOffset',
         'change select[name=offsetTimeUnits]': 'updateOffset',
         'change input[name=latitude]': 'updatePointRadius',
@@ -45,14 +46,8 @@ define(function (require) {
         'change select[name=typeList]': 'updateType',
         'change select[name=federationSources]': 'updateFederation'
     },
-    initialize: function(options) {
-        _.bindAll(this, "render", "search", "reset", "noTemporalEvent", "noTypeEvent",
-            "typeEvent","relativeTimeEvent", "absoluteTimeEvent", "noLocationEvent",
-            "pointRadiusEvent", "bboxEvent", "noFederationEvent", "selectedFederationEvent",
-            "enterpriseFederationEvent", "updateType", "updateFederation", "updateFederationWarning",
-            "updateAbsoluteTime", "updateOffset", "validatePositiveInteger", "getPositiveIntValue",
-            "validateNumberInRange", "validateNumber","clearAbsoluteTime", "clearOffset", "clearBoundingBox",
-            "clearPointRadius", "clearType", "getItemsPerPage", "getPageStartIndex", "updatePointRadius", "updateBoundingBox");
+    initialize: function() {
+        _.bindAll(this);
     },
     render: function() {
         if(this.$el.html() === "")
@@ -114,15 +109,21 @@ define(function (require) {
                         types[sources[i].contentTypes[j].name] = true;
                     }
                 }
-
-                for (type in types) {
+                _.each(types, function(type){
                     to = new Option(type, type);
                     $(to).html(type);
                     $("#typeList").append(to);
-                }
+                });
+
             });
         return this;
     },
+
+    filterOnEnter : function(e){
+        if (e.keyCode !== 13) {return;}
+        this.search(e);
+    },
+
     search: function() {
         //get results
 
