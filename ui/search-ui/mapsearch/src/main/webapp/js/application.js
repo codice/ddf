@@ -53,7 +53,6 @@ define(function(require) {
     // ##Main Application View
     Application.Views.Main = Backbone.View.extend({
         tagName: 'div',
-        className : 'container-fluid',
 
 
 

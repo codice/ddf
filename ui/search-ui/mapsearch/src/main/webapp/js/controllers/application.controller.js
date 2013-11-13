@@ -22,12 +22,12 @@ define(function(require) {
             var controller = this,
                 mainView = new Application.Views.Main({
                     model : ddf.app.model
-                }),
+                });
 //                navbarView = new Application.Views.NavBar({
 //                    model: ddf.app.model
 //                }),
 //                navbarLayout = new Application.Views.NavBarLayout(),
-                footerLayout = new Application.Views.FooterLayout();
+//                footerLayout = new Application.Views.FooterLayout();
 
             // Once the main application view has been attached to the DOM, set up the dependent views.
             mainView.on('show', function() {
@@ -45,8 +45,8 @@ define(function(require) {
 //            navbarLayout.classification.show(new Application.Views.ClassificationBanner());
 //            navbarLayout.navbar.show(navbarView);
 
-            ddf.app.footerRegion.show(footerLayout);
-            footerLayout.classification.show(new Application.Views.ClassificationBanner());
+//            ddf.app.footerRegion.show(footerLayout);
+//            footerLayout.classification.show(new Application.Views.ClassificationBanner());
 
 
 

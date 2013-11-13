@@ -1,5 +1,12 @@
+/*global define, console*/
+define(function(require){
+    "use strict";
+
 // The module to be exported
-var helper, helpers = {
+var ich = require('icanhaz'),
+    _ = require('underscore'),
+    moment = require('moment'),
+    helper, helpers = {
     /*
      * Handlebars Helper: Moment.js
      * @author: https://github.com/Arkkimaagi
@@ -46,3 +53,5 @@ for (helper in helpers) {
         ich.addHelper(helper, helpers[helper]);
     }
 }
+
+});

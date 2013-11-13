@@ -10,6 +10,7 @@
             'marionette',
             'js/application',
             'js/controllers/application.controller',
+            'js/HandlebarsHelpers',
             'icanhaz'
         ], function ($, Backbone, Marionette, Application, ApplicationController) {
             var ddf = require('ddf'),
