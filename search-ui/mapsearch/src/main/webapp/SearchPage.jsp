@@ -127,7 +127,7 @@
         <table class="nav-table width-full">
             <tr>
                 <td style="width:50.1%"><a href="#" class="back nav-link hide"><i class="icon-chevron-left"></i>&nbsp;<span class="backNavText"></span></a></td>
-                <td style="white-space:nowrap"><span class="centerNavText">Query</span></td>
+                <td style="white-space:nowrap"><h5 style="margin: 0px"><span class="centerNavText">Query</span></h5></td>
                 <td style="width:50.1%"><a href="#" class="forward nav-link pull-right hide"><span class="forwardNavText"></span>&nbsp;<i class="icon-chevron-right"></i></a></td>
             </tr>
         </table>
