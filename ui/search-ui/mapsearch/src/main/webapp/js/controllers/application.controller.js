@@ -67,7 +67,8 @@ define(function(require) {
 
             ddf.app.controllers.drawExentController = new DrawExtent.Controller(
                 {
-                    viewer: ddf.app.mapView.mapViewer
+                    viewer: ddf.app.mapView.mapViewer,
+                    notificationEl: $("#notificationBar")
                 });
 
         },
