@@ -139,13 +139,15 @@ define(function (require) {
             layer.brightness = 2.0;
         },
         flyToLocation: function (geometry) {
-            var i, destination, flight, extent, cartArray = [];
+            var destination, flight, extent;
 
             //polygon
             if (geometry.get("coordinates").length === 1 && geometry.get("coordinates")[0].length > 1) {
-                for (i in geometry.get("coordinates")[0]) {
-                    cartArray.push(Cartographic.fromDegrees(geometry.get("coordinates")[0][i][0], geometry.get("coordinates")[0][i][1], 15000.0));
-                }
+
+                var cartArray = _.map(geometry.get("coordinates")[0], function(coordinate){
+                   return Cartographic.fromDegrees(coordinate[0], coordinate[1], 15000.0);
+                });
+
                 extent = Extent.fromCartographicArray(cartArray);
                 flight = CameraFlightPath.createAnimationExtent(this.mapViewer.scene, {
                     destination: extent
