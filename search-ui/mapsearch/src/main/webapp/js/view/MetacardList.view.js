@@ -41,21 +41,24 @@ define(function (require) {
 
     MetaCardListView.MetacardTable = Backbone.View.extend({
 
-        initialize: function () {
+        initialize: function (options) {
             _.bindAll(this, 'appendCard', 'render', 'removeCard', 'changeCard');
             this.collection.bind("add", this.appendCard);
             this.collection.bind("remove", this.removeCard);
             this.collection.bind("change", this.changeCard);
             this.metacardRows = [];
+            this.mapView = options.mapView;
         },
         render: function () {
             var m = null,
                 newRow = null,
-                mapView = this.mapView;
+                mapView = this.mapView,
+                metaCardRows = this.metacardRows,
+                view = this;
             this.collection.each(function (model) {
                 newRow = new MetaCardListView.MetacardRow({model: model, mapView : mapView});
-                this.metacardRows.push(newRow);
-                this.$el.append(newRow.render().el);
+                metaCardRows.push(newRow);
+                view.$el.append(newRow.render().el);
             });
             return this;
         },
@@ -84,9 +87,8 @@ define(function (require) {
             this.stopListening();
             this.unbind();
             this.collection.unbind();
-            for(i in this.metacardRows) {
-                this.metacardRows[i].close();
-            }
+            _.invoke(this.metacardRows, 'close');
+
         }
         
     });
@@ -114,7 +116,8 @@ define(function (require) {
             this.$el.html(ich.resultListTemplate(this.model.toJSON()));
             var metacardTable = new MetaCardListView.MetacardTable({
                 collection: this.model.get("results"),
-                el: this.$(".resultTable").children("tbody")
+                el: this.$(".resultTable").children("tbody"),
+                mapView : this.mapView
             });
             metacardTable.render();
             this.metacardTable = metacardTable;

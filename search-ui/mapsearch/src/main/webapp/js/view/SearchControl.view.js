@@ -79,7 +79,7 @@ define(function (require) {
             if(this.views.resultList) {
                 this.views.resultList.close();
             }
-            this.views.resultList = new MetacardList.MetacardListView({ result: result, mapView: this.mapView, searchControlView: this });
+            this.views.resultList = new MetacardList.MetacardListView({ result: result, mapView: this.views.map, searchControlView: this });
         }
         this.views.resultList.$el.show();
         $(".centerNavText").text("Results ("+this.views.resultList.model.get("hits")+")");
