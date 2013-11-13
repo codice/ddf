@@ -105,25 +105,14 @@ define(function (require) {
             this.extentPrimitive.extent = extent;
         },
 
-        setToDegrees: function (w, s, e, n) {
-            var toRad = Cesium.Math.toRadians,
-                mn = new Cesium.Cartographic(
-                    toRad(w), toRad(s)),
-                mx = new Cesium.Cartographic(
-                    toRad(e), toRad(n));
-            this.setPolyPts(mn, mx);
-        },
         handleRegionStop: function (movement) {
-            this.enableInput();
             var cartesian = this.scene.getCamera().controller
                 .pickEllipsoid(movement.position, this.ellipsoid);
             if (cartesian) {
                 this.click2 = this.ellipsoid
                     .cartesianToCartographic(cartesian);
             }
-            this.mouseHandler.destroy();
-
-            this.model.trigger("EndExtent", this.model);
+            this.stop();
 
         },
         handleRegionInter: function (movement) {
@@ -159,6 +148,16 @@ define(function (require) {
             this.mouseHandler.setInputAction(function (movement) {
                 that.handleRegionStart(movement);
             }, Cesium.ScreenSpaceEventType.LEFT_DOWN);
+        },
+
+        stop : function(){
+            if(!this.stopped){
+                this.enableInput();
+                this.mouseHandler.destroy();
+
+                this.model.trigger("EndExtent", this.model);
+            }
+            this.stopped = true;
         }
 
     });
@@ -177,10 +176,18 @@ define(function (require) {
                         model: bboxMModel
                     });
             view.start();
+            this.view = view;
             // instantiate pulldown view here
             // on listento clear remove it
 
             return bboxMModel;
+        },
+        stop : function(){
+            if(this.view){
+                this.view.stop();
+                this.view = undefined;
+            }
+
         }
     });
 

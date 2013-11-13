@@ -26,6 +26,13 @@ define(function (require) {
         }
     });
 
+    var CircleModel = Backbone.Model.extend({
+        defaults: {
+            latitude: undefined,
+            longitude: undefined,
+            radius: undefined
+        }
+    });
 
 
 //the form should probably be a Backbone.Form but in the name of urgency I am leaving it
@@ -66,9 +73,18 @@ define(function (require) {
 
         this.boundingBoxModel = new BoundingBoxModel();
         this.bboxModelBinder = new Backbone.ModelBinder();
+        this.circleModel = new CircleModel();
+        this.circleModelBinder = new Backbone.ModelBinder();
 
 
     },
+
+        radiusConverter : function(direction, value){
+
+        },
+
+
+
     render: function() {
         if(this.$el.html() === "")
         {
@@ -76,6 +92,7 @@ define(function (require) {
         }
 
         this.bboxModelBinder.bind(this.boundingBoxModel,this.el);
+        this.circleModelBinder.bind(this.circleModel,this.el);
 
         $('#absoluteStartTime').datetimepicker({
             dateFormat: $.datepicker.ATOM,
@@ -213,6 +230,7 @@ define(function (require) {
     pointRadiusEvent: function() {
         this.updatePointRadius();
         this.clearBoundingBox();
+        ddf.app.controllers.drawCircleController.draw(this.circleModel);
     },
     bboxEvent: function() {
         this.clearPointRadius();
@@ -402,13 +420,14 @@ define(function (require) {
         $('input[name=dtend]').val("");
     },
     clearPointRadius: function() {
-        $('input[name=lat]').val("");
-        $('input[name=lon]').val("");
-        $('input[name=radius]').val("");
+
+        this.circleModel.clear();
+        ddf.app.controllers.drawCircleController.stop();
     },
     clearBoundingBox: function() {
         $('input[name=bbox]').val("");
         this.boundingBoxModel.clear();
+        ddf.app.controllers.drawExentController.stop();
     },
     clearType: function() {
         $('input[name=type]').val("");

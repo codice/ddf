@@ -12,6 +12,7 @@ define(function(require) {
         MapView = require('js/view/Map.view'),
         SearchControlView = require('js/view/SearchControl.view'),
         DrawExtent = require('js/widgets/draw.extent'),
+        DrawCircle = require('js/widgets/draw.circle'),
         ApplicationController;
 
     ApplicationController = Marionette.Controller.extend({
@@ -65,11 +66,12 @@ define(function(require) {
                 });
             searchControlView.render();
 
-            ddf.app.controllers.drawExentController = new DrawExtent.Controller(
-                {
-                    viewer: ddf.app.mapView.mapViewer
-                });
-
+            ddf.app.controllers.drawExentController = new DrawExtent.Controller({
+                viewer: ddf.app.mapView.mapViewer
+            });
+            ddf.app.controllers.drawCircleController = new DrawCircle.Controller({
+                viewer: ddf.app.mapView.mapViewer
+            });
         },
 
         // Render the various menus/sub-views within the nav bar.
