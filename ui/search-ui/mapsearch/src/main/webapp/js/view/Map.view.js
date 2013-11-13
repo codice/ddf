@@ -9,20 +9,13 @@ var MapView = Backbone.View.extend({
     },
     createResultsOnMap: function(options) {
         var startAt, finishAt, i, metacardResult, metacard, jsonDataSource;
-        this.model = options;
-//        if(options && options.result)
-//        {
-//            this.model = options.result;
-//        }
-        if(options && options.startIndex)
+        if(options)
         {
-            startAt = options.startIndex;
+            this.model = options;
+            this.listenTo(this.model, 'change', this.createResultsOnMap);
         }
-        else
-        {
-            startAt = 0;
-        }
-        finishAt = startAt + this.model.get("itemsPerPage") - 1;
+        startAt = this.model.get("startIndex") - 1;
+        finishAt = startAt + this.model.get("count") - 1;
         // TODO: need to do some of this initialization in ViewSwitcher
         this.mapViewer.dataSources.removeAll();
 

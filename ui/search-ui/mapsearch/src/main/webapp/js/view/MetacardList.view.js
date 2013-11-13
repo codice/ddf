@@ -24,10 +24,7 @@ var MetacardRow = Backbone.View.extend({
 var MetacardTable = Backbone.View.extend({
     metacardRows: [],
     initialize: function(){
-        _.bindAll(this, 'appendCard', 'render', 'removeCard', 'changeCard');
-        this.listenTo(this.collection, 'change', this.changeCard);
-        this.listenTo(this.collection, 'remove', this.removeCard);
-        this.listenTo(this.collection, 'add', this.appendCard);
+        _.bindAll(this, 'render');
     },
     render: function() {
         var m = null,
@@ -38,25 +35,6 @@ var MetacardTable = Backbone.View.extend({
             this.$el.append(newRow.render().el);
         }
         return this;
-    },
-    appendCard: function(card) {
-        var newRow = new MetacardRow({model: card.metacard});
-        this.metacardRows.push(newRow);
-        this.$el.append(newRow.render().el);
-    },
-    removeCard: function(card) {
-        var i = null;
-        for(i in this.metacardRows) {
-            if(this.metacardRows[i].model.id === card.id) {
-                this.metacardRows[i].remove();
-                this.metacardRows.splice(i,1);
-                break;
-            }
-        }
-    },
-    changeCard: function(change) {
-        this.removeCard(change);
-        this.appendCard(new Metacard(change.attributes));
     },
     close: function() {
         var i;
@@ -97,6 +75,12 @@ var MetacardListView = Backbone.View.extend({
         });
         metacardTable.render();
         this.metacardTable = metacardTable;
+        if(this.model.get("results").length >= this.model.get("hits") || this.model.get("hits") === 0) {
+            $(".load-more-link").hide();
+        }
+        else {
+            $(".load-more-link").show();
+        }
         return this;
     },
     close: function() {
