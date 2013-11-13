@@ -46,14 +46,8 @@ define(function (require) {
         'change select[name=typeList]': 'updateType',
         'change select[name=federationSources]': 'updateFederation'
     },
-    initialize: function(options) {
-        _.bindAll(this, "render", "search", "reset", "noTemporalEvent", "noTypeEvent",
-            "typeEvent","relativeTimeEvent", "absoluteTimeEvent", "noLocationEvent",
-            "pointRadiusEvent", "bboxEvent", "noFederationEvent", "selectedFederationEvent",
-            "enterpriseFederationEvent", "updateType", "updateFederation", "updateFederationWarning",
-            "updateAbsoluteTime", "updateOffset", "validatePositiveInteger", "getPositiveIntValue",
-            "validateNumberInRange", "validateNumber","clearAbsoluteTime", "clearOffset", "clearBoundingBox",
-            "clearPointRadius", "clearType", "getItemsPerPage", "getPageStartIndex", "updatePointRadius", "updateBoundingBox");
+    initialize: function() {
+        _.bindAll(this);
     },
     render: function() {
         if(this.$el.html() === "")
