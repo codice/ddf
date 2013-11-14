@@ -164,6 +164,13 @@ define(function (require) {
 
         stop : function(){
             this.stopListening();
+            this.enableInput();
+            if(!this.mouseHandler.isDestroyed()){
+                this.mouseHandler.destroy();
+            }
+            if(!this.extentPrimitive.isDestroyed()){
+                this.scene.getPrimitives().remove(this.extentPrimitive);
+            }
 
         }
 
@@ -219,7 +226,9 @@ define(function (require) {
             return this;
         },
         close : function(){
-            this.$el.hide('fast');
+            this.$el.animate({
+                height: 'hide'
+            },425);
         }
     });
 
