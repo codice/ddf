@@ -67,11 +67,14 @@ define(function(require) {
             searchControlView.render();
 
             ddf.app.controllers.drawExentController = new DrawExtent.Controller({
-                viewer: ddf.app.mapView.mapViewer
+                viewer: ddf.app.mapView.mapViewer,
+                notificationEl: $("#notificationBar")
             });
             ddf.app.controllers.drawCircleController = new DrawCircle.Controller({
-                viewer: ddf.app.mapView.mapViewer
+                viewer: ddf.app.mapView.mapViewer,
+                notificationEl: $("#notificationBar")
             });
+
         },
 
         // Render the various menus/sub-views within the nav bar.

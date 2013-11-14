@@ -27,6 +27,14 @@ define(function (require) {
             this.mouseHandler = new Cesium.ScreenSpaceEventHandler(
                 this.canvas);
             this.extentPrimitive = new Cesium.ExtentPrimitive();
+            this.extentPrimitive.material = new Cesium.Material({
+                fabric : {
+                    type : 'Grid',
+                    uniforms : {
+                        color : Cesium.Color.BLACK
+                    },
+                }
+            });
             this.extentPrimitive.asynchronous = false;
             this.scene.getPrimitives().add(this.extentPrimitive);
             this.listenTo(this.model,'change', this.updatePrimitive);
@@ -158,6 +166,7 @@ define(function (require) {
                 this.model.trigger("EndExtent", this.model);
             }
             this.stopped = true;
+            
         }
 
     });
@@ -165,6 +174,7 @@ define(function (require) {
     Draw.Controller = Marionette.Controller.extend({
         initialize: function (options) {
             this.viewer = options.viewer;
+            this.notificationEl = options.notificationEl;
         },
 
         drawExtent: function (model) {
@@ -177,6 +187,14 @@ define(function (require) {
                     });
             view.start();
             this.view = view;
+            
+            this.notificationEl.empty();
+            $('<span>Extent Mode</span>').appendTo(this.notificationEl);
+            this.notificationEl.animate({
+                height: 'show'
+                },425, function() {
+            });
+            
             // instantiate pulldown view here
             // on listento clear remove it
 
