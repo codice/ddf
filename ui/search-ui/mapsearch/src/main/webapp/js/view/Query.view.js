@@ -1,7 +1,43 @@
+/*global define*/
+
+define(function (require) {
+    "use strict";
+    var $ = require('jquery'),
+        Backbone = require('backbone'),
+        _ = require('underscore'),
+        ich = require('icanhaz'),
+        ddf = require('ddf'),
+        MetaCard = require('js/model/Metacard'),
+        QueryFormView;
+    var text = require('text!templates/searchForm.handlebars');
+    ich.addTemplate('searchFormTemplate', text);
+
+    require('datepickerOverride');
+    require('datepickerAddon');
+    require('modelbinder');
+
+    var BoundingBoxModel = Backbone.Model.extend({
+        // really for documentation only
+        defaults : {
+            north : undefined,
+            east : undefined,
+            west : undefined,
+            south : undefined
+        }
+    });
+
+    var CircleModel = Backbone.Model.extend({
+        defaults: {
+            latitude: undefined,
+            longitude: undefined,
+            radius: undefined
+        }
+    });
+
 
 //the form should probably be a Backbone.Form but in the name of urgency I am leaving it
 //as a jquery form and just wrapping it with this view
-var QueryFormView = Backbone.View.extend({
+    QueryFormView = Backbone.View.extend({
     tagName: "div id='queryPage' class='height-full'",
     events: {
         'click .searchButton': 'search',
@@ -17,6 +53,7 @@ var QueryFormView = Backbone.View.extend({
         'click button[name=noFederationButton]': 'noFederationEvent',
         'click button[name=selectedFederationButton]': 'selectedFederationEvent',
         'click button[name=enterpriseFederationButton]': 'enterpriseFederationEvent',
+        'keypress input[name=q]' : 'filterOnEnter',
         'change input[name=offsetTime]': 'updateOffset',
         'change select[name=offsetTimeUnits]': 'updateOffset',
         'change input[name=latitude]': 'updatePointRadius',
@@ -30,20 +67,32 @@ var QueryFormView = Backbone.View.extend({
         'change select[name=typeList]': 'updateType',
         'change select[name=federationSources]': 'updateFederation'
     },
-    initialize: function(options) {
-        _.bindAll(this, "render", "search", "reset", "noTemporalEvent", "noTypeEvent",
-            "typeEvent","relativeTimeEvent", "absoluteTimeEvent", "noLocationEvent",
-            "pointRadiusEvent", "bboxEvent", "noFederationEvent", "selectedFederationEvent",
-            "enterpriseFederationEvent", "updateType", "updateFederation", "updateFederationWarning",
-            "updateAbsoluteTime", "updateOffset", "validatePositiveInteger", "getPositiveIntValue",
-            "validateNumberInRange", "validateNumber","clearAbsoluteTime", "clearOffset", "clearBoundingBox",
-            "clearPointRadius", "clearType", "getItemsPerPage", "getPageStartIndex", "updatePointRadius", "updateBoundingBox");
+
+    initialize: function() {
+        _.bindAll(this);
+
+        this.boundingBoxModel = new BoundingBoxModel();
+        this.bboxModelBinder = new Backbone.ModelBinder();
+        this.circleModel = new CircleModel();
+        this.circleModelBinder = new Backbone.ModelBinder();
+
+
     },
+
+        radiusConverter : function(direction, value){
+
+        },
+
+
+
     render: function() {
         if(this.$el.html() === "")
         {
             this.$el.html(ich.searchFormTemplate());
         }
+
+        this.bboxModelBinder.bind(this.boundingBoxModel,this.el);
+        this.circleModelBinder.bind(this.circleModel,this.el);
 
         $('#absoluteStartTime').datetimepicker({
             dateFormat: $.datepicker.ATOM,
@@ -99,26 +148,34 @@ var QueryFormView = Backbone.View.extend({
                         types[sources[i].contentTypes[j].name] = true;
                     }
                 }
-
-                for (type in types) {
+                _.each(types, function(type){
                     to = new Option(type, type);
                     $(to).html(type);
                     $("#typeList").append(to);
-                }
+                });
+
             });
         return this;
     },
+
+    filterOnEnter : function(e){
+        if (e.keyCode !== 13) {return;}
+        this.search();
+    },
+
     search: function() {
         //get results
-
         var view = this, result, options;
+        $('input[name=format]').val('geojson');
+        $('input[name=start]').val('1');
         options = {
             'itemsPerPage': parseInt(view.getItemsPerPage(), 10),
             'count': parseInt(view.getItemsPerPage(), 10),
             'startIndex': parseInt(view.getPageStartIndex(1), 10),
             'queryParams': $("#searchForm").serialize()
         };
-        result = new SearchResult(options);
+
+        result = new MetaCard.SearchResult(options);
         result.fetch({
             url: $("#searchForm").attr("action"),
             data: $("#searchForm").serialize(),
@@ -126,11 +183,11 @@ var QueryFormView = Backbone.View.extend({
             timeout: 300000
         }).complete(function(){
                 view.options.searchControlView.showResults(result);
-            });
+        });
 
     },
     reset: function() {
-        jQuery(':hidden').val('');
+        $(':hidden').val('');
 
         $('input[name=q]').val("");
         $('input[name=format]').val("geojson");
@@ -176,10 +233,12 @@ var QueryFormView = Backbone.View.extend({
     pointRadiusEvent: function() {
         this.updatePointRadius();
         this.clearBoundingBox();
+        ddf.app.controllers.drawCircleController.draw(this.circleModel);
     },
     bboxEvent: function() {
         this.clearPointRadius();
         this.updateBoundingBox();
+        ddf.app.controllers.drawExentController.drawExtent(this.boundingBoxModel);
     },
     noTypeEvent: function() {
         this.clearType();
@@ -364,12 +423,14 @@ var QueryFormView = Backbone.View.extend({
         $('input[name=dtend]').val("");
     },
     clearPointRadius: function() {
-        $('input[name=lat]').val("");
-        $('input[name=lon]').val("");
-        $('input[name=radius]').val("");
+
+        this.circleModel.clear();
+        ddf.app.controllers.drawCircleController.stop();
     },
     clearBoundingBox: function() {
         $('input[name=bbox]').val("");
+        this.boundingBoxModel.clear();
+        ddf.app.controllers.drawExentController.stop();
     },
     clearType: function() {
         $('input[name=type]').val("");
@@ -380,4 +441,6 @@ var QueryFormView = Backbone.View.extend({
     getPageStartIndex: function(index) {
         return 1 + (this.getItemsPerPage() * Math.floor((index - 1) / this.getItemsPerPage()));
     }
+});
+    return QueryFormView;
 });

@@ -1,17 +1,27 @@
+/*global define*/
 
-var SearchControlView = Backbone.View.extend({
-    el: $('#searchControls'),
+define(function (require) {
+    "use strict";
+    var $ = require('jquery'),
+        Backbone = require('backbone'),
+        _ = require('underscore'),
+        QueryFormView = require('js/view/Query.view'),
+        MetacardList = require('js/view/MetacardList.view'),
+
+
+    SearchControlView = Backbone.View.extend({
+
     events: {
         'click .back': 'back',
         'click .forward': 'forward'
     },
     views: {
     },
-    initialize: function() {
+    initialize: function(options) {
         _.bindAll(this, "render", "showQuery", "showResults", "showMetacardDetail", "back", "forward");
         this.selectedView = "queryForm";
         this.views.queryForm = new QueryFormView({searchControlView: this});
-        this.views.map = mapView;
+        this.views.map = options.map;
     },
     render: function() {
         this.$el.children("#searchPages").append(this.views[this.selectedView].render().el);
@@ -69,7 +79,7 @@ var SearchControlView = Backbone.View.extend({
             if(this.views.resultList) {
                 this.views.resultList.close();
             }
-            this.views.resultList = new MetacardListView({ result: result, mapView: this.mapView, searchControlView: this });
+            this.views.resultList = new MetacardList.MetacardListView({ result: result, mapView: this.views.map, searchControlView: this });
         }
         this.views.resultList.$el.show();
         $(".centerNavText").text("Results ("+this.views.resultList.model.get("hits")+")");
@@ -83,4 +93,7 @@ var SearchControlView = Backbone.View.extend({
         $(".centerNavText").text("Metacard");
         this.selectedView = "metacardDetail";
     }
+});
+
+    return SearchControlView;
 });

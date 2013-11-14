@@ -1,44 +1,54 @@
-var Geometry = Backbone.RelationalModel.extend({
+/*global define*/
+
+define(function (require) {
+    "use strict";
+    var $ = require('jquery'),
+        Backbone = require('backbone'),
+        _ = require('underscore'),
+        MetaCard = {};
+
+    require('backbonerelational');
+    MetaCard.Geometry = Backbone.RelationalModel.extend({
 
 });
 
-var Properties = Backbone.RelationalModel.extend({
+    MetaCard.Properties = Backbone.RelationalModel.extend({
 
 });
 
-var Metacard = Backbone.RelationalModel.extend({
+    MetaCard.Metacard = Backbone.RelationalModel.extend({
     relations: [
         {
             type: Backbone.HasOne,
             key: 'geometry',
-            relatedModel: Geometry
+            relatedModel: MetaCard.Geometry
         },
         {
             type: Backbone.HasOne,
             key: 'properties',
-            relatedModel: Properties
+            relatedModel: MetaCard.Properties
         }
     ]
 });
 
-var MetacardResult = Backbone.RelationalModel.extend({
+    MetaCard.MetacardResult = Backbone.RelationalModel.extend({
     relations: [{
         type: Backbone.HasOne,
         key: 'metacard',
-        relatedModel: Metacard
+        relatedModel: MetaCard.Metacard
     }]
 });
 
-var MetacardList = Backbone.Collection.extend({
-    model: MetacardResult
+    MetaCard.MetacardList = Backbone.Collection.extend({
+    model: MetaCard.MetacardResult
 });
 
-var SearchResult = Backbone.RelationalModel.extend({
+    MetaCard.SearchResult = Backbone.RelationalModel.extend({
     relations: [{
         type: Backbone.HasMany,
         key: 'results',
-        relatedModel: MetacardResult,
-        collectionType: MetacardList
+        relatedModel: MetaCard.MetacardResult,
+        collectionType: MetaCard.MetacardList
     }],
     url: "/services/catalog/query",
     loadMoreResults: function() {
@@ -52,4 +62,7 @@ var SearchResult = Backbone.RelationalModel.extend({
             timeout: 300000
         });
     }
+});
+    return MetaCard;
+
 });

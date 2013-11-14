@@ -1,0 +1,11 @@
+.DS_Store
+*.swp
+*.swo
+*.orig
+tmp/
+ext/
+node_modules/
+.grunt/
+npm-debug.log
+_SpecRunner.html
+components/

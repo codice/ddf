@@ -1,57 +1,69 @@
-var MapView = Backbone.View.extend({
-    initialize: function(options) {
-        _.bindAll(this, "render", "createResultsOnMap", "addAdditionalLayers", "flyToLocation");
-    },
-    render: function() {
-        this.mapViewer = this.createMap("cesiumContainer");
-        this.createPicker(this.mapViewer.scene, this.mapViewer.centralBody.getEllipsoid());
-        this.addAdditionalLayers(this.mapViewer.centralBody.getImageryLayers());
-    },
-    createResultsOnMap: function(options) {
-        var startAt, finishAt, i, metacardResult, metacard, jsonDataSource;
-        if(options)
-        {
-            this.model = options;
-            this.listenTo(this.model, 'change', this.createResultsOnMap);
-        }
-        startAt = this.model.get("startIndex") - 1;
-        finishAt = startAt + this.model.get("count") - 1;
-        // TODO: need to do some of this initialization in ViewSwitcher
-        this.mapViewer.dataSources.removeAll();
+/*global define*/
 
-        //defaultPoint = jsonDataSource.defaultPoint;
-        //defaultLine = jsonDataSource.defaultLine;
-        //defaultPolygon = jsonDataSource.defaultPolygon;
-        //billboard = new DynamicBillboard();
-        //billboard.image = new ConstantProperty('images/Billboard.png');
-        //defaultPoint.billboard = billboard;
-        //defaultLine.billboard = billboard;
-        //defaultPolygon.billboard = billboard;
+define(function (require) {
+    "use strict";
+    var $ = require('jquery'),
+        Backbone = require('backbone'),
+        _ = require('underscore'),
+        Cesium = require('cesium'),
+        SceneMode = require('cesium').SceneMode,
+        CesiumViewer = require('cesium').Viewer,
 
-        for (i = startAt; i <= finishAt; i++) {
+        MapView = Backbone.View.extend({
+        initialize: function (options) {
+            _.bindAll(this, "render", "createResultsOnMap", "addAdditionalLayers", "flyToLocation");
+        },
+        render: function () {
+            this.mapViewer = this.createMap('cesiumContainer');
+            this.createPicker(this.mapViewer.scene, this.mapViewer.centralBody.getEllipsoid());
+            this.addAdditionalLayers(this.mapViewer.centralBody.getImageryLayers());
+            return this;
+        },
+            createResultsOnMap: function(options) {
+                var startAt, finishAt, i, metacardResult, metacard, jsonDataSource;
+                if(options)
+                {
+                    this.model = options;
+                    this.listenTo(this.model, 'change', this.createResultsOnMap);
+                }
+                startAt = this.model.get("startIndex") - 1;
+                finishAt = startAt + this.model.get("count") - 1;
+                // TODO: need to do some of this initialization in ViewSwitcher
+                this.mapViewer.dataSources.removeAll();
 
-            //this object contains the metacard and the relevance
-            metacardResult = this.model.get("results").at(i);
-            if (metacardResult) {
-                jsonDataSource = new Cesium.GeoJsonDataSource();
+                //defaultPoint = jsonDataSource.defaultPoint;
+                //defaultLine = jsonDataSource.defaultLine;
+                //defaultPolygon = jsonDataSource.defaultPolygon;
+                //billboard = new DynamicBillboard();
+                //billboard.image = new ConstantProperty('images/Billboard.png');
+                //defaultPoint.billboard = billboard;
+                //defaultLine.billboard = billboard;
+                //defaultPolygon.billboard = billboard;
 
-                // jsonDataSource.load(testGeoJson, 'Test JSON');
-                metacard = metacardResult.get("metacard");
-                jsonDataSource.load(metacard.toJSON(), metacard.get("properties").get("title"));
+                for (i = startAt; i <= finishAt; i++) {
 
-                this.mapViewer.dataSources.add(jsonDataSource);
-            }
-        }
-    },
-    createMap: function(mapDivId) {
-        var viewer;
-        viewer = new Cesium.Viewer(mapDivId, {
-            // Start in Columbus Viewer
-            // sceneMode : Cesium.SceneMode.COLUMBUS_VIEW,
-            sceneMode: Cesium.SceneMode.SCENE3D,
-            animation: false,
-            fullscreenButton: false,
-            timeline: false,
+                    //this object contains the metacard and the relevance
+                    metacardResult = this.model.get("results").at(i);
+                    if (metacardResult) {
+                        jsonDataSource = new Cesium.GeoJsonDataSource();
+
+                        // jsonDataSource.load(testGeoJson, 'Test JSON');
+                        metacard = metacardResult.get("metacard");
+                        jsonDataSource.load(metacard.toJSON(), metacard.get("properties").get("title"));
+
+                        this.mapViewer.dataSources.add(jsonDataSource);
+                    }
+                }
+            },
+        createMap: function (mapDivId) {
+            var viewer;
+            viewer = new CesiumViewer(mapDivId, {
+                // Start in Columbus Viewer
+                // sceneMode : Cesium.SceneMode.COLUMBUS_VIEW,
+                sceneMode: SceneMode.SCENE3D,
+                animation: false,
+                fullscreenButton: false,
+                timeline: false,
 
             // Hide the base layer picker for OpenStreetMaps
             baseLayerPicker: false,
@@ -113,22 +125,23 @@ var MapView = Backbone.View.extend({
         layer.brightness = 2.0;
     },
     flyToLocation: function(geometry) {
-        var i, destination, flight, extent, cartArray = [];
+            var destination, flight, extent;
 
         //polygon
-        if(geometry.get("coordinates").length === 1 && geometry.get("coordinates")[0].length > 1)
-        {
-            for(i in geometry.get("coordinates")[0]) {
-                cartArray.push(Cesium.Cartographic.fromDegrees(geometry.get("coordinates")[0][i][0], geometry.get("coordinates")[0][i][1], 15000.0));
-            }
-            extent = Cesium.Extent.fromCartographicArray(cartArray);
-            flight = Cesium.CameraFlightPath.createAnimationExtent(this.mapViewer.scene, {
+            if (geometry.get("coordinates").length === 1 && geometry.get("coordinates")[0].length > 1) {
+
+                var cartArray = _.map(geometry.get("coordinates")[0], function(coordinate){
+                   return Cesium.Cartographic.fromDegrees(coordinate[0], coordinate[1], 15000.0);
+                });
+
+                extent = Cesium.Extent.fromCartographicArray(cartArray);
+                flight = Cesium.CameraFlightPath.createAnimationExtent(this.mapViewer.scene, {
                 destination : extent
             });
         }
         else {
-            destination = Cesium.Cartographic.fromDegrees(geometry.get("coordinates")[0], geometry.get("coordinates")[1], 15000.0);
-            flight = Cesium.CameraFlightPath.createAnimationCartographic(this.mapViewer.scene, {
+                destination = Cesium.Cartographic.fromDegrees(geometry.get("coordinates")[0], geometry.get("coordinates")[1], 15000.0);
+                flight = Cesium.CameraFlightPath.createAnimationCartographic(this.mapViewer.scene, {
                 destination : destination
             });
         }
@@ -136,4 +149,6 @@ var MapView = Backbone.View.extend({
 
         this.mapViewer.scene.getAnimations().add(flight);
     }
+        });
+    return MapView;
 });
