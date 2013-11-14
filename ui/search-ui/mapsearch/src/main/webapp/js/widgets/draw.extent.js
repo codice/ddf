@@ -29,9 +29,9 @@ define(function (require) {
             this.extentPrimitive = new Cesium.ExtentPrimitive();
             this.extentPrimitive.material = new Cesium.Material({
                 fabric : {
-                    type : 'Grid',
+                    type : 'Color',
                     uniforms : {
-                        color : Cesium.Color.BLACK
+                        color : new Cesium.Color(1.0, 1.0, 0.0, 0.3)
                     }
                 }
             });

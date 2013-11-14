@@ -33,13 +33,23 @@ define(function (require) {
                     modelProp.radius),
                 material : new Cesium.Material({
                     fabric : {
-                        type : 'Grid',
+                        type : 'Color',
                         uniforms : {
-                            color : Cesium.Color.BLACK
+                            // translucent yellow
+                            color : new Cesium.Color(1.0, 1.0, 0.0, 0.3)
                         }
                     }
                 })
             });
+
+//                material : new Cesium.Material({
+//                    fabric : {
+//                        type : 'Grid',
+//                        uniforms : {
+//                            color : Cesium.Color.BLACK
+//                        }
+//                    }
+//                })
             this.primitive.asynchronous = false;
 
 
