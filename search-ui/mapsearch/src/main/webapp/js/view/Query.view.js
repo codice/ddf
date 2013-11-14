@@ -6,11 +6,11 @@ define(function (require) {
         Backbone = require('backbone'),
         _ = require('underscore'),
         ich = require('icanhaz'),
-        MetaCardListView = require('js/view/MetacardList.view'),
         ddf = require('ddf'),
         MetaCard = require('js/model/Metacard'),
         QueryFormView;
-    ich.addTemplate('searchFormTemplate', require('text!templates/searchForm.handlebars'));
+    var text = require('text!templates/searchForm.handlebars');
+    ich.addTemplate('searchFormTemplate', text);
 
     require('datepickerOverride');
     require('datepickerAddon');
@@ -40,8 +40,8 @@ define(function (require) {
     QueryFormView = Backbone.View.extend({
     tagName: "div id='queryPage' class='height-full'",
     events: {
-        'click #searchButton': 'search',
-        'click #resetButton': 'reset',
+        'click .searchButton': 'search',
+        'click .resetButton': 'reset',
         'click button[name=noTemporalButton]': 'noTemporalEvent',
         'click button[name=relativeTimeButton]': 'relativeTimeEvent',
         'click button[name=absoluteTimeButton]': 'absoluteTimeEvent',
@@ -53,7 +53,7 @@ define(function (require) {
         'click button[name=noFederationButton]': 'noFederationEvent',
         'click button[name=selectedFederationButton]': 'selectedFederationEvent',
         'click button[name=enterpriseFederationButton]': 'enterpriseFederationEvent',
-        'keypress .input-append' : 'filterOnEnter',
+        'keypress input[name=q]' : 'filterOnEnter',
         'change input[name=offsetTime]': 'updateOffset',
         'change select[name=offsetTimeUnits]': 'updateOffset',
         'change input[name=latitude]': 'updatePointRadius',
@@ -160,19 +160,21 @@ define(function (require) {
 
     filterOnEnter : function(e){
         if (e.keyCode !== 13) {return;}
-        this.search(e);
+        this.search();
     },
 
     search: function() {
         //get results
-
         var view = this, result, options;
+        $('input[name=format]').val('geojson');
+        $('input[name=start]').val('1');
         options = {
             'itemsPerPage': parseInt(view.getItemsPerPage(), 10),
             'count': parseInt(view.getItemsPerPage(), 10),
             'startIndex': parseInt(view.getPageStartIndex(1), 10),
             'queryParams': $("#searchForm").serialize()
         };
+
         result = new MetaCard.SearchResult(options);
         result.fetch({
             url: $("#searchForm").attr("action"),
@@ -181,7 +183,7 @@ define(function (require) {
             timeout: 300000
         }).complete(function(){
                 view.options.searchControlView.showResults(result);
-            });
+        });
 
     },
     reset: function() {

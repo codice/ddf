@@ -5,17 +5,8 @@ define(function (require) {
     var $ = require('jquery'),
         Backbone = require('backbone'),
         _ = require('underscore'),
+        Cesium = require('cesium'),
         SceneMode = require('cesium').SceneMode,
-        Cartographic = require('cesium').Cartographic,
-        OpenStreetMapImageryProvider = require('cesium').OpenStreetMapImageryProvider,
-        LabelCollection  = require('cesium').LabelCollection,
-        GeoJsonDataSource = require('cesium').GeoJsonDataSource,
-        ScreenSpaceEventHandler = require('cesium').ScreenSpaceEventHandler,
-        CesiumMath = require('cesium').Math,
-        ScreenSpaceEventType = require('cesium').ScreenSpaceEventType,
-        CameraFlightPath = require('cesium').CameraFlightPath,
-        Extent = require('cesium').Extent,
-
         CesiumViewer = require('cesium').Viewer,
 
         MapView = Backbone.View.extend({
@@ -134,22 +125,23 @@ define(function (require) {
         layer.brightness = 2.0;
     },
     flyToLocation: function(geometry) {
-        var i, destination, flight, extent, cartArray = [];
+            var destination, flight, extent;
 
         //polygon
-        if(geometry.get("coordinates").length === 1 && geometry.get("coordinates")[0].length > 1)
-        {
-            for(i in geometry.get("coordinates")[0]) {
-                cartArray.push(Cesium.Cartographic.fromDegrees(geometry.get("coordinates")[0][i][0], geometry.get("coordinates")[0][i][1], 15000.0));
-            }
-            extent = Cesium.Extent.fromCartographicArray(cartArray);
-            flight = Cesium.CameraFlightPath.createAnimationExtent(this.mapViewer.scene, {
+            if (geometry.get("coordinates").length === 1 && geometry.get("coordinates")[0].length > 1) {
+
+                var cartArray = _.map(geometry.get("coordinates")[0], function(coordinate){
+                   return Cesium.Cartographic.fromDegrees(coordinate[0], coordinate[1], 15000.0);
+                });
+
+                extent = Cesium.Extent.fromCartographicArray(cartArray);
+                flight = Cesium.CameraFlightPath.createAnimationExtent(this.mapViewer.scene, {
                 destination : extent
             });
         }
         else {
-            destination = Cesium.Cartographic.fromDegrees(geometry.get("coordinates")[0], geometry.get("coordinates")[1], 15000.0);
-            flight = Cesium.CameraFlightPath.createAnimationCartographic(this.mapViewer.scene, {
+                destination = Cesium.Cartographic.fromDegrees(geometry.get("coordinates")[0], geometry.get("coordinates")[1], 15000.0);
+                flight = Cesium.CameraFlightPath.createAnimationCartographic(this.mapViewer.scene, {
                 destination : destination
             });
         }
@@ -157,4 +149,6 @@ define(function (require) {
 
         this.mapViewer.scene.getAnimations().add(flight);
     }
+        });
+    return MapView;
 });
