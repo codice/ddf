@@ -296,6 +296,18 @@ div.resourceSize {
     padding-bottom: 20px;
 }
 
+#notificationBar{
+	display: none;
+	color:white;
+	width:150px;
+	text-align:center;
+	margin-right:200px;
+	position:absolute;
+	top:0px;
+	left:50%;
+	background-color: #242424;
+}
+
 /*::-webkit-scrollbar {*/
     /*-webkit-appearance: none;*/
     /*width: 7px;*/
