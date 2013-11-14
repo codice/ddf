@@ -7,6 +7,7 @@ define(function (require) {
         Cesium = require('cesium'),
         _ = require('underscore'),
         ddf = require('ddf'),
+        DrawExtent = require('./draw.extent'),
         DrawCircle = ddf.module();
 
     DrawCircle.CircleModel = Backbone.Model.extend({
@@ -30,7 +31,14 @@ define(function (require) {
                     this.ellipsoid,
                     this.ellipsoid.cartographicToCartesian(Cesium.Cartographic.fromDegrees(modelProp.longitude, modelProp.latitude)),
                     modelProp.radius),
-                material : Cesium.Material.fromType(Cesium.Material.TyeDyeType)
+                material : new Cesium.Material({
+                    fabric : {
+                        type : 'Grid',
+                        uniforms : {
+                            color : Cesium.Color.BLACK
+                        }
+                    }
+                })
             });
             this.primitive.asynchronous = false;
 
@@ -86,7 +94,9 @@ define(function (require) {
             this.primitive.setPositions(Cesium.Shapes.computeCircleBoundary(
                 this.ellipsoid,
                 this.ellipsoid.cartographicToCartesian(Cesium.Cartographic.fromDegrees(modelProp.longitude, modelProp.latitude)),
-                modelProp.radius));
+                modelProp.radius,
+                100
+            ));
         },
 
         handleRegionStop: function (movement) {
@@ -141,25 +151,32 @@ define(function (require) {
     DrawCircle.Controller = Marionette.Controller.extend({
         initialize: function (options) {
             this.viewer = options.viewer;
+            this.notificationEl = options.notificationEl;
         },
 
         draw: function (model) {
             var circleModel = model || new DrawCircle.CircleModel(),
-                view = new DrawCircle.Views.CircleView(
-                    {
-                        scene: this.viewer.scene,
-                        model: circleModel
-                    });
+                view = new DrawCircle.Views.CircleView({
+                    scene: this.viewer.scene,
+                    model: circleModel
+                });
             view.start();
-            // instantiate pulldown view here
-            // on listento clear remove it
             this.view = view;
+
+            this.notificationView = new DrawExtent.Views.NotificationView({
+                el : this.notificationEl
+            }).render();
+            this.listenToOnce(circleModel, 'EndExtent', function(){
+                this.notificationView.close();
+            });
+
             return circleModel;
         },
         stop : function(){
             if(this.view){
                 this.view.stop();
                 this.view = undefined;
+                this.notificationView.close();
             }
         }
     });

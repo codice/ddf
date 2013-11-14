@@ -32,7 +32,7 @@ define(function (require) {
                     type : 'Grid',
                     uniforms : {
                         color : Cesium.Color.BLACK
-                    },
+                    }
                 }
             });
             this.extentPrimitive.asynchronous = false;
@@ -97,7 +97,7 @@ define(function (require) {
             var obj = model.toJSON();
             if(_.every(obj, function(val){
                 return _.isUndefined(val);
-            })){
+            }) || _.isEmpty(obj)){
                 this.scene.getPrimitives().remove(this.extentPrimitive);
                 // remove primitive?
                 return;
@@ -120,8 +120,9 @@ define(function (require) {
                 this.click2 = this.ellipsoid
                     .cartesianToCartographic(cartesian);
             }
-            this.stop();
-
+            this.enableInput();
+            this.mouseHandler.destroy();
+            this.model.trigger("EndExtent", this.model);
         },
         handleRegionInter: function (movement) {
             var cartesian = this.scene.getCamera().controller
@@ -158,15 +159,12 @@ define(function (require) {
             }, Cesium.ScreenSpaceEventType.LEFT_DOWN);
         },
 
-        stop : function(){
-            if(!this.stopped){
-                this.enableInput();
-                this.mouseHandler.destroy();
 
-                this.model.trigger("EndExtent", this.model);
-            }
-            this.stopped = true;
-            
+
+
+        stop : function(){
+            this.stopListening();
+
         }
 
     });
@@ -187,30 +185,42 @@ define(function (require) {
                     });
             view.start();
             this.view = view;
-            
-            this.notificationEl.empty();
-            $('<span>Extent Mode</span>').appendTo(this.notificationEl);
-            this.notificationEl.animate({
-                height: 'show'
-                },425, function() {
+            this.notificationView = new Draw.Views.NotificationView({
+                el : this.notificationEl
+            }).render();
+            this.listenToOnce(bboxMModel, 'EndExtent', function(){
+                this.notificationView.close();
             });
-            
-            // instantiate pulldown view here
-            // on listento clear remove it
-
             return bboxMModel;
         },
+
         stop : function(){
             if(this.view){
                 this.view.stop();
                 this.view = undefined;
+                this.notificationView.close();
             }
 
         }
     });
 
-    Draw.Views.ButtonView = Backbone.View.extend({
-
+    Draw.Views.NotificationView = Backbone.View.extend({
+        render : function(){
+            if(this.rendered){
+                this.$el.hide('fast');
+            }
+            this.$el.empty();
+            // if it gets any more complicated than this, then we shoudl move to templates
+            this.$el.append('<span>You are in Drawing Mode!</span>');
+            this.$el.animate({
+                height: 'show'
+            },425);
+            this.rendered = true;
+            return this;
+        },
+        close : function(){
+            this.$el.hide('fast');
+        }
     });
 
     return Draw;
