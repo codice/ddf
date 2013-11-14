@@ -94,8 +94,7 @@ define(function (require) {
             this.primitive.setPositions(Cesium.Shapes.computeCircleBoundary(
                 this.ellipsoid,
                 this.ellipsoid.cartographicToCartesian(Cesium.Cartographic.fromDegrees(modelProp.longitude, modelProp.latitude)),
-                modelProp.radius,
-                100
+                modelProp.radius
             ));
         },
 
