@@ -9,7 +9,7 @@ define(function (require) {
         _ = require('underscore');
 
     var Controller = Marionette.Controller.extend({
-        initialize : function(){
+        initialize: function () {
             this.mapViewer = this.createMap('cesiumContainer');
             this.scene = this.mapViewer.scene;
             this.ellipsoid = this.mapViewer.centralBody.getEllipsoid();
@@ -38,52 +38,52 @@ define(function (require) {
             return viewer;
         },
 
-        billboards : [
+        billboards: [
             'images/default.png',
             'images/default-selected.png'
             // add extra here if you want to switch
         ],
         // since we only need a single global collection of these billboards, we can prepare them here, if it
         // gets more complex, this should be pushed to individual collection views or views.
-        preloadBillboards : function(){
+        preloadBillboards: function () {
             var controller = this;
             // cesium loads the images asynchronously, so we need to use promises
             this.billboardPromise = Q.all(_.map(this.billboards, function (billboard) {
-                return Q(Cesium.loadImage(billboard));
-            }))
-                .then(function(images){
+                    return Q(Cesium.loadImage(billboard));
+                }))
+                .then(function (images) {
                     controller.billboardCollection = new Cesium.BillboardCollection();
                     controller.billboardCollection.setTextureAtlas(
                         controller.scene.getContext().createTextureAtlas({
-                            images : images
+                            images: images
                         })
                     );
                     controller.scene.getPrimitives().add(controller.billboardCollection);
                 });
 
         },
-        
-        setupEvents : function(){
+
+        setupEvents: function () {
             var controller = this;
             //Left button events
-            controller.handler.setInputAction(function(event) {
+            controller.handler.setInputAction(function (event) {
                 controller.trigger('click:left', controller.pickObject(event));
-                
+
             }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
 
-            controller.handler.setInputAction(function(event) {
+            controller.handler.setInputAction(function (event) {
                 controller.trigger('doubleclick:left', controller.pickObject(event));
-                
+
             }, Cesium.ScreenSpaceEventType.LEFT_DOUBLE_CLICK);
             //Right button events
-            controller.handler.setInputAction(function(event) {
+            controller.handler.setInputAction(function (event) {
                 //Tack on the object if one was clicked
                 controller.trigger('click:right', controller.pickObject(event));
-                
+
             }, Cesium.ScreenSpaceEventType.RIGHT_CLICK);
         },
 
-        pickObject : function(event) {
+        pickObject: function (event) {
             var controller = this,
             //Add the offset created by the timeline
                 position = new Cesium.Cartesian2(event.position.x, event.position.y),
@@ -94,12 +94,12 @@ define(function (require) {
             }
 
             return {
-                position : event.position,
-                object : selectedObject
+                position: event.position,
+                object: selectedObject
             };
         },
 
-        flyToLocation: function(model) {
+        flyToLocation: function (model) {
             console.log('flying to model dest:  ', model.toJSON());
             var destination, flight, extent;
 
@@ -107,26 +107,26 @@ define(function (require) {
             var geometry = model.get('geometry');
             if (geometry.isPolygon()) {
 
-                var cartArray = _.map(geometry.get("coordinates")[0], function(coordinate){
+                var cartArray = _.map(geometry.get("coordinates")[0], function (coordinate) {
                     return Cesium.Cartographic.fromDegrees(coordinate[0], coordinate[1], properties.defaultFlytoHeight);
                 });
 
                 extent = Cesium.Extent.fromCartographicArray(cartArray);
                 flight = Cesium.CameraFlightPath.createAnimationExtent(this.mapViewer.scene, {
-                    destination : extent
+                    destination: extent
                 });
             }
             else {
                 destination = Cesium.Cartographic.fromDegrees(geometry.get("coordinates")[0], geometry.get("coordinates")[1], properties.defaultFlytoHeight);
                 flight = Cesium.CameraFlightPath.createAnimationCartographic(this.mapViewer.scene, {
-                    destination : destination
+                    destination: destination
                 });
             }
 
 
             this.mapViewer.scene.getAnimations().add(flight);
         }
-        
+
     });
 
     return Controller;

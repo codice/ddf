@@ -1,6 +1,6 @@
 /*global define*/
 
-define(function(require){
+define(function (require) {
     "use strict";
 
     var $ = require('jquery'),
@@ -16,26 +16,26 @@ define(function(require){
     List.MetacardRow = Backbone.View.extend({
         tagName: "tr",
         events: {
-            'click .metacard-link' : 'viewMetacard'
+            'click .metacard-link': 'viewMetacard'
         },
-        initialize: function(options){
+        initialize: function (options) {
             _.bindAll(this);
             this.searchControlView = options.searchControlView;
             this.listenTo(this.model.get('metacard'), 'change:context', this.onChangeContext);
         },
-        render: function() {
+        render: function () {
             this.$el.html(ich.resultListItem(this.model.toJSON()));
             return this;
         },
-        onChangeContext: function(metacard) {
-            if(metacard.get('context')) {
+        onChangeContext: function (metacard) {
+            if (metacard.get('context')) {
                 this.searchControlView.showMetacardDetail(metacard);
             }
         },
-        viewMetacard: function() {
-            this.model.get('metacard').set('context',true);
+        viewMetacard: function () {
+            this.model.get('metacard').set('context', true);
         },
-        close: function() {
+        close: function () {
             this.remove();
             this.stopListening();
             this.unbind();
@@ -44,15 +44,15 @@ define(function(require){
 
     List.MetacardTable = Backbone.View.extend({
         metacardRows: [],
-        initialize: function(options){
+        initialize: function (options) {
             _.bindAll(this);
             this.searchControlView = options.searchControlView;
             this.metacardRows = [];
         },
-        render: function() {
+        render: function () {
             var view = this,
                 newRow = null;
-            this.collection.each(function(model){
+            this.collection.each(function (model) {
                 newRow = new List.MetacardRow({
                     model: model,
                     searchControlView: view.searchControlView
@@ -62,7 +62,7 @@ define(function(require){
             });
             return this;
         },
-        close: function() {
+        close: function () {
             this.remove();
             this.stopListening();
             this.unbind();
@@ -75,14 +75,14 @@ define(function(require){
         events: {
             'click .load-more-link': 'loadMoreResults'
         },
-        initialize: function(options) {
+        initialize: function (options) {
             _.bindAll(this);
             //options should be -> { results: results, mapView: mapView }
             this.model = options.result;
             this.searchControlView = options.searchControlView;
             this.listenTo(this.model, 'change', this.render);
         },
-        render: function() {
+        render: function () {
             this.$el.html(ich.resultListTemplate(this.model.toJSON()));
             var metacardTable = new List.MetacardTable({
                 collection: this.model.get("results"),
@@ -91,7 +91,7 @@ define(function(require){
             });
             metacardTable.render();
             this.metacardTable = metacardTable;
-            if(this.model.get("results").length >= this.model.get("hits") || this.model.get("hits") === 0) {
+            if (this.model.get("results").length >= this.model.get("hits") || this.model.get("hits") === 0) {
                 $(".load-more-link").hide();
             }
             else {
@@ -99,13 +99,13 @@ define(function(require){
             }
             return this;
         },
-        close: function() {
+        close: function () {
             this.remove();
             this.stopListening();
             this.unbind();
             this.metacardTable.close();
         },
-        loadMoreResults: function() {
+        loadMoreResults: function () {
             this.model.loadMoreResults();
         }
     });

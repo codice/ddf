@@ -55,6 +55,6 @@ define(function () {
         return new Point(x / f, y / f);
     };
 
-    return {Region : Region};
+    return {Region: Region};
 
 });

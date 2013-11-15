@@ -8,7 +8,7 @@
 /*global define*/
 
 // #Main Application
-define(function(require) {
+define(function (require) {
     'use strict';
 
     // Load non attached libs and plugins
@@ -37,12 +37,12 @@ define(function(require) {
             '': 'index'
         },
 
-        initialize : function() {
+        initialize: function () {
             _.bindAll(this);
         },
 
 
-        index : function () {
+        index: function () {
 
         }
 
@@ -53,8 +53,7 @@ define(function(require) {
         tagName: 'div',
 
 
-
-        initialize: function() {
+        initialize: function () {
             var view = this;
 
             _.bindAll(view);
@@ -63,7 +62,7 @@ define(function(require) {
 
         },
 
-        render : function () {
+        render: function () {
             var view = this;
 
             view.$el.html(ich.main());
@@ -76,20 +75,20 @@ define(function(require) {
 
 
     Application.Views.NavBarLayout = Marionette.Layout.extend({
-        template : 'navbarLayout',
-        className : 'navbar-layout',
+        template: 'navbarLayout',
+        className: 'navbar-layout',
 
-        regions : {
-            classification : '.classification-container',
-            navbar : '.navbar-container'
+        regions: {
+            classification: '.classification-container',
+            navbar: '.navbar-container'
         }
     });
 
     Application.Views.NavBar = Backbone.View.extend({
         className: "navbar navbar-fixed-top dark no-select",
 
-        events : {
-            'click #app-home' : 'onHome'
+        events: {
+            'click #app-home': 'onHome'
         },
 
         initialize: function () {
@@ -111,28 +110,28 @@ define(function(require) {
 
 
     Application.Views.FooterLayout = Marionette.Layout.extend({
-        template : 'footerLayout',
-        className : 'footer-layout',
+        template: 'footerLayout',
+        className: 'footer-layout',
 
-        regions : {
-            classification : '.classification-container',
-            branding : '.branding-container'
+        regions: {
+            classification: '.classification-container',
+            branding: '.branding-container'
         }
     });
 
     Application.Views.ClassificationBanner = Backbone.View.extend({
         className: "classification-banner",
 
-        initialize : function () {
+        initialize: function () {
             var view = this;
             _.bindAll(view);
         },
 
-        render : function() {
+        render: function () {
             var view = this,
                 classificationConfig = require('properties').classification,
                 style,
-                validStyles = ['unclassified','confidential','secret','topsecret'],
+                validStyles = ['unclassified', 'confidential', 'secret', 'topsecret'],
                 text,
                 classification = {};
 
@@ -158,10 +157,6 @@ define(function(require) {
             view.$el.html(ich.classificationBanner(classification));
         }
     });
-
-
-
-
 
 
     return Application;

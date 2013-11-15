@@ -28,16 +28,16 @@ define(function (require) {
                 this.canvas);
             this.extentPrimitive = new Cesium.ExtentPrimitive();
             this.extentPrimitive.material = new Cesium.Material({
-                fabric : {
-                    type : 'Color',
-                    uniforms : {
-                        color : new Cesium.Color(1.0, 1.0, 0.0, 0.2)
+                fabric: {
+                    type: 'Color',
+                    uniforms: {
+                        color: new Cesium.Color(1.0, 1.0, 0.0, 0.2)
                     }
                 }
             });
             this.extentPrimitive.asynchronous = false;
             this.scene.getPrimitives().add(this.extentPrimitive);
-            this.listenTo(this.model,'change', this.updatePrimitive);
+            this.listenTo(this.model, 'change', this.updatePrimitive);
         },
         enableInput: function () {
             var controller = this.scene
@@ -92,12 +92,12 @@ define(function (require) {
             this.extentPrimitive.extent = this.getExtent(mn, mx);
         },
 
-        updatePrimitive : function(model){
+        updatePrimitive: function (model) {
             var toRad = Cesium.Math.toRadians;
             var obj = model.toJSON();
-            if(_.every(obj, function(val){
+            if (_.every(obj, function (val) {
                 return _.isUndefined(val);
-            }) || _.isEmpty(obj)){
+            }) || _.isEmpty(obj)) {
                 this.scene.getPrimitives().remove(this.extentPrimitive);
                 // remove primitive?
                 return;
@@ -160,15 +160,13 @@ define(function (require) {
         },
 
 
-
-
-        stop : function(){
+        stop: function () {
             this.stopListening();
             this.enableInput();
-            if(!this.mouseHandler.isDestroyed()){
+            if (!this.mouseHandler.isDestroyed()) {
                 this.mouseHandler.destroy();
             }
-            if(!this.extentPrimitive.isDestroyed()){
+            if (!this.extentPrimitive.isDestroyed()) {
                 this.scene.getPrimitives().remove(this.extentPrimitive);
             }
 
@@ -193,16 +191,16 @@ define(function (require) {
             view.start();
             this.view = view;
             this.notificationView = new Draw.Views.NotificationView({
-                el : this.notificationEl
+                el: this.notificationEl
             }).render();
-            this.listenToOnce(bboxModel, 'EndExtent', function(){
+            this.listenToOnce(bboxModel, 'EndExtent', function () {
                 this.notificationView.close();
             });
             return bboxModel;
         },
 
-        stop : function(){
-            if(this.view){
+        stop: function () {
+            if (this.view) {
                 this.view.stop();
                 this.view = undefined;
                 this.notificationView.close();
@@ -212,8 +210,8 @@ define(function (require) {
     });
 
     Draw.Views.NotificationView = Backbone.View.extend({
-        render : function(){
-            if(this.rendered){
+        render: function () {
+            if (this.rendered) {
                 this.$el.hide('fast');
             }
             this.$el.empty();
@@ -221,14 +219,14 @@ define(function (require) {
             this.$el.append('<span>You are in Drawing Mode!</span>');
             this.$el.animate({
                 height: 'show'
-            },425);
+            }, 425);
             this.rendered = true;
             return this;
         },
-        close : function(){
+        close: function () {
             this.$el.animate({
                 height: 'hide'
-            },425);
+            }, 425);
         }
     });
 

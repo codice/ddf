@@ -25,18 +25,18 @@ define(function (require) {
             this.scene = options.scene;
             this.ellipsoid = options.scene.getPrimitives().getCentralBody().getEllipsoid();
             this.mouseHandler = new Cesium.ScreenSpaceEventHandler(this.canvas);
-            var modelProp = _.defaults(this.model.toJSON(), {latitude : 0, longitude: 0, radius:1});
+            var modelProp = _.defaults(this.model.toJSON(), {latitude: 0, longitude: 0, radius: 1});
             this.primitive = new Cesium.Polygon({
-                positions : Cesium.Shapes.computeCircleBoundary(
+                positions: Cesium.Shapes.computeCircleBoundary(
                     this.ellipsoid,
                     this.ellipsoid.cartographicToCartesian(Cesium.Cartographic.fromDegrees(modelProp.longitude, modelProp.latitude)),
                     modelProp.radius),
-                material : new Cesium.Material({
-                    fabric : {
-                        type : 'Color',
-                        uniforms : {
+                material: new Cesium.Material({
+                    fabric: {
+                        type: 'Color',
+                        uniforms: {
                             // translucent yellow
-                            color : new Cesium.Color(1.0, 1.0, 0.0, 0.2)
+                            color: new Cesium.Color(1.0, 1.0, 0.0, 0.2)
                         }
                     }
                 })
@@ -56,7 +56,7 @@ define(function (require) {
             this.scene.getPrimitives().add(this.primitive);
 
 
-            this.listenTo(this.model,'change', this.updatePrimitive);
+            this.listenTo(this.model, 'change', this.updatePrimitive);
         },
         enableInput: function () {
             var controller = this.scene.getScreenSpaceCameraController();
@@ -78,12 +78,12 @@ define(function (require) {
         setCircleRadius: function (mn, mx) {
             var startCartographic = this.ellipsoid.cartographicToCartesian(mn),
                 stopCart = this.ellipsoid.cartographicToCartesian(mx),
-                radius = Math.abs(Cesium.Cartesian3.distance(startCartographic,stopCart));
+                radius = Math.abs(Cesium.Cartesian3.distance(startCartographic, stopCart));
 
             var modelProp = {
-                latitude : (mn.latitude * 180 / Math.PI).toFixed(4),
-                longitude : (mn.longitude * 180 / Math.PI).toFixed(4),
-                radius : radius
+                latitude: (mn.latitude * 180 / Math.PI).toFixed(4),
+                longitude: (mn.longitude * 180 / Math.PI).toFixed(4),
+                radius: radius
 
             };
 
@@ -91,12 +91,12 @@ define(function (require) {
 
         },
 
-        updatePrimitive : function(model){
+        updatePrimitive: function (model) {
 
             var modelProp = model.toJSON();
-            if(_.every(modelProp, function(val){
+            if (_.every(modelProp, function (val) {
                 return _.isUndefined(val);
-            }) || _.isEmpty(modelProp)){
+            }) || _.isEmpty(modelProp)) {
                 this.scene.getPrimitives().remove(this.primitive);
                 return;
             }
@@ -149,7 +149,7 @@ define(function (require) {
                 that.handleRegionStart(movement);
             }, Cesium.ScreenSpaceEventType.LEFT_DOWN);
         },
-        stop : function(){
+        stop: function () {
             this.stopListening();
 
         }
@@ -173,16 +173,16 @@ define(function (require) {
             this.view = view;
 
             this.notificationView = new DrawExtent.Views.NotificationView({
-                el : this.notificationEl
+                el: this.notificationEl
             }).render();
-            this.listenToOnce(circleModel, 'EndExtent', function(){
+            this.listenToOnce(circleModel, 'EndExtent', function () {
                 this.notificationView.close();
             });
 
             return circleModel;
         },
-        stop : function(){
-            if(this.view){
+        stop: function () {
+            if (this.view) {
                 this.view.stop();
 
                 this.view = undefined;
