@@ -787,7 +787,7 @@ public class KmlEndpoint implements ConfigurationWatcher {
 
     @Override
     public void configurationUpdateCallback(Map<String, String> properties) {
-        String methodName = "ConfigurationUpdated";
+        String methodName = "configurationUpdateCallback";
         LOGGER.debug("ENTERING: " + methodName);
 
         if (properties != null && !properties.isEmpty()) {
