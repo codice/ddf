@@ -78,6 +78,9 @@ define(function (require) {
             $(".forward").show();
         }
         if(result) {
+            if(this.views.mapViews){
+                this.views.mapViews.close();
+            }
             this.views.mapViews = new CesiumMetacard.ResultsView({
                 collection : result.get('results'),
                 geoController : ddf.app.controllers.geoController

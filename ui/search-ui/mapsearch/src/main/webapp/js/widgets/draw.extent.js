@@ -178,7 +178,7 @@ define(function (require) {
 
     Draw.Controller = Marionette.Controller.extend({
         initialize: function (options) {
-            this.viewer = options.viewer;
+            this.scene = options.scene;
             this.notificationEl = options.notificationEl;
         },
 
@@ -187,7 +187,7 @@ define(function (require) {
             var bboxModel = model || new Draw.ExtentModel(),
                 view = new Draw.Views.ExtentView(
                     {
-                        scene: this.viewer.scene,
+                        scene: this.scene,
                         model: bboxModel
                     });
             view.start();
