@@ -1,6 +1,6 @@
 /*global define*/
 
-define(function(require){
+define(function (require) {
     "use strict";
 
     var Backbone = require('backbone'),
@@ -14,21 +14,21 @@ define(function(require){
 
         tagName: "div id='metacardPage' class='height-full'",
         events: {
-            'click .location-link' : 'viewLocation'
+            'click .location-link': 'viewLocation'
         },
-        initialize: function(options) {
+        initialize: function (options) {
             // options should be -> { metacard: metacard }
             this.model = options.metacard;
             this.listenTo(this.model, 'change', this.render);
         },
-        render: function() {
+        render: function () {
             this.$el.html(ich.metacardTemplate(this.model.toJSON()));
             return this;
         },
-        viewLocation: function() {
+        viewLocation: function () {
             ddf.app.controllers.geoController.flyToLocation(this.model);
         },
-        close: function() {
+        close: function () {
             this.remove();
             this.stopListening();
             this.unbind();

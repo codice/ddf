@@ -1,7 +1,7 @@
 /*global define*/
 /*jslint nomen: false*/
 
-define (function (require) {
+define(function (require) {
     'use strict';
     var Backbone = require('backbone'),
         _ = require('underscore'),
@@ -10,11 +10,11 @@ define (function (require) {
         ApplicationModel;
 
     ApplicationModel = Backbone.Model.extend({
-        defaults : {
+        defaults: {
 
         },
 
-        initialize: function() {
+        initialize: function () {
         }
 
     });
@@ -25,10 +25,10 @@ define (function (require) {
         // This is a factory method used to create the modules of our application.
         // Example:
         //    `var ModuleName = ddf.module();`
-        module : function (props) {
+        module: function (props) {
             return _.extend({ Views: {} }, Backbone.Events, props);
         },
 
-        app : app
+        app: app
     };
 });

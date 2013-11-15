@@ -9,70 +9,69 @@ define(function (require) {
         Views = {};
 
 
-
     Views.PointView = Marionette.ItemView.extend({
         initialize: function (options) {
             this.geoController = options.geoController;
             this.listenTo(this.model, 'change:context', this.toggleSelection);
             this.listenTo(this.geoController, 'click:left', this.onMapLeftClick);
             this.listenTo(this.geoController, 'doubleclick:left', this.onMapDoubleClick);
-            this.color = options.color || {red : 1,green :0.6431372549019608, blue:0.403921568627451, alpha : 1 };
+            this.color = options.color || {red: 1, green: 0.6431372549019608, blue: 0.403921568627451, alpha: 1 };
             this.imageIndex = options.imageIndex || 0;
             this.buildBillboard();
 
         },
 
-        buildBillboard : function(){
+        buildBillboard: function () {
             var view = this;
             this.geoController.billboardPromise.then(function () {
                 var point = view.model.get('geometry').getPoint();
                 view.billboard = view.geoController.billboardCollection.add({
-                    imageIndex : view.imageIndex,
-                    position : view.geoController.ellipsoid.cartographicToCartesian(
+                    imageIndex: view.imageIndex,
+                    position: view.geoController.ellipsoid.cartographicToCartesian(
                         Cesium.Cartographic.fromDegrees(
                             point.longitude,
                             point.latitude,
                             point.altitude
                         )
                     ),
-                    horizontalOrigin : Cesium.HorizontalOrigin.CENTER,
-                    verticalOrigin : Cesium.VerticalOrigin.BOTTOM,
-                    scaleByDistance : new Cesium.NearFarScalar(1.0, 1.0, 1.5e7, 0.5)
+                    horizontalOrigin: Cesium.HorizontalOrigin.CENTER,
+                    verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
+                    scaleByDistance: new Cesium.NearFarScalar(1.0, 1.0, 1.5e7, 0.5)
                 });
                 view.billboard.setColor(view.color);
                 view.billboard.setScale(0.41);
                 view.billboard.hasScale = true;
-            }).fail(function(error){
-                    console.log('error:  ', error.stack ? error.stack: error);
+            }).fail(function (error) {
+                    console.log('error:  ', error.stack ? error.stack : error);
                 });
         },
 
-        toggleSelection : function(){
+        toggleSelection: function () {
             var view = this;
 
-            if(view.billboard.getEyeOffset().z < 0){
-                view.billboard.setEyeOffset(new Cesium.Cartesian3(0,0,0));
-            } else{
-                view.billboard.setEyeOffset(new Cesium.Cartesian3(0,0,-10));
+            if (view.billboard.getEyeOffset().z < 0) {
+                view.billboard.setEyeOffset(new Cesium.Cartesian3(0, 0, 0));
+            } else {
+                view.billboard.setEyeOffset(new Cesium.Cartesian3(0, 0, -10));
             }
 
             if (view.model.get('context')) {
                 view.billboard.setScale(0.5);
-                view.billboard.setImageIndex(view.imageIndex+1);
+                view.billboard.setImageIndex(view.imageIndex + 1);
             } else {
                 view.billboard.setScale(0.41);
                 view.billboard.setImageIndex(view.imageIndex);
             }
 
         },
-        onMapLeftClick : function(event){
+        onMapLeftClick: function (event) {
             var view = this;
             // find out if this click is on us
             if (_.has(event, 'object') && event.object === view.billboard) {
                 view.model.set('context', true);
             }
         },
-        onMapDoubleClick : function(event){
+        onMapDoubleClick: function (event) {
             var view = this;
             // find out if this click is on us
             if (_.has(event, 'object') && event.object === view.billboard) {
@@ -82,12 +81,12 @@ define(function (require) {
         },
 
 
-        onClose : function(){
+        onClose: function () {
             var view = this;
 
             // If there is already a billboard for this view, remove it
             if (!_.isUndefined(view.billboard)) {
-               view.geoController.billboardCollection.remove(view.billboard);
+                view.geoController.billboardCollection.remove(view.billboard);
 
             }
             this.stopListening();
@@ -102,22 +101,22 @@ define(function (require) {
 //            this.listenTo(this.model, 'change:context', this.toggleSelection);
             this.listenTo(this.geoController, 'click:left', this.onMapLeftClick);
             this.listenTo(this.geoController, 'doubleclick:left', this.onMapDoubleClick);
-            this.color = options.color || {red : 1,green :0.6431372549019608, blue:0.403921568627451, alpha : 1 };
+            this.color = options.color || {red: 1, green: 0.6431372549019608, blue: 0.403921568627451, alpha: 1 };
             // a light blue
-            this.polygonColor = options.polygonColor || new Cesium.Color(0.3568627450980392,0.5764705882352941,0.8823529411764706,0.5);
+            this.polygonColor = options.polygonColor || new Cesium.Color(0.3568627450980392, 0.5764705882352941, 0.8823529411764706, 0.5);
             this.imageIndex = options.imageIndex || 0;
 //            this.buildBillboard();
             this.buildPolygon();
 
         },
-        onMapLeftClick : function(event){
+        onMapLeftClick: function (event) {
             var view = this;
             // find out if this click is on us
             if (_.has(event, 'object') && _.contains(view.polygons, event.object)) {
                 view.model.set('context', true);
             }
         },
-        onMapDoubleClick : function(event){
+        onMapDoubleClick: function (event) {
             var view = this;
             // find out if this click is on us
             if (_.has(event, 'object') && _.contains(view.polygons, event.object)) {
@@ -127,61 +126,61 @@ define(function (require) {
         },
 
 
-        buildPolygon : function(){
+        buildPolygon: function () {
             var view = this;
             var points = view.model.get('geometry').getPolygon();
             var cartPoints = _.map(points, function (point) {
-                return Cesium.Cartographic.fromDegrees(point.longitude,point.latitude,point.altitude);
+                return Cesium.Cartographic.fromDegrees(point.longitude, point.latitude, point.altitude);
             });
             var positions = view.geoController.ellipsoid.cartographicArrayToCartesianArray(cartPoints);
             var polygonOutlineInstance = new Cesium.GeometryInstance({
-                geometry : Cesium.PolygonOutlineGeometry.fromPositions({
-                    positions : positions
+                geometry: Cesium.PolygonOutlineGeometry.fromPositions({
+                    positions: positions
                 }),
-                attributes : {
-                    color : Cesium.ColorGeometryInstanceAttribute.fromColor(Cesium.Color.BLACK)
+                attributes: {
+                    color: Cesium.ColorGeometryInstanceAttribute.fromColor(Cesium.Color.BLACK)
                 }
             });
 
             // Blue polygon
             var polygonInstance = new Cesium.GeometryInstance({
-                geometry : Cesium.PolygonGeometry.fromPositions({
-                    positions : positions,
-                    vertexFormat : Cesium.PerInstanceColorAppearance.VERTEX_FORMAT
+                geometry: Cesium.PolygonGeometry.fromPositions({
+                    positions: positions,
+                    vertexFormat: Cesium.PerInstanceColorAppearance.VERTEX_FORMAT
                 }),
-                attributes : {
-                    color : Cesium.ColorGeometryInstanceAttribute.fromColor(view.polygonColor)
+                attributes: {
+                    color: Cesium.ColorGeometryInstanceAttribute.fromColor(view.polygonColor)
                 }
             });
             view.polygons = [
                 new Cesium.Primitive({
-                    geometryInstances : [polygonOutlineInstance],
-                    appearance : new Cesium.PerInstanceColorAppearance({
-                        flat : true,
-                        renderState : {
-                            depthTest : {
-                                enabled : true
+                    geometryInstances: [polygonOutlineInstance],
+                    appearance: new Cesium.PerInstanceColorAppearance({
+                        flat: true,
+                        renderState: {
+                            depthTest: {
+                                enabled: true
                             },
-                            lineWidth : Math.min(2.0, view.geoController.scene.getContext().getMaximumAliasedLineWidth())
+                            lineWidth: Math.min(2.0, view.geoController.scene.getContext().getMaximumAliasedLineWidth())
                         }
                     })
                 }),
                 new Cesium.Primitive({
-                    geometryInstances : [polygonInstance],
-                    appearance : new Cesium.PerInstanceColorAppearance({
-                        closed : true
+                    geometryInstances: [polygonInstance],
+                    appearance: new Cesium.PerInstanceColorAppearance({
+                        closed: true
                     })
                 })
             ];
 
-            _.each(view.polygons, function(polygonPrimitive){
+            _.each(view.polygons, function (polygonPrimitive) {
                 view.geoController.scene.getPrimitives().add(polygonPrimitive);
             });
 
         },
 
 
-        onClose : function(){
+        onClose: function () {
             var view = this;
 
             // If there is already a billboard for this view, remove it
@@ -189,7 +188,7 @@ define(function (require) {
                 view.geoController.billboardCollection.remove(view.billboard);
             }
             if (!_.isUndefined(view.polygons)) {
-                _.each(view.polygons, function(polygonPrimitive){
+                _.each(view.polygons, function (polygonPrimitive) {
                     view.geoController.scene.getPrimitives().remove(polygonPrimitive);
                 });
             }
@@ -198,26 +197,26 @@ define(function (require) {
         }
     });
 
-    Views.ResultsView =  Marionette.CollectionView.extend({
-        itemView : Backbone.View,
-        initialize : function(options){
+    Views.ResultsView = Marionette.CollectionView.extend({
+        itemView: Backbone.View,
+        initialize: function (options) {
             this.geoController = options.geoController;
         },
 
-        buildItemView : function(item, ItemViewType, itemViewOptions){
+        buildItemView: function (item, ItemViewType, itemViewOptions) {
             var metacard = item.get('metacard'),
                 geometry = metacard.get('geometry'),
                 ItemView;
-            if(!geometry){
+            if (!geometry) {
                 return new ItemViewType();
             }
             // build the final list of options for the item view type.
-            var options = _.extend({model: metacard, geoController : this.geoController}, itemViewOptions);
+            var options = _.extend({model: metacard, geoController: this.geoController}, itemViewOptions);
 
-            if(geometry.isPoint()){
+            if (geometry.isPoint()) {
                 ItemView = Views.PointView;
             }
-            else if(geometry.isPolygon()){
+            else if (geometry.isPolygon()) {
                 ItemView = Views.RegionView;
             }
             else {

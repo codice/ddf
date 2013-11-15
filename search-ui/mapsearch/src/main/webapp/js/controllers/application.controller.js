@@ -1,6 +1,6 @@
 /*global define, console */
 
-define(function(require) {
+define(function (require) {
     'use strict';
 
     // Load attached libs and application modules
@@ -16,14 +16,14 @@ define(function(require) {
         ApplicationController;
 
     ApplicationController = Marionette.Controller.extend({
-        initialize : function() {
+        initialize: function () {
             _.bindAll(this);
         },
 
-        renderApplicationViews : function() {
+        renderApplicationViews: function () {
             var controller = this,
                 mainView = new Application.Views.Main({
-                    model : ddf.app.model
+                    model: ddf.app.model
                 });
 //                navbarView = new Application.Views.NavBar({
 //                    model: ddf.app.model
@@ -32,7 +32,7 @@ define(function(require) {
 //                footerLayout = new Application.Views.FooterLayout();
 
             // Once the main application view has been attached to the DOM, set up the dependent views.
-            mainView.on('show', function() {
+            mainView.on('show', function () {
                 controller.renderGeospatialViews(mainView);
             });
 
@@ -51,7 +51,6 @@ define(function(require) {
 //            footerLayout.classification.show(new Application.Views.ClassificationBanner());
 
 
-
         },
 
         // Render the Geospatial Views within the Main View.
@@ -60,8 +59,8 @@ define(function(require) {
             console.log('rendering cesium view now');
             var geoController = ddf.app.controllers.geoController = new GeoController();
             var searchControlView = new SearchControlView({
-                    el: $('#searchControls')
-                });
+                el: $('#searchControls')
+            });
             searchControlView.render();
 
             ddf.app.controllers.drawExentController = new DrawExtent.Controller({
@@ -76,7 +75,7 @@ define(function(require) {
         },
 
         // Render the various menus/sub-views within the nav bar.
-        renderNavBarSubviews : function(/*navBarView*/) {
+        renderNavBarSubviews: function (/*navBarView*/) {
             // don't really have any at the moment
 //            navBarView.updateSubMenuClasses();
 //            navBarView.renderMapFrameworkNavigation();

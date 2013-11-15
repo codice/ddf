@@ -11,18 +11,18 @@ define(function (require) {
     require('backbonerelational');
     MetaCard.Geometry = Backbone.RelationalModel.extend({
 
-        isPoint : function(){
+        isPoint: function () {
             return this.get('type') === 'Point';
         },
-        getPoint : function(){
-            if(this.isPolygon()){
+        getPoint: function () {
+            if (this.isPolygon()) {
                 var polygon = this.getPolygon(),
                     region = new Util.Region(polygon),
                     centroid = region.centroid();
-                if(_.isNaN(centroid.latitude)){
+                if (_.isNaN(centroid.latitude)) {
                     // seems to happen when regions is perfect rectangle...
                     console.log('need to finish this part');
-                    return { latitude : 0, longitude : 0};
+                    return { latitude: 0, longitude: 0};
                 }
                 return centroid;
             }
@@ -31,15 +31,15 @@ define(function (require) {
             return this.convertPointCoordinate(coordinates);
 
         },
-        convertPointCoordinate : function(coordinate){
-            return {latitude : coordinate[1], longitude : coordinate[0], altitude : coordinate[2]} ;
+        convertPointCoordinate: function (coordinate) {
+            return {latitude: coordinate[1], longitude: coordinate[0], altitude: coordinate[2]};
         },
 
-        isPolygon : function(){
+        isPolygon: function () {
             return this.get('type') === 'Polygon';
         },
-        getPolygon : function(){
-            if(!this.isPolygon()){
+        getPolygon: function () {
+            if (!this.isPolygon()) {
                 console.log('This is not a polygon!! ', this);
                 return;
             }
@@ -51,29 +51,29 @@ define(function (require) {
 
     MetaCard.Properties = Backbone.RelationalModel.extend({
 
-});
+    });
 
     MetaCard.Metacard = Backbone.RelationalModel.extend({
-        initialize : function(){
-            this.listenTo(this,'change:context', this.onChangeContext);
+        initialize: function () {
+            this.listenTo(this, 'change:context', this.onChangeContext);
         },
 
-        onChangeContext : function(){
+        onChangeContext: function () {
             var eventBus = ddf.app,
                 name = 'model:context';
 
-            if(this.get('context')){
+            if (this.get('context')) {
                 eventBus.trigger(name, this);
-                this.listenTo(eventBus,name,this.onAppContext);
+                this.listenTo(eventBus, name, this.onAppContext);
             }
         },
 
-        onAppContext : function(model){
+        onAppContext: function (model) {
             var eventBus = ddf.app,
                 name = 'model:context';
-            if(model !== this){
-                this.stopListening(eventBus,name);
-                this.set('context',false);
+            if (model !== this) {
+                this.stopListening(eventBus, name);
+                this.set('context', false);
 
             }
         },
@@ -106,7 +106,7 @@ define(function (require) {
     MetaCard.MetacardList = Backbone.Collection.extend({
         model: MetaCard.MetacardResult
     });
-    
+
     MetaCard.SearchResult = Backbone.RelationalModel.extend({
         defaults: {
             count: 100,
@@ -119,14 +119,16 @@ define(function (require) {
                 start: "&start="
             }
         },
-        relations: [{
-            type: Backbone.HasMany,
-            key: 'results',
-            relatedModel: MetaCard.MetacardResult,
-            collectionType: MetaCard.MetacardList
-        }],
+        relations: [
+            {
+                type: Backbone.HasMany,
+                key: 'results',
+                relatedModel: MetaCard.MetacardResult,
+                collectionType: MetaCard.MetacardList
+            }
+        ],
         url: "/services/catalog/query",
-        loadMoreResults: function() {
+        loadMoreResults: function () {
             var queryParams;
             this.set("count", this.get("count") + this.get("itemsPerPage"));
             queryParams = this.getQueryParams();
@@ -137,10 +139,10 @@ define(function (require) {
                 timeout: 300000
             });
         },
-        getQueryParams: function() {
-            return this.get("queryParams")+this.get("queryParamDefaults").count+this.get("count")+
-                this.get("queryParamDefaults").start+this.get("startIndex")+
-                this.get("queryParamDefaults").format+this.get("format");
+        getQueryParams: function () {
+            return this.get("queryParams") + this.get("queryParamDefaults").count + this.get("count") +
+                this.get("queryParamDefaults").start + this.get("startIndex") +
+                this.get("queryParamDefaults").format + this.get("format");
         }
     });
     return MetaCard;
