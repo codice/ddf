@@ -245,12 +245,14 @@ define(function (require) {
     pointRadiusEvent: function() {
         this.updatePointRadius();
         this.clearBoundingBox();
-        ddf.app.controllers.drawCircleController.draw(this.circleModel);
+        var model = ddf.app.controllers.drawCircleController.draw(this.circleModel);
+        model.once('EndExtent', this.updatePointRadius);
     },
     bboxEvent: function() {
         this.clearPointRadius();
         this.updateBoundingBox();
-        ddf.app.controllers.drawExentController.drawExtent(this.boundingBoxModel);
+        var model = ddf.app.controllers.drawExentController.drawExtent(this.boundingBoxModel);
+        model.once('EndExtent', this.updateBoundingBox);
     },
     noTypeEvent: function() {
         this.clearType();

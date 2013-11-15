@@ -76,6 +76,9 @@ define(function (require) {
         $(".backNavText").text("Query");
         this.views.queryForm.$el.hide();
         if(result) {
+            if(this.views.mapViews){
+                this.views.mapViews.close();
+            }
             this.views.mapViews = new CesiumMetacard.ResultsView({
                 collection : result.get('results'),
                 geoController : ddf.app.controllers.geoController

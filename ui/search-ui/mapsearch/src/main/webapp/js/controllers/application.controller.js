@@ -59,20 +59,17 @@ define(function(require) {
             // render cesium code here
             console.log('rendering cesium view now');
             var geoController = ddf.app.controllers.geoController = new GeoController();
-            var mapViewer = ddf.app.mapViewer = geoController.mapView,
-
-                searchControlView = new SearchControlView({
-                    map: mapViewer,
+            var searchControlView = new SearchControlView({
                     el: $('#searchControls')
                 });
             searchControlView.render();
 
             ddf.app.controllers.drawExentController = new DrawExtent.Controller({
-                viewer: mapViewer,
+                scene: geoController.scene,
                 notificationEl: $("#notificationBar")
             });
             ddf.app.controllers.drawCircleController = new DrawCircle.Controller({
-                viewer: mapViewer,
+                scene: geoController.scene,
                 notificationEl: $("#notificationBar")
             });
 

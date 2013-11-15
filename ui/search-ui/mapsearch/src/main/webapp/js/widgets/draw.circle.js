@@ -159,14 +159,14 @@ define(function (require) {
 
     DrawCircle.Controller = Marionette.Controller.extend({
         initialize: function (options) {
-            this.viewer = options.viewer;
+            this.scene = options.scene;
             this.notificationEl = options.notificationEl;
         },
 
         draw: function (model) {
             var circleModel = model || new DrawCircle.CircleModel(),
                 view = new DrawCircle.Views.CircleView({
-                    scene: this.viewer.scene,
+                    scene: this.scene,
                     model: circleModel
                 });
             view.start();
@@ -184,6 +184,7 @@ define(function (require) {
         stop : function(){
             if(this.view){
                 this.view.stop();
+
                 this.view = undefined;
                 this.notificationView.close();
             }
