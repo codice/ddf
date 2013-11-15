@@ -30,16 +30,12 @@
                         type="hidden" name="dtend" value="">
 
                     <div class="input-prepend">
-                        <span class="add-on add-on-label">Begin <i class="icon-time"></i></span>
+                        <span class="add-on add-on-label">Begin&nbsp;<i class="icon-time"></i></span>
                         <input id="absoluteStartTime" name="absoluteStartTime" type="text" class="span8"/>
                     </div>
                     <div class="input-prepend">
-                        <span class="add-on add-on-label">End <i class="icon-time"></i></span>
+                        <span class="add-on add-on-label">End&nbsp;<i class="icon-time"></i></span>
                         <input id="absoluteEndTime" name="absoluteEndTime" type="text" class="span8"/>
-                    </div>
-                    <div class="alert alert-block span11" id="timeAbsoluteWarning">
-                        Warning! If either value is unpopulated, the search will not
-                        use any temporal filters
                     </div>
 
                 </div>
@@ -49,9 +45,8 @@
 
                         <div class="span11 input-prepend input-append">
                             <div class="span7">
-                                <span class="add-on add-on-label">Last</span> <input
-                                    id="offsetTime" class="span5" name="offsetTime"
-                                    type="number"/>
+                                <span class="add-on add-on-label">Last</span>
+                                <input id="offsetTime" class="span5" name="offsetTime" type="number"/>
                             </div>
                             <select id="offsetTimeUnits" class="add-on span3"
                                     name="offsetTimeUnits">
@@ -63,10 +58,6 @@
                                 <option value="months">months</option>
                                 <option value="years">years</option>
                             </select>
-                        </div>
-                        <div class="alert alert-block span11" id="timeRelativeWarning">
-                            Warning! If the 'Last' duration is unpopulated, the search
-                            will not use any temporal filters
                         </div>
                     </div>
                 </div>
@@ -102,19 +93,19 @@
                         type="hidden" name="lon" value="">
 
                     <div class="span11 input-prepend input-append">
-                        <span class="add-on add-on-label">Latitude<i class="icon-globe"></i></span>
+                        <span class="add-on add-on-label">Latitude&nbsp;<i class="icon-globe"></i></span>
                         <input class="span7" id="latitude" name="latitude" type="number" min="-90" max="90" step="any" placeholder=""/>
                         <label class="add-on">&deg;</label>
                     </div>
                     <div class="span11 input-prepend input-append">
-                        <span class="add-on add-on-label">Longitude<i class="icon-globe"></i></span>
+                        <span class="add-on add-on-label">Longitude&nbsp;<i class="icon-globe"></i></span>
                         <input class="span7" id="longitude" name="longitude" type="number" min="-180" max="180" step="any" placeholder=""/>
                         <label class="add-on">&deg;</label>
                     </div>
 
                     <div class="span11 input-prepend input-append">
                         <div class="span7">
-                            <span class="add-on add-on-label">Radius<i class="icon-plus"></i></span>
+                            <span class="add-on add-on-label">Radius&nbsp;<i class="icon-plus"></i></span>
                             <input class="span5" id="radiusValue" name="radiusValue" type="number" placeholder=""/>
                         </div>
                         <select id="radiusUnits" class="add-on span4" name="radiusUnits">
@@ -125,38 +116,30 @@
                             <option value="miles">miles</option>
                         </select>
                     </div>
-                    <div class="alert alert-block span11" id="pointRadiusWarning">
-                        Warning! If any Point-Radius value is unpopulated, the search
-                        will not use any location filters
-                    </div>
                 </div>
 
                 <div id="boundingbox" class="tab-pane">
                     <input type="hidden" name="bbox" value="">
 
                     <div class="span11 input-prepend input-append">
-                        <span class="add-on add-on-label">West <i class="icon-globe"></i></span>
+                        <span class="add-on add-on-label">West&nbsp;<i class="icon-globe"></i></span>
                         <input class="span7" id="west" name="west" type="number" min="-180" max="180" step="any" placeholder=""/>
                         <label class="add-on">&deg;</label>
                     </div>
                     <div class="span11 input-prepend input-append">
-                        <span class="add-on add-on-label">South <i class="icon-globe"></i></span>
+                        <span class="add-on add-on-label">South&nbsp;<i class="icon-globe"></i></span>
                         <input class="span7" id="south" name="south" type="number" min="-90" max="90" step="any" placeholder=""/>
                         <label class="add-on">&deg;</label>
                     </div>
                     <div class="span11 input-prepend input-append">
-                        <span class="add-on add-on-label">East <i class="icon-globe"></i></span>
+                        <span class="add-on add-on-label">East&nbsp;<i class="icon-globe"></i></span>
                         <input class="span7" id="east" name="east" type="number" min="-180" max="180" step="any" placeholder=""/>
                         <label class="add-on">&deg;</label>
                     </div>
                     <div class="span11 input-prepend input-append">
-                        <span class="add-on add-on-label">North <i class="icon-globe"></i></span>
+                        <span class="add-on add-on-label">North&nbsp;<i class="icon-globe"></i></span>
                         <input class="span7" id="north" name="north" type="number" min="-90" max="90" step="any" placeholder=""/>
                         <label class="add-on">&deg;</label>
-                    </div>
-                    <div class="alert alert-block span11" id="boundingBoxWarning">
-                        Warning! If any field is unpopulated, the search will not use
-                        any location filters
                     </div>
                 </div>
 
@@ -215,10 +198,6 @@
                     <div id="scrollableSources" class="scrollable">
                         <select id="federationSources" multiple="multiple" name="federationSources">
                         </select>
-                    </div>
-                    <div class="alert alert-block" id="federationListWarning">
-                        Warning! If no selections are made, the search will use 'All
-                        Sources'
                     </div>
                 </div>
             </div>

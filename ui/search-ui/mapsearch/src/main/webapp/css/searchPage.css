@@ -322,6 +322,14 @@ div.resourceSize {
 
 /*Metacard Detail View*/
 
+.metacard-link {
+    white-space:nowrap;
+    text-overflow:ellipsis;
+    width:350px;
+    display: block;
+    overflow: hidden;
+}
+
 .metacard-nav {
     margin-top: 20px;
     margin-left: 0px;
@@ -386,3 +394,6 @@ td.metacard-table, th.metacard-table {
     padding-bottom: 100px;
 }
 
+span.add-on {
+    color: #242424;
+}
