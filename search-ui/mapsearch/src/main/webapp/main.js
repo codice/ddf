@@ -10,9 +10,10 @@
             'marionette',
             'js/application',
             'js/controllers/application.controller',
-            'js/HandlebarsHelpers',
-            'icanhaz'
-        ], function ($, Backbone, Marionette, Application, ApplicationController) {
+            'icanhaz',
+            'js/HandlebarsHelpers'
+
+        ], function ($, Backbone, Marionette, Application, ApplicationController, ich) {
             var ddf = require('ddf'),
                 app = ddf.app;
 
@@ -50,8 +51,9 @@
                 Backbone.history.start();
                 console.log('application running');
             });
+
             if(window){
-                // make aviture object available on window.  Makes debugging in chrome console much easier
+                // make ddf object available on window.  Makes debugging in chrome console much easier
                 window.ddf = ddf;
             }
 

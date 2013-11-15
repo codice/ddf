@@ -40,7 +40,6 @@ define(function(require) {
 
         initialize : function() {
             _.bindAll(this);
-
         },
 
 
