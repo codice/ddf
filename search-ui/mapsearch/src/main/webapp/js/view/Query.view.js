@@ -184,20 +184,16 @@ define(function (require) {
 
     search: function() {
         //get results
-        var view = this, result, options;
-        $('input[name=format]').val('geojson');
-        $('input[name=start]').val('1');
+        var queryParams, view = this, result, options;
+        queryParams = $("#searchForm").serialize();
         options = {
-            'itemsPerPage': parseInt(view.getItemsPerPage(), 10),
-            'count': parseInt(view.getItemsPerPage(), 10),
-            'startIndex': parseInt(view.getPageStartIndex(1), 10),
-            'queryParams': $("#searchForm").serialize()
+            'queryParams': queryParams
         };
 
         result = new MetaCard.SearchResult(options);
         result.fetch({
             url: $("#searchForm").attr("action"),
-            data: $("#searchForm").serialize(),
+            data: result.getQueryParams(),
             dataType: "jsonp",
             timeout: 300000
         }).complete(function(){
@@ -209,9 +205,6 @@ define(function (require) {
         $(':hidden').val('');
 
         $('input[name=q]').val("");
-        $('input[name=format]').val("geojson");
-        $('select[name=count]').val("10");
-        $('input[name=start]').val("1");
 
         $('button[name=noLocationButton]').click();
         //point radius
@@ -480,7 +473,7 @@ define(function (require) {
         $('input[name=type]').val("");
     },
     getItemsPerPage: function() {
-        return parseInt($('select[name=count]').val(), 10);
+        return parseInt($('input[name=count]').val(), 10);
     },
     getPageStartIndex: function(index) {
         return 1 + (this.getItemsPerPage() * Math.floor((index - 1) / this.getItemsPerPage()));
