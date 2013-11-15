@@ -18,17 +18,13 @@ define(function(require){
         events: {
             'click .metacardLink' : 'viewMetacard'
         },
-        initialize : function(options){
-            this.mapView = options.mapView;
-        },
+
         render: function() {
             this.$el.html(ich.resultListItem(this.model.toJSON()));
             return this;
         },
         viewMetacard: function() {
-            //do something to view the metacard, worry about that later
-            var geometry = this.model.get("metacard").get("geometry");
-            this.mapView.flyToLocation(geometry);
+
         },
         close: function() {
             this.remove();
@@ -41,9 +37,8 @@ define(function(require){
 
     List.MetacardTable = Backbone.View.extend({
         metacardRows: [],
-        initialize: function(options){
+        initialize: function(){
             _.bindAll(this, 'render');
-            this.mapView = options.mapView;
             this.metacardRows = [];
         },
         render: function() {
@@ -51,8 +46,7 @@ define(function(require){
                 newRow = null;
             this.collection.each(function(model){
                 newRow = new List.MetacardRow({
-                    model: model,
-                    mapView : view.mapView
+                    model: model
                 });
                 view.metacardRows.push(newRow);
                 view.$el.append(newRow.render().el);
@@ -81,19 +75,13 @@ define(function(require){
             {
                 this.model = options.result;
             }
-            if(options && options.mapView)
-            {
-                //we can control what results are displayed on the map as we page
-                this.mapView = options.mapView;
-            }
             this.listenTo(this.model, 'change', this.render);
         },
         render: function() {
             this.$el.html(ich.resultListTemplate(this.model.toJSON()));
             var metacardTable = new List.MetacardTable({
                 collection: this.model.get("results"),
-                el: this.$(".resultTable").children("tbody"),
-                mapView : this.mapView
+                el: this.$(".resultTable").children("tbody")
             });
             metacardTable.render();
             this.metacardTable = metacardTable;

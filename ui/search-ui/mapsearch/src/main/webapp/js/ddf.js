@@ -14,7 +14,7 @@ define (function (require) {
 
         },
 
-        initialize: function(options) {
+        initialize: function() {
         }
 
     });

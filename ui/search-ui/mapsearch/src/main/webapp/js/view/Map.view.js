@@ -2,15 +2,14 @@
 
 define(function (require) {
     "use strict";
-    var $ = require('jquery'),
-        Backbone = require('backbone'),
+    var Backbone = require('backbone'),
         _ = require('underscore'),
         Cesium = require('cesium'),
         SceneMode = require('cesium').SceneMode,
         CesiumViewer = require('cesium').Viewer,
 
         MapView = Backbone.View.extend({
-        initialize: function (options) {
+        initialize: function () {
             _.bindAll(this, "render", "createResultsOnMap", "addAdditionalLayers", "flyToLocation");
         },
         render: function () {
@@ -95,7 +94,7 @@ define(function (require) {
         }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
 
     },
-    addAdditionalLayers: function (imageryLayerCollection) {
+    addAdditionalLayers: function () {
 //        this.addAddtionalLayer(imageryLayerCollection, new Cesium.TileMapServiceImageryProvider({
 //            url: 'http://cesium.agi.com/blackmarble',
 //            maximumLevel: 8,
