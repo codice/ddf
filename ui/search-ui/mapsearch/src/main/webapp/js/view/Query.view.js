@@ -165,21 +165,19 @@ define(function (require) {
 
     search: function() {
         //get results
-        var view = this, result, options;
-        $('input[name=format]').val('geojson');
-        $('input[name=start]').val('1');
-        $('input[name=count]').val('100');
+        var queryParams, view = this, result, options;
+        queryParams = $("#searchForm").serialize()+"&format=geojson&start=1&count=100";
         options = {
-            'itemsPerPage': parseInt(view.getItemsPerPage(), 10),
-            'count': parseInt(view.getItemsPerPage(), 10),
-            'startIndex': parseInt(view.getPageStartIndex(1), 10),
-            'queryParams': $(".searchForm").serialize()
+            'itemsPerPage': 100,
+            'count': 100,
+            'startIndex': 1,
+            'queryParams': queryParams
         };
 
         result = new MetaCard.SearchResult(options);
         result.fetch({
             url: $("#searchForm").attr("action"),
-            data: $("#searchForm").serialize(),
+            data: queryParams,
             dataType: "jsonp",
             timeout: 300000
         }).complete(function(){
@@ -434,7 +432,7 @@ define(function (require) {
         $('input[name=type]').val("");
     },
     getItemsPerPage: function() {
-        return parseInt($('select[name=count]').val(), 10);
+        return parseInt($('input[name=count]').val(), 10);
     },
     getPageStartIndex: function(index) {
         return 1 + (this.getItemsPerPage() * Math.floor((index - 1) / this.getItemsPerPage()));
