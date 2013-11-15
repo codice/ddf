@@ -104,7 +104,7 @@ define(function (require) {
             this.listenTo(this.geoController, 'doubleclick:left', this.onMapDoubleClick);
             this.color = options.color || {red : 1,green :0.6431372549019608, blue:0.403921568627451, alpha : 1 };
             // a light blue
-            this.polygonColor = options.polygonColor || new Cesium.Color(0.3568627450980392,0.5764705882352941,0.8823529411764706,1);
+            this.polygonColor = options.polygonColor || new Cesium.Color(0.3568627450980392,0.5764705882352941,0.8823529411764706,0.5);
             this.imageIndex = options.imageIndex || 0;
 //            this.buildBillboard();
             this.buildPolygon();

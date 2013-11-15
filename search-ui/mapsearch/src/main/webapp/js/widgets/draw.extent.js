@@ -31,7 +31,7 @@ define(function (require) {
                 fabric : {
                     type : 'Color',
                     uniforms : {
-                        color : new Cesium.Color(1.0, 1.0, 0.0, 0.3)
+                        color : new Cesium.Color(1.0, 1.0, 0.0, 0.2)
                     }
                 }
             });
