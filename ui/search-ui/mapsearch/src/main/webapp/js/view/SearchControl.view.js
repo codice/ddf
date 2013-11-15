@@ -24,10 +24,16 @@ define(function (require) {
         _.bindAll(this, "render", "showQuery", "showResults", "showMetacardDetail", "back", "forward");
         this.selectedView = "queryForm";
         this.views.queryForm = new QueryFormView({searchControlView: this});
+        this.listenTo(this.views.queryForm, 'clear', this.onQueryClear);
     },
     render: function() {
         this.$el.children("#searchPages").append(this.views[this.selectedView].render().el);
         return this;
+    },
+    onQueryClear: function () {
+        if(this.views.mapViews){
+            this.views.mapViews.close();
+        }
     },
     back: function() {
 //        if(this.selectedView === "queryForm")
