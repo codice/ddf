@@ -31,6 +31,7 @@ define(function (require) {
         return this;
     },
     onQueryClear: function () {
+        $(".forward").hide();
         if(this.views.mapViews){
             this.views.mapViews.close();
         }

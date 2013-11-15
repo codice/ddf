@@ -16,7 +16,7 @@ define(function(require){
     List.MetacardRow = Backbone.View.extend({
         tagName: "tr",
         events: {
-            'click .metacardLink' : 'viewMetacard'
+            'click .metacard-link' : 'viewMetacard'
         },
         initialize: function(options){
             _.bindAll(this);
