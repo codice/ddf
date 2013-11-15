@@ -1,4 +1,4 @@
-/*global define*/
+/*global define, Option*/
 
 define(function (require) {
     "use strict";
@@ -147,7 +147,7 @@ define(function (require) {
             url: "/services/catalog/sources",
             dataType: "jsonp"
         }).done(function (data) {
-                var sources, types, type, to, i, j, id, o;
+                var sources, types, to, i, j, id, o;
                 sources = data;
                 types = {};
 
@@ -176,8 +176,10 @@ define(function (require) {
     },
 
     filterOnEnter : function(e){
-        if (e.keyCode !== 13) {return;}
-        this.search();
+        if (e.keyCode === 13) {
+            this.search();
+        }
+
     },
 
     search: function() {

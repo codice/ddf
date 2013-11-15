@@ -99,8 +99,8 @@
                 </executions>
                 <configuration>
                     <version>2.1.9</version>
-                    <options>camelcase,eqeqeq,forin,immed,latedef,noarg,noempty,nonew</options>
-                    <globals>require</globals>
+                    <options>camelcase,eqeqeq,forin,immed,noarg,latedef,noempty,nonew,newcap,regexp,undef,unused</options>
+                    <globals>require,console</globals>
                     <directories>
                         <directory>src/main/webapp/js</directory>
                     </directories>

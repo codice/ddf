@@ -2,8 +2,7 @@
 
 define(function (require) {
     "use strict";
-    var $ = require('jquery'),
-        Backbone = require('backbone'),
+    var Backbone = require('backbone'),
         _ = require('underscore'),
         ddf = require('ddf'),
         MetaCard = ddf.module();
@@ -12,6 +11,7 @@ define(function (require) {
 
     require('backbonerelational');
     MetaCard.Geometry = Backbone.RelationalModel.extend({
+
         isPoint : function(){
             return this.get('type') === 'Point';
         },
@@ -48,6 +48,30 @@ define(function (require) {
     });
 
     MetaCard.Metacard = Backbone.RelationalModel.extend({
+        initialize : function(){
+            this.listenTo(this,'change:context', this.onChangeContext);
+        },
+
+        onChangeContext : function(){
+            var eventBus = ddf.app,
+                name = 'model:context';
+
+            if(this.get('context')){
+                eventBus.trigger(name, this);
+                this.listenTo(eventBus,name,this.onAppContext);
+            }
+        },
+
+        onAppContext : function(model){
+            var eventBus = ddf.app,
+                name = 'model:context';
+            if(model !== this){
+                this.stopListening(eventBus,name);
+                this.set('context',false);
+
+            }
+        },
+
         relations: [
             {
                 type: Backbone.HasOne,

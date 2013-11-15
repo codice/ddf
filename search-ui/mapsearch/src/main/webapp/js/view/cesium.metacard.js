@@ -2,15 +2,14 @@
 
 define(function (require) {
     "use strict";
-    var $ = require('jquery'),
-        Backbone = require('backbone'),
+    var Marionette = require('marionette'),
         _ = require('underscore'),
         Cesium = require('cesium'),
         Views = {};
 
 
 
-    Views.PointView = Backbone.View.extend({
+    Views.PointView = Marionette.ItemView.extend({
         initialize: function (options) {
             this.geoController = options.geoController;
             this.buildBillboard();
@@ -19,11 +18,6 @@ define(function (require) {
             this.listenTo(this.geoController, 'doubleclick:left', this.onMapDoubleClick);
             this.color = options.color || {red : 1,green :0.6431372549019608, blue:0.403921568627451, alpha : 1 };
             this.imageIndex = options.imageIndex || 0;
-        },
-
-        render: function () {
-
-            return this;
         },
 
         buildBillboard : function(){
@@ -46,11 +40,12 @@ define(function (require) {
                 view.billboard.setColor(view.color);
                 view.billboard.setScale(0.41);
                 view.billboard.hasScale = true;
-            });
+            }).fail(function(error){
+                    console.log('error:  ', error.stack ? error.stack: error);
+                });
         },
 
         toggleSelection : function(){
-            console.log('toggling selection');
             var view = this;
 
             if(view.billboard.getEyeOffset().z < 0){
@@ -61,19 +56,21 @@ define(function (require) {
 
             if (view.model.get('context')) {
                 view.billboard.setScale(0.5);
+                view.billboard.setImageIndex(view.imageIndex+1);
             } else {
                 view.billboard.setScale(0.41);
+                view.billboard.setImageIndex(view.imageIndex);
             }
 
         },
-        onMapLeftClick : function(){
+        onMapLeftClick : function(event){
             var view = this;
             // find out if this click is on us
             if (_.has(event, 'object') && event.object === view.billboard) {
                 view.model.set('context', true);
             }
         },
-        onMapDoubleClick : function(){
+        onMapDoubleClick : function(event){
             var view = this;
             // find out if this click is on us
             if (_.has(event, 'object') && event.object === view.billboard) {
@@ -91,11 +88,12 @@ define(function (require) {
                view.geoController.billboardCollection.remove(view.billboard);
 
             }
+            this.stopListening();
         }
 
     });
 
-    Views.RegionView = Backbone.View.extend({
+    Views.RegionView = Marionette.ItemView.extend({
         initialize: function (options) {
             this.map = options.map;
         },
@@ -105,6 +103,37 @@ define(function (require) {
 
         close : function(){
 
+        }
+    });
+
+    Views.ResultsView =  Marionette.CollectionView.extend({
+        itemView : Views.PointView,
+        initialize : function(options){
+            this.geoController = options.geoController;
+        },
+
+        buildItemView : function(item, ItemViewType, itemViewOptions){
+            var metacard = item.get('metacard'),
+                geometry = metacard.get('geometry'),
+                ItemView;
+
+            // build the final list of options for the item view type.
+            var options = _.extend({model: metacard, geoController : this.geoController}, itemViewOptions);
+
+            if(geometry.isPoint()){
+                ItemView = Views.PointView;
+            }
+            else if(geometry.isPolygon()){
+                ItemView = Views.RegionView;
+            }
+            else {
+                throw new Error("No view for this geometry");
+            }
+
+            // create the item view instance
+            var view = new ItemView(options);
+            // return it
+            return view;
         }
     });
     return Views;

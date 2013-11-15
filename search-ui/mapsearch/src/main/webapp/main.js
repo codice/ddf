@@ -18,6 +18,7 @@
                 app = ddf.app;
 
             Marionette.Renderer.render = function (template, data) {
+                if(!template){return '';}
                 return ich[template](data);
             };
 
