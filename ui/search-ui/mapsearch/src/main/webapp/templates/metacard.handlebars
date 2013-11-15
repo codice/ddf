@@ -1,0 +1,119 @@
+<div class="panel-primary row-fluid height-full">
+
+    <!--<div class="span4 offset4">-->
+        <!--<div class="btn-group holder-row">-->
+            <!--<button class="btn">Previous</button>-->
+            <!--<button class="btn">Next</button>-->
+        <!--</div>-->
+    <!--</div>-->
+
+    <div class="span12 metacard-nav height-full">
+        <ul class="nav nav-tabs" id="myTab">
+            <li class="active">
+                <a href="#summary" data-toggle="tab">Summary</a>
+            </li>
+            <li>
+                <a href="#full" data-toggle="tab">Details</a>
+            </li>
+            <li>
+                <a href="#raw" data-toggle="tab">Metadata</a>
+            </li>
+        </ul>
+
+
+        <div class="tab-content height-full">
+            <div class="tab-pane active" id="summary">
+                <div class="row-fluid" title="Thumbnail">
+                    <div class="span12">
+                        <h3 class="title" title="Title">
+                        {{#isNotBlank properties.title}}
+                            {{properties.title}}
+                        {{else}}
+                            [No Title]
+                        {{/isNotBlank}}
+                        </h3>
+                        <hr/>
+                    </div>
+
+                    <div class="span12">
+                        <ul class="inline">
+                            <li class="attribute" title="Source">
+                                <span class="attribute-label muted"><i class="fa fa-sitemap fa-2x"></i> </span>
+                                <span class="attribute-value">{{properties.source-id}}</span>
+                            </li>
+
+                            <li class="attribute" title="Created Date">
+                                <span class="attribute-label muted">
+                                    <span class="fa-stack">
+                                      <i class="fa fa-file fa-stack-2x"></i>
+                                      <i class="fa fa-square fa-stack-1x"></i>
+                                      <i class="fa fa-plus fa-stack-1x fa-inverse"></i>
+                                    </span>
+                                </span>
+                                <span class="attribute-value">{{moment properties.created fromNow=null}}</span>
+                            </li>
+
+
+                            <li class="attribute" title="Modified Data">
+                                <span class="attribute-label muted"><i class='fa fa-edit fa-2x'></i></span>
+                                <span class="attribute-value">{{moment properties.modified fromNow=null}}</span>
+                            </li>
+
+                            {{#isNotBlank geometry}}
+                            <li class="attribute" title="Location">
+                                <span class="attribute-label muted"><i class='fa fa-globe fa-2x'></i></span>
+                                <span class="attribute-value"><a href="#" class="location-link">View</a></span>
+                            </li>
+                            {{/isNotBlank}}
+                        </ul>
+                    </div>
+
+                    {{#if properties.thumbnail}}
+                    <div class="span12 pagination-centered holder-row">
+                        <img class='thumbnail' alt='{{properties.title}}' src='data:image/jpeg;charset=utf-8;base64, {{properties.thumbnail}}' />
+                    </div>
+                    {{/if}}
+
+                    {{#if properties.resource-uri}}
+                    <div class="span12 pagination-centered holder-row">
+                        <a target='blank' title="Download Product"
+                           href='/services/catalog/sources/{{properties.source-id}}/{{properties.id}}?transform=resource'>
+                            <i class='fa fa-download fa-2x metacard-action'></i>
+                            <p> {{properties.resource-size}}</p></a>
+                    </div>
+                    {{/if}}
+
+                </div>
+            </div>
+            <div class="tab-pane vertical-scroll table-pane" id="full">
+                <table class="table table-striped metacard-table">
+                    <thead>
+                        <tr>
+                            <th>Property</th>
+                            <th>Value</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {{#each properties}}
+                        <tr>
+                        {{#isnt @key 'metadata'}}
+                            <td>{{@key}}</td>
+                            {{#is @key 'thumbnail'}}
+                            <td><img class='thumbnail pull-left' alt='Thumbnail' src='data:image/jpeg;charset=utf-8;base64, {{this}}' /></td>
+                            {{else}}
+                            <td>{{this}}</td>
+                            {{/is}}
+                        {{/isnt}}
+                        </tr>
+                    {{/each}}
+                    </tbody>
+                </table>
+            </div>
+            <div class="tab-pane" id="raw">
+                Coming Soon
+            </div>
+        </div>
+    </div>
+
+</div>
+

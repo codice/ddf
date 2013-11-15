@@ -18,13 +18,16 @@ define(function(require){
         events: {
             'click .metacardLink' : 'viewMetacard'
         },
-
+        initialize: function(options){
+            _.bindAll(this);
+            this.searchControlView = options.searchControlView;
+        },
         render: function() {
             this.$el.html(ich.resultListItem(this.model.toJSON()));
             return this;
         },
         viewMetacard: function() {
-
+            this.searchControlView.showMetacardDetail(this.model.get('metacard'));
         },
         close: function() {
             this.remove();
@@ -37,8 +40,9 @@ define(function(require){
 
     List.MetacardTable = Backbone.View.extend({
         metacardRows: [],
-        initialize: function(){
-            _.bindAll(this, 'render');
+        initialize: function(options){
+            _.bindAll(this);
+            this.searchControlView = options.searchControlView;
             this.metacardRows = [];
         },
         render: function() {
@@ -46,7 +50,8 @@ define(function(require){
                 newRow = null;
             this.collection.each(function(model){
                 newRow = new List.MetacardRow({
-                    model: model
+                    model: model,
+                    searchControlView: view.searchControlView
                 });
                 view.metacardRows.push(newRow);
                 view.$el.append(newRow.render().el);
@@ -59,7 +64,6 @@ define(function(require){
             this.unbind();
             this.collection.unbind();
             _.invoke(this.metacardRows, 'close');
-
         }
     });
 
@@ -69,19 +73,18 @@ define(function(require){
             'click .load-more-link': 'loadMoreResults'
         },
         initialize: function(options) {
-            _.bindAll(this, "render", "loadMoreResults");
+            _.bindAll(this);
             //options should be -> { results: results, mapView: mapView }
-            if(options && options.result)
-            {
-                this.model = options.result;
-            }
+            this.model = options.result;
+            this.searchControlView = options.searchControlView;
             this.listenTo(this.model, 'change', this.render);
         },
         render: function() {
             this.$el.html(ich.resultListTemplate(this.model.toJSON()));
             var metacardTable = new List.MetacardTable({
                 collection: this.model.get("results"),
-                el: this.$(".resultTable").children("tbody")
+                el: this.$(".resultTable").children("tbody"),
+                searchControlView: this.searchControlView
             });
             metacardTable.render();
             this.metacardTable = metacardTable;
