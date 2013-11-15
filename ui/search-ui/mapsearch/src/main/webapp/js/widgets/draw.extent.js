@@ -184,21 +184,21 @@ define(function (require) {
 
         drawExtent: function (model) {
 
-            var bboxMModel = model || new Draw.ExtentModel(),
+            var bboxModel = model || new Draw.ExtentModel(),
                 view = new Draw.Views.ExtentView(
                     {
                         scene: this.viewer.scene,
-                        model: bboxMModel
+                        model: bboxModel
                     });
             view.start();
             this.view = view;
             this.notificationView = new Draw.Views.NotificationView({
                 el : this.notificationEl
             }).render();
-            this.listenToOnce(bboxMModel, 'EndExtent', function(){
+            this.listenToOnce(bboxModel, 'EndExtent', function(){
                 this.notificationView.close();
             });
-            return bboxMModel;
+            return bboxModel;
         },
 
         stop : function(){
@@ -217,7 +217,7 @@ define(function (require) {
                 this.$el.hide('fast');
             }
             this.$el.empty();
-            // if it gets any more complicated than this, then we shoudl move to templates
+            // if it gets any more complicated than this, then we should move to templates
             this.$el.append('<span>You are in Drawing Mode!</span>');
             this.$el.animate({
                 height: 'show'

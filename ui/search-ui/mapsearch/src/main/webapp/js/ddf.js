@@ -24,7 +24,7 @@ define (function (require) {
     return {
         // This is a factory method used to create the modules of our application.
         // Example:
-        //    `var ModuleName = aviture.module();`
+        //    `var ModuleName = ddf.module();`
         module : function (props) {
             return _.extend({ Views: {} }, Backbone.Events, props);
         },

@@ -9,8 +9,8 @@ define(function (require) {
         ddf = require('ddf'),
         MetaCard = require('js/model/Metacard'),
         QueryFormView;
-    var text = require('text!templates/searchForm.handlebars');
-    ich.addTemplate('searchFormTemplate', text);
+
+    ich.addTemplate('searchFormTemplate', require('text!templates/searchForm.handlebars'));
 
     require('datepickerOverride');
     require('datepickerAddon');
@@ -464,12 +464,13 @@ define(function (require) {
         $('input[name=dtend]').val("");
     },
     clearPointRadius: function() {
-
+        // TODO: zombie primitives here.
         this.circleModel.clear();
         ddf.app.controllers.drawCircleController.stop();
     },
     clearBoundingBox: function() {
         $('input[name=bbox]').val("");
+        // TODO:  zombie primitives
         this.boundingBoxModel.clear();
         ddf.app.controllers.drawExentController.stop();
     },

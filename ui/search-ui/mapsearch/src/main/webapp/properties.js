@@ -16,6 +16,7 @@ define(function () {
         },
 
         init : function(){
+
             // use this function to initialize variables that rely on others
             return this;
         }
