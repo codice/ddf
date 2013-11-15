@@ -1,4 +1,4 @@
-/*global define*/
+/*global define, Option*/
 
 define(function (require) {
     "use strict";
@@ -9,8 +9,8 @@ define(function (require) {
         ddf = require('ddf'),
         MetaCard = require('js/model/Metacard'),
         QueryFormView;
-    var text = require('text!templates/searchForm.handlebars');
-    ich.addTemplate('searchFormTemplate', text);
+
+    ich.addTemplate('searchFormTemplate', require('text!templates/searchForm.handlebars'));
 
     require('datepickerOverride');
     require('datepickerAddon');
@@ -59,7 +59,7 @@ define(function (require) {
         'change input[name=latitude]': 'updatePointRadius',
         'change input[name=longitude]': 'updatePointRadius',
         'change input[name=radiusValue]': 'updatePointRadius',
-        'change select[name=radiusUnits]': 'updatePointRadius',
+        'change select[name=radiusUnits]': 'onRadiusUnitsChanged',
         'change input[name=north]': 'updateBoundingBox',
         'change input[name=south]': 'updateBoundingBox',
         'change input[name=east]': 'updateBoundingBox',
@@ -79,10 +79,6 @@ define(function (require) {
 
     },
 
-        radiusConverter : function(direction, value){
-
-        },
-
 
 
     render: function() {
@@ -91,8 +87,29 @@ define(function (require) {
             this.$el.html(ich.searchFormTemplate());
         }
 
-        this.bboxModelBinder.bind(this.boundingBoxModel,this.el);
-        this.circleModelBinder.bind(this.circleModel,this.el);
+        this.bboxModelBinder.bind(this.boundingBoxModel,this.$('#boundingbox'));
+        var units = this.$('#radiusUnits'),
+            view = this;
+        var circleBindings = {
+            radius: {
+                selector: 'input[name=radiusValue]',
+                converter: function (direction, value) {
+                    var unitVal = units.val();
+                    if (direction === 'ModelToView') {
+                        return view.getDistanceFromMeters(value, unitVal);
+                    }
+                    else {
+                        return view.getDistanceInMeters(value, unitVal);
+                    }
+                }
+
+            },
+            latitude: 'input[name=latitude]',
+            longitude: 'input[name=longitude]'
+
+        };
+
+        this.circleModelBinder.bind(this.circleModel,this.el, circleBindings);
 
         $('#absoluteStartTime').datetimepicker({
             dateFormat: $.datepicker.ATOM,
@@ -130,7 +147,7 @@ define(function (require) {
             url: "/services/catalog/sources",
             dataType: "jsonp"
         }).done(function (data) {
-                var sources, types, type, to, i, j, id, o;
+                var sources, types, to, i, j, id, o;
                 sources = data;
                 types = {};
 
@@ -159,8 +176,10 @@ define(function (require) {
     },
 
     filterOnEnter : function(e){
-        if (e.keyCode !== 13) {return;}
-        this.search();
+        if (e.keyCode === 13) {
+            this.search();
+        }
+
     },
 
     search: function() {
@@ -310,14 +329,22 @@ define(function (require) {
         if (pointRadiusLatitude && pointRadiusLongitude && radiusValue) {
             $('input[name=lat]').val(pointRadiusLatitude);
             $('input[name=lon]').val(pointRadiusLongitude);
+            var distanceInMeters = this.circleModel.get('radius');
             $('input[name=radius]').val(
-                this.getDistanceInMeters(radiusValue, $('select[name=radiusUnits]').val()));
+                distanceInMeters);
+
+
             $('#pointRadiusWarning').hide();
         } else {
             this.clearPointRadius();
             $('#pointRadiusWarning').show();
         }
     },
+
+        onRadiusUnitsChanged : function(){
+            $('input[name=radiusValue]').val(
+                this.getDistanceFromMeters(this.circleModel.get('radius'), $('select[name=radiusUnits]').val()));
+        },
     updateBoundingBox: function () {
         var bboxWest, bboxSouth, bboxEast, bboxNorth, tmp;
         bboxWest = this.validateNumber($('input[name=west]'), 0);
@@ -360,6 +387,22 @@ define(function (require) {
                 return distance;
         }
     },
+        getDistanceFromMeters : function(distance, units){
+            switch (units) {
+                case "meters":
+                    return distance;
+                case "kilometers":
+                    return distance / 1000;
+                case "feet":
+                    return Math.ceil(distance / 0.3048);
+                case "yards":
+                    return Math.ceil(distance / 0.9144);
+                case "miles":
+                    return Math.ceil(distance / 1609.34);
+                default:
+                    return distance;
+            }
+        },
     validatePositiveInteger: function (posIntElement, revertValue) {
         var val = this.validateNumberInRange(0, Number.MAX_VALUE, $.trim(posIntElement.val()), revertValue, true);
         if (Number(val) === 0) {
@@ -416,12 +459,13 @@ define(function (require) {
         $('input[name=dtend]').val("");
     },
     clearPointRadius: function() {
-
+        // TODO: zombie primitives here.
         this.circleModel.clear();
         ddf.app.controllers.drawCircleController.stop();
     },
     clearBoundingBox: function() {
         $('input[name=bbox]').val("");
+        // TODO:  zombie primitives
         this.boundingBoxModel.clear();
         ddf.app.controllers.drawExentController.stop();
     },

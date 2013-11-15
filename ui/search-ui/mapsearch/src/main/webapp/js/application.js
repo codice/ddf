@@ -5,7 +5,7 @@
  * Time: 9:07 PM
  * To change this template use File | Settings | File Templates.
  */
-/*global define, window*/
+/*global define*/
 
 // #Main Application
 define(function(require) {
@@ -17,8 +17,7 @@ define(function(require) {
     require('backbonerelational');
 
     // Load attached libs and application modules
-    var $ = require('jquery'),
-        _ = require('underscore'),
+    var _ = require('underscore'),
         ddf = require('ddf'),
         Marionette = require('marionette'),
         Backbone = require('backbone'),
@@ -40,7 +39,6 @@ define(function(require) {
 
         initialize : function() {
             _.bindAll(this);
-
         },
 
 

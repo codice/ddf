@@ -6,7 +6,9 @@ define(function (require) {
         Backbone = require('backbone'),
         _ = require('underscore'),
         QueryFormView = require('js/view/Query.view'),
+        CesiumMetacard = require('js/view/cesium.metacard'),
         MetacardList = require('js/view/MetacardList.view'),
+        ddf = require('ddf'),
 
 
     SearchControlView = Backbone.View.extend({
@@ -17,11 +19,10 @@ define(function (require) {
     },
     views: {
     },
-    initialize: function(options) {
+    initialize: function() {
         _.bindAll(this, "render", "showQuery", "showResults", "showMetacardDetail", "back", "forward");
         this.selectedView = "queryForm";
         this.views.queryForm = new QueryFormView({searchControlView: this});
-        this.views.map = options.map;
     },
     render: function() {
         this.$el.children("#searchPages").append(this.views[this.selectedView].render().el);
@@ -75,18 +76,23 @@ define(function (require) {
         $(".backNavText").text("Query");
         this.views.queryForm.$el.hide();
         if(result) {
-            this.views.map.createResultsOnMap(result);
+            this.views.mapViews = new CesiumMetacard.ResultsView({
+                collection : result.get('results'),
+                geoController : ddf.app.controllers.geoController
+            }).render();
+
+//            this.views.map.createResultsOnMap();
             if(this.views.resultList) {
                 this.views.resultList.close();
             }
-            this.views.resultList = new MetacardList.MetacardListView({ result: result, mapView: this.views.map, searchControlView: this });
+            this.views.resultList = new MetacardList.MetacardListView({ result: result,searchControlView: this });
         }
         this.views.resultList.$el.show();
         $(".centerNavText").text("Results ("+this.views.resultList.model.get("hits")+")");
         this.selectedView = "resultList";
         this.render();
     },
-    showMetacardDetail: function(metacard) { //just guessing at what this method sig might be
+    showMetacardDetail: function() { //just guessing at what this method sig might be
         $(".back").show();
         $(".forward").hide();
         $(".backNavText").text("Results");

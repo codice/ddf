@@ -8,6 +8,8 @@ define(function () {
 
         canvasThumbnailScaleFactor : 10,
 
+        defaultFlytoHeight : 15000.0,
+
         classification : {
             // Possible values are ['unclassified', 'confidential', 'secret', 'topsecret']
             style : 'unclassified',
@@ -16,6 +18,7 @@ define(function () {
         },
 
         init : function(){
+
             // use this function to initialize variables that rely on others
             return this;
         }

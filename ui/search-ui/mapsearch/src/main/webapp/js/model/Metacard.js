@@ -2,21 +2,74 @@
 
 define(function (require) {
     "use strict";
-    var $ = require('jquery'),
-        Backbone = require('backbone'),
+    var Backbone = require('backbone'),
         _ = require('underscore'),
-        MetaCard = {};
+        ddf = require('ddf'),
+        MetaCard = ddf.module();
 
     require('backbonerelational');
     MetaCard.Geometry = Backbone.RelationalModel.extend({
+
+        isPoint : function(){
+            return this.get('type') === 'Point';
+        },
+        getPoint : function(){
+            if(!this.isPoint()){
+                console.log('This is not a point!! ', this);
+                return;
+            }
+            var coordinates = this.get('coordinates');
+
+            return this.convertPointCoordinate(coordinates);
+
+        },
+        convertPointCoordinate : function(coordinate){
+            return {latitude : coordinate[1], longitude : coordinate[0], altitude : coordinate[2]} ;
+        },
+
+        isPolygon : function(){
+            return this.get('type') === 'Polygon';
+        },
+        getPolygon : function(){
+            if(!this.isPolygon()){
+                console.log('This is not a polygon!! ', this);
+                return;
+            }
+            var coordinates = this.get('coordinates');
+            return _.map(coordinates, this.convertPointCoordinate);
+        }
 
     });
 
     MetaCard.Properties = Backbone.RelationalModel.extend({
 
-    });
+});
 
     MetaCard.Metacard = Backbone.RelationalModel.extend({
+        initialize : function(){
+            this.listenTo(this,'change:context', this.onChangeContext);
+        },
+
+        onChangeContext : function(){
+            var eventBus = ddf.app,
+                name = 'model:context';
+
+            if(this.get('context')){
+                eventBus.trigger(name, this);
+                this.listenTo(eventBus,name,this.onAppContext);
+            }
+        },
+
+        onAppContext : function(model){
+            var eventBus = ddf.app,
+                name = 'model:context';
+            if(model !== this){
+                this.stopListening(eventBus,name);
+                this.set('context',false);
+
+            }
+        },
+
         relations: [
             {
                 type: Backbone.HasOne,
@@ -28,21 +81,24 @@ define(function (require) {
                 key: 'properties',
                 relatedModel: MetaCard.Properties
             }
+
         ]
     });
 
     MetaCard.MetacardResult = Backbone.RelationalModel.extend({
-        relations: [{
-            type: Backbone.HasOne,
-            key: 'metacard',
-            relatedModel: MetaCard.Metacard
-        }]
+        relations: [
+            {
+                type: Backbone.HasOne,
+                key: 'metacard',
+                relatedModel: MetaCard.Metacard
+            }
+        ]
     });
 
     MetaCard.MetacardList = Backbone.Collection.extend({
         model: MetaCard.MetacardResult
     });
-
+    
     MetaCard.SearchResult = Backbone.RelationalModel.extend({
         defaults: {
             count: 100,

@@ -9,8 +9,8 @@ define(function(require) {
         _ = require('underscore'),
         Marionette = require('marionette'),
         Application = require('js/application'),
-        MapView = require('js/view/Map.view'),
         SearchControlView = require('js/view/SearchControl.view'),
+        GeoController = require('js/controllers/geospatial.controller'),
         DrawExtent = require('js/widgets/draw.extent'),
         DrawCircle = require('js/widgets/draw.circle'),
         ApplicationController;
@@ -55,30 +55,31 @@ define(function(require) {
         },
 
         // Render the Geospatial Views within the Main View.
-        renderGeospatialViews: function (mainView) {
+        renderGeospatialViews: function () {
             // render cesium code here
             console.log('rendering cesium view now');
-            var mapView = ddf.app.mapView = new MapView().render(),
+            var geoController = ddf.app.controllers.geoController = new GeoController();
+            var mapViewer = ddf.app.mapViewer = geoController.mapView,
 
                 searchControlView = new SearchControlView({
-                    map: mapView,
+                    map: mapViewer,
                     el: $('#searchControls')
                 });
             searchControlView.render();
 
             ddf.app.controllers.drawExentController = new DrawExtent.Controller({
-                viewer: ddf.app.mapView.mapViewer,
+                viewer: mapViewer,
                 notificationEl: $("#notificationBar")
             });
             ddf.app.controllers.drawCircleController = new DrawCircle.Controller({
-                viewer: ddf.app.mapView.mapViewer,
+                viewer: mapViewer,
                 notificationEl: $("#notificationBar")
             });
 
         },
 
         // Render the various menus/sub-views within the nav bar.
-        renderNavBarSubviews : function(navBarView) {
+        renderNavBarSubviews : function(/*navBarView*/) {
             // don't really have any at the moment
 //            navBarView.updateSubMenuClasses();
 //            navBarView.renderMapFrameworkNavigation();

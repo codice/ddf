@@ -86,7 +86,6 @@
                     </aggregations>
                 </configuration>
             </plugin>
-            <!-- TODO:  switch to jshint -->
             <plugin>
                 <groupId>com.cj.jshintmojo</groupId>
                 <artifactId>jshint-maven-plugin</artifactId>
@@ -100,8 +99,8 @@
                 </executions>
                 <configuration>
                     <version>2.1.9</version>
-                    <options>camelcase,eqeqeq,forin,immed,latedef,noarg,noempty,nonew</options>
-                    <globals>require,$,yourFunkyJavascriptModule</globals>
+                    <options>camelcase,eqeqeq,forin,immed,noarg,latedef,noempty,nonew,newcap,regexp,undef,unused</options>
+                    <globals>require,console</globals>
                     <directories>
                         <directory>src/main/webapp/js</directory>
                     </directories>
@@ -115,22 +114,7 @@
                     <failOnError>true</failOnError>
                 </configuration>
             </plugin>
-            <!--<plugin>-->
-                <!--<groupId>org.codehaus.mojo</groupId>-->
-                <!--<artifactId>jslint-maven-plugin</artifactId>-->
-                <!--<version>1.0.1</version>-->
-                <!--<configuration>-->
-                    <!--<sourceJsFolder>${basedir}/src/main/webapp/js</sourceJsFolder>-->
-                    <!--<disallowUndefinedVariables>false</disallowUndefinedVariables>-->
-                <!--</configuration>-->
-                <!--<executions>-->
-                    <!--<execution>-->
-                        <!--<goals>-->
-                            <!--<goal>jslint</goal>-->
-                        <!--</goals>-->
-                    <!--</execution>-->
-                <!--</executions>-->
-            <!--</plugin>-->
+
             <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
