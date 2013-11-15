@@ -166,18 +166,15 @@ define(function (require) {
     search: function() {
         //get results
         var queryParams, view = this, result, options;
-        queryParams = $("#searchForm").serialize()+"&format=geojson&start=1&count=100";
+        queryParams = $("#searchForm").serialize();
         options = {
-            'itemsPerPage': 100,
-            'count': 100,
-            'startIndex': 1,
             'queryParams': queryParams
         };
 
         result = new MetaCard.SearchResult(options);
         result.fetch({
             url: $("#searchForm").attr("action"),
-            data: queryParams,
+            data: result.getQueryParams(),
             dataType: "jsonp",
             timeout: 300000
         }).complete(function(){
