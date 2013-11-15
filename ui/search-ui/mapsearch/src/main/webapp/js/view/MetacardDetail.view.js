@@ -32,8 +32,6 @@ define(function(require){
             this.remove();
             this.stopListening();
             this.unbind();
-            this.model.unbind();
-            this.model.destroy();
         }
     });
 
