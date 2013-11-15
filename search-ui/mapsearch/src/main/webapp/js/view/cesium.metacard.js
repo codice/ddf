@@ -2,7 +2,8 @@
 
 define(function (require) {
     "use strict";
-    var Marionette = require('marionette'),
+    var Backbone = require('backbone'),
+        Marionette = require('marionette'),
         _ = require('underscore'),
         Cesium = require('cesium'),
         Views = {};
@@ -107,7 +108,7 @@ define(function (require) {
     });
 
     Views.ResultsView =  Marionette.CollectionView.extend({
-        itemView : Views.PointView,
+        itemView : Backbone.View,
         initialize : function(options){
             this.geoController = options.geoController;
         },
@@ -116,7 +117,9 @@ define(function (require) {
             var metacard = item.get('metacard'),
                 geometry = metacard.get('geometry'),
                 ItemView;
-
+            if(!geometry){
+                return new ItemViewType();
+            }
             // build the final list of options for the item view type.
             var options = _.extend({model: metacard, geoController : this.geoController}, itemViewOptions);
 
