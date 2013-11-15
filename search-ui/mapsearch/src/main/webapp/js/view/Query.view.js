@@ -168,11 +168,12 @@ define(function (require) {
         var view = this, result, options;
         $('input[name=format]').val('geojson');
         $('input[name=start]').val('1');
+        $('input[name=count]').val('100');
         options = {
             'itemsPerPage': parseInt(view.getItemsPerPage(), 10),
             'count': parseInt(view.getItemsPerPage(), 10),
             'startIndex': parseInt(view.getPageStartIndex(1), 10),
-            'queryParams': $("#searchForm").serialize()
+            'queryParams': $(".searchForm").serialize()
         };
 
         result = new MetaCard.SearchResult(options);
@@ -190,9 +191,6 @@ define(function (require) {
         $(':hidden').val('');
 
         $('input[name=q]').val("");
-        $('input[name=format]').val("geojson");
-        $('select[name=count]').val("10");
-        $('input[name=start]').val("1");
 
         $('button[name=noLocationButton]').click();
         //point radius
