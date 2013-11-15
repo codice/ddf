@@ -21,20 +21,24 @@ define(function(require){
         initialize: function(options){
             _.bindAll(this);
             this.searchControlView = options.searchControlView;
+            this.listenTo(this.model.get('metacard'), 'change:context', this.onChangeContext);
         },
         render: function() {
             this.$el.html(ich.resultListItem(this.model.toJSON()));
             return this;
         },
+        onChangeContext: function(metacard) {
+            if(metacard.get('context')) {
+                this.searchControlView.showMetacardDetail(metacard);
+            }
+        },
         viewMetacard: function() {
-            this.searchControlView.showMetacardDetail(this.model.get('metacard'));
+            this.model.get('metacard').set('context',true);
         },
         close: function() {
             this.remove();
             this.stopListening();
             this.unbind();
-            this.model.unbind();
-            this.model.destroy();
         }
     });
 
@@ -62,7 +66,6 @@ define(function(require){
             this.remove();
             this.stopListening();
             this.unbind();
-            this.collection.unbind();
             _.invoke(this.metacardRows, 'close');
         }
     });
@@ -100,8 +103,6 @@ define(function(require){
             this.remove();
             this.stopListening();
             this.unbind();
-            this.model.unbind();
-            this.model.destroy();
             this.metacardTable.close();
         },
         loadMoreResults: function() {
