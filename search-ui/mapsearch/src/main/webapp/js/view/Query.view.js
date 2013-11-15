@@ -79,8 +79,6 @@ define(function (require) {
 
     },
 
-
-
     render: function() {
         if(this.$el.html() === "")
         {
@@ -111,7 +109,7 @@ define(function (require) {
 
         this.circleModelBinder.bind(this.circleModel,this.el, circleBindings);
 
-        $('#absoluteStartTime').datetimepicker({
+        this.$('#absoluteStartTime').datetimepicker({
             dateFormat: $.datepicker.ATOM,
             timeFormat: "HH:mm:ss.lz",
             separator: "T",
@@ -127,7 +125,7 @@ define(function (require) {
             onClose: this.updateAbsoluteTime
         });
 
-        $('#absoluteEndTime').datetimepicker({
+        this.$('#absoluteEndTime').datetimepicker({
             dateFormat: $.datepicker.ATOM,
             timeFormat: "HH:mm:ss.lz",
             separator: "T",
@@ -172,6 +170,9 @@ define(function (require) {
                 });
 
             });
+
+        this.$('input[name=q]').focus();
+
         return this;
     },
 
@@ -279,14 +280,6 @@ define(function (require) {
             return this.value;
         }).get().join(",");
         $('input[name=src]').val(src);
-        this.updateFederationWarning(src);
-    },
-    updateFederationWarning: function (src) {
-        if (src) {
-            $('#federationListWarning').hide();
-        } else {
-            $('#federationListWarning').show();
-        }
     },
     updateAbsoluteTime: function() {
         var start, end;
@@ -302,10 +295,7 @@ define(function (require) {
 
             $('input[name=dtstart]').val($('input[name=absoluteStartTime]').val());
             $('input[name=dtend]').val($('input[name=absoluteEndTime]').val());
-
-            $('#timeAbsoluteWarning').hide();
         } else {
-            $('#timeAbsoluteWarning').show();
             this.clearAbsoluteTime();
         }
     },
@@ -315,10 +305,8 @@ define(function (require) {
             $('input[name=dtoffset]').val(
                 this.getTimeInMillis(relOffsetEntry, $(
                     'select[name=offsetTimeUnits]').val()));
-            $('#timeRelativeWarning').hide();
         } else {
             this.clearOffset();
-            $('#timeRelativeWarning').show();
         }
     },
     updatePointRadius: function () {
@@ -337,11 +325,8 @@ define(function (require) {
             $('input[name=radius]').val(
                 distanceInMeters);
 
-
-            $('#pointRadiusWarning').hide();
         } else {
             this.clearPointRadius();
-            $('#pointRadiusWarning').show();
         }
     },
 
@@ -368,10 +353,8 @@ define(function (require) {
         if (bboxWest && bboxSouth && bboxEast && bboxNorth) {
             $('input[name=bbox]').val(
                 bboxWest + "," + bboxSouth + "," + bboxEast + "," + bboxNorth);
-            $('#boundingBoxWarning').hide();
         } else {
             this.clearBoundingBox();
-            $('#boundingBoxWarning').show();
         }
     },
     getDistanceInMeters: function (distance, units) {
