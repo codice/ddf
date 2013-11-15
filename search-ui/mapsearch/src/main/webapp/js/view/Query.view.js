@@ -225,6 +225,8 @@ define(function (require) {
 
         $('button[name=noTypeButton]').click();
         this.clearType();
+
+        this.trigger('clear');
     },
     noTemporalEvent: function() {
         this.clearOffset();
