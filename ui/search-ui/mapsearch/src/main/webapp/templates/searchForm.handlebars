@@ -1,9 +1,5 @@
-<form id="searchForm" action="/services/catalog/query" method="get">
+<form id="searchForm" class="searchForm" action="/services/catalog/query" method="get">
     <ul class="nav nav-list">
-        <input type="hidden" name="format" value="geojson">
-        <input type="hidden" name="start" value="1">
-
-
         <li class="nav-header">Keywords</li>
         <li>
             <input name="q" type="text">
@@ -196,13 +192,13 @@
 
         <li class="divider"></li>
 
-        <li class="nav-header">Additional Sources</li>
+        <li class="nav-header">Sources</li>
         <li><input type="hidden" name="src" value="">
 
             <div class="btn-group" data-toggle="buttons-radio">
                 <button type="button" class="btn btn-mini active"
                         name="noFederationButton" data-target="#nofed"
-                        data-toggle="tab">None
+                        data-toggle="tab">Local
                 </button>
                 <button type="button" class="btn btn-mini"
                         name="enterpriseFederationButton" data-target="#nofed"
@@ -229,21 +225,6 @@
         </li>
 
         <li class="divider"></li>
-
-        <li class="nav-header">Page Size</li>
-        <li>
-            <div class="input-prepend">
-                <span class="add-on">Results per Page</span>
-                <select id="count" type="number" name="count" class="width-auto">
-                    <option value="5">5</option>
-                    <option value="10" selected="selected">10</option>
-                    <option value="25">25</option>
-                    <option value="100">100</option>
-                    <option value="500">500</option>
-                    <option value="1000">1000</option>
-                </select>
-            </div>
-        </li>
 
         <li>
             <div class="form-actions">
