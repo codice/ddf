@@ -44,6 +44,20 @@ var ich = require('icanhaz'),
         else {
             return block.inverse(this);
         }
+    },
+    is: function (value, test, options) {
+        if (value === test) {
+            return options.fn(this);
+        } else {
+            return options.inverse(this);
+        }
+    },
+    isnt: function (value, test, options) {
+        if (value !== test) {
+            return options.fn(this);
+        } else {
+            return options.inverse(this);
+        }
     }
 };
 

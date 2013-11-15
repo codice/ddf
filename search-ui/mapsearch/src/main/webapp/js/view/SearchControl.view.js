@@ -8,6 +8,7 @@ define(function (require) {
         QueryFormView = require('js/view/Query.view'),
         CesiumMetacard = require('js/view/cesium.metacard'),
         MetacardList = require('js/view/MetacardList.view'),
+        Metacard = require('js/view/MetacardDetail.view'),
         ddf = require('ddf'),
 
 
@@ -48,14 +49,10 @@ define(function (require) {
         {
             this.showResults();
         }
-//        else if(this.selectedView === "resultList")
-//        {
-//            //no forward here
-//        }
-//        else if(this.selectedView === "metacardDetail")
-//        {
-//            //no forward here
-//        }
+        else if(this.selectedView === "resultList")
+        {
+            this.showMetacardDetail();
+        }
     },
     showQuery: function() {
         $(".back").hide();
@@ -75,6 +72,11 @@ define(function (require) {
         $(".back").show();
         $(".backNavText").text("Query");
         this.views.queryForm.$el.hide();
+        if(this.views.metacardDetail) {
+            this.views.metacardDetail.$el.hide();
+            $(".forwardNavText").text("Metacard");
+            $(".forward").show();
+        }
         if(result) {
             this.views.mapViews = new CesiumMetacard.ResultsView({
                 collection : result.get('results'),
@@ -92,12 +94,21 @@ define(function (require) {
         this.selectedView = "resultList";
         this.render();
     },
-    showMetacardDetail: function() { //just guessing at what this method sig might be
+    showMetacardDetail: function(metacard) {
         $(".back").show();
         $(".forward").hide();
-        $(".backNavText").text("Results");
+        $(".backNavText").text("Results ("+this.views.resultList.model.get("hits")+")");
         $(".centerNavText").text("Metacard");
+        this.views.resultList.$el.hide();
+        if (metacard) {
+            if(this.views.metacardDetail) {
+                this.views.metacardDetail.close();
+            }
+            this.views.metacardDetail = new Metacard.MetacardDetailView({metacard: metacard});
+        }
+        this.views.metacardDetail.$el.show();
         this.selectedView = "metacardDetail";
+        this.render();
     }
 });
 
