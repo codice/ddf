@@ -5,6 +5,7 @@ define(function (require) {
     var Backbone = require('backbone'),
         _ = require('underscore'),
         ddf = require('ddf'),
+        Util = require('js/model/util'),
         MetaCard = ddf.module();
 
     require('backbonerelational');
@@ -14,9 +15,16 @@ define(function (require) {
             return this.get('type') === 'Point';
         },
         getPoint : function(){
-            if(!this.isPoint()){
-                console.log('This is not a point!! ', this);
-                return;
+            if(this.isPolygon()){
+                var polygon = this.getPolygon(),
+                    region = new Util.Region(polygon),
+                    centroid = region.centroid();
+                if(_.isNaN(centroid.latitude)){
+                    // seems to happen when regions is perfect rectangle...
+                    console.log('need to finish this part');
+                    return { latitude : 0, longitude : 0};
+                }
+                return centroid;
             }
             var coordinates = this.get('coordinates');
 
@@ -35,7 +43,7 @@ define(function (require) {
                 console.log('This is not a polygon!! ', this);
                 return;
             }
-            var coordinates = this.get('coordinates');
+            var coordinates = this.get('coordinates')[0];
             return _.map(coordinates, this.convertPointCoordinate);
         }
 

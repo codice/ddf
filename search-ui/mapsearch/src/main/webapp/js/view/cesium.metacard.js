@@ -13,12 +13,13 @@ define(function (require) {
     Views.PointView = Marionette.ItemView.extend({
         initialize: function (options) {
             this.geoController = options.geoController;
-            this.buildBillboard();
             this.listenTo(this.model, 'change:context', this.toggleSelection);
             this.listenTo(this.geoController, 'click:left', this.onMapLeftClick);
             this.listenTo(this.geoController, 'doubleclick:left', this.onMapDoubleClick);
             this.color = options.color || {red : 1,green :0.6431372549019608, blue:0.403921568627451, alpha : 1 };
             this.imageIndex = options.imageIndex || 0;
+            this.buildBillboard();
+
         },
 
         buildBillboard : function(){
@@ -81,7 +82,7 @@ define(function (require) {
         },
 
 
-        close : function(){
+        onClose : function(){
             var view = this;
 
             // If there is already a billboard for this view, remove it
@@ -94,16 +95,106 @@ define(function (require) {
 
     });
 
-    Views.RegionView = Marionette.ItemView.extend({
+    Views.RegionView = Views.PointView.extend({
         initialize: function (options) {
-            this.map = options.map;
-        },
-        render: function () {
+            this.geoController = options.geoController;
+            // TODO: uncomment when billboards on polygons work
+//            this.listenTo(this.model, 'change:context', this.toggleSelection);
+            this.listenTo(this.geoController, 'click:left', this.onMapLeftClick);
+            this.listenTo(this.geoController, 'doubleclick:left', this.onMapDoubleClick);
+            this.color = options.color || {red : 1,green :0.6431372549019608, blue:0.403921568627451, alpha : 1 };
+            // a light blue
+            this.polygonColor = options.polygonColor || new Cesium.Color(0.3568627450980392,0.5764705882352941,0.8823529411764706,1);
+            this.imageIndex = options.imageIndex || 0;
+//            this.buildBillboard();
+            this.buildPolygon();
 
         },
+        onMapLeftClick : function(event){
+            var view = this;
+            // find out if this click is on us
+            if (_.has(event, 'object') && _.contains(view.polygons, event.object)) {
+                view.model.set('context', true);
+            }
+        },
+        onMapDoubleClick : function(event){
+            var view = this;
+            // find out if this click is on us
+            if (_.has(event, 'object') && _.contains(view.polygons, event.object)) {
+                view.geoController.flyToLocation(view.model);
 
-        close : function(){
+            }
+        },
 
+
+        buildPolygon : function(){
+            var view = this;
+            var points = view.model.get('geometry').getPolygon();
+            var cartPoints = _.map(points, function (point) {
+                return Cesium.Cartographic.fromDegrees(point.longitude,point.latitude,point.altitude);
+            });
+            var positions = view.geoController.ellipsoid.cartographicArrayToCartesianArray(cartPoints);
+            var polygonOutlineInstance = new Cesium.GeometryInstance({
+                geometry : Cesium.PolygonOutlineGeometry.fromPositions({
+                    positions : positions
+                }),
+                attributes : {
+                    color : Cesium.ColorGeometryInstanceAttribute.fromColor(Cesium.Color.BLACK)
+                }
+            });
+
+            // Blue polygon
+            var polygonInstance = new Cesium.GeometryInstance({
+                geometry : Cesium.PolygonGeometry.fromPositions({
+                    positions : positions,
+                    vertexFormat : Cesium.PerInstanceColorAppearance.VERTEX_FORMAT
+                }),
+                attributes : {
+                    color : Cesium.ColorGeometryInstanceAttribute.fromColor(view.polygonColor)
+                }
+            });
+            view.polygons = [
+                new Cesium.Primitive({
+                    geometryInstances : [polygonOutlineInstance],
+                    appearance : new Cesium.PerInstanceColorAppearance({
+                        flat : true,
+                        renderState : {
+                            depthTest : {
+                                enabled : true
+                            },
+                            lineWidth : Math.min(2.0, view.geoController.scene.getContext().getMaximumAliasedLineWidth())
+                        }
+                    })
+                }),
+                new Cesium.Primitive({
+                    geometryInstances : [polygonInstance],
+                    appearance : new Cesium.PerInstanceColorAppearance({
+                        closed : true
+                    })
+                })
+            ];
+
+            _.each(view.polygons, function(polygonPrimitive){
+                view.geoController.scene.getPrimitives().add(polygonPrimitive);
+            });
+
+        },
+
+
+        onClose : function(){
+            var view = this;
+
+            // If there is already a billboard for this view, remove it
+            if (!_.isUndefined(view.billboard)) {
+                view.geoController.billboardCollection.remove(view.billboard);
+            }
+            if (!_.isUndefined(view.polygons)) {
+                _.each(view.polygons, function(polygonPrimitive){
+                    view.geoController.scene.getPrimitives().remove(polygonPrimitive);
+                });
+            }
+
+            this.stopListening();
         }
     });
 
