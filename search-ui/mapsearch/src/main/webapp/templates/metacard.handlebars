@@ -15,9 +15,6 @@
             <li>
                 <a href="#full" data-toggle="tab">Details</a>
             </li>
-            <li>
-                <a href="#raw" data-toggle="tab">Metadata</a>
-            </li>
         </ul>
 
 
@@ -106,11 +103,18 @@
                         {{/isnt}}
                         </tr>
                     {{/each}}
+                    {{#if properties.metadata}}
+                        <tr>
+                            <td>metadata</td>
+                            <td>
+                                <a target='blank' title="Download Product"
+                                   href='/services/catalog/sources/{{properties.source-id}}/{{properties.id}}?transform=metadata'>
+                                    View</a>
+                            </td>
+                        </tr>
+                    {{/if}}
                     </tbody>
                 </table>
-            </div>
-            <div class="tab-pane" id="raw">
-                Coming Soon
             </div>
         </div>
     </div>
