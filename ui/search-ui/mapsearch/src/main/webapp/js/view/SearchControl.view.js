@@ -105,6 +105,7 @@ define(function (require) {
                 $(".backNavText").text("Results (" + this.views.resultList.model.get("hits") + ")");
                 $(".centerNavText").text("Metacard");
                 this.views.resultList.$el.hide();
+                this.views.queryForm.$el.hide();
                 if (metacard) {
                     if (this.views.metacardDetail) {
                         this.views.metacardDetail.close();
