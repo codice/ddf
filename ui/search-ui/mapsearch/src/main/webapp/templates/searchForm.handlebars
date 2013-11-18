@@ -10,22 +10,22 @@
         <li class="nav-header">Time</li>
         <li>
             <div class="btn-group" data-toggle="buttons-radio">
-                <button type="button" class="btn btn-mini active time"
+                <button type="button" class="btn btn-mini time {{#ifNotOr dtoffset dtend dtstart}}active{{/ifNotOr}}"
                         name="noTemporalButton" data-target="#notemporal"
                         data-toggle="tab">Any
                 </button>
-                <button type="button" class="btn btn-mini time"
+                <button type="button" class="btn btn-mini time {{#if dtoffset}}active{{/if}}"
                         name="relativeTimeButton" data-target="#time_relative"
                         data-toggle="tab">Relative
                 </button>
-                <button type="button" class="btn btn-mini time"
+                <button type="button" class="btn btn-mini time {{#ifAnd dtend dtstart}}active{{/ifAnd}}"
                         name="absoluteTimeButton" data-target="#time_absolute"
                         data-toggle="tab">Absolute
                 </button>
             </div>
             <div class="tab-content">
-                <div id="notemporal" class="tab-pane"></div>
-                <div id="time_absolute" class="tab-pane">
+                <div id="notemporal" class="tab-pane {{#ifNotOr dtoffset dtend dtstart}}active{{/ifNotOr}}"></div>
+                <div id="time_absolute" class="tab-pane {{#ifAnd dtend dtstart}}active{{/ifAnd}}">
 
                     <div class="input-prepend">
                         <span class="add-on add-on-label">Begin&nbsp;<i class="icon-time"></i></span>
@@ -37,7 +37,7 @@
                     </div>
 
                 </div>
-                <div id="time_relative" class="tab-pane">
+                <div id="time_relative" class="tab-pane {{#if dtoffset}}active{{/if}}">
                     <div class="row-fluid">
 
                         <div class="span11 input-prepend input-append">
@@ -66,14 +66,14 @@
         <li>
             <div class="btn-group" data-toggle="buttons-radio">
                 <button type="button" name="noLocationButton"
-                        class="btn btn-mini active location" data-target="#nogeo"
+                        class="btn btn-mini location {{#ifNotOr radius bbox}}active{{/ifNotOr}}" data-target="#nogeo"
                         data-toggle="tab">Any
                 </button>
                 <button type="button" name="pointRadiusButton"
-                        class="btn btn-mini location" data-target="#pointradius"
+                        class="btn btn-mini location {{#if radius}}active{{/if}}" data-target="#pointradius"
                         data-toggle="tab">Point-Radius
                 </button>
-                <button type="button" name="bboxButton" class="btn btn-mini location"
+                <button type="button" name="bboxButton {{#if bbox}}active{{/if}}" class="btn btn-mini location"
                         data-target="#boundingbox" data-toggle="tab">Bounding
                     Box
                 </button>
@@ -82,8 +82,8 @@
                 -->
             </div>
             <div class="tab-content">
-                <div id="nogeo" class="tab-pane"></div>
-                <div id="pointradius" class="tab-pane">
+                <div id="nogeo" class="tab-pane {{#ifNotOr radius bbox}}active{{/ifNotOr}}"></div>
+                <div id="pointradius" class="tab-pane {{#if radius}}active{{/if}}">
                     <input type="hidden" name="radius" value="">
 
                     <div class="span11 input-prepend input-append">
@@ -112,7 +112,7 @@
                     </div>
                 </div>
 
-                <div id="boundingbox" class="tab-pane">
+                <div id="boundingbox" class="tab-pane {{#if bbox}}active{{/if}}">
                     <input type="hidden" name="bbox" value="">
 
                     <div class="span11 input-prepend input-append">
@@ -149,19 +149,20 @@
         <li>
             <div class="btn-group" data-toggle="buttons-radio">
                 <button type="button" name="noTypeButton"
-                        class="btn btn-mini active type" data-target="#noTypeTab"
+                        class="btn btn-mini type {{#ifNotOr type}}active{{/ifNotOr}}" data-target="#noTypeTab"
                         data-toggle="tab">Any
                 </button>
-                <button type="button" name="typeButton" class="btn btn-mini type"
+                <button type="button" name="typeButton" class="btn btn-mini type {{#if type}}active{{/if}}"
                         data-target="#typeTab" data-toggle="tab">Specific
                     Types
                 </button>
             </div>
             <div class="tab-content">
-                <div id="noTypeTab" class="tab-pane"></div>
-                <div id="typeTab" class="tab-pane">
+                <div id="noTypeTab" class="tab-pane {{#ifNotOr type}}active{{/ifNotOr}}"></div>
+                <div id="typeTab" class="tab-pane {{#if type}}active{{/if}}">
                     <select
                         id="typeList" name="type" class="span12">
+                        <option value=""></option>
                        {{#each types}}
                            <option value={{name}}>{{name}}</option>
                        {{/each}}
@@ -175,22 +176,18 @@
         <li class="nav-header">Sources</li>
         <li>
             <div class="btn-group" data-toggle="buttons-radio">
-                <button type="button" class="btn btn-mini active"
-                        name="noFederationButton" data-target="#nofed"
-                        data-toggle="tab">Local
-                </button>
-                <button type="button" class="btn btn-mini"
+                <button type="button" class="btn btn-mini {{#ifNotOr src}}active{{/ifNotOr}}"
                         name="enterpriseFederationButton" data-target="#nofed"
                         data-toggle="tab">All Sources
                 </button>
-                <button type="button" class="btn btn-mini"
+                <button type="button" class="btn btn-mini {{#if src}}active{{/if}}"
                         name="selectedFederationButton" data-target="#sources"
                         data-toggle="tab">Specific Sources
                 </button>
             </div>
             <div class="tab-content">
-                <div id="nofed" class="tab-pane"></div>
-                <div id="sources" class="tab-pane">
+                <div id="nofed" class="tab-pane {{#ifNotOr src}}active{{/ifNotOr}}"></div>
+                <div id="sources" class="tab-pane {{#if src}}active{{/if}}">
                     <div id="scrollableSources" class="scrollable">
                         <select id="federationSources" multiple="multiple">
                         {{#each sources}}
