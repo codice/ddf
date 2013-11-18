@@ -23,6 +23,7 @@
             datepickerAddon : 'lib/jquery/js/plugin/jquery-ui-timepicker-addon',
             purl : 'lib/jquery/js/plugin/purl',
             jqueryui : 'lib/jquery/js/jquery-ui-1.9.1.custom.min',
+            perfectscrollbar : 'lib/perfect-scrollbar/min/perfect-scrollbar.with-mousewheel.min',
 
             // handlebars
             handlebars : 'lib/handlebars/handlebars-v1.1.2',
@@ -72,6 +73,8 @@
             bootstrap: ['jqueryui'],
             partialaffix : ['bootstrap'],
             purl : ['jquery'],
+
+            perfectscrollbar : ['jquery'],
 
             datepickerOverride : ['jquery'],
             datepickerAddon : ['jquery']

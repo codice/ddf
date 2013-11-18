@@ -17,7 +17,7 @@ define(function (require) {
             south: undefined
         }
     });
-
+    var defaultAttrs = ['north','east','west','south'];
     Draw.Views.ExtentView = Backbone.View.extend({
         initialize: function (options) {
             this.canvas = options.scene.getCanvas();
@@ -37,7 +37,7 @@ define(function (require) {
             });
             this.extentPrimitive.asynchronous = false;
             this.scene.getPrimitives().add(this.extentPrimitive);
-            this.listenTo(this.model, 'change', this.updatePrimitive);
+            this.listenTo(this.model, 'change:north change:south change:east change:west', this.updatePrimitive);
         },
         enableInput: function () {
             var controller = this.scene
@@ -95,11 +95,11 @@ define(function (require) {
         updatePrimitive: function (model) {
             var toRad = Cesium.Math.toRadians;
             var obj = model.toJSON();
-            if (_.every(obj, function (val) {
-                return _.isUndefined(val);
+            if (_.every(defaultAttrs, function (val) {
+                return _.isUndefined(obj[val]);
             }) || _.isEmpty(obj)) {
                 this.scene.getPrimitives().remove(this.extentPrimitive);
-                // remove primitive?
+                this.stopListening();
                 return;
             }
             _.each(obj, function (val, key) {
@@ -163,13 +163,17 @@ define(function (require) {
         stop: function () {
             this.stopListening();
             this.enableInput();
+
+        },
+
+
+        destroyPrimitive: function(){
             if (!this.mouseHandler.isDestroyed()) {
                 this.mouseHandler.destroy();
             }
-            if (!this.extentPrimitive.isDestroyed()) {
-                this.scene.getPrimitives().remove(this.extentPrimitive);
+            if(this.extentPrimitive && !this.extentPrimitive.isDestroyed()){
+                this.scene.getPrimitives().remove(this.primitive);
             }
-
         }
 
     });
@@ -188,6 +192,12 @@ define(function (require) {
                         scene: this.scene,
                         model: bboxModel
                     });
+
+            if(this.view){
+                this.view.destroyPrimitive();
+                this.view.stop();
+
+            }
             view.start();
             this.view = view;
             this.notificationView = new Draw.Views.NotificationView({
@@ -202,10 +212,10 @@ define(function (require) {
         stop: function () {
             if (this.view) {
                 this.view.stop();
+                this.view.destroyPrimitive();
                 this.view = undefined;
                 this.notificationView.close();
             }
-
         }
     });
 
