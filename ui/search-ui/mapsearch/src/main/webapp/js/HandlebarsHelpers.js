@@ -58,6 +58,74 @@ define(function (require) {
                 } else {
                     return options.inverse(this);
                 }
+            },
+            ifAnd: function () {
+                var args = _.flatten(arguments);
+                var items = _.initial(args);
+                var result = true;
+                var block = _.last(args);
+                _.each(items, function(item) {
+                    if(!item) {
+                        result = false;
+                    }
+                });
+                if(result) {
+                    return block.fn(this);
+                }
+                else {
+                    return block.inverse(this);
+                }
+            },
+            ifOr: function () {
+                var args = _.flatten(arguments);
+                var items = _.initial(args);
+                var result = false;
+                var block = _.last(args);
+                _.each(items, function(item) {
+                    if(item) {
+                        result = true;
+                    }
+                });
+                if(result) {
+                    return block.fn(this);
+                }
+                else {
+                    return block.inverse(this);
+                }
+            },
+            ifNotAnd: function () {
+                var args = _.flatten(arguments);
+                var items = _.initial(args);
+                var result = true;
+                var block = _.last(args);
+                _.each(items, function(item) {
+                    if(!item) {
+                        result = false;
+                    }
+                });
+                if(result) {
+                    return block.inverse(this);
+                }
+                else {
+                    return block.fn(this);
+                }
+            },
+            ifNotOr: function () {
+                var args = _.flatten(arguments);
+                var items = _.initial(args);
+                var result = false;
+                var block = _.last(args);
+                _.each(items, function(item) {
+                    if(item) {
+                        result = true;
+                    }
+                });
+                if(result) {
+                    return block.inverse(this);
+                }
+                else {
+                    return block.fn(this);
+                }
             }
         };
 
