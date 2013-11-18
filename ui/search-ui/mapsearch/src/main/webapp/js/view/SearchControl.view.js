@@ -39,6 +39,7 @@ define(function (require) {
 
                 this.listenTo(this.queryForm, 'clear', this.onQueryClear);
                 this.listenTo(this.queryForm, 'searchComplete', this.showResults);
+                this.listenTo(ddf.app, 'model:context', this.showMetacardDetail);
 
 
             },
