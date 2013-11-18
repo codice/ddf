@@ -20,9 +20,7 @@ define(function (require) {
         events: {
             'click .metacard-link': 'viewMetacard'
         },
-        modelEvents : {
-            'change:context' : 'onChangeContext'
-        },
+
         initialize: function (options) {
             _.bindAll(this);
             this.searchControlView = options.searchControlView;
@@ -34,11 +32,6 @@ define(function (require) {
             }
         },
 
-        onChangeContext: function (metacard) {
-            if (metacard.get('context')) {
-                this.searchControlView.showMetacardDetail(metacard);
-            }
-        },
         viewMetacard: function () {
             if(this.model.get('context')){
                 this.searchControlView.showMetacardDetail(this.model);
