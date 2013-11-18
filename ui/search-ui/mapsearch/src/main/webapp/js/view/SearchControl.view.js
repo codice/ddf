@@ -3,128 +3,128 @@
 define(function (require) {
     "use strict";
     var $ = require('jquery'),
-        Backbone = require('backbone'),
         _ = require('underscore'),
+        Marionette = require('marionette'),
+        SlidingRegion = require('js/view/sliding.region'),
         QueryFormView = require('js/view/Query.view').QueryView,
         CesiumMetacard = require('js/view/cesium.metacard'),
         MetacardList = require('js/view/MetacardList.view'),
         Metacard = require('js/view/MetacardDetail.view'),
         ddf = require('ddf'),
+        ich = require('icanhaz');
 
+    require('perfectscrollbar');
+    ich.addTemplate('searchPanel', require('text!templates/search.panel.html'));
 
-        SearchControlView = Backbone.View.extend({
+        var SearchControlLayout = Marionette.Layout.extend({
+            template : 'searchPanel',
+            regions : {
+                leftRegion: {
+                    selector: "#searchPages",
+                    regionType:  SlidingRegion
+                }
+            },
 
             events: {
                 'click .back': 'back',
                 'click .forward': 'forward'
             },
-            views: {
-            },
-            initialize: function (options) {
-                _.bindAll(this, "render", "showQuery", "showResults", "showMetacardDetail", "back", "forward");
-                this.selectedView = "queryForm";
 
-                this.views.queryForm = new QueryFormView({
+            initialize: function (options) {
+
+                this.queryForm = new QueryFormView({
                     sources : options.sources
                 });
-                this.listenTo(this.views.queryForm, 'clear', this.onQueryClear);
-                this.listenTo(this.views.queryForm, 'searchComplete', this.showResults);
-            },
-            render: function () {
-//                $('#searchPages').perfectScrollbar('destroy');
-                this.$el.children("#searchPages").append(this.views[this.selectedView].render().el);
+                this.listenTo(this.queryForm, 'content-update', this.updateScrollbar);
 
-                $('#searchPages').perfectScrollbar();
+                this.listenTo(this.queryForm, 'clear', this.onQueryClear);
+                this.listenTo(this.queryForm, 'searchComplete', this.showResults);
+
+
+            },
+
+            updateScrollbar: function () {
+                var view = this;
+                // defer seems to be necessary for this to update correctly
+                _.defer(function () {
+                    view.leftRegion.$el.perfectScrollbar('update');
+                });
+            },
+
+            onRender : function(){
+                this.leftRegion.show(this.queryForm);
 
                 return this;
             },
             onQueryClear: function () {
                 $(".forward").hide();
-                if (this.views.mapViews) {
-                    this.views.mapViews.close();
-                }
             },
             back: function () {
-//        if(this.selectedView === "queryForm")
-//        {
-//            //we don't have anything behind this page yet
-//        }
-                if (this.selectedView === "resultList") {
+                if (this.leftRegion.currentView === this.resultList) {
                     //go back to query
                     this.showQuery();
                 }
-                else if (this.selectedView === "metacardDetail") {
+                else if (this.leftRegion.currentView === this.metacardDetail) {
                     this.showResults();
                 }
             },
             forward: function () {
-                if (this.selectedView === "queryForm") {
+                if (this.leftRegion.currentView === this.queryForm) {
                     this.showResults();
                 }
-                else if (this.selectedView === "resultList") {
+                else if (this.leftRegion.currentView === this.resultList) {
                     this.showMetacardDetail();
                 }
             },
             showQuery: function () {
                 $(".back").hide();
                 $(".forward").show();
-                this.views.queryForm.$el.show();
-                if (this.views.resultList) {
-                    this.views.resultList.$el.hide();
-                    $(".forwardNavText").text("Results (" + this.views.resultList.model.get("hits") + ")");
+                this.leftRegion.show(this.queryForm);
+                if (this.resultList) {
+                    $(".forwardNavText").text("Results (" + this.resultList.model.get("hits") + ")");
                 }
                 $(".centerNavText").text("Query");
-                this.selectedView = "queryForm";
-                this.render();
             },
             showResults: function (result) {
                 $(".forward").hide();
                 $(".back").show();
                 $(".backNavText").text("Query");
-                this.views.queryForm.$el.hide();
-                if (this.views.metacardDetail) {
-                    this.views.metacardDetail.$el.hide();
+                if (this.metacardDetail) {
                     $(".forwardNavText").text("Metacard");
                     $(".forward").show();
                 }
                 if (result) {
-                    if (this.views.mapViews) {
-                        this.views.mapViews.close();
+                    // TODO replace with trigger
+                    if (this.mapViews) {
+                        this.mapViews.close();
                     }
-                    this.views.mapViews = new CesiumMetacard.ResultsView({
+                    this.mapViews = new CesiumMetacard.ResultsView({
                         collection: result.get('results'),
                         geoController: ddf.app.controllers.geoController
                     }).render();
-
-//            this.views.map.createResultsOnMap();
-                    if (this.views.resultList) {
-                        this.views.resultList.close();
+                    if(this.resultList){
+                        this.stopListening(this.resultList, 'content-update', this.updateScrollbar);
                     }
-                    this.views.resultList = new MetacardList.MetacardListView({ result: result, searchControlView: this });
+
+                    this.resultList = new MetacardList.MetacardListView({ result: result, searchControlView: this });
+                    this.listenTo(this.resultList, 'content-update', this.updateScrollbar);
+
                 }
-                this.views.resultList.$el.show();
-                $(".centerNavText").text("Results (" + this.views.resultList.model.get("hits") + ")");
-                this.selectedView = "resultList";
-                this.render();
+                this.leftRegion.show(this.resultList);
+                $(".centerNavText").text("Results (" + this.resultList.model.get("hits") + ")");
             },
             showMetacardDetail: function (metacard) {
                 $(".back").show();
                 $(".forward").hide();
-                $(".backNavText").text("Results (" + this.views.resultList.model.get("hits") + ")");
+                $(".backNavText").text("Results (" + this.resultList.model.get("hits") + ")");
                 $(".centerNavText").text("Metacard");
-                this.views.resultList.$el.hide();
-                this.views.queryForm.$el.hide();
                 if (metacard) {
-                    if (this.views.metacardDetail) {
-                        this.views.metacardDetail.close();
-                    }
-                    this.views.metacardDetail = new Metacard.MetacardDetailView({metacard: metacard});
+
+                    this.metacardDetail = new Metacard.MetacardDetailView({metacard: metacard});
                 }
-                this.views.metacardDetail.$el.show();
-                this.selectedView = "metacardDetail";
-                this.render();
+                this.leftRegion.show(this.metacardDetail);
             }
         });
 
-    return SearchControlView;
+    return SearchControlLayout;
 });

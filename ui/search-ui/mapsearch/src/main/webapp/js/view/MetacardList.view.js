@@ -71,7 +71,6 @@ define(function (require) {
     });
 
     List.MetacardListView = Backbone.View.extend({
-        tagName: "div id='resultPage' class='height-full'",
         events: {
             'click .load-more-link': 'loadMoreResults'
         },

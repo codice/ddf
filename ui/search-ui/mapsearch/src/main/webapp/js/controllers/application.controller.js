@@ -81,6 +81,7 @@ define(function (require) {
             //            ddf.app.leftRegion.show(searchControlView);
             searchControlView.render();
 
+
             ddf.app.controllers.drawExentController = new DrawExtent.Controller({
                 scene: geoController.scene,
                 notificationEl: $("#notificationBar")
