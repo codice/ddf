@@ -120,8 +120,11 @@ define(function (require) {
                 $(".backNavText").text("Results (" + this.resultList.model.get("hits") + ")");
                 $(".centerNavText").text("Metacard");
                 if (metacard) {
-
+                    if(this.metacardDetail){
+                        this.stopListening(this.metacardDetail, 'content-update', this.updateScrollbar);
+                    }
                     this.metacardDetail = new Metacard.MetacardDetailView({metacard: metacard});
+                    this.listenTo(this.metacardDetail, 'content-update', this.updateScrollbar);
                 }
                 this.leftRegion.show(this.metacardDetail);
             }
