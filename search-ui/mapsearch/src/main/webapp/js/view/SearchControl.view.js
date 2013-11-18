@@ -5,7 +5,7 @@ define(function (require) {
     var $ = require('jquery'),
         Backbone = require('backbone'),
         _ = require('underscore'),
-        QueryFormView = require('js/view/Query.view'),
+        QueryFormView = require('js/view/Query.view').QueryView,
         CesiumMetacard = require('js/view/cesium.metacard'),
         MetacardList = require('js/view/MetacardList.view'),
         Metacard = require('js/view/MetacardDetail.view'),
@@ -20,14 +20,22 @@ define(function (require) {
             },
             views: {
             },
-            initialize: function () {
+            initialize: function (options) {
                 _.bindAll(this, "render", "showQuery", "showResults", "showMetacardDetail", "back", "forward");
                 this.selectedView = "queryForm";
-                this.views.queryForm = new QueryFormView({searchControlView: this});
+
+                this.views.queryForm = new QueryFormView({
+                    sources : options.sources
+                });
                 this.listenTo(this.views.queryForm, 'clear', this.onQueryClear);
+                this.listenTo(this.views.queryForm, 'searchComplete', this.showResults);
             },
             render: function () {
+//                $('#searchPages').perfectScrollbar('destroy');
                 this.$el.children("#searchPages").append(this.views[this.selectedView].render().el);
+
+                $('#searchPages').perfectScrollbar();
+
                 return this;
             },
             onQueryClear: function () {
