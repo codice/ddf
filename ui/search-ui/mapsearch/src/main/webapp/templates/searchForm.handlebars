@@ -1,4 +1,4 @@
-<form id="searchForm" class="searchForm" action="/services/catalog/query" method="get">
+<form id="searchForm" class="searchForm" method="get">
     <ul class="nav nav-list">
         <li class="nav-header">Keywords</li>
         <li>
@@ -10,46 +10,42 @@
         <li class="nav-header">Time</li>
         <li>
             <div class="btn-group" data-toggle="buttons-radio">
-                <button type="button" class="btn btn-mini active"
+                <button type="button" class="btn btn-mini active time"
                         name="noTemporalButton" data-target="#notemporal"
                         data-toggle="tab">Any
                 </button>
-                <button type="button" class="btn btn-mini"
+                <button type="button" class="btn btn-mini time"
                         name="relativeTimeButton" data-target="#time_relative"
                         data-toggle="tab">Relative
                 </button>
-                <button type="button" class="btn btn-mini"
+                <button type="button" class="btn btn-mini time"
                         name="absoluteTimeButton" data-target="#time_absolute"
                         data-toggle="tab">Absolute
                 </button>
             </div>
             <div class="tab-content">
-                <div id="notemporal" name="notemporal" class="tab-pane"></div>
-                <div id="time_absolute" name="time_absolute" class="tab-pane">
-                    <input type="hidden" name="dtstart" value=""> <input
-                        type="hidden" name="dtend" value="">
+                <div id="notemporal" class="tab-pane"></div>
+                <div id="time_absolute" class="tab-pane">
 
                     <div class="input-prepend">
                         <span class="add-on add-on-label">Begin&nbsp;<i class="icon-time"></i></span>
-                        <input id="absoluteStartTime" name="absoluteStartTime" type="text" class="span8"/>
+                        <input id="absoluteStartTime" name="dtstart" type="text" class="span8"/>
                     </div>
                     <div class="input-prepend">
                         <span class="add-on add-on-label">End&nbsp;<i class="icon-time"></i></span>
-                        <input id="absoluteEndTime" name="absoluteEndTime" type="text" class="span8"/>
+                        <input id="absoluteEndTime" name="dtend" type="text" class="span8"/>
                     </div>
 
                 </div>
-                <div id="time_relative" name="time_relative" class="tab-pane">
+                <div id="time_relative" class="tab-pane">
                     <div class="row-fluid">
-                        <input type="hidden" name="dtoffset" value="">
 
                         <div class="span11 input-prepend input-append">
                             <div class="span7">
                                 <span class="add-on add-on-label">Last</span>
-                                <input id="offsetTime" class="span5" name="offsetTime" type="number"/>
+                                <input id="offsetTime" class="span5" type="number"/>
                             </div>
-                            <select id="offsetTimeUnits" class="add-on span3"
-                                    name="offsetTimeUnits">
+                            <select id="offsetTimeUnits" class="add-on span3">
                                 <option value="seconds">seconds</option>
                                 <option value="minutes" selected="selected">minutes</option>
                                 <option value="hours">hours</option>
@@ -70,14 +66,14 @@
         <li>
             <div class="btn-group" data-toggle="buttons-radio">
                 <button type="button" name="noLocationButton"
-                        class="btn btn-mini active" data-target="#nogeo"
+                        class="btn btn-mini active location" data-target="#nogeo"
                         data-toggle="tab">Any
                 </button>
                 <button type="button" name="pointRadiusButton"
-                        class="btn btn-mini" data-target="#pointradius"
+                        class="btn btn-mini location" data-target="#pointradius"
                         data-toggle="tab">Point-Radius
                 </button>
-                <button type="button" name="bboxButton" class="btn btn-mini"
+                <button type="button" name="bboxButton" class="btn btn-mini location"
                         data-target="#boundingbox" data-toggle="tab">Bounding
                     Box
                 </button>
@@ -88,18 +84,16 @@
             <div class="tab-content">
                 <div id="nogeo" class="tab-pane"></div>
                 <div id="pointradius" class="tab-pane">
-                    <input type="hidden" name="radius" value=""> <input
-                        type="hidden" name="lat" value=""> <input
-                        type="hidden" name="lon" value="">
+                    <input type="hidden" name="radius" value="">
 
                     <div class="span11 input-prepend input-append">
                         <span class="add-on add-on-label">Latitude&nbsp;<i class="icon-globe"></i></span>
-                        <input class="span7" id="latitude" name="latitude" type="number" min="-90" max="90" step="any" placeholder=""/>
+                        <input class="span7" id="latitude" name="lat" type="number" min="-90" max="90" step="any" placeholder=""/>
                         <label class="add-on">&deg;</label>
                     </div>
                     <div class="span11 input-prepend input-append">
                         <span class="add-on add-on-label">Longitude&nbsp;<i class="icon-globe"></i></span>
-                        <input class="span7" id="longitude" name="longitude" type="number" min="-180" max="180" step="any" placeholder=""/>
+                        <input class="span7" id="longitude" name="lon" type="number" min="-180" max="180" step="any" placeholder=""/>
                         <label class="add-on">&deg;</label>
                     </div>
 
@@ -108,7 +102,7 @@
                             <span class="add-on add-on-label">Radius&nbsp;<i class="icon-plus"></i></span>
                             <input class="span5" id="radiusValue" name="radiusValue" type="number" placeholder=""/>
                         </div>
-                        <select id="radiusUnits" class="add-on span4" name="radiusUnits">
+                        <select id="radiusUnits" class="add-on span4">
                             <option value="meters" selected="selected">meters</option>
                             <option value="kilometers">kilometers</option>
                             <option value="feet">feet</option>
@@ -155,10 +149,10 @@
         <li>
             <div class="btn-group" data-toggle="buttons-radio">
                 <button type="button" name="noTypeButton"
-                        class="btn btn-mini active" data-target="#noTypeTab"
+                        class="btn btn-mini active type" data-target="#noTypeTab"
                         data-toggle="tab">Any
                 </button>
-                <button type="button" name="typeButton" class="btn btn-mini"
+                <button type="button" name="typeButton" class="btn btn-mini type"
                         data-target="#typeTab" data-toggle="tab">Specific
                     Types
                 </button>
@@ -166,9 +160,12 @@
             <div class="tab-content">
                 <div id="noTypeTab" class="tab-pane"></div>
                 <div id="typeTab" class="tab-pane">
-                    <input type="hidden" name="type" value=""> <select
-                        id="typeList" name="typeList" class="span12">
-                </select>
+                    <select
+                        id="typeList" name="type" class="span12">
+                       {{#each types}}
+                           <option value={{name}}>{{name}}</option>
+                       {{/each}}
+                    </select>
                 </div>
             </div>
         </li>
@@ -176,8 +173,7 @@
         <li class="divider"></li>
 
         <li class="nav-header">Sources</li>
-        <li><input type="hidden" name="src" value="">
-
+        <li>
             <div class="btn-group" data-toggle="buttons-radio">
                 <button type="button" class="btn btn-mini active"
                         name="noFederationButton" data-target="#nofed"
@@ -196,7 +192,10 @@
                 <div id="nofed" class="tab-pane"></div>
                 <div id="sources" class="tab-pane">
                     <div id="scrollableSources" class="scrollable">
-                        <select id="federationSources" multiple="multiple" name="federationSources">
+                        <select id="federationSources" multiple="multiple">
+                        {{#each sources}}
+                            <option value={{id}}>{{id}}</option>
+                        {{/each}}
                         </select>
                     </div>
                 </div>

@@ -12,12 +12,12 @@ define(function (require) {
 
     DrawCircle.CircleModel = Backbone.Model.extend({
         defaults: {
-            latitude: undefined,
-            longitude: undefined,
+            lat: undefined,
+            lon: undefined,
             radius: undefined
         }
     });
-
+    var defaultAttrs = ['lat','lon','radius'];
     DrawCircle.Views.CircleView = Backbone.View.extend({
         initialize: function (options) {
             _.bindAll(this);
@@ -25,11 +25,11 @@ define(function (require) {
             this.scene = options.scene;
             this.ellipsoid = options.scene.getPrimitives().getCentralBody().getEllipsoid();
             this.mouseHandler = new Cesium.ScreenSpaceEventHandler(this.canvas);
-            var modelProp = _.defaults(this.model.toJSON(), {latitude: 0, longitude: 0, radius: 1});
+            var modelProp = _.defaults(this.model.toJSON(), {lat: 0, lon: 0, radius: 1});
             this.primitive = new Cesium.Polygon({
                 positions: Cesium.Shapes.computeCircleBoundary(
                     this.ellipsoid,
-                    this.ellipsoid.cartographicToCartesian(Cesium.Cartographic.fromDegrees(modelProp.longitude, modelProp.latitude)),
+                    this.ellipsoid.cartographicToCartesian(Cesium.Cartographic.fromDegrees(modelProp.lon, modelProp.lat)),
                     modelProp.radius),
                 material: new Cesium.Material({
                     fabric: {
@@ -56,7 +56,7 @@ define(function (require) {
             this.scene.getPrimitives().add(this.primitive);
 
 
-            this.listenTo(this.model, 'change', this.updatePrimitive);
+            this.listenTo(this.model, 'change:lat change:lon change:radius', this.updatePrimitive);
         },
         enableInput: function () {
             var controller = this.scene.getScreenSpaceCameraController();
@@ -81,8 +81,8 @@ define(function (require) {
                 radius = Math.abs(Cesium.Cartesian3.distance(startCartographic, stopCart));
 
             var modelProp = {
-                latitude: (mn.latitude * 180 / Math.PI).toFixed(4),
-                longitude: (mn.longitude * 180 / Math.PI).toFixed(4),
+                lat: (mn.latitude * 180 / Math.PI).toFixed(4),
+                lon: (mn.longitude * 180 / Math.PI).toFixed(4),
                 radius: radius
 
             };
@@ -94,16 +94,20 @@ define(function (require) {
         updatePrimitive: function (model) {
 
             var modelProp = model.toJSON();
-            if (_.every(modelProp, function (val) {
-                return _.isUndefined(val);
+            if (_.every(defaultAttrs, function (val) {
+                return _.isUndefined(modelProp[val]);
             }) || _.isEmpty(modelProp)) {
                 this.scene.getPrimitives().remove(this.primitive);
+                this.stopListening();
                 return;
+            }
+            if(modelProp.radius === 0){
+                modelProp.radius = 1;
             }
 
             this.primitive.setPositions(Cesium.Shapes.computeCircleBoundary(
                 this.ellipsoid,
-                this.ellipsoid.cartographicToCartesian(Cesium.Cartographic.fromDegrees(modelProp.longitude, modelProp.latitude)),
+                this.ellipsoid.cartographicToCartesian(Cesium.Cartographic.fromDegrees(modelProp.lon, modelProp.lat)),
                 modelProp.radius
             ));
         },
@@ -152,6 +156,15 @@ define(function (require) {
         stop: function () {
             this.stopListening();
 
+        },
+
+        destroyPrimitive: function(){
+            if (!this.mouseHandler.isDestroyed()) {
+                this.mouseHandler.destroy();
+            }
+            if(this.primitive && !this.primitive.isDestroyed()){
+                this.scene.getPrimitives().remove(this.primitive);
+            }
         }
 
 
@@ -169,6 +182,13 @@ define(function (require) {
                     scene: this.scene,
                     model: circleModel
                 });
+
+            if(this.view){
+                this.view.destroyPrimitive();
+                this.view.stop();
+
+            }
+
             view.start();
             this.view = view;
 
@@ -184,11 +204,12 @@ define(function (require) {
         stop: function () {
             if (this.view) {
                 this.view.stop();
-
+                this.view.destroyPrimitive();
                 this.view = undefined;
                 this.notificationView.close();
             }
         }
+
     });
 
 
