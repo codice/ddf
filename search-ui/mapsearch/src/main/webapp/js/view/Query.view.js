@@ -12,7 +12,6 @@ define(function (require) {
         Query = {};
 
     ich.addTemplate('searchFormTemplate', require('text!templates/searchForm.handlebars'));
-    require('perfectscrollbar');
     require('datepickerOverride');
     require('datepickerAddon');
     require('modelbinder');
@@ -80,16 +79,27 @@ define(function (require) {
 
         },
 
+
+        initialize: function (options) {
+            _.bindAll(this);
+            this.model = new Query.Model();
+            this.modelBinder = new Backbone.ModelBinder();
+            this.sources = options.sources;
+        },
+
         noFederationEvent : function(){
-           this.model.set('src','local');
+            this.model.set('src','local');
+            this.updateScrollbar();
         },
 
         enterpriseFederationEvent : function(){
             this.model.unset('src');
+            this.updateScrollbar();
         },
 
         selectedFederationEvent : function(){
             this.model.unset('src');
+            this.updateScrollbar();
         },
 
         clearTime: function () {
@@ -112,8 +122,8 @@ define(function (require) {
                 radius: undefined,
                 bbox : undefined
             }, {unset: true});
-                ddf.app.controllers.drawCircleController.stop();
-                ddf.app.controllers.drawExentController.stop();
+            ddf.app.controllers.drawCircleController.stop();
+            ddf.app.controllers.drawExentController.stop();
             this.updateScrollbar();
         },
 
@@ -124,21 +134,8 @@ define(function (require) {
             this.updateScrollbar();
         },
 
-
-
-
-        initialize: function (options) {
-            _.bindAll(this);
-            this.model = new Query.Model();
-            this.modelBinder = new Backbone.ModelBinder();
-            this.sources = options.sources;
-            this.listenTo(this.model, 'change', this.updateScrollbar);
-        },
-
         updateScrollbar: function () {
-            _.defer(function () {
-                $('#searchPages').perfectScrollbar('update');
-            });
+            this.trigger('content-update');
         },
 
         serializeData: function () {
@@ -222,14 +219,9 @@ define(function (require) {
                 maxDate: new Date(9999, 11, 30),
                 onClose: this.model.swapDatesIfNeeded
             });
-//            $('#searchPages').perfectScrollbar();
-//            this.$el.perfectScrollbar();
+            this.delegateEvents();
         },
 
-        onDomRefresh: function () {
-//            $('#searchPages').perfectScrollbar();
-//            this.$el.perfectScrollbar();
-        },
 
         drawCircle: function(){
             ddf.app.controllers.drawCircleController.draw(this.model);
@@ -240,10 +232,10 @@ define(function (require) {
         },
 
         onClose: function () {
+            console.log('on close called');
             this.modelBinder.unbind();
-            $('#searchPages').perfectScrollbar('destroy');
-//            this.$el.perfectScrollbar('destroy');
         },
+
         filterOnEnter: function (e) {
             var view = this;
             if (e.keyCode === 13) {
