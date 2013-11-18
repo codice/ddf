@@ -5,6 +5,7 @@ define(function (require) {
 
     var $ = require('jquery'),
         Backbone = require('backbone'),
+        Marionette = require('marionette'),
         _ = require('underscore'),
         ich = require('icanhaz'),
         List = {};
@@ -13,60 +14,50 @@ define(function (require) {
     ich.addTemplate('resultListTemplate', require('text!templates/resultList.handlebars'));
 
 
-    List.MetacardRow = Backbone.View.extend({
+    List.MetacardRow = Marionette.ItemView.extend({
         tagName: "tr",
+        template : 'resultListItem',
         events: {
             'click .metacard-link': 'viewMetacard'
+        },
+        modelEvents : {
+            'change:context' : 'onChangeContext'
         },
         initialize: function (options) {
             _.bindAll(this);
             this.searchControlView = options.searchControlView;
-            this.listenTo(this.model.get('metacard'), 'change:context', this.onChangeContext);
         },
-        render: function () {
-            this.$el.html(ich.resultListItem(this.model.toJSON()));
-            return this;
+
+        onRender : function(){
+            if(this.model.get('context')){
+                this.$el.addClass('selected');
+            }
         },
+
         onChangeContext: function (metacard) {
             if (metacard.get('context')) {
                 this.searchControlView.showMetacardDetail(metacard);
             }
         },
         viewMetacard: function () {
-            this.model.get('metacard').set('context', true);
-        },
-        close: function () {
-            this.remove();
-            this.stopListening();
-            this.unbind();
+            if(this.model.get('context')){
+                this.searchControlView.showMetacardDetail(this.model);
+            }
+            this.model.set('context', true);
         }
+
     });
 
-    List.MetacardTable = Backbone.View.extend({
-        metacardRows: [],
+    List.MetacardTable = Marionette.CollectionView.extend({
+        itemView : List.MetacardRow,
         initialize: function (options) {
-            _.bindAll(this);
             this.searchControlView = options.searchControlView;
-            this.metacardRows = [];
         },
-        render: function () {
-            var view = this,
-                newRow = null;
-            this.collection.each(function (model) {
-                newRow = new List.MetacardRow({
-                    model: model,
-                    searchControlView: view.searchControlView
-                });
-                view.metacardRows.push(newRow);
-                view.$el.append(newRow.render().el);
-            });
-            return this;
-        },
-        close: function () {
-            this.remove();
-            this.stopListening();
-            this.unbind();
-            _.invoke(this.metacardRows, 'close');
+        itemViewOptions : function(model){
+            return {
+                model : model.get('metacard'),
+                searchControlView : this.searchControlView
+            };
         }
     });
 
@@ -79,7 +70,6 @@ define(function (require) {
             //options should be -> { results: results, mapView: mapView }
             this.model = options.result;
             this.searchControlView = options.searchControlView;
-            this.listenTo(this.model, 'change', this.render);
         },
         render: function () {
             this.$el.html(ich.resultListTemplate(this.model.toJSON()));
@@ -96,6 +86,7 @@ define(function (require) {
             else {
                 $(".load-more-link").show();
             }
+            this.delegateEvents();
             return this;
         },
         close: function () {

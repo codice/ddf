@@ -294,6 +294,10 @@ div.resourceSize {
     padding-bottom : 20px;
 }
 
+tr.selected {
+    background-color: #313131;
+}
+
 .load-more-link {
     display: block;
     margin: 0 auto;

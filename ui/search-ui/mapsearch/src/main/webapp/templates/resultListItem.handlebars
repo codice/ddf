@@ -1,13 +1,13 @@
 <td>
     <a href="#" class="metacard-link">
-        {{#isNotBlank metacard.properties.title}}
-            {{metacard.properties.title}}
+        {{#isNotBlank properties.title}}
+            {{properties.title}}
         {{else}}
             [No Title]
         {{/isNotBlank}}
     </a>
-    <div class="pull-left"><span class="small-text">{{metacard.properties.source-id}}</span></div>
+    <div class="pull-left"><span class="small-text">{{properties.source-id}}</span></div>
     <div class="pull-right">
-        <span class="small-text">&nbsp;&nbsp;&nbsp;{{moment metacard.properties.created fromNow=null}}</span>
+        <span class="small-text">&nbsp;&nbsp;&nbsp;{{moment properties.created fromNow=null}}</span>
     </div>
 </td>
