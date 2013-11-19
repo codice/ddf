@@ -75,23 +75,18 @@ define(function (require) {
             metacardTable.render();
             this.metacardTable = metacardTable;
             this.showHideLoadMore();
-//            var selected = this.$el.find('.selected');
-//            var container = $('#searchPages');
-//            if(selected.length !== 0)
-//            {
-////                console.log(selected);
-////                container.scrollTop(selected.offset().top - container.offset().top + container.scrollTop());
-//                container.scrollTop(400);
-////                $('#searchPages').animate({ scrollTop: selected.offset().top}, 1000);
-//            }
 
             this.delegateEvents();
+            this.trigger("render");
             return this;
         },
         close: function () {
             this.remove();
             this.stopListening();
-            this.unbind();
+            //apparently unbind is sort of a sledgehammer approach to dealing with zombie views
+            //I tried it with this commented out and it appears to clean up the view correctly without it
+            //I'm going to leave it here as a note however
+//            this.unbind();
             this.metacardTable.close();
         },
         loadMoreResults: function () {
