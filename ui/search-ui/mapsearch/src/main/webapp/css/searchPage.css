@@ -302,6 +302,18 @@ tr.selected {
     background-color: #313131;
 }
 
+/*override bootstrap tab content class setting overflow to auto since we're using perfectscrollbar*/
+#searchPages .tab-content{
+    overflow: hidden;
+}
+
+
+.slide-animate {
+    /*to enable left-right animation*/
+    position : relative;
+    left : 0px;
+}
+
 .load-more-link {
     display: block;
     margin: 0 auto;

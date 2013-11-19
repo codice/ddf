@@ -7,6 +7,7 @@ define(function () {
 
 
         canvasThumbnailScaleFactor : 10,
+        slidingAnimationDuration : 150,
 
         defaultFlytoHeight : 15000.0,
 

@@ -11,10 +11,10 @@ define(function (require) {
     ich.addTemplate('metacardTemplate', require('text!templates/metacard.handlebars'));
 
     Metacard.MetacardDetailView = Backbone.View.extend({
-
-        tagName: "div id='metacardPage' class='height-full'",
+        className : 'slide-animate',
         events: {
-            'click .location-link': 'viewLocation'
+            'click .location-link': 'viewLocation',
+            'click .nav-tabs' : 'onTabClick'
         },
         initialize: function (options) {
             // options should be -> { metacard: metacard }
@@ -24,6 +24,10 @@ define(function (require) {
         render: function () {
             this.$el.html(ich.metacardTemplate(this.model.toJSON()));
             return this;
+        },
+
+        onTabClick : function(){
+            this.trigger('content-update');
         },
         viewLocation: function () {
             ddf.app.controllers.geoController.flyToLocation(this.model);
