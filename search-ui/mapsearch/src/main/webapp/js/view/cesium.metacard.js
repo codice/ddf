@@ -97,29 +97,55 @@ define(function (require) {
     Views.RegionView = Views.PointView.extend({
         initialize: function (options) {
             this.geoController = options.geoController;
-            // TODO: uncomment when billboards on polygons work
-//            this.listenTo(this.model, 'change:context', this.toggleSelection);
+            this.listenTo(this.model, 'change:context', this.toggleSelection);
             this.listenTo(this.geoController, 'click:left', this.onMapLeftClick);
             this.listenTo(this.geoController, 'doubleclick:left', this.onMapDoubleClick);
             this.color = options.color || {red: 1, green: 0.6431372549019608, blue: 0.403921568627451, alpha: 1 };
             // a light blue
             this.polygonColor = options.polygonColor || new Cesium.Color(0.3568627450980392, 0.5764705882352941, 0.8823529411764706, 0.5);
+            // a grey matching the outline of the default marker
+            this.outlineColor = options.outlineColor || new Cesium.Color(0.607,0.607,0.607,1);
             this.imageIndex = options.imageIndex || 0;
-//            this.buildBillboard();
+            this.buildBillboard();
             this.buildPolygon();
+
+        },
+
+        isThisPrimitive : function(event){
+            var view = this;
+            // could wrap this in one huge if statement, but this seems more readable
+            if(_.has(event,'object')){
+                if(event.object === view.billboard){
+                    return true;
+                }
+                if(_.contains(view.polygons, event.object)){
+                    return true;
+                }
+            }
+            return false;
+        },
+        toggleSelection : function(){
+            var view = this;
+            // call super for billboard modification
+            Views.PointView.prototype.toggleSelection.call(this);
+            if (view.model.get('context')) {
+                view.setPolygonSelected();
+            }else{
+                view.setPolygonUnselected();
+            }
 
         },
         onMapLeftClick: function (event) {
             var view = this;
             // find out if this click is on us
-            if (_.has(event, 'object') && _.contains(view.polygons, event.object)) {
+            if (view.isThisPrimitive(event)) {
                 view.model.set('context', true);
             }
         },
         onMapDoubleClick: function (event) {
             var view = this;
             // find out if this click is on us
-            if (_.has(event, 'object') && _.contains(view.polygons, event.object)) {
+            if (view.isThisPrimitive(event)) {
                 view.geoController.flyToLocation(view.model);
 
             }
@@ -133,14 +159,31 @@ define(function (require) {
                 return Cesium.Cartographic.fromDegrees(point.longitude, point.latitude, point.altitude);
             });
             var positions = view.geoController.ellipsoid.cartographicArrayToCartesianArray(cartPoints);
-            var polygonOutlineInstance = new Cesium.GeometryInstance({
-                geometry: Cesium.PolygonOutlineGeometry.fromPositions({
+            var outlineGeometry = Cesium.PolygonOutlineGeometry.fromPositions({
                     positions: positions
-                }),
-                attributes: {
-                    color: Cesium.ColorGeometryInstanceAttribute.fromColor(Cesium.Color.BLACK)
-                }
             });
+            var polygonOutlineInstance = new Cesium.GeometryInstance({
+                geometry:outlineGeometry ,
+                attributes: {
+                    color: Cesium.ColorGeometryInstanceAttribute.fromColor(view.outlineColor),
+                    show : new Cesium.ShowGeometryInstanceAttribute(true)
+                },
+                id : 'outline'
+            });
+
+//            var polylinePositions = positions.slice(0);
+//            polylinePositions.push(positions[0]);
+//
+//            var glowingPolylineInstance = new Cesium.GeometryInstance({
+//                geometry: new Cesium.PolylineGeometry({
+//                    positions : polylinePositions,
+//                    width : 3.0,
+//                    vertexFormat : Cesium.PolylineMaterialAppearance.VERTEX_FORMAT}),
+//                attributes: {
+//                    show : new Cesium.ShowGeometryInstanceAttribute(false)
+//                },
+//                id : 'outline-glow'
+//            });
 
             // Blue polygon
             var polygonInstance = new Cesium.GeometryInstance({
@@ -152,19 +195,27 @@ define(function (require) {
                     color: Cesium.ColorGeometryInstanceAttribute.fromColor(view.polygonColor)
                 }
             });
+            var colorAppearance = new Cesium.PerInstanceColorAppearance({
+                flat: true,
+                renderState: {
+                    depthTest: {
+                        enabled: true
+                    },
+                    lineWidth: Math.min(3.0, view.geoController.scene.getContext().getMaximumAliasedLineWidth())
+                }
+            });
+//            var glowAppearance = new Cesium.PolylineMaterialAppearance({
+//                material : Cesium.Material.fromType(Cesium.Material.PolylineGlowType)
+//            });
             view.polygons = [
                 new Cesium.Primitive({
                     geometryInstances: [polygonOutlineInstance],
-                    appearance: new Cesium.PerInstanceColorAppearance({
-                        flat: true,
-                        renderState: {
-                            depthTest: {
-                                enabled: true
-                            },
-                            lineWidth: Math.min(2.0, view.geoController.scene.getContext().getMaximumAliasedLineWidth())
-                        }
-                    })
+                    appearance: colorAppearance
                 }),
+//                new Cesium.Primitive({
+//                    geometryInstances: [glowingPolylineInstance],
+//                    appearance: glowAppearance
+//                }),
                 new Cesium.Primitive({
                     geometryInstances: [polygonInstance],
                     appearance: new Cesium.PerInstanceColorAppearance({
@@ -179,6 +230,26 @@ define(function (require) {
 
         },
 
+        setPolygonSelected : function(){
+            var view = this;
+            var attributes = view.polygons[0].getGeometryInstanceAttributes('outline');
+            attributes.color = Cesium.ColorGeometryInstanceAttribute.toValue(Cesium.Color.BLACK);
+
+//            attributes.show = Cesium.ShowGeometryInstanceAttribute.toValue(false, attributes.show);
+//            var glowAttributes = view.polygons[1].getGeometryInstanceAttributes('outline-glow');
+//            glowAttributes.show = Cesium.ShowGeometryInstanceAttribute.toValue(true, glowAttributes.show);
+        },
+
+        setPolygonUnselected : function(){
+            var view = this;
+            var attributes = view.polygons[0].getGeometryInstanceAttributes('outline');
+            attributes.color = Cesium.ColorGeometryInstanceAttribute.toValue(view.outlineColor);
+
+
+//            attributes.show = Cesium.ShowGeometryInstanceAttribute.toValue(true, attributes.show);
+//            var glowAttributes = view.polygons[1].getGeometryInstanceAttributes('outline-glow');
+//            glowAttributes.show = Cesium.ShowGeometryInstanceAttribute.toValue(false, glowAttributes.show);
+        },
 
         onClose: function () {
             var view = this;

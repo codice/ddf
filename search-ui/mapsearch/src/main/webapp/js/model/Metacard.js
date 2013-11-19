@@ -14,6 +14,12 @@ define(function (require) {
         isPoint: function () {
             return this.get('type') === 'Point';
         },
+
+        average : function(points, attribute){
+            var attrs = _.pluck(points,attribute);
+            var sum = _.reduce(attrs,function(a,b){return a+b;},0);
+            return sum / points.length;
+        },
         getPoint: function () {
             if (this.isPolygon()) {
                 var polygon = this.getPolygon(),
@@ -21,8 +27,12 @@ define(function (require) {
                     centroid = region.centroid();
                 if (_.isNaN(centroid.latitude)) {
                     // seems to happen when regions is perfect rectangle...
-                    console.log('need to finish this part');
-                    return { latitude: 0, longitude: 0};
+                    console.warn('centroid util did not return a good centroid, defaulting to average of all points');
+
+                    return { latitude: this.average(polygon,'latitude'),
+                            longitude: this.average(polygon,'longitude')};
+                }else{
+                    console.log('centroid worked?');
                 }
                 return centroid;
             }
