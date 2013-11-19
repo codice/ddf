@@ -112,7 +112,7 @@
                     </div>
                 </div>
 
-                <div id="boundingbox" class="tab-pane {{#if bbox}}active{{/if}}">
+                <div id="boundingbox" class="tab-pane">
                     <input type="hidden" name="bbox" value="">
 
                     <div class="span11 input-prepend input-append">
@@ -147,22 +147,21 @@
 
         <li class="nav-header">Type</li>
         <li>
-            <div class="btn-group margin-bottom-large" data-toggle="buttons-radio">
+            <div class="btn-group" data-toggle="buttons-radio">
                 <button type="button" name="noTypeButton"
-                        class="btn btn-mini type {{#ifNotOr type}}active{{/ifNotOr}}" data-target="#noTypeTab"
+                        class="btn btn-mini active type" data-target="#noTypeTab"
                         data-toggle="tab">Any
                 </button>
-                <button type="button" name="typeButton" class="btn btn-mini type {{#if type}}active{{/if}}"
+                <button type="button" name="typeButton" class="btn btn-mini type"
                         data-target="#typeTab" data-toggle="tab">Specific
                     Types
                 </button>
             </div>
             <div class="tab-content">
-                <div id="noTypeTab" class="tab-pane {{#ifNotOr type}}active{{/ifNotOr}}"></div>
-                <div id="typeTab" class="tab-pane {{#if type}}active{{/if}}">
+                <div id="noTypeTab" class="tab-pane"></div>
+                <div id="typeTab" class="tab-pane">
                     <select
                         id="typeList" name="type" class="span12">
-                        <option value=""></option>
                        {{#each types}}
                            <option value={{name}}>{{name}}</option>
                        {{/each}}
@@ -175,19 +174,23 @@
 
         <li class="nav-header">Sources</li>
         <li>
-            <div class="btn-group margin-bottom-large" data-toggle="buttons-radio">
-                <button type="button" class="btn btn-mini {{#ifNotOr src}}active{{/ifNotOr}}"
+            <div class="btn-group" data-toggle="buttons-radio">
+                <button type="button" class="btn btn-mini active"
+                        name="noFederationButton" data-target="#nofed"
+                        data-toggle="tab">Local
+                </button>
+                <button type="button" class="btn btn-mini"
                         name="enterpriseFederationButton" data-target="#nofed"
                         data-toggle="tab">All Sources
                 </button>
-                <button type="button" class="btn btn-mini {{#if src}}active{{/if}}"
+                <button type="button" class="btn btn-mini"
                         name="selectedFederationButton" data-target="#sources"
                         data-toggle="tab">Specific Sources
                 </button>
             </div>
             <div class="tab-content">
-                <div id="nofed" class="tab-pane {{#ifNotOr src}}active{{/ifNotOr}}"></div>
-                <div id="sources" class="tab-pane {{#if src}}active{{/if}}">
+                <div id="nofed" class="tab-pane"></div>
+                <div id="sources" class="tab-pane">
                     <div id="scrollableSources" class="scrollable">
                         <select id="federationSources" multiple="multiple">
                         {{#each sources}}
