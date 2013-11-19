@@ -28,6 +28,8 @@ define(function (require) {
                 fullscreenButton: false,
                 timeline: false,
                 geocoder: false,
+                homeButton: true,
+                sceneModePicker: true,
 
                 // Hide the base layer picker for OpenStreetMaps
                 baseLayerPicker: false,
