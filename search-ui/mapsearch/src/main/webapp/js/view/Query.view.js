@@ -262,25 +262,22 @@ define(function (require) {
             // disable the whole form
             this.$('button').addClass('disabled');
             this.$('input').prop('disabled',true);
-            // TODO:  for visual feedback, Simulate a delayed search remove when done iterating on this
-            _.delay(function(){
-                result.fetch({
+            result.fetch({
 
-                    data: result.getQueryParams(),
-                    dataType: "jsonp",
-                    timeout: 300000,
-                    error : function(){
-                        spinner.stop();
-                        console.error(arguments);
-                    }
-                }).complete(function () {
-                        spinner.stop();
-                        //re-enable the whole form
-                        view.$('button').removeClass('disabled');
-                        view.$('input').prop('disabled',false);
-                        view.trigger('searchComplete', result);
-                    });
-            },2000);
+                data: result.getQueryParams(),
+                dataType: "jsonp",
+                timeout: 300000,
+                error : function(){
+                    spinner.stop();
+                    console.error(arguments);
+                }
+            }).complete(function () {
+                    spinner.stop();
+                    //re-enable the whole form
+                    view.$('button').removeClass('disabled');
+                    view.$('input').prop('disabled',false);
+                    view.trigger('searchComplete', result);
+                });
 
 
         },
