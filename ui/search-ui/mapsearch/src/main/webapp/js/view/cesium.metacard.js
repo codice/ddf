@@ -97,29 +97,53 @@ define(function (require) {
     Views.RegionView = Views.PointView.extend({
         initialize: function (options) {
             this.geoController = options.geoController;
-            // TODO: uncomment when billboards on polygons work
-//            this.listenTo(this.model, 'change:context', this.toggleSelection);
+            this.listenTo(this.model, 'change:context', this.toggleSelection);
             this.listenTo(this.geoController, 'click:left', this.onMapLeftClick);
             this.listenTo(this.geoController, 'doubleclick:left', this.onMapDoubleClick);
             this.color = options.color || {red: 1, green: 0.6431372549019608, blue: 0.403921568627451, alpha: 1 };
             // a light blue
             this.polygonColor = options.polygonColor || new Cesium.Color(0.3568627450980392, 0.5764705882352941, 0.8823529411764706, 0.5);
             this.imageIndex = options.imageIndex || 0;
-//            this.buildBillboard();
+            this.buildBillboard();
             this.buildPolygon();
+
+        },
+
+        isThisPrimitive : function(event){
+            var view = this;
+            // could wrap this in one huge if statement, but this seems more readable
+            if(_.has(event,'object')){
+                if(event.object === view.billboard){
+                    return true;
+                }
+                if(_.contains(view.polygons, event.object)){
+                    return true;
+                }
+            }
+            return false;
+        },
+        toggleSelection : function(){
+            var view = this;
+            // call super for billboard modification
+            Views.PointView.prototype.toggleSelection.call(this);
+            if (view.model.get('context')) {
+                view.setPolygonSelected();
+            }else{
+                view.setPolygonUnselected();
+            }
 
         },
         onMapLeftClick: function (event) {
             var view = this;
             // find out if this click is on us
-            if (_.has(event, 'object') && _.contains(view.polygons, event.object)) {
+            if (view.isThisPrimitive(event)) {
                 view.model.set('context', true);
             }
         },
         onMapDoubleClick: function (event) {
             var view = this;
             // find out if this click is on us
-            if (_.has(event, 'object') && _.contains(view.polygons, event.object)) {
+            if (view.isThisPrimitive(event)) {
                 view.geoController.flyToLocation(view.model);
 
             }
@@ -133,13 +157,15 @@ define(function (require) {
                 return Cesium.Cartographic.fromDegrees(point.longitude, point.latitude, point.altitude);
             });
             var positions = view.geoController.ellipsoid.cartographicArrayToCartesianArray(cartPoints);
+            var outlineGeometry = Cesium.PolygonOutlineGeometry.fromPositions({
+                positions: positions
+            });
             var polygonOutlineInstance = new Cesium.GeometryInstance({
-                geometry: Cesium.PolygonOutlineGeometry.fromPositions({
-                    positions: positions
-                }),
+                geometry:outlineGeometry ,
                 attributes: {
                     color: Cesium.ColorGeometryInstanceAttribute.fromColor(Cesium.Color.BLACK)
-                }
+                },
+                id : 'outline'
             });
 
             // Blue polygon
@@ -179,6 +205,17 @@ define(function (require) {
 
         },
 
+        setPolygonSelected : function(){
+            var view = this;
+            var attributes = view.polygons[0].getGeometryInstanceAttributes('outline');
+            attributes.color = Cesium.ColorGeometryInstanceAttribute.fromColor(Cesium.Color.WHITE);
+        },
+
+        setPolygonUnselected : function(){
+            var view = this;
+            var attributes = view.polygons[0].getGeometryInstanceAttributes('outline');
+            attributes.color = Cesium.ColorGeometryInstanceAttribute.fromColor(Cesium.Color.BLACK);
+        },
 
         onClose: function () {
             var view = this;
