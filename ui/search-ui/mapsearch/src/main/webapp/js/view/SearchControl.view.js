@@ -55,6 +55,19 @@ define(function (require) {
                 });
             },
 
+            updateScrollPos: function () {
+                var view = this;
+                // defer seems to be necessary for this to update correctly
+                _.defer(function () {
+                    var selected = view.leftRegion.$el.find('.selected');
+                    var container = $('#searchPages');
+                    if(selected.length !== 0)
+                    {
+                        container.scrollTop(selected.offset().top - container.offset().top + container.scrollTop());
+                    }
+                });
+            },
+
             onRender : function(){
                 this.leftRegion.show(this.queryForm, forward);
 
@@ -111,11 +124,12 @@ define(function (require) {
                     }).render();
                     if(this.resultList){
                         this.stopListening(this.resultList, 'content-update', this.updateScrollbar);
+                        this.stopListening(this.resultList, 'render', this.updateScrollPos);
                     }
 
                     this.resultList = new MetacardList.MetacardListView({ result: result, searchControlView: this });
                     this.listenTo(this.resultList, 'content-update', this.updateScrollbar);
-
+                    this.listenTo(this.resultList, 'render', this.updateScrollPos);
                 }
                 this.leftRegion.show(this.resultList, direction);
                 $(".centerNavText").text("Results (" + this.resultList.model.get("hits") + ")");
