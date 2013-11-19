@@ -155,7 +155,7 @@ define(function (require) {
         },
         stop: function () {
             this.stopListening();
-
+            this.enableInput();
         },
 
         destroyPrimitive: function(){
