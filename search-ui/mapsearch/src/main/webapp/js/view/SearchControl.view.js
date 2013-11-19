@@ -62,6 +62,9 @@ define(function (require) {
             },
             onQueryClear: function () {
                 $(".forward").hide();
+                if (this.mapViews) {
+                    this.mapViews.close();
+                }
             },
             back: function () {
                 if (this.leftRegion.currentView === this.resultList) {
