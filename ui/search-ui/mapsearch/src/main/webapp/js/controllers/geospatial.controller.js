@@ -27,6 +27,7 @@ define(function (require) {
                 animation: false,
                 fullscreenButton: false,
                 timeline: false,
+                geocoder: false,
 
                 // Hide the base layer picker for OpenStreetMaps
                 baseLayerPicker: false,
