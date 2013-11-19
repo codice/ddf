@@ -42,14 +42,6 @@ define(function (require) {
                 })
             });
 
-//                material : new Cesium.Material({
-//                    fabric : {
-//                        type : 'Grid',
-//                        uniforms : {
-//                            color : Cesium.Color.BLACK
-//                        }
-//                    }
-//                })
             this.primitive.asynchronous = false;
 
 
@@ -91,12 +83,19 @@ define(function (require) {
 
         },
 
-        updatePrimitive: function (model) {
-
-            var modelProp = model.toJSON();
+        isModelReset : function(modelProp){
             if (_.every(defaultAttrs, function (val) {
                 return _.isUndefined(modelProp[val]);
             }) || _.isEmpty(modelProp)) {
+                return true;
+            }
+            return false;
+        },
+
+        updatePrimitive: function (model) {
+
+            var modelProp = model.toJSON();
+            if (this.isModelReset(modelProp)) {
                 this.scene.getPrimitives().remove(this.primitive);
                 this.stopListening();
                 return;
@@ -112,6 +111,47 @@ define(function (require) {
             ));
         },
 
+        addBorderedCircle : function(model){
+            // if model has been reset
+
+            var modelProp = model.toJSON();
+            if (this.isModelReset(modelProp)){
+                return;
+            }
+            // first destroy old one
+            if(this.primitive && !this.primitive.isDestroyed()){
+                this.scene.getPrimitives().remove(this.primitive);
+            }
+
+
+            var circleOutlineGeometry = new Cesium.CircleOutlineGeometry({
+                center : this.ellipsoid.cartographicToCartesian(Cesium.Cartographic.fromDegrees(modelProp.lon, modelProp.lat)),
+                radius : modelProp.radius
+            });
+
+            var circleOutlineInstance = new Cesium.GeometryInstance({
+                geometry : circleOutlineGeometry,
+                attributes : {
+                    color : Cesium.ColorGeometryInstanceAttribute.fromColor(Cesium.Color.KHAKI)
+                }
+            });
+
+            this.primitive= new Cesium.Primitive({
+                geometryInstances : [circleOutlineInstance],
+                appearance : new Cesium.PerInstanceColorAppearance({
+                    flat : true,
+                    renderState : {
+                        depthTest : {
+                            enabled : true
+                        },
+                        lineWidth : Math.min(4.0, this.scene.getContext().getMaximumAliasedLineWidth())
+                    }
+                })
+            });
+            this.scene.getPrimitives().add(this.primitive);
+
+        },
+
         handleRegionStop: function (movement) {
             var cartesian = this.scene.getCamera().controller.pickEllipsoid(movement.position, this.ellipsoid);
             if (cartesian) {
@@ -119,6 +159,9 @@ define(function (require) {
             }
             this.enableInput();
             this.mouseHandler.destroy();
+            this.addBorderedCircle(this.model);
+            this.stopListening(this.model, 'change:lat change:lon change:radius', this.updatePrimitive);
+            this.listenTo(this.model, 'change:lat change:lon change:radius', this.addBorderedCircle);
             this.model.trigger("EndExtent", this.model);
         },
         handleRegionInter: function (movement) {
