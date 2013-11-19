@@ -130,10 +130,11 @@ define(function (require) {
         url: "/services/catalog/query",
         loadMoreResults: function () {
             var queryParams;
-            this.set("count", this.get("count") + this.get("itemsPerPage"));
+            this.set("startIndex", this.get("startIndex") + this.get("itemsPerPage"));
             queryParams = this.getQueryParams();
-            this.fetch({
-                url: this.url,
+            return this.fetch({
+                update: true,
+                remove: false,
                 data: queryParams,
                 dataType: "jsonp",
                 timeout: 300000
