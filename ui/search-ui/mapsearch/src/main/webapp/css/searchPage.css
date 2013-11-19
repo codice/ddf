@@ -304,6 +304,12 @@ tr.selected {
 }
 
 
+.slide-animate {
+    /*to enable left-right animation*/
+    position : relative;
+    left : 0px;
+}
+
 .load-more-link {
     display: block;
     margin: 0 auto;

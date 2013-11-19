@@ -11,7 +11,7 @@ define(function (require) {
     ich.addTemplate('metacardTemplate', require('text!templates/metacard.handlebars'));
 
     Metacard.MetacardDetailView = Backbone.View.extend({
-
+        className : 'slide-animate',
         events: {
             'click .location-link': 'viewLocation',
             'click .nav-tabs' : 'onTabClick'
