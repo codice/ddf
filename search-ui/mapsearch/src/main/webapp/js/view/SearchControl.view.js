@@ -14,6 +14,9 @@ define(function (require) {
         ich = require('icanhaz');
 
     require('perfectscrollbar');
+
+    var forward = true,
+        backward = false;
     ich.addTemplate('searchPanel', require('text!templates/search.panel.html'));
 
         var SearchControlLayout = Marionette.Layout.extend({
@@ -53,7 +56,7 @@ define(function (require) {
             },
 
             onRender : function(){
-                this.leftRegion.show(this.queryForm);
+                this.leftRegion.show(this.queryForm, forward);
 
                 return this;
             },
@@ -63,30 +66,30 @@ define(function (require) {
             back: function () {
                 if (this.leftRegion.currentView === this.resultList) {
                     //go back to query
-                    this.showQuery();
+                    this.showQuery(backward);
                 }
                 else if (this.leftRegion.currentView === this.metacardDetail) {
-                    this.showResults();
+                    this.showResults(null, backward);
                 }
             },
             forward: function () {
                 if (this.leftRegion.currentView === this.queryForm) {
-                    this.showResults();
+                    this.showResults(null,forward);
                 }
                 else if (this.leftRegion.currentView === this.resultList) {
-                    this.showMetacardDetail();
+                    this.showMetacardDetail(null, forward);
                 }
             },
-            showQuery: function () {
+            showQuery: function (direction) {
                 $(".back").hide();
                 $(".forward").show();
-                this.leftRegion.show(this.queryForm);
+                this.leftRegion.show(this.queryForm, direction);
                 if (this.resultList) {
                     $(".forwardNavText").text("Results (" + this.resultList.model.get("hits") + ")");
                 }
                 $(".centerNavText").text("Query");
             },
-            showResults: function (result) {
+            showResults: function (result, direction) {
                 $(".forward").hide();
                 $(".back").show();
                 $(".backNavText").text("Query");
@@ -111,10 +114,10 @@ define(function (require) {
                     this.listenTo(this.resultList, 'content-update', this.updateScrollbar);
 
                 }
-                this.leftRegion.show(this.resultList);
+                this.leftRegion.show(this.resultList, direction);
                 $(".centerNavText").text("Results (" + this.resultList.model.get("hits") + ")");
             },
-            showMetacardDetail: function (metacard) {
+            showMetacardDetail: function (metacard, direction) {
                 $(".back").show();
                 $(".forward").hide();
                 $(".backNavText").text("Results (" + this.resultList.model.get("hits") + ")");
@@ -126,7 +129,7 @@ define(function (require) {
                     this.metacardDetail = new Metacard.MetacardDetailView({metacard: metacard});
                     this.listenTo(this.metacardDetail, 'content-update', this.updateScrollbar);
                 }
-                this.leftRegion.show(this.metacardDetail);
+                this.leftRegion.show(this.metacardDetail, direction);
             }
         });
 

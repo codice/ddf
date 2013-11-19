@@ -59,6 +59,7 @@ define(function (require) {
 
     Query.QueryView = Marionette.ItemView.extend({
         template: 'searchFormTemplate',
+        className : 'slide-animate',
 
         events: {
             'click .searchButton': 'search',
@@ -232,7 +233,6 @@ define(function (require) {
         },
 
         onClose: function () {
-            console.log('on close called');
             this.modelBinder.unbind();
         },
 

@@ -55,6 +55,7 @@ define(function (require) {
     });
 
     List.MetacardListView = Backbone.View.extend({
+        className : 'slide-animate',
         events: {
             'click .load-more-link': 'loadMoreResults'
         },
