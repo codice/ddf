@@ -250,7 +250,7 @@
         latest karaf version.  Those configuration files in ddf-commons/.../distribution/etc have been copied from a previous version of Karaf, and are
         source controlled because of some slight customizations that have been made to them.  -->
 		<karaf.version>2.3.2</karaf.version>
-		<camel.version>2.11.0</camel.version>
+		<camel.version>2.12.1</camel.version>
 		<cellar.version>2.3.0</cellar.version>
 
         <!--
