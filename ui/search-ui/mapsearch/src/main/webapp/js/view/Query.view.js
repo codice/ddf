@@ -149,12 +149,14 @@ define(function (require) {
         },
 
         onRender: function () {
-            var units = this.$('#radiusUnits'),
-                view = this;
+            var view = this;
 
             var radiusConverter = function (direction, value) {
-                    var unitVal = units.val();
+                    var unitVal = view.model.get("radiusUnits");
                     if (direction === 'ModelToView') {
+                        //radius value is bound to radius since radiusValue is converted, so we just need to set
+                        //the value so that it shows up in the view
+                        view.model.set("radiusValue", view.getDistanceFromMeters(value, unitVal));
                         return view.getDistanceFromMeters(value, unitVal);
                     }
                     else {
@@ -176,7 +178,7 @@ define(function (require) {
                 };
 
             var bindings = Backbone.ModelBinder.createDefaultBindings(this.el, 'name');
-            bindings.radius.selector = 'input[name=radiusValue]';
+            bindings.radius.selector = '[name=radiusValue]';
             bindings.radius.converter = radiusConverter;
             bindings.offsetTime.converter = offsetConverter;
             bindings.offsetTimeUnits.converter = offsetConverter;
@@ -344,27 +346,6 @@ define(function (require) {
                     return this.getTimeInMillis(val, 'weeks') * 4;
                 case "years" :
                     return this.getTimeInMillis(val, 'days') * 365;
-                default:
-                    return val;
-            }
-        },
-
-        getTimeFromMillis: function (val, units) {
-            switch (units) {
-                case "seconds":
-                    return val / 1000;
-                case "minutes":
-                    return this.getTimeFromMillis(val, 'seconds') / 60;
-                case "hours":
-                    return this.getTimeFromMillis(val, 'minutes') / 60;
-                case "days":
-                    return this.getTimeFromMillis(val, 'hours') / 24;
-                case "weeks":
-                    return this.getTimeFromMillis(val, 'days') / 7;
-                case "months":
-                    return this.getTimeFromMillis(val, 'weeks') / 4;
-                case "years" :
-                    return this.getTimeFromMillis(val, 'days') / 365;
                 default:
                     return val;
             }
