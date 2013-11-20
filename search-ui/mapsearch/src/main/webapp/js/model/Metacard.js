@@ -108,7 +108,10 @@ define(function (require) {
             {
                 type: Backbone.HasOne,
                 key: 'metacard',
-                relatedModel: MetaCard.Metacard
+                relatedModel: MetaCard.Metacard,
+                reverseRelation: {
+                    key: 'metacardResult'
+                }
             }
         ]
     });
@@ -134,7 +137,10 @@ define(function (require) {
                 type: Backbone.HasMany,
                 key: 'results',
                 relatedModel: MetaCard.MetacardResult,
-                collectionType: MetaCard.MetacardList
+                collectionType: MetaCard.MetacardList,
+                reverseRelation: {
+                    key: 'searchResult'
+                }
             }
         ],
         url: "/services/catalog/query",
