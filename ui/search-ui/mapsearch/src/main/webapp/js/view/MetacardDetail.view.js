@@ -42,11 +42,12 @@ define(function (require) {
             var model;
             if(target === 'nextRecord' && index < collection.length - 1) {
                 model = collection.at(index + 1);
-                this.model.set('context', false);
-                model.get("metacard").set('context', true);
             }
             else if(target === 'prevRecord' && index !== 0) {
                 model = collection.at(index - 1);
+            }
+
+            if(model) {
                 this.model.set('context', false);
                 model.get("metacard").set('context', true);
             }
