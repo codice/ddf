@@ -26,8 +26,8 @@ define(function (require) {
                 .getCentralBody().getEllipsoid();
             this.mouseHandler = new Cesium.ScreenSpaceEventHandler(
                 this.canvas);
-            this.extentPrimitive = new Cesium.ExtentPrimitive();
-            this.extentPrimitive.material = new Cesium.Material({
+            this.primitive = new Cesium.ExtentPrimitive();
+            this.primitive.material = new Cesium.Material({
                 fabric: {
                     type: 'Color',
                     uniforms: {
@@ -35,8 +35,8 @@ define(function (require) {
                     }
                 }
             });
-            this.extentPrimitive.asynchronous = false;
-            this.scene.getPrimitives().add(this.extentPrimitive);
+            this.primitive.asynchronous = false;
+            this.scene.getPrimitives().add(this.primitive);
             this.listenTo(this.model, 'change:north change:south change:east change:west', this.updatePrimitive);
         },
         enableInput: function () {
@@ -57,7 +57,7 @@ define(function (require) {
             controller.enableTilt = false;
             controller.enableLook = false;
         },
-        getExtent: function (mn, mx) {
+        setModelFromClicks: function (mn, mx) {
 
             var e = new Cesium.Extent(),
                 epsilon = Cesium.Math.EPSILON7,
@@ -88,17 +88,14 @@ define(function (require) {
 
             return e;
         },
-        setPolyPts: function (mn, mx) {
-            this.extentPrimitive.extent = this.getExtent(mn, mx);
-        },
 
-        updatePrimitive: function (model) {
+        modelToExtent : function(model){
             var toRad = Cesium.Math.toRadians;
             var obj = model.toJSON();
             if (_.every(defaultAttrs, function (val) {
                 return _.isUndefined(obj[val]);
             }) || _.isEmpty(obj)) {
-                this.scene.getPrimitives().remove(this.extentPrimitive);
+                this.scene.getPrimitives().remove(this.primitive);
                 this.stopListening();
                 return;
             }
@@ -110,7 +107,51 @@ define(function (require) {
             extent.south = obj.south;
             extent.east = obj.east;
             extent.west = obj.west;
-            this.extentPrimitive.extent = extent;
+            return extent;
+        },
+
+        updatePrimitive: function (model) {
+            var extent = this.modelToExtent(model);
+            this.primitive.extent = extent;
+        },
+
+        updateGeometry : function(model){
+            var extent = this.modelToExtent(model);
+            this.addBorderedExtent(extent);
+        },
+
+        addBorderedExtent : function(extent){
+
+            if(!extent){
+                // handles case where model changes to empty vars and we don't want to draw anymore
+                return;
+            }
+
+            // first destroy old one
+            if(this.primitive && !this.primitive.isDestroyed()){
+                this.scene.getPrimitives().remove(this.primitive);
+            }
+
+            this.primitive = new Cesium.Primitive({
+                geometryInstances: new Cesium.GeometryInstance({
+                    geometry: new Cesium.ExtentOutlineGeometry({
+                        extent: extent
+                    }),
+                    attributes: {
+                        color: Cesium.ColorGeometryInstanceAttribute.fromColor(Cesium.Color.KHAKI)
+                    }
+                }),
+                appearance: new Cesium.PerInstanceColorAppearance({
+                    flat: true,
+                    renderState: {
+                        depthTest: {
+                            enabled: true
+                        },
+                        lineWidth: Math.min(4.0, this.scene.getContext().getMaximumAliasedLineWidth())
+                    }
+                })
+            });
+            this.scene.getPrimitives().add(this.primitive);
         },
 
         handleRegionStop: function (movement) {
@@ -122,6 +163,10 @@ define(function (require) {
             }
             this.enableInput();
             this.mouseHandler.destroy();
+            this.addBorderedExtent(this.primitive.extent);
+            this.stopListening(this.model, 'change:north change:south change:east change:west', this.updatePrimitive);
+            this.listenTo(this.model, 'change:north change:south change:east change:west', this.updateGeometry);
+
             this.model.trigger("EndExtent", this.model);
         },
         handleRegionInter: function (movement) {
@@ -130,7 +175,7 @@ define(function (require) {
             if (cartesian) {
                 cartographic = this.ellipsoid
                     .cartesianToCartographic(cartesian);
-                this.setPolyPts(this.click1, cartographic);
+                this.setModelFromClicks(this.click1, cartographic);
             }
         },
         handleRegionStart: function (movement) {
@@ -171,7 +216,7 @@ define(function (require) {
             if (!this.mouseHandler.isDestroyed()) {
                 this.mouseHandler.destroy();
             }
-            if(this.extentPrimitive && !this.extentPrimitive.isDestroyed()){
+            if(this.primitive && !this.primitive.isDestroyed()){
                 this.scene.getPrimitives().remove(this.primitive);
             }
         }
