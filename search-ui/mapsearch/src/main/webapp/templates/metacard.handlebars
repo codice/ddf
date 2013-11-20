@@ -1,11 +1,11 @@
 <div class="panel-primary row-fluid">
 
-    <!--<div class="span4 offset4">-->
-        <!--<div class="btn-group holder-row">-->
-            <!--<button class="btn">Previous</button>-->
-            <!--<button class="btn">Next</button>-->
-        <!--</div>-->
-    <!--</div>-->
+    <div class="span4 offset4">
+        <div class="btn-group holder-row">
+            <button id="prevRecord" class="btn">Previous</button>
+            <button id="nextRecord" class="btn">Next</button>
+        </div>
+    </div>
 
     <div class="span12 metacard-nav ">
         <ul class="nav nav-tabs" id="myTab">
@@ -76,7 +76,7 @@
                         <a target='blank' title="Download Product"
                            href='/services/catalog/sources/{{properties.source-id}}/{{properties.id}}?transform=resource'>
                             <i class='fa fa-download fa-2x metacard-action'></i>
-                            <p> {{properties.resource-size}}</p></a>
+                            <p> {{fileSize properties.resource-size}}</p></a>
                     </div>
                     {{/if}}
 
@@ -98,7 +98,11 @@
                             {{#is @key 'thumbnail'}}
                             <td><img class='thumbnail pull-left' alt='Thumbnail' src='data:image/jpeg;charset=utf-8;base64, {{this}}' /></td>
                             {{else}}
-                            <td>{{this}}</td>
+                                {{#is @key 'resource-size'}}
+                                    <td>{{fileSize this}}</td>
+                                {{else}}
+                                    <td>{{this}}</td>
+                                {{/is}}
                             {{/is}}
                         {{/isnt}}
                         </tr>
