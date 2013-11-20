@@ -37,6 +37,26 @@ define(function (require) {
                 }
                 return date;
             },
+            fileSize: function (item) {
+                var bytes = parseInt(item, 10);
+                if (isNaN(bytes)) {
+                    return item;
+                }
+                var size, index,
+                    type = ['bytes', 'KB', 'MB', 'GB', 'TB'];
+                if(bytes === 0) {
+                    return "0 bytes";
+                }
+                else {
+                    index = Math.floor(Math.log(bytes) / Math.log(1000));
+                    if(index > 4) {
+                        index = 4;
+                    }
+
+                    size = (bytes / Math.pow(1000, index)).toFixed(index < 2 ? 0 : 1);
+                }
+                return size + " " + type[index];
+            },
             isNotBlank: function (context, block) {
                 if (context && context !== "") {
                     return block.fn(this);
