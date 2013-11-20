@@ -43,9 +43,10 @@
                         <div class="span11 input-prepend input-append">
                             <div class="span7">
                                 <span class="add-on add-on-label">Last</span>
-                                <input id="offsetTime" class="span5" type="number"/>
+                                <input name="dtoffset" type="hidden" />
+                                <input id="offsetTime" name="offsetTime" class="span5" type="number"/>
                             </div>
-                            <select id="offsetTimeUnits" class="add-on span3">
+                            <select id="offsetTimeUnits" name="offsetTimeUnits" class="add-on span3">
                                 <option value="seconds">seconds</option>
                                 <option value="minutes" selected="selected">minutes</option>
                                 <option value="hours">hours</option>

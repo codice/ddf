@@ -150,7 +150,6 @@ define(function (require) {
 
         onRender: function () {
             var units = this.$('#radiusUnits'),
-                offsetUnits = this.$('#offsetTimeUnits'),
                 view = this;
 
             var radiusConverter = function (direction, value) {
@@ -163,12 +162,11 @@ define(function (require) {
                     }
                 },
                 offsetConverter = function (direction, value) {
-                    var unitVal = offsetUnits.val();
-                    if (direction === 'ModelToView') {
-                        return view.getTimeFromMillis(value, unitVal);
-                    } else {
-                        return view.getTimeInMillis(value, unitVal);
+                    if (direction !== 'ModelToView') {
+                        //all we really need to do is just calculate the dtoffset on the model based on these two values
+                        view.model.set("dtoffset", view.getTimeInMillis(view.$("input[name=offsetTime]").val(), view.$("select[name=offsetTimeUnits]").val()));
                     }
+                    return value;
                 },
                 federationConverter = function(direction,value){
                     if(value && _.isArray(value)){
@@ -180,9 +178,8 @@ define(function (require) {
             var bindings = Backbone.ModelBinder.createDefaultBindings(this.el, 'name');
             bindings.radius.selector = 'input[name=radiusValue]';
             bindings.radius.converter = radiusConverter;
-            bindings.dtoffset = {};
-            bindings.dtoffset.selector = '#offsetTime';
-            bindings.dtoffset.converter = offsetConverter;
+            bindings.offsetTime.converter = offsetConverter;
+            bindings.offsetTimeUnits.converter = offsetConverter;
             bindings.src = {};
             bindings.src.selector = '#federationSources';
             bindings.src.converter =  federationConverter;
