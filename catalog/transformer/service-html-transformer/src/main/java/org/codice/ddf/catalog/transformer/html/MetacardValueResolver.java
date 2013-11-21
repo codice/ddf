@@ -29,6 +29,9 @@ import ddf.catalog.data.Metacard;
 
 public class MetacardValueResolver implements ValueResolver {
 
+    private static final String GEOMETRY = "geometry";
+    private static final String PROPERTIES = "properties";
+    private static final String TYPE = "type";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MetacardValueResolver.class);
 
@@ -37,20 +40,23 @@ public class MetacardValueResolver implements ValueResolver {
 
         LOGGER.debug("Resolving {} for {}", context.getClass().getName(), name);
         if (context instanceof Metacard) {
-            if ("geometry".equals(name)) {
+            if (GEOMETRY.equals(name)) {
                 return ((Metacard) context).getLocation();
-            } else if ("properties".equals(name)) {
+            } else if (PROPERTIES.equals(name)) {
                 return new MetacardWrapper((Metacard) context);                
             }
         } else if(context instanceof MetacardWrapper) {
             Metacard metacard = ((MetacardWrapper) context).getMetacard();
 
-            if ("thumbnail".equals(name)) {
+            if (Metacard.THUMBNAIL.equals(name)) {
                 byte[] bytes = metacard.getThumbnail();
+                if(bytes == null) {
+                    return null;
+                }
                 return DatatypeConverter.printBase64Binary(bytes);
-            } else if ("source-id".equals(name)) {
+            } else if (Metacard.SOURCE_ID.equals(name)) {
                 return metacard.getSourceId();
-            } else if ("type".equals(name)) {
+            } else if (TYPE.equals(name)) {
                 return metacard.getMetacardType().getName();
             } else if (metacard.getAttribute(name) != null) {
                 return metacard.getAttribute(name).getValue();
