@@ -42,6 +42,7 @@ define(function (require) {
 
                 this.listenTo(this.queryForm, 'clear', this.onQueryClear);
                 this.listenTo(this.queryForm, 'searchComplete', this.showResults);
+                this.listenTo(this.queryForm, 'searchComplete', this.changeDefaultMapLocation);
                 this.listenTo(ddf.app, 'model:context', this.showMetacardDetail);
 
 
@@ -95,6 +96,10 @@ define(function (require) {
                 else if (this.leftRegion.currentView === this.resultList) {
                     this.showMetacardDetail(null, forward);
                 }
+            },
+            changeDefaultMapLocation: function (result) {
+                console.log("changing "+result);
+                ddf.app.controllers.geoController.flyToLocation(result.getResultCenterPoint());
             },
             showQuery: function (direction) {
                 $(".back").hide();

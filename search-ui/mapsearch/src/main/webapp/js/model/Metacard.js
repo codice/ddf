@@ -160,6 +160,104 @@ define(function (require) {
             return this.get("queryParams") + this.get("queryParamDefaults").count + this.get("count") +
                 this.get("queryParamDefaults").start + this.get("startIndex") +
                 this.get("queryParamDefaults").format + this.get("format");
+        },
+        getResultCenterPoint: function() {
+            var options, avgCartographic, meanMetacard, i = 0,
+                quadrantWeights = {
+                    one: 1,
+                    two: 1,
+                    three: 1,
+                    four: 1
+                }, quadrantCounts = [
+                    {
+                        quad: 'one',
+                        count: 1
+                    },
+                    {
+                        quad: 'two',
+                        count: 1
+                    },
+                    {
+                        quad: 'three',
+                        count: 1
+                    },
+                    {
+                        quad: 'four',
+                        count: 1
+                    }
+                ];
+
+            this.get("results").each(function(item) {
+                if(item.get("metacard").get("geometry")) {
+                    var point = item.get("metacard").get("geometry").getPoint();
+                    if(point.longitude > 0 && point.latitude > 0) {
+                        quadrantCounts[0].count++;
+                    }
+                    else if(point.longitude < 0 && point.latitude > 0) {
+                        quadrantCounts[1].count++;
+                    }
+                    else if(point.longitude < 0 && point.latitude < 0) {
+                        quadrantCounts[2].count++;
+                    }
+                    else {
+                        quadrantCounts[3].count++;
+                    }
+                }
+            });
+
+            quadrantCounts = _.sortBy(quadrantCounts, 'count');
+
+            quadrantCounts.reverse();
+
+            quadrantWeights[quadrantCounts[0].quad] = Math.ceil(quadrantCounts[0].count / quadrantCounts[3].count);
+            quadrantWeights[quadrantCounts[1].quad] = Math.ceil(quadrantCounts[1].count / quadrantCounts[3].count);
+            quadrantWeights[quadrantCounts[2].quad] = Math.ceil(quadrantCounts[2].count / quadrantCounts[3].count);
+
+            this.get("results").each(function(item) {
+                if(!avgCartographic) {
+                    if(item.get("metacard").get("geometry")) {
+                        avgCartographic = item.get("metacard").get("geometry").getPoint();
+                        i++;
+                    }
+                }
+                else {
+                    if(item.get("metacard").get("geometry")) {
+                        var weightedLat = avgCartographic.latitude * i, weightedLong = avgCartographic.longitude * i,
+                            newPoint = item.get("metacard").get("geometry").getPoint(), weight;
+                        i++;
+
+                        if(newPoint.longitude > 0 && newPoint.latitude > 0) {
+                            weight = quadrantWeights.one;
+                        }
+                        else if(newPoint.longitude < 0 && newPoint.latitude > 0) {
+                            weight = quadrantWeights.two;
+                        }
+                        else if(newPoint.longitude < 0 && newPoint.latitude < 0) {
+                            weight = quadrantWeights.three;
+                        }
+                        else {
+                            weight = quadrantWeights.four;
+                        }
+
+                        avgCartographic.latitude = (weightedLat + (newPoint.latitude * weight)) / (i + weight);
+                        avgCartographic.longitude = (weightedLong + (newPoint.longitude * weight)) / (i + weight);
+                    }
+                }
+            });
+            options = {
+                properties: {},
+                type: "Feature",
+                geometry: {
+                    type: "Point",
+                    coordinates: [
+                        avgCartographic ? avgCartographic.longitude : 0,
+                        avgCartographic ? avgCartographic.latitude : 0,
+                        5000000
+                    ]
+                }
+            };
+            meanMetacard = new MetaCard.Metacard(options);
+            return meanMetacard;
         }
     });
     return MetaCard;

@@ -120,7 +120,7 @@ define(function (require) {
                 });
             }
             else {
-                destination = Cesium.Cartographic.fromDegrees(geometry.get("coordinates")[0], geometry.get("coordinates")[1], properties.defaultFlytoHeight);
+                destination = Cesium.Cartographic.fromDegrees(geometry.get("coordinates")[0], geometry.get("coordinates")[1], geometry.get("coordinates")[2] ? geometry.get("coordinates")[2] : properties.defaultFlytoHeight);
                 flight = Cesium.CameraFlightPath.createAnimationCartographic(this.mapViewer.scene, {
                     destination: destination
                 });
