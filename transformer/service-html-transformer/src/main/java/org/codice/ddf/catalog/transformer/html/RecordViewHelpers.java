@@ -45,33 +45,37 @@ import com.github.jknack.handlebars.Options;
 public class RecordViewHelpers {
 
     public static final SimpleDateFormat ISO_8601_DATE_FORMAT;
-
+    private static TransformerFactory transformerFactory;
+    private static DocumentBuilderFactory documentBuilderFactory;
+    
     static {
         ISO_8601_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
         ISO_8601_DATE_FORMAT.setTimeZone(TimeZone.getTimeZone("GMT"));
+
+        transformerFactory = TransformerFactory.newInstance();
+        documentBuilderFactory = DocumentBuilderFactory.newInstance();
     }
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RecordViewHelpers.class);
 
     public CharSequence buildMetadata(String metadata, Options options) {
         try {
-            TransformerFactory tf = TransformerFactory.newInstance();
-            Transformer transformer = tf.newTransformer();
+            Transformer transformer = transformerFactory.newTransformer();
             transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
             transformer.setOutputProperty(OutputKeys.METHOD, "xml");
             transformer.setOutputProperty(OutputKeys.INDENT, "yes");
             transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
             transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
 
-            DocumentBuilder builder = DocumentBuilderFactory
-                    .newInstance().newDocumentBuilder();
+            DocumentBuilder builder = documentBuilderFactory.newDocumentBuilder();
             StreamResult result = new StreamResult(
                     new StringWriter());
 
             transformer.transform(new DOMSource(builder.parse(new InputSource(
                             new StringReader(metadata)))), result);
-            metadata = "<pre>" + escapeHtml(result.getWriter().toString()) + "</pre>";
-            return new Handlebars.SafeString(metadata);
+            StringBuilder sb = new StringBuilder();
+            sb.append("<pre>").append(escapeHtml(result.getWriter().toString())).append("</pre>");
+            return new Handlebars.SafeString(sb.toString());
         } catch (TransformerConfigurationException e) {
             LOGGER.warn("Failed to convert metadata to a pretty string", e);
         } catch (TransformerException e) {
