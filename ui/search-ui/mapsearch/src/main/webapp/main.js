@@ -1,4 +1,4 @@
-/*global define, console, requirejs, require, window */
+/*global console, require, window */
 /*jslint nomen:false, -W064 */
 
 (function () {
