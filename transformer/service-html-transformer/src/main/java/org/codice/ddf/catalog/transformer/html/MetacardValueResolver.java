@@ -45,7 +45,8 @@ public class MetacardValueResolver implements ValueResolver {
             } else if (PROPERTIES.equals(name)) {
                 return new MetacardWrapper((Metacard) context);                
             }
-        } else if(context instanceof MetacardWrapper) {
+        } else if(context instanceof MetacardWrapper && 
+                ((MetacardWrapper) context).getMetacard() != null) {
             Metacard metacard = ((MetacardWrapper) context).getMetacard();
 
             if (Metacard.THUMBNAIL.equals(name)) {
