@@ -34,9 +34,9 @@ import ddf.catalog.source.Source;
  * CatalogFramework, can retrieve the cached availability of a specific source, or have it polled on
  * demand if there is no availability status cached.
  * 
- * @author ddf.isgs@lmco.com
- * 
+ * @deprecated Use ddf.catalog.util.impl.SourcePoller
  */
+@Deprecated
 public class SourcePoller {
 
     private static final int INTERVAL = 60;

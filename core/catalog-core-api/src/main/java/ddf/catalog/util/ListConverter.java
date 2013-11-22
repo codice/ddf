@@ -22,13 +22,14 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.ext.XLogger;
 
 /**
- * This converter is used to allow {@link SortedServiceList} objects to pass through for
- * {@link List} implementations. This was originally intended to allow plugins to be automatically
- * sorted in the list. Without this converter, blueprint will copy the list and lose the reference.
+ * This converter is used to allow {@link SortedServiceList} objects to pass
+ * through for {@link List} implementations. This was originally intended to
+ * allow plugins to be automatically sorted in the list. Without this converter,
+ * blueprint will copy the list and lose the reference.
  * 
- * @author ddf.isgs@lmco.com
- * 
+ * @deprecated ddf.catalog.util.impl.ListConverter
  */
+@Deprecated
 public class ListConverter implements Converter {
 
     private static XLogger logger = new XLogger(LoggerFactory.getLogger(ListConverter.class));

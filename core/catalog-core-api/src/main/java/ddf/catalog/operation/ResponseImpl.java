@@ -19,8 +19,10 @@ import java.util.Map;
 
 /**
  * The ResponseImpl class provides a generic means of providing a {@link Response} on operations.
- * 
+ * @deprecated Use ddf.catalog.operation.impl.ResponseImpl
+ *
  */
+@Deprecated
 public class ResponseImpl<T extends Request> extends OperationImpl implements Response<T> {
 
     protected T request;

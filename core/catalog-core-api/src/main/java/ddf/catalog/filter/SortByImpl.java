@@ -22,9 +22,10 @@ import org.opengis.filter.sort.SortOrder;
  * Simple implementation of filter that does not depend on GeoTools. Please use
  * {@link FilterBuilder} instead to create filters.
  * 
- * @author ddf.isgs@lmco.com
+ * @deprecated Use ddf.catalog.filter.impl.SortByImpl
  * 
  */
+@Deprecated
 public class SortByImpl implements SortBy {
 
     private PropertyName propertyName;

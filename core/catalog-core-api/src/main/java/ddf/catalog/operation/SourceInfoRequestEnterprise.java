@@ -17,7 +17,11 @@ package ddf.catalog.operation;
 /**
  * The SourceInfoRequestEnterprise should be used to obtain {@link Source} information about each
  * {@link Source} in the enterprise.
+ * 
+ * @deprecated Use ddf.catalog.operation.impl.SourceInfoRequestEnterprise
+ *
  */
+@Deprecated
 public class SourceInfoRequestEnterprise extends SourceInfoRequestLocal {
 
     /**

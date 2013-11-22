@@ -25,8 +25,9 @@ import ddf.catalog.data.Result;
 /**
  * Comparator for the effective date of 2 {@link Result} objects.
  * 
- * @author ddf.isgs@lmco.com
+ * @deprecated Use ddf.catalog.util.impl.TemporalResultComparator
  */
+@Deprecated
 public class TemporalResultComparator implements Comparator<Result> {
 
     private static Logger logger = Logger.getLogger(TemporalResultComparator.class);

@@ -24,7 +24,10 @@ import ddf.catalog.data.Metacard;
 /**
  * CreateRequestImpl represents a {@link CreateRequest} and supports passing a {@link Map} of
  * properties for create operations.
+ * 
+ * @deprecated Use ddf.catalog.operation.impl.CreateRequestImpl
  */
+@Deprecated
 public class CreateRequestImpl extends OperationImpl implements CreateRequest {
 
     /** The metacards to be created */

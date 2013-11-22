@@ -26,10 +26,10 @@ import ddf.catalog.data.BinaryContentImpl;
 
 /**
  * This class is a generic implementation of the {@link Resource} interface
- * 
- * @author LMCO
- * @since 1.0
+ * @deprecated Use ddf.catalog.resource.impl.ResourceImpl
+ *
  */
+@Deprecated
 public class ResourceImpl extends BinaryContentImpl implements Resource {
 
     private static XLogger logger = new XLogger(LoggerFactory.getLogger(ResourceImpl.class));

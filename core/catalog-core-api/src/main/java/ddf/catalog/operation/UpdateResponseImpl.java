@@ -25,7 +25,11 @@ import ddf.catalog.data.Metacard;
 
 /**
  * The UpdateResponseImpl represents a default implementation of an {@link UpdateRequest}
+ * 
+ * @deprecated Use ddf.catalog.operation.impl.UpdateResponseImpl
+ *
  */
+@Deprecated
 public class UpdateResponseImpl extends ResponseImpl<UpdateRequest> implements UpdateResponse {
 
     private static Logger LOGGER = Logger.getLogger(UpdateResponseImpl.class.getName());

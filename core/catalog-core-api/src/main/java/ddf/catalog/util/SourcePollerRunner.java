@@ -37,9 +37,9 @@ import ddf.catalog.source.Source;
  * are added to this list when they come online and when they are deleted. A cached map is
  * maintained of all the sources and their last availability states.
  * 
- * @author ddf.isgs@lmco.com
- * 
+ * @deprecated Use ddf.catalog.util.impl.SourcePollerRunner
  */
+@Deprecated
 public class SourcePollerRunner implements Runnable {
 
     private List<Source> sources;

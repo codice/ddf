@@ -20,9 +20,9 @@ import org.apache.log4j.Logger;
  * Default implementation of the Describable interface, providing basic setter/getter methods for a
  * describable item's ID, title, version, organization, and description.
  * 
- * @author ddf.isgs@lmco.com
- * 
+ * @deprecated ddf.catalog.util.impl.DescribableImpl
  */
+@Deprecated
 public abstract class DescribableImpl implements Describable {
 
     private static Logger logger = Logger.getLogger(DescribableImpl.class);

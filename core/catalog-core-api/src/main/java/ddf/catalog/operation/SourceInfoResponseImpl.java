@@ -30,7 +30,11 @@ import ddf.catalog.util.SourceDescriptorComparator;
  * @see SourceDescriptor
  * @see Source
  * @see SoruceInfoRequest
+ * 
+ * @deprecated Use ddf.catalog.operation.impl.SourceInfoResponseImpl
+ *
  */
+@Deprecated
 public class SourceInfoResponseImpl extends ResponseImpl<SourceInfoRequest> implements
         SourceInfoResponse {
 

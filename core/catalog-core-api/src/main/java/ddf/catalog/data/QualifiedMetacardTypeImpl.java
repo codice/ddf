@@ -24,10 +24,10 @@ import java.util.Set;
  * removed in a future version of the library. </b>
  * </p>
  * 
- * @author Ian Barnett
- * @author ddf.isgs@lmco.com
+ * @deprecated Use ddf.catalog.data.impl.QualifiedMetacardTypeImpl
  * 
  */
+@Deprecated
 public class QualifiedMetacardTypeImpl extends MetacardTypeImpl implements QualifiedMetacardType {
 
     private static final long serialVersionUID = -5596051498437529825L;

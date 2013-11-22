@@ -27,7 +27,11 @@ import ddf.catalog.data.Metacard;
 
 /**
  * The UpdateRequestImpl reprensents the default implementation of {@link UpdateRequest}.
+ * 
+ * @deprecated Use ddf.catalog.operation.impl.UpdateRequestImpl
+ *
  */
+@Deprecated
 public class UpdateRequestImpl extends OperationImpl implements UpdateRequest {
 
     protected String name;

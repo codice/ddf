@@ -29,15 +29,15 @@ import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.source.Source;
 
 /**
- * The Class {@code FifoFederationStrategy} represents a First In First Out (FIFO) federation
- * strategy that returns results in the order they are received. This means that the first results
- * received by this strategy are the first results sent back to the client. </br><b>WARNING - This
- * class does not support the timeout parameter from the {@code Query}<b/>
+ * The Class {@code FifoFederationStrategy} represents a First In First Out
+ * (FIFO) federation strategy that returns results in the order they are
+ * received. This means that the first results received by this strategy are the
+ * first results sent back to the client. </br><b>WARNING - This class does not
+ * support the timeout parameter from the {@code Query}<b/>
  * 
  * 
- * @author ddf.isgs@lmco.com
- * @deprecated - As of DDF v2.1.0.ALPHA1. FifoFederationStrategy has been moved to
- *             /ddf/trunk/catalog/federation, federation-impl is now a separate bundle containing
+ * @deprecated - FifoFederationStrategy has been moved to
+ *             catalog-core-federationstrategy, a separate bundle containing
  *             federation strategy implementations.
  * @see SortedFederationStrategy
  */

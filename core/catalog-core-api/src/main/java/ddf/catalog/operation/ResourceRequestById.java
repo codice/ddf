@@ -19,6 +19,12 @@ import java.util.Map;
 
 import ddf.catalog.data.Result;
 
+/**
+ * 
+ * @deprecated Use ddf.catalog.operation.impl.ResourceRequestById
+ *
+ */
+@Deprecated
 public class ResourceRequestById extends OperationImpl implements ResourceRequest {
 
     protected String name;

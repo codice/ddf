@@ -39,10 +39,9 @@ import org.slf4j.ext.XLogger;
  * list order.
  * </p>
  * 
- * @author Ashraf Barakat
- * @author ddf.isgs@lmco.com
- * 
+ * @deprecated Use ddf.catalog.util.impl.SortedServiceReferenceList
  */
+@Deprecated
 public class SortedServiceReferenceList implements List<ServiceReference> {
 
     private static final String READ_ONLY_ERROR_MESSAGE = "This list is meant to be read only.";

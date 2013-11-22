@@ -37,9 +37,10 @@ import java.util.Set;
  * Guidelines</a>.
  * </p>
  * 
- * @author ddf.isgs@lmco.com
+ * @deprecated Use ddf.catalog.data.impl.MetacardTypeImpl
  * 
  */
+@Deprecated
 public class MetacardTypeImpl implements MetacardType {
 
     private static final long serialVersionUID = 1L;
