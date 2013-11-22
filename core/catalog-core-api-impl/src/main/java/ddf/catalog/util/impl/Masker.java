@@ -21,7 +21,6 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.ext.XLogger;
 
 import ddf.catalog.util.Maskable;
-import ddf.catalog.util.Masker;
 
 /**
  * A utility used to mask the source ID for all maskable items that have their own name (ID). Masker

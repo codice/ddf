@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  * 
  **/
-package ddf.catalog.data;
+package ddf.catalog.data.impl;
 
 import java.io.File;
 import java.io.FileInputStream;

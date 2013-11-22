@@ -14,7 +14,6 @@
  **/
 package ddf.catalog.operation.impl;
 
-import ddf.catalog.operation.SourceInfoRequestLocal;
 
 /**
  * The SourceInfoRequestEnterprise should be used to obtain {@link Source} information about each

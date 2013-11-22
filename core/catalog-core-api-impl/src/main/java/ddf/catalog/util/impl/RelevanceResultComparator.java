@@ -20,12 +20,10 @@ import org.apache.log4j.Logger;
 import org.opengis.filter.sort.SortOrder;
 
 import ddf.catalog.data.Result;
-import ddf.catalog.util.RelevanceResultComparator;
 
 /**
  * Comparator for the relevance of 2 {@link Result} objects.
  * 
- * @author ddf.isgs@lmco.com
  */
 public class RelevanceResultComparator implements Comparator<Result> {
 

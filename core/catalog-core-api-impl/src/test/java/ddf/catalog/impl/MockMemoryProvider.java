@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  * 
  **/
-package ddf.catalog;
+package ddf.catalog.impl;
 
 import java.io.Serializable;
 import java.util.ArrayList;

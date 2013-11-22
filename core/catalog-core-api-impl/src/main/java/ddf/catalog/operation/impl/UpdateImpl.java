@@ -16,12 +16,9 @@ package ddf.catalog.operation.impl;
 
 import ddf.catalog.data.Metacard;
 import ddf.catalog.operation.Update;
-import ddf.catalog.operation.UpdateImpl;
 
 /**
  * Default implementation of {@link Update}
- * 
- * @author michael.menousek@lmco.com
  * 
  */
 public class UpdateImpl implements Update {

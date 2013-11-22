@@ -20,12 +20,10 @@ import org.apache.log4j.Logger;
 import org.opengis.filter.sort.SortOrder;
 
 import ddf.catalog.data.Result;
-import ddf.catalog.util.DistanceResultComparator;
 
 /**
  * Comparator for the distance (in meters) of 2 {@link Result} objects.
  * 
- * @author ddf.isgs@lmco.com
  */
 public class DistanceResultComparator implements Comparator<Result> {
 

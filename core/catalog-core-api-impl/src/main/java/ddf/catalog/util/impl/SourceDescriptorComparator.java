@@ -21,12 +21,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ddf.catalog.source.SourceDescriptor;
-import ddf.catalog.util.SourceDescriptorComparator;
 
 /**
  * Comparator for the sourceId of 2 {@link SourceDescriptor} objects
- * 
- * @author ddf.isgs@lmco.com
  * 
  */
 public class SourceDescriptorComparator implements Comparator<SourceDescriptor> {

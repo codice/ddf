@@ -22,9 +22,7 @@ import java.util.Set;
 
 import ddf.catalog.data.Result;
 import ddf.catalog.operation.QueryRequest;
-import ddf.catalog.operation.ResponseImpl;
 import ddf.catalog.operation.SourceProcessingDetails;
-import ddf.catalog.operation.SourceProcessingDetailsImpl;
 import ddf.catalog.operation.SourceResponse;
 
 /**

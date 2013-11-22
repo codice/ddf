@@ -31,8 +31,6 @@ import org.slf4j.ext.XLogger;
 
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.plugin.PreIngestPlugin;
-import ddf.catalog.util.ServiceComparator;
-import ddf.catalog.util.SortedServiceList;
 
 /**
  * <p>
@@ -55,8 +53,6 @@ import ddf.catalog.util.SortedServiceList;
  * populated {@link SortedServiceList} list such as <code>list.get(0)</code> would return the first
  * {@link PreIngestPlugin} object.
  * </p>
- * 
- * @author ddf.isgs@lmco.com
  * 
  * @param <T>
  */

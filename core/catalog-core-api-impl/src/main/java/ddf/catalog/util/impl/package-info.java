@@ -13,6 +13,6 @@
  * 
  **/
 /**
- * Provides the classes for the Catalog Utility API and implementation.
+ * Provides utility classes for the Catalog.
  */
 package ddf.catalog.util.impl;

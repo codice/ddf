@@ -34,7 +34,7 @@
             </dependency>
 			<dependency>
 				<groupId>ddf.catalog.core</groupId>
-				<artifactId>catalog-core-api</artifactId>
+				<artifactId>catalog-core-api-impl</artifactId>
 				<version>${ddf.platform.app.version}</version>
 				<type>test-jar</type>
 			</dependency>
@@ -65,6 +65,7 @@
 
 	<modules>
 		<module>catalog-core-api</module>
+		<module>catalog-core-api-impl</module>
         <module>catalog-core-commons</module>
         <module>catalog-core-commands</module>
         <module>catalog-core-urlresourcereader</module>

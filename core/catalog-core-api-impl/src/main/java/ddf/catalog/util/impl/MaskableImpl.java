@@ -14,7 +14,6 @@
  **/
 package ddf.catalog.util.impl;
 
-import ddf.catalog.util.DescribableImpl;
 import ddf.catalog.util.Maskable;
 
 /**

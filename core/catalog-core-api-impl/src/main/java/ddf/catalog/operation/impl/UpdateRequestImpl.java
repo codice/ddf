@@ -24,7 +24,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import ddf.catalog.data.Metacard;
-import ddf.catalog.operation.OperationImpl;
 import ddf.catalog.operation.UpdateRequest;
 
 /**

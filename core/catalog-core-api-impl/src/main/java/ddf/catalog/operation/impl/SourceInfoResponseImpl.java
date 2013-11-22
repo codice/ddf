@@ -16,12 +16,10 @@ package ddf.catalog.operation.impl;
 
 import java.io.Serializable;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-import ddf.catalog.operation.ResponseImpl;
 import ddf.catalog.operation.SourceInfoRequest;
 import ddf.catalog.operation.SourceInfoResponse;
 import ddf.catalog.source.SourceDescriptor;

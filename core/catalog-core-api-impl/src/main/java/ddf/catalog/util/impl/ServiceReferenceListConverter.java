@@ -21,16 +21,10 @@ import org.osgi.service.blueprint.container.ReifiedType;
 import org.slf4j.LoggerFactory;
 import org.slf4j.ext.XLogger;
 
-import ddf.catalog.util.ServiceReferenceListConverter;
-import ddf.catalog.util.SortedServiceReferenceList;
-
 /**
  * This converter is used to allow {@link ServiceReferenceListConverter} objects to pass through for
  * {@link List} implementations. This was originally intended to allow plugins to be automatically
  * sorted in the list. Without this converter, blueprint will copy the list and lose the reference.
- * 
- * @author Ashraf Barakat
- * @author ddf.isgs@lmco.com
  * 
  */
 public class ServiceReferenceListConverter implements Converter {

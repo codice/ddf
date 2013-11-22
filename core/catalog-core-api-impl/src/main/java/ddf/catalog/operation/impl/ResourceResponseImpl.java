@@ -20,7 +20,6 @@ import java.util.Map;
 import ddf.catalog.operation.Request;
 import ddf.catalog.operation.ResourceRequest;
 import ddf.catalog.operation.ResourceResponse;
-import ddf.catalog.operation.ResponseImpl;
 import ddf.catalog.resource.Resource;
 
 /**

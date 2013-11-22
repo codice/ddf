@@ -12,13 +12,12 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  * 
  **/
-package ddf.catalog;
+package ddf.catalog.impl;
 
 import java.util.Date;
 import java.util.Set;
 
 import ddf.catalog.data.ContentType;
-import ddf.catalog.data.MetacardType;
 import ddf.catalog.operation.CreateRequest;
 import ddf.catalog.operation.CreateResponse;
 import ddf.catalog.operation.DeleteRequest;
@@ -34,8 +33,6 @@ import ddf.catalog.source.IngestException;
  * Throws a runtime exception for all of the performing operations. This is used to test the catalog
  * framework and verify that runtime exceptions are being caught and not thrown back to the
  * endpoint.
- * 
- * @author LMCO
  * 
  */
 public class MockExceptionProvider extends MockSource implements CatalogProvider {

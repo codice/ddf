@@ -27,9 +27,6 @@ import org.osgi.framework.ServiceReference;
 import org.slf4j.LoggerFactory;
 import org.slf4j.ext.XLogger;
 
-import ddf.catalog.util.ServiceComparator;
-import ddf.catalog.util.SortedServiceReferenceList;
-
 /**
  * <p>
  * This utility object sorts ServiceReferences by their service rankings first and then breaks ties
@@ -41,9 +38,6 @@ import ddf.catalog.util.SortedServiceReferenceList;
  * <ServiceReference> where the {@link ServiceReference} objects are what is used to maintain the
  * list order.
  * </p>
- * 
- * @author Ashraf Barakat
- * @author ddf.isgs@lmco.com
  * 
  */
 public class SortedServiceReferenceList implements List<ServiceReference> {

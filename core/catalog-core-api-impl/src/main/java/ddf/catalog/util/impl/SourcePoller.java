@@ -25,10 +25,6 @@ import org.slf4j.ext.XLogger;
 
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.source.Source;
-import ddf.catalog.util.CachedSource;
-import ddf.catalog.util.SourcePoller;
-import ddf.catalog.util.SourcePollerRunner;
-
 /**
  * The SourcePoller is the scheduler of the task to poll all configured sources at a fixed interval
  * to determine their availability. It is created by the CatalogFramework's blueprint.
@@ -36,8 +32,6 @@ import ddf.catalog.util.SourcePollerRunner;
  * An isAvailable() method is included in this class so that the caller, nominally the
  * CatalogFramework, can retrieve the cached availability of a specific source, or have it polled on
  * demand if there is no availability status cached.
- * 
- * @author ddf.isgs@lmco.com
  * 
  */
 public class SourcePoller {
