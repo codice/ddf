@@ -37,6 +37,7 @@
 				<artifactId>catalog-core-api-impl</artifactId>
 				<version>${ddf.platform.app.version}</version>
 				<type>test-jar</type>
+				<scope>test</scope>
 			</dependency>
 			<dependency>
 				<groupId>ddf.mime.core</groupId>
