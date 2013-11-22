@@ -13,6 +13,16 @@
  **/
 
  -->
+
+<!-- 
+
+NOTE: 
+	This spring beans file has been copied into the platform-configuration 
+	project and remains here for compatibility reasons. When ddf.catalog.util.DdfConfigurationWatcher 
+	and ddf.catalog.util.DdfConfigurationManager are removed from the Catalog 
+	API, this file should be removed. 
+	
+-->
 <beans:beans xmlns="http://www.springframework.org/schema/osgi"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:osgix="http://www.springframework.org/schema/osgi-compendium"
 	xmlns:beans="http://www.springframework.org/schema/beans"
