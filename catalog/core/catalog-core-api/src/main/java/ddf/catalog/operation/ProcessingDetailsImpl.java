@@ -19,6 +19,12 @@ import java.util.List;
 
 import org.opengis.filter.Filter;
 
+/**
+ * 
+ * @deprecated Use ddf.catalog.operation.impl.ProcessDetailsImpl
+ *
+ */
+@Deprecated
 public class ProcessingDetailsImpl extends SourceProcessingDetailsImpl implements ProcessingDetails {
 
     protected String sourceId = null;

@@ -22,7 +22,9 @@ import ddf.catalog.data.Metacard;
 
 /**
  * The DeleteResponseImpl represents a default implementation of the {@link DefaultResponse}.
+ * @deprecated Use ddf.catalog.operation.impl.DeleteResponseImpl
  */
+@Deprecated
 public class DeleteResponseImpl extends ResponseImpl<DeleteRequest> implements DeleteResponse {
 
     protected List<Metacard> deletedMetacards;

@@ -20,10 +20,10 @@ import org.apache.commons.lang.builder.ToStringBuilder;
  * Default implementation of the {@link Result} interface, which is a {@link Metacard} catalog entry
  * wrapped with the extra attributes {@code relevanceScore} and {@code distanceInMeters}.
  * 
- * @author ddf.isgs@lmco.com
+ * @deprecated Use ddf.catalog.data.impl.ResultImpl
  * 
- * @since 1.0
  */
+@Deprecated
 public class ResultImpl implements Result {
 
     private Metacard metacard;

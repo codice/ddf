@@ -36,9 +36,10 @@ import java.util.List;
  * Guidelines</a>.
  * </p>
  * 
- * @author ddf.isgs@lmco.com
+ * @deprecated Use ddf.catalog.data.impl.AttributeImpl
  * 
  */
+@Deprecated
 public class AttributeImpl implements Attribute {
 
     private static final long serialVersionUID = 1L;

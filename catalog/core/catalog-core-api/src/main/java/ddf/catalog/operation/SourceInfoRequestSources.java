@@ -19,7 +19,11 @@ import java.util.Set;
 /**
  * The SourceInfoRequestSources should be used to obtain {@link Source} information about specific
  * sources identified by id.
+ * 
+ * @deprecated Use ddf.catalog.operation.impl.SourceInfoRequestSources
+ *
  */
+@Deprecated
 public class SourceInfoRequestSources extends SourceInfoRequestLocal {
 
     protected Set<String> ids = null;

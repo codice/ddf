@@ -21,9 +21,10 @@ import java.net.URI;
  * 
  * It is used to return the list of {@link ContentType}s currently stored in a {@link Source}.
  * 
- * @author ddf.isgs@lmco.com
+ * @deprecated Use ddf.catalog.data.impl.ContentTypeImpl
  * 
  */
+@Deprecated
 public class ContentTypeImpl implements ContentType {
 
     private static final int HASHCODE_OFFSET = 17;

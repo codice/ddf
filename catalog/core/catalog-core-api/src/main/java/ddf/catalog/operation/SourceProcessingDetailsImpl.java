@@ -19,7 +19,11 @@ import java.util.List;
 /**
  * The SourceProcessingDetailsImpl class represents a default implementation of a
  * {@link SourceProcessingDetails} to provide {@link Source} warnings.
+ * 
+ * @deprecated Use ddf.catalog.operation.impl.SourceProcessingDetailsImpl
+ *
  */
+@Deprecated
 public class SourceProcessingDetailsImpl implements SourceProcessingDetails {
 
     protected List<String> warnings = null;

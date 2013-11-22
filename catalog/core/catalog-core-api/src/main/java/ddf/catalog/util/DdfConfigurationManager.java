@@ -37,8 +37,6 @@ import org.osgi.service.cm.ConfigurationAdmin;
  * these DDF configuration settings pushed to them when they come online (aka
  * bind) and when one or more of the settings are changed in the Admin Console.
  * 
- * @author ddf.isgs@lmco.com
- * 
  * @deprecated since 2.3.0. New implementations should use ConfigurationManager
  *             in platform application.
  * @see org.codice.ddf.configuration.ConfigurationManager

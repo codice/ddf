@@ -54,10 +54,10 @@ import ddf.catalog.plugin.PreIngestPlugin;
  * {@link PreIngestPlugin} object.
  * </p>
  * 
- * @author ddf.isgs@lmco.com
- * 
  * @param <T>
+ * @deprecated Use ddf.catalog.util.impl.SortedServiceList
  */
+@Deprecated
 public class SortedServiceList<T> implements List<T> {
 
     private static final String READ_ONLY_ERROR_MESSAGE = "This list is meant to be read only.";

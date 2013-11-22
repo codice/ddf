@@ -19,6 +19,11 @@ import java.util.Set;
 import org.opengis.filter.Filter;
 import org.opengis.filter.FilterVisitor;
 
+/**
+ * 
+ * @deprecated Use ddf.catalog.event.impl.SubscriptionImpl
+ */
+@Deprecated
 public class SubscriptionImpl implements Subscription {
     private Filter filter;
 

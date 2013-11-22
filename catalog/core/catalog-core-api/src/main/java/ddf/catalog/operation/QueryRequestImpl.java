@@ -21,7 +21,12 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
-
+/**
+ * 
+ * @deprecated Use ddf.catalog.operation.impl.QueryRequestImpl
+ *
+ */
+@Deprecated
 public class QueryRequestImpl extends OperationImpl implements QueryRequest {
 
     protected Query query;

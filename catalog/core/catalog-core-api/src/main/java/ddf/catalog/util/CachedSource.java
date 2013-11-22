@@ -15,11 +15,6 @@
 
 package ddf.catalog.util;
 
-/**
- * {@link CachedSource} wraps a {@link Source) and caches information about the source
- * 
- */
-
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -35,6 +30,11 @@ import ddf.catalog.source.Source;
 import ddf.catalog.source.SourceMonitor;
 import ddf.catalog.source.UnsupportedQueryException;
 
+/**
+ * {@link CachedSource} wraps a {@link Source) and caches information about the source
+ * @deprecated Use ddf.catalog.util.impl.CachedSource
+ */
+@Deprecated
 public class CachedSource implements Source {
 
     private static XLogger logger = new XLogger(

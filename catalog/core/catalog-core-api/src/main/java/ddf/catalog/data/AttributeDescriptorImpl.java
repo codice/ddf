@@ -32,10 +32,11 @@ import org.apache.commons.lang.builder.ToStringBuilder;
  * Guidelines</a>.
  * </p>
  * 
- * 
+ * @deprecated Use ddf.catalog.data.impl.AttributeDescriptorImpl
  * @author ddf.isgs@lmco.com
  * 
  */
+@Deprecated
 public class AttributeDescriptorImpl implements AttributeDescriptor {
 
     private static final int HASHCODE_OFFSET = 17;

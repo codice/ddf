@@ -20,10 +20,9 @@ import org.osgi.framework.ServiceReference;
 
 /**
  * Comparator for OSGi {@link ServiceReference} objects.
- * 
- * @author ddf.isgs@lmco.com
- * 
+ * @deprecated Use ddf.catalog.util.impl.ServiceComparator
  */
+@Deprecated
 public class ServiceComparator implements Comparator<ServiceReference> {
 
     /**

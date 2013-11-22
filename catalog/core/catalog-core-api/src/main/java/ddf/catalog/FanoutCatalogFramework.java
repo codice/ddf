@@ -93,9 +93,10 @@ import ddf.catalog.util.SourcePoller;
  * </ol>
  * </p>
  * 
+ * @deprecated Use ddf.catalog.impl.FanoutCatalogFramework
  * @author ddf.isgs@lmco.com
  */
-@SuppressWarnings("deprecation")
+@Deprecated
 public class FanoutCatalogFramework extends CatalogFrameworkImpl {
     private static final String EXCEPTION_MESSAGE = "FanoutCatalogFramework does not support create, update, and delete operations";
 

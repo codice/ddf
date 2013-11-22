@@ -24,8 +24,9 @@ import ddf.catalog.data.Result;
 /**
  * Comparator for the relevance of 2 {@link Result} objects.
  * 
- * @author ddf.isgs@lmco.com
+ * @deprecated Use ddf.catalog.util.impl.RelevanceResultComparator
  */
+@Deprecated
 public class RelevanceResultComparator implements Comparator<Result> {
 
     private static Logger logger = Logger.getLogger(RelevanceResultComparator.class);

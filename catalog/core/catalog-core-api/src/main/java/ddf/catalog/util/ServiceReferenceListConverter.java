@@ -26,10 +26,9 @@ import org.slf4j.ext.XLogger;
  * {@link List} implementations. This was originally intended to allow plugins to be automatically
  * sorted in the list. Without this converter, blueprint will copy the list and lose the reference.
  * 
- * @author Ashraf Barakat
- * @author ddf.isgs@lmco.com
- * 
+ * @deprecated Use ddf.catalog.util.impl.ServiceReferenceListConverter
  */
+@Deprecated
 public class ServiceReferenceListConverter implements Converter {
 
     private static XLogger logger = new XLogger(

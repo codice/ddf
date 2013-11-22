@@ -26,7 +26,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
  * @see InputTransformer
  * @see QueryResponseTransformer
  * 
- * @author LMCO
+ * @deprecated Use ddf.catalog.data.impl.BinaryContentImpl
  */
 @Deprecated
 public class BinaryContentImpl extends ddf.catalog.data.BinaryContentImpl implements BinaryContent {

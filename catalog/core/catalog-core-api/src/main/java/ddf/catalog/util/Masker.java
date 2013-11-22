@@ -21,14 +21,15 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.ext.XLogger;
 
 /**
- * A utility used to mask the source ID for all maskable items that have their own name (ID). Masker
- * enables DDF to specify a single name, the DDF's site name as specified in the DDF System
- * Settings, for the site name in all responses from connected sources and catalog providers, which
- * are both maskable items.
+ * A utility used to mask the source ID for all maskable items that have their
+ * own name (ID). Masker enables DDF to specify a single name, the DDF's site
+ * name as specified in the DDF System Settings, for the site name in all
+ * responses from connected sources and catalog providers, which are both
+ * maskable items.
  * 
- * @author ddf.isgs@lmco.com
- * 
+ * @deprecated ddf.catalog.util.impl.Masker
  */
+@Deprecated
 public class Masker {
 
     private static XLogger logger = new XLogger(LoggerFactory.getLogger(Masker.class));

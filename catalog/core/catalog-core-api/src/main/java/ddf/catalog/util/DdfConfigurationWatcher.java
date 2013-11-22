@@ -17,16 +17,17 @@ package ddf.catalog.util;
 import java.util.Map;
 
 /**
- * This interface is used to specify a source as a watcher of updates to the DDF system
- * configuration settings. Whenever the source is configured, or updates are made to the DDF System
- * Settings, the source will receive the entire list of the most current DDF system settings.
+ * This interface is used to specify a source as a watcher of updates to the DDF
+ * system configuration settings. Whenever the source is configured, or updates
+ * are made to the DDF System Settings, the source will receive the entire list
+ * of the most current DDF system settings.
  * 
- * It is up to the DdfConfigurationWatcher to determine which DDF system settings are of interest,
- * if their values have changed, and how to react to their values.
+ * It is up to the DdfConfigurationWatcher to determine which DDF system
+ * settings are of interest, if their values have changed, and how to react to
+ * their values.
  * 
- * @author ddf.isgs@lmco.com
- * 
- * @deprecated Since 2.3.0. New implementations should use ConfigurationWatcher located in the platform application.
+ * @deprecated Since 2.3.0. New implementations should use ConfigurationWatcher
+ *             located in the platform application.
  * 
  * @see org.codice.ddf.configuration.ConfigurationWatcher
  * 
