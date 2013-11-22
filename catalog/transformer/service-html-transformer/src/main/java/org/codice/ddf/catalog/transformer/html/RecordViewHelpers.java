@@ -59,6 +59,9 @@ public class RecordViewHelpers {
     private static final Logger LOGGER = LoggerFactory.getLogger(RecordViewHelpers.class);
 
     public CharSequence buildMetadata(String metadata, Options options) {
+        if(metadata == null) {
+            return "";
+        }
         try {
             Transformer transformer = transformerFactory.newTransformer();
             transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
@@ -95,7 +98,10 @@ public class RecordViewHelpers {
     }
 
     public CharSequence formatDate(Date date, Options options) {
-        return ISO_8601_DATE_FORMAT.format(date);
+        if(date != null) {
+            return ISO_8601_DATE_FORMAT.format(date);
+        }
+        return "";
     }
     
     public CharSequence hasServicesUrl(Options options) throws IOException {
