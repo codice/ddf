@@ -28,7 +28,8 @@
 	<dependencies>
 		<dependency>
 			<groupId>ddf.catalog.core</groupId>
-			<artifactId>catalog-core-api</artifactId>
+			<artifactId>catalog-core-api-impl</artifactId>
+			 <version>${project.version}</version>
 		</dependency>
 		<dependency>
             <groupId>ddf.catalog.core</groupId>
@@ -55,7 +56,7 @@
 		<!-- JAR of the test classes in catalog-api, namely its mock objects -->
 		<dependency>
 			<groupId>ddf.catalog.core</groupId>
-			<artifactId>catalog-core-api</artifactId>
+			<artifactId>catalog-core-api-impl</artifactId>
 			<type>test-jar</type>
 			<scope>test</scope>
 		</dependency>
@@ -91,22 +92,8 @@
 						<Bundle-SymbolicName>${project.artifactId};blueprint.graceperiod:=true;blueprint.timeout:=604800000</Bundle-SymbolicName>
 						<Embed-Dependency>metrics-core;scope=compile|runtime;inline=true</Embed-Dependency>
 						<Embed-Transitive>true</Embed-Transitive>
+						<Private-Package>ddf.catalog.operation.impl,ddf.catalog.util.impl,ddf.catalog.federation.base</Private-Package>
 						<Import-Package>
-							ddf.catalog,
-							ddf.catalog.federation, 
-							ddf.catalog.plugin, 
-							ddf.catalog.resource,
-							ddf.catalog.source,
-							ddf.catalog.util,
-							ddf.catalog.data,
-							ddf.catalog.operation, 
-							org.opengis.filter, 
-							org.opengis.filter.expression, 
-							org.opengis.filter.sort, 
-							org.slf4j, 
-							org.slf4j.ext,
-							org.osgi.service.blueprint,
-							org.osgi.service.cm,
 							sun.misc;resolution:=optional,
 							*
                         </Import-Package>

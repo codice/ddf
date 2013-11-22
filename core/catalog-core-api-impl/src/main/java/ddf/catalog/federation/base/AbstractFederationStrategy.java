@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  * 
  **/
-package ddf.catalog.federation;
+package ddf.catalog.federation.base;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -27,13 +27,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ddf.catalog.data.Result;
+import ddf.catalog.federation.FederationStrategy;
 import ddf.catalog.operation.Query;
-import ddf.catalog.operation.QueryImpl;
 import ddf.catalog.operation.QueryRequest;
-import ddf.catalog.operation.QueryRequestImpl;
 import ddf.catalog.operation.QueryResponse;
-import ddf.catalog.operation.QueryResponseImpl;
 import ddf.catalog.operation.SourceResponse;
+import ddf.catalog.operation.impl.QueryImpl;
+import ddf.catalog.operation.impl.QueryRequestImpl;
+import ddf.catalog.operation.impl.QueryResponseImpl;
 import ddf.catalog.plugin.PluginExecutionException;
 import ddf.catalog.plugin.PostFederatedQueryPlugin;
 import ddf.catalog.plugin.PreFederatedQueryPlugin;
@@ -44,9 +45,7 @@ import ddf.catalog.source.Source;
  * This class serves as a base implementation of the {@link FederationStrategy} interface. Other
  * classes can extend this class to create specific attributes to sort by.
  * 
- * @deprecated Use ddf.catalog.federation.base.AbstractFederationStrategy
  */
-@Deprecated
 public abstract class AbstractFederationStrategy implements FederationStrategy {
     private static final Logger logger = LoggerFactory.getLogger(AbstractFederationStrategy.class);
 

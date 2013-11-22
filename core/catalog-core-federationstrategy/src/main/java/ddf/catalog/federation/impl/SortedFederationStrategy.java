@@ -37,18 +37,19 @@ import org.slf4j.ext.XLogger;
 
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
-import ddf.catalog.federation.AbstractFederationStrategy;
+import ddf.catalog.federation.FederationStrategy;
 import ddf.catalog.operation.ProcessingDetails;
-import ddf.catalog.operation.ProcessingDetailsImpl;
 import ddf.catalog.operation.Query;
-import ddf.catalog.operation.QueryResponseImpl;
 import ddf.catalog.operation.SourceResponse;
+import ddf.catalog.operation.impl.ProcessingDetailsImpl;
+import ddf.catalog.operation.impl.QueryResponseImpl;
 import ddf.catalog.plugin.PostFederatedQueryPlugin;
 import ddf.catalog.plugin.PreFederatedQueryPlugin;
 import ddf.catalog.source.Source;
-import ddf.catalog.util.DistanceResultComparator;
-import ddf.catalog.util.RelevanceResultComparator;
-import ddf.catalog.util.TemporalResultComparator;
+import ddf.catalog.util.impl.DistanceResultComparator;
+import ddf.catalog.util.impl.RelevanceResultComparator;
+import ddf.catalog.util.impl.TemporalResultComparator;
+import ddf.catalog.federation.base.AbstractFederationStrategy;
 
 /**
  * This class represents a {@link FederationStrategy} based on sorting {@link Metacard}s. The
@@ -57,8 +58,6 @@ import ddf.catalog.util.TemporalResultComparator;
  * {@link Result.RELEVANCE} . The supported ordering includes {@link SortOrder.DESCENDING} and
  * {@link SortOrder.ASCENDING}. For this class to function properly a sort value and sort order must
  * be provided.
- * 
- * @author ddf.isgs@lmco.com
  * 
  * @see Metacard
  * @see Query

@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  * 
  **/
-package ddf.catalog.federation;
+package ddf.catalog.federation.base;
 
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -24,11 +24,7 @@ import ddf.catalog.operation.QueryResponseImpl;
 import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.source.Source;
 
-/**
- * @deprecated Use ddf.catalog.federation.base.AbstractFederatedQueryMonitor
- */
 @SuppressWarnings("unused")
-@Deprecated
 public abstract class AbstractFederatedQueryMonitor implements Runnable {
 
     private QueryResponse returnResults;
