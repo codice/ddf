@@ -27,9 +27,6 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.ext.XLogger;
 
 import ddf.catalog.source.Source;
-import ddf.catalog.util.CachedSource;
-import ddf.catalog.util.SourcePoller;
-import ddf.catalog.util.SourcePollerRunner;
 
 /**
  * The poller to check the availability of all configured sources. This class is instantiated by the
@@ -39,8 +36,6 @@ import ddf.catalog.util.SourcePollerRunner;
  * This class maintains a list of all of the sources to be polled for their availability. Sources
  * are added to this list when they come online and when they are deleted. A cached map is
  * maintained of all the sources and their last availability states.
- * 
- * @author ddf.isgs@lmco.com
  * 
  */
 public class SourcePollerRunner implements Runnable {

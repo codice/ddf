@@ -21,9 +21,6 @@ import org.osgi.service.blueprint.container.ReifiedType;
 import org.slf4j.LoggerFactory;
 import org.slf4j.ext.XLogger;
 
-import ddf.catalog.util.ListConverter;
-import ddf.catalog.util.SortedServiceList;
-
 /**
  * This converter is used to allow {@link SortedServiceList} objects to pass through for
  * {@link List} implementations. This was originally intended to allow plugins to be automatically

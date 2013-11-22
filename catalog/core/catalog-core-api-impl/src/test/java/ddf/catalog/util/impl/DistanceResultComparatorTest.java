@@ -12,11 +12,10 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  * 
  **/
-package ddf.catalog.util;
+package ddf.catalog.util.impl;
 
 import static org.junit.Assert.assertEquals;
 
-import java.util.Calendar;
 
 import org.junit.Before;
 import org.junit.Ignore;
@@ -24,7 +23,6 @@ import org.junit.Test;
 import org.opengis.filter.sort.SortOrder;
 
 import ddf.catalog.data.Result;
-import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.ResultImpl;
 import ddf.catalog.util.impl.DistanceResultComparator;
 

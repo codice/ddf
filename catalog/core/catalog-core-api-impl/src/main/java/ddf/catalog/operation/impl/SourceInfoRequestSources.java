@@ -16,8 +16,6 @@ package ddf.catalog.operation.impl;
 
 import java.util.Set;
 
-import ddf.catalog.operation.SourceInfoRequestLocal;
-
 /**
  * The SourceInfoRequestSources should be used to obtain {@link Source} information about specific
  * sources identified by id.

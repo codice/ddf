@@ -22,12 +22,9 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 
 import ddf.catalog.data.Metacard;
-import ddf.catalog.operation.ResponseImpl;
 import ddf.catalog.operation.Update;
-import ddf.catalog.operation.UpdateImpl;
 import ddf.catalog.operation.UpdateRequest;
 import ddf.catalog.operation.UpdateResponse;
-import ddf.catalog.operation.UpdateResponseImpl;
 
 /**
  * The UpdateResponseImpl represents a default implementation of an {@link UpdateRequest}

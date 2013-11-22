@@ -17,7 +17,6 @@ package ddf.catalog.operation.impl;
 import java.io.Serializable;
 import java.util.Map;
 
-import ddf.catalog.operation.OperationImpl;
 import ddf.catalog.operation.Request;
 import ddf.catalog.operation.Response;
 

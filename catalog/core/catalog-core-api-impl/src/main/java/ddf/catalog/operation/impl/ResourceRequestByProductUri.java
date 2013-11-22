@@ -18,7 +18,6 @@ import java.io.Serializable;
 import java.net.URI;
 import java.util.Map;
 
-import ddf.catalog.operation.OperationImpl;
 import ddf.catalog.operation.ResourceRequest;
 
 public class ResourceRequestByProductUri extends OperationImpl implements ResourceRequest {

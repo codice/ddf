@@ -34,8 +34,6 @@ import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.source.Source;
 import ddf.catalog.source.SourceMonitor;
 import ddf.catalog.source.UnsupportedQueryException;
-import ddf.catalog.util.CachedSource;
-import ddf.catalog.util.SourceStatus;
 
 public class CachedSource implements Source {
 

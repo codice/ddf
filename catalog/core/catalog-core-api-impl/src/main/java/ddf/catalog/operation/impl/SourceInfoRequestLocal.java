@@ -16,7 +16,6 @@ package ddf.catalog.operation.impl;
 
 import java.util.Set;
 
-import ddf.catalog.operation.OperationImpl;
 import ddf.catalog.operation.SourceInfoRequest;
 
 /**

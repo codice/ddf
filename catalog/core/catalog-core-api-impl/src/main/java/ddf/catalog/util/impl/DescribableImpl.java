@@ -17,7 +17,6 @@ package ddf.catalog.util.impl;
 import org.apache.log4j.Logger;
 
 import ddf.catalog.util.Describable;
-import ddf.catalog.util.DescribableImpl;
 
 /**
  * Default implementation of the Describable interface, providing basic setter/getter methods for a

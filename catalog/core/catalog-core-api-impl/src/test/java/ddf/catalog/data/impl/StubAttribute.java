@@ -12,10 +12,12 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  * 
  **/
-package ddf.catalog.data;
+package ddf.catalog.data.impl;
 
 import java.io.Serializable;
 import java.util.List;
+
+import ddf.catalog.data.Attribute;
 
 public class StubAttribute implements Attribute {
     /**

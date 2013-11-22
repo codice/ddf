@@ -13,7 +13,7 @@
  * 
  **/
 
-package ddf.catalog.data;
+package ddf.catalog.data.impl;
 
 import static org.junit.Assert.*;
 
@@ -23,6 +23,9 @@ import java.util.Set;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import ddf.catalog.data.AttributeDescriptor;
+import ddf.catalog.data.MetacardType;
+import ddf.catalog.data.QualifiedMetacardType;
 import ddf.catalog.data.impl.AttributeDescriptorImpl;
 import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.data.impl.MetacardTypeImpl;

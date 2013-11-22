@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  * 
  **/
-package ddf.catalog.util;
+package ddf.catalog.util.impl;
 
 import java.util.HashMap;
 import java.util.Map;

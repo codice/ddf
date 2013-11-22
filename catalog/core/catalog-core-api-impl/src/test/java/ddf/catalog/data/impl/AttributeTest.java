@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  * 
  **/
-package ddf.catalog.data;
+package ddf.catalog.data.impl;
 
 import static org.junit.Assert.*;
 
@@ -28,6 +28,8 @@ import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
+
+import ddf.catalog.data.Attribute;
 
 public class AttributeTest {
 
