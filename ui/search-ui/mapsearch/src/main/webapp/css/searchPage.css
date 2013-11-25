@@ -226,7 +226,7 @@ div.resourceSize {
     margin: 0px;
     border: 0;
     border-top: 1px solid #2c2c2c;
-    border-bottom: 1px solid #000000;
+    border-bottom: 1px solid #eeeeee;
 }
 
 .nav-table {
@@ -245,11 +245,14 @@ div.resourceSize {
     right: 0px;
 }
 
-.searchSideBar {
-    position: absolute;
-    left: 400px;
+.branding {
     white-space: nowrap;
     z-index: 99;
+    top: 1px;
+    font-size: 30px;
+    color: #EEE;
+    text-align: center;
+    padding: 15px 0px;
 }
 
 .cesium-widget-credits {
@@ -264,7 +267,7 @@ div.resourceSize {
     /*magic needed to get perfect scrollbar needed*/
     overflow: hidden;
     position: absolute;
-    top : 24px;
+    top : 74px;
     bottom : 0px;
     width: 100%;
 
