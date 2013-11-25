@@ -34,7 +34,7 @@ define(function (require) {
             ddf.app.controllers.geoController.flyToLocation(this.model);
         },
         changeRecord: function (e) {
-            var target = e.target.id;
+            var target = e.currentTarget.id;
             var metacardResult = this.model.get("metacardResult").at(0);
             var searchResult = metacardResult.get("searchResult");
             var collection = searchResult.get("results");
