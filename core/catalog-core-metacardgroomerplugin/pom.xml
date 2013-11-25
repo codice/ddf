@@ -29,7 +29,7 @@
 
 		<dependency>
 			<groupId>ddf.catalog.core</groupId>
-			<artifactId>catalog-core-api</artifactId>
+			<artifactId>catalog-core-api-impl</artifactId>
 		</dependency>
 
 		<dependency>
@@ -51,6 +51,7 @@
 				<artifactId>maven-bundle-plugin</artifactId>
 				<configuration>
 					<instructions>
+						<Private-Package>ddf.catalog.plugin.groomer.metacard,ddf.catalog.data.impl</Private-Package>
 						<Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
 						<Export-Package />
 					</instructions>

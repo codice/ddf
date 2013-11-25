@@ -15,7 +15,7 @@
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0" xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0">
 
 	<!-- PreIngest Plugin -->
-	<bean id="plugin" class="ddf.catalog.plugin.groomer.StandardMetacardGroomerPlugin" />
+	<bean id="plugin" class="ddf.catalog.plugin.groomer.metacard.StandardMetacardGroomerPlugin" />
 
 	<!-- Register in the OSGi Service Registry -->
 	<service ref="plugin" interface="ddf.catalog.plugin.PreIngestPlugin" ranking="0"/>
