@@ -50,6 +50,11 @@
             <groupId>commons-collections</groupId>
             <artifactId>commons-collections</artifactId>
         </dependency>
+        <dependency>
+			<groupId>ddf.catalog.core</groupId>
+			<artifactId>catalog-core-api-impl</artifactId>
+			<scope>test</scope>
+		</dependency>
 		<dependency>
 		    <groupId>ddf.catalog.core</groupId>
 		    <artifactId>filter-proxy</artifactId>
