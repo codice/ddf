@@ -39,22 +39,29 @@
                                 <span class="attribute-value">{{properties.source-id}}</span>
                             </li>
 
+                            {{#isNotBlank properties.created}}
                             <li class="attribute" title="Created Date">
                                 <span class="attribute-label muted">
                                     <span class="fa-stack">
-                                      <i class="fa fa-file fa-stack-2x"></i>
-                                      <i class="fa fa-square fa-stack-1x"></i>
+                                      <i class="fa fa-file-o fa-stack-2x"></i>
                                       <i class="fa fa-plus fa-stack-1x fa-inverse"></i>
                                     </span>
                                 </span>
                                 <span class="attribute-value">{{moment properties.created fromNow=null}}</span>
                             </li>
+                            {{/isNotBlank}}
 
-
+                            {{#isNotBlank properties.modified}}
                             <li class="attribute" title="Modified Date">
-                                <span class="attribute-label muted"><i class='fa fa-edit fa-2x'></i></span>
+                                <span class="attribute-label muted">
+                                    <span class="fa-stack">
+                                      <i class="fa fa-file-o fa-stack-2x"></i>
+                                      <i class="fa fa-asterisk fa-stack-1x fa-inverse"></i>
+                                    </span>
+                                </span>
                                 <span class="attribute-value">{{moment properties.modified fromNow=null}}</span>
                             </li>
+                            {{/isNotBlank}}
 
                             {{#isNotBlank geometry}}
                             <li class="attribute" title="Location">
