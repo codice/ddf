@@ -357,6 +357,11 @@ tr.selected {
 }
 
 .metacard-nav {
+    position: absolute;
+    right: 5px;
+}
+
+.metacard-details {
     margin-top: 20px;
     margin-left: 0px;
     padding-left: 15px;
@@ -394,7 +399,7 @@ tr.selected {
     margin: 0px 20px;
 }
 
-.metacard-nav .span12 {
+.metacard-details .span12 {
     margin-left: 0px;
 }
 
