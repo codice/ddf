@@ -92,8 +92,8 @@
                     </thead>
                     <tbody>
                     {{#each properties}}
-                        <tr>
                         {{#isnt @key 'metadata'}}
+                        <tr>
                             <td>{{@key}}</td>
                             {{#is @key 'thumbnail'}}
                             <td><img class='thumbnail pull-left' alt='Thumbnail' src='data:image/jpeg;charset=utf-8;base64, {{this}}' /></td>
@@ -104,8 +104,8 @@
                                     <td>{{this}}</td>
                                 {{/is}}
                             {{/is}}
-                        {{/isnt}}
                         </tr>
+                        {{/isnt}}
                     {{/each}}
                     {{#if properties.metadata}}
                         <tr>
