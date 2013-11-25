@@ -22,9 +22,6 @@ import java.io.PrintStream;
  * Class is used to intercept System.out to verify what has been written to the PrintStream by
  * various Commands.
  * 
- * @author Ashraf Barakat
- * @author ddf.isgs@lmco.com
- * 
  */
 public class ConsoleOutput {
 
