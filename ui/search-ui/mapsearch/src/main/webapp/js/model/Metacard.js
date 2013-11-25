@@ -227,16 +227,16 @@ define(function (require) {
                         i++;
 
                         if(newPoint.longitude > 0 && newPoint.latitude > 0) {
-                            weight = quadrantWeights.one;
+                            weight = Math.ceil(quadrantWeights.one * item.get("relevance"));
                         }
                         else if(newPoint.longitude < 0 && newPoint.latitude > 0) {
-                            weight = quadrantWeights.two;
+                            weight = Math.ceil(quadrantWeights.two * item.get("relevance"));
                         }
                         else if(newPoint.longitude < 0 && newPoint.latitude < 0) {
-                            weight = quadrantWeights.three;
+                            weight = Math.ceil(quadrantWeights.three * item.get("relevance"));
                         }
                         else {
-                            weight = quadrantWeights.four;
+                            weight = Math.ceil(quadrantWeights.four * item.get("relevance"));
                         }
 
                         i = i + weight;
