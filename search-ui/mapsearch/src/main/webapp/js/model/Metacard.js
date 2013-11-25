@@ -239,8 +239,10 @@ define(function (require) {
                             weight = quadrantWeights.four;
                         }
 
-                        avgCartographic.latitude = (weightedLat + (newPoint.latitude * weight)) / (i + weight);
-                        avgCartographic.longitude = (weightedLong + (newPoint.longitude * weight)) / (i + weight);
+                        i = i + weight;
+
+                        avgCartographic.latitude = (weightedLat + (newPoint.latitude * weight)) / i;
+                        avgCartographic.longitude = (weightedLong + (newPoint.longitude * weight)) / i;
                     }
                 }
             });
