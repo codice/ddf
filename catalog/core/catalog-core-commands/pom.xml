@@ -39,6 +39,11 @@
 
 		<dependency>
 			<groupId>ddf.catalog.core</groupId>
+			<artifactId>catalog-core-api-impl</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>ddf.catalog.core</groupId>
 			<artifactId>catalog-core-commons</artifactId>
 			<scope>compile</scope>
 		</dependency>
@@ -59,6 +64,13 @@
 				<extensions>true</extensions>
 				<configuration>
 					<instructions>
+						<Private-Package>
+							org.codice.ddf.commands.*,
+							ddf.catalog.data.impl,
+							ddf.catalog.operation.impl,
+							ddf.catalog.util.impl,
+							ddf.catalog.filter.impl
+						</Private-Package>
 						<Export-Package />
 						<Import-Package>
 							ddf.catalog.filter,

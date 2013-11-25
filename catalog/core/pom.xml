@@ -32,10 +32,15 @@
                 <artifactId>ddf-pubsub</artifactId>
                 <version>${project.version}</version>
             </dependency>
+            <dependency>
+				<groupId>ddf.catalog.core</groupId>
+				<artifactId>catalog-core-api-impl</artifactId>
+				<version>${project.version}</version>
+			</dependency>
 			<dependency>
 				<groupId>ddf.catalog.core</groupId>
 				<artifactId>catalog-core-api-impl</artifactId>
-				<version>${ddf.platform.app.version}</version>
+				<version>${project.version}</version>
 				<type>test-jar</type>
 				<scope>test</scope>
 			</dependency>

@@ -22,35 +22,28 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
+import org.codice.ddf.commands.catalog.facade.CatalogFacade;
 import org.fusesource.jansi.Ansi;
 import org.joda.time.DateTime;
 import org.opengis.filter.Filter;
 
-import org.codice.ddf.commands.catalog.facade.CatalogFacade;
-
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.filter.FilterBuilder;
-import ddf.catalog.operation.DeleteRequestImpl;
 import ddf.catalog.operation.DeleteResponse;
 import ddf.catalog.operation.ProcessingDetails;
-import ddf.catalog.operation.QueryImpl;
 import ddf.catalog.operation.QueryRequest;
-import ddf.catalog.operation.QueryRequestImpl;
-import ddf.catalog.operation.SourceProcessingDetails;
 import ddf.catalog.operation.SourceResponse;
+import ddf.catalog.operation.impl.DeleteRequestImpl;
+import ddf.catalog.operation.impl.QueryImpl;
+import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.source.UnsupportedQueryException;
 
 /**
  * Command used to remove all or a subset of records (in bulk) from the Catalog.
- * 
- * @author Ashraf Barakat
- * @author ddf.isgs@lmco.com
  * 
  */
 @Command(scope = CatalogCommands.NAMESPACE, name = "removeall", description = "Attempts to delete all records from the catalog.")

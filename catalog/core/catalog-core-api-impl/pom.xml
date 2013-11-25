@@ -20,7 +20,7 @@
 		<version>2.3.0.ALPHA1-SNAPSHOT</version>
 	</parent>
 	<artifactId>catalog-core-api-impl</artifactId>
-	<name>DDF :: Catalog :: Core :: Impl</name>
+	<name>DDF :: Catalog :: Core :: API :: Impl</name>
 	<description>Implementations of the DDF Catalog Core API</description>
 
 	<dependencies>
