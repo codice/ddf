@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  * 
  **/
-package ddf.catalog.plugin.groomer;
+package ddf.catalog.plugin.groomer.metacard;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -21,8 +21,8 @@ import java.util.UUID;
 
 import org.apache.log4j.Logger;
 
-import ddf.catalog.data.AttributeImpl;
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.operation.CreateRequest;
 import ddf.catalog.operation.UpdateRequest;
 import ddf.catalog.plugin.groomer.AbstractMetacardGroomerPlugin;
@@ -30,9 +30,6 @@ import ddf.catalog.plugin.groomer.AbstractMetacardGroomerPlugin;
 /**
  * Applies general Create and Update grooming rules such as populating the {@link Metacard#ID},
  * {@link Metacard#MODIFIED}, and {@link Metacard#CREATED} fields.
- * 
- * @author Ashraf Barakat
- * @author ddf.isgs@lmco.com
  * 
  */
 public class StandardMetacardGroomerPlugin extends AbstractMetacardGroomerPlugin {
