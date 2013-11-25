@@ -115,7 +115,7 @@ define(function (require) {
                 $(".back").show();
                 $(".backNavText").text("Query");
                 if (this.metacardDetail) {
-                    $(".forwardNavText").text("Metacard");
+                    $(".forwardNavText").text("Record");
                     $(".forward").show();
                 }
                 if (result) {
@@ -143,7 +143,7 @@ define(function (require) {
                 $(".back").show();
                 $(".forward").hide();
                 $(".backNavText").text("Results (" + this.resultList.model.get("hits") + ")");
-                $(".centerNavText").text("Metacard");
+                $(".centerNavText").text("Record");
                 if (metacard) {
                     if(this.metacardDetail){
                         this.stopListening(this.metacardDetail, 'content-update', this.updateScrollbar);
