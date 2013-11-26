@@ -102,7 +102,13 @@
                                 {{#is @key 'resource-size'}}
                                     <td>{{fileSize this}}</td>
                                 {{else}}
+                                    {{#isUrl this}}
+                                    <td>
+                                        <a target='blank' title="{{propertyTitle @key}}" href='{{safeString this}}'>{{safeString this}}</a>
+                                    </td>
+                                    {{else}}
                                     <td>{{safeString this}}</td>
+                                    {{/isUrl}}
                                 {{/is}}
                             {{/is}}
                         </tr>
