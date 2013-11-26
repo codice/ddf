@@ -6,6 +6,7 @@ define(function (require) {
     var ich = require('icanhaz'),
         _ = require('underscore'),
         moment = require('moment'),
+        Handlebars = require('handlebars'),
         helper, helpers = {
             /*
              * Handlebars Helper: Moment.js
