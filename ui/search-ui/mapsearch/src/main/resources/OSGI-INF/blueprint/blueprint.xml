@@ -14,12 +14,22 @@
 -->
 
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
-	xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0">
+	xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0" xmlns:jaxrs="http://cxf.apache.org/blueprint/jaxrs">
 
 	<bean id="configurationStore" class="org.codice.ddf.ui.searchui.search.properties.ConfigurationStore"
 		factory-method="getInstance">
 		<cm:managed-properties persistent-id="org.codice.ddf.ui.search-ui.mapsearch.properties"
 			update-strategy="container-managed" />
 	</bean>
+
+    <jaxrs:server id="restService" address="/store">
+        <jaxrs:serviceBeans>
+            <ref component-id="configurationStore" />
+        </jaxrs:serviceBeans>
+        <jaxrs:outInterceptors>
+            <bean class="org.apache.cxf.jaxrs.provider.jsonp.JsonpPreStreamInterceptor"/>
+            <bean class="org.apache.cxf.jaxrs.provider.jsonp.JsonpPostStreamInterceptor"/>
+        </jaxrs:outInterceptors>
+    </jaxrs:server>
 	
 </blueprint>

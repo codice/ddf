@@ -35,7 +35,8 @@
             ddf : 'js/ddf',
             // require plugins
             text : 'lib/requirejs-plugins/lib/text',
-            cesium : 'lib/cesium/Cesium'
+            cesium : 'lib/cesium/Cesium',
+            properties : 'properties'
 
         },
 

@@ -27,19 +27,29 @@
 			default="" 
 		/>
 		<AD
-			description="Specifies the Text Color of the Header and Footer.  Use html css colors or #rrggbb."
-			name="Text Color" id="color" required="true" type="String" 
-			default="" 
-		/>
-		<AD
-			description="Specifies the Background Color of the Header and Footer.  Use html css colors or #rrggbb."
-			name="Background Color" id="background" required="true" type="String" 
-			default="" 
-		/>
+			description="Specifies the style of the Header and Footer."
+			name="Style" id="style" required="true" type="String"
+			default="Green">
+            <Option label="Green" value="green" />
+            <Option label="Blue" value="blue" />
+            <Option label="Red" value="red" />
+            <Option label="Yellow" value="yellow" />
+            <Option label="Light Green" value="light-green" />
+            <Option label="Light Blue" value="light-blue" />
+            <Option label="Light Red" value="light-red" />
+            <Option label="Light Yellow" value="light-yellow" />
+            <Option label="White" value="white" />
+            <Option label="Black" value="black" />
+        </AD>
+        <AD
+            description="Specifies the branding to be used in the title and on the map."
+            name="Branding Name" id="branding" required="true" type="String"
+            default="DDF"
+        />
 	</OCD>
 
-	<Designate 	pid="org.codice.ddf.ui.search-ui.search.properties">
-		<Object ocdref="org.codice.ddf.ui.search-ui.search.properties" />
+	<Designate 	pid="org.codice.ddf.ui.search-ui.mapsearch.properties">
+		<Object ocdref="org.codice.ddf.ui.search-ui.mapsearch.properties" />
 	</Designate>
 
 </metatype:MetaData>
