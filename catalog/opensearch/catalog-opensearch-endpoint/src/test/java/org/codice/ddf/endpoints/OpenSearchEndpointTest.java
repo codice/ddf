@@ -52,15 +52,11 @@ import ddf.catalog.filter.ExpressionBuilder;
 import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.QueryResponse;
-import ddf.catalog.operation.QueryResponseImpl;
+import ddf.catalog.operation.impl.QueryResponseImpl;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.transform.CatalogTransformerException;
 
-/**
- * @author willisod
- * 
- */
 public class OpenSearchEndpointTest {
 
     private static final XLogger LOGGER = new XLogger(
