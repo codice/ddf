@@ -33,7 +33,6 @@ import org.apache.commons.lang.builder.ToStringBuilder;
  * </p>
  * 
  * @deprecated Use ddf.catalog.data.impl.AttributeDescriptorImpl
- * @author ddf.isgs@lmco.com
  * 
  */
 @Deprecated

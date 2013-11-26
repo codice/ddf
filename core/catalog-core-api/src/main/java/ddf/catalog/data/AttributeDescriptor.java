@@ -23,9 +23,6 @@ import ddf.catalog.source.Source;
 
 /**
  * AttributeDescriptor describes an {@link Attribute} and associates it with a {@link AttributeType}
- * .
- * 
- * @author ddf.isgs@lmco.com
  * 
  */
 public interface AttributeDescriptor extends Serializable {

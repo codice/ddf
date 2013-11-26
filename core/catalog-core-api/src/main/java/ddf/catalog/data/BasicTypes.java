@@ -24,7 +24,6 @@ import ddf.catalog.data.AttributeType.AttributeFormat;
  * Constants for basic types, both {@link MetacardType} and {@link AttributeType}
  * 
  * @deprecated Use ddf.catalog.data.impl.BasicTypes
- * @author ddf.isgs@lmco.com
  * 
  */
 @Deprecated

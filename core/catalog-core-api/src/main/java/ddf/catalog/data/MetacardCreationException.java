@@ -17,8 +17,6 @@ package ddf.catalog.data;
 /**
  * The exception thrown when problems are detected during the creation of a {@link Metacard}.
  * 
- * @author ddf.isgs@lmco.com
- * 
  */
 public class MetacardCreationException extends Exception {
 

@@ -33,9 +33,6 @@ import ddf.catalog.transform.QueryResponseTransformer;
  * removed in a future version of the library. </b>
  * </p>
  * 
- * @author Ian Barnett
- * @author ddf.isgs@lmco.com
- * 
  */
 public interface MetacardTypeRegistry {
 
