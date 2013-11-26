@@ -79,6 +79,15 @@ define(function (require) {
                     return options.inverse(this);
                 }
             },
+            isUrl: function (value, options) {
+                if (value && value !== "") {
+                    var protocol = value.toLowerCase().split("/")[0];
+                    if (protocol && (protocol === "http:" || protocol === "https:")) {
+                        return options.fn(this);
+                    }
+                }
+                return options.inverse(this);
+            },
             ifAnd: function () {
                 var args = _.flatten(arguments);
                 var items = _.initial(args);
