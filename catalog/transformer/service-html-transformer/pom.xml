@@ -60,7 +60,7 @@
 		<dependency>		
 			<groupId>ddf.ui.search-ui</groupId>
 			<artifactId>search</artifactId>
-			<version>2.3.0.ALPHA1-SNAPSHOT</version>
+			<version>(2.2,3)</version>
 		</dependency>		
 	</dependencies>
 	<build>
