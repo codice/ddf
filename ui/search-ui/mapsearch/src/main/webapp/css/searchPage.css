@@ -362,6 +362,7 @@ tr.selected {
 .metacard-nav {
     position: absolute;
     right: 15px;
+    top: -5px;
 }
 
 .metacard-details {
