@@ -20,8 +20,6 @@ import java.util.List;
 /**
  * An instance of an {@link AttributeType}.
  * 
- * @author ddf.isgs@lmco.com
- * 
  * @see AttributeType
  */
 public interface Attribute extends Serializable {

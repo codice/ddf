@@ -17,11 +17,9 @@ package ddf.catalog.operation;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.opengis.filter.Filter;
-
 /**
  * 
- * @deprecated Use ddf.catalog.operation.impl.ProcessDetailsImpl
+ * @deprecated Use ddf.catalog.operation.impl.ProcessingDetailsImpl
  *
  */
 @Deprecated

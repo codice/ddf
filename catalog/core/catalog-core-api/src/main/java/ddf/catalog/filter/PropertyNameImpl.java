@@ -22,7 +22,7 @@ import org.xml.sax.helpers.NamespaceSupport;
  * Simple implementation of filter that does not depend on GeoTools. Please use
  * {@link FilterBuilder} instead to create filters.
  * 
- * @deprecated Use ddf.catalog.filter.impl.PropertNameImpl 
+ * @deprecated Use ddf.catalog.filter.impl.PropertyNameImpl 
  */
 @Deprecated
 public class PropertyNameImpl implements PropertyName {
