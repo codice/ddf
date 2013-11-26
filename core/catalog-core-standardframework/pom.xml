@@ -28,7 +28,7 @@
 	<dependencies>
 		<dependency>
 			<groupId>ddf.catalog.core</groupId>
-			<artifactId>catalog-core-api</artifactId>
+			<artifactId>catalog-core-api-impl</artifactId>
 		</dependency>
         <dependency>
           <groupId>ddf.platform</groupId>
@@ -59,6 +59,18 @@
 			<groupId>log4j</groupId>
 			<artifactId>log4j</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>ch.qos.logback</groupId>
+			<artifactId>logback-classic</artifactId>
+			<version>0.9.24</version>
+			<scope>test</scope>
+		</dependency>		
+		<dependency>
+			<groupId>ddf.catalog.core</groupId>
+			<artifactId>catalog-core-api-impl</artifactId>
+			<type>test-jar</type>
+			<scope>test</scope>
+		</dependency>
 	</dependencies>
 
 	<build>
@@ -70,21 +82,14 @@
 					<instructions>
 						<!-- DDF-1614: <Bundle-SymbolicName>${project.artifactId};blueprint.graceperiod:=true;blueprint.timeout:=604800000</Bundle-SymbolicName> -->
 						<Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-						<Import-Package>
-							ddf.catalog,
-							ddf.catalog.event,
-							ddf.catalog.federation,
-							ddf.catalog.federation.impl,
-							ddf.catalog.plugin,
-							ddf.catalog.pubsub, 
-							ddf.catalog.resource,
-							ddf.catalog.source,
-							ddf.catalog.util,
-                            org.codice.ddf.configuration,
-							org.osgi.service.blueprint,
-							org.osgi.service.cm,
-							org.osgi.service.event
-                        </Import-Package>
+						<Private-Package>
+							ddf.catalog.impl,
+							ddf.catalog.operation.impl,
+							ddf.catalog.util.impl,
+							ddf.catalog.filter.impl,
+							ddf.catalog.source.impl
+						</Private-Package>
+						<Export-Package/>
 					</instructions>
 				</configuration>
 			</plugin>

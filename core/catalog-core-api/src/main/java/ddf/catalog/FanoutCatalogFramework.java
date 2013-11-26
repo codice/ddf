@@ -78,23 +78,25 @@ import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.util.SourcePoller;
 
 /**
- * {@link FanoutCatalogFramework} evaluates all {@link Operation}s as enterprise-wide federated
- * {@link Operation}s. A {@link FanoutCatalogFramework} has no {@link CatalogProvider} configured
- * for it, hence no ingest operations are supported. All source names for any
- * {@link FederatedSource}s or {@link ConnectedSource}s in the {@link FanoutCatalogFramework}'s
- * configuration are hidden from the external client.
+ * {@link FanoutCatalogFramework} evaluates all {@link Operation}s as
+ * enterprise-wide federated {@link Operation}s. A
+ * {@link FanoutCatalogFramework} has no {@link CatalogProvider} configured for
+ * it, hence no ingest operations are supported. All source names for any
+ * {@link FederatedSource}s or {@link ConnectedSource}s in the
+ * {@link FanoutCatalogFramework}'s configuration are hidden from the external
+ * client.
  * <p>
  * This {@link CatalogFramework} may be used for the following reasons:
  * <ol>
- * <li>A single node being exposed from an enterprise (hiding the enterprise from an external
- * client)</li>
+ * <li>A single node being exposed from an enterprise (hiding the enterprise
+ * from an external client)</li>
  * <li>To ensure each {@link Query} is searches all {@link Source}s</li>
  * <li>Backwards compatibility (e.g., federating with older versions)</li>
  * </ol>
  * </p>
  * 
- * @deprecated Use ddf.catalog.impl.FanoutCatalogFramework
- * @author ddf.isgs@lmco.com
+ * @deprecated Use ddf.catalog.fanout.FanoutCatalogFramework in
+ *             fanout-catalogframework project
  */
 @Deprecated
 public class FanoutCatalogFramework extends CatalogFrameworkImpl {

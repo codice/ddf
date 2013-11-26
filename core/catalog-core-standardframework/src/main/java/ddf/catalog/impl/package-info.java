@@ -13,6 +13,6 @@
  * 
  **/
 /**
- * Provides the classes for the Catalog Framework reference implementation.
+ * Provides the Catalog Framework reference implementation.
  */
 package ddf.catalog.impl;

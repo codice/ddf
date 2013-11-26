@@ -110,7 +110,7 @@ import ddf.catalog.util.SourcePoller;
  * CatalogFrameworkImpl is the core class of DDF. It is used for query, create, update, delete, and
  * resource retrieval operations.
  * 
- * @deprecated Use ddf.catalog.impl.CatalogFrameworkImpl
+ * @deprecated Use ddf.catalog.impl.CatalogFrameworkImpl in standardframework project
  * 
  */
 @Deprecated

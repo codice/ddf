@@ -26,8 +26,6 @@ import org.slf4j.ext.XLogger;
  * {@link List} implementations. This was originally intended to allow plugins to be automatically
  * sorted in the list. Without this converter, blueprint will copy the list and lose the reference.
  * 
- * @author ddf.isgs@lmco.com
- * 
  */
 public class ListConverter implements Converter {
 

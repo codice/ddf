@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  * 
  **/
-package ddf.catalog.impl;
+package ddf.catalog.fanout;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -95,7 +95,6 @@ import ddf.catalog.util.impl.SourcePoller;
  * </ol>
  * </p>
  * 
- * @author ddf.isgs@lmco.com
  */
 @SuppressWarnings("deprecation")
 public class FanoutCatalogFramework extends CatalogFrameworkImpl {

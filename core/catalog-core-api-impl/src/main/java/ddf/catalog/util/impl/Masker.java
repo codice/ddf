@@ -28,8 +28,6 @@ import ddf.catalog.util.Maskable;
  * Settings, for the site name in all responses from connected sources and catalog providers, which
  * are both maskable items.
  * 
- * @author ddf.isgs@lmco.com
- * 
  */
 public class Masker {
 
