@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  * 
  **/
-package ddf.catalog.impl;
+package ddf.catalog.fanout;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -29,7 +29,7 @@ import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.ResultImpl;
-import ddf.catalog.impl.FanoutCatalogFramework;
+import ddf.catalog.impl.MockFederationStrategy;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.QueryResponse;
 import ddf.catalog.operation.SourceInfoRequest;
@@ -204,6 +204,10 @@ public class FanoutCatalogFrameworkTest {
      */
     @Test
     public void testNullContentTypesInGetSourceInfo() throws SourceUnavailableException {
+        SourcePollerRunner runner = new SourcePollerRunner();
+        SourcePoller poller = new SourcePoller(runner);
+        ArrayList<PostIngestPlugin> postIngestPlugins = new ArrayList<PostIngestPlugin>();
+
         SourceInfoRequest request = new SourceInfoRequestEnterprise(true);
         List<FederatedSource> fedSources = new ArrayList<FederatedSource>();
 
@@ -215,7 +219,14 @@ public class FanoutCatalogFrameworkTest {
         Mockito.when(mockFederatedSource.getContentTypes()).thenReturn(null);
 
         fedSources.add(mockFederatedSource);
-        framework.federatedSources = fedSources;
+        
+        FanoutCatalogFramework framework = new FanoutCatalogFramework(null, new ArrayList<PreIngestPlugin>(),
+                postIngestPlugins, new ArrayList<PreQueryPlugin>(),
+                new ArrayList<PostQueryPlugin>(), new ArrayList<PreResourcePlugin>(),
+                new ArrayList<PostResourcePlugin>(), new ArrayList<ConnectedSource>(),
+                fedSources, new ArrayList<ResourceReader>(),
+                new MockFederationStrategy(), null, poller);
+        framework.setId(NEW_SOURCE_ID);
 
         // Assert not null simply to prove that we returned an object.
         assertNotNull(framework.getSourceInfo(request));

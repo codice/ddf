@@ -68,7 +68,6 @@ import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.federation.FederationException;
 import ddf.catalog.federation.FederationStrategy;
-import ddf.catalog.impl.CatalogFrameworkImpl;
 import ddf.catalog.operation.CreateRequest;
 import ddf.catalog.operation.CreateResponse;
 import ddf.catalog.operation.DeleteRequest;
@@ -119,13 +118,6 @@ import ddf.catalog.util.impl.SourcePollerRunner;
 public class CatalogFrameworkImplTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(CatalogFrameworkImplTest.class);
 
-    // Test proper use-cases
-
-    // Start testing Describable
-
-    // End testing Describable
-
-    // Start testing MetacardReader
 
     @Rule
     public MethodRule watchman = new TestWatchman() {

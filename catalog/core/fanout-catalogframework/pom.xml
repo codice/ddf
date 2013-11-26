@@ -27,7 +27,8 @@
 	<dependencies>
 		<dependency>
 			<groupId>ddf.catalog.core</groupId>
-			<artifactId>catalog-core-api</artifactId>
+			<artifactId>catalog-core-standardframework</artifactId>
+			<version>${project.version}</version>
 		</dependency>
 		<dependency>
             <groupId>ddf.catalog.core</groupId>
@@ -38,22 +39,11 @@
 			<artifactId>ddf-pubsub</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>commons-lang</groupId>
-			<artifactId>commons-lang</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.osgi</groupId>
-			<artifactId>org.osgi.core</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.osgi</groupId>
-			<artifactId>org.osgi.compendium</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>log4j</groupId>
-			<artifactId>log4j</artifactId>
-		</dependency>
-		
+			<groupId>ddf.catalog.core</groupId>
+			<artifactId>catalog-core-api-impl</artifactId>
+			<type>test-jar</type>
+			<scope>test</scope>
+		</dependency>		
 	</dependencies>
 
 	<build>
@@ -64,18 +54,9 @@
 				<configuration>
 					<instructions>
 						<Bundle-SymbolicName>${project.artifactId};blueprint.graceperiod:=true;blueprint.timeout:=604800000</Bundle-SymbolicName>
-						<Import-Package>
-							ddf.catalog,
-							ddf.catalog.util,
-							ddf.catalog.federation,
-							ddf.catalog.federation.impl,
-							ddf.catalog.pubsub,
-							ddf.catalog.pubsub.tracker,
-							org.osgi.service.blueprint,
-							org.osgi.service.cm,
-							org.osgi.framework,
-							org.apache.log4j;provider=paxlogging;version="[1.2,1.3)",*
-                        </Import-Package>
+						<Embed-Dependency>catalog-core-standardframework</Embed-Dependency>
+						<Private-Package>ddf.catalog.fanout,ddf.catalog.data.impl</Private-Package>
+						<Export-Package/>
 					</instructions>
 				</configuration>
 			</plugin>

@@ -15,37 +15,37 @@
 
 <!-- According to the schema the type-converters element must be above all other elements except 'description' -->
 	<type-converters>
-		<bean id="listConverter" class="ddf.catalog.util.ListConverter" />
+		<bean id="listConverter" class="ddf.catalog.util.impl.ListConverter" />
 	</type-converters>
 
-	<bean id="sourceListener" class="ddf.catalog.util.Masker" />
+	<bean id="sourceListener" class="ddf.catalog.util.impl.Masker" />
 
 	<!-- START Sorted Plugin lists that are sorted by their ServiceReferences -->
-	<bean id="preIngestSortedList" class="ddf.catalog.util.SortedServiceList">
+	<bean id="preIngestSortedList" class="ddf.catalog.util.impl.SortedServiceList">
 		<argument ref="blueprintBundleContext" />
 	</bean>
-	<bean id="postIngestSortedList" class="ddf.catalog.util.SortedServiceList">
+	<bean id="postIngestSortedList" class="ddf.catalog.util.impl.SortedServiceList">
 		<argument ref="blueprintBundleContext" />
 	</bean>
-	<bean id="preQuerySortedList" class="ddf.catalog.util.SortedServiceList">
+	<bean id="preQuerySortedList" class="ddf.catalog.util.impl.SortedServiceList">
 		<argument ref="blueprintBundleContext" />
 	</bean>
-	<bean id="postQuerySortedList" class="ddf.catalog.util.SortedServiceList">
+	<bean id="postQuerySortedList" class="ddf.catalog.util.impl.SortedServiceList">
 		<argument ref="blueprintBundleContext" />
 	</bean>	
-	<bean id="preFederatedQuerySortedList" class="ddf.catalog.util.SortedServiceList">
+	<bean id="preFederatedQuerySortedList" class="ddf.catalog.util.impl.SortedServiceList">
 		<argument ref="blueprintBundleContext" />
 	</bean>
-	<bean id="postFederatedQuerySortedList" class="ddf.catalog.util.SortedServiceList">
+	<bean id="postFederatedQuerySortedList" class="ddf.catalog.util.impl.SortedServiceList">
 		<argument ref="blueprintBundleContext" />
 	</bean>	
-	<bean id="preResourceSortedList" class="ddf.catalog.util.SortedServiceList">
+	<bean id="preResourceSortedList" class="ddf.catalog.util.impl.SortedServiceList">
 		<argument ref="blueprintBundleContext" />
 	</bean>	
-	<bean id="postResourceSortedList" class="ddf.catalog.util.SortedServiceList">
+	<bean id="postResourceSortedList" class="ddf.catalog.util.impl.SortedServiceList">
 		<argument ref="blueprintBundleContext" />
 	</bean>	
-	<bean id="catalogProviderSortedList" class="ddf.catalog.util.SortedServiceList">
+	<bean id="catalogProviderSortedList" class="ddf.catalog.util.impl.SortedServiceList">
 		<argument ref="blueprintBundleContext" />
 	</bean>	
 					
@@ -152,7 +152,7 @@
 
 
 	<!-- create the ddf bean -->
-	<bean id="ddf" class="ddf.catalog.CatalogFrameworkImpl">
+	<bean id="ddf" class="ddf.catalog.impl.CatalogFrameworkImpl">
 		<cm:managed-properties persistent-id="ddf.catalog.CatalogFrameworkImpl"
 			update-strategy="container-managed"/>
         <argument ref="catalogProviderSortedList" />			
@@ -176,12 +176,12 @@
 		<property name="masker" ref="sourceListener" />		
 	</bean>
 
-	<bean id="sourcePoller" class="ddf.catalog.util.SourcePoller" >
+	<bean id="sourcePoller" class="ddf.catalog.util.impl.SourcePoller" >
 		<argument ref="sourcePollerRunner" />
 	</bean>
 
 	<!-- Poller instance which is a listener and source polling mechanism -->
-	<bean id="sourcePollerRunner" class="ddf.catalog.util.SourcePollerRunner">
+	<bean id="sourcePollerRunner" class="ddf.catalog.util.impl.SourcePollerRunner">
 	</bean>
 
 	<!-- export the bean on the service registry -->

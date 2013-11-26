@@ -22,8 +22,6 @@ import ddf.catalog.util.Maskable;
  * updated again. At that point, you can only change its value indirectly by changing the site name
  * of DDF.
  * 
- * @author ddf.isgs@lmco.com
- * 
  */
 public class MaskableImpl extends DescribableImpl implements Maskable {
 
