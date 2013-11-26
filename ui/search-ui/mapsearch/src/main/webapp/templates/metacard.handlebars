@@ -87,7 +87,7 @@
                 <table class="table table-striped metacard-table">
                     <thead>
                         <tr>
-                            <th>Property</th>
+                            <th class="property-col">Property</th>
                             <th>Value</th>
                         </tr>
                     </thead>
@@ -95,14 +95,14 @@
                     {{#each properties}}
                         {{#isnt @key 'metadata'}}
                         <tr>
-                            <td>{{@key}}</td>
+                            <td>{{propertyTitle @key}}</td>
                             {{#is @key 'thumbnail'}}
                             <td><img class='thumbnail pull-left' alt='Thumbnail' src='data:image/jpeg;charset=utf-8;base64, {{this}}' /></td>
                             {{else}}
                                 {{#is @key 'resource-size'}}
                                     <td>{{fileSize this}}</td>
                                 {{else}}
-                                    <td>{{this}}</td>
+                                    <td>{{safeString this}}</td>
                                 {{/is}}
                             {{/is}}
                         </tr>
@@ -110,7 +110,7 @@
                     {{/each}}
                     {{#if properties.metadata}}
                         <tr>
-                            <td>metadata</td>
+                            <td>Metadata</td>
                             <td>
                                 <a target='blank' title="Download Product"
                                    href='/services/catalog/sources/{{properties.source-id}}/{{properties.id}}?transform=metadata'>
