@@ -108,7 +108,7 @@ define(function (require) {
                 if (this.resultList) {
                     $(".forwardNavText").text("Results (" + this.resultList.model.get("hits") + ")");
                 }
-                $(".centerNavText").text("Query");
+                $(".nav-title").text("Query");
             },
             showResults: function (result, direction) {
                 $(".forward").hide();
@@ -137,13 +137,13 @@ define(function (require) {
                     this.listenTo(this.resultList, 'render', this.updateScrollPos);
                 }
                 this.leftRegion.show(this.resultList, direction);
-                $(".centerNavText").text("Results (" + this.resultList.model.get("hits") + ")");
+                $(".nav-title").text("Results (" + this.resultList.model.get("hits") + ")");
             },
             showMetacardDetail: function (metacard, direction) {
                 $(".back").show();
                 $(".forward").hide();
                 $(".backNavText").text("Results (" + this.resultList.model.get("hits") + ")");
-                $(".centerNavText").text("Record");
+                $(".nav-title").text("Record");
                 if (metacard) {
                     if(this.metacardDetail){
                         this.stopListening(this.metacardDetail, 'content-update', this.updateScrollbar);
