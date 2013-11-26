@@ -60,7 +60,14 @@ define(function (require) {
     });
 
     MetaCard.Properties = Backbone.RelationalModel.extend({
-
+        defaults: {
+            title: "[No Title]"
+        },
+        initialize: function() {
+            if (!this.get("title")) {
+                this.set({"title": this.defaults.title});
+            }
+        }
     });
 
     MetaCard.Metacard = Backbone.RelationalModel.extend({
