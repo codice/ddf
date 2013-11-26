@@ -10,8 +10,10 @@ define(function (require) {
         CesiumMetacard = require('js/view/cesium.metacard'),
         MetacardList = require('js/view/MetacardList.view'),
         Metacard = require('js/view/MetacardDetail.view'),
+        Backbone = require('backbone'),
         ddf = require('ddf'),
-        ich = require('icanhaz');
+        ich = require('icanhaz'),
+        SearchControl = {};
 
     require('perfectscrollbar');
 
@@ -19,7 +21,11 @@ define(function (require) {
         backward = false;
     ich.addTemplate('searchPanel', require('text!templates/search.panel.html'));
 
-        var SearchControlLayout = Marionette.Layout.extend({
+        SearchControl.SearchControlModel = Backbone.Model.extend({
+
+        });
+
+        SearchControl.SearchControlLayout = Marionette.Layout.extend({
             template : 'searchPanel',
             regions : {
                 leftRegion: {
@@ -44,8 +50,6 @@ define(function (require) {
                 this.listenTo(this.queryForm, 'searchComplete', this.showResults);
                 this.listenTo(this.queryForm, 'searchComplete', this.changeDefaultMapLocation);
                 this.listenTo(ddf.app, 'model:context', this.showMetacardDetail);
-
-
             },
 
             updateScrollbar: function () {
@@ -155,5 +159,5 @@ define(function (require) {
             }
         });
 
-    return SearchControlLayout;
+    return SearchControl;
 });

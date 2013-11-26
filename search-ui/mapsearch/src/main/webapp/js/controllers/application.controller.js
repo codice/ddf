@@ -1,19 +1,20 @@
 /*global define */
-
+var window = this;
 define(function (require) {
     'use strict';
-
+    var document = window.document;
     // Load attached libs and application modules
     var ddf = require('ddf'),
         $ = require('jquery'),
         _ = require('underscore'),
         Marionette = require('marionette'),
         Application = require('js/application'),
-        SearchControlView = require('js/view/SearchControl.view'),
+        SearchControl = require('js/view/SearchControl.view'),
         GeoController = require('js/controllers/geospatial.controller'),
         DrawExtent = require('js/widgets/draw.extent'),
         DrawCircle = require('js/widgets/draw.circle'),
         Source = require('js/model/source'),
+        Properties = require('properties'),
 //        SlidingRegion = require('js/view/sliding.region'),
         ApplicationController;
 
@@ -26,12 +27,9 @@ define(function (require) {
             var controller = this,
                 mainView = new Application.Views.Main({
                     model: ddf.app.model
-                });
-//                navbarView = new Application.Views.NavBar({
-//                    model: ddf.app.model
-//                }),
-//                navbarLayout = new Application.Views.NavBarLayout(),
-//                footerLayout = new Application.Views.FooterLayout();
+                }),
+                navbarLayout = new Application.Views.HeaderLayout(),
+                footerLayout = new Application.Views.FooterLayout();
 
             // Once the main application view has been attached to the DOM, set up the dependent views.
             mainView.on('show', function () {
@@ -51,13 +49,15 @@ define(function (require) {
 
             ddf.app.mainRegion.show(mainView);
 
-//            ddf.app.headerRegion.show(navbarLayout);
-//            navbarLayout.classification.show(new Application.Views.ClassificationBanner());
-//            navbarLayout.navbar.show(navbarView);
+            ddf.app.headerRegion.show(navbarLayout);
+            navbarLayout.classification.show(new Application.Views.HeaderBanner());
 
-//            ddf.app.footerRegion.show(footerLayout);
-//            footerLayout.classification.show(new Application.Views.ClassificationBanner());
+            ddf.app.footerRegion.show(footerLayout);
+            footerLayout.classification.show(new Application.Views.FooterBanner());
 
+            $(document).ready(function () {
+                document.title = Properties.branding;
+            });
 
         },
 
@@ -74,9 +74,10 @@ define(function (require) {
 //            });sium view now');
 
             var geoController = ddf.app.controllers.geoController = new GeoController();
-            var searchControlView = new SearchControlView({
+            var searchControlView = new SearchControl.SearchControlLayout({
                 sources : this.sources,
-                el: $('#searchControls')
+                el: $('#searchControls'),
+                model: new SearchControl.SearchControlModel(Properties)
             });
             //            ddf.app.leftRegion.show(searchControlView);
             searchControlView.render();

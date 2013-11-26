@@ -15,6 +15,7 @@ define(function (require) {
     require('jqueryui');
     require('bootstrap');
     require('backbonerelational');
+    var properties = require('properties');
 
     // Load attached libs and application modules
     var _ = require('underscore'),
@@ -27,7 +28,7 @@ define(function (require) {
 
     // Setup templates
     ich.addTemplate('main', require('text!templates/main.html'));
-    ich.addTemplate('navbarLayout', require('text!templates/navbar.layout.html'));
+    ich.addTemplate('headerLayout', require('text!templates/navbar.layout.html'));
     ich.addTemplate('footerLayout', require('text!templates/footer.layout.html'));
     ich.addTemplate('classificationBanner', require('text!templates/classification/classification-banner.html'));
 
@@ -74,52 +75,25 @@ define(function (require) {
     });
 
 
-    Application.Views.NavBarLayout = Marionette.Layout.extend({
-        template: 'navbarLayout',
-        className: 'navbar-layout',
+    Application.Views.HeaderLayout = Marionette.Layout.extend({
+        template: 'headerLayout',
+        className: 'header-layout',
 
         regions: {
             classification: '.classification-container',
-            navbar: '.navbar-container'
         }
     });
-
-    Application.Views.NavBar = Backbone.View.extend({
-        className: "navbar navbar-fixed-top dark no-select",
-
-        events: {
-            'click #app-home': 'onHome'
-        },
-
-        initialize: function () {
-            var view = this;
-
-            _.bindAll(view);
-        },
-
-        render: function () {
-            var view = this;
-
-            ich.addTemplate('navbar', require('text!templates/navbar.html'));
-            view.$el.html(ich.navbar());
-
-            return view;
-        }
-
-    });
-
 
     Application.Views.FooterLayout = Marionette.Layout.extend({
         template: 'footerLayout',
         className: 'footer-layout',
 
         regions: {
-            classification: '.classification-container',
-            branding: '.branding-container'
+            classification: '.classification-container'
         }
     });
 
-    Application.Views.ClassificationBanner = Backbone.View.extend({
+    Application.Views.HeaderBanner = Backbone.View.extend({
         className: "classification-banner",
 
         initialize: function () {
@@ -129,35 +103,43 @@ define(function (require) {
 
         render: function () {
             var view = this,
-                classificationConfig = require('properties').classification,
-                style,
-                validStyles = ['unclassified', 'confidential', 'secret', 'topsecret'],
-                text,
-                classification = {};
+                headerText = properties.header,
+                style = properties.style,
+                header = {};
 
-            if (!classificationConfig) {
-                // Place holder for us not showing classification banners if needed.  For now, default to Unclassified if there is a problem with configuration
-                // to be safe.
-                classification.style = 'unclassified';
-                classification.text = 'UNCLASSIFIED';
-            } else {
-                style = classificationConfig.style;
-                text = classificationConfig.text;
+            if(headerText && headerText !== "") {
+                //set up header
+                header.text = headerText;
+                header.style = style;
 
-                if (style && text && _.contains(validStyles, style)) {
-                    classification.style = style;
-                    classification.text = text;
-                } else {
-                    // Handle any unanticipated configuration values by defaulting to Unclassified.
-                    classification.style = 'unclassified';
-                    classification.text = 'UNCLASSIFIED';
-                }
+                view.$el.html(ich.classificationBanner(header));
             }
-
-            view.$el.html(ich.classificationBanner(classification));
         }
     });
 
+    Application.Views.FooterBanner = Backbone.View.extend({
+        className: "classification-banner",
+
+        initialize: function () {
+            var view = this;
+            _.bindAll(view);
+        },
+
+        render: function () {
+            var view = this,
+                footerText = properties.footer,
+                style = properties.style,
+                footer = {};
+
+            if(footerText && footerText !== "") {
+                //set up footer
+                footer.text = footerText;
+                footer.style = style;
+
+                view.$el.html(ich.classificationBanner(footer));
+            }
+        }
+    });
 
     return Application;
 });

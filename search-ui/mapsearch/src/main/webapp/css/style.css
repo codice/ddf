@@ -1,21 +1,46 @@
 .classification-container {
     text-align : center;
     color : white;
+    text-shadow : 0px 0px 2px #000000;
 }
 
-.unclassified{
+.green{
     background-color : darkgreen;
 }
 
 
-.confidential {
+.blue {
     background-color : blue;
 }
 
-.secret {
+.red {
     background-color : darkred;
 }
 
-.topsecret {
-    background-color : darkorange;
+.yellow {
+    background-color : gold;
+}
+
+.light-green {
+    background-color: lightgreen;
+}
+
+.light-blue {
+    background-color: lightskyblue;
+}
+
+.light-red {
+    background-color: tomato;
+}
+
+.light-yellow {
+    background-color: #ffff00;
+}
+
+.white {
+    background-color: white;
+}
+
+.black {
+    background-color: black;
 }
