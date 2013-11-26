@@ -146,6 +146,18 @@ define(function (require) {
                 else {
                     return block.fn(this);
                 }
+            },
+            propertyTitle: function (str) {
+                if(str && typeof str === "string") {
+                    return str.split("-").join(" ").replace(/\w\S*/g, function (word) {
+                        return word.charAt(0).toUpperCase() + word.substr(1);
+                    });
+                }
+            },
+            safeString: function (str) {
+                if(str && typeof str === "string") {
+                    return new Handlebars.SafeString(str);
+                }
             }
         };
 

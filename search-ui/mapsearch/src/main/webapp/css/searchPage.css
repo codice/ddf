@@ -420,13 +420,7 @@ img.thumbnail {
 
 table.metacard-table {
     table-layout: fixed;
-}
-
-td.metacard-table, th.metacard-table {
-    max-width: 200px;
-    overflow: hidden;
-    text-overflow: clip;
-    white-space: normal;
+    word-wrap: break-word;
 }
 
 .table-pane {
@@ -435,4 +429,8 @@ td.metacard-table, th.metacard-table {
 
 span.add-on {
     color: #242424;
+}
+
+.property-col {
+    width: 28%;
 }
