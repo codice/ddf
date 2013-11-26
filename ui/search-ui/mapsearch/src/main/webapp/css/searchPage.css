@@ -221,6 +221,10 @@ div.resourceSize {
     background:linear-gradient(to bottom, #dedede 5%, #f9f9f9 100%);
 }
 
+.nav-title {
+    font-size: large;
+}
+
 .nav-divider {
     width: 100%;
     margin: 0px;
@@ -267,7 +271,7 @@ div.resourceSize {
     /*magic needed to get perfect scrollbar needed*/
     overflow: hidden;
     position: absolute;
-    top : 74px;
+    top : 75px;
     bottom : 0px;
     width: 100%;
 
