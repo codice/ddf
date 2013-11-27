@@ -49,7 +49,7 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 
 import ddf.catalog.data.Metacard;
-import ddf.catalog.data.MetacardImpl;
+import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.InputTransformer;
 import ddf.mime.MimeTypeToTransformerMapper;
@@ -58,8 +58,6 @@ import de.kalpatec.pojosr.framework.launch.PojoServiceRegistry;
 
 public class CatalogComponentTest extends CamelTestSupport {
     private static final transient Logger LOGGER = Logger.getLogger(CatalogComponentTest.class);
-
-    private static final String SERVICE_ID = "id";
 
     private static final String SAMPLE_ID = "12345678900987654321abcdeffedcba";
 
