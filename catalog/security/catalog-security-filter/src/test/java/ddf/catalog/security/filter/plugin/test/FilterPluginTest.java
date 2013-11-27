@@ -55,24 +55,22 @@ import org.opengis.filter.sort.SortBy;
 
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.Metacard;
-import ddf.catalog.data.MetacardImpl;
 import ddf.catalog.data.MetacardType;
-import ddf.catalog.data.MetacardTypeImpl;
-import ddf.catalog.data.ResultImpl;
+import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.data.impl.MetacardTypeImpl;
+import ddf.catalog.data.impl.ResultImpl;
 import ddf.catalog.operation.Query;
-import ddf.catalog.operation.QueryRequestImpl;
 import ddf.catalog.operation.QueryResponse;
-import ddf.catalog.operation.QueryResponseImpl;
+import ddf.catalog.operation.impl.QueryRequestImpl;
+import ddf.catalog.operation.impl.QueryResponseImpl;
 import ddf.catalog.plugin.PluginExecutionException;
 import ddf.catalog.plugin.StopProcessingException;
 import ddf.catalog.security.filter.plugin.FilterPlugin;
 import ddf.security.SecurityConstants;
 import ddf.security.Subject;
 import ddf.security.permission.KeyValueCollectionPermission;
-import ddf.security.permission.KeyValuePermission;
 
 /**
- * User: tustisos Date: 3/20/13 Time: 3:24 PM
  */
 public class FilterPluginTest {
     private static final Logger logger = Logger.getLogger(FilterPluginTest.class);

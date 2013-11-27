@@ -36,7 +36,6 @@ import java.util.Map;
  * This {@link PostQueryPlugin} performs redaction and filtering on {@link QueryResponse} objects as
  * they pass through the framework.
  * 
- * @author tustisos
  */
 public class FilterPlugin implements PostQueryPlugin {
 
