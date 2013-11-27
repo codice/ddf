@@ -25,8 +25,6 @@ package ddf.catalog.util;
  * 
  * @see ConnectedSource
  * 
- * @author ddf.isgs@lmco.com
- * 
  */
 public interface Maskable extends Describable {
 

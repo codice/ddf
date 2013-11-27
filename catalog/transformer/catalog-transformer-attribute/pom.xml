@@ -26,7 +26,8 @@
 	<dependencies>
 		<dependency>
 			<groupId>ddf.catalog.core</groupId>
-			<artifactId>catalog-core-api</artifactId>
+			<artifactId>catalog-core-api-impl</artifactId>
+			<version>${project.version}</version>
 		</dependency>
 	</dependencies>
 
