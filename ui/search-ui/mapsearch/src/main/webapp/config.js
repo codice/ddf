@@ -61,6 +61,9 @@
             underscore: {
                 exports: '_'
             },
+            handlebars: {
+                exports: 'Handlebars'
+            },
             icanhaz: {
                 deps: ['handlebars'],
                 exports: 'ich'
