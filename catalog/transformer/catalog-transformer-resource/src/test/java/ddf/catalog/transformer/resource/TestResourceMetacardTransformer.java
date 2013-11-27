@@ -53,10 +53,6 @@ import ddf.catalog.transform.CatalogTransformerException;
 /**
  * 
  * Unit tests for the Resource Transformer.
- * 
- * @author Tim Anderson
- * @author Ashraf Barakat
- * 
  */
 public class TestResourceMetacardTransformer {
 
@@ -156,6 +152,17 @@ public class TestResourceMetacardTransformer {
         MimeType mimeType = getMimeType(VIDEO_MIME_TYPE);
         CatalogFramework framework = getFramework(getResourceResponse(getResource(mimeType, uri)));
         testGetResource(metacard, filePath, mimeType, framework, expectSuccess);
+    }
+    
+
+    @Test
+    public void testNullResourceUri() throws Exception {
+        thrown.expect(CatalogTransformerException.class);
+        thrown.expectMessage("Unable to retrieve resource.");
+        Metacard metacard = getMockMetacard(null);
+        CatalogFramework framework = getFrameworkException(new ResourceNotFoundException(""));
+        ResourceMetacardTransformer resourceTransformer = new ResourceMetacardTransformer(framework);
+        resourceTransformer.transform(metacard, new HashMap<String, Serializable>());
     }
 
     @Test
