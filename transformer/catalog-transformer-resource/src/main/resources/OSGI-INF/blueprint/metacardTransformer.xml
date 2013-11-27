@@ -12,28 +12,26 @@
  *
  **/ 
  -->
- 
+
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
 	xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.0.0">
-   <reference id="framework" interface="ddf.catalog.CatalogFramework" />
+	<reference id="framework" interface="ddf.catalog.CatalogFramework" />
 	<service interface="ddf.catalog.transform.MetacardTransformer">
 		<service-properties>
 			<entry key="id" value="resource" />
-           
+
 			<entry key="mime-type" value="application/octet-stream" />
-         
+
 			<entry key="title" value="Get Resource..." />
 
 			<!-- deprecated -->
 			<entry key="shortname" value="resource" />
 		</service-properties>
-      
+
 		<bean class="ddf.catalog.transformer.resource.ResourceMetacardTransformer">
-         <argument ref="framework" />
-      </bean>
-      
-      
-      
+			<argument ref="framework" />
+		</bean>
+
 	</service>
 
 </blueprint>
