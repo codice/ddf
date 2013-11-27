@@ -20,7 +20,7 @@ package ddf.catalog.util;
  * updated again. At that point, you can only change its value indirectly by changing the site name
  * of DDF.
  * 
- * @deprecated ddf.catalog.util.impl.MaskableImpl
+ * @deprecated Use ddf.catalog.util.impl.MaskableImpl
  */
 @Deprecated
 public class MaskableImpl extends DescribableImpl implements Maskable {
