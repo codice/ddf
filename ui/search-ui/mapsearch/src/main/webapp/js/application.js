@@ -52,7 +52,7 @@ define(function (require) {
     // ##Main Application View
     Application.Views.Main = Backbone.View.extend({
         tagName: 'div',
-
+        className: 'height-full',
 
         initialize: function () {
             var view = this;
