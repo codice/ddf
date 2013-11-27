@@ -18,6 +18,9 @@
     padding: 0px;
     opacity: 0.90;
     z-index: 100;
+    border: 0;
+    box-shadow: 0 0 0 rgba(0,0,0,0.8);
+    -webkit-box-shadow: 0 0 0 rgba(0,0,0,0.8);
 }
 html, body {
 	height: 100%;

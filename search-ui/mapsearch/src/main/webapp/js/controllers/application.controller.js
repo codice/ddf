@@ -59,6 +59,21 @@ define(function (require) {
                 document.title = Properties.branding;
             });
 
+            //TODO: this hack here is to fix the issue of the main div not resizing correctly
+            //when the header and footer are in place
+            //remove this code when the correct way to get the div to resize is discovered
+            $(window).resize(function() {
+                var height = $("body").height();
+                if(Properties.header && Properties.header !== "") {
+                    height = height - 20;
+                }
+                if(Properties.footer && Properties.footer !== "") {
+                    height = height - 20;
+                }
+                $("#main").height(height);
+            });
+
+            $(window).trigger('resize');
         },
 
         // Render the Geospatial Views within the Main View.
