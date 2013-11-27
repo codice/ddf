@@ -1,6 +1,6 @@
 /*global define*/
 
-define(function () {
+define(function (require) {
     'use strict';
 
     var properties = {
@@ -27,7 +27,7 @@ define(function () {
                     props.branding = data.branding;
                     return props;
                 }).fail(function(jqXHR, status, errorThrown) {
-                    throw Error('Configuration could not be loaded: (status: ' + status + ', message: ' + errorThrown.message + ')');
+                    throw new Error('Configuration could not be loaded: (status: ' + status + ', message: ' + errorThrown.message + ')');
                 });
 
             return props;
