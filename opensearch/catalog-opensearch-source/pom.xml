@@ -147,8 +147,7 @@
                             ddf.catalog.data.impl,						
 			                ddf.catalog.operation.impl,
 			                ddf.catalog.util.impl
-			            </Private-Package>
-			            -->
+			            </Private-Package>		            
 						<Export-Package />
 					</instructions>
 				</configuration>
