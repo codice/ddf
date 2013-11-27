@@ -15,12 +15,9 @@
 package ddf.camel.component.catalog.transformer;
 
 import java.io.Serializable;
-import java.util.Dictionary;
-import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Properties;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;

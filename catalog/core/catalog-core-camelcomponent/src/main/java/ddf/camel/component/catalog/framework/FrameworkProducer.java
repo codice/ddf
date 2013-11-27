@@ -27,15 +27,15 @@ import org.slf4j.LoggerFactory;
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.operation.CreateRequest;
-import ddf.catalog.operation.CreateRequestImpl;
 import ddf.catalog.operation.CreateResponse;
 import ddf.catalog.operation.DeleteRequest;
-import ddf.catalog.operation.DeleteRequestImpl;
 import ddf.catalog.operation.DeleteResponse;
 import ddf.catalog.operation.Update;
 import ddf.catalog.operation.UpdateRequest;
-import ddf.catalog.operation.UpdateRequestImpl;
 import ddf.catalog.operation.UpdateResponse;
+import ddf.catalog.operation.impl.CreateRequestImpl;
+import ddf.catalog.operation.impl.DeleteRequestImpl;
+import ddf.catalog.operation.impl.UpdateRequestImpl;
 import ddf.catalog.source.IngestException;
 import ddf.catalog.source.SourceUnavailableException;
 

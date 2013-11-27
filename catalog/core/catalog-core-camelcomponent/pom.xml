@@ -43,7 +43,7 @@
     
     <dependency>
         <groupId>ddf.catalog.core</groupId>
-        <artifactId>catalog-core-api</artifactId>
+        <artifactId>catalog-core-api-impl</artifactId>
     </dependency>
     
     <dependency>
@@ -110,6 +110,11 @@
             <configuration>
                 <instructions>
                     <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+                    <Private-Package>                     
+                        ddf.catalog.data.impl,                      
+                        ddf.catalog.operation.impl,
+                        ddf.catalog.util.impl
+                    </Private-Package>
                     <Export-Package>
                         ddf.camel.component.catalog;version=${project.version}
                     </Export-Package>
