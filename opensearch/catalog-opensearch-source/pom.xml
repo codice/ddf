@@ -29,7 +29,8 @@
 
 		<dependency>
 			<groupId>ddf.catalog.core</groupId>
-			<artifactId>catalog-core-api</artifactId>
+			<artifactId>catalog-core-api-impl</artifactId>
+			<version>${project.version}</version>
 		</dependency>
 
 		<dependency>
@@ -141,6 +142,13 @@
 							com.ctc.wstx.stax, <!-- needed by FOMWriter -->
 							*
 						</Import-Package>
+						<Private-Package>
+                            ddf.catalog.source.opensearch,						
+                            ddf.catalog.data.impl,						
+			                ddf.catalog.operation.impl,
+			                ddf.catalog.util.impl
+			            </Private-Package>
+			            -->
 						<Export-Package />
 					</instructions>
 				</configuration>
