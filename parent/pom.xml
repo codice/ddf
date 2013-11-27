@@ -298,7 +298,6 @@
 					<configuration>
 						<instructions>
 							<Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-							<Bundle-Description>${project.description}</Bundle-Description>
 <!--                             <Export-Package /> -->
 						</instructions>
 					</configuration>
