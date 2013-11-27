@@ -37,7 +37,8 @@ import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 
 import ddf.catalog.data.BinaryContent;
-import ddf.catalog.data.BinaryContentImpl;
+import ddf.catalog.data.impl.BinaryContentImpl;
+
 
 /**
  * Makes a SSL Socket connection to a remote entity.
