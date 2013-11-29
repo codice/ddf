@@ -6,6 +6,7 @@ define(function (require) {
         Marionette = require('marionette'),
         _ = require('underscore'),
         Cesium = require('cesium'),
+        dir = require('direction'),
         Views = {};
 
 
@@ -68,6 +69,7 @@ define(function (require) {
             var view = this;
             // find out if this click is on us
             if (_.has(event, 'object') && event.object === view.billboard) {
+                view.model.set('direction', dir.none);
                 view.model.set('context', true);
             }
         },

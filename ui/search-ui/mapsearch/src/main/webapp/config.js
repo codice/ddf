@@ -33,6 +33,7 @@
             q : 'lib/q/q',
 
             ddf : 'js/ddf',
+            direction : 'js/direction',
             // require plugins
             text : 'lib/requirejs-plugins/lib/text',
             cesium : 'lib/cesium/Cesium',

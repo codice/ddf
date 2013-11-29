@@ -5,12 +5,11 @@ define(function (require) {
     var Marionette = require('marionette'),
         _ = require('underscore'),
         Properties = require('properties'),
-        Q = require('q');
+        Q = require('q'),
+        dir = require('direction');
 
     require('jqueryui');
-    var forward = true,
-        backward = false,
-        flyIn = true,
+    var flyIn = true,
         flyOut = false;
     var Region = Marionette.Region.extend({
         initialize : function(){
@@ -21,7 +20,7 @@ define(function (require) {
         // views in this region should have left properties that can move them off the screen.
         show: function (view, direction) {
             var region = this;
-            direction = _.isUndefined(direction, forward) ? forward : direction;
+            direction = _.isUndefined(direction, dir.forward) ? dir.forward : direction;
             this.ensureEl();
 
             var isViewClosed = view.isClosed || _.isUndefined(view.$el);
@@ -63,16 +62,25 @@ define(function (require) {
 
             this.$el.html(view.el);
 
-            var outerWidth =  view.$el.outerWidth();
-            if(direction === backward){
-                outerWidth = -outerWidth;
+            var left = 0;
+            var top = 0;
+            if (direction === dir.forward) {
+                left = this.$el.outerWidth();
+            } else if (direction === dir.backward) {
+                left = -this.$el.outerWidth();
+            } else if (direction === dir.upward) {
+                top = this.$el.outerHeight();
+            } else if (direction === dir.downward) {
+                top = -this.$el.outerHeight();
             }
+
             view.$el.css({
-                left : outerWidth,
+                left : left,
+                top : top,
                 opacity : 0
             });
 
-            return this.slide(view,direction, flyIn)
+            return this.slide(view, direction, flyIn)
                 .then(function(){
                     region.$el.perfectScrollbar();
                 });
@@ -111,17 +119,22 @@ define(function (require) {
             var animationProps = {
                 opacity : flyInOrOut ? 1 : 0
             };
-            if(flyInOrOut === flyIn && forwardorBackward === forward){
+            if (flyInOrOut === flyIn && forwardorBackward === dir.forward) {
                 animationProps.left = 0;
-            }
-            if(flyInOrOut === flyOut && forwardorBackward === forward){
+            } else if (flyInOrOut === flyOut && forwardorBackward === dir.forward) {
                 animationProps.left = parseInt(view.$el.css('left'), 10) === 0 ? -view.$el.outerWidth() : 0;
-            }
-            if(flyInOrOut === flyIn && forwardorBackward === backward){
+            } else if (flyInOrOut === flyIn && forwardorBackward === dir.backward) {
                 animationProps.left = 0;
-            }
-            if(flyInOrOut === flyOut && forwardorBackward === backward){
+            } else if (flyInOrOut === flyOut && forwardorBackward === dir.backward) {
                 animationProps.left = parseInt(view.$el.css('left'), 10) === 0 ? view.$el.outerWidth() : 0;
+            } else if (flyInOrOut === flyIn && forwardorBackward === dir.upward) {
+                animationProps.top = 0;
+            } else if (flyInOrOut === flyOut && forwardorBackward === dir.upward) {
+                animationProps.top = -view.$el.outerHeight();
+            } else if (flyInOrOut === flyIn && forwardorBackward === dir.downward) {
+                animationProps.top = 0;
+            } else if (flyInOrOut === flyOut && forwardorBackward === dir.downward) {
+                animationProps.top = view.$el.outerHeight();
             }
 
             view.$el.animate(animationProps,
