@@ -150,7 +150,7 @@ html, body {
     /*magic needed to get perfect scrollbar needed*/
     overflow: hidden;
     position: absolute;
-    top : 75px;
+    top : 86px;
     bottom : 0px;
     width: 100%;
 
