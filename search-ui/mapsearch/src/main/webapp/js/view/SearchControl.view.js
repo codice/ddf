@@ -12,13 +12,12 @@ define(function (require) {
         Metacard = require('js/view/MetacardDetail.view'),
         Backbone = require('backbone'),
         ddf = require('ddf'),
+        dir = require('direction'),
         ich = require('icanhaz'),
         SearchControl = {};
 
     require('perfectscrollbar');
 
-    var forward = true,
-        backward = false;
     ich.addTemplate('searchPanel', require('text!templates/search.panel.html'));
 
         SearchControl.SearchControlModel = Backbone.Model.extend({
@@ -74,7 +73,7 @@ define(function (require) {
             },
 
             onRender : function(){
-                this.leftRegion.show(this.queryForm, forward);
+                this.leftRegion.show(this.queryForm, dir.forward);
 
                 return this;
             },
@@ -87,18 +86,18 @@ define(function (require) {
             back: function () {
                 if (this.leftRegion.currentView === this.resultList) {
                     //go back to query
-                    this.showQuery(backward);
+                    this.showQuery(dir.backward);
                 }
                 else if (this.leftRegion.currentView === this.metacardDetail) {
-                    this.showResults(null, backward);
+                    this.showResults(null, dir.backward);
                 }
             },
             forward: function () {
                 if (this.leftRegion.currentView === this.queryForm) {
-                    this.showResults(null,forward);
+                    this.showResults(null, dir.forward);
                 }
                 else if (this.leftRegion.currentView === this.resultList) {
-                    this.showMetacardDetail(null, forward);
+                    this.showMetacardDetail(null, dir.forward);
                 }
             },
             changeDefaultMapLocation: function (result) {
@@ -154,6 +153,7 @@ define(function (require) {
                     }
                     this.metacardDetail = new Metacard.MetacardDetailView({metacard: metacard});
                     this.listenTo(this.metacardDetail, 'content-update', this.updateScrollbar);
+                    direction = _.isUndefined(metacard.get('direction')) ? direction : metacard.get('direction');
                 }
                 this.leftRegion.show(this.metacardDetail, direction);
             }

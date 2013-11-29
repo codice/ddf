@@ -313,3 +313,12 @@ span.add-on {
 .property-col {
     width: 28%;
 }
+
+.disabled {
+    color: #adafae;
+    cursor: default;
+}
+
+.disabled:hover {
+    color: #adafae;
+}

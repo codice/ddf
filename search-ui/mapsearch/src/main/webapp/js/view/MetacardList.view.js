@@ -8,6 +8,7 @@ define(function (require) {
         Marionette = require('marionette'),
         _ = require('underscore'),
         ich = require('icanhaz'),
+        dir = require('direction'),
         List = {};
 
     ich.addTemplate('resultListItem', require('text!templates/resultListItem.handlebars'));
@@ -33,6 +34,7 @@ define(function (require) {
         },
 
         viewMetacard: function () {
+            this.model.set('direction', dir.forward);
             if(this.model.get('context')){
                 this.searchControlView.showMetacardDetail(this.model);
             }

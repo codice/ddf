@@ -3,9 +3,12 @@
 define(function (require) {
     "use strict";
 
-    var Backbone = require('backbone'),
+    var $ = require('jquery'),
+        _ = require('underscore'),
+        Backbone = require('backbone'),
         ich = require('icanhaz'),
         ddf = require('ddf'),
+        dir = require('direction'),
         Metacard = {};
 
     ich.addTemplate('metacardTemplate', require('text!templates/metacard.handlebars'));
@@ -15,16 +18,36 @@ define(function (require) {
         events: {
             'click .location-link': 'viewLocation',
             'click .nav-tabs' : 'onTabClick',
-            'click #prevRecord' : 'changeRecord',
-            'click #nextRecord' : 'changeRecord'
+            'click #prevRecord' : 'previousRecord',
+            'click #nextRecord' : 'nextRecord'
         },
         initialize: function (options) {
             // options should be -> { metacard: metacard }
             this.model = options.metacard;
+
+            var metacardResult = this.model.get("metacardResult").at(0);
+            var searchResult = metacardResult.get("searchResult");
+            var collection = searchResult.get("results");
+            var index = collection.indexOf(metacardResult);
+
+            if (index !== 0) {
+                this.prevModel = collection.at(index - 1);
+            }
+            if (index < collection.length - 1) {
+                this.nextModel = collection.at(index + 1);
+            }
+
             this.listenTo(this.model, 'change', this.render);
         },
         render: function () {
             this.$el.html(ich.metacardTemplate(this.model.toJSON()));
+
+            if (_.isUndefined(this.prevModel)) {
+                $('#prevRecord', this.$el).addClass('disabled');
+            } else if (_.isUndefined(this.nextModel)) {
+                $('#nextRecord', this.$el).addClass('disabled');
+            }
+
             return this;
         },
         onTabClick : function(){
@@ -33,23 +56,18 @@ define(function (require) {
         viewLocation: function () {
             ddf.app.controllers.geoController.flyToLocation(this.model);
         },
-        changeRecord: function (e) {
-            var target = e.currentTarget.id;
-            var metacardResult = this.model.get("metacardResult").at(0);
-            var searchResult = metacardResult.get("searchResult");
-            var collection = searchResult.get("results");
-            var index = collection.indexOf(metacardResult);
-            var model;
-            if(target === 'nextRecord' && index < collection.length - 1) {
-                model = collection.at(index + 1);
-            }
-            else if(target === 'prevRecord' && index !== 0) {
-                model = collection.at(index - 1);
-            }
-
-            if(model) {
+        previousRecord: function () {
+            if (this.prevModel) {
                 this.model.set('context', false);
-                model.get("metacard").set('context', true);
+                this.prevModel.get("metacard").set('direction', dir.downward);
+                this.prevModel.get("metacard").set('context', true);
+            }
+        },
+        nextRecord: function () {
+            if (this.nextModel) {
+                this.model.set('context', false);
+                this.nextModel.get("metacard").set('direction', dir.upward);
+                this.nextModel.get("metacard").set('context', true);
             }
         },
         close: function () {
