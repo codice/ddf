@@ -99,10 +99,10 @@ define(function (require) {
         },
         showHideLoadMore: function() {
             if (this.model.get("results").length >= this.model.get("hits") || this.model.get("hits") === 0) {
-                $(".load-more-link").hide();
+                $(".load-more-link", this.$el).hide();
             }
             else {
-                $(".load-more-link").show();
+                $(".load-more-link", this.$el).css( "display", "block").show();
             }
         }
     });
