@@ -147,6 +147,12 @@ define(function (require) {
                 $(".forward").hide();
                 $(".backNavText").text("Results (" + this.resultList.model.get("hits") + ")");
                 $(".nav-title").text("Record");
+
+                if (!metacard && this.metacardDetail) {
+                    this.metacardDetail.model.set('direction', dir.forward);
+                    metacard = this.metacardDetail.model;
+                }
+
                 if (metacard) {
                     if(this.metacardDetail){
                         this.stopListening(this.metacardDetail, 'content-update', this.updateScrollbar);
@@ -155,6 +161,7 @@ define(function (require) {
                     this.listenTo(this.metacardDetail, 'content-update', this.updateScrollbar);
                     direction = _.isUndefined(metacard.get('direction')) ? direction : metacard.get('direction');
                 }
+
                 this.leftRegion.show(this.metacardDetail, direction);
             }
         });
