@@ -280,9 +280,15 @@ define(function (require) {
 
 
         },
+
         reset: function () {
+            $('button[name=noTemporalButton]').click();
+            $('button[name=noLocationButton]').click();
+            $('button[name=noTypeButton]').click();
+            $('button[name=enterpriseFederationButton]').click();
             this.model.clear();
             this.trigger('clear');
+            $('input[name=q]').focus();
         },
 
         onRadiusUnitsChanged: function () {
