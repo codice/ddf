@@ -45,7 +45,8 @@
 
 		<dependency>
 			<groupId>ddf.catalog.core</groupId>
-			<artifactId>catalog-core-api</artifactId>
+			<artifactId>catalog-core-api-impl</artifactId>
+			<version>${project.version}</version>
 		</dependency>
     
         <dependency>
@@ -97,6 +98,10 @@
 				<configuration>
 					<instructions>
 						<Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+						<Private-Package>
+							ddf.catalog.transformer.response.query.atom,
+							ddf.catalog.data.impl
+						</Private-Package>
 						<Import-Package>
 							<!-- To avoid ClassNotFoundException for FOMFactory -->
 							org.apache.axiom.om,
