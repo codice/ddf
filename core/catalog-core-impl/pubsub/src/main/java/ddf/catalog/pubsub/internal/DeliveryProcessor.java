@@ -21,9 +21,9 @@ import org.apache.log4j.Logger;
 import org.osgi.service.event.Event;
 
 import ddf.catalog.data.Metacard;
-import ddf.catalog.operation.Update;
-import ddf.catalog.operation.UpdateImpl;
 import ddf.catalog.event.Subscription;
+import ddf.catalog.operation.Update;
+import ddf.catalog.operation.impl.UpdateImpl;
 import ddf.catalog.plugin.PluginExecutionException;
 import ddf.catalog.plugin.PreDeliveryPlugin;
 import ddf.catalog.plugin.StopProcessingException;
