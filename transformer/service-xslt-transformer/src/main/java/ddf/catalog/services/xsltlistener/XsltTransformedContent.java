@@ -21,7 +21,7 @@ import javax.activation.MimeType;
 import org.apache.log4j.Logger;
 
 import ddf.catalog.data.BinaryContent;
-import ddf.catalog.data.BinaryContentImpl;
+import ddf.catalog.data.impl.BinaryContentImpl;
 
 public class XsltTransformedContent extends BinaryContentImpl implements BinaryContent {
     Logger logger = Logger.getLogger(XsltTransformedContent.class);
