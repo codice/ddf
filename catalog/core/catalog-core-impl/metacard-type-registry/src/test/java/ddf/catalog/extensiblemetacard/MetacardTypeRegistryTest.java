@@ -29,13 +29,13 @@ import org.junit.Test;
 import org.osgi.framework.InvalidSyntaxException;
 
 import ddf.catalog.data.AttributeDescriptor;
-import ddf.catalog.data.AttributeDescriptorImpl;
-import ddf.catalog.data.BasicTypes;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardTypeRegistry;
 import ddf.catalog.data.MetacardTypeUnregistrationException;
 import ddf.catalog.data.QualifiedMetacardType;
-import ddf.catalog.data.QualifiedMetacardTypeImpl;
+import ddf.catalog.data.impl.AttributeDescriptorImpl;
+import ddf.catalog.data.impl.BasicTypes;
+import ddf.catalog.data.impl.QualifiedMetacardTypeImpl;
 import ddf.catalog.data.metacardtype.MetacardTypeRegistryImpl;
 
 public class MetacardTypeRegistryTest {

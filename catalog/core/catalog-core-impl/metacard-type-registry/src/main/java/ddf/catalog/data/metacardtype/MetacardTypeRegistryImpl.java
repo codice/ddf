@@ -34,9 +34,6 @@ import ddf.catalog.data.QualifiedMetacardType;
  * removed in a future version of the library. </b>
  * </p>
  * 
- * @author Ian Barnett
- * @author ddf.isgs@lmco.com
- * 
  */
 public final class MetacardTypeRegistryImpl implements MetacardTypeRegistry {
 
