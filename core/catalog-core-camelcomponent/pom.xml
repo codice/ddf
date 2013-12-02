@@ -113,7 +113,12 @@
                     <Private-Package>                     
                         ddf.catalog.data.impl,                      
                         ddf.catalog.operation.impl,
-                        ddf.catalog.util.impl
+                        ddf.catalog.util.impl,
+                        ddf.camel.component.catalog.converter,
+                        ddf.camel.component.catalog.framework,
+                        ddf.camel.component.catalog.inputtransformer,
+                        ddf.camel.component.catalog.queryresponsetransformer,
+                        ddf.camel.component.catalog.transformer
                     </Private-Package>
                     <Export-Package>
                         ddf.camel.component.catalog;version=${project.version}
