@@ -44,7 +44,8 @@ define(function (require) {
 
             if (_.isUndefined(this.prevModel)) {
                 $('#prevRecord', this.$el).addClass('disabled');
-            } else if (_.isUndefined(this.nextModel)) {
+            }
+            if (_.isUndefined(this.nextModel)) {
                 $('#nextRecord', this.$el).addClass('disabled');
             }
 
