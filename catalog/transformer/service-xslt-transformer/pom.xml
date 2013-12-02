@@ -34,7 +34,8 @@
     </dependency>
     <dependency>
       <groupId>ddf.catalog.core</groupId>
-      <artifactId>catalog-core-api</artifactId>
+      <artifactId>catalog-core-api-impl</artifactId>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>ddf.catalog.core</groupId>
@@ -72,24 +73,15 @@
         <configuration>
           <instructions>
             <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+            <Private-Package>
+            	ddf.catalog.services.xsltlistener,
+            	ddf.catalog.data.impl
+            </Private-Package>
             <Import-Package>
-			  ddf.catalog.data, ddf.catalog.operation, ddf.catalog.transform, ddf.util,
-			  javax.activation,
-              javax.xml.parsers,
-              javax.security.auth,
-              javax.xml.transform,
-              javax.xml.transform.dom,
-              javax.xml.transform.stream, net.sf.saxon,
-              org.apache.commons.codec.binary,
-              org.joda.time.format, org.w3c.dom,
-              org.osgi.framework,
-              org.osgi.service.blueprint,
-              org.w3c.dom.ls,
-              org.apache.commons.io,
               org.ops4j.pax.swissbox.extender;version="[1.3.1,2.0)",
-              org.slf4j,
               org.apache.log4j;version="[1.2,1.3)";
-              provider=paxlogging;mandatory:=provider
+              provider=paxlogging;mandatory:=provider,
+              *
             </Import-Package>
             <Export-Package />
           </instructions>
