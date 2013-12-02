@@ -42,9 +42,6 @@ import ddf.catalog.transformer.metacard.geojson.GeoJsonMetacardTransformer;
  * the results from a query. This class leverages the {@link GeoJsonMetacardTransformer} to convert
  * metacards to JSON.
  * 
- * @author William Miller
- * @author ddf.isgs@lmco.com
- * 
  * @see GeoJsonMetacardTransformer
  * @see QueryResponseTransformer
  * @see Metacard

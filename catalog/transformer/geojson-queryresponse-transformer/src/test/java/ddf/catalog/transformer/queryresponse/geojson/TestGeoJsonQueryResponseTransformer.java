@@ -28,27 +28,25 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
 import net.minidev.json.JSONObject;
 import net.minidev.json.parser.JSONParser;
 import net.minidev.json.parser.ParseException;
+
+import org.apache.log4j.Logger;
 import org.junit.Test;
 
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
-import ddf.catalog.data.MetacardImpl;
 import ddf.catalog.data.Result;
-import ddf.catalog.data.ResultImpl;
+import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.data.impl.ResultImpl;
 import ddf.catalog.operation.SourceResponse;
-import ddf.catalog.operation.SourceResponseImpl;
+import ddf.catalog.operation.impl.SourceResponseImpl;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transformer.metacard.geojson.GeoJsonMetacardTransformer;
 
 /**
  * Tests the {@link GeoJsonQueryResponseTransformer}
- * 
- * @author William Miller
- * @author ddf.isgs@lmco.com
  * 
  */
 public class TestGeoJsonQueryResponseTransformer {

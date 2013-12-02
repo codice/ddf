@@ -45,6 +45,12 @@
 			<groupId>net.minidev</groupId>
 			<artifactId>json-smart</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>ddf.catalog.core</groupId>
+			<artifactId>catalog-core-api-impl</artifactId>
+			<version>${project.version}</version>
+			<scope>test</scope>
+		</dependency>		
 	</dependencies>
 
 
