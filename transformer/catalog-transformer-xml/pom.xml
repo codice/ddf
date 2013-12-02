@@ -36,8 +36,8 @@
 
 		<dependency>
 			<groupId>ddf.catalog.core</groupId>
-			<artifactId>catalog-core-api</artifactId>
-			<scope>provided</scope>
+			<artifactId>catalog-core-api-impl</artifactId>
+			<version>${project.version}</version>
 		</dependency>
 
 		<dependency>
@@ -99,6 +99,13 @@
 						<Embed-Dependency>ogc-tools-gml-jts,catalog-transformer-xml-binding,jaxb2-basics-runtime,gml-v_3_1_1-schema;inline=true</Embed-Dependency>
 						<Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
 						<Bundle-Name>${project.name}</Bundle-Name>
+						<Private-Package>
+							ddf.catalog.transformer.xml,
+							ddf.catalog.transformer.xml.adapter,
+							ddf.catalog.data.impl,
+							ddf.catalog.operation.impl,
+							ddf.catalog.util.impl
+						</Private-Package>
 						<Export-Package />
 					</instructions>
 				</configuration>

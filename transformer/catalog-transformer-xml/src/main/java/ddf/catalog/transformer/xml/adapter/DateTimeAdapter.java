@@ -26,7 +26,7 @@ import javax.xml.datatype.XMLGregorianCalendar;
 import org.apache.log4j.Logger;
 
 import ddf.catalog.data.Attribute;
-import ddf.catalog.data.AttributeImpl;
+import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.transformer.xml.binding.DateTimeElement;
 
 public class DateTimeAdapter extends XmlAdapter<DateTimeElement, Attribute> {

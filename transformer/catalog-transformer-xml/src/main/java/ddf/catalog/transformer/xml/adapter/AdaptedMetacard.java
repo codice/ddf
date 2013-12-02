@@ -14,26 +14,10 @@
  **/
 package ddf.catalog.transformer.xml.adapter;
 
-import ddf.catalog.data.Attribute;
-import ddf.catalog.data.AttributeDescriptor;
-import ddf.catalog.data.AttributeImpl;
-import ddf.catalog.data.BasicTypes;
-import ddf.catalog.data.Metacard;
-import ddf.catalog.data.MetacardImpl;
-import ddf.catalog.data.MetacardType;
-import ddf.catalog.transformer.xml.binding.Base64BinaryElement;
-import ddf.catalog.transformer.xml.binding.BooleanElement;
-import ddf.catalog.transformer.xml.binding.DateTimeElement;
-import ddf.catalog.transformer.xml.binding.DoubleElement;
-import ddf.catalog.transformer.xml.binding.FloatElement;
-import ddf.catalog.transformer.xml.binding.GeometryElement;
-import ddf.catalog.transformer.xml.binding.IntElement;
-import ddf.catalog.transformer.xml.binding.LongElement;
-import ddf.catalog.transformer.xml.binding.ObjectElement;
-import ddf.catalog.transformer.xml.binding.ShortElement;
-import ddf.catalog.transformer.xml.binding.StringElement;
-import ddf.catalog.transformer.xml.binding.StringxmlElement;
-import org.jvnet.jaxb2_commons.lang.StringUtils;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -46,15 +30,31 @@ import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.adapters.CollapsedStringAdapter;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+
+import org.jvnet.jaxb2_commons.lang.StringUtils;
+
+import ddf.catalog.data.Attribute;
+import ddf.catalog.data.AttributeDescriptor;
+import ddf.catalog.data.Metacard;
+import ddf.catalog.data.MetacardType;
+import ddf.catalog.data.impl.AttributeImpl;
+import ddf.catalog.data.impl.BasicTypes;
+import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.transformer.xml.binding.Base64BinaryElement;
+import ddf.catalog.transformer.xml.binding.BooleanElement;
+import ddf.catalog.transformer.xml.binding.DateTimeElement;
+import ddf.catalog.transformer.xml.binding.DoubleElement;
+import ddf.catalog.transformer.xml.binding.FloatElement;
+import ddf.catalog.transformer.xml.binding.GeometryElement;
+import ddf.catalog.transformer.xml.binding.IntElement;
+import ddf.catalog.transformer.xml.binding.LongElement;
+import ddf.catalog.transformer.xml.binding.ObjectElement;
+import ddf.catalog.transformer.xml.binding.ShortElement;
+import ddf.catalog.transformer.xml.binding.StringElement;
+import ddf.catalog.transformer.xml.binding.StringxmlElement;
 
 /**
  * 
- * @author Michael Menousek, Lockheed Martin
- * @author ddf.isgs@lmco.com
  * @see http://stackoverflow.com/a/11967459
  */
 @XmlRootElement(name = "metacard", namespace = "urn:catalog:metacard")
