@@ -244,9 +244,13 @@ define(function (require) {
                             weight = quadrantWeights.four;
                         }
 
-                        if((quadrantWeights[quadrantCounts[0].quad] > 1 && weight > 1) || quadrantWeights[quadrantCounts[0].quad] === 1) {
+                        if(quadrantWeights[quadrantCounts[0].quad] > 1 && weight > 1) {
                             avgCartographic.latitude = (weightedLat + newPoint.latitude) / i;
                             avgCartographic.longitude = (weightedLong + newPoint.longitude ) / i;
+                        }
+                        else if(quadrantWeights[quadrantCounts[0].quad] === 1 && !avgCartographic.latitude && !avgCartographic.longitude) {
+                            avgCartographic.latitude = newPoint.latitude;
+                            avgCartographic.longitude = newPoint.longitude;
                         }
                     }
                 }
