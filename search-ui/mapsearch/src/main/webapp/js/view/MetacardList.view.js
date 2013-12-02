@@ -27,6 +27,21 @@ define(function (require) {
             this.searchControlView = options.searchControlView;
         },
 
+        serializeData: function(){
+            //we are overriding this serializeData function to change marionette's behavior
+            //previously it was performing a .toJSON on the model which is normally what you want
+            //but our model is pretty deep and this was causing some big performance issues
+            //so with this change we simply need up adapt our templates to work with backbone
+            //objects instead of flat json records
+            var data = {};
+
+            if (this.model) {
+                data = this.model;
+            }
+
+            return data;
+        },
+
         onRender : function(){
             if(this.model.get('context')){
                 this.$el.addClass('selected');
@@ -68,7 +83,7 @@ define(function (require) {
             this.searchControlView = options.searchControlView;
         },
         render: function () {
-            this.$el.html(ich.resultListTemplate(this.model.toJSON()));
+            this.$el.html(ich.resultListTemplate(this.model));
             var metacardTable = new List.MetacardTable({
                 collection: this.model.get("results"),
                 el: this.$(".resultTable").children("tbody"),
