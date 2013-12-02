@@ -217,8 +217,6 @@ define(function (require) {
             quadrantCounts.reverse();
 
             quadrantWeights[quadrantCounts[0].quad] = Math.ceil(quadrantCounts[0].count / quadrantCounts[3].count);
-            quadrantWeights[quadrantCounts[1].quad] = Math.ceil(quadrantCounts[1].count / quadrantCounts[3].count);
-            quadrantWeights[quadrantCounts[2].quad] = Math.ceil(quadrantCounts[2].count / quadrantCounts[3].count);
 
             this.get("results").each(function(item) {
                 if(!avgCartographic) {
@@ -234,22 +232,22 @@ define(function (require) {
                         i++;
 
                         if(newPoint.longitude > 0 && newPoint.latitude > 0) {
-                            weight = Math.ceil(quadrantWeights.one * item.get("relevance"));
+                            weight = quadrantWeights.one;
                         }
                         else if(newPoint.longitude < 0 && newPoint.latitude > 0) {
-                            weight = Math.ceil(quadrantWeights.two * item.get("relevance"));
+                            weight = quadrantWeights.two;
                         }
                         else if(newPoint.longitude < 0 && newPoint.latitude < 0) {
-                            weight = Math.ceil(quadrantWeights.three * item.get("relevance"));
+                            weight = quadrantWeights.three;
                         }
                         else {
-                            weight = Math.ceil(quadrantWeights.four * item.get("relevance"));
+                            weight = quadrantWeights.four;
                         }
 
-                        i = i + weight;
-
-                        avgCartographic.latitude = (weightedLat + (newPoint.latitude * weight)) / i;
-                        avgCartographic.longitude = (weightedLong + (newPoint.longitude * weight)) / i;
+                        if((quadrantWeights[quadrantCounts[0].quad] > 1 && weight > 1) || quadrantWeights[quadrantCounts[0].quad] === 1) {
+                            avgCartographic.latitude = (weightedLat + newPoint.latitude) / i;
+                            avgCartographic.longitude = (weightedLong + newPoint.longitude ) / i;
+                        }
                     }
                 }
             });
