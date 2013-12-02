@@ -20,8 +20,6 @@ import org.osgi.service.event.Event;
 /**
  * A Predicate that always returns false. Utility Class.
  * 
- * @author abarakat
- * 
  */
 public class FalsePredicate implements Predicate {
 

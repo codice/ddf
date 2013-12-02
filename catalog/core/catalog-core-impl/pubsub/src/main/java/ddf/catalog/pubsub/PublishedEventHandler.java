@@ -23,7 +23,6 @@ import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
 
 import ddf.catalog.CatalogFramework;
-import ddf.catalog.FanoutCatalogFramework;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.event.Subscription;
 import ddf.catalog.plugin.PreDeliveryPlugin;

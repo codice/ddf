@@ -24,8 +24,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.osgi.service.event.EventAdmin;
 
-import ddf.catalog.data.Metacard;
-import ddf.catalog.data.MetacardImpl;
+import ddf.catalog.data.impl.MetacardImpl;
 
 public class TestEventProcessorImpl {
     static {

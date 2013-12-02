@@ -18,7 +18,6 @@ package ddf.catalog.pubsub.internal;
 import org.apache.log4j.Logger;
 import org.osgi.service.event.EventAdmin;
 
-import ddf.catalog.Constants;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.event.EventProcessor;
 import ddf.catalog.pubsub.EventProcessorImpl;
