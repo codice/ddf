@@ -28,8 +28,8 @@ import javax.xml.bind.helpers.DefaultValidationEventHandler;
 import org.apache.log4j.Logger;
 
 import ddf.catalog.data.BinaryContent;
-import ddf.catalog.data.BinaryContentImpl;
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.impl.BinaryContentImpl;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.MetacardTransformer;
 import ddf.catalog.transformer.xml.adapter.AdaptedMetacard;

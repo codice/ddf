@@ -32,20 +32,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ddf.catalog.data.AttributeDescriptor;
-import ddf.catalog.data.BasicTypes;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
+import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.operation.QueryRequest;
-import ddf.catalog.operation.QueryRequestImpl;
 import ddf.catalog.operation.SourceProcessingDetails;
 import ddf.catalog.operation.SourceResponse;
-import ddf.catalog.operation.SourceResponseImpl;
+import ddf.catalog.operation.impl.QueryRequestImpl;
+import ddf.catalog.operation.impl.SourceResponseImpl;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transformer.xml.binding.MetacardElement;
 
 /**
- * @author Ashraf Barakat
- * @author ddf.isgs@lmco.com
  * @see http://stackoverflow.com/a/11967459
  */
 @XmlRootElement(name = "metacards", namespace = "urn:catalog:metacard")

@@ -29,7 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ddf.catalog.data.BinaryContent;
-import ddf.catalog.data.BinaryContentImpl;
+import ddf.catalog.data.impl.BinaryContentImpl;
 import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.QueryResponseTransformer;
@@ -38,9 +38,6 @@ import ddf.catalog.transformer.xml.adapter.AdaptedSourceResponse;
 /**
  * Transforms a {@link SourceResponse} object into Metacard Element XML text, which is GML 3.1.1.
  * compliant XML.
- * 
- * @author Ashraf Barakat
- * @author ddf.isgs@lmco.com
  * 
  */
 public class XmlResponseQueueTransformer extends AbstractXmlTransformer implements

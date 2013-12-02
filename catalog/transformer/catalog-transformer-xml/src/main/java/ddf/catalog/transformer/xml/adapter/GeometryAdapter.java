@@ -33,7 +33,7 @@ import com.vividsolutions.jts.io.WKTReader;
 import com.vividsolutions.jts.io.WKTWriter;
 
 import ddf.catalog.data.Attribute;
-import ddf.catalog.data.AttributeImpl;
+import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transformer.xml.binding.GeometryElement;
 import ddf.catalog.transformer.xml.binding.GeometryElement.Value;
