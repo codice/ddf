@@ -2,7 +2,7 @@ Grunt development workflow, should help speed things up, no need to `mvn clean i
 First, make sure you have node and npm installed (npm comes with node installer)
 From `search-ui/mapsearch` directory,  run `npm install` which will install the libraries needed
 To serve up the application, run `node server.js`
-To setup the 'watch' tasks, in a separate window run `grunt watch`
+To run tasks including 'watch', in a separate window run `grunt`
 
 Make sure ddf services are running, and open browser window to localhost:8282 (configured in server.js)
 
