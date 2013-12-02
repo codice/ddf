@@ -44,3 +44,43 @@
 .black {
     background-color: black;
 }
+
+.banner-text-green {
+    color: darkgreen;
+}
+
+.banner-text-blue {
+    color: blue;
+}
+
+.banner-text-red {
+    color: darkred;
+}
+
+.banner-text-yellow {
+    color: gold;
+}
+
+.banner-text-light-green {
+    color: lightgreen;
+}
+
+.banner-text-light-blue {
+    color: lightskyblue;
+}
+
+.banner-text-light-red {
+    color: tomato;
+}
+
+.banner-text-light-yellow {
+    color: #ffff00;
+}
+
+.banner-text-white {
+    color: white;
+}
+
+.banner-text-black {
+    color: black;
+}

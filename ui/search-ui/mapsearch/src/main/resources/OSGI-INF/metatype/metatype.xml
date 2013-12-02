@@ -42,6 +42,21 @@
             <Option label="Black" value="black" />
         </AD>
         <AD
+            description="Specifies the text color of the Header and Footer."
+            name="Text Color" id="textColor" required="true" type="String"
+            default="White">
+            <Option label="Green" value="banner-text-green" />
+            <Option label="Blue" value="banner-text-blue" />
+            <Option label="Red" value="banner-text-red" />
+            <Option label="Yellow" value="banner-text-yellow" />
+            <Option label="Light Green" value="banner-text-light-green" />
+            <Option label="Light Blue" value="banner-text-light-blue" />
+            <Option label="Light Red" value="banner-text-light-red" />
+            <Option label="Light Yellow" value="banner-text-light-yellow" />
+            <Option label="White" value="banner-text-white" />
+            <Option label="Black" value="banner-text-black" />
+        </AD>
+        <AD
             description="Specifies the branding to be used in the title and on the map."
             name="Branding Name" id="branding" required="true" type="String"
             default="DDF"

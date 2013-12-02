@@ -22,6 +22,7 @@ define(function (require) {
             }).success(function(data) {
                     props.footer = data.footer;
                     props.style = data.style;
+                    props.textColor = data.textColor;
                     props.background = data.background;
                     props.header = data.header;
                     props.branding = data.branding;
