@@ -105,12 +105,14 @@ define(function (require) {
             var view = this,
                 headerText = properties.header,
                 style = properties.style,
+                textColor = properties.textColor,
                 header = {};
 
             if(headerText && headerText !== "") {
                 //set up header
                 header.text = headerText;
                 header.style = style;
+                header.textColor = textColor;
 
                 view.$el.html(ich.classificationBanner(header));
             }
@@ -129,12 +131,14 @@ define(function (require) {
             var view = this,
                 footerText = properties.footer,
                 style = properties.style,
+                textColor = properties.textColor,
                 footer = {};
 
             if(footerText && footerText !== "") {
                 //set up footer
                 footer.text = footerText;
                 footer.style = style;
+                footer.textColor = textColor;
 
                 view.$el.html(ich.classificationBanner(footer));
             }

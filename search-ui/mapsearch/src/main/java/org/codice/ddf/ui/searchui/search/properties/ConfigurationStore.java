@@ -50,6 +50,8 @@ public class ConfigurationStore {
 
     private String style = "";
 
+    private String textColor = "";
+
     private String branding = "DDF";
 
     private static String JSON_MIME_TYPE_STRING = "application/json";
@@ -70,6 +72,7 @@ public class ConfigurationStore {
         header = "";
         footer = "";
         style = "";
+        textColor = "";
     }
 
     @GET
@@ -80,6 +83,7 @@ public class ConfigurationStore {
         configObj.put("header", header);
         configObj.put("footer", footer);
         configObj.put("style", style);
+        configObj.put("textColor", textColor);
         configObj.put("branding", branding);
 
         String configString = JSONValue.toJSONString(configObj);
@@ -124,6 +128,14 @@ public class ConfigurationStore {
 
     public void setStyle(String style) {
         this.style = style;
+    }
+
+    public String getTextColor() {
+        return textColor;
+    }
+
+    public void setTextColor(String textColor) {
+        this.textColor = textColor;
     }
 
     public String getBranding() {
