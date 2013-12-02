@@ -34,10 +34,10 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.junit.Test;
 
-import ddf.catalog.data.BasicTypes;
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
-import ddf.catalog.data.MetacardImpl;
+import ddf.catalog.data.impl.BasicTypes;
+import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.geo.formatter.CompositeGeometry;
 import ddf.geo.formatter.GeometryCollection;
@@ -50,9 +50,6 @@ import ddf.geo.formatter.Polygon;
 
 /**
  * Tests the {@link GeoJsonMetacardTransformer}
- * 
- * @author Ashraf Barakat
- * @author ddf.isgs@lmco.com
  * 
  */
 public class TestGeoJsonMetacardTransformer {
