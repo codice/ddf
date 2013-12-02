@@ -22,9 +22,9 @@ import org.junit.Test;
 
 import com.github.jknack.handlebars.ValueResolver;
 
-import ddf.catalog.data.MetacardImpl;
 import ddf.catalog.data.MetacardType;
-import ddf.catalog.data.MetacardTypeImpl;
+import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.data.impl.MetacardTypeImpl;
 
 public class TestMetacardValueResolver {
 
