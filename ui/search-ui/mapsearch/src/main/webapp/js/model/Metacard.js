@@ -169,28 +169,27 @@ define(function (require) {
                 this.get("queryParamDefaults").format + this.get("format");
         },
         getResultCenterPoint: function() {
-            var options, avgCartographic, meanMetacard, i = 0,
-                quadrantWeights = {
-                    one: 1,
-                    two: 1,
-                    three: 1,
-                    four: 1
-                }, quadrantCounts = [
+            var options, avgCartographic = {
+                    latitude: 0,
+                    longitude: 0
+                }, meanMetacard, i = 0,
+                resultQuad,
+                quadrantCounts = [
                     {
                         quad: 'one',
-                        count: 1
+                        count: 0
                     },
                     {
                         quad: 'two',
-                        count: 1
+                        count: 0
                     },
                     {
                         quad: 'three',
-                        count: 1
+                        count: 0
                     },
                     {
                         quad: 'four',
-                        count: 1
+                        count: 0
                     }
                 ];
 
@@ -215,43 +214,30 @@ define(function (require) {
             quadrantCounts = _.sortBy(quadrantCounts, 'count');
 
             quadrantCounts.reverse();
-
-            quadrantWeights[quadrantCounts[0].quad] = Math.ceil(quadrantCounts[0].count / quadrantCounts[3].count);
+            resultQuad = quadrantCounts[0].quad;
 
             this.get("results").each(function(item) {
-                if(!avgCartographic) {
-                    if(item.get("metacard").get("geometry")) {
-                        avgCartographic = item.get("metacard").get("geometry").getPoint();
-                        i++;
+                if(item.get("metacard").get("geometry")) {
+                    var weightedLat = avgCartographic.latitude * i, weightedLong = avgCartographic.longitude * i,
+                        newPoint = item.get("metacard").get("geometry").getPoint(), isInRegion = false;
+
+                    if(newPoint.longitude > 0 && newPoint.latitude > 0 && resultQuad === "one") {
+                        isInRegion = true;
                     }
-                }
-                else {
-                    if(item.get("metacard").get("geometry")) {
-                        var weightedLat = avgCartographic.latitude * i, weightedLong = avgCartographic.longitude * i,
-                            newPoint = item.get("metacard").get("geometry").getPoint(), weight;
+                    else if(newPoint.longitude < 0 && newPoint.latitude > 0 && resultQuad === "two") {
+                        isInRegion = true;
+                    }
+                    else if(newPoint.longitude < 0 && newPoint.latitude < 0 && resultQuad === "three") {
+                        isInRegion = true;
+                    }
+                    else if(newPoint.longitude > 0 && newPoint.latitude < 0 && resultQuad === "four") {
+                        isInRegion = true;
+                    }
+
+                    if(isInRegion) {
                         i++;
-
-                        if(newPoint.longitude > 0 && newPoint.latitude > 0) {
-                            weight = quadrantWeights.one;
-                        }
-                        else if(newPoint.longitude < 0 && newPoint.latitude > 0) {
-                            weight = quadrantWeights.two;
-                        }
-                        else if(newPoint.longitude < 0 && newPoint.latitude < 0) {
-                            weight = quadrantWeights.three;
-                        }
-                        else {
-                            weight = quadrantWeights.four;
-                        }
-
-                        if(quadrantWeights[quadrantCounts[0].quad] > 1 && weight > 1) {
-                            avgCartographic.latitude = (weightedLat + newPoint.latitude) / i;
-                            avgCartographic.longitude = (weightedLong + newPoint.longitude ) / i;
-                        }
-                        else if(quadrantWeights[quadrantCounts[0].quad] === 1 && !avgCartographic.latitude && !avgCartographic.longitude) {
-                            avgCartographic.latitude = newPoint.latitude;
-                            avgCartographic.longitude = newPoint.longitude;
-                        }
+                        avgCartographic.latitude = (weightedLat + newPoint.latitude) / i;
+                        avgCartographic.longitude = (weightedLong + newPoint.longitude ) / i;
                     }
                 }
             });
