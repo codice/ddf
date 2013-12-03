@@ -112,7 +112,10 @@ define(function (require) {
 
         updatePrimitive: function (model) {
             var extent = this.modelToExtent(model);
-            this.primitive.extent = extent;
+            // make sure the current model has width and height before drawing
+            if (!_.isUndefined(extent) && (extent.north !== extent.south && extent.east !== extent.west)) {
+                this.primitive.extent = extent;
+            }
         },
 
         updateGeometry : function(model){
