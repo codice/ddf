@@ -23,14 +23,13 @@ import java.util.Map;
 import javax.activation.MimeType;
 
 import org.apache.commons.io.IOUtils;
-import org.osgi.framework.BundleContext;
 import org.slf4j.LoggerFactory;
 import org.slf4j.ext.XLogger;
 
 import ddf.catalog.CatalogFramework;
-import ddf.catalog.data.AttributeImpl;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardCreationException;
+import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.InputTransformer;
 import ddf.content.data.ContentItem;

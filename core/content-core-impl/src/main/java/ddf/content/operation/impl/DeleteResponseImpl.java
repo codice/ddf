@@ -24,12 +24,6 @@ import ddf.content.operation.DeleteResponse;
 /**
  * DeleteResponseImpl contains the {@link DeleteResponse} information (boolean status of the file
  * deletion) from a {@link DeleteRequest} operation.
- * 
- * @version 0.1.0
- * @since 2.1.0
- * 
- * @author Hugh Rodgers, Lockheed Martin
- * @author ddf.isgs@lmco.com
  */
 public class DeleteResponseImpl extends ResponseImpl<DeleteRequest> implements DeleteResponse {
     private boolean fileDeleted;

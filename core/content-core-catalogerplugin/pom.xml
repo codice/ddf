@@ -43,7 +43,7 @@
         </dependency>
 		<dependency>
 			<groupId>ddf.catalog.core</groupId>
-			<artifactId>catalog-core-api</artifactId>
+			<artifactId>catalog-core-api-impl</artifactId>
 			<version>${ddf.platform.services.app.version}</version>
 		</dependency>
 		<dependency>
@@ -78,6 +78,13 @@
 				<configuration>
 					<instructions>
 						<Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+						<Private-Package>
+							ddf.content.resource.impl,
+							ddf.catalog.data.impl,
+							ddf.catalog.resource.impl,
+							ddf.catalog.operation.impl,
+							ddf.catalog.util.impl
+						</Private-Package>
 						<Export-Package>
 						    ddf.content.plugin.cataloger;version=${project.version}
 						</Export-Package>
