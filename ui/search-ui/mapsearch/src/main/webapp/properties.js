@@ -26,6 +26,9 @@ define(function (require) {
                     props.background = data.background;
                     props.header = data.header;
                     props.branding = data.branding;
+                    props.layers = data.layers;
+                    props.wmsServer = data.wmsServer;
+                    props.format = data.format;
                     return props;
                 }).fail(function(jqXHR, status, errorThrown) {
                     throw new Error('Configuration could not be loaded: (status: ' + status + ', message: ' + errorThrown.message + ')');

@@ -221,16 +221,16 @@ define(function (require) {
                     var weightedLat = avgCartographic.latitude * i, weightedLong = avgCartographic.longitude * i,
                         newPoint = item.get("metacard").get("geometry").getPoint(), isInRegion = false;
 
-                    if(newPoint.longitude > 0 && newPoint.latitude > 0 && resultQuad === "one") {
+                    if(newPoint.longitude >= 0 && newPoint.latitude >= 0 && resultQuad === "one") {
                         isInRegion = true;
                     }
-                    else if(newPoint.longitude < 0 && newPoint.latitude > 0 && resultQuad === "two") {
+                    else if(newPoint.longitude <= 0 && newPoint.latitude >= 0 && resultQuad === "two") {
                         isInRegion = true;
                     }
-                    else if(newPoint.longitude < 0 && newPoint.latitude < 0 && resultQuad === "three") {
+                    else if(newPoint.longitude <= 0 && newPoint.latitude <= 0 && resultQuad === "three") {
                         isInRegion = true;
                     }
-                    else if(newPoint.longitude > 0 && newPoint.latitude < 0 && resultQuad === "four") {
+                    else if(newPoint.longitude >= 0 && newPoint.latitude <= 0 && resultQuad === "four") {
                         isInRegion = true;
                     }
 
@@ -247,8 +247,8 @@ define(function (require) {
                 geometry: {
                     type: "Point",
                     coordinates: [
-                        avgCartographic ? avgCartographic.longitude : 0,
-                        avgCartographic ? avgCartographic.latitude : 0,
+                        avgCartographic.longitude,
+                        avgCartographic.latitude,
                         5000000
                     ]
                 }

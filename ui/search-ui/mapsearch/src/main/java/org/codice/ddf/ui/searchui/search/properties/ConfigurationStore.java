@@ -52,6 +52,12 @@ public class ConfigurationStore {
 
     private String textColor = "";
 
+    private String wmsServer = "";
+
+    private String layers = "";
+
+    private String format = "";
+
     private String branding = "DDF";
 
     private static String JSON_MIME_TYPE_STRING = "application/json";
@@ -73,6 +79,9 @@ public class ConfigurationStore {
         footer = "";
         style = "";
         textColor = "";
+        wmsServer = "";
+        layers = "";
+        format = "";
     }
 
     @GET
@@ -85,6 +94,9 @@ public class ConfigurationStore {
         configObj.put("style", style);
         configObj.put("textColor", textColor);
         configObj.put("branding", branding);
+        configObj.put("wmsServer", wmsServer);
+        configObj.put("layers", layers);
+        configObj.put("format", format);
 
         String configString = JSONValue.toJSONString(configObj);
         BinaryContent content = new BinaryContentImpl(new ByteArrayInputStream(configString.getBytes()),
@@ -144,6 +156,28 @@ public class ConfigurationStore {
 
     public void setBranding(String branding) {
         this.branding = branding;
+    }
+
+    public String getWmsServer() {
+        return wmsServer;
+    }
+
+    public void setWmsServer(String wmsServer) {
+        this.wmsServer = wmsServer;
+    }
+
+    public String getLayers() { return layers; }
+
+    public void setLayers(String layers) {
+        this.layers = layers;
+    }
+
+    public String getFormat() {
+        return format;
+    }
+
+    public void setFormat(String format) {
+        this.format = format;
     }
 
     public Object clone() throws CloneNotSupportedException {
