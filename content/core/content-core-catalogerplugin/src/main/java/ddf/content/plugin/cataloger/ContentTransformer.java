@@ -23,13 +23,7 @@ import ddf.catalog.util.Describable;
  * Interface defining the contract for all transformers that parse content and create
  * {@link Metacard}s.
  * 
- * @version 0.1.0
  * @since 2.1.0
- * 
- * @author Hugh Rodgers, Lockheed Martin
- * @author Phil Klinefelter, Lockheed Martin
- * @author Rob Tomassone, Lockheed Martin
- * @author ddf.isgs@lmco.com
  */
 public interface ContentTransformer extends Describable {
     /**

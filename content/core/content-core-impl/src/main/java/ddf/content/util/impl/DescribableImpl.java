@@ -22,12 +22,6 @@ import ddf.content.util.Describable;
  * Default implementation of the Describable interface, providing basic setter/getter methods for a
  * describable item's ID, title, version, organization, and description.
  * 
- * @version 0.1.0
- * @since 2.1.0
- * 
- * @author Hugh Rodgers, Lockheed Martin
- * @author ddf.isgs@lmco.com
- * 
  */
 public abstract class DescribableImpl implements Describable {
     private static Logger logger = Logger.getLogger(DescribableImpl.class);

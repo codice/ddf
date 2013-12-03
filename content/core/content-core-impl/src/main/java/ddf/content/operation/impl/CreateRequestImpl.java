@@ -23,12 +23,6 @@ import ddf.content.operation.CreateRequest;
 /**
  * CreateRequestImpl represents a {@link CreateRequest} and supports passing a {@link Map} of
  * properties for create operations.
- * 
- * @version 0.1.0
- * @since 2.1.0
- * 
- * @author Hugh Rodgers, Lockheed Martin
- * @author ddf.isgs@lmco.com
  */
 public class CreateRequestImpl extends OperationImpl implements CreateRequest {
     private ContentItem contentItem;

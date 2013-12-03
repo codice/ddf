@@ -21,12 +21,6 @@ import ddf.content.operation.ReadRequest;
 /**
  * ReadRequestImpl represents a {@link ReadRequest} and supports
  * passing a {@link Map} of properties for read operations.
- * 
- * @version 0.1.0
- * @since 2.1.0
- * 
- * @author Hugh Rodgers, Lockheed Martin
- * @author ddf.isgs@lmco.com
  */
 public class ReadRequestImpl extends OperationImpl implements ReadRequest
 {

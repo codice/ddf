@@ -21,12 +21,6 @@ import ddf.content.operation.DeleteRequest;
 /**
  * DeleteRequestImpl represents a {@link DeleteRequest} and supports
  * passing a {@link Map} of properties for delete operations.
- * 
- * @version 0.1.0
- * @since 2.1.0
- * 
- * @author Hugh Rodgers, Lockheed Martin
- * @author ddf.isgs@lmco.com
  */
 public class DeleteRequestImpl extends OperationImpl implements DeleteRequest
 {

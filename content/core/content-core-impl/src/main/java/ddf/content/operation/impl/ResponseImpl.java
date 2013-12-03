@@ -29,9 +29,6 @@ import ddf.content.operation.Response;
  * Properties, associated with the parent class {@link Operation} are properties intended for use by
  * the Content Framework components, e.g., {@link StorageProvider}s and {@link ContentPlugin}s.
  * 
- * @author Hugh Rodgers
- * @author ddf.isgs@lmco.com
- * 
  */
 public class ResponseImpl<T extends Request> extends OperationImpl implements Response<T> {
     /** The original request associated with this response. */

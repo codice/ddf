@@ -25,11 +25,6 @@ import ddf.content.operation.CreateResponse;
  * CreateResponseImpl contains the {@link CreateResponse} information (created {@link ContentItem})
  * from a {@link CreateRequest} operation.
  * 
- * @version 0.1.0
- * @since 2.1.0
- * 
- * @author Hugh Rodgers, Lockheed Martin
- * @author ddf.isgs@lmco.com
  */
 public class CreateResponseImpl extends ResponseImpl<CreateRequest> implements CreateResponse {
     private ContentItem contentItem;

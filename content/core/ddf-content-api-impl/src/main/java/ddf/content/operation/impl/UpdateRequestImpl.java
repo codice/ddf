@@ -21,12 +21,6 @@ import ddf.content.operation.UpdateRequest;
 /**
  * UpdateRequestImpl represents a {@link UpdateRequest} and supports
  * passing a {@link Map} of properties for update operations.
- * 
- * @version 0.1.0
- * @since 2.1.0
- * 
- * @author Hugh Rodgers, Lockheed Martin
- * @author ddf.isgs@lmco.com
  */
 public class UpdateRequestImpl extends OperationImpl implements UpdateRequest
 {
