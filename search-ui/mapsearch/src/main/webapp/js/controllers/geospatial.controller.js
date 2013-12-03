@@ -19,8 +19,8 @@ define(function (require) {
 
         },
         createMap: function (mapDivId) {
-            var viewer;
-            viewer = new Cesium.Viewer(mapDivId, {
+            var viewer, options;
+            options = {
                 // Start in Columbus Viewer
                 // sceneMode : Cesium.SceneMode.COLUMBUS_VIEW,
                 sceneMode: Cesium.SceneMode.SCENE3D,
@@ -32,12 +32,28 @@ define(function (require) {
                 sceneModePicker: true,
 
                 // Hide the base layer picker for OpenStreetMaps
-                baseLayerPicker: false,
+                baseLayerPicker: false
                 // Use OpenStreetMaps
-                imageryProvider: new Cesium.OpenStreetMapImageryProvider({
+
+            };
+
+            if(properties.wmsServer && properties.wmsServer !== "") {
+                options.imageryProvider = new Cesium.WebMapServiceImageryProvider({
+                    url: properties.wmsServer,
+                    layers : properties.layers,
+                    parameters : {
+                        format : properties.format
+                    }
+                });
+            }
+            else {
+                options.imageryProvider = new Cesium.OpenStreetMapImageryProvider({
                     url: 'http://tile.openstreetmap.org/'
-                })
-            });
+                });
+            }
+
+            viewer = new Cesium.Viewer(mapDivId, options);
+
             return viewer;
         },
 

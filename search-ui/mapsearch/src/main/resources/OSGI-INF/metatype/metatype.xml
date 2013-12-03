@@ -61,6 +61,21 @@
             name="Branding Name" id="branding" required="true" type="String"
             default="DDF"
         />
+        <AD
+            description="Specifies the WMS server to be used as the map tile provider."
+            name="WMS Server" id="wmsServer" required="false" type="String"
+            default=""
+        />
+        <AD
+            description="Specifies the WMS layers to be used."
+            name="WMS Layers" id="layers" required="false" type="String"
+            default=""
+        />
+        <AD
+            description="Specifies the WMS layer format (image/png, etc.)."
+            name="WMS Format" id="format" required="false" type="String"
+            default=""
+        />
 	</OCD>
 
 	<Designate 	pid="org.codice.ddf.ui.search-ui.mapsearch.properties">
