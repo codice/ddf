@@ -42,6 +42,11 @@
                 <version>${ddf.platform.app.version}</version>
             </dependency>
             <dependency>
+                <groupId>ddf.catalog.core</groupId>
+                <artifactId>catalog-core-api-impl</artifactId>
+                <version>${ddf.catalog.app.version}</version>
+            </dependency>            
+            <dependency>
                 <groupId>ddf.measure</groupId>
                 <artifactId>measure-api</artifactId>
                 <version>${ddf.catalog.app.version}</version>

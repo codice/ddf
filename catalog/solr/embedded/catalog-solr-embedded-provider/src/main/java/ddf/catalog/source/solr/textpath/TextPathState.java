@@ -24,9 +24,6 @@ import javax.xml.stream.XMLStreamConstants;
  * have reached a leaf node of a xml tree. This tracks that state and tracks the xml leaf element
  * value text.
  * 
- * @author Ashraf Barakat
- * @author ddf.isgs@lmco.com
- * 
  */
 public class TextPathState {
 

@@ -42,14 +42,10 @@ import ddf.catalog.source.solr.ConfigurationStore;
 import ddf.catalog.source.solr.DynamicSchemaResolver;
 import ddf.catalog.source.solr.SolrCatalogProvider;
 import ddf.catalog.source.solr.SolrFilterDelegateFactory;
-import ddf.catalog.source.solr.SolrFilterDelegateFactoryImpl;
-import ddf.catalog.util.MaskableImpl;
+import ddf.catalog.util.impl.MaskableImpl;
 
 /**
  * Catalog Provider that interfaces with a Standalone external (HTTP) Solr Server
- * 
- * @author Ashraf Barakat, Lockheed Martin
- * @author ddf.isgs@lmco.com
  * 
  */
 public class SolrHttpCatalogProvider extends MaskableImpl implements CatalogProvider {

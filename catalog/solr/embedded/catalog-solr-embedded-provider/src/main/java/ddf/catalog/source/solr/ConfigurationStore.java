@@ -19,9 +19,6 @@ import org.apache.log4j.Logger;
 /**
  * Stores external configuration properties to be used across POJOs.
  * 
- * @author Ashraf Barakat
- * @author ddf.isgs@lmco.com
- * 
  */
 public class ConfigurationStore {
 

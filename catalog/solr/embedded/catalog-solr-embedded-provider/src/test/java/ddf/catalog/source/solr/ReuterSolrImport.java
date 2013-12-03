@@ -33,9 +33,9 @@ import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
 import ddf.catalog.data.Metacard;
-import ddf.catalog.data.MetacardImpl;
+import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.filter.proxy.adapter.GeotoolsFilterAdapterImpl;
-import ddf.catalog.operation.CreateRequestImpl;
+import ddf.catalog.operation.impl.CreateRequestImpl;
 import ddf.catalog.source.IngestException;
 
 public class ReuterSolrImport implements Runnable {

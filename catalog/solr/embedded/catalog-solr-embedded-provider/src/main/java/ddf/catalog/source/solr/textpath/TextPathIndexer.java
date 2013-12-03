@@ -31,9 +31,6 @@ import org.codehaus.stax2.XMLStreamReader2;
 /**
  * Class is used to create text path index strings to be searched upon.
  * 
- * @author Ashraf Barakat
- * @author ddf.isgs@lmco.com
- * 
  */
 public class TextPathIndexer {
 
