@@ -54,7 +54,7 @@ import ddf.catalog.data.AttributeType.AttributeFormat;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardCreationException;
 import ddf.catalog.data.MetacardType;
-import ddf.catalog.data.MetacardTypeImpl;
+import ddf.catalog.data.impl.MetacardTypeImpl;
 import ddf.catalog.source.IngestException;
 import ddf.catalog.source.solr.textpath.SimplePathIndexer;
 
@@ -63,8 +63,6 @@ import ddf.catalog.source.solr.textpath.SimplePathIndexer;
  * field name. This class takes most of its logic directly from the configured Solr schema.xml. For
  * instance, the suffixes enumerated in this class are directly copied from the schema.xml.
  * 
- * @author Ashraf Barakat
- * @author ddf.isgs@lmco.com
  * @since 0.2.0
  */
 public class DynamicSchemaResolver {

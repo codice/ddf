@@ -71,28 +71,28 @@ import org.opengis.filter.sort.SortBy;
 import org.opengis.filter.sort.SortOrder;
 
 import ddf.catalog.data.AttributeDescriptor;
-import ddf.catalog.data.AttributeDescriptorImpl;
-import ddf.catalog.data.BasicTypes;
 import ddf.catalog.data.ContentType;
-import ddf.catalog.data.ContentTypeImpl;
 import ddf.catalog.data.Metacard;
-import ddf.catalog.data.MetacardImpl;
-import ddf.catalog.data.MetacardTypeImpl;
 import ddf.catalog.data.Result;
+import ddf.catalog.data.impl.AttributeDescriptorImpl;
+import ddf.catalog.data.impl.BasicTypes;
+import ddf.catalog.data.impl.ContentTypeImpl;
+import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.data.impl.MetacardTypeImpl;
 import ddf.catalog.operation.CreateRequest;
 import ddf.catalog.operation.CreateResponse;
 import ddf.catalog.operation.DeleteRequest;
-import ddf.catalog.operation.DeleteRequestImpl;
 import ddf.catalog.operation.DeleteResponse;
 import ddf.catalog.operation.Query;
-import ddf.catalog.operation.QueryImpl;
 import ddf.catalog.operation.QueryRequest;
-import ddf.catalog.operation.QueryRequestImpl;
 import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.operation.Update;
 import ddf.catalog.operation.UpdateRequest;
-import ddf.catalog.operation.UpdateRequestImpl;
 import ddf.catalog.operation.UpdateResponse;
+import ddf.catalog.operation.impl.DeleteRequestImpl;
+import ddf.catalog.operation.impl.QueryImpl;
+import ddf.catalog.operation.impl.QueryRequestImpl;
+import ddf.catalog.operation.impl.UpdateRequestImpl;
 import ddf.catalog.source.IngestException;
 import ddf.catalog.source.UnsupportedQueryException;
 
@@ -102,8 +102,6 @@ import ddf.catalog.source.UnsupportedQueryException;
  * Uses the {@link RandomBlockJUnit4ClassRunner} to run the methods randomly so that the order does
  * not matter when testing.
  * </p>
- * 
- * @author Ashraf Barakat
  * 
  */
 @RunWith(RandomBlockJUnit4ClassRunner.class)

@@ -53,10 +53,6 @@ import ddf.measure.Distance.LinearUnit;
 /**
  * Translates filter-proxy calls into Solr query syntax.
  * 
- * @author Ashraf Barakat
- * @author Phillip Klinefelter
- * @author ddf.isgs@lmco.com
- * 
  */
 public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
 
