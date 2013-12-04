@@ -100,7 +100,7 @@ define(function (require) {
                 this.stopListening();
                 return;
             }
-            if(modelProp.radius === 0){
+            if(modelProp.radius === 0 || isNaN(modelProp.radius)){
                 modelProp.radius = 1;
             }
 
@@ -151,14 +151,11 @@ define(function (require) {
             this.scene.getPrimitives().add(this.primitive);
 
         },
-
-        handleRegionStop: function (movement) {
-            var cartesian = this.scene.getCamera().controller.pickEllipsoid(movement.position, this.ellipsoid);
-            if (cartesian) {
-                this.click2 = this.ellipsoid.cartesianToCartographic(cartesian);
-            }
+        handleRegionStop: function () {
             this.enableInput();
-            this.mouseHandler.destroy();
+            if (!this.mouseHandler.isDestroyed()) {
+                this.mouseHandler.destroy();
+            }
             this.addBorderedCircle(this.model);
             this.stopListening(this.model, 'change:lat change:lon change:radius', this.updatePrimitive);
             this.listenTo(this.model, 'change:lat change:lon change:radius', this.addBorderedCircle);
@@ -178,8 +175,8 @@ define(function (require) {
             if (cartesian) {
                 // var that = this;
                 this.click1 = this.ellipsoid.cartesianToCartographic(cartesian);
-                this.mouseHandler.setInputAction(function (movement) {
-                    that.handleRegionStop(movement);
+                this.mouseHandler.setInputAction(function () {
+                    that.handleRegionStop();
                 }, Cesium.ScreenSpaceEventType.LEFT_UP);
                 this.mouseHandler.setInputAction(function (movement) {
                     that.handleRegionInter(movement);
@@ -243,6 +240,13 @@ define(function (require) {
             });
 
             return circleModel;
+        },
+        stopDrawing: function() {
+            if (this.view) {
+                this.view.stop();
+                this.view.handleRegionStop();
+                this.notificationView.close();
+            }
         },
         stop: function () {
             if (this.view) {

@@ -261,6 +261,8 @@ define(function (require) {
             // disable the whole form
             this.$('button').addClass('disabled');
             this.$('input').prop('disabled',true);
+            ddf.app.controllers.drawCircleController.stopDrawing();
+            ddf.app.controllers.drawExentController.stopDrawing();
             result.fetch({
 
                 data: result.getQueryParams(),
