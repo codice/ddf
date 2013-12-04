@@ -103,6 +103,13 @@ define(function (require) {
                 obj[key] = toRad(val);
             });
             var extent = new Cesium.Extent();
+            if(!obj.north || isNaN(obj.north) ||
+                !obj.south || isNaN(obj.south) ||
+                !obj.east || isNaN(obj.east) ||
+                !obj.west || isNaN(obj.west)) {
+                return null;
+            }
+
             extent.north = obj.north;
             extent.south = obj.south;
             extent.east = obj.east;
@@ -113,14 +120,21 @@ define(function (require) {
         updatePrimitive: function (model) {
             var extent = this.modelToExtent(model);
             // make sure the current model has width and height before drawing
-            if (!_.isUndefined(extent) && (extent.north !== extent.south && extent.east !== extent.west)) {
+            if (extent && !_.isUndefined(extent) && (extent.north !== extent.south && extent.east !== extent.west)) {
                 this.primitive.extent = extent;
+                //only call this if the mouse button isn't pressed, if we try to draw the border while someone is dragging
+                //the filled in shape won't show up
+                if(!this.buttonPressed) {
+                    this.addBorderedExtent(extent);
+                }
             }
         },
 
         updateGeometry : function(model){
             var extent = this.modelToExtent(model);
-            this.addBorderedExtent(extent);
+            if (extent && !_.isUndefined(extent) && (extent.north !== extent.south && extent.east !== extent.west)) {
+                this.addBorderedExtent(extent);
+            }
         },
 
         addBorderedExtent : function(extent){
@@ -157,13 +171,7 @@ define(function (require) {
             this.scene.getPrimitives().add(this.primitive);
         },
 
-        handleRegionStop: function (movement) {
-            var cartesian = this.scene.getCamera().controller
-                .pickEllipsoid(movement.position, this.ellipsoid);
-            if (cartesian) {
-                this.click2 = this.ellipsoid
-                    .cartesianToCartographic(cartesian);
-            }
+        handleRegionStop: function () {
             this.enableInput();
             this.mouseHandler.destroy();
             this.addBorderedExtent(this.primitive.extent);
@@ -188,10 +196,12 @@ define(function (require) {
                 // var that = this;
                 this.click1 = this.ellipsoid
                     .cartesianToCartographic(cartesian);
-                this.mouseHandler.setInputAction(function (movement) {
-                    that.handleRegionStop(movement);
+                this.mouseHandler.setInputAction(function () {
+                    that.buttonPressed = false;
+                    that.handleRegionStop();
                 }, Cesium.ScreenSpaceEventType.LEFT_UP);
                 this.mouseHandler.setInputAction(function (movement) {
+                    that.buttonPressed = true;
                     that.handleRegionInter(movement);
                 }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
             }
