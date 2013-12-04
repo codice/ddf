@@ -141,6 +141,7 @@ define(function (require) {
             var view = this;
             // find out if this click is on us
             if (view.isThisPrimitive(event)) {
+                view.model.set('direction', dir.none);
                 view.model.set('context', true);
             }
         },
@@ -224,10 +225,6 @@ define(function (require) {
 
             var fillAttributes = view.polygons[1].getGeometryInstanceAttributes('polyfill');
             fillAttributes.show = Cesium.ShowGeometryInstanceAttribute.toValue(true, fillAttributes.show);
-
-//            attributes.show = Cesium.ShowGeometryInstanceAttribute.toValue(false, attributes.show);
-//            var glowAttributes = view.polygons[1].getGeometryInstanceAttributes('outline-glow');
-//            glowAttributes.show = Cesium.ShowGeometryInstanceAttribute.toValue(true, glowAttributes.show);
         },
 
         setPolygonUnselected : function(){
@@ -237,10 +234,6 @@ define(function (require) {
 
             var fillAttributes = view.polygons[1].getGeometryInstanceAttributes('polyfill');
             fillAttributes.show = Cesium.ShowGeometryInstanceAttribute.toValue(false, fillAttributes.show);
-
-//            attributes.show = Cesium.ShowGeometryInstanceAttribute.toValue(true, attributes.show);
-//            var glowAttributes = view.polygons[1].getGeometryInstanceAttributes('outline-glow');
-//            glowAttributes.show = Cesium.ShowGeometryInstanceAttribute.toValue(false, glowAttributes.show);
         },
 
         onClose: function () {
