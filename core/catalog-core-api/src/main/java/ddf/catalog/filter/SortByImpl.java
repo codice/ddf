@@ -22,7 +22,8 @@ import org.opengis.filter.sort.SortOrder;
  * Simple implementation of filter that does not depend on GeoTools. Please use
  * {@link FilterBuilder} instead to create filters.
  * 
- * @deprecated Use ddf.catalog.filter.impl.SortByImpl
+ * @deprecated As of release 2.3.0, replaced by
+ *             ddf.catalog.filter.impl.SortByImpl
  * 
  */
 @Deprecated

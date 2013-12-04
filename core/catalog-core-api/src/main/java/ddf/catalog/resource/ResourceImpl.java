@@ -26,8 +26,10 @@ import ddf.catalog.data.BinaryContentImpl;
 
 /**
  * This class is a generic implementation of the {@link Resource} interface
- * @deprecated Use ddf.catalog.resource.impl.ResourceImpl
- *
+ * 
+ * @deprecated As of release 2.3.0, replaced by
+ *             ddf.catalog.resource.impl.ResourceImpl
+ * 
  */
 @Deprecated
 public class ResourceImpl extends BinaryContentImpl implements Resource {

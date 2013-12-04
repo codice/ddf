@@ -29,17 +29,18 @@ import org.slf4j.ext.XLogger;
 
 /**
  * <p>
- * This utility object sorts ServiceReferences by their service rankings first and then breaks ties
- * with service ids.
+ * This utility object sorts ServiceReferences by their service rankings first
+ * and then breaks ties with service ids.
  * <p>
  * 
  * <p>
- * It is an implementation of {@link List} but is backed by a sorted {@link TreeSet} of
- * <ServiceReference> where the {@link ServiceReference} objects are what is used to maintain the
- * list order.
+ * It is an implementation of {@link List} but is backed by a sorted
+ * {@link TreeSet} of <ServiceReference> where the {@link ServiceReference}
+ * objects are what is used to maintain the list order.
  * </p>
  * 
- * @deprecated Use ddf.catalog.util.impl.SortedServiceReferenceList
+ * @deprecated As of release 2.3.0, replaced by
+ *             ddf.catalog.util.impl.SortedServiceReferenceList
  */
 @Deprecated
 public class SortedServiceReferenceList implements List<ServiceReference> {

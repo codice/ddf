@@ -20,9 +20,12 @@ import java.util.Map;
 import ddf.catalog.resource.Resource;
 
 /**
- * The ResourceResponseImpl provides a means of providing a {@link ResourceResponse}.
- * @deprecated Use ddf.catalog.operation.impl.ResourceResponseImpl
- *
+ * The ResourceResponseImpl provides a means of providing a
+ * {@link ResourceResponse}.
+ * 
+ * @deprecated As of release 2.3.0, replaced by
+ *             ddf.catalog.operation.impl.ResourceResponseImpl
+ * 
  */
 @Deprecated
 public class ResourceResponseImpl extends ResponseImpl<ResourceRequest> implements ResourceResponse {

@@ -41,10 +41,12 @@ import ddf.catalog.plugin.StopProcessingException;
 import ddf.catalog.source.Source;
 
 /**
- * This class serves as a base implementation of the {@link FederationStrategy} interface. Other
- * classes can extend this class to create specific attributes to sort by.
+ * This class serves as a base implementation of the {@link FederationStrategy}
+ * interface. Other classes can extend this class to create specific attributes
+ * to sort by.
  * 
- * @deprecated Use ddf.catalog.federation.base.AbstractFederationStrategy
+ * @deprecated As of release 2.3.0, replaced by
+ *             ddf.catalog.federation.base.AbstractFederationStrategy
  */
 @Deprecated
 public abstract class AbstractFederationStrategy implements FederationStrategy {

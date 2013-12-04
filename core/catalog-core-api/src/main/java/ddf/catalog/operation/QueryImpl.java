@@ -25,8 +25,9 @@ import ddf.catalog.Constants;
 
 /**
  * 
- * @deprecated Use ddf.catalog.operation.impl.QueryImpl
- *
+ * @deprecated As of release 2.3.0, replaced by
+ *             ddf.catalog.operation.impl.QueryImpl
+ * 
  */
 @Deprecated
 public class QueryImpl implements Query {

@@ -24,7 +24,8 @@ import ddf.catalog.util.DescribableImpl;
  * The Class SourceDescriptorImpl is the default representation of a
  * {@link SourceDescriptor}.
  * 
- * @deprecated Use ddf.catalog.source.impl.SourceDescriptorImpl
+ * @deprecated As of release 2.3.0, replaced by
+ *             ddf.catalog.source.impl.SourceDescriptorImpl
  * 
  */
 @Deprecated

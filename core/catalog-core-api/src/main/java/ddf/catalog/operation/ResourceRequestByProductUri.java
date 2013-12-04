@@ -20,8 +20,9 @@ import java.util.Map;
 
 /**
  * 
- * @deprecated Use ddf.catalog.operation.impl.ResourceRequestByProductUri
- *
+ * @deprecated As of release 2.3.0, replaced by
+ *             ddf.catalog.operation.impl.ResourceRequestByProductUri
+ * 
  */
 @Deprecated
 public class ResourceRequestByProductUri extends OperationImpl implements ResourceRequest {

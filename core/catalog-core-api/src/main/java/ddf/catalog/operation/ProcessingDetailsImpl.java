@@ -19,8 +19,9 @@ import java.util.List;
 
 /**
  * 
- * @deprecated Use ddf.catalog.operation.impl.ProcessingDetailsImpl
- *
+ * @deprecated As of release 2.3.0, replaced by
+ *             ddf.catalog.operation.impl.ProcessingDetailsImpl
+ * 
  */
 @Deprecated
 public class ProcessingDetailsImpl extends SourceProcessingDetailsImpl implements ProcessingDetails {

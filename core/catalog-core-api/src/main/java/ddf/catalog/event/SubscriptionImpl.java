@@ -21,7 +21,8 @@ import org.opengis.filter.FilterVisitor;
 
 /**
  * 
- * @deprecated Use ddf.catalog.event.impl.SubscriptionImpl
+ * @deprecated As of release 2.3.0, replaced by
+ *             ddf.catalog.event.impl.SubscriptionImpl
  */
 @Deprecated
 public class SubscriptionImpl implements Subscription {

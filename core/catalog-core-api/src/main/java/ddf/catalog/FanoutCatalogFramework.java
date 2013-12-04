@@ -95,7 +95,8 @@ import ddf.catalog.util.SourcePoller;
  * </ol>
  * </p>
  * 
- * @deprecated Use ddf.catalog.fanout.FanoutCatalogFramework in
+ * @deprecated As of release 2.3.0, replaced by
+ *             ddf.catalog.fanout.FanoutCatalogFramework in
  *             fanout-catalogframework project
  */
 @Deprecated

@@ -26,10 +26,12 @@ import java.util.Map.Entry;
 import ddf.catalog.data.Metacard;
 
 /**
- * The UpdateRequestImpl reprensents the default implementation of {@link UpdateRequest}.
+ * The UpdateRequestImpl represents the default implementation of
+ * {@link UpdateRequest}.
  * 
- * @deprecated Use ddf.catalog.operation.impl.UpdateRequestImpl
- *
+ * @deprecated As of release 2.3.0, replaced by
+ *             ddf.catalog.operation.impl.UpdateRequestImpl
+ * 
  */
 @Deprecated
 public class UpdateRequestImpl extends OperationImpl implements UpdateRequest {

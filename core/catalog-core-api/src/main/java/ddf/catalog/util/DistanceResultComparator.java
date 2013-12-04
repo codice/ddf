@@ -24,7 +24,8 @@ import ddf.catalog.data.Result;
 /**
  * Comparator for the distance (in meters) of 2 {@link Result} objects.
  * 
-* @deprecated ddf.catalog.util.impl.DistanceResultComparator
+ * @deprecated As of release 2.3.0, replaced by
+ *             ddf.catalog.util.impl.DistanceResultComparator
  */
 @Deprecated
 public class DistanceResultComparator implements Comparator<Result> {

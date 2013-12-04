@@ -27,7 +27,8 @@ import org.slf4j.ext.XLogger;
  * allow plugins to be automatically sorted in the list. Without this converter,
  * blueprint will copy the list and lose the reference.
  * 
- * @deprecated Use ddf.catalog.util.impl.ListConverter
+ * @deprecated As of release 2.3.0, replaced by
+ *             ddf.catalog.util.impl.ListConverter
  */
 @Deprecated
 public class ListConverter implements Converter {

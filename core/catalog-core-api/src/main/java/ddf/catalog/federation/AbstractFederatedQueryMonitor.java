@@ -25,7 +25,8 @@ import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.source.Source;
 
 /**
- * @deprecated Use ddf.catalog.federation.base.AbstractFederatedQueryMonitor
+ * @deprecated As of release 2.3.0, replaced by
+ *             ddf.catalog.federation.base.AbstractFederatedQueryMonitor
  */
 @SuppressWarnings("unused")
 @Deprecated

@@ -25,14 +25,16 @@ import ddf.catalog.source.SourceDescriptor;
 import ddf.catalog.util.SourceDescriptorComparator;
 
 /**
- * The SourceInfoResponseImpl provides a default implementation of a {@link SourceInfoResponse}.
+ * The SourceInfoResponseImpl provides a default implementation of a
+ * {@link SourceInfoResponse}.
  * 
  * @see SourceDescriptor
  * @see Source
  * @see SoruceInfoRequest
  * 
- * @deprecated Use ddf.catalog.operation.impl.SourceInfoResponseImpl
- *
+ * @deprecated As of release 2.3.0, replaced by
+ *             ddf.catalog.operation.impl.SourceInfoResponseImpl
+ * 
  */
 @Deprecated
 public class SourceInfoResponseImpl extends ResponseImpl<SourceInfoRequest> implements

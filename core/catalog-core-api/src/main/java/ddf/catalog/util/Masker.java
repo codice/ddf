@@ -27,7 +27,7 @@ import org.slf4j.ext.XLogger;
  * responses from connected sources and catalog providers, which are both
  * maskable items.
  * 
- * @deprecated Use ddf.catalog.util.impl.Masker
+ * @deprecated As of release 2.3.0, replaced by ddf.catalog.util.impl.Masker
  */
 @Deprecated
 public class Masker {

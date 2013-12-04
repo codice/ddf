@@ -21,9 +21,11 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * The DeleteRequestImpl class is used to delete a single or list of the {@link String} id or
- * {@link URI}.
- * @deprecated Use ddf.catalog.operation.impl.DeleteRequestImpl
+ * The DeleteRequestImpl class is used to delete a single or list of the
+ * {@link String} id or {@link URI}.
+ * 
+ * @deprecated As of release 2.3.0, replaced by
+ *             ddf.catalog.operation.impl.DeleteRequestImpl
  */
 @Deprecated
 public class DeleteRequestImpl extends OperationImpl implements DeleteRequest {

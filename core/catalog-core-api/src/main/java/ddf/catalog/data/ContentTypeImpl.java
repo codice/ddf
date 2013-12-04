@@ -19,9 +19,11 @@ import java.net.URI;
 /**
  * This class is a common implementation of the {@link ContentType} interface.
  * 
- * It is used to return the list of {@link ContentType}s currently stored in a {@link Source}.
+ * It is used to return the list of {@link ContentType}s currently stored in a
+ * {@link Source}.
  * 
- * @deprecated Use ddf.catalog.data.impl.ContentTypeImpl
+ * @deprecated As of release 2.3.0, replaced by
+ *             ddf.catalog.data.impl.ContentTypeImpl
  * 
  */
 @Deprecated
