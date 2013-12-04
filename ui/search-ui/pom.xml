@@ -29,6 +29,7 @@
     <modules>
         <module>search</module>
         <module>mapsearch</module>
+        <module>search-redirect</module>
         <module>search-app</module>
     </modules>
 
