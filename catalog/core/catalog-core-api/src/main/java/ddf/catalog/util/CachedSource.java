@@ -32,7 +32,7 @@ import ddf.catalog.source.UnsupportedQueryException;
 
 /**
  * {@link CachedSource} wraps a {@link Source) and caches information about the source
- * @deprecated Use ddf.catalog.util.impl.CachedSource
+ * @deprecated As of release 2.3.0, replaced by ddf.catalog.util.impl.CachedSource
  */
 @Deprecated
 public class CachedSource implements Source {

@@ -21,9 +21,10 @@ import java.util.HashSet;
 import ddf.catalog.data.AttributeType.AttributeFormat;
 
 /**
- * Constants for basic types, both {@link MetacardType} and {@link AttributeType}
+ * Constants for basic types, both {@link MetacardType} and
+ * {@link AttributeType}
  * 
- * @deprecated Use ddf.catalog.data.impl.BasicTypes
+ * @deprecated As of release 2.3.0, replaced by ddf.catalog.data.impl.BasicTypes
  * 
  */
 @Deprecated

@@ -25,7 +25,8 @@ import ddf.catalog.data.Result;
 /**
  * Comparator for the effective date of 2 {@link Result} objects.
  * 
- * @deprecated Use ddf.catalog.util.impl.TemporalResultComparator
+ * @deprecated As of release 2.3.0, replaced by
+ *             ddf.catalog.util.impl.TemporalResultComparator
  */
 @Deprecated
 public class TemporalResultComparator implements Comparator<Result> {

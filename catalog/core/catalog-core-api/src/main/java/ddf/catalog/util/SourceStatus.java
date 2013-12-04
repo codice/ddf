@@ -18,7 +18,8 @@ package ddf.catalog.util;
  * The SourceStatus is an enum representing the state a source (Catalog
  * Provider, Federated Source, or Connected Source) can be in
  * 
- * @deprecated Use ddf.catalog.util.impl.SourceStatus
+ * @deprecated As of release 2.3.0, replaced by
+ *             ddf.catalog.util.impl.SourceStatus
  */
 @Deprecated
 enum SourceStatus {

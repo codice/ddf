@@ -17,10 +17,11 @@ package ddf.catalog.data;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 /**
- * Default implementation of the {@link Result} interface, which is a {@link Metacard} catalog entry
- * wrapped with the extra attributes {@code relevanceScore} and {@code distanceInMeters}.
+ * Default implementation of the {@link Result} interface, which is a
+ * {@link Metacard} catalog entry wrapped with the extra attributes
+ * {@code relevanceScore} and {@code distanceInMeters}.
  * 
- * @deprecated Use ddf.catalog.data.impl.ResultImpl
+ * @deprecated As of release 2.3.0, replaced by ddf.catalog.data.impl.ResultImpl
  * 
  */
 @Deprecated

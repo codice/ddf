@@ -25,7 +25,8 @@ import ddf.catalog.source.SourceDescriptor;
 /**
  * Comparator for the sourceId of 2 {@link SourceDescriptor} objects
  * 
- * @deprecated Use ddf.catalog.util.impl.SourceDescriptorComparator
+ * @deprecated As of release 2.3.0, replaced by
+ *             ddf.catalog.util.impl.SourceDescriptorComparator
  */
 @Deprecated
 public class SourceDescriptorComparator implements Comparator<SourceDescriptor> {

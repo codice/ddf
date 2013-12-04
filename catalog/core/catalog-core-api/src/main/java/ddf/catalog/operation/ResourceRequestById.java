@@ -21,8 +21,9 @@ import ddf.catalog.data.Result;
 
 /**
  * 
- * @deprecated Use ddf.catalog.operation.impl.ResourceRequestById
- *
+ * @deprecated As of release 2.3.0, replaced by
+ *             ddf.catalog.operation.impl.ResourceRequestById
+ * 
  */
 @Deprecated
 public class ResourceRequestById extends OperationImpl implements ResourceRequest {

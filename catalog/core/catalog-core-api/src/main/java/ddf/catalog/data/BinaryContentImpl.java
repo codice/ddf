@@ -26,7 +26,8 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 /**
  * This class is a common implementation of the {@link BinaryContent} interface.
  * 
- * @deprecated Use ddf.catalog.data.impl.BinaryContentImpl
+ * @deprecated As of release 2.3.0, replaced by
+ *             ddf.catalog.data.impl.BinaryContentImpl
  * 
  */
 @Deprecated

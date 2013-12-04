@@ -20,19 +20,21 @@ import org.apache.commons.lang.builder.ToStringBuilder;
  * Simple implementation of {@link AttributeDescriptor}
  * 
  * <p>
- * This class does not have a custom serialization implementation (like some other API classes such
- * as {@link AttributeImpl}) because its physical representation is the same as its logical
- * representation, which according to Joshua Bloch in <u>Effective Java</u>, Second Edition makes it
- * a good candidate for the default Java serialization implementation.
+ * This class does not have a custom serialization implementation (like some
+ * other API classes such as {@link AttributeImpl}) because its physical
+ * representation is the same as its logical representation, which according to
+ * Joshua Bloch in <u>Effective Java</u>, Second Edition makes it a good
+ * candidate for the default Java serialization implementation.
  * </p>
  * 
  * <p>
  * For what constitutes a compatible change in serialization, see <a href=
- * "http://docs.oracle.com/javase/6/docs/platform/serialization/spec/version.html#6678" >Sun's
- * Guidelines</a>.
+ * "http://docs.oracle.com/javase/6/docs/platform/serialization/spec/version.html#6678"
+ * >Sun's Guidelines</a>.
  * </p>
  * 
- * @deprecated Use ddf.catalog.data.impl.AttributeDescriptorImpl
+ * @deprecated As of release 2.3.0, replaced by
+ *             ddf.catalog.data.impl.AttributeDescriptorImpl
  * 
  */
 @Deprecated

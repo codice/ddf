@@ -32,8 +32,9 @@ import ddf.catalog.data.Result;
 
 /**
  * 
- * @deprecated Use ddf.catalog.operation.impl.QueryResponseImpl
- *
+ * @deprecated As of release 2.3.0, replaced by
+ *             ddf.catalog.operation.impl.QueryResponseImpl
+ * 
  */
 @Deprecated
 public class QueryResponseImpl extends ResponseImpl<QueryRequest> implements QueryResponse {

@@ -23,10 +23,12 @@ import java.util.Set;
 import ddf.catalog.data.Result;
 
 /**
- * The SourceResponseImpl represents a default implementation of the {@link SourceResponse}.
+ * The SourceResponseImpl represents a default implementation of the
+ * {@link SourceResponse}.
  * 
- * @deprecated Use ddf.catalog.operation.impl.SourceResponseImpl
- *
+ * @deprecated As of release 2.3.0, replaced by
+ *             ddf.catalog.operation.impl.SourceResponseImpl
+ * 
  */
 @Deprecated
 public class SourceResponseImpl extends ResponseImpl<QueryRequest> implements SourceResponse {

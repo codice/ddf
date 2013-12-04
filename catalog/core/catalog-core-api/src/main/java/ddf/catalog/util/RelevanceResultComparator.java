@@ -24,7 +24,8 @@ import ddf.catalog.data.Result;
 /**
  * Comparator for the relevance of 2 {@link Result} objects.
  * 
- * @deprecated Use ddf.catalog.util.impl.RelevanceResultComparator
+ * @deprecated As of release 2.3.0, replaced by
+ *             ddf.catalog.util.impl.RelevanceResultComparator
  */
 @Deprecated
 public class RelevanceResultComparator implements Comparator<Result> {
