@@ -156,11 +156,11 @@ define(function (require) {
                     if (direction === 'ModelToView') {
                         //radius value is bound to radius since radiusValue is converted, so we just need to set
                         //the value so that it shows up in the view
-                        view.model.set("radiusValue", view.getDistanceFromMeters(value, unitVal));
-                        return view.getDistanceFromMeters(value, unitVal);
+                        view.model.set("radiusValue", view.getDistanceFromMeters(parseInt(value, 10), unitVal));
+                        return view.getDistanceFromMeters(parseInt(value, 10), unitVal);
                     }
                     else {
-                        return view.getDistanceInMeters(value, unitVal);
+                        return view.getDistanceInMeters(parseInt(value, 10), unitVal);
                     }
                 },
                 offsetConverter = function (direction, value) {
