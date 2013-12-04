@@ -253,7 +253,12 @@ define(function (require) {
             });
             return bboxModel;
         },
-
+        stopDrawing: function() {
+            if (this.view) {
+                this.view.stop();
+                this.notificationView.close();
+            }
+        },
         stop: function () {
             if (this.view) {
                 this.view.stop();
