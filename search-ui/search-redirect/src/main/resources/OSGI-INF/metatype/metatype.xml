@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
 /**
  * Copyright (c) Codice Foundation
@@ -10,14 +11,20 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
+
  -->
- 
-<features name="${project.artifactId}-${project.version}">
+<metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
 
-    <feature name="search" version="${project.version}" description="Search UI">
-        <bundle>mvn:ddf.ui.search-ui/search/${project.version}</bundle>
-        <bundle>mvn:ddf.ui.search-ui/mapsearch/${project.version}</bundle>
-        <bundle>mvn:ddf.ui.search-ui/search-redirect/${project.version}</bundle>
-    </feature>
+    <OCD name="Search UI Redirect" id="org.codice.ddf.ui.filter.RedirectServlet">
+        <AD
+                description="Specifies the redirect URI to use when accessing the /search URI."
+                name="Redirect URI" id="defaultUri" required="true" type="String"
+                default="/searchui2"
+                />
+    </OCD>
 
-</features>
+    <Designate 	pid="org.codice.ddf.ui.filter.RedirectServlet">
+        <Object ocdref="org.codice.ddf.ui.filter.RedirectServlet" />
+    </Designate>
+
+</metatype:MetaData>
