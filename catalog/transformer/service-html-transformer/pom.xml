@@ -59,7 +59,7 @@
 		</dependency>
 		<dependency>		
 			<groupId>ddf.ui.search-ui</groupId>
-			<artifactId>search</artifactId>
+			<artifactId>simple</artifactId>
 			<version>${project.version}</version>
 		</dependency>		
 		<dependency>
