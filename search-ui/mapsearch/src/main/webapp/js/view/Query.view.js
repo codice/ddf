@@ -189,6 +189,8 @@ define(function (require) {
 
             this.modelBinder.bind(this.model, this.$el, bindings);
 
+            this.listenTo(this.model, 'change:bbox change:radius', this.updateShouldFlyToExtent);
+
             this.$('#absoluteStartTime').datetimepicker({
                 dateFormat: $.datepicker.ATOM,
                 timeFormat: "HH:mm:ss.lz",
@@ -247,6 +249,10 @@ define(function (require) {
 
         },
 
+        updateShouldFlyToExtent: function () {
+            this.shouldFlyToExtent = this.model.get("bbox") || this.model.get("radius") ? true : false;
+        },
+
         search: function () {
             //get results
             var queryParams, view = this, result, options;
@@ -277,7 +283,7 @@ define(function (require) {
                     //re-enable the whole form
                     view.$('button').removeClass('disabled');
                     view.$('input').prop('disabled',false);
-                    view.trigger('searchComplete', result);
+                    view.trigger('searchComplete', result, view.shouldFlyToExtent);
                 });
 
 
@@ -291,6 +297,7 @@ define(function (require) {
             this.model.clear();
             this.trigger('clear');
             $('input[name=q]').focus();
+            this.shouldFlyToExtent = false;
         },
 
         onRadiusUnitsChanged: function () {

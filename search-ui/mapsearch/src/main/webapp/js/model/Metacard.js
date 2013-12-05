@@ -6,6 +6,7 @@ define(function (require) {
         _ = require('underscore'),
         ddf = require('ddf'),
         Util = require('js/model/util'),
+        Cesium = require('cesium'),
         MetaCard = ddf.module();
 
     require('backbonerelational');
@@ -169,10 +170,7 @@ define(function (require) {
                 this.get("queryParamDefaults").format + this.get("format");
         },
         getResultCenterPoint: function() {
-            var options, avgCartographic = {
-                    latitude: 0,
-                    longitude: 0
-                }, meanMetacard, i = 0,
+            var regionPoints = [],
                 resultQuad,
                 quadrantCounts = [
                     {
@@ -218,8 +216,7 @@ define(function (require) {
 
             this.get("results").each(function(item) {
                 if(item.get("metacard").get("geometry")) {
-                    var weightedLat = avgCartographic.latitude * i, weightedLong = avgCartographic.longitude * i,
-                        newPoint = item.get("metacard").get("geometry").getPoint(), isInRegion = false;
+                    var newPoint = item.get("metacard").get("geometry").getPoint(), isInRegion = false;
 
                     if(newPoint.longitude >= 0 && newPoint.latitude >= 0 && resultQuad === "one") {
                         isInRegion = true;
@@ -235,26 +232,17 @@ define(function (require) {
                     }
 
                     if(isInRegion) {
-                        i++;
-                        avgCartographic.latitude = (weightedLat + newPoint.latitude) / i;
-                        avgCartographic.longitude = (weightedLong + newPoint.longitude ) / i;
+                        regionPoints.push(newPoint);
                     }
                 }
             });
-            options = {
-                properties: {},
-                type: "Feature",
-                geometry: {
-                    type: "Point",
-                    coordinates: [
-                        avgCartographic.longitude,
-                        avgCartographic.latitude,
-                        5000000
-                    ]
-                }
-            };
-            meanMetacard = new MetaCard.Metacard(options);
-            return meanMetacard;
+//            var points = view.model.get('geometry').getPolygon();
+            var cartPoints = _.map(regionPoints, function (point) {
+                return Cesium.Cartographic.fromDegrees(point.longitude, point.latitude, point.altitude);
+            });
+
+            var extent = Cesium.Extent.fromCartographicArray(cartPoints);
+            return extent;
         }
     });
     return MetaCard;

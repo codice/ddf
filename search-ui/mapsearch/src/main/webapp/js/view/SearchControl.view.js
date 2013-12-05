@@ -100,9 +100,11 @@ define(function (require) {
                     this.showMetacardDetail(null, dir.forward);
                 }
             },
-            changeDefaultMapLocation: function (result) {
+            changeDefaultMapLocation: function (result, shouldFlyToExtent) {
                 console.log("changing "+result);
-                ddf.app.controllers.geoController.flyToLocation(result.getResultCenterPoint());
+                if(shouldFlyToExtent) {
+                    ddf.app.controllers.geoController.flyToExtent(result.getResultCenterPoint());
+                }
             },
             showQuery: function (direction) {
                 $(".back").hide();
