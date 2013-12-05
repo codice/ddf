@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version. 
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+
+ -->
+<metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
+
+	<OCD name="Simple Search UI" id="org.codice.ddf.ui.search-ui.simple.properties">
+		<AD
+			description="Specifies the header text to be rendered on the generated Query Page"
+			name="Header" id="header" required="true" type="String" 
+			default="" 
+		/>
+		<AD
+			description="Specifies the footer text to be rendered on the generated Query Page"
+			name="Footer" id="footer" required="true" type="String" 
+			default="" 
+		/>
+		<AD
+			description="Specifies the Text Color of the Header and Footer.  Use html css colors or #rrggbb."
+			name="Text Color" id="color" required="true" type="String" 
+			default="" 
+		/>
+		<AD
+			description="Specifies the Background Color of the Header and Footer.  Use html css colors or #rrggbb."
+			name="Background Color" id="background" required="true" type="String" 
+			default="" 
+		/>
+	</OCD>
+
+	<Designate 	pid="org.codice.ddf.ui.search-ui.simple.properties">
+		<Object ocdref="org.codice.ddf.ui.search-ui.simple.properties" />
+	</Designate>
+
+</metatype:MetaData>

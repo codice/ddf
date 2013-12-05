@@ -27,8 +27,8 @@
     <artifactId>search-ui</artifactId>
     <packaging>pom</packaging>
     <modules>
-        <module>search</module>
-        <module>mapsearch</module>
+        <module>simple</module>
+        <module>standard</module>
         <module>search-redirect</module>
         <module>search-app</module>
     </modules>

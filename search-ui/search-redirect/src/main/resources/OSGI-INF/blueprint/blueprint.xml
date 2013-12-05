@@ -20,13 +20,13 @@
         <service-properties>
             <entry key="alias" value="/search" />
         </service-properties>
-        <bean class="org.codice.ddf.ui.filter.RedirectServlet" init-method="init">
+        <bean class="org.codice.ddf.ui.searchui.filter.RedirectServlet" init-method="init">
             <property name="redirectConfiguration" ref="redirectConfiguration" />
         </bean>
     </service>
 
-    <bean id="redirectConfiguration" class="org.codice.ddf.ui.filter.RedirectConfiguration">
-        <cm:managed-properties persistent-id="org.codice.ddf.ui.filter.RedirectServlet"
+    <bean id="redirectConfiguration" class="org.codice.ddf.ui.searchui.filter.RedirectConfiguration">
+        <cm:managed-properties persistent-id="org.codice.ddf.ui.searchui.filter.RedirectServlet"
                                update-strategy="container-managed" />
     </bean>
 
