@@ -157,6 +157,23 @@ define(function (require) {
 
 
             this.mapViewer.scene.getAnimations().add(flight);
+        },
+
+        flyToExtent: function (extent) {
+            var flight;
+            if(extent.north === extent.south && extent.east === extent.west) {
+                var destination = {height: properties.defaultFlytoHeight, latitude: extent.north, longitude: extent.west};
+                flight = Cesium.CameraFlightPath.createAnimationCartographic(this.mapViewer.scene, {
+                    destination: destination
+                });
+            }
+            else {
+                flight = Cesium.CameraFlightPath.createAnimationExtent(this.mapViewer.scene, {
+                    destination: this.expandExtent(extent)
+                });
+            }
+
+            this.mapViewer.scene.getAnimations().add(flight);
         }
 
     });
