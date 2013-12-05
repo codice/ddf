@@ -15,16 +15,16 @@
  -->
 <metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
 
-    <OCD name="Search UI Redirect" id="org.codice.ddf.ui.filter.RedirectServlet">
+    <OCD name="Search UI Redirect" id="org.codice.ddf.ui.searchui.filter.RedirectServlet">
         <AD
                 description="Specifies the redirect URI to use when accessing the /search URI."
                 name="Redirect URI" id="defaultUri" required="true" type="String"
-                default="/searchui2"
+                default="/search/standard"
                 />
     </OCD>
 
-    <Designate 	pid="org.codice.ddf.ui.filter.RedirectServlet">
-        <Object ocdref="org.codice.ddf.ui.filter.RedirectServlet" />
+    <Designate 	pid="org.codice.ddf.ui.searchui.filter.RedirectServlet">
+        <Object ocdref="org.codice.ddf.ui.searchui.filter.RedirectServlet" />
     </Designate>
 
 </metatype:MetaData>
