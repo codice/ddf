@@ -118,6 +118,19 @@ define(function (require) {
             };
         },
 
+        expandExtent: function (extent) {
+            var scalingFactor = 0.25;
+
+            var widthGap = Math.abs(extent.east) - Math.abs(extent.west);
+            var heightGap = Math.abs(extent.north) - Math.abs(extent.south);
+            extent.east = extent.east + Math.abs(scalingFactor * widthGap);
+            extent.north = extent.north + Math.abs(scalingFactor * heightGap);
+            extent.south = extent.south - Math.abs(scalingFactor * heightGap);
+            extent.west = extent.west - Math.abs(scalingFactor * widthGap);
+
+            return extent;
+        },
+
         flyToLocation: function (model) {
             console.log('flying to model dest:  ', model.toJSON());
             var destination, flight, extent;
@@ -132,7 +145,7 @@ define(function (require) {
 
                 extent = Cesium.Extent.fromCartographicArray(cartArray);
                 flight = Cesium.CameraFlightPath.createAnimationExtent(this.mapViewer.scene, {
-                    destination: extent
+                    destination: this.expandExtent(extent)
                 });
             }
             else {
