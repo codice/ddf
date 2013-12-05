@@ -48,22 +48,22 @@ import ddf.catalog.util.RelevanceResultComparator;
 import ddf.catalog.util.TemporalResultComparator;
 
 /**
- * This class represents a {@link FederationStrategy} based on sorting {@link Metacard}s. The
- * sorting is based on the {@link Query}'s {@link SortBy} propertyName. The possible sorting values
- * are {@link Metacard.EFFECTIVE}, {@link Result.TEMPORAL}, {@link Result.DISTANCE}, or
- * {@link Result.RELEVANCE}. The supported ordering includes {@link SortOrder.DESCENDING} and
- * {@link SortOrder.ASCENDING}. For this class to function properly a sort value and sort order must
- * be provided.
- * 
- * @author ddf.isgs@lmco.com
+ * This class represents a {@link FederationStrategy} based on sorting
+ * {@link Metacard}s. The sorting is based on the {@link Query}'s {@link SortBy}
+ * propertyName. The possible sorting values are {@link Metacard.EFFECTIVE},
+ * {@link Result.TEMPORAL}, {@link Result.DISTANCE}, or {@link Result.RELEVANCE}
+ * . The supported ordering includes {@link SortOrder.DESCENDING} and
+ * {@link SortOrder.ASCENDING}. For this class to function properly a sort value
+ * and sort order must be provided.
  * 
  * @see Metacard
  * @see Query
  * @see SortBy
- * @deprecated - As of DDF v2.1.0.ALPHA1. SortedFederationStrategy has been moved to
- *             /ddf/trunk/catalog/federation, federation-impl is now a separate bundle containing
- *             federation strategy implementations
+ * @deprecated - SortedFederationStrategy has been moved to
+ *             catalog-core-federationstrategy, a separate bundle containing
+ *             federation strategy implementations.
  */
+@Deprecated
 public class SortedFederationStrategy extends AbstractFederationStrategy {
 
     /** The default comparator for sorting by {@link Result.RELEVANCE}, {@link SortOrder.DESCENDING} */

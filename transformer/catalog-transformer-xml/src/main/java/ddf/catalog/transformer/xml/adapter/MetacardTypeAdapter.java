@@ -20,12 +20,11 @@ import javax.xml.bind.annotation.adapters.XmlAdapter;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ddf.catalog.data.BasicTypes;
 import ddf.catalog.data.MetacardType;
+import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.transform.CatalogTransformerException;
 
 public class MetacardTypeAdapter extends XmlAdapter<String, MetacardType> {

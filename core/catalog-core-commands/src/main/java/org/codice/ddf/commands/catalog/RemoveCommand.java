@@ -19,18 +19,14 @@ import java.util.List;
 
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
+import org.codice.ddf.commands.catalog.facade.CatalogFacade;
 import org.fusesource.jansi.Ansi;
 
-import org.codice.ddf.commands.catalog.facade.CatalogFacade;
-
-import ddf.catalog.operation.DeleteRequestImpl;
 import ddf.catalog.operation.DeleteResponse;
+import ddf.catalog.operation.impl.DeleteRequestImpl;
 
 /**
  * Deletes records by ID.
- * 
- * @author Ashraf Barakat
- * @author ddf.isgs@lmco.com
  * 
  */
 @Command(scope = CatalogCommands.NAMESPACE, name = "remove", description = "Deletes a record from the Catalog.")

@@ -30,6 +30,13 @@ import org.slf4j.ext.XLogger;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 
+/**
+ * 
+ * @deprecated As of release 2.3.0, replaced by
+ *             ddf.catalog.operation.impl.QueryResponseImpl
+ * 
+ */
+@Deprecated
 public class QueryResponseImpl extends ResponseImpl<QueryRequest> implements QueryResponse {
 
     private static XLogger logger = new XLogger(LoggerFactory.getLogger(QueryResponseImpl.class));

@@ -55,7 +55,7 @@ import ddf.catalog.operation.UpdateRequest;
 import ddf.catalog.operation.UpdateRequestImpl;
 import ddf.catalog.plugin.PluginExecutionException;
 import ddf.catalog.plugin.StopProcessingException;
-import ddf.catalog.plugin.groomer.StandardMetacardGroomerPlugin;
+import ddf.catalog.plugin.groomer.metacard.StandardMetacardGroomerPlugin;
 
 /**
  * Tests the class {@link StandardMetacardGroomerPlugin}

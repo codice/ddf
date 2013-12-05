@@ -40,12 +40,13 @@ import org.opengis.filter.sort.SortBy;
 import org.opengis.filter.sort.SortOrder;
 
 import ddf.catalog.data.Result;
-import ddf.catalog.filter.SortByImpl;
+import ddf.catalog.filter.impl.SortByImpl;
 import ddf.catalog.impl.filter.SpatialDistanceFilter;
 import ddf.catalog.impl.filter.SpatialFilter;
 import ddf.catalog.impl.filter.TemporalFilter;
 import ddf.catalog.operation.Query;
-import ddf.catalog.operation.QueryImpl;
+import ddf.catalog.operation.impl.QueryImpl;
+
 
 public class TestOpenSearchSiteUtil {
     private final StringBuilder url = new StringBuilder(

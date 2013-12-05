@@ -49,24 +49,20 @@ import org.junit.Test;
 import org.xml.sax.SAXException;
 
 import ddf.catalog.data.AttributeDescriptor;
-import ddf.catalog.data.BasicTypes;
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
-import ddf.catalog.data.MetacardImpl;
 import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.Result;
-import ddf.catalog.data.ResultImpl;
+import ddf.catalog.data.impl.BasicTypes;
+import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.data.impl.ResultImpl;
 import ddf.catalog.operation.SourceResponse;
-import ddf.catalog.operation.SourceResponseImpl;
+import ddf.catalog.operation.impl.SourceResponseImpl;
 import ddf.catalog.transform.CatalogTransformerException;
-import ddf.catalog.transformer.xml.XmlMetacardTransformer;
 import ddf.catalog.transformer.xml.XmlResponseQueueTransformer;
 
 /**
  * Tests the {@link XmlResponseQueueTransformer} transformations
- * 
- * @author Ashraf Barakat
- * @author ddf.isgs@lmco.com
  * 
  */
 public class TestXmlResponseQueueTransformer {

@@ -18,9 +18,14 @@ import java.io.Serializable;
 import java.util.Map;
 
 /**
- * The ResponseImpl class provides a generic means of providing a {@link Response} on operations.
+ * The ResponseImpl class provides a generic means of providing a
+ * {@link Response} on operations.
+ * 
+ * @deprecated As of release 2.3.0, replaced by
+ *             ddf.catalog.operation.impl.ResponseImpl
  * 
  */
+@Deprecated
 public class ResponseImpl<T extends Request> extends OperationImpl implements Response<T> {
 
     protected T request;

@@ -31,7 +31,6 @@ import ddf.camel.component.catalog.CatalogEndpoint;
 import ddf.camel.component.catalog.transformer.TransformerProducer;
 import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.transform.CatalogTransformerException;
-import ddf.catalog.transform.InputTransformer;
 import ddf.catalog.transform.QueryResponseTransformer;
 import ddf.mime.MimeTypeToTransformerMapper;
 

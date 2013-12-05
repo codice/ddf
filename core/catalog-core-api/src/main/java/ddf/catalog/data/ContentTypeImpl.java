@@ -19,11 +19,14 @@ import java.net.URI;
 /**
  * This class is a common implementation of the {@link ContentType} interface.
  * 
- * It is used to return the list of {@link ContentType}s currently stored in a {@link Source}.
+ * It is used to return the list of {@link ContentType}s currently stored in a
+ * {@link Source}.
  * 
- * @author ddf.isgs@lmco.com
+ * @deprecated As of release 2.3.0, replaced by
+ *             ddf.catalog.data.impl.ContentTypeImpl
  * 
  */
+@Deprecated
 public class ContentTypeImpl implements ContentType {
 
     private static final int HASHCODE_OFFSET = 17;

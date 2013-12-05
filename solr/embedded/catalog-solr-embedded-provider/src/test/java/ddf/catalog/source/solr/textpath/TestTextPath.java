@@ -26,12 +26,12 @@ import org.junit.Test;
 import org.opengis.filter.Filter;
 
 import ddf.catalog.data.Metacard;
-import ddf.catalog.data.MetacardImpl;
 import ddf.catalog.data.Result;
+import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.filter.proxy.adapter.GeotoolsFilterAdapterImpl;
-import ddf.catalog.operation.QueryImpl;
-import ddf.catalog.operation.QueryRequestImpl;
 import ddf.catalog.operation.SourceResponse;
+import ddf.catalog.operation.impl.QueryImpl;
+import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.source.IngestException;
 import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.source.solr.ConfigurationFileProxy;
@@ -46,7 +46,6 @@ import ddf.catalog.source.solr.SolrServerFactory;
 /**
  * Tests the TextPath support of the {@link SolrCatalogProvider}.
  * 
- * @author Phillip Klinefelter
  */
 @Ignore
 public class TestTextPath extends SolrProviderTestCase {

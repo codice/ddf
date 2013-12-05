@@ -26,7 +26,8 @@ import org.apache.camel.support.TypeConverterSupport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ddf.catalog.data.BinaryContentImpl;
+import ddf.catalog.data.impl.BinaryContentImpl;
+
 
 /**
  * An added CamelTypeConverter which can convert objects to a {@link ddf.catalog.data.BinaryContent}

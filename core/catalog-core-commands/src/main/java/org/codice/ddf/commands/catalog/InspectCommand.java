@@ -20,18 +20,17 @@ import java.util.Collection;
 
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
+import org.codice.ddf.commands.catalog.facade.CatalogFacade;
 import org.fusesource.jansi.Ansi;
 import org.opengis.filter.Filter;
-
-import org.codice.ddf.commands.catalog.facade.CatalogFacade;
 
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
-import ddf.catalog.operation.QueryImpl;
-import ddf.catalog.operation.QueryRequestImpl;
 import ddf.catalog.operation.SourceResponse;
+import ddf.catalog.operation.impl.QueryImpl;
+import ddf.catalog.operation.impl.QueryRequestImpl;
 
 @Command(scope = CatalogCommands.NAMESPACE, name = "inspect", description = "Provides the various fields of a metacard for inspection.")
 public class InspectCommand extends CatalogCommands {

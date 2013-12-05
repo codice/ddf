@@ -27,19 +27,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import org.codice.ddf.commands.catalog.facade.CatalogFacade;
+import org.codice.ddf.commands.catalog.facade.Framework;
 import org.fusesource.jansi.Ansi;
 import org.junit.Test;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 
-import org.codice.ddf.commands.catalog.facade.CatalogFacade;
-import org.codice.ddf.commands.catalog.facade.Framework;
-
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.Metacard;
-import ddf.catalog.data.MetacardImpl;
 import ddf.catalog.data.Result;
-import ddf.catalog.data.ResultImpl;
+import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.data.impl.ResultImpl;
 import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
 import ddf.catalog.operation.DeleteRequest;

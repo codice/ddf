@@ -26,11 +26,11 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 /**
  * This class is a common implementation of the {@link BinaryContent} interface.
  * 
- * @author ddf.isgs@lmco.com
- * 
+ * @deprecated As of release 2.3.0, replaced by
+ *             ddf.catalog.data.impl.BinaryContentImpl
  * 
  */
-
+@Deprecated
 public class BinaryContentImpl implements BinaryContent {
 
     private InputStream inputStream;

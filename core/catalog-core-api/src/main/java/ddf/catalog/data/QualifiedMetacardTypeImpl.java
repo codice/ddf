@@ -20,14 +20,15 @@ import java.util.Set;
  * Default implementation of the QualifiedMetacardType.
  * 
  * <p>
- * <b> This code is experimental. While this class is functional and tested, it may change or be
- * removed in a future version of the library. </b>
+ * <b> This code is experimental. While this class is functional and tested, it
+ * may change or be removed in a future version of the library. </b>
  * </p>
  * 
- * @author Ian Barnett
- * @author ddf.isgs@lmco.com
+ * @deprecated As of release 2.3.0, replaced by
+ *             ddf.catalog.data.impl.QualifiedMetacardTypeImpl
  * 
  */
+@Deprecated
 public class QualifiedMetacardTypeImpl extends MetacardTypeImpl implements QualifiedMetacardType {
 
     private static final long serialVersionUID = -5596051498437529825L;

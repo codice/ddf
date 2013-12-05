@@ -23,23 +23,26 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.ext.XLogger;
 
-import ddf.catalog.federation.AbstractFederationStrategy;
+import ddf.catalog.federation.base.AbstractFederationStrategy;
 import ddf.catalog.operation.Query;
-import ddf.catalog.operation.QueryResponseImpl;
 import ddf.catalog.operation.SourceResponse;
+import ddf.catalog.operation.impl.QueryResponseImpl;
 import ddf.catalog.plugin.PostFederatedQueryPlugin;
 import ddf.catalog.plugin.PreFederatedQueryPlugin;
 import ddf.catalog.source.Source;
 
 /**
- * The Class {@code FifoFederationStrategy} represents a First In First Out (FIFO) federation
- * strategy that returns results in the order they are received. This means that the first results
- * received by this strategy are the first results sent back to the client. </br><b>WARNING - This
- * class does not support the timeout parameter from the {@code Query}<b/>
+ * The Class {@code FifoFederationStrategy} represents a First In First Out
+ * (FIFO) federation strategy that returns results in the order they are
+ * received. This means that the first results received by this strategy are the
+ * first results sent back to the client. </br><b>WARNING - This class does not
+ * support the timeout parameter from the {@code Query}<b/>
  * 
- * @author ddf.isgs@lmco.com
+ * @deprecated This strategy is not recommended, not used, and not maintained.
+ *             Use ddf.catalog.federation.impl.SortedFederationStrategy instead.
  * @see SortedFederationStrategy
  */
+@Deprecated
 public class FifoFederationStrategy extends AbstractFederationStrategy {
 
     private static XLogger logger = new XLogger(

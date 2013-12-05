@@ -18,7 +18,6 @@ import static org.apache.commons.lang.StringUtils.isNotBlank;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -28,22 +27,17 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.apache.log4j.Logger;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.embedded.EmbeddedSolrServer;
-import org.apache.solr.client.solrj.impl.CloudSolrServer;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.core.CoreContainer;
 import org.apache.solr.core.CoreDescriptor;
 import org.apache.solr.core.SolrConfig;
 import org.apache.solr.core.SolrCore;
-import org.apache.solr.core.SolrResourceLoader;
 import org.apache.solr.schema.IndexSchema;
 import org.xml.sax.SAXException;
 
 /**
  * Factory that creates {@link SolrServer} instances. Currently will create a
  * {@link EmbeddedSolrServer} instance.
- * 
- * @author Ashraf Barakat
- * @author ddf.isgs@lmco.com
  * 
  */
 public final class SolrServerFactory {

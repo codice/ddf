@@ -31,17 +31,14 @@ import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;
 import org.junit.Test;
 
-import ddf.catalog.data.AttributeImpl;
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.MetacardTransformer;
 
 /**
  * Unit tests the {@link AttributeMetacardTransformer}
- * 
- * @author Ashraf Barakat
- * @author ddf.isgs@lmco.com
  * 
  */
 public class TestAttributeMetacardTransformer {

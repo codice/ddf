@@ -19,6 +19,13 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * 
+ * @deprecated As of release 2.3.0, replaced by
+ *             ddf.catalog.operation.impl.OperationImpl
+ * 
+ */
+@Deprecated
 public abstract class OperationImpl implements Operation {
 
     protected Map<String, Serializable> properties;

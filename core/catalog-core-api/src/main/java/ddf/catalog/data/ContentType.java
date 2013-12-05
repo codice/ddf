@@ -19,8 +19,6 @@ import java.net.URI;
 /**
  * Used to return the type and version of the content that is currently stored in a {@link Source}.
  * 
- * @author ddf.isgs@lmco.com
- * 
  */
 public interface ContentType {
 

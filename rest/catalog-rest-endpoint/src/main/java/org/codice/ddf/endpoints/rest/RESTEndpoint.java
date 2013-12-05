@@ -14,46 +14,17 @@
  **/
 package org.codice.ddf.endpoints.rest;
 
-import ddf.catalog.CatalogFramework;
-import ddf.catalog.data.AttributeImpl;
-import ddf.catalog.data.BinaryContent;
-import ddf.catalog.data.BinaryContentImpl;
-import ddf.catalog.data.ContentType;
-import ddf.catalog.data.Metacard;
-import ddf.catalog.data.MetacardCreationException;
-import ddf.catalog.data.Result;
-import ddf.catalog.federation.FederationException;
-import ddf.catalog.filter.FilterBuilder;
-import ddf.catalog.operation.CreateRequestImpl;
-import ddf.catalog.operation.CreateResponse;
-import ddf.catalog.operation.DeleteRequestImpl;
-import ddf.catalog.operation.QueryImpl;
-import ddf.catalog.operation.QueryRequestImpl;
-import ddf.catalog.operation.QueryResponse;
-import ddf.catalog.operation.SourceInfoRequestEnterprise;
-import ddf.catalog.operation.SourceInfoResponse;
-import ddf.catalog.operation.UpdateRequestImpl;
-import ddf.catalog.resource.Resource;
-import ddf.catalog.source.IngestException;
-import ddf.catalog.source.SourceDescriptor;
-import ddf.catalog.source.SourceUnavailableException;
-import ddf.catalog.source.UnsupportedQueryException;
-import ddf.catalog.transform.CatalogTransformerException;
-import ddf.catalog.transform.InputTransformer;
-import ddf.mime.MimeTypeToTransformerMapper;
-import ddf.security.SecurityConstants;
-import ddf.security.Subject;
-import ddf.security.service.SecurityManager;
-import ddf.security.service.SecurityServiceException;
-import ddf.security.service.TokenRequestHandler;
-import net.minidev.json.JSONArray;
-import net.minidev.json.JSONObject;
-import net.minidev.json.JSONValue;
-
-import org.apache.commons.io.IOUtils;
-import org.opengis.filter.Filter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.Serializable;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 import javax.activation.MimeType;
 import javax.activation.MimeTypeParseException;
@@ -73,17 +44,48 @@ import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.Serializable;
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+
+import net.minidev.json.JSONArray;
+import net.minidev.json.JSONObject;
+import net.minidev.json.JSONValue;
+
+import org.apache.commons.io.IOUtils;
+import org.opengis.filter.Filter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import ddf.catalog.CatalogFramework;
+import ddf.catalog.data.BinaryContent;
+import ddf.catalog.data.ContentType;
+import ddf.catalog.data.Metacard;
+import ddf.catalog.data.MetacardCreationException;
+import ddf.catalog.data.Result;
+import ddf.catalog.data.impl.AttributeImpl;
+import ddf.catalog.data.impl.BinaryContentImpl;
+import ddf.catalog.federation.FederationException;
+import ddf.catalog.filter.FilterBuilder;
+import ddf.catalog.operation.CreateResponse;
+import ddf.catalog.operation.QueryResponse;
+import ddf.catalog.operation.SourceInfoResponse;
+import ddf.catalog.operation.impl.CreateRequestImpl;
+import ddf.catalog.operation.impl.DeleteRequestImpl;
+import ddf.catalog.operation.impl.QueryImpl;
+import ddf.catalog.operation.impl.QueryRequestImpl;
+import ddf.catalog.operation.impl.SourceInfoRequestEnterprise;
+import ddf.catalog.operation.impl.UpdateRequestImpl;
+import ddf.catalog.resource.Resource;
+import ddf.catalog.source.IngestException;
+import ddf.catalog.source.SourceDescriptor;
+import ddf.catalog.source.SourceUnavailableException;
+import ddf.catalog.source.UnsupportedQueryException;
+import ddf.catalog.transform.CatalogTransformerException;
+import ddf.catalog.transform.InputTransformer;
+import ddf.mime.MimeTypeToTransformerMapper;
+import ddf.security.SecurityConstants;
+import ddf.security.Subject;
+import ddf.security.service.SecurityManager;
+import ddf.security.service.SecurityServiceException;
+import ddf.security.service.TokenRequestHandler;
 
 @Path("/")
 public class RESTEndpoint {

@@ -21,10 +21,6 @@ import java.util.Set;
 /**
  * This class describes the set of attributes a {@link Metacard} can contain.
  * 
- * @author Michael Menousek
- * @author Ashraf Barakat
- * @author ddf.isgs@lmco.com
- * 
  */
 public interface MetacardType extends Serializable {
 

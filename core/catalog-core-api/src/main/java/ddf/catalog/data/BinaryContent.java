@@ -24,8 +24,6 @@ import ddf.catalog.transform.QueryResponseTransformer;
 /**
  * {@link BinaryContent} is used to return a format that has been transformed by a Transformer.
  * 
- * @author ddf.isgs@lmco.com
- * 
  * @see InputTransformer
  * @see QueryResponseTransformer
  */

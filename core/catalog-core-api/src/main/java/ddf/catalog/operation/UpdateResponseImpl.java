@@ -24,8 +24,14 @@ import org.apache.log4j.Logger;
 import ddf.catalog.data.Metacard;
 
 /**
- * The UpdateResponseImpl represents a default implementation of an {@link UpdateRequest}
+ * The UpdateResponseImpl represents a default implementation of an
+ * {@link UpdateRequest}
+ * 
+ * @deprecated As of release 2.3.0, replaced by
+ *             ddf.catalog.operation.impl.UpdateResponseImpl
+ * 
  */
+@Deprecated
 public class UpdateResponseImpl extends ResponseImpl<UpdateRequest> implements UpdateResponse {
 
     private static Logger LOGGER = Logger.getLogger(UpdateResponseImpl.class.getName());

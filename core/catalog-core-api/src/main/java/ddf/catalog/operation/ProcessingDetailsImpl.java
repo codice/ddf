@@ -17,8 +17,13 @@ package ddf.catalog.operation;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.opengis.filter.Filter;
-
+/**
+ * 
+ * @deprecated As of release 2.3.0, replaced by
+ *             ddf.catalog.operation.impl.ProcessingDetailsImpl
+ * 
+ */
+@Deprecated
 public class ProcessingDetailsImpl extends SourceProcessingDetailsImpl implements ProcessingDetails {
 
     protected String sourceId = null;

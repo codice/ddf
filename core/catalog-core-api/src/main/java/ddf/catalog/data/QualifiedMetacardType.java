@@ -25,9 +25,6 @@ package ddf.catalog.data;
  * removed in a future version of the library. </b>
  * </p>
  * 
- * @author Ian Barnett
- * @author ddf.isgs@lmco.com
- * 
  */
 public interface QualifiedMetacardType extends MetacardType {
 

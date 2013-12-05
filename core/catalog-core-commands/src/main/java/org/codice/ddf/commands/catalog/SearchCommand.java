@@ -19,17 +19,16 @@ import java.io.PrintStream;
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
+import org.codice.ddf.commands.catalog.facade.CatalogFacade;
 import org.fusesource.jansi.Ansi;
 import org.joda.time.DateTime;
 import org.opengis.filter.Filter;
 
-import org.codice.ddf.commands.catalog.facade.CatalogFacade;
-
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
-import ddf.catalog.operation.QueryImpl;
-import ddf.catalog.operation.QueryRequestImpl;
 import ddf.catalog.operation.SourceResponse;
+import ddf.catalog.operation.impl.QueryImpl;
+import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.util.XPathHelper;
 
 @Command(scope = CatalogCommands.NAMESPACE, name = "search", description = "Searches records in the catalog provider.")

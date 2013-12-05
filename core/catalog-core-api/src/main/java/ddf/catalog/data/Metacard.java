@@ -35,8 +35,6 @@ import java.util.Date;
  * standard properties: id, title, document, location, source name, dates(created, modified,
  * effective, expiration), and thumbnail.
  * 
- * @author ddf.isgs@lmco.com
- * 
  * @see BasicTypes
  * @see BasicTypes#BASIC_METACARD
  */

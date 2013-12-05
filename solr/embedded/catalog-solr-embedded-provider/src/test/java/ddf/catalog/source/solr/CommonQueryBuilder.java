@@ -14,7 +14,6 @@
  **/
 package ddf.catalog.source.solr;
 
-import java.util.Arrays;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -32,14 +31,13 @@ import org.opengis.filter.Filter;
 import org.opengis.filter.FilterFactory;
 import org.opengis.filter.PropertyIsEqualTo;
 import org.opengis.filter.PropertyIsLike;
-import org.opengis.filter.expression.Expression;
 import org.opengis.geometry.Geometry;
 import org.opengis.temporal.Instant;
 import org.opengis.temporal.Period;
 
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
-import ddf.catalog.operation.QueryImpl;
+import ddf.catalog.operation.impl.QueryImpl;
 
 public class CommonQueryBuilder {
 

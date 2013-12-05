@@ -25,9 +25,10 @@ import ddf.catalog.source.SourceDescriptor;
 /**
  * Comparator for the sourceId of 2 {@link SourceDescriptor} objects
  * 
- * @author ddf.isgs@lmco.com
- * 
+ * @deprecated As of release 2.3.0, replaced by
+ *             ddf.catalog.util.impl.SourceDescriptorComparator
  */
+@Deprecated
 public class SourceDescriptorComparator implements Comparator<SourceDescriptor> {
 
     private Logger logger = LoggerFactory.getLogger(SourceDescriptorComparator.class);

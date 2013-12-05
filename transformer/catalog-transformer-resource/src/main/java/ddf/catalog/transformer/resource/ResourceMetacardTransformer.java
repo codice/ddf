@@ -28,12 +28,12 @@ import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.operation.ResourceRequest;
-import ddf.catalog.operation.ResourceRequestById;
 import ddf.catalog.operation.ResourceResponse;
+import ddf.catalog.operation.impl.ResourceRequestById;
 import ddf.catalog.resource.Resource;
-import ddf.catalog.resource.ResourceImpl;
 import ddf.catalog.resource.ResourceNotFoundException;
 import ddf.catalog.resource.ResourceNotSupportedException;
+import ddf.catalog.resource.impl.ResourceImpl;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.MetacardTransformer;
 
@@ -41,10 +41,6 @@ import ddf.catalog.transform.MetacardTransformer;
  * 
  * This transformer uses the Catalog Framework to obtain and return the resource based on the
  * metacard id.
- * 
- * @author Tim Anderson
- * @author Ashraf Barakat
- * @author ddf.isgs@lmco.com
  * 
  */
 public class ResourceMetacardTransformer implements MetacardTransformer {
@@ -91,22 +87,27 @@ public class ResourceMetacardTransformer implements MetacardTransformer {
             sourceName = catalogFramework.getId();
         }
 
+        String resourceUriAscii = "";
+        if (metacard.getResourceURI() != null) {
+        	resourceUriAscii = metacard.getResourceURI().toASCIIString();
+        }
+        
         try {
             resourceResponse = catalogFramework.getResource(resourceRequest, sourceName);
         } catch (IOException e) {
             throw new CatalogTransformerException(retrieveResourceFailureMessage(id, sourceName,
-                    metacard.getResourceURI().toASCIIString(), e.getMessage()), e);
+                    resourceUriAscii, e.getMessage()), e);
         } catch (ResourceNotFoundException e) {
             throw new CatalogTransformerException(retrieveResourceFailureMessage(id, sourceName,
-                    metacard.getResourceURI().toASCIIString(), e.getMessage()), e);
+                    resourceUriAscii, e.getMessage()), e);
         } catch (ResourceNotSupportedException e) {
             throw new CatalogTransformerException(retrieveResourceFailureMessage(id, sourceName,
-                    metacard.getResourceURI().toASCIIString(), e.getMessage()), e);
+                    resourceUriAscii, e.getMessage()), e);
         }
 
         if (resourceResponse == null) {
             throw new CatalogTransformerException(retrieveResourceFailureMessage(id, sourceName,
-                    metacard.getResourceURI().toASCIIString()));
+                    resourceUriAscii));
         }
 
         Resource transformedContent = resourceResponse.getResource();
@@ -143,7 +144,7 @@ public class ResourceMetacardTransformer implements MetacardTransformer {
      * 
      * @param metacard
      *            The metacard to be validated.
-     * @return boolean indicating valid.
+     * @return boolean indicating validity.
      */
     private boolean isValid(Metacard metacard) {
         boolean valid = true;

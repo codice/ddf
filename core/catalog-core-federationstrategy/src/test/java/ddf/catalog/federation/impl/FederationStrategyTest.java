@@ -48,23 +48,23 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ddf.catalog.CatalogFrameworkImpl;
-import ddf.catalog.MockDelayProvider;
 import ddf.catalog.data.ContentType;
 import ddf.catalog.data.Metacard;
-import ddf.catalog.data.MetacardImpl;
 import ddf.catalog.data.Result;
-import ddf.catalog.federation.AbstractFederationStrategy;
+import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.federation.base.AbstractFederationStrategy;
 import ddf.catalog.federation.FederationException;
-import ddf.catalog.operation.CreateRequestImpl;
+import ddf.catalog.impl.CatalogFrameworkImpl;
+import ddf.catalog.impl.MockDelayProvider;
 import ddf.catalog.operation.CreateResponse;
 import ddf.catalog.operation.Query;
-import ddf.catalog.operation.QueryImpl;
 import ddf.catalog.operation.QueryRequest;
-import ddf.catalog.operation.QueryRequestImpl;
 import ddf.catalog.operation.QueryResponse;
-import ddf.catalog.operation.QueryResponseImpl;
 import ddf.catalog.operation.SourceResponse;
+import ddf.catalog.operation.impl.CreateRequestImpl;
+import ddf.catalog.operation.impl.QueryImpl;
+import ddf.catalog.operation.impl.QueryRequestImpl;
+import ddf.catalog.operation.impl.QueryResponseImpl;
 import ddf.catalog.plugin.PostFederatedQueryPlugin;
 import ddf.catalog.plugin.PostIngestPlugin;
 import ddf.catalog.plugin.PostQueryPlugin;
@@ -81,8 +81,8 @@ import ddf.catalog.source.IngestException;
 import ddf.catalog.source.Source;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
-import ddf.catalog.util.SourcePoller;
-import ddf.catalog.util.SourcePollerRunner;
+import ddf.catalog.util.impl.SourcePoller;
+import ddf.catalog.util.impl.SourcePollerRunner;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(AbstractFederationStrategy.class)
@@ -208,7 +208,7 @@ public class FederationStrategyTest {
      * 
      */
     @Test
-    public void testFederate_TwoSources_OffsetTwo_PageSizeThree() throws Exception {
+    public void testFederateTwoSourcesOffsetTwoPageSizeThree() throws Exception {
         LOGGER.debug("testFederate_TwoSources_OffsetTwo_PageSizeThree()");
         // Test Setup
         Query mockQuery = mock(QueryImpl.class);
@@ -227,7 +227,8 @@ public class FederationStrategyTest {
          * NOT used. So, the results returned by each source start at index 1 and end at (offset +
          * pageSize - 1).
          * 
-         * Number of results returned by each source = offset + pageSize - 1 4 = 2 + 3 - 1
+         * Number of results returned by each source = offset + pageSize - 1 
+         * 4 = 2 + 3 - 1
          */
         Result mockSource1Result1 = mock(Result.class);
         Result mockSource1Result2 = mock(Result.class);
@@ -325,15 +326,15 @@ public class FederationStrategyTest {
          * 
          * Offset of 2 (start at result 2) and page size of 3 (end at result 4).
          */
-        assertEquals(3, federatedResponse.getResults().size());
-        assertEquals(mockSortedResult2, federatedResponse.getResults().get(0));
-        assertEquals(mockSortedResult3, federatedResponse.getResults().get(1));
-        assertEquals(mockSortedResult4, federatedResponse.getResults().get(2));
-
         LOGGER.debug("mockSortedResult1: " + mockSortedResult1);
         LOGGER.debug("mockSortedResult2: " + mockSortedResult2);
         LOGGER.debug("mockSortedResult3: " + mockSortedResult3);
         LOGGER.debug("mockSortedResult4: " + mockSortedResult4);
+        
+        assertEquals(3, federatedResponse.getResults().size());
+        assertEquals(mockSortedResult2, federatedResponse.getResults().get(0));
+        assertEquals(mockSortedResult3, federatedResponse.getResults().get(1));
+        assertEquals(mockSortedResult4, federatedResponse.getResults().get(2));
 
         for (Result result : federatedResponse.getResults()) {
             LOGGER.debug("federated response result: " + result);
@@ -348,7 +349,7 @@ public class FederationStrategyTest {
      * No special results handling done by OffsetResultsHandler.
      */
     @Test
-    public void testFederate_OneSource_OffsetTwo_PageSizeTwo() throws Exception {
+    public void testFederateOneSourceOffsetTwoPageSizeTwo() throws Exception {
         LOGGER.debug("testFederate_OneSource_OffsetTwo_PageSizeTwo()");
         // Test Setup
         Query mockQuery = mock(QueryImpl.class);
@@ -416,7 +417,7 @@ public class FederationStrategyTest {
      * No special results handling done by OffsetResultsHandler.
      */
     @Test
-    public void testFederate_TwoSources_OffsetOne_PageSizeThree() throws Exception {
+    public void testFederateTwoSourcesOffsetOnePageSizeThree() throws Exception {
         LOGGER.debug("testFederate_TwoSources_OffsetOne_PageSizeThree()");
         // Test Setup
         Query mockQuery = mock(QueryImpl.class);
@@ -515,7 +516,7 @@ public class FederationStrategyTest {
      * No special results handling done by OffsetResultsHandler.
      */
     @Test
-    public void testFederate_OneSource_OffsetOne_PageSizeTwo() throws Exception {
+    public void testFederateOneSourceOffsetOnePageSizeTwo() throws Exception {
         LOGGER.debug("testFederate_OneSource_OffsetOne_PageSizeTwo()");
         // Test Setup
         Query mockQuery = mock(QueryImpl.class);
@@ -574,446 +575,4 @@ public class FederationStrategyTest {
         }
     }
 
-    // Comment out the tests because they fails intermittently with "Wanted but not
-    // invoked:source.query(<Capturing argument>)=> verify(mockSource1).query( argument1.capture()
-    // );
-    //
-    // /**
-    // * Verify client offset is less than predefined max offset {@link
-    // ddf.catalog.federation.AbstractFederationStrategy#federate(List<Source>, QueryRequest)}
-    // */
-    // @Test
-    // public void testFederate_TwoSources_OffsetLessThanMaxOffset_PageSizeThree() throws Exception
-    // {
-    // LOGGER.debug("testFederate_TwoSources_OffsetGreaterThanMax_PageSizeThree()");
-    // // Test Setup
-    // int maxStartIndex = 6;
-    // int startIndex = 5;
-    // int pageSize = 3;
-    // int numSources = 2;
-    // int resultFromEachSource = startIndex + (pageSize - 1);
-    //
-    // Query mockQuery = mock( QueryImpl.class );
-    // // Offset of 5
-    // when ( mockQuery.getStartIndex() ).thenReturn( startIndex );
-    // // Page size of 3
-    // when( mockQuery.getPageSize() ).thenReturn( pageSize );
-    //
-    // QueryRequest queryRequest = mock( QueryRequest.class );
-    // when( queryRequest.getQuery() ).thenReturn( mockQuery );
-    // ArgumentCaptor<QueryRequest> argument1 = ArgumentCaptor.forClass(QueryRequest.class);
-    // ArgumentCaptor<QueryRequest> argument2 = ArgumentCaptor.forClass(QueryRequest.class);
-    //
-    // /**
-    // * When using a modified query to query the sources, the desired offset and page size are NOT
-    // used. So, the results returned by each source start at index 1 and end at (offset + pageSize
-    // - 1).
-    // *
-    // * Number of results returned by each source = offset + pageSize - 1
-    // * 7 = 5 + 3 - 1
-    // */
-    // List<Result> mockSource1Results = new ArrayList<Result>(resultFromEachSource);
-    // for (int i=0; i < resultFromEachSource - 1; i++) {
-    // mockSource1Results.add(mock(Result.class));
-    // }
-    //
-    // SourceResponse mockSource1Response = mock( SourceResponse.class );
-    // //List<Result> mockSource1Results = Arrays.asList(mockSource1Result1, mockSource1Result2,
-    // mockSource1Result3, mockSource1Result4);
-    // when(mockSource1Response.getResults()).thenReturn(mockSource1Results);
-    //
-    // Source mockSource1 = mock( Source.class );
-    // when( mockSource1.query( any( QueryRequest.class ) ) ).thenReturn( mockSource1Response );
-    // when( mockSource1.getId() ).thenReturn( "####### MOCK SOURCE 1.3 #######" );
-    //
-    // /**
-    // * When using a modified query to query the sources, the desired offset and page size are NOT
-    // used. So, the results returned by each source start at index 1 and end at (offset + pageSize
-    // - 1).
-    // *
-    // * Number of results returned by each source = offset + pageSize - 1
-    // * 7 = 5 + 3 - 1
-    // */
-    // List<Result> mockSource2Results = new ArrayList<Result>(resultFromEachSource);
-    // for (int i=0; i < resultFromEachSource - 1; i++) {
-    // mockSource1Results.add(mock(Result.class));
-    // }
-    //
-    // SourceResponse mockSource2Response = mock( SourceResponse.class );
-    // //List<Result> mockSource2Results = Arrays.asList(mockSource2Result1, mockSource2Result2,
-    // mockSource2Result3, mockSource2Result4);
-    // when(mockSource2Response.getResults()).thenReturn(mockSource2Results);
-    //
-    // Source mockSource2 = mock( Source.class );
-    // when( mockSource2.query( any( QueryRequest.class ) ) ).thenReturn( mockSource2Response );
-    // when( mockSource2.getId() ).thenReturn( "####### MOCK SOURCE 2.3 #######" );
-    //
-    // // Two sources
-    // List<Source> sources = new ArrayList<Source>(numSources);
-    // sources.add( mockSource1 );
-    // sources.add( mockSource2 );
-    //
-    // int totalResults = numSources * resultFromEachSource;
-    // List<Result> mockSortedResults = new ArrayList<Result>(totalResults);
-    //
-    // LOGGER.debug("resultCount = " + totalResults);
-    // for (int i=0; i < totalResults; i++) {
-    // mockSortedResults.add(mock(Result.class));
-    // }
-    //
-    // //List<Result> mockSortedResults = Arrays.asList(mockSortedResult1, mockSortedResult2,
-    // mockSortedResult3, mockSortedResult4, mockSortedResult5, mockSortedResult6,
-    // mockSortedResult7, mockSortedResult8);
-    //
-    // QueryResponseImpl mockOriginalResults = Mockito.mock( QueryResponseImpl.class );
-    // // Return true for the number of mockSortedResults
-    // Mockito.when( mockOriginalResults.hasMoreResults() ).thenReturn( true, true, true, true,
-    // true, true, true, true, true, true, true, true, true, true, false );
-    // Mockito.when( mockOriginalResults.getResults() ).thenReturn( mockSortedResults );
-    // // Returns the sorted results from both sources (4 + 4 = 8)
-    // Mockito.when( mockOriginalResults.take() ).thenReturn(mockSortedResults.get(0),
-    // mockSortedResults.get(1), mockSortedResults.get(2), mockSortedResults.get(3),
-    // mockSortedResults.get(4), mockSortedResults.get(5), mockSortedResults.get(6),
-    // mockSortedResults.get(7), mockSortedResults.get(8),
-    // mockSortedResults.get(9),mockSortedResults.get(10),mockSortedResults.get(11),mockSortedResults.get(12),
-    // mockSortedResults.get(13));
-    // QueryResponseImpl offsetResultQueue = new QueryResponseImpl(queryRequest, null);
-    // PowerMockito.whenNew(QueryResponseImpl.class).withArguments( queryRequest, (Map<String,
-    // Serializable>) null ).thenReturn(mockOriginalResults, offsetResultQueue);
-    //
-    // FederationStrategy strategy = new SortedFederationStrategy( EXECUTOR );
-    //
-    // // Set Max Start Index
-    // AbstractFederationStrategy abstractFederationStrategry = (AbstractFederationStrategy)
-    // strategy;
-    // abstractFederationStrategry.setMaxStartIndex(maxStartIndex);
-    //
-    // // Run Test
-    // QueryResponse federatedResponse = strategy.federate( sources, queryRequest );
-    //
-    // // Verification
-    // assertNotNull(federatedResponse);
-    // verify(mockSource1).query( argument1.capture() );
-    //
-    // // The modified query should have a start index of 1 and an end index of offset + pageSize -
-    // 1
-    // assertEquals(1, argument1.getValue().getQuery().getStartIndex());
-    // assertEquals(7, argument1.getValue().getQuery().getPageSize());
-    //
-    // verify(mockSource2).query( argument2.capture() );
-    // assertThat(mockQuery, not(argument2.getValue().getQuery()));
-    // // The modified query should have a start index of 1 and an end index of offset + pageSize -
-    // 1
-    // assertEquals(1, argument2.getValue().getQuery().getStartIndex());
-    // assertEquals(7, argument2.getValue().getQuery().getPageSize());
-    //
-    // /**
-    // * Verify three results (page size) are returned. The sorted results returned by the sources
-    // do NOT have the offset and page size taken into account,
-    // * so the offset and page size are applied to the sorted results in the OffsetResultHandler.
-    // *
-    // * Offset of 5 (start at result 4) and page size of 3 (end at result 6).
-    // */
-    // assertEquals(3, federatedResponse.getResults().size());
-    // assertEquals(mockSortedResults.get(4), federatedResponse.getResults().get( 0 ));
-    // assertEquals(mockSortedResults.get(5), federatedResponse.getResults().get( 1 ));
-    // assertEquals(mockSortedResults.get(6), federatedResponse.getResults().get( 2 ));
-    //
-    // LOGGER.debug("mockSortedResult5: " + mockSortedResults.get(4));
-    // LOGGER.debug("mockSortedResult6: " + mockSortedResults.get(5));
-    // LOGGER.debug("mockSortedResult7: " + mockSortedResults.get(6));
-    //
-    // for(Result result :federatedResponse.getResults() )
-    // {
-    // LOGGER.debug("federated response result: " + result);
-    // }
-    // }
-    //
-    // /**
-    // * Verify client offset is greater than predefined max offset {@link
-    // ddf.catalog.federation.AbstractFederationStrategy#federate(List<Source>, QueryRequest)}
-    // */
-    // @Test
-    // public void testFederate_TwoSources_OffsetGreaterThanMaxOffset_PageSizeThree() throws
-    // Exception {
-    // LOGGER.debug("testFederate_TwoSources_OffsetGreaterThanMax_PageSizeThree()");
-    // // Test Setup
-    // int maxStartIndex = 6;
-    // int startIndex = 7;
-    // int pageSize = 3;
-    // int numSources = 2;
-    // int resultFromEachSource = maxStartIndex + (pageSize - 1);
-    //
-    // Query mockQuery = mock( QueryImpl.class );
-    // // Offset of 7
-    // when ( mockQuery.getStartIndex() ).thenReturn( startIndex );
-    // // Page size of 3
-    // when( mockQuery.getPageSize() ).thenReturn( pageSize );
-    //
-    // QueryRequest queryRequest = mock( QueryRequest.class );
-    // when( queryRequest.getQuery() ).thenReturn( mockQuery );
-    // ArgumentCaptor<QueryRequest> argument1 = ArgumentCaptor.forClass(QueryRequest.class);
-    // ArgumentCaptor<QueryRequest> argument2 = ArgumentCaptor.forClass(QueryRequest.class);
-    //
-    //
-    //
-    // /**
-    // * When using a modified query to query the sources, the desired offset and page size are NOT
-    // used. So, the results returned by each source start at index 1 and end at (offset + pageSize
-    // - 1).
-    // *
-    // * Number of results returned by each source = offset + pageSize - 1
-    // * 8 = 6 + 3 - 1
-    // */
-    // List<Result> mockSource1Results = new ArrayList<Result>(resultFromEachSource);
-    // for (int i=0; i < resultFromEachSource - 1; i++) {
-    // mockSource1Results.add(mock(Result.class));
-    // }
-    //
-    // SourceResponse mockSource1Response = mock( SourceResponse.class );
-    // when(mockSource1Response.getResults()).thenReturn(mockSource1Results);
-    //
-    // Source mockSource1 = mock( Source.class );
-    // when( mockSource1.query( any( QueryRequest.class ) ) ).thenReturn( mockSource1Response );
-    // when( mockSource1.getId() ).thenReturn( "####### MOCK SOURCE 1.3 #######" );
-    //
-    // /**
-    // * When using a modified query to query the sources, the desired offset and page size are NOT
-    // used. So, the results returned by each source start at index 1 and end at (offset + pageSize
-    // - 1).
-    // *
-    // * Number of results returned by each source = offset + pageSize - 1
-    // * 8 = 6 + 3 - 1
-    // */
-    // List<Result> mockSource2Results = new ArrayList<Result>(resultFromEachSource);
-    // for (int i=0; i < resultFromEachSource - 1; i++) {
-    // mockSource2Results.add(mock(Result.class));
-    // }
-    //
-    // SourceResponse mockSource2Response = mock( SourceResponse.class );
-    // when(mockSource2Response.getResults()).thenReturn(mockSource2Results);
-    //
-    // Source mockSource2 = mock( Source.class );
-    // when( mockSource2.query( any( QueryRequest.class ) ) ).thenReturn( mockSource2Response );
-    // when( mockSource2.getId() ).thenReturn( "####### MOCK SOURCE 2.3 #######" );
-    //
-    // // Two sources
-    // List<Source> sources = new ArrayList<Source>(numSources);
-    // sources.add( mockSource1 );
-    // sources.add( mockSource2 );
-    //
-    // int totalResults = numSources * resultFromEachSource;
-    // List<Result> mockSortedResults = new ArrayList<Result>(totalResults);
-    //
-    // LOGGER.debug("resultCount = " + totalResults);
-    // for (int i=0; i < totalResults; i++) {
-    // mockSortedResults.add(mock(Result.class));
-    // }
-    //
-    // QueryResponseImpl mockOriginalResults = Mockito.mock( QueryResponseImpl.class );
-    // // Return true for the number of mockSortedResults
-    // Mockito.when( mockOriginalResults.hasMoreResults() ).thenReturn( true, true, true, true,
-    // true, true, true, true, true, true, true, true, true, true, true, true, false );
-    // Mockito.when( mockOriginalResults.getResults() ).thenReturn( mockSortedResults );
-    //
-    // // Returns the sorted results from both sources (8+8=16)
-    // Mockito.when( mockOriginalResults.take() ).thenReturn(mockSortedResults.get(0),
-    // mockSortedResults.get(1), mockSortedResults.get(2), mockSortedResults.get(3),
-    // mockSortedResults.get(4), mockSortedResults.get(5), mockSortedResults.get(6),
-    // mockSortedResults.get(7), mockSortedResults.get(8),
-    // mockSortedResults.get(9),mockSortedResults.get(10),mockSortedResults.get(11),mockSortedResults.get(12),
-    // mockSortedResults.get(13), mockSortedResults.get(14), mockSortedResults.get(15));
-    // QueryResponseImpl offsetResultQueue = new QueryResponseImpl(queryRequest, null);
-    // PowerMockito.whenNew(QueryResponseImpl.class).withArguments( queryRequest, (Map<String,
-    // Serializable>) null ).thenReturn(mockOriginalResults, offsetResultQueue);
-    //
-    // FederationStrategy strategy = new SortedFederationStrategy( EXECUTOR );
-    //
-    // // Set Max Start Index
-    // AbstractFederationStrategy abstractFederationStrategry = (AbstractFederationStrategy)
-    // strategy;
-    // abstractFederationStrategry.setMaxStartIndex(maxStartIndex);
-    //
-    // // Run Test
-    // QueryResponse federatedResponse = strategy.federate( sources, queryRequest );
-    //
-    // // Verification
-    // assertNotNull(federatedResponse);
-    // verify(mockSource1).query( argument1.capture() );
-    //
-    // // The modified query should have a start index of 1 and an end index of offset + pageSize -
-    // 1
-    // assertEquals(1, argument1.getValue().getQuery().getStartIndex());
-    // assertEquals(8, argument1.getValue().getQuery().getPageSize());
-    //
-    // verify(mockSource2).query( argument2.capture() );
-    // assertThat(mockQuery, not(argument2.getValue().getQuery()));
-    // // The modified query should have a start index of 1 and an end index of offset + pageSize -
-    // 1
-    // assertEquals(1, argument2.getValue().getQuery().getStartIndex());
-    // assertEquals(8, argument2.getValue().getQuery().getPageSize());
-    //
-    // /**
-    // * Verify three results (page size) are returned. The sorted results returned by the sources
-    // do NOT have the offset and page size taken into account,
-    // * so the offset and page size are applied to the sorted results in the OffsetResultHandler.
-    // *
-    // * Offset of 6 (start at result 5) and page size of 3 (end at result 7).
-    // */
-    // assertEquals(3, federatedResponse.getResults().size());
-    // assertEquals(mockSortedResults.get(5), federatedResponse.getResults().get( 0 ));
-    // assertEquals(mockSortedResults.get(6), federatedResponse.getResults().get( 1 ));
-    // assertEquals(mockSortedResults.get(7), federatedResponse.getResults().get( 2 ));
-    //
-    // LOGGER.debug("mockSortedResult6: " + mockSortedResults.get(5));
-    // LOGGER.debug("mockSortedResult7: " + mockSortedResults.get(6));
-    // LOGGER.debug("mockSortedResult8: " + mockSortedResults.get(7));
-    //
-    // for(Result result :federatedResponse.getResults() )
-    // {
-    // LOGGER.debug("federated response result: " + result);
-    // }
-    // }
-    //
-    // /**
-    // * Verify client offset equals predefined max offset {@link
-    // ddf.catalog.federation.AbstractFederationStrategy#federate(List<Source>, QueryRequest)}
-    // */
-    // @Test
-    // public void testFederate_TwoSources_OffsetEqualsMaxOffset_PageSizeThree() throws Exception {
-    // LOGGER.debug("testFederate_TwoSources_OffsetGreaterThanMax_PageSizeThree()");
-    // // Test Setup
-    // int maxStartIndex = 6;
-    // int startIndex = 6;
-    // int pageSize = 3;
-    // int numSources = 2;
-    // int resultFromEachSource = startIndex + (pageSize - 1);
-    //
-    // Query mockQuery = mock( QueryImpl.class );
-    // // Offset of 6
-    // when ( mockQuery.getStartIndex() ).thenReturn( startIndex );
-    // // Page size of 3
-    // when( mockQuery.getPageSize() ).thenReturn( pageSize);
-    //
-    // QueryRequest queryRequest = mock( QueryRequest.class );
-    // when( queryRequest.getQuery() ).thenReturn( mockQuery );
-    // ArgumentCaptor<QueryRequest> argument1 = ArgumentCaptor.forClass(QueryRequest.class);
-    // ArgumentCaptor<QueryRequest> argument2 = ArgumentCaptor.forClass(QueryRequest.class);
-    //
-    // /**
-    // * When using a modified query to query the sources, the desired offset and page size are NOT
-    // used. So, the results returned by each source start at index 1 and end at (offset + pageSize
-    // - 1).
-    // *
-    // * Number of results returned by each source = offset + pageSize - 1
-    // * 8 = 6 + 3 - 1
-    // */
-    // List<Result> mockSource1Results = new ArrayList<Result>(resultFromEachSource);
-    // for (int i=0; i < resultFromEachSource - 1; i++) {
-    // mockSource1Results.add(mock(Result.class));
-    // }
-    //
-    // SourceResponse mockSource1Response = mock( SourceResponse.class );
-    // when(mockSource1Response.getResults()).thenReturn(mockSource1Results);
-    //
-    // Source mockSource1 = mock( Source.class );
-    // when( mockSource1.query( any( QueryRequest.class ) ) ).thenReturn( mockSource1Response );
-    // when( mockSource1.getId() ).thenReturn( "####### MOCK SOURCE 1.3 #######" );
-    //
-    // /**
-    // * When using a modified query to query the sources, the desired offset and page size are NOT
-    // used. So, the results returned by each source start at index 1 and end at (offset + pageSize
-    // - 1).
-    // *
-    // * Number of results returned by each source = offset + pageSize - 1
-    // * 8 = 6 + 3 - 1
-    // */
-    // List<Result> mockSource2Results = new ArrayList<Result>(resultFromEachSource);
-    // for (int i=0; i < resultFromEachSource - 1; i++) {
-    // mockSource2Results.add(mock(Result.class));
-    // }
-    //
-    // SourceResponse mockSource2Response = mock( SourceResponse.class );
-    // when(mockSource2Response.getResults()).thenReturn(mockSource2Results);
-    //
-    // Source mockSource2 = mock( Source.class );
-    // when( mockSource2.query( any( QueryRequest.class ) ) ).thenReturn( mockSource2Response );
-    // when( mockSource2.getId() ).thenReturn( "####### MOCK SOURCE 2.3 #######" );
-    //
-    // // Two sources
-    // List<Source> sources = new ArrayList<Source>(2);
-    // sources.add( mockSource1 );
-    // sources.add( mockSource2 );
-    //
-    // int totalResults = numSources * resultFromEachSource;
-    // List<Result> mockSortedResults = new ArrayList<Result>(totalResults);
-    //
-    // LOGGER.debug("resultCount = " + totalResults);
-    // for (int i=0; i < totalResults; i++) {
-    // mockSortedResults.add(mock(Result.class));
-    // }
-    //
-    // QueryResponseImpl mockOriginalResults = Mockito.mock( QueryResponseImpl.class );
-    // // Return true for the number of mockSortedResults
-    // Mockito.when( mockOriginalResults.hasMoreResults() ).thenReturn( true, true, true, true,
-    // true, true, true, true, true, true, true, true, true, true, true, true, false );
-    // Mockito.when( mockOriginalResults.getResults() ).thenReturn( mockSortedResults );
-    // // Returns the sorted results from both sources (8 + 8 = 16)
-    // Mockito.when( mockOriginalResults.take() ).thenReturn(mockSortedResults.get(0),
-    // mockSortedResults.get(1), mockSortedResults.get(2), mockSortedResults.get(3),
-    // mockSortedResults.get(4), mockSortedResults.get(5), mockSortedResults.get(6),
-    // mockSortedResults.get(7), mockSortedResults.get(8),
-    // mockSortedResults.get(9),mockSortedResults.get(10),mockSortedResults.get(11),mockSortedResults.get(12),
-    // mockSortedResults.get(13), mockSortedResults.get(14), mockSortedResults.get(15));
-    // QueryResponseImpl offsetResultQueue = new QueryResponseImpl(queryRequest, null);
-    // PowerMockito.whenNew(QueryResponseImpl.class).withArguments( queryRequest, (Map<String,
-    // Serializable>) null ).thenReturn(mockOriginalResults, offsetResultQueue);
-    //
-    // FederationStrategy strategy = new SortedFederationStrategy( EXECUTOR );
-    //
-    // // Set Max Start Index
-    // AbstractFederationStrategy abstractFederationStrategry = (AbstractFederationStrategy)
-    // strategy;
-    // abstractFederationStrategry.setMaxStartIndex(maxStartIndex);
-    //
-    // // Run Test
-    // QueryResponse federatedResponse = strategy.federate( sources, queryRequest );
-    //
-    // // Verification
-    // assertNotNull(federatedResponse);
-    // verify(mockSource1).query( argument1.capture() );
-    //
-    // // The modified query should have a start index of 1 and an end index of offset + pageSize -
-    // 1
-    // assertEquals(1, argument1.getValue().getQuery().getStartIndex());
-    // assertEquals(8, argument1.getValue().getQuery().getPageSize());
-    //
-    // verify(mockSource2).query( argument2.capture() );
-    // assertThat(mockQuery, not(argument2.getValue().getQuery()));
-    // // The modified query should have a start index of 1 and an end index of offset + pageSize -
-    // 1
-    // assertEquals(1, argument2.getValue().getQuery().getStartIndex());
-    // assertEquals(8, argument2.getValue().getQuery().getPageSize());
-    //
-    // /**
-    // * Verify three results (page size) are returned. The sorted results returned by the sources
-    // do NOT have the offset and page size taken into account,
-    // * so the offset and page size are applied to the sorted results in the OffsetResultHandler.
-    // *
-    // * Offset of 6 (start at result 5) and page size of 3 (end at result 7).
-    // */
-    // assertEquals(3, federatedResponse.getResults().size());
-    // assertEquals(mockSortedResults.get(5), federatedResponse.getResults().get( 0 ));
-    // assertEquals(mockSortedResults.get(6), federatedResponse.getResults().get( 1 ));
-    // assertEquals(mockSortedResults.get(7), federatedResponse.getResults().get( 2 ));
-    //
-    // LOGGER.debug("mockSortedResult6: " + mockSortedResults.get(5));
-    // LOGGER.debug("mockSortedResult7: " + mockSortedResults.get(6));
-    // LOGGER.debug("mockSortedResult8: " + mockSortedResults.get(7));
-    //
-    // for(Result result :federatedResponse.getResults() )
-    // {
-    // LOGGER.debug("federated response result: " + result);
-    // }
-    // }
 }

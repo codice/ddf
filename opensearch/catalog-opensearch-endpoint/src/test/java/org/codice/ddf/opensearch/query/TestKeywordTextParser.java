@@ -20,7 +20,6 @@ import org.codice.ddf.endpoints.KeywordFilterGenerator;
 import org.codice.ddf.endpoints.KeywordTextParser;
 import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
-import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;

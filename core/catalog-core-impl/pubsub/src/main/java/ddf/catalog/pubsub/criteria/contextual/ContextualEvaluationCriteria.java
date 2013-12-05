@@ -16,7 +16,6 @@
 package ddf.catalog.pubsub.criteria.contextual;
 
 import org.apache.lucene.store.Directory;
-import org.w3c.dom.Document;
 
 public interface ContextualEvaluationCriteria {
 

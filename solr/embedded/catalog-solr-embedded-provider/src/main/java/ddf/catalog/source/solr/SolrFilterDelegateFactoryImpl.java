@@ -17,9 +17,6 @@ package ddf.catalog.source.solr;
 /**
  * Implementation that provides the original/base {@link SolrFilterDelegate}
  * 
- * @author Ashraf Barakat
- * @author ddf.isgs@lmco.com
- * 
  */
 public class SolrFilterDelegateFactoryImpl implements SolrFilterDelegateFactory {
 

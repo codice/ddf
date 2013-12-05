@@ -18,7 +18,7 @@
     <parent>
         <artifactId>core</artifactId>
         <groupId>ddf.catalog.core</groupId>
-        <version>2.3.0-SNAPSHOT</version>
+        <version>2.3.0.ALPHA1-SNAPSHOT</version>
     </parent>
 	
 	<artifactId>catalog-core-urlresourcereader</artifactId>
@@ -28,7 +28,7 @@
 	<dependencies>
 		<dependency>
 			<groupId>ddf.catalog.core</groupId>
-			<artifactId>catalog-core-api</artifactId>
+			<artifactId>catalog-core-api-impl</artifactId>
 		</dependency>
 		<dependency>
             <groupId>ddf.catalog.core</groupId>
@@ -85,7 +85,12 @@
 				<configuration>
 					<instructions>
 						<Bundle-SymbolicName>${project.artifactId};blueprint.graceperiod:=true;blueprint.timeout:=604800000</Bundle-SymbolicName>
-
+						<Private-Package>
+							ddf.catalog.resource.impl,
+							ddf.catalog.operation.impl,
+							ddf.catalog.data.impl,
+							ddf.catalog.util.impl	
+						</Private-Package>
                         <Export-Package>
 							ddf.catalog.resource.impl;version="${project.version}"
                         </Export-Package>

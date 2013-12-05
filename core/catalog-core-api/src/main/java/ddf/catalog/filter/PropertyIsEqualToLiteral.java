@@ -25,9 +25,11 @@ import org.opengis.filter.expression.PropertyName;
  * Simple implementation of filter that does not depend on GeoTools. Please use
  * {@link FilterBuilder} instead to create filters.
  * 
- * @author ddf.isgs@lmco.com
+ * @deprecated As of release 2.3.0, replaced by
+ *             ddf.catalog.filter.impl.PropertyIsEqualToEqual
  * 
  */
+@Deprecated
 public class PropertyIsEqualToLiteral implements PropertyIsEqualTo {
 
     private PropertyName propertyName;

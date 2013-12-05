@@ -21,8 +21,6 @@ import ddf.catalog.operation.Query;
  * a query. It adds a relevance score and distance in meters to the {@link Metacard}'s existing
  * attributes.
  * 
- * @author ddf.isgs@lmco.com
- * 
  * @see Query
  */
 public interface Result {

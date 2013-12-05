@@ -22,11 +22,10 @@ import static org.junit.Assert.assertThat;
 import java.util.Date;
 
 import org.apache.log4j.BasicConfigurator;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import ddf.action.Action;
-import ddf.catalog.data.MetacardImpl;
+import ddf.catalog.data.impl.MetacardImpl;
 
 public class TestViewMetacardActionProvider extends AbstractActionProviderTest {
 

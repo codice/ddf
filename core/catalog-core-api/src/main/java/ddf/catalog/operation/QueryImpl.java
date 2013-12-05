@@ -23,6 +23,13 @@ import org.opengis.filter.sort.SortBy;
 
 import ddf.catalog.Constants;
 
+/**
+ * 
+ * @deprecated As of release 2.3.0, replaced by
+ *             ddf.catalog.operation.impl.QueryImpl
+ * 
+ */
+@Deprecated
 public class QueryImpl implements Query {
 
     protected Filter filter = null;

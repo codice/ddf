@@ -43,10 +43,6 @@ import ddf.catalog.source.solr.textpath.SimplePathNode.NodeType;
  * <code>//</code> must be searched before <code>/</code> because <code>/</code> would be matched
  * first and <code>//</code> would never be explored.
  * 
- * @author Ashraf Barakat
- * @author Phillip Klinefelter
- * @author ddf.isgs@lmco.com
- * 
  */
 @SuppressWarnings({"InfiniteRecursion"})
 @BuildParseTree
