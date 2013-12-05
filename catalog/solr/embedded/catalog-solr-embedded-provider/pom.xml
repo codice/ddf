@@ -18,7 +18,7 @@
 	<parent>
 		<artifactId>catalog-solr-embedded-pom</artifactId>
 		<groupId>ddf.catalog.solr.embedded</groupId>
-		<version>2.3.0-SNAPSHOT</version>
+		<version>2.3.0.ALPHA1-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>catalog-solr-embedded-provider</artifactId>
@@ -89,7 +89,7 @@
 
 		<dependency>
 			<groupId>ddf.catalog.core</groupId>
-			<artifactId>catalog-core-api</artifactId>
+			<artifactId>catalog-core-api-impl</artifactId>
 		</dependency>
 
 		<dependency>
@@ -102,10 +102,6 @@
 			<artifactId>joda-time</artifactId>
 		</dependency>
 
-		<!-- Originally I was using xerces-2.4 but since Solr had compiled with 
-			a different version I was getting an AbstractMethodError, below is the version 
-			that allows us to get pass this error. It is required to start up the Embedded 
-			Solr instance. -->
 		<dependency>
 			<groupId>xerces</groupId>
 			<artifactId>xercesImpl</artifactId>
@@ -122,9 +118,9 @@
 		</dependency>
 
 		<dependency>
-                        <groupId>commons-collections</groupId>
-                        <artifactId>commons-collections</artifactId>
-                </dependency>
+        	<groupId>commons-collections</groupId>
+            <artifactId>commons-collections</artifactId>
+        </dependency>
 
 		<dependency>
 			<groupId>ddf.catalog.core</groupId>
@@ -251,6 +247,9 @@
 						<Private-Package>
 							ddf.catalog.source.solr;version="${project.version}",
 							ddf.catalog.source.solr.textpath;version="${project.version}",
+							ddf.catalog.data.impl,
+							ddf.catalog.operation.impl,
+							ddf.catalog.util.impl,
 							org.parboiled.*,
 							org.objectweb.asm,
 							org.objectweb.asm.signature,

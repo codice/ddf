@@ -34,30 +34,33 @@ import ddf.catalog.plugin.PreIngestPlugin;
 
 /**
  * <p>
- * This utility object sorts Services by their service rankings first and then breaks ties with
- * service ids. Its initial intent is to be used with {@link CatalogFramework} plugins, but can be
- * used with any service.
+ * This utility object sorts Services by their service rankings first and then
+ * breaks ties with service ids. Its initial intent is to be used with
+ * {@link CatalogFramework} plugins, but can be used with any service.
  * <p>
  * 
  * <p>
- * It is an implementation of {@link List} but is backed by a sorted {@link TreeMap} of
- * <ServiceReference, T> where the {@link ServiceReference} objects are what is used to maintain the
- * list order but the objects passed by this {@link List} to clients are the actual service objects
- * and not the service references.
+ * It is an implementation of {@link List} but is backed by a sorted
+ * {@link TreeMap} of <ServiceReference, T> where the {@link ServiceReference}
+ * objects are what is used to maintain the list order but the objects passed by
+ * this {@link List} to clients are the actual service objects and not the
+ * service references.
  * </p>
  * 
  * <p>
- * For instance if this was a SortedServiceList<PreIngestPlugin> object, then in the internal
- * TreeMap the {@link ServiceReference} objects would be maintained as keys but
- * {@link PreIngestPlugin} objects would be what is passed to clients. Therefore, a call to a
- * populated {@link SortedServiceList} list such as <code>list.get(0)</code> would return the first
- * {@link PreIngestPlugin} object.
+ * For instance if this was a SortedServiceList<PreIngestPlugin> object, then in
+ * the internal TreeMap the {@link ServiceReference} objects would be maintained
+ * as keys but {@link PreIngestPlugin} objects would be what is passed to
+ * clients. Therefore, a call to a populated {@link SortedServiceList} list such
+ * as <code>list.get(0)</code> would return the first {@link PreIngestPlugin}
+ * object.
  * </p>
- * 
- * @author ddf.isgs@lmco.com
  * 
  * @param <T>
+ * @deprecated As of release 2.3.0, replaced by
+ *             ddf.catalog.util.impl.SortedServiceList
  */
+@Deprecated
 public class SortedServiceList<T> implements List<T> {
 
     private static final String READ_ONLY_ERROR_MESSAGE = "This list is meant to be read only.";

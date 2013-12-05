@@ -24,13 +24,13 @@ import org.slf4j.ext.XLogger;
 
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.Metacard;
-import ddf.catalog.operation.CreateRequestImpl;
 import ddf.catalog.operation.CreateResponse;
-import ddf.catalog.operation.DeleteRequestImpl;
 import ddf.catalog.operation.DeleteResponse;
 import ddf.catalog.operation.Update;
-import ddf.catalog.operation.UpdateRequestImpl;
 import ddf.catalog.operation.UpdateResponse;
+import ddf.catalog.operation.impl.CreateRequestImpl;
+import ddf.catalog.operation.impl.DeleteRequestImpl;
+import ddf.catalog.operation.impl.UpdateRequestImpl;
 import ddf.catalog.source.IngestException;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.content.plugin.PluginExecutionException;
@@ -39,9 +39,6 @@ import ddf.content.plugin.PluginExecutionException;
  * Cataloger provides the create, update, and delete capabilities for entries in the Metadata
  * Catalog (MDC) by invoking the {@link CatalogFramework}. Cataloger is the single point of entry
  * from the Content Framework to the {@link CatalogFramework}.
- * 
- * @author Hugh Rodgers, Lockheed Martin
- * @author ddf.isgs@lmco.com
  * 
  */
 public class Cataloger {

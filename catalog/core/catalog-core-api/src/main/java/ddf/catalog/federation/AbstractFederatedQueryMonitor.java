@@ -24,7 +24,12 @@ import ddf.catalog.operation.QueryResponseImpl;
 import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.source.Source;
 
+/**
+ * @deprecated As of release 2.3.0, replaced by
+ *             ddf.catalog.federation.base.AbstractFederatedQueryMonitor
+ */
 @SuppressWarnings("unused")
+@Deprecated
 public abstract class AbstractFederatedQueryMonitor implements Runnable {
 
     private QueryResponse returnResults;

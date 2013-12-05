@@ -18,7 +18,6 @@ import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 
-import org.apache.commons.lang.StringUtils;
 import org.osgi.framework.BundleContext;
 import org.slf4j.LoggerFactory;
 import org.slf4j.ext.XLogger;
@@ -53,12 +52,6 @@ import ddf.content.storage.StorageProvider;
  * ContentFrameworkImpl is the core class of the DDF Content Framework. It is used for create,
  * update, delete, and content retrieval operations for content stored in the DDF Content
  * Repository.
- * 
- * @version 0.1.0
- * @since 2.1.0
- * 
- * @author Hugh Rodgers, Lockheed Martin
- * @author ddf.isgs@lmco.com
  * 
  */
 public class ContentFrameworkImpl implements ContentFramework {

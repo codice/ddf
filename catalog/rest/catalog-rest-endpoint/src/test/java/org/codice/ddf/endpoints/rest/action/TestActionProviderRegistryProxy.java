@@ -30,8 +30,6 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
 
-import ddf.action.ActionProvider;
-
 public class TestActionProviderRegistryProxy {
 
     private static final String SAMPLE_TRANSFORMER_ID = "sampleTransformerId";

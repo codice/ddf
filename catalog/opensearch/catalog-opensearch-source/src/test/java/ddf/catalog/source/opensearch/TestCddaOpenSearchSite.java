@@ -46,8 +46,8 @@ import org.slf4j.ext.XLogger;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.impl.filter.TemporalFilter;
 import ddf.catalog.operation.QueryRequest;
-import ddf.catalog.operation.QueryRequestImpl;
 import ddf.catalog.operation.SourceResponse;
+import ddf.catalog.operation.impl.QueryRequestImpl;
 
 public class TestCddaOpenSearchSite {
     private static final XLogger LOGGER = new XLogger(

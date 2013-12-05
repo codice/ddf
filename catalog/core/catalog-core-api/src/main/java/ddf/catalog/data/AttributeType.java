@@ -25,8 +25,6 @@ import ddf.catalog.source.Source;
  * <p>
  * {@link Attribute} values are bound to and the format expected to be used by those values
  * 
- * @author ddf.isgs@lmco.com
- * 
  * @param <T>
  *            - The class used by values of this {@link AttributeType}
  */

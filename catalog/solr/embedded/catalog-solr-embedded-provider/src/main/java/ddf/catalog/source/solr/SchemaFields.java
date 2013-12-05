@@ -24,8 +24,6 @@ import ddf.catalog.data.AttributeType.AttributeFormat;
  * Provides the mappings between {@link AttributeFormat} objects and the correct Solr suffix and
  * vice versa
  * 
- * @author ddf.isgs@lmco.com
- * 
  */
 public class SchemaFields {
 

@@ -18,6 +18,13 @@ import java.io.Serializable;
 import java.net.URI;
 import java.util.Map;
 
+/**
+ * 
+ * @deprecated As of release 2.3.0, replaced by
+ *             ddf.catalog.operation.impl.ResourceRequestByProductUri
+ * 
+ */
+@Deprecated
 public class ResourceRequestByProductUri extends OperationImpl implements ResourceRequest {
 
     protected String name;

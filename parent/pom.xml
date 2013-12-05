@@ -160,7 +160,7 @@
 	    <!--  default URL properties -->
 		<ddf.scm.connection.url />
 		<snapshots.repository.url />
-		<sitename.default>${project.groupId}</sitename.default>
+		<sitename.default>ddf.distribution</sitename.default>
 
 		<!-- DDF API versions -->
 		<ddf.action.api.version>1.0.0</ddf.action.api.version>
@@ -172,7 +172,7 @@
 		<ddf.security.expansion.service.api.version>1.0.0</ddf.security.expansion.service.api.version>
 		
 		<!-- Must MANUALLY update this if the ddf/support project's version changes -->
-		<ddf.support.checkstyle.version>2.3.0-SNAPSHOT</ddf.support.checkstyle.version>
+		<ddf.support.checkstyle.version>2.3.0.ALPHA1-SNAPSHOT</ddf.support.checkstyle.version>
 
         <!-- Do NOT set karaf.data or karaf.base -->
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -213,6 +213,7 @@
         <xmlunit.version>1.4</xmlunit.version>
 		<tika.version>1.2</tika.version>
 		<abdera.version>1.1.2</abdera.version>  <!-- Moved from catalog/pom.xml since now used by atom transformer and opensearch source -->
+        <shiro.version>1.2.1</shiro.version>
 
 		<!-- Endorsed Dependencies -->
 		<xalan.version>2.7.1</xalan.version>
@@ -245,11 +246,11 @@
 
         <!-- Features Versions -->
 		<cxf.version>2.7.5</cxf.version>
-        <!-- when upgrading the karaf version, ensure that the properties and cfg files in package-commons/.../distribution/etc/ are updated and compatible with the
-        latest karaf version.  Those configuration files in package-commons/.../distribution/etc have been copied from a previous version of Karaf, and are
+        <!-- when upgrading the karaf version, ensure that the properties and cfg files in ddf-commons/.../distribution/etc/ are updated and compatible with the
+        latest karaf version.  Those configuration files in ddf-commons/.../distribution/etc have been copied from a previous version of Karaf, and are
         source controlled because of some slight customizations that have been made to them.  -->
 		<karaf.version>2.3.2</karaf.version>
-		<camel.version>2.11.0</camel.version>
+		<camel.version>2.12.1</camel.version>
 		<cellar.version>2.3.0</cellar.version>
 
         <!--
@@ -964,7 +965,13 @@
 	            <artifactId>metrics-core</artifactId>
 	            <version>3.0.1</version>
 	        </dependency>
-
+          
+            <dependency>
+                <groupId>org.apache.shiro</groupId>
+                <artifactId>shiro-core</artifactId>
+                <version>${shiro.version}</version>
+            </dependency>
+            
 		</dependencies>
 	</dependencyManagement>
 

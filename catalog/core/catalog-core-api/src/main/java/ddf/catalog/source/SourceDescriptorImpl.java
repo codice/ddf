@@ -21,8 +21,14 @@ import ddf.catalog.data.ContentType;
 import ddf.catalog.util.DescribableImpl;
 
 /**
- * The Class SourceDescriptorImpl is the default representation of a {@link SourceDescriptor}.
+ * The Class SourceDescriptorImpl is the default representation of a
+ * {@link SourceDescriptor}.
+ * 
+ * @deprecated As of release 2.3.0, replaced by
+ *             ddf.catalog.source.impl.SourceDescriptorImpl
+ * 
  */
+@Deprecated
 public class SourceDescriptorImpl extends DescribableImpl implements SourceDescriptor {
 
     protected String sourceId = null;

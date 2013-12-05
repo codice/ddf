@@ -21,10 +21,13 @@ import java.util.Map;
 import ddf.catalog.data.Metacard;
 
 /**
- * CreateResponseImpl contains the {@link Response} information (created metacards) on a
- * {@link CreateRequest}.
+ * CreateResponseImpl contains the {@link Response} information (created
+ * metacards) on a {@link CreateRequest}.
  * 
+ * @deprecated As of release 2.3.0, replaced by
+ *             ddf.catalog.operation.impl.CreateResponseImpl
  */
+@Deprecated
 public class CreateResponseImpl extends ResponseImpl<CreateRequest> implements CreateResponse {
 
     /** The created metacards. */

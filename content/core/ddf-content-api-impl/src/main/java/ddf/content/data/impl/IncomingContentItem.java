@@ -32,12 +32,6 @@ import ddf.content.storage.StorageProvider;
  * The IncomingContentItem class represents a {@link ContentItem} POJO that
  * is being sent in a {@link CreateRequest} or an {@link UpdateRequest} to the
  * {@link ContentFramework}.
- * 
- * @version 0.1.0
- * @since 2.1.0
- * 
- * @author Hugh Rodgers, Lockheed Martin
- * @author ddf.isgs@lmco.com
  *
  */
 public class IncomingContentItem implements ContentItem

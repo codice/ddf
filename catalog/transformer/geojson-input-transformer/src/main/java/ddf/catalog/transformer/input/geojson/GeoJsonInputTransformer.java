@@ -16,7 +16,6 @@ package ddf.catalog.transformer.input.geojson;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.TimeZone;
 
@@ -30,12 +29,12 @@ import org.json.simple.parser.ParseException;
 
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.AttributeType.AttributeFormat;
-import ddf.catalog.data.BasicTypes;
 import ddf.catalog.data.Metacard;
-import ddf.catalog.data.MetacardImpl;
 import ddf.catalog.data.MetacardType;
-import ddf.catalog.data.QualifiedMetacardType;
 import ddf.catalog.data.MetacardTypeRegistry;
+import ddf.catalog.data.QualifiedMetacardType;
+import ddf.catalog.data.impl.BasicTypes;
+import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.InputTransformer;
 import ddf.geo.formatter.CompositeGeometry;
@@ -44,9 +43,6 @@ import ddf.geo.formatter.CompositeGeometry;
  * Converts standard GeoJSON (geojson.org) into a Metacard. The limitation on the GeoJSON is that it
  * must conform to the {@link BasicTypes#BASIC_METACARD} {@link MetacardType}.
  * 
- * @author Ashraf Barakat
- * @author ddf.isgs@lmco.com
- * @since 0.1.0
  */
 public class GeoJsonInputTransformer implements InputTransformer {
 

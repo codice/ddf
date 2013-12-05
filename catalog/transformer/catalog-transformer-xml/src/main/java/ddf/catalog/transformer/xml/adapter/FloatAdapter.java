@@ -19,7 +19,7 @@ import java.io.Serializable;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 
 import ddf.catalog.data.Attribute;
-import ddf.catalog.data.AttributeImpl;
+import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.transformer.xml.binding.FloatElement;
 
 public class FloatAdapter extends XmlAdapter<FloatElement, Attribute> {

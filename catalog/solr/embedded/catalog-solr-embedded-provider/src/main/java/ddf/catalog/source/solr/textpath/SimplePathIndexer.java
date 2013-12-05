@@ -29,9 +29,6 @@ import org.apache.log4j.Logger;
 /**
  * Class is used to create simple text path index strings to be searched upon.
  * 
- * @author Phillip Klinefelter
- * @author ddf.isgs@lmco.com
- * 
  */
 public class SimplePathIndexer {
 

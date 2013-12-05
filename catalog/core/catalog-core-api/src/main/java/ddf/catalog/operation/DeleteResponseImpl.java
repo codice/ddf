@@ -21,8 +21,13 @@ import java.util.Map;
 import ddf.catalog.data.Metacard;
 
 /**
- * The DeleteResponseImpl represents a default implementation of the {@link DefaultResponse}.
+ * The DeleteResponseImpl represents a default implementation of the
+ * {@link DefaultResponse}.
+ * 
+ * @deprecated As of release 2.3.0, replaced by
+ *             ddf.catalog.operation.impl.DeleteResponseImpl
  */
+@Deprecated
 public class DeleteResponseImpl extends ResponseImpl<DeleteRequest> implements DeleteResponse {
 
     protected List<Metacard> deletedMetacards;

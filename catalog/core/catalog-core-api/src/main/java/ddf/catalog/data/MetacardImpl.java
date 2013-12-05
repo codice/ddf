@@ -59,8 +59,9 @@ import ddf.catalog.data.AttributeType.AttributeFormat;
  * Guidelines</a>.
  * </p>
  * 
- * @author ddf.isgs@lmco.com
+ * @deprecated As of release 2.3.0, replaced by ddf.catalog.data.impl.MetacardImpl
  */
+@Deprecated
 public class MetacardImpl implements Metacard {
 
     private static final long serialVersionUID = 1L;

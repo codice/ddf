@@ -17,9 +17,15 @@ package ddf.catalog.operation;
 import java.util.Set;
 
 /**
- * The SourceInfoRequestLocal should be used to obtain local {@link Source} information. This
- * request may obtain information from the {@link CatalogProvider}.
+ * The SourceInfoRequestLocal should be used to obtain local {@link Source}
+ * information. This request may obtain information from the
+ * {@link CatalogProvider}.
+ * 
+ * @deprecated As of release 2.3.0, replaced by
+ *             ddf.catalog.operation.impl.SourceInfoRequestLocal
+ * 
  */
+@Deprecated
 public class SourceInfoRequestLocal extends OperationImpl implements SourceInfoRequest {
 
     protected boolean includeContentTypes = false;

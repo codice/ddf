@@ -32,10 +32,6 @@ import org.osgi.framework.BundleContext;
 /**
  * Abstraction layer for accessing files or directories on disk. Provides different implementations
  * depending on if the code is run within an OSGi container or not.
- * 
- * @author Ashraf Barakat
- * @author ddf.isgs@lmco.com
- * 
  */
 public class ConfigurationFileProxy {
 

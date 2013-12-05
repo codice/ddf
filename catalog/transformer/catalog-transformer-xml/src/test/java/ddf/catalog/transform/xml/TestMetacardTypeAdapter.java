@@ -14,8 +14,8 @@
  **/
 package ddf.catalog.transform.xml;
 
-import static org.junit.Assert.assertThat;
 import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,9 +24,9 @@ import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;
 import org.junit.Test;
 
-import ddf.catalog.data.BasicTypes;
 import ddf.catalog.data.MetacardType;
-import ddf.catalog.data.MetacardTypeImpl;
+import ddf.catalog.data.impl.BasicTypes;
+import ddf.catalog.data.impl.MetacardTypeImpl;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transformer.xml.adapter.MetacardTypeAdapter;
 

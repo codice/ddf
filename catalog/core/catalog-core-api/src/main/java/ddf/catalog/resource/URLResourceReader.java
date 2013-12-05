@@ -37,15 +37,16 @@ import ddf.catalog.operation.ResourceResponseImpl;
 import ddf.mime.MimeTypeMapper;
 
 /**
- * A URLResourceReader retrieves a {@link Resource} from a local or remote file system using a
- * {@link URI}. The {@link URI} is used to specify the file location. A URLResourceReader supports
- * {@link URI}s with HTTP, HTTPS, and file schemes.
+ * A URLResourceReader retrieves a {@link Resource} from a local or remote file
+ * system using a {@link URI}. The {@link URI} is used to specify the file
+ * location. A URLResourceReader supports {@link URI}s with HTTP, HTTPS, and
+ * file schemes.
  * 
- * @author ddf.isgs@lmco.com
- * @deprecated - As of DDF v2.1.0.ALPHA1. URLResourceReader has been moved to
- *             /ddf/trunk/catalog/resource, resource-impl is now a separate bundle containing this
+ * @deprecated - URLResourceReader has been moved to
+ *             catalog-core-urlresourcereader, a separate bundle containing this
  *             ResourceReader implementation
  */
+@Deprecated
 public class URLResourceReader implements ResourceReader {
     private static final String URL_HTTP_SCHEME = "http";
 

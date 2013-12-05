@@ -52,12 +52,6 @@ import ddf.content.storage.StorageProvider;
  * It is used for create, update, delete, and content retrieval operations
  * for content stored in the DDF Content Repository.
  * 
- * @version 0.1.0
- * @since 2.1.0
- * 
- * @author Hugh Rodgers, Lockheed Martin
- * @author ddf.isgs@lmco.com
- * 
  */
 public class ContentFrameworkImpl implements ContentFramework
 {

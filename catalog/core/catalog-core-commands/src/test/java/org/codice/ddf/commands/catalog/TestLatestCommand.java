@@ -23,15 +23,14 @@ import static org.mockito.Mockito.when;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.Test;
-
 import org.codice.ddf.commands.catalog.facade.CatalogFacade;
 import org.codice.ddf.commands.catalog.facade.Framework;
+import org.junit.Test;
 
 import ddf.catalog.CatalogFramework;
-import ddf.catalog.data.MetacardImpl;
 import ddf.catalog.data.Result;
-import ddf.catalog.data.ResultImpl;
+import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.data.impl.ResultImpl;
 import ddf.catalog.federation.FederationException;
 import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
@@ -40,11 +39,6 @@ import ddf.catalog.operation.QueryResponse;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
 
-/**
- * @author Ashraf Barakat
- * @author ddf.isgs@lmco.com
- * 
- */
 public class TestLatestCommand {
 
     /**

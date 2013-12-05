@@ -24,8 +24,8 @@ import org.apache.log4j.Logger;
 
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.BinaryContent;
-import ddf.catalog.data.BinaryContentImpl;
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.impl.BinaryContentImpl;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.MetacardTransformer;
 
@@ -33,8 +33,6 @@ import ddf.catalog.transform.MetacardTransformer;
  * Given a {@link Metacard}, this class can be used to return the contents of the Metacard
  * attributes. Supported formats are String and byte[]
  * 
- * @author Ashraf Barakat
- * @author ddf.isgs@lmco.com
  * @see MetacardTransformer
  * 
  */

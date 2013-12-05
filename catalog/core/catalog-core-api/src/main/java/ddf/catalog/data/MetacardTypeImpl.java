@@ -23,23 +23,25 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Default implementation of the {@link MetacardType}, used by {@link BasicTypes} to create the
- * {@link BasicTypes#BASIC_METACARD}.
+ * Default implementation of the {@link MetacardType}, used by
+ * {@link BasicTypes} to create the {@link BasicTypes#BASIC_METACARD}.
  * 
  * <p>
- * This class is {@link Serializable} and care should be taken with compatibility if changes are
- * made.
+ * This class is {@link Serializable} and care should be taken with
+ * compatibility if changes are made.
  * </p>
  * 
  * <p>
  * For what constitutes a compatible change in serialization, see <a href=
- * "http://docs.oracle.com/javase/6/docs/platform/serialization/spec/version.html#6678" >Sun's
- * Guidelines</a>.
+ * "http://docs.oracle.com/javase/6/docs/platform/serialization/spec/version.html#6678"
+ * >Sun's Guidelines</a>.
  * </p>
  * 
- * @author ddf.isgs@lmco.com
+ * @deprecated As of release 2.3.0, replaced by
+ *             ddf.catalog.data.impl.MetacardTypeImpl
  * 
  */
+@Deprecated
 public class MetacardTypeImpl implements MetacardType {
 
     private static final long serialVersionUID = 1L;

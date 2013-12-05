@@ -27,16 +27,19 @@ import ddf.catalog.CatalogFramework;
 import ddf.catalog.source.Source;
 
 /**
- * The SourcePoller is the scheduler of the task to poll all configured sources at a fixed interval
- * to determine their availability. It is created by the CatalogFramework's blueprint.
+ * The SourcePoller is the scheduler of the task to poll all configured sources
+ * at a fixed interval to determine their availability. It is created by the
+ * CatalogFramework's blueprint.
  * 
- * An isAvailable() method is included in this class so that the caller, nominally the
- * CatalogFramework, can retrieve the cached availability of a specific source, or have it polled on
- * demand if there is no availability status cached.
+ * An isAvailable() method is included in this class so that the caller,
+ * nominally the CatalogFramework, can retrieve the cached availability of a
+ * specific source, or have it polled on demand if there is no availability
+ * status cached.
  * 
- * @author ddf.isgs@lmco.com
- * 
+ * @deprecated As of release 2.3.0, replaced by
+ *             ddf.catalog.util.impl.SourcePoller
  */
+@Deprecated
 public class SourcePoller {
 
     private static final int INTERVAL = 60;

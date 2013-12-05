@@ -42,7 +42,7 @@ import org.osgi.service.event.Event;
 import com.vividsolutions.jts.geom.Geometry;
 
 import ddf.catalog.data.Metacard;
-import ddf.catalog.data.MetacardImpl;
+import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.pubsub.criteria.contenttype.ContentTypeEvaluationCriteriaImpl;
 import ddf.catalog.pubsub.criteria.contenttype.ContentTypeEvaluator;
 import ddf.catalog.pubsub.criteria.contextual.ContextualEvaluator;

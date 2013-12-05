@@ -51,11 +51,11 @@ import ddf.action.Action;
 import ddf.action.ActionProvider;
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.AttributeDescriptor;
-import ddf.catalog.data.BasicTypes;
 import ddf.catalog.data.BinaryContent;
-import ddf.catalog.data.BinaryContentImpl;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
+import ddf.catalog.data.impl.BasicTypes;
+import ddf.catalog.data.impl.BinaryContentImpl;
 import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.MetacardTransformer;
@@ -67,9 +67,6 @@ import ddf.geo.formatter.CompositeGeometry;
  * feed. <br>
  * Atom specification referenced and used for this implementation was found at
  * http://tools.ietf.org/html/rfc4287
- * 
- * @author Ashraf Barakat
- * @author ddf.isgs@lmco.com
  * 
  */
 public class AtomTransformer implements QueryResponseTransformer, ConfigurationWatcher {

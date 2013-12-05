@@ -48,45 +48,42 @@ import org.opengis.filter.sort.SortOrder;
 
 import com.spatial4j.core.distance.DistanceUtils;
 
-import ddf.catalog.data.AttributeImpl;
 import ddf.catalog.data.AttributeType.AttributeFormat;
 import ddf.catalog.data.ContentType;
-import ddf.catalog.data.ContentTypeImpl;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardCreationException;
-import ddf.catalog.data.MetacardImpl;
 import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.Result;
-import ddf.catalog.data.ResultImpl;
+import ddf.catalog.data.impl.AttributeImpl;
+import ddf.catalog.data.impl.ContentTypeImpl;
+import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.data.impl.ResultImpl;
 import ddf.catalog.filter.FilterAdapter;
 import ddf.catalog.operation.CreateRequest;
 import ddf.catalog.operation.CreateResponse;
-import ddf.catalog.operation.CreateResponseImpl;
 import ddf.catalog.operation.DeleteRequest;
 import ddf.catalog.operation.DeleteResponse;
-import ddf.catalog.operation.DeleteResponseImpl;
 import ddf.catalog.operation.QueryRequest;
-import ddf.catalog.operation.QueryResponseImpl;
 import ddf.catalog.operation.SourceResponse;
-import ddf.catalog.operation.SourceResponseImpl;
 import ddf.catalog.operation.Update;
-import ddf.catalog.operation.UpdateImpl;
 import ddf.catalog.operation.UpdateRequest;
 import ddf.catalog.operation.UpdateResponse;
-import ddf.catalog.operation.UpdateResponseImpl;
+import ddf.catalog.operation.impl.CreateResponseImpl;
+import ddf.catalog.operation.impl.DeleteResponseImpl;
+import ddf.catalog.operation.impl.QueryResponseImpl;
+import ddf.catalog.operation.impl.SourceResponseImpl;
+import ddf.catalog.operation.impl.UpdateImpl;
+import ddf.catalog.operation.impl.UpdateResponseImpl;
 import ddf.catalog.source.CatalogProvider;
 import ddf.catalog.source.IngestException;
 import ddf.catalog.source.SourceMonitor;
 import ddf.catalog.source.UnsupportedQueryException;
-import ddf.catalog.util.MaskableImpl;
+import ddf.catalog.util.impl.MaskableImpl;
 import ddf.measure.Distance;
 import ddf.measure.Distance.LinearUnit;
 
 /**
- * {@link CatalogProvider} implementation using Apache Solr 4.0
- * 
- * @author Ashraf Barakat
- * @author ddf.isgs@lmco.com
+ * {@link CatalogProvider} implementation using Apache Solr 4+
  * 
  */
 public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider {

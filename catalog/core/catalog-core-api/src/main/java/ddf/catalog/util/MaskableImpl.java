@@ -15,14 +15,15 @@
 package ddf.catalog.util;
 
 /**
- * Implementation of the Maskable interface that provides methods to set the masked ID of the item
- * and the ID of the item if it has not yet been masked. Once the item's ID is masked it cannot be
- * updated again. At that point, you can only change its value indirectly by changing the site name
- * of DDF.
+ * Implementation of the Maskable interface that provides methods to set the
+ * masked ID of the item and the ID of the item if it has not yet been masked.
+ * Once the item's ID is masked it cannot be updated again. At that point, you
+ * can only change its value indirectly by changing the site name of DDF.
  * 
- * @author ddf.isgs@lmco.com
- * 
+ * @deprecated As of release 2.3.0, replaced by
+ *             ddf.catalog.util.impl.MaskableImpl
  */
+@Deprecated
 public class MaskableImpl extends DescribableImpl implements Maskable {
 
     private boolean masked = false;

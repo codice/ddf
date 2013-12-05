@@ -17,7 +17,7 @@
    <parent>
        <artifactId>core</artifactId>
        <groupId>ddf.catalog.core</groupId>
-       <version>2.3.0-SNAPSHOT</version>
+       <version>2.3.0.ALPHA1-SNAPSHOT</version>
    </parent>
   
   <artifactId>catalog-core-camelcomponent</artifactId>
@@ -43,7 +43,7 @@
     
     <dependency>
         <groupId>ddf.catalog.core</groupId>
-        <artifactId>catalog-core-api</artifactId>
+        <artifactId>catalog-core-api-impl</artifactId>
     </dependency>
     
     <dependency>
@@ -110,6 +110,16 @@
             <configuration>
                 <instructions>
                     <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+                    <Private-Package>                     
+                        ddf.catalog.data.impl,                      
+                        ddf.catalog.operation.impl,
+                        ddf.catalog.util.impl,
+                        ddf.camel.component.catalog.converter,
+                        ddf.camel.component.catalog.framework,
+                        ddf.camel.component.catalog.inputtransformer,
+                        ddf.camel.component.catalog.queryresponsetransformer,
+                        ddf.camel.component.catalog.transformer
+                    </Private-Package>
                     <Export-Package>
                         ddf.camel.component.catalog;version=${project.version}
                     </Export-Package>

@@ -34,9 +34,8 @@ import org.slf4j.ext.XLogger;
 
 import ddf.catalog.data.Metacard;
 import ddf.catalog.operation.ResourceResponse;
-import ddf.catalog.operation.ResourceResponseImpl;
+import ddf.catalog.operation.impl.ResourceResponseImpl;
 import ddf.catalog.resource.Resource;
-import ddf.catalog.resource.ResourceImpl;
 import ddf.catalog.resource.ResourceNotFoundException;
 import ddf.catalog.resource.ResourceReader;
 import ddf.mime.MimeTypeMapper;
@@ -46,7 +45,6 @@ import ddf.mime.MimeTypeMapper;
  * {@link URI}. The {@link URI} is used to specify the file location. A URLResourceReader supports
  * {@link URI}s with HTTP, HTTPS, and file schemes.
  * 
- * @author jeff.vettraino@lmco.com
  */
 public class URLResourceReader implements ResourceReader {
     private static final String URL_HTTP_SCHEME = "http";

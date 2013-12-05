@@ -39,6 +39,6 @@ http://www.springframework.org/schema/osgi http://www.springframework.org/schema
 	
 	<osgi:reference id="kmlTransformer" interface="ddf.service.kml.KMLTransformer" />
 	
-	<osgi:service ref="restSvc" interface="ddf.catalog.util.DdfConfigurationWatcher"/>
+	<osgi:service ref="restSvc" interface="org.codice.ddf.configuration.ConfigurationWatcher"/>
 
 </beans>

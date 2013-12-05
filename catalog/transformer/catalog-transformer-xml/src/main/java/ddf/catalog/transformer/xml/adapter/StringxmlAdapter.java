@@ -39,7 +39,7 @@ import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
 import ddf.catalog.data.Attribute;
-import ddf.catalog.data.AttributeImpl;
+import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transformer.xml.binding.StringxmlElement;
 import ddf.catalog.transformer.xml.binding.StringxmlElement.Value;

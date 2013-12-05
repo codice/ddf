@@ -18,7 +18,7 @@
     <parent>
         <groupId>ddf.security.core</groupId>
         <artifactId>security-core-pom</artifactId>
-        <version>2.3.0-SNAPSHOT</version>
+        <version>2.3.0.ALPHA1-SNAPSHOT</version>
     </parent>
 
     <artifactId>security-core-impl</artifactId>
@@ -103,6 +103,18 @@
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Import-Package>
                             javax.servlet.http; version="[2.5.0,3.0.0)",
+                            <!--
+                            Needed because API versioned independently of
+                            the project their code is in, hence the version
+                            supplied by dependency management would be incorrect. 
+                            -->
+                            ddf.security.expansion;version="[1.0,2)",
+                            <!-- 
+                            Needed to ensure the javax.xml.stream bundle exported
+                            by Servicemix is used vs. the bundle exported by OSGi
+                            System bundle. 
+                            -->
+                            javax.xml.stream;version="1.0",
                             *
                         </Import-Package>
                         <Export-Package>

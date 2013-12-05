@@ -21,11 +21,13 @@ import java.util.HashSet;
 import ddf.catalog.data.AttributeType.AttributeFormat;
 
 /**
- * Constants for basic types, both {@link MetacardType} and {@link AttributeType}
+ * Constants for basic types, both {@link MetacardType} and
+ * {@link AttributeType}
  * 
- * @author ddf.isgs@lmco.com
+ * @deprecated As of release 2.3.0, replaced by ddf.catalog.data.impl.BasicTypes
  * 
  */
+@Deprecated
 public class BasicTypes {
 
     /**

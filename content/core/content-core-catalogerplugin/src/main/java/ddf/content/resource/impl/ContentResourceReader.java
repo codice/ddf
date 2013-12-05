@@ -30,11 +30,11 @@ import org.slf4j.ext.XLogger;
 
 import ddf.catalog.data.Metacard;
 import ddf.catalog.operation.ResourceResponse;
-import ddf.catalog.operation.ResourceResponseImpl;
-import ddf.catalog.resource.ResourceImpl;
+import ddf.catalog.operation.impl.ResourceResponseImpl;
 import ddf.catalog.resource.ResourceNotFoundException;
 import ddf.catalog.resource.ResourceNotSupportedException;
 import ddf.catalog.resource.ResourceReader;
+import ddf.catalog.resource.impl.ResourceImpl;
 import ddf.content.ContentFramework;
 import ddf.content.ContentFrameworkException;
 import ddf.content.data.ContentItem;

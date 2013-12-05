@@ -15,8 +15,6 @@
 
 package ddf.catalog.pubsub.criteria.contenttype;
 
-import java.util.regex.Pattern;
-
 import org.apache.log4j.Logger;
 
 import ddf.catalog.pubsub.predicate.ContentTypePredicate;

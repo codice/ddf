@@ -47,9 +47,10 @@ define(function (require) {
                 });
             }
             else {
-                options.imageryProvider = new Cesium.OpenStreetMapImageryProvider({
-                    url: 'http://tile.openstreetmap.org/'
-                });
+                options.imageryProvider = new Cesium.BingMapsImageryProvider({
+                                              url : 'http://dev.virtualearth.net',
+                                              mapStyle : Cesium.BingMapsStyle.AERIAL_WITH_LABELS
+                                          });
             }
 
             viewer = new Cesium.Viewer(mapDivId, options);

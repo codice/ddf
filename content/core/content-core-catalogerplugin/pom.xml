@@ -16,10 +16,9 @@
   <modelVersion>4.0.0</modelVersion>
   
   <parent>
-        <groupId>ddf.content</groupId>
-        <artifactId>content-catalogger-plugin</artifactId>
-        <version>2.3.0-SNAPSHOT</version>
-        <relativePath>../../../content-catalogger-plugin/pom.xml</relativePath>
+        <artifactId>content-core-pom</artifactId>
+        <groupId>ddf.content.core</groupId>
+        <version>2.3.0.ALPHA1-SNAPSHOT</version>
   </parent>
 
   <groupId>ddf.content.core</groupId>
@@ -28,24 +27,23 @@
   <packaging>bundle</packaging>
   
   <properties>
-        <ddf.platform.services.app.version>2.3.0-SNAPSHOT</ddf.platform.services.app.version>
-        <ddf.content.services.app.version>2.3.0-SNAPSHOT</ddf.content.services.app.version>
+        <ddf.platform.services.app.version>2.3.0.ALPHA1-SNAPSHOT</ddf.platform.services.app.version>
   </properties>
   
   <dependencies>
         <dependency>
             <groupId>ddf.content.core</groupId>
             <artifactId>content-core-api</artifactId>
-            <version>${ddf.content.services.app.version}</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>ddf.content.core</groupId>
             <artifactId>content-core-impl</artifactId>
-            <version>${ddf.content.services.app.version}</version>
+            <version>${project.version}</version>
         </dependency>
 		<dependency>
 			<groupId>ddf.catalog.core</groupId>
-			<artifactId>catalog-core-api</artifactId>
+			<artifactId>catalog-core-api-impl</artifactId>
 			<version>${ddf.platform.services.app.version}</version>
 		</dependency>
 		<dependency>
@@ -80,6 +78,13 @@
 				<configuration>
 					<instructions>
 						<Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+						<Private-Package>
+							ddf.content.resource.impl,
+							ddf.catalog.data.impl,
+							ddf.catalog.resource.impl,
+							ddf.catalog.operation.impl,
+							ddf.catalog.util.impl
+						</Private-Package>
 						<Export-Package>
 						    ddf.content.plugin.cataloger;version=${project.version}
 						</Export-Package>

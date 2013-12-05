@@ -17,9 +17,14 @@ package ddf.catalog.operation;
 import java.util.List;
 
 /**
- * The SourceProcessingDetailsImpl class represents a default implementation of a
- * {@link SourceProcessingDetails} to provide {@link Source} warnings.
+ * The SourceProcessingDetailsImpl class represents a default implementation of
+ * a {@link SourceProcessingDetails} to provide {@link Source} warnings.
+ * 
+ * @deprecated As of release 2.3.0, replaced by
+ *             ddf.catalog.operation.impl.SourceProcessingDetailsImpl
+ * 
  */
+@Deprecated
 public class SourceProcessingDetailsImpl implements SourceProcessingDetails {
 
     protected List<String> warnings = null;

@@ -26,7 +26,6 @@ import org.apache.log4j.Logger;
 import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.store.Directory;
 import org.osgi.service.event.Event;
-import org.w3c.dom.Document;
 
 import ddf.catalog.pubsub.criteria.contextual.ContextualEvaluationCriteria;
 import ddf.catalog.pubsub.criteria.contextual.ContextualEvaluationCriteriaImpl;

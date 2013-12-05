@@ -21,8 +21,6 @@ import org.osgi.service.event.Event;
  * A Predicate that always returns true. Meant to be used where criteria is missing and a predicate
  * is still needed to continue with execution
  * 
- * @author abarakat
- * 
  */
 public class TruePredicate implements Predicate {
 

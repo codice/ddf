@@ -26,19 +26,21 @@ import java.util.List;
  * A simple implementation of {@link Attribute}.
  * 
  * <p>
- * This class is {@link Serializable} and care should be taken with compatibility if changes are
- * made.
+ * This class is {@link Serializable} and care should be taken with
+ * compatibility if changes are made.
  * </p>
  * 
  * <p>
  * For what constitutes a compatible change in serialization, see <a href=
- * "http://docs.oracle.com/javase/6/docs/platform/serialization/spec/version.html#6678" >Sun's
- * Guidelines</a>.
+ * "http://docs.oracle.com/javase/6/docs/platform/serialization/spec/version.html#6678"
+ * >Sun's Guidelines</a>.
  * </p>
  * 
- * @author ddf.isgs@lmco.com
+ * @deprecated As of release 2.3.0, replaced by
+ *             ddf.catalog.data.impl.AttributeImpl
  * 
  */
+@Deprecated
 public class AttributeImpl implements Attribute {
 
     private static final long serialVersionUID = 1L;

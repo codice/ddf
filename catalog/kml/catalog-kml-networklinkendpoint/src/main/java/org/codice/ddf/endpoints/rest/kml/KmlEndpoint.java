@@ -15,46 +15,6 @@
 
 package org.codice.ddf.endpoints.rest.kml;
 
-import ddf.catalog.Constants;
-import ddf.catalog.data.Metacard;
-import ddf.catalog.event.Subscription;
-import ddf.catalog.plugin.PluginExecutionException;
-import ddf.catalog.transform.CatalogTransformerException;
-import ddf.catalog.util.DdfConfigurationManager;
-import ddf.catalog.util.DdfConfigurationWatcher;
-import ddf.service.kml.KMLTransformer;
-import ddf.service.kml.subscription.KmlSubscription;
-import ddf.service.kml.subscription.KmlUpdateDeliveryMethod;
-import de.micromata.opengis.kml.v_2_2_0.Change;
-import de.micromata.opengis.kml.v_2_2_0.Create;
-import de.micromata.opengis.kml.v_2_2_0.Delete;
-import de.micromata.opengis.kml.v_2_2_0.Document;
-import de.micromata.opengis.kml.v_2_2_0.Feature;
-import de.micromata.opengis.kml.v_2_2_0.Folder;
-import de.micromata.opengis.kml.v_2_2_0.Kml;
-import de.micromata.opengis.kml.v_2_2_0.KmlFactory;
-import de.micromata.opengis.kml.v_2_2_0.Link;
-import de.micromata.opengis.kml.v_2_2_0.NetworkLink;
-import de.micromata.opengis.kml.v_2_2_0.NetworkLinkControl;
-import de.micromata.opengis.kml.v_2_2_0.Placemark;
-import de.micromata.opengis.kml.v_2_2_0.Update;
-import de.micromata.opengis.kml.v_2_2_0.ViewRefreshMode;
-import org.apache.log4j.Logger;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.InvalidSyntaxException;
-import org.osgi.framework.ServiceReference;
-import org.osgi.framework.ServiceRegistration;
-
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriBuilder;
-import javax.ws.rs.core.UriInfo;
-import javax.xml.bind.JAXBException;
 import java.io.Serializable;
 import java.io.StringWriter;
 import java.net.MalformedURLException;
@@ -74,6 +34,49 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriBuilder;
+import javax.ws.rs.core.UriInfo;
+import javax.xml.bind.JAXBException;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
+import org.codice.ddf.configuration.ConfigurationManager;
+import org.codice.ddf.configuration.ConfigurationWatcher;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.framework.ServiceReference;
+import org.osgi.framework.ServiceRegistration;
+
+import ddf.catalog.Constants;
+import ddf.catalog.data.Metacard;
+import ddf.catalog.event.Subscription;
+import ddf.catalog.plugin.PluginExecutionException;
+import ddf.catalog.transform.CatalogTransformerException;
+import ddf.service.kml.KMLTransformer;
+import ddf.service.kml.subscription.KmlSubscription;
+import ddf.service.kml.subscription.KmlUpdateDeliveryMethod;
+import de.micromata.opengis.kml.v_2_2_0.Change;
+import de.micromata.opengis.kml.v_2_2_0.Create;
+import de.micromata.opengis.kml.v_2_2_0.Delete;
+import de.micromata.opengis.kml.v_2_2_0.Document;
+import de.micromata.opengis.kml.v_2_2_0.Feature;
+import de.micromata.opengis.kml.v_2_2_0.Folder;
+import de.micromata.opengis.kml.v_2_2_0.Kml;
+import de.micromata.opengis.kml.v_2_2_0.KmlFactory;
+import de.micromata.opengis.kml.v_2_2_0.Link;
+import de.micromata.opengis.kml.v_2_2_0.NetworkLink;
+import de.micromata.opengis.kml.v_2_2_0.NetworkLinkControl;
+import de.micromata.opengis.kml.v_2_2_0.Placemark;
+import de.micromata.opengis.kml.v_2_2_0.Update;
+import de.micromata.opengis.kml.v_2_2_0.ViewRefreshMode;
+
 /**
  * Endpoint used to create a KML Network Link in order to receive updated query results from the
  * DDF. The KML Network Link will link Google Earth to DDF through the OpenSearch Endpoint. As a
@@ -83,7 +86,7 @@ import java.util.concurrent.Executors;
  * 
  */
 @Path("/")
-public class KmlEndpoint implements DdfConfigurationWatcher {
+public class KmlEndpoint implements ConfigurationWatcher {
 
     private static final String URL_KEY = "url";
 
@@ -783,30 +786,30 @@ public class KmlEndpoint implements DdfConfigurationWatcher {
     }
 
     @Override
-    public void ddfConfigurationUpdated(Map properties) {
-        String methodName = "ddfConfigurationUpdated";
+    public void configurationUpdateCallback(Map<String, String> properties) {
+        String methodName = "configurationUpdateCallback";
         LOGGER.debug("ENTERING: " + methodName);
 
         if (properties != null && !properties.isEmpty()) {
-            Object value = properties.get(DdfConfigurationManager.HOST);
-            if (value != null) {
-                this.ddfHost = value.toString();
+            String value = properties.get(ConfigurationManager.HOST);
+            if (StringUtils.isNotBlank(value)) {
+                this.ddfHost = value;
                 LOGGER.debug("ddfHost = " + this.ddfHost);
             } else {
                 LOGGER.debug("ddfHost = NULL");
             }
 
-            value = properties.get(DdfConfigurationManager.PORT);
-            if (value != null) {
-                this.ddfPort = value.toString();
+            value = properties.get(ConfigurationManager.PORT);
+            if (StringUtils.isNotBlank(value)) {
+                this.ddfPort = value;
                 LOGGER.debug("ddfPort = " + this.ddfPort);
             } else {
                 LOGGER.debug("ddfPort = NULL");
             }
 
-            value = properties.get(DdfConfigurationManager.SERVICES_CONTEXT_ROOT);
-            if (value != null) {
-                this.servicesContextRoot = value.toString();
+            value = properties.get(ConfigurationManager.SERVICES_CONTEXT_ROOT);
+            if (StringUtils.isNotBlank(value)) {
+                this.servicesContextRoot = value;
                 LOGGER.debug("servicesContextRoot = " + this.servicesContextRoot);
             } else {
                 LOGGER.debug("servicesContextRoot = NULL");
