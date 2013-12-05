@@ -22,50 +22,19 @@
  * 
  */
 
-function RecordView(metacard){
-	this.metacard = metacard;
-	this.properties = metacard.properties;
-	
-	this._createRow = function(property, value){
-		
-		var propTd, valTd, rowTr, valDiv;
-		
-		propTd = "<td class='property-td'>"+property+"</td>";
-		
-		if($.type(value) === "string"){
-			valTd = "<td class='value-td'><div class=value-div>" + value + "</div></td>";
-			rowTr = "<tr>" + propTd + valTd + "</tr>";
-		}else{
-			rowTr = $("<tr>");
-			rowTr.append(propTd);
-			valTd = $("<td class='value-td'></td>");
-			valDiv = $("<div class='value-div'></div>");
-			valDiv.append(value);
-			valTd.append(valDiv);
-			rowTr.append(valTd);
-		}
-		return rowTr;
-	};
-	
-	this._getGeometry = function(geometry){
-        try {
-                if(geometry.type.toUpperCase() === "GEOMETRYCOLLECTION") {
-                        return this._getGeometry(geometry.geometries[0]);
-                }
-                return geometry.type + "(" + this._getCoordinates(geometry.coordinates) + ")";
-        } catch(err) {
-                return "";
-        }
+Handlebars.registerHelper("formatDate", function(dateString, options) {
+	return new Handlebars.SafeString(dateString.replace("T",", ").replace("+0000"," UTC"));
+});
 
-	};
-	
-	this._getCoordinates = function(coordinates) {
+Handlebars.registerHelper("formatGeometry", function(geometry, options) {
+	var getCoordinates;
+	getCoordinates = function(coordinates) {
 		var val, i;
         if($.isArray(coordinates[0])) {
-            val = "(" + this._getCoordinates(coordinates[0]);
+            val = "(" + getCoordinates(coordinates[0]);
 
             for(i = 1; i < coordinates.length; i++) {
-                    val += ", " + this._getCoordinates(coordinates[i]);
+                    val += ", " + getCoordinates(coordinates[i]);
             }
             val += ")";
             return val;
@@ -73,98 +42,70 @@ function RecordView(metacard){
 	            return coordinates.join(" ");
 	    }
 	};
-	
 
-	this._buildThumbnail = function(data){
-		var srcString, thumbnailLink;
-		if(data){
-			srcString = "data:image/jpeg;charset=utf-8;base64, " + data;
+    try {
+        while(geometry.type.toUpperCase() === "GEOMETRYCOLLECTION") {
+            geometry = geometry.geometries[0];
+        }
+        return geometry.type + "(" + getCoordinates(geometry.coordinates) + ")";
+    } catch(err) {
+        return "";
+    }
+});
 
-			thumbnailLink = "<a href='javascript:showThumbnail(\"" + this.properties.title + "\", \"" + 
-					this.properties.thumbnail + "\")'><img class='thumbnail' alt='' src='" + srcString+"'></img><a>";
-			return thumbnailLink;
-		}else{
-			return "<i>No image available</i>";
-		}
-	};
-	
-	this._buildMetadata = function(data){
-		var metadataContent, metadataXml, expandButton;
-		
-		metadataContent = $("<div class=\"well\"></div>");
+Handlebars.registerHelper("hasServicesUrl", function(options){
+	if(typeof(getServicesUrl) === "function") {
+		return options.fn(this);
+	} else {
+		return options.inverse(this);
+	}
+});
 
-		metadataXml = buildMetadataHtml(data);
-		metadataXml.css('display','none');
-		metadataContent.append(metadataXml);
+Handlebars.registerHelper("servicesUrl", function(){
+	return getServicesUrl();
+});
 
-		expandButton = $("<a class='btn btn-small btn-info'>expand</a>");
-		expandButton.click(function(){
-			if($(this).prev().is(":hidden")){
-				$(this).prev().show();
-				$(this).text("collapse");
-			}else{
-				$(this).prev().hide();
-				$(this).text("expand");
-			}
-		});
-		metadataContent.append(expandButton);
-		return metadataContent;
-	
-	};
-	
-	this._buildResource = function(){
-		var productLink, productLinkHref;
-		productLink = "";
+Handlebars.registerHelper("buildMetadata", function(metadata, options){
+	var tmp = $("<div></div>");
+	tmp.append(buildMetadataHtml(metadata));
+	return new Handlebars.SafeString(tmp.html());
+});
 
-		if(typeof(getServicesUrl) === 'function'){
-			productLinkHref = getServicesUrl() + "/services/catalog/sources/" + this.properties["source-id"] + "/" + this.properties.id + "?transform=resource";
-			productLink = "<a target='blank' href='"+productLinkHref+"'><i class='icon-download-alt icon-2x'></i></a>";
-		}else{
-			productLink = "<a class='btn btn-small btn-danger'>server not found</a>";
-		}
+function toggleMetadata(e) {
+	if($('#metadataContents').is(":hidden")){
+		$('#metadataContents').show();
+		$('#metadataExpandButton').text("collapse");
+	}else{
+		$('#metadataContents').hide();
+		$('#metadataExpandButton').text("expand");
+	}
+}
 
-		return productLink;
-	};
-	
-	this._formatDate = function(dateString){
-		return dateString.replace("T",", ").replace("+0000"," UTC");
-	};
+function RecordView(metacard){
+	this.metacard = metacard;
+	this.properties = metacard.properties;
 	
 	this._updateRecordDiv = function(divId){
-		$("#"+divId+" .panel-heading h2").html(this.metacard.properties.title);
-		this._updatePropertiesTable($("#"+divId+" .record-table tbody"));
-	};
-	
-	this._updatePropertiesTable = function(tableBody){
-		var newHtmlString = this._createRow("Title",this.properties.title);
-		newHtmlString += this._createRow("Thumbnail",this._buildThumbnail(this.properties.thumbnail));
-		newHtmlString += this._createRow("Metadata Content Type",this.properties["metadata-content-type"]);
-		newHtmlString += this._createRow("Geometry",this._getGeometry(this.metacard.geometry));
-		newHtmlString += this._createRow("ID",this.properties.id);
-		newHtmlString += this._createRow("Source ID",this.properties["source-id"]);
-		newHtmlString += this._createRow("Created",this._formatDate(this.properties.created));
-		newHtmlString += this._createRow("Last Modified",this._formatDate(this.properties.modified));
-		newHtmlString += this._createRow("Resource",this._buildResource());
-		if(this.properties["resource-uri"]) {
-			newHtmlString += this._createRow("Resource URI", this.properties["resource-uri"]);
-		}
-		newHtmlString += this._createRow("Resource Size",this.properties["resource-size"]);
-		newHtmlString += this._createRow("Type",this.metacard.type);
-		tableBody.html(newHtmlString);		
-		tableBody.append(this._createRow("Metadata",this._buildMetadata(this.properties.metadata)));
-	};
+		$.ajax({
+			url: "templates/recordContents.hbt",
+			cache: true,
+			context: metacard,
+			success: function (source) {
+				var template = Handlebars.compile(source);
+				$("#"+divId).html(template(this));
 
+				// hacky way to make sure the values don't overrun their bounds
+				// Should be improved in the future.
+				$(".value-div").css("width",$(".panel-info").width()-185);
+			}
+		});
+	};	
 }
 
 RecordView.prototype = {
 	
-	buildView : function(divId){
-		
+	buildView : function(divId){	
 		this._updateRecordDiv(divId);
-
-		// hacky way to make sure the values don't overrun their bounds
-		// Should be improved in the future.
-		$(".value-div").css("width",$(".panel-info").width()-185);
 	}
 	
 };
