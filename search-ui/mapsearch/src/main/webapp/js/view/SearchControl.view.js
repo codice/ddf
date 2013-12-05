@@ -103,7 +103,10 @@ define(function (require) {
             changeDefaultMapLocation: function (result, shouldFlyToExtent) {
                 console.log("changing "+result);
                 if(shouldFlyToExtent) {
-                    ddf.app.controllers.geoController.flyToExtent(result.getResultCenterPoint());
+                    var extent = result.getResultCenterPoint();
+                    if(extent) {
+                        ddf.app.controllers.geoController.flyToExtent(extent);
+                    }
                 }
             },
             showQuery: function (direction) {

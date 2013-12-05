@@ -236,7 +236,11 @@ define(function (require) {
                     }
                 }
             });
-//            var points = view.model.get('geometry').getPolygon();
+
+            if(regionPoints.length === 0) {
+                return null;
+            }
+
             var cartPoints = _.map(regionPoints, function (point) {
                 return Cesium.Cartographic.fromDegrees(point.longitude, point.latitude, point.altitude);
             });
