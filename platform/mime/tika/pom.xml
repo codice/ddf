@@ -1,4 +1,3 @@
-
 <!--
 /**
  * Copyright (c) Codice Foundation
@@ -22,15 +21,14 @@
 		<version>2.3.0.ALPHA1-SNAPSHOT</version>
 	</parent>
 
-	<artifactId>mime-core-pom</artifactId>
-	<groupId>ddf.mime.core</groupId>
-	<name>DDF MIME Core</name>
+	<artifactId>mime-tika-pom</artifactId>
+	<groupId>ddf.mime.tika</groupId>
+	<name>DDF MIME Tika</name>
 	<packaging>pom</packaging>
 
 	<modules>
-		<module>mime-core-api</module>
-		<module>mime-core-impl</module>
-		<module>mime-core-configurableresolver</module>
+		<module>platform-mime-tika-resolver</module>
+		<module>platform-mime-tika-app</module>
 	</modules>
 
 </project>

@@ -26,6 +26,6 @@
   <name>DDF :: Content :: Endpoint</name>
   
   <modules> 
-	<module>content-rest-endpoint</module>
+	<module>content-endpoint-rest</module>
   </modules>
 </project>

@@ -12,26 +12,20 @@
  *
  **/
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  
-  <parent>
-    <groupId>ddf.platform</groupId>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<parent>
+		<groupId>ddf.platform</groupId>
         <artifactId>platform</artifactId>
         <version>2.3.0.ALPHA1-SNAPSHOT</version>
-        <relativePath>../platform/pom.xml</relativePath>
-  </parent>
-  
-  <groupId>ddf.metrics</groupId>
-  <artifactId>metrics</artifactId>
-  <packaging>pom</packaging>
-  <name>DDF Metrics</name>
-  
-  <modules>
-      <module>metrics-collector</module>
-      <module>metrics-reporting</module>
-      <module>metrics-webconsole-plugin</module>
-      <module>metrics-interceptor</module>
-  </modules>
-  
+	</parent>
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>ddf.action</groupId>
+	<artifactId>action</artifactId>
+	<packaging>pom</packaging>
+	<name>DDF Action</name>
+
+	<modules>
+		<module>core</module>
+	</modules>
 </project>

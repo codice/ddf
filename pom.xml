@@ -43,6 +43,7 @@
         <module>spatial</module>
         <module>catalog/solr</module>
         <module>distribution</module>
+        <module>ui</module>
         <!-- TODO
 		<module>sdk</module>
 		<module>test</module>

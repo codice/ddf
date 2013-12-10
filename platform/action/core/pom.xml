@@ -28,8 +28,8 @@
 	<packaging>pom</packaging>
 
 	<modules>
-		<module>action-core-api</module>
-		<module>action-core-impl</module>
+		<module>platform-action-core-api</module>
+		<module>platform-action-core-impl</module>
 	</modules>
 
 </project>
