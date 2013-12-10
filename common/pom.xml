@@ -26,6 +26,6 @@
 	<name>DDF :: Catalog :: Common</name>
 
 	<modules>
-		<module>geo-formatter</module>
+		<module>catalog-common-geo-formatter</module>
 	</modules>
 </project>

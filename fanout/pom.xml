@@ -16,10 +16,9 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
-		<groupId>ddf.esb</groupId>
-        <artifactId>esb</artifactId>
-        <version>2.3.0</version>
-        <relativePath>../../esb/pom.xml</relativePath>
+		<groupId>ddf.catalog</groupId>
+        <artifactId>catalog</artifactId>
+        <version>2.3.0.ALPHA1-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>catalog-fanout-pom</artifactId>

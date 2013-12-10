@@ -79,7 +79,7 @@
         <module>catalog-core-federationstrategy</module>
  		<module>catalog-core-eventcommands</module>
  		<module>catalog-core-standardframework</module>
-		<module>fanout-catalogframework</module>
+		<module>catalog-fanout-framework</module>
 		<module>catalog-core-impl</module>
 		<module>catalog-core-metacardgroomerplugin</module>
         <module>catalog-core-metricsplugin</module>

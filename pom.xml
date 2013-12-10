@@ -114,28 +114,27 @@
 	</dependencyManagement>
 
 	<modules>
-	    <module>../measure</module>
-	    <module>../catalog/common</module>
-        <module>../catalog/core</module>
-        <module>../catalog/schematron</module>
-        <module>../catalog/transformer/catalog-transformer-attribute</module>
-        <module>../catalog/transformer/service-xslt-transformer</module>
-        <module>../catalog/transformer/service-html-transformer</module>
-        <module>../catalog/transformer/catalog-transformer-resource</module>
-        <module>../catalog/transformer/catalog-transformer-metadata</module>
-        <module>../catalog/transformer/catalog-transformer-thumbnail</module>
-        <module>../catalog/transformer/tika-input-transformer</module>
-        <module>../catalog/transformer/geojson-input-transformer</module>
-        <module>../catalog/transformer/geojson-metacard-transformer</module>
-        <module>../catalog/transformer/geojson-queryresponse-transformer</module>
-        <module>../catalog/transformer/service-atom-transformer</module>
-        <module>../catalog/transformer/catalog-transformer-xml-binding</module>
-        <module>../catalog/transformer/catalog-transformer-xml</module>
+	    <module>measure</module>
+	    <module>common</module>
+        <module>core</module>
+        <module>schematron</module>
+        <module>transformer/catalog-transformer-attribute</module>
+        <module>transformer/catalog-transformer-service-xslt</module>
+        <module>transformer/catalog-transformer-service-html</module>
+        <module>transformer/catalog-transformer-resource</module>
+        <module>transformer/catalog-transformer-metadata</module>
+        <module>transformer/catalog-transformer-thumbnail</module>
+        <module>transformer/catalog-transformer-tika-input</module>
+        <module>transformer/catalog-transformer-geojson-input</module>
+        <module>transformer/catalog-transformer-geojson-metacard</module>
+        <module>transformer/catalog-transformer-geojson-queryresponse</module>
+        <module>transformer/catalog-transformer-service-atom</module>
+        <module>transformer/catalog-transformer-xml-binding</module>
+        <module>transformer/catalog-transformer-xml</module>
         <module>plugin</module>
         <module>opensearch</module>
         <module>rest</module>
         <module>security</module>
-        <module>../ui/search-ui</module>
         <module>catalog-app</module>
 	</modules>
 
