@@ -16,7 +16,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-        <groupId>ddf.security</groupId>
+        <groupId>ddf.platform.security</groupId>
         <artifactId>security</artifactId>
         <version>2.3.0.ALPHA1-SNAPSHOT</version>
   </parent>
@@ -42,9 +42,9 @@
   </dependencyManagement>
 
   <modules>
-    <module>security-encryption-api</module>
-    <module>security-encryption-impl</module>
-    <module>security-encryption-commands</module>
+    <module>platform-security-encryption-api</module>
+    <module>platform-security-encryption-impl</module>
+    <module>platform-security-encryption-commands</module>
   </modules>
 
 </project>

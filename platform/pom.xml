@@ -65,7 +65,8 @@
       <module>action</module>
       <module>mime</module>
       <module>metrics</module>
-	  <module>platform-scheduler</module> 	  	
+	  <module>platform-scheduler</module> 	 
+	  <module>security</module> 	
       <module>platform-app</module>
   </modules>
   

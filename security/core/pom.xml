@@ -27,7 +27,6 @@
   <packaging>pom</packaging>
 
   <modules>
-    <module>security-core-api</module>
     <module>security-core-impl</module>
   </modules>
 
