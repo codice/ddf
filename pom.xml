@@ -19,7 +19,6 @@
       <groupId>ddf</groupId>
       <artifactId>ddf-parent</artifactId>
       <version>1.0.0-SNAPSHOT</version>
-      <!-- <relativePath>../../ddf-parent/pom.xml</relativePath> -->
 	  <relativePath>../parent/pom.xml</relativePath>
   </parent>
   
@@ -63,9 +62,9 @@
   
   <modules>
       <module>platform-configuration</module>   
-      <module>../action</module>
-      <module>../mime</module>
-      <module>../metrics</module>
+      <module>action</module>
+      <module>mime</module>
+      <module>metrics</module>
 	  <module>platform-scheduler</module> 	  	
       <module>platform-app</module>
   </modules>
