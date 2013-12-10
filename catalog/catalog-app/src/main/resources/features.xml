@@ -195,17 +195,6 @@
         <feature>catalog-transformer-geoformatter</feature>
         <feature>catalog-transformer-xml</feature>
 		<feature>search</feature>
-    </feature>
-
-    <feature name="search" version="${project.version}" description="Search UI">
-        <bundle>mvn:ddf.ui.search-ui/simple/${project.version}</bundle>
-        <bundle>mvn:ddf.ui.search-ui/standard/${project.version}</bundle>
-        <bundle>mvn:ddf.ui.search-ui/search-redirect/${project.version}</bundle>
-
-        <config name="org.codice.ddf.ui.searchui.filter.RedirectServlet">
-            defaultUri=/search/standard
-        </config>
-    </feature>
-    
+    </feature>   
         
 </features>
