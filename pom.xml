@@ -20,7 +20,6 @@
     <groupId>ddf</groupId>
     <artifactId>ddf-parent</artifactId>
     <version>1.0.0-SNAPSHOT</version>
-<!--     <relativePath>../../ddf-parent/pom.xml</relativePath> -->
     <relativePath>../parent/pom.xml</relativePath>
   </parent>
   
@@ -45,7 +44,7 @@
   </dependencyManagement>
     
   <modules>
-      <module>../catalog/kml</module>
+      <module>kml</module>
       <module>spatial-app</module>
   </modules>
   

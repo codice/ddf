@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+	<Style id="defaultStyle" xmlns="http://www.opengis.net/kml/2.2">
+		<PolyStyle>
+			<fill>1</fill>
+			<outline>1</outline>
+			<color>7dcc0000</color>
+		</PolyStyle>
+		<LineStyle>
+			<color>8fff0000</color>
+			<width>4</width>
+		</LineStyle>
+	</Style>
