@@ -194,7 +194,6 @@
         <feature>catalog-transformer-atom</feature>
         <feature>catalog-transformer-geoformatter</feature>
         <feature>catalog-transformer-xml</feature>
-		<feature>search</feature>
     </feature>   
         
 </features>
