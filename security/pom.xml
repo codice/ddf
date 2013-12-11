@@ -101,7 +101,6 @@
 
 
   <modules>
-    <!-- <module>encryption</module> -->
     <module>expansion</module>
     <module>core</module>
     <module>sts</module>

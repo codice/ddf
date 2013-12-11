@@ -41,7 +41,7 @@
         <module>catalog</module>
         <module>content</module>
         <module>spatial</module>
-        <module>catalog/solr</module>
+        <module>solr</module>
         <module>ui</module>
         <module>distribution</module>
         <!-- TODO
