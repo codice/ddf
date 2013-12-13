@@ -23,6 +23,12 @@ import java.io.ObjectInputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.RejectedExecutionHandler;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import javax.activation.MimeTypeParseException;
 
@@ -73,10 +79,13 @@ public class IngestCommand extends CatalogCommands {
             + "")
     String transformerId = DEFAULT_TRANSFORMER_ID;
 
+    @Option(name = "Multithreaded", required = false, aliases = {"-m"}, multiValued = false, description = "Flag to set number of threads to use when ingesting. Setting this value too high for your system can cause performance degradation.")
+    int multithreaded = 1;
+
     @Override
     protected Object doExecute() throws Exception {
 
-        CatalogFacade catalog = getCatalog();
+        final CatalogFacade catalog = getCatalog();
         File inputFile = new File(filePath);
 
         if (!inputFile.exists()) {
@@ -86,43 +95,110 @@ public class IngestCommand extends CatalogCommands {
             return null;
         }
 
-        ArrayList<Metacard> metacards = new ArrayList<Metacard>();
+        ArrayList<Metacard> metacards = new ArrayList<Metacard>(batchSize);
         if (inputFile.isDirectory()) {
-            long startTime = System.currentTimeMillis();
-            File[] fileList = inputFile.listFiles();
+            final long startTime = System.currentTimeMillis();
+            final File[] fileList = inputFile.listFiles();
 
             console.println("Found " + fileList.length + " file(s) to insert.");
-            int ingestCount = 0;
+            final CountRecorder ingestCountObj = new CountRecorder();
             CreateResponse createResponse;
 
-            printProgressAndFlush(startTime, fileList, ingestCount);
+            printProgressAndFlush(startTime, fileList, ingestCountObj.getCount());
 
-            for (File file : fileList) {
-                Metacard result = readMetacard(file);
-                if (result != null) {
-                    metacards.add(result);
+            if (multithreaded > 1 && fileList.length > batchSize) {
+                BlockingQueue<Runnable> blockingQueue = new ArrayBlockingQueue<Runnable>(
+                        multithreaded);
+                RejectedExecutionHandler rejectedExecutionHandler = new ThreadPoolExecutor.CallerRunsPolicy();
+                final ExecutorService executorService = new ThreadPoolExecutor(multithreaded,
+                        multithreaded, 0L, TimeUnit.MILLISECONDS, blockingQueue,
+                        rejectedExecutionHandler);
+
+                for (final File file : fileList) {
+                    executorService.submit(new Runnable() {
+                        @Override
+                        public void run() {
+                            Metacard result = null;
+                            try {
+                                result = readMetacard(file);
+                            } catch (FileNotFoundException e) {
+                                console.printf(e.getMessage());
+                            } catch (ClassNotFoundException e) {
+                                console.printf(e.getMessage());
+                            } catch (MimeTypeParseException e) {
+                                console.printf(e.getMessage());
+                            } catch (MetacardCreationException e) {
+                                console.printf(e.getMessage());
+                            } catch (InterruptedException e) {
+                                console.printf(e.getMessage());
+                            } catch (CatalogTransformerException e) {
+                                console.printf(e.getMessage());
+                            }
+
+                            CreateResponse createResponse = null;
+                            try {
+                                CreateRequest createRequest = new CreateRequestImpl(result);
+                                createResponse = catalog.create(createRequest);
+                            } catch (IngestException e) {
+                                // don't display the error here, or you'll get an entire screen full
+                                // of them
+                                // need to shutdown on an ingest error so that we capture ctrl+c in
+                                // the console
+                                // shutdownNow causes the threadpool to die and then we can exit
+                                // semi-gracefully
+                                // console.printf(e.getMessage());
+                                executorService.shutdownNow();
+                            } catch (SourceUnavailableException e) {
+                                // console.printf(e.getMessage());
+                                executorService.shutdownNow();
+                            }
+                            ingestCountObj.updateCount(createResponse.getCreatedMetacards().size());
+                            printProgressAndFlush(startTime, fileList, ingestCountObj.getCount());
+
+                        }
+                    });
                 }
 
-                if (metacards.size() == batchSize) {
+                executorService.shutdown();
+
+                while (!executorService.isTerminated()) {
+                    try {
+                        TimeUnit.SECONDS.sleep(1);
+                    } catch (InterruptedException e) {
+                        // ignore
+                    }
+                }
+
+            } else {
+                for (File file : fileList) {
+                    Metacard result = readMetacard(file);
+                    if (result != null) {
+                        metacards.add(result);
+                    }
+
+                    if (metacards.size() == batchSize) {
+                        createResponse = createMetacards(catalog, metacards);
+                        ingestCountObj.updateCount(createResponse.getCreatedMetacards().size());
+                        metacards.clear();
+                        printProgressAndFlush(startTime, fileList, ingestCountObj.getCount());
+
+                    }
+                }
+
+                if (metacards.size() > 0) {
                     createResponse = createMetacards(catalog, metacards);
-                    ingestCount += createResponse.getCreatedMetacards().size();
-                    metacards = new ArrayList<Metacard>();
-                    printProgressAndFlush(startTime, fileList, ingestCount);
-
+                    ingestCountObj.updateCount(createResponse.getCreatedMetacards().size());
                 }
             }
 
-            if (metacards.size() > 0) {
-                createResponse = createMetacards(catalog, metacards);
-                ingestCount += createResponse.getCreatedMetacards().size();
-            }
-            printProgressAndFlush(startTime, fileList, ingestCount);
+            printProgressAndFlush(startTime, fileList, ingestCountObj.getCount());
             console.println();
 
             long end = System.currentTimeMillis();
 
-            console.printf(" %d file(s) ingested in %3.3f seconds%n", ingestCount,
+            console.printf(" %d file(s) ingested in %3.3f seconds%n", ingestCountObj.getCount(),
                     (end - startTime) / MILLISECONDS_PER_SECOND);
+
             return null;
         }
 
@@ -242,6 +318,18 @@ public class IngestCommand extends CatalogCommands {
             }
         }
 
+    }
+
+    private static class CountRecorder {
+        private int count = 0;
+
+        public synchronized void updateCount(int i) {
+            count += i;
+        }
+
+        public int getCount() {
+            return count;
+        }
     }
 
 }
