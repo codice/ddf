@@ -21,9 +21,11 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.Properties;
 
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.embedded.EmbeddedSolrServer;
@@ -33,6 +35,7 @@ import org.apache.solr.core.CoreDescriptor;
 import org.apache.solr.core.SolrConfig;
 import org.apache.solr.core.SolrCore;
 import org.apache.solr.schema.IndexSchema;
+import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 /**
@@ -89,7 +92,7 @@ public final class SolrServerFactory {
      * configuration file. If an instance already exists, it cannot be overwritten with a new
      * configuration.
      * 
-     * @param solrConfigFileName
+     * @param solrConfigXml
      *            the name of the solr configuration filename such as solrconfig.xml
      * @param schemaXml
      *            filename of the schema such as schema.xml
@@ -117,8 +120,8 @@ public final class SolrServerFactory {
         }
 
         File solrConfigFile = null;
-
         File solrConfigHome = null;
+        File solrSchemaFile = null;
 
         ConfigurationFileProxy configProxy = givenConfigFileProxy;
 
@@ -138,8 +141,19 @@ public final class SolrServerFactory {
             solrConfigFile = new File(new URI(url.toString()).getPath());
 
             solrConfigHome = new File(solrConfigFile.getParent());
-        } catch (URISyntaxException e1) {
-            LOGGER.warn(e1);
+        } catch (URISyntaxException e) {
+            LOGGER.warn(e);
+        }
+
+        try {
+            URL url = configProxy.getResource(schemaFileName);
+
+            LOGGER.info("Solr schema url: " + url);
+
+            solrSchemaFile = new File(new URI(url.toString()).getPath());
+
+        } catch (URISyntaxException e) {
+            LOGGER.warn(e);
         }
 
         SolrConfig solrConfig = null;
@@ -150,8 +164,10 @@ public final class SolrServerFactory {
 
             // NamedSPILoader uses the thread context classloader to lookup
             // codecs, posting formats, and analyzers
-            solrConfig = new SolrConfig(solrConfigHome.getParent(), solrConfigFileName, null);
-            indexSchema = new IndexSchema(solrConfig, schemaFileName, null);
+            solrConfig = new SolrConfig(solrConfigHome.getParent(), solrConfigFileName,
+                    new InputSource(FileUtils.openInputStream(solrConfigFile)));
+            indexSchema = new IndexSchema(solrConfig, schemaFileName,
+                    new InputSource(FileUtils.openInputStream(solrSchemaFile)));
         } catch (ParserConfigurationException e) {
             LOGGER.warn(e);
         } catch (IOException e) {
@@ -162,21 +178,15 @@ public final class SolrServerFactory {
             Thread.currentThread().setContextClassLoader(tccl);
         }
 
-        // this is necessary as a workaround to an
-        // incompatibility introduced in between Solr 4.0 to 4.1
-        CoreContainer container = new CoreContainer() {
-            {
-                initShardHandler(null);
-            }
-        };
-        CoreDescriptor dcore = new CoreDescriptor(container, "", solrConfig.getResourceLoader()
+
+        CoreContainer container = new CoreContainer(solrConfigHome.getAbsolutePath());
+        container.load();
+        CoreDescriptor dcore = new CoreDescriptor(container, "core1", solrConfig.getResourceLoader()
                 .getInstanceDir());
-        dcore.setConfigName(solrConfig.getResourceName());
-        dcore.setSchemaName(indexSchema.getResourceName());
 
         File dataDir = configProxy.getDataDirectory();
         LOGGER.info("Using data directory [" + dataDir + "]");
-        SolrCore core = new SolrCore(null, dataDir.getAbsolutePath(), solrConfig, indexSchema,
+        SolrCore core = new SolrCore("core1", dataDir.getAbsolutePath(), solrConfig, indexSchema,
                 dcore);
         container.register("core1", core, false);
 

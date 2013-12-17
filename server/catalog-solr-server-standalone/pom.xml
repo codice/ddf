@@ -23,15 +23,11 @@
 	<name>DDF :: Catalog :: Solr :: Server :: Standalone War</name>
 	<packaging>war</packaging>
 
-	<properties>
-		<solr.lucene.version>4.1.0</solr.lucene.version>
-	</properties>
-
 	<dependencies>
 		<dependency>
 			<groupId>org.apache.solr</groupId>
 			<artifactId>solr</artifactId>
-			<version>${solr.lucene.version}</version>
+			<version>${solr.version}</version>
 			<type>war</type>
 		</dependency>
 	</dependencies>
@@ -62,7 +58,7 @@
 								<artifactItem>
 									<groupId>ddf.thirdparty</groupId>
 									<artifactId>lse</artifactId>
-									<version>0.3_2</version>
+									<version>0.3_3</version>
 									<type>jar</type>
 									<overWrite>true</overWrite>
 									<outputDirectory>${project.build.directory}/${project.artifactId}-${project.version}/WEB-INF/lib</outputDirectory>
@@ -108,35 +104,46 @@
 							"you should have an entry for each jar you have in your lib directory"
 							http://team.ops4j.org/wiki/display/paxweb/OSGi-fy+your+WAR
 							 -->
-							WEB-INF/lib/cglib-nodep-2.2.jar,
 							WEB-INF/lib/commons-cli-1.2.jar,
 							WEB-INF/lib/commons-codec-1.7.jar,
+                            WEB-INF/lib/commons-configuration-1.6.jar,
 							WEB-INF/lib/commons-fileupload-1.2.1.jar,
 							WEB-INF/lib/commons-io-2.1.jar,
-							WEB-INF/lib/commons-lang-2.6.jar,
-							WEB-INF/lib/guava-13.0.1.jar,
-							WEB-INF/lib/httpclient-4.1.3.jar,
-							WEB-INF/lib/httpcore-4.1.4.jar,
-							WEB-INF/lib/httpmime-4.1.3.jar,
-							WEB-INF/lib/jcl-over-slf4j-1.6.4.jar,
-							WEB-INF/lib/lse-0.3_2.jar,
-							WEB-INF/lib/lucene-analyzers-common-${solr.lucene.version}.jar,
-							WEB-INF/lib/lucene-analyzers-kuromoji-${solr.lucene.version}.jar,
-							WEB-INF/lib/lucene-analyzers-phonetic-${solr.lucene.version}.jar,
-							WEB-INF/lib/lucene-core-${solr.lucene.version}.jar,
-							WEB-INF/lib/lucene-grouping-${solr.lucene.version}.jar,
-							WEB-INF/lib/lucene-highlighter-${solr.lucene.version}.jar,
-							WEB-INF/lib/lucene-memory-${solr.lucene.version}.jar,
-							WEB-INF/lib/lucene-misc-${solr.lucene.version}.jar,
-							WEB-INF/lib/lucene-queries-${solr.lucene.version}.jar,
-							WEB-INF/lib/lucene-queryparser-${solr.lucene.version}.jar,
-							WEB-INF/lib/lucene-spatial-${solr.lucene.version}.jar,
-							WEB-INF/lib/lucene-suggest-${solr.lucene.version}.jar,
-							WEB-INF/lib/objenesis-1.2.jar,
-							WEB-INF/lib/slf4j-api-1.6.4.jar,
-							WEB-INF/lib/slf4j-jdk14-1.6.4.jar,
-							WEB-INF/lib/solr-core-${solr.lucene.version}.jar,
-							WEB-INF/lib/solr-solrj-${solr.lucene.version}.jar,
+                            WEB-INF/lib/commons-lang-2.6.jar,
+                            WEB-INF/lib/concurrentlinkedhashmap-lru-1.2.jar,
+                            WEB-INF/lib/dom4j-1.6.1.jar,
+							WEB-INF/lib/guava-14.0.1.jar,
+                            WEB-INF/lib/hadoop-annotations-2.2.0.jar,
+                            WEB-INF/lib/hadoop-auth-2.2.0.jar,
+                            WEB-INF/lib/hadoop-common-2.2.0.jar,
+                            WEB-INF/lib/hadoop-hdfs-2.2.0.jar,
+                            WEB-INF/lib/hppc-0.5.2.jar,
+							WEB-INF/lib/httpclient-4.2.6.jar,
+							WEB-INF/lib/httpcore-4.2.5.jar,
+							WEB-INF/lib/httpmime-4.2.6.jar,
+							WEB-INF/lib/joda-time-2.2.jar,
+							WEB-INF/lib/lse-0.3_3.jar,
+							WEB-INF/lib/lucene-analyzers-common-${solr.version}.jar,
+							WEB-INF/lib/lucene-analyzers-kuromoji-${solr.version}.jar,
+							WEB-INF/lib/lucene-analyzers-phonetic-${solr.version}.jar,
+                            WEB-INF/lib/lucene-codecs-${solr.version}.jar,
+							WEB-INF/lib/lucene-core-${solr.version}.jar,
+							WEB-INF/lib/lucene-grouping-${solr.version}.jar,
+							WEB-INF/lib/lucene-highlighter-${solr.version}.jar,
+                            WEB-INF/lib/lucene-join-${solr.version}.jar,
+							WEB-INF/lib/lucene-memory-${solr.version}.jar,
+							WEB-INF/lib/lucene-misc-${solr.version}.jar,
+							WEB-INF/lib/lucene-queries-${solr.version}.jar,
+							WEB-INF/lib/lucene-queryparser-${solr.version}.jar,
+							WEB-INF/lib/lucene-spatial-${solr.version}.jar,
+							WEB-INF/lib/lucene-suggest-${solr.version}.jar,
+                            WEB-INF/lib/noggit-0.5.jar,
+                            WEB-INF/lib/org.restlet-2.1.1.jar,
+                            WEB-INF/lib/org.restlet.ext.servlet-2.1.1.jar,
+							WEB-INF/lib/protobuf-java-2.5.0.jar,
+							WEB-INF/lib/solr-core-${solr.version}.jar,
+							WEB-INF/lib/solr-solrj-${solr.version}.jar,
+                            WEB-INF/lib/spatial4j-0.3.jar,
 							WEB-INF/lib/wstx-asl-3.2.7.jar,
 							WEB-INF/lib/zookeeper-3.4.5.jar
 						</Bundle-ClassPath>
@@ -158,6 +165,9 @@
 							javax.servlet,
 							javax.servlet.http,
 							javax.xml.parsers,
+                            org.apache.commons.logging,
+                            org.apache.commons.logging.impl,
+                            org.slf4j,
 							org.xml.sax,
 							org.w3c.dom,
 							javax.xml.xpath,
@@ -177,7 +187,7 @@
 							javax.xml.transform.stream;resolution:=optional,
 							jline;resolution:=optional,
 							org.xml.sax.ext;resolution:=optional,
-							org.xml.sax.helpers;resolution:=optional,
+							org.xml.sax.helpers;resolution:=optional
 						</Import-Package>
 					</instructions>
 				</configuration>

@@ -33,11 +33,11 @@
 
 	<dependencies>
 
-		<!--  Our branched spatial library for solr 4.1 -->
+		<!--  Our branched spatial library for solr 4.6 -->
 		<dependency>
 			<groupId>ddf.thirdparty</groupId>
 			<artifactId>lse</artifactId>
-			<version>0.3_2</version>
+			<version>0.3_3</version>
 		</dependency>
 
 		<dependency>
@@ -50,7 +50,7 @@
 			<groupId>org.apache.solr</groupId>
 			<artifactId>solr-core</artifactId>
 			<version>${solr.version}</version>
-		</dependency>
+        </dependency>
 
 		<dependency>
 			<groupId>org.parboiled</groupId>
@@ -237,6 +237,7 @@
 							httpclient,
 							httpcore,
 							httpmime,
+                            noggit,
 							zookeeper
 						</Embed-Dependency>
 						<Embed-Transitive>true</Embed-Transitive>

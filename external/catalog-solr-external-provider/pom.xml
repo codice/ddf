@@ -33,13 +33,6 @@
 			<groupId>ddf.catalog.solr.embedded</groupId>
 			<artifactId>catalog-solr-embedded-provider</artifactId>
 		</dependency>
-		
-		<!-- Need to override the dependency management version -->
-		<dependency>
-			<groupId>org.apache.httpcomponents</groupId>
-			<artifactId>httpclient</artifactId>
-			<version>4.1.3</version><!--$NO-MVN-MAN-VER$-->
-		</dependency>
 
 		<dependency>
 			<groupId>ddf.catalog.solr.embedded</groupId>
@@ -96,10 +89,11 @@
 							httpclient,
 							httpcore,
 							httpmime,
-							zookeeper
+                            noggit,
+                            zookeeper
 						</Embed-Dependency>
 						<Embed-Transitive>true</Embed-Transitive>
-						<!-- We want the maven-populated describable.properties, so we overwrite 
+						<!-- We want the maven-populated describable.properties, so we overwrite
 							the src/main/resources one with the one in target -->
 						<Include-Resource>{maven-resources},target/classes/describable.properties</Include-Resource>
 						<!-- Package uses conflict if we do not embed Parboiled and its dependencies -->

@@ -31,7 +31,7 @@
 	<properties>
 	    <ddf.platform.app.version>2.3.0.ALPHA1-SNAPSHOT</ddf.platform.app.version>
 	    <ddf.catalog.app.version>2.3.0.ALPHA1-SNAPSHOT</ddf.catalog.app.version>
-		<solr.version>4.1.0</solr.version>
+		<solr.version>4.6.0</solr.version>
 	</properties>
 
     <dependencyManagement>
