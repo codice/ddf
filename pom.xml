@@ -118,19 +118,7 @@
 	    <module>common</module>
         <module>core</module>
         <module>schematron</module>
-        <module>transformer/catalog-transformer-attribute</module>
-        <module>transformer/catalog-transformer-service-xslt</module>
-        <module>transformer/catalog-transformer-service-html</module>
-        <module>transformer/catalog-transformer-resource</module>
-        <module>transformer/catalog-transformer-metadata</module>
-        <module>transformer/catalog-transformer-thumbnail</module>
-        <module>transformer/catalog-transformer-tika-input</module>
-        <module>transformer/catalog-transformer-geojson-input</module>
-        <module>transformer/catalog-transformer-geojson-metacard</module>
-        <module>transformer/catalog-transformer-geojson-queryresponse</module>
-        <module>transformer/catalog-transformer-service-atom</module>
-        <module>transformer/catalog-transformer-xml-binding</module>
-        <module>transformer/catalog-transformer-xml</module>
+        <module>transformer</module>
         <module>plugin</module>
         <module>opensearch</module>
         <module>rest</module>

@@ -14,12 +14,11 @@
 	<modelVersion>4.0.0</modelVersion>
 	
 	<parent>
-		<groupId>ddf</groupId>
-        <artifactId>ddf-parent</artifactId>
-        <version>1.0.0-SNAPSHOT</version>
-        <relativePath>../../parent/pom.xml</relativePath>
+		<groupId>ddf.catalog</groupId>
+        <artifactId>catalog</artifactId>
+        <version>2.3.0.ALPHA1-SNAPSHOT</version>
 	</parent>
-	
+		
 	<groupId>ddf.catalog.transformer</groupId>
 	<artifactId>transformer</artifactId>
 	<version>2.3.0.ALPHA1-SNAPSHOT</version>
@@ -36,22 +35,27 @@
             <dependency>
                 <groupId>ddf.catalog.core</groupId>
                 <artifactId>catalog-core-api</artifactId>
-                <version>${ddf.catalog.app.version}</version>
+                <version>${project.version}</version>
             </dependency>
+            <dependency>
+			    <groupId>ddf.catalog.core</groupId>
+			    <artifactId>catalog-core-api-impl</artifactId>
+			    <version>${project.version}</version>
+		    </dependency>
             <dependency>
                 <groupId>ddf.catalog.core</groupId>
                 <artifactId>catalog-core-commons</artifactId>
-                <version>${ddf.catalog.app.version}</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>ddf.catalog.core</groupId>
                 <artifactId>filter-proxy</artifactId>
-                <version>${ddf.catalog.app.version}</version>
+                <version>${project.version}</version>
             </dependency>   
             <dependency>
                 <groupId>ddf.catalog.common</groupId>
                 <artifactId>geo-formatter</artifactId>
-                <version>${ddf.catalog.app.version}</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>ddf.catalog.transformer</groupId>
@@ -72,16 +76,19 @@
 	</dependencyManagement>
 
 	<modules>
-		<module>catalog-transformer-tika-input</module>
-		<module>catalog-transformer-geojson-input</module>
-		<module>catalog-transformer-geojson-metacard</module>
-		<module>catalog-transformer-geojson-queryresponse</module>
-		<module>catalog-transformer-service-atom</module>
-		<module>catalog-transformer-service-html</module>
-		<module>catalog-transformer-responsequeue-html</module>
-		<module>catalog-transformer-xml-binding</module>
-		<module>catalog-transformer-xml</module>
-		<module>catalog-transformer-app</module>
+        <module>catalog-transformer-attribute</module>
+        <module>catalog-transformer-service-xslt</module>
+        <module>catalog-transformer-service-html</module>
+        <module>catalog-transformer-resource</module>
+        <module>catalog-transformer-metadata</module>
+        <module>catalog-transformer-thumbnail</module>
+        <module>catalog-transformer-tika-input</module>
+        <module>catalog-transformer-geojson-input</module>
+        <module>catalog-transformer-geojson-metacard</module>
+        <module>catalog-transformer-geojson-queryresponse</module>
+        <module>catalog-transformer-service-atom</module>
+        <module>catalog-transformer-xml-binding</module>
+        <module>catalog-transformer-xml</module>
 	</modules>
 	
 </project>
