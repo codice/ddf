@@ -19,7 +19,6 @@
 	    <groupId>ddf.spatial</groupId>
 		<artifactId>spatial</artifactId>
 		<version>2.3.0.ALPHA1-SNAPSHOT</version>
-		<relativePath>../pom.xml</relativePath>
 	</parent>
 
 	<artifactId>catalog-kml-pom</artifactId> 
