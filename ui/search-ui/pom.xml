@@ -22,7 +22,6 @@
         <artifactId>ui</artifactId>
         <groupId>ddf.ui</groupId>
         <version>2.3.0.ALPHA1-SNAPSHOT</version>
-		<relativePath>../pom.xml</relativePath>
     </parent>
     
     <groupId>ddf.ui.search-ui</groupId>

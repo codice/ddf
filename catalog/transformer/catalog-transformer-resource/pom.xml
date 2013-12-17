@@ -16,10 +16,9 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
-		<groupId>ddf.catalog</groupId>
-        <artifactId>catalog</artifactId>
+		<groupId>ddf.catalog.transformer</groupId>
+        <artifactId>transformer</artifactId>
         <version>2.3.0.ALPHA1-SNAPSHOT</version>
-        <relativePath>../../pom.xml</relativePath>
     </parent>
     
     <groupId>ddf.catalog.transformer</groupId>
@@ -31,7 +30,6 @@
 		<dependency>
 			<groupId>ddf.catalog.core</groupId>
 			<artifactId>catalog-core-api-impl</artifactId>
-			<version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>log4j</groupId>
