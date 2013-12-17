@@ -11,7 +11,6 @@
  */
 -->
 <img src="https://tools.codice.org/wiki/download/attachments/3047458/ddf.jpg"/>
-
 # [Distributed Data Framework \(DDF\)](http://ddf.codice.org/)
 [![Build Status](https://travis-ci.org/codice/ddf.png)](https://travis-ci.org/codice/ddf?branch=master)
 
