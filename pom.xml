@@ -214,6 +214,7 @@
 		<tika.version>1.2</tika.version>
 		<abdera.version>1.1.2</abdera.version>  <!-- Moved from catalog/pom.xml since now used by atom transformer and opensearch source -->
         <shiro.version>1.2.1</shiro.version>
+		<handlebars.version>1.1.2</handlebars.version>
 
 		<!-- Endorsed Dependencies -->
 		<xalan.version>2.7.1</xalan.version>
