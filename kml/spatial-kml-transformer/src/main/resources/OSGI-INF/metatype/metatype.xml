@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version. 
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+
+ -->
+<metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
+
+	<OCD name="Spatial KML Style Map Entry" id="org.codice.ddf.spatial.kml.style">
+
+		<AD name="Attribute Name" id="attributeName" required="true" type="String" 
+			description="The name of the Metacard Attribute to match against. e.g. title, metadata-content-type, etc"/>
+
+		<AD name="Attribute Value" id="attributeValue" required="true" type="String" 
+			description="The value of the Metacard Attribute."/>
+		
+		<AD name="Style URL" id="styleUrl" required="true" type="String" 
+			description="The full qualified URL to the KML Style. e.g. http://example.com/styles#myStyle"/>
+
+	</OCD>
+
+	<Designate pid="org.codice.ddf.spatial.kml.style" factoryPid="org.codice.ddf.spatial.kml.style">
+		<Object ocdref="org.codice.ddf.spatial.kml.style" />
+	</Designate>
+
+</metatype:MetaData>

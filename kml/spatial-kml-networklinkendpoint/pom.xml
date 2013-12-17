@@ -14,61 +14,43 @@
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <parent>
-		<artifactId>catalog-kml-pom</artifactId>
-		<groupId>ddf.catalog.kml</groupId>
+		<artifactId>spatial-kml-pom</artifactId>
+		<groupId>ddf.spatial.kml</groupId>
 		<version>2.3.0.ALPHA2-SNAPSHOT</version>
   </parent>
 	
   <modelVersion>4.0.0</modelVersion>
-  <artifactId>catalog-kml-networklinkendpoint</artifactId>
-  <name>DDF :: Catalog :: KML :: Network Linked Endpoint</name>
+  <artifactId>spatial-kml-networklinkendpoint</artifactId>
+  <name>DDF :: Spatial :: KML :: NetworkLink Endpoint</name>
   <packaging>bundle</packaging>
   
   <dependencies>
+  
     <dependency>
       <groupId>org.apache.servicemix.specs</groupId>
       <artifactId>org.apache.servicemix.specs.jsr311-api-1.1</artifactId>
-    </dependency> 
- 	
-    <dependency>
-    	<groupId>log4j</groupId>
-    	<artifactId>log4j</artifactId>
-    </dependency>
-	
-    <dependency>
-      <groupId>javax.xml.bind</groupId>
-      <artifactId>jaxb-api</artifactId>
-      <scope>compile</scope>
-    </dependency>
-	
-    <dependency>
-    	<groupId>com.sun.jersey</groupId>
-    	<artifactId>jersey-server</artifactId>
-    	<version>1.5</version>
-    	<scope>test</scope>
     </dependency>
     
     <dependency>
-    	<groupId>org.apache.felix</groupId>
-    	<artifactId>org.osgi.compendium</artifactId>
-    	<version>1.4.0</version>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-rt-frontend-jaxrs</artifactId>
+            <scope>test</scope>
     </dependency>
-	
+
     <dependency>
     	<groupId>ddf.catalog.core</groupId>
-    	<artifactId>catalog-core-api</artifactId>
+    	<artifactId>catalog-core-api-impl</artifactId>
     </dependency>
-    
+
     <dependency>
-        <groupId>ddf.catalog.kml</groupId>
-        <artifactId>catalog-kml-transformer</artifactId>
-        <version>${project.version}</version>
-    </dependency>
-	
+	      <groupId>de.micromata.jak</groupId>
+	      <artifactId>JavaAPIforKml</artifactId>
+	</dependency>
+
     <dependency>
-    	<groupId>com.vividsolutions</groupId>
-    	<artifactId>jts</artifactId>
-    </dependency>
+    		<groupId>org.apache.felix</groupId>
+    		<artifactId>org.apache.felix.webconsole</artifactId>
+    	</dependency>
   </dependencies>
   
   <build>
@@ -82,43 +64,7 @@
         <configuration>
           <instructions>
             <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-            <Spring-Context>*;wait-for-dependencies:=true;timeout:=604800</Spring-Context>
-            <Import-Package>
-            	javax.xml.bind,
-            	javax.xml.bind.annotation,
-            	javax.xml.bind.annotation.adapters,
-            	javax.xml.namespace,
-            	org.apache.log4j,
-            	javax.ws.rs,
-            	org.osgi.framework, 
-            	org.osgi.service.http,
-            	ddf.catalog,
-            	ddf.catalog.data,
-            	ddf.catalog.event,
-            	ddf.catalog.plugin,
-            	ddf.catalog.transform,
-            	javax.security.auth,
-            	ddf.service.kml.subscription,
-            	ddf.service.kml,
-            	com.vividsolutions.jts.io,
-            	com.vividsolutions.jts.geom,
-            	de.micromata.opengis.kml.v_2_2_0,
-            	org.codice.ddf.opensearch.query,
-                org.codice.ddf.configuration,
-                org.apache.commons.lang,
-                META-INF.cxf,
-                META-INF.cxf.osgi,
-	            org.apache.cxf.bus,
-	            org.apache.cxf.bus.spring,
-	            org.apache.cxf.bus.resource,
-	            org.apache.cxf.resource,
-	            org.apache.cxf.configuration.spring,
-	            org.apache.cxf.binding,
-	            org.apache.cxf.jaxrs.utils,
-	            org.apache.cxf.transport.http,
-	            org.springframework.beans.factory.config 		
-            </Import-Package>
-            <DynamicImport-Package>javax.ws.rs.*</DynamicImport-Package>
+            <Embed-Dependency>JavaAPIforKml, catalog-core-api-impl</Embed-Dependency>
           </instructions>
         </configuration>
       </plugin>
