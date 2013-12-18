@@ -30,22 +30,22 @@
       <dependency>
         <groupId>ddf.security.core</groupId>
         <artifactId>security-core-api</artifactId>
-        <version>${ddf.security.app.version}</version>
+        <version>${project.version}</version>
       </dependency>
       <dependency>
         <groupId>ddf.security.encryption</groupId>
         <artifactId>security-encryption-api</artifactId>
-        <version>${ddf.security.app.version}</version>
+        <version>${project.version}</version>
       </dependency>
       <dependency>
         <groupId>ddf.security.encryption</groupId>
         <artifactId>security-encryption-impl</artifactId>
-        <version>${ddf.security.app.version}</version>
+        <version>${project.version}</version>
       </dependency>
       <dependency>
         <groupId>ddf.security.encryption</groupId>
         <artifactId>security-encryption-commands</artifactId>
-        <version>${ddf.security.app.version}</version>
+        <version>${project.version}</version>
       </dependency>
     </dependencies>
     

@@ -28,10 +28,6 @@
   <name>DDF Platform</name>
   <packaging>pom</packaging>
   
-     <properties>
-      <ddf.security.app.version>2.3.0.ALPHA1-SNAPSHOT</ddf.security.app.version>
-    </properties>
-
     <dependencyManagement>
         <dependencies>
         <dependency>
