@@ -29,7 +29,7 @@
 	<name>DDF Content</name>
     
     <properties>
-        <ddf.platform.app.version>2.3.0.ALPHA1-SNAPSHOT</ddf.platform.app.version>
+        <ddf.platform.app.version>2.3.0.ALPHA1</ddf.platform.app.version>
     </properties>
 
     <dependencyManagement>
