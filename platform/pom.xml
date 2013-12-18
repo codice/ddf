@@ -24,7 +24,7 @@
   
   <groupId>ddf.platform</groupId>
   <artifactId>platform</artifactId>
-  <version>2.3.0.ALPHA1-SNAPSHOT</version>
+  <version>2.3.0.ALPHA1</version>
   <name>DDF Platform</name>
   <packaging>pom</packaging>
   
@@ -66,4 +66,8 @@
       <module>platform-app</module>
   </modules>
   
+
+  <scm>
+    <tag>ddf-platform-2.3.0.ALPHA1</tag>
+  </scm>
 </project>

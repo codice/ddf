@@ -12,13 +12,12 @@
  *
  **/
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>ddf.platform</groupId>
         <artifactId>platform</artifactId>
-        <version>2.3.0.ALPHA1-SNAPSHOT</version>
+        <version>2.3.0.ALPHA1</version>
 	</parent>
 
 	<groupId>ddf.platform.security</groupId>
@@ -29,7 +28,7 @@
   <properties>
     <cas.client.version>3.1.10</cas.client.version>
     <cas.client.bundle.version>${cas.client.version}_1</cas.client.bundle.version>
-    <ddf.platform.app.version>2.3.0.ALPHA1-SNAPSHOT</ddf.platform.app.version>
+    <ddf.platform.app.version>2.3.0.ALPHA1</ddf.platform.app.version>
   </properties>
 
   <dependencyManagement>
