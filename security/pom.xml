@@ -22,7 +22,7 @@
 
 	<groupId>ddf.platform.security</groupId>
 	<artifactId>security</artifactId>
-	<name>DDF PLATFORM SECURITY</name>
+	<name>DDF Platform Security</name>
 	<packaging>pom</packaging>
 
   <properties>
