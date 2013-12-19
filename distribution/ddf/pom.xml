@@ -38,7 +38,7 @@
     <distribution.file.name>ddf-${project.version}</distribution.file.name>
     <ddf.platform.app.version>2.3.0.ALPHA1</ddf.platform.app.version>
     <ddf.security.app.version>2.3.0.ALPHA1-SNAPSHOT</ddf.security.app.version>
-    <ddf.content.app.version>2.3.0.ALPHA1-SNAPSHOT</ddf.content.app.version>
+    <ddf.content.app.version>2.3.0.ALPHA1</ddf.content.app.version>
     <ddf.catalog.app.version>2.3.0.ALPHA1</ddf.catalog.app.version>
     <ddf.solr.catalog.app.version>2.3.0.ALPHA1</ddf.solr.catalog.app.version>
     <ddf.searchui.app.version>2.3.0.ALPHA1-SNAPSHOT</ddf.searchui.app.version>
