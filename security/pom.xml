@@ -31,7 +31,7 @@
   <properties>
     <cas.client.version>3.1.10</cas.client.version>
     <cas.client.bundle.version>${cas.client.version}_1</cas.client.bundle.version>
-    <ddf.platform.app.version>2.3.0.ALPHA1-SNAPSHOT</ddf.platform.app.version>
+    <ddf.platform.app.version>2.3.0.ALPHA1</ddf.platform.app.version>
   </properties>
 
   <dependencyManagement>
@@ -59,12 +59,12 @@
       <dependency>
         <groupId>ddf.security.encryption</groupId>
         <artifactId>security-encryption-impl</artifactId>
-        <version>${project.version}</version>
+        <version>${ddf.platform.app.version}</version>
       </dependency>
       <dependency>
         <groupId>ddf.security.encryption</groupId>
         <artifactId>security-encryption-api</artifactId>
-        <version>${project.version}</version>
+        <version>${ddf.platform.app.version}</version>
       </dependency>
       <dependency>
         <groupId>ddf.security.expansion</groupId>
@@ -79,7 +79,7 @@
       <dependency>
         <groupId>ddf.security.core</groupId>
         <artifactId>security-core-api</artifactId>
-        <version>${project.version}</version>
+        <version>${ddf.platform.app.version}</version>
       </dependency>
       <dependency>
         <groupId>ddf.security.core</groupId>
