@@ -39,7 +39,7 @@
             <dependency>
                 <groupId>ddf.catalog.core</groupId>
                 <artifactId>catalog-core-api</artifactId>
-                <version>${ddf.platform.app.version}</version>
+                <version>${ddf.catalog.app.version}</version>
             </dependency>
             <dependency>
                 <groupId>ddf.catalog.core</groupId>
