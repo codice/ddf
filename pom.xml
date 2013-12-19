@@ -17,7 +17,7 @@
   
   <groupId>ddf</groupId>
   <artifactId>ddf-parent</artifactId>
-  <version>1.0.0.ALPHA2</version>
+  <version>1.0.0.ALPHA3-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>DDF Parent</name>
   <description>Distributed Data Framework (DDF) Parent</description>
@@ -273,7 +273,7 @@
 		<url>https://github.com/codice/ddf.git</url>
 		<connection>scm:git:git://github.com/codice/ddf.git</connection>
 		<developerConnection>scm:git:git://github.com/codice/ddf.git</developerConnection>
-		<tag>ddf-parent-1.0.0.ALPHA2</tag>
+		<tag>HEAD</tag>
 	</scm>
 
 	<distributionManagement>
