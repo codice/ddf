@@ -1047,5 +1047,11 @@
 			<url>http://artifacts.codice.org/content/groups/public/</url>
 		</repository>
 	</repositories>
-	
+	<pluginRepositories>
+		<pluginRepository>
+			<id>codice</id>
+			<name>Codice Repository</name>
+			<url>http://artifacts.codice.org/content/groups/public/</url>
+		</pluginRepository>
+	</pluginRepositories>
 </project>
