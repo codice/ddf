@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<!-- 
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+ -->
+ 
+<html>
+<head>
+	<title>{{properties.title}}</title>
+
+	<link href="/search/simple/lib/bootstrap-2.3.1/css/bootstrap.min.css" rel="stylesheet">
+	<link href="/search/simple/lib/font-awesome/css/font-awesome.min.css" rel="stylesheet">
+
+	<link href="/search/simple/css/recordView.css" rel="stylesheet">
+
+	<!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+	<!--[if lt IE 9]>
+			<script src="/search/simple/lib/shim/html5.js"></script>
+		<![endif]-->
+	<!--[if IE 7]>
+	  <link rel="stylesheet" href="/search/simple/lib/font-awesome/css/font-awesome-ie7.min.css">
+	<![endif]-->
+</head>
+<body>
+
+	{{> recordContents}}
+
+	<div id="metacardModal" class="modal hide" tabindex="-1" role="dialog"
+		aria-labelledby="myModalLabel" aria-hidden="true">
+		<div class="modal-header">
+			<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+			<h3>title</h3>
+		</div>
+		<div class="modal-body"></div>
+	</div>
+	
+	<script type="text/javascript" src="/search/simple/lib/jquery/js/jquery-1.8.2.min.js"></script>
+	<script type="text/javascript" src="/search/simple/lib/bootstrap-2.3.1/js/bootstrap.min.js"></script>
+	<script type="text/javascript">
+
+		function showThumbnail(title, thumbnail) {
+		    $('#metacardModal .modal-header h3').text(title);
+		    $('#metacardModal .modal-body').html("<img alt=\"\" src=\"data:image/jpeg;charset=utf-8;base64, " + thumbnail + "\"></img");
+		    $('#metacardModal').modal('show');
+		}
+
+		function toggleMetadata(e) {
+			if($('#metadataContents').is(":hidden")) {
+				$('#metadataContents').show();
+				$('#metadataExpandButton').text("collapse");
+			} else {
+				$('#metadataContents').hide();
+				$('#metadataExpandButton').text("expand");
+			}
+		}
+	</script>
+</body>
+</html>

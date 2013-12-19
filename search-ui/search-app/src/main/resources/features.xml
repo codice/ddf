@@ -18,6 +18,7 @@
         <bundle>mvn:ddf.ui.search-ui/simple/${project.version}</bundle>
         <bundle>mvn:ddf.ui.search-ui/standard/${project.version}</bundle>
         <bundle>mvn:ddf.ui.search-ui/search-redirect/${project.version}</bundle>
+        <bundle>mvn:ddf.ui.search-ui/search-htmltransformer/${project.version}</bundle>
 
         <config name="org.codice.ddf.ui.searchui.filter.RedirectServlet">
             defaultUri=/search/standard
