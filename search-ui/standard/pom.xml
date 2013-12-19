@@ -52,7 +52,6 @@
         <dependency>
             <groupId>ddf.catalog.core</groupId>
             <artifactId>catalog-core-api</artifactId>
-            <version>${project.version}</version>
         </dependency>
     </dependencies>
 
