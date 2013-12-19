@@ -78,7 +78,6 @@
 	<modules>
         <module>catalog-transformer-attribute</module>
         <module>catalog-transformer-service-xslt</module>
-        <module>catalog-transformer-service-html</module>
         <module>catalog-transformer-resource</module>
         <module>catalog-transformer-metadata</module>
         <module>catalog-transformer-thumbnail</module>
