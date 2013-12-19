@@ -14,37 +14,45 @@
 
  -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  
-  <parent>
-    <groupId>ddf</groupId>
-    <artifactId>ddf-parent</artifactId>
-    <version>1.0.0.ALPHA1</version>
-    <relativePath>../parent/pom.xml</relativePath>
-  </parent>
-  
-  <groupId>ddf.spatial</groupId>
-  <artifactId>spatial</artifactId>
-  <version>2.3.0.ALPHA2-SNAPSHOT</version>
-  <packaging>pom</packaging>
-  <name>DDF Spatial</name>
-  
-  <properties>
-      <ddf.catalog.app.version>2.3.0.ALPHA1</ddf.catalog.app.version>
-  </properties>
+	<modelVersion>4.0.0</modelVersion>
 
-  <dependencyManagement>
-      <dependencies>
-          <dependency>
-              <groupId>ddf.catalog.core</groupId>
-              <artifactId>catalog-core-api</artifactId>
-              <version>${ddf.catalog.app.version}</version>
-          </dependency>
-     </dependencies>
-  </dependencyManagement>
-    
-  <modules>
-      <module>kml</module>
-      <module>spatial-app</module>
-  </modules>
+	<parent>
+		<groupId>ddf</groupId>
+		<artifactId>ddf-parent</artifactId>
+		<version>1.0.0.ALPHA2</version>
+	</parent>
+
+	<groupId>ddf.spatial</groupId>
+	<artifactId>spatial</artifactId>
+	<version>2.3.0.ALPHA2-SNAPSHOT</version>
+	<packaging>pom</packaging>
+	<name>DDF Spatial</name>
+
+	<properties>
+		<ddf.catalog.app.version>2.3.0.ALPHA1</ddf.catalog.app.version>
+	</properties>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>ddf.catalog.core</groupId>
+				<artifactId>catalog-core-api</artifactId>
+				<version>${ddf.catalog.app.version}</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
+	<modules>
+		<module>kml</module>
+		<module>spatial-app</module>
+	</modules>
+
+
+	<repositories>
+		<repository>
+			<id>codice</id>
+			<name>Codice Repository</name>
+			<url>http://artifacts.codice.org/content/groups/public/</url>
+		</repository>
+	</repositories>
 </project>

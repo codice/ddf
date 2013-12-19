@@ -13,24 +13,32 @@
  **/
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-  <parent>
-    <artifactId>ddf</artifactId>
-    <groupId>ddf</groupId>
-    <version>2.3.0.ALPHA1-SNAPSHOT</version>
-  </parent>
-  
-  <modelVersion>4.0.0</modelVersion> <!-- comment -->
-  <groupId>ddf.sdk</groupId>
-  <artifactId>sdk</artifactId>
-  <packaging>pom</packaging>
-  <name>DDF SDK</name>
-  
-  <modules>
-    <module>sample-plugins</module>
-    <module>sample-transformers</module>
-	<module>ddf-sso-query-widget</module>
-	<module>sample-metrics</module>
-	<module>sdk-app</module>
-  </modules>
-  
+	<parent>
+		<groupId>ddf</groupId>
+        <artifactId>ddf-parent</artifactId>
+        <version>1.0.0.ALPHA2</version>
+	</parent>
+
+
+	<modelVersion>4.0.0</modelVersion> <!-- comment -->
+	<groupId>ddf.sdk</groupId>
+	<artifactId>sdk</artifactId>
+	<packaging>pom</packaging>
+	<name>DDF SDK</name>
+
+	<modules>
+		<module>sample-plugins</module>
+		<module>sample-transformers</module>
+		<module>ddf-sso-query-widget</module>
+		<module>sample-metrics</module>
+		<module>sdk-app</module>
+	</modules>
+
+	<repositories>
+		<repository>
+			<id>codice</id>
+			<name>Codice Repository</name>
+			<url>http://artifacts.codice.org/content/groups/public/</url>
+		</repository>
+	</repositories>
 </project>

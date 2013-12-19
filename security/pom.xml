@@ -17,8 +17,7 @@
   <parent>
     <groupId>ddf</groupId>
     <artifactId>ddf-parent</artifactId>
-    <version>1.0.0.ALPHA1</version>
-    <relativePath>../parent/pom.xml</relativePath>
+	<version>1.0.0.ALPHA2</version>
   </parent>
 
   <groupId>ddf.security</groupId>
@@ -108,4 +107,12 @@
     <module>pep</module>
     <module>security-services-app</module>
   </modules>
+	
+	<repositories>		
+		<repository>
+			<id>codice</id>
+			<name>Codice Repository</name>
+			<url>http://artifacts.codice.org/content/groups/public/</url>
+		</repository>
+	</repositories>  
 </project>

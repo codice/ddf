@@ -16,8 +16,7 @@
   <parent>
     <groupId>ddf</groupId>
     <artifactId>ddf-parent</artifactId>
-    <version>1.0.0.ALPHA1</version>
-	<relativePath>../parent/pom.xml</relativePath>
+    <version>1.0.0.ALPHA2</version>
   </parent>
   
   <modelVersion>4.0.0</modelVersion>
@@ -35,6 +34,14 @@
     <module>kernel</module>
     <module>ddf</module>
   </modules>
+  	
+	<repositories>		
+		<repository>
+			<id>codice</id>
+			<name>Codice Repository</name>
+			<url>http://artifacts.codice.org/content/groups/public/</url>
+		</repository>
+	</repositories>
   
   <profiles>
     <profile>

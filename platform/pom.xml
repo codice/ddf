@@ -12,57 +12,65 @@
  *
  **/
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  
-  <parent>
-      <groupId>ddf</groupId>
-      <artifactId>ddf-parent</artifactId>
-      <version>1.0.0.ALPHA1</version>
-	  <relativePath>../parent/pom.xml</relativePath>
-  </parent>
-  
-  <groupId>ddf.platform</groupId>
-  <artifactId>platform</artifactId>
-  <version>2.3.0.ALPHA2-SNAPSHOT</version>
-  <name>DDF Platform</name>
-  <packaging>pom</packaging>
-  
-    <dependencyManagement>
-        <dependencies>
-        <dependency>
-            <groupId>ddf.platform</groupId>
-            <artifactId>platform-configuration</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.action.core</groupId>
-            <artifactId>action-core-api</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        
-        <dependency>
-            <groupId>ddf.mime.core</groupId>
-            <artifactId>mime-core-api</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        
-        <dependency>
-            <groupId>ddf.mime.core</groupId>
-            <artifactId>mime-core-impl</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        
-        </dependencies>
-    </dependencyManagement>
-  
-  <modules>
-      <module>platform-configuration</module>   
-      <module>action</module>
-      <module>mime</module>
-      <module>metrics</module>
-	  <module>platform-scheduler</module> 	 
-	  <module>security</module> 	
-      <module>platform-app</module>
-  </modules>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>ddf</groupId>
+		<artifactId>ddf-parent</artifactId>
+		<version>1.0.0.ALPHA2</version>
+	</parent>
+
+	<groupId>ddf.platform</groupId>
+	<artifactId>platform</artifactId>
+	<version>2.3.0.ALPHA2-SNAPSHOT</version>
+	<name>DDF Platform</name>
+	<packaging>pom</packaging>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>ddf.platform</groupId>
+				<artifactId>platform-configuration</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>ddf.action.core</groupId>
+				<artifactId>action-core-api</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>ddf.mime.core</groupId>
+				<artifactId>mime-core-api</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>ddf.mime.core</groupId>
+				<artifactId>mime-core-impl</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+
+		</dependencies>
+	</dependencyManagement>
+
+	<modules>
+		<module>platform-configuration</module>
+		<module>action</module>
+		<module>mime</module>
+		<module>metrics</module>
+		<module>platform-scheduler</module>
+		<module>security</module>
+		<module>platform-app</module>
+	</modules>
+	
+	<repositories>
+		<repository>
+			<id>codice</id>
+			<name>Codice Repository</name>
+			<url>http://artifacts.codice.org/content/groups/public/</url>
+		</repository>
+	</repositories>	
 </project>

@@ -16,21 +16,12 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
 	<modelVersion>4.0.0</modelVersion>
-	<!-- 
-	The top level pom still has a parent so that the distributionManagement
-	settings are inherited and this pom can be deployed.
-	-->
-	<parent>
-	<groupId>ddf</groupId>
-        <artifactId>ddf-parent</artifactId>
-        <version>1.0.0.ALPHA1</version>
-        <relativePath>parent/pom.xml</relativePath>
-    </parent>
-	
-	<artifactId>ddf</artifactId>
-	<version>2.3.0.ALPHA1-SNAPSHOT</version>
+
+	<groupId>org.codice.ddf</groupId>
+	<artifactId>reactor</artifactId>
+	<version>1.0.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
-	<name>DDF</name>
+	<name>DDF Reactor</name>
 	<description>Distributed Data Framework (DDF) is an open source, modular integration framework</description>
 
 	<modules>
@@ -49,5 +40,6 @@
 		<module>test</module>
         -->
 	</modules>
-
+	
+	
 </project>
