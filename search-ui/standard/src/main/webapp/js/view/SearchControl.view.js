@@ -131,10 +131,12 @@ define(function (require) {
                     if (this.mapViews) {
                         this.mapViews.close();
                     }
-                    this.mapViews = new CesiumMetacard.ResultsView({
-                        collection: result.get('results'),
-                        geoController: ddf.app.controllers.geoController
-                    }).render();
+                    if (ddf.app.controllers.geoController.enabled) {
+                        this.mapViews = new CesiumMetacard.ResultsView({
+                            collection: result.get('results'),
+                            geoController: ddf.app.controllers.geoController
+                        }).render();
+                    }
                     if(this.resultList){
                         this.stopListening(this.resultList, 'content-update', this.updateScrollbar);
                         this.stopListening(this.resultList, 'render', this.updateScrollPos);

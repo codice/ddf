@@ -231,7 +231,7 @@ define(function (require) {
         },
 
         drawExtent : function(){
-            ddf.app.controllers.drawExentController.drawExtent(this.model);
+            ddf.app.controllers.drawExentController.draw(this.model);
         },
 
         onClose: function () {

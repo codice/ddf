@@ -19,32 +19,33 @@ define(function (require) {
             this.color = options.color || {red: 1, green: 0.6431372549019608, blue: 0.403921568627451, alpha: 1 };
             this.imageIndex = options.imageIndex || 0;
             this.buildBillboard();
-
         },
 
         buildBillboard: function () {
-            var view = this;
-            this.geoController.billboardPromise.then(function () {
-                var point = view.model.get('geometry').getPoint();
-                view.billboard = view.geoController.billboardCollection.add({
-                    imageIndex: view.imageIndex,
-                    position: view.geoController.ellipsoid.cartographicToCartesian(
-                        Cesium.Cartographic.fromDegrees(
-                            point.longitude,
-                            point.latitude,
-                            point.altitude
-                        )
-                    ),
-                    horizontalOrigin: Cesium.HorizontalOrigin.CENTER,
-                    verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
-                    scaleByDistance: new Cesium.NearFarScalar(1.0, 1.0, 1.5e7, 0.5)
-                });
-                view.billboard.setColor(view.color);
-                view.billboard.setScale(0.41);
-                view.billboard.hasScale = true;
-            }).fail(function (error) {
+            if (this.geoController.enabled) {
+                var view = this;
+                this.geoController.billboardPromise.then(function () {
+                    var point = view.model.get('geometry').getPoint();
+                    view.billboard = view.geoController.billboardCollection.add({
+                        imageIndex: view.imageIndex,
+                        position: view.geoController.ellipsoid.cartographicToCartesian(
+                            Cesium.Cartographic.fromDegrees(
+                                point.longitude,
+                                point.latitude,
+                                point.altitude
+                            )
+                        ),
+                        horizontalOrigin: Cesium.HorizontalOrigin.CENTER,
+                        verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
+                        scaleByDistance: new Cesium.NearFarScalar(1.0, 1.0, 1.5e7, 0.5)
+                    });
+                    view.billboard.setColor(view.color);
+                    view.billboard.setScale(0.41);
+                    view.billboard.hasScale = true;
+                }).fail(function (error) {
                     console.log('error:  ', error.stack ? error.stack : error);
                 });
+            }
         },
 
         toggleSelection: function () {

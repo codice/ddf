@@ -7,6 +7,7 @@ define(function (require) {
         Cesium = require('cesium'),
         _ = require('underscore'),
         ddf = require('ddf'),
+        webgl = require('webglcheck'),
         Draw = ddf.module();
 
     Draw.ExentModel = Backbone.Model.extend({
@@ -237,43 +238,45 @@ define(function (require) {
     });
 
     Draw.Controller = Marionette.Controller.extend({
+        enabled: webgl.isAvailable(),
         initialize: function (options) {
             this.scene = options.scene;
             this.notificationEl = options.notificationEl;
         },
+        draw: function (model) {
+            if (this.enabled) {
+                var bboxModel = model || new Draw.ExtentModel(),
+                    view = new Draw.Views.ExtentView(
+                        {
+                            scene: this.scene,
+                            model: bboxModel
+                        });
 
-        drawExtent: function (model) {
+                if(this.view){
+                    this.view.destroyPrimitive();
+                    this.view.stop();
 
-            var bboxModel = model || new Draw.ExtentModel(),
-                view = new Draw.Views.ExtentView(
-                    {
-                        scene: this.scene,
-                        model: bboxModel
-                    });
+                }
+                view.start();
+                this.view = view;
+                this.notificationView = new Draw.Views.NotificationView({
+                    el: this.notificationEl
+                }).render();
+                this.listenToOnce(bboxModel, 'EndExtent', function () {
+                    this.notificationView.close();
+                });
 
-            if(this.view){
-                this.view.destroyPrimitive();
-                this.view.stop();
-
+                return bboxModel;
             }
-            view.start();
-            this.view = view;
-            this.notificationView = new Draw.Views.NotificationView({
-                el: this.notificationEl
-            }).render();
-            this.listenToOnce(bboxModel, 'EndExtent', function () {
-                this.notificationView.close();
-            });
-            return bboxModel;
         },
         stopDrawing: function() {
-            if (this.view) {
+            if (this.enabled && this.view) {
                 this.view.stop();
                 this.notificationView.close();
             }
         },
         stop: function () {
-            if (this.view) {
+            if (this.enabled && this.view) {
                 this.view.stop();
                 this.view.destroyPrimitive();
                 this.view = undefined;
