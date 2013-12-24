@@ -8,6 +8,8 @@ define(function (require) {
         Marionette = require('marionette'),
         _ = require('underscore'),
         ich = require('icanhaz'),
+        Spinner = require('spin'),
+        spinnerConfig = require('spinnerConfig'),
         dir = require('direction'),
         List = {};
 
@@ -108,7 +110,10 @@ define(function (require) {
         },
         loadMoreResults: function () {
             var view = this;
+            var spinner = new Spinner(spinnerConfig).spin(this.searchControlView.el);
+            $('.load-more-link', this.$el).hide();
             this.model.loadMoreResults().complete(function() {
+                spinner.stop();
                 view.showHideLoadMore();
             });
         },

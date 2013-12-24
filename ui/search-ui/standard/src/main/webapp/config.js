@@ -35,6 +35,7 @@
             ddf : 'js/ddf',
             direction : 'js/direction',
             webglcheck : 'js/webglcheck',
+            spinnerConfig : 'js/spinnerConfig',
             // require plugins
             text : 'lib/requirejs-plugins/lib/text',
             cesium : 'lib/cesium/Cesium',
