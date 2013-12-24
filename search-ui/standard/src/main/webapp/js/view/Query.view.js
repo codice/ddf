@@ -10,6 +10,7 @@ define(function (require) {
         ddf = require('ddf'),
         MetaCard = require('js/model/Metacard'),
         Spinner = require('spin'),
+        spinnerConfig = require('spinnerConfig'),
         Query = {};
 
     ich.addTemplate('searchFormTemplate', require('text!templates/searchForm.handlebars'));
@@ -263,7 +264,7 @@ define(function (require) {
 
             result = new MetaCard.SearchResult(options);
 
-            var spinner = new Spinner(spinnerOpts).spin(this.el);
+            var spinner = new Spinner(spinnerConfig).spin(this.el);
             // disable the whole form
             this.$('button').addClass('disabled');
             this.$('input').prop('disabled',true);
@@ -368,25 +369,6 @@ define(function (require) {
 
 
     });
-
-    var spinnerOpts = {
-        lines: 13, // The number of lines to draw
-        length: 12, // The length of each line
-        width: 10, // The line thickness
-        radius: 30, // The radius of the inner circle
-        corners: 1, // Corner roundness (0..1)
-        rotate: 0, // The rotation offset
-        direction: 1, // 1: clockwise, -1: counterclockwise
-        color: '#929292', // #rgb or #rrggbb or array of colors
-        speed: 1, // Rounds per second
-        trail: 60, // Afterglow percentage
-        shadow: false, // Whether to render a shadow
-        hwaccel: false, // Whether to use hardware acceleration
-        className: 'spinner', // The CSS class to assign to the spinner
-        zIndex: 2e9, // The z-index (defaults to 2000000000)
-        top: 'auto', // Top position relative to parent in px
-        left: 'auto' // Left position relative to parent in px
-    };
 
     return Query;
 
