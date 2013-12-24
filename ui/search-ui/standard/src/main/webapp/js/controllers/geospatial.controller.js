@@ -6,17 +6,20 @@ define(function (require) {
         Cesium = require('cesium'),
         Q = require('q'),
         properties = require('properties'),
-        _ = require('underscore');
+        _ = require('underscore'),
+        webgl = require('webglcheck');
 
     var Controller = Marionette.Controller.extend({
+        enabled: webgl.isAvailable(),
         initialize: function () {
-            this.mapViewer = this.createMap('cesiumContainer');
-            this.scene = this.mapViewer.scene;
-            this.ellipsoid = this.mapViewer.centralBody.getEllipsoid();
-            this.handler = new Cesium.ScreenSpaceEventHandler(this.scene.getCanvas());
-            this.setupEvents();
-            this.preloadBillboards();
-
+            if (this.enabled) {
+                this.mapViewer = this.createMap('cesiumContainer');
+                this.scene = this.mapViewer.scene;
+                this.ellipsoid = this.mapViewer.centralBody.getEllipsoid();
+                this.handler = new Cesium.ScreenSpaceEventHandler(this.scene.getCanvas());
+                this.setupEvents();
+                this.preloadBillboards();
+            }
         },
         createMap: function (mapDivId) {
             var viewer, options;
@@ -133,48 +136,52 @@ define(function (require) {
         },
 
         flyToLocation: function (model) {
-            console.log('flying to model dest:  ', model.toJSON());
-            var destination, flight, extent;
+            if (this.enabled) {
+                console.log('flying to model dest:  ', model.toJSON());
+                var destination, flight, extent;
 
-            //polygon
-            var geometry = model.get('geometry');
-            if (geometry.isPolygon()) {
+                //polygon
+                var geometry = model.get('geometry');
+                if (geometry.isPolygon()) {
 
-                var cartArray = _.map(geometry.get("coordinates")[0], function (coordinate) {
-                    return Cesium.Cartographic.fromDegrees(coordinate[0], coordinate[1], properties.defaultFlytoHeight);
-                });
+                    var cartArray = _.map(geometry.get("coordinates")[0], function (coordinate) {
+                        return Cesium.Cartographic.fromDegrees(coordinate[0], coordinate[1], properties.defaultFlytoHeight);
+                    });
 
-                extent = Cesium.Extent.fromCartographicArray(cartArray);
-                flight = Cesium.CameraFlightPath.createAnimationExtent(this.mapViewer.scene, {
-                    destination: this.expandExtent(extent)
-                });
+                    extent = Cesium.Extent.fromCartographicArray(cartArray);
+                    flight = Cesium.CameraFlightPath.createAnimationExtent(this.mapViewer.scene, {
+                        destination: this.expandExtent(extent)
+                    });
+                }
+                else {
+                    destination = Cesium.Cartographic.fromDegrees(geometry.get("coordinates")[0], geometry.get("coordinates")[1], geometry.get("coordinates")[2] ? geometry.get("coordinates")[2] : properties.defaultFlytoHeight);
+                    flight = Cesium.CameraFlightPath.createAnimationCartographic(this.mapViewer.scene, {
+                        destination: destination
+                    });
+                }
+
+
+                this.mapViewer.scene.getAnimations().add(flight);
             }
-            else {
-                destination = Cesium.Cartographic.fromDegrees(geometry.get("coordinates")[0], geometry.get("coordinates")[1], geometry.get("coordinates")[2] ? geometry.get("coordinates")[2] : properties.defaultFlytoHeight);
-                flight = Cesium.CameraFlightPath.createAnimationCartographic(this.mapViewer.scene, {
-                    destination: destination
-                });
-            }
-
-
-            this.mapViewer.scene.getAnimations().add(flight);
         },
 
         flyToExtent: function (extent) {
-            var flight;
-            if(extent.north === extent.south && extent.east === extent.west) {
-                var destination = {height: properties.defaultFlytoHeight, latitude: extent.north, longitude: extent.west};
-                flight = Cesium.CameraFlightPath.createAnimationCartographic(this.mapViewer.scene, {
-                    destination: destination
-                });
-            }
-            else {
-                flight = Cesium.CameraFlightPath.createAnimationExtent(this.mapViewer.scene, {
-                    destination: this.expandExtent(extent)
-                });
-            }
+            if (this.enabled) {
+                var flight;
+                if(extent.north === extent.south && extent.east === extent.west) {
+                    var destination = {height: properties.defaultFlytoHeight, latitude: extent.north, longitude: extent.west};
+                    flight = Cesium.CameraFlightPath.createAnimationCartographic(this.mapViewer.scene, {
+                        destination: destination
+                    });
+                }
+                else {
+                    flight = Cesium.CameraFlightPath.createAnimationExtent(this.mapViewer.scene, {
+                        destination: this.expandExtent(extent)
+                    });
+                }
 
-            this.mapViewer.scene.getAnimations().add(flight);
+                this.mapViewer.scene.getAnimations().add(flight);
+            }
         }
 
     });

@@ -8,6 +8,7 @@ define(function (require) {
         _ = require('underscore'),
         ddf = require('ddf'),
         DrawExtent = require('./draw.extent'),
+        webgl = require('webglcheck'),
         DrawCircle = ddf.module();
 
     DrawCircle.CircleModel = Backbone.Model.extend({
@@ -211,45 +212,48 @@ define(function (require) {
     });
 
     DrawCircle.Controller = Marionette.Controller.extend({
+        enabled: webgl.isAvailable(),
         initialize: function (options) {
             this.scene = options.scene;
             this.notificationEl = options.notificationEl;
         },
 
         draw: function (model) {
-            var circleModel = model || new DrawCircle.CircleModel(),
-                view = new DrawCircle.Views.CircleView({
-                    scene: this.scene,
-                    model: circleModel
+            if (this.enabled) {
+                var circleModel = model || new DrawCircle.CircleModel(),
+                    view = new DrawCircle.Views.CircleView({
+                        scene: this.scene,
+                        model: circleModel
+                    });
+
+                if(this.view){
+                    this.view.destroyPrimitive();
+                    this.view.stop();
+
+                }
+
+                view.start();
+                this.view = view;
+
+                this.notificationView = new DrawExtent.Views.NotificationView({
+                    el: this.notificationEl
+                }).render();
+                this.listenToOnce(circleModel, 'EndExtent', function () {
+                    this.notificationView.close();
                 });
 
-            if(this.view){
-                this.view.destroyPrimitive();
-                this.view.stop();
-
+                return circleModel;
             }
-
-            view.start();
-            this.view = view;
-
-            this.notificationView = new DrawExtent.Views.NotificationView({
-                el: this.notificationEl
-            }).render();
-            this.listenToOnce(circleModel, 'EndExtent', function () {
-                this.notificationView.close();
-            });
-
-            return circleModel;
         },
         stopDrawing: function() {
-            if (this.view) {
+            if (this.enabled && this.view) {
                 this.view.stop();
                 this.view.handleRegionStop();
                 this.notificationView.close();
             }
         },
         stop: function () {
-            if (this.view) {
+            if (this.enabled && this.view) {
                 this.view.stop();
                 this.view.destroyPrimitive();
                 this.view = undefined;

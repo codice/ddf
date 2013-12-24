@@ -1,12 +1,4 @@
-/**
- * Created with IntelliJ IDEA.
- * User: mmacaula
- * Date: 11/11/13
- * Time: 9:07 PM
- * To change this template use File | Settings | File Templates.
- */
 /*global define*/
-
 // #Main Application
 define(function (require) {
     'use strict';
@@ -16,9 +8,11 @@ define(function (require) {
     require('bootstrap');
     require('backbonerelational');
     var properties = require('properties');
+    var webgl = require('webglcheck');
 
     // Load attached libs and application modules
-    var _ = require('underscore'),
+    var $ = require('jquery'),
+        _ = require('underscore'),
         ddf = require('ddf'),
         Marionette = require('marionette'),
         Backbone = require('backbone'),
@@ -68,6 +62,9 @@ define(function (require) {
 
             view.$el.html(ich.main());
 
+            if (!webgl.isAvailable()) {
+                $('#searchControls', this.$el).width('100%');
+            }
 
             return view;
         }
