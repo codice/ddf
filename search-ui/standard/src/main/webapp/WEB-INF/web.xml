@@ -18,4 +18,15 @@
 	<welcome-file-list>
 		<welcome-file>index.html</welcome-file>
 	</welcome-file-list>
+
+	<servlet>
+	    <servlet-name>proxy</servlet-name>
+	    <servlet-class>org.codice.ddf.ui.searchui.proxy.ProxyServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+	  <servlet-name>proxy</servlet-name>
+	  <url-pattern>/proxy/*</url-pattern>
+	</servlet-mapping>
+
 </web-app>
+
