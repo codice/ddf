@@ -58,7 +58,7 @@
 								<artifactItem>
 									<groupId>ddf.thirdparty</groupId>
 									<artifactId>lse</artifactId>
-									<version>0.3_3</version>
+									<version>${lse.version}</version>
 									<type>jar</type>
 									<overWrite>true</overWrite>
 									<outputDirectory>${project.build.directory}/${project.artifactId}-${project.version}/WEB-INF/lib</outputDirectory>
@@ -122,7 +122,7 @@
 							WEB-INF/lib/httpcore-4.2.5.jar,
 							WEB-INF/lib/httpmime-4.2.6.jar,
 							WEB-INF/lib/joda-time-2.2.jar,
-							WEB-INF/lib/lse-0.3_3.jar,
+							WEB-INF/lib/lse-${lse.version}.jar,
 							WEB-INF/lib/lucene-analyzers-common-${solr.version}.jar,
 							WEB-INF/lib/lucene-analyzers-kuromoji-${solr.version}.jar,
 							WEB-INF/lib/lucene-analyzers-phonetic-${solr.version}.jar,

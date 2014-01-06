@@ -37,7 +37,7 @@
 		<dependency>
 			<groupId>ddf.thirdparty</groupId>
 			<artifactId>lse</artifactId>
-			<version>0.3_3</version>
+			<version>${lse.version}</version>
 		</dependency>
 
 		<dependency>
