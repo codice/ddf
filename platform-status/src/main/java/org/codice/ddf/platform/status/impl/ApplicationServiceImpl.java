@@ -121,11 +121,6 @@ public class ApplicationServiceImpl implements ApplicationService {
         return new ApplicationStatusImpl(application, installState, errorFeatures, errorBundles);
     }
 
-    @Override
-    public Set<String> getIgnoredApplicationNames() {
-        return Collections.unmodifiableSet(ignoredApplicationNames);
-    }
-
     /**
      * Sets the names of applications that this service should ignore when
      * checking status.

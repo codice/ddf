@@ -50,12 +50,4 @@ public interface ApplicationService {
      */
     public ApplicationStatus getApplicationStatus(Application application);
 
-    /**
-     * Retrieve the set of application names that are being ignored. These
-     * applications will not be shown when checking for application status.
-     *
-     * @return Set of strings for names of applications are are being ignored.
-     */
-    public Set<String> getIgnoredApplicationNames();
-
 }
