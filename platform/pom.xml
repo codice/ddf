@@ -19,7 +19,8 @@
 	<parent>
 		<groupId>ddf</groupId>
 		<artifactId>ddf-parent</artifactId>
-		<version>1.0.0.ALPHA2</version>
+		<version>1.0.0.ALPHA3-SNAPSHOT</version>
+        <relativePath>../parent/pom.xml</relativePath>
 	</parent>
 
 	<groupId>ddf.platform</groupId>
@@ -58,6 +59,7 @@
 
 	<modules>
 		<module>platform-configuration</module>
+        <module>platform-status</module>
 		<module>action</module>
 		<module>mime</module>
 		<module>metrics</module>
