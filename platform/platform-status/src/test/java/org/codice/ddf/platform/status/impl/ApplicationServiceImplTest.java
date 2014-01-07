@@ -187,35 +187,6 @@ public class ApplicationServiceImplTest {
     }
 
     /**
-     * Tests that the service properly parses incoming 'ignored' application
-     * names and returns them as a set.
-     *
-     * @throws Exception
-     */
-    @Test
-    public void testGetIgnoreApplications() throws Exception {
-        List<BundleStateService> bundleStateServices = new ArrayList<BundleStateService>();
-        Set<Repository> activeRepos = new HashSet<Repository>(Arrays.asList(repo1, repo2));
-        Set<Repository> inactiveRepos = new HashSet<Repository>();
-        ApplicationServiceImpl appService = new ApplicationServiceImpl(createMockFeaturesService(
-                activeRepos, inactiveRepos), mock(BundleContext.class), bundleStateServices);
-
-        // test 1 name
-        appService.setIgnoredApplications(repo1.getName());
-        assertEquals(1, appService.getIgnoredApplicationNames().size());
-        assertEquals(repo1.getName(), appService.getIgnoredApplicationNames().iterator().next());
-
-        // test 2 names
-        appService.setIgnoredApplications(repo1.getName() + "," + repo2.getName());
-        assertEquals(2, appService.getIgnoredApplicationNames().size());
-
-        // test 1 name duplicated
-        appService.setIgnoredApplications(repo1.getName() + "," + repo1.getName());
-        assertEquals(1, appService.getIgnoredApplicationNames().size());
-
-    }
-
-    /**
      * Tests that the service properly ignores applications when checking for
      * application status.
      *
