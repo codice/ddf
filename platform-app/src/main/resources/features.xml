@@ -536,6 +536,16 @@
     <feature name="platform-configuration" install="manual" version="${project.version}" description="Schedules tasks">
       <bundle>mvn:ddf.platform/platform-configuration/${project.version}</bundle>
     </feature>
+
+    <feature name="platform-status" install="manual" version="${project.version}" description="Schedules tasks">
+      <bundle>mvn:org.ops4j.base/ops4j-base-util-property/1.4.0</bundle>
+      <bundle>mvn:org.codice/org.apache.karaf.bundle.core/3.0.0.1</bundle>
+      <bundle>mvn:org.apache.karaf.bundle/org.apache.karaf.bundle.springstate/3.0.0</bundle>
+      <bundle>mvn:ddf.platform/platform-status/${project.version}</bundle>
+      <config name="org.codice.ddf.platform.status.impl.ApplicationServiceImpl">
+       ignoredApplications = karaf-${karaf.version}
+      </config>
+    </feature>
 	
     <feature name="action-core-api" install="manual" version="${project.version}" description="DDF Action API">
         <bundle>mvn:ddf.action.core/action-core-api/${project.version}</bundle>
@@ -603,6 +613,7 @@
     </feature>   
 	
 	<feature name="platform-app" install="auto" version="${project.version}" description="DDF platform boot features">
+        <feature>platform-status</feature>
 		<feature>cxf</feature>
 		<feature>camel</feature>
 		<feature>platform-scheduler</feature>
@@ -625,6 +636,7 @@
 		<bundle>mvn:org.ops4j.pax.swissbox/pax-swissbox-optional-jcl/${org.ops4j.pax.swissbox.version}</bundle>
 		<bundle>mvn:org.ops4j.pax.swissbox/pax-swissbox-extender/${org.ops4j.pax.swissbox.version}</bundle>
 		<bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.saxon/${saxon.bundle.plugin}</bundle>
+        <bundle>mvn:joda-time/joda-time/${joda-time.version}</bundle>
 	</feature>
 	<feature name="platform-settings-config" version="${project.version}" description="Sets the DDF System Settings with default values">
 		<config name="ddf.platform.config">
