@@ -37,7 +37,7 @@
 	<div class="navbar navbar-inverse navbar-fixed-top">
 		<div class="navbar-inner">
 			<div class="container">
-				<a class="brand" href="SearchPage.jsp"><i class="icon-globe icon-white"></i><script type="text/javascript">if($.url().param('title') != null) { document.write($.url().param('title')); }</script></a>
+				<a class="brand" href="SearchPage.jsp"><i class="icon-globe icon-white"></i> <span class="branding">DDF</span></a>
 				<div class="nav-collapse collapse">
 					<ul class="nav">
 						<li><a href="SearchPage.jsp">Search</a></li>
@@ -52,8 +52,8 @@
 
 	<header class="jumbotron" id="overview">
 		<div class="container">
-			<h1>DDF Search</h1>
-			<p class="lead">This widget allows users to search metadata and find holdings that have been exposed through the DDF federation</p>
+			<h1><span class="branding">DDF</span> Search</h1>
+			<p class="lead">This widget allows users to search metadata and find holdings that have been exposed through the <span class="branding">DDF</span> federation</p>
 		</div>
 	</header>
 	
@@ -136,5 +136,10 @@
 	<script src="lib/jquery/js/plugin/purl.js"></script>	
 	<script src="lib/bootstrap-2.3.1/js/bootstrap.min.js"></script>
 
+    <script type="text/javascript">
+        if ($.url().param('title')) {
+            $('.branding').text($.url().param('title'))
+        }
+    </script>
 </body>
 </html>
