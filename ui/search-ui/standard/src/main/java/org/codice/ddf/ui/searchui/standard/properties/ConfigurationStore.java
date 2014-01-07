@@ -20,6 +20,8 @@ import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.BinaryContentImpl;
 import net.minidev.json.JSONObject;
 import net.minidev.json.JSONValue;
+import org.apache.commons.lang.StringUtils;
+import org.apache.felix.webconsole.BrandingPlugin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,7 +60,7 @@ public class ConfigurationStore {
 
     private String format = "";
 
-    private String branding = "DDF";
+    private BrandingPlugin branding;
 
     private static String JSON_MIME_TYPE_STRING = "application/json";
 
@@ -93,7 +95,7 @@ public class ConfigurationStore {
         configObj.put("footer", footer);
         configObj.put("style", style);
         configObj.put("textColor", textColor);
-        configObj.put("branding", branding);
+        configObj.put("branding", getProductName());
         configObj.put("wmsServer", wmsServer);
         configObj.put("layers", layers);
         configObj.put("format", format);
@@ -150,11 +152,20 @@ public class ConfigurationStore {
         this.textColor = textColor;
     }
 
-    public String getBranding() {
+    public String getProductName() {
+        if (branding != null) {
+            // Remove the version number
+            return StringUtils.substringBeforeLast(branding.getProductName(), " ");
+        } else {
+            return "";
+        }
+    }
+
+    public BrandingPlugin getBranding() {
         return branding;
     }
 
-    public void setBranding(String branding) {
+    public void setBranding(BrandingPlugin branding) {
         this.branding = branding;
     }
 
