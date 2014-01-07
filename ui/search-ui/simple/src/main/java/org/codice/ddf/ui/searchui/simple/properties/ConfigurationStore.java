@@ -15,6 +15,9 @@
 
 package org.codice.ddf.ui.searchui.simple.properties;
 
+import org.apache.commons.lang.StringUtils;
+import org.apache.felix.webconsole.BrandingPlugin;
+
 /**
  * Stores external configuration properties.
  * 
@@ -33,6 +36,8 @@ public class ConfigurationStore {
     private String color = "";
 
     private String background = "";
+
+    private BrandingPlugin branding;
 
     private ConfigurationStore() {
         header = "";
@@ -83,6 +88,23 @@ public class ConfigurationStore {
 
     public void setBackground(String background) {
         this.background = background;
+    }
+
+    public String getProductName() {
+        if (branding != null) {
+            // Remove the version number
+            return StringUtils.substringBeforeLast(branding.getProductName(), " ");
+        } else {
+            return "";
+        }
+    }
+
+    public BrandingPlugin getBranding() {
+        return branding;
+    }
+
+    public void setBranding(BrandingPlugin branding) {
+        this.branding = branding;
     }
 
     public Object clone() throws CloneNotSupportedException {

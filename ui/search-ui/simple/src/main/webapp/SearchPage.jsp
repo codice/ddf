@@ -1,3 +1,4 @@
+<%@ page import="org.codice.ddf.ui.searchui.simple.properties.ConfigurationStore" %>
 <!DOCTYPE html>
 <!-- 
 /**
@@ -20,7 +21,7 @@
 
 
 
-<title>DDF Search</title>
+<title><%=ConfigurationStore.getInstance().getProductName()%> Search</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="description" content="">
 <meta name="author" content="">
@@ -43,8 +44,8 @@
 
 <style media=screen type="text/css">
 	.banner {
-		color: <%=org.codice.ddf.ui.searchui.simple.properties.ConfigurationStore.getInstance().getColor()%>;
-		background: <%=org.codice.ddf.ui.searchui.simple.properties.ConfigurationStore.getInstance().getBackground()%>;
+		color: <%=ConfigurationStore.getInstance().getColor()%>;
+		background: <%=ConfigurationStore.getInstance().getBackground()%>;
 	}
 </style>
 
@@ -61,21 +62,26 @@
 <body>
 
 	<div class="navbar navbar-inverse navbar-fixed-top">
-		<% String h = org.codice.ddf.ui.searchui.simple.properties.ConfigurationStore.getInstance().getHeader();
+		<% String h = ConfigurationStore.getInstance().getHeader();
 			if(h != null && h.trim().length() > 0)
 			    out.println("<div class=\"banner\">" + h + "</div>");
 		 %>
 	
 		<div class="navbar-inner">
 			<div class="container">
-				<a class="brand" href="#"><i class="icon-globe icon-white"></i>DDF</a>
+				<a class="brand" href="#">
+				    <i class="icon-globe icon-white"></i> <%=ConfigurationStore.getInstance().getProductName()%>
+                </a>
 				<div class="nav-collapse collapse">
 					<ul class="nav">
 						<li class="active"><a href="#">Search</a></li>
 					</ul>
 					<ul class="nav pull-right">
-						<li><a
-							href="SearchHelp.html?title=DDF">Help</a></li>
+						<li>
+						    <a href="SearchHelp.html?title=<%=ConfigurationStore.getInstance().getProductName()%>">
+						        Help
+                            </a>
+                        </li>
 					</ul>
 				</div>
 			</div>
@@ -435,7 +441,7 @@
 		</div>
 	</div>
 
-	<% String f = org.codice.ddf.ui.searchui.simple.properties.ConfigurationStore.getInstance().getFooter();
+	<% String f = ConfigurationStore.getInstance().getFooter();
 		if(f != null && f.trim().length() > 0)
 		    out.println("<div class=\"navbar-fixed-bottom banner\">" + f + "</div>");
 	 %>
