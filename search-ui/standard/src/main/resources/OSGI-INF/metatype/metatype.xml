@@ -57,11 +57,6 @@
             <Option label="Black" value="banner-text-black" />
         </AD>
         <AD
-            description="Specifies the branding to be used in the title and on the map."
-            name="Branding Name" id="branding" required="true" type="String"
-            default="DDF"
-        />
-        <AD
             description="Specifies the WMS server to be used as the map tile provider."
             name="WMS Server" id="wmsServer" required="false" type="String"
             default=""
