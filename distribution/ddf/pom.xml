@@ -36,7 +36,7 @@
 
   <properties>
     <distribution.file.name>ddf-${project.version}</distribution.file.name>
-    <ddf.platform.app.version>2.3.0.ALPHA2-SNAPSHOT</ddf.platform.app.version>
+    <ddf.platform.app.version>2.3.0.ALPHA2</ddf.platform.app.version>
     <ddf.security.app.version>2.3.0.ALPHA1</ddf.security.app.version>
     <ddf.content.app.version>2.3.0.ALPHA1</ddf.content.app.version>
     <ddf.catalog.app.version>2.3.0.ALPHA1</ddf.catalog.app.version>
