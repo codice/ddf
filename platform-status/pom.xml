@@ -25,6 +25,11 @@
   <description>Retrieves status of applications</description>
   <packaging>bundle</packaging>
 
+  <properties>
+    <!-- UPDATE VERSION EACH TIME INTERFACE CHANGES -->
+    <platform.status.api.version>1.0.0</platform.status.api.version>
+  </properties>
+
   <dependencies>
 
     <dependency>
@@ -68,6 +73,7 @@
               org.apache.karaf.shell.console,
               *
             </Import-Package>
+            <Export-Package>org.codice.ddf.platform.status;version=${platform.status.api.version}</Export-Package>
           </instructions>
         </configuration>
       </plugin>
