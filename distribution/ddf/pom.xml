@@ -139,42 +139,42 @@
 										<artifactItem>
 											<groupId>ddf.catalog.core</groupId>
 											<artifactId>catalog-core-api</artifactId>
-											<version>${project.version}</version>
+											<version>${ddf.catalog.app.version}</version>
 											<type>javadoc</type>
 											<outputDirectory>${setup.folder}/catalog_api_javadoc</outputDirectory>
 										</artifactItem>
 										<artifactItem>
 											<groupId>ddf.mime.core</groupId>
 											<artifactId>mime-core-api</artifactId>
-											<version>${project.version}</version>
+											<version>${ddf.platform.app.version}</version>
 											<type>javadoc</type>
 											<outputDirectory>${setup.folder}/mime_api_javadoc</outputDirectory>
 										</artifactItem>
 										<artifactItem>
 											<groupId>ddf.action.core</groupId>
 											<artifactId>action-core-api</artifactId>
-											<version>${project.version}</version>
+											<version>${ddf.platform.app.version}</version>
 											<type>javadoc</type>
 											<outputDirectory>${setup.folder}/action_api_javadoc</outputDirectory>
 										</artifactItem>
 										<artifactItem>
 											<groupId>ddf.content.core</groupId>
 											<artifactId>content-core-api</artifactId>
-											<version>${project.version}</version>
+											<version>${ddf.content.app.version}</version>
 											<type>javadoc</type>
 											<outputDirectory>${setup.folder}/content_api_javadoc</outputDirectory>
 										</artifactItem>				
 										<artifactItem>
 											<groupId>ddf.security.core</groupId>
 											<artifactId>security-core-api</artifactId>
-											<version>${project.version}</version>
+											<version>${ddf.platform.app.version}</version>
 											<type>javadoc</type>
 											<outputDirectory>${setup.folder}/security_api_javadoc</outputDirectory>
 										</artifactItem>													
 										<artifactItem>
 											<groupId>ddf.security.encryption</groupId>
 											<artifactId>security-encryption-api</artifactId>
-											<version>${project.version}</version>
+											<version>${ddf.platform.app.version}</version>
 											<type>javadoc</type>
 											<outputDirectory>${setup.folder}/encryption_api_javadoc</outputDirectory>
 										</artifactItem>																			
