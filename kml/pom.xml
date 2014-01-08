@@ -41,7 +41,7 @@
 			<dependency>
 				<groupId>ddf.catalog.core</groupId>
 				<artifactId>catalog-core-api-impl</artifactId>
-				<version>${project.version}</version>
+				<version>${ddf.catalog.app.version}</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
