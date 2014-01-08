@@ -81,7 +81,7 @@
 							handlebars, 
 							commons-lang3, 
 							antlr4-runtime, 
-							search;inline=templates/**</Embed-Dependency>
+							simple;inline=templates/**</Embed-Dependency>
 						<Import-Package>!org.abego.treelayout.*, *</Import-Package>
 						<Export-Package />
 					</instructions>
