@@ -24,16 +24,10 @@
 	<name>DDF Reactor</name>
 	<description>Distributed Data Framework (DDF) is an open source, modular integration framework</description>
 
+    <!-- The pre-existing modules have now all been moved to their own independent repositories.
+         If access to the previous tags are needed, please refer back to an older DDF repository
+         before the transition over to a modular structure. -->
 	<modules>
-        <module>support</module>
-		<module>parent</module>
-		<module>platform</module>
-        <module>security</module>
-        <module>catalog</module>
-        <module>content</module>
-        <module>spatial</module>
-        <module>solr</module>
-        <module>ui</module>
         <module>distribution</module>
         <!-- TODO
 		<module>sdk</module>
