@@ -144,10 +144,7 @@ define(function (require) {
                 }
             }
         ],
-        url: "/services/async/search",
-        parse: function(resp) {
-            return resp.data;
-        },
+        url: "/services/catalog/query",
         loadMoreResults: function () {
             var queryParams;
             this.set("startIndex", this.get("startIndex") + this.get("itemsPerPage"));
@@ -161,11 +158,9 @@ define(function (require) {
             });
         },
         getQueryParams: function () {
-            var queryParams = this.get("queryParams");
-            queryParams.count = this.get("count");
-            queryParams.start = this.get("startIndex");
-            queryParams.format = this.get("format");
-            return queryParams;
+            return this.get("queryParams") + this.get("queryParamDefaults").count + this.get("count") +
+                this.get("queryParamDefaults").start + this.get("startIndex") +
+                this.get("queryParamDefaults").format + this.get("format");
         },
         getResultCenterPoint: function() {
             var regionPoints = [],
