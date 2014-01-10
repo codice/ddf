@@ -27,7 +27,7 @@
     
     <feature name="catalog-core-api" install="manual" version="${project.version}" description="Catalog API interfaces and simple implementations.">
         <bundle>mvn:ddf.catalog.core/catalog-core-api/${project.version}</bundle>
-        <bundle>mvn:ddf.mime.core/mime-core-api/${project.version}</bundle>
+        <bundle>mvn:ddf.mime.core/mime-core-api/${ddf.platform.app.version}</bundle>
         <bundle>mvn:org.apache.tika/tika-core/${tika.version}</bundle>
         <bundle>mvn:org.apache.tika/tika-bundle/${tika.version}</bundle>
         <bundle>mvn:org.codice.thirdparty/gt-opengis/${opengis.bundle.version}</bundle>
