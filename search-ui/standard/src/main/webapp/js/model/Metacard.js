@@ -151,17 +151,21 @@ define(function (require) {
                 }
             }
         ],
-        url: "/services/catalog/query",
+        url: "/services/async/search",
         loadMoreResults: function () {
+            var model = this;
             var queryParams;
             this.set("startIndex", this.get("startIndex") + this.get("itemsPerPage"));
             queryParams = this.getQueryParams();
+            this.cometdUnbind();
             return this.fetch({
                 update: true,
                 remove: false,
                 data: queryParams,
                 dataType: "jsonp",
                 timeout: 300000
+            }).complete(function () {
+                model.cometdBind();
             });
         },
         getQueryParams: function () {

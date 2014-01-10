@@ -36,6 +36,7 @@
         <module>standard</module>
         <module>search-redirect</module>
         <module>search-htmltransformer</module>
+        <module>search-endpoint</module>
         <module>search-app</module>
     </modules>
     

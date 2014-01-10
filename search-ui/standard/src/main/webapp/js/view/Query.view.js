@@ -281,6 +281,9 @@ define(function (require) {
                 }
             }).complete(function () {
                     spinner.stop();
+
+                    result.cometdBind();
+
                     //re-enable the whole form
                     view.$('button').removeClass('disabled');
                     view.$('input').prop('disabled',false);
