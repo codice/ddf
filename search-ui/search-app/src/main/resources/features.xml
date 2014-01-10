@@ -19,6 +19,11 @@
         <bundle>mvn:ddf.ui.search/standard/${project.version}</bundle>
         <bundle>mvn:ddf.ui.search/search-redirect/${project.version}</bundle>
         <bundle>mvn:ddf.ui.search/search-htmltransformer/${project.version}</bundle>
+        <bundle>mvn:ddf.ui.search/search-endpoint/${project.version}</bundle>
+
+        <bundle>wrap:mvn:org.cometd.java/bayeux-api/2.7.0</bundle>
+        <bundle>wrap:mvn:org.cometd.java/cometd-java-common/2.7.0</bundle>
+        <bundle>wrap:mvn:org.cometd.java/cometd-java-server/2.7.0</bundle>
 
         <config name="org.codice.ddf.ui.searchui.filter.RedirectServlet">
             defaultUri=/search/standard

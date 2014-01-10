@@ -7,6 +7,8 @@ define(function (require) {
     require('jqueryui');
     require('bootstrap');
     require('backbonerelational');
+    require('backbonecometd');
+    require('jquerycometd');
     var properties = require('properties');
     var webgl = require('webglcheck');
 
