@@ -27,7 +27,7 @@
   <packaging>bundle</packaging>
   
   <properties>
-        <ddf.catalog.app.version>2.3.0.ALPHA1</ddf.catalog.app.version>
+        <ddf.catalog.app.version>2.3.0.ALPHA2-SNAPSHOT</ddf.catalog.app.version>
   </properties>
   
   <dependencies>
