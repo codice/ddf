@@ -62,7 +62,7 @@
             };
             model.subscription = Cometd.Comet.subscribe('/'+guid, options.success);
 
-            model.subscription = Cometd.Comet.subscribe('/service/async/query', options.success);
+            Cometd.Comet.subscribe('/service/async/query', options.success);
 
             options.data.guid = guid;
             

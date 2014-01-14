@@ -8,7 +8,7 @@ define(function (require) {
         ddf = require('ddf'),
         Cometd = ddf.module();
 
-    Cometd.Comet = new $.Cometd();
+    Cometd.Comet = $.cometd;
     var path = location.protocol + '//' + location.hostname+(location.port ? ':' + location.port : '') + '/cometd';
     Cometd.Comet.configure({
         url: path,
