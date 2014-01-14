@@ -138,7 +138,10 @@ public class SearchService extends AbstractService {
                 }
             });
 
-            reply.putAll(executeQuery(queryMessage));
+            Map<? extends String, ?> response = executeQuery(queryMessage);
+            if(response != null) {
+                reply.putAll(response);
+            }
             reply.put("successful", true);
         } else {
             reply.put("status", "ERROR: unable to return results, no guid in query request");
@@ -162,10 +165,10 @@ public class SearchService extends AbstractService {
         String polygon = (String) queryMessage.get(POLYGON);
         String lat = (String) queryMessage.get(LAT);
         String lon = (String) queryMessage.get(LON);
-        String radius = (String) queryMessage.get(RADIUS);
+        Double radius = (Double) queryMessage.get(RADIUS);
         String dateStart = (String) queryMessage.get(DATE_START);
         String dateEnd = (String) queryMessage.get(DATE_END);
-        String dateOffset = (String) queryMessage.get(DATE_OFFSET);
+        Long dateOffset = (Long) queryMessage.get(DATE_OFFSET);
         String sort = (String) queryMessage.get(SORT);
         String format = (String) queryMessage.get(FORMAT);
         String selector = (String) queryMessage.get(SELECTOR);
@@ -291,11 +294,15 @@ public class SearchService extends AbstractService {
      * @param dateOffset
      * @param query
      */
-    private void addTemporalFilter(String dateStart, String dateEnd, String dateOffset, OpenSearchQuery query) {
+    private void addTemporalFilter(String dateStart, String dateEnd, Long dateOffset, OpenSearchQuery query) {
         if ((dateStart != null && !dateStart.trim().isEmpty())
                 || (dateEnd != null && !dateEnd.trim().isEmpty())
-                || (dateOffset != null && !dateOffset.trim().isEmpty())) {
-            query.addTemporalFilter(dateStart, dateEnd, dateOffset);
+                || (dateOffset != null)) {
+            String dtOffset = "";
+            if(dateOffset != null) {
+                dtOffset = dateOffset.toString();
+            }
+            query.addTemporalFilter(dateStart, dateEnd, dtOffset);
         }
     }
 
@@ -334,7 +341,7 @@ public class SearchService extends AbstractService {
      * @return - the spatialCriterion created, can be null
      */
     private void addSpatialFilter(OpenSearchQuery query, String geometry, String polygon,
-                                  String bbox, String radius, String lat, String lon) {
+                                  String bbox, Double radius, String lat, String lon) {
         if (geometry != null && !geometry.trim().isEmpty()) {
             LOGGER.debug("Adding SpatialCriterion geometry: " + geometry);
             query.addGeometrySpatialFilter(geometry);
@@ -345,12 +352,12 @@ public class SearchService extends AbstractService {
             LOGGER.debug("Adding SpatialCriterion polygon: " + polygon);
             query.addPolygonSpatialFilter(polygon);
         } else if (lat != null && !lat.trim().isEmpty() && lon != null && !lon.trim().isEmpty()) {
-            if (radius == null || radius.trim().isEmpty()) {
+            if (radius == null) {
                 LOGGER.debug("Adding default radius");
                 query.addSpatialDistanceFilter(lon, lat, DEFAULT_RADIUS);
             } else {
                 LOGGER.debug("Using radius: " + radius);
-                query.addSpatialDistanceFilter(lon, lat, radius);
+                query.addSpatialDistanceFilter(lon, lat, radius.toString());
             }
         }
     }
