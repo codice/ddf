@@ -120,8 +120,6 @@
                         <Export-Package>
                             ddf.security.impl;version=${project.version},
                             ddf.security.assertion.impl;version=${project.version},
-                            ddf.security.common;version=${project.version},
-                            ddf.security.common.assertion;version=${project.version},
                             ddf.security.common.callback;version=${project.version},
                             ddf.security.common.util;version=${project.version},
                             ddf.security.service.impl;version=${project.version},

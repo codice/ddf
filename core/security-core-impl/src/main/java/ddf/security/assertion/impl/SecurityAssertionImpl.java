@@ -102,7 +102,7 @@ public class SecurityAssertionImpl implements SecurityAssertion {
     /*
      * (non-Javadoc)
      * 
-     * @see ddf.security.common.assertion.SecurityAssertion#getPrincipal()
+     * @see ddf.security.assertion.SecurityAssertion#getPrincipal()
      */
     @Override
     public Principal getPrincipal() {
@@ -118,7 +118,7 @@ public class SecurityAssertionImpl implements SecurityAssertion {
     /*
      * (non-Javadoc)
      * 
-     * @see ddf.security.common.assertion.SecurityAssertion#getIssuer()
+     * @see ddf.security.assertion.SecurityAssertion#getIssuer()
      */
     @Override
     public String getIssuer() {
@@ -131,7 +131,7 @@ public class SecurityAssertionImpl implements SecurityAssertion {
     /*
      * (non-Javadoc)
      * 
-     * @see ddf.security.common.assertion.SecurityAssertion#getAttibuteStatements()
+     * @see ddf.security.assertion.SecurityAssertion#getAttibuteStatements()
      */
     @Override
     public List<AttributeStatement> getAttibuteStatements() {
@@ -144,7 +144,7 @@ public class SecurityAssertionImpl implements SecurityAssertion {
     /*
      * (non-Javadoc)
      * 
-     * @see ddf.security.common.assertion.SecurityAssertion#getAuthnStatements()
+     * @see ddf.security.assertion.SecurityAssertion#getAuthnStatements()
      */
     @Override
     public List<AuthnStatement> getAuthnStatements() {
@@ -157,7 +157,7 @@ public class SecurityAssertionImpl implements SecurityAssertion {
     /*
      * (non-Javadoc)
      * 
-     * @see ddf.security.common.assertion.SecurityAssertion#getAuthzDecisionStatements ()
+     * @see ddf.security.assertion.SecurityAssertion#getAuthzDecisionStatements ()
      */
     @Override
     public List<AuthzDecisionStatement> getAuthzDecisionStatements() {
@@ -170,7 +170,7 @@ public class SecurityAssertionImpl implements SecurityAssertion {
     /*
      * (non-Javadoc)
      * 
-     * @see ddf.security.common.assertion.SecurityAssertion#getSecurityToken()
+     * @see ddf.security.assertion.SecurityAssertion#getSecurityToken()
      */
     @Override
     public SecurityToken getSecurityToken() {
