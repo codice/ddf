@@ -14,22 +14,16 @@
  **/
 package org.codice.ddf.ui.searchui.query.controller;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 
 import javax.activation.MimeType;
 import javax.activation.MimeTypeParseException;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
 
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
@@ -38,12 +32,12 @@ import net.minidev.json.JSONValue;
 import org.codice.ddf.opensearch.query.OpenSearchQuery;
 import org.codice.ddf.ui.searchui.query.model.Search;
 import org.codice.ddf.ui.searchui.query.model.SearchRequest;
-import org.codice.ddf.ui.searchui.query.servlet.CometdServlet;
+import org.cometd.bayeux.server.BayeuxServer;
+import org.cometd.bayeux.server.ServerSession;
 import org.slf4j.LoggerFactory;
 import org.slf4j.ext.XLogger;
 
 import ddf.catalog.CatalogFramework;
-import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Result;
 import ddf.catalog.federation.FederationException;
 import ddf.catalog.operation.QueryRequest;
@@ -79,55 +73,58 @@ public class SearchController {
         }
     }
 
-    private static final String UPDATE_QUERY_INTERVAL = "interval";
-
-    private final CometdServlet cometdServlet;
-
     private final ExecutorService executorService = Executors.newCachedThreadPool();
 
     // TODO: just store the searches in memory for now, change this later
-    private final Map<UUID, Search> searchMap = Collections
-            .synchronizedMap(new HashMap<UUID, Search>());
-
-    List<Future<Response>> futureList = new ArrayList<Future<Response>>();
+    private final Map<String, Search> searchMap = Collections
+            .synchronizedMap(new HashMap<String, Search>());
 
     CatalogFramework framework;
+    private BayeuxServer bayeuxServer;
 
-    public SearchController(CatalogFramework framework, CometdServlet cometdServlet) {
+    public SearchController(CatalogFramework framework) {
         this.framework = framework;
-        this.cometdServlet = cometdServlet;
     }
 
-    public Response executeQuery(final SearchRequest searchRequest) throws InterruptedException {
+    public synchronized void pushResults(String channel, String jsonData, ServerSession serverSession) {
+        String channelName = "/"+channel.toString();
+
+        bayeuxServer.createChannelIfAbsent(channelName);
+
+        bayeuxServer.getChannel(channelName).publish(serverSession, jsonData, null);
+    }
+
+    public JSONObject executeQuery(final SearchRequest searchRequest, final ServerSession serverSession) throws InterruptedException, CatalogTransformerException {
 
         final SearchController controller = this;
 
-        QueryResponse localQueryResponse = executeQuery(searchRequest.getLocalQueryRequest(),
-                searchRequest.getSubject());
+        QueryResponse localQueryResponse = executeQuery(searchRequest.getLocalQueryRequest(), null);
         addQueryResponseToSearch(searchRequest, localQueryResponse);
 
         for (final OpenSearchQuery fedQuery : searchRequest.getRemoteQueryRequests()) {
             executorService.submit(new Runnable() {
                 @Override
                 public void run() {
-                    QueryResponse fedResponse = executeQuery(fedQuery, searchRequest.getSubject());
+                    QueryResponse fedResponse = executeQuery(fedQuery, null);
                     try {
                         boolean changed = addQueryResponseToSearch(searchRequest, fedResponse);
                         if (changed) {
-                            cometdServlet.getSearchResultService().pushResults(
+                            pushResults(
                                     searchRequest.getGuid(),
-                                    controller.transformResponseCometd(
+                                    controller.transform(
                                             searchMap.get(searchRequest.getGuid())
-                                                    .getCompositeQueryResponse(), searchRequest));
+                                                    .getCompositeQueryResponse(), searchRequest).toJSONString(), serverSession);
                         }
                     } catch (InterruptedException e) {
                         LOGGER.error("Failed adding federated search results.", e);
+                    } catch (CatalogTransformerException e) {
+                        LOGGER.error("Failed to transform federated search results.", e);
                     }
                 }
             });
         }
 
-        return transformResponseJaxrs(localQueryResponse, searchRequest);
+        return transform(localQueryResponse, searchRequest);
     }
 
     private boolean addQueryResponseToSearch(SearchRequest searchRequest,
@@ -198,62 +195,11 @@ public class SearchController {
 
     }
 
-    private Response transformResponseJaxrs(QueryResponse queryResponse, SearchRequest searchRequest) {
-        BinaryContent content;
-        Response response;
-        String organization = framework.getOrganization();
-        UriInfo ui = searchRequest.getUi();
-        String url = ui.getRequestUri().toString();
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("organization: " + organization);
-            LOGGER.debug("url: " + url);
-        }
-
-        if (queryResponse != null) {
-            try {
-                content = transform(queryResponse, searchRequest);
-                response = Response.ok(content.getInputStream(), content.getMimeTypeValue())
-        .build();
-            } catch (CatalogTransformerException e) {
-                LOGGER.warn("Error tranforming response", e);
-                response = Response.serverError()
-                        .entity(wrapStringInPreformattedTags(e.getMessage())).build();
-            }
-        } else {
-            response = Response.serverError()
-                    .entity(wrapStringInPreformattedTags("Server error, unable to query.")).build();
-        }
-        return response;
-    }
-
-    private String transformResponseCometd(QueryResponse queryResponse, SearchRequest searchRequest) {
-        BinaryContent content = null;
-
-        if (queryResponse != null) {
-            try {
-                content = transform(queryResponse, searchRequest);
-            } catch (CatalogTransformerException e) {
-                LOGGER.warn("Error tranforming response", e);
-            }
-        }
-
-        String response = "";
-
-        if (content != null) {
-            try {
-                response = new String(content.getByteArray());
-            } catch (IOException e) {
-                LOGGER.error("Unable to stringify query response.", e);
-            }
-        }
-        return response;
-    }
-
     public String wrapStringInPreformattedTags(String stringToWrap) {
         return "<pre>" + stringToWrap + "</pre>";
     }
 
-    public BinaryContent transform(SourceResponse upstreamResponse, SearchRequest searchRequest)
+    public JSONObject transform(SourceResponse upstreamResponse, SearchRequest searchRequest)
         throws CatalogTransformerException {
         if (upstreamResponse == null) {
             throw new CatalogTransformerException("Cannot transform null "
@@ -283,8 +229,7 @@ public class SearchController {
 
         String jsonText = JSONValue.toJSONString(rootObject);
 
-        return new ddf.catalog.data.BinaryContentImpl(
-                new ByteArrayInputStream(jsonText.getBytes()), DEFAULT_MIME_TYPE);
+        return rootObject;
     }
 
     public static JSONObject convertToJSON(Result result) throws CatalogTransformerException {
@@ -308,5 +253,13 @@ public class SearchController {
     public String toString() {
         return MetacardTransformer.class.getName() + " {Impl=" + this.getClass().getName()
                 + ", id=" + ID + ", MIME Type=" + DEFAULT_MIME_TYPE + "}";
+    }
+
+    public CatalogFramework getFramework() {
+        return framework;
+    }
+
+    public void setBayeuxServer(BayeuxServer bayeuxServer) {
+        this.bayeuxServer = bayeuxServer;
     }
 }

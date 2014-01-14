@@ -1,6 +1,6 @@
-/**
- * Created by tustisos on 12/19/13.
- */
+/* global require */
+/* global console */
+
 (function (undefined) {
     "use strict";
     var _ = require('underscore'),
@@ -8,40 +8,74 @@
         Backbone = require('backbone'),
         Cometd = require('cometdinit');
 
-    var cometdBind = function () {
-        var model = this;
-        var dataChannel = "/" + this.get("guid");
-        var subscription = Cometd.Comet.addListener(dataChannel, function (message) {
-            var data = $.parseJSON(message.data);
-            //TODO: merge that data obj with "this" one
-            model.set(data);
-        });
-        this.subscription = subscription;
-        Cometd.Comet.publish('/service/results/subscribe', { channel: dataChannel});
-    };
-
-    Backbone.Model.prototype.cometdBind = cometdBind;
-    Backbone.Collection.prototype.cometdBind = cometdBind;
-
     var cometdUnbind = function () {
-        var dataChannel = "/" + this.get("guid");
-        Cometd.Comet.removeListener(this.subscription);
-        Cometd.Comet.publish('/service/results/unsubscribe', { channel: dataChannel});
+        Cometd.Comet.unsubscribe(this.subscription);
     };
-    Backbone.Model.prototype.cometdUnbind = cometdUnbind;
-    Backbone.Collection.prototype.cometdUnbind = cometdUnbind;
 
     Backbone.Model.prototype.origDestroy = Backbone.Model.prototype.destroy;
     Backbone.Collection.prototype.origDestroy = Backbone.Collection.prototype.destroy;
     var destroyModel = function (options) {
-        Backbone.Model.prototype.cometdUnbind();
+        cometdUnbind();
         Backbone.Model.prototype.origDestroy(options);
     };
     var destroyColl = function (options) {
-        Backbone.Collection.prototype.cometdUnbind();
+        cometdUnbind();
         Backbone.Collection.prototype.origDestroy(options);
     };
     Backbone.Model.prototype.destroy = destroyModel;
     Backbone.Collection.prototype.destroy = destroyColl;
+    
+    var origSync = Backbone.sync;
+    
+    var generateGuid = function(model) {
+        var guid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+            var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
+            return v.toString(16);
+        });
+        model.guid = guid;
+        return guid;
+    };
+
+    Backbone.sync = function(method, model, options) {
+        if(options.useAjaxSync || model.useAjaxSync) {
+            return origSync(method, model, options);
+        } else {
+            var deferred = $.Deferred();
+            var s = $.ajaxSetup( {}, {} );
+            var callbackContext = s.context || s;
+            var completeDeferred = $.Callbacks("once memory");
+            //create a primary key for this object if we don't have one already
+            var guid = model.guid || generateGuid(model);
+            
+            //method doesn't really matter
+            if(model.subscription) {
+                Cometd.Comet.unsubscribe(model.subscription);
+            }
+            var success = options.success;
+            options.success = function(resp) {
+                var retVal = success(resp);
+                if(retVal === false) {
+                    deferred.reject();
+                } else {
+                    deferred.resolve();
+                }
+            };
+            model.subscription = Cometd.Comet.subscribe('/'+guid, options.success);
+
+            model.subscription = Cometd.Comet.subscribe('/service/async/query', options.success);
+
+            options.data.guid = guid;
+            
+            Cometd.Comet.publish('/service/async/query', options.data);
+            
+            var promise = deferred.promise();
+            promise.complete = promise.done;
+            promise.success = promise.done;
+            promise.error = promise.fail;
+            
+            model.trigger('request', model, promise, options);
+            return promise;
+        }
+    };
 
 }(undefined));

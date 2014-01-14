@@ -13,8 +13,7 @@
  **/
 -->
 
-<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
-           xmlns:jaxrs="http://cxf.apache.org/blueprint/jaxrs">
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
 
     <bean id="comet" class="org.cometd.server.CometdServlet">
     </bean>
@@ -25,45 +24,18 @@
         </service-properties>
     </service>
 
-    <bean id="cometdServlet" class="org.codice.ddf.ui.searchui.query.servlet.CometdServlet"
-          depends-on="defaultCometdServlet" init-method="init" destroy-method="destroy">
-        <argument ref="comet"/>
-    </bean>
-
-    <!--<service ref="cometdServlet" interface="javax.servlet.Servlet" depends-on="defaultCometdServlet">-->
-    <!--<service-properties>-->
-    <!--<entry key="alias" value="/cometdservice" />-->
-    <!--</service-properties>-->
-    <!--</service>-->
-
     <reference id="catalog" interface="ddf.catalog.CatalogFramework"/>
     <reference id="filterBuilder" interface="ddf.catalog.filter.FilterBuilder"/>
     <reference id="securityManager" interface="ddf.security.service.SecurityManager" availability="optional"/>
     <reference-list id="requestHandlerList" interface="ddf.security.service.TokenRequestHandler"
                     availability="optional"/>
 
-    <bean id="restSvc" class="org.codice.ddf.ui.searchui.query.endpoint.Endpoint">
-        <argument ref="cometdServlet"/>
+    <bean class="org.codice.ddf.ui.searchui.query.endpoint.CometdEndpoint"
+          depends-on="defaultCometdServlet" init-method="init" destroy-method="destroy">
+        <argument ref="comet"/>
         <argument ref="catalog"/>
         <argument ref="filterBuilder"/>
-        <property name="securityManager" ref="securityManager"/>
-        <property name="requestHandlers" ref="requestHandlerList"/>
     </bean>
 
-    <jaxrs:server id="restService" address="/async/search">
-        <jaxrs:serviceBeans>
-            <ref component-id="restSvc"/>
-        </jaxrs:serviceBeans>
-
-        <jaxrs:inInterceptors>
-            <bean class="org.apache.cxf.jaxrs.provider.jsonp.JsonpInInterceptor">
-                <property name="callbackParam" value="callback"/>
-            </bean>
-        </jaxrs:inInterceptors>
-        <jaxrs:outInterceptors>
-            <bean class="org.apache.cxf.jaxrs.provider.jsonp.JsonpPreStreamInterceptor"/>
-            <bean class="org.apache.cxf.jaxrs.provider.jsonp.JsonpPostStreamInterceptor"/>
-        </jaxrs:outInterceptors>
-    </jaxrs:server>
 
 </blueprint>

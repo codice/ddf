@@ -27,32 +27,20 @@ import ddf.security.Subject;
  * Created by tustisos on 12/13/13.
  */
 public class SearchRequest {
-    private final UUID guid;
-    private final UriInfo ui;
-    private final Subject subject;
+    private final String guid;
     private final String queryFormat;
     private OpenSearchQuery localQueryRequest;
     private List<OpenSearchQuery> remoteQueryRequests;
 
-    public SearchRequest(OpenSearchQuery localQueryRequest, List<OpenSearchQuery> remoteQueryRequests, UriInfo ui, Subject subject, String queryFormat, UUID guid) {
+    public SearchRequest(OpenSearchQuery localQueryRequest, List<OpenSearchQuery> remoteQueryRequests, String queryFormat, String guid) {
         this.localQueryRequest = localQueryRequest;
         this.remoteQueryRequests = remoteQueryRequests;
-        this.ui = ui;
-        this.subject = subject;
         this.queryFormat = queryFormat;
         this.guid = guid;
     }
 
-    public UUID getGuid() {
+    public String getGuid() {
         return guid;
-    }
-
-    public UriInfo getUi() {
-        return ui;
-    }
-
-    public Subject getSubject() {
-        return subject;
     }
 
     public String getQueryFormat() {

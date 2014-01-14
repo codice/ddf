@@ -4,7 +4,8 @@ define(function (require) {
     var Backbone = require('backbone');
     return  {
         Collection: Backbone.Collection.extend({
-            url: "/services/catalog/sources"
+            url: "/services/catalog/sources",
+            useAjaxSync: true
         })
     };
 });
