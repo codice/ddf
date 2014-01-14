@@ -54,7 +54,7 @@ public class Search {
         boolean changed = false;
         try {
             if(queryResponse != null) {
-                if(compositeQueryResponse == null) {
+                if (compositeQueryResponse == null || queryResponse.getRequest().getQuery().getStartIndex() != compositeQueryResponse.getRequest().getQuery().getStartIndex()) {
                     compositeQueryResponse = queryResponse;
                 } else {
                     List<Result> originalResultList = compositeQueryResponse.getResults();
