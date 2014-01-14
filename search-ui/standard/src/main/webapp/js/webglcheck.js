@@ -9,16 +9,16 @@ define(function (require) {
         isWebglAvailable: undefined,
         isAvailable: function () {
             if (_.isUndefined(this.isWebglAvailable)) {
-                this.isWebglAvailable = true;
+                this.isWebglAvailable = false;
 
-                if (!window.WebGLRenderingContext) {
-                    this.isWebglAvailable = false;
+                if (window.WebGLRenderingContext) {
+                    this.isWebglAvailable = true;
                 }
 
                 var canvas = document.createElement('canvas');
-                var gl = canvas.getContext('webgl') || canvas.getContext("experimental-webgl");
-                if (!gl) {
-                    this.isWebglAvailable = false;
+                var gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+                if (gl) {
+                    this.isWebglAvailable = true;
                 }
             }
             return this.isWebglAvailable;
