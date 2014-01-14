@@ -17,7 +17,7 @@
     <parent>
 	    <groupId>ddf</groupId>
         <artifactId>ddf-parent</artifactId>       
-        <version>1.0.0.ALPHA2</version>
+        <version>1.0.0.ALPHA3</version>
     </parent>
 	
     <modelVersion>4.0.0</modelVersion>
