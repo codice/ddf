@@ -33,6 +33,7 @@ import org.codice.ddf.opensearch.query.OpenSearchQuery;
 import org.codice.ddf.ui.searchui.query.model.Search;
 import org.codice.ddf.ui.searchui.query.model.SearchRequest;
 import org.cometd.bayeux.server.BayeuxServer;
+import org.cometd.bayeux.server.ConfigurableServerChannel;
 import org.cometd.bayeux.server.ServerMessage;
 import org.cometd.bayeux.server.ServerSession;
 import org.cometd.server.ServerMessageImpl;
@@ -91,7 +92,13 @@ public class SearchController {
     public synchronized void pushResults(String channel, JSONObject jsonData, ServerSession serverSession) {
         String channelName = "/"+channel.toString();
 
-        bayeuxServer.createChannelIfAbsent(channelName);
+        bayeuxServer.createChannelIfAbsent(channelName, new ConfigurableServerChannel.Initializer()
+        {
+            public void configureChannel(ConfigurableServerChannel channel)
+            {
+                channel.setPersistent(true);
+            }
+        });
 
         ServerMessage.Mutable reply = new ServerMessageImpl();
         reply.put("successful", true);
