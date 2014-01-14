@@ -33,7 +33,9 @@ import org.codice.ddf.opensearch.query.OpenSearchQuery;
 import org.codice.ddf.ui.searchui.query.model.Search;
 import org.codice.ddf.ui.searchui.query.model.SearchRequest;
 import org.cometd.bayeux.server.BayeuxServer;
+import org.cometd.bayeux.server.ServerMessage;
 import org.cometd.bayeux.server.ServerSession;
+import org.cometd.server.ServerMessageImpl;
 import org.slf4j.LoggerFactory;
 import org.slf4j.ext.XLogger;
 
@@ -86,12 +88,16 @@ public class SearchController {
         this.framework = framework;
     }
 
-    public synchronized void pushResults(String channel, String jsonData, ServerSession serverSession) {
+    public synchronized void pushResults(String channel, JSONObject jsonData, ServerSession serverSession) {
         String channelName = "/"+channel.toString();
 
         bayeuxServer.createChannelIfAbsent(channelName);
 
-        bayeuxServer.getChannel(channelName).publish(serverSession, jsonData, null);
+        ServerMessage.Mutable reply = new ServerMessageImpl();
+        reply.put("successful", true);
+        reply.putAll(jsonData);
+
+        bayeuxServer.getChannel(channelName).publish(serverSession, reply, null);
     }
 
     public JSONObject executeQuery(final SearchRequest searchRequest, final ServerSession serverSession) throws InterruptedException, CatalogTransformerException {
@@ -113,7 +119,7 @@ public class SearchController {
                                     searchRequest.getGuid(),
                                     controller.transform(
                                             searchMap.get(searchRequest.getGuid())
-                                                    .getCompositeQueryResponse(), searchRequest).toJSONString(), serverSession);
+                                                    .getCompositeQueryResponse(), searchRequest), serverSession);
                         }
                     } catch (InterruptedException e) {
                         LOGGER.error("Failed adding federated search results.", e);
