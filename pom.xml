@@ -17,7 +17,7 @@
   <parent>
     <groupId>ddf</groupId>
     <artifactId>ddf-parent</artifactId>
-	<version>1.0.0.ALPHA2</version>
+	<version>1.0.0.ALPHA3</version>
   </parent>
 
   <groupId>ddf.security</groupId>
@@ -29,7 +29,7 @@
   <properties>
     <cas.client.version>3.1.10</cas.client.version>
     <cas.client.bundle.version>${cas.client.version}_1</cas.client.bundle.version>
-    <ddf.platform.app.version>2.3.0.ALPHA1</ddf.platform.app.version>
+    <ddf.platform.app.version>2.3.0.ALPHA2</ddf.platform.app.version>
   </properties>
 
   <dependencyManagement>

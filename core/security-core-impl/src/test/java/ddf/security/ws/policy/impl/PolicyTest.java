@@ -16,7 +16,6 @@ package ddf.security.ws.policy.impl;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -25,27 +24,18 @@ import static org.mockito.Mockito.when;
 import java.io.IOException;
 import java.net.URL;
 
-import org.apache.cxf.common.util.UrlUtils;
-import org.apache.cxf.endpoint.Endpoint;
-import org.apache.cxf.message.Exchange;
-import org.apache.cxf.message.Message;
-import org.apache.cxf.message.MessageImpl;
-import org.apache.cxf.service.model.EndpointInfo;
-import org.apache.cxf.transport.Conduit;
-import org.apache.cxf.transport.Destination;
-import org.apache.cxf.ws.addressing.EndpointReferenceType;
+import org.apache.cxf.helpers.DOMUtils;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.w3c.dom.Node;
+import org.w3c.dom.Document;
 
 /**
  * Tests the policy adding logic (loading policies and converting the WSDLs).
@@ -99,16 +89,19 @@ public class PolicyTest {
     @Test
     public void combinePolicyTest() {
         try {
-            FilePolicyLoader loader = new FilePolicyLoader(mockContext, POLICY_LOCATION);
-            FilePolicyLoader wsdlLoader = new FilePolicyLoader(mockContext, WSDL_LOCATION);
-            assertNotNull(loader.getPolicy());
-            assertNotNull(wsdlLoader.getPolicy());
-            PolicyWSDLGetInterceptor interceptor = new PolicyWSDLGetInterceptor(loader);
-            Node combinedNode = interceptor.addPolicyToWSDL(wsdlLoader.getPolicy(),
-                    loader.getPolicy());
-            assertNotNull(combinedNode);
-            assertFalse(combinedNode.equals(wsdlLoader.getPolicy()));
-            assertFalse(combinedNode.equals(loader.getPolicy()));
+        	FilePolicyLoader policyLoader = new FilePolicyLoader(mockContext, POLICY_LOCATION);
+            Document wsdlDoc = DOMUtils.readXml(
+            		getClass().getResourceAsStream(WSDL_LOCATION));
+            
+            assertNotNull(wsdlDoc);
+            assertNotNull(policyLoader.getPolicy());
+
+            PolicyWSDLGetInterceptor interceptor = new PolicyWSDLGetInterceptor(policyLoader);
+            Document doc = interceptor.addPolicyToWSDL(wsdlDoc, policyLoader.getPolicy());
+            assertNotNull(doc);
+            assertFalse(wsdlDoc.isEqualNode(policyLoader.getPolicy()));
+            assertFalse(doc.isEqualNode(policyLoader.getPolicy()));
+            
         } catch (Exception e) {
             logger.error("Exception while combining policy: ", e);
             fail("Exception while combining policy " + e.getMessage());
