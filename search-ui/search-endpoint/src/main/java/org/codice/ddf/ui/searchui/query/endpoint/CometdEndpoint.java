@@ -12,33 +12,45 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  * 
  **/
-package org.codice.ddf.ui.searchui.query.servlet;
+package org.codice.ddf.ui.searchui.query.endpoint;
 
 import javax.servlet.ServletException;
 
-import org.codice.ddf.ui.searchui.query.service.SearchResultService;
-import org.codice.ddf.ui.searchui.query.service.SearchStatusService;
+import ddf.catalog.CatalogFramework;
+import ddf.catalog.filter.FilterBuilder;
+import org.codice.ddf.ui.searchui.query.controller.SearchController;
+import org.codice.ddf.ui.searchui.query.service.SearchService;
 import org.cometd.bayeux.server.BayeuxServer;
 import org.cometd.bayeux.server.ServerChannel;
 import org.cometd.bayeux.server.ServerMessage;
 import org.cometd.bayeux.server.ServerSession;
+import org.cometd.server.CometdServlet;
 import org.cometd.server.DefaultSecurityPolicy;
+import org.slf4j.LoggerFactory;
+import org.slf4j.ext.XLogger;
 
 /**
  * Created by tustisos on 12/10/13.
  */
-public class CometdServlet {
+public class CometdEndpoint {
 
-    private final org.cometd.server.CometdServlet cometdServlet;
+    private static final XLogger LOGGER = new XLogger(
+            LoggerFactory.getLogger(CometdEndpoint.class));
+
+    private final CometdServlet cometdServlet;
+
+    private final FilterBuilder filterBuilder;
+
+    private SearchController searchController;
 
     BayeuxServer bayeuxServer;
 
-    SearchResultService searchResultService;
+    SearchService searchService;
 
-    SearchStatusService searchStatusService;
-
-    public CometdServlet(org.cometd.server.CometdServlet cometdServlet) {
+    public CometdEndpoint(CometdServlet cometdServlet, CatalogFramework framework, FilterBuilder filterBuilder) {
         this.cometdServlet = cometdServlet;
+        this.filterBuilder = filterBuilder;
+        this.searchController = new SearchController(framework);
     }
 
     public void init() throws ServletException {
@@ -46,6 +58,7 @@ public class CometdServlet {
                 BayeuxServer.ATTRIBUTE);
         if (bayeuxServer != null) {
 
+            //TODO: don't do this, we need some sort of policy
             bayeuxServer.setSecurityPolicy(new DefaultSecurityPolicy() {
 
                 @Override
@@ -73,8 +86,8 @@ public class CometdServlet {
                 }
 
             });
-            searchResultService = new SearchResultService(bayeuxServer, "SearchResultService");
-            searchStatusService = new SearchStatusService(bayeuxServer, "SearchStatusService");
+            searchController.setBayeuxServer(bayeuxServer);
+            searchService = new SearchService(bayeuxServer, "SearchService", filterBuilder, searchController);
         }
     }
 
@@ -86,11 +99,8 @@ public class CometdServlet {
         return bayeuxServer;
     }
 
-    public SearchResultService getSearchResultService() {
-        return searchResultService;
+    public SearchService getSearchService() {
+        return searchService;
     }
 
-    public SearchStatusService getSearchStatusService() {
-        return searchStatusService;
-    }
 }

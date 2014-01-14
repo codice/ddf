@@ -259,7 +259,7 @@ define(function (require) {
             var queryParams, view = this, result, options;
             queryParams = this.model.toJSON();
             options = {
-                'queryParams': $.param(queryParams)
+                'queryParams': queryParams
             };
 
             result = new MetaCard.SearchResult(options);
@@ -270,19 +270,18 @@ define(function (require) {
             this.$('input').prop('disabled',true);
             ddf.app.controllers.drawCircleController.stopDrawing();
             ddf.app.controllers.drawExentController.stopDrawing();
-            result.fetch({
+            var test = result.fetch({
 
                 data: result.getQueryParams(),
-                dataType: "jsonp",
+                dataType: "json",
                 timeout: 300000,
                 error : function(){
                     spinner.stop();
                     console.error(arguments);
                 }
-            }).complete(function () {
+            });
+            test.complete(function () {
                     spinner.stop();
-
-                    result.cometdBind();
 
                     //re-enable the whole form
                     view.$('button').removeClass('disabled');
