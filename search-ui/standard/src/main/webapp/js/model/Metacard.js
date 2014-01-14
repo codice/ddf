@@ -7,7 +7,6 @@ define(function (require) {
         ddf = require('ddf'),
         Util = require('js/model/util'),
         Cesium = require('cesium'),
-        $ = require('jquery'),
         MetaCard = ddf.module();
 
     require('backbonerelational');
@@ -154,7 +153,7 @@ define(function (require) {
         ],
         url: "/services/async/search",
         parse: function(resp) {
-            return $.parseJSON(resp.data);
+            return resp.data;
         },
         loadMoreResults: function () {
             var queryParams;
