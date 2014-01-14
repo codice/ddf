@@ -34,6 +34,7 @@ import org.codice.ddf.ui.searchui.query.model.SearchRequest;
 import org.codice.ddf.ui.searchui.query.endpoint.CometdEndpoint;
 import org.cometd.bayeux.Message;
 import org.cometd.bayeux.server.BayeuxServer;
+import org.cometd.bayeux.server.ConfigurableServerChannel;
 import org.cometd.bayeux.server.ServerMessage;
 import org.cometd.bayeux.server.ServerSession;
 import org.cometd.server.AbstractService;
@@ -129,15 +130,22 @@ public class SearchService extends AbstractService {
         Map<String, Object> queryMessage = message.getDataAsMap();
 
         if(queryMessage.containsKey("guid")) {
-            getBayeux().createChannelIfAbsent("/"+queryMessage.containsKey("guid"));
+            getBayeux().createChannelIfAbsent("/"+queryMessage.get("guid"), new ConfigurableServerChannel.Initializer()
+            {
+                public void configureChannel(ConfigurableServerChannel channel)
+                {
+                    channel.setPersistent(true);
+                }
+            });
 
             reply.putAll(executeQuery(queryMessage));
             reply.put("successful", true);
         } else {
             reply.put("status", "ERROR: unable to return results, no guid in query request");
+            remote.deliver(getServerSession(), reply);
         }
 
-        remote.deliver(getServerSession(), reply);
+        remote.deliver(getServerSession(), "/"+queryMessage.get("guid"), reply, null);
     }
 
     public Map<? extends String, ?> executeQuery(Map<String, Object> queryMessage) {
