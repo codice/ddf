@@ -15,15 +15,17 @@
 package org.codice.ddf.ui.searchui.query.model;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.UUID;
 import java.util.concurrent.Semaphore;
 
 import org.opengis.filter.expression.PropertyName;
 import org.opengis.filter.sort.SortBy;
 import org.opengis.filter.sort.SortOrder;
+import org.slf4j.LoggerFactory;
+import org.slf4j.ext.XLogger;
 
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
@@ -38,6 +40,9 @@ import ddf.catalog.util.impl.TemporalResultComparator;
  */
 public class Search {
 
+    private static final XLogger LOGGER = new XLogger(
+            LoggerFactory.getLogger(Search.class));
+
     protected static final Comparator<Result> DEFAULT_COMPARATOR = new RelevanceResultComparator(
             SortOrder.DESCENDING);
 
@@ -47,22 +52,30 @@ public class Search {
 
     private QueryResponse compositeQueryResponse;
 
-    private UUID guid;
+    private List<Result> resultList = new ArrayList<Result>(100);
+
+    private Calendar lastAccessedTime = Calendar.getInstance();
+
+    private long hits = 0;
+
+    private long startIndex = 0;
 
     public boolean addQueryResponse(QueryResponse queryResponse) throws InterruptedException {
         lock.acquire();
         boolean changed = false;
         try {
             if(queryResponse != null) {
-                if (compositeQueryResponse == null || queryResponse.getRequest().getQuery().getStartIndex() != compositeQueryResponse.getRequest().getQuery().getStartIndex()) {
+                if (compositeQueryResponse == null) {
                     compositeQueryResponse = queryResponse;
+                    resultList.addAll(compositeQueryResponse.getResults());
+                    hits = compositeQueryResponse.getHits();
+                    startIndex = compositeQueryResponse.getRequest().getQuery().getStartIndex();
+                    lastAccessedTime = Calendar.getInstance();
                 } else {
-                    List<Result> originalResultList = compositeQueryResponse.getResults();
-                    List<Result> compositeResultList = new ArrayList<Result>(
-                            compositeQueryResponse.getResults());
                     List<Result> latestResultList = queryResponse.getResults();
+                    List<Result> originalResultList = compositeQueryResponse.getResults();
 
-                    compositeResultList.addAll(latestResultList);
+                    resultList.addAll(latestResultList);
 
                     SortBy sortBy = searchRequest.getLocalQueryRequest().getSortBy();
                     // Prepare the Comparators that we will use
@@ -84,19 +97,34 @@ public class Search {
                         }
                     }
 
-                    Collections.sort(compositeResultList, coreComparator);
+                    Collections.sort(resultList, coreComparator);
 
-                    compositeResultList = compositeResultList.subList(0, originalResultList.size());
+                    List<Result> compositeResultList;
+                    if(resultList.size() >= queryResponse.getRequest().getQuery().getStartIndex() + compositeQueryResponse.getRequest().getQuery().getPageSize()) {
+                        int start = queryResponse.getRequest().getQuery().getStartIndex()-1;
+                        int end = start + compositeQueryResponse.getRequest().getQuery().getPageSize();
+                        compositeResultList = resultList.subList(start, end);
+                    } else {
+                        int start = queryResponse.getRequest().getQuery().getStartIndex()-1;
+                        int end = resultList.size();
+                        compositeResultList = resultList.subList(start, end);
+                    }
 
                     if (!originalResultList.containsAll(compositeResultList)) {
                         changed = true;
                     }
 
+                    if(queryResponse.getRequest().getQuery().getStartIndex() == startIndex) {
+                        hits += queryResponse.getHits();
+                    }
+
                     compositeQueryResponse = new QueryResponseImpl(
-                            compositeQueryResponse.getRequest(), compositeResultList, true,
-                            compositeQueryResponse.getHits() + queryResponse.getHits());
+                            queryResponse.getRequest(), compositeResultList, true,
+                            hits);
+
+                    lastAccessedTime = Calendar.getInstance();
                 }
-   }
+            }
         } finally {
             lock.release();
         }
@@ -108,12 +136,8 @@ public class Search {
         return new Object();
     }
 
-    public UUID getGuid() {
-        return guid;
-    }
-
-    public void setGuid(UUID guid) {
-        this.guid = guid;
+    public Calendar getLastAccessedTime() {
+        return lastAccessedTime;
     }
 
     public SearchRequest getSearchRequest() {

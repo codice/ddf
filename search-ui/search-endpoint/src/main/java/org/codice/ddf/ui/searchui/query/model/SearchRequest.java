@@ -15,13 +15,8 @@
 package org.codice.ddf.ui.searchui.query.model;
 
 import java.util.List;
-import java.util.UUID;
-
-import javax.ws.rs.core.UriInfo;
 
 import org.codice.ddf.opensearch.query.OpenSearchQuery;
-
-import ddf.security.Subject;
 
 /**
  * Created by tustisos on 12/13/13.
@@ -61,5 +56,9 @@ public class SearchRequest {
 
     public void setRemoteQueryRequests(List<OpenSearchQuery> remoteQueryRequests) {
         this.remoteQueryRequests = remoteQueryRequests;
+    }
+
+    public String toString() {
+        return getGuid();
     }
 }
