@@ -16,7 +16,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<artifactId>search-ui</artifactId>
-		<groupId>ddf.ui.search-ui</groupId>
+		<groupId>ddf.ui.search</groupId>
 		<version>2.3.0.ALPHA4-SNAPSHOT</version>
 	</parent>
 
@@ -56,7 +56,7 @@
 			<version>1.0.0</version>
 		</dependency>
 		<dependency>		
-			<groupId>ddf.ui.search-ui</groupId>
+			<groupId>ddf.ui.search</groupId>
 			<artifactId>simple</artifactId>
 			<version>${project.version}</version>
 		</dependency>		

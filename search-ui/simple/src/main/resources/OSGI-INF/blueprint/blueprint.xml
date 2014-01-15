@@ -20,7 +20,7 @@
 
 	<bean id="configurationStore" class="org.codice.ddf.ui.searchui.simple.properties.ConfigurationStore"
 		factory-method="getInstance">
-		<cm:managed-properties persistent-id="org.codice.ddf.ui.search-ui.simple.properties"
+		<cm:managed-properties persistent-id="org.codice.ddf.ui.search.simple.properties"
 			update-strategy="container-managed" />
         <property name="branding" ref="webBranding" />
 	</bean>
