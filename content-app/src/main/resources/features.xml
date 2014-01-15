@@ -33,7 +33,7 @@
         <feature>content-core-api</feature>
         <bundle>mvn:ddf.content.core/content-core-impl/${project.version}</bundle>
         <bundle>mvn:ddf.content.core/content-core-standardframework/${project.version}</bundle>
-        <bundle>mvn:ddf.camel.component/content-core-camelcomponent/${project.version}</bundle>
+        <bundle>mvn:ddf.content.core/content-core-camelcomponent/${project.version}</bundle>
     </feature>
     
     <feature name="content-core-filesystemstorageprovider" install="auto" version="${project.version}" description="The File System Provider provides the implementation to create, update, or delete content items as files in the Content Repository.">

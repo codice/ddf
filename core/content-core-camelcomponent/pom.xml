@@ -20,7 +20,6 @@
     <version>2.3.0.ALPHA2-SNAPSHOT</version>
   </parent>
   
-  <groupId>ddf.camel.component</groupId>
   <artifactId>content-core-camelcomponent</artifactId>
   <name>DDF :: Content :: Core :: CamelComponent</name>
   <packaging>bundle</packaging>
