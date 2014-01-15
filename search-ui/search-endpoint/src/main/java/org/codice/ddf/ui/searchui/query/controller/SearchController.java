@@ -15,12 +15,15 @@
 package org.codice.ddf.ui.searchui.query.controller;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
-import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import javax.activation.MimeType;
 import javax.activation.MimeTypeParseException;
@@ -85,8 +88,47 @@ public class SearchController {
     CatalogFramework framework;
     private BayeuxServer bayeuxServer;
 
+    private Thread cacheWatchThread;
+    private boolean isCacheThreadRunning;
+
     public SearchController(CatalogFramework framework) {
         this.framework = framework;
+        initWatchThread();
+    }
+
+    public void destroy() {
+        if(cacheWatchThread != null) {
+            isCacheThreadRunning = false;
+        }
+    }
+
+    private void initWatchThread() {
+        isCacheThreadRunning = true;
+        cacheWatchThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while(isCacheThreadRunning) {
+                    Calendar curTime = Calendar.getInstance();
+                    Collection<Search> searchList = searchMap.values();
+                    synchronized (searchMap) {
+                        Iterator<Search> searchIterator = searchList.iterator();
+                        while(searchIterator.hasNext()) {
+                            Search search = searchIterator.next();
+                            //remove the cached objects after 10 minutes
+                            if(curTime.getTimeInMillis() - search.getLastAccessedTime().getTimeInMillis() > 600000) {
+                                searchMap.remove(search.getSearchRequest().getGuid());
+                                LOGGER.info("Removing search from cache: "+search.getSearchRequest().toString());
+                            }
+                        }
+                    }
+                    try {
+                        TimeUnit.SECONDS.sleep(10);
+                    } catch (InterruptedException ignore) {}
+                }
+            }
+        });
+        //TODO: not sure if we need this yet, so don't turn it on, we can nuke this code if we don't need it
+//        cacheWatchThread.start();
     }
 
     public synchronized void pushResults(String channel, JSONObject jsonData, ServerSession serverSession) {
@@ -137,7 +179,7 @@ public class SearchController {
             });
         }
 
-        return transform(localQueryResponse, searchRequest);
+        return transform(searchMap.get(searchRequest.getGuid()).getCompositeQueryResponse(), searchRequest);
     }
 
     private boolean addQueryResponseToSearch(SearchRequest searchRequest,

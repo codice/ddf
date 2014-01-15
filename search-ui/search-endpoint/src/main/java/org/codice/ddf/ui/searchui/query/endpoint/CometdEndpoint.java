@@ -16,8 +16,6 @@ package org.codice.ddf.ui.searchui.query.endpoint;
 
 import javax.servlet.ServletException;
 
-import ddf.catalog.CatalogFramework;
-import ddf.catalog.filter.FilterBuilder;
 import org.codice.ddf.ui.searchui.query.controller.SearchController;
 import org.codice.ddf.ui.searchui.query.service.SearchService;
 import org.cometd.bayeux.server.BayeuxServer;
@@ -28,6 +26,9 @@ import org.cometd.server.CometdServlet;
 import org.cometd.server.DefaultSecurityPolicy;
 import org.slf4j.LoggerFactory;
 import org.slf4j.ext.XLogger;
+
+import ddf.catalog.CatalogFramework;
+import ddf.catalog.filter.FilterBuilder;
 
 /**
  * Created by tustisos on 12/10/13.
@@ -92,7 +93,7 @@ public class CometdEndpoint {
     }
 
     public void destroy() {
-
+        searchController.destroy();
     }
 
     public BayeuxServer getBayeuxServer() {
