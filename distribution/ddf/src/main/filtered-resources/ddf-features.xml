@@ -22,6 +22,6 @@
     <repository>mvn:ddf.catalog.solr/catalog-solr-app/${ddf.solr.catalog.app.version}/xml/features</repository>
     <repository>mvn:org.codice.opendj.embedded/opendj-embedded-app/1.0.0/xml/features</repository>
     <repository>mvn:ddf.spatial/spatial-app/${ddf.spatial.app.version}/xml/features</repository>
-    <repository>mvn:ddf.ui.search-ui/search-app/${ddf.searchui.app.version}/xml/features</repository>
+    <repository>mvn:ddf.ui.search/search-app/${ddf.searchui.app.version}/xml/features</repository>
      
 </features>
