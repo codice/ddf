@@ -21,7 +21,7 @@
         <version>1.0.0.ALPHA3</version>
 	</parent>
 
-	<artifactId>catalog-solr-pom</artifactId>
+	<artifactId>solr</artifactId>
 	<groupId>ddf.catalog.solr</groupId>
 	<version>2.3.0.ALPHA3-SNAPSHOT</version>
 	<name>DDF Catalog Solr</name>
