@@ -21,7 +21,11 @@
                 <div class="row-fluid" title="Thumbnail">
                     <div class="span12">
                         <h3 class="title" title="Title">
-                            {{properties.title}}
+                            {{#if properties.title}}
+                                {{properties.title}}
+                            {{else}}
+                                [No Title]
+                            {{/if}}
                         </h3>
                         <hr/>
                     </div>

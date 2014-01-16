@@ -1,6 +1,10 @@
 <td>
     <a href="#" class="metacard-link"  title="Title">
-        {{attributes.properties.attributes.title}}
+        {{#if attributes.properties.attributes.title}}
+            {{attributes.properties.attributes.title}}
+        {{else}}
+            [No Title]
+        {{/if}}
     </a>
     <div class="pull-left"><span class="small-text"  title="Source">{{attributes.properties.attributes.source-id}}</span></div>
     <div class="pull-right">
