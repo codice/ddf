@@ -6,15 +6,27 @@
 // an item view as `modelView`, for the top leaf
 Marionette.CompositeView = Marionette.CollectionView.extend({
 
+  // Setting up the inheritance chain which allows changes to
+  // Marionette.CollectionView.prototype.constructor which allows overriding
+  constructor: function(){
+    Marionette.CollectionView.prototype.constructor.apply(this, slice(arguments));
+  },
+
   // Configured the initial events that the composite view
   // binds to. Override this method to prevent the initial
   // events, or to add your own initial events.
   _initialEvents: function(){
-    if (this.collection){
-      this.listenTo(this.collection, "add", this.addChildView, this);
-      this.listenTo(this.collection, "remove", this.removeItemView, this);
-      this.listenTo(this.collection, "reset", this._renderChildren, this);
-    }
+
+    // Bind only after composite view in rendered to avoid adding child views
+    // to unexisting itemViewContainer
+    this.once('render', function () {
+      if (this.collection){
+        this.listenTo(this.collection, "add", this.addChildView, this);
+        this.listenTo(this.collection, "remove", this.removeItemView, this);
+        this.listenTo(this.collection, "reset", this._renderChildren, this);
+      }
+    });
+
   },
 
   // Retrieve the `itemView` to be used when rendering each of
@@ -31,7 +43,7 @@ Marionette.CompositeView = Marionette.CollectionView.extend({
     return itemView;
   },
 
-  // Serialize the collection for the view. 
+  // Serialize the collection for the view.
   // You can override the `serializeData` method in your own view
   // definition, to provide custom serialization for your view's data.
   serializeData: function(){
@@ -55,7 +67,7 @@ Marionette.CompositeView = Marionette.CollectionView.extend({
     this.triggerBeforeRender();
     var html = this.renderModel();
     this.$el.html(html);
-    // the ui bindings is done here and not at the end of render since they 
+    // the ui bindings is done here and not at the end of render since they
     // will not be available until after the model is rendered, but should be
     // available before the collection is rendered.
     this.bindUIElements();
@@ -87,14 +99,30 @@ Marionette.CompositeView = Marionette.CollectionView.extend({
     return Marionette.Renderer.render(template, data);
   },
 
+
+  // You might need to override this if you've overridden appendHtml
+  appendBuffer: function(compositeView, buffer) {
+    var $container = this.getItemViewContainer(compositeView);
+    $container.append(buffer);
+  },
+
   // Appends the `el` of itemView instances to the specified
   // `itemViewContainer` (a jQuery selector). Override this method to
   // provide custom logic of how the child item view instances have their
   // HTML appended to the composite view instance.
-  appendHtml: function(cv, iv, index){
-    var $container = this.getItemViewContainer(cv);
-    $container.append(iv.el);
+  appendHtml: function(compositeView, itemView, index){
+    if (compositeView.isBuffering) {
+      compositeView.elBuffer.appendChild(itemView.el);
+      compositeView._bufferedChildren.push(itemView);
+    }
+    else {
+      // If we've already rendered the main collection, just
+      // append the new items directly into the element.
+      var $container = this.getItemViewContainer(compositeView);
+      $container.append(itemView.el);
+    }
   },
+
 
   // Internal method to ensure an `$itemViewContainer` exists, for the
   // `appendHtml` method to use.
@@ -104,9 +132,10 @@ Marionette.CompositeView = Marionette.CollectionView.extend({
     }
 
     var container;
-    if (containerView.itemViewContainer){
+    var itemViewContainer = Marionette.getOption(containerView, "itemViewContainer");
+    if (itemViewContainer){
 
-      var selector = _.result(containerView, "itemViewContainer");
+      var selector = _.isFunction(itemViewContainer) ? itemViewContainer.call(this) : itemViewContainer;
       container = containerView.$(selector);
       if (container.length <= 0) {
         throwError("The specified `itemViewContainer` was not found: " + containerView.itemViewContainer, "ItemViewContainerMissingError");

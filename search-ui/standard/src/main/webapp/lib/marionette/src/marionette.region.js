@@ -1,4 +1,4 @@
-// Region 
+// Region
 // ------
 //
 // Manage the visual regions of your composite application. See
@@ -42,6 +42,7 @@ _.extend(Marionette.Region, {
   // ```
   //
   buildRegion: function(regionConfig, defaultRegionType){
+
     var regionIsString = (typeof regionConfig === "string");
     var regionSelectorIsString = (typeof regionConfig.selector === "string");
     var regionTypeIsUndefined = (typeof regionConfig.regionType === "undefined");
@@ -52,19 +53,20 @@ _.extend(Marionette.Region, {
     }
 
     var selector, RegionType;
-   
+
     // get the selector for the region
-    
+
     if (regionIsString) {
       selector = regionConfig;
-    } 
+    }
 
     if (regionConfig.selector) {
       selector = regionConfig.selector;
+      delete regionConfig.selector;
     }
 
     // get the type for the region
-    
+
     if (regionIsType){
       RegionType = regionConfig;
     }
@@ -75,12 +77,17 @@ _.extend(Marionette.Region, {
 
     if (regionConfig.regionType) {
       RegionType = regionConfig.regionType;
+      delete regionConfig.regionType;
     }
-    
+
+    if (regionIsString || regionIsType) {
+      regionConfig = {};
+    }
+
+    regionConfig.el = selector;
+
     // build the region instance
-    var region = new RegionType({
-      el: selector
-    });
+    var region = new RegionType(regionConfig);
 
     // override the `getEl` function if we have a parentEl
     // this must be overridden to ensure the selector is found
@@ -131,7 +138,7 @@ _.extend(Marionette.Region.prototype, Backbone.Events, {
     if (isDifferentView || isViewClosed) {
       this.open(view);
     }
-    
+
     this.currentView = view;
 
     Marionette.triggerMethod.call(this, "show", view);
@@ -166,13 +173,13 @@ _.extend(Marionette.Region.prototype, Backbone.Events, {
     if (view.close) { view.close(); }
     else if (view.remove) { view.remove(); }
 
-    Marionette.triggerMethod.call(this, "close");
+    Marionette.triggerMethod.call(this, "close", view);
 
     delete this.currentView;
   },
 
-  // Attach an existing view to the region. This 
-  // will not call `render` or `onShow` for the new view, 
+  // Attach an existing view to the region. This
+  // will not call `render` or `onShow` for the new view,
   // and will not replace the current HTML for the `el`
   // of the region.
   attachView: function(view){
