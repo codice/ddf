@@ -41,9 +41,6 @@
             return origSync(method, model, options);
         } else {
             var deferred = $.Deferred();
-            var s = $.ajaxSetup( {}, {} );
-            var callbackContext = s.context || s;
-            var completeDeferred = $.Callbacks("once memory");
             //create a primary key for this object if we don't have one already
             var guid = model.guid || generateGuid(model);
             
