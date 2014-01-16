@@ -20,18 +20,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 
-import ddf.catalog.filter.FilterBuilder;
-import ddf.catalog.transform.CatalogTransformerException;
-import ddf.security.Subject;
-import ddf.security.service.SecurityServiceException;
-import ddf.security.service.TokenRequestHandler;
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.opensearch.query.OpenSearchQuery;
 import org.codice.ddf.ui.searchui.query.controller.SearchController;
-import org.codice.ddf.ui.searchui.query.model.SearchRequest;
 import org.codice.ddf.ui.searchui.query.endpoint.CometdEndpoint;
+import org.codice.ddf.ui.searchui.query.model.SearchRequest;
 import org.cometd.bayeux.Message;
 import org.cometd.bayeux.server.BayeuxServer;
 import org.cometd.bayeux.server.ConfigurableServerChannel;
@@ -43,7 +37,8 @@ import org.parboiled.errors.ParsingException;
 import org.slf4j.LoggerFactory;
 import org.slf4j.ext.XLogger;
 
-import javax.servlet.http.HttpServletRequest;
+import ddf.catalog.filter.FilterBuilder;
+import ddf.catalog.transform.CatalogTransformerException;
 
 /**
  * Created by tustisos on 12/10/13.
@@ -144,6 +139,7 @@ public class SearchService extends AbstractService {
             }
             reply.put("successful", true);
         } else {
+            reply.put("successful", false);
             reply.put("status", "ERROR: unable to return results, no guid in query request");
             remote.deliver(getServerSession(), reply);
         }
