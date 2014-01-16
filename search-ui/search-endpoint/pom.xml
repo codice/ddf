@@ -80,13 +80,8 @@
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <Embed-Dependency>json-smart</Embed-Dependency>
+                        <Embed-Dependency>json-smart,ddf.catalog.opensearch</Embed-Dependency>
                         <Spring-Context>*;wait-for-dependencies:=true;timeout:=604800</Spring-Context>
-                        <Import-Package>
-                            META-INF.cxf,
-                            META-INF.cxf.osgi,
-                            *
-                        </Import-Package>
                         <!-- Package uses conflict if we do not embed this -->
                         <Private-Package>
                             org.parboiled.*,
