@@ -14,10 +14,10 @@ define(function (require) {
         List = {};
     
     function throwError(message, name) {
-  var error = new Error(message);
-  error.name = name || 'Error';
-  throw error;
-}
+      var error = new Error(message);
+      error.name = name || 'Error';
+      throw error;
+    }
 
     ich.addTemplate('resultListItem', require('text!templates/resultListItem.handlebars'));
     ich.addTemplate('resultListTemplate', require('text!templates/resultList.handlebars'));
