@@ -206,20 +206,22 @@ public class CatalogContentPlugin implements ContentPlugin {
                 LOGGER.debug("Transformer [" + transformer + "] could not create metacard. ", e);
             }
             if (generatedMetacard != null) {
-                break;
+            	//Setting the non-transformer specific information not including creation and modification dates/times
+            	generatedMetacard.setAttribute(new AttributeImpl(Metacard.RESOURCE_SIZE, String.valueOf(messageBytes.length)));
+            	if (uri != null) {
+                    generatedMetacard.setAttribute(new AttributeImpl(Metacard.RESOURCE_URI, uri));
+                } else {
+                    LOGGER.debug("Metacard had a null uri");
+            	break;
+                }
             }
         }
-
+        
         if (generatedMetacard == null) {
             throw new MetacardCreationException("Could not create metacard with mimeType "
                     + mimeType + ". No valid transformers found.");
         }
 
-        if (uri != null) {
-            generatedMetacard.setAttribute(new AttributeImpl(Metacard.RESOURCE_URI, uri));
-        } else {
-            LOGGER.debug("Metacard had a null uri");
-        }
 
         LOGGER.trace("EXITING: generateMetacard");
 
