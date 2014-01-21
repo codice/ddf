@@ -60,9 +60,8 @@ public class Search {
 
     private long startIndex = 0;
 
-    public boolean addQueryResponse(QueryResponse queryResponse) throws InterruptedException {
+    public void addQueryResponse(QueryResponse queryResponse) throws InterruptedException {
         lock.acquire();
-        boolean changed = false;
         try {
             if(queryResponse != null) {
                 if (compositeQueryResponse == null) {
@@ -73,7 +72,6 @@ public class Search {
                     lastAccessedTime = Calendar.getInstance();
                 } else {
                     List<Result> latestResultList = queryResponse.getResults();
-                    List<Result> originalResultList = compositeQueryResponse.getResults();
 
                     resultList.addAll(latestResultList);
 
@@ -110,10 +108,6 @@ public class Search {
                         compositeResultList = resultList.subList(start, end);
                     }
 
-                    if (!originalResultList.containsAll(compositeResultList)) {
-                        changed = true;
-                    }
-
                     if(queryResponse.getRequest().getQuery().getStartIndex() == startIndex) {
                         hits += queryResponse.getHits();
                     }
@@ -128,7 +122,6 @@ public class Search {
         } finally {
             lock.release();
         }
-        return changed;
     }
 
     public Object toJSON() {

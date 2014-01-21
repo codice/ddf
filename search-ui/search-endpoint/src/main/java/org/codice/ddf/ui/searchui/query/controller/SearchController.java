@@ -162,14 +162,12 @@ public class SearchController {
                 public void run() {
                     QueryResponse fedResponse = executeQuery(fedQuery, null);
                     try {
-                        boolean changed = addQueryResponseToSearch(searchRequest, fedResponse);
-                        if (changed) {
-                            pushResults(
-                                    searchRequest.getGuid(),
-                                    controller.transform(
-                                            searchMap.get(searchRequest.getGuid())
-                                                    .getCompositeQueryResponse(), searchRequest), serverSession);
-                        }
+                        addQueryResponseToSearch(searchRequest, fedResponse);
+                        pushResults(
+                                searchRequest.getGuid(),
+                                controller.transform(
+                                        searchMap.get(searchRequest.getGuid())
+                                                .getCompositeQueryResponse(), searchRequest), serverSession);
                     } catch (InterruptedException e) {
                         LOGGER.error("Failed adding federated search results.", e);
                     } catch (CatalogTransformerException e) {
@@ -182,19 +180,17 @@ public class SearchController {
         return transform(searchMap.get(searchRequest.getGuid()).getCompositeQueryResponse(), searchRequest);
     }
 
-    private boolean addQueryResponseToSearch(SearchRequest searchRequest,
+    private void addQueryResponseToSearch(SearchRequest searchRequest,
             QueryResponse queryResponse) throws InterruptedException {
-        boolean changed = false;
         if (searchMap.containsKey(searchRequest.getGuid())) {
             Search search = searchMap.get(searchRequest.getGuid());
-            changed = search.addQueryResponse(queryResponse);
+            search.addQueryResponse(queryResponse);
         } else {
             Search search = new Search();
-            changed = search.addQueryResponse(queryResponse);
+            search.addQueryResponse(queryResponse);
             search.setSearchRequest(searchRequest);
             searchMap.put(searchRequest.getGuid(), search);
         }
-     return changed;
     }
 
     /**
