@@ -323,3 +323,35 @@ span.add-on {
 .disabled:hover {
     color: #adafae;
 }
+
+.progressbar {
+    height: 15px;
+    text-align: center;
+    overflow: hidden;
+    position: absolute;
+    z-index: 2000;
+    height: 5px;
+    top: 0px;
+    left: 0px;
+    width: 100%;
+    border-bottom-right-radius: 0px;
+    border-bottom-left-radius: 0px;
+    border-top-right-radius: 0px;
+    border-top-left-radius: 0px;
+    background: none;
+    border: 0;
+}
+.progress-background {
+    background: #fff url(images/ui-bg_flat_75_ffffff_40x100.png) 50% 50% repeat-x;
+}
+.progress-text {
+    position: absolute;
+    height: 100%;
+    line-height: 100%;
+    width: 100%;
+    background-color: transparent;
+    z-index: 3000;
+    top: 0px;
+    left: 0px;
+    font-size: 14px;
+}

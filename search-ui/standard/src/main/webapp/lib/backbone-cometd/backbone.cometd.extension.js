@@ -37,6 +37,7 @@
     };
 
     Backbone.sync = function(method, model, options) {
+        var that = this;
         if(options.useAjaxSync || model.useAjaxSync) {
             return origSync(method, model, options);
         } else {
@@ -54,6 +55,9 @@
                 if(retVal === false) {
                     deferred.reject();
                 } else {
+                    if(that.get('progress')) {
+                        that.get('progress').increment(1);
+                    }
                     deferred.resolve();
                 }
             };
