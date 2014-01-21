@@ -252,6 +252,7 @@ define(function (require) {
             //the progress bar is animated using jquery, if we want to swap this
             //out for a progress bar library at some point, it should be pretty simple
             $('#progressbar').show();
+            $('#progressbar').height('5px');
             $('#progressbar').progressbar({value: 0.001});
             $("#progressbar .ui-progressbar-value").addClass("ui-corner-right");
             var progress = {
