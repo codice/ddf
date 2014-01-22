@@ -70,6 +70,21 @@
             <artifactId>geo-formatter</artifactId>
             <version>2.3.0.ALPHA2-SNAPSHOT</version>
         </dependency>
+        <dependency>
+            <groupId>org.codehaus.jackson</groupId>
+            <artifactId>jackson-mapper-asl</artifactId>
+            <version>1.9.13</version>
+        </dependency>
+        <dependency>
+            <groupId>org.codehaus.jackson</groupId>
+            <artifactId>jackson-core-asl</artifactId>
+            <version>1.9.13</version>
+        </dependency>
+        <dependency>
+            <groupId>org.cometd.java</groupId>
+            <artifactId>bayeux-api</artifactId>
+            <version>2.7.0</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -80,7 +95,7 @@
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <Embed-Dependency>json-smart,ddf.catalog.opensearch,bayeux-api,cometd-java-common,cometd-java-server</Embed-Dependency>
+                        <Embed-Dependency>json-smart,ddf.catalog.opensearch,bayeux-api,cometd-java-common,cometd-java-server,jackson-mapper-asl,jackson-core-asl</Embed-Dependency>
                         <Spring-Context>*;wait-for-dependencies:=true;timeout:=604800</Spring-Context>
                         <!-- Package uses conflict if we do not embed this -->
                         <Private-Package>
