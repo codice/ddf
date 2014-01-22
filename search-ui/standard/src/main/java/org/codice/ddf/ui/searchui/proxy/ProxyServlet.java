@@ -62,6 +62,7 @@ import org.apache.http.message.BasicHttpEntityEnclosingRequest;
 import org.apache.http.message.BasicHttpRequest;
 import org.apache.http.message.HeaderGroup;
 import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.util.EntityUtils;
 import org.codice.ddf.ui.searchui.standard.properties.ConfigurationStore;
@@ -112,6 +113,8 @@ public class ProxyServlet extends HttpServlet {
 
     protected HttpClient proxyClient;
     
+    protected int timeout = 5000;
+    
     @Override
     public String getServletInfo() {
         return "A proxy servlet by David Smiley, dsmiley@mitre.org";
@@ -126,10 +129,14 @@ public class ProxyServlet extends HttpServlet {
             this.doForwardIP = Boolean.parseBoolean(doForwardIPString);
         }
 
-        HttpParams hcParams = new BasicHttpParams();
+        final HttpParams hcParams = new BasicHttpParams();
+        timeout = ConfigurationStore.getInstance().getTimeout();
+        HttpConnectionParams.setSoTimeout(hcParams, timeout);
+        HttpConnectionParams.setConnectionTimeout(hcParams, timeout);
         readConfigParam(hcParams, ClientPNames.HANDLE_REDIRECTS, Boolean.class);
+
         proxyClient = createHttpClient(hcParams);
-    }
+    }  
 
     /**
      * Called from {@link #init(javax.servlet.ServletConfig)}. HttpClient offers many opportunities
@@ -224,10 +231,15 @@ public class ProxyServlet extends HttpServlet {
 
         try {
             // Execute the request
-            logger.debug("proxy {} uri: {} -- {}",  method, servletRequest.getRequestURI(), proxyRequest.getRequestLine().getUri());
+            HttpResponse proxyResponse;
+            logger.debug("proxy {} uri: {} -- {}, timeout: {}", method,
+                    servletRequest.getRequestURI(), proxyRequest.getRequestLine().getUri(),
+                    timeout);
 
-            HttpResponse proxyResponse = proxyClient.execute(URIUtils.extractHost(getTargetUriObj()),
-                    proxyRequest);
+            synchronized (this) {
+                proxyResponse = proxyClient.execute(URIUtils.extractHost(getTargetUriObj()),
+                        proxyRequest);
+            }
 
             // Process the response
             int statusCode = proxyResponse.getStatusLine().getStatusCode();

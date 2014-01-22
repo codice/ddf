@@ -71,7 +71,9 @@
             name="WMS Format" id="format" required="false" type="String"
             default=""
         />
-	</OCD>
+        <AD description="Specifies the connection timeout to use when connecting to WMS services." name="Connection Timeout" id="timeout"
+            required="false" type="Integer" default="5000" />
+	    </OCD>
 
 	<Designate 	pid="org.codice.ddf.ui.search.standard.properties">
 		<Object ocdref="org.codice.ddf.ui.search.standard.properties" />

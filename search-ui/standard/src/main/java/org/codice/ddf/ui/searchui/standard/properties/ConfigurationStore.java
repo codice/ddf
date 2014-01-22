@@ -65,6 +65,8 @@ public class ConfigurationStore {
     private static String JSON_MIME_TYPE_STRING = "application/json";
 
     private static MimeType JSON_MIME_TYPE = null;
+    
+    private Integer timeout = 5000;
 
     static {
         MimeType mime = null;
@@ -84,6 +86,7 @@ public class ConfigurationStore {
         wmsServer = "";
         layers = "";
         format = "";
+        timeout = 5000;
     }
 
     @GET
@@ -99,6 +102,8 @@ public class ConfigurationStore {
         configObj.put("wmsServer", wmsServer);
         configObj.put("layers", layers);
         configObj.put("format", format);
+        configObj.put("timeout", timeout);
+
 
         String configString = JSONValue.toJSONString(configObj);
         BinaryContent content = new BinaryContentImpl(new ByteArrayInputStream(configString.getBytes()),
@@ -189,6 +194,14 @@ public class ConfigurationStore {
 
     public void setFormat(String format) {
         this.format = format;
+    }
+    
+    public Integer getTimeout() {
+        return timeout;
+    }
+
+    public void setTimeout(Integer timeout) {
+        this.timeout = timeout;
     }
 
     public Object clone() throws CloneNotSupportedException {
