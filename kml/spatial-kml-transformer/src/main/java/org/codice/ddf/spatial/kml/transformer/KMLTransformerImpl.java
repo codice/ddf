@@ -385,13 +385,18 @@ public class KMLTransformerImpl implements KMLTransformer {
         Document kmlDoc = KmlFactory.createDocument();
         boolean needDefaultStyle = false;
         for (Result result : upstreamResponse.getResults()) {
-            Placemark placemark = transformEntry(null, result.getMetacard(), arguments);
-            if (placemark.getStyleSelector().isEmpty()
-                    && StringUtils.isEmpty(placemark.getStyleUrl())) {
-                placemark.setStyleUrl("#default");
-                needDefaultStyle = true;
-            }
-            kmlDoc.getFeature().add(placemark);
+        	try {
+        		Placemark placemark = transformEntry(null, result.getMetacard(), arguments);
+                if (placemark.getStyleSelector().isEmpty()
+                        && StringUtils.isEmpty(placemark.getStyleUrl())) {
+                    placemark.setStyleUrl("#default");
+                    needDefaultStyle = true;
+                }
+                kmlDoc.getFeature().add(placemark);
+        	} catch (CatalogTransformerException e) {
+        		LOGGER.error("Error transforming current metacard to KML and will continue with remaining query responses.");
+        		continue;
+        	}
         }
         
         if (needDefaultStyle) {
