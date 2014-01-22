@@ -17,7 +17,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>search-ui</artifactId>
-        <groupId>ddf.ui.search-ui</groupId>
+        <groupId>ddf.ui.search</groupId>
         <version>2.3.0.ALPHA4-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -80,7 +80,7 @@
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <Embed-Dependency>json-smart,ddf.catalog.opensearch</Embed-Dependency>
+                        <Embed-Dependency>json-smart,ddf.catalog.opensearch,bayeux-api,cometd-java-common,cometd-java-server</Embed-Dependency>
                         <Spring-Context>*;wait-for-dependencies:=true;timeout:=604800</Spring-Context>
                         <!-- Package uses conflict if we do not embed this -->
                         <Private-Package>
