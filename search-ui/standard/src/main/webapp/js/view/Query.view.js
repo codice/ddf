@@ -288,7 +288,11 @@ define(function (require) {
                     this.total = val;
                 }
             };
-            progress.setTotal(this.sources.length);
+            if (this.model.get("src")) {
+                progress.setTotal(this.model.get("src").split(",").length);
+            } else {
+                progress.setTotal(this.sources.length);
+            }
 
             $('#progressbar').mouseenter(function() {
                 $('#progressbar').height('15px');

@@ -15,23 +15,18 @@
 package org.codice.ddf.ui.searchui.query.controller;
 
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
 import javax.activation.MimeType;
 import javax.activation.MimeTypeParseException;
 
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
-import net.minidev.json.JSONValue;
 
+import org.apache.commons.collections.map.LRUMap;
 import org.codice.ddf.opensearch.query.OpenSearchQuery;
 import org.codice.ddf.ui.searchui.query.model.Search;
 import org.codice.ddf.ui.searchui.query.model.SearchRequest;
@@ -83,56 +78,35 @@ public class SearchController {
 
     // TODO: just store the searches in memory for now, change this later
     private final Map<String, Search> searchMap = Collections
-            .synchronizedMap(new HashMap<String, Search>());
+            .synchronizedMap(new LRUMap(1000));
 
     CatalogFramework framework;
     private BayeuxServer bayeuxServer;
 
-    private Thread cacheWatchThread;
-    private boolean isCacheThreadRunning;
-
     public SearchController(CatalogFramework framework) {
         this.framework = framework;
-        initWatchThread();
     }
 
     public void destroy() {
-        if(cacheWatchThread != null) {
-            isCacheThreadRunning = false;
-        }
+
     }
 
-    private void initWatchThread() {
-        isCacheThreadRunning = true;
-        cacheWatchThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                while(isCacheThreadRunning) {
-                    Calendar curTime = Calendar.getInstance();
-                    Collection<Search> searchList = searchMap.values();
-                    synchronized (searchMap) {
-                        Iterator<Search> searchIterator = searchList.iterator();
-                        while(searchIterator.hasNext()) {
-                            Search search = searchIterator.next();
-                            //remove the cached objects after 10 minutes
-                            if(curTime.getTimeInMillis() - search.getLastAccessedTime().getTimeInMillis() > 600000) {
-                                searchMap.remove(search.getSearchRequest().getGuid());
-                                LOGGER.info("Removing search from cache: "+search.getSearchRequest().toString());
-                            }
-                        }
-                    }
-                    try {
-                        TimeUnit.SECONDS.sleep(10);
-                    } catch (InterruptedException ignore) {}
-                }
-            }
-        });
-        //TODO: not sure if we need this yet, so don't turn it on, we can nuke this code if we don't need it
-//        cacheWatchThread.start();
-    }
-
+    /**
+     * Push results out to clients
+     * @param channel - Channel to send results on
+     * @param jsonData
+     * @param serverSession
+     */
     public synchronized void pushResults(String channel, JSONObject jsonData, ServerSession serverSession) {
-        String channelName = "/"+channel.toString();
+        String channelName;
+        //you can't have 2 leading slashes, but if there isn't one, add it
+        if (channel.startsWith("/")) {
+            channelName = channel;
+        } else {
+            channelName = "/"+channel;
+        }
+
+        LOGGER.debug("Creating channel if it doesn't exist: "+channelName);
 
         bayeuxServer.createChannelIfAbsent(channelName, new ConfigurableServerChannel.Initializer()
         {
@@ -146,28 +120,37 @@ public class SearchController {
         reply.put("successful", true);
         reply.putAll(jsonData);
 
+        LOGGER.debug("Sending results to subscribers on: "+channelName);
+
         bayeuxServer.getChannel(channelName).publish(serverSession, reply, null);
     }
 
-    public JSONObject executeQuery(final SearchRequest searchRequest, final ServerSession serverSession) throws InterruptedException, CatalogTransformerException {
+    public void executeQuery(final SearchRequest searchRequest, final ServerSession serverSession) throws InterruptedException, CatalogTransformerException {
 
         final SearchController controller = this;
 
-        QueryResponse localQueryResponse = executeQuery(searchRequest.getLocalQueryRequest(), null);
-        addQueryResponseToSearch(searchRequest, localQueryResponse);
-
-        for (final OpenSearchQuery fedQuery : searchRequest.getRemoteQueryRequests()) {
+        for (final OpenSearchQuery fedQuery : searchRequest.getQueryRequests()) {
+            LOGGER.debug("Executing async query on: "+fedQuery.getSiteIds());
             executorService.submit(new Runnable() {
                 @Override
                 public void run() {
                     QueryResponse fedResponse = executeQuery(fedQuery, null);
                     try {
-                        addQueryResponseToSearch(searchRequest, fedResponse);
-                        pushResults(
-                                searchRequest.getGuid(),
-                                controller.transform(
-                                        searchMap.get(searchRequest.getGuid())
-                                                .getCompositeQueryResponse(), searchRequest), serverSession);
+                        boolean changed = addQueryResponseToSearch(searchRequest, fedResponse);
+                        //send full response if it changed, otherwise send empty one
+                        if(changed) {
+                            pushResults(
+                                    searchRequest.getGuid(),
+                                    controller.transform(
+                                            searchMap.get(searchRequest.getGuid())
+                                                    .getCompositeQueryResponse(), searchRequest), serverSession);
+                        } else {
+                            pushResults(
+                                    searchRequest.getGuid(),
+                                    controller.transform(
+                                            searchMap.get(searchRequest.getGuid())
+                                                    .getEmptyQueryResponse(), searchRequest), serverSession);
+                        }
                     } catch (InterruptedException e) {
                         LOGGER.error("Failed adding federated search results.", e);
                     } catch (CatalogTransformerException e) {
@@ -176,21 +159,23 @@ public class SearchController {
                 }
             });
         }
-
-        return transform(searchMap.get(searchRequest.getGuid()).getCompositeQueryResponse(), searchRequest);
     }
 
-    private void addQueryResponseToSearch(SearchRequest searchRequest,
+    private boolean addQueryResponseToSearch(SearchRequest searchRequest,
             QueryResponse queryResponse) throws InterruptedException {
+        boolean changed;
         if (searchMap.containsKey(searchRequest.getGuid())) {
+            LOGGER.debug("Using previously created Search object for cache: "+searchRequest.getGuid());
             Search search = searchMap.get(searchRequest.getGuid());
-            search.addQueryResponse(queryResponse);
+            changed = search.addQueryResponse(queryResponse);
         } else {
+            LOGGER.debug("Creating new Search object to cache async query results: "+searchRequest.getGuid());
             Search search = new Search();
-            search.addQueryResponse(queryResponse);
+            changed = search.addQueryResponse(queryResponse);
             search.setSearchRequest(searchRequest);
             searchMap.put(searchRequest.getGuid(), search);
         }
+        return changed;
     }
 
     /**
@@ -219,7 +204,7 @@ public class SearchController {
                     queryRequest.getProperties().put(SecurityConstants.SECURITY_SUBJECT, subject);
                 }
 
-                LOGGER.debug("Sending query");
+                LOGGER.debug("Sending query: "+query);
                 queryResponse = framework.query(queryRequest);
 
             } else {
@@ -243,11 +228,6 @@ public class SearchController {
             LOGGER.warn("RuntimeException on executing query", e);
         }
         return queryResponse;
-
-    }
-
-    public String wrapStringInPreformattedTags(String stringToWrap) {
-        return "<pre>" + stringToWrap + "</pre>";
     }
 
     public JSONObject transform(SourceResponse upstreamResponse, SearchRequest searchRequest)
@@ -277,8 +257,6 @@ public class SearchController {
             }
         }
         addNonNullObject(rootObject, "results", resultsList);
-
-        String jsonText = JSONValue.toJSONString(rootObject);
 
         return rootObject;
     }

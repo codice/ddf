@@ -60,22 +60,29 @@ public class Search {
 
     private long startIndex = 0;
 
-    public void addQueryResponse(QueryResponse queryResponse) throws InterruptedException {
+    public boolean addQueryResponse(QueryResponse queryResponse) throws InterruptedException {
         lock.acquire();
+        boolean changed = false;
         try {
             if(queryResponse != null) {
                 if (compositeQueryResponse == null) {
+                    LOGGER.debug("Creating new composite query response");
                     compositeQueryResponse = queryResponse;
                     resultList.addAll(compositeQueryResponse.getResults());
                     hits = compositeQueryResponse.getHits();
                     startIndex = compositeQueryResponse.getRequest().getQuery().getStartIndex();
                     lastAccessedTime = Calendar.getInstance();
+                    changed = true;
                 } else {
+                    LOGGER.debug("Updating existing composite query response");
+                    startIndex = queryResponse.getRequest().getQuery().getStartIndex();
                     List<Result> latestResultList = queryResponse.getResults();
+                    List<Result> originalResultList = compositeQueryResponse.getResults();
 
                     resultList.addAll(latestResultList);
 
-                    SortBy sortBy = searchRequest.getLocalQueryRequest().getSortBy();
+                    //if there wasn't at least 1 request there, we wouldn't be here in the first place
+                    SortBy sortBy = searchRequest.getQueryRequests().get(0).getSortBy();
                     // Prepare the Comparators that we will use
                     Comparator<Result> coreComparator = DEFAULT_COMPARATOR;
 
@@ -108,7 +115,19 @@ public class Search {
                         compositeResultList = resultList.subList(start, end);
                     }
 
-                    if(queryResponse.getRequest().getQuery().getStartIndex() == startIndex) {
+                    //we want to make sure we pass back any initial results so any UI building a list can
+                    //actually know when all searches have returned
+                    //each subsequent query is coming from cached results, so it doesn't really matter
+                    //if we send back every response from a source after that
+                    if (!originalResultList.containsAll(compositeResultList) || startIndex == 1) {
+                        changed = true;
+                    } else {
+                        LOGGER.debug("Response list has not changed, so message sent will be empty");
+                    }
+
+                    //Just look for all the responses that come back with a start index of 1 so we don't update
+                    //too many times
+                    if(queryResponse.getRequest().getQuery().getStartIndex() == 1) {
                         hits += queryResponse.getHits();
                     }
 
@@ -122,11 +141,15 @@ public class Search {
         } finally {
             lock.release();
         }
+        return changed;
     }
 
-    public Object toJSON() {
-        //TODO: do something here
-        return new Object();
+    public QueryResponse getEmptyQueryResponse() {
+        QueryResponse response = new QueryResponseImpl(
+                compositeQueryResponse.getRequest(), new ArrayList<Result>(), true,
+                hits);
+
+        return response;
     }
 
     public Calendar getLastAccessedTime() {

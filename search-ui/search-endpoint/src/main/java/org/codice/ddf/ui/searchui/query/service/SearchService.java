@@ -133,21 +133,20 @@ public class SearchService extends AbstractService {
                 }
             });
 
-            Map<? extends String, ?> response = executeQuery(queryMessage);
-            if(response != null) {
-                reply.putAll(response);
-            }
+            //kick off the query
+            executeQuery(queryMessage);
+
             reply.put("successful", true);
+            remote.deliver(getServerSession(), reply);
         } else {
             reply.put("successful", false);
             reply.put("status", "ERROR: unable to return results, no guid in query request");
             remote.deliver(getServerSession(), reply);
         }
 
-        remote.deliver(getServerSession(), "/"+queryMessage.get("guid"), reply, null);
     }
 
-    public Map<? extends String, ?> executeQuery(Map<String, Object> queryMessage) {
+    public void executeQuery(Map<String, Object> queryMessage) {
         final String methodName = "executeQuery";
         LOGGER.entry(methodName);
         String searchTerms = (String) queryMessage.get(PHRASE);
@@ -172,8 +171,6 @@ public class SearchService extends AbstractService {
         String versions = (String) queryMessage.get(VERSION);
         String guid = (String) queryMessage.get(GUID);
 
-        Map<String, Object> response = null;
-
         Long localCount = count;
 
         //Build the SearchRequest and then hand off to the controller for the actual query
@@ -186,32 +183,7 @@ public class SearchService extends AbstractService {
 
         try {
             String queryFormat = format;
-            OpenSearchQuery query = createNewQuery(startIndex, localCount, sort, maxTimeout);
-            //no asynchronous queries will be enterprise, this will be handled internally
-            query.setIsEnterprise(false);
-
-            // contextual
-            addContextualFilter(searchTerms, selector, query);
-
-            // temporal
-            // single temporal criterion per query
-            addTemporalFilter(dateStart, dateEnd, dateOffset, query);
-
-            // spatial
-            // single spatial criterion per query
-            addSpatialFilter(query, geometry, polygon, bbox, radius, lat, lon);
-
-            if (type != null && !type.trim().isEmpty()) {
-                query.addTypeFilter(type, versions);
-            }
-
-            //right now we will perform only the local query to immediately return results
-            //other sites (if specified) will be queried asynchronously
-            Set<String> siteSet = new HashSet<String>();
-            siteSet.add(searchController.getFramework().getId());
-            query.setSiteIds(siteSet);
-
-            List<OpenSearchQuery> remoteQueryList = new ArrayList<OpenSearchQuery>();
+            List<OpenSearchQuery> queryList = new ArrayList<OpenSearchQuery>();
 
             Set<String> federatedSet = null;
             if (!(StringUtils.isEmpty(sources))) {
@@ -222,9 +194,6 @@ public class SearchService extends AbstractService {
             }
 
             if (federatedSet != null && !federatedSet.isEmpty()) {
-                //make sure no one is including this "local" magic word
-                federatedSet.remove(LOCAL);
-                federatedSet.remove(searchController.getFramework().getId());
 
                 OpenSearchQuery fedQuery;
                 Set<String> fedSet;
@@ -251,12 +220,11 @@ public class SearchService extends AbstractService {
                     fedQuery.setSiteIds(fedSet);
                     fedQuery.setIsEnterprise(false);
 
-                    remoteQueryList.add(fedQuery);
+                    queryList.add(fedQuery);
                 }
 
             } else {
                 LOGGER.debug("No sites found, defaulting to asynchronous enterprise query.");
-
             }
 
             if (StringUtils.isEmpty(queryFormat)) {
@@ -264,10 +232,10 @@ public class SearchService extends AbstractService {
             }
 
             //Now we can build the request
-            SearchRequest searchRequest = new SearchRequest(query, remoteQueryList, queryFormat, guid);
+            SearchRequest searchRequest = new SearchRequest(queryList, queryFormat, guid);
 
             //Hand off to the search controller for the actual query
-            response = searchController.executeQuery(searchRequest, getServerSession());
+            searchController.executeQuery(searchRequest, getServerSession());
         } catch (IllegalArgumentException iae) {
             LOGGER.warn("Bad input found while executing a query", iae);
         } catch (RuntimeException re) {
@@ -279,7 +247,6 @@ public class SearchService extends AbstractService {
         }
         LOGGER.exit(methodName);
 
-        return response;
     }
 
     /**

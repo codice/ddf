@@ -24,12 +24,10 @@ import org.codice.ddf.opensearch.query.OpenSearchQuery;
 public class SearchRequest {
     private final String guid;
     private final String queryFormat;
-    private OpenSearchQuery localQueryRequest;
-    private List<OpenSearchQuery> remoteQueryRequests;
+    private List<OpenSearchQuery> queryRequests;
 
-    public SearchRequest(OpenSearchQuery localQueryRequest, List<OpenSearchQuery> remoteQueryRequests, String queryFormat, String guid) {
-        this.localQueryRequest = localQueryRequest;
-        this.remoteQueryRequests = remoteQueryRequests;
+    public SearchRequest(List<OpenSearchQuery> queryRequests, String queryFormat, String guid) {
+        this.queryRequests = queryRequests;
         this.queryFormat = queryFormat;
         this.guid = guid;
     }
@@ -42,20 +40,12 @@ public class SearchRequest {
         return queryFormat;
     }
 
-    public OpenSearchQuery getLocalQueryRequest() {
-        return localQueryRequest;
+    public List<OpenSearchQuery> getQueryRequests() {
+        return queryRequests;
     }
 
-    public void setLocalQueryRequest(OpenSearchQuery localQueryRequest) {
-        this.localQueryRequest = localQueryRequest;
-    }
-
-    public List<OpenSearchQuery> getRemoteQueryRequests() {
-        return remoteQueryRequests;
-    }
-
-    public void setRemoteQueryRequests(List<OpenSearchQuery> remoteQueryRequests) {
-        this.remoteQueryRequests = remoteQueryRequests;
+    public void setQueryRequests(List<OpenSearchQuery> queryRequests) {
+        this.queryRequests = queryRequests;
     }
 
     public String toString() {
