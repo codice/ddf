@@ -556,6 +556,15 @@
         <bundle>mvn:ddf.action.core/action-core-impl/${project.version}</bundle>
     </feature>
     
+    <feature name="cache-core-api" install="manual" version="${project.version}" description="DDF Cache API">
+        <bundle>mvn:ddf.cache.core/cache-core-api/${project.version}</bundle>
+    </feature>
+
+    <feature name="cache-core" install="manual" version="${project.version}" description="DDF Cache Core">
+        <feature>cache-core-api</feature>
+        <bundle>mvn:ddf.cache.core/cache-core-impl/${project.version}</bundle>
+    </feature>
+        
     <feature name="mime-core-api" install="manual" version="${project.version}" description="DDF MIME API">
         <bundle>mvn:ddf.mime.core/mime-core-api/${project.version}</bundle>
     </feature>
@@ -619,6 +628,7 @@
         <feature>platform-configuration</feature>
 		<feature>action-core-api</feature>
         <feature>action-core-impl</feature>
+        <feature>cache-core</feature>
         <feature>mime-core</feature>
         <feature>mime-tika-resolver</feature>
         <feature>security-encryption</feature>
