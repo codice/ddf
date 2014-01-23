@@ -78,8 +78,6 @@ define(function (require) {
             'keypress input[name=q]': 'filterOnEnter',
             'change #radiusUnits': 'onRadiusUnitsChanged',
             'change #offsetTimeUnits': 'onTimeUnitsChanged'
-
-
         },
 
 
@@ -255,6 +253,8 @@ define(function (require) {
         },
 
         search: function () {
+            this.trigger('search');
+
             //get results
             var queryParams, view = this, result, options;
             queryParams = this.model.toJSON();
