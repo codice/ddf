@@ -130,7 +130,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements Configurati
 
     static final Logger INGEST_LOGGER = LoggerFactory.getLogger("ingestLogger");
 
-    private static final String FAILED_BY_GET_RESOURCE_PLUGIN = "Error during Pre/PostResourcePlugin.";
+    protected static final String FAILED_BY_GET_RESOURCE_PLUGIN = "Error during Pre/PostResourcePlugin.";
 
     // The local catalog provider, which is set to the first item in the {@link List} of
     // {@link CatalogProvider}s.
