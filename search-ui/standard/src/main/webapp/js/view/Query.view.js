@@ -350,6 +350,7 @@ define(function (require) {
             $('button[name=noLocationButton]').click();
             $('button[name=noTypeButton]').click();
             $('button[name=enterpriseFederationButton]').click();
+            $('#progressbar').hide();
             this.model.clear();
             this.trigger('clear');
             $('input[name=q]').focus();
