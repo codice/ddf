@@ -46,6 +46,7 @@ define(function (require) {
                 this.listenTo(this.queryForm, 'content-update', this.updateScrollbar);
 
                 this.listenTo(this.queryForm, 'clear', this.onQueryClear);
+                this.listenTo(this.queryForm, 'search', this.onQueryClear);
                 this.listenTo(this.queryForm, 'searchComplete', this.showResults);
                 this.listenTo(this.queryForm, 'searchComplete', this.changeDefaultMapLocation);
                 this.listenTo(ddf.app, 'model:context', this.showMetacardDetail);
@@ -81,6 +82,10 @@ define(function (require) {
                 $(".forward").hide();
                 if (this.mapViews) {
                     this.mapViews.close();
+                }
+                if (this.metacardDetail) {
+                    this.metacardDetail.remove();
+                    delete this.metacardDetail;
                 }
             },
             back: function () {
@@ -161,7 +166,7 @@ define(function (require) {
                 }
 
                 if (metacard) {
-                    if(this.metacardDetail){
+                    if (this.metacardDetail) {
                         this.stopListening(this.metacardDetail, 'content-update', this.updateScrollbar);
                     }
                     this.metacardDetail = new Metacard.MetacardDetailView({metacard: metacard});
