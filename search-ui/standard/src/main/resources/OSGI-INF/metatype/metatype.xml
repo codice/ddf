@@ -71,7 +71,7 @@
             name="WMS Format" id="format" required="false" type="String"
             default=""
         />
-        <AD description="Specifies the connection timeout to use when connecting to WMS services." name="Connection Timeout" id="timeout"
+        <AD description="Specifies the connection timeout in milliseconds to use when connecting to WMS services." name="Connection Timeout" id="timeout"
             required="false" type="Integer" default="5000" />
 	    </OCD>
 
