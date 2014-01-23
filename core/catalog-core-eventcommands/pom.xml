@@ -69,9 +69,7 @@
 				<configuration>
 					<instructions>
 						<Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-						<Export-Package>
-							ddf.catalog.pubsub.command;version="${project.version}"
-						</Export-Package>
+						<Export-Package />
 						<Import-Package>
 						    ddf.catalog.event,
 							org.apache.felix.service.command,
