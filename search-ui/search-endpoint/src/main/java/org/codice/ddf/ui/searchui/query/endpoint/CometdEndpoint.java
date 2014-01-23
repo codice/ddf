@@ -31,7 +31,8 @@ import ddf.catalog.CatalogFramework;
 import ddf.catalog.filter.FilterBuilder;
 
 /**
- * Created by tustisos on 12/10/13.
+ * The CometdEndpoint binds the SearchService and the CometdServlet together. This is where the
+ * asynchronous endpoint is initially started.
  */
 public class CometdEndpoint {
 
@@ -48,6 +49,16 @@ public class CometdEndpoint {
 
     SearchService searchService;
 
+    /**
+     * Create a new CometdEndpoint
+     * 
+     * @param cometdServlet
+     *            - CometdServlet to bind to the SearchService. This field must not be null.
+     * @param framework
+     *            - CatalogFramework to use for query requests
+     * @param filterBuilder
+     *            - FilterBuilder for the SearchService to use
+     */
     public CometdEndpoint(CometdServlet cometdServlet, CatalogFramework framework, FilterBuilder filterBuilder) {
         this.cometdServlet = cometdServlet;
         this.filterBuilder = filterBuilder;
@@ -88,6 +99,7 @@ public class CometdEndpoint {
 
             });
             searchController.setBayeuxServer(bayeuxServer);
+            LOGGER.debug("Creating SearchService");
             searchService = new SearchService(bayeuxServer, "SearchService", filterBuilder, searchController);
         }
     }

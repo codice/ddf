@@ -110,6 +110,18 @@ public class SearchService extends AbstractService {
 
     private final SearchController searchController;
 
+    /**
+     * Creates a new SearchService
+     * 
+     * @param bayeux
+     *            - Cometd server
+     * @param name
+     *            - name of the service
+     * @param filterBuilder
+     *            - FilterBuilder to use for queries
+     * @param searchController
+     *            - SearchController to handle async queries
+     */
     public SearchService(BayeuxServer bayeux, String name, FilterBuilder filterBuilder, SearchController searchController) {
         super(bayeux, name);
         this.filterBuilder = filterBuilder;
@@ -118,6 +130,14 @@ public class SearchService extends AbstractService {
         addService("/service/async/query", "processQuery");
     }
 
+    /**
+     * Service method called by Cometd when something arrives on the service channel
+     * 
+     * @param remote
+     *            - Client session
+     * @param message
+     *            - JSON message
+     */
     public void processQuery(final ServerSession remote, Message message) {
 
         ServerMessage.Mutable reply = new ServerMessageImpl();
@@ -146,6 +166,12 @@ public class SearchService extends AbstractService {
 
     }
 
+    /**
+     * Creates the query requests for each source and hands off the query to the Search Controller
+     * 
+     * @param queryMessage
+     *            - JSON message received from cometd
+     */
     public void executeQuery(Map<String, Object> queryMessage) {
         final String methodName = "executeQuery";
         LOGGER.entry(methodName);

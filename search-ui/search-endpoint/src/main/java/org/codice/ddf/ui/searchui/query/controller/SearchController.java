@@ -20,9 +20,6 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import javax.activation.MimeType;
-import javax.activation.MimeTypeParseException;
-
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 
@@ -49,30 +46,17 @@ import ddf.catalog.operation.impl.QueryResponseImpl;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.transform.CatalogTransformerException;
-import ddf.catalog.transform.MetacardTransformer;
 import ddf.catalog.transformer.metacard.geojson.GeoJsonMetacardTransformer;
 import ddf.security.SecurityConstants;
 import ddf.security.Subject;
 
 /**
- * Created by tustisos on 12/11/13.
+ * The SearchController class handles all of the query threads for asynchronous queries.
  */
 public class SearchController {
 
     private static final XLogger LOGGER = new XLogger(
             LoggerFactory.getLogger(SearchController.class));
-
-    public static final String ID = "geojson";
-
-    public static MimeType DEFAULT_MIME_TYPE = null;
-
-    static {
-        try {
-            DEFAULT_MIME_TYPE = new MimeType("application/json");
-        } catch (MimeTypeParseException e) {
-            LOGGER.warn("", e);
-        }
-    }
 
     private final ExecutorService executorService = Executors.newCachedThreadPool();
 
@@ -80,15 +64,25 @@ public class SearchController {
     private final Map<String, Search> searchMap = Collections
             .synchronizedMap(new LRUMap(1000));
 
-    CatalogFramework framework;
+    private CatalogFramework framework;
+
     private BayeuxServer bayeuxServer;
 
+    /**
+     * Create a new SearchController
+     * 
+     * @param framework
+     *            - CatalogFramework that will be handling the actual queries
+     */
     public SearchController(CatalogFramework framework) {
         this.framework = framework;
     }
 
+    /**
+     * Destroys this controller. This controller may not be used again after this method is called.
+     */
     public void destroy() {
-
+        executorService.shutdown();
     }
 
     /**
@@ -125,6 +119,16 @@ public class SearchController {
         bayeuxServer.getChannel(channelName).publish(serverSession, reply, null);
     }
 
+    /**
+     * Execute all of the queries contained within the SearchRequest
+     * 
+     * @param searchRequest
+     *            - SearchRequest containing 1 or more query requests
+     * @param serverSession
+     *            - Cometd ServerSession
+     * @throws InterruptedException
+     * @throws CatalogTransformerException
+     */
     public void executeQuery(final SearchRequest searchRequest, final ServerSession serverSession) throws InterruptedException, CatalogTransformerException {
 
         final SearchController controller = this;
@@ -230,7 +234,7 @@ public class SearchController {
         return queryResponse;
     }
 
-    public JSONObject transform(SourceResponse upstreamResponse, SearchRequest searchRequest)
+    private JSONObject transform(SourceResponse upstreamResponse, SearchRequest searchRequest)
         throws CatalogTransformerException {
         if (upstreamResponse == null) {
             throw new CatalogTransformerException("Cannot transform null "
@@ -261,7 +265,7 @@ public class SearchController {
         return rootObject;
     }
 
-    public static JSONObject convertToJSON(Result result) throws CatalogTransformerException {
+    private static JSONObject convertToJSON(Result result) throws CatalogTransformerException {
         JSONObject rootObject = new JSONObject();
 
         addNonNullObject(rootObject, "distance", result.getDistanceInMeters());
@@ -276,12 +280,6 @@ public class SearchController {
         if (value != null) {
             obj.put(name, value);
         }
-    }
-
-    @Override
-    public String toString() {
-        return MetacardTransformer.class.getName() + " {Impl=" + this.getClass().getName()
-                + ", id=" + ID + ", MIME Type=" + DEFAULT_MIME_TYPE + "}";
     }
 
     public CatalogFramework getFramework() {

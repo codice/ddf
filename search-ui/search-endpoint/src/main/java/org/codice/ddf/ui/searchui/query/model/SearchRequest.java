@@ -19,13 +19,27 @@ import java.util.List;
 import org.codice.ddf.opensearch.query.OpenSearchQuery;
 
 /**
- * Created by tustisos on 12/13/13.
+ * This class holds all of the search requests processed for a particular query. The GUID represents
+ * the unique id for this query and must not be null or empty string.
  */
 public class SearchRequest {
+
     private final String guid;
+
     private final String queryFormat;
+
     private List<OpenSearchQuery> queryRequests;
 
+    /**
+     * Creates a SearchRequest
+     * 
+     * @param queryRequests
+     *            - List of query requests
+     * @param queryFormat
+     *            - Format to return results in
+     * @param guid
+     *            - Unique id for this query
+     */
     public SearchRequest(List<OpenSearchQuery> queryRequests, String queryFormat, String guid) {
         this.queryRequests = queryRequests;
         this.queryFormat = queryFormat;
