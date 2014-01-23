@@ -58,6 +58,7 @@
 				<extensions>true</extensions>
 				<configuration>
 					<instructions>
+						<Export-Package />
 						<Import-Package>
 							ddf.security.expansion,
 							org.apache.felix.service.command,
