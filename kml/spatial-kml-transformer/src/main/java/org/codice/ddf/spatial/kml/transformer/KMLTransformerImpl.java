@@ -394,7 +394,7 @@ public class KMLTransformerImpl implements KMLTransformer {
                 }
                 kmlDoc.getFeature().add(placemark);
         	} catch (CatalogTransformerException e) {
-        		LOGGER.error("Error transforming current metacard to KML and will continue with remaining query responses.");
+        		LOGGER.warn("Error transforming current metacard to KML and will continue with remaining query responses.", e);
         		continue;
         	}
         }
