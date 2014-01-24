@@ -98,7 +98,7 @@ public class Search {
                         coreComparator = new DistanceResultComparator(sortOrder);
                     } else if (Result.RELEVANCE.equals(sortType)) {
                         coreComparator = new RelevanceResultComparator(sortOrder);
- }
+                    }
                 }
 
                 Collections.sort(resultList, coreComparator);

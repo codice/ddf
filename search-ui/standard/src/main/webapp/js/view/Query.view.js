@@ -357,6 +357,7 @@ define(function (require) {
             this.trigger('clear');
             $('input[name=q]').focus();
             this.shouldFlyToExtent = false;
+            ddf.app.controllers.geoController.billboardCollection.removeAll();
         },
 
         onRadiusUnitsChanged: function () {

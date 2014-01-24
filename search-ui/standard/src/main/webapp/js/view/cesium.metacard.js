@@ -24,7 +24,10 @@ define(function (require) {
         buildBillboard: function () {
             if (this.geoController.enabled) {
                 var view = this;
-                this.geoController.billboardPromise.then(function () {
+                //TODO: using a promise to add the billboards will not work correctly when in asynchronous mode
+                //for the time being I'm going to leave this code here commented out until after
+                //the async UI work is completed
+//                this.geoController.billboardPromise.then(function () {
                     var point = view.model.get('geometry').getPoint();
                     view.billboard = view.geoController.billboardCollection.add({
                         imageIndex: view.imageIndex,
@@ -42,9 +45,9 @@ define(function (require) {
                     view.billboard.setColor(view.color);
                     view.billboard.setScale(0.41);
                     view.billboard.hasScale = true;
-                }).fail(function (error) {
-                    console.log('error:  ', error.stack ? error.stack : error);
-                });
+//                }).fail(function (error) {
+//                    console.log('error:  ', error.stack ? error.stack : error);
+//                });
             }
         },
 
