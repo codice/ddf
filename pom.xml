@@ -18,7 +18,8 @@
 	<parent>
 		<groupId>ddf</groupId>
 		<artifactId>ddf-parent</artifactId>
-		<version>1.0.0.ALPHA3</version>
+		<version>1.0.0.ALPHA4-SNAPSHOT</version>
+		<relativePath>../ddf-parent/pom.xml</relativePath>
 	</parent>
 
 	<groupId>ddf.platform</groupId>
@@ -26,6 +27,11 @@
 	<version>2.3.0.ALPHA4-SNAPSHOT</version>
 	<name>DDF Platform</name>
 	<packaging>pom</packaging>
+	
+	<properties>
+		<cxf.version>2.7.8</cxf.version>
+		<cxf.jaxb.version>2.2.4</cxf.jaxb.version>
+	</properties>
 
 	<dependencyManagement>
 		<dependencies>
@@ -34,6 +40,7 @@
 				<artifactId>platform-configuration</artifactId>
 				<version>${project.version}</version>
 			</dependency>
+
 			<dependency>
 				<groupId>ddf.action.core</groupId>
 				<artifactId>action-core-api</artifactId>
@@ -52,21 +59,148 @@
 				<version>${project.version}</version>
 			</dependency>
 
-            <dependency>
-                <groupId>ddf.cache.core</groupId>
-                <artifactId>cache-core-api</artifactId>
-                <version>${project.version}</version>
-            </dependency>
+	            	<dependency>
+        		        <groupId>ddf.cache.core</groupId>
+                		<artifactId>cache-core-api</artifactId>
+                		<version>${project.version}</version>
+            		</dependency>
 
-            <dependency>
-                <groupId>ddf.cache.core</groupId>
-                <artifactId>cache-core-impl</artifactId>
-                <version>${project.version}</version>
-            </dependency>
+         		 <dependency>
+            			<groupId>ddf.cache.core</groupId>
+                		<artifactId>cache-core-impl</artifactId>
+                		<version>${project.version}</version>
+            		</dependency>
 			
+			<dependency>
+				<groupId>org.apache.cxf</groupId>
+				<artifactId>cxf-api</artifactId>
+				<version>${cxf.version}</version>
+			</dependency>
 
+			<dependency>
+				<groupId>org.apache.cxf</groupId>
+				<artifactId>cxf-bundle</artifactId>
+				<version>${cxf.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.apache.cxf</groupId>
+				<artifactId>cxf-bundle-jaxrs</artifactId>
+				<version>${cxf.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.apache.cxf</groupId>
+				<artifactId>cxf-rt-security</artifactId>
+				<version>${cxf.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.apache.cxf</groupId>
+				<artifactId>cxf-rt-ws-security</artifactId>
+				<version>${cxf.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.apache.cxf.services.sts</groupId>
+				<artifactId>cxf-services-sts-core</artifactId>
+				<version>${cxf.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.apache.cxf</groupId>
+				<artifactId>cxf-rt-core</artifactId>
+				<version>${cxf.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.apache.cxf</groupId>
+				<artifactId>cxf-rt-transports-http</artifactId>
+				<version>${cxf.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.apache.cxf</groupId>
+				<artifactId>cxf-rt-frontend-jaxrs</artifactId>
+				<version>${cxf.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>javax.ws.rs</groupId>
+				<artifactId>javax.ws.rs-api</artifactId>
+				<version>2.0-m10</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.apache.httpcomponents</groupId>
+				<artifactId>httpclient</artifactId>
+				<version>4.2.5</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.apache.cxf</groupId>
+				<artifactId>cxf-rt-ws-policy</artifactId>
+				<version>${cxf.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>javax.xml.bind</groupId>
+				<artifactId>jaxb-api</artifactId>
+				<version>${cxf.jaxb.version}</version>
+				<exclusions>
+					<exclusion>
+						<groupId>javax.xml.bind</groupId>
+						<artifactId>jsr173_api</artifactId>
+					</exclusion>
+					<exclusion>
+						<groupId>javax.xml</groupId>
+						<artifactId>jsr173</artifactId>
+					</exclusion>
+					<exclusion>
+						<groupId>javax.xml.stream</groupId>
+						<artifactId>stax-api</artifactId>
+					</exclusion>
+					<exclusion>
+						<groupId>javax.activation</groupId>
+						<artifactId>activation</artifactId>
+					</exclusion>
+				</exclusions>
+			</dependency>
+
+			<dependency>
+				<groupId>org.apache.geronimo.specs</groupId>
+				<artifactId>geronimo-stax-api_1.0_spec</artifactId>
+				<version>1.0.1</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.apache.cxf</groupId>
+				<artifactId>cxf-rt-frontend-jaxws</artifactId>
+				<version>${cxf.version}</version>
+			</dependency>
+			
+			<dependency>
+				<groupId>org.apache.cxf</groupId>
+				<artifactId>cxf-rt-transports-http-jetty</artifactId>
+				<version>${cxf.version}</version>
+				<scope>test</scope>
+			</dependency>
 		</dependencies>
 	</dependencyManagement>
+
+	<build>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.apache.cxf</groupId>
+					<artifactId>cxf-codegen-plugin</artifactId>
+					<version>${cxf.version}</version>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+	</build>
+	
+
 
 	<modules>
 		<module>platform-configuration</module>
@@ -87,4 +221,5 @@
 			<url>http://artifacts.codice.org/content/groups/public/</url>
 		</repository>
 	</repositories>
+
 </project>
