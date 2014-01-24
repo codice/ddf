@@ -212,7 +212,6 @@
 		<joda-time.version>1.6.2</joda-time.version>
         <xmlunit.version>1.4</xmlunit.version>
 		<tika.version>1.2</tika.version>
-		<abdera.version>1.1.2</abdera.version>  <!-- Moved from catalog/pom.xml since now used by atom transformer and opensearch source -->
         <shiro.version>1.2.1</shiro.version>
 		<handlebars.version>1.1.2</handlebars.version>
 
@@ -246,7 +245,6 @@
 		<jts.bundle.version>${jts.version}_1</jts.bundle.version>
 
         <!-- Features Versions -->
-		<cxf.version>2.7.8</cxf.version>
         <!-- when upgrading the karaf version, ensure that the properties and cfg files in ddf-commons/.../distribution/etc/ are updated and compatible with the
         latest karaf version.  Those configuration files in ddf-commons/.../distribution/etc have been copied from a previous version of Karaf, and are
         source controlled because of some slight customizations that have been made to them.  -->
@@ -520,7 +518,7 @@
 				<plugin>
 					<groupId>org.apache.cxf</groupId>
 					<artifactId>cxf-codegen-plugin</artifactId>
-					<version>${cxf.version}</version>
+					<version>2.7.8</version>
 				</plugin>
 
 			</plugins>
@@ -759,67 +757,6 @@
 				<scope>import</scope>
 			</dependency>
 
-			<dependency>
-				<groupId>org.apache.cxf</groupId>
-				<artifactId>cxf-parent</artifactId>
-				<version>${cxf.version}</version>
-				<type>pom</type>
-				<scope>import</scope>
-			</dependency>
-
-			<dependency>
-				<groupId>org.apache.cxf</groupId>
-				<artifactId>cxf-api</artifactId>
-				<version>${cxf.version}</version>
-			</dependency>
-
-			<dependency>
-				<groupId>org.apache.cxf</groupId>
-				<artifactId>cxf-bundle</artifactId>
-				<version>${cxf.version}</version>
-			</dependency>
-
-			<dependency>
-				<groupId>org.apache.cxf</groupId>
-				<artifactId>cxf-bundle-jaxrs</artifactId>
-				<version>${cxf.version}</version>
-			</dependency>
-
-			<dependency>
-				<groupId>org.apache.cxf</groupId>
-				<artifactId>cxf-rt-security</artifactId>
-				<version>${cxf.version}</version>
-			</dependency>
-
-			<dependency>
-				<groupId>org.apache.cxf</groupId>
-				<artifactId>cxf-rt-ws-security</artifactId>
-				<version>${cxf.version}</version>
-			</dependency>
-
-			<dependency>
-				<groupId>org.apache.cxf.services.sts</groupId>
-				<artifactId>cxf-services-sts-core</artifactId>
-				<version>${cxf.version}</version>
-			</dependency>
-
-			<dependency>
-				<groupId>org.apache.cxf</groupId>
-				<artifactId>cxf-rt-core</artifactId>
-				<version>${cxf.version}</version>
-			</dependency>
-
-			<dependency>
-				<groupId>org.apache.cxf</groupId>
-				<artifactId>cxf-rt-transports-http</artifactId>
-				<version>${cxf.version}</version>
-			</dependency>
-
-			<dependency>
-				<groupId>org.apache.cxf</groupId>
-				<artifactId>cxf-rt-frontend-jaxrs</artifactId>
-				<version>${cxf.version}</version>
-			</dependency>
 
 			<dependency>
 				<groupId>org.springframework.osgi</groupId>
