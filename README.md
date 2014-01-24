@@ -12,7 +12,7 @@
 -->
 <img src="https://tools.codice.org/wiki/download/attachments/3047458/ddf.jpg"/>
 # [Distributed Data Framework Content \(DDF-Content\)](https://tools.codice.org/wiki/display/DDF/DDF+Content+Application)
-[![Build Status](https://travis-ci.org/codice/ddf.png)](https://travis-ci.org/codice/ddf-content?branch=master)
+[![Build Status](https://travis-ci.org/codice/ddf-content.png?branch=master)](https://travis-ci.org/codice/ddf-content)
 
 
 DDF-Content is an open source app integrated with the DDF integration framework. 
