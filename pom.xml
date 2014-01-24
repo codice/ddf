@@ -17,8 +17,9 @@
     
 	<parent>
 		<groupId>ddf</groupId>
-        <artifactId>ddf-parent</artifactId>
-        <version>1.0.0.ALPHA3</version>
+	    <artifactId>ddf-parent</artifactId>
+        <version>1.0.0.ALPHA4-SNAPSHOT</version>
+		<relativePath>../ddf-parent/pom.xml</relativePath>
 	</parent>	
 
 	<groupId>ddf.catalog</groupId>
@@ -33,6 +34,13 @@
 
 	<dependencyManagement>
 		<dependencies>
+			<dependency>
+				<groupId>ddf.platform</groupId>
+				<artifactId>platform</artifactId>
+				<version>${ddf.platform.app.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+		    </dependency>
             <dependency>
                 <groupId>ddf.catalog.core</groupId>
                 <artifactId>catalog-core-api</artifactId>
@@ -103,12 +111,7 @@
                 <artifactId>filter-proxy</artifactId>
                 <version>${project.version}</version>
             </dependency>
-			<dependency>
-				<groupId>org.apache.cxf</groupId>
-				<artifactId>cxf-rt-transports-http-jetty</artifactId>
-				<version>${cxf.version}</version>
-				<scope>test</scope>
-			</dependency>
+
 		</dependencies>
 	</dependencyManagement>
 
