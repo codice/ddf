@@ -12,7 +12,7 @@
 -->
 <img src="https://tools.codice.org/wiki/download/attachments/3047458/ddf.jpg"/>
 # [Distributed Data Framework UI \(DDF-UI\)](http://ddf.codice.org/)
-[![Build Status](https://travis-ci.org/codice/ddf.png)](https://travis-ci.org/codice/ddf-ui?branch=master)
+[![Build Status](https://travis-ci.org/codice/ddf-ui.png?branch=master)](https://travis-ci.org/codice/ddf-ui)
 
 
 DDF-UI is an open source app integrated with the DDF integration framework. 
