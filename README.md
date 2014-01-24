@@ -12,7 +12,7 @@
 -->
 <img src="https://tools.codice.org/wiki/download/attachments/3047458/ddf.jpg"/>
 # [Distributed Data Framework Catalog \(DDF-Catalog\)](https://tools.codice.org/wiki/display/DDF/DDF+Catalog+Application)
-[![Build Status](https://travis-ci.org/codice/ddf.png)](https://travis-ci.org/codice/ddf-catalog?branch=master)
+[![Build Status](https://travis-ci.org/codice/ddf-catalog.png?branch=master)](https://travis-ci.org/codice/ddf-catalog)
 
 
 DDF-Catalog is an open source app integrated with the DDF integration framework. 
