@@ -12,7 +12,7 @@
 -->
 <img src="https://tools.codice.org/wiki/download/attachments/3047458/ddf.jpg"/>
 # [Distributed Data Framework Spatial \(DDF-Spatial\)](https://tools.codice.org/wiki/display/DDF/DDF+Spatial+Application)
-[![Build Status](https://travis-ci.org/codice/ddf.png)](https://travis-ci.org/codice/ddf-spatial?branch=master)
+[![Build Status](https://travis-ci.org/codice/ddf-spatial.png?branch=master)](https://travis-ci.org/codice/ddf-spatial)
 
 
 DDF-Spatial is an open source app integrated with the DDF integration framework. 
