@@ -17,7 +17,8 @@
   <parent>
     <groupId>ddf</groupId>
     <artifactId>ddf-parent</artifactId>
-	<version>1.0.0.ALPHA3</version>
+	<version>1.0.0.ALPHA4-SNAPSHOT</version>
+	<relativePath>../ddf-parent/pom.xml</relativePath>
   </parent>
 
   <groupId>ddf.security</groupId>
@@ -29,11 +30,18 @@
   <properties>
     <cas.client.version>3.1.10</cas.client.version>
     <cas.client.bundle.version>${cas.client.version}_1</cas.client.bundle.version>
-    <ddf.platform.app.version>2.3.0.ALPHA2</ddf.platform.app.version>
+    <ddf.platform.app.version>2.3.0.ALPHA4-SNAPSHOT</ddf.platform.app.version>
   </properties>
 
   <dependencyManagement>
     <dependencies>
+      <dependency>
+      	<groupId>ddf.platform</groupId>
+		<artifactId>platform</artifactId>
+		<version>${ddf.platform.app.version}</version>
+		<type>pom</type>
+		<scope>import</scope>
+      </dependency>
       <dependency>
         <groupId>ddf.platform</groupId>
         <artifactId>platform-configuration</artifactId>
@@ -84,16 +92,7 @@
         <artifactId>security-core-impl</artifactId>
         <version>${project.version}</version>
       </dependency>
-      <dependency>
-        <groupId>org.apache.cxf</groupId>
-        <artifactId>cxf-rt-ws-policy</artifactId>
-        <version>${cxf.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.cxf</groupId>
-        <artifactId>cxf-rt-frontend-jaxws</artifactId>
-        <version>${cxf.version}</version>
-      </dependency>
+
     </dependencies>
   </dependencyManagement>
 
