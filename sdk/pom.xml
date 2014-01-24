@@ -16,7 +16,7 @@
 	<parent>
 		<groupId>ddf</groupId>
         <artifactId>ddf-parent</artifactId>
-        <version>1.0.0.ALPHA2</version>
+        <version>1.0.0.ALPHA4-SNAPSHOT</version>
 	</parent>
 
 
@@ -41,4 +41,7 @@
 			<url>http://artifacts.codice.org/content/groups/public/</url>
 		</repository>
 	</repositories>
+	<properties>
+		<cxf.version>2.7.8</cxf.version>
+	</properties>
 </project>
