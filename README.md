@@ -12,7 +12,7 @@
 -->
 <img src="https://tools.codice.org/wiki/download/attachments/3047458/ddf.jpg"/>
 # [Distributed Data Framework Parent \(DDF-Parent\)](http://ddf.codice.org/)
-[![Build Status](https://travis-ci.org/codice/ddf.png)](https://travis-ci.org/codice/ddf-parent?branch=master)
+[![Build Status](https://travis-ci.org/codice/ddf-parent.png?branch=master)](https://travis-ci.org/codice/ddf-parent)
 
 
 DDF-Parent is an open source project integrated with the DDF integration framework. 
