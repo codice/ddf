@@ -221,7 +221,7 @@ public class MockMemoryProvider extends MockSource implements CatalogProvider {
         List<Result> results = new ArrayList<Result>();
 
         MockMemoryFilterVisitor mockMemoryFilterVisitor = new MockMemoryFilterVisitor();
-        Set<Metacard> filteredMetacards = (Set<Metacard>) query.getQuery().accept(
+        Collection<Metacard> filteredMetacards = (Collection<Metacard>) query.getQuery().accept(
                 mockMemoryFilterVisitor, store.values());
         for (Metacard metacard : filteredMetacards) {
             results.add(new ResultImpl(metacard));
