@@ -48,6 +48,7 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 import org.geotools.filter.FilterFactoryImpl;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
@@ -60,13 +61,9 @@ import org.mockito.ArgumentCaptor;
 import org.opengis.filter.Filter;
 import org.opengis.filter.FilterFactory;
 import org.osgi.framework.BundleContext;
-//import org.slf4j.Logger;
-//import org.slf4j.LoggerFactory;
-import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
 
 import ddf.catalog.CatalogFramework;
+import ddf.catalog.cache.ResourceCache;
 import ddf.catalog.data.ContentType;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
@@ -420,7 +417,7 @@ public class CatalogFrameworkImplTest {
         List<PostResourcePlugin> mockPostResourcePlugins = new ArrayList<PostResourcePlugin>();
         mockPostResourcePlugins.add(mockPostResourcePlugin);
 
-        CatalogFramework catalogFrameworkUnderTest = new CatalogFrameworkImpl(null,
+        CatalogFrameworkImpl catalogFrameworkUnderTest = new CatalogFrameworkImpl(null,
                 (CatalogProvider) null, new ArrayList<PreIngestPlugin>(),
                 new ArrayList<PostIngestPlugin>(), new ArrayList<PreQueryPlugin>(),
                 new ArrayList<PostQueryPlugin>(), new ArrayList<PreResourcePlugin>(),
@@ -446,7 +443,7 @@ public class CatalogFrameworkImplTest {
                     Map<String, Serializable> requestProperties) throws ResourceNotSupportedException,
                 ResourceNotFoundException {
                 URI uri = null;
-                Metacard metacard = null;
+                Metacard metacard = new MetacardImpl();
 
                 try {
                     uri = new URI("myURI");
@@ -469,10 +466,16 @@ public class CatalogFrameworkImplTest {
                 // Returns a ResourceResponse with a null ResourceRequest.
                 return resourceResponse;
             }
+
         };
 
         String sourceId = "myId";
-        ((CatalogFrameworkImpl) catalogFrameworkUnderTest).setId(sourceId);
+        catalogFrameworkUnderTest.setId(sourceId);
+        ResourceCache resourceCache = mock(ResourceCache.class);
+        when(resourceCache.contains(isA(String.class))).thenReturn(false);
+        ResourceResponse resourceResponseInCache = new ResourceResponseImpl(mockResource);
+        when(resourceCache.put(isA(Metacard.class), isA(ResourceResponse.class))).thenReturn(resourceResponseInCache);
+        catalogFrameworkUnderTest.setProductCache(resourceCache);
 
         String resourceSiteName = "myId";
 

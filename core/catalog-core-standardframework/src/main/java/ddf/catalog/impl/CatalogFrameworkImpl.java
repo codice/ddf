@@ -47,7 +47,8 @@ import ddf.cache.CacheException;
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.Constants;
 import ddf.catalog.FanoutCatalogFramework;
-import ddf.catalog.cache.ProductCache;
+import ddf.catalog.cache.CacheKey;
+import ddf.catalog.cache.ResourceCache;
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.ContentType;
 import ddf.catalog.data.Metacard;
@@ -222,7 +223,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements Configurati
 
     private SourcePoller poller;
     
-    private ProductCache productCache;
+    protected ResourceCache productCache;
 
 
     /**
@@ -387,7 +388,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements Configurati
         }
     }
     
-    public void setProductCache(ProductCache productCache) {
+    public void setProductCache(ResourceCache productCache) {
         logger.debug("Injecting productCache");
         this.productCache = productCache;
     }
@@ -1287,7 +1288,29 @@ public class CatalogFrameworkImpl extends DescribableImpl implements Configurati
                 // handle retrieving the product on the correct source
                 resourceSourceName = resolvedSourceId;
             }
-            // retrieve product from specified federated site
+            
+            String key;
+            try {
+                key = new CacheKey(metacard, resourceRequest).generateKey();
+            } catch (CacheException e1) {
+                throw new ResourceNotFoundException(e1);
+            }
+
+            if (productCache.contains(key)) {
+                try {
+                    Resource resource = productCache.get(key);
+                    resourceResponse = new ResourceResponseImpl(resourceRequest, requestProperties,
+                            resource);
+                    logger.info("Successfully retrieved product from cache for metacard ID = {}",
+                            metacard.getId());
+                } catch (CacheException ce) {
+                    logger.info(
+                            "Unable to get resource from cache. Have to retrieve it from source {}",
+                            resourceSourceName);
+                }
+            }
+
+            // retrieve product from specified federated site if not in cache
             if (resourceSourceName != null && !resourceSourceName.equals(getId())) {
                 logger.debug("Searching federatedSource {} for resource.", resourceSourceName);
                 logger.debug("metacard for product found on source: {}", resolvedSourceId);
@@ -1303,9 +1326,8 @@ public class CatalogFrameworkImpl extends DescribableImpl implements Configurati
                 }
 
                 if (source != null) {
-                    resourceResponse = checkCache(metacard, source.getId());
                     // If no cached entry found for product being retrieved
-                    if (resourceResponse == null) {
+                	if(resourceResponse == null) {
                         logger.debug("Retrieving product from remote source {}", source.getId());
                         resourceResponse = source.retrieveResource(responseURI, requestProperties);
                         resourceResponse = cacheProduct(metacard, resourceResponse);
@@ -1314,8 +1336,6 @@ public class CatalogFrameworkImpl extends DescribableImpl implements Configurati
                     logger.warn("Could not find federatedSource: {}", resourceSourceName);
                 }
             } else if (resourceSourceName != null) {
-                // Retrieve product from local source, checking cache first
-                resourceResponse = checkCache(metacard, resourceSourceName);
 
                 // If no cached entry found for product being retrieved
                 if (resourceResponse == null) {
@@ -1354,22 +1374,6 @@ public class CatalogFrameworkImpl extends DescribableImpl implements Configurati
         return resourceResponse;
     }
     
-    private ResourceResponse checkCache(Metacard metacard, String sourceName) {
-        ResourceResponse resourceResponse = null;
-        if (productCache != null && metacard != null) {
-            try {
-                resourceResponse = productCache.get(metacard);
-                if (resourceResponse != null) {
-                    logger.info("Successfully retrieved product from cache for metacard ID = {}", metacard.getId());
-                }
-            } catch (CacheException ce) {
-                logger.info("Unable to get resource from cache - will have to retrieve it from source {}",
-                        sourceName);
-            }
-        }
-        
-        return resourceResponse;
-    }
     
     // Add retrieved product to the cache
     private ResourceResponse cacheProduct(Metacard metacard, ResourceResponse resourceResponse) {        
@@ -2308,7 +2312,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements Configurati
         logger.debug("EXITING: " + methodName);
     }
     
-    public class ResourceInfo {
+    protected class ResourceInfo {
         private Metacard metacard;
         private URI resourceUri;
         

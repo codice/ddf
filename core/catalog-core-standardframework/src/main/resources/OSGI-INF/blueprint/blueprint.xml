@@ -156,7 +156,7 @@
 
     <reference id="cacheManager" interface="ddf.cache.CacheManager" />
     
-    <bean id="productCache" class="ddf.catalog.cache.ProductCache">
+    <bean id="productCache" class="ddf.catalog.cache.ResourceCache">
         <property name="cacheManager" ref="cacheManager" />
         <property name="productCacheDirectory" value="" />
     </bean>
