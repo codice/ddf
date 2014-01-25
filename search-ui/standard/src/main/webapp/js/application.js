@@ -1,4 +1,5 @@
 /*global define*/
+
 // #Main Application
 define(function (require) {
     'use strict';
@@ -7,6 +8,8 @@ define(function (require) {
     require('jqueryui');
     require('bootstrap');
     require('backbonerelational');
+    require('backbonecometd');
+    require('jquerycometd');
     var properties = require('properties');
     var webgl = require('webglcheck');
 
@@ -19,13 +22,11 @@ define(function (require) {
         ich = require('icanhaz'),
         Application = ddf.module();
 
-
     // Setup templates
     ich.addTemplate('main', require('text!templates/main.html'));
     ich.addTemplate('headerLayout', require('text!templates/navbar.layout.html'));
     ich.addTemplate('footerLayout', require('text!templates/footer.layout.html'));
     ich.addTemplate('classificationBanner', require('text!templates/classification/classification-banner.html'));
-
 
     Application.Router = Backbone.Router.extend({
         routes: {

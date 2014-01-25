@@ -21,7 +21,53 @@ define(function (require) {
     ich.addTemplate('searchPanel', require('text!templates/search.panel.html'));
 
         SearchControl.SearchControlModel = Backbone.Model.extend({
-
+            currentState: "search",
+            initialize: function() {
+                this.set({"title": "Search"});
+            },
+            setResultListState: function(resultList) {
+                this.currentState = "results";
+                this.set({"back": "Search"});
+                if(resultList) {
+                    if(this.resultList) {
+                        this.stopListening(this.resultList, "change", this.setResults);
+                    }
+                    this.resultList = resultList;
+                    this.listenTo(this.resultList, "change", this.setResults);
+                }
+                this.set({ "title": "Results (" + this.resultList.get("hits") + ")"});
+                this.set({ "forward": ""});
+                if(this.metacardDetail) {
+                    this.set({ "forward": "Record"});
+                }
+            },
+            setSearchFormState: function() {
+                this.currentState = "search";
+                this.set({ "title": "Search" });
+                this.set({ "forward": ""});
+                if(this.resultList) {
+                    this.set({ "forward": "Results (" + this.resultList.get("hits") + ")"});
+                }
+                this.set({"back": ""});
+            },
+            setRecordViewState: function(metacardDetail) {
+                if(metacardDetail) {
+                    this.metacardDetail = metacardDetail;
+                }
+                this.currentState = "record";
+                this.set({ "title": "Record"});
+                this.set({"back": "Results (" + this.resultList.get("hits") + ")"});
+                this.set({ "forward": ""});
+            },
+            setResults: function() {
+                if(this.currentState === "search") {
+                    this.set({ "forward": "Results (" + this.resultList.get("hits") + ")"});
+                } else if(this.currentState === "results") {
+                    this.set({ "title": "Results (" + this.resultList.get("hits") + ")"});
+                } else if(this.currentState === "record") {
+                    this.set({"back": "Results (" + this.resultList.get("hits") + ")"});
+                }
+            }
         });
 
         SearchControl.SearchControlLayout = Marionette.Layout.extend({
@@ -50,6 +96,9 @@ define(function (require) {
                 this.listenTo(this.queryForm, 'searchComplete', this.showResults);
                 this.listenTo(this.queryForm, 'searchComplete', this.changeDefaultMapLocation);
                 this.listenTo(ddf.app, 'model:context', this.showMetacardDetail);
+
+                this.modelBinder = new Backbone.ModelBinder();
+                this.controlModel = new SearchControl.SearchControlModel();
             },
 
             updateScrollbar: function () {
@@ -75,6 +124,9 @@ define(function (require) {
 
             onRender : function(){
                 this.leftRegion.show(this.queryForm, dir.forward);
+
+                var bindings = Backbone.ModelBinder.createDefaultBindings(this.el, 'name');
+                this.modelBinder.bind(this.controlModel, this.$el, bindings);
 
                 return this;
             },
@@ -117,20 +169,17 @@ define(function (require) {
             showQuery: function (direction) {
                 $(".back").hide();
                 $(".forward").show();
+                this.controlModel.setSearchFormState();
                 this.leftRegion.show(this.queryForm, direction);
-                if (this.resultList) {
-                    $(".forwardNavText").text("Results (" + this.resultList.model.get("hits") + ")");
-                }
-                $(".nav-title").text("Query");
             },
             showResults: function (result, direction) {
                 $(".forward").hide();
                 $(".back").show();
-                $(".backNavText").text("Query");
                 if (this.metacardDetail) {
-                    $(".forwardNavText").text("Record");
                     $(".forward").show();
                 }
+
+                this.controlModel.setResultListState(result);
                 if (result) {
                     // TODO replace with trigger
                     if (this.mapViews) {
@@ -152,13 +201,11 @@ define(function (require) {
                     this.listenTo(this.resultList, 'render', this.updateScrollPos);
                 }
                 this.leftRegion.show(this.resultList, direction);
-                $(".nav-title").text("Results (" + this.resultList.model.get("hits") + ")");
             },
             showMetacardDetail: function (metacard, direction) {
                 $(".back").show();
                 $(".forward").hide();
-                $(".backNavText").text("Results (" + this.resultList.model.get("hits") + ")");
-                $(".nav-title").text("Record");
+                this.controlModel.setRecordViewState(metacard);
 
                 if (!metacard && this.metacardDetail) {
                     this.metacardDetail.model.set('direction', dir.forward);

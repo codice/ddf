@@ -12,6 +12,12 @@ define(function (require) {
         spinnerConfig = require('spinnerConfig'),
         dir = require('direction'),
         List = {};
+    
+    function throwError(message, name) {
+      var error = new Error(message);
+      error.name = name || 'Error';
+      throw error;
+    }
 
     ich.addTemplate('resultListItem', require('text!templates/resultListItem.handlebars'));
     ich.addTemplate('resultListTemplate', require('text!templates/resultList.handlebars'));
@@ -70,7 +76,71 @@ define(function (require) {
                 model : model.get('metacard'),
                 searchControlView : this.searchControlView
             };
-        }
+        },
+        appendHtml: function (collectionView, itemView, index) {
+            var childAtIndex;
+
+            if (collectionView.isBuffering) {
+                // could just quickly
+                // use prepend
+                if (index === 0) {
+                    collectionView._bufferedChildren.reverse();
+                    collectionView._bufferedChildren.push(itemView);
+                    collectionView._bufferedChildren.reverse();
+                    if(collectionView.elBuffer.firstChild) {
+                        return collectionView.elBuffer.insertBefore(itemView.el, collectionView.elBuffer.firstChild);
+                    } else {
+                        return collectionView.elBuffer.appendChild(itemView.el);
+                    }
+                } else {
+                    // see if there is already
+                    // a child at the index
+                    childAtIndex = collectionView.$el.children().eq(index);
+                    if (childAtIndex.length) {
+                        return childAtIndex.before(itemView.el);
+                    } else {
+                        return collectionView.elBuffer.appendChild(itemView.el);
+                    }
+                }
+            } else {
+                // If we've already rendered the main collection, just
+                // append the new items directly into the element.
+                var $container = this.getItemViewContainer(collectionView);
+                if (index === 0) {
+                    $container.empty();
+                    return $container.prepend(itemView.el);
+                } else {
+                    // see if there is already
+                    // a child at the index
+                    childAtIndex = $container.children().eq(index);
+                    if (childAtIndex.length) {
+                        return childAtIndex.before(itemView.el);
+                    } else {
+                        return $container.append(itemView.el);
+                    }
+                }
+            }
+        },
+        getItemViewContainer: function(containerView){
+            if ("$itemViewContainer" in containerView){
+                return containerView.$itemViewContainer;
+            }
+        
+            var container;
+            var itemViewContainer = Marionette.getOption(containerView, "itemViewContainer");
+            if (itemViewContainer) {
+                var selector = _.isFunction(itemViewContainer) ? itemViewContainer.call(this) : itemViewContainer;
+                container = containerView.$(selector);
+                if (container.length <= 0) {
+                    throwError("The specified `itemViewContainer` was not found: " + containerView.itemViewContainer, "ItemViewContainerMissingError");
+                }
+            } else {
+                container = containerView.$el;
+            }
+        
+            containerView.$itemViewContainer = container;
+            return container;
+        },
     });
 
     List.MetacardListView = Backbone.View.extend({

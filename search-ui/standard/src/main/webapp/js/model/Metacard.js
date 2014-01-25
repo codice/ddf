@@ -61,14 +61,7 @@ define(function (require) {
     });
 
     MetaCard.Properties = Backbone.RelationalModel.extend({
-        defaults: {
-            title: "[No Title]"
-        },
-        initialize: function() {
-            if (!this.get("title")) {
-                this.set({"title": this.defaults.title});
-            }
-        }
+
     });
 
     MetaCard.Metacard = Backbone.RelationalModel.extend({
@@ -151,7 +144,10 @@ define(function (require) {
                 }
             }
         ],
-        url: "/services/catalog/query",
+        url: "/services/async/search",
+        parse: function(resp) {
+            return resp.data;
+        },
         loadMoreResults: function () {
             var queryParams;
             this.set("startIndex", this.get("startIndex") + this.get("itemsPerPage"));
@@ -165,9 +161,11 @@ define(function (require) {
             });
         },
         getQueryParams: function () {
-            return this.get("queryParams") + this.get("queryParamDefaults").count + this.get("count") +
-                this.get("queryParamDefaults").start + this.get("startIndex") +
-                this.get("queryParamDefaults").format + this.get("format");
+            var queryParams = this.get("queryParams");
+            queryParams.count = this.get("count");
+            queryParams.start = this.get("startIndex");
+            queryParams.format = this.get("format");
+            return queryParams;
         },
         getResultCenterPoint: function() {
             var regionPoints = [],

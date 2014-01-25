@@ -70,36 +70,6 @@ html, body {
     margin-bottom: 10px;
 }
 
-.cesium-button {
-    -moz-box-shadow:inset 0px 1px 0px 0px #ffffff;
-    -webkit-box-shadow:inset 0px 1px 0px 0px #ffffff;
-    box-shadow:inset 0px 1px 0px 0px #ffffff;
-
-    background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #f9f9f9), color-stop(1, #dedede));
-    background:-moz-linear-gradient(top, #f9f9f9 5%, #dedede 100%);
-    background:-webkit-linear-gradient(top, #f9f9f9 5%, #dedede 100%);
-    background:-o-linear-gradient(top, #f9f9f9 5%, #dedede 100%);
-    background:-ms-linear-gradient(top, #f9f9f9 5%, #dedede 100%);
-    background:linear-gradient(to bottom, #f9f9f9 5%, #dedede 100%);
-
-    border-radius:3px;
-    border:1px solid #dcdcdc;
-    display:inline-block;
-    padding:5px 10px;
-    margin:3px;
-    text-decoration:none;
-    text-shadow:0px 1px 0px #ffffff;
-}
-
-.cesium-button:hover {
-    background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #dedede), color-stop(1, #f9f9f9));
-    background:-moz-linear-gradient(top, #dedede 5%, #f9f9f9 100%);
-    background:-webkit-linear-gradient(top, #dedede 5%, #f9f9f9 100%);
-    background:-o-linear-gradient(top, #dedede 5%, #f9f9f9 100%);
-    background:-ms-linear-gradient(top, #dedede 5%, #f9f9f9 100%);
-    background:linear-gradient(to bottom, #dedede 5%, #f9f9f9 100%);
-}
-
 .nav-title {
     font-size: large;
 }
@@ -303,4 +273,36 @@ span.add-on {
 
 .disabled:hover {
     color: #adafae;
+}
+
+.progressbar {
+    height: 15px;
+    text-align: center;
+    overflow: hidden;
+    position: absolute;
+    z-index: 2000;
+    height: 5px;
+    top: 0px;
+    left: 0px;
+    width: 100%;
+    border-bottom-right-radius: 0px;
+    border-bottom-left-radius: 0px;
+    border-top-right-radius: 0px;
+    border-top-left-radius: 0px;
+    background: none;
+    border: 0;
+}
+.progress-background {
+    background: #fff url(images/ui-bg_flat_75_ffffff_40x100.png) 50% 50% repeat-x;
+}
+.progress-text {
+    position: absolute;
+    height: 100%;
+    line-height: 100%;
+    width: 100%;
+    background-color: transparent;
+    z-index: 3000;
+    top: 0px;
+    left: 0px;
+    font-size: 14px;
 }
