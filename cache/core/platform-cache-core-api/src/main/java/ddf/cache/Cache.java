@@ -15,6 +15,7 @@
 package ddf.cache;
 
 import java.util.Map;
+import java.util.Set;
 
 public interface Cache {
 
@@ -42,16 +43,6 @@ public interface Cache {
     public void put(Object key, Object value) throws CacheException;
     
     /**
-     * Update an object in the cache with the specified key, only if the object
-     * already has a value in the cache
-     * 
-     * @param key
-     * @param value
-     * @throws CacheException
-     */
-    public void update(Object key, Object value) throws CacheException;
-    
-    /**
      * Get an object from the cache that corresponds to the specified key
      * 
      * @param key
@@ -69,9 +60,9 @@ public interface Cache {
     public void remove(Object key) throws CacheException;
     
     /**
-     * List all of the objects in the cache
+     * Set of all keys in the Cache
      * 
      * @return
      */
-    public Map<Object, Object> list();
+    public Set<Object> getKeys();
 }
