@@ -19,6 +19,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Level;
@@ -30,10 +31,9 @@ import org.junit.Test;
 
 import ddf.cache.Cache;
 import ddf.cache.CacheManager;
-import ddf.cache.impl.CacheManagerImpl;
+import ddf.cache.impl.HazelcastCacheManager;
 
-public class CacheManagerImplTest {
-    private static final transient Logger LOGGER = Logger.getLogger(CacheManagerImplTest.class);
+public class HazelcastCacheManagerTest {
 
     private static String testCacheName = "TestCache";
 
@@ -53,7 +53,7 @@ public class CacheManagerImplTest {
 
     @Before
     public void setUp() {
-        cacheMgt = new CacheManagerImpl();
+        cacheMgt = new HazelcastCacheManager();
     }
 
     @After
@@ -68,7 +68,7 @@ public class CacheManagerImplTest {
         Cache cache = cacheMgt.getCache(testCacheName);
         assertTrue(cache != null);
         List<String> cacheList = cacheMgt.listCaches();
-        assertTrue(cacheList.size() == 1);
+        assertEquals(1, cacheList.size());
         assertTrue(cacheList.contains(testCacheName));
     }
 
@@ -122,7 +122,7 @@ public class CacheManagerImplTest {
     public void testCacheItemUpdate() throws Exception {
         Cache cache = cacheMgt.getCache(testCacheName);
         cache.put(testCacheItemName, testCacheItemValue);
-        cache.update(testCacheItemName, testCacheItemNewValue);
+        cache.put(testCacheItemName, testCacheItemNewValue);
         String returnVal = (String) cache.get(testCacheItemName);
 
         assertEquals(returnVal, testCacheItemNewValue);
@@ -130,7 +130,8 @@ public class CacheManagerImplTest {
 
     @Test
     public void testListCacheItems() throws Exception {
-        boolean exists = true;
+
+        // given
         Cache cache = cacheMgt.getCache(testCacheName);
         cache.put(testCacheItemName + "1", testCacheItemValue + "1");
         cache.put(testCacheItemName + "2", testCacheItemValue + "2");
@@ -147,17 +148,16 @@ public class CacheManagerImplTest {
         cache.put(testCacheItemName + "13", testCacheItemValue + "13");
         cache.put(testCacheItemName + "14", testCacheItemValue + "14");
         cache.put(testCacheItemName + "15", testCacheItemValue + "15");
-        Map<Object, Object> map = cache.list();
+        
+        // when
+        Set<Object> set = cache.getKeys();
+        
+        // then
         for (int i = 1; i < 16; ++i) {
-            if (!map.containsKey(testCacheItemName + i)) {
-                exists = false;
-            }
-            if (!map.containsValue(testCacheItemValue + i)) {
-                exists = false;
-            }
+            assertTrue(set.contains(testCacheItemName + i));
+            assertEquals(testCacheItemValue + i, cache.get(testCacheItemName + i));
 
         }
-        assertTrue(exists);
     }
 
     @Test

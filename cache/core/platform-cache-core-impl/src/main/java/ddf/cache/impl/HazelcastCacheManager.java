@@ -32,8 +32,10 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.ext.XLogger;
 
 import com.hazelcast.config.Config;
+import com.hazelcast.config.JoinConfig;
 import com.hazelcast.config.MapConfig;
 import com.hazelcast.config.MapConfig.EvictionPolicy;
+import com.hazelcast.config.NetworkConfig;
 import com.hazelcast.core.DistributedObject;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
@@ -42,30 +44,38 @@ import com.hazelcast.core.IMap;
 import ddf.cache.Cache;
 import ddf.cache.CacheManager;
 
-public class CacheManagerImpl implements CacheManager {
+public class HazelcastCacheManager implements CacheManager {
 
     private static final String DATA_CACHE_CONFIGURATION_FILTER = "(service.factoryPid=ddf.cache.DataCache)";
 
-    private static XLogger logger = new XLogger(LoggerFactory.getLogger(CacheManagerImpl.class));
+    private static XLogger logger = new XLogger(LoggerFactory.getLogger(HazelcastCacheManager.class));
 
     private HazelcastInstance instance = null;
 
     private Configuration[] cacheConfigs = null;
 
-    public CacheManagerImpl() {
+    public HazelcastCacheManager() {
+        
         logger.info("ENTERING: CacheManagerImpl constructor ...");
         long startTime = System.nanoTime();
+        
         Config cfg = new Config();
+        NetworkConfig networkConfig = cfg.getNetworkConfig();
+        JoinConfig join = networkConfig.getJoin();
+        join.getMulticastConfig().setEnabled(false);
+        join.getTcpIpConfig().setEnabled(false);
+        
         long estimatedTime = System.nanoTime() - startTime;
-        logger.info("new Config() time = " + estimatedTime/1000000 + " ms");
+        logger.info("new Config() time = {} ms", estimatedTime/1000000);
         startTime = System.nanoTime();
         instance = Hazelcast.newHazelcastInstance(cfg);
         estimatedTime = System.nanoTime() - startTime;
-        logger.info("newHazelcastInstance time = " + estimatedTime/1000000 + " ms");
+        
+        logger.info("newHazelcastInstance time = {} ms", estimatedTime/1000000);
         logger.info("EXITING: CacheManagerImpl constructor ...");
     }
 
-    public CacheManagerImpl(BundleContext context) {
+    public HazelcastCacheManager(BundleContext context) {
         Config cfg = new Config();
 
         try {
@@ -151,7 +161,7 @@ public class CacheManagerImpl implements CacheManager {
     }
     
     public Cache getCache(String name) {
-        return new CacheImpl(name, (IMap<Object, Object>) instance.getMap(name));
+        return new HazelcastCache(name, (IMap<Object, Object>) instance.getMap(name));
     }
     
     //@Override
@@ -163,7 +173,7 @@ public class CacheManagerImpl implements CacheManager {
     }
     
     public Cache getCache(String name, Map<String, Object> properties) {
-        return new CacheImpl(name, (IMap<Object, Object>) instance.getMap(name), properties);
+        return new HazelcastCache(name, (IMap<Object, Object>) instance.getMap(name), properties);
     }
     
     //@Override
@@ -194,28 +204,23 @@ public class CacheManagerImpl implements CacheManager {
         instance.getMap(cacheName).destroy();
     }
 
-    //@Override
     public void put(String cacheName, Object name, Object value) {
         instance.getMap(cacheName).put(name, value);
     }
 
-    //@Override
     public void update(String cacheName, Object name, Object value) {
 
         instance.getMap(cacheName).replace(name, value);
     }
 
-    //@Override
     public Object get(String cacheName, Object name) {
         return instance.getMap(cacheName).get(name);
     }
 
-    //@Override
     public void remove(String cacheName, Object name) {
         instance.getMap(cacheName).remove(name);
     }
 
-    //@Override
     public Map list(String cacheName) {
         return instance.getMap(cacheName);
     }

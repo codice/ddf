@@ -23,6 +23,10 @@
     <artifactId>cache-core-api</artifactId>
     <name>DDF :: Cache :: Core :: API</name>
     <packaging>bundle</packaging>
+    
+    <properties>
+    	<cache.api.version>1.0.0-SNAPSHOT</cache.api.version>
+    </properties>
 
     <dependencies>
         <dependency>
@@ -57,7 +61,7 @@
                    <instructions>
                        <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                        <Export-Package>
-                           ddf.cache
+                           ddf.cache;version=${cache.api.version}
                        </Export-Package>
                    </instructions>
                </configuration>

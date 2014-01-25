@@ -20,8 +20,6 @@ import java.util.Map;
 /**
  * Cache Manager
  * 
- * @author Damon Jones
- * 
  */
 public interface CacheManager {
 
@@ -37,10 +35,8 @@ public interface CacheManager {
 
     public static final String EVICTION_POLICY_LRU = "LRU";
 
-    // private static final String EVICTION_POLICY_NONE = "NONE";
     public static final String EVICTION_POLICY_LFU = "LFU";
     
-
     /**
      * Creates a new cache
      *     

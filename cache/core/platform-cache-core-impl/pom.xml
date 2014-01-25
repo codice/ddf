@@ -74,18 +74,7 @@
                    <instructions>
                        <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                        <Embed-Dependency>hazelcast</Embed-Dependency>
-                       <Import-Package>
-                               com.hazelcast.core,
-                               com.hazelcast.config,
-                               com.hazelcast.nio,
-                               *
-                       </Import-Package>
-                       <Export-Package>
-                               com.hazelcast.core,
-                               com.hazelcast.config,
-                               com.hazelcast.nio,
-                               ddf.cache
-                       </Export-Package>
+                       <Export-Package/>
                    </instructions>
                </configuration>
            </plugin>
