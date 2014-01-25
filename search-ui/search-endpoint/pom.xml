@@ -104,6 +104,7 @@
                         <Spring-Context>*;wait-for-dependencies:=true;timeout:=604800</Spring-Context>
                         <!-- Package uses conflict if we do not embed this -->
                         <Private-Package>
+                            org.codice.ddf.ui.searchui.query.*,
                             org.parboiled.*,
                             org.objectweb.asm,
                             org.objectweb.asm.signature,
@@ -114,6 +115,7 @@
                             ddf.catalog.util.impl
                         </Private-Package>
                         <DynamicImport-Package>javax.ws.rs.*</DynamicImport-Package>
+                        <Export-Package/>
                     </instructions>
                 </configuration>
             </plugin>
