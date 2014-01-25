@@ -16,25 +16,28 @@ app.use('/css',express.static(__dirname + '/target'));
 //app.get('/foo/*',express.static(__dirname + '/src/main/webapp'));
 app.use(express.static(__dirname + '/src/main/webapp'));
 
-app.all('/services/*', function (req, res) {
-    "use strict";
+var requestProxy = function (req, res) {
+                       "use strict";
 
-    req.url = "http://localhost:8181" + req.url;
-    var urlObj = URL.parse(req.url);
-    req.url = urlObj.path;
-    // Buffer requests so that eventing and async methods still work
-    // https://github.com/nodejitsu/node-http-proxy#post-requests-and-buffering
-    var buffer = httpProxy.buffer(req);
-    console.log('Proxying Request "' + req.url + '"');
+                       req.url = "http://localhost:8181" + req.url;
+                       var urlObj = URL.parse(req.url);
+                       req.url = urlObj.path;
+                       // Buffer requests so that eventing and async methods still work
+                       // https://github.com/nodejitsu/node-http-proxy#post-requests-and-buffering
+                       var buffer = httpProxy.buffer(req);
+                       console.log('Proxying Request "' + req.url + '"');
 
-    proxy.proxyRequest(req, res, {
-        host: urlObj.hostname,
-        port: urlObj.port || 80,
-        buffer: buffer,
-        changeOrigin: true
-    });
+                       proxy.proxyRequest(req, res, {
+                           host: urlObj.hostname,
+                           port: urlObj.port || 80,
+                           buffer: buffer,
+                           changeOrigin: true
+                       });
 
-});
+                   };
+app.all('/services/*', requestProxy);
+app.all('/cometd/*', requestProxy);
+
 var port = 8282;
 app.listen(port);
 console.log('listening for requests on port: ', port);
