@@ -90,10 +90,12 @@
 						<Private-Package>
 						    ddf.catalog.cache,
 							ddf.catalog.impl,
+							ddf.catalog.data.impl,
 							ddf.catalog.operation.impl,
 							ddf.catalog.util.impl,
 							ddf.catalog.filter.impl,
-							ddf.catalog.source.impl
+							ddf.catalog.source.impl,
+							ddf.catalog.resource.impl
 						</Private-Package>
 						<Export-Package />
 					</instructions>
