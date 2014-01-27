@@ -1296,18 +1296,29 @@ public class CatalogFrameworkImpl extends DescribableImpl implements Configurati
                 throw new ResourceNotFoundException(e1);
             }
 
-            if (productCache.contains(key)) {
-                try {
-                    Resource resource = productCache.get(key);
-                    resourceResponse = new ResourceResponseImpl(resourceRequest, requestProperties,
-                            resource);
-                    logger.info("Successfully retrieved product from cache for metacard ID = {}",
-                            metacard.getId());
-                } catch (CacheException ce) {
-                    logger.info(
-                            "Unable to get resource from cache. Have to retrieve it from source {}",
-                            resourceSourceName);
+            ClassLoader tccl = Thread.currentThread().getContextClassLoader();
+
+            try {
+
+                Thread.currentThread().setContextClassLoader(
+                        CatalogFrameworkImpl.class.getClassLoader());
+                if (productCache.contains(key)) {
+                    try {
+                        Resource resource = productCache.get(key);
+                        resourceResponse = new ResourceResponseImpl(resourceRequest,
+                                requestProperties, resource);
+                        logger.info(
+                                "Successfully retrieved product from cache for metacard ID = {}",
+                                metacard.getId());
+                    } catch (CacheException ce) {
+                        logger.info(
+                                "Unable to get resource from cache. Have to retrieve it from source {}",
+                                resourceSourceName);
+                    }
                 }
+
+            } finally {
+                Thread.currentThread().setContextClassLoader(tccl);
             }
 
             // retrieve product from specified federated site if not in cache
@@ -1330,6 +1341,9 @@ public class CatalogFrameworkImpl extends DescribableImpl implements Configurati
                 	if(resourceResponse == null) {
                         logger.debug("Retrieving product from remote source {}", source.getId());
                         resourceResponse = source.retrieveResource(responseURI, requestProperties);
+                        // Sources do not create ResourceResponses with the original ResourceRequest, hence
+                        // it is added here because it will be needed for caching
+                        resourceResponse = new ResourceResponseImpl(resourceRequest, resourceResponse.getProperties(), resourceResponse.getResource());
                         resourceResponse = cacheProduct(metacard, resourceResponse);
                     }
                 } else {
@@ -1341,6 +1355,9 @@ public class CatalogFrameworkImpl extends DescribableImpl implements Configurati
                 if (resourceResponse == null) {
                     logger.debug("Retrieving product from local source {}", resourceSourceName);
                     resourceResponse = getResourceUsingResourceReader(responseURI, requestProperties);
+                    // ResourceReaders do not create ResourceResponses with the original ResourceRequest, hence
+                    // it is added here because it will be needed for caching
+                    resourceResponse = new ResourceResponseImpl(resourceRequest, resourceResponse.getProperties(), resourceResponse.getResource());
                     resourceResponse = cacheProduct(metacard, resourceResponse);
                 }
             }

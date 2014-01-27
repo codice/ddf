@@ -18,6 +18,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Serializable;
 
 import javax.activation.MimeType;
 
@@ -37,7 +38,12 @@ import ddf.catalog.resource.Resource;
  * Contains the details of a Resource including where it is stored and how to retrieve that Resource
  * locally.
  */
-public class CachedResource implements Resource {
+public class CachedResource implements Resource, Serializable {
+
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 1L;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CachedResource.class);
 
