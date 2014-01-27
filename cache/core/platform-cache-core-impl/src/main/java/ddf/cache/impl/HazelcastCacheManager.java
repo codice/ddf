@@ -77,6 +77,10 @@ public class HazelcastCacheManager implements CacheManager {
 
     public HazelcastCacheManager(BundleContext context) {
         Config cfg = new Config();
+        NetworkConfig networkConfig = cfg.getNetworkConfig();
+        JoinConfig join = networkConfig.getJoin();
+        join.getMulticastConfig().setEnabled(false);
+        join.getTcpIpConfig().setEnabled(false);
 
         try {
             // TODO: look into injecting ConfigAdmin service
