@@ -166,10 +166,21 @@ define(function (require) {
                     return value;
                 },
                 federationConverter = function(direction,value){
-                    if(value && _.isArray(value)){
+                    // If there are multiple federated sources, the model wants 
+                    // a comma separated string for the list of federated sources.  
+                    // If there is only one federated source, the model wants
+                    // just the souce name (no comma).  The join will only return 
+                    // a comma separated string if there are multiple federated
+                    // source.  If there is only one federated source, the join
+                    // will only return the federated source (without a comma).
+                    if(value && direction === "ViewToModel"){
                         return value.join(',');
+                    } else if (value && direction === "ModelToView") {
+                        // The view wants an array.  We need to convert
+                        // the string of federated sources from the model
+                        // to an array.
+                        return value.split(',');
                     }
-                    return value;
                 };
 
             var bindings = Backbone.ModelBinder.createDefaultBindings(this.el, 'name');
