@@ -45,6 +45,10 @@ public class CacheKey {
         if (metacard == null) {
             throw new CacheException("Metacard must not be null.");
         }
+        
+        if (resourceRequest == null) {
+            throw new CacheException("ResourceRequest must not be null.");
+        }
 
         Set<String> names = resourceRequest.getPropertyNames();
 
