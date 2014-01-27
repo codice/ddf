@@ -20,12 +20,12 @@ define(function (require) {
                 //requesting this though, so best to just wrap with a try
                 //we don't really care, we just want it to fail and not display the map without
                 //breaking the rest of the ui
-                try{
-                  var gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
-                  if (!_.isUndefined(gl) && !_.isUndefined(context)){
-                    this.isWebglAvailable = true;
-                  }
-                }catch(e){}
+                try {
+                    var gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+                    if (gl && context) {
+                        this.isWebglAvailable = true;
+                    }
+                } catch(e) {}
             }
             return this.isWebglAvailable;
         }
