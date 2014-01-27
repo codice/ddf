@@ -1,4 +1,5 @@
 /*global define*/
+/*global window*/
 /*jslint browser: true*/
 
 define(function (require) {
@@ -11,9 +12,7 @@ define(function (require) {
             if (_.isUndefined(this.isWebglAvailable)) {
                 this.isWebglAvailable = false;
 
-                if (window.WebGLRenderingContext) {
-                    this.isWebglAvailable = true;
-                }
+                var context = window.WebGLRenderingContext;
 
                 var canvas = document.createElement('canvas');
 
@@ -23,7 +22,7 @@ define(function (require) {
                 //breaking the rest of the ui
                 try{
                   var gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
-                  if (window.WebGlRenderingContext && gl){
+                  if (!_.isUndefined(gl) && !_.isUndefined(context)){
                     this.isWebglAvailable = true;
                   }
                 }catch(e){}
