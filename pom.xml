@@ -28,7 +28,7 @@
 	<name>DDF Catalog</name>
 
 	<properties>
-	    <ddf.platform.app.version>2.3.0.ALPHA3-SNAPSHOT</ddf.platform.app.version>
+	    <ddf.platform.app.version>2.3.0.ALPHA3</ddf.platform.app.version>
 	</properties>
 
 	<dependencyManagement>
