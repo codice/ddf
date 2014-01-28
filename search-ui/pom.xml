@@ -19,7 +19,7 @@
     <parent>
         <artifactId>ui</artifactId>
         <groupId>ddf.ui</groupId>
-        <version>2.3.0.ALPHA4</version>
+        <version>2.3.0.ALPHA5-SNAPSHOT</version>
     </parent>
     
     <groupId>ddf.ui.search</groupId>
