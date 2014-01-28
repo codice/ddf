@@ -29,7 +29,7 @@
 	<name>DDF Spatial</name>
 
 	<properties>
-		<ddf.catalog.app.version>2.3.0.ALPHA2-SNAPSHOT</ddf.catalog.app.version>
+		<ddf.catalog.app.version>2.3.0.ALPHA2</ddf.catalog.app.version>
 		<handlebars.version>1.1.2</handlebars.version>
 	</properties>
 
