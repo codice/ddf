@@ -243,8 +243,8 @@ public class SearchController {
 
         JSONObject rootObject = new JSONObject();
 
-        addNonNullObject(rootObject, "hits", upstreamResponse.getHits());
-        addNonNullObject(rootObject, "guid", searchRequest.getGuid().toString());
+        addObject(rootObject, "hits", upstreamResponse.getHits());
+        addObject(rootObject, "guid", searchRequest.getGuid().toString());
 
         JSONArray resultsList = new JSONArray();
 
@@ -260,7 +260,7 @@ public class SearchController {
                 }
             }
         }
-        addNonNullObject(rootObject, "results", resultsList);
+        addObject(rootObject, "results", resultsList);
 
         return rootObject;
     }
@@ -268,16 +268,32 @@ public class SearchController {
     private static JSONObject convertToJSON(Result result) throws CatalogTransformerException {
         JSONObject rootObject = new JSONObject();
 
-        addNonNullObject(rootObject, "distance", result.getDistanceInMeters());
-        addNonNullObject(rootObject, "relevance", result.getRelevanceScore());
-        addNonNullObject(rootObject, "metacard",
+        addObject(rootObject, "distance", result.getDistanceInMeters());
+        addObject(rootObject, "relevance", result.getRelevanceScore());
+        addObject(rootObject, "metacard",
                 GeoJsonMetacardTransformer.convertToJSON(result.getMetacard()));
 
         return rootObject;
     }
 
-    private static void addNonNullObject(JSONObject obj, String name, Object value) {
-        if (value != null) {
+    private static void addObject(JSONObject obj, String name, Object value) {
+        if (value instanceof Number) {
+            if (value instanceof Double) {
+                if (((Double) value).isInfinite()) {
+                    obj.put(name, null);
+                } else {
+                    obj.put(name, value);
+                }
+            } else if (value instanceof Float) {
+                if (((Float) value).isInfinite()) {
+                    obj.put(name, null);
+                } else {
+                    obj.put(name, value);
+                }
+            } else {
+                obj.put(name, value);
+            }
+        } else if (value != null) {
             obj.put(name, value);
         }
     }
