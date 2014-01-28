@@ -41,7 +41,7 @@
     <ddf.content.app.version>2.3.0.ALPHA2-SNAPSHOT</ddf.content.app.version>
     <ddf.catalog.app.version>2.3.0.ALPHA2</ddf.catalog.app.version>
     <ddf.solr.catalog.app.version>2.3.0.ALPHA3</ddf.solr.catalog.app.version>
-    <ddf.searchui.app.version>2.3.0.ALPHA4-SNAPSHOT</ddf.searchui.app.version>
+    <ddf.searchui.app.version>2.3.0.ALPHA4</ddf.searchui.app.version>
     <ddf.spatial.app.version>2.3.0.ALPHA3</ddf.spatial.app.version>
   </properties>
 
