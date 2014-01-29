@@ -39,7 +39,7 @@
         <dependency>
             <groupId>ddf.catalog.opensearch</groupId>
             <artifactId>catalog-opensearch-endpoint</artifactId>
-            <version>2.3.0.ALPHA1</version>
+            <version>${ddf.catalog.app.version}</version>
         </dependency>
         <dependency>
             <groupId>org.parboiled</groupId>
@@ -61,12 +61,12 @@
         <dependency>
             <groupId>ddf.catalog.transformer</groupId>
             <artifactId>geojson-metacard-transformer</artifactId>
-            <version>2.3.0.ALPHA1</version>
+            <version>${ddf.catalog.app.version}</version>
         </dependency>
         <dependency>
             <groupId>ddf.catalog.common</groupId>
             <artifactId>geo-formatter</artifactId>
-            <version>2.3.0.ALPHA1</version>
+            <version>${ddf.catalog.app.version}</version>
         </dependency>
         <dependency>
             <groupId>org.codehaus.jackson</groupId>
