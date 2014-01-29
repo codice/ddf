@@ -34,6 +34,12 @@
         <exclude>etc/users.properties</exclude>
         <exclude>etc/system.properties</exclude> 
         <exclude>etc/startup.properties</exclude>
+        <!-- 
+        Karaf includes a default user "karaf" with its authentication key in it, thus
+        when running client script it logs in as "karaf" user without requiring a password.
+        So exclude this file from DDF distro to prevent unauthorized access.
+        -->
+        <exclude>etc/keys.properties</exclude>
         <!-- Karaf comes with a README in deploy folder which throws warnings in log -->
         <exclude>deploy/*</exclude>
         <!-- All Karaf distributions take out the extra files when being distributed -->
