@@ -363,7 +363,7 @@ public class KMLTransformerImpl implements KMLTransformer {
 
             return new BinaryContentImpl(kmlInputStream, KML_MIMETYPE);
         } catch (Exception e) {
-            LOGGER.error("Error transforming metacard to KML." + e.getMessage());
+            LOGGER.error("Error transforming metacard ({}) to KML: {}", metacard.getId(), e.getMessage());
             throw new CatalogTransformerException("Error transforming metacard to KML.", e);
         }
     }
@@ -394,7 +394,7 @@ public class KMLTransformerImpl implements KMLTransformer {
                 }
                 kmlDoc.getFeature().add(placemark);
         	} catch (CatalogTransformerException e) {
-        		LOGGER.warn("Error transforming current metacard to KML and will continue with remaining query responses.", e);
+        		LOGGER.warn("Error transforming current metacard (" + result.getMetacard().getId()  + ") to KML and will continue with remaining query responses.", e);
         		continue;
         	}
         }
