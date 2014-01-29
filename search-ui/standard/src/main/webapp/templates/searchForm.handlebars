@@ -37,22 +37,21 @@
                 </div>
                 <div id="time_relative" class="tab-pane {{#if dtoffset}}active{{/if}}">
                     <div class="row-fluid">
-
                         <div class="span11 input-prepend input-append">
                             <div class="span7">
                                 <span class="add-on add-on-label">Last&nbsp;</span>
                                 <input name="dtoffset" type="hidden" />
-                                <input id="offsetTime" name="offsetTime" class="span5" type="number"/>
+                                <input id="offsetTime" name="offsetTime" class="input-medium" type="number"/>
+                                <select id="offsetTimeUnits" name="offsetTimeUnits" class="add-on span3">
+                                    <option value="seconds">seconds</option>
+                                    <option value="minutes" selected="selected">minutes</option>
+                                    <option value="hours">hours</option>
+                                    <option value="days">days</option>
+                                    <option value="weeks">weeks</option>
+                                    <option value="months">months</option>
+                                    <option value="years">years</option>
+                                </select>
                             </div>
-                            <select id="offsetTimeUnits" name="offsetTimeUnits" class="add-on span3">
-                                <option value="seconds">seconds</option>
-                                <option value="minutes" selected="selected">minutes</option>
-                                <option value="hours">hours</option>
-                                <option value="days">days</option>
-                                <option value="weeks">weeks</option>
-                                <option value="months">months</option>
-                                <option value="years">years</option>
-                            </select>
                         </div>
                     </div>
                 </div>
@@ -85,27 +84,27 @@
 
                     <div class="span11 input-prepend input-append">
                         <span style="width: 80px" class="add-on add-on-label">Latitude&nbsp;</span>
-                        <input class="span7" id="latitude" name="lat" type="number" min="-90" max="90" step="any" placeholder=""/>
+                        <input class="input-medium" id="latitude" name="lat" type="number" min="-90" max="90" step="any" placeholder=""/>
                         <label class="add-on">&deg;</label>
                     </div>
                     <div class="span11 input-prepend input-append">
                         <span style="width: 80px" class="add-on add-on-label">Longitude&nbsp;</span>
-                        <input class="span7" id="longitude" name="lon" type="number" min="-180" max="180" step="any" placeholder=""/>
+                        <input class="input-medium" id="longitude" name="lon" type="number" min="-180" max="180" step="any" placeholder=""/>
                         <label class="add-on">&deg;</label>
                     </div>
 
                     <div class="span11 input-prepend input-append">
                         <div class="span7">
                             <span style="width: 80px" class="add-on add-on-label">Radius&nbsp;</span>
-                            <input class="span5" id="radiusValue" name="radiusValue" type="number" placeholder=""/>
+                            <input class="input-medium" id="radiusValue" name="radiusValue" type="number" placeholder=""/>
+                            <select id="radiusUnits" name="radiusUnits" class="add-on span4">
+                                <option value="meters" selected="selected">meters</option>
+                                <option value="kilometers">kilometers</option>
+                                <option value="feet">feet</option>
+                                <option value="yards">yards</option>
+                                <option value="miles">miles</option>
+                            </select>
                         </div>
-                        <select id="radiusUnits" name="radiusUnits" class="add-on span4">
-                            <option value="meters" selected="selected">meters</option>
-                            <option value="kilometers">kilometers</option>
-                            <option value="feet">feet</option>
-                            <option value="yards">yards</option>
-                            <option value="miles">miles</option>
-                        </select>
                     </div>
                 </div>
 
@@ -114,22 +113,22 @@
 
                     <div class="span11 input-prepend input-append">
                         <span style="width: 60px" class="add-on add-on-label">West&nbsp;</span>
-                        <input class="span7" id="west" name="west" type="number" min="-180" max="180" step="any" placeholder=""/>
+                        <input class="input-medium" id="west" name="west" type="number" min="-180" max="180" step="any" placeholder=""/>
                         <label class="add-on">&deg;</label>
                     </div>
                     <div class="span11 input-prepend input-append">
                         <span style="width: 60px" class="add-on add-on-label">South&nbsp;</span>
-                        <input class="span7" id="south" name="south" type="number" min="-90" max="90" step="any" placeholder=""/>
+                        <input class="input-medium" id="south" name="south" type="number" min="-90" max="90" step="any" placeholder=""/>
                         <label class="add-on">&deg;</label>
                     </div>
                     <div class="span11 input-prepend input-append">
                         <span style="width: 60px" class="add-on add-on-label">East&nbsp;</span>
-                        <input class="span7" id="east" name="east" type="number" min="-180" max="180" step="any" placeholder=""/>
+                        <input class="input-medium" id="east" name="east" type="number" min="-180" max="180" step="any" placeholder=""/>
                         <label class="add-on">&deg;</label>
                     </div>
                     <div class="span11 input-prepend input-append">
                         <span style="width: 60px" class="add-on add-on-label">North&nbsp;</span>
-                        <input class="span7" id="north" name="north" type="number" min="-90" max="90" step="any" placeholder=""/>
+                        <input class="input-medium" id="north" name="north" type="number" min="-90" max="90" step="any" placeholder=""/>
                         <label class="add-on">&deg;</label>
                     </div>
                 </div>
@@ -156,7 +155,7 @@
                 <div id="noTypeTab" class="tab-pane {{#ifNotOr type}}active{{/ifNotOr}}"></div>
                 <div id="typeTab" class="tab-pane {{#if type}}active{{/if}}">
                     <select
-                        id="typeList" name="type" class="span12">
+                        id="typeList" name="type" class="input-xlarge">
                         <option value=""></option>
                        {{#each types}}
                            <option value={{name}}>{{name}}</option>
