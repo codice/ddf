@@ -22,8 +22,8 @@ import java.util.List;
 import org.opengis.filter.expression.PropertyName;
 import org.opengis.filter.sort.SortBy;
 import org.opengis.filter.sort.SortOrder;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.ext.XLogger;
 
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
@@ -38,11 +38,24 @@ import ddf.catalog.util.impl.TemporalResultComparator;
  */
 public class Search {
 
-    private static final XLogger LOGGER = new XLogger(
-            LoggerFactory.getLogger(Search.class));
+    private static final Logger LOGGER = LoggerFactory.getLogger(Search.class);
 
     protected static final Comparator<Result> DEFAULT_COMPARATOR = new RelevanceResultComparator(
             SortOrder.DESCENDING);
+
+    public static final String HITS = "hits";
+
+    public static final String GUID = "guid";
+
+    public static final String DISTANCE = "distance";
+
+    public static final String RELEVANCE = "relevance";
+
+    public static final String METACARD = "metacard";
+
+    public static final String RESULTS = "results";
+
+    public static final String SUCCESSFUL = "successful";
 
     private SearchRequest searchRequest;
 
@@ -104,16 +117,16 @@ public class Search {
                 Collections.sort(resultList, coreComparator);
 
                 List<Result> compositeResultList;
+                int start = queryResponse.getRequest().getQuery().getStartIndex() - 1;
+                int end;
                 if (resultList.size() >= queryResponse.getRequest().getQuery().getStartIndex()
                         + compositeQueryResponse.getRequest().getQuery().getPageSize()) {
-                    int start = queryResponse.getRequest().getQuery().getStartIndex() - 1;
-                    int end = start + compositeQueryResponse.getRequest().getQuery().getPageSize();
-                    compositeResultList = resultList.subList(start, end);
+                    end = start + compositeQueryResponse.getRequest().getQuery().getPageSize();
                 } else {
-                    int start = queryResponse.getRequest().getQuery().getStartIndex() - 1;
-                    int end = resultList.size();
-                    compositeResultList = resultList.subList(start, end);
+                    end = resultList.size();
                 }
+
+                compositeResultList = resultList.subList(start, end);
 
                 // we want to make sure we pass back any initial results so any UI building a list
                 // can

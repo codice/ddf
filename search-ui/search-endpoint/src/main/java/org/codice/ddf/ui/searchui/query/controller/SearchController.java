@@ -32,8 +32,8 @@ import org.cometd.bayeux.server.ConfigurableServerChannel;
 import org.cometd.bayeux.server.ServerMessage;
 import org.cometd.bayeux.server.ServerSession;
 import org.cometd.server.ServerMessageImpl;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.ext.XLogger;
 
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.Result;
@@ -55,8 +55,7 @@ import ddf.security.Subject;
  */
 public class SearchController {
 
-    private static final XLogger LOGGER = new XLogger(
-            LoggerFactory.getLogger(SearchController.class));
+    private static final Logger LOGGER = LoggerFactory.getLogger(SearchController.class);
 
     private final ExecutorService executorService = Executors.newCachedThreadPool();
 
@@ -97,24 +96,23 @@ public class SearchController {
         if (channel.startsWith("/")) {
             channelName = channel;
         } else {
-            channelName = "/"+channel;
+            channelName = "/" + channel;
         }
 
-        LOGGER.debug("Creating channel if it doesn't exist: "+channelName);
+        LOGGER.debug("Creating channel if it doesn't exist: {}", channelName);
 
         bayeuxServer.createChannelIfAbsent(channelName, new ConfigurableServerChannel.Initializer()
         {
-            public void configureChannel(ConfigurableServerChannel channel)
-            {
+            public void configureChannel(ConfigurableServerChannel channel) {
                 channel.setPersistent(true);
             }
         });
 
         ServerMessage.Mutable reply = new ServerMessageImpl();
-        reply.put("successful", true);
+        reply.put(Search.SUCCESSFUL, true);
         reply.putAll(jsonData);
 
-        LOGGER.debug("Sending results to subscribers on: "+channelName);
+        LOGGER.debug("Sending results to subscribers on: {}", channelName);
 
         bayeuxServer.getChannel(channelName).publish(serverSession, reply, null);
     }
@@ -134,7 +132,7 @@ public class SearchController {
         final SearchController controller = this;
 
         for (final OpenSearchQuery fedQuery : searchRequest.getQueryRequests()) {
-            LOGGER.debug("Executing async query on: "+fedQuery.getSiteIds());
+            LOGGER.debug("Executing async query on: {}", fedQuery.getSiteIds());
             executorService.submit(new Runnable() {
                 @Override
                 public void run() {
@@ -142,7 +140,7 @@ public class SearchController {
                     try {
                         boolean changed = addQueryResponseToSearch(searchRequest, fedResponse);
                         //send full response if it changed, otherwise send empty one
-                        if(changed) {
+                        if (changed) {
                             pushResults(
                                     searchRequest.getGuid(),
                                     controller.transform(
@@ -169,11 +167,13 @@ public class SearchController {
             QueryResponse queryResponse) throws InterruptedException {
         boolean changed;
         if (searchMap.containsKey(searchRequest.getGuid())) {
-            LOGGER.debug("Using previously created Search object for cache: "+searchRequest.getGuid());
+            LOGGER.debug("Using previously created Search object for cache: {}",
+                    searchRequest.getGuid());
             Search search = searchMap.get(searchRequest.getGuid());
             changed = search.addQueryResponse(queryResponse);
         } else {
-            LOGGER.debug("Creating new Search object to cache async query results: "+searchRequest.getGuid());
+            LOGGER.debug("Creating new Search object to cache async query results: {}",
+                    searchRequest.getGuid());
             Search search = new Search();
             changed = search.addQueryResponse(queryResponse);
             search.setSearchRequest(searchRequest);
@@ -203,12 +203,12 @@ public class SearchController {
                         query.getSiteIds(), null);
 
                 if (subject != null) {
-                    LOGGER.debug("Adding " + SecurityConstants.SECURITY_SUBJECT
-                            + " property with value " + subject + " to request.");
+                    LOGGER.debug("Adding {} property with value {} to request.",
+                            SecurityConstants.SECURITY_SUBJECT, subject);
                     queryRequest.getProperties().put(SecurityConstants.SECURITY_SUBJECT, subject);
                 }
 
-                LOGGER.debug("Sending query: "+query);
+                LOGGER.debug("Sending query: {}", query);
                 queryResponse = framework.query(queryRequest);
 
             } else {
@@ -243,8 +243,8 @@ public class SearchController {
 
         JSONObject rootObject = new JSONObject();
 
-        addObject(rootObject, "hits", upstreamResponse.getHits());
-        addObject(rootObject, "guid", searchRequest.getGuid().toString());
+        addObject(rootObject, Search.HITS, upstreamResponse.getHits());
+        addObject(rootObject, Search.GUID, searchRequest.getGuid().toString());
 
         JSONArray resultsList = new JSONArray();
 
@@ -260,7 +260,7 @@ public class SearchController {
                 }
             }
         }
-        addObject(rootObject, "results", resultsList);
+        addObject(rootObject, Search.RESULTS, resultsList);
 
         return rootObject;
     }
@@ -268,9 +268,9 @@ public class SearchController {
     private static JSONObject convertToJSON(Result result) throws CatalogTransformerException {
         JSONObject rootObject = new JSONObject();
 
-        addObject(rootObject, "distance", result.getDistanceInMeters());
-        addObject(rootObject, "relevance", result.getRelevanceScore());
-        addObject(rootObject, "metacard",
+        addObject(rootObject, Search.DISTANCE, result.getDistanceInMeters());
+        addObject(rootObject, Search.RELEVANCE, result.getRelevanceScore());
+        addObject(rootObject, Search.METACARD,
                 GeoJsonMetacardTransformer.convertToJSON(result.getMetacard()));
 
         return rootObject;
