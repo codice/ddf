@@ -171,18 +171,6 @@ tr.selected {
 	background-color: #242424;
 }
 
-/*::-webkit-scrollbar {*/
-    /*-webkit-appearance: none;*/
-    /*width: 7px;*/
-/*}*/
-/*::-webkit-scrollbar-thumb {*/
-    /*border-radius: 4px;*/
-    /*background-color: rgba(0,0,0,.5);*/
-    /*-webkit-box-shadow: 0 0 1px rgba(255,255,255,.5);*/
-/*}*/
-
-
-
 /*Metacard Detail View*/
 
 .metacard-link {
@@ -276,7 +264,6 @@ span.add-on {
 }
 
 .progressbar {
-    height: 15px;
     text-align: center;
     overflow: hidden;
     position: absolute;

@@ -24,54 +24,54 @@
     };
     Backbone.Model.prototype.destroy = destroyModel;
     Backbone.Collection.prototype.destroy = destroyColl;
-    
+
     var origSync = Backbone.sync;
-    
-    var generateGuid = function(model) {
-        var guid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-            var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
+
+    var generateGuid = function (model) {
+        var guid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+            var r = Math.random() * 16 | 0,
+                v = c == 'x' ? r : (r & 0x3 | 0x8);
             return v.toString(16);
         });
         model.guid = guid;
         return guid;
     };
 
-    Backbone.sync = function(method, model, options) {
-        var that = this;
-        if(options.useAjaxSync || model.useAjaxSync) {
+    Backbone.sync = function (method, model, options) {
+        if (options.useAjaxSync || model.useAjaxSync) {
             return origSync(method, model, options);
         } else {
             var deferred = $.Deferred();
             //create a primary key for this object if we don't have one already
             var guid = model.guid || generateGuid(model);
-            
+
             //method doesn't really matter
-            if(model.subscription) {
+            if (model.subscription) {
                 Cometd.Comet.unsubscribe(model.subscription);
             }
             var success = options.success;
-            options.success = function(resp) {
+            options.success = function (resp) {
                 var retVal = success(resp);
-                if(retVal === false) {
+                if (model.get('progress')) {
+                    model.get('progress').increment(1);
+                }
+                if (retVal === false) {
                     deferred.reject();
                 } else {
-                    if(that.get('progress')) {
-                        that.get('progress').increment(1);
-                    }
                     deferred.resolve();
                 }
             };
-            model.subscription = Cometd.Comet.subscribe('/'+guid, options.success);
+            model.subscription = Cometd.Comet.subscribe('/' + guid, options.success);
 
             options.data.guid = guid;
-            
-            Cometd.Comet.publish('/service/async/query', options.data);
-            
+
+            Cometd.Comet.publish(model.url, options.data);
+
             var promise = deferred.promise();
             promise.complete = promise.done;
             promise.success = promise.done;
             promise.error = promise.fail;
-            
+
             model.trigger('request', model, promise, options);
             return promise;
         }

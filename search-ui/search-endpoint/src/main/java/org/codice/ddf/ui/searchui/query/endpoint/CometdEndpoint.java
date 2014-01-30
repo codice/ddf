@@ -24,8 +24,8 @@ import org.cometd.bayeux.server.ServerMessage;
 import org.cometd.bayeux.server.ServerSession;
 import org.cometd.server.CometdServlet;
 import org.cometd.server.DefaultSecurityPolicy;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.ext.XLogger;
 
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.filter.FilterBuilder;
@@ -36,8 +36,7 @@ import ddf.catalog.filter.FilterBuilder;
  */
 public class CometdEndpoint {
 
-    private static final XLogger LOGGER = new XLogger(
-            LoggerFactory.getLogger(CometdEndpoint.class));
+    private static final Logger LOGGER = LoggerFactory.getLogger(CometdEndpoint.class);
 
     private final CometdServlet cometdServlet;
 

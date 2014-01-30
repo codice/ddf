@@ -16,9 +16,11 @@ define(function (require) {
             return this.get('type') === 'Point';
         },
 
-        average : function(points, attribute){
-            var attrs = _.pluck(points,attribute);
-            var sum = _.reduce(attrs,function(a,b){return a+b;},0);
+        average: function (points, attribute) {
+            var attrs = _.pluck(points, attribute);
+            var sum = _.reduce(attrs, function (a, b) {
+                return a + b;
+            }, 0);
             return sum / points.length;
         },
         getPoint: function () {
@@ -30,9 +32,11 @@ define(function (require) {
                     // seems to happen when regions is perfect rectangle...
                     console.warn('centroid util did not return a good centroid, defaulting to average of all points');
 
-                    return { latitude: this.average(polygon,'latitude'),
-                            longitude: this.average(polygon,'longitude')};
-                }else{
+                    return {
+                        latitude: this.average(polygon, 'latitude'),
+                        longitude: this.average(polygon, 'longitude')
+                    };
+                } else {
                     console.log('centroid worked?');
                 }
                 return centroid;
@@ -43,7 +47,11 @@ define(function (require) {
 
         },
         convertPointCoordinate: function (coordinate) {
-            return {latitude: coordinate[1], longitude: coordinate[0], altitude: coordinate[2]};
+            return {
+                latitude: coordinate[1],
+                longitude: coordinate[0],
+                altitude: coordinate[2]
+            };
         },
 
         isPolygon: function () {
@@ -144,9 +152,13 @@ define(function (require) {
                 }
             }
         ],
-        url: "/services/async/search",
-        parse: function(resp) {
-            return resp.data;
+        url: "/service/query",
+        //        useAjaxSync: true,
+        parse: function (resp) {
+            if (resp.data) {
+                return resp.data;
+            }
+            return resp;
         },
         loadMoreResults: function () {
             var queryParams;
@@ -167,7 +179,7 @@ define(function (require) {
             queryParams.format = this.get("format");
             return queryParams;
         },
-        getResultCenterPoint: function() {
+        getResultCenterPoint: function () {
             var regionPoints = [],
                 resultQuad,
                 quadrantCounts = [
@@ -189,19 +201,16 @@ define(function (require) {
                     }
                 ];
 
-            this.get("results").each(function(item) {
-                if(item.get("metacard").get("geometry")) {
+            this.get("results").each(function (item) {
+                if (item.get("metacard").get("geometry")) {
                     var point = item.get("metacard").get("geometry").getPoint();
-                    if(point.longitude > 0 && point.latitude > 0) {
+                    if (point.longitude > 0 && point.latitude > 0) {
                         quadrantCounts[0].count++;
-                    }
-                    else if(point.longitude < 0 && point.latitude > 0) {
+                    } else if (point.longitude < 0 && point.latitude > 0) {
                         quadrantCounts[1].count++;
-                    }
-                    else if(point.longitude < 0 && point.latitude < 0) {
+                    } else if (point.longitude < 0 && point.latitude < 0) {
                         quadrantCounts[2].count++;
-                    }
-                    else {
+                    } else {
                         quadrantCounts[3].count++;
                     }
                 }
@@ -212,30 +221,28 @@ define(function (require) {
             quadrantCounts.reverse();
             resultQuad = quadrantCounts[0].quad;
 
-            this.get("results").each(function(item) {
-                if(item.get("metacard").get("geometry")) {
-                    var newPoint = item.get("metacard").get("geometry").getPoint(), isInRegion = false;
+            this.get("results").each(function (item) {
+                if (item.get("metacard").get("geometry")) {
+                    var newPoint = item.get("metacard").get("geometry").getPoint(),
+                        isInRegion = false;
 
-                    if(newPoint.longitude >= 0 && newPoint.latitude >= 0 && resultQuad === "one") {
+                    if (newPoint.longitude >= 0 && newPoint.latitude >= 0 && resultQuad === "one") {
                         isInRegion = true;
-                    }
-                    else if(newPoint.longitude <= 0 && newPoint.latitude >= 0 && resultQuad === "two") {
+                    } else if (newPoint.longitude <= 0 && newPoint.latitude >= 0 && resultQuad === "two") {
                         isInRegion = true;
-                    }
-                    else if(newPoint.longitude <= 0 && newPoint.latitude <= 0 && resultQuad === "three") {
+                    } else if (newPoint.longitude <= 0 && newPoint.latitude <= 0 && resultQuad === "three") {
                         isInRegion = true;
-                    }
-                    else if(newPoint.longitude >= 0 && newPoint.latitude <= 0 && resultQuad === "four") {
+                    } else if (newPoint.longitude >= 0 && newPoint.latitude <= 0 && resultQuad === "four") {
                         isInRegion = true;
                     }
 
-                    if(isInRegion) {
+                    if (isInRegion) {
                         regionPoints.push(newPoint);
                     }
                 }
             });
 
-            if(regionPoints.length === 0) {
+            if (regionPoints.length === 0) {
                 return null;
             }
 

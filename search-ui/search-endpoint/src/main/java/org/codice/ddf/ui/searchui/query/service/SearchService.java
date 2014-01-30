@@ -1,16 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * 
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * 
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
+ * 
  **/
 package org.codice.ddf.ui.searchui.query.service;
 
@@ -25,6 +25,7 @@ import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.opensearch.query.OpenSearchQuery;
 import org.codice.ddf.ui.searchui.query.controller.SearchController;
 import org.codice.ddf.ui.searchui.query.endpoint.CometdEndpoint;
+import org.codice.ddf.ui.searchui.query.model.Search;
 import org.codice.ddf.ui.searchui.query.model.SearchRequest;
 import org.cometd.bayeux.Message;
 import org.cometd.bayeux.server.BayeuxServer;
@@ -34,19 +35,18 @@ import org.cometd.bayeux.server.ServerSession;
 import org.cometd.server.AbstractService;
 import org.cometd.server.ServerMessageImpl;
 import org.parboiled.errors.ParsingException;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.ext.XLogger;
 
 import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.transform.CatalogTransformerException;
 
 /**
- * Created by tustisos on 12/10/13.
+ * This class performs the searches when a client communicates with the cometd endpoint
  */
 public class SearchService extends AbstractService {
 
-    private static final XLogger LOGGER = new XLogger(
-            LoggerFactory.getLogger(CometdEndpoint.class));
+    private static final Logger LOGGER = LoggerFactory.getLogger(CometdEndpoint.class);
 
     private static final String DEFAULT_FORMAT = "geojson";
 
@@ -92,8 +92,6 @@ public class SearchService extends AbstractService {
 
     private static final String FORMAT = "format";
 
-    private static final String LOCAL = "local";
-
     private static final String DEFAULT_SORT_FIELD = "relevance";
 
     private static final String DEFAULT_SORT_ORDER = "desc";
@@ -122,12 +120,13 @@ public class SearchService extends AbstractService {
      * @param searchController
      *            - SearchController to handle async queries
      */
-    public SearchService(BayeuxServer bayeux, String name, FilterBuilder filterBuilder, SearchController searchController) {
+    public SearchService(BayeuxServer bayeux, String name, FilterBuilder filterBuilder,
+            SearchController searchController) {
         super(bayeux, name);
         this.filterBuilder = filterBuilder;
         this.searchController = searchController;
 
-        addService("/service/async/query", "processQuery");
+        addService("/service/query", "processQuery");
     }
 
     /**
@@ -144,22 +143,21 @@ public class SearchService extends AbstractService {
 
         Map<String, Object> queryMessage = message.getDataAsMap();
 
-        if(queryMessage.containsKey("guid")) {
-            getBayeux().createChannelIfAbsent("/"+queryMessage.get("guid"), new ConfigurableServerChannel.Initializer()
-            {
-                public void configureChannel(ConfigurableServerChannel channel)
-                {
-                    channel.setPersistent(true);
-                }
-            });
+        if (queryMessage.containsKey(Search.GUID)) {
+            getBayeux().createChannelIfAbsent("/" + queryMessage.get(Search.GUID),
+                    new ConfigurableServerChannel.Initializer() {
+                        public void configureChannel(ConfigurableServerChannel channel) {
+                            channel.setPersistent(true);
+                        }
+                    });
 
-            //kick off the query
+            // kick off the query
             executeQuery(queryMessage);
 
-            reply.put("successful", true);
+            reply.put(Search.SUCCESSFUL, true);
             remote.deliver(getServerSession(), reply);
         } else {
-            reply.put("successful", false);
+            reply.put(Search.SUCCESSFUL, false);
             reply.put("status", "ERROR: unable to return results, no guid in query request");
             remote.deliver(getServerSession(), reply);
         }
@@ -174,7 +172,7 @@ public class SearchService extends AbstractService {
      */
     public void executeQuery(Map<String, Object> queryMessage) {
         final String methodName = "executeQuery";
-        LOGGER.entry(methodName);
+        LOGGER.debug("ENTERING {}", methodName);
         String searchTerms = (String) queryMessage.get(PHRASE);
         Long maxResults = (Long) queryMessage.get(MAX_RESULTS);
         String sources = (String) queryMessage.get(SOURCES);
@@ -199,11 +197,11 @@ public class SearchService extends AbstractService {
 
         Long localCount = count;
 
-        //Build the SearchRequest and then hand off to the controller for the actual query
+        // Build the SearchRequest and then hand off to the controller for the actual query
 
         // honor maxResults if count is not specified
         if (localCount == null && maxResults != null) {
-            LOGGER.debug("setting count to: " + maxResults);
+            LOGGER.debug("setting count to: {}", maxResults);
             localCount = maxResults;
         }
 
@@ -211,10 +209,11 @@ public class SearchService extends AbstractService {
             String queryFormat = format;
             List<OpenSearchQuery> queryList = new ArrayList<OpenSearchQuery>();
 
-            Set<String> federatedSet = null;
+            Set<String> federatedSet;
             if (!(StringUtils.isEmpty(sources))) {
                 LOGGER.debug("Received site names from client.");
-                federatedSet = new HashSet<String>(Arrays.asList(StringUtils.stripAll(sources.split(","))));
+                federatedSet = new HashSet<String>(Arrays.asList(StringUtils.stripAll(sources
+                        .split(","))));
             } else {
                 federatedSet = searchController.getFramework().getSourceIds();
             }
@@ -223,7 +222,7 @@ public class SearchService extends AbstractService {
 
                 OpenSearchQuery fedQuery;
                 Set<String> fedSet;
-                for(String siteId : federatedSet) {
+                for (String siteId : federatedSet) {
                     fedQuery = createNewQuery(startIndex, localCount, sort, maxTimeout);
 
                     // contextual
@@ -257,10 +256,10 @@ public class SearchService extends AbstractService {
                 queryFormat = DEFAULT_FORMAT;
             }
 
-            //Now we can build the request
+            // Now we can build the request
             SearchRequest searchRequest = new SearchRequest(queryList, queryFormat, guid);
 
-            //Hand off to the search controller for the actual query
+            // Hand off to the search controller for the actual query
             searchController.executeQuery(searchRequest, getServerSession());
         } catch (IllegalArgumentException iae) {
             LOGGER.warn("Bad input found while executing a query", iae);
@@ -271,24 +270,24 @@ public class SearchService extends AbstractService {
         } catch (CatalogTransformerException e) {
             LOGGER.error("Unable to transform query result.", e);
         }
-        LOGGER.exit(methodName);
+        LOGGER.debug("EXITING {}", methodName);
 
     }
 
     /**
      * Create temporal filter
-     *
+     * 
      * @param dateStart
      * @param dateEnd
      * @param dateOffset
      * @param query
      */
-    private void addTemporalFilter(String dateStart, String dateEnd, Long dateOffset, OpenSearchQuery query) {
+    private void addTemporalFilter(String dateStart, String dateEnd, Long dateOffset,
+            OpenSearchQuery query) {
         if ((dateStart != null && !dateStart.trim().isEmpty())
-                || (dateEnd != null && !dateEnd.trim().isEmpty())
-                || (dateOffset != null)) {
+                || (dateEnd != null && !dateEnd.trim().isEmpty()) || (dateOffset != null)) {
             String dtOffset = "";
-            if(dateOffset != null) {
+            if (dateOffset != null) {
                 dtOffset = dateOffset.toString();
             }
             query.addTemporalFilter(dateStart, dateEnd, dtOffset);
@@ -297,7 +296,7 @@ public class SearchService extends AbstractService {
 
     /**
      * Create contextual filter
-     *
+     * 
      * @param searchTerms
      * @param selector
      * @param query
@@ -314,7 +313,7 @@ public class SearchService extends AbstractService {
 
     /**
      * Creates SpatialCriterion based on the input parameters, any null values will be ignored
-     *
+     * 
      * @param geometry
      *            - the geo to search over
      * @param polygon
@@ -330,22 +329,22 @@ public class SearchService extends AbstractService {
      * @return - the spatialCriterion created, can be null
      */
     private void addSpatialFilter(OpenSearchQuery query, String geometry, String polygon,
-                                  String bbox, Double radius, String lat, String lon) {
+            String bbox, Double radius, String lat, String lon) {
         if (geometry != null && !geometry.trim().isEmpty()) {
-            LOGGER.debug("Adding SpatialCriterion geometry: " + geometry);
+            LOGGER.debug("Adding SpatialCriterion geometry: {}", geometry);
             query.addGeometrySpatialFilter(geometry);
         } else if (bbox != null && !bbox.trim().isEmpty()) {
-            LOGGER.debug("Adding SpatialCriterion bbox: " + bbox);
+            LOGGER.debug("Adding SpatialCriterion bbox: {}", bbox);
             query.addBBoxSpatialFilter(bbox);
         } else if (polygon != null && !polygon.trim().isEmpty()) {
-            LOGGER.debug("Adding SpatialCriterion polygon: " + polygon);
+            LOGGER.debug("Adding SpatialCriterion polygon: {}", polygon);
             query.addPolygonSpatialFilter(polygon);
         } else if (lat != null && !lat.trim().isEmpty() && lon != null && !lon.trim().isEmpty()) {
             if (radius == null) {
                 LOGGER.debug("Adding default radius");
                 query.addSpatialDistanceFilter(lon, lat, DEFAULT_RADIUS);
             } else {
-                LOGGER.debug("Using radius: " + radius);
+                LOGGER.debug("Using radius: {}", radius);
                 query.addSpatialDistanceFilter(lon, lat, radius.toString());
             }
         }
@@ -353,7 +352,7 @@ public class SearchService extends AbstractService {
 
     /**
      * Creates a new query from the incoming parameters
-     *
+     * 
      * @param startIndexLng
      *            - Start index for the query
      * @param countLng
@@ -365,7 +364,7 @@ public class SearchService extends AbstractService {
      * @return - the new query
      */
     private OpenSearchQuery createNewQuery(Long startIndexLng, Long countLng, String sortStr,
-                                           Long maxTimeoutLng) {
+            Long maxTimeoutLng) {
         // default values
         String sortField = DEFAULT_SORT_FIELD;
         String sortOrder = DEFAULT_SORT_ORDER;
@@ -383,9 +382,9 @@ public class SearchService extends AbstractService {
                 sortOrder = sortAry[1];
             }
         }
-        LOGGER.debug("Retrieved query settings: \n" + "sortField:" + sortField + "\nsortOrder:"
-                + sortOrder);
-        return new OpenSearchQuery(null, startIndex.intValue(), count.intValue(), sortField, sortOrder, maxTimeout,
-                filterBuilder);
+        LOGGER.debug("Retrieved query settings: \n sortField: {} \nsortOrder: {}", sortField,
+                sortOrder);
+        return new OpenSearchQuery(null, startIndex.intValue(), count.intValue(), sortField,
+                sortOrder, maxTimeout, filterBuilder);
     }
 }
