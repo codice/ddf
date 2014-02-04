@@ -11,11 +11,7 @@
  *
  **/ -->
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
-	xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="
-	    http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd
-        ">
+	xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0">
 
 <!-- According to the schema the type-converters element must be above all other elements except 'description' -->
 	<type-converters>
@@ -160,12 +156,6 @@
 		</service-properties>
 	</service>
 
-    <reference id="cacheManager" interface="ddf.cache.CacheManager" />
-    
-    <bean id="productCache" class="ddf.catalog.cache.ResourceCache">
-        <property name="cacheManager" ref="cacheManager" />
-        <property name="productCacheDirectory" value="" />
-    </bean>
 
 	<!-- create the ddf bean -->
 	<bean id="ddf" class="ddf.catalog.impl.CatalogFrameworkImpl">
@@ -189,8 +179,7 @@
 		<property name="id" value="ddf" />
 		<property name="version" value="DDF v2.0" />
 		<property name="organization" value="Codice" />
-		<property name="masker" ref="sourceListener" />
-		<property name="productCache" ref="productCache" />	
+		<property name="masker" ref="sourceListener" />		
 	</bean>
 
 	<bean id="sourcePoller" class="ddf.catalog.util.impl.SourcePoller" >

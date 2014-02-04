@@ -43,12 +43,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.ext.XLogger;
 
-import ddf.cache.CacheException;
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.Constants;
-import ddf.catalog.FanoutCatalogFramework;
-import ddf.catalog.cache.CacheKey;
-import ddf.catalog.cache.ResourceCache;
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.ContentType;
 import ddf.catalog.data.Metacard;
@@ -123,14 +119,17 @@ import ddf.catalog.util.impl.SourcePoller;
 public class CatalogFrameworkImpl extends DescribableImpl implements ConfigurationWatcher,
         CatalogFramework {
 
-    private static final String PRE_INGEST_ERROR = "Error during pre-ingest service invocation:\n\n";
+    // TODO make this private
+    protected static final String PRE_INGEST_ERROR = "Error during pre-ingest service invocation:\n\n";
 
     private static final String DEFAULT_RESOURCE_NOT_FOUND_MESSAGE = "Unknown resource request";
 
-    private static final XLogger logger = new XLogger(LoggerFactory.getLogger(CatalogFrameworkImpl.class));
+    // TODO make this final
+    private static XLogger logger = new XLogger(LoggerFactory.getLogger(CatalogFrameworkImpl.class));
 
     static final Logger INGEST_LOGGER = LoggerFactory.getLogger("ingestLogger");
 
+    // TODO make this private
     protected static final String FAILED_BY_GET_RESOURCE_PLUGIN = "Error during Pre/PostResourcePlugin.";
 
     // The local catalog provider, which is set to the first item in the {@link List} of
@@ -222,9 +221,6 @@ public class CatalogFrameworkImpl extends DescribableImpl implements Configurati
     private Masker masker;
 
     private SourcePoller poller;
-    
-    protected ResourceCache productCache;
-
 
     /**
      * Instantiates a new CatalogFrameworkImpl
@@ -385,12 +381,9 @@ public class CatalogFrameworkImpl extends DescribableImpl implements Configurati
         this.poller = poller;
         synchronized (this) {
             this.pool = pool;
+
         }
-    }
-    
-    public void setProductCache(ResourceCache productCache) {
-        logger.debug("Injecting productCache");
-        this.productCache = productCache;
+
     }
 
     /**
@@ -1219,8 +1212,9 @@ public class CatalogFrameworkImpl extends DescribableImpl implements Configurati
         return new TreeSet<String>(sources);
     }
 
+    // TODO this should be protected
     @SuppressWarnings("javadoc")
-    protected ResourceResponse getResource(ResourceRequest resourceRequest, boolean isEnterprise,
+    public ResourceResponse getResource(ResourceRequest resourceRequest, boolean isEnterprise,
             String resourceSiteName) throws IOException, ResourceNotFoundException,
         ResourceNotSupportedException {
         String methodName = "getResource";
@@ -1247,7 +1241,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements Configurati
             }
 
             Map<String, Serializable> requestProperties = resourceReq.getProperties();
-            logger.debug("Attempting to get resource from siteName: {}", resourceSourceName);
+            logger.debug("Attempting to get resource from siteName: " + resourceSourceName);
             // At this point we pull out the properties and use them.
             Serializable sourceIdProperty = requestProperties.get(ResourceRequest.SOURCE_ID);
             if (sourceIdProperty != null) {
@@ -1264,20 +1258,15 @@ public class CatalogFrameworkImpl extends DescribableImpl implements Configurati
             // check if the resourceRequest has an ID only
             // If so, the metacard needs to be found and the Resource URI
             StringBuilder resolvedSourceIdHolder = new StringBuilder();
-
-            ResourceInfo resourceInfo = getResourceInfo(resourceReq, resourceSourceName, isEnterprise,
+            URI responseURI = getResourceURI(resourceReq, resourceSourceName, isEnterprise,
                     resolvedSourceIdHolder, requestProperties);
-            if (resourceInfo == null) {
-                throw new ResourceNotFoundException(
-                        "Resource could not be found for the given attribute value: "
-                                + resourceReq.getAttributeValue());
-            }
-            URI responseURI = resourceInfo.getResourceUri();
-            Metacard metacard = resourceInfo.getMetacard();
-            
+
             String resolvedSourceId = resolvedSourceIdHolder.toString();
-            logger.debug("resolvedSourceId = {}", resolvedSourceId);
-            logger.debug("ID = {}", getId());
+
+            if (logger.isDebugEnabled()) {
+                logger.debug("resolvedSourceId = " + resolvedSourceId);
+                logger.debug("ID = " + getId());
+            }
 
             if (isEnterprise) {
 
@@ -1288,78 +1277,30 @@ public class CatalogFrameworkImpl extends DescribableImpl implements Configurati
                 // handle retrieving the product on the correct source
                 resourceSourceName = resolvedSourceId;
             }
-            
-            String key;
-            try {
-                key = new CacheKey(metacard, resourceRequest).generateKey();
-            } catch (CacheException e1) {
-                throw new ResourceNotFoundException(e1);
-            }
-
-            ClassLoader tccl = Thread.currentThread().getContextClassLoader();
-
-            try {
-
-                Thread.currentThread().setContextClassLoader(
-                        CatalogFrameworkImpl.class.getClassLoader());
-                if (productCache.contains(key)) {
-                    try {
-                        Resource resource = productCache.get(key);
-                        resourceResponse = new ResourceResponseImpl(resourceRequest,
-                                requestProperties, resource);
-                        logger.info(
-                                "Successfully retrieved product from cache for metacard ID = {}",
-                                metacard.getId());
-                    } catch (CacheException ce) {
-                        logger.info(
-                                "Unable to get resource from cache. Have to retrieve it from source {}",
-                                resourceSourceName);
-                    }
-                }
-
-            } finally {
-                Thread.currentThread().setContextClassLoader(tccl);
-            }
-
-            // retrieve product from specified federated site if not in cache
+            // retrieve product from specified federated site
             if (resourceSourceName != null && !resourceSourceName.equals(getId())) {
-                logger.debug("Searching federatedSource {} for resource.", resourceSourceName);
-                logger.debug("metacard for product found on source: {}", resolvedSourceId);
+                logger.debug("Searching federatedSource " + resourceSourceName + " for resource.");
+                logger.debug("metacard for product found on source: " + resolvedSourceId);
                 FederatedSource source = null;
 
                 for (FederatedSource fedSource : federatedSources) {
                     if (resourceSourceName.equals(fedSource.getId())) {
-                        logger.debug("Adding federated site to federated query: {}",
-                                fedSource.getId());
+                        logger.debug("Adding federated site to federated query: "
+                                + fedSource.getId());
                         source = fedSource;
                         break;
                     }
                 }
 
                 if (source != null) {
-                    // If no cached entry found for product being retrieved
-                	if(resourceResponse == null) {
-                        logger.debug("Retrieving product from remote source {}", source.getId());
-                        resourceResponse = source.retrieveResource(responseURI, requestProperties);
-                        // Sources do not create ResourceResponses with the original ResourceRequest, hence
-                        // it is added here because it will be needed for caching
-                        resourceResponse = new ResourceResponseImpl(resourceRequest, resourceResponse.getProperties(), resourceResponse.getResource());
-                        resourceResponse = cacheProduct(metacard, resourceResponse);
-                    }
+                    resourceResponse = source.retrieveResource(responseURI, requestProperties);
                 } else {
-                    logger.warn("Could not find federatedSource: {}", resourceSourceName);
+                    logger.warn("Could not find federatedSource: " + resourceSourceName);
                 }
             } else if (resourceSourceName != null) {
-
-                // If no cached entry found for product being retrieved
-                if (resourceResponse == null) {
-                    logger.debug("Retrieving product from local source {}", resourceSourceName);
-                    resourceResponse = getResourceUsingResourceReader(responseURI, requestProperties);
-                    // ResourceReaders do not create ResourceResponses with the original ResourceRequest, hence
-                    // it is added here because it will be needed for caching
-                    resourceResponse = new ResourceResponseImpl(resourceRequest, resourceResponse.getProperties(), resourceResponse.getResource());
-                    resourceResponse = cacheProduct(metacard, resourceResponse);
-                }
+                // retrieve product from local source
+                logger.debug("Trying to Obtain resource from localSource.");
+                resourceResponse = getResourceUsingResourceReader(responseURI, requestProperties);
             }
 
             resourceResponse = validateFixGetResourceResponse(resourceResponse, resourceReq);
@@ -1375,7 +1316,6 @@ public class CatalogFrameworkImpl extends DescribableImpl implements Configurati
             }
 
         } catch (RuntimeException e) {
-            logger.error("RuntimeException caused by: ", e);
             throw new ResourceNotFoundException("Unable to find resource");
         } catch (StopProcessingException e) {
             throw new ResourceNotSupportedException(FAILED_BY_GET_RESOURCE_PLUGIN + e.getMessage());
@@ -1388,21 +1328,6 @@ public class CatalogFrameworkImpl extends DescribableImpl implements Configurati
         }
 
         logger.exit(methodName);
-        return resourceResponse;
-    }
-    
-    
-    // Add retrieved product to the cache
-    private ResourceResponse cacheProduct(Metacard metacard, ResourceResponse resourceResponse) {        
-        if (metacard != null && resourceResponse != null) {
-            try {
-                resourceResponse = productCache.put(metacard, resourceResponse);
-            } catch (CacheException e) {
-                logger.info("Unable to put resource for metacard ID = {} in product cache",
-                        metacard.getId());
-            }
-        }
-        
         return resourceResponse;
     }
 
@@ -1583,6 +1508,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements Configurati
                     QueryResponse queryResponse = query(queryRequest);
                     if (queryResponse.getResults().size() > 0) {
                         Metacard result = queryResponse.getResults().get(0).getMetacard();
+
                         resourceUri = result.getResourceURI();
                         federatedSite.append(result.getSourceId());
                         logger.debug("Trying to lookup resource URI " + resourceUri
@@ -1623,131 +1549,6 @@ public class CatalogFrameworkImpl extends DescribableImpl implements Configurati
             throw new ResourceNotFoundException(DEFAULT_RESOURCE_NOT_FOUND_MESSAGE);
         }
         return resourceUri;
-    }
-    /**
-     * Retrieves a resource by URI.
-     * 
-     * The {@link ResourceRequest} can specify either the product's URI or ID. If the product ID is
-     * specified, then the matching {@link Metacard} must first be retrieved and the product URI
-     * extracted from this {@link Metacard}.
-     * 
-     * @param resourceRequest
-     * @param site
-     * @param isEnterprise
-     * @param federatedSite
-     * @param requestProperties
-     * @return
-     * @throws ResourceNotSupportedException
-     * @throws ResourceNotFoundException
-     */
-    protected ResourceInfo getResourceInfo(ResourceRequest resourceRequest, String site,
-            boolean isEnterprise, StringBuilder federatedSite,
-            Map<String, Serializable> requestProperties) throws ResourceNotSupportedException,
-        ResourceNotFoundException {
-
-        String methodName = "getResourceInfo";
-        logger.entry(methodName);
-
-        Metacard metacard = null;
-        URI resourceUri = null;
-        String name = resourceRequest.getAttributeName();
-        try {
-            if (ResourceRequest.GET_RESOURCE_BY_PRODUCT_URI.equals(name)) {
-                // because this is a get resource by product uri, we already
-                // have the product uri to return
-                logger.debug("get resource by product uri");
-                Object value = resourceRequest.getAttributeValue();
-
-                if (value instanceof URI) {
-                    resourceUri = (URI) value;
-
-                    Query propertyEqualToUriQuery = createPropertyIsEqualToQuery(
-                            Metacard.RESOURCE_URI, resourceUri.toString());
-
-                    // if isEnterprise, go out and obtain the actual source
-                    // where the product's metacard is stored.
-                    QueryRequest queryRequest = new QueryRequestImpl(propertyEqualToUriQuery,
-                            isEnterprise, Collections.singletonList(site == null ? this.getId()
-                                    : site), resourceRequest.getProperties());
-
-                    QueryResponse queryResponse = query(queryRequest);
-                    if (queryResponse.getResults().size() > 0) {
-                        metacard = queryResponse.getResults().get(0).getMetacard();
-                        federatedSite.append(metacard.getSourceId());
-                        logger.debug("Trying to lookup resource URI " + resourceUri
-                                + " for metacardId: " + resourceUri);
-
-                        if (!requestProperties.containsKey(Metacard.ID)) {
-                            requestProperties.put(Metacard.ID, metacard.getId());
-                        }
-                    } else {
-                        throw new ResourceNotFoundException(
-                                "Could not resolve source id for URI by doing a URI based query: "
-                                        + resourceUri);
-                    }
-                } else {
-                    throw new ResourceNotSupportedException(
-                            "The GetResourceRequest with attribute value of class '"
-                                    + value.getClass() + "' is not supported by this instance"
-                                    + " of the CatalogFramework.");
-                }
-            } else if (ResourceRequest.GET_RESOURCE_BY_ID.equals(name)) {
-                // since this is a get resource by id, we need to obtain the
-                // product URI
-                logger.debug("get resource by id");
-                Object value = resourceRequest.getAttributeValue();
-                if (value instanceof String) {
-                    String metacardId = (String) value;
-                    logger.debug("metacardId = " + metacardId + ",   site = " + site);
-                    QueryRequest queryRequest = new QueryRequestImpl(
-                            createMetacardIdQuery(metacardId), isEnterprise,
-                            Collections.singletonList(site == null ? this.getId() : site),
-                            resourceRequest.getProperties());
-
-                    QueryResponse queryResponse = query(queryRequest);
-                    if (queryResponse.getResults().size() > 0) {
-                        metacard = queryResponse.getResults().get(0).getMetacard();
-                        resourceUri = metacard.getResourceURI();
-                        federatedSite.append(metacard.getSourceId());
-                        logger.debug("Trying to lookup resource URI " + resourceUri
-                                + " for metacardId: " + metacardId);
-                    } else {
-                        throw new ResourceNotFoundException(
-                                "Could not resolve source id for URI by doing an id based query: "
-                                        + metacardId);
-                    }
-
-                    if (!requestProperties.containsKey(Metacard.ID)) {
-                        requestProperties.put(Metacard.ID, metacardId);
-                    }
-
-                } else {
-                    throw new ResourceNotSupportedException(
-                            "The GetResourceRequest with attribute value of class '"
-                                    + value.getClass() + "' is not supported by this instance"
-                                    + " of the CatalogFramework.");
-                }
-            } else {
-                throw new ResourceNotSupportedException(
-                        "The GetResourceRequest with attribute name '" + name
-                                + "' is not supported by this instance"
-                                + " of the CatalogFramework.");
-            }
-        } catch (UnsupportedQueryException e) {
-
-            throw new ResourceNotFoundException(DEFAULT_RESOURCE_NOT_FOUND_MESSAGE);
-        } catch (FederationException e) {
-
-            throw new ResourceNotFoundException(DEFAULT_RESOURCE_NOT_FOUND_MESSAGE);
-        }
-
-        logger.debug("Returning resourceURI: " + resourceUri);
-        logger.exit(methodName);
-        if (resourceUri == null) {
-            throw new ResourceNotFoundException(DEFAULT_RESOURCE_NOT_FOUND_MESSAGE);
-        }
-        
-        return new ResourceInfo(metacard, resourceUri);
     }
 
     protected Query createMetacardIdQuery(String metacardId) {
@@ -1906,7 +1707,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements Configurati
      */
     protected ResourceResponse validateFixGetResourceResponse(ResourceResponse getResourceResponse,
             ResourceRequest getResourceRequest) throws ResourceNotFoundException {
-        ResourceResponse resourceResponse = getResourceResponse;
+        ResourceResponse resourceResponse = null;
         if (getResourceResponse != null) {
             if (getResourceResponse.getResource() == null) {
                 throw new ResourceNotFoundException(
@@ -2334,24 +2135,6 @@ public class CatalogFrameworkImpl extends DescribableImpl implements Configurati
         }
 
         logger.debug("EXITING: " + methodName);
-    }
-    
-    protected class ResourceInfo {
-        private Metacard metacard;
-        private URI resourceUri;
-        
-        public ResourceInfo(Metacard metacard, URI uri) {
-            this.metacard = metacard;
-            this.resourceUri = uri;
-        }
-        
-        public Metacard getMetacard() {
-            return metacard;
-        }
-        
-        public URI getResourceUri() {
-            return resourceUri;
-        }
     }
 
 }
