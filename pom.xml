@@ -58,18 +58,6 @@
 				<artifactId>mime-core-impl</artifactId>
 				<version>${project.version}</version>
 			</dependency>
-
-	            	<dependency>
-        		        <groupId>ddf.cache.core</groupId>
-                		<artifactId>cache-core-api</artifactId>
-                		<version>${project.version}</version>
-            		</dependency>
-
-         		 <dependency>
-            			<groupId>ddf.cache.core</groupId>
-                		<artifactId>cache-core-impl</artifactId>
-                		<version>${project.version}</version>
-            		</dependency>
 			
 			<dependency>
 				<groupId>org.apache.cxf</groupId>
@@ -206,7 +194,6 @@
 		<module>platform-configuration</module>
         <module>platform-status</module>
 		<module>action</module>
-		<module>cache</module>
 		<module>mime</module>
 		<module>metrics</module>
 		<module>platform-scheduler</module>
