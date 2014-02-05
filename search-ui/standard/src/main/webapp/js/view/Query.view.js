@@ -10,6 +10,7 @@ define(function (require) {
         ich = require('icanhaz'),
         ddf = require('ddf'),
         MetaCard = require('js/model/Metacard'),
+        Progress = require('js/view/Progress.view'),
         Spinner = require('spin'),
         spinnerConfig = require('spinnerConfig'),
         Query = {};
@@ -275,74 +276,22 @@ define(function (require) {
             this.shouldFlyToExtent = this.model.get("bbox") || this.model.get("radius") ? true : false;
         },
 
-        configureProgress: function() {
-            //the progress bar is animated using jquery, if we want to swap this
-            //out for a progress bar library at some point, it should be pretty simple
-            $('#progressbar').show();
-            $('#progressbar').height('5px');
-            $('#progressbar').progressbar({value: 0.001});
-            $("#progressbar .ui-progressbar-value").addClass("ui-corner-right");
-            var progress = {
-                current:0,
-                total:0,
-                set: function(val) {
-                    this.current = val;
-                },
-                increment: function(val) {
-                    this.current += val;
-                    if(this.current >= this.total) {
-                        this.complete();
-                    }
-                    $("#progressbar .ui-progressbar-value").animate({width: ((this.current / this.total)*100)+'%'}, 400);
-                    var $elem = $('#progressbar').find('.progress-text');
-                    if($elem) {
-                        $elem.text("Sources Completed: "+progress.current+" of "+progress.total);
-                    }
-                },
-                complete: function() {
-                    this.current = this.total;
-                    $("#progressbar .ui-progressbar-value").animate({width: '100%'}, 400, 'swing', function() {
-                        $('#progressbar').hide({
-                            duration: 1500,
-                            effect: 'blind',
-                            complete: function () {
-                                $('#progressbar').unbind();
-                            }
-                        });
-                    });
-                },
-                setTotal: function(val) {
-                    this.total = val;
-                }
-            };
-            if (this.model.get("src")) {
-                progress.setTotal(this.model.get("src").split(",").length);
-            } else {
-                progress.setTotal(this.sources.length);
-            }
-
-            $('#progressbar').mouseenter(function() {
-                $('#progressbar').height('15px');
-                $('#progressbar').addClass('progress-background');
-                $('#progressbar').append("<div class='progress-text'>Sources Completed: "+progress.current+" of "+progress.total+"</div>");
-            }).mouseleave(function() {
-                $('#progressbar').height('5px');
-                $('#progressbar').removeClass('progress-background');
-                $('#progressbar').find('.progress-text').remove();
-            });
-            return progress;
-        },
-
         search: function () {
-            this.trigger('search');
+
+            var progress = new Progress.ProgressModel();
+
+            var progressFunction = function(val) {
+                                        progress.increment.call(progress, val);
+                                    };
+
+            this.trigger('search', this.model, this.sources.length, progress);
 
             //get results
             var queryParams, view = this, result, options;
             queryParams = this.model.toJSON();
             
             options = {
-                'queryParams': queryParams,
-                'progress': this.configureProgress()
+                'queryParams': queryParams
             };
 
             result = new MetaCard.SearchResult(options);
@@ -355,6 +304,7 @@ define(function (require) {
             ddf.app.controllers.drawExentController.stopDrawing();
 
             result.fetch({
+                progress: progressFunction,
                 data: result.getQueryParams(),
                 dataType: "json",
                 timeout: 300000,

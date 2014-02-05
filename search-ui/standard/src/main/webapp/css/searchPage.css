@@ -119,11 +119,16 @@ html, body {
 #searchPages {
     /*magic needed to get perfect scrollbar needed*/
     overflow: hidden;
-    position: absolute;
-    top : 86px;
+    position: relative;
     bottom : 0px;
-    width: 100%;
 
+    /*this padding and border box hack is here to account for the div blocks above this one
+    without this here, the div will be pushed off the bottom of the page and not render correctly*/
+    padding-bottom: 100px;
+    -moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;
+
+    width: 100%;
+    height: 100%;
     background-repeat: no-repeat;
     background-size: 100% 40px, 100% 40px, 100% 14px, 100% 14px;
 
@@ -266,11 +271,8 @@ span.add-on {
 .progressbar {
     text-align: center;
     overflow: hidden;
-    position: absolute;
-    z-index: 2000;
-    height: 5px;
-    top: 0px;
-    left: 0px;
+    position: relative;
+    height: 15px;
     width: 100%;
     border-bottom-right-radius: 0px;
     border-bottom-left-radius: 0px;
@@ -283,17 +285,59 @@ span.add-on {
     background: #fff url(images/ui-bg_flat_75_ffffff_40x100.png) 50% 50% repeat-x;
 }
 .progress-text {
-    position: absolute;
-    height: 100%;
-    line-height: 100%;
+    display: block;
     width: 100%;
-    background-color: transparent;
-    z-index: 3000;
-    top: 0px;
-    left: 0px;
+    text-align: center;
     font-size: 14px;
+    font-weight: bold;
+}
+.stack-bottomright {
+    top: auto;
 }
 
+.stack-topleft {
+    bottom: auto;
+}
+
+@-webkit-keyframes pulse {
+    0% {background-color: rgba(90,90,90,1);}
+    7% {background-color: rgba(85,85,85,1);}
+    15% {background-color: rgba(80,80,80,1);}
+    22% {background-color: rgba(75,75,75,1);}
+    30% {background-color: rgba(70,70,70,1);}
+    37% {background-color: rgba(65,65,65,1);}
+    45% {background-color: rgba(60,60,60,1);}
+    52% {background-color: rgba(55,55,55,1);}
+    60% {background-color: rgba(50,50,50,1);}
+    75% {background-color: rgba(40,40,40,1);}
+    85% {background-color: rgba(35,35,35,1);}
+    100% {background-color: rgba(30,30,30,1);}
+}
+
+@keyframes pulse {
+    0% {background-color: rgba(90,90,90,1);}
+    7% {background-color: rgba(85,85,85,1);}
+    15% {background-color: rgba(80,80,80,1);}
+    22% {background-color: rgba(75,75,75,1);}
+    30% {background-color: rgba(70,70,70,1);}
+    37% {background-color: rgba(65,65,65,1);}
+    45% {background-color: rgba(60,60,60,1);}
+    52% {background-color: rgba(55,55,55,1);}
+    60% {background-color: rgba(50,50,50,1);}
+    75% {background-color: rgba(40,40,40,1);}
+    85% {background-color: rgba(35,35,35,1);}
+    100% {background-color: rgba(30,30,30,1);}
+}
+
+.progress-panel {
+    padding: 10px;
+    background-color: rgba(80,80,80,1);
+}
+
+.pulse {
+    -webkit-animation: pulse 4s infinite alternate;
+    animation: pulse 4s infinite alternate;
+}
 select.add-on {
     -webkit-appearance: none;
 }

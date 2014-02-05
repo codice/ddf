@@ -118,6 +118,7 @@ define(function (require) {
                 type: Backbone.HasOne,
                 key: 'metacard',
                 relatedModel: MetaCard.Metacard,
+                includeInJSON: false,
                 reverseRelation: {
                     key: 'metacardResult'
                 }
@@ -131,8 +132,8 @@ define(function (require) {
 
     MetaCard.SearchResult = Backbone.RelationalModel.extend({
         defaults: {
-            count: 100,
-            itemsPerPage: 100,
+            count: 500,
+            itemsPerPage: 500,
             startIndex: 1,
             format: "geojson",
             queryParamDefaults: {
@@ -147,6 +148,7 @@ define(function (require) {
                 key: 'results',
                 relatedModel: MetaCard.MetacardResult,
                 collectionType: MetaCard.MetacardList,
+                includeInJSON: false,
                 reverseRelation: {
                     key: 'searchResult'
                 }

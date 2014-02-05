@@ -52,8 +52,8 @@
             var success = options.success;
             options.success = function (resp) {
                 var retVal = success(resp);
-                if (model.get('progress')) {
-                    model.get('progress').increment(1);
+                if (typeof options.progress == 'function') {
+                    options.progress(1);
                 }
                 if (retVal === false) {
                     deferred.reject();

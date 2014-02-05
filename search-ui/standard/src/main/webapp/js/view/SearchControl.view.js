@@ -7,6 +7,7 @@ define(function (require) {
         Marionette = require('marionette'),
         SlidingRegion = require('js/view/sliding.region'),
         QueryFormView = require('js/view/Query.view').QueryView,
+        ProgressView = require('js/view/Progress.view').ProgressView,
         CesiumMetacard = require('js/view/cesium.metacard'),
         MetacardList = require('js/view/MetacardList.view'),
         Metacard = require('js/view/MetacardDetail.view'),
@@ -73,6 +74,10 @@ define(function (require) {
         SearchControl.SearchControlLayout = Marionette.Layout.extend({
             template : 'searchPanel',
             regions : {
+                progressRegion: {
+                    selector: "#progressRegion",
+                    regionType: SlidingRegion
+                },
                 leftRegion: {
                     selector: "#searchPages",
                     regionType:  SlidingRegion
@@ -93,6 +98,7 @@ define(function (require) {
 
                 this.listenTo(this.queryForm, 'clear', this.onQueryClear);
                 this.listenTo(this.queryForm, 'search', this.onQueryClear);
+                this.listenTo(this.queryForm, 'search', this.setupProgress);
                 this.listenTo(this.queryForm, 'searchComplete', this.showResults);
                 this.listenTo(this.queryForm, 'searchComplete', this.changeDefaultMapLocation);
                 this.listenTo(ddf.app, 'model:context', this.showMetacardDetail);
@@ -129,6 +135,15 @@ define(function (require) {
                 this.modelBinder.bind(this.controlModel, this.$el, bindings);
 
                 return this;
+            },
+            setupProgress: function (queryModel, numSources, progressObj) {
+                if(numSources > 1) {
+                    if(this.progressView) {
+                        this.progressView.close();
+                    }
+                    this.progressView = new ProgressView({ queryModel: queryModel, sources: numSources, model: progressObj});
+                    this.progressRegion.show(this.progressView, dir.downward);
+                }
             },
             onQueryClear: function () {
                 $(".forward").hide();
