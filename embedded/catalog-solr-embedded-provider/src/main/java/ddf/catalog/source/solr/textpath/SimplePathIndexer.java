@@ -36,7 +36,6 @@ public class SimplePathIndexer {
 
     public static final char LEAF_TEXT_DELIMITER = '|';
 
-    //DDF-216 MODULARITY: changed from XmlInputFactory2
     private XMLInputFactory xmlInputFactory = null;
 
     private final Deque<String> stack = new ArrayDeque<String>();
@@ -61,9 +60,6 @@ public class SimplePathIndexer {
 
                 if (event == XMLStreamConstants.START_ELEMENT) {
                     StringBuffer element = new StringBuffer();
-                    //DDF-216 MODULARITY: Only available with XmlStreamReader2
-//                    element.append(previous()).append(SELECTOR)
-//                            .append(xmlStreamReader.getPrefixedName());
                     String prefix = xmlStreamReader.getPrefix();
                     String prefixName = xmlStreamReader.getLocalName();
                     if (prefix != null && prefix.length() > 0) {

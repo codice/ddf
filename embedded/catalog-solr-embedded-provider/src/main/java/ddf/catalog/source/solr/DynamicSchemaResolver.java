@@ -33,6 +33,7 @@ import java.util.Set;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -46,7 +47,6 @@ import org.apache.solr.common.SolrException;
 import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.common.util.SimpleOrderedMap;
 import org.codehaus.stax2.XMLInputFactory2;
-import org.codehaus.stax2.XMLStreamReader2;
 
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.AttributeDescriptor;
@@ -98,7 +98,6 @@ public class DynamicSchemaResolver {
             Thread.currentThread().setContextClassLoader(
                     DynamicSchemaResolver.class.getClassLoader());
 
-            //MODULARITY: not casting to XmlInputFactory2, which had issues with ClassCastException
             xmlInputFactory = XMLInputFactory2.newInstance();
             xmlInputFactory.setProperty(XMLInputFactory.IS_REPLACING_ENTITY_REFERENCES,
                     Boolean.FALSE);
@@ -106,10 +105,7 @@ public class DynamicSchemaResolver {
                     Boolean.FALSE);
             xmlInputFactory.setProperty(XMLInputFactory.IS_COALESCING, Boolean.FALSE);
             // TODO verify the performance impact of this
-            // xmlInputFactory.setProperty(XMLInputFactory.IS_VALIDATING, Boolean.FALSE);
-            //MODULARITY: Not available if not casting to XmlInputFactory2
-            //xmlInputFactory.configureForSpeed();
-
+            //xmlInputFactory.setProperty(XMLInputFactory.IS_VALIDATING, Boolean.FALSE);
         } finally {
             Thread.currentThread().setContextClassLoader(tccl);
         }
@@ -546,11 +542,11 @@ public class DynamicSchemaResolver {
 
         StringBuilder builder = new StringBuilder();
 
-        XMLStreamReader2 xmlStreamReader;
+        XMLStreamReader xmlStreamReader;
         long starttime = System.currentTimeMillis();
         try {
             // xml parser does not handle leading whitespace
-            xmlStreamReader = (XMLStreamReader2) xmlInputFactory
+            xmlStreamReader = xmlInputFactory
                     .createXMLStreamReader(new StringReader(xmlData));
 
             while (xmlStreamReader.hasNext()) {

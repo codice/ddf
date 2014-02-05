@@ -21,11 +21,12 @@ import java.util.Collections;
 import java.util.Deque;
 import java.util.List;
 
+import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
 
 import org.apache.log4j.Logger;
-import org.codehaus.stax2.XMLInputFactory2;
 import org.codehaus.stax2.XMLStreamReader2;
 
 /**
@@ -46,7 +47,7 @@ public class TextPathIndexer {
 
     public static final char LEAF_TEXT_DELIMITER = ' ';
 
-    private XMLInputFactory2 xmlInputFactory = null;
+    private XMLInputFactory xmlInputFactory = null;
 
     private final Deque<String> stack = new ArrayDeque<String>();
 
@@ -54,13 +55,13 @@ public class TextPathIndexer {
 
     private static final Logger LOGGER = Logger.getLogger(TextPathIndexer.class);
 
-    public TextPathIndexer(XMLInputFactory2 xmlInputFactory) {
+    public TextPathIndexer(XMLInputFactory xmlInputFactory) {
         this.xmlInputFactory = xmlInputFactory;
     }
 
     public List<String> indexTextPath(String xmlData) {
 
-        XMLStreamReader2 xmlStreamReader;
+        XMLStreamReader xmlStreamReader;
 
         TextPathState state = new TextPathState();
 
@@ -75,11 +76,14 @@ public class TextPathIndexer {
                 if (event == XMLStreamConstants.START_ELEMENT) {
 
                     StringBuffer element = new StringBuffer();
-
-                    element.append(previous()).append(SELECTOR)
-                            .append(xmlStreamReader.getPrefixedName())
+                    String prefix = xmlStreamReader.getPrefix();
+                    String prefixName = xmlStreamReader.getLocalName();
+                    if (prefix != null && prefix.length() > 0) {
+                        prefixName = prefix + ":" + prefixName;
+                    }
+                    element.append(previous()).append(SELECTOR).append(prefixName)
                             .append(ATTRIBUTE_START_SIGNAL);
-
+                    
                     List<String> attributesList = getSortedAttributesList(xmlStreamReader);
 
                     for (int i = 0; i < attributesList.size(); i++) {
@@ -120,7 +124,7 @@ public class TextPathIndexer {
         return state.getTextPathValues();
     }
 
-    private List<String> getSortedAttributesList(XMLStreamReader2 xmlStreamReader) {
+    private List<String> getSortedAttributesList(XMLStreamReader xmlStreamReader) {
 
         List<String> attributesList = new ArrayList<String>();
 
