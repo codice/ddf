@@ -320,17 +320,10 @@ span.add-on {
 
     z-index: 5000;
 
-    background: -moz-linear-gradient(left, #000000, 0.4, #000000, 0.5, white, 0.6, #000000, #000000);
     background: -webkit-gradient(linear,left top,right top,color-stop(0, #000000),color-stop(0.4, #000000),color-stop(0.5, white),color-stop(0.6, #000000),color-stop(1, #000000));
-
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-
     -webkit-animation: slidetext 4s infinite;
-    animation: slidetext 4s infinite;
-
-    text-size-adjust: none;
-    -moz-text-size-adjust: none;
     -webkit-text-size-adjust: none;
 }
 

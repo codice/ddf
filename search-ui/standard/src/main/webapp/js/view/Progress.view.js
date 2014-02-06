@@ -100,7 +100,7 @@ define(function (require) {
             var view = this;
             //merge the models somehow
             var page = $.find('#searchPages').pop();
-            this.model.lastMergeHits = this.model.get('hits');
+            this.model.lastMergeHits = this.model.get('hits') + this.model.lastMergeHits;
             this.$el.find('#progress-text').hide();
             this.$el.find('#searching-text').show();
             var spinner = new Spinner(spinnerConfig).spin(page);
