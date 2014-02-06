@@ -210,7 +210,8 @@ define(function (require) {
                 showTimezone: false,
                 minDate: new Date(100, 0, 2),
                 maxDate: new Date(9999, 11, 30),
-                onClose: this.model.swapDatesIfNeeded
+                onClose: this.model.swapDatesIfNeeded,
+                beforeShow: this.beforeShowDatePicker
             });
 
             this.$('#absoluteEndTime').datetimepicker({
@@ -226,11 +227,15 @@ define(function (require) {
                 showTimezone: false,
                 minDate: new Date(100, 0, 2),
                 maxDate: new Date(9999, 11, 30),
-                onClose: this.model.swapDatesIfNeeded
+                onClose: this.model.swapDatesIfNeeded,
+                beforeShow: this.beforeShowDatePicker
             });
             this.delegateEvents();
         },
 
+        beforeShowDatePicker: function(picker){
+            picker.style.zIndex = 200;
+        },
 
         drawCircle: function(){
             ddf.app.controllers.drawCircleController.draw(this.model);
