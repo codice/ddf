@@ -280,11 +280,9 @@ define(function (require) {
 
             var progress = new Progress.ProgressModel();
 
-            var progressFunction = function(val) {
-                                        progress.increment.call(progress, val);
+            var progressFunction = function(val, resp) {
+                                        progress.increment.call(progress, {value: val, response: resp});
                                     };
-
-            this.trigger('search', this.model, this.sources.length, progress);
 
             //get results
             var queryParams, view = this, result, options;
@@ -295,6 +293,8 @@ define(function (require) {
             };
 
             result = new MetaCard.SearchResult(options);
+
+            this.trigger('search', result, this.model, this.sources.length, progress);
 
             var spinner = new Spinner(spinnerConfig).spin(this.el);
             // disable the whole form

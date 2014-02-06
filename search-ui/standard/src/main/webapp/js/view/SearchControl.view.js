@@ -136,12 +136,12 @@ define(function (require) {
 
                 return this;
             },
-            setupProgress: function (queryModel, numSources, progressObj) {
+            setupProgress: function (resultList, queryModel, numSources, progressObj) {
                 if(numSources > 1) {
                     if(this.progressView) {
                         this.progressView.close();
                     }
-                    this.progressView = new ProgressView({ queryModel: queryModel, sources: numSources, model: progressObj});
+                    this.progressView = new ProgressView({ resultList: resultList, queryModel: queryModel, sources: numSources, model: progressObj});
                     this.progressRegion.show(this.progressView, dir.downward);
                 }
             },
@@ -153,6 +153,9 @@ define(function (require) {
                 if (this.metacardDetail) {
                     this.metacardDetail.remove();
                     delete this.metacardDetail;
+                }
+                if (this.progressView) {
+                    this.progressView.close();
                 }
             },
             back: function () {

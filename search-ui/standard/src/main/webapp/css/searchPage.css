@@ -105,7 +105,7 @@ html, body {
     font-size: 30px;
     color: #EEE;
     text-align: center;
-    padding: 15px 0px;
+    padding: 3px 0px;
 }
 
 .cesium-widget-credits {
@@ -272,7 +272,7 @@ span.add-on {
     text-align: center;
     overflow: hidden;
     position: relative;
-    height: 15px;
+    height: 100%;
     width: 100%;
     border-bottom-right-radius: 0px;
     border-bottom-left-radius: 0px;
@@ -284,60 +284,102 @@ span.add-on {
 .progress-background {
     background: #fff url(images/ui-bg_flat_75_ffffff_40x100.png) 50% 50% repeat-x;
 }
+
+.progress-btn {
+    font-weight: normal;
+    padding-top: 0px;
+    padding-bottom: 0px;
+    margin-bottom: 3px;
+    line-height: 16px;
+}
+
 .progress-text {
-    display: block;
+    position:absolute;
+    color: black;
+    display: table-cell;
+    vertical-align: middle;
+    margin-top: 1px;
     width: 100%;
+    height: 30px;
     text-align: center;
     font-size: 14px;
     font-weight: bold;
-}
-.stack-bottomright {
-    top: auto;
+    z-index: 5000;
 }
 
-.stack-topleft {
-    bottom: auto;
+.searching-text {
+    position:absolute;
+    color: black;
+    display: table-cell;
+    vertical-align: middle;
+    margin-top: 1px;
+    width: 100%;
+    height: 30px;
+    text-align: center;
+    font-size: 14px;
+    font-weight: bold;
+    z-index: 5000;
+
+    background: -moz-linear-gradient(left, #000000, 0.4, #000000, 0.5, white, 0.6, #000000, #000000);
+    background: -webkit-gradient(linear,left top,right top,color-stop(0, #000000),color-stop(0.4, #000000),color-stop(0.5, white),color-stop(0.6, #000000),color-stop(1, #000000));
+
+    -moz-background-clip: text;
+    -webkit-background-clip: text;
+    -moz-text-fill-color: transparent;
+    -webkit-text-fill-color: transparent;
+
+    -webkit-animation: slidetext 4s infinite;
+    animation: slidetext 4s infinite;
+
+    -webkit-text-size-adjust: none;
 }
 
 @-webkit-keyframes pulse {
-    0% {background-color: rgba(90,90,90,1);}
-    7% {background-color: rgba(85,85,85,1);}
-    15% {background-color: rgba(80,80,80,1);}
-    22% {background-color: rgba(75,75,75,1);}
-    30% {background-color: rgba(70,70,70,1);}
-    37% {background-color: rgba(65,65,65,1);}
-    45% {background-color: rgba(60,60,60,1);}
-    52% {background-color: rgba(55,55,55,1);}
-    60% {background-color: rgba(50,50,50,1);}
-    75% {background-color: rgba(40,40,40,1);}
-    85% {background-color: rgba(35,35,35,1);}
-    100% {background-color: rgba(30,30,30,1);}
+    0%, 100% {color: black;}
+    50% {color: rgba(204,204,204,1);}
 }
 
 @keyframes pulse {
-    0% {background-color: rgba(90,90,90,1);}
-    7% {background-color: rgba(85,85,85,1);}
-    15% {background-color: rgba(80,80,80,1);}
-    22% {background-color: rgba(75,75,75,1);}
-    30% {background-color: rgba(70,70,70,1);}
-    37% {background-color: rgba(65,65,65,1);}
-    45% {background-color: rgba(60,60,60,1);}
-    52% {background-color: rgba(55,55,55,1);}
-    60% {background-color: rgba(50,50,50,1);}
-    75% {background-color: rgba(40,40,40,1);}
-    85% {background-color: rgba(35,35,35,1);}
-    100% {background-color: rgba(30,30,30,1);}
+    0%, 100% {color: black;}
+    50% {color: rgba(204,204,204,1);}
+}
+
+@-webkit-keyframes slidetext {
+	0% {
+		background-position: -150px 0;
+	}
+	100%{
+		background-position: 150px 0;
+	}
+}
+
+@keyframes slidetext {
+	0% {
+		background-position: -150px 0;
+	}
+	100%{
+		background-position: 150px 0;
+	}
 }
 
 .progress-panel {
-    padding: 10px;
-    background-color: rgba(80,80,80,1);
+    height: 100%;
+    background-color: rgba(90,90,90,1);
+}
+
+.progress-view {
+    height: 100%;
+}
+
+#progressRegion {
+    height: 23px;
+    padding-bottom: 3px;
 }
 
 .pulse {
-    -webkit-animation: pulse 4s infinite alternate;
-    animation: pulse 4s infinite alternate;
-}
-select.add-on {
+    -webkit-animation: pulse 2.5s infinite alternate;
+    animation: pulse 2.5s infinite alternate;
+    background: none;
+}select.add-on {
     -webkit-appearance: none;
 }

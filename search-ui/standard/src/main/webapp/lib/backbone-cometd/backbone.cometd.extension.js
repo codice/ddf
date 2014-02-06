@@ -37,6 +37,12 @@
         return guid;
     };
 
+    Backbone.Model.prototype.mergeLatest = function () {
+        if(this.lastResponse) {
+            return this.set(this.parse(this.lastResponse));
+        }
+    };
+
     Backbone.sync = function (method, model, options) {
         if (options.useAjaxSync || model.useAjaxSync) {
             return origSync(method, model, options);
@@ -51,14 +57,19 @@
             }
             var success = options.success;
             options.success = function (resp) {
-                var retVal = success(resp);
                 if (typeof options.progress == 'function') {
-                    options.progress(1);
+                    options.progress(1, resp);
                 }
-                if (retVal === false) {
-                    deferred.reject();
+                if(!model.lastResponse) {
+                    var retVal = success(resp);
+                    if (retVal === false) {
+                        deferred.reject();
+                    } else {
+                        deferred.resolve();
+                        model.lastResponse = resp;
+                    }
                 } else {
-                    deferred.resolve();
+                    model.lastResponse = resp;
                 }
             };
             model.subscription = Cometd.Comet.subscribe('/' + guid, options.success);
