@@ -104,8 +104,7 @@ public class DynamicSchemaResolver {
             xmlInputFactory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES,
                     Boolean.FALSE);
             xmlInputFactory.setProperty(XMLInputFactory.IS_COALESCING, Boolean.FALSE);
-            // TODO verify the performance impact of this
-            //xmlInputFactory.setProperty(XMLInputFactory.IS_VALIDATING, Boolean.FALSE);
+            xmlInputFactory.setProperty(XMLInputFactory.IS_VALIDATING, Boolean.FALSE);
         } finally {
             Thread.currentThread().setContextClassLoader(tccl);
         }
