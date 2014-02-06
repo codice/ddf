@@ -193,6 +193,8 @@ public class CustomMimeTypeResolverTest {
         
         String[] mimeTypeTest = resolver.getCustomMimeTypes();
         assertEquals(mimeTypeTest[0], "abc=123/456");
+        mimeTypeTest[0] = "1234";
+        assertEquals(resolver.getCustomMimeTypes()[0], "abc=123/456");
     }
 
 }
