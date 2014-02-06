@@ -31,8 +31,6 @@ import ddf.mime.MimeTypeResolver;
  * Currently used to add image/nitf mime type support.
  * 
  * @since 2.1.0
- * 
- * @author Hugh Rodgers, Lockheed Martin
  * @author ddf.isgs@lmco.com
  * 
  */
@@ -78,23 +76,23 @@ public class CustomMimeTypeResolver implements MimeTypeResolver {
     }
 
     public void setPriority(int priority) {
-        logger.debug("Setting priority = " + priority);
+        logger.debug("Setting priority = {}", priority);
         this.priority = priority;
     }
 
     public String[] getCustomMimeTypes() {
-        return customMimeTypes;
+        return customMimeTypes.clone();
     }
 
     public void setCustomMimeTypes(String[] customMimeTypes) {
-        logger.info("ENTERING: setCustomMimeTypes");
+        logger.trace("ENTERING: setCustomMimeTypes");
 
-        this.customMimeTypes = customMimeTypes;
+        this.customMimeTypes = customMimeTypes.clone();
         this.customFileExtensionsToMimeTypesMap = new HashMap<String, String>();
         this.customMimeTypesToFileExtensionsMap = new HashMap<String, List<String>>();
 
         for (String mimeTypeMapping : this.customMimeTypes) {
-            logger.info(mimeTypeMapping);
+            logger.trace(mimeTypeMapping);
 
             // mimeTypeMapping is of the form <file extension>=<mime type>
             // Examples:
@@ -108,17 +106,18 @@ public class CustomMimeTypeResolver implements MimeTypeResolver {
             List<String> fileExtensions = (List<String>) customMimeTypesToFileExtensionsMap
                     .get(mimeType);
             if (fileExtensions == null) {
-                logger.info("Creating fileExtensions array for mime type: " + mimeType);
+                logger.debug("Creating fileExtensions array for mime type: " + mimeType);
                 fileExtensions = new ArrayList<String>();
             }
-            logger.info("Adding file extension: " + fileExtension + " for mime type: " + mimeType);
+            logger.debug("Adding file extension: " + fileExtension + " for mime type: " + mimeType);
             fileExtensions.add(fileExtension);
             customMimeTypesToFileExtensionsMap.put(mimeType, fileExtensions);
         }
-        logger.info("customFileExtensionsToMimeTypesMap = " + customFileExtensionsToMimeTypesMap);
-        logger.info("customMimeTypesToFileExtensionsMap = " + customMimeTypesToFileExtensionsMap);
-
-        logger.info("EXITING: setCustomMimeTypes");
+  
+        logger.debug("customFileExtensionsToMimeTypesMap = {} ", customFileExtensionsToMimeTypesMap);
+        logger.debug("customMimeTypesToFileExtensionsMap = {}", customMimeTypesToFileExtensionsMap);
+        
+        logger.trace("EXITING: setCustomMimeTypes");
     }
 
     public HashMap<String, String> getCustomFileExtensionsToMimeTypesMap() {
@@ -143,14 +142,14 @@ public class CustomMimeTypeResolver implements MimeTypeResolver {
     public String getFileExtensionForMimeType(String mimeType) // throws MimeTypeException
     {
         logger.trace("ENTERING: getFileExtensionForMimeType");
-        logger.debug("contentType = " + mimeType);
+        logger.debug("contentType = {}" + mimeType);
 
         String fileExtension = null;
         if (mimeType != null && !mimeType.isEmpty()) {
             List<String> fileExtensions = customMimeTypesToFileExtensionsMap.get(mimeType);
             if (fileExtensions != null && fileExtensions.size() > 0) {
-                logger.debug("Found " + fileExtensions.size()
-                        + " file extensions found for mime type = " + mimeType);
+                logger.debug("Found {}" + fileExtensions.size()
+                        + " file extensions found for mime type = {} " + mimeType);
 
                 fileExtension = fileExtensions.get(0);
 
@@ -164,7 +163,7 @@ public class CustomMimeTypeResolver implements MimeTypeResolver {
             }
         }
 
-        logger.debug("fileExtension = " + fileExtension);
+        logger.debug("fileExtension = {}", fileExtension);
 
         logger.trace("EXITING: getFileExtensionForMimeType");
 
@@ -175,14 +174,14 @@ public class CustomMimeTypeResolver implements MimeTypeResolver {
     public String getMimeTypeForFileExtension(String fileExtension) // throws MimeTypeException
     {
         logger.trace("ENTERING: getMimeTypeForFileExtension");
-        logger.debug("fileExtension = " + fileExtension);
+        logger.debug("fileExtension = {}", fileExtension);
 
         String mimeType = null;
         if (fileExtension != null && !fileExtension.isEmpty()) {
             mimeType = customFileExtensionsToMimeTypesMap.get(fileExtension);
         }
 
-        logger.debug("mimeType = " + mimeType);
+        logger.debug("mimeType = {}", mimeType);
 
         logger.trace("EXITING: getMimeTypeForFileExtension");
 
