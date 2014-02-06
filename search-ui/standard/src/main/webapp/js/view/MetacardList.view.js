@@ -8,8 +8,6 @@ define(function (require) {
         Marionette = require('marionette'),
         _ = require('underscore'),
         ich = require('icanhaz'),
-        Spinner = require('spin'),
-        spinnerConfig = require('spinnerConfig'),
         dir = require('direction'),
         List = {};
     
@@ -145,9 +143,6 @@ define(function (require) {
 
     List.MetacardListView = Backbone.View.extend({
         className : 'slide-animate',
-        events: {
-            'click .load-more-link': 'loadMoreResults'
-        },
         initialize: function (options) {
             _.bindAll(this);
             //options should be -> { results: results, mapView: mapView }
@@ -177,15 +172,6 @@ define(function (require) {
             //I'm going to leave it here as a note however
 //            this.unbind();
             this.metacardTable.close();
-        },
-        loadMoreResults: function () {
-            var view = this;
-            var spinner = new Spinner(spinnerConfig).spin(this.searchControlView.el);
-            $('.load-more-link', this.$el).hide();
-            this.model.loadMoreResults().complete(function() {
-                spinner.stop();
-                view.showHideLoadMore();
-            });
         },
         showHideLoadMore: function() {
             if (this.model.get("results").length >= this.model.get("hits") || this.model.get("hits") === 0) {

@@ -162,18 +162,6 @@ define(function (require) {
             }
             return resp;
         },
-        loadMoreResults: function () {
-            var queryParams;
-            this.set("startIndex", this.get("startIndex") + this.get("itemsPerPage"));
-            queryParams = this.getQueryParams();
-            return this.fetch({
-                update: true,
-                remove: false,
-                data: queryParams,
-                dataType: "jsonp",
-                timeout: 300000
-            });
-        },
         getQueryParams: function () {
             var queryParams = this.get("queryParams");
             queryParams.count = this.get("count");

@@ -65,7 +65,7 @@ public class Search {
 
     private long hits = 0;
 
-    private long startIndex = 0;
+    private long responseNum = 0;
 
     /**
      * Adds a query response to the cached set of results.
@@ -75,21 +75,17 @@ public class Search {
      * @return true, if the response for this paging set is different from the last time it was sent
      * @throws InterruptedException
      */
-    public synchronized boolean addQueryResponse(QueryResponse queryResponse) throws InterruptedException {
-        boolean changed = false;
+    public synchronized void addQueryResponse(QueryResponse queryResponse) throws InterruptedException {
         if (queryResponse != null) {
             if (compositeQueryResponse == null) {
                 LOGGER.debug("Creating new composite query response");
                 compositeQueryResponse = queryResponse;
                 resultList.addAll(compositeQueryResponse.getResults());
                 hits = compositeQueryResponse.getHits();
-                startIndex = compositeQueryResponse.getRequest().getQuery().getStartIndex();
-                changed = true;
+                responseNum++;
             } else {
                 LOGGER.debug("Updating existing composite query response");
-                startIndex = queryResponse.getRequest().getQuery().getStartIndex();
                 List<Result> latestResultList = queryResponse.getResults();
-                List<Result> originalResultList = compositeQueryResponse.getResults();
 
                 resultList.addAll(latestResultList);
 
@@ -117,54 +113,27 @@ public class Search {
                 Collections.sort(resultList, coreComparator);
 
                 List<Result> compositeResultList;
-                int start = queryResponse.getRequest().getQuery().getStartIndex() - 1;
                 int end;
-                if (resultList.size() >= queryResponse.getRequest().getQuery().getStartIndex()
-                        + compositeQueryResponse.getRequest().getQuery().getPageSize()) {
-                    end = start + compositeQueryResponse.getRequest().getQuery().getPageSize();
+                if (resultList.size() >= compositeQueryResponse.getRequest().getQuery().getPageSize()) {
+                    end = compositeQueryResponse.getRequest().getQuery().getPageSize();
                 } else {
                     end = resultList.size();
                 }
 
-                compositeResultList = resultList.subList(start, end);
+                compositeResultList = resultList.subList(0, end);
 
-                // we want to make sure we pass back any initial results so any UI building a list
-                // can
-                // actually know when all searches have returned
-                // each subsequent query is coming from cached results, so it doesn't really matter
-                // if we send back every response from a source after that
-                if (!originalResultList.containsAll(compositeResultList) || startIndex == 1) {
-                    changed = true;
-                } else {
-                    LOGGER.debug("Response list has not changed, so message sent will be empty");
-                }
+                hits += queryResponse.getHits();
 
-                // Just look for all the responses that come back with a start index of 1 so we
-                // don't update
-                // too many times
-                if (queryResponse.getRequest().getQuery().getStartIndex() == 1) {
-                    hits += queryResponse.getHits();
-                }
+                responseNum++;
 
                 compositeQueryResponse = new QueryResponseImpl(queryResponse.getRequest(), compositeResultList, true,
                         hits);
             }
         }
-        return changed;
     }
 
-    /**
-     * Returns an empty query response. This is used to notify a client that a source has returned
-     * without sending duplicate results.
-     * 
-     * @return QueryResponse
-     */
-    public QueryResponse getEmptyQueryResponse() {
-        QueryResponse response = new QueryResponseImpl(
-                compositeQueryResponse.getRequest(), new ArrayList<Result>(), true,
-                hits);
-
-        return response;
+    public boolean isFinished() {
+        return responseNum >= searchRequest.getQueryRequests().size();
     }
 
     public SearchRequest getSearchRequest() {

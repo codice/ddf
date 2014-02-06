@@ -138,20 +138,15 @@ public class SearchController {
                 public void run() {
                     QueryResponse fedResponse = executeQuery(fedQuery, null);
                     try {
-                        boolean changed = addQueryResponseToSearch(searchRequest, fedResponse);
+                        addQueryResponseToSearch(searchRequest, fedResponse);
                         //send full response if it changed, otherwise send empty one
-                        if (changed) {
-                            pushResults(
-                                    searchRequest.getGuid(),
-                                    controller.transform(
-                                            searchMap.get(searchRequest.getGuid())
-                                                    .getCompositeQueryResponse(), searchRequest), serverSession);
-                        } else {
-                            pushResults(
-                                    searchRequest.getGuid(),
-                                    controller.transform(
-                                            searchMap.get(searchRequest.getGuid())
-                                                    .getEmptyQueryResponse(), searchRequest), serverSession);
+                        Search search = searchMap.get(searchRequest.getGuid());
+                        pushResults(
+                                searchRequest.getGuid(),
+                                controller.transform(
+                                        search.getCompositeQueryResponse(), searchRequest), serverSession);
+                        if(search.isFinished()) {
+                            searchMap.remove(searchRequest.getGuid());
                         }
                     } catch (InterruptedException e) {
                         LOGGER.error("Failed adding federated search results.", e);
@@ -163,23 +158,21 @@ public class SearchController {
         }
     }
 
-    private boolean addQueryResponseToSearch(SearchRequest searchRequest,
+    private void addQueryResponseToSearch(SearchRequest searchRequest,
             QueryResponse queryResponse) throws InterruptedException {
-        boolean changed;
         if (searchMap.containsKey(searchRequest.getGuid())) {
             LOGGER.debug("Using previously created Search object for cache: {}",
                     searchRequest.getGuid());
             Search search = searchMap.get(searchRequest.getGuid());
-            changed = search.addQueryResponse(queryResponse);
+            search.addQueryResponse(queryResponse);
         } else {
             LOGGER.debug("Creating new Search object to cache async query results: {}",
                     searchRequest.getGuid());
             Search search = new Search();
-            changed = search.addQueryResponse(queryResponse);
+            search.addQueryResponse(queryResponse);
             search.setSearchRequest(searchRequest);
             searchMap.put(searchRequest.getGuid(), search);
         }
-        return changed;
     }
 
     /**
