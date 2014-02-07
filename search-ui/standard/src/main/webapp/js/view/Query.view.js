@@ -21,6 +21,11 @@ define(function (require) {
 
 
     Query.Model = Backbone.Model.extend({
+        defaults: {
+            offsetTimeUnits: "hours",
+            radiusUnits: "meters",
+            radius: 0
+        },
         initialize: function () {
             this.on('change', this.log);
             this.on('change:north change:south change:east change:west',this.setBBox);
@@ -30,7 +35,14 @@ define(function (require) {
             console.log(this.toJSON());
         },
 
-        setBBox : function(){
+        setDefaults : function() {
+            var model = this;
+            _.each(_.keys(model.defaults), function(key) {
+                model.set(key, model.defaults[key]);
+            });
+        },
+
+        setBBox : function() {
             var north = this.get('north'),
                 south = this.get('south'),
                 west = this.get('west'),
@@ -41,7 +53,7 @@ define(function (require) {
 
         },
 
-        swapDatesIfNeeded : function(){
+        swapDatesIfNeeded : function() {
             var model = this;
             if(model.get('dtstart') && model.get('dtend')){
                 var start = new Date(model.get('dtstart'));
@@ -117,7 +129,7 @@ define(function (require) {
                 lat: undefined,
                 lon: undefined,
                 radius: undefined,
-                bbox : undefined
+                bbox: undefined
             }, {unset: true});
             ddf.app.controllers.drawCircleController.stop();
             ddf.app.controllers.drawExentController.stop();
@@ -153,8 +165,7 @@ define(function (require) {
                         //the value so that it shows up in the view
                         view.model.set("radiusValue", view.getDistanceFromMeters(parseInt(value, 10), unitVal));
                         return view.getDistanceFromMeters(parseInt(value, 10), unitVal);
-                    }
-                    else {
+                    } else {
                         return view.getDistanceInMeters(parseInt(value, 10), unitVal);
                     }
                 },
@@ -370,6 +381,7 @@ define(function (require) {
             $('button[name=enterpriseFederationButton]').click();
             $('#progressbar').hide();
             this.model.clear();
+            this.model.setDefaults();
             this.trigger('clear');
             $('input[name=q]').focus();
             this.shouldFlyToExtent = false;
@@ -388,6 +400,7 @@ define(function (require) {
         },
 
         getDistanceInMeters: function (distance, units) {
+            distance = distance || 0;
 
             switch (units) {
                 case "meters":
@@ -405,6 +418,8 @@ define(function (require) {
             }
         },
         getDistanceFromMeters: function (distance, units) {
+            distance = distance || 0;
+
             switch (units) {
                 case "meters":
                     return distance;
