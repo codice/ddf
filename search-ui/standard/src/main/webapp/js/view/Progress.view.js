@@ -8,6 +8,7 @@ define(function (require) {
         Marionette = require('marionette'),
         ich = require('icanhaz'),
         Q = require('q'),
+        _ = require('underscore'),
         Spinner = require('spin'),
         spinnerConfig = require('spinnerConfig'),
         Progress = {};
@@ -21,14 +22,19 @@ define(function (require) {
             hits: 0
         },
         increment: function(obj) {
-            this.set({ 'current': this.get('current') + obj.value });
-            if(obj.response && obj.response.data && obj.response.data.hits) {
-                if(!this.lastMergeHits) {
+            var setObj = {};
+            if(obj.response && obj.response.data) {
+                if(_.isUndefined(this.lastMergeHits)) {
                     this.lastMergeHits = obj.response.data.hits;
                 } else {
-                    this.set({'hits': obj.response.data.hits - this.lastMergeHits});
+                    setObj.hits = obj.response.data.hits - this.lastMergeHits;
                 }
             }
+            setObj.current = this.get('current') + obj.value;
+            //we need to only call set once, because every call will fire the listeners
+            //need to be very careful about calling set multiple times on a backbone model within a single method
+            //it is much much safer to call set a single time at the end of your method
+            this.set(setObj);
         },
         isComplete: function() {
             return this.get('current') >= this.get('total');
@@ -60,12 +66,19 @@ define(function (require) {
         },
         updateProgress: function() {
             var view = this;
+            if((this.model.get("total") === 1 || this.model.get("hits") <= 0 ) && this.model.isComplete()) {
+                this.close();
+            }
             if(this.model.get('current') > 0) {
                 this.$el.find('#progressbar').show();
             }
             if(this.model.get('hits') > 0) {
-                this.$el.find('#searching-text').hide();
-                this.$el.find('#progress-text').show();
+                if(this.model.lastMergeHits <= 0) {
+                    this.merge();
+                } else {
+                    this.$el.find('#searching-text').hide();
+                    this.$el.find('#progress-text').show();
+                }
             } else {
                 this.$el.find('#progress-text').hide();
                 this.$el.find('#searching-text').show();
