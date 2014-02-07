@@ -148,6 +148,8 @@ define(function (require) {
             //options should be -> { results: results, mapView: mapView }
             this.model = options.result;
             this.searchControlView = options.searchControlView;
+
+            this.modelBinder = new Backbone.ModelBinder();
         },
         render: function () {
             this.$el.html(ich.resultListTemplate(this.model));
@@ -159,6 +161,11 @@ define(function (require) {
             metacardTable.render();
             this.metacardTable = metacardTable;
             this.showHideLoadMore();
+
+            this.listenTo(this.model, 'change', this.showHideLoadMore);
+
+            var bindings = Backbone.ModelBinder.createDefaultBindings(this.el, 'name');
+            this.modelBinder.bind(this.model, this.$el, bindings);
 
             this.delegateEvents();
             this.trigger("render");
@@ -175,10 +182,12 @@ define(function (require) {
         },
         showHideLoadMore: function() {
             if (this.model.get("results").length >= this.model.get("hits") || this.model.get("hits") === 0) {
-                $(".load-more-link", this.$el).hide();
+                $("#high-results", this.$el).hide();
+                $("#low-results", this.$el).css( "display", "block").show();
             }
             else {
-                $(".load-more-link", this.$el).css( "display", "block").show();
+                $("#high-results", this.$el).css( "display", "block").show();
+                $("#low-results", this.$el).hide();
             }
         }
     });

@@ -13,7 +13,6 @@ define(function (require) {
         Progress = {};
 
     ich.addTemplate('progressTemplate', require('text!templates/progress.handlebars'));
-    require('modelbinder');
 
     Progress.ProgressModel = Backbone.Model.extend({
         defaults: {
@@ -50,14 +49,9 @@ define(function (require) {
             this.queryModel = options.queryModel;
             this.sources = options.sources;
             this.resultList = options.resultList;
-            this.modelBinder = new Backbone.ModelBinder();
         },
         onRender: function() {
             this.configureProgress();
-
-            var bindings = Backbone.ModelBinder.createDefaultBindings(this.el, 'name');
-
-            this.modelBinder.bind(this.model, this.$el, bindings);
 
             this.listenTo(this.model, 'change', this.updateProgress);
         },
@@ -76,7 +70,7 @@ define(function (require) {
                 this.$el.find('#progress-text').hide();
                 this.$el.find('#searching-text').show();
             }
-            $("#progressbar .ui-progressbar-value").animate({width: ((this.model.get('current') / this.model.get('total'))*100)+'%'}, 200, 'swing', function() {
+            $("#progressbar .ui-progressbar-value").animate({width: ((this.model.get('current') / this.model.get('total'))*100)+'%'}, 400, 'swing', function() {
                 if(view.model.isComplete()) {
                     view.$el.find('.progress-btn').removeClass('btn-info');
                     view.$el.find('.progress-btn').addClass('btn-primary');

@@ -36,7 +36,7 @@ define(function (require) {
                     this.resultList = resultList;
                     this.listenTo(this.resultList, "change", this.setResults);
                 }
-                this.set({ "title": "Results (" + this.resultList.get("hits") + ")"});
+                this.set({ "title": this.getResultText()});
                 this.set({ "forward": ""});
                 if(this.metacardDetail) {
                     this.set({ "forward": "Record"});
@@ -47,7 +47,7 @@ define(function (require) {
                 this.set({ "title": "Search" });
                 this.set({ "forward": ""});
                 if(this.resultList) {
-                    this.set({ "forward": "Results (" + this.resultList.get("hits") + ")"});
+                    this.set({ "forward": this.getResultText()});
                 }
                 this.set({"back": ""});
             },
@@ -57,17 +57,20 @@ define(function (require) {
                 }
                 this.currentState = "record";
                 this.set({ "title": "Record"});
-                this.set({"back": "Results (" + this.resultList.get("hits") + ")"});
+                this.set({"back": this.getResultText()});
                 this.set({ "forward": ""});
             },
             setResults: function() {
                 if(this.currentState === "search") {
-                    this.set({ "forward": "Results (" + this.resultList.get("hits") + ")"});
+                    this.set({ "forward": this.getResultText()});
                 } else if(this.currentState === "results") {
-                    this.set({ "title": "Results (" + this.resultList.get("hits") + ")"});
+                    this.set({ "title": this.getResultText()});
                 } else if(this.currentState === "record") {
-                    this.set({"back": "Results (" + this.resultList.get("hits") + ")"});
+                    this.set({"back": this.getResultText()});
                 }
+            },
+            getResultText: function() {
+                return "Results";
             }
         });
 

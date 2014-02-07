@@ -124,11 +124,11 @@ html, body {
 
     /*this padding and border box hack is here to account for the div blocks above this one
     without this here, the div will be pushed off the bottom of the page and not render correctly*/
-    padding-bottom: 100px;
     -moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;
 
     width: 100%;
     height: 100%;
+    height: calc(100% - 100px);
     background-repeat: no-repeat;
     background-size: 100% 40px, 100% 40px, 100% 14px, 100% 14px;
 
@@ -156,7 +156,7 @@ tr.selected {
     left : 0px;
 }
 
-.load-more-link {
+.footer-text {
     display: block;
     margin: 0 auto;
     width: 75%;
@@ -370,8 +370,8 @@ span.add-on {
 }
 
 .pulse {
-    -webkit-animation: pulse 2.5s infinite alternate;
-    animation: pulse 2.5s infinite alternate;
+    -webkit-animation: pulse 2s infinite alternate;
+    animation: pulse 2s infinite alternate;
     background: none;
 }select.add-on {
     -webkit-appearance: none;
