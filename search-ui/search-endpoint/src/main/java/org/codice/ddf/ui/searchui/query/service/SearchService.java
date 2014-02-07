@@ -164,6 +164,25 @@ public class SearchService extends AbstractService {
 
     }
 
+    private <T> T castObject(Class<T> targetClass, Object o) {
+        if (o != null) {
+            if (o instanceof Number) {
+                if (targetClass.equals(Double.class)) {
+                    return (T) new Double(((Number) o).doubleValue());
+                } else if (targetClass.equals(Long.class)) {
+                    return (T) new Long(((Number) o).longValue());
+                } else {
+                    // unhandled conversion so trying best effort
+                    return (T) o;
+                }
+            } else {
+                return (T) o.toString();
+            }
+        } else {
+            return null;
+        }
+    }
+
     /**
      * Creates the query requests for each source and hands off the query to the Search Controller
      * 
@@ -173,27 +192,28 @@ public class SearchService extends AbstractService {
     public void executeQuery(Map<String, Object> queryMessage) {
         final String methodName = "executeQuery";
         LOGGER.debug("ENTERING {}", methodName);
-        String searchTerms = (String) queryMessage.get(PHRASE);
-        Long maxResults = (Long) queryMessage.get(MAX_RESULTS);
-        String sources = (String) queryMessage.get(SOURCES);
-        Long maxTimeout = (Long) queryMessage.get(MAX_TIMEOUT);
-        Long startIndex = (Long) queryMessage.get(START_INDEX);
-        Long count = (Long) queryMessage.get(COUNT);
-        String geometry = (String) queryMessage.get(GEOMETRY);
-        String bbox = (String) queryMessage.get(BBOX);
-        String polygon = (String) queryMessage.get(POLYGON);
-        String lat = (String) queryMessage.get(LAT);
-        String lon = (String) queryMessage.get(LON);
-        Double radius = (Double) queryMessage.get(RADIUS);
-        String dateStart = (String) queryMessage.get(DATE_START);
-        String dateEnd = (String) queryMessage.get(DATE_END);
-        Long dateOffset = (Long) queryMessage.get(DATE_OFFSET);
-        String sort = (String) queryMessage.get(SORT);
-        String format = (String) queryMessage.get(FORMAT);
-        String selector = (String) queryMessage.get(SELECTOR);
-        String type = (String) queryMessage.get(TYPE);
-        String versions = (String) queryMessage.get(VERSION);
-        String guid = (String) queryMessage.get(GUID);
+
+        String searchTerms = castObject(String.class, queryMessage.get(PHRASE));
+        Long maxResults = castObject(Long.class, queryMessage.get(MAX_RESULTS));
+        String sources = castObject(String.class, queryMessage.get(SOURCES));
+        Long maxTimeout = castObject(Long.class, queryMessage.get(MAX_TIMEOUT));
+        Long startIndex = castObject(Long.class, queryMessage.get(START_INDEX));
+        Long count = castObject(Long.class, queryMessage.get(COUNT));
+        String geometry = castObject(String.class, queryMessage.get(GEOMETRY));
+        String bbox = castObject(String.class, queryMessage.get(BBOX));
+        String polygon = castObject(String.class, queryMessage.get(POLYGON));
+        String lat = castObject(String.class, queryMessage.get(LAT));
+        String lon = castObject(String.class, queryMessage.get(LON));
+        Double radius = castObject(Double.class, queryMessage.get(RADIUS));
+        String dateStart = castObject(String.class, queryMessage.get(DATE_START));
+        String dateEnd = castObject(String.class, queryMessage.get(DATE_END));
+        Long dateOffset = castObject(Long.class, queryMessage.get(DATE_OFFSET));
+        String sort = castObject(String.class, queryMessage.get(SORT));
+        String format = castObject(String.class, queryMessage.get(FORMAT));
+        String selector = castObject(String.class, queryMessage.get(SELECTOR));
+        String type = castObject(String.class, queryMessage.get(TYPE));
+        String versions = castObject(String.class, queryMessage.get(VERSION));
+        String guid = castObject(String.class, queryMessage.get(GUID));
 
         Long localCount = count;
 
