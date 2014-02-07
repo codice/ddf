@@ -147,7 +147,7 @@ public class CustomMimeTypeResolver implements MimeTypeResolver {
         if (mimeType != null && !mimeType.isEmpty()) {
             List<String> fileExtensions = customMimeTypesToFileExtensionsMap.get(mimeType);
             if (fileExtensions != null && fileExtensions.size() > 0) {
-                logger.debug("Found {} file extensions found for mime type = {} ",
+                logger.debug("{} file extensions found for mime type = {} ",
                         fileExtensions.size(), mimeType);
 
                 fileExtension = fileExtensions.get(0);
