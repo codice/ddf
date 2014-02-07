@@ -31,7 +31,6 @@ import ddf.mime.MimeTypeResolver;
  * Currently used to add image/nitf mime type support.
  * 
  * @since 2.1.0
- * @author ddf.isgs@lmco.com
  * 
  */
 public class CustomMimeTypeResolver implements MimeTypeResolver {
@@ -109,14 +108,14 @@ public class CustomMimeTypeResolver implements MimeTypeResolver {
                 logger.debug("Creating fileExtensions array for mime type: {}", mimeType);
                 fileExtensions = new ArrayList<String>();
             }
-            logger.debug("Adding file extension: {}", fileExtension + " for mime type: {}", mimeType);
+            logger.debug("Adding file extension: {} for mime type: {}", fileExtensions, mimeType);
             fileExtensions.add(fileExtension);
             customMimeTypesToFileExtensionsMap.put(mimeType, fileExtensions);
         }
-  
+
         logger.debug("customFileExtensionsToMimeTypesMap = {} ", customFileExtensionsToMimeTypesMap);
         logger.debug("customMimeTypesToFileExtensionsMap = {}", customMimeTypesToFileExtensionsMap);
-        
+
         logger.trace("EXITING: setCustomMimeTypes");
     }
 
@@ -142,14 +141,14 @@ public class CustomMimeTypeResolver implements MimeTypeResolver {
     public String getFileExtensionForMimeType(String mimeType) // throws MimeTypeException
     {
         logger.trace("ENTERING: getFileExtensionForMimeType");
-        logger.debug("contentType = {}" + mimeType);
+        logger.debug("contentType = {}", mimeType);
 
         String fileExtension = null;
         if (mimeType != null && !mimeType.isEmpty()) {
             List<String> fileExtensions = customMimeTypesToFileExtensionsMap.get(mimeType);
             if (fileExtensions != null && fileExtensions.size() > 0) {
-                logger.debug("Found {}", fileExtensions.size()
-                        + " file extensions found for mime type = {} ", mimeType);
+                logger.debug("Found {} file extensions found for mime type = {} ",
+                        fileExtensions.size(), mimeType);
 
                 fileExtension = fileExtensions.get(0);
 

@@ -183,5 +183,16 @@ public class CustomMimeTypeResolverTest {
         String mimeType = resolver.getMimeTypeForFileExtension("");
         assertEquals(null, mimeType);
     }
+    
+    @Test
+    public void testGetMimeTypes() throws Exception {
+        String[] mimeTypes = new String[] {"abc=123/456"};
+        CustomMimeTypeResolver resolver = new CustomMimeTypeResolver();
+        resolver.setCustomMimeTypes(mimeTypes);
+        mimeTypes[0] = "1234";
+        
+        String[] mimeTypeTest = resolver.getCustomMimeTypes();
+        assertEquals(mimeTypeTest[0], "abc=123/456");
+    }
 
 }
