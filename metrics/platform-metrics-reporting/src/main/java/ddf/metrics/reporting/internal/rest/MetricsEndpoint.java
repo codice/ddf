@@ -77,6 +77,9 @@ import ddf.metrics.reporting.internal.rrd4j.RrdMetricsRetriever;
 @Path("/")
 public class MetricsEndpoint implements ConfigurationWatcher {
     private static final Logger LOGGER = LoggerFactory.getLogger(MetricsEndpoint.class);
+    
+    // Storage string for DDF site name from Configuration Watcher
+    public String siteName;
 
     private static final String METRICS_SERVICE_BASE_URL = "/internal/metrics";
 
@@ -213,7 +216,7 @@ public class MetricsEndpoint implements ConfigurationWatcher {
                     "Cannot specify dateOffset and startDate or endDate, must specify either dateOffset only or startDate and/or endDate",
                     Response.Status.BAD_REQUEST);
         }
-
+  
         long endTime;
         if (!StringUtils.isBlank(endDate)) {
             endTime = parseDate(endDate);
@@ -511,6 +514,9 @@ public class MetricsEndpoint implements ConfigurationWatcher {
         LOGGER.debug("startDate = " + startDate + ",   endDate = " + endDate);
 
         List<String> metricNames = getMetricsNames();
+        
+        // Generated name for metrics file (<DDF Sitename>_<Startdate>_<EndDate>.outputFormat)
+        String dispositionString = "attachment; filename=" + siteName + "_" + startDate.substring(0, 10) + "_" + endDate.substring(0, 10) + "." + outputFormat;
 
         try {
             if (outputFormat.equalsIgnoreCase("xls")) {
@@ -520,6 +526,7 @@ public class MetricsEndpoint implements ConfigurationWatcher {
                         ((ByteArrayOutputStream) os).toByteArray());
                 ResponseBuilder responseBuilder = Response.ok(is);
                 responseBuilder.type("application/vnd.ms-excel");
+                responseBuilder.header("Content-Disposition", dispositionString);
                 response = responseBuilder.build();
             } else if (outputFormat.equalsIgnoreCase("ppt")) {
                 OutputStream os = metricsRetriever.createPptReport(metricNames, metricsDir,
@@ -528,6 +535,7 @@ public class MetricsEndpoint implements ConfigurationWatcher {
                         ((ByteArrayOutputStream) os).toByteArray());
                 ResponseBuilder responseBuilder = Response.ok(is);
                 responseBuilder.type("application/vnd.ms-powerpoint");
+                responseBuilder.header("Content-Disposition", dispositionString);
                 response = responseBuilder.build();
             }
         } catch (IOException e) {
@@ -712,6 +720,29 @@ public class MetricsEndpoint implements ConfigurationWatcher {
 
             return dateOffset1.compareTo(dateOffset2);
         }
+    }  	
+    
+	@Override
+	public void configurationUpdateCallback(Map<String, String> configuration) {
+		String methodName = "configurationUpdateCallback";
+        LOGGER.debug("ENTERING: " + methodName);
+
+        if (configuration != null && !configuration.isEmpty()) {
+            if (LOGGER.isDebugEnabled()) {
+            	LOGGER.debug(configuration.toString());
+            }
+
+            String ddfSiteName = configuration.get(ConfigurationManager.SITE_NAME);
+            if (StringUtils.isNotBlank(ddfSiteName)) {
+            	LOGGER.debug("ddfSiteName = " + ddfSiteName);
+                this.siteName = ddfSiteName;
+            }
+
+        } else {
+        	LOGGER.debug("properties are NULL or empty");
+        }
+
+        LOGGER.debug("EXITING: " + methodName);
     }
 
     @Override
