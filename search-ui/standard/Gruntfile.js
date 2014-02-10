@@ -5,15 +5,10 @@ module.exports = function (grunt) {
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
 
-
-        // This task uses the MinCSS Node.js project to take all your CSS files in
-        // order and concatenate them into a single CSS file named index.css.  It
-        // also minifies all the CSS as well.  This is named index.css, because we
-        // only want to load one stylesheet in index.html.
         cssmin: {
             compress: {
                 files: {
-                    "target/Search-min.css": ["src/main/webapp/css/*.css"]
+                    "target/webapp/css/index.css": ["src/main/webapp/css/*.css"]
                 }
             }
         },
@@ -50,7 +45,7 @@ module.exports = function (grunt) {
             },
             livereload : {
                 options : {livereload :true},
-                files : ['target/Search-min.css'
+                files : ['target/webapp/css/index.css'
                     // this one is more dangerous, tends to reload the page if one file changes
                     // probably too annoying to be useful, uncomment if you want to try it out
 //                    '<%= jshint.files %>'
@@ -69,5 +64,6 @@ module.exports = function (grunt) {
 
 
     grunt.registerTask('default', ['cssmin', 'jshint', 'watch']);
+    grunt.registerTask('build', ['cssmin', 'jshint']);
 
 };

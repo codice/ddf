@@ -11,9 +11,8 @@ var app = express();
 //enable the live reload
 app.use(require('connect-livereload')());
 
-// our compiled css gets moved to /target so use it there
-app.use('/css',express.static(__dirname + '/target'));
-//app.get('/foo/*',express.static(__dirname + '/src/main/webapp'));
+// our compiled css gets moved to /target/webapp/css so use it there
+app.use('/css',express.static(__dirname + '/target/webapp/css'));
 app.use(express.static(__dirname + '/src/main/webapp'));
 
 var requestProxy = function (req, res) {

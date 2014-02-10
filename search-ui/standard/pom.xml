@@ -69,80 +69,40 @@
     <build>
         <plugins>
             <plugin>
-                <groupId>net.alchim31.maven</groupId>
-                <artifactId>yuicompressor-maven-plugin</artifactId>
-                <version>1.3.2</version>
+                <groupId>com.github.eirslett</groupId>
+                <artifactId>frontend-maven-plugin</artifactId>
+                <version>0.0.14</version>
                 <executions>
                     <execution>
-                        <id>compress</id>
-                        <phase>process-resources</phase>
+                        <id>install node and npm</id>
                         <goals>
-                            <goal>compress</goal>
+                            <goal>install-node-and-npm</goal>
                         </goals>
+                        <configuration>
+                            <nodeVersion>v0.10.18</nodeVersion>
+                            <npmVersion>1.3.8</npmVersion>
+                        </configuration>
                     </execution>
-                </executions>
-                <configuration>
-                    <linebreakpos>-1</linebreakpos>
-                    <encoding>UTF-8</encoding>
-                    <force>true</force>
-                    <jswarn>false</jswarn>
-                    <excludes>
-                        <exclude>lib/</exclude>
-                        <exclude>properties/</exclude>
-                        <exclude>server.js/</exclude>
-                        <exclude>Cesium/</exclude>
-                    </excludes>
-                    <webappDirectory>${project.build.directory}/${project.build.finalName}</webappDirectory>
-                    <aggregations>
-                        <aggregation>
-                            <insertNewLine>false</insertNewLine>
-                            <output>${project.build.directory}/${project.build.finalName}/js/Search-min.js</output>
-                            <inputDir>${project.build.directory}/${project.build.finalName}/js</inputDir>
-                            <includes>
-                                <include>**/*-min.js</include>
-                            </includes>
-                        </aggregation>
-                        <aggregation>
-                            <insertNewLine>false</insertNewLine>
-                            <output>${project.build.directory}/${project.build.finalName}/css/Search-min.css</output>
-                            <inputDir>${project.build.directory}/${project.build.finalName}/css</inputDir>
-                            <includes>
-                                <include>**/*.css</include>
-                            </includes>
-                        </aggregation>
-                    </aggregations>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>com.cj.jshintmojo</groupId>
-                <artifactId>jshint-maven-plugin</artifactId>
-                <version>1.3.0</version>
-                <executions>
                     <execution>
+                        <id>npm install</id>
                         <goals>
-                            <goal>lint</goal>
+                            <goal>npm</goal>
                         </goals>
+                        <configuration>
+                            <arguments>install</arguments>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>grunt build</id>
+                        <goals>
+                            <goal>grunt</goal>
+                        </goals>
+                        <configuration>
+                            <arguments>build</arguments>
+                        </configuration>
                     </execution>
                 </executions>
-                <configuration>
-                    <version>2.4.1</version>
-                    <options>camelcase,eqeqeq,forin,immed,noarg,latedef,noempty,nonew,newcap,regexp,undef,unused
-                    </options>
-                    <globals>require,console</globals>
-                    <directories>
-                        <directory>src/main/webapp/js</directory>
-                    </directories>
-                    <excludes>
-                        <exclude>src/main/webapp/lib</exclude>
-                        <exclude>src/main/webapp/Documentation</exclude>
-                        <exclude>src/main/webapp/Cesium</exclude>
-                    </excludes>
-                    <reporter>jslint</reporter>
-                    <reportFile>target/jshint.xml</reportFile>
-                    <failOnError>true</failOnError>
-                </configuration>
             </plugin>
-
             <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
@@ -150,13 +110,12 @@
                     <instructions>
                         <Embed-Dependency>json-smart, httpclient, httpcore</Embed-Dependency>
                         <Web-ContextPath>/search/standard</Web-ContextPath>
-                        <_wab>src/main/webapp,${project.build.directory}/${project.build.finalName}</_wab>
+                        <_wab>src/main/webapp,${project.build.directory}/webapp</_wab>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Export-Package />
                     </instructions>
                 </configuration>
             </plugin>
-
         </plugins>
     </build>
 </project>

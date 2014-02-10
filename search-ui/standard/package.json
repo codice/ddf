@@ -1,13 +1,22 @@
 {
-  "name": "ddf",
+  "name": "ddf-ui",
   "author": "Codice",
-  "description": "Environment for rapid codice development",
+  "description": "A frontend UI for DDF",
   "version": "0.0.1",
+  "license": "LGPL",
   "keywords": [
     "backbone",
     "express"
   ],
   "contributors": [
+    {
+      "name": "Scott Tustison",
+      "email": "scott.tustison@gmail.com"
+    },
+    {
+      "name": "Phillip Klinefelter",
+      "email": "phillip.klinefelter@gmail.com"
+    },
     {
       "name": "Mike Macaulay",
       "email": "michael.macaulayy@aviture.us.com"
@@ -15,13 +24,14 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/codice/ddf.git"
+    "url": "https://github.com/codice/ddf-ui.git"
   },
   "engines": {
     "node": ">=0.10.5"
   },
   "devDependencies": {
     "grunt": "0.4.1",
+    "grunt-cli": "0.1.13",
     "grunt-contrib-jshint": "0.3.0",
     "grunt-contrib-clean": "0.4.0",
     "grunt-contrib-watch": "0.4.4",
