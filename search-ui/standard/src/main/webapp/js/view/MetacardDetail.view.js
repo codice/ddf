@@ -25,6 +25,10 @@ define(function (require) {
             // options should be -> { metacard: metacard }
             this.model = options.metacard;
 
+            if(this.model.hash) {
+                this.hash = this.model.hash;
+            }
+
             var metacardResult = this.model.get("metacardResult").at(0);
             var searchResult = metacardResult.get("searchResult");
             var collection = searchResult.get("results");
@@ -51,14 +55,21 @@ define(function (require) {
 
             return this;
         },
-        onTabClick : function(){
+        onShow : function () {
+            if (this.hash) {
+                $.find('a[href$=' + this.hash + ']').pop().click();
+            }
+        },
+        onTabClick : function(e){
             this.trigger('content-update');
+            this.hash = e.toElement.hash;
         },
         viewLocation: function () {
             ddf.app.controllers.geoController.flyToLocation(this.model);
         },
         previousRecord: function () {
             if (this.prevModel) {
+                this.prevModel.get("metacard").hash = this.hash;
                 this.model.set('context', false);
                 this.prevModel.get("metacard").set('direction', dir.downward);
                 this.prevModel.get("metacard").set('context', true);
@@ -66,6 +77,7 @@ define(function (require) {
         },
         nextRecord: function () {
             if (this.nextModel) {
+                this.nextModel.get("metacard").hash = this.hash;
                 this.model.set('context', false);
                 this.nextModel.get("metacard").set('direction', dir.upward);
                 this.nextModel.get("metacard").set('context', true);
