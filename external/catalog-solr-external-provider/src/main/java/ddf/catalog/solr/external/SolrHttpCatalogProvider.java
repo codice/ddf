@@ -79,7 +79,7 @@ public class SolrHttpCatalogProvider extends MaskableImpl implements CatalogProv
             describableProperties.load(SolrHttpCatalogProvider.class
                     .getResourceAsStream(DESCRIBABLE_PROPERTIES_FILE));
         } catch (IOException e) {
-            LOGGER.info("Did not laod properties properly.", e);
+            LOGGER.info("Did not load properties properly.", e);
         }
 
     }
