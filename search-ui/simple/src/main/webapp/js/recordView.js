@@ -84,7 +84,7 @@ function toggleMetadata(e) {
 function RecordView(metacard){
 	this.metacard = metacard;
 	this.properties = metacard.properties;
-	
+
 	this._updateRecordDiv = function(divId){
 		$.ajax({
 			url: "templates/recordContents.hbt",
@@ -97,9 +97,10 @@ function RecordView(metacard){
 				// hacky way to make sure the values don't overrun their bounds
 				// Should be improved in the future.
 				$(".value-div").css("width",$(".panel-info").width()-185);
-			}
+			},
+            dataType: "text"
 		});
-	};	
+	};
 }
 
 RecordView.prototype = {

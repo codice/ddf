@@ -22,6 +22,7 @@
 /* hint for jslint.  Needed due to the recursive use of this function */
 /*global buildHtmlFromNode:true */
 
+
 function convertAttributesToJson(attributes){
 	var attr, result;
 	result = [];
@@ -33,7 +34,7 @@ function convertAttributesToJson(attributes){
 
 function convertMetadataToJson(metadataString){
 	var xmlDoc, result, parent, element, i;
-	element = $.parseXML(metadataString);
+	element = $.parseXML(metadataString);  
 	result = []; 
 	parent = $(xmlDoc)[0].firstChild;
 	console.log($(xmlDoc));
@@ -64,72 +65,79 @@ function styleXmlString(metadataString){
 }
 
 function addAttributes(node, html) {
-	if(node.attributes.length) {
-		var wrapper, span, iconTag, value, attr, li, i;
-		li = $("<li></li>");
-		for(i in node.attributes) {
-			if($.type(node.attributes[i]) !== "function" && 
-					node.attributes[i].name !== undefined) {
-				attr = node.attributes[i];
-				wrapper = $("<div class=\"input-prepend input-append\"></div> ");
-				span = $("<span class=\"add-on\"></span> ");
-				iconTag = $("<i class=\"icon-tag\"></i>");
-				value = $("<span class=\"add-on attributeValue\"></span> ");
-				value.append(document.createTextNode(attr.value));
-				span.append(iconTag);
-				span.append(document.createTextNode(attr.name));
-				wrapper.append(span);
-				wrapper.append(value);
-				li.append(wrapper);
-			}
-		}
-		html.append(li);
-	}
+    if (node.attributes.length) {
+        var wrapper, span, iconTag, value, attrs, attr, li, i, nodeName, nodeValue;
+        attrs = node.attributes;
+        li = $("<li></li>");
+        for (i = 0; i < node.attributes.length; i++) {
+            attr = attrs.item(i);
+            nodeName = attr.nodeName;
+            nodeValue = attr.nodeValue;
+            if ($.type(attr) !== "function" &&
+                nodeName !== undefined) {
+                wrapper = $("<div class=\"input-prepend input-append\"></div> ");
+                span = $("<span class=\"add-on\"></span> ");
+                iconTag = $("<i class=\"icon-tag\"></i>");
+                value = $("<span class=\"add-on attributeValue\"></span> ");
+                value.append(document.createTextNode(nodeValue));
+                span.append(iconTag);
+                span.append(document.createTextNode(nodeName));
+                wrapper.append(span);
+                wrapper.append(value);
+                li.append(wrapper);
+            }
+        }
+        html.append(li);
+    }
 }
 
 function addChildElements(node, html) {
-	var child, i;
-	for(i in node.childNodes) {
-		child = node.childNodes[i];
-		if(child.nodeType === 1) {
-			html.append(buildHtmlFromNode(child));
-		}
-	}
+    var child, i, childNodes;
+    childNodes = node.childNodes;
+
+    for (i = 0; i < childNodes.length; i++) {
+        child = childNodes.item(i);
+        if (child.nodeType === 1) {
+            html.append(buildHtmlFromNode(child));
+        }
+    }
 }
 
 function addTextElements(node, html) {
-	var li, child, i, str = "";
-	for(i in node.childNodes) {
-		child = node.childNodes[i];
-		if(child.nodeType === 3) {
-			str += child.textContent + " ";
-		}
-	}
-	if(str.length > 0) {
-		li = $("<li></li>");
-		li.text(str);
-		html.append(li);
-	}
+    var li, child, i, childNodes, str = "";
+    childNodes = node.childNodes;
+
+    for (i = 0; i < childNodes.length; i++) {
+        child = childNodes.item(i);
+        if (child.nodeType === 3) {
+            str += child.nodeValue + " ";
+        }
+    }
+    if (str.length > 0) {
+        li = $("<li></li>");
+        li.text(str);
+        html.append(li);
+    }
 }
 
 function buildHtmlFromNode(node) {
-	var li, children;
-	
-	li = $("<li></li>");
-	li.append($("<label class=\"tree-toggle nav-header\">" + node.nodeName + "</label>"));
-	children = $("<ul class=\"nav nav-list tree\"></ul>");
+    var li, children;
 
-	addAttributes(node, children);
-	addChildElements(node, children);
-	addTextElements(node, children);
-	
-	li.append(children);
-	return li;
+    li = $("<li></li>");
+    li.append($("<label class=\"tree-toggle nav-header\">" + node.nodeName + "</label>"));
+    children = $("<ul class=\"nav nav-list tree\"></ul>");
+
+    addAttributes(node, children);
+    addChildElements(node, children);
+    addTextElements(node, children);
+
+    li.append(children);
+    return li;
 }
 
 function buildMetadataHtml(xml){
 	var xmlDoc, root, html, item;
-	xmlDoc = $.parseXML( xml );
+	xmlDoc = $.parseXML( xml );  
 	root = xmlDoc.documentElement;
 	html = $("<ul class=\"nav nav-list tree\"></ul>");
 
