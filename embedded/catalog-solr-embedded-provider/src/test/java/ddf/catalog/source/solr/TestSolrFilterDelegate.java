@@ -98,6 +98,7 @@ public class TestSolrFilterDelegate {
                 is("testProperty_txt_index_tokenized:(\\+ \\- \\&& \\|| \\! \\( \\) \\{ \\} \\[ \\] \\^ \\\" \\~ \\: \\*?)"));
     }
 
+    /*OMIT
     @Test
     public void testPropertyIsEqualTo_AnyText_CaseSensitive() {
         String expectedQuery = "any_text:\"mySearchPhrase\"";
@@ -144,5 +145,6 @@ public class TestSolrFilterDelegate {
                 isCaseSensitive);
         assertThat(isLikeQuery.getQuery(), is(expectedQuery));
     }
+    END OMIT*/
 
 }

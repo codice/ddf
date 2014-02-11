@@ -102,9 +102,10 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
 
     private static final String SOLR_SINGLE_WILDCARD_CHAR = "?";
 
-    public static final Map<String, String> FIELD_MAP;
+    private static final Map<String, String> FIELD_MAP;
 
-    private static final String ANY_TEXT_FIELD = "any_text";
+    private static final String TOKENIZED = "_tokenized";
+    public static final String TOKENIZED_METADATA_FIELD = Metacard.METADATA + "_txt" + TOKENIZED;
 
     private static final double DEFAULT_ERROR_IN_METERS = 1;
 
@@ -112,7 +113,7 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
 
     static {
         Map<String, String> tempMap = new HashMap<String, String>();
-        tempMap.put(Metacard.ANY_TEXT, ANY_TEXT_FIELD);
+        tempMap.put(Metacard.ANY_TEXT, TOKENIZED_METADATA_FIELD);
         tempMap.put(Metacard.ANY_GEO, Metacard.GEOGRAPHY + JTS_SPATIAL_INDEX);
         FIELD_MAP = Collections.unmodifiableMap(tempMap);
     }
