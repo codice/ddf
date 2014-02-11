@@ -98,7 +98,10 @@ public class TestSolrFilterDelegate {
                 is("testProperty_txt_index_tokenized:(\\+ \\- \\&& \\|| \\! \\( \\) \\{ \\} \\[ \\] \\^ \\\" \\~ \\: \\*?)"));
     }
 
-    /*OMIT
+    /*
+      DDF-314: COmmented out until the ANY_TEXT functionality is added back
+      in - then these tests can be activated.
+      
     @Test
     public void testPropertyIsEqualTo_AnyText_CaseSensitive() {
         String expectedQuery = "any_text:\"mySearchPhrase\"";
@@ -145,6 +148,6 @@ public class TestSolrFilterDelegate {
                 isCaseSensitive);
         assertThat(isLikeQuery.getQuery(), is(expectedQuery));
     }
-    END OMIT*/
+    END OMIT per DDF-314*/
 
 }
