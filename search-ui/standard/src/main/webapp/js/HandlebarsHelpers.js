@@ -18,20 +18,23 @@ define(function (require) {
              * Copyright (c) 2013, Upstage
              * Licensed under the MIT license.
              */
-            moment: function (context, block) {
-                var date, i;
+            momentHelp: function (context, block) {
+                var momentObj, date, i;
                 if (context && context.hash) {
                     block = _.cloneDeep(context);
                     context = undefined;
                 }
-                date = moment(context);
+                momentObj = moment(context);
 
                 // Reset the language back to default before doing anything else
-                date.lang('en');
+                momentObj.lang('en');
 
                 for (i in block.hash) {
-                    if (date[i]) {
-                        date = date[i](block.hash[i]);
+                    if (momentObj[i]) {
+                        if(typeof momentObj[i] === 'function') {
+                            var func = momentObj[i];
+                            date = func.call(momentObj);
+                        }
                     } else {
                         console.log('moment.js does not support "' + i + '"');
                     }

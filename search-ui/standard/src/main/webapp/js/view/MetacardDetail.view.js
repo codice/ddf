@@ -62,7 +62,7 @@ define(function (require) {
         },
         onTabClick : function(e){
             this.trigger('content-update');
-            this.hash = e.toElement.hash;
+            this.hash = e.target.hash;
         },
         viewLocation: function () {
             ddf.app.controllers.geoController.flyToLocation(this.model);

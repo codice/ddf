@@ -127,13 +127,23 @@ html, body {
     -moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;
 
     width: 100%;
-    height: 100%;
+    /*this is for IE only*/
+    height: 600px;
     height: calc(100% - 100px);
     background-repeat: no-repeat;
     background-size: 100% 40px, 100% 40px, 100% 14px, 100% 14px;
 
      /*Opera doesn't support this in the shorthand */
     background-attachment: local, local, scroll, scroll;
+}
+
+.iewarning {
+    background-color: red;
+    color: black;
+    font-weight: bold;
+    font-size: 20px;
+    text-align:center;
+    z-index: 10000;
 }
 
 #searchPages form {

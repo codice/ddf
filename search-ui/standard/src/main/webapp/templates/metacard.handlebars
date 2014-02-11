@@ -45,7 +45,7 @@
                                       <i class="fa fa-plus fa-stack-1x fa-inverse"></i>
                                     </span>
                                 </span>
-                                <span class="attribute-value">{{moment properties.created fromNow=null}}</span>
+                                <span class="attribute-value">{{momentHelp properties.created fromNow=function}}</span>
                             </li>
                             {{/isNotBlank}}
 
@@ -57,7 +57,7 @@
                                       <i class="fa fa-asterisk fa-stack-1x fa-inverse"></i>
                                     </span>
                                 </span>
-                                <span class="attribute-value">{{moment properties.modified fromNow=null}}</span>
+                                <span class="attribute-value">{{momentHelp properties.modified fromNow=function}}</span>
                             </li>
                             {{/isNotBlank}}
 
