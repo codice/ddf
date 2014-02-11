@@ -116,7 +116,8 @@ define(function (require) {
             this.model.set({
                 dtstart: undefined,
                 dtend: undefined,
-                dtoffset: undefined
+                dtoffset: undefined,
+                offsetTime: undefined
             }, {unset: true});
             this.updateScrollbar();
         },
