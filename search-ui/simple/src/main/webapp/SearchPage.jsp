@@ -450,6 +450,8 @@
 
 	<script type="text/javascript" src="lib/jquery/js/jquery-1.8.2.min.js"></script>
 	<script type="text/javascript" src="lib/jquery/js/jquery-ui-1.9.1.custom.min.js"></script>
+	
+        <script type="text/javascript" src="lib/lodash/lodash.js"></script>
 
 	
 	<script type="text/javascript" src="lib/bootstrap-2.3.1/js/bootstrap.min.js"></script>

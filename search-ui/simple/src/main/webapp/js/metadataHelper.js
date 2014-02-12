@@ -66,11 +66,9 @@ function styleXmlString(metadataString){
 
 function addAttributes(node, html) {
     if (node.attributes.length) {
-        var wrapper, span, iconTag, value, attrs, attr, li, i, nodeName, nodeValue;
-        attrs = node.attributes;
+        var wrapper, span, iconTag, value, li, nodeName, nodeValue;
         li = $("<li></li>");
-        for (i = 0; i < node.attributes.length; i++) {
-            attr = attrs.item(i);
+        _.each(node.attributes, function(attr) {
             nodeName = attr.nodeName;
             nodeValue = attr.nodeValue;
             if ($.type(attr) !== "function" &&
@@ -86,33 +84,30 @@ function addAttributes(node, html) {
                 wrapper.append(value);
                 li.append(wrapper);
             }
-        }
+
+        });
+
         html.append(li);
     }
 }
 
 function addChildElements(node, html) {
-    var child, i, childNodes;
-    childNodes = node.childNodes;
 
-    for (i = 0; i < childNodes.length; i++) {
-        child = childNodes.item(i);
+    _.each(node.childNodes, function(child) {
         if (child.nodeType === 1) {
             html.append(buildHtmlFromNode(child));
         }
-    }
+    });
 }
 
 function addTextElements(node, html) {
-    var li, child, i, childNodes, str = "";
-    childNodes = node.childNodes;
+    var li, str = "";
 
-    for (i = 0; i < childNodes.length; i++) {
-        child = childNodes.item(i);
+    _.each(node.childNodes, function(child) {
         if (child.nodeType === 3) {
             str += child.nodeValue + " ";
         }
-    }
+    });
     if (str.length > 0) {
         li = $("<li></li>");
         li.text(str);
