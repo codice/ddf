@@ -32,7 +32,8 @@
 	   <dependency>
           <groupId>ddf.catalog.core</groupId>
           <artifactId>catalog-core-camelcomponent</artifactId>
-	   </dependency>
+          <version>${ddf.catalog.app.version}</version>
+   </dependency>
         <dependency>
 			<groupId>org.osgi</groupId>
 			<artifactId>org.osgi.core</artifactId>

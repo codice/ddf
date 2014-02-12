@@ -29,9 +29,8 @@
          before the transition over to a modular structure. -->
 	<modules>
         <module>distribution</module>
-        <!-- TODO
 		<module>sdk</module>
-		<module>test</module>
+		<!--<module>test</module>
         -->
 	</modules>
 

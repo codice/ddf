@@ -32,11 +32,13 @@
     <dependency>
 		<groupId>ddf.catalog.core</groupId>
 		<artifactId>catalog-core-api</artifactId>
+                <version>${ddf.catalog.app.version}</version>
 	</dependency>
 	
 	<dependency>
 		<groupId>ddf.catalog.core</groupId>
 		<artifactId>filter-proxy</artifactId>
+                <version>${ddf.catalog.app.version}</version>
 	</dependency>
 	
 	<dependency>

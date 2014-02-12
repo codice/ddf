@@ -38,6 +38,7 @@
     <dependency>
       <groupId>ddf.catalog.core</groupId>
       <artifactId>catalog-core-api</artifactId>
+      <version>${ddf.catalog.app.version}</version>    
     </dependency>
     <dependency>
       <groupId>org.jasig.cas</groupId>
@@ -47,14 +48,17 @@
     <dependency>
       <groupId>ddf.security.core</groupId>
       <artifactId>security-core-api</artifactId>
+      <version>${ddf.security.app.version}</version>
     </dependency>
     <dependency>
       <groupId>ddf.security.core</groupId>
       <artifactId>security-core-impl</artifactId>
+      <version>${ddf.security.app.version}</version>
     </dependency>
     <dependency>
       <groupId>ddf.security.cas</groupId>
       <artifactId>security-cas-impl</artifactId>
+      <version>${ddf.security.app.version}</version>     
     </dependency>
     <dependency>
       <groupId>commons-codec</groupId>
