@@ -73,6 +73,8 @@ define(function (require) {
     });
 
     MetaCard.Metacard = Backbone.RelationalModel.extend({
+        url: '/services/catalog/',
+
         initialize: function () {
             this.listenTo(this, 'change:context', this.onChangeContext);
         },

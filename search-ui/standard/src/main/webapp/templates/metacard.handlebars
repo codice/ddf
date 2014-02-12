@@ -64,7 +64,7 @@
                             {{#isNotBlank geometry}}
                             <li class="attribute" title="Location">
                                 <span class="attribute-label muted"><i class='fa fa-compass fa-2x'></i></span>
-                                <span class="attribute-value"><a href="#" class="location-link">Locate</a></span>
+                                <span class="attribute-value">{{#if mapAvailable}}<a href="#" class="location-link">Locate</a>{{else}}<a href="{{url}}{{properties.id}}?transform=kml">KML</a>{{/if}}</span>
                             </li>
                             {{/isNotBlank}}
                         </ul>

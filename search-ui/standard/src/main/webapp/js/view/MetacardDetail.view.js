@@ -9,6 +9,7 @@ define(function (require) {
         ich = require('icanhaz'),
         ddf = require('ddf'),
         dir = require('direction'),
+        webgl = require('webglcheck'),
         Metacard = {};
 
     ich.addTemplate('metacardTemplate', require('text!templates/metacard.handlebars'));
@@ -44,7 +45,11 @@ define(function (require) {
             this.listenTo(this.model, 'change', this.render);
         },
         render: function () {
-            this.$el.html(ich.metacardTemplate(this.model.toJSON()));
+            var jsonObj = this.model.toJSON();
+            //TODO: for now just use the webgl check, later expand this to check if we are using a map at all
+            jsonObj.mapAvailable = webgl.isAvailable();
+            jsonObj.url = this.model.url;
+            this.$el.html(ich.metacardTemplate(jsonObj));
 
             if (_.isUndefined(this.prevModel)) {
                 $('#prevRecord', this.$el).addClass('disabled');
