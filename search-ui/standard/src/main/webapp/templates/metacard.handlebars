@@ -7,17 +7,17 @@
 
     <div class="span12 metacard-details">
         <ul class="nav nav-tabs" id="myTab">
-            <li class="active">
+            <li {{#if hash}} {{#is hash "#summary"}} class="active" {{/is}} {{else}} class="active" {{/if}}>
                 <a href="#summary" data-toggle="tab">Summary</a>
             </li>
-            <li>
+            <li {{#is hash "#full"}} class="active" {{/is}}>
                 <a href="#full" data-toggle="tab">Details</a>
             </li>
         </ul>
 
 
         <div class="tab-content">
-            <div class="tab-pane active" id="summary">
+            <div class="tab-pane  {{#if hash}} {{#is hash "#summary"}} active {{/is}} {{else}} active {{/if}}" id="summary">
                 <div class="row-fluid" title="Thumbnail">
                     <div class="span12">
                         <h3 class="title" title="Title">
@@ -87,7 +87,7 @@
 
                 </div>
             </div>
-            <div class="tab-pane vertical-scroll table-pane" id="full">
+            <div class="tab-pane vertical-scroll table-pane {{#is hash "#full"}} active{{/is}}" id="full">
                 <table class="table table-striped metacard-table">
                     <thead>
                         <tr>

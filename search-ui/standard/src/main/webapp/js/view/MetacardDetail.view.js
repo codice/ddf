@@ -25,8 +25,8 @@ define(function (require) {
             // options should be -> { metacard: metacard }
             this.model = options.metacard;
 
-            if(this.model.hash) {
-                this.hash = this.model.hash;
+            if(this.model.get('hash')) {
+                this.hash = this.model.get('hash');
             }
 
             var metacardResult = this.model.get("metacardResult").at(0);
@@ -55,11 +55,6 @@ define(function (require) {
 
             return this;
         },
-        onShow : function () {
-            if (this.hash) {
-                $.find('a[href$=' + this.hash + ']').pop().click();
-            }
-        },
         onTabClick : function(e){
             this.trigger('content-update');
             this.hash = e.target.hash;
@@ -69,7 +64,7 @@ define(function (require) {
         },
         previousRecord: function () {
             if (this.prevModel) {
-                this.prevModel.get("metacard").hash = this.hash;
+                this.prevModel.get("metacard").set('hash', this.hash);
                 this.model.set('context', false);
                 this.prevModel.get("metacard").set('direction', dir.downward);
                 this.prevModel.get("metacard").set('context', true);
@@ -77,7 +72,7 @@ define(function (require) {
         },
         nextRecord: function () {
             if (this.nextModel) {
-                this.nextModel.get("metacard").hash = this.hash;
+                this.nextModel.get("metacard").set('hash', this.hash);
                 this.model.set('context', false);
                 this.nextModel.get("metacard").set('direction', dir.upward);
                 this.nextModel.get("metacard").set('context', true);
