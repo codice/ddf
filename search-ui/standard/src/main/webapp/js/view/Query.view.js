@@ -298,7 +298,7 @@ define(function (require) {
 
             if (properties.sync) {
                 result.useAjaxSync = true;
-                result.url = "/services/catalog/query";
+                result.url = result.syncUrl;
             }
 
             this.trigger('search', result, this.model, this.sources.length, progress);
