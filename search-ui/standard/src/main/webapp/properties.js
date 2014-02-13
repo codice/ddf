@@ -31,8 +31,11 @@ define(function (require) {
                     props.format = data.format;
                     props.sync = data.sync;
 
-                    if ($.url().param('sync') === 'true') {
+                    var sync = $.url().param('sync');
+                    if (sync === 'true') {
                         props.sync = true;
+                    } else if (sync === 'false') {
+                        props.sync = false;
                     }
 
                     return props;
