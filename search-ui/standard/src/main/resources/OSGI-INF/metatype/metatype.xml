@@ -73,6 +73,8 @@
         />
         <AD description="Specifies the connection timeout in milliseconds to use when connecting to WMS services." name="Connection Timeout" id="timeout"
             required="false" type="Integer" default="5000" />
+        <AD description="Force federated queries to synchronously return results only after all sources have responded." name="Synchronous Query" id="syncQuery"
+            required="false" type="Boolean" default="false" />
 	    </OCD>
 
 	<Designate 	pid="org.codice.ddf.ui.search.standard.properties">

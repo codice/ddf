@@ -9,6 +9,7 @@ define(function (require) {
         _ = require('underscore'),
         ich = require('icanhaz'),
         ddf = require('ddf'),
+        properties = require('properties'),
         MetaCard = require('js/model/Metacard'),
         Progress = require('js/view/Progress.view'),
         Spinner = require('spin'),
@@ -294,6 +295,11 @@ define(function (require) {
             };
 
             result = new MetaCard.SearchResult(options);
+
+            if (properties.sync) {
+                result.useAjaxSync = true;
+                result.url = "/services/catalog/query";
+            }
 
             this.trigger('search', result, this.model, this.sources.length, progress);
 

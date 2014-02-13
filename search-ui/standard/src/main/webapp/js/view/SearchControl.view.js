@@ -140,12 +140,14 @@ define(function (require) {
                 return this;
             },
             setupProgress: function (resultList, queryModel, numSources, progressObj) {
-                if(numSources > 1) {
-                    if(this.progressView) {
-                        this.progressView.close();
+                if (!resultList.useAjaxSync) {
+                    if (numSources > 1) {
+                        if (this.progressView) {
+                            this.progressView.close();
+                        }
+                        this.progressView = new ProgressView({ resultList: resultList, queryModel: queryModel, sources: numSources, model: progressObj});
+                        this.progressRegion.show(this.progressView, dir.downward);
                     }
-                    this.progressView = new ProgressView({ resultList: resultList, queryModel: queryModel, sources: numSources, model: progressObj});
-                    this.progressRegion.show(this.progressView, dir.downward);
                 }
             },
             onQueryClear: function () {

@@ -68,6 +68,8 @@ public class ConfigurationStore {
     
     private Integer timeout = 5000;
 
+    private Boolean isSyncQuery = false;
+
     static {
         MimeType mime = null;
         try {
@@ -103,7 +105,7 @@ public class ConfigurationStore {
         configObj.put("layers", layers);
         configObj.put("format", format);
         configObj.put("timeout", timeout);
-
+        configObj.put("sync", isSyncQuery);
 
         String configString = JSONValue.toJSONString(configObj);
         BinaryContent content = new BinaryContentImpl(new ByteArrayInputStream(configString.getBytes()),
@@ -202,6 +204,14 @@ public class ConfigurationStore {
 
     public void setTimeout(Integer timeout) {
         this.timeout = timeout;
+    }
+
+    public Boolean getSyncQuery() {
+        return this.isSyncQuery;
+    }
+
+    public void setSyncQuery(Boolean sync) {
+        this.isSyncQuery = sync;
     }
 
     public Object clone() throws CloneNotSupportedException {

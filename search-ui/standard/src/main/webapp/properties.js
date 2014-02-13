@@ -2,10 +2,10 @@
 
 define(function (require) {
     'use strict';
+    require('purl');
+    var $ = require('jquery');
 
     var properties = {
-
-        $: require('jquery'),
         canvasThumbnailScaleFactor : 10,
         slidingAnimationDuration : 150,
 
@@ -14,7 +14,7 @@ define(function (require) {
         init : function(){
             // use this function to initialize variables that rely on others
             var props = this;
-            this.$.ajax({
+            $.ajax({
                 async: false, // must be synchronous to guarantee that no tests are run before fixture is loaded
                 cache: false,
                 dataType: 'json',
@@ -29,6 +29,12 @@ define(function (require) {
                     props.layers = data.layers;
                     props.wmsServer = data.wmsServer;
                     props.format = data.format;
+                    props.sync = data.sync;
+
+                    if ($.url().param('sync') === 'true') {
+                        props.sync = true;
+                    }
+
                     return props;
                 }).fail(function(jqXHR, status, errorThrown) {
                     throw new Error('Configuration could not be loaded: (status: ' + status + ', message: ' + errorThrown.message + ')');

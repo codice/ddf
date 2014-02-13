@@ -157,7 +157,7 @@ define(function (require) {
             }
         ],
         url: "/service/query",
-        //        useAjaxSync: true,
+        useAjaxSync: false,
         parse: function (resp) {
             if (resp.data) {
                 return resp.data;
