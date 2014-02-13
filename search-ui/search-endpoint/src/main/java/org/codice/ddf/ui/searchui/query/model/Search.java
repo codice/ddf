@@ -40,8 +40,8 @@ public class Search {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Search.class);
 
-    protected static final Comparator<Result> DEFAULT_COMPARATOR = new RelevanceResultComparator(
-            SortOrder.DESCENDING);
+    protected static final Comparator<Result> DEFAULT_COMPARATOR = new TemporalResultComparator(
+            SortOrder.DESCENDING, Metacard.MODIFIED);
 
     public static final String HITS = "hits";
 
@@ -77,10 +77,13 @@ public class Search {
      */
     public synchronized void addQueryResponse(QueryResponse queryResponse) throws InterruptedException {
         if (queryResponse != null) {
+            Comparator<Result> coreComparator = DEFAULT_COMPARATOR;
             if (compositeQueryResponse == null) {
                 LOGGER.debug("Creating new composite query response");
                 compositeQueryResponse = queryResponse;
                 resultList.addAll(compositeQueryResponse.getResults());
+                // Sort the initial results
+                Collections.sort(compositeQueryResponse.getResults(), coreComparator);
                 hits = compositeQueryResponse.getHits();
                 responseNum++;
             } else {
@@ -91,9 +94,8 @@ public class Search {
 
                 // if there wasn't at least 1 request there, we wouldn't be here in the first place
                 SortBy sortBy = searchRequest.getQueryRequests().get(0).getSortBy();
-                // Prepare the Comparators that we will use
-                Comparator<Result> coreComparator = DEFAULT_COMPARATOR;
 
+                // Prepare the Comparators that we will use
                 if (sortBy != null && sortBy.getPropertyName() != null) {
                     PropertyName sortingProp = sortBy.getPropertyName();
                     String sortType = sortingProp.getPropertyName();
@@ -101,15 +103,21 @@ public class Search {
                             : sortBy.getSortOrder();
 
                     // Temporal searches are currently sorted by the effective time
-                    if (Metacard.EFFECTIVE.equals(sortType) || Result.TEMPORAL.equals(sortType)) {
-                        coreComparator = new TemporalResultComparator(sortOrder);
+                    if (Metacard.EFFECTIVE.equals(sortType)) {
+                        // if (Metacard.EFFECTIVE.equals(sortType) ||
+                        // Result.TEMPORAL.equals(sortType)) {
+                        LOGGER.debug("Sorting by EFFECTIVE Date");
+                        coreComparator = new TemporalResultComparator(sortOrder, Metacard.EFFECTIVE);
                     } else if (Result.DISTANCE.equals(sortType)) {
+                        LOGGER.debug("Sorting by DISTANCE");
                         coreComparator = new DistanceResultComparator(sortOrder);
                     } else if (Result.RELEVANCE.equals(sortType)) {
+                        LOGGER.debug("Sorting by RELEVANCE");
                         coreComparator = new RelevanceResultComparator(sortOrder);
                     }
                 }
 
+                // Sort the combination of all results we have recieved
                 Collections.sort(resultList, coreComparator);
 
                 List<Result> compositeResultList;

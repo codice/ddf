@@ -37,9 +37,20 @@
             <version>2.7.0</version>
         </dependency>
         <dependency>
+        	<groupId>ddf.catalog.core</groupId>
+        	<artifactId>catalog-core-api-impl</artifactId>
+        	<version>2.3.0.ALPHA3-SNAPSHOT</version>
+        </dependency>
+        <dependency>
             <groupId>ddf.catalog.opensearch</groupId>
             <artifactId>catalog-opensearch-endpoint</artifactId>
             <version>${ddf.catalog.app.version}</version>
+            <exclusions>
+            	<exclusion>
+            		<groupId>ddf.catalog.core</groupId>
+        			<artifactId>catalog-core-api-impl</artifactId>
+            	</exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.parboiled</groupId>
@@ -99,7 +110,7 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Embed-Dependency>
-                            json-smart,ddf.catalog.opensearch,bayeux-api,cometd-java-common,cometd-java-server,jackson-mapper-asl,jackson-core-asl
+                            json-smart,ddf.catalog.opensearch,bayeux-api,cometd-java-common,cometd-java-server,jackson-mapper-asl,jackson-core-asl,catalog-core-api-impl
                         </Embed-Dependency>
                         <Spring-Context>*;wait-for-dependencies:=true;timeout:=604800</Spring-Context>
                         <!-- Package uses conflict if we do not embed this -->

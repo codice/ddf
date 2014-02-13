@@ -92,7 +92,7 @@ public class SearchService extends AbstractService {
 
     private static final String FORMAT = "format";
 
-    private static final String DEFAULT_SORT_FIELD = "relevance";
+    private static final String DEFAULT_SORT_FIELD = "date";
 
     private static final String DEFAULT_SORT_ORDER = "desc";
 
