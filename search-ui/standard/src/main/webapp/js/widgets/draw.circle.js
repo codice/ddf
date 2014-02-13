@@ -8,7 +8,7 @@ define(function (require) {
         _ = require('underscore'),
         ddf = require('ddf'),
         DrawExtent = require('./draw.extent'),
-        webgl = require('webglcheck'),
+        maptype = require('maptype'),
         DrawCircle = ddf.module();
 
     DrawCircle.CircleModel = Backbone.Model.extend({
@@ -212,7 +212,7 @@ define(function (require) {
     });
 
     DrawCircle.Controller = Marionette.Controller.extend({
-        enabled: webgl.isAvailable(),
+        enabled: maptype.is3d(),
         initialize: function (options) {
             this.scene = options.scene;
             this.notificationEl = options.notificationEl;

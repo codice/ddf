@@ -37,6 +37,7 @@
             cometdinit: 'js/cometd',
             direction: 'js/direction',
             webglcheck : 'js/webglcheck',
+            maptype : 'js/maptype',
             spinnerConfig : 'js/spinnerConfig',
             // require plugins
             text: 'lib/requirejs-plugins/lib/text',
@@ -86,10 +87,8 @@
             jqueryui: ['jquery'],
             bootstrap: ['jqueryui'],
             partialaffix: ['bootstrap'],
-            purl: ['jquery'],
 
             perfectscrollbar: ['jquery'],
-
             datepickerOverride: ['jquery'],
             datepickerAddon: ['jquery']
 

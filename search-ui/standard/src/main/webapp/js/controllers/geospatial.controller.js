@@ -7,10 +7,10 @@ define(function (require) {
         Q = require('q'),
         properties = require('properties'),
         _ = require('underscore'),
-        webgl = require('webglcheck');
+        maptype = require('maptype');
 
     var Controller = Marionette.Controller.extend({
-        enabled: webgl.isAvailable(),
+        enabled: maptype.is3d(),
         initialize: function () {
             if (this.enabled) {
                 this.mapViewer = this.createMap('cesiumContainer');

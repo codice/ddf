@@ -9,7 +9,7 @@ define(function (require) {
         ich = require('icanhaz'),
         ddf = require('ddf'),
         dir = require('direction'),
-        webgl = require('webglcheck'),
+        maptype = require('maptype'),
         Metacard = {};
 
     ich.addTemplate('metacardTemplate', require('text!templates/metacard.handlebars'));
@@ -46,8 +46,7 @@ define(function (require) {
         },
         render: function () {
             var jsonObj = this.model.toJSON();
-            //TODO: for now just use the webgl check, later expand this to check if we are using a map at all
-            jsonObj.mapAvailable = webgl.isAvailable();
+            jsonObj.mapAvailable = maptype.isMap();
             jsonObj.url = this.model.url;
             this.$el.html(ich.metacardTemplate(jsonObj));
 

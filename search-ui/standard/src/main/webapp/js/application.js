@@ -10,8 +10,6 @@ define(function (require) {
     require('backbonerelational');
     require('backbonecometd');
     require('jquerycometd');
-    var properties = require('properties');
-    var webgl = require('webglcheck');
 
     // Load attached libs and application modules
     var $ = require('jquery'),
@@ -20,6 +18,8 @@ define(function (require) {
         Marionette = require('marionette'),
         Backbone = require('backbone'),
         ich = require('icanhaz'),
+        properties = require('properties'),
+        maptype = require('maptype'),
         Application = ddf.module();
 
     // Setup templates
@@ -63,7 +63,7 @@ define(function (require) {
 
             view.$el.html(ich.main());
 
-            if (!webgl.isAvailable()) {
+            if (maptype.isNone()) {
                 $('#searchControls', this.$el).width('100%');
             }
 

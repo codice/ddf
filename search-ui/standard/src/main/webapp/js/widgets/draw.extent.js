@@ -7,7 +7,7 @@ define(function (require) {
         Cesium = require('cesium'),
         _ = require('underscore'),
         ddf = require('ddf'),
-        webgl = require('webglcheck'),
+        maptype = require('maptype'),
         Draw = ddf.module();
 
     Draw.ExentModel = Backbone.Model.extend({
@@ -238,7 +238,7 @@ define(function (require) {
     });
 
     Draw.Controller = Marionette.Controller.extend({
-        enabled: webgl.isAvailable(),
+        enabled: maptype.is3d(),
         initialize: function (options) {
             this.scene = options.scene;
             this.notificationEl = options.notificationEl;
