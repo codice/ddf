@@ -14,9 +14,17 @@
  **/
 package ddf.security.pep.interceptor;
 
+import java.io.StringWriter;
 import java.util.List;
 
 import javax.xml.namespace.QName;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 
 import org.apache.cxf.headers.Header;
 import org.apache.cxf.helpers.CastUtils;
@@ -84,6 +92,7 @@ public class PEPAuthorizingInterceptor extends AbstractPhaseInterceptor<Message>
                 ActionPermission action = null;
                 try {
                     user = securityManager.getSubject(assertion.getSecurityToken());
+                    logger.trace(format(assertion.getSecurityToken().getToken()));
 
                     logger.debug("Is user authenticated: {}", user.isAuthenticated());
                     logger.debug("Checking for permission");
@@ -127,5 +136,35 @@ public class PEPAuthorizingInterceptor extends AbstractPhaseInterceptor<Message>
             logger.warn("Unable to retrieve the current message associated with the web service call.");
             throw new AccessDeniedException("Unauthorized");
         }
+    }
+    
+    private String format(Element unformattedXml) {
+	 
+        StreamResult xmlOutput = new StreamResult(new StringWriter());
+        TransformerFactory transformerFactory = TransformerFactory.newInstance();
+
+        Transformer transformer = null;
+        String formattedXml = null;
+
+        try {
+            transformer = transformerFactory.newTransformer();
+            logger.trace("transformer class: " + transformer.getClass());
+            transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+            transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
+            transformer.transform(new DOMSource(unformattedXml), xmlOutput);
+            formattedXml = xmlOutput.getWriter().toString();
+        } catch (TransformerConfigurationException e)
+
+        {
+            String message = "Unable to transform xml:\n" + unformattedXml
+                    + "\nUsing unformatted xml.";
+            logger.error(message, e);
+        } catch (TransformerException e) {
+            String message = "Unable to transform xml:\n" + unformattedXml
+                    + "\nUsing unformatted xml.";
+            logger.error(message, e);
+        }
+
+        return formattedXml;
     }
 }
