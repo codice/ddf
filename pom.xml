@@ -209,6 +209,9 @@
 		<jts.version>1.12</jts.version>
 		<saxon.version>9.1.0.8</saxon.version>
 		<commons-io.version>2.1</commons-io.version>
+	   <!-- WSS4J, a dependency of CXF depends on a version of Joda Time [1.6,2). 
+		  Before incrementing to 2.0 or beyond, ensure that the latest version of WSS4J 
+		  can use a version higher 2.0 or higher. -->
 		<joda-time.version>1.6.2</joda-time.version>
         <xmlunit.version>1.4</xmlunit.version>
 		<tika.version>1.2</tika.version>
