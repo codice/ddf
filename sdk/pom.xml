@@ -45,8 +45,8 @@
 	</repositories>
 	<properties>
 		<cxf.version>2.7.8</cxf.version>
-	    <ddf.catalog.app.version>2.3.0.ALPHA1</ddf.catalog.app.version>
-	    <ddf.security.app.version>2.3.0.ALPHA1</ddf.security.app.version>
-	    <ddf.platform.app.version>2.3.0.ALPHA3</ddf.platform.app.version>
+	    <ddf.catalog.app.version>2.3.0.ALPHA3-SNAPSHOT</ddf.catalog.app.version>
+	    <ddf.security.app.version>2.3.0.ALPHA3-SNAPSHOT</ddf.security.app.version>
+	    <ddf.platform.app.version>2.3.0.ALPHA4-SNAPSHOT</ddf.platform.app.version>
 	</properties>
 </project>
