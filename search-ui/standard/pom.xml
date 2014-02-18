@@ -64,6 +64,11 @@
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpcore</artifactId>
         </dependency>
+        <dependency>
+        	<groupId>ddf.ui.search</groupId>
+        	<artifactId>search-securityservletfilter</artifactId>
+        	<version>${project.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -108,7 +113,7 @@
                 <artifactId>maven-bundle-plugin</artifactId>
                 <configuration>
                     <instructions>
-                        <Embed-Dependency>json-smart, httpclient, httpcore</Embed-Dependency>
+                        <Embed-Dependency>json-smart, httpclient, httpcore, search-securityservletfilter</Embed-Dependency>
                         <Web-ContextPath>/search/standard</Web-ContextPath>
                         <_wab>src/main/webapp,${project.build.directory}/webapp</_wab>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>

@@ -33,6 +33,7 @@
 	</properties>
 	
     <modules>
+	<module>search-securityservletfilter</module>
         <module>simple</module>
         <module>standard</module>
         <module>search-redirect</module>

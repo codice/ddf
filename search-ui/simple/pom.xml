@@ -42,6 +42,19 @@
             <artifactId>commons-lang</artifactId>
             <version>2.6</version>
         </dependency>
+        <dependency>
+        	<groupId>ddf.ui.search</groupId>
+        	<artifactId>search-securityservletfilter</artifactId>
+        	<version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>servlet-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-ext</artifactId>
+        </dependency>
 	</dependencies>
 	
 	<build>
@@ -114,11 +127,14 @@
 						<_wab>src/main/webapp,${project.build.directory}/${project.build.finalName}</_wab>
 						<Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Embed-Dependency>
-                            commons-lang
+                            commons-lang, search-securityservletfilter
                         </Embed-Dependency>
 						<Import-Package>
                             org.apache.felix.webconsole,
-	                    	org.osgi.service.blueprint
+	                    	org.osgi.service.blueprint,
+	                    	javax.servlet,
+	                    	org.osgi.framework,
+	                    	org.slf4j
 						</Import-Package>
 						<Export-Package />
 					</instructions>
