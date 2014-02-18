@@ -48,7 +48,7 @@
 	<bean id="catalogProviderSortedList" class="ddf.catalog.util.impl.SortedServiceList">
 		<argument ref="blueprintBundleContext" />
 	</bean>	
-	<bean id="resourceReaderSortedList" class="ddf.catalog.util.SortedServiceList">
+	<bean id="resourceReaderSortedList" class="ddf.catalog.util.impl.SortedServiceList">
 		<argument ref="blueprintBundleContext" />
 	</bean>	
 					
