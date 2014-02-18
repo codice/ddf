@@ -22,9 +22,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.opengis.filter.sort.SortOrder;
 
+import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.ResultImpl;
-import ddf.catalog.util.impl.TemporalResultComparator;
 
 public class TemporalResultComparatorTest {
 
@@ -42,13 +42,19 @@ public class TemporalResultComparatorTest {
         nullDateMc = new MetacardImpl();
 
         firstMc.setEffectiveDate(c.getTime());
+        firstMc.setCreatedDate(c.getTime());
+        firstMc.setModifiedDate(c.getTime());
+        firstMc.setExpirationDate(c.getTime());
         c.add(Calendar.DAY_OF_YEAR, 1);
         secondMc.setEffectiveDate(c.getTime());
+        secondMc.setCreatedDate(c.getTime());
+        secondMc.setModifiedDate(c.getTime());
+        secondMc.setExpirationDate(c.getTime());
 
     }
 
     @Test
-    public void testCompareAscending() {
+    public void testCompareAscendingEffective() {
         TemporalResultComparator comparer = new TemporalResultComparator(SortOrder.ASCENDING);
         assertEquals(-1, comparer.compare(new ResultImpl(firstMc), new ResultImpl(secondMc)));
         assertEquals(0, comparer.compare(new ResultImpl(firstMc), new ResultImpl(firstMc)));
@@ -56,7 +62,7 @@ public class TemporalResultComparatorTest {
     }
 
     @Test
-    public void testCompareDescending() {
+    public void testCompareDescendingEffective() {
         TemporalResultComparator comparer = new TemporalResultComparator(SortOrder.DESCENDING);
         assertEquals(-1, comparer.compare(new ResultImpl(secondMc), new ResultImpl(firstMc)));
         assertEquals(0, comparer.compare(new ResultImpl(firstMc), new ResultImpl(firstMc)));
@@ -64,7 +70,7 @@ public class TemporalResultComparatorTest {
     }
 
     @Test
-    public void testCompareNullSortOrder() {
+    public void testCompareNullSortOrderEffective() {
         TemporalResultComparator comparer = new TemporalResultComparator(null);
         assertEquals(1, comparer.compare(new ResultImpl(firstMc), new ResultImpl(secondMc)));
         assertEquals(0, comparer.compare(new ResultImpl(firstMc), new ResultImpl(firstMc)));
@@ -88,10 +94,83 @@ public class TemporalResultComparatorTest {
     }
 
     @Test
-    public void testNullDateMetacards() {
+    public void testNullDateMetacardsEffective() {
         TemporalResultComparator comparer = new TemporalResultComparator(SortOrder.ASCENDING);
         assertEquals(-1, comparer.compare(new ResultImpl(firstMc), new ResultImpl(nullDateMc)));
         assertEquals(0, comparer.compare(new ResultImpl(nullDateMc), new ResultImpl(nullDateMc)));
         assertEquals(1, comparer.compare(new ResultImpl(nullDateMc), new ResultImpl(firstMc)));
+    }
+
+    @Test
+    public void testCompareAscendingModified() {
+        TemporalResultComparator comparer = new TemporalResultComparator(SortOrder.ASCENDING,
+                Metacard.MODIFIED);
+        assertEquals(-1, comparer.compare(new ResultImpl(firstMc), new ResultImpl(secondMc)));
+        assertEquals(0, comparer.compare(new ResultImpl(firstMc), new ResultImpl(firstMc)));
+        assertEquals(1, comparer.compare(new ResultImpl(secondMc), new ResultImpl(firstMc)));
+    }
+
+    @Test
+    public void testCompareDescendingModified() {
+        TemporalResultComparator comparer = new TemporalResultComparator(SortOrder.DESCENDING);
+        assertEquals(-1, comparer.compare(new ResultImpl(secondMc), new ResultImpl(firstMc)));
+        assertEquals(0, comparer.compare(new ResultImpl(firstMc), new ResultImpl(firstMc)));
+        assertEquals(1, comparer.compare(new ResultImpl(firstMc), new ResultImpl(secondMc)));
+    }
+
+    @Test
+    public void testCompareNullSortOrderModified() {
+        TemporalResultComparator comparer = new TemporalResultComparator(null);
+        assertEquals(1, comparer.compare(new ResultImpl(firstMc), new ResultImpl(secondMc)));
+        assertEquals(0, comparer.compare(new ResultImpl(firstMc), new ResultImpl(firstMc)));
+        assertEquals(-1, comparer.compare(new ResultImpl(secondMc), new ResultImpl(firstMc)));
+    }
+
+    @Test
+    public void testCompareAscendingCreated() {
+        TemporalResultComparator comparer = new TemporalResultComparator(SortOrder.ASCENDING);
+        assertEquals(-1, comparer.compare(new ResultImpl(firstMc), new ResultImpl(secondMc)));
+        assertEquals(0, comparer.compare(new ResultImpl(firstMc), new ResultImpl(firstMc)));
+        assertEquals(1, comparer.compare(new ResultImpl(secondMc), new ResultImpl(firstMc)));
+    }
+
+    @Test
+    public void testCompareDescendingCreated() {
+        TemporalResultComparator comparer = new TemporalResultComparator(SortOrder.DESCENDING);
+        assertEquals(-1, comparer.compare(new ResultImpl(secondMc), new ResultImpl(firstMc)));
+        assertEquals(0, comparer.compare(new ResultImpl(firstMc), new ResultImpl(firstMc)));
+        assertEquals(1, comparer.compare(new ResultImpl(firstMc), new ResultImpl(secondMc)));
+    }
+
+    @Test
+    public void testCompareNullSortOrderCreated() {
+        TemporalResultComparator comparer = new TemporalResultComparator(null);
+        assertEquals(1, comparer.compare(new ResultImpl(firstMc), new ResultImpl(secondMc)));
+        assertEquals(0, comparer.compare(new ResultImpl(firstMc), new ResultImpl(firstMc)));
+        assertEquals(-1, comparer.compare(new ResultImpl(secondMc), new ResultImpl(firstMc)));
+    }
+
+    @Test
+    public void testCompareAscendingExpiration() {
+        TemporalResultComparator comparer = new TemporalResultComparator(SortOrder.ASCENDING);
+        assertEquals(-1, comparer.compare(new ResultImpl(firstMc), new ResultImpl(secondMc)));
+        assertEquals(0, comparer.compare(new ResultImpl(firstMc), new ResultImpl(firstMc)));
+        assertEquals(1, comparer.compare(new ResultImpl(secondMc), new ResultImpl(firstMc)));
+    }
+
+    @Test
+    public void testCompareDescendingExpiration() {
+        TemporalResultComparator comparer = new TemporalResultComparator(SortOrder.DESCENDING);
+        assertEquals(-1, comparer.compare(new ResultImpl(secondMc), new ResultImpl(firstMc)));
+        assertEquals(0, comparer.compare(new ResultImpl(firstMc), new ResultImpl(firstMc)));
+        assertEquals(1, comparer.compare(new ResultImpl(firstMc), new ResultImpl(secondMc)));
+    }
+
+    @Test
+    public void testCompareNullSortOrderExpiration() {
+        TemporalResultComparator comparer = new TemporalResultComparator(null);
+        assertEquals(1, comparer.compare(new ResultImpl(firstMc), new ResultImpl(secondMc)));
+        assertEquals(0, comparer.compare(new ResultImpl(firstMc), new ResultImpl(firstMc)));
+        assertEquals(-1, comparer.compare(new ResultImpl(secondMc), new ResultImpl(firstMc)));
     }
 }
