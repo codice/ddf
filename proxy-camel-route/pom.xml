@@ -20,7 +20,7 @@
     <version>1.0.0-SNAPSHOT</version>
   </parent>
   
-  <artifactId>proxy-http4b</artifactId>
+  <artifactId>proxy-camel-route</artifactId>
   <name>Codice :: HttpProxy :: ProxyCamelRoute</name>
   <packaging>bundle</packaging>
   <dependencies>
