@@ -14,7 +14,8 @@
 <features name="${project.artifactId}-${project.version}">
 
   <feature name="codice-httpproxy" version="${project.version}" description="HTTP Proxy">
-    <feature>camel-http</feature>
+	<configfile finalname="/etc/org.codice.proxy.http.properties.cfg">mvn:org.codice.httpproxy/httpproxy-app/${project.version}/cfg/org.codice.proxy.http.properties</configfile>
+	<feature>camel-http</feature>
     <bundle>mvn:org.codice.httpproxy/proxy-camel-servlet/${project.version}</bundle>
 	<bundle>mvn:org.codice.httpproxy/proxy-camel-route/${project.version}</bundle>
   </feature>

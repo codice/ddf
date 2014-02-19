@@ -86,6 +86,11 @@
                   <type>xml</type>
                   <classifier>features</classifier>
                 </artifact>
+				<artifact>
+                  <file>target/classes/org.codice.proxy.http.properties.cfg</file>
+                  <type>cfg</type>
+                  <classifier>org.codice.proxy.http.properties</classifier>
+                </artifact>
               </artifacts>
             </configuration>
           </execution>

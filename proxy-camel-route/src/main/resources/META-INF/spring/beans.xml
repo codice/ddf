@@ -29,7 +29,7 @@
  
   	<osgix:cm-properties id="org.codice.proxy.http.properties" persistent-id="org.codice.proxy.http.properties">
     	<prop key="endpointName">proxy</prop>
-    	<prop key="targetHost"></prop>
+    	<prop key="targetHost">http://localhost:8181/services</prop>
  	</osgix:cm-properties>
  	
   	<osgi:reference id="servletref" interface="org.apache.camel.component.http.CamelServlet">
