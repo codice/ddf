@@ -18,7 +18,7 @@
 	<parent>
 		<groupId>ddf</groupId>
 	    <artifactId>ddf-parent</artifactId>
-        <version>1.0.0.ALPHA4-SNAPSHOT</version>
+        <version>1.0.1</version>
 		<relativePath>../ddf-parent/pom.xml</relativePath>
 	</parent>	
 
