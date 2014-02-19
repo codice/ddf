@@ -28,7 +28,7 @@
     <packaging>pom</packaging>
     
     <properties>
-	    <ddf.catalog.app.version>2.3.0.ALPHA3-SNAPSHOT</ddf.catalog.app.version>
+	    <ddf.catalog.app.version>2.3.0</ddf.catalog.app.version>
 	    <ddf.platform.app.version>2.3.0</ddf.platform.app.version>
 	</properties>
 	
