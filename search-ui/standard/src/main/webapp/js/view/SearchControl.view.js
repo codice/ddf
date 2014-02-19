@@ -181,7 +181,10 @@ define(function (require) {
                 }
             },
             changeDefaultMapLocation: function (result, shouldFlyToExtent) {
-                console.log("changing "+result);
+                if (typeof console !== 'undefined') {
+                    console.log("changing "+result);
+                }
+
                 if(shouldFlyToExtent) {
                     var extent = result.getResultCenterPoint();
                     if(extent) {

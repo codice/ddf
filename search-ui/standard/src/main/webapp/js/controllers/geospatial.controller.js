@@ -137,7 +137,10 @@ define(function (require) {
 
         flyToLocation: function (model) {
             if (this.enabled) {
-                console.log('flying to model dest:  ', model.toJSON());
+                if (typeof console !== 'undefined') {
+                    console.log('flying to model dest:  ', model.toJSON());
+                }
+
                 var destination, flight, extent;
 
                 //polygon

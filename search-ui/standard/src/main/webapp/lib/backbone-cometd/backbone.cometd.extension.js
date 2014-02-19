@@ -1,5 +1,4 @@
 /* global require */
-/* global console */
 
 (function (undefined) {
     "use strict";

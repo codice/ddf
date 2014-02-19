@@ -30,14 +30,19 @@ define(function (require) {
                     centroid = region.centroid();
                 if (_.isNaN(centroid.latitude)) {
                     // seems to happen when regions is perfect rectangle...
-                    console.warn('centroid util did not return a good centroid, defaulting to average of all points');
+                    if (typeof console !== 'undefined') {
+                        console.warn('centroid util did not return a good centroid, defaulting to average of all points');
+                    }
+
 
                     return {
                         latitude: this.average(polygon, 'latitude'),
                         longitude: this.average(polygon, 'longitude')
                     };
                 } else {
-                    console.log('centroid worked?');
+                    if (typeof console !== 'undefined') {
+                        console.log('centroid worked?');
+                    }
                 }
                 return centroid;
             }
@@ -59,7 +64,9 @@ define(function (require) {
         },
         getPolygon: function () {
             if (!this.isPolygon()) {
-                console.log('This is not a polygon!! ', this);
+                if (typeof console !== 'undefined') {
+                    console.log('This is not a polygon!! ', this);
+                }
                 return;
             }
             var coordinates = this.get('coordinates')[0];

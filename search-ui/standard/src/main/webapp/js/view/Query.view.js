@@ -1,5 +1,4 @@
 /*global define*/
-/*global console*/
 
 define(function (require) {
     "use strict";
@@ -34,7 +33,9 @@ define(function (require) {
             _.bindAll(this,'swapDatesIfNeeded');
         },
         log: function () {
-            console.log(this.toJSON());
+            if (typeof console !== 'undefined') {
+                console.log(this.toJSON());
+            }
         },
 
         setDefaults : function() {
@@ -317,7 +318,9 @@ define(function (require) {
                 timeout: 300000,
                 error : function(){
                     spinner.stop();
-                    console.error(arguments);
+                    if (typeof console !== 'undefined') {
+                        console.error(arguments);
+                    }
                 }
             }).complete(function () {
                     spinner.stop();

@@ -50,7 +50,9 @@ define(function (require) {
 
             })
                 .fail(function (error) {
-                    console.error(error.stack ? error.stack : error);
+                    if (typeof console !== 'undefined') {
+                        console.error(error.stack ? error.stack : error);
+                    }
                 });
 
         },

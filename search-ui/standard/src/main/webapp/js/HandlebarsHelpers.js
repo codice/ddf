@@ -1,4 +1,4 @@
-/*global define, console*/
+/*global define*/
 define(function (require) {
     "use strict";
 
@@ -36,7 +36,9 @@ define(function (require) {
                             date = func.call(momentObj);
                         }
                     } else {
-                        console.log('moment.js does not support "' + i + '"');
+                        if(typeof console !== 'undefined') {
+                            console.log('moment.js does not support "' + i + '"');
+                        }
                     }
                 }
                 return date;
