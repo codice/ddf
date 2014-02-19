@@ -21,7 +21,7 @@
   
   <modelVersion>4.0.0</modelVersion>
   <artifactId>distribution</artifactId>
-  <version>2.3.0.ALPHA5-SNAPSHOT</version>
+  <version>2.3.0</version>
   <packaging>pom</packaging>
   <name>DDF Distribution</name>
    
@@ -59,4 +59,8 @@
   
     </profile>
   </profiles>
+
+  <scm>
+    <tag>ddf-distribution-2.3.0</tag>
+  </scm>
 </project>
