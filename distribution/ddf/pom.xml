@@ -38,7 +38,7 @@
     <distribution.file.name>ddf-${project.version}</distribution.file.name>
     <ddf.platform.app.version>2.3.0</ddf.platform.app.version>
     <ddf.security.app.version>2.3.0.ALPHA3-SNAPSHOT</ddf.security.app.version>
-    <ddf.content.app.version>2.3.0.ALPHA3-SNAPSHOT</ddf.content.app.version>
+    <ddf.content.app.version>2.3.0</ddf.content.app.version>
     <ddf.catalog.app.version>2.3.0</ddf.catalog.app.version>
     <ddf.solr.catalog.app.version>2.3.0</ddf.solr.catalog.app.version>
     <ddf.searchui.app.version>2.3.0</ddf.searchui.app.version>
@@ -88,7 +88,7 @@
         </executions>
       </plugin>
 
-      
+
       <!--
       Puts the features XML file for this DDF distribution into the maven repo.
       -->
@@ -118,7 +118,7 @@
 
     </plugins>
   </build>
-  
+
   <profiles>
 		<profile>
 			<id>generate_uml_javadoc</id>
@@ -163,21 +163,21 @@
 											<version>${ddf.content.app.version}</version>
 											<type>javadoc</type>
 											<outputDirectory>${setup.folder}/content_api_javadoc</outputDirectory>
-										</artifactItem>				
+										</artifactItem>
 										<artifactItem>
 											<groupId>ddf.security.core</groupId>
 											<artifactId>security-core-api</artifactId>
 											<version>${ddf.platform.app.version}</version>
 											<type>javadoc</type>
 											<outputDirectory>${setup.folder}/security_api_javadoc</outputDirectory>
-										</artifactItem>													
+										</artifactItem>
 										<artifactItem>
 											<groupId>ddf.security.encryption</groupId>
 											<artifactId>security-encryption-api</artifactId>
 											<version>${ddf.platform.app.version}</version>
 											<type>javadoc</type>
 											<outputDirectory>${setup.folder}/encryption_api_javadoc</outputDirectory>
-										</artifactItem>																			
+										</artifactItem>
 									</artifactItems>
 								</configuration>
 							</execution>
