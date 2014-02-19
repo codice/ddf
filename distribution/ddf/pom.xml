@@ -42,7 +42,7 @@
     <ddf.catalog.app.version>2.3.0</ddf.catalog.app.version>
     <ddf.solr.catalog.app.version>2.3.0</ddf.solr.catalog.app.version>
     <ddf.searchui.app.version>2.3.0.ALPHA5-SNAPSHOT</ddf.searchui.app.version>
-    <ddf.spatial.app.version>2.3.0.ALPHA4-SNAPSHOT</ddf.spatial.app.version>
+    <ddf.spatial.app.version>2.3.0</ddf.spatial.app.version>
   </properties>
 
 
