@@ -48,7 +48,7 @@
     	<propertyPlaceholder id="myProps" location="ref:org.codice.proxy.http.properties" />
         <route>
             <!-- notice how we can use the servlet scheme which is that osgi:reference above -->
-            <from uri="servlet:///hello"/>
+            <from uri="servlet:///{{endpointName}}"/>
             <to uri="{{targetHost}}?bridgeEndpoint=true&amp;throwExceptionOnFailure=false"/>
         </route>
     </camelContext>
