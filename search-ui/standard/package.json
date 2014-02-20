@@ -32,10 +32,15 @@
   "devDependencies": {
     "grunt": "0.4.1",
     "grunt-cli": "0.1.13",
+    "bower": "1.2.8",
+    "grunt-zip": "0.12.0",
+    "grunt-bower-task": "0.3.4",
     "grunt-contrib-jshint": "0.3.0",
     "grunt-contrib-clean": "0.4.0",
     "grunt-contrib-watch": "0.4.4",
     "grunt-contrib-cssmin": "0.5.0",
+    "grunt-contrib-clean": "0.4.0",
+    "grunt-contrib-copy": "0.5.0",
     "connect-livereload": "~0.3.0"
   },
   "dependencies": {

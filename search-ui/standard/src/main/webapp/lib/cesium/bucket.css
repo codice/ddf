@@ -1,5 +1,5 @@
-@import url(Widgets/widgets.css);
-@import url(Widgets/lighter.css);
+@import url(Cesium/Widgets/widgets.css);
+@import url(Cesium/Widgets/lighter.css);
 
 body {
     background: #000;

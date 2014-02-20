@@ -1,10 +1,50 @@
-/*global module*/
+/*global module,require*/
 
 module.exports = function (grunt) {
+
+    var path = require('path');
 
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
 
+        clean: {
+          build: ['target/webapp']
+        },
+        bower: {
+            install: {
+
+            }
+        },
+        copy: {
+            // workaround for version numbers in perfect scrollbar minified file names
+            perfectscrollbar: {
+                files: [
+                    {
+                        expand: true,
+                        cwd: 'target/webapp/lib/perfect-scrollbar/min',
+                        src: ['*'],
+                        dest: 'target/webapp/lib/perfect-scrollbar/min/',
+                        rename: function(dest, src) {
+                            return path.join(dest, src.replace(/-\d\.\d\.\d\./,'.'));
+                        }
+                    }
+                ]
+            }
+        },
+        unzip: {
+            // workaround for a cesium zip content type detection bug
+            cesium: {
+                router: function (filepath) {
+                    if (grunt.file.doesPathContain('Cesium/', filepath)) {
+                        return filepath;
+                    } else {
+                        return null;
+                    }
+                },
+                src: 'target/webapp/lib/cesium/index.zip',
+                dest: 'target/webapp/lib/cesium/'
+            }
+        },
         cssmin: {
             compress: {
                 files: {
@@ -54,16 +94,29 @@ module.exports = function (grunt) {
             cssFiles : {
                 files :['src/main/webapp/css/*.css'],
                 tasks : ['cssmin']
+            },
+            bowerFile: {
+                files: ['src/main/webapp/bower.json'],
+                tasks: ['bower']
             }
         }
     });
 
+    grunt.registerTask('cesiumclean', function() {
+        // workaround for a cesium zip content type detection bug
+        grunt.file.delete('target/webapp/lib/cesium/index.zip' , {force: true});
+    });
+
+    grunt.loadNpmTasks('grunt-bower-task');
+    grunt.loadNpmTasks('grunt-contrib-cssmin');
+    grunt.loadNpmTasks('grunt-contrib-clean');
+    grunt.loadNpmTasks('grunt-contrib-copy');
     grunt.loadNpmTasks('grunt-contrib-jshint');
     grunt.loadNpmTasks('grunt-contrib-watch');
-    grunt.loadNpmTasks('grunt-contrib-cssmin');
+    grunt.loadNpmTasks('grunt-zip');
 
 
-    grunt.registerTask('default', ['cssmin', 'jshint', 'watch']);
-    grunt.registerTask('build', ['cssmin', 'jshint']);
+    grunt.registerTask('build', ['clean', 'bower', 'copy', 'unzip', 'cesiumclean', 'cssmin', 'jshint']);
+    grunt.registerTask('default', ['build', 'watch']);
 
 };

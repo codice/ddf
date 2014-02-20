@@ -6,45 +6,48 @@
 
         paths: {
 
-            // backbone
-            backbone: 'lib/backbone/backbone',
-            backbonerelational: 'lib/backbone-relational/backbone-relational',
-            backbonecometd: 'lib/backbone-cometd/backbone.cometd.extension',
-            underscore: 'lib/lodash/dist/lodash.underscore',
-            marionette: 'lib/marionette/lib/backbone.marionette',
-            // TODO test combining
-            modelbinder: 'lib/modelbinder/Backbone.ModelBinder.min',
-            collectionbinder: 'lib/modelbinder/Backbone.CollectionBinder.min',
-
-            // jquery
-            jquery: 'lib/jquery/js/jquery-1.10.2.min',
-            bootstrap: 'lib/bootstrap-2.3.1/js/bootstrap.min',
-            partialaffix: 'lib/bootstrap-extensions/js/partial-affix',
-            datepickerOverride: 'lib/jquery/js/plugin/jquery-ui-datepicker-4digitYearOverride-addon',
-            datepickerAddon: 'lib/jquery/js/plugin/jquery-ui-timepicker-addon',
-            purl: 'lib/jquery/js/plugin/purl',
-            jqueryui: 'lib/jquery/js/jquery-ui-1.10.3.min',
+            bootstrap: 'lib/components-bootstrap/js/bootstrap.min',
+            cesium: 'lib/cesium/Cesium/Cesium',
+            cometd: 'lib/cometd/org/cometd',
+            jquerycometd: 'lib/cometd/jquery/jquery.cometd',
+            moment: 'lib/moment/min/moment.min',
             perfectscrollbar: 'lib/perfect-scrollbar/min/perfect-scrollbar.with-mousewheel.min',
-            spin: 'lib/spin/spin',
-            // handlebars
-            handlebars: 'lib/handlebars/handlebars-v1.1.2',
-            icanhaz: 'lib/icanhaz/ICanHandlebarz',
-
-            moment: 'lib/moment/moment',
+            spin: 'lib/spin.js/spin',
             q: 'lib/q/q',
 
+            // backbone
+            backbone: 'lib/components-backbone/backbone-min',
+            backbonerelational: 'lib/backbone-relational/backbone-relational',
+            backbonecometd: 'lib/backbone-cometd/backbone.cometd.extension',
+            underscore: 'lib/lodash/dist/lodash.underscore.min',
+            marionette: 'lib/marionette/lib/backbone.marionette.min',
+            // TODO test combining
+            modelbinder: 'lib/backbone.modelbinder/Backbone.ModelBinder.min',
+            collectionbinder: 'lib/backbone.modelbinder/Backbone.CollectionBinder.min',
+
+            // ddf
             ddf: 'js/ddf',
             cometdinit: 'js/cometd',
             direction: 'js/direction',
             webglcheck : 'js/webglcheck',
             maptype : 'js/maptype',
             spinnerConfig : 'js/spinnerConfig',
-            // require plugins
-            text: 'lib/requirejs-plugins/lib/text',
-            cesium: 'lib/cesium/Cesium',
             properties: 'properties',
-            cometd: 'lib/cometd/org/cometd',
-            jquerycometd: 'lib/cometd/jquery/jquery.cometd'
+
+            // jquery
+            jquery: 'lib/jquery/jquery.min',
+            jqueryui: 'lib/jquery-ui/ui/minified/jquery-ui.min',
+            datepickerOverride: 'lib/jquery/js/plugin/jquery-ui-datepicker-4digitYearOverride-addon',
+            datepickerAddon: 'lib/jquery/js/plugin/jquery-ui-timepicker-addon',
+            purl: 'lib/purl/purl',
+
+            // handlebars
+            handlebars: 'lib/handlebars/handlebars.min',
+            icanhaz: 'lib/icanhandlebarz/ICanHandlebarz',
+
+            // require plugins
+            text: 'lib/requirejs-plugins/lib/text'
+
         },
 
 
@@ -86,7 +89,6 @@
 
             jqueryui: ['jquery'],
             bootstrap: ['jqueryui'],
-            partialaffix: ['bootstrap'],
 
             perfectscrollbar: ['jquery'],
             datepickerOverride: ['jquery'],

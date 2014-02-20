@@ -26,10 +26,8 @@
 
     <!--<script src="Cesium/Cesium.js"></script>-->
     <style>
-        @import url(lib/cesium/Widgets/CesiumWidget/CesiumWidget.css);
+        @import url(lib/cesium/Cesium/Widgets/CesiumWidget/CesiumWidget.css);
         @import url(lib/cesium/bucket.css);
-
-        /*@import url(lib/cesium/bucket.css);*/
 
         #toolbar {
             opacity: 0.85;
@@ -45,29 +43,18 @@
     </style>
 
 
-    <link href="lib/bootstrap-2.3.1/css/bootstrap.min.css" rel="stylesheet">
-    <link href="lib/font-awesome/css/font-awesome.min.css" rel="stylesheet">
-
-    <link href="lib/jquery/css/smoothness/jquery-ui-1.9.1.custom.min.css"
-          rel="stylesheet">
-    <link href="lib/jquery/css/plugin/jquery-ui-timepicker-addon.css"
-          rel="stylesheet">
+    <link href="css/bootstrap.css" rel="stylesheet">
+    <link href="lib/components-font-awesome/css/font-awesome.min.css" rel="stylesheet">
+    <link href="lib/jquery/css/smoothness/jquery-ui-1.9.1.custom.min.css" rel="stylesheet">
+    <link href="lib/jquery/css/plugin/jquery-ui-timepicker-addon.css" rel="stylesheet">
     <link href="lib/perfect-scrollbar/min/perfect-scrollbar.min.css" rel="stylesheet">
-
-    <!-- These CSS files have been compressed and aggregated into Search-min.css.  The list is here for easy modification for
-         the sake of debugging.
-         TODO: Leverage something like http://www.html5rocks.com/en/tutorials/developertools/sourcemaps/  for a better solution
-     -->
-    <!--<link href="css/searchPage.css" rel="stylesheet">-->
-    <!--<link href="css/recordView.css" rel="stylesheet">-->
-    <!--<link href="css/style.css" rel="stylesheet">-->
 
     <link href="css/index.css" rel="stylesheet">
 
 
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
-    <script src="/search/shim/html5.js"></script>
+    <script src="lib/html5shiv/dist/html5shiv.js"></script>
     <![endif]-->
 </head>
 <body>
@@ -84,7 +71,7 @@
 <![endif]-->
 <div id="main" role="main"></div>
 <footer></footer>
-<script data-main="main" src="lib/require/require.js"></script>
+<script data-main="main" src="lib/requirejs/require.js"></script>
 </body>
 </html>
 

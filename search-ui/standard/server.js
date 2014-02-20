@@ -13,6 +13,7 @@ app.use(require('connect-livereload')());
 
 // our compiled css gets moved to /target/webapp/css so use it there
 app.use('/css',express.static(__dirname + '/target/webapp/css'));
+app.use('/lib',express.static(__dirname + '/target/webapp/lib'));
 app.use(express.static(__dirname + '/src/main/webapp'));
 
 var requestProxy = function (req, res) {
