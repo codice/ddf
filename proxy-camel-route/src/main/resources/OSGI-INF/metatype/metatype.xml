@@ -23,8 +23,8 @@
 		/>
 		
 		<AD
-			description="Target host which the request will be forwarded to (e.g. http://targetedsite.com)"
-			name="Target Host" id="targetHost" required="true" type="String" 
+			description="Target URL which the request will be forwarded to (e.g. http://targetedsite.com)"
+			name="Target URL" id="targetHost" required="true" type="String" 
 			default="" 
 		/>
 		
