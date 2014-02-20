@@ -92,7 +92,10 @@ public class PEPAuthorizingInterceptor extends AbstractPhaseInterceptor<Message>
                 ActionPermission action = null;
                 try {
                     user = securityManager.getSubject(assertion.getSecurityToken());
-                    logger.trace(format(assertion.getSecurityToken().getToken()));
+                    
+                    if(logger.isTraceEnabled()){
+                	logger.trace(format(assertion.getSecurityToken().getToken()));
+                    }
 
                     logger.debug("Is user authenticated: {}", user.isAuthenticated());
                     logger.debug("Checking for permission");
