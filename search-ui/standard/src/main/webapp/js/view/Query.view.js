@@ -19,6 +19,8 @@ define(function (require) {
     require('datepickerOverride');
     require('datepickerAddon');
     require('modelbinder');
+    require('multiselect');
+    require('multiselectfilter');
 
 
     Query.Model = Backbone.Model.extend({
@@ -246,6 +248,39 @@ define(function (require) {
                 beforeShow: this.beforeShowDatePicker
             });
             this.delegateEvents();
+
+            var multiselectOptions = {
+                minWidth: 350,
+                height: 185,
+                classes: 'multiselect',
+                noneSelectedText: 'Select types',
+                checkAllText: 'Select all',
+                uncheckAllText: 'Deselect all',
+                selectedText: function(numChecked, numTotal){
+                    return numChecked + ' of ' + numTotal + ' selected';
+                }
+            },
+            singleselectOptions = {
+                header: false,
+                minWidth: 110,
+                height: 185,
+                classes: 'add-on multiselect',
+                multiple: false,
+                selectedText: function(numChecked, numTotal, checkedItems){
+                    if(checkedItems && checkedItems.length > 0) {
+                        return checkedItems.pop().value;
+                    }
+                    return '';
+                }
+            };
+
+            this.$('#typeList').multiselect(multiselectOptions).multiselectfilter();
+
+            this.$('#federationSources').multiselect(multiselectOptions).multiselectfilter();
+
+            this.$('#radiusUnits').multiselect(singleselectOptions);
+
+            this.$('#offsetTimeUnits').multiselect(singleselectOptions);
         },
 
         beforeShowDatePicker: function(picker){

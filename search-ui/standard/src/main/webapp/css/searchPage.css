@@ -382,6 +382,87 @@ span.add-on {
     -webkit-animation: pulse 2s infinite alternate;
     animation: pulse 2s infinite alternate;
     background: none;
-}select.add-on {
+}
+
+select.add-on {
     -webkit-appearance: none;
+}
+
+div.multiselect span {
+     font-weight: normal;
+}
+
+div.multiselect label {
+     white-space: nowrap;
+     color: black;
+}
+
+div.multiselect div.ui-multiselect-filter {
+    clear: both;
+    float: none;
+}
+
+div.multiselect div.ui-multiselect-filter > input {
+    width: 70%;
+}
+
+div.multiselect li.ui-multiselect-close {
+    position: absolute;
+    bottom: 11px;
+    right: 0px;
+}
+
+div.multiselect label > input {
+    margin-top: -4px;
+    margin-right: 4px;
+}
+
+div.multiselect div.ui-multiselect-filter > input {
+    margin-bottom: 1px;
+}
+
+div.multiselect label.ui-state-hover {
+    border: none;
+    background: #EEE;
+}
+
+div.multiselect div.ui-multiselect-header {
+    margin: -3px -3px 3px -3px;
+    border: 0;
+
+    -moz-border-radius-bottomleft: 0px;
+    -webkit-border-bottom-left-radius: 0px;
+    -khtml-border-bottom-left-radius: 0px;
+    border-bottom-left-radius: 0px;
+
+    -moz-border-radius-bottomright: 0px;
+    -webkit-border-bottom-right-radius: 0px;
+    -khtml-border-bottom-right-radius: 0px;
+    border-bottom-right-radius: 0px;
+}
+
+#pointradius button.ui-multiselect {
+    height: auto;
+}
+
+#time_relative button.ui-multiselect {
+    height: auto;
+}
+
+::-webkit-scrollbar {
+    -webkit-appearance: none;
+}
+
+::-webkit-scrollbar:vertical {
+    width: 11px;
+}
+
+::-webkit-scrollbar:horizontal {
+    height: 11px;
+}
+
+::-webkit-scrollbar-thumb {
+    border-radius: 8px;
+    border: 2px solid white; /* should match background, can't be transparent */
+    background-color: rgba(0, 0, 0, .5);
 }
