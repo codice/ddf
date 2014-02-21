@@ -17,7 +17,7 @@
 
   <groupId>org.codice.httpproxy</groupId>
   <artifactId>httpproxy-pom</artifactId>
-  <version>1.0.0</version>
+  <version>1.0.0.ALPHA1</version>
   <packaging>pom</packaging>
   <name>Codice DDF HTTP Proxy</name>
 

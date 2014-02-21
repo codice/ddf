@@ -18,7 +18,7 @@
   <parent>
     <artifactId>httpproxy-pom</artifactId>
     <groupId>org.codice.httpproxy</groupId>
-    <version>1.0.0</version>
+    <version>1.0.0.ALPHA1</version>
   </parent>
 
   <artifactId>httpproxy-app</artifactId>
