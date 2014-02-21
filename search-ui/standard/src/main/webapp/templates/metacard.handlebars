@@ -64,16 +64,16 @@
                             {{#isNotBlank geometry}}
                             <li class="attribute" title="Location">
                                 <span class="attribute-label muted"><i class='fa fa-compass fa-2x'></i></span>
-                                <span class="attribute-value">{{#if mapAvailable}}<a href="#" class="location-link">Locate</a>{{else}}<a href="{{url}}{{properties.id}}?transform=kml">KML</a>{{/if}}</span>
+                                <span class="attribute-value">{{#if mapAvailable}}<a href="#" class="location-link">Locate</a>{{else}}<a href="/services/catalog/sources/{{properties.source-id}}/{{properties.id}}?transform=kml" target="_blank">KML</a>{{/if}}</span>
                             </li>
                             {{/isNotBlank}}
                         </ul>
                     </div>
 
                     {{#if properties.thumbnail}}
-                    <div class="span12 pagination-centered holder-row">
-                        <img class='thumbnail' alt='{{properties.title}}' src='data:image/jpeg;charset=utf-8;base64, {{properties.thumbnail}}' />
-                    </div>
+                        <div class="span12 pagination-centered holder-row">
+                            <a href="/services/catalog/sources/{{properties.source-id}}/{{properties.id}}?transform=thumbnail" target="_blank"><img class='thumbnail' alt='{{properties.title}}' src='data:image/jpeg;charset=utf-8;base64, {{properties.thumbnail}}' /> </a>
+                        </div>
                     {{/if}}
 
                     {{#if properties.resource-uri}}
