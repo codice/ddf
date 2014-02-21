@@ -40,9 +40,9 @@ define(function (require) {
 
             };
 
-            if(properties.wmsServer && properties.wmsServer !== "") {
+            if(properties.enableWmsServer) {
                 options.imageryProvider = new Cesium.WebMapServiceImageryProvider({
-                    url: '/search/standard/proxy',
+                    url: '/info/services/proxy',
                     layers : properties.layers,
                     parameters : {
                         format : properties.format

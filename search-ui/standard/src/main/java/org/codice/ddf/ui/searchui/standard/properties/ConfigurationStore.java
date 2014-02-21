@@ -54,7 +54,7 @@ public class ConfigurationStore {
 
     private String textColor = "";
 
-    private String wmsServer = "";
+    private Boolean isEnableWmsServer = false;
 
     private String layers = "";
 
@@ -85,7 +85,6 @@ public class ConfigurationStore {
         footer = "";
         style = "";
         textColor = "";
-        wmsServer = "";
         layers = "";
         format = "";
         timeout = 5000;
@@ -101,7 +100,7 @@ public class ConfigurationStore {
         configObj.put("style", style);
         configObj.put("textColor", textColor);
         configObj.put("branding", getProductName());
-        configObj.put("wmsServer", wmsServer);
+        configObj.put("enableWmsServer", isEnableWmsServer);
         configObj.put("layers", layers);
         configObj.put("format", format);
         configObj.put("timeout", timeout);
@@ -176,14 +175,14 @@ public class ConfigurationStore {
         this.branding = branding;
     }
 
-    public String getWmsServer() {
-        return wmsServer;
+    public Boolean getEnableWmsServer() {
+        return this.isEnableWmsServer;
     }
 
-    public void setWmsServer(String wmsServer) {
-        this.wmsServer = wmsServer;
+    public void setEnableWmsServer(Boolean enable) {
+        this.isEnableWmsServer = enable;
     }
-
+    
     public String getLayers() { return layers; }
 
     public void setLayers(String layers) {

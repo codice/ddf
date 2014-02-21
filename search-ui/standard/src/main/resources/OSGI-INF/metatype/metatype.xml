@@ -57,9 +57,9 @@
             <Option label="Black" value="banner-text-black" />
         </AD>
         <AD
-            description="Specifies the WMS server to be used as the map tile provider."
-            name="WMS Server" id="wmsServer" required="false" type="String"
-            default=""
+            description="Enables use of WMS server (WMS server URL must be specified in Http Proxy Configuration 'Target Url')."
+            name="WMS Server" id="enableWmsServer" required="false" type="Boolean"
+            default="false"
         />
         <AD
             description="Specifies the WMS layers to be used."

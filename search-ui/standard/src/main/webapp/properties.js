@@ -27,7 +27,7 @@ define(function (require) {
                     props.header = data.header;
                     props.branding = data.branding;
                     props.layers = data.layers;
-                    props.wmsServer = data.wmsServer;
+                    props.enableWmsServer = data.enableWmsServer;
                     props.format = data.format;
                     props.sync = data.sync;
 
