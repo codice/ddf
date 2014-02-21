@@ -43,6 +43,7 @@
     <ddf.solr.catalog.app.version>2.3.0</ddf.solr.catalog.app.version>
     <ddf.searchui.app.version>2.3.0</ddf.searchui.app.version>
     <ddf.spatial.app.version>2.3.0</ddf.spatial.app.version>
+	<ddf.httpproxy.app.version>1.0.0-SNAPSHOT</ddf.httpproxy.app.version>
   </properties>
 
 
