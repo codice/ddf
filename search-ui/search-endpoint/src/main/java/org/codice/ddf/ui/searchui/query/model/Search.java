@@ -102,10 +102,7 @@ public class Search {
                     SortOrder sortOrder = (sortBy.getSortOrder() == null) ? SortOrder.DESCENDING
                             : sortBy.getSortOrder();
 
-                    // Temporal searches are currently sorted by the effective time
                     if (Metacard.EFFECTIVE.equals(sortType)) {
-                        // if (Metacard.EFFECTIVE.equals(sortType) ||
-                        // Result.TEMPORAL.equals(sortType)) {
                         LOGGER.debug("Sorting by EFFECTIVE Date");
                         coreComparator = new TemporalResultComparator(sortOrder, Metacard.EFFECTIVE);
                     } else if (Result.DISTANCE.equals(sortType)) {
