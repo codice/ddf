@@ -24,10 +24,15 @@ define(function (require) {
 
 
     Query.Model = Backbone.Model.extend({
+        //in the search we are checking for whether or not the model
+        //only contains 4 items to know if we can search or not
+        //as soon as the model contains more than 4 items, we assume
+        //that we have enough values to search
         defaults: {
             offsetTimeUnits: "hours",
             radiusUnits: "meters",
-            radius: 0
+            radius: 0,
+            radiusValue: 0
         },
         initialize: function () {
             this.on('change', this.log);
@@ -315,6 +320,16 @@ define(function (require) {
         },
 
         search: function () {
+
+            //check that we can even perform a search
+            //the model has 4 default attributes, so if we only have 4
+            //then we have no search criteria
+            //if we have 5 and one of them is the 'src' attribute, then we
+            //still have no search criteria
+            var modelSize = _.size(this.model.attributes);
+            if (modelSize === 4 || (modelSize === 5 && this.model.get('src'))) {
+                return;
+            }
 
             var progress = new Progress.ProgressModel();
 
