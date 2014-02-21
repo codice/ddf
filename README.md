@@ -37,7 +37,7 @@ mvn clean install
 ```
 
 ## Additional information
-The [wiki](https://tools.codice.org/wiki/display/DDF/DDF+HTTP+Proxy) page contains configuration information on setting up the Load Balancer.
+The [wiki](https://tools.codice.org/wiki/display/DDF/DDF+HTTP+Proxy) page contains configuration information on setting up the HTTP Proxy.
 
 Discussions can be found on the DDF area -- [Announcements forum](http://groups.google.com/group/ddf-announcements),  [Users forum](http://groups.google.com/group/ddf-users), and  [Developers forum](http://groups.google.com/group/ddf-developers).
 
