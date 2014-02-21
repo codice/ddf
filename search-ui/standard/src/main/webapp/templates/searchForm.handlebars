@@ -154,9 +154,7 @@
             <div class="tab-content">
                 <div id="noTypeTab" class="tab-pane {{#ifNotOr type}}active{{/ifNotOr}}"></div>
                 <div id="typeTab" class="tab-pane {{#if type}}active{{/if}}">
-                    <select
-                        id="typeList" name="type" class="input-xlarge">
-                        <option value=""></option>
+                    <select id="typeList" name="type" class="input-xlarge" multiple="multiple">
                        {{#each types}}
                            <option value={{name}}>{{name}}</option>
                        {{/each}}
@@ -181,9 +179,9 @@
                 <div id="nofed" class="tab-pane {{#ifNotOr src}}active{{/ifNotOr}}"></div>
                 <div id="sources" class="tab-pane {{#if src}}active{{/if}}">
                     <div id="scrollableSources" class="scrollable">
-                        <select id="federationSources" multiple="multiple">
+                        <select id="federationSources" class="input-xlarge" multiple="multiple">
                         {{#each sources}}
-                            <option value={{id}}>{{id}}</option>
+                            <option value={{id}} {{#ifNotOr available}}disabled{{/ifNotOr}}>{{id}}</option>
                         {{/each}}
                         </select>
                     </div>
