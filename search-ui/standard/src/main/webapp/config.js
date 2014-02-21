@@ -40,6 +40,8 @@
             datepickerOverride: 'lib/jquery/js/plugin/jquery-ui-datepicker-4digitYearOverride-addon',
             datepickerAddon: 'lib/jquery/js/plugin/jquery-ui-timepicker-addon',
             purl: 'lib/purl/purl',
+            multiselect: 'lib/multiselect/src/jquery.multiselect',
+            multiselectfilter: 'lib/multiselect/src/jquery.multiselect.filter',
 
             // handlebars
             handlebars: 'lib/handlebars/handlebars.min',
@@ -47,7 +49,6 @@
 
             // require plugins
             text: 'lib/requirejs-plugins/lib/text'
-
         },
 
 
@@ -55,6 +56,14 @@
 
             jquerycometd: {
                 deps: ['jquery', 'cometd']
+            },
+
+            multiselect: {
+                deps: ['jquery']
+            },
+
+            multiselectfilter: {
+                deps: ['jquery']
             },
 
             backbone: {

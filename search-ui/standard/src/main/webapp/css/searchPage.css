@@ -404,6 +404,18 @@ div.multiselect div.ui-multiselect-filter {
 
 div.multiselect div.ui-multiselect-filter > input {
     width: 70%;
+    margin-bottom: 1px;
+    height: 10px;
+    font-size: 12px;
+}
+
+div.multiselect a.ui-multiselect-all > span, div.multiselect a.ui-multiselect-none > span {
+    font-size: 12px;
+    margin-bottom: 1px;
+}
+
+button.multiselect > span {
+    font-size: 14px;
 }
 
 div.multiselect li.ui-multiselect-close {
@@ -415,10 +427,6 @@ div.multiselect li.ui-multiselect-close {
 div.multiselect label > input {
     margin-top: -4px;
     margin-right: 4px;
-}
-
-div.multiselect div.ui-multiselect-filter > input {
-    margin-bottom: 1px;
 }
 
 div.multiselect label.ui-state-hover {
