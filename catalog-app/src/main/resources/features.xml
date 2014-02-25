@@ -36,7 +36,6 @@
     <feature name="catalog-core" install="manual" version="${project.version}"
         description="Catalog Core feature containing the API, third party bundles necessary to run ddf-core.">
         <feature>catalog-core-api</feature>
-        <feature>cxf-tools</feature>
         <bundle>mvn:ddf.catalog.core/catalog-core-commons/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.core/catalog-core-camelcomponent/${project.version}</bundle>        
         <bundle>mvn:ddf.measure/measure-api/${project.version}</bundle>
@@ -166,6 +165,7 @@
     <feature name="catalog-transformer-xml" install="manual" version="${project.version}"
         description="XML MetacardTransformer and InputTransformer">
         <bundle>mvn:ddf.catalog.transformer/catalog-transformer-xml/${project.version}</bundle>
+        <bundle>mvn:commons-collections/commons-collections/3.2.1</bundle>
     </feature>
     
     <feature name="catalog-security-filter" install="manual" version="${project.version}" description="DDF Catalog Security Filtering">
