@@ -615,6 +615,7 @@
         <feature>platform-status</feature>
 		<feature>cxf</feature>
 		<feature>camel</feature>
+		<feature>camel-http</feature>
 		<feature>platform-scheduler</feature>
         <feature>platform-configuration</feature>
 		<feature>action-core-api</feature>
