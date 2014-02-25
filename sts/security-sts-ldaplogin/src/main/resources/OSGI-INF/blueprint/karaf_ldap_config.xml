@@ -27,7 +27,7 @@
         <cm:default-properties>
             <cm:property name="ldapBindUserDn" value="cn=admin"/>
             <cm:property name="ldapBindUserPass" value="ENC(c+GitDfYAMTDRESXSDDsMw==)"/>
-            <cm:property name="ldapUrl" value="ldap://ldap:1636"/>
+            <cm:property name="ldapUrl" value="ldaps://ldap:1636"/>
             <cm:property name="userBaseDn" value="ou=users,dc=example,dc=com"/>
             <cm:property name="groupBaseDn" value="ou=groups,dc=example,dc=com"/>
             <cm:property name="keyAlias" value="server"/>
