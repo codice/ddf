@@ -99,6 +99,32 @@ module.exports = function (grunt) {
                 files: ['src/main/webapp/bower.json'],
                 tasks: ['bower']
             }
+        },
+        casperjs: {
+            options: {
+                async: {
+                    parallel: false
+                }
+            },
+            //this is where the tests would be called from
+            files: ['src/test/js/*.js']
+        },
+        express: {
+            options: {
+                port: 8282,
+                hostname: '*'
+            },
+            test: {
+                options: {
+                    port: 8383,
+                    server: './test.js'
+                }
+            },
+            server: {
+                options: {
+                    server: './server.js'
+                }
+            }
         }
     });
 
@@ -113,10 +139,17 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-contrib-copy');
     grunt.loadNpmTasks('grunt-contrib-jshint');
     grunt.loadNpmTasks('grunt-contrib-watch');
+    grunt.loadNpmTasks('grunt-express');
+    grunt.loadNpmTasks('grunt-casperjs');
+
+    //the grunt-zip task interferes with grunt-express, but since grunt loads these tasks in serially, we can
+    //just load it in down here after the express task is loaded. DO NOT move this task above the test task or
+    //all tests will fail.
+    grunt.registerTask('test', ['express:test','casperjs']);
     grunt.loadNpmTasks('grunt-zip');
 
 
-    grunt.registerTask('build', ['clean', 'bower', 'copy', 'unzip', 'cesiumclean', 'cssmin', 'jshint']);
-    grunt.registerTask('default', ['build', 'watch']);
+    grunt.registerTask('build', ['clean', 'bower', 'copy', 'unzip', 'cesiumclean', 'cssmin', 'jshint', 'test']);
+    grunt.registerTask('default', ['build','express:server','watch']);
 
 };

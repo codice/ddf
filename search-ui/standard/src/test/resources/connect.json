@@ -1,0 +1,12 @@
+[
+    {
+        "id": "3",
+        "successful": true,
+        "advice": {
+            "interval": 0,
+            "reconnect": "retry",
+            "timeout": 30000
+        },
+        "channel": "/meta/connect"
+    }
+]

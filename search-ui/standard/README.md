@@ -18,11 +18,6 @@ An Express application has been included to allow rapid development without havi
 npm install
 ```
 * Make sure an instance of `ddf` is running locally on port 8181
-* Run the Express application to serve static files and proxy service requests
-
-```
-node server.js
-````
 * Run the default `grunt` task in a separate window
 
 ```
