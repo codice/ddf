@@ -25,7 +25,7 @@
 		<cm:managed-properties persistent-id="org.codice.ddf.ui.search.standard.properties"
 			update-strategy="component-managed" update-method="update" />
         <property name="branding" ref="webBranding" />
-        <property name="httpProxy" ref="httpProxyService" />
+        <property name="bundleContext" ref="blueprintBundleContext" />
 	</bean>
   
     <jaxrs:server id="restService" address="/store">

@@ -74,16 +74,7 @@
         	<artifactId>proxy-camel-route</artifactId>
         	<version>${ddf.httpproxy.version}</version>
         </dependency>
-        <dependency>
-        	<groupId>ddf.ui.search</groupId>
-        	<artifactId>search-proxy</artifactId>
-        	<version>${project.version}</version>
-        </dependency>
-        <dependency>
-			<groupId>commons-lang</groupId>
-			<artifactId>commons-lang</artifactId>
-		</dependency>
-		
+
     </dependencies>
 
     <build>
