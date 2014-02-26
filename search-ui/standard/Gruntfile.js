@@ -3,6 +3,7 @@
 module.exports = function (grunt) {
 
     var path = require('path');
+    var which = require('which');
 
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
@@ -148,8 +149,20 @@ module.exports = function (grunt) {
     grunt.registerTask('test', ['express:test','casperjs']);
     grunt.loadNpmTasks('grunt-zip');
 
+    var buildTasks = ['clean', 'bower', 'copy', 'unzip', 'cesiumclean', 'cssmin', 'jshint'];
 
-    grunt.registerTask('build', ['clean', 'bower', 'copy', 'unzip', 'cesiumclean', 'cssmin', 'jshint', 'test']);
+    try {
+        grunt.log.writeln('Checking for python');
+        var pythonPath = which.sync('python');
+        if(pythonPath) {
+            grunt.log.writeln('Found python');
+            buildTasks = ['clean', 'bower', 'copy', 'unzip', 'cesiumclean', 'cssmin', 'jshint', 'test'];
+        }
+    } catch (e) {
+        grunt.log.writeln('Python is not installed. Please install Python and ensure that it is in your path to run tests.');
+    }
+
+    grunt.registerTask('build', buildTasks);
     grunt.registerTask('default', ['build','express:server','watch']);
 
 };
