@@ -74,6 +74,7 @@ import ddf.catalog.operation.impl.ResourceResponseImpl;
 import ddf.catalog.operation.impl.SourceResponseImpl;
 import ddf.catalog.resource.ResourceNotFoundException;
 import ddf.catalog.resource.ResourceNotSupportedException;
+import ddf.catalog.service.ConfiguredService;
 import ddf.catalog.resource.impl.ResourceImpl;
 import ddf.catalog.source.FederatedSource;
 import ddf.catalog.source.SourceMonitor;
@@ -86,7 +87,7 @@ import ddf.catalog.transform.InputTransformer;
  * via https which requires a keystore and trust store to be provided.
  * 
  */
-public final class OpenSearchSource implements FederatedSource {
+public final class OpenSearchSource implements FederatedSource, ConfiguredService {
     static final String BAD_URL_MESSAGE = "Bad url given for remote source";
 
     static final String COULD_NOT_RETRIEVE_RESOURCE_MESSAGE = "Could not retrieve resource";
@@ -146,6 +147,7 @@ public final class OpenSearchSource implements FederatedSource {
 
     // expensive creation, meant to be done once
     private static final Abdera ABDERA = new Abdera();
+    private String configurationPid;
 
     /**
      * Creates an OpenSearch Site instance. Sets an initial default endpointUrl that can be
@@ -1054,5 +1056,17 @@ public final class OpenSearchSource implements FederatedSource {
         }
 
         logger.exit(methodName + ":   endpointUrl = " + endpointUrl);
+    }    
+
+    @Override
+    public String getConfigurationPid()
+    {
+        return configurationPid;
+    }
+
+    @Override
+    public void setConfigurationPid(String configurationPid)
+    {
+        this.configurationPid = configurationPid;
     }
 }
