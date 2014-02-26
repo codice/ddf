@@ -54,18 +54,19 @@
         <configuration>
           <instructions>
             <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+            <Bundle-ClassPath>
+            .
+            </Bundle-ClassPath>
             <Import-Package>
             	org.apache.camel.component.http,
             	org.apache.camel.component.servlet,
-            	org.codice.proxy.http,
             	javax.servlet,
             	javax.servlet.http,
             	*
             </Import-Package>
             <Embed-Dependency>camel-servlet</Embed-Dependency>
             <Export-Package>
-            	org.apache.camel.component.servlet,
-            	org.codice.proxy.http
+            	org.apache.camel.component.servlet
           	</Export-Package>
           </instructions>
         </configuration>

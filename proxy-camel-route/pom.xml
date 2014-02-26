@@ -50,6 +50,11 @@
   		<artifactId>spring-context</artifactId>
   		<version>2.5.6.SEC01</version>
 	</dependency>
+	<dependency>
+    	<groupId>org.osgi</groupId>
+      	<artifactId>org.osgi.core</artifactId>
+       	<scope>provided</scope>
+        </dependency>
   </dependencies>
   
   <build>
@@ -63,11 +68,14 @@
             <Import-Package>
             	org.apache.camel.component.http,
             	org.apache.camel.component.servlet,
+            	org.apache.camel.core.osgi,
             	*
             </Import-Package>
-            <Embed-Dependency>camel-servlet</Embed-Dependency>
+            <Embed-Dependency>camel-servlet, camel-core-osgi</Embed-Dependency>
             <Export-Package>
-            	org.apache.camel.component.servlet
+            	org.apache.camel.component.servlet,
+            	org.apache.camel.core.osgi,
+            	org.codice.proxy.http
           	</Export-Package>
           </instructions>
         </configuration>
