@@ -392,6 +392,11 @@ public class CatalogFrameworkImpl extends DescribableImpl implements Configurati
         logger.debug("Injecting productCache");
         this.productCache = productCache;
     }
+    
+    public void setProductCacheDirectory(String productCacheDirectory) {
+    	logger.debug("Setting product cache directory to {}", productCacheDirectory);
+    	this.productCache.setProductCacheDirectory(productCacheDirectory);
+    }
 
     /**
      * Invoked by blueprint when a {@link CatalogProvider} is created and bound to this
@@ -1391,9 +1396,14 @@ public class CatalogFrameworkImpl extends DescribableImpl implements Configurati
         return resourceResponse;
     }
     
-    
-    // Add retrieved product to the cache
-    private ResourceResponse cacheProduct(Metacard metacard, ResourceResponse resourceResponse) {        
+    /**
+     * Add retrieved product to the cache
+     * 
+     * @param metacard Metacard to index retrieved product with
+     * @param resourceResponse response containing the Resource to be cached
+     * @return
+     */
+    protected ResourceResponse cacheProduct(Metacard metacard, ResourceResponse resourceResponse) {        
         if (metacard != null && resourceResponse != null) {
             try {
                 resourceResponse = productCache.put(metacard, resourceResponse);

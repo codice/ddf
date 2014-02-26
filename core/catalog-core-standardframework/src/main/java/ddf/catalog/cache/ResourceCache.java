@@ -38,7 +38,11 @@ public class ResourceCache {
 
     private static final String PRODUCT_CACHE_NAME = "Product_Cache";
 
-    public static final String DEFAULT_PRODUCT_CACHE_DIRECTORY = "product-cache";
+    /**
+     * Default location for product-cache directory, <INSTALL_DIR>/data/product-cache
+     */
+    public static final String DEFAULT_PRODUCT_CACHE_DIRECTORY = 
+    		"data" + File.separator + "product-cache";
 
     private CacheManager cacheManager;
 
@@ -75,8 +79,8 @@ public class ResourceCache {
                 final File karafHomeDir = new File(System.getProperty(KARAF_HOME));
 
                 if (karafHomeDir.isDirectory()) {
-                    final File fspDir = new File(karafHomeDir + File.separator
-                            + DEFAULT_PRODUCT_CACHE_DIRECTORY);
+					final File fspDir = new File(karafHomeDir + File.separator
+							+ DEFAULT_PRODUCT_CACHE_DIRECTORY);
 
                     // if directory does not exist, try to create it
                     if (fspDir.isDirectory() || fspDir.mkdirs()) {
@@ -148,10 +152,23 @@ public class ResourceCache {
         LOGGER.debug("key {}", key);
 
         CachedResource cachedResource = (CachedResource) cache.get(key);
+        
+        // Check that CachedResource actually maps to a file (product) in the
+        // product cache directory. This check handles the case if the product
+        // cache directory has had files deleted from it.
         if (cachedResource != null) {
-            LOGGER.debug("EXITING: get() for key {}", key);
-            return cachedResource;
+        	if (cachedResource.hasProduct()) {
+	            LOGGER.debug("EXITING: get() for key {}", key);
+	            return cachedResource;
+        	} else {
+				LOGGER.debug("Entry found in the cache, but no product found in cache directory for key = {}", key);
+				cache.remove(key);
+				throw new CacheException(
+						"Entry found in the cache, but no product found in cache directory for key = "
+								+ key);
+        	}
         } else {
+        	LOGGER.debug("No product found in cache for key = {}", key);
             throw new CacheException("No product found in cache for key = " + key);
         }
 

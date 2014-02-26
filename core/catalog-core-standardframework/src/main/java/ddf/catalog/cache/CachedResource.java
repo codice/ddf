@@ -134,6 +134,15 @@ public class CachedResource implements Resource, Serializable {
     public InputStream getProduct() throws IOException {
         return FileUtils.openInputStream(new File(filePath));
     }
+    
+    /**
+     * Returns true if this CachedResource's product file exists in the product cache directory.
+     * 
+     * @return
+     */
+    public boolean hasProduct() {
+    	return new File(filePath).exists();
+    }
 
     @Override
     public MimeType getMimeType() {

@@ -131,10 +131,16 @@
 		</service-properties>
 	</service>
 
+    <reference id="cacheManager" interface="ddf.cache.CacheManager" />
+    
+    <bean id="productCache" class="ddf.catalog.cache.ResourceCache">
+        <property name="cacheManager" ref="cacheManager" />
+        <property name="productCacheDirectory" value="" />
+    </bean>
 
 	<!-- create the ddf bean -->
 	<bean id="ddf-fanout" class="ddf.catalog.fanout.FanoutCatalogFramework">
-		<cm:managed-properties persistent-id="ddf"
+		<cm:managed-properties persistent-id="ddf.catalog.fanout.FanoutCatalogFramework"
 			update-strategy="container-managed" />
 		<argument ref="blueprintBundleContext" />
 		<argument ref="preIngestSortedList" />
@@ -153,6 +159,7 @@
 		<property name="id" value="ddf-fanout" />
 		<property name="version" value="DDF v2.0" />
 		<property name="organization" value="Codice" />
+		<property name="productCache" ref="productCache" />	
 	</bean>
 
 	<bean id="sourcePoller" class="ddf.catalog.util.impl.SourcePoller">
