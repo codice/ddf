@@ -106,6 +106,10 @@ public class ResourceCache {
 
         LOGGER.debug("Set product cache directory to: {}", this.productCacheDirectory);
     }
+    
+    public String getProductCacheDirectory() {
+    	return productCacheDirectory;
+    }
 
     public ResourceResponse put(Metacard metacard, ResourceResponse resourceResponse)
         throws CacheException {
