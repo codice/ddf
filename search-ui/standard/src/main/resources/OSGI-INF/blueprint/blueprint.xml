@@ -21,8 +21,9 @@
 	<bean id="configurationStore" class="org.codice.ddf.ui.searchui.standard.properties.ConfigurationStore"
 		factory-method="getInstance">
 		<cm:managed-properties persistent-id="org.codice.ddf.ui.search.standard.properties"
-			update-strategy="container-managed" />
+			update-strategy="component-managed" update-method="update" />
         <property name="branding" ref="webBranding" />
+        <property name="bundleContext" ref="blueprintBundleContext" />
 	</bean>
 
     <jaxrs:server id="restService" address="/store">

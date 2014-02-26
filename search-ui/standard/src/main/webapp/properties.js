@@ -27,9 +27,10 @@ define(function (require) {
                     props.header = data.header;
                     props.branding = data.branding;
                     props.layers = data.layers;
-                    props.enableWmsServer = data.enableWmsServer;
+                    props.wmsServer = data.wmsServer;
                     props.format = data.format;
                     props.sync = data.sync;
+                    props.targetUrl = data.targetUrl;
 
                     var sync = $.url().param('sync');
                     if (sync === 'true') {

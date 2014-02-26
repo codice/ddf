@@ -69,6 +69,11 @@
         	<artifactId>search-securityservletfilter</artifactId>
         	<version>${project.version}</version>
         </dependency>
+       	<dependency>
+        	<groupId>org.codice.httpproxy</groupId>
+        	<artifactId>proxy-camel-route</artifactId>
+        	<version>${ddf.httpproxy.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -117,7 +122,10 @@
                         <Web-ContextPath>/search/standard</Web-ContextPath>
                         <_wab>src/main/webapp,${project.build.directory}/webapp</_wab>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <Export-Package />
+                        <Import>
+                        org.codice.proxy.http,
+                        *
+                        </Import>
                     </instructions>
                 </configuration>
             </plugin>

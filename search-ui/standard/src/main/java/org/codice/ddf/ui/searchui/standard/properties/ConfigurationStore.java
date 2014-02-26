@@ -20,8 +20,12 @@ import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.BinaryContentImpl;
 import net.minidev.json.JSONObject;
 import net.minidev.json.JSONValue;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.felix.webconsole.BrandingPlugin;
+import org.codice.proxy.http.HttpProxyService;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,7 +37,9 @@ import javax.ws.rs.Path;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+
 import java.io.ByteArrayInputStream;
+import java.util.Map;
 
 /**
  * Stores external configuration properties.
@@ -54,7 +60,9 @@ public class ConfigurationStore {
 
     private String textColor = "";
 
-    private Boolean isEnableWmsServer = false;
+    private String wmsServer = "";
+    
+    private String targetUrl = "";
 
     private String layers = "";
 
@@ -69,6 +77,8 @@ public class ConfigurationStore {
     private Integer timeout = 5000;
 
     private Boolean isSyncQuery = false;
+    
+    private BundleContext bundleContext = null;
 
     static {
         MimeType mime = null;
@@ -100,11 +110,12 @@ public class ConfigurationStore {
         configObj.put("style", style);
         configObj.put("textColor", textColor);
         configObj.put("branding", getProductName());
-        configObj.put("enableWmsServer", isEnableWmsServer);
+        configObj.put("wmsServer", wmsServer);
         configObj.put("layers", layers);
         configObj.put("format", format);
         configObj.put("timeout", timeout);
         configObj.put("sync", isSyncQuery);
+        configObj.put("targetUrl", targetUrl);
 
         String configString = JSONValue.toJSONString(configObj);
         BinaryContent content = new BinaryContentImpl(new ByteArrayInputStream(configString.getBytes()),
@@ -175,12 +186,12 @@ public class ConfigurationStore {
         this.branding = branding;
     }
 
-    public Boolean getEnableWmsServer() {
-        return this.isEnableWmsServer;
+    public String getWmsServer() {
+        return this.wmsServer;
     }
 
-    public void setEnableWmsServer(Boolean enable) {
-        this.isEnableWmsServer = enable;
+    public void setWmsServer(String wmsServer) {
+        this.wmsServer = wmsServer;
     }
     
     public String getLayers() { return layers; }
@@ -213,7 +224,77 @@ public class ConfigurationStore {
         this.isSyncQuery = sync;
     }
 
-    public Object clone() throws CloneNotSupportedException {
+    public String getTargetUrl() {
+		return targetUrl;
+	}
+
+	public void setTargetUrl(String targetUrl) {
+		this.targetUrl = targetUrl;
+	}
+
+	public BundleContext getBundleContext() {
+		return bundleContext;
+	}
+
+	public void setBundleContext(BundleContext bundleContext) {
+		this.bundleContext = bundleContext;
+	}
+
+	public Object clone() throws CloneNotSupportedException {
         throw new CloneNotSupportedException();
+    }
+    
+    public void update(Map<String, Object> properties) {
+    	if (properties != null) {
+    		setHeader((String) properties.get("header"));
+    		setFooter((String) properties.get("footer"));
+    		setStyle((String) properties.get("style"));
+    		setTextColor((String) properties.get("textColor"));
+    		setBranding((BrandingPlugin) properties.get("branding"));
+    		setWmsServer((String) properties.get("wmsServer"));
+    		setLayers((String) properties.get("layers"));
+    		setFormat((String) properties.get("format"));
+    		setTimeout((Integer) properties.get("timeout"));
+    		setSyncQuery((Boolean) properties.get("syncQuery"));
+    		
+    		//Fetch the DDF HTTP Proxy
+    		if (bundleContext == null){
+    			LOGGER.debug("Bundle context is null");
+    		}
+            ServiceReference ref = bundleContext.getServiceReference(HttpProxyService.class.getName());
+            
+            if(ref == null){
+            	LOGGER.debug("Service reference to Http proxy is null.");
+            	
+            	//Http Proxy Service does not exist on the framework, just pass the WMS Server directly instead of using a proxy
+            	targetUrl = wmsServer;
+            } else {
+            	HttpProxyService proxy = (HttpProxyService) bundleContext.getService(ref);
+            	String endpointName = null;
+            	try {
+					endpointName = proxy.startProxy(wmsServer);
+				} catch (Exception e) {
+					LOGGER.error(e.getMessage());
+				}
+            	
+            	//TODO: Find a better way to store the base uri
+            	targetUrl = "http://localhost:8181/info/services/" + endpointName;
+            }
+            
+    		LOGGER.debug("Updated properties: " +
+    				"header=" + header +
+    				", footer=" + footer +
+    				", style=" + style +
+    				", textColor=" + textColor +
+    				", wmsServer=" + wmsServer +
+    				", layers=" + layers +
+    				", format=" + format +
+    				", timeout=" + timeout +
+    				", syncQuery=" + isSyncQuery
+    				);
+    		
+    	} else{
+    		LOGGER.debug("Properties are empty");
+    	}
     }
 }
