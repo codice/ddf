@@ -132,6 +132,9 @@ public class CachedResource implements Resource, Serializable {
     }
 
     public InputStream getProduct() throws IOException {
+    	if (filePath == null) {
+    		return null;
+    	}
         return FileUtils.openInputStream(new File(filePath));
     }
     
@@ -141,6 +144,9 @@ public class CachedResource implements Resource, Serializable {
      * @return
      */
     public boolean hasProduct() {
+    	if (filePath == null) {
+    		return false;
+    	}
     	return new File(filePath).exists();
     }
 
