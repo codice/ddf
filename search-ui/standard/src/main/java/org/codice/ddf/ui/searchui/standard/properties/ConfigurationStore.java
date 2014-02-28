@@ -50,6 +50,8 @@ import java.util.Map;
 public class ConfigurationStore {
     private static final Logger LOGGER = LoggerFactory.getLogger(ConfigurationStore.class);
 
+    public static final String SERVLET_PATH = "/info/services";
+    
     private static ConfigurationStore uniqueInstance;
 
     private String header = "";
@@ -287,7 +289,7 @@ public class ConfigurationStore {
     private void startProxy(){		
 		try {
 			endpointName = httpProxy.startProxy(wmsServer);
-			targetUrl = "http://localhost:8181" + httpProxy.SERVLET_PATH + "/" + endpointName;
+			targetUrl = "http://localhost:8181" + SERVLET_PATH + "/" + endpointName;
 			LOGGER.debug("Target URL: " + targetUrl);
 		} catch (Exception e) {
 			LOGGER.error(e.getMessage());
