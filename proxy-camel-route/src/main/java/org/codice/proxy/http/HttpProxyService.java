@@ -16,11 +16,34 @@
 package org.codice.proxy.http;
 
 /**
- * Http Proxy service which creates a Camel based proxy
+ * Http Proxy service which creates a Camel based http proxy
  */
 public interface HttpProxyService {
+	
+	/**
+	 * Creates and starts a proxy given only a target Uri. Generated Endpoint name will be returned.
+	 * @param targetUri
+	 * @return
+	 * @throws Exception
+	 */
 	public String startProxy(String targetUri) throws Exception;
+	
+	
+	/**
+	 * Creates and starts a proxy given an endpoint name and target Uri. Endpoint name will be returned.
+	 * @param endpointName
+	 * @param targetUri
+	 * @return
+	 * @throws Exception
+	 */
 	public String startProxy(String endpointName, String targetUri) throws Exception;
-	public void stopProxy() throws Exception;
+	
+	
+	/**
+	 * Stops and destroys the proxy.
+	 * @param endpointName
+	 * @throws Exception
+	 */
+	public void stopProxy(String endpointName) throws Exception;
 }
 

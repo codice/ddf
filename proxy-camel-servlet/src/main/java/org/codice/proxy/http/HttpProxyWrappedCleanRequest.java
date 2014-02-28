@@ -20,10 +20,16 @@ import javax.servlet.http.HttpServletRequestWrapper;
 
 import org.apache.commons.lang.StringUtils;
 
+
+/**
+ * Wrapper for the HttpServletRequest which cleans up bad query strings
+ * @author ddf
+ *
+ */
 public class HttpProxyWrappedCleanRequest extends HttpServletRequestWrapper {
 	
 	/**
-	 * Create a new request wrapper that will clean up bad query parameters and mapped parameters.
+	 * Creates a new request wrapper that will clean up bad query parameters and mapped parameters.
 	 * 
 	 * @param request
 	 */
