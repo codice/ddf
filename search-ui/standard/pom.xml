@@ -74,6 +74,16 @@
         	<artifactId>proxy-camel-route</artifactId>
         	<version>${ddf.httpproxy.version}</version>
         </dependency>
+        <dependency>
+        	<groupId>ddf.ui.search</groupId>
+        	<artifactId>search-proxy</artifactId>
+        	<version>${project.version}</version>
+        </dependency>
+        <dependency>
+			<groupId>commons-lang</groupId>
+			<artifactId>commons-lang</artifactId>
+		</dependency>
+		
     </dependencies>
 
     <build>
@@ -118,7 +128,7 @@
                 <artifactId>maven-bundle-plugin</artifactId>
                 <configuration>
                     <instructions>
-                        <Embed-Dependency>json-smart, httpclient, httpcore, search-securityservletfilter</Embed-Dependency>
+                       	<Embed-Dependency>json-smart, httpclient, httpcore, search-securityservletfilter</Embed-Dependency>
                         <Web-ContextPath>/search/standard</Web-ContextPath>
                         <_wab>src/main/webapp,${project.build.directory}/webapp</_wab>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>

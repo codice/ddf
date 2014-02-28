@@ -17,15 +17,17 @@
 	xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0" xmlns:jaxrs="http://cxf.apache.org/blueprint/jaxrs">
 
     <reference id="webBranding" interface="org.apache.felix.webconsole.BrandingPlugin" />
+    
+    <reference id="httpProxyService" interface="org.codice.proxy.http.HttpProxyService" />
 
 	<bean id="configurationStore" class="org.codice.ddf.ui.searchui.standard.properties.ConfigurationStore"
-		factory-method="getInstance">
+		factory-method="getInstance" init-method="init">
 		<cm:managed-properties persistent-id="org.codice.ddf.ui.search.standard.properties"
 			update-strategy="component-managed" update-method="update" />
         <property name="branding" ref="webBranding" />
-        <property name="bundleContext" ref="blueprintBundleContext" />
+        <property name="httpProxy" ref="httpProxyService" />
 	</bean>
-
+  
     <jaxrs:server id="restService" address="/store">
         <jaxrs:serviceBeans>
             <ref component-id="configurationStore" />
@@ -35,5 +37,5 @@
             <bean class="org.apache.cxf.jaxrs.provider.jsonp.JsonpPostStreamInterceptor"/>
         </jaxrs:outInterceptors>
     </jaxrs:server>
-	
+
 </blueprint>

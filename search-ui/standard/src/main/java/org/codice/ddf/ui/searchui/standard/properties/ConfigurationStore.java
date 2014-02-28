@@ -24,10 +24,10 @@ import net.minidev.json.JSONValue;
 import org.apache.commons.lang.StringUtils;
 import org.apache.felix.webconsole.BrandingPlugin;
 import org.codice.proxy.http.HttpProxyService;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.apache.commons.lang.StringUtils;
 
 import javax.activation.MimeType;
 import javax.activation.MimeTypeParseException;
@@ -78,7 +78,9 @@ public class ConfigurationStore {
 
     private Boolean isSyncQuery = false;
     
-    private BundleContext bundleContext = null;
+    private HttpProxyService httpProxy = null;
+    
+    private String endpointName = null;
 
     static {
         MimeType mime = null;
@@ -129,7 +131,6 @@ public class ConfigurationStore {
      * @return a unique instance of {@link ConfigurationStore}
      */
     public static synchronized ConfigurationStore getInstance() {
-
         if (uniqueInstance == null) {
             uniqueInstance = new ConfigurationStore();
         }
@@ -232,14 +233,6 @@ public class ConfigurationStore {
 		this.targetUrl = targetUrl;
 	}
 
-	public BundleContext getBundleContext() {
-		return bundleContext;
-	}
-
-	public void setBundleContext(BundleContext bundleContext) {
-		this.bundleContext = bundleContext;
-	}
-
 	public Object clone() throws CloneNotSupportedException {
         throw new CloneNotSupportedException();
     }
@@ -258,29 +251,8 @@ public class ConfigurationStore {
     		setSyncQuery((Boolean) properties.get("syncQuery"));
     		
     		//Fetch the DDF HTTP Proxy
-    		if (bundleContext == null){
-    			LOGGER.debug("Bundle context is null");
-    		}
-            ServiceReference ref = bundleContext.getServiceReference(HttpProxyService.class.getName());
-            
-            if(ref == null){
-            	LOGGER.debug("Service reference to Http proxy is null.");
-            	
-            	//Http Proxy Service does not exist on the framework, just pass the WMS Server directly instead of using a proxy
-            	targetUrl = wmsServer;
-            } else {
-            	HttpProxyService proxy = (HttpProxyService) bundleContext.getService(ref);
-            	String endpointName = null;
-            	try {
-					endpointName = proxy.startProxy(wmsServer);
-				} catch (Exception e) {
-					LOGGER.error(e.getMessage());
-				}
-            	
-            	//TODO: Find a better way to store the base uri
-            	targetUrl = "http://localhost:8181/info/services/" + endpointName;
-            }
-            
+    		startProxy();
+    		
     		LOGGER.debug("Updated properties: " +
     				"header=" + header +
     				", footer=" + footer +
@@ -295,6 +267,39 @@ public class ConfigurationStore {
     		
     	} else{
     		LOGGER.debug("Properties are empty");
+    		//Stop proxy
+    		try {
+				httpProxy.stopProxy(endpointName);
+			} catch (Exception e) {
+				LOGGER.error(e.getMessage());
+			}
     	}
     }
+    
+    public void init(){
+    	if ((!StringUtils.isEmpty(wmsServer))){
+    		startProxy();
+    	} else {
+    		LOGGER.debug("Cannot instantiate proxy connection.");
+    	}
+    }
+    
+    private void startProxy(){		
+		try {
+			endpointName = httpProxy.startProxy(wmsServer);
+			targetUrl = "http://localhost:8181" + httpProxy.SERVLET_PATH + "/" + endpointName;
+			LOGGER.debug("Target URL: " + targetUrl);
+		} catch (Exception e) {
+			LOGGER.error(e.getMessage());
+		}
+    }
+
+	public HttpProxyService getHttpProxy() {
+		return httpProxy;
+	}
+
+	public void setHttpProxy(HttpProxyService httpProxy) {
+		this.httpProxy = httpProxy;
+	}
+  
 }

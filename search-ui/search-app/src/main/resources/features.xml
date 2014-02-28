@@ -15,9 +15,11 @@
 <features name="${project.artifactId}-${project.version}">
 
     <feature name="search-ui" version="${project.version}" description="Search UI">
-        <bundle>mvn:ddf.ui.search/simple/${project.version}</bundle>
+		<feature>camel-http</feature>
+		<bundle>mvn:ddf.ui.search/search-proxy/${project.version}</bundle>
+        <bundle>mvn:ddf.ui.search/simple/${project.version}</bundle>  
         <bundle>mvn:ddf.ui.search/standard/${project.version}</bundle>
-        <bundle>mvn:ddf.ui.search/search-redirect/${project.version}</bundle>
+		<bundle>mvn:ddf.ui.search/search-redirect/${project.version}</bundle>
         <bundle>mvn:ddf.ui.search/search-htmltransformer/${project.version}</bundle>
         <bundle>mvn:ddf.ui.search/search-endpoint/${project.version}</bundle>
 

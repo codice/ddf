@@ -36,8 +36,7 @@ define(function (require) {
 
                 // Hide the base layer picker for OpenStreetMaps
                 baseLayerPicker: false
-                // Use OpenStreetMaps
-
+                // Use OpenStreetMaps 
             };
 
             if(properties.wmsServer) {
