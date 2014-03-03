@@ -20,7 +20,7 @@
     	<argument ref="blueprintBundleContext"/>
     </bean>
 	
-    <bean id="httpProxyService" class="org.codice.proxy.http.HttpProxyServiceImpl" destroy-method="stop">
+    <bean id="httpProxyService" class="org.codice.proxy.http.HttpProxyServiceImpl" destroy-method="destroy">
     	<argument ref="blueprintBundleContext"/>
     </bean>
     <service ref="httpProxyService" interface="org.codice.proxy.http.HttpProxyService"/>
