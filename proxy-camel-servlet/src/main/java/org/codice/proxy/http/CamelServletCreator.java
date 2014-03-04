@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
 public class CamelServletCreator {
 	BundleContext bundleContext = null;
 	private static final Logger LOGGER = LoggerFactory.getLogger(CamelServletCreator.class);
-	public static final String SERVLET_PATH = "/info/services";
+	public static final String SERVLET_PATH = "/proxy";
 	public static final String SERVLET_NAME = "CamelServlet";
 	
 	public CamelServletCreator(BundleContext bundleContext){
