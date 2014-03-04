@@ -24,7 +24,7 @@ import net.minidev.json.JSONValue;
 import org.apache.commons.lang.StringUtils;
 import org.apache.felix.webconsole.BrandingPlugin;
 import org.codice.proxy.http.HttpProxyService;
-
+import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.commons.lang.StringUtils;
@@ -50,7 +50,7 @@ import java.util.Map;
 public class ConfigurationStore {
     private static final Logger LOGGER = LoggerFactory.getLogger(ConfigurationStore.class);
 
-    public static final String SERVLET_PATH = "/info/services";
+    public static final String SERVLET_PATH = "/proxy";
     
     private static ConfigurationStore uniqueInstance;
 
@@ -83,6 +83,10 @@ public class ConfigurationStore {
     private HttpProxyService httpProxy = null;
     
     private String endpointName = null;
+    
+    private BundleContext bundleContext = null;
+    
+    private int incrementer=0;
 
     static {
         MimeType mime = null;
@@ -288,7 +292,9 @@ public class ConfigurationStore {
     
     private void startProxy(){		
 		try {
-			endpointName = httpProxy.startProxy(wmsServer);
+			String bundleName = bundleContext.getBundle().getSymbolicName().toLowerCase() + incrementer;
+			incrementer++;
+			endpointName = httpProxy.startProxy(bundleName, wmsServer);
 			targetUrl = SERVLET_PATH + "/" + endpointName;
 			LOGGER.debug("Target URL: " + targetUrl);
 		} catch (Exception e) {
@@ -303,5 +309,14 @@ public class ConfigurationStore {
 	public void setHttpProxy(HttpProxyService httpProxy) {
 		this.httpProxy = httpProxy;
 	}
-  
+
+	public BundleContext getBundleContext() {
+		return bundleContext;
+	}
+
+	public void setBundleContext(BundleContext bundleContext) {
+		this.bundleContext = bundleContext;
+	}
+	
+	
 }
