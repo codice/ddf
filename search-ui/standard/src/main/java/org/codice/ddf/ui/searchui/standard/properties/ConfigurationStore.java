@@ -289,7 +289,7 @@ public class ConfigurationStore {
     private void startProxy(){		
 		try {
 			endpointName = httpProxy.startProxy(wmsServer);
-			targetUrl = "http://localhost:8181" + SERVLET_PATH + "/" + endpointName;
+			targetUrl = SERVLET_PATH + "/" + endpointName;
 			LOGGER.debug("Target URL: " + targetUrl);
 		} catch (Exception e) {
 			LOGGER.error(e.getMessage());
