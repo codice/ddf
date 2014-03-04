@@ -38,7 +38,7 @@ public class HttpProxyServiceImpl extends OsgiDefaultCamelContext implements Htt
 	private static final Logger LOGGER = LoggerFactory.getLogger(HttpProxyServiceImpl.class);
 	public static final String SERVLET_NAME = "CamelServlet";
 	private static final String SERVLET_COMPONENT = "servlet";
-	public static final String SERVLET_PATH = "/info/services";
+	public static final String SERVLET_PATH = "/proxy";
 
     public HttpProxyServiceImpl(final BundleContext bundleContext) throws Exception {
         super(bundleContext);
