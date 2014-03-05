@@ -53,15 +53,15 @@ public class HttpProxyServiceImpl extends OsgiDefaultCamelContext implements Htt
 	    this.addComponent(SERVLET_COMPONENT,servlet);
     }
     
-    public synchronized String startProxy(String targetUri) throws Exception{
+    public synchronized String start(String targetUri) throws Exception{
     	String endpointName = GENERIC_ENDPOINT_NAME + incrementer;
-    	startProxy(endpointName, targetUri);
+    	start(endpointName, targetUri);
     	incrementer++;
     	
     	return endpointName;
     }
     
-    public String startProxy(final String endpointName, final String targetUri) throws Exception{
+    public String start(final String endpointName, final String targetUri) throws Exception{
 
     	this.targetUri = targetUri;
 	    routeBuilder = new RouteBuilder() {
@@ -77,7 +77,7 @@ public class HttpProxyServiceImpl extends OsgiDefaultCamelContext implements Htt
 	    return endpointName;
     }
     
-    public void stopProxy(String endpointName) throws Exception{
+    public void stop(String endpointName) throws Exception{
     	LOGGER.debug("Stopping proxy route at endpoint: " + endpointName);
     	this.removeRoute(endpointName);
     }

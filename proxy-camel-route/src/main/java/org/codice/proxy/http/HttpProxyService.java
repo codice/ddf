@@ -26,7 +26,7 @@ public interface HttpProxyService {
 	 * @return
 	 * @throws Exception
 	 */
-	public String startProxy(String targetUri) throws Exception;
+	public String start(String targetUri) throws Exception;
 	
 	
 	/**
@@ -36,7 +36,7 @@ public interface HttpProxyService {
 	 * @return
 	 * @throws Exception
 	 */
-	public String startProxy(String endpointName, String targetUri) throws Exception;
+	public String start(String endpointName, String targetUri) throws Exception;
 	
 	
 	/**
@@ -44,6 +44,6 @@ public interface HttpProxyService {
 	 * @param endpointName
 	 * @throws Exception
 	 */
-	public void stopProxy(String endpointName) throws Exception;
+	public void stop(String endpointName) throws Exception;
 }
 
