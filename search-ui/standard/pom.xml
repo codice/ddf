@@ -83,7 +83,15 @@
 			<groupId>commons-lang</groupId>
 			<artifactId>commons-lang</artifactId>
 		</dependency>
-		
+		<dependency>
+      		<groupId>org.apache.camel</groupId>
+      		<artifactId>camel-http</artifactId>
+  		</dependency>
+  		<dependency>
+      		<groupId>org.apache.camel</groupId>
+      		<artifactId>camel-core-osgi</artifactId>
+    	</dependency>
+    	
     </dependencies>
 
     <build>
@@ -128,7 +136,7 @@
                 <artifactId>maven-bundle-plugin</artifactId>
                 <configuration>
                     <instructions>
-                       	<Embed-Dependency>json-smart, httpclient, httpcore, search-securityservletfilter</Embed-Dependency>
+                       	<Embed-Dependency>json-smart, httpclient, httpcore, search-securityservletfilter, camel-http,camel-core-osgi</Embed-Dependency>
                         <Web-ContextPath>/search/standard</Web-ContextPath>
                         <_wab>src/main/webapp,${project.build.directory}/webapp</_wab>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
@@ -136,6 +144,7 @@
                         org.codice.proxy.http,
                         *
                         </Import>
+                        <Export-Package />
                     </instructions>
                 </configuration>
             </plugin>

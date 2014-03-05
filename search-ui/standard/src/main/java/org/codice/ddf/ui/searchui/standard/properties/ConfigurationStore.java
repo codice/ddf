@@ -259,18 +259,10 @@ public class ConfigurationStore {
     		//Fetch the DDF HTTP Proxy
     		startProxy();
     		
-    		LOGGER.debug("Updated properties: " +
-    				"header=" + header +
-    				", footer=" + footer +
-    				", style=" + style +
-    				", textColor=" + textColor +
-    				", wmsServer=" + wmsServer +
-    				", layers=" + layers +
-    				", format=" + format +
-    				", timeout=" + timeout +
-    				", syncQuery=" + isSyncQuery
-    				);
-    		
+    		LOGGER.debug("Updated properties: header={}, footer={}, style={}, textColor={}," +
+    					"wmsServer={}, layers={}, format={}, timeout={}, syncQuery={}",
+    					header, footer, style, textColor, wmsServer, layers, format, timeout, isSyncQuery);
+  
     	} else{
     		LOGGER.debug("Properties are empty");
     		//Stop proxy
@@ -283,7 +275,7 @@ public class ConfigurationStore {
     }
     
     public void init(){
-    	if ((!StringUtils.isEmpty(wmsServer))){
+    	if ((StringUtils.isNotBlank(wmsServer))){
     		startProxy();
     	} else {
     		LOGGER.debug("Cannot instantiate proxy connection.");
