@@ -39,6 +39,8 @@ public class HttpProxyServiceImpl extends OsgiDefaultCamelContext implements Htt
 	public static final String SERVLET_NAME = "CamelServlet";
 	private static final String SERVLET_COMPONENT = "servlet";
 	public static final String SERVLET_PATH = "/proxy";
+	public static final String GENERIC_ENDPOINT_NAME = "endpoint";
+	int incrementer = 0;
 
     public HttpProxyServiceImpl(final BundleContext bundleContext) throws Exception {
         super(bundleContext);
@@ -51,11 +53,10 @@ public class HttpProxyServiceImpl extends OsgiDefaultCamelContext implements Htt
 	    this.addComponent(SERVLET_COMPONENT,servlet);
     }
     
-    public String startProxy(String targetUri) throws Exception{
-    	//Generate a random endpoint name
-    	SecureRandom random = new SecureRandom();
-    	String endpointName = new BigInteger(130, random).toString(32).substring(0,10);
+    public synchronized String startProxy(String targetUri) throws Exception{
+    	String endpointName = GENERIC_ENDPOINT_NAME + incrementer;
     	startProxy(endpointName, targetUri);
+    	incrementer++;
     	
     	return endpointName;
     }
@@ -89,4 +90,5 @@ public class HttpProxyServiceImpl extends OsgiDefaultCamelContext implements Htt
 		}
     	this.removeComponent(SERVLET_COMPONENT);
     }
+    
 }
