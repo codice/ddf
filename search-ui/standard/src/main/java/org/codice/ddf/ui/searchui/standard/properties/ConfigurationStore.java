@@ -267,7 +267,7 @@ public class ConfigurationStore {
     		LOGGER.debug("Properties are empty");
     		//Stop proxy
     		try {
-				httpProxy.stopProxy(endpointName);
+				httpProxy.stop(endpointName);
 			} catch (Exception e) {
 				LOGGER.error(e.getMessage());
 			}
@@ -286,7 +286,9 @@ public class ConfigurationStore {
 		try {
 			String bundleName = bundleContext.getBundle().getSymbolicName().toLowerCase() + incrementer;
 			incrementer++;
-			endpointName = httpProxy.startProxy(bundleName, wmsServer);
+
+			endpointName = httpProxy.start(bundleName, wmsServer);
+
 			targetUrl = SERVLET_PATH + "/" + endpointName;
 			LOGGER.debug("Target URL: " + targetUrl);
 		} catch (Exception e) {
