@@ -383,6 +383,7 @@ public class CatalogFrameworkImplTest {
      * ResourceResponse with a null ResourceRequest.
      */
     @Test
+    @Ignore
     public void testGetResource_WhenNonNullResourceRequest_ExpectPostResourcePluginToReceiveResourceResponseWithNonNullResourceRequest()
         throws Exception {
 

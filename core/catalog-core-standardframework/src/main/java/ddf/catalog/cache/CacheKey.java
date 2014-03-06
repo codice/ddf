@@ -55,7 +55,12 @@ public class CacheKey {
         String properties = "";
 
         for (String propertyName : names) {
-            properties = "_" + propertyName + "-" + resourceRequest.getPropertyValue(propertyName);
+            // Need to sanitize the property's value as it may have characters in it that are not appropriate
+            // for directory path names, e.g., property "url" set to "http://localhost:8181/services/catalog/..."
+            String propertyKeyValue = propertyName + "-" + resourceRequest.getPropertyValue(propertyName);            
+            propertyKeyValue = propertyKeyValue.replaceAll("[:/\\\\]", "-");
+            properties = "_" + propertyKeyValue;
+            //ORIG properties = "_" + propertyName + "-" + resourceRequest.getPropertyValue(propertyName);
         }
 
         return metacard.getSourceId() + "-" + metacard.getId() + properties;

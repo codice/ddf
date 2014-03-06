@@ -224,6 +224,8 @@ public class CatalogFrameworkImpl extends DescribableImpl implements Configurati
     private SourcePoller poller;
     
     protected ResourceCache productCache;
+    
+    protected boolean cacheDisabled = false;
 
 
     /**
@@ -396,6 +398,11 @@ public class CatalogFrameworkImpl extends DescribableImpl implements Configurati
     public void setProductCacheDirectory(String productCacheDirectory) {
     	logger.debug("Setting product cache directory to {}", productCacheDirectory);
     	this.productCache.setProductCacheDirectory(productCacheDirectory);
+    }
+    
+    public void setCacheDisabled(boolean cacheDisabled) {
+        logger.info("Setting cacheDisabled = " + cacheDisabled);
+        this.cacheDisabled = cacheDisabled;
     }
 
     /**
@@ -1294,19 +1301,13 @@ public class CatalogFrameworkImpl extends DescribableImpl implements Configurati
                 resourceSourceName = resolvedSourceId;
             }
             
-            String key;
-            try {
-                key = new CacheKey(metacard, resourceRequest).generateKey();
-            } catch (CacheException e1) {
-                throw new ResourceNotFoundException(e1);
-            }
-
-            ClassLoader tccl = Thread.currentThread().getContextClassLoader();
-
-            try {
-
-                Thread.currentThread().setContextClassLoader(
-                        CatalogFrameworkImpl.class.getClassLoader());
+            if (!cacheDisabled) {
+                String key;
+                try {
+                    key = new CacheKey(metacard, resourceRequest).generateKey();
+                } catch (CacheException e1) {
+                    throw new ResourceNotFoundException(e1);
+                }
                 if (productCache.contains(key)) {
                     try {
                         Resource resource = productCache.get(key);
@@ -1321,9 +1322,6 @@ public class CatalogFrameworkImpl extends DescribableImpl implements Configurati
                                 resourceSourceName);
                     }
                 }
-
-            } finally {
-                Thread.currentThread().setContextClassLoader(tccl);
             }
 
             // retrieve product from specified federated site if not in cache
@@ -1404,7 +1402,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements Configurati
      * @return
      */
     protected ResourceResponse cacheProduct(Metacard metacard, ResourceResponse resourceResponse) {        
-        if (metacard != null && resourceResponse != null) {
+        if (!cacheDisabled && metacard != null && resourceResponse != null) {
             try {
                 resourceResponse = productCache.put(metacard, resourceResponse);
             } catch (CacheException e) {

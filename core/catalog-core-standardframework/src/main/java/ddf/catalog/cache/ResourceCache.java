@@ -67,7 +67,7 @@ public class ResourceCache {
             // Create the directory if it doesn't exist
             if ((!directory.exists() && directory.mkdirs())
                     || (directory.isDirectory() && directory.canRead())) {
-                LOGGER.debug("Setting product cache directory to: " + path);
+                LOGGER.debug("Setting product cache directory to: {}", path);
                 newProductCacheDirectoryDir = path;
             }
         }
@@ -84,21 +84,23 @@ public class ResourceCache {
 
                     // if directory does not exist, try to create it
                     if (fspDir.isDirectory() || fspDir.mkdirs()) {
-                        LOGGER.debug("Setting product cache directory to: "
-                                + fspDir.getAbsolutePath());
+                        LOGGER.debug("Setting product cache directory to: {}",
+                                fspDir.getAbsolutePath());
                         newProductCacheDirectoryDir = fspDir.getAbsolutePath();
                     } else {
-                        LOGGER.warn("Unable to create directory: " + fspDir.getAbsolutePath()
-                                + ". Please check for proper permissions to create this folder."
-                                + " Instead using default folder.");
+                        LOGGER.warn(
+                                "Unable to create directory: {}. Please check for proper permissions to create this folder. Instead using default folder.",
+                                fspDir.getAbsolutePath());
                     }
                 } else {
-                    LOGGER.warn("Karaf home folder defined by system property " + KARAF_HOME
-                            + " is not a directory.  Using default folder.");
+                    LOGGER.warn(
+                            "Karaf home folder defined by system property {} is not a directory.  Using default folder.",
+                            KARAF_HOME);
                 }
             } catch (NullPointerException npe) {
-                LOGGER.warn("Unable to create FileSystemProvider folder - " + KARAF_HOME
-                        + " system property not defined. Using default folder.");
+                LOGGER.warn(
+                        "Unable to create FileSystemProvider folder - {} system property not defined. Using default folder.",
+                        KARAF_HOME);
             }
         }
 
@@ -130,15 +132,31 @@ public class ResourceCache {
         LOGGER.debug("metacard ID = {}", metacard.getId());
 
         CachedResource cachedResource = new CachedResource(productCacheDirectory);
-        cachedResource.store(metacard, resourceResponse);
-        cache.put(cachedResource.getKey(), cachedResource);
+        
+        // store() will return a new Resource with its input stream now set to
+        // the PipedInputStream that caching thread will write to simultaneously
+        // as it writes the product input stream to cache (disk).
+        Resource newResource = cachedResource.store(metacard, resourceResponse, this);
+        
+        //Moved into CachedResource class (that's why "cache" argument passed into store() above)
+        //until figure out better way.
+        //cache.put(cachedResource.getKey(), cachedResource);
 
+        // Create new ResourceResponse with the PipedInputStream that the client will
+        // read simultaneously as the fiel is cached to disk
         ResourceResponse newResourceResponse = new ResourceResponseImpl(resourceRequest,
-                resourceResponse.getProperties(), cachedResource);
+                resourceResponse.getProperties(), newResource);
+                //ORIG resourceResponse.getProperties(), cachedResource);
 
         LOGGER.debug("EXITING: put() for metacard ID = {}", metacard.getId());
 
         return newResourceResponse;
+    }
+    
+    public void put(CachedResource cachedResource) throws CacheException {
+        LOGGER.info("ENTERING: put(CachedResource)");
+        cache.put(cachedResource.getKey(), cachedResource);
+        LOGGER.info("EXITING: put(CachedResource)");
     }
 
     /**
@@ -154,8 +172,18 @@ public class ResourceCache {
             throw new CacheException("Must specify non-null key");
         }
         LOGGER.debug("key {}", key);
-
-        CachedResource cachedResource = (CachedResource) cache.get(key);
+        
+        //ORIG CachedResource cachedResource = (CachedResource) cache.get(key);
+        ClassLoader tccl = Thread.currentThread().getContextClassLoader();
+        
+        CachedResource cachedResource = null;
+        try {
+            Thread.currentThread().setContextClassLoader(
+                  getClass().getClassLoader());
+            cachedResource = (CachedResource) cache.get(key);
+        } finally {
+            Thread.currentThread().setContextClassLoader(tccl);
+        }        
         
         // Check that CachedResource actually maps to a file (product) in the
         // product cache directory. This check handles the case if the product
@@ -166,7 +194,16 @@ public class ResourceCache {
 	            return cachedResource;
         	} else {
 				LOGGER.debug("Entry found in the cache, but no product found in cache directory for key = {}", key);
-				cache.remove(key);
+				//ORIG cache.remove(key);
+				tccl = Thread.currentThread().getContextClassLoader();
+		        
+		        try {
+		            Thread.currentThread().setContextClassLoader(
+		                  getClass().getClassLoader());
+		            cache.remove(key);
+		        } finally {
+		            Thread.currentThread().setContextClassLoader(tccl);
+		        }
 				throw new CacheException(
 						"Entry found in the cache, but no product found in cache directory for key = "
 								+ key);
@@ -185,14 +222,23 @@ public class ResourceCache {
      * @return {@code true} if items exists in cache.
      */
     public boolean contains(String key) {
+        CachedResource cachedResource = null;
         try {
-            return cache.get(key) != null;
+            //ORIG return cache.get(key) != null;
+            ClassLoader tccl = Thread.currentThread().getContextClassLoader();
+            
+            try {
+                Thread.currentThread().setContextClassLoader(
+                      getClass().getClassLoader());
+                cachedResource = (CachedResource) cache.get(key);
+            } finally {
+                Thread.currentThread().setContextClassLoader(tccl);
+            } 
         } catch (CacheException e) {
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("Could not find key " + key + " in cache", e);
-            }
+            LOGGER.debug("Could not find key {} in cache", key, e);
             return false;
         }
 
+        return cachedResource != null;
     }
 }
