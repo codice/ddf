@@ -138,15 +138,14 @@ public class ResourceCache {
         // as it writes the product input stream to cache (disk).
         Resource newResource = cachedResource.store(metacard, resourceResponse, this);
         
-        //Moved into CachedResource class (that's why "cache" argument passed into store() above)
+        //Moved into CachedResource class (that's why "ResourceCache" argument passed into store() above)
         //until figure out better way.
         //cache.put(cachedResource.getKey(), cachedResource);
 
         // Create new ResourceResponse with the PipedInputStream that the client will
-        // read simultaneously as the fiel is cached to disk
+        // read simultaneously as the file is cached to disk
         ResourceResponse newResourceResponse = new ResourceResponseImpl(resourceRequest,
                 resourceResponse.getProperties(), newResource);
-                //ORIG resourceResponse.getProperties(), cachedResource);
 
         LOGGER.debug("EXITING: put() for metacard ID = {}", metacard.getId());
 
@@ -173,7 +172,6 @@ public class ResourceCache {
         }
         LOGGER.debug("key {}", key);
         
-        //ORIG CachedResource cachedResource = (CachedResource) cache.get(key);
         ClassLoader tccl = Thread.currentThread().getContextClassLoader();
         
         CachedResource cachedResource = null;
@@ -194,7 +192,6 @@ public class ResourceCache {
 	            return cachedResource;
         	} else {
 				LOGGER.debug("Entry found in the cache, but no product found in cache directory for key = {}", key);
-				//ORIG cache.remove(key);
 				tccl = Thread.currentThread().getContextClassLoader();
 		        
 		        try {
@@ -224,7 +221,6 @@ public class ResourceCache {
     public boolean contains(String key) {
         CachedResource cachedResource = null;
         try {
-            //ORIG return cache.get(key) != null;
             ClassLoader tccl = Thread.currentThread().getContextClassLoader();
             
             try {

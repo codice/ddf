@@ -33,8 +33,11 @@ import javax.activation.MimeType;
 import javax.activation.MimeTypeParseException;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import ddf.cache.Cache;
@@ -55,6 +58,12 @@ public class ResourceCacheTest {
 
     public Cache cache;
 
+    @BeforeClass
+    public static void oneTimeSetup() {
+        BasicConfigurator.configure();
+        Logger.getRootLogger().setLevel(Level.DEBUG);
+    }
+    
     @Before
     public void setUp() {
 
@@ -73,7 +82,7 @@ public class ResourceCacheTest {
 
     @Test
     public void testBadKarafHomeValue() {
-        System.setProperty("karaf.home", "product-cache");
+        System.setProperty("karaf.home", "invalid-cache");
         productCache.setProductCacheDirectory("");
 
         assertEquals("", productCache.getProductCacheDirectory());

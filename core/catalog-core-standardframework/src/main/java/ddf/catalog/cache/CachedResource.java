@@ -67,8 +67,6 @@ public class CachedResource implements Resource, Serializable {
     private static final long DEFAULT_CACHING_MONITOR_PERIOD = 5000;  // 5 seconds
     
     private static int DEFAULT_CHUNK_SIZE = 1024 * 1024;  // 1 MB
-    
-    private static int TIMEOUT_PER_CHUNK_IN_MS = 10000;  // 10 seconds
 
     private static int DEFAULT_DELAY_BETWEEN_ATTEMPTS = 1000;
 
@@ -94,6 +92,9 @@ public class CachedResource implements Resource, Serializable {
      */
     private int delayBetweenAttempts;
     
+    /**
+     * Transient because ExecutorService is not Serializable
+     */
     private transient ExecutorService executor;
     
 
@@ -167,10 +168,6 @@ public class CachedResource implements Resource, Serializable {
             }
         };
         
-        // ExecutorService is local because this class (CachedResource) must be
-        // Serializable in order for hazelcast to be able to cache it.
-        //TODO: or should it be private transient???
-        //ExecutorService executor = Executors.newCachedThreadPool();
         executor.submit(cacheThread);
         
         LOGGER.debug("EXITING: store()");
@@ -189,7 +186,7 @@ public class CachedResource implements Resource, Serializable {
         int attempts = 0;
         TeeInputStream tee = null;
         FileOutputStream output = null;
-        //ExecutorService executor = Executors.newCachedThreadPool();
+
         try {
             // Since product's input stream needs to be copied to both the cache
             // directory (FileOutputStream) and to the client (PipedOutputStream),
@@ -207,45 +204,46 @@ public class CachedResource implements Resource, Serializable {
             // otherwise deadlock will occur after the pipie's circular buffer fills up,
             // i.e., after chunkSize amount of bytes is read.
             CallableCacheProduct callableCacheProduct = new CallableCacheProduct(tee, output);
-            //ExecutorService executor = Executors.newCachedThreadPool();
             Future<Long> future = null;
             CacheMonitor cacheMonitor = null;
             while (attempts < retryAttempts) {
                 attempts++;
-                LOGGER.info("attempt " + attempts);
+                LOGGER.debug("Caching attempt " + attempts);
                 try {
                     future = executor.submit(callableCacheProduct);
+                    final Timer cacheTimer = new Timer();
                     cacheMonitor = new CacheMonitor(future, callableCacheProduct);
-                    LOGGER.info("Configuring Caching Monitor to run every {} seconds", cachingMonitorPeriod);
-                    new Timer().scheduleAtFixedRate(cacheMonitor, 1000, cachingMonitorPeriod);
+                    LOGGER.debug("Configuring Caching Monitor to run every {} seconds", cachingMonitorPeriod);
+                    cacheTimer.scheduleAtFixedRate(cacheMonitor, 1000, cachingMonitorPeriod);
                     bytesRead = future.get();
                 } catch (InterruptedException e) {
                     LOGGER.error("InterruptedException - Unable to store product file {}", filePath, e);
+                    bytesRead = cacheMonitor.getBytesRead();
                 } catch (ExecutionException e) {
                     LOGGER.error("ExecutionException - Unable to store product file {}", filePath, e);
+                    bytesRead = cacheMonitor.getBytesRead();
                 } catch (CancellationException e) {
                     LOGGER.error("CancellationException - Unable to store product file {}", filePath, e);
                     bytesRead = cacheMonitor.getBytesRead();
                 }
                 if (bytesRead != RESOURCE_CACHING_COMPLETE) {
                     LOGGER.info("Cached file {} not complete, only read {} bytes", filePath, bytesRead);
-                    LOGGER.info("Cancelling future");
+                    LOGGER.debug("Cancelling future");
                     future.cancel(true);
                     output.flush();
-//                    IOUtils.closeQuietly(output);
                     source.close();
-                    LOGGER.info("Creating new TeeInputStream");
+                    LOGGER.debug("Creating new TeeInputStream");
                     tee = new TeeInputStream(source, pos, false);
-                    LOGGER.info("Skipping {} bytes in tee InputStream", bytesRead);
+                    LOGGER.debug("Skipping {} bytes in tee InputStream", bytesRead);
 //                    long bytesSkipped = source.skip(bytesRead);
 //                    LOGGER.info("Actually skipped {} bytes in source InputStream", bytesSkipped);
                     long bytesSkipped = tee.skip(bytesRead);
-                    LOGGER.info("Actually skipped {} bytes in tee InputStream", bytesSkipped);
+                    LOGGER.debug("Actually skipped {} bytes in tee InputStream", bytesSkipped);
                 } else {
                     try {
-                        LOGGER.info("Cancelling cacheMonitor");
+                        LOGGER.debug("Cancelling cacheMonitor");
                         cacheMonitor.cancel();
-                        LOGGER.info("Adding caching key = {} to cache map", key);
+                        LOGGER.debug("Adding caching key = {} to cache map", key);
                         resourceCache.put(this);
                     } catch (CacheException e) {
                         LOGGER.error("Unable to add cached resource to cache with key = {}", key, e);
@@ -259,17 +257,9 @@ public class CachedResource implements Resource, Serializable {
             IOUtils.closeQuietly(tee);
             IOUtils.closeQuietly(pos);
             IOUtils.closeQuietly(output);
-            //executor.shutdown();
         }
         
         return bytesRead;
-    }
-    
-    private void delay(int amount) {
-        try {
-            Thread.sleep(amount);
-        } catch (InterruptedException e) {
-        }
     }
 
     @Override
@@ -350,42 +340,21 @@ public class CachedResource implements Resource, Serializable {
     
     private class CallableCacheProduct implements Callable<Long> {
 
-        protected static final long CACHING_MONITOR_PERIOD = 5000;  // 5 seconds
-
         private TeeInputStream tee = null;
 
         private FileOutputStream output = null;
 
-//        private int timeoutPerChunk;
-
         private long bytesRead = 0;
-        
-        private boolean interruptCaching = false;
 
-        public CallableCacheProduct(TeeInputStream tee, FileOutputStream output) {  //, int timeoutPerChunk) {
+
+        public CallableCacheProduct(TeeInputStream tee, FileOutputStream output) {
             this.tee = tee;
             this.output = output;
-//            this.timeoutPerChunk = timeoutPerChunk;
-        }
-
-        public void skip(int numBytes) {
-            LOGGER.info("Skipping {} bytes in product input stream", numBytes);
-            try {
-                long numBytesSkipped = tee.skip(numBytes);
-                LOGGER.info("Actually skipped {} bytes", numBytesSkipped);
-            } catch (IOException e) {
-                LOGGER.error("Unable to skip {} bytes", numBytes, e);
-            }
         }
         
         public long getBytesRead() {
             return bytesRead;
         }
-        
-//        public void setInterruptCaching(boolean interruptCaching) {
-//            LOGGER.info("Setting interruptCaching = " + interruptCaching);
-//            this.interruptCaching = interruptCaching;
-//        }
 
         @Override
         public Long call() throws IOException {
@@ -394,29 +363,23 @@ public class CachedResource implements Resource, Serializable {
             byte[] buffer = new byte[chunkSize];
             int n = 0;
 
-            while (!interruptCaching) {
+            while (true) {
                 chunkCount++;
                 
                 // This read will block if the PipedOutputStream's circular buffer is filled
                 // before the client reads from it via the PipedInputStream
-                //LOGGER.info("BEFORE tee read()");
+                LOGGER.trace("BEFORE tee read()");
                 n = tee.read(buffer);
-                //LOGGER.info("AFTER tee read() - n = {}", n);
+                LOGGER.trace("AFTER tee read() - n = {}", n);
                 if (n == END_OF_FILE) {
                     break;
                 }
                 output.write(buffer, 0, n);
                 bytesRead += n;
-                //Prints LOTS of log stmts   LOGGER.info("chunkCount = " + chunkCount + ",  bytesRead = " + bytesRead);
+                LOGGER.trace("chunkCount = {},  bytesRead = {}", chunkCount, bytesRead);
             }
 
-//            if (interruptCaching) {
-//                LOGGER.info("Caching interrupted - returning " + bytesRead + " bytes read.");
-//                output.flush();
-//                IOUtils.closeQuietly(output);
-//                return bytesRead;
-//            }
-            LOGGER.info("Returning -1 to indicate entire file cached successfully");
+            LOGGER.debug("Returning -1 to indicate entire file cached successfully");
             return RESOURCE_CACHING_COMPLETE;
         }
     }
@@ -440,7 +403,7 @@ public class CachedResource implements Resource, Serializable {
         public void run() {
             long chunkByteCount = callableCacheProduct.getBytesRead() - previousBytesRead;
             if (chunkByteCount > 0) {
-                LOGGER.info("Cached {} bytes in last {} seconds.", chunkByteCount, cachingMonitorPeriod);
+                LOGGER.debug("Cached {} bytes in last {} seconds.", chunkByteCount, cachingMonitorPeriod);
                 previousBytesRead = callableCacheProduct.getBytesRead();
             } else {
                 LOGGER.info("No bytes cached in last {} seconds - cancelling CacheMonitor and caching future (thread).", cachingMonitorPeriod);
@@ -448,7 +411,6 @@ public class CachedResource implements Resource, Serializable {
                 // Stop the caching thread
                 boolean status = future.cancel(true);
                 LOGGER.info("future cancelling status = {}", status);
-//                callableCacheProduct.setInterruptCaching(true);
             }
         }
     }
