@@ -40,11 +40,7 @@ public class MockInputStream extends InputStream {
 
     public MockInputStream(String name) {
         this.name = name;
-        try {
-            this.is = new FileInputStream(name);
-        } catch (FileNotFoundException e) {
-            LOGGER.error("FileNotFoundException", e);
-        }
+        openStream();
     }
 
     public void setInvocationCountToThrowIOException(int count) {
@@ -54,17 +50,25 @@ public class MockInputStream extends InputStream {
     public void setInvocationCountToTimeout(int count) {
         invocationCountToTimeout = count;
     }
+    
+    private void openStream() {
+        try {
+            this.is = new FileInputStream(name);
+        } catch (FileNotFoundException e) {
+            LOGGER.error("FileNotFoundException", e);
+        }
+    }
 
     @Override
     public int read() throws IOException {
-        invocationCount++;
+        //invocationCount++;
         return is.read();
     }
 
     @Override
     public int read(byte[] buffer) throws IOException {
         invocationCount++;
-        LOGGER.info("invocationCount = " + invocationCount);
+        LOGGER.debug("invocationCount = " + invocationCount);
         if (invocationCount == invocationCountToThrowIOException) {
             LOGGER.info("Simulating read exception by closing inputstream");
             is.close(); // by closing stream, when try to read from it an IOException will be thrown
@@ -79,7 +83,7 @@ public class MockInputStream extends InputStream {
 
     @Override
     public int read(byte[] buffer, int startPos, int len) throws IOException {
-        invocationCount++;
+        //invocationCount++;
         return super.read(buffer, startPos, len);
     }
 

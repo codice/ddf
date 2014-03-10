@@ -35,10 +35,12 @@ import javax.activation.MimeType;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.log4j.Logger;
+import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ddf.catalog.data.Metacard;
 import ddf.catalog.operation.ResourceRequest;
@@ -47,7 +49,8 @@ import ddf.catalog.resource.Resource;
 
 public class CachedResourceTest {
     
-    private static final transient Logger LOGGER = Logger.getLogger(CachedResourceTest.class);
+    //private static final transient Logger LOGGER = Logger.getLogger(CachedResourceTest.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CachedResourceTest.class);
     
     public String workingDir;
 
@@ -55,6 +58,13 @@ public class CachedResourceTest {
 
     public MockInputStream ris;
     
+
+    @BeforeClass
+    public static void oneTimeSetup() {
+        ch.qos.logback.classic.Logger root = (ch.qos.logback.classic.Logger) LoggerFactory
+                .getLogger(Logger.ROOT_LOGGER_NAME);
+        root.setLevel(ch.qos.logback.classic.Level.DEBUG);
+    }
 
     @Test
     public void testHasProductWithNullFilepath() {
@@ -110,12 +120,12 @@ public class CachedResourceTest {
     }
 
     @Test
-    //@Ignore
+    @Ignore
     public void testStoreWithInputStreamRecoverableError() throws Exception {
         workingDir = System.getProperty("user.dir");
         String inputFilename = workingDir + "/src/test/resources/foo_10_lines.txt";
         ris = new MockInputStream(inputFilename);
-        ris.setInvocationCountToThrowIOException(53);
+        ris.setInvocationCountToThrowIOException(2);
         
         Metacard metacard = getMetacardStub("abc123", "ddf-1");       
 

@@ -68,7 +68,7 @@ public class CachedResource implements Resource, Serializable {
     
     private static int DEFAULT_CHUNK_SIZE = 1024 * 1024;  // 1 MB
 
-    private static int DEFAULT_DELAY_BETWEEN_ATTEMPTS = 1000;
+    private static int DEFAULT_DELAY_BETWEEN_ATTEMPTS = 1000;  // 1 second
 
     /** Directory for products cached to file system */
     private String productCacheDirectory;
@@ -106,21 +106,46 @@ public class CachedResource implements Resource, Serializable {
         this.executor = Executors.newCachedThreadPool();
     }
     
+    /**
+     * Set the frequency (period) of how often to verify that caching of the file is still
+     * proceeding.
+     * 
+     * @param period
+     *            frequency, in ms, to check that more bytes from the resource's @InputStream have
+     *            been cached
+     */
     public void setCachinigMonitorPeriod(long period) {
         this.cachingMonitorPeriod = period;
     }
     
+    /**
+     * Amount of time, in ms, to wait between retry attempts
+     * 
+     * @param delay
+     */
     public void setDelayBetweenAttempts(int delay) {
         this.delayBetweenAttempts = delay;
     }
     
+    /**
+     * @param chunkSize how many bytes to read at a time from the resource's @InputStream
+     */
     public void setChunkSize(int chunkSize) {
         this.chunkSize = chunkSize;
     }
     
     public Resource store(Metacard metacard, ResourceResponse resourceResponse, final ResourceCache resourceCache) throws CacheException {
 
-        LOGGER.info("ENTERING: store() with TeeInputStream");
+        LOGGER.info("ENTERING: store()");
+        
+        if (metacard == null) {
+            throw new CacheException("Cannot cache file because Metacard is null");
+        }
+        
+        if (resourceResponse == null) {
+            throw new CacheException("Cannot cache file because ResourceResponse is null");
+        }
+        
         Resource resource = resourceResponse.getResource();
 
         if (resource == null) {
@@ -231,7 +256,7 @@ public class CachedResource implements Resource, Serializable {
                     LOGGER.debug("Cancelling future");
                     future.cancel(true);
                     output.flush();
-                    source.close();
+                    //source.close();
                     LOGGER.debug("Creating new TeeInputStream");
                     tee = new TeeInputStream(source, pos, false);
                     LOGGER.debug("Skipping {} bytes in tee InputStream", bytesRead);
