@@ -18,10 +18,21 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 
 import java.io.IOException;
+import java.io.InputStream;
 
+import org.apache.log4j.Logger;
 import org.junit.Test;
 
 public class CachedResourceTest {
+    
+    private static final transient Logger LOGGER = Logger.getLogger(CachedResourceTest.class);
+    
+    public String workingDir;
+
+    public InputStream is;
+
+    public RestartableResourceInputStream ris;
+    
 
     @Test
     public void testHasProductWithNullFilepath() {
@@ -33,4 +44,14 @@ public class CachedResourceTest {
         assertNull(new CachedResource("").getProduct());
     }
 
+    @Test
+    public void testStore() throws Exception {
+        workingDir = System.getProperty("user.dir");
+        String inputFilename = workingDir + "/src/test/resources/foo.txt";
+        ris = new RestartableResourceInputStream(inputFilename);
+        
+        CachedResource cachedResource = new CachedResource(workingDir + "/product-cache");
+        
+        //cachedResource.store(metacard, resourceResponse, resourceCache);
+    }
 }
