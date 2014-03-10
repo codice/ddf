@@ -87,6 +87,8 @@ public class CachedResource implements Resource, Serializable {
     
     private long cachingMonitorPeriod;
     
+    private int chunkSize;
+    
     /**
      * Delay, in ms, between attempts to cache resource to disk
      */
@@ -99,6 +101,7 @@ public class CachedResource implements Resource, Serializable {
         this.productCacheDirectory = productCacheDirectory;
         this.cachingMonitorPeriod = DEFAULT_CACHING_MONITOR_PERIOD;
         this.delayBetweenAttempts= DEFAULT_DELAY_BETWEEN_ATTEMPTS;
+        this.chunkSize = DEFAULT_CHUNK_SIZE;
         this.executor = Executors.newCachedThreadPool();
     }
     
@@ -108,6 +111,10 @@ public class CachedResource implements Resource, Serializable {
     
     public void setDelayBetweenAttempts(int delay) {
         this.delayBetweenAttempts = delay;
+    }
+    
+    public void setChunkSize(int chunkSize) {
+        this.chunkSize = chunkSize;
     }
     
     public Resource store(Metacard metacard, ResourceResponse resourceResponse, final ResourceCache resourceCache) throws CacheException {
@@ -128,7 +135,7 @@ public class CachedResource implements Resource, Serializable {
         filePath = FilenameUtils.concat(productCacheDirectory, key);
 
         // Create a piped input stream for the endpoint/client to read from
-        final PipedInputStream pis = new PipedInputStream(DEFAULT_CHUNK_SIZE);
+        final PipedInputStream pis = new PipedInputStream(chunkSize);
         
         // Create a piped output stream to write product to and that will be read
         // by client using piped input stream
@@ -187,7 +194,11 @@ public class CachedResource implements Resource, Serializable {
             // Since product's input stream needs to be copied to both the cache
             // directory (FileOutputStream) and to the client (PipedOutputStream),
             // need to tee the input stream.
-            tee = new TeeInputStream(source, pos, true);
+            // "false" argument indicates to not close branch (PipedOutputStream) stream.
+            // Want to close this stream ourselves so that connected PipeInputStream is not closed too,
+            // In case we have to recreate the TeeInputStream
+            // want to reuse same PipedOutputStream so that connected PipeInputStream is not closed too.
+            tee = new TeeInputStream(source, pos, false);
 
             output = FileUtils.openOutputStream(new File(filePath));
             
@@ -204,10 +215,9 @@ public class CachedResource implements Resource, Serializable {
                 LOGGER.info("attempt " + attempts);
                 try {
                     future = executor.submit(callableCacheProduct);
-                    final Timer cachingMonitor = new Timer();
                     cacheMonitor = new CacheMonitor(future, callableCacheProduct);
                     LOGGER.info("Configuring Caching Monitor to run every {} seconds", cachingMonitorPeriod);
-                    cachingMonitor.scheduleAtFixedRate(cacheMonitor, 1000, cachingMonitorPeriod);
+                    new Timer().scheduleAtFixedRate(cacheMonitor, 1000, cachingMonitorPeriod);
                     bytesRead = future.get();
                 } catch (InterruptedException e) {
                     LOGGER.error("InterruptedException - Unable to store product file {}", filePath, e);
@@ -223,10 +233,13 @@ public class CachedResource implements Resource, Serializable {
                     future.cancel(true);
                     output.flush();
 //                    IOUtils.closeQuietly(output);
-                    LOGGER.info("Skipping {} bytes in source InputStream and tee InputStream", bytesRead);
-                    long bytesSkipped = source.skip(bytesRead);
-                    LOGGER.info("Actually skipped {} bytes in source InputStream", bytesSkipped);
-                    bytesSkipped = tee.skip(bytesRead);
+                    source.close();
+                    LOGGER.info("Creating new TeeInputStream");
+                    tee = new TeeInputStream(source, pos, false);
+                    LOGGER.info("Skipping {} bytes in tee InputStream", bytesRead);
+//                    long bytesSkipped = source.skip(bytesRead);
+//                    LOGGER.info("Actually skipped {} bytes in source InputStream", bytesSkipped);
+                    long bytesSkipped = tee.skip(bytesRead);
                     LOGGER.info("Actually skipped {} bytes in tee InputStream", bytesSkipped);
                 } else {
                     try {
@@ -244,6 +257,7 @@ public class CachedResource implements Resource, Serializable {
             LOGGER.error("Unable to store product file {}", filePath, e);
         } finally {
             IOUtils.closeQuietly(tee);
+            IOUtils.closeQuietly(pos);
             IOUtils.closeQuietly(output);
             //executor.shutdown();
         }
@@ -377,7 +391,7 @@ public class CachedResource implements Resource, Serializable {
         public Long call() throws IOException {
             int chunkCount = 0;
             
-            byte[] buffer = new byte[DEFAULT_CHUNK_SIZE];
+            byte[] buffer = new byte[chunkSize];
             int n = 0;
 
             while (!interruptCaching) {
