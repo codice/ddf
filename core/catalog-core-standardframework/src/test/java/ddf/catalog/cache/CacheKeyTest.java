@@ -141,7 +141,7 @@ public class CacheKeyTest {
 
         // given
         Map<String, Serializable> propertyMap = new HashMap<String, Serializable>();
-        propertyMap.put("pdf", "sample.pdf");
+        propertyMap.put(ResourceRequest.OPTION_ARGUMENT, "pdf");
         CacheKey cacheKey1 = new CacheKey(getMetacardStub("sampleId1", "source1"),
                 getResourceRequestStub(propertyMap));
         CacheKey cacheKey2 = new CacheKey(getMetacardStub("sampleId1", "source1"),
@@ -166,11 +166,9 @@ public class CacheKeyTest {
 
         // given
         Map<String, Serializable> propertyMap1 = new HashMap<String, Serializable>();
-        propertyMap1.put("pdf", "sample1.pdf");
-        propertyMap1.put("html", "sample1.html");
+        propertyMap1.put(ResourceRequest.OPTION_ARGUMENT, "pdf");
         Map<String, Serializable> propertyMap2 = new HashMap<String, Serializable>();
-        propertyMap2.put("pdf", "sample2.pdf");
-        propertyMap2.put("html", "sample2.html");
+        propertyMap2.put(ResourceRequest.OPTION_ARGUMENT, "html");
         CacheKey cacheKey1 = new CacheKey(getMetacardStub("sampleId1", "source1"),
                 getResourceRequestStub(propertyMap1));
         CacheKey cacheKey2 = new CacheKey(getMetacardStub("sampleId1", "source1"),

@@ -36,7 +36,7 @@ public class CacheKey {
      * Key is comprised of the source, the metacard ID, and request properties if properties are
      * found. <br/>
      * Sample: <br/>
-     * {@code <sourceId>-<metacardId>[_<propKey1>-<propVal1>_<propKey2>-<propVal2> ... ]}
+     * {@code <sourceId>-<metacardId>[-<RESOURCE_OPTION>]}
      * 
      * @return key
      */
@@ -54,13 +54,13 @@ public class CacheKey {
 
         String properties = "";
 
+        // The OPTION_ARGUMENT, e.g., Photograph, PDF, etc., is the only resource request option 
+        // that alters the InputStream to be read for resource retrieval, so only look for that 
+        // option when generating the unique cache key.
         for (String propertyName : names) {
-            // Need to sanitize the property's value as it may have characters in it that are not appropriate
-            // for directory path names, e.g., property "url" set to "http://localhost:8181/services/catalog/..."
-            String propertyKeyValue = propertyName + "-" + resourceRequest.getPropertyValue(propertyName);            
-            propertyKeyValue = propertyKeyValue.replaceAll("[:/\\\\]", "-");
-            properties = "_" + propertyKeyValue;
-            //ORIG properties = "_" + propertyName + "-" + resourceRequest.getPropertyValue(propertyName);
+            if (propertyName.equals(ResourceRequest.OPTION_ARGUMENT)) {
+                properties = "_" + propertyName + "-" + resourceRequest.getPropertyValue(propertyName);
+            }
         }
 
         return metacard.getSourceId() + "-" + metacard.getId() + properties;
