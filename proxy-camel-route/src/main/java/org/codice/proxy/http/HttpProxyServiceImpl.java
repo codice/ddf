@@ -106,9 +106,11 @@ public class HttpProxyServiceImpl extends OsgiDefaultCamelContext implements Htt
 		} catch (MalformedURLException e) {
 			LOGGER.error(e.getMessage());
 		}
-				 
-		Protocol.registerProtocol("https", authhttps);
-
+		
+		if (authhttps != null){
+			Protocol.registerProtocol("https", authhttps);
+		}
+		
 		// Create Camel route
     	this.targetUri = targetUri;
 	    routeBuilder = new RouteBuilder() {
@@ -163,26 +165,28 @@ public class HttpProxyServiceImpl extends OsgiDefaultCamelContext implements Htt
             if (configAdminServiceRef != null) {
                 ConfigurationAdmin ca = (ConfigurationAdmin) bundleContext
                         .getService(configAdminServiceRef);
-                LOGGER.debug("Configuration Admin obtained: " + ca);
+                LOGGER.debug("Configuration Admin obtained: {}", ca);
                 if (ca != null) {
                 	try {
-						Configuration platformConfig = ca.getConfiguration(PLATFORM_CONFIG_PID);
-						if (platformConfig != null){
-							Dictionary<String, Object> props = platformConfig.getProperties();
-							trustStore = (String)props.get(PROPERTY_TRUSTSTORE);
-							trustStorePassword = (String)props.get(PROPERTY_TRUSTSTORE_PASSWORD);
+                		Configuration platformConfig = ca.getConfiguration(PLATFORM_CONFIG_PID);
+                		if (platformConfig != null){
+                			Dictionary<String, Object> props = platformConfig.getProperties();
+                			trustStore = (String)props.get(PROPERTY_TRUSTSTORE);
+                			trustStorePassword = (String)props.get(PROPERTY_TRUSTSTORE_PASSWORD);
 							
-							//If property values are empty, populate them with the defaults.
-							if(StringUtils.isEmpty(trustStore)){
-								trustStore = TRUSTSTORE_VALUE_DEFAULT;
-							}
+                			//If property values are empty, populate them with the defaults.
 							
-							if (StringUtils.isEmpty(trustStorePassword)){
-								trustStorePassword = TRUSTSTORE_PASSWORD_VALUE;
-							}
-							LOGGER.debug("Trust Store: {}",trustStore );
-							LOGGER.debug("Trust Store Password not empty: {}",StringUtils.isNotBlank(trustStorePassword) );
-						}
+                			if(StringUtils.isBlank(trustStore)){
+                				trustStore = TRUSTSTORE_VALUE_DEFAULT;
+                			}
+							
+                			if (StringUtils.isBlank(trustStorePassword)){
+                				trustStorePassword = TRUSTSTORE_PASSWORD_VALUE;
+                			}
+							
+                			LOGGER.debug("Trust Store: {}",trustStore );
+                			LOGGER.debug("Trust Store Password not empty: {}",StringUtils.isNotBlank(trustStorePassword) );
+                		}
 					} catch (IOException e) {
 						LOGGER.error(e.getMessage());
 					}
@@ -206,13 +210,5 @@ public class HttpProxyServiceImpl extends OsgiDefaultCamelContext implements Htt
 		}
     	this.removeComponent(SERVLET_COMPONENT);
     }
-    /********************************************************************************
-    public void init(){
-    	try {
-			start("ssl","https://localhost:8443/examples/jsp/jsp2/jspx/basic.jspx");
-		} catch (Exception e) {
-			LOGGER.error(e.getMessage());
-		}
-    }
-    ********************************************************************************/
+
 }
