@@ -14,13 +14,23 @@
  **/
 package org.codice.proxy.http;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.MalformedURLException;
 import java.util.ArrayList;
+import java.util.Dictionary;
 
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.servlet.ServletComponent;
 import org.apache.camel.core.osgi.OsgiDefaultCamelContext;
+import org.apache.commons.httpclient.contrib.ssl.AuthSSLProtocolSocketFactory;
+import org.apache.commons.httpclient.protocol.Protocol;
 import org.apache.commons.lang.StringUtils;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.framework.ServiceReference;
+import org.osgi.service.cm.Configuration;
+import org.osgi.service.cm.ConfigurationAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,6 +49,11 @@ public class HttpProxyServiceImpl extends OsgiDefaultCamelContext implements Htt
 	private static final String SERVLET_COMPONENT = "servlet";
 	public static final String SERVLET_PATH = "/proxy";
 	public static final String GENERIC_ENDPOINT_NAME = "endpoint";
+	public static final String PLATFORM_CONFIG_PID = "ddf.platform.config";
+	public static final String PROPERTY_TRUSTSTORE = "trustStore";
+	public static final String TRUSTSTORE_VALUE_DEFAULT = "etc/keystores/serverTruststore.jks";
+	public static final String PROPERTY_TRUSTSTORE_PASSWORD = "trustStorePassword";
+	public static final String TRUSTSTORE_PASSWORD_VALUE = "changeit";
 	
 	public static final String HTTP_PROXY_KEY = "http.";
 	public static final String HTTPS_PROXY_KEY = "https.";
@@ -51,6 +66,8 @@ public class HttpProxyServiceImpl extends OsgiDefaultCamelContext implements Htt
 	public static final String HTTP_PROXY_AUTH_HOST_KEY = "proxyAuthHost";
 	
 	int incrementer = 0;
+	private String trustStore = null;
+	private String trustStorePassword = null;
 
     public HttpProxyServiceImpl(final BundleContext bundleContext) throws Exception {
         super(bundleContext);
@@ -73,8 +90,26 @@ public class HttpProxyServiceImpl extends OsgiDefaultCamelContext implements Htt
     
     public String start(final String endpointName, final String targetUri) throws Exception {
     	
+    	//Enable proxy settings for the external target
     	enableProxySettings();
+
+    	//Fetch location of trust store and trust store password
+    	fetchTrustStoreLocation();
     	
+    	//Create SSL connection Camel protocol for https
+    	Protocol authhttps = null;
+		File certStore = new File(trustStore);
+		try {
+			authhttps = new Protocol("https", new AuthSSLProtocolSocketFactory(
+					 certStore.toURI().toURL(), trustStorePassword,
+					 certStore.toURI().toURL(), trustStorePassword),443);
+		} catch (MalformedURLException e) {
+			LOGGER.error(e.getMessage());
+		}
+				 
+		Protocol.registerProtocol("https", authhttps);
+
+		// Create Camel route
     	this.targetUri = targetUri;
 	    routeBuilder = new RouteBuilder() {
 	        @Override
@@ -88,7 +123,6 @@ public class HttpProxyServiceImpl extends OsgiDefaultCamelContext implements Htt
 	    LOGGER.debug("Started proxy route at servlet endpoint: {}, routing to: {}", endpointName, targetUri);
 	    return endpointName;
     }
-    
     
     /**
      * Enable external proxy settings
@@ -122,6 +156,43 @@ public class HttpProxyServiceImpl extends OsgiDefaultCamelContext implements Htt
     	}
     }
     
+    private void fetchTrustStoreLocation(){
+    	if (bundleContext != null){
+    		ServiceReference configAdminServiceRef = bundleContext
+                    .getServiceReference(ConfigurationAdmin.class.getName());
+            if (configAdminServiceRef != null) {
+                ConfigurationAdmin ca = (ConfigurationAdmin) bundleContext
+                        .getService(configAdminServiceRef);
+                LOGGER.debug("Configuration Admin obtained: " + ca);
+                if (ca != null) {
+                	try {
+						Configuration platformConfig = ca.getConfiguration(PLATFORM_CONFIG_PID);
+						if (platformConfig != null){
+							Dictionary<String, Object> props = platformConfig.getProperties();
+							trustStore = (String)props.get(PROPERTY_TRUSTSTORE);
+							trustStorePassword = (String)props.get(PROPERTY_TRUSTSTORE_PASSWORD);
+							
+							//If property values are empty, populate them with the defaults.
+							if(StringUtils.isEmpty(trustStore)){
+								trustStore = TRUSTSTORE_VALUE_DEFAULT;
+							}
+							
+							if (StringUtils.isEmpty(trustStorePassword)){
+								trustStorePassword = TRUSTSTORE_PASSWORD_VALUE;
+							}
+							LOGGER.debug("Trust Store: {}",trustStore );
+							LOGGER.debug("Trust Store Password not empty: {}",StringUtils.isNotBlank(trustStorePassword) );
+						}
+					} catch (IOException e) {
+						LOGGER.error(e.getMessage());
+					}
+					
+                    
+                }
+            }
+    	}
+    }
+    
     public void stop(String endpointName) throws Exception{
     	LOGGER.debug("Stopping proxy route at endpoint: {}", endpointName);
     	this.removeRoute(endpointName);
@@ -135,5 +206,13 @@ public class HttpProxyServiceImpl extends OsgiDefaultCamelContext implements Htt
 		}
     	this.removeComponent(SERVLET_COMPONENT);
     }
-    
+    /********************************************************************************
+    public void init(){
+    	try {
+			start("ssl","https://localhost:8443/examples/jsp/jsp2/jspx/basic.jspx");
+		} catch (Exception e) {
+			LOGGER.error(e.getMessage());
+		}
+    }
+    ********************************************************************************/
 }
