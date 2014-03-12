@@ -105,7 +105,7 @@
 
         },
 
-        waitSeconds: 15
+        waitSeconds: 200
     });
 
 }());
