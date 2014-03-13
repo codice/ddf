@@ -385,7 +385,7 @@ public class CachedResourceTest {
     
     public ByteArrayOutputStream clientRead(int chunkSize, InputStream is, int simulatedCancelChunkCount) throws Exception {
         executor = Executors.newCachedThreadPool();
-        CacheClient cacheClient = new CacheClient(is, chunkSize);
+        CacheClient cacheClient = new CacheClient(is, chunkSize, simulatedCancelChunkCount);
         Future<ByteArrayOutputStream> future = executor.submit(cacheClient);
         ByteArrayOutputStream clientBytesRead = future.get();
         

@@ -228,7 +228,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements Configurati
     
     protected ResourceCache productCache;
     
-    protected boolean cacheDisabled = false;
+    protected boolean cacheEnabled = false;
 
 
     /**
@@ -403,9 +403,9 @@ public class CatalogFrameworkImpl extends DescribableImpl implements Configurati
     	this.productCache.setProductCacheDirectory(productCacheDirectory);
     }
     
-    public void setCacheDisabled(boolean cacheDisabled) {
-        logger.info("Setting cacheDisabled = " + cacheDisabled);
-        this.cacheDisabled = cacheDisabled;
+    public void setCacheEnabled(boolean cacheEnabled) {
+        logger.info("Setting cacheEnabled = " + cacheEnabled);
+        this.cacheEnabled = cacheEnabled;
     }
 
     /**
@@ -1304,7 +1304,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements Configurati
                 resourceSourceName = resolvedSourceId;
             }
             
-            if (!cacheDisabled) {
+            if (cacheEnabled) {
                 String key;
                 try {
                     key = new CacheKey(metacard, resourceRequest).generateKey();
@@ -1409,7 +1409,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements Configurati
      * @return
      */
     protected ResourceResponse cacheProduct(Metacard metacard, ResourceResponse resourceResponse, ResourceRetriever retriever) {        
-        if (!cacheDisabled && metacard != null && resourceResponse != null && retriever != null) {
+        if (cacheEnabled && metacard != null && resourceResponse != null && retriever != null) {
             try {
                 resourceResponse = productCache.put(metacard, resourceResponse, retriever);
             } catch (CacheException e) {
