@@ -182,10 +182,10 @@
       but with a lexicographic ordering the same as the numeric ordering,
       so that range queries work correctly.
     -->
-    <fieldType name="sint" class="solr.SortableIntField" sortMissingLast="true" omitNorms="true"/>
-    <fieldType name="slong" class="solr.SortableLongField" sortMissingLast="true" omitNorms="true"/>
-    <fieldType name="sfloat" class="solr.SortableFloatField" sortMissingLast="true" omitNorms="true"/>
-    <fieldType name="sdouble" class="solr.SortableDoubleField" sortMissingLast="true" omitNorms="true"/>
+    <!--<fieldType name="sint" class="solr.SortableIntField" sortMissingLast="true" omitNorms="true"/>-->
+    <!--<fieldType name="slong" class="solr.SortableLongField" sortMissingLast="true" omitNorms="true"/>-->
+    <!--<fieldType name="sfloat" class="solr.SortableFloatField" sortMissingLast="true" omitNorms="true"/>-->
+    <!--<fieldType name="sdouble" class="solr.SortableDoubleField" sortMissingLast="true" omitNorms="true"/>-->
 
 
     <!-- The "RandomSortField" is not used to store or search any
@@ -468,18 +468,6 @@
       </analyzer>
     </fieldType>
 
-    <fieldType name="text_path" class="solr.TextField" positionIncrementGap="100">
-      <analyzer>
-        <tokenizer class="solr.PathHierarchyTokenizerFactory"/>
-      </analyzer>
-    </fieldType>
-    
-	<fieldType name="text_path_type" class="solr.TextField" positionIncrementGap="100">
-    	<analyzer>
-    		<tokenizer class="solr.KeywordTokenizerFactory"/>
-    	</analyzer>
-    </fieldType>
-
     <!-- since fields of this type are by default not stored or indexed,
          any data added to them will be ignored outright.  --> 
     <fieldtype name="ignored" stored="false" indexed="false" multiValued="true" class="solr.StrField" />
@@ -612,8 +600,6 @@
    <dynamicField name="*_txt" type="string" indexed="true" stored="true"  />
    
    <dynamicField name="*_xml" type="string" indexed="false" stored="true"  />
-   
-   <dynamicField name="*_xml_tpt" type="text_path_type" indexed="true" stored="false"  multiValued="true"/>
    
    <dynamicField name="*_txt_tokenized" type="text_general" indexed="true" stored="false" />
    

@@ -16,7 +16,7 @@
 	<parent>
 		<artifactId>catalog-solr-external-pom</artifactId>
 		<groupId>ddf.catalog.solr.external</groupId>
-		<version>2.3.1-SNAPSHOT</version>
+		<version>2.4.0-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>catalog-solr-external-provider</artifactId>
@@ -67,7 +67,11 @@
 							commons-cli,
 							commons-fileupload,
 							commons-codec,
-							wstx-asl,
+                            lux,
+                            solr-xpath,
+                            Saxon-HE,
+                            woodstox-core-asl,
+                            stax2-api,
 							solr-solrj,
 							solr-core,
 							commons-io,
@@ -100,16 +104,9 @@
 						<Private-Package>
 							ddf.catalog.solr.external,
 							ddf.catalog.source.solr,
-							ddf.catalog.source.solr.textpath,
 							ddf.catalog.data.impl,
 							ddf.catalog.operation.impl,
-							ddf.catalog.util.impl,
-							org.parboiled.*;-split-package:=first,
-							org.objectweb.asm;-split-package:=first,
-							org.objectweb.asm.signature;-split-package:=first,
-							org.objectweb.asm.tree;-split-package:=first,
-							org.objectweb.asm.tree.analysis;-split-package:=first,
-							org.objectweb.asm.util;-split-package:=first
+							ddf.catalog.util.impl
 						</Private-Package>
 						<!-- Since we do object serialization as part of our extensible metacards, 
 							we must dynamically import the classes we do not know about beforehand-->
@@ -122,14 +119,6 @@
 							com.spatial4j.core.exception,
 							com.spatial4j.core.io,
 							com.spatial4j.core.shape,
-							com.sun.msv.grammar,
-							com.sun.msv.grammar.trex,
-							com.sun.msv.reader,
-							com.sun.msv.reader.trex.ng,
-							com.sun.msv.reader.util,
-							com.sun.msv.util,
-							com.sun.msv.verifier,
-							com.sun.msv.verifier.regexp,
 							com.vividsolutions.jts.algorithm,
 							com.vividsolutions.jts.geom,
 							com.vividsolutions.jts.io,

@@ -56,7 +56,6 @@ import ddf.catalog.data.MetacardCreationException;
 import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.impl.MetacardTypeImpl;
 import ddf.catalog.source.IngestException;
-import ddf.catalog.source.solr.textpath.SimplePathIndexer;
 
 /**
  * This class tries to resolve all user given field names to their corresponding dynamic Solr index
@@ -81,6 +80,8 @@ public class DynamicSchemaResolver {
             SchemaFields.METACARD_TYPE_FIELD_NAME, SchemaFields.METACARD_TYPE_OBJECT_FIELD_NAME);
 
     private static final Logger LOGGER = Logger.getLogger(DynamicSchemaResolver.class);
+
+    public static final String LUX_XML_FIELD_NAME = "lux_xml";
 
     protected Set<String> fieldsCache = new HashSet<String>();
 
@@ -184,17 +185,6 @@ public class DynamicSchemaResolver {
                         // raw
                         solrInputDocument.addField(formatIndexName, attributeValue);
 
-                        // textpath
-                        if(!ConfigurationStore.getInstance().isDisableTextPath()) {
-                        	
-                        	LOGGER.debug("Text Path not disabled, proceeding with indexing tpt information.");
-                        	
-                        	SimplePathIndexer textPathIndexer = new SimplePathIndexer(xmlInputFactory);
-                            String textPathIndexName = formatIndexName + getSpecialIndexSuffix(format);
-                            solrInputDocument.addField(textPathIndexName,
-                                    textPathIndexer.indexTextPath(attributeValue.toString()));
-                        }
-
                         // text
                         String specialStringIndexName = ad.getName()
                                 + getFieldSuffix(AttributeFormat.STRING)
@@ -226,6 +216,12 @@ public class DynamicSchemaResolver {
                         solrInputDocument.addField(formatIndexName, attributeValue);
                     }
                 }
+            }
+        }
+
+        if(!ConfigurationStore.getInstance().isDisableTextPath()) {
+            if (StringUtils.isNotBlank(metacard.getMetadata())) {
+                solrInputDocument.addField(LUX_XML_FIELD_NAME, metacard.getMetadata());
             }
         }
 

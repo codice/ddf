@@ -29,7 +29,6 @@
         <bundle>mvn:org.codice.thirdparty/jts/${jts.bundle.version}</bundle>
         <!-- Servicemix bundle states the wrong name in the container, but it is the right packages. -->
         <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.spatial4j/0.3_2</bundle>
-        <bundle>mvn:com.sun.msv/com.springsource.com.sun.msv.grammar/1.0.6</bundle>
         <bundle>mvn:ddf.catalog.solr.embedded/catalog-solr-embedded-provider/${project.version}</bundle>
     </feature>
     
@@ -37,7 +36,6 @@
         <bundle>mvn:org.codice.thirdparty/jts/${jts.bundle.version}</bundle>
         <!-- Servicemix bundle states the wrong name in the container, but it is the right packages. -->
         <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.spatial4j/0.3_2</bundle>
-        <bundle>mvn:com.sun.msv/com.springsource.com.sun.msv.grammar/1.0.6</bundle>
         <bundle>mvn:ddf.catalog.solr.external/catalog-solr-external-provider/${project.version}</bundle>
     </feature>
     

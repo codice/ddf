@@ -18,7 +18,7 @@
 	<parent>
 		<artifactId>catalog-solr-embedded-pom</artifactId>
 		<groupId>ddf.catalog.solr.embedded</groupId>
-		<version>2.3.1-SNAPSHOT</version>
+		<version>2.4.0-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>catalog-solr-embedded-provider</artifactId>
@@ -33,6 +33,11 @@
 
 	<dependencies>
 
+        <dependency>
+            <groupId>ddf.catalog.solr</groupId>
+            <artifactId>solr-xpath</artifactId>
+        </dependency>
+
 		<!--  Our branched spatial library for solr 4.6 -->
 		<dependency>
 			<groupId>ddf.thirdparty</groupId>
@@ -44,19 +49,56 @@
 			<groupId>org.apache.solr</groupId>
 			<artifactId>solr-solrj</artifactId>
 			<version>${solr.version}</version>
+            <exclusions>
+                <!-- exclusion for LuxDB -->
+                <exclusion>
+                    <artifactId>wstx-asl</artifactId>
+                    <groupId>org.codehaus.woodstox</groupId>
+                </exclusion>
+            </exclusions>
 		</dependency>
+
+        <dependency>
+            <groupId>org.luxdb</groupId>
+            <artifactId>lux</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.codehaus.woodstox</groupId>
+            <artifactId>woodstox-core-asl</artifactId>
+            <version>${woodstox.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>javax.xml.stream</groupId>
+            <artifactId>stax-api</artifactId>
+            <version>1.0-2</version>
+        </dependency>
 
 		<dependency>
 			<groupId>org.apache.solr</groupId>
 			<artifactId>solr-core</artifactId>
 			<version>${solr.version}</version>
+            <!-- exclusions from LuxDB -->
+            <exclusions>
+                <exclusion>
+                    <artifactId>wstx-asl</artifactId>
+                    <groupId>org.codehaus.woodstox</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>slf4j-jdk14</artifactId>
+                    <groupId>org.slf4j</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>velocity-tools</artifactId>
+                    <groupId>org.apache.velocity</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>hadoop-annotations</artifactId>
+                    <groupId>org.apache.hadoop</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
-
-		<dependency>
-			<groupId>org.parboiled</groupId>
-			<artifactId>parboiled-java</artifactId>
-			<version>1.1.3</version>
-		</dependency>
 
 		<dependency>
 			<groupId>com.vividsolutions</groupId>
@@ -66,12 +108,6 @@
 		<dependency>
 			<groupId>javax.servlet</groupId>
 			<artifactId>servlet-api</artifactId>
-		</dependency>
-
-		<dependency>
-			<groupId>org.codehaus.woodstox</groupId>
-			<artifactId>wstx-asl</artifactId>
-			<version>3.2.7</version>
 		</dependency>
 
 		<dependency>
@@ -214,7 +250,11 @@
 							commons-cli,
 							commons-fileupload,
 							commons-codec,
-							wstx-asl,
+                            lux,
+                            solr-xpath,
+                            Saxon-HE,
+                            woodstox-core-asl,
+                            stax2-api,
 							solr-solrj,
 							solr-core,
 							commons-io,
@@ -247,16 +287,9 @@
 						<!-- Package uses conflict if we do not embed this -->
 						<Private-Package>
 							ddf.catalog.source.solr;version="${project.version}",
-							ddf.catalog.source.solr.textpath;version="${project.version}",
 							ddf.catalog.data.impl,
 							ddf.catalog.operation.impl,
-							ddf.catalog.util.impl,
-							org.parboiled.*,
-							org.objectweb.asm,
-							org.objectweb.asm.signature,
-							org.objectweb.asm.tree,
-							org.objectweb.asm.tree.analysis,
-							org.objectweb.asm.util
+							ddf.catalog.util.impl
 						</Private-Package>
 						<!-- Since we do object serialization as part of our extensible metacards, 
 							we must dynamically import the classes we do not know about beforehand-->
@@ -269,14 +302,6 @@
 							com.spatial4j.core.exception,
 							com.spatial4j.core.io,
 							com.spatial4j.core.shape,
-							com.sun.msv.grammar,
-							com.sun.msv.grammar.trex,
-							com.sun.msv.reader,
-							com.sun.msv.reader.trex.ng,
-							com.sun.msv.reader.util,
-							com.sun.msv.util,
-							com.sun.msv.verifier,
-							com.sun.msv.verifier.regexp,
 							com.vividsolutions.jts.algorithm,
 							com.vividsolutions.jts.geom,
 							com.vividsolutions.jts.io,

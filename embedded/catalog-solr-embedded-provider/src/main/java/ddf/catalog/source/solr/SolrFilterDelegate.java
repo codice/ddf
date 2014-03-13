@@ -30,9 +30,6 @@ import org.apache.solr.schema.DateField;
 import org.joda.time.DateTime;
 import org.opengis.filter.sort.SortBy;
 import org.opengis.filter.sort.SortOrder;
-import org.parboiled.Parboiled;
-import org.parboiled.parserunners.BasicParseRunner;
-import org.parboiled.support.ParsingResult;
 
 import com.spatial4j.core.distance.DistanceUtils;
 import com.vividsolutions.jts.geom.Geometry;
@@ -45,8 +42,6 @@ import ddf.catalog.data.AttributeType.AttributeFormat;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.filter.FilterDelegate;
-import ddf.catalog.source.solr.textpath.SimplePathNode;
-import ddf.catalog.source.solr.textpath.SimplePathParser;
 import ddf.measure.Distance;
 import ddf.measure.Distance.LinearUnit;
 
@@ -415,23 +410,42 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
 
     @Override
     public SolrQuery xpathExists(String xpath) {
-    	
-        return getTextPathQuery(xpath, null);
+        return getXPathQuery(xpath, null, true);
     }
 
     @Override
     public SolrQuery xpathIsLike(String xpath, String pattern, boolean isCaseSensitive) {
-        if (isCaseSensitive) {
-            throw new UnsupportedOperationException(
-                    "Case sensitive TextPath is not currently supported.");
-        }
-        return getTextPathQuery(xpath, pattern);
+        return getXPathQuery(xpath, pattern, isCaseSensitive);
     }
 
     @Override
     public SolrQuery xpathIsFuzzy(String xpath, String literal) {
-        // TODO: make a fuzzy search instead of doing a best effort exact search
-        return getTextPathQuery(xpath, literal);
+        // XPath does not support fuzzy matching, doing best effort case-insensitive evaluation instead
+        return getXPathQuery(xpath, literal, false);
+    }
+
+    private SolrQuery getXPathQuery(final String pattern, final String searchPhrase, final boolean isCaseSensitive) {
+        // TODO should use XPath parser to make sure to only remove namespace pattern from path and not quoted text
+        // replace quotes and remove namespaces
+        String xpath = pattern.replace("\"", "'").replaceAll("[\\w]+:(?!:)", "");
+        String query = "*:*";
+
+        if (StringUtils.isNotBlank(searchPhrase)) {
+            String result = ".";
+            String phrase = searchPhrase;
+            if (!isCaseSensitive) {
+                result = "lower-case(" + result + ")";
+                phrase = phrase.toLowerCase();
+            }
+            xpath = xpath + "[contains(" + result + ", '" + phrase + "')]";
+            query = TOKENIZED_METADATA_FIELD + ":\"" + searchPhrase.replaceAll("\"", "\\\\") + "\"";
+        }
+
+        SolrQuery solrQuery = new SolrQuery(query);
+        solrQuery.addFilterQuery("{!xpath}xpath:\"" + xpath + "\"");
+        solrQuery.addFilterQuery("{!xpath}xpath_index:\"" + xpath + "\"");
+
+        return solrQuery;
     }
 
     private SolrQuery getSolrQueryWithSort(SortBy sortBy, String givenSpatialString) {
@@ -458,30 +472,6 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
         } else {
             return new SolrQuery(givenSpatialString);
         }
-    }
-
-    private SolrQuery getTextPathQuery(String textPath, String searchPhrase) {
-    	
-        if(ConfigurationStore.getInstance().isDisableTextPath()) {
-        	throw new UnsupportedOperationException("TextPath support has been disabled.");
-        }
-        SimplePathParser parser = Parboiled.createParser(SimplePathParser.class);
-        ParsingResult<SimplePathNode> result = new BasicParseRunner<SimplePathNode>(
-                parser.TextPath()).run(textPath);
-
-        if (!result.parseErrors.isEmpty() || result.resultValue == null) {
-            throw new UnsupportedOperationException("Unable to parse given TextPath.");
-        }
-
-        String query = getMappedPropertyName(Metacard.METADATA, AttributeFormat.XML, false) + ":";
-
-        if (searchPhrase != null) {
-            query += result.resultValue.getValue(searchPhrase);
-        } else {
-            query += result.resultValue.getValue();
-        }
-
-        return new SolrQuery(query);
     }
 
     private SolrQuery getGreaterThanOrEqualToQuery(String propertyName, AttributeFormat format,

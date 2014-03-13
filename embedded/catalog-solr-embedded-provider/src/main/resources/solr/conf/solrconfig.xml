@@ -49,7 +49,7 @@
        that you fully re-index after changing this setting as it can
        affect both how text is indexed and queried.
   -->
-  <luceneMatchVersion>LUCENE_41</luceneMatchVersion>
+  <luceneMatchVersion>LUCENE_46</luceneMatchVersion>
 
   <!-- lib directives can be used to instruct Solr to load an Jars
        identified and use them to resolve any "plugins" specified in
@@ -78,17 +78,17 @@
        files in that directory which completely match the regex
        (anchored on both ends) will be included.
     -->
-  <lib dir="../../dist/" regex="apache-solr-cell-\d.*\.jar" />
-  <lib dir="../../contrib/extraction/lib" regex=".*\.jar" />
+  <!--<lib dir="../../dist/" regex="apache-solr-cell-\d.*\.jar" />-->
+  <!--<lib dir="../../contrib/extraction/lib" regex=".*\.jar" />-->
 
-  <lib dir="../../dist/" regex="apache-solr-clustering-\d.*\.jar" />
-  <lib dir="../../contrib/clustering/lib/" regex=".*\.jar" />
+  <!--<lib dir="../../dist/" regex="apache-solr-clustering-\d.*\.jar" />-->
+  <!--<lib dir="../../contrib/clustering/lib/" regex=".*\.jar" />-->
 
-  <lib dir="../../dist/" regex="apache-solr-langid-\d.*\.jar" />
-  <lib dir="../../contrib/langid/lib/" regex=".*\.jar" />
+  <!--<lib dir="../../dist/" regex="apache-solr-langid-\d.*\.jar" />-->
+  <!--<lib dir="../../contrib/langid/lib/" regex=".*\.jar" />-->
 
-  <lib dir="../../dist/" regex="apache-solr-velocity-\d.*\.jar" />
-  <lib dir="../../contrib/velocity/lib" regex=".*\.jar" />
+  <!--<lib dir="../../dist/" regex="apache-solr-velocity-\d.*\.jar" />-->
+  <!--<lib dir="../../contrib/velocity/lib" regex=".*\.jar" />-->
 
   <!-- an exact 'path' can be used instead of a 'dir' to specify a 
        specific file.  This will cause a serious error to be logged if 
@@ -367,7 +367,7 @@
     <updateLog>
       <str name="dir">${solr.data.dir:}</str>
     </updateLog>
-   
+
 
   </updateHandler>
   
@@ -893,51 +893,55 @@
   </requestHandler>
 
 
-  <!-- XML Update Request Handler.  
-       
-       http://wiki.apache.org/solr/UpdateXmlMessages
+    <!-- Update Request Handler.
 
-       The canonical Request Handler for Modifying the Index through
-       commands specified using XML.
+         http://wiki.apache.org/solr/UpdateXmlMessages
 
-       Note: Since solr1.1 requestHandlers requires a valid content
-       type header if posted in the body. For example, curl now
-       requires: -H 'Content-type:text/xml; charset=utf-8'
-    -->
-  <requestHandler name="/update" 
-                  class="solr.XmlUpdateRequestHandler">
-    <!-- See below for information on defining 
-         updateRequestProcessorChains that can be used by name 
-         on each Update Request
+         The canonical Request Handler for Modifying the Index through
+         commands specified using XML, JSON, CSV, or JAVABIN
+
+         Note: Since solr1.1 requestHandlers requires a valid content
+         type header if posted in the body. For example, curl now
+         requires: -H 'Content-type:text/xml; charset=utf-8'
+
+         To override the request content type and force a specific
+         Content-type, use the request parameter:
+           ?update.contentType=text/csv
+
+         This handler will pick a response format to match the input
+         if the 'wt' parameter is not explicit
       -->
-    <!--
-       <lst name="defaults">
-         <str name="update.chain">dedupe</str>
-       </lst>
-       -->
+    <requestHandler name="/update" class="solr.UpdateRequestHandler">
+        <!-- See below for information on defining
+             updateRequestProcessorChains that can be used by name
+             on each Update Request
+          -->
+        <!--
+           <lst name="defaults">
+             <str name="update.chain">dedupe</str>
+           </lst>
+           -->
+        <lst name="defaults">
+            <str name="update.chain">lux-update-chain</str>
+        </lst>
     </requestHandler>
   <!-- Binary Update Request Handler
        http://wiki.apache.org/solr/javabin
     -->
-  <requestHandler name="/update/javabin" 
-                  class="solr.BinaryUpdateRequestHandler" />
+  <!--<requestHandler name="/update/javabin" -->
+                  <!--class="solr.BinaryUpdateRequestHandler" />-->
 
-  <!-- CSV Update Request Handler
-       http://wiki.apache.org/solr/UpdateCSV
-    -->
-  <requestHandler name="/update/csv" 
-                  class="solr.CSVRequestHandler" 
-                  startup="lazy" />
-
-  <!-- JSON Update Request Handler
-       http://wiki.apache.org/solr/UpdateJSON
-    -->
-  <requestHandler name="/update/json" class="solr.JsonUpdateRequestHandler">
-     <lst name="defaults">
-       <str name="wt">json</str>
-       <str name="indent">true</str>
-     </lst>
-  </requestHandler>
+    <!-- for back compat with clients using /update/json and /update/csv -->
+    <!--<requestHandler name="/update/json" class="solr.JsonUpdateRequestHandler">-->
+        <!--<lst name="defaults">-->
+            <!--<str name="stream.contentType">application/json</str>-->
+        <!--</lst>-->
+    <!--</requestHandler>-->
+    <!--<requestHandler name="/update/csv" class="solr.CSVRequestHandler">-->
+        <!--<lst name="defaults">-->
+            <!--<str name="stream.contentType">application/csv</str>-->
+        <!--</lst>-->
+    <!--</requestHandler>-->
  
 
   <!-- Solr Cell Update Request Handler
@@ -1563,5 +1567,31 @@
        <healthcheck type="file">server-enabled</healthcheck>
       -->
   </admin>
+
+    <updateRequestProcessorChain name="lux-update-chain">
+        <lst name="fieldAliases">
+            <!-- rename lux fields in (unlikely?) event there is a conflict -->
+            <!--<str name="xmlFieldName">lux_xml</str>-->
+            <str name="uriFieldName">id_txt</str>
+        </lst>
+        <!-- Enable tinybin storage; saves overhead of parsing when retrieving documents -->
+        <str name="xml-format">tiny</str>
+        <!-- Strip all namespaces from indexed content -->
+         <str name="strip-namespaces">yes</str>
+        <processor class="lux.solr.LuxUpdateProcessorFactory" />
+        <processor class="solr.LogUpdateProcessorFactory" />
+        <processor class="solr.RunUpdateProcessorFactory" />
+    </updateRequestProcessorChain>
+
+    <queryParser name="xpath" class="org.codice.solr.xpath.XpathQParserPlugin"/>
+
+    <searchComponent name="xquery" class="lux.solr.XQueryComponent" />
+    <requestHandler name="/xquery" class="solr.SearchHandler" id="xquery">
+        <arr name="components">
+            <str>xquery</str>
+            <str>stats</str>
+            <str>debug</str>
+        </arr>
+    </requestHandler>
 
 </config>

@@ -2507,7 +2507,7 @@ public class TestSolrProvider extends SolrProviderTestCase {
     }
 
     @Test
-    public void testTextPathQuery() throws Exception {
+    public void testXPathQuery() throws Exception {
 
         ConfigurationStore.getInstance().setDisableTextPath(false);
         deleteAllIn(provider);
@@ -2520,43 +2520,61 @@ public class TestSolrProvider extends SolrProviderTestCase {
         create(list);
 
         /** POSITIVE **/
-        testTextPathPositiveExists("/rss//item", FLAGSTAFF_QUERY_PHRASE);
-        testTextPathPositiveExists("/purchaseOrder/comment", PURCHASE_ORDER_QUERY_PHRASE);
-        testTextPathPositiveExists("/purchaseOrder//comment", PURCHASE_ORDER_QUERY_PHRASE);
-        testTextPathPositiveExists("/purchaseOrder/items//comment", PURCHASE_ORDER_QUERY_PHRASE);
-        testTextPathPositiveExists("/purchaseOrder[items//comment]", PURCHASE_ORDER_QUERY_PHRASE);
-        testTextPathPositiveExists("/purchaseOrder/items/item/comment", PURCHASE_ORDER_QUERY_PHRASE);
-        testTextPathPositiveExists("/purchaseOrder//item/USPrice", PURCHASE_ORDER_QUERY_PHRASE);
-        testTextPathPositiveExists("/*/*/item[.//comment]", PURCHASE_ORDER_QUERY_PHRASE);
-        testTextPathPositiveExists("purchaseOrder/items/item", PURCHASE_ORDER_QUERY_PHRASE);
-        testTextPathPositiveExists("/purchaseOrder/items/item", PURCHASE_ORDER_QUERY_PHRASE);
-        testTextPathPositiveExists("./purchaseOrder/items/item", PURCHASE_ORDER_QUERY_PHRASE);
+        testXpathPositiveWithSearchPhrase("/rss/channel/itunes:image/@href",
+                "http://www.flagstaffchamber.com/wp-content/plugins/powerpress/itunes_default.jpg",
+                FLAGSTAFF_QUERY_PHRASE);
+        testXpathPositiveExists("/rss//item", FLAGSTAFF_QUERY_PHRASE);
+        testXpathPositiveExists("/purchaseOrder/comment", PURCHASE_ORDER_QUERY_PHRASE);
+        testXpathPositiveExists("/purchaseOrder//comment", PURCHASE_ORDER_QUERY_PHRASE);
+        testXpathPositiveExists("/purchaseOrder/items//comment", PURCHASE_ORDER_QUERY_PHRASE);
+        testXpathPositiveExists("/purchaseOrder[items//comment]", PURCHASE_ORDER_QUERY_PHRASE);
+        testXpathPositiveExists("/purchaseOrder/items/item/comment", PURCHASE_ORDER_QUERY_PHRASE);
+        testXpathPositiveExists("/purchaseOrder//item/USPrice", PURCHASE_ORDER_QUERY_PHRASE);
+        testXpathPositiveExists("purchaseOrder/items/item", PURCHASE_ORDER_QUERY_PHRASE);
+        testXpathPositiveExists("/purchaseOrder/items/item", PURCHASE_ORDER_QUERY_PHRASE);
+        testXpathPositiveExists("./purchaseOrder/items/item", PURCHASE_ORDER_QUERY_PHRASE);
+        testXpathPositiveExists("//shipTo[@country]", PURCHASE_ORDER_QUERY_PHRASE);
+        testXpathPositiveExists("//shipTo[@country='US']", PURCHASE_ORDER_QUERY_PHRASE);
 
-        testTextPathPositiveWithSearchPhrase("/purchaseOrder/comment",
+        testXpathPositiveExists("/*/items", PURCHASE_ORDER_QUERY_PHRASE);
+        testXpathPositiveExists("/*/*/item[.//comment]", PURCHASE_ORDER_QUERY_PHRASE);
+        testXpathPositiveExists("/purchaseOrder/*", PURCHASE_ORDER_QUERY_PHRASE);
+        testXpathPositiveExists("/purchaseOrder/*/item", PURCHASE_ORDER_QUERY_PHRASE);
+        testXpathPositiveExists("//*[@country='US']", PURCHASE_ORDER_QUERY_PHRASE);
+
+        testXpathPositiveWithSearchPhrase("//shipTo/@country", "US", PURCHASE_ORDER_QUERY_PHRASE);
+        testXpathPositiveWithSearchPhrase("//shipTo/@country", "us", PURCHASE_ORDER_QUERY_PHRASE, false);
+        testXpathPositiveWithSearchPhrase("/purchaseOrder/comment",
                 "Hurry, my lawn is going wild!", PURCHASE_ORDER_QUERY_PHRASE);
-        testTextPathPositiveWithSearchPhrase("/purchaseOrder/items//comment",
-                "Confirm this is electric", PURCHASE_ORDER_QUERY_PHRASE);
-        testTextPathPositiveWithSearchPhrase("//comment", "Hurry, my lawn is going wild!",
+        testXpathPositiveWithSearchPhrase("/purchaseOrder/items//comment",
+                "Confirm this is electric", "Lawnmower");
+        testXpathPositiveWithSearchPhrase("//comment", "Hurry, my lawn is going wild!",
                 PURCHASE_ORDER_QUERY_PHRASE);
-        testTextPathPositiveWithSearchPhrase("//comment", "Confirm this is electric",
+        testXpathPositiveWithSearchPhrase("//comment", "Confirm this is electric",
                 PURCHASE_ORDER_QUERY_PHRASE);
-        testTextPathPositiveWithSearchPhrase("/purchaseOrder//item/USPrice", "148.95",
+        testXpathPositiveWithSearchPhrase("//items//comment", "Confirm this is electric",
                 PURCHASE_ORDER_QUERY_PHRASE);
-        testTextPathPositiveWithSearchPhrase("/purchaseOrder//item/USPrice", "39.98",
+        testXpathPositiveWithSearchPhrase("/purchaseOrder//item/USPrice", "148.95",
+                PURCHASE_ORDER_QUERY_PHRASE);
+        testXpathPositiveWithSearchPhrase("/purchaseOrder//item/USPrice", "39.98",
+                PURCHASE_ORDER_QUERY_PHRASE);
+        testXpathPositiveWithSearchPhrase("/purchaseOrder//item[2]/USPrice", "39.98",
                 PURCHASE_ORDER_QUERY_PHRASE);
 
         /** NEGATIVE **/
-        testTextPathNegativeExists("/*/invalid");
-        testTextPathNegativeExists("//electric");
-        testTextPathNegativeExists("//partNum");
+        testXpathNegativeExists("/*/invalid");
+        testXpathNegativeExists("//electric");
+        testXpathNegativeExists("//partNum");
+        testXpathNegativeExists("//shipTo[@country2]");
 
-        testTextPathNegativeWithSearchPhrase("/purchaseOrder/comment", "invalid");
-        testTextPathNegativeWithSearchPhrase("//comment", "invalid");
-        testTextPathNegativeWithSearchPhrase("/purchaseOrder//item/USPrice", "invalid");
-        testTextPathNegativeWithSearchPhrase("/purchaseOrder/billTo", "95819");
+        testXpathNegativeWithSearchPhrase("//shipTo/@country", "us");
+        testXpathNegativeWithSearchPhrase("/purchaseOrder/comment", "invalid");
+        testXpathNegativeWithSearchPhrase("/purchaseOrder/billTo", "12345");
+        testXpathNegativeWithSearchPhrase("//comment", "invalid");
+        testXpathNegativeWithSearchPhrase("/purchaseOrder//item/USPrice", "invalid");
     }
 
-    public void testTextPathPositiveExists(String xpath, String recordMatchPhrase) throws Exception {
+    public void testXpathPositiveExists(String xpath, String recordMatchPhrase) throws Exception {
         SourceResponse sourceResponse = queryXpathExists(xpath);
         assertEquals("Failed to find record for xpath: " + xpath, 1, sourceResponse.getResults()
                 .size());
@@ -2567,7 +2585,7 @@ public class TestSolrProvider extends SolrProviderTestCase {
         }
     }
 
-    public void testTextPathNegativeExists(String xpath) throws Exception {
+    public void testXpathNegativeExists(String xpath) throws Exception {
         SourceResponse sourceResponse = queryXpathExists(xpath);
         assertEquals("Should not have found record for xpath: " + xpath, 0, sourceResponse
                 .getResults().size());
@@ -2579,9 +2597,14 @@ public class TestSolrProvider extends SolrProviderTestCase {
         return sourceResponse;
     }
 
-    public void testTextPathPositiveWithSearchPhrase(String xpath, String searchPhrase,
-            String recordMatchPhrase) throws Exception {
-        SourceResponse sourceResponse = queryXpathWithSearchPhrase(xpath, searchPhrase);
+    public void testXpathPositiveWithSearchPhrase(String xpath, String searchPhrase,
+                                                  String recordMatchPhrase) throws Exception {
+        testXpathPositiveWithSearchPhrase(xpath, searchPhrase, recordMatchPhrase, true);
+    }
+
+    public void testXpathPositiveWithSearchPhrase(String xpath, String searchPhrase,
+                                                  String recordMatchPhrase, boolean isCaseSensitive) throws Exception {
+        SourceResponse sourceResponse = queryXpathWithPhrase(xpath, searchPhrase, isCaseSensitive);
         assertEquals("Failed to find record for xpath: " + xpath, 1, sourceResponse.getResults()
                 .size());
 
@@ -2591,16 +2614,20 @@ public class TestSolrProvider extends SolrProviderTestCase {
         }
     }
 
-    public void testTextPathNegativeWithSearchPhrase(String xpath, String searchPhrase)
+    public void testXpathNegativeWithSearchPhrase(String xpath, String searchPhrase)
         throws Exception {
-        SourceResponse sourceResponse = queryXpathWithSearchPhrase(xpath, searchPhrase);
+        SourceResponse sourceResponse = queryXpathWithPhrase(xpath, searchPhrase, true);
         assertEquals("Should not have found record for xpath: " + xpath, 0, sourceResponse
                 .getResults().size());
     }
 
-    private SourceResponse queryXpathWithSearchPhrase(String xpath, String searchPhrase)
-        throws UnsupportedQueryException {
-        Filter filter = filterBuilder.xpath(xpath).is().like().text(searchPhrase);
+    private SourceResponse queryXpathWithPhrase(String xpath, String searchPhrase, boolean isCaseSensitive) throws UnsupportedQueryException {
+        Filter filter;
+        if (isCaseSensitive) {
+            filter = filterBuilder.xpath(xpath).is().like().caseSensitiveText(searchPhrase);
+        } else {
+            filter = filterBuilder.xpath(xpath).is().like().text(searchPhrase);
+        }
         SourceResponse sourceResponse = provider.query(new QueryRequestImpl(new QueryImpl(filter)));
         return sourceResponse;
     }
@@ -4147,74 +4174,50 @@ public class TestSolrProvider extends SolrProviderTestCase {
         /** CREATE **/
         create(list);
 
-        assertTextPath("//comment");
+        testXpathPositiveExists("//comment", "Hurry, my lawn is going wild!");
 
-        assertNotTextPath("//foo");
+        testXpathNegativeExists("//foo");
     }
 
     /**
-     * If we disable text path support, we expect exceptions.
+     * If we disable text path support, we expect 0 results.
      * 
      * @throws Exception
      */
-    @Test(expected = UnsupportedQueryException.class)
+    @Test
     public void testDisableTextPathTrue_ExistsFilter() throws Exception {
         ConfigurationStore.getInstance().setDisableTextPath(true);
 
-        assertTextPath("//comment");
-
+        testXpathNegativeExists("//comment");
     }
 
     /**
-     * If we disable text path support, we expect exceptions.
+     * If we disable text path support, we expect 0 results.
      * 
      * @throws Exception
      */
-    @Test(expected = UnsupportedQueryException.class)
+    @Test
     public void testDisableTextPathTrue_LikeFilter() throws Exception {
         ConfigurationStore.getInstance().setDisableTextPath(true);
 
-        assertTextPath("//comment", "Hurry, my lawn is going wild!");
-
+        testXpathNegativeWithSearchPhrase("//comment", "Hurry, my lawn is going wild!");
     }
 
     /**
-     * If we disable text path support, we expect exceptions.
+     * If we disable text path support, we expect 0 results.
      * 
      * @throws Exception
      */
-    @Test(expected = UnsupportedQueryException.class)
+    @Test
     public void testDisableTextPathTrue_Fuzzy() throws Exception {
         ConfigurationStore.getInstance().setDisableTextPath(true);
 
-        assertXpathFilter(filterBuilder.xpath("//comment").is().like()
+        assertNotFilter(filterBuilder.xpath("//comment").is().like()
                 .fuzzyText("Hurry, my lawn is going wild!"));
-
     }
 
-    private void assertTextPath(String textPath) throws UnsupportedQueryException {
-        assertXpathFilter(filterBuilder.xpath(textPath).exists());
-    }
-
-    private void assertTextPath(String textPath, String value) throws UnsupportedQueryException {
-        assertXpathFilter(filterBuilder.xpath(textPath).is().like().text(value));
-    }
-
-    private void assertXpathFilter(Filter xpathFilter) throws UnsupportedQueryException {
-        SourceResponse sourceResponse = provider.query(new QueryRequestImpl(new QueryImpl(
-                xpathFilter)));
-        assertEquals("Failed to find metacard with correct XML node.", 1, sourceResponse
-                .getResults().size());
-
-        for (Result r : sourceResponse.getResults()) {
-            assertTrue("Wrong record, Purchase order keyword was not found.", ALL_RESULTS != r
-                    .getMetacard().getMetadata().indexOf("872-AA"));
-        }
-    }
-
-    private void assertNotTextPath(String textPath) throws UnsupportedQueryException {
-        SourceResponse sourceResponse = provider.query(new QueryRequestImpl(new QueryImpl(
-                filterBuilder.xpath(textPath).exists())));
+    private void assertNotFilter(Filter filter) throws UnsupportedQueryException {
+        SourceResponse sourceResponse = provider.query(new QueryRequestImpl(new QueryImpl(filter)));
         assertEquals("Found a metacard and should not have.", 0, sourceResponse.getResults().size());
     }
 
