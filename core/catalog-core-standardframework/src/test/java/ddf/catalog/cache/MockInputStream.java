@@ -29,18 +29,22 @@ public class MockInputStream extends InputStream {
 
     private int invocationCount = 0;
 
-    private String name;
-
     private InputStream is;
 
     // Parameters to configure failures for testing
     private int invocationCountToThrowIOException = -1;
 
     private int invocationCountToTimeout = -1;
+    
+    private int readDelay = 0;
+    
 
     public MockInputStream(String name) {
-        this.name = name;
-        openStream();
+        try {
+            this.is = new FileInputStream(name);
+        } catch (FileNotFoundException e) {
+            LOGGER.error("FileNotFoundException", e);
+        }
     }
 
     public void setInvocationCountToThrowIOException(int count) {
@@ -50,51 +54,43 @@ public class MockInputStream extends InputStream {
     public void setInvocationCountToTimeout(int count) {
         invocationCountToTimeout = count;
     }
-    
-    private void openStream() {
-        try {
-            this.is = new FileInputStream(name);
-        } catch (FileNotFoundException e) {
-            LOGGER.error("FileNotFoundException", e);
-        }
+
+    public void setReadDelay(int delay) {
+        this.readDelay = delay;
     }
 
     @Override
     public int read() throws IOException {
-        //invocationCount++;
         return is.read();
     }
 
     @Override
     public int read(byte[] buffer) throws IOException {
         invocationCount++;
-        LOGGER.debug("invocationCount = " + invocationCount);
+        //LOGGER.debug("invocationCount = " + invocationCount);
         if (invocationCount == invocationCountToThrowIOException) {
             LOGGER.info("Simulating read exception by closing inputstream");
-            is.close(); // by closing stream, when try to read from it an IOException will be thrown
+            // Simulates IOException while reading from the remote source.
+            // By closing stream, when try to read from it an IOException will be thrown.
+            is.close();
         } else if (invocationCount == invocationCountToTimeout) {
+            LOGGER.info("Simulating read taking too long by sleeping for {} ms", readDelay);
             try {
-                Thread.sleep(2000); // sleep longer than the timeout for each chunk to be read
+                // Simulates read of InputStream chunk from remote source taking
+                // longer than the timeout for each chunk to be read
+                Thread.sleep(readDelay); 
             } catch (InterruptedException e) {
+                LOGGER.info("Thread sleep interrupted");
+                return 0;
             }
+            LOGGER.info("Simulated read timeout completed");
         }
         return super.read(buffer);
     }
 
     @Override
     public int read(byte[] buffer, int startPos, int len) throws IOException {
-        //invocationCount++;
         return super.read(buffer, startPos, len);
     }
 
-    public void restart(long numBytes) {
-        try {
-            this.is = new FileInputStream(name);
-            this.is.skip(numBytes);
-        } catch (FileNotFoundException e) {
-            LOGGER.error("FileNotFoundException", e);
-        } catch (IOException e) {
-            LOGGER.error("FileNotFoundException", e);
-        }
-    }
 }

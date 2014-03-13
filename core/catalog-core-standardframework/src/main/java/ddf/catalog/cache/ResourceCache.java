@@ -15,6 +15,8 @@
 package ddf.catalog.cache;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
@@ -29,6 +31,7 @@ import ddf.catalog.operation.ResourceRequest;
 import ddf.catalog.operation.ResourceResponse;
 import ddf.catalog.operation.impl.ResourceResponseImpl;
 import ddf.catalog.resource.Resource;
+import ddf.catalog.resourceretriever.ResourceRetriever;
 
 public class ResourceCache {
 
@@ -47,6 +50,8 @@ public class ResourceCache {
     private CacheManager cacheManager;
 
     private Cache cache;
+    
+    private List<String> pendingCache = new ArrayList<String>();
 
     /** Directory for products cached to file system */
     private String productCacheDirectory;
@@ -113,7 +118,7 @@ public class ResourceCache {
     	return productCacheDirectory;
     }
 
-    public ResourceResponse put(Metacard metacard, ResourceResponse resourceResponse)
+    public ResourceResponse put(Metacard metacard, ResourceResponse resourceResponse, ResourceRetriever retriever)
         throws CacheException {
 
         LOGGER.debug("ENTERING: put()");
@@ -123,24 +128,44 @@ public class ResourceCache {
             throw new CacheException("Must specify non-null metacard");
         } else if (resourceResponse == null) {
             throw new CacheException("Must specify non-null resourceResponse");
-        } else if (StringUtils.isBlank(metacard.getId())) {
+        } else if (retriever == null) {
+            throw new CacheException("Must specify non-null ResourceRetriever");
+        } 
+        else if (StringUtils.isBlank(metacard.getId())) {
             throw new CacheException("Metacard must have unique id.");
         }
 
         ResourceRequest resourceRequest = resourceResponse.getRequest();
 
         LOGGER.debug("metacard ID = {}", metacard.getId());
+        
+        CacheKey keyMaker = new CacheKey(metacard, resourceResponse.getRequest());
+
+        String key = keyMaker.generateKey();
+
+        if (pendingCache.contains(key)) {
+            LOGGER.info(
+                    "Cache file with key = {} is already pending caching - return resourceResponse that was passed in",
+                    key);
+            return resourceResponse;
+        } else {
+            LOGGER.info("Caching file with key {} ", key);
+        }
 
         CachedResource cachedResource = new CachedResource(productCacheDirectory);
         
         // store() will return a new Resource with its input stream now set to
         // the PipedInputStream that caching thread will write to simultaneously
         // as it writes the product input stream to cache (disk).
-        Resource newResource = cachedResource.store(metacard, resourceResponse, this);
+        Resource newResource = cachedResource.store(key, resourceResponse, this, retriever);
         
         //Moved into CachedResource class (that's why "ResourceCache" argument passed into store() above)
         //until figure out better way.
         //cache.put(cachedResource.getKey(), cachedResource);
+        
+        // Used to prevent caching same product twice, i.e., if same product requested while it is
+        // in process of being cached
+        pendingCache.add(key);
 
         // Create new ResourceResponse with the PipedInputStream that the client will
         // read simultaneously as the file is cached to disk
@@ -155,6 +180,12 @@ public class ResourceCache {
     public void put(CachedResource cachedResource) throws CacheException {
         LOGGER.info("ENTERING: put(CachedResource)");
         cache.put(cachedResource.getKey(), cachedResource);
+        if (!pendingCache.remove(cachedResource.getKey())) {
+            LOGGER.info("Did not find pending cache entry with key = {}", cachedResource.getKey());
+        } else {
+            LOGGER.info("Removed pending cache entry with key = {}", cachedResource.getKey());
+        }
+        
         LOGGER.info("EXITING: put(CachedResource)");
     }
 

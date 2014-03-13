@@ -22,12 +22,16 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import javax.activation.MimeType;
 import javax.activation.MimeTypeParseException;
@@ -38,6 +42,7 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import ddf.cache.Cache;
@@ -47,6 +52,7 @@ import ddf.catalog.data.Metacard;
 import ddf.catalog.operation.ResourceRequest;
 import ddf.catalog.operation.ResourceResponse;
 import ddf.catalog.resource.Resource;
+import ddf.catalog.resourceretriever.ResourceRetriever;
 
 public class ResourceCacheTest {
 
@@ -68,7 +74,7 @@ public class ResourceCacheTest {
     public void setUp() {
 
         // Simulates how DDF script starts up setting KARAF_HOME
-        workingDir = System.getProperty("user.dir");
+        workingDir = System.getProperty("user.dir") + File.separator + "target";
         System.setProperty("karaf.home", workingDir);
 
         // Simulates how blueprint creates the ResourceCache instance
@@ -106,13 +112,22 @@ public class ResourceCacheTest {
     @Test(expected = CacheException.class)
     public void testPutWithNullMetacard() throws CacheException {
         ResourceResponse resourceResponse = mock(ResourceResponse.class);
-        productCache.put(null, resourceResponse);
+        ResourceRetriever retriever = mock(ResourceRetriever.class);
+        productCache.put(null, resourceResponse, retriever);
     }
 
     @Test(expected = CacheException.class)
     public void testPutWithNullResourceResponse() throws CacheException {
         Metacard metacard = mock(Metacard.class);
-        productCache.put(metacard, null);
+        ResourceRetriever retriever = mock(ResourceRetriever.class);
+        productCache.put(metacard, null, retriever);
+    }
+
+    @Test(expected = CacheException.class)
+    public void testPutWithNullResourceRetriever() throws CacheException {
+        Metacard metacard = mock(Metacard.class);
+        ResourceResponse resourceResponse = mock(ResourceResponse.class);
+        productCache.put(metacard, resourceResponse, null);
     }
 
     @Test(expected = CacheException.class)
@@ -121,8 +136,9 @@ public class ResourceCacheTest {
         String metacardId = "";
         when(metacard.getId()).thenReturn(metacardId);
         ResourceResponse resourceResponse = mock(ResourceResponse.class);
+        ResourceRetriever retriever = mock(ResourceRetriever.class);
 
-        productCache.put(metacard, resourceResponse);
+        productCache.put(metacard, resourceResponse, retriever);
     }
 
     @Test
@@ -143,8 +159,11 @@ public class ResourceCacheTest {
         when(resourceResponse.getRequest()).thenReturn(resourceRequest);
         when(resourceResponse.getResource()).thenReturn(resource);
         when(resourceResponse.getProperties()).thenReturn(null);
+        
+        ResourceRetriever retriever = mock(ResourceRetriever.class);
 
-        ResourceResponse newResourceResponse = productCache.put(metacard, resourceResponse);
+        ResourceResponse newResourceResponse = productCache.put(metacard, resourceResponse,
+                retriever);
 
         assertNotNull(newResourceResponse);
         Resource newResource = newResourceResponse.getResource();
@@ -177,8 +196,10 @@ public class ResourceCacheTest {
         when(resourceResponse.getRequest()).thenReturn(resourceRequest);
         when(resourceResponse.getResource()).thenReturn(resource);
         when(resourceResponse.getProperties()).thenReturn(requestProperties);
+        
+        ResourceRetriever retriever = mock(ResourceRetriever.class);
 
-        productCache.put(metacard, resourceResponse);
+        productCache.put(metacard, resourceResponse, retriever);
 
         String mockCacheKey = metacardSourceId + "-" + metacardId;
         CachedResource cachedResource = mock(CachedResource.class);
@@ -214,10 +235,12 @@ public class ResourceCacheTest {
         when(resourceResponse.getRequest()).thenReturn(resourceRequest);
         when(resourceResponse.getResource()).thenReturn(resource);
         when(resourceResponse.getProperties()).thenReturn(requestProperties);
+        
+        ResourceRetriever retriever = mock(ResourceRetriever.class);
 
         String key = null;
         try {
-            productCache.put(metacard, resourceResponse);
+            productCache.put(metacard, resourceResponse, retriever);
 
             String mockCacheKey = metacardSourceId + "-" + metacardId;
             CachedResource cachedResource = mock(CachedResource.class);
@@ -264,10 +287,12 @@ public class ResourceCacheTest {
         when(resourceResponse.getRequest()).thenReturn(resourceRequest);
         when(resourceResponse.getResource()).thenReturn(resource);
         when(resourceResponse.getProperties()).thenReturn(requestProperties);
+        
+        ResourceRetriever retriever = mock(ResourceRetriever.class);
 
         String key = null;
         try {
-            productCache.put(metacard, resourceResponse);
+            productCache.put(metacard, resourceResponse, retriever);
 
             String mockCacheKey = metacardSourceId + "-" + metacardId;
             CachedResource cachedResource = mock(CachedResource.class);
@@ -289,6 +314,61 @@ public class ResourceCacheTest {
         } catch (CacheException e) {
             LOGGER.debug("Caught CacheException: " + e.getMessage());
         }
+    }
+    
+    /**
+     * Tests that if a product is actively being cached and a new (second) request comes in
+     * for the same product that the first request's caching continues and the second request
+     * just retrieves the product from the Source and returns it to the client without attempting
+     * to cache it.
+     * 
+     * @throws Exception
+     */
+    @Test
+    @Ignore
+    public void testPutWhenProductIsInProcessOfBeingCached() throws Exception {
+        Metacard metacard = mock(Metacard.class);
+        String sourceId = "ddf-1";
+        String metacardId = "4567890";
+        when(metacard.getId()).thenReturn(metacardId);
+        when(metacard.getSourceId()).thenReturn(sourceId);
+
+        ResourceRequest resourceRequest = mock(ResourceRequest.class);
+
+        Resource resource = mock(Resource.class);
+        String input = "<myXml></myXml>";
+        when(resource.getInputStream()).thenReturn(IOUtils.toInputStream(input));
+        when(resource.getName()).thenReturn("test-resource");
+        when(resource.getMimeType()).thenReturn(new MimeType("text/xml"));
+
+        ResourceResponse resourceResponse = mock(ResourceResponse.class);
+        when(resourceResponse.getRequest()).thenReturn(resourceRequest);
+        when(resourceResponse.getResource()).thenReturn(resource);
+        when(resourceResponse.getProperties()).thenReturn(null);
+        
+        ResourceRetriever retriever = mock(ResourceRetriever.class);
+
+        ResourceResponse newResourceResponse = productCache.put(metacard, resourceResponse,
+                retriever);
+
+        int chunkSize = 50;
+        CacheClient cacheClient1 = new CacheClient(newResourceResponse.getResource().getInputStream(), chunkSize);
+        
+        newResourceResponse = productCache.put(metacard, resourceResponse,
+                retriever);
+        CacheClient cacheClient2 = new CacheClient(newResourceResponse.getResource().getInputStream(), chunkSize);
+
+        ExecutorService executor = Executors.newCachedThreadPool();
+        
+        Future<ByteArrayOutputStream> future1 = executor.submit(cacheClient1);       
+        Future<ByteArrayOutputStream> future2 = executor.submit(cacheClient2);
+        
+        ByteArrayOutputStream bos1 = future1.get();
+        LOGGER.info("bos1 size = " + bos1.size());
+        ByteArrayOutputStream bos2 = future2.get();
+        LOGGER.info("bos2 size = " + bos2.size());
+        
+        LOGGER.info("DONE");
     }
 
 }

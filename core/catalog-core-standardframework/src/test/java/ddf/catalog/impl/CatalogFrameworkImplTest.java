@@ -105,6 +105,7 @@ import ddf.catalog.resource.Resource;
 import ddf.catalog.resource.ResourceNotFoundException;
 import ddf.catalog.resource.ResourceNotSupportedException;
 import ddf.catalog.resource.ResourceReader;
+import ddf.catalog.resourceretriever.ResourceRetriever;
 import ddf.catalog.source.CatalogProvider;
 import ddf.catalog.source.ConnectedSource;
 import ddf.catalog.source.FederatedSource;
@@ -475,7 +476,8 @@ public class CatalogFrameworkImplTest {
         ResourceCache resourceCache = mock(ResourceCache.class);
         when(resourceCache.contains(isA(String.class))).thenReturn(false);
         ResourceResponse resourceResponseInCache = new ResourceResponseImpl(mockResource);
-        when(resourceCache.put(isA(Metacard.class), isA(ResourceResponse.class))).thenReturn(resourceResponseInCache);
+        when(resourceCache.put(isA(Metacard.class), isA(ResourceResponse.class),
+             isA(ResourceRetriever.class))).thenReturn(resourceResponseInCache);
         catalogFrameworkUnderTest.setProductCache(resourceCache);
 
         String resourceSiteName = "myId";

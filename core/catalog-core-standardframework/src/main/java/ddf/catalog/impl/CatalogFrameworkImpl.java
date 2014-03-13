@@ -94,6 +94,9 @@ import ddf.catalog.resource.Resource;
 import ddf.catalog.resource.ResourceNotFoundException;
 import ddf.catalog.resource.ResourceNotSupportedException;
 import ddf.catalog.resource.ResourceReader;
+import ddf.catalog.resourceretriever.LocalResourceRetriever;
+import ddf.catalog.resourceretriever.RemoteResourceRetriever;
+import ddf.catalog.resourceretriever.ResourceRetriever;
 import ddf.catalog.source.CatalogProvider;
 import ddf.catalog.source.ConnectedSource;
 import ddf.catalog.source.FederatedSource;
@@ -1343,11 +1346,13 @@ public class CatalogFrameworkImpl extends DescribableImpl implements Configurati
                     // If no cached entry found for product being retrieved
                 	if(resourceResponse == null) {
                         logger.debug("Retrieving product from remote source {}", source.getId());
-                        resourceResponse = source.retrieveResource(responseURI, requestProperties);
+                        ResourceRetriever retriever = new RemoteResourceRetriever(source, responseURI, requestProperties);
+                        resourceResponse = retriever.retrieveResource();
+                        
                         // Sources do not create ResourceResponses with the original ResourceRequest, hence
                         // it is added here because it will be needed for caching
                         resourceResponse = new ResourceResponseImpl(resourceRequest, resourceResponse.getProperties(), resourceResponse.getResource());
-                        resourceResponse = cacheProduct(metacard, resourceResponse);
+                        resourceResponse = cacheProduct(metacard, resourceResponse, retriever);
                     }
                 } else {
                     logger.warn("Could not find federatedSource: {}", resourceSourceName);
@@ -1357,11 +1362,13 @@ public class CatalogFrameworkImpl extends DescribableImpl implements Configurati
                 // If no cached entry found for product being retrieved
                 if (resourceResponse == null) {
                     logger.debug("Retrieving product from local source {}", resourceSourceName);
-                    resourceResponse = getResourceUsingResourceReader(responseURI, requestProperties);
+                    ResourceRetriever retriever = new LocalResourceRetriever(resourceReaders, responseURI, requestProperties);
+                    resourceResponse = retriever.retrieveResource();
+                    
                     // ResourceReaders do not create ResourceResponses with the original ResourceRequest, hence
                     // it is added here because it will be needed for caching
                     resourceResponse = new ResourceResponseImpl(resourceRequest, resourceResponse.getProperties(), resourceResponse.getResource());
-                    resourceResponse = cacheProduct(metacard, resourceResponse);
+                    resourceResponse = cacheProduct(metacard, resourceResponse, retriever);
                 }
             }
 
@@ -1401,10 +1408,10 @@ public class CatalogFrameworkImpl extends DescribableImpl implements Configurati
      * @param resourceResponse response containing the Resource to be cached
      * @return
      */
-    protected ResourceResponse cacheProduct(Metacard metacard, ResourceResponse resourceResponse) {        
-        if (!cacheDisabled && metacard != null && resourceResponse != null) {
+    protected ResourceResponse cacheProduct(Metacard metacard, ResourceResponse resourceResponse, ResourceRetriever retriever) {        
+        if (!cacheDisabled && metacard != null && resourceResponse != null && retriever != null) {
             try {
-                resourceResponse = productCache.put(metacard, resourceResponse);
+                resourceResponse = productCache.put(metacard, resourceResponse, retriever);
             } catch (CacheException e) {
                 logger.info("Unable to put resource for metacard ID = {} in product cache",
                         metacard.getId());
