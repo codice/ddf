@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.Properties;
 
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -51,7 +50,11 @@ public final class SolrServerFactory {
 
     private static final String DEFAULT_SOLRCONFIG_XML = "solrconfig.xml";
 
+    private static final String DEFAULT_SOLR_XML = "solr.xml";
+
     private static final Logger LOGGER = Logger.getLogger(SolrServerFactory.class);
+
+    public static final String CORE_NAME = "core1";
 
     /** Hiding constructor **/
     private SolrServerFactory() {
@@ -104,11 +107,10 @@ public final class SolrServerFactory {
     public static EmbeddedSolrServer getEmbeddedSolrServer(String solrConfigXml, String schemaXml,
             ConfigurationFileProxy givenConfigFileProxy) {
 
-        LOGGER.info("Retrieving embedded solr with the following properties: [" + solrConfigXml
+        LOGGER.debug("Retrieving embedded solr with the following properties: [" + solrConfigXml
                 + "," + schemaXml + "," + givenConfigFileProxy + "]");
 
         String solrConfigFileName = DEFAULT_SOLRCONFIG_XML;
-
         String schemaFileName = DEFAULT_SCHEMA_XML;
 
         if (isNotBlank(solrConfigXml)) {
@@ -118,10 +120,6 @@ public final class SolrServerFactory {
         if (isNotBlank(schemaXml)) {
             schemaFileName = schemaXml;
         }
-
-        File solrConfigFile = null;
-        File solrConfigHome = null;
-        File solrSchemaFile = null;
 
         ConfigurationFileProxy configProxy = givenConfigFileProxy;
 
@@ -133,28 +131,11 @@ public final class SolrServerFactory {
                 ConfigurationFileProxy.SOLR_CONFIG_LOCATION_IN_BUNDLE);
         configProxy.writeBundleFilesTo(configurationDir);
 
-        try {
-            URL url = configProxy.getResource(solrConfigFileName);
+        File solrConfigFile = getConfigFile(solrConfigFileName, configProxy);
+        File solrSchemaFile = getConfigFile(schemaFileName, configProxy);
+        File solrFile = getConfigFile(DEFAULT_SOLR_XML, configProxy);
 
-            LOGGER.info("Solr config url: " + url);
-
-            solrConfigFile = new File(new URI(url.toString()).getPath());
-
-            solrConfigHome = new File(solrConfigFile.getParent());
-        } catch (URISyntaxException e) {
-            LOGGER.warn(e);
-        }
-
-        try {
-            URL url = configProxy.getResource(schemaFileName);
-
-            LOGGER.info("Solr schema url: " + url);
-
-            solrSchemaFile = new File(new URI(url.toString()).getPath());
-
-        } catch (URISyntaxException e) {
-            LOGGER.warn(e);
-        }
+        File solrConfigHome = new File(solrConfigFile.getParent());
 
         SolrConfig solrConfig = null;
         IndexSchema indexSchema = null;
@@ -166,8 +147,8 @@ public final class SolrServerFactory {
             // codecs, posting formats, and analyzers
             solrConfig = new SolrConfig(solrConfigHome.getParent(), solrConfigFileName,
                     new InputSource(FileUtils.openInputStream(solrConfigFile)));
-            indexSchema = new IndexSchema(solrConfig, schemaFileName,
-                    new InputSource(FileUtils.openInputStream(solrSchemaFile)));
+            indexSchema = new IndexSchema(solrConfig, schemaFileName, new InputSource(
+                    FileUtils.openInputStream(solrSchemaFile)));
         } catch (ParserConfigurationException e) {
             LOGGER.warn(e);
         } catch (IOException e) {
@@ -178,19 +159,29 @@ public final class SolrServerFactory {
             Thread.currentThread().setContextClassLoader(tccl);
         }
 
-
-        CoreContainer container = new CoreContainer(solrConfigHome.getAbsolutePath());
-        container.load();
-        CoreDescriptor dcore = new CoreDescriptor(container, "core1", solrConfig.getResourceLoader()
-                .getInstanceDir());
+        CoreContainer container = CoreContainer.createAndLoad(solrConfigHome.getAbsolutePath(),
+                solrFile);
+        CoreDescriptor coreDescriptor = new CoreDescriptor(container, CORE_NAME, solrConfig
+                .getResourceLoader().getInstanceDir());
 
         File dataDir = configProxy.getDataDirectory();
-        LOGGER.info("Using data directory [" + dataDir + "]");
-        SolrCore core = new SolrCore("core1", dataDir.getAbsolutePath(), solrConfig, indexSchema,
-                dcore);
-        container.register("core1", core, false);
+        LOGGER.debug("Using data directory [" + dataDir + "]");
+        SolrCore core = new SolrCore(CORE_NAME, dataDir.getAbsolutePath(), solrConfig, indexSchema,
+                coreDescriptor);
+        container.register(CORE_NAME, core, false);
 
-        return new EmbeddedSolrServer(container, "core1");
+        return new EmbeddedSolrServer(container, CORE_NAME);
+    }
+
+    private static File getConfigFile(String configFileName, ConfigurationFileProxy configProxy) {
+        File result = null;
+        try {
+            URL url = configProxy.getResource(configFileName);
+            result = new File(new URI(url.toString()).getPath());
+        } catch (URISyntaxException e) {
+            LOGGER.warn(e);
+        }
+        return result;
     }
 
 }
