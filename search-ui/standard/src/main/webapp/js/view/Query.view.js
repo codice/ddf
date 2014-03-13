@@ -128,6 +128,10 @@ define(function (require) {
                 dtoffset: undefined,
                 offsetTime: undefined
             }, {unset: true});
+            this.resetDateTimePicker('#absoluteStartTime');
+            this.resetDateTimePicker('#absoluteEndTime');
+            this.initDateTimePicker('#absoluteStartTime');
+            this.initDateTimePicker('#absoluteEndTime');
             this.updateScrollbar();
         },
 
@@ -219,39 +223,9 @@ define(function (require) {
 
             this.listenTo(this.model, 'change:bbox change:radius', this.updateShouldFlyToExtent);
 
-            this.$('#absoluteStartTime').datetimepicker({
-                dateFormat: $.datepicker.ATOM,
-                timeFormat: "HH:mm:ss.lz",
-                separator: "T",
-                timezoneIso8601: true,
-                useLocalTimezone: true,
-                showHour: false,
-                showMinute: false,
-                showSecond: false,
-                showMillisec: false,
-                showTimezone: false,
-                minDate: new Date(100, 0, 2),
-                maxDate: new Date(9999, 11, 30),
-                onClose: this.model.swapDatesIfNeeded,
-                beforeShow: this.beforeShowDatePicker
-            });
-
-            this.$('#absoluteEndTime').datetimepicker({
-                dateFormat: $.datepicker.ATOM,
-                timeFormat: "HH:mm:ss.lz",
-                separator: "T",
-                timezoneIso8601: true,
-                useLocalTimezone: true,
-                showHour: false,
-                showMinute: false,
-                showSecond: false,
-                showMillisec: false,
-                showTimezone: false,
-                minDate: new Date(100, 0, 2),
-                maxDate: new Date(9999, 11, 30),
-                onClose: this.model.swapDatesIfNeeded,
-                beforeShow: this.beforeShowDatePicker
-            });
+            this.initDateTimePicker('#absoluteStartTime');
+            this.initDateTimePicker('#absoluteEndTime');
+            
             this.delegateEvents();
 
             var multiselectOptions = {
@@ -465,8 +439,32 @@ define(function (require) {
                 default:
                     return val;
             }
-        }
+        },
+        
+        resetDateTimePicker: function(selector) {
+            this.$(selector).datetimepicker('destroy');
+            this.initDateTimePicker(selector);
 
+        },
+        
+        initDateTimePicker: function (selector) {
+            this.$(selector).datetimepicker({
+                dateFormat: $.datepicker.ATOM,
+                timeFormat: "HH:mm:ss.lz",
+                separator: "T",
+                timezoneIso8601: true,
+                useLocalTimezone: true,
+                showHour: true,
+                showMinute: true,
+                showSecond: false,
+                showMillisec: false,
+                showTimezone: false,
+                minDate: new Date(100, 0, 2),
+                maxDate: new Date(9999, 11, 30),
+                onClose: this.model.swapDatesIfNeeded,
+                beforeShow: this.beforeShowDatePicker
+        });
+      }
 
     });
 

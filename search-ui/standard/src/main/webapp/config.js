@@ -38,7 +38,7 @@
             jquery: 'lib/jquery/jquery.min',
             jqueryui: 'lib/jquery-ui/ui/minified/jquery-ui.min',
             datepickerOverride: 'lib/jquery/js/plugin/jquery-ui-datepicker-4digitYearOverride-addon',
-            datepickerAddon: 'lib/jquery/js/plugin/jquery-ui-timepicker-addon',
+            datepickerAddon: 'lib/jqueryui-timepicker-addon/src/jquery-ui-timepicker-addon',
             purl: 'lib/purl/purl',
             multiselect: 'lib/multiselect/src/jquery.multiselect',
             multiselectfilter: 'lib/multiselect/src/jquery.multiselect.filter',
