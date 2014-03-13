@@ -16,22 +16,12 @@ define(function (require) {
             return this.get('type') === 'Point';
         },
         
-        polarity: function (points) {
-            var pole = _.reduce(points, function(a, b){
-                return a * b;
-            }, 0);
-            if (pole < 0){
-                return -1;
-            }
-            return 1;
-        },
-
         average: function (points, attribute) {
             var attrs = _.pluck(points, attribute);
             var sum = _.reduce(attrs, function (a, b) {
                 return Math.abs(a) + Math.abs(b);
             }, 0);
-            return sum / points.length * this.polarity(points);
+            return sum / points.length;
         },
         
         getPoint: function () {
@@ -44,8 +34,6 @@ define(function (require) {
                     if (typeof console !== 'undefined') {
                         console.warn('centroid util did not return a good centroid, defaulting to average of all points');
                     }
-
-
                     return {
                         latitude: this.average(polygon, 'latitude'),
                         longitude: this.average(polygon, 'longitude')

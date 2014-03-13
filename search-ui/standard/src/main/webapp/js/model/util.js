@@ -34,25 +34,39 @@ define(function () {
     };
 
     Region.prototype.centroid = function () {
-        var x = 0,
-            y = 0,
+        var X = 0.0,
+            Y = 0.0,
+            Z = 0.0,
             i,
-            j,
-            f,
-            point1,
-            point2;
+            lat,
+            lon,
+            hyp,
+            a,
+            b,
+            c;
 
-        for (i = 0, j = this.length - 1; i < this.length; i += 1, j = i) {
-            point1 = this.points[i];
-            point2 = this.points[j];
-            f = point1.longitude * point2.latitude - point2.longitude * point1.latitude;
-            x += (point1.longitude + point2.longitude) * f;
-            y += (point1.latitude + point2.latitude) * f;
+        for (i = 0; i < this.length; i += 1){
+            lat = this.points[i].latitude * Math.PI / 180;
+            lon = this.points[i].longitude * Math.PI / 180;
+
+            a = Math.cos(lat) * Math.cos(lon);
+            b = Math.cos(lat) * Math.sin(lon);
+            c = Math.sin(lat);
+
+            X += a;
+            Y += b;
+            Z += c;
         }
 
-        f = this.area() * 6;
+        X /= this.length;
+        Y /= this.length;
+        Z /= this.length;
 
-        return new Point(x / f, y / f);
+        lon = Math.atan2(Y, X);
+        hyp = Math.sqrt(X * X + Y * Y);
+        lat = Math.atan2(Z, hyp);
+
+        return new Point(lon * 180 / Math.PI, lat * 180 / Math.PI);
     };
 
     return {Region: Region};
