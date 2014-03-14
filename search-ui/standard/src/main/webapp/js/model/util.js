@@ -45,7 +45,8 @@ define(function () {
             b,
             c;
 
-        for (i = 0; i < this.length; i += 1){
+        // Subtract 1 from the length to ignore the duplicate point
+        for (i = 0; i < this.length-1; i += 1){
             lat = this.points[i].latitude * Math.PI / 180;
             lon = this.points[i].longitude * Math.PI / 180;
 
