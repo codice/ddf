@@ -130,8 +130,6 @@ define(function (require) {
             }, {unset: true});
             this.resetDateTimePicker('#absoluteStartTime');
             this.resetDateTimePicker('#absoluteEndTime');
-            this.initDateTimePicker('#absoluteStartTime');
-            this.initDateTimePicker('#absoluteEndTime');
             this.updateScrollbar();
         },
 
