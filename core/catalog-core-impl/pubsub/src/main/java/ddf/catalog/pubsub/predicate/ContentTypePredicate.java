@@ -17,6 +17,8 @@ package ddf.catalog.pubsub.predicate;
 
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.log4j.Logger;
 import org.osgi.service.event.Event;
 
@@ -68,7 +70,9 @@ public class ContentTypePredicate implements Predicate {
         }
 
         Object inputContentType = properties.getProperty(PubSubConstants.HEADER_CONTENT_TYPE_KEY);
-        logger.debug("input obtained from event properties: " + inputContentType.toString());
+        if(logger.isDebugEnabled()) {
+            logger.debug("input obtained from event properties: " + ToStringBuilder.reflectionToString(inputContentType));
+        }
         if (inputContentType != null) {
             ContentTypeEvaluationCriteriaImpl ctec = new ContentTypeEvaluationCriteriaImpl(this,
                     inputContentType.toString());

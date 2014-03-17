@@ -51,7 +51,7 @@ public class ContentTypeEvaluator {
         String inputVersion;
         
         //Check if both type and version are blank
-        if (input.matches(",")) {
+        if (input == null || input.matches(",")) {
         	inputType = "null";
         	inputVersion = "null";
         }
@@ -74,14 +74,6 @@ public class ContentTypeEvaluator {
             	inputVersion = inputTypeVersionPair[1];
             }
         }
-        
-        //All catalog entry inputs should have a type and version
-        //if (inputTypeVersionPair.length != 2) {
-        //    logger.debug("inputTypeVersionPair length = " + inputTypeVersionPair.length
-        //            + " and should always be 2");
-        //    logger.debug("EXITING: " + methodName + " - returning false.  Invalid input.");
-        //    return false;
-        //}
         	
         logger.debug("inputType = " + inputType + ", inputVersion = " + inputVersion);
         logger.debug("matchType = " + matchType + ", matchVersion = " + matchVersion);
@@ -98,40 +90,6 @@ public class ContentTypeEvaluator {
             logger.debug("EXITING: " + methodName + " - returning true.");
             return true;
         }
-
-        // Loop through the content types that filter will match on
-        // for ( Pair<String,Set<String>> pair : matchContentTypeSet )
-        // {
-        // logger.debug( "Comparing inputType [" + inputType + "] to [" + pair.getFirstElement() +
-        // "]" );
-        //
-        // // First see if we have a match on the content type
-        // if ( pair.getFirstElement().equals( inputType ) )
-        // {
-        // // If matched content type pair specifies a version, then input version must match too
-        // Set<String> matchVersions = pair.getSecondElement();
-        // if ( matchVersions != null && !matchVersions.isEmpty() )
-        // {
-        // for ( String matchVersion : matchVersions )
-        // {
-        // logger.debug( "Comparing inputVersion [" + inputVersion + "] to [" + matchVersion + "]"
-        // );
-        // if ( matchVersion.equals( inputVersion ) )
-        // {
-        // logger.debug( "EXITING: " + methodName + " - returning true" );
-        // return true;
-        // }
-        // }
-        // }
-        // else
-        // {
-        // // Only have to match on content type
-        // // (no version specified to match on, so all versions match by default)
-        // logger.debug( "EXITING: " + methodName + " - returning true" );
-        // return true;
-        // }
-        // }
-        // }
 
         logger.debug("EXITING: " + methodName + " - returning false.");
 

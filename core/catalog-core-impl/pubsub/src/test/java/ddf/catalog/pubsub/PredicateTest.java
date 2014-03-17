@@ -302,9 +302,20 @@ public class PredicateTest {
         properties.put(PubSubConstants.HEADER_CONTEXTUAL_KEY, contextualMap);
         // Above Pulled from PubSubProviderImpl
 
-        properties.put(PubSubConstants.HEADER_CONTENT_TYPE_KEY, type1 + ","); // Invalid input
+        // handle null case
+        properties.put(PubSubConstants.HEADER_CONTENT_TYPE_KEY, null);
         Event testEvent = new Event("topic", properties);
+        assertFalse(pred.matches(testEvent));
+
+        // handle content type
+        properties.put(PubSubConstants.HEADER_CONTENT_TYPE_KEY, type1 + ",");
+        testEvent = new Event("topic", properties);
         assertTrue(pred.matches(testEvent));
+
+        // handle content version that matches content type
+        properties.put(PubSubConstants.HEADER_CONTENT_TYPE_KEY, "," + type1);
+        testEvent = new Event("topic", properties);
+        assertFalse(pred.matches(testEvent));
 
         properties.clear();
         properties.put(PubSubConstants.HEADER_OPERATION_KEY, PubSubConstants.CREATE);
