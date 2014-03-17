@@ -285,30 +285,9 @@ public class RESTEndpoint {
                 }
 
                 LOGGER.debug("Calling transform.");
-                //ORIG BinaryContent content = catalogFramework.transform(card, transformer, convertedMap);
                 final BinaryContent content = catalogFramework.transform(card, transformer, convertedMap);
-                
-                StreamingOutput stream = new StreamingOutput() {
-                    @Override
-                    public void write(OutputStream outputStream) throws IOException,
-                        WebApplicationException {
-                        int chunkSize = 1024 * 1024;
-                        LOGGER.info("Reading input stream in 1 MB chunks");
-                        InputStream inputStream = content.getInputStream();
-                        byte[] buffer = new byte[chunkSize];
-                        int n = 0;
-                        while ((n = inputStream.read(buffer)) != -1) {
-                            outputStream.write(buffer, 0, n);
-                        }
-                        outputStream.flush();
-                        outputStream.close();
-                        inputStream.close();
-                    }
-                };
-
                 LOGGER.debug("Read and transform complete, preparing response.");
-                //ORIG Response.ResponseBuilder responseBuilder = Response.ok(content.getInputStream(),
-                Response.ResponseBuilder responseBuilder = Response.ok(stream,                        
+                Response.ResponseBuilder responseBuilder = Response.ok(content.getInputStream(),
                         content.getMimeTypeValue());                
 
                 // If we got a resource, we can extract the filename.
