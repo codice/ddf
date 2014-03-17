@@ -173,6 +173,19 @@
 				<version>${cxf.version}</version>
 				<scope>test</scope>
 			</dependency>
+			
+			<dependency>
+                <groupId>ddf.cache.core</groupId>
+                <artifactId>cache-core-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>ddf.cache.core</groupId>
+                <artifactId>cache-core-impl</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+			
 		</dependencies>
 	</dependencyManagement>
 
@@ -187,13 +200,12 @@
 			</plugins>
 		</pluginManagement>
 	</build>
-	
-
 
 	<modules>
 		<module>platform-configuration</module>
         <module>platform-status</module>
 		<module>action</module>
+		<module>cache</module>
 		<module>mime</module>
 		<module>metrics</module>
 		<module>platform-scheduler</module>
