@@ -49,6 +49,7 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.StreamingOutput;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
@@ -58,6 +59,7 @@ import net.minidev.json.parser.JSONParser;
 import net.minidev.json.parser.ParseException;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.tika.io.IOUtils;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -447,7 +449,7 @@ public class TestRestEndpoint {
         CatalogFramework framework = givenCatalogFramework(SAMPLE_ID);
         Response response = mockTestSetup(framework, true, TestType.SUCCESS_TEST);
 
-        String responseMessage = byteArrayConvert((ByteArrayInputStream) response.getEntity());
+        String responseMessage = IOUtils.toString((ByteArrayInputStream) response.getEntity());
         assertEquals(responseMessage, GET_STREAM);
         assertEquals(response.getStatus(), 200);
         assertEquals(response.getMetadata().toString(), GET_TYPE_OUTPUT);
@@ -475,7 +477,7 @@ public class TestRestEndpoint {
         CatalogFramework framework = givenCatalogFramework(SAMPLE_ID);
         Response response = mockTestSetup(framework, false, TestType.SUCCESS_TEST);
 
-        String responseMessage = byteArrayConvert((ByteArrayInputStream) response.getEntity());
+        String responseMessage = IOUtils.toString((ByteArrayInputStream) response.getEntity());
         assertEquals(responseMessage, GET_STREAM);
         assertEquals(response.getStatus(), 200);
         assertEquals(response.getMetadata().toString(), GET_TYPE_OUTPUT);
@@ -496,7 +498,7 @@ public class TestRestEndpoint {
     @Test
     public void testGetDocumentSourcesSuccess() throws SourceUnavailableException,
         UnsupportedQueryException, FederationException, CatalogTransformerException,
-        URISyntaxException, ParseException {
+        URISyntaxException, ParseException, IOException {
 
         final String LOCAL_SOURCE_ID = "local";
         final String FED1_SOURCE_ID = "fed1";
@@ -541,7 +543,7 @@ public class TestRestEndpoint {
         assertEquals(response.getStatus(), 200);
         assertEquals(response.getMetadata().get("Content-Type").get(0), JSON_MIME_TYPE_STRING);
 
-        String responseMessage = byteArrayConvert((ByteArrayInputStream) response.getEntity());
+        String responseMessage = IOUtils.toString((ByteArrayInputStream) response.getEntity());
         JSONArray srcList = (JSONArray) new JSONParser().parse(responseMessage);
 
         assertEquals(3, srcList.size());
@@ -591,7 +593,7 @@ public class TestRestEndpoint {
         CatalogFramework framework = givenCatalogFramework(SAMPLE_ID);
         Response response = mockTestSetup(framework, true, TestType.RESOURCE_TEST);
 
-        String responseMessage = byteArrayConvert((ByteArrayInputStream) response.getEntity());
+        String responseMessage = IOUtils.toString((ByteArrayInputStream) response.getEntity());
         assertEquals(responseMessage, GET_STREAM);
         assertEquals(response.getStatus(), 200);
         assertEquals(response.getMetadata().toString(), GET_TYPE_OUTPUT);
@@ -619,7 +621,7 @@ public class TestRestEndpoint {
         CatalogFramework framework = givenCatalogFramework(SAMPLE_ID);
         Response response = mockTestSetup(framework, false, TestType.RESOURCE_TEST);
 
-        String responseMessage = byteArrayConvert((ByteArrayInputStream) response.getEntity());
+        String responseMessage = IOUtils.toString((ByteArrayInputStream) response.getEntity());
         assertEquals(responseMessage, GET_STREAM);
         assertEquals(response.getStatus(), 200);
         assertEquals(response.getMetadata().toString(), GET_TYPE_OUTPUT);
@@ -642,25 +644,6 @@ public class TestRestEndpoint {
         RESTEndpoint rest = new RESTEndpoint(framework);
 
         assertNull(rest.getSubject(request));
-    }
-
-    /**
-     * Converts a ByteArrayInputStream into a readable/printable String
-     * 
-     * @param content
-     * @return
-     */
-    protected String byteArrayConvert(ByteArrayInputStream content) {
-        int streamSize = content.available();
-        char[] charArray = new char[streamSize];
-        byte[] byteArray = new byte[streamSize];
-
-        content.read(byteArray, 0, streamSize);
-        for (int i = 0; i < streamSize;) {
-            charArray[i] = (char) (byteArray[i++] & 0xff);
-        }
-
-        return new String(charArray);
     }
 
     /**

@@ -17,6 +17,7 @@ package org.codice.ddf.endpoints.rest;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.Serializable;
 import java.net.URI;
 import java.util.ArrayList;
@@ -36,12 +37,14 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.Response.Status;
+import javax.ws.rs.core.StreamingOutput;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
@@ -282,11 +285,10 @@ public class RESTEndpoint {
                 }
 
                 LOGGER.debug("Calling transform.");
-                BinaryContent content = catalogFramework.transform(card, transformer, convertedMap);
-
+                final BinaryContent content = catalogFramework.transform(card, transformer, convertedMap);
                 LOGGER.debug("Read and transform complete, preparing response.");
                 Response.ResponseBuilder responseBuilder = Response.ok(content.getInputStream(),
-                        content.getMimeTypeValue());
+                        content.getMimeTypeValue());                
 
                 // If we got a resource, we can extract the filename.
                 if (content instanceof Resource) {

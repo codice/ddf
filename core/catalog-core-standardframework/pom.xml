@@ -39,6 +39,11 @@
             <artifactId>catalog-core-commons</artifactId>
 		</dependency>
 		<dependency>
+            <groupId>ddf.cache.core</groupId>
+            <artifactId>cache-core-api</artifactId>
+            <version>${ddf.platform.app.version}</version>
+        </dependency>
+		<dependency>
             <groupId>ddf.catalog.core</groupId>
             <artifactId>catalog-core-metricsplugin</artifactId>
             <version>${project.version}</version>
@@ -83,11 +88,15 @@
 						<!-- DDF-1614: <Bundle-SymbolicName>${project.artifactId};blueprint.graceperiod:=true;blueprint.timeout:=604800000</Bundle-SymbolicName> -->
 						<Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
 						<Private-Package>
+						    ddf.catalog.cache,
 							ddf.catalog.impl,
+							ddf.catalog.data.impl,
 							ddf.catalog.operation.impl,
 							ddf.catalog.util.impl,
 							ddf.catalog.filter.impl,
-							ddf.catalog.source.impl
+							ddf.catalog.source.impl,
+							ddf.catalog.resource.impl,
+							ddf.catalog.resourceretriever
 						</Private-Package>
 						<Export-Package />
 					</instructions>
