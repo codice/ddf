@@ -17,6 +17,7 @@ package ddf.catalog.cache;
 import java.util.TimerTask;
 import java.util.concurrent.Future;
 
+import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,7 +63,11 @@ public class CacheMonitor extends TimerTask
     public void run() {
         long chunkByteCount = callableCacheProduct.getBytesRead() - previousBytesRead;
         if (chunkByteCount > 0) {
-            LOGGER.debug("Cached {} bytes in last {} ms.", chunkByteCount, cachingMonitorPeriod);
+            long transferSpeed = (chunkByteCount / cachingMonitorPeriod) * 1000;  // in bytes per second
+            LOGGER.debug(
+                    "Cached {} bytes in last {} ms. Total bytes read = {},  transfer speed = {}/second",
+                    chunkByteCount, cachingMonitorPeriod, callableCacheProduct.getBytesRead(),
+                    FileUtils.byteCountToDisplaySize(transferSpeed));
             previousBytesRead = callableCacheProduct.getBytesRead();
         } else {
             LOGGER.debug("No bytes cached in last {} ms - cancelling CacheMonitor and caching future (thread).", cachingMonitorPeriod);
