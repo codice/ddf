@@ -22,38 +22,40 @@ import java.util.Map;
 import ddf.catalog.operation.ResourceResponse;
 import ddf.catalog.resource.ResourceNotFoundException;
 import ddf.catalog.resource.ResourceNotSupportedException;
-import ddf.catalog.source.FederatedSource;
+import ddf.catalog.source.RemoteSource;
 
 public class RemoteResourceRetriever implements ResourceRetriever {
 
-    private FederatedSource source;
+    private RemoteSource source;
     private URI resourceUri;
     private Map<String, Serializable> properties;
     
     
-    public RemoteResourceRetriever(FederatedSource source) {
+    public RemoteResourceRetriever(RemoteSource source) {
         this(source, null, null);
     }
     
-    public RemoteResourceRetriever(FederatedSource source, URI resourceUri, Map<String, Serializable> properties) {
+    public RemoteResourceRetriever(RemoteSource source, URI resourceUri,
+            Map<String, Serializable> properties) {
         this.source = source;
         this.resourceUri = resourceUri;
         this.properties = properties;
     }
     
     @Override
-    public ResourceResponse retrieveResource() throws ResourceNotFoundException {
+    public ResourceResponse retrieveResource() throws ResourceNotFoundException, IOException,
+        ResourceNotSupportedException {
         if (resourceUri == null) {
             throw new ResourceNotFoundException("Cannot retrieve resource because resourceUri is null.");
         }
         
-        try {
+//        try {
             return source.retrieveResource(resourceUri, properties);
-        } catch (IOException e) {
-            throw new ResourceNotFoundException(e);
-        } catch (ResourceNotSupportedException e) {
-            throw new ResourceNotFoundException(e);
-        }
+//        } catch (IOException e) {
+//            throw new ResourceNotFoundException(e);
+//        } catch (ResourceNotSupportedException e) {
+//            throw new ResourceNotFoundException(e);
+//        }
     }
 
 }

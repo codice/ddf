@@ -39,10 +39,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ddf.cache.CacheException;
-import ddf.catalog.data.Metacard;
 import ddf.catalog.operation.ResourceResponse;
 import ddf.catalog.resource.Resource;
 import ddf.catalog.resource.ResourceNotFoundException;
+import ddf.catalog.resource.ResourceNotSupportedException;
 import ddf.catalog.resource.impl.ResourceImpl;
 import ddf.catalog.resourceretriever.ResourceRetriever;
 
@@ -365,6 +365,10 @@ public class CachedResource implements Resource, Serializable {
             LOGGER.debug("Actually skipped {} bytes in source InputStream", bytesSkipped);
             callableCacheProduct = new CallableCacheProduct(source, pos, output, chunkSize);
         } catch (ResourceNotFoundException e) {
+            LOGGER.warn("Unable to re-retrieve product; cannot cache product file {}", filePath);
+        } catch (ResourceNotSupportedException e) {
+            LOGGER.warn("Unable to re-retrieve product; cannot cache product file {}", filePath);
+        } catch (IOException e) {
             LOGGER.warn("Unable to re-retrieve product; cannot cache product file {}", filePath);
         }
         

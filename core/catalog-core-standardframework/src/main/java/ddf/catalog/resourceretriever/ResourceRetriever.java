@@ -14,11 +14,15 @@
  **/
 package ddf.catalog.resourceretriever;
 
+import java.io.IOException;
+
 import ddf.catalog.operation.ResourceResponse;
 import ddf.catalog.resource.ResourceNotFoundException;
+import ddf.catalog.resource.ResourceNotSupportedException;
 
 public interface ResourceRetriever {
 
-    public ResourceResponse retrieveResource() throws ResourceNotFoundException;
+    public ResourceResponse retrieveResource() throws ResourceNotFoundException,
+        ResourceNotSupportedException, IOException;
 
 }
