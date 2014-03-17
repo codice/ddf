@@ -47,6 +47,8 @@
         <AD name="Version" id="version" required="true" type="String" />
 
         <AD name="Organization" id="organization" required="true" type="String" />
+
+        <AD name="Site contact" id="contact" required="true" type="String" description="The email address of the site contact" />
     </OCD>
     <Designate
             pid="ddf.platform.config">

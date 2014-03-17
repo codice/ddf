@@ -115,6 +115,11 @@ public class ConfigurationManager {
      * The organization that this instance of DDF is running for
      */
     public static final String ORGANIZATION = "organization";
+    
+    /**
+     * Site (email) contact
+     */
+    public static final String CONTACT = "contact";
 
     // Constants for the read-only DDF system settings
     private static final String DDF_HOME_ENVIRONMENT_VARIABLE = "DDF_HOME";
