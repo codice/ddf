@@ -304,6 +304,7 @@ public class CachedResource implements Resource, Serializable {
                         // product to the client, i.e., writing to the PipedOutputStream
                         LOGGER.info("Handling FileOutputStream exception");
                         IOUtils.closeQuietly(output);
+                        //TODO - delete the cache file?
                         callableCacheProduct = new CallableCacheProduct(source, pos, chunkSize);
                         
                     } else if (cachedResourceStatus.getCachingStatus() == CachingStatus.PIPED_OUTPUT_STREAM_EXCEPTION) {

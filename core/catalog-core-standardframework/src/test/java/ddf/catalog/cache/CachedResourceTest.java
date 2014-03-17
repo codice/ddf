@@ -192,7 +192,7 @@ public class CachedResourceTest {
      * @throws Exception
      */
     @Test
-    //@Ignore
+    @Ignore
     public void testStoreWithTimeoutException() throws Exception {
         mis = new MockInputStream(productInputFilename);
         
@@ -237,7 +237,7 @@ public class CachedResourceTest {
      * @throws Exception
      */
     @Test
-    //@Ignore
+    @Ignore
     public void testClientCancelProductDownloadDuringCaching() throws Exception {
         mis = new MockInputStream(productInputFilename);
         

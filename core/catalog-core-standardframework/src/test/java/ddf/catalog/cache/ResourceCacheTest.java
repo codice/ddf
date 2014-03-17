@@ -360,15 +360,13 @@ public class ResourceCacheTest {
 
         ExecutorService executor = Executors.newCachedThreadPool();
         
-        Future<ByteArrayOutputStream> future1 = executor.submit(cacheClient1);       
-        Future<ByteArrayOutputStream> future2 = executor.submit(cacheClient2);
+        executor.submit(cacheClient1);       
+        executor.submit(cacheClient2);
         
-        ByteArrayOutputStream bos1 = future1.get();
-        LOGGER.info("bos1 size = " + bos1.size());
-        ByteArrayOutputStream bos2 = future2.get();
-        LOGGER.info("bos2 size = " + bos2.size());
-        
+        LOGGER.info("Sleeping 3 seconds to see what happens with caching");
+        Thread.sleep(3000);
         LOGGER.info("DONE");
+
     }
 
 }
