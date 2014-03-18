@@ -1,0 +1,72 @@
+/*global requirejs*/
+(function () {
+    'use strict';
+
+    requirejs.config({
+
+        paths: {
+
+            bootstrap: 'lib/components-bootstrap/js/bootstrap.min',
+            spin: 'lib/spin.js/spin',
+            q: 'lib/q/q',
+
+            // backbone
+            backbone: 'lib/components-backbone/backbone-min',
+            backbonerelational: 'lib/backbone-relational/backbone-relational',
+            underscore: 'lib/lodash/dist/lodash.underscore.min',
+            marionette: 'lib/marionette/lib/backbone.marionette.min',
+            // TODO test combining
+            modelbinder: 'lib/backbone.modelbinder/Backbone.ModelBinder.min',
+            collectionbinder: 'lib/backbone.modelbinder/Backbone.CollectionBinder.min',
+            poller: 'lib/backbone-poller/backbone.poller',
+
+            // ddf
+            spinnerConfig : 'js/spinnerConfig',
+            properties: 'properties',
+
+            // jquery
+            jquery: 'lib/jquery/jquery.min',
+            jqueryui: 'lib/jquery-ui/ui/minified/jquery-ui.min',
+
+            // handlebars
+            handlebars: 'lib/handlebars/handlebars.min',
+            icanhaz: 'lib/icanhandlebarz/ICanHandlebarz',
+
+            // require plugins
+            text: 'lib/requirejs-plugins/lib/text'
+        },
+
+
+        shim: {
+
+            backbone: {
+                deps: ['underscore', 'jquery'],
+                exports: 'Backbone'
+            },
+
+            backbonerelational: ['backbone'],
+
+            marionette: {
+                deps: ['jquery', 'underscore', 'backbone'],
+                exports: 'Marionette'
+            },
+            underscore: {
+                exports: '_'
+            },
+            handlebars: {
+                exports: 'Handlebars'
+            },
+            icanhaz: {
+                deps: ['handlebars'],
+                exports: 'ich'
+            },
+
+            jqueryui: ['jquery'],
+            bootstrap: ['jqueryui']
+
+        },
+
+        waitSeconds: 15
+    });
+
+}());
