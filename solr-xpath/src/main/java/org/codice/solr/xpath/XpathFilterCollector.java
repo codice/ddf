@@ -31,6 +31,10 @@ import org.apache.lucene.document.Document;
 import org.apache.solr.common.SolrException;
 import org.apache.solr.search.DelegatingCollector;
 
+/**
+ * Collector that evaluates each Lucene document against a given XPath
+ * and collects the results that match.
+ */
 public class XpathFilterCollector extends DelegatingCollector {
 
     public static final String LUX_XML_FIELD_NAME = "lux_xml";
@@ -62,6 +66,8 @@ public class XpathFilterCollector extends DelegatingCollector {
 
         byte[] bytes = doc.getBinaryValue(LUX_XML_FIELD_NAME).bytes;
 
+        // Assuming the lux_xml field is configured to use the Lux TinyBinary xml format in the
+        // Lux update chain
         if (bytes.length > 4 && bytes[0] == 'T' && bytes[1] == 'I' && bytes[2] == 'N') {
             TinyBinary tb = new TinyBinary(bytes, TinyBinaryField.UTF8);
             XdmNode node = new XdmNode(tb.getTinyDocument(config));

@@ -39,6 +39,7 @@ public class XpathQParser extends QParser {
         if (defaultField == null) {
             defaultField = getReq().getSchema().getDefaultSearchFieldName();
         }
+
         XpathQueryParser queryParser = new XpathQueryParser(this, defaultField);
 
         queryParser.setDefaultOperator(QueryParsing.getQueryParserDefaultOperator(getReq()
@@ -50,4 +51,5 @@ public class XpathQParser extends QParser {
     public SolrQueryRequest getRequest() {
         return request;
     }
+
 }

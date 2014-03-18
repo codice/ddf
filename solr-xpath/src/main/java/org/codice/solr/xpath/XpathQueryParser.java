@@ -30,6 +30,9 @@ import org.apache.solr.common.SolrException;
 import org.apache.solr.search.SolrQueryParser;
 import org.apache.solr.search.SyntaxError;
 
+/**
+ * XPath query parser that will create Lucene and Post Filter queries to support XPath.
+ */
 public class XpathQueryParser extends SolrQueryParser {
 
     private final XpathQParser parser;
@@ -50,10 +53,20 @@ public class XpathQueryParser extends SolrQueryParser {
             // pre filter with Lux index fields
             return getLuceneQuery(queryText);
         } else {
+            // pass through any non-XPath related fields
             return super.getFieldQuery(field, queryText, quoted);
         }
     }
 
+    /**
+     * Converts XPath into a Lucene query that will pre-filter based on LuxDB path and attribute
+     * index fields. Further post filtering is needed for XPath functionality that cannot evaluated
+     * against a LuxDB index.
+     * 
+     * @param queryText
+     *            XPath expression to convert into LuxDB index query
+     * @return Lucene query to pre-filter using LuxDB index
+     */
     private Query getLuceneQuery(final String queryText) {
         String xpath = queryText;
 
@@ -86,8 +99,11 @@ public class XpathQueryParser extends SolrQueryParser {
         return luxQuery;
     }
 
-    // Lux search function that stores the Lucene query and returns an empty sequence iterator
-    // to bypass further Saxon evaluation
+    /**
+     * Lux search function that is overridden to store the Lucene query and return an empty sequence
+     * iterator to bypass further Saxon evaluation. This extension function, like the evaluator, is
+     * not thread safe.
+     */
     public class LuceneSearch extends Search {
 
         private Query query;
@@ -138,7 +154,6 @@ public class XpathQueryParser extends SolrQueryParser {
         }
 
         public Query getQuery() {
-
             return query;
         }
     }

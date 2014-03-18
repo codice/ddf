@@ -19,6 +19,9 @@ import org.apache.solr.search.DelegatingCollector;
 import org.apache.solr.search.ExtendedQueryBase;
 import org.apache.solr.search.PostFilter;
 
+/**
+ * XPath post filter that creates XPath collector to do final XPath filtering.
+ */
 public class XpathFilterQuery extends ExtendedQueryBase implements PostFilter {
 
     public static final int POST_FILTER_COST = 100;
