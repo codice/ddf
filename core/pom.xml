@@ -19,6 +19,7 @@
         	<artifactId>admin</artifactId>
         	<version>1.0.0.ALPHA1-SNAPSHOT</version>
 	</parent>
+	<groupId>ddf.admin.core</groupId>
 	<artifactId>admin-core</artifactId>
 	<packaging>pom</packaging>
 	<name>DDF Admin Core</name>

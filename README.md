@@ -11,14 +11,14 @@
  */
 -->
 <img src="https://tools.codice.org/wiki/download/attachments/3047458/ddf.jpg"/>
-# [Distributed Data Framework Installer \(DDF-Installer\)](http://ddf.codice.org/)
-[![Build Status](https://travis-ci.org/codice/ddf-installer.png?branch=master)](https://travis-ci.org/codice/ddf-installer)
+# [Distributed Data Framework Admin \(DDF-Admin\)](http://ddf.codice.org/)
+[![Build Status](https://travis-ci.org/codice/ddf-admin.png?branch=master)](https://travis-ci.org/codice/ddf-admin)
 
 
-DDF-Installer is an open source app integrated with the DDF integration framework. 
+DDF-Admin is an open source app integrated with the DDF integration framework. 
  
 ```
-git clone git://github.com/codice/ddf-installer.git
+git clone git://github.com/codice/ddf-admin.git
 ```
 
 ## Additional information

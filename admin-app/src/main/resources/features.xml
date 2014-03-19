@@ -13,12 +13,11 @@
  -->
 <features name="${project.artifactId}-${project.version}">
 
-    <feature name="installer" version="${project.version}" description="Installer UI">
+    <feature name="admin" version="${project.version}" description="DDF Administration Tools">
         <bundle>mvn:org.jolokia/jolokia-osgi-bundle/1.1.4</bundle>
         <bundle>mvn:org.apache.aries.jmx/org.apache.aries.jmx.core/1.1.1</bundle>
-        <!--<bundle>mvn:ddf.installer/installer-api/${project.version}</bundle>-->
-        <!--<bundle>mvn:ddf.installer/installer-service/${project.version}</bundle>-->
-        <bundle>mvn:ddf.installer/installer-main/${project.version}</bundle>
+	<bundle>mvn:ddf.admin.core/admin-core-api/${project.version}</bundle>
+	<bundle>mvn:ddf.admin.core/admin-core-configplugin/${project.version}</bundle>
     </feature>
 
 </features>
