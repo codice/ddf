@@ -46,6 +46,14 @@ server.requestProxy = function (req, res) {
 
 };
 
+server.requestLocal = function (req, res) {
+    "use strict";
+
+    req.url = "src/main/webapp/" + req.url.substring(11);
+    res.contentType('application/json');
+    res.status(200).send(fs.readFileSync(req.url));
+};
+
 server.mockQueryServer = function (req, res) {
     var keyword = req.query.q;
     var resourceDir = path.resolve('.', 'src/test/resources');

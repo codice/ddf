@@ -19,7 +19,7 @@ define(function (require) {
     var Marionette = require('marionette'),
         ich = require('icanhaz');
 
-    ich.addTemplate('testTemplate', require('text!templates/test.handlebars'));
+    ich.addTemplate('testTemplate', require('text!/installer/templates/test.handlebars'));
 
     var AppView = Marionette.ItemView.extend({
         template: 'testTemplate',

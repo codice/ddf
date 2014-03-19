@@ -3,10 +3,10 @@
 define(function(require) {
 
     var Application = require('js/application'),
-        AppView = require('js/views/App.view'),
-        AppModel = require('js/models/App');
+        AppView = require('/installer/js/views/App.view.js'),
+        AppModel = require('/installer/js/models/App.js');
 
-    Application.App.module('AppModule', function(AppModule, App, Backbone, Marionette, $, _) {
+    Application.App.module('Applications', function(AppModule, App, Backbone, Marionette, $, _) {
 
         var appModel = new AppModel.Model();
 
@@ -36,7 +36,7 @@ define(function(require) {
 
         AppModule.addInitializer(function(){
             AppModule.contentController = new Controller({
-                region: App.mainRegion
+                region: App.applications
             });
             AppModule.contentController.show();
         });

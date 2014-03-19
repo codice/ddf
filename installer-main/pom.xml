@@ -89,7 +89,7 @@
                     <instructions>
                         <!--we will use this servlet filter once it has been made generic to protect this app-->
                         <!--<Embed-Dependency>search-securityservletfilter</Embed-Dependency>-->
-                        <Web-ContextPath>/admin</Web-ContextPath>
+                        <Web-ContextPath>/installer</Web-ContextPath>
                         <_wab>src/main/webapp,${project.build.directory}/webapp</_wab>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Export-Package />
