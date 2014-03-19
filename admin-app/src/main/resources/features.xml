@@ -16,8 +16,18 @@
     <feature name="admin" version="${project.version}" description="DDF Administration Tools">
         <bundle>mvn:org.jolokia/jolokia-osgi-bundle/1.1.4</bundle>
         <bundle>mvn:org.apache.aries.jmx/org.apache.aries.jmx.core/1.1.1</bundle>
-	<bundle>mvn:ddf.admin.core/admin-core-api/${project.version}</bundle>
-	<bundle>mvn:ddf.admin.core/admin-core-configplugin/${project.version}</bundle>
+        <bundle>mvn:ddf.admin.core/admin-core-api/${project.version}</bundle>
+        <bundle>mvn:ddf.admin.core/admin-core-configplugin/${project.version}</bundle>
+    </feature>
+
+    <feature name="admin-ui" version="${project.version}" description="DDF Administration UI">
+        <feature>admin</feature>
+        <bundle>mvn:admin/admin-ui/${project.version}</bundle>
+    </feature>
+
+    <feature name="admin-modules-configuration" version="${project.version}" description="DDF Configuration Module">
+        <feature>admin-ui</feature>
+        <bundle>mvn:admin-modules/admin-modules-configuration/${project.version}</bundle>
     </feature>
 
 </features>
