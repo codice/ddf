@@ -2507,7 +2507,77 @@ public class TestSolrProvider extends SolrProviderTestCase {
     }
 
     @Test
-    public void testXPathQuery() throws Exception {
+    public void testXpathCompoundContextualQuery() throws Exception {
+        deleteAllIn(provider);
+
+        String nonexistentXpath = "/this/xpath[does/not/@ex:exist]";
+
+        MockMetacard tampa = new MockMetacard(Library.getTampaRecord());
+        tampa.setTitle("Tampa");
+        tampa.setLocation(TAMPA_AIRPORT_POINT_WKT);
+        MockMetacard flagstaff = new MockMetacard(Library.getFlagstaffRecord());
+        flagstaff.setLocation(FLAGSTAFF_AIRPORT_POINT_WKT);
+
+        create(Arrays.asList((Metacard) tampa, flagstaff));
+
+        /* XPath AND temporal AND spatial. */
+
+        Filter filter = filterBuilder.allOf(
+                filterBuilder.xpath("/rss/channel[item/link]").exists(),
+                filterBuilder.attribute(Metacard.MODIFIED).before()
+                        .date(new DateTime().plus(1).toDate()),
+                filterBuilder.attribute(Metacard.GEOGRAPHY).intersecting()
+                        .wkt(FLAGSTAFF_AIRPORT_POINT_WKT));
+
+        SourceResponse sourceResponse = provider.query(new QueryRequestImpl(new QueryImpl(filter)));
+
+        assertEquals("XPath AND temporal AND spatial", ONE_HIT, sourceResponse.getResults().size());
+
+        /* temporal AND (Bad XPath OR XPath) */
+
+        filter = filterBuilder.allOf(
+                filterBuilder.attribute(Metacard.MODIFIED).before()
+                        .date(new DateTime().plus(1).toDate()),
+                filterBuilder.anyOf(filterBuilder.xpath(nonexistentXpath).exists(), filterBuilder
+                        .xpath("//channel/image/title").is().like().text(FLAGSTAFF_QUERY_PHRASE)));
+
+        sourceResponse = provider.query(new QueryRequestImpl(new QueryImpl(filter)));
+
+        assertEquals("temporal AND (Bad XPath OR XPath)", ONE_HIT, sourceResponse.getResults()
+                .size());
+
+        /* Bad XPath OR (spatial AND XPath) */
+
+        filter = filterBuilder.anyOf(
+                filterBuilder.xpath(nonexistentXpath).is().like().text("any phrase"),
+                filterBuilder.allOf(
+                        filterBuilder.attribute(Metacard.GEOGRAPHY).intersecting()
+                                .wkt(TAMPA_AIRPORT_POINT_WKT),
+                        filterBuilder.xpath("/rss//item/enclosure/@url").exists()));
+
+        sourceResponse = provider.query(new QueryRequestImpl(new QueryImpl(filter)));
+
+        assertEquals("Bad XPath OR (spatial AND XPath)", ONE_HIT, sourceResponse.getResults()
+                .size());
+        assertEquals("Tampa", sourceResponse.getResults().get(0).getMetacard().getTitle());
+
+        /* spatial AND (Bad XPath OR Bad XPath) */
+
+        filter = filterBuilder.allOf(
+                filterBuilder.attribute(Metacard.GEOGRAPHY).intersecting()
+                        .wkt(FLAGSTAFF_AIRPORT_POINT_WKT),
+                filterBuilder.anyOf(filterBuilder.xpath(nonexistentXpath).exists(), filterBuilder
+                        .xpath("//also/does/not[@exist]").is().like().text(FLAGSTAFF_QUERY_PHRASE)));
+
+        sourceResponse = provider.query(new QueryRequestImpl(new QueryImpl(filter)));
+
+        assertEquals("spatial AND (Bad XPath OR Bad XPath)", 0, sourceResponse.getResults()
+                .size());
+
+    }
+
+    @Test
+    public void testXpathQuery() throws Exception {
 
         ConfigurationStore.getInstance().setDisableTextPath(false);
         deleteAllIn(provider);

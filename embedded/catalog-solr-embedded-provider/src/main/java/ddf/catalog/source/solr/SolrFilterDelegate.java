@@ -16,6 +16,7 @@ package ddf.catalog.source.solr;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -91,6 +92,14 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
 
     private static final String QUOTE = "\"";
 
+    private static final String FILTER_QUERY_PARAM_NAME = "fq";
+
+    public static final String XPATH_QUERY_PARSER_PREFIX = "{!xpath}";
+
+    public static final String XPATH_FILTER_QUERY = "xpath";
+
+    public static final String XPATH_FILTER_QUERY_INDEX = XPATH_FILTER_QUERY + "_index";
+
     private static DateField dateFormatter = new DateField();
 
     private static final String SOLR_WILDCARD_CHAR = "*";
@@ -123,12 +132,56 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
 
     @Override
     public SolrQuery and(List<SolrQuery> operands) {
-        return logicalOperator(operands, AND);
+        SolrQuery query = logicalOperator(operands, AND);
+        combineXpathFilterQueries(query, operands, AND);
+        return query;
     }
 
     @Override
     public SolrQuery or(List<SolrQuery> operands) {
-        return logicalOperator(operands, OR);
+        SolrQuery query = logicalOperator(operands, OR);
+        combineXpathFilterQueries(query, operands, OR);
+        return query;
+    }
+
+    private void combineXpathFilterQueries(SolrQuery query, List<SolrQuery> subQueries,
+            String operator) {
+        List<String> queryParams = new ArrayList<String>();
+        List<String> xpaths = new ArrayList<String>();
+
+        for (SolrQuery subQuery : subQueries) {
+            String[] params = subQuery.getParams(FILTER_QUERY_PARAM_NAME);
+            if (params != null) {
+                for (String param : params) {
+                    // Assuming XPath is the same between xpath and xpath_index so only adding once
+                    if (StringUtils.startsWith(param, XPATH_QUERY_PARSER_PREFIX
+                            + XPATH_FILTER_QUERY_INDEX)) {
+                        xpaths.add(StringUtils.substringAfter(
+                                StringUtils.substringBeforeLast(param, "\""),
+                                XPATH_FILTER_QUERY_INDEX + ":\""));
+                    }
+                    Collections.addAll(queryParams, params);
+                }
+            }
+        }
+
+        if (xpaths.size() > 1) {
+            // More than one XPath found, need to combine
+            String filter = XPATH_QUERY_PARSER_PREFIX + XPATH_FILTER_QUERY + ":\"("
+                    + StringUtils.join(xpaths, operator.toLowerCase()) + ")\"";
+
+            List<String> indexes = new ArrayList<String>();
+            for (String xpath : xpaths) {
+                indexes.add(XPATH_FILTER_QUERY_INDEX + ":\"(" + xpath + ")\"");
+            }
+            String index = XPATH_QUERY_PARSER_PREFIX + StringUtils.join(indexes, operator);
+
+            query.setParam(FILTER_QUERY_PARAM_NAME, filter, index);
+        } else if (queryParams.size() > 0) {
+            // Pass through original filter queries if only a single XPath is present
+            query.setParam(FILTER_QUERY_PARAM_NAME,
+                    queryParams.toArray(new String[queryParams.size()]));
+        }
     }
 
     @Override
@@ -442,8 +495,8 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
         }
 
         SolrQuery solrQuery = new SolrQuery(query);
-        solrQuery.addFilterQuery("{!xpath}xpath:\"" + xpath + "\"");
-        solrQuery.addFilterQuery("{!xpath}xpath_index:\"" + xpath + "\"");
+        solrQuery.addFilterQuery(XPATH_QUERY_PARSER_PREFIX + XPATH_FILTER_QUERY + ":\"" + xpath + "\"",
+                XPATH_QUERY_PARSER_PREFIX + XPATH_FILTER_QUERY_INDEX + ":\"" + xpath + "\"");
 
         return solrQuery;
     }

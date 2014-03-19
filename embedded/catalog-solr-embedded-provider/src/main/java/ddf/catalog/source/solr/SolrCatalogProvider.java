@@ -17,6 +17,7 @@ package ddf.catalog.source.solr;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -332,6 +333,9 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
 
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("Prepared Query: " + query.getQuery());
+            if (query.getFilterQueries() != null && query.getFilterQueries().length > 0) {
+                LOGGER.debug("Filter Queries: " + Arrays.toString(query.getFilterQueries()));
+            }
         }
 
         if (request.getQuery().getPageSize() < 1) {
