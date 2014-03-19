@@ -1,8 +1,8 @@
 {
-  "name": "ddf-installer-ui",
+  "name": "ddf-admin-modules-installer",
   "author": "Codice",
   "description": "An installation UI for DDF",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "license": "LGPL",
   "keywords": [
     "backbone",

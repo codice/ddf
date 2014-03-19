@@ -32,6 +32,7 @@
 
     <modules>
         <module>core</module>
+	<module>modules</module>
 	<module>admin-app</module>
     </modules>
 

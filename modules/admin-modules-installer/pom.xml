@@ -16,15 +16,15 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>installer</artifactId>
-        <groupId>ddf.installer</groupId>
-        <version>2.3.1.ALPHA2-SNAPSHOT</version>
+        <artifactId>admin-modules</artifactId>
+        <groupId>ddf.admin.modules</groupId>
+        <version>1.0.0.ALPHA1-SNAPSHOT</version>
     </parent>
 
-    <name>DDF :: Installer :: Main</name>
+    <name>DDF :: Admin :: Modules :: Installer</name>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>installer-main</artifactId>
+    <artifactId>admin-modules-installer</artifactId>
     <packaging>bundle</packaging>
 
     <properties>
