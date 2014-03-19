@@ -2508,6 +2508,8 @@ public class TestSolrProvider extends SolrProviderTestCase {
 
     @Test
     public void testXpathCompoundContextualQuery() throws Exception {
+
+        ConfigurationStore.getInstance().setDisableTextPath(false);
         deleteAllIn(provider);
 
         String nonexistentXpath = "/this/xpath[does/not/@ex:exist]";
