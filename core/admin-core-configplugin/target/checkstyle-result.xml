@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<checkstyle version="5.5">
-<file name="/Users/rameym/git/ddf/ddf-admin/core/admin-core-configplugin/pom.xml">
-</file>
-<file name="/Users/rameym/git/ddf/ddf-admin/core/admin-core-configplugin/src/main/resources/OSGI-INF/blueprint/blueprint.xml">
-</file>
-</checkstyle>
