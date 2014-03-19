@@ -40,7 +40,7 @@
     <ddf.security.app.version>2.3.1-SNAPSHOT</ddf.security.app.version>
     <ddf.content.app.version>2.3.0</ddf.content.app.version>
     <ddf.catalog.app.version>2.3.1.ALPHA1</ddf.catalog.app.version>
-    <ddf.solr.catalog.app.version>2.3.0</ddf.solr.catalog.app.version>
+    <ddf.solr.catalog.app.version>2.4.0-SNAPSHOT</ddf.solr.catalog.app.version>
     <ddf.searchui.app.version>2.3.1.ALPHA1</ddf.searchui.app.version>
     <ddf.spatial.app.version>2.3.0</ddf.spatial.app.version>
 	<ddf.httpproxy.app.version>1.0.0.ALPHA1</ddf.httpproxy.app.version>
