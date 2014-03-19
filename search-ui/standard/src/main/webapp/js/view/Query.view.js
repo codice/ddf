@@ -226,7 +226,7 @@ define(function (require) {
             
             this.delegateEvents();
 
-            var multiselectOptions = {
+            var multiselectTypesOptions = {
                 minWidth: 350,
                 height: 185,
                 classes: 'multiselect',
@@ -237,6 +237,17 @@ define(function (require) {
                     return numChecked + ' of ' + numTotal + ' selected';
                 }
             },
+            multiselectSourcesOptions = {
+                minWidth: 350,
+                height: 185,
+                classes: 'multiselect',
+                noneSelectedText: 'Select sources',
+                checkAllText: 'Select all',
+                uncheckAllText: 'Deselect all',
+                selectedText: function(numChecked, numTotal){
+                    return numChecked + ' of ' + numTotal + ' selected';
+                }
+           },
             singleselectOptions = {
                 header: false,
                 minWidth: 110,
@@ -251,9 +262,9 @@ define(function (require) {
                 }
             };
 
-            this.$('#typeList').multiselect(multiselectOptions).multiselectfilter();
+            this.$('#typeList').multiselect(multiselectTypesOptions).multiselectfilter();
 
-            this.$('#federationSources').multiselect(multiselectOptions).multiselectfilter();
+            this.$('#federationSources').multiselect(multiselectSourcesOptions).multiselectfilter();
 
             this.$('#radiusUnits').multiselect(singleselectOptions);
 
