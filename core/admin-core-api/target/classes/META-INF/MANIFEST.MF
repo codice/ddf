@@ -1,0 +1,33 @@
+Manifest-Version: 1.0
+Export-Package: org.codice.ddf.ui.admin.api;uses:="org.codice.ddf.ui.a
+ dmin.api.module,org.apache.commons.collections,org.codice.ddf.ui.admi
+ n.api.plugin,org.slf4j.ext,org.osgi.framework,org.osgi.service.cm,jav
+ ax.management,org.slf4j,org.apache.commons.lang,org.osgi.service.meta
+ type,org.osgi.util.tracker";version="1.0.0.ALPHA1-SNAPSHOT",org.codic
+ e.ddf.ui.admin.api.module;version="1.0.0.ALPHA1-SNAPSHOT",org.codice.
+ ddf.ui.admin.api.plugin;uses:="org.osgi.framework";version="1.0.0.ALP
+ HA1-SNAPSHOT"
+Built-By: rameym
+Tool: Bnd-1.43.0
+Bundle-Name: DDF :: Admin :: Core :: API
+Created-By: Apache Maven Bundle Plugin
+Import-Service: org.codice.ddf.ui.admin.api.module.AdminModule;multipl
+ e:=true;availability:=optional,org.codice.ddf.ui.admin.api.plugin.Con
+ figurationAdminPlugin;multiple:=true;availability:=optional,org.osgi.
+ service.cm.ConfigurationAdmin;multiple:=false
+Bundle-Vendor: Codice Foundation
+Build-Jdk: 1.7.0_45
+Bundle-Version: 1.0.0.ALPHA1-SNAPSHOT
+Bnd-LastModified: 1395250154638
+Bundle-ManifestVersion: 2
+Bundle-License: http://www.gnu.org/licenses/lgpl.html
+Bundle-Description: Distributed Data Framework (DDF) Parent
+Bundle-SymbolicName: admin-core-api
+Import-Package: javax.management,org.apache.commons.collections;versio
+ n="[3.2,4)",org.apache.commons.lang;version="[2.6,3)",org.osgi.framew
+ ork;version="[1.6,2)",org.osgi.service.blueprint;version="[1.0.0,2.0.
+ 0)",org.osgi.service.cm;version="[1.4,2)",org.osgi.service.metatype;v
+ ersion="[1.2,2)",org.osgi.util.tracker;version="[1.5,2)",org.slf4j;ve
+ rsion="[1.7,2)",org.slf4j.ext;version="[1.7,2)"
+Bundle-DocURL: http://codice.org
+
