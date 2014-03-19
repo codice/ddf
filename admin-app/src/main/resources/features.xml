@@ -22,12 +22,12 @@
 
     <feature name="admin-ui" version="${project.version}" description="DDF Administration UI">
         <feature>admin</feature>
-        <bundle>mvn:admin/admin-ui/${project.version}</bundle>
+        <bundle>mvn:ddf.admin/admin-ui/${project.version}</bundle>
     </feature>
 
     <feature name="admin-modules-configuration" version="${project.version}" description="DDF Configuration Module">
         <feature>admin-ui</feature>
-        <bundle>mvn:admin-modules/admin-modules-configuration/${project.version}</bundle>
+        <bundle>mvn:ddf.admin.modules/admin-modules-configuration/${project.version}</bundle>
     </feature>
 
 </features>
