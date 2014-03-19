@@ -1,0 +1,64 @@
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
+ * is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+.servicesTable {
+    display: table;
+
+}
+
+.servicesTable th {
+}
+
+.servicesTable td {
+}
+
+.servicesTable > tbody > tr {
+
+}
+
+.editLink {
+    text-decoration : none !important;
+}
+
+.newLink {
+    text-decoration : none !important;
+    width: 100%;
+    font-weight: bold;
+}
+
+.service-divider {
+    border-bottom: solid 3px #eee;
+    margin: 0;
+}
+
+.removeLink {
+    text-decoration : none !important;
+}
+
+.servicesRow {
+    display: table-row;
+}
+
+.servicesCell {
+    display: table-cell;
+}
+
+.service-row-table {
+    margin: 0;
+    padding: 4px;
+}
+
+.service-row-table > tbody > tr > td {
+    padding: 4px 0px 4px 30px;
+}

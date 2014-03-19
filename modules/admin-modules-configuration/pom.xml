@@ -16,25 +16,15 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>admin</artifactId>
-        <groupId>ddf.admin</groupId>
+        <artifactId>admin-modules</artifactId>
+        <groupId>ddf.admin.modules</groupId>
         <version>1.0.0.ALPHA1-SNAPSHOT</version>
     </parent>
-
-    <name>DDF :: Admin :: UI</name>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>admin-ui</artifactId>
+    <name>DDF :: Admin :: Modules :: Configuration</name>
+    <artifactId>admin-modules-configuration</artifactId>
     <packaging>bundle</packaging>
-
-    <properties>
-        <!-- filtered plugin properties -->
-        <plugin-context>/${project.artifactId}</plugin-context>
-        <plugin-name>${project.artifactId}</plugin-name>
-        <plugin-domain></plugin-domain>
-        <plugin-scripts>app/js/hawt-io-tab.js,app/js/underscore/underscore.js,app/js/backbone.js,app/client/views/ManagedServiceFactory.view.js</plugin-scripts>
-
-    </properties>
 
     <dependencies>
         <dependency>
@@ -98,7 +88,7 @@
                     <instructions>
                         <!--we will use this servlet filter once it has been made generic to protect this app-->
                         <!--<Embed-Dependency>search-securityservletfilter</Embed-Dependency>-->
-                        <Web-ContextPath>/admin</Web-ContextPath>
+                        <Web-ContextPath>/configurations</Web-ContextPath>
                         <_wab>src/main/webapp,${project.build.directory}/webapp</_wab>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Export-Package />

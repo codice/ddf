@@ -1,0 +1,13 @@
+<div class='{{id}} metatype control-group'>
+    <div class='controls'>
+        <label class='checkbox'>
+            <input type='checkbox' name='{{id}}' id='{{id}}' {{#defaultValue}}{{#.}}checked{{/.}}{{/defaultValue}}>
+            {{name}}
+            {{#if description}}
+                <a href='#' class='description' data-title='{{id}}'>
+                    <i class='glyphicon glyphicon-question-sign'></i>
+                </a>
+            {{/if}}
+        </label>
+    </div>
+</div>

@@ -32,8 +32,9 @@
 
     <modules>
         <module>core</module>
-	<module>modules</module>
-	<module>admin-app</module>
+        <module>ui</module>
+        <module>modules</module>
+        <module>admin-app</module>
     </modules>
 
     <repositories>	

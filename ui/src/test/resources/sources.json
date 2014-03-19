@@ -1,0 +1,32 @@
+[
+    {
+        "id": "ddf.distribution",
+        "available": true,
+        "contentTypes": [
+            {
+                "name": "foo",
+                "version": "2.0"
+            },
+            {
+                "name": "bar",
+                "version": "2.0"
+            }
+        ],
+        "version": "2.3.0.ALPHA5-SNAPSHOT"
+    },
+    {
+        "id": "DDF-OS",
+        "available": true,
+        "contentTypes": [
+            {
+                "name": "fooey",
+                "version": "2.0"
+            },
+            {
+                "name": "barstool",
+                "version": "2.0"
+            }
+        ],
+        "version": "2.3.0.ALPHA5-SNAPSHOT"
+    }
+]
