@@ -225,30 +225,8 @@ define(function (require) {
             this.initDateTimePicker('#absoluteEndTime');
             
             this.delegateEvents();
-
-            var multiselectTypesOptions = {
-                minWidth: 350,
-                height: 185,
-                classes: 'multiselect',
-                noneSelectedText: 'Select types',
-                checkAllText: 'Select all',
-                uncheckAllText: 'Deselect all',
-                selectedText: function(numChecked, numTotal){
-                    return numChecked + ' of ' + numTotal + ' selected';
-                }
-            },
-            multiselectSourcesOptions = {
-                minWidth: 350,
-                height: 185,
-                classes: 'multiselect',
-                noneSelectedText: 'Select sources',
-                checkAllText: 'Select all',
-                uncheckAllText: 'Deselect all',
-                selectedText: function(numChecked, numTotal){
-                    return numChecked + ' of ' + numTotal + ' selected';
-                }
-           },
-            singleselectOptions = {
+			
+            var singleselectOptions = {
                 header: false,
                 minWidth: 110,
                 height: 185,
@@ -261,6 +239,27 @@ define(function (require) {
                     return '';
                 }
             };
+			
+            var MultiselectOptions = function() {
+                this.minWidth=350,
+                this.height=185,
+                this.classes='multiselect',
+                this.noneSelectedText='Select options',
+                this.checkAllText='Select all',
+                this.uncheckAllText='Deselect all',
+                this.selectedText=function(numChecked, numTotal){
+                    return numChecked + ' of ' + numTotal + ' selected';
+                },
+               this.setNoneSelectedText=function(text) {
+                   this.noneSelectedText=text;                   
+               };
+            };
+			
+            var multiselectTypesOptions = new MultiselectOptions();
+            multiselectTypesOptions.setNoneSelectedText("Select types");
+			
+            var multiselectSourcesOptions = new MultiselectOptions();
+            multiselectSourcesOptions.setNoneSelectedText("Select sources");			
 
             this.$('#typeList').multiselect(multiselectTypesOptions).multiselectfilter();
 
