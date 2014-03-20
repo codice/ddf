@@ -36,7 +36,7 @@ public class SourcesModule implements AdminModule {
     @Override
     public URI getJSLocation() {
         try {
-            return new URI("/sources/module.js");
+            return new URI("/sources/js/module.js");
         } catch (URISyntaxException e) {
             //ignore
         }

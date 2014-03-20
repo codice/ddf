@@ -17,7 +17,7 @@ define(function (require) {
 
     var ich = require('icanhaz'),
         Marionette = require('marionette'),
-        SourceEdit = require('/sources/view/SourceEdit.view.js');
+        SourceEdit = require('/sources/js/view/SourceEdit.view.js');
 
     var SourceView = {};
 

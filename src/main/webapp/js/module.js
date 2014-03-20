@@ -3,12 +3,23 @@
 define(function(require) {
 
     var Application = require('js/application'),
-        SourceView = require('/sources/view/Source.view.js'),
-        Source = require('/sources/model/Source.js');
+        SourceView = require('/sources/js/view/Source.view.js'),
+        poller = require('poller'),
+        Source = require('/sources/js/model/Source.js');
 
     Application.App.module('Sources', function(SourceModule, App, Backbone, Marionette, $, _) {
 
-        var sourceResponse = new Source.Response({model: Application.ServiceModel});
+        var Service = require('/sources/js/model/Service.js');
+
+        var serviceModel = new Service.Response();
+        serviceModel.fetch();
+        var options = {
+            delay: 30000
+        };
+        var servicePoller = poller.get(serviceModel, options);
+        servicePoller.start();
+
+        var sourceResponse = new Source.Response({model: serviceModel});
 
         var sourcePage = new SourceView.SourcePage({model: sourceResponse});
 

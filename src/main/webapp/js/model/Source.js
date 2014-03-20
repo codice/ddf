@@ -16,7 +16,7 @@
 define(function (require) {
 
     var Backbone = require('backbone'),
-        Service = require('js/models/Service');
+        Service = require('/sources/js/model/Service.js');
 
     require('backbonerelational');
 

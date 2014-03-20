@@ -29,8 +29,9 @@
 
     <dependencies>
         <dependency>
-            <groupId>ddf.ui.admin</groupId>
-            <artifactId>ui-admin-api</artifactId>
+            <groupId>ddf.admin.core</groupId>
+            <artifactId>admin-core-api</artifactId>
+            <version>1.0.0.ALPHA1-SNAPSHOT</version>
         </dependency>
     </dependencies>
 
