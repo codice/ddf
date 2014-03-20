@@ -36,7 +36,7 @@ public class ConfigurationModule implements AdminModule {
     @Override
     public URI getJSLocation() {
         try {
-            return new URI("/configurations/module.js");
+            return new URI("/configurations/js/module.js");
         } catch (URISyntaxException e) {
             //ignore
         }

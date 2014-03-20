@@ -32,16 +32,10 @@ define(function (require) {
     });
 
     //setup models
-    var Service = require('js/models/Service');
     var Module = require('js/models/Module');
-
-    Application.ServiceModel = new Service.Response();
-    Application.ServiceModel.fetch();
     var options = {
         delay: 30000
     };
-    var servicePoller = poller.get(Application.ServiceModel, options);
-    servicePoller.start();
 
     var addModuleRegions = function() {
         //add tab regions

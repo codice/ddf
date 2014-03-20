@@ -3,11 +3,22 @@
 define(function(require) {
 
     var Application = require('js/application'),
-        ServiceView = require('/configurations/view/Service.view.js');
+        poller = require('poller'),
+        ServiceView = require('/configurations/js/view/Service.view.js');
 
     Application.App.module('Configurations', function(ServiceModule, App, Backbone, Marionette, $, _) {
 
-            var servicePage = new ServiceView.ServicePage({model: Application.ServiceModel});
+            var Service = require('/configurations/js/model/Service.js');
+
+            var serviceModel = new Service.Response();
+            serviceModel.fetch();
+            var options = {
+                delay: 30000
+            };
+            var servicePoller = poller.get(serviceModel, options);
+            servicePoller.start();
+
+            var servicePage = new ServiceView.ServicePage({model: serviceModel});
 
             // Define a controller to run this module
             // --------------------------------------

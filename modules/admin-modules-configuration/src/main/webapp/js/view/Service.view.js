@@ -18,7 +18,7 @@ define(function (require) {
     var ich = require('icanhaz'),
         _ = require('underscore'),
         Marionette = require('marionette'),
-        ConfigurationEdit = require('/configurations/view/ConfigurationEdit.view.js');
+        ConfigurationEdit = require('/configurations/js/view/ConfigurationEdit.view.js');
 
     var ServiceView = {};
 
