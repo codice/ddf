@@ -42,7 +42,7 @@ define(function(require) {
                         //this dynamically requires in our modules based on wherever the model says they could be found
                         //check if we already have the module
                         if(this.model.get('iframeLocation') && this.model.get('iframeLocation') !== "") {
-                            this.$el.html('<iframe style="height:100%;width:100%" src="' + this.model.get('iframeLocation') + '"></iframe>');
+                            this.$el.html('<iframe src="' + this.model.get('iframeLocation') + '"></iframe>');
                         } else {
                             if(Application.App[this.model.get('name')]) {
                                 //the require([]) function uses setTimeout internally to make this call asynchronously
