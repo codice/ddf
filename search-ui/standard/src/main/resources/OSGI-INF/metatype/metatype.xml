@@ -57,6 +57,11 @@
             <Option label="Black" value="banner-text-black" />
         </AD>
         <AD
+        	description="Specifies the number of results to request from each source" 
+        	name="Result Count" id="resultCount" required="true" type="Integer"
+        	default="250">
+        </AD>
+        <AD
             description="Specify the base URL for a WMS server."
             name="WMS Server" id="wmsServer" required="false" type="String"
             default=""

@@ -7,6 +7,7 @@ define(function (require) {
         ddf = require('ddf'),
         Util = require('js/model/util'),
         Cesium = require('cesium'),
+        properties = require('properties'),
         MetaCard = ddf.module();
 
     require('backbonerelational');
@@ -140,8 +141,7 @@ define(function (require) {
 
     MetaCard.SearchResult = Backbone.RelationalModel.extend({
         defaults: {
-            count: 500,
-            itemsPerPage: 500,
+            count: properties.resultCount,
             startIndex: 1,
             format: "geojson",
             queryParamDefaults: {

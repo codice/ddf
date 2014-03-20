@@ -16,18 +16,8 @@
 package org.codice.ddf.ui.searchui.standard.properties;
 
 
-import ddf.catalog.data.BinaryContent;
-import ddf.catalog.data.BinaryContentImpl;
-import net.minidev.json.JSONObject;
-import net.minidev.json.JSONValue;
-
-import org.apache.commons.lang.StringUtils;
-import org.apache.felix.webconsole.BrandingPlugin;
-import org.codice.proxy.http.HttpProxyService;
-import org.osgi.framework.BundleContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.apache.commons.lang.StringUtils;
+import java.io.ByteArrayInputStream;
+import java.util.Map;
 
 import javax.activation.MimeType;
 import javax.activation.MimeTypeParseException;
@@ -38,8 +28,18 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
-import java.io.ByteArrayInputStream;
-import java.util.Map;
+import net.minidev.json.JSONObject;
+import net.minidev.json.JSONValue;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.felix.webconsole.BrandingPlugin;
+import org.codice.proxy.http.HttpProxyService;
+import org.osgi.framework.BundleContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import ddf.catalog.data.BinaryContent;
+import ddf.catalog.data.BinaryContentImpl;
 
 /**
  * Stores external configuration properties.
@@ -88,6 +88,8 @@ public class ConfigurationStore {
     
     private int incrementer=0;
 
+    private Integer resultCount = 250;
+
     static {
         MimeType mime = null;
         try {
@@ -124,6 +126,7 @@ public class ConfigurationStore {
         configObj.put("timeout", timeout);
         configObj.put("sync", isSyncQuery);
         configObj.put("targetUrl", targetUrl);
+        configObj.put("resultCount", resultCount);
 
         String configString = JSONValue.toJSONString(configObj);
         BinaryContent content = new BinaryContentImpl(new ByteArrayInputStream(configString.getBytes()),
@@ -255,13 +258,16 @@ public class ConfigurationStore {
     		setFormat((String) properties.get("format"));
     		setTimeout((Integer) properties.get("timeout"));
     		setSyncQuery((Boolean) properties.get("syncQuery"));
+            setResultCount((Integer) properties.get("resultCount"));
     		
     		//Fetch the DDF HTTP Proxy
     		startProxy();
     		
-    		LOGGER.debug("Updated properties: header={}, footer={}, style={}, textColor={}," +
-    					"wmsServer={}, layers={}, format={}, timeout={}, syncQuery={}",
-    					header, footer, style, textColor, wmsServer, layers, format, timeout, isSyncQuery);
+            LOGGER.debug(
+                    "Updated properties: header={}, footer={}, style={}, textColor={},"
+                            + "wmsServer={}, layers={}, format={}, timeout={}, syncQuery={}, resultCount{}",
+                    header, footer, style, textColor, wmsServer, layers, format, timeout,
+                    isSyncQuery, resultCount);
   
     	} else{
     		LOGGER.debug("Properties are empty");
@@ -311,6 +317,14 @@ public class ConfigurationStore {
 	public void setBundleContext(BundleContext bundleContext) {
 		this.bundleContext = bundleContext;
 	}
+
+    public Integer getResultCount() {
+        return resultCount;
+    }
+
+    public void setResultCount(Integer resultCount) {
+        this.resultCount = resultCount;
+    }
 	
 	
 }

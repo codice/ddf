@@ -31,6 +31,7 @@ define(function (require) {
                     props.format = data.format;
                     props.sync = data.sync;
                     props.targetUrl = data.targetUrl;
+                    props.resultCount = data.resultCount;
 
                     var sync = $.url().param('sync');
                     if (sync === 'true') {
