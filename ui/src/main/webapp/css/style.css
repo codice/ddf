@@ -25,9 +25,6 @@
 .metatype a {
   padding-left: 8px;
 }
-input.metatype.endpointUrl {
-    width: 500px;
-}
 #tabs {
     position:absolute;
     left:-200px;

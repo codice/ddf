@@ -18,6 +18,7 @@ define(function (require) {
     var ich = require('icanhaz'),
         _ = require('underscore'),
         Marionette = require('marionette'),
+        Service = require('/configurations/js/model/Service.js'),
         ConfigurationEdit = require('/configurations/js/view/ConfigurationEdit.view.js');
 
     var ServiceView = {};
@@ -32,24 +33,30 @@ define(function (require) {
         template: "configurationRow",
         tagName: "tr",
         events: {
-            'click .editLink' : 'editService',
-            'click .removeLink' : 'removeService'
+            'click .editLink' : 'editConfiguration',
+            'click .removeLink' : 'removeConfiguration',
+            'hidden.bs.modal' : 'cancelEditConfiguration'
         },
         regions: {
-            editModal: '.config-modal-container'
+            editModal: '.modal'
         },
         onRender: function() {
-            this.editModal.show(new ConfigurationEdit.View({model: this.model, id: this.model.get('id'), factory: !_.isUndefined(this.model.get("fpid"))}));
+            this.editModal.show(new ConfigurationEdit.View({model: this.model, factory: !_.isUndefined(this.model.get("fpid"))}));
         },
-        editService: function() {
-            this.editModal.currentView.$el.modal();
+        editConfiguration: function() {
+            this.model.get('service').get('response').trigger('editing');
         },
-        removeService: function() {
+        removeConfiguration: function() {
             var question = "Are you sure you want to remove the configuration: "+this.model.get("service.pid")+"?";
             var confirmation = window.confirm(question);
             if(confirmation) {
                 this.model.destroy();
                 this.close();
+            }
+        },
+        cancelEditConfiguration: function() {
+            if(this.editModal.currentView) {
+                this.editModal.currentView.cancel();
             }
         }
     });
@@ -64,19 +71,32 @@ define(function (require) {
         template: "serviceRow",
         tagName: "tr",
         events: {
-            'click .newLink' : 'newService'
+            'click .newLink' : 'newConfiguration',
+            'hidden.bs.modal' : 'cancelNewConfiguration'
         },
         regions: {
             collectionRegion: '#configurationRegion',
-            editModal: '.service-modal-container'
+            editModal: '.modal'
         },
         onRender: function() {
             this.collectionRegion.show(new ServiceView.ConfigurationTable({ collection: this.model.get("configurations") }));
-            //TODO: need to create a new configuration for this when it is clicked
-//            this.editModal.show(new ConfigurationEdit.View({model: this.model, id: this.model.get('id'), factory: this.model.get("factory")}));
         },
-        newService: function() {
-            this.editModal.currentView.$el.modal();
+        newConfiguration: function() {
+            if(this.model.get("factory") || this.model.get("configurations").length === 0) {
+                this.model.get('response').trigger('editing');
+                var configuration = new Service.Configuration();
+                if(this.model.get("factory")) {
+                    configuration.initializeFromMSF(this.model);
+                } else {
+                    configuration.initializeFromService(this.model);
+                }
+                this.editModal.show(new ConfigurationEdit.View({model: configuration, factory: this.model.get("factory")}));
+            }
+        },
+        cancelNewConfiguration: function() {
+            if(this.editModal.currentView) {
+                this.editModal.currentView.cancel();
+            }
         }
     });
 
@@ -93,6 +113,20 @@ define(function (require) {
         },
         regions: {
             collectionRegion: '#servicesRegion'
+        },
+        initialize: function(options) {
+            this.poller = options.poller;
+            this.listenTo(this.model, 'editing', this.stopPoller);
+            this.listenTo(this.model, 'canceled', this.startPoller);
+        },
+        stopPoller: function() {
+            this.poller.stop();
+        },
+        startPoller: function() {
+            this.poller.start();
+        },
+        onClose: function() {
+            this.stopListening(this.model);
         },
         onRender: function() {
             this.collectionRegion.show(new ServiceView.ServiceTable({ collection: this.model.get("value") }));

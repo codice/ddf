@@ -12,6 +12,14 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
+.endpointUrl {
+    width: 500px;
+}
+
+.controls {
+    white-space: nowrap;
+}
+
 .servicesTable {
     display: table;
 

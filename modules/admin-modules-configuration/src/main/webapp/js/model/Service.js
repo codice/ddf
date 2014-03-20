@@ -33,18 +33,24 @@ define(function (require) {
     Service.Configuration = Backbone.RelationalModel.extend({
         configUrl: "/jolokia/exec/org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui,version=2.3.0",
 
+        defaults: {
+            properties: new Service.Properties()
+        },
+
         relations: [
             {
                 type: Backbone.HasOne,
                 key: 'properties',
                 relatedModel: Service.Properties,
-                includeInJSON: true,
-                reverseRelation: {
-                    key: 'configuration',
-                    includeInJSON: false
-                }
+                includeInJSON: true
             }
         ],
+
+        initialize: function(options) {
+            if(options && options.properties && options.properties['service.pid']) {
+                this.set({"uuid": options.properties['service.pid'].replace(/\./g, '')});
+            }
+        },
 
         /**
          * Collect all the data to save.
@@ -139,6 +145,24 @@ define(function (require) {
                 }).fail(function (error) {
                     deferred.fail(error);
                 });
+        },
+        initializeFromMSF: function(msf) {
+            this.set({"fpid":msf.get("id")});
+            this.set({"name":msf.get("name")});
+            this.get('properties').set({"service.factoryPid": msf.get("id")});
+            this.initializeFromService(msf);
+        },
+        initializeFromService: function(service) {
+            this.set({"service": service});
+            this.initializeFromMetatype(service.get("metatype"));
+        },
+        initializeFromMetatype: function(metatype) {
+            var model = this;
+            metatype.forEach(function(obj){
+                var id = obj.get('id');
+                var val = obj.get('defaultValue');
+                model.get('properties').set(id, (val) ? val.toString() : null);
+            });
         }
     });
 
@@ -169,33 +193,21 @@ define(function (require) {
                 key: 'metatype',
                 relatedModel: Service.Metatype,
                 collectionType: Service.MetatypeList,
-                includeInJSON: false,
-                reverseRelation: {
-                    key: 'service'
-                }
+                includeInJSON: false
             }
         ],
+
+        initialize: function(options) {
+            if(options && options.id) {
+                this.set({"uuid": options.id.replace(/\./g, '')});
+            }
+        },
 
         hasConfiguration: function() {
             if(this.configuration) {
                 return true;
             }
             return false;
-        },
-        initializeFromMSF: function(msf) {
-            this.set({"fpid":msf.get("id")});
-            this.set({"name":msf.get("name")});
-            this.initializeConfigurationFromMetatype(msf.get("metatype"));
-            this.configuration.set({"service.factoryPid": msf.get("id")});
-        },
-        initializeConfigurationFromMetatype: function(metatype) {
-            var src = this;
-            src.configuration = new Service.Configuration();
-            metatype.forEach(function(obj){
-                var id = obj.id;
-                var val = obj.defaultValue;
-                src.configuration.set(id, (val) ? val.toString() : null);
-            });
         }
     });
 

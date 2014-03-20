@@ -13,12 +13,12 @@ define(function(require) {
             var serviceModel = new Service.Response();
             serviceModel.fetch();
             var options = {
-                delay: 30000
+                delay: 10000
             };
             var servicePoller = poller.get(serviceModel, options);
             servicePoller.start();
 
-            var servicePage = new ServiceView.ServicePage({model: serviceModel});
+            var servicePage = new ServiceView.ServicePage({model: serviceModel, poller: servicePoller});
 
             // Define a controller to run this module
             // --------------------------------------

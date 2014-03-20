@@ -43,14 +43,14 @@ define(function (require) {
     ConfigurationEdit.View = Marionette.ItemView.extend({
         template: 'configurationEdit',
         tagName: 'div',
-        className: 'modal',
+        className: 'modal-dialog',
         /**
          * Button events, right now there's a submit button
          * I do not know where to go with the cancel button.
          */
         events: {
             "click .submit-button": "submitData",
-            "click #cancel": "cancel",
+            "click .cancel-button": "cancel",
             "click .enable-checkbox" : "toggleEnable",
             "change .sourceTypesSelect" : "render"
         },
@@ -66,11 +66,13 @@ define(function (require) {
         },
 
         onRender: function() {
-            this.$el.attr('tabindex', "-1");
-            this.$el.attr('role', "dialog");
-            this.$el.attr('aria-hidden', "true");
             this.renderDynamicFields();
             this.setupPopOvers();
+            this.bind();
+            this.listenTo(this.model.get('service').get('response'), 'sync', this.bind);
+        },
+
+        bind: function() {
             var bindings = Backbone.ModelBinder.createDefaultBindings(this.el, 'name');
             this.modelBinder.bind(this.model.get('properties'), this.$el, bindings);
         },
@@ -122,15 +124,27 @@ define(function (require) {
          */
         submitData: function() {
             this.model.save();
+            if(this.model.get('service') && this.model.get('service').get('response')) {
+                this.model.get('service').get('response').trigger('canceled');
+            }
         },
         /**
          * unbind the model and dom during close.
          */
         onClose: function () {
             this.modelBinder.unbind();
+            if(this.model.get('service')) {
+                this.stopListening(this.model.get('service').get('response'));
+            }
+            this.stopListening(this.$('#' + this.model.get('uuid')));
         },
         cancel: function() {
-            //TODO discard changes somehow
+            if(this.model.get('service') && this.model.get('service').get('response')) {
+                this.model.get('service').get('response').trigger('canceled');
+            }
+            if(!this.model.get('properties').get('service.pid') && this.model.get('service')) {
+                this.model.get('service').get('configurations').remove(this.model);
+            }
         },
         /**
          * Set up the popovers based on if the selector has a description.

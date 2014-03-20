@@ -1,9 +1,11 @@
 <td style="width:50%">
-    <a href='#' class='editLink'>
+    <a href='#{{uuid}}' class='editLink' data-toggle="modal">
         {{properties.[service.pid]}}
     </a>
     <div class="config-modal-container">
+        <div id="{{uuid}}" class="modal" tabindex="-1" role="dialog" aria-hidden="true">
 
+        </div>
     </div>
 </td>
 <td style="width:50%">
