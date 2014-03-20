@@ -46,4 +46,10 @@ public interface AdminModule {
      * @return URI
      */
     public URI getCSSLocation();
+
+    /**
+     * Absolute path to an IFrame to embed. JSLocation and CSSLocation will be ignored if this call returns a valid URI.
+     * @return URI
+     */
+    public URI getIframeLocation();
 }

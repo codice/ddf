@@ -156,8 +156,21 @@ public class ConfigurationAdmin implements ConfigurationAdminMBean {
             module = new HashMap<String, Object>();
             module.put("name", adminModule.getName());
             module.put("id", adminModule.getId());
-            module.put("jsLocation", adminModule.getJSLocation().toString());
-            module.put("cssLocation", adminModule.getCSSLocation().toString());
+            if(adminModule.getJSLocation() != null) {
+                module.put("jsLocation", adminModule.getJSLocation().toString());
+            } else {
+                module.put("jsLocation", "");
+            }
+            if(adminModule.getCSSLocation() != null) {
+                module.put("cssLocation", adminModule.getCSSLocation().toString());
+            } else {
+                module.put("cssLocation", "");
+            }
+            if(adminModule.getIframeLocation() != null) {
+                module.put("iframeLocation", adminModule.getIframeLocation().toString());
+            } else {
+                module.put("iframeLocation", "");
+            }
             moduleList.add(module);
         }
         if(moduleList.size() > 0) {

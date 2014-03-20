@@ -41,32 +41,36 @@ define(function(require) {
                         }
                         //this dynamically requires in our modules based on wherever the model says they could be found
                         //check if we already have the module
-                        if(Application.App[this.model.get('name')]) {
-                            //the require([]) function uses setTimeout internally to make this call asynchronously
-                            //we need to do the same thing here so that everything is in place when the module starts
-                            setTimeout(function() {
-                                Application.App[view.model.get('name')].start();
-                            }, 0);
-                        } else if(this.module && this.module.start) {
-                            setTimeout(function() {
-                                view.module.start();
-                            }, 0);
+                        if(this.model.get('iframeLocation') && this.model.get('iframeLocation') !== "") {
+                            this.$el.html('<iframe style="height:100%;width:100%" src="' + this.model.get('iframeLocation') + '"></iframe>');
                         } else {
-                            //if it isn't here, we haven't required it in yet, this should automatically start the module
-                            require([this.model.get('jsLocation')], function(module) {
-                                //if a marionette module is being called, it will start up automatically
-                                //however if someone has built something else, we are just checking for start and stop
-                                //functions so we can control the module
-                                //it isn't required that a module have a start and stop function, we just wouldn't be able
-                                //to dynamically add and remove that module without refreshing the ui
-                                if(module && module.start) {
-                                    module.start();
-                                    view.module = module;
-                                }
-                            });
-                        }
-                        if(this.model.get('cssLocation') && this.model.get('cssLocation') !== "") {
-                            require(['css!' + this.model.get('cssLocation')]);
+                            if(Application.App[this.model.get('name')]) {
+                                //the require([]) function uses setTimeout internally to make this call asynchronously
+                                //we need to do the same thing here so that everything is in place when the module starts
+                                setTimeout(function() {
+                                    Application.App[view.model.get('name')].start();
+                                }, 0);
+                            } else if(this.module && this.module.start) {
+                                setTimeout(function() {
+                                    view.module.start();
+                                }, 0);
+                            } else {
+                                //if it isn't here, we haven't required it in yet, this should automatically start the module
+                                require([this.model.get('jsLocation')], function(module) {
+                                    //if a marionette module is being called, it will start up automatically
+                                    //however if someone has built something else, we are just checking for start and stop
+                                    //functions so we can control the module
+                                    //it isn't required that a module have a start and stop function, we just wouldn't be able
+                                    //to dynamically add and remove that module without refreshing the ui
+                                    if(module && module.start) {
+                                        module.start();
+                                        view.module = module;
+                                    }
+                                });
+                            }
+                            if(this.model.get('cssLocation') && this.model.get('cssLocation') !== "") {
+                                require(['css!' + this.model.get('cssLocation')]);
+                            }
                         }
                     },
                     onClose: function() {
