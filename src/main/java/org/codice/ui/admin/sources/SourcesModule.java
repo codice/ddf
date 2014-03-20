@@ -52,4 +52,9 @@ public class SourcesModule implements AdminModule {
         }
         return null;
     }
+
+    @Override
+    public URI getIframeLocation() {
+        return null;
+    }
 }
