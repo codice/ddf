@@ -25,22 +25,22 @@
 --> 
 <features name="${project.artifactId}-${project.version}">
     
-    <feature name="content-core-api" install="auto" version="${project.version}" description="Content API">
+    <feature name="content-core-api" install="manual" version="${project.version}" description="Content API">
         <bundle>mvn:ddf.content.core/content-core-api/${project.version}</bundle>
     </feature>
 
-    <feature name="content-core" install="auto" version="${project.version}" description="Content Core">
+    <feature name="content-core" install="manual" version="${project.version}" description="Content Core">
         <feature>content-core-api</feature>
         <bundle>mvn:ddf.content.core/content-core-impl/${project.version}</bundle>
         <bundle>mvn:ddf.content.core/content-core-standardframework/${project.version}</bundle>
         <bundle>mvn:ddf.content.core/content-core-camelcomponent/${project.version}</bundle>
     </feature>
     
-    <feature name="content-core-filesystemstorageprovider" install="auto" version="${project.version}" description="The File System Provider provides the implementation to create, update, or delete content items as files in the Content Repository.">
+    <feature name="content-core-filesystemstorageprovider" install="manual" version="${project.version}" description="The File System Provider provides the implementation to create, update, or delete content items as files in the Content Repository.">
         <bundle>mvn:ddf.content.core/content-core-filesystemstorageprovider/${project.version}</bundle>
     </feature>
     
-    <feature name="content-core-directorymonitor" install="auto" version="${project.version}" description="Monitors directories to process content files.">
+    <feature name="content-core-directorymonitor" install="manual" version="${project.version}" description="Monitors directories to process content files.">
         <bundle>mvn:ddf.content.core/content-core-directorymonitor/${project.version}</bundle>
     </feature>
 
@@ -48,12 +48,13 @@
         <bundle>mvn:ddf.content.endpoint/content-rest-endpoint/${project.version}</bundle>
     </feature>
     
-    <feature name="content-catalogerplugin" install="auto" version="${project.version}" description="Content Plugin provides post-CUD operations after content storage.">
+    <feature name="content-catalogerplugin" install="manual" version="${project.version}" description="Content Plugin provides post-CUD operations after content storage.">
         <bundle>mvn:ddf.content.core/content-core-catalogerplugin/${project.version}</bundle>
     </feature>
     
     <feature name="content-app" install="auto" version="${project.version}"
         description="DDF Content application default installations">
+        <feature>catalog-app</feature>
         <feature>content-core</feature>
         <feature>content-core-filesystemstorageprovider</feature>
         <feature>content-core-directorymonitor</feature>
