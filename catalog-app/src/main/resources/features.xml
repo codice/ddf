@@ -175,6 +175,7 @@
     
     <feature name="catalog-app" install="auto" version="${project.version}"
         description="DDF Catalog application default installations">
+        <feature>platform-app</feature>
         <feature>catalog-core</feature>
         <feature>catalog-core-standardframework</feature>
         <feature>catalog-core-metricsplugin</feature>
