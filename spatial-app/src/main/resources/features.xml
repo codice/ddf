@@ -25,12 +25,12 @@
 --> 
 <features name="${project.artifactId}-${project.version}">
     
-    <feature name="spatial-kml-transformer" install="auto" version="${project.version}"
+    <feature name="spatial-kml-transformer" install="manual" version="${project.version}"
         description="KML Transformer transforms metacards and query results into KML.">
         <bundle>mvn:ddf.spatial.kml/spatial-kml-transformer/${project.version}</bundle>
     </feature>
 
-    <feature name="spatial-kml-networklinkendpoint" install="auto" version="${project.version}"
+    <feature name="spatial-kml-networklinkendpoint" install="manual" version="${project.version}"
         description="KML Network Link Endpoint generates view-based KML Network Links for dynamic query results in KML viewer.">
         <feature>spatial-kml-transformer</feature>
         <bundle>mvn:ddf.spatial.kml/spatial-kml-networklinkendpoint/${project.version}</bundle>
@@ -38,6 +38,7 @@
 
     <feature name="spatial-app"  install="auto" version="${project.version}"
         description="DDF Spatial Services application default installations">
+        <feature>catalog-app</feature>
         <feature>spatial-kml-transformer</feature>
         <feature>spatial-kml-networklinkendpoint</feature>
     </feature>
