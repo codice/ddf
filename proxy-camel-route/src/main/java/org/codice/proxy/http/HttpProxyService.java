@@ -20,23 +20,28 @@ package org.codice.proxy.http;
  */
 public interface HttpProxyService {
 	
-	/**
-	 * Creates and starts a proxy given only a target Uri. Generated Endpoint name will be returned.
-	 * @param targetUri
-	 * @return
-	 * @throws Exception
-	 */
-	public String start(String targetUri) throws Exception;
+    /**
+     * Creates and starts a proxy given only a target Uri. Generated Endpoint name will be returned.
+     * 
+     * @param targetUri
+     * @param timeout
+     * @return
+     * @throws Exception
+     */
+    public String start(String targetUri, Integer timeout) throws Exception;
 	
 	
-	/**
-	 * Creates and starts a proxy given an endpoint name and target Uri. Endpoint name will be returned.
-	 * @param endpointName
-	 * @param targetUri
-	 * @return
-	 * @throws Exception
-	 */
-	public String start(String endpointName, String targetUri) throws Exception;
+	    /**
+     * Creates and starts a proxy given an endpoint name and target Uri. Endpoint name will be
+     * returned.
+     * 
+     * @param endpointName
+     * @param targetUri
+     * @param timeout
+     * @return
+     * @throws Exception
+     */
+    public String start(String endpointName, String targetUri, Integer timeout) throws Exception;
 	
 	
 	/**

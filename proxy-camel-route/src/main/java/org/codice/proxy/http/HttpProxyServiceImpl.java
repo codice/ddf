@@ -27,7 +27,6 @@ import org.apache.commons.httpclient.contrib.ssl.AuthSSLProtocolSocketFactory;
 import org.apache.commons.httpclient.protocol.Protocol;
 import org.apache.commons.lang.StringUtils;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -44,6 +43,7 @@ public class HttpProxyServiceImpl extends OsgiDefaultCamelContext implements Htt
 	BundleContext bundleContext = null;
 	RouteBuilder routeBuilder = null;
 	String targetUri = null;
+
 	private static final Logger LOGGER = LoggerFactory.getLogger(HttpProxyServiceImpl.class);
 	public static final String SERVLET_NAME = "CamelServlet";
 	private static final String SERVLET_COMPONENT = "servlet";
@@ -65,6 +65,8 @@ public class HttpProxyServiceImpl extends OsgiDefaultCamelContext implements Htt
 	public static final String HTTP_PROXY_AUTH_DOMAIN_KEY = "proxyAuthDomain";
 	public static final String HTTP_PROXY_AUTH_HOST_KEY = "proxyAuthHost";
 	
+    private static final int DEFAULT_TIMEOUT_MS = 5000;
+
 	int incrementer = 0;
 	private String trustStore = null;
 	private String trustStorePassword = null;
@@ -80,15 +82,19 @@ public class HttpProxyServiceImpl extends OsgiDefaultCamelContext implements Htt
 	    this.addComponent(SERVLET_COMPONENT,servlet);
     }
     
-    public synchronized String start(String targetUri) throws Exception{
+    public synchronized String start(String targetUri, Integer timeout) throws Exception {
     	String endpointName = GENERIC_ENDPOINT_NAME + incrementer;
-    	start(endpointName, targetUri);
+        if (timeout <= 0) {
+            timeout = DEFAULT_TIMEOUT_MS;
+        }
+        start(endpointName, targetUri, timeout);
     	incrementer++;
     	
     	return endpointName;
     }
     
-    public String start(final String endpointName, final String targetUri) throws Exception {
+    public String start(final String endpointName, final String targetUri, final Integer timeout)
+        throws Exception {
     	
     	//Enable proxy settings for the external target
     	enableProxySettings();
@@ -113,11 +119,13 @@ public class HttpProxyServiceImpl extends OsgiDefaultCamelContext implements Htt
 		
 		// Create Camel route
     	this.targetUri = targetUri;
-	    routeBuilder = new RouteBuilder() {
+        routeBuilder = new RouteBuilder() {
 	        @Override
 	        public void configure() throws Exception {
 	        	from("servlet:///" + endpointName)
-	        	.to(targetUri + "?bridgeEndpoint=true&amp;throwExceptionOnFailure=false")
+                        .to(targetUri
+                                + "?bridgeEndpoint=true&throwExceptionOnFailure=false&httpClient.soTimeout="
+                                + timeout + "&httpClient.connectionManagerTimeout=" + timeout)
 	        	.routeId(endpointName);           }
 	    };
 	    this.addRoutes(routeBuilder);
