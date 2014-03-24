@@ -23,7 +23,7 @@
 	
 	<artifactId>catalog-core-standardframework</artifactId>
 	<name>DDF :: Catalog :: Core :: Standard Framework</name>
-	<packaging>bundle</packaging>
+	<packaging>bundle</packaging>	
 
 	<dependencies>
 		<dependency>
@@ -102,6 +102,38 @@
 					</instructions>
 				</configuration>
 			</plugin>
+			
+			<plugin>
+	            <groupId>org.apache.maven.plugins</groupId>
+	            <artifactId>maven-surefire-plugin</artifactId>
+	            <configuration>
+	                <includes>
+	                    <include>**/*Test.java</include>
+	                </includes>
+	                <excludes>
+	                    <exclude>**/*IntegrationTest.java</exclude>
+	                </excludes>
+	            </configuration>
+	        </plugin>
 		</plugins>
 	</build>
+	
+	<profiles>
+        <profile>
+            <id>integration-tests</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <configuration>
+                            <includes>
+	                            <include>**/*IntegrationTest.java</include>
+	                        </includes>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>

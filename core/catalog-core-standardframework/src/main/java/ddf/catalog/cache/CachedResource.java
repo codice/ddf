@@ -18,7 +18,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 import java.io.Serializable;
@@ -57,33 +56,14 @@ public class CachedResource implements Resource, Serializable {
     private static final Logger LOGGER = LoggerFactory.getLogger(CachedResource.class);
 
     /**
-     * Indicates Resource has been completely cached, i.e., all bytes read for Resource's
-     * InputStream and written to disk in the product cache directory.
-     */
-    private static final long RESOURCE_CACHING_COMPLETE = -1L;
-    
-    private static final int END_OF_FILE = -1;
-
-    /**
      * Initial delay, in ms, before the Caching Monitor TimerTask is started
      */
-    private static final int DEFAULT_CACHING_MONITOR_INITIAL_DELAY = 1000;  // 1 second
-    
-    /**
-     * Frequency, in ms, that Caching Monitor checks that more bytes have been read
-     * from the source InputStream
-     */
-    private static final long DEFAULT_CACHING_MONITOR_PERIOD = 5000;  // 5 seconds
+    static final int DEFAULT_CACHING_MONITOR_INITIAL_DELAY = 1000;  // 1 second
     
     /**
      * Size of byte buffer (chunk) for each read from the source InputStream
      */
     private static int DEFAULT_CHUNK_SIZE = 1024 * 1024;  // 1 MB
-
-    /**
-     * Delay, in ms, between attempts to retrieve and cache the product
-     */
-    private static int DEFAULT_DELAY_BETWEEN_ATTEMPTS = 1000;  // 1 second
 
     /** Directory for products cached to file system */
     private String productCacheDirectory;
@@ -103,6 +83,11 @@ public class CachedResource implements Resource, Serializable {
     private int chunkSize;
     
     /**
+     * Maximum number of attempts to try and retrieve product
+     */
+    private int maxRetryAttempts;
+    
+    /**
      * Delay, in ms, between attempts to cache resource to disk
      */
     private int delayBetweenAttempts;
@@ -115,11 +100,13 @@ public class CachedResource implements Resource, Serializable {
     private transient ExecutorService executor;
     
 
-    public CachedResource(String productCacheDirectory) {
+    public CachedResource(String productCacheDirectory, int maxRetryAttempts,
+            int delayBetweenAttempts, long cacheMonitoringPeriod) {
         this.productCacheDirectory = productCacheDirectory;
-        this.cachingMonitorPeriod = DEFAULT_CACHING_MONITOR_PERIOD;
+        this.cachingMonitorPeriod = cacheMonitoringPeriod;
         this.cachingMonitorInitialDelay = DEFAULT_CACHING_MONITOR_INITIAL_DELAY;
-        this.delayBetweenAttempts= DEFAULT_DELAY_BETWEEN_ATTEMPTS;
+        this.maxRetryAttempts = maxRetryAttempts;
+        this.delayBetweenAttempts = delayBetweenAttempts;
         this.chunkSize = DEFAULT_CHUNK_SIZE;
         this.executor = Executors.newCachedThreadPool();
     }
@@ -155,6 +142,10 @@ public class CachedResource implements Resource, Serializable {
      */
     public void setDelayBetweenAttempts(int delay) {
         this.delayBetweenAttempts = delay;
+    }
+    
+    public void setMaxRetryAttempts(int maxRetryAttempts) {
+        this.maxRetryAttempts = maxRetryAttempts;
     }
     
     /**
@@ -193,8 +184,10 @@ public class CachedResource implements Resource, Serializable {
         // Create a piped output stream to write product to and that will be read
         // by client using piped input stream
         final PipedOutputStream pos;
+        final CounterOutputStream counterPos;
         try {
             pos = new PipedOutputStream(pis);
+            counterPos = new CounterOutputStream(pos);
         } catch (IOException e) {
             LOGGER.error("Unable to open PipedOutputStream for caching file {}", filePath, e);
             throw new CacheException("Unable to open PipedOutputStream for caching file " + filePath, e);
@@ -215,7 +208,7 @@ public class CachedResource implements Resource, Serializable {
         Runnable cacheThread = new Runnable() {
             @Override
             public void run() {
-                cacheFile(source, pos, filePath, resourceCache, retriever, 3);
+                cacheFile(source, counterPos, filePath, resourceCache, retriever);
             }
         };
         
@@ -226,9 +219,9 @@ public class CachedResource implements Resource, Serializable {
         return newResource;
     }
     
-    private void cacheFile(InputStream source, PipedOutputStream pos,
-            String filePath, ResourceCache resourceCache, ResourceRetriever retriever, int retryAttempts) {
-
+    private void cacheFile(InputStream source, CounterOutputStream pos,            
+            String filePath, ResourceCache resourceCache, ResourceRetriever retriever) {
+        
         // Copy product's bytes from InputStream to product cache file.
         // Resource cache file will be created if it doesn't exist, or
         // overwritten if it already exists.
@@ -237,22 +230,32 @@ public class CachedResource implements Resource, Serializable {
         CachedResourceStatus cachedResourceStatus = null;
         int attempts = 0;
         FileOutputStream output = null;
+        CounterOutputStream fos = null;
 
         try {
             output = FileUtils.openOutputStream(new File(filePath));
+            fos = new CounterOutputStream(output);
             
             // Must cache file in separate thread because PipedOutputStream must write
             // in a separate thread from the thread that PipedInputStream will read - 
             // otherwise deadlock will occur after the pipie's circular buffer fills up,
-            // i.e., after chunkSize amount of bytes is read.
-            CallableCacheProduct callableCacheProduct = new CallableCacheProduct(source, pos, output, chunkSize);
+            // i.e., after chunkSize amount of bytes is read.            
+            CallableCacheProduct callableCacheProduct = new CallableCacheProduct(source, pos, fos, chunkSize);
             Future<CachedResourceStatus> future = null;
             CacheMonitor cacheMonitor = null;
-            while (attempts < retryAttempts) {
+            while (attempts < maxRetryAttempts) {
+                if (callableCacheProduct == null) {
+                    LOGGER.debug("CallableCacheProduct is null - can't do any caching, delete partially cached file");
+                    IOUtils.closeQuietly(fos);
+                    FileUtils.deleteQuietly(new File(filePath));
+                    break;
+                }
                 attempts++;
                 LOGGER.debug("Caching attempt " + attempts);
+                ExecutorService executor2 = null;
                 try {
-                    future = executor.submit(callableCacheProduct);
+                    executor2 = Executors.newFixedThreadPool(1);
+                    future = executor2.submit(callableCacheProduct);
                     final Timer cacheTimer = new Timer();
                     cacheMonitor = new CacheMonitor(future, callableCacheProduct, cachingMonitorPeriod);
                     LOGGER.debug("Configuring Caching Monitor to run every {} ms", cachingMonitorPeriod);
@@ -269,6 +272,8 @@ public class CachedResource implements Resource, Serializable {
                     cachedResourceStatus = callableCacheProduct.getCachedResourceStatus();
                 }
                 
+                LOGGER.debug("cachedResourceStatus = {}", cachedResourceStatus);
+                
                 if (cachedResourceStatus.getCachingStatus() == CachingStatus.RESOURCE_CACHING_COMPLETE) {
                     try {
                         LOGGER.debug("Cancelling cacheMonitor");
@@ -282,9 +287,16 @@ public class CachedResource implements Resource, Serializable {
                 } else { 
                     bytesRead = cachedResourceStatus.getBytesRead();
                     LOGGER.debug("Cached file {} not complete, only read {} bytes", filePath, bytesRead);
-                    if (!future.isCancelled()) {
-                        LOGGER.debug("Canceling future");
-                        future.cancel(true);
+                    synchronized(callableCacheProduct) {
+                        if (!future.isCancelled()) {
+                            LOGGER.debug("Canceling future");
+                            future.cancel(true);
+                        }
+                        
+                        // Need to do shutdownNow() so that any blocking reads still active at the OS
+                        // (native) level by FileOutputStream are shutdown. (The shutdown() method will
+                        // not suffice here, nor did the future.cancel() suffice).
+                        executor2.shutdownNow();
                     }
                     output.flush();
                     
@@ -294,8 +306,9 @@ public class CachedResource implements Resource, Serializable {
                         // Source and retry caching it
                         LOGGER.info("Handling product InputStream exception");
                         IOUtils.closeQuietly(source);
+                        source = null;
                         delay(delayBetweenAttempts);
-                        callableCacheProduct = retrieveResource(source, bytesRead, retriever, pos, output);
+                        callableCacheProduct = retrieveResource(bytesRead, retriever, pos, fos);
                         
                     } else if (cachedResourceStatus.getCachingStatus() == CachingStatus.CACHED_FILE_OUTPUT_STREAM_EXCEPTION) {
                         
@@ -303,9 +316,13 @@ public class CachedResource implements Resource, Serializable {
                         // assume this OutputStream cannot be fixed (e.g., disk full) and just continue streaming
                         // product to the client, i.e., writing to the PipedOutputStream
                         LOGGER.info("Handling FileOutputStream exception");
-                        IOUtils.closeQuietly(output);
-                        //TODO - delete the cache file?
-                        callableCacheProduct = new CallableCacheProduct(source, pos, chunkSize);
+                        IOUtils.closeQuietly(fos);
+                        
+                        // Delete the cache file since it will no longer be written to and it currently has
+                        // incomplete or corrupted data in it
+                        FileUtils.deleteQuietly(new File(filePath));
+                        
+                        callableCacheProduct = new CallableCacheProduct(source, pos, null, chunkSize);
                         
                     } else if (cachedResourceStatus.getCachingStatus() == CachingStatus.PIPED_OUTPUT_STREAM_EXCEPTION) {
                         
@@ -313,7 +330,7 @@ public class CachedResource implements Resource, Serializable {
                         // the client - assume client canceled the product retrieval and just continue to cache the file
                         LOGGER.info("Handling PipedOutputStream exception");
                         IOUtils.closeQuietly(pos);
-                        callableCacheProduct = new CallableCacheProduct(source, output, chunkSize);
+                        callableCacheProduct = new CallableCacheProduct(source, null, fos, chunkSize);
                         
                     } else if (cachedResourceStatus.getCachingStatus() == CachingStatus.RESOURCE_CACHING_INTERRUPTED) {
                         
@@ -321,19 +338,31 @@ public class CachedResource implements Resource, Serializable {
                         // retrieve a chunk of product data from the InputStream) - re-retrieve product from the Source,
                         // skip forward in the product InputStream the number of bytes already read successfully,
                         // and retry caching it
-                        LOGGER.info("Handling interrupt of product caching");
-                        IOUtils.closeQuietly(source);
+                        LOGGER.info("Handling interrupt of product caching - closing source InputStream");
+                        
+                        // Set InputStream used on previous attempt to null so that any attempt to close it
+                        // will not fail (CXF's DelegatingInputStream, which is the underlying InputStream being used,
+                        // does a consume() which is a read() as part of its close() operation and this will result 
+                        // in a blocking read)
+                        source = null;
                         delay(delayBetweenAttempts);
-                        callableCacheProduct = retrieveResource(source, bytesRead, retriever, pos, output);
+                        callableCacheProduct = retrieveResource(bytesRead, retriever, pos, fos);
                     }
                 }
             }
         } catch (IOException e) {
             LOGGER.error("Unable to store product file {}", filePath, e);
-        } finally {
-            IOUtils.closeQuietly(source);
+        } finally {         
+            // If caching was not successful, then remove this product from the pending cache list
+            // (Otherwise partially cached files will remain in pending list and returned to subsequent clients)
+            if (cachedResourceStatus.getCachingStatus() != CachingStatus.RESOURCE_CACHING_COMPLETE) {
+                resourceCache.removePendingCacheEntry(key);
+            } 
             IOUtils.closeQuietly(pos);
-            IOUtils.closeQuietly(output);
+            IOUtils.closeQuietly(fos);
+            LOGGER.debug("Closing source InputStream");
+            IOUtils.closeQuietly(source);
+            LOGGER.debug("Closed source InputStream");
         }
     }
     
@@ -347,14 +376,15 @@ public class CachedResource implements Resource, Serializable {
         }
     }
     
-    private CallableCacheProduct retrieveResource(InputStream source, long bytesRead,
-            ResourceRetriever retriever, PipedOutputStream pos, OutputStream output) throws IOException {
+    private CallableCacheProduct retrieveResource(long bytesRead,
+            ResourceRetriever retriever, CounterOutputStream pos, CounterOutputStream fos) {
         CallableCacheProduct callableCacheProduct = null;
         try {
+            LOGGER.debug("Attempting to re-retrieve resource"); 
             // Re-fetch product from the Source
             ResourceResponse resourceResponse = retriever.retrieveResource();
             LOGGER.debug("Name of re-retrieved resource = {}", resourceResponse.getResource().getName());
-            source = resourceResponse.getResource().getInputStream();
+            InputStream source = resourceResponse.getResource().getInputStream();
             
             // Skip forward in the product's InputStream the amount of bytes already successfully
             // cached by CallableCacheProduct. This prevents the same bytes being read again and
@@ -363,7 +393,10 @@ public class CachedResource implements Resource, Serializable {
             LOGGER.debug("Skipping {} bytes in re-retrieved source InputStream", bytesRead);
             long bytesSkipped = source.skip(bytesRead);
             LOGGER.debug("Actually skipped {} bytes in source InputStream", bytesSkipped);
-            callableCacheProduct = new CallableCacheProduct(source, pos, output, chunkSize);
+            callableCacheProduct = new CallableCacheProduct(source, pos, fos, chunkSize);
+            
+            // So that Callable can account for bytes read in previous download attempt(s)
+            callableCacheProduct.setBytesRead(bytesRead);
         } catch (ResourceNotFoundException e) {
             LOGGER.warn("Unable to re-retrieve product; cannot cache product file {}", filePath);
         } catch (ResourceNotSupportedException e) {

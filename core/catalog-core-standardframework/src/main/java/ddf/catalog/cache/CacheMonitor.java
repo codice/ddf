@@ -74,10 +74,15 @@ public class CacheMonitor extends TimerTask
             // Stop this CacheMonitor since the CallableCacheProduct being watched will be stopped now
             cancel();
             // Stop the caching thread
-            LOGGER.debug("Setting interruptCaching on CallableCacheProduct thread");
-            callableCacheProduct.setInterruptCaching(true);
-            boolean status = future.cancel(true);
-            LOGGER.debug("future cancelling status = {}", status);
+            // synchronized so that Callable can finish any writing to OutputStreams before being canceled
+            synchronized(callableCacheProduct) {
+                LOGGER.debug("Setting interruptCaching on CallableCacheProduct thread");
+                callableCacheProduct.setInterruptCaching(true);
+                
+                // Without this the Future that is running the CallableCacheProduct will not stop
+                boolean status = future.cancel(true);
+                LOGGER.debug("future cancelling status = {}", status);
+            }
         }
     }
 }

@@ -15,9 +15,7 @@
 package ddf.catalog.cache;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
@@ -41,6 +39,7 @@ import javax.activation.MimeTypeParseException;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.invocation.InvocationOnMock;
@@ -54,9 +53,9 @@ import ddf.catalog.operation.ResourceResponse;
 import ddf.catalog.resource.Resource;
 import ddf.catalog.resourceretriever.ResourceRetriever;
 
-public class CachedResourceTest {
+public class CachedResourceIntegrationTest {
     
-    private static final Logger LOGGER = LoggerFactory.getLogger(CachedResourceTest.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CachedResourceIntegrationTest.class);
     
     public static String workingDir;
     public static String productCacheDirectory;
@@ -92,27 +91,101 @@ public class CachedResourceTest {
         expectedFileContents = FileUtils.readFileToString(productInputFile);
     }
 
-    @Test
-    //@Ignore
-    public void testHasProductWithNullFilepath() {
-        assertFalse(new CachedResource("", maxRetryAttempts, delayBetweenAttempts, cachingMonitorPeriod).hasProduct());
-    }
-
-    @Test
-    //@Ignore
-    public void testGetProductWithNullFilepath() throws IOException {
-        assertNull(new CachedResource("", maxRetryAttempts, delayBetweenAttempts, cachingMonitorPeriod).getProduct());
-    }
-
     /**
-     * Test sunny day scenario where product is cached without any exceptions or timeouts
-     * occurring.
+     * Test that if an Exception is thrown while reading the product's InputStream that
+     * caching is interrupted, retried and successfully completes on the second attempt.
      * 
      * @throws Exception
      */
     @Test
     //@Ignore
-    public void testStore() throws Exception {
+    public void testStoreWithInputStreamRecoverableError() throws Exception {
+        mis = new MockInputStream(productInputFilename);
+        mis.setInvocationCountToThrowIOException(5);
+        
+        Metacard metacard = getMetacardStub("abc123", "ddf-1");     
+        resourceResponse = getResourceResponseStub();  
+        CacheKey keyMaker = new CacheKey(metacard, resourceResponse.getRequest());
+        String key = keyMaker.generateKey();
+        ResourceRetriever retriever = getResourceRetrieverStubWithRetryCapability();
+
+        ArgumentCaptor<CachedResource> argument = ArgumentCaptor.forClass(CachedResource.class);
+        ResourceCache resourceCache = mock(ResourceCache.class);
+        
+        CachedResource cachedResource = new CachedResource(productCacheDirectory, maxRetryAttempts,
+                delayBetweenAttempts, cachingMonitorPeriod);
+        int chunkSize = 50;
+        cachedResource.setChunkSize(chunkSize);
+        
+        Resource newResource = cachedResource.store(key, resourceResponse, resourceCache,
+                retriever);
+        assertNotNull(newResource);
+        ByteArrayOutputStream clientBytesRead = clientRead(chunkSize, newResource.getInputStream());
+        
+        // Captures the CachedResource object that should have been put in the ResourceCache's map
+        verify(resourceCache).put(argument.capture());
+        
+        verifyCaching(argument.getValue(), "ddf-1-abc123", clientBytesRead);
+        
+        // Cleanup
+//        FileUtils.deleteDirectory(new File(productCacheDirectory));
+        executor.shutdown();
+    }
+
+    /**
+     * Test storing product in cache and one of the chunks being stored takes too long, triggering
+     * the CacheMonitor to interrupt the caching. Verify that caching is retried and successfully
+     * completes on the second attempt.
+     * 
+     * @throws Exception
+     */
+    @Test
+    @Ignore
+    public void testStoreWithTimeoutException() throws Exception {
+        mis = new MockInputStream(productInputFilename);
+        
+        Metacard metacard = getMetacardStub("abc123", "ddf-1");  
+        resourceResponse = getResourceResponseStub();    
+        CacheKey keyMaker = new CacheKey(metacard, resourceResponse.getRequest());
+        String key = keyMaker.generateKey();
+        ResourceRetriever retriever = getResourceRetrieverStubWithRetryCapability();
+
+        ArgumentCaptor<CachedResource> argument = ArgumentCaptor.forClass(CachedResource.class);
+        ResourceCache resourceCache = mock(ResourceCache.class);
+        
+        CachedResource cachedResource = new CachedResource(productCacheDirectory, maxRetryAttempts,
+                delayBetweenAttempts, cachingMonitorPeriod);
+        int chunkSize = 50;
+        cachedResource.setChunkSize(chunkSize);
+        cachedResource.setCachingMonitorInitialDelay(1);
+        mis.setInvocationCountToTimeout(3);
+        mis.setReadDelay(cachingMonitorPeriod * 2);
+        
+        Resource newResource = cachedResource.store(key, resourceResponse, resourceCache,
+                retriever);
+        assertNotNull(newResource);
+        ByteArrayOutputStream clientBytesRead = clientRead(chunkSize, newResource.getInputStream());
+        
+        // Captures the CachedResource object that should have been put in the ResourceCache's map
+        verify(resourceCache).put(argument.capture());
+        
+        verifyCaching(argument.getValue(), "ddf-1-abc123", clientBytesRead);
+        
+        // Cleanup
+//        FileUtils.deleteDirectory(new File(productCacheDirectory));
+        executor.shutdown();
+    }
+    
+    /**
+     * Tests that if user/client cancels a product retrieval that is in progress and
+     * actively being cached, that the (partially) cached file is deleted and not
+     * placed in the cache map.
+     *  
+     * @throws Exception
+     */
+    @Test
+    @Ignore
+    public void testClientCancelProductDownloadDuringCaching() throws Exception {
         mis = new MockInputStream(productInputFilename);
         
         Metacard metacard = getMetacardStub("abc123", "ddf-1");       
@@ -134,17 +207,38 @@ public class CachedResourceTest {
         Resource newResource = cachedResource.store(key, resourceResponse, resourceCache,
                 retriever);
         assertNotNull(newResource);
-        ByteArrayOutputStream clientBytesRead = clientRead(chunkSize, newResource.getInputStream());
+        
+        // On third read of PipedInputStream, client will close the stream simulating a cancel
+        // of the product download
+        clientRead(chunkSize, newResource.getInputStream(), 3);
+        
+        //TODO: how to wait for caching to finish? Since client cancels download, the clientRead() returns
+        // before caching completes and ends this unit test too soon
+        LOGGER.info("Sleeping 3 seconds to see what happens with caching");
+        Thread.sleep(3000);
+        LOGGER.info("DONE");
         
         // Captures the CachedResource object that should have been put in the ResourceCache's map
         verify(resourceCache).put(argument.capture());
         
-        verifyCaching(argument.getValue(), "ddf-1-abc123", clientBytesRead);
+        verifyCaching(argument.getValue(), "ddf-1-abc123", null);
         
         // Cleanup
+
 //      FileUtils.deleteDirectory(new File(productCacheDirectory));
         executor.shutdown();
-
+    }
+    
+    /**
+     * Tests that when caching a product if an exception occurs on the OutputStream that the
+     * product is being cached to that caching to the OutputStream is considered non-recoverable
+     * and the product is just streamed to the client (no caching done to disk).
+     * @throws Exception
+     */
+    @Test
+    @Ignore
+    public void testCachingRecoveryWhenExceptionFromCachedOutputStream() throws Exception {
+        
     }
    
 //////////////////////////////////////////////////////////////////////////////////////////////////

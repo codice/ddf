@@ -24,8 +24,16 @@
           type="String" default=""
           description="Directory where retrieved products will be cached for faster, future retrieval. If a directory path is specified with directories that do not exist, Catalog Framework will attempt to create those directories. Out of the box (without configuration), the product cache directory is INSTALL_DIR/data/product-cache. If a relative path is provided it will be relative to the INSTALL_DIR. It is recommended to enter an absolute directory path such as /opt/product-cache in Linux or C:/product-cache in Windows."/>
       <AD name="Enable Product Caching" id="cacheEnabled" required="false" type="Boolean" default="false"
-        description="Check to enable caching of retrieved products.">
-    </AD>
+        description="Check to enable caching of retrieved products."/>
+      <AD name="Delay (in seconds) between product retrieval retry attempts" id="delayBetweenRetryAttempts" required="false"
+          type="Integer" default="10"
+          description="The time to wait (in seconds) between attempting to retry retrieving a product."/>
+      <AD name="Max product retrieval retry attempts" id="maxRetryAttempts" required="false"
+          type="Integer" default="3"
+          description="The maximum number of attempts to retry retrieving a product."/>
+      <AD name="Caching Monitor Period" id="cachingMonitorPeriod" required="false"
+          type="Integer" default="5"
+          description="How many seconds to wait and not receive product data before retrying to retrieve a product."/>
    </OCD>
 
    <Designate

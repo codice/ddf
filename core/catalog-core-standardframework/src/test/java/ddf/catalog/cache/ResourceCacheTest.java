@@ -84,6 +84,8 @@ public class ResourceCacheTest {
         productCache = new ResourceCache();
         productCache.setCacheManager(cacheManager);
         productCache.setProductCacheDirectory("");
+        productCache.setDelayBetweenAttempts(1);
+        productCache.setMaxRetryAttempts(3);
     }
 
     @Test

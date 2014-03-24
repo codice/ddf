@@ -58,6 +58,11 @@ public class MockInputStream extends InputStream {
     public void setReadDelay(int delay) {
         this.readDelay = delay;
     }
+    
+    @Override
+    public int available() throws IOException {
+        return is.available();
+    }
 
     @Override
     public int read() throws IOException {

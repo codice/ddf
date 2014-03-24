@@ -58,28 +58,25 @@ public class LocalResourceRetriever implements ResourceRetriever {
                 String scheme = resourceUri.getScheme();
                 if (reader.getSupportedSchemes().contains(scheme)) {
                     try {
-                        LOGGER.debug("Found an acceptable resource reader ("
-                                + reader.getId() + ") for URI "
-                                + resourceUri.toASCIIString());
-                        resource = reader.retrieveResource(resourceUri,
-                                properties);
+                        LOGGER.debug("Found an acceptable resource reader ({}) for URI {}",
+                                reader.getId(), resourceUri.toASCIIString());
+                        resource = reader.retrieveResource(resourceUri, properties);
                         if (resource != null) {
                             break;
                         } else {
-                            LOGGER.info("Resource returned from ResourceReader "
-                                    + reader.getId()
-                                    + " was null.  Checking other readers for URI: "
-                                    + resourceUri);
+                            LOGGER.debug(
+                                    "Resource returned from ResourceReader {} was null. Checking other readers for URI: {}",
+                                    reader.getId(), resourceUri);
                         }
                     } catch (ResourceNotFoundException e) {
-                        LOGGER.debug("Enterprise Search: Product not found using resource reader with name "
-                                + reader.getId());
+                        LOGGER.debug("Product not found using resource reader with name {}",
+                                reader.getId());
                     } catch (ResourceNotSupportedException e) {
-                        LOGGER.debug("Enterprise Search: Product not found using resource reader with name "
-                                + reader.getId());
+                        LOGGER.debug("Product not found using resource reader with name {}",
+                                reader.getId());
                     } catch (IOException ioe) {
-                        LOGGER.debug("Enterprise Search: Product not found using resource reader with name "
-                                + reader.getId());
+                        LOGGER.debug("Product not found using resource reader with name {}",
+                                reader.getId());
                     }
                 }
             }
@@ -90,7 +87,7 @@ public class LocalResourceRetriever implements ResourceRetriever {
                     "Resource Readers could not find resource (or returned null resource) for URI: "
                             + resourceUri.toASCIIString() + ". Scheme: " + resourceUri.getScheme());
         }
-        LOGGER.debug("Received resource, sending back: " + resource.getResource().getName());
+        LOGGER.debug("Received resource, sending back: {}", resource.getResource().getName());
         LOGGER.trace("EXITING: {}", methodName);
         
         return resource;

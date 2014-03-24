@@ -42,6 +42,20 @@ public class ResourceCache {
     private static final String PRODUCT_CACHE_NAME = "Product_Cache";
 
     /**
+     * Delay, in ms, between attempts to retrieve and cache the product
+     */
+    private static int DEFAULT_DELAY_BETWEEN_ATTEMPTS = 10000;  // 10 seconds
+    
+    private static int DEFAULT_MAX_RETRY_ATTEMPTS = 3;
+    
+    /**
+     * Frequency, in ms, that Caching Monitor checks that more bytes have been read
+     * from the source InputStream
+     */
+    private static final long DEFAULT_CACHING_MONITOR_PERIOD = 5000;  // 5 seconds
+
+
+    /**
      * Default location for product-cache directory, <INSTALL_DIR>/data/product-cache
      */
     public static final String DEFAULT_PRODUCT_CACHE_DIRECTORY = 
@@ -55,6 +69,13 @@ public class ResourceCache {
 
     /** Directory for products cached to file system */
     private String productCacheDirectory;
+    
+    private int delayBetweenAttempts = DEFAULT_DELAY_BETWEEN_ATTEMPTS;
+    
+    private int maxRetryAttempts = DEFAULT_MAX_RETRY_ATTEMPTS;
+    
+    private long cachingMonitorPeriod = DEFAULT_CACHING_MONITOR_PERIOD;
+    
 
     public void setCacheManager(CacheManager cacheManager) {
         LOGGER.debug("Setting cacheManager");
@@ -117,6 +138,20 @@ public class ResourceCache {
     public String getProductCacheDirectory() {
     	return productCacheDirectory;
     }
+    
+    public void setDelayBetweenAttempts(int delayBetweenAttempts) {
+        LOGGER.debug("Setting delayBetweenAttempts = {} ms", delayBetweenAttempts);
+        this.delayBetweenAttempts = delayBetweenAttempts;
+    }
+    
+    public void setMaxRetryAttempts(int maxRetryAttempts) {
+        LOGGER.debug("Setting maxRetryAttempts = {}", maxRetryAttempts);
+        this.maxRetryAttempts = maxRetryAttempts;
+    }
+    
+    public void setCachingMonitorPeriod(long period) {
+        this.cachingMonitorPeriod = period;
+    }
 
     public ResourceResponse put(Metacard metacard, ResourceResponse resourceResponse, ResourceRetriever retriever)
         throws CacheException {
@@ -144,15 +179,16 @@ public class ResourceCache {
         String key = keyMaker.generateKey();
 
         if (pendingCache.contains(key)) {
-            LOGGER.info(
+            LOGGER.debug(
                     "Cache file with key = {} is already pending caching - return resourceResponse that was passed in",
                     key);
             return resourceResponse;
         } else {
-            LOGGER.info("Caching file with key {} ", key);
+            LOGGER.debug("Caching file with key {} ", key);
         }
 
-        CachedResource cachedResource = new CachedResource(productCacheDirectory);
+        CachedResource cachedResource = new CachedResource(productCacheDirectory, maxRetryAttempts,
+                delayBetweenAttempts, cachingMonitorPeriod);
         
         // store() will return a new Resource with its input stream now set to
         // the PipedInputStream that caching thread will write to simultaneously
@@ -178,15 +214,19 @@ public class ResourceCache {
     }
     
     public void put(CachedResource cachedResource) throws CacheException {
-        LOGGER.info("ENTERING: put(CachedResource)");
+        LOGGER.trace("ENTERING: put(CachedResource)");
         cache.put(cachedResource.getKey(), cachedResource);
-        if (!pendingCache.remove(cachedResource.getKey())) {
-            LOGGER.info("Did not find pending cache entry with key = {}", cachedResource.getKey());
-        } else {
-            LOGGER.info("Removed pending cache entry with key = {}", cachedResource.getKey());
-        }
+        removePendingCacheEntry(cachedResource.getKey());
         
-        LOGGER.info("EXITING: put(CachedResource)");
+        LOGGER.trace("EXITING: put(CachedResource)");
+    }
+    
+    public void removePendingCacheEntry(String cacheKey) {
+        if (!pendingCache.remove(cacheKey)) {
+            LOGGER.debug("Did not find pending cache entry with key = {}", cacheKey);
+        } else {
+            LOGGER.debug("Removed pending cache entry with key = {}", cacheKey);
+        }
     }
 
     /**

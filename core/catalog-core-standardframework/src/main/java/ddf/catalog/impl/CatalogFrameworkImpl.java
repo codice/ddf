@@ -135,6 +135,8 @@ public class CatalogFrameworkImpl extends DescribableImpl implements Configurati
     static final Logger INGEST_LOGGER = LoggerFactory.getLogger("ingestLogger");
 
     protected static final String FAILED_BY_GET_RESOURCE_PLUGIN = "Error during Pre/PostResourcePlugin.";
+    
+    private static final int MS_PER_SECOND = 1000;
 
     // The local catalog provider, which is set to the first item in the {@link List} of
     // {@link CatalogProvider}s.
@@ -404,8 +406,23 @@ public class CatalogFrameworkImpl extends DescribableImpl implements Configurati
     }
     
     public void setCacheEnabled(boolean cacheEnabled) {
-        logger.info("Setting cacheEnabled = " + cacheEnabled);
+        logger.debug("Setting cacheEnabled = {}", cacheEnabled);
         this.cacheEnabled = cacheEnabled;
+    }
+    
+    public void setDelayBetweenRetryAttempts(int delayBetweenAttempts) {
+        logger.debug("Setting delayBetweenRetryAttempts = {} ms", delayBetweenAttempts * MS_PER_SECOND);
+        this.productCache.setDelayBetweenAttempts(delayBetweenAttempts * MS_PER_SECOND);
+    }
+    
+    public void setMaxRetryAttempts(int maxRetryAttempts) {
+        logger.debug("Setting maxRetryAttempts = {}", maxRetryAttempts);
+        this.productCache.setMaxRetryAttempts(maxRetryAttempts);
+    }
+    
+    public void setCachingMonitorPeriod(int cachingMonitorPeriod) {
+        logger.debug("Setting cachingMonitorPeriod = {} ms", cachingMonitorPeriod * MS_PER_SECOND);
+        this.productCache.setCachingMonitorPeriod(cachingMonitorPeriod * MS_PER_SECOND);
     }
 
     /**

@@ -49,13 +49,7 @@ public class RemoteResourceRetriever implements ResourceRetriever {
             throw new ResourceNotFoundException("Cannot retrieve resource because resourceUri is null.");
         }
         
-//        try {
-            return source.retrieveResource(resourceUri, properties);
-//        } catch (IOException e) {
-//            throw new ResourceNotFoundException(e);
-//        } catch (ResourceNotSupportedException e) {
-//            throw new ResourceNotFoundException(e);
-//        }
+        return source.retrieveResource(resourceUri, properties);
     }
 
 }

@@ -191,6 +191,10 @@
 		<property name="organization" value="Codice" />
 		<property name="masker" ref="sourceListener" />
 		<property name="productCache" ref="productCache" />	
+		<property name="cacheEnabled" value="false" />
+		<property name="delayBetweenRetryAttempts" value="10" />
+        <property name="maxRetryAttempts" value="3" />
+        <property name="cachingMonitorPeriod" value="5" />
 	</bean>
 
 	<bean id="sourcePoller" class="ddf.catalog.util.impl.SourcePoller" >
