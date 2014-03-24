@@ -18,11 +18,16 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 import org.codice.ddf.ui.admin.api.module.AdminModule;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Created by tustisos on 3/18/14.
  */
 public class SourcesModule implements AdminModule {
+
+    private Logger logger = LoggerFactory.getLogger(SourcesModule.class);
+
     @Override
     public String getName() {
         return "Sources";
@@ -38,7 +43,7 @@ public class SourcesModule implements AdminModule {
         try {
             return new URI("/sources/js/module.js");
         } catch (URISyntaxException e) {
-            //ignore
+            logger.warn("Must set the JS location to a valid URI.", e);
         }
         return null;
     }
@@ -48,7 +53,7 @@ public class SourcesModule implements AdminModule {
         try {
             return new URI("/sources/css/style.css");
         } catch (URISyntaxException e) {
-            //ignore
+            logger.warn("Must set the CSS location to a valid URI.", e);
         }
         return null;
     }
