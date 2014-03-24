@@ -293,7 +293,7 @@ public class ConfigurationStore {
 			String bundleName = bundleContext.getBundle().getSymbolicName().toLowerCase() + incrementer;
 			incrementer++;
 
-			endpointName = httpProxy.start(bundleName, wmsServer);
+            endpointName = httpProxy.start(bundleName, wmsServer, timeout);
 
 			targetUrl = SERVLET_PATH + "/" + endpointName;
 			LOGGER.debug("Target URL: " + targetUrl);
