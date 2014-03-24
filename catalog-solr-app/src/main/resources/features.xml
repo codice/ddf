@@ -25,7 +25,7 @@
 --> 
 <features name="${project.artifactId}-${project.version}">
 
-    <feature name="catalog-solr-embedded-provider" install="auto" version="${project.version}" description="Catalog Provider with locally Embedded Solr Server, implemented using Solr ${solr.version}.">
+    <feature name="catalog-solr-embedded-provider" install="manual" version="${project.version}" description="Catalog Provider with locally Embedded Solr Server, implemented using Solr ${solr.version}.">
         <bundle>mvn:org.codice.thirdparty/jts/${jts.bundle.version}</bundle>
         <!-- Servicemix bundle states the wrong name in the container, but it is the right packages. -->
         <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.spatial4j/0.3_2</bundle>
@@ -53,6 +53,11 @@
         <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.spatial4j/0.3_2</bundle>
         <bundle>mvn:ddf.catalog.solr.server/catalog-solr-server-standalone/${project.version}/war</bundle>
     </feature>
+	
+	<feature name="solr-app" install="auto" version="${project.version}" description="Catalog Provider with locally Embedded Solr Server, implemented using Solr ${solr.version}.">
+		<feature>catalog-app</feature>
+		<feature>catalog-solr-embedded-provider</feature>
+	</feature>
     
 </features>
     
