@@ -12,29 +12,6 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-.advance-options {
-    padding: 15px 0px 20px;
-}
-.source-info {
-    display:inline-block;
-    padding-right:5px;
-}
-.popover {
-    max-width: 320px;
-}
-.metatype a {
-  padding-left: 8px;
-}
-input.metatype.endpointUrl {
-    width: 500px;
-}
-#tabs {
-    position:absolute;
-    left:-200px;
-    width: 150px;
-    float: left;
-}
+.installer {
 
-.relative {
-    position:relative;
 }

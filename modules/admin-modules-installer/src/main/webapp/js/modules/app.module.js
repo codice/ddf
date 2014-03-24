@@ -6,7 +6,7 @@ define(function(require) {
         AppView = require('/installer/js/views/App.view.js'),
         AppModel = require('/installer/js/models/App.js');
 
-    Application.App.module('Applications', function(AppModule, App, Backbone, Marionette, $, _) {
+    Application.App.module('Installation', function(AppModule, App, Backbone, Marionette, $, _) {
 
         var appModel = new AppModel.Model();
 
@@ -36,7 +36,7 @@ define(function(require) {
 
         AppModule.addInitializer(function(){
             AppModule.contentController = new Controller({
-                region: App.applications
+                region: App.installation
             });
             AppModule.contentController.show();
         });

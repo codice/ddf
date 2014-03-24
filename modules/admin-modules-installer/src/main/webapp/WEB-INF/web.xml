@@ -16,8 +16,8 @@
 	      http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd"
          version="2.4">
 
-    <description>Admin UI - Sources</description>
-    <display-name>Admin UI - Sources</display-name>
+    <description>Admin UI - Installer</description>
+    <display-name>Admin UI - Installer</display-name>
 
     <!-- Default page to serve -->
     <welcome-file-list>

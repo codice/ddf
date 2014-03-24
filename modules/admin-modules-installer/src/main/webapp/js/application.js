@@ -19,7 +19,7 @@ define(function (require) {
     Application.App.addRegions({
         headerRegion: '#header-region',
         footerRegion: '#footer-region',
-        applications: '#applications'
+        installation: '#installation'
     });
 
     Application.Router = Backbone.Router.extend({
