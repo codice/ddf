@@ -41,3 +41,25 @@ iframe {
     height:100%;
     min-height: 480px;
 }
+
+.float-left {
+    float:left;
+}
+
+.float-right {
+    float:right;
+}
+
+.app-header {
+    padding: 8px 15px;
+    margin-bottom: 21px;
+    list-style: none;
+    background-color: #ecf0f1;
+    border-radius: 4px;
+    color: #95a5a6;
+    text-align:center;
+}
+
+.app-header > li {
+    display: inline-block;
+}

@@ -33,12 +33,20 @@
 
             //setup the header
             app.addInitializer(function() {
-                Application.App.headerRegion.show(new Marionette.ItemView({template: 'headerLayout', className: 'header-layout'}));
+                Application.App.headerRegion.show(new Marionette.ItemView({
+                    template: 'headerLayout',
+                    className: 'header-layout',
+                    model: Application.AppModel
+                }));
             });
 
             //setup the footer
             app.addInitializer(function() {
-                Application.App.footerRegion.show(new Marionette.ItemView({template: 'footerLayout', className: 'footer-layout'}));
+                Application.App.footerRegion.show(new Marionette.ItemView({
+                    template: 'footerLayout',
+                    className: 'footer-layout',
+                    model: Application.AppModel
+                }));
             });
 
             // Start up the main Application Router

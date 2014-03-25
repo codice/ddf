@@ -2,6 +2,7 @@
 define(function(require) {
 
     var Marionette = require('marionette'),
+        $ = require('jquery'),
         Application = require('js/application');
 
     var ModuleView = Marionette.Layout.extend({
@@ -19,9 +20,16 @@ define(function(require) {
                 itemView: Marionette.ItemView.extend({
                     tagName: 'li',
                     template: 'moduleTab',
+                    events: {
+                        'click' : 'setHeader'
+                    },
+                    setHeader: function() {
+                        $('#pageHeader').html(this.model.get('name'));
+                    },
                     onRender: function() {
                         if(this.model.get('active')) {
                             this.$el.addClass('active');
+                            $('#pageHeader').html(this.model.get('name'));
                         }
                     }
                 })

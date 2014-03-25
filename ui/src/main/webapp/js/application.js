@@ -18,6 +18,7 @@ define(function (require) {
 
     // Setup initial templates that we know we'll need
     ich.addTemplate('tabs', require('text!templates/tabs.handlebars'));
+    ich.addTemplate('appHeader', require('text!templates/appHeader.handlebars'));
     ich.addTemplate('headerLayout', require('text!templates/header.handlebars'));
     ich.addTemplate('footerLayout', require('text!templates/footer.handlebars'));
     ich.addTemplate('moduleTab', require('text!templates/moduleTab.handlebars'));
@@ -26,13 +27,16 @@ define(function (require) {
 
     //add regions
     Application.App.addRegions({
+        pageHeader: '#pageHeader',
         headerRegion: 'header',
         footerRegion: 'footer',
-        mainRegion: 'main'
+        mainRegion: 'main',
+        appHeader: '#appHeader'
     });
 
     //setup models
     var Module = require('js/models/Module');
+    var AppModel = require('js/models/App');
     var options = {
         delay: 30000
     };
@@ -48,8 +52,19 @@ define(function (require) {
         });
     };
 
+    var setHeader = function() {
+        Application.App.appHeader.show(new Marionette.ItemView({
+            template: 'appHeader',
+            className: 'app-header',
+            tagName: 'ol',
+            model: Application.AppModel
+        }));
+    };
+
+    Application.AppModel = new AppModel();
     Application.ModuleModel = new Module.Model();
     Application.ModuleModel.fetch().success(addModuleRegions);
+    Application.AppModel.fetch().success(setHeader);
 
     var modulePoller = poller.get(Application.ModuleModel, options);
     modulePoller.on('success', addModuleRegions);

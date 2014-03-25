@@ -42,6 +42,19 @@
             <artifactId>admin-core-api</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.karaf.webconsole</groupId>
+            <artifactId>org.apache.karaf.webconsole.console</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>javax.ws.rs</groupId>
+            <artifactId>javax.ws.rs-api</artifactId>
+            <version>2.0-m10</version>
+        </dependency>
+        <dependency>
+            <groupId>net.minidev</groupId>
+            <artifactId>json-smart</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
@@ -97,7 +110,7 @@
                 <configuration>
                     <instructions>
                         <!--we will use this servlet filter once it has been made generic to protect this app-->
-                        <!--<Embed-Dependency>search-securityservletfilter</Embed-Dependency>-->
+                        <Embed-Dependency>json-smart</Embed-Dependency>
                         <Web-ContextPath>/admin</Web-ContextPath>
                         <_wab>src/main/webapp,${project.build.directory}/webapp</_wab>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
