@@ -12,15 +12,20 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-.well-main {
-    height: 720px;
-}
-.inner-content {
-    height: calc(100% - 130px);
-}
-.white {
-    background-color: rgba(255, 255, 255, 1);
-}
-.full-height {
-    height: 100%;
-}
+/*global define*/
+/** Main view page for add. */
+define(function (require) {
+
+    var Marionette = require('marionette'),
+        ich = require('icanhaz');
+
+    ich.addTemplate('welcomeTemplate', require('text!/installer/templates/welcome.handlebars'));
+
+    var WelcomeView = Marionette.ItemView.extend({
+        template: 'welcomeTemplate',
+        tagName: 'div',
+        className: 'full-height'
+    });
+
+    return WelcomeView;
+});

@@ -1,0 +1,37 @@
+<h1>General Configuration</h1>
+<div>
+    <p>
+    <form id="config-form" action="p3-applications.html" method="GET">
+        <div class="well well-sm white">
+            <div class="form-group has-feedback">
+                <div class="input-group col-xs-4"> <span class="input-group-addon">Host</span>
+
+                    <input type="text" class="form-control" name="host" placeholder="localhost" value="localhost">
+                </div>
+                <br/>Hostname or IP address of the machine. It should be populated with an outward facing IP that clients can access.</div>
+        </div>
+        <div class="well well-sm white">
+            <div class="form-group has-feedback">
+                <div class="input-group col-xs-2"> <span class="input-group-addon">Port</span>
+
+                    <input type="text" class="form-control" name="port" placeholder="8181" value="8181">
+                </div>
+                <br/>
+                <p>The port used to advertise the system, by default it is 8181.
+                </p>
+                <div class="alert alert-warning alert-dismissable">
+                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button> <strong>NOTE:</strong> This does not change the address the system runs on.</div>
+            </div>
+        </div>
+        <div class="well well-sm white">
+            <div class="form-group has-feedback">
+                <div class="input-group col-xs-4"> <span class="input-group-addon">Site Name</span>
+
+                    <input type="text" class="form-control" name="name" placeholder="ddf.distribution" value="ddf.distribution">
+
+                </div>
+                <br/>Name of the site that will be exposed to outside sources.</div>
+        </div>
+    </form>
+    </p>
+</div>

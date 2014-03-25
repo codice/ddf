@@ -3,17 +3,17 @@
 define(function(require) {
 
     var Application = require('js/application'),
-        AppView = require('/installer/js/views/App.view.js'),
-        AppModel = require('/installer/js/models/App.js');
+        InstallerMainView = require('/installer/js/views/InstallerMain.view.js'),
+        InstallerModel = require('/installer/js/models/Installer.js');
 
     Application.App.module('Installation', function(AppModule, App, Backbone, Marionette, $, _) {
 
-        var appModel = new AppModel.Model();
+        var installerModel = new InstallerModel.Model();
 
         // Define a view to show
         // ---------------------
 
-        var appPage = new AppView({model: appModel});
+        var installerPage = new InstallerMainView({model: installerModel});
 
         // Define a controller to run this module
         // --------------------------------------
@@ -25,7 +25,7 @@ define(function(require) {
             },
 
             show: function(){
-                this.region.show(appPage);
+                this.region.show(installerPage);
             }
 
         });

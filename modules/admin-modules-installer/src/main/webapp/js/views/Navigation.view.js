@@ -19,12 +19,25 @@ define(function (require) {
     var Marionette = require('marionette'),
         ich = require('icanhaz');
 
-    ich.addTemplate('testTemplate', require('text!/installer/templates/test.handlebars'));
+    ich.addTemplate('navigationTemplate', require('text!/installer/templates/navigation.handlebars'));
 
-    var AppView = Marionette.ItemView.extend({
-        template: 'testTemplate',
-        tagName: 'div'
+    var WelcomeView = Marionette.ItemView.extend({
+        template: 'navigationTemplate',
+        tagName: 'div',
+        events: {
+            'click .previous': 'previous',
+            'click .next': 'next'
+        },
+        initialize: function() {
+            this.listenTo(this.model, 'change', this.render);
+        },
+        previous: function() {
+            this.model.previousStep();
+        },
+        next: function() {
+            this.model.nextStep();
+        }
     });
 
-    return AppView;
+    return WelcomeView;
 });

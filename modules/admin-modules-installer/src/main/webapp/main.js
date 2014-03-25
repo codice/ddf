@@ -11,7 +11,7 @@
             'marionette',
             'icanhaz',
             'js/application',
-            'js/modules/app.module',
+            'js/modules/module',
             'js/HandlebarsHelpers',
             'modelbinder',
             'bootstrap'

@@ -13,24 +13,19 @@
  *
  **/
 /*global define*/
+/** Main view page for add. */
 define(function (require) {
 
-    var Backbone = require('backbone');
-    var App = {};
+    var Marionette = require('marionette'),
+        ich = require('icanhaz');
 
-    App.Model = Backbone.Model.extend({
-        defaults: {
-            name: 'DDFApp',
-            version: "1.0",
-            description: "Generic DDF Application",
-            dependencies: []
-        }
+    ich.addTemplate('applicationTemplate', require('text!/installer/templates/application.handlebars'));
+
+    var ConfigurationView = Marionette.ItemView.extend({
+        template: 'applicationTemplate',
+        tagName: 'div',
+        className: 'full-height'
     });
 
-    App.Collection = Backbone.Collection.extend({
-        model: App.Model
-    });
-
-    return App;
-
+    return ConfigurationView;
 });
