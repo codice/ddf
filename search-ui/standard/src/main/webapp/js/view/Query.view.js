@@ -163,7 +163,16 @@ define(function (require) {
         serializeData: function () {
             var allTypes = _.chain(this.sources.map(function (source) {
                 return source.get('contentTypes');
-            })).flatten().unique().value();
+            })).flatten().value();
+            allTypes.sort(function compare(a, b) {
+                 if (a.name.toUpperCase() < b.name.toUpperCase())
+                   return -1;
+                 if (a.name.toUpperCase() > b.name.toUpperCase())
+                    return 1;
+                 return 0;});
+            allTypes = _.uniq(allTypes, true, function(type){
+                return type.name + ':' + type.version;
+            });
             var allSources = this.sources.toJSON();
             return _.extend(this.model.toJSON(), {types: allTypes, sources: allSources});
         },
