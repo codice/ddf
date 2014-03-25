@@ -17,11 +17,11 @@
 define(function (require) {
 
     var Marionette = require('marionette'),
-        WelcomeView = require('js/views/Welcome.view'),
-        NavigationView = require('js/views/Navigation.view'),
-        ConfigurationView = require('js/views/Configuration.view'),
-        ApplicationView = require('js/views/Application.view'),
-        FinishView = require('js/views/Finish.view'),
+        WelcomeView = require('/installer/js/views/Welcome.view.js'),
+        NavigationView = require('/installer/js/views/Navigation.view.js'),
+        ConfigurationView = require('/installer/js/views/Configuration.view.js'),
+        ApplicationView = require('/installer/js/views/Application.view.js'),
+        FinishView = require('/installer/js/views/Finish.view.js'),
         ich = require('icanhaz');
 
     ich.addTemplate('mainTemplate', require('text!/installer/templates/main.handlebars'));
