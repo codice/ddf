@@ -24,7 +24,6 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.opensearch.query.OpenSearchQuery;
 import org.codice.ddf.ui.searchui.query.controller.SearchController;
-import org.codice.ddf.ui.searchui.query.endpoint.CometdEndpoint;
 import org.codice.ddf.ui.searchui.query.model.Search;
 import org.codice.ddf.ui.searchui.query.model.SearchRequest;
 import org.cometd.bayeux.Message;
@@ -46,7 +45,7 @@ import ddf.catalog.transform.CatalogTransformerException;
  */
 public class SearchService extends AbstractService {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(CometdEndpoint.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SearchService.class);
 
     private static final String DEFAULT_FORMAT = "geojson";
 
@@ -231,7 +230,7 @@ public class SearchService extends AbstractService {
 
             Set<String> federatedSet;
             if (!(StringUtils.isEmpty(sources))) {
-                LOGGER.debug("Received site names from client.");
+                LOGGER.debug("Received site names from client: {}", sources);
                 federatedSet = new HashSet<String>(Arrays.asList(StringUtils.stripAll(sources
                         .split(","))));
             } else {
@@ -257,6 +256,7 @@ public class SearchService extends AbstractService {
                     addSpatialFilter(fedQuery, geometry, polygon, bbox, radius, lat, lon);
 
                     if (type != null && !type.trim().isEmpty()) {
+                        LOGGER.debug("Recieved Type: {}", type);
                         fedQuery.addTypeFilter(type, versions);
                     }
 

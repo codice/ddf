@@ -215,6 +215,9 @@ define(function (require) {
             bindings.src = {};
             bindings.src.selector = '#federationSources';
             bindings.src.converter =  federationConverter;
+            bindings.type = {};
+            bindings.type.selector = '#typeList';
+            bindings.type.converter = federationConverter;
 
 
             this.modelBinder.bind(this.model, this.$el, bindings);
@@ -240,30 +243,25 @@ define(function (require) {
                 }
             };
 			
-            var MultiselectOptions = function() {
-                this.minWidth=350,
-                this.height=185,
-                this.classes='multiselect',
-                this.noneSelectedText='Select options',
-                this.checkAllText='Select all',
-                this.uncheckAllText='Deselect all',
-                this.selectedText=function(numChecked, numTotal){
+            var multiselectOptions = {
+                minWidth: 350,
+                height: 185,
+                classes: 'multiselect',
+                noneSelectedText: 'Select Sources',
+                checkAllText: 'Select all',
+                uncheckAllText: 'Deselect all',
+                selectedText: function(numChecked, numTotal){
                     return numChecked + ' of ' + numTotal + ' selected';
-                },
-               this.setNoneSelectedText=function(text) {
-                   this.noneSelectedText=text;                   
-               };
+                }
             };
 			
-            var multiselectTypesOptions = new MultiselectOptions();
-            multiselectTypesOptions.setNoneSelectedText("Select types");
-			
-            var multiselectSourcesOptions = new MultiselectOptions();
-            multiselectSourcesOptions.setNoneSelectedText("Select sources");			
+            var typeSelectOptions = _.clone(singleselectOptions);
+            typeSelectOptions.minWidth = 350;
+            typeSelectOptions.noneSelectedText = 'Select a Type';
 
-            this.$('#typeList').multiselect(multiselectTypesOptions).multiselectfilter();
+            this.$('#typeList').multiselect(typeSelectOptions);
 
-            this.$('#federationSources').multiselect(multiselectSourcesOptions).multiselectfilter();
+            this.$('#federationSources').multiselect(multiselectOptions).multiselectfilter();
 
             this.$('#radiusUnits').multiselect(singleselectOptions);
 
