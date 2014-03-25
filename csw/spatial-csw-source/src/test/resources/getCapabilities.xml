@@ -1,0 +1,228 @@
+<!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version. 
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+-->
+<csw:Capabilities version="2.0.2" updateSequence="0"
+	xmlns:ows="http://www.opengis.net/ows" xmlns:ogc="http://www.opengis.net/ogc"
+	xmlns:csw="http://www.opengis.net/cat/csw/2.0.2" xmlns:xlink="http://www.w3.org/1999/xlink"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:gml="http://www.opengis.net/gml"
+	xsi:schemaLocation="http://www.opengis.net/ows http://schemas.opengis.net/ows/1.0.0/owsCommon.xsd http://www.opengis.net/ogc http://schemas.opengis.net/filter/1.1.0/filterCapabilities.xsd http://www.opengis.net/cat/csw/2.0.2 http://schemas.opengis.net/csw/2.0.2/CSW-discovery.xsd http://www.w3.org/1999/xlink http://www.w3.org/1999/xlink.xsd http://www.opengis.net/gml http://schemas.opengis.net/gml/3.1.1/base/gml.xsd">
+	<ows:ServiceIdentification>
+		<ows:Title>CubeWerx CSW</ows:Title>
+		<ows:Abstract>
+			A catalogue service that conforms to the HTTP protocol
+			binding of the OpenGIS Catalogue Service specification
+			version 2.0.2.
+		</ows:Abstract>
+		<ows:Keywords>
+			<ows:Keyword>CSW</ows:Keyword>
+			<ows:Keyword>CubeWerx</ows:Keyword>
+			<ows:Keyword>geospatial</ows:Keyword>
+			<ows:Keyword>catalogue</ows:Keyword>
+		</ows:Keywords>
+		<ows:ServiceType>CSW</ows:ServiceType>
+		<ows:ServiceTypeVersion>0.7.8</ows:ServiceTypeVersion>
+		<ows:ServiceTypeVersion>2.0.0</ows:ServiceTypeVersion>
+		<ows:ServiceTypeVersion>2.0.2</ows:ServiceTypeVersion>
+		<ows:Fees>NONE</ows:Fees>
+		<ows:AccessConstraints>NONE</ows:AccessConstraints>
+	</ows:ServiceIdentification>
+	<ows:ServiceProvider>
+		<ows:ProviderName>CubeWerx Inc.</ows:ProviderName>
+		<ows:ProviderSite xlink:href="http://www.cubewerx.com" />
+		<ows:ServiceContact>
+			<ows:IndividualName>Panagiotis A. Vretanos</ows:IndividualName>
+			<ows:PositionName>Senior Developer</ows:PositionName>
+			<ows:ContactInfo>
+				<ows:Phone>
+					<ows:Voice>+1-819-771-8303</ows:Voice>
+					<ows:Facsimile>+1-819-771-8303</ows:Facsimile>
+				</ows:Phone>
+				<ows:Address>
+					<ows:DeliveryPoint>200 rue Montcalm</ows:DeliveryPoint>
+					<ows:DeliveryPoint>Suite R-13</ows:DeliveryPoint>
+					<ows:City>Gatineau</ows:City>
+					<ows:AdministrativeArea>Quebec</ows:AdministrativeArea>
+					<ows:PostalCode>J8Y 3B5</ows:PostalCode>
+					<ows:Country>CANADA</ows:Country>
+					<ows:ElectronicMailAddress>pvretano@cubwerx.com</ows:ElectronicMailAddress>
+				</ows:Address>
+				<ows:OnlineResource xlink:href="mailto:pvretano@cubewerx.com" />
+			</ows:ContactInfo>
+		</ows:ServiceContact>
+	</ows:ServiceProvider>
+	<ows:OperationsMetadata>
+		<ows:Operation name="GetCapabilities">
+			<ows:DCP>
+				<ows:HTTP>
+					<ows:Get xlink:href="http://www.cubewerx.com/cwcsw.cgi?" />
+					<ows:Post xlink:href="http://www.cubewerx.com/cwcsw.cgi" />
+				</ows:HTTP>
+			</ows:DCP>
+		</ows:Operation>
+		<ows:Operation name="DescribeRecord">
+			<ows:DCP>
+				<ows:HTTP>
+					<ows:Get xlink:href="http://www.cubewerx.com/cwcsw.cgi?" />
+					<ows:Post xlink:href="http://www.cubewerx.com/cwcsw.cgi" />
+				</ows:HTTP>
+			</ows:DCP>
+			<ows:Parameter name="typeName">
+				<ows:Value>csw:Record</ows:Value>
+			</ows:Parameter>
+			<ows:Parameter name="outputFormat">
+				<ows:Value>application/xml</ows:Value>
+			</ows:Parameter>
+			<ows:Parameter name="schemaLanguage">
+				<ows:Value>XMLSCHEMA</ows:Value>
+			</ows:Parameter>
+		</ows:Operation>
+		<ows:Operation name="GetRecords">
+			<ows:DCP>
+				<ows:HTTP>
+					<ows:Get xlink:href="http://www.cubewerx.com/cwcsw.cgi?" />
+					<ows:Post xlink:href="http://www.cubewerx.com/cwcsw.cgi" />
+				</ows:HTTP>
+			</ows:DCP>
+			<ows:Parameter name="TypeName">
+				<ows:Value>csw:Record</ows:Value>
+			</ows:Parameter>
+			<ows:Parameter name="outputFormat">
+				<ows:Value>application/xml</ows:Value>
+				<ows:Value>text/html</ows:Value>
+				<ows:Value>text/plain</ows:Value>
+			</ows:Parameter>
+			<ows:Parameter name="outputSchema">
+				<ows:Value>http://www.opengis.net/cat/csw/2.0.2</ows:Value>
+			</ows:Parameter>
+			<ows:Parameter name="resultType">
+				<ows:Value>hits</ows:Value>
+				<ows:Value>results</ows:Value>
+				<ows:Value>validate</ows:Value>
+			</ows:Parameter>
+			<ows:Parameter name="ElementSetName">
+				<ows:Value>brief</ows:Value>
+				<ows:Value>summary</ows:Value>
+				<ows:Value>full</ows:Value>
+			</ows:Parameter>
+			<ows:Parameter name="CONSTRAINTLANGUAGE">
+				<ows:Value>Filter</ows:Value>
+			</ows:Parameter>
+		</ows:Operation>
+		<ows:Operation name="GetRecordById">
+			<ows:DCP>
+				<ows:HTTP>
+					<ows:Get xlink:href="http://www.cubewerx.com/cwcsg.cgi?" />
+					<ows:Post xlink:href="http://www.cubewerx.com/cwcsg.cgi" />
+				</ows:HTTP>
+			</ows:DCP>
+			<ows:Parameter name="ElementSetName">
+				<ows:Value>brief</ows:Value>
+				<ows:Value>summary</ows:Value>
+				<ows:Value>full</ows:Value>
+			</ows:Parameter>
+		</ows:Operation>
+		<ows:Operation name="GetDomain">
+			<ows:DCP>
+				<ows:HTTP>
+					<ows:Get xlink:href="http://www.cubewerx.com/cwcsg.cgi?" />
+					<ows:Post xlink:href="http://www.cubewerx.com/cwcsg.cgi" />
+				</ows:HTTP>
+			</ows:DCP>
+			<ows:Parameter name="ParameterName">
+				<ows:Value>GetRecords.resultType</ows:Value>
+				<ows:Value>GetRecords.outputFormat</ows:Value>
+				<ows:Value>GetRecords.outputRecType</ows:Value>
+				<ows:Value>GetRecords.typeNames</ows:Value>
+				<ows:Value>GetRecords.ElementSetName</ows:Value>
+				<ows:Value>GetRecords.ElementName</ows:Value>
+				<ows:Value>GetRecords.CONSTRAINTLANGUAGE</ows:Value>
+				<ows:Value>GetRecordById.ElementSetName</ows:Value>
+				<ows:Value>DescribeRecord.typeName</ows:Value>
+				<ows:Value>DescribeRecord.schemaLanguage</ows:Value>
+			</ows:Parameter>
+		</ows:Operation>
+		<ows:Operation name="Harvest">
+			<ows:DCP>
+				<ows:HTTP>
+					<ows:Get xlink:href="http://www.cubewerx.com/cwcsg.cgi?" />
+					<ows:Post xlink:href="http://www.cubewerx.com/cwcsg.cgi" />
+				</ows:HTTP>
+			</ows:DCP>
+			<ows:Parameter name="ResourceType">
+				<ows:Value>csw:Record</ows:Value>
+				<ows:Value>http://www.opengis.net/wfs</ows:Value>
+				<ows:Value>http://www.opengis.net/wms</ows:Value>
+			</ows:Parameter>
+			<ows:Parameter name="ResourceFormat">
+				<ows:Value>application/xml</ows:Value>
+				<ows:Value>text/plain</ows:Value>
+			</ows:Parameter>
+		</ows:Operation>
+		<ows:Operation name="Transaction">
+			<ows:DCP>
+				<ows:HTTP>
+					<ows:Get xlink:href="http://www.cubewerx.com/cwcsg.cgi?" />
+					<ows:Post xlink:href="http://www.cubewerx.com/cwcsg.cgi" />
+				</ows:HTTP>
+			</ows:DCP>
+		</ows:Operation>
+		<ows:Parameter name="service">
+			<ows:Value>CSW</ows:Value>
+		</ows:Parameter>
+		<ows:Parameter name="version">
+			<ows:Value>2.0.1</ows:Value>
+			<ows:Value>2.0.0</ows:Value>
+			<ows:Value>2.0.2</ows:Value>
+		</ows:Parameter>
+		<ows:ExtendedCapabilities></ows:ExtendedCapabilities>
+	</ows:OperationsMetadata>
+	<ogc:Filter_Capabilities>
+		<ogc:Spatial_Capabilities>
+			<ogc:GeometryOperands>
+				<ogc:GeometryOperand>gml:Polygon</ogc:GeometryOperand>
+			</ogc:GeometryOperands>
+			<ogc:SpatialOperators>
+				<ogc:SpatialOperator name="BBOX"/>
+				<ogc:SpatialOperator name="Equals"/>
+				<ogc:SpatialOperator name="Intersects"/>
+				<ogc:SpatialOperator name="Touches"/>
+				<ogc:SpatialOperator name="Crosses"/>
+				<ogc:SpatialOperator name="Contains"/>
+				<ogc:SpatialOperator name="Within"/>
+			</ogc:SpatialOperators>
+		</ogc:Spatial_Capabilities>
+		<ogc:Scalar_Capabilities>
+			<ogc:LogicalOperators />
+			<ogc:ComparisonOperators>
+				<ogc:ComparisonOperator>Like</ogc:ComparisonOperator>
+				<ogc:ComparisonOperator>Between</ogc:ComparisonOperator>
+				<ogc:ComparisonOperator>NullCheck</ogc:ComparisonOperator>
+			</ogc:ComparisonOperators>
+			<ogc:ArithmeticOperators>
+				<ogc:SimpleArithmetic />
+				<ogc:Functions>
+					<ogc:FunctionNames>
+						<ogc:FunctionName nArgs="1">COUNT</ogc:FunctionName>
+						<ogc:FunctionName nArgs="1">DISTINCT</ogc:FunctionName>
+						<ogc:FunctionName nArgs="1">MIN</ogc:FunctionName>
+						<ogc:FunctionName nArgs="1">MAX</ogc:FunctionName>
+						<ogc:FunctionName nArgs="1">UPPER</ogc:FunctionName>
+					</ogc:FunctionNames>
+				</ogc:Functions>
+			</ogc:ArithmeticOperators>
+		</ogc:Scalar_Capabilities>
+		<ogc:Id_Capabilities>
+			<ogc:EID/>
+		</ogc:Id_Capabilities>
+	</ogc:Filter_Capabilities>
+</csw:Capabilities>

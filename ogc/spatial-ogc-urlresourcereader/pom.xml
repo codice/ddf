@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version. 
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.codice.ddf.spatial</groupId>
+        <artifactId>ogc</artifactId>
+        <version>2.3.1-SNAPSHOT</version>
+    </parent>
+
+    <name>DDF :: Spatial :: OGC :: URL Resource Reader</name>
+
+    <artifactId>spatial-ogc-urlresourcereader</artifactId>
+	<packaging>bundle</packaging>
+
+
+    <properties>
+        <tika.version>1.2</tika.version>
+    </properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>ddf.catalog.core</groupId>
+			<artifactId>catalog-core-api</artifactId>
+		</dependency>
+		<dependency>
+            <groupId>ddf.catalog.core</groupId>
+            <artifactId>catalog-core-commons</artifactId>
+		</dependency>
+        <dependency>
+            <groupId>ddf.catalog.core</groupId>
+            <artifactId>catalog-core-urlresourcereader</artifactId>
+        </dependency>
+		<dependency>
+			<groupId>org.apache.tika</groupId>
+			<artifactId>tika-bundle</artifactId>
+            <version>${tika.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.tika</groupId>
+			<artifactId>tika-core</artifactId>
+            <version>${tika.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>ddf.mime.core</groupId>
+			<artifactId>mime-core-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>ddf.mime.core</groupId>
+			<artifactId>mime-core-impl</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>ddf.mime.core</groupId>
+			<artifactId>mime-core-configurableresolver</artifactId>
+            <version>${ddf.platform.app.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>ddf.mime.tika</groupId>
+			<artifactId>mime-tika-resolver</artifactId>
+            <version>${ddf.platform.app.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.osgi</groupId>
+			<artifactId>org.osgi.core</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.osgi</groupId>
+			<artifactId>org.osgi.compendium</artifactId>
+		</dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+        </dependency>
+
+		<dependency>
+			<groupId>ch.qos.logback</groupId>
+			<artifactId>logback-classic</artifactId>
+			<version>0.9.24</version>
+			<scope>test</scope>
+		</dependency>	
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-bundle-plugin</artifactId>
+				<configuration>
+					<instructions>
+						<Bundle-SymbolicName>${project.artifactId};blueprint.graceperiod:=true;blueprint.timeout:=604800000</Bundle-SymbolicName>
+						<Private-Package>
+							ddf.catalog.operation.impl,
+							ddf.catalog.util.impl
+						</Private-Package>
+                        <Export-Package>
+							org.codice.ddf.spatial.ogc.catalog.resource.impl;version="${project.version}"
+                        </Export-Package>
+					</instructions>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+</project>

@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version. 
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+-->
+<metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
+
+    <OCD name="WFS Federated Source" id="Wfs_Federated_Source" description="WFS Federated Source">
+
+        <AD description="The unique name of the Source" name="Source ID" id="id" required="true"
+            type="String" default="WFS"/>
+
+        <AD description="URL to the endpoint implementing the Web Feature Service (WFS) spec"
+            name="WFS URL" id="wfsUrl" required="true" type="String" />
+
+        <AD description="Disable SSL certificate verification" name="Disable SSL certificate verification"
+            id="disableSSLCertVerification" required="true"
+            type="Boolean" default="false"/>
+
+        <AD description="Username for WFS Service (optional)" name="Username" id="username"
+            required="false" type="String"/>
+        <AD description="Password for WFS Service (optional)" name="Password" id="password"
+            required="false" type="String"/>
+        <AD name="Non Queryable Properties" id="nonQueryableProperties" required="false" type="String"
+            cardinality="100"
+            description="Properties listed here will NOT be queryable and any attempt to filter on these properties
+        	will result in an exception."/>
+        <AD description="Poll Interval to Check if the Source is available (in minutes - minimum 1)."
+            name="Poll Interval" id="pollInterval"
+            required="true" type="Integer" default="5"/>
+
+    </OCD>
+
+    <OCD description="WFS Connected Source" name="WFS Connected Source" id="Wfs_Connected_Source">
+
+        <AD description="The unique name of the Source" name="Source ID" id="id" required="true" type="String"
+            default="WFS"/>
+
+        <AD description="URL to the endpoint implementing the Web Feature Service (WFS) spec"
+            name="WFS URL" id="wfsUrl" required="true" type="String" />
+
+        <AD description="Disable SSL certificate verification" name="Disable SSL certificate verification"
+            id="disableSSLCertVerification" required="true"
+            type="Boolean" default="false"/>
+
+        <AD description="Username for WFS Service (optional)" name="Username" id="username"
+            required="false" type="String"/>
+        <AD description="Password for WFS Service (optional)" name="Password" id="password"
+            required="false" type="String"/>
+        <AD name="Non Queryable Properties" id="nonQueryableProperties" required="false" type="String"
+            cardinality="100"
+            description="Properties listed here will NOT be queryable and any attempt to filter on these properties
+        	will result in an exception."/>
+        <AD description="Poll Interval to Check if the Source is available (in minutes - minimum 1)."
+            name="Poll Interval" id="pollInterval"
+            required="true" type="Integer" default="5"/>
+    </OCD>
+
+    <Designate pid="Wfs_Federated_Source" factoryPid="Wfs_Federated_Source">
+        <Object ocdref="Wfs_Federated_Source"/>
+    </Designate>
+
+    <Designate pid="Wfs_Connected_Source" factoryPid="Wfs_Connected_Source">
+        <Object ocdref="Wfs_Connected_Source"/>
+    </Designate>
+
+</metatype:MetaData>

@@ -1,0 +1,31 @@
+<!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version. 
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+-->
+<features name="${project.artifactId}-${project.version}">
+
+    <feature name="spatial-wfs" version="${project.version}"
+             description="Web Feature Service (WFS) v1.0.0 Source and Endpoint.">
+        <bundle>mvn:org.codice.ddf.spatial/spatial-ogc-urlresourcereader/${project.version}</bundle>
+        <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xpp3/${xpp3.bundle.version}</bundle>
+        <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xmlpull/${xmlpull.bundle.version}
+        </bundle>
+        <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xstream/${xstream.bundle.version}
+        </bundle>
+        <bundle>mvn:org.codice.ddf.spatial/spatial-wfs-v1_0_0-schema-webapp/${project.version}</bundle>
+        <bundle>mvn:org.codice.ddf.spatial/spatial-wfs-api/${project.version}</bundle>
+        <bundle>mvn:org.codice.ddf.spatial/spatial-wfs-source/${project.version}</bundle>
+        <bundle start="false">mvn:org.codice.ddf.spatial/spatial-wfs-endpoint/${project.version}</bundle>
+    </feature>
+
+</features>
+	
