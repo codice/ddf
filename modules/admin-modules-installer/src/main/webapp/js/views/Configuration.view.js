@@ -17,28 +17,37 @@
 define(function (require) {
 
     var Marionette = require('marionette'),
-        ich = require('icanhaz');
+        ich = require('icanhaz'),
+        Service = require('/installer/lib/configuration-module/index.js');
 
     ich.addTemplate('configurationTemplate', require('text!/installer/templates/configuration.handlebars'));
+
+    var serviceModel = new Service.Response();
+
+    serviceModel.fetch({
+        url: '/jolokia/exec/org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui,version=2.3.0/getService/(service.pid%3Dddf.platform.config)'
+    });
 
     var ConfigurationView = Marionette.ItemView.extend({
         template: 'configurationTemplate',
         tagName: 'div',
         className: 'full-height',
-        initialize: function() {
-            this.listenTo(this.model,'next', this.next);
-            this.listenTo(this.model,'previous', this.previous);
+        model: serviceModel,
+        initialize: function(options) {
+            this.navigationModel = options.navigationModel;
+            this.listenTo(this.navigationModel,'next', this.next);
+            this.listenTo(this.navigationModel,'previous', this.previous);
         },
         onClose: function() {
-            this.stopListening(this.model);
+            this.stopListening(this.navigationModel);
         },
         next: function() {
             //this is your hook to perform any validation you need to do before going to the next step
-            this.model.nextStep();
+            this.navigationModel.nextStep();
         },
         previous: function() {
             //this is your hook to perform any teardown that must be done before going to the previous step
-            this.model.previousStep();
+            this.navigationModel.previousStep();
         }
     });
 

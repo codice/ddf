@@ -25,20 +25,21 @@ define(function (require) {
         template: 'applicationTemplate',
         tagName: 'div',
         className: 'full-height',
-        initialize: function() {
-            this.listenTo(this.model,'next', this.next);
-            this.listenTo(this.model,'previous', this.previous);
+        initialize: function(options) {
+            this.navigationModel = options.navigationModel;
+            this.listenTo(this.navigationModel,'next', this.next);
+            this.listenTo(this.navigationModel,'previous', this.previous);
         },
         onClose: function() {
-            this.stopListening(this.model);
+            this.stopListening(this.navigationModel);
         },
         next: function() {
             //this is your hook to perform any validation you need to do before going to the next step
-            this.model.nextStep();
+            this.navigationModel.nextStep();
         },
         previous: function() {
             //this is your hook to perform any teardown that must be done before going to the previous step
-            this.model.previousStep();
+            this.navigationModel.previousStep();
         }
     });
 

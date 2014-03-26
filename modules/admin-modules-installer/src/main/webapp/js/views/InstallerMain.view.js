@@ -71,7 +71,7 @@ define(function (require) {
             if(this.welcome.currentView) {
                 this.welcome.show();
             } else {
-                this.welcome.show(new WelcomeView({model: this.model}));
+                this.welcome.show(new WelcomeView({navigationModel: this.model}));
             }
             var elem = this.$(this.welcome.el);
             elem.show();
@@ -80,7 +80,7 @@ define(function (require) {
             if(this.configuration.currentView) {
                 this.configuration.show();
             } else {
-                this.configuration.show(new ConfigurationView({model: this.model}));
+                this.configuration.show(new ConfigurationView({navigationModel: this.model}));
             }
             this.$(this.configuration.el).show();
         },
@@ -88,7 +88,7 @@ define(function (require) {
             if(this.applications.currentView) {
                 this.applications.show();
             } else {
-                this.applications.show(new ApplicationView({model: this.model}));
+                this.applications.show(new ApplicationView({navigationModel: this.model}));
             }
             this.$(this.applications.el).show();
         },
@@ -96,7 +96,7 @@ define(function (require) {
             if(this.finish.currentView) {
                 this.finish.show();
             } else {
-                this.finish.show(new FinishView({model: this.model}));
+                this.finish.show(new FinishView({navigationModel: this.model}));
             }
             this.$(this.finish.el).show();
         },

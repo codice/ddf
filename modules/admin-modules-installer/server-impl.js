@@ -49,7 +49,12 @@ server.requestProxy = function (req, res) {
 server.requestLocal = function (req, res) {
     "use strict";
 
-    req.url = "src/main/webapp/" + req.url.substring(11);
+    if(req.url.indexOf('/lib/') === -1) {
+        req.url = "src/main/webapp/" + req.url.substring(11);
+    } else {
+        req.url = "target/webapp/" + req.url.substring(11);
+    }
+
     res.contentType('application/json');
     res.status(200).send(fs.readFileSync(req.url));
 };
