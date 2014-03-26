@@ -203,7 +203,6 @@
 
 	<modules>
 		<module>platform-configuration</module>
-        <module>platform-status</module>
 		<module>action</module>
 		<module>cache</module>
 		<module>mime</module>
