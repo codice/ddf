@@ -140,6 +140,20 @@ public class ConfigurationAdmin implements ConfigurationAdminMBean {
                 getDefaultLdapFilter());
     }
 
+    public Map<String, Object> getService(String filter) {
+        List<Map<String, Object>> services = configurationAdminExt.listServices(filter, filter);
+
+        Map<String, Object> service = services.get(0);
+
+        if(services.size() > 0) {
+            //just grab the first one, they should have specified a filter that returned just a single result
+            //if not, that is not our problem
+            service = services.get(0);
+        }
+
+        return service;
+    }
+
     public List<Map<String, Object>> listModules() {
         List<AdminModule> adminModuleList = new ArrayList<AdminModule>();
         adminModuleList.addAll(this.moduleList);

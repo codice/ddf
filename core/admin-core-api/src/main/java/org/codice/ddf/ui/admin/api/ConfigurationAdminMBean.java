@@ -32,6 +32,16 @@ public interface ConfigurationAdminMBean {
     List<Map<String, Object>> listServices();
 
     /**
+     * Returns a managed service or managed service factory with associated metatype and configurations
+     *
+     * *@param filter
+     *            the string representation of the <code>org.osgi.framework.Filter</code>
+     *
+     * @return Service
+     */
+    Map<String, Object> getService(String filter);
+
+    /**
      * Lists all modules that are available
      *
      * @return the list of all Modules
