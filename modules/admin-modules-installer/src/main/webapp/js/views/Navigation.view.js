@@ -32,10 +32,12 @@ define(function (require) {
             this.listenTo(this.model, 'change', this.render);
         },
         previous: function() {
-            this.model.previousStep();
+//            this.model.previousStep();
+            this.model.trigger('previous');
         },
         next: function() {
-            this.model.nextStep();
+//            this.model.nextStep();
+            this.model.trigger('next');
         }
     });
 

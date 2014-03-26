@@ -24,7 +24,22 @@ define(function (require) {
     var WelcomeView = Marionette.ItemView.extend({
         template: 'welcomeTemplate',
         tagName: 'div',
-        className: 'full-height'
+        className: 'full-height',
+        initialize: function() {
+            this.listenTo(this.model,'next', this.next);
+            this.listenTo(this.model,'previous', this.previous);
+        },
+        onClose: function() {
+            this.stopListening(this.model);
+        },
+        next: function() {
+            //this is your hook to perform any validation you need to do before going to the next step
+            this.model.nextStep();
+        },
+        previous: function() {
+            //this is your hook to perform any teardown that must be done before going to the previous step
+            this.model.previousStep();
+        }
     });
 
     return WelcomeView;
