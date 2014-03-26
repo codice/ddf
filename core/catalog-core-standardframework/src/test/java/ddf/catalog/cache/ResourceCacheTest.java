@@ -1,41 +1,28 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
+ *
  **/
 package ddf.catalog.cache;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-
-import javax.activation.MimeType;
-import javax.activation.MimeTypeParseException;
-
+import ddf.cache.Cache;
+import ddf.cache.CacheException;
+import ddf.cache.CacheManager;
+import ddf.catalog.data.Metacard;
+import ddf.catalog.event.retrievestatus.RetrievalStatusEventPublisher;
+import ddf.catalog.operation.ResourceRequest;
+import ddf.catalog.operation.ResourceResponse;
+import ddf.catalog.resource.Resource;
+import ddf.catalog.resourceretriever.ResourceRetriever;
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Level;
@@ -45,14 +32,24 @@ import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import ddf.cache.Cache;
-import ddf.cache.CacheException;
-import ddf.cache.CacheManager;
-import ddf.catalog.data.Metacard;
-import ddf.catalog.operation.ResourceRequest;
-import ddf.catalog.operation.ResourceResponse;
-import ddf.catalog.resource.Resource;
-import ddf.catalog.resourceretriever.ResourceRetriever;
+import javax.activation.MimeType;
+import javax.activation.MimeTypeParseException;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class ResourceCacheTest {
 
@@ -69,7 +66,7 @@ public class ResourceCacheTest {
         BasicConfigurator.configure();
         Logger.getRootLogger().setLevel(Level.DEBUG);
     }
-    
+
     @Before
     public void setUp() {
 
@@ -81,7 +78,9 @@ public class ResourceCacheTest {
         cache = mock(Cache.class);
         CacheManager cacheManager = mock(CacheManager.class);
         when(cacheManager.getCache(anyString())).thenReturn(cache);
-        productCache = new ResourceCache();
+        RetrievalStatusEventPublisher eventPublisher = mock(RetrievalStatusEventPublisher.class);
+
+        productCache = new ResourceCache(eventPublisher);
         productCache.setCacheManager(cacheManager);
         productCache.setProductCacheDirectory("");
         productCache.setDelayBetweenAttempts(1);
@@ -161,7 +160,7 @@ public class ResourceCacheTest {
         when(resourceResponse.getRequest()).thenReturn(resourceRequest);
         when(resourceResponse.getResource()).thenReturn(resource);
         when(resourceResponse.getProperties()).thenReturn(null);
-        
+
         ResourceRetriever retriever = mock(ResourceRetriever.class);
 
         ResourceResponse newResourceResponse = productCache.put(metacard, resourceResponse,
@@ -198,7 +197,7 @@ public class ResourceCacheTest {
         when(resourceResponse.getRequest()).thenReturn(resourceRequest);
         when(resourceResponse.getResource()).thenReturn(resource);
         when(resourceResponse.getProperties()).thenReturn(requestProperties);
-        
+
         ResourceRetriever retriever = mock(ResourceRetriever.class);
 
         productCache.put(metacard, resourceResponse, retriever);
@@ -237,7 +236,7 @@ public class ResourceCacheTest {
         when(resourceResponse.getRequest()).thenReturn(resourceRequest);
         when(resourceResponse.getResource()).thenReturn(resource);
         when(resourceResponse.getProperties()).thenReturn(requestProperties);
-        
+
         ResourceRetriever retriever = mock(ResourceRetriever.class);
 
         String key = null;
@@ -289,7 +288,7 @@ public class ResourceCacheTest {
         when(resourceResponse.getRequest()).thenReturn(resourceRequest);
         when(resourceResponse.getResource()).thenReturn(resource);
         when(resourceResponse.getProperties()).thenReturn(requestProperties);
-        
+
         ResourceRetriever retriever = mock(ResourceRetriever.class);
 
         String key = null;
@@ -317,13 +316,13 @@ public class ResourceCacheTest {
             LOGGER.debug("Caught CacheException: " + e.getMessage());
         }
     }
-    
+
     /**
      * Tests that if a product is actively being cached and a new (second) request comes in
      * for the same product that the first request's caching continues and the second request
      * just retrieves the product from the Source and returns it to the client without attempting
      * to cache it.
-     * 
+     *
      * @throws Exception
      */
     @Test
@@ -347,7 +346,7 @@ public class ResourceCacheTest {
         when(resourceResponse.getRequest()).thenReturn(resourceRequest);
         when(resourceResponse.getResource()).thenReturn(resource);
         when(resourceResponse.getProperties()).thenReturn(null);
-        
+
         ResourceRetriever retriever = mock(ResourceRetriever.class);
 
         ResourceResponse newResourceResponse = productCache.put(metacard, resourceResponse,
@@ -355,16 +354,16 @@ public class ResourceCacheTest {
 
         int chunkSize = 50;
         CacheClient cacheClient1 = new CacheClient(newResourceResponse.getResource().getInputStream(), chunkSize);
-        
+
         newResourceResponse = productCache.put(metacard, resourceResponse,
                 retriever);
         CacheClient cacheClient2 = new CacheClient(newResourceResponse.getResource().getInputStream(), chunkSize);
 
         ExecutorService executor = Executors.newCachedThreadPool();
-        
-        executor.submit(cacheClient1);       
+
+        executor.submit(cacheClient1);
         executor.submit(cacheClient2);
-        
+
         LOGGER.info("Sleeping 3 seconds to see what happens with caching");
         Thread.sleep(3000);
         LOGGER.info("DONE");

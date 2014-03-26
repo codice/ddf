@@ -4,7 +4,7 @@
  * Copyright (c) Codice Foundation
  *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
- * version 3 of the License, or any later version. 
+ * version 3 of the License, or any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
@@ -14,13 +14,13 @@
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	
+
 	<parent>
 		<artifactId>core</artifactId>
 		<groupId>ddf.catalog.core</groupId>
 		<version>2.3.1.ALPHA2-SNAPSHOT</version>
 	</parent>
-	
+
 	<artifactId>catalog-core-standardframework</artifactId>
 	<name>DDF :: Catalog :: Core :: Standard Framework</name>
 	<packaging>bundle</packaging>	
@@ -48,10 +48,10 @@
             <artifactId>catalog-core-metricsplugin</artifactId>
             <version>${project.version}</version>
 		</dependency>
-		<dependency>
-			<groupId>ddf.catalog.core</groupId>
-			<artifactId>ddf-pubsub</artifactId>
-		</dependency>
+        <dependency>
+            <groupId>ddf.catalog.core</groupId>
+            <artifactId>ddf-pubsub</artifactId>
+        </dependency>
 		<dependency>
 			<groupId>org.osgi</groupId>
 			<artifactId>org.osgi.core</artifactId>
@@ -69,7 +69,7 @@
 			<artifactId>logback-classic</artifactId>
 			<version>0.9.24</version>
 			<scope>test</scope>
-		</dependency>		
+		</dependency>
 		<dependency>
 			<groupId>ddf.catalog.core</groupId>
 			<artifactId>catalog-core-api-impl</artifactId>
@@ -89,7 +89,8 @@
 						<Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
 						<Private-Package>
 						    ddf.catalog.cache,
-							ddf.catalog.impl,
+                            ddf.catalog.event.retrievestatus,
+                            ddf.catalog.impl,
 							ddf.catalog.data.impl,
 							ddf.catalog.operation.impl,
 							ddf.catalog.util.impl,
