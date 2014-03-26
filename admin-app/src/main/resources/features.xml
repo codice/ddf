@@ -18,7 +18,14 @@
         <bundle>mvn:org.apache.aries.jmx/org.apache.aries.jmx.core/1.1.1</bundle>
         <bundle>mvn:ddf.admin.core/admin-core-api/${project.version}</bundle>
         <bundle>mvn:ddf.admin.core/admin-core-configplugin/${project.version}</bundle>
+        <!-- App Service -->
+        <bundle>mvn:org.ops4j.base/ops4j-base-util-property/1.4.0</bundle>
+        <bundle>mvn:org.codice/org.apache.karaf.bundle.core/3.0.0.1</bundle>
+        <bundle>mvn:org.apache.karaf.bundle/org.apache.karaf.bundle.springstate/3.0.0</bundle>
         <bundle>mvn:ddf.admin.core/admin-core-appservice/${project.version}</bundle>
+        <config name="org.codice.ddf.admin.application.service.impl.ApplicationServiceImpl">
+          ignoredApplications = karaf-${karaf.version},kernel-webconsolebranding
+        </config>
     </feature>
 
     <feature name="admin-ui" install="manual" version="${project.version}" description="DDF Administration UI">
