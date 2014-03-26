@@ -12,21 +12,24 @@
  *
  **/
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-	<modelVersion>4.0.0</modelVersion>
-	<parent>
-		<groupId>ddf.admin</groupId>
-        	<artifactId>admin</artifactId>
-        	<version>1.0.0.ALPHA1-SNAPSHOT</version>
-	</parent>
-	<groupId>ddf.admin.core</groupId>
-	<artifactId>admin-core</artifactId>
-	<packaging>pom</packaging>
-	<name>DDF Admin Core</name>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd"
+>
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>ddf.admin</groupId>
+    <artifactId>admin</artifactId>
+    <version>1.0.0.ALPHA1-SNAPSHOT</version>
+  </parent>
+  <groupId>ddf.admin.core</groupId>
+  <artifactId>admin-core</artifactId>
+  <packaging>pom</packaging>
+  <name>DDF Admin Core</name>
 
-	<modules>
-		<module>admin-core-api</module>
-		<module>admin-core-configplugin</module>
-	</modules>
+  <modules>
+    <module>admin-core-api</module>
+    <module>admin-core-configplugin</module>
+    <module>admin-core-appservice</module>
+  </modules>
 </project>
 

@@ -13,21 +13,29 @@
  -->
 <features name="${project.artifactId}-${project.version}">
 
-    <feature name="admin" version="${project.version}" description="DDF Administration Tools">
+    <feature name="admin-core" install="manual" version="${project.version}" description="DDF Administration Tools">
         <bundle>mvn:org.jolokia/jolokia-osgi-bundle/1.1.4</bundle>
         <bundle>mvn:org.apache.aries.jmx/org.apache.aries.jmx.core/1.1.1</bundle>
         <bundle>mvn:ddf.admin.core/admin-core-api/${project.version}</bundle>
         <bundle>mvn:ddf.admin.core/admin-core-configplugin/${project.version}</bundle>
+        <bundle>mvn:ddf.admin.core/admin-core-appservice/${project.version}</bundle>
     </feature>
 
-    <feature name="admin-ui" version="${project.version}" description="DDF Administration UI">
-        <feature>admin</feature>
+    <feature name="admin-ui" install="manual" version="${project.version}" description="DDF Administration UI">
+        <feature>admin-core</feature>
         <bundle>mvn:ddf.admin/admin-ui/${project.version}</bundle>
     </feature>
 
-    <feature name="admin-modules-configuration" version="${project.version}" description="DDF Configuration Module">
+    <feature name="admin-modules-configuration" install="manual" version="${project.version}" description="DDF Configuration Module">
         <feature>admin-ui</feature>
         <bundle>mvn:ddf.admin.modules/admin-modules-configuration/${project.version}</bundle>
     </feature>
+   
+    <feature name="admin-app" install="auto" version="${project.version}" description="DDF Administration Tools">
+        <feature>admin-core</feature>
+        <feature>admin-ui</feature>
+        <feature>admin-modules-configuration</feature>
+    </feature> 
+    
 
 </features>
