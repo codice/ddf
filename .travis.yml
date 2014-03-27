@@ -1,4 +1,4 @@
-install: mvn install --quiet -DskipTests=true -B
+install: mvn install -DskipTests=true -B
 script: mvn test --quiet -B
 language: java
 jdk:
