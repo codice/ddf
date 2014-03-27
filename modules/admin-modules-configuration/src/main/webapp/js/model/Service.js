@@ -204,7 +204,7 @@ define(function (require) {
         },
 
         hasConfiguration: function() {
-            if(this.configuration) {
+            if(this.get('configurations')) {
                 return true;
             }
             return false;

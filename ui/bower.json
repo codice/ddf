@@ -10,6 +10,7 @@
         "components-bootstrap": "3.1.1",
         "components-font-awesome": "4.0.3",
         "icanhandlebarz": "atomicobject/ICanHandlebarz.js#f6ac1d1f8e1d796045563f1483eca6c4911ed7d1",
+        "bootstrap-multiselect": "0.9.3",
         "handlebars": "2.0.0-alpha.2",
         "html5shiv": "3.7.0",
         "jquery": "components/jquery#1.11.0",

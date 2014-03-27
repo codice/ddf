@@ -1,0 +1,19 @@
+<div class="form-group has-feedback">
+    <div class="input-group btn-group col-xs-4 item">
+        <span class="input-group-addon">{{name}}</span>
+
+        {{#is optionValues.length 0}}
+            <input type="{{#is type 1}}text{{/is}}{{#is type 5}}text{{/is}}{{#is type 6}}text{{/is}}{{#is type 7}}text{{/is}}{{#is type 8}}text{{/is}}{{#is type 9}}text{{/is}}{{#is type 10}}text{{/is}}{{#is type 12}}password{{/is}}{{#is type 11}}checkbox{{/is}}{{#is type 2}}number{{/is}}{{#is type 3}}number{{/is}}{{#is type 4}}number{{/is}}"
+                   class="form-control" name="{{id}}" placeholder="{{#defaultValue}}{{.}}{{/defaultValue}}" value="{{#defaultValue}}{{.}}{{/defaultValue}}">
+        {{/is}}
+        {{#isnt optionValues.length 0}}
+            <select id="{{id}}" name="{{id}}">
+                {{#each optionValues}}
+                    <option value="{{.}}">{{lookup ../optionLabels @index}}</option>
+                {{/each}}
+            </select>
+        {{/isnt}}
+
+    </div>
+    <span class="description">{{description}}</span>
+</div>

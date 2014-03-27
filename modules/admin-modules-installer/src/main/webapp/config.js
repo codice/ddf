@@ -27,6 +27,8 @@
             // jquery
             jquery: 'lib/jquery/jquery.min',
             jqueryui: 'lib/jquery-ui/ui/minified/jquery-ui.min',
+            multiselect: 'lib/bootstrap-multiselect/js/bootstrap-multiselect',
+            perfectscrollbar: 'lib/perfect-scrollbar/min/perfect-scrollbar-0.4.8.with-mousewheel.min',
 
             // handlebars
             handlebars: 'lib/handlebars/handlebars.min',
@@ -60,6 +62,10 @@
                 deps: ['handlebars'],
                 exports: 'ich'
             },
+
+            perfectscrollbar: ['jquery'],
+
+            multiselect: ['jquery'],
 
             jqueryui: ['jquery'],
             bootstrap: ['jqueryui']
