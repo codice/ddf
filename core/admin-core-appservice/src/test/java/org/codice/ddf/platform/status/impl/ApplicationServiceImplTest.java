@@ -17,6 +17,7 @@ package org.codice.ddf.platform.status.impl;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -33,6 +34,7 @@ import org.apache.karaf.features.FeaturesService;
 import org.apache.karaf.features.Repository;
 import org.apache.karaf.features.internal.RepositoryImpl;
 import org.codice.ddf.admin.application.service.Application;
+import org.codice.ddf.admin.application.service.ApplicationNode;
 import org.codice.ddf.admin.application.service.ApplicationService;
 import org.codice.ddf.admin.application.service.ApplicationStatus;
 import org.codice.ddf.admin.application.service.ApplicationStatus.ApplicationState;
@@ -55,7 +57,7 @@ public class ApplicationServiceImplTest {
     /**
      * Tests that the get application method works and returns back the correct
      * applications.
-     *
+     * 
      * @throws Exception
      */
     @Test
@@ -76,7 +78,7 @@ public class ApplicationServiceImplTest {
     /**
      * Tests the scenario where all of the repositories have their features
      * started.
-     *
+     * 
      * @throws Exception
      */
     @Test
@@ -97,7 +99,7 @@ public class ApplicationServiceImplTest {
     /**
      * Tests the scenario where only one (of two) repositories has features
      * started
-     *
+     * 
      * @throws Exception
      */
     @Test
@@ -121,7 +123,7 @@ public class ApplicationServiceImplTest {
 
     /**
      * Tests the scenario where none of the repositories have features started.
-     *
+     * 
      * @throws Exception
      */
     @Test
@@ -190,7 +192,7 @@ public class ApplicationServiceImplTest {
     /**
      * Tests that the service properly ignores applications when checking for
      * application status.
-     *
+     * 
      * @throws Exception
      */
     @Test
@@ -219,6 +221,56 @@ public class ApplicationServiceImplTest {
         assertEquals(2, applications.size());
     }
 
+    /**
+     * Tests that an application tree is passed back correctly.
+     * 
+     * @throws Exception
+     */
+    @Test
+    public void testApplicationTree() throws Exception {
+        Repository repo1 = createRepo("test-mainfeatures.xml");
+        Repository repo2 = createRepo("test-mainfeatures2.xml");
+        List<BundleStateService> bundleStateServices = new ArrayList<BundleStateService>();
+        Set<Repository> activeRepos = new HashSet<Repository>(Arrays.asList(repo1, repo2));
+        Set<Repository> inactiveRepos = new HashSet<Repository>();
+        ApplicationServiceImpl appService = new ApplicationServiceImpl(createMockFeaturesService(
+                activeRepos, inactiveRepos), mock(BundleContext.class), bundleStateServices);
+        Set<ApplicationNode> rootApps = appService.getApplicationTree();
+        assertNotNull(rootApps);
+        assertEquals(1, rootApps.size());
+        ApplicationNode mainAppNode = rootApps.iterator().next();
+        assertEquals(1, mainAppNode.getChildren().size());
+        assertNull(mainAppNode.getParent());
+        assertEquals("main-feature2", mainAppNode.getChildren().iterator().next().getApplication()
+                .getName());
+        assertEquals(mainAppNode, mainAppNode.getChildren().iterator().next().getParent());
+
+        Application mainApp = mainAppNode.getApplication();
+        assertEquals("main-feature", mainApp.getName());
+
+    }
+
+    /**
+     * Test that an application tree can be created even if there is an app that
+     * does not contain a main feature.
+     * 
+     * @throws Exception
+     */
+    @Test
+    public void testApplicationTreeWithNoMainFeature() throws Exception {
+        Repository repo1 = createRepo("test-mainfeatures.xml");
+        Repository repo2 = createRepo("test-mainfeatures2.xml");
+        Repository repo3 = createRepo("test-features.xml");
+        List<BundleStateService> bundleStateServices = new ArrayList<BundleStateService>();
+        Set<Repository> activeRepos = new HashSet<Repository>(Arrays.asList(repo1, repo2, repo3));
+        Set<Repository> inactiveRepos = new HashSet<Repository>();
+        ApplicationServiceImpl appService = new ApplicationServiceImpl(createMockFeaturesService(
+                activeRepos, inactiveRepos), mock(BundleContext.class), bundleStateServices);
+        Set<ApplicationNode> rootApps = appService.getApplicationTree();
+        assertNotNull(rootApps);
+        assertEquals(2, rootApps.size());
+    }
+
     private static Repository createRepo(String featuresFile) throws Exception {
         RepositoryImpl repo = new RepositoryImpl(ApplicationServiceImplTest.class.getClassLoader()
                 .getResource(featuresFile).toURI());
@@ -230,7 +282,7 @@ public class ApplicationServiceImplTest {
     /**
      * Mocks a features service. Configurable so that the mock service will
      * return different status based on the repositories that are passed in.
-     *
+     * 
      * @param activeRepos
      *            Repositories that should have all of their features started.
      * @param inactiveRepos
@@ -249,6 +301,7 @@ public class ApplicationServiceImplTest {
         for (Repository curRepo : activeRepos) {
             Feature[] features = curRepo.getFeatures();
             for (Feature curFeature : features) {
+                when(featuresService.getFeature(curFeature.getName())).thenReturn(curFeature);
                 when(featuresService.getFeature(curFeature.getName(), curFeature.getVersion()))
                         .thenReturn(curFeature);
                 when(featuresService.isInstalled(curFeature)).thenReturn(Boolean.TRUE);
@@ -260,6 +313,7 @@ public class ApplicationServiceImplTest {
         for (Repository curRepo : inactiveRepos) {
             Feature[] features = curRepo.getFeatures();
             for (Feature curFeature : features) {
+                when(featuresService.getFeature(curFeature.getName())).thenReturn(curFeature);
                 when(featuresService.getFeature(curFeature.getName(), curFeature.getVersion()))
                         .thenReturn(curFeature);
                 when(featuresService.isInstalled(curFeature)).thenReturn(Boolean.FALSE);

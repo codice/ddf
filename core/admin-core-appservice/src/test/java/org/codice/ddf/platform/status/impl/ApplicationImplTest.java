@@ -80,6 +80,12 @@ public class ApplicationImplTest {
 
     }
 
+    /**
+     * Tests that if an application HAS a main feature that the properties in it
+     * are properly parsed and set.
+     * 
+     * @throws Exception
+     */
     @Test
     public void testMainFeature() throws Exception {
         String mainFeatureName = "main-feature";
@@ -100,6 +106,37 @@ public class ApplicationImplTest {
         assertNotNull(testApp.getMainFeature());
     }
 
+    /**
+     * Verifies if an app does NOT have a main feature that operations can still
+     * be performed.
+     * 
+     * @throws Exception
+     */
+    @Test
+    public void testNoMainFeature() throws Exception {
+        String mainFeatureName = "test-app-1.0.0";
+        String mainFeatureVersion = "0.0.0";
+        String mainFeatureDescription = null;
+        String appToString = mainFeatureName + " - " + mainFeatureVersion;
+        RepositoryImpl repo = new RepositoryImpl(getClass().getClassLoader()
+                .getResource("test-features.xml").toURI());
+        repo.load();
+        Application testApp = new ApplicationImpl(repo);
+
+        assertEquals(mainFeatureName, testApp.getName());
+        assertEquals(mainFeatureVersion, testApp.getVersion());
+        assertEquals(mainFeatureDescription, testApp.getDescription());
+        assertNotNull(testApp.toString());
+        assertEquals(appToString, testApp.toString());
+
+        assertNull(testApp.getMainFeature());
+    }
+
+    /**
+     * Tests that applications can be compared to each other for equality.
+     * 
+     * @throws Exception
+     */
     @Test
     public void testAppEquality() throws Exception {
         RepositoryImpl repo1 = new RepositoryImpl(getClass().getClassLoader()
