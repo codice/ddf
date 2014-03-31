@@ -21,18 +21,22 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.inject.Inject;
+
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.opensearch.query.OpenSearchQuery;
 import org.codice.ddf.ui.searchui.query.controller.SearchController;
 import org.codice.ddf.ui.searchui.query.endpoint.CometdEndpoint;
 import org.codice.ddf.ui.searchui.query.model.Search;
 import org.codice.ddf.ui.searchui.query.model.SearchRequest;
+import org.cometd.annotation.Listener;
+import org.cometd.annotation.Service;
+import org.cometd.annotation.Session;
 import org.cometd.bayeux.Message;
 import org.cometd.bayeux.server.BayeuxServer;
 import org.cometd.bayeux.server.ConfigurableServerChannel;
 import org.cometd.bayeux.server.ServerMessage;
 import org.cometd.bayeux.server.ServerSession;
-import org.cometd.server.AbstractService;
 import org.cometd.server.ServerMessageImpl;
 import org.parboiled.errors.ParsingException;
 import org.slf4j.Logger;
@@ -44,7 +48,8 @@ import ddf.catalog.transform.CatalogTransformerException;
 /**
  * This class performs the searches when a client communicates with the cometd endpoint
  */
-public class SearchService extends AbstractService {
+@Service
+public class SearchService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CometdEndpoint.class);
 
@@ -107,6 +112,12 @@ public class SearchService extends AbstractService {
     private final FilterBuilder filterBuilder;
 
     private final SearchController searchController;
+    
+    @Inject
+    private BayeuxServer bayeux;
+    
+    @Session
+    private ServerSession serverSession;
 
     /**
      * Creates a new SearchService
@@ -120,13 +131,10 @@ public class SearchService extends AbstractService {
      * @param searchController
      *            - SearchController to handle async queries
      */
-    public SearchService(BayeuxServer bayeux, String name, FilterBuilder filterBuilder,
+    public SearchService(FilterBuilder filterBuilder, 
             SearchController searchController) {
-        super(bayeux, name);
         this.filterBuilder = filterBuilder;
         this.searchController = searchController;
-
-        addService("/service/query", "processQuery");
     }
 
     /**
@@ -137,6 +145,7 @@ public class SearchService extends AbstractService {
      * @param message
      *            - JSON message
      */
+    @Listener("/service/query")
     public void processQuery(final ServerSession remote, Message message) {
 
         ServerMessage.Mutable reply = new ServerMessageImpl();
@@ -144,7 +153,7 @@ public class SearchService extends AbstractService {
         Map<String, Object> queryMessage = message.getDataAsMap();
 
         if (queryMessage.containsKey(Search.GUID)) {
-            getBayeux().createChannelIfAbsent("/" + queryMessage.get(Search.GUID),
+            bayeux.createChannelIfAbsent("/" + queryMessage.get(Search.GUID),
                     new ConfigurableServerChannel.Initializer() {
                         public void configureChannel(ConfigurableServerChannel channel) {
                             channel.setPersistent(true);
@@ -155,15 +164,16 @@ public class SearchService extends AbstractService {
             executeQuery(queryMessage);
 
             reply.put(Search.SUCCESSFUL, true);
-            remote.deliver(getServerSession(), reply);
+            remote.deliver(serverSession, reply);
         } else {
             reply.put(Search.SUCCESSFUL, false);
             reply.put("status", "ERROR: unable to return results, no guid in query request");
-            remote.deliver(getServerSession(), reply);
+            remote.deliver(serverSession, reply);
         }
 
     }
 
+    @SuppressWarnings("unchecked")
     private <T> T castObject(Class<T> targetClass, Object o) {
         if (o != null) {
             if (o instanceof Number) {
@@ -280,7 +290,7 @@ public class SearchService extends AbstractService {
             SearchRequest searchRequest = new SearchRequest(queryList, queryFormat, guid);
 
             // Hand off to the search controller for the actual query
-            searchController.executeQuery(searchRequest, getServerSession());
+            searchController.executeQuery(searchRequest, serverSession);
         } catch (IllegalArgumentException iae) {
             LOGGER.warn("Bad input found while executing a query", iae);
         } catch (RuntimeException re) {

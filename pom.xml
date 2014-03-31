@@ -33,6 +33,44 @@
         <module>search-ui</module>
     </modules>
     
+    <properties>
+    	<cometd.version>2.7.0</cometd.version>
+    	<javax.inject.version>1</javax.inject.version>
+    	
+    	<!--  Third-party bundle versions. These should only be used in the features.xml file.
+    	      Any bundle dependent on classes from these jars should depend on the jar itself - 
+    	      not on the bundlized version. -->
+    	<javax.inject.bundle.version>${javax.inject.version}_2</javax.inject.bundle.version>
+    </properties>
+    
+    <dependencyManagement>
+    	<dependencies>
+	    	<dependency>
+	            <groupId>org.cometd.java</groupId>
+	            <artifactId>bayeux-api</artifactId>
+	            <version>${cometd.version}</version>
+	        </dependency>
+	        
+	        <dependency>
+	            <groupId>org.cometd.java</groupId>
+	            <artifactId>cometd-java-common</artifactId>
+	            <version>${cometd.version}</version>
+	        </dependency>
+	        
+	        <dependency>
+	            <groupId>org.cometd.java</groupId>
+	            <artifactId>cometd-java-server</artifactId>
+	            <version>${cometd.version}</version>
+	        </dependency>
+	        
+	        <dependency>
+	        	<groupId>org.cometd.java</groupId>
+	        	<artifactId>cometd-java-annotations</artifactId>
+	        	<version>${cometd.version}</version>
+	        </dependency>
+        </dependencies>
+    </dependencyManagement>
+    
 	<repositories>
 		<repository>
 			<id>codice</id>

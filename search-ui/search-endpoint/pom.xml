@@ -28,14 +28,29 @@
     <dependencies>
         <dependency>
             <groupId>org.cometd.java</groupId>
-            <artifactId>cometd-java-common</artifactId>
-            <version>2.7.0</version>
+            <artifactId>bayeux-api</artifactId>
         </dependency>
+        
+        <dependency>
+            <groupId>org.cometd.java</groupId>
+            <artifactId>cometd-java-common</artifactId>
+        </dependency>
+        
         <dependency>
             <groupId>org.cometd.java</groupId>
             <artifactId>cometd-java-server</artifactId>
-            <version>2.7.0</version>
         </dependency>
+        
+        <dependency>
+        	<groupId>org.cometd.java</groupId>
+        	<artifactId>cometd-java-annotations</artifactId>
+        </dependency>
+        
+        <dependency>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-core</artifactId>
+		</dependency>
+        
         <dependency>
         	<groupId>ddf.catalog.core</groupId>
         	<artifactId>catalog-core-api-impl</artifactId>
@@ -90,11 +105,6 @@
             <version>1.9.13</version>
         </dependency>
         <dependency>
-            <groupId>org.cometd.java</groupId>
-            <artifactId>bayeux-api</artifactId>
-            <version>2.7.0</version>
-        </dependency>
-        <dependency>
             <groupId>commons-collections</groupId>
             <artifactId>commons-collections</artifactId>
             <version>3.2.1</version>
@@ -110,7 +120,7 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Embed-Dependency>
-                            json-smart,ddf.catalog.opensearch,bayeux-api,cometd-java-common,cometd-java-server,jackson-mapper-asl,jackson-core-asl,catalog-core-api-impl
+                            json-smart,ddf.catalog.opensearch,bayeux-api,cometd-java-common,cometd-java-server,cometd-java-annotations,jackson-mapper-asl,jackson-core-asl,catalog-core-api-impl
                         </Embed-Dependency>
                         <Spring-Context>*;wait-for-dependencies:=true;timeout:=604800</Spring-Context>
                         <!-- Package uses conflict if we do not embed this -->

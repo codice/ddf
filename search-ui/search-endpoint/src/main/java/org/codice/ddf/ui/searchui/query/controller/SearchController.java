@@ -145,7 +145,7 @@ public class SearchController {
                                 searchRequest.getGuid(),
                                 controller.transform(
                                         search.getCompositeQueryResponse(), searchRequest), serverSession);
-                        if(search.isFinished()) {
+                        if (search.isFinished()) {
                             searchMap.remove(searchRequest.getGuid());
                         }
                     } catch (InterruptedException e) {

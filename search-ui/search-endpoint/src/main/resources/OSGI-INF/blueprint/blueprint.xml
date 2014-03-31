@@ -35,6 +35,7 @@
         <argument ref="comet"/>
         <argument ref="catalog"/>
         <argument ref="filterBuilder"/>
+        <argument ref="blueprintBundleContext" />
     </bean>
 
 

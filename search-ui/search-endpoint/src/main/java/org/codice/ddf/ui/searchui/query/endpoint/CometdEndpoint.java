@@ -16,14 +16,17 @@ package org.codice.ddf.ui.searchui.query.endpoint;
 
 import javax.servlet.ServletException;
 
+import org.codice.ddf.ui.searchui.query.controller.NotificationController;
 import org.codice.ddf.ui.searchui.query.controller.SearchController;
 import org.codice.ddf.ui.searchui.query.service.SearchService;
+import org.cometd.annotation.ServerAnnotationProcessor;
 import org.cometd.bayeux.server.BayeuxServer;
 import org.cometd.bayeux.server.ServerChannel;
 import org.cometd.bayeux.server.ServerMessage;
 import org.cometd.bayeux.server.ServerSession;
 import org.cometd.server.CometdServlet;
 import org.cometd.server.DefaultSecurityPolicy;
+import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,8 +34,8 @@ import ddf.catalog.CatalogFramework;
 import ddf.catalog.filter.FilterBuilder;
 
 /**
- * The CometdEndpoint binds the SearchService and the CometdServlet together. This is where the
- * asynchronous endpoint is initially started.
+ * The CometdEndpoint binds the SearchService and the CometdServlet together. 
+ * This is where the asynchronous endpoint is initially started.
  */
 public class CometdEndpoint {
 
@@ -43,10 +46,13 @@ public class CometdEndpoint {
     private final FilterBuilder filterBuilder;
 
     private SearchController searchController;
+    
+    private ServerAnnotationProcessor cometdAnnotationProcessor;
 
     BayeuxServer bayeuxServer;
-
+    NotificationController notificationController;
     SearchService searchService;
+    
 
     /**
      * Create a new CometdEndpoint
@@ -58,16 +64,20 @@ public class CometdEndpoint {
      * @param filterBuilder
      *            - FilterBuilder for the SearchService to use
      */
-    public CometdEndpoint(CometdServlet cometdServlet, CatalogFramework framework, FilterBuilder filterBuilder) {
+    public CometdEndpoint(CometdServlet cometdServlet, CatalogFramework framework, 
+            FilterBuilder filterBuilder, BundleContext bundleContext) {
         this.cometdServlet = cometdServlet;
         this.filterBuilder = filterBuilder;
         this.searchController = new SearchController(framework);
+        this.notificationController = new NotificationController(bundleContext);
     }
 
-    public void init() throws ServletException {
+    public void init() throws ServletException {        
         bayeuxServer = (BayeuxServer) cometdServlet.getServletContext().getAttribute(
                 BayeuxServer.ATTRIBUTE);
+        
         if (bayeuxServer != null) {
+            cometdAnnotationProcessor = new ServerAnnotationProcessor(bayeuxServer);
 
             //TODO: don't do this, we need some sort of policy
             bayeuxServer.setSecurityPolicy(new DefaultSecurityPolicy() {
@@ -81,6 +91,13 @@ public class CometdEndpoint {
                 @Override
                 public boolean canHandshake(BayeuxServer server, ServerSession session,
                         ServerMessage message) {
+                    
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug("canHandshake ServerSession: " + session 
+                                + "\ncanHandshake ServerMessage: " + message);
+                    }
+                    
+                    notificationController.registerUserSession(session, message);
                     return true;
                 }
 
@@ -97,9 +114,11 @@ public class CometdEndpoint {
                 }
 
             });
+                 
             searchController.setBayeuxServer(bayeuxServer);
-            LOGGER.debug("Creating SearchService");
-            searchService = new SearchService(bayeuxServer, "SearchService", filterBuilder, searchController);
+            searchService = new SearchService(filterBuilder, searchController);
+            cometdAnnotationProcessor.process(searchService);
+            cometdAnnotationProcessor.process(notificationController);
         }
     }
 
