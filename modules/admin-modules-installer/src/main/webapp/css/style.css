@@ -36,14 +36,16 @@
 .scroll-area {
     position: relative;
     overflow: hidden;
-    bottom: 0px;
+    bottom: 0;
 }
 #config-form {
     background-color: rgba(255, 255, 255, 1);
     /*border: solid 1px #DDD;*/
     /*box-shadow: rgba(0,0,0,0.2) 1px 1px 1px, inset rgba(0,0,0,0.2) -1px -1px 2px;*/
 }
-.error-text {
+.app-node li {
+    list-style: none;
+}.error-text {
     color: red;
     padding-bottom: 20px;
     display: block;

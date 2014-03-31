@@ -1,1 +1,7 @@
-<li><input type="checkbox" name="selected" {{selected}}> {{name}} : {{version}} : {{description}}</li>
+<li id="{{name}}"><input type="checkbox" name="selected" {{selected}}> {{displayName}}
+    {{#if description}}
+        <a href='#' class='description' data-title='desc-{{name}}'>
+            <i class='glyphicon glyphicon-question-sign'></i>
+        </a>
+    {{/if}}
+</li>

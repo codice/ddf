@@ -61,10 +61,48 @@ define(function (require) {
        initialize: function(){
            "use strict";
            var children = this.get("children");
+           var that = this;
+           this.set({displayName: this.createDisplayName()});
            if (children){
-               this.children = new Applications.TreeNodeCollection(children);
-               this.unset("children");
+               this.set({children: new Applications.TreeNodeCollection(children)});
+               this.get("children").forEach(function (child) {
+                   child.set({parent: that});
+               });
            }
+           this.listenTo(this, "change", this.updateModel);
+       },
+       updateModel: function(){
+           "use strict";
+         if (this.get("selected")) {
+             if (this.get("parent")) {
+             this.get("parent").set({selected: true});
+             }
+         } else if (this.get("children").length){
+             this.get("children").forEach(function(child) {
+                 child.set({selected: false});
+             });
+         }
+       },
+
+       createDisplayName: function(){
+           "use strict";
+           var names = this.get("name").split('-');
+           var dispName = "";
+           for (var i=0; i < names.length; i++) {
+               if (i > 0) {
+                   dispName = dispName + " ";
+               }
+               dispName = dispName + this.capitalizeFirstLetter(names[i]);
+           }
+           return dispName;
+       },
+
+       capitalizeFirstLetter: function(string){
+           "use strict";
+           if (string && string !== ""){
+               return string.charAt(0).toUpperCase() + string.slice(1);
+           }
+            return string;
        }
     });
 

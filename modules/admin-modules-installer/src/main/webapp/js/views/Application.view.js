@@ -60,7 +60,7 @@ define(function (require) {
         },
         {
             "description": null,
-            "name": "ddf-2.3.1-SNAPSHOT",
+            "name": "ddf-231-SNAPSHOT",
             "children": [],
             "version": "0.0.0"
         },
@@ -133,7 +133,7 @@ define(function (require) {
             // grab all the child collections from the parent model
             // so that we can render the collection as children of
             // this parent model
-            this.collection = this.model.children;
+            this.collection = this.model.get("children");
             this.modelBinder = new Backbone.ModelBinder();
         },
 
@@ -142,7 +142,7 @@ define(function (require) {
         },
 
         bind: function(){
-            var bindings = {selected: '[name=selected]'};
+            var bindings = {selected: '#'+this.model.get("name")+' > [name=selected]'};
             this.modelBinder.bind(this.model, this.el, bindings);
         },
         appendHtml: function(collectionView, itemView) {
