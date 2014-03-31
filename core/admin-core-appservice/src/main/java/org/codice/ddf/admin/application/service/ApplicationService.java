@@ -30,7 +30,7 @@ public interface ApplicationService {
      * 
      * @return Set of applications.
      */
-    public Set<Application> getApplications();
+    Set<Application> getApplications();
 
     /**
      * Determine if an application is currently started.
@@ -41,7 +41,57 @@ public interface ApplicationService {
      *         <b>FAILED</b>, <b>INACTIVE</b>, or <b>UNKNOWN</b>.
      * @see org.codice.ddf.admin.application.service.ApplicationStatus.ApplicationState
      */
-    public boolean isApplicationStarted(Application application);
+    boolean isApplicationStarted(Application application);
+
+    /**
+     * Starts an application, including any defined dependencies in the
+     * application.
+     * 
+     * @param application
+     *            Application instance to start.
+     * @throws ApplicationServiceException
+     *             If the application cannot start due to an error, the
+     *             exception will be thrown with the error message.
+     */
+    void startApplication(Application application) throws ApplicationServiceException;
+
+    /**
+     * Starts an application, including any defined dependencies in the
+     * application.
+     * 
+     * @param application
+     *            Name of the application to start.
+     * @throws ApplicationServiceException
+     *             If the application cannot start due to an error, the
+     *             exception will be thrown with the error message.
+     */
+    void startApplication(String application) throws ApplicationServiceException;
+
+    /**
+     * Stops an application, does not include any transitive dependencies as
+     * they may be needed by other applications.
+     * 
+     * @param application
+     *            Application instance to stop.
+     * @throws ApplicationServiceException
+     *             If the application cannot stop due to an error (or it is not
+     *             started), the exception will be thrown with the error
+     *             message.
+     */
+    void stopApplication(Application application) throws ApplicationServiceException;
+
+    /**
+     * Stops an application, does not include any transitive dependencies as
+     * they may be needed by other applications.
+     * 
+     * @param application
+     *            Name of the application to stop.
+     * @throws ApplicationServiceException
+     *             If the application cannot stop due to an error (or it is not
+     *             started), the exception will be thrown with the error
+     *             message.
+     */
+    void stopApplication(String application) throws ApplicationServiceException;
 
     /**
      * Retrieve the status for the given application.
@@ -50,9 +100,16 @@ public interface ApplicationService {
      *            Application to obtain status for.
      * @return Status for the application.
      */
-    public ApplicationStatus getApplicationStatus(Application application);
+    ApplicationStatus getApplicationStatus(Application application);
 
-    public Set<ApplicationNode> getApplicationTree();
+    /**
+     * Creates a hierarchy tree of application nodes that show the relationship
+     * between applications.
+     * 
+     * @return set of the root application nodes that will contain all other
+     *         applications as their children.
+     */
+    Set<ApplicationNode> getApplicationTree();
 
     /**
      * Determine which application contains a certain feature.
@@ -61,6 +118,6 @@ public interface ApplicationService {
      *            The feature to search for.
      * @return The application which contains that feature.
      */
-    public Application findFeature(Feature feature);
+    Application findFeature(Feature feature);
 
 }

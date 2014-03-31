@@ -16,12 +16,34 @@ package org.codice.ddf.admin.application.service;
 
 import java.util.Set;
 
+/**
+ * Node for applications that is used to create a hierarchy tree that shows
+ * application dependencies.
+ * 
+ */
 public interface ApplicationNode {
 
-    public Application getApplication();
+    /**
+     * Returns the application this node is referencing.
+     * 
+     * @return application for this node
+     */
+    Application getApplication();
 
-    public ApplicationNode getParent();
+    /**
+     * Returns the parent of the application.
+     * 
+     * @return Parent node of this application or null if application has no
+     *         parent.
+     */
+    ApplicationNode getParent();
 
-    public Set<ApplicationNode> getChildren();
+    /**
+     * Returns the children of this application. That is, the applications that
+     * have a requirement on this application.
+     * 
+     * @return A set of children of this application.
+     */
+    Set<ApplicationNode> getChildren();
 
 }

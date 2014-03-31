@@ -36,6 +36,17 @@
     <command name="app/tree">
       <action class="org.codice.ddf.admin.application.service.impl.TreeApplicationCommand" />
     </command>
+    <command name="app/start">
+      <action class="org.codice.ddf.admin.application.service.impl.StartApplicationCommand" />
+    </command>
+    <command name="app/stop">
+      <action class="org.codice.ddf.admin.application.service.impl.StopApplicationCommand" />
+    </command>
   </command-bundle>
+
+  <bean id="appServiceMBean" class="org.codice.ddf.admin.application.service.impl.ApplicationServiceBean" init-method="init"
+    destroy-method="destroy">
+    <argument ref="appService" />
+  </bean>
 
 </blueprint>

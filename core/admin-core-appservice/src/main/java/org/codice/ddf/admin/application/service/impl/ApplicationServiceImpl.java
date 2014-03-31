@@ -32,6 +32,7 @@ import org.apache.karaf.features.Repository;
 import org.codice.ddf.admin.application.service.Application;
 import org.codice.ddf.admin.application.service.ApplicationNode;
 import org.codice.ddf.admin.application.service.ApplicationService;
+import org.codice.ddf.admin.application.service.ApplicationServiceException;
 import org.codice.ddf.admin.application.service.ApplicationStatus;
 import org.codice.ddf.admin.application.service.ApplicationStatus.ApplicationState;
 import org.osgi.framework.Bundle;
@@ -50,14 +51,26 @@ public class ApplicationServiceImpl implements ApplicationService {
 
     private Logger logger = LoggerFactory.getLogger(ApplicationServiceImpl.class);
 
-    FeaturesService featuresService = null;
+    private FeaturesService featuresService = null;
 
-    BundleContext context = null;
+    private BundleContext context = null;
 
-    List<BundleStateService> bundleStateServices = null;
+    private List<BundleStateService> bundleStateServices = null;
 
-    Set<String> ignoredApplicationNames = null;
+    private Set<String> ignoredApplicationNames = null;
 
+    /**
+     * Creates a new instance of Application Service.
+     * 
+     * @param featureService
+     *            The internal features service exposed by Karaf.
+     * @param context
+     *            BundleContext for this bundle.
+     * @param bundleStateServices
+     *            List of BundleStateServices that allow fine-grained
+     *            information about bundle status for deployment services (like
+     *            blueprint and spring).
+     */
     public ApplicationServiceImpl(FeaturesService featureService, BundleContext context,
             List<BundleStateService> bundleStateServices) {
         this.featuresService = featureService;
@@ -74,8 +87,15 @@ public class ApplicationServiceImpl implements ApplicationService {
         Set<Application> applications = new HashSet<Application>(repos.length);
         for (int i = 0; i < repos.length; i++) {
             Application newApp = new ApplicationImpl(repos[i]);
-            if (!ignoredApplicationNames.contains(newApp.getName())) {
-                applications.add(newApp);
+            try {
+                if (!ignoredApplicationNames.contains(newApp.getName())
+                        && newApp.getFeatures().size() > 0) {
+                    applications.add(newApp);
+                }
+            } catch (ApplicationServiceException ase) {
+                logger.warn("Exception while trying to find information for application named "
+                        + newApp.getName() + ". It will be excluded from the application list.",
+                        ase);
             }
         }
         return new TreeSet<Application>(applications);
@@ -140,6 +160,7 @@ public class ApplicationServiceImpl implements ApplicationService {
                 ignoredApplicationNames);
     }
 
+    @Override
     public Set<ApplicationNode> getApplicationTree() {
         Set<ApplicationNode> applicationTree = new TreeSet<ApplicationNode>();
         Set<Application> applicationSet = getApplications();
@@ -293,7 +314,7 @@ public class ApplicationServiceImpl implements ApplicationService {
 
                     // check if any service frameworks failed on start
                     for (BundleStateService curStateService : bundleStateServices) {
-                        logger.debug("Checking {} for bundle state of {}.",
+                        logger.trace("Checking {} for bundle state of {}.",
                                 curStateService.getName(), curBundle.getSymbolicName());
                         BundleState curState = curStateService.getState(curBundle);
                         if (!curState.equals(BundleState.Active)
@@ -326,6 +347,76 @@ public class ApplicationServiceImpl implements ApplicationService {
             }
         }
         return badFeatures;
+    }
+
+    @Override
+    public void startApplication(Application application) throws ApplicationServiceException {
+        try {
+            if (application.getMainFeature() != null) {
+                featuresService.installFeature(application.getMainFeature().getName());
+            } else {
+                logger.debug(
+                        "Main feature not found when trying to start {}, going through and manually starting all features with install=auto",
+                        application.getName());
+                for (Feature curFeature : application.getFeatures()) {
+                    if (curFeature.getInstall().equalsIgnoreCase(Feature.DEFAULT_INSTALL_MODE)) {
+                        logger.debug("Installing feature {} for application {}",
+                                curFeature.getName(), application.getName());
+                        featuresService.installFeature(curFeature.getName());
+                    }
+                }
+            }
+        } catch (Exception e) {
+            throw new ApplicationServiceException("Could not start application "
+                    + application.getName() + " due to errors.", e);
+        }
+    }
+
+    @Override
+    public void startApplication(String application) throws ApplicationServiceException {
+        for (Application curApp : getApplications()) {
+            if (curApp.getName().equals(application)) {
+                startApplication(curApp);
+                return;
+            }
+        }
+        throw new ApplicationServiceException("Could not find application named " + application
+                + ". Start application failed.");
+    }
+
+    @Override
+    public void stopApplication(Application application) throws ApplicationServiceException {
+        try {
+            if (application.getMainFeature() != null) {
+                featuresService.uninstallFeature(application.getMainFeature().getName());
+            } else {
+                logger.debug(
+                        "Main feature not found when trying to stop {}, going through and manually stop all features that are installed.",
+                        application.getName());
+                for (Feature curFeature : application.getFeatures()) {
+                    if (featuresService.isInstalled(curFeature)) {
+                        logger.debug("Uninstalling feature {} for application {}",
+                                curFeature.getName(), application.getName());
+                        featuresService.uninstallFeature(curFeature.getName());
+                    }
+                }
+            }
+        } catch (Exception e) {
+            throw new ApplicationServiceException("Could not stop application "
+                    + application.getName() + " due to errors.", e);
+        }
+    }
+
+    @Override
+    public void stopApplication(String application) throws ApplicationServiceException {
+        for (Application curApp : getApplications()) {
+            if (curApp.getName().equals(application)) {
+                stopApplication(curApp);
+                return;
+            }
+        }
+        throw new ApplicationServiceException("Could not find application named " + application
+                + ". Stop application failed.");
     }
 
 }

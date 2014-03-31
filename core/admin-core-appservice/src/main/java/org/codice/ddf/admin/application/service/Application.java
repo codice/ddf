@@ -32,21 +32,21 @@ public interface Application {
      * 
      * @return name
      */
-    public String getName();
+    String getName();
 
     /**
      * Version of the application
      * 
      * @return version
      */
-    public String getVersion();
+    String getVersion();
 
     /**
      * Short description of the application.
      * 
      * @return description
      */
-    public String getDescription();
+    String getDescription();
 
     /**
      * Gets the features that this application contains. This includes
@@ -56,18 +56,16 @@ public interface Application {
      * @return Set of the features located within the application
      * @throws ApplicationServiceException
      */
-    public Set<Feature> getFeatures() throws ApplicationServiceException;
+    Set<Feature> getFeatures() throws ApplicationServiceException;
 
     /**
      * If applicable, returns the single feature in the application that is
      * auto-started. By definition, this feature is considered to be the main
      * one that, in-turn, starts the rest of the application in the correct order.
      * 
-     * @return Main feature that is auto-started.
-     * @throws ApplicationServiceException
-     *             If no main feature exists.
+     * @return Main feature that is auto-started, null if no such feature exists.
      */
-    public Feature getMainFeature() throws ApplicationServiceException;
+    Feature getMainFeature();
 
     /**
      * Gets all of the bundles that this application contains. These bundles are
@@ -76,6 +74,6 @@ public interface Application {
      * @return Set of the bundles located within the application.
      * @throws ApplicationServiceException
      */
-    public Set<BundleInfo> getBundles() throws ApplicationServiceException;
+    Set<BundleInfo> getBundles() throws ApplicationServiceException;
 
 }

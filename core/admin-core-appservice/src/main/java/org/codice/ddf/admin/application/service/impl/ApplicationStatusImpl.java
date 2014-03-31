@@ -25,8 +25,8 @@ import org.osgi.framework.Bundle;
 /**
  * Implementation of ApplicationStatus. Exposes information that was passed in
  * through the constructor.
- *
- *
+ * 
+ * 
  */
 public class ApplicationStatusImpl implements ApplicationStatus {
 
@@ -38,6 +38,18 @@ public class ApplicationStatusImpl implements ApplicationStatus {
 
     private Set<Bundle> errorBundles = null;
 
+    /**
+     * Creates a new instance of application status.
+     * 
+     * @param application
+     *            The application this status is for.
+     * @param installState
+     *            The state of the application.
+     * @param errorFeatures
+     *            Set of features that are in an error state.
+     * @param errorBundles
+     *            Set of bundles that are in an error state.
+     */
     public ApplicationStatusImpl(Application application, ApplicationState installState,
             Set<Feature> errorFeatures, Set<Bundle> errorBundles) {
         this.application = application;

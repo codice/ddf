@@ -15,7 +15,9 @@
 package org.codice.ddf.platform.status.impl;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
@@ -35,7 +37,7 @@ import org.junit.Test;
 /**
  * Tests out the ApplicationImpl code to make sure it is following the interface
  * specification.
- *
+ * 
  */
 public class ApplicationImplTest {
 
@@ -47,7 +49,7 @@ public class ApplicationImplTest {
     /**
      * Verify that the application is properly exposing the underlying
      * repository.
-     *
+     * 
      * @throws Exception
      */
     @Test
@@ -63,6 +65,7 @@ public class ApplicationImplTest {
         assertNotNull(appFeatures);
         assertEquals(repo.getFeatures().length, appFeatures.size());
         assertTrue(appFeatures.containsAll(Arrays.asList(repo.getFeatures())));
+        assertNull(testApp.getMainFeature());
 
         assertEquals(NUM_BUNDLES, testApp.getBundles().size());
     }
@@ -74,6 +77,49 @@ public class ApplicationImplTest {
 
         new ApplicationImpl(repo).getFeatures();
         fail("Should have thrown an exception.");
+
+    }
+
+    @Test
+    public void testMainFeature() throws Exception {
+        String mainFeatureName = "main-feature";
+        String mainFeatureVersion = "1.0.1";
+        String mainFeatureDescription = "Main Feature Test";
+        String appToString = mainFeatureName + " - " + mainFeatureVersion;
+        RepositoryImpl repo = new RepositoryImpl(getClass().getClassLoader()
+                .getResource("test-mainfeatures.xml").toURI());
+        repo.load();
+        Application testApp = new ApplicationImpl(repo);
+
+        assertEquals(mainFeatureName, testApp.getName());
+        assertEquals(mainFeatureVersion, testApp.getVersion());
+        assertEquals(mainFeatureDescription, testApp.getDescription());
+        assertNotNull(testApp.toString());
+        assertEquals(appToString, testApp.toString());
+
+        assertNotNull(testApp.getMainFeature());
+    }
+
+    @Test
+    public void testAppEquality() throws Exception {
+        RepositoryImpl repo1 = new RepositoryImpl(getClass().getClassLoader()
+                .getResource("test-mainfeatures.xml").toURI());
+        repo1.load();
+        Application testApp1 = new ApplicationImpl(repo1);
+        Application testApp1Duplicate = new ApplicationImpl(repo1);
+        Application testAppNull = null;
+
+        RepositoryImpl repo2 = new RepositoryImpl(getClass().getClassLoader()
+                .getResource("test-features.xml").toURI());
+        repo2.load();
+        Application testApp2 = new ApplicationImpl(repo2);
+
+        assertTrue(testApp1.equals(testApp1));
+        assertTrue(testApp2.equals(testApp2));
+        assertTrue(testApp1.equals(testApp1Duplicate));
+        assertFalse(testApp1.equals(testApp2));
+        assertFalse(testApp2.equals(testApp1));
+        assertFalse(testApp1.equals(testAppNull));
 
     }
 

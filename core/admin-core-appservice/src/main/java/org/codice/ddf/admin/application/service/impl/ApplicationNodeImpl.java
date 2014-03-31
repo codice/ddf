@@ -14,12 +14,17 @@
  **/
 package org.codice.ddf.admin.application.service.impl;
 
-import java.util.HashSet;
 import java.util.Set;
+import java.util.TreeSet;
 
 import org.codice.ddf.admin.application.service.Application;
 import org.codice.ddf.admin.application.service.ApplicationNode;
 
+/**
+ * Implementation of an ApplicationNode. This Node is used to help form a
+ * hierarchy tree for application relationships.
+ * 
+ */
 public class ApplicationNodeImpl implements ApplicationNode, Comparable<ApplicationNode> {
 
     private Application application;
@@ -28,23 +33,38 @@ public class ApplicationNodeImpl implements ApplicationNode, Comparable<Applicat
 
     private Set<ApplicationNode> children;
 
+    /**
+     * Creates a new instance of an ApplicationNode.
+     * 
+     * @param application
+     *            The application that this node corresponds to.
+     */
     public ApplicationNodeImpl(Application application) {
         this.application = application;
-        this.children = new HashSet<ApplicationNode>();
+        this.children = new TreeSet<ApplicationNode>();
     }
 
+    @Override
     public Application getApplication() {
         return application;
     }
 
+    /**
+     * Sets the parent for this application.
+     * 
+     * @param parent
+     *            Application Node that this application depends on.
+     */
     public void setParent(ApplicationNode parent) {
         this.parent = parent;
     }
 
+    @Override
     public ApplicationNode getParent() {
         return parent;
     }
 
+    @Override
     public Set<ApplicationNode> getChildren() {
         return children;
     }
@@ -56,7 +76,14 @@ public class ApplicationNodeImpl implements ApplicationNode, Comparable<Applicat
 
     @Override
     public boolean equals(Object obj) {
-        return application.equals(obj);
+        if (obj == null) {
+            return false;
+        } else if (obj == this) {
+            return true;
+        } else if (!(obj instanceof ApplicationNode)) {
+            return false;
+        }
+        return application.equals(((ApplicationNode) obj).getApplication());
     }
 
     @Override

@@ -22,6 +22,7 @@ import org.apache.felix.gogo.commands.Command;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
 import org.codice.ddf.admin.application.service.Application;
 import org.codice.ddf.admin.application.service.ApplicationService;
+import org.codice.ddf.admin.application.service.ApplicationServiceException;
 import org.codice.ddf.admin.application.service.ApplicationStatus;
 import org.codice.ddf.admin.application.service.ApplicationStatus.ApplicationState;
 import org.fusesource.jansi.Ansi;
@@ -30,7 +31,7 @@ import org.osgi.framework.ServiceReference;
 /**
  * Utilizes the OSGi Command Shell in Karaf and lists all available
  * applications.
- *
+ * 
  */
 @Command(scope = "app", name = "list", description = "Lists the applications that are in the system and gives their current state. \n\tThere are four possible states:\n\t\tACTIVE: no errors, started successfully\n\t\tFAILED: errors occurred while trying to start\n\t\tINACTIVE: nothing from the app is installed\n\t\tUNKNOWN: could not determine status.")
 public class ListApplicationCommand extends OsgiCommandSupport {
@@ -47,25 +48,25 @@ public class ListApplicationCommand extends OsgiCommandSupport {
     }
 
     @Override
-    protected Object doExecute() throws Exception {
+    protected Object doExecute() throws ApplicationServiceException {
 
         PrintStream console = System.out;
 
-        ServiceReference ref = getBundleContext().getServiceReference(
-                ApplicationService.class.getName());
+        ServiceReference<ApplicationService> ref = getBundleContext().getServiceReference(
+                ApplicationService.class);
 
         if (ref == null) {
             console.println("Application Status service is unavailable.");
             return null;
         }
         try {
-            ApplicationService appService = (ApplicationService) getBundleContext().getService(ref);
+            ApplicationService appService = getBundleContext().getService(ref);
             if (appService == null) {
                 console.println("Application Status service is unavailable.");
                 return null;
             }
             Set<Application> applications = appService.getApplications();
-            console.printf("%s%10s\n", "State", "Name");
+            console.printf("%s%10s%n", "State", "Name");
             for (Application curApp : applications) {
                 ApplicationStatus appStatus = appService.getApplicationStatus(curApp);
                 // only show applications that have features (gets rid of repo

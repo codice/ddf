@@ -22,7 +22,7 @@ import org.osgi.framework.Bundle;
 /**
  * Class that describes the status of an application. If application has errored
  * out, it shows which components of the application did not start correctly.
- *
+ * 
  */
 public interface ApplicationStatus {
 
@@ -35,39 +35,39 @@ public interface ApplicationStatus {
      * <b>FAILED</b>: errors occurred while trying to start <br/>
      * <b>INACTIVE</b>: nothing from the app is installed <br/>
      * <b>UNKNOWN</b>: could not determine status <br/>
-     *
-     *
+     * 
+     * 
      */
-    public enum ApplicationState {
+    enum ApplicationState {
         ACTIVE, FAILED, INACTIVE, UNKNOWN
     }
 
     /**
      * Application this status is for.
-     *
+     * 
      * @return The application associated to this status.
      */
-    public Application getApplication();
+    Application getApplication();
 
     /**
      * Retrieves the state of the current application.
-     *
+     * 
      * @return {@link ApplicationState} for the current application
      */
-    public ApplicationState getState();
+    ApplicationState getState();
 
     /**
      * Gets the features for this application that are not properly installed.
-     *
+     * 
      * @return Set of features that did not install.
      */
-    public Set<Feature> getErrorFeatures();
+    Set<Feature> getErrorFeatures();
 
     /**
      * Gets the bundles for this application that are not properly installed.
-     *
+     * 
      * @return Set of bundles that did not install.
      */
-    public Set<Bundle> getErrorBundles();
+    Set<Bundle> getErrorBundles();
 
 }

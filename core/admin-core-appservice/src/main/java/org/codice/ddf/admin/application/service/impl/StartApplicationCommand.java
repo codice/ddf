@@ -15,22 +15,23 @@
 package org.codice.ddf.admin.application.service.impl;
 
 import java.io.PrintStream;
-import java.util.Set;
 
+import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
-import org.codice.ddf.admin.application.service.ApplicationNode;
 import org.codice.ddf.admin.application.service.ApplicationService;
 import org.codice.ddf.admin.application.service.ApplicationServiceException;
 import org.osgi.framework.ServiceReference;
 
 /**
- * Utilizes the OSGi Command Shell in Karaf and lists all available
- * applications.
+ * Utilizes the OSGi Command Shell in Karaf and starts a given application.
  * 
  */
-@Command(scope = "app", name = "tree", description = "Creates a hierarchy tree of all of the applications.")
-public class TreeApplicationCommand extends OsgiCommandSupport {
+@Command(scope = "app", name = "start", description = "Starts an application with the given name.")
+public class StartApplicationCommand extends OsgiCommandSupport {
+
+    @Argument(index = 0, name = "appName", description = "Name of the application to start.", required = true, multiValued = false)
+    String appName;
 
     @Override
     protected Object doExecute() throws ApplicationServiceException {
@@ -51,28 +52,12 @@ public class TreeApplicationCommand extends OsgiCommandSupport {
                 return null;
             }
 
-            // node for the application tree
-            Set<ApplicationNode> rootApplications = appService.getApplicationTree();
-            for (ApplicationNode curRoot : rootApplications) {
-                printNode(curRoot, "");
-            }
+            appService.startApplication(appName);
 
         } finally {
             getBundleContext().ungetService(ref);
         }
         return null;
-    }
-
-    private void printNode(ApplicationNode appNode, String appender) {
-        PrintStream console = System.out;
-        String appendStr = appender;
-
-        console.println(appendStr + "+- " + appNode.getApplication().getName());
-        appendStr += "|   ";
-        for (ApplicationNode curChild : appNode.getChildren()) {
-            printNode(curChild, appendStr);
-        }
-
     }
 
 }

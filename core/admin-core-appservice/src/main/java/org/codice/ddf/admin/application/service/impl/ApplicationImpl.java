@@ -14,6 +14,7 @@
  **/
 package org.codice.ddf.admin.application.service.impl;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -50,12 +51,19 @@ public class ApplicationImpl implements Application, Comparable<Application> {
 
     private String description;
 
+    /**
+     * Creates a new instance of application.
+     * 
+     * @param repo
+     *            Creates the application from a Karaf Feature Repository
+     *            object.
+     */
     public ApplicationImpl(Repository repo) {
         try {
             features = new HashSet<Feature>(Arrays.asList(repo.getFeatures()));
             List<Feature> autoFeatures = new ArrayList<Feature>();
             for (Feature curFeature : features) {
-                if (curFeature.getInstall().equalsIgnoreCase("auto")) {
+                if (curFeature.getInstall().equalsIgnoreCase(Feature.DEFAULT_INSTALL_MODE)) {
                     autoFeatures.add(curFeature);
                 }
             }
@@ -103,13 +111,8 @@ public class ApplicationImpl implements Application, Comparable<Application> {
     }
 
     @Override
-    public Feature getMainFeature() throws ApplicationServiceException {
-        if (mainFeature != null) {
-            return mainFeature;
-        } else {
-            throw new ApplicationServiceException("No main feature found in application " + name
-                    + " check the feature definition for errors.");
-        }
+    public Feature getMainFeature() {
+        return mainFeature;
     }
 
     @Override
@@ -121,7 +124,7 @@ public class ApplicationImpl implements Application, Comparable<Application> {
 
         return bundles;
     }
-    
+
     @Override
     public String toString() {
         return name + " - " + version;
@@ -156,7 +159,9 @@ public class ApplicationImpl implements Application, Comparable<Application> {
         }
     }
 
-    private class BundleInfoComparator implements Comparator<BundleInfo> {
+    private static class BundleInfoComparator implements Comparator<BundleInfo>, Serializable {
+
+        private static final long serialVersionUID = 1L;
 
         @Override
         public int compare(BundleInfo bundle1, BundleInfo bundle2) {
