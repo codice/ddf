@@ -153,7 +153,7 @@ public class IngestCommand extends CatalogCommands {
                             } catch (IngestException e) {
                                 result = null;
                                 console.println(Ansi.ansi().fg(Ansi.Color.RED).toString()
-                                        + "Unable to ingest file [" + file.getAbsolutePath() + "]."
+                                        + "Failed to ingest file [" + file.getAbsolutePath() + "]."
                                         + Ansi.ansi().reset().toString());
                                 console.println(Ansi.ansi().fg(Ansi.Color.RED).toString()
                                         + e.getMessage() + Ansi.ansi().reset().toString());
@@ -219,7 +219,7 @@ public class IngestCommand extends CatalogCommands {
                         result = readMetacard(file);
                     } catch (IngestException e) {
                         console.println(Ansi.ansi().fg(Ansi.Color.RED).toString()
-                                + "Unable to ingest file [" + file.getAbsolutePath() + "]."
+                                + "Failed to ingest file [" + file.getAbsolutePath() + "]."
                                 + Ansi.ansi().reset().toString());
                         console.println(Ansi.ansi().fg(Ansi.Color.RED).toString() + e.getMessage()
                                 + Ansi.ansi().reset().toString());
@@ -271,7 +271,7 @@ public class IngestCommand extends CatalogCommands {
             } catch(IngestException e) {
                 result = null;
                 console.println(Ansi.ansi().fg(Ansi.Color.RED).toString()
-                        + "Unable to ingest file [" + inputFile.getAbsolutePath() + "]."
+                        + "Failed to ingest file [" + inputFile.getAbsolutePath() + "]."
                         + Ansi.ansi().reset().toString());
                 console.println(Ansi.ansi().fg(Ansi.Color.RED).toString() + e.getMessage()
                         + Ansi.ansi().reset().toString());
