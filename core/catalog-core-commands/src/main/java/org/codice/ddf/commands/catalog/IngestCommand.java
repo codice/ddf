@@ -41,7 +41,6 @@ import org.osgi.framework.ServiceReference;
 
 import ddf.catalog.Constants;
 import ddf.catalog.data.Metacard;
-import ddf.catalog.data.MetacardCreationException;
 import ddf.catalog.operation.CreateRequest;
 import ddf.catalog.operation.CreateResponse;
 import ddf.catalog.operation.impl.CreateRequestImpl;
@@ -154,7 +153,7 @@ public class IngestCommand extends CatalogCommands {
                             } catch (IngestException e) {
                                 result = null;
                                 console.println(Ansi.ansi().fg(Ansi.Color.RED).toString()
-                                        + "Unable to read [" + file.getAbsolutePath() + "]."
+                                        + "Unable to ingest file [" + file.getAbsolutePath() + "]."
                                         + Ansi.ansi().reset().toString());
                                 console.println(Ansi.ansi().fg(Ansi.Color.RED).toString()
                                         + e.getMessage() + Ansi.ansi().reset().toString());
@@ -173,13 +172,9 @@ public class IngestCommand extends CatalogCommands {
                                     createResponse = catalog.create(createRequest);
                                 } catch (IngestException e) {
                                     // don't display the error here, or you'll get an entire screen
-                                    // full
-                                    // of them
-                                    // need to shutdown on an ingest error so that we capture ctrl+c
-                                    // in
-                                    // the console
-                                    // shutdownNow causes the threadpool to die and then we can exit
-                                    // semi-gracefully
+                                    // full of them need to shutdown on an ingest error so that we capture 
+                                    // ctrl+c in the console shutdownNow causes the threadpool to die and 
+                                    // then we can exit  semi-gracefully
                                     // console.printf(e.getMessage());
                                     createResponse = null;
                                     if (failedIngestDirectory == null) {
@@ -224,7 +219,7 @@ public class IngestCommand extends CatalogCommands {
                         result = readMetacard(file);
                     } catch (IngestException e) {
                         console.println(Ansi.ansi().fg(Ansi.Color.RED).toString()
-                                + "Unable to read [" + file.getAbsolutePath() + "]."
+                                + "Unable to ingest file [" + file.getAbsolutePath() + "]."
                                 + Ansi.ansi().reset().toString());
                         console.println(Ansi.ansi().fg(Ansi.Color.RED).toString() + e.getMessage()
                                 + Ansi.ansi().reset().toString());
@@ -276,7 +271,7 @@ public class IngestCommand extends CatalogCommands {
             } catch(IngestException e) {
                 result = null;
                 console.println(Ansi.ansi().fg(Ansi.Color.RED).toString()
-                        + "Unable to read [" + inputFile.getAbsolutePath() + "]."
+                        + "Unable to ingest file [" + inputFile.getAbsolutePath() + "]."
                         + Ansi.ansi().reset().toString());
                 console.println(Ansi.ansi().fg(Ansi.Color.RED).toString() + e.getMessage()
                         + Ansi.ansi().reset().toString());
@@ -366,7 +361,7 @@ public class IngestCommand extends CatalogCommands {
 
         FileInputStream fis = null;
         ObjectInputStream ois = null;
-        
+
         try {
             if (DEFAULT_TRANSFORMER_ID.matches(transformerId)) {
                 ois = new ObjectInputStream(new FileInputStream(file));
@@ -377,7 +372,13 @@ public class IngestCommand extends CatalogCommands {
                 result = generateMetacard(fis);
                 fis.close();
             }
-        } catch (Exception e) {
+        } catch (IOException e) {
+            throw new IngestException(e);
+        } catch (ClassNotFoundException e) {
+            throw new IngestException(e);
+        } catch (IllegalArgumentException e) {
+            throw new IngestException(e);
+        } finally {
             if (fis != null) {
                 try {
                     fis.close();
@@ -393,15 +394,12 @@ public class IngestCommand extends CatalogCommands {
                     console.println(e2);
                 }
             }
-
-            throw new IngestException(e);
         }
-        
+
         return result;
     }
 
-    private Metacard generateMetacard(InputStream message) throws MetacardCreationException,
-        IOException, CatalogTransformerException, InterruptedException {
+    private Metacard generateMetacard(InputStream message) throws IOException  {
 
         BundleContext bundleContext = getBundleContext();
 
