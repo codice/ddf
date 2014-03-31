@@ -25,19 +25,21 @@ public interface HttpProxyService {
      * 
      * @param targetUri
      * @param timeout
+     *            - in milliseconds
      * @return
      * @throws Exception
      */
     public String start(String targetUri, Integer timeout) throws Exception;
 	
 	
-	    /**
+	        /**
      * Creates and starts a proxy given an endpoint name and target Uri. Endpoint name will be
      * returned.
      * 
      * @param endpointName
      * @param targetUri
      * @param timeout
+     *            - in milliseconds
      * @return
      * @throws Exception
      */
