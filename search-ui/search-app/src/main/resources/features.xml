@@ -20,7 +20,7 @@
 		<bundle>mvn:ddf.ui.search/search-proxy/${project.version}</bundle>
         <bundle>mvn:ddf.ui.search/simple/${project.version}</bundle>  
         <bundle>mvn:ddf.ui.search/standard/${project.version}</bundle>
-		<bundle>mvn:ddf.ui.search/search-redirect/${project.version}</bundle>
+        <bundle>mvn:ddf.ui.search/search-redirect/${project.version}</bundle>
         <bundle>mvn:ddf.ui.search/search-htmltransformer/${project.version}</bundle>
         <bundle>mvn:ddf.ui.search/search-endpoint/${project.version}</bundle>
 
@@ -29,4 +29,10 @@
         </config>
     </feature>
 
+    <feature name="search-ui-app" install="auto" version="${project.version}"
+        description="UI for searching over DDF. Includes both standard (3d globe) and simple (text page) versions.">
+        <feature>catalog-app</feature>
+        <feature>search-ui</feature>
+    </feature>
+    
 </features>
