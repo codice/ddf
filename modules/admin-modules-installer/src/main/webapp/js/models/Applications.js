@@ -16,54 +16,60 @@
 define(function (require) {
 
     var Backbone = require('backbone');
+    //require('backbonerelational');
     var Applications = {};
-    var Application = {};
 
-    Application.Model = Backbone.Model.extend({
-        defaults: {
-            name: "Application",
-            version: "1.0",
-            description: "An application to be installed.",
-            selected: false
-        }
+//    Applications.Node = Backbone.RelationalModel.extend({
+//        relations: [{
+//            type: Backbone.HasMany,
+//            key: 'children',
+//            relatedModel: Applications.Root,
+//            collectionType: Applications.RootCollection,
+//            reverseRelation: {
+//                key: 'parent'
+//            }
+//        }]
+//    });
+//
+//    Applications.Root = Backbone.RelationalModel.extend({
+//        relations: [{
+//            type: Backbone.HasMany,
+//            key: 'children',
+//            relatedModel: Applications.Node,
+//            collectionType: Applications.NodeCollection,
+//            reverseRelation: {
+//                key: 'parent'
+//            }
+//        }]
+//    });
+//
+//    Applications.NodeCollection = Backbone.Collection.extend({
+//        model: Applications.Node
+//    });
+//
+//    Applications.RootCollection = Backbone.Collection.extend({
+//        model: Applications.Root
+//    });
+
+    Applications.TreeNode = Backbone.Model.extend({
+       defaults: function() {
+            return {
+                selected: false
+            };
+       },
+
+       initialize: function(){
+           "use strict";
+           var children = this.get("children");
+           if (children){
+               this.children = new Applications.TreeNodeCollection(children);
+               this.unset("children");
+           }
+       }
     });
 
-    Applications.Model = Backbone.Model.extend({
-        defaults: {
-
-            hasNext: true,
-            hasPrevious: false,
-            totalSteps: 3,
-            stepNumber: 0,
-            percentComplete: 0
-        },
-        nextStep: function() {
-            this.set(this._step(1));
-        },
-        previousStep: function() {
-            this.set(this._step(-1));
-        },
-        _step: function(direction) {
-            var changeObj = {};
-            changeObj.stepNumber = this.get('stepNumber') + direction;
-            if(changeObj.stepNumber < this.get('totalSteps')) {
-                changeObj.hasNext = true;
-            } else {
-                changeObj.stepNumber = this.get('totalSteps');
-                changeObj.hasNext = false;
-            }
-
-            if(changeObj.stepNumber > 0) {
-                changeObj.hasPrevious = true;
-            } else {
-                changeObj.stepNumber = 0;
-                changeObj.hasPrevious = false;
-            }
-
-            changeObj.percentComplete = Math.round(changeObj.stepNumber / this.get('totalSteps') * 100);
-
-            return changeObj;
-        }
+    Applications.TreeNodeCollection = Backbone.Collection.extend({
+        model: Applications.TreeNode
     });
 
     return Applications;
