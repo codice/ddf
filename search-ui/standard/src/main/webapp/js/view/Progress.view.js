@@ -14,6 +14,7 @@ define(function (require) {
         Progress = {};
 
     ich.addTemplate('progressTemplate', require('text!templates/progress.handlebars'));
+    require('progressbar');
 
     Progress.ProgressModel = Backbone.Model.extend({
         defaults: {

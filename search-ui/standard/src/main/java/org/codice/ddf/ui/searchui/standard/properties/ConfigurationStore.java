@@ -252,7 +252,6 @@ public class ConfigurationStore {
     		setFooter((String) properties.get("footer"));
     		setStyle((String) properties.get("style"));
     		setTextColor((String) properties.get("textColor"));
-    		setBranding((BrandingPlugin) properties.get("branding"));
     		setWmsServer((String) properties.get("wmsServer"));
     		setLayers((String) properties.get("layers"));
     		setFormat((String) properties.get("format"));

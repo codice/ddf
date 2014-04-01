@@ -22,33 +22,28 @@ define(function (require) {
         },
 
         buildBillboard: function () {
-            if (this.geoController.enabled) {
-                var view = this;
-                //TODO: using a promise to add the billboards will not work correctly when in asynchronous mode
-                //for the time being I'm going to leave this code here commented out until after
-                //the async UI work is completed
+            var view = this;
+            //TODO: using a promise to add the billboards will not work correctly when in asynchronous mode
+            //for the time being I'm going to leave this code here commented out until after
+            //the async UI work is completed
 //                this.geoController.billboardPromise.then(function () {
-                    var point = view.model.get('geometry').getPoint();
-                    view.billboard = view.geoController.billboardCollection.add({
-                        imageIndex: view.imageIndex,
-                        position: view.geoController.ellipsoid.cartographicToCartesian(
-                            Cesium.Cartographic.fromDegrees(
-                                point.longitude,
-                                point.latitude,
-                                point.altitude
-                            )
-                        ),
-                        horizontalOrigin: Cesium.HorizontalOrigin.CENTER,
-                        verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
-                        scaleByDistance: new Cesium.NearFarScalar(1.0, 1.0, 1.5e7, 0.5)
-                    });
-                    view.billboard.setColor(view.color);
-                    view.billboard.setScale(0.41);
-                    view.billboard.hasScale = true;
-//                }).fail(function (error) {
-//                    console.log('error:  ', error.stack ? error.stack : error);
-//                });
-            }
+                var point = view.model.get('geometry').getPoint();
+                view.billboard = view.geoController.billboardCollection.add({
+                    imageIndex: view.imageIndex,
+                    position: view.geoController.ellipsoid.cartographicToCartesian(
+                        Cesium.Cartographic.fromDegrees(
+                            point.longitude,
+                            point.latitude,
+                            point.altitude
+                        )
+                    ),
+                    horizontalOrigin: Cesium.HorizontalOrigin.CENTER,
+                    verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
+                    scaleByDistance: new Cesium.NearFarScalar(1.0, 1.0, 1.5e7, 0.5)
+                });
+                view.billboard.setColor(view.color);
+                view.billboard.setScale(0.41);
+                view.billboard.hasScale = true;
         },
 
         toggleSelection: function () {

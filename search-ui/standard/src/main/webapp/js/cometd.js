@@ -1,14 +1,12 @@
 /*global define*/
 /*global location*/
-define(function (require) {
+define(['jquery', 'jquerycometd'], function ($) {
     'use strict';
 
-    // Load attached libs and application modules
-    var $ = require('jquery'),
-        ddf = require('ddf'),
-        Cometd = ddf.module();
+    var Cometd = {};
 
     Cometd.Comet = $.cometd;
+    Cometd.Comet.websocketEnabled = false;
     var path = location.protocol + '//' + location.hostname+(location.port ? ':' + location.port : '') + '/cometd';
     Cometd.Comet.configure({
         url: path

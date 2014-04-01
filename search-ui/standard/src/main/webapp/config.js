@@ -25,18 +25,22 @@
             modelbinder: 'lib/backbone.modelbinder/Backbone.ModelBinder.min',
             collectionbinder: 'lib/backbone.modelbinder/Backbone.CollectionBinder.min',
 
-            // ddf
-            ddf: 'js/ddf',
+            // application
+            application: 'js/application',
             cometdinit: 'js/cometd',
             direction: 'js/direction',
             webglcheck : 'js/webglcheck',
             maptype : 'js/maptype',
             spinnerConfig : 'js/spinnerConfig',
+            wreqr: 'js/wreqr',
             properties: 'properties',
 
             // jquery
             jquery: 'lib/jquery/jquery.min',
-            jqueryui: 'lib/jquery-ui/ui/minified/jquery-ui.min',
+            jqueryuiCore: 'lib/jquery-ui/ui/minified/jquery.ui.core.min',
+            jqueryuiWidget: 'lib/jquery-ui/ui/minified/jquery.ui.widget.min',
+            datepicker: 'lib/jquery-ui/ui/minified/jquery.ui.datepicker.min',
+            progressbar: 'lib/jquery-ui/ui/minified/jquery.ui.progressbar.min',
             datepickerOverride: 'lib/jquery/js/plugin/jquery-ui-datepicker-4digitYearOverride-addon',
             datepickerAddon: 'lib/jqueryui-timepicker-addon/src/jquery-ui-timepicker-addon',
             purl: 'lib/purl/purl',
@@ -48,7 +52,8 @@
             icanhaz: 'lib/icanhandlebarz/ICanHandlebarz',
 
             // require plugins
-            text: 'lib/requirejs-plugins/lib/text'
+            text: 'lib/requirejs-plugins/lib/text',
+            css: 'lib/require-css/css.min'
         },
 
 
@@ -56,14 +61,6 @@
 
             jquerycometd: {
                 deps: ['jquery', 'cometd']
-            },
-
-            multiselect: {
-                deps: ['jquery']
-            },
-
-            multiselectfilter: {
-                deps: ['jquery']
             },
 
             backbone: {
@@ -96,12 +93,14 @@
                 exports: 'moment'
             },
 
-            jqueryui: ['jquery'],
-            bootstrap: ['jqueryui'],
+            datepicker: ['jquery', 'jqueryuiCore'],
+            datepickerOverride: ['datepicker'],
+            datepickerAddon: ['datepicker'],
+            progressbar: ['jquery', 'jqueryuiCore', 'jqueryuiWidget'],
+            multiselect: ['jquery', 'jqueryuiWidget'],
+            multiselectfilter: ['jquery', 'multiselect'],
 
-            perfectscrollbar: ['jquery'],
-            datepickerOverride: ['jquery'],
-            datepickerAddon: ['jquery']
+            perfectscrollbar: ['jquery']
 
         },
 

@@ -8,12 +8,11 @@ define(function (require) {
         SlidingRegion = require('js/view/sliding.region'),
         QueryFormView = require('js/view/Query.view').QueryView,
         ProgressView = require('js/view/Progress.view').ProgressView,
-        CesiumMetacard = require('js/view/cesium.metacard'),
         MetacardList = require('js/view/MetacardList.view'),
         Metacard = require('js/view/MetacardDetail.view'),
         MetaCard = require('js/model/Metacard.js'),
         Backbone = require('backbone'),
-        ddf = require('ddf'),
+        app = require('application'),
         dir = require('direction'),
         ich = require('icanhaz'),
         SearchControl = {};
@@ -102,8 +101,7 @@ define(function (require) {
                 this.listenTo(this.queryForm, 'search', this.setupProgress);
                 this.listenTo(this.queryForm, 'search', this.showEmptyResults);
                 this.listenTo(this.queryForm, 'searchComplete', this.showResults);
-                this.listenTo(this.queryForm, 'searchComplete', this.changeDefaultMapLocation);
-                this.listenTo(ddf.app, 'model:context', this.showMetacardDetail);
+                this.listenTo(app.App, 'model:context', this.showMetacardDetail);
 
                 this.modelBinder = new Backbone.ModelBinder();
                 this.controlModel = new SearchControl.SearchControlModel();
@@ -151,9 +149,6 @@ define(function (require) {
             },
             onQueryClear: function () {
                 $(".forward").hide();
-                if (this.mapViews) {
-                    this.mapViews.close();
-                }
                 if (this.metacardDetail) {
                     this.metacardDetail.remove();
                     delete this.metacardDetail;
@@ -183,18 +178,6 @@ define(function (require) {
                     this.showMetacardDetail(null, dir.forward);
                 }
             },
-            changeDefaultMapLocation: function (result, shouldFlyToExtent) {
-                if (typeof console !== 'undefined') {
-                    console.log("changing "+result);
-                }
-
-                if(shouldFlyToExtent) {
-                    var extent = result.getResultCenterPoint();
-                    if(extent) {
-                        ddf.app.controllers.geoController.flyToExtent(extent);
-                    }
-                }
-            },
             showQuery: function (direction) {
                 $(".back").hide();
                 if(this.resultList.model.attributes.results.length){
@@ -212,16 +195,6 @@ define(function (require) {
             showResults: function (result, direction) {
                 var previousState = this.controlModel.currentState;
                 if (result) {
-                    // TODO replace with trigger
-                    if (this.mapViews) {
-                        this.mapViews.close();
-                    }
-                    if (ddf.app.controllers.geoController.enabled) {
-                        this.mapViews = new CesiumMetacard.ResultsView({
-                            collection: result.get('results'),
-                            geoController: ddf.app.controllers.geoController
-                        }).render();
-                    }
                     if(this.resultList){
                         this.stopListening(this.resultList, 'content-update', this.updateScrollbar);
                         this.stopListening(this.resultList, 'render', this.updateScrollPos);

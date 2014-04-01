@@ -26,8 +26,19 @@ html, body {
 	height: 100%;
 }
 
-#main {
+#content {
     position: relative;
+}
+
+.loading {
+    font-size: xx-large;
+    left: 0;
+    line-height: 200px;
+    margin-top: -100px;
+    position: fixed;
+    text-align: center;
+    top: 50%;
+    width: 100%;
 }
 
 .left {
@@ -183,6 +194,7 @@ tr.selected {
 	top:0px;
 	left:50%;
 	background-color: #242424;
+	z-index: 100;
 }
 
 /*Metacard Detail View*/

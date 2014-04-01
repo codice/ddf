@@ -4,11 +4,10 @@ define(function (require) {
     "use strict";
     var Backbone = require('backbone'),
         _ = require('underscore'),
-        ddf = require('ddf'),
+        app = require('application'),
         Util = require('js/model/util'),
-        Cesium = require('cesium'),
         properties = require('properties'),
-        MetaCard = ddf.module();
+        MetaCard = app.module();
 
     require('backbonerelational');
     MetaCard.Geometry = Backbone.RelationalModel.extend({
@@ -87,7 +86,7 @@ define(function (require) {
         },
 
         onChangeContext: function () {
-            var eventBus = ddf.app,
+            var eventBus = app.App,
                 name = 'model:context';
 
             if (this.get('context')) {
@@ -97,7 +96,7 @@ define(function (require) {
         },
 
         onAppContext: function (model) {
-            var eventBus = ddf.app,
+            var eventBus = app,
                 name = 'model:context';
             if (model !== this) {
                 this.stopListening(eventBus, name);
@@ -177,80 +176,6 @@ define(function (require) {
             queryParams.start = this.get("startIndex");
             queryParams.format = this.get("format");
             return queryParams;
-        },
-        getResultCenterPoint: function () {
-            var regionPoints = [],
-                resultQuad,
-                quadrantCounts = [
-                    {
-                        quad: 'one',
-                        count: 0
-                    },
-                    {
-                        quad: 'two',
-                        count: 0
-                    },
-                    {
-                        quad: 'three',
-                        count: 0
-                    },
-                    {
-                        quad: 'four',
-                        count: 0
-                    }
-                ];
-
-            this.get("results").each(function (item) {
-                if (item.get("metacard").get("geometry")) {
-                    var point = item.get("metacard").get("geometry").getPoint();
-                    if (point.longitude > 0 && point.latitude > 0) {
-                        quadrantCounts[0].count++;
-                    } else if (point.longitude < 0 && point.latitude > 0) {
-                        quadrantCounts[1].count++;
-                    } else if (point.longitude < 0 && point.latitude < 0) {
-                        quadrantCounts[2].count++;
-                    } else {
-                        quadrantCounts[3].count++;
-                    }
-                }
-            });
-
-            quadrantCounts = _.sortBy(quadrantCounts, 'count');
-
-            quadrantCounts.reverse();
-            resultQuad = quadrantCounts[0].quad;
-
-            this.get("results").each(function (item) {
-                if (item.get("metacard").get("geometry")) {
-                    var newPoint = item.get("metacard").get("geometry").getPoint(),
-                        isInRegion = false;
-
-                    if (newPoint.longitude >= 0 && newPoint.latitude >= 0 && resultQuad === "one") {
-                        isInRegion = true;
-                    } else if (newPoint.longitude <= 0 && newPoint.latitude >= 0 && resultQuad === "two") {
-                        isInRegion = true;
-                    } else if (newPoint.longitude <= 0 && newPoint.latitude <= 0 && resultQuad === "three") {
-                        isInRegion = true;
-                    } else if (newPoint.longitude >= 0 && newPoint.latitude <= 0 && resultQuad === "four") {
-                        isInRegion = true;
-                    }
-
-                    if (isInRegion) {
-                        regionPoints.push(newPoint);
-                    }
-                }
-            });
-
-            if (regionPoints.length === 0) {
-                return null;
-            }
-
-            var cartPoints = _.map(regionPoints, function (point) {
-                return Cesium.Cartographic.fromDegrees(point.longitude, point.latitude, point.altitude);
-            });
-
-            var extent = Cesium.Extent.fromCartographicArray(cartPoints);
-            return extent;
         }
     });
     return MetaCard;

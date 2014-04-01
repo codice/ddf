@@ -7,9 +7,9 @@ define(function (require) {
         _ = require('underscore'),
         Backbone = require('backbone'),
         ich = require('icanhaz'),
-        ddf = require('ddf'),
         dir = require('direction'),
         maptype = require('maptype'),
+        wreqr = require('wreqr'),
         Metacard = {};
 
     ich.addTemplate('metacardTemplate', require('text!templates/metacard.handlebars'));
@@ -64,7 +64,7 @@ define(function (require) {
             this.hash = e.target.hash;
         },
         viewLocation: function () {
-            ddf.app.controllers.geoController.flyToLocation(this.model);
+            wreqr.vent.trigger('map:show', this.model);
         },
         previousRecord: function () {
             if (this.prevModel) {

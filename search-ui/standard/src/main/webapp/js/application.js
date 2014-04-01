@@ -1,147 +1,265 @@
-/*global define*/
+/*global define, require */
 
 // #Main Application
-define(function (require) {
-    'use strict';
+define(['jquery',
+        'underscore',
+        'marionette',
+        'backbone',
+        'icanhaz',
+        'properties',
+        'maptype',
+        'wreqr',
+        // Templates
+        'text!templates/main.html',
+        'text!templates/map.html',
+        'text!templates/header.layout.html',
+        'text!templates/footer.layout.html',
+        'text!templates/classification/classification-banner.html',
+        // Load non attached libs and plugins
+        'bootstrap',
+        'backbonerelational',
+        'backbonecometd',
+        'jquerycometd'
+    ], function ($, _, Marionette, Backbone, ich, properties, maptype, wreqr, main, map, header, footer, banner) {
+        'use strict';
 
-    // Load non attached libs and plugins
-    require('jqueryui');
-    require('bootstrap');
-    require('backbonerelational');
-    require('backbonecometd');
-    require('jquerycometd');
+        var Application = {},
+            ApplicationModel;
 
-    // Load attached libs and application modules
-    var $ = require('jquery'),
-        _ = require('underscore'),
-        ddf = require('ddf'),
-        Marionette = require('marionette'),
-        Backbone = require('backbone'),
-        ich = require('icanhaz'),
-        properties = require('properties'),
-        maptype = require('maptype'),
-        Application = ddf.module();
+        // Setup templates
+        ich.addTemplate('main', main);
+        ich.addTemplate('map', map);
+        ich.addTemplate('headerLayout', header);
+        ich.addTemplate('footerLayout', footer);
+        ich.addTemplate('classificationBanner', banner);
 
-    // Setup templates
-    ich.addTemplate('main', require('text!templates/main.html'));
-    ich.addTemplate('headerLayout', require('text!templates/navbar.layout.html'));
-    ich.addTemplate('footerLayout', require('text!templates/footer.layout.html'));
-    ich.addTemplate('classificationBanner', require('text!templates/classification/classification-banner.html'));
+        Application.App = new Marionette.Application();
 
-    Application.Router = Backbone.Router.extend({
-        routes: {
-            '': 'index'
-        },
+        Application.Controllers = {};
 
-        initialize: function () {
-            _.bindAll(this);
-        },
+        Application.Router = Backbone.Router.extend({
+            routes: {
+                '': 'index'
+            },
+
+            initialize: function () {
+                _.bindAll(this);
+            },
 
 
-        index: function () {
+            index: function () {
 
-        }
-
-    });
-
-    // ##Main Application View
-    Application.Views.Main = Backbone.View.extend({
-        tagName: 'div',
-        className: 'height-full',
-
-        initialize: function () {
-            var view = this;
-
-            _.bindAll(view);
-
-            ddf.views = {};
-
-        },
-
-        render: function () {
-            var view = this;
-
-            view.$el.html(ich.main());
-
-            if (maptype.isNone()) {
-                $('#searchControls', this.$el).width('100%');
             }
 
-            return view;
-        }
+        });
 
-    });
+        Application.Views = {};
 
+        // Main Application View
+        Application.Views.Main = Backbone.View.extend({
+            tagName: 'div',
+            className: 'height-full',
 
-    Application.Views.HeaderLayout = Marionette.Layout.extend({
-        template: 'headerLayout',
-        className: 'header-layout',
+            initialize: function () {
+                var view = this;
 
-        regions: {
-            classification: '.classification-container',
-        }
-    });
+                _.bindAll(view);
+            },
 
-    Application.Views.FooterLayout = Marionette.Layout.extend({
-        template: 'footerLayout',
-        className: 'footer-layout',
+            render: function () {
+                var view = this;
 
-        regions: {
-            classification: '.classification-container'
-        }
-    });
+                view.$el.html(ich.main());
 
-    Application.Views.HeaderBanner = Backbone.View.extend({
-        className: "classification-banner",
+                if (maptype.isNone()) {
+                    $('#searchControls', this.$el).width('100%');
+                }
 
-        initialize: function () {
-            var view = this;
-            _.bindAll(view);
-        },
-
-        render: function () {
-            var view = this,
-                headerText = properties.header,
-                style = properties.style,
-                textColor = properties.textColor,
-                header = {};
-
-            if(headerText && headerText !== "") {
-                //set up header
-                header.text = headerText;
-                header.style = style;
-                header.textColor = textColor;
-
-                view.$el.html(ich.classificationBanner(header));
+                return view;
             }
+
+        });
+
+        // Map View
+        if (!maptype.isNone()) {
+            Application.Views.Map = Backbone.View.extend({
+                tagName: 'div',
+                className: 'height-full',
+
+                initialize: function () {
+                    var view = this;
+
+                    _.bindAll(view);
+                },
+
+                render: function () {
+                    var view = this;
+
+                    view.$el.html(ich.map());
+
+                    return view;
+                }
+
+            });
         }
-    });
 
-    Application.Views.FooterBanner = Backbone.View.extend({
-        className: "classification-banner",
+        Application.showMapView = function () {
+            if (maptype.is3d()) {
+                var mapView = new Application.Views.Map({
+                    model: Application.model
+                });
 
-        initialize: function () {
-            var view = this;
-            _.bindAll(view);
-        },
+                mapView.on('show', function () {
+                    require(['js/controllers/geospatial.controller',
+                             'js/widgets/draw.extent',
+                             'js/widgets/draw.circle'
+                            ], function (GeoController, DrawExtent, DrawCircle) {
 
-        render: function () {
-            var view = this,
-                footerText = properties.footer,
-                style = properties.style,
-                textColor = properties.textColor,
-                footer = {};
+                        // Create geo controller
+                        var geoController = new GeoController();
+                        wreqr.vent.on('map:show', function (model) {
+                            geoController.flyToLocation(model);
+                        });
+                        wreqr.vent.on('search:start', function () {
+                            geoController.clearResults();
+                        });
+                        wreqr.vent.on('search:results', function (result, zoomOnResults) {
+                            geoController.showResults(result.get('results'));
+                            if (zoomOnResults) {
+                                geoController.flyToCenterPoint(result.get('results'));
+                            }
+                        });
+                        wreqr.vent.on('search:clear', function () {
+                            geoController.clearResults();
+                            geoController.billboardCollection.removeAll();
+                        });
 
-            if(footerText && footerText !== "") {
-                //set up footer
-                footer.text = footerText;
-                footer.style = style;
-                footer.textColor = textColor;
+                        if (wreqr.reqres.hasHandler('search:results')) {
+                            geoController.showResults(wreqr.reqres.request('search:results').get('results'));
+                        }
 
-                view.$el.html(ich.classificationBanner(footer));
+                        // Create draw extent controller
+                        var drawExentController = new DrawExtent.Controller({
+                            scene: geoController.scene,
+                            notificationEl: $('#notificationBar')
+                        });
+                        wreqr.vent.on('draw:extent', function (model) {
+                            drawExentController.draw(model);
+                        });
+                        wreqr.vent.on('draw:stop', function () {
+                            drawExentController.stop();
+                        });
+                        wreqr.vent.on('draw:end', function () {
+                            drawExentController.destroy();
+                        });
+
+                        // Create draw circle controller
+                        var drawCircleController = new DrawCircle.Controller({
+                            scene: geoController.scene,
+                            notificationEl: $('#notificationBar')
+                        });
+                        wreqr.vent.on('draw:circle', function (model) {
+                            drawCircleController.draw(model);
+                        });
+                        wreqr.vent.on('draw:stop', function () {
+                            drawCircleController.stop();
+                        });
+                        wreqr.vent.on('draw:end', function () {
+                            drawCircleController.destroy();
+                        });
+                    });
+                });
+
+                Application.App.mapRegion.show(mapView);
             }
-        }
-    });
+        };
 
-    return Application;
-});
+        Application.Views.HeaderLayout = Marionette.Layout.extend({
+            template: 'headerLayout',
+            className: 'header-layout',
+
+            regions: {
+                classification: '.classification-container',
+            }
+        });
+
+        Application.Views.FooterLayout = Marionette.Layout.extend({
+            template: 'footerLayout',
+            className: 'footer-layout',
+
+            regions: {
+                classification: '.classification-container'
+            }
+        });
+
+        Application.Views.HeaderBanner = Backbone.View.extend({
+            className: "classification-banner",
+
+            initialize: function () {
+                var view = this;
+                _.bindAll(view);
+            },
+
+            render: function () {
+                var view = this,
+                    headerText = properties.header,
+                    style = properties.style,
+                    textColor = properties.textColor,
+                    header = {};
+
+                if (headerText && headerText !== "") {
+                    //set up header
+                    header.text = headerText;
+                    header.style = style;
+                    header.textColor = textColor;
+
+                    view.$el.html(ich.classificationBanner(header));
+                }
+            }
+        });
+
+        Application.Views.FooterBanner = Backbone.View.extend({
+            className: "classification-banner",
+
+            initialize: function () {
+                var view = this;
+                _.bindAll(view);
+            },
+
+            render: function () {
+                var view = this,
+                    footerText = properties.footer,
+                    style = properties.style,
+                    textColor = properties.textColor,
+                    footer = {};
+
+                if (footerText && footerText !== "") {
+                    //set up footer
+                    footer.text = footerText;
+                    footer.style = style;
+                    footer.textColor = textColor;
+
+                    view.$el.html(ich.classificationBanner(footer));
+                }
+            }
+        });
+
+        ApplicationModel = Backbone.Model.extend({
+            defaults: {
+
+            },
+
+            initialize: function () {
+            }
+
+        });
+        // Set up the application level model for state persistence
+        Application.model = new ApplicationModel();
+
+        Application.module = function (props) {
+            return _.extend({ Views: {} }, Backbone.Events, props);
+        };
+
+        return Application;
+    }
+);

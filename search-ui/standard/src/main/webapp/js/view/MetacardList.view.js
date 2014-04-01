@@ -191,19 +191,20 @@ define(function (require) {
             //apparently unbind is sort of a sledgehammer approach to dealing with zombie views
             //I tried it with this commented out and it appears to clean up the view correctly without it
             //I'm going to leave it here as a note however
-//            this.unbind();
+            //this.unbind();
             if (this.metacardTable){
                 this.metacardTable.close();
             }
         },
         showHideLoadMore: function() {
-            if (this.model.get("results").length >= this.model.get("hits") || this.model.get("hits") === 0) {
-                $("#high-results", this.$el).hide();
-                $("#low-results", this.$el).css( "display", "block").show();
-            }
-            else {
-                $("#high-results", this.$el).css( "display", "block").show();
-                $("#low-results", this.$el).hide();
+            if (!_.isUndefined(this.model.get("hits"))) {
+                if (this.model.get("results").length >= this.model.get("hits") || this.model.get("hits") === 0) {
+                    $("#high-results", this.$el).hide();
+                    $("#low-results", this.$el).css("display", "block").show();
+                } else {
+                    $("#high-results", this.$el).css("display", "block").show();
+                    $("#low-results", this.$el).hide();
+                }
             }
         }
     });

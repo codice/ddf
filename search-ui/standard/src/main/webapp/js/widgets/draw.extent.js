@@ -6,9 +6,9 @@ define(function (require) {
         Backbone = require('backbone'),
         Cesium = require('cesium'),
         _ = require('underscore'),
-        ddf = require('ddf'),
+        app = require('application'),
         maptype = require('maptype'),
-        Draw = ddf.module();
+        Draw = app.module();
 
     Draw.ExentModel = Backbone.Model.extend({
         defaults: {
@@ -269,13 +269,13 @@ define(function (require) {
                 return bboxModel;
             }
         },
-        stopDrawing: function() {
+        stop: function() {
             if (this.enabled && this.view) {
                 this.view.stop();
                 this.notificationView.close();
             }
         },
-        stop: function () {
+        destroy: function () {
             if (this.enabled && this.view) {
                 this.view.stop();
                 this.view.destroyPrimitive();

@@ -23,6 +23,7 @@
         "purl": "2.3.1",
         "q": "1.0.0",
         "requirejs": "2.1.11",
+        "require-css": "0.1.2",
         "requirejs-plugins": "1.0.2",
         "spin.js": "1.3.3"
     },

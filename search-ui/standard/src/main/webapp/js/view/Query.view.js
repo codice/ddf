@@ -7,13 +7,14 @@ define(function (require) {
         Marionette = require('marionette'),
         _ = require('underscore'),
         ich = require('icanhaz'),
-        ddf = require('ddf'),
         properties = require('properties'),
         MetaCard = require('js/model/Metacard'),
         Progress = require('js/view/Progress.view'),
+        wreqr = require('wreqr'),
         Query = {};
 
     ich.addTemplate('searchFormTemplate', require('text!templates/searchForm.handlebars'));
+    require('datepicker');
     require('datepickerOverride');
     require('datepickerAddon');
     require('modelbinder');
@@ -32,15 +33,10 @@ define(function (require) {
             radius: 0,
             radiusValue: 0
         },
+
         initialize: function () {
-            this.on('change', this.log);
             this.on('change:north change:south change:east change:west',this.setBBox);
             _.bindAll(this,'swapDatesIfNeeded');
-        },
-        log: function () {
-            if (typeof console !== 'undefined') {
-                console.log(this.toJSON());
-            }
         },
 
         setDefaults : function() {
@@ -142,8 +138,7 @@ define(function (require) {
                 radius: undefined,
                 bbox: undefined
             }, {unset: true});
-            ddf.app.controllers.drawCircleController.stop();
-            ddf.app.controllers.drawExentController.stop();
+            wreqr.vent.trigger("draw:end");
             this.updateScrollbar();
         },
 
@@ -229,7 +224,7 @@ define(function (require) {
 
             this.modelBinder.bind(this.model, this.$el, bindings);
 
-            this.listenTo(this.model, 'change:bbox change:radius', this.updateShouldFlyToExtent);
+            this.listenTo(this.model, 'change:bbox change:radius', this.updateZoomOnResults);
 
             this.initDateTimePicker('#absoluteStartTime');
             this.initDateTimePicker('#absoluteEndTime');
@@ -280,11 +275,11 @@ define(function (require) {
         },
 
         drawCircle: function(){
-            ddf.app.controllers.drawCircleController.draw(this.model);
+            wreqr.vent.trigger("draw:circle", this.model);
         },
 
         drawExtent : function(){
-            ddf.app.controllers.drawExentController.draw(this.model);
+            wreqr.vent.trigger("draw:extent", this.model);
         },
 
         onClose: function () {
@@ -302,12 +297,12 @@ define(function (require) {
 
         },
 
-        updateShouldFlyToExtent: function () {
-            this.shouldFlyToExtent = this.model.get("bbox") || this.model.get("radius") ? true : false;
+        updateZoomOnResults: function () {
+            this.zoomOnResults = this.model.get("bbox") || this.model.get("radius") ? true : false;
         },
 
         search: function () {
-
+            wreqr.vent.trigger('search:start');
             //check that we can even perform a search
             //the model has 4 default attributes, so if we only have 4
             //then we have no search criteria
@@ -325,7 +320,10 @@ define(function (require) {
                                     };
 
             //get results
-            var queryParams, view = this, result, options;
+            var queryParams,
+                view = this,
+                result,
+                options;
             queryParams = this.model.toJSON();
             
             options = {
@@ -333,6 +331,10 @@ define(function (require) {
             };
 
             result = new MetaCard.SearchResult(options);
+            this.result = result;
+            wreqr.reqres.setHandler('search:results', function () {
+                return result;
+            });
 
             if (properties.sync) {
                 result.useAjaxSync = true;
@@ -344,8 +346,7 @@ define(function (require) {
             // disable the whole form
             this.$('button').addClass('disabled');
             this.$('input').prop('disabled',true);
-            ddf.app.controllers.drawCircleController.stopDrawing();
-            ddf.app.controllers.drawExentController.stopDrawing();
+            wreqr.vent.trigger("draw:stop");
 
             result.fetch({
                 progress: progressFunction,
@@ -358,11 +359,11 @@ define(function (require) {
                     }
                 }
             }).complete(function () {
-
                     //re-enable the whole form
                     view.$('button').removeClass('disabled');
                     view.$('input').prop('disabled',false);
-                    view.trigger('searchComplete', result, view.shouldFlyToExtent);
+                    view.trigger('searchComplete', result, view.zoomOnResults);
+                    wreqr.vent.trigger('search:results', result, view.zoomOnResults);
                 });
 
 
@@ -376,10 +377,13 @@ define(function (require) {
             $('#progressbar').hide();
             this.model.clear();
             this.model.setDefaults();
+            if (!_.isUndefined(this.result)) {
+                this.result.clear();
+            }
             this.trigger('clear');
+            wreqr.vent.trigger('search:clear');
             $('input[name=q]').focus();
-            this.shouldFlyToExtent = false;
-            ddf.app.controllers.geoController.billboardCollection.removeAll();
+            this.zoomOnResults = false;
         },
 
         onRadiusUnitsChanged: function () {

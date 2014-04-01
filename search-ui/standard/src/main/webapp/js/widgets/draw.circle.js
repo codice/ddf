@@ -6,10 +6,10 @@ define(function (require) {
         Backbone = require('backbone'),
         Cesium = require('cesium'),
         _ = require('underscore'),
-        ddf = require('ddf'),
+        app = require('application'),
         DrawExtent = require('./draw.extent'),
         maptype = require('maptype'),
-        DrawCircle = ddf.module();
+        DrawCircle = app.module();
 
     DrawCircle.CircleModel = Backbone.Model.extend({
         defaults: {
@@ -245,14 +245,14 @@ define(function (require) {
                 return circleModel;
             }
         },
-        stopDrawing: function() {
+        stop: function() {
             if (this.enabled && this.view) {
                 this.view.stop();
                 this.view.handleRegionStop();
                 this.notificationView.close();
             }
         },
-        stop: function () {
+        destroy: function () {
             if (this.enabled && this.view) {
                 this.view.stop();
                 this.view.destroyPrimitive();

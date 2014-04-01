@@ -8,7 +8,6 @@ define(function (require) {
         Q = require('q'),
         dir = require('direction');
 
-    require('jqueryui');
     var flyIn = true,
         flyOut = false;
     var Region = Marionette.Region.extend({
