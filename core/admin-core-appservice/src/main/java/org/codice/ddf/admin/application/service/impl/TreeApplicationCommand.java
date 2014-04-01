@@ -18,11 +18,8 @@ import java.io.PrintStream;
 import java.util.Set;
 
 import org.apache.felix.gogo.commands.Command;
-import org.apache.karaf.shell.console.OsgiCommandSupport;
 import org.codice.ddf.admin.application.service.ApplicationNode;
-import org.codice.ddf.admin.application.service.ApplicationService;
 import org.codice.ddf.admin.application.service.ApplicationServiceException;
-import org.osgi.framework.ServiceReference;
 
 /**
  * Utilizes the OSGi Command Shell in Karaf and lists all available
@@ -30,37 +27,18 @@ import org.osgi.framework.ServiceReference;
  * 
  */
 @Command(scope = "app", name = "tree", description = "Creates a hierarchy tree of all of the applications.")
-public class TreeApplicationCommand extends OsgiCommandSupport {
+public class TreeApplicationCommand extends AbstractApplicationCommand {
 
     @Override
-    protected Object doExecute() throws ApplicationServiceException {
+    protected void applicationCommand() throws ApplicationServiceException {
 
-        PrintStream console = System.out;
-
-        ServiceReference<ApplicationService> ref = getBundleContext().getServiceReference(
-                ApplicationService.class);
-
-        if (ref == null) {
-            console.println("Application Status service is unavailable.");
-            return null;
+        // node for the application tree
+        Set<ApplicationNode> rootApplications = applicationService.getApplicationTree();
+        for (ApplicationNode curRoot : rootApplications) {
+            printNode(curRoot, "");
         }
-        try {
-            ApplicationService appService = getBundleContext().getService(ref);
-            if (appService == null) {
-                console.println("Application Status service is unavailable.");
-                return null;
-            }
 
-            // node for the application tree
-            Set<ApplicationNode> rootApplications = appService.getApplicationTree();
-            for (ApplicationNode curRoot : rootApplications) {
-                printNode(curRoot, "");
-            }
-
-        } finally {
-            getBundleContext().ungetService(ref);
-        }
-        return null;
+        return;
     }
 
     private void printNode(ApplicationNode appNode, String appender) {

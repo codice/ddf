@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.management.InstanceAlreadyExistsException;
 import javax.management.MBeanServer;
@@ -358,7 +359,6 @@ public class ConfigurationAdmin implements ConfigurationAdminMBean {
     /**
      * @see ConfigurationAdminMBean#getPropertiesForLocation(java.lang.String, java.lang.String)
      */
-    @SuppressWarnings("unchecked")
     public Map<String, Object> getPropertiesForLocation(String pid, String location)
         throws IOException {
         if (pid == null || pid.length() < 1) {
@@ -399,7 +399,6 @@ public class ConfigurationAdmin implements ConfigurationAdminMBean {
      * @see ConfigurationAdminMBean#updateForLocation(java.lang.String, java.lang.String,
      *      java.util.Map)
      */
-    @SuppressWarnings("unchecked")
     public void updateForLocation(String pid, String location,
             Map<String, Object> configurationTable) throws IOException {
         if (pid == null || pid.length() < 1) {
@@ -411,9 +410,9 @@ public class ConfigurationAdmin implements ConfigurationAdminMBean {
 
         // sanity check to make sure no values are
         // null
-        for (String key : configurationTable.keySet()) {
-            if (configurationTable.get(key) == null) {
-                configurationTable.put(key, "");
+        for(Entry<String, Object> curEntry : configurationTable.entrySet()) {
+            if(curEntry.getValue() == null) {
+                curEntry.setValue("");
             }
         }
 
@@ -444,7 +443,7 @@ public class ConfigurationAdmin implements ConfigurationAdminMBean {
             throw new IOException("No Source exists with the service PID: " + servicePid);
         }
 
-        Dictionary properties = originalConfig.getProperties();
+        Dictionary<String, Object> properties = originalConfig.getProperties();
         String originalFactoryPid = (String) properties
                 .get(org.osgi.service.cm.ConfigurationAdmin.SERVICE_FACTORYPID);
         if (StringUtils.endsWith(originalFactoryPid, DISABLED)) {
@@ -477,7 +476,7 @@ public class ConfigurationAdmin implements ConfigurationAdminMBean {
             throw new IOException("No Source exists with the service PID: " + servicePid);
         }
 
-        Dictionary properties = disabledConfig.getProperties();
+        Dictionary<String, Object> properties = disabledConfig.getProperties();
         String disabledFactoryPid = (String) properties
                 .get(org.osgi.service.cm.ConfigurationAdmin.SERVICE_FACTORYPID);
         if (!StringUtils.endsWith(disabledFactoryPid, DISABLED)) {

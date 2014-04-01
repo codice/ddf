@@ -14,20 +14,16 @@
  **/
 package org.codice.ddf.admin.application.service.impl;
 
-import java.io.PrintStream;
 import java.util.Set;
 
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.karaf.features.Feature;
-import org.apache.karaf.shell.console.OsgiCommandSupport;
 import org.codice.ddf.admin.application.service.Application;
-import org.codice.ddf.admin.application.service.ApplicationService;
 import org.codice.ddf.admin.application.service.ApplicationServiceException;
 import org.codice.ddf.admin.application.service.ApplicationStatus;
 import org.fusesource.jansi.Ansi;
 import org.osgi.framework.Bundle;
-import org.osgi.framework.ServiceReference;
 
 /**
  * Utilizes the OSGi Command Shell in Karaf and shows the status of an
@@ -35,73 +31,55 @@ import org.osgi.framework.ServiceReference;
  * 
  */
 @Command(scope = "app", name = "status", description = "Shows status of an application.\n\tGives information on the current state, features within the application, what required features are not started and what required bundles are not started.")
-public class StatusApplicationCommand extends OsgiCommandSupport {
+public class StatusApplicationCommand extends AbstractApplicationCommand {
 
     @Argument(index = 0, name = "appName", description = "Name of the application to get status on.", required = true, multiValued = false)
     String appName;
 
     @Override
-    protected Object doExecute() throws ApplicationServiceException {
+    protected void applicationCommand() throws ApplicationServiceException {
 
-        PrintStream console = System.out;
+        Set<Application> applications = applicationService.getApplications();
+        for (Application curApp : applications) {
+            if (curApp.getName().equals(appName)) {
+                ApplicationStatus appStatus = applicationService.getApplicationStatus(curApp);
+                console.println(curApp.getName());
+                console.println("\nCurrent State is: " + appStatus.getState().toString());
 
-        ServiceReference<ApplicationService> ref = getBundleContext().getServiceReference(
-                ApplicationService.class);
-        if (ref == null) {
-            console.println("ApplicationService service is unavailable.");
-            return null;
-        }
-        try {
-            ApplicationService appService = getBundleContext().getService(ref);
-            if (appService == null) {
-                console.println("ApplicationService service is unavailable.");
-                return null;
-            }
+                console.println("\nFeatures Located within this Application:");
+                for (Feature curFeature : curApp.getFeatures()) {
+                    console.println("\t" + curFeature.getName());
+                }
 
-            Set<Application> applications = appService.getApplications();
-            for (Application curApp : applications) {
-                if (curApp.getName().equals(appName)) {
-                    ApplicationStatus appStatus = appService.getApplicationStatus(curApp);
-                    console.println(curApp.getName());
-                    console.println("\nCurrent State is: " + appStatus.getState().toString());
-
-                    console.println("\nFeatures Located within this Application:");
-                    for (Feature curFeature : curApp.getFeatures()) {
+                console.println("\nRequired Features Not Started");
+                if (appStatus.getErrorFeatures().isEmpty()) {
+                    console.print(Ansi.ansi().fg(Ansi.Color.GREEN).toString());
+                    console.println("\tNONE");
+                    console.print(Ansi.ansi().reset().toString());
+                } else {
+                    for (Feature curFeature : appStatus.getErrorFeatures()) {
+                        console.print(Ansi.ansi().fg(Ansi.Color.RED).toString());
                         console.println("\t" + curFeature.getName());
-                    }
-
-                    console.println("\nRequired Features Not Started");
-                    if (appStatus.getErrorFeatures().isEmpty()) {
-                        console.print(Ansi.ansi().fg(Ansi.Color.GREEN).toString());
-                        console.println("\tNONE");
                         console.print(Ansi.ansi().reset().toString());
-                    } else {
-                        for (Feature curFeature : appStatus.getErrorFeatures()) {
-                            console.print(Ansi.ansi().fg(Ansi.Color.RED).toString());
-                            console.println("\t" + curFeature.getName());
-                            console.print(Ansi.ansi().reset().toString());
-                        }
                     }
+                }
 
-                    console.println("\nRequired Bundles Not Started");
-                    if (appStatus.getErrorBundles().isEmpty()) {
-                        console.print(Ansi.ansi().fg(Ansi.Color.GREEN).toString());
-                        console.println("\tNONE");
+                console.println("\nRequired Bundles Not Started");
+                if (appStatus.getErrorBundles().isEmpty()) {
+                    console.print(Ansi.ansi().fg(Ansi.Color.GREEN).toString());
+                    console.println("\tNONE");
+                    console.print(Ansi.ansi().reset().toString());
+                } else {
+                    for (Bundle curBundle : appStatus.getErrorBundles()) {
+                        console.print(Ansi.ansi().fg(Ansi.Color.RED).toString());
+                        console.println("\t" + "[" + curBundle.getBundleId() + "]\t"
+                                + curBundle.getSymbolicName());
                         console.print(Ansi.ansi().reset().toString());
-                    } else {
-                        for (Bundle curBundle : appStatus.getErrorBundles()) {
-                            console.print(Ansi.ansi().fg(Ansi.Color.RED).toString());
-                            console.println("\t" + "[" + curBundle.getBundleId() + "]\t"
-                                    + curBundle.getSymbolicName());
-                            console.print(Ansi.ansi().reset().toString());
-                        }
                     }
                 }
             }
-        } finally {
-            getBundleContext().ungetService(ref);
         }
-        return null;
+        return;
     }
 
 }
