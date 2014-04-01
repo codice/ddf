@@ -43,3 +43,8 @@
     /*border: solid 1px #DDD;*/
     /*box-shadow: rgba(0,0,0,0.2) 1px 1px 1px, inset rgba(0,0,0,0.2) -1px -1px 2px;*/
 }
+.error-text {
+    color: red;
+    padding-bottom: 20px;
+    display: block;
+}

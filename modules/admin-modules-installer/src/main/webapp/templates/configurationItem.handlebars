@@ -8,12 +8,12 @@
         {{/is}}
         {{#isnt optionValues.length 0}}
             <select id="{{id}}" name="{{id}}">
-                {{#each optionValues}}
-                    <option value="{{.}}">{{lookup ../optionLabels @index}}</option>
+                {{#each optionLabels}}
+                    <option value="{{lookup ../optionValues @index}}" {{#is @index 0}}selected="selected" {{/is}}>{{.}}</option>
                 {{/each}}
             </select>
         {{/isnt}}
-
     </div>
+    <span class="error-text" name="{{id}}Error" style="display: none"></span>
     <span class="description">{{description}}</span>
 </div>

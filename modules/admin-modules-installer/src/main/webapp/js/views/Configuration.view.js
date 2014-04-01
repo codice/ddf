@@ -35,21 +35,87 @@ define(function (require) {
         url: '/jolokia/exec/org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui,version=2.3.0/getService/(service.pid%3Dddf.platform.config)'
     });
 
-
+    var displayedProperties = [
+        {
+            id: 'port',
+            note: ''
+        },
+        {
+            id: 'host',
+            note: ''
+        },
+        {
+            id: 'id',
+            description: 'The name of this site. This name will be provided via web services that ask for the name of the site.',
+            note: ''
+        },
+        {
+            id: 'protocol',
+            description: 'The protocol used to advertise the system. When selecting the protocol, be sure to enter the port number corresponding to that protocol.',
+            note: ''
+        },
+        {
+            id: 'organization',
+            description: 'The name of the organization that runs this site.',
+            note: ''
+        }
+    ];
 
     var ConfigurationItem = Marionette.ItemView.extend({
         className: 'well well-sm white',
         template: 'configurationItem',
         onRender: function() {
             if(this.model.get('optionLabels') && this.model.get('optionLabels').length !== 0) {
-                this.$('#' + this.model.get('id')).multiselect();
+                this.$('[name=' + this.model.get('id') + ']').multiselect();
             }
         }
     });
 
     var ConfigurationCollection = Marionette.CollectionView.extend({
-        itemView: ConfigurationItem
+        itemView: ConfigurationItem,
+        buildItemView: function(item, ItemViewType, itemViewOptions){
+            var view;
+            _.each(displayedProperties, function(property) {
+                if(item.get('id') === property.id) {
+                    //if we hardcoded specific messages above, clobber what is in the metatype
+                    if(property.description) {
+                        item.set({ 'description': property.description });
+                    }
+                    if(property.note) {
+                        item.set({ 'note': property.note});
+                    }
+                    var options = _.extend({model: item}, itemViewOptions);
+
+                    view = new ItemViewType(options);
+                }
+            });
+            if(view) {
+                return view;
+            }
+            return new Marionette.ItemView();
+        },
     });
+
+    var validateFunction = function(attrs) {
+        var validation = [];
+        if(!attrs.properties.get('port') || _.isNaN(parseInt(attrs.properties.get('port'), 10))) {
+            validation.push({
+                message: 'Port is required and must only be digits.',
+                id: 'port'
+            });
+        }
+
+        if(!attrs.properties.get('host')) {
+            validation.push({
+                message: 'Host is required.',
+                id: 'host'
+            });
+        }
+
+        if(validation.length > 0) {
+            return validation;
+        }
+    };
 
     var ConfigurationView = Marionette.Layout.extend({
         template: 'configurationTemplate',
@@ -63,6 +129,7 @@ define(function (require) {
             this.listenTo(this.navigationModel,'next', this.next);
             this.listenTo(this.navigationModel,'previous', this.previous);
             this.modelBinder = new Backbone.ModelBinder();
+            Backbone.ModelBinder.SetOptions({modelSetOptions: {validate: true}});
         },
         onRender: function() {
             var view = this;
@@ -80,14 +147,38 @@ define(function (require) {
                 this.model.get('value').at(0).get('configurations').add(configuration);
             }
             this.modelBinder.bind(this.model.get('value').at(0).get('configurations').at(0).get('properties'), this.$el, bindings);
+            var selects = this.$('select').multiselect('refresh');
         },
         onClose: function() {
             this.stopListening(this.navigationModel);
             this.$('#config-form').perfectScrollbar('destroy');
         },
         next: function() {
-            //this is your hook to perform any validation you need to do before going to the next step
-            this.navigationModel.nextStep();
+            var view = this;
+            var configuration = this.model.get('value').at(0).get('configurations').at(0);
+
+            this.listenTo(configuration, 'invalid', function(model, error) {
+                this.model.get('value').at(0).get('metatype').forEach(function(metatype) {
+                    view.$('[name='+metatype.get('id')+'Error]').hide();
+                    _.each(error, function(errorItem) {
+                        if(metatype.get('id') === errorItem.id) {
+                            view.$('[name='+metatype.get('id')+'Error]').show().html(errorItem.message);
+                        }
+                    });
+                });
+            });
+
+            this.model.get('value').at(0).get('configurations').at(0).validate = validateFunction;
+
+            //save the config
+            var saved = configuration.save();
+            if(saved) {
+                saved.success(function() {
+                    view.navigationModel.nextStep();
+                }).fail(function() {
+                      //do something for a failure
+                  });
+            }
         },
         previous: function() {
             //this is your hook to perform any teardown that must be done before going to the previous step
