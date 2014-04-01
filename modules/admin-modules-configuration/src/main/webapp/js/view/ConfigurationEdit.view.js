@@ -22,7 +22,10 @@ define(function (require) {
         ich = require('icanhaz');
 
     var ConfigurationEdit = {};
-
+    
+    var TempModel = Backbone.Model.extend({});
+    var TempCollection = Backbone.Collection.extend({model: TempModel});
+    
     ich.addTemplate('configurationEdit', require('text!/configurations/templates/configurationEdit.handlebars'));
     if(!ich.optionListType) {
         ich.addTemplate('optionListType', require('text!templates/optionListType.handlebars'));
@@ -39,8 +42,42 @@ define(function (require) {
     if(!ich.checkboxType) {
         ich.addTemplate('checkboxType', require('text!templates/checkboxType.handlebars'));
     }
+    if(!ich.textTypeListRegion) {
+        ich.addTemplate('textTypeListRegion', require('text!templates/textTypeListRegion.handlebars'));
+    }
+    if(!ich.textTypeListHeader) {
+        ich.addTemplate('textTypeListHeader', require('text!templates/textTypeListHeader.handlebars'));
+    }
+    if(!ich.textTypeList) {
+        ich.addTemplate('textTypeList', require('text!templates/textTypeList.handlebars'));
+    }
 
-    ConfigurationEdit.View = Marionette.ItemView.extend({
+    ConfigurationEdit.ViewArrayEntry = Marionette.ItemView.extend({
+        template: 'textTypeList',
+        tagName: 'tr',
+        events: {
+            "click .minus-button": "minusButton"
+        },
+        initialize: function() {
+            this.modelBinder = new Backbone.ModelBinder();
+        },
+        onRender: function() {
+            var bindings = Backbone.ModelBinder.createDefaultBindings(this.el, 'name');
+            this.modelBinder.bind(this.model, this.$el, bindings);
+        },
+        minusButton: function() {
+            this.model.collection.remove(this.model);
+        }
+    });
+    
+        
+    ConfigurationEdit.ViewArray = Marionette.CollectionView.extend({
+        template: 'textTypeListRegion',
+        itemView: ConfigurationEdit.ViewArrayEntry,
+        itemViewContainer: 'tbody',
+    });
+
+    ConfigurationEdit.View = Marionette.Layout.extend({
         template: 'configurationEdit',
         tagName: 'div',
         className: 'modal-dialog',
@@ -52,9 +89,10 @@ define(function (require) {
             "click .submit-button": "submitData",
             "click .cancel-button": "cancel",
             "click .enable-checkbox" : "toggleEnable",
-            "change .sourceTypesSelect" : "render"
+            "change .sourceTypesSelect" : "render",
+            "click .plus-button": "plusButton"
         },
-
+        
         /**
          * Initialize  the binder with the ManagedServiceFactory model.
          * @param options
@@ -85,11 +123,8 @@ define(function (require) {
         renderDynamicFields: function() {
             var view = this;
             //view.$(".data-section").append(ich.checkboxEnableType(view.managedServiceFactory.toJSON()));
-
             view.model.get('service').get('metatype').forEach(function(each) {
                 var type = each.get("type");
-                //TODO re-enable this when this functionality is added back in
-//                var cardinality = each.get("cardinality"); //this is ignored for now and lists will be rendered as a ',' separated list
                 if(!_.isUndefined(type)) {
                     //from the Metatype specification
                     // int STRING = 1;
@@ -105,7 +140,9 @@ define(function (require) {
                     // int BOOLEAN = 11;
                     // int PASSWORD = 12;
                     if (type === 1 || type === 5 || type === 6 || (type >= 7 && type <= 10)) {
-                        view.$(".data-section").append(ich.textType(each.toJSON()));
+                        if (each.get("cardinality") === 0) {
+                            view.$(".data-section").append(ich.textType(each.toJSON()));
+                        }
                     }
                     else if (type === 11) {
                         view.$(".data-section").append(ich.checkboxType(each.toJSON()));
@@ -123,6 +160,7 @@ define(function (require) {
          * Submit to the backend.
          */
         submitData: function() {
+            this.setPropertyArray("newSave");
             this.model.save();
             if(this.model.get('service') && this.model.get('service').get('response')) {
                 this.model.get('service').get('response').trigger('canceled');
@@ -145,6 +183,23 @@ define(function (require) {
             if(!this.model.get('properties').get('service.pid') && this.model.get('service')) {
                 this.model.get('service').get('configurations').remove(this.model);
             }
+            this.cancelRegion();
+        },
+        /**
+         * Upon a cancel, it will remove the temporarily used region
+         */
+        cancelRegion: function() {
+            var view = this;
+            view.model.get('service').get('metatype').forEach(function(each) {
+                this.type = each.get("type");
+                if(!_.isUndefined(this.type)) {
+                    if (this.type === 1 || this.type === 5 || this.type === 6 || (this.type >= 7 && this.type <= 10)) {
+                        if(each.get('cardinality') !== 0) {
+                            view[each.get("id")].close();
+                        }
+                    }
+                }
+            });
         },
         /**
          * Set up the popovers based on if the selector has a description.
@@ -163,6 +218,98 @@ define(function (require) {
                     view.$(selector).popover(options);
                 }
             });
+        },
+        /**
+         * This will set the defaults and set values for properties with cardinality of nonzero
+         */
+        refresh: function() {
+            this.setPropertyArray("default");
+            this.setPropertyArray();
+        },
+        /**
+         * Properties with a nonzero cardinality will be parsed and entered into their own text boxes.
+         */
+        setPropertyArray: function(propertyType) {
+            var view = this;
+            view.model.get('service').get('metatype').forEach(function(each) {
+                var type = each.get("type");
+                if(!_.isUndefined(type)) {
+                    if (type === 1 || type === 5 || type === 6 || (type >= 7 && type <= 10)) {
+                        if(each.get('cardinality') !== 0) {
+                            var valueArray = [];
+                            var count = 0;
+                            /**
+                             * Initial load of the properties will be defaults
+                             */
+                            if(propertyType === "default") {
+                                var defaultConfig = each.get('defaultValue');
+                                if(defaultConfig) {
+                                    count = 0;
+                                    _.each(defaultConfig.split(/[,]+/), function(item) {
+                                        var itemObj = {};
+                                        itemObj.id = each.get('id') + "_" + count++;
+                                        itemObj.value = item;
+                                        valueArray.push(itemObj);
+                                    });
+                                }
+                                view.collectionArray = new TempCollection(valueArray);
+                                if(!view[each.get("id")]) {
+                                    view.$(".data-section").append(ich.textTypeListHeader(each.toJSON()));
+                                    view.addRegion(each.get("id"), "#"+each.get("id"));
+                                }
+                                view[each.get("id")].show(new ConfigurationEdit.ViewArray({collection: view.collectionArray}));
+                            }
+                            /**
+                             * If the submit/save button is clicked, all current values will be stored
+                             */
+                            else if (propertyType === "newSave") {
+                                while(view.collectionArray.at(count))
+                                {
+                                    var configValues = view.collectionArray.at(count).get('value');
+                                    valueArray.push(configValues);
+                                    count++;
+                                }
+                                var propertyString = valueArray.join();
+                                view.model.get('properties').set(each.get('id'), propertyString);
+                            }
+                            /**
+                             * Loads values stored in the metatype upon first load and refreshes
+                             */
+                            else {
+                                var configurationProperties = view.model.get('properties').get(each.get('id'));
+                                if(configurationProperties){
+                                    if(configurationProperties instanceof Array) {
+                                        var nonArray = configurationProperties.join();
+                                        configurationProperties = nonArray;
+                                    }
+                                    count = 0;
+                                    _.each(configurationProperties.split(/[,]+/), function(item) {
+                                        var itemObj = {};
+                                        itemObj.id = each.get('id') + "_" + count++;
+                                        itemObj.value = item;
+                                        valueArray.push(itemObj);
+                                    });
+                                }
+                                view.collectionArray.set(valueArray);
+                            }
+                        }
+                    }
+                }
+            });
+        },
+        /**
+         * Creates a new text field for the properties collection.
+         */
+        plusButton: function() {
+            var count = this.collectionArray.length;
+            var id = this.collectionArray.at(0).get('id');
+            var idTrimmed = id.split(/[_]+/);
+            var item = {};
+            item.id = [idTrimmed[0] + "_" + count];
+            item.value = ["enter new value"];
+            var array = [];
+            array.push(item);
+            this.collectionArray.add(array);
         }
     });
 

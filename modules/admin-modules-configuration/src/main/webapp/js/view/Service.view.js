@@ -35,7 +35,8 @@ define(function (require) {
         events: {
             'click .editLink' : 'editConfiguration',
             'click .removeLink' : 'removeConfiguration',
-            'hidden.bs.modal' : 'cancelEditConfiguration'
+            'hidden.bs.modal' : 'cancelEditConfiguration',
+            'shown.bs.modal' : 'refreshConfiguration'
         },
         regions: {
             editModal: '.modal'
@@ -57,6 +58,11 @@ define(function (require) {
         cancelEditConfiguration: function() {
             if(this.editModal.currentView) {
                 this.editModal.currentView.cancel();
+            }
+        },
+        refreshConfiguration: function() {
+            if(this.editModal.currentView) {
+                this.editModal.currentView.refresh();
             }
         }
     });

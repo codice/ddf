@@ -22,7 +22,7 @@
         "requirejs-plugins": "1.0.2",
         "require-css": "0.1.2",
         "spin.js": "1.3.3",
-        "bootswatch": "v3.1.1",
+        "bootswatch": "bootswatch#2157a891c0e4c9d13809f6aa8858a3feea722067",
         "lato": "0.2.0"
     },
     "resolutions": {
