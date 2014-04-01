@@ -477,7 +477,7 @@ public class CatalogFrameworkImplTest {
         when(resourceCache.contains(isA(String.class))).thenReturn(false);
         ResourceResponse resourceResponseInCache = new ResourceResponseImpl(mockResource);
         when(resourceCache.put(isA(Metacard.class), isA(ResourceResponse.class),
-             isA(ResourceRetriever.class))).thenReturn(resourceResponseInCache);
+             isA(ResourceRetriever.class), isA(Boolean.class))).thenReturn(resourceResponseInCache);
         catalogFrameworkUnderTest.setProductCache(resourceCache);
 
         String resourceSiteName = "myId";

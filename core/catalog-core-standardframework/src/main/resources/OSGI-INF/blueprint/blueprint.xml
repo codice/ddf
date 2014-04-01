@@ -200,6 +200,7 @@
 		<property name="delayBetweenRetryAttempts" value="10" />
         <property name="maxRetryAttempts" value="3" />
         <property name="cachingMonitorPeriod" value="5" />
+        <property name="cacheWhenCanceled" value="false" />
 	</bean>
 
 	<bean id="sourcePoller" class="ddf.catalog.util.impl.SourcePoller" >

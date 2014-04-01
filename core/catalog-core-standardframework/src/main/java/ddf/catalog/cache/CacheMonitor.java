@@ -14,14 +14,12 @@
  **/
 package ddf.catalog.cache;
 
-import ddf.catalog.event.retrievestatus.RetrievalStatusEventPublisher;
-import ddf.catalog.operation.ResourceResponse;
+import java.util.TimerTask;
+import java.util.concurrent.Future;
+
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.TimerTask;
-import java.util.concurrent.Future;
 
 
 /**
@@ -49,16 +47,12 @@ public class CacheMonitor extends TimerTask {
     private Future<?> future;
     private CallableCacheProduct callableCacheProduct;
     private long cachingMonitorPeriod;
-    private RetrievalStatusEventPublisher eventPublisher;
-    private ResourceResponse resourceResponse;
 
-    public CacheMonitor(Future<?> future, CallableCacheProduct callableCacheProduct, long cachingMonitorPeriod,
-                        RetrievalStatusEventPublisher eventPublisher, ResourceResponse resourceResponse) {
+
+    public CacheMonitor(Future<?> future, CallableCacheProduct callableCacheProduct, long cachingMonitorPeriod) {
         this.future = future;
         this.callableCacheProduct = callableCacheProduct;
         this.cachingMonitorPeriod = cachingMonitorPeriod;
-        this.eventPublisher = eventPublisher;
-        this.resourceResponse = resourceResponse;
     }
 
     public long getBytesRead() {
@@ -68,8 +62,6 @@ public class CacheMonitor extends TimerTask {
     @Override
     public void run() {
         long bytesRead = callableCacheProduct.getBytesRead();
-        eventPublisher.postRetrievalStatus(resourceResponse,
-                RetrievalStatusEventPublisher.PRODUCT_RETRIEVAL_RETRIEVING, bytesRead);
         long chunkByteCount = bytesRead - previousBytesRead;
         if (chunkByteCount > 0) {
             long transferSpeed = (chunkByteCount / cachingMonitorPeriod) * 1000;  // in bytes per second

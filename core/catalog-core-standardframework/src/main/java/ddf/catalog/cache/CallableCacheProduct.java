@@ -14,6 +14,7 @@
  **/
 package ddf.catalog.cache;
 
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.concurrent.Callable;
@@ -21,6 +22,8 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.io.CountingOutputStream;
 
 /**
  * CallableCacheProduct is responsible for caching a product to the file system. It is a @Callable
@@ -50,9 +53,9 @@ public class CallableCacheProduct implements Callable<CachedResourceStatus> {
 
     private InputStream input = null;
 
-    private CounterOutputStream pos;
+    private CountingOutputStream fbos;
 
-    private CounterOutputStream output = null;
+    private FileOutputStream output = null;
 
     /**
      * Since this long is read by a different thread needs to be AtomicLong to make setting its
@@ -67,12 +70,12 @@ public class CallableCacheProduct implements Callable<CachedResourceStatus> {
     private boolean interruptCaching = false;
 
 
-    public CallableCacheProduct(InputStream input, CounterOutputStream pos,
-            CounterOutputStream output, int chunkSize) {
+    public CallableCacheProduct(InputStream input, CountingOutputStream fbos,
+            FileOutputStream fos, int chunkSize) {
         LOGGER.debug("Creating CallableCacheProduct");
         this.input = input;
-        this.pos = pos;
-        this.output = output;
+        this.fbos = fbos;
+        this.output = fos;
         this.chunkSize = chunkSize;
     }
 
@@ -102,7 +105,8 @@ public class CallableCacheProduct implements Callable<CachedResourceStatus> {
         // the call() method is interrupted
         LOGGER.debug("Caching interrupted - returning {} bytes read", bytesRead);
         cachedResourceStatus = new CachedResourceStatus(CachingStatus.RESOURCE_CACHING_INTERRUPTED,
-                bytesRead.get(), output.getBytesWritten(), pos.getBytesWritten());
+                bytesRead.get());
+        cachedResourceStatus.setMessage("Caching interrupted - returning " + bytesRead + " bytes read");
     }
 
     @Override
@@ -111,20 +115,23 @@ public class CallableCacheProduct implements Callable<CachedResourceStatus> {
 
         byte[] buffer = new byte[chunkSize];
         int n = 0;
-
-        while (!interruptCaching) {
+        
+        while (!interruptCaching && !Thread.interrupted() && input != null) {
             chunkCount++;
-
+            
             // This read will block if the PipedOutputStream's circular buffer is filled
             // before the client reads from it via the PipedInputStream
             try {
                 n = input.read(buffer);
             } catch (IOException e) {
+                if (interruptCaching || Thread.interrupted()) {
+                    cachedResourceStatus.setMessage("IOException during read of product's InputStream");
+                    return cachedResourceStatus;
+                }
                 LOGGER.info("IOException during read of product's InputStream - bytesRead = {}",
-                        bytesRead.get());
+                        bytesRead.get(), e);
                 cachedResourceStatus = new CachedResourceStatus(
-                        CachingStatus.PRODUCT_INPUT_STREAM_EXCEPTION, bytesRead.get(),
-                        output.getBytesWritten(), pos.getBytesWritten());
+                        CachingStatus.PRODUCT_INPUT_STREAM_EXCEPTION, bytesRead.get());
                 return cachedResourceStatus;
             }
             LOGGER.trace("AFTER read() - n = {}", n);
@@ -140,11 +147,10 @@ public class CallableCacheProduct implements Callable<CachedResourceStatus> {
                 // get out of sync with the bytesWritten counts. If this count gets out of sync
                 // then potentially the output streams will be one chunk off from the input stream
                 // when a retry is attempted and the InputStream is skipped forward.
-                if (interruptCaching) {
+                if (interruptCaching || Thread.interrupted()) {
                     LOGGER.debug("Breaking from caching loop due to interrupt received");
-                    LOGGER.trace("chunkCount = {},  bytesRead = {},  fosBytesWritten = {},  posBytesWritten = {}", 
-                            chunkCount, bytesRead.get(), output.getBytesWritten(), pos.getBytesWritten());
-                    break;
+                    cachedResourceStatus.setMessage("Breaking from caching loop due to interrupt received");
+                    return cachedResourceStatus;
                 }
 
                 bytesRead.addAndGet(n);
@@ -153,35 +159,37 @@ public class CallableCacheProduct implements Callable<CachedResourceStatus> {
                     try {
                         output.write(buffer, 0, n);
                     } catch (IOException e) {
-                        LOGGER.info("IOException during write to cached file's OutputStream");
+                        LOGGER.info("IOException during write to cached file's OutputStream", e);
                         cachedResourceStatus = new CachedResourceStatus(
-                                CachingStatus.CACHED_FILE_OUTPUT_STREAM_EXCEPTION, bytesRead.get(),
-                                output.getBytesWritten(), pos.getBytesWritten());
+                                CachingStatus.CACHED_FILE_OUTPUT_STREAM_EXCEPTION, bytesRead.get());
                         return cachedResourceStatus;
                     }
                 }
 
-                if (pos != null) {
+                if (fbos != null) {
                     try {
-                        pos.write(buffer, 0, n);
+                        fbos.write(buffer, 0, n);
+                        fbos.flush();
                     } catch (IOException e) {
-                        LOGGER.info("IOException during write to PipedOutputStream for client to read");
+                        LOGGER.info("IOException during write to FileBackedOutputStream for client to read", e);
                         cachedResourceStatus = new CachedResourceStatus(
-                                CachingStatus.PIPED_OUTPUT_STREAM_EXCEPTION, bytesRead.get(),
-                                output.getBytesWritten(), pos.getBytesWritten());
+                                CachingStatus.CLIENT_OUTPUT_STREAM_EXCEPTION, bytesRead.get());
                         return cachedResourceStatus;
                     }
                 }
             }
-            LOGGER.trace("chunkCount = {},  bytesRead = {},  fosBytesWritten = {},  posBytesWritten = {}", 
-                    chunkCount, bytesRead.get(), output.getBytesWritten(), pos.getBytesWritten());
+            LOGGER.trace("chunkCount = {},  bytesRead = {}", 
+                    chunkCount, bytesRead.get());
         }
 
-        if (!interruptCaching) {
+        if (!interruptCaching && !Thread.interrupted()) {
             LOGGER.debug("Returning -1 to indicate entire file cached successfully");
             cachedResourceStatus = new CachedResourceStatus(
-                    CachingStatus.RESOURCE_CACHING_COMPLETE, bytesRead.get(),
-                    output.getBytesWritten(), pos.getBytesWritten());
+                    CachingStatus.RESOURCE_CACHING_COMPLETE, bytesRead.get());
+            cachedResourceStatus.setMessage("Caching completed successfully");
+        } else {
+            LOGGER.debug("Caching interrupted - this CallableCacheProduct on thread {}", Thread.currentThread().getName());
+            cachedResourceStatus.setMessage("Caching interrupted - this CallableCacheProduct on thread " + Thread.currentThread().getName());
         }
 
         return cachedResourceStatus;

@@ -61,6 +61,11 @@
 			<artifactId>org.osgi.compendium</artifactId>
 		</dependency>
 		<dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>16.0.1</version>
+        </dependency>  
+		<dependency>
 			<groupId>log4j</groupId>
 			<artifactId>log4j</artifactId>
 		</dependency>
@@ -87,6 +92,10 @@
 					<instructions>
 						<!-- DDF-1614: <Bundle-SymbolicName>${project.artifactId};blueprint.graceperiod:=true;blueprint.timeout:=604800000</Bundle-SymbolicName> -->
 						<Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+						<Embed-Dependency>
+                            guava
+                        </Embed-Dependency>
+                        <Embed-Transitive>true</Embed-Transitive>
 						<Private-Package>
 						    ddf.catalog.cache,
                             ddf.catalog.event.retrievestatus,

@@ -27,16 +27,18 @@ package ddf.catalog.cache;
 public class CachedResourceStatus {
     
     private long bytesRead;
-    private long cachedFileBytesWritten;
-    private long posBytesWritten;
+//    private long cachedFileBytesWritten;
+//    private long posBytesWritten;
     private CachingStatus cachingStatus;
+    private String message;
     
     
-    public CachedResourceStatus(CachingStatus cachingStatus, long bytesRead, long cachedFileBytesWritten, long posBytesWritten) {
+//    public CachedResourceStatus(CachingStatus cachingStatus, long bytesRead, long cachedFileBytesWritten, long posBytesWritten) {
+    public CachedResourceStatus(CachingStatus cachingStatus, long bytesRead) {        
         this.cachingStatus = cachingStatus;
         this.bytesRead = bytesRead;
-        this.cachedFileBytesWritten = cachedFileBytesWritten;
-        this.posBytesWritten = posBytesWritten;
+//        this.cachedFileBytesWritten = cachedFileBytesWritten;
+//        this.posBytesWritten = posBytesWritten;
     }
     
     public void setBytesRead(long bytesRead) {
@@ -46,22 +48,22 @@ public class CachedResourceStatus {
     public long getBytesRead() {
         return bytesRead;
     }
-    
-    public long getCachedFileBytesWritten() {
-        return cachedFileBytesWritten;
-    }
-
-    public void setCachedFileBytesWritten(long cachedFileBytesWritten) {
-        this.cachedFileBytesWritten = cachedFileBytesWritten;
-    }
-
-    public long getPosBytesWritten() {
-        return posBytesWritten;
-    }
-
-    public void setPosBytesWritten(long posBytesWritten) {
-        this.posBytesWritten = posBytesWritten;
-    }
+//    
+//    public long getCachedFileBytesWritten() {
+//        return cachedFileBytesWritten;
+//    }
+//
+//    public void setCachedFileBytesWritten(long cachedFileBytesWritten) {
+//        this.cachedFileBytesWritten = cachedFileBytesWritten;
+//    }
+//
+//    public long getPosBytesWritten() {
+//        return posBytesWritten;
+//    }
+//
+//    public void setPosBytesWritten(long posBytesWritten) {
+//        this.posBytesWritten = posBytesWritten;
+//    }
 
     
     public void setCachingStatus(CachingStatus cachingStatus) {
@@ -72,10 +74,15 @@ public class CachedResourceStatus {
         return cachingStatus;
     }
     
+    public void setMessage(String message) {
+        this.message = message;
+    }
+    
     public String toString() {
         String s = "bytesRead = " + bytesRead + ",  cachedFileBytesWritten = "
-                + cachedFileBytesWritten + ",  posBytesWritten = " + posBytesWritten
-                + ",  cachingStatus = " + cachingStatus.toString();
+//                + cachedFileBytesWritten + ",  posBytesWritten = " + posBytesWritten
+                + ",  cachingStatus = " + cachingStatus.toString()
+                + ",  message = " + message;
         
         return s;
     }

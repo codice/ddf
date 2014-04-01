@@ -1,18 +1,27 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * 
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * 
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
+ * 
  **/
 package ddf.catalog.cache;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ddf.cache.Cache;
 import ddf.cache.CacheException;
@@ -24,14 +33,6 @@ import ddf.catalog.operation.ResourceResponse;
 import ddf.catalog.operation.impl.ResourceResponseImpl;
 import ddf.catalog.resource.Resource;
 import ddf.catalog.resourceretriever.ResourceRetriever;
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 
 public class ResourceCache {
 
@@ -45,9 +46,9 @@ public class ResourceCache {
      * Delay, in ms, between attempts to retrieve and cache the product
      */
     private static int DEFAULT_DELAY_BETWEEN_ATTEMPTS = 10000;  // 10 seconds
-
+    
     private static int DEFAULT_MAX_RETRY_ATTEMPTS = 3;
-
+    
     /**
      * Frequency, in ms, that Caching Monitor checks that more bytes have been read
      * from the source InputStream
@@ -58,32 +59,32 @@ public class ResourceCache {
     /**
      * Default location for product-cache directory, <INSTALL_DIR>/data/product-cache
      */
-    public static final String DEFAULT_PRODUCT_CACHE_DIRECTORY =
-    		"data" + File.separator + "product-cache";
+    public static final String DEFAULT_PRODUCT_CACHE_DIRECTORY = 
+            "data" + File.separator + "product-cache";
 
     private CacheManager cacheManager;
 
     private Cache cache;
-
+    
     private RetrievalStatusEventPublisher retrievalStatusEventPublisher;
-
+    
     private List<String> pendingCache = new ArrayList<String>();
 
     /** Directory for products cached to file system */
     private String productCacheDirectory;
-
+    
     private int delayBetweenAttempts = DEFAULT_DELAY_BETWEEN_ATTEMPTS;
-
+    
     private int maxRetryAttempts = DEFAULT_MAX_RETRY_ATTEMPTS;
-
+    
     private long cachingMonitorPeriod = DEFAULT_CACHING_MONITOR_PERIOD;
-
+    
 
     public ResourceCache(RetrievalStatusEventPublisher retrievalStatusEventPublisher) {
         LOGGER.debug("Setting retrievalStatusEventPublisher");
         this.retrievalStatusEventPublisher = retrievalStatusEventPublisher;
     }
-
+    
     public void setCacheManager(CacheManager cacheManager) {
         LOGGER.debug("Setting cacheManager");
         this.cacheManager = cacheManager;
@@ -112,8 +113,8 @@ public class ResourceCache {
                 final File karafHomeDir = new File(System.getProperty(KARAF_HOME));
 
                 if (karafHomeDir.isDirectory()) {
-					final File fspDir = new File(karafHomeDir + File.separator
-							+ DEFAULT_PRODUCT_CACHE_DIRECTORY);
+                    final File fspDir = new File(karafHomeDir + File.separator
+                            + DEFAULT_PRODUCT_CACHE_DIRECTORY);
 
                     // if directory does not exist, try to create it
                     if (fspDir.isDirectory() || fspDir.mkdirs()) {
@@ -141,27 +142,27 @@ public class ResourceCache {
 
         LOGGER.debug("Set product cache directory to: {}", this.productCacheDirectory);
     }
-
+    
     public String getProductCacheDirectory() {
-    	return productCacheDirectory;
+        return productCacheDirectory;
     }
-
+    
     public void setDelayBetweenAttempts(int delayBetweenAttempts) {
         LOGGER.debug("Setting delayBetweenAttempts = {} ms", delayBetweenAttempts);
         this.delayBetweenAttempts = delayBetweenAttempts;
     }
-
+    
     public void setMaxRetryAttempts(int maxRetryAttempts) {
         LOGGER.debug("Setting maxRetryAttempts = {}", maxRetryAttempts);
         this.maxRetryAttempts = maxRetryAttempts;
     }
-
+    
     public void setCachingMonitorPeriod(long period) {
         this.cachingMonitorPeriod = period;
     }
 
-    public ResourceResponse put(Metacard metacard, ResourceResponse resourceResponse, ResourceRetriever retriever)
-        throws CacheException {
+    public ResourceResponse put(Metacard metacard, ResourceResponse resourceResponse,
+            ResourceRetriever retriever, boolean cacheWhenCanceled) throws CacheException {
 
         LOGGER.debug("ENTERING: put()");
 
@@ -172,7 +173,7 @@ public class ResourceCache {
             throw new CacheException("Must specify non-null resourceResponse");
         } else if (retriever == null) {
             throw new CacheException("Must specify non-null ResourceRetriever");
-        }
+        } 
         else if (StringUtils.isBlank(metacard.getId())) {
             throw new CacheException("Metacard must have unique id.");
         }
@@ -180,11 +181,13 @@ public class ResourceCache {
         ResourceRequest resourceRequest = resourceResponse.getRequest();
 
         LOGGER.debug("metacard ID = {}", metacard.getId());
-
+        
         CacheKey keyMaker = new CacheKey(metacard, resourceResponse.getRequest());
 
         String key = keyMaker.generateKey();
 
+        // If resource with this cache key is already in the process of being cached, then
+        // prevent caching it again - just return the resourceResponse that caller passed in.
         if (pendingCache.contains(key)) {
             LOGGER.debug(
                     "Cache file with key = {} is already pending caching - return resourceResponse that was passed in",
@@ -196,21 +199,22 @@ public class ResourceCache {
 
         CachedResource cachedResource = new CachedResource(productCacheDirectory, maxRetryAttempts,
                 delayBetweenAttempts, cachingMonitorPeriod, retrievalStatusEventPublisher);
-
+        
         // store() will return a new Resource with its input stream now set to
         // the PipedInputStream that caching thread will write to simultaneously
         // as it writes the product input stream to cache (disk).
-        Resource newResource = cachedResource.store(key, resourceResponse, this, retriever);
-
-        //Moved into CachedResource class (that's why "ResourceCache" argument passed into store() above)
-        //until figure out better way.
+        Resource newResource = cachedResource.store(key, resourceResponse, this, retriever, cacheWhenCanceled);
+        
+        // Deferred until after caching is complete (that's why "ResourceCache" argument passed into store()
+        // call above so that CachedResource can callback to this ResourceCache to add the cachedResource
+        // into the cache map)
         //cache.put(cachedResource.getKey(), cachedResource);
-
+        
         // Used to prevent caching same product twice, i.e., if same product requested while it is
         // in process of being cached
         pendingCache.add(key);
 
-        // Create new ResourceResponse with the PipedInputStream that the client will
+        // Create new ResourceResponse with the PipedInputStream that the client (endpoint) will
         // read simultaneously as the file is cached to disk
         ResourceResponse newResourceResponse = new ResourceResponseImpl(resourceRequest,
                 resourceResponse.getProperties(), newResource);
@@ -219,15 +223,22 @@ public class ResourceCache {
 
         return newResourceResponse;
     }
-
+    
+    /**
+     * Called by CachedResource when resource has completed being cached to disk and is ready to
+     * be added to the cache map.
+     * 
+     * @param cachedResource
+     * @throws CacheException
+     */
     public void put(CachedResource cachedResource) throws CacheException {
         LOGGER.trace("ENTERING: put(CachedResource)");
         cache.put(cachedResource.getKey(), cachedResource);
         removePendingCacheEntry(cachedResource.getKey());
-
+        
         LOGGER.trace("EXITING: put(CachedResource)");
     }
-
+    
     public void removePendingCacheEntry(String cacheKey) {
         if (!pendingCache.remove(cacheKey)) {
             LOGGER.debug("Did not find pending cache entry with key = {}", cacheKey);
@@ -237,7 +248,7 @@ public class ResourceCache {
     }
 
     /**
-     *
+     * 
      * @param key
      * @return Resource, {@code null} if not found.
      * @throws CacheException
@@ -249,9 +260,9 @@ public class ResourceCache {
             throw new CacheException("Must specify non-null key");
         }
         LOGGER.debug("key {}", key);
-
+        
         ClassLoader tccl = Thread.currentThread().getContextClassLoader();
-
+        
         CachedResource cachedResource = null;
         try {
             Thread.currentThread().setContextClassLoader(
@@ -259,32 +270,32 @@ public class ResourceCache {
             cachedResource = (CachedResource) cache.get(key);
         } finally {
             Thread.currentThread().setContextClassLoader(tccl);
-        }
-
+        }        
+        
         // Check that CachedResource actually maps to a file (product) in the
         // product cache directory. This check handles the case if the product
         // cache directory has had files deleted from it.
         if (cachedResource != null) {
-        	if (cachedResource.hasProduct()) {
-	            LOGGER.debug("EXITING: get() for key {}", key);
-	            return cachedResource;
-        	} else {
-				LOGGER.debug("Entry found in the cache, but no product found in cache directory for key = {}", key);
-				tccl = Thread.currentThread().getContextClassLoader();
-
-		        try {
-		            Thread.currentThread().setContextClassLoader(
-		                  getClass().getClassLoader());
-		            cache.remove(key);
-		        } finally {
-		            Thread.currentThread().setContextClassLoader(tccl);
-		        }
-				throw new CacheException(
-						"Entry found in the cache, but no product found in cache directory for key = "
-								+ key);
-        	}
+            if (cachedResource.hasProduct()) {
+                LOGGER.debug("EXITING: get() for key {}", key);
+                return cachedResource;
+            } else {
+                LOGGER.debug("Entry found in the cache, but no product found in cache directory for key = {}", key);
+                tccl = Thread.currentThread().getContextClassLoader();
+                
+                try {
+                    Thread.currentThread().setContextClassLoader(
+                          getClass().getClassLoader());
+                    cache.remove(key);
+                } finally {
+                    Thread.currentThread().setContextClassLoader(tccl);
+                }
+                throw new CacheException(
+                        "Entry found in the cache, but no product found in cache directory for key = "
+                                + key);
+            }
         } else {
-        	LOGGER.debug("No product found in cache for key = {}", key);
+            LOGGER.debug("No product found in cache for key = {}", key);
             throw new CacheException("No product found in cache for key = " + key);
         }
 
@@ -292,7 +303,7 @@ public class ResourceCache {
 
     /**
      * States whether an item is in the cache or not.
-     *
+     * 
      * @param key
      * @return {@code true} if items exists in cache.
      */
@@ -300,14 +311,14 @@ public class ResourceCache {
         CachedResource cachedResource = null;
         try {
             ClassLoader tccl = Thread.currentThread().getContextClassLoader();
-
+            
             try {
                 Thread.currentThread().setContextClassLoader(
                       getClass().getClassLoader());
                 cachedResource = (CachedResource) cache.get(key);
             } finally {
                 Thread.currentThread().setContextClassLoader(tccl);
-            }
+            } 
         } catch (CacheException e) {
             LOGGER.debug("Could not find key {} in cache", key, e);
             return false;

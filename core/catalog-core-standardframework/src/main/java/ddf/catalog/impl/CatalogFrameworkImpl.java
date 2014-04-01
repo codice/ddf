@@ -232,6 +232,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements Configurati
     
     protected boolean cacheEnabled = false;
 
+    protected boolean cacheWhenCanceled = false;
 
     /**
      * Instantiates a new CatalogFrameworkImpl
@@ -424,7 +425,12 @@ public class CatalogFrameworkImpl extends DescribableImpl implements Configurati
         logger.debug("Setting cachingMonitorPeriod = {} ms", cachingMonitorPeriod * MS_PER_SECOND);
         this.productCache.setCachingMonitorPeriod(cachingMonitorPeriod * MS_PER_SECOND);
     }
-
+    
+    public void setCacheWhenCanceled(boolean cacheWhenCanceled) {
+        logger.debug("Setting cacheWhenCanceled = {}", cacheWhenCanceled);
+        this.cacheWhenCanceled = cacheWhenCanceled;
+    }
+    
     /**
      * Invoked by blueprint when a {@link CatalogProvider} is created and bound to this
      * CatalogFramework instance.
@@ -1428,7 +1434,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements Configurati
     protected ResourceResponse cacheProduct(Metacard metacard, ResourceResponse resourceResponse, ResourceRetriever retriever) {        
         if (cacheEnabled && metacard != null && resourceResponse != null && retriever != null) {
             try {
-                resourceResponse = productCache.put(metacard, resourceResponse, retriever);
+                resourceResponse = productCache.put(metacard, resourceResponse, retriever, cacheWhenCanceled);
             } catch (CacheException e) {
                 logger.info("Unable to put resource for metacard ID = {} in product cache",
                         metacard.getId());

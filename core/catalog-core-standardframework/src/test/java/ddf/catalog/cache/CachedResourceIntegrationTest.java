@@ -117,7 +117,7 @@ public class CachedResourceIntegrationTest {
         cachedResource.setChunkSize(chunkSize);
 
         Resource newResource = cachedResource.store(key, resourceResponse, resourceCache,
-                retriever);
+                retriever, false);
         assertNotNull(newResource);
         ByteArrayOutputStream clientBytesRead = clientRead(chunkSize, newResource.getInputStream());
 
@@ -161,7 +161,7 @@ public class CachedResourceIntegrationTest {
         mis.setReadDelay(cachingMonitorPeriod * 2);
 
         Resource newResource = cachedResource.store(key, resourceResponse, resourceCache,
-                retriever);
+                retriever, false);
         assertNotNull(newResource);
         ByteArrayOutputStream clientBytesRead = clientRead(chunkSize, newResource.getInputStream());
 
@@ -204,7 +204,7 @@ public class CachedResourceIntegrationTest {
         cachedResource.setChunkSize(chunkSize);
 
         Resource newResource = cachedResource.store(key, resourceResponse, resourceCache,
-                retriever);
+                retriever, false);
         assertNotNull(newResource);
 
         // On third read of PipedInputStream, client will close the stream simulating a cancel
