@@ -147,7 +147,7 @@ define(function (require) {
                 this.model.get('value').at(0).get('configurations').add(configuration);
             }
             this.modelBinder.bind(this.model.get('value').at(0).get('configurations').at(0).get('properties'), this.$el, bindings);
-            var selects = this.$('select').multiselect('refresh');
+            this.$('select').multiselect('refresh');
         },
         onClose: function() {
             this.stopListening(this.navigationModel);
