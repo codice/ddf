@@ -168,7 +168,7 @@ define(function (require) {
                  if (a.name.toUpperCase() > b.name.toUpperCase())
                     return 1;
                  return 0;});
-            allTypes = _.uniq(allTypes, true, function(type){
+            allTypes = _.uniq(allTypes, false, function(type){
                 return type.name + ':' + type.version;
             });
             var allSources = this.sources.toJSON();
