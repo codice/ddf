@@ -57,14 +57,13 @@ public class NotificationController implements EventHandler {
 
     public static final String NOTIFICATION_USER_KEY = "user";
     
-    // TODO: Should the initial size be larger? How many clients are we 
-    //       anticipating per DDF instance.
-    
     // Synchronize the map to protect against multiple clients triggering
     // multiple Map operations at the same time
     // Set the HashMap's initial capacity to allow for 30 users without
     // resizing/rehashing the map
     // ((30 users / .75 loadFactor) + 1) = 41 = initialCapacity.
+    // TODO: Should the initial size be larger? How many clients are we 
+    //       anticipating per DDF instance.
     Map<String, ServerSession> userSessionMap = Collections
             .synchronizedMap(new HashMap<String, ServerSession>(41));
     
@@ -105,7 +104,6 @@ public class NotificationController implements EventHandler {
      * @param serverMessage The {@link ServerMessage} that was sent from the 
      * client on the /meta/disconnect Channel
      */
-    // TODO: Need a onbeforeunload event in the client to trigger the disconnect message
     @Listener("/meta/disconnect")
     public void deregisterUserSession(ServerSession serverSession, ServerMessage serverMessage) {
         if (LOGGER.isDebugEnabled()) {
@@ -198,8 +196,6 @@ public class NotificationController implements EventHandler {
     @Override
     public void handleEvent(Event event) throws IllegalArgumentException {
 
-        // TODO: Is it the server that should handle these error conditions, or
-        // the client??
         if (null == event.getProperty(NOTIFICATION_APPLICATION_KEY)
                 || event.getProperty(NOTIFICATION_APPLICATION_KEY).toString().isEmpty()) {
             throw new IllegalArgumentException("Event \"" + NOTIFICATION_APPLICATION_KEY
