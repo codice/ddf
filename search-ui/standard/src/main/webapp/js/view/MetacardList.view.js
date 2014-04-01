@@ -9,6 +9,8 @@ define(function (require) {
         _ = require('underscore'),
         ich = require('icanhaz'),
         dir = require('direction'),
+        Spinner = require('spin'),
+        spinnerConfig = require('spinnerConfig'),
         List = {};
     
     function throwError(message, name) {
@@ -63,8 +65,20 @@ define(function (require) {
         }
 
     });
+    
+    List.LoadingView = Marionette.ItemView.extend({
+        spinner: new Spinner(spinnerConfig),
+        onRender: function(){
+            var view = $.find('#searchControls').pop();
+            this.spinner.spin(view);
+        },
+        onClose: function(){
+            this.spinner.stop();
+        }
+    });
 
     List.MetacardTable = Marionette.CollectionView.extend({
+        emptyView: List.LoadingView,
         itemView : List.MetacardRow,
         initialize: function (options) {
             this.searchControlView = options.searchControlView;
@@ -178,7 +192,9 @@ define(function (require) {
             //I tried it with this commented out and it appears to clean up the view correctly without it
             //I'm going to leave it here as a note however
 //            this.unbind();
-            this.metacardTable.close();
+            if (this.metacardTable){
+                this.metacardTable.close();
+            }
         },
         showHideLoadMore: function() {
             if (this.model.get("results").length >= this.model.get("hits") || this.model.get("hits") === 0) {

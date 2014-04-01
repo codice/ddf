@@ -11,6 +11,7 @@ define(function (require) {
         CesiumMetacard = require('js/view/cesium.metacard'),
         MetacardList = require('js/view/MetacardList.view'),
         Metacard = require('js/view/MetacardDetail.view'),
+        MetaCard = require('js/model/Metacard.js'),
         Backbone = require('backbone'),
         ddf = require('ddf'),
         dir = require('direction'),
@@ -45,10 +46,7 @@ define(function (require) {
             setSearchFormState: function() {
                 this.currentState = "search";
                 this.set({ "title": "Search" });
-                this.set({ "forward": ""});
-                if(this.resultList) {
-                    this.set({ "forward": this.getResultText()});
-                }
+                this.set({ "forward": this.getResultText()});
                 this.set({"back": ""});
             },
             setRecordViewState: function(metacardDetail) {
@@ -91,7 +89,7 @@ define(function (require) {
                 'click .back': 'back',
                 'click .forward': 'forward'
             },
-
+            
             initialize: function (options) {
 
                 this.queryForm = new QueryFormView({
@@ -102,6 +100,7 @@ define(function (require) {
                 this.listenTo(this.queryForm, 'clear', this.onQueryClear);
                 this.listenTo(this.queryForm, 'search', this.onQueryClear);
                 this.listenTo(this.queryForm, 'search', this.setupProgress);
+                this.listenTo(this.queryForm, 'search', this.showEmptyResults);
                 this.listenTo(this.queryForm, 'searchComplete', this.showResults);
                 this.listenTo(this.queryForm, 'searchComplete', this.changeDefaultMapLocation);
                 this.listenTo(ddf.app, 'model:context', this.showMetacardDetail);
@@ -162,6 +161,10 @@ define(function (require) {
                 if (this.progressView) {
                     this.progressView.close();
                 }
+                if (this.resultList) {
+                    this.resultList.close();
+                    delete this.resultList;
+                }
             },
             back: function () {
                 if (this.leftRegion.currentView === this.resultList) {
@@ -174,7 +177,7 @@ define(function (require) {
             },
             forward: function () {
                 if (this.leftRegion.currentView === this.queryForm) {
-                    this.showResults(null, dir.forward);
+                    this.showEmptyResults();
                 }
                 else if (this.leftRegion.currentView === this.resultList) {
                     this.showMetacardDetail(null, dir.forward);
@@ -194,18 +197,20 @@ define(function (require) {
             },
             showQuery: function (direction) {
                 $(".back").hide();
-                $(".forward").show();
+                if(this.resultList.model.attributes.results.length){
+                    $(".forward").show();
+                }
+                else {
+                    $(".forward").hide();
+                }
                 this.controlModel.setSearchFormState();
                 this.leftRegion.show(this.queryForm, direction);
             },
+            showEmptyResults: function() {
+                this.showResults(null, dir.forward);
+            },
             showResults: function (result, direction) {
-                $(".forward").hide();
-                $(".back").show();
-                if (this.metacardDetail) {
-                    $(".forward").show();
-                }
-
-                this.controlModel.setResultListState(result);
+                var previousState = this.controlModel.currentState;
                 if (result) {
                     // TODO replace with trigger
                     if (this.mapViews) {
@@ -226,7 +231,20 @@ define(function (require) {
                     this.listenTo(this.resultList, 'content-update', this.updateScrollbar);
                     this.listenTo(this.resultList, 'render', this.updateScrollPos);
                 }
-                this.leftRegion.show(this.resultList, direction);
+                if(!this.resultList){
+                    this.resultList = new MetacardList.MetacardListView({ result: new MetaCard.SearchResult(), searchControlView: this });
+                }
+                if (previousState !== 'results' && this.leftRegion.currentView === this.queryForm && (direction !== dir.forward && direction !== dir.backward)){
+                    $(".forward").show();
+                } else {
+                    $(".forward").hide();
+                    $(".back").show();
+                    if (this.metacardDetail) {
+                        $(".forward").show();
+                    }
+                    this.controlModel.setResultListState(null);
+                    this.leftRegion.show(this.resultList, direction);
+                }
             },
             showMetacardDetail: function (metacard, direction) {
                 $(".back").show();

@@ -11,8 +11,6 @@ define(function (require) {
         properties = require('properties'),
         MetaCard = require('js/model/Metacard'),
         Progress = require('js/view/Progress.view'),
-        Spinner = require('spin'),
-        spinnerConfig = require('spinnerConfig'),
         Query = {};
 
     ich.addTemplate('searchFormTemplate', require('text!templates/searchForm.handlebars'));
@@ -343,7 +341,6 @@ define(function (require) {
 
             this.trigger('search', result, this.model, this.sources.length, progress);
 
-            var spinner = new Spinner(spinnerConfig).spin(this.el);
             // disable the whole form
             this.$('button').addClass('disabled');
             this.$('input').prop('disabled',true);
@@ -356,13 +353,11 @@ define(function (require) {
                 dataType: "json",
                 timeout: 300000,
                 error : function(){
-                    spinner.stop();
                     if (typeof console !== 'undefined') {
                         console.error(arguments);
                     }
                 }
             }).complete(function () {
-                    spinner.stop();
 
                     //re-enable the whole form
                     view.$('button').removeClass('disabled');

@@ -12,6 +12,7 @@ define(function (require) {
     var flyIn = true,
         flyOut = false;
     var Region = Marionette.Region.extend({
+        currentPromise: undefined,
         initialize : function(){
 
         },
@@ -27,12 +28,20 @@ define(function (require) {
 
             var isDifferentView = view !== this.currentView;
             var closePromise;
-            if (isDifferentView) {
+            // if we had a previous promise we need to chain onto it so we execute in the order we expect.
+            if (!_.isUndefined(this.currentPromise) && Q.isPromise(this.currentPromise) && this.currentPromise.isPending()){
+                closePromise = this.currentPromise;
+            }
+            if (isDifferentView && !closePromise) {
                 closePromise = region.close(direction);
-            } else {
+            } else if (isDifferentView && closePromise) {
+                closePromise.then(function(){
+                    return region.close();
+                });
+            } else if (!isDifferentView && !closePromise){
                 closePromise = Q();
             }
-            return closePromise.then(function () {
+            this.currentPromise = closePromise.then(function () {
                 view.render();
                 var openPromise;
                 if (isDifferentView || isViewClosed) {
@@ -54,6 +63,7 @@ define(function (require) {
                         console.error(error.stack ? error.stack : error);
                     }
                 });
+            return this.currentPromise;
 
         },
 

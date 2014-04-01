@@ -1,5 +1,7 @@
 /*jshint strict:false*/
 /*global CasperError, console, phantom, require, casper*/
+casper.options.verbose = true;
+casper.options.logLevel = 'debug';
 casper.test.begin('simple contextual query', 3, function(test) {
     casper.start('http://localhost:8383/?sync=true');
 
@@ -28,7 +30,13 @@ casper.test.begin('simple contextual query', 3, function(test) {
     }, function() {
         test.fail('Failed search');
     });
-
+    
+    casper.waitFor(function(){
+        return this.evaluate(function(){
+            return document.querySelectorAll('a.metacard-link').length >= 10;
+        })
+    });
+    
     casper.then(function() {
         // aggregate results for the 'phantomjs' search
         this.test.assertEval(function() {
