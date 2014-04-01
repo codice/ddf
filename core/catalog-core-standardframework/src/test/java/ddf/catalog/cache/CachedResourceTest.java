@@ -113,7 +113,7 @@ public class CachedResourceTest {
      * @throws Exception
      */
     @Test
-    //@Ignore
+    @Ignore
     public void testStore() throws Exception {
         mis = new MockInputStream(productInputFilename);
 
@@ -156,7 +156,7 @@ public class CachedResourceTest {
      * @throws Exception
      */
     @Test
-    //@Ignore
+    @Ignore
     public void testStoreWithInputStreamRecoverableError() throws Exception {
         mis = new MockInputStream(productInputFilename);
         mis.setInvocationCountToThrowIOException(5);

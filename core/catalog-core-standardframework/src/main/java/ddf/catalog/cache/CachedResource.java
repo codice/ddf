@@ -365,14 +365,6 @@ public class CachedResource extends InputStream implements Resource, Serializabl
                         // (native) level by FileOutputStream are shutdown. (The shutdown() method will
                         // not suffice here, nor did the future.cancel() suffice).
                         cachingExecutor.shutdownNow();
-//                        try {
-//                            LOGGER.debug("Waiting up to 10 seconds for CallableCacheProduct to terminate");
-//                            boolean terminationStatus = cachingExecutor.awaitTermination(10, TimeUnit.SECONDS);
-//                            LOGGER.debug("terminationStatus = {}", terminationStatus);
-//                            LOGGER.debug("cachingExecutor.isTerminated() = {}", cachingExecutor.isTerminated());
-//                        } catch (InterruptedException e) {
-//                            LOGGER.info("InterruptedException while awaiting termination of CallableCacheProduct", e);
-//                        }
                     }                    
                     
                     if (cachedResourceStatus.getCachingStatus() == CachingStatus.PRODUCT_INPUT_STREAM_EXCEPTION) {
@@ -396,12 +388,7 @@ public class CachedResource extends InputStream implements Resource, Serializabl
                         eventPublisher.postRetrievalStatus(resourceResponse,
                                 RetrievalStatusEventPublisher.PRODUCT_RETRIEVAL_RETRYING,
                                 cachedResourceStatus.getBytesRead());
-                        IOUtils.closeQuietly(fos);
-                        
-                        // Delete the cache file since it will no longer be written to and it currently has
-                        // incomplete or corrupted data in it
-                        FileUtils.deleteQuietly(new File(filePath));
-                        
+                        deleteCacheFile(fos);
                         callableCacheProduct = new CallableCacheProduct(source, countingFbos, null, chunkSize);
                     } else if (cachedResourceStatus.getCachingStatus() == CachingStatus.CLIENT_OUTPUT_STREAM_EXCEPTION) {
                         
@@ -410,20 +397,22 @@ public class CachedResource extends InputStream implements Resource, Serializabl
                         // and just continue to cache the file
                         LOGGER.info("Handling FileBackedOutputStream exception");
                         eventPublisher.postRetrievalStatus(resourceResponse,
-                                RetrievalStatusEventPublisher.PRODUCT_RETRIEVAL_CANCELLED, null);
-//                        IOUtils.closeQuietly(fbos);
-//                        IOUtils.closeQuietly(countingFbos);
-                        
-                        LOGGER.debug("Deleting partially cached file {}", filePath);
-                        IOUtils.closeQuietly(fos);
-                        
-                        // Delete the cache file since it will no longer be written to and it currently has
-                        // incomplete or corrupted data in it
-                        FileUtils.deleteQuietly(new File(filePath));
+                                RetrievalStatusEventPublisher.PRODUCT_RETRIEVAL_CANCELLED, 0L);
+                        IOUtils.closeQuietly(fbos);
+                        IOUtils.closeQuietly(countingFbos);
                         LOGGER.debug("Cancelling cacheMonitor");
                         cacheMonitor.cancel();
-                        //HUGH callableCacheProduct = new CallableCacheProduct(source, null, fos, chunkSize);
+                        callableCacheProduct = new CallableCacheProduct(source, null, fos, chunkSize);
+                        
+                    } else if (cachedResourceStatus.getCachingStatus() == CachingStatus.RESOURCE_CACHING_CANCELED) {
+                        LOGGER.info("Handling client cancellation of product download");
+                        LOGGER.debug("Cancelling cacheMonitor");
+                        cacheMonitor.cancel();
+                        eventPublisher.postRetrievalStatus(resourceResponse,
+                                RetrievalStatusEventPublisher.PRODUCT_RETRIEVAL_CANCELLED, 0L);
+                        deleteCacheFile(fos);
                         break;
+                        
                     } else if (cachedResourceStatus.getCachingStatus() == CachingStatus.RESOURCE_CACHING_INTERRUPTED) {
                         
                         // Caching has been interrupted (possibly CacheMonitor detected too much time being taken to
@@ -458,9 +447,12 @@ public class CachedResource extends InputStream implements Resource, Serializabl
             } else {
                 this.cachingState = CachingState.COMPLETED;
             }
-//            LOGGER.debug("Closing FileBackedOuptutStream");
-            // Closes FileBackedOutputStream and deletes its underlying file (if any)
-            IOUtils.closeQuietly(fbos);
+            // Closes FileBackedOutputStream and deletes its underlying tmp file (if any)
+            try {
+                fbos.reset();
+            } catch (IOException e) {
+                LOGGER.info("Unable to reset FileBackedOutputStream - its tmp file may still be in <INSTALL_DIR>/data/tmp");
+            }
             IOUtils.closeQuietly(countingFbos);
             IOUtils.closeQuietly(fos);
             LOGGER.debug("Closing source InputStream");
@@ -509,6 +501,16 @@ public class CachedResource extends InputStream implements Resource, Serializabl
         }
         
         return callableCacheProduct;
+    }
+    
+    private void deleteCacheFile(FileOutputStream fos) {
+        LOGGER.debug("Deleting partially cached file {}", filePath);
+        IOUtils.closeQuietly(fos);
+        
+        // Delete the cache file since it will no longer be written to and it currently has
+        // incomplete or corrupted data in it
+        boolean result = FileUtils.deleteQuietly(new File(filePath));
+        LOGGER.debug("result of deleting partial cache file = {}", result);
     }
 
     @Override
@@ -599,19 +601,16 @@ public class CachedResource extends InputStream implements Resource, Serializabl
             // Stop the caching thread
             // synchronized so that Callable can finish any writing to OutputStreams before being canceled
             synchronized(callableCacheProduct) {
-                LOGGER.debug("Setting interruptCaching on CallableCacheProduct thread");
-                callableCacheProduct.setInterruptCaching(true);
+                LOGGER.debug("Setting cancelCaching on CallableCacheProduct thread");
+                callableCacheProduct.setCancelCaching(true);
                 boolean status = cachingFuture.cancel(true);
                 LOGGER.debug("cachingFuture cancelling status = {}", status);
             }
             
-            // Resetting the FileBackedOutputStream will trigger an exception from the
-            // CallableCacheProduct which should result in the caching of the product
-            // being cancelled too.
+            // Resetting the FileBackedOutputStream should delete the tmp file
+            // it created.
             LOGGER.debug("Resetting FBOS");
             fbos.reset();
-//            LOGGER.debug("Closing FBOS");
-//            fbos.close();
         }
     }
 

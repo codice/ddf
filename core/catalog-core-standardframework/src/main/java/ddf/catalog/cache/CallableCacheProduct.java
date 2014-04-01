@@ -68,6 +68,8 @@ public class CallableCacheProduct implements Callable<CachedResourceStatus> {
     private int chunkSize;
 
     private boolean interruptCaching = false;
+    
+    private boolean cancelCaching = false;
 
 
     public CallableCacheProduct(InputStream input, CountingOutputStream fbos,
@@ -109,6 +111,19 @@ public class CallableCacheProduct implements Callable<CachedResourceStatus> {
         cachedResourceStatus.setMessage("Caching interrupted - returning " + bytesRead + " bytes read");
     }
 
+    public void setCancelCaching(boolean cancelCaching) {
+        LOGGER.debug("Setting cancelCaching = " + cancelCaching);
+        this.cancelCaching = cancelCaching;
+
+        // Set caching status here because it takes time for the Future running this
+        // Callable to be canceled and the CachedResourceStatus may be retrieved before
+        // the call() method is interrupted
+        LOGGER.debug("Caching canceled - returning {} bytes read", bytesRead);
+        cachedResourceStatus = new CachedResourceStatus(CachingStatus.RESOURCE_CACHING_CANCELED,
+                bytesRead.get());
+        cachedResourceStatus.setMessage("Caching canceled - returning " + bytesRead + " bytes read");
+    }
+
     @Override
     public CachedResourceStatus call() {
         int chunkCount = 0;
@@ -116,7 +131,7 @@ public class CallableCacheProduct implements Callable<CachedResourceStatus> {
         byte[] buffer = new byte[chunkSize];
         int n = 0;
         
-        while (!interruptCaching && !Thread.interrupted() && input != null) {
+        while (!interruptCaching && !cancelCaching && !Thread.interrupted() && input != null) {
             chunkCount++;
             
             // This read will block if the PipedOutputStream's circular buffer is filled
@@ -143,13 +158,13 @@ public class CallableCacheProduct implements Callable<CachedResourceStatus> {
             // OutputStreams
             synchronized (this) {
                 
-                // If caching was interrupted break now so that the bytesRead count does not
+                // If caching was interrupted or canceled break now so that the bytesRead count does not
                 // get out of sync with the bytesWritten counts. If this count gets out of sync
                 // then potentially the output streams will be one chunk off from the input stream
                 // when a retry is attempted and the InputStream is skipped forward.
-                if (interruptCaching || Thread.interrupted()) {
-                    LOGGER.debug("Breaking from caching loop due to interrupt received");
-                    cachedResourceStatus.setMessage("Breaking from caching loop due to interrupt received");
+                if (cancelCaching || interruptCaching || Thread.interrupted()) {
+                    LOGGER.debug("Breaking from caching loop due to cancel or interrupt received");
+                    cachedResourceStatus.setMessage("Breaking from caching loop due to cancel or interrupt received");
                     return cachedResourceStatus;
                 }
 
@@ -182,14 +197,11 @@ public class CallableCacheProduct implements Callable<CachedResourceStatus> {
                     chunkCount, bytesRead.get());
         }
 
-        if (!interruptCaching && !Thread.interrupted()) {
+        if (!interruptCaching && !cancelCaching && !Thread.interrupted()) {
             LOGGER.debug("Returning -1 to indicate entire file cached successfully");
             cachedResourceStatus = new CachedResourceStatus(
                     CachingStatus.RESOURCE_CACHING_COMPLETE, bytesRead.get());
             cachedResourceStatus.setMessage("Caching completed successfully");
-        } else {
-            LOGGER.debug("Caching interrupted - this CallableCacheProduct on thread {}", Thread.currentThread().getName());
-            cachedResourceStatus.setMessage("Caching interrupted - this CallableCacheProduct on thread " + Thread.currentThread().getName());
         }
 
         return cachedResourceStatus;
