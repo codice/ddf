@@ -59,23 +59,23 @@ class ConfigurationAdminExt {
 
     private List<ConfigurationAdminPlugin> configurationAdminPluginList;
     
-    private final String ENABLED_CONFIGURATION    = "configurations";
-    private final String DISABLED_CONFIGURATION   = "disabledConfigurations";
-    private final String DISABLED_SERVICE_ID      = "_disabled";
-    private final String MAP_ENTRY_ID             = "id";
-    private final String MAP_ENTRY_FPID           = "fpid";
-    private final String MAP_ENTRY_NAME           = "name";
-    private final String MAP_ENTRY_BUNDLE         = "bundle";
-    private final String MAP_ENTRY_BUNDLE_NAME    = "bundle_name";
-    private final String MAP_ENTRY_PROPERTIES     = "properties";
-    private final String MAP_ENTRY_METATYPE       = "metatype";
-    private final String MAP_ENTRY_CARDINALITY    = "cardinality";
-    private final String MAP_ENTRY_DEFAULT_VALUE = "defaultValue";
-    private final String MAP_ENTRY_DESCRIPTION    = "description";
-    private final String MAP_ENTRY_TYPE           = "type";
-    private final String MAP_ENTRY_OPTION_LABELS  = "optionLabels";
-    private final String MAP_ENTRY_OPTION_VALUES  = "optionValues";
-    private final String MAP_FACTORY              = "factory";
+    private static final String ENABLED_CONFIGURATION    = "configurations";
+    private static final String DISABLED_CONFIGURATION   = "disabledConfigurations";
+    private static final String DISABLED_SERVICE_ID      = "_disabled";
+    private static final String MAP_ENTRY_ID             = "id";
+    private static final String MAP_ENTRY_FPID           = "fpid";
+    private static final String MAP_ENTRY_NAME           = "name";
+    private static final String MAP_ENTRY_BUNDLE         = "bundle";
+    private static final String MAP_ENTRY_BUNDLE_NAME    = "bundle_name";
+    private static final String MAP_ENTRY_PROPERTIES     = "properties";
+    private static final String MAP_ENTRY_METATYPE       = "metatype";
+    private static final String MAP_ENTRY_CARDINALITY    = "cardinality";
+    private static final String MAP_ENTRY_DEFAULT_VALUE  = "defaultValue";
+    private static final String MAP_ENTRY_DESCRIPTION    = "description";
+    private static final String MAP_ENTRY_TYPE           = "type";
+    private static final String MAP_ENTRY_OPTION_LABELS  = "optionLabels";
+    private static final String MAP_ENTRY_OPTION_VALUES  = "optionValues";
+    private static final String MAP_FACTORY              = "factory";
 
     /**
      * @param bundleContext
@@ -115,17 +115,21 @@ class ConfigurationAdminExt {
     }
 
     private final Bundle getBoundBundle(Configuration config) {
-        if (null == config)
+        
+        if (null == config) {
             return null;
+        }
+        
         final String location = config.getBundleLocation();
-        if (null == location)
+        if (null == location) {
             return null;
+        }
 
         final Bundle bundles[] = getBundleContext().getBundles();
         for (int i = 0; bundles != null && i < bundles.length; i++) {
-            if (bundles[i].getLocation().equals(location))
+            if (bundles[i].getLocation().equals(location)) {
                 return bundles[i];
-
+            }
         }
         return null;
     }
@@ -336,7 +340,7 @@ class ConfigurationAdminExt {
      * @see #PID_GETTER
      * @see #FACTORY_PID_GETTER
      */
-    private static interface IdGetter {
+    private interface IdGetter {
         String[] getIds(MetaTypeInformation metaTypeInformation);
     }
 
