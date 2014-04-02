@@ -36,12 +36,22 @@ import org.codice.ddf.spatial.ogc.csw.catalog.converter.RecordConverterFactory;
 import org.codice.ddf.spatial.ogc.csw.catalog.converter.impl.CswRecordConverterFactory;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
+import org.junit.BeforeClass;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ddf.catalog.data.Metacard;
 
 public class TestGetRecordsMessageBodyReader {
 
+    @BeforeClass
+    public static void init() {
+        ch.qos.logback.classic.Logger root = (ch.qos.logback.classic.Logger) LoggerFactory
+                .getLogger(Logger.ROOT_LOGGER_NAME);
+        root.setLevel(ch.qos.logback.classic.Level.INFO);
+    }
+    
     @Test
     public void testGetMultipleMetacards() throws Exception {
         RecordConverterFactory factory = new CswRecordConverterFactory();

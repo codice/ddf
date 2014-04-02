@@ -63,6 +63,7 @@ import org.codice.ddf.spatial.ogc.csw.catalog.converter.impl.CswRecordConverterF
 import org.geotools.filter.FilterFactoryImpl;
 import org.junit.Assert;
 import org.junit.Test;
+import org.junit.BeforeClass;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Matchers;
 import org.opengis.filter.Filter;
@@ -71,6 +72,9 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
 import org.xml.sax.SAXException;
+import org.slf4j.LoggerFactory;
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
 
 import ddf.catalog.data.ContentType;
 import ddf.catalog.data.Metacard;
@@ -82,6 +86,13 @@ import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.source.UnsupportedQueryException;
 
 public class TestCswSource extends TestCswSourceBase {
+
+    @BeforeClass
+    public static void oneTimeSetup() {
+
+        Logger root = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
+        root.setLevel(Level.INFO);
+    }
 
     @Test
     public void testParseCapabilities() throws CswException {

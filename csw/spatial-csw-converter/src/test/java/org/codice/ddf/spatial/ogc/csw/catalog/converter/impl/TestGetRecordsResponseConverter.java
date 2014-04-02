@@ -64,6 +64,7 @@ import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordMetacardType;
 import org.codice.ddf.spatial.ogc.csw.catalog.converter.RecordConverterFactory;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -98,6 +99,14 @@ public class TestGetRecordsResponseConverter {
     private static final String RELATION = "relation";
 
     private static final String WKT = "POLYGON((4 1, 2 5, 4 5, 4 1))";
+    
+    @BeforeClass
+    public static void setUpBeforeClass() throws Exception {
+        ch.qos.logback.classic.Logger root = (ch.qos.logback.classic.Logger) LoggerFactory
+                .getLogger(Logger.ROOT_LOGGER_NAME);
+        root.setLevel(ch.qos.logback.classic.Level.INFO);
+
+    }
     
     @Test
     public void testGetRecordsResponseConversion() {
