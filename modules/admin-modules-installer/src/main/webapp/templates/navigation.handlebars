@@ -2,22 +2,22 @@
 
     {{#if hasPrevious}}
         <li>
-            <a class="previous" href="#">&larr; Previous Step</a>
+            <a id="previousStep" class="previous" href="#">&larr; Previous Step</a>
         </li>
     {{/if}}
     {{#if hasNext}}
         {{#ifNotAnd hasPrevious}}
             <li>
-                <a class="next" href="#">Start &rarr;</a>
+                <a id="startStep" class="next" href="#">Start &rarr;</a>
             </li>
         {{else}}
             <li>
-                <a class="next" href="#">Next Step &rarr;</a>
+                <a id="nextStep" class="next" href="#">Next Step &rarr;</a>
             </li>
         {{/ifNotAnd}}
     {{else}}
         <li>
-            <a class="next" href="#">Finish</a>
+            <a id="finishStep" class="next" href="#">Finish</a>
         </li>
     {{/if}}
 

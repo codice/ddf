@@ -1,0 +1,145 @@
+{
+  "timestamp": 1396461623,
+  "status": 200,
+  "request": {
+    "operation": "getService",
+    "mbean": "org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui,version=2.3.0",
+    "arguments": [
+      "(service.pid=ddf.platform.config)"
+    ],
+    "type": "exec"
+  },
+  "value": {
+    "id": "ddf.platform.config",
+    "name": "Platform Global Configuration",
+    "metatype": [
+      {
+        "id": "protocol",
+        "optionLabels": [
+          "http",
+          "https"
+        ],
+        "description": "Default protocol to use for services.",
+        "optionValues": [
+          "http://",
+          "https://"
+        ],
+        "name": "Protocol",
+        "defaultValue": [
+          "http"
+        ],
+        "type": 1,
+        "cardinality": 0
+      },
+      {
+        "id": "host",
+        "optionLabels": [],
+        "description": "The host name or IP address used to advertise the system. Possibilities include the address of a single node of that of a load balancer in a multi-node deployment. NOTE: Does not change the address the system runs on.",
+        "optionValues": [],
+        "name": "Host",
+        "defaultValue": null,
+        "type": 1,
+        "cardinality": 0
+      },
+      {
+        "id": "port",
+        "optionLabels": [],
+        "description": "The port used to advertise the system. Possibilities include the port of a single node of that of a load balancer in a multi-node deployment. NOTE: Does not change the port the system runs on.",
+        "optionValues": [],
+        "name": "Port",
+        "defaultValue": null,
+        "type": 1,
+        "cardinality": 0
+      },
+      {
+        "id": "trustStore",
+        "optionLabels": [],
+        "description": "Trust Store location. Path is relative to ddf.home - for default (development-only) trust store, use etc/keystores/serverTruststore.jks.",
+        "optionValues": [],
+        "name": "Trust Store:",
+        "defaultValue": null,
+        "type": 1,
+        "cardinality": 0
+      },
+      {
+        "id": "trustStorePassword",
+        "optionLabels": [],
+        "description": "Trust Store password",
+        "optionValues": [],
+        "name": "Trust Store Password:",
+        "defaultValue": null,
+        "type": 12,
+        "cardinality": 0
+      },
+      {
+        "id": "keyStore",
+        "optionLabels": [],
+        "description": "Key Store location. Path is relative to ddf.home - for default (development-only) key store, use etc/keystores/serverKeystore.jks.",
+        "optionValues": [],
+        "name": "Key Store:",
+        "defaultValue": null,
+        "type": 1,
+        "cardinality": 0
+      },
+      {
+        "id": "keyStorePassword",
+        "optionLabels": [],
+        "description": "Key Store password.",
+        "optionValues": [],
+        "name": "Key Store Password:",
+        "defaultValue": null,
+        "type": 12,
+        "cardinality": 0
+      },
+      {
+        "id": "id",
+        "optionLabels": [],
+        "description": null,
+        "optionValues": [],
+        "name": "Site Name",
+        "defaultValue": null,
+        "type": 1,
+        "cardinality": 0
+      },
+      {
+        "id": "version",
+        "optionLabels": [],
+        "description": null,
+        "optionValues": [],
+        "name": "Version",
+        "defaultValue": null,
+        "type": 1,
+        "cardinality": 0
+      },
+      {
+        "id": "organization",
+        "optionLabels": [],
+        "description": null,
+        "optionValues": [],
+        "name": "Organization",
+        "defaultValue": null,
+        "type": 1,
+        "cardinality": 0
+      }
+    ],
+    "factory": false,
+    "configurations": [
+      {
+        "id": "ddf.platform.config",
+        "bundle_name": "DDF :: Platform :: Configuration",
+        "name": "Platform Global Configuration",
+        "bundle": 183,
+        "properties": {
+          "id": "ddf.distribution",
+          "port": "8181",
+          "protocol": "http://",
+          "organization": "Codice Foundation",
+          "host": "localhost",
+          "org.apache.karaf.features.configKey": "ddf.platform.config",
+          "service.pid": "ddf.platform.config",
+          "version": "2.3.0"
+        }
+      }
+    ]
+  }
+}
