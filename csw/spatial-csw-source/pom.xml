@@ -1,0 +1,192 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version. 
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+-->
+<project
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+    xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.codice.ddf.spatial</groupId>
+        <artifactId>csw</artifactId>
+        <version>2.3.1-SNAPSHOT</version>
+    </parent>
+    <artifactId>spatial-csw-source</artifactId>
+    <packaging>bundle</packaging>
+    <name>DDF :: Spatial :: CSW :: Source</name>
+
+    <dependencies>
+    
+        <dependency>
+            <groupId>org.codice.ddf.spatial</groupId>
+            <artifactId>spatial-ogc-filter-v_1_1_0-schema</artifactId>
+            <version>1.1.0_1</version>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.jvnet.ogc</groupId>
+            <artifactId>gml-v_3_1_1-schema</artifactId>
+            <version>1.1.0</version>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.jvnet.ogc</groupId>
+            <artifactId>ows-v_1_0_0-schema</artifactId>
+            <version>1.1.0</version>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.jvnet.jaxb2_commons</groupId>
+            <artifactId>jaxb2-basics-runtime</artifactId>
+            <version>0.6.0</version>
+        </dependency>
+    
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+        </dependency>
+    
+        <dependency>
+            <groupId>ddf.catalog.core</groupId>
+            <artifactId>catalog-core-api-impl</artifactId>
+        </dependency>
+        
+        <dependency>
+        	<groupId>ddf.catalog.core</groupId>
+        	<artifactId>catalog-core-urlresourcereader</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-rt-frontend-jaxrs</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.codice.ddf.spatial</groupId>
+            <artifactId>spatial-csw-schema-bindings</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.codice.ddf.spatial</groupId>
+            <artifactId>spatial-ogc-api</artifactId>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.codice.ddf.spatial</groupId>
+            <artifactId>spatial-ogc-common</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.codice.ddf.spatial</groupId>
+            <artifactId>spatial-csw-common</artifactId>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.codice.ddf.spatial</groupId>
+            <artifactId>spatial-wcs-catalog</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.codice.ddf.spatial</groupId>
+            <artifactId>spatial-wcs-resourcereader</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.vividsolutions</groupId>
+            <artifactId>jts</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>ddf.catalog.core</groupId>
+            <artifactId>filter-proxy</artifactId>
+            <scope>test</scope>
+        </dependency>
+        
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-collections4</artifactId>
+		</dependency>
+        
+        <dependency>
+        	<groupId>org.codice.ddf.spatial</groupId>
+        	<artifactId>spatial-csw-api</artifactId>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.codice.ddf.spatial</groupId>
+            <artifactId>spatial-csw-converter</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.geotools</groupId>
+            <artifactId>gt-cql</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.geotools</groupId>
+            <artifactId>gt-xml</artifactId>
+        </dependency>
+        <dependency>
+			<groupId>org.jvnet.ogc</groupId>
+			<artifactId>ogc-tools-gml-jts</artifactId>
+			<version>1.0.3</version>
+		</dependency>
+    </dependencies>
+
+    <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <extensions>true</extensions>
+                <configuration>
+                    <instructions>
+                        <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+                        <Import-Package>
+                           !org.jvnet.staxex,
+                           org.codice.ddf.spatial.ogc.catalog,*
+                        </Import-Package>
+                        <!-- Don't Export Anything -->
+                        <Export-Package></Export-Package>
+                        <Embed-Dependency>
+                            spatial-csw-common,
+                            spatial-ogc-common,
+                            spatial-csw-converter,
+                            spatial-csw-schema-bindings,
+                            gml-v_3_1_1-schema,
+                            ows-v_1_0_0-schema,
+                            spatial-ogc-filter-v_1_1_0-schema,
+                            jaxb2-basics-runtime,
+                            wcs-v_1_0_0-schema,
+                            spatial-wcs-common,
+                            spatial-wcs-catalog,
+                            spatial-wcs-resourcereader;scope=compile|runtime,
+                            catalog-core-api-impl,
+                            commons-collections4,
+                            gt-cql,
+                            ogc-tools-gml-jts
+                        </Embed-Dependency>
+                        <Embed-Transitive>true</Embed-Transitive>
+                    </instructions>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

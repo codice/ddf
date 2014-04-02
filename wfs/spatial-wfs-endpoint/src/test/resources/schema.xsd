@@ -1,0 +1,54 @@
+<!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
+ * is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+-->
+<schema xmlns="http://www.w3.org/2001/XMLSchema"
+        xmlns:Sport="urn:ddf.catalog.gml.Sport" xmlns:gml="http://www.opengis.net/gml"
+        attributeFormDefault="unqualified" elementFormDefault="qualified"
+        targetNamespace="urn:ddf.catalog.gml.Sport">
+    <import namespace="http://www.opengis.net/gml"
+            schemaLocation="http://schemas.opengis.net/gml/2.1.2/feature.xsd"/>
+    <element name="Sport" substitutionGroup="gml:_Feature" type="Sport:SportType"/>
+    <complexType name="SportType">
+        <complexContent>
+            <extension base="gml:AbstractFeatureType">
+                <sequence>
+                    <element minOccurs="0" name="away" type="gml:GeometryPropertyType"/>
+                    <element minOccurs="0" name="created" type="dateTime"/>
+                    <element minOccurs="0" name="date_created" type="dateTime"/>
+                    <element minOccurs="0" name="effective" type="dateTime"/>
+                    <element minOccurs="0" name="expiration" type="dateTime"/>
+                    <element minOccurs="0" name="home" type="gml:GeometryPropertyType"/>
+                    <element minOccurs="0" name="id" type="string"/>
+                    <element minOccurs="0" name="location" type="gml:GeometryPropertyType"/>
+                    <element minOccurs="0" name="metadata" type="anyType"/>
+                    <element minOccurs="0" name="metadata-content-type" type="string"/>
+                    <element minOccurs="0" name="metadata-content-type-version"
+                             type="string"/>
+                    <element minOccurs="0" name="metadata-target-namespace"
+                             type="string"/>
+                    <element minOccurs="0" name="modified" type="dateTime"/>
+                    <element minOccurs="0" name="resource-size" type="string"/>
+                    <element minOccurs="0" name="resource-uri" type="string"/>
+                    <element minOccurs="0" name="team_id" type="string"/>
+                    <element minOccurs="0" name="team_name" type="string"/>
+                    <element minOccurs="0" name="thumbnail" type="base64Binary"/>
+                    <element minOccurs="0" name="title" type="string"/>
+                    <element minOccurs="0" name="wins" type="integer"/>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+</schema>

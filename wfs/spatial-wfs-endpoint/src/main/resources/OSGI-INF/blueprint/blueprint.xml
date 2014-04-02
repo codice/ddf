@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version. 
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+-->
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+           xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0"
+           xmlns:jaxrs="http://cxf.apache.org/blueprint/jaxrs" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://cxf.apache.org/blueprint/jaxrs http://cxf.apache.org/schemas/blueprint/jaxrs.xsd">
+
+    <bean id="metacardTypeSortedList" class="org.codice.ddf.spatial.ogc.wfs.catalog.endpoint.utils.ServicePropertiesMap"/>
+
+    <reference-list id="metacardTypeList" interface="ddf.catalog.data.MetacardType"
+                    availability="optional" member-type="service-object">
+        <reference-listener bind-method="bindService"
+                            unbind-method="unbindService" ref="metacardTypeSortedList"/>
+    </reference-list>
+
+    <bean id="schemaCache" class="org.codice.ddf.spatial.ogc.wfs.catalog.endpoint.FeatureTypeSchemaCache">
+        <argument ref="blueprintBundleContext"/>
+        <argument ref="metacardTypeSortedList"/>
+        <argument ref="ddf"/>
+    </bean>
+
+    <bean id="WfsResourceComparator" class="org.codice.ddf.spatial.ogc.catalog.common.EndpointOperationInfoResourceComparator"/>
+    <bean id="XmlSchemaWriter" class="org.codice.ddf.spatial.ogc.wfs.catalog.endpoint.writer.XmlSchemaMessageBodyWriter"/>
+    <bean id="FeatureCollectionWriter" class="org.codice.ddf.spatial.ogc.wfs.catalog.endpoint.writer.FeatureCollectionMessageBodyWriter"/>
+    <service ref="FeatureCollectionWriter" interface="ddf.catalog.util.DdfConfigurationWatcher"/>
+
+
+    <bean id="jaxbProvider" class="org.apache.cxf.jaxrs.provider.JAXBElementProvider">
+        <property name="marshallAsJaxbElement" value="true"/>
+        <property name="marshallerProperties">
+            <map/>
+        </property>
+        <property name="schemaLocation" value="http://www.opengis.net/wfs /ogc/wfs/1.0.0/WFS-capabilities.xsd"/>
+        <property name="jaxbElementClassMap">
+            <map>
+                <entry>
+                    <key>
+                        <value>ogc.schema.opengis.wfs_capabilities.v_1_0_0.WFSCapabilitiesType</value>
+                    </key>
+                    <value>{http://www.opengis.net/wfs}WFS_Capabilities</value>
+                </entry>
+            </map>
+        </property>
+    </bean>
+
+    <bean id="wfsExceptionMapperProvider" class="org.codice.ddf.spatial.ogc.wfs.catalog.endpoint.WfsExceptionMapper"/>
+
+    <reference id="ddf" interface="ddf.catalog.CatalogFramework"/>
+    <reference id="filterBuilder" interface="ddf.catalog.filter.FilterBuilder"/>
+
+    <bean id="WfsSvc" class="org.codice.ddf.spatial.ogc.wfs.catalog.endpoint.WfsEndpoint">
+        <argument ref="ddf"/>
+        <argument ref="filterBuilder"/>
+        <argument ref="schemaCache"/>
+    </bean>
+
+    <jaxrs:server id="WfsService" address="/wfs">
+        <jaxrs:serviceBeans>
+            <ref component-id="WfsSvc"/>
+        </jaxrs:serviceBeans>
+        <jaxrs:resourceComparator>
+            <ref component-id="WfsResourceComparator"/>
+        </jaxrs:resourceComparator>
+        <jaxrs:providers>
+            <ref component-id="jaxbProvider"/>
+            <ref component-id="wfsExceptionMapperProvider"/>
+            <ref component-id="XmlSchemaWriter"/>
+            <ref component-id="FeatureCollectionWriter"/>
+        </jaxrs:providers>
+    </jaxrs:server>
+
+</blueprint>

@@ -1,0 +1,127 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version. 
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+-->
+<wfs:FeatureCollection xmlns:wfs="http://www.opengis.net/wfs" xmlns:gml="http://www.opengis.net/gml"
+                       xmlns:Sport="urn:ddf.catalog.gml.Sport" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                       xsi:schemaLocation="urn:ddf.catalog.gml.Sport http://null:nullnull/wfs?service=wfs&amp;request=DescribeFeatureType&amp;version=1.0.0&amp;typeName=Sport ">
+    <gml:boundedBy>
+        <gml:Box srsName="EPSG:4326">
+            <gml:coordinates>1.0,1.0 40.0,40.0</gml:coordinates>
+        </gml:Box>
+    </gml:boundedBy>
+    <gml:featureMember>
+        <Sport:Sport fid="team1">
+            <gml:boundedBy>
+                <gml:Box srsName="EPSG:4326">
+                    <gml:coordinates>10.0,10.0 40.0,40.0</gml:coordinates>
+                </gml:Box>
+            </gml:boundedBy>
+            <Sport:away>
+                <gml:Polygon>
+                    <gml:outerBoundaryIs>
+                        <gml:LinearRing>
+                            <gml:coordinates>
+                                1.0,1.0 2.0,2.0 3.0,3.0 4.0,4.0 1.0,1.0
+                            </gml:coordinates>
+                        </gml:LinearRing>
+                    </gml:outerBoundaryIs>
+                </gml:Polygon>
+            </Sport:away>
+            <Sport:created>2013-03-26T18:00:29+00:00</Sport:created>
+            <Sport:date_created>2013-03-26T18:00:29+00:00</Sport:date_created>
+            <Sport:effective>2013-03-26T18:00:29+00:00</Sport:effective>
+            <Sport:home>
+                <gml:Polygon>
+                    <gml:outerBoundaryIs>
+                        <gml:LinearRing>
+                            <gml:coordinates>
+                                30.0,10.0 10.0,20.0 20.0,40.0 40.0,40.0 30.0,10.0
+                            </gml:coordinates>
+                        </gml:LinearRing>
+                    </gml:outerBoundaryIs>
+                </gml:Polygon>
+            </Sport:home>
+            <Sport:id>team1</Sport:id>
+            <Sport:location>
+                <gml:Polygon>
+                    <gml:outerBoundaryIs>
+                        <gml:LinearRing>
+                            <gml:coordinates>
+                                30.0,10.0 10.0,20.0 20.0,40.0 40.0,40.0 30.0,10.0
+                            </gml:coordinates>
+                        </gml:LinearRing>
+                    </gml:outerBoundaryIs>
+                </gml:Polygon>
+            </Sport:location>
+            <Sport:metadata-content-type>Sport</Sport:metadata-content-type>
+            <Sport:metadata-content-type-version>1.0.0</Sport:metadata-content-type-version>
+            <Sport:team_id>team1</Sport:team_id>
+            <Sport:team_name>team1</Sport:team_name>
+            <Sport:title>team1</Sport:title>
+            <Sport:wins>55</Sport:wins>
+        </Sport:Sport>
+    </gml:featureMember>
+    <gml:featureMember>
+        <Sport:Sport fid="team2">
+            <gml:boundedBy>
+                <gml:Box srsName="EPSG:4326">
+                    <gml:coordinates>1.0,1.0 4.0,4.0</gml:coordinates>
+                </gml:Box>
+            </gml:boundedBy>
+            <Sport:away>
+                <gml:Polygon>
+                    <gml:outerBoundaryIs>
+                        <gml:LinearRing>
+                            <gml:coordinates>
+                                30.0,10.0 10.0,20.0 20.0,40.0 40.0,40.0 30.0,10.0
+                            </gml:coordinates>
+                        </gml:LinearRing>
+                    </gml:outerBoundaryIs>
+                </gml:Polygon>
+            </Sport:away>
+            <Sport:created>2013-03-26T18:00:29+00:00</Sport:created>
+            <Sport:date_created>2013-03-26T18:00:29+00:00</Sport:date_created>
+            <Sport:effective>2013-03-26T18:00:29+00:00</Sport:effective>
+            <Sport:home>
+                <gml:Polygon>
+                    <gml:outerBoundaryIs>
+                        <gml:LinearRing>
+                            <gml:coordinates>
+                                1.0,1.0 2.0,2.0 3.0,3.0 4.0,4.0 1.0,1.0
+                            </gml:coordinates>
+                        </gml:LinearRing>
+                    </gml:outerBoundaryIs>
+                </gml:Polygon>
+            </Sport:home>
+            <Sport:id>team2</Sport:id>
+            <Sport:location>
+                <gml:Polygon>
+                    <gml:outerBoundaryIs>
+                        <gml:LinearRing>
+                            <gml:coordinates>
+                                1.0,1.0 2.0,2.0 3.0,3.0 4.0,4.0 1.0,1.0
+                            </gml:coordinates>
+                        </gml:LinearRing>
+                    </gml:outerBoundaryIs>
+                </gml:Polygon>
+            </Sport:location>
+            <Sport:metadata-content-type>Sport</Sport:metadata-content-type>
+            <Sport:metadata-content-type-version>1.0.0</Sport:metadata-content-type-version>
+            <Sport:team_id>team2</Sport:team_id>
+            <Sport:team_name>team2</Sport:team_name>
+            <Sport:title>team2</Sport:title>
+            <Sport:wins>55</Sport:wins>
+        </Sport:Sport>
+    </gml:featureMember>
+</wfs:FeatureCollection>

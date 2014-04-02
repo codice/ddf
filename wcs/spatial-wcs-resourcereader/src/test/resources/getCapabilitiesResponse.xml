@@ -1,0 +1,98 @@
+<!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version. 
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+-->
+<wcs:WCS_Capabilities
+    xmlns:wcs="http://www.opengis.net/wcs" 
+    xmlns:gml="http://www.opengis.net/gml" 
+    xmlns:xlink="http://www.w3.org/1999/xlink" 
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.0.0">
+    <wcs:Service>
+        <wcs:description>A web coverage service that conforms to the Web Coverage Service (WCS), Version 1.0.0 specification, with vendor extensions</wcs:description>
+        <wcs:name>XYZ WCS</wcs:name>
+        <wcs:label>XYZ WCS</wcs:label>
+        <wcs:keywords>
+            <wcs:keyword>WCS</wcs:keyword>
+            <wcs:keyword>XYZ</wcs:keyword>
+            <wcs:keyword>Coverage</wcs:keyword>
+        </wcs:keywords>
+        <wcs:responsibleParty>        
+            <wcs:individualName>TBD</wcs:individualName>
+            <wcs:organisationName>TBD</wcs:organisationName>
+            <wcs:positionName>TBD</wcs:positionName>
+            <wcs:contactInfo>
+                <wcs:phone>
+                    <wcs:voice>TBD</wcs:voice>
+                </wcs:phone>
+                <wcs:address>
+                    <wcs:deliveryPoint>TBD (Address)</wcs:deliveryPoint>
+                    <wcs:city>TBD</wcs:city>
+                    <wcs:administrativeArea>TBD (State)</wcs:administrativeArea>
+                    <wcs:postalCode>TBD</wcs:postalCode>
+                    <wcs:country>USA</wcs:country>
+                    <wcs:electronicMailAddress>TBD</wcs:electronicMailAddress>
+                </wcs:address>
+                <wcs:onlineResource xlink:type="simple" xlink:href="TBD"/>
+            </wcs:contactInfo>
+        </wcs:responsibleParty>
+        <wcs:fees>NONE</wcs:fees>
+        <wcs:accessConstraints>Authorized Access Only</wcs:accessConstraints>
+    </wcs:Service>
+    <wcs:Capability>
+        <wcs:Request>
+            <wcs:GetCapabilities>
+                <wcs:DCPType>
+                    <wcs:HTTP>
+                        <wcs:Get>
+                            <wcs:OnlineResource xlink:type="simple" xlink:title="KVP" xlink:href="https://www.example.com/wcs/getCapabilities"/>
+                        </wcs:Get>
+                        <wcs:Post>
+                            <wcs:OnlineResource xlink:type="simple" xlink:title="XML" xlink:href="https://www.example.com/wcs/getCapabilities"/>
+                        </wcs:Post>
+                    </wcs:HTTP>
+                </wcs:DCPType>
+            </wcs:GetCapabilities>
+            <wcs:DescribeCoverage>
+                <wcs:DCPType>
+                    <wcs:HTTP>
+                        <wcs:Get>
+                            <wcs:OnlineResource xlink:type="simple" xlink:title="KVP" xlink:href="https://www.example.com/wcs/describeCoverage"/>
+                        </wcs:Get>
+                        <wcs:Post>
+                            <wcs:OnlineResource xlink:type="simple" xlink:title="XML" xlink:href="https://www.example.com/wcs/describeCoverage"/>
+                        </wcs:Post>
+                    </wcs:HTTP>
+                </wcs:DCPType>
+            </wcs:DescribeCoverage>
+            <wcs:GetCoverage>
+                <wcs:DCPType>
+                    <wcs:HTTP>
+                        <wcs:Get>
+                            <wcs:OnlineResource xlink:type="simple" xlink:title="KVP" xlink:href="https://www.example.com/wcs/getCoverage"/>
+                        </wcs:Get>
+                        <wcs:Post>
+                            <wcs:OnlineResource xlink:type="simple" xlink:title="XML" xlink:href="https://www.example.com/wcs/getCoverage"/>
+                        </wcs:Post>
+                    </wcs:HTTP>
+                </wcs:DCPType>
+            </wcs:GetCoverage>
+        </wcs:Request>
+        <wcs:Exception>
+            <wcs:Format>application/xml</wcs:Format>
+        </wcs:Exception>
+        <wcs:VendorSpecificCapabilities>
+            <wcs:name>FTP Redirection</wcs:name>
+            <wcs:description>delivery of products available via getCoverage response handler</wcs:description>
+        </wcs:VendorSpecificCapabilities>
+    </wcs:Capability>
+    <wcs:ContentMetadata xlink:type="simple" xlink:title="CSW Capabilities" xlink:href="http://yourservername/csw/getCapabilities?REQUEST=GetCapabilities&amp;SERVICE=CSW&amp;VERSION=2.0.2" gml:remoteSchema="http://www.opengis.net/cat/csw/2.0.2"/>
+</wcs:WCS_Capabilities>

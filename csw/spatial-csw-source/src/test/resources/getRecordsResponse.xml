@@ -1,0 +1,69 @@
+<!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version. 
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+-->
+<csw:GetRecordsResponse xmlns:csw="http://www.opengis.net/cat/csw/2.0.2">
+  <csw:SearchStatus status="subset" timestamp="2013-05-01T02:13:36+0200"/>
+  <csw:SearchResults elementSet="full" nextRecord="11" numberOfRecordsMatched="479" numberOfRecordsReturned="10" recordSchema="csw:Record">
+    <csw:Record xmlns:csw="http://www.opengis.net/cat/csw/2.0.2">
+      <dc:identifier xmlns:dc="http://purl.org/dc/elements/1.1/">{8C1F6297-EC96-4302-A01E-14988C9149FD}</dc:identifier>
+      <dc:title xmlns:dc="http://purl.org/dc/elements/1.1/">title 1</dc:title>
+      <dct:modified xmlns:dct="http://purl.org/dc/terms/">2008-12-15</dct:modified>
+      <dc:subject xmlns:dc="http://purl.org/dc/elements/1.1/">subject 1</dc:subject>
+      <dc:subject xmlns:dc="http://purl.org/dc/elements/1.1/">second subject</dc:subject>
+      <dct:abstract xmlns:dct="http://purl.org/dc/terms/">abstract 1</dct:abstract>
+      <dc:rights xmlns:dc="http://purl.org/dc/elements/1.1/">copyright 1</dc:rights>
+      <dc:rights xmlns:dc="http://purl.org/dc/elements/1.1/">copyright 2</dc:rights>
+      <dc:language xmlns:dc="http://purl.org/dc/elements/1.1/">english</dc:language>      
+      <ows:BoundingBox xmlns:ows="http://www.opengis.net/ows" crs="EPSG:RD_New (28992)">
+        <ows:LowerCorner>5.121 52.139</ows:LowerCorner>
+        <ows:UpperCorner>4.468 52.517</ows:UpperCorner>
+      </ows:BoundingBox>   
+      <dc:type xmlns:dc="http://purl.org/dc/elements/1.1/">dataset</dc:type>
+      <dc:format xmlns:dc="http://purl.org/dc/elements/1.1/">Shapefile</dc:format> 
+    </csw:Record>
+    <csw:Record xmlns:csw="http://www.opengis.net/cat/csw/2.0.2">
+      <dc:identifier xmlns:dc="http://purl.org/dc/elements/1.1/">{23362852-F370-4369-B0B2-BE74B2859614}</dc:identifier>
+      <dc:title xmlns:dc="http://purl.org/dc/elements/1.1/">mc2 title</dc:title>
+      <dct:modified xmlns:dct="http://purl.org/dc/terms/">2010-12-15</dct:modified>
+      <dc:subject xmlns:dc="http://purl.org/dc/elements/1.1/">first subject</dc:subject>
+      <dc:subject xmlns:dc="http://purl.org/dc/elements/1.1/">subject 2</dc:subject>
+      <dct:abstract xmlns:dct="http://purl.org/dc/terms/">mc2 abstract</dct:abstract>
+      <dc:rights xmlns:dc="http://purl.org/dc/elements/1.1/">first copyright</dc:rights>
+      <dc:rights xmlns:dc="http://purl.org/dc/elements/1.1/">second copyright</dc:rights>
+      <dc:language xmlns:dc="http://purl.org/dc/elements/1.1/">english</dc:language>
+      <ows:BoundingBox xmlns:ows="http://www.opengis.net/ows" crs="EPSG:RD_New (28992)">
+        <ows:LowerCorner>6.121 53.139</ows:LowerCorner>
+        <ows:UpperCorner>5.468 53.517</ows:UpperCorner>
+      </ows:BoundingBox>
+      <dc:type xmlns:dc="http://purl.org/dc/elements/1.1/">dataset 2</dc:type>
+      <dc:format xmlns:dc="http://purl.org/dc/elements/1.1/">Shapefile 2</dc:format>
+    </csw:Record>
+    <csw:Record xmlns:csw="http://www.opengis.net/cat/csw/2.0.2">
+      <dc:identifier xmlns:dc="http://purl.org/dc/elements/1.1/">{23362852-F370-4369-B0B2-BE74B2859615}</dc:identifier>
+      <dc:title xmlns:dc="http://purl.org/dc/elements/1.1/">mc3 title</dc:title>
+      <dct:modified xmlns:dct="http://purl.org/dc/terms/">2010-12-15</dct:modified>
+      <dc:subject xmlns:dc="http://purl.org/dc/elements/1.1/">first subject</dc:subject>
+      <dc:subject xmlns:dc="http://purl.org/dc/elements/1.1/">subject 3</dc:subject>
+      <dct:abstract xmlns:dct="http://purl.org/dc/terms/">mc2 abstract</dct:abstract>
+      <dc:rights xmlns:dc="http://purl.org/dc/elements/1.1/">first copyright</dc:rights>
+      <dc:rights xmlns:dc="http://purl.org/dc/elements/1.1/">second copyright</dc:rights>
+      <dc:language xmlns:dc="http://purl.org/dc/elements/1.1/">english</dc:language>
+      <ows:BoundingBox xmlns:ows="http://www.opengis.net/ows" crs="EPSG:RD_New (28992)">
+        <ows:LowerCorner>6.121 53.139</ows:LowerCorner>
+        <ows:UpperCorner>5.468 53.517</ows:UpperCorner>
+      </ows:BoundingBox>
+      <dc:type xmlns:dc="http://purl.org/dc/elements/1.1/"></dc:type>
+      <dc:format xmlns:dc="http://purl.org/dc/elements/1.1/">Shapefile 3</dc:format>
+    </csw:Record>
+  </csw:SearchResults>
+</csw:GetRecordsResponse>

@@ -16,7 +16,7 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
-	    <groupId>ddf.spatial</groupId>
+	    <groupId>org.codice.ddf.spatial</groupId>
 		<artifactId>spatial</artifactId>
 		<version>2.3.1-SNAPSHOT</version>
 	</parent>
