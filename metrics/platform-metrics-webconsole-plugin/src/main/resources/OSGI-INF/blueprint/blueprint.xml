@@ -32,6 +32,7 @@
             <entry key="felix.webconsole.label" value="metrics"/>
         </service-properties>
     </service>
-
+    
+    <service ref="metricsWebConsolePlugin" interface="org.codice.ddf.configuration.ConfigurationWatcher" />
 
 </blueprint>

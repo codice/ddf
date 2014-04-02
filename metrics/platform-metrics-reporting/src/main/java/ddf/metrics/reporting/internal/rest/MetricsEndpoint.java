@@ -47,10 +47,13 @@ import javax.ws.rs.core.UriInfo;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.codice.ddf.configuration.ConfigurationManager;
+import org.codice.ddf.configuration.ConfigurationWatcher;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
 import org.json.simple.JSONValue;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ddf.metrics.reporting.internal.MetricsEndpointException;
 import ddf.metrics.reporting.internal.MetricsGraphException;
@@ -72,15 +75,10 @@ import ddf.metrics.reporting.internal.rrd4j.RrdMetricsRetriever;
  * 
  */
 @Path("/")
-public class MetricsEndpoint {
-    private static final Logger LOGGER = Logger.getLogger(MetricsEndpoint.class);
+public class MetricsEndpoint implements ConfigurationWatcher {
+    private static final Logger LOGGER = LoggerFactory.getLogger(MetricsEndpoint.class);
 
-    // TODO: When DdfConfigurationManager and Watcher are moved from the catalog app to the platform
-    // app
-    // then this class should implement the DdfConfigurationWatcher interface and be able to
-    // dynamically
-    // get the services context root and build out this URI - for now it must be hard-coded
-    private static final String METRICS_SERVICE_BASE_URL = "/services/internal/metrics";
+    private static final String METRICS_SERVICE_BASE_URL = "/internal/metrics";
 
     public static final String DEFAULT_METRICS_DIR = "data/metrics/";
 
@@ -116,6 +114,8 @@ public class MetricsEndpoint {
     private static final long SIX_MONTHS_IN_SECONDS = 180 * ONE_DAY_IN_SECONDS;
 
     private static final long ONE_YEAR_IN_SECONDS = 365 * ONE_DAY_IN_SECONDS;
+
+    private String servicesContextRoot = "/services";
 
     static final Map<String, Long> timeRanges = new HashMap<String, Long>();
     static {
@@ -625,8 +625,8 @@ public class MetricsEndpoint {
                  * END: CXF bug
                  */
 
-                String metricsUrl = METRICS_SERVICE_BASE_URL + "/" + metricsName + "." + format
-                        + DATE_OFFSET_QUERY + timeRangeInSeconds;
+                String metricsUrl = servicesContextRoot + METRICS_SERVICE_BASE_URL + "/"
+                        + metricsName + "." + format + DATE_OFFSET_QUERY + timeRangeInSeconds;
 
                 // key=format
                 // value=url for format with specified time range in seconds
@@ -712,6 +712,11 @@ public class MetricsEndpoint {
 
             return dateOffset1.compareTo(dateOffset2);
         }
+    }
+
+    @Override
+    public void configurationUpdateCallback(Map<String, String> configuration) {
+        servicesContextRoot = configuration.get(ConfigurationManager.SERVICES_CONTEXT_ROOT);
     }
 
 }

@@ -14,11 +14,19 @@
  **/
 package ddf.metrics.plugin.webconsole;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.UnrecoverableKeyException;
+import java.security.cert.CertificateException;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -27,6 +35,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
+import javax.net.ssl.KeyManager;
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.TrustManagerFactory;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -35,9 +47,13 @@ import javax.ws.rs.core.Response;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.CharEncoding;
 import org.apache.commons.lang.StringUtils;
+import org.apache.cxf.configuration.jsse.TLSClientParameters;
 import org.apache.cxf.jaxrs.client.WebClient;
+import org.apache.cxf.transport.http.HTTPConduit;
 import org.apache.felix.webconsole.AbstractWebConsolePlugin;
 import org.apache.log4j.Logger;
+import org.codice.ddf.configuration.ConfigurationManager;
+import org.codice.ddf.configuration.ConfigurationWatcher;
 import org.joda.time.DateMidnight;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeConstants;
@@ -60,17 +76,13 @@ import org.osgi.framework.BundleContext;
  * @author ddf.isgs@lmco.com
  * 
  */
-public class MetricsWebConsolePlugin extends AbstractWebConsolePlugin {
+public class MetricsWebConsolePlugin extends AbstractWebConsolePlugin implements
+        ConfigurationWatcher {
     private static final long serialVersionUID = -3725252410686520419L;
 
     private static final Logger LOGGER = Logger.getLogger(MetricsWebConsolePlugin.class);
 
-    // TODO: When DdfConfigurationManager and Watcher are moved from the catalog app to the platform
-    // app
-    // then this class should implement the DdfConfigurationWatcher interface and be able to
-    // dynamically
-    // get the services context root and build out this URI - for now it must be hard-coded
-    private static final String METRICS_SERVICE_BASE_URL = "/services/internal/metrics";
+    private static final String METRICS_SERVICE_BASE_URL = "/internal/metrics";
 
     public static final String NAME = "metrics";
 
@@ -81,6 +93,24 @@ public class MetricsWebConsolePlugin extends AbstractWebConsolePlugin {
     private static final int NUMBER_OF_WEEKLY_REPORTS = 4;
     private static final int NUMBER_OF_MONTHLY_REPORTS = 12;
     private static final int NUMBER_OF_YEARLY_REPORTS = 1;
+
+    private static final String TRUSTSTORE_DEFAULT_LOC = "etc/keystores/serverTruststore.jks";
+
+    private static final String TRUSTSTORE_DEFAULT_PASS = "changeit";
+
+    private static final String KEYSTORE_DEFAULT_LOC = "etc/keystores/serverKeystore.jks";
+
+    private static final String KEYSTORE_DEFAULT_PASS = "changeit";
+
+    private String trustStore;
+
+    private String trustStorePassword;
+
+    private String keyStore;
+
+    private String keyStorePassword;
+
+    private String servicesContextRoot = "/services";
 
     private BundleContext bundleContext;
 
@@ -124,7 +154,7 @@ public class MetricsWebConsolePlugin extends AbstractWebConsolePlugin {
         final PrintWriter pw = response.getWriter();
 
         String metricsServiceUrl = request.getScheme() + "://" + request.getServerName() + ":"
-                + request.getServerPort() + METRICS_SERVICE_BASE_URL;
+                + request.getServerPort() + servicesContextRoot + METRICS_SERVICE_BASE_URL;
 
         // Call Metrics Endpoint REST service to get list of all of the monitored
         // metrics and their associated hyperlinks to graph their historical data.
@@ -132,6 +162,9 @@ public class MetricsWebConsolePlugin extends AbstractWebConsolePlugin {
         LOGGER.debug("(NEW) Creating WebClient to URI " + metricsServiceUrl);
         WebClient client = WebClient.create(metricsServiceUrl);
         client.accept("application/json");
+        if ("https".equals(request.getScheme())) {
+            configureHttps(client);
+        }
         Response metricsListResponse = client.get();
         InputStream is = (InputStream) metricsListResponse.getEntity();
         LOGGER.debug("Response has this many bytes in it: " + is.available());
@@ -276,6 +309,57 @@ public class MetricsWebConsolePlugin extends AbstractWebConsolePlugin {
         LOGGER.debug("EXITING: renderContent");
     }
 
+    private void configureHttps(WebClient client) {
+        LOGGER.debug("Configuring client for HTTPS");
+        HTTPConduit conduit = WebClient.getConfig(client).getHttpConduit();
+        TLSClientParameters params = conduit.getTlsClientParameters();
+
+        if (params == null) {
+            params = new TLSClientParameters();
+        }
+
+        params.setDisableCNCheck(true);
+
+        KeyStore keyStoreJks;
+        try {
+            keyStoreJks = KeyStore.getInstance("JKS");
+
+            File trustStoreFile = new File(trustStore);
+            keyStoreJks.load(new FileInputStream(trustStoreFile), trustStorePassword.toCharArray());
+            TrustManagerFactory trustFactory = TrustManagerFactory.getInstance(TrustManagerFactory
+                    .getDefaultAlgorithm());
+            trustFactory.init(keyStoreJks);
+            TrustManager[] tm = trustFactory.getTrustManagers();
+            params.setTrustManagers(tm);
+
+            File keyStoreFile = new File(keyStore);
+            keyStoreJks.load(new FileInputStream(keyStoreFile), keyStorePassword.toCharArray());
+            KeyManagerFactory keyFactory = KeyManagerFactory.getInstance(KeyManagerFactory
+                    .getDefaultAlgorithm());
+            keyFactory.init(keyStoreJks, keyStorePassword.toCharArray());
+            KeyManager[] km = keyFactory.getKeyManagers();
+            params.setKeyManagers(km);
+
+            conduit.setTlsClientParameters(params);
+        } catch (KeyStoreException e) {
+            handleKeyStoreException(e);
+        } catch (NoSuchAlgorithmException e) {
+            handleKeyStoreException(e);
+        } catch (CertificateException e) {
+            handleKeyStoreException(e);
+        } catch (FileNotFoundException e) {
+            handleKeyStoreException(e);
+        } catch (IOException e) {
+            handleKeyStoreException(e);
+        } catch (UnrecoverableKeyException e) {
+            handleKeyStoreException(e);
+        }
+    }
+
+    private void handleKeyStoreException(Exception e) {
+        LOGGER.warn("An Exception occured trying to configure the keystores for metrics.", e);
+    }
+
     /**
      * Convert string, if it is in camelCase, to individual words with each word starting with a
      * capital letter
@@ -416,5 +500,27 @@ public class MetricsWebConsolePlugin extends AbstractWebConsolePlugin {
 
     private static String urlEncodeDate(DateTime date) throws UnsupportedEncodingException {
         return URLEncoder.encode(date.toString(ISODateTimeFormat.dateTimeNoMillis()), CharEncoding.UTF_8);
+    }
+
+    @Override
+    public void configurationUpdateCallback(Map<String, String> configuration) {
+        servicesContextRoot = configuration.get(ConfigurationManager.SERVICES_CONTEXT_ROOT);
+        String trustStoreLoc = configuration.get(ConfigurationManager.TRUST_STORE);
+        if (StringUtils.isNotBlank(trustStoreLoc)) {
+            trustStore = trustStoreLoc;
+            trustStorePassword = configuration.get(ConfigurationManager.TRUST_STORE_PASSWORD);
+        } else {
+            trustStore = TRUSTSTORE_DEFAULT_LOC;
+            trustStorePassword = TRUSTSTORE_DEFAULT_PASS;
+        }
+
+        String keystoreLoc = configuration.get(ConfigurationManager.KEY_STORE);
+        if (StringUtils.isNotBlank(keystoreLoc)) {
+            keyStore = keystoreLoc;
+            keyStorePassword = configuration.get(ConfigurationManager.KEY_STORE_PASSWORD);
+        } else {
+            keyStore = KEYSTORE_DEFAULT_LOC;
+            keyStorePassword = KEYSTORE_DEFAULT_PASS;
+        }
     }
 }

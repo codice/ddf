@@ -32,4 +32,6 @@
 		<property name="metricsMaxThreshold" value="4000000000" />
 	</bean>
 
+	<service ref="MetricsService" interface="org.codice.ddf.configuration.ConfigurationWatcher" />
+
 </blueprint>
