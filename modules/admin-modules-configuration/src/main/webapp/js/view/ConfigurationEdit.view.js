@@ -23,8 +23,23 @@ define(function (require) {
 
     var ConfigurationEdit = {};
     
-    var TempModel = Backbone.Model.extend({});
-    var TempCollection = Backbone.Collection.extend({model: TempModel});
+    var CardinalityModel = Backbone.Model.extend({});
+    var CardinalityCollection = Backbone.Collection.extend({model: CardinalityModel});
+    
+    //These "constants" will help clarify some magic numbers defined from the
+    //  Metatype specification
+    var STRING = 1;
+    var LONG = 2;
+    var INTEGER = 3;
+    var SHORT = 4;
+    var CHARACTER = 5;
+    var BYTE = 6;
+    var DOUBLE = 7;
+    //var FLOAT = 8;
+    //var BIGINTEGER = 9;
+    var BIGDECIMAL = 10;
+    var BOOLEAN = 11;
+    var PASSWORD = 12;
     
     ich.addTemplate('configurationEdit', require('text!/configurations/templates/configurationEdit.handlebars'));
     if(!ich.optionListType) {
@@ -126,31 +141,18 @@ define(function (require) {
             view.model.get('service').get('metatype').forEach(function(each) {
                 var type = each.get("type");
                 if(!_.isUndefined(type)) {
-                    //from the Metatype specification
-                    // int STRING = 1;
-                    // int LONG = 2;
-                    // int INTEGER = 3;
-                    // int SHORT = 4;
-                    // int CHARACTER = 5;
-                    // int BYTE = 6;
-                    // int DOUBLE = 7;
-                    // int FLOAT = 8;
-                    // int BIGINTEGER = 9;
-                    // int BIGDECIMAL = 10;
-                    // int BOOLEAN = 11;
-                    // int PASSWORD = 12;
-                    if (type === 1 || type === 5 || type === 6 || (type >= 7 && type <= 10)) {
+                    if (type === STRING || type === CHARACTER || type === BYTE || (type >= DOUBLE && type <= BIGDECIMAL)) {
                         if (each.get("cardinality") === 0) {
                             view.$(".data-section").append(ich.textType(each.toJSON()));
                         }
                     }
-                    else if (type === 11) {
+                    else if (type === BOOLEAN) {
                         view.$(".data-section").append(ich.checkboxType(each.toJSON()));
                     }
-                    else if (type === 12) {
+                    else if (type === PASSWORD) {
                         view.$(".data-section").append(ich.passwordType(each.toJSON()));
                     }
-                    else if (type === 2 || type === 3 || type === 4) { //this type can only be used for integers
+                    else if (type === LONG || type === INTEGER || type === SHORT) { //this type can only be used for integers
                         view.$(".data-section").append(ich.numberType(each.toJSON()));
                     }
                 }
@@ -234,35 +236,14 @@ define(function (require) {
             view.model.get('service').get('metatype').forEach(function(each) {
                 var type = each.get("type");
                 if(!_.isUndefined(type)) {
-                    if (type === 1 || type === 5 || type === 6 || (type >= 7 && type <= 10)) {
+                    if (type === STRING || type === CHARACTER || type === BYTE || (type >= DOUBLE && type <= BIGDECIMAL)) {
                         if(each.get('cardinality') !== 0) {
                             var valueArray = [];
                             var count = 0;
                             /**
-                             * Initial load of the properties will be defaults
-                             */
-                            if(propertyType === "default") {
-                                var defaultConfig = each.get('defaultValue');
-                                if(defaultConfig) {
-                                    count = 0;
-                                    _.each(defaultConfig.split(/[,]+/), function(item) {
-                                        var itemObj = {};
-                                        itemObj.id = each.get('id') + "_" + count++;
-                                        itemObj.value = item;
-                                        valueArray.push(itemObj);
-                                    });
-                                }
-                                view.collectionArray = new TempCollection(valueArray);
-                                if(!view[each.get("id")]) {
-                                    view.$(".data-section").append(ich.textTypeListHeader(each.toJSON()));
-                                    view.addRegion(each.get("id"), "#"+each.get("id"));
-                                }
-                                view[each.get("id")].show(new ConfigurationEdit.ViewArray({collection: view.collectionArray}));
-                            }
-                            /**
                              * If the submit/save button is clicked, all current values will be stored
                              */
-                            else if (propertyType === "newSave") {
+                            if (propertyType === "newSave") {
                                 while(view.collectionArray.at(count))
                                 {
                                     var configValues = view.collectionArray.at(count).get('value');
@@ -272,25 +253,45 @@ define(function (require) {
                                 var propertyString = valueArray.join();
                                 view.model.get('properties').set(each.get('id'), propertyString);
                             }
-                            /**
-                             * Loads values stored in the metatype upon first load and refreshes
-                             */
                             else {
-                                var configurationProperties = view.model.get('properties').get(each.get('id'));
-                                if(configurationProperties){
-                                    if(configurationProperties instanceof Array) {
-                                        var nonArray = configurationProperties.join();
-                                        configurationProperties = nonArray;
+                                var configProperty = "";
+                                /**
+                                 * Initial load of the properties will be defaults
+                                 */
+                                if(propertyType === "default") {
+                                    configProperty = each.get('defaultValue');
+                                }
+                                /**
+                                 * Loads values stored in the metatype upon first load and refreshes
+                                 */
+                                else {
+                                    configProperty = view.model.get('properties').get(each.get('id'));
+                                }
+                                
+                                if(configProperty) {
+                                    if(configProperty instanceof Array) {
+                                        var nonArray = configProperty.join();
+                                        configProperty = nonArray;
                                     }
                                     count = 0;
-                                    _.each(configurationProperties.split(/[,]+/), function(item) {
+                                    _.each(configProperty.split(/[,]+/), function (item) {
                                         var itemObj = {};
                                         itemObj.id = each.get('id') + "_" + count++;
                                         itemObj.value = item;
                                         valueArray.push(itemObj);
                                     });
                                 }
-                                view.collectionArray.set(valueArray);
+                                if(propertyType === "default") {
+                                    view.collectionArray = new CardinalityCollection(valueArray);
+                                    if(!view[each.get("id")]) {
+                                        view.$(".data-section").append(ich.textTypeListHeader(each.toJSON()));
+                                        view.addRegion(each.get("id"), "#"+each.get("id"));
+                                    }
+                                    view[each.get("id")].show(new ConfigurationEdit.ViewArray({collection: view.collectionArray}));
+                                }
+                                else {
+                                    view.collectionArray.set(valueArray);
+                                }
                             }
                         }
                     }
