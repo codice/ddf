@@ -35,17 +35,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * The NotificationController handles the processing and routing of 
+ * The {@code NotificationController} handles the processing and routing of 
  * notifications.
  */
 @Service
 public class NotificationController implements EventHandler {
-    private static final Logger LOGGER = LoggerFactory.getLogger(NotificationController.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(
+            NotificationController.class);
 
     @Session
     private ServerSession notificationControllerServerSession;
 
-    public static final String NOTIFICATIONS_TOPIC_NAME = "ddf/notification/catalog/downloads";
+    public static final String NOTIFICATIONS_TOPIC_NAME = 
+            "ddf/notification/catalog/downloads";
 
     public static final String NOTIFICATION_APPLICATION_KEY = "application";
 
@@ -68,7 +70,7 @@ public class NotificationController implements EventHandler {
             .synchronizedMap(new HashMap<String, ServerSession>(41));
     
     /**
-     * Establishes {@link NotificationController} as a listener to events 
+     * Establishes {@code NotificationController} as a listener to events 
      * published by the OSGi eventing framework on the 
      * {@link NotificationController#NOTIFICATIONS_TOPIC_NAME} topic
      * 
@@ -78,44 +80,44 @@ public class NotificationController implements EventHandler {
         Dictionary<String, Object> dictionary = new Hashtable<String, Object>();
         dictionary.put(EventConstants.EVENT_TOPIC, NOTIFICATIONS_TOPIC_NAME);
 
-        bundleContext.registerService(EventHandler.class.getName(), this, dictionary);
+        bundleContext.registerService(EventHandler.class.getName(), this, 
+                dictionary);
     }
 
     /**
      * Obtains the {@link ServerSession} associated with a given user id.
      * 
-     * @param userId The id of the user associated with the ServerSession to be
-     * retrieved.
-     * @return The {@link ServerSession} associated with the received userId or 
-     * null if the user does not have an established {@link ServerSession}
+     * @param userId The id of the user associated with the 
+     * {@code ServerSession} to be retrieved.
+     * @return The {@code ServerSession} associated with the received userId or 
+     * null if the user does not have an established {@code ServerSession}
      */
     public ServerSession getSessionByUserId(String userId) {
         return userSessionMap.get(userId);
     }
 
     /**
-     * Listens to the /meta/disconnect Channel for clients disconnecting and
-     * deregisters the user. This should be invoked in order to remove 
-     * {@link NotificationController} references to invalid 
-     * {@link ServerSessions}.
+     * Listens to the /meta/disconnect {@link org.cometd.bayeux.Channel} for 
+     * clients disconnecting and deregisters the user. This should be invoked in
+     * order to remove {@code NotificationController} references to invalid 
+     * {@link ServerSession}s.
      * 
-     * @param serverSession The {@link ServerSession} object associated with the
+     * @param serverSession The {@code ServerSession} object associated with the
      * client that is disconnecting
      * @param serverMessage The {@link ServerMessage} that was sent from the 
      * client on the /meta/disconnect Channel
      */
     @Listener("/meta/disconnect")
-    public void deregisterUserSession(ServerSession serverSession, ServerMessage serverMessage) {
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("\nServerSession: {}\nServerMessage: {}", 
-                    serverSession, serverMessage);
-        }
+    public void deregisterUserSession(ServerSession serverSession, 
+            ServerMessage serverMessage) {
+        LOGGER.debug("\nServerSession: {}\nServerMessage: {}", serverSession, 
+                serverMessage);
 
         if (null == serverSession) {
             throw new NullPointerException("ServerSession is null");
         }
 
-        // See NOTE in handleHandshakeMetadata regarding the changes that need
+        // See NOTE in registerUserSession regarding the changes that need
         // to be made when this is changed to obtain the user ID from the client.
         String userId = serverSession.getId();
 
@@ -132,7 +134,7 @@ public class NotificationController implements EventHandler {
 
     /**
      * Enables private message delivery to a given user. As of CometD version 
-     * 2.8.0, CometD this must be called from the canHandshake method of a 
+     * 2.8.0, this must be called from the canHandshake method of a 
      * {@link SecurityPolicy}. See 
      * <a href="http://stackoverflow.com/questions/22695516/null-serversession-on-cometd-meta-handshake">Obtaining user and session information for private message delivery</a>
      * for more information.
@@ -140,17 +142,16 @@ public class NotificationController implements EventHandler {
      * @param serverSession The {@link ServerSession} on which to deliver 
      * messages to the user for the user.
      * @param serverMessage The {@link ServerMessage} containing the userId 
-     * property with which to associate the {@link ServerSession}.
-     * @throws NullPointerException when the received {@link ServerSession} or 
-     * the {@link ServerSession}'s id is null.
+     * property with which to associate the {@code ServerSession}.
+     * @throws NullPointerException when the received {@code ServerSession} or 
+     * the {@code ServerSession}'s id is null.
      */
     public void registerUserSession(ServerSession serverSession, 
             ServerMessage serverMessage)
         throws NullPointerException {
 
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("ServerSession: " + serverSession + "\nServerMessage: " + serverMessage);
-        }
+        LOGGER.debug("ServerSession: {}\nServerMessage: {}", serverSession, 
+                serverMessage);
 
         if (null == serverSession) {
             throw new NullPointerException("ServerSession is null");
@@ -170,10 +171,8 @@ public class NotificationController implements EventHandler {
 
         userSessionMap.put(userId, serverSession);
 
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Added ServerSession to userSessionMap - New map: {}", 
-                    userSessionMap);
-        }
+        LOGGER.debug("Added ServerSession to userSessionMap - New map: {}", 
+                userSessionMap);
     }
 
     /**
@@ -233,15 +232,13 @@ public class NotificationController implements EventHandler {
                 jsonPropMap.put(key, event.getProperty(key));
             }
 
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("Sending the following property map to \"{}\": ",
-                        jsonPropMap.toJSONString());
-            }
+            LOGGER.debug("Sending the following property map to \"{}\": ",
+                    jsonPropMap.toJSONString());
 
             recipient.deliver(notificationControllerServerSession, NOTIFICATIONS_TOPIC_NAME,
                     jsonPropMap.toJSONString(), null);
 
-        } else if (LOGGER.isDebugEnabled()) {
+        } else {
             LOGGER.debug("User with ID \"{}\" is not connected to the server. "
                     + "Ignnoring notification", userId);
         }

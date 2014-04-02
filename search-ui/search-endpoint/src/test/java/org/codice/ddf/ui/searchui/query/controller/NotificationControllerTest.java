@@ -76,7 +76,7 @@ public class NotificationControllerTest {
     
     /**
      * Test method for {@link NotificationController#registerUserSession(ServerSession, ServerMessage)}.
-     * Verifies that method throws NullPointerException when ServerSession is  
+     * Verifies that method throws {@code NullPointerException} when ServerSession is  
      * null.
      */
     @Test(expected = NullPointerException.class)
@@ -87,7 +87,7 @@ public class NotificationControllerTest {
     
     /**
      * Test method for {@link NotificationController#registerUserSession(ServerSession, ServerMessage)}.
-     * Verifies that method throws NullPointerException when ServerSession ID  
+     * Verifies that method throws {@code NullPointerException} when ServerSession ID  
      * is null.
      */
     @Test(expected = NullPointerException.class)
@@ -129,7 +129,8 @@ public class NotificationControllerTest {
     
     /**
      * Test method for {@link NotificationController#deregisterUserSession(ServerSession, ServerMessage)}
-     * Verifies that exception is thrown when ServerSession is null.
+     * Verifies that {@code NullPointerException} is thrown when 
+     * {@code ServerSession} is null.
      */
     @Test(expected = NullPointerException.class)
     public void testDeregisterUserSessionWithNullServerSessonThrowsException() {
@@ -138,7 +139,8 @@ public class NotificationControllerTest {
     
     /**
      * Test method for {@link NotificationController#deregisterUserSession(ServerSession, ServerMessage)}
-     * Verifies that exception is thrown when ServerSession ID is null.
+     * Verifies that {@code NullPointerException} is thrown when 
+     * {@code ServerSession} ID is null.
      */
     @Test(expected = NullPointerException.class) 
     public void testDeregisterUserSessionWithNullServerSessionIdThrowsException() {
@@ -149,7 +151,7 @@ public class NotificationControllerTest {
     /**
      * Test method for {@link NotificationController#deregisterUserSession(ServerSession, ServerMessage)}
      * Verifies that a the method removes the client's user from the 
-     * NotificationController's known clients.
+     * {@code NotificationController}'s known clients.
      */
     @Test
     public void testDeregisterUserSessionRemovesUserFromKnownClients() {
@@ -162,8 +164,8 @@ public class NotificationControllerTest {
     
     /**
      * Test method for {@link NotificationController#handleEvent(org.osgi.service.event.Event)}
-     * Verifies that exception is thrown when Event's application property is 
-     * empty.
+     * Verifies that {@code IllegalArgumentException} is thrown when 
+     * {@code Event}'s application property is empty.
      */
     @Test(expected = IllegalArgumentException.class)
     public void testHandleEventThrowsIllegalArgumentExceptionOnEmptyApplication() {
@@ -176,7 +178,8 @@ public class NotificationControllerTest {
 
     /**
      * Test method for {@link NotificationController#handleEvent(org.osgi.service.event.Event)}
-     * Verifies that exception is thrown when Event's message property is empty.
+     * Verifies that {@code IllegalArgumentException} is thrown when 
+     * {@code Event}'s message property is empty.
      */
     @Test(expected = IllegalArgumentException.class)
     public void testHandleEventThrowsIllegalArgumentExceptionOnEmptyMessage() {
@@ -189,7 +192,8 @@ public class NotificationControllerTest {
 
     /**
      * Test method for {@link NotificationController#handleEvent(org.osgi.service.event.Event)}
-     * Verifies that exception is thrown when Event's title property is empty.
+     * Verifies that {@code IllegalArgumentException} is thrown when 
+     * {@code Event}'s title property is empty.
      */
     @Test(expected = IllegalArgumentException.class)
     public void testHandleEventThrowsIllegalArgumentExceptionOnEmptyTitle() {
@@ -202,7 +206,8 @@ public class NotificationControllerTest {
     
     /**
      * Test method for {@link NotificationController#handleEvent(org.osgi.service.event.Event)}
-     * Verifies that exception is thrown when Event's user property is empty.
+     * Verifies that {@code IllegalArgumentException} is thrown when 
+     * {@code Event}'s user property is empty.
      */
     @Test(expected = IllegalArgumentException.class)
     public void testHandleEventThrowsIllegalArgumentExceptionOnEmptyUser() {
@@ -215,8 +220,8 @@ public class NotificationControllerTest {
 
     /**
      * Test method for {@link NotificationController#handleEvent(org.osgi.service.event.Event)}
-     * Verifies that exception is thrown when Event's application property is 
-     * null.
+     * Verifies that {@code IllegalArgumentException} is thrown when 
+     * {@code Event}'s application property is null.
      */
     @Test(expected = IllegalArgumentException.class)
     public void testHandleEventThrowsIllegalArgumentExceptionOnNullApplication() {
@@ -229,7 +234,8 @@ public class NotificationControllerTest {
 
     /**
      * Test method for {@link NotificationController#handleEvent(org.osgi.service.event.Event)}
-     * Verifies that exception is thrown when Event's message property is null.
+     * Verifies that {@code IllegalArgumentException} is thrown when 
+     * {@code Event}'s message property is null.
      */
     @Test(expected = IllegalArgumentException.class)
     public void testHandleEventThrowsIllegalArgumentExceptionOnNullMessage() {
@@ -242,7 +248,8 @@ public class NotificationControllerTest {
 
     /**
      * Test method for {@link NotificationController#handleEvent(org.osgi.service.event.Event)}
-     * Verifies that exception is thrown when Event's timestamp property is null.
+     * Verifies that {@code IllegalArgumentException} is thrown when 
+     * {@code Event}'s timestamp property is null.
      */
     @Test(expected = IllegalArgumentException.class)
     public void testHandleEventThrowsIllegalArgumentExceptionOnNullTimestamp() {
@@ -255,7 +262,8 @@ public class NotificationControllerTest {
 
     /**
      * Test method for {@link NotificationController#handleEvent(org.osgi.service.event.Event)}
-     * Verifies that exception is thrown when Event's title property is null.
+     * Verifies that {@code IllegalArgumentException} is thrown when 
+     * {@code Event}'s title property is null.
      */
     @Test(expected = IllegalArgumentException.class)
     public void testHandleEventThrowsIllegalArgumentExceptionOnNullTitle() {
@@ -268,7 +276,8 @@ public class NotificationControllerTest {
     
     /**
      * Test method for {@link NotificationController#handleEvent(org.osgi.service.event.Event)}
-     * Verifies that exception is thrown when Event's title property is null.
+     * Verifies that {@code IllegalArgumentException} is thrown when 
+     * {@code Event}'s title property is null.
      */
     @Test(expected = IllegalArgumentException.class)
     public void testHandleEventThrowsIllegalArgumentExceptionOnNullUser() {
