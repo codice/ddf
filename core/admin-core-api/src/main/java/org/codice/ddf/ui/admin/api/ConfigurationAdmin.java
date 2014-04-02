@@ -144,7 +144,7 @@ public class ConfigurationAdmin implements ConfigurationAdminMBean {
     public Map<String, Object> getService(String filter) {
         List<Map<String, Object>> services = configurationAdminExt.listServices(filter, filter);
 
-        Map<String, Object> service = services.get(0);
+        Map<String, Object> service = null;
 
         if(services.size() > 0) {
             //just grab the first one, they should have specified a filter that returned just a single result
