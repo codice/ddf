@@ -36,11 +36,40 @@
         <bundle>mvn:ddf.spatial.kml/spatial-kml-networklinkendpoint/${project.version}</bundle>
     </feature>
 
+    <feature name="spatial-wfs" install="manual" version="${project.version}"
+             description="Web Feature Service (WFS) v1.0.0 Source and Endpoint.">
+        <bundle>mvn:org.codice.ddf.spatial/spatial-ogc-urlresourcereader/${project.version}</bundle>
+        <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xpp3/${xpp3.bundle.version}</bundle>
+        <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xmlpull/${xmlpull.bundle.version}
+        </bundle>
+        <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xstream/${xstream.bundle.version}
+        </bundle>
+        <bundle>mvn:org.codice.ddf.spatial/spatial-wfs-v1_0_0-schema-webapp/${project.version}</bundle>
+        <bundle>mvn:org.codice.ddf.spatial/spatial-wfs-api/${project.version}</bundle>
+        <bundle>mvn:org.codice.ddf.spatial/spatial-wfs-source/${project.version}</bundle>
+        <bundle start="false">mvn:org.codice.ddf.spatial/spatial-wfs-endpoint/${project.version}</bundle>
+    </feature>
+
+    <feature name="spatial-csw" install="manual" version="${project.version}"
+             description="Catalogue Service for Web (CSW) v2.0.2 Source and Endpoint.">
+        <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xstream/${xstream.bundle.version}
+        </bundle>
+        <bundle>mvn:org.codice.ddf.spatial/spatial-ogc-api/${project.version}</bundle>
+        <bundle>mvn:org.codice.ddf.spatial/spatial-csw-api/${project.version}</bundle>
+        <bundle>mvn:org.codice.ddf.spatial/spatial-csw-converter/${project.version}</bundle>
+        <bundle>mvn:org.codice.ddf.spatial/spatial-csw-source/${project.version}</bundle>
+        <bundle>mvn:org.codice.ddf.spatial/spatial-csw-endpoint/${project.version}</bundle>
+        <bundle>mvn:org.codice.ddf.spatial/spatial-csw-inputtransformer/${project.version}</bundle>
+        <bundle>mvn:org.codice.ddf.spatial/spatial-wcs-resourcereader/${project.version}</bundle>
+    </feature>
+
     <feature name="spatial-app"  install="auto" version="${project.version}"
         description="DDF Spatial Services application default installations">
         <feature>catalog-app</feature>
         <feature>spatial-kml-transformer</feature>
         <feature>spatial-kml-networklinkendpoint</feature>
+        <feature>spatial-wfs</feature>
+        <feature>spatial-csw</feature>
     </feature>
     
 </features>

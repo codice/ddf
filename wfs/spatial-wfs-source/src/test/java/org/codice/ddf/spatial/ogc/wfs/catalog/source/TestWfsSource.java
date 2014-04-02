@@ -186,22 +186,6 @@ public class TestWfsSource {
 
     private AvailabilityTask mockAvailabilityTask = mock(AvailabilityTask.class);
 
-    /**
-     * Results.xml contains a FeatureCollection with 29 features
-     */
-    @BeforeClass
-    public static void loadResultsXml() {
-        InputStream is = TestWfsSource.class.getClass().getResourceAsStream("/Results.xml");
-        if (is == null) {
-            fail("Unable to get results");
-        }
-        try {
-            resultsByteArray = IOUtils.toByteArray(is);
-        } catch (IOException e) {
-            fail(e.getMessage());
-        }
-    }
-
     public void setUp(final String schema, final List<Object> supportedGeos, final String srsName,
             final Integer numFeatures) throws WfsException {
 

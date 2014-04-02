@@ -30,7 +30,7 @@ public class CswRecordMetacardType extends MetacardTypeImpl {
 
     /**
      * Used as prefix on attribute names that clash with basic Metacard attribute names e.g.,
-     * "title" cs. "csw.title"
+     * "title" vs. "csw.title"
      */
     public static final String CSW_ATTRIBUTE_PREFIX = "csw.";
 

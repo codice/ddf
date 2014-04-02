@@ -965,11 +965,7 @@ public class TestCswCqlFilter {
         assertEquals(orLogicOps, cqlText);
     }
 
-    // @Ignore
     @Test
-    // TODO: remove ignore annotation and verify test after the spatial ops have
-    // been implemented
-    // in the CswFilterDelegate
     public void testSpatialOpsOr() throws UnsupportedQueryException {
         FilterType spatialFilter = cswFilterDelegate.dwithin(CswConstants.BBOX_PROP, pointWkt,
                 distance);
@@ -1027,11 +1023,7 @@ public class TestCswCqlFilter {
         assertEquals(andLogicOps, cqlText);
     }
 
-    // @Ignore
     @Test
-    // TODO: remove ignore annotation and verify test after the spatial ops have
-    // been implemented
-    // in the CswFilterDelegate
     public void testSpatialOpsAnd() throws UnsupportedQueryException {
         FilterType spatialFilter = cswFilterDelegate.dwithin(CswConstants.BBOX_PROP, pointWkt,
                 distance);

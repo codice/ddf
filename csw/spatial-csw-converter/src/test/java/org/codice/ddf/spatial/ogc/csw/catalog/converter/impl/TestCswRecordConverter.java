@@ -161,7 +161,7 @@ public class TestCswRecordConverter {
         Metacard mc = (Metacard) xstream.fromXML(is);
 
         assertThat(mc, not(nullValue()));
-        assertThat((String) mc.getContentTypeName(), is("NITF02.10"));
+        assertThat((String) mc.getContentTypeName(), is("PDF"));
     }
 
     @Test

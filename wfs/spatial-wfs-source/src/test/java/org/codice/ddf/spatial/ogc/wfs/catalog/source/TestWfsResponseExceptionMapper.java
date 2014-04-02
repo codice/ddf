@@ -43,7 +43,7 @@ public class TestWfsResponseExceptionMapper {
                 + "    xsi:schemaLocation='http://www.opengis.net/ogc http://schemas.opengis.net/wfs/1.0.0/OGC-exception.xsd'\r\n"
                 + "    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'>\r\n"
                 + "    <ServiceException code='GeneralException'>Schema\r\n"
-                + "        'http://omar.ossim.org:raster_entryX' does not exist.</ServiceException>\r\n"
+                + "        does not exist.</ServiceException>\r\n"
                 + "</ServiceExceptionReport>";
         ResponseBuilder responseBuilder = Response.ok(serviceExceptionReportXml);
         responseBuilder.type("text/xml");
@@ -63,7 +63,7 @@ public class TestWfsResponseExceptionMapper {
                 + "    xsi:schemaLocation='http://www.opengis.net/ogc http://schemas.opengis.net/wfs/1.0.0/OGC-exception.xsd'\r\n"
                 + "    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'>\r\n"
                 + "    <INVALID_TAG code='GeneralException'>Schema\r\n"
-                + "        'http://omar.ossim.org:raster_entryX' does not exist.</ServiceException>\r\n"
+                + "        does not exist.</ServiceException>\r\n"
                 + "</ServiceExceptionReport>";
         WfsException wfsException = createWfsException(serviceExceptionReportXml);
 

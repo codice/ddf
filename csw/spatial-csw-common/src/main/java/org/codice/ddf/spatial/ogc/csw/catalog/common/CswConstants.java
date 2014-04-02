@@ -100,8 +100,7 @@ public interface CswConstants {
 
     public static final String EQUALS = "=";
 
-    // NOTE: "csw:" prefix is not needed for AnyText queries and was causing
-    // issues with iSIS CSW service
+    // NOTE: "csw:" prefix is not needed for AnyText queries 
     String ANY_TEXT = "AnyText";
 
     String XML_SCHEMA_NAMESPACE_PREFIX = "xs";
@@ -166,9 +165,9 @@ public interface CswConstants {
     
     String GML_POINT = "Point";
     
-    String GML_LINESTRING = "Polygon";
+    String GML_LINESTRING = "LineString";
     
-    String GML_POLYGON = "LineString";
+    String GML_POLYGON = "Polygon";
 
     String BBOX_PROP = "ows:BoundingBox";
 

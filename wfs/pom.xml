@@ -34,6 +34,5 @@
         <module>spatial-wfs-converter</module>
         <module>spatial-wfs-source</module>
         <module>spatial-wfs-endpoint</module>
-        <module>spatial-wfs-app</module>
     </modules>
 </project>
