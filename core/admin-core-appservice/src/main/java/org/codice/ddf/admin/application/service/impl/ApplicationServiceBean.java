@@ -68,8 +68,7 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
     public ApplicationServiceBean(ApplicationService appService) throws ApplicationServiceException {
         this.appService = appService;
         try {
-            objectName = new ObjectName(
-                    "org.codice.ddf.admin.application.service.ApplicationService:service=application,version=1.0.0");
+            objectName = new ObjectName(ApplicationService.class.getName() + ":service=application-service");
             mBeanServer = ManagementFactory.getPlatformMBeanServer();
         } catch (MalformedObjectNameException mone) {
             throw new ApplicationServiceException("Could not create objectname.", mone);
@@ -156,6 +155,7 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
     @Override
     public boolean startApplication(String appName) {
         try {
+            logger.debug("Starting application with name {}", appName);
             appService.startApplication(appName);
             return true;
         } catch (ApplicationServiceException ase) {
@@ -167,6 +167,7 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
     @Override
     public boolean stopApplication(String appName) {
         try {
+            logger.debug("Stopping application with name {}", appName);
             appService.stopApplication(appName);
             return true;
         } catch (ApplicationServiceException ase) {

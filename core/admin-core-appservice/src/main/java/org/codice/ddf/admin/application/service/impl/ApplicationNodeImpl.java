@@ -40,6 +40,9 @@ public class ApplicationNodeImpl implements ApplicationNode, Comparable<Applicat
      *            The application that this node corresponds to.
      */
     public ApplicationNodeImpl(Application application) {
+        if (application == null) {
+            throw new IllegalArgumentException("Input application cannot be null.");
+        }
         this.application = application;
         this.children = new TreeSet<ApplicationNode>();
     }
@@ -88,12 +91,16 @@ public class ApplicationNodeImpl implements ApplicationNode, Comparable<Applicat
 
     @Override
     public int compareTo(ApplicationNode otherApp) {
+        if (otherApp == null) {
+            throw new IllegalArgumentException("ApplicationNode parameter cannot be null.");
+        }
         int nameCompare = application.getName().compareTo(otherApp.getApplication().getName());
         if (nameCompare == 0) {
             return application.getVersion().compareTo(otherApp.getApplication().getVersion());
         } else {
             return nameCompare;
         }
+
     }
 
 }

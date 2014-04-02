@@ -30,7 +30,6 @@ import org.apache.karaf.features.Feature;
 import org.apache.karaf.features.Repository;
 import org.apache.karaf.features.internal.RepositoryImpl;
 import org.codice.ddf.admin.application.service.Application;
-import org.codice.ddf.admin.application.service.ApplicationServiceException;
 import org.codice.ddf.admin.application.service.impl.ApplicationImpl;
 import org.junit.Test;
 
@@ -70,8 +69,8 @@ public class ApplicationImplTest {
         assertEquals(NUM_BUNDLES, testApp.getBundles().size());
     }
 
-    @Test(expected = ApplicationServiceException.class)
-    public void testAppErrorHandling() throws Exception {
+    @Test(expected = IllegalArgumentException.class)
+    public void testBadRepoNoName() throws Exception {
         Repository repo = mock(Repository.class);
         when(repo.getFeatures()).thenThrow(new RuntimeException("Testing Exceptions."));
 

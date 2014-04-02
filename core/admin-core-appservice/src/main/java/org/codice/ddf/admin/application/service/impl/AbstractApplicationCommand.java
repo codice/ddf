@@ -37,7 +37,6 @@ public abstract class AbstractApplicationCommand extends OsgiCommandSupport {
     @Override
     protected Object doExecute() throws ApplicationServiceException {
 
-        PrintStream console = System.out;
         List<ApplicationService> appServiceList = new ArrayList<ApplicationService>();
 
         try {

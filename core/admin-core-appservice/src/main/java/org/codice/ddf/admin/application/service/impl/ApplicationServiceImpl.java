@@ -102,6 +102,16 @@ public class ApplicationServiceImpl implements ApplicationService {
     }
 
     @Override
+    public Application getApplication(String applicationName) {
+        for (Application curApp : getApplications()) {
+            if (curApp.getName().equalsIgnoreCase(applicationName)) {
+                return curApp;
+            }
+        }
+        return null;
+    }
+
+    @Override
     public boolean isApplicationStarted(Application application) {
         ApplicationStatus status = getApplicationStatus(application);
         return (status.getState().equals(ApplicationState.ACTIVE));
@@ -388,7 +398,12 @@ public class ApplicationServiceImpl implements ApplicationService {
     public void stopApplication(Application application) throws ApplicationServiceException {
         try {
             if (application.getMainFeature() != null) {
-                featuresService.uninstallFeature(application.getMainFeature().getName());
+                if (featuresService.isInstalled(application.getMainFeature())) {
+                    featuresService.uninstallFeature(application.getMainFeature().getName());
+                } else {
+                    throw new ApplicationServiceException("Application " + application.getName()
+                            + " is already stopped.");
+                }
             } else {
                 logger.debug(
                         "Main feature not found when trying to stop {}, going through and manually stop all features that are installed.",
@@ -402,8 +417,7 @@ public class ApplicationServiceImpl implements ApplicationService {
                 }
             }
         } catch (Exception e) {
-            throw new ApplicationServiceException("Could not stop application "
-                    + application.getName() + " due to errors.", e);
+            throw new ApplicationServiceException(e);
         }
     }
 

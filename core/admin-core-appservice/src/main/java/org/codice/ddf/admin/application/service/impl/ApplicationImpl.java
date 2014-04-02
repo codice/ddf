@@ -61,26 +61,32 @@ public class ApplicationImpl implements Application, Comparable<Application> {
     public ApplicationImpl(Repository repo) {
         try {
             features = new HashSet<Feature>(Arrays.asList(repo.getFeatures()));
-            List<Feature> autoFeatures = new ArrayList<Feature>();
-            for (Feature curFeature : features) {
-                if (curFeature.getInstall().equalsIgnoreCase(Feature.DEFAULT_INSTALL_MODE)) {
-                    autoFeatures.add(curFeature);
-                }
-            }
-            if (autoFeatures.size() == 1) {
-                mainFeature = autoFeatures.get(0);
-                name = mainFeature.getName();
-                version = mainFeature.getVersion();
-                description = mainFeature.getDescription();
-            } else {
-                logger.warn(
-                        "Could not determine main feature in {}. Each application should have only 1 auto install feature but {} were found in this application.",
-                        repo.getName(), autoFeatures.size());
-                name = repo.getName();
-                version = "0.0.0";
-            }
         } catch (Exception e) {
             logger.warn("Error occured while trying to parse information for application. Application created but may have missing information.");
+            features = new HashSet<Feature>();
+        }
+        List<Feature> autoFeatures = new ArrayList<Feature>();
+        for (Feature curFeature : features) {
+            if (curFeature.getInstall().equalsIgnoreCase(Feature.DEFAULT_INSTALL_MODE)) {
+                autoFeatures.add(curFeature);
+            }
+        }
+        if (autoFeatures.size() == 1) {
+            mainFeature = autoFeatures.get(0);
+            name = mainFeature.getName();
+            version = mainFeature.getVersion();
+            description = mainFeature.getDescription();
+        } else {
+            if (repo.getName() == null) {
+                logger.warn("No information available inside the repository, cannot create application instance.");
+                throw new IllegalArgumentException(
+                        "No identifying information available inside the repository, cannot create application instance.");
+            }
+            logger.warn(
+                    "Could not determine main feature in {}. Each application should have only 1 auto install feature but {} were found in this application.",
+                    repo.getName(), autoFeatures.size());
+            name = repo.getName();
+            version = "0.0.0";
         }
 
     }

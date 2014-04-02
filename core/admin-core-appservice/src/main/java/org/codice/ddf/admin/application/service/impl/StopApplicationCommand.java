@@ -16,7 +16,10 @@ package org.codice.ddf.admin.application.service.impl;
 
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
+import org.codice.ddf.admin.application.service.Application;
 import org.codice.ddf.admin.application.service.ApplicationServiceException;
+import org.codice.ddf.admin.application.service.ApplicationStatus;
+import org.codice.ddf.admin.application.service.ApplicationStatus.ApplicationState;
 
 /**
  * Utilizes the OSGi Command Shell in Karaf and stops a specific application.
@@ -31,7 +34,15 @@ public class StopApplicationCommand extends AbstractApplicationCommand {
     @Override
     protected void applicationCommand() throws ApplicationServiceException {
 
-        applicationService.stopApplication(appName);
+        Application app = applicationService.getApplication(appName);
+        if (app != null) {   
+            ApplicationStatus appStatus = applicationService.getApplicationStatus(app);
+            if (appStatus.getState().equals(ApplicationState.ACTIVE)) {
+                applicationService.stopApplication(appName);
+            } else {
+                console.println("Application " + appName + " is not started.");
+            }
+        }
         return;
     }
 

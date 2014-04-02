@@ -33,6 +33,16 @@ public interface ApplicationService {
     Set<Application> getApplications();
 
     /**
+     * Returns the application that has the given name
+     * 
+     * @param applicationName
+     *            Name of the application to retrieve. Is case-insensitive.
+     * @return The application that matches the name or null if no application
+     *         matched.
+     */
+    Application getApplication(String applicationName);
+
+    /**
      * Determine if an application is currently started.
      * 
      * @param application
