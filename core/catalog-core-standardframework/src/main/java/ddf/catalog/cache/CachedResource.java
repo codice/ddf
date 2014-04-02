@@ -14,6 +14,25 @@
  **/
 package ddf.catalog.cache;
 
+import com.google.common.io.ByteSource;
+import com.google.common.io.CountingOutputStream;
+import com.google.common.io.FileBackedOutputStream;
+import ddf.cache.CacheException;
+import ddf.catalog.event.retrievestatus.DownloadsStatusEventPublisher;
+import ddf.catalog.operation.ResourceResponse;
+import ddf.catalog.resource.Resource;
+import ddf.catalog.resource.ResourceNotFoundException;
+import ddf.catalog.resource.ResourceNotSupportedException;
+import ddf.catalog.resource.impl.ResourceImpl;
+import ddf.catalog.resourceretriever.ResourceRetriever;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.activation.MimeType;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -25,28 +44,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-
-import javax.activation.MimeType;
-
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.builder.ToStringBuilder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.google.common.io.ByteSource;
-import com.google.common.io.CountingOutputStream;
-import com.google.common.io.FileBackedOutputStream;
-
-import ddf.cache.CacheException;
-import ddf.catalog.event.retrievestatus.RetrievalStatusEventPublisher;
-import ddf.catalog.operation.ResourceResponse;
-import ddf.catalog.resource.Resource;
-import ddf.catalog.resource.ResourceNotFoundException;
-import ddf.catalog.resource.ResourceNotSupportedException;
-import ddf.catalog.resource.impl.ResourceImpl;
-import ddf.catalog.resourceretriever.ResourceRetriever;
 
 /**
  * Contains the details of a Resource including where it is stored and how to retrieve that Resource
@@ -132,12 +129,12 @@ public class CachedResource extends InputStream implements Resource, Serializabl
 
     private transient CachingState cachingState;
 
-    private transient RetrievalStatusEventPublisher eventPublisher;
+    private transient DownloadsStatusEventPublisher eventPublisher;
 
 
     public CachedResource(String productCacheDirectory, int maxRetryAttempts,
             int delayBetweenAttempts, long cacheMonitoringPeriod,
-            RetrievalStatusEventPublisher eventPublisher) {
+            DownloadsStatusEventPublisher eventPublisher) {
         this.productCacheDirectory = productCacheDirectory;
         this.cachingMonitorPeriod = cacheMonitoringPeriod;
         this.cachingMonitorInitialDelay = DEFAULT_CACHING_MONITOR_INITIAL_DELAY;
@@ -165,7 +162,7 @@ public class CachedResource extends InputStream implements Resource, Serializabl
      * Set the frequency (period) of how often to verify that caching of the file is still
      * proceeding.
      *
-     * @param period
+     * @param delay
      *            frequency, in ms, to check that more bytes from the resource's @InputStream have
      *            been cached
      */
@@ -220,7 +217,7 @@ public class CachedResource extends InputStream implements Resource, Serializabl
         }
 
         eventPublisher.postRetrievalStatus(resourceResponse,
-                RetrievalStatusEventPublisher.PRODUCT_RETRIEVAL_STARTED, null, 0L);
+                DownloadsStatusEventPublisher.PRODUCT_RETRIEVAL_STARTED, null, 0L);
 
         Resource resource = resourceResponse.getResource();
 
@@ -270,7 +267,7 @@ public class CachedResource extends InputStream implements Resource, Serializabl
      * a file in the product cache directory and the PipedOutputStream being read by the client (endpoint).
      *
      * @param source
-     * @param pos
+     * @param countingFbos
      * @param filePath
      * @param resourceCache
      * @param retriever
@@ -341,7 +338,7 @@ public class CachedResource extends InputStream implements Resource, Serializabl
                         cacheMonitor.cancel();
                         LOGGER.debug("Sending event");
                         eventPublisher.postRetrievalStatus(resourceResponse,
-                                RetrievalStatusEventPublisher.PRODUCT_RETRIEVAL_COMPLETE, null,
+                                DownloadsStatusEventPublisher.PRODUCT_RETRIEVAL_COMPLETE, null,
                                 cachedResourceStatus.getBytesRead());
                         LOGGER.debug("Adding caching key = {} to cache map", key);
                         resourceCache.put(this);
@@ -375,8 +372,8 @@ public class CachedResource extends InputStream implements Resource, Serializabl
                         // Source and retry caching it
                         LOGGER.info("Handling product InputStream exception");
                         eventPublisher.postRetrievalStatus(resourceResponse,
-                                RetrievalStatusEventPublisher.PRODUCT_RETRIEVAL_RETRYING,
-                                String.format("Attempt %d of %d.", attempts, maxRetryAttempts),
+                                DownloadsStatusEventPublisher.PRODUCT_RETRIEVAL_RETRYING,
+                                String.format("Attempt %d of %d.", retryAttempts, maxRetryAttempts),
                                 cachedResourceStatus.getBytesRead());
                         IOUtils.closeQuietly(source);
                         source = null;
@@ -389,8 +386,8 @@ public class CachedResource extends InputStream implements Resource, Serializabl
                         // product to the client, i.e., writing to the PipedOutputStream
                         LOGGER.info("Handling FileOutputStream exception");
                         eventPublisher.postRetrievalStatus(resourceResponse,
-                                RetrievalStatusEventPublisher.PRODUCT_RETRIEVAL_RETRYING,
-                                String.format("Attempt %d of %d.", attempts, maxRetryAttempts),
+                                DownloadsStatusEventPublisher.PRODUCT_RETRIEVAL_RETRYING,
+                                String.format("Attempt %d of %d.", retryAttempts, maxRetryAttempts),
                                 cachedResourceStatus.getBytesRead());
                         deleteCacheFile(fos);
                         callableCacheProduct = new CallableCacheProduct(source, countingFbos, null, chunkSize);
@@ -401,7 +398,7 @@ public class CachedResource extends InputStream implements Resource, Serializabl
                         // and just continue to cache the file
                         LOGGER.info("Handling FileBackedOutputStream exception");
                         eventPublisher.postRetrievalStatus(resourceResponse,
-                                RetrievalStatusEventPublisher.PRODUCT_RETRIEVAL_CANCELLED, 0L);
+                                DownloadsStatusEventPublisher.PRODUCT_RETRIEVAL_CANCELLED, "", 0L);
                         IOUtils.closeQuietly(fbos);
                         IOUtils.closeQuietly(countingFbos);
                         LOGGER.debug("Cancelling cacheMonitor");
@@ -413,7 +410,7 @@ public class CachedResource extends InputStream implements Resource, Serializabl
                         LOGGER.debug("Cancelling cacheMonitor");
                         cacheMonitor.cancel();
                         eventPublisher.postRetrievalStatus(resourceResponse,
-                                RetrievalStatusEventPublisher.PRODUCT_RETRIEVAL_CANCELLED, 0L);
+                                DownloadsStatusEventPublisher.PRODUCT_RETRIEVAL_CANCELLED, "", 0L);
                         deleteCacheFile(fos);
                         break;
 
@@ -431,8 +428,8 @@ public class CachedResource extends InputStream implements Resource, Serializabl
                         // in a blocking read)
                         source = null;
                         eventPublisher.postRetrievalStatus(resourceResponse,
-                                RetrievalStatusEventPublisher.PRODUCT_RETRIEVAL_RETRYING,
-                                String.format("Attempt %d of %d.", attempts, maxRetryAttempts),
+                                DownloadsStatusEventPublisher.PRODUCT_RETRIEVAL_RETRYING,
+                                String.format("Attempt %d of %d.", retryAttempts, maxRetryAttempts),
                                 cachedResourceStatus.getBytesRead());
                         delay(delayBetweenAttempts);
                         callableCacheProduct = retrieveResource(bytesRead, retriever, countingFbos, fos);
@@ -442,7 +439,7 @@ public class CachedResource extends InputStream implements Resource, Serializabl
         } catch (IOException e) {
             LOGGER.error("Unable to store product file {}", filePath, e);
             eventPublisher.postRetrievalStatus(resourceResponse,
-                    RetrievalStatusEventPublisher.PRODUCT_RETRIEVAL_FAILED,
+                    DownloadsStatusEventPublisher.PRODUCT_RETRIEVAL_FAILED,
                     "Unable to store product file.",
                     cachedResourceStatus.getBytesRead());
         } finally {

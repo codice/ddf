@@ -18,7 +18,7 @@ import ddf.cache.Cache;
 import ddf.cache.CacheException;
 import ddf.cache.CacheManager;
 import ddf.catalog.data.Metacard;
-import ddf.catalog.event.retrievestatus.RetrievalStatusEventPublisher;
+import ddf.catalog.event.retrievestatus.DownloadsStatusEventPublisher;
 import ddf.catalog.operation.ResourceRequest;
 import ddf.catalog.operation.ResourceResponse;
 import ddf.catalog.resource.Resource;
@@ -78,7 +78,7 @@ public class ResourceCacheTest {
         cache = mock(Cache.class);
         CacheManager cacheManager = mock(CacheManager.class);
         when(cacheManager.getCache(anyString())).thenReturn(cache);
-        RetrievalStatusEventPublisher eventPublisher = mock(RetrievalStatusEventPublisher.class);
+        DownloadsStatusEventPublisher eventPublisher = mock(DownloadsStatusEventPublisher.class);
 
         productCache = new ResourceCache(eventPublisher);
         productCache.setCacheManager(cacheManager);

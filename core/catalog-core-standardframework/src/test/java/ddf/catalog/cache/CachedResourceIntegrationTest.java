@@ -15,7 +15,7 @@
 package ddf.catalog.cache;
 
 import ddf.catalog.data.Metacard;
-import ddf.catalog.event.retrievestatus.RetrievalStatusEventPublisher;
+import ddf.catalog.event.retrievestatus.DownloadsStatusEventPublisher;
 import ddf.catalog.operation.ResourceRequest;
 import ddf.catalog.operation.ResourceResponse;
 import ddf.catalog.resource.Resource;
@@ -326,8 +326,8 @@ public class CachedResourceIntegrationTest {
         return retriever;
     }
 
-    private RetrievalStatusEventPublisher getEventPublisher() {
-        RetrievalStatusEventPublisher eventPublisher = mock(RetrievalStatusEventPublisher.class);
+    private DownloadsStatusEventPublisher getEventPublisher() {
+        DownloadsStatusEventPublisher eventPublisher = mock(DownloadsStatusEventPublisher.class);
 
         return eventPublisher;
     }

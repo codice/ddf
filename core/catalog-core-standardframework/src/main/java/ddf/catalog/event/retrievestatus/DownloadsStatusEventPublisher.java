@@ -28,10 +28,10 @@ import java.util.Dictionary;
 import java.util.Hashtable;
 
 /**
- * The {@code RetrievalStatusEventPublisher} class creates events and sends them using the {@link EventAdmin} service
+ * The {@code DownloadsStatusEventPublisher} class creates events and sends them using the {@link EventAdmin} service
  * interface.
  */
-public class RetrievalStatusEventPublisher {
+public class DownloadsStatusEventPublisher {
 
     // Topic
     public static final String EVENTS_TOPIC_PRODUCT_RETRIEVAL = "ddf/notifications/catalog/downloads";
@@ -54,7 +54,7 @@ public class RetrievalStatusEventPublisher {
     public static final String PRODUCT_RETRIEVAL_FAILED = "failed";
     public static final String PRODUCT_RETRIEVAL_COMPLETE = "complete";
 
-    private static XLogger logger = new XLogger(LoggerFactory.getLogger(RetrievalStatusEventPublisher.class));
+    private static XLogger logger = new XLogger(LoggerFactory.getLogger(DownloadsStatusEventPublisher.class));
     private static final DateFormat formatter = new SimpleDateFormat("HH:mm:ss:SSS");
 
     private EventAdmin eventAdmin;
@@ -62,7 +62,7 @@ public class RetrievalStatusEventPublisher {
     /**
      * Used to publish product retrieval status updates via the OSGi Event Service
      */
-    public RetrievalStatusEventPublisher(EventAdmin eventAdmin) {
+    public DownloadsStatusEventPublisher(EventAdmin eventAdmin) {
         this.eventAdmin = eventAdmin;
     }
 

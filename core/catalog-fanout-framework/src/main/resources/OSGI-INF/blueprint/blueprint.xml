@@ -131,7 +131,7 @@
 		</service-properties>
 	</service>
 
-    <bean id="retrieveStatusEventPublisher" class="ddf.catalog.event.retrievestatus.RetrievalStatusEventPublisher">
+    <bean id="retrieveStatusEventPublisher" class="ddf.catalog.event.retrievestatus.DownloadsStatusEventPublisher">
         <argument ref="eventAdmin" />
     </bean>
 

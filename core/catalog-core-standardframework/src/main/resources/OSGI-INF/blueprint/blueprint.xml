@@ -162,7 +162,7 @@
 
     <reference id="cacheManager" interface="ddf.cache.CacheManager" />
 
-    <bean id="retrieveStatusEventPublisher" class="ddf.catalog.event.retrievestatus.RetrievalStatusEventPublisher">
+    <bean id="retrieveStatusEventPublisher" class="ddf.catalog.event.retrievestatus.DownloadsStatusEventPublisher">
         <argument ref="eventAdmin" />
     </bean>
 
