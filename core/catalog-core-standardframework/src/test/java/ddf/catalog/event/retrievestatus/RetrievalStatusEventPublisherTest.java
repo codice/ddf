@@ -17,6 +17,7 @@ package ddf.catalog.event.retrievestatus;
 import ddf.catalog.operation.ResourceRequest;
 import ddf.catalog.operation.ResourceResponse;
 import ddf.catalog.resource.Resource;
+import org.junit.BeforeClass;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventAdmin;
 import org.slf4j.Logger;
@@ -32,119 +33,91 @@ import static org.mockito.Mockito.when;
 
 public class RetrievalStatusEventPublisherTest {
 
+    private static EventAdmin eventAdmin;
+    private static ResourceResponse resourceResponse;
+    private static ResourceRequest resourceRequest;
+    private static Resource resource;
+    private static Map<String, Serializable> properties;
+    private static RetrievalStatusEventPublisher publisher;
+
     private static final Logger LOGGER = org.slf4j.LoggerFactory.getLogger(RetrievalStatusEventPublisherTest.class);
 
+    @BeforeClass
+    public static void oneTimeSetup() {
+        resourceResponse = mock(ResourceResponse.class);
+        resourceRequest = mock(ResourceRequest.class);
+        resource = mock(Resource.class);
+        properties = mock(Map.class);
 
-//
-//    @BeforeClass
-//    public static void oneTimeSetup() throws IOException {
-//        ch.qos.logback.classic.Logger root = (ch.qos.logback.classic.Logger) LoggerFactory
-//                .getLogger(Logger.ROOT_LOGGER_NAME);
-//        root.setLevel(ch.qos.logback.classic.Level.DEBUG);
-//
-//        workingDir = System.getProperty("user.dir");
-//        productCacheDirectory = workingDir + "/target/tests/product-cache";
-//        productInputFilename = workingDir + "/src/test/resources/foo_10_lines.txt";
-//        File productInputFile = new File(productInputFilename);
-//        expectedFileSize = productInputFile.length();
-//        expectedFileContents = FileUtils.readFileToString(productInputFile);
-//    }
+        when(resource.getName()).thenReturn("testCometDSessionID");
+        when(properties.get(RetrievalStatusEventPublisher.USER)).thenReturn("testUser");
+        when(resourceRequest.getProperties()).thenReturn(properties);
+        when(resourceResponse.getResource()).thenReturn(resource);
+        when(resourceResponse.getRequest()).thenReturn(resourceRequest);
+    }
 
     @org.junit.Test
     public void testPostRetrievalStatusHappyPath() {
+        setupPublisher();
 
-        // Set up for the test
-        EventAdmin eventAdmin = mock(EventAdmin.class);
-        ResourceResponse resourceResponse = mock(ResourceResponse.class);
-        ResourceRequest resourceRequest = mock(ResourceRequest.class);
-        Resource resource = mock(Resource.class);
-        Map<String, Serializable> properties = mock(Map.class);
-
-        when(resource.getName()).thenReturn("testCometDSessionID");
-
-        when(properties.get(RetrievalStatusEventPublisher.USER)).thenReturn("testUser");
-
-        when(resourceRequest.getProperties()).thenReturn(properties);
-
-        when(resourceResponse.getResource()).thenReturn(resource);
-        when(resourceResponse.getRequest()).thenReturn(resourceRequest);
-
-        RetrievalStatusEventPublisher publisher = new RetrievalStatusEventPublisher(eventAdmin);
-
-        publisher.postRetrievalStatus(resourceResponse, RetrievalStatusEventPublisher.PRODUCT_RETRIEVAL_STARTED, 0L);
+        publisher.postRetrievalStatus(resourceResponse, RetrievalStatusEventPublisher.PRODUCT_RETRIEVAL_STARTED,
+                null, 0L);
         verify(eventAdmin, times(1)).postEvent(any(Event.class));
 
-        // Run/verify the tests
+        // Test with null bytes
         publisher.postRetrievalStatus(resourceResponse,
-                RetrievalStatusEventPublisher.PRODUCT_RETRIEVAL_STARTED, 10L);
+                RetrievalStatusEventPublisher.PRODUCT_RETRIEVAL_STARTED, null, null);
         verify(eventAdmin, times(2)).postEvent(any(Event.class));
 
         publisher.postRetrievalStatus(resourceResponse,
-                RetrievalStatusEventPublisher.PRODUCT_RETRIEVAL_RETRIEVING, 15L);
+                RetrievalStatusEventPublisher.PRODUCT_RETRIEVAL_CANCELLED, "test detail", 20L);
         verify(eventAdmin, times(3)).postEvent(any(Event.class));
 
         publisher.postRetrievalStatus(resourceResponse,
-                RetrievalStatusEventPublisher.PRODUCT_RETRIEVAL_CANCELLED, 20L);
+                RetrievalStatusEventPublisher.PRODUCT_RETRIEVAL_FAILED, "test detail", 250L);
         verify(eventAdmin, times(4)).postEvent(any(Event.class));
 
         publisher.postRetrievalStatus(resourceResponse,
-                RetrievalStatusEventPublisher.PRODUCT_RETRIEVAL_FAILED, 250L);
+                RetrievalStatusEventPublisher.PRODUCT_RETRIEVAL_RETRYING, "test detail", 350L);
         verify(eventAdmin, times(5)).postEvent(any(Event.class));
 
         publisher.postRetrievalStatus(resourceResponse,
-                RetrievalStatusEventPublisher.PRODUCT_RETRIEVAL_RETRYING, 350L);
+                RetrievalStatusEventPublisher.PRODUCT_RETRIEVAL_COMPLETE, "test detail", 500L);
         verify(eventAdmin, times(6)).postEvent(any(Event.class));
-
-        publisher.postRetrievalStatus(resourceResponse,
-                RetrievalStatusEventPublisher.PRODUCT_RETRIEVAL_COMPLETE, 500L);
-        verify(eventAdmin, times(7)).postEvent(any(Event.class));
     }
 
     @org.junit.Test
     public void testPostRetrievalStatusWithNoNameProperty() {
+        setupPublisher();
 
-        // Set up for the test
-        EventAdmin eventAdmin = mock(EventAdmin.class);
-        ResourceResponse resourceResponse = mock(ResourceResponse.class);
-        ResourceRequest resourceRequest = mock(ResourceRequest.class);
-        Resource resource = mock(Resource.class);
-        Map<String, Serializable> properties = mock(Map.class);
-
-        when(resource.getName()).thenReturn("testCometDSessionID");
-
-        when(resourceRequest.getProperties()).thenReturn(properties);
-
-        when(resourceResponse.getResource()).thenReturn(resource);
-        when(resourceResponse.getRequest()).thenReturn(resourceRequest);
-
-        RetrievalStatusEventPublisher publisher = new RetrievalStatusEventPublisher(eventAdmin);
-
-        publisher.postRetrievalStatus(resourceResponse, RetrievalStatusEventPublisher.PRODUCT_RETRIEVAL_STARTED, 0L);
+        publisher.postRetrievalStatus(resourceResponse, RetrievalStatusEventPublisher.PRODUCT_RETRIEVAL_STARTED,
+                null, 0L);
         verify(eventAdmin, times(1)).postEvent(any(Event.class));
 
-        // Run/verify the tests
         publisher.postRetrievalStatus(resourceResponse,
-                RetrievalStatusEventPublisher.PRODUCT_RETRIEVAL_STARTED, 10L);
+                RetrievalStatusEventPublisher.PRODUCT_RETRIEVAL_STARTED, "test detail", 10L);
         verify(eventAdmin, times(2)).postEvent(any(Event.class));
 
         publisher.postRetrievalStatus(resourceResponse,
-                RetrievalStatusEventPublisher.PRODUCT_RETRIEVAL_RETRIEVING, 15L);
+                RetrievalStatusEventPublisher.PRODUCT_RETRIEVAL_CANCELLED, "test detail", 20L);
         verify(eventAdmin, times(3)).postEvent(any(Event.class));
 
         publisher.postRetrievalStatus(resourceResponse,
-                RetrievalStatusEventPublisher.PRODUCT_RETRIEVAL_CANCELLED, 20L);
+                RetrievalStatusEventPublisher.PRODUCT_RETRIEVAL_FAILED, "test detail", 250L);
         verify(eventAdmin, times(4)).postEvent(any(Event.class));
 
         publisher.postRetrievalStatus(resourceResponse,
-                RetrievalStatusEventPublisher.PRODUCT_RETRIEVAL_FAILED, 250L);
+                RetrievalStatusEventPublisher.PRODUCT_RETRIEVAL_RETRYING, "test detail", 350L);
         verify(eventAdmin, times(5)).postEvent(any(Event.class));
 
         publisher.postRetrievalStatus(resourceResponse,
-                RetrievalStatusEventPublisher.PRODUCT_RETRIEVAL_RETRYING, 350L);
+                RetrievalStatusEventPublisher.PRODUCT_RETRIEVAL_COMPLETE, "test detail", 500L);
         verify(eventAdmin, times(6)).postEvent(any(Event.class));
-
-        publisher.postRetrievalStatus(resourceResponse,
-                RetrievalStatusEventPublisher.PRODUCT_RETRIEVAL_COMPLETE, 500L);
-        verify(eventAdmin, times(7)).postEvent(any(Event.class));
     }
+
+    private void setupPublisher() {
+        eventAdmin = mock(EventAdmin.class);
+        publisher = new RetrievalStatusEventPublisher(eventAdmin);
+    }
+
 }

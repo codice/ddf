@@ -16,9 +16,10 @@ package ddf.catalog.event.retrievestatus;
 
 
 import ddf.catalog.operation.ResourceResponse;
-import org.apache.log4j.Logger;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventAdmin;
+import org.slf4j.LoggerFactory;
+import org.slf4j.ext.XLogger;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -27,19 +28,20 @@ import java.util.Dictionary;
 import java.util.Hashtable;
 
 /**
- * The {@code RetrievalStatusEventPublisher} class creates events and sends them using the {@code EventAdmin} service
+ * The {@code RetrievalStatusEventPublisher} class creates events and sends them using the {@link EventAdmin} service
  * interface.
  */
 public class RetrievalStatusEventPublisher {
 
     // Topic
-    public static final String EVENTS_TOPIC_PRODUCT_RETRIEVAL = "ddf/notification/catalog/downloads";
+    public static final String EVENTS_TOPIC_PRODUCT_RETRIEVAL = "ddf/notifications/catalog/downloads";
 
     // Property keys
     public static final String APPLICATION = "application";
     public static final String APPLICATION_NAME = "Downloads";
     public static final String TITLE = "title";
     public static final String MESSAGE = "message";
+    public static final String DETAIL = "detail";
     public static final String TIMESTAMP = "timestamp";
     public static final String USER = "user";
     public static final String STATUS = "status";
@@ -47,13 +49,12 @@ public class RetrievalStatusEventPublisher {
 
     //  status values
     public static final String PRODUCT_RETRIEVAL_STARTED = "started";
-    public static final String PRODUCT_RETRIEVAL_RETRIEVING = "retrieving";
     public static final String PRODUCT_RETRIEVAL_RETRYING = "retrying";
     public static final String PRODUCT_RETRIEVAL_CANCELLED = "cancelled";
     public static final String PRODUCT_RETRIEVAL_FAILED = "failed";
     public static final String PRODUCT_RETRIEVAL_COMPLETE = "complete";
 
-    private static Logger logger = Logger.getLogger(RetrievalStatusEventPublisher.class);
+    private static XLogger logger = new XLogger(LoggerFactory.getLogger(RetrievalStatusEventPublisher.class));
     private static final DateFormat formatter = new SimpleDateFormat("HH:mm:ss:SSS");
 
     private EventAdmin eventAdmin;
@@ -67,21 +68,27 @@ public class RetrievalStatusEventPublisher {
 
     /**
      * Set the current retrieval status for product identified by key.
+     *
      * @param resourceResponse - The {@link ResourceResponse} of the request.
-     * @param status - The status of the retrieval.}
+     * @param status           - The status of the retrieval.}
      */
-    public void postRetrievalStatus(final ResourceResponse resourceResponse, String status, Long bytes) {
+    public void postRetrievalStatus(final ResourceResponse resourceResponse, String status, String detail, Long bytes) {
 
         logger.debug("ENTERING: postRetrievalStatus(...)");
-        logger.debug("status:" + status);
-        logger.debug("bytes:" + bytes);
+        logger.debug("status: {}", status);
+        logger.debug("detail: {}", detail);
+        logger.debug("bytes: {}", bytes);
 
-        Dictionary<String, Object> properties = new Hashtable<String, Object>();
+        if (bytes == null) {
+            bytes = 0L;
+        }
+
+                Dictionary <String, Object> properties = new Hashtable<String, Object>();
         properties.put(APPLICATION, APPLICATION_NAME);
         properties.put(TITLE, resourceResponse.getResource().getName());
         Long sysTimeMillis = System.currentTimeMillis();
         properties.put(MESSAGE, generateMessage(status,
-                resourceResponse.getResource().getName(), bytes, sysTimeMillis));
+                resourceResponse.getResource().getName(), bytes, sysTimeMillis, detail));
         properties.put(USER, getProperty(resourceResponse, USER));
         properties.put(STATUS, status);
         properties.put(BYTES, bytes);
@@ -99,52 +106,58 @@ public class RetrievalStatusEventPublisher {
 
         if (resourceResponse.getRequest().containsPropertyName(property)) {
             response = (String) resourceResponse.getRequest().getPropertyValue(property);
-            logger.debug("resourceResponse " + property + " property: " + response);
+            logger.debug("resourceResponse {} property: {}", property, response);
         }
 
         return response;
     }
 
-    private String generateMessage(String status, String title, Long bytes, Long sysTimeMillis) {
+    private String generateMessage(String status, String title, Long bytes, Long sysTimeMillis, String detail) {
         StringBuilder response = new StringBuilder("Product retrieval for ");
         response.append(title);
 
-        if (status.equals(PRODUCT_RETRIEVAL_RETRIEVING)) {
-            response.append(", ");
-            response.append(bytes.toString());
-            response.append(" bytes retrieved");
-        } else if (status.equals(PRODUCT_RETRIEVAL_STARTED)) {
+        // There may not be any detail to report, if not, send it along
+        if (detail == null) {
+            detail = "";
+        }
+
+        if (status.equals(PRODUCT_RETRIEVAL_STARTED)) {
             response.append(" started at ");
             Date date = new Date(sysTimeMillis);
             response.append(formatter.format(date));
-        }
-        else if (status.equals(PRODUCT_RETRIEVAL_RETRYING)) {
-            response.append(" retrying at ");
-            Date date = new Date(sysTimeMillis);
-            response.append(formatter.format(date));
-            response.append(" after ");
-            response.append(bytes.toString());
-            response.append(" bytes");
-        }
-        else if (status.equals(PRODUCT_RETRIEVAL_CANCELLED)) {
-            response.append(" cancelled at ");
-            Date date = new Date(sysTimeMillis);
-            response.append(formatter.format(date));
-        }
-        else if (status.equals(PRODUCT_RETRIEVAL_COMPLETE)) {
+            response.append(". ");
+            response.append(detail);
+        } else if (status.equals(PRODUCT_RETRIEVAL_COMPLETE)) {
             response.append(" completed at ");
             Date date = new Date(sysTimeMillis);
             response.append(formatter.format(date));
             response.append(", bytes retrieved: ");
             response.append(bytes.toString());
-        }
-        else if (status.equals(PRODUCT_RETRIEVAL_FAILED)) {
+            response.append(". ");
+            response.append(detail);
+        } else if (status.equals(PRODUCT_RETRIEVAL_RETRYING)) {
+            response.append(" retrying at ");
+            Date date = new Date(sysTimeMillis);
+            response.append(formatter.format(date));
+            response.append(" after ");
+            response.append(bytes.toString());
+            response.append(" bytes. ");
+            response.append(detail);
+        } else if (status.equals(PRODUCT_RETRIEVAL_CANCELLED)) {
+            response.append(" cancelled at ");
+            Date date = new Date(sysTimeMillis);
+            response.append(formatter.format(date));
+            response.append(". ");
+            response.append(detail);
+        } else if (status.equals(PRODUCT_RETRIEVAL_FAILED)) {
             response.append(" failed at ");
             Date date = new Date(sysTimeMillis);
             response.append(formatter.format(date));
+            response.append(". ");
+            response.append(detail);
         }
 
-        logger.debug("message: " + response.toString());
+        logger.debug("message: {}", response.toString());
 
         return response.toString();
     }
