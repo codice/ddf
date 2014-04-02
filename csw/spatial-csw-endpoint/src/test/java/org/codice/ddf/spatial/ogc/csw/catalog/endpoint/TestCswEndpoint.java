@@ -271,9 +271,9 @@ public class TestCswEndpoint {
         URI mockUri = new URI("http://example.com/services/csw");
         when(mockUriInfo.getBaseUri()).thenReturn(mockUri);
         when(mockContext.getBundle()).thenReturn(mockBundle);
-        URL resourceUrl = TestCswEndpoint.class.getResource("/test.xsd");
+        URL resourceUrl = TestCswEndpoint.class.getResource("/record.xsd");
         URL resourceUrlDot = TestCswEndpoint.class.getClass().getResource(".");
-        when(mockBundle.getResource("test.xsd")).thenReturn(resourceUrl);
+        when(mockBundle.getResource("record.xsd")).thenReturn(resourceUrl);
         when(mockBundle.getResource("csw/2.0.2/record.xsd")).thenReturn(resourceUrl);
         when(mockBundle.getResource(".")).thenReturn(resourceUrlDot);
         QueryResponseImpl response = new QueryResponseImpl(null, new LinkedList<Result>(), 0);
@@ -1773,13 +1773,13 @@ public class TestCswEndpoint {
         RecordTypeRegistry recordTypeRegistry = new RecordTypeRegistry();
         List<RecordTypeEntry> recordTypeEntries = recordTypeRegistry.getRecordTypes();
         recordTypeEntries.add(new RecordTypeEntry(new QName(CswConstants.CSW_OUTPUT_SCHEMA, "test",
-                VALID_PREFIX), CswConstants.VERSION_2_0_2, "test.xsd", null));
+                VALID_PREFIX), CswConstants.VERSION_2_0_2, "record.xsd", null));
         recordTypeEntries.add(new RecordTypeEntry(new QName(CswConstants.CSW_OUTPUT_SCHEMA,
-                "test2", VALID_PREFIX), CswConstants.VERSION_2_0_2, "test.xsd", null));
+                "test2", VALID_PREFIX), CswConstants.VERSION_2_0_2, "record.xsd", null));
         recordTypeEntries.add(new RecordTypeEntry(new QName(CswConstants.CSW_OUTPUT_SCHEMA,
-                "test3", VALID_PREFIX), CswConstants.VERSION_2_0_2, "test.xsd", null));
+                "test3", VALID_PREFIX), CswConstants.VERSION_2_0_2, "record.xsd", null));
         recordTypeEntries.add(new RecordTypeEntry(new QName(CswConstants.CSW_OUTPUT_SCHEMA + "2",
-                "test4", "csw2"), CswConstants.VERSION_2_0_2, "test.xsd", null));
+                "test4", "csw2"), CswConstants.VERSION_2_0_2, "record.xsd", null));
 
         return recordTypeRegistry;
     }
