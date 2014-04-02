@@ -62,7 +62,7 @@
       </resource>
     </resources>
 
-  <plugins>
+    <plugins>
 
       <!--
       Adds all of the feature repositories from DDF Kernel distribution, and this DDF Standard distribution
@@ -81,7 +81,17 @@
             <configuration>
               <inherited>false</inherited>
               <descriptors>
-                <descriptor>file:${basedir}/target/classes/${project.artifactId}-features.xml</descriptor>
+                <descriptor>mvn:ddf.distribution/distribution-kernel/${project.version}/xml/features</descriptor>
+                <descriptor>mvn:ddf.platform/platform-app/${ddf.platform.app.version}/xml/features</descriptor>
+                <descriptor>mvn:ddf.security/security-services-app/${ddf.security.app.version}/xml/features</descriptor>
+                <descriptor>mvn:ddf.catalog/catalog-app/${ddf.catalog.app.version}/xml/features</descriptor>
+                <descriptor>mvn:ddf.content/content-app/${ddf.content.app.version}/xml/features</descriptor>
+                <descriptor>mvn:ddf.catalog.solr/catalog-solr-app/${ddf.solr.catalog.app.version}/xml/features</descriptor>
+                <descriptor>mvn:org.codice.opendj.embedded/opendj-embedded-app/1.0.0/xml/features</descriptor>
+                <descriptor>mvn:ddf.spatial/spatial-app/${ddf.spatial.app.version}/xml/features</descriptor>
+                <descriptor>mvn:ddf.ui.search/search-app/${ddf.searchui.app.version}/xml/features</descriptor>
+                <descriptor>mvn:org.codice.httpproxy/httpproxy-app/${ddf.httpproxy.app.version}/xml/features</descriptor>
+                <descriptor>mvn:ddf.admin/admin-app/${ddf.admin.app.version}/xml/features</descriptor>
               </descriptors>
               <repository>${setup.folder}/${karaf.folder}/system</repository>
             </configuration>
@@ -89,104 +99,76 @@
         </executions>
       </plugin>
 
-
-      <!--
-      Puts the features XML file for this DDF distribution into the maven repo.
-      -->
-      <plugin>
-          <groupId>org.codehaus.mojo</groupId>
-          <artifactId>build-helper-maven-plugin</artifactId>
-          <executions>
-              <execution>
-                  <id>attach-artifacts</id>
-                  <phase>package</phase>
-                  <inherited>false</inherited>
-                  <goals>
-                      <goal>attach-artifact</goal>
-                  </goals>
-                  <configuration>
-                      <artifacts>
-                          <artifact>
-                              <file>target/classes/${project.artifactId}-features.xml</file>
-                              <type>xml</type>
-                              <classifier>features</classifier>
-                          </artifact>
-                      </artifacts>
-                  </configuration>
-              </execution>
-          </executions>
-      </plugin>
-
     </plugins>
   </build>
 
   <profiles>
-		<profile>
-			<id>generate_uml_javadoc</id>
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-dependency-plugin</artifactId>
-						<executions>
-							<execution>
-								<id>unpack-javadoc</id>
-								<phase>generate-resources</phase>
-								<goals>
-									<goal>unpack</goal>
-								</goals>
-								<configuration>
-									<artifactItems>
-										<artifactItem>
-											<groupId>ddf.catalog.core</groupId>
-											<artifactId>catalog-core-api</artifactId>
-											<version>${ddf.catalog.app.version}</version>
-											<type>javadoc</type>
-											<outputDirectory>${setup.folder}/catalog_api_javadoc</outputDirectory>
-										</artifactItem>
-										<artifactItem>
-											<groupId>ddf.mime.core</groupId>
-											<artifactId>mime-core-api</artifactId>
-											<version>${ddf.platform.app.version}</version>
-											<type>javadoc</type>
-											<outputDirectory>${setup.folder}/mime_api_javadoc</outputDirectory>
-										</artifactItem>
-										<artifactItem>
-											<groupId>ddf.action.core</groupId>
-											<artifactId>action-core-api</artifactId>
-											<version>${ddf.platform.app.version}</version>
-											<type>javadoc</type>
-											<outputDirectory>${setup.folder}/action_api_javadoc</outputDirectory>
-										</artifactItem>
-										<artifactItem>
-											<groupId>ddf.content.core</groupId>
-											<artifactId>content-core-api</artifactId>
-											<version>${ddf.content.app.version}</version>
-											<type>javadoc</type>
-											<outputDirectory>${setup.folder}/content_api_javadoc</outputDirectory>
-										</artifactItem>
-										<artifactItem>
-											<groupId>ddf.security.core</groupId>
-											<artifactId>security-core-api</artifactId>
-											<version>${ddf.platform.app.version}</version>
-											<type>javadoc</type>
-											<outputDirectory>${setup.folder}/security_api_javadoc</outputDirectory>
-										</artifactItem>
-										<artifactItem>
-											<groupId>ddf.security.encryption</groupId>
-											<artifactId>security-encryption-api</artifactId>
-											<version>${ddf.platform.app.version}</version>
-											<type>javadoc</type>
-											<outputDirectory>${setup.folder}/encryption_api_javadoc</outputDirectory>
-										</artifactItem>
-									</artifactItems>
-								</configuration>
-							</execution>
-						</executions>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
-	</profiles>
+    <profile>
+      <id>generate_uml_javadoc</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-dependency-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>unpack-javadoc</id>
+                <phase>generate-resources</phase>
+                <goals>
+                  <goal>unpack</goal>
+                </goals>
+                <configuration>
+                  <artifactItems>
+                    <artifactItem>
+                      <groupId>ddf.catalog.core</groupId>
+                      <artifactId>catalog-core-api</artifactId>
+                      <version>${ddf.catalog.app.version}</version>
+                      <type>javadoc</type>
+                      <outputDirectory>${setup.folder}/catalog_api_javadoc</outputDirectory>
+                    </artifactItem>
+                    <artifactItem>
+                      <groupId>ddf.mime.core</groupId>
+                      <artifactId>mime-core-api</artifactId>
+                      <version>${ddf.platform.app.version}</version>
+                      <type>javadoc</type>
+                      <outputDirectory>${setup.folder}/mime_api_javadoc</outputDirectory>
+                    </artifactItem>
+                    <artifactItem>
+                      <groupId>ddf.action.core</groupId>
+                      <artifactId>action-core-api</artifactId>
+                      <version>${ddf.platform.app.version}</version>
+                      <type>javadoc</type>
+                      <outputDirectory>${setup.folder}/action_api_javadoc</outputDirectory>
+                    </artifactItem>
+                    <artifactItem>
+                      <groupId>ddf.content.core</groupId>
+                      <artifactId>content-core-api</artifactId>
+                      <version>${ddf.content.app.version}</version>
+                      <type>javadoc</type>
+                      <outputDirectory>${setup.folder}/content_api_javadoc</outputDirectory>
+                    </artifactItem>
+                    <artifactItem>
+                      <groupId>ddf.security.core</groupId>
+                      <artifactId>security-core-api</artifactId>
+                      <version>${ddf.platform.app.version}</version>
+                      <type>javadoc</type>
+                      <outputDirectory>${setup.folder}/security_api_javadoc</outputDirectory>
+                    </artifactItem>
+                    <artifactItem>
+                      <groupId>ddf.security.encryption</groupId>
+                      <artifactId>security-encryption-api</artifactId>
+                      <version>${ddf.platform.app.version}</version>
+                      <type>javadoc</type>
+                      <outputDirectory>${setup.folder}/encryption_api_javadoc</outputDirectory>
+                    </artifactItem>
+                  </artifactItems>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 
 </project>

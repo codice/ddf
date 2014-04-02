@@ -24,15 +24,5 @@
         <componentDescriptor>target/dependencies/common-bin.xml</componentDescriptor>
     </componentDescriptors>
     
-      
-  <files>
-        <file>
-        <!-- Install the features descriptor into the system repository -->
-            <source>${basedir}/target/classes/${artifactId}-features.xml</source>
-            <outputDirectory>system/ddf/distribution/${artifactId}/${version}</outputDirectory>
-            <destName>${artifactId}-${version}-features.xml</destName>
-            <fileMode>0644</fileMode>
-        </file>
-  </files>
   
 </assembly>
