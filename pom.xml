@@ -191,11 +191,11 @@
     </dependencies>
     <modules>
         <module>kml</module>
-        <module>spatial-app</module>
         <module>ogc</module>
         <module>wfs</module>
         <module>csw</module>
         <module>wcs</module>
+        <module>spatial-app</module>
     </modules>
 
 	<repositories>
