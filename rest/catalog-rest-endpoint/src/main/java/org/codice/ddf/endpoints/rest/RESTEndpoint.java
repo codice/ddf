@@ -297,6 +297,10 @@ public class RESTEndpoint {
                         responseBuilder.header("Content-Disposition", "inline; filename=\"" + name
                                 + "\"");
                     }
+                    long size = content.getSize();
+                    if (size > 0) {
+                        responseBuilder.header("Content-Length", size);
+                    }
                 }
 
                 response = responseBuilder.build();

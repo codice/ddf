@@ -334,6 +334,7 @@ public class CachedResource extends InputStream implements Resource, Serializabl
 
                 if (cachedResourceStatus.getCachingStatus() == CachingStatus.RESOURCE_CACHING_COMPLETE) {
                     try {
+                        this.size = cachedResourceStatus.getBytesRead();
                         LOGGER.debug("Cancelling cacheMonitor");
                         cacheMonitor.cancel();
                         LOGGER.debug("Sending event");
@@ -569,6 +570,7 @@ public class CachedResource extends InputStream implements Resource, Serializabl
 
     @Override
     public long getSize() {
+        LOGGER.debug("getting size = {}", size);
         return size;
     }
 
