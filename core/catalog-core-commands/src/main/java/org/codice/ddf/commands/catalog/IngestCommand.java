@@ -152,11 +152,7 @@ public class IngestCommand extends CatalogCommands {
                                 result = readMetacard(file);
                             } catch (IngestException e) {
                                 result = null;
-                                console.println(Ansi.ansi().fg(Ansi.Color.RED).toString()
-                                        + "Failed to ingest file [" + file.getAbsolutePath() + "]."
-                                        + Ansi.ansi().reset().toString());
-                                console.println(Ansi.ansi().fg(Ansi.Color.RED).toString()
-                                        + e.getMessage() + Ansi.ansi().reset().toString());
+                                logIngestException(e, file);
                                 if(failedIngestDirectory == null) {
                                     executorService.shutdownNow();
                                 } else {
@@ -180,11 +176,7 @@ public class IngestCommand extends CatalogCommands {
                                     if (failedIngestDirectory == null) {
                                         executorService.shutdownNow();
                                     } else {
-                                        console.println(Ansi.ansi().fg(Ansi.Color.RED).toString()
-                                                + "Failed to ingest file [" + file.getAbsolutePath() + "]."
-                                                + Ansi.ansi().reset().toString());
-                                        console.println(Ansi.ansi().fg(Ansi.Color.RED).toString()
-                                                + e.getMessage() + Ansi.ansi().reset().toString());
+                                        logIngestException(e, file);
                                         moveToFailedIngestDirectory(file);
                                     }
                                 } catch (SourceUnavailableException e) {
@@ -218,12 +210,8 @@ public class IngestCommand extends CatalogCommands {
                     try {
                         result = readMetacard(file);
                     } catch (IngestException e) {
-                        console.println(Ansi.ansi().fg(Ansi.Color.RED).toString()
-                                + "Failed to ingest file [" + file.getAbsolutePath() + "]."
-                                + Ansi.ansi().reset().toString());
-                        console.println(Ansi.ansi().fg(Ansi.Color.RED).toString() + e.getMessage()
-                                + Ansi.ansi().reset().toString());
                         result = null;
+                        logIngestException(e, file);
                         if (failedIngestDirectory != null) {
                             moveToFailedIngestDirectory(file);
                         } else {
@@ -270,11 +258,7 @@ public class IngestCommand extends CatalogCommands {
                 result = readMetacard(inputFile);
             } catch(IngestException e) {
                 result = null;
-                console.println(Ansi.ansi().fg(Ansi.Color.RED).toString()
-                        + "Failed to ingest file [" + inputFile.getAbsolutePath() + "]."
-                        + Ansi.ansi().reset().toString());
-                console.println(Ansi.ansi().fg(Ansi.Color.RED).toString() + e.getMessage()
-                        + Ansi.ansi().reset().toString());
+                logIngestException(e, inputFile);
                 if(failedIngestDirectory != null) {
                     moveToFailedIngestDirectory(inputFile);
                 }
@@ -317,6 +301,14 @@ public class IngestCommand extends CatalogCommands {
         console.print(getProgressBar(ingestCount, fileList.length, start,
                 System.currentTimeMillis()));
         console.flush();
+    }
+    
+    private void logIngestException(IngestException exception, File inputFile) {
+        console.println(Ansi.ansi().fg(Ansi.Color.RED).toString()
+                + "Failed to ingest file [" + inputFile.getAbsolutePath() + "]."
+                + Ansi.ansi().reset().toString());
+        console.println(Ansi.ansi().fg(Ansi.Color.RED).toString() + exception.getMessage()
+                + Ansi.ansi().reset().toString());
     }
 
     private String getProgressBar(int ingestCount, int totalPossible, long start, long end) {
