@@ -14,17 +14,18 @@
  **/
 /*global define*/
 /** Main view page for add. */
-define(function (require) {
+define([
+    'marionette',
+    '/installer/js/views/Welcome.view.js',
+    '/installer/js/views/Navigation.view.js',
+    '/installer/js/views/Configuration.view.js',
+    '/installer/js/views/Application.view.js',
+    '/installer/js/views/Finish.view.js',
+    'icanhaz',
+    'text!/installer/templates/main.handlebars'
+    ], function (Marionette, WelcomeView, NavigationView, ConfigurationView, ApplicationView, FinishView, ich, mainTemplate) {
 
-    var Marionette = require('marionette'),
-        WelcomeView = require('/installer/js/views/Welcome.view.js'),
-        NavigationView = require('/installer/js/views/Navigation.view.js'),
-        ConfigurationView = require('/installer/js/views/Configuration.view.js'),
-        ApplicationView = require('/installer/js/views/Application.view.js'),
-        FinishView = require('/installer/js/views/Finish.view.js'),
-        ich = require('icanhaz');
-
-    ich.addTemplate('mainTemplate', require('text!/installer/templates/main.handlebars'));
+    ich.addTemplate('mainTemplate', mainTemplate);
 
     var InstallerMainView = Marionette.Layout.extend({
         template: 'mainTemplate',

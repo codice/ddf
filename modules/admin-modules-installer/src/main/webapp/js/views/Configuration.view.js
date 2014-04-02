@@ -14,20 +14,21 @@
  **/
 /*global define*/
 /** Main view page for add. */
-define(function (require) {
+define([
+    'marionette',
+    'icanhaz',
+    'underscore',
+    'backbone',
+    '/installer/lib/configuration-module/index.js',
+    '!text!/installer/templates/configurationItem.handlebars',
+    'text!/installer/templates/configuration.handlebars',
+    'modelbinder',
+    'perfectscrollbar',
+    'multiselect'
+    ], function (Marionette, ich, _, Backbone, Service, configurationItem, configurationTemplate) {
 
-    var Marionette = require('marionette'),
-        ich = require('icanhaz'),
-        _ = require('underscore'),
-        Backbone = require('backbone'),
-        Service = require('/installer/lib/configuration-module/index.js');
-
-    require('modelbinder');
-    require('perfectscrollbar');
-    require('multiselect');
-
-    ich.addTemplate('configurationItem', require('!text!/installer/templates/configurationItem.handlebars'));
-    ich.addTemplate('configurationTemplate', require('text!/installer/templates/configuration.handlebars'));
+    ich.addTemplate('configurationItem', configurationItem);
+    ich.addTemplate('configurationTemplate', configurationTemplate);
 
     var serviceModelResponse = new Service.Response();
 

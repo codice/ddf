@@ -1,10 +1,10 @@
 /* jshint unused: false */
 /*global define*/
-define(function(require) {
-
-    var Application = require('js/application'),
-        InstallerMainView = require('/installer/js/views/InstallerMain.view.js'),
-        InstallerModel = require('/installer/js/models/Installer.js');
+define([
+    'js/application',
+    '/installer/js/views/InstallerMain.view.js',
+    '/installer/js/models/Installer.js'
+    ], function(Application, InstallerMainView, InstallerModel) {
 
     Application.App.module('Installation', function(AppModule, App, Backbone, Marionette, $, _) {
 

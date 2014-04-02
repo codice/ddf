@@ -14,12 +14,13 @@
  **/
 /*global define*/
 /** Main view page for add. */
-define(function (require) {
+define([
+    'marionette',
+    'icanhaz',
+    'text!/installer/templates/welcome.handlebars'
+    ], function (Marionette, ich, welcomeTemplate) {
 
-    var Marionette = require('marionette'),
-        ich = require('icanhaz');
-
-    ich.addTemplate('welcomeTemplate', require('text!/installer/templates/welcome.handlebars'));
+    ich.addTemplate('welcomeTemplate', welcomeTemplate);
 
     var WelcomeView = Marionette.ItemView.extend({
         template: 'welcomeTemplate',

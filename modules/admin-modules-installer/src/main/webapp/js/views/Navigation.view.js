@@ -14,12 +14,13 @@
  **/
 /*global define*/
 /** Main view page for add. */
-define(function (require) {
+define([
+    'marionette',
+    'icanhaz',
+    'text!/installer/templates/navigation.handlebars'
+    ], function (Marionette, ich, navigationTemplate) {
 
-    var Marionette = require('marionette'),
-        ich = require('icanhaz');
-
-    ich.addTemplate('navigationTemplate', require('text!/installer/templates/navigation.handlebars'));
+    ich.addTemplate('navigationTemplate', navigationTemplate);
 
     var WelcomeView = Marionette.ItemView.extend({
         template: 'navigationTemplate',
@@ -32,11 +33,9 @@ define(function (require) {
             this.listenTo(this.model, 'change', this.render);
         },
         previous: function() {
-//            this.model.previousStep();
             this.model.trigger('previous');
         },
         next: function() {
-//            this.model.nextStep();
             this.model.trigger('next');
         }
     });

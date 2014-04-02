@@ -14,12 +14,14 @@
  **/
 /*global define*/
 /** Main view page for add. */
-define(function (require) {
+define([
+    'marionette',
+    'icanhaz',
+    'text!/installer/templates/finish.handlebars'
+    ],
+    function (Marionette, ich, finishTemplate) {
 
-    var Marionette = require('marionette'),
-        ich = require('icanhaz');
-
-    ich.addTemplate('finishTemplate', require('text!/installer/templates/finish.handlebars'));
+    ich.addTemplate('finishTemplate', finishTemplate);
 
     var ConfigurationView = Marionette.ItemView.extend({
         template: 'finishTemplate',

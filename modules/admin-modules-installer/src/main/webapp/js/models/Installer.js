@@ -13,10 +13,31 @@
  *
  **/
 /*global define*/
-define(function (require) {
+define(['backbone'], function (Backbone) {
 
-    var Backbone = require('backbone');
     var Installer = {};
+
+    var _step = function (direction) {
+        var changeObj = {};
+        changeObj.stepNumber = this.get('stepNumber') + direction;
+        if(changeObj.stepNumber < this.get('totalSteps')) {
+            changeObj.hasNext = true;
+        } else {
+            changeObj.stepNumber = this.get('totalSteps');
+            changeObj.hasNext = false;
+        }
+
+        if(changeObj.stepNumber > 0) {
+            changeObj.hasPrevious = true;
+        } else {
+            changeObj.stepNumber = 0;
+            changeObj.hasPrevious = false;
+        }
+
+        changeObj.percentComplete = Math.round(changeObj.stepNumber / this.get('totalSteps') * 100);
+
+        return changeObj;
+    };
 
     Installer.Model = Backbone.Model.extend({
         defaults: {
@@ -27,31 +48,10 @@ define(function (require) {
             percentComplete: 0
         },
         nextStep: function() {
-            this.set(this._step(1));
+            this.set(_step.call(this, 1));
         },
         previousStep: function() {
-            this.set(this._step(-1));
-        },
-        _step: function(direction) {
-            var changeObj = {};
-            changeObj.stepNumber = this.get('stepNumber') + direction;
-            if(changeObj.stepNumber < this.get('totalSteps')) {
-                changeObj.hasNext = true;
-            } else {
-                changeObj.stepNumber = this.get('totalSteps');
-                changeObj.hasNext = false;
-            }
-
-            if(changeObj.stepNumber > 0) {
-                changeObj.hasPrevious = true;
-            } else {
-                changeObj.stepNumber = 0;
-                changeObj.hasPrevious = false;
-            }
-
-            changeObj.percentComplete = Math.round(changeObj.stepNumber / this.get('totalSteps') * 100);
-
-            return changeObj;
+            this.set(_step.call(this, -1));
         }
     });
 
