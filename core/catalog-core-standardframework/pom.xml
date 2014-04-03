@@ -41,7 +41,6 @@
 		<dependency>
             <groupId>ddf.cache.core</groupId>
             <artifactId>cache-core-api</artifactId>
-            <version>${ddf.platform.app.version}</version>
         </dependency>
 		<dependency>
             <groupId>ddf.catalog.core</groupId>

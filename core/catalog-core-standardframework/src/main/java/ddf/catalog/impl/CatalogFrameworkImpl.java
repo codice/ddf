@@ -940,7 +940,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements Configurati
                 try {
                     queryResponse = service.process(queryResponse);
                 } catch (PluginExecutionException see) {
-                    logger.warn("Error executing PreQueryPlugin: " + see.getMessage(), see);
+                    logger.warn("Error executing PostQueryPlugin: " + see.getMessage(), see);
                 } catch (StopProcessingException e) {
                     throw new FederationException("Query could not be executed.", e);
                 }
