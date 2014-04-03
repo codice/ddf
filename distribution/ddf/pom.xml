@@ -36,6 +36,7 @@
 
   <properties>
     <distribution.file.name>ddf-${project.version}</distribution.file.name>
+    <opendj-embedded.app.version>1.0.0</opendj-embedded.app.version>
     <ddf.platform.app.version>2.3.1-SNAPSHOT</ddf.platform.app.version>
     <ddf.security.app.version>2.3.1-SNAPSHOT</ddf.security.app.version>
     <ddf.content.app.version>2.3.1-SNAPSHOT</ddf.content.app.version>
@@ -87,7 +88,7 @@
                 <descriptor>mvn:ddf.catalog/catalog-app/${ddf.catalog.app.version}/xml/features</descriptor>
                 <descriptor>mvn:ddf.content/content-app/${ddf.content.app.version}/xml/features</descriptor>
                 <descriptor>mvn:ddf.catalog.solr/catalog-solr-app/${ddf.solr.catalog.app.version}/xml/features</descriptor>
-                <descriptor>mvn:org.codice.opendj.embedded/opendj-embedded-app/1.0.0/xml/features</descriptor>
+                <descriptor>mvn:org.codice.opendj.embedded/opendj-embedded-app/${opendj-embedded.app.version}/xml/features</descriptor>
                 <descriptor>mvn:org.codice.ddf.spatial/spatial-app/${ddf.spatial.app.version}/xml/features</descriptor>
                 <descriptor>mvn:ddf.ui.search/search-app/${ddf.searchui.app.version}/xml/features</descriptor>
                 <descriptor>mvn:org.codice.httpproxy/httpproxy-app/${ddf.httpproxy.app.version}/xml/features</descriptor>
