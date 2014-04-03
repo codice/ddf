@@ -35,6 +35,7 @@ import net.opengis.filter.v_1_1_0.ScalarCapabilitiesType;
 import net.opengis.filter.v_1_1_0.SpatialCapabilitiesType;
 import net.opengis.filter.v_1_1_0.SpatialOperatorNameType;
 import net.opengis.filter.v_1_1_0.SpatialOperatorType;
+import net.opengis.filter.v_1_1_0.SpatialOperatorsType;
 import net.opengis.ows.v_1_0_0.DomainType;
 import net.opengis.ows.v_1_0_0.Operation;
 
@@ -1305,12 +1306,7 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
 
         SpatialCapabilitiesType spatialCapabilities = filterCapabilities.getSpatialCapabilities();
         if (null != spatialCapabilities && null != spatialCapabilities.getSpatialOperators()) {
-            for (SpatialOperatorType spatialOp : spatialCapabilities.getSpatialOperators()
-                    .getSpatialOperator()) {
-                LOGGER.debug("Adding key [spatialOp Name: {}]", spatialOp.getName());
-                spatialOps.put(spatialOp.getName(), spatialOp);
-                LOGGER.debug("spatialOps Map: {}", spatialOps.toString());
-            }
+            setSpatialOps(spatialCapabilities.getSpatialOperators());
         }
 
         GeometryOperandsType geometryOperandsType = null;
@@ -1333,5 +1329,24 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
 
         LOGGER.debug("Property [{}]  is NOT queryable.", propertyName);
         return false;
+    }
+
+    public GeometryOperandsType getGeoOpsForSpatialOp(SpatialOperatorNameType name) {
+        SpatialOperatorType sot = spatialOps.get(name);
+        if (sot != null) {
+            return sot.getGeometryOperands();
+        }
+        return null;
+    }
+
+    public void setSpatialOps(SpatialOperatorsType spatialOperators) {
+        spatialOps = Collections
+                .synchronizedMap(new EnumMap<SpatialOperatorNameType, SpatialOperatorType>(
+                        SpatialOperatorNameType.class));
+        for (SpatialOperatorType spatialOp : spatialOperators.getSpatialOperator()) {
+            LOGGER.debug("Adding key [spatialOp Name: {}]", spatialOp.getName());
+            spatialOps.put(spatialOp.getName(), spatialOp);
+            LOGGER.debug("spatialOps Map: {}", spatialOps.toString());
+        }
     }
 }

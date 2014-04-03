@@ -56,6 +56,10 @@ import net.opengis.cat.csw.v_2_0_2.QueryConstraintType;
 import net.opengis.cat.csw.v_2_0_2.QueryType;
 import net.opengis.cat.csw.v_2_0_2.ResultType;
 import net.opengis.filter.v_1_1_0.FilterType;
+import net.opengis.filter.v_1_1_0.SpatialCapabilitiesType;
+import net.opengis.filter.v_1_1_0.SpatialOperatorNameType;
+import net.opengis.filter.v_1_1_0.SpatialOperatorType;
+import net.opengis.filter.v_1_1_0.SpatialOperatorsType;
 import net.opengis.ows.v_1_0_0.DomainType;
 import net.opengis.ows.v_1_0_0.Operation;
 import net.opengis.ows.v_1_0_0.OperationsMetadata;
@@ -211,6 +215,14 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
     
     private static final String OUTPUT_SCHEMA_PROPERTY = "outputSchema";
 
+    private static final String FORCE_SPATIAL_FILTER_PROPERTY = "forceSpatialFilter";
+
+    private static final String NO_FORCE_SPATIAL_FILTER = "NO_FILTER";
+
+    private String forceSpatialFilter = NO_FORCE_SPATIAL_FILTER;
+
+    private SpatialCapabilitiesType spatialCapabilities;
+
     private ScheduledExecutorService scheduler;
 
     private ScheduledFuture<?> availabilityPollFuture;
@@ -305,6 +317,12 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
             LOGGER.debug("{}: Setting coordinate ordering to LAT/LON.",
                     cswSourceConfiguration.getId());
         }
+
+        String spatialFilter = (String) configuration.get(FORCE_SPATIAL_FILTER_PROPERTY);
+        if (StringUtils.isBlank(spatialFilter)) {
+            spatialFilter = NO_FORCE_SPATIAL_FILTER;
+        }
+        forceSpatialFilter = spatialFilter;
 
         String newId = (String) configuration.get(ID_PROPERTY);
         Integer newPollInterval = (Integer) configuration.get(POLL_INTERVAL_PROPERTY);
@@ -779,6 +797,14 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
        return this.recordConverterFactories;
     }
 
+    public String getForceSpatialFilter() {
+        return forceSpatialFilter;
+    }
+
+    public void setForceSpatialFilter(String forceSpatialFilter) {
+        this.forceSpatialFilter = forceSpatialFilter;
+    }
+
     private GetRecordsType createGetRecordsRequest(Query query, ElementSetType elementSetName,
             List<QName> elementNames) throws UnsupportedQueryException {
         GetRecordsType getRecordsType = new GetRecordsType();
@@ -1086,6 +1112,18 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
             cswFilterDelegate = new CswFilterDelegate(new CswRecordMetacardType(), getRecordsOp,
                     capabilities.getFilterCapabilities(), outputFormatValues, resultTypesValues,
                     cswSourceConfiguration);
+
+            spatialCapabilities = capabilities.getFilterCapabilities().getSpatialCapabilities();
+
+            if (!NO_FORCE_SPATIAL_FILTER.equals(forceSpatialFilter)) {
+                SpatialOperatorType sot = new SpatialOperatorType();
+                SpatialOperatorNameType sont = SpatialOperatorNameType.valueOf(forceSpatialFilter);
+                sot.setName(sont);
+                sot.setGeometryOperands(cswFilterDelegate.getGeoOpsForSpatialOp(sont));
+                SpatialOperatorsType spatialOperators = new SpatialOperatorsType();
+                spatialOperators.setSpatialOperator(Arrays.asList(sot));
+                cswFilterDelegate.setSpatialOps(spatialOperators);
+            }
         }
     }
 

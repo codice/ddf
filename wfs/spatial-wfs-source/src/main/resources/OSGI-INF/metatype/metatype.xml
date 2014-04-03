@@ -37,6 +37,22 @@
         <AD description="Poll Interval to Check if the Source is available (in minutes - minimum 1)."
             name="Poll Interval" id="pollInterval"
             required="true" type="Integer" default="5"/>
+        <AD description="Force only the selected Spatial Filter Type as the only available Spatial Filter."
+            name="Forced Spatial Filter Type" id="forceSpatialFilter"
+            required="false" type="String" default="">
+            <Option label="None" value="NO_FILTER" />
+            <Option label="BBOX" value="BBOX" />
+            <Option label="Beyond" value="Beyond" />
+            <Option label="Contains" value="Contains" />
+            <Option label="Crosses" value="Crosses" />
+            <Option label="Disjoint" value="Disjoint" />
+            <Option label="DWithin" value="DWithin" />
+            <Option label="Intersect" value="Intersect" />
+            <Option label="Equals" value="Equals" />
+            <Option label="Overlaps" value="Overlaps" />
+            <Option label="Touches" value="Touches" />
+            <Option label="Within" value="Within" />
+		</AD>
 
     </OCD>
 
@@ -63,6 +79,23 @@
         <AD description="Poll Interval to Check if the Source is available (in minutes - minimum 1)."
             name="Poll Interval" id="pollInterval"
             required="true" type="Integer" default="5"/>
+        <AD description="Force only the selected Spatial Filter Type as the only available Spatial Filter."
+            name="Forced Spatial Filter Type" id="forceSpatialFilter"
+            required="false" type="String" default="">
+            <Option label="None" value="NO_FILTER" />
+            <Option label="BBOX" value="BBOX" />
+            <Option label="Beyond" value="Beyond" />
+            <Option label="Contains" value="Contains" />
+            <Option label="Crosses" value="Crosses" />
+            <Option label="Disjoint" value="Disjoint" />
+            <Option label="DWithin" value="DWithin" />
+            <Option label="Intersect" value="Intersect" />
+            <Option label="Equals" value="Equals" />
+            <Option label="Overlaps" value="Overlaps" />
+            <Option label="Touches" value="Touches" />
+            <Option label="Within" value="Within" />
+		</AD>
+		
     </OCD>
 
     <Designate pid="Wfs_Federated_Source" factoryPid="Wfs_Federated_Source">

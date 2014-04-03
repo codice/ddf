@@ -50,6 +50,7 @@
             </beans:property>
             <beans:property name="featureConverterFactoryList" ref="converterList"/>
             <beans:property name="pollInterval" value=""/>
+            <beans:property name="forceSpatialFilter" value="" />
         </beans:bean>
     </osgix:managed-service-factory>
 
@@ -75,6 +76,7 @@
             </beans:property>
             <beans:property name="featureConverterFactoryList" ref="converterList"/>
             <beans:property name="pollInterval" value=""/>
+            <beans:property name="forceSpatialFilter" value="" />
         </beans:bean>
     </osgix:managed-service-factory>
 </beans:beans>

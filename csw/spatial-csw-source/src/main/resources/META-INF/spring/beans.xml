@@ -89,6 +89,7 @@
             <beans:property name="outputSchema" value="" />
             <beans:property name="recordConverterFactoryList" ref="recordConverterFactoryList" />
             <beans:property name="isCqlForced" value="false" />
+            <beans:property name="forceSpatialFilter" value="" />
 		</beans:bean>
 	</osgix:managed-service-factory>
 
@@ -131,6 +132,7 @@
             <beans:property name="outputSchema" value="" />
             <beans:property name="recordConverterFactoryList" ref="recordConverterFactoryList" />
             <beans:property name="isCqlForced" value="false" />
+            <beans:property name="forceSpatialFilter" value="" />
 		</beans:bean>
 	</osgix:managed-service-factory>
 </beans:beans>

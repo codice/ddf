@@ -15,6 +15,7 @@
 package org.codice.ddf.spatial.ogc.wfs.catalog.source;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
@@ -110,6 +111,11 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
                     "Unable to convert geometry to {}. All geospatial queries for this featureType will be invalidated!",
                     srsName);
         }
+    }
+
+    public void setSupportedGeoFilters(List<String> supportedGeos) {
+        LOGGER.debug("Updating supportedGeos to: {}", Arrays.toString(supportedGeos.toArray()));
+        this.supportedGeo = supportedGeos;
     }
 
     private static enum PROPERTY_IS_OPS {

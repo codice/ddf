@@ -149,6 +149,10 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
 
     private static final String NON_QUERYABLE_PROPS_PROPERTY = "nonQueryableProperties";
 
+    private static final String SPATIAL_FILTER_PROPERTY = "forceSpatialFilter";
+
+    private static final String NO_FORCED_SPATIAL_FILTER = "NO_FILTER";
+
     private static final String WFS_ERROR_MESSAGE = "Error received from Wfs Server.";
 
     public static final int WFS_MAX_FEATURES_RETURNED = 1000;
@@ -175,6 +179,10 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
     private static final String POLL_INTERVAL_PROPERTY = "pollInterval";
 
     private Integer pollInterval;
+
+    private String forceSpatialFilter = NO_FORCED_SPATIAL_FILTER;
+
+    private List<String> supportedGeoFilters;
 
     private ScheduledExecutorService scheduler;
 
@@ -233,6 +241,7 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
         Boolean disableSSLCertVerification = (Boolean) configuration.get(SSL_VERIFICATION_PROPERTY);
         String id = (String) configuration.get(ID_PROPERTY);
 
+
         String[] nonQueryableProperties = (String[]) configuration
                 .get(NON_QUERYABLE_PROPS_PROPERTY);
 
@@ -255,6 +264,20 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
 
             connectToRemoteWfs();
             configureWfsFeatures();
+        } else {
+            // Only need to update the supportedGeos if we don't reconnect.
+            String spatialFilter = (String) configuration.get(SPATIAL_FILTER_PROPERTY);
+            if (!StringUtils.equals(forceSpatialFilter, spatialFilter)) {
+                List<String> geoFilters = new ArrayList<String>();
+                if (NO_FORCED_SPATIAL_FILTER.equals(spatialFilter)) {
+                    geoFilters.addAll(supportedGeoFilters);
+                } else {
+                    geoFilters.add(spatialFilter);
+                }
+                for (WfsFilterDelegate delegate : featureTypeFilters.values()) {
+                    delegate.setSupportedGeoFilters(geoFilters);
+                }
+            }
         }
 
         if (!pollInterval.equals(newPollInterval)) {
@@ -358,14 +381,17 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
     }
 
     private List<String> getSupportedGeo(WFSCapabilitiesType capabilities) {
+        supportedGeoFilters = new ArrayList<String>();
         List<Object> geoTypes = capabilities.getFilterCapabilities().getSpatialCapabilities()
                 .getSpatialOperators().getBBOXOrEqualsOrDisjoint();
 
-        List<String> supportedGeo = new ArrayList<String>();
         for (Object geoType : geoTypes) {
-            supportedGeo.add(geoType.getClass().getSimpleName());
+            supportedGeoFilters.add(geoType.getClass().getSimpleName());
         }
-        return supportedGeo;
+        if (!NO_FORCED_SPATIAL_FILTER.equals(forceSpatialFilter)) {
+            return Arrays.asList(forceSpatialFilter);
+        }
+        return supportedGeoFilters;
     }
 
     private void buildFeatureFilters(List<FeatureTypeType> featureTypes, List<String> supportedGeo) {
@@ -830,6 +856,14 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
         } else {
             this.nonQueryableProperties = Arrays.copyOf(newNonQueryableProperties, newNonQueryableProperties.length);
         }
+    }
+
+    public String getForceSpatialFilter() {
+        return forceSpatialFilter;
+    }
+
+    public void setForceSpatialFilter(String forceSpatialFilter) {
+        this.forceSpatialFilter = forceSpatialFilter;
     }
 
     public void setFeatureConverterFactoryList(List<FeatureConverterFactory> factories) {
