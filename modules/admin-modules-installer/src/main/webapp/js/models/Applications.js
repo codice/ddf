@@ -14,6 +14,7 @@
  **/
 /*global define*/
 define(function (require) {
+    "use strict";
 
     var Backbone = require('backbone');
     //require('backbonerelational');
@@ -59,7 +60,6 @@ define(function (require) {
        },
 
        initialize: function(){
-           "use strict";
            var children = this.get("children");
            var that = this;
            this.set({displayName: this.createDisplayName()});
@@ -72,7 +72,6 @@ define(function (require) {
            this.listenTo(this, "change", this.updateModel);
        },
        updateModel: function(){
-           "use strict";
          if (this.get("selected")) {
              if (this.get("parent")) {
              this.get("parent").set({selected: true});
@@ -85,7 +84,6 @@ define(function (require) {
        },
 
        createDisplayName: function(){
-           "use strict";
            var names = this.get("name").split('-');
            var dispName = "";
            for (var i=0; i < names.length; i++) {
@@ -98,7 +96,6 @@ define(function (require) {
        },
 
        capitalizeFirstLetter: function(string){
-           "use strict";
            if (string && string !== ""){
                return string.charAt(0).toUpperCase() + string.slice(1);
            }
@@ -108,6 +105,10 @@ define(function (require) {
 
     Applications.TreeNodeCollection = Backbone.Collection.extend({
         model: Applications.TreeNode
+    });
+
+    Applications.Report = Backbone.Model.extend({
+        url: '/jolokia/read/org.codice.ddf.admin.application.service.ApplicationService:service=application,version=1.0.0/ApplicationTree/'
     });
 
     return Applications;

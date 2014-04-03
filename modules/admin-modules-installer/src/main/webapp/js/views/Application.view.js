@@ -15,112 +15,22 @@
 /*global define*/
 /** Main view page for add. */
 define(function (require) {
-
+    "use strict";
     var Backbone = require('backbone'),
         Marionette = require('marionette'),
         AppModel = require('/installer/js/models/Applications.js'),
+        vent = require('/installer/js/vent.js'),
         ich = require('icanhaz');
 
     ich.addTemplate('applicationTemplate', require('text!/installer/templates/application.handlebars'));
     ich.addTemplate('applicationNodeTemplate', require('text!/installer/templates/applicationNode.handlebars'));
+    ich.addTemplate('detailsTemplate', require('text!/installer/templates/details.handlebars'));
 
-//    var sampleAppData = [
-//        {
-//            application: {name: "application-1", version: "1.0.0", description: "Application 1 description"},
-//            children: [{
-//                application: {name: "application-1a", version: "1.0.0", description: "Application 1a description"},
-//                children: [],
-//                parent: []}],
-//            parent: [{}]
-//        },
-//        {
-//            application: {name: "application-2", version: "1.0.0", description: "Application 2 description"},
-//            children: [
-//                {
-//                    application: {name: "application-2a", version: "1.0.0", description: "Application 2a description"},
-//                    children: [],
-//                    parent: []
-//                },
-//                {
-//                    application: {name: "application-2b", version: "1.0.0", description: "Application 2b description"},
-//                    children: [],
-//                    parent: []
-//                }
-//            ],
-//            parent: []
-//        }
-//    ];
 
-    var sampleAppData = [
-        {
-            "description": "DDF Administration Tools",
-            "name": "admin-app",
-            "children": [],
-            "version": "1.0.0.ALPHA1-SNAPSHOT"
-        },
-        {
-            "description": null,
-            "name": "ddf-231-SNAPSHOT",
-            "children": [],
-            "version": "0.0.0"
-        },
-        {
-            "description": "OpenDJ Embedded LDAP",
-            "name": "opendj-embedded",
-            "children": [],
-            "version": "1.0.0"
-        },
-        {
-            "description": "DDF platform boot features",
-            "name": "platform-app",
-            "children": [
-                {
-                    "description": "DDF Catalog application default installations",
-                    "name": "catalog-app",
-                    "children": [
-                        {
-                            "description": "DDF Content application default installations",
-                            "name": "content-app",
-                            "children": [],
-                            "version": "2.3.1-SNAPSHOT"
-                        },
-                        {
-                            "description": "UI for searching over DDF. Contains a standard version (3D globe) and a simple version (text page).",
-                            "name": "search-ui-app",
-                            "children": [],
-                            "version": "2.3.1.ALPHA2-SNAPSHOT"
-                        },
-                        {
-                            "description": "Catalog Provider with locally Embedded Solr Server, implemented using Solr 4.6.0.",
-                            "name": "solr-app",
-                            "children": [],
-                            "version": "2.4.0-SNAPSHOT"
-                        },
-                        {
-                            "description": "DDF Spatial Services application default installations",
-                            "name": "spatial-app",
-                            "children": [],
-                            "version": "2.3.1-SNAPSHOT"
-                        }
-                    ],
-                    "version": "2.3.1.ALPHA2-SNAPSHOT"
-                },
-                {
-                    "description": "HTTP Proxy",
-                    "name": "codice-httpproxy",
-                    "children": [],
-                    "version": "1.0.0.ALPHA1"
-                },
-                {
-                    "description": "DDF Security Services application default installations",
-                    "name": "security-services-app",
-                    "children": [],
-                    "version": "2.3.1-SNAPSHOT"
-                }
-            ],
-            "version": "2.3.1-SNAPSHOT"
-        }
-    ];
+    var appReportModel = new AppModel.Report();
+    appReportModel.fetch({async: false});
+
+    var applicationData = appReportModel.get("value");
 
     // Recursive tree view
     var AppTreeView = Marionette.CompositeView.extend({
@@ -128,8 +38,7 @@ define(function (require) {
         tagName: 'ul',
         className: 'app-node',
 
-        initialize: function() {
-            "use strict";
+        initialize: function () {
             // grab all the child collections from the parent model
             // so that we can render the collection as children of
             // this parent model
@@ -137,16 +46,29 @@ define(function (require) {
             this.modelBinder = new Backbone.ModelBinder();
         },
 
-        onRender: function(){
+        events: {
+            'mouseover .appitem': 'hoveringApp',
+            'mouseout .appitem': 'leavingApp'
+        },
+
+        hoveringApp: function(e) {
+            vent.trigger("app:hover", this.model, e);
+        },
+
+        leavingApp: function() {
+            vent.trigger("app:hoverexit");
+        },
+
+        onRender: function () {
             this.bind();
         },
 
-        bind: function(){
-            var bindings = {selected: '#'+this.model.get("name")+' > [name=selected]'};
+        bind: function () {
+            var bindings = {selected: '#' + this.model.get("name") + ' > [name=selected]'};
             this.modelBinder.bind(this.model, this.el, bindings);
         },
-        appendHtml: function(collectionView, itemView) {
-            "use strict";
+
+        appendHtml: function (collectionView, itemView) {
             // ensure we nest the child list inside of
             // the current list item
             collectionView.$("li:first").append(itemView.el);
@@ -167,32 +89,48 @@ define(function (require) {
         template: 'applicationTemplate',
         tagName: 'div',
         className: 'full-height',
-        model: new AppModel.TreeNodeCollection(sampleAppData),
+        model: new AppModel.TreeNodeCollection(applicationData),
         regions: {
-            applications: '#applications'
+            applications: '#applications',
+            details: '#details'
         },
 
-        initialize: function(options) {
+        initialize: function (options) {
+            var self = this;
             this.navigationModel = options.navigationModel;
-            this.listenTo(this.navigationModel,'next', this.next);
-            this.listenTo(this.navigationModel,'previous', this.previous);
+            this.listenTo(this.navigationModel, 'next', this.next);
+            this.listenTo(this.navigationModel, 'previous', this.previous);
+            this.listenTo(vent, "app:hover", function(appSelected, e){
+                // verify we have model that matches the selected target (either the checkbox or text)
+                if (e.currentTarget.id.lastIndexOf(appSelected.get("name")) === 0){
+                    self.details.show(new DetailsView({model: appSelected}));
+                }
+            });
+            this.listenTo(vent, "app:hoverexit", function(){
+                self.details.close();
+            });
         },
-        onRender: function() {
-            "use strict";
-            console.log("I'm in render");
+        onRender: function () {
             this.applications.show(new TreeView({collection: this.model}));
+            //this.details.show(new DetailsView(this.model));
         },
-        onClose: function() {
+        onClose: function () {
             this.stopListening(this.navigationModel);
+            this.stopListening(vent);
         },
-        next: function() {
+        next: function () {
             //this is your hook to perform any validation you need to do before going to the next step
             this.navigationModel.nextStep();
         },
-        previous: function() {
+        previous: function () {
             //this is your hook to perform any teardown that must be done before going to the previous step
             this.navigationModel.previousStep();
         }
+    });
+
+    var DetailsView = Marionette.ItemView.extend({
+        template: 'detailsTemplate',
+        tagName: 'div',
     });
 
     return ApplicationView;

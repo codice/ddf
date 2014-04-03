@@ -27,6 +27,18 @@
 .description {
     color: #888;
 }
+.sidebar {
+    float: right;
+    width: 50%;
+    padding: 10px;
+}
+.appview {
+    width: 50%;
+    float: left;
+}
+.appitem {
+    padding-left: 10px;
+}
 .white {
     background-color: rgba(255, 255, 255, 1);
 }
