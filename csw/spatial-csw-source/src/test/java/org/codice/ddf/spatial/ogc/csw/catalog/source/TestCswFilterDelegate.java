@@ -74,6 +74,7 @@ import org.custommonkey.xmlunit.XMLUnit;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+import org.joda.time.format.ISODateTimeFormat;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -1183,22 +1184,23 @@ public class TestCswFilterDelegate {
     @Test
     public void testDuring() throws JAXBException, SAXException, IOException {
 
-        Calendar startDate = new GregorianCalendar(2013, Calendar.MAY, 1);
-        Calendar endDate = new GregorianCalendar(2013, Calendar.DECEMBER, 31);
+        DateTime startDate = new DateTime(2013, 5, 1, 0, 0, 0, 0);
+        DateTime endDate =  new DateTime(2013, 12, 31, 0, 0, 0, 0);
 
         CswSourceConfiguration cswSourceConfiguration = initCswSourceConfiguration(false,
                 CswRecordMetacardType.CSW_TYPE, effectiveDateMapping, createdDateMapping, modifiedDateMapping);
 
         CswFilterDelegate cswFilterDelegate = initDefaultCswFilterDelegate(cswSourceConfiguration);
         FilterType filterType = cswFilterDelegate.during(propertyNameModified,
-                startDate.getTime(), endDate.getTime());
+                startDate.toCalendar(null).getTime(), endDate.toCalendar(null).getTime());
         Writer writer = new StringWriter();
         Marshaller marshaller = jaxbContext.createMarshaller();
         marshaller.marshal(getFilterTypeJaxbElement(filterType), writer);
         String xml = writer.toString();
 
-        String startDateStr = DATE_TIME_FORMATTER.print(startDate.getTimeInMillis());
-        String endDateStr = DATE_TIME_FORMATTER.print(endDate.getTimeInMillis());
+        DateTimeFormatter fmt = ISODateTimeFormat.dateTime();
+        String startDateStr = fmt.print(startDate);
+        String endDateStr = fmt.print(endDate);
         String testResponse = during.replace(REPLACE_START_DATE, startDateStr).replace(REPLACE_END_DATE, endDateStr).replace(REPLACE_TEMPORAL_PROPERTY, modifiedDateMapping);
         assertXMLEqual(testResponse, xml);
 
@@ -1207,8 +1209,8 @@ public class TestCswFilterDelegate {
     @Test
     public void testDuringAlteredEffectiveDateMapping() throws JAXBException, SAXException, IOException {
 
-        Calendar startDate = new GregorianCalendar(2013, Calendar.MAY, 1);
-        Calendar endDate = new GregorianCalendar(2013, Calendar.DECEMBER, 31);
+        DateTime startDate = new DateTime(2013, 5, 1, 0, 0, 0, 0);
+        DateTime endDate =  new DateTime(2013, 12, 31, 0, 0, 0, 0);
 
         String replacedTemporalProperty = "myEffectiveDate";
         CswSourceConfiguration cswSourceConfiguration = initCswSourceConfiguration(false,
@@ -1216,13 +1218,14 @@ public class TestCswFilterDelegate {
 
         CswFilterDelegate cswFilterDelegate = initDefaultCswFilterDelegate(cswSourceConfiguration);
         FilterType filterType = cswFilterDelegate.during(propertyNameEffective,
-                startDate.getTime(), endDate.getTime());
+                startDate.toCalendar(null).getTime(), endDate.toCalendar(null).getTime());
         Writer writer = new StringWriter();
         Marshaller marshaller = jaxbContext.createMarshaller();
         marshaller.marshal(getFilterTypeJaxbElement(filterType), writer);
         String xml = writer.toString();
-        String startDateStr = DATE_TIME_FORMATTER.print(startDate.getTimeInMillis());
-        String endDateStr = DATE_TIME_FORMATTER.print(endDate.getTimeInMillis());
+        DateTimeFormatter fmt = ISODateTimeFormat.dateTime();
+        String startDateStr = fmt.print(startDate);
+        String endDateStr = fmt.print(endDate);
         String testResponse = during.replace(REPLACE_START_DATE, startDateStr).replace(REPLACE_END_DATE, endDateStr).replace(REPLACE_TEMPORAL_PROPERTY, replacedTemporalProperty);
         assertXMLEqual(testResponse, xml);
 
@@ -1231,8 +1234,8 @@ public class TestCswFilterDelegate {
     @Test
     public void testDuringAlteredCreatedDateMapping() throws JAXBException, SAXException, IOException {
 
-        Calendar startDate = new GregorianCalendar(2013, Calendar.MAY, 1);
-        Calendar endDate = new GregorianCalendar(2013, Calendar.DECEMBER, 31);
+        DateTime startDate = new DateTime(2013, 5, 1, 0, 0, 0, 0);
+        DateTime endDate =  new DateTime(2013, 12, 31, 0, 0, 0, 0);
 
         String replacedTemporalProperty = "myCreatedDate";
         CswSourceConfiguration cswSourceConfiguration = initCswSourceConfiguration(false,
@@ -1240,13 +1243,14 @@ public class TestCswFilterDelegate {
 
         CswFilterDelegate cswFilterDelegate = initDefaultCswFilterDelegate(cswSourceConfiguration);
         FilterType filterType = cswFilterDelegate.during(propertyNameCreated,
-                startDate.getTime(), endDate.getTime());
+                startDate.toCalendar(null).getTime(), endDate.toCalendar(null).getTime());
         Writer writer = new StringWriter();
         Marshaller marshaller = jaxbContext.createMarshaller();
         marshaller.marshal(getFilterTypeJaxbElement(filterType), writer);
         String xml = writer.toString();
-        String startDateStr = DATE_TIME_FORMATTER.print(startDate.getTimeInMillis());
-        String endDateStr = DATE_TIME_FORMATTER.print(endDate.getTimeInMillis());
+        DateTimeFormatter fmt = ISODateTimeFormat.dateTime();
+        String startDateStr = fmt.print(startDate);
+        String endDateStr = fmt.print(endDate);
         String testResponse = during.replace(REPLACE_START_DATE, startDateStr).replace(REPLACE_END_DATE, endDateStr).replace(REPLACE_TEMPORAL_PROPERTY, replacedTemporalProperty);
         assertXMLEqual(testResponse, xml);
 
@@ -1255,8 +1259,8 @@ public class TestCswFilterDelegate {
     @Test
     public void testDuringAlteredModifiedDateMapping() throws JAXBException, SAXException, IOException {
 
-        Calendar startDate = new GregorianCalendar(2013, Calendar.MAY, 1);
-        Calendar endDate = new GregorianCalendar(2013, Calendar.DECEMBER, 31);
+        DateTime startDate = new DateTime(2013, 5, 1, 0, 0, 0, 0);
+        DateTime endDate =  new DateTime(2013, 12, 31, 0, 0, 0, 0);
 
         String replacedTemporalProperty = "myModifiedDate";
         CswSourceConfiguration cswSourceConfiguration = initCswSourceConfiguration(false,
@@ -1264,13 +1268,14 @@ public class TestCswFilterDelegate {
 
         CswFilterDelegate cswFilterDelegate = initDefaultCswFilterDelegate(cswSourceConfiguration);
         FilterType filterType = cswFilterDelegate.during(propertyNameModified,
-                startDate.getTime(), endDate.getTime());
+                startDate.toCalendar(null).getTime(), endDate.toCalendar(null).getTime());
         Writer writer = new StringWriter();
         Marshaller marshaller = jaxbContext.createMarshaller();
         marshaller.marshal(getFilterTypeJaxbElement(filterType), writer);
         String xml = writer.toString();
-        String startDateStr = DATE_TIME_FORMATTER.print(startDate.getTimeInMillis());
-        String endDateStr = DATE_TIME_FORMATTER.print(endDate.getTimeInMillis());
+        DateTimeFormatter fmt = ISODateTimeFormat.dateTime();
+        String startDateStr = fmt.print(startDate);
+        String endDateStr = fmt.print(endDate);
         String testResponse = during.replace(REPLACE_START_DATE, startDateStr).replace(REPLACE_END_DATE, endDateStr).replace(REPLACE_TEMPORAL_PROPERTY, replacedTemporalProperty);
         assertXMLEqual(testResponse, xml);
 

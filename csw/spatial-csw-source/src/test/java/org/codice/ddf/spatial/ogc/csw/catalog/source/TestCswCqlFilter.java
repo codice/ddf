@@ -50,6 +50,8 @@ import org.codice.ddf.spatial.ogc.csw.catalog.common.CswJAXBElementProvider;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordMetacardType;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswSourceConfiguration;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
+import org.joda.time.format.ISODateTimeFormat; 
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.junit.BeforeClass;
@@ -405,20 +407,21 @@ public class TestCswCqlFilter {
     @Test
     public void testDuring() throws UnsupportedQueryException {
 
-        Calendar startDate = new GregorianCalendar(2013, Calendar.MAY, 1);
-        Calendar endDate = new GregorianCalendar(2013, Calendar.DECEMBER, 31);
-
+        DateTime startDate = new DateTime(2013, 5, 1, 0, 0, 0, 0);
+        DateTime endDate =  new DateTime(2013, 12, 31, 0, 0, 0, 0);
         CswSourceConfiguration cswSourceConfiguration = initCswSourceConfiguration(false,
                 CswRecordMetacardType.CSW_TYPE, effectiveDateMapping, createdDateMapping, modifiedDateMapping);
 
         CswFilterDelegate cswFilterDelegate = initDefaultCswFilterDelegate(cswSourceConfiguration);
         FilterType filterType = cswFilterDelegate.during(propertyNameModified,
-                startDate.getTime(), endDate.getTime());
+                startDate.toCalendar(null).getTime(), endDate.toCalendar(null).getTime());
         String cqlText = CswCqlTextFilter.getInstance().getCqlText(filterType);
 
-        String startDateStr = DATE_TIME_FORMATTER.print(startDate.getTimeInMillis());
-        String endDateStr = DATE_TIME_FORMATTER.print(endDate.getTimeInMillis());
+        DateTimeFormatter fmt = ISODateTimeFormat.dateTime();
+        String startDateStr = fmt.print(startDate);
+        String endDateStr = fmt.print(endDate);
         String testResponse = during.replace(REPLACE_START_DATE, startDateStr).replace(REPLACE_END_DATE, endDateStr).replace(REPLACE_TEMPORAL_PROPERTY, modifiedDateMapping);
+
         assertEquals(testResponse, cqlText);
 
     }
@@ -426,8 +429,8 @@ public class TestCswCqlFilter {
     @Test
     public void testDuringAlteredEffectiveDateMapping() throws UnsupportedQueryException {
 
-        Calendar startDate = new GregorianCalendar(2013, Calendar.MAY, 1);
-        Calendar endDate = new GregorianCalendar(2013, Calendar.DECEMBER, 31);
+        DateTime startDate = new DateTime(2013, 5, 1, 0, 0, 0, 0);
+        DateTime endDate =  new DateTime(2013, 12, 31, 0, 0, 0, 0);
 
         String replacedTemporalProperty = "myEffectiveDate";
         CswSourceConfiguration cswSourceConfiguration = initCswSourceConfiguration(false,
@@ -435,10 +438,11 @@ public class TestCswCqlFilter {
 
         CswFilterDelegate cswFilterDelegate = initDefaultCswFilterDelegate(cswSourceConfiguration);
         FilterType filterType = cswFilterDelegate.during(propertyNameEffective,
-                startDate.getTime(), endDate.getTime());
+                startDate.toCalendar(null).getTime(), endDate.toCalendar(null).getTime());
         String cqlText = CswCqlTextFilter.getInstance().getCqlText(filterType);
-        String startDateStr = DATE_TIME_FORMATTER.print(startDate.getTimeInMillis());
-        String endDateStr = DATE_TIME_FORMATTER.print(endDate.getTimeInMillis());
+        DateTimeFormatter fmt = ISODateTimeFormat.dateTime();
+        String startDateStr = fmt.print(startDate);
+        String endDateStr = fmt.print(endDate);
         String testResponse = during.replace(REPLACE_START_DATE, startDateStr).replace(REPLACE_END_DATE, endDateStr).replace(REPLACE_TEMPORAL_PROPERTY, replacedTemporalProperty);
         assertEquals(testResponse, cqlText);
     }
@@ -446,8 +450,8 @@ public class TestCswCqlFilter {
     @Test
     public void testDuringAlteredCreatedDateMapping() throws UnsupportedQueryException {
 
-        Calendar startDate = new GregorianCalendar(2013, Calendar.MAY, 1);
-        Calendar endDate = new GregorianCalendar(2013, Calendar.DECEMBER, 31);
+        DateTime startDate = new DateTime(2013, 5, 1, 0, 0, 0, 0);
+        DateTime endDate =  new DateTime(2013, 12, 31, 0, 0, 0, 0);
 
         String replacedTemporalProperty = "myCreatedDate";
         CswSourceConfiguration cswSourceConfiguration = initCswSourceConfiguration(false,
@@ -455,11 +459,12 @@ public class TestCswCqlFilter {
 
         CswFilterDelegate cswFilterDelegate = initDefaultCswFilterDelegate(cswSourceConfiguration);
         FilterType filterType = cswFilterDelegate.during(propertyNameCreated,
-                startDate.getTime(), endDate.getTime());
+                startDate.toCalendar(null).getTime(), endDate.toCalendar(null).getTime());
         String cqlText = CswCqlTextFilter.getInstance().getCqlText(filterType);
 
-        String startDateStr = DATE_TIME_FORMATTER.print(startDate.getTimeInMillis());
-        String endDateStr = DATE_TIME_FORMATTER.print(endDate.getTimeInMillis());
+        DateTimeFormatter fmt = ISODateTimeFormat.dateTime();
+        String startDateStr = fmt.print(startDate);
+        String endDateStr = fmt.print(endDate);
         String testResponse = during.replace(REPLACE_START_DATE, startDateStr).replace(REPLACE_END_DATE, endDateStr).replace(REPLACE_TEMPORAL_PROPERTY, replacedTemporalProperty);
         assertEquals(testResponse, cqlText);
     }
@@ -467,8 +472,8 @@ public class TestCswCqlFilter {
     @Test
     public void testDuringAlteredModifiedDateMapping() throws UnsupportedQueryException {
 
-        Calendar startDate = new GregorianCalendar(2013, Calendar.MAY, 1);
-        Calendar endDate = new GregorianCalendar(2013, Calendar.DECEMBER, 31);
+        DateTime startDate = new DateTime(2013, 5, 1, 0, 0, 0, 0);
+        DateTime endDate =  new DateTime(2013, 12, 31, 0, 0, 0, 0);
 
         String replacedTemporalProperty = "myModifiedDate";
         CswSourceConfiguration cswSourceConfiguration = initCswSourceConfiguration(false,
@@ -476,11 +481,12 @@ public class TestCswCqlFilter {
 
         CswFilterDelegate cswFilterDelegate = initDefaultCswFilterDelegate(cswSourceConfiguration);
         FilterType filterType = cswFilterDelegate.during(propertyNameModified,
-                startDate.getTime(), endDate.getTime());
+                startDate.toCalendar(null).getTime(), endDate.toCalendar(null).getTime());
         String cqlText = CswCqlTextFilter.getInstance().getCqlText(filterType);
 
-        String startDateStr = DATE_TIME_FORMATTER.print(startDate.getTimeInMillis());
-        String endDateStr = DATE_TIME_FORMATTER.print(endDate.getTimeInMillis());
+        DateTimeFormatter fmt = ISODateTimeFormat.dateTime();
+        String startDateStr = fmt.print(startDate);
+        String endDateStr = fmt.print(endDate);
         String testResponse = during.replace(REPLACE_START_DATE, startDateStr).replace(REPLACE_END_DATE, endDateStr).replace(REPLACE_TEMPORAL_PROPERTY, replacedTemporalProperty);
         assertEquals(testResponse, cqlText);
 

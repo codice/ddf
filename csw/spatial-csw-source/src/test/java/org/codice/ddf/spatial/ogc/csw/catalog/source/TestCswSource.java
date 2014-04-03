@@ -61,6 +61,9 @@ import org.codice.ddf.spatial.ogc.csw.catalog.converter.RecordConverter;
 import org.codice.ddf.spatial.ogc.csw.catalog.converter.RecordConverterFactory;
 import org.codice.ddf.spatial.ogc.csw.catalog.converter.impl.CswRecordConverterFactory;
 import org.geotools.filter.FilterFactoryImpl;
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormatter;
+import org.joda.time.format.ISODateTimeFormat;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.BeforeClass;
@@ -73,9 +76,9 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
 import org.xml.sax.SAXException;
 import org.slf4j.LoggerFactory;
+
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
-
 import ddf.catalog.data.ContentType;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
@@ -299,23 +302,17 @@ public class TestCswSource extends TestCswSourceBase {
         }
 
         // Create start and end date times that are before current time
-        Calendar startCal = Calendar.getInstance();
-        startCal.add(Calendar.HOUR, -5);
-        Date start = startCal.getTime();
-        Calendar endCal = Calendar.getInstance();
-        endCal.add(Calendar.HOUR, -2);
-        Date end = endCal.getTime();
-
+        DateTime startDate = new DateTime(2013, 5, 1, 0, 0, 0, 0);
+        DateTime endDate =  new DateTime(2013, 12, 31, 0, 0, 0, 0);
+        DateTimeFormatter fmt = ISODateTimeFormat.dateTime();
         // Load the expected start and end date time into the excepted result
         // XML
-        expectedXml = expectedXml.replace("START_DATE_TIME",
-                DateFormatUtils.format(startCal, ISO_DATE_TIME_FORMAT));
-        expectedXml = expectedXml.replace("END_DATE_TIME",
-                DateFormatUtils.format(endCal, ISO_DATE_TIME_FORMAT));
+        expectedXml = expectedXml.replace("START_DATE_TIME", fmt.print(startDate));
+        expectedXml = expectedXml.replace("END_DATE_TIME", fmt.print(endDate));
 
         // Single absolute time range to search across
         Filter temporalFilter = builder.attribute(Metacard.EFFECTIVE).is().during()
-                .dates(start, end);
+                .dates(startDate.toDate(), endDate.toDate());
         QueryImpl temporalQuery = new QueryImpl(temporalFilter);
         temporalQuery.setPageSize(pageSize);
 
@@ -397,38 +394,27 @@ public class TestCswSource extends TestCswSourceBase {
             fail("Could not configure Mock Remote CSW: " + e.getMessage());
         }
 
-        // Create start and end date times that are before current time
-        Calendar startCal1 = Calendar.getInstance();
-        startCal1.add(Calendar.HOUR, -5);
-        Date start1 = startCal1.getTime();
-        Calendar endCal1 = Calendar.getInstance();
-        endCal1.add(Calendar.HOUR, -2);
-        Date end1 = endCal1.getTime();
+        DateTime startDate = new DateTime(2012, 5, 1, 0, 0, 0, 0);
+        DateTime endDate =  new DateTime(2012, 12, 31, 0, 0, 0, 0);
+        DateTime startDate2 = new DateTime(2013, 5, 1, 0, 0, 0, 0);
+        DateTime endDate2 =  new DateTime(2013, 12, 31, 0, 0, 0, 0);
 
-        Calendar startCal2 = Calendar.getInstance();
-        startCal2.add(Calendar.DAY_OF_WEEK, -2);
-        Date start2 = startCal2.getTime();
-        Calendar endCal2 = Calendar.getInstance();
-        endCal2.add(Calendar.DAY_OF_WEEK, -1);
-        Date end2 = endCal2.getTime();
-
+        DateTimeFormatter fmt = ISODateTimeFormat.dateTime();
         // Load the expected start and end date time into the excepted result
         // XML
-        expectedXml = expectedXml.replace("START1_DATE_TIME",
-                DateFormatUtils.format(startCal1, ISO_DATE_TIME_FORMAT));
-        expectedXml = expectedXml.replace("END1_DATE_TIME",
-                DateFormatUtils.format(endCal1, ISO_DATE_TIME_FORMAT));
-        expectedXml = expectedXml.replace("START2_DATE_TIME",
-                DateFormatUtils.format(startCal2, ISO_DATE_TIME_FORMAT));
-        expectedXml = expectedXml.replace("END2_DATE_TIME",
-                DateFormatUtils.format(endCal2, ISO_DATE_TIME_FORMAT));
+        expectedXml = expectedXml.replace("START1_DATE_TIME", fmt.print(startDate));
+        expectedXml = expectedXml.replace("END1_DATE_TIME", fmt.print(endDate));
+        expectedXml = expectedXml.replace("START2_DATE_TIME", fmt.print(startDate2));
+        expectedXml = expectedXml.replace("END2_DATE_TIME", fmt.print(endDate2));
+
+
 
         // Single absolute time range to search across
         FilterFactory filterFactory = new FilterFactoryImpl();
         Filter temporalFilter1 = builder.attribute(Metacard.EFFECTIVE).is().during()
-                .dates(start1, end1);
+                .dates(startDate.toDate(), endDate.toDate());
         Filter temporalFilter2 = builder.attribute(Metacard.EFFECTIVE).is().during()
-                .dates(start2, end2);
+                .dates(startDate2.toDate(), endDate2.toDate());
         Filter temporalFilter = filterFactory.or(temporalFilter1, temporalFilter2);
         QueryImpl temporalQuery = new QueryImpl(temporalFilter);
         temporalQuery.setPageSize(pageSize);
