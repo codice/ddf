@@ -91,4 +91,66 @@ public class TestMetacardResourceSizePlugin {
         assertThat(queryResponse, equalTo(input));
     }
 
+    @Test
+    public void testWhenNoCachedResourceFound() throws Exception {
+        CacheManager cacheManager = mock(CacheManager.class);
+        Cache cache = mock(Cache.class);
+        when(cacheManager.getCache(anyString())).thenReturn(cache);
+        when(cache.get(anyObject())).thenReturn(null);
+        
+        MetacardImpl metacard = new MetacardImpl();
+        metacard.setId("abc123");
+        metacard.setSourceId("ddf-1");
+        metacard.setResourceSize("N/A");
+        
+        Result result = new ResultImpl(metacard);
+        List<Result> results = new ArrayList<Result>();
+        results.add(result);
+
+        QueryResponse input = mock(QueryResponse.class);
+        when(input.getResults()).thenReturn(results);
+        
+        MetacardResourceSizePlugin plugin = new MetacardResourceSizePlugin(cacheManager);
+        QueryResponse queryResponse = plugin.process(input);
+        assertThat(queryResponse.getResults().size(), is(1));
+        Metacard resultMetacard = queryResponse.getResults().get(0).getMetacard();
+        assertThat(metacard, is(notNullValue()));
+        // Since using Metacard vs. MetacardImpl have to get resource-size as an
+        // Attribute vs. Long
+        Attribute resourceSizeAttr = resultMetacard.getAttribute(Metacard.RESOURCE_SIZE);
+        assertThat((String)resourceSizeAttr.getValue(), equalTo("N/A"));
+    }
+
+    @Test
+    public void testWhenCachedResourceSizeIsZero() throws Exception {
+        CacheManager cacheManager = mock(CacheManager.class);
+        Cache cache = mock(Cache.class);
+        when(cacheManager.getCache(anyString())).thenReturn(cache);
+        CachedResource cachedResource = mock(CachedResource.class);
+        when(cachedResource.getSize()).thenReturn(0L);
+        when(cache.get(anyObject())).thenReturn(cachedResource);
+        
+        MetacardImpl metacard = new MetacardImpl();
+        metacard.setId("abc123");
+        metacard.setSourceId("ddf-1");
+        metacard.setResourceSize("N/A");
+        
+        Result result = new ResultImpl(metacard);
+        List<Result> results = new ArrayList<Result>();
+        results.add(result);
+
+        QueryResponse input = mock(QueryResponse.class);
+        when(input.getResults()).thenReturn(results);
+        
+        MetacardResourceSizePlugin plugin = new MetacardResourceSizePlugin(cacheManager);
+        QueryResponse queryResponse = plugin.process(input);
+        assertThat(queryResponse.getResults().size(), is(1));
+        Metacard resultMetacard = queryResponse.getResults().get(0).getMetacard();
+        assertThat(metacard, is(notNullValue()));
+        // Since using Metacard vs. MetacardImpl have to get resource-size as an
+        // Attribute vs. Long
+        Attribute resourceSizeAttr = resultMetacard.getAttribute(Metacard.RESOURCE_SIZE);
+        assertThat((String)resourceSizeAttr.getValue(), equalTo("N/A"));
+    }
+
 }
