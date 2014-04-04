@@ -178,7 +178,7 @@ public class ApplicationServiceImpl implements ApplicationService {
                 applicationSet.size());
         // add all values into a map
         for (Application curApp : applicationSet) {
-            appMap.put(curApp, new ApplicationNodeImpl(curApp));
+            appMap.put(curApp, new ApplicationNodeImpl(curApp, getApplicationStatus(curApp)));
         }
 
         // find dependencies in each app and add them into correct node
@@ -216,7 +216,7 @@ public class ApplicationServiceImpl implements ApplicationService {
                     ApplicationNode parentAppNode = appMap.get(parentApp);
                     parentAppNode.getChildren().add(curAppNode.getValue());
                     curAppNode.getValue().setParent(parentAppNode);
-                } else if (depAppSet.size() == 0) {
+                } else if (depAppSet.isEmpty()) {
                     logger.debug(
                             "No dependency applications found for {}. This will be sent back as a root application.",
                             curAppNode.getKey().getName());

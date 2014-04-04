@@ -31,6 +31,13 @@ public interface ApplicationNode {
     Application getApplication();
 
     /**
+     * Returns the status for the application this node is referencing.
+     * 
+     * @return status for the application as of this call.
+     */
+    ApplicationStatus getStatus();
+
+    /**
      * Returns the parent of the application.
      * 
      * @return Parent node of this application or null if application has no

@@ -53,6 +53,8 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
     private static final String MAP_DESCRIPTION = "description";
 
     private static final String MAP_CHILDREN = "children";
+    
+    private static final String MAP_STATE = "state";
 
     private Logger logger = LoggerFactory.getLogger(ApplicationServiceBeanMBean.class);
 
@@ -144,6 +146,7 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
         appMap.put(MAP_NAME, internalApplication.getName());
         appMap.put(MAP_VERSION, internalApplication.getVersion());
         appMap.put(MAP_DESCRIPTION, internalApplication.getDescription());
+        appMap.put(MAP_STATE, application.getStatus().getState().toString());
         List<Map<String, Object>> children = new ArrayList<Map<String, Object>>();
         for (ApplicationNode curNode : application.getChildren()) {
             children.add(convertApplicationNode(curNode));

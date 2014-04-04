@@ -51,7 +51,7 @@ public interface Application {
     /**
      * Gets the features that this application contains. This includes
      * <b>all</b> features inside the application regardless if they are
-     * auto-started or required.
+     * auto-started, required or optional.
      * 
      * @return Set of the features located within the application
      * @throws ApplicationServiceException

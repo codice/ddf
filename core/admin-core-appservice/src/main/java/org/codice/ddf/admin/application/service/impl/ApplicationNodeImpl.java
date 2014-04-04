@@ -19,6 +19,7 @@ import java.util.TreeSet;
 
 import org.codice.ddf.admin.application.service.Application;
 import org.codice.ddf.admin.application.service.ApplicationNode;
+import org.codice.ddf.admin.application.service.ApplicationStatus;
 
 /**
  * Implementation of an ApplicationNode. This Node is used to help form a
@@ -28,6 +29,8 @@ import org.codice.ddf.admin.application.service.ApplicationNode;
 public class ApplicationNodeImpl implements ApplicationNode, Comparable<ApplicationNode> {
 
     private Application application;
+
+    private ApplicationStatus status;
 
     private ApplicationNode parent;
 
@@ -47,9 +50,41 @@ public class ApplicationNodeImpl implements ApplicationNode, Comparable<Applicat
         this.children = new TreeSet<ApplicationNode>();
     }
 
+    /**
+     * Creates a new instance of an ApplicationNode.
+     * 
+     * @param application
+     *            The application that this node corresponds to.
+     * @param status
+     *            Current status for the application
+     */
+    public ApplicationNodeImpl(Application application, ApplicationStatus status) {
+        if (application == null) {
+            throw new IllegalArgumentException("Input application cannot be null.");
+        }
+        this.application = application;
+        this.children = new TreeSet<ApplicationNode>();
+        this.status = status;
+    }
+
     @Override
     public Application getApplication() {
         return application;
+    }
+
+    @Override
+    public ApplicationStatus getStatus() {
+        return status;
+    }
+
+    /**
+     * Sets the status of this application.
+     * 
+     * @param status
+     *            Current status for this application
+     */
+    public void setStatus(ApplicationStatus status) {
+        this.status = status;
     }
 
     /**
