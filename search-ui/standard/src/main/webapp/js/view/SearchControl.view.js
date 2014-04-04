@@ -9,8 +9,8 @@ define(function (require) {
         QueryFormView = require('js/view/Query.view').QueryView,
         ProgressView = require('js/view/Progress.view').ProgressView,
         MetacardList = require('js/view/MetacardList.view'),
-        Metacard = require('js/view/MetacardDetail.view'),
-        MetaCard = require('js/model/Metacard.js'),
+        MetacardDetail = require('js/view/MetacardDetail.view'),
+        MetacardModel = require('js/model/Metacard.js'),
         Backbone = require('backbone'),
         app = require('application'),
         dir = require('direction'),
@@ -180,7 +180,7 @@ define(function (require) {
             },
             showQuery: function (direction) {
                 $(".back").hide();
-                if(this.resultList.model.attributes.results.length){
+                if(this.resultList.model.get('results').length){
                     $(".forward").show();
                 }
                 else {
@@ -205,7 +205,7 @@ define(function (require) {
                     this.listenTo(this.resultList, 'render', this.updateScrollPos);
                 }
                 if(!this.resultList){
-                    this.resultList = new MetacardList.MetacardListView({ result: new MetaCard.SearchResult(), searchControlView: this });
+                    this.resultList = new MetacardList.MetacardListView({ result: new MetacardModel.SearchResult(), searchControlView: this });
                 }
                 if (previousState !== 'results' && this.leftRegion.currentView === this.queryForm && (direction !== dir.forward && direction !== dir.backward)){
                     $(".forward").show();
@@ -233,7 +233,7 @@ define(function (require) {
                     if (this.metacardDetail) {
                         this.stopListening(this.metacardDetail, 'content-update', this.updateScrollbar);
                     }
-                    this.metacardDetail = new Metacard.MetacardDetailView({metacard: metacard});
+                    this.metacardDetail = new MetacardDetail.MetacardDetailView({metacard: metacard});
                     this.listenTo(this.metacardDetail, 'content-update', this.updateScrollbar);
                     direction = _.isUndefined(metacard.get('direction')) ? direction : metacard.get('direction');
                 }

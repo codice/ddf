@@ -1,7 +1,8 @@
 /*jshint strict:false*/
 /*global CasperError, console, phantom, require, casper*/
-casper.options.verbose = true;
-casper.options.logLevel = 'debug';
+// NOTE: to enable debug uncomment the following 2 lines.
+//casper.options.verbose = true;
+//casper.options.logLevel = 'debug';
 casper.test.begin('simple contextual query', 3, function(test) {
     casper.start('http://localhost:8383/?sync=true');
 
@@ -35,15 +36,12 @@ casper.test.begin('simple contextual query', 3, function(test) {
         return this.evaluate(function(){
             return document.querySelectorAll('a.metacard-link').length >= 10;
         })
+    }, function() {
+        test.pass('Search for contextual query retrieves 10 or more resutls');
+    }, function() {
+        test.fail('Search failed to find 10 or more results');
     });
     
-    casper.then(function() {
-        // aggregate results for the 'phantomjs' search
-        this.test.assertEval(function() {
-            return __utils__.findAll('a.metacard-link').length >= 10;
-        }, 'Search for contextual query retrieves 10 or more results');
-    });
-
     casper.run(function() {
         test.done();
     });
