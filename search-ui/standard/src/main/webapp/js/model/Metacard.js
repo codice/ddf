@@ -7,6 +7,7 @@ define(function (require) {
         app = require('application'),
         Util = require('js/model/util'),
         properties = require('properties'),
+        wreqr = require('wreqr'),
         MetaCard = app.module();
 
     require('backbonerelational');
@@ -82,26 +83,20 @@ define(function (require) {
         url: '/services/catalog/',
 
         initialize: function () {
-            this.listenTo(this, 'change:context', this.onChangeContext);
+            this.on('change:context', this.onChangeContext);
         },
 
         onChangeContext: function () {
-            var eventBus = app.App,
-                name = 'model:context';
-
             if (this.get('context')) {
-                eventBus.trigger(name, this);
-                this.listenTo(eventBus, name, this.onAppContext);
+                wreqr.vent.trigger('metacard:selected', this);
+                wreqr.vent.on('metacard:selected', _.bind(this.onAppContext, this), this);
             }
         },
 
         onAppContext: function (model) {
-            var eventBus = app,
-                name = 'model:context';
             if (model !== this) {
-                this.stopListening(eventBus, name);
+                wreqr.vent.stopListening('metacard:selected', null, this);
                 this.set('context', false);
-
             }
         },
 

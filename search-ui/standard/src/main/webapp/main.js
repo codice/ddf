@@ -36,11 +36,6 @@ define(['config'], function () {
             app.Controllers.applicationController.renderApplicationViews();
         });
 
-        // Start up the main Application Router
-        app.App.addInitializer(function() {
-            app.App.router = new app.Router();
-        });
-
         // Start up the Map view
         app.App.addInitializer(function() {
             app.showMapView();

@@ -8,7 +8,6 @@ define(['jquery',
         'icanhaz',
         'properties',
         'maptype',
-        'wreqr',
         // Templates
         'text!templates/main.html',
         'text!templates/map.html',
@@ -20,11 +19,10 @@ define(['jquery',
         'backbonerelational',
         'backbonecometd',
         'jquerycometd'
-    ], function ($, _, Marionette, Backbone, ich, properties, maptype, wreqr, main, map, header, footer, banner) {
+    ], function ($, _, Marionette, Backbone, ich, properties, maptype, main, map, header, footer, banner) {
         'use strict';
 
-        var Application = {},
-            ApplicationModel;
+        var Application = {};
 
         // Setup templates
         ich.addTemplate('main', main);
@@ -37,77 +35,37 @@ define(['jquery',
 
         Application.Controllers = {};
 
-        Application.Router = Backbone.Router.extend({
+        Application.Router = new Marionette.AppRouter({
             routes: {
                 '': 'index'
-            },
-
-            initialize: function () {
-                _.bindAll(this);
-            },
-
-
-            index: function () {
-
             }
-
         });
 
         Application.Views = {};
 
         // Main Application View
-        Application.Views.Main = Backbone.View.extend({
-            tagName: 'div',
+        Application.Views.Main = Marionette.ItemView.extend({
+            template: 'main',
             className: 'height-full',
 
-            initialize: function () {
-                var view = this;
-
-                _.bindAll(view);
-            },
-
-            render: function () {
-                var view = this;
-
-                view.$el.html(ich.main());
-
+            onRender: function () {
                 if (maptype.isNone()) {
                     $('#searchControls', this.$el).width('100%');
                 }
-
-                return view;
             }
-
         });
 
         // Map View
         if (!maptype.isNone()) {
-            Application.Views.Map = Backbone.View.extend({
-                tagName: 'div',
-                className: 'height-full',
-
-                initialize: function () {
-                    var view = this;
-
-                    _.bindAll(view);
-                },
-
-                render: function () {
-                    var view = this;
-
-                    view.$el.html(ich.map());
-
-                    return view;
-                }
-
+            Application.Views.Map = new Marionette.ItemView({
+                template: 'map',
+                className: 'height-full'
             });
         }
 
         Application.showMapView = function () {
             if (maptype.is3d()) {
-                var mapView = new Application.Views.Map({
-                    model: Application.model
-                });
+                var mapView = Application.Views.Map;
 
                 mapView.on('show', function () {
                     require(['js/controllers/geospatial.controller',
@@ -115,57 +73,16 @@ define(['jquery',
                              'js/widgets/draw.circle'
                             ], function (GeoController, DrawExtent, DrawCircle) {
 
-                        // Create geo controller
                         var geoController = new GeoController();
-                        wreqr.vent.on('map:show', function (model) {
-                            geoController.flyToLocation(model);
-                        });
-                        wreqr.vent.on('search:start', function () {
-                            geoController.clearResults();
-                        });
-                        wreqr.vent.on('search:results', function (result, zoomOnResults) {
-                            geoController.showResults(result.get('results'));
-                            if (zoomOnResults) {
-                                geoController.flyToCenterPoint(result.get('results'));
-                            }
-                        });
-                        wreqr.vent.on('search:clear', function () {
-                            geoController.clearResults();
-                            geoController.billboardCollection.removeAll();
-                        });
 
-                        if (wreqr.reqres.hasHandler('search:results')) {
-                            geoController.showResults(wreqr.reqres.request('search:results').get('results'));
-                        }
-
-                        // Create draw extent controller
-                        var drawExentController = new DrawExtent.Controller({
+                        new DrawExtent.Controller({
                             scene: geoController.scene,
                             notificationEl: $('#notificationBar')
                         });
-                        wreqr.vent.on('draw:extent', function (model) {
-                            drawExentController.draw(model);
-                        });
-                        wreqr.vent.on('draw:stop', function () {
-                            drawExentController.stop();
-                        });
-                        wreqr.vent.on('draw:end', function () {
-                            drawExentController.destroy();
-                        });
 
-                        // Create draw circle controller
-                        var drawCircleController = new DrawCircle.Controller({
+                        new DrawCircle.Controller({
                             scene: geoController.scene,
                             notificationEl: $('#notificationBar')
-                        });
-                        wreqr.vent.on('draw:circle', function (model) {
-                            drawCircleController.draw(model);
-                        });
-                        wreqr.vent.on('draw:stop', function () {
-                            drawCircleController.stop();
-                        });
-                        wreqr.vent.on('draw:end', function () {
-                            drawCircleController.destroy();
                         });
                     });
                 });
@@ -243,18 +160,6 @@ define(['jquery',
                 }
             }
         });
-
-        ApplicationModel = Backbone.Model.extend({
-            defaults: {
-
-            },
-
-            initialize: function () {
-            }
-
-        });
-        // Set up the application level model for state persistence
-        Application.model = new ApplicationModel();
 
         Application.module = function (props) {
             return _.extend({ Views: {} }, Backbone.Events, props);

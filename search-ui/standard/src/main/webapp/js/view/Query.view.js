@@ -150,7 +150,7 @@ define(function (require) {
         },
 
         updateScrollbar: function () {
-            this.trigger('content-update');
+            wreqr.vent.trigger('query:update');
         },
 
         serializeData: function () {
@@ -302,7 +302,6 @@ define(function (require) {
         },
 
         search: function () {
-            wreqr.vent.trigger('search:start');
             //check that we can even perform a search
             //the model has 4 default attributes, so if we only have 4
             //then we have no search criteria
@@ -341,7 +340,7 @@ define(function (require) {
                 result.url = result.syncUrl;
             }
 
-            this.trigger('search', result, this.model, this.sources.length, progress);
+            wreqr.vent.trigger('search:start', result, this.model, this.sources.length, progress);
 
             // disable the whole form
             this.$('button').addClass('disabled');
@@ -362,7 +361,6 @@ define(function (require) {
                     //re-enable the whole form
                     view.$('button').removeClass('disabled');
                     view.$('input').prop('disabled',false);
-                    view.trigger('searchComplete', result, view.zoomOnResults);
                     wreqr.vent.trigger('search:results', result, view.zoomOnResults);
                 });
 
@@ -380,7 +378,6 @@ define(function (require) {
             if (!_.isUndefined(this.result)) {
                 this.result.clear();
             }
-            this.trigger('clear');
             wreqr.vent.trigger('search:clear');
             $('input[name=q]').focus();
             this.zoomOnResults = false;

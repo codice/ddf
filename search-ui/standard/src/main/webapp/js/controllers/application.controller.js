@@ -19,9 +19,7 @@ define(['jquery',
 
             renderApplicationViews: function () {
                 var controller = this,
-                    mainView = new app.Views.Main({
-                        model: app.model
-                    }),
+                    mainView = new app.Views.Main(),
                     headerLayout = new app.Views.HeaderLayout(),
                     footerLayout = new app.Views.FooterLayout();
 

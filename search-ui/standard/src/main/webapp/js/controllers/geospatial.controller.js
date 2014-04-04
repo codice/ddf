@@ -5,9 +5,10 @@ define(['underscore',
         'marionette',
         'cesium',
         'q',
+        'wreqr',
         'properties',
         'js/view/cesium.metacard'
-    ], function (_, Marionette, Cesium, Q, properties, CesiumMetacard) {
+    ], function (_, Marionette, Cesium, Q, wreqr, properties, CesiumMetacard) {
         "use strict";
 
         var Controller = Marionette.Controller.extend({
@@ -18,6 +19,15 @@ define(['underscore',
                 this.handler = new Cesium.ScreenSpaceEventHandler(this.scene.getCanvas());
                 this.setupEvents();
                 this.preloadBillboards();
+
+                wreqr.vent.on('map:show', _.bind(this.flyToLocation, this));
+                wreqr.vent.on('search:start', _.bind(this.clearResults, this));
+                wreqr.vent.on('search:results', _.bind(this.newResults, this));
+                wreqr.vent.on('search:clear', _.bind(this.clear, this));
+
+                if (wreqr.reqres.hasHandler('search:results')) {
+                    this.newResults(wreqr.reqres.request('search:results'));
+                }
             },
             createMap: function (mapDivId) {
                 var viewer, options;
@@ -254,6 +264,13 @@ define(['underscore',
                 }
             },
 
+            newResults: function (result, zoomOnResults) {
+                this.showResults(result.get('results'));
+                if (zoomOnResults) {
+                    this.flyToCenterPoint(result.get('results'));
+                }
+            },
+
             showResults: function (results) {
                 if (this.mapViews) {
                     this.mapViews.close();
@@ -262,6 +279,11 @@ define(['underscore',
                     collection: results,
                     geoController: this
                 }).render();
+            },
+
+            clear: function () {
+                this.clearResults();
+                this.billboardCollection.removeAll();
             },
 
             clearResults: function () {

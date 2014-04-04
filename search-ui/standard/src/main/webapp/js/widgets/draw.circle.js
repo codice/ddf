@@ -7,6 +7,7 @@ define(function (require) {
         Cesium = require('cesium'),
         _ = require('underscore'),
         app = require('application'),
+        wreqr = require('wreqr'),
         DrawExtent = require('./draw.extent'),
         maptype = require('maptype'),
         DrawCircle = app.module();
@@ -45,9 +46,7 @@ define(function (require) {
 
             this.primitive.asynchronous = false;
 
-
             this.scene.getPrimitives().add(this.primitive);
-
 
             this.listenTo(this.model, 'change:lat change:lon change:radius', this.updatePrimitive);
         },
@@ -216,6 +215,10 @@ define(function (require) {
         initialize: function (options) {
             this.scene = options.scene;
             this.notificationEl = options.notificationEl;
+
+            wreqr.vent.on('draw:circle', _.bind(this.draw, this));
+            wreqr.vent.on('draw:stop', _.bind(this.stop, this));
+            wreqr.vent.on('draw:end', _.bind(this.destroy, this));
         },
 
         draw: function (model) {

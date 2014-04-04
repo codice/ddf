@@ -12,9 +12,9 @@ define(function (require) {
         MetacardDetail = require('js/view/MetacardDetail.view'),
         MetacardModel = require('js/model/Metacard.js'),
         Backbone = require('backbone'),
-        app = require('application'),
         dir = require('direction'),
         ich = require('icanhaz'),
+        wreqr = require('wreqr'),
         SearchControl = {};
 
     require('perfectscrollbar');
@@ -94,14 +94,14 @@ define(function (require) {
                 this.queryForm = new QueryFormView({
                     sources : options.sources
                 });
-                this.listenTo(this.queryForm, 'content-update', this.updateScrollbar);
 
-                this.listenTo(this.queryForm, 'clear', this.onQueryClear);
-                this.listenTo(this.queryForm, 'search', this.onQueryClear);
-                this.listenTo(this.queryForm, 'search', this.setupProgress);
-                this.listenTo(this.queryForm, 'search', this.showEmptyResults);
-                this.listenTo(this.queryForm, 'searchComplete', this.showResults);
-                this.listenTo(app.App, 'model:context', this.showMetacardDetail);
+                wreqr.vent.on('query:update', _.bind(this.updateScrollbar, this));
+                wreqr.vent.on('search:clear', _.bind(this.onQueryClear, this));
+                wreqr.vent.on('search:start', _.bind(this.onQueryClear, this));
+                wreqr.vent.on('search:start', _.bind(this.setupProgress, this));
+                wreqr.vent.on('search:start', _.bind(this.showEmptyResults, this));
+                wreqr.vent.on('search:results', _.bind(this.showResults, this));
+                wreqr.vent.on('metacard:selected', _.bind(this.showMetacardDetail, this));
 
                 this.modelBinder = new Backbone.ModelBinder();
                 this.controlModel = new SearchControl.SearchControlModel();

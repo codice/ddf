@@ -7,6 +7,7 @@ define(function (require) {
         Cesium = require('cesium'),
         _ = require('underscore'),
         app = require('application'),
+        wreqr = require('wreqr'),
         maptype = require('maptype'),
         Draw = app.module();
 
@@ -242,6 +243,10 @@ define(function (require) {
         initialize: function (options) {
             this.scene = options.scene;
             this.notificationEl = options.notificationEl;
+
+            wreqr.vent.on('draw:extent', _.bind(this.draw, this));
+            wreqr.vent.on('draw:stop', _.bind(this.stop, this));
+            wreqr.vent.on('draw:end', _.bind(this.destroy, this));
         },
         draw: function (model) {
             if (this.enabled) {
