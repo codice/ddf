@@ -17,10 +17,10 @@
 	<parent>
 		<groupId>org.codice.ddf.spatial</groupId>
 		<artifactId>ogc</artifactId>
-		<version>2.4.0</version>
+		<version>2.4.1-SNAPSHOT</version>
 	</parent>
 	<artifactId>spatial-ogc-filter-v_1_1_0-schema</artifactId>
-	<version>2.4.0</version>
+	<version>1.1.0_1</version>
 	<name>DDF :: Spatial :: OGC :: Filter Schema 1.1.0 Bindings</name>
 	<description>Provides JAXB 2.x bindings for OGC Filter Schema (Version 1.1.0).</description>
 	<dependencies>
