@@ -17,7 +17,7 @@
 
   <groupId>org.codice.httpproxy</groupId>
   <artifactId>httpproxy-pom</artifactId>
-  <version>1.0.0.ALPHA2-SNAPSHOT</version>
+  <version>1.0.0.ALPHA2</version>
   <packaging>pom</packaging>
   <name>Codice DDF HTTP Proxy</name>
 
@@ -114,7 +114,7 @@
     <url>https://github.com/codice/ddf-http-proxy.git</url>
     <connection>scm:git:git://github.com/codice/ddf-http-proxy.git</connection>
     <developerConnection>scm:git:git://github.com/codice/ddf-http-proxy.git</developerConnection>
-    <tag>HEAD</tag>
+    <tag>ddf-httpproxy-1.0.0.ALPHA2</tag>
   </scm>
 
   <distributionManagement>
