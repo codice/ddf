@@ -359,7 +359,7 @@ public class TestCswRecordConverter {
         assertThat(ser, not(nullValue()));
         assertThat(Date.class.isAssignableFrom(ser.getClass()), is(true));
         Date date = (Date) ser;
-        Calendar cal = Calendar.getInstance();
+        Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
         cal.setTime(date);
         assertThat(cal.get(Calendar.MONTH), equalTo(Calendar.MAY));
         assertThat(cal.get(Calendar.YEAR), equalTo(2013));
