@@ -30,7 +30,7 @@
     <properties>
 	    <ddf.catalog.app.version>2.3.0</ddf.catalog.app.version>
 	    <ddf.platform.app.version>2.3.0</ddf.platform.app.version>
-		<ddf.httpproxy.version>1.0.0.ALPHA2-SNAPSHOT</ddf.httpproxy.version>
+		<ddf.httpproxy.version>1.0.0.ALPHA2</ddf.httpproxy.version>
 	</properties>
 	
     <modules>
