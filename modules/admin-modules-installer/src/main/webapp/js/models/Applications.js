@@ -20,38 +20,6 @@ define(function (require) {
     //require('backbonerelational');
     var Applications = {};
 
-//    Applications.Node = Backbone.RelationalModel.extend({
-//        relations: [{
-//            type: Backbone.HasMany,
-//            key: 'children',
-//            relatedModel: Applications.Root,
-//            collectionType: Applications.RootCollection,
-//            reverseRelation: {
-//                key: 'parent'
-//            }
-//        }]
-//    });
-//
-//    Applications.Root = Backbone.RelationalModel.extend({
-//        relations: [{
-//            type: Backbone.HasMany,
-//            key: 'children',
-//            relatedModel: Applications.Node,
-//            collectionType: Applications.NodeCollection,
-//            reverseRelation: {
-//                key: 'parent'
-//            }
-//        }]
-//    });
-//
-//    Applications.NodeCollection = Backbone.Collection.extend({
-//        model: Applications.Node
-//    });
-//
-//    Applications.RootCollection = Backbone.Collection.extend({
-//        model: Applications.Root
-//    });
-
     Applications.TreeNode = Backbone.Model.extend({
        defaults: function() {
             return {
@@ -108,7 +76,7 @@ define(function (require) {
     });
 
     Applications.Report = Backbone.Model.extend({
-        url: '/jolokia/read/org.codice.ddf.admin.application.service.ApplicationService:service=application,version=1.0.0/ApplicationTree/'
+        url: '/jolokia/read/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/ApplicationTree/'
     });
 
     return Applications;

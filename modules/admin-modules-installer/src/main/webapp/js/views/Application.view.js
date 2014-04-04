@@ -75,11 +75,6 @@ define(function (require) {
         }
     });
 
-//    var ItemView = Marionette.ItemView.extend({
-//        template: 'applicationNodeTemplate',
-//        tagName: 'ul'
-//    });
-
     var TreeView = Marionette.CollectionView.extend({
         itemView: AppTreeView
     });
@@ -91,7 +86,7 @@ define(function (require) {
         className: 'full-height',
         model: new AppModel.TreeNodeCollection(applicationData),
         regions: {
-            applications: '#applications',
+            applications: '#apps-tree',
             details: '#details'
         },
 
@@ -130,7 +125,7 @@ define(function (require) {
 
     var DetailsView = Marionette.ItemView.extend({
         template: 'detailsTemplate',
-        tagName: 'div',
+        tagName: 'div'
     });
 
     return ApplicationView;
