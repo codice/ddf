@@ -16,7 +16,7 @@
     <parent>
         <artifactId>search-ui</artifactId>
         <groupId>ddf.ui.search</groupId>
-        <version>2.3.1.ALPHA2-SNAPSHOT</version>
+        <version>2.3.1.ALPHA2</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <packaging>bundle</packaging>
@@ -76,7 +76,7 @@
                     <instructions>
 						<Embed-Dependency>proxy-camel-servlet,camel-core-osgi,camel-http,proxy-camel-route</Embed-Dependency>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-						<Import/>
+						<Import />
                         <Export-Package>
                         org.codice.proxy.http
                         </Export-Package>
