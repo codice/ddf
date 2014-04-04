@@ -1,4 +1,4 @@
-/*global console, define, require */
+/*global define, require */
 /*jslint nomen:false, -W064 */
 
 define(['config'], function () {
@@ -45,7 +45,6 @@ define(['config'], function () {
         // Backbone.history.
         app.App.on('initialize:after', function() {
             Backbone.history.start();
-            console.log('application running');
         });
 
         // Actually start up the application.
