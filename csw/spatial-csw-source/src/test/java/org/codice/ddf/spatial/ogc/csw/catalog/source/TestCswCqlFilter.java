@@ -204,8 +204,6 @@ public class TestCswCqlFilter {
 
     private final double distance = 123.456;
 
-    DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss.SSSZZ");
-
     private static final String REPLACE_START_DATE = "REPLACE_START_DATE";
 
     private static final String REPLACE_END_DATE = "REPLACE_END_DATE";

@@ -192,8 +192,6 @@ public class TestCswFilterDelegate {
 
     private static final String POINT_WKT = "POINT (30 10)";
 
-    DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss.SSSZZ");
-
     private static final String REPLACE_START_DATE = "REPLACE_START_DATE";
 
     private static final String REPLACE_END_DATE = "REPLACE_END_DATE";
