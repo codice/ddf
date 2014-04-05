@@ -30,7 +30,7 @@
   <properties>
     <cas.client.version>3.1.10</cas.client.version>
     <cas.client.bundle.version>${cas.client.version}_1</cas.client.bundle.version>
-    <ddf.platform.app.version>2.3.0</ddf.platform.app.version>
+    <ddf.platform.app.version>2.3.1</ddf.platform.app.version>
   </properties>
 
   <dependencyManagement>
