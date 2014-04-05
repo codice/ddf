@@ -31,7 +31,7 @@
 
     <properties>
         <ddf.catalog.app.version>2.3.1.ALPHA1</ddf.catalog.app.version>
-        <ddf.platform.app.version>2.3.0</ddf.platform.app.version>
+        <ddf.platform.app.version>2.3.1</ddf.platform.app.version>
         <handlebars.version>1.1.2</handlebars.version>
         <jaxb.annotate.plugin.version>0.6.0</jaxb.annotate.plugin.version>
         <jaxb.visitor.plugin.version>1.13</jaxb.visitor.plugin.version>
