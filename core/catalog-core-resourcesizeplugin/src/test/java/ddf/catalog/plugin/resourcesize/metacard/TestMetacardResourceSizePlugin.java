@@ -41,12 +41,13 @@ import ddf.catalog.operation.QueryResponse;
 public class TestMetacardResourceSizePlugin {
 
     @Test
-    public void testMetacardResourceSizePopulated() throws Exception {
+    public void testMetacardResourceSizePopulatedAndHasProduct() throws Exception {
         CacheManager cacheManager = mock(CacheManager.class);
         Cache cache = mock(Cache.class);
         when(cacheManager.getCache(anyString())).thenReturn(cache);
         CachedResource cachedResource = mock(CachedResource.class);
         when(cachedResource.getSize()).thenReturn(999L);
+        when(cachedResource.hasProduct()).thenReturn(true);
         when(cache.get(anyObject())).thenReturn(cachedResource);
         
         MetacardImpl metacard = new MetacardImpl();
@@ -70,6 +71,46 @@ public class TestMetacardResourceSizePlugin {
         // Attribute vs. Long
         Attribute resourceSizeAttr = resultMetacard.getAttribute(Metacard.RESOURCE_SIZE);
         assertThat((Long)resourceSizeAttr.getValue(), is(999L));
+    }
+
+    /**
+     * Verifies case where product has been cached previously but has since
+     * been deleted from the product-cache directory, so there is still an
+     * entry in the cache map but no cache file on disk.
+     * 
+     * @throws Exception
+     */
+    @Test
+    public void testMetacardResourceSizePopulatedButNoProduct() throws Exception {
+        CacheManager cacheManager = mock(CacheManager.class);
+        Cache cache = mock(Cache.class);
+        when(cacheManager.getCache(anyString())).thenReturn(cache);
+        CachedResource cachedResource = mock(CachedResource.class);
+        when(cachedResource.getSize()).thenReturn(999L);
+        when(cachedResource.hasProduct()).thenReturn(false);
+        when(cache.get(anyObject())).thenReturn(cachedResource);
+        
+        MetacardImpl metacard = new MetacardImpl();
+        metacard.setId("abc123");
+        metacard.setSourceId("ddf-1");
+        metacard.setResourceSize("N/A");
+        
+        Result result = new ResultImpl(metacard);
+        List<Result> results = new ArrayList<Result>();
+        results.add(result);
+
+        QueryResponse input = mock(QueryResponse.class);
+        when(input.getResults()).thenReturn(results);
+        
+        MetacardResourceSizePlugin plugin = new MetacardResourceSizePlugin(cacheManager);
+        QueryResponse queryResponse = plugin.process(input);
+        assertThat(queryResponse.getResults().size(), is(1));
+        Metacard resultMetacard = queryResponse.getResults().get(0).getMetacard();
+        assertThat(metacard, is(notNullValue()));
+        // Since using Metacard vs. MetacardImpl have to get resource-size as an
+        // Attribute vs. String
+        Attribute resourceSizeAttr = resultMetacard.getAttribute(Metacard.RESOURCE_SIZE);
+        assertThat((String)resourceSizeAttr.getValue(), equalTo("N/A"));
     }
     
     @Test

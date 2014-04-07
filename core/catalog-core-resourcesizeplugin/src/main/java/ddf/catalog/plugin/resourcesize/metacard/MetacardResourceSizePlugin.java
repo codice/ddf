@@ -80,7 +80,7 @@ public class MetacardResourceSizePlugin implements PostQueryPlugin {
                 }
                 if (cachedResource != null) {
                     long resourceSize = cachedResource.getSize();
-                    if (resourceSize > 0) {
+                    if (resourceSize > 0 && cachedResource.hasProduct()) {
                         LOGGER.debug("Setting resourceSize = {} for metacard ID = {}", resourceSize, metacard.getId());
                         Attribute resourceSizeAttribute = new AttributeImpl(Metacard.RESOURCE_SIZE, resourceSize);
                         metacard.setAttribute(resourceSizeAttribute);
