@@ -1,32 +1,18 @@
 <ul class="pager">
 
-    {{#if hasPrevious}}
-        <li>
-            <a id="previousStep" class="previous" href="#">&larr; Previous Step</a>
-        </li>
-    {{/if}}
-    {{#if hasNext}}
-        {{#ifNotAnd hasPrevious}}
-            <li>
-                <a id="startStep" class="next" href="#">Start &rarr;</a>
-            </li>
-        {{else}}
-            <li>
-                <a id="nextStep" class="next" href="#">Next Step &rarr;</a>
-            </li>
-        {{/ifNotAnd}}
-    {{else}}
-        <li>
-            <a id="finishStep" class="next" href="#">Finish</a>
-        </li>
-    {{/if}}
+
 
 </ul>
+<div class="last-progress-text-area">
+
+</div>
+<div class="progress-text-area">
+    <span class="progress-text" name="message">{{message}}</span>
+</div>
 <center>
     <div class="progress">
-        <div class="progress-bar" role="progressbar" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100" style="width:{{percentComplete}}%">
-            <span class="sr-only">{{percentComplete}}% Complete</span>
-        </div>
-    </div> <b>Step {{stepNumber}} of {{totalSteps}}</b>
+        <div class="progress-bar" role="progressbar" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
 
+        </div>
+    </div>
 </center>

@@ -9,6 +9,10 @@ define([
     Application.App.module('Installation', function(AppModule, App, Backbone, Marionette, $, _) {
 
         var installerModel = new InstallerModel.Model();
+        //welcome
+        //config
+        //apps
+        installerModel.setTotalSteps(3);
 
         // Define a view to show
         // ---------------------

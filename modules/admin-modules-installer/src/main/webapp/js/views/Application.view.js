@@ -120,7 +120,37 @@ define([
             this.stopListening(applicationModel);
         },
         next: function () {
-            //this is your hook to perform any validation you need to do before going to the next step
+        //leaving this code in here as a starting point for the person that implements this
+//            var sleep = function(millis, callback) {
+//                setTimeout(function() {
+//                    callback();
+//                }, millis);
+//            };
+//            var view = this;
+//            //this is your hook to perform any validation you need to do before going to the next step
+//            var install1 = function() {
+//                view.navigationModel.trigger('block');
+//                view.navigationModel.nextStep("Installing Catalog", 0);
+//                sleep(1000, install2);
+//            };
+//            var install2 = function() {
+//                view.navigationModel.nextStep("Installing Solr", 25);
+//                sleep(1000, install3);
+//            };
+//            var install3 = function() {
+//                view.navigationModel.nextStep("Installing UI", 50);
+//                sleep(1000, install4);
+//            };
+//            var install4 = function() {
+//                view.navigationModel.nextStep("Installing LDAP", 75);
+//                sleep(1000, install5);
+//            };
+//            var install5 = function() {
+//                view.navigationModel.nextStep("Finished App Install", 100);
+//                view.navigationModel.trigger('unblock');
+//            };
+//            install1();
+
             this.navigationModel.nextStep();
         },
         previous: function () {

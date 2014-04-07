@@ -17,10 +17,14 @@
 define([
     'marionette',
     'icanhaz',
-    'text!/installer/templates/navigation.handlebars'
-    ], function (Marionette, ich, navigationTemplate) {
+    'text!/installer/templates/navigation.handlebars',
+    'text!/installer/templates/navigationButtons.handlebars',
+    'backbone',
+    'modelbinder'
+    ], function (Marionette, ich, navigationTemplate, navButtons, Backbone) {
 
     ich.addTemplate('navigationTemplate', navigationTemplate);
+    ich.addTemplate('navButtons', navButtons);
 
     var WelcomeView = Marionette.ItemView.extend({
         template: 'navigationTemplate',
@@ -30,7 +34,23 @@ define([
             'click .next': 'next'
         },
         initialize: function() {
-            this.listenTo(this.model, 'change', this.render);
+            this.listenTo(this.model, 'change', this.updateProgress);
+            this.modelBinder = new Backbone.ModelBinder();
+        },
+        onRender: function() {
+            var bindings = Backbone.ModelBinder.createDefaultBindings(this.el, 'name');
+            this.modelBinder.bind(this.model, this.$el, bindings);
+            this.updateProgress();
+        },
+        close: function() {
+            this.stopListening(this.model);
+        },
+        updateProgress: function() {
+            if(this.percentComplete !== this.model.get('percentComplete')) {
+                this.$(".progress-bar").animate({width: this.model.get('percentComplete')+'%'}, 0, 'swing');
+            }
+            this.$(".pager").html(ich.navButtons(this.model.toJSON()));
+            this.percentComplete = this.model.get('percentComplete');
         },
         previous: function() {
             this.model.trigger('previous');

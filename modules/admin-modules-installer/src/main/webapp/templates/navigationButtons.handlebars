@@ -1,0 +1,32 @@
+{{#if hasPrevious}}
+    <li>
+        {{#if busy}}
+            <a id="previousStep" class="disabled-previous" href="#" >&larr; Previous Step</a>
+        {{else}}
+            <a id="previousStep" class="previous" href="#" >&larr; Previous Step</a>
+        {{/if}}
+    </li>
+{{/if}}
+{{#if hasNext}}
+    {{#ifNotAnd hasPrevious}}
+        <li>
+            {{#if busy}}
+                <a id="startStep" class="disabled-next" href="#">Start &rarr;</a>
+            {{else}}
+                <a id="startStep" class="next" href="#">Start &rarr;</a>
+            {{/if}}
+        </li>
+    {{else}}
+        <li>
+            {{#if busy}}
+                <a id="nextStep" class="disabled-next" href="#">Next Step &rarr;</a>
+            {{else}}
+                <a id="nextStep" class="next" href="#">Next Step &rarr;</a>
+            {{/if}}
+        </li>
+    {{/ifNotAnd}}
+{{else}}
+    <li>
+        <a id="finishStep" class="next" href="#">Finish</a>
+    </li>
+{{/if}}

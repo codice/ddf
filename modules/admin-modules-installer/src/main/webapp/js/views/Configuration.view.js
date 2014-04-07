@@ -175,9 +175,9 @@ define([
             var saved = configuration.save();
             if(saved) {
                 saved.success(function() {
-                    view.navigationModel.nextStep();
+                    view.navigationModel.nextStep('Saved Configuration', 100);
                 }).fail(function() {
-                      //do something for a failure
+                    view.navigationModel.nextStep('Unable to Save Configuration: check logs', 0);
                   });
             }
         },

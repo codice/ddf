@@ -62,3 +62,35 @@
     padding-bottom: 20px;
     display: block;
 }
+.progress-text {
+    position:relative;
+    color: black;
+    display: table-cell;
+    vertical-align: middle;
+    margin-top: 1px;
+    width: 100%;
+    height: 30px;
+    text-align: center;
+    font-size: 14px;
+
+    z-index: 5000;
+}
+center {
+    position: relative;
+    clear: both;
+}
+.progress-text-area {
+    float: left;
+}
+.step-text-area {
+    float: right;
+}
+.progress {
+    background-color: #AAA;
+}
+.disabled-next {
+    background-color: #DDD !important;
+}
+.disabled-previous {
+    background-color: #DDD !important;
+}
