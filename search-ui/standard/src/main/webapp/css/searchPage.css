@@ -486,3 +486,31 @@ div.multiselect div.ui-multiselect-header {
     border: 2px solid white; /* should match background, can't be transparent */
     background-color: rgba(0, 0, 0, .5);
 }
+
+.notification-time {
+    font-size: .6em;
+    color: #ffffff;
+}
+
+.notification-message {
+	padding-top: 1em;
+	padding-bottom: 1em;
+	color: #ffffff;
+	font-size: .9em;
+}
+
+.notification-title{
+	color: #c0c0c0;
+}
+
+.notification-subtitle { 
+	padding-top: 1em;
+	padding-bottom: 1em;
+	font-weight: bold;
+	font-style: italic;
+	color: #c0c0c0;
+}
+
+.notification-hr {
+	margin: 0px;
+}

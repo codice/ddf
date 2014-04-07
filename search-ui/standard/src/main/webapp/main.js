@@ -46,6 +46,10 @@ define(['config'], function () {
         app.App.on('initialize:after', function() {
             Backbone.history.start();
         });
+        
+        app.App.addInitializer(function() {
+            require(["js/Notification.module"]);
+        });
 
         // Actually start up the application.
         app.App.start({});

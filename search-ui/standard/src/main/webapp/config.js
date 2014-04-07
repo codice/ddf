@@ -53,7 +53,10 @@
 
             // require plugins
             text: 'lib/requirejs-plugins/lib/text',
-            css: 'lib/require-css/css.min'
+            css: 'lib/require-css/css.min',
+            
+            // pnotify
+            pnotify: 'lib/pnotify/jquery.pnotify.min'
         },
 
 
