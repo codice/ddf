@@ -128,7 +128,8 @@ public abstract class AbstractFeatureConverter implements FeatureConverter {
 
             if (attributeDescriptor != null
                     && (StringUtils.isNotBlank(reader.getValue()) || BasicTypes.GEO_TYPE
-                            .equals(attributeDescriptor.getType()))) {
+                            .getAttributeFormat().equals(attributeDescriptor.getType()
+                                    .getAttributeFormat()))) {
                 value = writeFeaturePropertyToMetacardAttribute(attributeDescriptor.getType()
                         .getAttributeFormat(), reader);
 
