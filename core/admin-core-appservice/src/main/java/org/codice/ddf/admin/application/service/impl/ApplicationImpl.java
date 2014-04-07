@@ -15,6 +15,7 @@
 package org.codice.ddf.admin.application.service.impl;
 
 import java.io.Serializable;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -51,6 +52,8 @@ public class ApplicationImpl implements Application, Comparable<Application> {
 
     private String description;
 
+    private URI location;
+
     /**
      * Creates a new instance of application.
      * 
@@ -59,6 +62,7 @@ public class ApplicationImpl implements Application, Comparable<Application> {
      *            object.
      */
     public ApplicationImpl(Repository repo) {
+        location = repo.getURI();
         try {
             features = new HashSet<Feature>(Arrays.asList(repo.getFeatures()));
         } catch (Exception e) {
@@ -176,4 +180,8 @@ public class ApplicationImpl implements Application, Comparable<Application> {
 
     }
 
+    @Override
+    public URI getURI() {
+        return location;
+    }
 }

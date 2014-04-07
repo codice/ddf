@@ -14,6 +14,7 @@
  **/
 package org.codice.ddf.admin.application.service;
 
+import java.net.URI;
 import java.util.Set;
 
 import org.apache.karaf.features.Feature;
@@ -102,6 +103,51 @@ public interface ApplicationService {
      *             message.
      */
     void stopApplication(String application) throws ApplicationServiceException;
+
+    /**
+     * Adds a new application to the application list.
+     * <br/>
+     * <br/>
+     * <b>NOTE: This does NOT start the application</b>
+     * 
+     * @param applicationURL
+     *            URL location of the application. Currently must be a features
+     *            repository.
+     * @throws ApplicationServiceException
+     *             If there is an error trying to add the application.
+     */
+    void addApplication(URI applicationURL) throws ApplicationServiceException;
+
+    /**
+     * Removes an application that has the given URI.
+     * 
+     * @param applicationURL
+     *            URL location of the application. Currently must be a features
+     *            repository.
+     * @throws ApplicationServiceException
+     *             If there is an error trying to remove the application.
+     */
+    void removeApplication(URI applicationURL) throws ApplicationServiceException;
+
+    /**
+     * Removes the given application.
+     * 
+     * @param application
+     *            Application instance to remove.
+     * @throws ApplicationServiceException
+     *             If there is an error trying to remove the application.
+     */
+    void removeApplication(Application application) throws ApplicationServiceException;
+
+    /**
+     * Removes an application that has the given name.
+     * 
+     * @param applicationName
+     *            Name of the application to remove.
+     * @throws ApplicationServiceException
+     *             If there is an error trying to remove the application.
+     */
+    void removeApplication(String applicationName) throws ApplicationServiceException;
 
     /**
      * Retrieve the status for the given application.

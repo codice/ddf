@@ -14,6 +14,8 @@
  **/
 package org.codice.ddf.admin.application.service.impl;
 
+import java.io.File;
+import java.net.URI;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -431,6 +433,40 @@ public class ApplicationServiceImpl implements ApplicationService {
         }
         throw new ApplicationServiceException("Could not find application named " + application
                 + ". Stop application failed.");
+    }
+
+    @Override
+    public void addApplication(URI applicationURL) throws ApplicationServiceException {
+        try {
+            if (applicationURL.toString().startsWith("file:")) {
+                ApplicationFileInstaller.install(new File(applicationURL));
+            } else {
+                featuresService.addRepository(applicationURL, false);
+            }
+        } catch (Exception e) {
+            logger.warn("Could not add new application due to error.", e);
+            throw new ApplicationServiceException(e);
+        }
+    }
+
+    @Override
+    public void removeApplication(URI applicationURL) throws ApplicationServiceException {
+        try {
+            featuresService.removeRepository(applicationURL);
+        } catch (Exception e) {
+            logger.warn("Could not remove application due to error.", e);
+            throw new ApplicationServiceException(e);
+        }
+    }
+
+    @Override
+    public void removeApplication(Application application) throws ApplicationServiceException {
+        removeApplication(application.getURI());
+    }
+
+    @Override
+    public void removeApplication(String applicationName) throws ApplicationServiceException {
+        removeApplication(getApplication(applicationName));
     }
 
 }

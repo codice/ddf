@@ -37,6 +37,11 @@
         <feature>admin-ui</feature>
         <bundle>mvn:ddf.admin.modules/admin-modules-configuration/${project.version}</bundle>
     </feature>
+    
+    <feature name="admin-modules-installer" install="manual" version="${project.version}" description="DDF Installer Module">
+        <feature>admin-ui</feature>
+        <bundle>mvn:ddf.admin.modules/admin-modules-installer/${project.version}</bundle>
+    </feature>
    
     <feature name="admin-app" install="auto" version="${project.version}" description="DDF Administration Tools">
         <feature>admin-core</feature>
