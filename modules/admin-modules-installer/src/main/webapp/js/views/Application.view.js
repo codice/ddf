@@ -14,23 +14,30 @@
  **/
 /*global define*/
 /** Main view page for add. */
-define(function (require) {
+define([
+    'backbone',
+    'marionette',
+    '/installer/js/models/Applications.js',
+    'icanhaz',
+    'text!/installer/templates/application.handlebars',
+    'text!/installer/templates/applicationNode.handlebars',
+    'text!/installer/templates/details.handlebars'
+], function(Backbone, Marionette, AppModel, ich, applicationTemplate, applicationNodeTemplate, detailsTemplate) {
     "use strict";
-    var Backbone = require('backbone'),
-        Marionette = require('marionette'),
-        AppModel = require('/installer/js/models/Applications.js'),
-        vent = require('/installer/js/vent.js'),
-        ich = require('icanhaz');
 
-    ich.addTemplate('applicationTemplate', require('text!/installer/templates/application.handlebars'));
-    ich.addTemplate('applicationNodeTemplate', require('text!/installer/templates/applicationNode.handlebars'));
-    ich.addTemplate('detailsTemplate', require('text!/installer/templates/details.handlebars'));
+    ich.addTemplate('applicationTemplate', applicationTemplate);
+    ich.addTemplate('applicationNodeTemplate', applicationNodeTemplate);
+    ich.addTemplate('detailsTemplate', detailsTemplate);
 
+    var applicationModel = new AppModel.TreeNodeCollection();
 
-    var appReportModel = new AppModel.Report();
-    appReportModel.fetch({async: false});
+    var appResponse = new AppModel.Response();
+    appResponse.fetch({
+        success: function(model){
+            applicationModel.set(model.get("value"));
+        }
+    });
 
-    var applicationData = appReportModel.get("value");
 
     // Recursive tree view
     var AppTreeView = Marionette.CompositeView.extend({
@@ -52,11 +59,11 @@ define(function (require) {
         },
 
         hoveringApp: function(e) {
-            vent.trigger("app:hover", this.model, e);
+            applicationModel.trigger("app:hover", this.model, e);
         },
 
         leavingApp: function() {
-            vent.trigger("app:hoverexit");
+            applicationModel.trigger("app:hoverexit");
         },
 
         onRender: function () {
@@ -84,7 +91,7 @@ define(function (require) {
         template: 'applicationTemplate',
         tagName: 'div',
         className: 'full-height',
-        model: new AppModel.TreeNodeCollection(applicationData),
+        model: applicationModel,
         regions: {
             applications: '#apps-tree',
             details: '#details'
@@ -95,23 +102,22 @@ define(function (require) {
             this.navigationModel = options.navigationModel;
             this.listenTo(this.navigationModel, 'next', this.next);
             this.listenTo(this.navigationModel, 'previous', this.previous);
-            this.listenTo(vent, "app:hover", function(appSelected, e){
+            this.listenTo(applicationModel, "app:hover", function(appSelected, e){
                 // verify we have model that matches the selected target (either the checkbox or text)
                 if (e.currentTarget.id.lastIndexOf(appSelected.get("name")) === 0){
                     self.details.show(new DetailsView({model: appSelected}));
                 }
             });
-            this.listenTo(vent, "app:hoverexit", function(){
+            this.listenTo(applicationModel, "app:hoverexit", function(){
                 self.details.close();
             });
         },
         onRender: function () {
             this.applications.show(new TreeView({collection: this.model}));
-            //this.details.show(new DetailsView(this.model));
         },
         onClose: function () {
             this.stopListening(this.navigationModel);
-            this.stopListening(vent);
+            this.stopListening(applicationModel);
         },
         next: function () {
             //this is your hook to perform any validation you need to do before going to the next step

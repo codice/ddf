@@ -3,7 +3,7 @@
 //var x = require('casper').selectXPath;
 casper.options.viewportSize = {width: 2452, height: 868};
 //casper.options.logLevel = 'debug';
-casper.options.waitTimeout = '100000';
+//casper.options.waitTimeout = '100000';
 
 casper.test.begin('Application Selection View test', function(test) {
     casper.start('http://localhost:8383');
@@ -13,7 +13,7 @@ casper.test.begin('Application Selection View test', function(test) {
         test.pass('Found welcome container div');
     },
     function fail() {
-        test.pass('Did not find welcome container div');
+        test.fail('Did not find welcome container div');
     });
 
     casper.waitForSelector('#applications',
@@ -21,7 +21,7 @@ casper.test.begin('Application Selection View test', function(test) {
         test.pass('Found applications container div');
     },
     function fail() {
-        test.pass('Did not find applications container div');
+        test.fail('Did not find applications container div');
     });
 
     casper.waitFor(function() {

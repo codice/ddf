@@ -16,8 +16,8 @@
 define(function (require) {
     "use strict";
 
-    var Backbone = require('backbone');
-    //require('backbonerelational');
+    var Backbone = require('backbone'),
+    _ = require('underscore');
     var Applications = {};
 
     Applications.TreeNode = Backbone.Model.extend({
@@ -51,17 +51,18 @@ define(function (require) {
          }
        },
 
-       createDisplayName: function(){
-           var names = this.get("name").split('-');
-           var dispName = "";
-           for (var i=0; i < names.length; i++) {
-               if (i > 0) {
-                   dispName = dispName + " ";
-               }
-               dispName = dispName + this.capitalizeFirstLetter(names[i]);
-           }
-           return dispName;
-       },
+        createDisplayName: function(){
+            var names = this.get("name").split('-');
+            var dispName = "";
+            var that = this;
+            _.each(names, function(name) {
+                if (dispName.length > 0) {
+                    dispName = dispName + " ";
+                }
+                dispName = dispName + that.capitalizeFirstLetter(name);
+            });
+            return dispName;
+        },
 
        capitalizeFirstLetter: function(string){
            if (string && string !== ""){
@@ -75,7 +76,7 @@ define(function (require) {
         model: Applications.TreeNode
     });
 
-    Applications.Report = Backbone.Model.extend({
+    Applications.Response = Backbone.Model.extend({
         url: '/jolokia/read/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/ApplicationTree/'
     });
 

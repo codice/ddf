@@ -10,7 +10,7 @@ casper.test.begin('Configuration View test', function(test) {
         test.pass('Found welcome container div');
     },
     function fail() {
-        test.pass('Did not find welcome container div');
+        test.fail('Did not find welcome container div');
     });
 
     casper.waitForSelector('#configuration',
@@ -18,7 +18,7 @@ casper.test.begin('Configuration View test', function(test) {
         test.pass('Found configuration container div');
     },
     function fail() {
-        test.pass('Did not find configuration container div');
+        test.fail('Did not find configuration container div');
     });
 
     casper.waitFor(function() {
