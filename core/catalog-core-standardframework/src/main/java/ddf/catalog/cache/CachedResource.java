@@ -14,9 +14,32 @@
  **/
 package ddf.catalog.cache;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.Serializable;
+import java.util.Arrays;
+import java.util.Timer;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+
+import javax.activation.MimeType;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.io.ByteSource;
 import com.google.common.io.CountingOutputStream;
 import com.google.common.io.FileBackedOutputStream;
+
 import ddf.cache.CacheException;
 import ddf.catalog.event.retrievestatus.DownloadsStatusEventPublisher;
 import ddf.catalog.operation.ResourceResponse;
@@ -25,25 +48,6 @@ import ddf.catalog.resource.ResourceNotFoundException;
 import ddf.catalog.resource.ResourceNotSupportedException;
 import ddf.catalog.resource.impl.ResourceImpl;
 import ddf.catalog.resourceretriever.ResourceRetriever;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.builder.ToStringBuilder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.activation.MimeType;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.Serializable;
-import java.util.Timer;
-import java.util.concurrent.CancellationException;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 
 /**
  * Contains the details of a Resource including where it is stored and how to retrieve that Resource
@@ -247,11 +251,18 @@ public class CachedResource extends InputStream implements Resource, Serializabl
 
         // Get handle to retrieved product's InputStream
         final InputStream source = resource.getInputStream();
+        
+        final FileOutputStream fos;
+        try {
+            fos = FileUtils.openOutputStream(new File(filePath));
+        } catch (IOException e) {
+            throw new CacheException("Unable to open cache file " + filePath);
+        }
 
         Runnable cacheThread = new Runnable() {
             @Override
             public void run() {
-                cacheFile(source, countingFbos, filePath, resourceCache, retriever, resourceResponse);
+                cacheFile(source, countingFbos, filePath, fos, resourceCache, retriever, resourceResponse);
             }
         };
 
@@ -273,17 +284,14 @@ public class CachedResource extends InputStream implements Resource, Serializabl
      * @param retriever
      */
     private void cacheFile(InputStream source, CountingOutputStream countingFbos,
-            String filePath, ResourceCache resourceCache, ResourceRetriever retriever,
+            String filePath, FileOutputStream fos, ResourceCache resourceCache, ResourceRetriever retriever,
             ResourceResponse resourceResponse) {
 
         long bytesRead = 0;
         CachedResourceStatus cachedResourceStatus = null;
         int retryAttempts = 0;
-        FileOutputStream fos = null;
 
         try {
-            fos = FileUtils.openOutputStream(new File(filePath));
-
             // Must cache file in separate thread (Callable) because PipedOutputStream must write
             // in a separate thread from the thread that PipedInputStream will read -
             // otherwise deadlock will occur after the pipie's circular buffer fills up,
@@ -301,6 +309,10 @@ public class CachedResource extends InputStream implements Resource, Serializabl
                     LOGGER.debug("CallableCacheProduct is null - can't do any caching, delete partially cached file");
                     IOUtils.closeQuietly(fos);
                     FileUtils.deleteQuietly(new File(filePath));
+                    eventPublisher.postRetrievalStatus(resourceResponse,
+                            DownloadsStatusEventPublisher.PRODUCT_RETRIEVAL_FAILED,
+                            "Unable to retrieve product file.",
+                            cachedResourceStatus.getBytesRead());
                     break;
                 }
                 retryAttempts++;
@@ -597,6 +609,7 @@ public class CachedResource extends InputStream implements Resource, Serializabl
     @Override
     public void close() throws IOException {
         LOGGER.debug("ENTERING: close()");
+        LOGGER.debug(Arrays.toString(Thread.currentThread().getStackTrace()));
         InputStream is = fbosByteSource.openStream();
         is.close();
 
@@ -617,6 +630,8 @@ public class CachedResource extends InputStream implements Resource, Serializabl
             // it created.
             LOGGER.debug("Resetting FBOS");
             fbos.reset();
+        } else {
+            LOGGER.debug("Continuing caching per admin setting even though user canceled download");
         }
     }
 
