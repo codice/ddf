@@ -26,8 +26,11 @@
             // jquery
             jquery: 'lib/jquery/jquery.min',
             jqueryui: 'lib/jquery-ui/ui/minified/jquery-ui.min',
+            'jquery.ui.widget': 'lib/jquery-ui/ui/minified/jquery.ui.widget.min',
             multiselect: 'lib/bootstrap-multiselect/js/bootstrap-multiselect',
             perfectscrollbar: 'lib/perfect-scrollbar/min/perfect-scrollbar-0.4.8.with-mousewheel.min',
+            fileupload: 'lib/jquery-file-upload/js/jquery.fileupload-ui',
+            fileuploadiframe: 'lib/jquery-file-upload/js/jquery.iframe-transport',
 
             // handlebars
             handlebars: 'lib/handlebars/handlebars.min',

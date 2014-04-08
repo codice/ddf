@@ -49,6 +49,8 @@ server.requestProxy = function (req, res) {
 server.requestLocal = function (req, res) {
     "use strict";
 
+    console.log('Request local content "' + req.url + '"');
+
     if(req.url.indexOf('/lib/') === -1) {
         req.url = "src/main/webapp/" + req.url.substring(11);
     } else {

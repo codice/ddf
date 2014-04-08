@@ -21,6 +21,9 @@
 .inner-scroll {
     height: calc(100% - 50px);
 }
+.application-scroll {
+    height: calc(100% - 40px);
+}
 .item {
     padding-bottom: 10px;
 }
@@ -28,7 +31,9 @@
     color: #888;
 }
 .sidebar {
-    float: right;
+    position: absolute;
+    right: 10px;
+    top: 10px;
     width: 50%;
     padding: 10px;
 }
@@ -93,4 +98,53 @@ center {
 }
 .disabled-previous {
     background-color: #DDD !important;
+}
+.new-app-container {
+    clear: both;
+}
+.fileinput-button input {
+    height: 100%;
+}
+.fileinput-button {
+    margin: 10px;
+}
+.url-tab {
+    margin: 10px;
+}
+.url-tab > a {
+    margin-top: -4px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+.url-tab > input {
+    width: 80%;
+}
+.url-list {
+    padding: 0;
+    margin-top: 10px;
+}
+.url-list-item {
+    list-style-type: none;
+    margin-bottom: 5px;
+    padding: 5px;
+    text-align: left;
+    background-color: #EFEFEF;
+    margin-right: 16px;
+    color: #3498db;
+}
+.url-list-item > a {
+    float: right;
+}
+.url-list-item input {
+    width: 60%;
+}
+.editing {
+    display: none;
+}
+.done {
+    padding: 2px;
+    margin-top:-4px
+}
+.remove-url-link {
+    margin-top: 3px;
 }

@@ -1,0 +1,44 @@
+<div class="new-app-btn">
+    <a href="#app-modal" class="btn btn-primary" data-toggle="modal">Install a new application</a>
+</div>
+<div id="app-modal" class="modal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                <h4>Add new applications</h4>
+            </div>
+            <div class="modal-body">
+                <ul class="nav nav-tabs">
+                    <li class="active"><a href="#upload" data-toggle="tab">File Upload</a></li>
+                    <li><a href="#url" data-toggle="tab">Maven URL</a></li>
+                </ul>
+                <div class="tab-content">
+                    <div class="tab-pane active" id="upload">
+                        <span class="btn btn-success fileinput-button">
+                            <i class="glyphicon glyphicon-plus"></i>
+                            <span>Add application files...</span>
+                            <!-- The file input field used as target for the file upload widget -->
+                            <input id="app-upload-btn" type="file" name="files[]" multiple>
+                        </span>
+                    </div>
+                    <div class="tab-pane" id="url">
+                        <div class="url-tab">
+                            <input id="urlField" type="text">
+                            <a id="add-url-btn" href="#" class="btn btn-info">Add URL</a>
+                            <div id="urlContainer">
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="btn-group">
+                    <button type="button" class="btn btn-primary submit-button" data-dismiss="modal">Save Changes</button>
+                    <button type="button" class="btn btn-default cancel-button" data-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

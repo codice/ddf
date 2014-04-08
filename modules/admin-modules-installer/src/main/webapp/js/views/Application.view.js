@@ -19,15 +19,21 @@ define([
     'marionette',
     '/installer/js/models/Applications.js',
     'icanhaz',
+    'underscore',
     'text!/installer/templates/application.handlebars',
     'text!/installer/templates/applicationNode.handlebars',
-    'text!/installer/templates/details.handlebars'
-], function(Backbone, Marionette, AppModel, ich, applicationTemplate, applicationNodeTemplate, detailsTemplate) {
+    'text!/installer/templates/details.handlebars',
+    'text!/installer/templates/applicationNew.handlebars',
+    'text!/installer/templates/mvnUrlItem.handlebars',
+    'fileupload'
+], function(Backbone, Marionette, AppModel, ich, _, applicationTemplate, applicationNodeTemplate, detailsTemplate, applicationNew, mvnItemTemplate) {
     "use strict";
 
     ich.addTemplate('applicationTemplate', applicationTemplate);
     ich.addTemplate('applicationNodeTemplate', applicationNodeTemplate);
     ich.addTemplate('detailsTemplate', detailsTemplate);
+    ich.addTemplate('applicationNew', applicationNew);
+    ich.addTemplate('mvnItemTemplate', mvnItemTemplate);
 
     var applicationModel = new AppModel.TreeNodeCollection();
 
@@ -38,6 +44,81 @@ define([
         }
     });
 
+    var mvnUrlColl = new Backbone.Collection();
+
+    var MvnUrlList = Marionette.CollectionView.extend({
+        itemView: Marionette.ItemView.extend({
+            tagName: 'li',
+            className: 'url-list-item',
+            template: 'mvnItemTemplate',
+            events: {
+                'click .remove-url-link': 'removeUrl',
+                'click .editable': 'makeEditable',
+                'click .done': 'doneEdit',
+                'keypress input[name=value]': 'doneEditKey'
+            },
+            initialize: function() {
+                this.modelBinder = new Backbone.ModelBinder();
+            },
+            onRender: function() {
+                var bindings = Backbone.ModelBinder.createDefaultBindings(this.el, 'name');
+                this.modelBinder.bind(this.model, this.$el, bindings);
+            },
+            removeUrl: function() {
+                this.model.collection.remove(this.model);
+            },
+            makeEditable: function() {
+                this.$('.editable').hide();
+                this.$('.editing').show();
+                this.$('input[name=value]').focus();
+            },
+            doneEditKey: function(e) {
+                if(e.keyCode === 13) {
+                    this.doneEdit();
+                }
+            },
+            doneEdit: function() {
+                this.$('.editable').show();
+                this.$('.editing').hide();
+            }
+        }),
+        tagName: 'ul',
+        className: 'url-list'
+    });
+
+    var NewApplicationView = Marionette.Layout.extend({
+        template: 'applicationNew',
+        regions: {
+            urlContainer: '#urlContainer'
+        },
+        events: {
+            'click #add-url-btn': 'addUrl',
+            'keypress #urlField': 'addUrlKey',
+            'shown.bs.tab': 'setFocus'
+        },
+        onRender: function() {
+            var view = this;
+            this.urlContainer.show(new MvnUrlList({collection: mvnUrlColl}));
+            _.defer(function() {
+                view.$('#app-upload-btn').fileupload({
+                    url: '',
+                    dataType: 'json'
+                });
+            });
+        },
+        setFocus: function() {
+            this.$('#urlField').focus();
+        },
+        addUrlKey: function(e) {
+            if(e.keyCode === 13) {
+                this.addUrl();
+            }
+        },
+        addUrl: function() {
+            mvnUrlColl.add(new Backbone.Model({value: this.$("#urlField").val()}));
+            this.$("#urlField").val('');
+        }
+    });
 
     // Recursive tree view
     var AppTreeView = Marionette.CompositeView.extend({
@@ -95,7 +176,8 @@ define([
         model: applicationModel,
         regions: {
             applications: '#apps-tree',
-            details: '#details'
+            details: '#details',
+            newApplication: '#new-app-container'
         },
 
         initialize: function (options) {
@@ -114,11 +196,17 @@ define([
             });
         },
         onRender: function () {
+            var view = this;
             this.applications.show(new TreeView({collection: this.model}));
+            this.newApplication.show(new NewApplicationView());
+            _.defer(function() {
+                view.$('#wrapper').perfectScrollbar();
+            });
         },
         onClose: function () {
             this.stopListening(this.navigationModel);
             this.stopListening(applicationModel);
+            this.$('#wrapper').perfectScrollbar('destroy');
         },
         next: function () {
         //leaving this code in here as a starting point for the person that implements this
