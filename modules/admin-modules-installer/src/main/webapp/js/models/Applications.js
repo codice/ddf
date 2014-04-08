@@ -17,8 +17,35 @@ define(function (require) {
     "use strict";
 
     var Backbone = require('backbone'),
-    _ = require('underscore');
+        _ = require('underscore'),
+        $ = require('jquery');
     var Applications = {};
+
+    Applications.MvnUrlColl = Backbone.Collection.extend({
+        configUrl: "/jolokia/exec/org.codice.ddf.admin.application.service.ApplicationService:service=application-service",
+        collectedData: function () {
+            var data = {
+                type: 'EXEC',
+                mbean: 'org.codice.ddf.admin.application.service.ApplicationService:service=application-service',
+                operation: 'addApplications'
+            };
+            data.arguments = [];
+            data.arguments.push(this.toJSON());
+            return data;
+        },
+        save: function () {
+            var addUrl = [this.configUrl, "addApplications"].join("/");
+            var collect = this.collectedData();
+            var jData = JSON.stringify(collect);
+
+            return $.ajax({
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: jData,
+                    url: addUrl
+                });
+        }
+    });
 
     var versionRegex = /([^0-9]*)([0-9]+.*$)/;
     Applications.TreeNode = Backbone.Model.extend({

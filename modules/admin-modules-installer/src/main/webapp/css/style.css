@@ -60,9 +60,13 @@
     /*border: solid 1px #DDD;*/
     /*box-shadow: rgba(0,0,0,0.2) 1px 1px 1px, inset rgba(0,0,0,0.2) -1px -1px 2px;*/
 }
+div.appview > div > ul {
+    padding: 0;
+}
 .app-node li {
     list-style: none;
-}.error-text {
+}
+.error-text {
     color: red;
     padding-bottom: 20px;
     display: block;
@@ -131,12 +135,18 @@ center {
     background-color: #EFEFEF;
     margin-right: 16px;
     color: #3498db;
+    white-space: nowrap;
+    overflow-x: hidden;
+    position: relative;
 }
 .url-list-item > a {
-    float: right;
+    position: absolute;
+    right: 0px;
+    top: 5px;
 }
 .url-list-item input {
     width: 60%;
+    margin-right: 3px;
 }
 .editing {
     display: none;
@@ -146,5 +156,9 @@ center {
     margin-top:-4px
 }
 .remove-url-link {
-    margin-top: 3px;
+    background-color: #EFEFEF;
+    padding: 4px;
+}
+.warning-info {
+    color: #AAA;
 }

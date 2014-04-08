@@ -183,10 +183,10 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
     }
 
     @Override
-    public void addApplications(List<String> applicationURLList) {
-        for (String curURL : applicationURLList) {
+    public void addApplications(List<Map<String, Object>> applicationURLList) {
+        for (Map<String, Object> curURL : applicationURLList) {
             try {
-                appService.addApplication(new URI(curURL));
+                appService.addApplication(new URI((String) curURL.get("value")));
             } catch (URISyntaxException use) {
                 logger.warn("Could not add application with url {}, not a valid URL.", curURL);
             } catch (ApplicationServiceException ase) {

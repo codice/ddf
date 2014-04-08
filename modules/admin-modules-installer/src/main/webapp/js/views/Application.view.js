@@ -44,7 +44,7 @@ define([
         }
     });
 
-    var mvnUrlColl = new Backbone.Collection();
+    var mvnUrlColl = new AppModel.MvnUrlColl();
 
     var MvnUrlList = Marionette.CollectionView.extend({
         itemView: Marionette.ItemView.extend({
@@ -94,7 +94,10 @@ define([
         events: {
             'click #add-url-btn': 'addUrl',
             'keypress #urlField': 'addUrlKey',
-            'shown.bs.tab': 'setFocus'
+            'shown.bs.tab': 'setFocus',
+            'click .submit-button': 'saveChanges',
+            'click .cancel-button': 'cancelChanges',
+            'hidden.bs.modal': 'cancelChanges'
         },
         onRender: function() {
             var view = this;
@@ -115,8 +118,24 @@ define([
             }
         },
         addUrl: function() {
-            mvnUrlColl.add(new Backbone.Model({value: this.$("#urlField").val()}));
-            this.$("#urlField").val('');
+            if(this.$("#urlField").val() !== '') {
+                mvnUrlColl.add(new Backbone.Model({value: this.$("#urlField").val()}));
+                this.$("#urlField").val('');
+                this.setFocus();
+            }
+        },
+        saveChanges: function() {
+            mvnUrlColl.save().success(function() {
+                mvnUrlColl.reset();
+                appResponse.fetch({
+                    success: function(model){
+                        applicationModel.set(model.get("value"));
+                    }
+                });
+            });
+        },
+        cancelChanges: function() {
+            mvnUrlColl.reset();
         }
     });
 

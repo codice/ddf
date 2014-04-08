@@ -57,6 +57,6 @@ public interface ApplicationServiceBeanMBean {
      * 
      * @param applicationURLList
      */
-    void addApplications(List<String> applicationURLList);
+    void addApplications(List<Map<String, Object>> applicationURLList);
 
 }
