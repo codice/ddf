@@ -36,10 +36,10 @@ public class ApplicationFileInstaller {
             Enumeration<?> entries = appZip.entries();
             while (entries.hasMoreElements()) {
                 ZipEntry curEntry = (ZipEntry) entries.nextElement();
-                if(!curEntry.isDirectory()) {
-                   if (curEntry.getName().endsWith("-features.xml")) {
-                       logger.info("Found a feature in the application: {}", curEntry.getName());
-                   }
+                if (!curEntry.isDirectory()) {
+                    if (curEntry.getName().endsWith("-features.xml")) {
+                        logger.info("Found a feature in the application: {}", curEntry.getName());
+                    }
                 }
             }
 

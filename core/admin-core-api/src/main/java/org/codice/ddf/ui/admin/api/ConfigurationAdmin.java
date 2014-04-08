@@ -146,7 +146,7 @@ public class ConfigurationAdmin implements ConfigurationAdminMBean {
 
         Map<String, Object> service = null;
 
-        if(services.size() > 0) {
+        if (services.size() > 0) {
             //just grab the first one, they should have specified a filter that returned just a single result
             //if not, that is not our problem
             service = services.get(0);
@@ -165,33 +165,33 @@ public class ConfigurationAdmin implements ConfigurationAdminMBean {
                 return adminModule.getName().compareTo(adminModule2.getName());
             }
         });
-        List<Map<String, Object>> moduleList = new ArrayList<Map<String, Object>>();
+        List<Map<String, Object>> modules = new ArrayList<Map<String, Object>>();
         HashMap<String, Object> module;
         for (AdminModule adminModule : adminModuleList) {
             module = new HashMap<String, Object>();
             module.put("name", adminModule.getName());
             module.put("id", adminModule.getId());
-            if(adminModule.getJSLocation() != null) {
+            if (adminModule.getJSLocation() != null) {
                 module.put("jsLocation", adminModule.getJSLocation().toString());
             } else {
                 module.put("jsLocation", "");
             }
-            if(adminModule.getCSSLocation() != null) {
+            if (adminModule.getCSSLocation() != null) {
                 module.put("cssLocation", adminModule.getCSSLocation().toString());
             } else {
                 module.put("cssLocation", "");
             }
-            if(adminModule.getIframeLocation() != null) {
+            if (adminModule.getIframeLocation() != null) {
                 module.put("iframeLocation", adminModule.getIframeLocation().toString());
             } else {
                 module.put("iframeLocation", "");
             }
-            moduleList.add(module);
+            modules.add(module);
         }
-        if(moduleList.size() > 0) {
-            moduleList.get(0).put("active", true);
+        if (modules.size() > 0) {
+            modules.get(0).put("active", true);
         }
-        return moduleList;
+        return modules;
     }
 
     private String getDefaultFactoryLdapFilter() {
@@ -410,8 +410,8 @@ public class ConfigurationAdmin implements ConfigurationAdminMBean {
 
         // sanity check to make sure no values are
         // null
-        for(Entry<String, Object> curEntry : configurationTable.entrySet()) {
-            if(curEntry.getValue() == null) {
+        for (Entry<String, Object> curEntry : configurationTable.entrySet()) {
+            if (curEntry.getValue() == null) {
                 curEntry.setValue("");
             }
         }
