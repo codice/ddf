@@ -316,7 +316,7 @@ class ConfigurationAdminExt {
 
     final boolean isAllowedPid(final String pid) {
         if (pid == null) {
-        	return false;
+            return false;
         } else {
             for (int i = 0; i < pid.length(); i++) {
                 final char c = pid.charAt(i);
