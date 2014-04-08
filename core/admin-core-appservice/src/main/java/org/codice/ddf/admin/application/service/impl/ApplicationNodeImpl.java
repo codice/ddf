@@ -59,8 +59,8 @@ public class ApplicationNodeImpl implements ApplicationNode, Comparable<Applicat
      *            Current status for the application
      */
     public ApplicationNodeImpl(Application application, ApplicationStatus status) {
-        if (application == null) {
-            throw new IllegalArgumentException("Input application cannot be null.");
+        if (application == null || status == null) {
+            throw new IllegalArgumentException("Input application and status cannot be null.");
         }
         this.application = application;
         this.children = new TreeSet<ApplicationNode>();

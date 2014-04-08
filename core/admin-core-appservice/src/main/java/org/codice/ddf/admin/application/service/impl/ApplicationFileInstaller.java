@@ -16,11 +16,16 @@ package org.codice.ddf.admin.application.service.impl;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Enumeration;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 
+import org.apache.aries.util.io.IOUtils;
+import org.codice.ddf.admin.application.service.ApplicationServiceException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,28 +33,44 @@ public class ApplicationFileInstaller {
 
     private static final Logger logger = LoggerFactory.getLogger(ApplicationFileInstaller.class);
 
-    public static void install(File application) {
+    private static final String REPO_LOCATION = "mock_system" + File.separator;
+
+    private static final String URI_PROTOCOL = "file:";
+
+    /**
+     * Installs the given application file to the system repository.
+     * 
+     * @param application
+     *            Application file to install.
+     * @return A string URI that points to the main feature file for the
+     *         application that was just installed.
+     * @throws ApplicationServiceException
+     *             If any errors occur while trying to install the application
+     */
+    public static URI install(File application) throws ApplicationServiceException {
         // extract files to local repo
         ZipFile appZip;
         try {
             appZip = new ZipFile(application);
-            Enumeration<?> entries = appZip.entries();
-            while (entries.hasMoreElements()) {
-                ZipEntry curEntry = (ZipEntry) entries.nextElement();
-                if (!curEntry.isDirectory()) {
-                    if (curEntry.getName().endsWith("-features.xml")) {
-                        logger.info("Found a feature in the application: {}", curEntry.getName());
-                    }
-                }
+            if (isFileValid(appZip)) {
+                logger.debug("Installing {} to the system repository.",
+                        application.getAbsolutePath());
+                String featureLocation = installToRepo(appZip);
+                return new URI(URI_PROTOCOL + new File("").getAbsolutePath() + File.separator
+                        + REPO_LOCATION + featureLocation);
             }
 
         } catch (ZipException ze) {
             logger.warn("Got an error when trying to read the application as a zip file.", ze);
         } catch (IOException ioe) {
             logger.warn("Got an error when trying to read the incoming application.", ioe);
+        } catch (URISyntaxException e) {
+            logger.warn(
+                    "Installed application but could not obtain correct location to feature file.",
+                    e);
         }
 
-        // add to features service repo list
+        throw new ApplicationServiceException("Could not install application.");
     }
 
     public void update(File application) {
@@ -64,6 +85,55 @@ public class ApplicationFileInstaller {
 
         // remove from features service repo
 
+    }
+
+    /**
+     * Verifies that the file is a file Karaf ARchive
+     * 
+     * @param appZip
+     *            Zip file that should be checked.
+     * @return true if the file is a valid kar, false if not.
+     */
+    private static boolean isFileValid(ZipFile appZip) {
+        Enumeration<?> entries = appZip.entries();
+        while (entries.hasMoreElements()) {
+            ZipEntry curEntry = (ZipEntry) entries.nextElement();
+            if (!curEntry.isDirectory()) {
+                if (isFeatureFile(curEntry)) {
+                    logger.info(
+                            "Found a feature in the application: {} which verifies this is a Karaf ARchive.",
+                            curEntry.getName());
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private static String installToRepo(ZipFile appZip) {
+        String featureLocation = null;
+        Enumeration<?> entries = appZip.entries();
+        while (entries.hasMoreElements()) {
+            ZipEntry curEntry = (ZipEntry) entries.nextElement();
+            if (!curEntry.isDirectory() && !curEntry.getName().startsWith("META-INF")) {
+                try {
+                    InputStream is = appZip.getInputStream(curEntry);
+                    String outputName = curEntry.getName().substring("repository/".length());
+                    logger.info("Writing out {}", curEntry.getName());
+                    IOUtils.writeOut(new File(REPO_LOCATION), outputName, is);
+                    if (isFeatureFile(curEntry)) {
+                        featureLocation = outputName;
+                    }
+                } catch (Exception e) {
+                    logger.warn("Could not write out file.", e);
+                }
+            }
+        }
+        return featureLocation;
+    }
+
+    private static boolean isFeatureFile(ZipEntry entry) {
+        return entry.getName().endsWith("-features.xml");
     }
 
 }

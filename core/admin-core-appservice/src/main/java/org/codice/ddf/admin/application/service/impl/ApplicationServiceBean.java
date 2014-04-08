@@ -15,6 +15,8 @@
 package org.codice.ddf.admin.application.service.impl;
 
 import java.lang.management.ManagementFactory;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -53,7 +55,7 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
     private static final String MAP_DESCRIPTION = "description";
 
     private static final String MAP_CHILDREN = "children";
-    
+
     private static final String MAP_STATE = "state";
 
     private Logger logger = LoggerFactory.getLogger(ApplicationServiceBeanMBean.class);
@@ -70,7 +72,8 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
     public ApplicationServiceBean(ApplicationService appService) throws ApplicationServiceException {
         this.appService = appService;
         try {
-            objectName = new ObjectName(ApplicationService.class.getName() + ":service=application-service");
+            objectName = new ObjectName(ApplicationService.class.getName()
+                    + ":service=application-service");
             mBeanServer = ManagementFactory.getPlatformMBeanServer();
         } catch (MalformedObjectNameException mone) {
             throw new ApplicationServiceException("Could not create objectname.", mone);
@@ -176,6 +179,19 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
         } catch (ApplicationServiceException ase) {
             logger.warn("Application " + appName + " was not successfully stopped.", ase);
             return false;
+        }
+    }
+
+    @Override
+    public void addApplications(List<String> applicationURLList) {
+        for (String curURL : applicationURLList) {
+            try {
+                appService.addApplication(new URI(curURL));
+            } catch (URISyntaxException use) {
+                logger.warn("Could not add application with url {}, not a valid URL.", curURL);
+            } catch (ApplicationServiceException ase) {
+                logger.warn("Could not add application with url " + curURL + " due to error.", ase);
+            }
         }
     }
 

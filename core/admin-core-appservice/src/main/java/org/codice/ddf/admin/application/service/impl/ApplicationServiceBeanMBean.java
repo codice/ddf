@@ -52,4 +52,11 @@ public interface ApplicationServiceBeanMBean {
      */
     boolean stopApplication(String appName);
 
+    /**
+     * Adds a list of application that are specified by their URL.
+     * 
+     * @param applicationURLList
+     */
+    void addApplications(List<String> applicationURLList);
+
 }

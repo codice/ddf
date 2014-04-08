@@ -439,10 +439,10 @@ public class ApplicationServiceImpl implements ApplicationService {
     public void addApplication(URI applicationURL) throws ApplicationServiceException {
         try {
             if (applicationURL.toString().startsWith("file:")) {
-                ApplicationFileInstaller.install(new File(applicationURL));
-            } else {
-                featuresService.addRepository(applicationURL, false);
+                applicationURL = ApplicationFileInstaller.install(new File(applicationURL));
+                logger.info("Installing newly added feature repo: {}", applicationURL);
             }
+            featuresService.addRepository(applicationURL, false);
         } catch (Exception e) {
             logger.warn("Could not add new application due to error.", e);
             throw new ApplicationServiceException(e);

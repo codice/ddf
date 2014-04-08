@@ -14,32 +14,25 @@
  **/
 package org.codice.ddf.admin.application.service.impl;
 
-import java.net.URI;
-import java.net.URISyntaxException;
-
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.codice.ddf.admin.application.service.ApplicationServiceException;
 
 /**
- * Utilizes the OSGi Command Shell in Karaf and adds a given application to the system.
+ * Utilizes the OSGi Command Shell in Karaf and removes a given application from
+ * the system.
  * 
  */
-@Command(scope = "app", name = "add", description = "Adds an application with the given uri.")
-public class AddApplicationCommand extends AbstractApplicationCommand {
+@Command(scope = "app", name = "remove", description = "Removes an application with the given name.")
+public class RemoveApplicationCommand extends AbstractApplicationCommand {
 
-    @Argument(index = 0, name = "appName", description = "URL of the application to add.", required = true, multiValued = false)
+    @Argument(index = 0, name = "appName", description = "Name of the application to remove.", required = true, multiValued = false)
     String appName;
 
     @Override
     protected void applicationCommand() throws ApplicationServiceException {
 
-        try {
-            applicationService.addApplication(new URI(appName));
-        } catch (URISyntaxException use) {
-            console.println(appName + " is not a valid URI.");
-            return;
-        }
+        applicationService.removeApplication(appName);
 
         return;
     }

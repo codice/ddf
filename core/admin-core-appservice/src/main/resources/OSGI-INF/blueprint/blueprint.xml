@@ -45,6 +45,9 @@
     <command name="app/add">
       <action class="org.codice.ddf.admin.application.service.impl.AddApplicationCommand" />
     </command>
+    <command name="app/remove">
+      <action class="org.codice.ddf.admin.application.service.impl.RemoveApplicationCommand" />
+    </command>
   </command-bundle>
 
   <bean id="appServiceMBean" class="org.codice.ddf.admin.application.service.impl.ApplicationServiceBean" init-method="init"
