@@ -71,7 +71,8 @@ define([
         },
 
         bind: function () {
-            var bindings = {selected: '#' + this.model.get("name") + ' > [name=selected]'};
+            //var bindings = {selected: '#' + this.model.get("name") + ' > [name=selected]'};
+            var bindings = {selected: '#' + this.model.get("appId") + ' > [name=selected]'};
             this.modelBinder.bind(this.model, this.el, bindings);
         },
 
@@ -103,8 +104,8 @@ define([
             this.listenTo(this.navigationModel, 'next', this.next);
             this.listenTo(this.navigationModel, 'previous', this.previous);
             this.listenTo(applicationModel, "app:hover", function(appSelected, e){
-                // verify we have model that matches the selected target (either the checkbox or text)
-                if (e.currentTarget.id.lastIndexOf(appSelected.get("name")) === 0){
+                // multiple hover events are fired for a given element (itself and it's parents)
+                if (e.currentTarget.id.lastIndexOf(appSelected.get("appId")) === 0){
                     self.details.show(new DetailsView({model: appSelected}));
                 }
             });

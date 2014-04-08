@@ -20,6 +20,7 @@ define(function (require) {
     _ = require('underscore');
     var Applications = {};
 
+    var versionRegex = /([^0-9]*)([0-9]+.*$)/;
     Applications.TreeNode = Backbone.Model.extend({
        defaults: function() {
             return {
@@ -30,7 +31,9 @@ define(function (require) {
        initialize: function(){
            var children = this.get("children");
            var that = this;
-           this.set({displayName: this.createDisplayName()});
+           this.massageVersionNumbers();
+           this.cleanupDisplayName(); //set({displayName: this.createDisplayName()});
+           this.updateName();
            if (children){
                this.set({children: new Applications.TreeNodeCollection(children)});
                this.get("children").forEach(function (child) {
@@ -51,8 +54,29 @@ define(function (require) {
          }
        },
 
-        createDisplayName: function(){
-            var names = this.get("name").split('-');
+        updateName: function() {
+            //this.set({name: this.get("name").replace(/\./g,'')});
+            this.set({appId: this.get("name").replace(/\./g,'')});
+        },
+
+        // Some apps come in having the version number included
+        // as part of the app name - e.g. search-app-2.3.1.ALPHA3-SNAPSHOT.
+        // This function strips the version from the display name and
+        // places it in the version variable so the details show correctly.
+        massageVersionNumbers: function() {
+            this.set({displayName: this.get("name")});
+            if (this.get("version") === "0.0.0") {
+                var matches = this.get("name").match(versionRegex);
+                if (matches.length === 3) {
+                    this.set({displayName: matches[1]});
+                    this.set({version: matches[2]});
+                }
+            }
+        },
+
+        cleanupDisplayName: function(){
+            var tempName = this.get("displayName"); //.replace(/\./g,'');
+            var names = tempName.split('-');
             var dispName = "";
             var that = this;
             _.each(names, function(name) {
@@ -61,7 +85,7 @@ define(function (require) {
                 }
                 dispName = dispName + that.capitalizeFirstLetter(name);
             });
-            return dispName;
+            this.set({displayName: dispName});
         },
 
        capitalizeFirstLetter: function(string){

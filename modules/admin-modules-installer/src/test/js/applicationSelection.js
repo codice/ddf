@@ -1,9 +1,6 @@
 /*jshint strict:false*/
 /*global CasperError, console, phantom, require, casper*/
-//var x = require('casper').selectXPath;
 casper.options.viewportSize = {width: 2452, height: 868};
-//casper.options.logLevel = 'debug';
-//casper.options.waitTimeout = '100000';
 
 casper.test.begin('Application Selection View test', function(test) {
     casper.start('http://localhost:8383');
@@ -178,7 +175,7 @@ casper.test.begin('Application Selection View test', function(test) {
             }
         ));
         test.assertTrue(this.evaluate(function() {
-                return document.querySelector('#detailsVersion').innerText == '2.3.1-SNAPSHOT';
+                return document.querySelector('#detailsVersion').innerText == '2.4.1-SNAPSHOT';
             }
         ));
         test.assertTrue(this.evaluate(function() {
@@ -201,5 +198,32 @@ casper.test.begin('Application Selection View test', function(test) {
         }
     );
 
+    // verify that app names with the version are broken apart for the display details
+    casper.then(function(){
+        test.assertExists('#search-app-231ALPHA3-SNAPSHOTtxt');
+        this.mouseEvent('mouseover', '#search-app-231ALPHA3-SNAPSHOTtxt');
+        test.pass('Hovering over the search app');
+    });
+    casper.waitForSelector('td#detailsName',
+        function success() {
+            test.pass('Search application details visible.');
+        }, function fail() {
+            test.fail('Search application details not found.');
+        });
+
+    casper.then(function() {
+        test.assertTrue(this.evaluate(function() {
+                return document.querySelector('#detailsName').innerText == 'Search App';
+            }
+        ));
+        test.assertTrue(this.evaluate(function() {
+                return document.querySelector('#detailsAppName').innerText == 'search-app-2.3.1.ALPHA3-SNAPSHOT';
+            }
+        ));
+        test.assertTrue(this.evaluate(function() {
+                return document.querySelector('#detailsVersion').innerText == '2.3.1.ALPHA3-SNAPSHOT';
+            }
+        ));
+    });
    casper.run(function() {test.done();});
 });
