@@ -30,7 +30,7 @@
   NOTE: This was originally called ddf-minimal based on the Apache Servicemix paradigm, but was later
   changed to kernel.
   -->
-  <artifactId>distribution-kernel</artifactId>
+  <artifactId>kernel</artifactId>
   <groupId>ddf.distribution</groupId>
   <name>DDF :: Distribution :: Kernel</name>
   <packaging>pom</packaging>
