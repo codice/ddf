@@ -10,6 +10,7 @@ define(function (require) {
         dir = require('direction'),
         maptype = require('maptype'),
         wreqr = require('wreqr'),
+        Cometd = require('cometdinit'),
         Metacard = {};
 
     ich.addTemplate('metacardTemplate', require('text!templates/metacard.handlebars'));
@@ -48,6 +49,7 @@ define(function (require) {
             var jsonObj = this.model.toJSON();
             jsonObj.mapAvailable = maptype.isMap();
             jsonObj.url = this.model.url;
+            jsonObj.clientId = Cometd.Comet.getClientId();  //required for retrieve product notifications subscription
             this.$el.html(ich.metacardTemplate(jsonObj));
 
             if (_.isUndefined(this.prevModel)) {

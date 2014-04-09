@@ -79,7 +79,7 @@
                     {{#if properties.resource-uri}}
                     <div class="span12 pagination-centered holder-row">
                         <a target='blank' title="Download Product"
-                           href='/services/catalog/sources/{{properties.source-id}}/{{properties.id}}?transform=resource'>
+                           href='/services/catalog/sources/{{properties.source-id}}/{{properties.id}}?transform=resource&user={{clientId}}'>
                             <i class='fa fa-download fa-2x metacard-action'></i>
                             <p> {{fileSize properties.resource-size}}</p></a>
                     </div>
