@@ -452,7 +452,7 @@ public class ApplicationServiceImpl implements ApplicationService {
     @Override
     public void removeApplication(URI applicationURL) throws ApplicationServiceException {
         try {
-            featuresService.removeRepository(applicationURL);
+            featuresService.removeRepository(applicationURL, true);
         } catch (Exception e) {
             logger.warn("Could not remove application due to error.", e);
             throw new ApplicationServiceException(e);
