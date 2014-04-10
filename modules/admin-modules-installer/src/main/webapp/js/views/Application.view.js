@@ -22,8 +22,11 @@ define([
     'icanhaz',
     'text!/installer/templates/application.handlebars',
     'text!/installer/templates/applicationNode.handlebars',
-    'text!/installer/templates/details.handlebars'
-], function(Backbone, Marionette, _, AppModel, ich, applicationTemplate, applicationNodeTemplate, detailsTemplate) {
+    'text!/installer/templates/details.handlebars',
+    'text!/installer/templates/applicationNew.handlebars',
+    'text!/installer/templates/mvnUrlItem.handlebars'
+], function(Backbone, Marionette, _, AppModel, ich, applicationTemplate,
+            applicationNodeTemplate, detailsTemplate, applicationNew, mvnItemTemplate) {
     "use strict";
 
     ich.addTemplate('applicationTemplate', applicationTemplate);
@@ -289,10 +292,6 @@ define([
 //            install1();
 
             this.navigationModel.nextStep();
-        },
-        previous: function () {
-            //this is your hook to perform any teardown that must be done before going to the previous step
-            this.navigationModel.previousStep();
         }
     });
 
