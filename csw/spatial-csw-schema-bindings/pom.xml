@@ -49,8 +49,8 @@
 			<scope>compile</scope>
 		</dependency>
         <dependency>
-            <groupId>org.codice.ddf.spatial</groupId>
-            <artifactId>spatial-ogc-filter-v_1_1_0-schema</artifactId>
+            <groupId>org.codice.thirdparty</groupId>
+            <artifactId>ogc-filter-v_1_1_0-schema</artifactId>
 			<scope>compile</scope>
         </dependency>
 	</dependencies>
@@ -91,8 +91,8 @@
 									<artifactId>gml-v_3_1_1-schema</artifactId>
 								</episode>
 								<episode>
-									<groupId>org.codice.ddf.spatial</groupId>
-									<artifactId>spatial-ogc-filter-v_1_1_0-schema</artifactId>
+									<groupId>org.codice.thirdparty</groupId>
+									<artifactId>ogc-filter-v_1_1_0-schema</artifactId>
 								</episode>
 								<episode>
 									<groupId>org.jvnet.ogc</groupId>

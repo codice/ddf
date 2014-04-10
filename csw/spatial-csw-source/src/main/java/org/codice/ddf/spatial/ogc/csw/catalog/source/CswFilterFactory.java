@@ -486,7 +486,7 @@ public class CswFilterFactory {
          * actual distance value) on DistanceType. The attribute mixed="true" is missing from the
          * complexType DistanceType in filter.xsd. This prevents Beyond and DWithin from working. To
          * correct this, we fixed filter.xsd and rebuilt the JAXB bindings (see project
-         * spatial-ogc-filter-v_1_1_0-schema-bindings).
+         * ogc-filter-v_1_1_0-schema-bindings).
          */
         distanceType.setContent(String.valueOf(distance));
         return distanceType;

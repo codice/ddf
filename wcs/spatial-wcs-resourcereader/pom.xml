@@ -70,7 +70,7 @@
                             spatial-csw-schema-bindings,
                             gml-v_3_1_1-schema,
                             ows-v_1_0_0-schema,
-                            spatial-ogc-filter-v_1_1_0-schema,
+                            ogc-filter-v_1_1_0-schema,
                             jaxb2-basics-runtime,
                             wcs-v_1_0_0-schema,
                             spatial-ogc-common,
