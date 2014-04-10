@@ -46,6 +46,14 @@ module.exports = function (grunt) {
                 dest: 'target/webapp/lib/cesium/'
             }
         },
+        sed: {
+            imports: {
+                path: 'target/webapp/lib/bootswatch/cyborg',
+                pattern: '@import url\\(\'//fonts.googleapis.com/css\\?family=Droid\\+Sans:400,700\'\\);',
+                replacement: '',
+                recursive: true
+            }
+        },
         cssmin: {
             compress: {
                 files: {
@@ -140,6 +148,7 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-contrib-copy');
     grunt.loadNpmTasks('grunt-contrib-jshint');
     grunt.loadNpmTasks('grunt-contrib-watch');
+    grunt.loadNpmTasks('grunt-sed');
     grunt.loadNpmTasks('grunt-express');
     grunt.loadNpmTasks('grunt-casperjs');
 
@@ -149,7 +158,7 @@ module.exports = function (grunt) {
     grunt.registerTask('test', ['express:test','casperjs']);
     grunt.loadNpmTasks('grunt-zip');
 
-    var buildTasks = ['clean', 'bower', 'copy', 'unzip', 'cesiumclean', 'cssmin', 'jshint'];
+    var buildTasks = ['clean', 'bower', 'sed', 'copy', 'unzip', 'cesiumclean', 'cssmin', 'jshint'];
 
     try {
         grunt.log.writeln('Checking for python');

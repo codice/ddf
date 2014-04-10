@@ -9,8 +9,163 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
+
+html, body {
+	height: 100%;
+    color: #DDDDDD;
+    background-color: #252525;
+}
+
+.table th,
+.table td {
+    border-top: 1px solid #444444;
+}
+
+.table .table {
+    background-color: #252525;
+}
+
+.dropdown-menu {
+    background-color: #242424;
+}
+
+.well {
+    background-color: #242424;
+}
+
+.nav-tabs > li > a {
+    padding-top: 4px;
+    padding-bottom: 4px;
+}
+
+.nav-tabs > .active > a,
+.nav-tabs > .active > a:hover,
+.nav-tabs > .active > a:focus {
+    background-color: #252525;
+}
+
+.navbar .nav > li > .dropdown-menu:after {
+    border-bottom: 6px solid #242424;
+}
+
+.navbar-fixed-bottom .nav > li > .dropdown-menu:after {
+    border-top: 6px solid #242424;
+}
+
+.pagination ul > li > a,
+.pagination ul > li > span {
+    background-color: #252525;
+}
+
+.tooltip.top .tooltip-arrow {
+    border-top-color: #242424;
+}
+
+.tooltip.right .tooltip-arrow {
+    border-right-color: #242424;
+}
+
+.tooltip.left .tooltip-arrow {
+    border-left-color: #242424;
+}
+
+.tooltip.bottom .tooltip-arrow {
+    border-bottom-color: #242424;
+}
+
+.popover {
+    background-color: #242424;
+}
+
+.popover-title {
+    background-color: #242424;
+}
+
+.popover.top .arrow:after {
+    border-top-color: #242424;
+}
+
+.popover.right .arrow:after {
+    border-right-color: #242424;
+}
+
+.popover.bottom .arrow:after {
+    border-bottom-color: #242424;
+}
+
+.popover.left .arrow:after {
+    border-left-color: #242424;
+}
+
+.hero-unit {
+    background-color: #242424;
+}
+
+body {
+    background-image: -moz-linear-gradient(top, #252525, #252a30);
+    background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#252525), to(#252a30));
+    background-image: -webkit-linear-gradient(top, #252525, #252a30);
+    background-image: -o-linear-gradient(top, #252525, #252a30);
+    background-image: linear-gradient(to bottom, #252525, #252a30);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ff252525', endColorstr='#ff252a30', GradientType=0);
+}
+
+.nav-tabs {
+    border-bottom: 1px solid #dddddd;
+}
+
+.nav-tabs .open .dropdown-toggle {
+    background-color: #252525;
+}
+
+.nav-pills .open .dropdown-toggle {
+    background-color: #252525;
+}
+
+.pager li > a,
+.pager li > span {
+    background-color: #252525;
+}
+
+.pager .disabled a,
+.pager .disabled a:hover {
+    background-color: #252525;
+}
+
+.table tbody tr.warning td {
+    color: #ffffff;
+    background-color: #ff8800;
+}
+
+.alert h1,
+.alert h2,
+.alert h3,
+.alert h4,
+.alert h5,
+.alert h6 {
+    color: #eeeeee;
+}
+
+.alert-warning {
+    background-color: #cc6d00;
+}
+
+.badge-inverse,
+.label-inverse,
+.alert-inverse {
+    background-color: #7a29a3;
+}
+
+.label-inverse:hover {
+    background-color: #5c1f7a;
+}
+
+.progress {
+    background-color: #252525;
+}
+
 .search-controls {
-	position: absolute;
+    position: absolute;
     top: 0px;
     left: 0px;
     width: 400px;
@@ -21,10 +176,6 @@
     box-shadow: 0 0 0 rgba(0,0,0,0.8);
     -webkit-box-shadow: 0 0 0 rgba(0,0,0,0.8);
     background-color: rgba(36,36,36,0.9);
-}
-
-html, body {
-	height: 100%;
 }
 
 #content {
