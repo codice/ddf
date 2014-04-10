@@ -30,6 +30,22 @@
     <version>1.0.0.ALPHA1-SNAPSHOT</version>
     <packaging>pom</packaging>
 
+    <properties>
+        <ddf.platform.app.version>2.3.1-SNAPSHOT</ddf.platform.app.version>
+    </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>ddf.platform</groupId>
+                <artifactId>platform</artifactId>
+                <version>${ddf.platform.app.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
     <modules>
         <module>core</module>
         <module>ui</module>
