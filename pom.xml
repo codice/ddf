@@ -31,7 +31,8 @@
     <packaging>pom</packaging>
 
     <properties>
-        <ddf.platform.app.version>2.3.1-SNAPSHOT</ddf.platform.app.version>
+        <!-- At minimum, needs platform version 2.3.0 -->
+        <ddf.platform.app.version>2.3.0</ddf.platform.app.version>
     </properties>
 
     <dependencyManagement>
