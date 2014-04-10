@@ -1,11 +1,13 @@
 <div id="resultsView" class="nav nav-list">
     <div class="row-fluid ">
+        <div class="result-count">
+            <i id="low-results" class="footer-text cent" style="display: none;"><span name="hits"></span> results</i>
+            <i id="high-results" class="footer-text cent" style="display: none;">Top {{attributes.count}} of <span name="hits"></span> results displayed</i>
+        </div>
+
         <table class="table resultTable">
             <tbody>
             </tbody>
         </table>
-
-        <i id="low-results" class="footer-text cent" style="display: none;"><span name="hits"></span> results</i>
-        <i id="high-results" class="footer-text cent" style="display: none;">Top {{attributes.count}} of <span name="hits"></span> results displayed. Please refine your search.</i>
     </div>
 </div>

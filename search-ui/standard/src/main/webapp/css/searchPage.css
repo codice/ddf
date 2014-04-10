@@ -127,6 +127,12 @@ html, body {
 
 }
 
+.result-count {
+    padding: 5px 0px;
+    font-size: smaller;
+    color: grey;
+}
+
 #searchPages {
     /*magic needed to get perfect scrollbar needed*/
     overflow: hidden;
