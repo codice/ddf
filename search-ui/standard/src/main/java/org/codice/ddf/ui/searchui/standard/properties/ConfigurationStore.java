@@ -260,7 +260,13 @@ public class ConfigurationStore {
             setResultCount((Integer) properties.get("resultCount"));
     		
     		//Fetch the DDF HTTP Proxy
-    		startProxy();
+            if(StringUtils.isNotBlank(wmsServer)) {
+                startProxy();
+            } else {
+                LOGGER.debug("No WMS Server was provided in the Standard UI configuration. " +
+                		"If you are attempting to connect to a WMS Server, please provide " +
+                		"the location of the WMS Server in the Standard UI configuration.");
+            }
     		
             LOGGER.debug(
                     "Updated properties: header={}, footer={}, style={}, textColor={},"
