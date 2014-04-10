@@ -1,0 +1,32 @@
+<div class="file-info-area">
+    <ul class="file-attrs">
+        <li class="file-name">File: {{name}}</li>
+        <li class="file-type">Type: {{type}}</li>
+        <li class="file-size">Size: {{fileSize size}}</li>
+    </ul>
+</div>
+<div class="file-finish-area">
+    {{#if fail}}
+        <span class="file-fail-text">
+            {{error}}
+        </span>
+    {{else}}
+        {{#is progress 100}}
+            <span class="file-finish-text">
+                Done!
+            </span>
+        {{else}}
+            <span class="file-cancel">
+                <a href="#" class="cancel-upload-link glyphicon glyphicon-remove"></a>
+            </span>
+        {{/is}}
+    {{/if}}
+</div>
+<div class="file-progress-area">
+    <div class="progress">
+        <div class="progress-bar" role="progressbar" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"
+                style="width: {{progress}}%">
+
+        </div>
+    </div>
+</div>

@@ -25,8 +25,9 @@ define([
     'text!/installer/templates/details.handlebars',
     'text!/installer/templates/applicationNew.handlebars',
     'text!/installer/templates/mvnUrlItem.handlebars',
+    'text!/installer/templates/fileProgress.handlebars',
     'fileupload'
-], function(Backbone, Marionette, AppModel, ich, _, applicationTemplate, applicationNodeTemplate, detailsTemplate, applicationNew, mvnItemTemplate) {
+], function(Backbone, Marionette, AppModel, ich, _, applicationTemplate, applicationNodeTemplate, detailsTemplate, applicationNew, mvnItemTemplate, fileProgress) {
     "use strict";
 
     ich.addTemplate('applicationTemplate', applicationTemplate);
@@ -34,6 +35,7 @@ define([
     ich.addTemplate('detailsTemplate', detailsTemplate);
     ich.addTemplate('applicationNew', applicationNew);
     ich.addTemplate('mvnItemTemplate', mvnItemTemplate);
+    ich.addTemplate('fileProgress', fileProgress);
 
     var applicationModel = new AppModel.TreeNodeCollection();
 
@@ -45,6 +47,7 @@ define([
     });
 
     var mvnUrlColl = new AppModel.MvnUrlColl();
+    var fileUploadColl = new Backbone.Collection();
 
     var MvnUrlList = Marionette.CollectionView.extend({
         itemView: Marionette.ItemView.extend({
@@ -86,10 +89,30 @@ define([
         className: 'url-list'
     });
 
+    var FileUploadList = Marionette.CollectionView.extend({
+        itemView: Marionette.ItemView.extend({
+            tagName:'li',
+            className: 'file-list-item',
+            template: 'fileProgress',
+            events: {
+                'click .cancel-upload-link': 'abort'
+            },
+            initialize: function() {
+                this.listenTo(this.model, 'change', this.render);
+            },
+            abort: function() {
+                this.model.abort();
+            }
+        }),
+        tagName: 'ul',
+        className: 'file-list'
+    });
+
     var NewApplicationView = Marionette.Layout.extend({
         template: 'applicationNew',
         regions: {
-            urlContainer: '#urlContainer'
+            urlContainer: '#urlContainer',
+            fileContainer: '#fileContainer'
         },
         events: {
             'click #add-url-btn': 'addUrl',
@@ -102,10 +125,43 @@ define([
         onRender: function() {
             var view = this;
             this.urlContainer.show(new MvnUrlList({collection: mvnUrlColl}));
+            this.fileContainer.show(new FileUploadList({collection: fileUploadColl}));
             _.defer(function() {
-                view.$('#app-upload-btn').fileupload({
-                    url: '',
-                    dataType: 'json'
+                view.$('#fileupload').fileupload({
+                    fail: function (e, data) {
+                        var attrs = {};
+                        attrs.name = data.files[0].name;
+                        var fileModel = fileUploadColl.findWhere(attrs);
+                        attrs.size = data.files[0].size;
+                        attrs.type = data.files[0].type;
+                        attrs.fail = true;
+                        attrs.error = data.errorThrown;
+                        if(fileModel) {
+                            fileModel.set(attrs);
+                        } else {
+                            fileUploadColl.add(new Backbone.Model(attrs));
+                        }
+                    },
+                    progress: function (e, data) {
+                        var attrs = {};
+                        var progress = parseInt(data.loaded / data.total * 100, 10);
+                        attrs.name = data.files[0].name;
+                        var fileModel = fileUploadColl.findWhere(attrs);
+                        attrs.size = data.files[0].size;
+                        attrs.type = data.files[0].type;
+                        attrs.loaded = data.loaded;
+                        attrs.total = data.total;
+                        attrs.progress = progress;
+                        if(fileModel) {
+                            fileModel.set(attrs);
+                            fileModel.abort = _.bind(data.abort, data);
+                        } else {
+                            fileUploadColl.add(new Backbone.Model(attrs));
+                        }
+                    }
+                });
+                view.$('#fileupload').fileupload('option', {
+                    dropZone: view.$el
                 });
             });
         },
@@ -122,6 +178,7 @@ define([
                 mvnUrlColl.add(new Backbone.Model({value: this.$("#urlField").val()}));
                 this.$("#urlField").val('');
                 this.setFocus();
+
             }
         },
         saveChanges: function() {
@@ -133,9 +190,13 @@ define([
                     }
                 });
             });
+            fileUploadColl.reset();
         },
         cancelChanges: function() {
-            mvnUrlColl.reset();
+            _.defer(function() {
+                mvnUrlColl.reset();
+                fileUploadColl.reset();
+            });
         }
     });
 
