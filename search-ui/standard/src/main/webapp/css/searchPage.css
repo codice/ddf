@@ -22,6 +22,7 @@
     -webkit-box-shadow: 0 0 0 rgba(0,0,0,0.8);
     background-color: rgba(36,36,36,0.9);
 }
+
 html, body {
 	height: 100%;
 }
@@ -163,10 +164,6 @@ html, body {
     z-index: 10000;
 }
 
-#searchPages form {
-    padding-bottom : 20px;
-}
-
 tr.selected {
     background-color: rgba(70,70,70,0.9);
 }
@@ -176,6 +173,9 @@ tr.selected {
     overflow: hidden;
 }
 
+.search-form {
+    padding: 10px 0;
+}
 
 .slide-animate {
     /*to enable left-right animation*/
@@ -402,17 +402,116 @@ span.add-on {
     background: none;
 }
 
+::-webkit-scrollbar {
+    -webkit-appearance: none;
+}
+
+::-webkit-scrollbar:vertical {
+    width: 11px;
+}
+
+::-webkit-scrollbar:horizontal {
+    height: 11px;
+}
+
+::-webkit-scrollbar-thumb {
+    border-radius: 8px;
+    border: 2px solid white; /* should match background, can't be transparent */
+    background-color: rgba(0, 0, 0, .5);
+}
+
+.notification-time {
+    font-size: .6em;
+    color: white;
+}
+
+.notification-message {
+    padding-top: 12px;
+    padding-bottom: 12px;
+    color: white;
+    font-size: .9em;
+}
+
+.notification-title{
+    color: #c0c0c0;
+}
+
+.notification-subtitle {
+    padding-top: 12px;
+    padding-bottom: 12px;
+    font-weight: bold;
+    font-style: italic;
+    color: #c0c0c0;
+}
+
+.notification-hr {
+    margin: 0px;
+}
+
+.notification-context {
+    position: absolute;
+    top: 50px;
+    bottom: auto;
+    right: 25px;
+    left: auto;
+}
+
+/* Form elements */
+textarea,
+input[type="text"],
+input[type="password"],
+input[type="datetime"],
+input[type="datetime-local"],
+input[type="date"],
+input[type="month"],
+input[type="time"],
+input[type="week"],
+input[type="number"],
+input[type="email"],
+input[type="url"],
+input[type="search"],
+input[type="tel"],
+input[type="color"],
+.uneditable-input {
+    color: white;
+    background-color: #333;
+    border-color: #666;
+}
+
+.input-append,
+.input-prepend {
+    display: block;
+    margin-left: 10px;
+}
+
+.input-append .add-on,
+.input-prepend .add-on,
+.ui-widget {
+    color: white;
+    background: none #555;
+    border-color: #666;
+    text-shadow: none;
+}
+
+.input-prepend .add-on-label {
+    width: 65px;
+}
+
 select.add-on {
     -webkit-appearance: none;
 }
 
+.ui-timepicker-select {
+    width: 65px;
+}
+
 div.multiselect span {
-     font-weight: normal;
+    font-weight: normal;
 }
 
 div.multiselect label {
-     white-space: nowrap;
-     color: black;
+    white-space: nowrap;
+    color: black;
 }
 
 div.multiselect div.ui-multiselect-filter {
@@ -423,7 +522,7 @@ div.multiselect div.ui-multiselect-filter {
 div.multiselect div.ui-multiselect-filter > input {
     width: 70%;
     margin-bottom: 1px;
-    height: 10px;
+    height: 16px;
     font-size: 12px;
 }
 
@@ -467,64 +566,25 @@ div.multiselect div.ui-multiselect-header {
     border-bottom-right-radius: 0px;
 }
 
+div.multiselect label {
+    color: white;
+}
+
+.ui-datepicker-today .ui-state-highlight {
+    background: #bbb;
+    border: 1px solid #555;
+}
+
+.ui-datepicker-current-day .ui-state-active {
+    background: #777;
+    border: 1px solid #555;
+    color: white;
+}
+
 #pointradius button.ui-multiselect {
     height: auto;
 }
 
 #time_relative button.ui-multiselect {
     height: auto;
-}
-
-::-webkit-scrollbar {
-    -webkit-appearance: none;
-}
-
-::-webkit-scrollbar:vertical {
-    width: 11px;
-}
-
-::-webkit-scrollbar:horizontal {
-    height: 11px;
-}
-
-::-webkit-scrollbar-thumb {
-    border-radius: 8px;
-    border: 2px solid white; /* should match background, can't be transparent */
-    background-color: rgba(0, 0, 0, .5);
-}
-
-.notification-time {
-    font-size: .6em;
-    color: white;
-}
-
-.notification-message {
-	padding-top: 12px;
-	padding-bottom: 12px;
-	color: white;
-	font-size: .9em;
-}
-
-.notification-title{
-	color: #c0c0c0;
-}
-
-.notification-subtitle { 
-	padding-top: 12px;
-	padding-bottom: 12px;
-	font-weight: bold;
-	font-style: italic;
-	color: #c0c0c0;
-}
-
-.notification-hr {
-	margin: 0px;
-}
-
-.notification-context {
-	position: absolute;
-	top: 50px;
-	bottom: auto;
-	right: 25px;
-	left: auto;  
 }

@@ -1,8 +1,8 @@
-<form id="searchForm" class="searchForm" method="get">
+<form id="searchForm" class="search-form" method="get">
     <ul class="nav nav-list">
         <li class="nav-header">Keywords</li>
         <li>
-            <input name="q" type="text" autofocus />
+            <input name="q" type="text" class="input-xlarge" autofocus />
         </li>
 
         <li class="nav-header">Time</li>
@@ -23,36 +23,30 @@
             </div>
             <div class="tab-content">
                 <div id="notemporal" class="tab-pane {{#ifNotOr dtoffset dtend dtstart}}active{{/ifNotOr}}"></div>
-                <div id="time_absolute" class="tab-pane {{#ifAnd dtend dtstart}}active{{/ifAnd}}">
-
-                    <div class="input-prepend">
-                        <span style="width: 60px" class="add-on add-on-label">Begin&nbsp;</span>
-                        <input id="absoluteStartTime" name="dtstart" type="text" class="span8"/>
-                    </div>
-                    <div class="input-prepend">
-                        <span style="width: 60px" class="add-on add-on-label">End&nbsp;</span>
-                        <input id="absoluteEndTime" name="dtend" type="text" class="span8"/>
-                    </div>
-
-                </div>
                 <div id="time_relative" class="tab-pane {{#if dtoffset}}active{{/if}}">
-                    <div class="row-fluid">
-                        <div class="span11 input-prepend input-append">
-                            <div class="span7">
-                                <span class="add-on add-on-label">Last&nbsp;</span>
-                                <input name="dtoffset" type="hidden" />
-                                <input id="offsetTime" name="offsetTime" class="input-medium" type="number"/>
-                                <select id="offsetTimeUnits" name="offsetTimeUnits" class="add-on span3">
-                                    <option value="seconds">seconds</option>
-                                    <option value="minutes">minutes</option>
-                                    <option selected="selected" value="hours">hours</option>
-                                    <option value="days">days</option>
-                                    <option value="weeks">weeks</option>
-                                    <option value="months">months</option>
-                                    <option value="years">years</option>
-                                </select>
-                            </div>
-                        </div>
+                    <div class="input-prepend input-append">
+                        <span class="add-on add-on-label">Last&nbsp;</span>
+                        <input name="dtoffset" type="hidden" />
+                        <input id="offsetTime" name="offsetTime" class="input-medium" type="number"/>
+                        <select id="offsetTimeUnits" name="offsetTimeUnits" class="add-on">
+                            <option value="seconds">seconds</option>
+                            <option value="minutes">minutes</option>
+                            <option selected="selected" value="hours">hours</option>
+                            <option value="days">days</option>
+                            <option value="weeks">weeks</option>
+                            <option value="months">months</option>
+                            <option value="years">years</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="time_absolute" class="tab-pane {{#ifAnd dtend dtstart}}active{{/ifAnd}}">
+                    <div class="input-prepend">
+                        <span class="add-on add-on-label">Begin&nbsp;</span>
+                        <input id="absoluteStartTime" name="dtstart" type="text" class="input-large"/>
+                    </div>
+                    <div class="input-prepend">
+                        <span class="add-on add-on-label">End&nbsp;</span>
+                        <input id="absoluteEndTime" name="dtend" type="text" class="input-large"/>
                     </div>
                 </div>
             </div>
@@ -73,68 +67,60 @@
                         data-target="#boundingbox" data-toggle="tab">Bounding
                     Box
                 </button>
-                <!--
-                <button type="button" name="wktButton" class="btn btn-mini" data-target="#wkt" data-toggle="tab">WKT</button>
-                -->
             </div>
             <div class="tab-content">
                 <div id="nogeo" class="tab-pane {{#ifNotOr radius bbox}}active{{/ifNotOr}}"></div>
+
                 <div id="pointradius" class="tab-pane {{#if radius}}active{{/if}}">
                     <input type="hidden" name="radius" value="">
 
-                    <div class="span11 input-prepend input-append">
-                        <span style="width: 80px" class="add-on add-on-label">Latitude&nbsp;</span>
+                    <div class="input-prepend input-append">
+                        <span class="add-on add-on-label">Latitude&nbsp;</span>
                         <input class="input-medium" id="latitude" name="lat" type="number" min="-90" max="90" step="any" placeholder=""/>
                         <label class="add-on">&deg;</label>
                     </div>
-                    <div class="span11 input-prepend input-append">
-                        <span style="width: 80px" class="add-on add-on-label">Longitude&nbsp;</span>
+                    <div class="input-prepend input-append">
+                        <span class="add-on add-on-label">Longitude&nbsp;</span>
                         <input class="input-medium" id="longitude" name="lon" type="number" min="-180" max="180" step="any" placeholder=""/>
                         <label class="add-on">&deg;</label>
                     </div>
 
-                    <div class="span11 input-prepend input-append">
-                        <div class="span7">
-                            <span style="width: 80px" class="add-on add-on-label">Radius&nbsp;</span>
-                            <input class="input-medium" id="radiusValue" name="radiusValue" type="number" placeholder=""/>
-                            <select id="radiusUnits" name="radiusUnits" class="add-on span4">
-                                <option value="meters" selected="selected">meters</option>
-                                <option value="kilometers">kilometers</option>
-                                <option value="feet">feet</option>
-                                <option value="yards">yards</option>
-                                <option value="miles">miles</option>
-                            </select>
-                        </div>
+                    <div class="input-prepend input-append">
+                        <span class="add-on add-on-label">Radius&nbsp;</span>
+                        <input class="input-medium" id="radiusValue" name="radiusValue" type="number" placeholder=""/>
+                        <select id="radiusUnits" name="radiusUnits" class="add-on">
+                            <option value="meters" selected="selected">meters</option>
+                            <option value="kilometers">kilometers</option>
+                            <option value="feet">feet</option>
+                            <option value="yards">yards</option>
+                            <option value="miles">miles</option>
+                        </select>
                     </div>
                 </div>
 
                 <div id="boundingbox" class="tab-pane {{#if bbox}}active{{/if}}">
                     <input type="hidden" name="bbox" value="">
 
-                    <div class="span11 input-prepend input-append">
-                        <span style="width: 60px" class="add-on add-on-label">West&nbsp;</span>
+                    <div class="input-prepend input-append">
+                        <span class="add-on add-on-label">West&nbsp;</span>
                         <input class="input-medium" id="west" name="west" type="number" min="-180" max="180" step="any" placeholder=""/>
                         <label class="add-on">&deg;</label>
                     </div>
-                    <div class="span11 input-prepend input-append">
-                        <span style="width: 60px" class="add-on add-on-label">South&nbsp;</span>
+                    <div class="input-prepend input-append">
+                        <span class="add-on add-on-label">South&nbsp;</span>
                         <input class="input-medium" id="south" name="south" type="number" min="-90" max="90" step="any" placeholder=""/>
                         <label class="add-on">&deg;</label>
                     </div>
-                    <div class="span11 input-prepend input-append">
-                        <span style="width: 60px" class="add-on add-on-label">East&nbsp;</span>
+                    <div class="input-prepend input-append">
+                        <span class="add-on add-on-label">East&nbsp;</span>
                         <input class="input-medium" id="east" name="east" type="number" min="-180" max="180" step="any" placeholder=""/>
                         <label class="add-on">&deg;</label>
                     </div>
-                    <div class="span11 input-prepend input-append">
-                        <span style="width: 60px" class="add-on add-on-label">North&nbsp;</span>
+                    <div class="input-prepend input-append">
+                        <span class="add-on add-on-label">North&nbsp;</span>
                         <input class="input-medium" id="north" name="north" type="number" min="-90" max="90" step="any" placeholder=""/>
                         <label class="add-on">&deg;</label>
                     </div>
-                </div>
-
-                <div id="wkt" class="tab-pane">
-                    <textarea rows="3" class="span12"></textarea>
                 </div>
             </div>
         </li>
