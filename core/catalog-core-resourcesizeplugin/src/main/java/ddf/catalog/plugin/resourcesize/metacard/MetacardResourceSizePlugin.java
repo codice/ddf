@@ -23,7 +23,6 @@ import ddf.cache.Cache;
 import ddf.cache.CacheException;
 import ddf.cache.CacheManager;
 import ddf.catalog.cache.CacheKey;
-import ddf.catalog.cache.CachedResource;
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
@@ -34,6 +33,7 @@ import ddf.catalog.operation.impl.ResourceRequestById;
 import ddf.catalog.plugin.PluginExecutionException;
 import ddf.catalog.plugin.PostQueryPlugin;
 import ddf.catalog.plugin.StopProcessingException;
+import ddf.catalog.resource.download.ReliableResource;
 
 public class MetacardResourceSizePlugin implements PostQueryPlugin {
 
@@ -47,7 +47,6 @@ public class MetacardResourceSizePlugin implements PostQueryPlugin {
     
     
     public MetacardResourceSizePlugin(CacheManager cacheManager) {
-        LOGGER.debug("MetacardResourceSizePlugin constructor");
         this.cacheManager = cacheManager;
         this.cache = this.cacheManager.getCache(PRODUCT_CACHE_NAME);
     }
@@ -64,14 +63,15 @@ public class MetacardResourceSizePlugin implements PostQueryPlugin {
                 // any properties for use in generating the CacheKey
                 final ResourceRequest resourceRequest = new ResourceRequestById(metacard.getId());
                 CacheKey cacheKey = new CacheKey(metacard, resourceRequest);
-                CachedResource cachedResource = null;
+                String key = null;
+                ReliableResource cachedResource = null;
                 try {
-                    String key = cacheKey.generateKey();
+                    key = cacheKey.generateKey();
                     ClassLoader tccl = Thread.currentThread().getContextClassLoader();
                     try {
                         Thread.currentThread().setContextClassLoader(
                               getClass().getClassLoader());
-                        cachedResource = (CachedResource) cache.get(key);
+                        cachedResource = (ReliableResource) cache.get(key);
                     } finally {
                         Thread.currentThread().setContextClassLoader(tccl);
                     } 
@@ -88,7 +88,7 @@ public class MetacardResourceSizePlugin implements PostQueryPlugin {
                         LOGGER.debug("resourceSize <= 0 for metacard ID = {}", metacard.getId());
                     }
                 } else {
-                    LOGGER.debug("No cached resource for metacard ID = {}", metacard.getId());
+                    LOGGER.debug("No cached resource for cache key = {}", key);
                 }
             }
         }

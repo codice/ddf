@@ -12,12 +12,13 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-package ddf.catalog.cache;
+package ddf.catalog.resource.download;
 
-public enum CachingStatus {
-    RESOURCE_CACHING_COMPLETE,
-    RESOURCE_CACHING_INTERRUPTED,
-    RESOURCE_CACHING_CANCELED,
+
+public enum DownloadStatus {
+    RESOURCE_DOWNLOAD_COMPLETE,
+    RESOURCE_DOWNLOAD_INTERRUPTED,
+    RESOURCE_DOWNLOAD_CANCELED,
     CLIENT_OUTPUT_STREAM_EXCEPTION,
     CACHED_FILE_OUTPUT_STREAM_EXCEPTION,
     PRODUCT_INPUT_STREAM_EXCEPTION

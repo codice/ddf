@@ -48,7 +48,7 @@ public class CacheClient implements Callable<ByteArrayOutputStream> {
     }
     
     // Simulates client/endpoint reading product from piped input stream
-    public ByteArrayOutputStream clientRead(int chunkSize, InputStream pis, int simulatedCancelChunkCount) {
+    public ByteArrayOutputStream clientRead(int chunkSize, InputStream is, int simulatedCancelChunkCount) {
         long size = 0;
         byte[] buffer = new byte[chunkSize];
         int chunkCount = 0;
@@ -57,7 +57,7 @@ public class CacheClient implements Callable<ByteArrayOutputStream> {
             int n = 0;
             while (true) {
                 chunkCount++;
-                n = pis.read(buffer);
+                n = is.read(buffer);
                 if (n == -1) {
                     break;
                 }
@@ -68,7 +68,7 @@ public class CacheClient implements Callable<ByteArrayOutputStream> {
                     break;
                 }
             }
-            IOUtils.closeQuietly(pis);
+            IOUtils.closeQuietly(is);
             IOUtils.closeQuietly(bos);
         } catch (IOException e) {
             LOGGER.error("Exception", e);

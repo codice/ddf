@@ -92,20 +92,6 @@ public class CachedResourceTest {
         expectedFileContents = FileUtils.readFileToString(productInputFile);
     }
 
-    @Test
-    //@Ignore
-    public void testHasProductWithNullFilepath() {
-        assertFalse(new CachedResource("", maxRetryAttempts, delayBetweenAttempts, cachingMonitorPeriod,
-                getEventPublisher()).hasProduct());
-    }
-
-    @Test
-    //@Ignore
-    public void testGetProductWithNullFilepath() throws IOException {
-        assertNull(new CachedResource("", maxRetryAttempts, delayBetweenAttempts, cachingMonitorPeriod,
-                getEventPublisher()).getProduct());
-    }
-
     /**
      * Test sunny day scenario where product is cached without any exceptions or timeouts
      * occurring.
@@ -115,6 +101,7 @@ public class CachedResourceTest {
     @Test
     @Ignore
     public void testStore() throws Exception {
+        /*HUGH
         mis = new MockInputStream(productInputFilename);
 
         Metacard metacard = getMetacardStub("abc123", "ddf-1");
@@ -146,7 +133,7 @@ public class CachedResourceTest {
         // Cleanup
 //      FileUtils.deleteDirectory(new File(productCacheDirectory));
         executor.shutdown();
-
+        END HUGH*/
     }
 
     /**
@@ -158,6 +145,7 @@ public class CachedResourceTest {
     @Test
     @Ignore
     public void testStoreWithInputStreamRecoverableError() throws Exception {
+        /*HUGH
         mis = new MockInputStream(productInputFilename);
         mis.setInvocationCountToThrowIOException(5);
 
@@ -188,6 +176,7 @@ public class CachedResourceTest {
         // Cleanup
 //        FileUtils.deleteDirectory(new File(productCacheDirectory));
         executor.shutdown();
+        END HUGH*/
     }
 
     /**
@@ -200,6 +189,7 @@ public class CachedResourceTest {
     @Test
     @Ignore
     public void testStoreWithTimeoutException() throws Exception {
+        /*HUGH
         mis = new MockInputStream(productInputFilename);
 
         Metacard metacard = getMetacardStub("abc123", "ddf-1");
@@ -234,6 +224,7 @@ public class CachedResourceTest {
         // Cleanup
 //        FileUtils.deleteDirectory(new File(productCacheDirectory));
         executor.shutdown();
+        END HUGH*/
     }
 
     /**
@@ -246,6 +237,7 @@ public class CachedResourceTest {
     @Test
     @Ignore
     public void testClientCancelProductDownloadDuringCaching() throws Exception {
+        /*HUGH
         mis = new MockInputStream(productInputFilename);
 
         Metacard metacard = getMetacardStub("abc123", "ddf-1");
@@ -287,6 +279,7 @@ public class CachedResourceTest {
 
 //      FileUtils.deleteDirectory(new File(productCacheDirectory));
         executor.shutdown();
+        END HUGH*/
     }
 
     /**
@@ -299,111 +292,6 @@ public class CachedResourceTest {
     @Ignore
     public void testCachingRecoveryWhenExceptionFromCachedOutputStream() throws Exception {
 
-    }
-
-//////////////////////////////////////////////////////////////////////////////////////////////////
-
-    private void verifyCaching(CachedResource cr, String expectedCacheKey,
-            ByteArrayOutputStream clientBytesRead) throws IOException {
-        assertEquals(expectedCacheKey, cr.getKey());
-        byte[] cachedData = cr.getByteArray();
-        assertNotNull(cachedData);
-
-        // Verifies cached data read in was same contents as product input file
-        assertTrue(cachedData.length == expectedFileSize);
-        assertEquals(expectedFileContents, new String(cachedData));
-
-        // Verifies client read same contents as product input file
-        if (clientBytesRead != null) {
-            assertTrue(clientBytesRead.size() == expectedFileSize);
-            assertEquals(expectedFileContents, new String(clientBytesRead.toByteArray()));
-        }
-
-        // Verifies cached file on disk has same contents as product input file
-        assertEquals(expectedFileContents, IOUtils.toString(cr.getProduct()));
-    }
-
-    private Metacard getMetacardStub(String id, String source) {
-
-        Metacard metacard = mock(Metacard.class);
-
-        when(metacard.getId()).thenReturn(id);
-
-        when(metacard.getSourceId()).thenReturn(source);
-
-        return metacard;
-    }
-
-    private ResourceResponse getResourceResponseStub() throws Exception {
-        resourceRequest = mock(ResourceRequest.class);
-        Map<String, Serializable> requestProperties = new HashMap<String, Serializable>();
-        when(resourceRequest.getPropertyNames()).thenReturn(requestProperties.keySet());
-
-        resource = mock(Resource.class);
-        when(resource.getInputStream()).thenReturn(mis);
-        when(resource.getName()).thenReturn("test-resource");
-        when(resource.getMimeType()).thenReturn(new MimeType("text/plain"));
-
-        resourceResponse = mock(ResourceResponse.class);
-        when(resourceResponse.getRequest()).thenReturn(resourceRequest);
-        when(resourceResponse.getResource()).thenReturn(resource);
-        when(resourceResponse.getProperties()).thenReturn(null);
-
-        return resourceResponse;
-    }
-
-    private ResourceRetriever getResourceRetrieverStubWithRetryCapability() throws Exception {
-
-        // Mocking to support re-retrieval of product when error encountered
-        // during caching.
-        ResourceRetriever retriever = mock(ResourceRetriever.class);
-        when(retriever.retrieveResource()).thenAnswer(new Answer<Object>() {
-            public Object answer(InvocationOnMock invocation) {
-                // Create new InputStream for retrieving the same product. This
-                // simulates re-retrieving the product from the remote source.
-                mis = new MockInputStream(productInputFilename);
-
-                // Reset the mock Resource so that it can be reconfigured to return
-                // the new InputStream
-                reset(resource);
-                when(resource.getInputStream()).thenReturn(mis);
-                when(resource.getName()).thenReturn("test-resource");
-                try {
-                    when(resource.getMimeType()).thenReturn(new MimeType("text/plain"));
-                } catch (MimeTypeParseException e) {
-                }
-
-                // Reset the mock ResourceResponse so that it can be reconfigured to return
-                // the new Resource
-                reset(resourceResponse);
-                when(resourceResponse.getRequest()).thenReturn(resourceRequest);
-                when(resourceResponse.getResource()).thenReturn(resource);
-                when(resourceResponse.getProperties()).thenReturn(null);
-
-                return resourceResponse;
-            }
-        });
-
-        return retriever;
-    }
-
-    private DownloadsStatusEventPublisher getEventPublisher() {
-        DownloadsStatusEventPublisher eventPublisher = mock(DownloadsStatusEventPublisher.class);
-
-        return eventPublisher;
-    }
-
-    public ByteArrayOutputStream clientRead(int chunkSize, InputStream is) throws Exception {
-        return clientRead(chunkSize, is, -1);
-    }
-
-    public ByteArrayOutputStream clientRead(int chunkSize, InputStream is, int simulatedCancelChunkCount) throws Exception {
-        executor = Executors.newCachedThreadPool();
-        CacheClient cacheClient = new CacheClient(is, chunkSize, simulatedCancelChunkCount);
-        Future<ByteArrayOutputStream> future = executor.submit(cacheClient);
-        ByteArrayOutputStream clientBytesRead = future.get();
-
-        return clientBytesRead;
     }
 
 }

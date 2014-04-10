@@ -138,7 +138,6 @@
     <reference id="cacheManager" interface="ddf.cache.CacheManager" />
 
     <bean id="productCache" class="ddf.catalog.cache.ResourceCache">
-        <argument ref="retrieveStatusEventPublisher" />
         <property name="cacheManager" ref="cacheManager" />
         <property name="productCacheDirectory" value="" />
     </bean>
@@ -165,6 +164,7 @@
 		<property name="version" value="DDF v2.0" />
 		<property name="organization" value="Codice" />
 		<property name="productCache" ref="productCache" />
+		<property name="retrieveStatusEventPublisher" ref="retrieveStatusEventPublisher" />
 	</bean>
 
 	<bean id="sourcePoller" class="ddf.catalog.util.impl.SourcePoller">

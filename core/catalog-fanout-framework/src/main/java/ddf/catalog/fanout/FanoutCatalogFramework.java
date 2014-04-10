@@ -52,6 +52,7 @@ import ddf.catalog.operation.ResourceRequest;
 import ddf.catalog.operation.ResourceResponse;
 import ddf.catalog.operation.SourceInfoRequest;
 import ddf.catalog.operation.SourceInfoResponse;
+import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.operation.UpdateRequest;
 import ddf.catalog.operation.UpdateResponse;
 import ddf.catalog.operation.impl.QueryRequestImpl;
@@ -70,6 +71,8 @@ import ddf.catalog.resource.Resource;
 import ddf.catalog.resource.ResourceNotFoundException;
 import ddf.catalog.resource.ResourceNotSupportedException;
 import ddf.catalog.resource.ResourceReader;
+import ddf.catalog.resource.download.DownloadException;
+import ddf.catalog.resource.download.ReliableResourceDownloadManager;
 import ddf.catalog.resourceretriever.RemoteResourceRetriever;
 import ddf.catalog.resourceretriever.ResourceRetriever;
 import ddf.catalog.source.CatalogProvider;
@@ -247,10 +250,23 @@ public class FanoutCatalogFramework extends CatalogFrameworkImpl {
         // Force an enterprise query
         QueryResponse queryResponse = super.query(new QueryRequestImpl(queryRequest.getQuery(),
                 true, null, queryRequest.getProperties()), strategy);
-        queryResponse = replaceSourceId(queryResponse);
 
         logger.exit(methodName);
         return queryResponse;
+    }
+    
+    @Override
+    protected SourceResponse validateFixQueryResponse(SourceResponse sourceResponse,
+            QueryRequest queryRequest) throws UnsupportedQueryException {
+        
+        logger.debug("ENTERING: validateFixQueryResponse()");
+        
+        // Must replace source ID with fanout site ID before the PostQuery plugins
+        // run - otherwise, the MetacardResourceSize post-query plugin will use
+        // the non-fanout source ID to search the cache for a match and should
+        // use the fanout site ID.
+        sourceResponse = replaceSourceId((QueryResponse) sourceResponse);
+        return super.validateFixQueryResponse(sourceResponse, queryRequest);
     }
 
     /**
@@ -427,6 +443,7 @@ public class FanoutCatalogFramework extends CatalogFrameworkImpl {
      *         name
      */
     protected QueryResponse replaceSourceId(QueryResponse queryResponse) {
+        logger.debug("ENTERING: replaceSourceId()");
         // TODO DDF-968 Update this so it does it in a streaming manner.
         List<Result> results = queryResponse.getResults();
         QueryResponseImpl newResponse = new QueryResponseImpl(queryResponse.getRequest(),
@@ -442,6 +459,7 @@ public class FanoutCatalogFramework extends CatalogFrameworkImpl {
         }
         newResponse.setHits(queryResponse.getHits());
         newResponse.closeResultQueue();
+        logger.debug("EXITING: replaceSourceId()");
         return newResponse;
     }
 
@@ -478,7 +496,7 @@ public class FanoutCatalogFramework extends CatalogFrameworkImpl {
         Set<String> sources = queryRequest.getSourceIds();
         if (sources != null) {
             for (String querySourceId : sources) {
-                logger.debug("validating requested sourceId" + querySourceId);
+                logger.debug("validating requested sourceId {}", querySourceId);
                 if (!querySourceId.equals(this.getId())) {
                     logger.debug("Throwing unsupportedQueryException due to unknown sourceId: "
                             + querySourceId);
@@ -580,37 +598,47 @@ public class FanoutCatalogFramework extends CatalogFrameworkImpl {
                         "Error finding resource URI.  Cannot get product without it.");
             }
             
-            if (cacheEnabled) {
-                String key;
-                try {
-                    key = new CacheKey(metacard, resourceRequest).generateKey();
-                } catch (CacheException e1) {
-                    throw new ResourceNotFoundException(e1);
-                }
-
-                if (productCache.contains(key)) {
-                    try {
-                        Resource resource = productCache.get(key);
-                        resourceResponse = new ResourceResponseImpl(resourceRequest,
-                                requestProperties, resource);
-                        logger.info(
-                                "Successfully retrieved product from cache for metacard ID = {}",
-                                metacard.getId());
-                    } catch (CacheException ce) {
-                        logger.info(
-                                "Unable to get resource from cache. Have to retrieve it from the Source");
-                    }
-                }
+            String key;
+            try {
+                key = new CacheKey(metacard, resourceRequest).generateKey();
+            } catch (CacheException e1) {
+                throw new ResourceNotFoundException(e1);
             }
 
+            if (productCache != null && productCache.contains(key)) {
+                try {
+                    Resource resource = productCache.get(key);
+                    resourceResponse = new ResourceResponseImpl(resourceRequest,
+                            requestProperties, resource);
+                    logger.info(
+                            "Successfully retrieved product from cache for metacard ID = {}",
+                            metacard.getId());
+                } catch (CacheException ce) {
+                    logger.info(
+                            "Unable to get resource from cache. Have to retrieve it from the Source");
+                }
+            }
 
             // If resource not retrieved from cache, then invoke retrieveResource on 
             // all federated sources
             if (resourceResponse == null) {
 	            for (FederatedSource currSource : federatedSources) {
 	                ResourceRetriever retriever = new RemoteResourceRetriever(currSource, resourceUri, requestProperties);
-	                try {
-//	                    resourceResponse = currSource.retrieveResource(resourceUri, requestProperties);	                    
+                    ReliableResourceDownloadManager downloadManager = new ReliableResourceDownloadManager(
+                            maxRetryAttempts, delayBetweenAttempts, monitorPeriod,
+                            cacheEnabled, productCache, cacheWhenCanceled,
+                            retrieveStatusEventPublisher);
+                    try {
+                        resourceResponse = downloadManager.download(resourceRequest, metacard, retriever);
+                    } catch (DownloadException e) {
+                        logger.info("source: " + currSource.getId() + " does not contain resource.");
+                    }
+                    
+                    if (resourceResponse != null) {
+                        break;
+                    }
+                    /*HUGH
+	                try {                    
                         resourceResponse = retriever.retrieveResource();
 	                } catch (ResourceNotFoundException e) {
 	                    logger.debug("source: " + currSource.getId() + " does not contain resource.");
@@ -627,6 +655,7 @@ public class FanoutCatalogFramework extends CatalogFrameworkImpl {
                         resourceResponse = cacheProduct(metacard, resourceResponse, retriever);
 	                    break;
 	                }
+	                END HUGH*/
 	            }
             }
 
@@ -635,8 +664,19 @@ public class FanoutCatalogFramework extends CatalogFrameworkImpl {
                 // Check the connected sources
                 for (ConnectedSource currSource : connectedSources) {
                     ResourceRetriever retriever = new RemoteResourceRetriever(currSource, resourceUri, requestProperties);
+                    ReliableResourceDownloadManager downloadManager = new ReliableResourceDownloadManager(maxRetryAttempts,
+                            delayBetweenAttempts, monitorPeriod, cacheEnabled, productCache, cacheWhenCanceled, retrieveStatusEventPublisher);
                     try {
-//                        resourceResponse = currSource.retrieveResource(resourceUri, requestProperties);
+                        resourceResponse = downloadManager.download(resourceRequest, metacard, retriever);
+                    } catch (DownloadException e) {
+                        logger.info("source: " + currSource.getId() + " does not contain resource.");
+                    }
+                    
+                    if (resourceResponse != null) {
+                        break;
+                    }
+                    /*HUGH
+                    try {
                         resourceResponse = retriever.retrieveResource();
                     } catch (ResourceNotFoundException e) {
                         logger.debug("source: " + currSource.getId()
@@ -655,6 +695,7 @@ public class FanoutCatalogFramework extends CatalogFrameworkImpl {
                         resourceResponse = cacheProduct(metacard, resourceResponse, retriever);
                         break;
                     }
+                    END HUGH*/
                 }
             }
 

@@ -288,17 +288,6 @@ public class RESTEndpoint {
                 final BinaryContent content = catalogFramework.transform(card, transformer, convertedMap);
                 LOGGER.debug("Read and transform complete, preparing response.");
                 
-                //TODO - remove this sleep as part of refactoring for ticket DDF-391
-                // (believe the sleep is needed to address race condition between CXF
-                // trying to read the InputStream and caching logic having time to setup
-                // the CachedResourceInputStream to be read - without this sleep can get
-                // situation where user starts download and CXF immediately cancels it due
-                // to InputStream not being ready)
-                try {
-                    Thread.sleep(50);
-                } catch (InterruptedException e) {
-                }
-                
                 Response.ResponseBuilder responseBuilder = Response.ok(content.getInputStream(),
                         content.getMimeTypeValue());                
 

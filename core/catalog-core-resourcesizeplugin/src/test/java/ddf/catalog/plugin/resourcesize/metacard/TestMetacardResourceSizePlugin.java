@@ -30,13 +30,13 @@ import org.junit.Test;
 
 import ddf.cache.Cache;
 import ddf.cache.CacheManager;
-import ddf.catalog.cache.CachedResource;
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.ResultImpl;
 import ddf.catalog.operation.QueryResponse;
+import ddf.catalog.resource.download.ReliableResource;
 
 public class TestMetacardResourceSizePlugin {
 
@@ -45,7 +45,7 @@ public class TestMetacardResourceSizePlugin {
         CacheManager cacheManager = mock(CacheManager.class);
         Cache cache = mock(Cache.class);
         when(cacheManager.getCache(anyString())).thenReturn(cache);
-        CachedResource cachedResource = mock(CachedResource.class);
+        ReliableResource cachedResource = mock(ReliableResource.class);
         when(cachedResource.getSize()).thenReturn(999L);
         when(cachedResource.hasProduct()).thenReturn(true);
         when(cache.get(anyObject())).thenReturn(cachedResource);
@@ -85,7 +85,7 @@ public class TestMetacardResourceSizePlugin {
         CacheManager cacheManager = mock(CacheManager.class);
         Cache cache = mock(Cache.class);
         when(cacheManager.getCache(anyString())).thenReturn(cache);
-        CachedResource cachedResource = mock(CachedResource.class);
+        ReliableResource cachedResource = mock(ReliableResource.class);
         when(cachedResource.getSize()).thenReturn(999L);
         when(cachedResource.hasProduct()).thenReturn(false);
         when(cache.get(anyObject())).thenReturn(cachedResource);
@@ -167,7 +167,7 @@ public class TestMetacardResourceSizePlugin {
         CacheManager cacheManager = mock(CacheManager.class);
         Cache cache = mock(Cache.class);
         when(cacheManager.getCache(anyString())).thenReturn(cache);
-        CachedResource cachedResource = mock(CachedResource.class);
+        ReliableResource cachedResource = mock(ReliableResource.class);
         when(cachedResource.getSize()).thenReturn(0L);
         when(cache.get(anyObject())).thenReturn(cachedResource);
         

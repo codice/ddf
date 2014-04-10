@@ -167,7 +167,6 @@
     </bean>
 
     <bean id="productCache" class="ddf.catalog.cache.ResourceCache">
-        <argument ref="retrieveStatusEventPublisher" />
         <property name="cacheManager" ref="cacheManager" />
         <property name="productCacheDirectory" value="" />
     </bean>
@@ -201,6 +200,7 @@
         <property name="maxRetryAttempts" value="3" />
         <property name="cachingMonitorPeriod" value="5" />
         <property name="cacheWhenCanceled" value="false" />
+        <property name="retrieveStatusEventPublisher" ref="retrieveStatusEventPublisher" />
 	</bean>
 
 	<bean id="sourcePoller" class="ddf.catalog.util.impl.SourcePoller" >

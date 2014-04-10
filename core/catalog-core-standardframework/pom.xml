@@ -104,10 +104,13 @@
 							ddf.catalog.util.impl,
 							ddf.catalog.filter.impl,
 							ddf.catalog.source.impl,
+							ddf.catalog.resource.download,
 							ddf.catalog.resource.impl,
 							ddf.catalog.resourceretriever
 						</Private-Package>
-						<Export-Package />
+						<Export-Package>
+						    ddf.catalog.resourceretriever
+						</Export-Package>
 					</instructions>
 				</configuration>
 			</plugin>

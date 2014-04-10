@@ -53,6 +53,7 @@ import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.ContentType;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
+import ddf.catalog.event.retrievestatus.DownloadsStatusEventPublisher;
 import ddf.catalog.federation.FederationException;
 import ddf.catalog.federation.FederationStrategy;
 import ddf.catalog.filter.impl.LiteralImpl;
@@ -94,6 +95,8 @@ import ddf.catalog.resource.Resource;
 import ddf.catalog.resource.ResourceNotFoundException;
 import ddf.catalog.resource.ResourceNotSupportedException;
 import ddf.catalog.resource.ResourceReader;
+import ddf.catalog.resource.download.DownloadException;
+import ddf.catalog.resource.download.ReliableResourceDownloadManager;
 import ddf.catalog.resourceretriever.LocalResourceRetriever;
 import ddf.catalog.resourceretriever.RemoteResourceRetriever;
 import ddf.catalog.resourceretriever.ResourceRetriever;
@@ -229,10 +232,25 @@ public class CatalogFrameworkImpl extends DescribableImpl implements Configurati
     private SourcePoller poller;
     
     protected ResourceCache productCache;
+
+    protected long monitorPeriod;
+
+    /**
+     * Maximum number of attempts to try and retrieve product
+     */
+    protected int maxRetryAttempts;
+
+    /**
+     * Delay, in ms, between attempts to cache resource to disk
+     */
+    protected int delayBetweenAttempts;
+
     
     protected boolean cacheEnabled = false;
 
     protected boolean cacheWhenCanceled = false;
+    
+    protected DownloadsStatusEventPublisher retrieveStatusEventPublisher;
 
     /**
      * Instantiates a new CatalogFrameworkImpl
@@ -413,22 +431,26 @@ public class CatalogFrameworkImpl extends DescribableImpl implements Configurati
     
     public void setDelayBetweenRetryAttempts(int delayBetweenAttempts) {
         logger.debug("Setting delayBetweenRetryAttempts = {} ms", delayBetweenAttempts * MS_PER_SECOND);
-        this.productCache.setDelayBetweenAttempts(delayBetweenAttempts * MS_PER_SECOND);
+        this.delayBetweenAttempts = delayBetweenAttempts * MS_PER_SECOND;
     }
     
     public void setMaxRetryAttempts(int maxRetryAttempts) {
         logger.debug("Setting maxRetryAttempts = {}", maxRetryAttempts);
-        this.productCache.setMaxRetryAttempts(maxRetryAttempts);
+        this.maxRetryAttempts = maxRetryAttempts;
     }
     
     public void setCachingMonitorPeriod(int cachingMonitorPeriod) {
         logger.debug("Setting cachingMonitorPeriod = {} ms", cachingMonitorPeriod * MS_PER_SECOND);
-        this.productCache.setCachingMonitorPeriod(cachingMonitorPeriod * MS_PER_SECOND);
+        this.monitorPeriod = cachingMonitorPeriod * MS_PER_SECOND;
     }
     
     public void setCacheWhenCanceled(boolean cacheWhenCanceled) {
         logger.debug("Setting cacheWhenCanceled = {}", cacheWhenCanceled);
         this.cacheWhenCanceled = cacheWhenCanceled;
+    }
+    
+    public void setRetrieveStatusEventPublisher(DownloadsStatusEventPublisher retrieveStatusEventPublisher) {
+        this.retrieveStatusEventPublisher = retrieveStatusEventPublisher;
     }
     
     /**
@@ -1327,26 +1349,24 @@ public class CatalogFrameworkImpl extends DescribableImpl implements Configurati
                 resourceSourceName = resolvedSourceId;
             }
             
-            if (cacheEnabled) {
-                String key;
+            String key;
+            try {
+                key = new CacheKey(metacard, resourceRequest).generateKey();
+            } catch (CacheException e1) {
+                throw new ResourceNotFoundException(e1);
+            }
+            if (productCache != null && productCache.contains(key)) {
                 try {
-                    key = new CacheKey(metacard, resourceRequest).generateKey();
-                } catch (CacheException e1) {
-                    throw new ResourceNotFoundException(e1);
-                }
-                if (productCache.contains(key)) {
-                    try {
-                        Resource resource = productCache.get(key);
-                        resourceResponse = new ResourceResponseImpl(resourceRequest,
-                                requestProperties, resource);
-                        logger.info(
-                                "Successfully retrieved product from cache for metacard ID = {}",
-                                metacard.getId());
-                    } catch (CacheException ce) {
-                        logger.info(
-                                "Unable to get resource from cache. Have to retrieve it from source {}",
-                                resourceSourceName);
-                    }
+                    Resource resource = productCache.get(key);
+                    resourceResponse = new ResourceResponseImpl(resourceRequest,
+                            requestProperties, resource);
+                    logger.info(
+                            "Successfully retrieved product from cache for metacard ID = {}",
+                            metacard.getId());
+                } catch (CacheException ce) {
+                    logger.info(
+                            "Unable to get resource from cache. Have to retrieve it from source {}",
+                            resourceSourceName);
                 }
             }
 
@@ -1370,12 +1390,13 @@ public class CatalogFrameworkImpl extends DescribableImpl implements Configurati
                 	if(resourceResponse == null) {
                         logger.debug("Retrieving product from remote source {}", source.getId());
                         ResourceRetriever retriever = new RemoteResourceRetriever(source, responseURI, requestProperties);
-                        resourceResponse = retriever.retrieveResource();
-                        
-                        // Sources do not create ResourceResponses with the original ResourceRequest, hence
-                        // it is added here because it will be needed for caching
-                        resourceResponse = new ResourceResponseImpl(resourceRequest, resourceResponse.getProperties(), resourceResponse.getResource());
-                        resourceResponse = cacheProduct(metacard, resourceResponse, retriever);
+                        ReliableResourceDownloadManager downloadManager = new ReliableResourceDownloadManager(maxRetryAttempts,
+                                delayBetweenAttempts, monitorPeriod, cacheEnabled, productCache, cacheWhenCanceled, retrieveStatusEventPublisher);
+                        try {
+                            resourceResponse = downloadManager.download(resourceRequest, metacard, retriever);
+                        } catch (DownloadException e) {
+                            logger.info("Unable to download resource", e);
+                        }
                     }
                 } else {
                     logger.warn("Could not find federatedSource: {}", resourceSourceName);
@@ -1386,12 +1407,13 @@ public class CatalogFrameworkImpl extends DescribableImpl implements Configurati
                 if (resourceResponse == null) {
                     logger.debug("Retrieving product from local source {}", resourceSourceName);
                     ResourceRetriever retriever = new LocalResourceRetriever(resourceReaders, responseURI, requestProperties);
-                    resourceResponse = retriever.retrieveResource();
-                    
-                    // ResourceReaders do not create ResourceResponses with the original ResourceRequest, hence
-                    // it is added here because it will be needed for caching
-                    resourceResponse = new ResourceResponseImpl(resourceRequest, resourceResponse.getProperties(), resourceResponse.getResource());
-                    resourceResponse = cacheProduct(metacard, resourceResponse, retriever);
+                    ReliableResourceDownloadManager downloadManager = new ReliableResourceDownloadManager(maxRetryAttempts,
+                            delayBetweenAttempts, monitorPeriod, cacheEnabled, productCache, cacheWhenCanceled, retrieveStatusEventPublisher);
+                    try {
+                        resourceResponse = downloadManager.download(resourceRequest, metacard, retriever);
+                    } catch (DownloadException e) {
+                        logger.info("Unable to download resource", e);
+                    }
                 }
             }
 
@@ -1421,26 +1443,6 @@ public class CatalogFrameworkImpl extends DescribableImpl implements Configurati
         }
 
         logger.exit(methodName);
-        return resourceResponse;
-    }
-    
-    /**
-     * Add retrieved product to the cache
-     * 
-     * @param metacard Metacard to index retrieved product with
-     * @param resourceResponse response containing the Resource to be cached
-     * @return
-     */
-    protected ResourceResponse cacheProduct(Metacard metacard, ResourceResponse resourceResponse, ResourceRetriever retriever) {        
-        if (cacheEnabled && metacard != null && resourceResponse != null && retriever != null) {
-            try {
-                resourceResponse = productCache.put(metacard, resourceResponse, retriever, cacheWhenCanceled);
-            } catch (CacheException e) {
-                logger.info("Unable to put resource for metacard ID = {} in product cache",
-                        metacard.getId());
-            }
-        }
-        
         return resourceResponse;
     }
 
