@@ -99,9 +99,6 @@ define([
             },
             initialize: function() {
                 this.listenTo(this.model, 'change', this.render);
-            },
-            abort: function() {
-                this.model.abort();
             }
         }),
         tagName: 'ul',
@@ -154,7 +151,6 @@ define([
                         attrs.progress = progress;
                         if(fileModel) {
                             fileModel.set(attrs);
-                            fileModel.abort = _.bind(data.abort, data);
                         } else {
                             fileUploadColl.add(new Backbone.Model(attrs));
                         }
