@@ -17,8 +17,8 @@ define(function (require) {
     "use strict";
 
     var Backbone = require('backbone'),
-        _ = require('underscore'),
-        $ = require('jquery');
+        $ = require('jquery'),
+        _ = require('underscore');
     var Applications = {};
 
     Applications.MvnUrlColl = Backbone.Collection.extend({
@@ -46,6 +46,8 @@ define(function (require) {
                 });
         }
     });
+    var startUrl = '/jolokia/exec/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/startApplication/';
+    var stopUrl = '/jolokia/exec/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/stopApplication/';
 
     var versionRegex = /([^0-9]*)([0-9]+.*$)/;
     Applications.TreeNode = Backbone.Model.extend({
@@ -61,6 +63,8 @@ define(function (require) {
            this.massageVersionNumbers();
            this.cleanupDisplayName(); //set({displayName: this.createDisplayName()});
            this.updateName();
+           this.set({currentState: this.get("state") === "ACTIVE"});
+           this.set({selected: this.get("currentState")});
            if (children){
                this.set({children: new Applications.TreeNodeCollection(children)});
                this.get("children").forEach(function (child) {
@@ -120,11 +124,156 @@ define(function (require) {
                return string.charAt(0).toUpperCase() + string.slice(1);
            }
             return string;
-       }
+       },
+
+        isDirty: function() {
+            return (this.get("selected") !== this.get("currentState"));
+        },
+
+        countDirty: function() {
+            var count = 0;
+            if (this.isDirty()) {
+                count = 1;
+            }
+            if (this.get("children").length){
+                this.get("children").forEach(function(child) {
+                    count += child.countDirty();
+                });
+            }
+            return count;
+        },
+
+        // bottom-up uninstall
+        uninstall: function(statusUpdate) {
+            if (this.countDirty() > 0){
+                // uninstall all needed children
+                if (this.get("children").length){
+                    this.get("children").forEach(function(child) {
+                        child.uninstall(statusUpdate);
+                    });
+                }
+                // uninstall myself
+                if (!this.get("selected") && this.isDirty()) {
+                    this.save(statusUpdate);
+                }
+            }
+        },
+
+        // top-down install
+        install: function(statusUpdate) {
+            if (this.countDirty() > 0){
+                // install myself
+                if (this.get("selected") && this.isDirty()) {
+                    this.save(statusUpdate);
+                }
+
+                // install my needed children
+                if (this.get("children").length){
+                    this.get("children").forEach(function(child) {
+                        child.install(statusUpdate);
+                    });
+                }
+            }
+        },
+
+        // override save to actual invoke the install of this app
+        save: function(statusUpdate){
+            if (this.isDirty()) {
+                if (this.get("selected")) {
+                    statusUpdate("Installing " + this.get("name"));
+                    console.log("Installing " + this.get("name"));
+                    $.ajax({
+                        type: "GET",
+                        url: startUrl + this.get("name") + '/',
+                        dataType: "JSON",
+                        async: false,
+                        success: function(response, statusTxt) {
+                            console.log("Returned from install: " + response.value + " status: "+ statusTxt);
+                        },
+                        error: function(response, statusTxt) {
+                            console.log("Returned from install: " + response + " status: " + statusTxt);
+                        }
+                    });
+
+                } else {
+                    statusUpdate("Uninstalling " + this.get("name"));
+                    console.log("Uninstalling " + this.get("name"));
+                    $.ajax({
+                        type: "GET",
+                        url: stopUrl + this.get("name") + '/',
+                        dataType: "JSON",
+                        async: false,
+                        success: function(response, statusTxt) {
+                            console.log("Returned from uninstall: " + response.value + " status: "+ statusTxt);
+                        },
+                        error: function(response, statusTxt) {
+                            console.log("Returned from uninstall: " + response + " status: " + statusTxt);
+                        }
+                    });
+                }
+            }
+        }
+
+
+
     });
 
     Applications.TreeNodeCollection = Backbone.Collection.extend({
-        model: Applications.TreeNode
+        model: Applications.TreeNode,
+        url: '/jolokia/read/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/ApplicationTree/',
+
+        // instead of a single post of the collection, we are making individual
+        // calls to install/uninstall specific items of the collection (apps)
+        // corresponding to their selection status and current state
+        sync: function(method, model, options){
+            var statusUpdate = options.statusUpdate;
+            var thisModel = model;
+            if (method === 'read'){
+                var appResponse = new Applications.Response();
+                appResponse.fetch({
+                    success: function(model){
+                        thisModel.reset(model.get("value"));
+                        console.log("Reloaded application list");
+                    }
+                });
+            } else { // this is a save of the model (CUD)
+                this.save(statusUpdate);
+            }
+        },
+
+        save: function(statusUpdate) {
+            // get the total number of apps to be installed/uninstalled
+            var count = 0;
+            var totalCount = 0;
+            this.each(function(child) {
+               totalCount += child.countDirty();
+            });
+
+            // uninstall apps first
+            this.each(function(child) {
+                child.uninstall(function(message) {
+                    if (typeof statusUpdate !== 'undefined') {
+                        statusUpdate(message, count/totalCount*100);
+                    }
+                    count++;
+                });
+            });
+
+            // then install necessary apps
+            this.each(function(child) {
+                child.install(function(message) {
+                    if (typeof statusUpdate !== 'undefined') {
+                        statusUpdate(message, count/totalCount*100);
+                    }
+                    count++;
+                });
+            });
+
+            if (typeof statusUpdate !== 'undefined') {
+                statusUpdate("Total of " + totalCount + " applications installed/uninstalled.", 100);
+            }
+        }
+
     });
 
     Applications.Response = Backbone.Model.extend({

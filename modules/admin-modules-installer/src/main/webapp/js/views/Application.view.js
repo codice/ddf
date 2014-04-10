@@ -17,16 +17,13 @@
 define([
     'backbone',
     'marionette',
+    'underscore',
     '/installer/js/models/Applications.js',
     'icanhaz',
-    'underscore',
     'text!/installer/templates/application.handlebars',
     'text!/installer/templates/applicationNode.handlebars',
-    'text!/installer/templates/details.handlebars',
-    'text!/installer/templates/applicationNew.handlebars',
-    'text!/installer/templates/mvnUrlItem.handlebars',
-    'fileupload'
-], function(Backbone, Marionette, AppModel, ich, _, applicationTemplate, applicationNodeTemplate, detailsTemplate, applicationNew, mvnItemTemplate) {
+    'text!/installer/templates/details.handlebars'
+], function(Backbone, Marionette, _, AppModel, ich, applicationTemplate, applicationNodeTemplate, detailsTemplate) {
     "use strict";
 
     ich.addTemplate('applicationTemplate', applicationTemplate);
@@ -227,8 +224,39 @@ define([
             this.stopListening(applicationModel);
             this.$('#wrapper').perfectScrollbar('destroy');
         },
+        countSelected: function(treenodes) {
+            var count = 0;
+            var view = this;
+            _.each(treenodes, function(node) {
+                    if (node.get("selected")) {
+                        count++;
+                        var children = node.get("children");
+                        if (children.length > 0){
+                            count += view.countSelected(children);
+                        }
+                    }
+                });
+            return count;
+        },
+
         next: function () {
+            var view = this;
+            view.navigationModel.trigger('block');
+
+            view.installApp();
+
         //leaving this code in here as a starting point for the person that implements this
+
+            view.navigationModel.trigger('unblock');
+            this.navigationModel.nextStep();
+        },
+        previous: function () {
+            //this is your hook to perform any teardown that must be done before going to the previous step
+            this.navigationModel.previousStep();
+        },
+
+        installApp: function(){
+            var view = this;
 //            var sleep = function(millis, callback) {
 //                setTimeout(function() {
 //                    callback();
@@ -245,6 +273,7 @@ define([
 //                view.navigationModel.nextStep("Installing Solr", 25);
 //                sleep(1000, install3);
 //            };
+            applicationModel.sync('update', applicationModel, {statusUpdate: view.navigationModel.nextStep});
 //            var install3 = function() {
 //                view.navigationModel.nextStep("Installing UI", 50);
 //                sleep(1000, install4);

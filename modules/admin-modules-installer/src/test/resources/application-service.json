@@ -38,7 +38,7 @@
                         {
                             "description": "Catalog Provider with locally Embedded Solr Server, implemented using Solr 4.6.0.",
                             "name": "solr-app",
-                            "state": "ACTIVE",
+                            "state": "INACTIVE",
                             "children": [],
                             "version": "2.4.0-SNAPSHOT"
                         },
