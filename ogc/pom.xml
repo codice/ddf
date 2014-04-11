@@ -28,7 +28,6 @@
     <modules>
         <module>spatial-ogc-api</module>
         <module>spatial-ogc-common</module>
-        <module>spatial-ogc-filter-v_1_1_0-schema</module>
         <module>spatial-ogc-urlresourcereader</module>
     </modules>
 </project>
