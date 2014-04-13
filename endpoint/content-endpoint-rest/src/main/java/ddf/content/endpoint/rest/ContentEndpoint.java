@@ -72,6 +72,8 @@ import ddf.mime.MimeTypeResolutionException;
 public class ContentEndpoint {
     private static XLogger logger = new XLogger(LoggerFactory.getLogger(ContentEndpoint.class));
 
+    private static final String CONTENT_DISPOSITION = "Content-Disposition";
+
     private static final String DEFAULT_MIME_TYPE = "application/octet-stream";
 
     private static final String DEFAULT_DIRECTIVE = "STORE_AND_PROCESS";
@@ -348,9 +350,8 @@ public class ContentEndpoint {
             response = responseBuilder.build();
         } catch (Exception e) {
             logger.warn("Exception caught during create", e);
-            Response.ResponseBuilder responseBuilder = Response.ok(e.getMessage());
-            responseBuilder.status(Response.Status.BAD_REQUEST);
-            response = responseBuilder.build();
+            throw new ContentEndpointException("Bad request, could not create content",
+                    Response.Status.BAD_REQUEST);
         }
 
         logger.debug("createdContentId = [" + createdContentId + "]");
@@ -377,6 +378,13 @@ public class ContentEndpoint {
             InputStream result = item.getInputStream();
             Response.ResponseBuilder builder = Response.ok(result);
 
+            String fileName = item.getFilename();
+            if (fileName != null) {
+                // TODO replace with HTTPHeaders.CONTENT_DISPOSITION when upgraded to v2.0 of
+                // javax.ws.rs jar file
+                builder.header(CONTENT_DISPOSITION, "inline; filename=" + fileName);
+            }
+
             String mimeType = item.getMimeTypeRawData();
             if (mimeType != null) {
                 builder.type(mimeType);
@@ -398,10 +406,8 @@ public class ContentEndpoint {
 
         } catch (Exception e) {
             logger.error("Error retrieving item from content framework.", e);
-            Response.ResponseBuilder responseBuilder = Response.ok("Content Item " + id
-                    + " does not exist.\n" + e.getMessage());
-            responseBuilder.status(Response.Status.NOT_FOUND);
-            response = responseBuilder.build();
+            throw new ContentEndpointException("Content Item " + id + " not found.",
+                    Response.Status.NOT_FOUND);
         }
 
         logger.trace("EXITING: doRead");
@@ -454,10 +460,8 @@ public class ContentEndpoint {
             response = responseBuilder.build();
         } catch (Exception e) {
             logger.error("Error updating item in content framework", e);
-            Response.ResponseBuilder responseBuilder = Response.ok("Content Item " + id
-                    + " not updated.\n" + e.getMessage());
-            responseBuilder.status(Response.Status.NOT_FOUND);
-            response = responseBuilder.build();
+            throw new ContentEndpointException("Content Item " + id + " not found.",
+                    Response.Status.NOT_FOUND);
         }
 
         logger.trace("EXITING: doUpdate");
@@ -513,10 +517,9 @@ public class ContentEndpoint {
             }
         } catch (ContentFrameworkException e) {
             logger.error("Error deleting item from content framework", e);
-            Response.ResponseBuilder responseBuilder = Response.ok("Content Item " + id
-                    + " not found.\n" + e.getMessage());
-            responseBuilder.status(Response.Status.NOT_FOUND);
-            response = responseBuilder.build();
+            throw new ContentEndpointException("Content Item " + id + " not found.",
+                    Response.Status.NOT_FOUND);
+
         }
 
         logger.trace("EXITING: doDelete");
@@ -543,4 +546,5 @@ public class ContentEndpoint {
             }
         }
     }
+
 }
