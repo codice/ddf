@@ -1,5 +1,5 @@
 <div class="new-app-btn">
-    <a href="#app-modal" class="btn btn-primary" data-toggle="modal">Install a new application</a>
+    <a href="#app-modal" class="btn btn-primary" data-toggle="modal">Add a new application</a>
 </div>
 <div id="app-modal" class="modal" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog">
@@ -16,12 +16,19 @@
                 </ul>
                 <div class="tab-content">
                     <div class="tab-pane active" id="upload">
-                        <span class="btn btn-info fileinput-button">
-                            <i class="glyphicon glyphicon-plus"></i>
-                            <span>Add application files...</span>
-                            <!-- The file input field used as target for the file upload widget -->
-                            <input id="app-upload-btn" type="file" name="files[]" multiple>
-                        </span>
+                        <form id="fileupload" action="/services/application" method="POST" enctype="multipart/form-data">
+                            <span class="btn btn-info fileinput-button">
+                                <i class="glyphicon glyphicon-plus"></i>
+                                <span>Add application files...</span>
+                                <input id="app-upload-btn" type="file" name="files[]" accept="audio/midi,application/java-archive" multiple>
+                            </span>
+                            <div class="span5 fileupload-progress">
+                                <div id="fileContainer">
+
+                                </div>
+                            </div>
+                            <div class="fileupload-loading"></div>
+                        </form>
                     </div>
                     <div class="tab-pane" id="url">
                         <div class="url-tab">

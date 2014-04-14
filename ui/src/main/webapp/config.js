@@ -29,7 +29,7 @@
             'jquery.ui.widget': 'lib/jquery-ui/ui/minified/jquery.ui.widget.min',
             multiselect: 'lib/bootstrap-multiselect/js/bootstrap-multiselect',
             perfectscrollbar: 'lib/perfect-scrollbar/min/perfect-scrollbar-0.4.8.with-mousewheel.min',
-            fileupload: 'lib/jquery-file-upload/js/jquery.fileupload-ui',
+            fileupload: 'lib/jquery-file-upload/js/jquery.fileupload',
             fileuploadiframe: 'lib/jquery-file-upload/js/jquery.iframe-transport',
 
             // handlebars
