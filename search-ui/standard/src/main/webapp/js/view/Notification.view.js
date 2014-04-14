@@ -1,29 +1,42 @@
 /* global define */
 
-define([ 'backbone', 'icanhaz', 'text!templates/notification/notification.message.handlebars', 'text!templates/notification/notification.title.handlebars', 'moment', 'underscore',
-        'jquery', 'pnotify' ], function(Backbone, ich, messageTemplate, titleTemplate, moment, _, $) {
+define([ 'backbone', 
+         'icanhaz', 
+         'text!templates/notification/notification.message.handlebars', 
+         'text!templates/notification/notification.title.handlebars', 
+         'underscore',
+         'jquery', 
+         'pnotify' 
+       ], 
+         function(Backbone, ich, messageTemplate, titleTemplate, _, $) {
 
     // Create object to contain both the NotificationItemView and the NotificationListView in.
     // This is so we can return it below.
     var NotificationView = {};
 
-    //var DATE_THRESHOLD = 2592000000; // thirty days ago
-
     ich.addTemplate('notificationTemplate', messageTemplate);
     ich.addTemplate('titleTemplate', titleTemplate);
     
+    var stack_context;
+    
     NotificationView.NotificationItemView = Backbone.Marionette.ItemView.extend({
 
-        render : function() {
-
+        onRender : function() {
+            if (typeof stack_context === "undefined") stack_context = {
+                    "dir1": "down",
+                    "dir2": "left",
+                    "context": $("#notifications")
+            };
+            
             var notification = $.pnotify({
                 title : ich.titleTemplate(this.model.toJSON()), 
                 text : this.constructNotificationText(),
-                icon : "fa fa-download notification-title",
+                icon : "fa fa-exclamation-circle notification-title",  
                 hide : false,
                 closer_hover : false,
                 sticker: false, 
                 history: false,
+                stack: stack_context,
                 //need to define custom styling since the default pnotify fontawesome styling makes every notice a warning.
                 styling: {
                     container: "alert",
@@ -49,13 +62,6 @@ define([ 'backbone', 'icanhaz', 'text!templates/notification/notification.messag
         },
 
         constructNotificationText : function() {
-            var formattedTime;
-
-            // where should this happen?
-            var modelTimestamp = this.model.get("timestamp");
-            formattedTime = moment(modelTimestamp).format('MMMM Do YYYY, h:mm:ss a');
-            this.model.set("formattedTime", formattedTime);
-
             var text = ich.notificationTemplate(this.model.toJSON()).html();
             return text;
         },

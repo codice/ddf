@@ -489,13 +489,13 @@ div.multiselect div.ui-multiselect-header {
 
 .notification-time {
     font-size: .6em;
-    color: #ffffff;
+    color: white;
 }
 
 .notification-message {
-	padding-top: 1em;
-	padding-bottom: 1em;
-	color: #ffffff;
+	padding-top: 12px;
+	padding-bottom: 12px;
+	color: white;
 	font-size: .9em;
 }
 
@@ -504,8 +504,8 @@ div.multiselect div.ui-multiselect-header {
 }
 
 .notification-subtitle { 
-	padding-top: 1em;
-	padding-bottom: 1em;
+	padding-top: 12px;
+	padding-bottom: 12px;
 	font-weight: bold;
 	font-style: italic;
 	color: #c0c0c0;
@@ -513,4 +513,12 @@ div.multiselect div.ui-multiselect-header {
 
 .notification-hr {
 	margin: 0px;
+}
+
+.notification-context {
+	position: absolute;
+	top: 50px;
+	bottom: auto;
+	right: 25px;
+	left: auto;  
 }
