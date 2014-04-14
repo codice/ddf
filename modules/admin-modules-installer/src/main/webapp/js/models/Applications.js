@@ -50,6 +50,13 @@ define(function (require) {
     var stopUrl = '/jolokia/exec/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/stopApplication/';
 
     var versionRegex = /([^0-9]*)([0-9]+.*$)/;
+
+    // Applications.TreeNode
+    // ---------------------
+
+    // Represents a node in the application tree where children are dependent on their parent being
+    // installed. This node can have zero or more children (which are also 'Applications.Treenode`
+    // nodes themselves).
     Applications.TreeNode = Backbone.Model.extend({
        defaults: function() {
             return {
@@ -60,11 +67,20 @@ define(function (require) {
        initialize: function(){
            var children = this.get("children");
            var that = this;
+
+           // Some (not properly created) applications features file result in a name that includes the
+           // version number - strip that off and move it into the version number.
            this.massageVersionNumbers();
-           this.cleanupDisplayName(); //set({displayName: this.createDisplayName()});
+           this.cleanupDisplayName();
            this.updateName();
+
+           // Reflect the current state of the application in the model and keep the
+           // state to determine if the user changes it.
            this.set({currentState: this.get("state") === "ACTIVE"});
            this.set({selected: this.get("currentState")});
+
+           // Change the children from json representation to models and include a link
+           // in each to their parent.
            if (children){
                this.set({children: new Applications.TreeNodeCollection(children)});
                this.get("children").forEach(function (child) {
@@ -73,6 +89,9 @@ define(function (require) {
            }
            this.listenTo(this, "change", this.updateModel);
        },
+
+       // When the user selects or deselects an application, adjust the rest of the
+       // model accordingly - deselects propagate down, selects propagate up.
        updateModel: function(){
          if (this.get("selected")) {
              if (this.get("parent")) {
@@ -85,6 +104,9 @@ define(function (require) {
          }
        },
 
+        // Since the name is used for ids in the DOM, remove any periods
+        // that might exist - but store in a separate attribute since we need the
+        // original name to control the application via the application-service.
         updateName: function() {
             //this.set({name: this.get("name").replace(/\./g,'')});
             this.set({appId: this.get("name").replace(/\./g,'')});
@@ -105,6 +127,8 @@ define(function (require) {
             }
         },
 
+        // Create a name suitable for display from the application name - camel-case
+        // it and remove the dashes.
         cleanupDisplayName: function(){
             var tempName = this.get("displayName"); //.replace(/\./g,'');
             var names = tempName.split('-');
@@ -119,6 +143,7 @@ define(function (require) {
             this.set({displayName: dispName});
         },
 
+        // Capitalize and return the first letter of the given string.
        capitalizeFirstLetter: function(string){
            if (string && string !== ""){
                return string.charAt(0).toUpperCase() + string.slice(1);
@@ -126,10 +151,14 @@ define(function (require) {
             return string;
        },
 
+        // Determines whether the user has changed the selection of this model or
+        // not - does not check its children.
         isDirty: function() {
             return (this.get("selected") !== this.get("currentState"));
         },
 
+        // Returns the total number of applications that the user has changed
+        // the selection status of - includes this node and all of its children.
         countDirty: function() {
             var count = 0;
             if (this.isDirty()) {
@@ -143,7 +172,8 @@ define(function (require) {
             return count;
         },
 
-        // bottom-up uninstall
+        // Uninstalls should be performed bottom-up - from the leaf nodes
+        // to the parent.
         uninstall: function(statusUpdate) {
             if (this.countDirty() > 0){
                 // uninstall all needed children
@@ -159,7 +189,8 @@ define(function (require) {
             }
         },
 
-        // top-down install
+        // Installs should be performed top-down - from the parent node down
+        // through the children.
         install: function(statusUpdate) {
             if (this.countDirty() > 0){
                 // install myself
@@ -176,7 +207,8 @@ define(function (require) {
             }
         },
 
-        // override save to actual invoke the install of this app
+        // Performs the actual AJAX call to save the current model. Takes a status
+        // function to keep anyone who cares informed about each step being performed.
         save: function(statusUpdate){
             if (this.isDirty()) {
                 if (this.get("selected")) {
@@ -218,13 +250,20 @@ define(function (require) {
 
     });
 
+    // Applications.TreeNodeCollection
+    // -------------------------------
+
+    // Represents a collection of application nodes. Note that each of the `Applications.Treenode`
+    // elements can be recursive nodes.
     Applications.TreeNodeCollection = Backbone.Collection.extend({
         model: Applications.TreeNode,
         url: '/jolokia/read/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/ApplicationTree/',
 
-        // instead of a single post of the collection, we are making individual
-        // calls to install/uninstall specific items of the collection (apps)
-        // corresponding to their selection status and current state
+        // Reading the collection can be perfomed using a normal fetch (through the
+        // `Applications.Response` model - then pulling out the values.
+        // Saving the state of the selected applications doesn't follow the normal
+        // REST model - each application is uninstalled or installed through
+        // the application-service.
         sync: function(method, model, options){
             var statusUpdate = options.statusUpdate;
             var thisModel = model;
@@ -241,15 +280,20 @@ define(function (require) {
             }
         },
 
+        // Performs the application of the user-selected changes to the application dependency
+        // trees (each element of this collection is the root of one dependency tree). This save
+        // method accepts a `statusUpdate` function which will be called with `(message, percentComplete)`
+        // to keep the caller aware of the current status.
         save: function(statusUpdate) {
-            // get the total number of apps to be installed/uninstalled
+            // Determine the total number of actions to be performed so that we can provide
+            // a percent complete in the `statusUpdate` method.
             var count = 0;
             var totalCount = 0;
             this.each(function(child) {
                totalCount += child.countDirty();
             });
 
-            // uninstall apps first
+            // Uninstall the apps first
             this.each(function(child) {
                 child.uninstall(function(message) {
                     if (typeof statusUpdate !== 'undefined') {
@@ -259,7 +303,7 @@ define(function (require) {
                 });
             });
 
-            // then install necessary apps
+            // Then install necessary apps
             this.each(function(child) {
                 child.install(function(message) {
                     if (typeof statusUpdate !== 'undefined') {
@@ -276,6 +320,11 @@ define(function (require) {
 
     });
 
+    // Applications.Response
+    // ---------------------
+
+    // Represents the response from the application-service when obtaining the list of all applications
+    // on the system.
     Applications.Response = Backbone.Model.extend({
         url: '/jolokia/read/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/ApplicationTree/'
     });
