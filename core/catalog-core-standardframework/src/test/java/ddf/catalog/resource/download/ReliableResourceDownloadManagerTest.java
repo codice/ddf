@@ -23,6 +23,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -52,7 +53,6 @@ import org.mockito.stubbing.Answer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ddf.catalog.cache.CacheClient;
 import ddf.catalog.cache.CacheKey;
 import ddf.catalog.cache.MockInputStream;
 import ddf.catalog.cache.ResourceCache;
@@ -69,13 +69,22 @@ public class ReliableResourceDownloadManagerTest {
     
     private static final Logger LOGGER = LoggerFactory.getLogger(ReliableResourceDownloadManagerTest.class);
     
+    private enum RetryType {
+      INPUT_STREAM_IO_EXCEPTION,
+      TIMEOUT_EXCEPTION,
+      NETWORK_CONNECTION_UP_AND_DOWN,
+      NETWORK_CONNECTION_DROPPED,
+      CLIENT_CANCELS_DOWNLOAD,
+      CACHE_FILE_EXCEPTION
+    };
+    
     public static String workingDir;
     public static String productCacheDirectory;
     public static String productInputFilename;
     public static long expectedFileSize;
     public static String expectedFileContents;
     public static final int maxRetryAttempts = 3;
-    public static final int delayBetweenAttempts = 1;
+    public static final int delayBetweenAttempts = 5;
     public static final int monitorPeriod = 5;
     
     private boolean cacheEnabled;
@@ -198,11 +207,7 @@ public class ReliableResourceDownloadManagerTest {
         
         ByteArrayOutputStream clientBytesRead = clientRead(chunkSize, productInputStream);
         
-        // Verifies client read same contents as product input file
-        if (clientBytesRead != null) {
-            assertTrue(clientBytesRead.size() == expectedFileSize);
-            assertEquals(expectedFileContents, new String(clientBytesRead.toByteArray()));
-        }
+        verifyClientBytesRead(clientBytesRead);
 
         cleanup();
     }
@@ -238,16 +243,427 @@ public class ReliableResourceDownloadManagerTest {
         // Captures the ReliableResource object that should have been put in the ResourceCache's map
         verify(resourceCache).put(argument.capture());
 
-        verifyCaching(argument.getValue(), "ddf-1-abc123", clientBytesRead);
+        verifyCaching(argument.getValue(), "ddf-1-abc123");
 
-        // Cleanup
+        verifyClientBytesRead(clientBytesRead);
+
+        cleanup();
+    }
+    
+    /**
+     * Test that if an Exception is thrown while reading the product's InputStream that
+     * download is interrupted, retried and successfully completes on the second attempt.
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testStoreWithInputStreamRecoverableErrorCachingDisabled() throws Exception {
+
+        mis = new MockInputStream(productInputFilename);
+        
+        Metacard metacard = getMockMetacard("abc123", "ddf-1");
+        resourceResponse = getMockResourceResponse();
+        ResourceRetriever retriever = getMockResourceRetrieverWithRetryCapability(RetryType.INPUT_STREAM_IO_EXCEPTION);
+
+        ArgumentCaptor<ReliableResource> argument = ArgumentCaptor.forClass(ReliableResource.class);
+
+        downloadMgr = new ReliableResourceDownloadManager(
+                maxRetryAttempts, delayBetweenAttempts, monitorPeriod, cacheEnabled,
+                resourceCache, cacheWhenCanceled, eventPublisher);
+        int chunkSize = 50;
+        downloadMgr.setChunkSize(chunkSize);
+
+        ResourceResponse newResourceResponse = downloadMgr.download(resourceRequest, metacard, retriever);
+        assertThat(newResourceResponse, is(notNullValue()));
+        InputStream productInputStream = newResourceResponse.getResource().getInputStream();
+        assertThat(productInputStream, is(instanceOf(ReliableResourceInputStream.class)));
+        ByteArrayOutputStream clientBytesRead = clientRead(chunkSize, productInputStream);
+
+        // Verifies client read same contents as product input file
+        verifyClientBytesRead(clientBytesRead);
+
+        cleanup();
+    }
+    
+    
+    /**
+     * Test that if an Exception is thrown while reading the product's InputStream that
+     * download and caching is interrupted, retried and both successfully complete on the second attempt.
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testStoreWithInputStreamRecoverableErrorCachingEnabled() throws Exception {
+
+        mis = new MockInputStream(productInputFilename);
+        
+        Metacard metacard = getMockMetacard("abc123", "ddf-1");
+        resourceResponse = getMockResourceResponse();
+        ResourceRetriever retriever = getMockResourceRetrieverWithRetryCapability(RetryType.INPUT_STREAM_IO_EXCEPTION);
+
+        ArgumentCaptor<ReliableResource> argument = ArgumentCaptor.forClass(ReliableResource.class);
+
+        cacheEnabled = true;
+        downloadMgr = new ReliableResourceDownloadManager(
+                maxRetryAttempts, delayBetweenAttempts, monitorPeriod, cacheEnabled,
+                resourceCache, cacheWhenCanceled, eventPublisher);
+        int chunkSize = 50;
+        downloadMgr.setChunkSize(chunkSize);
+
+        ResourceResponse newResourceResponse = downloadMgr.download(resourceRequest, metacard, retriever);
+        assertThat(newResourceResponse, is(notNullValue()));
+        InputStream productInputStream = newResourceResponse.getResource().getInputStream();
+        assertThat(productInputStream, is(instanceOf(ReliableResourceInputStream.class)));
+        ByteArrayOutputStream clientBytesRead = clientRead(chunkSize, productInputStream);
+
+        // Captures the ReliableResource object that should have been put in the ResourceCache's map
+        verify(resourceCache).put(argument.capture());
+
+        verifyCaching(argument.getValue(), "ddf-1-abc123");
+        
+        // Verifies client read same contents as product input file
+        verifyClientBytesRead(clientBytesRead);
+
         cleanup();
     }
 
+    /**
+     * Test storing product in cache and one of the chunks being stored takes too long, triggering
+     * the CacheMonitor to interrupt the caching. Verify that caching is retried and successfully
+     * completes on the second attempt.
+     *
+     * @throws Exception
+     */
+    @Test
+    //@Ignore
+    public void testStoreWithTimeoutExceptionCachingEnabled() throws Exception {
+
+        mis = new MockInputStream(productInputFilename);
+
+        Metacard metacard = getMockMetacard("abc123", "ddf-1");
+        resourceResponse = getMockResourceResponse();
+        ResourceRetriever retriever = getMockResourceRetrieverWithRetryCapability(RetryType.TIMEOUT_EXCEPTION);
+
+        ArgumentCaptor<ReliableResource> argument = ArgumentCaptor.forClass(ReliableResource.class);
+
+        cacheEnabled = true;
+        downloadMgr = new ReliableResourceDownloadManager(
+                maxRetryAttempts, delayBetweenAttempts, monitorPeriod, cacheEnabled,
+                resourceCache, cacheWhenCanceled, eventPublisher);
+        int chunkSize = 50;
+        downloadMgr.setChunkSize(chunkSize);
+        downloadMgr.setMonitorInitialDelay(1);
+
+        ResourceResponse newResourceResponse = downloadMgr.download(resourceRequest, metacard, retriever);
+        assertThat(newResourceResponse, is(notNullValue()));
+        InputStream productInputStream = newResourceResponse.getResource().getInputStream();
+        assertThat(productInputStream, is(instanceOf(ReliableResourceInputStream.class)));
+        ByteArrayOutputStream clientBytesRead = clientRead(chunkSize, productInputStream);
+
+        // Captures the ReliableResource object that should have been put in the ResourceCache's map
+        verify(resourceCache).put(argument.capture());
+
+        verifyCaching(argument.getValue(), "ddf-1-abc123");
+        
+        verifyClientBytesRead(clientBytesRead);
+
+        cleanup();
+    }
+
+    /**
+     * Tests that if user/client cancels a product retrieval that is in progress and
+     * actively being cached, and the admin has configured caching to continue,
+     * that the caching continues and cached file is placed in the cache map.
+     *
+     * @throws Exception
+     */
+    @Test
+    //@Ignore
+    public void testClientCancelProductDownloadCachingContinues() throws Exception {
+
+        mis = new MockInputStream(productInputFilename);
+
+        Metacard metacard = getMockMetacard("abc123", "ddf-1");
+        resourceResponse = getMockResourceResponse();
+
+        ResourceRetriever retriever = getMockResourceRetrieverWithRetryCapability(RetryType.CLIENT_CANCELS_DOWNLOAD);
+
+        ArgumentCaptor<ReliableResource> argument = ArgumentCaptor.forClass(ReliableResource.class);
+
+        cacheEnabled = true;
+        cacheWhenCanceled = true;
+        // Use relatively large monitor period so download takes long enough for client
+        // to have time to cancel download
+        downloadMgr = new ReliableResourceDownloadManager(
+                maxRetryAttempts, delayBetweenAttempts, 50, cacheEnabled,
+                resourceCache, cacheWhenCanceled, eventPublisher);
+        int chunkSize = 2;
+        downloadMgr.setChunkSize(chunkSize);
+        
+        ResourceResponse newResourceResponse = downloadMgr.download(resourceRequest, metacard, retriever);
+        assertThat(newResourceResponse, is(notNullValue()));
+        InputStream productInputStream = newResourceResponse.getResource().getInputStream();
+        assertThat(productInputStream, is(instanceOf(ReliableResourceInputStream.class)));
+
+        // On second read of ReliableResourceInputStream, client will close the stream simulating a cancel
+        // of the product download
+        clientRead(chunkSize, productInputStream, 2);
+
+        // Captures the ReliableResource object that should have been put in the ResourceCache's map
+        verify(resourceCache, timeout(3000)).put(argument.capture());
+
+        verifyCaching(argument.getValue(), "ddf-1-abc123");
+
+        cleanup();
+    }
+
+    /**
+     * Tests that if user/client cancels a product retrieval that is in progress and
+     * actively being cached, and the admin has not configured caching to continue,
+     * that the (partially) cached file is deleted and not placed in the cache map.
+     *
+     * @throws Exception
+     */
+    @Test
+    //@Ignore
+    public void testClientCancelProductDownloadCachingStops() throws Exception {
+
+        mis = new MockInputStream(productInputFilename);
+
+        Metacard metacard = getMockMetacard("abc123", "ddf-1");
+        resourceResponse = getMockResourceResponse();
+
+        ResourceRetriever retriever = getMockResourceRetrieverWithRetryCapability(RetryType.CLIENT_CANCELS_DOWNLOAD);
+
+        ArgumentCaptor<ReliableResource> argument = ArgumentCaptor.forClass(ReliableResource.class);
+
+        cacheEnabled = true;
+        cacheWhenCanceled = false;
+        downloadMgr = new ReliableResourceDownloadManager(
+                maxRetryAttempts, delayBetweenAttempts, 50, cacheEnabled,
+                resourceCache, cacheWhenCanceled, eventPublisher);
+        
+        // Use small chunk size so download takes long enough for client
+        // to have time to cancel download
+        int chunkSize = 2;
+        downloadMgr.setChunkSize(chunkSize);
+        
+        ResourceResponse newResourceResponse = downloadMgr.download(resourceRequest, metacard, retriever);
+        assertThat(newResourceResponse, is(notNullValue()));
+        InputStream productInputStream = newResourceResponse.getResource().getInputStream();
+        assertThat(productInputStream, is(instanceOf(ReliableResourceInputStream.class)));
+
+        // On second read of ReliableResourceInputStream, client will close the stream simulating a cancel
+        // of the product download
+        clientRead(chunkSize, productInputStream, 2);
+
+        // Verify product was not cached, i.e., its pending caching entry was removed
+        String cacheKey = new CacheKey(metacard, resourceResponse.getRequest()).generateKey();
+        verify(resourceCache, timeout(3000)).removePendingCacheEntry(cacheKey);
+
+        cleanup();
+    }
+
+    /**
+     * Tests that if network connection drops repeatedly during a product retrieval such that all
+     * of the retry attempts are used up before entire product is downloaded, then the (partially) cached file is deleted and not
+     * placed in the cache map, and product download fails.
+     *
+     * @throws Exception
+     */
+    @Test
+    //@Ignore
+    public void testRetryAttemptsExhaustedDuringProductDownload() throws Exception {
+
+        mis = new MockInputStream(productInputFilename);
+
+        Metacard metacard = getMockMetacard("abc123", "ddf-1");
+        resourceResponse = getMockResourceResponse();
+
+        ResourceRetriever retriever = getMockResourceRetrieverWithRetryCapability(RetryType.NETWORK_CONNECTION_UP_AND_DOWN);
+
+        cacheEnabled = true;
+        downloadMgr = new ReliableResourceDownloadManager(
+                maxRetryAttempts, delayBetweenAttempts, monitorPeriod, cacheEnabled,
+                resourceCache, cacheWhenCanceled, eventPublisher);
+        int chunkSize = 50;
+        downloadMgr.setChunkSize(chunkSize);
+        
+        ResourceResponse newResourceResponse = downloadMgr.download(resourceRequest, metacard, retriever);
+        assertThat(newResourceResponse, is(notNullValue()));
+        InputStream productInputStream = newResourceResponse.getResource().getInputStream();
+        assertThat(productInputStream, is(instanceOf(ReliableResourceInputStream.class)));
+
+        // On third read of ReliableResourceInputStream, client will close the stream simulating a cancel
+        // of the product download
+        ByteArrayOutputStream clientBytesRead = clientRead(chunkSize, productInputStream);
+        
+        // Verify client did not receive entire product download
+        assertTrue(clientBytesRead.size() < expectedFileSize);
+
+        // Verify product was not cached, i.e., its pending caching entry was removed
+        String cacheKey = new CacheKey(metacard, resourceResponse.getRequest()).generateKey();
+        verify(resourceCache, timeout(3000)).removePendingCacheEntry(cacheKey);
+
+        cleanup();
+    }
+
+    /**
+     * Tests that if network connection dropped during a product retrieval that is in progress and
+     * actively being cached, that the (partially) cached file is deleted and not
+     * placed in the cache map.
+     *
+     * @throws Exception
+     */
+    @Test
+    //@Ignore
+    public void testNetworkConnectionDroppedDuringProductDownload() throws Exception {
+
+        mis = new MockInputStream(productInputFilename);
+
+        Metacard metacard = getMockMetacard("abc123", "ddf-1");
+        resourceResponse = getMockResourceResponse();
+
+        ResourceRetriever retriever = getMockResourceRetrieverWithRetryCapability(RetryType.NETWORK_CONNECTION_DROPPED);
+
+        cacheEnabled = true;
+        downloadMgr = new ReliableResourceDownloadManager(
+                maxRetryAttempts, delayBetweenAttempts, monitorPeriod, cacheEnabled,
+                resourceCache, cacheWhenCanceled, eventPublisher);
+        int chunkSize = 50;
+        downloadMgr.setChunkSize(chunkSize);
+        
+        ResourceResponse newResourceResponse = downloadMgr.download(resourceRequest, metacard, retriever);
+        assertThat(newResourceResponse, is(notNullValue()));
+        InputStream productInputStream = newResourceResponse.getResource().getInputStream();
+        assertThat(productInputStream, is(instanceOf(ReliableResourceInputStream.class)));
+
+        // On third read of ReliableResourceInputStream, client will close the stream simulating a cancel
+        // of the product download
+        ByteArrayOutputStream clientBytesRead = clientRead(chunkSize, productInputStream);
+        
+        // Verify client did not receive entire product download
+        assertTrue(clientBytesRead.size() < expectedFileSize);
+
+        // Verify product was not cached, i.e., its pending caching entry was removed
+        String cacheKey = new CacheKey(metacard, resourceResponse.getRequest()).generateKey();
+        verify(resourceCache, timeout(3000)).removePendingCacheEntry(cacheKey);
+
+        cleanup();
+    }
+
+    /**
+     * Tests that if exception with file being cached to occurs during a product retrieval, then the (partially) cached 
+     * file is deleted and it is not placed in the cache map, but the product continues to be streamed to the client until
+     * the EOF is detected.
+     *
+     * @throws Exception
+     */
+    @Test
+    //@Ignore
+    public void testCacheFileExceptionDuringProductDownload() throws Exception {
+
+        mis = new MockInputStream(productInputFilename);
+
+        Metacard metacard = getMockMetacard("abc123", "ddf-1");
+        resourceResponse = getMockResourceResponse();
+
+        cacheEnabled = true;
+        downloadMgr = new ReliableResourceDownloadManager(
+                maxRetryAttempts, delayBetweenAttempts, monitorPeriod, cacheEnabled,
+                resourceCache, cacheWhenCanceled, eventPublisher);
+        
+        // Use small chunk size so download takes long enough for client
+        // to have time to simulate cache file exception
+        int chunkSize = 2;
+        downloadMgr.setChunkSize(chunkSize);
+
+        ResourceRetriever retriever = mock(ResourceRetriever.class);
+        when(retriever.retrieveResource()).thenReturn(resourceResponse);
+        
+        ResourceResponse newResourceResponse = downloadMgr.download(resourceRequest, metacard, retriever);
+        assertThat(newResourceResponse, is(notNullValue()));
+        InputStream productInputStream = newResourceResponse.getResource().getInputStream();
+        assertThat(productInputStream, is(instanceOf(ReliableResourceInputStream.class)));
+
+        // On second chunk read by client it will close the download manager's cache file output stream
+        // to simulate a cache file exception that should be detected by the ReliableResourceCallable
+        executor = Executors.newCachedThreadPool();
+        ProductDownloadClient productDownloadClient = new ProductDownloadClient(productInputStream, chunkSize);
+        productDownloadClient.setSimulateCacheFileException(2, downloadMgr);
+        Future<ByteArrayOutputStream> future = executor.submit(productDownloadClient);
+        ByteArrayOutputStream clientBytesRead = future.get();
+        
+        verifyClientBytesRead(clientBytesRead);
+
+        // Verify product was not cached, i.e., its pending caching entry was removed
+        String cacheKey = new CacheKey(metacard, resourceResponse.getRequest()).generateKey();
+        verify(resourceCache, timeout(3000)).removePendingCacheEntry(cacheKey);
+
+        cleanup();
+    }
+
+    /**
+     * Tests that if exception with the FileBackedOutputStream being written to and concurrently read by the client occurs 
+     * during a product retrieval, then the product download to the client is stopped, but the caching of the 
+     * file continues.
+     *
+     * @throws Exception
+     */
+    @Test
+    @Ignore
+    // Currently Ignored because cannot figure out how to get FileBackedOutputStream (FBOS) to throw exception
+    // during product download - this test successfully closes the FBOS, but the ReliableResourceCallable
+    // does not seem to detect this and continues to stream successfully to the client.
+    public void testStreamToClientExceptionDuringProductDownloadCachingEnabled() throws Exception {
+
+        mis = new MockInputStream(productInputFilename);
+
+        Metacard metacard = getMockMetacard("abc123", "ddf-1");
+        resourceResponse = getMockResourceResponse();
+
+        cacheEnabled = true;
+        downloadMgr = new ReliableResourceDownloadManager(
+                maxRetryAttempts, delayBetweenAttempts, monitorPeriod, cacheEnabled,
+                resourceCache, cacheWhenCanceled, eventPublisher);
+        
+        // Use small chunk size so download takes long enough for client
+        // to have time to simulate FileBackedOutputStream exception
+        int chunkSize = 2;
+        downloadMgr.setChunkSize(chunkSize);
+
+        ResourceRetriever retriever = mock(ResourceRetriever.class);
+        when(retriever.retrieveResource()).thenReturn(resourceResponse);
+        
+        ArgumentCaptor<ReliableResource> argument = ArgumentCaptor.forClass(ReliableResource.class);
+        
+        ResourceResponse newResourceResponse = downloadMgr.download(resourceRequest, metacard, retriever);
+        assertThat(newResourceResponse, is(notNullValue()));
+        InputStream productInputStream = newResourceResponse.getResource().getInputStream();
+        assertThat(productInputStream, is(instanceOf(ReliableResourceInputStream.class)));
+
+        // On second chunk read by client it will close the download manager's cache file output stream
+        // to simulate a cache file exception that should be detected by the ReliableResourceCallable
+        executor = Executors.newCachedThreadPool();
+        ProductDownloadClient productDownloadClient = new ProductDownloadClient(productInputStream, chunkSize);
+        productDownloadClient.setSimulateFbosException(2, downloadMgr);
+        Future<ByteArrayOutputStream> future = executor.submit(productDownloadClient);
+        ByteArrayOutputStream clientBytesRead = future.get();
+        
+        // Verify client did not receive entire product download
+        assertTrue(clientBytesRead.size() < expectedFileSize);
+
+        // Captures the ReliableResource object that should have been put in the ResourceCache's map
+        verify(resourceCache, timeout(3000)).put(argument.capture());
+
+        verifyCaching(argument.getValue(), "ddf-1-abc123");
+
+        cleanup();
+    }
+    
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    private void verifyCaching(ReliableResource reliableResource, String expectedCacheKey,
-            ByteArrayOutputStream clientBytesRead) throws IOException {
+    private void verifyCaching(ReliableResource reliableResource, String expectedCacheKey) throws IOException {
         assertEquals(expectedCacheKey, reliableResource.getKey());
         byte[] cachedData = reliableResource.getByteArray();
         assertNotNull(cachedData);
@@ -256,14 +672,17 @@ public class ReliableResourceDownloadManagerTest {
         assertTrue(cachedData.length == expectedFileSize);
         assertEquals(expectedFileContents, new String(cachedData));
 
+        // Verifies cached file on disk has same contents as product input file
+        assertEquals(expectedFileContents, IOUtils.toString(reliableResource.getInputStream()));
+    }    
+    
+    private void verifyClientBytesRead(ByteArrayOutputStream clientBytesRead) {
+
         // Verifies client read same contents as product input file
         if (clientBytesRead != null) {
             assertTrue(clientBytesRead.size() == expectedFileSize);
             assertEquals(expectedFileContents, new String(clientBytesRead.toByteArray()));
         }
-
-        // Verifies cached file on disk has same contents as product input file
-        assertEquals(expectedFileContents, IOUtils.toString(reliableResource.getInputStream()));
     }
     
     private Metacard getMockMetacard(String id, String source) {
@@ -277,7 +696,6 @@ public class ReliableResourceDownloadManagerTest {
         return metacard;
     }
     
-
     private ResourceResponse getMockResourceResponse() throws Exception {
         resourceRequest = mock(ResourceRequest.class);
         Map<String, Serializable> requestProperties = new HashMap<String, Serializable>();
@@ -296,16 +714,51 @@ public class ReliableResourceDownloadManagerTest {
         return resourceResponse;
     }
     
-    private ResourceRetriever getResourceRetrieverStubWithRetryCapability() throws Exception {
+    private ResourceRetriever getMockResourceRetrieverWithRetryCapability(final RetryType retryType) throws Exception {
 
         // Mocking to support re-retrieval of product when error encountered
         // during caching.
         ResourceRetriever retriever = mock(ResourceRetriever.class);
         when(retriever.retrieveResource()).thenAnswer(new Answer<Object>() {
-            public Object answer(InvocationOnMock invocation) {
+            int invocationCount = 0;
+            public Object answer(InvocationOnMock invocation) throws ResourceNotFoundException {
                 // Create new InputStream for retrieving the same product. This
                 // simulates re-retrieving the product from the remote source.
+                invocationCount++;
                 mis = new MockInputStream(productInputFilename);
+                
+                if (retryType == RetryType.INPUT_STREAM_IO_EXCEPTION) {
+                    if (invocationCount == 1) {
+                        mis.setInvocationCountToThrowIOException(5);
+                    } else {
+                        mis.setInvocationCountToThrowIOException(-1);
+                    }
+                } else if (retryType == RetryType.TIMEOUT_EXCEPTION) {
+                    if (invocationCount == 1) {
+                        mis.setInvocationCountToTimeout(3);
+                        mis.setReadDelay(monitorPeriod * 2);
+                    } else {
+                        mis.setInvocationCountToTimeout(-1);
+                        mis.setReadDelay(0);
+                    }
+                } else if (retryType == RetryType.NETWORK_CONNECTION_UP_AND_DOWN) {
+                    mis.setInvocationCountToThrowIOException(2);
+                } else if (retryType == RetryType.NETWORK_CONNECTION_DROPPED) {
+                    if (invocationCount == 1) {
+                        mis.setInvocationCountToThrowIOException(2);
+                    } else {
+                        throw new ResourceNotFoundException();
+                    }
+                } else if (retryType == RetryType.CLIENT_CANCELS_DOWNLOAD) {
+
+                } else if (retryType == RetryType.CACHE_FILE_EXCEPTION) {
+//                        FileOutputStream cacheFileOutputStream = downloadMgr.getFileOutputStream();
+//                        try {
+//                            LOGGER.debug("Closing cacheFileOutputStream to simulate CACHED_FILE_OUTPUT_STREAM_EXCEPTION");
+//                            cacheFileOutputStream.close();
+//                        } catch (IOException e) {
+//                        }
+                }
 
                 // Reset the mock Resource so that it can be reconfigured to return
                 // the new InputStream
@@ -337,8 +790,8 @@ public class ReliableResourceDownloadManagerTest {
 
     public ByteArrayOutputStream clientRead(int chunkSize, InputStream is, int simulatedCancelChunkCount) throws Exception {
         executor = Executors.newCachedThreadPool();
-        CacheClient cacheClient = new CacheClient(is, chunkSize, simulatedCancelChunkCount);
-        Future<ByteArrayOutputStream> future = executor.submit(cacheClient);
+        ProductDownloadClient productDownloadClient = new ProductDownloadClient(is, chunkSize, simulatedCancelChunkCount);
+        Future<ByteArrayOutputStream> future = executor.submit(productDownloadClient);
         ByteArrayOutputStream clientBytesRead = future.get();
 
         return clientBytesRead;

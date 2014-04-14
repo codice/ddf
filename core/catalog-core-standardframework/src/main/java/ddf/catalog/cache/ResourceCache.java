@@ -127,10 +127,10 @@ public class ResourceCache {
     }
 
     /**
-     * Called by CachedResource when resource has completed being cached to disk and is ready to
-     * be added to the cache map.
+     * Called by ReliableResourceDownloadManager when resource has completed being 
+     * cached to disk and is ready to be added to the cache map.
      *
-     * @param cachedResource
+     * @param reliableResource the resource to add to the cache map
      * @throws CacheException
      */
     public void put(ReliableResource reliableResource) throws CacheException {

@@ -12,9 +12,10 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  * 
  **/
-package ddf.catalog.cache;
+package ddf.catalog.resource.download;
 
 import java.io.ByteArrayOutputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.concurrent.Callable;
@@ -23,23 +24,38 @@ import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class CacheClient implements Callable<ByteArrayOutputStream> {
+import com.google.common.io.FileBackedOutputStream;
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(CacheClient.class);
+public class ProductDownloadClient implements Callable<ByteArrayOutputStream> {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ProductDownloadClient.class);
     
     private InputStream inputStream;
     private int chunkSize;
     private int simulatedCancelChunkCount;
+    private int simulateCacheFileExceptionChunkCount;
+    private int simulateFbosExceptionChunkCount;
+    private ReliableResourceDownloadManager downloadMgr;
     
     
-    public CacheClient(InputStream inputStream, int chunkSize) {
+    public ProductDownloadClient(InputStream inputStream, int chunkSize) {
         this(inputStream, chunkSize, -1);
     }
     
-    public CacheClient(InputStream inputStream, int chunkSize, int simulatedCancelChunkCount) {
+    public ProductDownloadClient(InputStream inputStream, int chunkSize, int simulatedCancelChunkCount) {
         this.inputStream = inputStream;
         this.chunkSize = chunkSize;
         this.simulatedCancelChunkCount = simulatedCancelChunkCount;
+    }
+    
+    public void setSimulateCacheFileException(int chunkCount, ReliableResourceDownloadManager downloadMgr) {
+        this.simulateCacheFileExceptionChunkCount = chunkCount;
+        this.downloadMgr = downloadMgr;
+    }
+    
+    public void setSimulateFbosException(int chunkCount, ReliableResourceDownloadManager downloadMgr) {
+        this.simulateFbosExceptionChunkCount = chunkCount;
+        this.downloadMgr = downloadMgr;
     }
     
     @Override
@@ -66,6 +82,21 @@ public class CacheClient implements Callable<ByteArrayOutputStream> {
                 if (simulatedCancelChunkCount == chunkCount) {
                     LOGGER.info("Simulating client canceling product retrieval");
                     break;
+                } else if (simulateCacheFileExceptionChunkCount == chunkCount) {
+                    FileOutputStream cacheFileOutputStream = downloadMgr.getFileOutputStream();
+                    try {
+                        LOGGER.debug("Closing cacheFileOutputStream to simulate CACHED_FILE_OUTPUT_STREAM_EXCEPTION");
+                        cacheFileOutputStream.close();
+                    } catch (IOException e) {
+                    }
+                } else if (simulateFbosExceptionChunkCount == chunkCount) {
+                    FileBackedOutputStream fbos = downloadMgr.getFileBackedOutputStream();
+                    try {
+                        LOGGER.debug("Closing FileBackedOutputStream to simulate CLIENT_OUTPUT_STREAM_EXCEPTION");
+                        fbos.close();
+                    } catch (IOException e) {
+                        LOGGER.debug("Could not close FileBackedOutputStream");
+                    }
                 }
             }
             IOUtils.closeQuietly(is);
