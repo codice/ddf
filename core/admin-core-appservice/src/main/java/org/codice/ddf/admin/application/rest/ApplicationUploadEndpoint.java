@@ -165,10 +165,12 @@ public class ApplicationUploadEndpoint {
     }
 
     private void closeInputStream(InputStream inputStream) {
-        try {
-            inputStream.close();
-        } catch (IOException e) {
-            logger.warn("Unable to close the input file stream.", e);
+        if(inputStream != null) {
+            try {
+                inputStream.close();
+            } catch (IOException e) {
+                logger.warn("Unable to close the input file stream.", e);
+            }
         }
     }
 
