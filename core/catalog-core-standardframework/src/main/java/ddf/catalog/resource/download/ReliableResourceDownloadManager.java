@@ -35,6 +35,7 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Stopwatch;
 import com.google.common.io.CountingOutputStream;
 import com.google.common.io.FileBackedOutputStream;
@@ -50,7 +51,6 @@ import ddf.catalog.operation.impl.ResourceResponseImpl;
 import ddf.catalog.resource.Resource;
 import ddf.catalog.resource.ResourceNotFoundException;
 import ddf.catalog.resource.ResourceNotSupportedException;
-import ddf.catalog.resource.download.DownloadManagerState.DownloadState;
 import ddf.catalog.resource.impl.ResourceImpl;
 import ddf.catalog.resourceretriever.ResourceRetriever;
 
@@ -167,6 +167,10 @@ public class ReliableResourceDownloadManager implements Runnable {
      */
     public void setChunkSize(int chunkSize) {
         this.chunkSize = chunkSize;
+    }
+    
+    public void setMonitorInitialDelay(int monitorInitialDelay) {
+        this.monitorInitialDelay = monitorInitialDelay;
     }
     
     /**
@@ -304,9 +308,7 @@ public class ReliableResourceDownloadManager implements Runnable {
                     // previous caching attempt(s) and needs to be deleted from the product cache directory.
                     LOGGER.debug("ReliableResourceCallable is null - cannot download resource");
                     if (cacheEnabled) {
-                        LOGGER.debug("Also can't do any caching, so delete partially cached file");
-                        IOUtils.closeQuietly(fos);
-                        FileUtils.deleteQuietly(new File(filePath));
+                        deleteCacheFile(fos);
                     }
                     eventPublisher.postRetrievalStatus(resourceResponse,
                             DownloadsStatusEventPublisher.PRODUCT_RETRIEVAL_FAILED,
@@ -407,7 +409,7 @@ public class ReliableResourceDownloadManager implements Runnable {
 
                         // Detected exception when writing the product data to the product cache directory -
                         // assume this OutputStream cannot be fixed (e.g., disk full) and just continue streaming
-                        // product to the client, i.e., writing to the PipedOutputStream
+                        // product to the client, i.e., writing to the FileBackedOutputStream
                         LOGGER.info("Handling FileOutputStream exception");
                         eventPublisher.postRetrievalStatus(resourceResponse,
                                 DownloadsStatusEventPublisher.PRODUCT_RETRIEVAL_RETRYING,
@@ -415,14 +417,17 @@ public class ReliableResourceDownloadManager implements Runnable {
                                 reliableResourceStatus.getBytesRead());
                         if (cacheEnabled) {
                             deleteCacheFile(fos);
+                            resourceCache.removePendingCacheEntry(reliableResource.getKey());
+                            // Disable caching since the cache file being written to had issues
+                            cacheEnabled = false;
                         }
                         reliableResourceCallable = new ReliableResourceCallable(resourceInputStream, countingFbos, chunkSize);
+                        reliableResourceCallable.setBytesRead(bytesRead);
                         
                     } else if (reliableResourceStatus.getDownloadStatus() == DownloadStatus.CLIENT_OUTPUT_STREAM_EXCEPTION) {
 
                         // Detected exception when writing product data to the output stream (FileBackedOutputStream) that
-                        // is being read by the client - assume client cancelled the product retrieval
-                        // and just continue to cache the file
+                        // is being read by the client - assume this is unrecoverable, but continue to cache the file
                         LOGGER.info("Handling FileBackedOutputStream exception");
                         eventPublisher.postRetrievalStatus(resourceResponse,
                                 DownloadsStatusEventPublisher.PRODUCT_RETRIEVAL_CANCELLED, "", 0L);
@@ -431,7 +436,7 @@ public class ReliableResourceDownloadManager implements Runnable {
                         LOGGER.debug("Cancelling resourceRetrievalMonitor");
                         resourceRetrievalMonitor.cancel();
                         reliableResourceCallable = new ReliableResourceCallable(resourceInputStream, fos, chunkSize);
-                        
+                        reliableResourceCallable.setBytesRead(bytesRead);
                     } else if (reliableResourceStatus.getDownloadStatus() == DownloadStatus.RESOURCE_DOWNLOAD_CANCELED) {
                         
                         LOGGER.info("Handling client cancellation of product download");
@@ -565,5 +570,15 @@ public class ReliableResourceDownloadManager implements Runnable {
         } catch (IOException e) {
             LOGGER.info("Unable to reset FileBackedOutputStream - its tmp file may still be in <INSTALL_DIR>/data/tmp");
         }
+    }
+    
+    @VisibleForTesting
+    FileOutputStream getFileOutputStream() {
+        return fos;
+    }
+    
+    @VisibleForTesting
+    FileBackedOutputStream getFileBackedOutputStream() {
+        return fbos;
     }
 }
