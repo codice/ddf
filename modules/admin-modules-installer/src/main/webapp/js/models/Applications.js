@@ -213,34 +213,20 @@ define(function (require) {
             if (this.isDirty()) {
                 if (this.get("selected")) {
                     statusUpdate("Installing " + this.get("name"));
-                    console.log("Installing " + this.get("name"));
                     $.ajax({
                         type: "GET",
                         url: startUrl + this.get("name") + '/',
                         dataType: "JSON",
-                        async: false,
-                        success: function(response, statusTxt) {
-                            console.log("Returned from install: " + response.value + " status: "+ statusTxt);
-                        },
-                        error: function(response, statusTxt) {
-                            console.log("Returned from install: " + response + " status: " + statusTxt);
-                        }
+                        async: false
                     });
 
                 } else {
                     statusUpdate("Uninstalling " + this.get("name"));
-                    console.log("Uninstalling " + this.get("name"));
                     $.ajax({
                         type: "GET",
                         url: stopUrl + this.get("name") + '/',
                         dataType: "JSON",
-                        async: false,
-                        success: function(response, statusTxt) {
-                            console.log("Returned from uninstall: " + response.value + " status: "+ statusTxt);
-                        },
-                        error: function(response, statusTxt) {
-                            console.log("Returned from uninstall: " + response + " status: " + statusTxt);
-                        }
+                        async: false
                     });
                 }
             }
@@ -272,7 +258,6 @@ define(function (require) {
                 appResponse.fetch({
                     success: function(model){
                         thisModel.reset(model.get("value"));
-                        console.log("Reloaded application list");
                     }
                 });
             } else { // this is a save of the model (CUD)

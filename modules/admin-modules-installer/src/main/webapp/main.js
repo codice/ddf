@@ -1,4 +1,4 @@
-/*global console, require, window */
+/*global require, window */
 /*jslint nomen:false, -W064 */
 
 (function () {
@@ -34,7 +34,6 @@
             // Backbone.history.
             app.on('initialize:after', function() {
                 Backbone.history.start();
-                console.log('application running');
             });
 
             if(window){
