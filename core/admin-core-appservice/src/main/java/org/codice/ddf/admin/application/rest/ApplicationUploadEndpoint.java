@@ -98,6 +98,7 @@ public class ApplicationUploadEndpoint {
 
             if (filename.endsWith(JAR_EXT) || filename.endsWith(KAR_EXT)) {
                 if (inputStream != null) {
+                    FileOutputStream outputStream = null;
                     try {
                         File uploadDir = new File(DEFAULT_FILE_LOCATION);
                         if (!uploadDir.exists()) {
@@ -107,7 +108,7 @@ public class ApplicationUploadEndpoint {
                         newFile = new File(uploadDir, filename);
                         newFile.createNewFile();
 
-                        FileOutputStream outputStream = new FileOutputStream(newFile);
+                        outputStream = new FileOutputStream(newFile);
 
                         int read;
                         byte[] bytes = new byte[1024];
@@ -130,6 +131,13 @@ public class ApplicationUploadEndpoint {
                         } catch (IOException e) {
                             logger.warn("Unable to close the input file stream.", e);
                         }
+                        if(outputStream != null) {
+                            try {
+                                outputStream.close();
+                            } catch (IOException e) {
+                                logger.warn("Unable to close the output file stream.", e);
+                            }
+                        }
                     }
                 } else {
                     logger.debug("No file attachment found");
@@ -148,12 +156,14 @@ public class ApplicationUploadEndpoint {
 
         if(response == null) {
             try {
-                appService.addApplication(newFile.toURI());
+                if(newFile != null) {
+                    appService.addApplication(newFile.toURI());
+                }
 
                 Response.ResponseBuilder responseBuilder = Response.ok();
                 response = responseBuilder.build();
             } catch (ApplicationServiceException e) {
-                logger.error("Unable to add the application to the server: " + newFile.toString(), e);
+                logger.error("Unable to add the application to the server: " + newFile, e);
                 Response.ResponseBuilder responseBuilder = Response.serverError();
                 response = responseBuilder.build();
             }

@@ -14,6 +14,11 @@
  **/
 package org.codice.ddf.admin.application.service.impl;
 
+import org.apache.aries.util.io.IOUtils;
+import org.codice.ddf.admin.application.service.ApplicationServiceException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -23,11 +28,6 @@ import java.util.Enumeration;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
-
-import org.apache.aries.util.io.IOUtils;
-import org.codice.ddf.admin.application.service.ApplicationServiceException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class ApplicationFileInstaller {
 
@@ -49,7 +49,7 @@ public class ApplicationFileInstaller {
      */
     public static URI install(File application) throws ApplicationServiceException {
         // extract files to local repo
-        ZipFile appZip;
+        ZipFile appZip = null;
         try {
             appZip = new ZipFile(application);
             if (isFileValid(appZip)) {
@@ -68,6 +68,12 @@ public class ApplicationFileInstaller {
             logger.warn(
                     "Installed application but could not obtain correct location to feature file.",
                     e);
+        } finally {
+            try {
+                IOUtils.close(appZip);
+            } catch (IOException e) {
+                logger.warn("Unable to close zip stream.", e);
+            }
         }
 
         throw new ApplicationServiceException("Could not install application.");
@@ -124,7 +130,7 @@ public class ApplicationFileInstaller {
                     if (isFeatureFile(curEntry)) {
                         featureLocation = outputName;
                     }
-                } catch (Exception e) {
+                } catch (IOException e) {
                     logger.warn("Could not write out file.", e);
                 }
             }
