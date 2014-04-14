@@ -127,7 +127,7 @@
                         ddf.mime; version="1.0.0",
                         org.apache.camel*; version="2.10.0",
                         org.osgi.framework; version="1.5.0",
-                        org.slf4j; version="1.6.0",
+                        org.slf4j*; version="1.6.0",
                         *
                     </Import-Package>
                 </instructions>
