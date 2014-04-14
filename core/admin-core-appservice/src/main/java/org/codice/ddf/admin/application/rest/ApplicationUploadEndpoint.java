@@ -48,8 +48,6 @@ public class ApplicationUploadEndpoint {
 
     private Logger logger = LoggerFactory.getLogger(ApplicationUploadEndpoint.class);
 
-    private static final String DEFAULT_MIME_TYPE = "application/octet-stream";
-
     private static final String FILENAME_CONTENT_DISPOSITION_PARAMETER_NAME = "filename";
 
     private static final String DEFAULT_FILE_NAME = "file.jar";
@@ -155,6 +153,7 @@ public class ApplicationUploadEndpoint {
                 Response.ResponseBuilder responseBuilder = Response.ok();
                 response = responseBuilder.build();
             } catch (ApplicationServiceException e) {
+                logger.error("Unable to add the application to the server: " + newFile.toString(), e);
                 Response.ResponseBuilder responseBuilder = Response.serverError();
                 response = responseBuilder.build();
             }
