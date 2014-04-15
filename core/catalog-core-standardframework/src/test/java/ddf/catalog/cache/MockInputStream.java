@@ -38,13 +38,21 @@ public class MockInputStream extends InputStream {
     
     private int readDelay = 0;
     
+    private boolean readSlow;
+    
 
     public MockInputStream(String name) {
+        this(name, false);
+    }
+    
+    public MockInputStream(String name, boolean readSlow) {
         try {
             this.is = new FileInputStream(name);
         } catch (FileNotFoundException e) {
             LOGGER.error("FileNotFoundException", e);
         }
+        
+        this.readSlow = readSlow;
     }
 
     public void setInvocationCountToThrowIOException(int count) {
@@ -89,6 +97,15 @@ public class MockInputStream extends InputStream {
                 return 0;
             }
             LOGGER.info("Simulated read timeout completed");
+        } else if (readSlow && readDelay > 0L) {
+            try {
+                // Slows down reading of product input stream so that client
+                // has time to come up
+                Thread.sleep(readDelay); 
+            } catch (InterruptedException e) {
+                LOGGER.info("Thread sleep interrupted");
+                return 0;
+            }
         }
         return super.read(buffer);
     }

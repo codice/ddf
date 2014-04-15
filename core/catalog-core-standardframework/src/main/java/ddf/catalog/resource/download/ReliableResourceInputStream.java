@@ -94,13 +94,15 @@ public class ReliableResourceInputStream extends InputStream {
         // set option to continue caching even if client cancels
         // the product download
         if (downloadState.isCacheEnabled() && !downloadState.isContinueCaching()) {
-            // Stop the caching thread
-            // synchronized so that Callable can finish any writing to OutputStreams before being canceled
-            synchronized(reliableResourceCallable) {
-                LOGGER.debug("Setting cancelDownload on ReliableResourceCallable thread");
-                reliableResourceCallable.setCancelDownload(true);
-                boolean status = downloadFuture.cancel(true);
-                LOGGER.debug("cachingFuture cancelling status = {}", status);
+            if (!downloadFuture.isDone()) {
+                // Stop the caching thread
+                // synchronized so that Callable can finish any writing to OutputStreams before being canceled
+                synchronized(reliableResourceCallable) {
+                    LOGGER.debug("Setting cancelDownload on ReliableResourceCallable thread");
+                    reliableResourceCallable.setCancelDownload(true);
+                    boolean status = downloadFuture.cancel(true);
+                    LOGGER.debug("cachingFuture cancelling status = {}", status);
+                }
             }
         }
 
@@ -146,6 +148,10 @@ public class ReliableResourceInputStream extends InputStream {
         if (fbosCount != fbosBytesRead) {
             LOGGER.trace("fbos count = {}, fbosBytesRead = {}", fbosCount, fbosBytesRead);
         }
+        
+//        if (fbosCount == 499) {
+//            LOGGER.debug("fbosCount = {}, fbosBytesRead = {}", fbosCount, fbosBytesRead);
+//        }
 
         // More bytes written to FileBackedOutputStream than have been read by the client -
         // ok to skip and do a read
@@ -154,9 +160,10 @@ public class ReliableResourceInputStream extends InputStream {
         } else if (fbosCount > 0) {
             // bytes have been written to the FileBackedOutputStream
             numBytesRead = readFromFbosInputStream(b, off, len);
-            if (numBytesRead == -1 && fbosCount == fbosBytesRead &&
-               (downloadState.getDownloadState() == DownloadManagerState.DownloadState.COMPLETED || 
-                downloadState.getDownloadState() == DownloadManagerState.DownloadState.FAILED)) {
+//            if (numBytesRead == -1 && fbosCount == fbosBytesRead &&
+//               (downloadState.getDownloadState() == DownloadManagerState.DownloadState.COMPLETED || 
+//                downloadState.getDownloadState() == DownloadManagerState.DownloadState.FAILED)) {
+            if (isFbosCompletelyRead(numBytesRead, fbosCount)) {
                 LOGGER.debug("Sending EOF");
                 // Client is done reading from this FileBackedOutputStream, so can
                 // delete the backing file it created in the <INSTALL_DIR>/data/tmp directory
@@ -164,10 +171,14 @@ public class ReliableResourceInputStream extends InputStream {
             } else if (numBytesRead <= 0) {
                 LOGGER.debug("numBytesRead <= 0 but client hasn't read all of the data from FBOS - block and read");
                 while (downloadState.getDownloadState() == DownloadManagerState.DownloadState.IN_PROGRESS || 
-                        (fbosCount >= fbosBytesRead && downloadState.getDownloadState() != DownloadManagerState.DownloadState.FAILED)) {
+                        (fbosCount >= fbosBytesRead && downloadState.getDownloadState() != DownloadManagerState.DownloadState.FAILED && downloadState.getDownloadState() != null)) {
                     numBytesRead = readFromFbosInputStream(b, off, len);
                     if (numBytesRead > 0) {
                         LOGGER.debug("retry: numBytesRead = {}", numBytesRead);
+                        break;
+                    } else if (isFbosCompletelyRead(numBytesRead, fbosCount)) {
+                        LOGGER.debug("Got EOF - resetting FBOS");
+                        fbos.reset();
                         break;
                     } else {
                         try {
@@ -193,6 +204,16 @@ public class ReliableResourceInputStream extends InputStream {
      */
     public long getBytesRead() {
         return fbosBytesRead;
+    }
+    
+    private boolean isFbosCompletelyRead(int numBytesRead, long fbosCount) {
+        if (numBytesRead == -1 && fbosCount == fbosBytesRead &&
+                (downloadState.getDownloadState() == DownloadManagerState.DownloadState.COMPLETED || 
+                 downloadState.getDownloadState() == DownloadManagerState.DownloadState.FAILED)) {
+            return true;
+        }
+        
+        return false;
     }
 
     private int readFromFbosInputStream(byte[] b, int off, int len) throws IOException {

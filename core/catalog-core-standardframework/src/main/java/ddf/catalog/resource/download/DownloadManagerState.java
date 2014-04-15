@@ -14,6 +14,14 @@
  **/
 package ddf.catalog.resource.download;
 
+/**
+ * State for the entire download of a single product. This state is used to keep
+ * the @ReliableResourceInputStream informed of the overall state of the 
+ * @ReliableResourceDownloadManager as the download progresses.
+ * 
+ * @author rodgers
+ *
+ */
 public class DownloadManagerState {
     
     public enum DownloadState {

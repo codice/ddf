@@ -444,7 +444,6 @@ public class FanoutCatalogFramework extends CatalogFrameworkImpl {
      */
     protected QueryResponse replaceSourceId(QueryResponse queryResponse) {
         logger.debug("ENTERING: replaceSourceId()");
-        // TODO DDF-968 Update this so it does it in a streaming manner.
         List<Result> results = queryResponse.getResults();
         QueryResponseImpl newResponse = new QueryResponseImpl(queryResponse.getRequest(),
                 queryResponse.getProperties());

@@ -32,6 +32,7 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import ddf.cache.Cache;
@@ -72,6 +73,7 @@ public class ResourceCacheTest {
     }
 
     @Test
+    @Ignore  //HUGH
     public void testBadKarafHomeValue() {
         System.setProperty("karaf.home", "invalid-cache");
         resourceCache.setProductCacheDirectory("");
@@ -153,57 +155,6 @@ public class ResourceCacheTest {
         String key = "ddf-1-abc123";
         when(cache.get(key)).thenReturn(null);
         resourceCache.get(key);
-        
-        /*HUGH
-        Metacard metacard = mock(Metacard.class);
-        String metacardId = "4567890";
-        when(metacard.getId()).thenReturn(metacardId);
-        String metacardSourceId = "ddf.123";
-        when(metacard.getSourceId()).thenReturn(metacardSourceId);
-
-        ResourceRequest resourceRequest = mock(ResourceRequest.class);
-        Map<String, Serializable> requestProperties = new HashMap<String, Serializable>();
-        when(resourceRequest.getPropertyNames()).thenReturn(requestProperties.keySet());
-
-        Resource resource = mock(Resource.class);
-        String input = "<myXml></myXml>";
-        when(resource.getInputStream()).thenReturn(IOUtils.toInputStream(input));
-        when(resource.getName()).thenReturn("test-resource");
-        MimeType mimeType = new MimeType("text/xml");
-        when(resource.getMimeType()).thenReturn(mimeType);
-
-        ResourceResponse resourceResponse = mock(ResourceResponse.class);
-        when(resourceResponse.getRequest()).thenReturn(resourceRequest);
-        when(resourceResponse.getResource()).thenReturn(resource);
-        when(resourceResponse.getProperties()).thenReturn(requestProperties);
-
-        ResourceRetriever retriever = mock(ResourceRetriever.class);
-
-        String key = null;
-        try {
-            resourceCache.put(metacard, resourceResponse, retriever, false);
-
-            String mockCacheKey = metacardSourceId + "-" + metacardId;
-            ReliableResource cachedResource = mock(ReliableResource.class);
-            when(cachedResource.hasProduct()).thenReturn(false);
-            when(cache.get(mockCacheKey)).thenReturn(cachedResource);
-
-            key = new CacheKey(metacard, resourceRequest).generateKey();
-            assertTrue(resourceCache.contains(key));
-            resourceCache.get(key);
-        } catch (CacheException e) {
-            LOGGER.debug("Caught CacheException: " + e.getMessage());
-        }
-
-        // Verify that Cache class' remove method is called once because the
-        // cache had the key in it but the product did not exist on the file
-        // system in the product cache directory.
-        try {
-            verify(cache).remove(key);
-        } catch (CacheException e) {
-            LOGGER.debug("Caught CacheException: " + e.getMessage());
-        }
-        END HUGH*/
     }
 
     /**
@@ -225,182 +176,6 @@ public class ResourceCacheTest {
         resourceCache.get(key);
         // Verifies that the remove(key) method is called on the Cache object
         verify(cache).remove(key);
-        /*HUGH
-        Metacard metacard = mock(Metacard.class);
-        String metacardId = "4567890";
-        when(metacard.getId()).thenReturn(metacardId);
-        String metacardSourceId = "ddf.123";
-        when(metacard.getSourceId()).thenReturn(metacardSourceId);
-
-        ResourceRequest resourceRequest = mock(ResourceRequest.class);
-        Map<String, Serializable> requestProperties = new HashMap<String, Serializable>();
-        when(resourceRequest.getPropertyNames()).thenReturn(requestProperties.keySet());
-
-        Resource resource = mock(Resource.class);
-        String input = "<myXml></myXml>";
-        when(resource.getInputStream()).thenReturn(IOUtils.toInputStream(input));
-        when(resource.getName()).thenReturn("test-resource");
-        MimeType mimeType = new MimeType("text/xml");
-        when(resource.getMimeType()).thenReturn(mimeType);
-
-        ResourceResponse resourceResponse = mock(ResourceResponse.class);
-        when(resourceResponse.getRequest()).thenReturn(resourceRequest);
-        when(resourceResponse.getResource()).thenReturn(resource);
-        when(resourceResponse.getProperties()).thenReturn(requestProperties);
-
-        ResourceRetriever retriever = mock(ResourceRetriever.class);
-
-        String key = null;
-        try {
-            resourceCache.put(metacard, resourceResponse, retriever, false);
-
-            String mockCacheKey = metacardSourceId + "-" + metacardId;
-            ReliableResource cachedResource = mock(ReliableResource.class);
-            when(cachedResource.hasProduct()).thenReturn(false);
-            when(cache.get(mockCacheKey)).thenReturn(cachedResource);
-
-            key = new CacheKey(metacard, resourceRequest).generateKey();
-            assertTrue(resourceCache.contains(key));
-            resourceCache.get(key);
-        } catch (CacheException e) {
-            LOGGER.debug("Caught CacheException: " + e.getMessage());
-        }
-
-        // Verify that Cache class' remove method is called once because the
-        // cache had the key in it but the product did not exist on the file
-        // system in the product cache directory.
-        try {
-            verify(cache).remove(key);
-        } catch (CacheException e) {
-            LOGGER.debug("Caught CacheException: " + e.getMessage());
-        }
-        END HUGH*/
     }
-
-    /**
-     * Tests that if a product is actively being cached and a new (second) request comes in
-     * for the same product that the first request's caching continues and the second request
-     * just retrieves the product from the Source and returns it to the client without attempting
-     * to cache it.
-     *
-     * @throws Exception
-     */
-    /*HUGH
-     *     @Test(expected = CacheException.class)
-    public void testPutWithNullMetacard() throws CacheException {
-        ResourceResponse resourceResponse = mock(ResourceResponse.class);
-        ResourceRetriever retriever = mock(ResourceRetriever.class);
-        resourceCache.put(null, resourceResponse, retriever, false);
-    }
-
-    @Test(expected = CacheException.class)
-    public void testPutWithNullResourceResponse() throws CacheException {
-        Metacard metacard = mock(Metacard.class);
-        ResourceRetriever retriever = mock(ResourceRetriever.class);
-        resourceCache.put(metacard, null, retriever, false);
-    }
-
-    @Test(expected = CacheException.class)
-    public void testPutWithNullResourceRetriever() throws CacheException {
-        Metacard metacard = mock(Metacard.class);
-        ResourceResponse resourceResponse = mock(ResourceResponse.class);
-        resourceCache.put(metacard, resourceResponse, null, false);
-    }
-
-    @Test(expected = CacheException.class)
-    public void testPutWithEmptyMetacardId() throws CacheException {
-        Metacard metacard = mock(Metacard.class);
-        String metacardId = "";
-        when(metacard.getId()).thenReturn(metacardId);
-        ResourceResponse resourceResponse = mock(ResourceResponse.class);
-        ResourceRetriever retriever = mock(ResourceRetriever.class);
-
-        resourceCache.put(metacard, resourceResponse, retriever, false);
-    }
-    
-    @Test
-    public void testGet() throws MimeTypeParseException, CacheException, IOException {
-        Metacard metacard = mock(Metacard.class);
-        String metacardId = "4567890";
-        when(metacard.getId()).thenReturn(metacardId);
-        String metacardSourceId = "ddf.123";
-        when(metacard.getSourceId()).thenReturn(metacardSourceId);
-
-        ResourceRequest resourceRequest = mock(ResourceRequest.class);
-        Map<String, Serializable> requestProperties = new HashMap<String, Serializable>();
-        when(resourceRequest.getPropertyNames()).thenReturn(requestProperties.keySet());
-
-        Resource resource = mock(Resource.class);
-        String input = "<myXml></myXml>";
-        when(resource.getInputStream()).thenReturn(IOUtils.toInputStream(input));
-        when(resource.getName()).thenReturn("test-resource");
-        MimeType mimeType = new MimeType("text/xml");
-        when(resource.getMimeType()).thenReturn(mimeType);
-
-        ResourceResponse resourceResponse = mock(ResourceResponse.class);
-        when(resourceResponse.getRequest()).thenReturn(resourceRequest);
-        when(resourceResponse.getResource()).thenReturn(resource);
-        when(resourceResponse.getProperties()).thenReturn(requestProperties);
-
-        ResourceRetriever retriever = mock(ResourceRetriever.class);
-
-        resourceCache.put(metacard, resourceResponse, retriever, false);
-
-        String mockCacheKey = metacardSourceId + "-" + metacardId;
-        ReliableResource cachedResource = mock(ReliableResource.class);
-        when(cachedResource.hasProduct()).thenReturn(true);
-        when(cache.get(mockCacheKey)).thenReturn(cachedResource);
-
-        String key = new CacheKey(metacard, resourceRequest).generateKey();
-        assertTrue(resourceCache.contains(key));
-        Resource retrievedResource = resourceCache.get(key);
-        assertNotNull(retrievedResource);
-    }    
-    
-    @Test
-    @Ignore
-    public void testPutWhenProductIsInProcessOfBeingCached() throws Exception {
-        Metacard metacard = mock(Metacard.class);
-        String sourceId = "ddf-1";
-        String metacardId = "4567890";
-        when(metacard.getId()).thenReturn(metacardId);
-        when(metacard.getSourceId()).thenReturn(sourceId);
-
-        ResourceRequest resourceRequest = mock(ResourceRequest.class);
-
-        Resource resource = mock(Resource.class);
-        String input = "<myXml></myXml>";
-        when(resource.getInputStream()).thenReturn(IOUtils.toInputStream(input));
-        when(resource.getName()).thenReturn("test-resource");
-        when(resource.getMimeType()).thenReturn(new MimeType("text/xml"));
-
-        ResourceResponse resourceResponse = mock(ResourceResponse.class);
-        when(resourceResponse.getRequest()).thenReturn(resourceRequest);
-        when(resourceResponse.getResource()).thenReturn(resource);
-        when(resourceResponse.getProperties()).thenReturn(null);
-
-        ResourceRetriever retriever = mock(ResourceRetriever.class);
-
-        ResourceResponse newResourceResponse = resourceCache.put(metacard, resourceResponse,
-                retriever, false);
-
-        int chunkSize = 50;
-        CacheClient cacheClient1 = new CacheClient(newResourceResponse.getResource().getInputStream(), chunkSize);
-
-        newResourceResponse = resourceCache.put(metacard, resourceResponse,
-                retriever, false);
-        CacheClient cacheClient2 = new CacheClient(newResourceResponse.getResource().getInputStream(), chunkSize);
-
-        ExecutorService executor = Executors.newCachedThreadPool();
-
-        executor.submit(cacheClient1);
-        executor.submit(cacheClient2);
-
-        LOGGER.info("Sleeping 3 seconds to see what happens with caching");
-        Thread.sleep(3000);
-        LOGGER.info("DONE");
-
-    }
-    END HUGH*/
 
 }

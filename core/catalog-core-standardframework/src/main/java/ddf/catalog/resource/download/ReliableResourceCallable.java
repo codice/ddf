@@ -230,7 +230,6 @@ public class ReliableResourceCallable implements Callable<ReliableResourceStatus
 
                 bytesRead.addAndGet(n);
 
-                //boolean cacheFileOutputStreamException = false;
                 if (cacheFileOutputStream != null) {
                     try {
                         cacheFileOutputStream.write(buffer, 0, n);
@@ -238,8 +237,6 @@ public class ReliableResourceCallable implements Callable<ReliableResourceStatus
                         LOGGER.info("IOException during write to cached file's OutputStream", e);
                         reliableResourceStatus = new ReliableResourceStatus(
                                 DownloadStatus.CACHED_FILE_OUTPUT_STREAM_EXCEPTION, bytesRead.get());
-                        //cacheFileOutputStreamException = true;
-                        //return reliableResourceStatus;
                     }
                 }
 
@@ -251,16 +248,14 @@ public class ReliableResourceCallable implements Callable<ReliableResourceStatus
                         LOGGER.info("IOException during write to FileBackedOutputStream for client to read", e);
                         reliableResourceStatus = new ReliableResourceStatus(
                                 DownloadStatus.CLIENT_OUTPUT_STREAM_EXCEPTION, bytesRead.get());
-                        //return reliableResourceStatus;
                     }
                 }
                 
-//                if (cacheFileOutputStreamException) {
                 if (reliableResourceStatus != null) {
                     return reliableResourceStatus;
                 }
             }
-            LOGGER.debug("chunkCount = {},  bytesRead = {}", 
+            LOGGER.trace("chunkCount = {},  bytesRead = {}", 
                     chunkCount, bytesRead.get());
         }
 
