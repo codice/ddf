@@ -14,10 +14,10 @@
  
 <features name="${project.artifactId}-${project.version}">
 
-    <feature name="search-ui" version="${project.version}" description="Search UI">
-		<feature>camel-http</feature>
-		<bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.javax-inject/${javax.inject.bundle.version}</bundle>
-		<bundle>mvn:ddf.ui.search/search-proxy/${project.version}</bundle>
+    <feature name="search-ui" install="manual" version="${project.version}" description="Search UI">
+        <feature>camel-http</feature>
+        <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.javax-inject/${javax.inject.bundle.version}</bundle>
+        <bundle>mvn:ddf.ui.search/search-proxy/${project.version}</bundle>
         <bundle>mvn:ddf.ui.search/simple/${project.version}</bundle>  
         <bundle>mvn:ddf.ui.search/standard/${project.version}</bundle>
         <bundle>mvn:ddf.ui.search/search-redirect/${project.version}</bundle>
