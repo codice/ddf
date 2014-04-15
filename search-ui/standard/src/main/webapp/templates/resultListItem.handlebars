@@ -6,8 +6,10 @@
             [No Title]
         {{/if}}
     </a>
-    <div class="pull-left"><span class="small-text"  title="Source">{{attributes.properties.attributes.source-id}}</span></div>
-    <div class="pull-right">
-        <span class="small-text" title="Modified Date">&nbsp;&nbsp;&nbsp;{{momentHelp attributes.properties.attributes.modified fromNow=function}}</span>
+    <div class="pull-left result-source small-text" title="Source">
+        {{attributes.properties.attributes.source-id}}
+    </div>
+    <div class="pull-right small-text" title="Modified Date">
+        {{momentHelp attributes.properties.attributes.modified fromNow=function}}
     </div>
 </td>

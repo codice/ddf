@@ -276,7 +276,7 @@ body {
 }
 
 .resultTable {
-
+    table-layout: fixed;
 }
 
 .result-count {
@@ -356,6 +356,13 @@ tr.selected {
 
 /*Metacard Detail View*/
 
+.result-source {
+    overflow : hidden;
+    text-overflow: ellipsis;
+    width: 50%;
+    white-space: nowrap;
+}
+
 .metacard-link {
     white-space:nowrap;
     text-overflow:ellipsis;
@@ -386,14 +393,18 @@ tr.selected {
 
 .attribute-label {
     float: left;
-    width: 40%;
     text-align: right;
     font-size: 85%;
+    margin-top: -4px;
 }
 
 .attribute-value {
-    margin-left: 45%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-left: 30px;
     display: block;
+    text-align: left;
+    white-space: nowrap;
 }
 
 .holder-row {
@@ -719,6 +730,12 @@ div.multiselect div.ui-multiselect-header {
 
 div.multiselect label {
     color: white;
+}
+
+div.multiselect label > span {
+    background: #EEE;
+    border-radius: 4px;
+    padding: 5px 1px;
 }
 
 .ui-datepicker-today .ui-state-highlight {
