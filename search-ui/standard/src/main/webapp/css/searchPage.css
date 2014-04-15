@@ -730,12 +730,16 @@ div.multiselect div.ui-multiselect-header {
 
 div.multiselect label {
     color: white;
+    position: relative;
 }
 
-div.multiselect label > span {
+div.multiselect label.ui-state-hover > span {
+    position: absolute;
     background: #EEE;
     border-radius: 4px;
-    padding: 5px 1px;
+    display: inline-block;
+    padding: 3px 1px;
+    top:0;
 }
 
 .ui-datepicker-today .ui-state-highlight {
