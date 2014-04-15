@@ -11,7 +11,7 @@
  */
 -->
 <img src="https://tools.codice.org/wiki/download/attachments/3047458/ddf.jpg"/>
-# [Distributed Data Framework Admin \(DDF-Admin\)](http://ddf.codice.org/)
+# [Distributed Data Framework Admin \(DDF-Admin\)](https://tools.codice.org/wiki/display/DDF/DDF+Admin+UI)
 [![Build Status](https://travis-ci.org/codice/ddf-admin.png?branch=master)](https://travis-ci.org/codice/ddf-admin)
 
 
