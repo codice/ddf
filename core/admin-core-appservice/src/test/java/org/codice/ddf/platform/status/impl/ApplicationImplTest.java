@@ -54,7 +54,7 @@ public class ApplicationImplTest {
     @Test
     public void testAppGetters() throws Exception {
         RepositoryImpl repo = new RepositoryImpl(getClass().getClassLoader()
-                .getResource("test-features.xml").toURI());
+                .getResource("test-features-no-main-feature.xml").toURI());
         repo.load();
         Application testApp = new ApplicationImpl(repo);
 
@@ -92,7 +92,7 @@ public class ApplicationImplTest {
         String mainFeatureDescription = "Main Feature Test";
         String appToString = mainFeatureName + " - " + mainFeatureVersion;
         RepositoryImpl repo = new RepositoryImpl(getClass().getClassLoader()
-                .getResource("test-mainfeatures.xml").toURI());
+                .getResource("test-features-with-main-feature.xml").toURI());
         repo.load();
         Application testApp = new ApplicationImpl(repo);
 
@@ -118,7 +118,7 @@ public class ApplicationImplTest {
         String mainFeatureDescription = null;
         String appToString = mainFeatureName + " - " + mainFeatureVersion;
         RepositoryImpl repo = new RepositoryImpl(getClass().getClassLoader()
-                .getResource("test-features.xml").toURI());
+                .getResource("test-features-no-main-feature.xml").toURI());
         repo.load();
         Application testApp = new ApplicationImpl(repo);
 
@@ -139,14 +139,14 @@ public class ApplicationImplTest {
     @Test
     public void testAppEquality() throws Exception {
         RepositoryImpl repo1 = new RepositoryImpl(getClass().getClassLoader()
-                .getResource("test-mainfeatures.xml").toURI());
+                .getResource("test-features-with-main-feature.xml").toURI());
         repo1.load();
         Application testApp1 = new ApplicationImpl(repo1);
         Application testApp1Duplicate = new ApplicationImpl(repo1);
         Application testAppNull = null;
 
         RepositoryImpl repo2 = new RepositoryImpl(getClass().getClassLoader()
-                .getResource("test-features.xml").toURI());
+                .getResource("test-features-no-main-feature.xml").toURI());
         repo2.load();
         Application testApp2 = new ApplicationImpl(repo2);
 

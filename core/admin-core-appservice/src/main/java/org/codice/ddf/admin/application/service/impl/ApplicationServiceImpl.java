@@ -1,16 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * 
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * 
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
+ * 
  **/
 package org.codice.ddf.admin.application.service.impl;
 
@@ -44,10 +44,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Implementation of the ApplicationService. Uses the karaf features service and
+ * Implementation of the ApplicationService. Uses the karaf features service and 
  * bundle state service to determine current state of items in karaf.
- * 
- * 
  */
 public class ApplicationServiceImpl implements ApplicationService {
 
@@ -69,8 +67,8 @@ public class ApplicationServiceImpl implements ApplicationService {
      * @param context
      *            BundleContext for this bundle.
      * @param bundleStateServices
-     *            List of BundleStateServices that allow fine-grained
-     *            information about bundle status for deployment services (like
+     *            List of BundleStateServices that allow fine-grained 
+     *            information about bundle status for deployment services (like 
      *            blueprint and spring).
      */
     public ApplicationServiceImpl(FeaturesService featureService, BundleContext context,
@@ -86,6 +84,13 @@ public class ApplicationServiceImpl implements ApplicationService {
         logger.trace("Getting all applications.");
         Repository[] repos = featuresService.listRepositories();
         logger.debug("Found {} applications from feature service.", repos.length);
+
+        if (logger.isDebugEnabled()) {
+            for (int ii = 0; ii < repos.length; ++ii) {
+                logger.debug("Repo/App {}: {}", ii, repos[ii].getName());
+            }
+        }
+
         Set<Application> applications = new HashSet<Application>(repos.length);
         for (int i = 0; i < repos.length; i++) {
             Application newApp = new ApplicationImpl(repos[i]);
@@ -121,7 +126,7 @@ public class ApplicationServiceImpl implements ApplicationService {
 
     @Override
     public ApplicationStatus getApplicationStatus(Application application) {
-        Set<Feature> errorFeatures = new HashSet<Feature>();
+        Set<Feature> uninstalledFeatures = new HashSet<Feature>();
         Set<Feature> requiredFeatures = new HashSet<Feature>();
         Set<Bundle> errorBundles = new HashSet<Bundle>();
         ApplicationState installState = null;
@@ -138,31 +143,37 @@ public class ApplicationServiceImpl implements ApplicationService {
             logger.debug("{} has {} required features that must be started.",
                     application.getName(), requiredFeatures.size());
 
-            errorFeatures = checkFeatureStatus(requiredFeatures);
-            errorBundles = checkBundleStatus(requiredFeatures);
+            uninstalledFeatures = getNotInstalledFeatures(requiredFeatures);
+            BundleStateSet bundleStates = getCurrentBundleStates(requiredFeatures);
+            errorBundles.addAll(bundleStates.getFailedBundles());
+            errorBundles.addAll(bundleStates.getInactiveBundles());
 
-            if (errorFeatures.isEmpty() && errorBundles.isEmpty()) {
-                installState = ApplicationState.ACTIVE;
-            } else if (errorFeatures.size() >= requiredFeatures.size()) {
+            if (bundleStates.getNumFailedBundles() > 0) {
+                // Any failed bundles, regardless of feature state, indicate a
+                // failed application state
+                installState = ApplicationState.FAILED;
+            } else if (!uninstalledFeatures.isEmpty() || 
+                       bundleStates.getNumInactiveBundles() > 0) {
                 installState = ApplicationState.INACTIVE;
             } else {
-                installState = ApplicationState.FAILED;
+                installState = ApplicationState.ACTIVE;
             }
-
         } catch (Exception e) {
             logger.warn("Encountered an error while trying to determine status of application ("
                     + application.getName() + "). Setting status as UNKNOWN.", e);
             installState = ApplicationState.UNKNOWN;
         }
-        return new ApplicationStatusImpl(application, installState, errorFeatures, errorBundles);
+        
+        return new ApplicationStatusImpl(application, installState, 
+                uninstalledFeatures, errorBundles);
     }
 
     /**
-     * Sets the names of applications that this service should ignore when
+     * Sets the names of applications that this service should ignore when 
      * checking status.
      * 
      * @param applicationNames
-     *            Comma delimited list of application names, these names must
+     *            Comma delimited list of application names, these names must 
      *            exactly match the name of the application to ignore.
      */
     public void setIgnoredApplications(String applicationNames) {
@@ -188,6 +199,13 @@ public class ApplicationServiceImpl implements ApplicationService {
             try {
                 // main feature will contain dependencies
                 Feature mainFeature = curAppNode.getKey().getMainFeature();
+                
+                if (null == mainFeature) {
+                    logger.debug("Application \"{}\" does not contain a main feature", 
+                            curAppNode.getKey().getName());
+                    continue;
+                }
+                
                 // eliminate duplications with a set
                 Set<Feature> dependencies = new HashSet<Feature>(mainFeature.getDependencies());
                 // remove any features that are local to the application
@@ -203,9 +221,9 @@ public class ApplicationServiceImpl implements ApplicationService {
                             logger.debug("Self-dependency");
                             continue;
                         } else {
-                            logger.debug(
-                                    "Application {} depends on the feature {} which is located in application {}.",
-                                    curAppNode.getKey().getName(), curDepFeature.getName(),
+                            logger.debug("Application {} depends on the feature {} which is located in application {}.",
+                                    curAppNode.getKey().getName(), 
+                                    curDepFeature.getName(),
                                     dependencyApp.getName());
                             depAppSet.add(dependencyApp);
                         }
@@ -219,28 +237,26 @@ public class ApplicationServiceImpl implements ApplicationService {
                     parentAppNode.getChildren().add(curAppNode.getValue());
                     curAppNode.getValue().setParent(parentAppNode);
                 } else if (depAppSet.isEmpty()) {
-                    logger.debug(
-                            "No dependency applications found for {}. This will be sent back as a root application.",
+                    logger.debug("No dependency applications found for {}. This will be sent back as a root application.",
                             curAppNode.getKey().getName());
                 } else {
-                    logger.warn(
-                            "Found more than 1 application dependency. Could not determine which one is the correct parent. Application {} may incorrectly show up as root application in hierarchy.",
+                    logger.warn("Found more than 1 application dependency. Could not determine which one is the correct parent. Application {} may incorrectly show up as root application in hierarchy.",
                             curAppNode.getKey().getName());
                 }
 
-                // ApplicationServiceException from DDF and Exception from Karaf
-                // (FeaturesService)
+            // ApplicationServiceException from DDF and Exception from Karaf
+            // (FeaturesService)
             } catch (Exception e) {
-                logger.warn("Encountered error while determine dependencies for "
-                        + curAppNode.getKey().getName()
-                        + ". This may cause an incomplete application hierarchy to be created.", e);
+                logger.warn("Encountered error while determining dependencies for \"{}\". This may cause an incomplete application hierarchy to be created.",
+                        curAppNode.getKey().getName(), e);
             }
         }
 
         // determine the root applications (contain no parent) and return those
         for (Entry<Application, ApplicationNodeImpl> curAppNode : appMap.entrySet()) {
             if (curAppNode.getValue().getParent() == null) {
-                logger.debug("Adding {} as a root application.", curAppNode.getKey().getName());
+                logger.debug("Adding {} as a root application.", 
+                        curAppNode.getKey().getName());
                 applicationTree.add(curAppNode.getValue());
             }
         }
@@ -260,7 +276,7 @@ public class ApplicationServiceImpl implements ApplicationService {
      *            Feature to look for.
      * @param applications
      *            Set of applications to check for the feature.
-     * @return The first application that contains the feature or null if no
+     * @return The first application that contains the feature or null if no 
      *         application contains the feature.
      */
     protected Application findFeature(Feature feature, Set<Application> applications) {
@@ -278,6 +294,7 @@ public class ApplicationServiceImpl implements ApplicationService {
         }
         logger.warn("Could not find feature {} in any known application, returning null.",
                 feature.getName());
+        
         return null;
     }
 
@@ -290,8 +307,12 @@ public class ApplicationServiceImpl implements ApplicationService {
      */
     private Set<Feature> getAllDependencyFeatures(Feature feature) throws Exception {
         Set<Feature> tmpList = new HashSet<Feature>();
-        // get accurate feature reference from service
-        Feature curFeature = featuresService.getFeature(feature.getName(), feature.getVersion());
+        // get accurate feature reference from service - workaround for
+        // KARAF-2896 'RepositoryImpl load method incorrectly populates 
+        //            "features" list'
+        Feature curFeature = featuresService.getFeature(feature.getName(), 
+                feature.getVersion());
+        
         if (curFeature != null) {
             for (Feature dependencyFeature : curFeature.getDependencies()) {
                 tmpList.addAll(getAllDependencyFeatures(dependencyFeature));
@@ -303,62 +324,105 @@ public class ApplicationServiceImpl implements ApplicationService {
         }
         return tmpList;
     }
-
+    
     /**
-     * Goes through a set of features and returns a set of bundles from those
-     * features that are not properly started.
+     * Evaluates the bundles contained in a set of {@link Feature}s and 
+     * determines if each bundle is currently in an active, inactive, or 
+     * failed state.
      * 
      * @param features
-     * @return a set of bundles that are not started
+     * @return {@link BundleStateSet} containing information on the state of 
+     *         each bundle
      */
-    private Set<Bundle> checkBundleStatus(Set<Feature> features) {
-        Set<Bundle> badBundles = new HashSet<Bundle>();
+    private final BundleStateSet getCurrentBundleStates(Set<Feature> features) {
+        BundleStateSet bundleStateSet = new BundleStateSet();
+        
         for (Feature curFeature : features) {
             for (BundleInfo curBundleInfo : curFeature.getBundles()) {
                 Bundle curBundle = context.getBundle(curBundleInfo.getLocation());
-                if (curBundle != null
-                        && (curBundle.adapt(BundleRevision.class).getTypes() != BundleRevision.TYPE_FRAGMENT)) {
-                    // check if bundle state is NOT active
-                    if (curBundle.getState() != Bundle.ACTIVE) {
-                        badBundles.add(curBundle);
-                        continue;
-                    }
-
-                    // check if any service frameworks failed on start
-                    for (BundleStateService curStateService : bundleStateServices) {
-                        logger.trace("Checking {} for bundle state of {}.",
-                                curStateService.getName(), curBundle.getSymbolicName());
-                        BundleState curState = curStateService.getState(curBundle);
-                        if (!curState.equals(BundleState.Active)
-                                && !curState.equals(BundleState.Unknown)) {
-                            logger.debug("{} is not in an active/unknown state. Current State: {}",
-                                    curBundle.getSymbolicName(), curState.toString());
-                            badBundles.add(curBundle);
+                if (curBundle != null && 
+                    curBundle.adapt(BundleRevision.class).getTypes() != BundleRevision.TYPE_FRAGMENT) {
+                    
+                    // check if bundle is inactive
+                    int bundleState = curBundle.getState();
+                    switch (bundleState) {
+                    case Bundle.RESOLVED:
+                    case Bundle.STARTING:
+                    case Bundle.STOPPING:
+                        bundleStateSet.addInactiveBundle(curBundle);
+                        break;
+                    case Bundle.INSTALLED:
+                    case Bundle.UNINSTALLED:
+                        bundleStateSet.addFailedBundle(curBundle);
+                        break;
+                    case Bundle.ACTIVE:
+                        // check if any service frameworks (e.g. Blueprint
+                        // and SpringDM) failed on start
+                        for (BundleStateService curStateService : bundleStateServices) {
+                            logger.trace("Checking {} for bundle state of {}.",
+                                    curStateService.getName(), curBundle.getSymbolicName());
+                            BundleState curState = curStateService.getState(curBundle);
+                            
+                            switch (curState) {
+                            case Resolved:
+                            case Waiting:
+                            case Starting:
+                            case Stopping:
+                                logger.debug("{} is not in an inactive state. Current State: {}",
+                                        curBundle.getSymbolicName(), curState.toString());
+                                
+                                bundleStateSet.addInactiveBundle(curBundle);
+                                break;
+                                
+                            case Installed:
+                            case GracePeriod:
+                            case Failure:
+                                logger.debug("{} is not in a failed state. Current State: {}",
+                                        curBundle.getSymbolicName(), curState.toString());
+                                
+                                bundleStateSet.addFailedBundle(curBundle);
+                                break;
+                            
+                            case Unknown:
+                            case Active:
+                            default:
+                                bundleStateSet.addActiveBundle(curBundle);
+                                break;
+                            }
                         }
+                        break; // end case Bundle.Active
+                    default:
+                        bundleStateSet.addActiveBundle(curBundle);
+                        break;
                     }
-
                 }
             }
         }
-        return badBundles;
+        
+        return bundleStateSet;       
     }
 
     /**
-     * Checks a list of features to see which ones are not started.
+     * Given a {@code Set} of {@code Feature}s, returns the subset of 
+     * {@code Features}s that are not installed
      * 
-     * @param features
-     * @return a sub-set of the passed in set and it contains the features that
-     *         are not started
+     * @param features 
+     *             The {@code Set} of {@link Feature}s from which to construct
+     *             the subset of {@code Feature}s that are not installed
+     *                     
+     * @return A {@code Set} of {@code Feature}s that are not installed that
+     *         is a sub-set of the <i>features</i> {@code Feature}s {@code Set} 
+     *         parameter
      */
-    private Set<Feature> checkFeatureStatus(Set<Feature> features) {
-        Set<Feature> badFeatures = new HashSet<Feature>();
+    private Set<Feature> getNotInstalledFeatures(Set<Feature> features) {
+        Set<Feature> notInstalledFeatures = new HashSet<Feature>();
         for (Feature curFeature : features) {
             if (!featuresService.isInstalled(curFeature)) {
-                logger.debug("{} is not started.", curFeature.getName());
-                badFeatures.add(curFeature);
+                logger.debug("{} is not installed.", curFeature.getName());
+                notInstalledFeatures.add(curFeature);
             }
         }
-        return badFeatures;
+        return notInstalledFeatures;
     }
 
     @Override
@@ -367,8 +431,7 @@ public class ApplicationServiceImpl implements ApplicationService {
             if (application.getMainFeature() != null) {
                 featuresService.installFeature(application.getMainFeature().getName());
             } else {
-                logger.debug(
-                        "Main feature not found when trying to start {}, going through and manually starting all features with install=auto",
+                logger.debug("Main feature not found when trying to start {}, going through and manually starting all features with install=auto",
                         application.getName());
                 for (Feature curFeature : application.getFeatures()) {
                     if (curFeature.getInstall().equalsIgnoreCase(Feature.DEFAULT_INSTALL_MODE)) {
@@ -386,18 +449,21 @@ public class ApplicationServiceImpl implements ApplicationService {
 
     @Override
     public void startApplication(String application) throws ApplicationServiceException {
+        
         for (Application curApp : getApplications()) {
             if (curApp.getName().equals(application)) {
                 startApplication(curApp);
                 return;
             }
         }
-        throw new ApplicationServiceException("Could not find application named " + application
-                + ". Start application failed.");
+        
+        throw new ApplicationServiceException("Could not find application named " 
+                + application + ". Start application failed.");
     }
 
     @Override
-    public void stopApplication(Application application) throws ApplicationServiceException {
+    public void stopApplication(Application application) 
+            throws ApplicationServiceException {
         try {
             if (application.getMainFeature() != null) {
                 if (featuresService.isInstalled(application.getMainFeature())) {
@@ -407,8 +473,7 @@ public class ApplicationServiceImpl implements ApplicationService {
                             + " is already stopped.");
                 }
             } else {
-                logger.debug(
-                        "Main feature not found when trying to stop {}, going through and manually stop all features that are installed.",
+                logger.debug("Main feature not found when trying to stop {}, going through and manually stop all features that are installed.",
                         application.getName());
                 for (Feature curFeature : application.getFeatures()) {
                     if (featuresService.isInstalled(curFeature)) {
@@ -431,8 +496,54 @@ public class ApplicationServiceImpl implements ApplicationService {
                 return;
             }
         }
-        throw new ApplicationServiceException("Could not find application named " + application
-                + ". Stop application failed.");
+        throw new ApplicationServiceException("Could not find application named " 
+                + application + ". Stop application failed.");
+    }
+    
+    /**
+     * Data structure for storing various {@link Bundle} states
+     */
+    @SuppressWarnings("unused")
+    private class BundleStateSet {
+        Set<Bundle> activeBundles = new HashSet<Bundle>();
+        Set<Bundle> inactiveBundles = new HashSet<Bundle>();
+        Set<Bundle> failedBundles = new HashSet<Bundle>();
+        
+        void addActiveBundle(Bundle bundle) {
+            activeBundles.add(bundle);
+        }
+        
+        void addInactiveBundle(Bundle bundle) {
+            inactiveBundles.add(bundle);
+        }
+        
+        void addFailedBundle(Bundle bundle) {
+            failedBundles.add(bundle);
+        }
+        
+        Set<Bundle> getActiveBundles() {
+            return activeBundles;
+        }
+        
+        int getNumActiveBundles() {
+            return activeBundles.size();
+        }
+        
+        Set<Bundle> getInactiveBundles() {
+            return inactiveBundles;
+        }
+        
+        int getNumInactiveBundles() {
+            return inactiveBundles.size();
+        }
+
+        Set<Bundle> getFailedBundles() {
+            return failedBundles;
+        }
+        
+        int getNumFailedBundles() {
+            return failedBundles.size();
+        }
     }
 
     @Override
