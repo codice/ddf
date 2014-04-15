@@ -253,10 +253,10 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
         // only attempt to re-connect on a refresh if not connected OR username,
         // password, or the URL changes
         if (remoteWfs == null
-                || (!this.wfsUrl.equalsIgnoreCase(wfsUrl)
-                        || !this.password.equalsIgnoreCase(password) || !this.username
-                            .equalsIgnoreCase(username))
-                || (this.disableSSLCertVerification != disableSSLCertVerification)) {
+                || hasWfsUrlChanged(wfsUrl)
+                || hasPasswordChanged(password) 
+                || hasUsernameChanged(username)
+                || hasDisableSslCertVerificationChanged(disableSSLCertVerification)) {
             this.wfsUrl = wfsUrl;
             this.password = password;
             this.username = username;
@@ -286,6 +286,22 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
             availabilityPollFuture.cancel(true);
             setupAvailabilityPoll();
         }
+    }
+    
+    private boolean hasWfsUrlChanged(String wfsUrl) {
+        return this.wfsUrl != null && !this.wfsUrl.equalsIgnoreCase(wfsUrl);
+    }
+    
+    private boolean hasPasswordChanged(String password) {
+        return this.password != null && !this.password.equalsIgnoreCase(password);
+    }
+    
+    private boolean hasUsernameChanged(String username) {
+        return this.username != null && !this.username.equalsIgnoreCase(username);
+    }
+    
+    private boolean hasDisableSslCertVerificationChanged(Boolean disableSSLCertVerification) {
+        return this.disableSSLCertVerification != disableSSLCertVerification;
     }
 
     private void setupAvailabilityPoll() {
