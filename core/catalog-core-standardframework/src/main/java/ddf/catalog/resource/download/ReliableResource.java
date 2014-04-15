@@ -31,8 +31,6 @@ import ddf.catalog.resource.Resource;
 
 /**
  * The resource that will be stored in the @ResourceCache cache map.
- * 
- * @author rodgers
  *
  */
 public class ReliableResource implements Resource, Serializable {

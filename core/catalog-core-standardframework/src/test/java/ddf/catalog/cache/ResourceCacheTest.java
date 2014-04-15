@@ -73,7 +73,6 @@ public class ResourceCacheTest {
     }
 
     @Test
-    @Ignore  //HUGH
     public void testBadKarafHomeValue() {
         System.setProperty("karaf.home", "invalid-cache");
         resourceCache.setProductCacheDirectory("");

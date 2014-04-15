@@ -57,8 +57,6 @@ import ddf.catalog.resourceretriever.ResourceRetriever;
 /**
  * The manager for downloading a resource, including retrying the download if problems are encountered, and
  * optionally caching the resource as it is streamed to the client.
- * 
- * @author rodgers
  *
  */
 public class ReliableResourceDownloadManager implements Runnable {

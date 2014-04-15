@@ -16,7 +16,6 @@ package ddf.catalog.resource.download;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Arrays;
 import java.util.concurrent.Future;
 
 import org.slf4j.Logger;
@@ -29,8 +28,6 @@ import com.google.common.io.FileBackedOutputStream;
 /**
  * The @InputStream used by the client to read from the @FileBackedOutputStream being written to as the
  * resource is being downloaded.
- * 
- * @author rodgers
  *
  */
 public class ReliableResourceInputStream extends InputStream {
@@ -148,10 +145,6 @@ public class ReliableResourceInputStream extends InputStream {
         if (fbosCount != fbosBytesRead) {
             LOGGER.trace("fbos count = {}, fbosBytesRead = {}", fbosCount, fbosBytesRead);
         }
-        
-//        if (fbosCount == 499) {
-//            LOGGER.debug("fbosCount = {}, fbosBytesRead = {}", fbosCount, fbosBytesRead);
-//        }
 
         // More bytes written to FileBackedOutputStream than have been read by the client -
         // ok to skip and do a read
@@ -160,9 +153,6 @@ public class ReliableResourceInputStream extends InputStream {
         } else if (fbosCount > 0) {
             // bytes have been written to the FileBackedOutputStream
             numBytesRead = readFromFbosInputStream(b, off, len);
-//            if (numBytesRead == -1 && fbosCount == fbosBytesRead &&
-//               (downloadState.getDownloadState() == DownloadManagerState.DownloadState.COMPLETED || 
-//                downloadState.getDownloadState() == DownloadManagerState.DownloadState.FAILED)) {
             if (isFbosCompletelyRead(numBytesRead, fbosCount)) {
                 LOGGER.debug("Sending EOF");
                 // Client is done reading from this FileBackedOutputStream, so can

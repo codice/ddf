@@ -25,8 +25,6 @@ import org.slf4j.LoggerFactory;
  * Monitors the @ReliableResourceCallable, detecting if no bytes have been read from the resource's @InputStream
  * for the monitor's period. If this is detected, then this monitor is canceled, the @ReliableResourceCallable's
  * interrupt flag is set, and the @Future that started it is canceled.
- * 
- * @author rodgers
  *
  */
 public class ResourceRetrievalMonitor extends TimerTask {

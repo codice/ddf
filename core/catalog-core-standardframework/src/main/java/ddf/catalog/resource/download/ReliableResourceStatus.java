@@ -21,8 +21,6 @@ package ddf.catalog.resource.download;
  * @InputStream was read successfully a value of -1 is returned for bytes read.
  * The @DownloadStatus indicates if the caching was successful or whether an exception
  * in reading or writing to one of the streams was encountered.
- * 
- * @author rodgers
  *
  */
 public class ReliableResourceStatus {

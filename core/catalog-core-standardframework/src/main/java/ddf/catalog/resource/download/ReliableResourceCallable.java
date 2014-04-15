@@ -40,8 +40,6 @@ import com.google.common.io.CountingOutputStream;
  * Otherwise, the number of bytes read thus far is returned so that the caller can react accordingly (e.g., reopen the 
  * product @InputStream and skip forward that many bytes already read).
  * 
- * @author rodgers
- * 
  */
 public class ReliableResourceCallable implements Callable<ReliableResourceStatus> {
 

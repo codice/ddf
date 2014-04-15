@@ -21,8 +21,6 @@ package ddf.catalog.resource.download;
  * for the download status to have several of these values over the entire span
  * of the download. For example, a product download could be interrupted due to
  * a brief network connection drop, and then the download could complete successfully.
- * 
- * @author rodgers
  *
  */
 public enum DownloadStatus {
