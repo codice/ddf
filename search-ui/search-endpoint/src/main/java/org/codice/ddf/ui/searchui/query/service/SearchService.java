@@ -108,6 +108,8 @@ public class SearchService {
 
     private static final String DEFAULT_RADIUS = "5000";
 
+    public static final String LOCAL_SOURCE = "local";
+
     private final FilterBuilder filterBuilder;
 
     private final SearchController searchController;
@@ -239,11 +241,15 @@ public class SearchService {
             List<OpenSearchQuery> queryList = new ArrayList<OpenSearchQuery>();
 
             Set<String> federatedSet;
-            if (!(StringUtils.isEmpty(sources))) {
-                LOGGER.debug("Received site names from client: {}", sources);
+            if (StringUtils.equalsIgnoreCase(sources, LOCAL_SOURCE)) {
+                LOGGER.debug("Received local query");
+                federatedSet = new HashSet<String>(Arrays.asList(searchController.getFramework().getId()));
+            } else if (!(StringUtils.isEmpty(sources))) {
+                LOGGER.debug("Received source names from client: {}", sources);
                 federatedSet = new HashSet<String>(Arrays.asList(StringUtils.stripAll(sources
                         .split(","))));
             } else {
+                LOGGER.debug("Received enterprise query");
                 federatedSet = searchController.getFramework().getSourceIds();
             }
 
