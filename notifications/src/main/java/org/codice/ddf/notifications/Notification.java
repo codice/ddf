@@ -52,7 +52,8 @@ public class Notification extends HashMap<String, String> {
      *                  the point at which the event triggering this
      *                  {@code Notification} was generated.
      */
-    public Notification(String application, String title, String message, Long timestamp) {
+    public Notification(String application, String title, String message, 
+            Long timestamp) {
         this(application, title, message, String.valueOf(timestamp), null);
     }
     
@@ -72,7 +73,8 @@ public class Notification extends HashMap<String, String> {
      *                  which the event triggering this {@code Notification} was 
      *                  generated.
      */
-    public Notification(String application, String title, String message, String timestamp) {
+    public Notification(String application, String title, String message, 
+            String timestamp) {
         this(application, title, message, timestamp, null);
     }
     
@@ -119,7 +121,9 @@ public class Notification extends HashMap<String, String> {
      * @param userId The id of the user to which this {@code Notification}
      *               should be sent.
      */
-    public Notification(String application, String title, String message, String timestamp, String userId) {
+    public Notification(String application, String title, String message, 
+            String timestamp, String userId) {
+        
         setApplication(application);
         setTitle(title);
         setMessage(message);
