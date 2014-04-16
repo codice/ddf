@@ -289,15 +289,15 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
     }
     
     private boolean hasWfsUrlChanged(String wfsUrl) {
-        return this.wfsUrl != null && !this.wfsUrl.equalsIgnoreCase(wfsUrl);
+        return !StringUtils.equals(this.wfsUrl, wfsUrl);
     }
     
     private boolean hasPasswordChanged(String password) {
-        return this.password != null && !this.password.equalsIgnoreCase(password);
+        return !StringUtils.equals(this.password, password);
     }
-    
+
     private boolean hasUsernameChanged(String username) {
-        return this.username != null && !this.username.equalsIgnoreCase(username);
+        return !StringUtils.equals(this.username, username);
     }
     
     private boolean hasDisableSslCertVerificationChanged(Boolean disableSSLCertVerification) {
