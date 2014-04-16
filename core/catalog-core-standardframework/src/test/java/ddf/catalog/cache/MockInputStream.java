@@ -80,7 +80,6 @@ public class MockInputStream extends InputStream {
     @Override
     public int read(byte[] buffer) throws IOException {
         invocationCount++;
-        //LOGGER.debug("invocationCount = " + invocationCount);
         if (invocationCount == invocationCountToThrowIOException) {
             LOGGER.info("Simulating read exception by closing inputstream");
             // Simulates IOException while reading from the remote source.

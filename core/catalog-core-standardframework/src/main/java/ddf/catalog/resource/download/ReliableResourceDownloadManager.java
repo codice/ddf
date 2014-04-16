@@ -293,7 +293,7 @@ public class ReliableResourceDownloadManager implements Runnable {
                     doCaching = true;
                     this.downloadState.setCacheEnabled(true);
                 } catch (IOException e) {
-                    LOGGER.info("Unable to open cache file " + filePath + " - no caching will be done.");
+                    LOGGER.info("Unable to open cache file {} - no caching will be done.", filePath);
                 }
             } else {
                 LOGGER.debug("Cache key {} is already pending caching", key);
@@ -331,7 +331,7 @@ public class ReliableResourceDownloadManager implements Runnable {
                     break;
                 }
                 retryAttempts++;
-                LOGGER.debug("Download attempt " + retryAttempts);
+                LOGGER.debug("Download attempt {}", retryAttempts);
                 ExecutorService downloadExecutor = null;
                 try {
                     downloadExecutor = Executors.newCachedThreadPool();

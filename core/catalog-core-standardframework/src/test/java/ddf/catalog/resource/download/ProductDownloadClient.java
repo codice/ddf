@@ -104,7 +104,7 @@ public class ProductDownloadClient implements Callable<ByteArrayOutputStream> {
         } catch (IOException e) {
             LOGGER.error("Exception", e);
         }
-        LOGGER.info("Client DONE - size = " + size);
+        LOGGER.info("Client DONE - size = {}", size);
         return bos;
     }
 }

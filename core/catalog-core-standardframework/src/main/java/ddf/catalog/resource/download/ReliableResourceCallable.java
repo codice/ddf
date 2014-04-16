@@ -149,7 +149,7 @@ public class ReliableResourceCallable implements Callable<ReliableResourceStatus
      * @param interruptDownload
      */
     public void setInterruptDownload(boolean interruptDownload) {
-        LOGGER.debug("Setting interruptDownload = " + interruptDownload);
+        LOGGER.debug("Setting interruptDownload = {}", interruptDownload);
         this.interruptDownload = interruptDownload;
 
         // Set caching status here because it takes time for the Future running this
@@ -158,7 +158,7 @@ public class ReliableResourceCallable implements Callable<ReliableResourceStatus
         LOGGER.debug("Download interrupted - returning {} bytes read", bytesRead);
         reliableResourceStatus = new ReliableResourceStatus(DownloadStatus.RESOURCE_DOWNLOAD_INTERRUPTED,
                 bytesRead.get());
-        reliableResourceStatus.setMessage("Download interrupted - returning " + bytesRead + " bytes read");
+        reliableResourceStatus.setMessage("Download interrupted - returning {}" + bytesRead + " bytes read");
     }
 
     /**
@@ -168,7 +168,7 @@ public class ReliableResourceCallable implements Callable<ReliableResourceStatus
      * @param cancelDownload
      */
     public void setCancelDownload(boolean cancelDownload) {
-        LOGGER.debug("Setting cancelDownload = " + cancelDownload);
+        LOGGER.debug("Setting cancelDownload = {}", cancelDownload);
         this.cancelDownload = cancelDownload;
 
         // Set caching status here because it takes time for the Future running this
@@ -249,6 +249,8 @@ public class ReliableResourceCallable implements Callable<ReliableResourceStatus
                     }
                 }
                 
+                // Return status here so that each stream can be attempted to be updated regardless of
+                // which one might have had an exception
                 if (reliableResourceStatus != null) {
                     return reliableResourceStatus;
                 }

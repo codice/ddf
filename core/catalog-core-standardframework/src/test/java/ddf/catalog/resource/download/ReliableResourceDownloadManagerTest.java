@@ -111,13 +111,13 @@ public class ReliableResourceDownloadManagerTest {
     @Rule
     public MethodRule watchman = new TestWatchman() {
         public void starting(FrameworkMethod method) {
-            LOGGER.debug("***************************  STARTING: {}  **************************\n"
-                    + method.getName());
+            LOGGER.debug("***************************  STARTING: {}  **************************\n",
+                    method.getName());
         }
 
         public void finished(FrameworkMethod method) {
-            LOGGER.debug("***************************  END: {}  **************************\n"
-                    + method.getName());
+            LOGGER.debug("***************************  END: {}  **************************\n",
+                    method.getName());
         }
     };
 
@@ -130,7 +130,6 @@ public class ReliableResourceDownloadManagerTest {
         workingDir = System.getProperty("user.dir");
         productCacheDirectory = workingDir + "/target/tests/product-cache";
         productInputFilename = workingDir + "/src/test/resources/foo_10_lines.txt";
-//        productInputFilename = workingDir + "/src/test/resources/foo_1k.txt";
         File productInputFile = new File(productInputFilename);
         expectedFileSize = productInputFile.length();
         expectedFileContents = FileUtils.readFileToString(productInputFile);

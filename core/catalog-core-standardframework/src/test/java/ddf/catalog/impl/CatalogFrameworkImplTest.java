@@ -48,7 +48,6 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
 import org.geotools.filter.FilterFactoryImpl;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
@@ -61,6 +60,8 @@ import org.mockito.ArgumentCaptor;
 import org.opengis.filter.Filter;
 import org.opengis.filter.FilterFactory;
 import org.osgi.framework.BundleContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.cache.ResourceCache;
@@ -105,7 +106,6 @@ import ddf.catalog.resource.Resource;
 import ddf.catalog.resource.ResourceNotFoundException;
 import ddf.catalog.resource.ResourceNotSupportedException;
 import ddf.catalog.resource.ResourceReader;
-import ddf.catalog.resourceretriever.ResourceRetriever;
 import ddf.catalog.source.CatalogProvider;
 import ddf.catalog.source.ConnectedSource;
 import ddf.catalog.source.FederatedSource;
@@ -121,30 +121,25 @@ import ddf.catalog.util.impl.SourcePoller;
 import ddf.catalog.util.impl.SourcePollerRunner;
 
 public class CatalogFrameworkImplTest {
-    //private static final Logger LOGGER = LoggerFactory.getLogger(CatalogFrameworkImplTest.class);
-    private static final transient Logger LOGGER = Logger.getLogger(CatalogFrameworkImplTest.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CatalogFrameworkImplTest.class);
 
 
     @Rule
     public MethodRule watchman = new TestWatchman() {
         public void starting(FrameworkMethod method) {
-            LOGGER.debug("***************************  STARTING: {}  **************************\n"
-                    + method.getName());
+            LOGGER.debug("***************************  STARTING: {}  **************************\n", method.getName());
         }
 
         public void finished(FrameworkMethod method) {
-            LOGGER.debug("***************************  END: {}  **************************\n"
-                    + method.getName());
+            LOGGER.debug("***************************  END: {}  **************************\n", method.getName());
         }
     };
 
     @BeforeClass
     public static void init() {
-        BasicConfigurator.configure();
-        Logger.getRootLogger().setLevel(Level.INFO);
-//        ch.qos.logback.classic.Logger root = (ch.qos.logback.classic.Logger) LoggerFactory
-//                .getLogger(Logger.ROOT_LOGGER_NAME);
-//        root.setLevel(ch.qos.logback.classic.Level.INFO);
+        ch.qos.logback.classic.Logger root = (ch.qos.logback.classic.Logger) LoggerFactory
+                .getLogger(Logger.ROOT_LOGGER_NAME);
+        root.setLevel(ch.qos.logback.classic.Level.INFO);
     }
 
     // Start testing MetacardWriter
@@ -460,10 +455,9 @@ public class CatalogFrameworkImplTest {
                     Map<String, Serializable> properties) {
                 Resource mockResource = mock(Resource.class);
                 ResourceResponse resourceResponse = new ResourceResponseImpl(mockResource);
-                LOGGER.debug("resourceResponse.getResource() returned: "
-                        + resourceResponse.getResource());
-                LOGGER.debug("resourceResponse.getRequest() expected returned value: null;  actual returned value: "
-                        + resourceResponse.getRequest());
+                LOGGER.debug("resourceResponse.getResource() returned: {}", resourceResponse.getResource());
+                LOGGER.debug("resourceResponse.getRequest() expected returned value: null;  actual returned value: {}",
+                        resourceResponse.getRequest());
                 assertNull(resourceResponse.getRequest());
                 // Returns a ResourceResponse with a null ResourceRequest.
                 return resourceResponse;
@@ -486,7 +480,7 @@ public class CatalogFrameworkImplTest {
         LOGGER.debug("Testing CatalogFramework.getResource(ResourceRequest, String)...");
         ResourceResponse resourceResponse = catalogFrameworkUnderTest.getResource(
                 mockResourceRequest, resourceSiteName);
-        LOGGER.debug("resourceResponse: " + resourceResponse);
+        LOGGER.debug("resourceResponse: {}", resourceResponse);
 
         // Verify
         /*
@@ -661,7 +655,7 @@ public class CatalogFrameworkImplTest {
 
         List<String> siteNames = new ArrayList<String>();
         for (SourceDescriptor descriptor : sourceDescriptors) {
-            LOGGER.debug("Descriptor id: " + descriptor.getSourceId());
+            LOGGER.debug("Descriptor id: {}", descriptor.getSourceId());
             siteNames.add(descriptor.getSourceId());
         }
 
@@ -701,7 +695,7 @@ public class CatalogFrameworkImplTest {
         }
         Set<SourceDescriptor> sourceDescriptors = response.getSourceInfo();
         for (SourceDescriptor descriptor : sourceDescriptors) {
-            LOGGER.debug("Descriptor id: " + descriptor.getSourceId());
+            LOGGER.debug("Descriptor id: {}", descriptor.getSourceId());
         }
 
         // The "+1" is to account for the CatalogFramework source descriptor.
@@ -737,7 +731,7 @@ public class CatalogFrameworkImplTest {
         }
         Set<SourceDescriptor> sourceDescriptors = response.getSourceInfo();
         for (SourceDescriptor descriptor : sourceDescriptors) {
-            LOGGER.debug("Descriptor id: " + descriptor.getSourceId());
+            LOGGER.debug("Descriptor id: {}", descriptor.getSourceId());
             if (StringUtils.isNotBlank(descriptor.getId())) {
                 assertFalse(descriptor.isAvailable());
                 // No contentTypes should be listed if the source is unavailable
@@ -843,7 +837,7 @@ public class CatalogFrameworkImplTest {
         }
 
         for (String id : returnedSourceIds) {
-            LOGGER.debug("returned sourceId: " + id);
+            LOGGER.debug("returned sourceId: {}", id);
         }
         assertTrue(expectedNameSet.equals(returnedSourceIds));
 
@@ -1374,22 +1368,22 @@ public class CatalogFrameworkImplTest {
         // site name = local provider
         Map<String, Set<String>> optionsMap = framework.getResourceOptions(metacardId,
                 localProviderName);
-        LOGGER.debug("localProvider optionsMap = " + optionsMap);
+        LOGGER.debug("localProvider optionsMap = {}", optionsMap);
         assertThat(optionsMap, hasEntry("RESOURCE_OPTION", supportedOptions));
 
         // site name = federated site's name
         optionsMap = framework.getResourceOptions(metacardId, federatedSite1Name);
-        LOGGER.debug("federatedSource optionsMap = " + optionsMap);
+        LOGGER.debug("federatedSource optionsMap = {}", optionsMap);
         assertThat(optionsMap, hasEntry("RESOURCE_OPTION", supportedOptions));
 
         // site name = null (should default to local provider)
         optionsMap = framework.getResourceOptions(metacardId, null);
-        LOGGER.debug("localProvider optionsMap = " + optionsMap);
+        LOGGER.debug("localProvider optionsMap = {}", optionsMap);
         assertThat(optionsMap, hasEntry("RESOURCE_OPTION", supportedOptions));
 
         // site name = empty string (should default to local provider)
         optionsMap = framework.getResourceOptions(metacardId, "");
-        LOGGER.debug("localProvider optionsMap = " + optionsMap);
+        LOGGER.debug("localProvider optionsMap = {}", optionsMap);
         assertThat(optionsMap, hasEntry("RESOURCE_OPTION", supportedOptions));
     }
 
