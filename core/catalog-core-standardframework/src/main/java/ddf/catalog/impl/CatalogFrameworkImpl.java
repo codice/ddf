@@ -429,6 +429,11 @@ public class CatalogFrameworkImpl extends DescribableImpl implements Configurati
         this.cacheEnabled = cacheEnabled;
     }
     
+    /**
+     * Set the delay, in seconds, between product retrieval retry attempts.
+     * 
+     * @param delayBetweenAttempts
+     */
     public void setDelayBetweenRetryAttempts(int delayBetweenAttempts) {
         logger.debug("Setting delayBetweenRetryAttempts = {} ms", delayBetweenAttempts * MS_PER_SECOND);
         this.delayBetweenAttempts = delayBetweenAttempts * MS_PER_SECOND;
@@ -439,9 +444,16 @@ public class CatalogFrameworkImpl extends DescribableImpl implements Configurati
         this.maxRetryAttempts = maxRetryAttempts;
     }
     
-    public void setCachingMonitorPeriod(int cachingMonitorPeriod) {
-        logger.debug("Setting cachingMonitorPeriod = {} ms", cachingMonitorPeriod * MS_PER_SECOND);
-        this.monitorPeriod = cachingMonitorPeriod * MS_PER_SECOND;
+    /**
+     * Set the frequency, in seconds, to monitor the product retrieval.
+     * If this amount of time passes with no bytes being retrieved for
+     * the product, then the monitor will start a new download attempt.
+     * 
+     * @param retrievalMonitorPeriod
+     */
+    public void setRetrievalMonitorPeriod(int retrievalMonitorPeriod) {
+        logger.debug("Setting retrievalMonitorPeriod = {} ms", retrievalMonitorPeriod * MS_PER_SECOND);
+        this.monitorPeriod = retrievalMonitorPeriod * MS_PER_SECOND;
     }
     
     public void setCacheWhenCanceled(boolean cacheWhenCanceled) {

@@ -31,7 +31,7 @@
       <AD name="Max product retrieval retry attempts" id="maxRetryAttempts" required="false"
           type="Integer" default="3"
           description="The maximum number of attempts to retry retrieving a product."/>
-      <AD name="Caching Monitor Period" id="cachingMonitorPeriod" required="false"
+      <AD name="Product Retrieval Monitor Period" id="retrievalMonitorPeriod" required="false"
           type="Integer" default="5"
           description="How many seconds to wait and not receive product data before retrying to retrieve a product."/>
       <AD name="Always Cache Product" id="cacheWhenCanceled" required="false" type="Boolean" default="false"
