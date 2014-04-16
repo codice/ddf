@@ -156,14 +156,19 @@
                         name="enterpriseFederationButton" data-target="#nofed"
                         data-toggle="tab">All Sources
                 </button>
-                <button type="button" class="btn btn-mini {{#if src}}active{{/if}}"
+                <button type="button" class="btn btn-mini {{#is src "local"}}active{{/is}}"
+                        name="noFederationButton" data-target="#local"
+                        data-toggle="tab">Local Only
+                </button>
+                <button type="button" class="btn btn-mini {{#if src}}{{#isnt src "local"}}active{{/isnt}}{{/if}}"
                         name="selectedFederationButton" data-target="#sources"
                         data-toggle="tab">Specific Sources
                 </button>
             </div>
             <div class="tab-content">
                 <div id="nofed" class="tab-pane {{#ifNotOr src}}active{{/ifNotOr}}"></div>
-                <div id="sources" class="tab-pane {{#if src}}active{{/if}}">
+                <div id="local" class="tab-pane {{#is src "local"}}active{{/is}}"></div>
+                <div id="sources" class="tab-pane {{#if src}}{{#isnt src "local"}}active{{/isnt}}{{/if}}">
                     <div id="scrollableSources" class="scrollable">
                         <select id="federationSources" class="input-xlarge" multiple="multiple">
                         {{#each sources}}
@@ -176,11 +181,11 @@
         </li>
 
         <li>
-            <div class="form-actions">
-                <a href="#" id="searchButton" class="btn btn-primary searchButton">
+            <div class="form-actions btn-group search-buttons">
+                <a href="#" id="searchButton" class="btn btn-medium btn-primary searchButton">
                     <i class="fa fa-search"></i> Search
                 </a>
-                <a href="#" id="resetButton" class="btn resetButton" type="reset">Clear</a>
+                <a href="#" id="resetButton" class="btn btn-medium resetButton" type="reset">Clear</a>
             </div>
         </li>
     </ul>
