@@ -17,7 +17,6 @@
 	    <groupId>ddf</groupId>
         <artifactId>ddf-parent</artifactId>       
         <version>1.0.1</version>
-        <relativePath>../ddf-parent/pom.xml</relativePath>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
@@ -35,6 +34,14 @@
 			<artifactId>mockito-core</artifactId>
 		</dependency>
     </dependencies>
+
+  <repositories>
+    <repository>
+      <id>codice</id>
+      <name>Codice Repository</name>
+      <url>http://artifacts.codice.org/content/groups/public/</url>
+    </repository>
+  </repositories>
 
     <build>
         <plugins>
