@@ -51,6 +51,10 @@
             <groupId>ddf.catalog.core</groupId>
             <artifactId>ddf-pubsub</artifactId>
         </dependency>
+        <dependency>
+        	<groupId>org.codice.ddf</groupId>
+        	<artifactId>notifications</artifactId>
+        </dependency>
 		<dependency>
 			<groupId>org.osgi</groupId>
 			<artifactId>org.osgi.core</artifactId>
@@ -92,7 +96,7 @@
 						<!-- DDF-1614: <Bundle-SymbolicName>${project.artifactId};blueprint.graceperiod:=true;blueprint.timeout:=604800000</Bundle-SymbolicName> -->
 						<Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
 						<Embed-Dependency>
-                            guava
+                            guava, notifications
                         </Embed-Dependency>
                         <Embed-Transitive>true</Embed-Transitive>
 						<Private-Package>

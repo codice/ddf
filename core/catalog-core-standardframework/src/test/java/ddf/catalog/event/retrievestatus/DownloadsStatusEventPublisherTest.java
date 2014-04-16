@@ -14,9 +14,12 @@
  **/
 package ddf.catalog.event.retrievestatus;
 
+import ddf.catalog.event.retrievestatus.DownloadsStatusEventPublisher.ProductRetrievalStatus;
 import ddf.catalog.operation.ResourceRequest;
 import ddf.catalog.operation.ResourceResponse;
 import ddf.catalog.resource.Resource;
+
+import org.codice.ddf.notifications.Notification;
 import org.junit.BeforeClass;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventAdmin;
@@ -50,7 +53,7 @@ public class DownloadsStatusEventPublisherTest {
         properties = mock(Map.class);
 
         when(resource.getName()).thenReturn("testCometDSessionID");
-        when(properties.get(DownloadsStatusEventPublisher.USER)).thenReturn("testUser");
+        when(properties.get(Notification.NOTIFICATION_KEY_USER_ID)).thenReturn("testUser");
         when(resourceRequest.getProperties()).thenReturn(properties);
         when(resourceResponse.getResource()).thenReturn(resource);
         when(resourceResponse.getRequest()).thenReturn(resourceRequest);
@@ -60,29 +63,29 @@ public class DownloadsStatusEventPublisherTest {
     public void testPostRetrievalStatusHappyPath() {
         setupPublisher();
 
-        publisher.postRetrievalStatus(resourceResponse, DownloadsStatusEventPublisher.PRODUCT_RETRIEVAL_STARTED,
+        publisher.postRetrievalStatus(resourceResponse, ProductRetrievalStatus.STARTED,
                 null, 0L);
         verify(eventAdmin, times(1)).postEvent(any(Event.class));
 
         // Test with null bytes
         publisher.postRetrievalStatus(resourceResponse,
-                DownloadsStatusEventPublisher.PRODUCT_RETRIEVAL_STARTED, null, null);
+                ProductRetrievalStatus.STARTED, null, null);
         verify(eventAdmin, times(2)).postEvent(any(Event.class));
 
         publisher.postRetrievalStatus(resourceResponse,
-                DownloadsStatusEventPublisher.PRODUCT_RETRIEVAL_CANCELLED, "test detail", 20L);
+                ProductRetrievalStatus.CANCELLED, "test detail", 20L);
         verify(eventAdmin, times(3)).postEvent(any(Event.class));
 
         publisher.postRetrievalStatus(resourceResponse,
-                DownloadsStatusEventPublisher.PRODUCT_RETRIEVAL_FAILED, "test detail", 250L);
+                ProductRetrievalStatus.FAILED, "test detail", 250L);
         verify(eventAdmin, times(4)).postEvent(any(Event.class));
 
         publisher.postRetrievalStatus(resourceResponse,
-                DownloadsStatusEventPublisher.PRODUCT_RETRIEVAL_RETRYING, "test detail", 350L);
+                ProductRetrievalStatus.RETRYING, "test detail", 350L);
         verify(eventAdmin, times(5)).postEvent(any(Event.class));
 
         publisher.postRetrievalStatus(resourceResponse,
-                DownloadsStatusEventPublisher.PRODUCT_RETRIEVAL_COMPLETE, "test detail", 500L);
+                ProductRetrievalStatus.COMPLETE, "test detail", 500L);
         verify(eventAdmin, times(6)).postEvent(any(Event.class));
     }
 
@@ -90,28 +93,28 @@ public class DownloadsStatusEventPublisherTest {
     public void testPostRetrievalStatusWithNoNameProperty() {
         setupPublisher();
 
-        publisher.postRetrievalStatus(resourceResponse, DownloadsStatusEventPublisher.PRODUCT_RETRIEVAL_STARTED,
+        publisher.postRetrievalStatus(resourceResponse, ProductRetrievalStatus.STARTED,
                 null, 0L);
         verify(eventAdmin, times(1)).postEvent(any(Event.class));
 
         publisher.postRetrievalStatus(resourceResponse,
-                DownloadsStatusEventPublisher.PRODUCT_RETRIEVAL_STARTED, "test detail", 10L);
+                ProductRetrievalStatus.STARTED, "test detail", 10L);
         verify(eventAdmin, times(2)).postEvent(any(Event.class));
 
         publisher.postRetrievalStatus(resourceResponse,
-                DownloadsStatusEventPublisher.PRODUCT_RETRIEVAL_CANCELLED, "test detail", 20L);
+                ProductRetrievalStatus.CANCELLED, "test detail", 20L);
         verify(eventAdmin, times(3)).postEvent(any(Event.class));
 
         publisher.postRetrievalStatus(resourceResponse,
-                DownloadsStatusEventPublisher.PRODUCT_RETRIEVAL_FAILED, "test detail", 250L);
+                ProductRetrievalStatus.FAILED, "test detail", 250L);
         verify(eventAdmin, times(4)).postEvent(any(Event.class));
 
         publisher.postRetrievalStatus(resourceResponse,
-                DownloadsStatusEventPublisher.PRODUCT_RETRIEVAL_RETRYING, "test detail", 350L);
+                ProductRetrievalStatus.RETRYING, "test detail", 350L);
         verify(eventAdmin, times(5)).postEvent(any(Event.class));
 
         publisher.postRetrievalStatus(resourceResponse,
-                DownloadsStatusEventPublisher.PRODUCT_RETRIEVAL_COMPLETE, "test detail", 500L);
+                ProductRetrievalStatus.COMPLETE, "test detail", 500L);
         verify(eventAdmin, times(6)).postEvent(any(Event.class));
     }
 

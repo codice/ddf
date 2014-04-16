@@ -16,6 +16,7 @@ package ddf.catalog.event.retrievestatus;
 
 
 import ddf.catalog.operation.ResourceResponse;
+import org.codice.ddf.notifications.Notification;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventAdmin;
 import org.slf4j.LoggerFactory;
@@ -24,8 +25,6 @@ import org.slf4j.ext.XLogger;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Dictionary;
-import java.util.Hashtable;
 
 /**
  * The {@code DownloadsStatusEventPublisher} class creates events and sends them using the {@link EventAdmin} service
@@ -33,26 +32,16 @@ import java.util.Hashtable;
  */
 public class DownloadsStatusEventPublisher {
 
-    // Topic
-    public static final String EVENTS_TOPIC_PRODUCT_RETRIEVAL = "ddf/notifications/catalog/downloads";
-
-    // Property keys
-    public static final String APPLICATION = "application";
     public static final String APPLICATION_NAME = "Downloads";
-    public static final String TITLE = "title";
-    public static final String MESSAGE = "message";
+    
+    // Property keys
     public static final String DETAIL = "detail";
-    public static final String TIMESTAMP = "timestamp";
-    public static final String USER = "user";
     public static final String STATUS = "status";
     public static final String BYTES = "bytes";
 
-    //  status values
-    public static final String PRODUCT_RETRIEVAL_STARTED = "started";
-    public static final String PRODUCT_RETRIEVAL_RETRYING = "retrying";
-    public static final String PRODUCT_RETRIEVAL_CANCELLED = "cancelled";
-    public static final String PRODUCT_RETRIEVAL_FAILED = "failed";
-    public static final String PRODUCT_RETRIEVAL_COMPLETE = "complete";
+    public static enum ProductRetrievalStatus {
+        STARTED, RETRYING, CANCELLED, FAILED, COMPLETE;
+    }
 
     private static XLogger logger = new XLogger(LoggerFactory.getLogger(DownloadsStatusEventPublisher.class));
     private static final DateFormat formatter = new SimpleDateFormat("HH:mm:ss:SSS");
@@ -72,7 +61,7 @@ public class DownloadsStatusEventPublisher {
      * @param resourceResponse - The {@link ResourceResponse} of the request.
      * @param status           - The status of the retrieval.}
      */
-    public void postRetrievalStatus(final ResourceResponse resourceResponse, String status, String detail, Long bytes) {
+    public void postRetrievalStatus(final ResourceResponse resourceResponse, ProductRetrievalStatus status, String detail, Long bytes) {
 
         logger.debug("ENTERING: postRetrievalStatus(...)");
         logger.debug("status: {}", status);
@@ -82,19 +71,21 @@ public class DownloadsStatusEventPublisher {
         if (bytes == null) {
             bytes = 0L;
         }
-
-                Dictionary <String, Object> properties = new Hashtable<String, Object>();
-        properties.put(APPLICATION, APPLICATION_NAME);
-        properties.put(TITLE, resourceResponse.getResource().getName());
+        
         Long sysTimeMillis = System.currentTimeMillis();
-        properties.put(MESSAGE, generateMessage(status,
-                resourceResponse.getResource().getName(), bytes, sysTimeMillis, detail));
-        properties.put(USER, getProperty(resourceResponse, USER));
-        properties.put(STATUS, status);
-        properties.put(BYTES, bytes);
-        properties.put(TIMESTAMP, sysTimeMillis);
+        Notification notification = new Notification(APPLICATION_NAME, 
+                resourceResponse.getResource().getName(), 
+                generateMessage(status, resourceResponse.getResource().getName(), 
+                        bytes, sysTimeMillis, detail), 
+                sysTimeMillis, 
+                getProperty(resourceResponse, 
+                        Notification.NOTIFICATION_KEY_USER_ID));
+        
+        notification.put(STATUS, status.name().toLowerCase());
+        notification.put(BYTES, String.valueOf(bytes));
 
-        Event event = new Event(EVENTS_TOPIC_PRODUCT_RETRIEVAL, properties);
+        Event event = new Event(Notification.NOTIFICATION_TOPIC_DOWNLOADS, 
+                notification);
 
         eventAdmin.postEvent(event);
 
@@ -112,7 +103,8 @@ public class DownloadsStatusEventPublisher {
         return response;
     }
 
-    private String generateMessage(String status, String title, Long bytes, Long sysTimeMillis, String detail) {
+    private String generateMessage(ProductRetrievalStatus status, String title, 
+            Long bytes, Long sysTimeMillis, String detail) {
         StringBuilder response = new StringBuilder("Product retrieval for ");
         response.append(title);
 
@@ -121,42 +113,48 @@ public class DownloadsStatusEventPublisher {
             detail = "";
         }
 
-        if (status.equals(PRODUCT_RETRIEVAL_STARTED)) {
+        String dateString = formatter.format(new Date(sysTimeMillis));
+        
+        switch (status) {
+        case STARTED:
             response.append(" started at ");
-            Date date = new Date(sysTimeMillis);
-            response.append(formatter.format(date));
-            response.append(". ");
-            response.append(detail);
-        } else if (status.equals(PRODUCT_RETRIEVAL_COMPLETE)) {
+            response.append(dateString);
+            break;
+        case COMPLETE:
             response.append(" completed at ");
-            Date date = new Date(sysTimeMillis);
-            response.append(formatter.format(date));
+            response.append(dateString);
             response.append(", bytes retrieved: ");
             response.append(bytes.toString());
-            response.append(". ");
-            response.append(detail);
-        } else if (status.equals(PRODUCT_RETRIEVAL_RETRYING)) {
+            break;
+            
+        case RETRYING:
             response.append(" retrying at ");
-            Date date = new Date(sysTimeMillis);
-            response.append(formatter.format(date));
+            response.append(dateString);
             response.append(" after ");
             response.append(bytes.toString());
-            response.append(" bytes. ");
+            response.append(" bytes");
             response.append(detail);
-        } else if (status.equals(PRODUCT_RETRIEVAL_CANCELLED)) {
+            
+            break;
+            
+        case CANCELLED:
             response.append(" cancelled at ");
-            Date date = new Date(sysTimeMillis);
-            response.append(formatter.format(date));
-            response.append(". ");
-            response.append(detail);
-        } else if (status.equals(PRODUCT_RETRIEVAL_FAILED)) {
+            response.append(dateString);
+            
+            break;
+            
+        case FAILED:
             response.append(" failed at ");
-            Date date = new Date(sysTimeMillis);
-            response.append(formatter.format(date));
-            response.append(". ");
-            response.append(detail);
+            response.append(dateString);
+            
+            break;
+            
+        default:
+            break;
         }
 
+        response.append(". ");
+        response.append(detail);
         logger.debug("message: {}", response.toString());
 
         return response.toString();
