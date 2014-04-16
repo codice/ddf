@@ -35,6 +35,7 @@
     
     <properties>
     	<cometd.version>2.7.0</cometd.version>
+    	<org.codice.ddf.notifications.version>1.0.0-SNAPSHOT</org.codice.ddf.notifications.version>
     	<javax.inject.version>1</javax.inject.version>
     	
     	<!--  Third-party bundle versions. These should only be used in the features.xml file.
@@ -45,6 +46,11 @@
     
     <dependencyManagement>
     	<dependencies>
+	    	<dependency>
+	        	<groupId>org.codice.ddf</groupId>
+	        	<artifactId>notifications</artifactId>
+	        	<version>${org.codice.ddf.notifications.version}</version>
+	        </dependency>
 	    	<dependency>
 	            <groupId>org.cometd.java</groupId>
 	            <artifactId>bayeux-api</artifactId>

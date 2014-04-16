@@ -22,6 +22,7 @@ import java.util.Map;
 
 import net.minidev.json.JSONObject;
 
+import org.codice.ddf.notifications.Notification;
 import org.cometd.annotation.Listener;
 import org.cometd.annotation.Service;
 import org.cometd.annotation.Session;
@@ -45,19 +46,11 @@ public class NotificationController implements EventHandler {
 
     @Session
     private ServerSession notificationControllerServerSession;
-
-    public static final String NOTIFICATIONS_TOPIC_NAME = 
-            "ddf/notification/catalog/downloads";
-
-    public static final String NOTIFICATION_APPLICATION_KEY = "application";
-
-    public static final String NOTIFICATION_MESSAGE_KEY = "message";
-
-    public static final String NOTIFICATION_TIMESTAMP_KEY = "timestamp";
-
-    public static final String NOTIFICATION_TITLE_KEY = "title";
-
-    public static final String NOTIFICATION_USER_KEY = "user";
+    
+    // CometD requires prepending the topic name with a '/' character, whereas
+    // the OSGi Event Admin doesn't allow it.
+    protected static final String NOTIFICATION_TOPIC_DOWNLOADS_COMETD = 
+            "/" + Notification.NOTIFICATION_TOPIC_DOWNLOADS;
     
     // Synchronize the map to protect against multiple clients triggering
     // multiple Map operations at the same time
@@ -72,13 +65,14 @@ public class NotificationController implements EventHandler {
     /**
      * Establishes {@code NotificationController} as a listener to events 
      * published by the OSGi eventing framework on the 
-     * {@link NotificationController#NOTIFICATIONS_TOPIC_NAME} topic
+     * {@link Notification#NOTIFICATION_TOPIC_ROOT} topic
      * 
      * @param bundleContext
      */
     public NotificationController(BundleContext bundleContext) {
         Dictionary<String, Object> dictionary = new Hashtable<String, Object>();
-        dictionary.put(EventConstants.EVENT_TOPIC, NOTIFICATIONS_TOPIC_NAME);
+        dictionary.put(EventConstants.EVENT_TOPIC, 
+                Notification.NOTIFICATION_TOPIC_ROOT + "/*");
 
         bundleContext.registerService(EventHandler.class.getName(), this, 
                 dictionary);
@@ -185,42 +179,42 @@ public class NotificationController implements EventHandler {
      * properties are either missing from the Event or contain empty values:
      * 
      * <ul>
-     *    <li>{@link #NOTIFICATION_APPLICATION_KEY}</li>
-     *    <li>{@link #NOTIFICATION_MESSAGE_KEY}</li>
-     *    <li>{@link #NOTIFICATION_TIMESTAMP_KEY}</li
-     *    <li>{@link #NOTIFICATION_TITLE_KEY}</li>
-     *    <li>{@link #NOTIFICATION_USER_KEY}</li>
+     *    <li>{@link Notification#NOTIFICATION_KEY_APPLICATION}</li>
+     *    <li>{@link Notification#NOTIFICATION_KEY_MESSAGE}</li>
+     *    <li>{@link Notification#NOTIFICATION_KEY_TIMESTAMP}</li
+     *    <li>{@link Notification#NOTIFICATION_KEY_TITLE}</li>
+     *    <li>{@link Notification#NOTIFICATION_KEY_USER_ID}</li>
      * </ul>
      */
     @Override
     public void handleEvent(Event event) throws IllegalArgumentException {
 
-        if (null == event.getProperty(NOTIFICATION_APPLICATION_KEY)
-                || event.getProperty(NOTIFICATION_APPLICATION_KEY).toString().isEmpty()) {
-            throw new IllegalArgumentException("Event \"" + NOTIFICATION_APPLICATION_KEY
+        if (null == event.getProperty(Notification.NOTIFICATION_KEY_APPLICATION)
+                || event.getProperty(Notification.NOTIFICATION_KEY_APPLICATION).toString().isEmpty()) {
+            throw new IllegalArgumentException("Event \"" + Notification.NOTIFICATION_KEY_APPLICATION
                     + "\" property is null or empty");
         }
 
-        if (null == event.getProperty(NOTIFICATION_MESSAGE_KEY)
-                || event.getProperty(NOTIFICATION_MESSAGE_KEY).toString().isEmpty()) {
-            throw new IllegalArgumentException("Event \"" + NOTIFICATION_MESSAGE_KEY
+        if (null == event.getProperty(Notification.NOTIFICATION_KEY_MESSAGE)
+                || event.getProperty(Notification.NOTIFICATION_KEY_MESSAGE).toString().isEmpty()) {
+            throw new IllegalArgumentException("Event \"" + Notification.NOTIFICATION_KEY_MESSAGE
                     + "\" property is null or empty");
         }
 
-        if (null == event.getProperty(NOTIFICATION_TIMESTAMP_KEY)) {
-            throw new IllegalArgumentException("Event \"" + NOTIFICATION_TIMESTAMP_KEY
+        if (null == event.getProperty(Notification.NOTIFICATION_KEY_TIMESTAMP)) {
+            throw new IllegalArgumentException("Event \"" + Notification.NOTIFICATION_KEY_TIMESTAMP
                     + "\" property is null");
         }
 
-        if (null == event.getProperty(NOTIFICATION_TITLE_KEY)
-                || event.getProperty(NOTIFICATION_TITLE_KEY).toString().isEmpty()) {
-            throw new IllegalArgumentException("Event \"" + NOTIFICATION_TITLE_KEY
+        if (null == event.getProperty(Notification.NOTIFICATION_KEY_TITLE)
+                || event.getProperty(Notification.NOTIFICATION_KEY_TITLE).toString().isEmpty()) {
+            throw new IllegalArgumentException("Event \"" + Notification.NOTIFICATION_KEY_TITLE
                     + "\" property is null or empty");
         }
 
-        String userId = (String) event.getProperty(NOTIFICATION_USER_KEY);
+        String userId = (String) event.getProperty(Notification.NOTIFICATION_KEY_USER_ID);
         if (null == userId || userId.isEmpty()) {
-            throw new IllegalArgumentException("Event \"" + NOTIFICATION_USER_KEY
+            throw new IllegalArgumentException("Event \"" + Notification.NOTIFICATION_KEY_USER_ID
                     + "\" property is null or empty");
         }
 
@@ -232,10 +226,11 @@ public class NotificationController implements EventHandler {
                 jsonPropMap.put(key, event.getProperty(key));
             }
 
-            LOGGER.debug("Sending the following property map to \"{}\": ",
+            LOGGER.debug("Sending the following property map \"{}\": ",
                     jsonPropMap.toJSONString());
 
-            recipient.deliver(notificationControllerServerSession, NOTIFICATIONS_TOPIC_NAME,
+            recipient.deliver(notificationControllerServerSession, 
+                    NOTIFICATION_TOPIC_DOWNLOADS_COMETD,
                     jsonPropMap.toJSONString(), null);
 
         } else {
