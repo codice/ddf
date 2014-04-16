@@ -43,12 +43,18 @@
         <feature>admin-ui</feature>
         <bundle>mvn:ddf.admin.modules/admin-modules-installer/${project.version}</bundle>
     </feature>
+    
+    <feature name="admin-post-install-modules" install="manual" version="${project.version}" description="Contains the modules that should be installed after the installer is finished.">
+        <feature>admin-modules-configuration</feature>
+    </feature>
    
-    <feature name="admin-app" install="auto" version="${project.version}" description="DDF Administration Tools">
+    <feature name="admin-app" install="auto" version="${project.version}" description="DDF Administration Tools. Comes with the Admin UI framework and command line application service tools.">
+        <feature>platform-app</feature>
         <feature>admin-core</feature>
         <feature>admin-ui</feature>
-        <feature>admin-modules-configuration</feature>
     </feature> 
+    
+    
     
 
 </features>

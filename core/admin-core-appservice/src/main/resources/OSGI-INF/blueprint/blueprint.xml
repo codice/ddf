@@ -15,9 +15,9 @@
   <bean id="appService" class="org.codice.ddf.admin.application.service.impl.ApplicationServiceImpl">
     <cm:managed-properties persistent-id="org.codice.ddf.admin.application.service.impl.ApplicationServiceImpl"
       update-strategy="container-managed" />
-    <argument ref="featuresService" />
     <argument ref="blueprintBundleContext" />
     <argument ref="bundleStateServices" />
+    <property name="configFileName" value="etc/org.codice.ddf.admin.applicationlist.properties" />
   </bean>
 
   <service ref="appService" interface="org.codice.ddf.admin.application.service.ApplicationService" />

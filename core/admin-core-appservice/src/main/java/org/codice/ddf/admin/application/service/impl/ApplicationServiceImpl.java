@@ -39,6 +39,7 @@ import org.codice.ddf.admin.application.service.ApplicationStatus;
 import org.codice.ddf.admin.application.service.ApplicationStatus.ApplicationState;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
 import org.osgi.framework.wiring.BundleRevision;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -71,9 +72,11 @@ public class ApplicationServiceImpl implements ApplicationService {
      *            information about bundle status for deployment services (like
      *            blueprint and spring).
      */
-    public ApplicationServiceImpl(FeaturesService featureService, BundleContext context,
+    public ApplicationServiceImpl(BundleContext context,
             List<BundleStateService> bundleStateServices) {
-        this.featuresService = featureService;
+        ServiceReference<FeaturesService> featuresServiceRef = context
+                .getServiceReference(FeaturesService.class);
+        this.featuresService = context.getService(featuresServiceRef);
         this.context = context;
         this.bundleStateServices = bundleStateServices;
         ignoredApplicationNames = new HashSet<String>();
@@ -182,7 +185,26 @@ public class ApplicationServiceImpl implements ApplicationService {
         logger.debug("Not ignoring applications with the following names: {}",
                 ignoredApplicationNames);
     }
-    
+
+    /**
+     * Sets the configuration file used for initial installation and starts the
+     * installation.
+     * 
+     * @param configFileName
+     *            Absolute path name of the file containing the application
+     *            list.
+     */
+    public void setConfigFileName(String configFileName) {
+        try {
+            if (featuresService.isInstalled(featuresService.getFeature("admin-modules-installer"))) {
+                ApplicationConfigInstaller configInstaller = new ApplicationConfigInstaller(
+                        configFileName, this, featuresService);
+                configInstaller.start();
+            }
+        } catch (Exception e) {
+            logger.warn("Could not check for installer application configuration file.", e);
+        }
+    }
 
     @Override
     public Set<ApplicationNode> getApplicationTree() {
@@ -469,6 +491,21 @@ public class ApplicationServiceImpl implements ApplicationService {
         try {
             if (application.getMainFeature() != null) {
                 if (featuresService.isInstalled(application.getMainFeature())) {
+
+                    // uninstall dependency features
+                    Set<Feature> features = getAllDependencyFeatures(application.getMainFeature());
+                    for (Feature curFeature : features) {
+                        try {
+                            if (application.getFeatures().contains(curFeature)) {
+                                featuresService.uninstallFeature(curFeature.getName(),
+                                        curFeature.getVersion());
+                            }
+                        } catch (Exception e) {
+                            logger.debug("Error while trying to uninstall " + curFeature.getName(),
+                                    e);
+                        }
+                    }
+
                     featuresService.uninstallFeature(application.getMainFeature().getName());
                 } else {
                     throw new ApplicationServiceException("Application " + application.getName()
