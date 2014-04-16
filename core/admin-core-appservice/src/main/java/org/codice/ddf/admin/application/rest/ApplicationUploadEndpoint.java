@@ -38,9 +38,6 @@ import java.util.List;
  * The REST Endpoint for the Application Service that provides an endpoint to upload new/upgraded applications
  * to the system.
  *
- * @author Scott Tustison
- * @author ddf.isgs@lmco.com
- *
  */
 @Path("/")
 public class ApplicationUploadEndpoint {
