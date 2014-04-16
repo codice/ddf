@@ -86,8 +86,8 @@ public class ApplicationImpl implements Application, Comparable<Application> {
                 throw new IllegalArgumentException(
                         "No identifying information available inside the repository, cannot create application instance.");
             }
-            logger.warn(
-                    "Could not determine main feature in {}. Each application should have only 1 auto install feature but {} were found in this application.",
+            logger.debug(
+                    "Could not determine main feature in {}, using defaults. Each application should have only 1 auto install feature but {} were found in this application.",
                     repo.getName(), autoFeatures.size());
             name = repo.getName();
             version = "0.0.0";

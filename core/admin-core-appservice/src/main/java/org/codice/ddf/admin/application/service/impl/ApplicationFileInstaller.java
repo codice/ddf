@@ -33,7 +33,7 @@ public class ApplicationFileInstaller {
 
     private static final Logger logger = LoggerFactory.getLogger(ApplicationFileInstaller.class);
 
-    private static final String REPO_LOCATION = "mock_system" + File.separator;
+    private static final String REPO_LOCATION = "system" + File.separator;
 
     private static final String URI_PROTOCOL = "file:";
 
