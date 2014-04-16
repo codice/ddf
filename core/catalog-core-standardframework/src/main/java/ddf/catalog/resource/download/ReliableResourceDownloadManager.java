@@ -129,6 +129,13 @@ public class ReliableResourceDownloadManager implements Runnable {
     private String filePath;
     
     private boolean downloadStarted;
+    
+    /**
+     * Only set to true if cacheEnabled is true *AND* product being downloaded
+     * is not already pending caching, e.g., another client has already started
+     * downloading and caching it.
+     */
+    private boolean doCaching;
 
     
     /**
@@ -154,9 +161,14 @@ public class ReliableResourceDownloadManager implements Runnable {
         
         this.downloadState = new DownloadManagerState();
         this.downloadState.setDownloadState(DownloadManagerState.DownloadState.NOT_STARTED);
-        this.downloadState.setCacheEnabled(cacheEnabled);
+        
+        // Do not enable caching yet - wait until determine if this product about to be downloaded
+        // is already pending caching by another download in progress
+        this.downloadState.setCacheEnabled(false);
+        
         this.downloadState.setContinueCaching(cacheWhenCanceled);
         this.downloadStarted = false;
+        this.doCaching = false;
     }
     
 
@@ -278,9 +290,13 @@ public class ReliableResourceDownloadManager implements Runnable {
                 
                 try {
                     fos = FileUtils.openOutputStream(new File(filePath));
+                    doCaching = true;
+                    this.downloadState.setCacheEnabled(true);
                 } catch (IOException e) {
                     LOGGER.info("Unable to open cache file " + filePath + " - no caching will be done.");
                 }
+            } else {
+                LOGGER.debug("Cache key {} is already pending caching", key);
             }
         }
         
@@ -305,7 +321,7 @@ public class ReliableResourceDownloadManager implements Runnable {
                     // successfully created. In this case, a partial cache file may have been created from the
                     // previous caching attempt(s) and needs to be deleted from the product cache directory.
                     LOGGER.debug("ReliableResourceCallable is null - cannot download resource");
-                    if (cacheEnabled) {
+                    if (doCaching) {
                         deleteCacheFile(fos);
                     }
                     eventPublisher.postRetrievalStatus(resourceResponse,
@@ -357,7 +373,7 @@ public class ReliableResourceDownloadManager implements Runnable {
                     eventPublisher.postRetrievalStatus(resourceResponse,
                             DownloadsStatusEventPublisher.PRODUCT_RETRIEVAL_COMPLETE, null,
                             reliableResourceStatus.getBytesRead());
-                    if (cacheEnabled) {
+                    if (doCaching) {
                         try {
                         LOGGER.debug("Setting reliableResource size");
                         reliableResource.setSize(reliableResourceStatus.getBytesRead());
@@ -370,8 +386,8 @@ public class ReliableResourceDownloadManager implements Runnable {
                     break;
                 } else {
                     bytesRead = reliableResourceStatus.getBytesRead();
-                    LOGGER.debug("Download {} not complete, only read {} bytes", filePath, bytesRead);
-                    if (cacheEnabled) {
+                    LOGGER.debug("Download not complete, only read {} bytes", bytesRead);
+                    if (fos != null) {
                         fos.flush();
                     }
 
@@ -413,7 +429,7 @@ public class ReliableResourceDownloadManager implements Runnable {
                                 DownloadsStatusEventPublisher.PRODUCT_RETRIEVAL_RETRYING,
                                 String.format("Attempt %d of %d.", retryAttempts, maxRetryAttempts),
                                 reliableResourceStatus.getBytesRead());
-                        if (cacheEnabled) {
+                        if (doCaching) {
                             deleteCacheFile(fos);
                             resourceCache.removePendingCacheEntry(reliableResource.getKey());
                             // Disable caching since the cache file being written to had issues
@@ -442,7 +458,7 @@ public class ReliableResourceDownloadManager implements Runnable {
                         resourceRetrievalMonitor.cancel();
                         eventPublisher.postRetrievalStatus(resourceResponse,
                                 DownloadsStatusEventPublisher.PRODUCT_RETRIEVAL_CANCELLED, "", 0L);
-                        if (cacheEnabled) {
+                        if (doCaching) {
                             deleteCacheFile(fos);
                         }
                         break;
@@ -538,7 +554,7 @@ public class ReliableResourceDownloadManager implements Runnable {
         // If caching was not successful, then remove this product from the pending cache list
         // (Otherwise partially cached files will remain in pending list and returned to subsequent clients)
         if (reliableResourceStatus.getDownloadStatus() != DownloadStatus.RESOURCE_DOWNLOAD_COMPLETE) {
-            if (cacheEnabled) {
+            if (doCaching) {
                 resourceCache.removePendingCacheEntry(reliableResource.getKey());
             }
             this.downloadState.setDownloadState(DownloadManagerState.DownloadState.FAILED);
@@ -550,7 +566,7 @@ public class ReliableResourceDownloadManager implements Runnable {
             // InputStream
         }
         IOUtils.closeQuietly(countingFbos);
-        if (cacheEnabled) {
+        if (doCaching) {
             IOUtils.closeQuietly(fos);
         }
         LOGGER.debug("Closing source InputStream");
