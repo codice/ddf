@@ -328,6 +328,23 @@ tr.selected {
     padding: 10px 0;
 }
 
+.search-buttons {
+    width: 100%;
+    padding: 0;
+}
+
+.btn-medium {
+    padding: 6px 14px;
+    font-size: 17.5px;
+    -webkit-border-radius: 6px;
+    -moz-border-radius: 6px;
+    border-radius: 6px;
+}
+
+.btn-group>.btn-medium {
+    font-size: 15px;
+}
+
 .slide-animate {
     /*to enable left-right animation*/
     position : relative;
