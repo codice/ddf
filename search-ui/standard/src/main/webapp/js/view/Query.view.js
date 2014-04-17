@@ -28,8 +28,9 @@ define(function (require) {
         //as soon as the model contains more than 4 items, we assume
         //that we have enough values to search
         defaults: {
-            offsetTimeUnits: "hours",
-            radiusUnits: "meters",
+            federation: 'enterprise',
+            offsetTimeUnits: 'hours',
+            radiusUnits: 'meters',
             radius: 0,
             radiusValue: 0
         },
@@ -82,12 +83,11 @@ define(function (require) {
             'click .time': 'clearTime',
             'click .location': 'clearLocation',
             'click .type': 'clearType',
-            'click .federation': 'clearFederation',
             'click button[name=pointRadiusButton]' : 'drawCircle',
             'click button[name=bboxButton]' : 'drawExtent',
-            'click button[name=noFederationButton]' : 'noFederationEvent',
-            'click button[name=selectedFederationButton]': 'selectedFederationEvent',
-            'click button[name=enterpriseFederationButton]': 'enterpriseFederationEvent',
+            'click button[name=noFederationButton]' : 'setNoFederation',
+            'click button[name=selectedFederationButton]': 'setSelectedFederation',
+            'click button[name=enterpriseFederationButton]': 'setEnterpriseFederation',
             'keypress input[name=q]': 'filterOnEnter',
             'change #radiusUnits': 'onRadiusUnitsChanged',
             'change #offsetTimeUnits': 'onTimeUnitsChanged'
@@ -100,17 +100,20 @@ define(function (require) {
             this.sources = options.sources;
         },
 
-        noFederationEvent : function(){
+        setNoFederation : function () {
+            this.model.set('federation', 'local');
             this.model.set('src','local');
             this.updateScrollbar();
         },
 
-        enterpriseFederationEvent : function(){
+        setEnterpriseFederation : function () {
+            this.model.set('federation', 'enterprise');
             this.model.unset('src');
             this.updateScrollbar();
         },
 
-        selectedFederationEvent : function(){
+        setSelectedFederation : function () {
+            this.model.set('federation', 'selected');
             this.model.unset('src');
             this.updateScrollbar();
         },
@@ -319,12 +322,27 @@ define(function (require) {
                                     };
 
             //get results
-            var queryParams,
-                view = this,
+            var view = this,
                 result,
-                options;
-            queryParams = this.model.toJSON();
-            
+                options,
+                sourceCount = 0,
+                queryParams = this.model.toJSON();
+
+            if (!_.isUndefined(queryParams.src)) {
+                sourceCount = queryParams.src.split(',').length;
+            } else {
+                var sources = [];
+                this.sources.each(function (src) {
+                    if (src.get('available') === true) {
+                        sourceCount++;
+                        sources.push(src.get('id'));
+                    }
+                });
+                if (sources.length > 0) {
+                    this.model.set('src', sources.join(','));
+                }
+            }
+
             options = {
                 'queryParams': queryParams
             };
@@ -340,7 +358,7 @@ define(function (require) {
                 result.url = result.syncUrl;
             }
 
-            wreqr.vent.trigger('search:start', result, this.model, this.sources.length, progress);
+            wreqr.vent.trigger('search:start', result, this.model, sourceCount, progress);
 
             // disable the whole form
             this.$('button').addClass('disabled');

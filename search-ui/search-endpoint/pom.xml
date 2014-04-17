@@ -124,7 +124,16 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Embed-Dependency>
-                            json-smart,catalog-opensearch-endpoint,bayeux-api,cometd-java-common,cometd-java-server,cometd-java-annotations,jackson-mapper-asl,jackson-core-asl,catalog-core-api-impl,notifications
+                            bayeux-api,
+                            catalog-core-api-impl,
+                            catalog-opensearch-endpoint,
+                            cometd-java-annotations,
+                            cometd-java-common,
+                            cometd-java-server,
+                            notifications,
+                            jackson-mapper-asl,
+                            jackson-core-asl,
+                            json-smart
                         </Embed-Dependency>
                         <Spring-Context>*;wait-for-dependencies:=true;timeout:=604800</Spring-Context>
                         <!-- Package uses conflict if we do not embed this -->

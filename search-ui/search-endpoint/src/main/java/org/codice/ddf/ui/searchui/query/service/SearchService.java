@@ -23,6 +23,10 @@ import java.util.Set;
 
 import javax.inject.Inject;
 
+import ddf.catalog.operation.SourceInfoResponse;
+import ddf.catalog.operation.impl.SourceInfoRequestEnterprise;
+import ddf.catalog.source.SourceDescriptor;
+import ddf.catalog.source.SourceUnavailableException;
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.opensearch.query.OpenSearchQuery;
 import org.codice.ddf.ui.searchui.query.controller.SearchController;
@@ -243,21 +247,41 @@ public class SearchService {
             Set<String> federatedSet;
             if (StringUtils.equalsIgnoreCase(sources, LOCAL_SOURCE)) {
                 LOGGER.debug("Received local query");
-                federatedSet = new HashSet<String>(Arrays.asList(searchController.getFramework().getId()));
+                federatedSet = new HashSet<String>(
+                        Arrays.asList(searchController.getFramework().getId()));
             } else if (!(StringUtils.isEmpty(sources))) {
                 LOGGER.debug("Received source names from client: {}", sources);
                 federatedSet = new HashSet<String>(Arrays.asList(StringUtils.stripAll(sources
                         .split(","))));
             } else {
                 LOGGER.debug("Received enterprise query");
-                federatedSet = searchController.getFramework().getSourceIds();
+                SourceInfoResponse sourceInfo = null;
+                try {
+                    sourceInfo = searchController.getFramework()
+                            .getSourceInfo(new SourceInfoRequestEnterprise(true));
+                } catch (SourceUnavailableException e) {
+                    LOGGER.debug(
+                            "Exception while getting source status. Defaulting to all sources. " +
+                                    "This could include unavailable sources.", e);
+                }
+
+                if (sourceInfo != null) {
+                    federatedSet = new HashSet<String>();
+                    for (SourceDescriptor source : sourceInfo.getSourceInfo()) {
+                        if (source.isAvailable()) {
+                            federatedSet.add(source.getSourceId());
+                        }
+                    }
+                } else {
+                    federatedSet = searchController.getFramework().getSourceIds();
+                }
             }
 
             if (federatedSet != null && !federatedSet.isEmpty()) {
 
                 OpenSearchQuery fedQuery;
                 Set<String> fedSet;
-                for (String siteId : federatedSet) {
+                for (String sourceId : federatedSet) {
                     fedQuery = createNewQuery(startIndex, localCount, sort, maxTimeout);
 
                     // contextual
@@ -277,7 +301,7 @@ public class SearchService {
                     }
 
                     fedSet = new HashSet<String>();
-                    fedSet.add(siteId);
+                    fedSet.add(sourceId);
                     fedQuery.setSiteIds(fedSet);
                     fedQuery.setIsEnterprise(false);
 
