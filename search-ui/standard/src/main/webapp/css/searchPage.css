@@ -729,8 +729,8 @@ div.multiselect label > input {
     margin-right: 4px;
 }
 
-div.multiselect label.ui-state-hover {
-    border: none;
+div.multiselect label.ui-state-hover,
+div.multiselect label.ui-state-active {
     background: #EEE;
 }
 
@@ -761,6 +761,11 @@ div.multiselect label.ui-state-hover > span {
     display: inline-block;
     padding: 3px 1px;
     top:0;
+}
+
+div.ui-multiselect-single .ui-multiselect-checkboxes label.ui-state-hover > span {
+    position: relative;
+    padding: 0;
 }
 
 .ui-datepicker-today .ui-state-highlight {
