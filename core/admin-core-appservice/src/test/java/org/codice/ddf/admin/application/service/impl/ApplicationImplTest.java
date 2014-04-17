@@ -30,7 +30,6 @@ import org.apache.karaf.features.Feature;
 import org.apache.karaf.features.Repository;
 import org.apache.karaf.features.internal.RepositoryImpl;
 import org.codice.ddf.admin.application.service.Application;
-import org.codice.ddf.admin.application.service.impl.ApplicationImpl;
 import org.junit.Test;
 
 /**

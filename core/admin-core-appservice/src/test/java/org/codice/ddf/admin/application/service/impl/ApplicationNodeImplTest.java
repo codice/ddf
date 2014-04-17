@@ -22,7 +22,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import org.codice.ddf.admin.application.service.Application;
-import org.codice.ddf.admin.application.service.impl.ApplicationNodeImpl;
 import org.junit.Test;
 
 /**

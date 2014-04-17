@@ -28,7 +28,6 @@ import org.apache.karaf.features.Feature;
 import org.codice.ddf.admin.application.service.Application;
 import org.codice.ddf.admin.application.service.ApplicationStatus;
 import org.codice.ddf.admin.application.service.ApplicationStatus.ApplicationState;
-import org.codice.ddf.admin.application.service.impl.ApplicationStatusImpl;
 import org.junit.Test;
 import org.osgi.framework.Bundle;
 
