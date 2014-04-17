@@ -27,6 +27,7 @@
 	<modules>
 		<module>admin-modules-installer</module>
         <module>admin-modules-configuration</module>
+        <module>admin-modules-application</module>
     </modules>
 </project>
 

@@ -22,8 +22,9 @@ define([
     '/installer/js/views/Application.view.js',
     '/installer/js/views/Finish.view.js',
     'icanhaz',
-    'text!/installer/templates/main.handlebars'
-    ], function (Marionette, WelcomeView, NavigationView, ConfigurationView, ApplicationView, FinishView, ich, mainTemplate) {
+    'text!/installer/templates/main.handlebars',
+    '/installer/lib/application-module/js/model/Applications.js'
+    ], function (Marionette, WelcomeView, NavigationView, ConfigurationView, ApplicationView, FinishView, ich, mainTemplate, AppModel) {
 
     ich.addTemplate('mainTemplate', mainTemplate);
 
@@ -45,26 +46,26 @@ define([
         },
         changePage: function() {
             //close whatever view is open
-            if(this.welcome.currentView) {
+            if(this.welcome.currentView && this.model.get('stepNumber') !== 0) {
                 this.hideWelcome();
             }
-            if(this.configuration.currentView) {
+            if(this.configuration.currentView && this.model.get('stepNumber') !== 1) {
                 this.hideConfiguration();
             }
-            if(this.applications.currentView) {
+            if(this.applications.currentView && this.model.get('stepNumber') !== 2) {
                 this.hideApplications();
             }
-            if(this.finish.currentView) {
+            if(this.finish.currentView && this.model.get('stepNumber') !== 3) {
                 this.hideFinish();
             }
             //show the next or previous view
-            if(this.model.get('stepNumber') <= 0) {
+            if(!this.welcome.currentView && this.model.get('stepNumber') <= 0) {
                 this.showWelcome();
-            } else if(this.model.get('stepNumber') === 1) {
+            } else if(!this.configuration.currentView && this.model.get('stepNumber') === 1) {
                 this.showConfiguration();
-            } else if(this.model.get('stepNumber') === 2) {
+            } else if(!this.applications.currentView && this.model.get('stepNumber') === 2) {
                 this.showApplications();
-            } else if(this.model.get('stepNumber') >= 3) {
+            } else if(!this.finish.currentView && this.model.get('stepNumber') >= 3) {
                 this.showFinish();
             }
         },
@@ -89,7 +90,7 @@ define([
             if(this.applications.currentView) {
                 this.applications.show();
             } else {
-                this.applications.show(new ApplicationView({navigationModel: this.model}));
+                this.applications.show(new ApplicationView({navigationModel: this.model, modelClass: AppModel}));
             }
             this.$(this.applications.el).show();
         },

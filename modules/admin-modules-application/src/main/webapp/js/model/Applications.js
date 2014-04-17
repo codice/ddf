@@ -18,34 +18,10 @@ define(function (require) {
 
     var Backbone = require('backbone'),
         $ = require('jquery'),
-        _ = require('underscore');
+        _ = require('underscore'),
+        Q = require('q');
     var Applications = {};
 
-    Applications.MvnUrlColl = Backbone.Collection.extend({
-        configUrl: "/jolokia/exec/org.codice.ddf.admin.application.service.ApplicationService:service=application-service",
-        collectedData: function () {
-            var data = {
-                type: 'EXEC',
-                mbean: 'org.codice.ddf.admin.application.service.ApplicationService:service=application-service',
-                operation: 'addApplications'
-            };
-            data.arguments = [];
-            data.arguments.push(this.toJSON());
-            return data;
-        },
-        save: function () {
-            var addUrl = [this.configUrl, "addApplications"].join("/");
-            var collect = this.collectedData();
-            var jData = JSON.stringify(collect);
-
-            return $.ajax({
-                    type: 'POST',
-                    contentType: 'application/json',
-                    data: jData,
-                    url: addUrl
-                });
-        }
-    });
     var startUrl = '/jolokia/exec/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/startApplication/';
     var stopUrl = '/jolokia/exec/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/stopApplication/';
 
@@ -175,16 +151,26 @@ define(function (require) {
         // Uninstalls should be performed bottom-up - from the leaf nodes
         // to the parent.
         uninstall: function(statusUpdate) {
+            var that = this;
             if (this.countDirty() > 0){
+                var promiseArr = [];
+                var uninstallSelf = function() {
+                    if (!that.get("selected") && that.isDirty()) {
+                        return that.save(statusUpdate);
+                    } else {
+                        return Q.resolve();
+                    }
+                };
                 // uninstall all needed children
                 if (this.get("children").length){
                     this.get("children").forEach(function(child) {
-                        child.uninstall(statusUpdate);
+                        promiseArr.push(child.uninstall(statusUpdate));
                     });
                 }
-                // uninstall myself
-                if (!this.get("selected") && this.isDirty()) {
-                    this.save(statusUpdate);
+                if(promiseArr.length) {
+                    return Q.all(promiseArr).done(uninstallSelf);
+                } else {
+                    return uninstallSelf();
                 }
             }
         },
@@ -192,18 +178,29 @@ define(function (require) {
         // Installs should be performed top-down - from the parent node down
         // through the children.
         install: function(statusUpdate) {
+            var that = this;
             if (this.countDirty() > 0){
                 // install myself
+                var promise;
+                var installChildren = function() {
+                    if (that.get("children").length){
+                        that.get("children").forEach(function(child) {
+                            child.install(statusUpdate);
+                        });
+                    }
+                };
+
                 if (this.get("selected") && this.isDirty()) {
-                    this.save(statusUpdate);
+                    promise = this.save(statusUpdate);
                 }
 
-                // install my needed children
-                if (this.get("children").length){
-                    this.get("children").forEach(function(child) {
-                        child.install(statusUpdate);
-                    });
+                if(promise) {
+                    promise.complete(installChildren);
+                } else {
+                    installChildren();
                 }
+                // install my needed children
+
             }
         },
 
@@ -213,20 +210,18 @@ define(function (require) {
             if (this.isDirty()) {
                 if (this.get("selected")) {
                     statusUpdate("Installing " + this.get("name"));
-                    $.ajax({
+                    return $.ajax({
                         type: "GET",
                         url: startUrl + this.get("name") + '/',
-                        dataType: "JSON",
-                        async: false
+                        dataType: "JSON"
                     });
 
                 } else {
                     statusUpdate("Uninstalling " + this.get("name"));
-                    $.ajax({
+                    return $.ajax({
                         type: "GET",
                         url: stopUrl + this.get("name") + '/',
-                        dataType: "JSON",
-                        async: false
+                        dataType: "JSON"
                     });
                 }
             }
@@ -261,7 +256,7 @@ define(function (require) {
                     }
                 });
             } else { // this is a save of the model (CUD)
-                this.save(statusUpdate);
+                return this.save(statusUpdate);
             }
         },
 
@@ -272,35 +267,39 @@ define(function (require) {
         save: function(statusUpdate) {
             // Determine the total number of actions to be performed so that we can provide
             // a percent complete in the `statusUpdate` method.
+            var that = this;
             var count = 0;
             var totalCount = 0;
             this.each(function(child) {
                totalCount += child.countDirty();
             });
 
+            var promiseArr = [];
+
+            var internalStatusUpdate = function(message) {
+                if (typeof statusUpdate !== 'undefined') {
+                    statusUpdate(message, count/totalCount*100);
+                }
+                count++;
+            };
+
             // Uninstall the apps first
             this.each(function(child) {
-                child.uninstall(function(message) {
-                    if (typeof statusUpdate !== 'undefined') {
-                        statusUpdate(message, count/totalCount*100);
-                    }
-                    count++;
-                });
+                promiseArr.push(child.uninstall(internalStatusUpdate));
             });
 
-            // Then install necessary apps
-            this.each(function(child) {
-                child.install(function(message) {
+            Q.all(promiseArr).done(function() {
+                var promiseArr2 = [];
+                // Then install necessary apps
+                that.each(function(child) {
+                    promiseArr2.push(child.install(internalStatusUpdate));
+                });
+                Q.all(promiseArr2).done(function() {
                     if (typeof statusUpdate !== 'undefined') {
-                        statusUpdate(message, count/totalCount*100);
+                        statusUpdate("Total of " + totalCount + " applications installed/uninstalled.", 100);
                     }
-                    count++;
                 });
             });
-
-            if (typeof statusUpdate !== 'undefined') {
-                statusUpdate("Total of " + totalCount + " applications installed/uninstalled.", 100);
-            }
         }
 
     });

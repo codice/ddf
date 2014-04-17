@@ -5,9 +5,18 @@ define(function(require) {
         $ = require('jquery'),
         Application = require('js/application');
 
+//    $(window).resize(function() {
+//        var width = $('body').width();
+//        var containerWidth = $('.container').css('width');
+//        containerWidth.replace('px', '');
+//
+//
+//        $('#content').height(height);
+//    });
+
     var ModuleView = Marionette.Layout.extend({
         template: 'tabs',
-        className: 'relative',
+        className: 'relative full-height',
         regions: {
             tabs: '#tabs',
             tabContent: '#tabContent'
@@ -36,7 +45,7 @@ define(function(require) {
             }));
             this.tabContent.show(new Marionette.CollectionView({
                 tagName: 'div',
-                className: 'tab-content',
+                className: 'tab-content full-height',
                 collection: this.model.get('value'),
                 itemView: Marionette.ItemView.extend({
                     tagName: 'div',
@@ -75,9 +84,11 @@ define(function(require) {
                                         view.module = module;
                                     }
                                 });
-                            }
-                            if(this.model.get('cssLocation') && this.model.get('cssLocation') !== "") {
-                                require(['css!' + this.model.get('cssLocation')]);
+                                if(this.model.get('cssLocation') && this.model.get('cssLocation') !== "") {
+                                    require(['text!' + this.model.get('cssLocation')], function(css) {
+                                        $("<style type='text/css'> " + css + " </style>").appendTo("head");
+                                    });
+                                }
                             }
                         }
                     },

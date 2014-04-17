@@ -12,6 +12,12 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
+html {
+    height: 100%;
+}
+body {
+    height: 100%;
+}
 .advance-options {
     padding: 15px 0px 20px;
 }
@@ -24,12 +30,6 @@
 }
 .metatype a {
   padding-left: 8px;
-}
-#tabs {
-    position:absolute;
-    left:-200px;
-    width: 150px;
-    float: left;
 }
 
 .relative {
@@ -62,4 +62,33 @@ iframe {
 
 .app-header > li {
     display: inline-block;
+}
+
+.full-height {
+    height: 100%;
+}
+
+.tab-pane {
+    padding-left: 20px;
+    padding-top: 20px;
+    height: 100%;
+}
+
+#tabs {
+    width: 150px;
+}
+.nav-stacked li {
+    display: table-cell;
+}
+
+@media screen and (min-width: 1500px) {
+    #tabs {
+        position:absolute;
+        left:-200px;
+        width: 150px;
+        float: left;
+    }
+    .nav-stacked li {
+        display: block;
+    }
 }

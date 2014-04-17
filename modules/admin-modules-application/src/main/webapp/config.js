@@ -22,6 +22,7 @@
 
             // ddf
             spinnerConfig : 'js/spinnerConfig',
+            properties: 'properties',
 
             // jquery
             jquery: 'lib/jquery/jquery.min',
@@ -38,10 +39,6 @@
 
             // require plugins
             text: 'lib/requirejs-plugins/lib/text',
-            css: 'lib/require-css/css',
-
-            // default admin ui
-            app: 'js/application',
 
             // templates
             applicationTemplate: '/applications/templates/application.handlebars',
@@ -76,10 +73,6 @@
                 deps: ['handlebars'],
                 exports: 'ich'
             },
-
-            perfectscrollbar: ['jquery'],
-
-            multiselect: ['jquery'],
 
             jqueryui: ['jquery'],
             bootstrap: ['jqueryui']

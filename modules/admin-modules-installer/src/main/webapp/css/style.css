@@ -12,6 +12,9 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
+.lead {
+    font-weight: 300;
+}
 .well-main {
     height: 720px;
 }
@@ -30,20 +33,6 @@
 .description {
     color: #888;
 }
-.sidebar {
-    position: absolute;
-    right: 10px;
-    top: 10px;
-    width: 50%;
-    padding: 10px;
-}
-.appview {
-    width: 50%;
-    float: left;
-}
-.appitem {
-    padding-left: 10px;
-}
 .white {
     background-color: rgba(255, 255, 255, 1);
 }
@@ -59,12 +48,6 @@
     background-color: rgba(255, 255, 255, 1);
     /*border: solid 1px #DDD;*/
     /*box-shadow: rgba(0,0,0,0.2) 1px 1px 1px, inset rgba(0,0,0,0.2) -1px -1px 2px;*/
-}
-div.appview > div > ul {
-    padding: 0;
-}
-.app-node li {
-    list-style: none;
 }
 .error-text {
     color: red;
@@ -90,6 +73,7 @@ center {
 }
 .progress-text-area {
     float: left;
+    height: 27px;
 }
 .step-text-area {
     float: right;
@@ -102,104 +86,4 @@ center {
 }
 .disabled-previous {
     background-color: #DDD !important;
-}
-.new-app-container {
-    clear: both;
-}
-.fileinput-button input {
-    height: 100%;
-}
-.fileinput-button {
-    margin: 10px;
-}
-.url-tab {
-    margin: 10px;
-}
-.url-tab > a {
-    margin-top: -4px;
-    padding-top: 5px;
-    padding-bottom: 5px;
-}
-.url-tab > input {
-    width: 80%;
-}
-.url-list {
-    padding: 0;
-    margin-top: 10px;
-}
-.url-list-item {
-    list-style-type: none;
-    margin-bottom: 5px;
-    padding: 5px;
-    text-align: left;
-    background-color: #EFEFEF;
-    margin-right: 16px;
-    color: #3498db;
-    white-space: nowrap;
-    overflow-x: hidden;
-    position: relative;
-}
-.url-list-item > a {
-    position: absolute;
-    right: 0px;
-    top: 5px;
-}
-.url-list-item input {
-    width: 60%;
-    margin-right: 3px;
-}
-.editing {
-    display: none;
-}
-.done {
-    padding: 2px;
-    margin-top:-4px
-}
-.remove-url-link {
-    background-color: #EFEFEF;
-    padding: 4px;
-}
-.warning-info {
-    color: #AAA;
-}
-.file-list {
-    padding: 0;
-    margin-top: 10px;
-}
-.file-list-item {
-    list-style-type: none;
-    margin-bottom: 5px;
-    padding: 5px;
-    text-align: left;
-    margin-right: 16px;
-    color: #AAA;
-    white-space: nowrap;
-    overflow-x: hidden;
-    position: relative;
-}
-.file-info-area {
-    float: left;
-}
-.file-progress-area {
-    clear: both;
-}
-.fileupload-progress {
-    clear: both;
-}
-.file-attrs {
-    list-style-type: none;
-    padding: 0;
-}
-.file-finish-area {
-    float: right;
-    margin-top: 40px;
-}
-.file-finish-text {
-    color: green;
-}
-.file-fail-text {
-    color: red;
-}
-.cancel-upload-link {
-    color: red;
 }
