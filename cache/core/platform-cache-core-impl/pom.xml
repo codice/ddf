@@ -74,7 +74,11 @@
                    <instructions>
                        <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                        <Embed-Dependency>hazelcast</Embed-Dependency>
-                       <Export-Package />
+                       <Import-Package>						
+							sun.misc;resolution:=optional,
+							*
+			           </Import-Package>
+                       <Export-Package />                              
                    </instructions>
                </configuration>
            </plugin>
