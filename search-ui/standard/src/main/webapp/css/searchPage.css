@@ -379,16 +379,15 @@ tr.selected {
 /*Metacard Detail View*/
 
 .result-source {
-    overflow : hidden;
+    overflow: hidden;
     text-overflow: ellipsis;
     width: 50%;
     white-space: nowrap;
 }
 
 .metacard-link {
-    white-space:nowrap;
-    text-overflow:ellipsis;
-    width:350px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
     display: block;
     overflow: hidden;
 }
@@ -436,6 +435,7 @@ tr.selected {
 .title {
     line-height: 30px;
     text-align: center;
+    word-wrap: break-word;
 }
 
 .metacard-action {
