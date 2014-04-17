@@ -171,10 +171,6 @@ casper.test.begin('Application Selection View test', function(test) {
             }
         ));
         test.assertTrue(this.evaluate(function() {
-                return document.querySelector('#detailsAppName').innerText == 'spatial-app';
-            }
-        ));
-        test.assertTrue(this.evaluate(function() {
                 return document.querySelector('#detailsVersion').innerText == '2.4.1-SNAPSHOT';
             }
         ));
@@ -214,10 +210,6 @@ casper.test.begin('Application Selection View test', function(test) {
     casper.then(function() {
         test.assertTrue(this.evaluate(function() {
                 return document.querySelector('#detailsName').innerText == 'Search App';
-            }
-        ));
-        test.assertTrue(this.evaluate(function() {
-                return document.querySelector('#detailsAppName').innerText == 'search-app-2.3.1.ALPHA3-SNAPSHOT';
             }
         ));
         test.assertTrue(this.evaluate(function() {
