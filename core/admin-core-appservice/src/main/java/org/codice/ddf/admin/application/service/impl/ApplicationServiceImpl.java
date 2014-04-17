@@ -17,6 +17,7 @@ package org.codice.ddf.admin.application.service.impl;
 import java.io.File;
 import java.net.URI;
 import java.util.Arrays;
+import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -41,6 +42,8 @@ import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.wiring.BundleRevision;
+import org.osgi.service.cm.Configuration;
+import org.osgi.service.cm.ConfigurationAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,6 +62,11 @@ public class ApplicationServiceImpl implements ApplicationService {
     private List<BundleStateService> bundleStateServices = null;
 
     private Set<String> ignoredApplicationNames = null;
+
+    /**
+     * Used to make sure that the config file is only checked on first run.
+     */
+    private static final String FIRST_RUN_MARKER = "first-run";
 
     /**
      * Creates a new instance of Application Service.
@@ -196,11 +204,24 @@ public class ApplicationServiceImpl implements ApplicationService {
      */
     public void setConfigFileName(String configFileName) {
         try {
-            if (featuresService.isInstalled(featuresService.getFeature("admin-modules-installer"))) {
+            ServiceReference<ConfigurationAdmin> configAdminRef = context
+                    .getServiceReference(ConfigurationAdmin.class);
+            ConfigurationAdmin configAdmin = context.getService(configAdminRef);
+            Configuration config = configAdmin.getConfiguration(ApplicationServiceImpl.class
+                    .getName());
+            Dictionary<String, Object> properties = config.getProperties();
+
+            if (properties.get(FIRST_RUN_MARKER) == null) {
+                logger.debug("Checking the configuration file on the first run.");
                 ApplicationConfigInstaller configInstaller = new ApplicationConfigInstaller(
                         configFileName, this, featuresService);
                 configInstaller.start();
+                properties.put(FIRST_RUN_MARKER, Boolean.TRUE);
+                config.update(properties);
+            } else {
+                logger.debug("Not the first run, ignoring the installer configuration file.");
             }
+
         } catch (Exception e) {
             logger.warn("Could not check for installer application configuration file.", e);
         }
