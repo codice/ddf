@@ -54,6 +54,7 @@ define(function (require) {
            // Reflect the current state of the application in the model and keep the
            // state to determine if the user changes it.
            changeObj.selected = changeObj.currentState = this.get('state') === 'ACTIVE';
+           changeObj.error = false;
 
            // Change the children from json representation to models and include a link
            // in each to their parent.
@@ -230,9 +231,17 @@ define(function (require) {
                     });
                 }
             }
+        },
+
+        validateInstall: function(jsonModel, failList) {
+            if(jsonModel.selected && this.get('state') !== 'ACTIVE') {
+                failList.push(this.get('appId'));
+                this.set({error: true});
+            }
+            this.get('children').each(function(child, index) {
+                child.validateInstall(jsonModel.children.at(index).toJSON(), failList);
+            });
         }
-
-
 
     });
 
@@ -250,14 +259,12 @@ define(function (require) {
         // Saving the state of the selected applications doesn't follow the normal
         // REST model - each application is uninstalled or installed through
         // the application-service.
-        sync: function(method, model, options){
-            var statusUpdate = options.statusUpdate;
-            var thisModel = model;
+        sync: function(method, model, statusUpdate){
+            var thisModel = this;
             if (method === 'read'){
-                var appResponse = new Applications.Response();
-                appResponse.fetch({
-                    success: function(model){
-                        thisModel.reset(model.get('value'));
+                return model.fetch({
+                    success: function(data){
+                        thisModel.reset(data.get('value'));
                     }
                 });
             } else { // this is a save of the model (CUD)
@@ -299,12 +306,35 @@ define(function (require) {
                 that.each(function(child) {
                     promiseArr2.push(child.install(internalStatusUpdate));
                 });
-                Q.all(promiseArr2).done(function() {
-                    if (typeof statusUpdate !== 'undefined') {
-                        statusUpdate('Total of ' + totalCount + ' applications installed/uninstalled.', 100);
-                    }
-                });
             });
+
+            return totalCount;
+        },
+
+        validateInstall: function(jsonModel, numNodes, statusUpdate) {
+            var failList = [];
+
+            this.each(function(child, index) {
+                child.validateInstall(jsonModel[index], failList);
+            });
+
+            var donePercent = (numNodes - failList.length)/numNodes*100;
+
+            if(failList.length > 0) {
+                if(failList.length === 1) {
+                    if (typeof statusUpdate !== 'undefined') {
+                        statusUpdate('An application failed to install.', donePercent);
+                    }
+                } else if(failList.length > 1) {
+                    if (typeof statusUpdate !== 'undefined') {
+                        statusUpdate('Several applications failed to install.', donePercent);
+                    }
+                }
+            } else {
+                if (typeof statusUpdate !== 'undefined') {
+                    statusUpdate('Total of ' + numNodes + ' applications installed/uninstalled.', 100);
+                }
+            }
         }
 
     });

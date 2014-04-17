@@ -271,6 +271,16 @@ define([
         itemView: AppTreeView
     });
 
+    var setErrorState = function (view, model) {
+        if(model.get('error')) {
+            view.$('#'+model.get('appId')).css('color', 'red');
+        }
+        if(model.get('children')) {
+            model.get('children').each(function(child) {
+                setErrorState(view, child);
+            });
+        }
+    };
 
     var ApplicationView = Marionette.Layout.extend({
         template: 'applicationTemplate',
@@ -337,8 +347,26 @@ define([
             return count;
         },
         installApp: function(navigationModel){
+            var that = this;
+            //save off the model before we make any chances
+            var jsonModel = this.model.toJSON();
             // Update each application based on the user selections
-            this.model.sync('update', Model.Collection, {statusUpdate: navigationModel.nextStep});
+            var numNodes = this.model.sync('update', this.response, navigationModel.nextStep);
+
+            _.defer(function() {
+                // Update from the server
+                that.model.sync('read', that.response, navigationModel.nextStep).complete(function() {
+                    // Check if anything failed
+                    that.model.validateInstall(jsonModel, numNodes, navigationModel.nextStep);
+                    that.setErrorStates();
+                });
+            });
+        },
+        setErrorStates: function() {
+            var that = this;
+            this.model.each(function(child) {
+                setErrorState(that, child);
+            });
         }
     });
 
