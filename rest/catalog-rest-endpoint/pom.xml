@@ -93,6 +93,12 @@
 			<artifactId>filter-proxy</artifactId>
 			<scope>test</scope>
 		</dependency>
+		
+		<dependency>
+			<groupId>ddf.mime.tika</groupId>
+			<artifactId>mime-tika-resolver</artifactId>
+		</dependency>
+		
 	</dependencies>
 
 	<build>

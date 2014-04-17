@@ -17,7 +17,6 @@ package org.codice.ddf.endpoints.rest;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.Serializable;
 import java.net.URI;
 import java.util.ArrayList;
@@ -37,14 +36,12 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.Response.Status;
-import javax.ws.rs.core.StreamingOutput;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
@@ -53,6 +50,7 @@ import net.minidev.json.JSONObject;
 import net.minidev.json.JSONValue;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.opengis.filter.Filter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -83,6 +81,7 @@ import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.InputTransformer;
+import ddf.mime.MimeTypeResolver;
 import ddf.mime.MimeTypeToTransformerMapper;
 import ddf.security.SecurityConstants;
 import ddf.security.Subject;
@@ -110,6 +109,8 @@ public class RESTEndpoint {
     private CatalogFramework catalogFramework;
 
     private MimeTypeToTransformerMapper mimeTypeToTransformerMapper;
+    
+    private MimeTypeResolver tikaMimeTypeResolver;
 
     static {
         MimeType mime = null;
@@ -290,18 +291,28 @@ public class RESTEndpoint {
                 
                 Response.ResponseBuilder responseBuilder = Response.ok(content.getInputStream(),
                         content.getMimeTypeValue());                
-
-                // If we got a resource, we can extract the filename.
+                
+                String filename = null;
+                
                 if (content instanceof Resource) {
-                    String name = ((Resource) content).getName();
-                    if (name != null) {
-                        responseBuilder.header("Content-Disposition", "inline; filename=\"" + name
-                                + "\"");
+                    // If we got a resource, we can extract the filename.
+                    filename = ((Resource) content).getName();
+                } else {
+                    String fileExtension = getFileExtensionForMimeType(content.getMimeTypeValue());
+                    if (StringUtils.isNotBlank(fileExtension)) {
+                        filename = id + fileExtension;
                     }
-                    long size = content.getSize();
-                    if (size > 0) {
-                        responseBuilder.header("Content-Length", size);
-                    }
+                }
+
+                if (StringUtils.isNotBlank(filename)) {
+                    LOGGER.debug("filename: {}", filename);
+                    responseBuilder.header("Content-Disposition", "inline; filename=\"" + filename
+                            + "\"");
+                }
+                
+                long size = content.getSize();
+                if (size > 0) {
+                    responseBuilder.header("Content-Length", size);
                 }
 
                 response = responseBuilder.build();
@@ -572,6 +583,13 @@ public class RESTEndpoint {
 
         return mimeType;
     }
+    
+    private String getFileExtensionForMimeType(String mimeType) {
+        String fileExtension = this.tikaMimeTypeResolver.getFileExtensionForMimeType(mimeType);
+            LOGGER.debug("Mime Type [{}] resolves to file extension [{}].",
+                    mimeType, fileExtension);
+        return fileExtension;
+    }
 
     protected Subject getSubject(HttpServletRequest request) {
         Subject subject = null;
@@ -619,5 +637,9 @@ public class RESTEndpoint {
 
     public void setFilterBuilder(FilterBuilder filterBuilder) {
         this.filterBuilder = filterBuilder;
+    }
+    
+    public void setTikaMimeTypeResolver(MimeTypeResolver mimeTypeResolver) {
+        this.tikaMimeTypeResolver = mimeTypeResolver;
     }
 }

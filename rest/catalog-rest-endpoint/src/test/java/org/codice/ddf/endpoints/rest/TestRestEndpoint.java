@@ -49,7 +49,6 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.StreamingOutput;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
@@ -66,6 +65,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ddf.catalog.CatalogFramework;
+import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.ContentType;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
@@ -93,6 +93,7 @@ import ddf.catalog.source.impl.SourceDescriptorImpl;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.InputTransformer;
 import ddf.mime.MimeTypeToTransformerMapper;
+import ddf.mime.tika.TikaMimeTypeResolver;
 
 /**
  * Tests methods of the {@link RESTEndpoint}
@@ -120,11 +121,16 @@ public class TestRestEndpoint {
     private static final String GET_OUTPUT_TYPE = "UTF-8";
 
     private static final String GET_MIME_TYPE = "text/xml";
+    
+    private static final String GET_KML_MIME_TYPE = "application/vnd.google-earth.kml+xml";
 
     private static final String GET_FILENAME = "example.xml";
 
     private static final String GET_TYPE_OUTPUT = "{Content-Type=[text/xml], Content-Disposition=[inline; filename=\""
             + GET_FILENAME + "\"]}";
+    
+    private static final String GET_KML_TYPE_OUTPUT = "{Content-Type=[application/vnd.google-earth.kml+xml], Content-Disposition=[inline; filename=\"" 
+            + GET_ID + ".kml" + "\"]}";
 
     @BeforeClass
     public static void initialize() throws Exception {
@@ -454,6 +460,21 @@ public class TestRestEndpoint {
         assertEquals(response.getStatus(), 200);
         assertEquals(response.getMetadata().toString(), GET_TYPE_OUTPUT);
     }
+    
+    @Test
+    public void testGetDocumentKml() throws URISyntaxException, IngestException,
+        SourceUnavailableException, UnsupportedQueryException, FederationException,
+        CatalogTransformerException, IOException, ResourceNotFoundException,
+        ResourceNotSupportedException {
+
+        CatalogFramework framework = givenCatalogFramework(SAMPLE_ID);
+        Response response = mockTestSetup(framework, true, TestType.KML_TEST);
+
+        String responseMessage = IOUtils.toString((ByteArrayInputStream) response.getEntity());
+        assertEquals(GET_STREAM, responseMessage);
+        assertEquals(200, response.getStatus());
+        assertEquals(GET_KML_TYPE_OUTPUT, response.getMetadata().toString());
+    }
 
     /**
      * Tests federated retrieve with a successful response
@@ -665,7 +686,7 @@ public class TestRestEndpoint {
     }
 
     protected enum TestType {
-        QUERY_RESPONSE_TEST, METACARD_TEST, SUCCESS_TEST, RESOURCE_TEST
+        QUERY_RESPONSE_TEST, METACARD_TEST, SUCCESS_TEST, RESOURCE_TEST, KML_TEST
     };
 
     /**
@@ -718,6 +739,7 @@ public class TestRestEndpoint {
         case RESOURCE_TEST:
             transformer = "resource";
             /* FALLTHRU */
+            
         case SUCCESS_TEST:
             list = new ArrayList<Result>();
             list.add(result);
@@ -735,9 +757,28 @@ public class TestRestEndpoint {
             when(framework.transform(isA(Metacard.class), anyString(), isA(Map.class))).thenReturn(
                     resource);
             break;
+            
+        case KML_TEST:
+            transformer = "kml";
+            list = new ArrayList<Result>();
+            list.add(result);
+            when(queryResponse.getResults()).thenReturn(list);
+
+            metacard = new MetacardImpl();
+            metacard.setSourceId(GET_SITENAME);
+            when(result.getMetacard()).thenReturn(metacard);
+
+            BinaryContent content = mock(BinaryContent.class);
+            inputStream = new ByteArrayInputStream(GET_STREAM.getBytes(GET_OUTPUT_TYPE));
+            when(content.getInputStream()).thenReturn(inputStream);
+            when(content.getMimeTypeValue()).thenReturn(GET_KML_MIME_TYPE);
+            when(framework.transform(isA(Metacard.class), anyString(), isA(Map.class))).thenReturn(
+                    content);
+            break;
         }
 
         RESTEndpoint restEndpoint = new RESTEndpoint(framework);
+        restEndpoint.setTikaMimeTypeResolver(new TikaMimeTypeResolver());
         FilterBuilder filterBuilder = new GeotoolsFilterBuilder();
         restEndpoint.setFilterBuilder(filterBuilder);
 
@@ -870,5 +911,5 @@ public class TestRestEndpoint {
     private String getSample() {
         return "<xml></xml>";
     }
-
+    
 }

@@ -26,6 +26,8 @@
     <reference id="securityManager" interface="ddf.security.service.SecurityManager" availability="optional" />
     <reference-list id="requestHandlerList" interface="ddf.security.service.TokenRequestHandler"
     availability="optional" />
+    <reference id="tikaMimeTypeResolver" interface="ddf.mime.MimeTypeResolver" />
+    
 
 	<reference-list id="metacardTransformerRefList" interface="ddf.catalog.transform.MetacardTransformer" availability="optional">
 		<reference-listener bind-method="bind" unbind-method="unbind">
@@ -41,6 +43,7 @@
 		<property name="mimeTypeToTransformerMapper" ref="transformerMapper" />
         <property name="securityManager" ref="securityManager" />
         <property name="requestHandlers" ref="requestHandlerList" />
+        <property name="tikaMimeTypeResolver" ref="tikaMimeTypeResolver" />
 	</bean>
 
 	<jaxrs:server id="restService" address="/catalog">
