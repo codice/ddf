@@ -1,7 +1,6 @@
 /*jshint strict:false*/
 /*global CasperError, console, phantom, require, casper*/
 casper.options.viewportSize = {width: 2452, height: 868};
-casper.options.waitTimeout = '100000';
 
 casper.test.begin('Application Selection View test', function(test) {
     casper.start('http://localhost:8383');

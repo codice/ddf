@@ -14,7 +14,7 @@
  **/
 /*global define*/
 define(function (require) {
-    "use strict";
+    'use strict';
 
     var Backbone = require('backbone'),
         $ = require('jquery'),
@@ -41,8 +41,9 @@ define(function (require) {
        },
 
        initialize: function(){
-           var children = this.get("children");
+           var children = this.get('children');
            var that = this;
+           var changeObj = {};
 
            // Some (not properly created) applications features file result in a name that includes the
            // version number - strip that off and move it into the version number.
@@ -52,29 +53,31 @@ define(function (require) {
 
            // Reflect the current state of the application in the model and keep the
            // state to determine if the user changes it.
-           this.set({currentState: this.get("state") === "ACTIVE"});
-           this.set({selected: this.get("currentState")});
+           changeObj.selected = changeObj.currentState = this.get('state') === 'ACTIVE';
 
            // Change the children from json representation to models and include a link
            // in each to their parent.
            if (children){
-               this.set({children: new Applications.TreeNodeCollection(children)});
-               this.get("children").forEach(function (child) {
+               changeObj.children = new Applications.TreeNodeCollection(children);
+               this.set(changeObj);
+               this.get('children').forEach(function (child) {
                    child.set({parent: that});
                });
+           } else {
+               this.set(changeObj);
            }
-           this.listenTo(this, "change", this.updateModel);
+           this.listenTo(this, 'change', this.updateModel);
        },
 
        // When the user selects or deselects an application, adjust the rest of the
        // model accordingly - deselects propagate down, selects propagate up.
        updateModel: function(){
-         if (this.get("selected")) {
-             if (this.get("parent")) {
-             this.get("parent").set({selected: true});
+         if (this.get('selected')) {
+             if (this.get('parent')) {
+                this.get('parent').set({selected: true});
              }
-         } else if (this.get("children").length){
-             this.get("children").forEach(function(child) {
+         } else if (this.get('children').length){
+             this.get('children').forEach(function(child) {
                  child.set({selected: false});
              });
          }
@@ -84,8 +87,8 @@ define(function (require) {
         // that might exist - but store in a separate attribute since we need the
         // original name to control the application via the application-service.
         updateName: function() {
-            //this.set({name: this.get("name").replace(/\./g,'')});
-            this.set({appId: this.get("name").replace(/\./g,'')});
+            //this.set({name: this.get('name').replace(/\./g,'')});
+            this.set({appId: this.get('name').replace(/\./g,'')});
         },
 
         // Some apps come in having the version number included
@@ -93,26 +96,28 @@ define(function (require) {
         // This function strips the version from the display name and
         // places it in the version variable so the details show correctly.
         massageVersionNumbers: function() {
-            this.set({displayName: this.get("name")});
-            if (this.get("version") === "0.0.0") {
-                var matches = this.get("name").match(versionRegex);
+            var changeObj = {};
+            changeObj.displayName = this.get('name');
+            if (this.get('version') === '0.0.0') {
+                var matches = this.get('name').match(versionRegex);
                 if (matches.length === 3) {
-                    this.set({displayName: matches[1]});
-                    this.set({version: matches[2]});
+                    changeObj.displayName = matches[1];
+                    changeObj.version = matches[2];
                 }
             }
+            this.set(changeObj);
         },
 
         // Create a name suitable for display from the application name - camel-case
         // it and remove the dashes.
         cleanupDisplayName: function(){
-            var tempName = this.get("displayName"); //.replace(/\./g,'');
+            var tempName = this.get('displayName'); //.replace(/\./g,'');
             var names = tempName.split('-');
-            var dispName = "";
+            var dispName = '';
             var that = this;
             _.each(names, function(name) {
                 if (dispName.length > 0) {
-                    dispName = dispName + " ";
+                    dispName = dispName + ' ';
                 }
                 dispName = dispName + that.capitalizeFirstLetter(name);
             });
@@ -121,7 +126,7 @@ define(function (require) {
 
         // Capitalize and return the first letter of the given string.
        capitalizeFirstLetter: function(string){
-           if (string && string !== ""){
+           if (string && string !== ''){
                return string.charAt(0).toUpperCase() + string.slice(1);
            }
             return string;
@@ -130,7 +135,7 @@ define(function (require) {
         // Determines whether the user has changed the selection of this model or
         // not - does not check its children.
         isDirty: function() {
-            return (this.get("selected") !== this.get("currentState"));
+            return (this.get('selected') !== this.get('currentState'));
         },
 
         // Returns the total number of applications that the user has changed
@@ -140,8 +145,8 @@ define(function (require) {
             if (this.isDirty()) {
                 count = 1;
             }
-            if (this.get("children").length){
-                this.get("children").forEach(function(child) {
+            if (this.get('children').length){
+                this.get('children').forEach(function(child) {
                     count += child.countDirty();
                 });
             }
@@ -155,15 +160,15 @@ define(function (require) {
             if (this.countDirty() > 0){
                 var promiseArr = [];
                 var uninstallSelf = function() {
-                    if (!that.get("selected") && that.isDirty()) {
+                    if (!that.get('selected') && that.isDirty()) {
                         return that.save(statusUpdate);
                     } else {
                         return Q.resolve();
                     }
                 };
                 // uninstall all needed children
-                if (this.get("children").length){
-                    this.get("children").forEach(function(child) {
+                if (this.get('children').length){
+                    this.get('children').forEach(function(child) {
                         promiseArr.push(child.uninstall(statusUpdate));
                     });
                 }
@@ -183,14 +188,14 @@ define(function (require) {
                 // install myself
                 var promise;
                 var installChildren = function() {
-                    if (that.get("children").length){
-                        that.get("children").forEach(function(child) {
+                    if (that.get('children').length){
+                        that.get('children').forEach(function(child) {
                             child.install(statusUpdate);
                         });
                     }
                 };
 
-                if (this.get("selected") && this.isDirty()) {
+                if (this.get('selected') && this.isDirty()) {
                     promise = this.save(statusUpdate);
                 }
 
@@ -208,20 +213,20 @@ define(function (require) {
         // function to keep anyone who cares informed about each step being performed.
         save: function(statusUpdate){
             if (this.isDirty()) {
-                if (this.get("selected")) {
-                    statusUpdate("Installing " + this.get("name"));
+                if (this.get('selected')) {
+                    statusUpdate('Installing ' + this.get('name'));
                     return $.ajax({
-                        type: "GET",
-                        url: startUrl + this.get("name") + '/',
-                        dataType: "JSON"
+                        type: 'GET',
+                        url: startUrl + this.get('name') + '/',
+                        dataType: 'JSON'
                     });
 
                 } else {
-                    statusUpdate("Uninstalling " + this.get("name"));
+                    statusUpdate('Uninstalling ' + this.get('name'));
                     return $.ajax({
-                        type: "GET",
-                        url: stopUrl + this.get("name") + '/',
-                        dataType: "JSON"
+                        type: 'GET',
+                        url: stopUrl + this.get('name') + '/',
+                        dataType: 'JSON'
                     });
                 }
             }
@@ -252,7 +257,7 @@ define(function (require) {
                 var appResponse = new Applications.Response();
                 appResponse.fetch({
                     success: function(model){
-                        thisModel.reset(model.get("value"));
+                        thisModel.reset(model.get('value'));
                     }
                 });
             } else { // this is a save of the model (CUD)
@@ -296,7 +301,7 @@ define(function (require) {
                 });
                 Q.all(promiseArr2).done(function() {
                     if (typeof statusUpdate !== 'undefined') {
-                        statusUpdate("Total of " + totalCount + " applications installed/uninstalled.", 100);
+                        statusUpdate('Total of ' + totalCount + ' applications installed/uninstalled.', 100);
                     }
                 });
             });
