@@ -41,15 +41,7 @@
             css: 'lib/require-css/css',
 
             // default admin ui
-            app: 'js/application',
-
-            // templates
-            applicationTemplate: '/applications/templates/application.handlebars',
-            applicationNodeTemplate: '/applications/templates/applicationNode.handlebars',
-            detailsTemplate: '/applications/templates/details.handlebars',
-            applicationNew: '/applications/templates/applicationNew.handlebars',
-            mvnItemTemplate: '/applications/templates/mvnUrlItem.handlebars',
-            fileProgress: '/applications/templates/fileProgress.handlebars'
+            app: 'js/application'
         },
 
 

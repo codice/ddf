@@ -1,18 +1,18 @@
 /* jshint unused: false */
 /*global define*/
-define(function(require) {
+define([
+    'js/application',
+    'require',
+    '/applications/templateConfig.js'
+    ],function(Application, require) {
 
-    var Application = require('js/application'),
-        poller = require('poller'),
-        ApplicationView = require('/applications/js/view/Application.view.js');
 
     Application.App.module('Applications', function(ApplicationModule, App, Backbone, Marionette, $, _) {
 
-            var ApplicationModel = require('/applications/js/model/Applications.js');
-
-//            var appModel = new ApplicationModel.Response();
-//            appModel.fetch();
-
+        require([
+                '/applications/js/view/Application.view.js',
+                '/applications/js/model/Applications.js'
+            ], function(ApplicationView, ApplicationModel) {
             var appPage = new ApplicationView({modelClass: ApplicationModel});
 
             // Define a controller to run this module
@@ -39,7 +39,7 @@ define(function(require) {
                 });
                 ApplicationModule.contentController.show();
             });
-
+        });
 
     });
 });

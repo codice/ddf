@@ -32,12 +32,24 @@ define([
 ], function(require, Backbone, Marionette, ich, _, $, applicationTemplate, applicationNodeTemplate, detailsTemplate, applicationNew, mvnItemTemplate, fileProgress) {
     "use strict";
 
-    ich.addTemplate('applicationTemplate', applicationTemplate);
-    ich.addTemplate('applicationNodeTemplate', applicationNodeTemplate);
-    ich.addTemplate('detailsTemplate', detailsTemplate);
-    ich.addTemplate('applicationNew', applicationNew);
-    ich.addTemplate('mvnItemTemplate', mvnItemTemplate);
-    ich.addTemplate('fileProgress', fileProgress);
+    if(!ich.applicationTemplate) {
+        ich.addTemplate('applicationTemplate', applicationTemplate);
+    }
+    if(!ich.applicationNodeTemplate) {
+        ich.addTemplate('applicationNodeTemplate', applicationNodeTemplate);
+    }
+    if(!ich.detailsTemplate) {
+        ich.addTemplate('detailsTemplate', detailsTemplate);
+    }
+    if(!ich.applicationNew) {
+        ich.addTemplate('applicationNew', applicationNew);
+    }
+    if(!ich.mvnItemTemplate) {
+        ich.addTemplate('mvnItemTemplate', mvnItemTemplate);
+    }
+    if(!ich.fileProgress) {
+        ich.addTemplate('fileProgress', fileProgress);
+    }
 
     var Model = {};
 

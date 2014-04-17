@@ -3,7 +3,8 @@
 define([
     'js/application',
     '/installer/js/views/InstallerMain.view.js',
-    '/installer/js/models/Installer.js'
+    '/installer/js/models/Installer.js',
+    '/installer/templateConfig.js'
     ], function(Application, InstallerMainView, InstallerModel) {
 
     Application.App.module('Installation', function(AppModule, App, Backbone, Marionette, $, _) {

@@ -43,6 +43,11 @@
         <feature>admin-ui</feature>
         <bundle>mvn:ddf.admin.modules/admin-modules-installer/${project.version}</bundle>
     </feature>
+
+    <feature name="admin-modules-application" install="manual" version="${project.version}" description="DDF Application Module">
+        <feature>admin-ui</feature>
+        <bundle>mvn:ddf.admin.modules/admin-modules-application/${project.version}</bundle>
+    </feature>
     
     <feature name="admin-post-install-modules" install="manual" version="${project.version}" description="Contains the modules that should be installed after the installer is finished.">
         <feature>admin-modules-configuration</feature>

@@ -4,7 +4,7 @@
 (function () {
     'use strict';
 
-    require(['config'], function () {
+    require(['config', 'templateConfig'], function () {
         require([
             'jquery',
             'backbone',
