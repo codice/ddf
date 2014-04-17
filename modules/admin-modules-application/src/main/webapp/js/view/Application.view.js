@@ -358,18 +358,18 @@ define([
             });
             return count;
         },
-        installApp: function(navigationModel){
+        installApp: function(statusFunc){
             var that = this;
             //save off the model before we make any chances
             var jsonModel = this.model.toJSON();
             // Update each application based on the user selections
-            var numNodes = this.model.sync('update', this.response, navigationModel.nextStep);
+            var numNodes = this.model.sync('update', this.response, statusFunc);
 
             _.defer(function() {
                 // Update from the server
-                that.model.sync('read', that.response, navigationModel.nextStep).complete(function() {
+                that.model.sync('read', that.response, statusFunc).complete(function() {
                     // Check if anything failed
-                    that.model.validateInstall(jsonModel, numNodes, navigationModel.nextStep);
+                    that.model.validateInstall(jsonModel, numNodes, statusFunc);
                     that.setErrorStates();
                 });
             });

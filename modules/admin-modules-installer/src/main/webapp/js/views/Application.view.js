@@ -55,7 +55,7 @@ define([
                 this.navigationModel.trigger('block');
 
                 if(this.applications) {
-                    this.applications.currentView.installApp(this.navigationModel);
+                    this.applications.currentView.installApp(this.navigationModel.nextStep);
                 }
 
                 this.navigationModel.trigger('unblock');

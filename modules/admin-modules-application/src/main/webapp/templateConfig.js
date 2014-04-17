@@ -7,6 +7,7 @@
         paths: {
 
             // templates
+            applicationModuleTemplate: '/applications/templates/applicationWrapper.handlebars',
             applicationTemplate: '/applications/templates/application.handlebars',
             applicationNodeTemplate: '/applications/templates/applicationNode.handlebars',
             detailsTemplate: '/applications/templates/details.handlebars',

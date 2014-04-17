@@ -38,15 +38,7 @@
             icanhaz: 'lib/icanhandlebarz/ICanHandlebarz',
 
             // require plugins
-            text: 'lib/requirejs-plugins/lib/text',
-
-            // templates
-            applicationTemplate: '/applications/templates/application.handlebars',
-            applicationNodeTemplate: '/applications/templates/applicationNode.handlebars',
-            detailsTemplate: '/applications/templates/details.handlebars',
-            applicationNew: '/applications/templates/applicationNew.handlebars',
-            mvnItemTemplate: '/applications/templates/mvnUrlItem.handlebars',
-            fileProgress: '/applications/templates/fileProgress.handlebars'
+            text: 'lib/requirejs-plugins/lib/text'
         },
 
 

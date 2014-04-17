@@ -12,6 +12,16 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
+.white {
+    background-color: rgba(255, 255, 255, 1);
+}
+#application-view {
+    position: relative;
+}
+#application-view .appview {
+    margin: 20px;
+    height: 500px;
+}
 .full-height {
     height: 100%;
 }
@@ -47,6 +57,12 @@ div.appview > div > ul {
 }
 .new-app-btn {
     padding-bottom: 20px;
+}
+.app-status-area {
+    margin: 20px 0px;
+    height: 30px;
+    width: 100%;
+    color: #3498db;
 }
 .fileinput-button input {
     height: 100%;

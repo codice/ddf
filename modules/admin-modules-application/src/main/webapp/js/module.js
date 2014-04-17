@@ -10,7 +10,7 @@ define([
     Application.App.module('Applications', function(ApplicationModule, App, Backbone, Marionette, $, _) {
 
         require([
-                '/applications/js/view/Application.view.js',
+                '/applications/js/view/ApplicationWrapper.view.js',
                 '/applications/js/model/Applications.js'
             ], function(ApplicationView, ApplicationModel) {
             var appPage = new ApplicationView({modelClass: ApplicationModel});
