@@ -62,6 +62,10 @@ public class ApplicationServiceImpl implements ApplicationService {
     private List<BundleStateService> bundleStateServices = null;
 
     private Set<String> ignoredApplicationNames = null;
+    
+    private static final String POST_CONFIG_START = "admin-post-install-modules";
+    
+    private static final String POST_CONFIG_STOP = "admin-modules-installer";
 
     /**
      * Used to make sure that the config file is only checked on first run.
@@ -214,7 +218,7 @@ public class ApplicationServiceImpl implements ApplicationService {
             if (properties.get(FIRST_RUN_MARKER) == null) {
                 logger.debug("Checking the configuration file on the first run.");
                 ApplicationConfigInstaller configInstaller = new ApplicationConfigInstaller(
-                        configFileName, this, featuresService);
+                        configFileName, this, featuresService, POST_CONFIG_START, POST_CONFIG_STOP);
                 configInstaller.start();
                 properties.put(FIRST_RUN_MARKER, Boolean.TRUE);
                 config.update(properties);

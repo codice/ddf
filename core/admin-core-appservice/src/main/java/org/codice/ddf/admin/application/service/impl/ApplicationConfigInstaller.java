@@ -23,6 +23,7 @@ import java.util.Map.Entry;
 import java.util.Properties;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.karaf.features.FeaturesService;
 import org.codice.ddf.admin.application.service.ApplicationService;
 import org.codice.ddf.admin.application.service.ApplicationServiceException;
@@ -38,22 +39,38 @@ public class ApplicationConfigInstaller extends Thread {
 
     private FeaturesService featuresService;
 
+    private String postInstallFeatureStart;
+
+    private String postInstallFeatureStop;
+
     private static final Logger LOGGER = LoggerFactory.getLogger(ApplicationConfigInstaller.class);
 
     private String fileName;
 
     /**
-     * Constructor of the Installer class.
+     * Constructor that creates the config installer.
      * 
      * @param fileName
-     *            Name of the configuration file to install the applications
-     *            from.
+     *            Full pathname of the properties file.
+     * @param appService
+     *            Reference to the application server that should be called to
+     *            start the applications.
+     * @param featuresService
+     *            Reference to the features service that should be used to stop
+     *            and start and post-installation features.
+     * @param postInstallFeatureStart
+     *            Feature that should be started if installation occurs.
+     * @param postInstallFeatureStop
+     *            Feature that should be stopped if installation occurs.
      */
     public ApplicationConfigInstaller(String fileName, ApplicationService appService,
-            FeaturesService featuresService) {
+            FeaturesService featuresService, String postInstallFeatureStart,
+            String postInstallFeatureStop) {
         this.fileName = fileName;
         this.appService = appService;
         this.featuresService = featuresService;
+        this.postInstallFeatureStart = postInstallFeatureStart;
+        this.postInstallFeatureStop = postInstallFeatureStop;
     }
 
     @Override
@@ -86,8 +103,12 @@ public class ApplicationConfigInstaller extends Thread {
                 LOGGER.debug("Finished installing applications, uninstalling installer module...");
 
                 try {
-                    featuresService.installFeature("admin-post-install-modules");
-                    featuresService.uninstallFeature("admin-modules-installer");
+                    if (!StringUtils.isBlank(postInstallFeatureStart)) {
+                        featuresService.installFeature(postInstallFeatureStart);
+                    }
+                    if (!StringUtils.isBlank(postInstallFeatureStop)) {
+                        featuresService.uninstallFeature(postInstallFeatureStop);
+                    }
                 } catch (Throwable e) {
                     LOGGER.debug(
                             "Error while trying to uninstall the installer admin module. Installer may still active.",
