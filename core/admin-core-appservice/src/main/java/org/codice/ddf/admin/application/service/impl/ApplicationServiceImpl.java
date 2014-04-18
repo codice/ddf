@@ -62,9 +62,9 @@ public class ApplicationServiceImpl implements ApplicationService {
     private List<BundleStateService> bundleStateServices = null;
 
     private Set<String> ignoredApplicationNames = null;
-    
+
     private static final String POST_CONFIG_START = "admin-post-install-modules";
-    
+
     private static final String POST_CONFIG_STOP = "admin-modules-installer";
 
     /**
@@ -521,7 +521,8 @@ public class ApplicationServiceImpl implements ApplicationService {
                     Set<Feature> features = getAllDependencyFeatures(application.getMainFeature());
                     for (Feature curFeature : features) {
                         try {
-                            if (application.getFeatures().contains(curFeature)) {
+                            if (application.getFeatures().contains(curFeature)
+                                    && featuresService.isInstalled(curFeature)) {
                                 featuresService.uninstallFeature(curFeature.getName(),
                                         curFeature.getVersion());
                             }
@@ -530,8 +531,6 @@ public class ApplicationServiceImpl implements ApplicationService {
                                     e);
                         }
                     }
-
-                    featuresService.uninstallFeature(application.getMainFeature().getName());
                 } else {
                     throw new ApplicationServiceException("Application " + application.getName()
                             + " is already stopped.");
