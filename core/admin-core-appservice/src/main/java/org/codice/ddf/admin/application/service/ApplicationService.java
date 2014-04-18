@@ -79,8 +79,8 @@ public interface ApplicationService {
     void startApplication(String application) throws ApplicationServiceException;
 
     /**
-     * Stops an application, does not include any transitive dependencies as
-     * they may be needed by other applications.
+     * Stops an application, does not include any external transitive
+     * dependencies as they may be needed by other applications.
      * 
      * @param application
      *            Application instance to stop.
@@ -92,8 +92,8 @@ public interface ApplicationService {
     void stopApplication(Application application) throws ApplicationServiceException;
 
     /**
-     * Stops an application, does not include any transitive dependencies as
-     * they may be needed by other applications.
+     * Stops an application, does not include any external transitive
+     * dependencies as they may be needed by other applications.
      * 
      * @param application
      *            Name of the application to stop.
@@ -105,8 +105,7 @@ public interface ApplicationService {
     void stopApplication(String application) throws ApplicationServiceException;
 
     /**
-     * Adds a new application to the application list.
-     * <br/>
+     * Adds a new application to the application list. <br/>
      * <br/>
      * <b>NOTE: This does NOT start the application</b>
      * 

@@ -86,7 +86,6 @@ public class ApplicationConfigInstaller extends Thread {
             is = new FileInputStream(configFile);
             Properties props = new Properties();
             props.load(is);
-            is.close();
             if (!props.isEmpty()) {
                 LOGGER.debug("Found applications to install from config.");
                 for (Entry<Object, Object> curApp : props.entrySet()) {
@@ -109,16 +108,16 @@ public class ApplicationConfigInstaller extends Thread {
                     if (!StringUtils.isBlank(postInstallFeatureStop)) {
                         featuresService.uninstallFeature(postInstallFeatureStop);
                     }
-                } catch (Throwable e) {
+                } catch (Exception e) {
                     LOGGER.debug(
-                            "Error while trying to uninstall the installer admin module. Installer may still active.",
+                            "Error while trying to run the post-install start and stop operations.",
                             e);
                 }
 
             } else {
                 LOGGER.debug("No applications were found in the configuration file.");
             }
-
+            is.close();
         } catch (FileNotFoundException fnfe) {
             LOGGER.warn("Could not file the configuration file at " + configFile.getAbsolutePath(),
                     fnfe);

@@ -163,6 +163,7 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
         try {
             logger.debug("Starting application with name {}", appName);
             appService.startApplication(appName);
+            logger.debug("Finished installing application {}", appName);
             return true;
         } catch (ApplicationServiceException ase) {
             logger.warn("Application " + appName + " was not successfully started.", ase);
@@ -175,6 +176,7 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
         try {
             logger.debug("Stopping application with name {}", appName);
             appService.stopApplication(appName);
+            logger.debug("Finished stopping application {}", appName);
             return true;
         } catch (ApplicationServiceException ase) {
             logger.warn("Application " + appName + " was not successfully stopped.", ase);
