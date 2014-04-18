@@ -55,7 +55,7 @@ define(['underscore',
                 }
                 else {
                     options.imageryProvider = new Cesium.BingMapsImageryProvider({
-                                                  url : 'http://dev.virtualearth.net',
+                                                  url : 'https://dev.virtualearth.net',
                                                   mapStyle : Cesium.BingMapsStyle.AERIAL_WITH_LABELS
                                               });
                 }

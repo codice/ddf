@@ -8,6 +8,7 @@ define(function (require) {
         _ = require('underscore'),
         ich = require('icanhaz'),
         properties = require('properties'),
+        user = require('user'),
         MetaCard = require('js/model/Metacard'),
         Progress = require('js/view/Progress.view'),
         wreqr = require('wreqr'),
@@ -24,15 +25,16 @@ define(function (require) {
 
     Query.Model = Backbone.Model.extend({
         //in the search we are checking for whether or not the model
-        //only contains 4 items to know if we can search or not
-        //as soon as the model contains more than 4 items, we assume
+        //only contains 6 items to know if we can search or not
+        //as soon as the model contains more than 6 items, we assume
         //that we have enough values to search
         defaults: {
             federation: 'enterprise',
             offsetTimeUnits: 'hours',
             radiusUnits: 'meters',
             radius: 0,
-            radiusValue: 0
+            radiusValue: 0,
+            user: user
         },
 
         initialize: function () {
@@ -195,10 +197,10 @@ define(function (require) {
                     return value;
                 },
                 federationConverter = function(direction,value){
-                    // If there are multiple federated sources, the model wants 
-                    // a comma separated string for the list of federated sources.  
+                    // If there are multiple federated sources, the model wants
+                    // a comma separated string for the list of federated sources.
                     // If there is only one federated source, the model wants
-                    // just the souce name (no comma).  The join will only return 
+                    // just the souce name (no comma).  The join will only return
                     // a comma separated string if there are multiple federated
                     // source.  If there is only one federated source, the join
                     // will only return the federated source (without a comma).
@@ -231,9 +233,9 @@ define(function (require) {
 
             this.initDateTimePicker('#absoluteStartTime');
             this.initDateTimePicker('#absoluteEndTime');
-            
+
             this.delegateEvents();
-			
+
             var singleselectOptions = {
                 header: false,
                 minWidth: 110,
@@ -247,7 +249,7 @@ define(function (require) {
                     return '';
                 }
             };
-			
+
             var multiselectOptions = {
                 minWidth: 350,
                 height: 185,
@@ -259,7 +261,7 @@ define(function (require) {
                     return numChecked + ' of ' + numTotal + ' selected';
                 }
             };
-			
+
             var typeSelectOptions = _.clone(singleselectOptions);
             typeSelectOptions.minWidth = 350;
             typeSelectOptions.noneSelectedText = 'Select a Type';
@@ -306,12 +308,12 @@ define(function (require) {
 
         search: function () {
             //check that we can even perform a search
-            //the model has 4 default attributes, so if we only have 4
+            //the model has 6 default attributes, so if we only have 6
             //then we have no search criteria
-            //if we have 5 and one of them is the 'src' attribute, then we
+            //if we have 6 and one of them is the 'src' attribute, then we
             //still have no search criteria
             var modelSize = _.size(this.model.attributes);
-            if (modelSize === 4 || (modelSize === 5 && this.model.get('src'))) {
+            if (modelSize === 6 || (modelSize === 7 && this.model.get('src'))) {
                 return;
             }
 
@@ -469,13 +471,13 @@ define(function (require) {
                     return val;
             }
         },
-        
+
         resetDateTimePicker: function(selector) {
             this.$(selector).datetimepicker('destroy');
             this.initDateTimePicker(selector);
 
         },
-        
+
         initDateTimePicker: function (selector) {
             this.$(selector).datetimepicker({
                 dateFormat: $.datepicker.ATOM,
