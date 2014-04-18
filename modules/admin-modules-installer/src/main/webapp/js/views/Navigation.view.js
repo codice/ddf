@@ -53,7 +53,6 @@ define([
             this.$(".pager").html(ich.navButtons(this.model.toJSON()));
             this.percentComplete = this.model.get('percentComplete');
             this.$('.progress-text').show();
-            this.$('.progress-text').fadeOut(8000);
         },
         previous: function() {
             this.model.trigger('previous');

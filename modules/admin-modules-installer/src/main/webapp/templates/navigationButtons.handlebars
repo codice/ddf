@@ -1,9 +1,9 @@
 {{#if hasPrevious}}
     <li>
         {{#if busy}}
-            <a id="previousStep" class="disabled-previous" href="#" >&larr; Previous Step</a>
+            <a id="previousStep" class="disabled-previous" href="#" >&larr; Previous</a>
         {{else}}
-            <a id="previousStep" class="previous" href="#" >&larr; Previous Step</a>
+            <a id="previousStep" class="previous" href="#" >&larr; Previous</a>
         {{/if}}
     </li>
 {{/if}}
@@ -19,9 +19,9 @@
     {{else}}
         <li>
             {{#if busy}}
-                <a id="nextStep" class="disabled-next" href="#">Next Step &rarr;</a>
+                <a id="nextStep" class="disabled-next" href="#">Next &rarr;</a>
             {{else}}
-                <a id="nextStep" class="next" href="#">Next Step &rarr;</a>
+                <a id="nextStep" class="next" href="#">Next &rarr;</a>
             {{/if}}
         </li>
     {{/ifNotAnd}}
