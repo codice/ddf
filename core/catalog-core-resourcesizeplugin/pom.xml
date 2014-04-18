@@ -52,6 +52,10 @@
             <artifactId>catalog-core-standardframework</artifactId>
             <version>${project.version}</version>
         </dependency>
+      <dependency>
+            <groupId>org.codice.ddf</groupId>
+            <artifactId>notifications</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
@@ -62,10 +66,12 @@
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+                        <!-- This should not be  embedding notifications: https://tools.codice.org/jira/browse/DDF-415-->
                         <Embed-Dependency>
-                            guava
+                            guava, notifications  
                         </Embed-Dependency>
                         <Embed-Transitive>true</Embed-Transitive>
+                        <!-- These should be reworked: https://tools.codice.org/jira/browse/DDF-415 -->
                         <Private-Package>
                             ddf.catalog.plugin.resourcesize.metacard,
                             ddf.catalog.cache,
