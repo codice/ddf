@@ -206,7 +206,7 @@ define(function (require) {
                     installChildren();
                 }
                 // install my needed children
-
+                return promise;
             }
         },
 
@@ -259,7 +259,7 @@ define(function (require) {
         // Saving the state of the selected applications doesn't follow the normal
         // REST model - each application is uninstalled or installed through
         // the application-service.
-        sync: function(method, model, statusUpdate){
+        sync: function(method, model, statusUpdate, done){
             var thisModel = this;
             if (method === 'read'){
                 return model.fetch({
@@ -268,23 +268,28 @@ define(function (require) {
                     }
                 });
             } else { // this is a save of the model (CUD)
-                return this.save(statusUpdate);
+                return this.save(statusUpdate, done);
             }
+        },
+
+        numNodesChanged: function() {
+            var totalCount = 0;
+            this.each(function(child) {
+                totalCount += child.countDirty();
+            });
+            return totalCount;
         },
 
         // Performs the application of the user-selected changes to the application dependency
         // trees (each element of this collection is the root of one dependency tree). This save
         // method accepts a `statusUpdate` function which will be called with `(message, percentComplete)`
         // to keep the caller aware of the current status.
-        save: function(statusUpdate) {
+        save: function(statusUpdate, done) {
             // Determine the total number of actions to be performed so that we can provide
             // a percent complete in the `statusUpdate` method.
             var that = this;
             var count = 0;
-            var totalCount = 0;
-            this.each(function(child) {
-               totalCount += child.countDirty();
-            });
+            var totalCount = this.numNodesChanged();
 
             var promiseArr = [];
 
@@ -306,9 +311,12 @@ define(function (require) {
                 that.each(function(child) {
                     promiseArr2.push(child.install(internalStatusUpdate));
                 });
+                Q.all(promiseArr2).done(function() {
+                    done();
+                });
             });
 
-            return totalCount;
+
         },
 
         validateInstall: function(jsonModel, numNodes, statusUpdate) {

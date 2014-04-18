@@ -362,10 +362,9 @@ define([
             var that = this;
             //save off the model before we make any chances
             var jsonModel = this.model.toJSON();
-            // Update each application based on the user selections
-            var numNodes = this.model.sync('update', this.response, statusFunc);
-
-            _.defer(function() {
+            var numNodes = this.model.numNodesChanged();
+                // Update each application based on the user selections
+            this.model.sync('update', this.response, statusFunc, function() {
                 // Update from the server
                 that.model.sync('read', that.response, statusFunc).complete(function() {
                     // Check if anything failed
