@@ -163,17 +163,18 @@ define(function (require) {
                 var uninstallSelf = function() {
                     if (!that.get('selected') && that.isDirty()) {
                         return that.save(statusUpdate);
-                    } else {
-                        return Q.resolve();
                     }
                 };
                 // uninstall all needed children
                 if (this.get('children').length){
                     this.get('children').forEach(function(child) {
-                        promiseArr.push(child.uninstall(statusUpdate));
+                        var promise = child.uninstall(statusUpdate);
+                        if(promise) {
+                            promiseArr.push(promise);
+                        }
                     });
                 }
-                if(promiseArr.length) {
+                if(promiseArr.length > 0) {
                     return Q.all(promiseArr).done(uninstallSelf);
                 } else {
                     return uninstallSelf();
@@ -189,11 +190,16 @@ define(function (require) {
                 // install myself
                 var promise;
                 var installChildren = function() {
+                    var promiseArr = [];
                     if (that.get('children').length){
                         that.get('children').forEach(function(child) {
-                            child.install(statusUpdate);
+                            var cPromise = child.install(statusUpdate);
+                            if(cPromise) {
+                                promiseArr.push(cPromise);
+                            }
                         });
                     }
+                    return Q.all(promiseArr);
                 };
 
                 if (this.get('selected') && this.isDirty()) {
@@ -202,11 +208,10 @@ define(function (require) {
 
                 if(promise) {
                     promise.complete(installChildren);
+                    return promise;
                 } else {
-                    installChildren();
+                    return installChildren();
                 }
-                // install my needed children
-                return promise;
             }
         },
 
