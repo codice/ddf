@@ -206,10 +206,10 @@ public class CatalogContentPlugin implements ContentPlugin {
                 LOGGER.debug("Transformer [" + transformer + "] could not create metacard. ", e);
             }
             if (generatedMetacard != null) {
-                //Setting the non-transformer specific information not including creation and modification dates/times
-                generatedMetacard.setAttribute(new AttributeImpl(Metacard.RESOURCE_SIZE, String.valueOf(messageBytes.length)));
                 if (uri != null) {
+                    //Setting the non-transformer specific information not including creation and modification dates/times
                     generatedMetacard.setAttribute(new AttributeImpl(Metacard.RESOURCE_URI, uri));
+                    generatedMetacard.setAttribute(new AttributeImpl(Metacard.RESOURCE_SIZE, String.valueOf(messageBytes.length)));
                 } else {
                     LOGGER.debug("Metacard had a null uri");
                 }
