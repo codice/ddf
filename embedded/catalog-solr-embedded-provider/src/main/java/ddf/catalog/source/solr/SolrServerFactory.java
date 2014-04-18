@@ -139,6 +139,7 @@ public final class SolrServerFactory {
 
         SolrConfig solrConfig = null;
         IndexSchema indexSchema = null;
+        CoreContainer container = null;
         ClassLoader tccl = Thread.currentThread().getContextClassLoader();
         try {
             Thread.currentThread().setContextClassLoader(SolrServerFactory.class.getClassLoader());
@@ -149,6 +150,8 @@ public final class SolrServerFactory {
                     new InputSource(FileUtils.openInputStream(solrConfigFile)));
             indexSchema = new IndexSchema(solrConfig, schemaFileName, new InputSource(
                     FileUtils.openInputStream(solrSchemaFile)));
+            container = CoreContainer.createAndLoad(solrConfigHome.getAbsolutePath(),
+                    solrFile);
         } catch (ParserConfigurationException e) {
             LOGGER.warn(e);
         } catch (IOException e) {
@@ -159,8 +162,6 @@ public final class SolrServerFactory {
             Thread.currentThread().setContextClassLoader(tccl);
         }
 
-        CoreContainer container = CoreContainer.createAndLoad(solrConfigHome.getAbsolutePath(),
-                solrFile);
         CoreDescriptor coreDescriptor = new CoreDescriptor(container, CORE_NAME, solrConfig
                 .getResourceLoader().getInstanceDir());
 
