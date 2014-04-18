@@ -51,6 +51,7 @@
     
     <feature name="admin-post-install-modules" install="manual" version="${project.version}" description="Contains the modules that should be installed after the installer is finished.">
         <feature>admin-modules-configuration</feature>
+        <feature>admin-modules-application</feature>
     </feature>
    
     <feature name="admin-app" install="auto" version="${project.version}" description="DDF Administration Tools. Comes with the Admin UI framework and command line application service tools.">
