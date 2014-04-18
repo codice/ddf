@@ -47,7 +47,6 @@
         <bundle>mvn:org.codice.ddf.spatial/spatial-wfs-v1_0_0-schema-webapp/${project.version}</bundle>
         <bundle>mvn:org.codice.ddf.spatial/spatial-wfs-api/${project.version}</bundle>
         <bundle>mvn:org.codice.ddf.spatial/spatial-wfs-source/${project.version}</bundle>
-        <bundle start="false">mvn:org.codice.ddf.spatial/spatial-wfs-endpoint/${project.version}</bundle>
     </feature>
 
     <feature name="spatial-csw" install="manual" version="${project.version}"
