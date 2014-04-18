@@ -137,7 +137,7 @@ define([
             this.configurationItems.show(new ConfigurationCollection({collection: this.model.get('value').at(0).get('metatype')}));
             this.bind();
             _.defer(function () {
-                view.$('#config-form').perfectScrollbar();
+                view.$('#config-form').perfectScrollbar({useKeyboard: false});
             });
         },
         bind: function() {
