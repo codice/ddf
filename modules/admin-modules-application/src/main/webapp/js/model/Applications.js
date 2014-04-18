@@ -207,8 +207,7 @@ define(function (require) {
                 }
 
                 if(promise) {
-                    promise.complete(installChildren);
-                    return promise;
+                    return promise.then(installChildren);
                 } else {
                     return installChildren();
                 }
@@ -264,7 +263,7 @@ define(function (require) {
         // Saving the state of the selected applications doesn't follow the normal
         // REST model - each application is uninstalled or installed through
         // the application-service.
-        sync: function(method, model, statusUpdate, done){
+        sync: function(method, model, statusUpdate){
             var thisModel = this;
             if (method === 'read'){
                 return model.fetch({
@@ -273,7 +272,7 @@ define(function (require) {
                     }
                 });
             } else { // this is a save of the model (CUD)
-                return this.save(statusUpdate, done);
+                return this.save(statusUpdate);
             }
         },
 
@@ -289,7 +288,7 @@ define(function (require) {
         // trees (each element of this collection is the root of one dependency tree). This save
         // method accepts a `statusUpdate` function which will be called with `(message, percentComplete)`
         // to keep the caller aware of the current status.
-        save: function(statusUpdate, done) {
+        save: function(statusUpdate) {
             // Determine the total number of actions to be performed so that we can provide
             // a percent complete in the `statusUpdate` method.
             var that = this;
@@ -310,15 +309,13 @@ define(function (require) {
                 promiseArr.push(child.uninstall(internalStatusUpdate));
             });
 
-            Q.all(promiseArr).done(function() {
+            return Q.all(promiseArr).then(function() {
                 var promiseArr2 = [];
                 // Then install necessary apps
                 that.each(function(child) {
                     promiseArr2.push(child.install(internalStatusUpdate));
                 });
-                Q.all(promiseArr2).done(function() {
-                    done();
-                });
+                return Q.all(promiseArr2);
             });
 
 

@@ -373,9 +373,9 @@ define([
             var jsonModel = this.model.toJSON();
             var numNodes = this.model.numNodesChanged();
                 // Update each application based on the user selections
-            this.model.sync('update', this.response, statusFunc, function() {
+            this.model.sync('update', this.response, statusFunc).done(function() {
                 // Update from the server
-                that.model.sync('read', that.response, statusFunc).complete(function() {
+                that.model.sync('read', that.response, statusFunc).done(function() {
                     // Check if anything failed
                     that.model.validateInstall(jsonModel, numNodes, statusFunc);
                     that.setErrorStates();
