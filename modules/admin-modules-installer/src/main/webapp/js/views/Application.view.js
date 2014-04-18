@@ -50,15 +50,14 @@ define([
             onClose: function () {
                 this.stopListening(this.navigationModel);
             },
-
             next: function () {
+                var that = this;
                 this.navigationModel.trigger('block');
-
                 if(this.applications) {
-                    this.applications.currentView.installApp(this.navigationModel.nextStep);
+                    this.applications.currentView.installApp(this.navigationModel.nextStep).done(function() {
+                        that.navigationModel.trigger('unblock');
+                    });
                 }
-
-                this.navigationModel.trigger('unblock');
             },
             previous: function () {
                 //this is your hook to perform any teardown that must be done before going to the previous step
