@@ -235,6 +235,12 @@ define([
         }
     });
 
+    //hard coded list of applications to disable selection for
+    var disableList = [
+        'platform-app',
+        'admin-app'
+    ];
+
     // Recursive tree view
     var AppTreeView = Marionette.CompositeView.extend({
         template: 'applicationNodeTemplate',
@@ -264,6 +270,9 @@ define([
 
         onRender: function () {
             this.bind();
+            if(_.indexOf(disableList, this.model.get('appId')) !== -1) {
+                this.$('#'+this.model.get('appId')+'cb').attr('disabled', true);
+            }
         },
 
         bind: function () {
