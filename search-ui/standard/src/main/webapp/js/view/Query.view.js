@@ -8,13 +8,14 @@ define(function (require) {
         _ = require('underscore'),
         ich = require('icanhaz'),
         properties = require('properties'),
-        user = require('user'),
+        UserModel = require('user'),
         MetaCard = require('js/model/Metacard'),
         Progress = require('js/view/Progress.view'),
         wreqr = require('wreqr'),
         Query = {};
 
     ich.addTemplate('searchFormTemplate', require('text!templates/searchForm.handlebars'));
+    ich.addTemplate('userTemplate', require('text!templates/user.handlebars'));
     require('datepicker');
     require('datepickerOverride');
     require('datepickerAddon');
@@ -22,19 +23,28 @@ define(function (require) {
     require('multiselect');
     require('multiselectfilter');
 
+    Query.UserModel = new UserModel();
+    Query.UserModel.fetch();
+
+    Query.UserView = Marionette.ItemView.extend({
+        template: 'userTemplate',
+        model: Query.UserModel,
+        initialize: function() {
+            this.listenTo(this.model, 'change', this.render);
+        }
+    });
 
     Query.Model = Backbone.Model.extend({
         //in the search we are checking for whether or not the model
-        //only contains 6 items to know if we can search or not
-        //as soon as the model contains more than 6 items, we assume
+        //only contains 5 items to know if we can search or not
+        //as soon as the model contains more than 5 items, we assume
         //that we have enough values to search
         defaults: {
             federation: 'enterprise',
             offsetTimeUnits: 'hours',
             radiusUnits: 'meters',
             radius: 0,
-            radiusValue: 0,
-            user: user
+            radiusValue: 0
         },
 
         initialize: function () {
@@ -75,7 +85,7 @@ define(function (require) {
         }
     });
 
-    Query.QueryView = Marionette.ItemView.extend({
+    Query.QueryView = Marionette.Layout.extend({
         template: 'searchFormTemplate',
         className : 'slide-animate',
 
@@ -93,6 +103,10 @@ define(function (require) {
             'keypress input[name=q]': 'filterOnEnter',
             'change #radiusUnits': 'onRadiusUnitsChanged',
             'change #offsetTimeUnits': 'onTimeUnitsChanged'
+        },
+
+        regions: {
+            userRegion: '#user-region'
         },
 
         initialize: function (options) {
@@ -274,6 +288,8 @@ define(function (require) {
             this.$('#radiusUnits').multiselect(singleselectOptions);
 
             this.$('#offsetTimeUnits').multiselect(singleselectOptions);
+
+            this.userRegion.show(new Query.UserView());
         },
 
         beforeShowDatePicker: function(picker){
@@ -309,12 +325,12 @@ define(function (require) {
 
         search: function () {
             //check that we can even perform a search
-            //the model has 6 default attributes, so if we only have 6
+            //the model has 5 default attributes, so if we only have 5
             //then we have no search criteria
-            //if we have 6 and one of them is the 'src' attribute, then we
+            //if we have 5 and one of them is the 'src' attribute, then we
             //still have no search criteria
             var modelSize = _.size(this.model.attributes);
-            if (modelSize === 6 || (modelSize === 7 && this.model.get('src'))) {
+            if (modelSize === 5 || (modelSize === 6 && this.model.get('src'))) {
                 return;
             }
 
