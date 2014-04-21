@@ -1,11 +1,25 @@
 <div class='{{id}} metatype control-group'>
     <label class='control-label' for='{{id}}'>{{name}}</label>
     <div class='controls'>
-        <input type='text' class='{{id}} metatype' name='{{id}}' id='{{id}}' value='{{#defaultValue}}{{.}}{{/defaultValue}}'>
-        {{#if description}}
-            <a href='#' class='description' data-title='{{id}}'>
-                <i class='glyphicon glyphicon-question-sign'></i>
-            </a>
-        {{/if}}
+        {{#is optionValues.length 0}}
+            <input type='text' class='{{id}} metatype' name='{{id}}' id='{{id}}' value='{{#defaultValue}}{{.}}{{/defaultValue}}'>
+            {{#if description}}
+                <a href='#' class='description' data-title='{{id}}'>
+                    <i class='glyphicon glyphicon-question-sign'></i>
+                </a>
+            {{/if}}
+        {{/is}}
+        {{#isnt optionValues.length 0}}
+            <select id="{{id}}" name="{{id}}">
+                {{#each optionLabels}}
+                    <option value="{{lookup ../optionValues @index}}" {{#is @index 0}}selected="selected" {{/is}}>{{.}}</option>
+                {{/each}}
+            </select>
+            {{#if description}}
+                <a href='#' class='description' data-title='{{id}}'>
+                    <i class='glyphicon glyphicon-question-sign'></i>
+                </a>
+            {{/if}}
+        {{/isnt}}
     </div>
 </div>
