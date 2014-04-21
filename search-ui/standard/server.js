@@ -17,6 +17,7 @@ app.use(express.static(__dirname + '/src/main/webapp'));
 console.log('setting up proxy only');
 app.all('/services/*', server.requestProxy);
 app.all('/cometd/*', server.requestProxy);
+app.all('/search/*', server.requestProxy);
 
 exports = module.exports = app;
 
