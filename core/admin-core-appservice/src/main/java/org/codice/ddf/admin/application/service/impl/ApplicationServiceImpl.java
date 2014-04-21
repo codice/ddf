@@ -277,20 +277,26 @@ public class ApplicationServiceImpl implements ApplicationService {
                         }
                     }
                 }
-                // there should only be one main dependency application declared
-                if (depAppSet.size() == 1) {
-                    Application parentApp = depAppSet.iterator().next();
+                if (!depAppSet.isEmpty()) {
+                    Application parentApp;
+                    if (depAppSet.size() > 1) {
+                        parentApp = findCommonParent(depAppSet, appMap);
+                        if (parentApp == null) {
+                            logger.warn(
+                                    "Found more than 1 application dependency for application {}. Could not determine which one is the correct parent. Application will be sent back as root application.",
+                                    curAppNode.getKey().getName());
+                            continue;
+                        }
+                    } else {
+                        parentApp = depAppSet.iterator().next();
+                    }
                     // update the dependency app with a new child
                     ApplicationNode parentAppNode = appMap.get(parentApp);
                     parentAppNode.getChildren().add(curAppNode.getValue());
                     curAppNode.getValue().setParent(parentAppNode);
-                } else if (depAppSet.isEmpty()) {
+                } else {
                     logger.debug(
                             "No dependency applications found for {}. This will be sent back as a root application.",
-                            curAppNode.getKey().getName());
-                } else {
-                    logger.warn(
-                            "Found more than 1 application dependency. Could not determine which one is the correct parent. Application {} may incorrectly show up as root application in hierarchy.",
                             curAppNode.getKey().getName());
                 }
 
@@ -312,6 +318,49 @@ public class ApplicationServiceImpl implements ApplicationService {
         }
 
         return applicationTree;
+    }
+
+    /**
+     * Finds a common parent that contains all other applications as parent
+     * dependencies.
+     * 
+     * @param applicationSet
+     *            Set of applications that should be found in a single parent.
+     * @param appMap
+     *            Application Map containing all the application nodes.
+     * @return A single application that is the parent which contains all of the
+     *         required applications as dependencies or null if no parent is
+     *         found.
+     */
+    private Application findCommonParent(Set<Application> applicationSet,
+            Map<Application, ApplicationNodeImpl> appMap) {
+
+        // build dependency trees for each application in the set
+        Map<Application, Set<Application>> applicationTreeSet = new HashMap<Application, Set<Application>>(
+                applicationSet.size());
+        for (Application curDependency : applicationSet) {
+            Set<Application> curDepSet = new HashSet<Application>();
+            curDepSet.add(curDependency);
+            for (ApplicationNode curParent = appMap.get(curDependency).getParent(); curParent != null; curParent = curParent
+                    .getParent()) {
+                curDepSet.add(curParent.getApplication());
+            }
+            applicationTreeSet.put(curDependency, curDepSet);
+        }
+
+        // check through each set to see if any application contains everything
+        // within its parents
+        for (Entry<Application, Set<Application>> curAppEntry : applicationTreeSet.entrySet()) {
+            if (!(new HashSet<Application>(applicationSet).retainAll(curAppEntry.getValue()))) {
+                logger.debug("{} contains all needed dependencies.", curAppEntry.getKey().getName());
+                return curAppEntry.getKey();
+            } else {
+                logger.trace("{} does not contain all needed dependencies.", curAppEntry.getKey()
+                        .getName());
+            }
+        }
+
+        return null;
     }
 
     @Override
