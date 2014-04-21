@@ -17,6 +17,7 @@ package org.codice.ddf.admin.application.service.impl;
 import java.io.File;
 import java.net.URI;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.HashSet;
