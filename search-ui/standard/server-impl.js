@@ -100,6 +100,10 @@ server.mockConfigStore = function (req, res) {
     mockTestResource('config.json', res);
 }
 
+server.mockUser = function (req, res) {
+    mockTestResource('user.json', res);
+}
+
 server.mockSources = function (req, res) {
     mockTestResource('sources.json', res);
 }

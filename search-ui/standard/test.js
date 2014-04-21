@@ -22,6 +22,7 @@ app.all('/cometd/connect', server.mockConnect);
 app.all('/cometd/handshake', server.mockHandshake);
 app.all('/services/*', server.requestProxy);
 app.all('/cometd/*', server.requestProxy);
+app.all('/search/standard/user', server.mockUser);
 
 exports = module.exports = app;
 
