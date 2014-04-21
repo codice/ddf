@@ -21,7 +21,7 @@
          id="ddf.platform.config">
 
         <AD name="Protocol" id="protocol" type="String" required="true"
-            description="Default protocol to use for services." default="http">
+            description="The protocol used to advertise the system. When selecting the protocol, be sure to enter the port number corresponding to that protocol." default="http">
             <Option label="http" value="http://"/>
             <Option label="https" value="https://"/>
         </AD>
@@ -42,11 +42,11 @@
         <AD name="Key Store Password:" id="keyStorePassword" description="Key Store password." required="false" type="Password">
         </AD>
 
-        <AD name="Site Name" id="id" required="true" type="String" />
+        <AD name="Site Name" id="id" required="true" type="String" description="The unique name of this instance. This name will be provided via web services that ask for the name." />
 
-        <AD name="Version" id="version" required="true" type="String" />
+        <AD name="Version" id="version" required="true" type="String" description="The version of this instance." />
 
-        <AD name="Organization" id="organization" required="true" type="String" />
+        <AD name="Organization" id="organization" required="true" type="String" description="The name of the organization that runs this instance." />
 
         <AD name="Site contact" id="contact" required="true" type="String" description="The email address of the site contact" />
     </OCD>
