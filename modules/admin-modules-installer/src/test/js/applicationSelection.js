@@ -209,7 +209,7 @@ casper.test.begin('Application Selection View test', function(test) {
 
     casper.then(function() {
         test.assertTrue(this.evaluate(function() {
-                return document.querySelector('#detailsName').innerText == 'Search App';
+                return document.querySelector('#detailsName').innerText == 'DDF Search UI';
             }
         ));
         test.assertTrue(this.evaluate(function() {
@@ -217,5 +217,6 @@ casper.test.begin('Application Selection View test', function(test) {
             }
         ));
     });
+
    casper.run(function() {test.done();});
 });

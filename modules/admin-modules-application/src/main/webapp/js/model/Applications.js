@@ -109,20 +109,41 @@ define(function (require) {
             this.set(changeObj);
         },
 
-        // Create a name suitable for display from the application name - camel-case
+        // Create a name suitable for display. First attempts to parse a display name from
+        // the description (expecting a form of "application description::display name". If that
+        // doesn't yield a display name, then it extracts it from the application name - camel-case
         // it and remove the dashes.
         cleanupDisplayName: function(){
-            var tempName = this.get('displayName'); //.replace(/\./g,'');
-            var names = tempName.split('-');
-            var dispName = '';
-            var that = this;
-            _.each(names, function(name) {
-                if (dispName.length > 0) {
-                    dispName = dispName + ' ';
+            var changeObj = {};
+
+            if (this.has('description')) {
+                var desc = this.get('description');
+                var values = desc.match(/(.*)::(.*)/);
+                if (values !== null) {
+                    if (values.length >= 3) {   // 0=whole string, 1=description, 2=display name
+                        changeObj.description = values[1];
+                        if (values[2].length > 0) { // handle empty title - use default below
+                            changeObj.displayName = values[2];
+                        }
+                    }
                 }
-                dispName = dispName + that.capitalizeFirstLetter(name);
-            });
-            this.set({displayName: dispName});
+            }
+
+            if (typeof changeObj.displayName === 'undefined') {
+                var tempName = this.get('displayName'); //.replace(/\./g,'');
+                var names = tempName.split('-');
+                var workingName = '';
+                var that = this;
+                _.each(names, function(name) {
+                    if (workingName.length > 0) {
+                        workingName = workingName + ' ';
+                    }
+                    workingName = workingName + that.capitalizeFirstLetter(name);
+                });
+                changeObj.displayName = workingName;
+            }
+
+            this.set(changeObj);
         },
 
         // Capitalize and return the first letter of the given string.

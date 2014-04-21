@@ -19,7 +19,7 @@
             "version": "1.0.0"
         },
         {
-            "description": "DDF platform boot features",
+            "description": "DDF platform boot features::",
             "name": "platform-app",
             "state": "ACTIVE",
             "children": [
@@ -53,7 +53,7 @@
                     "version": "2.3.1.ALPHA2-SNAPSHOT"
                 },
                 {
-                    "description": "HTTP Proxy",
+                    "description": "Description of HTTP Proxy::HTTP Proxy",
                     "name": "codice-httpproxy",
                     "state": "FAILED",
                     "children": [],
@@ -70,7 +70,7 @@
             "version": "2.3.2-SNAPSHOT"
         },
         {
-            "description": null,
+            "description": "UI for searching over DDF. Includes both standard (3D globe) and simple (text page) versions.::DDF Search UI",
             "name": "search-app-2.3.1.ALPHA3-SNAPSHOT",
             "state": "ACTIVE",
             "children": [],
