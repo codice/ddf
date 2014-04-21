@@ -434,6 +434,7 @@ public class ReliableResourceDownloadManager implements Runnable {
                             resourceCache.removePendingCacheEntry(reliableResource.getKey());
                             // Disable caching since the cache file being written to had issues
                             cacheEnabled = false;
+                            doCaching = false;
                         }
                         reliableResourceCallable = new ReliableResourceCallable(resourceInputStream, countingFbos, chunkSize);
                         reliableResourceCallable.setBytesRead(bytesRead);

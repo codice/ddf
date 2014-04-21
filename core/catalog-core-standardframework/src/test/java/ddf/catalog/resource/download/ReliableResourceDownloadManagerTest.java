@@ -555,7 +555,7 @@ public class ReliableResourceDownloadManagerTest {
         ResourceRetriever retriever = mock(ResourceRetriever.class);
         when(retriever.retrieveResource()).thenReturn(resourceResponse);
 
-        int chunkSize = 50;
+        int chunkSize = 2;
         startDownload(true, chunkSize, false, metacard, retriever);
 
         // On second chunk read by client it will close the download manager's cache file output stream
