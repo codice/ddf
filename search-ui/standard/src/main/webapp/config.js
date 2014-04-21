@@ -33,6 +33,7 @@
             maptype : 'js/maptype',
             spinnerConfig : 'js/spinnerConfig',
             wreqr: 'js/wreqr',
+            user: 'js/user',
             properties: 'properties',
 
             // jquery
