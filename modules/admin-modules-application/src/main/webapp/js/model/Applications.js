@@ -342,7 +342,7 @@ define(function (require) {
                 }
             } else {
                 if (typeof statusUpdate !== 'undefined') {
-                    statusUpdate('Total of ' + numNodes + ' applications installed/uninstalled.', 100);
+                    statusUpdate('', 100);
                 }
             }
         }
