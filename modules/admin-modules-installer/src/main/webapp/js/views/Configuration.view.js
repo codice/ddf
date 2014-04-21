@@ -47,17 +47,14 @@ define([
         },
         {
             id: 'id',
-            description: 'The name of this site. This name will be provided via web services that ask for the name of the site.',
             note: ''
         },
         {
             id: 'protocol',
-            description: 'The protocol used to advertise the system. When selecting the protocol, be sure to enter the port number corresponding to that protocol.',
             note: ''
         },
         {
             id: 'organization',
-            description: 'The name of the organization that runs this site.',
             note: ''
         }
     ];
