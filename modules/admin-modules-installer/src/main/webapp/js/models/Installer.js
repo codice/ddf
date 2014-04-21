@@ -13,7 +13,7 @@
  *
  **/
 /*global define*/
-define(['backbone', 'underscore', 'jquery', 'q'], function (Backbone, _, $, Q) {
+define(['backbone', 'underscore', 'jquery'], function (Backbone, _, $) {
 
     var Installer = {};
 
@@ -110,15 +110,17 @@ define(['backbone', 'underscore', 'jquery', 'q'], function (Backbone, _, $, Q) {
             this.set(_step.call(this, -1));
         },
         save: function() {
-            return Q.all($.ajax({
-                        type: 'GET',
-                        url: this.url + this.install + 'admin-post-install-modules/',
-                        dataType: 'JSON'
-                    }), $.ajax({
-                        type: 'GET',
-                        url: this.url + this.uninstall + 'admin-modules-installer/',
-                        dataType: 'JSON'
-                    }));
+            return $.ajax({
+                type: 'GET',
+                url: this.url + this.install + 'admin-post-install-modules/',
+                dataType: 'JSON'
+            }).then(function(){
+                return $.ajax({
+                    type: 'GET',
+                    url: this.url + this.uninstall + 'admin-modules-installer/',
+                    dataType: 'JSON'
+                });
+            });
         }
     });
 
