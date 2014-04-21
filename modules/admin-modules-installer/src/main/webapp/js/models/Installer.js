@@ -13,7 +13,7 @@
  *
  **/
 /*global define*/
-define(['backbone', 'underscore'], function (Backbone, _) {
+define(['backbone', 'underscore', 'jquery', 'q'], function (Backbone, _, $, Q) {
 
     var Installer = {};
 
@@ -38,6 +38,9 @@ define(['backbone', 'underscore'], function (Backbone, _) {
     };
 
     Installer.Model = Backbone.Model.extend({
+        install: 'installFeature(java.lang.String)/',
+        uninstall: 'uninstallFeature(java.lang.String)/',
+        url: '/jolokia/exec/org.apache.karaf:type=features,name=root/',
         defaults: {
             hasNext: true,
             hasPrevious: false,
@@ -105,6 +108,17 @@ define(['backbone', 'underscore'], function (Backbone, _) {
         },
         previousStep: function() {
             this.set(_step.call(this, -1));
+        },
+        save: function() {
+            return Q.all($.ajax({
+                        type: 'GET',
+                        url: this.url + this.install + 'admin-post-install-modules/',
+                        dataType: 'JSON'
+                    }), $.ajax({
+                        type: 'GET',
+                        url: this.url + this.uninstall + 'admin-modules-installer/',
+                        dataType: 'JSON'
+                    }));
         }
     });
 

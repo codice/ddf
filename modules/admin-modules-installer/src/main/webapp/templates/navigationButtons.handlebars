@@ -27,6 +27,10 @@
     {{/ifNotAnd}}
 {{else}}
     <li>
-        <a id="finishStep" class="next" href="#">Finish</a>
+        {{#if busy}}
+            <a id="finishStep" class="disabled-next" href="#">Finish</a>
+        {{else}}
+            <a id="finishStep" class="next finish" href="#">Finish</a>
+        {{/if}}
     </li>
 {{/if}}

@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global define*/
+/*global define, alert*/
 /** Main view page for add. */
 define([
     'marionette',
@@ -31,7 +31,8 @@ define([
         tagName: 'div',
         events: {
             'click .previous': 'previous',
-            'click .next': 'next'
+            'click .next': 'next',
+            'click .finish': 'finish'
         },
         initialize: function() {
             this.listenTo(this.model, 'change', this.updateProgress);
@@ -59,6 +60,13 @@ define([
         },
         next: function() {
             this.model.trigger('next');
+        },
+        finish: function() {
+            this.model.trigger('block');
+            this.model.set({message: 'Completing installation. Please wait...'});
+            this.model.save().fail(function() {
+                alert('Final installation failed, please check application logs for details.');
+            });
         }
     });
 
