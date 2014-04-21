@@ -159,7 +159,7 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
     }
 
     @Override
-    public boolean startApplication(String appName) {
+    public synchronized boolean startApplication(String appName) {
         try {
             logger.debug("Starting application with name {}", appName);
             appService.startApplication(appName);
@@ -172,7 +172,7 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
     }
 
     @Override
-    public boolean stopApplication(String appName) {
+    public synchronized boolean stopApplication(String appName) {
         try {
             logger.debug("Stopping application with name {}", appName);
             appService.stopApplication(appName);
