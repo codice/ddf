@@ -153,25 +153,24 @@
             </div>
         </li>
 
-        <li class="nav-header">Sources</li>
+        <li class="nav-header">Additional Sources</li>
         <li>
             <div class="btn-group margin-bottom-large" data-toggle="buttons-radio">
                 <button type="button" class="btn btn-mini {{#is federation 'enterprise'}}active{{/is}}"
                         name="enterpriseFederationButton" data-target="#nofed"
                         data-toggle="tab">All Sources
                 </button>
-                <button type="button" class="btn btn-mini {{#is federation 'local'}}active{{/is}}"
-                        name="noFederationButton" data-target="#local"
-                        data-toggle="tab">Local Only
-                </button>
                 <button type="button" class="btn btn-mini {{#is federation 'selected'}}active{{/is}}"
                         name="selectedFederationButton" data-target="#sources"
                         data-toggle="tab">Specific Sources
                 </button>
+                <button type="button" class="btn btn-mini {{#is federation 'local'}}active{{/is}}"
+                        name="noFederationButton" data-target="#local"
+                        data-toggle="tab">None
+                </button>
             </div>
             <div class="tab-content">
                 <div id="nofed" class="tab-pane {{#is federation 'enterprise'}}active{{/is}}"></div>
-                <div id="local" class="tab-pane {{#is federation 'local'}}active{{/is}}"></div>
                 <div id="sources" class="tab-pane {{#is federation 'selected'}}active{{/is}}">
                     <div id="scrollableSources" class="scrollable">
                         <select id="federationSources" class="input-xlarge" multiple="multiple">
@@ -181,6 +180,7 @@
                         </select>
                     </div>
                 </div>
+                <div id="local" class="tab-pane {{#is federation 'local'}}active{{/is}}"></div>
             </div>
         </li>
 

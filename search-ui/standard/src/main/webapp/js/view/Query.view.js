@@ -117,6 +117,7 @@ define(function (require) {
         setSelectedFederation : function () {
             this.model.set('federation', 'selected');
             this.model.unset('src');
+            this.$('#federationSources').multiselect("refresh");
             this.updateScrollbar();
         },
 
