@@ -26,7 +26,7 @@
     <name>DDF :: UI</name>
     <artifactId>ui</artifactId>
     <groupId>ddf.ui</groupId>
-	<version>2.3.1.ALPHA3-SNAPSHOT</version>
+	<version>2.4.0</version>
     <packaging>pom</packaging>
 	
     <modules>
@@ -35,7 +35,7 @@
     
     <properties>
     	<cometd.version>2.7.0</cometd.version>
-    	<org.codice.ddf.notifications.version>1.0.0-SNAPSHOT</org.codice.ddf.notifications.version>
+    	<org.codice.ddf.notifications.version>1.0.0</org.codice.ddf.notifications.version>
     	<javax.inject.version>1</javax.inject.version>
     	
     	<!--  Third-party bundle versions. These should only be used in the features.xml file.
@@ -84,4 +84,8 @@
 			<url>http://artifacts.codice.org/content/groups/public/</url>
 		</repository>
 	</repositories>
+
+  <scm>
+    <tag>ddf-ui-2.4.0</tag>
+  </scm>
 </project>
