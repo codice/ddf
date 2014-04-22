@@ -24,8 +24,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.Writer;
 
-public class UserNameServlet extends HttpServlet {
-    private static final Logger LOGGER = LoggerFactory.getLogger(UserNameServlet.class);
+public class UserServlet extends HttpServlet {
+    private static final Logger LOGGER = LoggerFactory.getLogger(UserServlet.class);
 
     private static final String USER_ATTRIBUTE = "org.codice.ddf.ui.searchui.standard.properties.user";
 
