@@ -26,7 +26,7 @@
     <name>DDF :: UI</name>
     <artifactId>ui</artifactId>
     <groupId>ddf.ui</groupId>
-	<version>2.4.0</version>
+	<version>2.4.1-SNAPSHOT</version>
     <packaging>pom</packaging>
 	
     <modules>
@@ -84,8 +84,4 @@
 			<url>http://artifacts.codice.org/content/groups/public/</url>
 		</repository>
 	</repositories>
-
-  <scm>
-    <tag>ddf-ui-2.4.0</tag>
-  </scm>
 </project>
