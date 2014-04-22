@@ -321,14 +321,23 @@ public class ReliableResourceDownloadManager implements Runnable {
                     // successfully created. In this case, a partial cache file may have been created from the
                     // previous caching attempt(s) and needs to be deleted from the product cache directory.
                     LOGGER.debug("ReliableResourceCallable is null - cannot download resource");
-                    if (doCaching) {
-                        deleteCacheFile(fos);
-                    }
+                    retryAttempts++;
+                    LOGGER.debug("Download attempt {}", retryAttempts);
                     eventPublisher.postRetrievalStatus(resourceResponse,
-                            ProductRetrievalStatus.FAILED,
-                            "Unable to retrieve product file.",
+                            ProductRetrievalStatus.RETRYING,
+                            String.format("Attempt %d of %d.", retryAttempts, maxRetryAttempts),
                             reliableResourceStatus.getBytesRead());
-                    break;
+                    delay(delayBetweenAttempts);
+                    reliableResourceCallable = retrieveResource(bytesRead);
+                    continue;
+//                    if (doCaching) {
+//                        deleteCacheFile(fos);
+//                    }
+//                    eventPublisher.postRetrievalStatus(resourceResponse,
+//                            ProductRetrievalStatus.FAILED,
+//                            "Unable to retrieve product file.",
+//                            reliableResourceStatus.getBytesRead());
+//                    break;
                 }
                 retryAttempts++;
                 LOGGER.debug("Download attempt {}", retryAttempts);
@@ -484,6 +493,16 @@ public class ReliableResourceDownloadManager implements Runnable {
                         reliableResourceCallable = retrieveResource(bytesRead);
                     }
                 }
+            }
+            
+            if (reliableResourceStatus.getDownloadStatus() != DownloadStatus.RESOURCE_DOWNLOAD_COMPLETE) {
+                if (doCaching) {
+                  deleteCacheFile(fos);
+                }
+                eventPublisher.postRetrievalStatus(resourceResponse,
+                      ProductRetrievalStatus.FAILED,
+                      "Unable to retrieve product file.",
+                      reliableResourceStatus.getBytesRead());
             }
         } catch (IOException e) {
             LOGGER.error("Unable to store product file {}", filePath, e);

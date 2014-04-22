@@ -120,6 +120,7 @@ public class DownloadsStatusEventPublisher {
             response.append(" started at ");
             response.append(dateString);
             break;
+            
         case COMPLETE:
             response.append(" completed at ");
             response.append(dateString);
@@ -132,21 +133,17 @@ public class DownloadsStatusEventPublisher {
             response.append(dateString);
             response.append(" after ");
             response.append(bytes.toString());
-            response.append(" bytes");
-            response.append(detail);
-            
+            response.append(" bytes");          
             break;
             
         case CANCELLED:
             response.append(" cancelled at ");
-            response.append(dateString);
-            
+            response.append(dateString);           
             break;
             
         case FAILED:
             response.append(" failed at ");
-            response.append(dateString);
-            
+            response.append(dateString);            
             break;
             
         default:
