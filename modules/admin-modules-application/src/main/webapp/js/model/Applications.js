@@ -50,6 +50,7 @@ define(function (require) {
            this.massageVersionNumbers();
            this.cleanupDisplayName();
            this.updateName();
+            this.updateDescription();
 
            // Reflect the current state of the application in the model and keep the
            // state to determine if the user changes it.
@@ -153,6 +154,15 @@ define(function (require) {
            }
             return string;
        },
+
+        // If the description has multiple paragraphs (separated by new line characters), build
+        // an array of each paragraph for the details template to display.
+        updateDescription: function(){
+            if (this.has('description')) {
+                var descArray = this.get('description').split('\\n');
+                this.set('paragraphs', descArray);
+            }
+        },
 
         // Determines whether the user has changed the selection of this model or
         // not - does not check its children.

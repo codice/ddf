@@ -1,6 +1,7 @@
 /*jshint strict:false*/
 /*global CasperError, console, phantom, require, casper*/
 casper.options.viewportSize = {width: 2452, height: 868};
+casper.options.waitTimeout = 100000;
 
 casper.test.begin('Application Selection View test', function(test) {
     casper.start('http://localhost:8383');
@@ -175,7 +176,7 @@ casper.test.begin('Application Selection View test', function(test) {
             }
         ));
         test.assertTrue(this.evaluate(function() {
-                return document.querySelector('#detailsDesc').innerText == 'DDF Spatial Services application default installations';
+                return document.querySelector('#detailsDesc p').innerText == 'DDF Spatial Services application default installations';
             }
         ));
     });
@@ -217,6 +218,11 @@ casper.test.begin('Application Selection View test', function(test) {
             }
         ));
     });
+
+//    casper.waitForSelector('#bogus',
+//        function success() {
+//        }, function fail() {
+//        });
 
    casper.run(function() {test.done();});
 });

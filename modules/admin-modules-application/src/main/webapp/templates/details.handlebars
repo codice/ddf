@@ -2,5 +2,10 @@
     <tr><th colspan=2>Application Details</th></tr>
     <tr><td width=20%>Name</td><td id='detailsName'>{{displayName}}</td></tr>
     <tr><td>Version</td><td id='detailsVersion'>{{version}}</td></tr>
-    <tr><td>Description</td><td id='detailsDesc'>{{description}}</td></tr>
+    <tr><td>Description</td><td id='detailsDesc'>
+    {{#each paragraphs}}
+        <p>{{this}}</p>
+    {{else}}
+        {{description}}
+    {{/each}}</td></tr>
 </table>

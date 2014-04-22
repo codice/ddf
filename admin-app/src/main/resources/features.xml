@@ -38,7 +38,7 @@
         <feature>admin-ui</feature>
         <bundle>mvn:ddf.admin.modules/admin-modules-configuration/${project.version}</bundle>
     </feature>
-    
+
     <feature name="admin-modules-installer" install="manual" version="${project.version}" description="DDF Installer Module">
         <feature>admin-ui</feature>
         <bundle>mvn:ddf.admin.modules/admin-modules-installer/${project.version}</bundle>
@@ -48,19 +48,20 @@
         <!--<feature>admin-ui</feature>-->
         <!--<bundle>mvn:ddf.admin.modules/admin-modules-application/${project.version}</bundle>-->
     <!--</feature>-->
-    
+
     <feature name="admin-post-install-modules" install="manual" version="${project.version}" description="Contains the modules that should be installed after the installer is finished.">
         <feature>admin-modules-configuration</feature>
         <!--<feature>admin-modules-application</feature>-->
     </feature>
-   
-    <feature name="admin-app" install="auto" version="${project.version}" description="DDF Administration Tools. Comes with the Admin UI framework and command line application service tools.">
+
+    <feature name="admin-app" install="auto" version="${project.version}"
+             description="Administration application for installing and managing DDF.<p>Includes the Admin UI and the underlying application service that supports the user interface.<p>The Admin UI provides contains modules allowing the administrator to install/remove applications and their dependencies and to access configuration pages to customize and tailor system services and properties.<p>The application service provides the supporting operations allowing the Admin UI to add, remove, start, stop, and obtain status information about all applications on the system.::DDF Admin">
         <feature>platform-app</feature>
         <feature>admin-core</feature>
         <feature>admin-ui</feature>
-    </feature> 
-    
-    
-    
+    </feature>
+
+
+
 
 </features>
