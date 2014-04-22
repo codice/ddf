@@ -105,45 +105,39 @@ public class DownloadsStatusEventPublisher {
 
     private String generateMessage(ProductRetrievalStatus status, String title, 
             Long bytes, Long sysTimeMillis, String detail) {
-        StringBuilder response = new StringBuilder("Product retrieval for ");
-        response.append(title);
+        StringBuilder response = new StringBuilder("Resource retrieval ");
 
         // There may not be any detail to report, if not, send it along
         if (detail == null) {
             detail = "";
         }
 
-        String dateString = formatter.format(new Date(sysTimeMillis));
         
         switch (status) {
         case STARTED:
-            response.append(" started at ");
-            response.append(dateString);
+            response.append(" started");
             break;
             
         case COMPLETE:
-            response.append(" completed at ");
-            response.append(dateString);
-            response.append(", bytes retrieved: ");
+            response.append(" completed, ");
             response.append(bytes.toString());
+            response.append(" bytes retrieved");
+            
             break;
             
         case RETRYING:
-            response.append(" retrying at ");
-            response.append(dateString);
+            response.append(" retrying");
             response.append(" after ");
             response.append(bytes.toString());
             response.append(" bytes");          
             break;
             
         case CANCELLED:
-            response.append(" cancelled at ");
-            response.append(dateString);           
+            response.append(" cancelled");
             break;
             
         case FAILED:
-            response.append(" failed at ");
-            response.append(dateString);            
+            response.append(" failed");
             break;
             
         default:
