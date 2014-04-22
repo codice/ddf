@@ -54,7 +54,7 @@
         <bundle>mvn:ddf.catalog.solr.server/catalog-solr-server-standalone/${project.version}/war</bundle>
     </feature>
 	
-	<feature name="solr-app" install="auto" version="${project.version}" description="Catalog Provider with locally Embedded Solr Server, implemented using Solr ${solr.version}.">
+	<feature name="solr-app" install="auto" version="${project.version}" description="The Solr Catalog Provider (SCP) is an implementation of the CatalogProvider interface using Apache Solr as a data store.\nThe SCP supports extensible metacards, fast/simple contextual searching, indexes xml attributes/CDATA sections/XML text elements, contains full XPath support, works with an embedded local Solr Server, and also works with a standalone Solr Server.::DDF Solr Catalog">
 		<feature>catalog-app</feature>
 		<feature>catalog-solr-embedded-provider</feature>
 	</feature>
