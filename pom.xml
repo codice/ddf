@@ -24,7 +24,7 @@
 
 	<groupId>ddf.content</groupId>
 	<artifactId>content</artifactId>
-	<version>2.4.0</version>
+	<version>2.4.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>DDF Content</name>
     
@@ -80,8 +80,4 @@
 			<url>http://artifacts.codice.org/content/groups/public/</url>
 		</repository>
 	</repositories>
-
-  <scm>
-    <tag>content-2.4.0</tag>
-  </scm>
 </project>
