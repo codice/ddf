@@ -110,6 +110,7 @@ define(['backbone', 'underscore', 'jquery'], function (Backbone, _, $) {
             this.set(_step.call(this, -1));
         },
         save: function() {
+            var that = this;
             return $.ajax({
                 type: 'GET',
                 url: this.url + this.install + 'admin-post-install-modules/',
@@ -117,7 +118,7 @@ define(['backbone', 'underscore', 'jquery'], function (Backbone, _, $) {
             }).then(function(){
                 return $.ajax({
                     type: 'GET',
-                    url: this.url + this.uninstall + 'admin-modules-installer/',
+                    url: that.url + that.uninstall + 'admin-modules-installer/',
                     dataType: 'JSON'
                 });
             });
