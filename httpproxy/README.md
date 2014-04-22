@@ -17,7 +17,6 @@
 ## Introduction
 This project uses sets up an http/https proxy using Apache Camel inside an OSGi bundle that can be run on an OSGi 4.2+ container.
 
-Additionally, it builds a feature application (kar) that can be deployed to an Apache Karaf (http://karaf.apache.org/) server which contains all of the necessary dependencies. This application install has been tested with Apache Karaf 2.3.2.
 
 ## Building
 ### What you need ###
@@ -28,9 +27,12 @@ Additionally, it builds a feature application (kar) that can be deployed to an A
 
 ### How to build ###
 ```
-git clone https://github.com/codice/ddf-http-proxy.git
+git clone https://github.com/codice/ddf-libs.git
 ```
-Change to the top level directory of http-proxy source distribution.
+Change to the httpproxy location in DDF Libs
+```
+cd ddf-libs/httpproxy
+```
 
 ```
 mvn clean install
