@@ -16,7 +16,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <artifactId>distribution-kernel</artifactId>
+    <artifactId>kernel</artifactId>
     <groupId>ddf.distribution</groupId>
     <version>2.3.1-SNAPSHOT</version>
     <relativePath>../kernel/pom.xml</relativePath>
@@ -81,7 +81,7 @@
             <configuration>
               <inherited>false</inherited>
               <descriptors>
-                <descriptor>mvn:ddf.distribution/distribution-kernel/${project.version}/xml/features</descriptor>
+                <descriptor>mvn:ddf.distribution/kernel/${project.version}/xml/features</descriptor>
                 <descriptor>mvn:ddf.platform/platform-app/${ddf.platform.app.version}/xml/features</descriptor>
                 <descriptor>mvn:ddf.security/security-services-app/${ddf.security.app.version}/xml/features</descriptor>
                 <descriptor>mvn:ddf.catalog/catalog-app/${ddf.catalog.app.version}/xml/features</descriptor>
