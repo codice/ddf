@@ -241,7 +241,7 @@ public class ReliableResourceDownloadManager implements Runnable {
             }
             long elapsedTime = stopwatch.elapsed(TimeUnit.MILLISECONDS);
             if (elapsedTime > ONE_SECOND_IN_MS) {
-                LOGGER.debug("elapsedTime = {}", elapsedTime);
+                LOGGER.debug("downloadStarted still FALSE - elapsedTime = {}", elapsedTime);
                 break;
             }
         }

@@ -54,6 +54,7 @@ import ddf.catalog.data.ContentType;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.event.retrievestatus.DownloadsStatusEventPublisher;
+import ddf.catalog.event.retrievestatus.DownloadsStatusEventPublisher.ProductRetrievalStatus;
 import ddf.catalog.federation.FederationException;
 import ddf.catalog.federation.FederationStrategy;
 import ddf.catalog.filter.impl.LiteralImpl;
@@ -1375,6 +1376,9 @@ public class CatalogFrameworkImpl extends DescribableImpl implements Configurati
                     logger.info(
                             "Successfully retrieved product from cache for metacard ID = {}",
                             metacard.getId());
+                    retrieveStatusEventPublisher.postRetrievalStatus(resourceResponse,
+                            ProductRetrievalStatus.COMPLETE, null,
+                            resource.getSize());
                 } catch (CacheException ce) {
                     logger.info(
                             "Unable to get resource from cache. Have to retrieve it from source {}",
