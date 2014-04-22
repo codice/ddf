@@ -55,7 +55,7 @@
     </feature>
 
     <feature name="admin-app" install="auto" version="${project.version}"
-             description="Administration application for installing and managing DDF.<p>Includes the Admin UI and the underlying application service that supports the user interface.<p>The Admin UI provides contains modules allowing the administrator to install/remove applications and their dependencies and to access configuration pages to customize and tailor system services and properties.<p>The application service provides the supporting operations allowing the Admin UI to add, remove, start, stop, and obtain status information about all applications on the system.::DDF Admin">
+             description="Administration application for installing and managing DDF.\nIncludes the Admin UI and the underlying application service that supports the user interface.\nThe Admin UI provides contains modules allowing the administrator to install/remove applications and their dependencies and to access configuration pages to customize and tailor system services and properties.\nThe application service provides the supporting operations allowing the Admin UI to add, remove, start, stop, and obtain status information about all applications on the system.::DDF Admin">
         <feature>platform-app</feature>
         <feature>admin-core</feature>
         <feature>admin-ui</feature>
