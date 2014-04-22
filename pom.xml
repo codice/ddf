@@ -49,6 +49,7 @@
 
     <modules>
         <module>core</module>
+        <module>security</module>
         <module>ui</module>
         <module>modules</module>
         <module>admin-app</module>

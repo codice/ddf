@@ -34,5 +34,5 @@
             <bean class="org.apache.cxf.jaxrs.provider.jsonp.JsonpPostStreamInterceptor"/>
         </jaxrs:outInterceptors>
     </jaxrs:server>
-	
+
 </blueprint>

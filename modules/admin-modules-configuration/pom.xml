@@ -36,6 +36,11 @@
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-ext</artifactId>
         </dependency>
+        <dependency>
+            <groupId>ddf.admin.security</groupId>
+            <artifactId>admin-security-filter</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -91,7 +96,7 @@
                 <configuration>
                     <instructions>
                         <!--we will use this servlet filter once it has been made generic to protect this app-->
-                        <!--<Embed-Dependency>search-securityservletfilter</Embed-Dependency>-->
+                        <Embed-Dependency>admin-security-filter</Embed-Dependency>
                         <Web-ContextPath>/configurations</Web-ContextPath>
                         <_wab>src/main/webapp,${project.build.directory}/webapp</_wab>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
