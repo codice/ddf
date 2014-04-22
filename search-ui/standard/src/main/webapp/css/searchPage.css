@@ -617,7 +617,7 @@ span.add-on {
 }
 
 .notification-title{
-    color: #c0c0c0;
+    color: #eee;
 }
 
 .notification-subtitle {
@@ -625,7 +625,10 @@ span.add-on {
     padding-bottom: 12px;
     font-weight: bold;
     font-style: italic;
-    color: #c0c0c0;
+    color: #eee;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .notification-hr {
@@ -638,6 +641,10 @@ span.add-on {
     bottom: auto;
     right: 25px;
     left: auto;
+}
+
+.ui-pnotify-closer{
+	color: #33b5e5;
 }
 
 /* Form elements */

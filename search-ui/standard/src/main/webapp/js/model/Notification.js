@@ -7,6 +7,7 @@ define(["backbone", "application", "moment", "jquery"], function(Backbone, App, 
     
     Notification.Notification = Backbone.Model.extend({
         initialize : function(){
+            this.set("timestamp", parseInt(this.get("timestamp"), 10));
             var formattedTime = moment(this.get("timestamp")).format('MMMM Do YYYY, h:mm:ss a');
             this.set("formattedTime", formattedTime);
         },

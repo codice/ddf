@@ -40,7 +40,7 @@ public class NotificationControllerTest {
     private NotificationController notificationController;
     
     // NOTE: The ServerSession ID == The ClientSession ID
-    private static final String mockSessionId = "1234-5678-9012-3456";
+    private static final String MOCK_SESSION_ID = "1234-5678-9012-3456";
     
     private ServerSession mockServerSession = mock(ServerSession.class);
     private ServerMessage mockServerMessage = mock(ServerMessage.class);
@@ -54,7 +54,7 @@ public class NotificationControllerTest {
     public void setUp() throws Exception {
         notificationController = new NotificationController(mock(BundleContext.class));
         
-        when(mockServerSession.getId()).thenReturn(mockSessionId);
+        when(mockServerSession.getId()).thenReturn(MOCK_SESSION_ID);
         
         testEventProperties = new HashMap<String, Object>();
         testEventProperties.put(Notification.NOTIFICATION_KEY_APPLICATION, "Downloads");
@@ -113,8 +113,8 @@ public class NotificationControllerTest {
         // Test traditional handshake
         notificationController.registerUserSession(mockServerSession, mockServerMessage);
         assertEquals(NotificationController.class.getName() + " did not return correctly store a user-id-based "
-                + "referece to the ServerSession", mockSessionId, 
-                notificationController.getSessionByUserId(mockSessionId).getId()); 
+                + "referece to the ServerSession", MOCK_SESSION_ID, 
+                notificationController.getSessionByUserId(MOCK_SESSION_ID).getId()); 
     }
     
     /**
@@ -122,10 +122,10 @@ public class NotificationControllerTest {
      */
     @Test
     public void testGetServerSessionByUserId() {
-        notificationController.userSessionMap.put(mockSessionId, mockServerSession);
+        notificationController.userSessionMap.put(MOCK_SESSION_ID, mockServerSession);
         
-        ServerSession serverSession = notificationController.getSessionByUserId(mockSessionId);
-        assertNotNull(NotificationController.class.getName() + " returned null for user ID: " + mockSessionId, serverSession);
+        ServerSession serverSession = notificationController.getSessionByUserId(MOCK_SESSION_ID);
+        assertNotNull(NotificationController.class.getName() + " returned null for user ID: " + MOCK_SESSION_ID, serverSession);
         
         String serverSessionId = serverSession.getId();
         assertNotNull("ServerSession ID is null", serverSessionId);
@@ -165,11 +165,11 @@ public class NotificationControllerTest {
      */
     @Test
     public void testDeregisterUserSessionRemovesUserFromKnownClients() {
-        assertNull(notificationController.getSessionByUserId(mockSessionId));
+        assertNull(notificationController.getSessionByUserId(MOCK_SESSION_ID));
         notificationController.registerUserSession(mockServerSession, mockServerMessage);
-        assertNotNull(notificationController.getSessionByUserId(mockSessionId));
+        assertNotNull(notificationController.getSessionByUserId(MOCK_SESSION_ID));
         notificationController.deregisterUserSession(mockServerSession, mockServerMessage);
-        assertNull(notificationController.getSessionByUserId(mockSessionId));
+        assertNull(notificationController.getSessionByUserId(MOCK_SESSION_ID));
     }
     
     /**
