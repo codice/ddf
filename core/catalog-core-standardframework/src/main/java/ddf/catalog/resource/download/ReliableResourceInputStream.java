@@ -87,19 +87,16 @@ public class ReliableResourceInputStream extends InputStream {
         InputStream is = fbosByteSource.openStream();
         is.close();
 
-        // Stop caching the product unless admin specifically
-        // set option to continue caching even if client cancels
-        // the product download
-        if (downloadState.isCacheEnabled() && !downloadState.isContinueCaching()) {
-            if (!downloadFuture.isDone()) {
-                // Stop the caching thread
-                // synchronized so that Callable can finish any writing to OutputStreams before being canceled
-                synchronized(reliableResourceCallable) {
-                    LOGGER.debug("Setting cancelDownload on ReliableResourceCallable thread");
-                    reliableResourceCallable.setCancelDownload(true);
-                    boolean status = downloadFuture.cancel(true);
-                    LOGGER.debug("cachingFuture cancelling status = {}", status);
-                }
+        // If product download not yet complete, set cancellation of download
+        // (ReliableResourceDownloadManager will determine if caching should continue)
+        if (!downloadFuture.isDone()) {
+            // Stop the caching thread
+            // synchronized so that Callable can finish any writing to OutputStreams before being canceled
+            synchronized(reliableResourceCallable) {
+                LOGGER.debug("Setting cancelDownload on ReliableResourceCallable thread");
+                reliableResourceCallable.setCancelDownload(true);
+                boolean status = downloadFuture.cancel(true);
+                LOGGER.debug("cachingFuture cancelling status = {}", status);
             }
         }
 

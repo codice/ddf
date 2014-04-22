@@ -52,6 +52,7 @@ import ddf.catalog.operation.impl.ResourceResponseImpl;
 import ddf.catalog.resource.Resource;
 import ddf.catalog.resource.ResourceNotFoundException;
 import ddf.catalog.resource.ResourceNotSupportedException;
+import ddf.catalog.resource.download.DownloadManagerState.DownloadState;
 import ddf.catalog.resource.impl.ResourceImpl;
 import ddf.catalog.resourceretriever.ResourceRetriever;
 
@@ -314,6 +315,7 @@ public class ReliableResourceDownloadManager implements Runnable {
             reliableResourceCallable = new ReliableResourceCallable(resourceInputStream, countingFbos, fos, chunkSize);
             downloadFuture = null;
             ResourceRetrievalMonitor resourceRetrievalMonitor = null;
+            this.downloadState.setDownloadState(DownloadManagerState.DownloadState.IN_PROGRESS);
 
             while (retryAttempts < maxRetryAttempts) {
                 if (reliableResourceCallable == null) {
@@ -330,14 +332,6 @@ public class ReliableResourceDownloadManager implements Runnable {
                     delay(delayBetweenAttempts);
                     reliableResourceCallable = retrieveResource(bytesRead);
                     continue;
-//                    if (doCaching) {
-//                        deleteCacheFile(fos);
-//                    }
-//                    eventPublisher.postRetrievalStatus(resourceResponse,
-//                            ProductRetrievalStatus.FAILED,
-//                            "Unable to retrieve product file.",
-//                            reliableResourceStatus.getBytesRead());
-//                    break;
                 }
                 retryAttempts++;
                 LOGGER.debug("Download attempt {}", retryAttempts);
@@ -360,7 +354,6 @@ public class ReliableResourceDownloadManager implements Runnable {
                     LOGGER.debug("Configuring resourceRetrievalMonitor to run every {} ms", monitorPeriod);
                     downloadTimer.scheduleAtFixedRate(resourceRetrievalMonitor, monitorInitialDelay, monitorPeriod);
                     downloadStarted = true;
-                    this.downloadState.setDownloadState(DownloadManagerState.DownloadState.IN_PROGRESS);
                     reliableResourceStatus = downloadFuture.get();
                 } catch (InterruptedException e) {
                     LOGGER.error("InterruptedException - Unable to store product file {}", filePath, e);
@@ -375,19 +368,23 @@ public class ReliableResourceDownloadManager implements Runnable {
 
                 LOGGER.debug("reliableResourceStatus = {}", reliableResourceStatus);
 
-                if (reliableResourceStatus.getDownloadStatus() == DownloadStatus.RESOURCE_DOWNLOAD_COMPLETE) {                  
+                if (reliableResourceStatus.getDownloadStatus() == DownloadStatus.RESOURCE_DOWNLOAD_COMPLETE) {
                     LOGGER.debug("Cancelling resourceRetrievalMonitor");
                     resourceRetrievalMonitor.cancel();
-                    LOGGER.debug("Sending Product Retrieval Complete event");
-                    eventPublisher.postRetrievalStatus(resourceResponse,
-                            ProductRetrievalStatus.COMPLETE, null,
-                            reliableResourceStatus.getBytesRead());
+                    if (downloadState.getDownloadState() != DownloadState.CANCELED) {
+                        LOGGER.debug("Sending Product Retrieval Complete event");
+                        eventPublisher.postRetrievalStatus(resourceResponse,
+                                ProductRetrievalStatus.COMPLETE, null,
+                                reliableResourceStatus.getBytesRead());
+                    } else {
+                        LOGGER.debug("Client had canceled download and caching completed - do NOT send ProductRetrievalCompleted notification");
+                    }
                     if (doCaching) {
                         try {
-                        LOGGER.debug("Setting reliableResource size");
-                        reliableResource.setSize(reliableResourceStatus.getBytesRead());
-                        LOGGER.debug("Adding caching key = {} to cache map", reliableResource.getKey());
-                        resourceCache.put(reliableResource);
+                            LOGGER.debug("Setting reliableResource size");
+                            reliableResource.setSize(reliableResourceStatus.getBytesRead());
+                            LOGGER.debug("Adding caching key = {} to cache map", reliableResource.getKey());
+                            resourceCache.put(reliableResource);
                         } catch (CacheException e) {
                             LOGGER.info("Unable to add cached resource to cache with key = {}", reliableResource.getKey(), e);
                         }
@@ -444,6 +441,8 @@ public class ReliableResourceDownloadManager implements Runnable {
                             // Disable caching since the cache file being written to had issues
                             cacheEnabled = false;
                             doCaching = false;
+                            downloadState.setCacheEnabled(cacheEnabled);
+                            downloadState.setContinueCaching(doCaching);
                         }
                         reliableResourceCallable = new ReliableResourceCallable(resourceInputStream, countingFbos, chunkSize);
                         reliableResourceCallable.setBytesRead(bytesRead);
@@ -461,16 +460,21 @@ public class ReliableResourceDownloadManager implements Runnable {
                         resourceRetrievalMonitor.cancel();
                         reliableResourceCallable = new ReliableResourceCallable(resourceInputStream, fos, chunkSize);
                         reliableResourceCallable.setBytesRead(bytesRead);
+                        
                     } else if (reliableResourceStatus.getDownloadStatus() == DownloadStatus.RESOURCE_DOWNLOAD_CANCELED) {
                         
                         LOGGER.info("Handling client cancellation of product download");
+                        downloadState.setDownloadState(DownloadState.CANCELED);
                         LOGGER.debug("Cancelling resourceRetrievalMonitor");
                         resourceRetrievalMonitor.cancel();
                         eventPublisher.postRetrievalStatus(resourceResponse, ProductRetrievalStatus.CANCELLED, "", 0L);
-                        if (doCaching) {
-                            deleteCacheFile(fos);
+                        if (doCaching && cacheWhenCanceled) {
+                            LOGGER.debug("Continuing to cache product");
+                            reliableResourceCallable = new ReliableResourceCallable(resourceInputStream, fos, chunkSize);
+                            reliableResourceCallable.setBytesRead(bytesRead);
+                        } else {
+                            break;
                         }
-                        break;
 
                     } else if (reliableResourceStatus.getDownloadStatus() == DownloadStatus.RESOURCE_DOWNLOAD_INTERRUPTED) {
 
@@ -499,13 +503,16 @@ public class ReliableResourceDownloadManager implements Runnable {
                 if (doCaching) {
                   deleteCacheFile(fos);
                 }
-                eventPublisher.postRetrievalStatus(resourceResponse,
-                      ProductRetrievalStatus.FAILED,
-                      "Unable to retrieve product file.",
-                      reliableResourceStatus.getBytesRead());
+                if (reliableResourceStatus.getDownloadStatus() != DownloadStatus.RESOURCE_DOWNLOAD_CANCELED) {
+                    eventPublisher.postRetrievalStatus(resourceResponse,
+                          ProductRetrievalStatus.FAILED,
+                          "Unable to retrieve product file.",
+                          reliableResourceStatus.getBytesRead());
+                }
             }
         } catch (IOException e) {
             LOGGER.error("Unable to store product file {}", filePath, e);
+            downloadState.setDownloadState(DownloadState.FAILED);
             eventPublisher.postRetrievalStatus(resourceResponse,
                     ProductRetrievalStatus.FAILED,
                     "Unable to store product file.",
@@ -576,7 +583,11 @@ public class ReliableResourceDownloadManager implements Runnable {
             if (doCaching) {
                 resourceCache.removePendingCacheEntry(reliableResource.getKey());
             }
-            this.downloadState.setDownloadState(DownloadManagerState.DownloadState.FAILED);
+            if (reliableResourceStatus.getDownloadStatus() == DownloadStatus.RESOURCE_DOWNLOAD_CANCELED) {
+                this.downloadState.setDownloadState(DownloadManagerState.DownloadState.CANCELED);
+            } else {
+                this.downloadState.setDownloadState(DownloadManagerState.DownloadState.FAILED);
+            }
             closeFileBackedOutputStream();
         } else {
             this.downloadState.setDownloadState(DownloadManagerState.DownloadState.COMPLETED);
