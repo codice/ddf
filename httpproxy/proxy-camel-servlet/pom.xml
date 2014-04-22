@@ -17,39 +17,39 @@
   <parent>
     <artifactId>httpproxy-pom</artifactId>
     <groupId>org.codice.httpproxy</groupId>
-    <version>1.0.0.ALPHA3-SNAPSHOT</version>
+    <version>1.0.0-SNAPSHOT</version>
   </parent>
   
   <artifactId>proxy-camel-servlet</artifactId>
   <name>Codice :: HttpProxy :: ProxyCamelServlet</name>
   <packaging>bundle</packaging>
   <dependencies>
- 	<dependency>
-      	<groupId>org.apache.camel</groupId>
-      	<artifactId>camel-core</artifactId>
-  	</dependency>
-  	<dependency>
-      	<groupId>org.apache.camel</groupId>
-      	<artifactId>camel-http</artifactId>
-  	</dependency>
-  	<dependency>
-	    <groupId>org.apache.camel</groupId>
-	    <artifactId>camel-servlet</artifactId>
-	</dependency>
+    <dependency>
+      <groupId>org.apache.camel</groupId>
+      <artifactId>camel-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.camel</groupId>
+      <artifactId>camel-http</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.camel</groupId>
+      <artifactId>camel-servlet</artifactId>
+    </dependency>
     <dependency>
       <groupId>org.apache.camel</groupId>
       <artifactId>camel-core-osgi</artifactId>
     </dependency>
-   	<dependency>
+    <dependency>
       <groupId>commons-lang</groupId>
       <artifactId>commons-lang</artifactId>
     </dependency>
     <dependency>
-    	<groupId>org.osgi</groupId>
-      	<artifactId>org.osgi.core</artifactId>
-       	<scope>provided</scope>
-  	</dependency>
-  	<dependency>
+      <groupId>org.osgi</groupId>
+      <artifactId>org.osgi.core</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
       <groupId>org.osgi</groupId>
       <artifactId>org.osgi.compendium</artifactId>
     </dependency>
@@ -76,7 +76,7 @@
             <Embed-Dependency>camel-servlet</Embed-Dependency>
             <Export-Package>
             	org.apache.camel.component.servlet
-          	</Export-Package>
+            </Export-Package>
           </instructions>
         </configuration>
       </plugin>
