@@ -53,7 +53,7 @@
     </feature>
     
     <feature name="content-app" install="auto" version="${project.version}"
-        description="DDF Content application default installations">
+        description="DDF Content is used for storing, reading, processing, transforming, and cataloging various file types.\nIt allows a client to give DDF a file and then have that file stored in a content repository and optionally cached in the DDF Catalog.::DDF Content">
         <feature>catalog-app</feature>
         <feature>content-core</feature>
         <feature>content-core-filesystemstorageprovider</feature>
