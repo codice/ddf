@@ -8,7 +8,7 @@ define(function (require) {
         _ = require('underscore'),
         ich = require('icanhaz'),
         properties = require('properties'),
-        UserModel = require('user'),
+        UserModel = require('js/model/user'),
         MetaCard = require('js/model/Metacard'),
         Progress = require('js/view/Progress.view'),
         wreqr = require('wreqr'),
