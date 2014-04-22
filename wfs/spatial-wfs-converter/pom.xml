@@ -17,11 +17,11 @@
     <parent>
         <groupId>org.codice.ddf.spatial</groupId>
         <artifactId>wfs</artifactId>
-        <version>2.4.1-SNAPSHOT</version>
+        <version>2.4.1</version>
     </parent>
     <packaging>bundle</packaging>
     <artifactId>spatial-wfs-converter</artifactId>
-    <version>2.4.1-SNAPSHOT</version>
+    <version>2.4.1</version>
     <name>DDF :: Spatial :: WFS :: Converter</name>
 
     <dependencies>
