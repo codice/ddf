@@ -37,6 +37,7 @@ import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.ResultImpl;
+import ddf.catalog.event.retrievestatus.DownloadsStatusEventPublisher.ProductRetrievalStatus;
 import ddf.catalog.federation.FederationException;
 import ddf.catalog.federation.FederationStrategy;
 import ddf.catalog.impl.CatalogFrameworkImpl;
@@ -612,6 +613,9 @@ public class FanoutCatalogFramework extends CatalogFrameworkImpl {
                     logger.info(
                             "Successfully retrieved product from cache for metacard ID = {}",
                             metacard.getId());
+                    retrieveStatusEventPublisher.postRetrievalStatus(resourceResponse,
+                            ProductRetrievalStatus.COMPLETE, null,
+                            resource.getSize());
                 } catch (CacheException ce) {
                     logger.info(
                             "Unable to get resource from cache. Have to retrieve it from the Source");
@@ -636,25 +640,6 @@ public class FanoutCatalogFramework extends CatalogFrameworkImpl {
                     if (resourceResponse != null) {
                         break;
                     }
-                    /*HUGH
-	                try {                    
-                        resourceResponse = retriever.retrieveResource();
-	                } catch (ResourceNotFoundException e) {
-	                    logger.debug("source: " + currSource.getId() + " does not contain resource.");
-	                } catch (ResourceNotSupportedException e) {
-	                    logger.debug("source: " + currSource.getId() + " does not support resource.");
-	                } catch (IOException e) {
-	                    logger.debug("error obtaining resource on source: " + currSource.getId());
-	                }
-	
-	                if (resourceResponse != null) {
-                        // Sources do not create ResourceResponses with the original ResourceRequest, hence
-                        // it is added here because it will be needed for caching
-                        resourceResponse = new ResourceResponseImpl(resourceRequest, resourceResponse.getProperties(), resourceResponse.getResource());
-                        resourceResponse = cacheProduct(metacard, resourceResponse, retriever);
-	                    break;
-	                }
-	                END HUGH*/
 	            }
             }
 
@@ -674,27 +659,6 @@ public class FanoutCatalogFramework extends CatalogFrameworkImpl {
                     if (resourceResponse != null) {
                         break;
                     }
-                    /*HUGH
-                    try {
-                        resourceResponse = retriever.retrieveResource();
-                    } catch (ResourceNotFoundException e) {
-                        logger.debug("source: " + currSource.getId()
-                                + " does not contain resource.");
-                    } catch (ResourceNotSupportedException e) {
-                        logger.debug("source: " + currSource.getId()
-                                + " does not support resource.");
-                    } catch (IOException e) {
-                        logger.debug("error obtaining resource on source: " + currSource.getId());
-                    }
-
-                    if (resourceResponse != null) {
-                    	// Sources do not create ResourceResponses with the original ResourceRequest, hence
-                        // it is added here because it will be needed for caching
-                        resourceResponse = new ResourceResponseImpl(resourceRequest, resourceResponse.getProperties(), resourceResponse.getResource());
-                        resourceResponse = cacheProduct(metacard, resourceResponse, retriever);
-                        break;
-                    }
-                    END HUGH*/
                 }
             }
 
