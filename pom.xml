@@ -23,7 +23,7 @@
 
   <groupId>ddf.security</groupId>
   <artifactId>security</artifactId>
-  <version>2.3.1</version>
+  <version>2.3.2-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>DDF Security</name>
 
@@ -114,8 +114,4 @@
 			<url>http://artifacts.codice.org/content/groups/public/</url>
 		</repository>
 	</repositories>
-
-  <scm>
-    <tag>security-2.3.1</tag>
-  </scm>
 </project>
