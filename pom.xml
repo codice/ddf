@@ -25,7 +25,7 @@
 
 	<groupId>org.codice.ddf.spatial</groupId>
 	<artifactId>spatial</artifactId>
-	<version>2.4.1</version>
+	<version>2.4.2-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>DDF :: Spatial</name>
 
@@ -205,8 +205,4 @@
 			<url>http://artifacts.codice.org/content/groups/public/</url>
 		</repository>
 	</repositories>
-
-  <scm>
-    <tag>spatial-2.4.1</tag>
-  </scm>
 </project>
