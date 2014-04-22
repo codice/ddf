@@ -69,7 +69,7 @@ iframe {
 }
 
 .tab-pane {
-    padding-left: 20px;
+    padding-left: 0px;
     padding-top: 20px;
     height: 100%;
 }
@@ -90,5 +90,10 @@ iframe {
     }
     .nav-stacked li {
         display: block;
+    }
+    .tab-pane {
+        padding-top: 0px;
+        padding-left: 20px;
+        height: 100%;
     }
 }
