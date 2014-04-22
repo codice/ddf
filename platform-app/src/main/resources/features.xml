@@ -610,7 +610,8 @@
         <bundle>mvn:ddf.metrics.interceptor/metrics-interceptor/${project.version}</bundle>
     </feature>   
 	
-	<feature name="platform-app" install="auto" version="${project.version}" description="DDF platform boot features">
+	<feature name="platform-app" install="auto" version="${project.version}" 
+	  description="Installs the DDF platform boot features which all other applications depend upon.\nPlatform features installed by default include Apache CXF, Apache Camel, Action Framework, MIME Framework, Metrics, Security Core API and Security Encryption::DDF Platform">
 		<feature>cxf</feature>
 		<feature>camel</feature>
 		<feature>camel-http</feature>
