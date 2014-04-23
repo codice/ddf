@@ -92,7 +92,7 @@ public class ApplicationServiceImplTest {
     @SuppressWarnings("unchecked")
     @Before
     public void setUp() throws Exception {
-        // Recreate the repos and BuncleContext prior to each test in order to
+        // Recreate the repos and BundleContext prior to each test in order to
         // ensure modifications made in one test do not effect another test.
         noMainFeatureRepo1 = createRepo(TEST_NO_MAIN_FEATURE_1_FILE_NAME);
         noMainFeatureRepo2 = createRepo(TEST_NO_MAIN_FEATURE_2_FILE_NAME);
