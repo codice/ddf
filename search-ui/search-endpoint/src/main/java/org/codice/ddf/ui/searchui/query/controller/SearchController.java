@@ -14,30 +14,10 @@
  **/
 package org.codice.ddf.ui.searchui.query.controller;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
-import net.minidev.json.JSONArray;
-import net.minidev.json.JSONObject;
-
-import org.apache.commons.collections.map.LRUMap;
-import org.codice.ddf.opensearch.query.OpenSearchQuery;
-import org.codice.ddf.ui.searchui.query.model.Search;
-import org.codice.ddf.ui.searchui.query.model.SearchRequest;
-import org.cometd.bayeux.server.BayeuxServer;
-import org.cometd.bayeux.server.ConfigurableServerChannel;
-import org.cometd.bayeux.server.ServerMessage;
-import org.cometd.bayeux.server.ServerSession;
-import org.cometd.server.ServerMessageImpl;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.Result;
 import ddf.catalog.federation.FederationException;
+import ddf.catalog.operation.Query;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.QueryResponse;
 import ddf.catalog.operation.SourceResponse;
@@ -49,6 +29,25 @@ import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transformer.metacard.geojson.GeoJsonMetacardTransformer;
 import ddf.security.SecurityConstants;
 import ddf.security.Subject;
+import net.minidev.json.JSONArray;
+import net.minidev.json.JSONObject;
+import org.apache.commons.collections.map.LRUMap;
+import org.codice.ddf.ui.searchui.query.model.Search;
+import org.codice.ddf.ui.searchui.query.model.SearchRequest;
+import org.cometd.bayeux.server.BayeuxServer;
+import org.cometd.bayeux.server.ConfigurableServerChannel;
+import org.cometd.bayeux.server.ServerMessage;
+import org.cometd.bayeux.server.ServerSession;
+import org.cometd.server.ServerMessageImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * The SearchController class handles all of the query threads for asynchronous queries.
@@ -120,33 +119,32 @@ public class SearchController {
     /**
      * Execute all of the queries contained within the SearchRequest
      * 
-     * @param searchRequest
-     *            - SearchRequest containing 1 or more query requests
-     * @param serverSession
+     * @param request
+     *            - SearchRequest containing a query for 1 or more sources
+     * @param session
      *            - Cometd ServerSession
-     * @throws InterruptedException
-     * @throws CatalogTransformerException
      */
-    public void executeQuery(final SearchRequest searchRequest, final ServerSession serverSession) throws InterruptedException, CatalogTransformerException {
+    public void executeQuery(final SearchRequest request, final ServerSession session) {
 
         final SearchController controller = this;
 
-        for (final OpenSearchQuery fedQuery : searchRequest.getQueryRequests()) {
-            LOGGER.debug("Executing async query on: {}", fedQuery.getSiteIds());
+        for (final String sourceId : request.getSourceIds()) {
+            LOGGER.debug("Executing async query on: {}", sourceId);
             executorService.submit(new Runnable() {
                 @Override
                 public void run() {
-                    QueryResponse fedResponse = executeQuery(fedQuery, null);
+                    QueryResponse fedResponse = executeQuery(sourceId, request.getQuery(),
+                            null);
                     try {
-                        addQueryResponseToSearch(searchRequest, fedResponse);
+                        addQueryResponseToSearch(request, fedResponse);
                         //send full response if it changed, otherwise send empty one
-                        Search search = searchMap.get(searchRequest.getGuid());
+                        Search search = searchMap.get(request.getGuid());
                         pushResults(
-                                searchRequest.getGuid(),
+                                request.getGuid(),
                                 controller.transform(
-                                        search.getCompositeQueryResponse(), searchRequest), serverSession);
+                                        search.getCompositeQueryResponse(), request), session);
                         if (search.isFinished()) {
-                            searchMap.remove(searchRequest.getGuid());
+                            searchMap.remove(request.getGuid());
                         }
                     } catch (InterruptedException e) {
                         LOGGER.error("Failed adding federated search results.", e);
@@ -186,34 +184,29 @@ public class SearchController {
      * 
      * @return the response on the query
      */
-    private QueryResponse executeQuery(OpenSearchQuery query, Subject subject) {
-        QueryResponse queryResponse = null;
+    private QueryResponse executeQuery(String sourceId, Query query, Subject subject) {
+        QueryResponse response = getEmptyResponse(sourceId);
 
         try {
-
-            if (query.getFilter() != null) {
-                QueryRequest queryRequest = new QueryRequestImpl(query, query.isEnterprise(),
-                        query.getSiteIds(), null);
+            if (query != null) {
+                QueryRequest request = new QueryRequestImpl(query, false,
+                        Arrays.asList(sourceId), null);
 
                 if (subject != null) {
                     LOGGER.debug("Adding {} property with value {} to request.",
                             SecurityConstants.SECURITY_SUBJECT, subject);
-                    queryRequest.getProperties().put(SecurityConstants.SECURITY_SUBJECT, subject);
+                    request.getProperties().put(SecurityConstants.SECURITY_SUBJECT, subject);
                 }
 
                 LOGGER.debug("Sending query: {}", query);
-                queryResponse = framework.query(queryRequest);
-
-            } else {
-                // No query was specified
-                QueryRequest queryRequest = new QueryRequestImpl(query, query.isEnterprise(),
-                        query.getSiteIds(), null);
-
-                // Create a dummy QueryResponse with zero results
-                queryResponse = new QueryResponseImpl(queryRequest, new ArrayList<Result>(), 0);
+                QueryResponse frameworkResponse = framework.query(request);
+                if (frameworkResponse.getProcessingDetails().size() == 0
+                        && frameworkResponse.getHits() > 0) {
+                    response = frameworkResponse;
+                }
             }
-        } catch (UnsupportedQueryException ce) {
-            LOGGER.warn("Error executing query", ce);
+        } catch (UnsupportedQueryException e) {
+            LOGGER.warn("Error executing query", e);
         } catch (FederationException e) {
             LOGGER.warn("Error executing query", e);
         } catch (SourceUnavailableException e) {
@@ -224,7 +217,17 @@ public class SearchController {
             // this allows for a graceful server error to be returned
             LOGGER.warn("RuntimeException on executing query", e);
         }
-        return queryResponse;
+
+        return response;
+    }
+
+    private QueryResponse getEmptyResponse(String sourceId) {
+        // No query was specified
+        QueryRequest queryRequest = new QueryRequestImpl(null, false,
+                Arrays.asList(sourceId), null);
+
+        // Create a dummy QueryResponse with zero results
+        return new QueryResponseImpl(queryRequest, new ArrayList<Result>(), 0);
     }
 
     private JSONObject transform(SourceResponse upstreamResponse, SearchRequest searchRequest)

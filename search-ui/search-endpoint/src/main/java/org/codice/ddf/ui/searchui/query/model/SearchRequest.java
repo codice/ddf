@@ -14,35 +14,38 @@
  **/
 package org.codice.ddf.ui.searchui.query.model;
 
-import java.util.List;
+import ddf.catalog.operation.Query;
+import org.apache.commons.lang.Validate;
 
-import org.codice.ddf.opensearch.query.OpenSearchQuery;
+import java.util.Collections;
+import java.util.Set;
 
 /**
- * This class holds all of the search requests processed for a particular query. The GUID represents
- * the unique id for this query and must not be null or empty string.
+ * This class holds all of the search requests processed for a particular query.
  */
 public class SearchRequest {
 
     private final String guid;
 
-    private final String queryFormat;
+    private final Set<String> sourceIds;
 
-    private List<OpenSearchQuery> queryRequests;
+    private final Query query;
 
     /**
      * Creates a SearchRequest
-     * 
-     * @param queryRequests
-     *            - List of query requests
-     * @param queryFormat
-     *            - Format to return results in
+     *
+     * @param sourceIds
+     *            - Source IDs to query
+     * @param query
+     *            - Query requests
      * @param guid
-     *            - Unique id for this query
+     *            - Unique ID for this query
      */
-    public SearchRequest(List<OpenSearchQuery> queryRequests, String queryFormat, String guid) {
-        this.queryRequests = queryRequests;
-        this.queryFormat = queryFormat;
+    public SearchRequest(Set<String> sourceIds, Query query, String guid) {
+        Validate.notEmpty(guid, "Valid GUID required.");
+
+        this.sourceIds = Collections.unmodifiableSet(sourceIds);
+        this.query = query;
         this.guid = guid;
     }
 
@@ -50,16 +53,12 @@ public class SearchRequest {
         return guid;
     }
 
-    public String getQueryFormat() {
-        return queryFormat;
+    public Query getQuery() {
+        return query;
     }
 
-    public List<OpenSearchQuery> getQueryRequests() {
-        return queryRequests;
-    }
-
-    public void setQueryRequests(List<OpenSearchQuery> queryRequests) {
-        this.queryRequests = queryRequests;
+    public Set<String> getSourceIds() {
+        return sourceIds;
     }
 
     public String toString() {

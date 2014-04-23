@@ -14,21 +14,17 @@
  **/
 package org.codice.ddf.ui.searchui.query.service;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.inject.Inject;
-
+import ddf.catalog.data.Metacard;
+import ddf.catalog.data.Result;
+import ddf.catalog.filter.FilterBuilder;
+import ddf.catalog.filter.impl.SortByImpl;
+import ddf.catalog.operation.Query;
 import ddf.catalog.operation.SourceInfoResponse;
+import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.SourceInfoRequestEnterprise;
 import ddf.catalog.source.SourceDescriptor;
 import ddf.catalog.source.SourceUnavailableException;
 import org.apache.commons.lang.StringUtils;
-import org.codice.ddf.opensearch.query.OpenSearchQuery;
 import org.codice.ddf.ui.searchui.query.controller.SearchController;
 import org.codice.ddf.ui.searchui.query.model.Search;
 import org.codice.ddf.ui.searchui.query.model.SearchRequest;
@@ -41,12 +37,18 @@ import org.cometd.bayeux.server.ConfigurableServerChannel;
 import org.cometd.bayeux.server.ServerMessage;
 import org.cometd.bayeux.server.ServerSession;
 import org.cometd.server.ServerMessageImpl;
-import org.parboiled.errors.ParsingException;
+import org.joda.time.format.DateTimeFormatter;
+import org.joda.time.format.DateTimeFormatterBuilder;
+import org.joda.time.format.DateTimeParser;
+import org.joda.time.format.ISODateTimeFormat;
+import org.opengis.filter.Filter;
+import org.opengis.filter.sort.SortBy;
+import org.opengis.filter.sort.SortOrder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ddf.catalog.filter.FilterBuilder;
-import ddf.catalog.transform.CatalogTransformerException;
+import javax.inject.Inject;
+import java.util.*;
 
 /**
  * This class performs the searches when a client communicates with the cometd endpoint
@@ -55,8 +57,6 @@ import ddf.catalog.transform.CatalogTransformerException;
 public class SearchService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SearchService.class);
-
-    private static final String DEFAULT_FORMAT = "geojson";
 
     private static final String GUID = "guid";
 
@@ -100,8 +100,6 @@ public class SearchService {
 
     private static final String FORMAT = "format";
 
-    private static final String DEFAULT_SORT_FIELD = "date";
-
     private static final String DEFAULT_SORT_ORDER = "desc";
 
     private static final long DEFAULT_TIMEOUT = 300000;
@@ -110,9 +108,17 @@ public class SearchService {
 
     private static final int DEFAULT_START_INDEX = 1;
 
-    private static final String DEFAULT_RADIUS = "5000";
-
     public static final String LOCAL_SOURCE = "local";
+
+    private static DateTimeFormatter dateFormatter;
+
+    static {
+        DateTimeParser[] parsers = {ISODateTimeFormat.dateTime().getParser(),
+                ISODateTimeFormat.dateTimeNoMillis().getParser(),
+                ISODateTimeFormat.basicDateTime().getParser(),
+                ISODateTimeFormat.basicDateTimeNoMillis().getParser()};
+        dateFormatter = new DateTimeFormatterBuilder().append(null, parsers).toFormatter();
+    }
 
     private final FilterBuilder filterBuilder;
 
@@ -126,11 +132,7 @@ public class SearchService {
 
     /**
      * Creates a new SearchService
-     * 
-     * @param bayeux
-     *            - Cometd server
-     * @param name
-     *            - name of the service
+     *
      * @param filterBuilder
      *            - FilterBuilder to use for queries
      * @param searchController
@@ -240,144 +242,122 @@ public class SearchService {
             localCount = maxResults;
         }
 
+        Set<String> sourceIds = getSourceIds(sources);
+        List<Filter> filters = new ArrayList<Filter>();
+
+        addContextualFilter(filters, searchTerms);
+        addTemporalFilter(filters, dateStart, dateEnd, dateOffset);
+        addSpatialFilter(filters, bbox, radius, lat, lon);
+        addTypeFilter(filters, type);
+
+        Query query = createQuery(andFilters(filters), startIndex, localCount, sort, maxTimeout);
+        SearchRequest searchRequest = new SearchRequest(sourceIds, query, guid);
+
         try {
-            String queryFormat = format;
-            List<OpenSearchQuery> queryList = new ArrayList<OpenSearchQuery>();
-
-            Set<String> federatedSet;
-            if (StringUtils.equalsIgnoreCase(sources, LOCAL_SOURCE)) {
-                LOGGER.debug("Received local query");
-                federatedSet = new HashSet<String>(
-                        Arrays.asList(searchController.getFramework().getId()));
-            } else if (!(StringUtils.isEmpty(sources))) {
-                LOGGER.debug("Received source names from client: {}", sources);
-                federatedSet = new HashSet<String>(Arrays.asList(StringUtils.stripAll(sources
-                        .split(","))));
-            } else {
-                LOGGER.debug("Received enterprise query");
-                SourceInfoResponse sourceInfo = null;
-                try {
-                    sourceInfo = searchController.getFramework()
-                            .getSourceInfo(new SourceInfoRequestEnterprise(true));
-                } catch (SourceUnavailableException e) {
-                    LOGGER.debug(
-                            "Exception while getting source status. Defaulting to all sources. " +
-                                    "This could include unavailable sources.", e);
-                }
-
-                if (sourceInfo != null) {
-                    federatedSet = new HashSet<String>();
-                    for (SourceDescriptor source : sourceInfo.getSourceInfo()) {
-                        if (source.isAvailable()) {
-                            federatedSet.add(source.getSourceId());
-                        }
-                    }
-                } else {
-                    federatedSet = searchController.getFramework().getSourceIds();
-                }
-            }
-
-            if (federatedSet != null && !federatedSet.isEmpty()) {
-
-                OpenSearchQuery fedQuery;
-                Set<String> fedSet;
-                for (String sourceId : federatedSet) {
-                    fedQuery = createNewQuery(startIndex, localCount, sort, maxTimeout);
-
-                    // contextual
-                    addContextualFilter(searchTerms, selector, fedQuery);
-
-                    // temporal
-                    // single temporal criterion per query
-                    addTemporalFilter(dateStart, dateEnd, dateOffset, fedQuery);
-
-                    // spatial
-                    // single spatial criterion per query
-                    addSpatialFilter(fedQuery, geometry, polygon, bbox, radius, lat, lon);
-
-                    if (type != null && !type.trim().isEmpty()) {
-                        LOGGER.debug("Recieved Type: {}", type);
-                        fedQuery.addTypeFilter(type, versions);
-                    }
-
-                    fedSet = new HashSet<String>();
-                    fedSet.add(sourceId);
-                    fedQuery.setSiteIds(fedSet);
-                    fedQuery.setIsEnterprise(false);
-
-                    queryList.add(fedQuery);
-                }
-
-            } else {
-                LOGGER.debug("No sites found, defaulting to asynchronous enterprise query.");
-            }
-
-            if (StringUtils.isEmpty(queryFormat)) {
-                queryFormat = DEFAULT_FORMAT;
-            }
-
-            // Now we can build the request
-            SearchRequest searchRequest = new SearchRequest(queryList, queryFormat, guid);
-
             // Hand off to the search controller for the actual query
             searchController.executeQuery(searchRequest, serverSession);
-        } catch (IllegalArgumentException iae) {
-            LOGGER.warn("Bad input found while executing a query", iae);
         } catch (RuntimeException re) {
             LOGGER.warn("Exception while executing a query", re);
-        } catch (InterruptedException e) {
-            LOGGER.warn("Exception while executing a query", e);
-        } catch (CatalogTransformerException e) {
-            LOGGER.error("Unable to transform query result.", e);
         }
+
         LOGGER.debug("EXITING {}", methodName);
 
     }
 
-    /**
-     * Create temporal filter
-     * 
-     * @param dateStart
-     * @param dateEnd
-     * @param dateOffset
-     * @param query
-     */
-    private void addTemporalFilter(String dateStart, String dateEnd, Long dateOffset,
-            OpenSearchQuery query) {
-        if ((dateStart != null && !dateStart.trim().isEmpty())
-                || (dateEnd != null && !dateEnd.trim().isEmpty()) || (dateOffset != null)) {
-            String dtOffset = "";
-            if (dateOffset != null) {
-                dtOffset = dateOffset.toString();
+    private Set<String> getSourceIds(String sources) {
+        Set<String> sourceIds;
+        if (StringUtils.equalsIgnoreCase(sources, LOCAL_SOURCE)) {
+            LOGGER.debug("Received local query");
+            sourceIds = new HashSet<String>(
+                    Arrays.asList(searchController.getFramework().getId()));
+        } else if (!(StringUtils.isEmpty(sources))) {
+            LOGGER.debug("Received source names from client: {}", sources);
+            sourceIds = new HashSet<String>(Arrays.asList(StringUtils.stripAll(sources
+                    .split(","))));
+        } else {
+            LOGGER.debug("Received enterprise query");
+            SourceInfoResponse sourceInfo = null;
+            try {
+                sourceInfo = searchController.getFramework()
+                        .getSourceInfo(new SourceInfoRequestEnterprise(true));
+            } catch (SourceUnavailableException e) {
+                LOGGER.debug(
+                        "Exception while getting source status. Defaulting to all sources. " +
+                                "This could include unavailable sources.", e
+                );
             }
-            query.addTemporalFilter(dateStart, dateEnd, dtOffset);
+
+            if (sourceInfo != null) {
+                sourceIds = new HashSet<String>();
+                for (SourceDescriptor source : sourceInfo.getSourceInfo()) {
+                    if (source.isAvailable()) {
+                        sourceIds.add(source.getSourceId());
+                    }
+                }
+            } else {
+                sourceIds = searchController.getFramework().getSourceIds();
+            }
+        }
+        return sourceIds;
+    }
+
+    private Filter andFilters(List<Filter> filters) {
+        if (filters.size() > 1) {
+            return filterBuilder.allOf(filters);
+        } else if (filters.size() == 1) {
+            return filters.get(0);
+        } else {
+            LOGGER.warn("Unable to create filter for given input");
+            return null;
         }
     }
 
     /**
-     * Create contextual filter
-     * 
-     * @param searchTerms
-     * @param selector
-     * @param query
+     * Create temporal filter
+     *
+     * @param filters
+     * @param dateStart
+     * @param dateEnd
+     * @param dateOffset
      */
-    private void addContextualFilter(String searchTerms, String selector, OpenSearchQuery query) {
-        if (searchTerms != null && !searchTerms.trim().isEmpty()) {
+    private void addTemporalFilter(List<Filter> filters, String dateStart, String dateEnd,
+            Long dateOffset) {
+        if (StringUtils.isNotBlank(dateStart) || StringUtils.isNotBlank(dateEnd)) {
+            filters.add(filterBuilder.attribute(Metacard.MODIFIED).is().during().dates(
+                    parseDate(dateStart), parseDate(dateEnd)));
+        } else if (dateOffset != null) {
+            filters.add(filterBuilder.attribute(Metacard.MODIFIED).is().during().last(dateOffset));
+        }
+    }
+
+    public static Date parseDate(String date) {
+        Date parsedDate = null;
+        if (StringUtils.isNotBlank(date)) {
             try {
-                query.addContextualFilter(searchTerms, selector);
-            } catch (ParsingException e) {
-                throw new IllegalArgumentException(e.getMessage());
+                parsedDate = dateFormatter.parseDateTime(date).toDate();
+            } catch (IllegalArgumentException iae) {
+                LOGGER.warn("Could not parse given date: {}", date);
             }
+        }
+        return parsedDate;
+    }
+
+    /**
+     * Create contextual filter
+     *
+     * @param filters
+     * @param searchTerms
+     */
+    private void addContextualFilter(List<Filter> filters, String searchTerms) {
+        if (StringUtils.isNotBlank(searchTerms)) {
+            filters.add(filterBuilder.attribute(Metacard.ANY_TEXT).is().like().text(searchTerms));
         }
     }
 
     /**
      * Creates SpatialCriterion based on the input parameters, any null values will be ignored
-     * 
-     * @param geometry
-     *            - the geo to search over
-     * @param polygon
-     *            - the polygon to search over
+     *
+     * @param filters
      * @param bbox
      *            - the bounding box to search over
      * @param radius
@@ -388,31 +368,58 @@ public class SearchService {
      *            - the longitude of the point.
      * @return - the spatialCriterion created, can be null
      */
-    private void addSpatialFilter(OpenSearchQuery query, String geometry, String polygon,
-            String bbox, Double radius, String lat, String lon) {
-        if (geometry != null && !geometry.trim().isEmpty()) {
-            LOGGER.debug("Adding SpatialCriterion geometry: {}", geometry);
-            query.addGeometrySpatialFilter(geometry);
-        } else if (bbox != null && !bbox.trim().isEmpty()) {
-            LOGGER.debug("Adding SpatialCriterion bbox: {}", bbox);
-            query.addBBoxSpatialFilter(bbox);
-        } else if (polygon != null && !polygon.trim().isEmpty()) {
-            LOGGER.debug("Adding SpatialCriterion polygon: {}", polygon);
-            query.addPolygonSpatialFilter(polygon);
-        } else if (lat != null && !lat.trim().isEmpty() && lon != null && !lon.trim().isEmpty()) {
-            if (radius == null) {
-                LOGGER.debug("Adding default radius");
-                query.addSpatialDistanceFilter(lon, lat, DEFAULT_RADIUS);
-            } else {
-                LOGGER.debug("Using radius: {}", radius);
-                query.addSpatialDistanceFilter(lon, lat, radius.toString());
+    private void addSpatialFilter(List<Filter> filters, String bbox, Double radius, String lat,
+            String lon) {
+        if (StringUtils.isNotBlank(bbox)) {
+            String wkt = getBboxWkt(bbox);
+            if (wkt != null) {
+                filters.add(filterBuilder.attribute(Metacard.ANY_GEO).intersecting().wkt(wkt));
             }
+        } else if (StringUtils.isNotBlank(lat) && StringUtils.isNotBlank(lon) && StringUtils
+                .isNotBlank(radius.toString())) {
+            String wkt = getPointWkt(lat, lon);
+            filters.add(filterBuilder.attribute(Metacard.ANY_GEO).withinBuffer().wkt(wkt, radius));
+        }
+    }
+
+    private String getPointWkt(String lat, String lon) {
+        return "POINT(" + lon + " " + lat + ")";
+    }
+
+    private String getBboxWkt(String bbox) {
+        String wkt = null;
+        String[] bboxParts = bbox.split(",");
+
+        if (bboxParts.length == 4) {
+            double minX = Double.parseDouble(bboxParts[0]);
+            double minY = Double.parseDouble(bboxParts[1]);
+            double maxX = Double.parseDouble(bboxParts[2]);
+            double maxY = Double.parseDouble(bboxParts[3]);
+
+            wkt = "POLYGON((" +
+                    minX + " " + minY +
+                    "," + minX + " " + maxY +
+                    "," + maxX + " " + maxY +
+                    "," + maxX + " " + minY +
+                    "," + minX + " " + minY +
+                    "))";
+        }
+
+        return wkt;
+    }
+
+    private void addTypeFilter(List<Filter> filters, String type) {
+        if (StringUtils.isNotBlank(type)) {
+            LOGGER.debug("Recieved Type: {}", type);
+            filters.add(filterBuilder.attribute(Metacard.CONTENT_TYPE).is().text(type));
         }
     }
 
     /**
      * Creates a new query from the incoming parameters
-     * 
+     *
+     * @param filter
+     *            - Filter to query
      * @param startIndexLng
      *            - Start index for the query
      * @param countLng
@@ -423,10 +430,10 @@ public class SearchService {
      *            - timeout value on the query execution
      * @return - the new query
      */
-    private OpenSearchQuery createNewQuery(Long startIndexLng, Long countLng, String sortStr,
+    private Query createQuery(Filter filter, Long startIndexLng, Long countLng, String sortStr,
             Long maxTimeoutLng) {
         // default values
-        String sortField = DEFAULT_SORT_FIELD;
+        String sortField = Result.TEMPORAL;
         String sortOrder = DEFAULT_SORT_ORDER;
         Long startIndex = startIndexLng == null ? DEFAULT_START_INDEX : startIndexLng;
         Long count = countLng == null ? DEFAULT_COUNT : countLng;
@@ -442,9 +449,22 @@ public class SearchService {
                 sortOrder = sortAry[1];
             }
         }
+
+        // Query must specify a valid sort order if a sort field was specified, i.e., query
+        // cannot specify just "date:", must specify "date:asc"
+        SortBy sort;
+        if ("asc".equalsIgnoreCase(sortOrder)) {
+            sort = new SortByImpl(sortField, SortOrder.ASCENDING);
+        } else if ("desc".equalsIgnoreCase(sortOrder)) {
+            sort = new SortByImpl(sortField, SortOrder.ASCENDING);
+        } else {
+            throw new IllegalArgumentException(
+                    "Incorrect sort order received, must be 'asc' or 'desc'");
+        }
+
         LOGGER.debug("Retrieved query settings: \n sortField: {} \nsortOrder: {}", sortField,
                 sortOrder);
-        return new OpenSearchQuery(null, startIndex.intValue(), count.intValue(), sortField,
-                sortOrder, maxTimeout, filterBuilder);
+        return new QueryImpl(filter, startIndex.intValue(), count.intValue(), sort, true,
+                maxTimeout);
     }
 }

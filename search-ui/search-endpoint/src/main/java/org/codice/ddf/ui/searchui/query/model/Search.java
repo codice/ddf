@@ -14,17 +14,6 @@
  **/
 package org.codice.ddf.ui.searchui.query.model;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-
-import org.opengis.filter.expression.PropertyName;
-import org.opengis.filter.sort.SortBy;
-import org.opengis.filter.sort.SortOrder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.operation.QueryResponse;
@@ -32,6 +21,16 @@ import ddf.catalog.operation.impl.QueryResponseImpl;
 import ddf.catalog.util.impl.DistanceResultComparator;
 import ddf.catalog.util.impl.RelevanceResultComparator;
 import ddf.catalog.util.impl.TemporalResultComparator;
+import org.opengis.filter.expression.PropertyName;
+import org.opengis.filter.sort.SortBy;
+import org.opengis.filter.sort.SortOrder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 /**
  * This class represents the cached asynchronous query response from all sources.
@@ -93,7 +92,7 @@ public class Search {
                 resultList.addAll(latestResultList);
 
                 // if there wasn't at least 1 request there, we wouldn't be here in the first place
-                SortBy sortBy = searchRequest.getQueryRequests().get(0).getSortBy();
+                SortBy sortBy = searchRequest.getQuery().getSortBy();
 
                 // Prepare the Comparators that we will use
                 if (sortBy != null && sortBy.getPropertyName() != null) {
@@ -138,7 +137,7 @@ public class Search {
     }
 
     public boolean isFinished() {
-        return responseNum >= searchRequest.getQueryRequests().size();
+        return responseNum >= searchRequest.getSourceIds().size();
     }
 
     public SearchRequest getSearchRequest() {
