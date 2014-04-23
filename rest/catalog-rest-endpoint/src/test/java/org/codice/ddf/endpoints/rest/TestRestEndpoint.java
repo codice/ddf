@@ -462,10 +462,7 @@ public class TestRestEndpoint {
     }
     
     @Test
-    public void testGetDocumentKml() throws URISyntaxException, IngestException,
-        SourceUnavailableException, UnsupportedQueryException, FederationException,
-        CatalogTransformerException, IOException, ResourceNotFoundException,
-        ResourceNotSupportedException {
+    public void testGetDocumentKml() throws Exception {
 
         CatalogFramework framework = givenCatalogFramework(SAMPLE_ID);
         Response response = mockTestSetup(framework, true, TestType.KML_TEST);
