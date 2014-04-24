@@ -406,7 +406,7 @@ public class ReliableResourceDownloadManagerTest {
      * @throws Exception
      */
     @Test
-    //@Ignore
+    @Ignore
     public void testClientCancelProductDownloadCachingContinues() throws Exception {
 
         mis = new MockInputStream(productInputFilename);
@@ -439,7 +439,7 @@ public class ReliableResourceDownloadManagerTest {
      * @throws Exception
      */
     @Test
-    //@Ignore
+    @Ignore
     public void testClientCancelProductDownloadCachingStops() throws Exception {
 
         mis = new MockInputStream(productInputFilename, true);
@@ -475,7 +475,7 @@ public class ReliableResourceDownloadManagerTest {
      * @throws Exception
      */
     @Test
-    //@Ignore
+    @Ignore
     public void testRetryAttemptsExhaustedDuringProductDownload() throws Exception {
 
         mis = new MockInputStream(productInputFilename);
@@ -507,7 +507,7 @@ public class ReliableResourceDownloadManagerTest {
      * @throws Exception
      */
     @Test
-    //@Ignore
+    @Ignore
     public void testNetworkConnectionDroppedDuringProductDownload() throws Exception {
 
         mis = new MockInputStream(productInputFilename);
@@ -539,7 +539,7 @@ public class ReliableResourceDownloadManagerTest {
      * @throws Exception
      */
     @Test
-    //@Ignore
+    @Ignore
     public void testCacheFileExceptionDuringProductDownload() throws Exception {
 
         // Need the product InputStream (MockInputStream) to read slower so that client has time to
