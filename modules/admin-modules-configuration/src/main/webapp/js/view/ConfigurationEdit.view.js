@@ -192,16 +192,23 @@ define(function (require) {
          */
         cancelRegion: function() {
             var view = this;
-            view.model.get('service').get('metatype').forEach(function(each) {
-                this.type = each.get("type");
-                if(!_.isUndefined(this.type)) {
-                    if (this.type === 1 || this.type === 5 || this.type === 6 || (this.type >= 7 && this.type <= 10)) {
-                        if(each.get('cardinality') !== 0) {
-                            view[each.get("id")].close();
+            var service = view.model.get('service');
+            var metatype;
+            if(service) {
+                metatype = service.get('metatype');
+                if(metatype) {
+                    metatype.forEach(function(each) {
+                        this.type = each.get("type");
+                        if(!_.isUndefined(this.type)) {
+                            if (this.type === 1 || this.type === 5 || this.type === 6 || (this.type >= 7 && this.type <= 10)) {
+                                if(each.get('cardinality') !== 0) {
+                                    view[each.get("id")].close();
+                                }
+                            }
                         }
-                    }
+                    });
                 }
-            });
+            }
         },
         /**
          * Set up the popovers based on if the selector has a description.
