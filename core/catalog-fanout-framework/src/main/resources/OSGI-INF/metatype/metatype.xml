@@ -17,18 +17,34 @@
 
    <OCD description="DDF Fanout Proxy"
         name="Catalog Fanout Framework"
-        id="ddf.catalog.impl.service.fanout.FanoutCatalogFramework">
+        id="ddf.catalog.fanout.FanoutCatalogFramework">
       
       <AD name="Federation Thread Pool Size (0 for unlimited)" id="poolSize" required="true"
           type="Integer" default="0"/>
       <AD name="Default Timeout (milliseconds)" id="defaultTimeout" required="true"
           type="Integer" default="60000"/>
+      <AD name="Product Cache Directory" id="productCacheDirectory" required="false"
+          type="String" default=""
+          description="Directory where retrieved products will be cached for faster, future retrieval. If a directory path is specified with directories that do not exist, Catalog Framework will attempt to create those directories. Out of the box (without configuration), the product cache directory is INSTALL_DIR/data/product-cache. If a relative path is provided it will be relative to the INSTALL_DIR. It is recommended to enter an absolute directory path such as /opt/product-cache in Linux or C:/product-cache in Windows."/>
+      <AD name="Enable Product Caching" id="cacheEnabled" required="false" type="Boolean" default="false"
+          description="Check to enable caching of retrieved products."/> 
+      <AD name="Delay (in seconds) between product retrieval retry attempts" id="delayBetweenRetryAttempts" required="false"
+          type="Integer" default="10"
+          description="The time to wait (in seconds) between attempting to retry retrieving a product."/>
+      <AD name="Max product retrieval retry attempts" id="maxRetryAttempts" required="false"
+          type="Integer" default="3"
+          description="The maximum number of attempts to retry retrieving a product."/>
+      <AD name="Product Retrieval Monitor Period" id="retrievalMonitorPeriod" required="false"
+          type="Integer" default="5"
+          description="How many seconds to wait and not receive product data before retrying to retrieve a product."/>
+      <AD name="Always Cache Product" id="cacheWhenCanceled" required="false" type="Boolean" default="false"
+          description="Check to enable caching of retrieved products even if client cancels the download."/>         
    </OCD>
 
    <Designate
-      pid="ddf.catalog.impl.service.fanout.FanoutCatalogFramework">
+      pid="ddf.catalog.fanout.FanoutCatalogFramework">
       <Object
-         ocdref="ddf.catalog.impl.service.fanout.FanoutCatalogFramework"/>
+         ocdref="ddf.catalog.fanout.FanoutCatalogFramework"/>
    </Designate>
 
 </metatype:MetaData>

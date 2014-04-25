@@ -4,7 +4,7 @@
  * Copyright (c) Codice Foundation
  *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
- * version 3 of the License, or any later version. 
+ * version 3 of the License, or any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
@@ -33,19 +33,19 @@
 	</bean>
 	<bean id="postQuerySortedList" class="ddf.catalog.util.impl.SortedServiceList">
 		<argument ref="blueprintBundleContext" />
-	</bean>	
+	</bean>
 	<bean id="preFederatedQuerySortedList" class="ddf.catalog.util.impl.SortedServiceList">
 		<argument ref="blueprintBundleContext" />
 	</bean>
 	<bean id="postFederatedQuerySortedList" class="ddf.catalog.util.impl.SortedServiceList">
 		<argument ref="blueprintBundleContext" />
-	</bean>		
+	</bean>
 	<bean id="preResourceSortedList" class="ddf.catalog.util.impl.SortedServiceList">
 		<argument ref="blueprintBundleContext" />
-	</bean>	
+	</bean>
 	<bean id="postResourceSortedList" class="ddf.catalog.util.impl.SortedServiceList">
 		<argument ref="blueprintBundleContext" />
-	</bean>	
+	</bean>
 
 	<!-- grab references. all are mandatory by default -->
 	<!-- PREINGEST REFERENCE -->
@@ -64,37 +64,37 @@
 	<reference-list id="preQuery" interface="ddf.catalog.plugin.PreQueryPlugin"
 		availability="optional">
 		<reference-listener bind-method="bindPlugin"
-			unbind-method="unbindPlugin" ref="preQuerySortedList" />		
+			unbind-method="unbindPlugin" ref="preQuerySortedList" />
 	</reference-list>
 	<!-- POSTQUERY REFERENCE -->
 	<reference-list id="postQuery" interface="ddf.catalog.plugin.PostQueryPlugin"
 		availability="optional" >
 		<reference-listener bind-method="bindPlugin"
-			unbind-method="unbindPlugin" ref="postQuerySortedList" />	
+			unbind-method="unbindPlugin" ref="postQuerySortedList" />
 	</reference-list>
 	<!-- PRE FEDERATED QUERY REFERENCE -->
 	<reference-list id="preFederatedQuery" interface="ddf.catalog.plugin.PreFederatedQueryPlugin"
 		availability="optional">
 		<reference-listener bind-method="bindPlugin"
-			unbind-method="unbindPlugin" ref="preFederatedQuerySortedList" />		
+			unbind-method="unbindPlugin" ref="preFederatedQuerySortedList" />
 	</reference-list>
 	<!-- POST FEDERATED QUERY REFERENCE -->
 	<reference-list id="postFederatedQuery" interface="ddf.catalog.plugin.PostFederatedQueryPlugin"
 		availability="optional" >
 		<reference-listener bind-method="bindPlugin"
-			unbind-method="unbindPlugin" ref="postFederatedQuerySortedList" />	
-	</reference-list>	
+			unbind-method="unbindPlugin" ref="postFederatedQuerySortedList" />
+	</reference-list>
 	<!-- PRERESOURCE REFERENCE -->
 	<reference-list id="preResource"
 		interface="ddf.catalog.plugin.PreResourcePlugin" availability="optional" >
 		<reference-listener bind-method="bindPlugin"
-			unbind-method="unbindPlugin" ref="preResourceSortedList" />	
+			unbind-method="unbindPlugin" ref="preResourceSortedList" />
 	</reference-list>
 	<!-- POSTRESOURCE REFERENCE -->
 	<reference-list id="postResource"
 		interface="ddf.catalog.plugin.PostResourcePlugin" availability="optional" >
 		<reference-listener bind-method="bindPlugin"
-			unbind-method="unbindPlugin" ref="postResourceSortedList" />	
+			unbind-method="unbindPlugin" ref="postResourceSortedList" />
 	</reference-list>
 
 	<reference-list id="connectedSources" interface="ddf.catalog.source.ConnectedSource"
@@ -131,10 +131,20 @@
 		</service-properties>
 	</service>
 
+    <bean id="retrieveStatusEventPublisher" class="ddf.catalog.event.retrievestatus.DownloadsStatusEventPublisher">
+        <argument ref="eventAdmin" />
+    </bean>
+
+    <reference id="cacheManager" interface="ddf.cache.CacheManager" />
+
+    <bean id="productCache" class="ddf.catalog.cache.ResourceCache">
+        <property name="cacheManager" ref="cacheManager" />
+        <property name="productCacheDirectory" value="" />
+    </bean>
 
 	<!-- create the ddf bean -->
 	<bean id="ddf-fanout" class="ddf.catalog.fanout.FanoutCatalogFramework">
-		<cm:managed-properties persistent-id="ddf"
+		<cm:managed-properties persistent-id="ddf.catalog.fanout.FanoutCatalogFramework"
 			update-strategy="container-managed" />
 		<argument ref="blueprintBundleContext" />
 		<argument ref="preIngestSortedList" />
@@ -153,6 +163,13 @@
 		<property name="id" value="ddf-fanout" />
 		<property name="version" value="DDF v2.0" />
 		<property name="organization" value="Codice" />
+		<property name="productCache" ref="productCache" />
+		<property name="cacheEnabled" value="false" />
+        <property name="delayBetweenRetryAttempts" value="10" />
+        <property name="maxRetryAttempts" value="3" />
+        <property name="retrievalMonitorPeriod" value="5" />
+        <property name="cacheWhenCanceled" value="false" />
+		<property name="retrieveStatusEventPublisher" ref="retrieveStatusEventPublisher" />
 	</bean>
 
 	<bean id="sourcePoller" class="ddf.catalog.util.impl.SourcePoller">
@@ -169,22 +186,22 @@
 		<registration-listener ref="sourcePoller"
 			registration-method="start" unregistration-method="cancel" />
 	</service>
-	
-	
+
+
 	<service ref="ddf-fanout" interface="org.codice.ddf.configuration.ConfigurationWatcher">
 	</service>
 
-	
+
 	<!-- Events (from fanout-events blueprint.xml) -->
-	
+
 	<reference-list id="preSubscription" interface="ddf.catalog.plugin.PreSubscriptionPlugin"
 		availability="optional" />
-		
+
 	<reference-list id="preDelivery" interface="ddf.catalog.plugin.PreDeliveryPlugin"
 		availability="optional" />
-		
-			
-    <bean id="eventProcessorService" class="ddf.catalog.pubsub.FanoutEventProcessor" 
+
+
+    <bean id="eventProcessorService" class="ddf.catalog.pubsub.FanoutEventProcessor"
     	init-method="init" destroy-method="destroy">
     	<argument ref="blueprintBundleContext"/>
     	<argument ref="eventAdmin" />
@@ -192,9 +209,9 @@
 		<argument ref="preDelivery" />
 		<argument ref="ddf-fanout" />
     </bean>
-    
+
     <reference id="eventAdmin" interface="org.osgi.service.event.EventAdmin" />
-    
+
     <service ref="eventProcessorService" interface="ddf.catalog.event.EventProcessor" />
     <service ref="eventProcessorService" interface="ddf.catalog.plugin.PostIngestPlugin" />
     <service ref="eventProcessorService" interface="org.osgi.service.event.EventHandler" >

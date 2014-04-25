@@ -29,36 +29,53 @@ public class ContentTypeEvaluator {
         ContentTypePredicate matchContentTypePredicate = ctec.getContentType();
         String matchType = matchContentTypePredicate.getType();
         String matchVersion = matchContentTypePredicate.getVersion();
-
+               
         // the following block checks for asterisks in the Content Type and Version
         // if it has those, it replaces the asterisk with a dot then an asterisk.
         // Thus the matchType and matchValue now can be used as regular expressions
         // to handle the wildcard.
-        if (matchType != null) {
-            matchType = matchType.replaceAll("\\*", ".*");
+        if (matchType != null) { 
+        	matchType = matchType.replaceAll("\\*", ".*");
         }
+        
         if (matchVersion != null) {
-            matchVersion = matchVersion.replaceAll("\\*", ".*");
+        	matchVersion = matchVersion.replaceAll("\\*", ".*");
         }
 
         String input = ctec.getInputContentType();
         if (logger.isDebugEnabled()) {
             logger.debug("Match ContentType: " + matchContentTypePredicate);
         }
-
-        String[] inputTypeVersionPair = input.split(",");
-
-        // All catalog entry inputs should have a type and version
-        if (inputTypeVersionPair.length != 2) {
-            logger.debug("inputTypeVersionPair length = " + inputTypeVersionPair.length
-                    + " and should always be 2");
-            logger.debug("EXITING: " + methodName + " - returning false.  Invalid input.");
-            return false;
+        
+        String inputType;
+        String inputVersion;
+        
+        //Check if both type and version are blank
+        if (input == null || input.matches(",")) {
+        	inputType = "null";
+        	inputVersion = "null";
         }
-
-        String inputType = inputTypeVersionPair[0];
-        String inputVersion = inputTypeVersionPair[1];
-        logger.debug("inputType = " + inputType + ",   inputVersion = " + inputVersion);
+        else {
+        	String[] inputTypeVersionPair = input.split(",");
+        	
+        	//Check if content type is blank. If yes, set to null.
+        	if (inputTypeVersionPair[0].isEmpty()) {
+        		inputType = "null";
+        	}
+        	else {
+        		inputType = inputTypeVersionPair[0];
+        	}
+            
+            //Check if version is blank. If yes, set to null.
+            if (inputTypeVersionPair.length == 1) {
+            	inputVersion = "null";
+            }
+            else {
+            	inputVersion = inputTypeVersionPair[1];
+            }
+        }
+        	
+        logger.debug("inputType = " + inputType + ", inputVersion = " + inputVersion);
         logger.debug("matchType = " + matchType + ", matchVersion = " + matchVersion);
 
         if (matchType != null && !matchType.isEmpty() && inputType.matches(matchType)) {
@@ -73,40 +90,6 @@ public class ContentTypeEvaluator {
             logger.debug("EXITING: " + methodName + " - returning true.");
             return true;
         }
-
-        // Loop through the content types that filter will match on
-        // for ( Pair<String,Set<String>> pair : matchContentTypeSet )
-        // {
-        // logger.debug( "Comparing inputType [" + inputType + "] to [" + pair.getFirstElement() +
-        // "]" );
-        //
-        // // First see if we have a match on the content type
-        // if ( pair.getFirstElement().equals( inputType ) )
-        // {
-        // // If matched content type pair specifies a version, then input version must match too
-        // Set<String> matchVersions = pair.getSecondElement();
-        // if ( matchVersions != null && !matchVersions.isEmpty() )
-        // {
-        // for ( String matchVersion : matchVersions )
-        // {
-        // logger.debug( "Comparing inputVersion [" + inputVersion + "] to [" + matchVersion + "]"
-        // );
-        // if ( matchVersion.equals( inputVersion ) )
-        // {
-        // logger.debug( "EXITING: " + methodName + " - returning true" );
-        // return true;
-        // }
-        // }
-        // }
-        // else
-        // {
-        // // Only have to match on content type
-        // // (no version specified to match on, so all versions match by default)
-        // logger.debug( "EXITING: " + methodName + " - returning true" );
-        // return true;
-        // }
-        // }
-        // }
 
         logger.debug("EXITING: " + methodName + " - returning false.");
 

@@ -50,6 +50,7 @@ import net.minidev.json.JSONObject;
 import net.minidev.json.JSONValue;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.opengis.filter.Filter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -80,6 +81,7 @@ import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.InputTransformer;
+import ddf.mime.MimeTypeResolver;
 import ddf.mime.MimeTypeToTransformerMapper;
 import ddf.security.SecurityConstants;
 import ddf.security.Subject;
@@ -107,6 +109,8 @@ public class RESTEndpoint {
     private CatalogFramework catalogFramework;
 
     private MimeTypeToTransformerMapper mimeTypeToTransformerMapper;
+    
+    private MimeTypeResolver tikaMimeTypeResolver;
 
     static {
         MimeType mime = null;
@@ -282,19 +286,33 @@ public class RESTEndpoint {
                 }
 
                 LOGGER.debug("Calling transform.");
-                BinaryContent content = catalogFramework.transform(card, transformer, convertedMap);
-
+                final BinaryContent content = catalogFramework.transform(card, transformer, convertedMap);
                 LOGGER.debug("Read and transform complete, preparing response.");
+                
                 Response.ResponseBuilder responseBuilder = Response.ok(content.getInputStream(),
-                        content.getMimeTypeValue());
-
-                // If we got a resource, we can extract the filename.
+                        content.getMimeTypeValue());                
+                
+                String filename = null;
+                
                 if (content instanceof Resource) {
-                    String name = ((Resource) content).getName();
-                    if (name != null) {
-                        responseBuilder.header("Content-Disposition", "inline; filename=\"" + name
-                                + "\"");
+                    // If we got a resource, we can extract the filename.
+                    filename = ((Resource) content).getName();
+                } else {
+                    String fileExtension = getFileExtensionForMimeType(content.getMimeTypeValue());
+                    if (StringUtils.isNotBlank(fileExtension)) {
+                        filename = id + fileExtension;
                     }
+                }
+
+                if (StringUtils.isNotBlank(filename)) {
+                    LOGGER.debug("filename: {}", filename);
+                    responseBuilder.header("Content-Disposition", "inline; filename=\"" + filename
+                            + "\"");
+                }
+                
+                long size = content.getSize();
+                if (size > 0) {
+                    responseBuilder.header("Content-Length", size);
                 }
 
                 response = responseBuilder.build();
@@ -565,6 +583,13 @@ public class RESTEndpoint {
 
         return mimeType;
     }
+    
+    private String getFileExtensionForMimeType(String mimeType) {
+        String fileExtension = this.tikaMimeTypeResolver.getFileExtensionForMimeType(mimeType);
+            LOGGER.debug("Mime Type [{}] resolves to file extension [{}].",
+                    mimeType, fileExtension);
+        return fileExtension;
+    }
 
     protected Subject getSubject(HttpServletRequest request) {
         Subject subject = null;
@@ -612,5 +637,9 @@ public class RESTEndpoint {
 
     public void setFilterBuilder(FilterBuilder filterBuilder) {
         this.filterBuilder = filterBuilder;
+    }
+    
+    public void setTikaMimeTypeResolver(MimeTypeResolver mimeTypeResolver) {
+        this.tikaMimeTypeResolver = mimeTypeResolver;
     }
 }

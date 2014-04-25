@@ -28,16 +28,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.slf4j.LoggerFactory;
 import org.slf4j.ext.XLogger;
 
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.AttributeType;
+import ddf.catalog.data.AttributeType.AttributeFormat;
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
-import ddf.catalog.data.AttributeType.AttributeFormat;
 
 /**
  * Implements the {@link Metacard}'s required attributes. <br/>
@@ -822,5 +823,17 @@ public class MetacardImpl implements Metacard {
         }
 
     }
+    
+    public int hashCode() {
+        
+        //TODO: add remaining fields for hashCode
+        return new HashCodeBuilder(17, 37).
+          append(this.getId()).
+          append(this.getMetacardType()).
+          append(this.getMetadata()).
+          toHashCode();
+      }
+    
+    //TODO: is an equals() method needed?
 
 }
