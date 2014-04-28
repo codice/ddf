@@ -132,7 +132,7 @@
             <dependency>
                 <groupId>org.codice.thirdparty</groupId>
                 <artifactId>ogc-filter-v_1_1_0-schema</artifactId>
-                <version>1.1.0_1</version>
+                <version>1.1.0_2</version>
             </dependency>
             <dependency>
                 <groupId>org.codice.ddf.spatial</groupId>

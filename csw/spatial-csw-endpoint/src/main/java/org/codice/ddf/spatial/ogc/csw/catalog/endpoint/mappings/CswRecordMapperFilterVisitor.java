@@ -72,9 +72,8 @@ public class CswRecordMapperFilterVisitor extends DuplicatingFilterVisitor {
     @Override
     public Object visit(PropertyIsLike filter, Object extraData) {
         Expression expr = visit(filter.getExpression(), extraData);
-        // always do case-insensitive searches for like
         return getFactory(extraData).like(expr, filter.getLiteral(), filter.getWildCard(),
-                filter.getSingleChar(), filter.getEscape(), false);
+                filter.getSingleChar(), filter.getEscape(), filter.isMatchingCase());
     }
     
     @Override
