@@ -50,25 +50,24 @@ public class SecurityServletFilter implements Filter {
             FilterChain filterChain)
         throws IOException, ServletException {
 
-        // Find the cas-client bundleContext
         BundleContext ctx = FrameworkUtil.getBundle(SecurityServletFilter.class).getBundleContext();
         ServiceReference<?>[] serviceRefs = null;
         try {
             // TODO - Would be benenficial if we had in our Security API a "SecurityFitler" that
             // implements Filter. Then we could look up all "SecurityFilter"s and just use the
             // highest ranking one.
-            serviceRefs = ctx.getServiceReferences(Filter.class.getName(),
-                    "(filter-name=cas-client)");
+          serviceRefs = ctx.getServiceReferences(Filter.class.getName(), null);
         } catch (InvalidSyntaxException e) {
-            LOGGER.error("Unable to lookup cas-client", e);
+            LOGGER.error("Lookup failed.", e);
         }
 
         if (serviceRefs != null && serviceRefs.length != 0) {
-            LOGGER.debug("Found the cas-client, now filtering...");
+            LOGGER.debug("Found filter, now filtering...");
             Filter proxyFilter = (Filter) ctx.getService(serviceRefs[0]);
+            LOGGER.debug("Filter class: {}", proxyFilter.getClass().getName());
             proxyFilter.doFilter(servletRequest, servletResponse, filterChain);
         } else {
-            LOGGER.debug("Did not find cas-client");
+            LOGGER.debug("Did not find filter");
             filterChain.doFilter(servletRequest, servletResponse);
         }
     }
