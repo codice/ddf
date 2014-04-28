@@ -1,0 +1,33 @@
+<td>
+    <a href='#{{id}}' class='editLink' data-toggle="modal">
+        {{#if sourceId}}
+            {{sourceId}}
+        {{else}}
+            {{#if properties.shortname}}
+                {{properties.shortname}}
+            {{else}}
+                {{id}}
+            {{/if}}
+        {{/if}}
+    </a>
+    <div class="modal-container">
+
+    </div>
+</td>
+<td>
+    {{name}}
+</td>
+<td>
+    {{#if available}}
+        <span class='label label-success'>Available</span>
+    {{else}}
+        <span class='label label-danger'>Not Available</span>
+    {{/if}}
+
+</td>
+<td>
+    <!-- #ifAnd configuration configuration.service_pid -->
+    {{#if configuration}}
+        <a href='#' class='removeLink icon-remove'></a>
+    {{/if}}
+</td>
