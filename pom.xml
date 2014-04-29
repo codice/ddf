@@ -17,7 +17,7 @@
   
   <groupId>ddf</groupId>
   <artifactId>ddf-parent</artifactId>
-  <version>1.0.3-SNAPSHOT</version>
+  <version>2.0.0-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>DDF Parent</name>
   <description>Distributed Data Framework (DDF) Parent</description>
@@ -126,6 +126,10 @@
 			<name>Shaun Morris</name>
 			<organization>Lockheed Martin</organization>
 		</developer>
+		<developer>
+			<name>William Miller</name>
+			<organization>Lockheed Martin</organization>
+		</developer>
 	</developers>
 
 	<contributors>
@@ -147,10 +151,6 @@
 		</contributor>
 		<contributor>
 			<name>Timothy Anderson</name>
-			<organization>Lockheed Martin</organization>
-		</contributor>
-		<contributor>
-			<name>William Miller</name>
 			<organization>Lockheed Martin</organization>
 		</contributor>
 	</contributors>
@@ -202,58 +202,6 @@
 		<cobertura.plugin.version>2.5.1</cobertura.plugin.version>
 		<maven.war.plugin.version>2.2</maven.war.plugin.version>
 		<umlgraph.doclet.version>5.6.6</umlgraph.doclet.version>
-
-        <!-- Dependency Management Versions -->
-		<org.slf4j.version>1.7.1</org.slf4j.version>
-		<org.geotools.version>8.4</org.geotools.version>
-		<jts.version>1.12</jts.version>
-		<saxon.version>9.1.0.8</saxon.version>
-		<commons-io.version>2.1</commons-io.version>
-	   <!-- WSS4J, a dependency of CXF depends on a version of Joda Time [1.6,2). 
-		  Before incrementing to 2.0 or beyond, ensure that the latest version of WSS4J 
-		  can use a version higher 2.0 or higher. -->
-		<joda-time.version>1.6.2</joda-time.version>
-        <xmlunit.version>1.4</xmlunit.version>
-		<tika.version>1.2</tika.version>
-        <shiro.version>1.2.1</shiro.version>
-		<handlebars.version>1.1.2</handlebars.version>
-
-		<!-- Endorsed Dependencies -->
-		<xalan.version>2.7.1</xalan.version>
-		<xerces.version>2.9.1</xerces.version>
-		<xml-resolver.version>1.2</xml-resolver.version>
-
-        <!-- Bundle Dependency Properties-->
-		<org.apache.servicemix.bundles.asm.version>3.3.1_1</org.apache.servicemix.bundles.asm.version>
-		<org.apache.servicemix.specs.version>2.2.0</org.apache.servicemix.specs.version>
-		<org.apache.servicemix.bundles.oro.version>2.0.8_6</org.apache.servicemix.bundles.oro.version>
-		<org.springframework.ldap.version>1.3.1.RELEASE</org.springframework.ldap.version>
-		<org.apache.servicemix.bundles.dom4j.version>1.6.1_5</org.apache.servicemix.bundles.dom4j.version>
-		<org.apache.servicemix.bundles.jaxen.version>1.1.3_1</org.apache.servicemix.bundles.jaxen.version>
-		<org.apache.servicemix.bundles.bcprov-jdk15.version>1.46_3</org.apache.servicemix.bundles.bcprov-jdk15.version>
-		<org.opensaml.xmltooling.version>1.3.2-1</org.opensaml.xmltooling.version>
-		<org.ops4j.pax.url.classpath.version>1.3.5</org.ops4j.pax.url.classpath.version>
-		<org.ops4j.pax.swissbox.version>1.3.1</org.ops4j.pax.swissbox.version>
-		<org.ops4j-base-lang>1.2.2</org.ops4j-base-lang>
-		<geronimo-j2ee-connector_1.5_spec.version>2.0.0</geronimo-j2ee-connector_1.5_spec.version>
-		<com.googlecode.json-simple.version>1.1.1</com.googlecode.json-simple.version>
-		<net.minidev.json-smart.version>1.1.1</net.minidev.json-smart.version>
-		<saxon.bundle.plugin>${saxon.version}_1</saxon.bundle.plugin>
-		<servicemix.specs.version>${org.apache.servicemix.specs.version}</servicemix.specs.version>
-
-		<!-- ddf thirdparty bundle versions.  these should only be used in the feature xml files.
-			any bundle dependent on classes from these jars should depend on the jar itself and not the bundalized version.  -->
-		<org.geotools.bundle.version>${org.geotools.version}_1</org.geotools.bundle.version>
-		<opengis.bundle.version>${org.geotools.version}_1</opengis.bundle.version>
-		<jts.bundle.version>${jts.version}_1</jts.bundle.version>
-
-        <!-- Features Versions -->
-        <!-- when upgrading the karaf version, ensure that the properties and cfg files in ddf-commons/.../distribution/etc/ are updated and compatible with the
-        latest karaf version.  Those configuration files in ddf-commons/.../distribution/etc have been copied from a previous version of Karaf, and are
-        source controlled because of some slight customizations that have been made to them.  -->
-		<karaf.version>2.3.3</karaf.version>
-		<camel.version>2.12.1</camel.version>
-		<cellar.version>2.3.0</cellar.version>
 
         <!--
         Default properties for Version.txt (this is the file containing the build number and
@@ -464,7 +412,7 @@
 				<plugin>
 					<groupId>org.apache.karaf.tooling</groupId>
 					<artifactId>features-maven-plugin</artifactId>
-					<version>${karaf.version}</version>
+					<version>2.3.3</version>
 				</plugin>
 
 				<plugin>
@@ -706,210 +654,7 @@
 		</profile>
 	</profiles>
 
-	<dependencyManagement>
-		<dependencies>
-
-			<dependency>
-				<artifactId>karaf</artifactId>
-				<groupId>org.apache.karaf</groupId>
-				<version>${karaf.version}</version>
-				<type>pom</type>
-				<scope>import</scope>
-			</dependency>
-
-			<dependency>
-				<groupId>org.apache.karaf</groupId>
-				<artifactId>apache-karaf</artifactId>
-				<version>${karaf.version}</version>
-				<type>tar.gz</type>
-			</dependency>
-
-			<dependency>
-				<groupId>org.apache.karaf</groupId>
-				<artifactId>apache-karaf</artifactId>
-				<version>${karaf.version}</version>
-				<type>zip</type>
-			</dependency>
-
-			<dependency>
-				<groupId>org.apache.karaf.tooling.exam</groupId>
-				<artifactId>exam</artifactId>
-				<version>${karaf.version}</version>
-				<scope>test</scope>
-			</dependency>
-
-			<dependency>
-				<groupId>org.apache.karaf.tooling.exam</groupId>
-				<artifactId>org.apache.karaf.tooling.exam.container</artifactId>
-				<version>${karaf.version}</version>
-				<scope>test</scope>
-			</dependency>
-
-			<dependency>
-				<groupId>org.apache.camel</groupId>
-				<artifactId>camel-parent</artifactId>
-				<version>${camel.version}</version>
-				<type>pom</type>
-				<scope>import</scope>
-			</dependency>
-
-
-			<dependency>
-				<groupId>org.springframework.osgi</groupId>
-				<artifactId>spring-osgi-mock</artifactId>
-				<version>1.2.1</version>
-				<type>pom</type>
-				<scope>import</scope>
-			</dependency>
-
-			<dependency>
-				<groupId>com.vividsolutions</groupId>
-				<artifactId>jts</artifactId>
-				<version>1.12</version>
-			</dependency>
-
-			<dependency>
-				<groupId>org.geotools</groupId>
-				<artifactId>gt-jts-wrapper</artifactId>
-				<version>${org.geotools.version}</version>
-			</dependency>
-
-			<dependency>
-				<groupId>org.geotools</groupId>
-				<artifactId>gt-opengis</artifactId>
-				<version>${org.geotools.version}</version>
-			</dependency>
-
-			<dependency>
-				<groupId>org.geotools</groupId>
-				<artifactId>gt-main</artifactId>
-				<version>${org.geotools.version}</version>
-			</dependency>
-
-			<dependency>
-				<groupId>org.geotools.xsd</groupId>
-				<artifactId>gt-xsd-gml3</artifactId>
-				<version>${org.geotools.version}</version>
-			</dependency>
-
-			<dependency>
-				<groupId>com.googlecode.json-simple</groupId>
-				<artifactId>json-simple</artifactId>
-				<version>1.1.1</version>
-			</dependency>
-
-			<dependency>
-				<groupId>net.minidev</groupId>
-				<artifactId>json-smart</artifactId>
-				<version>${net.minidev.json-smart.version}</version>
-			</dependency>
-
-			<dependency>
-				<groupId>xalan</groupId>
-				<artifactId>xalan</artifactId>
-				<version>${xalan.version}</version>
-			</dependency>
-
-			<dependency>
-				<groupId>xalan</groupId>
-				<artifactId>serializer</artifactId>
-				<version>${xalan.version}</version>
-			</dependency>
-
-			<dependency>
-				<groupId>xerces</groupId>
-				<artifactId>xercesImpl</artifactId>
-				<version>${xerces.version}</version>
-			</dependency>
-
-			<dependency>
-				<groupId>net.sf.saxon</groupId>
-				<artifactId>saxon</artifactId>
-				<version>${saxon.version}</version>
-			</dependency>
-
-			<dependency>
-				<groupId>net.sf.saxon</groupId>
-				<artifactId>saxon-dom</artifactId>
-				<version>${saxon.version}</version>
-			</dependency>
-
-			<dependency>
-				<groupId>javax.servlet</groupId>
-				<artifactId>servlet-api</artifactId>
-				<version>2.5</version>
-			</dependency>
-
-			<dependency>
-				<groupId>org.slf4j</groupId>
-				<artifactId>slf4j-api</artifactId>
-				<version>${org.slf4j.version}</version>
-			</dependency>
-
-			<dependency>
-				<groupId>org.slf4j</groupId>
-				<artifactId>slf4j-simple</artifactId>
-				<version>${org.slf4j.version}</version>
-			</dependency>
-
-			<dependency>
-				<groupId>org.slf4j</groupId>
-				<artifactId>slf4j-ext</artifactId>
-				<version>${org.slf4j.version}</version>
-			</dependency>
-
-			<dependency>
-				<groupId>org.slf4j</groupId>
-				<artifactId>slf4j-jdk14</artifactId>
-				<version>${org.slf4j.version}</version>
-			</dependency>
-
-			<dependency>
-				<groupId>org.slf4j</groupId>
-				<artifactId>slf4j-log4j12</artifactId>
-				<version>${org.slf4j.version}</version>
-			</dependency>
-
-			<dependency>
-				<groupId>org.apache.servicemix.specs</groupId>
-				<artifactId>org.apache.servicemix.specs.jsr311-api-1.1</artifactId>
-				<version>2.0.0</version>
-			</dependency>
-
-			<dependency>
-				<groupId>commons-io</groupId>
-				<artifactId>commons-io</artifactId>
-				<version>${commons-io.version}</version>
-			</dependency>
-
-			<dependency>
-				<groupId>joda-time</groupId>
-				<artifactId>joda-time</artifactId>
-				<version>${joda-time.version}</version>
-			</dependency>
-			
-			<dependency>
-					<groupId>xmlunit</groupId>
-					<artifactId>xmlunit</artifactId>
-					<version>${xmlunit.version}</version>
-			</dependency>
-
-			<dependency>
-	            <groupId>com.codahale.metrics</groupId>
-	            <artifactId>metrics-core</artifactId>
-	            <version>3.0.1</version>
-	        </dependency>
-          
-            <dependency>
-                <groupId>org.apache.shiro</groupId>
-                <artifactId>shiro-core</artifactId>
-                <version>${shiro.version}</version>
-            </dependency>
-            
-		</dependencies>
-	</dependencyManagement>
-
-    <!--
+  <!--
     Dependencies listed here will always be used in all sub poms. 
     You should not redeclare them in the sub pom's dependencies section.
     -->
@@ -932,6 +677,12 @@
 			<groupId>org.mockito</groupId>
 			<artifactId>mockito-all</artifactId>
 			<version>1.9.0</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>xmlunit</groupId>
+			<artifactId>xmlunit</artifactId>
+			<version>1.4</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
