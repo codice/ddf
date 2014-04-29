@@ -16,22 +16,21 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>admin</artifactId>
-        <groupId>ddf.ui.admin</groupId>
-        <version>2.3.1.ALPHA2-SNAPSHOT</version>
+        <artifactId>module</artifactId>
+        <groupId>ddf.catalog.admin</groupId>
+        <version>2.4.1-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <name>DDF :: UI :: Admin :: Sources</name>
+    <name>DDF :: Catalog :: Admin :: Module :: Sources</name>
 
-    <artifactId>ui-admin-sources</artifactId>
+    <artifactId>catalog-admin-module-sources</artifactId>
     <packaging>bundle</packaging>
 
     <dependencies>
         <dependency>
             <groupId>ddf.admin.core</groupId>
             <artifactId>admin-core-api</artifactId>
-            <version>1.0.0.ALPHA1-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
