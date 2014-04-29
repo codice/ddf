@@ -15,18 +15,16 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <groupId>ddf.catalog</groupId>
-    <artifactId>catalog</artifactId>
+    <groupId>ddf.catalog.admin</groupId>
+    <artifactId>catalog-admin</artifactId>
     <version>2.4.1-SNAPSHOT</version>
   </parent>
   
-  <groupId>ddf.catalog.admin</groupId>
-  <artifactId>catalog-admin</artifactId>
+  <artifactId>catalog-admin-plugin</artifactId>
   <packaging>pom</packaging>
-  <name>DDF :: Catalog :: Admin</name>
+  <name>DDF :: Catalog :: Admin :: Plugin</name>
 
   <modules>
-    <module>plugin</module>
-    <module>module</module>
+    <module>catalog-admin-plugin-sourceconfiguration</module>
   </modules>
 </project>

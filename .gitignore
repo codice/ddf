@@ -6,6 +6,7 @@
 *.idea
 *.checkstyle
 *.DS_Store
+*.swp
 node/
 node_modules/
 target/
