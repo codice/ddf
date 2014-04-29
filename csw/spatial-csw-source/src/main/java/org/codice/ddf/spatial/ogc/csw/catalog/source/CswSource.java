@@ -834,7 +834,8 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
     private JAXBElement<QueryType> createQuery(Query query, ElementSetType elementSetType,
             List<QName> elementNames) throws UnsupportedQueryException {
         QueryType queryType = new QueryType();
-        queryType.setTypeNames(Arrays.asList(new QName[] {new QName(CswConstants.CSW_RECORD)}));
+        queryType.setTypeNames(Arrays.asList(new QName[] {new QName(CswConstants.CSW_OUTPUT_SCHEMA,
+                CswConstants.CSW_RECORD_LOCAL_NAME, CswConstants.CSW_NAMESPACE_PREFIX)}));
         if (null != elementSetType) {
             queryType.setElementSetName(createElementSetName(elementSetType));
         } else if (!CollectionUtils.isEmpty(elementNames)) {

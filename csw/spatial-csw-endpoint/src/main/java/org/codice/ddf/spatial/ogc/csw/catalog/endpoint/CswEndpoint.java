@@ -1161,8 +1161,14 @@ public class CswEndpoint implements Csw {
     }
 
     private Filter parseFilter(FilterType filterType) throws CswException {
+        if (!filterType.isSetComparisonOps() && !filterType.isSetId()
+                && !filterType.isSetLogicOps() && !filterType.isSetSpatialOps()) {
+            throw new CswException("Empty Filter provided. Unable to preform query.",
+                    CswConstants.INVALID_PARAMETER_VALUE, "Filter");
+        }
         JAXBElement<FilterType> filterElement = new net.opengis.filter.v_1_1_0.ObjectFactory()
                 .createFilter(filterType);
+
         return (Filter) parseJaxB(filterElement);
     }
 

@@ -17,8 +17,7 @@ package org.codice.ddf.spatial.ogc.csw.catalog.endpoint.mappings;
 import java.io.Serializable;
 import java.util.Date;
 
-import javax.xml.namespace.QName;
-
+import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordMetacardType;
 import org.codice.ddf.spatial.ogc.csw.catalog.converter.impl.CswRecordConverter;
 import org.codice.ddf.spatial.ogc.csw.catalog.converter.impl.DefaultCswRecordMap;
@@ -49,6 +48,7 @@ import org.slf4j.LoggerFactory;
 import org.xml.sax.helpers.NamespaceSupport;
 
 import ddf.catalog.data.AttributeDescriptor;
+import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.BasicTypes;
 import ddf.measure.Distance;
 import ddf.measure.Distance.LinearUnit;
@@ -116,22 +116,27 @@ public class CswRecordMapperFilterVisitor extends DuplicatingFilterVisitor {
             return null;
         }
         String propertyName = expression.getPropertyName();
-        NamespaceSupport namespaceSupport = expression.getNamespaceContext();
         String name;
+        if (CswConstants.BBOX_PROP.equals(propertyName)
+                || CswRecordMetacardType.OWS_BOUNDING_BOX.equals(propertyName)) {
+            name = Metacard.ANY_GEO;
+        } else {
 
-        name = DefaultCswRecordMap.getDefaultCswRecordMap()
-                .getDefaultMetacardFieldForPrefixedString(propertyName, namespaceSupport);
+            NamespaceSupport namespaceSupport = expression.getNamespaceContext();
 
-        LOGGER.debug("Converting \"{}\" to \"{}\"", propertyName, name);
-        
-        if(SPATIAL_QUERY_TAG.equals(extraData)) {
-            AttributeDescriptor attrDesc = CSW_METACARD_TYPE.getAttributeDescriptor(name);
-            if(attrDesc != null && !BasicTypes.GEO_TYPE.equals(attrDesc.getType())) {
-                throw new UnsupportedOperationException(
-                        "Attempted a spatial query on a non-geometry-valued attribute ("
-                                + propertyName + ")");
+            name = DefaultCswRecordMap.getDefaultCswRecordMap()
+                    .getDefaultMetacardFieldForPrefixedString(propertyName, namespaceSupport);
+
+            if (SPATIAL_QUERY_TAG.equals(extraData)) {
+                AttributeDescriptor attrDesc = CSW_METACARD_TYPE.getAttributeDescriptor(name);
+                if (attrDesc != null && !BasicTypes.GEO_TYPE.equals(attrDesc.getType())) {
+                    throw new UnsupportedOperationException(
+                            "Attempted a spatial query on a non-geometry-valued attribute ("
+                                    + propertyName + ")");
+                }
             }
         }
+        LOGGER.debug("Converting \"{}\" to \"{}\"", propertyName, name);
 
         return getFactory(extraData).property(name);
     }

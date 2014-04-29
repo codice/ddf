@@ -34,8 +34,6 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.Dictionary;
 import java.util.LinkedList;
 import java.util.List;
@@ -50,7 +48,6 @@ import javax.xml.datatype.DatatypeConfigurationException;
 import net.opengis.cat.csw.v_2_0_2.CapabilitiesType;
 import net.opengis.cat.csw.v_2_0_2.GetRecordsType;
 
-import org.apache.commons.lang.time.DateFormatUtils;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswException;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordCollection;
@@ -65,8 +62,8 @@ import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
 import org.junit.Assert;
-import org.junit.Test;
 import org.junit.BeforeClass;
+import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Matchers;
 import org.opengis.filter.Filter;
@@ -74,8 +71,8 @@ import org.opengis.filter.FilterFactory;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
-import org.xml.sax.SAXException;
 import org.slf4j.LoggerFactory;
+import org.xml.sax.SAXException;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -267,6 +264,66 @@ public class TestCswSource extends TestCswSourceBase {
         assertXMLEqual(xml, getRecordsControlXml202ContentTypeMappedToFormat);
     }
 
+    /**
+     * Test to verify content type version mapping is correct. The CSW Source should be able to map
+     * a csw:Record field to Content Type.
+     */
+    @Test
+    public void testPropertyIsLikeContentTypeVersion() throws JAXBException,
+        UnsupportedQueryException, DatatypeConfigurationException, SAXException, IOException {
+
+        // Setup
+        int pageSize = 10;
+        int numRecordsReturned = 1;
+        long numRecordsMatched = 1;
+        String format = "myContentType";
+        String version = "2.0";
+
+        setupMockContextForMetacardTypeRegistrationAndUnregistration(getDefaultContentTypes());
+
+        try {
+            configureMockRemoteCsw(numRecordsReturned, numRecordsMatched,
+                    CswConstants.VERSION_2_0_2);
+        } catch (CswException e) {
+            fail("Could not configure Mock Remote CSW: " + e.getMessage());
+        }
+
+        Filter ctfilter = builder.attribute(Metacard.CONTENT_TYPE).is().text(format);
+        Filter versionFilter = builder.attribute(Metacard.CONTENT_TYPE_VERSION).is().like()
+                .text(version);
+        Filter filter = builder.allOf(ctfilter, versionFilter);
+
+        QueryImpl propertyIsEqualToQuery = new QueryImpl(filter);
+        propertyIsEqualToQuery.setPageSize(pageSize);
+
+        // Set content type mapping to "format"
+        RecordConverter mockRecordConverter = mock(RecordConverter.class);
+
+        CswSource cswSource = getCswSource(mockCsw, mockContext, mockRecordConverter,
+                new LinkedList<String>(), CswRecordMetacardType.CSW_FORMAT);
+        cswSource.setCswUrl(URL);
+        cswSource.setId(ID);
+
+        // Perform test
+        SourceResponse response = cswSource.query(new QueryRequestImpl(propertyIsEqualToQuery));
+
+        // Verify
+        ArgumentCaptor<GetRecordsType> captor = ArgumentCaptor.forClass(GetRecordsType.class);
+        // getRecords() is called two times. Once for initial CSW source
+        // configuration and
+        // a second time for the actual content type query.
+        try {
+            verify(mockCsw, times(2)).getRecords(captor.capture());
+        } catch (CswException e) {
+            fail("Could not verify Mock CSW record count " + e.getMessage());
+        }
+        GetRecordsType getRecordsType = captor.getValue();
+
+        String xml = getGetRecordsTypeAsXml(getRecordsType, CswConstants.VERSION_2_0_2);
+        LOGGER.debug(xml);
+        assertXMLEqual(xml, getRecordsControlXml202ContentTypeMappedToFormat);
+    }
+
     @Test
     public void testAbsoluteTemporalSearchPropertyIsBetweenQuery() throws JAXBException,
         UnsupportedQueryException, DatatypeConfigurationException, SAXException, IOException {
@@ -274,7 +331,7 @@ public class TestCswSource extends TestCswSourceBase {
         // Setup
         String expectedXml = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n"
                 + "<GetRecords resultType=\"results\" outputFormat=\"application/xml\" outputSchema=\"http://www.opengis.net/cat/csw/2.0.2\" startPosition=\"1\" maxRecords=\"10\" service=\"CSW\" version=\"2.0.2\" xmlns:ns2=\"http://www.opengis.net/ogc\" xmlns=\"http://www.opengis.net/cat/csw/2.0.2\" xmlns:ns4=\"http://www.w3.org/1999/xlink\" xmlns:ns3=\"http://www.opengis.net/gml\" xmlns:ns9=\"http://www.w3.org/2001/SMIL20/Language\" xmlns:ns5=\"http://www.opengis.net/ows\" xmlns:ns6=\"http://purl.org/dc/elements/1.1/\" xmlns:ns7=\"http://purl.org/dc/terms/\" xmlns:ns8=\"http://www.w3.org/2001/SMIL20/\">\r\n"
-                + "    <ns10:Query typeNames=\"csw:Record\" xmlns=\"\" xmlns:ns10=\"http://www.opengis.net/cat/csw/2.0.2\">\r\n"
+                + "    <ns10:Query typeNames=\"Record\" xmlns=\"\" xmlns:ns10=\"http://www.opengis.net/cat/csw/2.0.2\">\r\n"
                 + "        <ns10:ElementSetName>full</ns10:ElementSetName>\r\n"
                 + "        <ns10:Constraint version=\"1.1.0\">\r\n"
                 + "            <ns2:Filter>\r\n" + "                <ns2:PropertyIsBetween>\r\n"
@@ -354,7 +411,7 @@ public class TestCswSource extends TestCswSourceBase {
                 + "    xmlns:ns3=\"http://www.opengis.net/ogc\" xmlns:ns9=\"http://www.w3.org/2001/SMIL20/Language\"\r\n"
                 + "    xmlns:ns5=\"http://www.opengis.net/gml\" xmlns:ns6=\"http://purl.org/dc/elements/1.1/\"\r\n"
                 + "    xmlns:ns7=\"http://purl.org/dc/terms/\" xmlns:ns8=\"http://www.w3.org/2001/SMIL20/\">\r\n"
-                + "    <ns4:Query typeNames=\"csw:Record\" xmlns=\"\"\r\n"
+                + "    <ns4:Query typeNames=\"Record\" xmlns=\"\"\r\n"
                 + "        xmlns:ns10=\"http://www.opengis.net/ows\">\r\n"
                 + "        <ns4:ElementSetName>full</ns4:ElementSetName>\r\n"
                 + "        <ns4:Constraint version=\"1.1.0\">\r\n" + "            <ns3:Filter>\r\n"

@@ -214,7 +214,6 @@ public class CswRecordConverter implements RecordConverter {
                 if (qName != null && !qName.equals(CswRecordMetacardType.OWS_BOUNDING_BOX_QNAME)) {
                     String attrName = DefaultCswRecordMap.getDefaultCswRecordMap().getDefaultMetacardFieldFor(qName);
                     AttributeDescriptor ad = metacard.getMetacardType().getAttributeDescriptor(attrName);
-                    
                     if (ad == null) {
                         ad = new AttributeDescriptorImpl(attrName, false, false, false, false, BasicTypes.STRING_TYPE);
                     }
@@ -246,7 +245,8 @@ public class CswRecordConverter implements RecordConverter {
         if ((fieldsToWrite == null || fieldsToWrite
                 .contains(CswRecordMetacardType.CSW_SOURCE_QNAME))
                 && metacard.getSourceId() != null) {
-            writeValue(writer, context, null, CswRecordMetacardType.CSW_SOURCE_QNAME, metacard.getSourceId());
+            writeValue(writer, context, null, CswRecordMetacardType.CSW_PUBLISHER_QNAME,
+                    metacard.getSourceId());
         }
         if (fieldsToWrite == null || fieldsToWrite.contains(CswRecordMetacardType.OWS_BOUNDING_BOX_QNAME)) {
             writeBoundingBox(writer, context, metacard);

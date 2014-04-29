@@ -83,6 +83,9 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
 
     private CswFilterFactory cswFilterFactory;
 
+    // 1000 Nautical Miles in meters
+    private static final double NEAREST_NEIGHBOR_DISTANCE_LIMIT = 1852000;
+
     /**
      * Instantiates a CswFilterDelegate instance
      *
@@ -945,6 +948,12 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
     }
 
     @Override
+    public FilterType nearestNeighbor(String propertyName, String wkt) {
+        // Convert Nearest Neighbor to DWithin
+        return dwithin(propertyName, wkt, NEAREST_NEIGHBOR_DISTANCE_LIMIT);
+    }
+
+    @Override
     public FilterType intersects(String propertyName, String wkt) {
 
         LOGGER.debug("Attempting to build {} filter for property {} and WKT {} in LON/LAT order.",
@@ -984,6 +993,8 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
 
         String message = "CSW source does not support "
                 + SpatialOperatorNameType.INTERSECTS.name()
+                + " for "
+                + getGeometryOperandFromWkt(wkt)
                 + " filter or any of its fallback spatial filters. This may be due to spatial operators not being supported "
                 + "or geometry operands not being supported.  See the Get Capabilities Response to determine the cause.";
         throw new UnsupportedOperationException(message);
@@ -1322,7 +1333,8 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
 
     private boolean isPropertyQueryable(String propertyName) {
         if (propertyName.equalsIgnoreCase(CswConstants.ANY_TEXT)
-                || cswRecordMetacardType.getAttributeDescriptor(propertyName).isIndexed()) {
+                || (cswRecordMetacardType.getAttributeDescriptor(propertyName) != null && cswRecordMetacardType
+                        .getAttributeDescriptor(propertyName).isIndexed())) {
             LOGGER.debug("Property [{}] is queryable.", propertyName);
             return true;
         }

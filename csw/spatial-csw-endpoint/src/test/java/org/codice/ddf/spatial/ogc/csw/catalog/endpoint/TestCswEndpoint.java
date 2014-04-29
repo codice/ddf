@@ -1158,6 +1158,36 @@ public class TestCswEndpoint {
     }
 
     @SuppressWarnings("unchecked")
+    @Test(expected = CswException.class)
+    public void testPostGetRecordsEmptyFilter() throws CswException, UnsupportedQueryException,
+        SourceUnavailableException, FederationException {
+        GetRecordsType grr = createDefaultPostRecordsRequest();
+
+        QueryType query = new QueryType();
+        List<QName> typeNames = new ArrayList<QName>();
+        typeNames.add(new QName(CswConstants.CSW_OUTPUT_SCHEMA, VALID_TYPE, VALID_PREFIX));
+        query.setTypeNames(typeNames);
+        QueryConstraintType constraint = new QueryConstraintType();
+        constraint.setFilter(new FilterType());
+
+        query.setConstraint(constraint);
+        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(new QName(
+                "http://www.opengis.net/cat/csw/2.0.2"), QueryType.class, query);
+
+        grr.setAbstractQuery(jaxbQuery);
+
+        CatalogFramework framework = mock(CatalogFramework.class);
+        QueryResponseImpl response = new QueryResponseImpl(null, new LinkedList<Result>(), 0);
+        ArgumentCaptor<QueryRequest> argument = ArgumentCaptor.forClass(QueryRequest.class);
+        when(framework.query(argument.capture())).thenReturn(response);
+
+        CswEndpoint cswEndpoint = new CswEndpoint(mockContext, framework, filterBuilder,
+                mockUriInfo, factories);
+
+        cswEndpoint.getRecords(grr);
+    }
+
+    @SuppressWarnings("unchecked")
     @Test
     public void testPostGetRecordsDistributedSearchSetToOne() throws CswException,
         UnsupportedQueryException, SourceUnavailableException, FederationException {

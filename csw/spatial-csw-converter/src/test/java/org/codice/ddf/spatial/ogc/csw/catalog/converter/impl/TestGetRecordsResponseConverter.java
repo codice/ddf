@@ -94,6 +94,7 @@ public class TestGetRecordsResponseConverter {
 
     private static final String ID = "identifier";
     private static final String SOURCE = "source";
+    private static final String PUBLISHER = "publisher";
     private static final String TITLE = "title";
     private static final String FORMAT = "format";
     private static final String RELATION = "relation";
@@ -425,7 +426,7 @@ public class TestGetRecordsResponseConverter {
                 } else if (jaxbSL.getName().getLocalPart().equals(ID)) {
                     idCounter++;
                     assertThat(sl.getContent().get(0), equalTo(ID_PREFIX + counter));
-                } else if (jaxbSL.getName().getLocalPart().equals(SOURCE)) {
+                } else if (jaxbSL.getName().getLocalPart().equals(PUBLISHER)) {
                     sourceCounter++;
                     assertThat(sl.getContent().get(0), equalTo(SOURCE_PREFIX + counter));
                 } else if (jaxbSL.getName().getLocalPart().equals(RELATION)) {
@@ -532,7 +533,7 @@ public class TestGetRecordsResponseConverter {
                 if (jaxbSL.getName().getLocalPart().equals(TITLE)) {
                     titleCounter++;
                     assertThat(sl.getContent().get(0), equalTo(TITLE_PREFIX + counter));
-                } else if (jaxbSL.getName().getLocalPart().equals(SOURCE)) {
+                } else if (jaxbSL.getName().getLocalPart().equals(PUBLISHER)) {
                     sourceCounter++;
                     assertThat(sl.getContent().get(0), equalTo(SOURCE_PREFIX + counter));
                 } else {
@@ -626,7 +627,7 @@ public class TestGetRecordsResponseConverter {
                 } else if (jaxbSL.getName().getLocalPart().equals(ID)) {
                     idCounter++;
                     assertThat(sl.getContent().get(0), equalTo(ID_PREFIX + counter));
-                } else if (jaxbSL.getName().getLocalPart().equals(SOURCE)) {
+                } else if (jaxbSL.getName().getLocalPart().equals(PUBLISHER)) {
                     sourceCounter++;
                     assertThat(sl.getContent().get(0), equalTo(SOURCE_PREFIX + counter));
                 } else {

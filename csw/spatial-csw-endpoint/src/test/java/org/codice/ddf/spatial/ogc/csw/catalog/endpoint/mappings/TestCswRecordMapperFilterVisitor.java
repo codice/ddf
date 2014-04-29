@@ -99,6 +99,18 @@ public class TestCswRecordMapperFilterVisitor {
     }
 
     @Test
+    public void testVisitWithBoundingBoxProperty() {
+        AttributeExpressionImpl propName = new AttributeExpressionImpl(new NameImpl(new QName(
+                CswConstants.DUBLIN_CORE_SCHEMA, CswRecordMetacardType.OWS_BOUNDING_BOX,
+                CswConstants.DUBLIN_CORE_NAMESPACE_PREFIX)));
+        CswRecordMapperFilterVisitor visitor = new CswRecordMapperFilterVisitor();
+
+        PropertyName propertyName = (PropertyName) visitor.visit(propName, null);
+
+        assertThat(propertyName.getPropertyName(), equalTo(Metacard.ANY_GEO));
+    }
+
+    @Test
     public void testVisitWithMappedName() {
         AttributeExpressionImpl propName = new AttributeExpressionImpl(new NameImpl(new QName(
                 CswConstants.DUBLIN_CORE_SCHEMA, CswRecordMetacardType.CSW_ALTERNATIVE,
