@@ -615,8 +615,9 @@ span.add-on {
 }
 
 .notification-time {
-    font-size: .6em;
+    font-size: .8em;
     color: white;
+    text-align: right;
 }
 
 .notification-message {
@@ -634,7 +635,8 @@ span.add-on {
     font-size: .9em;
     color: white;
     display: table-cell;
-    width: 50%;
+    width: 105px;
+    text-align: right;
     white-space: nowrap;
 }
 
@@ -651,19 +653,23 @@ span.add-on {
 .notification-title-menu {
     color: #eee;
     display: table-cell;
-    width: 50%;
+    width: 65%;
     white-space: nowrap;
 }
 
 .notification-subtitle {
     padding-top: 12px;
     padding-bottom: 12px;
-    font-weight: bold;
-    font-style: italic;
+    font-weight: 200;
+    font-size: .8em;
     color: #eee;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+}
+
+div.ui-pnotify-text br {
+    display: none;
 }
 
 .notification-hr {
@@ -968,6 +974,10 @@ div.ui-multiselect-single .ui-multiselect-checkboxes label.ui-state-hover > span
 
 div.dropdown-width li:last-child hr {
     display: none;
+}
+
+div.dropdown-width li {
+    cursor: pointer;
 }
 
 .back {

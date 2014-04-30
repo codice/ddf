@@ -33,7 +33,7 @@ define(function (require) {
                     if (momentObj[i]) {
                         if(typeof momentObj[i] === 'function') {
                             var func = momentObj[i];
-                            date = func.call(momentObj);
+                            date = func.call(momentObj, block.hash[i]);
                         }
                     } else {
                         if(typeof console !== 'undefined') {

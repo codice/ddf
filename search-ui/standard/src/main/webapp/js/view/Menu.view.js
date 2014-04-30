@@ -1,4 +1,4 @@
-/*global define*/
+/*global define, setTimeout, clearTimeout*/
 define([
     'marionette',
     'icanhaz',
@@ -38,6 +38,12 @@ define([
         tagName: 'li',
         events: {
             'click' : 'openNotification'
+        },
+        onClose: function() {
+            clearTimeout(this.timeout);
+        },
+        onRender: function() {
+            this.timeout = setTimeout(this.render, 60000);
         },
         openNotification: function() {
             wreqr.vent.trigger('notification:open', this.model);
