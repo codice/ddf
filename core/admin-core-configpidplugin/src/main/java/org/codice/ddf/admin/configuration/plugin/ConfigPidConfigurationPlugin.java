@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  * 
  **/
-package org.codice.ddf.ui.admin.configuration.plugin;
+package org.codice.ddf.admin.configuration.plugin;
 
 import java.util.Dictionary;
 

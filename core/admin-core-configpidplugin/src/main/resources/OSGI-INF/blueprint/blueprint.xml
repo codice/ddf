@@ -20,7 +20,7 @@
     <!--
       Defines the Configuration Plugin
     -->
-    <bean id="configPlugin" class="org.codice.ddf.ui.admin.configuration.plugin.ConfigPidConfigurationPlugin">
+    <bean id="configPlugin" class="org.codice.ddf.admin.configuration.plugin.ConfigPidConfigurationPlugin">
     </bean>
 
     <service id="ConfigPluginService" ref="configPlugin" interface="org.osgi.service.cm.ConfigurationPlugin" />
