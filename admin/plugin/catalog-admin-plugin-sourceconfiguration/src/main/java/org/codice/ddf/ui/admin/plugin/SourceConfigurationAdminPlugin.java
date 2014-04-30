@@ -38,9 +38,6 @@ import ddf.catalog.source.FederatedSource;
 import ddf.catalog.source.SourceDescriptor;
 import ddf.catalog.source.SourceUnavailableException;
 
-/**
- * @author Scott Tustison
- */
 public class SourceConfigurationAdminPlugin implements ConfigurationAdminPlugin {
     private final XLogger logger = new XLogger(
             LoggerFactory.getLogger(SourceConfigurationAdminPlugin.class));
@@ -81,6 +78,10 @@ public class SourceConfigurationAdminPlugin implements ConfigurationAdminPlugin 
     @Override
     public Map<String, Object> getConfigurationData(String configurationPid,
             Map<String, Object> configurationDataMap, BundleContext bundleContext) {
+
+        logger.debug("Obtaining configuration data for the following configuration PID: {}", 
+                     configurationPid);
+
         Map<String, Object> statusMap = new HashMap<String, Object>();
         try {
             ServiceReference[] fedRefs = bundleContext.getAllServiceReferences(
@@ -106,6 +107,9 @@ public class SourceConfigurationAdminPlugin implements ConfigurationAdminPlugin 
                     if ((superService instanceof FederatedSource || superService instanceof CatalogProvider)
                             && superService instanceof ConfiguredService) {
                         ConfiguredService cs = (ConfiguredService) superService;
+
+                        logger.debug("ConfiguredService configuration PID: {}", 
+                                     cs.getConfigurationPid());
 
                         if (StringUtils.isNotEmpty(cs.getConfigurationPid())
                                 && cs.getConfigurationPid().equals(configurationPid)) {
