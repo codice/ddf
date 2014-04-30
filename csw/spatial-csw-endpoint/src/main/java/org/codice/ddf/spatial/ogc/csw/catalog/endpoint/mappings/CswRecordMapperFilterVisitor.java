@@ -34,7 +34,6 @@ import org.opengis.filter.PropertyIsGreaterThan;
 import org.opengis.filter.PropertyIsGreaterThanOrEqualTo;
 import org.opengis.filter.PropertyIsLessThan;
 import org.opengis.filter.PropertyIsLessThanOrEqualTo;
-import org.opengis.filter.PropertyIsLike;
 import org.opengis.filter.PropertyIsNotEqualTo;
 import org.opengis.filter.expression.Expression;
 import org.opengis.filter.expression.Literal;
@@ -68,13 +67,6 @@ public class CswRecordMapperFilterVisitor extends DuplicatingFilterVisitor {
     protected static final FilterFactory FILTER_FACTORY = new FilterFactoryImpl();
     
     protected static final String SPATIAL_QUERY_TAG = "spatialQueryExtraData";
-
-    @Override
-    public Object visit(PropertyIsLike filter, Object extraData) {
-        Expression expr = visit(filter.getExpression(), extraData);
-        return getFactory(extraData).like(expr, filter.getLiteral(), filter.getWildCard(),
-                filter.getSingleChar(), filter.getEscape(), filter.isMatchingCase());
-    }
     
     @Override
     // convert BBOX queries to Within filters.
