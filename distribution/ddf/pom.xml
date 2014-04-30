@@ -44,7 +44,7 @@
     <ddf.solr.catalog.app.version>2.4.0</ddf.solr.catalog.app.version>
     <ddf.searchui.app.version>2.4.1-SNAPSHOT</ddf.searchui.app.version>
     <ddf.spatial.app.version>2.4.1</ddf.spatial.app.version>
-    <ddf.admin.app.version>1.0.0</ddf.admin.app.version>
+    <ddf.admin.app.version>1.0.1-SNAPSHOT</ddf.admin.app.version>
   </properties>
 
   <build>
