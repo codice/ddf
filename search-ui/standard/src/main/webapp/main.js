@@ -23,7 +23,8 @@ define(['config'], function () {
             mainRegion : '#main',
             mapRegion : '#map',
             headerRegion : 'header',
-            footerRegion : 'footer'
+            footerRegion : 'footer',
+            menuRegion: '#menu'
         });
 
         // Initialize the various services / controllers to be used by the application

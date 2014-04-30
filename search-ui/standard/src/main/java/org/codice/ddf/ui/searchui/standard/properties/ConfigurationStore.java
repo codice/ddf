@@ -15,9 +15,16 @@
 
 package org.codice.ddf.ui.searchui.standard.properties;
 
-
-import java.io.ByteArrayInputStream;
-import java.util.Map;
+import ddf.catalog.data.BinaryContent;
+import ddf.catalog.data.BinaryContentImpl;
+import net.minidev.json.JSONObject;
+import net.minidev.json.JSONValue;
+import org.apache.commons.lang.StringUtils;
+import org.apache.felix.webconsole.BrandingPlugin;
+import org.codice.proxy.http.HttpProxyService;
+import org.osgi.framework.BundleContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.activation.MimeType;
 import javax.activation.MimeTypeParseException;
@@ -27,19 +34,8 @@ import javax.ws.rs.Path;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
-
-import net.minidev.json.JSONObject;
-import net.minidev.json.JSONValue;
-
-import org.apache.commons.lang.StringUtils;
-import org.apache.felix.webconsole.BrandingPlugin;
-import org.codice.proxy.http.HttpProxyService;
-import org.osgi.framework.BundleContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import ddf.catalog.data.BinaryContent;
-import ddf.catalog.data.BinaryContentImpl;
+import java.io.ByteArrayInputStream;
+import java.util.Map;
 
 /**
  * Stores external configuration properties.
@@ -69,6 +65,8 @@ public class ConfigurationStore {
     private String layers = "";
 
     private String format = "";
+
+    private Boolean isSignIn = false;
 
     private BrandingPlugin branding;
 
@@ -120,6 +118,8 @@ public class ConfigurationStore {
         configObj.put("style", style);
         configObj.put("textColor", textColor);
         configObj.put("branding", getProductName());
+        configObj.put("version", getProductVersion());
+        configObj.put("showWelcome", isSignIn);
         configObj.put("wmsServer", wmsServer);
         configObj.put("layers", layers);
         configObj.put("format", format);
@@ -183,6 +183,15 @@ public class ConfigurationStore {
         if (branding != null) {
             // Remove the version number
             return StringUtils.substringBeforeLast(branding.getProductName(), " ");
+        } else {
+            return "";
+        }
+    }
+
+    public String getProductVersion() {
+        if (branding != null) {
+            // Remove the version number
+            return StringUtils.substringAfterLast(branding.getProductName(), " ");
         } else {
             return "";
         }
@@ -258,6 +267,7 @@ public class ConfigurationStore {
     		setTimeout((Integer) properties.get("timeout"));
     		setSyncQuery((Boolean) properties.get("syncQuery"));
             setResultCount((Integer) properties.get("resultCount"));
+            setSignIn((Boolean) properties.get("signIn"));
     		
     		//Fetch the DDF HTTP Proxy
             if(StringUtils.isNotBlank(wmsServer)) {
@@ -330,6 +340,12 @@ public class ConfigurationStore {
     public void setResultCount(Integer resultCount) {
         this.resultCount = resultCount;
     }
-	
-	
+
+    public Boolean getSignIn() {
+        return isSignIn;
+    }
+
+    public void setSignIn(Boolean isSignIn) {
+        this.isSignIn = isSignIn;
+    }
 }

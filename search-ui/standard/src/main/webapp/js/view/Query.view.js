@@ -8,7 +8,6 @@ define(function (require) {
         _ = require('underscore'),
         ich = require('icanhaz'),
         properties = require('properties'),
-        UserModel = require('js/model/user'),
         MetaCard = require('js/model/Metacard'),
         Progress = require('js/view/Progress.view'),
         wreqr = require('wreqr'),
@@ -22,17 +21,6 @@ define(function (require) {
     require('modelbinder');
     require('multiselect');
     require('multiselectfilter');
-
-    Query.UserModel = new UserModel();
-    Query.UserModel.fetch();
-
-    Query.UserView = Marionette.ItemView.extend({
-        template: 'userTemplate',
-        model: Query.UserModel,
-        initialize: function() {
-            this.listenTo(this.model, 'change', this.render);
-        }
-    });
 
     Query.Model = Backbone.Model.extend({
         //in the search we are checking for whether or not the model
@@ -103,10 +91,6 @@ define(function (require) {
             'keypress input[name=q]': 'filterOnEnter',
             'change #radiusUnits': 'onRadiusUnitsChanged',
             'change #offsetTimeUnits': 'onTimeUnitsChanged'
-        },
-
-        regions: {
-            userRegion: '#user-region'
         },
 
         initialize: function (options) {
@@ -288,8 +272,6 @@ define(function (require) {
             this.$('#radiusUnits').multiselect(singleselectOptions);
 
             this.$('#offsetTimeUnits').multiselect(singleselectOptions);
-
-            this.userRegion.show(new Query.UserView());
         },
 
         beforeShowDatePicker: function(picker){

@@ -297,7 +297,7 @@ define(function (require) {
             }
             this.$el.empty();
             // if it gets any more complicated than this, then we should move to templates
-            this.$el.append('<span>You are in Drawing Mode!</span>');
+            this.$el.append('<span>Please draw area of interest.</span>');
             this.$el.animate({
                 height: 'show'
             }, 425);

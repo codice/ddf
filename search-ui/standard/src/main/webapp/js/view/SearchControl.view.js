@@ -74,10 +74,7 @@ define(function (require) {
         SearchControl.SearchControlLayout = Marionette.Layout.extend({
             template : 'searchPanel',
             regions : {
-                progressRegion: {
-                    selector: "#progressRegion",
-                    regionType: SlidingRegion
-                },
+                progressRegion: "#progressRegion",
                 leftRegion: {
                     selector: "#searchPages",
                     regionType:  SlidingRegion
@@ -143,7 +140,7 @@ define(function (require) {
                             this.progressView.close();
                         }
                         this.progressView = new ProgressView({ resultList: resultList, queryModel: queryModel, sources: numSources, model: progressObj});
-                        this.progressRegion.show(this.progressView, dir.downward);
+                        this.progressRegion.show(this.progressView);
                     }
                 }
             },

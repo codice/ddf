@@ -14,12 +14,13 @@ define(['jquery',
         'text!templates/header.layout.html',
         'text!templates/footer.layout.html',
         'text!templates/classification/classification-banner.html',
+        'js/view/Menu.view',
         // Load non attached libs and plugins
         'bootstrap',
         'backbonerelational',
         'backbonecometd',
         'jquerycometd'
-    ], function ($, _, Marionette, Backbone, ich, properties, maptype, main, map, header, footer, banner) {
+    ], function ($, _, Marionette, Backbone, ich, properties, maptype, main, map, header, footer, banner, Menu) {
         'use strict';
 
         var Application = {};
@@ -44,14 +45,18 @@ define(['jquery',
         Application.Views = {};
 
         // Main Application View
-        Application.Views.Main = Marionette.ItemView.extend({
+        Application.Views.Main = Marionette.Layout.extend({
             template: 'main',
-            className: 'height-full',
+            className: 'height-full-menu',
+            regions: {
+                menu: '#menu'
+            },
 
             onRender: function () {
                 if (maptype.isNone()) {
-                    $('#searchControls', this.$el).width('100%');
+                    $('#searchControls', this.$el).addClass('full-screen-search');
                 }
+                this.menu.show(new Menu.Bar({model: this.model}));
             }
         });
 
@@ -96,7 +101,7 @@ define(['jquery',
             className: 'header-layout',
 
             regions: {
-                classification: '.classification-container',
+                classification: '.classification-container'
             }
         });
 

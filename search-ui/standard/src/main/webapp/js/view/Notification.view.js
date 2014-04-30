@@ -5,10 +5,11 @@ define([ 'backbone',
          'text!templates/notification/notification.message.handlebars', 
          'text!templates/notification/notification.title.handlebars', 
          'underscore',
-         'jquery', 
-         'pnotify' 
+         'jquery',
+         'wreqr',
+         'pnotify'
        ], 
-         function(Backbone, ich, messageTemplate, titleTemplate, _, $) {
+         function(Backbone, ich, messageTemplate, titleTemplate, _, $, wreqr) {
 
     // Create object to contain both the NotificationItemView and the NotificationListView in.
     // This is so we can return it below.
@@ -21,18 +22,23 @@ define([ 'backbone',
     
     NotificationView.NotificationItemView = Backbone.Marionette.ItemView.extend({
 
+        initialize: function() {
+            wreqr.vent.on('notification:open', _.bind(this.openNotification, this));
+        },
+
         onRender : function() {
             if (typeof stack_context === "undefined") stack_context = {
                     "dir1": "down",
                     "dir2": "left",
                     "context": $("#notifications")
             };
-            
+
+            var view = this;
             var notification = $.pnotify({
                 title : ich.titleTemplate(this.model.toJSON()), 
                 text : this.constructNotificationText(),
                 icon : "fa fa-exclamation-circle notification-title",  
-                hide : false,
+                hide : true,
                 closer_hover : false,
                 sticker: false, 
                 history: false,
@@ -58,7 +64,19 @@ define([ 'backbone',
                 }
             }); 
             this.notification = notification;
+            this.notification.closer.on('click', function() {
+                if(view.model && view.model.collection) {
+                    view.model.collection.remove(view.model);
+                    wreqr.vent.trigger('notification:close');
+                }
+            });
             return this;
+        },
+
+        openNotification: function(noti) {
+            if(noti && noti.cid === this.model.cid) {
+                this.notification.pnotify_display();
+            }
         },
 
         constructNotificationText : function() {

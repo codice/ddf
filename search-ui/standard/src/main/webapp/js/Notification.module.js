@@ -2,8 +2,9 @@
 define(["application", 
         "cometdinit", 
         "js/model/Notification", 
-        "js/view/Notification.view"], 
-        function(Application, Cometd, Notification, NotificationView) {
+        "js/view/Notification.view",
+        'wreqr'],
+        function(Application, Cometd, Notification, NotificationView, wreqr) {
 
     // Create a new module in the StandardUiApp
     Application.App.module('NotificationModule', function(NotificationModule) {
@@ -12,6 +13,10 @@ define(["application",
         var notifications = new Notification.List();
         new NotificationView.NotificationListView({
             collection : notifications
+        });
+
+        wreqr.reqres.setHandler('notifications', function () {
+            return notifications;
         });
 
         NotificationModule.addInitializer(function() {
@@ -24,6 +29,7 @@ define(["application",
                 //only add the Notification if it is properly formatted and contains application, message, and title
                 if(!incomingNotification.validationError){
                     notifications.add(incomingNotification);
+                    wreqr.vent.trigger('notification:new', incomingNotification);
                 }
             });
         });

@@ -26,6 +26,8 @@ define(function (require) {
                     props.background = data.background;
                     props.header = data.header;
                     props.branding = data.branding;
+                    props.version = data.version;
+                    props.showWelcome = data.showWelcome;
                     props.layers = data.layers;
                     props.wmsServer = data.wmsServer;
                     props.format = data.format;

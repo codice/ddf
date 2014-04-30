@@ -7,7 +7,8 @@ define(['jquery',
         'properties',
         'js/view/SearchControl.view',
         'js/model/source',
-    ], function ($, _, Marionette, app, properties, SearchControl, Source) {
+        'backbone'
+    ], function ($, _, Marionette, app, properties, SearchControl, Source, Backbone) {
         'use strict';
         var document = window.document,
             ApplicationController;
@@ -19,7 +20,7 @@ define(['jquery',
 
             renderApplicationViews: function () {
                 var controller = this,
-                    mainView = new app.Views.Main(),
+                    mainView = new app.Views.Main({model: new Backbone.Model(properties)}),
                     headerLayout = new app.Views.HeaderLayout(),
                     footerLayout = new app.Views.FooterLayout();
 
@@ -71,7 +72,7 @@ define(['jquery',
                  });
                  searchControlView.render();
 
-             },
+             }
 
         });
 
