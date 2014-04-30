@@ -15,12 +15,13 @@
 package org.codice.ddf.admin.application.service.impl;
 
 import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.apache.karaf.shell.console.OsgiCommandSupport;
 import org.codice.ddf.admin.application.service.ApplicationService;
 import org.codice.ddf.admin.application.service.ApplicationServiceException;
+import org.osgi.framework.ServiceReference;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 
@@ -34,26 +35,29 @@ public abstract class AbstractApplicationCommand extends OsgiCommandSupport {
 
     protected PrintStream console = System.out;
 
+    protected Logger logger = LoggerFactory.getLogger(this.getClass());
+
     @Override
     protected Object doExecute() throws ApplicationServiceException {
 
-        List<ApplicationService> appServiceList = new ArrayList<ApplicationService>();
+        ServiceReference<ApplicationService> appServiceRef = null;
 
         try {
-            appServiceList = getAllServices(ApplicationService.class, null);
+            appServiceRef = getBundleContext().getServiceReference(ApplicationService.class);
+            applicationService = getBundleContext().getService(appServiceRef);
+            applicationCommand();
         } catch (Exception e) {
             console.println("Could not obtain find Application Service due to error: "
                     + e.getMessage());
+        } finally {
+            if (appServiceRef != null) {
+                try {
+                    getBundleContext().ungetService(appServiceRef);
+                } catch (IllegalStateException ise) {
+                    logger.debug("Bundle Context was closed, service reference already removed.");
+                }
+            }
         }
-
-        if (appServiceList.isEmpty()) {
-            console.println("Application Service is unavailable.");
-            return null;
-        }
-
-        applicationService = appServiceList.get(0);
-
-        applicationCommand();
 
         return null;
     }
