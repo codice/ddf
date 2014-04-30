@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  * 
  **/
-package org.codice.ddf.ui.admin.plugin;
+package org.codice.ddf.catalog.admin.plugin;
 
 import java.util.ArrayList;
 import java.util.Arrays;

@@ -16,7 +16,7 @@
            xsi:schemaLocation="
   http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd">
 
-    <bean id="module" class="org.codice.ui.admin.sources.SourcesModule"></bean>
+    <bean id="module" class="org.codice.ddf.catalog.admin.module.SourcesModule"></bean>
 
     <service interface="org.codice.ddf.ui.admin.api.module.AdminModule" ref="module" />
 

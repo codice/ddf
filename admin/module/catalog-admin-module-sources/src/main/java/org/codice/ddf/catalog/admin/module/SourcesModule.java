@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-package org.codice.ui.admin.sources;
+package org.codice.ddf.catalog.admin.module;
 
 import java.net.URI;
 import java.net.URISyntaxException;
