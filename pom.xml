@@ -143,6 +143,7 @@
     <module>rest</module>
     <module>security</module>
     <module>catalog-app</module>
+    <module>admin</module>
   </modules>
   
   <repositories>    
