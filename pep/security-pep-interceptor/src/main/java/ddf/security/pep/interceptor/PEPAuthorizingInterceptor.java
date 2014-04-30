@@ -43,6 +43,7 @@ import ddf.security.assertion.SecurityAssertion;
 import ddf.security.common.audit.SecurityLogger;
 import ddf.security.permission.ActionPermission;
 import ddf.security.service.SecurityManager;
+import ddf.security.service.SecurityServiceException;
 import ddf.security.service.impl.SecurityAssertionStore;
 
 /**
@@ -87,14 +88,16 @@ public class PEPAuthorizingInterceptor extends AbstractPhaseInterceptor<Message>
             SecurityLogger.logSecurityAssertionInfo(message);
             boolean isPermitted = false;
 
-            if (assertion != null) {
+            if ((assertion != null) && (assertion.getSecurityToken() != null)) {
                 Subject user = null;
                 ActionPermission action = null;
                 try {
                     user = securityManager.getSubject(assertion.getSecurityToken());
-                    
-                    if(logger.isTraceEnabled()){
-                	logger.trace(format(assertion.getSecurityToken().getToken()));
+                    if (user == null) {
+                        throw new AccessDeniedException("Unauthorized");
+                    }
+                    if (logger.isTraceEnabled()) {
+                        logger.trace(format(assertion.getSecurityToken().getToken()));
                     }
 
                     logger.debug("Is user authenticated: {}", user.isAuthenticated());
@@ -103,14 +106,16 @@ public class PEPAuthorizingInterceptor extends AbstractPhaseInterceptor<Message>
                             + user.isAuthenticated());
                     List<Header> headers = CastUtils
                             .cast((List<?>) message.get(Header.HEADER_LIST));
-                    for (Header curHeader : headers) {
-                        if (curHeader.getName().equals(SOAP_ACTION)) {
-                            action = new ActionPermission(
-                                    ((Element) curHeader.getObject()).getTextContent());
-                            break;
+                    if (headers != null) {
+                        for (Header curHeader : headers) {
+                            if (curHeader.getName().equals(SOAP_ACTION)) {
+                                action = new ActionPermission(
+                                        ((Element) curHeader.getObject()).getTextContent());
+                                break;
+                            }
                         }
+                        isPermitted = user.isPermitted(action);
                     }
-                    isPermitted = user.isPermitted(action);
                     logger.debug("Result of permission: {}", isPermitted);
                     SecurityLogger.logInfo("Is user [" + user.getPrincipal() + "] permitted: "
                             + isPermitted);
@@ -118,31 +123,45 @@ public class PEPAuthorizingInterceptor extends AbstractPhaseInterceptor<Message>
                     message.put(SecurityConstants.SAML_ASSERTION, user);
                     logger.debug("Added assertion information to message at key {}",
                             SecurityConstants.SAML_ASSERTION);
-                } catch (Exception e) {
+                } catch (SecurityServiceException e) {
                     logger.warn("Caught exception when trying to perform AuthZ.", e);
-                    SecurityLogger.logWarn(
+                    if (action != null) {
+                        SecurityLogger.logWarn(
                             "Denying access : Caught exception when trying to perform AuthZ for user ["
-                                    + user.getPrincipal() + "] for service " + action.getAction(),
-                            e);
+                            + user.getPrincipal() + "] for service " + action.getAction(), e);
+                    } else {
+                        SecurityLogger.logWarn(
+                            "Denying access : Caught exception when trying to perform AuthZ for user ["
+                            + user.getPrincipal() + "] for unknown service.", e);
+                    }
                     throw new AccessDeniedException("Unauthorized");
                 }
                 if (!isPermitted) {
-                    logger.info("Denying access to {} for service {}", user.getPrincipal(),
-                            action.getAction());
-                    SecurityLogger.logWarn("Denying access to [" + user.getPrincipal()
-                            + "] for service " + action.getAction());
+                    if (action != null) {
+                        logger.info("Denying access to {} for service {}", user.getPrincipal(), action.getAction());
+                        SecurityLogger.logWarn("Denying access to [" + user.getPrincipal() + "] for service " + action.getAction());
+                    } else {
+                        logger.info("Denying access to {} for unknown service", user.getPrincipal());
+                        SecurityLogger.logWarn("Denying access to [" + user.getPrincipal() + "] for unknown service ");
+                    }
                     throw new AccessDeniedException("Unauthorized");
                 }
-
+            } else {
+                logger.warn("Unable to retrieve the security assertion associated with the web service call.");
+                throw new AccessDeniedException("Unauthorized");
             }
         } else {
             logger.warn("Unable to retrieve the current message associated with the web service call.");
             throw new AccessDeniedException("Unauthorized");
         }
     }
-    
+
     private String format(Element unformattedXml) {
-	 
+        if (unformattedXml == null) {
+            logger.error("Unable to transform xml: null");
+            return null;
+        }
+
         StreamResult xmlOutput = new StreamResult(new StringWriter());
         TransformerFactory transformerFactory = TransformerFactory.newInstance();
 
@@ -156,9 +175,7 @@ public class PEPAuthorizingInterceptor extends AbstractPhaseInterceptor<Message>
             transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
             transformer.transform(new DOMSource(unformattedXml), xmlOutput);
             formattedXml = xmlOutput.getWriter().toString();
-        } catch (TransformerConfigurationException e)
-
-        {
+        } catch (TransformerConfigurationException e) {
             String message = "Unable to transform xml:\n" + unformattedXml
                     + "\nUsing unformatted xml.";
             logger.error(message, e);
