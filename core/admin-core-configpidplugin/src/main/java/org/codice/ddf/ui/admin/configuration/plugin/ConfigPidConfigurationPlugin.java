@@ -20,37 +20,37 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.service.cm.ConfigurationPlugin;
 
 /**
- * A configuration plugin that passes the configuration's PID to the created service (in this case a
- * Source) so that the two can be correlated in the future.
+ * A configuration plugin that passes the configuration's PID to the created 
+ * Service so that the Service and its Configuration can be correlated in 
+ * the future.
  */
-public class ConfigurationPluginImpl implements ConfigurationPlugin {
-
-    public ConfigurationPluginImpl() {
-    }
-
-    public void init() {
-    }
-
-    public void destroy() {
-    }
+public class ConfigPidConfigurationPlugin implements ConfigurationPlugin {
 
     /**
-     * Adds the configuration PID to the dictionary of configuration properties sent to the service.
+     * When a user creates/modifies a configuration (e.g., via the Felix Web 
+     * Console Configuration Manager), this method is invoked prior to the 
+     * {@link org.osgi.service.cm.ManagedService#updated(Dictionary)} method 
+     * to add a configuration PID to the {@code Dictionary}. If the bean that
+     * is getting created/modified has a 
+     * {@code setConfigurationPid(java.lang.String)} method and the 
+     * ManagedService/ManagedServiceFactory utilizes a container-managed 
+     * update strategy, the configuration PID will subsequently be injected 
+     * into the bean.
      * 
      * @param reference
      *            Reference to the Managed Service or Managed Service Factory
      * @param properties
-     *            The configuration properties. This argument must not contain the
-     *            "service.bundleLocation" property. The value of this property may be obtained from
-     *            the Configuration.getBundleLocation method
+     *            The configuration properties. This argument must not contain 
+     *            the "service.bundleLocation" property. The value of this 
+     *            property may be obtained from the 
+     *            Configuration.getBundleLocation method
      */
     public void modifyConfiguration(ServiceReference<?> reference,
             Dictionary<String, Object> properties) {
-        // if for some reason service.pid was null, this would throw a null pointer and break
-        // everything
+        // if for some reason service.pid was null, this would throw a null 
+        // pointer and break everything
         if (properties != null && properties.get("service.pid") != null) {
             properties.put("configurationPid", properties.get("service.pid"));
         }
     }
-
 }

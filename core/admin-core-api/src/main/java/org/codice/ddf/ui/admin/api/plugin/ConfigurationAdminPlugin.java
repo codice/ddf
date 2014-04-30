@@ -18,9 +18,6 @@ import java.util.Map;
 
 import org.osgi.framework.BundleContext;
 
-/**
- * @author Scott Tustison
- */
 public interface ConfigurationAdminPlugin {
     /**
      * Returns a map of configuration data that should be appended to the configurationDataMap

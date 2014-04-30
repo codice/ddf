@@ -20,8 +20,7 @@
     <!--
       Defines the Configuration Plugin
     -->
-    <bean id="configPlugin" class="org.codice.ddf.ui.admin.configuration.plugin.ConfigurationPluginImpl"
-          init-method="init" destroy-method="destroy">
+    <bean id="configPlugin" class="org.codice.ddf.ui.admin.configuration.plugin.ConfigPidConfigurationPlugin">
     </bean>
 
     <service id="ConfigPluginService" ref="configPlugin" interface="org.osgi.service.cm.ConfigurationPlugin" />
