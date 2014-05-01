@@ -33,8 +33,7 @@
 	    <ddf.catalog.app.version>2.3.1.ALPHA1</ddf.catalog.app.version>
 	    <joda-time.version>1.6.2</joda-time.version>
 	    <jts.version>1.12</jts.version>
-		<solr.version>4.6.0</solr.version>
-        <lse.version>0.3_4</lse.version>
+		<solr.version>4.7.2</solr.version>
         <lux.version>1.0.1</lux.version>
         <!-- Woodstox version from LuxDB -->
         <woodstox.version>4.1.1</woodstox.version>
@@ -87,6 +86,18 @@
                 <groupId>ddf.catalog.solr</groupId>
                 <artifactId>solr-xpath</artifactId>
                 <version>${project.version}</version>
+            </dependency>
+            <!-- Version for Solr -->
+            <dependency>
+                <groupId>org.apache.httpcomponents</groupId>
+                <artifactId>httpcore</artifactId>
+                <version>4.3.1</version>
+            </dependency>
+            <!-- Version for Spatial4j -->
+            <dependency>
+                <groupId>com.vividsolutions</groupId>
+                <artifactId>jts</artifactId>
+                <version>1.13</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

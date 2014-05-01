@@ -196,8 +196,7 @@ public class DynamicSchemaResolver {
                         solrInputDocument.addField(getCaseSensitiveField(specialStringIndexName),
                                 parsedText);
                     } else if (AttributeFormat.GEOMETRY.equals(format)) {
-                        String wkt = WktNormalizer.normalizeWkt((String) attributeValue);
-                        solrInputDocument.addField(formatIndexName, wkt);
+                        solrInputDocument.addField(formatIndexName, attributeValue);
                     } else if (AttributeFormat.OBJECT.equals(format)) {
                         ByteArrayOutputStream byteArrayOS = new ByteArrayOutputStream();
                         ObjectOutputStream out = null;

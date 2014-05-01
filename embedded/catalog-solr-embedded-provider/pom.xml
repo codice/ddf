@@ -38,13 +38,6 @@
             <artifactId>solr-xpath</artifactId>
         </dependency>
 
-		<!--  Our branched spatial library for solr 4.6 -->
-		<dependency>
-			<groupId>ddf.thirdparty</groupId>
-			<artifactId>lse</artifactId>
-			<version>${lse.version}</version>
-		</dependency>
-
 		<dependency>
 			<groupId>org.apache.solr</groupId>
 			<artifactId>solr-solrj</artifactId>
@@ -61,12 +54,12 @@
         <dependency>
             <groupId>org.luxdb</groupId>
             <artifactId>lux</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.codehaus.woodstox</groupId>
-            <artifactId>woodstox-core-asl</artifactId>
-            <version>${woodstox.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.solr</groupId>
+                    <artifactId>solr-core</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
@@ -253,14 +246,15 @@
 					<instructions>
 						<Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
 						<Embed-Dependency>
-							commons-cli,
-							commons-fileupload,
-							commons-codec,
                             lux,
                             solr-xpath,
                             Saxon-HE,
                             woodstox-core-asl,
                             stax2-api,
+                            commons-cli,
+                            commons-fileupload,
+                            commons-codec,
+                            spatial4j,
 							solr-solrj,
 							solr-core,
 							commons-io,
@@ -279,7 +273,6 @@
 							lucene-queries,
 							guava,
 							lucene-spatial,
-							lse,
 							httpclient,
 							httpcore,
 							httpmime,
@@ -297,17 +290,8 @@
 							ddf.catalog.operation.impl,
 							ddf.catalog.util.impl
 						</Private-Package>
-						<!-- Since we do object serialization as part of our extensible metacards, 
-							we must dynamically import the classes we do not know about beforehand-->
-						<DynamicImport-Package>*</DynamicImport-Package>
 						<Export-Package />
 						<Import-Package>
-							com.spatial4j.core.context,
-							com.spatial4j.core.context.jts,
-							com.spatial4j.core.distance,
-							com.spatial4j.core.exception,
-							com.spatial4j.core.io,
-							com.spatial4j.core.shape,
 							com.vividsolutions.jts.algorithm,
 							com.vividsolutions.jts.geom,
 							com.vividsolutions.jts.io,
@@ -338,8 +322,7 @@
 							javax.security.auth.spi,
 							javax.security.auth.x500,
 							javax.security.sasl,
-							javax.servlet,
-							javax.servlet.http,
+                            javax.servlet;version="2.5",
 							javax.xml.namespace,
 							javax.xml.parsers,
 							javax.xml.stream,

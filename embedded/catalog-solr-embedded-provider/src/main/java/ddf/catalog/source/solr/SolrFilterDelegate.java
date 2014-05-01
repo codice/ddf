@@ -23,6 +23,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.vividsolutions.jts.io.ParseException;
+import com.vividsolutions.jts.io.WKTReader;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.solr.client.solrj.SolrQuery;
@@ -66,9 +68,7 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
 
     private static final String INTERSECTS_OPERATION = "Intersects";
 
-    private static final String LUCENE_SPATIAL_INDEX = "_geohash_index";
-
-    private static final String JTS_SPATIAL_INDEX = "_geo_index";
+    private static final String SPATIAL_INDEX = "_geo_index";
 
     private static final double NEAREST_NEIGHBOR_DISTANCE_LIMIT = metersToDegrees(new Distance(
             1000, LinearUnit.NAUTICAL_MILE).getAs(LinearUnit.METER));
@@ -118,7 +118,7 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
     static {
         Map<String, String> tempMap = new HashMap<String, String>();
         tempMap.put(Metacard.ANY_TEXT, TOKENIZED_METADATA_FIELD);
-        tempMap.put(Metacard.ANY_GEO, Metacard.GEOGRAPHY + JTS_SPATIAL_INDEX);
+        tempMap.put(Metacard.ANY_GEO, Metacard.GEOGRAPHY + SPATIAL_INDEX);
         FIELD_MAP = Collections.unmodifiableMap(tempMap);
     }
 
@@ -342,8 +342,7 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
 
     @Override
     public SolrQuery nearestNeighbor(String propertyName, String wkt) {
-
-        Geometry geo = WktNormalizer.readWkt(wkt);
+        Geometry geo = getGeometry(wkt);
 
         if (geo != null) {
             Point pnt = null;
@@ -365,7 +364,8 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
 
     private String geoPointToCircleQuery(String propertyName, double distanceInDegrees, Point pnt) {
         String circle = "Circle(" + pnt.getX() + " " + pnt.getY() + " d=" + distanceInDegrees + ")";
-        String pointRadiusQuery = getLuceneGeometryIndex(propertyName) + ":\""
+        String geoIndexName = getMappedPropertyName(propertyName, AttributeFormat.GEOMETRY, false);
+        String pointRadiusQuery = geoIndexName + ":\""
                 + INTERSECTS_OPERATION + "(" + circle + ")\"";
 
         return pointRadiusQuery;
@@ -378,7 +378,7 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
 
     @Override
     public SolrQuery dwithin(String propertyName, String wkt, double distance) {
-        Geometry geo = WktNormalizer.readWkt(wkt);
+        Geometry geo = getGeometry(wkt);
 
         if (geo != null) {
             double distanceInDegrees = metersToDegrees(distance);
@@ -398,13 +398,16 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
         }
     }
 
-    private String getLuceneGeometryIndex(String propertyName) {
-        String geoIndex = getMappedPropertyName(propertyName, AttributeFormat.GEOMETRY, false);
-        if (geoIndex != null) {
-            return geoIndex.replaceFirst(JTS_SPATIAL_INDEX, LUCENE_SPATIAL_INDEX);
-        } else {
-            throw new UnsupportedOperationException("propertyName should not be null.");
+    private Geometry getGeometry(String wkt) {
+        WKTReader reader = new WKTReader(GEOMETRY_FACTORY);
+
+        Geometry geo = null;
+        try {
+            geo = reader.read(wkt);
+        } catch (ParseException e) {
+            LOGGER.info("Failed to read WKT: " + wkt, e);
         }
+        return geo;
     }
 
     private static double metersToDegrees(double distance) {
@@ -415,13 +418,11 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
 
     @Override
     public SolrQuery intersects(String propertyName, String wkt) {
-        String geoIndexName = getLuceneGeometryIndex(propertyName);
-
         // Bug in spatial4j that does not properly find intersection between
         // points. Therefore, converting to a point-radius to account for the
         // error.
         if (StringUtils.isNotBlank(wkt) && wkt.toUpperCase().contains("POINT")) {
-            Geometry geo = WktNormalizer.readWkt(wkt);
+            Geometry geo = getGeometry(wkt);
 
             if (geo != null) {
 
@@ -443,7 +444,7 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
             }
         }
 
-        return operationOnIndexToQuery(INTERSECTS_OPERATION, geoIndexName, wkt);
+        return operationToQuery(INTERSECTS_OPERATION, propertyName, wkt);
     }
 
     @Override
@@ -565,6 +566,9 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
 
     private String getMappedPropertyName(String propertyName, AttributeFormat format,
             boolean isSearchedAsExactString) {
+        if (propertyName == null) {
+            throw new UnsupportedOperationException("Property name should not be null.");
+        }
         String specialField = FIELD_MAP.get(propertyName);
         if (specialField != null) {
             return specialField;
@@ -655,9 +659,7 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
 
     private SolrQuery operationOnIndexToQuery(String operation, String indexName, String wkt) {
         if (StringUtils.isNotEmpty(wkt)) {
-            String normalizedWkt = WktNormalizer.normalizeWkt(wkt);
-            String geoQuery = indexName + ":\"" + operation + "(" + normalizedWkt + ")\"";
-
+            String geoQuery = indexName + ":\"" + operation + "(" + wkt + ")\"";
             return new SolrQuery(geoQuery);
         } else {
             throw new UnsupportedOperationException("Wkt should not be null or empty.");

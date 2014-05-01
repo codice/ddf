@@ -9,5 +9,6 @@
 node_modules/
 target/
 bin/
+overlays/
 atlassian-ide-plugin.xml
 *.sonar-ide.properties

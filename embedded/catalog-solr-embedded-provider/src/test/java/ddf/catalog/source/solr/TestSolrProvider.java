@@ -3722,14 +3722,7 @@ public class TestSolrProvider extends SolrProviderTestCase {
         }
     }
 
-    /**
-     * This test is ignored until a fix is made to enable querying across the international date
-     * line. Ticket DDF-118
-     * 
-     * @throws Exception
-     */
     @Test
-    @Ignore
     public void testSpatialQueryAcrossInternationalDateLine() throws Exception {
         deleteAllIn(provider);
 
@@ -3883,8 +3876,6 @@ public class TestSolrProvider extends SolrProviderTestCase {
     }
 
     @Test
-    @Ignore
-    // GeometryCollection is not supported by Spatial4j at this time
     public void testSpatialPolygonIntersectsGeometryCollection() throws Exception {
         testSpatialIntersectsWithWkt(ARIZONA_POLYGON_WKT,
                 ARIZONA_INTERSECTING_GEOMETRYCOLLECTION_WKT, GULF_OF_GUINEA_GEOMETRYCOLLECTION_WKT);
@@ -3927,8 +3918,6 @@ public class TestSolrProvider extends SolrProviderTestCase {
     }
 
     @Test
-    @Ignore
-    // GeometryCollection is not supported by Spatial4j at this time
     public void testSpatialGeometryCollectionWithinPolygon() throws Exception {
         testSpatialWithinWithWkt(ARIZONA_INTERSECTING_GEOMETRYCOLLECTION_WKT,
                 WEST_USA_CONTAINING_POLYGON_WKT, GULF_OF_GUINEA_POLYGON_WKT);

@@ -497,19 +497,11 @@
 <!--     <fieldtype name="geohash" class="solr.GeoHashField"/> -->
     
     <!--  Spatial4j -->
-	<fieldType name="geo"
-		class="org.apache.solr.spatial.pending.GeometryFieldType" 
-		spatialContextFactory="com.spatial4j.core.context.jts.JtsSpatialContextFactory" units="degrees" /> 
-
 	<fieldType name="geohash"
 		class="solr.SpatialRecursivePrefixTreeFieldType"
 		spatialContextFactory="com.spatial4j.core.context.jts.JtsSpatialContextFactory"
 		units="degrees" />
- 
-<!--     <fieldType name="bbox"      class="org.apache.solr.spatial.pending.BBoxFieldType"         ignoreIncompatibleGeometry="true" /> -->
-<!--     <fieldType name="vector2d"  class="org.apache.solr.spatial.TwoDoublesFieldType"           ignoreIncompatibleGeometry="true" /> -->
-<!--     <fieldType name="quad"      class="org.apache.solr.spatial.TermQueryPrefixTreeFieldType"  ignoreIncompatibleGeometry="true" /> -->
-<!--     <fieldType name="geohash"   class="org.apache.solr.spatial.RecursivePrefixTreeFieldType"  ignoreIncompatibleGeometry="true" /> -->
+
  </types>
 
 
@@ -593,9 +585,8 @@
    <dynamicField name="*_bln"  type="boolean" indexed="true"  stored="true"/>
    
    <dynamicField name="*_geo" type="string" indexed="false" stored="true"  />
-    <!-- Spatial4J field -->
-   <dynamicField name="*_geo_index" type="geo" indexed="true" stored="false"  />
-   <dynamicField name="*_geohash_index" type="geohash" indexed="true" stored="false"  />
+
+   <dynamicField name="*_geo_index" type="geohash" indexed="true" stored="false"  />
    
    <dynamicField name="*_txt" type="string" indexed="true" stored="true"  />
    
@@ -635,9 +626,8 @@
    <copyField source="*_txt" dest="*_txt_tokenized"/>
    <copyField source="*_txt" dest="*_txt_tokenized_has_case"/>
    
-	 	<!-- Necessary for Spatial4j to work -->
+   <!-- Necessary for Spatial4j to work -->
    <copyField source="*_geo" dest="*_geo_index"/>
-   <copyField source="*_geo" dest="*_geohash_index"/>
    
    <!-- Above, multiple source fields are copied to the [text] field. 
 	  Another way to map multiple source fields to the same 
