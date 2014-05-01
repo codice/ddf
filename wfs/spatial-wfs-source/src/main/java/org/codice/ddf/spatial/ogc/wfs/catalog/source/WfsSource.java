@@ -710,7 +710,7 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
         }
 
         if (refs == null || refs.length == 0) {
-            LOGGER.warn("MetadataTransformer not found.  Returning original metacard.");
+            LOGGER.debug("MetadataTransformer not found.  Returning original metacard.");
             return mc;
         } else {
             try {

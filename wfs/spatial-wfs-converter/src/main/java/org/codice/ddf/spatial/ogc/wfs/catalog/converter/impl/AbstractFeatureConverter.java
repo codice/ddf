@@ -137,13 +137,14 @@ public abstract class AbstractFeatureConverter implements FeatureConverter {
 
             if (null != value) {
                 mc.setAttribute(name, value);
-                if (attributeDescriptor.getType().equals(BasicTypes.GEO_TYPE)) {
+                if (BasicTypes.GEO_TYPE.getAttributeFormat().equals(
+                        attributeDescriptor.getType().getAttributeFormat())) {
                     mc.setLocation((String) value);
                 }
                 // if this node matches a basic metacard attribute name,
                 // populate that field as well
                 if (isBasicMetacardAttribute(reader.getNodeName())) {
-                    LOGGER.info("Setting metacard basic attribute: {} = {}", reader.getNodeName(),
+                    LOGGER.debug("Setting metacard basic attribute: {} = {}", reader.getNodeName(),
                             value);
                     mc.setAttribute(reader.getNodeName(), value);
                 }
@@ -235,11 +236,13 @@ public abstract class AbstractFeatureConverter implements FeatureConverter {
         try { // trying to parse xsd:date
             date = DatatypeConverter.parseDate(reader.getValue()).getTime();
         } catch (IllegalArgumentException e) {
-            LOGGER.warn("Unable to parse date, attempting to parse as xsd:dateTime, Exception was {}", e);
+            LOGGER.debug(
+                    "Unable to parse date, attempting to parse as xsd:dateTime, Exception was {}",
+                    e);
             try { // try to parse it as a xsd:dateTime
                 date = DatatypeConverter.parseDateTime(reader.getValue()).getTime();
             } catch (IllegalArgumentException ie) {
-                LOGGER.warn(
+                LOGGER.debug(
                         "Unable to parse date from XML; defaulting \"{}\" to current datetime.  Exception {}",
                         reader.getNodeName(), ie);
                 date = new Date();
