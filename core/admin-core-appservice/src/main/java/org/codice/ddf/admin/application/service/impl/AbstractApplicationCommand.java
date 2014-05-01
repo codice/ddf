@@ -44,11 +44,16 @@ public abstract class AbstractApplicationCommand extends OsgiCommandSupport {
 
         try {
             appServiceRef = getBundleContext().getServiceReference(ApplicationService.class);
-            applicationService = getBundleContext().getService(appServiceRef);
-            applicationCommand();
-        } catch (Exception e) {
-            console.println("Could not obtain find Application Service due to error: "
-                    + e.getMessage());
+            if (appServiceRef != null) {
+                applicationService = getBundleContext().getService(appServiceRef);
+                applicationCommand();
+            }
+            else {
+                console.println("Could not obtain reference to Application Service. Cannot perform operation.");
+            }
+        } catch (ApplicationServiceException ase) {
+            console.println("Encountered error while trying to perform command. Check log for more details.");
+            logger.warn("Error while performing command.", ase);
         } finally {
             if (appServiceRef != null) {
                 try {

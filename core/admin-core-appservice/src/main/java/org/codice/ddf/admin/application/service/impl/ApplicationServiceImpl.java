@@ -525,7 +525,7 @@ public class ApplicationServiceImpl implements ApplicationService {
     }
 
     @Override
-    public void startApplication(Application application) throws ApplicationServiceException {
+    public synchronized void startApplication(Application application) throws ApplicationServiceException {
         try {
             if (application.getMainFeature() != null) {
                 featuresService.installFeature(application.getMainFeature().getName());
@@ -562,7 +562,7 @@ public class ApplicationServiceImpl implements ApplicationService {
     }
 
     @Override
-    public void stopApplication(Application application) throws ApplicationServiceException {
+    public synchronized void stopApplication(Application application) throws ApplicationServiceException {
         try {
             if (application.getMainFeature() != null) {
                 if (featuresService.isInstalled(application.getMainFeature())) {
