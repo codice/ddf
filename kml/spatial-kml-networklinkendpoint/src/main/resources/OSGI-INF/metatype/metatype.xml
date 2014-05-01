@@ -30,6 +30,16 @@
 			description="Description of this NetworkLink. Enter a short description of what this NetworkLink provides."
 			name="Description" id="description" required="false" type="String"
 			default="" />
+			
+		<AD
+			description="Check if the source NetworkLinks should be visible by default."
+			name="Visible By Default" id="visibleByDefault" required="false" type="Boolean"
+			default="false" />
+			
+		<AD
+			description="The maximum number of results that should be returned from each layer."
+			name="Max Number of Results" id="maxResults" required="false" type="Integer"
+			default="100" />
 	</OCD>
 
 	<Designate

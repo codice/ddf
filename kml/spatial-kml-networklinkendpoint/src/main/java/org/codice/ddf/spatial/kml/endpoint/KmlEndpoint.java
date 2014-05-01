@@ -99,6 +99,8 @@ public class KmlEndpoint implements ConfigurationWatcher {
 
     private static final String SOURCE_PARAM = "src";
 
+    private static final String COUNT_PARAM = "count=";
+
     private String host;
 
     private String port;
@@ -116,6 +118,10 @@ public class KmlEndpoint implements ConfigurationWatcher {
     private String iconLoc;
 
     private String description;
+
+    private Boolean visibleByDefault = false;
+
+    private Integer maxResults = 100;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(KmlEndpoint.class);
 
@@ -157,6 +163,26 @@ public class KmlEndpoint implements ConfigurationWatcher {
      */
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    /**
+     * Sets if the Source {@link NetworkLink}s should be Visible by Default.
+     * 
+     * @param visibleByDefault
+     *            - true to enable
+     */
+    public void setVisibleByDefault(Boolean visibleByDefault) {
+        this.visibleByDefault = visibleByDefault;
+    }
+
+    /**
+     * Sets the Maximum Number of results each {@link NetworkLink} will return.
+     * 
+     * @param maxResults
+     *            - maximum number of results to return
+     */
+    public void setMaxResults(Integer maxResults) {
+        this.maxResults = maxResults;
     }
 
     public KmlEndpoint(BrandingPlugin brandingPlugin, CatalogFramework catalogFramework) {
@@ -264,6 +290,7 @@ public class KmlEndpoint implements ConfigurationWatcher {
         NetworkLink networkLink = KmlFactory.createNetworkLink();
         networkLink.setName(sourceId);
         networkLink.setOpen(true);
+        networkLink.setVisibility(this.visibleByDefault);
 
         // create link and add it to networkLinkElements
         Link link = networkLink.createAndSetLink();
@@ -273,7 +300,7 @@ public class KmlEndpoint implements ConfigurationWatcher {
         link.setViewRefreshTime(DEFAULT_VIEW_REFRESH_TIME);
         link.setViewFormat(VIEW_FORMAT_STRING);
         link.setViewBoundScale(1);
-        link.setHttpQuery("count=100");
+        link.setHttpQuery(COUNT_PARAM + maxResults);
 
         return networkLink;
     }

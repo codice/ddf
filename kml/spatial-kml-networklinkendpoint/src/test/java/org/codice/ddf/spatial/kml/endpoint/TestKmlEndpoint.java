@@ -163,6 +163,53 @@ public class TestKmlEndpoint {
         assertThat(nl2.getName(), anyOf(is(REMOTE_SITE_NAME), is(LOCAL_SITE_NAME)));
     }
 
+    @Test
+    public void testGetAvailableSourcesVisibleByDefault() throws UnknownHostException,
+        MalformedURLException, IllegalArgumentException, UriBuilderException,
+        SourceUnavailableException {
+        when(mockUriInfo.getQueryParameters(false)).thenReturn(mockMap);
+        KmlEndpoint kmlEndpoint = new KmlEndpoint(mockBranding, mockFramework);
+        kmlEndpoint.configurationUpdateCallback(config);
+        Kml response = kmlEndpoint.getAvailableSources(mockUriInfo);
+        assertThat(response, notNullValue());
+        assertThat(response.getFeature(), is(Folder.class));
+        Folder folder = (Folder) response.getFeature();
+        assertThat(folder.getFeature(), notNullValue());
+        assertThat(folder.getFeature().size(), is(2));
+        assertThat(folder.getFeature().get(0), is(NetworkLink.class));
+        assertThat(folder.getFeature().get(1), is(NetworkLink.class));
+        NetworkLink nl1 = (NetworkLink) folder.getFeature().get(0);
+        assertThat(nl1.getName(), anyOf(is(REMOTE_SITE_NAME), is(LOCAL_SITE_NAME)));
+        assertThat(nl1.isVisibility(), is(false));
+        NetworkLink nl2 = (NetworkLink) folder.getFeature().get(1);
+        assertThat(nl2.getName(), anyOf(is(REMOTE_SITE_NAME), is(LOCAL_SITE_NAME)));
+        assertThat(nl2.isVisibility(), is(false));
+    }
+
+    @Test
+    public void testGetAvailableSourcesWithCount() throws UnknownHostException,
+        MalformedURLException, IllegalArgumentException, UriBuilderException,
+        SourceUnavailableException {
+        when(mockUriInfo.getQueryParameters(false)).thenReturn(mockMap);
+        KmlEndpoint kmlEndpoint = new KmlEndpoint(mockBranding, mockFramework);
+        kmlEndpoint.configurationUpdateCallback(config);
+        kmlEndpoint.setMaxResults(250);
+        Kml response = kmlEndpoint.getAvailableSources(mockUriInfo);
+        assertThat(response, notNullValue());
+        assertThat(response.getFeature(), is(Folder.class));
+        Folder folder = (Folder) response.getFeature();
+        assertThat(folder.getFeature(), notNullValue());
+        assertThat(folder.getFeature().size(), is(2));
+        assertThat(folder.getFeature().get(0), is(NetworkLink.class));
+        assertThat(folder.getFeature().get(1), is(NetworkLink.class));
+        NetworkLink nl1 = (NetworkLink) folder.getFeature().get(0);
+        assertThat(nl1.getName(), anyOf(is(REMOTE_SITE_NAME), is(LOCAL_SITE_NAME)));
+        assertThat(nl1.getLink().getHttpQuery(), is("count=250"));
+        NetworkLink nl2 = (NetworkLink) folder.getFeature().get(1);
+        assertThat(nl2.getName(), anyOf(is(REMOTE_SITE_NAME), is(LOCAL_SITE_NAME)));
+        assertThat(nl2.getLink().getHttpQuery(), is("count=250"));
+    }
+
     /**
      * Tests setting the icon directory location
      */
