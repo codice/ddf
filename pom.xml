@@ -18,8 +18,7 @@
 	<parent>
 		<groupId>ddf</groupId>
 		<artifactId>ddf-parent</artifactId>
-		<version>1.0.2</version>
-		<relativePath>../ddf-parent/pom.xml</relativePath>
+		<version>2.0.0-SNAPSHOT</version>
 	</parent>
 
 	<groupId>ddf.platform</groupId>
@@ -31,10 +30,27 @@
 	<properties>
 		<cxf.version>2.7.8</cxf.version>
 		<cxf.jaxb.version>2.2.4</cxf.jaxb.version>
+		<commons-io.version>2.1</commons-io.version>
+	    <joda-time.version>1.6.2</joda-time.version>
+	    <org.slf4j.version>1.7.1</org.slf4j.version>	
+		<osgi.version>4.3.1</osgi.version>
+		<shiro.version>1.2.1</shiro.version>
 	</properties>
 
 	<dependencyManagement>
 		<dependencies>
+		    <dependency>
+				<groupId>commons-io</groupId>
+				<artifactId>commons-io</artifactId>
+				<version>${commons-io.version}</version>
+			</dependency>
+			
+			 <dependency>
+               <groupId>commons-lang</groupId>
+               <artifactId>commons-lang</artifactId>
+               <version>2.6</version>
+           </dependency>
+           
 			<dependency>
 				<groupId>ddf.platform</groupId>
 				<artifactId>platform-configuration</artifactId>
@@ -185,6 +201,54 @@
                 <artifactId>cache-core-impl</artifactId>
                 <version>${project.version}</version>
             </dependency>
+			<dependency>
+				<groupId>org.apache.shiro</groupId>
+				<artifactId>shiro-core</artifactId>
+				<version>${shiro.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.slf4j</groupId>
+				<artifactId>slf4j-api</artifactId>
+				<version>${org.slf4j.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.slf4j</groupId>
+				<artifactId>slf4j-ext</artifactId>
+				<version>${org.slf4j.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.slf4j</groupId>
+				<artifactId>slf4j-log4j12</artifactId>
+				<version>${org.slf4j.version}</version>
+			</dependency>
+			 <dependency>
+                <groupId>org.osgi</groupId>
+                <artifactId>org.osgi.core</artifactId>
+                <version>${osgi.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.osgi</groupId>
+                <artifactId>org.osgi.compendium</artifactId>
+                <version>${osgi.version}</version>
+            </dependency>
+			<dependency>
+				<groupId>log4j</groupId>
+				<artifactId>log4j</artifactId>
+				<version>1.2.17</version>
+			</dependency>
+		<!-- WSS4J, a dependency of CXF depends on a version of Joda Time [1.6,2). 
+		  Before incrementing to 2.0 or beyond, ensure that the latest version of WSS4J 
+		  can use a version higher 2.0 or higher. -->
+			<dependency>
+				<groupId>joda-time</groupId>
+				<artifactId>joda-time</artifactId>
+				<version>${joda-time.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>javax.servlet</groupId>
+				<artifactId>servlet-api</artifactId>
+				<version>2.5</version>
+			</dependency>
 			
 		</dependencies>
 	</dependencyManagement>

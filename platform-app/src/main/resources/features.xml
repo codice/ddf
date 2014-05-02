@@ -643,7 +643,7 @@
 			version=${project.version}
 			host=0.0.0.0
 			port=8181
-			id=${sitename.default}
+			id=ddf.distribution
 			organization=${organization.name}
 		</config>
 	</feature>

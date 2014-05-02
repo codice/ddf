@@ -33,7 +33,7 @@
 				<configuration>
 					<instructions>
 						<Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-						<Export-Package>ddf.action;version=${ddf.action.api.version}</Export-Package>
+						<Export-Package>ddf.action;version=1.0.0</Export-Package>
 					</instructions>
 				</configuration>
 			</plugin>

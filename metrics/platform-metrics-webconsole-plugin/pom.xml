@@ -59,33 +59,34 @@
 		<groupId>commons-io</groupId>
 		<artifactId>commons-io</artifactId>
 	</dependency>
-        
-    <dependency>
-		<groupId>org.osgi</groupId>
-		<artifactId>org.osgi.core</artifactId>
+	
+	<dependency>
+		<groupId>ddf.platform</groupId>
+		<artifactId>platform-configuration</artifactId>
 	</dependency>
-
-  	<dependency>
-   	    <groupId>log4j</groupId>
-   	    <artifactId>log4j</artifactId>
-    </dependency>
-    
+	
     <dependency>
       <groupId>joda-time</groupId>
       <artifactId>joda-time</artifactId>
     </dependency>
-    
-    <dependency>
-    	<groupId>ddf.platform</groupId>
-    	<artifactId>platform-configuration</artifactId>
+
+	<dependency>
+   	    <groupId>log4j</groupId>
+   	    <artifactId>log4j</artifactId>
     </dependency>
     
+	<dependency>
+		<groupId>org.apache.felix</groupId>
+		<artifactId>org.apache.felix.webconsole</artifactId>
+		<version>4.0.0</version>
+	</dependency>
+    
     <dependency>
-        <groupId>xmlunit</groupId>
-        <artifactId>xmlunit</artifactId>
-        <scope>test</scope>
-    </dependency>
-     
+		<groupId>org.osgi</groupId>
+		<artifactId>org.osgi.core</artifactId>
+	</dependency>
+	
+	
   </dependencies>
   
   <build>

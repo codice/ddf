@@ -32,7 +32,7 @@
 					<instructions>
 						<Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
 						<Export-Package>
-							ddf.mime;version=${ddf.mime.api.version}
+							ddf.mime;version=2.0.0
 						</Export-Package>
 					</instructions>
 				</configuration>

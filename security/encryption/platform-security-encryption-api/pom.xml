@@ -44,7 +44,7 @@
 							*
 						</Import-Package>
 						<Export-Package>
-							ddf.security.encryption;version=${ddf.security.encryption.service.api.version}
+							ddf.security.encryption;version=1.0.0
 						</Export-Package>
 					</instructions>
 				</configuration>
