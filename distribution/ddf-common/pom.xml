@@ -71,10 +71,6 @@
 				<exclude>bin/setenv.bat</exclude>
 			   </excludes>
         </resource>
-      	<!-- 
-		Specifies the Version.txt resource file which has the Maven properties
-		${buildNumber} and ${prefix.revision} which will be populated by other plugins.
-		-->        
 		<resource>
                <directory>src/main/resources/version</directory>
                <filtering>true</filtering>

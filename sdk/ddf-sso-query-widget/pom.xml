@@ -34,6 +34,7 @@
     <dependency>
       <groupId>javax.servlet</groupId>
       <artifactId>servlet-api</artifactId>
+      <version>2.5</version>
     </dependency>
     <dependency>
       <groupId>ddf.catalog.core</groupId>
@@ -59,10 +60,6 @@
       <groupId>ddf.security.cas</groupId>
       <artifactId>security-cas-impl</artifactId>
       <version>${ddf.security.app.version}</version>     
-    </dependency>
-    <dependency>
-      <groupId>commons-codec</groupId>
-      <artifactId>commons-codec</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apache.cxf</groupId>

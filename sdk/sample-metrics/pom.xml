@@ -40,13 +40,9 @@
 	</dependency>
 	
 	<dependency>
-		<groupId>log4j</groupId>
-		<artifactId>log4j</artifactId>
-	</dependency>
-	
-	<dependency>
 		<groupId>com.codahale.metrics</groupId>
 		<artifactId>metrics-core</artifactId>
+		<version>3.0.1</version>
 	</dependency>
 	
     <dependency>
