@@ -103,11 +103,13 @@
 		<dependency>
 			<groupId>com.vividsolutions</groupId>
 			<artifactId>jts</artifactId>
+			<version>${jts.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>javax.servlet</groupId>
 			<artifactId>servlet-api</artifactId>
+			<version>2.5</version>
 		</dependency>
 
 		<dependency>
@@ -136,11 +138,13 @@
 		<dependency>
 			<groupId>joda-time</groupId>
 			<artifactId>joda-time</artifactId>
+			<version>${joda-time.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>xerces</groupId>
 			<artifactId>xercesImpl</artifactId>
+			<version>${xerces.version}</version>
 		</dependency>
 
 		<dependency>
@@ -156,6 +160,7 @@
 		<dependency>
         	<groupId>commons-collections</groupId>
             <artifactId>commons-collections</artifactId>
+            <version>3.2.1</version>
         </dependency>
 
 		<dependency>
@@ -167,6 +172,7 @@
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-simple</artifactId>
+			<version>1.7.1</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>

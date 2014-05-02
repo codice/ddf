@@ -24,6 +24,9 @@
   <packaging>pom</packaging>
   <name>DDF :: Solr Catalog App</name>
   
+  <properties>
+    <jts.bundle.version>1.12_1</jts.bundle.version>
+  </properties>
     <build>
         <plugins>
             <plugin>
