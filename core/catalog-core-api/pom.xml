@@ -88,7 +88,7 @@
 					<instructions>
 						<Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
 						<Export-Package>
-							ddf.catalog*;version=${ddf.catalog.api.version}
+							ddf.catalog*;version=2.0.12
 						</Export-Package>
 					</instructions>
 				</configuration>
