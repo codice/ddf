@@ -18,7 +18,7 @@
   <parent>
     <artifactId>content-core-pom</artifactId>
     <groupId>ddf.content.core</groupId>
-    <version>2.3.1-SNAPSHOT</version>
+    <version>2.4.1-SNAPSHOT</version>
   </parent>
 
   <artifactId>content-core-api</artifactId>
@@ -34,7 +34,7 @@
 					<instructions>
 						<Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
 						<Export-Package>
-							ddf.content*;version=${ddf.content.core.api.version}
+							ddf.content*;version=1.0.0
                         </Export-Package>
 					</instructions>
 				</configuration>
