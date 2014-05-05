@@ -162,7 +162,7 @@
 		<snapshots.repository.url />
 		
 		<!-- Must MANUALLY update this if the ddf/support project's version changes -->
-		<ddf.support.checkstyle.version>2.3.0</ddf.support.checkstyle.version>
+		<ddf.support.checkstyle.version>2.3.1-SNAPSHOT</ddf.support.checkstyle.version>
 
         <!-- Do NOT set karaf.data or karaf.base -->
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -448,26 +448,6 @@
 	</reporting>
 
 	<profiles>
-<!-- Uncomment this profile when a test module is added.  This way this profile can be used to facilitate the release. -->
-<!--         <profile> -->
-<!--             Enable this profile to run the integration tests, for example:-->
-<!--             mvn clean install -P ddf-integration-test -->
-<!--             OR -->
-<!--             set and activate this profile in your ~/.m2/settings.xml -->
-<!--             -->
-<!--             <id>ddf-integration-test</id> -->
-<!--             <activation> -->
-<!--                 <property> -->
-<!--                     <name>ddf-integration-test</name> -->
-<!--                 </property> -->
-<!--             </activation> -->
-<!--             Add the test module. Only build if this profile is enabled. -->
-<!--             <modules> -->
-<!--                 <module>test</module> -->
-<!--             </modules> -->
-<!--         </profile> -->
-
-
 		<profile>
 			<id>bundleSource</id>
 			<build>
