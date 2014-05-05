@@ -1118,7 +1118,7 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
 
             if (!NO_FORCE_SPATIAL_FILTER.equals(forceSpatialFilter)) {
                 SpatialOperatorType sot = new SpatialOperatorType();
-                SpatialOperatorNameType sont = SpatialOperatorNameType.valueOf(forceSpatialFilter);
+                SpatialOperatorNameType sont = SpatialOperatorNameType.fromValue(forceSpatialFilter);
                 sot.setName(sont);
                 sot.setGeometryOperands(cswFilterDelegate.getGeoOpsForSpatialOp(sont));
                 SpatialOperatorsType spatialOperators = new SpatialOperatorsType();
