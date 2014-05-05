@@ -31,13 +31,15 @@ import java.util.Map;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 
-import org.apache.log4j.Logger;
 import org.apache.lucene.store.Directory;
 import org.geotools.filter.FilterTransformer;
+import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.opengis.filter.Filter;
 import org.osgi.service.event.Event;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.vividsolutions.jts.geom.Geometry;
 
@@ -61,13 +63,40 @@ import ddf.measure.Distance;
 
 public class PredicateTest {
 
-    private static final Logger logger = Logger.getLogger(PredicateTest.class);
+    private static final Logger logger = LoggerFactory.getLogger(PredicateTest.class);
 
     private static final double EQUATORIAL_RADIUS_IN_METERS = 6378137.0;
 
     private static final double NM_PER_DEG_LAT = 60.0;
 
     private static final double METERS_PER_NM = 1852.0;
+    
+    private static final String METADATA_FORMAT = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\r\n"
+            + "<Resource xmlns:gml=\"http://www.opengis.net/gml\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\r\n"
+            + "  <identifier qualifier=\"http://metadata.abc.com/mdr/ns/MDR/0.1/MDR.owl#URI\" value=\"http://www.abc.com/news/May2004/n05172004_200405174.html\"/>\r\n"
+            + "  <title classification=\"U\" ownerProducer=\"AUS GBR USA\">%s</title>\r\n"
+            + "  <creator classification=\"U\" ownerProducer=\"AUS GBR USA\">\r\n"
+            + "    <Person>\r\n"
+            + "      <name>Donna Miles</name>\r\n"
+            + "      <surname>Cat</surname>\r\n"
+            + "      <affiliation>American Forces Press Service</affiliation>\r\n"
+            + "    </Person>\r\n"
+            + "  </creator>\r\n"
+            + "  <subjectCoverage>\r\n"
+            + "    <Subject>\r\n"
+            + "      <keyword value=\"exercise\"/>\r\n"
+            + "      <category qualifier=\"SubjectCoverageQualifier\" code=\"nitf\" label=\"nitf\"/>\r\n"
+            + "    </Subject>\r\n" + "  </subjectCoverage>\r\n"
+            + "  <security classification=\"U\" ownerProducer=\"USA\"/>\r\n" + "</Resource>";
+    
+    
+
+    @BeforeClass
+    public static void oneTimeSetup() throws IOException {
+        ch.qos.logback.classic.Logger root = (ch.qos.logback.classic.Logger) LoggerFactory
+                .getLogger(Logger.ROOT_LOGGER_NAME);
+        root.setLevel(ch.qos.logback.classic.Level.DEBUG);
+    }
 
     @Test
     public void testContentTypeEvaluation() throws IOException {
@@ -1068,6 +1097,36 @@ public class PredicateTest {
     }
 
     @Test
+    public void testContextualQueryWithLeadingHyphen() throws Exception {
+        String methodName = "testContextualQueryWithLeadingHyphen";
+        logger.debug("***************  START: " + methodName + "  *****************");
+
+//        String searchPhrase = "\\-hyphen"; //WORKS
+        String searchPhrase = "-hyphen";
+        
+        String metadata = String.format(METADATA_FORMAT, "title-with-hyphen");
+        Predicate predicate = getPredicate(searchPhrase);
+        Event testEvent = getEvent(metadata);
+        assertTrue(predicate.matches(testEvent));
+        
+        logger.debug("***************  END: " + methodName + "  *****************");
+    }
+
+    @Test
+    public void testContextualQueryWithLeadingUnderscore() throws Exception {
+        String methodName = "testContextualQueryWithLeadingUnderscore";
+        logger.debug("***************  START: " + methodName + "  *****************");
+
+//        String searchPhrase = "\\-hyphen"; //WORKS
+        String searchPhrase = "_test";
+        
+//        verifySubscription(searchPhrase, String.format(METADATA_FORMAT, "_test"));
+//        verifySubscription(searchPhrase, String.format(METADATA_FORMAT, "-test"));
+        
+        logger.debug("***************  END: " + methodName + "  *****************");
+    }
+
+    @Test
     public void testContextualQueryNullMetadata() throws Exception {
         String methodName = "testContextualQueryNullMetadata";
         logger.debug("***************  START: " + methodName + "  *****************");
@@ -1448,7 +1507,7 @@ public class PredicateTest {
      * for (int i = 0; i < strings.length; i++) { analyze( "contents", strings[i] ); } } END DEBUG
      */
 
-    // //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     /**
      * 
@@ -1491,6 +1550,33 @@ public class PredicateTest {
         }
 
         return extensions;
+    }
+    
+    private Predicate getPredicate(String searchPhrase) {
+        MockQuery query = new MockQuery();
+        query.addContextualFilter(searchPhrase, null);
+
+        SubscriptionFilterVisitor visitor = new SubscriptionFilterVisitor();
+        Predicate predicate = (Predicate) query.getFilter().accept(visitor, null);
+        
+        return predicate;
+    }
+    
+    private Event getEvent(String metadata) throws Exception {
+        MetacardImpl metacard = new MetacardImpl();
+        metacard.setId("ABC123");
+        metacard.setMetadata(metadata);
+        HashMap<String, Object> properties = new HashMap<String, Object>();
+        properties.put(PubSubConstants.HEADER_ID_KEY, metacard.getId());
+        properties.put(PubSubConstants.HEADER_ENTRY_KEY, metacard);
+        properties.put(PubSubConstants.HEADER_OPERATION_KEY, PubSubConstants.CREATE);
+
+        Map<String, Object> contextualMap = constructContextualMap(metacard);
+        properties.put(PubSubConstants.HEADER_CONTEXTUAL_KEY, contextualMap);
+
+        Event testEvent = new Event("topic", properties);
+        
+        return testEvent;
     }
 
     // private static void analyze( String fieldName, String text ) throws IOException
