@@ -27,6 +27,9 @@ html, body {
 
 .dropdown-menu {
     background-color: #363636;
+    height: auto;
+    max-height: 600px;
+    overflow: hidden;
     z-index: 10000;
 }
 
@@ -633,7 +636,7 @@ span.add-on {
 
 .notification-time-menu {
     font-size: .9em;
-    color: white;
+    color: #DDD;
     display: table-cell;
     width: 105px;
     text-align: right;
@@ -969,7 +972,11 @@ div.ui-multiselect-single .ui-multiselect-checkboxes label.ui-state-hover > span
 }
 
 .menu-divider {
-    margin: 10px 0;
+    position: relative;
+    left: -15px;
+    width: 330px;
+    margin: 0;
+    margin-top: 10px;
 }
 
 div.dropdown-width li:last-child hr {
@@ -980,10 +987,114 @@ div.dropdown-width li {
     cursor: pointer;
 }
 
+#tasks div.dropdown-width li {
+    cursor: default;
+}
+
 .back {
     margin-left: 5px;
 }
 
 .forward {
     margin-right: 5px;
+}
+
+.task-progressbar {
+    display: table-cell;
+    text-align: center;
+    overflow: hidden;
+    position: relative;
+    height: 10px;
+    width: 100%;
+    border-bottom-right-radius: 0px;
+    border-bottom-left-radius: 0px;
+    border-top-right-radius: 0px;
+    border-top-left-radius: 0px;
+    background: #666;
+    border: 0;
+}
+
+.task-title {
+    display: table-cell;
+    width: 100%;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+.task-message {
+    font-weight: 100;
+    font-size: .8em;
+    color: #DDD;
+}
+
+.task-time {
+    display: table-cell;
+    white-space: nowrap;
+    font-weight: 100;
+    color: #DDD;
+    font-size: .9em;
+}
+
+.task-progress-text {
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+div.dropdown-width li:first-child .task-category {
+    margin-top: 0;
+}
+
+.task-category {
+    position: relative;
+    width: 330px;
+    left: -15px;
+    font-size: 1.2em;
+    font-weight: 700;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    background: #242424;
+    text-align: center;
+}
+
+.pause {
+    display: table-cell;
+    padding: 0px 3px;
+}
+
+.cancel {
+    display: table-cell;
+    padding: 0px 3px;
+}
+
+.retry {
+    display: table-cell;
+    padding: 0px 3px;
+}
+
+.task-failed {
+    color: #ff3300;
+}
+
+.task-close {
+    right: -3px;
+    top: -3px;
+    position: absolute;
+}
+
+.download {
+    display: table-cell;
+    padding: 0px 3px;
+}
+
+.generic-task-action {
+    display: inline-block;
+    padding-top: 5px;
+    padding-right: 10px;
+}
+
+.task-remove-area {
+    width: 100%;
+    text-align: center;
 }

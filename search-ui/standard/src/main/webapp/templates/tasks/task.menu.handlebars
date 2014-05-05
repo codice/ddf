@@ -1,0 +1,81 @@
+{{#is closeConfirm true}}
+    <div class="btn-group task-remove-area">
+        <a href="#" class="btn btn-primary" id="remove">Remove</a> <a href="#" class="btn" id="cancelRemove">Cancel</a>
+    </div>
+{{else}}
+    <div style="position: relative; width: 100%">
+        <div class="task-title">{{title}}</div><div class="task-time">{{momentHelp timestamp fromNow=function}}</div>
+        <div class="task-close"><a href="#" class="fa fa-times" id="close"></a></div>
+    </div>
+
+    <div style="display:table-row">
+        <div class="task-message">
+            {{#is status "FAILED"}}
+            <span class="task-failed">
+            {{else}}
+            <span class="task-running">
+            {{/is}}
+            {{message}}</span>
+        </div>
+    </div>
+
+    <div style="display:table-row">
+        {{#if progress}}
+            <div class="task-progressbar"></div>
+            {{#is status "STOPPED"}}
+                {{#if operations.retry}}
+                        <a href="#" class="fa fa-repeat retry" id="retry"></a>
+                {{/if}}
+            {{else}}
+                {{#if operations.pause}}
+                    {{#is status "PAUSED"}}
+                        <div class="resume">
+                            <a href="#" class="fa fa-pause resume" id="resume"></a>
+                        </div>
+                    {{else}}
+                        <div class="pause">
+                            <a href="#" class="fa fa-pause pause" id="pause"></a>
+                        </div>
+                    {{/is}}
+                {{/if}}
+                {{#if operations.cancel}}
+                    <div class="cancel">
+                        <a href="#" class="fa fa-ban cancel" id="cancel"></a>
+                    </div>
+                {{/if}}
+            {{/is}}
+        {{else}}
+            <div class="progress-text-area">
+                {{#is status "FINISHED"}}
+                    {{#if operations.download}}
+                        <a href="{{#is operations.download true}}#{{else}}{{#is operations.download false}}#{{else}}{{operations.download}}{{/is}}{{/is}}" class="fa fa-download download" id="download"></a>
+                    {{else}}
+                        <span class="task-progress-text task-finished">Task has finished.</span>
+                    {{/if}}
+                {{/is}}
+                {{#is status "RUNNING"}}
+                    <span class="task-progress-text task-running">Task is running.</span>
+                {{/is}}
+                {{#is status "STARTED"}}
+                    <span class="task-progress-text task-started">Task is started.</span>
+                {{/is}}
+                {{#is status "FAILED"}}
+                    {{#if operations.retry}}
+                        <a href="#" class="fa fa-repeat retry" id="retry"></a>
+                    {{else}}
+                        <span class="task-progress-text task-failed">Task has failed.</span>
+                    {{/if}}
+                {{/is}}
+            </div>
+        {{/if}}
+    </div>
+
+    <div style="display:table-row">
+        {{#each operationsExt}}
+            {{#is this true}}
+                <a href="#" class="generic-task-action {{@key}}" id="{{@key}}">{{@key}}</a>
+            {{/is}}
+        {{/each}}
+    </div>
+{{/is}}
+<hr class="menu-divider" />

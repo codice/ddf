@@ -52,6 +52,10 @@ define(['config'], function () {
             require(["js/Notification.module"]);
         });
 
+        app.App.addInitializer(function() {
+            require(["js/Tasks.module"]);
+        });
+
         // Actually start up the application.
         app.App.start({});
     });

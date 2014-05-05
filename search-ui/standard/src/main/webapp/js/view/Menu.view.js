@@ -11,8 +11,12 @@ define([
     'underscore',
     'text!templates/menubarLogin.handlebars',
     'text!templates/menubarLogout.handlebars',
-    'modelbinder'
-], function(Marionette, ich, menubarTemplate, menubarItemTemplate, UserModel, Backbone, notificationMenuTemplate, wreqr, _, loginTemplate, logoutTemplate) {
+    'text!templates/tasks/task.menu.handlebars',
+    'text!templates/tasks/task.category.handlebars',
+    'cometdinit',
+    'modelbinder',
+    'perfectscrollbar'
+], function(Marionette, ich, menubarTemplate, menubarItemTemplate, UserModel, Backbone, notificationMenuTemplate, wreqr, _, loginTemplate, logoutTemplate, taskTemplate, taskCategoryTemplate, Cometd) {
 
     ich.addTemplate('menubarItemTemplate', menubarItemTemplate);
 
@@ -23,6 +27,10 @@ define([
     ich.addTemplate('loginTemplate', loginTemplate);
 
     ich.addTemplate('logoutTemplate', logoutTemplate);
+
+    ich.addTemplate('taskTemplate', taskTemplate);
+
+    ich.addTemplate('taskCategoryTemplate', taskCategoryTemplate);
 
     var Menu = {};
 
@@ -50,10 +58,93 @@ define([
         }
     });
 
+    Menu.TaskItem = Marionette.ItemView.extend({
+        template: 'taskTemplate',
+        tagName: 'li',
+        events: {
+            'click a': 'clickLink',
+            'click': 'clickBody'
+        },
+        initialize: function() {
+            this.listenTo(this.model, 'change', this.render);
+        },
+        clickBody: function(e) {
+            //stops the menu from closing
+            e.stopPropagation();
+        },
+        clickLink: function(e) {
+            var id = e.target.id;
+            if(id) {
+                if(id !== 'close' && id !== 'cancelRemove') {
+                    Cometd.Comet.publish(this.model.url, {id: this.model.get('id'), action: id});
+                    if(id === 'remove') {
+                        this.model.collection.remove(this.model);
+                        wreqr.vent.trigger('task:remove', this.model);
+                    }
+                } else {
+                    if(id === 'cancelRemove') {
+                        this.model.set({closeConfirm: false});
+                    } else {
+                        this.model.set({closeConfirm: true});
+                    }
+                }
+            }
+            this.clickBody(e);
+        },
+        onClose: function() {
+
+        },
+        onRender: function() {
+            if(this.model.get('progress') <= 100) {
+                this.$('.task-progressbar').progressbar({value: this.model.get('progress')});
+            }
+
+        },
+        openNotification: function() {
+            wreqr.vent.trigger('notification:open', this.model);
+        }
+    });
+
+    Menu.TaskCategory = Marionette.ItemView.extend({
+        tagName: 'li',
+        template: 'taskCategoryTemplate',
+        events: {
+            'click': 'clickBody'
+        },
+        clickBody: function(e) {
+            //stops the menu from closing
+            e.stopPropagation();
+        }
+    });
+
     Menu.NotificationEmpty = Marionette.ItemView.extend({
         className: 'dropdown-width',
         render: function() {
             this.$el.html("No recent notifications.");
+        }
+    });
+
+    Menu.TaskEmpty = Marionette.ItemView.extend({
+        render: function() {
+            this.$el.html("No current tasks.");
+        }
+    });
+
+    Menu.TaskList = Marionette.CollectionView.extend({
+        className: 'dropdown-width',
+        itemView: Menu.TaskItem,
+        emptyView: Menu.TaskEmpty,
+        showCollection: function(){
+            var ItemView;
+            var category;
+            this.collection.each(function(item, index){
+                if(category !== item.get('category')) {
+                    this.addItemView(new Backbone.Model({category: item.get('category')}), Menu.TaskCategory);
+                }
+                category = item.get('category');
+                ItemView = this.getItemView(item);
+                this.addItemView(item, ItemView, index);
+            }, this);
         }
     });
 
@@ -105,7 +196,8 @@ define([
         regions: {
             welcome: '#welcome',
             notification: '#notification',
-            help: '#help'
+            help: '#help',
+            tasks: '#tasks'
         },
         onRender: function() {
             var menuBarView = this;
@@ -139,6 +231,65 @@ define([
                     name: 'Sign In',
                     //change this to true when we can log in or out
                     dropdown: false
+                })}));
+            }
+
+            if(this.model.get('showTask')) {
+                var Tasks = Menu.Item.extend({
+                    className: 'dropdown',
+                    initialize: function () {
+                        if (wreqr.reqres.hasHandler('tasks')) {
+                            this.collection = wreqr.reqres.request('tasks');
+                        }
+
+                        wreqr.vent.on('task:update', _.bind(this.updateTask, this));
+                        wreqr.vent.on('task:remove', _.bind(this.updateTask, this));
+                        this.modelBinder = new Backbone.ModelBinder();
+                    },
+                    updateTask: function () {
+                        var view = this;
+                        if (!this.collection) {
+                            if (wreqr.reqres.hasHandler('tasks')) {
+                                this.collection = wreqr.reqres.request('tasks');
+                                this.render();
+                                _.defer(function () {
+                                    view.children.$el.perfectScrollbar('update');
+                                });
+                            }
+                        }
+                        if (this.collection) {
+                            if (this.collection.length === 0) {
+                                this.model.set({countNum: ''});
+                            } else {
+                                this.model.set({countNum: this.collection.length});
+                            }
+                            this.render();
+                            _.defer(function () {
+                                view.children.$el.perfectScrollbar('update');
+                            });
+                        }
+                    },
+                    onRender: function () {
+                        var view = this;
+                        if (this.collection) {
+                            this.children.show(new Menu.TaskList({collection: this.collection, itemViewContainer: this.children.$el}));
+                            var bindings = Backbone.ModelBinder.createDefaultBindings(this.el, 'name');
+                            this.modelBinder.bind(this.model, this.$el, bindings);
+                        } else {
+                            this.children.show(new Menu.TaskEmpty());
+                        }
+                        _.defer(function () {
+                            view.children.$el.perfectScrollbar();
+                        });
+                    }
+                });
+                this.tasks.show(new Tasks({model: new MenuItem({
+                    id: 'tasks',
+                    name: 'Tasks',
+                    classes: 'fa fa-tasks center-icon',
+                    iconOnly: true,
+                    dropdown: true,
+                    count: true
                 })}));
             }
 

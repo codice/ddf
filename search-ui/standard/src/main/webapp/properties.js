@@ -28,6 +28,7 @@ define(function (require) {
                     props.branding = data.branding;
                     props.version = data.version;
                     props.showWelcome = data.showWelcome;
+                    props.showTask = data.showTask;
                     props.layers = data.layers;
                     props.wmsServer = data.wmsServer;
                     props.format = data.format;

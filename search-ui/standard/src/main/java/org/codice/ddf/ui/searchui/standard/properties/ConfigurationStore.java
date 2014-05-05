@@ -68,6 +68,8 @@ public class ConfigurationStore {
 
     private Boolean isSignIn = false;
 
+    private Boolean isTask = false;
+
     private BrandingPlugin branding;
 
     private static String JSON_MIME_TYPE_STRING = "application/json";
@@ -120,6 +122,7 @@ public class ConfigurationStore {
         configObj.put("branding", getProductName());
         configObj.put("version", getProductVersion());
         configObj.put("showWelcome", isSignIn);
+        configObj.put("showTask", isTask);
         configObj.put("wmsServer", wmsServer);
         configObj.put("layers", layers);
         configObj.put("format", format);
@@ -268,6 +271,7 @@ public class ConfigurationStore {
     		setSyncQuery((Boolean) properties.get("syncQuery"));
             setResultCount((Integer) properties.get("resultCount"));
             setSignIn((Boolean) properties.get("signIn"));
+            setTask((Boolean) properties.get("task"));
     		
     		//Fetch the DDF HTTP Proxy
             if(StringUtils.isNotBlank(wmsServer)) {
@@ -347,5 +351,13 @@ public class ConfigurationStore {
 
     public void setSignIn(Boolean isSignIn) {
         this.isSignIn = isSignIn;
+    }
+
+    public Boolean getTask() {
+        return isTask;
+    }
+
+    public void setTask(Boolean isTask) {
+        this.isTask = isTask;
     }
 }

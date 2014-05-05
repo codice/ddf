@@ -83,6 +83,9 @@
 
         <AD description="Allow Sign In to Search UI and welcome notice. Enable this if the Search UI is protected." name="Show Sign In" id="signIn"
             required="false" type="Boolean" default="false" />
+
+        <AD description="Show task menu area for long running actions." name="Show Tasks" id="task"
+            required="false" type="Boolean" default="false" />
 	    </OCD>
 
 	<Designate 	pid="org.codice.ddf.ui.search.standard.properties">
