@@ -3,12 +3,12 @@
         <a href="#" class="btn btn-primary" id="remove">Remove</a> <a href="#" class="btn" id="cancelRemove">Cancel</a>
     </div>
 {{else}}
-    <div style="position: relative; width: 100%">
-        <div class="task-title">{{title}}</div><div class="task-time">{{momentHelp timestamp fromNow=function}}</div>
+    <div style="position: relative;" class="width-full>
+        <div class="task-title"><span class="task-title-text">{{title}}</span></div><div class="task-time">{{momentHelp timestamp fromNow=function}}</div>
         <div class="task-close"><a href="#" class="fa fa-times" id="close"></a></div>
     </div>
 
-    <div style="display:table-row">
+    <div class="width-full>
         <div class="task-message">
             {{#is status "FAILED"}}
             <span class="task-failed">
@@ -19,7 +19,7 @@
         </div>
     </div>
 
-    <div style="display:table-row">
+    <div class="width-full">
         {{#if progress}}
             <div class="task-progressbar"></div>
             {{#is status "STOPPED"}}
@@ -55,9 +55,41 @@
                 {{/is}}
                 {{#is status "RUNNING"}}
                     <span class="task-progress-text task-running">Task is running.</span>
+                    {{#if operations.pause}}
+                        {{#is status "PAUSED"}}
+                            <div class="resume">
+                                <a href="#" class="fa fa-pause resume" id="resume"></a>
+                            </div>
+                        {{else}}
+                            <div class="pause">
+                                <a href="#" class="fa fa-pause pause" id="pause"></a>
+                            </div>
+                        {{/is}}
+                    {{/if}}
+                    {{#if operations.cancel}}
+                        <div class="cancel">
+                            <a href="#" class="fa fa-ban cancel" id="cancel"></a>
+                        </div>
+                    {{/if}}
                 {{/is}}
                 {{#is status "STARTED"}}
                     <span class="task-progress-text task-started">Task is started.</span>
+                    {{#if operations.pause}}
+                        {{#is status "PAUSED"}}
+                            <div class="resume">
+                                <a href="#" class="fa fa-pause resume" id="resume"></a>
+                            </div>
+                        {{else}}
+                            <div class="pause">
+                                <a href="#" class="fa fa-pause pause" id="pause"></a>
+                            </div>
+                        {{/is}}
+                    {{/if}}
+                    {{#if operations.cancel}}
+                        <div class="cancel">
+                            <a href="#" class="fa fa-ban cancel" id="cancel"></a>
+                        </div>
+                    {{/if}}
                 {{/is}}
                 {{#is status "FAILED"}}
                     {{#if operations.retry}}

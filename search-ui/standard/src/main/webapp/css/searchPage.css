@@ -1019,8 +1019,14 @@ div.dropdown-width li {
     width: 100%;
     padding-top: 10px;
     padding-bottom: 10px;
+
+}
+
+.task-title-text {
     text-overflow: ellipsis;
     overflow: hidden;
+    display: block;
+    width: 200px;
 }
 
 .task-message {
@@ -1040,6 +1046,13 @@ div.dropdown-width li {
 .task-progress-text {
     overflow: hidden;
     text-overflow: ellipsis;
+    width: 100%;
+    display: table-cell;
+}
+
+.progress-text-area {
+    display: table-row;
+    width: 100%;
 }
 
 div.dropdown-width li:first-child .task-category {
@@ -1097,4 +1110,12 @@ div.dropdown-width li:first-child .task-category {
 .task-remove-area {
     width: 100%;
     text-align: center;
+}
+
+.ui-progressbar-overlay {
+    background: url('../images/animated-overlay.gif');
+    height: 100%;
+    width: 100%;
+    filter: alpha(opacity=25);
+    opacity: .25;
 }

@@ -96,7 +96,11 @@ define([
         },
         onRender: function() {
             if(this.model.get('progress') <= 100) {
-                this.$('.task-progressbar').progressbar({value: this.model.get('progress')});
+                if(this.model.get('progress') === -1) {
+                    this.$('.task-progressbar').progressbar({value: false});
+                } else {
+                    this.$('.task-progressbar').progressbar({value: this.model.get('progress')});
+                }
             }
 
         },
