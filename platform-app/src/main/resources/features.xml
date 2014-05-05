@@ -638,14 +638,5 @@
 		<bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.saxon/${saxon.bundle.plugin}</bundle>
         <bundle>mvn:joda-time/joda-time/${joda-time.version}</bundle>
 	</feature>
-	<feature name="platform-settings-config" install="manual" version="${project.version}" description="Sets the DDF System Settings with default values">
-		<config name="ddf.platform.config">
-			version=${project.version}
-			host=0.0.0.0
-			port=8181
-			id=ddf.distribution
-			organization=${organization.name}
-		</config>
-	</feature>
 	
 </features>
