@@ -609,13 +609,13 @@ public class PredicateTest {
 
         SubscriptionFilterVisitor visitor = new SubscriptionFilterVisitor();
         Predicate pred = (Predicate) query.getFilter().accept(visitor, null);
-        System.out.println("resulting predicate: " + pred);
+        logger.debug("resulting predicate: " + pred);
 
         Filter filter = query.getFilter();
         FilterTransformer transform = new FilterTransformer();
         transform.setIndentation(2);
         String filterXml = transform.transform(filter);
-        System.out.println(filterXml);
+        logger.debug(filterXml);
 
         // input that passes temporal
         logger.debug("\npass temporal.\n");
@@ -654,13 +654,13 @@ public class PredicateTest {
 
         SubscriptionFilterVisitor visitor = new SubscriptionFilterVisitor();
         Predicate pred = (Predicate) query.getFilter().accept(visitor, null);
-        System.out.println("resulting predicate: " + pred);
+        logger.debug("resulting predicate: " + pred);
 
         Filter filter = query.getFilter();
         FilterTransformer transform = new FilterTransformer();
         transform.setIndentation(2);
         String filterXml = transform.transform(filter);
-        System.out.println(filterXml);
+        logger.debug(filterXml);
 
         // input that passes temporal
         logger.debug("\npass temporal.\n");
@@ -1492,28 +1492,4 @@ public class PredicateTest {
 
         return extensions;
     }
-
-    // private static void analyze( String fieldName, String text ) throws IOException
-    // {
-    // System.out.println("Analzying \"" + text + "\"");
-    // for (int i = 0; i < analyzers.length; i++)
-    // {
-    // Analyzer analyzer = analyzers[i];
-    // System.out.println("\t" + analyzer.getClass().getName() + ":");
-    // System.out.print("\t\t");
-    //
-    // String term = "";
-    // TokenStream ts = analyzer.tokenStream( fieldName, new StringReader( text ) );
-    // TermAttribute termAttribute = (TermAttribute) ts.getAttribute(TermAttribute.class);
-    // termAttribute = (TermAttribute) ts.getAttribute(TermAttribute.class);
-    // while (ts.incrementToken())
-    // {
-    // term = termAttribute.term();
-    // //System.out.println("token: " + term);
-    // System.out.print("[" + term + "] ");
-    // }
-    // System.out.println("\n");
-    // }
-    // }
-
 }
