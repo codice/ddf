@@ -136,7 +136,7 @@ public class SearchPageTest {
         out.flush();
 
         generatedHtml = out.toString();
-        System.out.println(generatedHtml);
+        LOGGER.info(generatedHtml);
     }
 
     @Test
