@@ -175,10 +175,10 @@ public class FilterPluginTest {
     }
 
     public void verifyFilterResponse(QueryResponse response) {
-        System.out.println("Filtered with " + response.getResults().size() + " out of 4 original.");
-        System.out.println("Checking Results");
+        logger.info("Filtered with " + response.getResults().size() + " out of 4 original.");
+        logger.info("Checking Results");
         Assert.assertEquals(3, response.getResults().size());
-        System.out.println("Filtering succeeded.");
+        logger.info("Filtering succeeded.");
     }
 
     public Metacard getMoreRolesMetacard() {
