@@ -218,7 +218,7 @@ public class DynamicSchemaResolver {
             }
         }
 
-        if(!ConfigurationStore.getInstance().isDisableTextPath()) {
+        if (!ConfigurationStore.getInstance().isDisableTextPath()) {
             if (StringUtils.isNotBlank(metacard.getMetadata())) {
                 solrInputDocument.addField(LUX_XML_FIELD_NAME, metacard.getMetadata());
             }

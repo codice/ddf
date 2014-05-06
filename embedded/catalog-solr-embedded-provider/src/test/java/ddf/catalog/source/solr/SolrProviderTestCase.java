@@ -81,17 +81,17 @@ public abstract class SolrProviderTestCase {
 
     protected static void messageBreak(String string) {
         String stars = StringUtils.repeat("*", string.length() + 2);
-        System.out.println(stars);
-        System.out.println("* " + string);
-        System.out.println(stars);
+        LOGGER.info(stars);
+        LOGGER.info("* " + string);
+        LOGGER.info(stars);
     }
 
-    protected static void deleteAllIn(SolrCatalogProvider provider) throws IngestException,
+    protected static void deleteAllIn(SolrCatalogProvider solrProvider) throws IngestException,
         UnsupportedQueryException {
-        deleteAllIn(provider, TEST_METHOD_NAME_INDEX);
+        deleteAllIn(solrProvider, TEST_METHOD_NAME_INDEX);
     }
 
-    protected static void deleteAllIn(SolrCatalogProvider provider, int methodNameIndex)
+    protected static void deleteAllIn(SolrCatalogProvider solrProvider, int methodNameIndex)
         throws IngestException, UnsupportedQueryException {
         messageBreak(Thread.currentThread().getStackTrace()[methodNameIndex].getMethodName() + "()");
 
@@ -103,7 +103,7 @@ public abstract class SolrProviderTestCase {
         CommonQueryBuilder queryBuilder = new CommonQueryBuilder();
         query = queryBuilder.like(Metacard.ID, "*", isCaseSensitive, isFuzzy);
         query.setPageSize(ALL_RESULTS);
-        sourceResponse = provider.query(new QueryRequestImpl(query));
+        sourceResponse = solrProvider.query(new QueryRequestImpl(query));
 
         List<String> ids = new ArrayList<String>();
         for (Result r : sourceResponse.getResults()) {
@@ -158,9 +158,9 @@ public abstract class SolrProviderTestCase {
         return createIn(metacards, provider);
     }
 
-    protected static CreateResponse createIn(List<Metacard> metacards, SolrCatalogProvider provider)
+    protected static CreateResponse createIn(List<Metacard> metacards, SolrCatalogProvider solrProvider)
         throws IngestException {
-        CreateResponse createResponse = provider.create(new CreateRequestImpl(metacards));
+        CreateResponse createResponse = solrProvider.create(new CreateRequestImpl(metacards));
 
         return createResponse;
     }

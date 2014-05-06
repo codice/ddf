@@ -355,7 +355,7 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
             String nearestNeighborQuery = geoPointToCircleQuery(propertyName,
                     NEAREST_NEIGHBOR_DISTANCE_LIMIT, pnt);
 
-            return getSolrQueryWithSort(sortBy, nearestNeighborQuery);
+            return getSolrQueryWithSort(nearestNeighborQuery);
 
         } else {
             throw new UnsupportedOperationException("Unable to read given WKT: " + wkt);
@@ -387,7 +387,7 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
                 String pointRadiusQuery = geoPointToCircleQuery(propertyName, distanceInDegrees,
                         pnt);
 
-                return getSolrQueryWithSort(sortBy, pointRadiusQuery);
+                return getSolrQueryWithSort(pointRadiusQuery);
             } else {
                 Geometry bufferGeo = geo.buffer(distanceInDegrees, QUADRANT_SEGMENTS);
                 String bufferWkt = WKT_WRITER.write(bufferGeo);
@@ -431,7 +431,7 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
                     String pointRadiusQuery = geoPointToCircleQuery(propertyName,
                             DEFAULT_ERROR_IN_DEGREES, pnt);
 
-                    return getSolrQueryWithSort(sortBy, pointRadiusQuery);
+                    return getSolrQueryWithSort(pointRadiusQuery);
                 }
                 if (MultiPoint.class.getSimpleName().equals(geo.getGeometryType())
                         && geo.getCoordinates().length == 1) {
@@ -439,7 +439,7 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
                     String pointRadiusQuery = geoPointToCircleQuery(propertyName,
                             DEFAULT_ERROR_IN_DEGREES, pnt);
 
-                    return getSolrQueryWithSort(sortBy, pointRadiusQuery);
+                    return getSolrQueryWithSort(pointRadiusQuery);
                 }
             }
         }
@@ -502,7 +502,7 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
         return solrQuery;
     }
 
-    private SolrQuery getSolrQueryWithSort(SortBy sortBy, String givenSpatialString) {
+    private SolrQuery getSolrQueryWithSort(String givenSpatialString) {
 
         if (sortBy != null && sortBy.getPropertyName() != null
                 && Result.DISTANCE.equals(sortBy.getPropertyName().getPropertyName())) {
@@ -673,8 +673,8 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
         return Point.class.getSimpleName().equals(geo.getGeometryType());
     }
 
-    public void setSortPolicy(SortBy sortBy) {
-        this.sortBy = sortBy;
+    public void setSortPolicy(SortBy sort) {
+        this.sortBy = sort;
     }
 
     public static SolrFilterDelegate newInstance(DynamicSchemaResolver resolver) {

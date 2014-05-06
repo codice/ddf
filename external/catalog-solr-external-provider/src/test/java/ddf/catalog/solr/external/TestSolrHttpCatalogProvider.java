@@ -99,7 +99,7 @@ public class TestSolrHttpCatalogProvider {
      * @throws IOException
      */
     @Test
-    public void testUnconfiguredCreate_SolrException() throws IngestException, SolrServerException,
+    public void testUnconfiguredCreateSolrException() throws IngestException, SolrServerException,
         IOException {
         // given
         SolrServer givenServer = mock(SolrServer.class);

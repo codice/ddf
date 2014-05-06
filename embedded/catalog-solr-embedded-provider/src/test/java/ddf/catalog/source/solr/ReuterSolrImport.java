@@ -71,17 +71,17 @@ public class ReuterSolrImport implements Runnable {
     public static void main2(String[] paramArrayOfString) {
         long start = System.currentTimeMillis();
         for (int i = 0; i < 1; i++) {
-            System.out.println(Integer.toString(i) + " start");
+            LOGGER.info(Integer.toString(i) + " start");
             main2(paramArrayOfString);
-            System.out.println(Integer.toString(i) + " done");
+            LOGGER.info(Integer.toString(i) + " done");
         }
 
         long elapsedTimeMillis = System.currentTimeMillis() - start;
 
         // Get elapsed time in seconds
         float elapsedTimeSec = elapsedTimeMillis / 1000F;
-        System.out.println(Float.toString(elapsedTimeSec) + " seconds");
-        System.out.println(Float.toString(elapsedTimeSec / 60F) + " minutes");
+        LOGGER.info(Float.toString(elapsedTimeSec) + " seconds");
+        LOGGER.info(Float.toString(elapsedTimeSec / 60F) + " minutes");
     }
 
     /**
@@ -94,12 +94,12 @@ public class ReuterSolrImport implements Runnable {
         try {
             localFile = new File(paramArrayOfString[0]);
             if ((!localFile.exists()) || (!localFile.isDirectory())) {
-                System.out.println("Second argument needs to be an existing directory!");
-                System.out.println(str);
+                LOGGER.warn("Second argument needs to be an existing directory!");
+                LOGGER.warn(str);
             }
         } catch (Exception localException2) {
-            System.out.println("Second argument needs to be an existing directory!");
-            System.out.println(str);
+            LOGGER.warn("Second argument needs to be an existing directory!");
+            LOGGER.warn(str);
         }
 
         if ((localFile != null) && (localFile.exists()) && (localFile.isDirectory())) {
@@ -147,7 +147,7 @@ public class ReuterSolrImport implements Runnable {
 
             ReuterSolrImport importer = new ReuterSolrImport(allFiles);
 
-            System.out.println("Starting ingest.");
+            LOGGER.info("Starting ingest.");
             long start = System.currentTimeMillis();
             importer.ingest();
 
@@ -163,10 +163,10 @@ public class ReuterSolrImport implements Runnable {
 
             // Get elapsed time in seconds
             float elapsedTimeSec = elapsedTimeMillis / 1000F;
-            System.out.println(Float.toString(elapsedTimeSec) + " seconds");
-            System.out.println("records/sec = " + 21578F / elapsedTimeSec);
+            LOGGER.info(Float.toString(elapsedTimeSec) + " seconds");
+            LOGGER.info("records/sec = " + 21578F / elapsedTimeSec);
 
-            System.out.println("Done!");
+            LOGGER.info("Done!");
         }
 
     }
@@ -197,7 +197,6 @@ public class ReuterSolrImport implements Runnable {
                 return mc;
             } else {
                 return null;
-                // System.out.println("No location set.");
             }
         } catch (Exception e) {
             LOGGER.error("Unable to read file", e);
@@ -209,7 +208,6 @@ public class ReuterSolrImport implements Runnable {
         List<Metacard> metacards = new ArrayList<Metacard>();
         for (int i = 0; i < arrayOfFile.length; i++) {
             File localFile = arrayOfFile[i];
-            // System.out.println(localFile.getName());
             Metacard mc = readFile(localFile);
             if (mc != null) {
                 metacards.add(mc);
@@ -231,7 +229,6 @@ public class ReuterSolrImport implements Runnable {
         List<Metacard> metacards = new ArrayList<Metacard>();
         for (int i = 0; i < arrayOfFile.length; i++) {
             File localFile = arrayOfFile[i];
-            // System.out.println(localFile.getName());
             Metacard mc = readFile(localFile);
             if (mc != null) {
                 metacards.add(mc);
