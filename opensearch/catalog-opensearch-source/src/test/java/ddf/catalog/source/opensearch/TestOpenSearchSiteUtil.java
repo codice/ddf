@@ -277,13 +277,13 @@ public class TestOpenSearchSiteUtil {
         double lon = 15;
         double radius = 200000;
         double[] bbox = OpenSearchSiteUtil.createBBoxFromPointRadius(lon, lat, radius);
-        System.out.println("minX = " + bbox[0]);
+        logger.info("minX = " + bbox[0]);
         assertEquals(3.3531, bbox[0], 0.0001);
-        System.out.println("minY = " + bbox[1]);
+        logger.info("minY = " + bbox[1]);
         assertEquals(28.2034, bbox[1], 0.0001);
-        System.out.println("maxX = " + bbox[2]);
+        logger.info("maxX = " + bbox[2]);
         assertEquals(26.6468, bbox[2], 0.0001);
-        System.out.println("maxY = " + bbox[3]);
+        logger.info("maxY = " + bbox[3]);
         assertEquals(31.7965, bbox[3], 0.0001);
     }
 
