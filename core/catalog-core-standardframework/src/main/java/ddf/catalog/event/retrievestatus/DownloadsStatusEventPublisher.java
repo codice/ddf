@@ -82,8 +82,7 @@ public class DownloadsStatusEventPublisher {
                             bytes, sysTimeMillis, detail),
                     sysTimeMillis,
                     getProperty(resourceResponse,
-                            Notification.NOTIFICATION_KEY_USER_ID)
-            );
+                            Notification.NOTIFICATION_KEY_USER_ID));
 
             notification.put(STATUS, status.name().toLowerCase());
             notification.put(BYTES, String.valueOf(bytes));

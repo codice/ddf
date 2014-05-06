@@ -118,10 +118,43 @@ public class DownloadsStatusEventPublisherTest {
         verify(eventAdmin, times(6)).postEvent(any(Event.class));
     }
 
+    @org.junit.Test
+    public void testPostRetrievalWithNoStatus() {
+        setupPublisherWithNoNotifications();
+
+        publisher.postRetrievalStatus(resourceResponse, ProductRetrievalStatus.STARTED,
+                null, 0L);
+        verify(eventAdmin, times(0)).postEvent(any(Event.class));
+
+        publisher.postRetrievalStatus(resourceResponse,
+                ProductRetrievalStatus.STARTED, "test detail", 10L);
+        verify(eventAdmin, times(0)).postEvent(any(Event.class));
+
+        publisher.postRetrievalStatus(resourceResponse,
+                ProductRetrievalStatus.CANCELLED, "test detail", 20L);
+        verify(eventAdmin, times(0)).postEvent(any(Event.class));
+
+        publisher.postRetrievalStatus(resourceResponse,
+                ProductRetrievalStatus.FAILED, "test detail", 250L);
+        verify(eventAdmin, times(0)).postEvent(any(Event.class));
+
+        publisher.postRetrievalStatus(resourceResponse,
+                ProductRetrievalStatus.RETRYING, "test detail", 350L);
+        verify(eventAdmin, times(0)).postEvent(any(Event.class));
+
+        publisher.postRetrievalStatus(resourceResponse,
+                ProductRetrievalStatus.COMPLETE, "test detail", 500L);
+        verify(eventAdmin, times(0)).postEvent(any(Event.class));
+    }
+
     private void setupPublisher() {
         eventAdmin = mock(EventAdmin.class);
         publisher = new DownloadsStatusEventPublisher(eventAdmin);
         publisher.setEnabled(true);
     }
 
+    private void setupPublisherWithNoNotifications() {
+        eventAdmin = mock(EventAdmin.class);
+        publisher = new DownloadsStatusEventPublisher(eventAdmin);
+    }
 }
