@@ -28,6 +28,7 @@
     <module>admin-core-api</module>
     <module>admin-core-configpidplugin</module>
     <module>admin-core-appservice</module>
+    <module>admin-core-jolokia</module>
   </modules>
 </project>
 
