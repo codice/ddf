@@ -22,6 +22,8 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import org.apache.log4j.Logger;
+
 import org.junit.Test;
 
 import ddf.action.Action;
@@ -32,6 +34,8 @@ import ddf.catalog.data.impl.MetacardImpl;
 public class TestMetacardTransformerActionProvider extends AbstractActionProviderTest {
 
     private static final String SAMPLE_TRANSFORMER_ID = "XML";
+
+    private static final Logger LOGGER = Logger.getLogger(TestMetacardTransformerActionProvider.class);
 
     @Test
     public void testMalformedUrlException() {
@@ -101,7 +105,7 @@ public class TestMetacardTransformerActionProvider extends AbstractActionProvide
         String toString = new MetacardTransformerActionProvider(ACTION_PROVIDER_ID,
                 SAMPLE_TRANSFORMER_ID).toString();
 
-        System.out.println(toString);
+        LOGGER.info(toString);
 
         assertThat(toString, containsString(ActionProvider.class.getName()));
         assertThat(toString, containsString(ACTION_PROVIDER_ID));
