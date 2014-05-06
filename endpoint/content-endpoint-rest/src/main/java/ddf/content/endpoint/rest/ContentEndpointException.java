@@ -15,6 +15,8 @@
 package ddf.content.endpoint.rest;
 
 import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
@@ -22,7 +24,8 @@ public class ContentEndpointException extends WebApplicationException {
     private static final long serialVersionUID = 1L;
 
     public ContentEndpointException(String message, Status status) {
-        super(Response.status(status).entity(message).build());
+        super(Response.status(status).entity(message)
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.TEXT_PLAIN).build());
     }
 
     public ContentEndpointException(Throwable cause) {
