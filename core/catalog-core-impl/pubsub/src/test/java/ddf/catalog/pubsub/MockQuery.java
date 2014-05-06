@@ -50,6 +50,7 @@ import ddf.catalog.operation.Query;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.ResourceResponse;
 import ddf.catalog.operation.SourceResponse;
+import ddf.catalog.pubsub.internal.SubscriptionFilterVisitor;
 import ddf.catalog.resource.ResourceNotFoundException;
 import ddf.catalog.resource.ResourceNotSupportedException;
 import ddf.catalog.source.FederatedSource;
@@ -98,8 +99,12 @@ public class MockQuery implements FederatedSource, Query {
         this.maxTimeout = maxTimeout;
         this.filters = new ArrayList<Filter>();
     }
-
+    
     public void addContextualFilter(String searchPhrase, String textPathSections) {
+        addContextualFilter(searchPhrase, textPathSections, false);
+    }
+
+    public void addContextualFilter(String searchPhrase, String textPathSections, boolean caseSensitive) {
         Filter filter = null;
 
         if (searchPhrase != null) {
@@ -113,13 +118,14 @@ public class MockQuery implements FederatedSource, Query {
                 }
                 filter = filterFactory.or(xpathFilters);
             } else {
-                filter = filterFactory
-                        .like(filterFactory.property(Metacard.ANY_TEXT), searchPhrase);
+                filter = filterFactory.like(filterFactory.property(Metacard.ANY_TEXT),
+                        searchPhrase, SubscriptionFilterVisitor.LUCENE_WILDCARD_CHAR, 
+                        SubscriptionFilterVisitor.LUCENE_SINGLE_CHAR, 
+                        SubscriptionFilterVisitor.LUCENE_ESCAPE_CHAR, caseSensitive);
             }
 
             if (filter != null) {
                 filters.add(filter);
-                // this.filter = getFilter();
             }
         }
     }
@@ -161,7 +167,6 @@ public class MockQuery implements FederatedSource, Query {
             }
 
             filters.add(filter);
-            // this.filter = getFilter();
         }
     }
 
@@ -278,7 +283,6 @@ public class MockQuery implements FederatedSource, Query {
         if (!runningFilterList.isEmpty()) {
             Filter filter = filterFactory.or(runningFilterList);
             filters.add(filter);
-            // this.filter = getFilter();
         }
     }
 
@@ -337,7 +341,6 @@ public class MockQuery implements FederatedSource, Query {
 
     @Override
     public boolean isAvailable() {
-        // TODO Auto-generated method stub
         return false;
     }
 
@@ -348,56 +351,46 @@ public class MockQuery implements FederatedSource, Query {
 
     @Override
     public SourceResponse query(QueryRequest request) throws UnsupportedQueryException {
-        // TODO Auto-generated method stub
         return null;
     }
 
     @Override
     public Set<ContentType> getContentTypes() {
-        // TODO Auto-generated method stub
         return null;
     }
 
     @Override
     public String getId() {
-        // TODO Auto-generated method stub
         return null;
     }
 
     @Override
     public String getVersion() {
-        // TODO Auto-generated method stub
         return null;
     }
 
     @Override
     public String getTitle() {
-        // TODO Auto-generated method stub
         return null;
     }
 
     @Override
     public String getDescription() {
-        // TODO Auto-generated method stub
         return null;
     }
 
     @Override
     public String getOrganization() {
-        // TODO Auto-generated method stub
         return null;
     }
 
     @Override
     public ResourceResponse retrieveResource(URI uri, Map<String, Serializable> arguments)
         throws IOException, ResourceNotFoundException, ResourceNotSupportedException {
-        // TODO Auto-generated method stub
         return null;
     }
 
-    // @Override
     public Set<String> getSupportedSchemes() {
-        // TODO Auto-generated method stub
         return null;
     }
 
@@ -413,7 +406,6 @@ public class MockQuery implements FederatedSource, Query {
 
     @Override
     public Set<String> getOptions(Metacard metacard) {
-        // TODO Auto-generated method stub
         return null;
     }
 

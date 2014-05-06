@@ -16,13 +16,18 @@
 package ddf.catalog.pubsub.criteria.contextual;
 
 import java.io.IOException;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 
+import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
+import org.apache.lucene.analysis.tokenattributes.OffsetAttribute;
+import org.apache.lucene.analysis.tokenattributes.TermAttribute;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.index.IndexWriter;
@@ -111,14 +116,14 @@ public final class ContextualEvaluator {
         if (cec.isCaseSensitiveSearch()) {
             logger.debug("Doing case-sensitive search ...");
             queryParser = new QueryParser(Version.LUCENE_30, CASE_SENSITIVE_FIELD_NAME,
-                    new CaseSensitiveStandardAnalyzer(Version.LUCENE_30));
+                    new CaseSensitiveContextualAnalyzer(Version.LUCENE_30));
 
             // Make Wildcard, Prefix, Fuzzy, and Range queries *not* be automatically lower-cased,
             // i.e., make them be case-sensitive
             queryParser.setLowercaseExpandedTerms(false);
         } else {
             logger.debug("Doing case-insensitive search ...");
-            queryParser = new QueryParser(Version.LUCENE_30, FIELD_NAME, new StandardAnalyzer(
+            queryParser = new QueryParser(Version.LUCENE_30, FIELD_NAME, new ContextualAnalyzer(
                     Version.LUCENE_30));
         }
 
@@ -205,8 +210,9 @@ public final class ContextualEvaluator {
 
         // 0. Specify the analyzer for tokenizing text.
         // The same analyzer should be used for indexing and searching
-        StandardAnalyzer standardAnalyzer = new StandardAnalyzer(Version.LUCENE_30);
-        CaseSensitiveStandardAnalyzer caseSensitiveStandardAnalyzer = new CaseSensitiveStandardAnalyzer(
+//        StandardAnalyzer standardAnalyzer = new StandardAnalyzer(Version.LUCENE_30);
+        ContextualAnalyzer contextualAnalyzer = new ContextualAnalyzer(Version.LUCENE_30);
+        CaseSensitiveContextualAnalyzer caseSensitiveStandardAnalyzer = new CaseSensitiveContextualAnalyzer(
                 Version.LUCENE_30);
 
         // 1. create the index
@@ -219,8 +225,11 @@ public final class ContextualEvaluator {
         // Create an IndexWriter using the case-insensitive StandardAnalyzer
         // NOTE: the boolean arg in the IndexWriter constructor means to create a new index,
         // overwriting any existing index
-        IndexWriter indexWriter = new IndexWriter(index, standardAnalyzer, true,
+//        IndexWriter indexWriter = new IndexWriter(index, standardAnalyzer, true,
+//                IndexWriter.MaxFieldLength.UNLIMITED);
+        IndexWriter indexWriter = new IndexWriter(index, contextualAnalyzer, true,
                 IndexWriter.MaxFieldLength.UNLIMITED);
+        logTokens(indexWriter.getAnalyzer(), FIELD_NAME, fullDocument, "ContextualAnalyzer");
 
         // Add the indexable text to the case-insensitive index writer, assigning it the
         // "case-insensitive" field name
@@ -242,7 +251,25 @@ public final class ContextualEvaluator {
 
         return index;
     }
-
+    
+    private static void logTokens(Analyzer analyzer, String fieldName, String fullDocument, String analyzerName) throws IOException {
+        if (!logger.isDebugEnabled()) {
+            return;
+        }
+        
+        TokenStream tokenStream = analyzer.tokenStream(fieldName, new StringReader(fullDocument));
+        OffsetAttribute offsetAttribute = tokenStream.getAttribute(OffsetAttribute.class);
+        TermAttribute termAttribute = tokenStream.getAttribute(TermAttribute.class);
+        logger.debug("-----  {} tokens  -----", analyzerName);
+        while (tokenStream.incrementToken()) {
+            int startOffset = offsetAttribute.startOffset();
+            int endOffset = offsetAttribute.endOffset();
+            String term = termAttribute.term();
+            logger.debug(term);
+        }
+        logger.debug("-----  END:  {} tokens  -----", analyzerName);
+    }
+    
     /**
      * Extract the text from the specified XML Document that is to be indexed using the specified
      * XPath selectors.

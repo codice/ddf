@@ -52,7 +52,6 @@ public class ContextualPredicate implements Predicate {
             logger.debug("text paths size: " + textPaths.size());
             this.textPaths = new ArrayList<String>(textPaths);
         }
-        // this.searchPhrase = searchPhrase;
         this.searchPhrase = normalizePhrase(searchPhrase, fuzzy);
     }
 

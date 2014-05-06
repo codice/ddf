@@ -35,7 +35,7 @@ import java.io.Reader;
 import java.util.Set;
 
 import org.apache.lucene.analysis.Analyzer;
-// HUGH import org.apache.lucene.analysis.LowerCaseFilter;
+import org.apache.lucene.analysis.LowerCaseFilter;
 import org.apache.lucene.analysis.StopAnalyzer;
 import org.apache.lucene.analysis.StopFilter;
 import org.apache.lucene.analysis.TokenStream;
@@ -57,7 +57,7 @@ import org.apache.lucene.util.Version;
  * href="https://issues.apache.org/jira/browse/LUCENE-1068">LUCENE-1608</a>
  * </ul>
  */
-public class CaseSensitiveStandardAnalyzer extends Analyzer {
+public class ContextualAnalyzer extends Analyzer {
     private Set<?> stopSet;
 
     /**
@@ -80,7 +80,7 @@ public class CaseSensitiveStandardAnalyzer extends Analyzer {
      * @param matchVersion
      *            Lucene version to match See {@link <a href="#version">above</a>}
      */
-    public CaseSensitiveStandardAnalyzer(Version matchVersion) {
+    public ContextualAnalyzer(Version matchVersion) {
         this(matchVersion, STOP_WORDS_SET);
     }
 
@@ -92,9 +92,9 @@ public class CaseSensitiveStandardAnalyzer extends Analyzer {
      * @param stopWords
      *            stop words
      */
-    public CaseSensitiveStandardAnalyzer(Version matchVersion, Set<?> stopWords) {
+    public ContextualAnalyzer(Version matchVersion, Set<?> stopWords) {
         stopSet = stopWords;
-        setOverridesTokenStreamMethod(CaseSensitiveStandardAnalyzer.class);
+        setOverridesTokenStreamMethod(ContextualAnalyzer.class);
         enableStopPositionIncrements = StopFilter
                 .getEnablePositionIncrementsVersionDefault(matchVersion);
         replaceInvalidAcronym = matchVersion.onOrAfter(Version.LUCENE_24);
@@ -110,7 +110,7 @@ public class CaseSensitiveStandardAnalyzer extends Analyzer {
      * @param stopwords
      *            File to read stop words from
      */
-    public CaseSensitiveStandardAnalyzer(Version matchVersion, File stopwords) throws IOException {
+    public ContextualAnalyzer(Version matchVersion, File stopwords) throws IOException {
         this(matchVersion, WordlistLoader.getWordSet(stopwords));
     }
 
@@ -123,7 +123,7 @@ public class CaseSensitiveStandardAnalyzer extends Analyzer {
      * @param stopwords
      *            Reader to read stop words from
      */
-    public CaseSensitiveStandardAnalyzer(Version matchVersion, Reader stopwords) throws IOException {
+    public ContextualAnalyzer(Version matchVersion, Reader stopwords) throws IOException {
         this(matchVersion, WordlistLoader.getWordSet(stopwords));
     }
 
@@ -133,16 +133,15 @@ public class CaseSensitiveStandardAnalyzer extends Analyzer {
      */
     @Override
     public TokenStream tokenStream(String fieldName, Reader reader) {
-        StandardTokenizer tokenStream = new StandardTokenizer(matchVersion, reader);
-        tokenStream.setMaxTokenLength(maxTokenLength);
+        ContextualTokenizer tokenStream = new ContextualTokenizer(reader);
         TokenStream result = new StandardFilter(tokenStream);
-        // HUGH result = new LowerCaseFilter( result );
+        result = new LowerCaseFilter(result);
         result = new StopFilter(enableStopPositionIncrements, result, stopSet);
         return result;
     }
 
     private static final class SavedStreams {
-        StandardTokenizer tokenStream;
+        ContextualTokenizer tokenStream;
 
         TokenStream filteredTokenStream;
     }
@@ -180,18 +179,14 @@ public class CaseSensitiveStandardAnalyzer extends Analyzer {
         if (streams == null) {
             streams = new SavedStreams();
             setPreviousTokenStream(streams);
-            streams.tokenStream = new StandardTokenizer(matchVersion, reader);
+            streams.tokenStream = new ContextualTokenizer(reader);
             streams.filteredTokenStream = new StandardFilter(streams.tokenStream);
-            // HUGH streams.filteredTokenStream = new LowerCaseFilter( streams.filteredTokenStream
-            // );
+            streams.filteredTokenStream = new LowerCaseFilter(streams.filteredTokenStream);
             streams.filteredTokenStream = new StopFilter(enableStopPositionIncrements,
                     streams.filteredTokenStream, stopSet);
         } else {
             streams.tokenStream.reset(reader);
         }
-        streams.tokenStream.setMaxTokenLength(maxTokenLength);
-
-        streams.tokenStream.setReplaceInvalidAcronym(replaceInvalidAcronym);
 
         return streams.filteredTokenStream;
     }

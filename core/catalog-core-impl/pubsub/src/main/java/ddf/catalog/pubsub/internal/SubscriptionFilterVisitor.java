@@ -65,9 +65,9 @@ public class SubscriptionFilterVisitor extends DefaultFilterVisitor {
 
     private static final String QUOTE = "\"";
 
-    private static final String LUCENE_ESCAPE_CHAR = "\\";
+    public static final String LUCENE_ESCAPE_CHAR = "\\";
 
-    private static final String LUCENE_WILDCARD_CHAR = "*";
+    public static final String LUCENE_WILDCARD_CHAR = "*";
 
     public static final String LUCENE_SINGLE_CHAR = "?";
 
