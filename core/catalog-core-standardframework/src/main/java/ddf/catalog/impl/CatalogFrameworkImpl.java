@@ -253,6 +253,8 @@ public class CatalogFrameworkImpl extends DescribableImpl implements Configurati
     
     protected DownloadsStatusEventPublisher retrieveStatusEventPublisher;
 
+    protected boolean notificationEnabled = false;
+
     /**
      * Instantiates a new CatalogFrameworkImpl
      * 
@@ -429,7 +431,13 @@ public class CatalogFrameworkImpl extends DescribableImpl implements Configurati
         logger.debug("Setting cacheEnabled = {}", cacheEnabled);
         this.cacheEnabled = cacheEnabled;
     }
-    
+
+    public void setNotificationEnabled(boolean notificationEnabled) {
+        logger.debug("Setting notificationEnabled = {}", notificationEnabled);
+        this.notificationEnabled = notificationEnabled;
+        retrieveStatusEventPublisher.setEnabled(notificationEnabled);
+    }
+
     /**
      * Set the delay, in seconds, between product retrieval retry attempts.
      * 
@@ -1376,9 +1384,11 @@ public class CatalogFrameworkImpl extends DescribableImpl implements Configurati
                     logger.info(
                             "Successfully retrieved product from cache for metacard ID = {}",
                             metacard.getId());
-                    retrieveStatusEventPublisher.postRetrievalStatus(resourceResponse,
-                            ProductRetrievalStatus.COMPLETE, null,
-                            resource.getSize());
+                    if(notificationEnabled) {
+                        retrieveStatusEventPublisher.postRetrievalStatus(resourceResponse,
+                                ProductRetrievalStatus.COMPLETE, null,
+                                resource.getSize());
+                    }
                 } catch (CacheException ce) {
                     logger.info(
                             "Unable to get resource from cache. Have to retrieve it from source {}",

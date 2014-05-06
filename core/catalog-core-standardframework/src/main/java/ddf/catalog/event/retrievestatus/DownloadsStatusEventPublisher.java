@@ -48,6 +48,8 @@ public class DownloadsStatusEventPublisher {
 
     private EventAdmin eventAdmin;
 
+    private boolean enabled = false;
+
     /**
      * Used to publish product retrieval status updates via the OSGi Event Service
      */
@@ -72,25 +74,31 @@ public class DownloadsStatusEventPublisher {
             bytes = 0L;
         }
         
-        Long sysTimeMillis = System.currentTimeMillis();
-        Notification notification = new Notification(APPLICATION_NAME, 
-                resourceResponse.getResource().getName(), 
-                generateMessage(status, resourceResponse.getResource().getName(), 
-                        bytes, sysTimeMillis, detail), 
-                sysTimeMillis, 
-                getProperty(resourceResponse, 
-                        Notification.NOTIFICATION_KEY_USER_ID));
-        
-        notification.put(STATUS, status.name().toLowerCase());
-        notification.put(BYTES, String.valueOf(bytes));
+        if(enabled) {
+            Long sysTimeMillis = System.currentTimeMillis();
+            Notification notification = new Notification(APPLICATION_NAME,
+                    resourceResponse.getResource().getName(),
+                    generateMessage(status, resourceResponse.getResource().getName(),
+                            bytes, sysTimeMillis, detail),
+                    sysTimeMillis,
+                    getProperty(resourceResponse,
+                            Notification.NOTIFICATION_KEY_USER_ID)
+            );
 
-        Event event = new Event(Notification.NOTIFICATION_TOPIC_DOWNLOADS, 
-                notification);
+            notification.put(STATUS, status.name().toLowerCase());
+            notification.put(BYTES, String.valueOf(bytes));
 
-        eventAdmin.postEvent(event);
+            Event event = new Event(Notification.NOTIFICATION_TOPIC_DOWNLOADS,
+                    notification);
+
+            eventAdmin.postEvent(event);
+        }
+        else {
+            logger.debug("Notifications have been disabled so this message will NOT be posted.");
+        }
 
         logger.debug("EXITING: postRetrievalStatus(...)");
-    }
+        }
 
     private String getProperty(ResourceResponse resourceResponse, String property) {
         String response = "";
@@ -151,4 +159,7 @@ public class DownloadsStatusEventPublisher {
         return response.toString();
     }
 
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
 }
