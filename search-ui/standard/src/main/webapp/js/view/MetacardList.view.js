@@ -3,14 +3,13 @@
 define(function (require) {
     "use strict";
 
-    var $ = require('jquery'),
-        Backbone = require('backbone'),
-        Marionette = require('marionette'),
+    var Marionette = require('marionette'),
         _ = require('underscore'),
         ich = require('icanhaz'),
         dir = require('direction'),
         Spinner = require('spin'),
         spinnerConfig = require('spinnerConfig'),
+        wreqr = require('wreqr'),
         List = {};
     
     function throwError(message, name) {
@@ -19,20 +18,16 @@ define(function (require) {
       throw error;
     }
 
-    ich.addTemplate('resultListItem', require('text!templates/resultListItem.handlebars'));
-    ich.addTemplate('resultListTemplate', require('text!templates/resultList.handlebars'));
-
+    ich.addTemplate('resultListItem', require('text!templates/resultlist/resultListItem.handlebars'));
+    ich.addTemplate('resultListTemplate', require('text!templates/resultlist/resultList.handlebars'));
+    ich.addTemplate('countLowTemplate', require('text!templates/resultlist/countlow.handlebars'));
+    ich.addTemplate('countHighTemplate', require('text!templates/resultlist/counthigh.handlebars'));
 
     List.MetacardRow = Marionette.ItemView.extend({
         tagName: "tr",
         template : 'resultListItem',
         events: {
             'click .metacard-link': 'viewMetacard'
-        },
-
-        initialize: function (options) {
-            _.bindAll(this);
-            this.searchControlView = options.searchControlView;
         },
 
         serializeData: function(){
@@ -58,35 +53,21 @@ define(function (require) {
 
         viewMetacard: function () {
             this.model.set('direction', dir.forward);
-            if(this.model.get('context')){
-                this.searchControlView.showMetacardDetail(this.model);
+            if (this.model.get('context')) {
+                wreqr.vent.trigger('metacard:selected', this.model);
             }
             this.model.set('context', true);
         }
 
     });
-    
-    List.LoadingView = Marionette.ItemView.extend({
-        spinner: new Spinner(spinnerConfig),
-        onRender: function(){
-            var view = $.find('#searchControls').pop();
-            this.spinner.spin(view);
-        },
-        onClose: function(){
-            this.spinner.stop();
-        }
-    });
 
     List.MetacardTable = Marionette.CollectionView.extend({
-        emptyView: List.LoadingView,
         itemView : List.MetacardRow,
-        initialize: function (options) {
-            this.searchControlView = options.searchControlView;
-        },
+        tagName: 'table',
+        className: 'table resultTable',
         itemViewOptions : function(model){
             return {
-                model : model.get('metacard'),
-                searchControlView : this.searchControlView
+                model : model.get('metacard')
             };
         },
         appendHtml: function (collectionView, itemView, index) {
@@ -152,59 +133,53 @@ define(function (require) {
         
             containerView.$itemViewContainer = container;
             return container;
-        },
+        }
     });
 
-    List.MetacardListView = Backbone.View.extend({
-        className : 'slide-animate',
+    List.MetacardListView = Marionette.Layout.extend({
+        className: 'slide-animate height-full',
+        template: 'resultListTemplate',
+        regions: {
+            countRegion: '.result-count',
+            listRegion: '#resultList'
+        },
+        spinner: new Spinner(spinnerConfig),
         initialize: function (options) {
             _.bindAll(this);
             //options should be -> { results: results, mapView: mapView }
             this.model = options.result;
-            this.searchControlView = options.searchControlView;
-
-            this.modelBinder = new Backbone.ModelBinder();
         },
-        render: function () {
-            this.$el.html(ich.resultListTemplate(this.model));
-            var metacardTable = new List.MetacardTable({
-                collection: this.model.get("results"),
-                el: this.$(".resultTable").children("tbody"),
-                searchControlView: this.searchControlView
-            });
-            metacardTable.render();
-            this.metacardTable = metacardTable;
-            this.showHideLoadMore();
-
-            this.listenTo(this.model, 'change', this.showHideLoadMore);
-
-            var bindings = Backbone.ModelBinder.createDefaultBindings(this.el, 'name');
-            this.modelBinder.bind(this.model, this.$el, bindings);
-
-            this.delegateEvents();
-            this.trigger("render");
-            return this;
+        onRender: function () {
+            this.listRegion.show(new List.MetacardTable({
+                collection: this.model.get("results")
+            }));
+            this.updateCount();
+            this.listenTo(this.model, 'change', this.updateCount);
         },
-        close: function () {
-            this.remove();
-            this.stopListening();
-            //apparently unbind is sort of a sledgehammer approach to dealing with zombie views
-            //I tried it with this commented out and it appears to clean up the view correctly without it
-            //I'm going to leave it here as a note however
-            //this.unbind();
-            if (this.metacardTable){
-                this.metacardTable.close();
-            }
+        onShow: function(){
+            this.updateSpinner();
+            this.listenTo(this.model, 'change', this.updateSpinner);
         },
-        showHideLoadMore: function() {
+        updateCount: function() {
             if (!_.isUndefined(this.model.get("hits"))) {
                 if (this.model.get("results").length >= this.model.get("hits") || this.model.get("hits") === 0) {
-                    $("#high-results", this.$el).hide();
-                    $("#low-results", this.$el).css("display", "block").show();
+                    this.countRegion.show(new Marionette.ItemView({
+                        template: 'countLowTemplate',
+                        model: this.model
+                    }));
                 } else {
-                    $("#high-results", this.$el).css("display", "block").show();
-                    $("#low-results", this.$el).hide();
+                    this.countRegion.show(new Marionette.ItemView({
+                        template: 'countHighTemplate',
+                        model: this.model
+                    }));
                 }
+            }
+        },
+        updateSpinner: function () {
+            if (!_.isUndefined(this.model.get("hits"))) {
+                this.spinner.stop();
+            } else {
+                this.spinner.spin(this.el);
             }
         }
     });

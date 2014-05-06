@@ -197,12 +197,12 @@ define(function (require) {
                         this.stopListening(this.resultList, 'render', this.updateScrollPos);
                     }
 
-                    this.resultList = new MetacardList.MetacardListView({ result: result, searchControlView: this });
+                    this.resultList = new MetacardList.MetacardListView({result: result});
                     this.listenTo(this.resultList, 'content-update', this.updateScrollbar);
                     this.listenTo(this.resultList, 'render', this.updateScrollPos);
                 }
                 if(!this.resultList){
-                    this.resultList = new MetacardList.MetacardListView({ result: new MetacardModel.SearchResult(), searchControlView: this });
+                    this.resultList = new MetacardList.MetacardListView({result: new MetacardModel.SearchResult()});
                 }
                 if (previousState !== 'results' && this.leftRegion.currentView === this.queryForm && (direction !== dir.forward && direction !== dir.backward)){
                     $(".forward").show();
