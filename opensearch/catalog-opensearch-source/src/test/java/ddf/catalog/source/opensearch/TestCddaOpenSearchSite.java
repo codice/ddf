@@ -666,12 +666,12 @@ public class TestCddaOpenSearchSite {
     public void testEndpointUrl_NotLocalQuery_SrcLocal() throws Exception {
         CddaOpenSearchSite site = new CddaOpenSearchSite(connection);
         String endpointUrl = "http://example.com?q={searchTerms}&src=local&mr={fs:maxResults?}&count={count?}&mt={fs:maxTimeout?}&dn={idn:userDN?}&lat={geo:lat?}&lon={geo:lon?}&radius={geo:radius?}&bbox={geo:box?}&polygon={geo:polygon?}&dtstart={time:start?}&dtend={time:end?}&dateName={cat:dateName?}&filter={fsa:filter?}&sort={fsa:sort?}";
-        System.out.println("endpointUrl = " + endpointUrl);
+        LOGGER.debug("endpointUrl = " + endpointUrl);
         site.setLocalQueryOnly(false);
         site.setEndpointUrl(endpointUrl);
         site.configureEndpointUrl();
         String updatedEndpointUrl = site.getEndpointUrl();
-        System.out.println("updatedEndpointUrl = " + updatedEndpointUrl);
+        LOGGER.debug("updatedEndpointUrl = " + updatedEndpointUrl);
         assertTrue(updatedEndpointUrl.contains("src={fs:routeTo?}"));
     }
 
