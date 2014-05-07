@@ -272,8 +272,8 @@ public class ConfigurationStore {
     		setFormat((String) properties.get("format"));
     		setTimeout((Integer) properties.get("timeout"));
     		setSyncQuery((Boolean) properties.get("syncQuery"));
-            setResultCount((Integer) properties.get("resultCount"));
-            setSignIn((Boolean) properties.get("signIn"));
+    		setResultCount((Integer) properties.get("resultCount"));
+    		setSignIn((Boolean) properties.get("signIn"));
             setTask((Boolean) properties.get("task"));
     		
     		//Fetch the DDF HTTP Proxy
@@ -318,11 +318,9 @@ public class ConfigurationStore {
     
     private void startProxy(){		
 		try {
-			String bundleName = bundleContext.getBundle().getSymbolicName().toLowerCase() + incrementer;
+			bundleName = bundleContext.getBundle().getSymbolicName().toLowerCase() + incrementer;
 			incrementer++;
-
-            endpointName = httpProxy.start(bundleName, wmsServer, timeout);
-
+			endpointName = httpProxy.start(bundleName, wmsServer, timeout);
 			targetUrl = SERVLET_PATH + "/" + endpointName;
 			LOGGER.debug("Target URL: " + targetUrl);
 		} catch (Exception e) {
