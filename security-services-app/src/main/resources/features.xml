@@ -92,5 +92,9 @@
         <feature>security-core</feature>  
         <feature>security-sts-realm</feature>
   </feature>
+
+    <feature name="security-filter-basic" install="manual" version="${project.version}" description="Basic Authentication filter for web applications.">
+        <bundle>mvn:ddf.security.filter/security-filter-basic/${project.version}</bundle>
+    </feature>
         
 </features>
