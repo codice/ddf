@@ -18,6 +18,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Date;
 
+import org.apache.log4j.Logger;
+
 import org.junit.Test;
 
 import ddf.catalog.data.BinaryContent;
@@ -26,7 +28,9 @@ import ddf.catalog.services.transformer.xml.XmlMetacardTransformer;
 import ddf.catalog.transform.CatalogTransformerException;
 
 public class TestXmlTransformer {
-	
+
+    private static final Logger LOGGER = Logger.getLogger(TestXmlTransformer.class);
+
 	@Test
 	public void test() throws CatalogTransformerException {
 
@@ -51,12 +55,12 @@ public class TestXmlTransformer {
 			BufferedReader in = new BufferedReader(new InputStreamReader(bc.getInputStream()));
 			String inputLine;
 			try {
-				System.out.println("\n* * * START XML METACARD REPRESENTATION * * * \n");
+				LOGGER.info("\n* * * START XML METACARD REPRESENTATION * * * \n");
 				while ((inputLine = in.readLine()) != null) {
-					System.out.println(inputLine);
+					LOGGER.info(inputLine);
 				}
 				in.close();
-				System.out.println("\n* * * END XML METACARD REPRESENTATION * * * \n");
+				LOGGER.info("\n* * * END XML METACARD REPRESENTATION * * * \n");
 			} catch (IOException e) {
 				LOGGER.error("IOException while reading binary content",e);
 			}

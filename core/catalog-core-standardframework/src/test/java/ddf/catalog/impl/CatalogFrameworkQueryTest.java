@@ -140,7 +140,7 @@ public class CatalogFrameworkQueryTest {
 
         try {
             QueryResponse response = framework.query(queryReq);
-            System.out.println("Response:" + response);
+            LOGGER.info("Response:" + response);
             assertEquals("Expecting return 2 results.", 2, response.getHits());
         } catch (UnsupportedQueryException e) {
             LOGGER.error("Failure!!!", e);

@@ -638,13 +638,13 @@ public class PredicateTest {
 
         SubscriptionFilterVisitor visitor = new SubscriptionFilterVisitor();
         Predicate pred = (Predicate) query.getFilter().accept(visitor, null);
-        System.out.println("resulting predicate: " + pred);
+        logger.debug("resulting predicate: " + pred);
 
         Filter filter = query.getFilter();
         FilterTransformer transform = new FilterTransformer();
         transform.setIndentation(2);
         String filterXml = transform.transform(filter);
-        System.out.println(filterXml);
+        logger.debug(filterXml);
 
         // input that passes temporal
         logger.debug("\npass temporal.\n");
@@ -683,13 +683,13 @@ public class PredicateTest {
 
         SubscriptionFilterVisitor visitor = new SubscriptionFilterVisitor();
         Predicate pred = (Predicate) query.getFilter().accept(visitor, null);
-        System.out.println("resulting predicate: " + pred);
+        logger.debug("resulting predicate: " + pred);
 
         Filter filter = query.getFilter();
         FilterTransformer transform = new FilterTransformer();
         transform.setIndentation(2);
         String filterXml = transform.transform(filter);
-        System.out.println(filterXml);
+        logger.debug(filterXml);
 
         // input that passes temporal
         logger.debug("\npass temporal.\n");
