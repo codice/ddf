@@ -89,6 +89,8 @@ public class ConfigurationStore {
     private int incrementer=0;
 
     private Integer resultCount = 250;
+    
+    private String bundleName = null;
 
     static {
         MimeType mime = null;
@@ -113,6 +115,7 @@ public class ConfigurationStore {
     @GET
     @Path("/config")
     public Response getDocument(@Context UriInfo uriInfo, @Context HttpServletRequest httpRequest) {
+
         Response response;
         JSONObject configObj = new JSONObject();
         configObj.put("header", header);
@@ -280,6 +283,10 @@ public class ConfigurationStore {
                 LOGGER.debug("No WMS Server was provided in the Standard UI configuration. " +
                 		"If you are attempting to connect to a WMS Server, please provide " +
                 		"the location of the WMS Server in the Standard UI configuration.");
+                
+                //WMS Server not specified; stop proxy and which back to default map server
+                stopProxy();
+                targetUrl = "";
             }
     		
             LOGGER.debug(
@@ -290,6 +297,8 @@ public class ConfigurationStore {
   
     	} else{
     		LOGGER.debug("Properties are empty");
+    		targetUrl = "";
+    		wmsServer = "";
     		//Stop proxy
     		try {
 				httpProxy.stop(endpointName);
@@ -319,6 +328,16 @@ public class ConfigurationStore {
 		} catch (Exception e) {
 			LOGGER.error(e.getMessage());
 		}
+    }
+    
+    private void stopProxy(){		
+        try {
+            if (StringUtils.isNotBlank(bundleName)){
+            	httpProxy.stop(bundleName);
+            }
+        } catch (Exception e) {
+			LOGGER.error(e.getMessage());
+        }
     }
 
 	public HttpProxyService getHttpProxy() {
