@@ -19,10 +19,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.EnumMap;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.xml.namespace.QName;
 
@@ -1290,9 +1290,12 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
      *            The {@link net.opengis.filter.v_1_1_0.FilterCapabilities} understood by the Csw service
      */
     private final void updateAllowedOperations(FilterCapabilities filterCapabilities) {
-        comparisonOps = Collections.synchronizedSet(EnumSet.noneOf(ComparisonOperatorType.class));
-        spatialOps = Collections
-                .synchronizedMap(new EnumMap<SpatialOperatorNameType, SpatialOperatorType>(
+        comparisonOps = Collections
+                .newSetFromMap(new ConcurrentHashMap<ComparisonOperatorType, Boolean>(
+                        new EnumMap<ComparisonOperatorType, Boolean>(ComparisonOperatorType.class)));
+
+        spatialOps = new ConcurrentHashMap<SpatialOperatorNameType, SpatialOperatorType>(
+                new EnumMap<SpatialOperatorNameType, SpatialOperatorType>(
                         SpatialOperatorNameType.class));
         logicalOps = true;
         if (null == filterCapabilities) {
@@ -1352,9 +1355,10 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
     }
 
     public void setSpatialOps(SpatialOperatorsType spatialOperators) {
-        spatialOps = Collections
-                .synchronizedMap(new EnumMap<SpatialOperatorNameType, SpatialOperatorType>(
+        spatialOps = new ConcurrentHashMap<SpatialOperatorNameType, SpatialOperatorType>(
+                new EnumMap<SpatialOperatorNameType, SpatialOperatorType>(
                         SpatialOperatorNameType.class));
+    	
         for (SpatialOperatorType spatialOp : spatialOperators.getSpatialOperator()) {
             LOGGER.debug("Adding key [spatialOp Name: {}]", spatialOp.getName());
             spatialOps.put(spatialOp.getName(), spatialOp);
