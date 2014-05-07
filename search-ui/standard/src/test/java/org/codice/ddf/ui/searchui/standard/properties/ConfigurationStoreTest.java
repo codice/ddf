@@ -142,4 +142,40 @@ public class ConfigurationStoreTest {
         verify(mockHttpProxyService, times(1)).start(anyString(), eq(WMS_SERVER), eq(TIMEOUT));
         assertEquals(EXPECTED_TARGET_URL, configurationStore.getTargetUrl());
     }
+    
+    @Test
+    public void testTargetUrlWmsServerOnceNonBlankWmsServerBecomesBlank() throws Exception {
+        
+        // Setup
+        HttpProxyService mockHttpProxyService = mock(HttpProxyService.class);
+        when(mockHttpProxyService.start(anyString(), anyString(), anyInt())).thenReturn(ENDPOINT_NAME);
+        BundleContext mockBundleContext = mock(BundleContext.class);
+        Bundle mockBundle = mock(Bundle.class);
+        when(mockBundleContext.getBundle()).thenReturn(mockBundle);
+        when(mockBundle.getSymbolicName()).thenReturn(BUNDLE_SYMBOLIC_NAME);
+    
+        //Populate with non blank WMS Server
+        ConfigurationStore configurationStore = ConfigurationStore.getInstance();
+        configurationStore.setHttpProxy(mockHttpProxyService);
+        configurationStore.setBundleContext(mockBundleContext);
+        Map<String, Object> properties = new HashMap<String, Object>();
+        properties.put(WMS_SERVER_PROPERTY, WMS_SERVER);
+        properties.put(TIMEOUT_PROPERTY, TIMEOUT);
+
+        configurationStore.update(properties);
+        
+        //Now return back to default and make WMS Server blank
+        Map<String, Object> defaultProperties = new HashMap<String, Object>();
+        defaultProperties.put(WMS_SERVER_PROPERTY, EMPTY_STRING);
+        configurationStore.update(defaultProperties);
+        
+        // Verify
+        verify(mockHttpProxyService, times(1)).start(anyString(), eq(WMS_SERVER), eq(TIMEOUT));
+        
+        //Ensure that targetUrl and wmsServer variables are blank so that default map is returned
+        assertEquals("", configurationStore.getTargetUrl());
+        assertEquals("", configurationStore.getWmsServer());
+       
+    }
+    
 }
