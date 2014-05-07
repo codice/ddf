@@ -28,7 +28,8 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 
 public final class XSLTUtil {
@@ -36,7 +37,7 @@ public final class XSLTUtil {
             org.apache.xerces.jaxp.DocumentBuilderFactoryImpl.class.getName(),
             org.apache.xerces.jaxp.DocumentBuilderFactoryImpl.class.getClassLoader());
 
-    private static Logger logger = Logger.getLogger(XSLTUtil.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(XSLTUtil.class);
 
     private XSLTUtil() {
         throw new UnsupportedOperationException(
@@ -72,19 +73,18 @@ public final class XSLTUtil {
                 resultOutput = new StreamResult(baos);
                 if (parameters != null && !parameters.isEmpty()) {
                     for (Map.Entry<String, Object> entry : parameters.entrySet()) {
-                        logger.debug("Adding parameter key: " + entry.getKey() + " value: "
-                                + entry.getValue());
+                        LOGGER.debug("Adding parameter key: {} value: {}", entry.getKey(), entry.getValue());
                         String key = entry.getKey();
                         Object value = entry.getValue();
                         if (key != null && !key.isEmpty() && value != null) {
                             transformer.setParameter(key, value);
                         } else {
-                            logger.debug("Null or empty value for parameter: " + entry.getKey());
+                            LOGGER.debug("Null or empty value for parameter: {}", entry.getKey());
 
                         }
                     }
                 } else {
-                    logger.warn("All properties were null.  Using \"last-resort\" defaults: U, USA, MTS");
+                    LOGGER.warn("All properties were null.  Using \"last-resort\" defaults: U, USA, MTS");
                 }
 
                 transformer.transform(source, resultOutput);
@@ -97,10 +97,10 @@ public final class XSLTUtil {
 
             return resultDoc;
         } catch (TransformerException e) {
-            logger.warn(e.getMessage(), e);
+            LOGGER.warn(e.getMessage(), e);
             throw e;
         } catch (Exception e) {
-            logger.warn(e.getMessage(), e);
+            LOGGER.warn(e.getMessage(), e);
             throw new TransformerException("Error while transforming document: " + e.getMessage(),
                     e);
         }

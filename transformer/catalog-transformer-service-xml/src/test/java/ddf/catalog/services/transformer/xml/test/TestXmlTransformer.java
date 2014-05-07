@@ -18,9 +18,10 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Date;
 
-import org.apache.log4j.Logger;
-
 import org.junit.Test;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.MetacardImpl;
@@ -29,7 +30,7 @@ import ddf.catalog.transform.CatalogTransformerException;
 
 public class TestXmlTransformer {
 
-    private static final Logger LOGGER = Logger.getLogger(TestXmlTransformer.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(TestXmlTransformer.class);
 
 	@Test
 	public void test() throws CatalogTransformerException {
@@ -62,7 +63,7 @@ public class TestXmlTransformer {
 				in.close();
 				LOGGER.info("\n* * * END XML METACARD REPRESENTATION * * * \n");
 			} catch (IOException e) {
-				LOGGER.error("IOException while reading binary content",e);
+				LOGGER.error("IOException while reading binary content", e);
 			}
 		}
 	}

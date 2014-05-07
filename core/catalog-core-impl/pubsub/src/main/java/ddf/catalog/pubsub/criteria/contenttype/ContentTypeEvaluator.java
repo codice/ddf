@@ -15,16 +15,17 @@
 
 package ddf.catalog.pubsub.criteria.contenttype;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ddf.catalog.pubsub.predicate.ContentTypePredicate;
 
 public class ContentTypeEvaluator {
-    private static Logger logger = Logger.getLogger(ContentTypeEvaluator.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ContentTypeEvaluator.class);
 
     public static boolean evaluate(ContentTypeEvaluationCriteriaImpl ctec) {
         String methodName = "evaluate";
-        logger.debug("ENTERING: " + methodName);
+        LOGGER.debug("ENTERING: {}", methodName);
 
         ContentTypePredicate matchContentTypePredicate = ctec.getContentType();
         String matchType = matchContentTypePredicate.getType();
@@ -43,9 +44,7 @@ public class ContentTypeEvaluator {
         }
 
         String input = ctec.getInputContentType();
-        if (logger.isDebugEnabled()) {
-            logger.debug("Match ContentType: " + matchContentTypePredicate);
-        }
+        LOGGER.debug("Match ContentType: {}", matchContentTypePredicate);
         
         String inputType;
         String inputVersion;
@@ -75,23 +74,22 @@ public class ContentTypeEvaluator {
             }
         }
         	
-        logger.debug("inputType = " + inputType + ", inputVersion = " + inputVersion);
-        logger.debug("matchType = " + matchType + ", matchVersion = " + matchVersion);
+        LOGGER.debug("inputType = {}, inputVersion = {}", inputType, inputVersion);
+        LOGGER.debug("matchType = {}, matchVersion = {}", matchType, matchVersion);
 
         if (matchType != null && !matchType.isEmpty() && inputType.matches(matchType)) {
 
             if (matchVersion != null && !matchVersion.isEmpty()
                     && !inputVersion.matches(matchVersion)) {
-                logger.debug("EXITING: " + methodName
-                        + " - returning false.  Did not match version.");
+                LOGGER.debug("EXITING: {} - returning false.  Did not match version.", methodName);
                 return false;
             }
 
-            logger.debug("EXITING: " + methodName + " - returning true.");
+            LOGGER.debug("EXITING: {} - returning true.", methodName);
             return true;
         }
 
-        logger.debug("EXITING: " + methodName + " - returning false.");
+        LOGGER.debug("EXITING: {} - returning false.", methodName);
 
         return false;
     }

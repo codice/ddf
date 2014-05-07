@@ -22,10 +22,11 @@ import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
-import org.apache.log4j.Logger;
 import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.store.Directory;
 import org.osgi.service.event.Event;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ddf.catalog.pubsub.criteria.contextual.ContextualEvaluationCriteria;
 import ddf.catalog.pubsub.criteria.contextual.ContextualEvaluationCriteriaImpl;
@@ -41,7 +42,7 @@ public class ContextualPredicate implements Predicate {
 
     private Collection<String> textPaths;
 
-    private static final Logger logger = Logger.getLogger(ContextualPredicate.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ContextualPredicate.class);
 
     public ContextualPredicate(String searchPhrase, boolean fuzzy, boolean caseSensitiveSearch,
             Collection<String> textPaths) {
@@ -49,7 +50,7 @@ public class ContextualPredicate implements Predicate {
         this.caseSensitiveSearch = caseSensitiveSearch;
 
         if (textPaths != null && !textPaths.isEmpty()) {
-            logger.debug("text paths size: " + textPaths.size());
+            LOGGER.debug("text paths size: {}", textPaths.size());
             this.textPaths = new ArrayList<String>(textPaths);
         }
         this.searchPhrase = normalizePhrase(searchPhrase, fuzzy);
@@ -57,23 +58,23 @@ public class ContextualPredicate implements Predicate {
 
     public boolean matches(Event properties) {
         String methodName = "matches";
-        logger.debug("ENTERING: " + methodName);
+        LOGGER.debug("ENTERING: {}", methodName);
 
-        logger.debug("Headers: " + properties);
+        LOGGER.debug("Headers: {}", properties);
 
         ContextualEvaluationCriteria cec = null;
         Map<String, Object> contextualMap = (Map<String, Object>) properties
                 .getProperty(PubSubConstants.HEADER_CONTEXTUAL_KEY);
 
         if (contextualMap == null) {
-            logger.debug("No contextual metadata to search against.");
+            LOGGER.debug("No contextual metadata to search against.");
             return false;
         }
 
         String operation = (String) properties.getProperty(PubSubConstants.HEADER_OPERATION_KEY);
-        logger.debug("operation = " + operation);
+        LOGGER.debug("operation = {}", operation);
         String metadata = (String) contextualMap.get("METADATA");
-        logger.debug("metadata = [" + metadata + "]");
+        LOGGER.debug("metadata = [{}]", metadata);
 
         // If deleting a catalog entry and the entry's metadata is only the word "deleted" (i.e.,
         // the
@@ -82,7 +83,7 @@ public class ContextualPredicate implements Predicate {
         // cannot apply any contextual filtering - just send the event on to the subscriber
         if (operation.equals(PubSubConstants.DELETE)
                 && metadata.equals(PubSubConstants.METADATA_DELETED)) {
-            logger.debug("Detected a DELETE operation where metadata is just the word 'deleted', so send event on to subscriber");
+            LOGGER.debug("Detected a DELETE operation where metadata is just the word 'deleted', so send event on to subscriber");
             return true;
         }
 
@@ -92,14 +93,14 @@ public class ContextualPredicate implements Predicate {
         // on the metadata using the
         // text paths)
         if (this.textPaths != null && !this.textPaths.isEmpty()) {
-            logger.debug("creating criteria with textPaths and metadata document");
+            LOGGER.debug("creating criteria with textPaths and metadata document");
             try {
                 cec = new ContextualEvaluationCriteriaImpl(searchPhrase, fuzzy,
                         caseSensitiveSearch,
                         (String[]) this.textPaths.toArray(new String[this.textPaths.size()]),
                         (String) contextualMap.get("METADATA"));
             } catch (IOException e) {
-                logger.error(e);
+                LOGGER.error("IO exception during context evaluation", e);
                 return false;
             }
         }
@@ -109,7 +110,7 @@ public class ContextualPredicate implements Predicate {
         // per the default XPath expressions in ContextualEvaluator, from the event's properties
         // data
         else {
-            logger.debug("using default Lucene search index for metadata");
+            LOGGER.debug("using default Lucene search index for metadata");
             cec = new ContextualEvaluationCriteriaImpl(searchPhrase, fuzzy, caseSensitiveSearch,
                     (Directory) contextualMap.get("DEFAULT_INDEX"));
         }
@@ -117,12 +118,12 @@ public class ContextualPredicate implements Predicate {
         try {
             return ContextualEvaluator.evaluate(cec);
         } catch (IOException e) {
-            logger.error(e);
+            LOGGER.error("IO Exception evaluating context criteria", e);
         } catch (ParseException e) {
-            logger.error(e);
+            LOGGER.error("Parse Exception evaluating context criteria", e);
         }
 
-        logger.debug("EXITING: " + methodName);
+        LOGGER.debug("EXITING: {}", methodName);
 
         return false;
     }
@@ -164,7 +165,7 @@ public class ContextualPredicate implements Predicate {
     public static String normalizePhrase(String inputPhrase, boolean isFuzzy) {
         String phrase = inputPhrase.trim();
         String parts[] = phrase.split("\"");
-        logger.debug("phrase = [" + phrase + "]    parts.length = " + parts.length);
+        LOGGER.debug("phrase = [{}]    parts.length = {}", phrase, parts.length);
 
         if (inputPhrase != null && !inputPhrase.equals("")) {
             // if multiple parts found, then exact (quoted) phrases are present
@@ -172,7 +173,7 @@ public class ContextualPredicate implements Predicate {
                 // Odd parts are in quotes, i.e., exact (quoted) phrases, so skip them
                 // Even parts are individual words or operators
                 for (int i = 0; i < parts.length; i++) {
-                    logger.debug("parts[" + i + "] = " + parts[i]);
+                    LOGGER.debug("parts[{}] = {}", i, parts[i]);
                     if (i % 2 == 0) {
                         if (!parts[i].isEmpty()) {
                             parts[i] = normalizeBooleanOperators(parts[i]);
@@ -181,10 +182,10 @@ public class ContextualPredicate implements Predicate {
                                 parts[i] = parts[i] + "~";
                                 parts[i] = parts[i].replace("~~", "~");
 
-                                logger.debug("Fuzzy Search adding a tilde: " + parts[i]);
+                                LOGGER.debug("Fuzzy Search adding a tilde: {}", parts[i]);
                             }
                         } else {
-                            logger.debug("part[" + i + "] was empty");
+                            LOGGER.debug("part[{}] was empty", i);
                         }
                     }
                 }
@@ -196,7 +197,7 @@ public class ContextualPredicate implements Predicate {
                         phrase = phrase + "\"";
                 }
             } else {
-                logger.debug("parts.length <= 1:  phrase = " + phrase);
+                LOGGER.debug("parts.length <= 1:  phrase = {}", phrase);
                 phrase = normalizeBooleanOperators(phrase);
 
                 // if ( isFuzzy && !isBooleanOperator( phrase ) )
@@ -207,7 +208,7 @@ public class ContextualPredicate implements Predicate {
                 // phrase = phrase + "~";
                 // phrase = phrase.replace( "~~", "~" );
                 //
-                // logger.debug( "Fuzzy Search adding a tilde: " + phrase );
+                // LOGGER.debug( "Fuzzy Search adding a tilde: {}", phrase );
                 // }
                 if (isFuzzy) {
                     String[] words = phrase.trim().split("[ ]+");
@@ -217,8 +218,8 @@ public class ContextualPredicate implements Predicate {
                             if (!subPart.isEmpty() && !isBooleanOperator(subPart)) {
                                 String fuzzySubPart = subPart + "~";
                                 phrase = phrase.replaceFirst(subPart, fuzzySubPart);
-                                logger.debug("2. Fuzzy Search adding a tilde: " + subPart);
-                                logger.debug("phrase = " + phrase);
+                                LOGGER.debug("2. Fuzzy Search adding a tilde: {}", subPart);
+                                LOGGER.debug("phrase = {}", phrase);
                             }
                         }
 
@@ -231,7 +232,7 @@ public class ContextualPredicate implements Predicate {
                     // add tilde to last word in entire search phrase
                     // phrase = phrase + "~";
 
-                    logger.debug("2. Fuzzy-fied phrase: " + phrase);
+                    LOGGER.debug("2. Fuzzy-fied phrase: {}", phrase);
                 }
             }
             /*
@@ -239,7 +240,7 @@ public class ContextualPredicate implements Predicate {
              * 
              * // add to last word phrase = phrase + "~";
              * 
-             * logger.debug( "Fuzzy Search adding a tilde: " + phrase );
+             * LOGGER.debug( "Fuzzy Search adding a tilde: {}", phrase );
              * 
              * phrase = phrase.replace( " NOT~ ", " NOT " ); phrase = phrase.replace( " AND~ ",
              * " AND " ); phrase = phrase.replace( " OR~ ", " OR " ); phrase = phrase.replace( "~~",
@@ -262,7 +263,7 @@ public class ContextualPredicate implements Predicate {
         } else {
             phrase = "";
         }
-        logger.debug("Normalization complete. \nBefore: " + inputPhrase + "\nAfter: " + phrase);
+        LOGGER.debug("Normalization complete. \nBefore: {}\nAfter: {}", inputPhrase, phrase);
 
         return phrase;
     }

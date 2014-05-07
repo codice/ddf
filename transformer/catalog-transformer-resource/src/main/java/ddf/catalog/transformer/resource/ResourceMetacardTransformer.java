@@ -22,7 +22,8 @@ import javax.activation.MimeType;
 import javax.activation.MimeTypeParseException;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.BinaryContent;
@@ -45,7 +46,7 @@ import ddf.catalog.transform.MetacardTransformer;
  */
 public class ResourceMetacardTransformer implements MetacardTransformer {
 
-    private static final Logger LOGGER = Logger.getLogger(ResourceMetacardTransformer.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ResourceMetacardTransformer.class);
 
     private CatalogFramework catalogFramework;
 
@@ -74,9 +75,8 @@ public class ResourceMetacardTransformer implements MetacardTransformer {
 
         String id = metacard.getId();
 
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("executing resource request with id '" + id + "'");
-        }
+        LOGGER.debug("executing resource request with id '{}'", id);
+
         final ResourceRequest resourceRequest = new ResourceRequestById(id, arguments);
 
         ResourceResponse resourceResponse = null;
@@ -126,15 +126,10 @@ public class ResourceMetacardTransformer implements MetacardTransformer {
                                 + DEFAULT_MIME_TYPE_STR + "'.", e);
             }
         }
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Found mime type: '" + mimeType.toString() + "'"
-                    + " for product of metacard with id: '" + id + "'."
-                    + "\nGetting associated resource from input stream. \n");
-        }
+        LOGGER.debug("Found mime type: '{}' for product of metacard with id: '{}'.\nGetting associated resource from input stream. \n",
+            mimeType, id);
 
-        if (LOGGER.isTraceEnabled()) {
-            LOGGER.trace("Exiting resource transform for metacard id: '" + id + "'");
-        }
+        LOGGER.trace("Exiting resource transform for metacard id: '{}'", id);
         return transformedContent;
     }
 

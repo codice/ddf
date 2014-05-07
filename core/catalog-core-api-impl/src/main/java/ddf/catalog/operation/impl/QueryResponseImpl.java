@@ -37,7 +37,7 @@ import ddf.catalog.operation.SourceResponse;
 
 public class QueryResponseImpl extends ResponseImpl<QueryRequest> implements QueryResponse {
 
-    private static XLogger logger = new XLogger(LoggerFactory.getLogger(QueryResponseImpl.class));
+    private static final XLogger logger = new XLogger(LoggerFactory.getLogger(QueryResponseImpl.class));
 
     protected static Result POISON_PILL_RESULT = new POISON_PILL_RESULT();
 

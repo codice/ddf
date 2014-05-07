@@ -18,7 +18,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.apache.log4j.Logger;
 import org.geotools.feature.NameImpl;
 import org.geotools.filter.FunctionFactory;
 import org.opengis.feature.type.Name;
@@ -26,40 +25,41 @@ import org.opengis.filter.capability.FunctionName;
 import org.opengis.filter.expression.Expression;
 import org.opengis.filter.expression.Function;
 import org.opengis.filter.expression.Literal;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class FuzzyFunctionFactory implements FunctionFactory {
-    private static Logger logger = Logger.getLogger(FuzzyFunctionFactory.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(FuzzyFunctionFactory.class);
 
     public List<FunctionName> getFunctionNames() {
         String methodName = "getFunctionNames";
-        logger.debug("ENTERING: " + methodName);
+        LOGGER.debug("ENTERING: {}", methodName);
 
         List<FunctionName> functionList = new ArrayList<FunctionName>();
         functionList.add(FuzzyFunction.NAME);
 
-        logger.debug("EXITING: " + methodName);
+        LOGGER.debug("EXITING: {}", methodName);
 
         return Collections.unmodifiableList(functionList);
     }
 
     public Function function(String name, List<Expression> args, Literal fallback) {
-        logger.debug("INSIDE: function(String name, ...)");
+        LOGGER.debug("INSIDE: function(String name, ...)");
         return function(new NameImpl(name), args, fallback);
     }
 
     public Function function(Name name, List<Expression> args, Literal fallback) {
         String methodName = "function";
-        logger.debug("ENTERING: " + methodName);
+        LOGGER.debug("ENTERING: {}", methodName);
 
-        logger.debug("Comparing [" + FuzzyFunction.NAME.getName() + "] to [" + name.getLocalPart()
-                + "]");
+        LOGGER.debug("Comparing [{}] to [{}]", FuzzyFunction.NAME.getName(), name.getLocalPart());
 
         if (FuzzyFunction.NAME.getName().equals(name.getLocalPart())) {
-            logger.debug("EXITING: " + methodName + "    - returning FuzzyFunction instance");
+            LOGGER.debug("EXITING: {}    - returning FuzzyFunction instance", methodName);
             return new FuzzyFunction(args, fallback);
         }
 
-        logger.debug("EXITING: " + methodName + "    - returning null");
+        LOGGER.debug("EXITING: {}    - returning null", methodName);
 
         return null; // we do not implement that function
     }

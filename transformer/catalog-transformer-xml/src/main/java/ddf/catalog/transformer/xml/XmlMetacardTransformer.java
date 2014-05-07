@@ -25,7 +25,8 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.helpers.DefaultValidationEventHandler;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
@@ -37,7 +38,7 @@ import ddf.catalog.transformer.xml.adapter.AttributeAdapter;
 
 public class XmlMetacardTransformer extends AbstractXmlTransformer implements MetacardTransformer {
 
-    private static final Logger LOGGER = Logger.getLogger(XmlMetacardTransformer.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(XmlMetacardTransformer.class);
 
     @Override
     public BinaryContent transform(Metacard metacard, Map<String, Serializable> arguments)

@@ -48,7 +48,7 @@ public class SourcePollerRunner implements Runnable {
 
     private Map<Source, CachedSource> cachedSources = new ConcurrentHashMap<Source, CachedSource>();
 
-    private static XLogger logger = new XLogger(LoggerFactory.getLogger(SourcePollerRunner.class));
+    private static final XLogger logger = new XLogger(LoggerFactory.getLogger(SourcePollerRunner.class));
 
     private ExecutorService pool;
 

@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import org.junit.Test;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ddf.catalog.data.Attribute;
@@ -32,7 +33,7 @@ import ddf.catalog.transformer.xml.XmlMetacardTransformer;
 
 public class IntegrationTest {
 
-    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(IntegrationTest.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(IntegrationTest.class);
 
     @Test
     public void testInputAndOutput() throws CatalogTransformerException, IOException {

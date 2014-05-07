@@ -16,7 +16,8 @@ package ddf.catalog.impl;
 
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ddf.catalog.data.Metacard;
 import ddf.catalog.event.EventProcessor;
@@ -33,7 +34,7 @@ import ddf.catalog.plugin.PostIngestPlugin;
 
 public class MockEventProcessor implements EventProcessor, PostIngestPlugin {
 
-    private static Logger logger = Logger.getLogger(MockEventProcessor.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(MockEventProcessor.class);
 
     private boolean wasPosted = false;
 
@@ -74,34 +75,34 @@ public class MockEventProcessor implements EventProcessor, PostIngestPlugin {
 
     @Override
     public void notifyCreated(Metacard newMetacard) {
-        logger.trace("ENTERING: notifyCreated");
+        LOGGER.trace("ENTERING: notifyCreated");
 
         wasSent = true;
         wasPosted = true;
         lastEvent = newMetacard;
-        logger.trace("EXITING: notifyCreated");
+        LOGGER.trace("EXITING: notifyCreated");
 
     }
 
     @Override
     public void notifyDeleted(Metacard oldMetacard) {
-        logger.trace("ENTERING: notifyDeleted");
+        LOGGER.trace("ENTERING: notifyDeleted");
 
         wasSent = true;
         wasPosted = true;
         lastEvent = oldMetacard;
-        logger.trace("EXITING: notifyDeleted");
+        LOGGER.trace("EXITING: notifyDeleted");
 
     }
 
     @Override
     public void notifyUpdated(Metacard newMetacard, Metacard oldMetacard) {
-        logger.trace("ENTERING: notifyUpdated");
+        LOGGER.trace("ENTERING: notifyUpdated");
 
         wasSent = true;
         wasPosted = true;
         lastEvent = newMetacard;
-        logger.trace("EXITING: notifyUpdated");
+        LOGGER.trace("EXITING: notifyUpdated");
 
     }
 
@@ -114,38 +115,38 @@ public class MockEventProcessor implements EventProcessor, PostIngestPlugin {
 
     @Override
     public CreateResponse process(CreateResponse input) throws PluginExecutionException {
-        logger.trace("ENTERING: process (CreateResponse)");
+        LOGGER.trace("ENTERING: process (CreateResponse)");
         List<Metacard> createdMetacards = input.getCreatedMetacards();
         wasSent = true;
         wasPosted = true;
         lastEvent = createdMetacards.get(createdMetacards.size() - 1);
-        logger.trace("EXITING: process (CreateResponse)");
+        LOGGER.trace("EXITING: process (CreateResponse)");
 
         return input;
     }
 
     @Override
     public UpdateResponse process(UpdateResponse input) throws PluginExecutionException {
-        logger.trace("ENTERING: process (UpdateResponse)");
+        LOGGER.trace("ENTERING: process (UpdateResponse)");
         List<Update> updates = input.getUpdatedMetacards();
         Update lastUpdate = updates.get(updates.size() - 1);
         wasSent = true;
         wasPosted = true;
         lastEvent = lastUpdate.getNewMetacard();
-        logger.trace("EXITING: process (UpdateResponse)");
+        LOGGER.trace("EXITING: process (UpdateResponse)");
 
         return input;
     }
 
     @Override
     public DeleteResponse process(DeleteResponse input) throws PluginExecutionException {
-        logger.trace("ENTERING: process (DeleteResponse)");
+        LOGGER.trace("ENTERING: process (DeleteResponse)");
 
         List<Metacard> deletedMetacards = input.getDeletedMetacards();
         wasSent = true;
         wasPosted = true;
         lastEvent = deletedMetacards.get(deletedMetacards.size() - 1);
-        logger.trace("EXITING: process (DeleteResponse)");
+        LOGGER.trace("EXITING: process (DeleteResponse)");
 
         return input;
     }

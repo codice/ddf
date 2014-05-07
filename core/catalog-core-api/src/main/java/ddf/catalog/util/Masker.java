@@ -32,7 +32,7 @@ import org.slf4j.ext.XLogger;
 @Deprecated
 public class Masker {
 
-    private static XLogger logger = new XLogger(LoggerFactory.getLogger(Masker.class));
+    private static final XLogger logger = new XLogger(LoggerFactory.getLogger(Masker.class));
 
     private String mask;
 

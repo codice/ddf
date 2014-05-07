@@ -47,7 +47,7 @@ public class SortedServiceReferenceList implements List<ServiceReference> {
     private Set<ServiceReference> serviceSet = Collections
             .synchronizedSet(new TreeSet<ServiceReference>(new ServiceComparator()));
 
-    private static XLogger logger = new XLogger(
+    private static final XLogger logger = new XLogger(
             LoggerFactory.getLogger(SortedServiceReferenceList.class));
 
     /**

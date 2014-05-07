@@ -17,8 +17,9 @@ package ddf.catalog.pubsub.internal;
 
 import java.util.List;
 
-import org.apache.log4j.Logger;
 import org.osgi.service.event.Event;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ddf.catalog.data.Metacard;
 import ddf.catalog.event.Subscription;
@@ -29,7 +30,7 @@ import ddf.catalog.plugin.PreDeliveryPlugin;
 import ddf.catalog.plugin.StopProcessingException;
 
 public class DeliveryProcessor {
-    private static Logger logger = Logger.getLogger(DeliveryProcessor.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DeliveryProcessor.class);
 
     private Subscription subscription;
 
@@ -42,74 +43,74 @@ public class DeliveryProcessor {
 
     public void process(Event event) {
         String methodName = "process";
-        logger.debug("ENTERING: " + methodName);
+        LOGGER.debug("ENTERING: {}", methodName);
 
         Metacard entry = (Metacard) event.getProperty(PubSubConstants.HEADER_ENTRY_KEY);
         String operation = event.getProperty(PubSubConstants.HEADER_OPERATION_KEY).toString();
 
-        logger.debug("Delivering catalog entry.");
+        LOGGER.debug("Delivering catalog entry.");
         if (subscription != null) {
             if (entry != null) {
                 if (operation.equalsIgnoreCase(PubSubConstants.CREATE)) {
                     try {
                         for (PreDeliveryPlugin plugin : preDelivery) {
-                            logger.debug("Processing 'created' entry with preDelivery plugin");
+                            LOGGER.debug("Processing 'created' entry with preDelivery plugin");
                             entry = plugin.processCreate(entry);
                         }
                         subscription.getDeliveryMethod().created(entry);
                     } catch (PluginExecutionException e) {
-                        logger.debug(
+                        LOGGER.debug(
                                 "Plugin had exception during execution - still delivering the entry",
                                 e);
                         subscription.getDeliveryMethod().created(entry);
                     } catch (StopProcessingException e) {
-                        logger.error("Pre-delivery plugin determined entry cannot be delivered", e);
+                        LOGGER.error("Pre-delivery plugin determined entry cannot be delivered", e);
                     }
                 } else if (operation.equalsIgnoreCase(PubSubConstants.UPDATE)) {
                     // TODO: Handle hit or miss
                     try {
                         for (PreDeliveryPlugin plugin : preDelivery) {
-                            logger.debug("Processing 'updated' entry with preDelivery plugin");
+                            LOGGER.debug("Processing 'updated' entry with preDelivery plugin");
                             Update updatedEntry = plugin.processUpdateHit(new UpdateImpl(entry,
                                     null));
                             entry = updatedEntry.getNewMetacard();
                         }
                         subscription.getDeliveryMethod().updatedHit(entry, entry);
                     } catch (PluginExecutionException e) {
-                        logger.debug(
+                        LOGGER.debug(
                                 "Plugin had exception during execution - still delivering the entry",
                                 e);
                         subscription.getDeliveryMethod().updatedHit(entry, entry);
                     } catch (StopProcessingException e) {
-                        logger.error("Pre-delivery plugin determined entry cannot be delivered", e);
+                        LOGGER.error("Pre-delivery plugin determined entry cannot be delivered", e);
                     }
                 } else if (operation.equalsIgnoreCase(PubSubConstants.DELETE)) {
 
                     try {
                         for (PreDeliveryPlugin plugin : preDelivery) {
-                            logger.debug("Processing 'deleted' entry with preDelivery plugin");
+                            LOGGER.debug("Processing 'deleted' entry with preDelivery plugin");
                             entry = plugin.processCreate(entry);
                         }
                         subscription.getDeliveryMethod().deleted(entry);
                     } catch (PluginExecutionException e) {
-                        logger.debug(
+                        LOGGER.debug(
                                 "Plugin had exception during execution - still delivering the entry",
                                 e);
                         subscription.getDeliveryMethod().deleted(entry);
                     } catch (StopProcessingException e) {
-                        logger.error("Pre-delivery plugin determined entry cannot be delivered", e);
+                        LOGGER.error("Pre-delivery plugin determined entry cannot be delivered", e);
                     }
                 } else {
-                    logger.warn("Could not deliver hit for subscription.");
+                    LOGGER.warn("Could not deliver hit for subscription.");
                 }
             } else {
-                logger.warn("Could not deliver hit for subscription. Catalog entry is null.");
+                LOGGER.warn("Could not deliver hit for subscription. Catalog entry is null.");
             }
         } else {
-            logger.warn("Could not deliver hit for subscription. Subscription is null.");
+            LOGGER.warn("Could not deliver hit for subscription. Subscription is null.");
         }
 
-        logger.debug("EXITING: " + methodName);
+        LOGGER.debug("EXITING: {}", methodName);
     }
 
 }

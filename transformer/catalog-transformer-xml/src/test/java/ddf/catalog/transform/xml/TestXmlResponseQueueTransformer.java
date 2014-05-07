@@ -37,8 +37,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.Logger;
 import org.custommonkey.xmlunit.NamespaceContext;
 import org.custommonkey.xmlunit.SimpleNamespaceContext;
 import org.custommonkey.xmlunit.XMLUnit;
@@ -46,6 +44,8 @@ import org.custommonkey.xmlunit.exceptions.XpathException;
 import org.joda.time.DateTime;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
 import ddf.catalog.data.AttributeDescriptor;
@@ -85,13 +85,9 @@ public class TestXmlResponseQueueTransformer {
 
     private static final String DEFAULT_BASE64 = "AAAB";
 
-    private static final Logger LOGGER = Logger.getLogger(TestXmlResponseQueueTransformer.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(TestXmlResponseQueueTransformer.class);
 
     private static final String DEFAULT_SOURCE_ID = "mySourceId";
-
-    static {
-        BasicConfigurator.configure();
-    }
 
     @BeforeClass
     public static void setupTestClass() {

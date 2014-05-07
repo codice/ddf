@@ -254,9 +254,9 @@ public class TestRestEndpoint {
             when(transformer.transform(isA(InputStream.class))).thenThrow(
                     CatalogTransformerException.class);
         } catch (IOException e) {
-            LOGGER.debug(e.toString());
+            LOGGER.debug("Exception occurred during test", e);
         } catch (CatalogTransformerException e) {
-            LOGGER.debug(e.toString());
+            LOGGER.debug("Exception occurred during test", e);
         }
 
         when(matchingService.findMatches(eq(InputTransformer.class), isA(MimeType.class)))
@@ -302,9 +302,9 @@ public class TestRestEndpoint {
         try {
             when(transformer.transform(isA(InputStream.class))).thenThrow(IOException.class);
         } catch (IOException e) {
-            LOGGER.debug(e.toString());
+            LOGGER.debug("Exception occurred during test", e);
         } catch (CatalogTransformerException e) {
-            LOGGER.debug(e.toString());
+            LOGGER.debug("Exception occurred during test", e);
         }
 
         when(matchingService.findMatches(eq(InputTransformer.class), isA(MimeType.class)))
@@ -851,9 +851,9 @@ public class TestRestEndpoint {
             when(inputTransformer.transform(isA(InputStream.class), isA(String.class))).thenReturn(
                     generatedMetacard);
         } catch (IOException e) {
-            LOGGER.debug(e.toString());
+            LOGGER.debug("Exception occurred during test", e);
         } catch (CatalogTransformerException e) {
-            LOGGER.debug(e.toString());
+            LOGGER.debug("Exception occurred during test", e);
         }
         return inputTransformer;
     }

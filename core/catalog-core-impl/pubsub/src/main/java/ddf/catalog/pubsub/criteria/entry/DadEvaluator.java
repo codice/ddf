@@ -17,10 +17,11 @@ package ddf.catalog.pubsub.criteria.entry;
 
 import java.net.URI;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public final class DadEvaluator {
-    private static Logger logger = Logger.getLogger(DadEvaluator.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DadEvaluator.class);
 
     private DadEvaluator() {
         throw new UnsupportedOperationException(
@@ -29,27 +30,27 @@ public final class DadEvaluator {
 
     public static boolean evaluate(DadEvaluationCriteria dec) {
         String methodName = "evaluate";
-        logger.debug("ENTERING: " + methodName);
+        LOGGER.debug("ENTERING: {}", methodName);
 
         boolean status = false;
 
         URI inputDad = dec.getInputDad();
 
         if (inputDad != null) {
-            logger.debug("inputDad = " + inputDad.toString().toString());
-            logger.debug("reference DAD = " + dec.getDad().toString());
+            LOGGER.debug("inputDad = {}", inputDad.toString().toString());
+            LOGGER.debug("reference DAD = {}", dec.getDad().toString());
 
             if (inputDad.compareTo(dec.getDad()) == 0) {
                 status = true;
             }
 
         } else {
-            logger.debug("inputDad is NULL");
+            LOGGER.debug("inputDad is NULL");
         }
 
-        logger.debug("status = " + status);
+        LOGGER.debug("status = {}", status);
 
-        logger.debug("EXITING: " + methodName);
+        LOGGER.debug("EXITING: {}", methodName);
 
         return status;
     }

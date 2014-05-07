@@ -20,7 +20,6 @@ import java.util.List;
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
-import org.apache.log4j.Logger;
 import org.fusesource.jansi.Ansi;
 
 @Command(scope = SubscriptionsCommand.NAMESPACE, name = "list", description = "Allows users to view registered subscriptions.")
@@ -34,8 +33,6 @@ public class ListCommand extends SubscriptionsCommand {
     static final String SUBSCRIPTION_ID_COLUMN_HEADER = "Subscription ID";
 
     static final String NO_SUBSCRIPTIONS_FOUND_MSG = "No subscriptions found";
-
-    private static final Logger LOGGER = Logger.getLogger(ListCommand.class);
 
     @Argument(name = "search phrase or LDAP filter", description = "Subscription ID to search for. Wildcard characters (*) can be used in the ID, e.g., my*name or *123. "
             + "If an id is not provided, then all of the subscriptions are displayed.", index = 0, multiValued = false, required = false)

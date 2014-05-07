@@ -28,7 +28,7 @@ import ddf.catalog.source.SourceDescriptor;
  */
 public class SourceDescriptorComparator implements Comparator<SourceDescriptor> {
 
-    private Logger logger = LoggerFactory.getLogger(SourceDescriptorComparator.class);
+    private static final Logger logger = LoggerFactory.getLogger(SourceDescriptorComparator.class);
 
     /**
      * Uses the {@link String}#compareTo method on the lower-cased sourceId fields to sort

@@ -19,7 +19,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ddf.catalog.data.Metacard;
 import ddf.catalog.operation.Update;
@@ -31,7 +32,7 @@ import ddf.catalog.operation.UpdateResponse;
  */
 public class UpdateResponseImpl extends ResponseImpl<UpdateRequest> implements UpdateResponse {
 
-    private static Logger LOGGER = Logger.getLogger(UpdateResponseImpl.class.getName());
+    private static final Logger LOGGER = LoggerFactory.getLogger(UpdateResponseImpl.class.getName());
 
     protected List<Update> updatedMetacards;
 
@@ -69,8 +70,8 @@ public class UpdateResponseImpl extends ResponseImpl<UpdateRequest> implements U
         if (updatedMetacards != null && oldMetacards != null) {
             int size = updatedMetacards.size();
             int oldSize = oldMetacards.size();
-            LOGGER.trace("Updated Metacard size: " + size);
-            LOGGER.trace("old Metacard Size: " + oldSize);
+            LOGGER.trace("Updated Metacard size: {}", size);
+            LOGGER.trace("old Metacard Size: {}", oldSize);
 
             if (size == oldSize) {
                 this.updatedMetacards = new ArrayList<Update>(size);

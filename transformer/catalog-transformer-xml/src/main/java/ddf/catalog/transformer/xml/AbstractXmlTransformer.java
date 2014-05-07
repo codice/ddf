@@ -18,14 +18,15 @@ import javax.xml.bind.JAXBContext;
 
 import net.opengis.gml.v_3_1_1.AbstractGeometryType;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ddf.catalog.transformer.xml.adapter.AdaptedMetacard;
 import ddf.catalog.transformer.xml.binding.MetacardElement;
 
 public abstract class AbstractXmlTransformer {
 
-    private static final Logger LOGGER = Logger.getLogger(AbstractXmlTransformer.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractXmlTransformer.class);
 
     protected static final JAXBContext CONTEXT = initContext();
 

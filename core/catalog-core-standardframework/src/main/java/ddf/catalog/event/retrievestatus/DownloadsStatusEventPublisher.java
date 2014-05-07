@@ -52,7 +52,7 @@ public class DownloadsStatusEventPublisher {
         STARTED, RETRYING, CANCELLED, FAILED, COMPLETE;
     }
 
-    private static XLogger logger = new XLogger(LoggerFactory.getLogger(DownloadsStatusEventPublisher.class));
+    private static final XLogger logger = new XLogger(LoggerFactory.getLogger(DownloadsStatusEventPublisher.class));
 
     private EventAdmin eventAdmin;
     private List<ActionProvider> actionProviders;

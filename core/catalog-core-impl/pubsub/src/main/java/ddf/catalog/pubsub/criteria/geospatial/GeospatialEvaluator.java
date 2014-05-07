@@ -21,9 +21,10 @@ import java.util.ArrayList;
 
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.apache.log4j.Logger;
 import org.geotools.xml.Configuration;
 import org.geotools.xml.Parser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
 import com.vividsolutions.jts.geom.Coordinate;
@@ -40,7 +41,7 @@ public class GeospatialEvaluator {
 
     public static final String EPSG_4326 = "EPSG:4326";
 
-    private static Logger logger = Logger.getLogger(GeospatialEvaluator.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(GeospatialEvaluator.class);
 
     // If both criteria and input are GeometryCollections, each element of input must lie entirely
     // within one component
@@ -86,26 +87,26 @@ public class GeospatialEvaluator {
 
     public static boolean evaluate(GeospatialEvaluationCriteria gec) {
         String methodName = "evaluate";
-        logger.debug("ENTERING: " + methodName);
+        LOGGER.debug("ENTERING: {}", methodName);
 
         String operation = gec.getOperation();
         Geometry input = gec.getInput();
         Geometry criteria = gec.getCriteria();
         double distance = gec.getDistance();
 
-        logger.debug("operation = " + operation);
+        LOGGER.debug("operation = {}", operation);
 
         boolean evaluation = false;
 
         if (distance == 0.0) {
             switch (SpatialOperator.valueOf(operation.toUpperCase())) {
             case CONTAINS:
-                logger.debug("Doing CONTAINS evaluation");
+                LOGGER.debug("Doing CONTAINS evaluation");
                 evaluation = containsWithGeometryCollection(criteria, input);
                 break;
 
             case OVERLAPS:
-                logger.debug("Doing OVERLAPS evaluation");
+                LOGGER.debug("Doing OVERLAPS evaluation");
                 evaluation = overlapsWithGeometryCollection(criteria, input);
                 break;
 
@@ -135,23 +136,22 @@ public class GeospatialEvaluator {
             // break;
 
             default:
-                logger.debug("Doing default evaluation - always false");
+                LOGGER.debug("Doing default evaluation - always false");
                 evaluation = false;
                 break;
             }
         } else {
-            logger.debug("Doing DISTANCE evaluation");
+            LOGGER.debug("Doing DISTANCE evaluation");
 
             // compare each geometry's closest distance to each other
             double distanceBetweenNearestPtsOnGeometries = DistanceOp.distance(input, criteria);
-            logger.debug("distanceBetweenNearestPtsOnGeometries = "
-                    + distanceBetweenNearestPtsOnGeometries + ",    distance = " + distance);
+            LOGGER.debug("distanceBetweenNearestPtsOnGeometries = {},    distance = {}", distanceBetweenNearestPtsOnGeometries, distance);
             evaluation = distanceBetweenNearestPtsOnGeometries <= distance;
         }
 
-        logger.debug("evaluation = " + evaluation);
+        LOGGER.debug("evaluation = {}", evaluation);
 
-        logger.debug("EXITING: " + methodName);
+        LOGGER.debug("EXITING: {}", methodName);
 
         return evaluation;
     }
@@ -159,22 +159,22 @@ public class GeospatialEvaluator {
     public static Geometry buildGeometry(String gmlText) throws IOException, SAXException,
         ParserConfigurationException {
         String methodName = "buildGeometry";
-        logger.debug("ENTERING: " + methodName);
+        LOGGER.debug("ENTERING: {}", methodName);
 
         Geometry geometry = null;
 
         gmlText = supportSRSName(gmlText);
 
         try {
-            logger.debug("Creating geoTools Configuration ...");
+            LOGGER.debug("Creating geoTools Configuration ...");
             Configuration config = new org.geotools.gml3.GMLConfiguration();
 
-            logger.debug("Parsing geoTools configuration");
+            LOGGER.debug("Parsing geoTools configuration");
             Parser parser = new Parser(config);
 
-            logger.debug("Parsing gmlText");
+            LOGGER.debug("Parsing gmlText");
             geometry = (Geometry) (parser.parse(new StringReader(gmlText)));
-            logger.debug("geometry (before conversion): " + geometry.toText());
+            LOGGER.debug("geometry (before conversion): {}", geometry.toText());
 
             // The metadata schema states that <gml:pos> elements specify points in
             // LAT,LON order. But WKT specifies points in LON,LAT order. When the geoTools
@@ -200,9 +200,9 @@ public class GeospatialEvaluator {
                 Polygon polygon = new Polygon(geometryFactory.createLinearRing(newCoords
                         .toArray(new Coordinate[newCoords.size()])), null, geometryFactory);
 
-                logger.debug("Translates to " + polygon.toText()); // this logs the transformed WKT
+                LOGGER.debug("Translates to {}", polygon.toText()); // this logs the transformed WKT
                                                                    // with LON,LAT ordered points
-                logger.debug("EXITING: " + methodName);
+                LOGGER.debug("EXITING: {}", methodName);
 
                 return polygon;
             }
@@ -212,32 +212,32 @@ public class GeospatialEvaluator {
                 Point point = geometryFactory.createPoint(new Coordinate(
                         geometry.getCoordinate().y, geometry.getCoordinate().x));
 
-                logger.debug("Translates to " + point.toText()); // this logs the transformed WKT
+                LOGGER.debug("Translates to {}", point.toText()); // this logs the transformed WKT
                                                                  // with a LON,LAT ordered point
-                logger.debug("EXITING: " + methodName);
+                LOGGER.debug("EXITING: {}", methodName);
 
                 return point;
             }
         } catch (Exception e) {
-            logger.debug("Exception using geotools", e);
+            LOGGER.debug("Exception using geotools", e);
         }
 
-        logger.debug("No translation done for geometry - probably not good ...");
+        LOGGER.debug("No translation done for geometry - probably not good ...");
 
-        logger.debug("EXITING: " + methodName);
+        LOGGER.debug("EXITING: {}", methodName);
 
         return geometry;
     }
 
     public static String supportSRSName(String gml) {
         String methodName = "supportSRSName";
-        logger.debug("ENTERING: " + methodName);
+        LOGGER.debug("ENTERING: {}", methodName);
 
         if (gml.indexOf(METADATA_DOD_MIL_CRS_WGS84E_2D) != -1) {
             gml = gml.replaceAll(METADATA_DOD_MIL_CRS_WGS84E_2D, EPSG_4326);
         }
 
-        logger.debug("EXITING: " + methodName + "  --  gml = " + gml);
+        LOGGER.debug("EXITING: {}  --  gml = {}", methodName, gml);
 
         return gml;
     }

@@ -16,7 +16,8 @@ package ddf.catalog.impl;
 
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ddf.catalog.data.Result;
 import ddf.catalog.federation.FederationException;
@@ -29,7 +30,7 @@ import ddf.catalog.source.UnsupportedQueryException;
 
 public class MockFederationStrategy implements FederationStrategy {
 
-    private static Logger LOGGER = Logger.getLogger(MockFederationStrategy.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(MockFederationStrategy.class);
 
     @Override
     public QueryResponse federate(List<Source> sources, QueryRequest query)

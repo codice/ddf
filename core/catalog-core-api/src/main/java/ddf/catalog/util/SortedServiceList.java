@@ -70,7 +70,7 @@ public class SortedServiceList<T> implements List<T> {
 
     private BundleContext context;
 
-    private static XLogger logger = new XLogger(LoggerFactory.getLogger(SortedServiceList.class));
+    private static final XLogger logger = new XLogger(LoggerFactory.getLogger(SortedServiceList.class));
 
     /**
      * Constructor accepting OSGi bundle context. This constructor is currently invoked by the

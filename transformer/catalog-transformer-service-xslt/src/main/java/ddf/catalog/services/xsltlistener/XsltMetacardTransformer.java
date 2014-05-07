@@ -30,10 +30,11 @@ import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.log4j.Logger;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ddf.catalog.Constants;
 import ddf.catalog.data.BinaryContent;
@@ -43,7 +44,7 @@ import ddf.catalog.transform.MetacardTransformer;
 
 public class XsltMetacardTransformer extends AbstractXsltTransformer implements MetacardTransformer {
 
-    protected static Logger logger = Logger.getLogger(XsltMetacardTransformer.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(XsltMetacardTransformer.class);
 
     private Map<String, Object> localMap = new ConcurrentHashMap<String, Object>();
 
@@ -63,7 +64,7 @@ public class XsltMetacardTransformer extends AbstractXsltTransformer implements 
         throws CatalogTransformerException
 
     {
-        logger.debug("Entering metacard xslt transform.");
+        LOGGER.debug("Entering metacard xslt transform.");
 
         Transformer transformer;
         Map<String, Object> mergedMap = new HashMap<String, Object>(localMap);
@@ -84,7 +85,7 @@ public class XsltMetacardTransformer extends AbstractXsltTransformer implements 
 
         ServiceReference[] refs = null;
         try {
-            logger.debug("Searching for other Metacard Transformers.");
+            LOGGER.debug("Searching for other Metacard Transformers.");
             // TODO INJECT THESE!!!
             refs = context.getServiceReferences(MetacardTransformer.class.getName(), null);
         } catch (InvalidSyntaxException e) {
@@ -93,7 +94,7 @@ public class XsltMetacardTransformer extends AbstractXsltTransformer implements 
 
         if (refs != null) {
             List<String> serviceList = new ArrayList<String>();
-            logger.debug("Found other Metacard transformers, adding them to a service reference list.");
+            LOGGER.debug("Found other Metacard transformers, adding them to a service reference list.");
             for (ServiceReference ref : refs) {
                 if (ref != null) {
                     String title = null;
@@ -112,8 +113,9 @@ public class XsltMetacardTransformer extends AbstractXsltTransformer implements 
                 }
             }
             mergedMap.put("services", serviceList);
-        } else
-            logger.debug("No other Metacard transformers were found.");
+        } else {
+            LOGGER.debug("No other Metacard transformers were found.");
+        }
 
         // TODO: maybe add updated, type, and uuid here?
         // map.put("updated", fmt.print(result.getPostedDate().getTime()));
@@ -136,9 +138,7 @@ public class XsltMetacardTransformer extends AbstractXsltTransformer implements 
 
         if (!mergedMap.isEmpty()) {
             for (Map.Entry<String, Object> entry : mergedMap.entrySet()) {
-                if (logger.isDebugEnabled())
-                    logger.debug("Adding parameter to transform {" + entry.getKey() + ":"
-                            + entry.getValue() + "}");
+                LOGGER.debug("Adding parameter to transform {}:{}", entry.getKey(), entry.getValue());
                 transformer.setParameter(entry.getKey(), entry.getValue());
             }
         }
@@ -147,7 +147,7 @@ public class XsltMetacardTransformer extends AbstractXsltTransformer implements 
             transformer.transform(source, resultOutput);
             byte[] bytes = baos.toByteArray();
             IOUtils.closeQuietly(baos);
-            logger.debug("Transform complete.");
+            LOGGER.debug("Transform complete.");
             resultContent = new XsltTransformedContent(bytes, mimeType);
         } catch (TransformerException te) {
             throw new CatalogTransformerException("Could not perform Xslt transform: "

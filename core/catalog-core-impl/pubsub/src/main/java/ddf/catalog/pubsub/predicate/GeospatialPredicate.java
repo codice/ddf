@@ -18,9 +18,10 @@ package ddf.catalog.pubsub.predicate;
 import java.util.Iterator;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
 import org.geotools.geometry.jts.WKTReader2;
 import org.osgi.service.event.Event;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.io.ParseException;
@@ -38,7 +39,7 @@ public class GeospatialPredicate implements Predicate {
 
     private double distance;
 
-    private static final Logger logger = Logger.getLogger(GeospatialPredicate.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(GeospatialPredicate.class);
 
     /**
      * Instantiates a new geospatial predicate.
@@ -56,7 +57,7 @@ public class GeospatialPredicate implements Predicate {
             WKTReader2 wktreader = new WKTReader2();
             this.geoCriteria = wktreader.read(wkt);
         } catch (Exception e) {
-            logger.error(e);
+            LOGGER.error("Exception reading WKT", e);
         }
     }
 
@@ -74,7 +75,7 @@ public class GeospatialPredicate implements Predicate {
                 .getProperty(PubSubConstants.HEADER_CONTEXTUAL_KEY);
 
         String operation = (String) properties.getProperty(PubSubConstants.HEADER_OPERATION_KEY);
-        logger.debug("operation = " + operation);
+        LOGGER.debug("operation = {}", operation);
 
         if (contextualMap != null) {
             String metadata = (String) contextualMap.get("METADATA");
@@ -86,7 +87,7 @@ public class GeospatialPredicate implements Predicate {
             // cannot apply any geospatial filtering - just send the event on to the subscriber
             if (PubSubConstants.DELETE.equals(operation)
                     && PubSubConstants.METADATA_DELETED.equals(metadata)) {
-                logger.debug("Detected a DELETE operation where metadata is just the word 'deleted', so send event on to subscriber");
+                LOGGER.debug("Detected a DELETE operation where metadata is just the word 'deleted', so send event on to subscriber");
                 return true;
             }
 
@@ -98,7 +99,7 @@ public class GeospatialPredicate implements Predicate {
                     entry.getLocation(), distance);
             return GeospatialEvaluator.evaluate(gec);
         } catch (ParseException e) {
-            logger.warn("Error parsing WKT string.  Unable to compare geos.  Returning false.");
+            LOGGER.warn("Error parsing WKT string.  Unable to compare geos.  Returning false.");
             return false;
         }
     }

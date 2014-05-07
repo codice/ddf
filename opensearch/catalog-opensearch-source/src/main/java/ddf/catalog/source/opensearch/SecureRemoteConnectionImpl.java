@@ -34,7 +34,8 @@ import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManagerFactory;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.impl.BinaryContentImpl;
@@ -49,7 +50,7 @@ import ddf.catalog.data.impl.BinaryContentImpl;
  */
 public class SecureRemoteConnectionImpl implements SecureRemoteConnection {
 
-    private static final Logger LOGGER = Logger.getLogger(OpenSearchSiteUtil.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SecureRemoteConnectionImpl.class);
 
     private static final MimeType DEFAULT_MIMETYPE = createDefaultMimeType();
 
@@ -88,8 +89,8 @@ public class SecureRemoteConnectionImpl implements SecureRemoteConnection {
         try {
             mimeType = new MimeType(conn.getContentType());
         } catch (MimeTypeParseException e) {
-            LOGGER.debug("Error creating mime type with input [" + conn.getContentType()
-                    + "], defaulting to " + DEFAULT_MIMETYPE.toString());
+            LOGGER.debug("Error creating mime type with input [{}] defaulting to {}",
+                conn.getContentType(), DEFAULT_MIMETYPE.toString());
         }
         return new BinaryContentImpl(conn.getInputStream(), mimeType);
     }
@@ -119,11 +120,11 @@ public class SecureRemoteConnectionImpl implements SecureRemoteConnection {
         NoSuchAlgorithmException, CertificateException, IOException, UnrecoverableKeyException,
         KeyManagementException {
         String methodName = "createSocket";
-        LOGGER.debug("ENTERING: " + methodName);
+        LOGGER.debug("ENTERING: {}", methodName);
 
-        LOGGER.debug("trustStoreLoc = " + trustStoreLoc);
+        LOGGER.debug("trustStoreLoc = {}", trustStoreLoc);
         FileInputStream trustFIS = new FileInputStream(trustStoreLoc);
-        LOGGER.debug("keyStoreLoc = " + keyStoreLoc);
+        LOGGER.debug("keyStoreLoc = {}", keyStoreLoc);
         FileInputStream keyFIS = new FileInputStream(keyStoreLoc);
 
         // truststore stuff
@@ -157,7 +158,7 @@ public class SecureRemoteConnectionImpl implements SecureRemoteConnection {
         SSLContext sslCtx = SSLContext.getInstance("TLS");
         sslCtx.init(kmf.getKeyManagers(), tmf.getTrustManagers(), null);
 
-        LOGGER.debug("EXITING: " + methodName);
+        LOGGER.debug("EXITING: {}", methodName);
 
         return sslCtx.getSocketFactory();
     }

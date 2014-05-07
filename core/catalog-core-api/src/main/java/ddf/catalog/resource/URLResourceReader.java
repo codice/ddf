@@ -54,7 +54,7 @@ public class URLResourceReader implements ResourceReader {
 
     private static final String URL_FILE_SCHEME = "file";
 
-    private static XLogger logger = new XLogger(LoggerFactory.getLogger(URLResourceReader.class));
+    private static final XLogger logger = new XLogger(LoggerFactory.getLogger(URLResourceReader.class));
 
     private static final String VERSION = "1.0";
 

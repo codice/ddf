@@ -27,9 +27,9 @@ import javax.activation.MimeType;
 import javax.activation.MimeTypeParseException;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.Logger;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
@@ -47,15 +47,14 @@ public class TestAttributeMetacardTransformer {
 
     private static MimeType xmlMimeType = null;
 
-    private static final Logger LOGGER = Logger.getLogger(TestAttributeMetacardTransformer.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(TestAttributeMetacardTransformer.class);
 
     static {
-        BasicConfigurator.configure();
         try {
             jpegMimeType = new MimeType("image/jpeg");
             xmlMimeType = new MimeType("application/xml");
         } catch (MimeTypeParseException e) {
-            LOGGER.warn(e);
+            LOGGER.warn("MimeTypeParseException during static setup", e);
         }
     }
 

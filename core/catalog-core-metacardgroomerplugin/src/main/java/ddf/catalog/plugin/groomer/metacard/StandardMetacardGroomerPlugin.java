@@ -19,7 +19,8 @@ import java.util.Date;
 import java.util.Map.Entry;
 import java.util.UUID;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.AttributeImpl;
@@ -34,7 +35,7 @@ import ddf.catalog.plugin.groomer.AbstractMetacardGroomerPlugin;
  */
 public class StandardMetacardGroomerPlugin extends AbstractMetacardGroomerPlugin {
 
-    private static final Logger LOGGER = Logger.getLogger(StandardMetacardGroomerPlugin.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(StandardMetacardGroomerPlugin.class);
 
     protected void applyCreatedOperationRules(CreateRequest createRequest, Metacard aMetacard,
             Date now) {
@@ -53,16 +54,15 @@ public class StandardMetacardGroomerPlugin extends AbstractMetacardGroomerPlugin
         if (UpdateRequest.UPDATE_BY_ID.equals(updateRequest.getAttributeName())
                 && !anUpdate.getKey().toString().equals(aMetacard.getId())) {
 
-            LOGGER.info(Metacard.ID + " in metacard must match the Update " + Metacard.ID
-                    + ", overwriting metacard " + Metacard.ID + " [" + aMetacard.getId()
-                    + "] with the update identifier [" + anUpdate.getKey() + "]");
+            LOGGER.info("{} in metacard must match the Update {}, overwriting metacard {} [{}] with the update identifier [{}]",
+                Metacard.ID, Metacard.ID, Metacard.ID, aMetacard.getId(), anUpdate.getKey());
             aMetacard.setAttribute(new AttributeImpl(Metacard.ID, anUpdate.getKey()));
 
         }
 
         if (aMetacard.getCreatedDate() == null) {
-            LOGGER.info(Metacard.CREATED
-                    + " date should match the original metacard. Changing date to current timestamp so it is at least not null.");
+            LOGGER.info("{} date should match the original metacard. Changing date to current timestamp so it is at least not null.",
+                Metacard.CREATED);
             aMetacard.setAttribute(new AttributeImpl(Metacard.CREATED, now));
         }
 

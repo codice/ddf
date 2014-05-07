@@ -20,8 +20,6 @@ import static org.junit.Assert.assertThat;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.Logger;
 import org.junit.Test;
 
 import ddf.catalog.data.MetacardType;
@@ -31,8 +29,6 @@ import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transformer.xml.adapter.MetacardTypeAdapter;
 
 public class TestMetacardTypeAdapter {
-    private static final Logger LOGGER = Logger.getLogger(TestMetacardTypeAdapter.class);
-
     private static final String NULL_TYPE_NAME = null;
 
     private static final String EMPTY_TYPE_NAME = "";
@@ -47,10 +43,6 @@ public class TestMetacardTypeAdapter {
 
     private static final List<MetacardType> EMPTY_METACARD_TYPES_LIST = new ArrayList<MetacardType>(
             0);
-
-    static {
-        BasicConfigurator.configure();
-    }
 
     @Test
     public void testUnmarshalWithNullTypeName() throws CatalogTransformerException {

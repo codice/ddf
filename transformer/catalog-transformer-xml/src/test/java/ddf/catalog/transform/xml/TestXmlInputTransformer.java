@@ -28,10 +28,10 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.Logger;
 import org.geotools.data.Base64;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.AttributeDescriptor;
@@ -44,11 +44,7 @@ import ddf.catalog.transformer.xml.XmlInputTransformer;
 
 public class TestXmlInputTransformer {
 
-    private static final Logger LOGGER = Logger.getLogger(TestXmlInputTransformer.class);
-
-    static {
-        BasicConfigurator.configure();
-    }
+    private static final Logger LOGGER = LoggerFactory.getLogger(TestXmlInputTransformer.class);
 
     @Test
     public void testTransformWithInvalidMetacardType() throws IOException,
@@ -57,9 +53,9 @@ public class TestXmlInputTransformer {
         Metacard metacard = xit.transform(new FileInputStream(
                 "src/test/resources/invalidExtensibleMetacard.xml"));
 
-        LOGGER.info("ID: " + metacard.getId());
-        LOGGER.info("Type: " + metacard.getMetacardType().getName());
-        LOGGER.info("Source: " + metacard.getSourceId());
+        LOGGER.info("ID: {}", metacard.getId());
+        LOGGER.info("Type: {}", metacard.getMetacardType().getName());
+        LOGGER.info("Source: {}", metacard.getSourceId());
         LOGGER.info("Attributes: ");
         for (AttributeDescriptor descriptor : metacard.getMetacardType().getAttributeDescriptors()) {
             Attribute attribute = metacard.getAttribute(descriptor.getName());
@@ -82,9 +78,9 @@ public class TestXmlInputTransformer {
         Metacard metacard = xit.transform(new FileInputStream(
                 "src/test/resources/extensibleMetacard.xml"));
 
-        LOGGER.info("ID: " + metacard.getId());
-        LOGGER.info("Type: " + metacard.getMetacardType().getName());
-        LOGGER.info("Source: " + metacard.getSourceId());
+        LOGGER.info("ID: {}", metacard.getId());
+        LOGGER.info("Type: {}", metacard.getMetacardType().getName());
+        LOGGER.info("Source: {}", metacard.getSourceId());
         LOGGER.info("Attributes: ");
         for (AttributeDescriptor descriptor : metacard.getMetacardType().getAttributeDescriptors()) {
             Attribute attribute = metacard.getAttribute(descriptor.getName());
@@ -108,9 +104,9 @@ public class TestXmlInputTransformer {
                     + ((attribute == null) ? attribute : attribute.getValue()));
         }
 
-        LOGGER.info("ID: " + metacard.getId());
-        LOGGER.info("Type: " + metacard.getMetacardType().getName());
-        LOGGER.info("Source: " + metacard.getSourceId());
+        LOGGER.info("ID: {}", metacard.getId());
+        LOGGER.info("Type: {}", metacard.getMetacardType().getName());
+        LOGGER.info("Source: {}", metacard.getSourceId());
 
         assertEquals("1234567890987654321", metacard.getId());
         assertEquals("ddf.metacard", metacard.getMetacardType().getName());
@@ -147,9 +143,9 @@ public class TestXmlInputTransformer {
         Metacard metacard = xit.transform(new FileInputStream(
                 "src/test/resources/unknownMetacard1.xml"));
 
-        LOGGER.info("ID: " + metacard.getId());
-        LOGGER.info("Type: " + metacard.getMetacardType().getName());
-        LOGGER.info("Source: " + metacard.getSourceId());
+        LOGGER.info("ID: {}", metacard.getId());
+        LOGGER.info("Type: {}", metacard.getMetacardType().getName());
+        LOGGER.info("Source: {}", metacard.getSourceId());
         LOGGER.info("Attributes: ");
         for (AttributeDescriptor descriptor : metacard.getMetacardType().getAttributeDescriptors()) {
             Attribute attribute = metacard.getAttribute(descriptor.getName());

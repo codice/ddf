@@ -17,8 +17,9 @@ package ddf.catalog.util;
 import java.util.Comparator;
 import java.util.Date;
 
-import org.apache.log4j.Logger;
 import org.opengis.filter.sort.SortOrder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ddf.catalog.data.Result;
 
@@ -31,7 +32,7 @@ import ddf.catalog.data.Result;
 @Deprecated
 public class TemporalResultComparator implements Comparator<Result> {
 
-    private static Logger logger = Logger.getLogger(TemporalResultComparator.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(TemporalResultComparator.class);
 
     private SortOrder sortOrder = SortOrder.DESCENDING;
 
@@ -78,14 +79,13 @@ public class TemporalResultComparator implements Comparator<Result> {
         }
 
         if (effectiveDateA == null && effectiveDateB != null) {
-            logger.debug("effectiveDateA is null and effectiveDateB is not null: " + effectiveDateB);
+            LOGGER.debug("effectiveDateA is null and effectiveDateB is not null: {}", effectiveDateB);
             return 1;
         } else if (effectiveDateA != null && effectiveDateB == null) {
-            logger.debug("effectiveDateA is not null: " + effectiveDateA
-                    + " and effectiveDateB is null");
+            LOGGER.debug("effectiveDateA is not null: {} and effectiveDateB is null", effectiveDateA);
             return -1;
         } else if (effectiveDateA == null && effectiveDateB == null) {
-            logger.debug("both are null");
+            LOGGER.debug("both are null");
             return 0;
         }
         if (SortOrder.ASCENDING.equals(sortOrder)) {
@@ -93,7 +93,7 @@ public class TemporalResultComparator implements Comparator<Result> {
         } else if (SortOrder.DESCENDING.equals(sortOrder)) {
             return effectiveDateB.compareTo(effectiveDateA);
         } else {
-            logger.warn("Unknown order type. Returning 0.");
+            LOGGER.warn("Unknown order type. Returning 0.");
             return 0;
         }
 

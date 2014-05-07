@@ -37,10 +37,6 @@
             <groupId>ddf.catalog.core</groupId>
             <artifactId>catalog-core-commons</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>log4j</groupId>
-			<artifactId>log4j</artifactId>
-		</dependency>
 	</dependencies>
 	<build>
 		<plugins>		    
@@ -79,7 +75,6 @@
 						javax.xml.bind, 
 						javax.xml.bind.annotation, 
 						javax.xml.transform, 
-						org.apache.log4j, 
 						org.osgi.service.blueprint
 						</Import-Package>
 						<Export-Package />

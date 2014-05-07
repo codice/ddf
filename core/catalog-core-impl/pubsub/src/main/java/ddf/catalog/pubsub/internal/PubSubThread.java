@@ -15,8 +15,9 @@
 
 package ddf.catalog.pubsub.internal;
 
-import org.apache.log4j.Logger;
 import org.osgi.service.event.EventAdmin;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ddf.catalog.data.Metacard;
 import ddf.catalog.event.EventProcessor;
@@ -27,7 +28,7 @@ public class PubSubThread extends Thread {
 
     private String topic;
 
-    Logger logger = Logger.getLogger(PubSubThread.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(PubSubThread.class);
 
     private EventAdmin eventAdmin;
 
@@ -38,7 +39,7 @@ public class PubSubThread extends Thread {
     }
 
     public void run() {
-        logger.debug("Processing entry event in separate thread - topic = " + topic);
+        LOGGER.debug("Processing entry event in separate thread - topic = {}", topic);
 
         if (topic.equals(EventProcessor.EVENTS_TOPIC_CREATED)) {
             EventProcessorImpl.processEntry(entry, PubSubConstants.CREATE, eventAdmin);

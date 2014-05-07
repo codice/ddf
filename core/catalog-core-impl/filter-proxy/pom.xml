@@ -46,11 +46,9 @@
 			<groupId>org.geotools</groupId>
 			<artifactId>gt-jts-wrapper</artifactId>
 		</dependency>
-
 		<dependency>
 			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-log4j12</artifactId>
-			<scope>test</scope>
+			<artifactId>slf4j-ext</artifactId>
 		</dependency>
 	</dependencies>
 

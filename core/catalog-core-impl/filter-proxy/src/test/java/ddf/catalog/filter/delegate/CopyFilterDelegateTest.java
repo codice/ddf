@@ -28,7 +28,6 @@ import java.text.ParseException;
 import java.util.Arrays;
 import java.util.Date;
 
-import org.apache.log4j.Logger;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.filter.FilterFactoryImpl;
@@ -53,6 +52,8 @@ import org.opengis.geometry.Geometry;
 import org.opengis.temporal.Instant;
 import org.opengis.temporal.Period;
 import org.opengis.temporal.PeriodDuration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ddf.catalog.filter.FilterAdapter;
 import ddf.catalog.filter.FilterBuilder;
@@ -63,7 +64,7 @@ import ddf.catalog.impl.filter.FuzzyFunction;
 import ddf.catalog.source.UnsupportedQueryException;
 
 public class CopyFilterDelegateTest {
-    private static final transient Logger LOGGER = Logger.getLogger(CopyFilterDelegateTest.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CopyFilterDelegateTest.class);
 
     private static final FilterFactory FF = new FilterFactoryImpl();
 
@@ -100,11 +101,6 @@ public class CopyFilterDelegateTest {
             DefaultGeographicCRS.WGS84);
 
     private static final WKTParser WKT_PARSER = new WKTParser(GEO_BUILDER);
-
-    @BeforeClass
-    public static void setup() {
-        org.apache.log4j.BasicConfigurator.configure();
-    }
 
     @Test
     public void testIncludeFilter() {
@@ -718,8 +714,8 @@ public class CopyFilterDelegateTest {
             fail(e.getMessage());
         }
 
-        LOGGER.debug("filterInString: " + filterInString);
-        LOGGER.debug("filterCopyString: " + filterCopyString);
+        LOGGER.debug("filterInString: {}", filterInString);
+        LOGGER.debug("filterCopyString: {}", filterCopyString);
 
         assertNotNull(filterInString);
         assertNotNull(filterCopyString);

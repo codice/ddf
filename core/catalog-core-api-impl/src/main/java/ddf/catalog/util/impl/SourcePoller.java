@@ -44,7 +44,7 @@ public class SourcePoller {
 
     private ScheduledFuture<?> handle;
 
-    private static XLogger logger = new XLogger(LoggerFactory.getLogger(SourcePoller.class));
+    private static final XLogger logger = new XLogger(LoggerFactory.getLogger(SourcePoller.class));
 
     private SourcePollerRunner runner;
 

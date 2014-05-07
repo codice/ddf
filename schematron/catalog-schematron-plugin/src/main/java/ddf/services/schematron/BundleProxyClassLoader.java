@@ -19,8 +19,9 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.Enumeration;
 
-import org.apache.log4j.Logger;
 import org.osgi.framework.Bundle;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Used to proxy the classloader of other bundles so that external processors such as a Saxon Engine
@@ -36,16 +37,15 @@ public class BundleProxyClassLoader extends ClassLoader {
 
     private static final String CLASS_NAME = BundleProxyClassLoader.class.getName();
 
-    /** This class' log4j logger */
-    Logger logger = Logger.getLogger(CLASS_NAME);
+    private static final Logger LOGGER = LoggerFactory.getLogger(BundleProxyClassLoader.class);
 
     public BundleProxyClassLoader(Bundle bundle) {
         String methodName = "constructor";
-        logger.debug("ENTERING: " + CLASS_NAME + "." + methodName);
+        LOGGER.debug("ENTERING: {}.{}", CLASS_NAME, methodName);
 
         this.bundle = bundle;
 
-        logger.debug("EXITING: " + CLASS_NAME + "." + methodName);
+        LOGGER.debug("EXITING: {}.{}", CLASS_NAME, methodName);
     }
 
     public BundleProxyClassLoader(Bundle bundle, ClassLoader parent) {
@@ -63,38 +63,38 @@ public class BundleProxyClassLoader extends ClassLoader {
     // ClassLoader.findResources(...).
     public Enumeration findResources(String name) throws IOException {
         String methodName = "findResources";
-        logger.debug("ENTERING: " + CLASS_NAME + "." + methodName);
+        LOGGER.debug("ENTERING: {}.{}", CLASS_NAME, methodName);
 
         return bundle.getResources(name);
     }
 
     public URL findResource(String name) {
         String methodName = "findResource";
-        logger.debug("ENTERING: " + CLASS_NAME + "." + methodName);
+        LOGGER.debug("ENTERING: {}.{}", CLASS_NAME, methodName);
 
         URL url = bundle.getResource(name);
 
-        logger.debug("name = " + name + ",   url = " + url.toString());
-        logger.debug("EXITING: " + CLASS_NAME + "." + methodName);
+        LOGGER.debug("name = {}, = {}", name, url.toString());
+        LOGGER.debug("EXITING: {}.{}", CLASS_NAME, methodName);
 
         return url;
     }
 
     public Class findClass(String name) throws ClassNotFoundException {
         String methodName = "findClass";
-        logger.debug("ENTERING: " + CLASS_NAME + "." + methodName);
+        LOGGER.debug("ENTERING: {}.{}", CLASS_NAME, methodName);
 
         Class clazz = bundle.loadClass(name);
 
-        logger.debug("name = " + name + ",   clazz = " + clazz.getName());
-        logger.debug("EXITING: " + CLASS_NAME + "." + methodName);
+        LOGGER.debug("name = {},   clazz = {}", name, clazz.getName());
+        LOGGER.debug("EXITING: {}.{}", CLASS_NAME, methodName);
 
         return clazz;
     }
 
     public URL getResource(String name) {
         String methodName = "getResource";
-        logger.debug("ENTERING: " + CLASS_NAME + "." + methodName);
+        LOGGER.debug("ENTERING: {}.{}", CLASS_NAME, methodName);
 
         URL url = null;
         if (parent == null) {
@@ -103,25 +103,25 @@ public class BundleProxyClassLoader extends ClassLoader {
             url = super.getResource(name);
         }
 
-        logger.debug("name = " + name + ",   url = " + url.toString());
-        logger.debug("EXITING: " + CLASS_NAME + "." + methodName);
+        LOGGER.debug("name = {},   url = {}", name, url.toString());
+        LOGGER.debug("EXITING: {}.{}", CLASS_NAME, methodName);
 
         return url;
     }
 
     protected Class loadClass(String name, boolean resolve) throws ClassNotFoundException {
         String methodName = "loadClass";
-        logger.debug("ENTERING: " + CLASS_NAME + "." + methodName);
-        logger.debug("name = " + name + ",   resolve = " + resolve);
+        LOGGER.debug("ENTERING: {}.{}", CLASS_NAME, methodName);
+        LOGGER.debug("name = {},   resolve = {}", name, resolve);
 
         Class clazz = (parent == null) ? findClass(name) : super.loadClass(name, false);
         if (resolve) {
-            logger.debug("Calling super.resolveClass()");
+            LOGGER.debug("Calling super.resolveClass()");
             super.resolveClass(clazz);
         }
 
-        logger.debug("name = " + name + ",   clazz = " + clazz.getName());
-        logger.debug("EXITING: " + CLASS_NAME + "." + methodName);
+        LOGGER.debug("name = {},   clazz = {}", name, clazz.getName());
+        LOGGER.debug("EXITING: {}.{}", CLASS_NAME, methodName);
 
         return clazz;
     }

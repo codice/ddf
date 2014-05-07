@@ -66,7 +66,7 @@ class GeotoolsBuilder {
 
     private Object secondaryValue;
 
-    private static XLogger logger = new XLogger(LoggerFactory.getLogger(GeotoolsBuilder.class));
+    private static final XLogger logger = new XLogger(LoggerFactory.getLogger(GeotoolsBuilder.class));
 
     private static WKTReader reader = new WKTReader();
 

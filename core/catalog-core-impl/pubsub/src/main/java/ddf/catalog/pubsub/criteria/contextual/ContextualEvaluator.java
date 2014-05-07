@@ -53,7 +53,7 @@ public final class ContextualEvaluator {
 
     private static final String CASE_SENSITIVE_FIELD_NAME = "cs_Resource";
 
-    private static XLogger logger = new XLogger(LoggerFactory.getLogger(ContextualEvaluator.class));
+    private static final XLogger logger = new XLogger(LoggerFactory.getLogger(ContextualEvaluator.class));
 
     private static final String DEFAULT_XPATH_1 = "/*[local-name()=\"Resource\"]/*"
             + "[local-name() != \"identifier\" and " + "local-name() != \"language\" and "

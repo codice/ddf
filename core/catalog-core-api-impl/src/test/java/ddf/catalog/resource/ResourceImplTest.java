@@ -27,11 +27,12 @@ import javax.activation.MimeType;
 import javax.activation.MimeTypeParseException;
 import javax.activation.MimetypesFileTypeMap;
 
-import org.apache.log4j.Logger;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.internal.runners.statements.Fail;
 import org.junit.runner.notification.Failure;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ddf.catalog.data.MetacardCreationException;
 import ddf.catalog.event.DeliveryException;
@@ -51,7 +52,7 @@ import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.transform.CatalogTransformerException;
 
 public class ResourceImplTest {
-    private static final Logger LOGGER = Logger.getLogger(ResourceImplTest.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ResourceImplTest.class);
 
     private static final String testName = ResourceImplTest.class.getSimpleName();
 

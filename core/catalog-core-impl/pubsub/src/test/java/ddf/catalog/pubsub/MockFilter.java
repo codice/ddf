@@ -18,14 +18,15 @@ import java.util.Set;
 
 import javax.security.auth.Subject;
 
-import org.apache.log4j.Logger;
 import org.opengis.filter.Filter;
 import org.opengis.filter.FilterVisitor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ddf.catalog.federation.Federatable;
 
 public class MockFilter implements Filter, Federatable {
-    static Logger logger = Logger.getLogger(MockFilter.class.getName());
+    private static final Logger LOGGER = LoggerFactory.getLogger(MockFilter.class);
 
     /** The is enterprise. */
     private boolean isEnterprise = false;
@@ -36,7 +37,7 @@ public class MockFilter implements Filter, Federatable {
     private Subject user;
 
     protected MockFilter(Subject user) throws IllegalArgumentException {
-        logger.debug("Creating a MockFilter");
+        LOGGER.debug("Creating a MockFilter");
 
         this.user = user;
     }

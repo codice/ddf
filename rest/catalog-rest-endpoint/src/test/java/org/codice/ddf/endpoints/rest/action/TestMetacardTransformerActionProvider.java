@@ -22,9 +22,9 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import org.apache.log4j.Logger;
-
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ddf.action.Action;
 import ddf.action.ActionProvider;
@@ -35,7 +35,7 @@ public class TestMetacardTransformerActionProvider extends AbstractActionProvide
 
     private static final String SAMPLE_TRANSFORMER_ID = "XML";
 
-    private static final Logger LOGGER = Logger.getLogger(TestMetacardTransformerActionProvider.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(TestMetacardTransformerActionProvider.class);
 
     @Test
     public void testMalformedUrlException() {

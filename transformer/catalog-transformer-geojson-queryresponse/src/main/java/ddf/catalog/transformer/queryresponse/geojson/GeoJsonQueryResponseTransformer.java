@@ -21,10 +21,12 @@ import java.util.Map;
 import javax.activation.MimeType;
 import javax.activation.MimeTypeParseException;
 
-import org.apache.log4j.Logger;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 import net.minidev.json.JSONValue;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.BinaryContent;
@@ -54,13 +56,13 @@ public class GeoJsonQueryResponseTransformer implements QueryResponseTransformer
 
     public static MimeType DEFAULT_MIME_TYPE = null;
 
-    private static final Logger LOGGER = Logger.getLogger(GeoJsonQueryResponseTransformer.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(GeoJsonQueryResponseTransformer.class);
 
     static {
         try {
             DEFAULT_MIME_TYPE = new MimeType("application/json");
         } catch (MimeTypeParseException e) {
-            LOGGER.warn(e);
+            LOGGER.warn("Trying to set DEFAULT_MIME_TYPE", e);
         }
     }
 

@@ -17,8 +17,9 @@ package ddf.catalog.pubsub.criteria.contextual;
 
 import java.io.IOException;
 
-import org.apache.log4j.Logger;
 import org.apache.lucene.store.Directory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ContextualEvaluationCriteriaImpl implements ContextualEvaluationCriteria {
     private String criteria;
@@ -33,7 +34,7 @@ public class ContextualEvaluationCriteriaImpl implements ContextualEvaluationCri
 
     private Directory index;
 
-    private static final Logger logger = Logger.getLogger(ContextualEvaluationCriteriaImpl.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ContextualEvaluationCriteriaImpl.class);
 
     public ContextualEvaluationCriteriaImpl(String criteria, boolean fuzzy,
             boolean caseSensitiveSearch, Directory index) {
@@ -50,14 +51,12 @@ public class ContextualEvaluationCriteriaImpl implements ContextualEvaluationCri
             boolean caseSensitiveSearch, String[] textPaths, String metadata) throws IOException {
         super();
 
-        if (logger.isDebugEnabled()) {
-            logger.debug("criteria = " + criteria);
-            logger.debug("textPaths:\n");
-            for (String textPath : textPaths) {
-                logger.debug(textPath);
-            }
-            // logger.debug( "metadata:\n" + XPathHelper.xmlToString( metadata ) );
+        LOGGER.debug("criteria = {}", criteria);
+        LOGGER.debug("textPaths:\n");
+        for (String textPath : textPaths) {
+            LOGGER.debug(textPath);
         }
+        // LOGGER.debug( "metadata:\n{}", XPathHelper.xmlToString( metadata ) );
 
         this.criteria = criteria;
         this.fuzzy = fuzzy;

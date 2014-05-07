@@ -135,7 +135,7 @@ public final class CddaOpenSearchSite implements FederatedSource, ConfiguredServ
 
     private SSLSocketFactory socketFactory;
 
-    private static XLogger logger = new XLogger(LoggerFactory.getLogger(CddaOpenSearchSite.class));
+    private static final XLogger logger = new XLogger(LoggerFactory.getLogger(CddaOpenSearchSite.class));
 
     private javax.xml.xpath.XPath xpath;
 

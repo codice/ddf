@@ -24,7 +24,7 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.ext.XLogger;
 
 public class NamespaceMapImpl implements NamespaceContext {
-    private static XLogger logger = new XLogger(LoggerFactory.getLogger(NamespaceMapImpl.class));
+    private static final XLogger logger = new XLogger(LoggerFactory.getLogger(NamespaceMapImpl.class));
 
     private Map<String, String> allNamespaceUris;
 

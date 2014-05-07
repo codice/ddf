@@ -24,7 +24,8 @@ import javax.xml.bind.helpers.DefaultValidationEventHandler;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
@@ -35,7 +36,7 @@ import ddf.catalog.transformer.xml.adapter.MetacardTypeAdapter;
 
 public class XmlInputTransformer extends AbstractXmlTransformer implements InputTransformer {
 
-    private static final Logger LOGGER = Logger.getLogger(XmlInputTransformer.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(XmlInputTransformer.class);
 
     private static final String FAILED_TRANSFORMATION = "Failed Transformation.  Could not create Metacard from XML.";
 

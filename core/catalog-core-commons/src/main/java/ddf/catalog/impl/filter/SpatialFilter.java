@@ -28,7 +28,7 @@ import org.slf4j.ext.XLogger;
 import com.vividsolutions.jts.io.WKTReader;
 
 public class SpatialFilter {
-    private static XLogger logger = new XLogger(LoggerFactory.getLogger(SpatialFilter.class));
+    private static final XLogger logger = new XLogger(LoggerFactory.getLogger(SpatialFilter.class));
 
     protected String geometryWkt;
 

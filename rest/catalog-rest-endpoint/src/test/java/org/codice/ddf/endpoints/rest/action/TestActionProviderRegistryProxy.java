@@ -24,17 +24,18 @@ import static org.mockito.Mockito.when;
 
 import java.util.Dictionary;
 
-import org.apache.log4j.Logger;
 import org.junit.Test;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TestActionProviderRegistryProxy {
 
     private static final String SAMPLE_TRANSFORMER_ID = "sampleTransformerId";
 
-    private static final Logger LOGGER = Logger.getLogger(TestActionProviderRegistryProxy.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(TestActionProviderRegistryProxy.class);
 
     @Test
     public void testNoTransformerId() {

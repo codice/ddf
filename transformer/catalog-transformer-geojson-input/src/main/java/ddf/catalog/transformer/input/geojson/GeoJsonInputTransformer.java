@@ -22,10 +22,11 @@ import java.util.TimeZone;
 import javax.xml.bind.DatatypeConverter;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.log4j.Logger;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.AttributeType.AttributeFormat;
@@ -64,7 +65,7 @@ public class GeoJsonInputTransformer implements InputTransformer {
         ISO_8601_DATE_FORMAT.setTimeZone(TimeZone.getTimeZone("UTC"));
     }
 
-    private static final Logger LOGGER = Logger.getLogger(GeoJsonInputTransformer.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(GeoJsonInputTransformer.class);
 
     public GeoJsonInputTransformer(MetacardTypeRegistry mTypeRegistry) {
         this.mTypeRegistry = mTypeRegistry;
@@ -91,7 +92,7 @@ public class GeoJsonInputTransformer implements InputTransformer {
         try {
             rootObject = (JSONObject) PARSER.parse(IOUtils.toString(input));
         } catch (ParseException e) {
-            LOGGER.error(e);
+            LOGGER.error("Parse exception while trying to transform input", e);
             throw new CatalogTransformerException("Could not parse json text:", e);
         }
 
@@ -121,13 +122,13 @@ public class GeoJsonInputTransformer implements InputTransformer {
                 LOGGER.warn(message);
                 throw new CatalogTransformerException(message);
             }
-            LOGGER.debug("Found registered MetacardType: " + metacardTypeName);
+            LOGGER.debug("Found registered MetacardType: {}", metacardTypeName);
             metacard = new MetacardImpl(metacardType);
         }
 
         MetacardType metacardType = metacard.getMetacardType();
         metacardTypeName = metacardType.getName();
-        LOGGER.debug("Metacard type name: " + metacardType.getName());
+        LOGGER.debug("Metacard type name: {}", metacardType.getName());
 
         // retrieve geometry
         JSONObject geometryJson = (JSONObject) rootObject.get(CompositeGeometry.GEOMETRY_KEY);
@@ -158,8 +159,7 @@ public class GeoJsonInputTransformer implements InputTransformer {
             if (geoAttributeName != null) {
                 metacard.setAttribute(geoAttributeName, geoJsonGeometry.toWkt());
             } else {
-                LOGGER.warn("Loss of data, could not place geometry [" + geoJsonGeometry.toWkt()
-                        + "] in metacard");
+                LOGGER.warn("Loss of data, could not place geometry [{}] in metacard", geoJsonGeometry.toWkt());
             }
         }
 
@@ -221,11 +221,8 @@ public class GeoJsonInputTransformer implements InputTransformer {
                 }
             } catch (NumberFormatException e) {
                 LOGGER.info(
-                        "GeoJSON input for attribute name '"
-                                + ad.getName()
-                                + "' does not match expected AttributeType defined in MetacardType: "
-                                + metacardTypeName
-                                + ".  This attribute will not be added to the metacard.", e);
+                    "GeoJSON input for attribute name '{}' does not match expected AttributeType defined in MetacardType: {}. This attribute will not be added to the metacard.",
+                    ad.getName(), metacardTypeName, e);
             }
         }
 
