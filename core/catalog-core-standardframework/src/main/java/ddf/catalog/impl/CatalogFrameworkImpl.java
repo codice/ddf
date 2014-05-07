@@ -253,7 +253,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements Configurati
     
     protected DownloadsStatusEventPublisher retrieveStatusEventPublisher;
 
-    protected boolean notificationEnabled = false;
+    protected boolean notificationEnabled = true;
 
     /**
      * Instantiates a new CatalogFrameworkImpl

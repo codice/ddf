@@ -201,7 +201,7 @@
         <property name="retrievalMonitorPeriod" value="5" />
         <property name="cacheWhenCanceled" value="false" />
         <property name="retrieveStatusEventPublisher" ref="retrieveStatusEventPublisher" />
-        <property name="notificationEnabled" value="false" />
+        <property name="notificationEnabled" value="true" />
 	</bean>
 
 	<bean id="sourcePoller" class="ddf.catalog.util.impl.SourcePoller" >

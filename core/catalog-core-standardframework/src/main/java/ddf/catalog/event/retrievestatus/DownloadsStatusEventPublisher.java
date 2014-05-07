@@ -48,7 +48,7 @@ public class DownloadsStatusEventPublisher {
 
     private EventAdmin eventAdmin;
 
-    private boolean enabled = false;
+    private boolean enabled = true;
 
     /**
      * Used to publish product retrieval status updates via the OSGi Event Service

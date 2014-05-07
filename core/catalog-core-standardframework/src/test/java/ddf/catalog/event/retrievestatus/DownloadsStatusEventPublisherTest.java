@@ -150,11 +150,11 @@ public class DownloadsStatusEventPublisherTest {
     private void setupPublisher() {
         eventAdmin = mock(EventAdmin.class);
         publisher = new DownloadsStatusEventPublisher(eventAdmin);
-        publisher.setEnabled(true);
     }
 
     private void setupPublisherWithNoNotifications() {
         eventAdmin = mock(EventAdmin.class);
         publisher = new DownloadsStatusEventPublisher(eventAdmin);
+        publisher.setEnabled(false);
     }
 }
