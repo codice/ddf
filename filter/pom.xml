@@ -22,6 +22,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
+    <name>DDF Security Filter</name>
     <groupId>ddf.security.filter</groupId>
     <artifactId>filter</artifactId>
     <packaging>pom</packaging>
