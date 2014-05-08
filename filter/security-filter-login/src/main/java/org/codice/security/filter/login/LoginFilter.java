@@ -105,6 +105,7 @@ public class LoginFilter implements Filter {
                 //get the crypto junk
                 Crypto crypto = getSignatureCrypto();
                 org.opensaml.saml2.core.Response samlResponse = createSamlResponse(httpRequest.getRequestURI(), assertion.getIssuerString(), createStatus(SAMLProtocolResponseValidator.SAML2_STATUSCODE_SUCCESS, null));
+                samlResponse.getAssertions().add(assertion.getSaml2());
                 SAMLProtocolResponseValidator validator = new SAMLProtocolResponseValidator();
 
                 //validate the assertion
