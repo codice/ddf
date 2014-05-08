@@ -229,25 +229,24 @@ public class StsRealm extends AuthenticatingRealm implements ConfigurationWatche
         String method = "doGetAuthenticationInfo( AuthenticationToken token )";
         LOGGER.entry(method);
 
-        String credential = null;
+        String credential;
 
         if (token.getCredentials() != null) {
             credential = token.getCredentials().toString();
-            LOGGER.debug("Received credential [{}].", credential);
+            //removed the credentials from the log message for now, I don't think we should be dumping user/pass into log
+            LOGGER.debug("Received credentials.");
         } else {
             String msg = "Unable to authenticate credential.  A NULL credential was provided in the supplied authentication token. This may be due to an error with the SSO server that created the token.";
             LOGGER.error(msg);
             throw new AuthenticationException(msg);
         }
 
-        String binarySecurityToken = getBinarySecurityToken(credential);
-
         if (!settingsConfigured) {
             configureStsClient();
             settingsConfigured = true;
         }
 
-        SecurityToken securityToken = requestSecurityToken(binarySecurityToken);
+        SecurityToken securityToken = requestSecurityToken(credential);
 
         LOGGER.debug("Creating token authentication information with SAML.");
         SimpleAuthenticationInfo simpleAuthenticationInfo = new SimpleAuthenticationInfo();

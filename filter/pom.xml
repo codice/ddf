@@ -28,6 +28,7 @@
     <packaging>pom</packaging>
     <modules>
         <module>security-filter-basic</module>
+        <module>security-filter-login</module>
     </modules>
 
 

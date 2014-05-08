@@ -96,5 +96,9 @@
     <feature name="security-filter-basic" install="manual" version="${project.version}" description="Basic Authentication filter for web applications.">
         <bundle>mvn:ddf.security.filter/security-filter-basic/${project.version}</bundle>
     </feature>
+
+    <feature name="security-filter-login" install="manual" version="${project.version" description="Login Filter for web applications.">
+        <bundle>mvn:ddf.security.filter/security-filter-login/${project.version}</bundle>
+    </feature>
         
 </features>
