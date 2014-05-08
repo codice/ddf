@@ -72,7 +72,7 @@ public class TokenNormalizer implements Filter {
         }
 
         // If we haven't received usable credentials yet, go get some
-        if (result.getStatus() == FilterStatus.NO_ACTION) {
+        if (result == null || result.getStatus() == FilterStatus.NO_ACTION) {
             LOGGER.debug("First pass with no tokens found - requesting tokens");
             // This pass, tell each handler to do whatever it takes to get a SecurityToken
             for (AuthenticationHandler auth : authenticationHandlers) {
@@ -85,13 +85,13 @@ public class TokenNormalizer implements Filter {
 
         // If there is nothing more to do - the plugins have already redirected or responded, just exit without
         // invoking the chain
-        if (result.getStatus() == FilterStatus.COMPLETED) {
+        if (result != null && result.getStatus() == FilterStatus.COMPLETED) {
             LOGGER.debug("Stopping filter chain - handled by plugins");
             return;
         }
 
         // Attach the tokens to the correct http request attribute if we found them
-        if (result.getStatus() == FilterStatus.COMPLETED) {
+        if (result != null && result.getStatus() == FilterStatus.COMPLETED) {
             if (result.hasSecurityToken()) {
                 LOGGER.debug("Attaching SecurityToken to http request");
                 httpRequest.setAttribute(DDF_SECURITY_TOKEN, result.getCredentials());
