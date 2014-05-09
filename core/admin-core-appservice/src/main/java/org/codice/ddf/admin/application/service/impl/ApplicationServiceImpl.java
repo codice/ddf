@@ -439,8 +439,8 @@ public class ApplicationServiceImpl implements ApplicationService {
         for (Feature curFeature : features) {
             for (BundleInfo curBundleInfo : curFeature.getBundles()) {
                 Bundle curBundle = context.getBundle(curBundleInfo.getLocation());
-                if (curBundle != null
-                        && curBundle.adapt(BundleRevision.class).getTypes() != BundleRevision.TYPE_FRAGMENT) {
+                if (curBundle != null && 
+                    curBundle.adapt(BundleRevision.class).getTypes() != BundleRevision.TYPE_FRAGMENT) {
 
                     // check if bundle is inactive
                     int bundleState = curBundle.getState();
@@ -467,7 +467,7 @@ public class ApplicationServiceImpl implements ApplicationService {
                             case Waiting:
                             case Starting:
                             case Stopping:
-                                logger.debug("{} is not in an inactive state. Current State: {}",
+                                logger.trace("{} is in an inactive state. Current State: {}",
                                         curBundle.getSymbolicName(), curState.toString());
 
                                 bundleStateSet.addInactiveBundle(curBundle);
@@ -476,7 +476,7 @@ public class ApplicationServiceImpl implements ApplicationService {
                             case Installed:
                             case GracePeriod:
                             case Failure:
-                                logger.debug("{} is not in a failed state. Current State: {}",
+                                logger.trace("{} is in a failed state. Current State: {}",
                                         curBundle.getSymbolicName(), curState.toString());
 
                                 bundleStateSet.addFailedBundle(curBundle);
@@ -485,6 +485,9 @@ public class ApplicationServiceImpl implements ApplicationService {
                             case Unknown:
                             case Active:
                             default:
+                                logger.trace("{} is in an active state. Current State: {}",
+                                        curBundle.getSymbolicName(), curState.toString());
+                                
                                 bundleStateSet.addActiveBundle(curBundle);
                                 break;
                             }

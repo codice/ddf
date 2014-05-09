@@ -53,10 +53,17 @@ public interface ApplicationServiceBeanMBean {
     boolean stopApplication(String appName);
 
     /**
-     * Adds a list of application that are specified by their URL.
+     * Adds a list of applications that are specified by their URL.
      * 
      * @param applicationURLList
      */
     void addApplications(List<Map<String, Object>> applicationURLList);
+    
+    /**
+     * Removes a list of applications that are specified by their URL.
+     * 
+     * @param applicationURLList
+     */
+    void removeApplications(List<Map<String, Object>> applicationURLList);
 
 }

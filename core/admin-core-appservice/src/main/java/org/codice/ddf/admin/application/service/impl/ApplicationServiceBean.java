@@ -57,6 +57,8 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
     private static final String MAP_CHILDREN = "children";
 
     private static final String MAP_STATE = "state";
+    
+    private static final String MAP_URI = "uri";
 
     private Logger logger = LoggerFactory.getLogger(ApplicationServiceBeanMBean.class);
 
@@ -150,6 +152,7 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
         appMap.put(MAP_VERSION, internalApplication.getVersion());
         appMap.put(MAP_DESCRIPTION, internalApplication.getDescription());
         appMap.put(MAP_STATE, application.getStatus().getState().toString());
+        appMap.put(MAP_URI, internalApplication.getURI().toString());
         List<Map<String, Object>> children = new ArrayList<Map<String, Object>>();
         for (ApplicationNode curNode : application.getChildren()) {
             children.add(convertApplicationNode(curNode));
@@ -193,6 +196,20 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
                 logger.warn("Could not add application with url {}, not a valid URL.", curURL);
             } catch (ApplicationServiceException ase) {
                 logger.warn("Could not add application with url " + curURL + " due to error.", ase);
+            }
+        }
+    }
+    
+    @Override
+    public void removeApplications(List<Map<String, Object>> applicationURLList) {
+        for (Map<String, Object> curURL : applicationURLList) {
+            try {
+                logger.debug("Removing application with URL: {}", curURL.get("value"));
+                appService.removeApplication(new URI((String) curURL.get("value")));
+            } catch (URISyntaxException use) {
+                logger.warn("Could not remove application with url {}, not a valid URL.", curURL.get("value"));
+            } catch (ApplicationServiceException ase) {
+                logger.warn("Could not remove application with url " + curURL.get("value") + " due to error.", ase);
             }
         }
     }

@@ -20,7 +20,6 @@
 }
 #application-view .appview {
     margin: 20px;
-    height: 500px;
 }
 .full-height {
     height: 100%;
@@ -160,4 +159,15 @@ div.appview > div > ul {
 }
 .cancel-upload-link {
     color: red;
+}
+a.fa-minus-circle {
+    text-decoration: none;
+}
+a.fa-minus-circle-disabled {
+    cursor: not-allowed;
+    opacity: 0.3;
+    filter: Alpha(opacity=30); /* IE 8 and earlier */
+}
+a.fa-minus-circle-selected {
+    color: red;   
 }

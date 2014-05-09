@@ -257,7 +257,9 @@ define([
 
         events: {
             'mouseover .appitem': 'hoveringApp',
-            'mouseout .appitem': 'leavingApp'
+            'mouseout .appitem': 'leavingApp' ,
+            'click input.appitem': 'toggleSelectedFlag',
+            'click a.fa-minus-circle': 'toggleRemoveFlag'
         },
 
         hoveringApp: function(e) {
@@ -268,16 +270,48 @@ define([
             Model.Collection.trigger("app:hoverexit");
         },
 
+        toggleSelectedFlag: function() {
+            this.model.updateModel();
+        },
+
+        toggleRemoveFlag: function() {
+            this.model.toggleRemoveFlag();
+        },
+
         onRender: function () {
             this.bind();
-            if(_.indexOf(disableList, this.model.get('appId')) !== -1) {
-                this.$('#'+this.model.get('appId')+'cb').attr('disabled', true);
+
+            var appId = this.model.get('appId');
+            if(_.indexOf(disableList, appId) !== -1) {
+                this.$('#' + appId + 'cb').attr('disabled', true);
+                this.$('#' + appId + '-delete-icon').addClass('fa-minus-circle-disabled disabled');
             }
+
+            this.$('.fa-minus-circle').click(function (event) {
+                // Prevent window from jumping to the top of the page
+                // when the remove icon is clicked.
+                event.preventDefault();
+
+                // Disable the remove action for applications in the 
+                // disableList
+                if ($(this).hasClass('disabled')) {
+                    return false;
+                }
+            });
         },
 
         bind: function () {
-            //var bindings = {selected: '#' + this.model.get("name") + ' > [name=selected]'};
-            var bindings = {selected: '#' + this.model.get("appId") + ' > [name=selected]'};
+            var removeFlagConverter = function (direction, value) {
+                // if removeFlag is true, add the "fa-minus-circle-selected"
+                // class to the element's class list, otherwise remove it 
+                return value ? "fa-minus-circle-selected" : "";
+            };
+
+            var bindings = {selected: '#' + this.model.get("appId") + ' > [name=selected]',
+                            removeFlag: {selector: '[name=removeFlag]', 
+                                         elAttribute: 'class',
+                                         converter: removeFlagConverter}};
+
             this.modelBinder.bind(this.model, this.el, bindings);
         },
 

@@ -24,6 +24,7 @@ define(function (require) {
 
     var startUrl = '/jolokia/exec/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/startApplication/';
     var stopUrl = '/jolokia/exec/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/stopApplication/';
+    var removeUrl = '/jolokia/exec/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/removeApplications/';
 
     var versionRegex = /([^0-9]*)([0-9]+.*$)/;
 
@@ -36,6 +37,7 @@ define(function (require) {
     Applications.TreeNode = Backbone.Model.extend({
        defaults: function() {
             return {
+                removeFlag: false,
                 selected: false
             };
        },
@@ -50,16 +52,17 @@ define(function (require) {
            this.massageVersionNumbers();
            this.cleanupDisplayName();
            this.updateName();
-            this.updateDescription();
+           this.updateDescription();
 
            // Reflect the current state of the application in the model and keep the
            // state to determine if the user changes it.
            changeObj.selected = changeObj.currentState = this.get('state') === 'ACTIVE';
+           changeObj.removeFlag = false;
            changeObj.error = false;
 
            // Change the children from json representation to models and include a link
            // in each to their parent.
-           if (children){
+           if (children) { 
                changeObj.children = new Applications.TreeNodeCollection(children);
                this.set(changeObj);
                this.get('children').forEach(function (child) {
@@ -68,12 +71,11 @@ define(function (require) {
            } else {
                this.set(changeObj);
            }
-           this.listenTo(this, 'change', this.updateModel);
        },
 
        // When the user selects or deselects an application, adjust the rest of the
        // model accordingly - deselects propagate down, selects propagate up.
-       updateModel: function(){
+       updateModel: function() { 
          if (this.get('selected')) {
              if (this.get('parent')) {
                 this.get('parent').set({selected: true});
@@ -84,6 +86,24 @@ define(function (require) {
              });
          }
        },
+
+       toggleRemoveFlag: function () {
+           // Because the view to model bindings are recursive, invoking
+           // this function on a leaf node will implicitly invoke it on 
+           // the leaf's parent nodes. This check prevents the parent node
+           // invokations from having any effect.
+           if (this.get('children') && this.get('children').length === 0) {
+               if (this.get('removeFlag')) {
+                   this.set({removeFlag: false});  
+                   
+                   // Reset the selected flag to its original state
+                   this.set({selected: this.get('currentState')});
+               } else {
+                   this.set({removeFlag: true}); 
+                   this.set({selected: false});
+               }
+           }
+       }, 
 
         // Since the name is used for ids in the DOM, remove any periods
         // that might exist - but store in a separate attribute since we need the
@@ -167,7 +187,10 @@ define(function (require) {
         // Determines whether the user has changed the selection of this model or
         // not - does not check its children.
         isDirty: function() {
-            return (this.get('selected') !== this.get('currentState'));
+            // if user has flagged the application for removal OR
+            // if the user has requested stop the application
+            return (this.get('removeFlag') || 
+                    this.get('selected') !== this.get('currentState'));
         },
 
         // Returns the total number of applications that the user has changed
@@ -249,22 +272,41 @@ define(function (require) {
         // function to keep anyone who cares informed about each step being performed.
         save: function(statusUpdate){
             if (this.isDirty()) {
-                if (this.get('selected')) {
-                    statusUpdate('Installing ' + this.get('name'));
-                    return $.ajax({
-                        type: 'GET',
-                        url: startUrl + this.get('name') + '/',
-                        dataType: 'JSON'
-                    });
+                var name = this.get('name');
+                var type = 'GET';
+                var url = name + '/';
 
-                } else {
-                    statusUpdate('Uninstalling ' + this.get('name'));
-                    return $.ajax({
-                        type: 'GET',
-                        url: stopUrl + this.get('name') + '/',
-                        dataType: 'JSON'
-                    });
+                var ajaxArgs = {};
+
+                if (this.get('selected')) {
+                    statusUpdate('Starting ' + name);
+                    url = startUrl + url;
+                } else if (this.get('removeFlag')) { // implies !selected is also true 
+                    statusUpdate('Removing ' + name);
+   
+                    var data = {
+                       arguments: [[{value: this.attributes.uri}]],
+                       type: 'EXEC',
+                       mbean: 'org.codice.ddf.admin.application.service.ApplicationService:service=application-service',
+                       operation: 'removeApplications'
+                    };
+
+                    url = removeUrl + url;
+                    type = 'POST';
+                    ajaxArgs.contentType = 'application/json';
+                    ajaxArgs.data = JSON.stringify(data);
+                    
+
+                } else { // if !selected
+                    statusUpdate('Stopping ' + name);
+                    url = stopUrl + url;
                 }
+
+                ajaxArgs.type = type;
+                ajaxArgs.url = url;
+                ajaxArgs.dataType = 'JSON';
+
+                return $.ajax(ajaxArgs);
             }
         },
 
