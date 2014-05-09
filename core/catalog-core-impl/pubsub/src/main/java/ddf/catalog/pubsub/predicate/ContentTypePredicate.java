@@ -80,7 +80,7 @@ public class ContentTypePredicate implements Predicate {
             status = ContentTypeEvaluator.evaluate(ctec);
         }
 
-        LOGGER.debug("EXITING: inputContentType");
+        LOGGER.debug("EXITING: matches");
 
         return status;
     }
