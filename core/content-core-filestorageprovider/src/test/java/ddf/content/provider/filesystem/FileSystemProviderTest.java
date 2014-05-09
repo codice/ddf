@@ -28,11 +28,6 @@ import java.util.Collections;
 import java.util.UUID;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.log4j.Appender;
-import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
-import org.apache.log4j.PatternLayout;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -65,18 +60,6 @@ public class FileSystemProviderTest {
     private static final String TEST_INPUT_FILENAME = "myfile.nitf";
 
     private FileSystemProvider provider;
-
-    private static final transient Logger LOGGER = Logger.getLogger(FileSystemProviderTest.class);
-
-    @BeforeClass
-    public static void oneTimeSetup() {
-        // Format logger output
-        BasicConfigurator.configure();
-        ((PatternLayout) ((Appender) Logger.getRootLogger().getAllAppenders().nextElement())
-                .getLayout()).setConversionPattern("[%30.30t] %-30.30c{1} %-5p %m%n");
-
-        Logger.getRootLogger().setLevel(Level.TRACE);
-    }
 
     @Before
     public void setUp() {
