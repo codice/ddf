@@ -37,7 +37,6 @@ import javax.xml.stream.XMLStreamReader;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -47,6 +46,8 @@ import org.apache.solr.common.SolrException;
 import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.common.util.SimpleOrderedMap;
 import org.codehaus.stax2.XMLInputFactory2;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.AttributeDescriptor;
@@ -79,7 +80,7 @@ public class DynamicSchemaResolver {
     private static final List<String> PRIVATE_SOLR_FIELDS = Arrays.asList(SOLR_CLOUD_VERSION_FIELD,
             SchemaFields.METACARD_TYPE_FIELD_NAME, SchemaFields.METACARD_TYPE_OBJECT_FIELD_NAME);
 
-    private static final Logger LOGGER = Logger.getLogger(DynamicSchemaResolver.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DynamicSchemaResolver.class);
 
     public static final String LUX_XML_FIELD_NAME = "lux_xml";
 
@@ -283,7 +284,7 @@ public class DynamicSchemaResolver {
                 in = new ObjectInputStream(bais);
                 return (Serializable) in.readObject();
             } catch (IOException e) {
-                LOGGER.warn(e);
+                LOGGER.warn("IO exception loading input document", e);
             } catch (ClassNotFoundException e) {
                 LOGGER.warn("Could not create object to return.", e);
                 // TODO which exception to throw?
@@ -379,8 +380,7 @@ public class DynamicSchemaResolver {
             break;
         }
 
-        LOGGER.info("Could not find exact schema field name for [" + propertyName
-                + "], attempting to search with [" + fieldName + "]");
+        LOGGER.info("Could not find exact schema field name for [{}], attempting to search with [{}]", propertyName, fieldName);
 
         return fieldName;
     }
@@ -412,11 +412,11 @@ public class DynamicSchemaResolver {
 
         } catch (IOException e) {
 
-            LOGGER.warn(e);
+            LOGGER.warn("IO exception loading cached metacard type", e);
 
             throw new MetacardCreationException(COULD_NOT_READ_METACARD_TYPE_MESSAGE);
         } catch (ClassNotFoundException e) {
-            LOGGER.warn(e);
+            LOGGER.warn("Class exception loading cached metacard type", e);
 
             throw new MetacardCreationException(COULD_NOT_READ_METACARD_TYPE_MESSAGE);
         } finally {
@@ -495,7 +495,7 @@ public class DynamicSchemaResolver {
 
             return bytes;
         } catch (IOException e) {
-            LOGGER.warn(e);
+            LOGGER.warn("IO exception reading metacard type message", e);
             throw new MetacardCreationException(COULD_NOT_READ_METACARD_TYPE_MESSAGE);
         }
 
@@ -519,8 +519,7 @@ public class DynamicSchemaResolver {
             return propertyName + SchemaFields.SHORT_SUFFIX;
         }
 
-        LOGGER.info("Did not find any numerical schema fields for property [" + propertyName
-                + "]. Replacing with property [" + propertyName + SchemaFields.INTEGER_SUFFIX + "]");
+        LOGGER.info("Did not find any numerical schema fields for property [{}]. Replacing with property [{}]", propertyName, propertyName + SchemaFields.INTEGER_SUFFIX);
         return propertyName + SchemaFields.INTEGER_SUFFIX;
     }
 
@@ -573,9 +572,7 @@ public class DynamicSchemaResolver {
         }
         long endTime = System.currentTimeMillis();
 
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Parsing took " + (endTime - starttime) + " ms");
-        }
+        LOGGER.debug("Parsing took {} ms", endTime - starttime);
 
         return builder.toString();
     }

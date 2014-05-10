@@ -29,12 +29,13 @@ import java.util.Enumeration;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.log4j.Logger;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Tests the ConfigurationFileProxy
@@ -42,7 +43,7 @@ import org.osgi.framework.BundleContext;
  */
 public class TestConfigurationFileProxy {
 
-    private static final Logger LOGGER = Logger.getLogger(TestConfigurationFileProxy.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(TestConfigurationFileProxy.class);
 
     private static final String FILE_NAME_1 = "something.txt";
 
@@ -91,19 +92,19 @@ public class TestConfigurationFileProxy {
 
         verifyFilesExist(tempLocation);
 
-        LOGGER.info("Contents Before Writing:" + FileUtils.readFileToString(file1));
+        LOGGER.info("Contents Before Writing:{}", FileUtils.readFileToString(file1));
 
         String newContents = FILE_NAME_2;
 
         FileUtils.writeStringToFile(file1, newContents);
 
-        LOGGER.info("Contents switched to:" + FileUtils.readFileToString(file1));
+        LOGGER.info("Contents switched to:{}", FileUtils.readFileToString(file1));
 
         proxy.writeBundleFilesTo(tempLocation);
 
         String fileContents = FileUtils.readFileToString(file1);
 
-        LOGGER.info("Final File contents:" + fileContents);
+        LOGGER.info("Final File contents:{}", fileContents);
 
         assertThat(fileContents, is(newContents));
 

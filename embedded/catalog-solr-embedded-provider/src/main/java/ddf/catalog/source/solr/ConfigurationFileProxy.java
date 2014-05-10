@@ -26,8 +26,9 @@ import java.util.Enumeration;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.log4j.Logger;
 import org.osgi.framework.BundleContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Abstraction layer for accessing files or directories on disk. Provides different implementations
@@ -45,7 +46,7 @@ public class ConfigurationFileProxy {
 
     private File dataDirectory = null;
 
-    private static final Logger LOGGER = Logger.getLogger(ConfigurationFileProxy.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ConfigurationFileProxy.class);
 
     /**
      * Constructor for the proxy
@@ -56,9 +57,7 @@ public class ConfigurationFileProxy {
      */
     public ConfigurationFileProxy(BundleContext bundleContext, ConfigurationStore configurationStore) {
 
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Creating new instance of " + ConfigurationFileProxy.class.getSimpleName());
-        }
+        LOGGER.debug("Creating new instance of {}", ConfigurationFileProxy.class.getSimpleName());
 
         this.bundleContext = bundleContext;
 
@@ -66,7 +65,7 @@ public class ConfigurationFileProxy {
 
         if (isNotBlank(storedDataDirectoryPath)) {
             this.dataDirectory = new File(storedDataDirectoryPath);
-            LOGGER.info("dataDirectory set to [" + storedDataDirectoryPath + "]");
+            LOGGER.info("dataDirectory set to [{}]", storedDataDirectoryPath);
         } else {
             this.dataDirectory = new File(DEFAULT_SOLR_DATA_PARENT_DIR, "solr");
         }
@@ -84,7 +83,7 @@ public class ConfigurationFileProxy {
 
             boolean directoriesMade = configDir.mkdirs();
 
-            LOGGER.info("Solr Config directories made?  " + directoriesMade);
+            LOGGER.info("Solr Config directories made?  {}", directoriesMade);
 
             @SuppressWarnings("rawtypes")
             Enumeration entries = bundleContext.getBundle().findEntries(
@@ -92,7 +91,7 @@ public class ConfigurationFileProxy {
 
             while (entries.hasMoreElements()) {
                 URL resourceURL = (URL) (entries.nextElement());
-                LOGGER.debug("Found " + resourceURL);
+                LOGGER.debug("Found {}", resourceURL);
 
                 InputStream inputStream = null;
                 try {
@@ -110,7 +109,7 @@ public class ConfigurationFileProxy {
 
                             long byteCount = IOUtils.copyLarge(inputStream, outputStream);
 
-                            LOGGER.debug("Wrote out " + byteCount + " bytes.");
+                            LOGGER.debug("Wrote out {} bytes.", byteCount);
 
                         } finally {
                             IOUtils.closeQuietly(outputStream);
@@ -118,7 +117,7 @@ public class ConfigurationFileProxy {
                     }
 
                 } catch (IOException e) {
-                    LOGGER.warn(e);
+                    LOGGER.warn("IO exception copying out file", e);
                 } finally {
                     IOUtils.closeQuietly(inputStream);
                 }
@@ -144,7 +143,7 @@ public class ConfigurationFileProxy {
                 return new File(new File(new File(DEFAULT_SOLR_CONFIG_PARENT_DIR, "solr"), "conf"),
                         name).toURI().toURL();
             } catch (MalformedURLException e) {
-                LOGGER.warn(e);
+                LOGGER.warn("Malformed URL exception getting SOLR configuration file", e);
             }
         }
 

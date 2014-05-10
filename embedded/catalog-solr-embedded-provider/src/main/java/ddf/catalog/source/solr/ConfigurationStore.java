@@ -14,7 +14,8 @@
  **/
 package ddf.catalog.source.solr;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Stores external configuration properties to be used across POJOs.
@@ -22,7 +23,7 @@ import org.apache.log4j.Logger;
  */
 public class ConfigurationStore {
 
-    private static final Logger LOGGER = Logger.getLogger(ConfigurationStore.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ConfigurationStore.class);
 
     private static ConfigurationStore uniqueInstance;
 
@@ -41,9 +42,7 @@ public class ConfigurationStore {
     public static synchronized ConfigurationStore getInstance() {
 
         if (uniqueInstance == null) {
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("Creating new instance of " + ConfigurationStore.class.getSimpleName());
-            }
+            LOGGER.debug("Creating new instance of {}", ConfigurationStore.class.getSimpleName());
             uniqueInstance = new ConfigurationStore();
         }
 

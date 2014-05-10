@@ -26,13 +26,14 @@ import java.util.Map;
 import com.vividsolutions.jts.io.ParseException;
 import com.vividsolutions.jts.io.WKTReader;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrQuery.ORDER;
 import org.apache.solr.schema.DateField;
 import org.joda.time.DateTime;
 import org.opengis.filter.sort.SortBy;
 import org.opengis.filter.sort.SortOrder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.spatial4j.core.distance.DistanceUtils;
 import com.vividsolutions.jts.geom.Geometry;
@@ -76,7 +77,7 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
     // Using quantization of 12 to reduce error below 1%
     private static final int QUADRANT_SEGMENTS = 12;
 
-    private static final Logger LOGGER = Logger.getLogger(SolrFilterDelegate.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SolrFilterDelegate.class);
 
     private static final WKTWriter WKT_WRITER = new WKTWriter();
 
@@ -405,7 +406,7 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
         try {
             geo = reader.read(wkt);
         } catch (ParseException e) {
-            LOGGER.info("Failed to read WKT: " + wkt, e);
+            LOGGER.info("Failed to read WKT: {}", wkt, e);
         }
         return geo;
     }
@@ -603,7 +604,7 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
                     break;
                 }
             } catch (UnsupportedEncodingException e) {
-                LOGGER.info("Unable to encode " + SCORE_DISTANCE, e);
+                LOGGER.info("Unable to encode {}", SCORE_DISTANCE, e);
             }
         }
 

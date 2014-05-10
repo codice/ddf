@@ -14,9 +14,10 @@
  **/
 package ddf.catalog.solr.external;
 
-import org.apache.log4j.Logger;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ddf.catalog.filter.proxy.adapter.GeotoolsFilterAdapterImpl;
 import ddf.catalog.source.solr.ConfigurationStore;
@@ -36,7 +37,7 @@ import ddf.catalog.source.solr.TestSolrProvider;
 @Ignore
 public class TestExternal extends TestSolrProvider {
 
-    private static final Logger LOGGER = Logger.getLogger(TestExternal.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(TestExternal.class);
 
     @BeforeClass
     public static void setup() throws Exception {
