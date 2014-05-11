@@ -433,7 +433,7 @@ public class ContentDirectoryMonitorTest extends CamelTestSupport {
         assertThat(processorDefinitions.size(), is(4));
 
         ProcessorDefinition<?> pd = processorDefinitions.get(0);
-        LOGGER.debug("ProcessorDefinition:", pd);
+        LOGGER.debug("ProcessorDefinition: {}", pd);
         assertTrue(pd instanceof SetHeaderDefinition);
         SetHeaderDefinition shd = (SetHeaderDefinition) pd;
         assertThat(shd.getHeaderName(), equalTo("operation"));
