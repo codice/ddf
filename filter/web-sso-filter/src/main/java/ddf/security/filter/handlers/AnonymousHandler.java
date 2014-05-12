@@ -43,26 +43,20 @@ public class AnonymousHandler implements AuthenticationHandler {
         result.setStatus(FilterResult.FilterStatus.NO_ACTION);
 
         // For anonymous - always generate authentication credentials as 'guest'
-        UsernameTokenType usernameToken = new UsernameTokenType();
-        AttributedString username = new AttributedString();
-        username.setValue("guest");
-        usernameToken.setUsername(username);
-        JAXBElement<UsernameTokenType> usernameTokenElement =
-          new JAXBElement<UsernameTokenType>(
-            QNameConstants.USERNAME_TOKEN, UsernameTokenType.class, usernameToken
-          );
+        UsernameTokenType usernameTokenType = new UsernameTokenType();
+        AttributedString user = new AttributedString();
+        user.setValue("guest");
+        usernameTokenType.setUsername(user);
+
+        // Add a password
         PasswordString password = new PasswordString();
         password.setValue("guest");
         password.setType(WSConstants.PASSWORD_TEXT);
-        usernameToken.getAny().add(password);
-        JAXBElement<PasswordString> passwordType =
-          new JAXBElement<PasswordString>(
-            QNameConstants.PASSWORD, PasswordString.class, password
-          );
-        usernameToken.getAny().add(passwordType);
+        JAXBElement<PasswordString> passwordType = new JAXBElement<PasswordString>(QNameConstants.PASSWORD, PasswordString.class, password);
+        usernameTokenType.getAny().add(passwordType);
 
         Writer writer = new StringWriter();
-        JAXB.marshal(usernameTokenElement, writer);
+        JAXB.marshal(usernameTokenType, writer);
 
         String usernameSecurityToken = writer.toString();
         logger.debug("Security token returned: {}", usernameSecurityToken);
