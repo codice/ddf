@@ -83,7 +83,7 @@ public class ActivityControllerTest {
      * Verifies that method throws {@code NullPointerException} when 
      * ServerSession is null.
      */
-    @Test(expected = NullPointerException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void testRegisterUserSessionWithNullServerSessionThrowsException() {    
         // Test null ServerSession
         acitivityController.registerUserSession(null, mockServerMessage);  
@@ -95,7 +95,7 @@ public class ActivityControllerTest {
      * Verifies that method throws {@code NullPointerException} when 
      * ServerSession ID is null.
      */
-    @Test(expected = NullPointerException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void testRegisterUserSessionWithNullServerSessionIdThrowsException() {    
         // Test null ServerSession ID
         when(mockServerSession.getId()).thenReturn(null);
@@ -138,7 +138,7 @@ public class ActivityControllerTest {
      * Verifies that {@code NullPointerException} is thrown when 
      * {@code ServerSession} is null.
      */
-    @Test(expected = NullPointerException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void testDeregisterUserSessionWithNullServerSessonThrowsException() {
         acitivityController.deregisterUserSession(null, mockServerMessage);
     }
@@ -149,7 +149,7 @@ public class ActivityControllerTest {
      * Verifies that {@code NullPointerException} is thrown when 
      * {@code ServerSession} ID is null.
      */
-    @Test(expected = NullPointerException.class) 
+    @Test(expected = IllegalArgumentException.class) 
     public void testDeregisterUserSessionWithNullServerSessionIdThrowsException() {
         when(mockServerSession.getId()).thenReturn(null);
         acitivityController.deregisterUserSession(mockServerSession, mockServerMessage);

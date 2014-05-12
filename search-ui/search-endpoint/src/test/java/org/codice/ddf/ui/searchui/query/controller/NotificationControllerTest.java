@@ -85,7 +85,7 @@ public class NotificationControllerTest {
      * Verifies that method throws {@code NullPointerException} when 
      * ServerSession is null.
      */
-    @Test(expected = NullPointerException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void testRegisterUserSessionWithNullServerSessionThrowsException() {    
         // Test null ServerSession
         notificationController.registerUserSession(null, mockServerMessage);  
@@ -97,7 +97,7 @@ public class NotificationControllerTest {
      * Verifies that method throws {@code NullPointerException} when 
      * ServerSession ID is null.
      */
-    @Test(expected = NullPointerException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void testRegisterUserSessionWithNullServerSessionIdThrowsException() {    
         // Test null ServerSession ID
         when(mockServerSession.getId()).thenReturn(null);
@@ -140,7 +140,7 @@ public class NotificationControllerTest {
      * Verifies that {@code NullPointerException} is thrown when 
      * {@code ServerSession} is null.
      */
-    @Test(expected = NullPointerException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void testDeregisterUserSessionWithNullServerSessonThrowsException() {
         notificationController.deregisterUserSession(null, mockServerMessage);
     }
@@ -151,7 +151,7 @@ public class NotificationControllerTest {
      * Verifies that {@code NullPointerException} is thrown when 
      * {@code ServerSession} ID is null.
      */
-    @Test(expected = NullPointerException.class) 
+    @Test(expected = IllegalArgumentException.class) 
     public void testDeregisterUserSessionWithNullServerSessionIdThrowsException() {
         when(mockServerSession.getId()).thenReturn(null);
         notificationController.deregisterUserSession(mockServerSession, mockServerMessage);
