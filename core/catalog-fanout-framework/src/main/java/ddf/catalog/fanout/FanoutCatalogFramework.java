@@ -614,7 +614,7 @@ public class FanoutCatalogFramework extends CatalogFrameworkImpl {
                             "Successfully retrieved product from cache for metacard ID = {}",
                             metacard.getId());
                     retrieveStatusEventPublisher.postRetrievalStatus(resourceResponse,
-                            ProductRetrievalStatus.COMPLETE, null,
+                            ProductRetrievalStatus.COMPLETE, metacard, null,
                             resource.getSize());
                 } catch (CacheException ce) {
                     logger.info(

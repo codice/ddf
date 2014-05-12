@@ -129,6 +129,8 @@ public class ReliableResourceDownloadManager implements Runnable {
     
     private String filePath;
     
+    private Metacard metacard;
+    
     private boolean downloadStarted;
     
     /**
@@ -205,6 +207,7 @@ public class ReliableResourceDownloadManager implements Runnable {
         }
         
         this.resourceRetriever = retriever;
+        this.metacard = metacard;
         
         try {
             resourceResponse = resourceRetriever.retrieveResource();
@@ -216,6 +219,9 @@ public class ReliableResourceDownloadManager implements Runnable {
             throw new DownloadException("Cannot download resource", e);
         }
         
+        //Map<String, java.io.Serializable> resourceProperties = new HashMap<String,java.io.Serializable>(resourceResponse.getProperties());
+        //resourceProperties.put(Metacard.ID, metacard.getId());
+        resourceResponse.getProperties().put(Metacard.ID, metacard.getId());
         // Sources do not create ResourceResponses with the original ResourceRequest, hence
         // it is added here because it will be needed for caching
         resourceResponse = new ResourceResponseImpl(resourceRequest, resourceResponse.getProperties(), resourceResponse.getResource());
@@ -223,7 +229,7 @@ public class ReliableResourceDownloadManager implements Runnable {
         //TODO - this should be before retrieveResource() but eventPublisher requires a resourceResponse 
         // and that resource response must have a resource request in it (to get USER property)
         eventPublisher.postRetrievalStatus(resourceResponse,
-                ProductRetrievalStatus.STARTED, null, 0L);
+                ProductRetrievalStatus.STARTED, metacard, null, 0L);
 
         resourceResponse = setupDownload(metacard, retriever);
         
@@ -260,6 +266,8 @@ public class ReliableResourceDownloadManager implements Runnable {
         fbos = new FileBackedOutputStream(DEFAULT_FILE_BACKED_OUTPUT_STREAM_THRESHOLD);
         countingFbos = new CountingOutputStream(fbos);
         streamReadByClient = new ReliableResourceInputStream(fbos, countingFbos, downloadState);
+        
+        this.metacard = metacard;
 
         // Create new ResourceResponse to return that will encapsulate the ReliableResourceInputStream
         // that will be read by the client simultaneously as the product is cached
@@ -326,7 +334,7 @@ public class ReliableResourceDownloadManager implements Runnable {
                     retryAttempts++;
                     LOGGER.debug("Download attempt {}", retryAttempts);
                     eventPublisher.postRetrievalStatus(resourceResponse,
-                            ProductRetrievalStatus.RETRYING,
+                            ProductRetrievalStatus.RETRYING, metacard,
                             String.format("Attempt %d of %d.", retryAttempts, maxRetryAttempts),
                             reliableResourceStatus.getBytesRead());
                     delay(delayBetweenAttempts);
@@ -374,10 +382,13 @@ public class ReliableResourceDownloadManager implements Runnable {
                     if (downloadState.getDownloadState() != DownloadState.CANCELED) {
                         LOGGER.debug("Sending Product Retrieval Complete event");
                         eventPublisher.postRetrievalStatus(resourceResponse,
-                                ProductRetrievalStatus.COMPLETE, null,
+                                ProductRetrievalStatus.COMPLETE, metacard, null,
                                 reliableResourceStatus.getBytesRead());
                     } else {
                         LOGGER.debug("Client had canceled download and caching completed - do NOT send ProductRetrievalCompleted notification");
+                        eventPublisher.postRetrievalStatus(resourceResponse,
+                                ProductRetrievalStatus.COMPLETE, metacard, null,
+                                reliableResourceStatus.getBytesRead());
                     }
                     if (doCaching) {
                         try {
@@ -418,7 +429,7 @@ public class ReliableResourceDownloadManager implements Runnable {
                         // Source and retry caching it
                         LOGGER.info("Handling product InputStream exception");
                         eventPublisher.postRetrievalStatus(resourceResponse,
-                                ProductRetrievalStatus.RETRYING,
+                                ProductRetrievalStatus.RETRYING, metacard,
                                 String.format("Attempt %d of %d.", retryAttempts, maxRetryAttempts),
                                 reliableResourceStatus.getBytesRead());
                         IOUtils.closeQuietly(resourceInputStream);
@@ -432,7 +443,7 @@ public class ReliableResourceDownloadManager implements Runnable {
                         // product to the client, i.e., writing to the FileBackedOutputStream
                         LOGGER.info("Handling FileOutputStream exception");
                         eventPublisher.postRetrievalStatus(resourceResponse,
-                                ProductRetrievalStatus.RETRYING,
+                                ProductRetrievalStatus.RETRYING, metacard,
                                 String.format("Attempt %d of %d.", retryAttempts, maxRetryAttempts),
                                 reliableResourceStatus.getBytesRead());
                         if (doCaching) {
@@ -453,7 +464,7 @@ public class ReliableResourceDownloadManager implements Runnable {
                         // is being read by the client - assume this is unrecoverable, but continue to cache the file
                         LOGGER.info("Handling FileBackedOutputStream exception");
                         eventPublisher.postRetrievalStatus(resourceResponse,
-                                ProductRetrievalStatus.CANCELLED, "", 0L);
+                                ProductRetrievalStatus.CANCELLED, metacard, "", 0L);
                         IOUtils.closeQuietly(fbos);
                         IOUtils.closeQuietly(countingFbos);
                         LOGGER.debug("Cancelling resourceRetrievalMonitor");
@@ -467,7 +478,7 @@ public class ReliableResourceDownloadManager implements Runnable {
                         downloadState.setDownloadState(DownloadState.CANCELED);
                         LOGGER.debug("Cancelling resourceRetrievalMonitor");
                         resourceRetrievalMonitor.cancel();
-                        eventPublisher.postRetrievalStatus(resourceResponse, ProductRetrievalStatus.CANCELLED, "", 0L);
+                        eventPublisher.postRetrievalStatus(resourceResponse, ProductRetrievalStatus.CANCELLED, metacard, "", 0L);
                         if (doCaching && cacheWhenCanceled) {
                             LOGGER.debug("Continuing to cache product");
                             reliableResourceCallable = new ReliableResourceCallable(resourceInputStream, fos, chunkSize);
@@ -490,7 +501,7 @@ public class ReliableResourceDownloadManager implements Runnable {
                         // in a blocking read)
                         resourceInputStream = null;
                         eventPublisher.postRetrievalStatus(resourceResponse,
-                                ProductRetrievalStatus.RETRYING,
+                                ProductRetrievalStatus.RETRYING, metacard,
                                 String.format("Attempt %d of %d.", retryAttempts, maxRetryAttempts),
                                 reliableResourceStatus.getBytesRead());
                         delay(delayBetweenAttempts);
@@ -505,7 +516,7 @@ public class ReliableResourceDownloadManager implements Runnable {
                 }
                 if (reliableResourceStatus.getDownloadStatus() != DownloadStatus.RESOURCE_DOWNLOAD_CANCELED) {
                     eventPublisher.postRetrievalStatus(resourceResponse,
-                          ProductRetrievalStatus.FAILED,
+                          ProductRetrievalStatus.FAILED, metacard,
                           "Unable to retrieve product file.",
                           reliableResourceStatus.getBytesRead());
                 }
@@ -514,7 +525,7 @@ public class ReliableResourceDownloadManager implements Runnable {
             LOGGER.error("Unable to store product file {}", filePath, e);
             downloadState.setDownloadState(DownloadState.FAILED);
             eventPublisher.postRetrievalStatus(resourceResponse,
-                    ProductRetrievalStatus.FAILED,
+                    ProductRetrievalStatus.FAILED, metacard,
                     "Unable to store product file.",
                     reliableResourceStatus.getBytesRead());
         } finally {

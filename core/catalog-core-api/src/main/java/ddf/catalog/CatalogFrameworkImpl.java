@@ -601,12 +601,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements Configurati
      *            the set of {@link SourceDescriptor}s to add the local catalog's descriptor to
      */
     protected void addCatalogSourceDescriptor(Set<SourceDescriptor> descriptors) {
-        /*
-         * DDF-1614 if (catalog != null && descriptors != null ) { SourceDescriptorImpl descriptor =
-         * new SourceDescriptorImpl(getId(), catalog.getContentTypes());
-         * descriptor.setVersion(this.getVersion()); descriptors.add(descriptor); }
-         */
-        // DDF-1614: Even when no local catalog provider is configured should still
+        // Even when no local catalog provider is configured should still
         // return a local site with the framework's ID and version (and no content types
         // since there is no catalog provider).
         // But when a local catalog provider is configured, include its content types in the

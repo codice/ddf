@@ -15,16 +15,25 @@
 package ddf.catalog.event.retrievestatus;
 
 
-import ddf.catalog.operation.ResourceResponse;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.codice.ddf.activities.ActivityEvent;
+import org.codice.ddf.activities.ActivityEvent.ActivityStatus;
 import org.codice.ddf.notifications.Notification;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventAdmin;
 import org.slf4j.LoggerFactory;
 import org.slf4j.ext.XLogger;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import com.google.common.collect.ImmutableMap;
+
+import ddf.action.Action;
+import ddf.action.ActionProvider;
+import ddf.catalog.data.Metacard;
+import ddf.catalog.operation.ResourceResponse;
 
 /**
  * The {@code DownloadsStatusEventPublisher} class creates events and sends them using the {@link EventAdmin} service
@@ -44,17 +53,19 @@ public class DownloadsStatusEventPublisher {
     }
 
     private static XLogger logger = new XLogger(LoggerFactory.getLogger(DownloadsStatusEventPublisher.class));
-    private static final DateFormat formatter = new SimpleDateFormat("HH:mm:ss:SSS");
 
     private EventAdmin eventAdmin;
+    private List<ActionProvider> actionProviders;
 
-    private boolean enabled = true;
+    private boolean notificationEnabled = true;
+    private boolean activityEnabled = true;
 
     /**
      * Used to publish product retrieval status updates via the OSGi Event Service
      */
-    public DownloadsStatusEventPublisher(EventAdmin eventAdmin) {
+    public DownloadsStatusEventPublisher(EventAdmin eventAdmin, List<ActionProvider> actionProviders) {
         this.eventAdmin = eventAdmin;
+        this.actionProviders = actionProviders;
     }
 
     /**
@@ -63,7 +74,7 @@ public class DownloadsStatusEventPublisher {
      * @param resourceResponse - The {@link ResourceResponse} of the request.
      * @param status           - The status of the retrieval.}
      */
-    public void postRetrievalStatus(final ResourceResponse resourceResponse, ProductRetrievalStatus status, String detail, Long bytes) {
+    public void postRetrievalStatus(final ResourceResponse resourceResponse, ProductRetrievalStatus status, Metacard metacard, String detail, Long bytes) {
 
         logger.debug("ENTERING: postRetrievalStatus(...)");
         logger.debug("status: {}", status);
@@ -74,8 +85,9 @@ public class DownloadsStatusEventPublisher {
             bytes = 0L;
         }
         
-        if(enabled) {
-            Long sysTimeMillis = System.currentTimeMillis();
+        Long sysTimeMillis = System.currentTimeMillis();
+        
+        if(notificationEnabled) {
             Notification notification = new Notification(APPLICATION_NAME,
                     resourceResponse.getResource().getName(),
                     generateMessage(status, resourceResponse.getResource().getName(),
@@ -96,8 +108,52 @@ public class DownloadsStatusEventPublisher {
             logger.debug("Notifications have been disabled so this message will NOT be posted.");
         }
 
-        logger.debug("EXITING: postRetrievalStatus(...)");
+        if (activityEnabled) {
+            
+            // get Action
+            Action downloadAction = null;
+            if(!actionProviders.isEmpty()) {
+                // take the first one
+                downloadAction = actionProviders.get(0).getAction(metacard);
+            }
+            
+            // send activity event
+            // progress for downloads 
+            String progress = "";
+            Map<String, String> operations = new HashMap<String, String>();
+            ActivityStatus type;
+            switch (status) {
+            case STARTED:
+                type = ActivityStatus.STARTED;
+                break;
+            case COMPLETE:
+                type = ActivityStatus.FINISHED;
+                if (downloadAction != null) {
+                    operations = ImmutableMap.of("download", downloadAction.getUrl().toString());
+                }
+                break;
+            case FAILED:
+                type = ActivityStatus.FAILED;
+                break;
+            case CANCELLED:
+                type = ActivityStatus.STOPPED;
+                break;
+            default:
+                type = ActivityStatus.RUNNING;
+            
+            }
+
+            ActivityEvent eventProperties = new ActivityEvent(metacard.getId(), new Date(), "Product Retrieval", resourceResponse.getResource().getName(), generateMessage(status, resourceResponse.getResource().getName(), 
+                    bytes, sysTimeMillis, detail), progress, operations, getProperty(resourceResponse, ActivityEvent.USER_ID_KEY), type);
+            Event event = new Event(ActivityEvent.EVENT_TOPIC_BROADCAST, eventProperties);
+            eventAdmin.postEvent(event);
         }
+        else {
+            logger.debug("Activities have been disabled so this message will NOT be posted.");
+        }
+
+        logger.debug("EXITING: postRetrievalStatus(...)");
+    }
 
     private String getProperty(ResourceResponse resourceResponse, String property) {
         String response = "";
@@ -158,7 +214,11 @@ public class DownloadsStatusEventPublisher {
         return response.toString();
     }
 
-    public void setEnabled(boolean enabled) {
-        this.enabled = enabled;
+    public void setNotificationEnabled(boolean enabled) {
+        this.notificationEnabled = enabled;
+    }
+    
+    public void setActivityEnabled(boolean enabled) {
+        this.activityEnabled = enabled;
     }
 }

@@ -42,6 +42,10 @@
             <groupId>ddf.cache.core</groupId>
             <artifactId>cache-core-api</artifactId>
         </dependency>
+        <dependency>
+            <groupId>ddf.action.core</groupId>
+            <artifactId>action-core-api</artifactId>
+        </dependency>
 		<dependency>
             <groupId>ddf.catalog.core</groupId>
             <artifactId>catalog-core-metricsplugin</artifactId>
@@ -54,6 +58,10 @@
         <dependency>
         	<groupId>org.codice.ddf</groupId>
         	<artifactId>notifications</artifactId>
+        </dependency>
+        <dependency>
+          <groupId>org.codice.ddf</groupId>
+          <artifactId>activities</artifactId>
         </dependency>
 		<dependency>
 			<groupId>org.osgi</groupId>
@@ -93,10 +101,9 @@
 				<artifactId>maven-bundle-plugin</artifactId>
 				<configuration>
 					<instructions>
-						<!-- DDF-1614: <Bundle-SymbolicName>${project.artifactId};blueprint.graceperiod:=true;blueprint.timeout:=604800000</Bundle-SymbolicName> -->
 						<Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
 						<Embed-Dependency>
-                            guava, notifications
+                            guava, notifications, activities
                         </Embed-Dependency>
                         <Embed-Transitive>true</Embed-Transitive>
 						<Private-Package>

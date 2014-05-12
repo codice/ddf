@@ -254,6 +254,8 @@ public class CatalogFrameworkImpl extends DescribableImpl implements Configurati
     protected DownloadsStatusEventPublisher retrieveStatusEventPublisher;
 
     protected boolean notificationEnabled = true;
+    
+    protected boolean activityEnabled = true;
 
     /**
      * Instantiates a new CatalogFrameworkImpl
@@ -435,7 +437,13 @@ public class CatalogFrameworkImpl extends DescribableImpl implements Configurati
     public void setNotificationEnabled(boolean notificationEnabled) {
         logger.debug("Setting notificationEnabled = {}", notificationEnabled);
         this.notificationEnabled = notificationEnabled;
-        retrieveStatusEventPublisher.setEnabled(notificationEnabled);
+        retrieveStatusEventPublisher.setNotificationEnabled(notificationEnabled);
+    }
+    
+    public void setActivityEnabled(boolean activityEnabled) {
+        logger.debug("Setting activityEnabled = {}", activityEnabled);
+        this.activityEnabled = activityEnabled;
+        retrieveStatusEventPublisher.setActivityEnabled(activityEnabled);
     }
 
     /**
@@ -1385,7 +1393,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements Configurati
                             "Successfully retrieved product from cache for metacard ID = {}",
                             metacard.getId());
                     retrieveStatusEventPublisher.postRetrievalStatus(resourceResponse,
-                            ProductRetrievalStatus.COMPLETE, null,
+                            ProductRetrievalStatus.COMPLETE, metacard, null,
                             resource.getSize());
                 } catch (CacheException ce) {
                     logger.info(

@@ -694,7 +694,7 @@ public class ReliableResourceDownloadManagerTest {
         resourceResponse = mock(ResourceResponse.class);
         when(resourceResponse.getRequest()).thenReturn(resourceRequest);
         when(resourceResponse.getResource()).thenReturn(resource);
-        when(resourceResponse.getProperties()).thenReturn(null);
+        when(resourceResponse.getProperties()).thenReturn(requestProperties);
 
         return resourceResponse;
     }
@@ -769,7 +769,7 @@ public class ReliableResourceDownloadManagerTest {
                 reset(resourceResponse);
                 when(resourceResponse.getRequest()).thenReturn(resourceRequest);
                 when(resourceResponse.getResource()).thenReturn(resource);
-                when(resourceResponse.getProperties()).thenReturn(null);
+                when(resourceResponse.getProperties()).thenReturn(new HashMap<String, Serializable>());
 
                 return resourceResponse;
             }
