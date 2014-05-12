@@ -15,7 +15,8 @@
 
 package ddf.security.sts.claimsHandler;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import ddf.security.encryption.EncryptionService;
 
 /**
@@ -28,7 +29,7 @@ import ddf.security.encryption.EncryptionService;
  */
 public class ContextSourceDecrypt extends org.springframework.ldap.core.support.LdapContextSource {
 
-    private static final Logger LOGGER = Logger.getLogger(ContextSourceDecrypt.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ContextSourceDecrypt.class);
 
     private EncryptionService encryptionService;
 
@@ -45,8 +46,7 @@ public class ContextSourceDecrypt extends org.springframework.ldap.core.support.
     @Override
     public void setPassword(String password) {
         if (encryptionService == null) {
-            LOGGER.error("The ContextSourceDecrypt has a null Encryption Service.  Unable to attempt to decrypt the encrypted password: "
-                    + password + ".  Setting decrypted password to null.");
+            LOGGER.error("The ContextSourceDecrypt has a null Encryption Service.  Unable to attempt to decrypt the encrypted password: {}.  Setting decrypted password to null.", password);
             this.password = null;
         } else {
             this.password = encryptionService.decryptValue(password);

@@ -18,13 +18,14 @@ import ddf.security.SecurityConstants;
 import ddf.security.assertion.SecurityAssertion;
 
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
-import org.apache.log4j.Logger;
 import org.apache.ws.security.WSSecurityException;
 import org.apache.ws.security.saml.ext.AssertionWrapper;
 import org.opensaml.saml2.core.Attribute;
 import org.opensaml.saml2.core.AttributeStatement;
 import org.opensaml.saml2.core.AuthnStatement;
 import org.opensaml.saml2.core.AuthzDecisionStatement;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.security.Principal;
 import java.util.ArrayList;
@@ -40,7 +41,7 @@ public class SecurityAssertionImpl implements SecurityAssertion {
     /**
      * Log4j Logger
      */
-    private Logger logger = Logger.getLogger(SecurityConstants.SECURITY_LOGGER);
+    private Logger LOGGER = LoggerFactory.getLogger(SecurityConstants.SECURITY_LOGGER);
 
     /**
      * Serial Version UID
@@ -95,7 +96,7 @@ public class SecurityAssertionImpl implements SecurityAssertion {
         try {
             assertionWrapper = new AssertionWrapper(securityToken.getToken());
         } catch (WSSecurityException e) {
-            logger.error("Unable to parse security token.", e);
+            LOGGER.error("Unable to parse security token.", e);
         }
     }
 

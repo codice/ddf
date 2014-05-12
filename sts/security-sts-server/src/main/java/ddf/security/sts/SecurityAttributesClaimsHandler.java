@@ -20,12 +20,13 @@ import org.apache.cxf.sts.claims.ClaimCollection;
 import org.apache.cxf.sts.claims.ClaimsHandler;
 import org.apache.cxf.sts.claims.ClaimsParameters;
 import org.apache.cxf.sts.claims.RequestClaimCollection;
-import org.apache.log4j.Logger;
 import org.apache.ws.security.WSConstants;
 import org.springframework.ldap.core.AttributesMapper;
 import org.springframework.ldap.core.LdapTemplate;
 import org.springframework.ldap.filter.AndFilter;
 import org.springframework.ldap.filter.EqualsFilter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
@@ -52,7 +53,7 @@ import java.util.StringTokenizer;
  */
 public class SecurityAttributesClaimsHandler implements ClaimsHandler {
 
-    private final Logger logger = Logger.getLogger(SecurityAttributesClaimsHandler.class);
+    private final Logger LOGGER = LoggerFactory.getLogger(SecurityAttributesClaimsHandler.class);
 
     public static final String DEFAULT_SECURITY_CLAIM_TYPE = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/uid";
 
@@ -159,7 +160,7 @@ public class SecurityAttributesClaimsHandler implements ClaimsHandler {
         try {
             uri = new URI(securityAttributeClaimType);
         } catch (URISyntaxException e) {
-            logger.warn("Unable to add securityAttributes claim type.", e);
+            LOGGER.warn("Unable to add securityAttributes claim type.", e);
         }
         return uri;
     }
@@ -199,12 +200,10 @@ public class SecurityAttributesClaimsHandler implements ClaimsHandler {
             String user = getUserFromClaimsParameters(parameters);
 
             if (user == null) {
-                logger.warn("User must not be null");
+                LOGGER.warn("User must not be null");
                 return claimsColl;
             } else {
-                if (logger.isTraceEnabled()) {
-                    logger.trace("Retrieve securityAttributes claims for user " + user);
-                }
+                LOGGER.trace("Retrieve securityAttributes claims for user {}", user);
             }
 
             AndFilter filter = buildLdapFilter(user);
@@ -222,9 +221,7 @@ public class SecurityAttributesClaimsHandler implements ClaimsHandler {
                 for (Entry<String, String> claimAttr : claimsLdapAttributeMapping.entrySet()) {
                     Attribute attr = ldapAttributes.get(claimAttr.getValue());
                     if (attr == null) {
-                        if (logger.isTraceEnabled()) {
-                            logger.trace("Claim '" + claimAttr.getKey() + "' is null");
-                        }
+                        LOGGER.trace("Claim '{}' is null", claimAttr.getKey());
                     } else {
                         Claim c = buildClaim(parameters, claimAttr, attr);
                         claimsColl.add(c);
@@ -232,7 +229,7 @@ public class SecurityAttributesClaimsHandler implements ClaimsHandler {
                 }
             }
         } catch (URISyntaxException e) {
-            logger.error("Unable to set role claims.", e);
+            LOGGER.error("Unable to set role claims.", e);
         }
         return claimsColl;
     }
@@ -252,8 +249,7 @@ public class SecurityAttributesClaimsHandler implements ClaimsHandler {
             while (list.hasMore()) {
                 Object obj = list.next();
                 if (!(obj instanceof String)) {
-                    logger.warn("LDAP attribute '" + claimAttr.getValue()
-                            + "' has got an unsupported value type");
+                    LOGGER.warn("LDAP attribute '{}' has an unsupported value type", claimAttr.getValue());
                     break;
                 }
                 claimValue.append((String) obj);
@@ -262,7 +258,7 @@ public class SecurityAttributesClaimsHandler implements ClaimsHandler {
                 }
             }
         } catch (NamingException ex) {
-            logger.warn("Failed to read value of LDAP attribute '" + claimAttr.getValue() + "'");
+            LOGGER.warn("Failed to read value of LDAP attribute '{}'", claimAttr.getValue());
         }
 
         c.setValue(claimValue.toString());
@@ -306,7 +302,7 @@ public class SecurityAttributesClaimsHandler implements ClaimsHandler {
             } else if (principal != null) {
                 user = principal.getName();
             } else {
-                logger.warn("Principal is null");
+                LOGGER.warn("Principal is null");
             }
         }
 

@@ -25,7 +25,8 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 
@@ -47,7 +48,7 @@ import org.apache.log4j.Logger;
  * 
  */
 public class ProxyFilter implements Filter {
-    private static final Logger LOGGER = Logger.getLogger(ProxyFilter.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ProxyFilter.class);
 
     private List<Filter> filters;
 
@@ -67,7 +68,7 @@ public class ProxyFilter implements Filter {
      */
     public void destroy() {
         for (Filter filter : filters) {
-            LOGGER.debug("Destroying filter " + filter.getClass().getName() + ".");
+            LOGGER.debug("Destroying filter {}.", filter.getClass().getName());
             filter.destroy();
         }
     }
@@ -84,16 +85,15 @@ public class ProxyFilter implements Filter {
         HttpServletRequest httpServletRequest = (HttpServletRequest) servletRequest;
         StringBuffer requestUrl = httpServletRequest.getRequestURL();
 
-        LOGGER.debug("Starting a filter chain for request " + requestUrl);
+        LOGGER.debug("Starting a filter chain for request {}", requestUrl);
 
         ProxyFilterChain filterProxyChain = new ProxyFilterChain(filterChain);
 
-        LOGGER.debug("Adding " + filters.size() + " filter(s) to filter chain.");
+        LOGGER.debug("Adding {} filter(s) to filter chain.", filters.size());
 
         filterProxyChain.addFilters(filters);
 
-        LOGGER.debug("Calling " + filterProxyChain.getClass().getName() + ".doFilter("
-                + servletRequest + ", " + servletResponse + ")");
+        LOGGER.debug("Calling {}.doFilter({},{})", filterProxyChain.getClass().getName(), servletRequest, servletResponse);
         filterProxyChain.doFilter(servletRequest, servletResponse);
 
     }
@@ -104,8 +104,7 @@ public class ProxyFilter implements Filter {
     public void init(FilterConfig filterConfig) throws ServletException {
         if (!initialized) {
             for (Filter filter : filters) {
-                LOGGER.debug("Calling " + filter.getClass().getName() + ".init(" + filterConfig
-                        + ")");
+                LOGGER.debug("Calling {}.init({})", filter.getClass().getName(), filterConfig);
                 filter.init(filterConfig);
             }
 

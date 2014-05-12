@@ -14,9 +14,6 @@
  **/
 package ddf.security.expansion.impl;
 
-import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -31,7 +28,6 @@ import java.util.Map;
 import java.util.Set;
 
 public class StraightExpansionImplTest {
-    private static final Logger logger = Logger.getLogger(StraightExpansionImplTest.class);
 
     /*
      * Rules for the various tests \A and \z represent the start of input and end of input
@@ -73,12 +69,6 @@ public class StraightExpansionImplTest {
     public List<String[]> rulesList2 = new ArrayList<String[]>();
 
     public Map<String, List<String[]>> testmap = new HashMap<String, List<String[]>>();
-
-    @BeforeClass
-    public static void setupLogging() {
-        BasicConfigurator.configure();
-        logger.setLevel(Level.TRACE);
-    }
 
     @Before
     public void setupData() {

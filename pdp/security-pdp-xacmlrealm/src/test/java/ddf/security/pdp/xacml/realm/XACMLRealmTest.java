@@ -28,9 +28,6 @@ import java.util.Set;
 
 import oasis.names.tc.xacml._3_0.core.schema.wd_17.RequestType;
 
-import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
 import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.authz.Authorizer;
@@ -45,8 +42,6 @@ import ddf.security.permission.KeyValuePermission;
 import ddf.security.service.impl.AbstractAuthorizingRealm;
 
 public class XACMLRealmTest {
-    private static final Logger logger = Logger.getLogger(XACMLRealmTest.class);
-
     private static final String USER_NAME = "Test User";
 
     private static final String QUERY_ACTION = "query";
@@ -76,8 +71,6 @@ public class XACMLRealmTest {
 
     @BeforeClass()
     public static void setupLogging() throws PdpException {
-        BasicConfigurator.configure();
-        logger.setLevel(Level.DEBUG);
         testRealm = new XACMLRealm("src/test/resources/policies");
     }
 
