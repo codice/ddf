@@ -48,11 +48,6 @@ import ddf.mime.MimeTypeResolutionException;
 public class ContentEndpointCreateTest {
     private static final String CONTENT_DISPOSITION = "Content-Disposition";
 
-    // used to print logging while running as a JUnit test
-    static {
-        org.apache.log4j.BasicConfigurator.configure();
-    }
-
     @Test
     public void read_Valid() throws ContentFrameworkException, IOException, MimeTypeParseException,
         MimeTypeResolutionException {

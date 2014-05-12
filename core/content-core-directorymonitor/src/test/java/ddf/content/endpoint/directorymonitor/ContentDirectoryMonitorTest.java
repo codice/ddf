@@ -32,15 +32,15 @@ import org.apache.camel.model.RouteDefinition;
 import org.apache.camel.model.SetHeaderDefinition;
 import org.apache.camel.test.junit4.CamelTestSupport;
 import org.apache.commons.io.FileUtils;
-import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ddf.content.core.directorymonitor.ContentDirectoryMonitor;
 
 public class ContentDirectoryMonitorTest extends CamelTestSupport {
-    private static final transient Logger LOGGER = Logger
-            .getLogger(ContentDirectoryMonitorTest.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ContentDirectoryMonitorTest.class);
 
     private static final String INPUT_FILENAME = "input.txt";
 
@@ -359,7 +359,7 @@ public class ContentDirectoryMonitorTest extends CamelTestSupport {
         // Initial Camel route should now be created
         List<RouteDefinition> routeDefinitions = contentDirectoryMonitor.getRouteDefinitions();
         assertThat(routeDefinitions.size(), is(1));
-        LOGGER.debug("routeDefinition = " + routeDefinitions.get(0).toString());
+        LOGGER.debug("routeDefinition = {}", routeDefinitions.get(0));
 
         return routeDefinitions.get(0);
     }
@@ -408,7 +408,7 @@ public class ContentDirectoryMonitorTest extends CamelTestSupport {
         // Initial Camel route should now be created
         List<RouteDefinition> routeDefinitions = contentDirectoryMonitor.getRouteDefinitions();
         assertThat(routeDefinitions.size(), is(1));
-        LOGGER.debug("routeDefinition = " + routeDefinitions.get(0).toString());
+        LOGGER.debug("routeDefinition = {}", routeDefinitions.get(0));
 
         return routeDefinitions.get(0);
     }
@@ -418,7 +418,7 @@ public class ContentDirectoryMonitorTest extends CamelTestSupport {
         List<FromDefinition> fromDefinitions = routeDefinition.getInputs();
         assertThat(fromDefinitions.size(), is(1));
         String uri = fromDefinitions.get(0).getUri();
-        LOGGER.debug("uri = " + uri);
+        LOGGER.debug("uri = {}", uri);
         String expectedUri = "file:" + monitoredDirectory + "?moveFailed=.errors";
         if (copyIngestedFiles) {
             expectedUri += "&move=.ingested";
@@ -433,7 +433,7 @@ public class ContentDirectoryMonitorTest extends CamelTestSupport {
         assertThat(processorDefinitions.size(), is(4));
 
         ProcessorDefinition<?> pd = processorDefinitions.get(0);
-        LOGGER.debug(pd);
+        LOGGER.debug("ProcessorDefinition: {}", pd);
         assertTrue(pd instanceof SetHeaderDefinition);
         SetHeaderDefinition shd = (SetHeaderDefinition) pd;
         assertThat(shd.getHeaderName(), equalTo("operation"));
