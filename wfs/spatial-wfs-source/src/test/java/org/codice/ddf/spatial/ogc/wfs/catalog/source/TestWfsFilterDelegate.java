@@ -261,13 +261,6 @@ public class TestWfsFilterDelegate {
             + "</PropertyIsBetween>"
             + "</Filter>";
 
-    @BeforeClass
-    public static void beforeClass() {
-        ch.qos.logback.classic.Logger root = (ch.qos.logback.classic.Logger) LoggerFactory
-                .getLogger(Logger.ROOT_LOGGER_NAME);
-        root.setLevel(ch.qos.logback.classic.Level.DEBUG);
-    }
-
     @Before
     public void setUp() {
         when(featureMetacardType.getGmlProperties()).thenReturn(mockGmlProps);

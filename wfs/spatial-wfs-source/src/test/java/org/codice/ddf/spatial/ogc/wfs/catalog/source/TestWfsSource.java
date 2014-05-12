@@ -76,9 +76,6 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.opengis.filter.Filter;
 import org.osgi.framework.BundleContext;
-import org.slf4j.LoggerFactory;
-import ch.qos.logback.classic.Level;
-import ch.qos.logback.classic.Logger;
 
 import ddf.catalog.data.ContentType;
 import ddf.catalog.data.Metacard;
@@ -189,13 +186,6 @@ public class TestWfsSource {
 
     private AvailabilityTask mockAvailabilityTask = mock(AvailabilityTask.class);
 
-    @BeforeClass
-    public static void oneTimeSetup() {
-
-        Logger root = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
-        root.setLevel(Level.INFO);
-    }
-    
     public void setUp(final String schema, final List<Object> supportedGeos, final String srsName,
             final Integer numFeatures) throws WfsException {
 

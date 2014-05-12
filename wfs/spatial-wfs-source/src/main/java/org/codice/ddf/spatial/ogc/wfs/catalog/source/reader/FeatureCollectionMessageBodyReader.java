@@ -32,12 +32,13 @@ import javax.ws.rs.ext.MessageBodyReader;
 import javax.ws.rs.ext.Provider;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.log4j.Logger;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsFeatureCollection;
 import org.codice.ddf.spatial.ogc.wfs.catalog.converter.FeatureConverter;
 import org.codice.ddf.spatial.ogc.wfs.catalog.converter.impl.FeatureCollectionConverter;
 import org.codice.ddf.spatial.ogc.wfs.catalog.converter.impl.GmlEnvelopeConverter;
 import org.codice.ddf.spatial.ogc.wfs.catalog.converter.impl.GmlGeometryConverter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.XStreamException;
@@ -55,8 +56,7 @@ public class FeatureCollectionMessageBodyReader implements MessageBodyReader<Wfs
 
     private Map<String, FeatureConverter> featureConverterMap = new HashMap<String, FeatureConverter>();
 
-    private static final Logger LOGGER = Logger.getLogger(FeatureCollectionMessageBodyReader.class
-            .getName());
+    private static final Logger LOGGER = LoggerFactory.getLogger(FeatureCollectionMessageBodyReader.class);
 
     public FeatureCollectionMessageBodyReader() {
         xstream = new XStream(new WstxDriver());

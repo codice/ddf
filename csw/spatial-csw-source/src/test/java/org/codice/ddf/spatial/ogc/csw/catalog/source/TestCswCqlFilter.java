@@ -360,13 +360,6 @@ public class TestCswCqlFilter {
     private final String featureIdCql = CswRecordMetacardType.CSW_IDENTIFIER + SPACE + EQUALS
             + SPACE + SINGLE_QUOTE + cswRecordId + SINGLE_QUOTE;
 
-    @BeforeClass
-    public static void init() throws JAXBException, ParseException {
-        ch.qos.logback.classic.Logger root = (ch.qos.logback.classic.Logger) LoggerFactory
-                .getLogger(Logger.ROOT_LOGGER_NAME);
-        root.setLevel(ch.qos.logback.classic.Level.INFO);
-    }
-
     /**
      * Property is equal to tests
      * 

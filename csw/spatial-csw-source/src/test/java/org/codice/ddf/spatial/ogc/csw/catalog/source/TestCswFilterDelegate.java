@@ -1087,13 +1087,6 @@ public class TestCswFilterDelegate {
     private final String emptyFilterXml = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
             + "<ns5:Filter xmlns:ns2=\"http://purl.org/dc/elements/1.1/\" xmlns=\"http://www.opengis.net/cat/csw/2.0.2\" xmlns:ns4=\"http://purl.org/dc/terms/\" xmlns:ns3=\"http://www.opengis.net/ows\" xmlns:ns9=\"http://www.w3.org/2001/SMIL20/Language\" xmlns:ns5=\"http://www.opengis.net/ogc\" xmlns:ns6=\"http://www.opengis.net/gml\" xmlns:ns7=\"http://www.w3.org/1999/xlink\" xmlns:ns8=\"http://www.w3.org/2001/SMIL20/\"/>";
 
-    @BeforeClass
-    public static void init() throws JAXBException, ParseException {
-        ch.qos.logback.classic.Logger root = (ch.qos.logback.classic.Logger) LoggerFactory
-                .getLogger(Logger.ROOT_LOGGER_NAME);
-        root.setLevel(ch.qos.logback.classic.Level.INFO);
-    }
-
     /**
      * Property is equal to tests
      */
