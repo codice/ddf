@@ -284,7 +284,7 @@ public class ConfigurationStore {
                 		"If you are attempting to connect to a WMS Server, please provide " +
                 		"the location of the WMS Server in the Standard UI configuration.");
                 
-                //WMS Server not specified; stop proxy and which back to default map server
+                //WMS Server not specified; stop proxy and switch back to default map server
                 stopProxy();
                 targetUrl = "";
             }
@@ -300,11 +300,7 @@ public class ConfigurationStore {
     		targetUrl = "";
     		wmsServer = "";
     		//Stop proxy
-    		try {
-				httpProxy.stop(endpointName);
-			} catch (Exception e) {
-				LOGGER.error(e.getMessage());
-			}
+			stopProxy();
     	}
     }
     
@@ -317,25 +313,29 @@ public class ConfigurationStore {
     }
     
     private void startProxy(){		
-		try {
-			bundleName = bundleContext.getBundle().getSymbolicName().toLowerCase() + incrementer;
-			incrementer++;
-			endpointName = httpProxy.start(bundleName, wmsServer, timeout);
-			targetUrl = SERVLET_PATH + "/" + endpointName;
-			LOGGER.debug("Target URL: " + targetUrl);
-		} catch (Exception e) {
-			LOGGER.error(e.getMessage());
+		if (httpProxy != null){
+			try {
+				bundleName = bundleContext.getBundle().getSymbolicName().toLowerCase() + incrementer;
+				incrementer++;
+				endpointName = httpProxy.start(bundleName, wmsServer, timeout);
+				targetUrl = SERVLET_PATH + "/" + endpointName;
+				LOGGER.debug("Target URL: " + targetUrl);
+			} catch (Exception e) {
+				LOGGER.error(e.getMessage());
+			}
 		}
     }
     
-    private void stopProxy(){		
-        try {
-            if (StringUtils.isNotBlank(bundleName)){
-            	httpProxy.stop(bundleName);
-            }
-        } catch (Exception e) {
-			LOGGER.error(e.getMessage());
-        }
+    private void stopProxy(){	
+		if (httpProxy != null){
+			try {
+				if (StringUtils.isNotBlank(bundleName)){
+					httpProxy.stop(bundleName);
+				}
+			} catch (Exception e) {
+				LOGGER.error(e.getMessage());
+			}
+		}
     }
 
 	public HttpProxyService getHttpProxy() {
