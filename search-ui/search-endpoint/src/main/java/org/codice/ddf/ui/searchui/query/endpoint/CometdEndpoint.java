@@ -16,6 +16,7 @@ package org.codice.ddf.ui.searchui.query.endpoint;
 
 import javax.servlet.ServletException;
 
+import org.codice.ddf.ui.searchui.query.controller.ActivityController;
 import org.codice.ddf.ui.searchui.query.controller.NotificationController;
 import org.codice.ddf.ui.searchui.query.controller.SearchController;
 import org.codice.ddf.ui.searchui.query.service.SearchService;
@@ -51,6 +52,7 @@ public class CometdEndpoint {
 
     BayeuxServer bayeuxServer;
     NotificationController notificationController;
+    ActivityController activityController;
     SearchService searchService;
     
 
@@ -70,6 +72,7 @@ public class CometdEndpoint {
         this.filterBuilder = filterBuilder;
         this.searchController = new SearchController(framework);
         this.notificationController = new NotificationController(bundleContext);
+        this.activityController = new ActivityController(bundleContext);
     }
 
     public void init() throws ServletException {        
@@ -98,6 +101,7 @@ public class CometdEndpoint {
                     }
                     
                     notificationController.registerUserSession(session, message);
+                    activityController.registerUserSession(session, message);
                     return true;
                 }
 
@@ -119,6 +123,7 @@ public class CometdEndpoint {
             searchService = new SearchService(filterBuilder, searchController);
             cometdAnnotationProcessor.process(searchService);
             cometdAnnotationProcessor.process(notificationController);
+            cometdAnnotationProcessor.process(activityController);
         }
     }
 
