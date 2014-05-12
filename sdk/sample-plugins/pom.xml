@@ -69,7 +69,6 @@
                         org.opengis.filter.sort,				
 						org.osgi.service.blueprint,
 						javax.security.auth,
-						org.apache.log4j,
 						org.slf4j
 					</Import-Package>
 				</instructions>
