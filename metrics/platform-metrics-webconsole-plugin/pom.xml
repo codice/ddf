@@ -71,11 +71,6 @@
     </dependency>
 
 	<dependency>
-   	    <groupId>log4j</groupId>
-   	    <artifactId>log4j</artifactId>
-    </dependency>
-    
-	<dependency>
 		<groupId>org.apache.felix</groupId>
 		<artifactId>org.apache.felix.webconsole</artifactId>
 		<version>4.0.0</version>

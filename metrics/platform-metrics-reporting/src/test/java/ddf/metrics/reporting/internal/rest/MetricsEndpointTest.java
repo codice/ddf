@@ -44,11 +44,6 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
-import org.apache.log4j.Appender;
-import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
-import org.apache.log4j.PatternLayout;
 import org.apache.poi.hslf.model.Slide;
 import org.apache.poi.hslf.usermodel.SlideShow;
 import org.apache.poi.hssf.usermodel.HSSFRow;
@@ -69,13 +64,15 @@ import org.rrd4j.core.RrdDb;
 import org.rrd4j.core.RrdDbPool;
 import org.rrd4j.core.RrdDef;
 import org.rrd4j.core.Sample;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ddf.metrics.reporting.internal.MetricsEndpointException;
 import ddf.metrics.reporting.internal.MetricsGraphException;
 import ddf.metrics.reporting.internal.rrd4j.RrdMetricsRetriever;
 
 public class MetricsEndpointTest extends XMLTestCase {
-    private static final transient Logger LOGGER = Logger.getLogger(MetricsEndpointTest.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(MetricsEndpointTest.class);
 
     private static final String TEST_DIR = "target/";
 
@@ -87,16 +84,6 @@ public class MetricsEndpointTest extends XMLTestCase {
     private RrdDb rrdDb;
 
     private String rrdPath;
-
-    @BeforeClass
-    public static void oneTimeSetup() {
-        // Format logger output
-        BasicConfigurator.configure();
-        ((PatternLayout) ((Appender) Logger.getRootLogger().getAllAppenders().nextElement())
-                .getLayout()).setConversionPattern("[%30.30t] %-30.30c{1} %-5p %m%n");
-
-        Logger.getRootLogger().setLevel(Level.INFO);
-    }
 
     @Test
     public void testParseDate() {
@@ -131,7 +118,7 @@ public class MetricsEndpointTest extends XMLTestCase {
         endpoint.setMetricsDir(TEST_DIR);
         Response response = endpoint.getMetricsList(uriInfo);
         String metricsList = (String) response.getEntity();
-        LOGGER.debug("metricsList = " + metricsList);
+        LOGGER.debug("metricsList = {}", metricsList);
 
         cleanupRrd();
 
@@ -163,7 +150,7 @@ public class MetricsEndpointTest extends XMLTestCase {
         while (metricsIter.hasNext()) {
             Map.Entry entry = (Map.Entry) metricsIter.next();
             Map metricTimeRangeLinks = (Map) entry.getValue();
-            LOGGER.debug("metricTimeRangeLinks = " + metricTimeRangeLinks);
+            LOGGER.debug("metricTimeRangeLinks = {}", metricTimeRangeLinks);
 
             // Verify each metric name, e.g., "uptime", has all of the time ranges represented
             assertThat(metricTimeRangeLinks.containsKey("15m"), is(true));
@@ -325,7 +312,7 @@ public class MetricsEndpointTest extends XMLTestCase {
         cleanupRrd();
 
         String xml = (String) response.getEntity();
-        LOGGER.debug("xml = " + xml);
+        LOGGER.debug("xml = {}", xml);
 
         // Requires XmlUnit, but when this class extends XMLTestCase causes test case
         // testGetMetricsGraphWithDateOffsetAndDates to fail (exception is thrown but
@@ -357,7 +344,7 @@ public class MetricsEndpointTest extends XMLTestCase {
         cleanupRrd();
 
         String csv = (String) response.getEntity();
-        LOGGER.debug("csv = " + csv);
+        LOGGER.debug("csv = {}", csv);
 
         // Break up CSV data into its individual lines
         // Each line should have 2 parts (cells)
@@ -469,7 +456,7 @@ public class MetricsEndpointTest extends XMLTestCase {
         cleanupRrd();
 
         String json = (String) response.getEntity();
-        LOGGER.debug("json = " + json);
+        LOGGER.debug("json = {}", json);
 
         JSONParser parser = new JSONParser();
         JSONObject jsonObj = (JSONObject) parser.parse(json);
@@ -486,8 +473,7 @@ public class MetricsEndpointTest extends XMLTestCase {
         // Verify each retrieved sample has a timestamp and value
         for (int i = 0; i < samples.size(); i++) {
             JSONObject sample = (JSONObject) samples.get(i);
-            LOGGER.debug("timestamp = " + (String) sample.get("timestamp") + ",   value = "
-                    + sample.get("value"));
+            LOGGER.debug("timestamp = {},   value = {}", (String) sample.get("timestamp"), sample.get("value"));
             assertThat(sample.get("timestamp"), not(nullValue()));
             assertThat(sample.get("value"), not(nullValue()));
         }
@@ -650,7 +636,7 @@ public class MetricsEndpointTest extends XMLTestCase {
         long[] timestamps = fetchData.getTimestamps();
         double[] values = fetchData.getValues(0);
         for (int i = 0; i < timestamps.length; i++) {
-            LOGGER.debug(getCalendarTime(timestamps[i]) + ":  " + values[i]);
+            LOGGER.debug("{}:  {}", getCalendarTime(timestamps[i]), values[i]);
         }
 
         rrdDb.close();
@@ -709,12 +695,12 @@ public class MetricsEndpointTest extends XMLTestCase {
         if (rrdFile.exists()) {
             boolean status = rrdFile.delete();
             if (status) {
-                LOGGER.debug("Successfully deleted rrdFile " + rrdPath);
+                LOGGER.debug("Successfully deleted rrdFile {}", rrdPath);
             } else {
-                LOGGER.debug("Unable to delete rrdFile " + rrdPath);
+                LOGGER.debug("Unable to delete rrdFile {}", rrdPath);
             }
         } else {
-            LOGGER.debug("rrdFile " + rrdPath + " does not exist - cannot delete");
+            LOGGER.debug("rrdFile {} does not exist - cannot delete", rrdPath);
         }
     }
 

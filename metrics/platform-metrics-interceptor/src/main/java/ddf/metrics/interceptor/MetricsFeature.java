@@ -17,7 +17,8 @@ package ddf.metrics.interceptor;
 import org.apache.cxf.Bus;
 import org.apache.cxf.feature.AbstractFeature;
 import org.apache.cxf.interceptor.InterceptorProvider;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Used to register interceptors with the cxf InterceptorProviders.
@@ -33,11 +34,11 @@ public class MetricsFeature extends AbstractFeature {
 
     private static final String CLASS_NAME = "MetricsFeature";
 
-    private static final Logger LOGGER = Logger.getLogger(MetricsFeature.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(MetricsFeature.class);
 
     @Override
     protected void initializeProvider(InterceptorProvider provider, Bus bus) {
-        LOGGER.debug("ENTERING:" + CLASS_NAME + ".initializeProvider");
+        LOGGER.debug("ENTERING: {}.initializeProvider", CLASS_NAME);
         provider.getInInterceptors().add(METRICS_IN);
         provider.getOutInterceptors().add(METRICS_OUT);
     }

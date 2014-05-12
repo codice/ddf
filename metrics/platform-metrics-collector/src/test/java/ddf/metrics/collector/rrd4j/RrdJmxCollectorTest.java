@@ -25,9 +25,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Calendar;
 
-import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -39,12 +36,14 @@ import org.rrd4j.core.FetchData;
 import org.rrd4j.core.FetchRequest;
 import org.rrd4j.core.Header;
 import org.rrd4j.core.RrdDb;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ddf.metrics.collector.CollectorException;
 
 public class RrdJmxCollectorTest {
 
-    private static final transient Logger LOGGER = Logger.getLogger(RrdJmxCollectorTest.class);
+    private static final transient Logger LOGGER = LoggerFactory.getLogger(RrdJmxCollectorTest.class);
 
     private static final String TEST_DIR = "target/";
 
@@ -55,13 +54,6 @@ public class RrdJmxCollectorTest {
     public String rrdPath;
 
     public String dataSourceName;
-
-    @BeforeClass
-    public static void oneTimeSetup() {
-        // Format logger output
-        BasicConfigurator.configure();
-        Logger.getRootLogger().setLevel(Level.INFO);
-    }
 
     @After
     public void tearDown() throws Exception {
@@ -83,12 +75,12 @@ public class RrdJmxCollectorTest {
         if (rrdFile.exists()) {
             boolean status = rrdFile.delete();
             if (status) {
-                LOGGER.debug("Successfully deleted rrdFile " + path);
+                LOGGER.debug("Successfully deleted rrdFile {}", path);
             } else {
-                LOGGER.debug("Unable to delete rrdFile " + path);
+                LOGGER.debug("Unable to delete rrdFile {}", path);
             }
         } else {
-            LOGGER.debug("rrdFile " + path + " does not exist - cannot delete");
+            LOGGER.debug("rrdFile {} does not exist - cannot delete", path);
         }
     }
 
@@ -348,7 +340,7 @@ public class RrdJmxCollectorTest {
         Header header = rrdDb.getHeader();
 
         // Wait for "n" iterations of RRDB's sample rate, then see if MBean value was collected
-        LOGGER.debug("Sleeping for " + (header.getStep() * numRrdStepIterations) + " seconds");
+        LOGGER.debug("Sleeping for {} seconds", header.getStep() * numRrdStepIterations);
         Thread.sleep((header.getStep() * numRrdStepIterations) * 1000);
 
         // LOGGER.debug(rrdDb.dump());
@@ -359,7 +351,7 @@ public class RrdJmxCollectorTest {
         // endTime=12345, so startTime=12345-4=12341,
         // then fetch data for timestamps 12341, 12342, 12343, 12344, 12345 (which is 5 values)
         long startTime = endTime - numRrdStepIterations + 1;
-        LOGGER.debug("startTime = " + startTime + ",   endTime = " + endTime);
+        LOGGER.debug("startTime = {}, endTime = {}", startTime, endTime);
 
         FetchRequest fetchRequest = rrdDb.createFetchRequest(ConsolFun.TOTAL, startTime, endTime);
         FetchData fetchData = fetchRequest.fetchData();
@@ -387,14 +379,14 @@ public class RrdJmxCollectorTest {
     }
 
     private void logFetchData(FetchData fetchData, String dataType) throws Exception {
-        LOGGER.debug("*************  " + dataType + "  **************");
+        LOGGER.debug("*************  {}  **************", dataType);
 
         long[] timestamps = fetchData.getTimestamps();
         double[] values = fetchData.getValues(dataSourceName);
 
         int i = 0;
         for (double val : values) {
-            LOGGER.debug("timestamp[" + i + "]: " + timestamps[i] + ",   val = " + val);
+            LOGGER.debug("timestamp[{}]: {},   val = {}", i, timestamps[i], val);
             i++;
         }
 
