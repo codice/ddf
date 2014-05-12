@@ -130,9 +130,12 @@
 			<entry key="shortname" value="sorted" />
 		</service-properties>
 	</service>
+  
+    <reference-list id="resourceActionProviderList" interface="ddf.action.ActionProvider" filter="(id=catalog.data.metacard.resource)" availability="optional"/>
 
     <bean id="retrieveStatusEventPublisher" class="ddf.catalog.event.retrievestatus.DownloadsStatusEventPublisher">
         <argument ref="eventAdmin" />
+        <argument ref="resourceActionProviderList" />
     </bean>
 
     <reference id="cacheManager" interface="ddf.cache.CacheManager" />

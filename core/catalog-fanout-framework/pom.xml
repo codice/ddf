@@ -46,7 +46,11 @@
         <dependency>
             <groupId>org.codice.ddf</groupId>
             <artifactId>notifications</artifactId>
-        </dependency>        
+        </dependency>       
+        <dependency>
+          <groupId>org.codice.ddf</groupId>
+          <artifactId>activities</artifactId>
+        </dependency> 
 		<dependency>
 			<groupId>ddf.catalog.core</groupId>
 			<artifactId>catalog-core-api-impl</artifactId>
@@ -63,7 +67,7 @@
 				<configuration>
 					<instructions>
 						<Bundle-SymbolicName>${project.artifactId};blueprint.graceperiod:=true;blueprint.timeout:=604800000</Bundle-SymbolicName>
-						<Embed-Dependency>catalog-core-standardframework, guava, notifications</Embed-Dependency>
+						<Embed-Dependency>catalog-core-standardframework, guava, notifications, activities</Embed-Dependency>
 						<Private-Package>ddf.catalog.fanout,ddf.catalog.data.impl</Private-Package>
 						<Export-Package />
 					</instructions>
