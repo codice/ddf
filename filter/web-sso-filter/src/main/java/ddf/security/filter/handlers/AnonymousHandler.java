@@ -15,6 +15,8 @@
 package ddf.security.filter.handlers;
 
 
+import ddf.security.filter.AuthenticationHandler;
+import ddf.security.filter.FilterResult;
 import org.apache.cxf.sts.QNameConstants;
 import org.apache.cxf.ws.security.sts.provider.model.secext.AttributedString;
 import org.apache.cxf.ws.security.sts.provider.model.secext.PasswordString;

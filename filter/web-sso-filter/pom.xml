@@ -22,8 +22,8 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <name>DDF :: Security :: Filter :: Basic</name>
-    <artifactId>security-filter-basic</artifactId>
+    <name>DDF :: Security :: Filter :: Web-SSO</name>
+    <artifactId>web-sso-filter</artifactId>
     <packaging>bundle</packaging>
 
     <dependencies>

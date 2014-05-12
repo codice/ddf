@@ -15,12 +15,8 @@
 package ddf.security.filter;
 
 import ddf.security.filter.handlers.AnonymousHandler;
-import ddf.security.filter.handlers.AuthenticationHandler;
-import ddf.security.filter.handlers.FilterResult;
-import ddf.security.filter.handlers.FilterResult.FilterStatus;
+import ddf.security.filter.FilterResult.FilterStatus;
 import ddf.security.filter.handlers.SAMLAssertionHandler;
-import org.apache.cxf.ws.security.tokenstore.SecurityToken;
-import org.apache.shiro.authc.AuthenticationToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,12 +32,12 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Map;
 
-public class TokenNormalizer implements Filter {
+public class WebSSOFilter implements Filter {
     private static final String DDF_SECURITY_TOKEN = "ddf.security.securityToken";
 
     private static final String DDF_AUTHENTICATION_TOKEN = "ddf.security.token";
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(TokenNormalizer.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(WebSSOFilter.class);
 
     ArrayList<AuthenticationHandler> authenticationHandlers = new ArrayList<AuthenticationHandler>();
 
@@ -83,25 +79,25 @@ public class TokenNormalizer implements Filter {
             }
         }
 
-        // If there is nothing more to do - the plugins have already redirected or responded, just exit without
-        // invoking the chain
-        if (result != null && result.getStatus() == FilterStatus.COMPLETED) {
-            LOGGER.debug("Stopping filter chain - handled by plugins");
-            return;
+        switch (result.getStatus()) {
+            case REDIRECTED:
+                LOGGER.debug("Stopping filter chain - handled by plugins");
+                // return without invoking the remaining chain
+                return;
+            case NO_ACTION: // should never occur
+            case COMPLETED:
+                // set the appropriate request attribute
+                if (result.hasSecurityToken()) {
+                    LOGGER.debug("Attaching SecurityToken to http request");
+                    httpRequest.setAttribute(DDF_SECURITY_TOKEN, result.getCredentials());
+                } else {
+                    LOGGER.debug("Attaching AuthenticationToken to http request");
+                    httpRequest.setAttribute(DDF_AUTHENTICATION_TOKEN, result);
+                }
+                break;
         }
 
-        // Attach the tokens to the correct http request attribute if we found them
-        if (result != null && result.getStatus() == FilterStatus.COMPLETED) {
-            if (result.hasSecurityToken()) {
-                LOGGER.debug("Attaching SecurityToken to http request");
-                httpRequest.setAttribute(DDF_SECURITY_TOKEN, result.getCredentials());
-            } else {
-                LOGGER.debug("Attaching AuthenticationToken to http request");
-                httpRequest.setAttribute(DDF_AUTHENTICATION_TOKEN, result);
-            }
-        }
-
-        // Now invoke the next link in the chain
+        // If we got here, we've received our tokens to continue
         LOGGER.debug("Invoking the rest of the filter chain");
         filterChain.doFilter(servletRequest, servletResponse);
     }

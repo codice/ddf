@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-package ddf.security.filter.handlers;
+package ddf.security.filter;
 
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
 import org.apache.shiro.authc.AuthenticationToken;

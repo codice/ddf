@@ -26,7 +26,9 @@ import java.io.StringReader;
 import java.util.Map;
 import java.util.zip.DataFormatException;
 
+import ddf.security.filter.AuthenticationHandler;
 import ddf.security.filter.DeflateEncoderDecoder;
+import ddf.security.filter.FilterResult;
 import ddf.security.filter.FilterUtils;
 import org.apache.cxf.common.util.Base64Exception;
 import org.apache.cxf.common.util.Base64Utility;
