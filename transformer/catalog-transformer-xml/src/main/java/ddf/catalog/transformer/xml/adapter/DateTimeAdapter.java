@@ -23,7 +23,8 @@ import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.impl.AttributeImpl;
@@ -31,7 +32,7 @@ import ddf.catalog.transformer.xml.binding.DateTimeElement;
 
 public class DateTimeAdapter extends XmlAdapter<DateTimeElement, Attribute> {
 
-    private static final Logger LOGGER = Logger.getLogger(DateTimeAdapter.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DateTimeAdapter.class);
 
     @Override
     public DateTimeElement marshal(Attribute attribute) {

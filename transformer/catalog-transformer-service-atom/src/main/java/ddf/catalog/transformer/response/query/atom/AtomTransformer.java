@@ -39,9 +39,10 @@ import org.apache.abdera.model.Feed;
 import org.apache.abdera.model.Link;
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
 import org.codice.ddf.configuration.ConfigurationManager;
 import org.codice.ddf.configuration.ConfigurationWatcher;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.io.ParseException;
@@ -85,7 +86,7 @@ public class AtomTransformer implements QueryResponseTransformer, ConfigurationW
 
     private static final String COULD_NOT_CREATE_XML_CONTENT_MESSAGE = "Could not create xml content. Running default behavior.";
 
-    private static final Logger LOGGER = Logger.getLogger(AtomTransformer.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AtomTransformer.class);
 
     public static final MimeType MIME_TYPE = new MimeType();
     static {
@@ -93,7 +94,7 @@ public class AtomTransformer implements QueryResponseTransformer, ConfigurationW
             MIME_TYPE.setPrimaryType("application");
             MIME_TYPE.setSubType("atom+xml");
         } catch (MimeTypeParseException e) {
-            LOGGER.info(e);
+            LOGGER.info("MimeType exception during static setup", e);
             throw new ExceptionInInitializerError(e);
         }
     }
@@ -346,7 +347,7 @@ public class AtomTransformer implements QueryResponseTransformer, ConfigurationW
                             atomContentType = Type.XML;
                         }
                     } catch (IOException e) {
-                        LOGGER.warn(COULD_NOT_CREATE_XML_CONTENT_MESSAGE);
+                        LOGGER.warn(COULD_NOT_CREATE_XML_CONTENT_MESSAGE, e);
                     }
                 }
             }
@@ -446,8 +447,7 @@ public class AtomTransformer implements QueryResponseTransformer, ConfigurationW
                             georssPositions.addAll(formatter.toGeoRssPositions());
 
                         } catch (ParseException e) {
-                            LOGGER.info("When cycling through geometries, could not parse [" + geo
-                                    + "]", e);
+                            LOGGER.info("When cycling through geometries, could not parse [{}]", geo, e);
                         }
 
                     }

@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import org.apache.log4j.Logger;
 import org.apache.lucene.store.Directory;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
@@ -31,6 +30,8 @@ import org.osgi.service.event.Event;
 import org.osgi.service.event.EventAdmin;
 import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.Metacard;
@@ -72,16 +73,16 @@ public class EventProcessorImpl implements EventProcessor, EventHandler, PostIng
 
     private Map<String, ServiceRegistration> existingSubscriptions;
 
-    private static Logger logger = Logger.getLogger(EventProcessorImpl.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(EventProcessorImpl.class);
 
     public EventProcessorImpl() {
-        logger.debug("INSIDE: EventProcessorImpl default constructor");
+        LOGGER.debug("INSIDE: EventProcessorImpl default constructor");
     }
 
     public EventProcessorImpl(BundleContext bundleContext, EventAdmin eventAdmin,
             List<PreSubscriptionPlugin> preSubscription, List<PreDeliveryPlugin> preDelivery,
             CatalogFramework catalog) {
-        logger.trace("ENTERING: EventProcessorImpl constructor");
+        LOGGER.trace("ENTERING: EventProcessorImpl constructor");
 
         this.bundleContext = bundleContext;
         this.eventAdmin = eventAdmin;
@@ -90,36 +91,34 @@ public class EventProcessorImpl implements EventProcessor, EventHandler, PostIng
         this.catalog = catalog;
         this.existingSubscriptions = new HashMap<String, ServiceRegistration>();
 
-        if (logger.isDebugEnabled()) {
-            if (this.preSubscription == null) {
-                logger.debug("preSubscription plugins list is NULL");
-            } else {
-                logger.debug("preSubscription plugin list size = " + this.preSubscription.size());
-            }
-
-            if (this.preDelivery == null) {
-                logger.debug("preDelivery plugins list is NULL");
-            } else {
-                logger.debug("preDelivery plugin list size = " + this.preDelivery.size());
-            }
+        if (this.preSubscription == null) {
+            LOGGER.debug("preSubscription plugins list is NULL");
+        } else {
+            LOGGER.debug("preSubscription plugin list size = {}", this.preSubscription.size());
         }
 
-        logger.trace("EXITING: EventProcessorImpl constructor");
+        if (this.preDelivery == null) {
+            LOGGER.debug("preDelivery plugins list is NULL");
+        } else {
+            LOGGER.debug("preDelivery plugin list size = {}", this.preDelivery.size());
+        }
+
+        LOGGER.trace("EXITING: EventProcessorImpl constructor");
     }
 
     public void init() {
         String methodName = "init";
-        logger.debug("ENTERING: " + methodName);
+        LOGGER.debug("ENTERING: {}", methodName);
 
-        logger.debug("EXITING: " + methodName);
+        LOGGER.debug("EXITING: {}", methodName);
 
     }
 
     public void destroy() {
         String methodName = "destroy";
-        logger.debug("ENTERING: " + methodName);
+        LOGGER.debug("ENTERING: {}", methodName);
 
-        logger.debug("EXITING: " + methodName);
+        LOGGER.debug("EXITING: {}", methodName);
     }
 
     /**
@@ -130,21 +129,21 @@ public class EventProcessorImpl implements EventProcessor, EventHandler, PostIng
      */
     public void handleEvent(Event event) {
         String methodName = "handleEvent";
-        logger.debug("ENTERING: " + methodName);
+        LOGGER.debug("ENTERING: {}", methodName);
 
-        logger.debug("Received event: " + event.getTopic());
+        LOGGER.debug("Received event: {}", event.getTopic());
 
         if (!existingSubscriptions.isEmpty()) {
             String topic = event.getTopic();
             Metacard entry = (Metacard) event.getProperty(EventProcessor.EVENT_METACARD);
-            logger.debug("metacard ID = " + entry.getId());
+            LOGGER.debug("metacard ID = {}", entry.getId());
 
             new PubSubThread(entry, topic, eventAdmin).start();
         } else {
-            logger.debug("No existing subscriptions, so no need to handle event since there is no one listening ...");
+            LOGGER.debug("No existing subscriptions, so no need to handle event since there is no one listening ...");
         }
 
-        logger.debug("EXITING: " + methodName);
+        LOGGER.debug("EXITING: {}", methodName);
     }
 
     @Override
@@ -155,7 +154,7 @@ public class EventProcessorImpl implements EventProcessor, EventHandler, PostIng
         } catch (SubscriptionExistsException e) {
             // This is extremely unlikely to happen. A UUID should never match
             // another subscription ID
-            logger.debug("UUID matched previously registered subscription.", e);
+            LOGGER.debug("UUID matched previously registered subscription.", e);
             throw new InvalidSubscriptionException(e);
         }
 
@@ -166,19 +165,19 @@ public class EventProcessorImpl implements EventProcessor, EventHandler, PostIng
     public void createSubscription(Subscription subscription, String subscriptionId)
         throws InvalidSubscriptionException, SubscriptionExistsException {
         String methodName = "createSubscription";
-        logger.debug("ENTERING: " + methodName);
+        LOGGER.debug("ENTERING: {}", methodName);
 
-        logger.info("Creating Evaluation Criteria... ");
+        LOGGER.info("Creating Evaluation Criteria... ");
 
         try {
             for (PreSubscriptionPlugin plugin : preSubscription) {
-                logger.debug("Processing subscription with preSubscription plugin");
+                LOGGER.debug("Processing subscription with preSubscription plugin");
                 subscription = plugin.process(subscription);
             }
 
             SubscriptionFilterVisitor visitor = new SubscriptionFilterVisitor();
             Predicate finalPredicate = (Predicate) subscription.accept(visitor, null);
-            logger.debug("predicate from filter visitor: " + finalPredicate);
+            LOGGER.debug("predicate from filter visitor: {}", finalPredicate);
 
             String[] topics = new String[] {PubSubConstants.PUBLISHED_EVENT_TOPIC_NAME};
 
@@ -190,59 +189,58 @@ public class EventProcessorImpl implements EventProcessor, EventHandler, PostIng
 
             existingSubscriptions.put(subscriptionId, serviceRegistration);
 
-            logger.debug("Subscription " + subscriptionId + " created.");
+            LOGGER.debug("Subscription {} created.", subscriptionId);
         } catch (Exception e) {
-            logger.error("Error while creating subscription predicate: ", e);
+            LOGGER.error("Error while creating subscription predicate: ", e);
             throw new InvalidSubscriptionException(e);
         }
 
-        logger.debug("EXITING: " + methodName);
+        LOGGER.debug("EXITING: {}", methodName);
     }
 
     @Override
     public void updateSubscription(Subscription subscription, String subscriptionId)
         throws SubscriptionNotFoundException {
         String methodName = "updateSubscription";
-        logger.debug("ENTERING: " + methodName);
+        LOGGER.debug("ENTERING: {}", methodName);
 
         try {
             deleteSubscription(subscriptionId);
 
             createSubscription(subscription, subscriptionId);
 
-            logger.debug("Updated " + subscriptionId);
+            LOGGER.debug("Updated {}", subscriptionId);
         } catch (Exception e) {
-            logger.error("Could not update subscription", e);
+            LOGGER.error("Could not update subscription", e);
             throw new SubscriptionNotFoundException(e);
         }
 
-        logger.debug("EXITING: " + methodName);
+        LOGGER.debug("EXITING: {}", methodName);
     }
 
     @Override
     public void deleteSubscription(String subscriptionId) throws SubscriptionNotFoundException {
         String methodName = "deleteSubscription";
-        logger.debug("ENTERING: " + methodName);
+        LOGGER.debug("ENTERING: {}", methodName);
 
         try {
-            logger.info("Removing subscription: " + subscriptionId);
+            LOGGER.info("Removing subscription: {}", subscriptionId);
             ServiceRegistration sr = (ServiceRegistration) existingSubscriptions
                     .get(subscriptionId);
             if (sr != null) {
                 sr.unregister();
-                logger.debug("Removal complete");
+                LOGGER.debug("Removal complete");
                 existingSubscriptions.remove(subscriptionId);
             } else {
-                logger.info("Unable to find existing subscription: " + subscriptionId
-                        + ".  May already be deleted.");
+                LOGGER.info("Unable to find existing subscription: {}.  May already be deleted.", subscriptionId);
             }
 
         } catch (Exception e) {
-            logger.debug("Could not delete subscription for " + subscriptionId);
-            logger.error(e);
+            LOGGER.debug("Could not delete subscription for {}", subscriptionId);
+            LOGGER.error("Exception deleting subscription", e);
         }
 
-        logger.debug("EXITING: " + methodName);
+        LOGGER.debug("EXITING: " + methodName);
     }
 
     /**
@@ -257,14 +255,12 @@ public class EventProcessorImpl implements EventProcessor, EventHandler, PostIng
      */
     public static void processEntry(Metacard metacard, String operation, EventAdmin eventAdmin) {
         String methodName = "processEntry";
-        logger.debug("ENTERING: " + methodName);
+        LOGGER.debug("ENTERING: " + methodName);
 
         if (metacard != null) {
-            if (logger.isDebugEnabled()) {
-                logger.debug("Input Metacard:\n" + metacard.toString());
-                logger.debug("catalog ID = " + metacard.getId());
-                logger.debug("operation = " + operation);
-            }
+            LOGGER.debug("Input Metacard:{}\n", metacard.toString());
+            LOGGER.debug("catalog ID = {}", metacard.getId());
+            LOGGER.debug("operation = {}", operation);
 
             HashMap<String, Object> properties = new HashMap<String, Object>();
 
@@ -280,14 +276,13 @@ public class EventProcessorImpl implements EventProcessor, EventHandler, PostIng
                 URI uri = metacard.getResourceURI();
                 if (uri != null) {
                     String productUri = uri.toString();
-                    logger.debug("Processing incoming entry.  Adding DAD URI to event properties: "
-                            + productUri);
+                    LOGGER.debug("Processing incoming entry.  Adding DAD URI to event properties: {}", productUri);
                     // TODO: probably just get this info from the Metacard, Probably don't need to
                     // create new property for this
                     properties.put(PubSubConstants.HEADER_DAD_KEY, productUri);
                 }
             } catch (Exception e) {
-                logger.warn(
+                LOGGER.warn(
                         "Unable to obtain resource URL, will not be considered in subscription", e);
             }
 
@@ -297,14 +292,14 @@ public class EventProcessorImpl implements EventProcessor, EventHandler, PostIng
             if (type != null) {
                 contentType = type;
             } else {
-                logger.debug("contentType is null");
+                LOGGER.debug("contentType is null");
             }
 
             String version = metacard.getContentTypeVersion();
 
             contentType = contentType + "," + (version == null ? "" : version);
 
-            logger.debug("contentType = " + contentType);
+            LOGGER.debug("contentType = {}", contentType);
 
             properties.put(PubSubConstants.HEADER_CONTENT_TYPE_KEY, contentType);
 
@@ -331,7 +326,7 @@ public class EventProcessorImpl implements EventProcessor, EventHandler, PostIng
                     contextualMap.put("METADATA", metacard.getMetadata());
                     properties.put(PubSubConstants.HEADER_CONTEXTUAL_KEY, contextualMap);
                 } catch (Exception e) {
-                    logger.error(e);
+                    LOGGER.error("Exception updating context map", e);
                 }
             }
 
@@ -339,45 +334,45 @@ public class EventProcessorImpl implements EventProcessor, EventHandler, PostIng
                 eventAdmin.postEvent(new Event(PubSubConstants.PUBLISHED_EVENT_TOPIC_NAME,
                         properties));
             } else {
-                logger.warn("Unable to post event since eventAdmin is null.");
+                LOGGER.warn("Unable to post event since eventAdmin is null.");
             }
         } else {
-            logger.warn("Unable to post null metacard.");
+            LOGGER.warn("Unable to post null metacard.");
         }
 
-        logger.debug("EXITING: " + methodName);
+        LOGGER.debug("EXITING: {}", methodName);
     }
 
     public Predicate createFinalPredicate(Subscription subscription) {
         String methodName = "createFinalPredicate";
-        logger.debug("ENTERING: " + methodName);
+        LOGGER.debug("ENTERING: {}", methodName);
 
         Predicate finalPredicate = null;
 
-        logger.debug("EXITING: " + methodName);
+        LOGGER.debug("EXITING: {}", methodName);
 
         return finalPredicate;
     }
 
     @Override
     public void notifyCreated(Metacard newMetacard) {
-        logger.trace("ENTERING: notifyCreated");
+        LOGGER.trace("ENTERING: notifyCreated");
         postEvent(EventProcessor.EVENTS_TOPIC_CREATED, newMetacard, null);
-        logger.trace("EXITING: notifyCreated");
+        LOGGER.trace("EXITING: notifyCreated");
     }
 
     @Override
     public void notifyUpdated(Metacard newMetacard, Metacard oldMetacard) {
-        logger.trace("ENTERING: notifyUpdated");
+        LOGGER.trace("ENTERING: notifyUpdated");
         postEvent(EventProcessor.EVENTS_TOPIC_UPDATED, newMetacard, oldMetacard);
-        logger.trace("EXITING: notifyUpdated");
+        LOGGER.trace("EXITING: notifyUpdated");
     }
 
     @Override
     public void notifyDeleted(Metacard oldMetacard) {
-        logger.trace("ENTERING: notifyDeleted");
+        LOGGER.trace("ENTERING: notifyDeleted");
         postEvent(EventProcessor.EVENTS_TOPIC_DELETED, oldMetacard, null);
-        logger.trace("EXITING: notifyDeleted");
+        LOGGER.trace("EXITING: notifyDeleted");
     }
 
     /**
@@ -390,9 +385,9 @@ public class EventProcessorImpl implements EventProcessor, EventHandler, PostIng
      */
     protected void postEvent(String topic, Metacard card, Metacard oldCard) {
         String methodName = "postEvent";
-        logger.debug("ENTERING: " + methodName);
+        LOGGER.debug("ENTERING: {}", methodName);
 
-        logger.debug("Posting to topic: " + topic);
+        LOGGER.debug("Posting to topic: {}", topic);
 
         Dictionary<String, Object> properties = new Hashtable<String, Object>();
         properties.put(EventProcessor.EVENT_METACARD, card);
@@ -404,40 +399,40 @@ public class EventProcessorImpl implements EventProcessor, EventHandler, PostIng
         Event event = new Event(topic, properties);
         eventAdmin.postEvent(event);
 
-        logger.debug("EXITING: " + methodName);
+        LOGGER.debug("EXITING: {}", methodName);
     }
 
     @Override
     public CreateResponse process(CreateResponse createResponse) throws PluginExecutionException {
-        logger.trace("ENTERING: process (CreateResponse");
+        LOGGER.trace("ENTERING: process (CreateResponse");
         List<Metacard> createdMetacards = createResponse.getCreatedMetacards();
         for (Metacard currMetacard : createdMetacards) {
             postEvent(EventProcessor.EVENTS_TOPIC_CREATED, currMetacard, null);
         }
-        logger.trace("EXITING: process (CreateResponse)");
+        LOGGER.trace("EXITING: process (CreateResponse)");
         return createResponse;
     }
 
     @Override
     public UpdateResponse process(UpdateResponse updateResponse) throws PluginExecutionException {
-        logger.trace("ENTERING: process (UpdateResponse");
+        LOGGER.trace("ENTERING: process (UpdateResponse");
         List<Update> updates = updateResponse.getUpdatedMetacards();
         for (Update currUpdate : updates) {
             postEvent(EventProcessor.EVENTS_TOPIC_UPDATED, currUpdate.getNewMetacard(),
                     currUpdate.getOldMetacard());
         }
-        logger.trace("EXITING: process (UpdateResponse)");
+        LOGGER.trace("EXITING: process (UpdateResponse)");
         return updateResponse;
     }
 
     @Override
     public DeleteResponse process(DeleteResponse deleteResponse) throws PluginExecutionException {
-        logger.trace("ENTERING: process (DeleteResponse");
+        LOGGER.trace("ENTERING: process (DeleteResponse");
         List<Metacard> deletedMetacards = deleteResponse.getDeletedMetacards();
         for (Metacard currMetacard : deletedMetacards) {
             postEvent(EventProcessor.EVENTS_TOPIC_DELETED, currMetacard, null);
         }
-        logger.trace("EXITING: process (DeleteResponse)");
+        LOGGER.trace("EXITING: process (DeleteResponse)");
         return deleteResponse;
     }
 

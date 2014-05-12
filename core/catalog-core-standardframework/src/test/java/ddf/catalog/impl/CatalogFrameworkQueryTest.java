@@ -28,7 +28,6 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 
-import org.apache.log4j.Logger;
 import org.geotools.filter.FilterFactoryImpl;
 import org.geotools.temporal.object.DefaultInstant;
 import org.geotools.temporal.object.DefaultPeriod;
@@ -38,6 +37,8 @@ import org.junit.Test;
 import org.opengis.filter.FilterFactory;
 import org.opengis.temporal.Instant;
 import org.opengis.temporal.Period;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ddf.catalog.data.ContentType;
 import ddf.catalog.data.Metacard;
@@ -68,7 +69,7 @@ import ddf.catalog.util.impl.CachedSource;
 import ddf.catalog.util.impl.SourcePoller;
 
 public class CatalogFrameworkQueryTest {
-    private static final Logger LOGGER = Logger.getLogger(CatalogFrameworkQueryTest.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CatalogFrameworkQueryTest.class);
 
     private CatalogFrameworkImpl framework;
 
@@ -140,7 +141,7 @@ public class CatalogFrameworkQueryTest {
 
         try {
             QueryResponse response = framework.query(queryReq);
-            LOGGER.info("Response:" + response);
+            LOGGER.info("Response:{}", response);
             assertEquals("Expecting return 2 results.", 2, response.getHits());
         } catch (UnsupportedQueryException e) {
             LOGGER.error("Failure!!!", e);

@@ -79,7 +79,7 @@ public class OpenSearchQuery implements Query {
 
     private List<Filter> filters;
 
-    private static XLogger logger = new XLogger(LoggerFactory.getLogger(OpenSearchQuery.class));
+    private static final XLogger logger = new XLogger(LoggerFactory.getLogger(OpenSearchQuery.class));
 
     private final FilterBuilder filterBuilder;
 

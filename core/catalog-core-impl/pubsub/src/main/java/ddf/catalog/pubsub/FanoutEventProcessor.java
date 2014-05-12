@@ -16,9 +16,10 @@ package ddf.catalog.pubsub;
 
 import java.util.List;
 
-import org.apache.log4j.Logger;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.Metacard;
@@ -26,54 +27,54 @@ import ddf.catalog.plugin.PreDeliveryPlugin;
 import ddf.catalog.plugin.PreSubscriptionPlugin;
 
 public class FanoutEventProcessor extends EventProcessorImpl {
-    private static Logger logger = Logger.getLogger(FanoutEventProcessor.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(FanoutEventProcessor.class);
 
     public FanoutEventProcessor(BundleContext bundleContext, EventAdmin eventAdmin,
             List<PreSubscriptionPlugin> preSubscription, List<PreDeliveryPlugin> preDelivery,
             CatalogFramework catalog) {
         super(bundleContext, eventAdmin, preSubscription, preDelivery, catalog);
 
-        logger.trace("EXITING: FanoutEventProcessor constructor");
+        LOGGER.trace("EXITING: FanoutEventProcessor constructor");
     }
 
     public void init() {
         String methodName = "init";
-        logger.debug("ENTERING: " + methodName);
+        LOGGER.debug("ENTERING: {}", methodName);
 
-        logger.debug("EXITING: " + methodName);
+        LOGGER.debug("EXITING: {}", methodName);
     }
 
     public void destroy() {
         String methodName = "destroy";
-        logger.debug("ENTERING: " + methodName);
+        LOGGER.debug("ENTERING: {}", methodName);
 
-        logger.debug("EXITING: " + methodName);
+        LOGGER.debug("EXITING: {}", methodName);
     }
 
     @Override
     public void notifyCreated(Metacard newMetacard) {
         String methodName = "notifyCreated";
-        logger.trace("ENTERING: " + methodName);
+        LOGGER.trace("ENTERING: {}", methodName);
 
         // In fanout, set event metacard's site name to fanout site name
         // to mask name of site that sent event
-        logger.trace("Setting metacard's source ID to " + catalog.getId());
+        LOGGER.trace("Setting metacard's source ID to {}", catalog.getId());
         newMetacard.setSourceId(catalog.getId());
 
         // postEvent( EventProcessor.EVENTS_TOPIC_CREATED, newMetacard );
         super.notifyCreated(newMetacard);
 
-        logger.trace("EXITING: " + methodName);
+        LOGGER.trace("EXITING: {}", methodName);
     }
 
     @Override
     public void notifyUpdated(Metacard newMetacard, Metacard oldMetacard) {
         String methodName = "notifyUpdated";
-        logger.trace("ENTERING: " + methodName);
+        LOGGER.trace("ENTERING: {}", methodName);
 
         // In fanout, set event metacard's site name to fanout site name
         // to mask name of site that sent event
-        logger.trace("Setting metacard's source ID to " + catalog.getId());
+        LOGGER.trace("Setting metacard's source ID to {}", catalog.getId());
         if (oldMetacard != null) {
             oldMetacard.setSourceId(catalog.getId());
         }
@@ -82,23 +83,23 @@ public class FanoutEventProcessor extends EventProcessorImpl {
         // postEvent( EventProcessor.EVENTS_TOPIC_UPDATED, newMetacard );
         super.notifyUpdated(newMetacard, oldMetacard);
 
-        logger.trace("EXITING: " + methodName);
+        LOGGER.trace("EXITING: {}", methodName);
     }
 
     @Override
     public void notifyDeleted(Metacard oldMetacard) {
         String methodName = "notifyUDeleted";
-        logger.trace("ENTERING: " + methodName);
+        LOGGER.trace("ENTERING: {}", methodName);
 
         // In fanout, set event metacard's site name to fanout site name
         // to mask name of site that sent event
-        logger.trace("Setting metacard's source ID to " + catalog.getId());
+        LOGGER.trace("Setting metacard's source ID to {}", catalog.getId());
         oldMetacard.setSourceId(catalog.getId());
 
         // postEvent( EventProcessor.EVENTS_TOPIC_DELETED, oldMetacard );
         super.notifyDeleted(oldMetacard);
 
-        logger.trace("EXITING: " + methodName);
+        LOGGER.trace("EXITING: {}", methodName);
     }
 
 }

@@ -37,16 +37,14 @@ import org.apache.camel.Processor;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.test.junit4.CamelTestSupport;
-import org.apache.log4j.Appender;
-import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
-import org.apache.log4j.PatternLayout;
 import org.apache.tika.io.IOUtils;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.MetacardImpl;
@@ -57,7 +55,7 @@ import de.kalpatec.pojosr.framework.PojoServiceRegistryFactoryImpl;
 import de.kalpatec.pojosr.framework.launch.PojoServiceRegistry;
 
 public class CatalogComponentTest extends CamelTestSupport {
-    private static final transient Logger LOGGER = Logger.getLogger(CatalogComponentTest.class);
+    private static final transient Logger LOGGER = LoggerFactory.getLogger(CatalogComponentTest.class);
 
     private static final String SAMPLE_ID = "12345678900987654321abcdeffedcba";
 
@@ -130,16 +128,6 @@ public class CatalogComponentTest extends CamelTestSupport {
             + "  </ddms:geospatialCoverage>\n"
             + "  <ddms:security ICISM:classification=\"U\" ICISM:ownerProducer=\"USA\"/>\n"
             + "</ddms:Resource>";
-
-    @BeforeClass
-    public static void oneTimeSetup() {
-        // Format logger output
-        BasicConfigurator.configure();
-        ((PatternLayout) ((Appender) Logger.getRootLogger().getAllAppenders().nextElement())
-                .getLayout()).setConversionPattern("[%30.30t] %-30.30c{1} %-5p %m%n");
-
-        Logger.getRootLogger().setLevel(Level.DEBUG);
-    }
 
     // The route being tested
     @Override
@@ -371,7 +359,7 @@ public class CatalogComponentTest extends CamelTestSupport {
         try {
             String filter = "(&(" + MimeTypeToTransformerMapper.MIME_TYPE_KEY + "=" + mimeType
                     + ")(" + MimeTypeToTransformerMapper.ID_KEY + "=" + id + "))";
-            LOGGER.debug("Looking for InputTransformer with filter: " + filter);
+            LOGGER.debug("Looking for InputTransformer with filter: {}", filter);
             refs = bundleContext.getServiceReferences(InputTransformer.class.getName(), filter);
         } catch (Exception e) {
             String msg = "Invalid input transformer for mime type: " + mimeType;
@@ -381,7 +369,7 @@ public class CatalogComponentTest extends CamelTestSupport {
 
         if (refs != null && refs.length > 0) {
             transformer = (InputTransformer) bundleContext.getService(refs[0]);
-            LOGGER.debug("Found an InputTransformer:" + transformer.getClass().getName());
+            LOGGER.debug("Found an InputTransformer: {}", transformer.getClass().getName());
         }
 
         LOGGER.trace("EXITING: getTransformer");

@@ -67,7 +67,7 @@ public class MockQuery implements Query {
 
     private List<Filter> filters;
 
-    private static XLogger logger = new XLogger(LoggerFactory.getLogger(MockQuery.class));
+    private static final XLogger logger = new XLogger(LoggerFactory.getLogger(MockQuery.class));
 
     private static String MODIFIED_DATE = "modifiedDate";
 

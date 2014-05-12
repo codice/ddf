@@ -66,7 +66,7 @@ public class MetacardImpl implements Metacard {
 
     private static final long serialVersionUID = 1L;
 
-    private static XLogger logger = new XLogger(LoggerFactory.getLogger(MetacardImpl.class));
+    private static final XLogger logger = new XLogger(LoggerFactory.getLogger(MetacardImpl.class));
 
     /**
      * key/value map of {@link Attribute}s.

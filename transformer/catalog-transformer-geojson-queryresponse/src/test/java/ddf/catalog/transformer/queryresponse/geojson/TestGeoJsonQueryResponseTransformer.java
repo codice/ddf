@@ -32,8 +32,9 @@ import net.minidev.json.JSONObject;
 import net.minidev.json.parser.JSONParser;
 import net.minidev.json.parser.ParseException;
 
-import org.apache.log4j.Logger;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
@@ -51,8 +52,7 @@ import ddf.catalog.transformer.metacard.geojson.GeoJsonMetacardTransformer;
  */
 public class TestGeoJsonQueryResponseTransformer {
 
-    private static final Logger LOGGER = Logger
-            .getLogger(TestGeoJsonQueryResponseTransformer.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(TestGeoJsonQueryResponseTransformer.class);
 
     private static final JSONParser parser = new JSONParser();
 
@@ -160,7 +160,7 @@ public class TestGeoJsonQueryResponseTransformer {
         try {
             metacard.setResourceURI(new URI(DEFAULT_URI));
         } catch (URISyntaxException e) {
-            LOGGER.warn(e);
+            LOGGER.warn("Exception during testing", e);
         }
 
         ResultImpl result = new ResultImpl(metacard);

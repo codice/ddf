@@ -35,8 +35,9 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 
-import org.apache.log4j.Logger;
 import org.apache.xml.serializer.OutputPropertiesFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -58,7 +59,7 @@ public class XPathHelper {
     private Document document;
 
     /** The Logger for this class. */
-    private static Logger logger = Logger.getLogger(XPathHelper.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(XPathHelper.class);
 
     private final DocumentBuilderFactory dbf;
 
@@ -127,11 +128,11 @@ public class XPathHelper {
                 thread.setContextClassLoader(loader);
             }
         } catch (ParserConfigurationException e) {
-            logger.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
         } catch (SAXException e) {
-            logger.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
         } catch (IOException e) {
-            logger.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
         }
     }
 
@@ -244,9 +245,9 @@ public class XPathHelper {
 
             return stringOut.toString();
         } catch (DOMException e) {
-            logger.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
         } catch (LSException e) {
-            logger.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
         }
 
         return null;
@@ -269,11 +270,11 @@ public class XPathHelper {
             serializer.transform(new DOMSource(document), new StreamResult(writer));
             return writer.toString();
         } catch (TransformerConfigurationException e) {
-            logger.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
         } catch (TransformerFactoryConfigurationError e) {
-            logger.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
         } catch (TransformerException e) {
-            logger.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
         }
 
         return null;

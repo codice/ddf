@@ -36,7 +36,7 @@ import org.slf4j.ext.XLogger;
  * @author Hugh Rodgers
  */
 public class NamespaceResolver implements NamespaceContext {
-    private static XLogger logger = new XLogger(LoggerFactory.getLogger(NamespaceResolver.class));
+    private static final XLogger logger = new XLogger(LoggerFactory.getLogger(NamespaceResolver.class));
 
     private BundleContext bundleContext;
 

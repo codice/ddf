@@ -18,7 +18,8 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.Map.Entry;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ddf.catalog.data.Metacard;
 import ddf.catalog.operation.CreateRequest;
@@ -38,7 +39,7 @@ import ddf.catalog.plugin.StopProcessingException;
  */
 public abstract class AbstractMetacardGroomerPlugin implements PreIngestPlugin {
 
-    private static final Logger LOGGER = Logger.getLogger(AbstractMetacardGroomerPlugin.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractMetacardGroomerPlugin.class);
 
     @Override
     public CreateRequest process(CreateRequest input) throws PluginExecutionException,

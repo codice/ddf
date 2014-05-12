@@ -19,11 +19,12 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
 import org.codice.ddf.configuration.ConfigurationWatcher;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ddf.action.ActionProvider;
 import ddf.catalog.Constants;
@@ -50,7 +51,7 @@ public class ActionProviderRegistryProxy {
 
     private BundleContext bundleContext;
 
-    private static final Logger LOGGER = Logger.getLogger(ActionProviderRegistryProxy.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ActionProviderRegistryProxy.class);
 
     public ActionProviderRegistryProxy(BundleContext bundleContext) {
 
@@ -60,7 +61,7 @@ public class ActionProviderRegistryProxy {
 
     public void bind(ServiceReference reference) {
 
-        LOGGER.info("New service registered [" + reference + "]");
+        LOGGER.info("New service registered [{}]", reference);
 
         String transformerId = null;
 
@@ -94,10 +95,8 @@ public class ActionProviderRegistryProxy {
         ServiceRegistration configWatchServiceRegistration = bundleContext.registerService(
                 WATCHER_INTERFACE_NAME, provider, actionProviderProperties);
 
-        LOGGER.info("Registered new " + PROVIDER_INTERFACE_NAME + " [" + actionServiceRegistration
-                + "]");
-        LOGGER.info("Registered new " + WATCHER_INTERFACE_NAME + "["
-                + configWatchServiceRegistration + "]");
+        LOGGER.info("Registered new {} [{}]", PROVIDER_INTERFACE_NAME, actionServiceRegistration);
+        LOGGER.info("Registered new {} [{}]", WATCHER_INTERFACE_NAME, configWatchServiceRegistration);
 
         actionProviderRegistry.put(reference, actionServiceRegistration);
         configWatcherRegistry.put(reference, configWatchServiceRegistration);
@@ -114,16 +113,12 @@ public class ActionProviderRegistryProxy {
 
         if (actionProviderRegistration != null) {
             actionProviderRegistration.unregister();
-
-            LOGGER.info("Unregistered " + PROVIDER_INTERFACE_NAME + " ["
-                    + actionProviderRegistration + "]");
+            LOGGER.info("Unregistered {} [{}]", PROVIDER_INTERFACE_NAME, actionProviderRegistration);
         }
 
         if (configWatcherRegistration != null) {
             configWatcherRegistration.unregister();
-
-            LOGGER.info("Unregistered " + WATCHER_INTERFACE_NAME + " [" + configWatcherRegistration
-                    + "]");
+            LOGGER.info("Unregistered {} [{}]", WATCHER_INTERFACE_NAME, configWatcherRegistration);
         }
 
     }

@@ -43,7 +43,7 @@ import ddf.catalog.source.Source;
  */
 public class FifoFederationStrategy extends AbstractFederationStrategy {
 
-    private static XLogger logger = new XLogger(
+    private static final XLogger logger = new XLogger(
             LoggerFactory.getLogger(FifoFederationStrategy.class));
 
     /**

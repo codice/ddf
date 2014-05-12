@@ -18,7 +18,8 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ddf.catalog.data.ContentType;
 import ddf.catalog.operation.CreateRequest;
@@ -33,7 +34,7 @@ import ddf.catalog.source.CatalogProvider;
 
 public class MockDelayProvider extends MockSource implements CatalogProvider {
 
-    private static final Logger LOGGER = Logger.getLogger(MockDelayProvider.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(MockDelayProvider.class);
 
     private MockMemoryProvider provider;
 

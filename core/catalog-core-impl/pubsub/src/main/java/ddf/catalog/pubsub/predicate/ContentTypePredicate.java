@@ -19,8 +19,9 @@ import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
-import org.apache.log4j.Logger;
 import org.osgi.service.event.Event;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ddf.catalog.pubsub.criteria.contenttype.ContentTypeEvaluationCriteriaImpl;
 import ddf.catalog.pubsub.criteria.contenttype.ContentTypeEvaluator;
@@ -28,7 +29,7 @@ import ddf.catalog.pubsub.internal.PubSubConstants;
 
 public class ContentTypePredicate implements Predicate {
 
-    private static Logger logger = Logger.getLogger(ContentTypePredicate.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ContentTypePredicate.class);
 
     private String type = null;
 
@@ -44,14 +45,14 @@ public class ContentTypePredicate implements Predicate {
     }
 
     public boolean matches(Event properties) {
-        logger.debug("ENTERING: matches");
+        LOGGER.debug("ENTERING: matches");
 
         boolean status = false;
 
         Map<String, Object> contextualMap = (Map<String, Object>) properties
                 .getProperty(PubSubConstants.HEADER_CONTEXTUAL_KEY);
         String operation = (String) properties.getProperty(PubSubConstants.HEADER_OPERATION_KEY);
-        logger.debug("operation = " + operation);
+        LOGGER.debug("operation = {}", operation);
 
         if (contextualMap != null) {
             String metadata = (String) contextualMap.get("METADATA");
@@ -63,16 +64,15 @@ public class ContentTypePredicate implements Predicate {
             // cannot apply any geospatial filtering - just send the event on to the subscriber
             if (PubSubConstants.DELETE.equals(operation)
                     && PubSubConstants.METADATA_DELETED.equals(metadata)) {
-                logger.debug("Detected a DELETE operation where metadata is just the word 'deleted', so send event on to subscriber");
-                logger.debug("EXITING: matches");
+                LOGGER.debug("Detected a DELETE operation where metadata is just the word 'deleted', so send event on to subscriber");
+                LOGGER.debug("EXITING: matches");
                 return true;
             }
         }
 
         Object inputContentType = properties.getProperty(PubSubConstants.HEADER_CONTENT_TYPE_KEY);
-        if(logger.isDebugEnabled()) {
-            logger.debug("input obtained from event properties: " + ToStringBuilder.reflectionToString(inputContentType));
-        }
+        LOGGER.debug("input obtained from event properties: ", inputContentType);
+
         if (inputContentType != null) {
             ContentTypeEvaluationCriteriaImpl ctec = new ContentTypeEvaluationCriteriaImpl(this,
                     inputContentType.toString());
@@ -80,7 +80,7 @@ public class ContentTypePredicate implements Predicate {
             status = ContentTypeEvaluator.evaluate(ctec);
         }
 
-        logger.debug("EXITING: matches");
+        LOGGER.debug("EXITING: matches");
 
         return status;
     }

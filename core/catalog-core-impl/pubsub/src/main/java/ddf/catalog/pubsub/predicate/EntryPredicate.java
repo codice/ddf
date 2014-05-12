@@ -19,8 +19,9 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
 import org.osgi.service.event.Event;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ddf.catalog.pubsub.criteria.entry.DadEvaluationCriteria;
 import ddf.catalog.pubsub.criteria.entry.DadEvaluationCriteriaImpl;
@@ -35,7 +36,7 @@ public class EntryPredicate implements Predicate {
 
     private URI productUri;
 
-    private static final Logger logger = Logger.getLogger(EntryPredicate.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(EntryPredicate.class);
 
     public EntryPredicate() {
         this.catalogId = null;
@@ -53,13 +54,13 @@ public class EntryPredicate implements Predicate {
     }
 
     public boolean matches(Event properties) {
-        logger.trace("ENTERING: " + "EntryPredicate.matches");
+        LOGGER.trace("ENTERING: EntryPredicate.matches");
         boolean status = false;
 
         Map<String, Object> contextualMap = (Map<String, Object>) properties
                 .getProperty(PubSubConstants.HEADER_CONTEXTUAL_KEY);
         String operation = (String) properties.getProperty(PubSubConstants.HEADER_OPERATION_KEY);
-        logger.debug("operation = " + operation);
+        LOGGER.debug("operation = {}", operation);
 
         if (contextualMap != null) {
             String metadata = (String) contextualMap.get("METADATA");
@@ -71,8 +72,8 @@ public class EntryPredicate implements Predicate {
             // cannot apply any geospatial filtering - just send the event on to the subscriber
             if (PubSubConstants.DELETE.equals(operation)
                     && PubSubConstants.METADATA_DELETED.equals(metadata)) {
-                logger.debug("Detected a DELETE operation where metadata is just the word 'deleted', so send event on to subscriber");
-                logger.debug("EXITING: matches");
+                LOGGER.debug("Detected a DELETE operation where metadata is just the word 'deleted', so send event on to subscriber");
+                LOGGER.debug("EXITING: matches");
                 return true;
             }
         }
@@ -83,7 +84,7 @@ public class EntryPredicate implements Predicate {
 
             status = EntryEvaluator.evaluate(eec);
         } else if (productUri != null) {
-            logger.debug("Doing DAD matches");
+            LOGGER.debug("Doing DAD matches");
 
             String incomingProductUriString = (String) properties
                     .getProperty(PubSubConstants.HEADER_DAD_KEY);
@@ -95,14 +96,14 @@ public class EntryPredicate implements Predicate {
 
                 status = DadEvaluator.evaluate(dec);
             } catch (URISyntaxException e) {
-                logger.debug("Error comparing DADs");
+                LOGGER.debug("Error comparing DADs");
                 status = false;
             }
         }
 
-        logger.debug("entry evaluation = " + status);
+        LOGGER.debug("entry evaluation = {}", status);
 
-        logger.trace("EXITING: " + "EntryPredicate.matches");
+        LOGGER.trace("EXITING: EntryPredicate.matches");
 
         return status;
     }

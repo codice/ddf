@@ -31,7 +31,7 @@ import ddf.catalog.resource.Resource;
  */
 public class ResourceImpl extends BinaryContentImpl implements Resource {
 
-    private static XLogger logger = new XLogger(LoggerFactory.getLogger(ResourceImpl.class));
+    private static final XLogger logger = new XLogger(LoggerFactory.getLogger(ResourceImpl.class));
 
     private String name;
 

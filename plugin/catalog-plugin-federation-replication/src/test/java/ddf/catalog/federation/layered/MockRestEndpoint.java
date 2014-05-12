@@ -28,14 +28,15 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Path("/")
 public class MockRestEndpoint {
 
     // private static final String RESOURCE_OWNER_USERNAME_KEY =
     // "resource.owner.username";
-    private static final Logger LOGGER = Logger.getLogger(MockRestEndpoint.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(MockRestEndpoint.class);
 
     public MockRestEndpoint() {
         LOGGER.debug("Constructing rest endpoint");
@@ -56,7 +57,7 @@ public class MockRestEndpoint {
     String id, @Context
     HttpHeaders headers, InputStream message) {
 
-        LOGGER.info("id=" + id);
+        LOGGER.info("id={}", id);
         return Response.ok().build();
     }
 

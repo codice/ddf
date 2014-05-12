@@ -26,7 +26,6 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.UUID;
 
-import org.apache.log4j.Logger;
 import org.geotools.filter.visitor.DefaultFilterVisitor;
 import org.opengis.filter.Not;
 import org.opengis.filter.PropertyIsNil;
@@ -47,6 +46,8 @@ import org.opengis.filter.temporal.TEquals;
 import org.opengis.filter.temporal.TOverlaps;
 import org.opengis.temporal.Instant;
 import org.opengis.temporal.Period;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ddf.catalog.data.ContentType;
 import ddf.catalog.data.Metacard;
@@ -71,7 +72,7 @@ import ddf.catalog.source.CatalogProvider;
 
 public class MockMemoryProvider extends MockSource implements CatalogProvider {
 
-    private static Logger LOGGER = Logger.getLogger(MockMemoryProvider.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(MockMemoryProvider.class);
 
     private HashMap<Serializable, Metacard> store;
 
@@ -148,7 +149,7 @@ public class MockMemoryProvider extends MockSource implements CatalogProvider {
 
             MetacardImpl card = new MetacardImpl(curCard);
             card.setId(id.toString());
-            LOGGER.debug("Storing metacard with id: " + id.toString());
+            LOGGER.debug("Storing metacard with id: {}", id.toString());
             store.put(id.toString(), card);
             properties.put(id.toString(), card);
             returnedMetacards.add(card);
@@ -164,7 +165,7 @@ public class MockMemoryProvider extends MockSource implements CatalogProvider {
     @Override
     public UpdateResponse update(UpdateRequest request) {
         String methodName = "update";
-        LOGGER.debug("Entering: " + methodName);
+        LOGGER.debug("Entering: {}", methodName);
         hasReceivedUpdate = true;
         hasReceivedUpdateByIdentifier = true;
         List<Entry<Serializable, Metacard>> updatedCards = request.getUpdates();
@@ -185,7 +186,7 @@ public class MockMemoryProvider extends MockSource implements CatalogProvider {
         }
 
         UpdateResponse response = new UpdateResponseImpl(request, properties, returnedMetacards);
-        LOGGER.debug("Exiting:" + methodName);
+        LOGGER.debug("Exiting:{}", methodName);
         return response;
     }
 
@@ -283,23 +284,23 @@ public class MockMemoryProvider extends MockSource implements CatalogProvider {
 
         @Override
         public Object visit(Not filter, Object data) {
-            LOGGER.trace("entry " + filter + "," + data);
+            LOGGER.trace("entry {},{}", filter, data);
             Set<Metacard> notFilteredSet = new HashSet<Metacard>();
             notFilteredSet.addAll((Collection<? extends Metacard>) data);
             Set<Metacard> filteredSet = (Set<Metacard>) filter.getFilter().accept(this, data);
             notFilteredSet.removeAll(filteredSet);
-            LOGGER.trace("exit " + notFilteredSet.size());
+            LOGGER.trace("exit {}", notFilteredSet.size());
             return notFilteredSet;
         }
 
         @Override
         public Object visit(After after, Object data) {
-            LOGGER.trace("entry " + after + "," + data);
+            LOGGER.trace("entry {},{}", after, data);
             Set<Metacard> filteredSet = new HashSet<Metacard>();
             PropertyName propName = (PropertyName) after.getExpression1();
             Object obj = ((Literal) after.getExpression2()).getValue();
             Date afterFilter = null;
-            LOGGER.debug("what is object? " + obj);
+            LOGGER.debug("what is object? {}", obj);
             if (obj instanceof Period) {
                 afterFilter = ((Period) obj).getEnding().getPosition().getDate();
             } else {
@@ -316,13 +317,13 @@ public class MockMemoryProvider extends MockSource implements CatalogProvider {
                     }
                 }
             }
-            LOGGER.trace("exit " + filteredSet);
+            LOGGER.trace("exit {}", filteredSet);
             return filteredSet;
         }
 
         @Override
         public Object visit(Before before, Object data) {
-            LOGGER.trace("entry " + before + "," + data);
+            LOGGER.trace("entry {},{}", before, data);
             Set<Metacard> filteredSet = new HashSet<Metacard>();
             PropertyName propName = (PropertyName) before.getExpression1();
             Object obj = ((Literal) before.getExpression2()).getValue();
@@ -343,13 +344,13 @@ public class MockMemoryProvider extends MockSource implements CatalogProvider {
                     }
                 }
             }
-            LOGGER.trace("exit " + filteredSet);
+            LOGGER.trace("exit {}", filteredSet);
             return filteredSet;
         }
 
         @Override
         public Object visit(Begins begins, Object data) {
-            LOGGER.trace("entry " + begins + "," + data);
+            LOGGER.trace("entry {},{}", begins, data);
             Set<Metacard> filteredSet = new HashSet<Metacard>();
             PropertyName propName = (PropertyName) begins.getExpression1();
             Object obj = ((Literal) begins.getExpression2()).getValue();
@@ -365,7 +366,7 @@ public class MockMemoryProvider extends MockSource implements CatalogProvider {
                     }
                 }
             }
-            LOGGER.trace("exit " + filteredSet);
+            LOGGER.trace("exit {}", filteredSet);
             return filteredSet;
         }
 
@@ -378,7 +379,7 @@ public class MockMemoryProvider extends MockSource implements CatalogProvider {
 
         @Override
         public Object visit(During during, Object data) {
-            LOGGER.trace("entry " + during + "," + data);
+            LOGGER.trace("entry {},{}", during, data);
             Set<Metacard> filteredSet = new HashSet<Metacard>();
             PropertyName propName = (PropertyName) during.getExpression1();
             Period filterPeriod = (Period) ((Literal) during.getExpression2()).getValue();
@@ -395,7 +396,7 @@ public class MockMemoryProvider extends MockSource implements CatalogProvider {
                     }
                 }
             }
-            LOGGER.trace("exit " + filteredSet);
+            LOGGER.trace("exit {}", filteredSet);
             return filteredSet;
         }
 
@@ -408,7 +409,7 @@ public class MockMemoryProvider extends MockSource implements CatalogProvider {
 
         @Override
         public Object visit(Ends ends, Object data) {
-            LOGGER.trace("entry " + ends + "," + data);
+            LOGGER.trace("entry {},{}", ends, data);
             Set<Metacard> filteredSet = new HashSet<Metacard>();
             PropertyName propName = (PropertyName) ends.getExpression1();
             Object obj = ((Literal) ends.getExpression2()).getValue();
@@ -424,7 +425,7 @@ public class MockMemoryProvider extends MockSource implements CatalogProvider {
                     }
                 }
             }
-            LOGGER.trace("exit " + filteredSet);
+            LOGGER.trace("exit {}", filteredSet);
             return filteredSet;
         }
 
@@ -459,7 +460,7 @@ public class MockMemoryProvider extends MockSource implements CatalogProvider {
 
         @Override
         public Object visit(TEquals equals, Object data) {
-            LOGGER.trace("entry " + equals + "," + data);
+            LOGGER.trace("entry {},{}", equals, data);
             Set<Metacard> filteredSet = new HashSet<Metacard>();
             PropertyName propName = (PropertyName) equals.getExpression1();
             Object obj = ((Literal) equals.getExpression2()).getValue();
@@ -475,7 +476,7 @@ public class MockMemoryProvider extends MockSource implements CatalogProvider {
                     }
                 }
             }
-            LOGGER.trace("exit " + filteredSet);
+            LOGGER.trace("exit {}", filteredSet);
             return filteredSet;
         }
 
@@ -500,7 +501,7 @@ public class MockMemoryProvider extends MockSource implements CatalogProvider {
                     d = mc.getModifiedDate();
                 }
             }
-            LOGGER.trace("exit " + d);
+            LOGGER.trace("exit {}", d);
             return d;
         }
 

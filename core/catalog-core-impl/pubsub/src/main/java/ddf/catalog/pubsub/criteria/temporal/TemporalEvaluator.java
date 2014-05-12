@@ -17,14 +17,15 @@ package ddf.catalog.pubsub.criteria.temporal;
 
 import java.util.Date;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TemporalEvaluator {
-    private static Logger logger = Logger.getLogger(TemporalEvaluator.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(TemporalEvaluator.class);
 
     public static boolean evaluate(TemporalEvaluationCriteria tec) {
         String methodName = "evaluate";
-        logger.debug("ENTERING: " + methodName);
+        LOGGER.debug("ENTERING: {}", methodName);
 
         boolean evaluation = false;
 
@@ -36,26 +37,26 @@ public class TemporalEvaluator {
         Date end = tec.getEnd();
         Date input = tec.getInput();
 
-        logger.debug("start = " + start + ",   end = " + end + ",   input = " + input);
+        LOGGER.debug("start = {},   end = {},   input = {}", start, end, input);
 
         if (start == null) {
-            logger.debug("Doing start = null evaluation");
+            LOGGER.debug("Doing start = null evaluation");
             evaluation = input.before(end) || input.equals(end);
         } else if (end == null) {
-            logger.debug("Doing end = null evaluation");
+            LOGGER.debug("Doing end = null evaluation");
             evaluation = input.after(start) || input.equals(start);
         } else if (input == null) {
-            logger.debug("Doing input = null evaluation - return false");
+            LOGGER.debug("Doing input = null evaluation - return false");
             return false;
         } else {
-            logger.debug("Doing start/end evaluation");
+            LOGGER.debug("Doing start/end evaluation");
             evaluation = (input.after(start) || input.equals(start))
                     && (input.before(end) || input.equals(end));
         }
 
-        logger.debug("evaluation = " + evaluation);
+        LOGGER.debug("evaluation = {}", evaluation);
 
-        logger.debug("EXITING: " + methodName);
+        LOGGER.debug("EXITING: {}", methodName);
 
         return evaluation;
     }

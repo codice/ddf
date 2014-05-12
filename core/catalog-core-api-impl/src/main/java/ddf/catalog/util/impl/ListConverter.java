@@ -29,7 +29,7 @@ import org.slf4j.ext.XLogger;
  */
 public class ListConverter implements Converter {
 
-    private static XLogger logger = new XLogger(LoggerFactory.getLogger(ListConverter.class));
+    private static final XLogger logger = new XLogger(LoggerFactory.getLogger(ListConverter.class));
 
     /**
      * @parameter sourceObject object considering to be converted

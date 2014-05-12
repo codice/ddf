@@ -21,7 +21,6 @@ import java.util.Date;
 
 import javax.xml.transform.TransformerException;
 
-import org.apache.log4j.Logger;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.filter.FilterFactoryImpl;
@@ -40,6 +39,8 @@ import org.opengis.filter.FilterFactory;
 import org.opengis.filter.PropertyIsEqualTo;
 import org.opengis.filter.spatial.BBOX;
 import org.w3c.dom.Document;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
@@ -50,11 +51,7 @@ import ddf.catalog.data.impl.MetacardImpl;
 
 public class TestPubSubOgcFilter {
 
-    static {
-        org.apache.log4j.BasicConfigurator.configure();
-    }
-
-    private static Logger logger = Logger.getLogger(TestPubSubOgcFilter.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(TestPubSubOgcFilter.class);
 
     @Test
     @Ignore
@@ -160,7 +157,7 @@ public class TestPubSubOgcFilter {
     private void printFilter(Filter filter) throws TransformerException {
         FilterTransformer transform = new FilterTransformer();
         transform.setIndentation(2);
-        logger.debug(transform.transform(filter));
+        LOGGER.debug(transform.transform(filter));
     }
 
     private SimpleFeature generateSampleFeature() {
@@ -194,8 +191,8 @@ public class TestPubSubOgcFilter {
         // becomes the default geo property. If no geo is specified, getDefaultGeometryProperty
         // returns null
         GeometryAttribute defaultGeo = feature.getDefaultGeometryProperty();
-        logger.debug("geo name: " + defaultGeo.getName());
-        logger.debug("geo: " + defaultGeo);
+        LOGGER.debug("geo name: {}", defaultGeo.getName());
+        LOGGER.debug("geo: {}", defaultGeo);
 
         return feature;
     }

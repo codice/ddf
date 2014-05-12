@@ -38,13 +38,14 @@ import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.jaxrs.JAXRSServerFactoryBean;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.cxf.jaxrs.lifecycle.SingletonResourceProvider;
-import org.apache.log4j.Logger;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
@@ -67,7 +68,7 @@ public class TestPlugin {
 
     private static MockRestEndpoint endpoint;
 
-    private static final Logger LOGGER = Logger.getLogger(TestPlugin.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(TestPlugin.class);
 
     // I changed the port so that it would not conflict in testing with other services
     private static final String ENDPOINT_ADDRESS = "http://localhost:8282/services/catalog";

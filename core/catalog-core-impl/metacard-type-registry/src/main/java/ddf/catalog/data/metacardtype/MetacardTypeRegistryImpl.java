@@ -20,7 +20,8 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ddf.catalog.data.MetacardTypeRegistry;
 import ddf.catalog.data.MetacardTypeUnregistrationException;
@@ -39,7 +40,7 @@ public final class MetacardTypeRegistryImpl implements MetacardTypeRegistry {
 
     private Set<QualifiedMetacardType> registeredMetacardTypes;
 
-    private static Logger logger = Logger.getLogger(MetacardTypeRegistryImpl.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(MetacardTypeRegistryImpl.class);
 
     private MetacardTypeRegistryImpl() {
         this.registeredMetacardTypes = new CopyOnWriteArraySet<QualifiedMetacardType>();
@@ -70,8 +71,7 @@ public final class MetacardTypeRegistryImpl implements MetacardTypeRegistry {
                 return qmt;
             }
         }
-        logger.debug("No registered MetacardType with namespace: " + namespace + " and name: "
-                + metacardTypeName);
+        LOGGER.debug("No registered MetacardType with namespace: {} and name: {}", namespace, metacardTypeName);
         return null;
     }
 
@@ -92,7 +92,7 @@ public final class MetacardTypeRegistryImpl implements MetacardTypeRegistry {
             String message = "Unable to unregister specified MetacardType.";
             throw new MetacardTypeUnregistrationException(message);
         }
-        logger.debug("Successfully unregistered MetacardType.");
+        LOGGER.debug("Successfully unregistered MetacardType.");
     }
 
     @Override

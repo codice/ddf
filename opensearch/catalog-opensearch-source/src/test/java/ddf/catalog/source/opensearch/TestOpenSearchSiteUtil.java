@@ -30,7 +30,6 @@ import java.util.Date;
 import javax.security.auth.Subject;
 import javax.security.auth.x500.X500Principal;
 
-import org.apache.log4j.Logger;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
 import org.junit.Ignore;
@@ -38,6 +37,8 @@ import org.junit.Test;
 import org.opengis.filter.Filter;
 import org.opengis.filter.sort.SortBy;
 import org.opengis.filter.sort.SortOrder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ddf.catalog.data.Result;
 import ddf.catalog.filter.impl.SortByImpl;
@@ -52,7 +53,7 @@ public class TestOpenSearchSiteUtil {
     private final StringBuilder url = new StringBuilder(
             "http://localhost:8080/services/catalog/query?q={searchTerms}&amp;src={fs:routeTo?}&amp;mr={fs:maxResults?}&amp;count={count?}&amp;mt={fs:maxTimeout?}&amp;dn={idn:userDN?}&amp;lat={geo:lat?}&amp;lon={geo:lon?}&amp;radius={geo:radius?}&amp;bbox={geo:box?}&amp;polygon={geo:polygon?}&amp;dtstart={time:start?}&amp;dtend={time:end?}&amp;dateName={cat:dateName?}&amp;filter={fsa:filter?}&amp;sort={fsa:sort?}");
 
-    private Logger logger = Logger.getLogger(TestOpenSearchSiteUtil.class);
+    private static final Logger logger = LoggerFactory.getLogger(TestOpenSearchSiteUtil.class);
 
     @Test
     public void populateContextual() {
@@ -67,7 +68,7 @@ public class TestOpenSearchSiteUtil {
         } catch (MalformedURLException mue) {
             fail("URL is not valid: " + mue.getMessage());
         }
-        logger.info("URL after contextual population: " + resultStr.toString());
+        logger.info("URL after contextual population: {}", resultStr.toString());
     }
 
     /**
@@ -99,7 +100,7 @@ public class TestOpenSearchSiteUtil {
         } catch (MalformedURLException mue) {
             fail("URL is not valid: " + mue.getMessage());
         }
-        logger.info("URL after temporal population: " + resultStr.toString());
+        logger.info("URL after temporal population: {}", resultStr.toString());
     }
 
     /**
@@ -236,7 +237,7 @@ public class TestOpenSearchSiteUtil {
         } catch (MalformedURLException mue) {
             fail("URL is not valid: " + mue.getMessage());
         }
-        logger.info("URL after lat lon geospatial population: " + resultStr.toString());
+        logger.info("URL after lat lon geospatial population: {}", resultStr.toString());
 
     }
 

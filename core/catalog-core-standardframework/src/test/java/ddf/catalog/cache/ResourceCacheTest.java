@@ -27,9 +27,6 @@ import java.io.IOException;
 
 import javax.activation.MimeTypeParseException;
 
-import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
@@ -41,20 +38,11 @@ import ddf.cache.CacheManager;
 import ddf.catalog.resource.download.ReliableResource;
 
 public class ResourceCacheTest {
-
-    private static final transient Logger LOGGER = Logger.getLogger(ResourceCacheTest.class);
-
     public String workingDir;
 
     public ResourceCache resourceCache;
 
     public Cache cache;
-
-    @BeforeClass
-    public static void oneTimeSetup() {
-        BasicConfigurator.configure();
-        Logger.getRootLogger().setLevel(Level.DEBUG);
-    }
 
     @Before
     public void setUp() {

@@ -36,12 +36,13 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.log4j.Logger;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
 import org.opengis.filter.expression.PropertyName;
 import org.opengis.filter.sort.SortBy;
 import org.opengis.filter.sort.SortOrder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -135,7 +136,7 @@ public final class OpenSearchSiteUtil {
 
     public static final String SORT_TEMPORAL = "date";
 
-    private static Logger logger = Logger.getLogger(OpenSearchSiteUtil.class);
+    private static final Logger logger = LoggerFactory.getLogger(OpenSearchSiteUtil.class);
 
     private OpenSearchSiteUtil() {
 
@@ -242,7 +243,7 @@ public final class OpenSearchSiteUtil {
             try {
                 queryStr = URLEncoder.encode(queryStr, "UTF-8");
             } catch (UnsupportedEncodingException uee) {
-                logger.warn("Could not encode contextual string: " + uee.getMessage());
+                logger.warn("Could not encode contextual string: {}", uee.getMessage());
             }
         }
 
@@ -322,8 +323,7 @@ public final class OpenSearchSiteUtil {
                     radiusStr = "";
                 }
             } else {
-                logger.warn("WKT (" + wktStr
-                        + ") not supported for POINT-RADIUS search, use POINT.");
+                logger.warn("WKT ({}) not supported for POINT-RADIUS search, use POINT.", wktStr);
             }
         }
 
@@ -374,7 +374,7 @@ public final class OpenSearchSiteUtil {
                     }
                 }
             } else {
-                logger.warn("WKT (" + wktStr + ") not supported for SPATIAL search, use POLYGON.");
+                logger.warn("WKT ({}) not supported for SPATIAL search, use POLYGON.", wktStr);
             }
         }
 
@@ -415,7 +415,7 @@ public final class OpenSearchSiteUtil {
      * Checks the input and replaces the items inside of the url.
      * 
      * @param url
-     *            The URL to doing the replacement on. <b>NOTE:</b> replacement is done directly on
+     *            The URL to do the replacement on. <b>NOTE:</b> replacement is done directly on
      *            this object.
      * @param inputStr
      *            Item to put into the URL.
@@ -427,8 +427,7 @@ public final class OpenSearchSiteUtil {
             String definition) {
         int start = url.indexOf(definition);
         if (start == -1) {
-            logger.debug("Cannot find " + definition
-                    + " in OpenSearch Description Document, ignoring.");
+            logger.debug("Cannot find {} in OpenSearch Description Document, ignoring.", definition);
         } else {
             String replacementStr = "";
             if (inputStr != null) {
@@ -469,8 +468,7 @@ public final class OpenSearchSiteUtil {
             resultOutput = new StreamResult(baos);
             // add the arguments from the caller
 
-            // logger.debug("classification properties: " +
-            // classificationProperties);
+            // logger.debug("classification properties: {}", classificationProperties);
             if (classificationProperties != null && !classificationProperties.isEmpty()) {
                 for (Map.Entry<String, String> entry : classificationProperties.entrySet()) {
                     // logger.debug("parameter key: " + entry.getKey() +
@@ -480,8 +478,7 @@ public final class OpenSearchSiteUtil {
                     if (key != null && !key.isEmpty() && value != null && !value.isEmpty()) {
                         transformer.setParameter(key, value);
                     } else {
-                        logger.warn("Null or empty value for parameter: " + entry.getKey()
-                                + ". Value will be set to U, USA.  Moving to next parameter.");
+                        logger.warn("Null or empty value for parameter: {}. Value will be set to U, USA.  Moving to next parameter.", entry.getKey());
                     }
                 }
             } else {
@@ -631,7 +628,7 @@ public final class OpenSearchSiteUtil {
 
         double curX, curY;
         for (int i = 0; i < polyAry.length - 1; i += 2) {
-            logger.debug("polyToBBox: lon - " + polyAry[i] + " lat - " + polyAry[i + 1]);
+            logger.debug("polyToBBox: lon - {} lat - {}", polyAry[i], polyAry[i + 1]);
             curX = Double.parseDouble(polyAry[i]);
             curY = Double.parseDouble(polyAry[i + 1]);
             if (curX < minX) {

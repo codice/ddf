@@ -28,11 +28,12 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
@@ -54,7 +55,7 @@ import ddf.geo.formatter.Polygon;
  */
 public class TestGeoJsonMetacardTransformer {
 
-    private static final Logger LOGGER = Logger.getLogger(TestGeoJsonMetacardTransformer.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(TestGeoJsonMetacardTransformer.class);
 
     private static final JSONParser parser = new JSONParser();
 
@@ -545,7 +546,7 @@ public class TestGeoJsonMetacardTransformer {
         try {
             metacard.setResourceURI(new URI("http://example.com"));
         } catch (URISyntaxException e) {
-            LOGGER.warn(e);
+            LOGGER.warn("URI Syntax exception setting resource URI", e);
         }
     }
 

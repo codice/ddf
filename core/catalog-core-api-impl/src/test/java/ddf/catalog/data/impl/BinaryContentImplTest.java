@@ -29,17 +29,18 @@ import javax.activation.MimeTypeParseException;
 import javax.activation.MimetypesFileTypeMap;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.log4j.Logger;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.notification.Failure;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ddf.catalog.data.impl.BinaryContentImpl;
 
 public class BinaryContentImplTest {
     private static final String IO_FAILURE = "IO Failure";
 
-    private static final Logger LOGGER = Logger.getLogger(BinaryContentImplTest.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(BinaryContentImplTest.class);
 
     private File content;
 

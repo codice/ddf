@@ -94,11 +94,6 @@ public class FilterAdapterTest {
     private static final PeriodDuration DAY_DURATION = new DefaultPeriodDuration(
             DAY_IN_MILLISECONDS);
 
-    @BeforeClass
-    public static void setup() {
-        org.apache.log4j.BasicConfigurator.configure();
-    }
-
     @Test
     public void includeFilter() {
         assertFilterEquals("true", Filter.INCLUDE);

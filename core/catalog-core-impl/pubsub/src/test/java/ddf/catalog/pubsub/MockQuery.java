@@ -81,7 +81,7 @@ public class MockQuery implements FederatedSource, Query {
 
     private List<Filter> filters;
 
-    private static XLogger logger = new XLogger(LoggerFactory.getLogger(MockQuery.class));
+    private static final XLogger logger = new XLogger(LoggerFactory.getLogger(MockQuery.class));
 
     public MockQuery() {
         this(null, 0, 10, "RELEVANCE", SortOrder.DESCENDING, 30000);

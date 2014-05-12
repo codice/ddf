@@ -14,15 +14,16 @@
  **/
 package ddf.catalog.pubsub;
 
-import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class GeospatialEvaluatorTest {
-    private static final Logger logger = Logger.getLogger(GeospatialEvaluatorTest.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(GeospatialEvaluatorTest.class);
 
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
@@ -41,7 +42,7 @@ public class GeospatialEvaluatorTest {
     }
 
     @Test
-    public void testBulidGeometry() {
+    public void testBuildGeometry() {
         // String gmlText =
         // "<gml:Polygon xmlns:gml=\"http://www.opengis.net/gml\" gml:id=\"BGE-1\" srsName=\"http://metadata.dod.mil/mdr/ns/GSIP/crs/WGS84E_2D\">\n"
         // +
@@ -63,17 +64,17 @@ public class GeospatialEvaluatorTest {
         // }
         // catch ( IOException e )
         // {
-        // logger.error( e.getMessage(), e );
+        // LOGGER.error( e.getMessage(), e );
         // fail( "Test failed with IOException" );
         // }
         // catch ( SAXException e )
         // {
-        // logger.error( e.getMessage(), e );
+        // LOGGER.error( e.getMessage(), e );
         // fail( "Test failed with SAXException" );
         // }
         // catch ( ParserConfigurationException e )
         // {
-        // logger.error( e.getMessage(), e );
+        // LOGGER.error( e.getMessage(), e );
         // fail( "Test failed with ParserConfigurationException" );
         // }
     }

@@ -26,7 +26,6 @@ import static org.mockito.Mockito.when;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 
-import org.apache.log4j.BasicConfigurator;
 import org.junit.Test;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
@@ -34,10 +33,6 @@ import org.osgi.framework.ServiceReference;
 import ddf.catalog.event.Subscriber;
 
 public class DeleteCommandTest {
-    static {
-        BasicConfigurator.configure();
-    }
-
     private static final String SUBSCRIPTION_ID_PROPERTY_KEY = "subscription-id";
 
     private static final String MY_SUBSCRIPTION_ID = "my.contextual.id|http://172.18.14.169:8088/mockCatalogEventConsumerBinding?WSDL";

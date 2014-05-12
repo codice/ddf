@@ -22,7 +22,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.regex.Matcher;
 
-import org.apache.log4j.Logger;
 import org.geotools.filter.AttributeExpressionImpl;
 import org.geotools.filter.LikeFilterImpl;
 import org.geotools.filter.LiteralExpressionImpl;
@@ -46,6 +45,8 @@ import org.opengis.filter.temporal.During;
 import org.opengis.temporal.Period;
 import org.opengis.temporal.PeriodDuration;
 import org.osgi.service.event.Event;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ddf.catalog.data.Metacard;
 import ddf.catalog.impl.filter.FuzzyFunction;
@@ -59,7 +60,7 @@ import ddf.catalog.pubsub.predicate.Predicate;
 import ddf.catalog.pubsub.predicate.TemporalPredicate;
 
 public class SubscriptionFilterVisitor extends DefaultFilterVisitor {
-    private static Logger logger = Logger.getLogger(SubscriptionFilterVisitor.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SubscriptionFilterVisitor.class);
 
     public static final double EQUATORIAL_RADIUS_IN_METERS = 6378137.0;
 
@@ -78,21 +79,21 @@ public class SubscriptionFilterVisitor extends DefaultFilterVisitor {
 
     @Override
     public Object visit(Not filter, Object data) {
-        logger.debug("ENTERING: NOT filter");
+        LOGGER.debug("ENTERING: NOT filter");
 
         Predicate returnPredicate = null;
 
         Filter filterToNot = filter.getFilter();
         Predicate predicateToNot = (Predicate) filterToNot.accept(this, null);
         returnPredicate = not(predicateToNot);
-        logger.debug("EXITING: NOT filter");
+        LOGGER.debug("EXITING: NOT filter");
 
         return returnPredicate;
     }
 
     @Override
     public Object visit(Or filter, Object data) {
-        logger.debug("ENTERING: OR filter");
+        LOGGER.debug("ENTERING: OR filter");
         Predicate returnPredicate = null;
 
         List<Predicate> predList = new ArrayList<Predicate>();
@@ -114,14 +115,14 @@ public class SubscriptionFilterVisitor extends DefaultFilterVisitor {
             }
         }
 
-        logger.debug("EXITING: OR filter");
+        LOGGER.debug("EXITING: OR filter");
 
         return returnPredicate;
     }
 
     @Override
     public Object visit(And filter, Object data) {
-        logger.debug("ENTERING: AND filter");
+        LOGGER.debug("ENTERING: AND filter");
 
         Predicate returnPredicate = null;
 
@@ -137,13 +138,13 @@ public class SubscriptionFilterVisitor extends DefaultFilterVisitor {
         }
 
         ContentTypePredicate currentContentTypePred = null;
-        logger.debug("predicate list size: " + predList.size());
+        LOGGER.debug("predicate list size: {}", predList.size());
         for (Predicate p : predList) {
             if (p == null) {
                 // filterless subscription
-                logger.debug("Found null predicate.  Indicates Filterless Subscription.");
+                LOGGER.debug("Found null predicate.  Indicates Filterless Subscription.");
             } else if (p instanceof ContentTypePredicate) {
-                logger.debug("Found ContentType Predicate.");
+                LOGGER.debug("Found ContentType Predicate.");
 
                 if (currentContentTypePred == null) {
                     currentContentTypePred = (ContentTypePredicate) p;
@@ -170,28 +171,26 @@ public class SubscriptionFilterVisitor extends DefaultFilterVisitor {
                 }
 
                 if (returnPredicate == null) {
-                    logger.debug("first return predicate");
+                    LOGGER.debug("first return predicate");
                     returnPredicate = currentContentTypePred;
                 } else {
-                    logger.debug("ANDing the predicates. Pred1: " + returnPredicate + " Pred2: "
-                            + currentContentTypePred);
+                    LOGGER.debug("ANDing the predicates. Pred1: {} Pred2: {}", returnPredicate, currentContentTypePred);
                     returnPredicate = and(returnPredicate, currentContentTypePred);
                 }
 
             } else // if Spatial Predicate, Temporal Predicate, Contextual, or Entry Predicate
             {
                 if (returnPredicate == null) {
-                    logger.debug("first return predicate");
+                    LOGGER.debug("first return predicate");
                     returnPredicate = p;
                 } else {
-                    logger.debug("ANDing the predicates. Pred1: " + returnPredicate + " Pred2: "
-                            + p);
+                    LOGGER.debug("ANDing the predicates. Pred1: {} Pred2: {}", returnPredicate, p);
                     returnPredicate = and(returnPredicate, p);
                 }
             }
         }
 
-        logger.debug("EXITING: AND filter");
+        LOGGER.debug("EXITING: AND filter");
 
         return returnPredicate;
     }
@@ -201,20 +200,20 @@ public class SubscriptionFilterVisitor extends DefaultFilterVisitor {
      */
     @Override
     public Object visit(DWithin filter, Object data) {
-        logger.debug("ENTERING: DWithin filter");
-        logger.debug("Must have received point/radius query criteria.");
+        LOGGER.debug("ENTERING: DWithin filter");
+        LOGGER.debug("Must have received point/radius query criteria.");
 
         double radius = filter.getDistance();
         com.vividsolutions.jts.geom.Geometry jtsGeometry = getJtsGeometery((LiteralExpressionImpl) filter
                 .getExpression2());
 
         double radiusInDegrees = (radius * 180.0) / (Math.PI * EQUATORIAL_RADIUS_IN_METERS);
-        logger.debug("radius in meters : " + radius);
-        logger.debug("radius in degrees : " + radiusInDegrees);
+        LOGGER.debug("radius in meters : {}", radius);
+        LOGGER.debug("radius in degrees : {}", radiusInDegrees);
 
         Predicate predicate = new GeospatialPredicate(jtsGeometry, null, radiusInDegrees);
 
-        logger.debug("EXITING: DWithin filter");
+        LOGGER.debug("EXITING: DWithin filter");
 
         return predicate;
     }
@@ -224,8 +223,8 @@ public class SubscriptionFilterVisitor extends DefaultFilterVisitor {
      */
     @Override
     public Object visit(Within filter, Object data) {
-        logger.debug("ENTERING: Within filter");
-        logger.debug("Must have received CONTAINS query criteria: " + filter.getExpression2());
+        LOGGER.debug("ENTERING: Within filter");
+        LOGGER.debug("Must have received CONTAINS query criteria: {}", filter.getExpression2());
 
         com.vividsolutions.jts.geom.Geometry jtsGeometry = getJtsGeometery((LiteralExpressionImpl) filter
                 .getExpression2());
@@ -233,7 +232,7 @@ public class SubscriptionFilterVisitor extends DefaultFilterVisitor {
         Predicate predicate = new GeospatialPredicate(jtsGeometry, SpatialOperator.CONTAINS.name(),
                 0.0);
 
-        logger.debug("EXITING: Within filter");
+        LOGGER.debug("EXITING: Within filter");
 
         return predicate;
     }
@@ -243,15 +242,15 @@ public class SubscriptionFilterVisitor extends DefaultFilterVisitor {
      */
     @Override
     public Object visit(Intersects filter, Object data) {
-        logger.debug("ENTERING: Intersects filter");
-        logger.debug("Must have received OVERLAPS query criteria.");
+        LOGGER.debug("ENTERING: Intersects filter");
+        LOGGER.debug("Must have received OVERLAPS query criteria.");
 
         com.vividsolutions.jts.geom.Geometry jtsGeometry = getJtsGeometery((LiteralExpressionImpl) filter
                 .getExpression2());
 
         Predicate predicate = new GeospatialPredicate(jtsGeometry, SpatialOperator.OVERLAPS.name(),
                 0.0);
-        logger.debug("EXITING: Intersects filter");
+        LOGGER.debug("EXITING: Intersects filter");
 
         return predicate;
     }
@@ -261,7 +260,7 @@ public class SubscriptionFilterVisitor extends DefaultFilterVisitor {
      */
     @Override
     public Object visit(During filter, Object data) {
-        logger.debug("ENTERING: During filter");
+        LOGGER.debug("ENTERING: During filter");
 
         AttributeExpressionImpl temporalTypeAttribute = (AttributeExpressionImpl) filter
                 .getExpression1();
@@ -276,10 +275,10 @@ public class SubscriptionFilterVisitor extends DefaultFilterVisitor {
             // Extract the start and end dates from the OGC TOverlaps filter
             Date start = timePeriod.getBeginning().getPosition().getDate();
             Date end = timePeriod.getEnding().getPosition().getDate();
-            logger.debug("time period lowerBound = " + start);
-            logger.debug("time period upperBound = " + end);
+            LOGGER.debug("time period lowerBound = {}", start);
+            LOGGER.debug("time period upperBound = {}", end);
 
-            logger.debug("EXITING: (temporal) filter");
+            LOGGER.debug("EXITING: (temporal) filter");
 
             returnPredicate = new TemporalPredicate(start, end, DateType.valueOf(temporalType));
         }
@@ -288,13 +287,13 @@ public class SubscriptionFilterVisitor extends DefaultFilterVisitor {
             DefaultPeriodDuration duration = (DefaultPeriodDuration) literal;
 
             long offset = duration.getTimeInMillis();
-            logger.debug("EXITING: (temporal) filter");
+            LOGGER.debug("EXITING: (temporal) filter");
             returnPredicate = new TemporalPredicate(offset, DateType.valueOf(temporalType));
         }
 
-        logger.debug("temporalType: " + temporalType);
-        logger.debug("Temporal Predicate: " + returnPredicate);
-        logger.debug("EXITING: During filter");
+        LOGGER.debug("temporalType: " + temporalType);
+        LOGGER.debug("Temporal Predicate: " + returnPredicate);
+        LOGGER.debug("EXITING: During filter");
 
         return returnPredicate;
     }
@@ -304,7 +303,7 @@ public class SubscriptionFilterVisitor extends DefaultFilterVisitor {
      */
     @Override
     public Object visit(PropertyIsEqualTo filter, Object data) {
-        logger.debug("ENTERING: PropertyIsEqualTo filter");
+        LOGGER.debug("ENTERING: PropertyIsEqualTo filter");
 
         // TODO: consider if the contentType parameters are invalid (i.e. anything where type is
         // null)
@@ -316,7 +315,7 @@ public class SubscriptionFilterVisitor extends DefaultFilterVisitor {
 
         if (Metacard.ID.equals(propertyName)) {
             String entryId = (String) exp2.getValue();
-            logger.debug("entry id for new entry predicate: " + entryId);
+            LOGGER.debug("entry id for new entry predicate: {}", entryId);
             predicate = new EntryPredicate(entryId);
         } else if (Metacard.CONTENT_TYPE.equals(propertyName)) {
             String typeValue = (String) exp2.getValue();
@@ -337,7 +336,7 @@ public class SubscriptionFilterVisitor extends DefaultFilterVisitor {
                     predicate = new EntryPredicate(productUri);
                 } catch (URISyntaxException e) {
 
-                    logger.debug(e);
+                    LOGGER.debug("URI Syntax exception creating EntryPredicate", e);
                     throw new UnsupportedOperationException(
                             "Could not create a URI object from the given ResourceURI.", e);
 
@@ -345,7 +344,7 @@ public class SubscriptionFilterVisitor extends DefaultFilterVisitor {
             }
         }
 
-        logger.debug("EXITING: PropertyIsEqualTo filter");
+        LOGGER.debug("EXITING: PropertyIsEqualTo filter");
 
         return predicate;
     }
@@ -355,7 +354,7 @@ public class SubscriptionFilterVisitor extends DefaultFilterVisitor {
      */
     @Override
     public Object visit(PropertyIsLike filter, Object data) {
-        logger.debug("ENTERING: PropertyIsLike filter");
+        LOGGER.debug("ENTERING: PropertyIsLike filter");
 
         String wildcard = filter.getWildCard();
         String escape = filter.getEscape();
@@ -373,12 +372,12 @@ public class SubscriptionFilterVisitor extends DefaultFilterVisitor {
         if (expression instanceof PropertyName) {
             PropertyName propertyName = (PropertyName) expression;
             if (Metacard.CONTENT_TYPE.equals(propertyName.getPropertyName())) {
-                logger.debug("Expression is ContentType.");
+                LOGGER.debug("Expression is ContentType.");
                 String typeValue = likeFilter.getLiteral();
                 ContentTypePredicate predicate = new ContentTypePredicate(typeValue, null);
                 return predicate;
             } else if (Metacard.CONTENT_TYPE_VERSION.equals(propertyName.getPropertyName())) {
-                logger.debug("Expression is ContentTypeVersion.");
+                LOGGER.debug("Expression is ContentTypeVersion.");
                 String versionValue = likeFilter.getLiteral();
                 ContentTypePredicate predicate = new ContentTypePredicate(null, versionValue);
                 return predicate;
@@ -390,27 +389,27 @@ public class SubscriptionFilterVisitor extends DefaultFilterVisitor {
             textPathList = extractXpathSelectors(textPathExpression);
         } else if (expression instanceof FuzzyFunction) {
             FuzzyFunction fuzzyFunction = (FuzzyFunction) expression;
-            logger.debug("fuzzy search");
+            LOGGER.debug("fuzzy search");
             isFuzzy = true;
             List<Expression> expressions = fuzzyFunction.getParameters();
             AttributeExpressionImpl firstExpression = (AttributeExpressionImpl) expressions.get(0);
 
             if (!Metacard.ANY_TEXT.equals(firstExpression.getPropertyName())) {
-                logger.debug("fuzzy search has a text path section");
+                LOGGER.debug("fuzzy search has a text path section");
                 textPathList = extractXpathSelectors(firstExpression);
             }
         }
 
         String searchPhrase = likeFilter.getLiteral();
-        logger.debug("raw searchPhrase = [" + searchPhrase + "]");
+        LOGGER.debug("raw searchPhrase = [{}]", searchPhrase);
 
         String sterilizedSearchPhrase = sterilize(searchPhrase, wildcard, escape, single);
-        logger.debug("sterilizedSearchPhrase = [" + sterilizedSearchPhrase + "]");
+        LOGGER.debug("sterilizedSearchPhrase = [{}]", sterilizedSearchPhrase);
 
         ContextualPredicate contextPred = new ContextualPredicate(sterilizedSearchPhrase, isFuzzy,
                 likeFilter.isMatchingCase(), textPathList);
 
-        logger.debug("EXITING: PropertyIsLike filter");
+        LOGGER.debug("EXITING: PropertyIsLike filter");
 
         return contextPred;
     }
@@ -419,14 +418,14 @@ public class SubscriptionFilterVisitor extends DefaultFilterVisitor {
         List<String> textPathList = new ArrayList<String>();
         String selectors;
         selectors = textPathExpression.getPropertyName();
-        logger.debug("sub filter visitor selectors = " + selectors);
+        LOGGER.debug("sub filter visitor selectors = {}", selectors);
 
         // Copy text paths into contextual criteria if any specified other than default "anyText"
         // which needs to be "removed" as it means nothing to the source
         if (selectors != null && !selectors.isEmpty() && !selectors.contains(Metacard.ANY_TEXT)) {
             String[] xpathExpressions = selectors.split(",");
             for (String textPath : xpathExpressions) {
-                logger.debug("adding text path to list: " + textPath);
+                LOGGER.debug("adding text path to list: {}", textPath);
                 textPathList.add(textPath);
             }
         }
@@ -435,31 +434,31 @@ public class SubscriptionFilterVisitor extends DefaultFilterVisitor {
 
     @Override
     public Object visit(PropertyName expression, Object data) {
-        logger.debug("ENTERING: PropertyName expression");
+        LOGGER.debug("ENTERING: PropertyName expression");
 
         // countOccurrence( expression );
 
-        logger.debug("EXITING: PropertyName expression");
+        LOGGER.debug("EXITING: PropertyName expression");
 
         return data;
     }
 
     @Override
     public Object visit(Literal expression, Object data) {
-        logger.debug("ENTERING: Literal expression");
+        LOGGER.debug("ENTERING: Literal expression");
 
         // countOccurrence( expression );
 
-        logger.debug("EXITING: Literal expression");
+        LOGGER.debug("EXITING: Literal expression");
 
         return data;
     }
 
     @Override
     public Object visit(IncludeFilter filter, Object data) {
-        logger.debug("ENTERING: Visit Filter Includes");
+        LOGGER.debug("ENTERING: Visit Filter Includes");
 
-        logger.debug("EXITING: Visit Filter Includes");
+        LOGGER.debug("EXITING: Visit Filter Includes");
 
         return null;
     }

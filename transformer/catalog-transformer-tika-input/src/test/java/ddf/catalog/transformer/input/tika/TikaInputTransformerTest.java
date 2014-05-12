@@ -21,32 +21,18 @@ import java.io.File;
 import java.io.FileInputStream;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.log4j.Appender;
-import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
-import org.apache.log4j.PatternLayout;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ddf.catalog.data.Metacard;
 import ddf.catalog.transform.CatalogTransformerException;
 
 public class TikaInputTransformerTest {
-    private static final transient Logger LOGGER = Logger.getLogger(TikaInputTransformerTest.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(TikaInputTransformerTest.class);
 
     private static final String TEST_DATA_PATH = "src/test/resources/";
-
-    @BeforeClass
-    public static void oneTimeSetup() {
-        // Format logger output
-        BasicConfigurator.configure();
-        ((PatternLayout) ((Appender) Logger.getRootLogger().getAllAppenders().nextElement())
-                .getLayout()).setConversionPattern("[%30.30t] %-30.30c{1} %-5p %m%n");
-
-        Logger.getRootLogger().setLevel(Level.INFO);
-        // LOGGER.setLevel(Level.DEBUG);
-    }
 
     @Test
     public void testNullInput() throws Exception {
@@ -89,7 +75,7 @@ public class TikaInputTransformerTest {
     }
 
     private static void transform(String filename) throws Exception {
-        LOGGER.info("--------  File:  " + filename + "  -------------\n");
+        LOGGER.info("--------  File:  {}  -------------\n", filename);
 
         File file = new File(filename);
         FileInputStream fis = FileUtils.openInputStream(file);

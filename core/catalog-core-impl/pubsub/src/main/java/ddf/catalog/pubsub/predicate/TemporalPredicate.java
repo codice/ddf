@@ -21,8 +21,9 @@ import ddf.catalog.pubsub.criteria.temporal.TemporalEvaluationCriteria;
 import ddf.catalog.pubsub.criteria.temporal.TemporalEvaluationCriteriaImpl;
 import ddf.catalog.pubsub.criteria.temporal.TemporalEvaluator;
 import ddf.catalog.pubsub.internal.PubSubConstants;
-import org.apache.log4j.Logger;
 import org.osgi.service.event.Event;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Date;
 import java.util.Map;
@@ -36,7 +37,7 @@ public class TemporalPredicate implements Predicate {
 
     private DateType type;
 
-    private static Logger logger = Logger.getLogger(TemporalPredicate.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(TemporalPredicate.class);
 
     /**
      * Instantiates a new temporal predicate.
@@ -63,7 +64,7 @@ public class TemporalPredicate implements Predicate {
     }
 
     public boolean matches(Event properties) {
-        logger.debug("ENTERING: matches");
+        LOGGER.debug("ENTERING: matches");
 
         TemporalEvaluationCriteria tec = null;
         Date date = null;
@@ -71,7 +72,7 @@ public class TemporalPredicate implements Predicate {
         Map<String, Object> contextualMap = (Map<String, Object>) properties
                 .getProperty(PubSubConstants.HEADER_CONTEXTUAL_KEY);
         String operation = (String) properties.getProperty(PubSubConstants.HEADER_OPERATION_KEY);
-        logger.debug("operation = " + operation);
+        LOGGER.debug("operation = {}", operation);
         if (contextualMap != null) {
             String metadata = (String) contextualMap.get("METADATA");
 
@@ -82,32 +83,32 @@ public class TemporalPredicate implements Predicate {
             // cannot apply any geospatial filtering - just send the event on to the subscriber
             if (PubSubConstants.DELETE.equals(operation)
                     && PubSubConstants.METADATA_DELETED.equals(metadata)) {
-                logger.debug("Detected a DELETE operation where metadata is just the word 'deleted', so send event on to subscriber");
+                LOGGER.debug("Detected a DELETE operation where metadata is just the word 'deleted', so send event on to subscriber");
                 return true;
             }
         }
 
         Metacard entry = (Metacard) properties.getProperty(PubSubConstants.HEADER_ENTRY_KEY);
-        logger.debug("entry id: " + entry.getId());
+        LOGGER.debug("entry id: {}", entry.getId());
         if (entry != null) {
 
             switch (this.type) {
             case modified:
-                logger.debug("search by modified: " + entry.getModifiedDate());
+                LOGGER.debug("search by modified: {}", entry.getModifiedDate());
                 date = entry.getModifiedDate();
                 break;
             case effective:
-                logger.debug("search by effective: " + entry.getEffectiveDate());
+                LOGGER.debug("search by effective: {}", entry.getEffectiveDate());
                 date = entry.getEffectiveDate();
                 break;
             case created:
                 // currently searches by createdDate not supported by endpoints
-                logger.debug("search by created: " + entry.getCreatedDate());
+                LOGGER.debug("search by created: {}", entry.getCreatedDate());
                 date = entry.getCreatedDate();
                 break;
             case expiration:
                 // currently searches by expirationDate not supported by endpoints
-                logger.debug("search by expiration: " + entry.getExpirationDate());
+                LOGGER.debug("search by expiration: {}", entry.getExpirationDate());
                 date = entry.getExpirationDate();
                 break;
             }
@@ -117,13 +118,13 @@ public class TemporalPredicate implements Predicate {
                 long startTimeMillis = end.getTime() - offset;
                 this.start = new Date(startTimeMillis);
 
-                logger.debug("time period lowerBound = " + start);
-                logger.debug("time period upperBound = " + end);
+                LOGGER.debug("time period lowerBound = {}", start);
+                LOGGER.debug("time period upperBound = {}", end);
             }
             tec = new TemporalEvaluationCriteriaImpl(end, start, date);
         }
 
-        logger.debug("EXITING: matches");
+        LOGGER.debug("EXITING: matches");
 
         return TemporalEvaluator.evaluate(tec);
     }

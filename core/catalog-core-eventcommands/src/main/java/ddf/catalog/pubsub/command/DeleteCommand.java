@@ -20,9 +20,10 @@ import java.util.List;
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
-import org.apache.log4j.Logger;
 import org.fusesource.jansi.Ansi;
 import org.osgi.framework.ServiceReference;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ddf.catalog.event.Subscriber;
 
@@ -44,7 +45,7 @@ public class DeleteCommand extends SubscriptionsCommand {
 
     static final String DELETION_SUMMARY_FORMAT = "Deleted %d subscriptions out of %s subscriptions found.";
 
-    private static final Logger LOGGER = Logger.getLogger(DeleteCommand.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DeleteCommand.class);
 
     @Argument(name = "search phrase or LDAP filter", description = "Subscription ID to search for. Wildcard characters (*) can be used in the ID, e.g., my*name or *123. ", index = 0, multiValued = false, required = true)
     String id = null;
@@ -70,12 +71,11 @@ public class DeleteCommand extends SubscriptionsCommand {
             ServiceReference[] serviceReferences = bundleContext.getServiceReferences(
                     SUBSCRIBER_SERVICE_PID, null);
             if (serviceReferences == null || serviceReferences.length == 0) {
-                LOGGER.debug("Found no service references for " + SUBSCRIBER_SERVICE_PID);
+                LOGGER.debug("Found no service references for {}", SUBSCRIBER_SERVICE_PID);
                 console.println(RED_CONSOLE_COLOR + NO_SUBSCRIBERS_FOUND_MSG
                         + DEFAULT_CONSOLE_COLOR);
             } else {
-                LOGGER.debug("Found " + serviceReferences.length + " service references for "
-                        + SUBSCRIBER_SERVICE_PID);
+                LOGGER.debug("Found {} service references for {}", serviceReferences.length, SUBSCRIBER_SERVICE_PID);
 
                 int deletedSubscriptionsCount = 0;
                 for (String subscriptionId : subscriptionIds) {

@@ -29,7 +29,8 @@ import javax.xml.transform.dom.DOMResult;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -77,7 +78,7 @@ public class SvrlReport implements SchematronReport {
      */
     private static final String ERROR_FLAG_ATTR_TEXT = "error";
 
-    private static Logger LOGGER = Logger.getLogger(SvrlReport.class.getName());
+    private static final Logger LOGGER = LoggerFactory.getLogger(SvrlReport.class);
 
     /**
      * Private default constructor to prevent instantiating SvrlReport without required DOMResult

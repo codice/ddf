@@ -18,14 +18,11 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 
-import org.apache.log4j.Logger;
 import org.ops4j.pax.swissbox.extender.BundleScanner;
 import org.osgi.framework.Bundle;
 
 public class XsltBundleScanner implements BundleScanner<String> {
     private String entryPath;
-
-    private static Logger logger = Logger.getLogger(XsltBundleScanner.class);
 
     public XsltBundleScanner(String entryPath) {
         super();
@@ -36,7 +33,6 @@ public class XsltBundleScanner implements BundleScanner<String> {
     @SuppressWarnings("unchecked")
     @Override
     public List<String> scan(Bundle bundle) {
-        // logger.debug("Entering XsltBundleScanner.scan().");
         // find bundles that use the xslt listener
 
         List<String> resources = new ArrayList<String>();
@@ -45,16 +41,7 @@ public class XsltBundleScanner implements BundleScanner<String> {
         String fileName;
         bundleEnum = bundle.getEntryPaths(entryPath);
 
-        if (logger.isDebugEnabled()) {
-            if (bundleEnum != null) {
-                // logger.debug("Found " + (bundleEnum.hasMoreElements() ? "some" : "no") +
-                // " resources of path: " + entryPath);
-            } else {
-                // logger.debug("Found no resources of path: " + entryPath);
-            }
-        }
-
-        while (bundleEnum != null && bundleEnum.hasMoreElements()) {
+         while (bundleEnum != null && bundleEnum.hasMoreElements()) {
             fileName = bundleEnum.nextElement();
 
             // if non-xsl/xslt files are found, ignore them

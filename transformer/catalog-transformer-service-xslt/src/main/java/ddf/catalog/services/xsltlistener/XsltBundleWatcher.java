@@ -14,12 +14,14 @@
  **/
 package ddf.catalog.services.xsltlistener;
 
-import org.apache.log4j.Logger;
 import org.ops4j.pax.swissbox.extender.BundleWatcher;
 import org.osgi.framework.BundleContext;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class XsltBundleWatcher<T extends AbstractXsltTransformer> extends BundleWatcher<String> {
-    private static Logger logger = Logger.getLogger(XsltBundleWatcher.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(XsltBundleWatcher.class);
 
     @SuppressWarnings("unchecked")
     public XsltBundleWatcher(BundleContext bundleContext, Class<T> transformerClass,
@@ -27,7 +29,7 @@ public class XsltBundleWatcher<T extends AbstractXsltTransformer> extends Bundle
         super(bundleContext, new XsltBundleScanner(entryPath), new XsltBundleObserver<T>(
                 bundleContext, transformerClass, publishedInterface));
 
-        logger.debug("XsltBundleWatcher constructor.");
+        LOGGER.debug("XsltBundleWatcher constructor.");
     }
 
 }

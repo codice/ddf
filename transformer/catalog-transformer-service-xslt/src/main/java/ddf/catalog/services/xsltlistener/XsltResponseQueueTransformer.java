@@ -63,7 +63,7 @@ public class XsltResponseQueueTransformer extends AbstractXsltTransformer implem
     // "http://ddf/xslt-response-queue-transformer";
     private static final String XML_RESULTS_NAMESPACE = null;
 
-    protected static Logger LOGGER = LoggerFactory.getLogger(XsltResponseQueueTransformer.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(XsltResponseQueueTransformer.class);
 
     public XsltResponseQueueTransformer() {
     }

@@ -31,17 +31,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.BasicConfigurator;
 import org.junit.Test;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.mockito.ArgumentCaptor;
 
 public class ListCommandTest {
-    static {
-        BasicConfigurator.configure();
-    }
-
     private static final String SUBSCRIPTION_ID_PROPERTY_KEY = "subscription-id";
 
     private static final String MY_SUBSCRIPTION_ID = "my.contextual.id|http://172.18.14.169:8088/mockCatalogEventConsumerBinding?WSDL";

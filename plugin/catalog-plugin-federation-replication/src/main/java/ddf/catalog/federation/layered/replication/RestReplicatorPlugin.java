@@ -22,7 +22,8 @@ import javax.ws.rs.core.Response;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.cxf.jaxrs.client.WebClient;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
@@ -45,7 +46,7 @@ public class RestReplicatorPlugin implements PostIngestPlugin {
 
     private MetacardTransformer transformer = null;
 
-    private static final Logger LOGGER = Logger.getLogger(RestReplicatorPlugin.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(RestReplicatorPlugin.class);
 
     private WebClient client;
 
@@ -64,10 +65,8 @@ public class RestReplicatorPlugin implements PostIngestPlugin {
 
                 Response r = client.post(data);
 
-                if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("Posted the following GeoJSON: \n" + data);
-                    LOGGER.debug("RESPONSE: [" + ToStringBuilder.reflectionToString(r) + "]");
-                }
+                LOGGER.debug("Posted the following GeoJSON: {}\n", data);
+                LOGGER.debug("RESPONSE: [{}]", ToStringBuilder.reflectionToString(r));
             }
         }
 
@@ -111,9 +110,7 @@ public class RestReplicatorPlugin implements PostIngestPlugin {
 
                     Response r = updateClient.put(newData);
 
-                    if (LOGGER.isDebugEnabled()) {
-                        LOGGER.debug("RESPONSE: [" + ToStringBuilder.reflectionToString(r) + "]");
-                    }
+                    LOGGER.debug("RESPONSE: [{}]", ToStringBuilder.reflectionToString(r));
                 }
 
             }
@@ -146,9 +143,7 @@ public class RestReplicatorPlugin implements PostIngestPlugin {
 
                     Response r = updateClient.delete();
 
-                    if (LOGGER.isDebugEnabled()) {
-                        LOGGER.debug("RESPONSE: [" + ToStringBuilder.reflectionToString(r) + "]");
-                    }
+                    LOGGER.debug("RESPONSE: [{}]", ToStringBuilder.reflectionToString(r));
                 }
 
             }
@@ -177,10 +172,7 @@ public class RestReplicatorPlugin implements PostIngestPlugin {
 
             client = WebClient.create(this.parentAddress, true);
 
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("Changed the parent address property from [" + previous + "]  to ["
-                        + this.parentAddress + "]");
-            }
+            LOGGER.debug("Changed the parent address property from [{}] to [{}]", previous, this.parentAddress);
         }
 
     }
@@ -191,9 +183,7 @@ public class RestReplicatorPlugin implements PostIngestPlugin {
 
     public void setTransformer(MetacardTransformer transformer) {
         this.transformer = transformer;
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Changed transformer to [" + this.transformer + "]");
-        }
+        LOGGER.debug("Changed transformer to [{}]", this.transformer);
     }
 
     private String transform(Metacard m, WebClient client) throws PluginExecutionException {

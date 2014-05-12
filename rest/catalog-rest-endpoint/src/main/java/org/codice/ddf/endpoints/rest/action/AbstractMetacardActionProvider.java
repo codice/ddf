@@ -20,9 +20,10 @@ import java.util.Map;
 
 import org.apache.commons.lang.CharEncoding;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
 import org.codice.ddf.configuration.ConfigurationManager;
 import org.codice.ddf.configuration.ConfigurationWatcher;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ddf.action.Action;
 import ddf.action.ActionProvider;
@@ -43,7 +44,7 @@ public abstract class AbstractMetacardActionProvider implements ActionProvider,
 
     protected String currentSourceName;
 
-    static final Logger LOGGER = Logger.getLogger(AbstractMetacardActionProvider.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractMetacardActionProvider.class);
 
     static final String UNKNOWN_TARGET = "0.0.0.0";
 
@@ -114,7 +115,7 @@ public abstract class AbstractMetacardActionProvider implements ActionProvider,
                 metacardId = URLEncoder.encode(metacard.getId(), CharEncoding.UTF_8);
                 metacardSource = URLEncoder.encode(getSource(metacard), CharEncoding.UTF_8);
             } catch (UnsupportedEncodingException e) {
-                LOGGER.info(e);
+                LOGGER.info("Unsupported Encoding exception", e);
                 return null;
             }
 

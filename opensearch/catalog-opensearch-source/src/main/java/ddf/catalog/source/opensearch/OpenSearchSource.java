@@ -135,7 +135,7 @@ public final class OpenSearchSource implements FederatedSource, ConfiguredServic
 
     private static final String LOCAL_SEARCH_PARAMETER = URL_SRC_PARAMETER + "local";
 
-    private static XLogger logger = new XLogger(LoggerFactory.getLogger(OpenSearchSource.class));
+    private static final XLogger logger = new XLogger(LoggerFactory.getLogger(OpenSearchSource.class));
 
     private javax.xml.xpath.XPath xpath;
 

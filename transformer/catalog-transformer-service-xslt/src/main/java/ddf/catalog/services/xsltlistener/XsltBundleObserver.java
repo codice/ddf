@@ -21,11 +21,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.apache.log4j.Logger;
 import org.ops4j.pax.swissbox.extender.BundleObserver;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ddf.catalog.Constants;
 
@@ -39,7 +41,7 @@ public class XsltBundleObserver<T extends AbstractXsltTransformer> implements
 
     private BundleContext bundleContext;
 
-    private static Logger logger = Logger.getLogger(XsltBundleObserver.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(XsltBundleObserver.class);
 
     public XsltBundleObserver(BundleContext bundleContext, Class<T> transformerClass,
             String publishedInterface) {
@@ -58,7 +60,7 @@ public class XsltBundleObserver<T extends AbstractXsltTransformer> implements
             String format = file.getName().substring(0, file.getName().lastIndexOf("."));
             Hashtable<String, String> properties = new Hashtable<String, String>();
 
-            logger.debug("Found started bundle with name: " + fileName);
+            LOGGER.debug("Found started bundle with name: {}", fileName);
 
             // setup the properties for the service
             properties.put(Constants.SERVICE_SHORTNAME, format);
@@ -73,10 +75,10 @@ public class XsltBundleObserver<T extends AbstractXsltTransformer> implements
                 xmt = transformerClass.newInstance();
                 xmt.init(bundle, fileName);
             } catch (InstantiationException e) {
-                logger.debug(e);
+                LOGGER.debug("InstantiationException", e);
                 continue;
             } catch (IllegalAccessException e) {
-                logger.debug(e);
+                LOGGER.debug("IllegalAccessException", e);
                 continue;
             }
 
@@ -104,10 +106,7 @@ public class XsltBundleObserver<T extends AbstractXsltTransformer> implements
     public void removingEntries(Bundle bundle, List<String> resources) {
         List<ServiceRegistration> srList = serviceRegistrationMap.get(bundle);
         for (ServiceRegistration sr : srList) {
-            if (logger.isDebugEnabled()) {
-                logger.debug(sr.getReference().getBundle().getSymbolicName()
-                        + " bundle uninstalled and unregistered.");
-            }
+            LOGGER.debug("{} bundle uninstalled and unregistered.", sr.getReference().getBundle().getSymbolicName());
             sr.unregister();
         }
 

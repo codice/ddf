@@ -20,7 +20,8 @@ import java.util.Map;
 
 import javax.activation.MimeType;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.BinaryContent;
@@ -44,7 +45,7 @@ public class AttributeMetacardTransformer implements MetacardTransformer {
 
     private String attributeName;
 
-    private static final Logger LOGGER = Logger.getLogger(AttributeMetacardTransformer.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AttributeMetacardTransformer.class);
 
     /**
      * Constructor for this transformer
@@ -73,10 +74,7 @@ public class AttributeMetacardTransformer implements MetacardTransformer {
                     + "] found in Metacard.");
         }
 
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Attempting transformation of [" + metacard + "] with transformer ["
-                    + this + "]");
-        }
+        LOGGER.debug("Attempting transformation of [{}] with transformer [{}]", metacard, this);
 
         Attribute attribute = metacard.getAttribute(attributeName);
 

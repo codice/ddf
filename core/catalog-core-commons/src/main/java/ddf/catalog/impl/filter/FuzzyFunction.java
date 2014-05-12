@@ -16,7 +16,6 @@ package ddf.catalog.impl.filter;
 
 import java.util.List;
 
-import org.apache.log4j.Logger;
 import org.geotools.filter.FunctionExpressionImpl;
 import org.geotools.filter.capability.FunctionNameImpl;
 import org.opengis.filter.Filter;
@@ -24,6 +23,8 @@ import org.opengis.filter.capability.FunctionName;
 import org.opengis.filter.expression.Expression;
 import org.opengis.filter.expression.Function;
 import org.opengis.filter.expression.Literal;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Used as a customized function in a {@link Filter}. This {@link Function} will wrap a property
@@ -33,7 +34,7 @@ import org.opengis.filter.expression.Literal;
  * @deprecated
  */
 public class FuzzyFunction extends FunctionExpressionImpl {
-    private static Logger logger = Logger.getLogger(FuzzyFunction.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(FuzzyFunction.class);
 
     public static final String FUNCTION_NAME = "fuzzy";
 
@@ -43,7 +44,7 @@ public class FuzzyFunction extends FunctionExpressionImpl {
     public FuzzyFunction(List<Expression> parameters, Literal fallback) {
         super(FUNCTION_NAME, fallback);
 
-        logger.debug("INSIDE: FuzzyFunction constructor");
+        LOGGER.debug("INSIDE: FuzzyFunction constructor");
 
         if (parameters == null) {
             throw new NullPointerException("parameters required");
@@ -56,7 +57,7 @@ public class FuzzyFunction extends FunctionExpressionImpl {
         // HUGH this.functionName = new FunctionNameImpl( FUNCTION_NAME, Expression.class,
         // FunctionNameImpl.parameter( "expression", Expression.class ) );
 
-        logger.debug("EXITING: FuzzyFunction constructor");
+        LOGGER.debug("EXITING: FuzzyFunction constructor");
     }
 
 }

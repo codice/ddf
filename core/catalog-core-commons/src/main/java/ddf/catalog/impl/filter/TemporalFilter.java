@@ -30,7 +30,7 @@ public class TemporalFilter // implements Filter
 
     private Date endDate;
 
-    private static XLogger logger = new XLogger(LoggerFactory.getLogger(TemporalFilter.class));
+    private static final XLogger logger = new XLogger(LoggerFactory.getLogger(TemporalFilter.class));
 
     private static DateTimeFormatter formatter;
     /*

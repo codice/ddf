@@ -34,9 +34,6 @@ import java.util.UUID;
 
 import junit.framework.Assert;
 
-import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
 import org.apache.shiro.authz.Permission;
 import org.apache.shiro.mgt.DefaultSecurityManager;
 import org.apache.shiro.mgt.SecurityManager;
@@ -52,6 +49,8 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.opengis.filter.FilterVisitor;
 import org.opengis.filter.sort.SortBy;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.Metacard;
@@ -73,17 +72,11 @@ import ddf.security.permission.KeyValueCollectionPermission;
 /**
  */
 public class FilterPluginTest {
-    private static final Logger logger = Logger.getLogger(FilterPluginTest.class);
+    private static final Logger logger = LoggerFactory.getLogger(FilterPluginTest.class);
 
     FilterPlugin plugin;
 
     QueryResponseImpl incomingResponse;
-
-    @BeforeClass()
-    public static void setupLogging() {
-        BasicConfigurator.configure();
-        logger.setLevel(Level.TRACE);
-    }
 
     @Before
     public void setup() {

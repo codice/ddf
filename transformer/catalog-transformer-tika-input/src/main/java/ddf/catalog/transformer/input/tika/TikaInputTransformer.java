@@ -20,12 +20,13 @@ import java.net.URI;
 import java.util.Date;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
 import org.apache.tika.exception.TikaException;
 import org.apache.tika.metadata.Metadata;
 import org.apache.tika.metadata.TikaCoreProperties;
 import org.apache.tika.parser.AutoDetectParser;
 import org.apache.tika.sax.BodyContentHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
 
@@ -36,7 +37,7 @@ import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.InputTransformer;
 
 public class TikaInputTransformer implements InputTransformer {
-    private static final Logger LOGGER = Logger.getLogger(TikaInputTransformer.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(TikaInputTransformer.class);
 
     @Override
     public Metacard transform(InputStream input) throws IOException, CatalogTransformerException {
@@ -59,22 +60,20 @@ public class TikaInputTransformer implements InputTransformer {
         try {
             parser.parse(input, handler, metadata);
             String title = metadata.get(TikaCoreProperties.TITLE);
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("Title: " + title);
-                LOGGER.debug("Creator: " + metadata.get(TikaCoreProperties.CREATOR));
-                LOGGER.debug("Author: " + metadata.get(Metadata.AUTHOR));
-                LOGGER.debug("Creation Date: " + metadata.get(TikaCoreProperties.CREATED));
-                LOGGER.debug("Modified Date: " + metadata.get(TikaCoreProperties.MODIFIED));
-                LOGGER.debug("Content Type: " + metadata.get(Metadata.CONTENT_TYPE));
-                // LOGGER.debug("content: " + handler.toString());
-                // int count = 1;
-                // for (String stringMetadata : metadata.names())
-                // {
-                // LOGGER.debug("Metadata " + count + " ----> name : "
-                // + stringMetadata + "&nbsp; value : " + metadata.get(stringMetadata));
-                // count++;
-                // }
-            }
+            LOGGER.debug("Title: {}", title);
+            LOGGER.debug("Creator: {}", metadata.get(TikaCoreProperties.CREATOR));
+            LOGGER.debug("Author: {}", metadata.get(Metadata.AUTHOR));
+            LOGGER.debug("Creation Date: {}", metadata.get(TikaCoreProperties.CREATED));
+            LOGGER.debug("Modified Date: {}", metadata.get(TikaCoreProperties.MODIFIED));
+            LOGGER.debug("Content Type: {}", metadata.get(Metadata.CONTENT_TYPE));
+            // LOGGER.debug("content: {}", handler);
+            // int count = 1;
+            // for (String stringMetadata : metadata.names())
+            // {
+            // LOGGER.debug("Metadata " + count + " ----> name : "
+            // + stringMetadata + "&nbsp; value : " + metadata.get(stringMetadata));
+            // count++;
+            // }
 
             // mc.setMetadata(convertNodeToString(getDocument(jaxbDoc)));
             if (StringUtils.isEmpty(title)) {
@@ -101,10 +100,10 @@ public class TikaInputTransformer implements InputTransformer {
                 metacard.setResourceURI(null);
             }
         } catch (SAXException e) {
-            LOGGER.warn(e);
+            LOGGER.warn("SAX exception parsing metacard", e);
             throw new CatalogTransformerException(e);
         } catch (TikaException e) {
-            LOGGER.warn(e);
+            LOGGER.warn("Tika exception parsing metacard", e);
             throw new CatalogTransformerException(e);
         }
 

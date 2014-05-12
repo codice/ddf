@@ -14,7 +14,8 @@
  **/
 package ddf.catalog.util;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Default implementation of the Describable interface, providing basic
@@ -27,7 +28,7 @@ import org.apache.log4j.Logger;
 @Deprecated
 public abstract class DescribableImpl implements Describable {
 
-    private static Logger logger = Logger.getLogger(DescribableImpl.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DescribableImpl.class);
 
     private String version = null;
 
@@ -55,7 +56,7 @@ public abstract class DescribableImpl implements Describable {
      * @param version
      */
     public void setVersion(String version) {
-        logger.debug("Setting version = " + version);
+        LOGGER.debug("Setting version = {}", version);
         this.version = version;
     }
 
@@ -83,9 +84,9 @@ public abstract class DescribableImpl implements Describable {
      * @param id
      */
     public void setId(String id) {
-        logger.debug("ENTERING: setId - id = " + id);
+        LOGGER.debug("ENTERING: setId - id = {}", id);
         this.id = id;
-        logger.debug("EXITING: setId");
+        LOGGER.debug("EXITING: setId");
     }
 
     /*
@@ -104,9 +105,9 @@ public abstract class DescribableImpl implements Describable {
      * @param title
      */
     public void setTitle(String title) {
-        logger.debug("ENTERING: setTitle");
+        LOGGER.debug("ENTERING: setTitle");
         this.title = title;
-        logger.debug("EXITING: setTitle");
+        LOGGER.debug("EXITING: setTitle");
     }
 
     /*
@@ -125,9 +126,9 @@ public abstract class DescribableImpl implements Describable {
      * @param description
      */
     public void setDescription(String description) {
-        logger.debug("ENTERING: setDescription");
+        LOGGER.debug("ENTERING: setDescription");
         this.description = description;
-        logger.debug("EXITING: setDescription");
+        LOGGER.debug("EXITING: setDescription");
     }
 
     /*
@@ -146,10 +147,10 @@ public abstract class DescribableImpl implements Describable {
      * @param organization
      */
     public void setOrganization(String organization) {
-        logger.debug("ENTERING: setOrganization");
-        logger.debug("Setting organization = " + organization);
+        LOGGER.debug("ENTERING: setOrganization");
+        LOGGER.debug("Setting organization = {}", organization);
         this.organization = organization;
-        logger.debug("EXITING: setOrganization");
+        LOGGER.debug("EXITING: setOrganization");
     }
 
 }

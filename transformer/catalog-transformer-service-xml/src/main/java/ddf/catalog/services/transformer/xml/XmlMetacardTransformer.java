@@ -25,7 +25,8 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.transform.TransformerFactory;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.AttributeType.AttributeFormat;
@@ -43,7 +44,7 @@ public class XmlMetacardTransformer implements MetacardTransformer {
 	private static final String TEXT_XML = "text/xml";
 	private static final String CDATA_OPENING = "<![CDATA[";
 	private static final String CDATA_CLOSING = "]]>";
-	private static final Logger logger = Logger.getLogger(XmlMetacardTransformer.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(XmlMetacardTransformer.class);
 
 	private static JAXBContext jc;
 	private TransformerFactory factory;
@@ -59,7 +60,7 @@ public class XmlMetacardTransformer implements MetacardTransformer {
 		BinaryContent transformedContent = null;
 
 		if (metacard == null) {
-			logger.warn("Attmpted to transform null metacard");
+			LOGGER.warn("Attmpted to transform null metacard");
 			throw new CatalogTransformerException("Unable to transform null metacard");
 		}
 
@@ -155,7 +156,7 @@ public class XmlMetacardTransformer implements MetacardTransformer {
 						finalByteArray.write((byte[]) metacard.getAttribute(name).getValue());
 						finalByteArray.write(CDATA_CLOSING.getBytes("UTF-8"));
 					} catch (IOException e) {
-						logger.error("IOException building byte array.", e);
+						LOGGER.error("IOException building byte array.", e);
 					}
 					binaryPayload.setValue(finalByteArray.toByteArray());
 					xmlMetacard.getBinary().add(binaryPayload);
@@ -181,7 +182,7 @@ public class XmlMetacardTransformer implements MetacardTransformer {
 						finalByteArray.write((byte[]) metacard.getAttribute(name).getValue());
 						finalByteArray.write(CDATA_CLOSING.getBytes("UTF-8"));
 					} catch (IOException e) {
-						logger.error("IOException building byte array.", e);
+						LOGGER.error("IOException building byte array.", e);
 					}
 					binaryPayload.setValue(finalByteArray.toByteArray());
 					xmlMetacard.getObject().add(binaryPayload);
@@ -196,7 +197,7 @@ public class XmlMetacardTransformer implements MetacardTransformer {
 			try {
 				jc = JAXBContext.newInstance(ddf.catalog.services.transformer.xml.schema.Metacard.class);
 			} catch (JAXBException e) {
-				logger.error("JAXB error: ", e);
+				LOGGER.error("JAXB error: ", e);
 			}
 		}
 
@@ -209,12 +210,11 @@ public class XmlMetacardTransformer implements MetacardTransformer {
 			marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
 			marshaller.marshal(xmlMetacard, os);
 			ByteArrayInputStream bais = new ByteArrayInputStream(os.toByteArray()); 
-			transformedContent = new BinaryContentImpl(bais, new MimeType(
-					TEXT_XML));
+			transformedContent = new BinaryContentImpl(bais, new MimeType(TEXT_XML));
 		} catch (JAXBException e) {
-			logger.error("JAXB error: ", e);
+			LOGGER.error("JAXB error: ", e);
 		} catch (MimeTypeParseException e) {
-			logger.error("MimeType Parsing error: ", e);
+			LOGGER.error("MimeType Parsing error: ", e);
 		} finally {
 			Thread.currentThread().setContextClassLoader(tccl);
 		}

@@ -21,9 +21,10 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * The DDF Configuration Manager manages the DDF system settings. Some of these
@@ -44,7 +45,7 @@ import org.osgi.service.cm.ConfigurationAdmin;
  */
 @Deprecated
 public class DdfConfigurationManager implements org.codice.ddf.configuration.ConfigurationWatcher {
-    private static final Logger logger = Logger.getLogger(DdfConfigurationManager.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DdfConfigurationManager.class);
 
     // Constants for the DDF system settings appearing in the Admin Console
 
@@ -193,7 +194,7 @@ public class DdfConfigurationManager implements org.codice.ddf.configuration.Con
      */
     public DdfConfigurationManager(List<DdfConfigurationWatcher> services,
             ConfigurationAdmin configurationAdmin) {
-        logger.info("ENTERING: ctor");
+        LOGGER.info("ENTERING: ctor");
         this.services = services;
         this.configurationAdmin = configurationAdmin;
 
@@ -222,7 +223,7 @@ public class DdfConfigurationManager implements org.codice.ddf.configuration.Con
      */
     public void updated(Map configuration) {
         String methodName = "updated";
-        logger.info("ENTERING: " + methodName);
+        LOGGER.info("ENTERING: {}", methodName);
 
         if (configuration != null && !configuration.isEmpty()) {
             this.configuration = configuration;
@@ -235,7 +236,7 @@ public class DdfConfigurationManager implements org.codice.ddf.configuration.Con
             service.ddfConfigurationUpdated(this.configuration);
         }
 
-        logger.info("EXITING: " + methodName);
+        LOGGER.info("EXITING: {}", methodName);
     }
 
     /**
@@ -248,13 +249,13 @@ public class DdfConfigurationManager implements org.codice.ddf.configuration.Con
      */
     public void bind(DdfConfigurationWatcher service, Map properties) {
         String methodName = "bind";
-        logger.info("ENTERING: " + methodName);
+        LOGGER.info("ENTERING: {}", methodName);
 
         if (service != null) {
             service.ddfConfigurationUpdated(this.configuration);
         }
 
-        logger.info("EXITING: " + methodName);
+        LOGGER.info("EXITING: {}", methodName);
     }
 
     /**
@@ -283,8 +284,7 @@ public class DdfConfigurationManager implements org.codice.ddf.configuration.Con
      */
     public String getConfigurationValue(String servicePid, String propertyName) {
         String methodName = "getConfigurationValue";
-        logger.info("ENTERING: " + methodName + "   servicePid = " + servicePid
-                + ",  propertyName = " + propertyName);
+        LOGGER.info("ENTERING: {}   servicePid = {},  propertyName = {}", methodName, servicePid, propertyName);
 
         String value = "";
 
@@ -299,27 +299,26 @@ public class DdfConfigurationManager implements org.codice.ddf.configuration.Con
                     if (properties != null && properties.get(propertyName) != null) {
                         value = (String) properties.get(propertyName);
                     } else {
-                        logger.debug("properties for servicePid = " + servicePid
-                                + " were NULL or empty");
+                        LOGGER.debug("properties for servicePid = {} were NULL or empty", servicePid);
                     }
                 } else {
-                    logger.debug("configuration for servicePid = " + servicePid + " was NULL");
+                    LOGGER.debug("configuration for servicePid = {} was NULL", servicePid);
                 }
             } else {
-                logger.debug("configurationAdmin is NULL");
+                LOGGER.debug("configurationAdmin is NULL");
             }
         } catch (IOException e) {
-            logger.warn(e);
+            LOGGER.warn("IO Exception while getting configuration values", e);
         }
 
-        logger.info("EXITING: " + methodName + "    value = [" + value + "]");
+        LOGGER.info("EXITING: {}    value = [{}]", methodName, value);
 
         return value;
     }
 
     @Override
     public void configurationUpdateCallback(Map<String, String> properties) {
-        logger.debug("Calling update to send properties to all legacy watchers.");
+        LOGGER.debug("Calling update to send properties to all legacy watchers.");
         updated(new HashMap<String, String>(properties));
     }
 }

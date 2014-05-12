@@ -16,8 +16,9 @@ package ddf.catalog.util;
 
 import java.util.Comparator;
 
-import org.apache.log4j.Logger;
 import org.opengis.filter.sort.SortOrder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ddf.catalog.data.Result;
 
@@ -30,7 +31,7 @@ import ddf.catalog.data.Result;
 @Deprecated
 public class RelevanceResultComparator implements Comparator<Result> {
 
-    private static Logger logger = Logger.getLogger(RelevanceResultComparator.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(RelevanceResultComparator.class);
 
     private SortOrder sortOrder;
 
@@ -60,26 +61,24 @@ public class RelevanceResultComparator implements Comparator<Result> {
             Double relevanceScoreB = contentB.getRelevanceScore();
 
             if (relevanceScoreA == null && relevanceScoreB != null) {
-                logger.debug("relevanceScoreA is null and relevanceScoreB is not null: "
-                        + relevanceScoreB);
+                LOGGER.debug("relevanceScoreA is null and relevanceScoreB is not null: {}", relevanceScoreB);
                 return 1;
             } else if (relevanceScoreA != null && relevanceScoreB == null) {
-                logger.debug("relevanceScoreA is not null: " + relevanceScoreA
-                        + " and relevanceScoreB is null");
+                LOGGER.debug("relevanceScoreA is not null: {} and relevanceScoreB is null", relevanceScoreA);
                 return -1;
             } else if (relevanceScoreA == null && relevanceScoreB == null) {
-                logger.debug("both are null");
+                LOGGER.debug("both are null");
                 return 0;
             } else if (SortOrder.ASCENDING.equals(sortOrder)) {
                 return relevanceScoreA.compareTo(relevanceScoreB);
             } else if (SortOrder.DESCENDING.equals(sortOrder)) {
                 return relevanceScoreB.compareTo(relevanceScoreA);
             } else {
-                logger.warn("Unknown order type. Returning 0.");
+                LOGGER.warn("Unknown order type. Returning 0.");
                 return 0;
             }
         } else {
-            logger.warn("Error comparing responses, at least one was null.  Returning -1: ");
+            LOGGER.warn("Error comparing responses, at least one was null.  Returning -1: ");
             return -1;
         }
     }

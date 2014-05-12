@@ -25,9 +25,10 @@ import javax.activation.MimeType;
 import javax.activation.MimeTypeParseException;
 import javax.xml.bind.DatatypeConverter;
 
-import org.apache.log4j.Logger;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.io.ParseException;
@@ -70,7 +71,7 @@ public class GeoJsonMetacardTransformer implements MetacardTransformer {
 
     public static MimeType DEFAULT_MIME_TYPE = null;
 
-    private static final Logger LOGGER = Logger.getLogger(GeoJsonMetacardTransformer.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(GeoJsonMetacardTransformer.class);
 
     private static final String SOURCE_ID_PROPERTY = "source-id";
 
@@ -78,7 +79,7 @@ public class GeoJsonMetacardTransformer implements MetacardTransformer {
         try {
             DEFAULT_MIME_TYPE = new MimeType("application/json");
         } catch (MimeTypeParseException e) {
-            LOGGER.warn(e);
+            LOGGER.warn("MimeType exception during static setup", e);
         }
     }
 
@@ -159,7 +160,7 @@ public class GeoJsonMetacardTransformer implements MetacardTransformer {
                             rootObject.put(CompositeGeometry.GEOMETRY_KEY,
                                     geoJsonGeometry.toJsonMap());
                         } catch (ParseException e) {
-                            LOGGER.warn(e);
+                            LOGGER.warn("Parse exception during reading of geometry", e);
                             throw new CatalogTransformerException(
                                     "Could not perform transform: could not parse geometry.", e);
                         }

@@ -19,7 +19,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ddf.action.Action;
 import ddf.action.impl.ActionImpl;
@@ -30,7 +31,7 @@ public class ViewMetacardActionProvider extends AbstractMetacardActionProvider {
 
     public static final String DESCRIPTION = "Provides a URL to the metacard";
 
-    static final Logger LOGGER = Logger.getLogger(ViewMetacardActionProvider.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ViewMetacardActionProvider.class);
 
     public ViewMetacardActionProvider(String id) {
         this.actionProviderId = id;
@@ -47,10 +48,10 @@ public class ViewMetacardActionProvider extends AbstractMetacardActionProvider {
             url = uri.toURL();
 
         } catch (MalformedURLException e) {
-            LOGGER.info(e);
+            LOGGER.info("Malformed URL exception", e);
             return null;
         } catch (URISyntaxException e) {
-            LOGGER.info(e);
+            LOGGER.info("URI Syntax exception", e);
             return null;
         }
 

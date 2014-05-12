@@ -39,7 +39,7 @@ import ddf.catalog.source.SourceDescriptor;
 import ddf.catalog.source.SourceUnavailableException;
 
 public class SourceConfigurationAdminPlugin implements ConfigurationAdminPlugin {
-    private final XLogger logger = new XLogger(
+    private static final XLogger logger = new XLogger(
             LoggerFactory.getLogger(SourceConfigurationAdminPlugin.class));
 
     private CatalogFramework catalogFramework;

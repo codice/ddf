@@ -30,12 +30,12 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.Logger;
 import org.custommonkey.xmlunit.NamespaceContext;
 import org.custommonkey.xmlunit.SimpleNamespaceContext;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
@@ -45,11 +45,7 @@ import ddf.catalog.transformer.xml.XmlMetacardTransformer;
 
 public class TestXmlMetacardTransformer {
 
-    private static final Logger LOGGER = Logger.getLogger(TestXmlMetacardTransformer.class);
-
-    static {
-        BasicConfigurator.configure();
-    }
+    private static final Logger LOGGER = LoggerFactory.getLogger(TestXmlMetacardTransformer.class);
 
     @Test
     public void testNonDdms() throws CatalogTransformerException {
@@ -88,7 +84,7 @@ public class TestXmlMetacardTransformer {
             in.close();
             LOGGER.debug("\n* * * END XML METACARD REPRESENTATION * * * \n");
         } catch (IOException e) { // TODO Auto-generated catch block
-            LOGGER.error(e);
+            LOGGER.error("IOException during test", e);
         }
 
     }

@@ -48,10 +48,6 @@
 			<groupId>org.osgi</groupId>
 			<artifactId>org.osgi.compendium</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>log4j</groupId>
-			<artifactId>log4j</artifactId>
-		</dependency>
 		
 		<!-- JAR of the test classes in catalog-api, namely its mock objects -->
 		<dependency>
@@ -70,8 +66,7 @@
 		
 		<dependency>
 			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-log4j12</artifactId>
-			<scope>test</scope>
+			<artifactId>slf4j-ext</artifactId>
 		</dependency>
 
 		<dependency>

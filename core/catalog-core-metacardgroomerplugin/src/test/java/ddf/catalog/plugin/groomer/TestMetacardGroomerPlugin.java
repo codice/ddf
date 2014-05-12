@@ -38,7 +38,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map.Entry;
 
-import org.apache.log4j.BasicConfigurator;
 import org.joda.time.DateTime;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -78,11 +77,6 @@ public class TestMetacardGroomerPlugin {
     public static final String DEFAULT_LOCATION = "POINT (1 0)";
 
     public static final String DEFAULT_SOURCE_ID = "ddf";
-
-    @BeforeClass
-    public static void setup() {
-        BasicConfigurator.configure();
-    }
 
     @Test
     public void testCreateWithNullRequest() throws PluginExecutionException,

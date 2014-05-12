@@ -33,7 +33,6 @@ import javax.activation.MimeType;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.log4j.Logger;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -59,8 +58,6 @@ public class TestResourceMetacardTransformer {
     private static final String TEST_ID = "123456";
 
     private static final String TEST_SITE = "ddf";
-
-    private static final Logger LOGGER = Logger.getLogger(TestResourceMetacardTransformer.class);
 
     private static final String TEST_PATH = "/src/test/resources/data/";
 

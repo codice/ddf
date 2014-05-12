@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
  */
 public class SourcesModule implements AdminModule {
 
-    private Logger logger = LoggerFactory.getLogger(SourcesModule.class);
+    private static final Logger logger = LoggerFactory.getLogger(SourcesModule.class);
 
     @Override
     public String getName() {

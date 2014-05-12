@@ -50,8 +50,6 @@ import javax.xml.validation.Validator;
 
 import org.apache.abdera.model.Link;
 import org.apache.commons.io.IOUtils;
-import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.Logger;
 import org.codice.ddf.configuration.ConfigurationManager;
 import org.custommonkey.xmlunit.NamespaceContext;
 import org.custommonkey.xmlunit.SimpleNamespaceContext;
@@ -60,6 +58,8 @@ import org.custommonkey.xmlunit.exceptions.XpathException;
 import org.joda.time.DateTime;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
@@ -112,7 +112,7 @@ public class TestAtomTransformer {
 
     private static final FilterBuilder FILTER_BUILDER = new GeotoolsFilterBuilder();
 
-    private static final Logger LOGGER = Logger.getLogger(TestAtomTransformer.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(TestAtomTransformer.class);
 
     static DocumentBuilder parser = null; // thread-unsafe
 
@@ -124,7 +124,7 @@ public class TestAtomTransformer {
         try {
             parser = documentBuilderFactory.newDocumentBuilder();
         } catch (ParserConfigurationException e) {
-            LOGGER.warn(e);
+            LOGGER.warn("Parser exception during static setup", e);
         }
 
     }
@@ -139,12 +139,9 @@ public class TestAtomTransformer {
             Schema schema = schemaFactory.newSchema(schemas);
             validator = schema.newValidator();
         } catch (SAXException e) {
-            LOGGER.warn(e);
+            LOGGER.warn("SAX exception creating validator", e);
         }
 
-    }
-    static {
-        BasicConfigurator.configure();
     }
 
     @BeforeClass

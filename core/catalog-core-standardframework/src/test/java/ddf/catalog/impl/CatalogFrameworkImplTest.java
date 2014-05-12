@@ -46,8 +46,6 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.Level;
 import org.geotools.filter.FilterFactoryImpl;
 import org.junit.BeforeClass;
 import org.junit.Ignore;

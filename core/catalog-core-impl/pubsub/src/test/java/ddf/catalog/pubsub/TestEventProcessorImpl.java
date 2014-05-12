@@ -16,22 +16,20 @@ package ddf.catalog.pubsub;
 
 import static org.junit.Assert.fail;
 
-import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.osgi.service.event.EventAdmin;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ddf.catalog.data.impl.MetacardImpl;
 
 public class TestEventProcessorImpl {
-    static {
-        org.apache.log4j.BasicConfigurator.configure();
-    }
 
-    private static final Logger logger = Logger.getLogger(TestEventProcessorImpl.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(TestEventProcessorImpl.class);
 
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
@@ -69,7 +67,7 @@ public class TestEventProcessorImpl {
         try {
             EventProcessorImpl.processEntry(metacard, "Operation", null);
         } catch (Exception e) {
-            logger.error("Unexepected exception.", e);
+            LOGGER.error("Unexpected exception.", e);
             fail();
         }
 
@@ -86,7 +84,7 @@ public class TestEventProcessorImpl {
         try {
             EventProcessorImpl.processEntry(metacard, null, eventAdmin);
         } catch (Exception e) {
-            logger.error("Unexepected exception.", e);
+            LOGGER.error("Unexpected exception.", e);
             fail();
         }
 
