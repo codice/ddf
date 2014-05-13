@@ -252,6 +252,7 @@ public class LoginFilter implements Filter {
             URL url = new URL(httpRequest.getRequestURL().toString());
             cookie.setDomain(url.getHost());
             cookie.setPath("/");
+            cookie.setSecure(true);
             //TODO do we want a max age??
             if(timeoutSeconds > Integer.MAX_VALUE || timeoutSeconds < Integer.MIN_VALUE) {
                 cookie.setMaxAge(-1);
