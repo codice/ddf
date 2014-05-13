@@ -38,6 +38,7 @@ import javax.xml.namespace.QName;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.security.Principal;
 
 public class AuthenticationFilter implements AuthenticationHandler {
 
@@ -61,7 +62,7 @@ public class AuthenticationFilter implements AuthenticationHandler {
         LOGGER.debug("Handling request for path {}", path);
 
         LOGGER.debug("Doing authentication and authorization for path {}", path);
-        UsernameTokenType result = setAuthenticationInfo(httpRequest);
+        final UsernameTokenType result = setAuthenticationInfo(httpRequest);
         if(resolve) {
             if(result == null) {
                 filterResult = new FilterResult(FilterResult.FilterStatus.REDIRECTED, null, "");
@@ -69,7 +70,13 @@ public class AuthenticationFilter implements AuthenticationHandler {
                 return filterResult;
             } else {
                 String usernameToken = getUsernameTokenElement(result);
-                filterResult = new FilterResult(FilterResult.FilterStatus.COMPLETED, null, usernameToken);
+                Principal principal = new Principal() {
+                    private String username = result.getUsername().getValue();
+                    @Override public String getName() {
+                        return username;
+                    }
+                };
+                filterResult = new FilterResult(FilterResult.FilterStatus.COMPLETED, principal, usernameToken);
                 return filterResult;
             }
         } else {
@@ -78,7 +85,13 @@ public class AuthenticationFilter implements AuthenticationHandler {
                 return filterResult;
             } else {
                 String usernameToken = getUsernameTokenElement(result);
-                filterResult = new FilterResult(FilterResult.FilterStatus.COMPLETED, null, usernameToken);
+                Principal principal = new Principal() {
+                    private String username = result.getUsername().getValue();
+                    @Override public String getName() {
+                        return username;
+                    }
+                };
+                filterResult = new FilterResult(FilterResult.FilterStatus.COMPLETED, principal, usernameToken);
                 return filterResult;
             }
         }

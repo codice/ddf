@@ -249,7 +249,8 @@ public class StsRealm extends AuthenticatingRealm implements ConfigurationWatche
         LOGGER.debug("Creating token authentication information with SAML.");
         SimpleAuthenticationInfo simpleAuthenticationInfo = new SimpleAuthenticationInfo();
         SimplePrincipalCollection principals = new SimplePrincipalCollection();
-        principals.add(token.getPrincipal(), NAME);
+        Object principal = token.getPrincipal();
+        principals.add(principal, NAME);
         principals.add(securityToken, NAME);
         simpleAuthenticationInfo.setPrincipals(principals);
         simpleAuthenticationInfo.setCredentials(credential);

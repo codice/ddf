@@ -27,6 +27,7 @@ import org.apache.ws.security.WSSecurityException;
 import org.apache.ws.security.components.crypto.Crypto;
 import org.apache.ws.security.components.crypto.CryptoFactory;
 import org.apache.ws.security.saml.ext.AssertionWrapper;
+import org.apache.ws.security.saml.ext.OpenSAMLUtil;
 import org.joda.time.DateTime;
 import org.opensaml.Configuration;
 import org.opensaml.common.SAMLObjectBuilder;
@@ -39,6 +40,7 @@ import org.opensaml.saml2.core.StatusMessage;
 import org.opensaml.xml.XMLObjectBuilderFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import javax.servlet.Filter;
@@ -50,6 +52,9 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -105,11 +110,17 @@ public class LoginFilter implements Filter {
                 //get the crypto junk
                 Crypto crypto = getSignatureCrypto();
                 org.opensaml.saml2.core.Response samlResponse = createSamlResponse(httpRequest.getRequestURI(), assertion.getIssuerString(), createStatus(SAMLProtocolResponseValidator.SAML2_STATUSCODE_SUCCESS, null));
-                samlResponse.getAssertions().add(assertion.getSaml2());
+                DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
+                docBuilderFactory.setNamespaceAware(true);
+                DocumentBuilder docBuilder = docBuilderFactory.newDocumentBuilder();
+                Document doc = docBuilder.newDocument();
+                Element policyElement = OpenSAMLUtil.toDom(samlResponse, doc);
+                doc.appendChild(policyElement);
+                org.opensaml.saml2.core.Response marshalledResponse = (org.opensaml.saml2.core.Response)OpenSAMLUtil.fromDom(policyElement);
                 SAMLProtocolResponseValidator validator = new SAMLProtocolResponseValidator();
 
                 //validate the assertion
-                validator.validateSamlResponse(samlResponse, crypto, null);
+                validator.validateSamlResponse(marshalledResponse, crypto, null);
 
                 //if it is all good, then we'll create our subject
                 subject = securityManager.getSubject(securityToken);
@@ -118,6 +129,8 @@ public class LoginFilter implements Filter {
                 returnNotAuthorized(httpResponse);
             } catch (WSSecurityException e) {
                 LOGGER.error("Unable to read/validate security token from http request.", e);
+            } catch (ParserConfigurationException e) {
+                LOGGER.error("Unable to create doc builder.", e);
             }
         } else if(token != null) {
             try {
@@ -140,11 +153,11 @@ public class LoginFilter implements Filter {
 
         if(subject != null) {
             httpRequest.setAttribute("ddf.security.subject", subject);
+            chain.doFilter(request, response);
         } else {
             LOGGER.debug("Could not attach subject to http request.");
             returnNotAuthorized(httpResponse);
         }
-
     }
 
     private static Response createSamlResponse(
@@ -231,7 +244,7 @@ public class LoginFilter implements Filter {
             cookie.setDomain(url.getHost());
             cookie.setPath("/");
             //TODO do we want a max age??
-            cookie.setMaxAge(0);
+            cookie.setMaxAge(-1);
 
             httpResponse.addCookie(cookie);
         } catch (MalformedURLException e) {
