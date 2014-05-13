@@ -42,11 +42,7 @@
             
         <AD name="Claims:" id="claims" required="true"
             type="String" 
-            default="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier,
-            http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress,
-            http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname,
-            http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname,
-			http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role"
+            default="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier,http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress,http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname,http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname,http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role"
             description="Comma-delimited list of claims that should be requested by the STS.">
         </AD>
     </OCD>
