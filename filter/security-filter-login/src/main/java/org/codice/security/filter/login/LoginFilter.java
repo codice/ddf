@@ -139,7 +139,16 @@ public class LoginFilter implements Filter {
                 for(Object principal : subject.getPrincipals().asList()){
                     if(principal instanceof SecurityAssertion) {
                         Element samlToken = ((SecurityAssertion) principal).getSecurityToken().getToken();
-                        createSamlCookie(httpRequest, httpResponse, encodeSaml(samlToken));
+                        AssertionWrapper assertion = new AssertionWrapper(((SecurityAssertion) principal).getSecurityToken().getToken());
+                        DateTime before = assertion.getSaml2().getConditions().getNotBefore();
+                        DateTime after = assertion.getSaml2().getConditions().getNotOnOrAfter();
+                        long timeoutSeconds = -1;
+                        if(before != null && after != null) {
+                            long beforeMil = before.getMillis();
+                            long afterMil = after.getMillis();
+                            timeoutSeconds = (afterMil - beforeMil) / 1000;
+                        }
+                        createSamlCookie(httpRequest, httpResponse, encodeSaml(samlToken), timeoutSeconds);
                     }
                 }
             } catch (SecurityServiceException e) {
@@ -237,14 +246,18 @@ public class LoginFilter implements Filter {
 
     }
 
-    private void createSamlCookie(HttpServletRequest httpRequest, HttpServletResponse httpResponse, String cookieValue) {
+    private void createSamlCookie(HttpServletRequest httpRequest, HttpServletResponse httpResponse, String cookieValue, long timeoutSeconds) {
         try {
             Cookie cookie = new Cookie(SAML_COOKIE_NAME, cookieValue);
             URL url = new URL(httpRequest.getRequestURL().toString());
             cookie.setDomain(url.getHost());
             cookie.setPath("/");
             //TODO do we want a max age??
-            cookie.setMaxAge(-1);
+            if(timeoutSeconds > Integer.MAX_VALUE || timeoutSeconds < Integer.MIN_VALUE) {
+                cookie.setMaxAge(-1);
+            } else {
+                cookie.setMaxAge((int) timeoutSeconds);
+            }
 
             httpResponse.addCookie(cookie);
         } catch (MalformedURLException e) {
