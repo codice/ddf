@@ -14,8 +14,6 @@
  **/
 package ddf.security.cas.client;
 
-import org.apache.log4j.Logger;
-
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -27,13 +25,16 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  *
  * Proxy filter chain used to call of the required CAS filters in a specific order.
  *
  */
 public class ProxyFilterChain implements FilterChain {
-    private static final Logger LOGGER = Logger.getLogger(ProxyFilterChain.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ProxyFilterChain.class);
 
     private FilterChain filterChain;
 
@@ -59,7 +60,7 @@ public class ProxyFilterChain implements FilterChain {
             throw new IllegalStateException();
         }
 
-        LOGGER.debug("Adding filter " + filter.getClass().getName() + " to filter chain.");
+        LOGGER.debug("Adding filter {} to filter chain.", filter.getClass().getName());
         filters.add(filter);
     }
 
@@ -76,7 +77,7 @@ public class ProxyFilterChain implements FilterChain {
 
         if (LOGGER.isDebugEnabled()) {
             for (Filter filter : filters) {
-                LOGGER.debug("Added filter " + filter.getClass().getName() + " to filter chain.");
+                LOGGER.debug("Added filter {} to filter chain.", filter.getClass().getName());
             }
         }
     }
@@ -95,15 +96,13 @@ public class ProxyFilterChain implements FilterChain {
 
         if (iterator.hasNext()) {
             Filter filter = iterator.next();
-            LOGGER.debug("Calling filter " + filter.getClass().getName() + ".doFilter(" + servletRequest
-                    + ", " + servletResponse + ", " + this + ")");
+            LOGGER.debug("Calling filter {}.doFilter({},{},{})", filter.getClass().getName(), servletRequest, servletResponse, this);
             filter.doFilter(servletRequest, servletResponse, this);
         } else {
-            LOGGER.debug("Calling filterChain " + filterChain.getClass().getName() + ".doFilter("
-                    + servletRequest + ", " + servletResponse + ")");
+            LOGGER.debug("Calling filterChain {}.doFilter({},{})", filterChain.getClass().getName(), servletRequest, servletResponse);
             servletRequest.setAttribute("org.codice.ddf.ui.searchui.standard.properties.user",
                     ((HttpServletRequestWrapper)servletRequest).getRemoteUser());
-            LOGGER.debug("User: " + servletRequest.getAttribute("org.codice.ddf.ui.searchui.standard.properties.user"));
+            LOGGER.debug("User: {}", servletRequest.getAttribute("org.codice.ddf.ui.searchui.standard.properties.user"));
             filterChain.doFilter(servletRequest, servletResponse);
         }
     }

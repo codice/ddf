@@ -29,8 +29,9 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.log4j.Logger;
 import org.jasig.cas.client.authentication.AttributePrincipal;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 
@@ -46,7 +47,7 @@ public class TestPage extends HttpServlet {
 
     private static final String HTML_ENDLINE = "<br/>";
 
-    private static final Logger LOGGER = Logger.getLogger(TestPage.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(TestPage.class);
 
     /**
      * @see javax.servlet.http.HttpServlet#doGet(javax.servlet.http.HttpServletRequest,

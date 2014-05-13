@@ -21,7 +21,6 @@ import static org.mockito.Mockito.when;
 import java.util.Arrays;
 
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
-import org.apache.log4j.BasicConfigurator;
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.realm.Realm;
@@ -37,11 +36,6 @@ import ddf.security.service.SecurityServiceException;
 public class SecurityManagerImplTest {
 
     private static final String REALM_NAME = "MOCKREALM";
-
-    @BeforeClass
-    public static void init() {
-        // BasicConfigurator.configure();
-    }
 
     @Rule
     public ExpectedException thrown = ExpectedException.none();

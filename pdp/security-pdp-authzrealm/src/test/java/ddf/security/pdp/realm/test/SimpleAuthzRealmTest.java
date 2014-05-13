@@ -19,9 +19,6 @@ import ddf.security.permission.ActionPermission;
 import ddf.security.permission.KeyValueCollectionPermission;
 import ddf.security.permission.KeyValuePermission;
 import junit.framework.Assert;
-import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
 import org.apache.shiro.authz.Permission;
 import org.apache.shiro.authz.SimpleAuthorizationInfo;
 import org.apache.shiro.subject.PrincipalCollection;
@@ -36,19 +33,11 @@ import java.util.*;
  * User: tustisos Date: 3/20/13 Time: 9:35 AM
  */
 public class SimpleAuthzRealmTest {
-    private static final Logger logger = Logger.getLogger(SimpleAuthzRealmTest.class);
-
     SimpleAuthzRealm testRealm;
 
     List<Permission> permissionList;
     
     HashMap<String, List<String>> security;
-
-    @BeforeClass()
-    public static void setupLogging() {
-        BasicConfigurator.configure();
-        logger.setLevel(Level.TRACE);
-    }
 
     @Before
     public void setup() {

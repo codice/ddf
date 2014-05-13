@@ -23,7 +23,6 @@ import static org.mockito.Mockito.when;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.log4j.BasicConfigurator;
 import org.apache.shiro.authc.AuthenticationToken;
 import org.jasig.cas.client.authentication.AttributePrincipal;
 import org.junit.BeforeClass;
@@ -35,11 +34,6 @@ import ddf.security.sts.client.configuration.STSClientConfiguration;
 public class CASTokenRequestHandlerTest {
 
     private static final String SAMPLE_TICKET = "ST-956-Lyg0BdLkgdrBO9W17bXS";
-
-    @BeforeClass()
-    public static void setupLogging() {
-        BasicConfigurator.configure();
-    }
 
     /**
      * Tests that with no setting changes the ticket is returned.

@@ -35,20 +35,19 @@ import oasis.names.tc.xacml._3_0.core.schema.wd_17.RequestType;
 import oasis.names.tc.xacml._3_0.core.schema.wd_17.ResponseType;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ddf.security.pdp.xacml.PdpException;
 import ddf.security.pdp.xacml.processor.BalanaPdp;
 
 public class BalanaPdpTest {
-    private static final Logger LOGGER = Logger.getLogger(BalanaPdpTest.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(BalanaPdpTest.class);
 
     private static final String ROLE_CLAIM = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role";
 
@@ -88,12 +87,9 @@ public class BalanaPdpTest {
 
     @BeforeClass
     public static void init() {
-        BasicConfigurator.configure();
-        LOGGER.setLevel(Level.TRACE);
-
         try {
             PROJECT_HOME = new File(".").getCanonicalFile().getPath();
-            LOGGER.debug("PROJECT_HOME: " + PROJECT_HOME);
+            LOGGER.debug("PROJECT_HOME: {}", PROJECT_HOME);
         } catch (IOException e) {
             LOGGER.debug(e.getMessage(), e);
         }
@@ -105,7 +101,7 @@ public class BalanaPdpTest {
 
         // Setup
         File destDir = folder.newFolder(TEMP_DIR_NAME);
-        LOGGER.debug("Making directory: " + destDir.getPath());
+        LOGGER.debug("Making directory: {}", destDir.getPath());
         destDir.mkdir();
         File srcFile = new File(PROJECT_HOME + File.separator + RELATIVE_POLICIES_DIR
                 + File.separator + POLICY_FILE);
@@ -172,7 +168,7 @@ public class BalanaPdpTest {
         ObjectFactory objectFactory = new ObjectFactory();
         Writer writer = new StringWriter();
         marshaller.marshal(objectFactory.createResponse(xacmlResponse), writer);
-        LOGGER.debug("\nXACML 3.0 Response:\n" + writer.toString());
+        LOGGER.debug("\nXACML 3.0 Response:\n{}", writer.toString());
         assertEquals(xacmlResponse.getResult().get(0).getDecision(), DecisionType.PERMIT);
 
         // Cleanup
@@ -249,7 +245,7 @@ public class BalanaPdpTest {
         ObjectFactory objectFactory = new ObjectFactory();
         Writer writer = new StringWriter();
         marshaller.marshal(objectFactory.createResponse(xacmlResponse), writer);
-        LOGGER.debug("\nXACML 3.0 Response:\n" + writer.toString());
+        LOGGER.debug("\nXACML 3.0 Response:\n{}", writer.toString());
         assertEquals(xacmlResponse.getResult().get(0).getDecision(), DecisionType.DENY);
 
     }
@@ -275,7 +271,7 @@ public class BalanaPdpTest {
 
         // Setup
         File dir = folder.newFolder(TEMP_DIR_NAME);
-        LOGGER.debug("Making directory: " + dir.getPath());
+        LOGGER.debug("Making directory: {}", dir.getPath());
         dir.mkdir();
 
         assertTrue(dir.isDirectory());
@@ -285,7 +281,7 @@ public class BalanaPdpTest {
         new BalanaPdp(dir);
 
         // Cleanup
-        LOGGER.debug("Deleting directory: " + dir.getPath());
+        LOGGER.debug("Deleting directory: {}", dir.getPath());
         dir.delete();
     }
 
@@ -365,7 +361,7 @@ public class BalanaPdpTest {
         ObjectFactory objectFactory = new ObjectFactory();
         Writer writer = new StringWriter();
         marshaller.marshal(objectFactory.createResponse(xacmlResponse), writer);
-        LOGGER.debug("\nXACML 3.0 Response:\n" + writer.toString());
+        LOGGER.debug("\nXACML 3.0 Response:\n{}", writer.toString());
         assertEquals(xacmlResponse.getResult().get(0).getDecision(), DecisionType.PERMIT);
 
         FileUtils.deleteDirectory(policyDir);
@@ -374,7 +370,7 @@ public class BalanaPdpTest {
     @After
     public void cleanup() throws IOException {
         if (tempDir != null && tempDir.exists()) {
-            LOGGER.debug("Deleting directory: " + tempDir);
+            LOGGER.debug("Deleting directory: {}", tempDir);
             FileUtils.deleteDirectory(tempDir);
         }
     }
@@ -382,7 +378,7 @@ public class BalanaPdpTest {
     private void testSetup() throws IOException {
         // Setup
         tempDir = folder.newFolder(TEMP_DIR_NAME);
-        LOGGER.debug("Making directory: " + tempDir.getPath());
+        LOGGER.debug("Making directory: {}", tempDir.getPath());
         tempDir.mkdir();
         File srcFile = new File(PROJECT_HOME + File.separator + RELATIVE_POLICIES_DIR
                 + File.separator + POLICY_FILE);
