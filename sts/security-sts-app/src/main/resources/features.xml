@@ -19,14 +19,15 @@
 		<feature>spring-tx</feature>
         <feature>security-sts-ldaplogin</feature>
 		<bundle>mvn:ddf.security.sts/security-sts-server/${project.version}</bundle>
-		<bundle dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.bcprov-jdk15/${org.apache.servicemix.bundles.bcprov-jdk15.version}</bundle>
-		<bundle dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.dom4j/${org.apache.servicemix.bundles.dom4j.version}</bundle>
-		<bundle dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.oro/${org.apache.servicemix.bundles.oro.version}</bundle>
-		<bundle>wrap:mvn:org.springframework.ldap/spring-ldap-core/${org.springframework.ldap.version}</bundle>
-		<bundle>wrap:mvn:org.opensaml/xmltooling/${org.opensaml.xmltooling.version}</bundle>
-		<bundle>mvn:org.ops4j.pax.url/pax-url-classpath/${org.ops4j.pax.url.classpath.version}</bundle>
+		<bundle dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.bcprov-jdk15/1.49</bundle>
+		<bundle dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.dom4j/1.6.1_5</bundle>
+		<bundle dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.oro/2.0.8_6</bundle>
+		<bundle>wrap:mvn:org.springframework.ldap/spring-ldap-core/1.3.1.RELEASE</bundle>
+		<bundle>wrap:mvn:org.opensaml/xmltooling/1.3.2-1</bundle>
+		<bundle>mvn:org.ops4j.pax.url/pax-url-classpath/1.3.5</bundle>
 		<bundle>mvn:ddf.security.sts/security-sts-samlvalidator/${project.version}</bundle>
 		<bundle>mvn:ddf.security.sts/security-sts-x509validator/${project.version}</bundle>
+        <bundle>mvn:ddf.security.sts/security-sts-usernametokenvalidator/${project.version}</bundle>
 		<bundle>mvn:ddf.security.sts/security-sts-ldapclaimshandler/${project.version}</bundle>
 	</feature>
   

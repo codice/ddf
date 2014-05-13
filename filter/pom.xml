@@ -60,9 +60,10 @@
         </dependency>
     </dependencies>
     <modules>
+        <module>web-sso-filter</module>
         <module>security-filter-basic</module>
         <module>security-filter-login</module>
-        <module>web-sso-filter</module>
+        <module>security-filter-authorization</module>
     </modules>
 
 

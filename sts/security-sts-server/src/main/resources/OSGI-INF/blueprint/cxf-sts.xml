@@ -102,6 +102,11 @@
         <property name="lifetime" value="$sts{lifetime}" />
     </bean>
 
+    <bean id="utDelegationHandler" class="org.apache.cxf.sts.token.delegation.UsernameTokenDelegationHandler"></bean>
+
+    <bean id="samlDelegationHandler" class="org.apache.cxf.sts.token.delegation.SAMLDelegationHandler"></bean>
+
+    <bean id="hokDelegationHandler" class="org.apache.cxf.sts.token.delegation.HOKDelegationHandler"></bean>
 
     <!-- DELEGATE CONFIGURATION -->
     <bean id="issueDelegate"
@@ -109,6 +114,13 @@
         <property name="tokenProviders">
             <list>
                 <ref component-id="samlTokenProvider"/>
+            </list>
+        </property>
+        <property name="delegationHandlers">
+            <list>
+                <ref component-id="utDelegationHandler" />
+                <ref component-id="samlDelegationHandler" />
+                <ref component-id="hokDelegationHandler" />
             </list>
         </property>
         <property name="tokenValidators" ref="tokenValidatorList"/>
@@ -147,9 +159,12 @@
 
 
     <!-- VALIDATOR CONFIGURATION -->
-    <bean class="org.apache.ws.security.validate.JAASUsernameTokenValidator"
-          id="JAASValidator">
+    <bean class="org.apache.ws.security.validate.JAASUsernameTokenValidator" id="JAASValidator">
         <property name="contextName" value="$sts{jaasContext}" />
+    </bean>
+
+    <bean class="org.apache.cxf.sts.token.validator.UsernameTokenValidator" id="utValidator">
+        <property name="validator" ref="JAASValidator" />
     </bean>
 
     <bean id="kerberosValidator" class="org.apache.ws.security.validate.KerberosTokenValidator">
@@ -194,7 +209,7 @@
                     serviceName="ns1:SecurityTokenService"
                     endpointName="ns1:STS_Port">
         <jaxws:properties>
-            <entry key="ws-security.ut.validator" value-ref="JAASValidator"/>
+            <entry key="ws-security.ut.validator" value-ref="utValidator"/>
             <entry key="ws-security.callback-handler"
                    value="ddf.security.sts.CommonCallbackHandler"/>
             <entry key="ws-security.signature.properties" value="$sts{signatureProperties}"/>

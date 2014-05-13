@@ -88,8 +88,8 @@ public class LoginFilter implements Filter {
         LOGGER.info("Starting log in filter.");
     }
 
-    @Override public void doFilter(ServletRequest request, ServletResponse response,
-            FilterChain chain) throws IOException, ServletException {
+    @Override public void doFilter(final ServletRequest request, final ServletResponse response,
+            final FilterChain chain) throws IOException, ServletException {
         HttpServletRequest httpRequest = (HttpServletRequest) request;
         HttpServletResponse httpResponse = (HttpServletResponse) response;
 
@@ -147,7 +147,7 @@ public class LoginFilter implements Filter {
 
     }
 
-    public static Response createSamlResponse(
+    private static Response createSamlResponse(
             String inResponseTo,
             String issuer,
             Status status
@@ -168,7 +168,7 @@ public class LoginFilter implements Filter {
         return response;
     }
 
-    public static Issuer createIssuer(
+    private static Issuer createIssuer(
             String issuerValue
     ) {
         if (issuerBuilder == null) {
@@ -181,7 +181,7 @@ public class LoginFilter implements Filter {
         return issuer;
     }
 
-    public static Status createStatus(
+    private static Status createStatus(
             String statusCodeValue,
             String statusMessage
     ) {
@@ -248,7 +248,7 @@ public class LoginFilter implements Filter {
         return Base64Utility.encode(deflatedToken);
     }
 
-    protected Crypto getSignatureCrypto() {
+    private Crypto getSignatureCrypto() {
         if (signatureCrypto == null && signaturePropertiesFile != null) {
             Properties sigProperties = PropertiesLoader.loadProperties(signaturePropertiesFile);
             if (sigProperties == null) {
@@ -265,7 +265,8 @@ public class LoginFilter implements Filter {
         return signatureCrypto;
     }
 
-    @Override public void destroy() {
+    @Override
+    public void destroy() {
         LOGGER.info("Destroying log in filter");
     }
 

@@ -14,7 +14,6 @@
  **/
 package ddf.security.filter;
 
-import ddf.security.filter.handlers.AnonymousHandler;
 import ddf.security.filter.FilterResult.FilterStatus;
 import ddf.security.filter.handlers.SAMLAssertionHandler;
 import org.slf4j.Logger;
@@ -30,6 +29,7 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 public class WebSSOFilter implements Filter {
@@ -41,15 +41,22 @@ public class WebSSOFilter implements Filter {
 
     ArrayList<AuthenticationHandler> authenticationHandlers = new ArrayList<AuthenticationHandler>();
 
+    List<AuthenticationHandler> handlerList;
+
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
         // hard coded for now - this will be read from the config and dynamically assigned in the future
-        authenticationHandlers.add(new SAMLAssertionHandler());
-        authenticationHandlers.add(new AnonymousHandler());
+//        authenticationHandlers.add(new SAMLAssertionHandler());
+//        authenticationHandlers.addAll(handlerList);
+//        authenticationHandlers.add(new AnonymousHandler());
     }
 
     @Override
-    public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
+    public synchronized void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
+        authenticationHandlers = new ArrayList<AuthenticationHandler>();
+        authenticationHandlers.add(new SAMLAssertionHandler());
+        authenticationHandlers.addAll(handlerList);
+
         HttpServletRequest httpRequest = (HttpServletRequest) servletRequest;
         String path = httpRequest.getServletPath();
         LOGGER.debug("Handling request for path {}", path);
@@ -107,5 +114,12 @@ public class WebSSOFilter implements Filter {
 
     }
 
+    public List<AuthenticationHandler> getHandlerList() {
+        return handlerList;
+    }
+
+    public void setHandlerList(List<AuthenticationHandler> handlerList) {
+        this.handlerList = handlerList;
+    }
 }
 

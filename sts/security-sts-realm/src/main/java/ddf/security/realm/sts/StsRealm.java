@@ -14,35 +14,12 @@
  **/
 package ddf.security.realm.sts;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.StringWriter;
-import java.io.Writer;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.UnrecoverableKeyException;
-import java.security.cert.CertificateException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-
-import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.KeyManager;
-import javax.net.ssl.KeyManagerFactory;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.TrustManagerFactory;
-import javax.xml.bind.JAXB;
-import javax.xml.bind.JAXBElement;
-import javax.xml.namespace.QName;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.stream.XMLStreamException;
-
+import ddf.security.common.audit.SecurityLogger;
+import ddf.security.common.callback.CommonCallbackHandler;
+import ddf.security.common.util.CommonSSLFactory;
+import ddf.security.common.util.PropertiesLoader;
+import ddf.security.encryption.EncryptionService;
+import ddf.security.sts.client.configuration.STSClientConfiguration;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.Bus;
@@ -81,12 +58,33 @@ import org.w3c.dom.Node;
 import org.w3c.dom.ls.DOMImplementationLS;
 import org.w3c.dom.ls.LSSerializer;
 
-import ddf.security.common.audit.SecurityLogger;
-import ddf.security.common.callback.CommonCallbackHandler;
-import ddf.security.common.util.CommonSSLFactory;
-import ddf.security.common.util.PropertiesLoader;
-import ddf.security.encryption.EncryptionService;
-import ddf.security.sts.client.configuration.STSClientConfiguration;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.KeyManager;
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.TrustManagerFactory;
+import javax.xml.bind.JAXB;
+import javax.xml.bind.JAXBElement;
+import javax.xml.namespace.QName;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.stream.XMLStreamException;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.StringWriter;
+import java.io.Writer;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.UnrecoverableKeyException;
+import java.security.cert.CertificateException;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
 
 /**
  * The STS Realm is the main piece of the security framework responsible for exchanging a binary
@@ -663,6 +661,27 @@ public class StsRealm extends AuthenticatingRealm implements ConfigurationWatche
         }
     }
 
+    protected void configureHttpsURLConnectionDefaultSSL()
+    {
+        final String methodName = "configureHttpsURLConnectionDefaultSSL";
+        LOGGER.entry(methodName);
+        try
+        {
+            if (trustStorePath != null && trustStorePassword != null && keyStorePath != null && keyStorePassword != null)
+            {
+                LOGGER.debug("trust store: " + trustStorePath);
+                LOGGER.debug("key store: " + keyStorePath);
+                HttpsURLConnection.setDefaultSSLSocketFactory(CommonSSLFactory.createSocket(trustStorePath, trustStorePassword,
+                        keyStorePath, keyStorePassword));
+            }
+        }
+        catch (IOException e)
+        {
+            LOGGER.error("Unable to create SSL socket factory.", e);
+        }
+        LOGGER.exit(methodName);
+    }
+
     /**
      * Helper method to setup STS Client.
      */
@@ -670,6 +689,8 @@ public class StsRealm extends AuthenticatingRealm implements ConfigurationWatche
         LOGGER.debug("Setting up SSL on the STSClient HTTP conduit");
 
         try {
+            configureHttpsURLConnectionDefaultSSL();
+
             Client client = stsClient.getClient();
 
             if (client != null) {

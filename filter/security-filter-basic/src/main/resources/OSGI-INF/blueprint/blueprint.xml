@@ -19,12 +19,8 @@
 
     </bean>
 
-    <service ref="filter"
-             interface="javax.servlet.Filter">
-        <service-properties>
-            <entry key="filter-name" value="basic-auth-filter"/>
-            <entry key="urlPatterns" value="/*"/>
-        </service-properties>
+    <service ref="filter" interface="ddf.security.filter.AuthenticationHandler">
+
     </service>
 
 </blueprint>

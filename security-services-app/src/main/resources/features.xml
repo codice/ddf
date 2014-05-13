@@ -97,8 +97,17 @@
         <bundle>mvn:ddf.security.filter/security-filter-basic/${project.version}</bundle>
     </feature>
 
-    <feature name="security-filter-login" install="manual" version="${project.version" description="Login Filter for web applications.">
+    <feature name="security-filter-login" install="manual" version="${project.version}" description="Login Filter for web applications.">
+        <feature>cxf-rs-security-sso-saml</feature>
         <bundle>mvn:ddf.security.filter/security-filter-login/${project.version}</bundle>
+    </feature>
+
+    <feature name="security-filter-authz" install="manual" version="${project.version}" description="Authz Filter for web applications.">
+        <bundle>mvn:ddf.security.filter/security-filter-authorization/${project.version}</bundle>
+    </feature>
+
+    <feature name="security-filter-websso" install="manual" version="${project.version}" description="Web SSO Filter for web applications.">
+        <bundle>mvn:ddf.security.filter/web-sso-filter/${project.version}</bundle>
     </feature>
         
 </features>

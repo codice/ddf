@@ -14,43 +14,32 @@
  **/
 package org.codice.security.filter.basic;
 
+import ddf.security.filter.AuthenticationHandler;
+import ddf.security.filter.FilterResult;
+import org.apache.cxf.sts.QNameConstants;
+import org.apache.cxf.ws.security.sts.provider.model.secext.AttributedString;
+import org.apache.cxf.ws.security.sts.provider.model.secext.PasswordString;
+import org.apache.cxf.ws.security.sts.provider.model.secext.UsernameTokenType;
+import org.apache.ws.security.WSConstants;
 import org.jasypt.contrib.org.apache.commons.codec_1_3.binary.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.security.auth.Subject;
-import javax.security.auth.callback.Callback;
-import javax.security.auth.callback.CallbackHandler;
-import javax.security.auth.callback.NameCallback;
-import javax.security.auth.callback.PasswordCallback;
-import javax.security.auth.callback.UnsupportedCallbackException;
-import javax.security.auth.login.AccountException;
-import javax.security.auth.login.LoginContext;
-import javax.security.auth.login.LoginException;
-import javax.servlet.Filter;
 import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBElement;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
+import javax.xml.namespace.QName;
 import java.io.IOException;
-import java.security.Principal;
-import java.security.PrivilegedActionException;
-import java.security.PrivilegedExceptionAction;
+import java.io.StringWriter;
+import java.io.Writer;
 
-/**
- * Credit goes to https://github.com/hawtio/hawtio/blob/b4e23e002639c274a2f687ada980118512f06113/hawtio-system/src/main/java/io/hawt/web/AuthenticationFilter.java
- * <p/>
- * Code manipulated for DDF specific environment.
- */
-public class AuthenticationFilter implements Filter {
-
-    public enum Authentication {
-        AUTHORIZED, NOT_AUTHORIZED, NO_CREDENTIALS
-    }
+public class AuthenticationFilter implements AuthenticationHandler {
 
     private static final transient Logger LOGGER = LoggerFactory
             .getLogger(AuthenticationFilter.class);
@@ -61,75 +50,69 @@ public class AuthenticationFilter implements Filter {
 
     private static final String HEADER_WWW_AUTHENTICATE = "WWW-Authenticate";
 
-    private final AuthenticationConfiguration configuration = new AuthenticationConfiguration();
-
     @Override
-    public void init(FilterConfig filterConfig) throws ServletException {
-        configuration.setRealm("karaf");
-        //just leaving this in here and commented out for now
-        //this should be changing within a sprint anyways
-//        configuration.setRole("admin");
-        configuration.setRolePrincipalClasses(
-                "java.lang.String,org.apache.karaf.jaas.boot.principal.RolePrincipal");
-        configuration.setEnabled(true);
+    public FilterResult getNormalizedToken(ServletRequest request,
+            ServletResponse response, FilterChain chain, boolean resolve) {
 
-        if (configuration.isEnabled()) {
-            LOGGER.info(
-                    "Starting authentication filter, JAAS realm: \"{}\" authorized role: \"{}\" role principal classes: \"{}\"",
-                    new Object[] {configuration.getRealm(), configuration.getRole(),
-                            configuration.getRolePrincipalClasses()}
-            );
-        } else {
-            LOGGER.info("Starting authentication filter, JAAS authentication disabled");
-        }
-    }
+        FilterResult filterResult;
 
-    @Override
-    public void doFilter(final ServletRequest request, final ServletResponse response,
-            final FilterChain chain) throws
-            IOException, ServletException {
         HttpServletRequest httpRequest = (HttpServletRequest) request;
         String path = httpRequest.getServletPath();
         LOGGER.debug("Handling request for path {}", path);
 
-        if (configuration.getRealm() == null || configuration.getRealm().equals("")
-                || !configuration.isEnabled()) {
-            LOGGER.debug("No authentication needed for path {}", path);
-            chain.doFilter(request, response);
-            return;
+        LOGGER.debug("Doing authentication and authorization for path {}", path);
+        UsernameTokenType result = setAuthenticationInfo(httpRequest);
+        if(resolve) {
+            if(result == null) {
+                filterResult = new FilterResult(FilterResult.FilterStatus.REDIRECTED, null, "");
+                doAuthPrompt("DDF", (HttpServletResponse) response);
+                return filterResult;
+            } else {
+                String usernameToken = getUsernameTokenElement(result);
+                filterResult = new FilterResult(FilterResult.FilterStatus.COMPLETED, null, usernameToken);
+                return filterResult;
+            }
+        } else {
+            if(result == null) {
+                filterResult = new FilterResult(FilterResult.FilterStatus.NO_ACTION, null, "");
+                return filterResult;
+            } else {
+                String usernameToken = getUsernameTokenElement(result);
+                filterResult = new FilterResult(FilterResult.FilterStatus.COMPLETED, null, usernameToken);
+                return filterResult;
+            }
         }
+    }
 
-        HttpSession session = httpRequest.getSession(false);
-        if (session != null) {
-            Subject subject = (Subject) session.getAttribute("subject");
-            if (subject != null) {
-                LOGGER.debug("Session subject {}", subject);
-                executeAs(request, response, chain, subject);
-                return;
+    Marshaller marshaller = null;
+
+    private synchronized String getUsernameTokenElement(UsernameTokenType result) {
+        JAXBContext context = null;
+
+        if(marshaller == null) {
+            try {
+                context = JAXBContext.newInstance(UsernameTokenType.class);
+                marshaller = context.createMarshaller();
+                marshaller.setProperty(Marshaller.JAXB_FRAGMENT, Boolean.TRUE);
+            } catch (JAXBException e) {
+                LOGGER.error("Exception while creating UsernameToken marshaller.", e);
             }
         }
 
-        LOGGER.debug("Doing authentication and authorization for path {}", path);
-        Authentication result = authenticate(configuration.getRealm(), configuration.getRole(),
-                configuration.getRolePrincipalClasses(),
-                httpRequest, new PrivilegedCallback() {
-                    public void execute(Subject subject, String username) throws Exception {
-                        //TODO this should actually just be the subject at some point
-                        request.setAttribute("org.codice.ddf.ui.searchui.standard.properties.user", username);
-                        executeAs(request, response, chain, subject);
-                    }
-                }
-        );
-        switch (result) {
-        case AUTHORIZED:
-            break;
-        case NOT_AUTHORIZED:
-            doAuthPrompt(configuration.getRealm(), (HttpServletResponse) response);
-            break;
-        case NO_CREDENTIALS:
-            doAuthPrompt(configuration.getRealm(), (HttpServletResponse) response);
-            break;
+        JAXBElement<UsernameTokenType> usernameTokenElement = new JAXBElement<UsernameTokenType>(
+                new QName(
+                        "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd",
+                        "UsernameToken"), UsernameTokenType.class,
+                result);
+
+        Writer writer = new StringWriter();
+        try {
+            marshaller.marshal(usernameTokenElement, writer);
+        } catch (JAXBException e) {
+            LOGGER.error("Exception while writing username token.", e);
         }
+
+        return writer.toString();
     }
 
     private void doAuthPrompt(String realm, HttpServletResponse response) {
@@ -164,13 +147,12 @@ public class AuthenticationFilter implements Filter {
         }
     }
 
-    private Authentication authenticate(String realm, String role, String rolePrincipalClasses,
-            HttpServletRequest request, PrivilegedCallback cb) {
+    private UsernameTokenType setAuthenticationInfo(HttpServletRequest request) {
 
         String authHeader = request.getHeader(HEADER_AUTHORIZATION);
 
         if (authHeader == null || authHeader.equals("")) {
-            return Authentication.NO_CREDENTIALS;
+            return null;
         }
 
         final String[] username = {null};
@@ -185,153 +167,31 @@ public class AuthenticationFilter implements Filter {
         });
 
         if (username[0] == null) {
-            return Authentication.NO_CREDENTIALS;
+            return null;
         }
 
         if (username[0] != null && pass[0] != null) {
-            Subject subject = doAuthenticate(realm, role, rolePrincipalClasses, username[0],
-                    pass[0]);
-            if (subject == null) {
-                return Authentication.NOT_AUTHORIZED;
-            }
+            UsernameTokenType usernameTokenType = new UsernameTokenType();
+            AttributedString user = new AttributedString();
+            user.setValue(username[0]);
+            usernameTokenType.setUsername(user);
 
-            if (cb != null) {
-                try {
-                    cb.execute(subject, username[0]);
-                } catch (Exception e) {
-                    LOGGER.warn("Failed to execute privileged action: ", e);
-                }
-            }
+            // Add a password
+            PasswordString password = new PasswordString();
+            password.setValue(pass[0]);
+            password.setType(WSConstants.PASSWORD_TEXT);
+            JAXBElement<PasswordString> passwordType = new JAXBElement<PasswordString>(QNameConstants.PASSWORD, PasswordString.class, password);
+            usernameTokenType.getAny().add(passwordType);
 
-            return Authentication.AUTHORIZED;
-        }
-
-        return Authentication.NO_CREDENTIALS;
-    }
-
-    private Subject doAuthenticate(String realm, String role, String rolePrincipalClasses,
-            final String username, final String password) {
-        try {
-
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug(
-                        "doAuthenticate[realm={}, role={}, rolePrincipalClasses={}, configuration={}, username={}, password={}]",
-                        new Object[] {realm, role, rolePrincipalClasses, configuration, username,
-                                "******"});
-            }
-
-            Subject subject = new Subject();
-            CallbackHandler handler = new AuthenticationCallbackHandler(username, password);
-
-            LoginContext loginContext;
-            loginContext = new LoginContext(realm, subject, handler);
-
-            loginContext.login();
-
-            if (role != null && role.length() > 0 && rolePrincipalClasses != null
-                    && rolePrincipalClasses.length() > 0) {
-
-                String[] rolePrincipalClazzes = rolePrincipalClasses.split(",");
-                boolean found = false;
-                for (String clazz : rolePrincipalClazzes) {
-                    String name = role;
-                    int idx = role.indexOf(':');
-                    if (idx > 0) {
-                        clazz = role.substring(0, idx);
-                        name = role.substring(idx + 1);
-                    }
-                    for (Principal p : subject.getPrincipals()) {
-                        if (p.getClass().getName().equals(clazz.trim())
-                                && p.getName().equals(name)) {
-                            found = true;
-                            break;
-                        }
-                    }
-                    if (found) {
-                        break;
-                    }
-                }
-                if (!found) {
-                    LOGGER.debug("User does not have the required role {}", role);
-                    return null;
-                }
-            }
-
-            return subject;
-
-        } catch (AccountException e) {
-            LOGGER.warn("Account failure", e);
-        } catch (LoginException e) {
-            // do not be so verbose at DEBUG level
-            if (LOGGER.isTraceEnabled()) {
-                LOGGER.trace("Login failed due " + e.getMessage(), e);
-            } else {
-                LOGGER.debug("Login failed due {}", e.getMessage());
-            }
+            return usernameTokenType;
         }
 
         return null;
     }
 
-    private static final class AuthenticationCallbackHandler implements CallbackHandler {
-
-        private final String username;
-
-        private final String password;
-
-        private AuthenticationCallbackHandler(String username, String password) {
-            this.username = username;
-            this.password = password;
-        }
-
-        @Override
-        public void handle(Callback[] callbacks) throws IOException, UnsupportedCallbackException {
-            for (Callback callback : callbacks) {
-                if (LOGGER.isTraceEnabled()) {
-                    LOGGER.trace("Callback type {} -> {}", callback.getClass(), callback);
-                }
-                if (callback instanceof NameCallback) {
-                    ((NameCallback) callback).setName(username);
-                } else if (callback instanceof PasswordCallback) {
-                    ((PasswordCallback) callback).setPassword(password.toCharArray());
-                } else {
-                    LOGGER.warn(
-                            "Unsupported callback class [" + callback.getClass().getName() + "]");
-                }
-            }
-        }
-    }
-
-    private static void executeAs(final ServletRequest request, final ServletResponse response,
-            final FilterChain chain, Subject subject) {
-        try {
-            Subject.doAs(subject, new PrivilegedExceptionAction<Object>() {
-                @Override
-                public Object run() throws Exception {
-                    chain.doFilter(request, response);
-                    return null;
-                }
-            });
-        } catch (PrivilegedActionException e) {
-            LOGGER.info("Failed to invoke action " + ((HttpServletRequest) request).getPathInfo()
-                    + " due to:", e);
-        }
-    }
-
-    @Override
-    public void destroy() {
-        LOGGER.info("Destroying authentication filter");
-    }
-
     public interface ExtractAuthInfoCallback {
 
         public void getAuthInfo(String userName, String password);
-
-    }
-
-    public interface PrivilegedCallback {
-
-        public void execute(Subject subject, String username) throws Exception;
 
     }
 }

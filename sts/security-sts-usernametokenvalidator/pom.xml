@@ -16,30 +16,35 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>filter</artifactId>
-        <groupId>ddf.security.filter</groupId>
+        <artifactId>security-sts-pom</artifactId>
+        <groupId>ddf.security.sts</groupId>
         <version>2.3.2-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <name>DDF :: Security :: Filter :: Web-SSO</name>
-    <artifactId>web-sso-filter</artifactId>
+    <artifactId>security-sts-usernametokenvalidator</artifactId>
+    <name>DDF :: Security :: STS :: Username Token Validator</name>
     <packaging>bundle</packaging>
+
 
     <dependencies>
         <dependency>
-            <groupId>org.jasypt</groupId>
-            <artifactId>jasypt</artifactId>
-            <version>1.9.0</version>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-rt-ws-security</artifactId>
+            <scope>provided</scope>
         </dependency>
+
         <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-ext</artifactId>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-api</artifactId>
         </dependency>
+
         <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>servlet-api</artifactId>
+            <groupId>org.apache.cxf.services.sts</groupId>
+            <artifactId>cxf-services-sts-core</artifactId>
+            <scope>compile</scope>
         </dependency>
+
     </dependencies>
 
     <build>
@@ -50,14 +55,10 @@
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <Export-Package>
-                            ddf.security.filter
-                        </Export-Package>
                     </instructions>
                 </configuration>
             </plugin>
         </plugins>
     </build>
-
 
 </project>
