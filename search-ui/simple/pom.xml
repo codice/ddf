@@ -134,7 +134,8 @@
 	                    	org.osgi.service.blueprint,
 	                    	javax.servlet,
 	                    	org.osgi.framework,
-	                    	org.slf4j
+	                    	org.slf4j,
+                            javax.servlet.http
 						</Import-Package>
 						<Export-Package />
 					</instructions>
