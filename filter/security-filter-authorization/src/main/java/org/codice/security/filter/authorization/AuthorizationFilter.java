@@ -72,6 +72,7 @@ public class AuthorizationFilter implements Filter {
             returnNotAuthorized(httpResponse);
         } else {
             LOGGER.debug("Subject is authorized!");
+            chain.doFilter(request, response);
         }
     }
 
