@@ -17,7 +17,8 @@ package ddf.metrics.interceptor;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.codahale.metrics.Histogram;
 import com.codahale.metrics.JmxReporter;
@@ -31,7 +32,7 @@ import com.codahale.metrics.MetricRegistry;
  */
 public abstract class AbstractMetricsInterceptor extends AbstractPhaseInterceptor<Message> {
 
-    private static final Logger LOGGER = Logger.getLogger(AbstractMetricsInterceptor.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractMetricsInterceptor.class);
 
     private static final String REGISTRY_NAME = "ddf.metrics.services";
 

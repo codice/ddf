@@ -24,10 +24,6 @@ import org.junit.Test;
 import ddf.mime.tika.TikaMimeTypeResolver;
 
 public class TikaMimeTypeResolverTest {
-    static {
-        org.apache.log4j.BasicConfigurator.configure();
-    }
-
     @Test
     public void testGetFileExtensionForMimeType() throws Exception {
         TikaMimeTypeResolver resolver = new TikaMimeTypeResolver();

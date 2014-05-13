@@ -25,8 +25,9 @@ import org.apache.cxf.ws.security.tokenstore.SecurityToken;
 import org.apache.cxf.ws.security.tokenstore.TokenStore;
 import org.apache.cxf.ws.security.tokenstore.TokenStoreFactory;
 import org.apache.cxf.ws.security.wss4j.WSS4JInInterceptor;
-import org.apache.log4j.Logger;
 import org.apache.ws.security.SAMLTokenPrincipal;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -41,8 +42,7 @@ import javax.servlet.http.HttpServletRequest;
  * 
  */
 public final class SecurityLogger {
-    private static final Logger SECURITY_LOGGER = Logger
-            .getLogger(SecurityConstants.SECURITY_LOGGER);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SecurityConstants.SECURITY_LOGGER);
 
     private SecurityLogger() {
 
@@ -76,21 +76,17 @@ public final class SecurityLogger {
             // grab the SAML assertion associated with this Message from the
             // token store
             if (token != null) {
-                String logMessage = "SAML assertion successfully extracted from incoming Message.";
-                logMessage += requestLogInfo;
-                SECURITY_LOGGER.info(logMessage);
+                LOGGER.info("SAML assertion successfully extracted from incoming Message.{}", requestLogInfo);
                 logSecurityAssertionInfo(token);
             } else {
-                String logMessage = "No SAML assertion exists on the incoming Message.";
-                logMessage += requestLogInfo;
-                SECURITY_LOGGER.info(logMessage);
+                LOGGER.info("No SAML assertion exists on the incoming Message.{}", requestLogInfo);
             }
         }
     }
 
     public static void logSecurityAssertionInfo(SecurityToken token) {
-        if (SECURITY_LOGGER.isDebugEnabled() && token != null) {
-            SECURITY_LOGGER.debug(getFormattedXml(token.getToken()));
+        if (LOGGER.isDebugEnabled() && token != null) {
+            LOGGER.debug(getFormattedXml(token.getToken()));
         }
     }
 
@@ -113,52 +109,52 @@ public final class SecurityLogger {
 
     public static void logTrace(String log, Throwable throwable) {
         Message message = PhaseInterceptorChain.getCurrentMessage();
-        SECURITY_LOGGER.trace(log + requestIpAndPortMessage(message), throwable);
+        LOGGER.trace("{}{}", log, requestIpAndPortMessage(message), throwable);
     }
 
     public static void logTrace(String log) {
         Message message = PhaseInterceptorChain.getCurrentMessage();
-        SECURITY_LOGGER.trace(log + requestIpAndPortMessage(message));
+        LOGGER.trace("{}{}", log, requestIpAndPortMessage(message));
     }
 
     public static void logDebug(String log, Throwable throwable) {
         Message message = PhaseInterceptorChain.getCurrentMessage();
-        SECURITY_LOGGER.debug(log + requestIpAndPortMessage(message), throwable);
+        LOGGER.debug("{}{}", log, requestIpAndPortMessage(message), throwable);
     }
 
     public static void logDebug(String log) {
         Message message = PhaseInterceptorChain.getCurrentMessage();
-        SECURITY_LOGGER.debug(log + requestIpAndPortMessage(message));
+        LOGGER.debug("{}{}", log, requestIpAndPortMessage(message));
     }
 
     public static void logInfo(String log, Throwable throwable) {
         Message message = PhaseInterceptorChain.getCurrentMessage();
-        SECURITY_LOGGER.info(log + requestIpAndPortMessage(message), throwable);
+        LOGGER.info("{}{}", log, requestIpAndPortMessage(message), throwable);
     }
 
     public static void logInfo(String log) {
         Message message = PhaseInterceptorChain.getCurrentMessage();
-        SECURITY_LOGGER.info(log + requestIpAndPortMessage(message));
+        LOGGER.info("{}{}", log, requestIpAndPortMessage(message));
     }
 
     public static void logWarn(String log, Throwable throwable) {
         Message message = PhaseInterceptorChain.getCurrentMessage();
-        SECURITY_LOGGER.warn(log + requestIpAndPortMessage(message), throwable);
+        LOGGER.warn("{}{}", log, requestIpAndPortMessage(message), throwable);
     }
 
     public static void logWarn(String log) {
         Message message = PhaseInterceptorChain.getCurrentMessage();
-        SECURITY_LOGGER.warn(log + requestIpAndPortMessage(message));
+        LOGGER.warn("{}{}", log, requestIpAndPortMessage(message));
     }
 
     public static void logError(String log, Throwable throwable) {
         Message message = PhaseInterceptorChain.getCurrentMessage();
-        SECURITY_LOGGER.error(log + requestIpAndPortMessage(message), throwable);
+        LOGGER.error("{}{}", log, requestIpAndPortMessage(message), throwable);
     }
 
     public static void logError(String log) {
         Message message = PhaseInterceptorChain.getCurrentMessage();
-        SECURITY_LOGGER.error(log + requestIpAndPortMessage(message));
+        LOGGER.error("{}{}", log, requestIpAndPortMessage(message));
     }
 
     private static SecurityToken getToken(Message message) {

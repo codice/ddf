@@ -23,10 +23,11 @@ import javax.activation.MimeType;
 import javax.activation.MimeTypeParseException;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ddf.mime.MimeTypeToTransformerMapper;
 
@@ -42,7 +43,7 @@ public class MimeTypeToTransformerMapperImpl implements MimeTypeToTransformerMap
 
     private BundleContext bundleContext;
 
-    private static final Logger LOGGER = Logger.getLogger(MimeTypeToTransformerMapperImpl.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(MimeTypeToTransformerMapperImpl.class);
 
     public MimeTypeToTransformerMapperImpl(BundleContext bundleContext) {
 
@@ -78,7 +79,7 @@ public class MimeTypeToTransformerMapperImpl implements MimeTypeToTransformerMap
         
         // If no InputTransformers found, return empty list
         if (refs == null) {
-            LOGGER.debug("No " + clazz.getName() + " services found - return empty list");
+            LOGGER.debug("No {} services found - return empty list", clazz.getName());
             return list;
         }
         
@@ -140,7 +141,7 @@ public class MimeTypeToTransformerMapperImpl implements MimeTypeToTransformerMap
         try {
             return new MimeType(mimeTypeRawEntry);
         } catch (MimeTypeParseException e) {
-            LOGGER.debug(e);
+            LOGGER.debug("MIME type parse exception constructing MIME type", e);
         }
 
         return null;

@@ -21,9 +21,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -44,12 +41,6 @@ public class HazelcastCacheManagerTest {
     private static String testCacheItemNewValue = "TestCacheItemNEWValue";
 
     private CacheManager cacheMgt;
-
-    @BeforeClass
-    public static void oneTimeSetup() {
-        BasicConfigurator.configure();
-        Logger.getRootLogger().setLevel(Level.INFO);
-    }
 
     @Before
     public void setUp() {

@@ -34,11 +34,6 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Random;
 
-import org.apache.log4j.Appender;
-import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
-import org.apache.log4j.PatternLayout;
 import org.apache.poi.hslf.model.AutoShape;
 import org.apache.poi.hslf.model.Picture;
 import org.apache.poi.hslf.model.Shape;
@@ -62,12 +57,14 @@ import org.rrd4j.core.FetchRequest;
 import org.rrd4j.core.RrdDb;
 import org.rrd4j.core.RrdDef;
 import org.rrd4j.core.Sample;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ddf.metrics.reporting.internal.MetricsGraphException;
 import ddf.metrics.reporting.internal.MetricsRetriever;
 
 public class RrdMetricsRetrieverTest extends XMLTestCase {
-    private static final transient Logger LOGGER = Logger.getLogger(RrdMetricsRetrieverTest.class);
+    private static final transient Logger LOGGER = LoggerFactory.getLogger(RrdMetricsRetrieverTest.class);
 
     private static final String TEST_DIR = "target/";
 
@@ -79,16 +76,6 @@ public class RrdMetricsRetrieverTest extends XMLTestCase {
 
     private static final String months[] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug",
         "Sep", "Oct", "Nov", "Dec"};
-
-    @BeforeClass
-    public static void setUpBeforeClass() throws Exception {
-        // Format logger output
-        BasicConfigurator.configure();
-        ((PatternLayout) ((Appender) Logger.getRootLogger().getAllAppenders().nextElement())
-                .getLayout()).setConversionPattern("[%30.30t] %-30.30c{1} %-5p %m%n");
-
-        Logger.getRootLogger().setLevel(Level.INFO);
-    }
 
     @After
     public void tearDown() throws Exception {
@@ -191,8 +178,7 @@ public class RrdMetricsRetrieverTest extends XMLTestCase {
         // Verify each retrieved sample has a timestamp and value
         for (int i = 0; i < samples.size(); i++) {
             JSONObject sample = (JSONObject) samples.get(i);
-            LOGGER.debug("timestamp = " + (String) sample.get("timestamp") + ",   value = "
-                    + sample.get("value"));
+            LOGGER.debug("timestamp = {},   value= {}", (String) sample.get("timestamp"), sample.get("value"));
             assertThat(sample.get("timestamp"), not(nullValue()));
             assertThat(sample.get("value"), not(nullValue()));
         }
@@ -223,8 +209,7 @@ public class RrdMetricsRetrieverTest extends XMLTestCase {
         // Verify each retrieved sample has a timestamp and value
         for (int i = 0; i < samples.size(); i++) {
             JSONObject sample = (JSONObject) samples.get(i);
-            LOGGER.debug("timestamp = " + (String) sample.get("timestamp") + ",   value = "
-                    + sample.get("value"));
+            LOGGER.debug("timestamp = {}, value = {}", (String) sample.get("timestamp"), sample.get("value"));
             assertThat(sample.get("timestamp"), not(nullValue()));
             assertThat(sample.get("value"), not(nullValue()));
         }
@@ -588,8 +573,7 @@ public class RrdMetricsRetrieverTest extends XMLTestCase {
         for (int i = 1; i <= numSamples; i++) {
             int randomQueryCount = random.nextInt(max - min + 1) + min;
             queryCount += randomQueryCount;
-            LOGGER.debug("timestamp: " + getCalendarTime(timestamp * 1000) + "  (" + timestamp
-                    + "),   queryCount = " + queryCount);
+            LOGGER.debug("timestamp: {}   ({}),   queryCount = {}", getCalendarTime(timestamp * 1000), timestamp, queryCount);
             sample.setTime(timestamp);
             sample.setValue(dataSourceName, queryCount);
             sample.update();
@@ -613,8 +597,7 @@ public class RrdMetricsRetrieverTest extends XMLTestCase {
 
         for (int i = 1; i <= numSamples; i++) {
             int randomQueryResponseTime = random.nextInt(max - min + 1) + min; // in ms
-            LOGGER.debug("timestamp: " + getCalendarTime(timestamp * 1000) + "  (" + timestamp
-                    + "),   queryResponseTime = " + randomQueryResponseTime);
+            LOGGER.debug("timestamp: {},  ({}),   queryResponseTime = {}", getCalendarTime(timestamp * 1000), timestamp, randomQueryResponseTime);
             sample.setTime(timestamp);
             sample.setValue(dataSourceName, randomQueryResponseTime);
             sample.update();
@@ -722,32 +705,32 @@ public class RrdMetricsRetrieverTest extends XMLTestCase {
 
         FetchRequest fetchRequest = rrdDb.createFetchRequest(ConsolFun.AVERAGE, startTime, endTime);
         FetchData fetchData = fetchRequest.fetchData();
-        LOGGER.debug("************  " + dsType + ": AVERAGE  **************");
+        LOGGER.debug("************  {}: AVERAGE  **************", dsType);
         // LOGGER.debug(fetchData.dump());
         long[] timestamps = fetchData.getTimestamps();
         double[] values = fetchData.getValues(0);
         for (int i = 0; i < timestamps.length; i++) {
-            LOGGER.debug(getCalendarTime(timestamps[i]) + ":  " + values[i]);
+            LOGGER.debug("{}:  {}", getCalendarTime(timestamps[i]), values[i]);
         }
 
         fetchRequest = rrdDb.createFetchRequest(ConsolFun.TOTAL, startTime, endTime);
         fetchData = fetchRequest.fetchData();
-        LOGGER.debug("************  " + dsType + ": TOTAL  **************");
+        LOGGER.debug("************  {}: TOTAL  **************", dsType);
         // LOGGER.debug(fetchData.dump());
         timestamps = fetchData.getTimestamps();
         values = fetchData.getValues(0);
         for (int i = 0; i < timestamps.length; i++) {
-            LOGGER.debug(getCalendarTime(timestamps[i]) + ":  " + values[i]);
+            LOGGER.debug("{}:  {}", getCalendarTime(timestamps[i]), values[i]);
         }
 
         // fetchRequest = rrdDb.createFetchRequest(ConsolFun.MIN, startTime, endTime);
         // fetchData = fetchRequest.fetchData();
-        // LOGGER.debug("************  " + dsType + ": MIN  **************");
+        // LOGGER.debug("************  {}: MIN  **************", dsType);
         // LOGGER.debug(fetchData.dump());
         //
         // fetchRequest = rrdDb.createFetchRequest(ConsolFun.MAX, startTime, endTime);
         // fetchData = fetchRequest.fetchData();
-        // LOGGER.debug("************  " + dsType + ": MAX  **************");
+        // LOGGER.debug("************  {}: MAX  **************", dsType);
         // LOGGER.debug(fetchData.dump());
     }
 }

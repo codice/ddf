@@ -19,27 +19,28 @@ import static org.junit.Assert.fail;
 
 import java.lang.reflect.Field;
 
-import org.apache.log4j.Logger;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ddf.security.command.EncryptCommand;
 import ddf.security.encryption.impl.EncryptionServiceImpl;
 
 public class EncryptCommandTest {
-    private static Logger LOGGER = Logger.getLogger(EncryptCommandTest.class);
+    private static Logger LOGGER = LoggerFactory.getLogger(EncryptCommandTest.class);
 
     @Test
     public void testDoExecute_NonNullPlainTextValue() {
         final String key = "secret";
         final String plainTextValue = "protect";
-        LOGGER.debug("key: " + key);
+        LOGGER.debug("key: {}", key);
 
         final EncryptionServiceImpl encryptionService = new EncryptionServiceImpl();
         encryptionService.setKey(key);
         final EncryptCommand encryptCommand = new EncryptCommand();
         encryptCommand.setEncryptionService(encryptionService);
         setPlainTextValueField(encryptCommand, plainTextValue);
-        LOGGER.debug("Plain text value: " + plainTextValue);
+        LOGGER.debug("Plain text value: {}", plainTextValue);
 
         Object encryptedValue = null;
 
@@ -50,7 +51,7 @@ public class EncryptCommandTest {
             fail(e.getMessage());
         }
 
-        LOGGER.debug("Encrypted Value: " + encryptedValue);
+        LOGGER.debug("Encrypted Value: {}", encryptedValue);
         assertNull(encryptedValue);
     }
 
@@ -58,14 +59,14 @@ public class EncryptCommandTest {
     public void testDoExecute_NullPlainTextValue() {
         final String key = "secret";
         final String plainTextValue = null;
-        LOGGER.debug("key: " + key);
+        LOGGER.debug("key: {}", key);
 
         final EncryptionServiceImpl encryptionService = new EncryptionServiceImpl();
         encryptionService.setKey(key);
         final EncryptCommand encryptCommand = new EncryptCommand();
         encryptCommand.setEncryptionService(encryptionService);
         setPlainTextValueField(encryptCommand, plainTextValue);
-        LOGGER.debug("Plain text value: " + plainTextValue);
+        LOGGER.debug("Plain text value: {}", plainTextValue);
 
         Object encryptedValue = null;
 
@@ -88,16 +89,16 @@ public class EncryptCommandTest {
             field.setAccessible(true);
             field.set(encryptCommand, value);
         } catch (SecurityException e) {
-            LOGGER.debug(e);
+            LOGGER.debug("Security exception setting field value", e);
             fail(e.getMessage());
         } catch (NoSuchFieldException e) {
-            LOGGER.debug(e);
+            LOGGER.debug("No such field exception setting field value", e);
             fail(e.getMessage());
         } catch (IllegalArgumentException e) {
-            LOGGER.debug(e);
+            LOGGER.debug("Illegal argument exception setting field value", e);
             fail(e.getMessage());
         } catch (IllegalAccessException e) {
-            LOGGER.debug(e);
+            LOGGER.debug("Illegal exception exception setting field value", e);
             fail(e.getMessage());
         }
 

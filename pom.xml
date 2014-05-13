@@ -216,11 +216,6 @@
 				<artifactId>slf4j-ext</artifactId>
 				<version>${org.slf4j.version}</version>
 			</dependency>
-			<dependency>
-				<groupId>org.slf4j</groupId>
-				<artifactId>slf4j-log4j12</artifactId>
-				<version>${org.slf4j.version}</version>
-			</dependency>
 			 <dependency>
                 <groupId>org.osgi</groupId>
                 <artifactId>org.osgi.core</artifactId>
@@ -231,11 +226,6 @@
                 <artifactId>org.osgi.compendium</artifactId>
                 <version>${osgi.version}</version>
             </dependency>
-			<dependency>
-				<groupId>log4j</groupId>
-				<artifactId>log4j</artifactId>
-				<version>1.2.17</version>
-			</dependency>
 		<!-- WSS4J, a dependency of CXF depends on a version of Joda Time [1.6,2). 
 		  Before incrementing to 2.0 or beyond, ensure that the latest version of WSS4J 
 		  can use a version higher 2.0 or higher. -->

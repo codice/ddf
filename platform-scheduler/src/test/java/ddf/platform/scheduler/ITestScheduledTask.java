@@ -29,7 +29,6 @@ import java.util.HashMap;
 
 import org.apache.felix.service.command.CommandProcessor;
 import org.apache.felix.service.command.CommandSession;
-import org.apache.log4j.BasicConfigurator;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -47,10 +46,6 @@ public class ITestScheduledTask {
     private static Scheduler scheduler;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CommandJob.class);
-
-    static {
-        BasicConfigurator.configure();
-    }
 
     @BeforeClass
     public static void setupClass() {

@@ -51,7 +51,6 @@ import org.apache.cxf.configuration.jsse.TLSClientParameters;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.cxf.transport.http.HTTPConduit;
 import org.apache.felix.webconsole.AbstractWebConsolePlugin;
-import org.apache.log4j.Logger;
 import org.codice.ddf.configuration.ConfigurationManager;
 import org.codice.ddf.configuration.ConfigurationWatcher;
 import org.joda.time.DateMidnight;
@@ -65,6 +64,8 @@ import org.json.simple.parser.ContainerFactory;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.osgi.framework.BundleContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Felix Web Console plugin to create a Metrics tab for interacting with the {@link MetricsEndpoint}
@@ -80,7 +81,7 @@ public class MetricsWebConsolePlugin extends AbstractWebConsolePlugin implements
         ConfigurationWatcher {
     private static final long serialVersionUID = -3725252410686520419L;
 
-    private static final Logger LOGGER = Logger.getLogger(MetricsWebConsolePlugin.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(MetricsWebConsolePlugin.class);
 
     private static final String METRICS_SERVICE_BASE_URL = "/internal/metrics";
 
@@ -121,11 +122,11 @@ public class MetricsWebConsolePlugin extends AbstractWebConsolePlugin implements
 
     public void start() {
         super.activate(bundleContext);
-        LOGGER.debug(LABEL + " plugin activated");
+        LOGGER.debug("{} {}", LABEL, "plugin activated");
     }
 
     public void stop() {
-        LOGGER.debug(LABEL + " plugin deactivated");
+        LOGGER.debug("{} {}", LABEL, "plugin deactivated");
         super.deactivate();
     }
 
@@ -159,7 +160,7 @@ public class MetricsWebConsolePlugin extends AbstractWebConsolePlugin implements
         // Call Metrics Endpoint REST service to get list of all of the monitored
         // metrics and their associated hyperlinks to graph their historical data.
         // Response is a JSON-formatted string.
-        LOGGER.debug("(NEW) Creating WebClient to URI " + metricsServiceUrl);
+        LOGGER.debug("(NEW) Creating WebClient to URI {}", metricsServiceUrl);
         WebClient client = WebClient.create(metricsServiceUrl);
         client.accept("application/json");
         if ("https".equals(request.getScheme())) {
@@ -167,9 +168,9 @@ public class MetricsWebConsolePlugin extends AbstractWebConsolePlugin implements
         }
         Response metricsListResponse = client.get();
         InputStream is = (InputStream) metricsListResponse.getEntity();
-        LOGGER.debug("Response has this many bytes in it: " + is.available());
+        LOGGER.debug("Response has this many bytes in it: {}", is.available());
         String metricsList = IOUtils.toString(is);
-        LOGGER.debug("metricsList = " + metricsList);
+        LOGGER.debug("metricsList = {}", metricsList);
 
         JSONParser parser = new JSONParser();
 
@@ -252,7 +253,7 @@ public class MetricsWebConsolePlugin extends AbstractWebConsolePlugin implements
                     // key=display text
                     // value=URLs
                     Map<String, String> metricUrls = (Map<String, String>) entry2.getValue();
-                    LOGGER.debug(timeRange + " -> " + metricUrls);
+                    LOGGER.debug("{} -> {}", timeRange, metricUrls);
                     pw.println("<td>");
 
                     Iterator metricUrlsIter = metricUrls.entrySet().iterator();
@@ -303,7 +304,7 @@ public class MetricsWebConsolePlugin extends AbstractWebConsolePlugin implements
 
             pw.println("</table>");
         } catch (ParseException pe) {
-            LOGGER.warn(pe);
+            LOGGER.warn("Parse exception building report structure", pe);
         }
 
         LOGGER.debug("EXITING: renderContent");
@@ -357,7 +358,7 @@ public class MetricsWebConsolePlugin extends AbstractWebConsolePlugin implements
     }
 
     private void handleKeyStoreException(Exception e) {
-        LOGGER.warn("An Exception occured trying to configure the keystores for metrics.", e);
+        LOGGER.warn("An Exception occurred trying to configure the keystores for metrics.", e);
     }
 
     /**
@@ -374,19 +375,19 @@ public class MetricsWebConsolePlugin extends AbstractWebConsolePlugin implements
 
     void addWeeklyReportUrls(PrintWriter pw, int numWeeklyReports, String metricsServiceUrl) {
         DateTime input = new DateTime();
-        LOGGER.debug("NOW:  " + input);
+        LOGGER.debug("NOW:  {}", input);
 
         for (int i = 1; i <= numWeeklyReports; i++) {
             try {
                 DateMidnight startOfLastWeek = new DateMidnight(input.minusWeeks(i).withDayOfWeek(
                         DateTimeConstants.MONDAY));
                 String startDate = urlEncodeDate(startOfLastWeek);
-                LOGGER.debug("Previous Week " + i + "(start):  " + startDate);
+                LOGGER.debug("Previous Week {} (start):  {}", i, startDate);
 
                 DateTime endOfLastWeek = startOfLastWeek.plusDays(DateTimeConstants.DAYS_PER_WEEK)
                         .toDateTime().minus(1 /* millisecond */);
                 String endDate = urlEncodeDate(endOfLastWeek);
-                LOGGER.debug("Previous Week " + i + " (end):  " + endDate);
+                LOGGER.debug("Previous Week {} (end):  ", i, endDate);
 
                 startTableRow(pw, i);
                 addCellLabelForRange(pw, startOfLastWeek, endOfLastWeek);
@@ -394,27 +395,25 @@ public class MetricsWebConsolePlugin extends AbstractWebConsolePlugin implements
                 addPPTCellLink(pw, startDate, endDate, metricsServiceUrl);
                 endTableRow(pw);
             } catch (UnsupportedEncodingException e) {
-                LOGGER.info(e);
+                LOGGER.info("Unsupported encoding exception adding weekly reports", e);
             }
         }
     }
 
     void addMonthlyReportUrls(PrintWriter pw, int numMonthlyReports, String metricsServiceUrl) {
         DateTime input = new DateTime();
-        LOGGER.debug("NOW:  " + input);
+        LOGGER.debug("NOW:  {}", input);
 
         for (int i = 1; i <= numMonthlyReports; i++) {
             try {
                 DateMidnight startOfLastMonth = new DateMidnight(input.minusMonths(i)
                         .withDayOfMonth(1));
                 String startDate = urlEncodeDate(startOfLastMonth);
-                LOGGER.debug("Previous Month (start):  " + startDate + "   (ms = "
-                        + startOfLastMonth.getMillis() + ")");
+                LOGGER.debug("Previous Month (start):  {}   (ms = {})", startDate, startOfLastMonth.getMillis());
 
                 DateTime endOfLastMonth = startOfLastMonth.plusMonths(1).toDateTime().minus(1 /* millisecond */);
                 String endDate = urlEncodeDate(endOfLastMonth);
-                LOGGER.debug("Previous Month (end):  " + endOfLastMonth + "   (ms = "
-                        + endOfLastMonth.getMillis() + ")");
+                LOGGER.debug("Previous Month (end):  {}   (ms = {})", endOfLastMonth, endOfLastMonth.getMillis());
 
                 startTableRow(pw, i);
                 addCellLabelForRange(pw, startOfLastMonth, endOfLastMonth);
@@ -422,30 +421,28 @@ public class MetricsWebConsolePlugin extends AbstractWebConsolePlugin implements
                 addPPTCellLink(pw, startDate, endDate, metricsServiceUrl);
                 endTableRow(pw);
             } catch (UnsupportedEncodingException e) {
-                LOGGER.info(e);
+                LOGGER.info("Unsupported encoding exception adding monthly reports", e);
             }
         }
     }
 
     void addYearlyReportUrls(PrintWriter pw, int numYearlyReports, String metricsServiceUrl) {
         DateTime input = new DateTime();
-        LOGGER.debug("NOW:  " + input);
+        LOGGER.debug("NOW:  {}", input);
 
         for (int i = 1; i <= numYearlyReports; i++) {
             try {
                 DateMidnight startOfLastYear = new DateMidnight(input.minusYears(1)
                         .withDayOfYear(1));
                 String startDate = urlEncodeDate(startOfLastYear);
-                LOGGER.debug("Previous Year (start):  " + startOfLastYear + "   (ms = "
-                        + startOfLastYear.getMillis() + ")");
+                LOGGER.debug("Previous Year (start):  {}   (ms = {})", startOfLastYear, startOfLastYear.getMillis());
 
                 DateTime endOfLastYear = startOfLastYear.plusYears(1).toDateTime().minus(1 /* millisecond */);
                 String endDate = urlEncodeDate(endOfLastYear);
-                LOGGER.debug("Previous Year (end):  " + endOfLastYear + "   (ms = "
-                        + endOfLastYear.getMillis() + ")");
+                LOGGER.debug("Previous Year (end):  {},   (ms = {})", endOfLastYear, endOfLastYear.getMillis());
 
                 String urlText = startOfLastYear.toString("yyyy");
-                LOGGER.debug("URL text = [" + urlText + "]");
+                LOGGER.debug("URL text = [{}]", urlText);
 
                 startTableRow(pw, i);
                 addCellLabel(pw, urlText);
@@ -453,7 +450,7 @@ public class MetricsWebConsolePlugin extends AbstractWebConsolePlugin implements
                 addPPTCellLink(pw, startDate, endDate, metricsServiceUrl);
                 endTableRow(pw);
             } catch (UnsupportedEncodingException e) {
-                LOGGER.info(e);
+                LOGGER.info("Unsupported encoding exception adding yearly reports", e);
             }
         }
     }
@@ -469,7 +466,7 @@ public class MetricsWebConsolePlugin extends AbstractWebConsolePlugin implements
     private void addCellLabelForRange(PrintWriter pw, DateMidnight startDate, DateTime endDate) {
         DateTimeFormatter dateFormatter = DateTimeFormat.forStyle(DATE_DISPLAY_FORMAT);
         String urlText = dateFormatter.print(startDate) + " - " + dateFormatter.print(endDate);
-        LOGGER.debug("URL text = [" + urlText + "]");
+        LOGGER.debug("URL text = [{}]", urlText);
         addCellLabel(pw, urlText);
     }
 
