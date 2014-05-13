@@ -108,7 +108,7 @@ public final class SolrServerFactory {
     public static EmbeddedSolrServer getEmbeddedSolrServer(String solrConfigXml, String schemaXml,
             ConfigurationFileProxy givenConfigFileProxy) {
 
-        LOGGER.debug("Retrieving embedded solr with the following properties: [{},{}," + givenConfigFileProxy + "]" , solrConfigXml, schemaXml);
+        LOGGER.debug("Retrieving embedded solr with the following properties: [{},{},{}]" , solrConfigXml, schemaXml, givenConfigFileProxy);
 
         String solrConfigFileName = DEFAULT_SOLRCONFIG_XML;
         String schemaFileName = DEFAULT_SCHEMA_XML;
