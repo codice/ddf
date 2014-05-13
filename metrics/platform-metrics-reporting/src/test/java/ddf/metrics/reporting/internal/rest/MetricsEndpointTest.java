@@ -40,6 +40,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
@@ -496,6 +497,9 @@ public class MetricsEndpointTest extends XMLTestCase {
 
         cleanupRrd();
 
+        MultivaluedMap<String, Object> headers = response.getHeaders();
+        assertTrue(headers.getFirst("Content-Disposition").toString().contains("attachment; filename="));
+
         InputStream is = (InputStream) response.getEntity();
         assertThat(is, not(nullValue()));
 
@@ -521,6 +525,9 @@ public class MetricsEndpointTest extends XMLTestCase {
                 Integer.toString(dateOffset), uriInfo);
 
         cleanupRrd();
+
+        MultivaluedMap<String, Object> headers = response.getHeaders();
+        assertTrue(headers.getFirst("Content-Disposition").toString().contains("attachment; filename="));
 
         InputStream is = (InputStream) response.getEntity();
         assertThat(is, not(nullValue()));

@@ -81,7 +81,7 @@
 		<artifactId>cxf-rt-frontend-jaxrs</artifactId>
 		<scope>test</scope>
 	</dependency>
-           
+      
   </dependencies>
   
   <build>
