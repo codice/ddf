@@ -14,7 +14,8 @@
  **/
 package ddf.sdk.metrics;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.codahale.metrics.JmxReporter;
 import com.codahale.metrics.Meter;
@@ -28,7 +29,7 @@ import ddf.catalog.plugin.StopProcessingException;
 import ddf.catalog.source.UnsupportedQueryException;
 
 public class SampleMetrics implements PreQueryPlugin {
-    private static final Logger LOGGER = Logger.getLogger(SampleMetrics.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SampleMetrics.class);
 
     private final MetricRegistry metrics = new MetricRegistry();
 

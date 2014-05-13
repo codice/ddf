@@ -37,7 +37,6 @@ import org.apache.karaf.shell.osgi.BlueprintListener.BlueprintState;
 import org.apache.karaf.tooling.exam.options.KarafDistributionKitConfigurationOption;
 import org.apache.karaf.tooling.exam.options.KarafDistributionKitConfigurationOption.Platform;
 import org.apache.karaf.tooling.exam.options.LogLevelOption.LogLevel;
-import org.apache.log4j.Logger;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.options.MavenUrlReference;
 import org.osgi.framework.Bundle;
@@ -48,6 +47,8 @@ import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.cm.ConfigurationEvent;
 import org.osgi.service.cm.ConfigurationListener;
 import org.osgi.util.tracker.ServiceTracker;
+import org.slf4j.Logger;
+import.org.slf4j.LoggerFactory;
 
 import ddf.catalog.source.CatalogProvider;
 
@@ -67,7 +68,7 @@ public abstract class AbstractIntegrationTest {
 
     protected static final String LOG_CONFIG_PID = "org.ops4j.pax.logging";
 
-    protected static final String LOGGER_PREFIX = "log4j.logger.";
+    protected static final String LOGGER_PREFIX = "slf4j.logger.";
 
     private static final String KARAF_VERSION = "2.3.3";
 
@@ -191,9 +192,9 @@ public abstract class AbstractIntegrationTest {
                 Thread.sleep(CONFIG_UPDATE_WAIT_INTERVAL);
                 millis += CONFIG_UPDATE_WAIT_INTERVAL;
             } catch (InterruptedException e) {
-                LOGGER.info(e);
+                LOGGER.info("Interrupted exception while trying to sleep for configuration update", e);
             }
-            LOGGER.info("Waiting for configuration to be updated..." + millis + "ms");
+            LOGGER.info("Waiting for configuration to be updated...{}ms", millis);
         }
 
         if (!listener.isUpdated()) {
@@ -234,15 +235,14 @@ public abstract class AbstractIntegrationTest {
                         if (BlueprintState.Failure.toString().equals(blueprintState)) {
                             fail("The blueprint for " + bundleName + " failed.");
                         } else if (!BlueprintState.Created.toString().equals(blueprintState)) {
-                            LOGGER.info(bundleName + " blueprint not ready with state "
-                                    + blueprintState);
+                            LOGGER.info("{} blueprint not ready with state {}", bundleName, blueprintState);
                             ready = false;
                         }
                     }
 
                     if (!((bundle.getHeaders().get("Fragment-Host") != null && bundle.getState() == Bundle.RESOLVED) || bundle
                             .getState() == Bundle.ACTIVE)) {
-                        LOGGER.info(bundleName + " bundle not ready yet");
+                        LOGGER.info("{} bundle not ready yet", bundleName);
                         ready = false;
                     }
                 }

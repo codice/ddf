@@ -19,7 +19,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ddf.catalog.data.Metacard;
 import ddf.catalog.operation.CreateRequest;
@@ -36,7 +37,10 @@ import ddf.catalog.plugin.PreIngestPlugin;
 
 public class DummyPreIngestPlugin implements PreIngestPlugin {
     // TODO: Fill in all methods with appropriate logic
-    private static Logger logger = Logger.getLogger(DummyPreIngestPlugin.class.getName());
+    private static Logger LOGGER = LoggerFactory.getLogger(DummyPreIngestPlugin.class.getName());
+
+    private static String ENTERING = "ENTERING {}";
+    private static String EXITING = "EXITING {}";
 
     public DummyPreIngestPlugin() {
 
@@ -49,7 +53,7 @@ public class DummyPreIngestPlugin implements PreIngestPlugin {
 
     public CreateRequest process(CreateRequest input) throws PluginExecutionException {
         String methodName = "process(CreateRequest)";
-        logger.debug("ENTERING: " + methodName);
+        LOGGER.debug(ENTERING, methodName);
 
         CreateRequest newRequest = input;
         if (input != null) {
@@ -58,14 +62,14 @@ public class DummyPreIngestPlugin implements PreIngestPlugin {
             newRequest = new CreateRequestImpl(filteredCards);
         }
 
-        logger.debug("EXITING: " + methodName);
+        LOGGER.debug(EXITING, methodName);
 
         return newRequest;
     }
 
     public UpdateRequest process(UpdateRequest input) throws PluginExecutionException {
         String methodName = "process(UpdateRequest)";
-        logger.debug("ENTERING: " + methodName);
+        LOGGER.debug(ENTERING, methodName);
 
         UpdateRequest newRequest = input;
 
@@ -92,20 +96,19 @@ public class DummyPreIngestPlugin implements PreIngestPlugin {
             }
 
             updatedMetacards = this.filterOutMetacards(updatedMetacards);
-            logger.debug("Returning new update request with id list size: " + ids.size()
-                    + " and metacard list size: " + updatedMetacards.size());
+            LOGGER.debug("Returning new update request with id list size: {} and metacard list size: {}", ids.size(), updatedMetacards.size());
             newRequest = new UpdateRequestImpl((String[]) (ids.toArray(new String[ids.size()])),
                     updatedMetacards);
         }
 
-        logger.debug("EXITING: " + methodName);
+        LOGGER.debug(EXITING, methodName);
 
         return newRequest;
     }
 
     public DeleteRequest process(DeleteRequest input) throws PluginExecutionException {
         String methodName = "process(DeleteRequest)";
-        logger.debug("ENTERING: " + methodName);
+        LOGGER.debug(ENTERING, methodName);
 
         DeleteRequest newRequest = input;
 
@@ -123,7 +126,7 @@ public class DummyPreIngestPlugin implements PreIngestPlugin {
         // }
         // }
 
-        logger.debug("EXITING: " + methodName);
+        LOGGER.debug(EXITING, methodName);
         //
         // return results;
         return newRequest;
@@ -131,7 +134,7 @@ public class DummyPreIngestPlugin implements PreIngestPlugin {
 
     private List<Metacard> filterOutMetacards(List<Metacard> cards) {
         String methodName = "filterOutMetacards";
-        logger.debug("ENTERING: " + methodName);
+        LOGGER.debug(ENTERING, methodName);
 
         List<Metacard> results = new ArrayList<Metacard>();
         if (cards != null) {
@@ -145,20 +148,18 @@ public class DummyPreIngestPlugin implements PreIngestPlugin {
                 }
             }
 
-            if (logger.isDebugEnabled()) {
-                logger.debug("Original size of Metacard list: " + size);
-                logger.debug("Filtered size of Metacard list: " + results.size());
-            }
+            LOGGER.debug("Original size of Metacard list: {}", size);
+            LOGGER.debug("Filtered size of Metacard list: {}", results.size());
         }
 
-        logger.debug("EXITING: " + methodName);
+        LOGGER.debug(EXITING, methodName);
 
         return results;
     }
 
     private List<Metacard> filterOutIds(List<Metacard> cards) {
         String methodName = "filterOutMetacards";
-        logger.debug("ENTERING: " + methodName);
+        LOGGER.debug(ENTERING, methodName);
 
         List<Metacard> results = new ArrayList<Metacard>();
         if (cards != null) {
@@ -172,13 +173,11 @@ public class DummyPreIngestPlugin implements PreIngestPlugin {
                 }
             }
 
-            if (logger.isDebugEnabled()) {
-                logger.debug("Original size of Metacard list: " + size);
-                logger.debug("Filtered size of Metacard list: " + results.size());
-            }
+            LOGGER.debug("Original size of Metacard list: {}", size);
+            LOGGER.debug("Filtered size of Metacard list: {}", results.size());
         }
 
-        logger.debug("EXITING: " + methodName);
+        LOGGER.debug(EXITING, methodName);
 
         return results;
     }

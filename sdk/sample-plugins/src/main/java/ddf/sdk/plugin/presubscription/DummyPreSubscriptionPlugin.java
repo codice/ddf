@@ -14,8 +14,9 @@
  **/
 package ddf.sdk.plugin.presubscription;
 
-import org.apache.log4j.Logger;
 import org.opengis.filter.Filter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ddf.catalog.event.Subscription;
 import ddf.catalog.event.SubscriptionImpl;
@@ -33,21 +34,24 @@ import ddf.catalog.source.UnsupportedQueryException;
  ****************************************************************************************/
 
 public class DummyPreSubscriptionPlugin implements PreSubscriptionPlugin {
-    private static Logger logger = Logger.getLogger(DummyPreSubscriptionPlugin.class);
+    private static Logger LOGGER = LoggerFactory.getLogger(DummyPreSubscriptionPlugin.class);
+
+    private static String ENTERING = "ENTERING {}";
+    private static String EXITING = "EXITING {}";
 
     private FilterAdapter filterAdapter;
 
     private FilterBuilder filterBuilder;
 
     public DummyPreSubscriptionPlugin(FilterAdapter filterAdapter, FilterBuilder filterBuilder) {
-        logger.trace("INSIDE: DummyPreSubscriptionPlugin constructor");
+        LOGGER.trace("INSIDE: DummyPreSubscriptionPlugin constructor");
         this.filterAdapter = filterAdapter;
         this.filterBuilder = filterBuilder;
     }
 
     public Subscription process(Subscription input) throws PluginExecutionException {
         String methodName = "process";
-        logger.trace("ENTERING: " + methodName);
+        LOGGER.trace(ENTERING, methodName);
 
         Subscription newSubscription = input;
 
@@ -74,7 +78,7 @@ public class DummyPreSubscriptionPlugin implements PreSubscriptionPlugin {
             }
         }
 
-        logger.trace("EXITING: " + methodName);
+        LOGGER.trace(EXITING, methodName);
 
         return newSubscription;
     }

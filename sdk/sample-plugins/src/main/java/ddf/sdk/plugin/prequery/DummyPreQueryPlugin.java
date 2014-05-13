@@ -14,8 +14,9 @@
  **/
 package ddf.sdk.plugin.prequery;
 
-import org.apache.log4j.Logger;
 import org.opengis.filter.Filter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ddf.catalog.data.Metacard;
 import ddf.catalog.filter.FilterAdapter;
@@ -37,7 +38,10 @@ import ddf.catalog.source.UnsupportedQueryException;
  ****************************************************************************************/
 
 public class DummyPreQueryPlugin implements PreQueryPlugin {
-    private static Logger LOGGER = Logger.getLogger(DummyPreQueryPlugin.class);
+    private static Logger LOGGER = LoggerFactory.getLogger(DummyPreQueryPlugin.class);
+
+    private static String ENTERING = "ENTERING {}";
+    private static String EXITING = "EXITING {}";
 
     private FilterAdapter filterAdapter;
 
@@ -53,7 +57,7 @@ public class DummyPreQueryPlugin implements PreQueryPlugin {
     public QueryRequest process(QueryRequest input) throws PluginExecutionException,
         StopProcessingException {
         String methodName = "process";
-        LOGGER.trace("ENTERING: " + methodName);
+        LOGGER.trace(ENTERING, methodName);
 
         QueryRequest newQueryRequest = input;
 
@@ -100,7 +104,7 @@ public class DummyPreQueryPlugin implements PreQueryPlugin {
             }
         }
 
-        LOGGER.trace("EXITING: " + methodName);
+        LOGGER.trace(EXITING, methodName);
 
         return newQueryRequest;
     }

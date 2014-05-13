@@ -23,7 +23,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This a a very simple example of a servlet protected by CAS that can be used to query for
@@ -36,7 +37,7 @@ import org.apache.log4j.Logger;
 public class QueryForm extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
-    private static final Logger LOGGER = Logger.getLogger(QueryForm.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(QueryForm.class);
 
     private static final String QUERY_SERVLET = "/ddf/queryresult/Query";
 
@@ -124,7 +125,7 @@ public class QueryForm extends HttpServlet {
 
         if (principal != null) {
             userName = principal.getName();
-            LOGGER.info("user name: " + userName);
+            LOGGER.info("user name: {}", userName);
         } else {
             LOGGER.error("principal is null!");
             userName = "user";

@@ -34,9 +34,10 @@ import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.log4j.Logger;
 import org.jasig.cas.client.authentication.AttributePrincipal;
 import org.opengis.filter.Filter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.BinaryContent;
@@ -67,7 +68,7 @@ import ddf.security.service.impl.cas.CasAuthenticationToken;
 public class Query extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
-    private static final Logger LOGGER = Logger.getLogger(Query.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(Query.class);
 
     private static final String QUERY_FORM_SERVLET = "/ddf/query/QueryForm";
 
@@ -107,9 +108,8 @@ public class Query extends HttpServlet {
         throws ServletException, IOException {
         response.setContentType("text/html");
         PrintWriter writer = response.getWriter();
-        LOGGER.debug("serviceticket request parameter: "
-                + request.getParameter(PROXY_TICKET_REQUEST_PARAM));
-        LOGGER.debug("query request parameter: " + request.getParameter(QUERY_REQUEST_PARAM));
+        LOGGER.debug("serviceticket request parameter: {}", request.getParameter(PROXY_TICKET_REQUEST_PARAM));
+        LOGGER.debug("query request parameter: {}", request.getParameter(QUERY_REQUEST_PARAM));
         String html = createPage(request);
         writer.println(html);
     }
@@ -176,15 +176,14 @@ public class Query extends HttpServlet {
     private String getMetacardForId(String searchPhrase, String proxyTicket) {
 
         Filter filter = filterBuilder.attribute(Metacard.ANY_TEXT).is().like().text(searchPhrase);
-        LOGGER.info("Query filter: " + filter.toString());
+        LOGGER.info("Query filter: {}", filter.toString());
         String queryError = "Unable to perform query " + filter.toString() + ".";
         QueryRequest request = new QueryRequestImpl(new QueryImpl(filter), true);
         StringBuilder responseString = new StringBuilder();
 
         try {
             Subject subject = securityManager.getSubject(new CasAuthenticationToken(proxyTicket));
-            LOGGER.info("Adding " + SecurityConstants.SECURITY_SUBJECT + " property with value "
-                    + subject + " to request.");
+            LOGGER.info("Adding {} property with value {} to request", SecurityConstants.SECURITY_SUBJECT, subject);
             request.getProperties().put(SecurityConstants.SECURITY_SUBJECT, subject);
         } catch (SecurityServiceException se) {
             LOGGER.error("Could not retrieve subject from securitymanager.", se);
@@ -192,9 +191,9 @@ public class Query extends HttpServlet {
         }
 
         try {
-            LOGGER.debug("About to query the catalog framework with query " + filter.toString());
+            LOGGER.debug("About to query the catalog framework with query {}", filter.toString());
             QueryResponse queryResponse = catalogFramework.query(request, null);
-            LOGGER.debug("Got query response from catalog framework for query " + filter.toString());
+            LOGGER.debug("Got query response from catalog framework for query {}", filter.toString());
             List<Result> results = queryResponse.getResults();
             if (results != null) {
                 String message = "The query for " + filter.toString() + " returned "
@@ -203,12 +202,11 @@ public class Query extends HttpServlet {
                 LOGGER.debug(message);
                 for (Result curResult : results) {
                     Metacard metacard = curResult.getMetacard();
-                    LOGGER.debug("Transforming the metacard with id [" + metacard.getId()
-                            + "] to xml.");
+                    LOGGER.debug("Transforming the metacard with id [{}] to xml.", metacard.getId());
                     BinaryContent content = catalogFramework.transform(metacard, "xml", null);
                     StringWriter writer = new StringWriter();
                     IOUtils.copy(content.getInputStream(), writer, "UTF8");
-                    LOGGER.debug("Formatting xml for metacard with id [" + metacard.getId() + "].");
+                    LOGGER.debug("Formatting xml for metacard with id [{}].", metacard.getId());
                     responseString.append(format(writer.toString()));
                 }
             } else {
@@ -245,9 +243,9 @@ public class Query extends HttpServlet {
         if (attributePrincipal != null) {
             // proxyTicket = attributePrincipal.getProxyTicketFor(
             // "https://server:8993/ddf/query/sts" );
-            LOGGER.debug("Getting proxy ticket for " + STS_SERVICE_URL);
+            LOGGER.debug("Getting proxy ticket for {}", STS_SERVICE_URL);
             proxyTicket = attributePrincipal.getProxyTicketFor(STS_SERVICE_URL);
-            LOGGER.info("proxy ticket: " + proxyTicket);
+            LOGGER.info("proxy ticket: {}", proxyTicket);
         } else {
             LOGGER.error("attribute principal is null!");
         }
@@ -272,7 +270,7 @@ public class Query extends HttpServlet {
 
         try {
             transformer = transformerFactory.newTransformer();
-            LOGGER.debug("transformer class: " + transformer.getClass());
+            LOGGER.debug("transformer class: {}", transformer.getClass());
             transformer.setOutputProperty(OutputKeys.INDENT, "yes");
             transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
             transformer.transform(xmlInput, xmlOutput);
@@ -291,7 +289,7 @@ public class Query extends HttpServlet {
             formattedXml = unformattedXml;
         }
 
-        LOGGER.debug("Formatted xml:\n" + formattedXml);
+        LOGGER.debug("Formatted xml:\n{}", formattedXml);
 
         return formattedXml;
     }

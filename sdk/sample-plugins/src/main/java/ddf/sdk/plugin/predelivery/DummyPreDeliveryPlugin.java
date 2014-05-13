@@ -14,7 +14,8 @@
  **/
 package ddf.sdk.plugin.predelivery;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ddf.catalog.data.Metacard;
 import ddf.catalog.operation.Update;
@@ -24,21 +25,24 @@ import ddf.catalog.plugin.PreDeliveryPlugin;
 import ddf.catalog.plugin.StopProcessingException;
 
 public class DummyPreDeliveryPlugin implements PreDeliveryPlugin {
-    private static Logger logger = Logger.getLogger(DummyPreDeliveryPlugin.class);
+    private static Logger LOGGER = LoggerFactory.getLogger(DummyPreDeliveryPlugin.class);
+
+    private static String ENTERING = "ENTERING {}";
+    private static String EXITING = "EXITING {}";
 
     public DummyPreDeliveryPlugin() {
-        logger.trace("INSIDE: DummyPreDeliveryPlugin constructor");
+        LOGGER.trace("INSIDE: DummyPreDeliveryPlugin constructor");
     }
 
     @Override
     public Metacard processCreate(Metacard metacard) throws PluginExecutionException,
         StopProcessingException {
         String methodName = "processCreate";
-        logger.trace("ENTERING: " + methodName);
+        LOGGER.trace(ENTERING, methodName);
 
         Metacard newMetacard = metacard;
 
-        logger.trace("EXITING: " + methodName);
+        LOGGER.trace(EXITING, methodName);
 
         return newMetacard;
     }
@@ -47,13 +51,13 @@ public class DummyPreDeliveryPlugin implements PreDeliveryPlugin {
     public Update processUpdateMiss(Update update) throws PluginExecutionException,
         StopProcessingException {
         String methodName = "processUpdateMiss";
-        logger.trace("ENTERING: " + methodName);
+        LOGGER.trace(ENTERING, methodName);
 
         Metacard newMetacard = update.getNewMetacard();
         Metacard oldMetacard = update.getOldMetacard();
         Update newUpdate = new UpdateImpl(newMetacard, oldMetacard);
 
-        logger.trace("EXITING: " + methodName);
+        LOGGER.trace(EXITING, methodName);
 
         return newUpdate;
     }
@@ -62,13 +66,13 @@ public class DummyPreDeliveryPlugin implements PreDeliveryPlugin {
     public Update processUpdateHit(Update update) throws PluginExecutionException,
         StopProcessingException {
         String methodName = "processUpdateHit";
-        logger.trace("ENTERING: " + methodName);
+        LOGGER.trace(ENTERING, methodName);
 
         Metacard newMetacard = update.getNewMetacard();
         Metacard oldMetacard = update.getOldMetacard();
         Update newUpdate = new UpdateImpl(newMetacard, oldMetacard);
 
-        logger.trace("EXITING: " + methodName);
+        LOGGER.trace(EXITING, methodName);
 
         return newUpdate;
     }
@@ -77,11 +81,11 @@ public class DummyPreDeliveryPlugin implements PreDeliveryPlugin {
     public Metacard processDelete(Metacard metacard) throws PluginExecutionException,
         StopProcessingException {
         String methodName = "processDelete";
-        logger.trace("ENTERING: " + methodName);
+        LOGGER.trace(ENTERING, methodName);
 
         Metacard newMetacard = metacard;
 
-        logger.trace("EXITING: " + methodName);
+        LOGGER.trace(EXITING, methodName);
 
         return newMetacard;
     }
