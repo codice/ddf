@@ -21,9 +21,10 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
 import org.junit.BeforeClass;
 import org.opengis.filter.Filter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
@@ -46,7 +47,7 @@ import ddf.catalog.source.UnsupportedQueryException;
 
 public abstract class SolrProviderTestCase {
 
-    protected static final Logger LOGGER = Logger.getLogger(TestSolrProvider.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(TestSolrProvider.class);
 
     protected static final int ALL_RESULTS = -1;
 
@@ -82,7 +83,7 @@ public abstract class SolrProviderTestCase {
     protected static void messageBreak(String string) {
         String stars = StringUtils.repeat("*", string.length() + 2);
         LOGGER.info(stars);
-        LOGGER.info("* " + string);
+        LOGGER.info("* {}", string);
         LOGGER.info(stars);
     }
 
@@ -110,7 +111,7 @@ public abstract class SolrProviderTestCase {
             ids.add(r.getMetacard().getId());
         }
 
-        LOGGER.info("Records found for deletion: " + ids);
+        LOGGER.info("Records found for deletion: {}", ids);
 
         provider.delete(new DeleteRequestImpl(ids.toArray(new String[ids.size()])));
 

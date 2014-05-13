@@ -27,7 +27,6 @@ import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 
-import org.apache.log4j.BasicConfigurator;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.SolrPingResponse;
@@ -52,10 +51,6 @@ import ddf.catalog.source.solr.ConfigurationStore;
  * 
  */
 public class TestSolrHttpCatalogProvider {
-
-    static {
-        BasicConfigurator.configure();
-    }
 
     @Test
     public void testId() {

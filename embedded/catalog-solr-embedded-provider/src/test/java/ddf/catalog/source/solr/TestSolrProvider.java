@@ -51,7 +51,6 @@ import java.util.TreeSet;
 import javax.swing.border.BevelBorder;
 
 import org.apache.commons.io.output.ByteArrayOutputStream;
-import org.apache.log4j.Logger;
 import org.geotools.filter.FilterFactoryImpl;
 import org.geotools.filter.SortByImpl;
 import org.geotools.geometry.jts.spatialschema.geometry.DirectPositionImpl;
@@ -69,6 +68,8 @@ import org.opengis.filter.Filter;
 import org.opengis.filter.FilterFactory;
 import org.opengis.filter.sort.SortBy;
 import org.opengis.filter.sort.SortOrder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.ContentType;
@@ -202,7 +203,7 @@ public class TestSolrProvider extends SolrProviderTestCase {
 
     protected static final double METERS_PER_KM = 1000.0;
 
-    protected static final Logger LOGGER = Logger.getLogger(TestSolrProvider.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(TestSolrProvider.class);
 
     protected static final int ONE_HIT = 1;
 
@@ -797,8 +798,8 @@ public class TestSolrProvider extends SolrProviderTestCase {
         // newCard.getResourceURI().toString());
         // assertEquals(provider.getId(), oldCard.getSourceId());
         // assertEquals(provider.getId(), newCard.getSourceId());
-        // LOGGER.info("New Metacard location: " + newCard.getLocation());
-        // LOGGER.info("Old Metacard location: " + oldCard.getLocation());
+        // LOGGER.info("New Metacard location: {}", newCard.getLocation());
+        // LOGGER.info("Old Metacard location: {}", oldCard.getLocation());
         // assertTrue(oldCard.getLocation().contains("POINT"));
         // assertEquals(null, newCard.getLocation());
 
@@ -2475,7 +2476,7 @@ public class TestSolrProvider extends SolrProviderTestCase {
         for (Result content : sourceResponse.getResults()) {
             String term = FLAGSTAFF_QUERY_PHRASE;
 
-            LOGGER.debug("RESULT returned: " + content);
+            LOGGER.debug("RESULT returned: {}", content);
             String metadata = content.getMetacard().getMetadata();
             assertTrue("Testing if contents has term [" + term + "]",
                     ALL_RESULTS != metadata.indexOf(term));
@@ -2497,7 +2498,7 @@ public class TestSolrProvider extends SolrProviderTestCase {
         for (Result content : sourceResponse.getResults()) {
             String term = FLAGSTAFF_QUERY_PHRASE;
 
-            LOGGER.debug("RESULT returned: " + content);
+            LOGGER.debug("RESULT returned: {}", content);
             String metadata = content.getMetacard().getMetadata();
             assertTrue("Testing if contents has term [" + term + "]",
                     ALL_RESULTS != metadata.indexOf(term));
@@ -3126,7 +3127,7 @@ public class TestSolrProvider extends SolrProviderTestCase {
         /** CREATE **/
         CreateResponse response = create(metacards);
 
-        LOGGER.info("CREATED " + response.getCreatedMetacards().size() + " records.");
+        LOGGER.info("CREATED {} records.", response.getCreatedMetacards().size());
 
         CommonQueryBuilder queryBuilder = new CommonQueryBuilder();
 
@@ -3155,7 +3156,7 @@ public class TestSolrProvider extends SolrProviderTestCase {
 
             DateTime currentDate = new DateTime(effectiveDate.getTime());
 
-            LOGGER.debug("Testing current index: " + (startIndex + i));
+            LOGGER.debug("Testing current index: {}", startIndex + i);
 
             assertEquals(new DateTime(dates[startIndex - 1 + i].getTime()).getDayOfYear(),
                     currentDate.getDayOfYear());
@@ -3186,7 +3187,7 @@ public class TestSolrProvider extends SolrProviderTestCase {
 
             DateTime currentDate = new DateTime(effectiveDate.getTime());
 
-            LOGGER.debug("Testing current index: " + (startIndex + i));
+            LOGGER.debug("Testing current index: {}", startIndex + i);
 
             assertEquals(new DateTime(dates[startIndex - 1 + i].getTime()).getDayOfYear(),
                     currentDate.getDayOfYear());
@@ -3217,7 +3218,7 @@ public class TestSolrProvider extends SolrProviderTestCase {
 
             DateTime currentDate = new DateTime(effectiveDate.getTime());
 
-            LOGGER.debug("Testing current index: " + (startIndex + i));
+            LOGGER.debug("Testing current index: {}", startIndex + i);
 
             assertEquals(new DateTime(dates[startIndex - 1 + i].getTime()).getDayOfYear(),
                     currentDate.getDayOfYear());
@@ -3248,7 +3249,7 @@ public class TestSolrProvider extends SolrProviderTestCase {
 
             DateTime currentDate = new DateTime(effectiveDate.getTime());
 
-            LOGGER.debug("Testing current index: " + (startIndex + i));
+            LOGGER.debug("Testing current index: {}", startIndex + i);
 
             assertEquals(new DateTime(dates[startIndex - 1 + i].getTime()).getDayOfYear(),
                     currentDate.getDayOfYear());
@@ -3451,7 +3452,7 @@ public class TestSolrProvider extends SolrProviderTestCase {
         for (Result r : sourceResponse.getResults()) {
             assertTrue("Wrong record, Flagstaff keyword was not found.", ALL_RESULTS != r
                     .getMetacard().getMetadata().indexOf(FLAGSTAFF_QUERY_PHRASE));
-            LOGGER.info("Distance to Flagstaff: " + r.getDistanceInMeters());
+            LOGGER.info("Distance to Flagstaff: {}", r.getDistanceInMeters());
             // assertTrue(r.getDistanceInMeters() != null);
         }
 
@@ -3472,7 +3473,7 @@ public class TestSolrProvider extends SolrProviderTestCase {
         for (int i = 0; i < 2; i++) {
             Result result = results.get(i);
 
-            LOGGER.info("Distance of [" + i + "]: " + result.getDistanceInMeters());
+            LOGGER.info("Distance of [{}]]: {}", i, result.getDistanceInMeters());
 
             if (i == 0) {
                 assertTrue("Grabbed the wrong record.", ALL_RESULTS != result.getMetacard()
@@ -4188,13 +4189,13 @@ public class TestSolrProvider extends SolrProviderTestCase {
     @Test
     public void testDescribable() throws Exception {
 
-        LOGGER.debug("version: " + provider.getVersion());
+        LOGGER.debug("version: {}", provider.getVersion());
 
-        LOGGER.debug("description: " + provider.getDescription());
+        LOGGER.debug("description: {}", provider.getDescription());
 
-        LOGGER.debug("org: " + provider.getOrganization());
+        LOGGER.debug("org: {}", provider.getOrganization());
 
-        LOGGER.debug("name: " + provider.getTitle());
+        LOGGER.debug("name: {}", provider.getTitle());
 
         assertNotNull(provider.getOrganization());
 

@@ -15,15 +15,7 @@
 
 package ddf.catalog.source.solr;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 public class Library {
-
-    /**
-     * Logger for this class.
-     */
-    private static final Logger LOG = LoggerFactory.getLogger(Library.class.getName());
 
     public Library() {
 

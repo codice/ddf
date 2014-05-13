@@ -29,7 +29,6 @@ import java.util.Set;
 import java.util.UUID;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.log4j.Logger;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrQuery.ORDER;
 import org.apache.solr.client.solrj.SolrRequest.METHOD;
@@ -46,6 +45,8 @@ import org.apache.solr.common.SolrException;
 import org.apache.solr.common.SolrInputDocument;
 import org.opengis.filter.sort.SortBy;
 import org.opengis.filter.sort.SortOrder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.spatial4j.core.distance.DistanceUtils;
 
@@ -99,13 +100,13 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
 
     private static final String REQUEST_MUST_NOT_BE_NULL_MESSAGE = "Request must not be null";
 
-    private static final Logger LOGGER = Logger.getLogger(SolrCatalogProvider.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SolrCatalogProvider.class);
 
     private static final double HASHMAP_DEFAULT_LOAD_FACTOR = 0.75;
 
-    private static final String ENTERED = "ENTERED: ";
+    private static final String ENTERED = "ENTERED: {}";
 
-    private static final String EXITED = "EXITED: ";
+    private static final String EXITED = "EXITED: {}";
 
     private FilterAdapter filterAdapter;
 
@@ -122,7 +123,7 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
             describableProperties.load(SolrCatalogProvider.class
                     .getResourceAsStream(DESCRIBABLE_PROPERTIES_FILE));
         } catch (IOException e) {
-            LOGGER.info(e);
+            LOGGER.info("IO exception loading describable properties", e);
         }
 
     }
@@ -142,10 +143,7 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
             throw new IllegalArgumentException("SolrServer cannot be null.");
         }
 
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Constructing " + SolrCatalogProvider.class.getName() + " with server ["
-                    + server + "]");
-        }
+        LOGGER.debug("Constructing {} with server [{}]", SolrCatalogProvider.class.getName(), server);
 
         this.server = server;
         this.filterAdapter = adapter;
@@ -215,14 +213,13 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
                     for (PivotField pf : entry.getValue()) {
 
                         String contentTypeName = pf.getValue().toString();
-                        LOGGER.debug("contentTypeName:" + contentTypeName);
+                        LOGGER.debug("contentTypeName:{}", contentTypeName);
 
                         if (CollectionUtils.isEmpty(pf.getPivot())) {
                             // if there are no sub-pivots, that means that there are no content type
                             // versions
                             // associated with this content type name
-                            LOGGER.debug("Content type does not have associated contentTypeVersion: "
-                                    + contentTypeName);
+                            LOGGER.debug("Content type does not have associated contentTypeVersion: {}", contentTypeName);
                             ContentTypeImpl contentType = new ContentTypeImpl(contentTypeName, null);
 
                             finalSet.add(contentType);
@@ -230,8 +227,7 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
                         } else {
                             for (PivotField innerPf : pf.getPivot()) {
 
-                                LOGGER.debug("contentTypeVersion:" + innerPf.getValue()
-                                        + ". For contentTypeName: " + contentTypeName);
+                                LOGGER.debug("contentTypeVersion:{}. For contentTypeName: {}", innerPf.getValue(), contentTypeName);
 
                                 ContentTypeImpl contentType = new ContentTypeImpl(contentTypeName,
                                         innerPf.getValue().toString());
@@ -244,7 +240,7 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
             }
 
         } catch (SolrServerException e) {
-            LOGGER.info(e);
+            LOGGER.info("SOLR server exception getting content types", e);
         }
 
         return finalSet;
@@ -302,14 +298,14 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
     @Override
     public void maskId(String id) {
 
-        LOGGER.info("Sitename changed from [" + getId() + "] to [" + id + "]");
+        LOGGER.info("Sitename changed from [{}] to [{}]", getId(), id);
         super.maskId(id);
     }
 
     @Override
     public SourceResponse query(QueryRequest request) throws UnsupportedQueryException {
 
-        LOGGER.debug(ENTERED + "query");
+        LOGGER.debug(ENTERED, "query");
 
         if (request == null || request.getQuery() == null) {
             return new QueryResponseImpl(request, new ArrayList<Result>(), true, 0L);
@@ -332,9 +328,9 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
         }
 
         if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Prepared Query: " + query.getQuery());
+            LOGGER.debug("Prepared Query: {}", query.getQuery());
             if (query.getFilterQueries() != null && query.getFilterQueries().length > 0) {
-                LOGGER.debug("Filter Queries: " + Arrays.toString(query.getFilterQueries()));
+                LOGGER.debug("Filter Queries: {}", Arrays.toString(query.getFilterQueries()));
             }
         }
 
@@ -376,8 +372,7 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
 
                     query.add("fl", "*," + RELEVANCE_SORT_FIELD);
                 } else {
-                    LOGGER.info("No schema field was found for sort property [" + sortProperty
-                            + "]. No sort field was added to the query.");
+                    LOGGER.info("No schema field was found for sort property [{}]. No sort field was added to the query.", sortProperty);
                 }
 
             }
@@ -402,15 +397,14 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
             for (SolrDocument doc : docs) {
 
                 if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("SOLR DOC:"
-                            + doc.getFieldValue(Metacard.ID + SchemaFields.TEXT_SUFFIX));
+                    LOGGER.debug("SOLR DOC:{}", doc.getFieldValue(Metacard.ID + SchemaFields.TEXT_SUFFIX));
                 }
                 ResultImpl tmpResult;
                 try {
                     tmpResult = createResult(doc, sortProperty);
                     // TODO: register metacard type???
                 } catch (MetacardCreationException e) {
-                    LOGGER.warn(e);
+                    LOGGER.warn("Metacard creation exception creating result", e);
                     throw new UnsupportedQueryException("Could not create metacard(s).");
                 }
 
@@ -430,7 +424,7 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
         /* Total Count */
         sourceResponseImpl.setHits(totalHits);
 
-        LOGGER.debug("EXITING: query");
+        LOGGER.debug(EXITED, "query");
         return sourceResponseImpl;
     }
 
@@ -443,7 +437,7 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
     @Override
     public CreateResponse create(CreateRequest request) throws IngestException {
 
-        LOGGER.debug(ENTERED + " CREATE");
+        LOGGER.debug(ENTERED, "CREATE");
 
         if (request == null) {
             throw new IngestException(REQUEST_MUST_NOT_BE_NULL_MESSAGE);
@@ -481,7 +475,7 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
             try {
                 resolver.addFields(metacard, solrInputDocument);
             } catch (MetacardCreationException e) {
-                LOGGER.warn(e);
+                LOGGER.warn("Metacard creation exception adding fields", e);
                 throw new IngestException("MetacardType could not be read.");
             }
 
@@ -500,13 +494,13 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
                 softCommit(docs);
             }
         } catch (SolrServerException e) {
-            LOGGER.warn(e);
+            LOGGER.warn("SOLR server exception ingesting metacard(s)", e);
             throw new IngestException("Server could not ingest metacard(s).");
         } catch (SolrException e) {
-            LOGGER.warn(e);
+            LOGGER.warn("SOLR exception ingesting metacard(s)", e);
             throw new IngestException("Server could not ingest metacard(s).");
         } catch (IOException e) {
-            LOGGER.warn(e);
+            LOGGER.warn("IO exception ingesting metacard(s)", e);
         }
 
         CreateResponseImpl createResponseImpl = new CreateResponseImpl(request, null, output);
@@ -565,16 +559,14 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
             idResults = server.query(query, METHOD.POST);
 
         } catch (SolrServerException e) {
-            LOGGER.warn(e);
+            LOGGER.warn("SOLR server exception during query", e);
         }
 
         // CHECK if we got any results back
         if (idResults != null && idResults.getResults() != null
                 && idResults.getResults().size() != 0) {
 
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.info("Found " + idResults.getResults().size() + " current metacard(s).");
-            }
+            LOGGER.info("Found {} current metacard(s).", idResults.getResults().size());
 
             // CHECK updates size assertion
             if (idResults.getResults().size() > updates.size()) {
@@ -674,10 +666,10 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
             }
 
         } catch (SolrServerException e) {
-            LOGGER.warn(e);
+            LOGGER.warn("SOLR server exception processing request", e);
             throw new IngestException("Provider is not able to process the request.");
         } catch (IOException e) {
-            LOGGER.warn(e);
+            LOGGER.warn("IO exception processing request", e);
             throw new IngestException("Provider is not able to process the request.");
         }
 
@@ -687,7 +679,7 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
     @Override
     public DeleteResponse delete(DeleteRequest deleteRequest) throws IngestException {
 
-        LOGGER.debug(ENTERED + "DELETE");
+        LOGGER.debug(ENTERED, "DELETE");
 
         if (deleteRequest == null) {
             throw new IngestException(REQUEST_MUST_NOT_BE_NULL_MESSAGE);
@@ -706,7 +698,7 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
         List<? extends Serializable> identifiers = deleteRequest.getAttributeValues();
 
         if (identifiers == null || identifiers.size() == 0) {
-            LOGGER.debug(EXITED + " DELETE");
+            LOGGER.debug(EXITED, "DELETE");
             return new DeleteResponseImpl(deleteRequest, null, deletedMetacards);
         }
 
@@ -732,7 +724,7 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
         try {
             solrResponse = server.query(query, METHOD.POST);
         } catch (SolrServerException e) {
-            LOGGER.info(e);
+            LOGGER.info("SOLR server exception deleting request message", e);
             throw new IngestException(COULD_NOT_COMPLETE_DELETE_REQUEST_MESSAGE);
         }
 
@@ -741,14 +733,13 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
         for (SolrDocument doc : docs) {
 
             if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("SOLR DOC:"
-                        + doc.getFieldValue(Metacard.ID + SchemaFields.TEXT_SUFFIX));
+                LOGGER.debug("SOLR DOC: {}", doc.getFieldValue(Metacard.ID + SchemaFields.TEXT_SUFFIX));
             }
 
             try {
                 deletedMetacards.add(createMetacard(doc));
             } catch (MetacardCreationException e) {
-                LOGGER.info(e);
+                LOGGER.info("Metacard creation exception creating metacards during delete", e);
                 throw new IngestException("Could not create metacard(s).");
             }
 
@@ -775,16 +766,16 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
             server.commit();
 
         } catch (SolrServerException e) {
-            LOGGER.error(e);
+            LOGGER.error("SOLR server exception deleting request message", e);
             throw new IngestException(COULD_NOT_COMPLETE_DELETE_REQUEST_MESSAGE);
         } catch (IOException e) {
-            LOGGER.error(e);
+            LOGGER.error("IO exception deleting request message", e);
             throw new IngestException(COULD_NOT_COMPLETE_DELETE_REQUEST_MESSAGE);
         }
 
         new DeleteResponseImpl(deleteRequest, null, deletedMetacards);
 
-        LOGGER.debug(EXITED + " DELETE");
+        LOGGER.debug(EXITED, "DELETE");
         return new DeleteResponseImpl(deleteRequest, null, deletedMetacards);
     }
 
@@ -846,9 +837,8 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
 
         String query = queryBuilder.toString();
 
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("query = [" + query + "]");
-        }
+        LOGGER.debug("query = [{}]", query);
+
         return query;
     }
 
@@ -867,14 +857,10 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
                 Object distance = doc.getFieldValue(RELEVANCE_SORT_FIELD);
 
                 if (distance != null) {
-                    if (LOGGER.isDebugEnabled()) {
-                        LOGGER.debug("Distance returned from Solr [" + distance + "]");
-                    }
+                    LOGGER.debug("Distance returned from Solr [{}]", distance);
                     double convertedDistance = degreesToMeters(Double.valueOf(distance.toString()));
 
-                    if (LOGGER.isDebugEnabled()) {
-                        LOGGER.debug("Converted distance into meters [" + convertedDistance + "]");
-                    }
+                    LOGGER.debug("Converted distance into meters [{}]", convertedDistance);
                     result.setDistanceInMeters(convertedDistance);
                 }
             }
