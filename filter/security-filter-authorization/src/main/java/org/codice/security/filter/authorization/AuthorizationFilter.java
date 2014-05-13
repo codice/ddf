@@ -15,10 +15,9 @@
 package org.codice.security.filter.authorization;
 
 import ddf.security.Subject;
+import ddf.security.permission.KeyValueCollectionPermission;
 import ddf.security.permission.KeyValuePermission;
-import ddf.security.permission.MatchOneCollectionPermission;
 import org.apache.shiro.authz.Authorizer;
-import org.apache.shiro.authz.Permission;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,13 +58,9 @@ public class AuthorizationFilter implements Filter {
 
         Subject subject = (Subject) httpRequest.getAttribute("ddf.security.subject");
 
-        List<Permission> permissions = new ArrayList<Permission>();
+        KeyValueCollectionPermission kvcPermission = new KeyValueCollectionPermission(new KeyValuePermission("role", roles));
 
-        permissions.add(new KeyValuePermission("role", roles));
-
-        MatchOneCollectionPermission matchOneCollectionPermission = new MatchOneCollectionPermission(permissions);
-
-        boolean permitted = authorizer.isPermitted(subject.getPrincipals(), matchOneCollectionPermission);
+        boolean permitted = authorizer.isPermitted(subject.getPrincipals(), kvcPermission);
 
         if(!permitted) {
             LOGGER.debug("Subject not authorized.");
