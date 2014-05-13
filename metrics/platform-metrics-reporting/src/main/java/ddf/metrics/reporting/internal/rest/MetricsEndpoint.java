@@ -70,8 +70,6 @@ import ddf.metrics.reporting.internal.rrd4j.RrdMetricsRetriever;
  * of these hyperlinks will return a byte array containing a PNG graph of the metric's historical
  * data for the given time range.
  * 
- * @author rodgersh
- * @author ddf.isgs@lmco.com
  * 
  */
 @Path("/")
@@ -724,30 +722,24 @@ public class MetricsEndpoint implements ConfigurationWatcher {
     
 	@Override
 	public void configurationUpdateCallback(Map<String, String> configuration) {
-		String methodName = "configurationUpdateCallback";
-        LOGGER.debug("ENTERING: " + methodName);
+	    String methodName = "configurationUpdateCallback";
+            LOGGER.debug("ENTERING: {}", methodName);
 
-        if (configuration != null && !configuration.isEmpty()) {
-            if (LOGGER.isDebugEnabled()) {
-            	LOGGER.debug(configuration.toString());
-            }
+            if (configuration != null && !configuration.isEmpty()) {
+                servicesContextRoot = configuration.get(ConfigurationManager.SERVICES_CONTEXT_ROOT);
+                LOGGER.debug("configuration: {}", configuration);
 
-            String ddfSiteName = configuration.get(ConfigurationManager.SITE_NAME);
-            if (StringUtils.isNotBlank(ddfSiteName)) {
-            	LOGGER.debug("ddfSiteName = " + ddfSiteName);
-                this.siteName = ddfSiteName;
-            }
+                String ddfSiteName = configuration.get(ConfigurationManager.SITE_NAME);
+                if (StringUtils.isNotBlank(ddfSiteName)) {
+            	    LOGGER.debug("ddfSiteName = {}", ddfSiteName);
+                    this.siteName = ddfSiteName;
+                }
 
         } else {
         	LOGGER.debug("properties are NULL or empty");
         }
 
-        LOGGER.debug("EXITING: " + methodName);
-    }
-
-    @Override
-    public void configurationUpdateCallback(Map<String, String> configuration) {
-        servicesContextRoot = configuration.get(ConfigurationManager.SERVICES_CONTEXT_ROOT);
+        LOGGER.debug("EXITING: {}", methodName);
     }
 
 }
