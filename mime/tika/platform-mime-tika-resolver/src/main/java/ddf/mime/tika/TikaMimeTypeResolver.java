@@ -48,8 +48,9 @@ public class TikaMimeTypeResolver implements MimeTypeResolver {
     public TikaMimeTypeResolver() {
         try {
             config = new TikaConfig(this.getClass().getClassLoader());
-            if (config == null)
-                System.out.println("Config = NULL");
+            if (config == null) {
+                logger.warn("Config = NULL");
+            }
             tika = new Tika(config);
         } catch (Exception e) {
             logger.warn("Error creating TikaConfig with ClassLoader", e);

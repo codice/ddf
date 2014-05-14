@@ -22,17 +22,22 @@ import java.util.List;
 
 import org.junit.Test;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import ddf.mime.MimeTypeMapper;
 import ddf.mime.MimeTypeResolver;
 
 public class MimeTypeMapperTest {
+    private static final Logger LOGGER = LoggerFactory.getLogger(MimeTypeMapperTest.class);
+
     @Test
     public void testNoResolvers() throws Exception {
         List<MimeTypeResolver> resolvers = new ArrayList<MimeTypeResolver>();
 
         MimeTypeMapper mapper = new MimeTypeMapperImpl(resolvers);
         String fileExtension = mapper.getFileExtensionForMimeType("image/nitf");
-        System.out.println("fileExtension = " + fileExtension);
+        LOGGER.debug("fileExtension = {}", fileExtension);
         assertNull(fileExtension);
     }
 
@@ -43,7 +48,7 @@ public class MimeTypeMapperTest {
 
         MimeTypeMapper mapper = new MimeTypeMapperImpl(resolvers);
         String fileExtension = mapper.getFileExtensionForMimeType("image/nitf");
-        System.out.println("fileExtension = " + fileExtension);
+        LOGGER.debug("fileExtension = {}", fileExtension);
         assertEquals(".nitf", fileExtension);
     }
 
@@ -56,7 +61,7 @@ public class MimeTypeMapperTest {
 
         MimeTypeMapper mapper = new MimeTypeMapperImpl(resolvers);
         String fileExtension = mapper.getFileExtensionForMimeType("image/nitf");
-        System.out.println("fileExtension = " + fileExtension);
+        LOGGER.debug("fileExtension = {}", fileExtension);
         assertEquals(".nitf", fileExtension);
     }
 
