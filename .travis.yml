@@ -4,4 +4,5 @@ script: mvn test --quiet -B
 jdk:
   - openjdk6
   - oraclejdk7
-  - oraclejdk8
+# Build failure on JDK8. DDF JIRA Bug: https://tools.codice.org/jira/browse/DDF-476
+#  - oraclejdk8
