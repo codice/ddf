@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-package ddf.security.filter;
+package org.codice.security.filter.saml;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;

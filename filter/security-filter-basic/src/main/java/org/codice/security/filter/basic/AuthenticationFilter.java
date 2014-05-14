@@ -14,8 +14,8 @@
  **/
 package org.codice.security.filter.basic;
 
-import ddf.security.filter.AuthenticationHandler;
-import ddf.security.filter.FilterResult;
+import org.codice.security.filter.api.AuthenticationHandler;
+import org.codice.security.filter.api.FilterResult;
 import org.apache.cxf.sts.QNameConstants;
 import org.apache.cxf.ws.security.sts.provider.model.secext.AttributedString;
 import org.apache.cxf.ws.security.sts.provider.model.secext.PasswordString;
