@@ -58,6 +58,11 @@
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
+				<groupId>ddf.catalog.core</groupId>
+				<artifactId>catalog-core-api-impl</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
 				<groupId>ddf.catalog.common</groupId>
 				<artifactId>geo-formatter</artifactId>
 				<version>${project.version}</version>

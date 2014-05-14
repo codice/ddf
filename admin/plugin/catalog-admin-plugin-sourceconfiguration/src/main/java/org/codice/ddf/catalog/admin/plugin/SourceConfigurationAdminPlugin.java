@@ -15,7 +15,6 @@
 package org.codice.ddf.catalog.admin.plugin;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,11 +29,11 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.ext.XLogger;
 
 import ddf.catalog.CatalogFramework;
-import ddf.catalog.operation.SourceInfoRequestEnterprise;
-import ddf.catalog.operation.SourceInfoResponse;
+import ddf.catalog.operation.impl.SourceInfoRequestEnterprise;
 import ddf.catalog.service.ConfiguredService;
 import ddf.catalog.source.CatalogProvider;
 import ddf.catalog.source.FederatedSource;
+import ddf.catalog.source.Source;
 import ddf.catalog.source.SourceDescriptor;
 import ddf.catalog.source.SourceUnavailableException;
 
@@ -84,103 +83,75 @@ public class SourceConfigurationAdminPlugin implements ConfigurationAdminPlugin 
 
         Map<String, Object> statusMap = new HashMap<String, Object>();
         try {
-            ServiceReference[] fedRefs = bundleContext.getAllServiceReferences(
-                    FederatedSource.class.getCanonicalName(), null);
-            ServiceReference[] provRefs = bundleContext.getAllServiceReferences(
-                    CatalogProvider.class.getCanonicalName(), null);
-            List<ServiceReference> refs = new ArrayList<ServiceReference>();
-            if (fedRefs != null && fedRefs.length > 0) {
-                refs.addAll(Arrays.asList(fedRefs));
-            }
-            if (provRefs != null && provRefs.length > 0) {
-                refs.addAll(Arrays.asList(provRefs));
-            }
+            List<ServiceReference<? extends Source>> refs = 
+                    new ArrayList<ServiceReference<? extends Source>>();
+            
+            refs.addAll(bundleContext.getServiceReferences(FederatedSource.class, null));
+            refs.addAll(bundleContext.getServiceReferences(CatalogProvider.class, null));
+            
             Set<SourceDescriptor> sources = null;
             if (catalogFramework != null) {
-                SourceInfoResponse response = catalogFramework
-                        .getSourceInfo(new SourceInfoRequestEnterprise(true));
-                sources = response.getSourceInfo();
+                sources = catalogFramework.getSourceInfo(
+                        new SourceInfoRequestEnterprise(true)).getSourceInfo();
             }
-            if (CollectionUtils.isNotEmpty(refs)) {
-                for (ServiceReference ref : refs) {
-                    Object superService = bundleContext.getService(ref);
-                    if ((superService instanceof FederatedSource || superService instanceof CatalogProvider)
-                            && superService instanceof ConfiguredService) {
-                        ConfiguredService cs = (ConfiguredService) superService;
+            boolean foundSources = CollectionUtils.isNotEmpty(sources);
+            
+            for (ServiceReference<? extends Source> ref : refs) {
+                Source superService = bundleContext.getService(ref);
+                
+                if (superService instanceof ConfiguredService) {
+                    ConfiguredService cs = (ConfiguredService) superService;
 
-                        logger.debug("ConfiguredService configuration PID: {}", 
-                                     cs.getConfigurationPid());
-
-                        if (StringUtils.isNotEmpty(cs.getConfigurationPid())
-                                && cs.getConfigurationPid().equals(configurationPid)) {
-                            if (CollectionUtils.isNotEmpty(sources)) {
-                                for (SourceDescriptor descriptor : sources) {
-                                    if (superService instanceof FederatedSource
-                                            && descriptor.getSourceId().equals(
-                                                    ((FederatedSource) superService).getId())
-                                            || superService instanceof CatalogProvider
-                                            && descriptor.getSourceId().equals(
-                                                    ((CatalogProvider) superService).getId())) {
-                                        statusMap.put("available", descriptor.isAvailable());
-                                        statusMap.put("sourceId", descriptor.getSourceId());
-                                        return statusMap;
-                                    }
-                                }
-                            } else {
-                                // we don't want to call isAvailable because that can potentially
-                                // block execution
-                                // but if for some reason we have no catalog framework, just hit the
-                                // source directly
-                                if (superService instanceof FederatedSource) {
-                                    statusMap.put("available",
-                                            ((FederatedSource) superService).isAvailable());
-                                    return statusMap;
-                                } else if (superService instanceof CatalogProvider) {
-                                    statusMap.put("available",
-                                            ((CatalogProvider) superService).isAvailable());
+                    logger.debug("ConfiguredService configuration PID: {}", 
+                                 cs.getConfigurationPid());
+                    
+                    boolean csConfigPidMatchesTargetPid = false;
+                    if (StringUtils.isNotEmpty(cs.getConfigurationPid()) &&
+                        cs.getConfigurationPid().equals(configurationPid)) {
+                        csConfigPidMatchesTargetPid = true;
+                    }
+                    
+                    if (foundSources) {
+                        // If the configured service pid does not match, for now
+                        // we're just going to assume that the metatype pid is 
+                        // the same as the class because we have no other way to
+                        // match these things up. Obviously, this won't always 
+                        // be the case and this isn't necessarily a good way to 
+                        // do this. However, at the moment, there doesn't seem 
+                        // to be any other way to match up this metatype pid 
+                        // (which is what it ends up being in the case of a 
+                        // ManagedService) with the actual service that gets 
+                        // created. If, as in the Solr Catalog Provider case, 
+                        // the metatype pid is actually the fully qualified 
+                        // class name, then we can match them up this way.
+                        if (csConfigPidMatchesTargetPid ||
+                            cs.getClass().getCanonicalName().equals(configurationPid)) {
+                            
+                            for (SourceDescriptor descriptor : sources) {
+                                if (descriptor.getSourceId().equals(superService.getId())) {
+                                    statusMap.put("available", descriptor.isAvailable());
+                                    statusMap.put("sourceId", descriptor.getSourceId());
                                     return statusMap;
                                 }
                             }
                         }
-                        // For now we're just going to assume that the metatype pid is the same as
-                        // the class because we have no other way to
-                        // match these things up. Obviously, this won't always be the case and this
-                        // isn't necessarily a good way to do this.
-                        // However, at the moment, there doesn't seem to be any other way to match
-                        // up this metatype pid (which is what it ends
-                        // up being in the case of a ManagedService) with the actual service that
-                        // gets created. If, as in the solr case, the
-                        // metatype pid is actually the fully qualified class name, then we can
-                        // match them up this way.
-                        else if (StringUtils.isEmpty(cs.getConfigurationPid())
-                                && cs.getClass().getCanonicalName().equals(configurationPid)) {
-                            // might be an unconfigured source so we'll make a best guess as to
-                            // which source this
-                            // configuration belongs to
-                            if (CollectionUtils.isNotEmpty(sources)) {
-                                for (SourceDescriptor descriptor : sources) {
-                                    if (superService instanceof FederatedSource
-                                            && descriptor.getSourceId().equals(
-                                                    ((FederatedSource) superService).getId())
-                                            || superService instanceof CatalogProvider
-                                            && descriptor.getSourceId().equals(
-                                                    ((CatalogProvider) superService).getId())) {
-                                        statusMap.put("available", descriptor.isAvailable());
-                                        statusMap.put("sourceId", descriptor.getSourceId());
-                                        return statusMap;
-                                    }
-                                }
-                            }
-                        }
+                    } else if (csConfigPidMatchesTargetPid) {
+                        // we don't want to call isAvailable because that can 
+                        // potentially block execution but if for some reason we
+                        // have no catalog framework, just hit the source 
+                        // directly
+                        statusMap.put("available", superService.isAvailable());
+                        return statusMap;
                     }
                 }
             }
-        } catch (org.osgi.framework.InvalidSyntaxException e) {
+        } catch (org.osgi.framework.InvalidSyntaxException ise) {
             // this should never happen because the filter is always null
-            logger.error("Error reading LDAP service filter", e);
-        } catch (SourceUnavailableException e) {
-            logger.error("Unable to retrieve sources from Catalog Framework", e);
+            logger.error("Error reading LDAP service filter", ise);
+        } catch (SourceUnavailableException sue) {
+            logger.error("Unable to retrieve sources from Catalog Framework", sue);
         }
+        
         return statusMap;
     }
 }

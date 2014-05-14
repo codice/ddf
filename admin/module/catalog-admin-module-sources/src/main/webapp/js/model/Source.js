@@ -27,7 +27,7 @@ define(function (require) {
     });
 
     Source.Model = Backbone.Model.extend({
-        configUrl: "/jolokia/exec/org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui,version=2.3.0",
+        configUrl: "/jolokia/exec/org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui",
 
         addConfiguration: function(configuration) {
             if(this.get("configurations")) {

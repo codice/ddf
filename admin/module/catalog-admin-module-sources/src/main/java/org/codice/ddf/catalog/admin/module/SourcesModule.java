@@ -21,9 +21,6 @@ import org.codice.ddf.ui.admin.api.module.AdminModule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * Created by tustisos on 3/18/14.
- */
 public class SourcesModule implements AdminModule {
 
     private static final Logger logger = LoggerFactory.getLogger(SourcesModule.class);

@@ -1,8 +1,8 @@
 {
   "name": "sources-module",
   "author": "Codice",
-  "description": "The catalog sources module",
-  "version": "0.0.1",
+  "description": "The Catalog Admin Sources Module",
+  "version": "2.5.0",
   "license": "LGPL",
   "keywords": [
     "backbone",
@@ -16,7 +16,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/codice/ddf-ui.git"
+    "url": "https://github.com/codice/ddf-catalog.git"
   },
   "engines": {
     "node": ">=0.10.5"
