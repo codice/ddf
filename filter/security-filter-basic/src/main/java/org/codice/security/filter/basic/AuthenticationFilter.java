@@ -51,6 +51,8 @@ public class AuthenticationFilter implements AuthenticationHandler {
 
     private static final String HEADER_WWW_AUTHENTICATE = "WWW-Authenticate";
 
+    private Marshaller marshaller = null;
+
     @Override
     public FilterResult getNormalizedToken(ServletRequest request,
             ServletResponse response, FilterChain chain, boolean resolve) {
@@ -97,10 +99,8 @@ public class AuthenticationFilter implements AuthenticationHandler {
         }
     }
 
-    Marshaller marshaller = null;
-
     private synchronized String getUsernameTokenElement(UsernameTokenType result) {
-        JAXBContext context = null;
+        JAXBContext context;
 
         if(marshaller == null) {
             try {

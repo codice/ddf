@@ -1,16 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
+ *
  **/
 package ddf.security.realm.sts;
 
@@ -34,7 +34,6 @@ import org.apache.cxf.endpoint.EndpointException;
 import org.apache.cxf.staxutils.W3CDOMStreamWriter;
 import org.apache.cxf.transport.http.HTTPConduit;
 import org.apache.cxf.ws.security.SecurityConstants;
-import org.apache.cxf.ws.security.sts.provider.model.secext.BinarySecurityTokenType;
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
 import org.apache.cxf.ws.security.trust.STSClient;
 import org.apache.cxf.ws.security.trust.STSUtils;
@@ -45,8 +44,6 @@ import org.apache.shiro.authc.SimpleAuthenticationInfo;
 import org.apache.shiro.authc.credential.CredentialsMatcher;
 import org.apache.shiro.realm.AuthenticatingRealm;
 import org.apache.shiro.subject.SimplePrincipalCollection;
-import org.apache.ws.security.WSConstants;
-import org.apache.ws.security.util.Base64;
 import org.codice.ddf.configuration.ConfigurationManager;
 import org.codice.ddf.configuration.ConfigurationWatcher;
 import org.slf4j.LoggerFactory;
@@ -63,17 +60,12 @@ import javax.net.ssl.KeyManager;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
-import javax.xml.bind.JAXB;
-import javax.xml.bind.JAXBElement;
-import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLStreamException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.StringWriter;
-import java.io.Writer;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
@@ -102,7 +94,7 @@ public class StsRealm extends AuthenticatingRealm implements ConfigurationWatche
     // AES is the best encryption but isn't always supported, 3DES is widely
     // supported and is very difficult to crack
     private static final String[] SSL_ALLOWED_ALGORITHMS = {".*_EXPORT_.*", ".*_WITH_AES_.*",
-        ".*_WITH_3DES_.*"};
+            ".*_WITH_3DES_.*"};
 
     private static final String[] SSL_DISALLOWED_ALGORITHMS = {".*_WITH_NULL_.*", ".*_DH_anon_.*"};
 
@@ -135,6 +127,7 @@ public class StsRealm extends AuthenticatingRealm implements ConfigurationWatche
 
     public void setStsClientConfig(STSClientConfiguration stsClientConfig) {
         this.stsClientConfig = stsClientConfig;
+        configureStsClient();
     }
 
     /**
@@ -158,7 +151,8 @@ public class StsRealm extends AuthenticatingRealm implements ConfigurationWatche
                     configureStsClient();
                     settingsConfigured = true;
                 } catch (Exception e) {
-                    LOGGER.debug("STS was not available during configuration update, will try again when realm is called. Full stack trace is available at the TRACE level.");
+                    LOGGER.debug(
+                            "STS was not available during configuration update, will try again when realm is called. Full stack trace is available at the TRACE level.");
                     LOGGER.trace("Could not create STS client", e);
                 }
             }
@@ -169,8 +163,8 @@ public class StsRealm extends AuthenticatingRealm implements ConfigurationWatche
 
     /**
      * Sets the configuration properties with an incoming property map. Users of this method should use {@link #configurationUpdateCallback(Map)} instead.
+     *
      * @param properties
-     * 
      * @deprecated Since version 2.3.0.
      */
     @Deprecated
@@ -208,7 +202,8 @@ public class StsRealm extends AuthenticatingRealm implements ConfigurationWatche
                 && AuthenticationToken.class.isAssignableFrom(token.getClass()) ? true : false;
 
         if (supported) {
-            LOGGER.debug("Token {} is supported by {}.", token.getClass(), StsRealm.class.getName());
+            LOGGER.debug("Token {} is supported by {}.", token.getClass(),
+                    StsRealm.class.getName());
         } else if (token != null) {
             LOGGER.debug("Token {} is not supported by {}.", token.getClass(),
                     StsRealm.class.getName());
@@ -261,9 +256,8 @@ public class StsRealm extends AuthenticatingRealm implements ConfigurationWatche
 
     /**
      * Request a security token (SAML assertion) from the STS.
-     * 
-     * @param binarySecurityToken
-     *            The subject the security token is being request for.
+     *
+     * @param binarySecurityToken The subject the security token is being request for.
      * @return security token (SAML assertion)
      */
     private SecurityToken requestSecurityToken(String binarySecurityToken) {
@@ -274,15 +268,20 @@ public class StsRealm extends AuthenticatingRealm implements ConfigurationWatche
             LOGGER.debug("Requesting security token from STS at: " + stsAddress + ".");
 
             if (binarySecurityToken != null) {
-                LOGGER.debug("Telling the STS to request a security token on behalf of the binary security token:\n"
-                        + binarySecurityToken);
+                LOGGER.debug(
+                        "Telling the STS to request a security token on behalf of the binary security token:\n"
+                                + binarySecurityToken
+                );
                 SecurityLogger
-                        .logInfo("Telling the STS to request a security token on behalf of the binary security token:\n"
-                                + binarySecurityToken);
+                        .logInfo(
+                                "Telling the STS to request a security token on behalf of the binary security token:\n"
+                                        + binarySecurityToken
+                        );
                 stsClient.setWsdlLocation(stsAddress);
                 stsClient.setOnBehalfOf(binarySecurityToken);
                 stsClient
-                        .setTokenType("http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0");
+                        .setTokenType(
+                                "http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0");
                 stsClient.setKeyType("http://docs.oasis-open.org/ws-sx/ws-trust/200512/PublicKey");
                 token = stsClient.requestSecurityToken(stsAddress);
                 LOGGER.debug("Finished requesting security token.");
@@ -391,7 +390,8 @@ public class StsRealm extends AuthenticatingRealm implements ConfigurationWatche
                 LOGGER.error(
                         "Problems creating SSL socket. Usually this is "
                                 + "referring to the certificate sent by the server not being trusted by the client.",
-                        e);
+                        e
+                );
             } finally {
                 IOUtils.closeQuietly(fis);
             }
@@ -434,7 +434,8 @@ public class StsRealm extends AuthenticatingRealm implements ConfigurationWatche
                 LOGGER.error(
                         "Problems creating SSL socket. Usually this is "
                                 + "referring to the certificate sent by the server not being trusted by the client.",
-                        e);
+                        e
+                );
             } catch (UnrecoverableKeyException e) {
                 LOGGER.error("Unable to read key store: ", e);
             } finally {
@@ -487,8 +488,9 @@ public class StsRealm extends AuthenticatingRealm implements ConfigurationWatche
                 .get(ConfigurationManager.TRUST_STORE_PASSWORD);
         if (StringUtils.isNotBlank(setTrustStorePassword)) {
             if (encryptionService == null) {
-                LOGGER.error("The StsRealm has a null Encryption Service. Unable to decrypt the encrypted "
-                        + "trustStore password. Setting decrypted password to null.");
+                LOGGER.error(
+                        "The StsRealm has a null Encryption Service. Unable to decrypt the encrypted "
+                                + "trustStore password. Setting decrypted password to null.");
                 this.trustStorePassword = null;
             } else {
                 setTrustStorePassword = encryptionService.decryptValue(setTrustStorePassword);
@@ -507,8 +509,9 @@ public class StsRealm extends AuthenticatingRealm implements ConfigurationWatche
                 .get(ConfigurationManager.KEY_STORE_PASSWORD);
         if (StringUtils.isNotBlank(setKeyStorePassword)) {
             if (encryptionService == null) {
-                LOGGER.error("The StsRealm has a null Encryption Service. Unable to decrypt the encrypted "
-                        + "keyStore password. Setting decrypted password to null.");
+                LOGGER.error(
+                        "The StsRealm has a null Encryption Service. Unable to decrypt the encrypted "
+                                + "keyStore password. Setting decrypted password to null.");
                 this.keyStorePassword = null;
             } else {
                 setKeyStorePassword = encryptionService.decryptValue(setKeyStorePassword);
@@ -638,8 +641,10 @@ public class StsRealm extends AuthenticatingRealm implements ConfigurationWatche
         LOGGER.debug("Configuring the STS client.");
 
         try {
-            HttpsURLConnection.setDefaultSSLSocketFactory(CommonSSLFactory.createSocket(
-                    trustStorePath, trustStorePassword, keyStorePath, keyStorePassword));
+            if(trustStorePath != null && trustStorePassword != null && keyStorePath != null && keyStorePassword != null) {
+                HttpsURLConnection.setDefaultSSLSocketFactory(CommonSSLFactory.createSocket(
+                        trustStorePath, trustStorePassword, keyStorePath, keyStorePassword));
+            }
         } catch (IOException ioe) {
             throw new RuntimeException(
                     "Could not create SSL connection with given trust/key stores.", ioe);
@@ -652,7 +657,9 @@ public class StsRealm extends AuthenticatingRealm implements ConfigurationWatche
         setClaimsOnStsClient(createClaimsElement());
 
         if (stsClient.getWsdlLocation() != null && stsClient.getWsdlLocation().startsWith(HTTPS)) {
-            setupSslOnStsClientHttpConduit();
+            if(trustStorePath != null && trustStorePassword != null && keyStorePath != null && keyStorePassword != null) {
+                setupSslOnStsClientHttpConduit();
+            }
         } else {
             LOGGER.debug("STS address is null, unable to create STS Client");
         }
@@ -662,27 +669,6 @@ public class StsRealm extends AuthenticatingRealm implements ConfigurationWatche
         }
     }
 
-    protected void configureHttpsURLConnectionDefaultSSL()
-    {
-        final String methodName = "configureHttpsURLConnectionDefaultSSL";
-        LOGGER.entry(methodName);
-        try
-        {
-            if (trustStorePath != null && trustStorePassword != null && keyStorePath != null && keyStorePassword != null)
-            {
-                LOGGER.debug("trust store: " + trustStorePath);
-                LOGGER.debug("key store: " + keyStorePath);
-                HttpsURLConnection.setDefaultSSLSocketFactory(CommonSSLFactory.createSocket(trustStorePath, trustStorePassword,
-                        keyStorePath, keyStorePassword));
-            }
-        }
-        catch (IOException e)
-        {
-            LOGGER.error("Unable to create SSL socket factory.", e);
-        }
-        LOGGER.exit(methodName);
-    }
-
     /**
      * Helper method to setup STS Client.
      */
@@ -690,46 +676,19 @@ public class StsRealm extends AuthenticatingRealm implements ConfigurationWatche
         LOGGER.debug("Setting up SSL on the STSClient HTTP conduit");
 
         try {
-            configureHttpsURLConnectionDefaultSSL();
-
             Client client = stsClient.getClient();
 
             if (client != null) {
                 configureSslOnClient(client);
             } else {
-                LOGGER.debug("CXF STS endpoint client is null.  Unable to setup SSL on the STSClient HTTP conduit.");
+                LOGGER.debug(
+                        "CXF STS endpoint client is null.  Unable to setup SSL on the STSClient HTTP conduit.");
             }
         } catch (BusException e) {
             LOGGER.error("Unable to create STS client.", e);
         } catch (EndpointException e) {
             LOGGER.error("Unable to create STS client endpoint.", e);
         }
-    }
-
-    /**
-     * Creates a binary security token based on the provided credential.
-     */
-    private String getBinarySecurityToken(String credential) {
-        BinarySecurityTokenType binarySecurityTokenType = new BinarySecurityTokenType();
-        binarySecurityTokenType.setValueType("#CAS");
-        binarySecurityTokenType.setEncodingType(WSConstants.SOAPMESSAGE_NS + "#Base64Binary");
-        binarySecurityTokenType.setId("CAS");
-        binarySecurityTokenType.setValue(Base64.encode(credential.getBytes()));
-        JAXBElement<BinarySecurityTokenType> binarySecurityTokenElement = new JAXBElement<BinarySecurityTokenType>(
-                new QName(
-                        "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd",
-                        "BinarySecurityToken"), BinarySecurityTokenType.class,
-                binarySecurityTokenType);
-        Writer writer = new StringWriter();
-        JAXB.marshal(binarySecurityTokenElement, writer);
-
-        String binarySecurityToken = writer.toString();
-
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Binary Security Token: " + binarySecurityToken);
-        }
-
-        return binarySecurityToken;
     }
 
     /**

@@ -15,6 +15,7 @@
 package org.codice.security.filter.api;
 
 import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 
@@ -34,5 +35,6 @@ public interface AuthenticationHandler {
      * @param resolve flag with true implying that credentials should be obtained, false implying return if no credentials are found.
      * @return result containing a status and the credentials to be placed into the http request
      */
-    FilterResult getNormalizedToken(ServletRequest request, ServletResponse response, FilterChain chain, boolean resolve);
+    FilterResult getNormalizedToken(ServletRequest request, ServletResponse response, FilterChain chain, boolean resolve)
+            throws ServletException;
 }

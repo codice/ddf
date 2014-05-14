@@ -34,6 +34,19 @@
 			<groupId>org.jasig.cas</groupId>
 			<artifactId>cas-client-core</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+		</dependency>
+        <dependency>
+            <groupId>ddf.security.sts</groupId>
+            <artifactId>security-sts-clientconfig</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>ddf.security.filter</groupId>
+            <artifactId>security-filter-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 	</dependencies>
 
 	<build>

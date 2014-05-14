@@ -17,7 +17,6 @@ package org.codice.security.filter.websso;
 import org.codice.security.filter.api.AuthenticationHandler;
 import org.codice.security.filter.api.FilterResult;
 import org.codice.security.filter.api.FilterResult.FilterStatus;
-import org.codice.security.filter.saml.SAMLAssertionHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,7 +29,6 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -42,23 +40,15 @@ public class WebSSOFilter implements Filter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(WebSSOFilter.class);
 
-    ArrayList<AuthenticationHandler> authenticationHandlers = new ArrayList<AuthenticationHandler>();
-
     List<AuthenticationHandler> handlerList;
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
-        // hard coded for now - this will be read from the config and dynamically assigned in the future
-//        authenticationHandlers.add(new SAMLAssertionHandler());
-//        authenticationHandlers.addAll(handlerList);
-//        authenticationHandlers.add(new AnonymousHandler());
+
     }
 
     @Override
     public synchronized void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
-        authenticationHandlers = new ArrayList<AuthenticationHandler>();
-        authenticationHandlers.add(new SAMLAssertionHandler());
-        authenticationHandlers.addAll(handlerList);
 
         HttpServletRequest httpRequest = (HttpServletRequest) servletRequest;
         String path = httpRequest.getServletPath();
@@ -70,7 +60,7 @@ public class WebSSOFilter implements Filter {
 
         // First pass, see if anyone can come up with proper security token from the git-go
         FilterResult result = null;
-        for (AuthenticationHandler auth : authenticationHandlers) {
+        for (AuthenticationHandler auth : handlerList) {
             result = auth.getNormalizedToken(servletRequest, servletResponse, filterChain, false);
             if (result.getStatus() != FilterStatus.NO_ACTION) {
                 break;
@@ -81,7 +71,7 @@ public class WebSSOFilter implements Filter {
         if (result == null || result.getStatus() == FilterStatus.NO_ACTION) {
             LOGGER.debug("First pass with no tokens found - requesting tokens");
             // This pass, tell each handler to do whatever it takes to get a SecurityToken
-            for (AuthenticationHandler auth : authenticationHandlers) {
+            for (AuthenticationHandler auth : handlerList) {
                 result = auth.getNormalizedToken(servletRequest, servletResponse, filterChain, true);
                 if (result.getStatus() != FilterStatus.NO_ACTION) {
                     break;

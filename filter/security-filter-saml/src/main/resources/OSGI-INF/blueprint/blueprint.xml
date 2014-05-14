@@ -19,7 +19,7 @@
 
     </bean>
 
-    <service ref="filter" interface="org.codice.security.filter.api.AuthenticationHandler">
+    <service ref="filter" interface="org.codice.security.filter.api.AuthenticationHandler" ranking="100">
 
     </service>
 

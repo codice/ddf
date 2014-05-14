@@ -73,12 +73,15 @@
 			</list>
 		</argument>
 	</bean>
-  
-	<service ref="proxyFilter"
-		interface="javax.servlet.Filter">
-		<service-properties>
-			<entry key="filter-name" value="cas-client" />
-			<entry key="urlPatterns" value="/*" />
-		</service-properties>
-	</service>
+
+    <reference id="stsClientConfig" interface="ddf.security.sts.client.configuration.STSClientConfiguration" />
+
+    <bean id="filter" class="org.codice.security.filter.cas.CasFilter">
+        <property name="clientConfiguration" ref="stsClientConfig" />
+        <property name="proxyFilter" ref="proxyFilter" />
+    </bean>
+
+    <service ref="filter" interface="org.codice.security.filter.api.AuthenticationHandler" ranking="50">
+
+    </service>
 </blueprint>

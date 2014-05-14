@@ -12,102 +12,144 @@
  **/
  -->
 <features name="${project.artifactId}-${project.version}">
- 
-  <feature name="security-core" install="manual" version="${project.version}" description="DDF Security Core">
-    <feature>security-core-api</feature>
-    <bundle>mvn:ddf.security.expansion/security-expansion-api/${project.version}</bundle>
-    <bundle>mvn:ddf.security.core/security-core-impl/${project.version}</bundle>    
-  </feature>
-  
-  <feature name="security-expansion" install="manual" version="${project.version}" description="DDF Security Expansion">
+
+    <feature name="security-filter-api" install="manual" version="${project.version}"
+             description="Basic Authentication filter for web applications.">
+        <bundle>mvn:ddf.security.filter/security-filter-api/${project.version}</bundle>
+    </feature>
+
+    <feature name="security-core" install="manual" version="${project.version}"
+             description="DDF Security Core">
+        <feature>security-core-api</feature>
+        <feature>security-filter-api</feature>
+        <bundle>mvn:ddf.security.expansion/security-expansion-api/${project.version}</bundle>
+        <bundle>mvn:ddf.security.core/security-core-impl/${project.version}</bundle>
+    </feature>
+
+    <feature name="security-expansion" install="manual" version="${project.version}"
+             description="DDF Security Expansion">
         <bundle>mvn:ddf.security.expansion/security-expansion-api/${project.version}</bundle>
         <bundle>mvn:ddf.security.expansion/security-expansion-impl/${project.version}</bundle>
         <bundle>mvn:ddf.security.expansion/security-expansion-commands/${project.version}</bundle>
     </feature>
-  
-  <feature name="security-cas-client" install="manual" version="${project.version}" description="DDF Security CAS Client.">
-    <bundle>mvn:org.codice.thirdparty/cas-client-core/${cas.client.bundle.version}</bundle>
-    <bundle>mvn:ddf.security.cas/security-cas-impl/${project.version}</bundle>
-    <bundle>mvn:ddf.security.cas/security-cas-client/${project.version}/war</bundle>
-  </feature>
 
-  <feature name="security-cas-tokenvalidator" install="manual" version="${project.version}" description="DDF Security CAS Validator for the STS.">
-    <bundle>mvn:ddf.security.cas/security-cas-tokenvalidator/${project.version}</bundle>
-  </feature>
-  
-  <feature name="security-cas-cxfservletfilter" install="manual" version="${project.version}" description="DDF Security CAS Servlet Filter for CXF.">
-    <feature>security-cas-client</feature>
-    <bundle>mvn:ddf.security.cas/security-cas-cxfservletfilter/${project.version}</bundle>
-  </feature>
-  
-  <feature name="security-pdp-xacml" install="manual" version="${project.version}" description="DDF Security XACML-based PDP.">
-      <bundle>mvn:ddf.security.pdp/security-pdp-xacmlrealm/${project.version}</bundle>
-  </feature>
+    <feature name="security-cas-client" install="manual" version="${project.version}"
+             description="DDF Security CAS Client.">
+        <bundle>mvn:org.codice.thirdparty/cas-client-core/${cas.client.bundle.version}</bundle>
+        <bundle>mvn:ddf.security.cas/security-cas-impl/${project.version}</bundle>
+        <bundle>mvn:ddf.security.cas/security-cas-client/${project.version}/war</bundle>
+    </feature>
 
-  <feature name="security-pdp-java" install="manual" version="${project.version}" description="DDF Security Java-based PDP.">
-      <bundle>mvn:ddf.security.pdp/security-pdp-authzrealm/${project.version}</bundle>
-  </feature>
+    <feature name="security-cas-tokenvalidator" install="manual" version="${project.version}"
+             description="DDF Security CAS Validator for the STS.">
+        <bundle>mvn:ddf.security.cas/security-cas-tokenvalidator/${project.version}</bundle>
+    </feature>
 
-  <feature name="security-pep-serviceauthz" install="manual" version="${project.version}" description="DDF Security PEP Service AuthZ">
-      <bundle>mvn:ddf.security.pep/security-pep-interceptor/${project.version}</bundle>
-  </feature>
+    <feature name="security-cas-cxfservletfilter" install="manual" version="${project.version}"
+             description="DDF Security CAS Servlet Filter for CXF.">
+        <feature>security-cas-client</feature>
+        <bundle>mvn:ddf.security.cas/security-cas-cxfservletfilter/${project.version}</bundle>
+    </feature>
 
-  <feature name="security-pep-user-attributes" install="manual" version="${project.version}" description="DDF Security PEP User Attributes Expansion">
-      <bundle>mvn:ddf.security.pep/security-pep-userattr-map/${project.version}</bundle>
-  </feature>
-  
-  <feature name="security-pep-metacard-attributes" install="manual" version="${project.version}" description="DDF Security PEP Metacard Attributes Expansion">
-      <bundle>mvn:ddf.security.pep/security-pep-metacardattr-map/${project.version}</bundle>
-  </feature>
-    
-  <feature name="security-sts-server" install="manual" version="${project.version}" description="DDF Security STS.">
-      <configfile finalname="/etc/ws-security/attributeMap.properties">mvn:ddf.security.sts/security-sts-ldapclaimshandler/${project.version}/properties/attributeMap</configfile>
-      <feature>cxf-sts</feature>
-      <feature>spring-tx</feature>
-      <feature>security-sts-ldaplogin</feature>
-      <bundle>mvn:ddf.security.sts/security-sts-server/${project.version}</bundle>
-      <bundle dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.bcprov-jdk15/1.46_3</bundle>
-      <bundle dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.dom4j/1.6.1_5</bundle>
-      <bundle dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.oro/2.0.8_6</bundle>
-      <bundle>wrap:mvn:org.springframework.ldap/spring-ldap-core/1.3.1.RELEASE</bundle>
-      <bundle>wrap:mvn:org.opensaml/xmltooling/1.3.2-1</bundle>
-      <bundle>mvn:org.ops4j.pax.url/pax-url-classpath/1.3.5</bundle>
-      <bundle>mvn:ddf.security.sts/security-sts-samlvalidator/${project.version}</bundle>
-      <bundle>mvn:ddf.security.sts/security-sts-x509validator/${project.version}</bundle>
-      <bundle>mvn:ddf.security.sts/security-sts-ldapclaimshandler/${project.version}</bundle>
-  </feature>
+    <feature name="security-pdp-xacml" install="manual" version="${project.version}"
+             description="DDF Security XACML-based PDP.">
+        <bundle>mvn:ddf.security.pdp/security-pdp-xacmlrealm/${project.version}</bundle>
+    </feature>
 
-  <feature name="security-sts-realm" install="manual" version="${project.version}" description="DDF Security STS Realm.">
-      <bundle>mvn:ddf.security.sts/security-sts-clientconfig/${project.version}</bundle>
-      <bundle>mvn:ddf.security.sts/security-sts-realm/${project.version}</bundle>
-  </feature>
-  
-  <feature name="security-sts-ldaplogin" install="manual" version="${project.version}" description="DDF Security STS JAAS LDAP Login.">
-      <bundle>mvn:ddf.security.sts/security-sts-ldaplogin/${project.version}</bundle>
-  </feature>
-  
-  <feature name="security-services-app" install="auto" version="${project.version}"
-        description="The Security Application provides Authentication, Authorization, and Auditing services for the DDF.\nThey comprise both a framework that developers and integrators can extend and also a reference implementation that can be used which meets security requirements.::DDF Security">
-	<feature>platform-app</feature>
-        <feature>security-core</feature>  
+    <feature name="security-pdp-java" install="manual" version="${project.version}"
+             description="DDF Security Java-based PDP.">
+        <bundle>mvn:ddf.security.pdp/security-pdp-authzrealm/${project.version}</bundle>
+    </feature>
+
+    <feature name="security-pep-serviceauthz" install="manual" version="${project.version}"
+             description="DDF Security PEP Service AuthZ">
+        <bundle>mvn:ddf.security.pep/security-pep-interceptor/${project.version}</bundle>
+    </feature>
+
+    <feature name="security-pep-user-attributes" install="manual" version="${project.version}"
+             description="DDF Security PEP User Attributes Expansion">
+        <bundle>mvn:ddf.security.pep/security-pep-userattr-map/${project.version}</bundle>
+    </feature>
+
+    <feature name="security-pep-metacard-attributes" install="manual" version="${project.version}"
+             description="DDF Security PEP Metacard Attributes Expansion">
+        <bundle>mvn:ddf.security.pep/security-pep-metacardattr-map/${project.version}</bundle>
+    </feature>
+
+    <feature name="security-sts-server" install="manual" version="${project.version}"
+             description="DDF Security STS.">
+        <configfile finalname="/etc/ws-security/attributeMap.properties">
+            mvn:ddf.security.sts/security-sts-ldapclaimshandler/${project.version}/properties/attributeMap
+        </configfile>
+        <feature>cxf-sts</feature>
+        <feature>spring-tx</feature>
+        <feature>security-sts-ldaplogin</feature>
+        <bundle>mvn:ddf.security.sts/security-sts-server/${project.version}</bundle>
+        <bundle dependency="true">
+            mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.bcprov-jdk15/1.46_3
+        </bundle>
+        <bundle dependency="true">
+            mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.dom4j/1.6.1_5
+        </bundle>
+        <bundle dependency="true">
+            mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.oro/2.0.8_6
+        </bundle>
+        <bundle>wrap:mvn:org.springframework.ldap/spring-ldap-core/1.3.1.RELEASE</bundle>
+        <bundle>wrap:mvn:org.opensaml/xmltooling/1.3.2-1</bundle>
+        <bundle>mvn:org.ops4j.pax.url/pax-url-classpath/1.3.5</bundle>
+        <bundle>mvn:ddf.security.sts/security-sts-samlvalidator/${project.version}</bundle>
+        <bundle>mvn:ddf.security.sts/security-sts-x509validator/${project.version}</bundle>
+        <bundle>mvn:ddf.security.sts/security-sts-usernametokenvalidator/${project.version}</bundle>
+        <bundle>mvn:ddf.security.sts/security-sts-ldapclaimshandler/${project.version}</bundle>
+    </feature>
+
+    <feature name="security-sts-realm" install="manual" version="${project.version}"
+             description="DDF Security STS Realm.">
+        <bundle>mvn:ddf.security.sts/security-sts-clientconfig/${project.version}</bundle>
+        <bundle>mvn:ddf.security.sts/security-sts-realm/${project.version}</bundle>
+    </feature>
+
+    <feature name="security-sts-ldaplogin" install="manual" version="${project.version}"
+             description="DDF Security STS JAAS LDAP Login.">
+        <bundle>mvn:ddf.security.sts/security-sts-ldaplogin/${project.version}</bundle>
+    </feature>
+
+    <feature name="security-services-app" install="auto" version="${project.version}"
+             description="The Security Application provides Authentication, Authorization, and Auditing services for the DDF.\nThey comprise both a framework that developers and integrators can extend and also a reference implementation that can be used which meets security requirements.::DDF Security">
+        <feature>platform-app</feature>
+        <feature>security-core</feature>
         <feature>security-sts-realm</feature>
-  </feature>
+    </feature>
 
-    <feature name="security-filter-basic" install="manual" version="${project.version}" description="Basic Authentication filter for web applications.">
+    <feature name="security-filter-basic" install="manual" version="${project.version}"
+             description="Basic Authentication filter for web applications.">
         <bundle>mvn:ddf.security.filter/security-filter-basic/${project.version}</bundle>
     </feature>
 
-    <feature name="security-filter-login" install="manual" version="${project.version}" description="Login Filter for web applications.">
+    <feature name="security-filter-login" install="manual" version="${project.version}"
+             description="Login Filter for web applications.">
         <feature>cxf-rs-security-sso-saml</feature>
         <bundle>mvn:ddf.security.filter/security-filter-login/${project.version}</bundle>
     </feature>
 
-    <feature name="security-filter-authz" install="manual" version="${project.version}" description="Authz Filter for web applications.">
+    <feature name="security-filter-authz" install="manual" version="${project.version}"
+             description="Authz Filter for web applications.">
         <bundle>mvn:ddf.security.filter/security-filter-authorization/${project.version}</bundle>
     </feature>
 
-    <feature name="security-filter-websso" install="manual" version="${project.version}" description="Web SSO Filter for web applications.">
-        <bundle>mvn:ddf.security.filter/web-sso-filter/${project.version}</bundle>
+    <feature name="security-filter-saml" install="manual" version="${project.version}"
+             description="SAML Filter for web applications.">
+        <bundle>mvn:ddf.security.filter/security-filter-saml/${project.version}</bundle>
     </feature>
-        
+
+    <feature name="security-filter-anonymous" install="manual" version="${project.version}"
+             description="Anonymous Filter for web applications.">
+        <bundle>mvn:ddf.security.filter/security-filter-anonymous/${project.version}</bundle>
+    </feature>
+
+    <feature name="security-filter-web-sso" install="manual" version="${project.version}"
+             description="Web SSO Filter for web applications.">
+        <bundle>mvn:ddf.security.filter/security-filter-web-sso/${project.version}</bundle>
+    </feature>
+
 </features>

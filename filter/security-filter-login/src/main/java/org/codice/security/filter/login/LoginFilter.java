@@ -89,11 +89,24 @@ public class LoginFilter implements Filter {
 
     private Crypto signatureCrypto;
 
-    @Override public void init(FilterConfig filterConfig) throws ServletException {
+    private DocumentBuilder docBuilder;
+
+    private Object lock = new Object();
+
+    @Override
+    public void init(FilterConfig filterConfig) throws ServletException {
         LOGGER.info("Starting log in filter.");
+        DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
+        docBuilderFactory.setNamespaceAware(true);
+        try {
+            docBuilder = docBuilderFactory.newDocumentBuilder();
+        } catch (ParserConfigurationException e) {
+            LOGGER.error("Unable to create doc builder.", e);
+        }
     }
 
-    @Override public void doFilter(final ServletRequest request, final ServletResponse response,
+    @Override
+    public void doFilter(final ServletRequest request, final ServletResponse response,
             final FilterChain chain) throws IOException, ServletException {
         HttpServletRequest httpRequest = (HttpServletRequest) request;
         HttpServletResponse httpResponse = (HttpServletResponse) response;
@@ -102,53 +115,64 @@ public class LoginFilter implements Filter {
 
         Object securityToken = httpRequest.getAttribute("ddf.security.securityToken");
         Object token = httpRequest.getAttribute("ddf.security.token");
-        if(securityToken != null) {
+        if (securityToken != null) {
             try {
                 //wrap the token
-                AssertionWrapper assertion = new AssertionWrapper(((SecurityToken)securityToken).getToken());
+                AssertionWrapper assertion = new AssertionWrapper(
+                        ((SecurityToken) securityToken).getToken());
 
                 //get the crypto junk
                 Crypto crypto = getSignatureCrypto();
-                org.opensaml.saml2.core.Response samlResponse = createSamlResponse(httpRequest.getRequestURI(), assertion.getIssuerString(), createStatus(SAMLProtocolResponseValidator.SAML2_STATUSCODE_SUCCESS, null));
-                DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
-                docBuilderFactory.setNamespaceAware(true);
-                DocumentBuilder docBuilder = docBuilderFactory.newDocumentBuilder();
-                Document doc = docBuilder.newDocument();
-                Element policyElement = OpenSAMLUtil.toDom(samlResponse, doc);
-                doc.appendChild(policyElement);
-                org.opensaml.saml2.core.Response marshalledResponse = (org.opensaml.saml2.core.Response)OpenSAMLUtil.fromDom(policyElement);
-                SAMLProtocolResponseValidator validator = new SAMLProtocolResponseValidator();
+                org.opensaml.saml2.core.Response samlResponse = createSamlResponse(
+                        httpRequest.getRequestURI(), assertion.getIssuerString(),
+                        createStatus(SAMLProtocolResponseValidator.SAML2_STATUSCODE_SUCCESS, null));
 
-                //validate the assertion
-                validator.validateSamlResponse(marshalledResponse, crypto, null);
+                synchronized (lock) {
+                    if (docBuilder == null) {
+                        throw new SecurityServiceException("Unable to validate SAML assertions.");
+                    }
 
-                //if it is all good, then we'll create our subject
-                subject = securityManager.getSubject(securityToken);
+                    Document doc = docBuilder.newDocument();
+                    Element policyElement = OpenSAMLUtil.toDom(samlResponse, doc);
+                    doc.appendChild(policyElement);
+                    org.opensaml.saml2.core.Response marshalledResponse = (org.opensaml.saml2.core.Response) OpenSAMLUtil
+                            .fromDom(policyElement);
+                    SAMLProtocolResponseValidator validator = new SAMLProtocolResponseValidator();
+
+                    //validate the assertion
+                    validator.validateSamlResponse(marshalledResponse, crypto, null);
+
+                    //if it is all good, then we'll create our subject
+                    subject = securityManager.getSubject(securityToken);
+                }
             } catch (SecurityServiceException e) {
                 LOGGER.error("Unable to get subject from SAML request.", e);
                 returnNotAuthorized(httpResponse);
             } catch (WSSecurityException e) {
                 LOGGER.error("Unable to read/validate security token from http request.", e);
-            } catch (ParserConfigurationException e) {
-                LOGGER.error("Unable to create doc builder.", e);
             }
-        } else if(token != null) {
+        } else if (token != null) {
             try {
-                subject = securityManager.getSubject(token);
+                synchronized (lock) {
+                    subject = securityManager.getSubject(token);
+                }
 
-                for(Object principal : subject.getPrincipals().asList()){
-                    if(principal instanceof SecurityAssertion) {
-                        Element samlToken = ((SecurityAssertion) principal).getSecurityToken().getToken();
-                        AssertionWrapper assertion = new AssertionWrapper(((SecurityAssertion) principal).getSecurityToken().getToken());
+                for (Object principal : subject.getPrincipals().asList()) {
+                    if (principal instanceof SecurityAssertion) {
+                        Element samlToken = ((SecurityAssertion) principal).getSecurityToken()
+                                .getToken();
+                        AssertionWrapper assertion = new AssertionWrapper(
+                                ((SecurityAssertion) principal).getSecurityToken().getToken());
                         DateTime before = assertion.getSaml2().getConditions().getNotBefore();
                         DateTime after = assertion.getSaml2().getConditions().getNotOnOrAfter();
                         long timeoutSeconds = -1;
-                        if(before != null && after != null) {
+                        if (before != null && after != null) {
                             long beforeMil = before.getMillis();
                             long afterMil = after.getMillis();
                             timeoutSeconds = (afterMil - beforeMil) / 1000;
                         }
-                        createSamlCookie(httpRequest, httpResponse, encodeSaml(samlToken), timeoutSeconds);
+                        createSamlCookie(httpRequest, httpResponse, encodeSaml(samlToken),
+                                timeoutSeconds);
                     }
                 }
             } catch (SecurityServiceException e) {
@@ -160,7 +184,7 @@ public class LoginFilter implements Filter {
             }
         }
 
-        if(subject != null) {
+        if (subject != null) {
             httpRequest.setAttribute("ddf.security.subject", subject);
             chain.doFilter(request, response);
         } else {
@@ -246,7 +270,8 @@ public class LoginFilter implements Filter {
 
     }
 
-    private void createSamlCookie(HttpServletRequest httpRequest, HttpServletResponse httpResponse, String cookieValue, long timeoutSeconds) {
+    private void createSamlCookie(HttpServletRequest httpRequest, HttpServletResponse httpResponse,
+            String cookieValue, long timeoutSeconds) {
         try {
             Cookie cookie = new Cookie(SAML_COOKIE_NAME, cookieValue);
             URL url = new URL(httpRequest.getRequestURL().toString());
@@ -254,7 +279,7 @@ public class LoginFilter implements Filter {
             cookie.setPath("/");
             cookie.setSecure(true);
             //TODO do we want a max age??
-            if(timeoutSeconds > Integer.MAX_VALUE || timeoutSeconds < Integer.MIN_VALUE) {
+            if (timeoutSeconds > Integer.MAX_VALUE || timeoutSeconds < Integer.MIN_VALUE) {
                 cookie.setMaxAge(-1);
             } else {
                 cookie.setMaxAge((int) timeoutSeconds);
