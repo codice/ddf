@@ -61,33 +61,6 @@
 					<instructions>
 						<Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
 						<Export-Package />
-						<Import-Package>
-                            org.geotools.geometry.jts.spatialschema.geometry.primitive, 
-                            org.opengis.geometry.primitive,
-							com.vividsolutions.jts.geom,
-							com.vividsolutions.jts.io,
-							ddf.catalog.filter,
-							ddf.catalog.impl.filter,
-							ddf.catalog.source,
-							ddf.measure,
-							org.geotools.filter,
-							org.geotools.geometry,
-							org.geotools.geometry.jts.spatialschema.geometry,
-							org.geotools.geometry.text,
-							org.geotools.referencing.crs,
-							org.geotools.styling,
-							org.geotools.temporal.object,
-							org.opengis.filter,
-							org.opengis.filter.expression,
-							org.opengis.filter.spatial,
-							org.opengis.filter.temporal,
-							org.opengis.geometry,
-							org.opengis.referencing.crs,
-							org.opengis.temporal,
-							org.osgi.service.blueprint,
-							org.slf4j,
-							org.slf4j.ext
-						</Import-Package>
 					</instructions>
 				</configuration>
 			</plugin>
