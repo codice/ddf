@@ -152,4 +152,9 @@
         <bundle>mvn:ddf.security.filter/security-filter-web-sso/${project.version}</bundle>
     </feature>
 
+    <feature name="security-filter-pki" install="manual" version="${project.version}"
+             description="PKI Filter for web applications.">
+        <bundle>mvn:ddf.security.filter/security-filter-pki/${project.version}</bundle>
+    </feature>
+
 </features>

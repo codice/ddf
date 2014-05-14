@@ -1,10 +1,10 @@
-
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
 /**
  * Copyright (c) Codice Foundation
  *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
- * version 3 of the License, or any later version. 
+ * version 3 of the License, or any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
@@ -12,27 +12,51 @@
  *
  **/
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
-    
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>security-sts-pom</artifactId>
-        <groupId>ddf.security.sts</groupId>
+        <artifactId>filter</artifactId>
+        <groupId>ddf.security.filter</groupId>
         <version>2.3.2-SNAPSHOT</version>
     </parent>
-    
-    <artifactId>security-sts-x509validator</artifactId>
-    <name>DDF :: Security :: STS :: X509 Validator</name>
+    <modelVersion>4.0.0</modelVersion>
+
+    <name>DDF :: Security :: Filter :: PKI</name>
+    <artifactId>security-filter-pki</artifactId>
     <packaging>bundle</packaging>
 
     <dependencies>
+        <dependency>
+            <groupId>org.jasypt</groupId>
+            <artifactId>jasypt</artifactId>
+            <version>1.9.0</version>
+        </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-ext</artifactId>
         </dependency>
         <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>servlet-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-rt-ws-security</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.apache.cxf.services.sts</groupId>
             <artifactId>cxf-services-sts-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>ddf.security.filter</groupId>
+            <artifactId>security-filter-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.ws.security</groupId>
+            <artifactId>wss4j</artifactId>
+            <version>1.6.13</version>
         </dependency>
         <dependency>
             <groupId>ddf.security.core</groupId>
@@ -48,10 +72,13 @@
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <Export-Package />
+                        <Export-Package>
+                            org.codice.security.filter.basic
+                        </Export-Package>
                     </instructions>
                 </configuration>
             </plugin>
         </plugins>
     </build>
+
 </project>

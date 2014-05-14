@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- /**
+<!--
+/**
  * Copyright (c) Codice Foundation
  *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
@@ -9,7 +10,8 @@
  * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
- **/ -->
+ **/
+-->
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
            xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.2.0"
@@ -19,8 +21,8 @@
 
     <ext:property-placeholder />
 
-    <cm:property-placeholder persistent-id="org.codice.security.filter.login.LoginFilter"
-                             placeholder-prefix="$loginfilter{" update-strategy="reload">
+    <cm:property-placeholder persistent-id="org.codice.security.filter.pki.PKIFilter"
+                             placeholder-prefix="$pkifilter{" update-strategy="reload">
         <cm:default-properties>
             <cm:property name="signatureProperties" value="${ddf.home}/etc/ws-security/server/signature.properties"/>
             <!-- we may or may not need these encryption properties, just put them here for now -->
@@ -28,19 +30,12 @@
         </cm:default-properties>
     </cm:property-placeholder>
 
-    <reference id="securityManager" interface="ddf.security.service.SecurityManager" />
-
-    <bean id="filter" class="org.codice.security.filter.login.LoginFilter">
-        <property name="securityManager" ref="securityManager" />
-        <property name="signaturePropertiesFile" value="$loginfilter{signatureProperties}"/>
+    <bean id="filter" class="org.codice.security.filter.pki.PKIFilter" init-method="init">
+        <property name="signaturePropertiesPath" value="$pkifilter{signatureProperties}" />
     </bean>
 
-    <service ref="filter"
-             interface="javax.servlet.Filter" ranking="99">
-        <service-properties>
-            <entry key="filter-name" value="login-filter"/>
-            <entry key="urlPatterns" value="/*"/>
-        </service-properties>
+    <service ref="filter" interface="org.codice.security.filter.api.AuthenticationHandler" ranking="75">
+
     </service>
 
 </blueprint>

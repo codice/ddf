@@ -67,6 +67,7 @@
         <module>security-filter-authorization</module>
         <module>security-filter-anonymous</module>
         <module>security-filter-saml</module>
+        <module>security-filter-pki</module>
     </modules>
 
 
