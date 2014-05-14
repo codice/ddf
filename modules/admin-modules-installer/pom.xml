@@ -16,7 +16,7 @@
     <parent>
         <artifactId>admin-modules</artifactId>
         <groupId>ddf.admin.modules</groupId>
-        <version>1.0.1-SNAPSHOT</version>
+        <version>1.1.0-SNAPSHOT</version>
     </parent>
 
     <name>DDF :: Admin :: Modules :: Installer</name>
@@ -42,11 +42,6 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-ext</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>ddf.admin.security</groupId>
-            <artifactId>admin-security-filter</artifactId>
-            <version>${project.version}</version>
         </dependency>
     </dependencies>
 
