@@ -43,6 +43,11 @@
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-ext</artifactId>
         </dependency>
+        <dependency>
+            <groupId>ddf.admin.security</groupId>
+            <artifactId>admin-security-filter</artifactId>
+            <version>1.0.0</version>
+         </dependency>
     </dependencies>
 
     <build>
