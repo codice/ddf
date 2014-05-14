@@ -52,12 +52,4 @@ public class ActivityEventPublisherTest extends AbstractDownloadsStatusEventPubl
         publisher.setNotificationEnabled(false);
     }
 
-    @Override
-    protected void setupPublisherWithNoNotifications() {
-        eventAdmin = mock(EventAdmin.class);
-        publisher = new DownloadsStatusEventPublisher(eventAdmin, ImmutableList.of(actionProvider));
-        publisher.setNotificationEnabled(false);
-        publisher.setActivityEnabled(false);
-    }
-
 }

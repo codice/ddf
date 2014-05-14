@@ -29,6 +29,8 @@ import org.osgi.service.event.Event;
 import org.osgi.service.event.EventAdmin;
 import org.slf4j.Logger;
 
+import com.google.common.collect.ImmutableList;
+
 import ddf.action.ActionProvider;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.event.retrievestatus.DownloadsStatusEventPublisher.ProductRetrievalStatus;
@@ -171,5 +173,10 @@ public abstract class AbstractDownloadsStatusEventPublisherTest {
 
     protected abstract void setupPublisher();
 
-    protected abstract void setupPublisherWithNoNotifications();
+    private void setupPublisherWithNoNotifications() {
+        eventAdmin = mock(EventAdmin.class);
+        publisher = new DownloadsStatusEventPublisher(eventAdmin, ImmutableList.of(actionProvider));
+        publisher.setNotificationEnabled(false);
+        publisher.setActivityEnabled(false);
+    }
 }

@@ -219,8 +219,6 @@ public class ReliableResourceDownloadManager implements Runnable {
             throw new DownloadException("Cannot download resource", e);
         }
         
-        //Map<String, java.io.Serializable> resourceProperties = new HashMap<String,java.io.Serializable>(resourceResponse.getProperties());
-        //resourceProperties.put(Metacard.ID, metacard.getId());
         resourceResponse.getProperties().put(Metacard.ID, metacard.getId());
         // Sources do not create ResourceResponses with the original ResourceRequest, hence
         // it is added here because it will be needed for caching
