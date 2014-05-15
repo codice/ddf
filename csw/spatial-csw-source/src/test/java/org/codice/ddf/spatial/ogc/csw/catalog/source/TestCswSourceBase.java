@@ -90,7 +90,7 @@ import ddf.catalog.transform.CatalogTransformerException;
 
 public class TestCswSourceBase {
 
-    protected static final Logger LOGGER = LoggerFactory.getLogger(TestCswSourceBase.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(TestCswSourceBase.class);
 
     /**
      * ISO 8601 date time format with milliseconds and colon between hours/minutes in time zone,
@@ -176,10 +176,6 @@ public class TestCswSourceBase {
 
     @BeforeClass
     public static void init() {
-        ch.qos.logback.classic.Logger root = (ch.qos.logback.classic.Logger) LoggerFactory
-                .getLogger(Logger.ROOT_LOGGER_NAME);
-        root.setLevel(ch.qos.logback.classic.Level.INFO);
-
         // The magic setting - besides ignoring whitespace, this setting
         // configures XMLUnit to
         // treat namespaces that are equivalent but that use different prefixes

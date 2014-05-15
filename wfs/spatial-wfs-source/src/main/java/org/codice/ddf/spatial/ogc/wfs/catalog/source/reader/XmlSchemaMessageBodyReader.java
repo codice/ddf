@@ -29,17 +29,17 @@ import javax.xml.XMLConstants;
 import org.apache.camel.builder.xml.XPathBuilder;
 import org.apache.camel.impl.DefaultCamelContext;
 import org.apache.commons.io.IOUtils;
-import org.apache.log4j.Logger;
 import org.apache.ws.commons.schema.XmlSchema;
 import org.apache.ws.commons.schema.XmlSchemaCollection;
 import org.codice.ddf.spatial.ogc.wfs.catalog.source.WfsUriResolver;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xml.sax.InputSource;
 
 @Provider
 public class XmlSchemaMessageBodyReader implements MessageBodyReader<XmlSchema> {
 
-    private static final Logger LOGGER = Logger.getLogger(XmlSchemaMessageBodyReader.class
-            .getName());
+    private static final Logger LOGGER = LoggerFactory.getLogger(XmlSchemaMessageBodyReader.class);
 
     private static final String XSD_PREFIX = "xsd";
 
@@ -75,7 +75,7 @@ public class XmlSchemaMessageBodyReader implements MessageBodyReader<XmlSchema> 
             schema = schemaCollection.read(new InputSource(inStream));
             return schema;
         }
-        LOGGER.warn("Did not receive valid XML Schema, instead got: \n" + input);
+        LOGGER.warn("Did not receive valid XML Schema, instead got: \n{}", input);
         return null;
     }
 }

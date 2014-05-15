@@ -71,11 +71,10 @@ import org.opengis.filter.FilterFactory;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
-import ch.qos.logback.classic.Level;
-import ch.qos.logback.classic.Logger;
 import ddf.catalog.data.ContentType;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
@@ -87,12 +86,7 @@ import ddf.catalog.source.UnsupportedQueryException;
 
 public class TestCswSource extends TestCswSourceBase {
 
-    @BeforeClass
-    public static void oneTimeSetup() {
-
-        Logger root = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
-        root.setLevel(Level.INFO);
-    }
+    private static final Logger LOGGER = LoggerFactory.getLogger(TestCswSource.class);
 
     @Test
     public void testParseCapabilities() throws CswException {
@@ -128,7 +122,7 @@ public class TestCswSource extends TestCswSourceBase {
             "c", "d", "e", "f", "g", "h", "i", "j"}));
 
         ServiceRegistration<?> mockRegisteredMetacardType = (ServiceRegistration<?>) mock(ServiceRegistration.class);
-        LOGGER.info("mockRegisteredMetacardType: " + mockRegisteredMetacardType);
+        LOGGER.info("mockRegisteredMetacardType: {}", mockRegisteredMetacardType);
         doReturn(mockRegisteredMetacardType).when(mockContext).registerService(
                 eq(MetacardType.class.getName()), any(CswRecordMetacardType.class),
                 Matchers.<Dictionary<String, ?>> any());

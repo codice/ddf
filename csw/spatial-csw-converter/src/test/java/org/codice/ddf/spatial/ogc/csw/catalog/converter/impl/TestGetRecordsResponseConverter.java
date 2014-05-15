@@ -100,15 +100,7 @@ public class TestGetRecordsResponseConverter {
     private static final String RELATION = "relation";
 
     private static final String WKT = "POLYGON((4 1, 2 5, 4 5, 4 1))";
-    
-    @BeforeClass
-    public static void setUpBeforeClass() throws Exception {
-        ch.qos.logback.classic.Logger root = (ch.qos.logback.classic.Logger) LoggerFactory
-                .getLogger(Logger.ROOT_LOGGER_NAME);
-        root.setLevel(ch.qos.logback.classic.Level.INFO);
 
-    }
-    
     @Test
     public void testGetRecordsResponseConversion() {
         XStream xstream = new XStream(new WstxDriver());
