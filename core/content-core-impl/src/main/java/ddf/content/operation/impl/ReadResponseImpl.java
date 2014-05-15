@@ -47,7 +47,7 @@ public class ReadResponseImpl extends ResponseImpl<ReadRequest> implements ReadR
      *            the original {@link ReadRequest} that initiated this response
      * @param contentItem
      *            the {@link ContentItem} read
-     * @param the
+     * @param responseProperties the
      *            properties associated with the response that are intended for external
      *            distribution
      */
@@ -64,7 +64,7 @@ public class ReadResponseImpl extends ResponseImpl<ReadRequest> implements ReadR
      *            the original {@link ReadRequest} that initiated this response
      * @param contentItem
      *            the {@link ContentItem} read
-     * @param the
+     * @param responseProperties the
      *            properties associated with the response that are intended for external
      *            distribution
      * @param properties

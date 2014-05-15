@@ -14,6 +14,10 @@
  **/
 package ddf.content.storage;
 
+import java.io.InputStream;
+
+import ddf.content.ContentFramework;
+import ddf.content.data.ContentItem;
 import ddf.content.operation.CreateRequest;
 import ddf.content.operation.CreateResponse;
 import ddf.content.operation.DeleteRequest;

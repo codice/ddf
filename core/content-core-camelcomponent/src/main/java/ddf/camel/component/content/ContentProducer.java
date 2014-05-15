@@ -47,7 +47,7 @@ public class ContentProducer extends DefaultProducer {
 
     /**
      * Constructs the {@link Producer} for the custom Camel ContentComponent. This producer would
-     * map to a Camel <to> route node with a URI like <code>content:framework</code>
+     * map to a Camel <code>&lt;to&gt;</code> route node with a URI like <code>content:framework</code>
      * 
      * @param endpoint
      *            the Camel endpoint that created this consumer

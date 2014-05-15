@@ -48,8 +48,10 @@ public class DeleteResponseImpl extends ResponseImpl<DeleteRequest> implements D
      * 
      * @param request
      *            the original {@link DeleteRequest} that initiated this response
+     * @param contentItem
+     *            the content item to delete
      * @param fileDeleted
-     *            <code>true> if file deleted, <code>false</code> otherwise
+     *            <code>true</code> if file deleted, <code>false</code> otherwise
      */
     public DeleteResponseImpl(DeleteRequest request, ContentItem contentItem, boolean fileDeleted) {
         this(request, contentItem, fileDeleted, null, null);
@@ -61,8 +63,10 @@ public class DeleteResponseImpl extends ResponseImpl<DeleteRequest> implements D
      * 
      * @param request
      *            the original {@link DeleteRequest} that initiated this response
+     * @param contentItem
+     *            the content item to delete
      * @param fileDeleted
-     *            <code>true> if file deleted, <code>false</code> otherwise
+     *            <code>true</code> if file deleted, <code>false</code> otherwise
      * @param responseProperties
      *            the properties associated with this response
      */
@@ -77,8 +81,10 @@ public class DeleteResponseImpl extends ResponseImpl<DeleteRequest> implements D
      * 
      * @param request
      *            the original {@link DeleteRequest} that initiated this response
+     * @param contentItem
+     *            the content item to delete
      * @param fileDeleted
-     *            <code>true> if file deleted, <code>false</code> otherwise
+     *            <code>true</code> if file deleted, <code>false</code> otherwise
      * @param responseProperties
      *            the properties associated with this response
      * @param properties
