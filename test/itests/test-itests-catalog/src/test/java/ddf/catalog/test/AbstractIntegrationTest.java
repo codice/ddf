@@ -292,7 +292,7 @@ public abstract class AbstractIntegrationTest {
 
         @Override
         public void configurationEvent(ConfigurationEvent event) {
-            System.out.println(event);
+            LOGGER.info("Configuration event received: {}", event);
             if (event.getPid().equals(pid) && event.CM_UPDATED == event.getType()) {
                 updated = true;
             }
