@@ -22,5 +22,5 @@ import org.apache.karaf.shell.console.OsgiCommandSupport;
  */
 public abstract class PlatformCommands extends OsgiCommandSupport {
 
-    public static final String NAMESPACE = "ddfplatform";
+    public static final String NAMESPACE = "platform";
 }

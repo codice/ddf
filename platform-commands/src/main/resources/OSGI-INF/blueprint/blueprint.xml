@@ -15,7 +15,7 @@
 
         <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.0.0">
 
-                <command name="ddfplatform/envlist">
+                <command name="platform/envlist">
                         <action class="org.codice.ddf.commands.platform.EnvListCommand" />
                 </command>
 
