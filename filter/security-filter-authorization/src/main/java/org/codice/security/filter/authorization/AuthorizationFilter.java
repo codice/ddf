@@ -34,7 +34,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by tustisos on 5/8/14.
+ * Handler that implements authorization checking for contexts.
  */
 public class AuthorizationFilter implements Filter {
 
@@ -45,24 +45,27 @@ public class AuthorizationFilter implements Filter {
 
     private Authorizer authorizer;
 
-    @Override public void init(FilterConfig filterConfig) throws ServletException {
+    @Override
+    public void init(FilterConfig filterConfig) throws ServletException {
         LOGGER.debug("Starting AuthZ filter.");
         //TODO get this from the policy
         roles.add("admin");
     }
 
-    @Override public void doFilter(ServletRequest request, ServletResponse response,
+    @Override
+    public void doFilter(ServletRequest request, ServletResponse response,
             FilterChain chain) throws IOException, ServletException {
         HttpServletRequest httpRequest = (HttpServletRequest) request;
         HttpServletResponse httpResponse = (HttpServletResponse) response;
 
         Subject subject = (Subject) httpRequest.getAttribute("ddf.security.subject");
 
-        KeyValueCollectionPermission kvcPermission = new KeyValueCollectionPermission(new KeyValuePermission("role", roles));
+        KeyValueCollectionPermission kvcPermission = new KeyValueCollectionPermission(
+                new KeyValuePermission("role", roles));
 
         boolean permitted = authorizer.isPermitted(subject.getPrincipals(), kvcPermission);
 
-        if(!permitted) {
+        if (!permitted) {
             LOGGER.debug("Subject not authorized.");
             returnNotAuthorized(httpResponse);
         } else {
@@ -82,7 +85,8 @@ public class AuthorizationFilter implements Filter {
 
     }
 
-    @Override public void destroy() {
+    @Override
+    public void destroy() {
         LOGGER.debug("Destroying AuthZ filter.");
     }
 

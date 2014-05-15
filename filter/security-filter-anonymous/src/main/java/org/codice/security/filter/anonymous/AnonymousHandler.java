@@ -15,13 +15,15 @@
 package org.codice.security.filter.anonymous;
 
 
-import org.codice.security.filter.api.AuthenticationHandler;
-import org.codice.security.filter.api.FilterResult;
 import org.apache.cxf.sts.QNameConstants;
 import org.apache.cxf.ws.security.sts.provider.model.secext.AttributedString;
 import org.apache.cxf.ws.security.sts.provider.model.secext.PasswordString;
 import org.apache.cxf.ws.security.sts.provider.model.secext.UsernameTokenType;
 import org.apache.ws.security.WSConstants;
+import org.codice.security.filter.api.AuthenticationHandler;
+import org.codice.security.filter.api.FilterResult;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletRequest;
@@ -31,9 +33,10 @@ import javax.xml.bind.JAXBElement;
 import java.io.StringWriter;
 import java.io.Writer;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+/**
+ * Handler that allows anonymous user access via a guest user account. The guest/guest account
+ * must be present in the user store for this handler to work correctly.
+ */
 public class AnonymousHandler implements AuthenticationHandler {
     public static final Logger logger = LoggerFactory.getLogger(AnonymousHandler.class.getName());
 

@@ -40,6 +40,10 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.security.Principal;
 
+/**
+ * Handler implementing Basic HTTP Authentication. If basic credentials are supplied in the HTTP
+ * header, a UsernameToken will be created.
+ */
 public class AuthenticationFilter implements AuthenticationHandler {
 
     private static final transient Logger LOGGER = LoggerFactory
@@ -53,6 +57,14 @@ public class AuthenticationFilter implements AuthenticationHandler {
 
     private Marshaller marshaller = null;
 
+    /**
+     * Returns the FilterResult for the HTTP Request.
+     * @param request http request to obtain attributes from and to pass into any local filter chains required
+     * @param response http response to return http responses or redirects
+     * @param chain original filter chain (should not be called from your handler)
+     * @param resolve flag with true implying that credentials should be obtained, false implying return if no credentials are found.
+     * @return
+     */
     @Override
     public FilterResult getNormalizedToken(ServletRequest request,
             ServletResponse response, FilterChain chain, boolean resolve) {
@@ -72,12 +84,7 @@ public class AuthenticationFilter implements AuthenticationHandler {
                 return filterResult;
             } else {
                 String usernameToken = getUsernameTokenElement(result);
-                Principal principal = new Principal() {
-                    private String username = result.getUsername().getValue();
-                    @Override public String getName() {
-                        return username;
-                    }
-                };
+                Principal principal = getPrincipal(result);
                 filterResult = new FilterResult(FilterResult.FilterStatus.COMPLETED, principal, usernameToken);
                 return filterResult;
             }
@@ -87,18 +94,33 @@ public class AuthenticationFilter implements AuthenticationHandler {
                 return filterResult;
             } else {
                 String usernameToken = getUsernameTokenElement(result);
-                Principal principal = new Principal() {
-                    private String username = result.getUsername().getValue();
-                    @Override public String getName() {
-                        return username;
-                    }
-                };
+                Principal principal = getPrincipal(result);
                 filterResult = new FilterResult(FilterResult.FilterStatus.COMPLETED, principal, usernameToken);
                 return filterResult;
             }
         }
     }
 
+    /**
+     * Extracts a Principal from a UsernameToken
+     * @param result
+     * @return Principal
+     */
+    private Principal getPrincipal(final UsernameTokenType result) {
+        return new Principal() {
+                        private String username = result.getUsername().getValue();
+                        @Override public String getName() {
+                            return username;
+                        }
+                    };
+    }
+
+    /**
+     * Returns the UsernameToken marshalled as a String so that it can be attached to the
+     * FilterResult object.
+     * @param result
+     * @return String
+     */
     private synchronized String getUsernameTokenElement(UsernameTokenType result) {
         JAXBContext context;
 
@@ -128,6 +150,11 @@ public class AuthenticationFilter implements AuthenticationHandler {
         return writer.toString();
     }
 
+    /**
+     * Return a 401 response back to the web browser to prompt for basic auth.
+     * @param realm
+     * @param response
+     */
     private void doAuthPrompt(String realm, HttpServletResponse response) {
         try {
             response.setHeader(HEADER_WWW_AUTHENTICATE,
@@ -141,6 +168,11 @@ public class AuthenticationFilter implements AuthenticationHandler {
 
     }
 
+    /**
+     * Extract the Authorization header and parse into username/password.
+     * @param authHeader
+     * @param cb
+     */
     private void extractAuthInfo(String authHeader, ExtractAuthInfoCallback cb) {
         authHeader = authHeader.trim();
         String[] parts = authHeader.split(" ");
@@ -160,6 +192,11 @@ public class AuthenticationFilter implements AuthenticationHandler {
         }
     }
 
+    /**
+     * Creates a UsernameToken from an HTTP request.
+     * @param request
+     * @return UsernameTokenType
+     */
     private UsernameTokenType setAuthenticationInfo(HttpServletRequest request) {
 
         String authHeader = request.getHeader(HEADER_AUTHORIZATION);

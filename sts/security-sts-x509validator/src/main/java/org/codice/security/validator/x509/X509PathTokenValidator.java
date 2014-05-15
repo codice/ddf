@@ -62,7 +62,7 @@ import java.io.IOException;
 import java.security.cert.X509Certificate;
 
 /**
- * Created by tustisos on 5/14/14.
+ * X509PKIPathv1 validator for the STS.
  */
 public class X509PathTokenValidator implements TokenValidator {
 
@@ -79,6 +79,9 @@ public class X509PathTokenValidator implements TokenValidator {
 
     private String signaturePropertiesPath;
 
+    /**
+     * Initialize Merlin crypto object.
+     */
     public void init() {
         try {
             merlin = new Merlin(PropertiesLoader.loadProperties(signaturePropertiesPath));
@@ -100,6 +103,8 @@ public class X509PathTokenValidator implements TokenValidator {
     /**
      * Return true if this TokenValidator implementation is capable of validating the
      * ReceivedToken argument.
+     * @param validateTarget
+     * @return true if the token can be handled
      */
     public boolean canHandleToken(ReceivedToken validateTarget) {
         return canHandleToken(validateTarget, null);
@@ -108,6 +113,9 @@ public class X509PathTokenValidator implements TokenValidator {
     /**
      * Return true if this TokenValidator implementation is capable of validating the
      * ReceivedToken argument. The realm is ignored in this token Validator.
+     * @param validateTarget
+     * @param realm
+     * @return true if the token can be handled
      */
     public boolean canHandleToken(ReceivedToken validateTarget, String realm) {
         Object token = validateTarget.getToken();
@@ -120,6 +128,8 @@ public class X509PathTokenValidator implements TokenValidator {
 
     /**
      * Validate a Token using the given TokenValidatorParameters.
+     * @param tokenParameters
+     * @return TokenValidatorResponse
      */
     public TokenValidatorResponse validateToken(TokenValidatorParameters tokenParameters) {
         LOGGER.trace("Validating X.509 Token");
@@ -166,13 +176,11 @@ public class X509PathTokenValidator implements TokenValidator {
         try {
             Credential credential = new Credential();
             credential.setBinarySecurityToken(binarySecurity);
-            if (sigCrypto != null) {
-                if (merlin != null) {
-                    X509Certificate[] certificates = merlin
-                            .getCertificatesFromBytes(binarySecurity.getToken());
-                    if (certificates != null) {
-                        credential.setCertificates(certificates);
-                    }
+            if (merlin != null) {
+                X509Certificate[] certificates = merlin
+                        .getCertificatesFromBytes(binarySecurity.getToken());
+                if (certificates != null) {
+                    credential.setCertificates(certificates);
                 }
             }
 

@@ -62,7 +62,7 @@ import java.util.Properties;
 import java.util.UUID;
 
 /**
- *
+ * Servlet filter that exchanges all incoming tokens for a SAML assertion via an STS.
  */
 public class LoginFilter implements Filter {
 
@@ -105,6 +105,15 @@ public class LoginFilter implements Filter {
         }
     }
 
+    /**
+     * Validates an attached SAML assertion, or exchanges any other incoming token for a SAML
+     * assertion via the STS.
+     * @param request
+     * @param response
+     * @param chain
+     * @throws IOException
+     * @throws ServletException
+     */
     @Override
     public void doFilter(final ServletRequest request, final ServletResponse response,
             final FilterChain chain) throws IOException, ServletException {
@@ -193,6 +202,13 @@ public class LoginFilter implements Filter {
         }
     }
 
+    /**
+     * Creates the SAML response that we use for validation against the CXF code.
+     * @param inResponseTo
+     * @param issuer
+     * @param status
+     * @return Response
+     */
     private static Response createSamlResponse(
             String inResponseTo,
             String issuer,
@@ -214,6 +230,11 @@ public class LoginFilter implements Filter {
         return response;
     }
 
+    /**
+     * Creates the issuer object for the response.
+     * @param issuerValue
+     * @return Issuer
+     */
     private static Issuer createIssuer(
             String issuerValue
     ) {
@@ -227,6 +248,12 @@ public class LoginFilter implements Filter {
         return issuer;
     }
 
+    /**
+     * Creates the status object for the response.
+     * @param statusCodeValue
+     * @param statusMessage
+     * @return Status
+     */
     private static Status createStatus(
             String statusCodeValue,
             String statusMessage
@@ -259,6 +286,10 @@ public class LoginFilter implements Filter {
         return status;
     }
 
+    /**
+     * Ends the connection if the SAML assertion or incoming token cannot be authenticated.
+     * @param response
+     */
     private void returnNotAuthorized(HttpServletResponse response) {
         try {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
@@ -270,6 +301,14 @@ public class LoginFilter implements Filter {
 
     }
 
+    /**
+     * Creates a cookie to be returned to the browser if the token was successfully exchanged for
+     * a SAML assertion.
+     * @param httpRequest
+     * @param httpResponse
+     * @param cookieValue
+     * @param timeoutSeconds
+     */
     private void createSamlCookie(HttpServletRequest httpRequest, HttpServletResponse httpResponse,
             String cookieValue, long timeoutSeconds) {
         try {
@@ -292,6 +331,12 @@ public class LoginFilter implements Filter {
         }
     }
 
+    /**
+     * Encodes the SAML assertion as a deflated Base64 String so that it can be used as a Cookie.
+     * @param token
+     * @return String
+     * @throws WSSecurityException
+     */
     private String encodeSaml(Element token) throws WSSecurityException {
         AssertionWrapper assertion = new AssertionWrapper(token);
         String samlStr = assertion.assertionToString();
@@ -300,6 +345,10 @@ public class LoginFilter implements Filter {
         return Base64Utility.encode(deflatedToken);
     }
 
+    /**
+     * Returns a Crypto object initialized against the system signature properties.
+     * @return Crypto
+     */
     private Crypto getSignatureCrypto() {
         if (signatureCrypto == null && signaturePropertiesFile != null) {
             Properties sigProperties = PropertiesLoader.loadProperties(signaturePropertiesFile);

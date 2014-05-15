@@ -42,7 +42,8 @@ import java.io.Writer;
 import java.security.cert.X509Certificate;
 
 /**
- * Created by tustisos on 5/14/14.
+ * Handler for PKI based authentication. X509 chain will be extracted from the HTTP request and
+ * converted to a BinarySecurityToken.
  */
 public class PKIFilter implements AuthenticationHandler {
 
@@ -55,6 +56,9 @@ public class PKIFilter implements AuthenticationHandler {
 
     private String signaturePropertiesPath;
 
+    /**
+     * Initializes Merlin crypto object.
+     */
     public void init() {
         try {
             merlin = new Merlin(PropertiesLoader.loadProperties(signaturePropertiesPath));
@@ -65,6 +69,16 @@ public class PKIFilter implements AuthenticationHandler {
         }
     }
 
+    /**
+     * Returns the FilterResult containing a BinarySecurityToken if the operation was successful.
+     *
+     * @param request http request to obtain attributes from and to pass into any local filter chains required
+     * @param response http response to return http responses or redirects
+     * @param chain original filter chain (should not be called from your handler)
+     * @param resolve flag with true implying that credentials should be obtained, false implying return if no credentials are found.
+     * @return FilterResult
+     * @throws ServletException
+     */
     @Override
     public FilterResult getNormalizedToken(ServletRequest request, ServletResponse response,
             FilterChain chain, boolean resolve) throws ServletException {
@@ -94,6 +108,12 @@ public class PKIFilter implements AuthenticationHandler {
         }
     }
 
+    /**
+     * Returns a byte array representing a certificate chain.
+     * @param certs
+     * @return byte[]
+     * @throws WSSecurityException
+     */
     private byte[] getCertBytes(X509Certificate[] certs) throws WSSecurityException {
         byte[] certBytes = null;
 
