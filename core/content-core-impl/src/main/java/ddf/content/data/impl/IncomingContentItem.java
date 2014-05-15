@@ -59,7 +59,7 @@ public class IncomingContentItem implements ContentItem {
      * 
      * @param stream
      *            the {@link ContentItem}'s input stream containing its actual data
-     * @param mimeType
+     * @param mimeTypeRawData
      *            the {@link ContentItem}'s mime type
      */
     public IncomingContentItem(InputStream stream, String mimeTypeRawData, String filename) {
@@ -73,7 +73,7 @@ public class IncomingContentItem implements ContentItem {
      *            the {@link ContentItem}'s GUID
      * @param stream
      *            the {@link ContentItem}'s input stream containing its actual data
-     * @param mimeType
+     * @param mimeTypeRawData
      *            the {@link ContentItem}'s mime type
      */
     public IncomingContentItem(String id, InputStream stream, String mimeTypeRawData) {

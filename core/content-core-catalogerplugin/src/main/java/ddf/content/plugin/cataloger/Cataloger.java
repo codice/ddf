@@ -53,7 +53,7 @@ public class Cataloger {
     private CatalogFramework catalogFramework;
 
     /**
-     * @param catalogFramework
+     * @param catalogFramework the parent framework for this Cataloger
      */
     public Cataloger(CatalogFramework catalogFramework) {
         this.catalogFramework = catalogFramework;
@@ -66,8 +66,7 @@ public class Cataloger {
      * @param metacard
      *            the {@link Metacard} to create a catalog entry for
      * @return the catalog ID created in the MDC
-     * @throws SourceUnavailableException
-     * @throws IngestException
+     * @throws PluginExecutionException on failure to create the metacard
      */
     public String createMetacard(Metacard metacard) throws PluginExecutionException {
         logger.trace("ENTERING: createMetacard");

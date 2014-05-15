@@ -14,6 +14,7 @@
  **/
 package ddf.content.operation;
 
+import ddf.content.ContentFramework;
 import ddf.content.data.ContentItem;
 
 /**

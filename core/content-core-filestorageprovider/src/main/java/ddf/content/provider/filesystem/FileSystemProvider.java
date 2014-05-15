@@ -45,10 +45,9 @@ import ddf.mime.MimeTypeMapper;
 /**
  * The File System Provider provides the implementation to create/update/delete content items as
  * files in the DDF Content Repository. The File System Provider is an implementation of the
- * 
- * @link{StorageProvider interface. When installed, it is invoked by the @link{ContentFramework} to
+ * {@link StorageProvider} interface. When installed, it is invoked by the @link{ContentFramework} to
  *                       create, update, or delete a file in the DDF Content Repository, which is
- *                       located in the <DDF_INSTALL_DIR>/content/store directory.
+ *                       located in the <code>&lt;DDF_INSTALL_DIR&gt;/content/store directory</code>.
  * 
  * @author rodgersh
  * @author ddf.isgs@lmco.com

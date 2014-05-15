@@ -14,6 +14,9 @@
  **/
 package ddf.content.operation;
 
+import ddf.content.ContentFramework;
+import ddf.content.data.ContentItem;
+
 /**
  * Defines a Read Request object which can be sent to the {@link ContentFramework#read
  * ContentFramework.read}

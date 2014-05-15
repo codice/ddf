@@ -19,8 +19,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import ddf.content.operation.Operation;
 import ddf.content.operation.Request;
 import ddf.content.operation.Response;
+import ddf.content.plugin.ContentPlugin;
+import ddf.content.storage.StorageProvider;
 
 /**
  * Response properties are the properties added specifically to a {@link Response} that are intended
@@ -42,7 +45,7 @@ public class ResponseImpl<T extends Request> extends OperationImpl implements Re
      * 
      * @param request
      *            - the original request
-     * @param properties
+     * @param responseProperties
      *            the properties of the response
      */
     public ResponseImpl(T request, Map<String, String> responseProperties) {

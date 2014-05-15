@@ -46,10 +46,12 @@ public interface ContentItem {
      * Sets the URI of the content item.
      * 
      * This is used by the {@link StorageProvider} when the content item is stored in the content
-     * repository and will be of the form "content:<GUID>".
+     * repository and will be of the form <code>content:&lt;GUID&gt;</code>.
      * 
      * Or this is used by the endpoint when the client specifies the content item's location which
      * means the content is stored remote/external to DDF.
+     *
+     * @param uri the URI for the content item
      */
     public void setUri(String uri);
 

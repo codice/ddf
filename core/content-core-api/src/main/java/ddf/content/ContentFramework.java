@@ -35,18 +35,19 @@ import ddf.content.storage.StorageProvider;
  * <p>
  * General, high-level flow:
  * <ul>
- * <li/>An endpoint will invoke the active {@link ContentFramework}, typically via an OSGi
- * dependency injection framework such as Blueprint
- * <li/>For the {@link #read(ReadRequest) read}, {@link #create(CreateRequest) create},
- * {@link #delete(DeleteRequest) delete}, {@link #update(UpdateRequest) update} methods, the
+ * <li>An endpoint will invoke the active {@link ContentFramework}, typically via an OSGi
+ * dependency injection framework such as Blueprint</li>
+ * <li>For the {@link #read(ReadRequest) read}, {@link #create(CreateRequest, Request.Directive) create},
+ * {@link #delete(DeleteRequest, Request.Directive) delete}, {@link #update(UpdateRequest, Request.Directive) update} methods, the
  * {@link ContentFramework} calls:
  * <ul>
- * <li/>The active {@link StorageProvider}
- * <li/>All "Post" Content Plugins {@link ContentPlugin}
- * <li/>The appropriate {@link Response} is returned to the calling endpoint.
+ * <li>The active {@link StorageProvider}</li>
+ * <li>All "Post" Content Plugins {@link ContentPlugin}</li>
+ * <li>The appropriate {@link Response} is returned to the calling endpoint.</li>
  * </ul>
+ * </li>
  * </ul>
- * </p>
+ * <p>
  * 
  * @author Hugh Rodgers, Lockheed Martin
  * @author ddf.isgs@lmco.com
@@ -55,19 +56,18 @@ public interface ContentFramework {
     /**
      * Creates the {@link ContentItem} in the {@link StorageProvider}.
      * 
-     * <p>
      * <b>Implementations of this method must:</b>
      * <ol>
-     * <li/>Call {@link StorageProvider#create(CreateRequest)} on the registered
-     * {@link StorageProvider}
-     * <li/>Call {@link ContentPlugin#process(CreateResponse)} for each registered
+     * <li>Call {@link StorageProvider#create(CreateRequest)} on the registered
+     * {@link StorageProvider}</li>
+     * <li>Call {@link ContentPlugin#process(CreateResponse)} for each registered
      * {@link ContentPlugin} in order determined by the OSGi SERVICE_RANKING (Descending, highest
-     * first), "daisy chaining" their responses to each other.
+     * first), "daisy chaining" their responses to each other.</li>
      * </ol>
-     * </p>
      * 
      * @param createRequest
      *            the {@link CreateRequest} containing the {@link ContentItem} to be stored
+     * @param directive whether to process, or store-and-process the incoming request
      * @return the {@link CreateResponse} containing the {@link ContentItem} that was created,
      *         including its auto-assigned GUID
      * @throws ContentFrameworkException
@@ -79,17 +79,9 @@ public interface ContentFramework {
     /**
      * Reads a {@link ContentItem} from the {@link StorageProvider}. The {@link ContentItem} must
      * exist in the {@link StorageProvider} for it to be successfully retrieved.
-     * 
-     * *
-     * <p>
-     * <b>Implementations of this method must:</b>
-     * <ol>
-     * <li/>Call {@link StorageProvider#read(ReadRequest)} on the registered {@link StorageProvider}
-     * <li/>Call {@link ContentPlugin#process(ReadResponse)} for each registered
-     * {@link ContentPlugin} in order determined by the OSGi SERVICE_RANKING (Descending, highest
-     * first), "daisy chaining" their responses to each other.
-     * </ol>
-     * </p>
+     *
+     * Implementations of this method must call {@link StorageProvider#read(ReadRequest)} on the
+     * registered {@link StorageProvider}
      * 
      * @param readRequest
      *            the {@link ReadRequest} containing the GUID of the {@link ContentItem} to retrieve
@@ -104,19 +96,18 @@ public interface ContentFramework {
      * exist in the {@link StorageProvider} for it to be successfully updated. The
      * {@link ContentItem} will not be created if it does not already exist.
      * 
-     * <p>
      * <b>Implementations of this method must:</b>
      * <ol>
-     * <li/>Call {@link StorageProvider#update(UpdateRequest)} on the registered
-     * {@link StorageProvider}
-     * <li/>Call {@link ContentPlugin#process(UpdateResponse)} for each registered
+     * <li>Call {@link StorageProvider#update(UpdateRequest)} on the registered
+     * {@link StorageProvider}</li>
+     * <li>Call {@link ContentPlugin#process(UpdateResponse)} for each registered
      * {@link ContentPlugin} in order determined by the OSGi SERVICE_RANKING (Descending, highest
-     * first), "daisy chaining" their responses to each other.
+     * first), "daisy chaining" their responses to each other.</li>
      * </ol>
-     * </p>
      * 
      * @param updateRequest
      *            the {@link UpdateRequest} containing the {@link ContentItem} to be updated
+     * @param directive whether to process, or store-and-process the incoming request
      * @return the {@link UpdateResponse} containing the updated {@link ContentItem}
      * @throws ContentFrameworkException
      *             if problems encountered while updating the {@link ContentItem}
@@ -128,19 +119,18 @@ public interface ContentFramework {
      * Deletes a {@link ContentItem} from the {@link StorageProvider}. The {@link ContentItem} must
      * exist in the {@link StorageProvider} for it to be successfully deleted.
      * 
-     * <p>
      * <b>Implementations of this method must:</b>
      * <ol>
-     * <li/>Call {@link StorageProvider#delete(DeleteRequest)} on the registered
-     * {@link StorageProvider}
-     * <li/>Call {@link ContentPlugin#process(DeleteResponse)} for each registered
+     * <li>Call {@link StorageProvider#delete(DeleteRequest)} on the registered
+     * {@link StorageProvider}</li>
+     * <li>Call {@link ContentPlugin#process(DeleteResponse)} for each registered
      * {@link ContentPlugin} in order determined by the OSGi SERVICE_RANKING (Descending, highest
-     * first), "daisy chaining" their responses to each other.
+     * first), "daisy chaining" their responses to each other.</li>
      * </ol>
-     * </p>
      * 
      * @param deleteRequest
      *            the {@link DeleteRequest} containing the GUID of {@link ContentItem} to be deleted
+     * @param directive whether to process, or store-and-process the incoming request
      * @return the {@link DeleteResponse} containing the status of the {@link ContentItem} deletion
      * @throws ContentFrameworkException
      *             if problems encountered while deleting the {@link ContentItem}
