@@ -18,7 +18,7 @@
     <reference id="authorizer" interface="org.apache.shiro.authz.Authorizer" />
 
     <bean id="filter" class="org.codice.security.filter.authorization.AuthorizationFilter">
-        <property name="authorizer" ref="authorizer" />
+        <argument ref="authorizer" />
     </bean>
 
     <service ref="filter"

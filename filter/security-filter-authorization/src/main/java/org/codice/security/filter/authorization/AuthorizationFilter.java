@@ -45,6 +45,11 @@ public class AuthorizationFilter implements Filter {
 
     private Authorizer authorizer;
 
+    public AuthorizationFilter(Authorizer authorizer) {
+        super();
+        this.authorizer = authorizer;
+    }
+
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
         LOGGER.debug("Starting AuthZ filter.");
@@ -90,11 +95,4 @@ public class AuthorizationFilter implements Filter {
         LOGGER.debug("Destroying AuthZ filter.");
     }
 
-    public Authorizer getAuthorizer() {
-        return authorizer;
-    }
-
-    public void setAuthorizer(Authorizer authorizer) {
-        this.authorizer = authorizer;
-    }
 }

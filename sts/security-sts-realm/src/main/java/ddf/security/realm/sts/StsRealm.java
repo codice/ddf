@@ -257,28 +257,26 @@ public class StsRealm extends AuthenticatingRealm implements ConfigurationWatche
     /**
      * Request a security token (SAML assertion) from the STS.
      *
-     * @param binarySecurityToken The subject the security token is being request for.
+     * @param authToken The subject the security token is being request for.
      * @return security token (SAML assertion)
      */
-    private SecurityToken requestSecurityToken(String binarySecurityToken) {
+    private SecurityToken requestSecurityToken(String authToken) {
         SecurityToken token = null;
         String stsAddress = stsClientConfig.getAddress();
 
         try {
             LOGGER.debug("Requesting security token from STS at: " + stsAddress + ".");
 
-            if (binarySecurityToken != null) {
+            if (authToken != null) {
                 LOGGER.debug(
-                        "Telling the STS to request a security token on behalf of the binary security token:\n"
-                                + binarySecurityToken
+                        "Telling the STS to request a security token on behalf of the auth token"
                 );
                 SecurityLogger
                         .logInfo(
-                                "Telling the STS to request a security token on behalf of the binary security token:\n"
-                                        + binarySecurityToken
+                                "Telling the STS to request a security token on behalf of the auth token"
                         );
                 stsClient.setWsdlLocation(stsAddress);
-                stsClient.setOnBehalfOf(binarySecurityToken);
+                stsClient.setOnBehalfOf(authToken);
                 stsClient
                         .setTokenType(
                                 "http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0");
