@@ -269,8 +269,8 @@
 		<module>metrics</module>
 		<module>platform-scheduler</module>
 		<module>security</module>
-		<module>platform-app</module>
                 <module>platform-commands</module>
+                <module>platform-app</module>
 	</modules>
 	
 	<repositories>
