@@ -13,35 +13,35 @@
  **/
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<modelVersion>4.0.0</modelVersion>
+    <modelVersion>4.0.0</modelVersion>
 
-	<parent>
-		<artifactId>catalog-solr-embedded-pom</artifactId>
-		<groupId>ddf.catalog.solr.embedded</groupId>
-		<version>2.4.1-SNAPSHOT</version>
-	</parent>
+    <parent>
+        <artifactId>catalog-solr-embedded-pom</artifactId>
+        <groupId>ddf.catalog.solr.embedded</groupId>
+        <version>2.4.1-SNAPSHOT</version>
+    </parent>
 
-	<artifactId>catalog-solr-embedded-provider</artifactId>
-	<packaging>bundle</packaging>
-	<name>DDF :: Catalog :: Solr :: Embedded :: Provider</name>
-	<description>A Catalog Provider library for an Apache Solr Server and for using an embedded Solr Server</description>
+    <artifactId>catalog-solr-embedded-provider</artifactId>
+    <packaging>bundle</packaging>
+    <name>DDF :: Catalog :: Solr :: Embedded :: Provider</name>
+    <description>A Catalog Provider library for an Apache Solr Server and for using an embedded Solr Server</description>
 
-	<organization>
-		<name>Codice</name>
-		<url>http://www.codice.org/</url>
-	</organization>
+    <organization>
+        <name>Codice</name>
+        <url>http://www.codice.org/</url>
+    </organization>
 
-	<dependencies>
+    <dependencies>
 
         <dependency>
             <groupId>ddf.catalog.solr</groupId>
             <artifactId>solr-xpath</artifactId>
         </dependency>
 
-		<dependency>
-			<groupId>org.apache.solr</groupId>
-			<artifactId>solr-solrj</artifactId>
-			<version>${solr.version}</version>
+        <dependency>
+            <groupId>org.apache.solr</groupId>
+            <artifactId>solr-solrj</artifactId>
+            <version>${solr.version}</version>
             <exclusions>
                 <!-- exclusion for LuxDB -->
                 <exclusion>
@@ -49,7 +49,7 @@
                     <groupId>org.codehaus.woodstox</groupId>
                 </exclusion>
             </exclusions>
-		</dependency>
+        </dependency>
 
         <dependency>
             <groupId>org.luxdb</groupId>
@@ -68,10 +68,10 @@
             <version>1.0-2</version>
         </dependency>
 
-		<dependency>
-			<groupId>org.apache.solr</groupId>
-			<artifactId>solr-core</artifactId>
-			<version>${solr.version}</version>
+        <dependency>
+            <groupId>org.apache.solr</groupId>
+            <artifactId>solr-core</artifactId>
+            <version>${solr.version}</version>
             <!-- exclusions from LuxDB -->
             <exclusions>
                 <exclusion>
@@ -93,164 +93,164 @@
             </exclusions>
         </dependency>
 
-		<dependency>
-			<groupId>com.vividsolutions</groupId>
-			<artifactId>jts</artifactId>
-			<version>${jts.version}</version>
-		</dependency>
+        <dependency>
+            <groupId>com.vividsolutions</groupId>
+            <artifactId>jts</artifactId>
+            <version>${jts.version}</version>
+        </dependency>
 
-		<dependency>
-			<groupId>javax.servlet</groupId>
-			<artifactId>servlet-api</artifactId>
-			<version>2.5</version>
-		</dependency>
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>servlet-api</artifactId>
+            <version>2.5</version>
+        </dependency>
 
-		<dependency>
-			<groupId>ddf.catalog.core</groupId>
-			<artifactId>catalog-core-commons</artifactId>
-			<!-- Excluding JScience dependency due to NoClassDefFoundError in GeotoolsAttributeBuilder during JUnit
-				 testing if included. -->
-			<exclusions>
-				<exclusion>
-					<artifactId>jscience</artifactId>
-					<groupId>org.jscience</groupId>
-				</exclusion>
-			</exclusions>
-		</dependency>
+        <dependency>
+            <groupId>ddf.catalog.core</groupId>
+            <artifactId>catalog-core-commons</artifactId>
+            <!-- Excluding JScience dependency due to NoClassDefFoundError in GeotoolsAttributeBuilder during JUnit
+                 testing if included. -->
+            <exclusions>
+                <exclusion>
+                    <artifactId>jscience</artifactId>
+                    <groupId>org.jscience</groupId>
+                </exclusion>
+            </exclusions>
+        </dependency>
 
-		<dependency>
-			<groupId>ddf.catalog.core</groupId>
-			<artifactId>catalog-core-api-impl</artifactId>
-		</dependency>
+        <dependency>
+            <groupId>ddf.catalog.core</groupId>
+            <artifactId>catalog-core-api-impl</artifactId>
+        </dependency>
 
-		<dependency>
-			<groupId>ddf.measure</groupId>
-			<artifactId>measure-api</artifactId>
-		</dependency>
+        <dependency>
+            <groupId>ddf.measure</groupId>
+            <artifactId>measure-api</artifactId>
+        </dependency>
 
-		<dependency>
-			<groupId>joda-time</groupId>
-			<artifactId>joda-time</artifactId>
-			<version>${joda-time.version}</version>
-		</dependency>
+        <dependency>
+            <groupId>joda-time</groupId>
+            <artifactId>joda-time</artifactId>
+            <version>${joda-time.version}</version>
+        </dependency>
 
-		<dependency>
-			<groupId>xerces</groupId>
-			<artifactId>xercesImpl</artifactId>
-			<version>${xerces.version}</version>
-		</dependency>
+        <dependency>
+            <groupId>xerces</groupId>
+            <artifactId>xercesImpl</artifactId>
+            <version>${xerces.version}</version>
+        </dependency>
 
-		<dependency>
-			<groupId>commons-lang</groupId>
-			<artifactId>commons-lang</artifactId>
-		</dependency>
+        <dependency>
+            <groupId>commons-lang</groupId>
+            <artifactId>commons-lang</artifactId>
+        </dependency>
 
-		<dependency>
-			<groupId>commons-io</groupId>
-			<artifactId>commons-io</artifactId>
-		</dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+        </dependency>
 
-		<dependency>
-        	<groupId>commons-collections</groupId>
+        <dependency>
+            <groupId>commons-collections</groupId>
             <artifactId>commons-collections</artifactId>
             <version>3.2.1</version>
         </dependency>
 
-		<dependency>
-			<groupId>ddf.catalog.core</groupId>
-			<artifactId>filter-proxy</artifactId>
-			<scope>test</scope>
-		</dependency>
+        <dependency>
+            <groupId>ddf.catalog.core</groupId>
+            <artifactId>filter-proxy</artifactId>
+            <scope>test</scope>
+        </dependency>
 
-                <dependency>
-                    <groupId>org.slf4j</groupId>
-                    <artifactId>slf4j-api</artifactId>
-                </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+        </dependency>
 
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-simple</artifactId>
-			<version>1.7.1</version>
-			<scope>test</scope>
-		</dependency>
-	</dependencies>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <version>1.7.1</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
 
-	<build>
-		<resources>
-			<resource>
-				<directory>src/main/resources</directory>
-				<filtering>true</filtering>
-			</resource>
-		</resources>
-		<plugins>
-			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>build-helper-maven-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>attach-artifacts</id>
-						<phase>package</phase>
-						<inherited>false</inherited>
-						<goals>
-							<goal>attach-artifact</goal>
-						</goals>
-						<configuration>
-							<artifacts>
-								<artifact>
-									<file>target/classes/solr/conf/protwords.txt</file>
-									<type>txt</type>
-									<classifier>protwords</classifier>
-								</artifact>
-								<artifact>
-									<file>target/classes/solr/conf/schema.xml</file>
-									<type>xml</type>
-									<classifier>schema</classifier>
-								</artifact>
-								<artifact>
-									<file>target/classes/solr/conf/solrconfig.xml</file>
-									<type>xml</type>
-									<classifier>solrconfig</classifier>
-								</artifact>
-								<artifact>
-									<file>target/classes/solr/conf/stopwords_en.txt</file>
-									<type>txt</type>
-									<classifier>stopwords_en</classifier>
-								</artifact>
-								<artifact>
-									<file>target/classes/solr/conf/stopwords.txt</file>
-									<type>txt</type>
-									<classifier>stopwords</classifier>
-								</artifact>
-								<artifact>
-									<file>target/classes/solr/conf/synonyms.txt</file>
-									<type>txt</type>
-									<classifier>synonyms</classifier>
-								</artifact>
-							</artifacts>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-			<!-- Export test JAR for reuse by other projects -->
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-jar-plugin</artifactId>
-				<executions>
-					<execution>
-						<goals>
-							<goal>test-jar</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.felix</groupId>
-				<artifactId>maven-bundle-plugin</artifactId>
-				<extensions>true</extensions>
-				<configuration>
-					<instructions>
-						<Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-						<Embed-Dependency>
+    <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>attach-artifacts</id>
+                        <phase>package</phase>
+                        <inherited>false</inherited>
+                        <goals>
+                            <goal>attach-artifact</goal>
+                        </goals>
+                        <configuration>
+                            <artifacts>
+                                <artifact>
+                                    <file>target/classes/solr/conf/protwords.txt</file>
+                                    <type>txt</type>
+                                    <classifier>protwords</classifier>
+                                </artifact>
+                                <artifact>
+                                    <file>target/classes/solr/conf/schema.xml</file>
+                                    <type>xml</type>
+                                    <classifier>schema</classifier>
+                                </artifact>
+                                <artifact>
+                                    <file>target/classes/solr/conf/solrconfig.xml</file>
+                                    <type>xml</type>
+                                    <classifier>solrconfig</classifier>
+                                </artifact>
+                                <artifact>
+                                    <file>target/classes/solr/conf/stopwords_en.txt</file>
+                                    <type>txt</type>
+                                    <classifier>stopwords_en</classifier>
+                                </artifact>
+                                <artifact>
+                                    <file>target/classes/solr/conf/stopwords.txt</file>
+                                    <type>txt</type>
+                                    <classifier>stopwords</classifier>
+                                </artifact>
+                                <artifact>
+                                    <file>target/classes/solr/conf/synonyms.txt</file>
+                                    <type>txt</type>
+                                    <classifier>synonyms</classifier>
+                                </artifact>
+                            </artifacts>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <!-- Export test JAR for reuse by other projects -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>test-jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <extensions>true</extensions>
+                <configuration>
+                    <instructions>
+                        <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+                        <Embed-Dependency>
                             lux,
                             solr-xpath,
                             Saxon-HE,
@@ -260,101 +260,101 @@
                             commons-fileupload,
                             commons-codec,
                             spatial4j,
-							solr-solrj,
-							solr-core,
-							commons-io,
-							commons-lang,
-							joda-time,
-							lucene-core,
-							lucene-analyzers-common,
-							lucene-analyzers-morfologik,
-							lucene-analyzers-phonetic,
-							lucene-highlighter,
-							lucene-memory,
-							lucene-misc,
-							lucene-queryparser,
-							lucene-suggest,
-							lucene-grouping,
-							lucene-queries,
-							guava,
-							lucene-spatial,
-							httpclient,
-							httpcore,
-							httpmime,
+                            solr-solrj,
+                            solr-core,
+                            commons-io,
+                            commons-lang,
+                            joda-time,
+                            lucene-core,
+                            lucene-analyzers-common,
+                            lucene-analyzers-morfologik,
+                            lucene-analyzers-phonetic,
+                            lucene-highlighter,
+                            lucene-memory,
+                            lucene-misc,
+                            lucene-queryparser,
+                            lucene-suggest,
+                            lucene-grouping,
+                            lucene-queries,
+                            guava,
+                            lucene-spatial,
+                            httpclient,
+                            httpcore,
+                            httpmime,
                             noggit,
-							zookeeper
-						</Embed-Dependency>
-						<Embed-Transitive>true</Embed-Transitive>
-						<!-- We want the maven-populated describable.properties, so we overwrite 
-							the src/main/resources one with the one in target -->
-						<Include-Resource>src/main/resources/,target/classes/describable.properties</Include-Resource>
-						<!-- Package uses conflict if we do not embed this -->
-						<Private-Package>
-							ddf.catalog.source.solr;version="${project.version}",
-							ddf.catalog.data.impl,
-							ddf.catalog.operation.impl,
-							ddf.catalog.util.impl
-						</Private-Package>
-						<Export-Package />
-						<Import-Package>
-							com.vividsolutions.jts.algorithm,
-							com.vividsolutions.jts.geom,
-							com.vividsolutions.jts.io,
-							com.vividsolutions.jts.operation.union,
-							com.vividsolutions.jts.operation.valid,
-							com.vividsolutions.jts.simplify,
-							com.vividsolutions.jts.util,
-							<!-- Remember, this is the same as saying, 2.0 or higher, not solely 2.0 -->
-							ddf.catalog.data;version="2.0",
-							ddf.catalog.filter;version="2.0",
-							ddf.catalog.operation;version="2.0",
-							ddf.catalog.source;version="2.0",
-							ddf.catalog.util;version="2.0",
-							ddf.measure;version="2.0",
-							javax.annotation,
-							javax.crypto,
-							javax.crypto.spec,
-							javax.jms,
-							javax.management,
-							javax.management.openmbean,
-							javax.management.remote,
-							javax.naming,
-							javax.net.ssl,
-							javax.security.auth,
-							javax.security.auth.callback,
-							javax.security.auth.kerberos,
-							javax.security.auth.login,
-							javax.security.auth.spi,
-							javax.security.auth.x500,
-							javax.security.sasl,
+                            zookeeper
+                        </Embed-Dependency>
+                        <Embed-Transitive>true</Embed-Transitive>
+                        <!-- We want the maven-populated describable.properties, so we overwrite 
+                            the src/main/resources one with the one in target -->
+                        <Include-Resource>src/main/resources/,target/classes/describable.properties</Include-Resource>
+                        <!-- Package uses conflict if we do not embed this -->
+                        <Private-Package>
+                            ddf.catalog.source.solr;version="${project.version}",
+                            ddf.catalog.data.impl,
+                            ddf.catalog.operation.impl,
+                            ddf.catalog.util.impl
+                        </Private-Package>
+                        <Export-Package />
+                        <Import-Package>
+                            com.vividsolutions.jts.algorithm,
+                            com.vividsolutions.jts.geom,
+                            com.vividsolutions.jts.io,
+                            com.vividsolutions.jts.operation.union,
+                            com.vividsolutions.jts.operation.valid,
+                            com.vividsolutions.jts.simplify,
+                            com.vividsolutions.jts.util,
+                            <!-- Remember, this is the same as saying, 2.0 or higher, not solely 2.0 -->
+                            ddf.catalog.data;version="2.0",
+                            ddf.catalog.filter;version="2.0",
+                            ddf.catalog.operation;version="2.0",
+                            ddf.catalog.source;version="2.0",
+                            ddf.catalog.util;version="2.0",
+                            ddf.measure;version="2.0",
+                            javax.annotation,
+                            javax.crypto,
+                            javax.crypto.spec,
+                            javax.jms,
+                            javax.management,
+                            javax.management.openmbean,
+                            javax.management.remote,
+                            javax.naming,
+                            javax.net.ssl,
+                            javax.security.auth,
+                            javax.security.auth.callback,
+                            javax.security.auth.kerberos,
+                            javax.security.auth.login,
+                            javax.security.auth.spi,
+                            javax.security.auth.x500,
+                            javax.security.sasl,
                             javax.servlet;version="2.5",
-							javax.xml.namespace,
-							javax.xml.parsers,
-							javax.xml.stream,
-							javax.xml.stream.events,
-							javax.xml.stream.util,
-							javax.xml.transform,
-							javax.xml.transform.dom,
-							javax.xml.transform.sax,
-							javax.xml.transform.stream,
-							javax.xml.xpath,
-							org.apache.commons.logging;version="[1.1,2)",
-							org.opengis.filter,
-							org.opengis.filter.expression,
-							org.opengis.filter.sort,
-							org.osgi.framework;version="[1.5,2)",
-							org.osgi.service.blueprint;version="[1.0.0,2.0.0)",
-							org.slf4j;version="[1.6,2)",
-							org.w3c.dom,
-							org.xml.sax,
-							org.xml.sax.ext,
-							org.xml.sax.helpers,
-							*;resolution:=optional
-						</Import-Package>
-					</instructions>
-				</configuration>
-			</plugin>
-		</plugins>
-	</build>
+                            javax.xml.namespace,
+                            javax.xml.parsers,
+                            javax.xml.stream,
+                            javax.xml.stream.events,
+                            javax.xml.stream.util,
+                            javax.xml.transform,
+                            javax.xml.transform.dom,
+                            javax.xml.transform.sax,
+                            javax.xml.transform.stream,
+                            javax.xml.xpath,
+                            org.apache.commons.logging;version="[1.1,2)",
+                            org.opengis.filter,
+                            org.opengis.filter.expression,
+                            org.opengis.filter.sort,
+                            org.osgi.framework;version="[1.5,2)",
+                            org.osgi.service.blueprint;version="[1.0.0,2.0.0)",
+                            org.slf4j;version="[1.6,2)",
+                            org.w3c.dom,
+                            org.xml.sax,
+                            org.xml.sax.ext,
+                            org.xml.sax.helpers,
+                            *;resolution:=optional
+                        </Import-Package>
+                    </instructions>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>
