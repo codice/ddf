@@ -14,9 +14,9 @@
  **/
 package org.codice.security.filter.websso;
 
-import org.codice.security.filter.api.AuthenticationHandler;
-import org.codice.security.filter.api.FilterResult;
-import org.codice.security.filter.api.FilterResult.FilterStatus;
+import org.codice.security.handler.api.AuthenticationHandler;
+import org.codice.security.handler.api.HandlerResult;
+import org.codice.security.handler.api.HandlerResult.FilterStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,13 +26,17 @@ import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
+/**
+ * Serves as the main security filter that works in conjunction with a number of handlers
+ * to protect a variety of contexts each using different authentication schemes and policies.
+ * The basic premise is that this filter is installed on any registered http context
+ * and it handles delegating the authentication to the specified handlers in order to
+ * normalize and consolidate a session token (the SAML assertion).
+ */
 public class WebSSOFilter implements Filter {
     private static final String DDF_SECURITY_TOKEN = "ddf.security.securityToken";
 
@@ -40,6 +44,9 @@ public class WebSSOFilter implements Filter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(WebSSOFilter.class);
 
+    /**
+     * Dynamic list of handlers that are registered to provide authentication services.
+     */
     List<AuthenticationHandler> handlerList;
 
     @Override
@@ -47,6 +54,19 @@ public class WebSSOFilter implements Filter {
 
     }
 
+    /**
+     * Provides filtering for every registered http context. Checks for an existing session (via the SAML assertion included as a cookie).
+     * If it doesn't exist, it then looks up the current context and determines the proper handlers to include in the chain.
+     * Each handler is given the opportunity to locate their specific tokens if they exist or to go off and obtain them.
+     * Once a token has been received that we know how to convert to a SAML assertion, we attach them to the request and continue
+     * down the chain.
+     *
+     * @param servletRequest incoming http request
+     * @param servletResponse response stream for returning the response
+     * @param filterChain chain of filters to be invoked following this filter
+     * @throws IOException
+     * @throws ServletException
+     */
     @Override
     public synchronized void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
 
@@ -54,12 +74,11 @@ public class WebSSOFilter implements Filter {
         String path = httpRequest.getServletPath();
         LOGGER.debug("Handling request for path {}", path);
 
-        // read configuration for this path - get the authentication type and the roles required
-        // for now...
-        Map<String, Cookie> cookies = FilterUtils.getCookieMap(httpRequest);
+        // @TODO lookup the authentication context based on the context path and adjust the handlers accordingly.
+        // for now they are automatically added to the handler list ordered by service rank
 
         // First pass, see if anyone can come up with proper security token from the git-go
-        FilterResult result = null;
+        HandlerResult result = null;
         for (AuthenticationHandler auth : handlerList) {
             result = auth.getNormalizedToken(servletRequest, servletResponse, filterChain, false);
             if (result.getStatus() != FilterStatus.NO_ACTION) {
@@ -81,10 +100,10 @@ public class WebSSOFilter implements Filter {
 
         switch (result.getStatus()) {
             case REDIRECTED:
+                // handler handled the response - it is redirecting or whatever necessary to get their tokens
                 LOGGER.debug("Stopping filter chain - handled by plugins");
-                // return without invoking the remaining chain
                 return;
-            case NO_ACTION: // should never occur
+            case NO_ACTION: // should never occur - one of the handlers should have returned a token
             case COMPLETED:
                 // set the appropriate request attribute
                 if (result.hasSecurityToken()) {
@@ -113,24 +132,6 @@ public class WebSSOFilter implements Filter {
 
     public void setHandlerList(List<AuthenticationHandler> handlerList) {
         this.handlerList = handlerList;
-    }
-
-    /**
-     * Returns a mapping of cookies from the incoming request. Key is the cookie name, while the
-     * value is the Cookie object itself.
-     *
-     * @param req Servlet request for this call
-     * @return map of Cookie objects present in the current request - always returns a map
-     */
-    public static Map<String, Cookie> getCookieMap(HttpServletRequest req) {
-        HashMap<String, Cookie> map = new HashMap<String, Cookie>();
-
-        Cookie[] cookies = req.getCookies();
-        for (Cookie cookie : cookies) {
-            map.put(cookie.getName(), cookie);
-        }
-
-        return map;
     }
 }
 

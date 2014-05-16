@@ -16,14 +16,14 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>filter</artifactId>
-        <groupId>ddf.security.filter</groupId>
+        <artifactId>handler</artifactId>
+        <groupId>ddf.security.handler</groupId>
         <version>2.3.2-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <name>DDF :: Security :: Filter :: Web-SSO</name>
-    <artifactId>security-filter-web-sso</artifactId>
+    <name>DDF :: Security :: Handler :: Anonymous</name>
+    <artifactId>security-handler-anonymous</artifactId>
     <packaging>bundle</packaging>
 
     <dependencies>
@@ -34,11 +34,19 @@
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
+            <artifactId>slf4j-ext</artifactId>
         </dependency>
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>servlet-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-rt-ws-security</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.cxf.services.sts</groupId>
+            <artifactId>cxf-services-sts-core</artifactId>
         </dependency>
     </dependencies>
 

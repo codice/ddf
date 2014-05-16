@@ -1,0 +1,179 @@
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
+ * is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+package org.codice.security.handler.pki;
+
+import ddf.security.common.util.PropertiesLoader;
+import org.apache.cxf.ws.security.sts.provider.model.secext.BinarySecurityTokenType;
+import org.apache.cxf.ws.security.sts.provider.model.secext.UsernameTokenType;
+import org.apache.ws.security.WSConstants;
+import org.apache.ws.security.WSSecurityException;
+import org.apache.ws.security.components.crypto.CredentialException;
+import org.apache.ws.security.components.crypto.Merlin;
+import org.apache.ws.security.util.Base64;
+import org.codice.security.handler.api.AuthenticationHandler;
+import org.codice.security.handler.api.HandlerResult;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBElement;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
+import javax.xml.namespace.QName;
+import java.io.IOException;
+import java.io.StringWriter;
+import java.io.Writer;
+import java.security.cert.X509Certificate;
+
+/**
+ * Handler for PKI based authentication. X509 chain will be extracted from the HTTP request and
+ * converted to a BinarySecurityToken.
+ */
+public class PKIHandler implements AuthenticationHandler {
+
+    private static final transient Logger LOGGER = LoggerFactory
+            .getLogger(PKIHandler.class);
+
+    private Marshaller marshaller = null;
+
+    private Merlin merlin;
+
+    private String signaturePropertiesPath;
+
+    /**
+     * Initializes Merlin crypto object.
+     */
+    public void init() {
+        try {
+            merlin = new Merlin(PropertiesLoader.loadProperties(signaturePropertiesPath));
+        } catch (CredentialException e) {
+            LOGGER.error("Unable to read merlin properties file for crypto operations.", e);
+        } catch (IOException e) {
+            LOGGER.error("Unable to read merlin properties file.", e);
+        }
+    }
+
+    /**
+     * Returns the FilterResult containing a BinarySecurityToken if the operation was successful.
+     *
+     *
+     * @param request http request to obtain attributes from and to pass into any local filter chains required
+     * @param response http response to return http responses or redirects
+     * @param chain original filter chain (should not be called from your handler)
+     * @param resolve flag with true implying that credentials should be obtained, false implying return if no credentials are found.
+     * @return FilterResult
+     * @throws ServletException
+     */
+    @Override
+    public HandlerResult getNormalizedToken(ServletRequest request, ServletResponse response,
+      FilterChain chain, boolean resolve) throws ServletException {
+        HandlerResult handlerResult;
+        X509Certificate[] certs = (X509Certificate[]) request.getAttribute("javax.servlet.request.X509Certificate");
+        //doesn't matter what the resolve flag is set to, we do the same action
+        if (certs != null && certs.length > 0) {
+            //TODO do something with these certs
+            byte[] certBytes = null;
+            try {
+                certBytes = getCertBytes(certs);
+            } catch (WSSecurityException e) {
+                LOGGER.error("Unable to convert PKI certs to byte array.", e);
+            }
+            if (certBytes != null) {
+                String bst = getBinarySecurityToken(Base64.encode(certBytes));
+                handlerResult = new HandlerResult(HandlerResult.FilterStatus.COMPLETED,
+                        certs[0].getSubjectDN(), bst);
+                return handlerResult;
+            } else {
+                handlerResult = new HandlerResult(HandlerResult.FilterStatus.NO_ACTION, null, "");
+                return handlerResult;
+            }
+        } else {
+            handlerResult = new HandlerResult(HandlerResult.FilterStatus.NO_ACTION, null, "");
+            return handlerResult;
+        }
+    }
+
+    /**
+     * Returns a byte array representing a certificate chain.
+     * @param certs
+     * @return byte[]
+     * @throws WSSecurityException
+     */
+    private byte[] getCertBytes(X509Certificate[] certs) throws WSSecurityException {
+        byte[] certBytes = null;
+
+        if (merlin != null) {
+            certBytes = merlin.getBytesFromCertificates(certs);
+        }
+
+        return certBytes;
+    }
+
+    /**
+     * Creates a binary security token based on the provided credential.
+     */
+    private synchronized String getBinarySecurityToken(String credential) {
+        JAXBContext context;
+        Writer writer = new StringWriter();
+
+        BinarySecurityTokenType binarySecurityTokenType = new BinarySecurityTokenType();
+        binarySecurityTokenType.setValueType(WSConstants.X509TOKEN_NS + "#X509PKIPathv1");
+        binarySecurityTokenType.setEncodingType(WSConstants.SOAPMESSAGE_NS + "#Base64Binary");
+        binarySecurityTokenType.setId(WSConstants.X509_CERT_LN);
+        binarySecurityTokenType.setValue(Base64.encode(credential.getBytes()));
+        JAXBElement<BinarySecurityTokenType> binarySecurityTokenElement = new JAXBElement<BinarySecurityTokenType>(
+                new QName(
+                        "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd",
+                        "BinarySecurityToken"), BinarySecurityTokenType.class,
+                binarySecurityTokenType
+        );
+
+        if (marshaller == null) {
+            try {
+                context = JAXBContext.newInstance(UsernameTokenType.class);
+                marshaller = context.createMarshaller();
+                marshaller.setProperty(Marshaller.JAXB_FRAGMENT, Boolean.TRUE);
+            } catch (JAXBException e) {
+                LOGGER.error("Exception while creating UsernameToken marshaller.", e);
+            }
+        }
+
+        try {
+            marshaller.marshal(binarySecurityTokenElement, writer);
+        } catch (JAXBException e) {
+            LOGGER.error("Exception while writing username token.", e);
+        }
+
+        String binarySecurityToken = writer.toString();
+
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Binary Security Token: " + binarySecurityToken);
+        }
+
+        return binarySecurityToken;
+    }
+
+    public String getSignaturePropertiesPath() {
+        return signaturePropertiesPath;
+    }
+
+    public void setSignaturePropertiesPath(String signaturePropertiesPath) {
+        this.signaturePropertiesPath = signaturePropertiesPath;
+    }
+}

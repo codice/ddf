@@ -22,32 +22,13 @@
         <version>2.3.2-SNAPSHOT</version>
     </parent>
 
-    <groupId>ddf.security.filter</groupId>
-    <artifactId>filter</artifactId>
+    <groupId>ddf.security.handler</groupId>
+    <artifactId>handler</artifactId>
     <packaging>pom</packaging>
 
-    <name>DDF Security Filter</name>
+    <name>DDF Security Handler</name>
+
     <dependencies>
-        <dependency>
-            <groupId>org.apache.cxf.services.sts</groupId>
-            <artifactId>cxf-services-sts-core</artifactId>
-            <version>2.7.8</version>
-        </dependency>
-        <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>servlet-api</artifactId>
-            <version>2.5</version>
-        </dependency>
-        <dependency>
-            <groupId>commons-lang</groupId>
-            <artifactId>commons-lang</artifactId>
-            <version>2.6</version>
-        </dependency>
-        <dependency>
-            <groupId>org.jasypt</groupId>
-            <artifactId>jasypt</artifactId>
-            <version>1.9.0</version>
-        </dependency>
         <dependency>
             <groupId>org.apache.shiro</groupId>
             <artifactId>shiro-core</artifactId>
@@ -55,10 +36,11 @@
         </dependency>
     </dependencies>
     <modules>
-        <module>security-filter-web-sso</module>
-        <module>security-filter-login</module>
-        <module>security-filter-authorization</module>
+        <module>security-handler-api</module>
+        <module>security-handler-anonymous</module>
+        <module>security-handler-basic</module>
+        <module>security-handler-saml</module>
+        <module>security-handler-pki</module>
     </modules>
-
 
 </project>

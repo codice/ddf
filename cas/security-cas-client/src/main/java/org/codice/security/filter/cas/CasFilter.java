@@ -20,8 +20,8 @@ import org.apache.cxf.ws.security.sts.provider.model.secext.BinarySecurityTokenT
 import org.apache.cxf.ws.security.sts.provider.model.secext.UsernameTokenType;
 import org.apache.ws.security.WSConstants;
 import org.apache.ws.security.util.Base64;
-import org.codice.security.filter.api.AuthenticationHandler;
-import org.codice.security.filter.api.FilterResult;
+import org.codice.security.handler.api.AuthenticationHandler;
+import org.codice.security.handler.api.HandlerResult;
 import org.jasig.cas.client.authentication.AttributePrincipal;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,9 +53,9 @@ public class CasFilter implements AuthenticationHandler {
     private ProxyFilter proxyFilter;
 
     @Override
-    public FilterResult getNormalizedToken(ServletRequest request, ServletResponse response,
+    public HandlerResult getNormalizedToken(ServletRequest request, ServletResponse response,
             FilterChain chain, boolean resolve) throws ServletException {
-        FilterResult filterResult;
+        HandlerResult filterResult;
         String proxyTicket = getProxyTicket((HttpServletRequest) request);
         if(resolve) {
             if(proxyTicket == null) {
@@ -64,20 +64,20 @@ public class CasFilter implements AuthenticationHandler {
                 } catch (IOException e) {
                     throw new ServletException(e);
                 }
-                filterResult = new FilterResult(FilterResult.FilterStatus.REDIRECTED, null, "");
+                filterResult = new HandlerResult(HandlerResult.FilterStatus.REDIRECTED, null, "");
                 return filterResult;
             } else {
                 String bst = getBinarySecurityToken(proxyTicket);
-                filterResult = new FilterResult(FilterResult.FilterStatus.COMPLETED, ((HttpServletRequest)request).getUserPrincipal(), bst);
+                filterResult = new HandlerResult(HandlerResult.FilterStatus.COMPLETED, ((HttpServletRequest)request).getUserPrincipal(), bst);
                 return filterResult;
             }
         } else {
             if(proxyTicket == null) {
-                filterResult = new FilterResult(FilterResult.FilterStatus.NO_ACTION, null, "");
+                filterResult = new HandlerResult(HandlerResult.FilterStatus.NO_ACTION, null, "");
                 return filterResult;
             } else {
                 String bst = getBinarySecurityToken(proxyTicket);
-                filterResult = new FilterResult(FilterResult.FilterStatus.COMPLETED, ((HttpServletRequest)request).getUserPrincipal(), bst);
+                filterResult = new HandlerResult(HandlerResult.FilterStatus.COMPLETED, ((HttpServletRequest)request).getUserPrincipal(), bst);
                 return filterResult;
             }
         }

@@ -16,25 +16,25 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>filter</artifactId>
-        <groupId>ddf.security.filter</groupId>
+        <artifactId>handler</artifactId>
+        <groupId>ddf.security.handler</groupId>
         <version>2.3.2-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <name>DDF :: Security :: Filter :: Web-SSO</name>
-    <artifactId>security-filter-web-sso</artifactId>
+    <name>DDF :: Security :: Handler :: API</name>
+    <artifactId>security-handler-api</artifactId>
     <packaging>bundle</packaging>
 
     <dependencies>
         <dependency>
-            <groupId>ddf.security.handler</groupId>
-            <artifactId>security-handler-api</artifactId>
-            <version>${project.version}</version>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-ext</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-rt-rs-security-xml</artifactId>
+            <version>2.7.8</version>
         </dependency>
         <dependency>
             <groupId>javax.servlet</groupId>
@@ -50,6 +50,9 @@
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+                        <Export-Package>
+                            org.codice.security.handler.api
+                        </Export-Package>
                     </instructions>
                 </configuration>
             </plugin>

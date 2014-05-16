@@ -3,7 +3,7 @@
  * Copyright (c) Codice Foundation
  *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
- * version 3 of the License, or any later version. 
+ * version 3 of the License, or any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
@@ -13,15 +13,15 @@
  -->
 <features name="${project.artifactId}-${project.version}">
 
-    <feature name="security-filter-api" install="manual" version="${project.version}"
-             description="Basic Authentication filter for web applications.">
-        <bundle>mvn:ddf.security.filter/security-filter-api/${project.version}</bundle>
+    <feature name="security-handler-api" install="manual" version="${project.version}"
+             description="API for authentication handlers for web applications.">
+        <bundle>mvn:ddf.security.handler/security-handler-api/${project.version}</bundle>
     </feature>
 
     <feature name="security-core" install="manual" version="${project.version}"
              description="DDF Security Core">
         <feature>security-core-api</feature>
-        <feature>security-filter-api</feature>
+        <feature>security-handler-api</feature>
         <bundle>mvn:ddf.security.expansion/security-expansion-api/${project.version}</bundle>
         <bundle>mvn:ddf.security.core/security-core-impl/${project.version}</bundle>
     </feature>
@@ -121,9 +121,9 @@
         <feature>security-sts-realm</feature>
     </feature>
 
-    <feature name="security-filter-basic" install="manual" version="${project.version}"
-             description="Basic Authentication filter for web applications.">
-        <bundle>mvn:ddf.security.filter/security-filter-basic/${project.version}</bundle>
+    <feature name="security-handler-basic" install="manual" version="${project.version}"
+             description="Basic Authentication Handler for web applications.">
+        <bundle>mvn:ddf.security.handler/security-handler-basic/${project.version}</bundle>
     </feature>
 
     <feature name="security-filter-login" install="manual" version="${project.version}"
@@ -137,14 +137,14 @@
         <bundle>mvn:ddf.security.filter/security-filter-authorization/${project.version}</bundle>
     </feature>
 
-    <feature name="security-filter-saml" install="manual" version="${project.version}"
-             description="SAML Filter for web applications.">
-        <bundle>mvn:ddf.security.filter/security-filter-saml/${project.version}</bundle>
+    <feature name="security-handler-saml" install="manual" version="${project.version}"
+             description="SAML Handler for web applications.">
+        <bundle>mvn:ddf.security.handler/security-handler-saml/${project.version}</bundle>
     </feature>
 
-    <feature name="security-filter-anonymous" install="manual" version="${project.version}"
-             description="Anonymous Filter for web applications.">
-        <bundle>mvn:ddf.security.filter/security-filter-anonymous/${project.version}</bundle>
+    <feature name="security-handler-anonymous" install="manual" version="${project.version}"
+             description="Anonymous Handler for web applications.">
+        <bundle>mvn:ddf.security.handler/security-handler-anonymous/${project.version}</bundle>
     </feature>
 
     <feature name="security-filter-web-sso" install="manual" version="${project.version}"
@@ -152,9 +152,9 @@
         <bundle>mvn:ddf.security.filter/security-filter-web-sso/${project.version}</bundle>
     </feature>
 
-    <feature name="security-filter-pki" install="manual" version="${project.version}"
-             description="PKI Filter for web applications.">
-        <bundle>mvn:ddf.security.filter/security-filter-pki/${project.version}</bundle>
+    <feature name="security-handler-pki" install="manual" version="${project.version}"
+             description="PKI Handler for web applications.">
+        <bundle>mvn:ddf.security.handler/security-handler-pki/${project.version}</bundle>
     </feature>
 
 </features>
