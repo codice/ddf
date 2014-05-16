@@ -64,20 +64,20 @@ public class CasFilter implements AuthenticationHandler {
                 } catch (IOException e) {
                     throw new ServletException(e);
                 }
-                filterResult = new HandlerResult(HandlerResult.FilterStatus.REDIRECTED, null, "");
+                filterResult = new HandlerResult(HandlerResult.Status.REDIRECTED, null, "");
                 return filterResult;
             } else {
                 String bst = getBinarySecurityToken(proxyTicket);
-                filterResult = new HandlerResult(HandlerResult.FilterStatus.COMPLETED, ((HttpServletRequest)request).getUserPrincipal(), bst);
+                filterResult = new HandlerResult(HandlerResult.Status.COMPLETED, ((HttpServletRequest)request).getUserPrincipal(), bst);
                 return filterResult;
             }
         } else {
             if(proxyTicket == null) {
-                filterResult = new HandlerResult(HandlerResult.FilterStatus.NO_ACTION, null, "");
+                filterResult = new HandlerResult(HandlerResult.Status.NO_ACTION, null, "");
                 return filterResult;
             } else {
                 String bst = getBinarySecurityToken(proxyTicket);
-                filterResult = new HandlerResult(HandlerResult.FilterStatus.COMPLETED, ((HttpServletRequest)request).getUserPrincipal(), bst);
+                filterResult = new HandlerResult(HandlerResult.Status.COMPLETED, ((HttpServletRequest)request).getUserPrincipal(), bst);
                 return filterResult;
             }
         }

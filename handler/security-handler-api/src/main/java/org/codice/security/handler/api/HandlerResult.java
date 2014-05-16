@@ -18,7 +18,7 @@ import org.apache.cxf.ws.security.tokenstore.SecurityToken;
 import org.apache.shiro.authc.AuthenticationToken;
 
 public class HandlerResult implements AuthenticationToken {
-    public enum FilterStatus {
+    public enum Status {
         // completed - auth tokens retrieved ready to move on
         COMPLETED,
 
@@ -29,7 +29,7 @@ public class HandlerResult implements AuthenticationToken {
         REDIRECTED
     }
 
-    private FilterStatus status;
+    private Status status;
 
     private Object principal;
 
@@ -38,26 +38,26 @@ public class HandlerResult implements AuthenticationToken {
     private SecurityToken token;
 
     public HandlerResult() {
-        status = FilterStatus.NO_ACTION;
+        status = Status.NO_ACTION;
     }
 
-    public HandlerResult(FilterStatus fs, Object p, String creds) {
+    public HandlerResult(Status fs, Object p, String creds) {
         this.status = fs;
         this.principal = p;
         this.authCredentials = creds;
     }
 
-    public HandlerResult(FilterStatus fs, Object p, SecurityToken t) {
+    public HandlerResult(Status fs, Object p, SecurityToken t) {
         this.status = fs;
         this.principal = p;
         this.token = t;
     }
 
-    public FilterStatus getStatus() {
+    public Status getStatus() {
         return status;
     }
 
-    public void setStatus(FilterStatus status) {
+    public void setStatus(Status status) {
 
         this.status = status;
     }

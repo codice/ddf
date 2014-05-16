@@ -43,7 +43,7 @@ public class AnonymousHandler implements AuthenticationHandler {
     @Override
     public HandlerResult getNormalizedToken(ServletRequest request, ServletResponse response, FilterChain chain, boolean resolve) {
         HandlerResult result = new HandlerResult();
-        result.setStatus(HandlerResult.FilterStatus.NO_ACTION);
+        result.setStatus(HandlerResult.Status.NO_ACTION);
 
         // For anonymous - always generate authentication credentials as 'guest'
         UsernameTokenType usernameTokenType = new UsernameTokenType();
@@ -65,7 +65,7 @@ public class AnonymousHandler implements AuthenticationHandler {
         logger.debug("Security token returned: {}", usernameSecurityToken);
 
         result.setAuthCredentials(usernameSecurityToken);
-        result.setStatus(HandlerResult.FilterStatus.COMPLETED);
+        result.setStatus(HandlerResult.Status.COMPLETED);
         return result;
     }
 }

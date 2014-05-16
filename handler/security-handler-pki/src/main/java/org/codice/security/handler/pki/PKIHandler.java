@@ -96,15 +96,15 @@ public class PKIHandler implements AuthenticationHandler {
             }
             if (certBytes != null) {
                 String bst = getBinarySecurityToken(Base64.encode(certBytes));
-                handlerResult = new HandlerResult(HandlerResult.FilterStatus.COMPLETED,
+                handlerResult = new HandlerResult(HandlerResult.Status.COMPLETED,
                         certs[0].getSubjectDN(), bst);
                 return handlerResult;
             } else {
-                handlerResult = new HandlerResult(HandlerResult.FilterStatus.NO_ACTION, null, "");
+                handlerResult = new HandlerResult(HandlerResult.Status.NO_ACTION, null, "");
                 return handlerResult;
             }
         } else {
-            handlerResult = new HandlerResult(HandlerResult.FilterStatus.NO_ACTION, null, "");
+            handlerResult = new HandlerResult(HandlerResult.Status.NO_ACTION, null, "");
             return handlerResult;
         }
     }

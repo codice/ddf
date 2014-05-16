@@ -79,23 +79,23 @@ public class AuthenticationHandler implements org.codice.security.handler.api.Au
         final UsernameTokenType result = setAuthenticationInfo(httpRequest);
         if (resolve) {
             if (result == null) {
-                handlerResult = new HandlerResult(HandlerResult.FilterStatus.REDIRECTED, null, "");
+                handlerResult = new HandlerResult(HandlerResult.Status.REDIRECTED, null, "");
                 doAuthPrompt("DDF", (HttpServletResponse) response);
                 return handlerResult;
             } else {
                 String usernameToken = getUsernameTokenElement(result);
                 Principal principal = getPrincipal(result);
-                handlerResult = new HandlerResult(HandlerResult.FilterStatus.COMPLETED, principal, usernameToken);
+                handlerResult = new HandlerResult(HandlerResult.Status.COMPLETED, principal, usernameToken);
                 return handlerResult;
             }
         } else {
             if (result == null) {
-                handlerResult = new HandlerResult(HandlerResult.FilterStatus.NO_ACTION, null, "");
+                handlerResult = new HandlerResult(HandlerResult.Status.NO_ACTION, null, "");
                 return handlerResult;
             } else {
                 String usernameToken = getUsernameTokenElement(result);
                 Principal principal = getPrincipal(result);
-                handlerResult = new HandlerResult(HandlerResult.FilterStatus.COMPLETED, principal, usernameToken);
+                handlerResult = new HandlerResult(HandlerResult.Status.COMPLETED, principal, usernameToken);
                 return handlerResult;
             }
         }

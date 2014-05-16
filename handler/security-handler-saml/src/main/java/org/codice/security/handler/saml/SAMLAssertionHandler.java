@@ -15,12 +15,12 @@
 package org.codice.security.handler.saml;
 
 import org.codice.security.handler.api.AuthenticationHandler;
+import org.codice.security.handler.api.HandlerResult;
 import org.apache.cxf.common.util.Base64Exception;
 import org.apache.cxf.common.util.Base64Utility;
 import org.apache.cxf.helpers.IOUtils;
 import org.apache.cxf.staxutils.StaxUtils;
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
-import org.codice.security.handler.api.HandlerResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
@@ -70,7 +70,7 @@ public class SAMLAssertionHandler implements AuthenticationHandler {
                 Element thisToken = StaxUtils.read(new StringReader(tokenString)).getDocumentElement();
                 securityToken.setToken(thisToken);
                 handlerResult.setSecurityToken(securityToken);
-                handlerResult.setStatus(HandlerResult.FilterStatus.COMPLETED);
+                handlerResult.setStatus(HandlerResult.Status.COMPLETED);
             } catch (DataFormatException e) {
                 LOGGER.warn("Unexpected error deflating cookie value - proceeding without SAML token.", e);
             } catch (Base64Exception e) {

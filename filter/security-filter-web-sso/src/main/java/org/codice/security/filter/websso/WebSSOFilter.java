@@ -16,7 +16,6 @@ package org.codice.security.filter.websso;
 
 import org.codice.security.handler.api.AuthenticationHandler;
 import org.codice.security.handler.api.HandlerResult;
-import org.codice.security.handler.api.HandlerResult.FilterStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,6 +26,7 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
 
@@ -81,24 +81,25 @@ public class WebSSOFilter implements Filter {
         HandlerResult result = null;
         for (AuthenticationHandler auth : handlerList) {
             result = auth.getNormalizedToken(servletRequest, servletResponse, filterChain, false);
-            if (result.getStatus() != FilterStatus.NO_ACTION) {
+            if (result.getStatus() != HandlerResult.Status.NO_ACTION) {
                 break;
             }
         }
 
         // If we haven't received usable credentials yet, go get some
-        if (result == null || result.getStatus() == FilterStatus.NO_ACTION) {
+        if (result == null || result.getStatus() == HandlerResult.Status.NO_ACTION) {
             LOGGER.debug("First pass with no tokens found - requesting tokens");
             // This pass, tell each handler to do whatever it takes to get a SecurityToken
             for (AuthenticationHandler auth : handlerList) {
                 result = auth.getNormalizedToken(servletRequest, servletResponse, filterChain, true);
-                if (result.getStatus() != FilterStatus.NO_ACTION) {
+                if (result.getStatus() != HandlerResult.Status.NO_ACTION) {
                     break;
                 }
             }
         }
 
-        switch (result.getStatus()) {
+        if (result != null) {
+            switch (result.getStatus()) {
             case REDIRECTED:
                 // handler handled the response - it is redirecting or whatever necessary to get their tokens
                 LOGGER.debug("Stopping filter chain - handled by plugins");
@@ -114,11 +115,31 @@ public class WebSSOFilter implements Filter {
                     httpRequest.setAttribute(DDF_AUTHENTICATION_TOKEN, result);
                 }
                 break;
+            }
+        } else {
+            LOGGER.warn("Expected login credentials - didn't find any. Returning a forbidden response.");
+            returnSimpleResponse(HttpServletResponse.SC_FORBIDDEN, (HttpServletResponse) servletResponse);
+            return;
         }
 
         // If we got here, we've received our tokens to continue
         LOGGER.debug("Invoking the rest of the filter chain");
         filterChain.doFilter(servletRequest, servletResponse);
+    }
+
+    /**
+     * Sends the given response code back to the caller.
+     * @param code HTTP response code for this request
+     * @param response the servlet response object
+     */
+    private void returnSimpleResponse(int code, HttpServletResponse response) {
+        try {
+            response.setStatus(code);
+            response.setContentLength(0);
+            response.flushBuffer();
+        } catch (IOException ioe) {
+            LOGGER.debug("Failed to send auth response: {}", ioe);
+        }
     }
 
     @Override
