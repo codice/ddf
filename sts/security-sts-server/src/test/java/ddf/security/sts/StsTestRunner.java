@@ -14,15 +14,16 @@
  **/
 package ddf.security.sts;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import org.apache.cxf.common.logging.LogUtils;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ddf.security.sts.StsIssueTest.StsPortTypes;
 
 public final class StsTestRunner {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(StsTestRunner.class);
     /**
      * @param args
      * @throws Exception
@@ -35,8 +36,7 @@ public final class StsTestRunner {
             sit.testBearerUsernameTokenSaml2(StsPortTypes.TRANSPORT);
             sit.testBearerWebSsoTokenSaml2(StsPortTypes.TRANSPORT);
         } catch (Exception e) {
-            Logger logger = LogUtils.getLogger(StsTestRunner.class);
-            logger.log(Level.SEVERE, "An Error Occurred Calling the STS", e);
+            LOGGER.warn("An Error Occurred Calling the STS", e);
         }
 
     }
