@@ -46,7 +46,7 @@ import java.io.Writer;
 public class CasFilter implements AuthenticationHandler {
     private static final transient Logger LOGGER = LoggerFactory.getLogger(CasFilter.class);
 
-    private Marshaller marshaller = null;
+    private static Marshaller marshaller = null;
 
     private STSClientConfiguration clientConfiguration;
 
@@ -126,7 +126,7 @@ public class CasFilter implements AuthenticationHandler {
 
         if(marshaller == null) {
             try {
-                context = JAXBContext.newInstance(UsernameTokenType.class);
+                context = JAXBContext.newInstance(BinarySecurityTokenType.class);
                 marshaller = context.createMarshaller();
                 marshaller.setProperty(Marshaller.JAXB_FRAGMENT, Boolean.TRUE);
             } catch (JAXBException e) {
