@@ -128,23 +128,14 @@ casper.test.begin('Application Selection View test', function(test) {
         test.fail('Failed to locate checked platform app');
     });
 
-    // verify that deselecting the platform app deselects the catalog and solr app
+    // verify that deselecting the catalog app deselects the solr app
     casper.then(function() {
-        test.assertExists('#platform-appcb');
-        this.click('#platform-appcb');
-        test.pass('platform app checkbox de-selected');
+        test.assertExists('#catalog-appcb');
+        this.click('#catalog-appcb');
+        test.pass('catalog app checkbox de-selected');
     });
 
-    // wait for selections of the platform and it's sub-children to disappear from the tree
-    casper.waitFor(function() {
-        return this.evaluate(function() {
-            return document.querySelectorAll('input#platform-appcb:checked').length == 0;
-        });
-    }, function() {
-        test.pass('platform app unchecked');
-    }, function() {
-        test.fail('Failed to find unchecked platform app');
-    });
+    // wait for selections of the catalog and it's sub-children to disappear from the tree
     casper.waitFor(function() {
         return this.evaluate(function() {
             return document.querySelectorAll('input#catalog-appcb:checked').length == 0;
