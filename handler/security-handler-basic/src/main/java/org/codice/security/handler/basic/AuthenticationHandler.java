@@ -54,7 +54,7 @@ public class AuthenticationHandler implements org.codice.security.handler.api.Au
 
     private static final String HEADER_WWW_AUTHENTICATE = "WWW-Authenticate";
 
-    private Marshaller marshaller = null;
+    private static Marshaller marshaller = null;
 
     /**
      * Returns the FilterResult for the HTTP Request.
