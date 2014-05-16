@@ -24,7 +24,7 @@ define(function (require) {
 
     var startUrl = '/jolokia/exec/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/startApplication/';
     var stopUrl = '/jolokia/exec/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/stopApplication/';
-    var removeUrl = '/jolokia/exec/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/removeApplications/';
+    var removeUrl = '/jolokia/exec/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/removeApplication/';
 
     var versionRegex = /([^0-9]*)([0-9]+.*$)/;
 
@@ -229,7 +229,7 @@ define(function (require) {
                     });
                 }
                 if(promiseArr.length > 0) {
-                    return Q.all(promiseArr).done(uninstallSelf);
+                    return Q.all(promiseArr).then(uninstallSelf);
                 } else {
                     return uninstallSelf();
                 }
@@ -274,33 +274,26 @@ define(function (require) {
             if (this.isDirty()) {
                 var name = this.get('name');
                 var type = 'GET';
-                var url = name + '/';
+                var url = '';
 
                 var ajaxArgs = {};
 
                 if (this.get('selected')) {
                     statusUpdate('Starting ' + name);
-                    url = startUrl + url;
+                    url = startUrl + name;
                 } else if (this.get('removeFlag')) { // implies !selected is also true 
                     statusUpdate('Removing ' + name);
    
-                    var data = {
-                       arguments: [[{value: this.attributes.uri}]],
-                       type: 'EXEC',
-                       mbean: 'org.codice.ddf.admin.application.service.ApplicationService:service=application-service',
-                       operation: 'removeApplications'
-                    };
-
-                    url = removeUrl + url;
-                    type = 'POST';
-                    ajaxArgs.contentType = 'application/json';
-                    ajaxArgs.data = JSON.stringify(data);
-                    
-
+                    // Escape '/' characters of the URI of the application
+                    // that is to be removed with '!/' and append it to the 
+                    // GET URL (for Jolokia)
+                    url = removeUrl + this.attributes.uri.replace(/\//g, "!/");
                 } else { // if !selected
                     statusUpdate('Stopping ' + name);
-                    url = stopUrl + url;
+                    url = stopUrl + name;
                 }
+                
+                url = url + '/';
 
                 ajaxArgs.type = type;
                 ajaxArgs.url = url;
@@ -377,7 +370,10 @@ define(function (require) {
                 count++;
             };
 
-            // Uninstall the apps first
+            // this.each will iterate over each of the root-level 
+            // applications. The install and uninstall functions
+            // will process all of the children of the applications
+            // passed to them 
             this.each(function(child) {
                 promiseArr.push(child.uninstall(internalStatusUpdate));
             });

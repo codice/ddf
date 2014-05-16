@@ -212,7 +212,7 @@ define([
                 this.setFocus();
                 this.$('.file-fail-text').html('');
             } else {
-                this.$('.file-fail-text').html('Please enter a valid Maven URL.');
+                this.$('.file-fail-text').html('Please enter a valid Maven URL of the form: mvn:groupId:artifactId/version/xml/features');
             }
         },
         saveChanges: function() {
@@ -403,10 +403,12 @@ define([
         },
         installApp: function(statusFunc){
             var that = this;
+
             //save off the model before we make any chances
             var jsonModel = this.model.toJSON();
             var numNodes = this.model.numNodesChanged();
-                // Update each application based on the user selections
+            
+            // Update each application based on the user selections
             return this.model.sync('update', this.response, statusFunc).then(function() {
                 // Update from the server
                 that.model.sync('read', that.response, statusFunc).then(function() {

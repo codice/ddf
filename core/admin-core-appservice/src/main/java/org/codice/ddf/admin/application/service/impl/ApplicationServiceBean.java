@@ -193,23 +193,27 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
             try {
                 appService.addApplication(new URI((String) curURL.get("value")));
             } catch (URISyntaxException use) {
-                logger.warn("Could not add application with url {}, not a valid URL.", curURL);
+                logger.warn("Could not add application with url {}, not a valid URL.", 
+                        curURL.get("value"));
             } catch (ApplicationServiceException ase) {
-                logger.warn("Could not add application with url " + curURL + " due to error.", ase);
+                logger.warn("Could not add application with url {} due to error.", 
+                        curURL.get("value"), ase);
             }
         }
     }
     
     @Override
-    public void removeApplications(List<Map<String, Object>> applicationURLList) {
-        for (Map<String, Object> curURL : applicationURLList) {
+    public void removeApplication(String applicationURL) {
+        if (null != applicationURL && !applicationURL.isEmpty()) {
             try {
-                logger.debug("Removing application with URL: {}", curURL.get("value"));
-                appService.removeApplication(new URI((String) curURL.get("value")));
+                logger.debug("Removing application with URL: {}", applicationURL);
+                appService.removeApplication(new URI((String) applicationURL));
             } catch (URISyntaxException use) {
-                logger.warn("Could not remove application with url {}, not a valid URL.", curURL.get("value"));
+                logger.warn("Could not remove application with url {}, not a valid URL.", 
+                        applicationURL);
             } catch (ApplicationServiceException ase) {
-                logger.warn("Could not remove application with url " + curURL.get("value") + " due to error.", ase);
+                logger.warn("Could not remove application with url {} due to error.", 
+                        applicationURL, ase);
             }
         }
     }

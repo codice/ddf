@@ -60,10 +60,10 @@ public interface ApplicationServiceBeanMBean {
     void addApplications(List<Map<String, Object>> applicationURLList);
     
     /**
-     * Removes a list of applications that are specified by their URL.
+     * Removes an application that is specified by its URL.
      * 
      * @param applicationURLList
      */
-    void removeApplications(List<Map<String, Object>> applicationURLList);
+    void removeApplication(String applicationURL);
 
 }
