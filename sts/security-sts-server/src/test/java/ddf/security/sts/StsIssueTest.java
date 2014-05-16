@@ -33,8 +33,6 @@ import java.security.cert.X509Certificate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.security.auth.callback.CallbackHandler;
 import javax.xml.parsers.DocumentBuilder;
@@ -62,6 +60,8 @@ import org.apache.ws.security.message.token.X509Security;
 import org.apache.ws.security.processor.Processor;
 import org.apache.ws.security.processor.SAMLTokenProcessor;
 import org.apache.ws.security.saml.ext.AssertionWrapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -94,7 +94,7 @@ public class StsIssueTest {
 
     private static final String URI = "Uri";
 
-    private static final Logger LOGGER = LogUtils.getLogger(StsIssueTest.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(StsIssueTest.class);
 
     // Enum defining the Port Types
     public enum StsPortTypes {
@@ -332,7 +332,7 @@ public class StsIssueTest {
             }
             assert (confirmMethod != null);
         } catch (WSSecurityException e) {
-            LOGGER.log(Level.SEVERE, "Error validating the SecurityToken.", e);
+            LOGGER.warn("Error validating the SecurityToken.", e);
         }
     }
 
@@ -378,7 +378,7 @@ public class StsIssueTest {
         try {
             token = stsClient.requestSecurityToken(endpointAddress);
         } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, "Error requesting the SecurityToken.", e);
+            LOGGER.warn("Error requesting the SecurityToken.", e);
         }
         return token;
     }
