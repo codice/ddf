@@ -31,6 +31,8 @@ import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ddf.content.data.ContentItem;
 import ddf.content.data.impl.IncomingContentItem;
@@ -58,6 +60,8 @@ public class FileSystemProviderTest {
     private static final String TEST_INPUT_CONTENTS = "Hello World";
 
     private static final String TEST_INPUT_FILENAME = "myfile.nitf";
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(FileSystemProviderTest.class);
 
     private FileSystemProvider provider;
 
@@ -104,7 +108,7 @@ public class FileSystemProviderTest {
         ReadResponse readResponse = provider.read(readRequest);
         ContentItem item = readResponse.getContentItem();
 
-        System.out.println("Item retrieved: " + item);
+        LOGGER.debug("Item retrieved: {}", item);
         assertEquals(id, item.getId());
         assertEquals(NITF_MIME_TYPE, item.getMimeTypeRawData());
 
@@ -127,7 +131,7 @@ public class FileSystemProviderTest {
         UpdateResponse updateResponse = provider.update(updateRequest);
         ContentItem item = updateResponse.getUpdatedContentItem();
 
-        System.out.println("Item retrieved: " + item);
+        LOGGER.debug("Item retrieved: {}", item);
         assertEquals(id, item.getId());
         assertEquals(NITF_MIME_TYPE, item.getMimeTypeRawData());
 
@@ -151,7 +155,7 @@ public class FileSystemProviderTest {
         DeleteResponse deleteResponse = provider.delete(deleteRequest);
         ContentItem item = deleteResponse.getContentItem();
 
-        System.out.println("Item retrieved: " + item);
+        LOGGER.debug("Item retrieved: {}", item);
         assertEquals(id, item.getId());
         assertEquals(NITF_MIME_TYPE, item.getMimeTypeRawData());
         assertNull(item.getFile());
@@ -175,7 +179,7 @@ public class FileSystemProviderTest {
         assertThat(id, equalTo(uuid));
 
         String contentUri = createdContentItem.getUri();
-        System.out.println("contentUri = " + contentUri);
+        LOGGER.debug("contentUri = {}", contentUri);
         assertNotNull(contentUri);
         String expectedContentUri = FileSystemProvider.CONTENT_URI_PREFIX + uuid;
         assertThat(contentUri, equalTo(expectedContentUri));
