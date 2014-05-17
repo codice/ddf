@@ -12,48 +12,69 @@
  **/ -->
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0" xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0" xmlns:jaxrs="http://cxf.apache.org/blueprint/jaxrs">
 
-  <bean id="appService" class="org.codice.ddf.admin.application.service.impl.ApplicationServiceImpl">
-    <cm:managed-properties persistent-id="org.codice.ddf.admin.application.service.impl.ApplicationServiceImpl"
-      update-strategy="container-managed" />
-    <argument ref="blueprintBundleContext" />
-    <argument ref="bundleStateServices" />
-    <property name="configFileName" value="etc/org.codice.ddf.admin.applicationlist.properties" />
-  </bean>
+    <bean id="appService" class="org.codice.ddf.admin.application.service.impl.ApplicationServiceImpl">
+        <cm:managed-properties persistent-id="org.codice.ddf.admin.application.service.impl.ApplicationServiceImpl"
+        update-strategy="container-managed" />
+        <argument ref="blueprintBundleContext" />
+        <argument ref="bundleStateServices" />
+        <property name="configFileName" value="etc/org.codice.ddf.admin.applicationlist.properties" />
+    </bean>
 
-  <service ref="appService" interface="org.codice.ddf.admin.application.service.ApplicationService" />
+    <service ref="appService" interface="org.codice.ddf.admin.application.service.ApplicationService" />
 
-  <reference id="featuresService" interface="org.apache.karaf.features.FeaturesService" />
+    <reference id="featuresService" interface="org.apache.karaf.features.FeaturesService" />
 
-  <reference-list id="bundleStateServices" interface="org.apache.karaf.bundle.core.BundleStateService" />
+    <reference-list id="bundleStateServices" interface="org.apache.karaf.bundle.core.BundleStateService" />
 
-  <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.0.0">
-    <command name="app/list">
-      <action class="org.codice.ddf.admin.application.service.impl.ListApplicationCommand" />
-    </command>
-    <command name="app/status">
-      <action class="org.codice.ddf.admin.application.service.impl.StatusApplicationCommand" />
-    </command>
-    <command name="app/tree">
-      <action class="org.codice.ddf.admin.application.service.impl.TreeApplicationCommand" />
-    </command>
-    <command name="app/start">
-      <action class="org.codice.ddf.admin.application.service.impl.StartApplicationCommand" />
-    </command>
-    <command name="app/stop">
-      <action class="org.codice.ddf.admin.application.service.impl.StopApplicationCommand" />
-    </command>
-    <command name="app/add">
-      <action class="org.codice.ddf.admin.application.service.impl.AddApplicationCommand" />
-    </command>
-    <command name="app/remove">
-      <action class="org.codice.ddf.admin.application.service.impl.RemoveApplicationCommand" />
-    </command>
-  </command-bundle>
+    <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.0.0">
+        <command name="app/list">
+            <action class="org.codice.ddf.admin.application.service.impl.ListApplicationCommand" />
+            <!-- no arguments, so no completer -->
+        </command>
+        <command name="app/status">
+            <action class="org.codice.ddf.admin.application.service.impl.StatusApplicationCommand" />
+            <completers>
+                <ref component-id="allApplicationsCompleter"/>
+                <null/>
+            </completers>
+        </command>
+        <command name="app/tree">
+            <action class="org.codice.ddf.admin.application.service.impl.TreeApplicationCommand" />
+            <!-- no arguments, so no completer -->
+        </command>
+        <command name="app/start">
+        <action class="org.codice.ddf.admin.application.service.impl.StartApplicationCommand" />
+            <completers>
+                <ref component-id="notActiveApplicationsCompleter"/>
+                <null/>
+            </completers>
+        </command>
+        <command name="app/stop">
+            <action class="org.codice.ddf.admin.application.service.impl.StopApplicationCommand" />
+            <completers>
+                <ref component-id="activeApplicationsCompleter"/>
+                <null/>
+            </completers>
+        </command>
+        <command name="app/add">
+            <action class="org.codice.ddf.admin.application.service.impl.AddApplicationCommand" />
+            <!-- user needs to provide a URL that we cannot guess, so no completer -->
+        </command>
+        <command name="app/remove">
+            <action class="org.codice.ddf.admin.application.service.impl.RemoveApplicationCommand" />
+            <completers>
+                <ref component-id="allApplicationsCompleter"/>
+                <null/>
+            </completers>
+        </command>
+    </command-bundle>
 
-  <bean id="appServiceMBean" class="org.codice.ddf.admin.application.service.impl.ApplicationServiceBean" init-method="init"
-    destroy-method="destroy">
-    <argument ref="appService" />
-  </bean>
+    <bean id="appServiceMBean"
+          class="org.codice.ddf.admin.application.service.impl.ApplicationServiceBean"
+          init-method="init"
+          destroy-method="destroy">
+        <argument ref="appService" />
+    </bean>
 
     <jaxrs:server id="restService" address="/application">
         <jaxrs:serviceBeans>
@@ -65,5 +86,8 @@
         <argument ref="appService" />
     </bean>
 
+    <bean id="allApplicationsCompleter" class="org.codice.ddf.admin.application.service.impl.AllApplicationsCompleter"/>
+    <bean id="activeApplicationsCompleter" class="org.codice.ddf.admin.application.service.impl.ActiveApplicationsCompleter"/>
+    <bean id="notActiveApplicationsCompleter" class="org.codice.ddf.admin.application.service.impl.NotActiveApplicationsCompleter"/>
 
 </blueprint>
