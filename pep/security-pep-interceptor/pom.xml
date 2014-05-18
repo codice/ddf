@@ -25,6 +25,10 @@
   <name>DDF :: Security :: PEP :: Interceptor</name>
   <packaging>bundle</packaging>
 
+  <properties>
+      <powermock.version>1.5.4</powermock.version>
+  </properties>
+
   <dependencies>
     <dependency>
       <groupId>org.apache.shiro</groupId>
@@ -47,13 +51,13 @@
     <dependency>
       <groupId>org.powermock</groupId>
       <artifactId>powermock-module-junit4</artifactId>
-      <version>1.4.12</version>
+      <version>${powermock.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.powermock</groupId>
       <artifactId>powermock-api-mockito</artifactId>
-      <version>1.4.12</version>
+      <version>${powermock.version}</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
