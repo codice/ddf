@@ -532,8 +532,12 @@
 	<feature name="platform-scheduler" install="manual" version="${project.version}" description="Schedules tasks">
 		<bundle>mvn:ddf.platform/platform-scheduler/${project.version}</bundle>
 	</feature>
-  
-    <feature name="platform-configuration" install="manual" version="${project.version}" description="Schedules tasks">
+
+    <feature name="platform-commands" install="manual" version="${project.version}" description="Platform Command line tools">
+            <bundle>mvn:ddf.platform/platform-commands/${project.version}</bundle>
+    </feature>
+    
+    <feature name="platform-configuration" install="manual" version="${project.version}" description="Shared platform configuration">
       <bundle>mvn:ddf.platform/platform-configuration/${project.version}</bundle>
     </feature>
 
@@ -616,6 +620,7 @@
 		<feature>camel</feature>
 		<feature>camel-http</feature>
 		<feature>platform-scheduler</feature>
+        <feature>platform-commands</feature>
         <feature>platform-configuration</feature>
 		<feature>action-core-api</feature>
         <feature>action-core-impl</feature>
