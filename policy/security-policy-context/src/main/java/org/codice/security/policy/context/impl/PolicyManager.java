@@ -67,6 +67,11 @@ public class PolicyManager implements ContextPolicyManager {
     }
 
     @Override
+    public Collection<ContextPolicy> getAllContextPolicies() {
+        return policyStore.values();
+    }
+
+    @Override
     public void setContextPolicy(String path, ContextPolicy contextPolicy) {
         if (path == null) {
             throw new IllegalArgumentException("Context path cannot be null.");

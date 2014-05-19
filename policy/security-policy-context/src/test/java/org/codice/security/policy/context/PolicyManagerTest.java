@@ -14,6 +14,7 @@
  **/
 package org.codice.security.policy.context;
 
+import ddf.security.permission.CollectionPermission;
 import junit.framework.Assert;
 import org.codice.security.policy.context.impl.Policy;
 import org.codice.security.policy.context.impl.PolicyManager;
@@ -21,6 +22,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 /**
@@ -89,32 +91,74 @@ public class PolicyManagerTest {
         //check search policy
         ContextPolicy policy = manager.getContextPolicy("/search");
         Assert.assertEquals("/search", policy.getContextPath());
-        Assert.assertEquals("SAML", policy.getAuthenticationMethods().get(0));
-        Assert.assertEquals("BASIC", policy.getAuthenticationMethods().get(1));
-        Assert.assertEquals("ANON", policy.getAuthenticationMethods().get(2));
+        Iterator<String> authIter = policy.getAuthenticationMethods().iterator();
+        int i = 0;
+        while(authIter.hasNext()) {
+            if(i == 0) {
+                Assert.assertEquals("SAML", authIter.next());
+            } else if(i == 1) {
+                Assert.assertEquals("BASIC", authIter.next());
+            } else if(i == 2) {
+                Assert.assertEquals("ANON", authIter.next());
+            }
 
-        String permission = policy.getAllowedAttributePermissions().get(0).getPermissionList().get(0).toString();
-        Assert.assertEquals("role : user", permission);
-        String permission2 = policy.getAllowedAttributePermissions().get(1).getPermissionList().get(0).toString();
-        Assert.assertEquals("control : foo", permission2);
-        permission2 = policy.getAllowedAttributePermissions().get(1).getPermissionList().get(1).toString();
-        Assert.assertEquals("control : bar", permission2);
+            i++;
+        }
+
+        Iterator<CollectionPermission> permIter = policy.getAllowedAttributePermissions().iterator();
+        i = 0;
+        while(authIter.hasNext()) {
+            if(i == 0) {
+                Assert.assertEquals("role : user", permIter.next().getPermissionList().get(0).toString());
+            } else if(i == 1) {
+                Assert.assertEquals("control : foo", permIter.next().getPermissionList().get(0).toString());
+                Assert.assertEquals("control : bar", permIter.next().getPermissionList().get(1).toString());
+            }
+
+            i++;
+        }
 
         //check admin policy
         policy = manager.getContextPolicy("/admin");
         Assert.assertEquals("/admin", policy.getContextPath());
-        Assert.assertEquals("SAML", policy.getAuthenticationMethods().get(0));
-        Assert.assertEquals("BASIC", policy.getAuthenticationMethods().get(1));
+        authIter = policy.getAuthenticationMethods().iterator();
+        i = 0;
+        while(authIter.hasNext()) {
+            if(i == 0) {
+                Assert.assertEquals("SAML", authIter.next());
+            } else if(i == 1) {
+                Assert.assertEquals("BASIC", authIter.next());
+            }
+
+            i++;
+        }
 
         //check foo policy
         policy = manager.getContextPolicy("/foo");
         Assert.assertEquals("/foo", policy.getContextPath());
-        Assert.assertEquals("BASIC", policy.getAuthenticationMethods().get(0));
+        authIter = policy.getAuthenticationMethods().iterator();
+        i = 0;
+        while(authIter.hasNext()) {
+            if(i == 0) {
+                Assert.assertEquals("BASIC", authIter.next());
+            }
+
+            i++;
+        }
 
         //make sure some random context points to /
         policy = manager.getContextPolicy("/random");
         Assert.assertEquals("/", policy.getContextPath());
-        Assert.assertEquals("SAML", policy.getAuthenticationMethods().get(0));
-        Assert.assertEquals("BASIC", policy.getAuthenticationMethods().get(1));
+        authIter = policy.getAuthenticationMethods().iterator();
+        i = 0;
+        while(authIter.hasNext()) {
+            if(i == 0) {
+                Assert.assertEquals("SAML", authIter.next());
+            } else if(i == 1) {
+                Assert.assertEquals("BASIC", authIter.next());
+            }
+
+            i++;
+        }
     }
 }

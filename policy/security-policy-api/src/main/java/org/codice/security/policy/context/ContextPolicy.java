@@ -17,7 +17,7 @@ package org.codice.security.policy.context;
 import ddf.security.permission.CollectionPermission;
 import org.codice.security.policy.context.attributes.ContextAttributeMapping;
 
-import java.util.List;
+import java.util.Collection;
 
 /**
  * Represents the policy for a given web context.
@@ -26,9 +26,11 @@ public interface ContextPolicy {
 
     public String getContextPath();
 
-    public List<String> getAuthenticationMethods();
+    public Collection<String> getAuthenticationMethods();
 
-    public List<CollectionPermission> getAllowedAttributePermissions();
+    public Collection<CollectionPermission> getAllowedAttributePermissions();
 
-    public void setAllowedAttributes(List<ContextAttributeMapping> attributes);
+    public Collection<String> getAllowedAttributeNames();
+
+    public void setAllowedAttributes(Collection<ContextAttributeMapping> attributes);
 }

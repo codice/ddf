@@ -31,6 +31,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -142,7 +143,7 @@ public class WebSSOFilter implements Filter {
     private void updateHandlerList(HttpServletRequest httpRequest,
             List<AuthenticationHandler> handlerList) {
         ContextPolicy policy = contextPolicyManager.getContextPolicy(httpRequest.getContextPath());
-        List<String> authMethods = policy.getAuthenticationMethods();
+        Collection<String> authMethods = policy.getAuthenticationMethods();
         for(String authMethod : authMethods) {
             for(AuthenticationHandler handler : this.handlerList) {
                 if(handler.getAuthenticationType().equalsIgnoreCase(authMethod)) {

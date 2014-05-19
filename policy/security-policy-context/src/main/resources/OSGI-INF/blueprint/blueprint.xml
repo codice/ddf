@@ -20,7 +20,7 @@
         <property name="policies">
             <map>
                 <entry key="authenticationTypes" value="/=SAML|basic,/admin=SAML|basic" />
-                <entry key="requiredAttributes" value="/=,/admin={role=admin}" />
+                <entry key="requiredAttributes" value="/=,/admin={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=admin}" />
             </map>
         </property>
     </bean>

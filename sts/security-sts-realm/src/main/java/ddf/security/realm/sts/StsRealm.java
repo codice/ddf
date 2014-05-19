@@ -46,6 +46,8 @@ import org.apache.shiro.realm.AuthenticatingRealm;
 import org.apache.shiro.subject.SimplePrincipalCollection;
 import org.codice.ddf.configuration.ConfigurationManager;
 import org.codice.ddf.configuration.ConfigurationWatcher;
+import org.codice.security.policy.context.ContextPolicy;
+import org.codice.security.policy.context.ContextPolicyManager;
 import org.slf4j.LoggerFactory;
 import org.slf4j.ext.XLogger;
 import org.w3c.dom.DOMImplementation;
@@ -71,8 +73,11 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -116,6 +121,8 @@ public class StsRealm extends AuthenticatingRealm implements ConfigurationWatche
 
     private STSClientConfiguration stsClientConfig;
 
+    private ContextPolicyManager contextPolicyManager;
+
     public StsRealm() {
         this.bus = getBus();
         setCredentialsMatcher(new STSCredentialsMatcher());
@@ -128,6 +135,14 @@ public class StsRealm extends AuthenticatingRealm implements ConfigurationWatche
     public void setStsClientConfig(STSClientConfiguration stsClientConfig) {
         this.stsClientConfig = stsClientConfig;
         configureStsClient();
+    }
+
+    public ContextPolicyManager getContextPolicyManager() {
+        return contextPolicyManager;
+    }
+
+    public void setContextPolicyManager(ContextPolicyManager contextPolicyManager) {
+        this.contextPolicyManager = contextPolicyManager;
     }
 
     /**
@@ -237,6 +252,8 @@ public class StsRealm extends AuthenticatingRealm implements ConfigurationWatche
         if (!settingsConfigured) {
             configureStsClient();
             settingsConfigured = true;
+        } else {
+            setClaimsOnStsClient(createClaimsElement());
         }
 
         SecurityToken securityToken = requestSecurityToken(credential);
@@ -708,9 +725,24 @@ public class StsRealm extends AuthenticatingRealm implements ConfigurationWatche
      */
     private Element createClaimsElement() {
         Element claimsElement = null;
-        List<String> claims = stsClientConfig.getClaims();
+        List<String> claims = new ArrayList<String>();
+        claims.addAll(stsClientConfig.getClaims());
 
-        if (claims != null && claims.size() != 0) {
+        if(contextPolicyManager != null) {
+            Collection<ContextPolicy> contextPolicies = contextPolicyManager.getAllContextPolicies();
+            Set<String> attributes = new HashSet<String>();
+            if(contextPolicies != null && contextPolicies.size() > 0) {
+                for(ContextPolicy contextPolicy : contextPolicies) {
+                    attributes.addAll(contextPolicy.getAllowedAttributeNames());
+                }
+            }
+
+            if(attributes.size() > 0) {
+                claims.addAll(attributes);
+            }
+        }
+
+        if (claims.size() != 0) {
             W3CDOMStreamWriter writer = null;
 
             try {

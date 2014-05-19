@@ -14,12 +14,16 @@
  **/
 package org.codice.security.policy.context;
 
+import java.util.Collection;
+
 /**
  * Manages and stores all web context policies.
  */
 public interface ContextPolicyManager {
 
     public ContextPolicy getContextPolicy(String path);
+
+    public Collection<ContextPolicy> getAllContextPolicies();
 
     public void setContextPolicy(String path, ContextPolicy contextPolicy);
 }

@@ -19,6 +19,7 @@ import org.codice.security.policy.context.ContextPolicy;
 import org.codice.security.policy.context.attributes.ContextAttributeMapping;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -28,11 +29,11 @@ public class Policy implements ContextPolicy {
 
     private String contextPath;
 
-    private List<String> authenticationMethods;
+    private Collection<String> authenticationMethods;
 
-    private List<ContextAttributeMapping> attributeMappings;
+    private Collection<ContextAttributeMapping> attributeMappings;
 
-    public Policy(String contextPath, List<String> authenticationMethods, List<ContextAttributeMapping> attributeMappings) {
+    public Policy(String contextPath, Collection<String> authenticationMethods, Collection<ContextAttributeMapping> attributeMappings) {
         this.contextPath = contextPath;
         this.authenticationMethods = authenticationMethods;
         this.attributeMappings = attributeMappings;
@@ -44,12 +45,12 @@ public class Policy implements ContextPolicy {
     }
 
     @Override
-    public List<String> getAuthenticationMethods() {
+    public Collection<String> getAuthenticationMethods() {
         return authenticationMethods;
     }
 
     @Override
-    public List<CollectionPermission> getAllowedAttributePermissions() {
+    public Collection<CollectionPermission> getAllowedAttributePermissions() {
         List<CollectionPermission> permissions = new ArrayList<CollectionPermission>();
         for(ContextAttributeMapping mapping : attributeMappings) {
             permissions.add(mapping.getAttributePermission());
@@ -58,7 +59,18 @@ public class Policy implements ContextPolicy {
     }
 
     @Override
-    public void setAllowedAttributes(List<ContextAttributeMapping> attributes) {
+    public Collection<String> getAllowedAttributeNames() {
+        List<String> names = new ArrayList<String>();
+        if(attributeMappings != null && attributeMappings.size() > 0) {
+            for(ContextAttributeMapping mapping : attributeMappings) {
+                names.add(mapping.getAttributeName());
+            }
+        }
+        return names;
+    }
+
+    @Override
+    public void setAllowedAttributes(Collection<ContextAttributeMapping> attributes) {
         this.attributeMappings = attributes;
     }
 }

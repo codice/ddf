@@ -25,7 +25,7 @@
 
         <AD description="List of attributes required for each Web Context. Example: /context={role=role1|role2;type=type1}"
             name="Required Attributes" id="requiredAttributes" required="true" cardinality="100"
-            type="String" default="/=,/admin={role=admin}" />
+            type="String" default="/=,/admin={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=admin}" />
 
     </OCD>
 
