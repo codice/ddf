@@ -27,7 +27,7 @@ define([
                 '/applications/js/view/ApplicationWrapper.view.js',
                 '/applications/js/model/Applications.js'
             ], function(ApplicationView, ApplicationModel) {
-            var appPage = new ApplicationView({modelClass: ApplicationModel});
+            var appPage = new ApplicationView({modelClass: ApplicationModel, enableApplicationRemoval: true});
 
             // Define a controller to run this module
             // --------------------------------------

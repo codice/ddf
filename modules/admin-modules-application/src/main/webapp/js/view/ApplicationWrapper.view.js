@@ -43,9 +43,10 @@ define([
 
             initialize: function (options) {
                 this.modelClass = options.modelClass;
+                this.enableApplicationRemoval = options.enableApplicationRemoval;
             },
             onRender: function () {
-                this.applications.show(new AppView({modelClass: this.modelClass}));
+                this.applications.show(new AppView({modelClass: this.modelClass, enableApplicationRemoval: this.enableApplicationRemoval}));
             },
 
             save: function () {

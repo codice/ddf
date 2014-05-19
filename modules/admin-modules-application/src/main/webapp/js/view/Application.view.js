@@ -246,13 +246,21 @@ define([
         template: 'applicationNodeTemplate',
         tagName: 'ul',
         className: 'app-node',
+        itemViewOptions: {},
 
-        initialize: function () {
+        initialize: function (options) {
             // grab all the child collections from the parent model
             // so that we can render the collection as children of
             // this parent model
             this.collection = this.model.get("children");
             this.modelBinder = new Backbone.ModelBinder();
+
+            // Set the enableApplicationRemoval flag for the current tree node
+            this.enableApplicationRemoval = options.enableApplicationRemoval;
+
+            // Add the enableApplicationRemoval flag to the itemViewOptions so
+            // that it will be passed to ItemViews constructed for child nodes
+            this.itemViewOptions.enableApplicationRemoval = options.enableApplicationRemoval;
         },
 
         events: {
@@ -266,6 +274,14 @@ define([
             Model.Collection.trigger("app:hover", this.model, e);
         },
 
+        isAppRemovalEnabled: function() {
+            if (this.enableApplicationRemoval) {
+               return true;
+            }
+
+            return false;
+        },
+
         leavingApp: function() {
             Model.Collection.trigger("app:hoverexit");
         },
@@ -275,7 +291,23 @@ define([
         },
 
         toggleRemoveFlag: function() {
-            this.model.toggleRemoveFlag();
+            if (this.isAppRemovalEnabled()) {
+                this.model.toggleRemoveFlag();
+            }
+        },
+
+        // Add data from the view to the model data that is passed to
+        // the template.
+        serializeData: function () {
+            // Get the data from the model
+            var data = Backbone.Marionette.CompositeView.prototype.serializeData.apply(this);
+
+            // Add view-specific data
+            if (this.isAppRemovalEnabled()) {
+                data.showRemoveBtn = true;
+            }
+
+            return data;
         },
 
         onRender: function () {
@@ -292,7 +324,7 @@ define([
                 // when the remove icon is clicked.
                 event.preventDefault();
 
-                // Disable the remove action for applications in the 
+                // Disable the remove action for applications in the
                 // disableList
                 if ($(this).hasClass('disabled')) {
                     return false;
@@ -303,14 +335,23 @@ define([
         bind: function () {
             var removeFlagConverter = function (direction, value) {
                 // if removeFlag is true, add the "fa-minus-circle-selected"
-                // class to the element's class list, otherwise remove it 
+                // class to the element's class list, otherwise remove it
                 return value ? "fa-minus-circle-selected" : "";
             };
 
-            var bindings = {selected: '#' + this.model.get("appId") + ' > [name=selected]',
-                            removeFlag: {selector: '[name=removeFlag]', 
+            var startStopCheckboxSelector = '#' + this.model.get("appId") + ' > [name=selected]';
+            var bindings = {};
+            bindings.selected = startStopCheckboxSelector;
+
+            if (this.isAppRemovalEnabled()) {
+                bindings.removeFlag = [{ selector: '[name=removeFlag]',
                                          elAttribute: 'class',
-                                         converter: removeFlagConverter}};
+                                         converter: removeFlagConverter },
+                                       // When removeFlag is true, set the
+                                       // checkbox disabled property to true
+                                       { selector: startStopCheckboxSelector,
+                                         elAttribute: 'disabled' }];
+            }
 
             this.modelBinder.bind(this.model, this.el, bindings);
         },
@@ -323,7 +364,15 @@ define([
     });
 
     var TreeView = Marionette.CollectionView.extend({
-        itemView: AppTreeView
+        itemView: AppTreeView,
+
+        itemViewOptions: {},
+
+        initialize: function(options) {
+            // Pass the enableApplicationRemoval flag to the AppTreeView
+            // initialize function by adding it to the itemViewOptions
+            this.itemViewOptions.enableApplicationRemoval = options.enableApplicationRemoval;
+        }
     });
 
     var setErrorState = function (view, model) {
@@ -350,6 +399,7 @@ define([
         initialize: function (options) {
             var self = this;
             this.modelClass = options.modelClass;
+            this.enableApplicationRemoval = options.enableApplicationRemoval;
             this.showAddUpgradeBtn = options.showAddUpgradeBtn;
             if(this.modelClass) {
                 Model.Collection = new this.modelClass.TreeNodeCollection();
@@ -376,7 +426,7 @@ define([
             var view = this;
 
             _.defer(function() {
-                view.applications.show(new TreeView({collection: view.model}));
+                view.applications.show(new TreeView({collection: view.model, enableApplicationRemoval: view.enableApplicationRemoval}));
                 if(view.showAddUpgradeBtn !== false) {
                     view.newApplication.show(new NewApplicationView({response: view.response}));
                 }
@@ -407,7 +457,7 @@ define([
             //save off the model before we make any chances
             var jsonModel = this.model.toJSON();
             var numNodes = this.model.numNodesChanged();
-            
+
             // Update each application based on the user selections
             return this.model.sync('update', this.response, statusFunc).then(function() {
                 // Update from the server
