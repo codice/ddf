@@ -37,31 +37,90 @@ define(function (require) {
         },
         
         getPoint: function () {
-            if (this.isPolygon()) {
-                var polygon = this.getPolygon(),
-                    region = new Util.Region(polygon),
-                    centroid = region.centroid();
-                if (_.isNaN(centroid.latitude)) {
-                    // seems to happen when regions is perfect rectangle...
-                    if (typeof console !== 'undefined') {
-                        console.warn('centroid util did not return a good centroid, defaulting to average of all points');
-                    }
-                    return {
-                        latitude: this.average(polygon, 'latitude'),
-                        longitude: this.average(polygon, 'longitude')
-                    };
-                } else {
-                    if (typeof console !== 'undefined') {
-                        console.log('centroid worked?');
-                    }
-                }
-                return centroid;
+            if(this.isPoint()) {
+                var coordinates = this.get('coordinates');
+                return this.convertPointCoordinate(coordinates);
             }
+            if(this.isMultiPoint()) {
+                return this.getMultiPoint()[0];
+            }
+            
+            var points = [];
+            
+            if(this.isPolygon()) {
+                points = this.getPolygon();
+            } else if(this.isMultiPolygon()) {
+                points = this.getMultiPolygon()[0];
+            } else if(this.isGeometryCollection()) {
+                var geo = new MetaCard.Geometry(this.getGeometryCollection()[0]);
+                points = geo.getPoint();
+            } else if(this.isLineString()) {
+                points = this.getLineString();
+            } else if(this.isMultiLineString()) {
+                points = this.getMultiLineString()[Math.floor(this.getMultiLineString().length / 2)];
+            }
+            
+            if(this.isLineString() || this.isMultiLineString()) {
+                if(points.length % 2) {
+                    points = [points[Math.floor(points.length / 2)]];
+                } else {
+                    points = [points[Math.floor(points.length / 2) - 1], points[Math.floor(points.length / 2)]];
+                }
+            }
+
+            var region = new Util.Region(points),
+                centroid = region.centroid(this.isPolygon() || this.isMultiPolygon());
+            if (_.isNaN(centroid.latitude)) {
+                // seems to happen when regions is perfect rectangle...
+                if (typeof console !== 'undefined') {
+                    console.warn('centroid util did not return a good centroid, defaulting to average of all points');
+                }
+                return {
+                    latitude: this.average(points, 'latitude'),
+                    longitude: this.average(points, 'longitude')
+                };
+            } else {
+                if (typeof console !== 'undefined') {
+                    console.log('centroid worked?');
+                }
+            }
+            return centroid;
+        },
+
+        getAllPoints: function () {
             var coordinates = this.get('coordinates');
 
-            return this.convertPointCoordinate(coordinates);
+            if(this.isPoint()) {
+                return [coordinates];
+            }
 
+            if(this.isMultiPoint() || this.isLineString()) {
+                return coordinates;
+            }
+
+            if(this.isMultiLineString()) {
+                return _.flatten(coordinates, true);
+            }
+
+            if(this.isPolygon()) {
+                return coordinates[0];
+            }
+
+            if(this.isMultiPolygon()) {
+                return _.flatten(_.map(coordinates, function (instance) {
+                    return instance[0];
+                }), true);
+            }
+
+            if(this.isGeometryCollection()) {
+                var geometries = this.get('geometries');
+                return _.flatten(_.map(geometries, function (geometry) {
+                    var geoModel = new MetaCard.Geometry(geometry);
+                    return geoModel.getAllPoints();
+                }), true);
+            }
         },
+
         convertPointCoordinate: function (coordinate) {
             return {
                 latitude: coordinate[1],
@@ -82,8 +141,95 @@ define(function (require) {
             }
             var coordinates = this.get('coordinates')[0];
             return _.map(coordinates, this.convertPointCoordinate);
-        }
+        },
 
+        isLineString: function () {
+            return this.get('type') === 'LineString';
+        },
+        getLineString: function () {
+            if (!this.isLineString()) {
+                if (typeof console !== 'undefined') {
+                    console.log('This is not a LineString!! ', this);
+                }
+                return;
+            }
+            var coordinates = this.get('coordinates');
+            return _.map(coordinates, this.convertPointCoordinate);
+        },
+
+        isMultiLineString: function () {
+            return this.get('type') === 'MultiLineString';
+        },
+
+        getMultiLineString: function () {
+            if (!this.isMultiLineString()) {
+                if (typeof console !== 'undefined') {
+                    console.log('This is not a MultiLineString!! ', this);
+                }
+                return;
+            }
+            
+            var coordinates = this.get('coordinates');
+            var model = this;
+            return _.map(coordinates, function (instance) {
+                return _.map(instance, model.convertPointCoordinate);
+            });
+        },
+        
+        isMultiPoint: function () {
+            return this.get('type') === 'MultiPoint';
+        },
+
+        getMultiPoint: function () {
+            if (!this.isMultiPoint()) {
+                if (typeof console !== 'undefined') {
+                    console.log('This is not a MultiPoint!! ', this);
+                }
+                return;
+            }
+            
+            var coordinates = this.get('coordinates');
+            return _.map(coordinates, this.convertPointCoordinate);
+        },
+
+        isMultiPolygon: function () {
+            return this.get('type') === 'MultiPolygon';
+        },
+
+        getMultiPolygon: function () {
+            if (!this.isMultiPolygon()) {
+                if (typeof console !== 'undefined') {
+                    console.log('This is not a MultiPolygon!! ', this);
+                }
+                return;
+            }
+            
+            var coordinates = this.get('coordinates');
+            var model = this;
+            return _.map(coordinates, function (instance) {
+                return _.map(instance[0], model.convertPointCoordinate);
+            });
+        },
+
+        isGeometryCollection: function () {
+            return this.get('type') === 'GeometryCollection';
+        },
+
+        getGeometryCollection: function () {
+            if (!this.isGeometryCollection()) {
+                if (typeof console !== 'undefined') {
+                    console.log('This is not a GeometryCollection!! ', this);
+                }
+                return;
+            }
+            
+            var geometries = this.get('geometries');
+
+            return _.map(geometries, function (geometry) {
+                return new MetaCard.Geometry(geometry); 
+            });
+        },
+        
     });
 
     MetaCard.Properties = Backbone.RelationalModel.extend({

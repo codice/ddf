@@ -142,6 +142,15 @@ define(['underscore',
 
                 var widthGap = Math.abs(extent.east) - Math.abs(extent.west);
                 var heightGap = Math.abs(extent.north) - Math.abs(extent.south);
+                
+                //ensure extent has some size
+                if(widthGap === 0) {
+                        widthGap = 1;
+                }
+                if(heightGap === 0) {
+                        heightGap = 1;
+                }
+                
                 extent.east = extent.east + Math.abs(scalingFactor * widthGap);
                 extent.north = extent.north + Math.abs(scalingFactor * heightGap);
                 extent.south = extent.south - Math.abs(scalingFactor * heightGap);
@@ -225,28 +234,21 @@ define(['underscore',
                 return extent;
             },
             flyToLocation: function (model) {
-                var destination, flight, extent;
-
-                //polygon
                 var geometry = model.get('geometry');
-                if (geometry.isPolygon()) {
+                this.flyToGeometry(geometry);
+            },
+            
+            flyToGeometry: function (geometry) {
+                var flight, extent, cartArray;
 
-                    var cartArray = _.map(geometry.get("coordinates")[0], function (coordinate) {
-                        return Cesium.Cartographic.fromDegrees(coordinate[0], coordinate[1], properties.defaultFlytoHeight);
-                    });
+                cartArray = _.map(geometry.getAllPoints(), function (coordinate) {
+                    return Cesium.Cartographic.fromDegrees(coordinate[0], coordinate[1], properties.defaultFlytoHeight);
+                });
 
-                    extent = Cesium.Extent.fromCartographicArray(cartArray);
-                    flight = Cesium.CameraFlightPath.createAnimationExtent(this.mapViewer.scene, {
-                        destination: this.expandExtent(extent)
-                    });
-                }
-                else {
-                    destination = Cesium.Cartographic.fromDegrees(geometry.get("coordinates")[0], geometry.get("coordinates")[1], geometry.get("coordinates")[2] ? geometry.get("coordinates")[2] : properties.defaultFlytoHeight);
-                    flight = Cesium.CameraFlightPath.createAnimationCartographic(this.mapViewer.scene, {
-                        destination: destination
-                    });
-                }
-
+                extent = Cesium.Extent.fromCartographicArray(cartArray);
+                flight = Cesium.CameraFlightPath.createAnimationExtent(this.mapViewer.scene, {
+                    destination: this.expandExtent(extent)
+                });
 
                 this.mapViewer.scene.getAnimations().add(flight);
             },

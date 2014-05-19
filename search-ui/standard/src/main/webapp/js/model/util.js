@@ -44,7 +44,7 @@ define(function () {
         return area;
     };
 
-    Region.prototype.centroid = function () {
+    Region.prototype.centroid = function (skipLastPoint) {
         var X = 0.0,
             Y = 0.0,
             Z = 0.0,
@@ -54,10 +54,14 @@ define(function () {
             hyp,
             a,
             b,
-            c;
+            c, 
+            last = this.length;
 
-        // Subtract 1 from the length to ignore the duplicate point
-        for (i = 0; i < this.length-1; i += 1){
+        // Subtract 1 from the length to ignore the duplicate point on polygons
+        if(skipLastPoint) {
+            last -= 1;
+        }
+        for (i = 0; i < last; i += 1){
             lat = this.points[i].latitude * Math.PI / 180;
             lon = this.points[i].longitude * Math.PI / 180;
 

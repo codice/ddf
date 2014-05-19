@@ -33,6 +33,7 @@
             backbonecometd: 'lib/backbone-cometd/backbone.cometd.extension',
             poller: 'lib/backbone-poller/backbone.poller',
             underscore: 'lib/lodash/dist/lodash.underscore.min',
+            lodash: 'lib/lodash/dist/lodash.min',
             marionette: 'lib/marionette/lib/backbone.marionette.min',
             // TODO test combining
             modelbinder: 'lib/backbone.modelbinder/Backbone.ModelBinder.min',
