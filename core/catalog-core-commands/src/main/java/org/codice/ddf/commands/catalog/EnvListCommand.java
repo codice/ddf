@@ -14,6 +14,8 @@
  **/
 package org.codice.ddf.commands.catalog;
 
+import java.util.Map;
+
 import org.apache.felix.gogo.commands.Command;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
 
@@ -22,6 +24,14 @@ public class EnvListCommand extends OsgiCommandSupport {
 
     @Override
     protected Object doExecute() throws Exception {
+        
+        Map<String, String> env = System.getenv();
+
+        for (String envName : env.keySet()) {
+            System.out.printf("%s=%s%n", envName, env.get(envName));
+        }
+
+        
         System.out.println("This command is deprecated and will be removed in DDF 3.0.");
         System.out.println("Please use platform:envlist instead");
 
