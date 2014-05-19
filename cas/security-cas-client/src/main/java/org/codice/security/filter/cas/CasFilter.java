@@ -17,7 +17,6 @@ package org.codice.security.filter.cas;
 import ddf.security.cas.client.ProxyFilter;
 import ddf.security.sts.client.configuration.STSClientConfiguration;
 import org.apache.cxf.ws.security.sts.provider.model.secext.BinarySecurityTokenType;
-import org.apache.cxf.ws.security.sts.provider.model.secext.UsernameTokenType;
 import org.apache.ws.security.WSConstants;
 import org.apache.ws.security.util.Base64;
 import org.codice.security.handler.api.AuthenticationHandler;
@@ -48,9 +47,19 @@ public class CasFilter implements AuthenticationHandler {
 
     private static Marshaller marshaller = null;
 
+    /**
+     * CAS type to use when configuring context policy.
+     */
+    public static final String AUTH_TYPE = "CAS";
+
     private STSClientConfiguration clientConfiguration;
 
     private ProxyFilter proxyFilter;
+
+    @Override
+    public String getAuthenticationType() {
+        return AUTH_TYPE;
+    }
 
     @Override
     public HandlerResult getNormalizedToken(ServletRequest request, ServletResponse response,

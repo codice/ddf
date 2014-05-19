@@ -50,6 +50,11 @@ public class PKIHandler implements AuthenticationHandler {
     private static final transient Logger LOGGER = LoggerFactory
             .getLogger(PKIHandler.class);
 
+    /**
+     * PKI type to use when configuring context policy.
+     */
+    public static final String AUTH_TYPE = "PKI";
+
     private Marshaller marshaller = null;
 
     private Merlin merlin;
@@ -67,6 +72,11 @@ public class PKIHandler implements AuthenticationHandler {
         } catch (IOException e) {
             LOGGER.error("Unable to read merlin properties file.", e);
         }
+    }
+
+    @Override
+    public String getAuthenticationType() {
+        return AUTH_TYPE;
     }
 
     /**

@@ -12,9 +12,11 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-package org.codice.security.policy.context;
+package org.codice.security.policy.context.impl;
 
 import org.apache.commons.lang.StringUtils;
+import org.codice.security.policy.context.ContextPolicy;
+import org.codice.security.policy.context.ContextPolicyManager;
 import org.codice.security.policy.context.attributes.ContextAttributeMapping;
 import org.codice.security.policy.context.attributes.DefaultContextAttributeMapping;
 
@@ -26,7 +28,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Created by tustisos on 5/15/14.
+ * Implementation of ContextPolicyManager. This implementation starts with a default empty policy
+ * at the "/" context and accepts new policies as a Map&lt;String, String&gt; orMap&lt;String, String[]&gt;
  */
 public class PolicyManager implements ContextPolicyManager {
 
@@ -77,15 +80,26 @@ public class PolicyManager implements ContextPolicyManager {
         policyStore.put(path, contextPolicy);
     }
 
-    public void setPolicies(Map<String, String> properties) {
+    public void setPolicies(Map<String, Object> properties) {
         policyStore.clear();
         policyStore.put("/", defaultPolicy);
 
-        String authTypes = properties.get(AUTH_TYPES);
-        String reqAttrs = properties.get(REQ_ATTRS);
-        if(StringUtils.isNotEmpty(authTypes) && StringUtils.isNotEmpty(reqAttrs)) {
-            String[] authContexts = authTypes.split(",");
-            String[] attrContexts = reqAttrs.split(",");
+        Object authTypesObj = properties.get(AUTH_TYPES);
+        String[] authContexts = null;
+        Object reqAttrsObj = properties.get(REQ_ATTRS);
+        String[] attrContexts = null;
+        if(authTypesObj != null && authTypesObj instanceof String[]) {
+            authContexts = (String[]) authTypesObj;
+        } else if (authTypesObj != null) {
+            authContexts = ((String) authTypesObj).split(",");
+        }
+
+        if(reqAttrsObj != null && reqAttrsObj instanceof String[]) {
+            attrContexts = (String[]) reqAttrsObj;
+        } else if (reqAttrsObj != null) {
+            attrContexts = ((String) reqAttrsObj).split(",");
+        }
+        if(authTypesObj != null && reqAttrsObj != null) {
 
             Map<String, List<String>> contextToAuth = new HashMap<String, List<String>>();
             Map<String, List<ContextAttributeMapping>> contextToAttr = new HashMap<String, List<ContextAttributeMapping>>();

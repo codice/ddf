@@ -12,16 +12,17 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-package org.codice.security.policy.context;
+package org.codice.security.policy.context.impl;
 
 import ddf.security.permission.CollectionPermission;
+import org.codice.security.policy.context.ContextPolicy;
 import org.codice.security.policy.context.attributes.ContextAttributeMapping;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by tustisos on 5/16/14.
+ * Implementation of ContextPolicy for the Policy Manager in this package.
  */
 public class Policy implements ContextPolicy {
 

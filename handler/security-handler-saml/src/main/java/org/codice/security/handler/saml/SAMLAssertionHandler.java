@@ -14,13 +14,13 @@
  **/
 package org.codice.security.handler.saml;
 
-import org.codice.security.handler.api.AuthenticationHandler;
-import org.codice.security.handler.api.HandlerResult;
 import org.apache.cxf.common.util.Base64Exception;
 import org.apache.cxf.common.util.Base64Utility;
 import org.apache.cxf.helpers.IOUtils;
 import org.apache.cxf.staxutils.StaxUtils;
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
+import org.codice.security.handler.api.AuthenticationHandler;
+import org.codice.security.handler.api.HandlerResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
@@ -47,6 +47,16 @@ public class SAMLAssertionHandler implements AuthenticationHandler {
       .getLogger(SAMLAssertionHandler.class);
 
     private static final String SAML_COOKIE_NAME = "org.codice.websso.saml.token";
+
+    /**
+     * SAML type to use when configuring context policy.
+     */
+    public static final String AUTH_TYPE = "SAML";
+
+    @Override
+    public String getAuthenticationType() {
+        return AUTH_TYPE;
+    }
 
     @Override
     public HandlerResult getNormalizedToken(ServletRequest request, ServletResponse response, FilterChain chain, boolean resolve) {

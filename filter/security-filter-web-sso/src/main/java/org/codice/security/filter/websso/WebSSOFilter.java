@@ -16,6 +16,8 @@ package org.codice.security.filter.websso;
 
 import org.codice.security.handler.api.AuthenticationHandler;
 import org.codice.security.handler.api.HandlerResult;
+import org.codice.security.policy.context.ContextPolicy;
+import org.codice.security.policy.context.ContextPolicyManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,6 +30,7 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -48,6 +51,8 @@ public class WebSSOFilter implements Filter {
      * Dynamic list of handlers that are registered to provide authentication services.
      */
     List<AuthenticationHandler> handlerList;
+
+    ContextPolicyManager contextPolicyManager;
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
@@ -74,8 +79,15 @@ public class WebSSOFilter implements Filter {
         String path = httpRequest.getServletPath();
         LOGGER.debug("Handling request for path {}", path);
 
-        // @TODO lookup the authentication context based on the context path and adjust the handlers accordingly.
-        // for now they are automatically added to the handler list ordered by service rank
+        List<AuthenticationHandler> handlerList;
+
+        if(contextPolicyManager != null) {
+            handlerList = new ArrayList<AuthenticationHandler>();
+            updateHandlerList(httpRequest, handlerList);
+        } else {
+            //if the manager is null just use the ranked list of installed handlers
+            handlerList = this.handlerList;
+        }
 
         // First pass, see if anyone can come up with proper security token from the git-go
         HandlerResult result = null;
@@ -127,6 +139,19 @@ public class WebSSOFilter implements Filter {
         filterChain.doFilter(servletRequest, servletResponse);
     }
 
+    private void updateHandlerList(HttpServletRequest httpRequest,
+            List<AuthenticationHandler> handlerList) {
+        ContextPolicy policy = contextPolicyManager.getContextPolicy(httpRequest.getContextPath());
+        List<String> authMethods = policy.getAuthenticationMethods();
+        for(String authMethod : authMethods) {
+            for(AuthenticationHandler handler : this.handlerList) {
+                if(handler.getAuthenticationType().equalsIgnoreCase(authMethod)) {
+                    handlerList.add(handler);
+                }
+            }
+        }
+    }
+
     /**
      * Sends the given response code back to the caller.
      * @param code HTTP response code for this request
@@ -153,6 +178,14 @@ public class WebSSOFilter implements Filter {
 
     public void setHandlerList(List<AuthenticationHandler> handlerList) {
         this.handlerList = handlerList;
+    }
+
+    public ContextPolicyManager getContextPolicyManager() {
+        return contextPolicyManager;
+    }
+
+    public void setContextPolicyManager(ContextPolicyManager contextPolicyManager) {
+        this.contextPolicyManager = contextPolicyManager;
     }
 }
 

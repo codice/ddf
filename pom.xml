@@ -99,13 +99,13 @@
   <modules>
     <module>expansion</module>
     <module>core</module>
+    <module>policy</module>
     <module>sts</module>
     <module>cas</module>
     <module>pdp</module>
     <module>pep</module>
     <module>handler</module>
     <module>filter</module>
-    <module>policy</module>
     <module>security-services-app</module>
   </modules>
 

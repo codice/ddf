@@ -20,6 +20,15 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 
 public interface AuthenticationHandler {
+
+    /**
+     * Authentication type String used to match this handler with the auth types configured for a
+     * specific context.
+     *
+     * @return String representing the authentication type
+     */
+    String getAuthenticationType();
+
     /**
      * Determine if all the required information exists in the request to generate a token and move on to perform
      * authentication and/or authorization for the requested context.

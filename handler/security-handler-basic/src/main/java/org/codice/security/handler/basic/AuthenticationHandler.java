@@ -52,9 +52,18 @@ public class AuthenticationHandler implements org.codice.security.handler.api.Au
 
     public static final String AUTHENTICATION_SCHEME_BASIC = "Basic";
 
+    /**
+     * Basic type to use when configuring context policy.
+     */
+    public static final String AUTH_TYPE = "BASIC";
+
     private static final String HEADER_WWW_AUTHENTICATE = "WWW-Authenticate";
 
     private static Marshaller marshaller = null;
+
+    public String getAuthenticationType() {
+        return AUTH_TYPE;
+    }
 
     /**
      * Returns the FilterResult for the HTTP Request.

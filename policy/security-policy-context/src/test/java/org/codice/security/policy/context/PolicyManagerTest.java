@@ -15,6 +15,8 @@
 package org.codice.security.policy.context;
 
 import junit.framework.Assert;
+import org.codice.security.policy.context.impl.Policy;
+import org.codice.security.policy.context.impl.PolicyManager;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -79,7 +81,7 @@ public class PolicyManagerTest {
 
     @Test
     public void testConfiguration() {
-        Map<String, String> properties = new HashMap<String, String>();
+        Map<String, Object> properties = new HashMap<String, Object>();
         properties.put("authenticationTypes", "/=SAML|BASIC,/search=SAML|BASIC|ANON,/admin=SAML|BASIC,/foo=BASIC,/blah=ANON,/bleh=ANON");
         properties.put("requiredAttributes", "/={},/blah=,/search={role=user;control=foo|bar},/admin={role=admin|supervisor}");
         manager.setPolicies(properties);

@@ -40,6 +40,16 @@ import java.io.Writer;
 public class AnonymousHandler implements AuthenticationHandler {
     public static final Logger logger = LoggerFactory.getLogger(AnonymousHandler.class.getName());
 
+    /**
+     * Anonymous type to use when configuring context policy.
+     */
+    public static final String AUTH_TYPE = "ANON";
+
+    @Override
+    public String getAuthenticationType() {
+        return AUTH_TYPE;
+    }
+
     @Override
     public HandlerResult getNormalizedToken(ServletRequest request, ServletResponse response, FilterChain chain, boolean resolve) {
         HandlerResult result = new HandlerResult();
