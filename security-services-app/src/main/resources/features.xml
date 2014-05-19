@@ -119,6 +119,7 @@
         <feature>platform-app</feature>
         <feature>security-core</feature>
         <feature>security-sts-realm</feature>
+        <feature>security-policy-context</feature>
     </feature>
 
     <feature name="security-handler-basic" install="manual" version="${project.version}"
@@ -155,6 +156,12 @@
     <feature name="security-handler-pki" install="manual" version="${project.version}"
              description="PKI Handler for web applications.">
         <bundle>mvn:ddf.security.handler/security-handler-pki/${project.version}</bundle>
+    </feature>
+
+    <feature name="security-policy-context" install="manual" version="${project.version}"
+             description="Web Context policy manager">
+        <bundle>mvn:ddf.security.policy/security-policy-api/${project.version}</bundle>
+        <bundle>mvn:ddf.security.policy/security-policy-context/${project.version}</bundle>
     </feature>
 
 </features>
