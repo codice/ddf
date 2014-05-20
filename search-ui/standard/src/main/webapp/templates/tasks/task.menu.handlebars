@@ -16,9 +16,14 @@
         <a href="#" class="btn btn-primary" id="remove">Remove</a> <a href="#" class="btn" id="cancelRemove">Cancel</a>
     </div>
 {{else}}
-    <div style="position: relative;" class="width-full>
-        <div class="task-title"><span class="task-title-text">{{title}}</span></div><div class="task-time">{{momentHelp timestamp fromNow=function}}</div>
-        <div class="task-close"><a href="#" class="fa fa-times" id="close"></a></div>
+    <div style="position: relative;" class="width-full">
+        <div class="task-title">
+            <span class="task-title-text">{{title}}</span>
+        </div>
+        <div class="task-time">{{momentHelp timestamp fromNow=function}}</div>
+        <div class="task-close">
+            <a href="#" class="fa fa-times" id="close"></a>
+        </div>
     </div>
 
     <div class="width-full>
