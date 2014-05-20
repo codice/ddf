@@ -15,9 +15,10 @@
 package org.codice.security.filter.authorization;
 
 import ddf.security.Subject;
-import ddf.security.permission.KeyValueCollectionPermission;
-import ddf.security.permission.KeyValuePermission;
+import ddf.security.permission.CollectionPermission;
 import org.apache.shiro.authz.Authorizer;
+import org.codice.security.policy.context.ContextPolicy;
+import org.codice.security.policy.context.ContextPolicyManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,6 +32,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -41,20 +43,21 @@ public class AuthorizationFilter implements Filter {
     private static final transient Logger LOGGER = LoggerFactory
             .getLogger(AuthorizationFilter.class);
 
+    private final ContextPolicyManager contextPolicyManager;
+
     private List<String> roles = new ArrayList<String>();
 
-    private Authorizer authorizer;
+    private final Authorizer authorizer;
 
-    public AuthorizationFilter(Authorizer authorizer) {
+    public AuthorizationFilter(Authorizer authorizer, ContextPolicyManager contextPolicyManager) {
         super();
         this.authorizer = authorizer;
+        this.contextPolicyManager = contextPolicyManager;
     }
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
         LOGGER.debug("Starting AuthZ filter.");
-        //TODO get this from the policy
-        roles.add("admin");
     }
 
     @Override
@@ -65,10 +68,16 @@ public class AuthorizationFilter implements Filter {
 
         Subject subject = (Subject) httpRequest.getAttribute("ddf.security.subject");
 
-        KeyValueCollectionPermission kvcPermission = new KeyValueCollectionPermission(
-                new KeyValuePermission("role", roles));
+        ContextPolicy policy = contextPolicyManager.getContextPolicy(httpRequest.getContextPath());
 
-        boolean permitted = authorizer.isPermitted(subject.getPrincipals(), kvcPermission);
+        Collection<CollectionPermission> permissions = policy.getAllowedAttributePermissions();
+
+        boolean permitted = true;
+        for(CollectionPermission permission : permissions) {
+            if(!authorizer.isPermittedAll(subject.getPrincipals(), permission.getPermissionList())) {
+                permitted = false;
+            }
+        }
 
         if (!permitted) {
             LOGGER.debug("Subject not authorized.");
@@ -81,7 +90,7 @@ public class AuthorizationFilter implements Filter {
 
     private void returnNotAuthorized(HttpServletResponse response) {
         try {
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
             response.setContentLength(0);
             response.flushBuffer();
         } catch (IOException ioe) {
