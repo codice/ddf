@@ -35,7 +35,6 @@ import java.io.Reader;
 import java.util.Set;
 
 import org.apache.lucene.analysis.Analyzer;
-// HUGH import org.apache.lucene.analysis.LowerCaseFilter;
 import org.apache.lucene.analysis.StopAnalyzer;
 import org.apache.lucene.analysis.StopFilter;
 import org.apache.lucene.analysis.TokenStream;
@@ -133,9 +132,7 @@ public class CaseSensitiveContextualAnalyzer extends Analyzer {
      */
     @Override
     public TokenStream tokenStream(String fieldName, Reader reader) {
-//        StandardTokenizer tokenStream = new StandardTokenizer(matchVersion, reader);
         ContextualTokenizer tokenStream = new ContextualTokenizer(reader);
-//        tokenStream.setMaxTokenLength(maxTokenLength);
         TokenStream result = new StandardFilter(tokenStream);
         result = new StopFilter(enableStopPositionIncrements, result, stopSet);
         return result;
@@ -180,19 +177,13 @@ public class CaseSensitiveContextualAnalyzer extends Analyzer {
         if (streams == null) {
             streams = new SavedStreams();
             setPreviousTokenStream(streams);
-//            streams.tokenStream = new StandardTokenizer(matchVersion, reader);
             streams.tokenStream = new ContextualTokenizer(reader);
             streams.filteredTokenStream = new StandardFilter(streams.tokenStream);
-            // HUGH streams.filteredTokenStream = new LowerCaseFilter( streams.filteredTokenStream
-            // );
             streams.filteredTokenStream = new StopFilter(enableStopPositionIncrements,
                     streams.filteredTokenStream, stopSet);
         } else {
             streams.tokenStream.reset(reader);
         }
-//        streams.tokenStream.setMaxTokenLength(maxTokenLength);
-//
-//        streams.tokenStream.setReplaceInvalidAcronym(replaceInvalidAcronym);
 
         return streams.filteredTokenStream;
     }
