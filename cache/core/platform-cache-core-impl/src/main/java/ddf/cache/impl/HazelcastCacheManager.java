@@ -14,7 +14,9 @@
  **/
 package ddf.cache.impl;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Dictionary;
@@ -23,6 +25,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
@@ -35,7 +38,9 @@ import com.hazelcast.config.Config;
 import com.hazelcast.config.JoinConfig;
 import com.hazelcast.config.MapConfig;
 import com.hazelcast.config.MapConfig.EvictionPolicy;
+import com.hazelcast.config.MapStoreConfig;
 import com.hazelcast.config.NetworkConfig;
+import com.hazelcast.config.XmlConfigBuilder;
 import com.hazelcast.core.DistributedObject;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
@@ -53,13 +58,20 @@ public class HazelcastCacheManager implements CacheManager {
     private HazelcastInstance instance = null;
 
     private Configuration[] cacheConfigs = null;
+    
+    private static String XML_CONFIG_LOCATION = System.getProperty("karaf.home") + "/etc/hazelcast.xml";
+    
 
     public HazelcastCacheManager() {
-        
+        this(XML_CONFIG_LOCATION);
+    }
+       
+    public HazelcastCacheManager(String xmlConfigFilename) {    
         logger.info("ENTERING: CacheManagerImpl constructor ...");
         long startTime = System.nanoTime();
         
-        Config cfg = new Config();
+        System.setProperty("hazelcast.config", xmlConfigFilename);
+        Config cfg = new XmlConfigBuilder().build();
         NetworkConfig networkConfig = cfg.getNetworkConfig();
         JoinConfig join = networkConfig.getJoin();
         join.getMulticastConfig().setEnabled(false);
@@ -75,82 +87,108 @@ public class HazelcastCacheManager implements CacheManager {
         logger.info("EXITING: CacheManagerImpl constructor ...");
     }
 
-    public HazelcastCacheManager(BundleContext context) {
-        Config cfg = new Config();
+    public HazelcastCacheManager(BundleContext context, ConfigurationAdmin configAdmin,
+            String xmlConfigFilename) {
+        Bundle bundle = context.getBundle();
+        URL xmlConfigFileUrl = bundle.getResource(xmlConfigFilename);
+        Config cfg = null;
+        
+        XmlConfigBuilder xmlConfigBuilder = null;
+        try {
+            xmlConfigBuilder = new XmlConfigBuilder(xmlConfigFileUrl.openStream());
+            cfg = xmlConfigBuilder.build();
+            logger.info("Successfully built hazelcast config from XML config file {}", xmlConfigFilename);
+        } catch(FileNotFoundException e) {
+            logger.info("FileNotFoundException trying to build hazelcast config from XML file " + xmlConfigFilename, e);
+            cfg = null;
+        } catch(IOException e) {
+            logger.info("IOException trying to build hazelcast config from XML file " + xmlConfigFilename, e);
+            cfg = null;
+        }
+        
+        if (cfg == null) {
+            logger.info("Falling back to using generic Config for hazelcast");
+            cfg = new Config();
+        } else if (logger.isDebugEnabled()) {
+            MapConfig mapConfig = cfg.getMapConfig("persistentNotifications");
+            if (mapConfig == null) {
+                logger.debug("mapConfig is NULL for persistentNotifications - try persistent*");
+                mapConfig = cfg.getMapConfig("persistent*");
+                if (mapConfig == null) {
+                    logger.debug("mapConfig is NULL for persistent*");
+                }
+            } else {
+                MapStoreConfig mapStoreConfig = mapConfig.getMapStoreConfig();
+                logger.debug("mapStoreConfig factoryClassName = {}", mapStoreConfig.getFactoryClassName());
+            }
+        }
+
         NetworkConfig networkConfig = cfg.getNetworkConfig();
         JoinConfig join = networkConfig.getJoin();
         join.getMulticastConfig().setEnabled(false);
         join.getTcpIpConfig().setEnabled(false);
 
         try {
-            // TODO: look into injecting ConfigAdmin service
-            ServiceReference configAdminServiceRef = context
-                    .getServiceReference(ConfigurationAdmin.class.getName());
-            if (configAdminServiceRef != null) {
-                ConfigurationAdmin ca = (ConfigurationAdmin) context
-                        .getService(configAdminServiceRef);
-                logger.debug("configuration admin obtained: " + ca);
-                if (ca != null) {
-                    try {
-                        cacheConfigs = ca.listConfigurations(DATA_CACHE_CONFIGURATION_FILTER);
-                    } catch (InvalidSyntaxException e) {
-                        logger.error("Error in fetching data cache configuration: "
-                                + e.getMessage());
+            if (configAdmin != null) {
+                try {
+                    cacheConfigs = configAdmin.listConfigurations(DATA_CACHE_CONFIGURATION_FILTER);
+                } catch (InvalidSyntaxException e) {
+                    logger.error("Error in fetching data cache configuration: "
+                            + e.getMessage());
 
-                    }
-                    logger.debug("data cache config obtained: ");
                 }
-                if (cacheConfigs == null) {
-                    logger.info("Data cache configuration is null");
-                } else {
-                    String cacheName = null;
-                    int backupCount = 0;
-                    String evictionPolicy = null;
-                    int ttl = 0;
-                    int maxCacheSize = 0;
+                logger.debug("data cache config obtained: ");
+            }
+            if (cacheConfigs == null) {
+                logger.info("Data cache configuration is null");
+            } else {
+                String cacheName = null;
+                int backupCount = 0;
+                String evictionPolicy = null;
+                int ttl = 0;
+                int maxCacheSize = 0;
 
-                    for (int i = 0; i < cacheConfigs.length; ++i) {
-                        Dictionary<String, Object> dict = cacheConfigs[i].getProperties();
-                        Enumeration keys = dict.keys();
+                for (int i = 0; i < cacheConfigs.length; ++i) {
+                    Dictionary<String, Object> dict = cacheConfigs[i].getProperties();
+                    Enumeration keys = dict.keys();
 
-                        // Fetch Configuration for cache(s)
-                        while (keys.hasMoreElements()) {
-                            String key = (String) keys.nextElement();
-                            Object value = dict.get(key);
-                            logger.info(key + " : " + value);
+                    // Fetch Configuration for cache(s)
+                    while (keys.hasMoreElements()) {
+                        String key = (String) keys.nextElement();
+                        Object value = dict.get(key);
+                        logger.info(key + " : " + value);
 
-                            if (key.equals(CONFIG_CACHE_NAME)) {
-                                cacheName = (String) dict.get(key);
-                            } else if (key.equals(CONFIG_BACKUP_COUNT)) {
-                                backupCount = (Integer) dict.get(key);
-                            } else if (key.equals(CONFIG_MAX_CACHE_SIZE)) {
-                                maxCacheSize = (Integer) dict.get(key);
-                            } else if (key.equals(CONFIG_TIME_TO_LIVE)) {
-                                ttl = (Integer) dict.get(key);
-                            } else if (key.equals(CONFIG_EVICTION_POLICY)) {
-                                evictionPolicy = (String) dict.get(key);
-                            }
+                        if (key.equals(CONFIG_CACHE_NAME)) {
+                            cacheName = (String) dict.get(key);
+                        } else if (key.equals(CONFIG_BACKUP_COUNT)) {
+                            backupCount = (Integer) dict.get(key);
+                        } else if (key.equals(CONFIG_MAX_CACHE_SIZE)) {
+                            maxCacheSize = (Integer) dict.get(key);
+                        } else if (key.equals(CONFIG_TIME_TO_LIVE)) {
+                            ttl = (Integer) dict.get(key);
+                        } else if (key.equals(CONFIG_EVICTION_POLICY)) {
+                            evictionPolicy = (String) dict.get(key);
                         }
-
-                        // Setup Cache
-                        MapConfig mapCfg = new MapConfig();
-                        mapCfg.setName(cacheName);
-                        mapCfg.setBackupCount(backupCount);
-                        mapCfg.getMaxSizeConfig().setSize(maxCacheSize);
-                        mapCfg.setTimeToLiveSeconds(ttl);
-
-                        if (evictionPolicy.equals(EVICTION_POLICY_LRU)) {
-                            mapCfg.setEvictionPolicy(EvictionPolicy.LRU);
-                        } else if (evictionPolicy.equals(EVICTION_POLICY_LFU)) {
-                            mapCfg.setEvictionPolicy(EvictionPolicy.LFU);
-                        } else {
-                            mapCfg.setEvictionPolicy(EvictionPolicy.NONE);
-                        }
-                        if (cfg == null) {
-                            logger.info("Cache configuration is null");
-                        }
-                        cfg.addMapConfig(mapCfg);
                     }
+
+                    // Setup Cache
+                    MapConfig mapCfg = new MapConfig();
+                    mapCfg.setName(cacheName);
+                    mapCfg.setBackupCount(backupCount);
+                    mapCfg.getMaxSizeConfig().setSize(maxCacheSize);
+                    mapCfg.setTimeToLiveSeconds(ttl);
+
+                    if (evictionPolicy.equals(EVICTION_POLICY_LRU)) {
+                        mapCfg.setEvictionPolicy(EvictionPolicy.LRU);
+                    } else if (evictionPolicy.equals(EVICTION_POLICY_LFU)) {
+                        mapCfg.setEvictionPolicy(EvictionPolicy.LFU);
+                    } else {
+                        mapCfg.setEvictionPolicy(EvictionPolicy.NONE);
+                    }
+                    if (cfg == null) {
+                        logger.info("Cache configuration is null");
+                    }
+                    cfg.addMapConfig(mapCfg);
                 }
             }
         } catch (IOException ioe) {
@@ -169,18 +207,19 @@ public class HazelcastCacheManager implements CacheManager {
     }
     
     //@Override
-    public void createCache(String name, Map<String, Object> properties) {
+    public Cache createCache(String name, Map<String, Object> properties) {
         MapConfig mapConfig = getMapConfig(name, properties);
         Config config = instance.getConfig();
         config.addMapConfig(mapConfig);
-        //Map<Integer, String> newMap = instance.getMap(name);
+        return new HazelcastCache(name, (IMap<Object, Object>) instance.getMap(name));
     }
     
     public Cache getCache(String name, Map<String, Object> properties) {
-        return new HazelcastCache(name, (IMap<Object, Object>) instance.getMap(name), properties);
+        //return new HazelcastCache(name, (IMap<Object, Object>) instance.getMap(name), properties);
+        return createCache(name, properties);
     }
     
-    //@Override
+    @Override
     public Map<String, Object> getCacheConfiguration(String cacheName) {
         Map<String, Object> cacheConfigProps = new HashMap<String, Object>();
         
@@ -188,6 +227,10 @@ public class HazelcastCacheManager implements CacheManager {
         if (mapConfig != null) {
             cacheConfigProps.put(CONFIG_BACKUP_COUNT, mapConfig.getBackupCount());
             cacheConfigProps.put(CONFIG_MAX_CACHE_SIZE, mapConfig.getMaxSizeConfig().getSize());
+            cacheConfigProps.put(CONFIG_TIME_TO_LIVE, mapConfig.getTimeToLiveSeconds());
+            cacheConfigProps.put(CONFIG_EVICTION_POLICY, mapConfig.getEvictionPolicy());
+            MapStoreConfig mapStoreConfig = mapConfig.getMapStoreConfig();
+            cacheConfigProps.put(CONFIG_MAP_STORE, mapStoreConfig);
         }
         
         return cacheConfigProps;        
@@ -244,34 +287,36 @@ public class HazelcastCacheManager implements CacheManager {
         int ttl = 0;
         int maxCacheSize = 0;
         
-        for (String key : properties.keySet()) {
-            Object value = properties.get(key);
-            logger.info(key + " : " + value);
-
-            if (key.equals(CONFIG_CACHE_NAME)) {
-                //cacheName = (String) dict.get(key);
-            } else if (key.equals(CONFIG_BACKUP_COUNT)) {
-                backupCount = (Integer) value;
-            } else if (key.equals(CONFIG_MAX_CACHE_SIZE)) {
-                maxCacheSize = (Integer) value;
-            } else if (key.equals(CONFIG_TIME_TO_LIVE)) {
-                ttl = (Integer) value;
-            } else if (key.equals(CONFIG_EVICTION_POLICY)) {
-                evictionPolicy = (String) value;
-            }
-
-            // Setup Cache
-            //mapCfg.setName(cacheName);
-            mapCfg.setBackupCount(backupCount);
-            mapCfg.getMaxSizeConfig().setSize(maxCacheSize);
-            mapCfg.setTimeToLiveSeconds(ttl);
-
-            if (evictionPolicy == null) {
-                mapCfg.setEvictionPolicy(EvictionPolicy.NONE);
-            } else if (evictionPolicy.equals(EVICTION_POLICY_LRU)) {
-                mapCfg.setEvictionPolicy(EvictionPolicy.LRU);
-            } else if (evictionPolicy.equals(EVICTION_POLICY_LFU)) {
-                mapCfg.setEvictionPolicy(EvictionPolicy.LFU);
+        if (properties != null) {
+            for (String key : properties.keySet()) {
+                Object value = properties.get(key);
+                logger.info(key + " : " + value);
+    
+                if (key.equals(CONFIG_CACHE_NAME)) {
+                    //cacheName = (String) dict.get(key);
+                } else if (key.equals(CONFIG_BACKUP_COUNT)) {
+                    backupCount = (Integer) value;
+                } else if (key.equals(CONFIG_MAX_CACHE_SIZE)) {
+                    maxCacheSize = (Integer) value;
+                } else if (key.equals(CONFIG_TIME_TO_LIVE)) {
+                    ttl = (Integer) value;
+                } else if (key.equals(CONFIG_EVICTION_POLICY)) {
+                    evictionPolicy = (String) value;
+                }
+    
+                // Setup Cache
+                //mapCfg.setName(cacheName);
+                mapCfg.setBackupCount(backupCount);
+                mapCfg.getMaxSizeConfig().setSize(maxCacheSize);
+                mapCfg.setTimeToLiveSeconds(ttl);
+    
+                if (evictionPolicy == null) {
+                    mapCfg.setEvictionPolicy(EvictionPolicy.NONE);
+                } else if (evictionPolicy.equals(EVICTION_POLICY_LRU)) {
+                    mapCfg.setEvictionPolicy(EvictionPolicy.LRU);
+                } else if (evictionPolicy.equals(EVICTION_POLICY_LFU)) {
+                    mapCfg.setEvictionPolicy(EvictionPolicy.LFU);
+                }
             }
         }
         

@@ -52,6 +52,18 @@ public interface Cache {
     public Object get(Object key) throws CacheException;
     
     /**
+     * Get collection of objects from the cache that satisfy the specified
+     * search criteria. The search criteria is specified as a WHERE clause
+     * in SQL syntax. See Hazelcast documentation at 
+     * http://hazelcast.org/docs/latest/manual/html/query.html for details.
+     *  
+     * @param searchCriteria
+     * @return
+     * @throws CacheException
+     */
+    public Object query(String searchCriteria) throws CacheException;
+    
+    /**
      * Remove object from the cache that corresponds to the specified key
      * 
      * @param key

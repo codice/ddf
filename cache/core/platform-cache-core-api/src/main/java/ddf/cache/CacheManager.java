@@ -37,6 +37,8 @@ public interface CacheManager {
 
     public static final String EVICTION_POLICY_LFU = "LFU";
     
+    public static final String CONFIG_MAP_STORE = "mapStore";
+    
     /**
      * Creates a new cache
      *     
@@ -53,6 +55,15 @@ public interface CacheManager {
      * @return
      */
     public Cache getCache(String name, Map<String, Object> properties);
+    
+    /**
+     * Get the configuration of the cache, which includes its @MapConfig and
+     * @MapStoreConfig (if present).
+     * 
+     * @param cacheName
+     * @return
+     */
+    public Map<String, Object> getCacheConfiguration(String cacheName);
     
     /**
      * Removes specified cache from the system

@@ -17,11 +17,15 @@
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd">
 
-        <bean id="cacheManager" class="ddf.cache.impl.HazelcastCacheManager">
-                <argument ref="blueprintBundleContext" />
-        </bean>
-        
-        <!-- Exports the CacheManager as a service -->
-        <service ref="cacheManager" interface="ddf.cache.CacheManager" />
+    <reference id="configurationAdmin" interface="org.osgi.service.cm.ConfigurationAdmin"/>
+
+    <bean id="cacheManager" class="ddf.cache.impl.HazelcastCacheManager">
+            <argument ref="blueprintBundleContext" />
+            <argument ref="configurationAdmin" />
+            <argument value="platform-hazelcast.xml" />
+    </bean>
+    
+    <!-- Exports the CacheManager as a service -->
+    <service ref="cacheManager" interface="ddf.cache.CacheManager" />
         
 </blueprint>

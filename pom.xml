@@ -265,6 +265,7 @@
 		<module>platform-configuration</module>
 		<module>action</module>
 		<module>cache</module>
+		<module>notifications</module>
 		<module>mime</module>
 		<module>metrics</module>
 		<module>platform-scheduler</module>

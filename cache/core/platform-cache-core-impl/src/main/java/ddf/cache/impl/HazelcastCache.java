@@ -17,12 +17,19 @@ package ddf.cache.impl;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.hazelcast.core.IMap;
+import com.hazelcast.query.SqlPredicate;
 
 import ddf.cache.Cache;
 import ddf.cache.CacheException;
 
 public class HazelcastCache implements Cache {
+    
+    private static Logger LOGGER = LoggerFactory.getLogger(HazelcastCache.class);
     
     private String name;
     private IMap<Object, Object> map;
@@ -75,6 +82,16 @@ public class HazelcastCache implements Cache {
     @Override
     public Set<Object> getKeys() {
         return map.keySet();
+    }
+
+    @Override
+    public Object query(String searchCriteria) throws CacheException {
+        LOGGER.info("searchCriteria = [{}]", searchCriteria);
+        if (StringUtils.isBlank(searchCriteria)) {
+            throw new CacheException("Cannot get an object from cache without a non-null search criteria");
+        }
+        
+        return map.values(new SqlPredicate(searchCriteria));
     }
 
 }
