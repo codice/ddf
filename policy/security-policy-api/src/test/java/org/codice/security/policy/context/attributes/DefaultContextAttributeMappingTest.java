@@ -25,7 +25,7 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Created by tustisos on 5/16/14.
+ * Test for the default ContextAttributeMapping implementation.
  */
 public class DefaultContextAttributeMappingTest {
 

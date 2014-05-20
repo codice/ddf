@@ -31,9 +31,7 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 /**
  * Handler that implements authorization checking for contexts.
@@ -44,8 +42,6 @@ public class AuthorizationFilter implements Filter {
             .getLogger(AuthorizationFilter.class);
 
     private final ContextPolicyManager contextPolicyManager;
-
-    private List<String> roles = new ArrayList<String>();
 
     private final Authorizer authorizer;
 

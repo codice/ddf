@@ -26,7 +26,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 /**
- * Created by tustisos on 5/16/14.
+ * Test for PolicyManager
  */
 public class PolicyManagerTest {
 

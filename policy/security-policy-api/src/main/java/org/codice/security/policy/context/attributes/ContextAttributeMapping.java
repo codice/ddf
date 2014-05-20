@@ -17,7 +17,10 @@ package org.codice.security.policy.context.attributes;
 import ddf.security.permission.CollectionPermission;
 
 /**
- * Created by tustisos on 5/15/14.
+ * Mapping between an attribute name and the String permission value for that attribute.
+ *
+ * It is up to the implementer to determine how to parse the String value into valid Shiro
+ * permission objects.
  */
 public interface ContextAttributeMapping {
 
