@@ -116,6 +116,8 @@ public class PolicyManager implements ContextPolicyManager {
                     if(auths.length > 0) {
                         contextToAuth.put(parts[0], Arrays.asList(auths));
                     }
+                } else if(parts.length == 1) {
+                    contextToAuth.put(parts[0], new ArrayList<String>());
                 }
             }
 

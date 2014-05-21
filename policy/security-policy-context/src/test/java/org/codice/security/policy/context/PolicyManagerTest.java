@@ -84,7 +84,7 @@ public class PolicyManagerTest {
     @Test
     public void testConfiguration() {
         Map<String, Object> properties = new HashMap<String, Object>();
-        properties.put("authenticationTypes", "/=SAML|BASIC,/search=SAML|BASIC|ANON,/admin=SAML|BASIC,/foo=BASIC,/blah=ANON,/bleh=ANON");
+        properties.put("authenticationTypes", "/=SAML|BASIC,/search=SAML|BASIC|ANON,/admin=SAML|BASIC,/foo=BASIC,/blah=ANON,/bleh=ANON,/unprotected=,/unprotected2=");
         properties.put("requiredAttributes", "/={},/blah=,/search={role=user;control=foo|bar},/admin={role=admin|supervisor}");
         manager.setPolicies(properties);
 
@@ -160,5 +160,16 @@ public class PolicyManagerTest {
 
             i++;
         }
+
+        //check unprotected contexts
+        policy = manager.getContextPolicy("/unprotected");
+        Assert.assertEquals("/unprotected", policy.getContextPath());
+        authIter = policy.getAuthenticationMethods().iterator();
+        Assert.assertEquals(false, authIter.hasNext());
+
+        policy = manager.getContextPolicy("/unprotected2");
+        Assert.assertEquals("/unprotected2", policy.getContextPath());
+        authIter = policy.getAuthenticationMethods().iterator();
+        Assert.assertEquals(false, authIter.hasNext());
     }
 }
