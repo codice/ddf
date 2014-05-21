@@ -220,4 +220,60 @@ public interface STSClientConfiguration {
      */
     public void setClaims(String claims);
 
+    /**
+     * Retrieves the assertion type that should be requested from the STS.
+     *
+     * @return assertion type
+     */
+    public String getAssertionType();
+
+    /**
+     * Sets the assertion type that should be requested from the STS.
+     *
+     * @param assertionType
+     */
+    public void setAssertionType(String assertionType);
+
+    /**
+     * Retrieves the key type that should be used when communicating with the STS.
+     *
+     * @return key type
+     */
+    public String getKeyType();
+
+    /**
+     * Sets the key type that should be used when communicating with the STS.
+     *
+     * @param keyType
+     */
+    public void setKeyType(String keyType);
+
+    /**
+     * Retrieves the size of the key that should be used.
+     *
+     * @return key size
+     */
+    public String getKeySize();
+
+    /**
+     * Sets the size of the key that should be used.
+     *
+     * @param keySize
+     */
+    public void setKeySize(String keySize);
+
+    /**
+     * Flags whether or not to supply a key in the request.
+     *
+     * @return true to supply a key
+     */
+    public Boolean getUseKey();
+
+    /**
+     * Sets whether or not to supply a key in the request.
+     *
+     * @param useKey
+     */
+    public void setUseKey(Boolean useKey);
+
 }

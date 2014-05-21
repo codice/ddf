@@ -14,12 +14,11 @@
  **/
 package ddf.security.sts.client.configuration.impl;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import ddf.security.sts.client.configuration.STSClientConfiguration;
 import org.apache.commons.lang.StringUtils;
 
-import ddf.security.sts.client.configuration.STSClientConfiguration;
+import java.util.ArrayList;
+import java.util.List;
 
 public class STSClientConfigurationImpl implements STSClientConfiguration {
 
@@ -46,6 +45,14 @@ public class STSClientConfigurationImpl implements STSClientConfiguration {
     String tokenProperties = null;
 
     List<String> claims = new ArrayList<String>();
+
+    private String assertionType = null;
+
+    private String keyType = null;
+
+    private String keySize = null;
+
+    private Boolean useKey = null;
 
     @Override
     public String getAddress() {
@@ -180,6 +187,46 @@ public class STSClientConfigurationImpl implements STSClientConfiguration {
             }
         }
         this.claims = setClaims;
+    }
+
+    @Override
+    public String getAssertionType() {
+        return assertionType;
+    }
+
+    @Override
+    public void setAssertionType(String assertionType) {
+        this.assertionType = assertionType;
+    }
+
+    @Override
+    public String getKeyType() {
+        return keyType;
+    }
+
+    @Override
+    public void setKeyType(String keyType) {
+        this.keyType = keyType;
+    }
+
+    @Override
+    public String getKeySize() {
+        return keySize;
+    }
+
+    @Override
+    public void setKeySize(String keySize) {
+        this.keySize = keySize;
+    }
+
+    @Override
+    public Boolean getUseKey() {
+        return useKey;
+    }
+
+    @Override
+    public void setUseKey(Boolean useKey) {
+        this.useKey = useKey;
     }
 
 }

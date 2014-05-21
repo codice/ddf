@@ -177,38 +177,6 @@ public class StsRealm extends AuthenticatingRealm implements ConfigurationWatche
     }
 
     /**
-     * Sets the configuration properties with an incoming property map. Users of this method should use {@link #configurationUpdateCallback(Map)} instead.
-     *
-     * @param properties
-     * @deprecated Since version 2.3.0.
-     */
-    @Deprecated
-    public void setDefaultConfiguration(@SuppressWarnings("rawtypes")
-    Map properties) {
-        String value;
-        value = (String) properties.get(ConfigurationManager.TRUST_STORE);
-        if (value != null) {
-            trustStorePath = value;
-        }
-
-        value = (String) properties.get(ConfigurationManager.TRUST_STORE_PASSWORD);
-        if (value != null) {
-            trustStorePassword = value;
-        }
-
-        value = (String) properties.get(ConfigurationManager.KEY_STORE);
-        if (value != null) {
-            keyStorePath = value;
-        }
-
-        value = (String) properties.get(ConfigurationManager.KEY_STORE_PASSWORD);
-        if (value != null) {
-            keyStorePassword = value;
-        }
-
-    }
-
-    /**
      * Determine if the supplied token is supported by this realm.
      */
     @Override
@@ -294,10 +262,9 @@ public class StsRealm extends AuthenticatingRealm implements ConfigurationWatche
                         );
                 stsClient.setWsdlLocation(stsAddress);
                 stsClient.setOnBehalfOf(authToken);
-                stsClient
-                        .setTokenType(
-                                "http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0");
-                stsClient.setKeyType("http://docs.oasis-open.org/ws-sx/ws-trust/200512/PublicKey");
+                stsClient.setTokenType(stsClientConfig.getAssertionType());
+                stsClient.setKeyType(stsClientConfig.getKeyType());
+                stsClient.setKeySize(Integer.valueOf(stsClientConfig.getKeySize()));
                 token = stsClient.requestSecurityToken(stsAddress);
                 LOGGER.debug("Finished requesting security token.");
                 SecurityLogger.logInfo("Finished requesting security token.");
@@ -551,7 +518,9 @@ public class StsRealm extends AuthenticatingRealm implements ConfigurationWatche
     /**
      * Helper method to setup STS Client.
      */
-    private void addSignatureProperties(Map<String, Object> map) {
+    private void addStsProperties() {
+        Map<String, Object> map = new HashMap<String, Object>();
+
         String signaturePropertiesPath = stsClientConfig.getSignatureProperties();
         if (signaturePropertiesPath != null && !signaturePropertiesPath.isEmpty()) {
             LOGGER.debug("Setting signature properties on STSClient: " + signaturePropertiesPath);
@@ -559,12 +528,7 @@ public class StsRealm extends AuthenticatingRealm implements ConfigurationWatche
                     .loadProperties(signaturePropertiesPath);
             map.put(SecurityConstants.SIGNATURE_PROPERTIES, signatureProperties);
         }
-    }
 
-    /**
-     * Helper method to setup STS Client.
-     */
-    private void addEncryptionProperties(Map<String, Object> map) {
         String encryptionPropertiesPath = stsClientConfig.getEncryptionProperties();
         if (encryptionPropertiesPath != null && !encryptionPropertiesPath.isEmpty()) {
             LOGGER.debug("Setting encryption properties on STSClient: " + encryptionPropertiesPath);
@@ -572,51 +536,19 @@ public class StsRealm extends AuthenticatingRealm implements ConfigurationWatche
                     .loadProperties(encryptionPropertiesPath);
             map.put(SecurityConstants.ENCRYPT_PROPERTIES, encryptionProperties);
         }
-    }
 
-    /**
-     * Helper method to setup STS Client.
-     */
-    private void addStsCryptoProperties(Map<String, Object> map) {
         String stsPropertiesPath = stsClientConfig.getTokenProperties();
         if (stsPropertiesPath != null && !stsPropertiesPath.isEmpty()) {
             LOGGER.debug("Setting sts properties on STSClient: " + stsPropertiesPath);
             Properties stsProperties = PropertiesLoader.loadProperties(stsPropertiesPath);
             map.put(SecurityConstants.STS_TOKEN_PROPERTIES, stsProperties);
         }
-    }
 
-    /**
-     * Helper method to setup STS Client.
-     */
-    private void addCallbackHandler(Map<String, Object> map) {
         LOGGER.debug("Setting callback handler on STSClient");
         map.put(SecurityConstants.CALLBACK_HANDLER, new CommonCallbackHandler());
-    }
 
-    /**
-     * Helper method to setup STS Client.
-     */
-    private void addUseCertForKeyInfo(Map<String, Object> map) {
         LOGGER.debug("Setting STS TOKEN USE CERT FOR KEY INFO to \"true\"");
-        map.put(SecurityConstants.STS_TOKEN_USE_CERT_FOR_KEYINFO, Boolean.TRUE.toString());
-    }
-
-    /**
-     * Helper method to setup STS Client.
-     */
-    private void addStsProperties() {
-        Map<String, Object> map = new HashMap<String, Object>();
-
-        addSignatureProperties(map);
-
-        addEncryptionProperties(map);
-
-        addStsCryptoProperties(map);
-
-        addCallbackHandler(map);
-
-        addUseCertForKeyInfo(map);
+        map.put(SecurityConstants.STS_TOKEN_USE_CERT_FOR_KEYINFO, String.valueOf(stsClientConfig.getUseKey()));
 
         stsClient.setProperties(map);
     }
