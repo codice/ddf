@@ -17,10 +17,7 @@
 
     <reference id="contextPolicyManager" interface="org.codice.security.policy.context.ContextPolicyManager" />
 
-    <reference id="authorizer" interface="org.apache.shiro.authz.Authorizer" />
-
     <bean id="filter" class="org.codice.security.filter.authorization.AuthorizationFilter">
-        <argument ref="authorizer" />
         <argument ref="contextPolicyManager" />
     </bean>
 

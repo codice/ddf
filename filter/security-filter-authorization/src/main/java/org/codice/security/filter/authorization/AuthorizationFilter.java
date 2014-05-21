@@ -17,7 +17,6 @@ package org.codice.security.filter.authorization;
 import ddf.security.SecurityConstants;
 import ddf.security.Subject;
 import ddf.security.permission.CollectionPermission;
-import org.apache.shiro.authz.Authorizer;
 import org.codice.security.policy.context.ContextPolicy;
 import org.codice.security.policy.context.ContextPolicyManager;
 import org.slf4j.Logger;
@@ -44,11 +43,12 @@ public class AuthorizationFilter implements Filter {
 
     private final ContextPolicyManager contextPolicyManager;
 
-    private final Authorizer authorizer;
-
-    public AuthorizationFilter(Authorizer authorizer, ContextPolicyManager contextPolicyManager) {
+    /**
+     * Default constructor
+     * @param contextPolicyManager
+     */
+    public AuthorizationFilter(ContextPolicyManager contextPolicyManager) {
         super();
-        this.authorizer = authorizer;
         this.contextPolicyManager = contextPolicyManager;
     }
 
@@ -71,7 +71,7 @@ public class AuthorizationFilter implements Filter {
 
         boolean permitted = true;
         for(CollectionPermission permission : permissions) {
-            if(!authorizer.isPermittedAll(subject.getPrincipals(), permission.getPermissionList())) {
+            if(!subject.isPermittedAll(permission.getPermissionList())) {
                 permitted = false;
             }
         }
@@ -85,10 +85,15 @@ public class AuthorizationFilter implements Filter {
         }
     }
 
+    /**
+     * Sets status and error codes to forbidden and returns response.
+     *
+     * @param response
+     */
     private void returnNotAuthorized(HttpServletResponse response) {
         try {
             response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-            response.setContentLength(0);
+            response.sendError(HttpServletResponse.SC_FORBIDDEN);
             response.flushBuffer();
         } catch (IOException ioe) {
             LOGGER.debug("Failed to send auth response: {}", ioe);
