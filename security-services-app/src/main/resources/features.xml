@@ -140,6 +140,7 @@
 
     <feature name="security-handler-saml" install="manual" version="${project.version}"
              description="SAML Handler for web applications.">
+        <feature>cxf-rs-security-sso-saml</feature>
         <bundle>mvn:ddf.security.handler/security-handler-saml/${project.version}</bundle>
     </feature>
 
