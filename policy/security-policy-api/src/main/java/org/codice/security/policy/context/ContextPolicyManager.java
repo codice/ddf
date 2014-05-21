@@ -21,9 +21,24 @@ import java.util.Collection;
  */
 public interface ContextPolicyManager {
 
+    /**
+     * Returns the policy associated with the given context path. The argument is assumed to be
+     * the type of path returned from calling httpRequest.getContextPath();
+     * @param path - context path
+     * @return policy associated with the given path
+     */
     public ContextPolicy getContextPolicy(String path);
 
+    /**
+     * Returns a Collection of all {@link ContextPolicy} objects
+     * @return collection of policies
+     */
     public Collection<ContextPolicy> getAllContextPolicies();
 
+    /**
+     * Sets a policy for a particular path
+     * @param path - context path
+     * @param contextPolicy - context policy
+     */
     public void setContextPolicy(String path, ContextPolicy contextPolicy);
 }
