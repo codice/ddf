@@ -25,6 +25,10 @@
     <name>DDF :: Catalog :: Core :: Federation Strategy</name>
     <packaging>bundle</packaging>
 
+    <properties>
+        <powermock.version>1.5.4</powermock.version>
+    </properties>
+
 	<dependencies>
 		<dependency>
 			<groupId>ddf.catalog.core</groupId>
@@ -69,19 +73,18 @@
 			<artifactId>slf4j-ext</artifactId>
 		</dependency>
 
-		<dependency>
-			<groupId>org.powermock</groupId>
-			<artifactId>powermock-module-junit4</artifactId>
-			<version>1.4.12</version>
-			<scope>test</scope>
-		</dependency>
-
-		<dependency>
-			<groupId>org.powermock</groupId>
-			<artifactId>powermock-api-mockito</artifactId>
-			<version>1.4.12</version>
-			<scope>test</scope>
-		</dependency>
+                <dependency>
+                    <groupId>org.powermock</groupId>
+                    <artifactId>powermock-module-junit4</artifactId>
+                    <version>${powermock.version}</version>
+                    <scope>test</scope>
+                </dependency>
+                <dependency>
+                    <groupId>org.powermock</groupId>
+                    <artifactId>powermock-api-mockito</artifactId>
+                    <version>${powermock.version}</version>
+                    <scope>test</scope>
+                </dependency>
 	</dependencies>
 
 	<build>
