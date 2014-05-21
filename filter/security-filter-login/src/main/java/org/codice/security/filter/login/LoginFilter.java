@@ -14,6 +14,7 @@
  **/
 package org.codice.security.filter.login;
 
+import ddf.security.SecurityConstants;
 import ddf.security.Subject;
 import ddf.security.assertion.SecurityAssertion;
 import ddf.security.common.util.PropertiesLoader;
@@ -194,7 +195,7 @@ public class LoginFilter implements Filter {
         }
 
         if (subject != null) {
-            httpRequest.setAttribute("ddf.security.subject", subject);
+            httpRequest.setAttribute(SecurityConstants.SECURITY_SUBJECT, subject);
             chain.doFilter(request, response);
         } else {
             LOGGER.debug("Could not attach subject to http request.");

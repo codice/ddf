@@ -14,6 +14,7 @@
  **/
 package org.codice.security.filter.authorization;
 
+import ddf.security.SecurityConstants;
 import ddf.security.Subject;
 import ddf.security.permission.CollectionPermission;
 import org.apache.shiro.authz.Authorizer;
@@ -62,7 +63,7 @@ public class AuthorizationFilter implements Filter {
         HttpServletRequest httpRequest = (HttpServletRequest) request;
         HttpServletResponse httpResponse = (HttpServletResponse) response;
 
-        Subject subject = (Subject) httpRequest.getAttribute("ddf.security.subject");
+        Subject subject = (Subject) httpRequest.getAttribute(SecurityConstants.SECURITY_SUBJECT);
 
         ContextPolicy policy = contextPolicyManager.getContextPolicy(httpRequest.getContextPath());
 
