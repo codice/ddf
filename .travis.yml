@@ -3,6 +3,6 @@ install: mvn install --quiet -DskipTests=true -B
 script: mvn test --quiet -B
 jdk:
   - openjdk6
+  - openjdk7
   - oraclejdk7
-# JDK8 causes a test failure - https://tools.codice.org/jira/browse/DDF-475
-#  - oraclejdk8
+  - oraclejdk8
