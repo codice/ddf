@@ -34,21 +34,21 @@ import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.namespace.QName;
+import javax.ws.rs.core.HttpHeaders;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.security.Principal;
+import org.codice.security.handler.api.AuthenticationHandler;
 
 /**
  * Handler implementing Basic HTTP Authentication. If basic credentials are supplied in the HTTP
  * header, a UsernameToken will be created.
  */
-public class AuthenticationHandler implements org.codice.security.handler.api.AuthenticationHandler {
+public class BasicAuthenticationHandler implements AuthenticationHandler {
 
     private static final transient Logger LOGGER = LoggerFactory
-            .getLogger(AuthenticationHandler.class);
-
-    public static final String HEADER_AUTHORIZATION = "Authorization";
+            .getLogger(BasicAuthenticationHandler.class);
 
     public static final String AUTHENTICATION_SCHEME_BASIC = "Basic";
 
@@ -57,7 +57,6 @@ public class AuthenticationHandler implements org.codice.security.handler.api.Au
      */
     public static final String AUTH_TYPE = "BASIC";
 
-    private static final String HEADER_WWW_AUTHENTICATE = "WWW-Authenticate";
 
     private static Marshaller marshaller = null;
 
@@ -66,7 +65,9 @@ public class AuthenticationHandler implements org.codice.security.handler.api.Au
     }
 
     /**
-     * Returns the FilterResult for the HTTP Request.
+     * Processes the incoming request to retrieve the username/password tokens. Handles responding
+     * to the client that authentication is needed if they are not present in the request.
+     * Returns the {@link org.codice.security.handler.api.HandlerResult} for the HTTP Request.
      *
      * @param request http request to obtain attributes from and to pass into any local filter chains required
      * @param response http response to return http responses or redirects
@@ -126,7 +127,7 @@ public class AuthenticationHandler implements org.codice.security.handler.api.Au
 
     /**
      * Returns the UsernameToken marshalled as a String so that it can be attached to the
-     * FilterResult object.
+     * {@link org.codice.security.handler.api.HandlerResult} object.
      * @param result
      * @return String
      */
@@ -166,7 +167,7 @@ public class AuthenticationHandler implements org.codice.security.handler.api.Au
      */
     private void doAuthPrompt(String realm, HttpServletResponse response) {
         try {
-            response.setHeader(HEADER_WWW_AUTHENTICATE,
+            response.setHeader(HttpHeaders.WWW_AUTHENTICATE,
                     AUTHENTICATION_SCHEME_BASIC + " realm=\"" + realm + "\"");
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.setContentLength(0);
@@ -208,7 +209,7 @@ public class AuthenticationHandler implements org.codice.security.handler.api.Au
      */
     private UsernameTokenType setAuthenticationInfo(HttpServletRequest request) {
 
-        String authHeader = request.getHeader(HEADER_AUTHORIZATION);
+        String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
 
         if (authHeader == null || authHeader.equals("")) {
             return null;

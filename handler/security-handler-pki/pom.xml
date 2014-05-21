@@ -30,7 +30,6 @@
         <dependency>
             <groupId>org.jasypt</groupId>
             <artifactId>jasypt</artifactId>
-            <version>1.9.0</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -56,7 +55,6 @@
         <dependency>
             <groupId>org.apache.ws.security</groupId>
             <artifactId>wss4j</artifactId>
-            <version>1.6.13</version>
         </dependency>
         <dependency>
             <groupId>ddf.security.core</groupId>

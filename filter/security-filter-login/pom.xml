@@ -50,12 +50,12 @@
         <dependency>
             <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-rt-rs-security-xml</artifactId>
-            <version>2.7.8</version>
+            <version>${cxf.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-rt-rs-security-sso-saml</artifactId>
-            <version>2.7.8</version>
+            <version>${cxf.version}</version>
         </dependency>
         <dependency>
             <groupId>org.opensaml</groupId>

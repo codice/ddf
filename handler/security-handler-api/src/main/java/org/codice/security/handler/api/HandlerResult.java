@@ -17,6 +17,11 @@ package org.codice.security.handler.api;
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
 import org.apache.shiro.authc.AuthenticationToken;
 
+/**
+ * Encapsulates the return status for each handler. Consists of the status of any action taken by
+ * the handler (successfully retrieved desired tokens, responded to a client in order to obtain
+ * missing tokens, or no action taken), as well as the actual tokens retrieved from the header.
+ */
 public class HandlerResult implements AuthenticationToken {
     public enum Status {
         // completed - auth tokens retrieved ready to move on

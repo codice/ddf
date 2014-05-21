@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-package org.codice.security.filter.cas;
+package org.codice.security.handler.cas;
 
 import ddf.security.cas.client.ProxyFilter;
 import ddf.security.sts.client.configuration.STSClientConfiguration;
@@ -42,8 +42,8 @@ import java.io.Writer;
 /**
  * Authentication Handler for CAS. Runs through CAS filter chain if no CAS ticket is present.
  */
-public class CasFilter implements AuthenticationHandler {
-    private static final transient Logger LOGGER = LoggerFactory.getLogger(CasFilter.class);
+public class CasHandler implements AuthenticationHandler {
+    private static final transient Logger LOGGER = LoggerFactory.getLogger(CasHandler.class);
 
     private static Marshaller marshaller = null;
 

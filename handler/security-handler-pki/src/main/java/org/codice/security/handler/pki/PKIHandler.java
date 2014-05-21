@@ -80,14 +80,14 @@ public class PKIHandler implements AuthenticationHandler {
     }
 
     /**
-     * Returns the FilterResult containing a BinarySecurityToken if the operation was successful.
-     *
+     * Handler implementing PKI authentication. Returns the {@link org.codice.security.handler.api.HandlerResult} containing
+     * a BinarySecurityToken if the operation was successful.
      *
      * @param request http request to obtain attributes from and to pass into any local filter chains required
      * @param response http response to return http responses or redirects
      * @param chain original filter chain (should not be called from your handler)
      * @param resolve flag with true implying that credentials should be obtained, false implying return if no credentials are found.
-     * @return FilterResult
+     * @return result of handling this request - status and optional tokens
      * @throws ServletException
      */
     @Override
@@ -97,7 +97,6 @@ public class PKIHandler implements AuthenticationHandler {
         X509Certificate[] certs = (X509Certificate[]) request.getAttribute("javax.servlet.request.X509Certificate");
         //doesn't matter what the resolve flag is set to, we do the same action
         if (certs != null && certs.length > 0) {
-            //TODO do something with these certs
             byte[] certBytes = null;
             try {
                 certBytes = getCertBytes(certs);

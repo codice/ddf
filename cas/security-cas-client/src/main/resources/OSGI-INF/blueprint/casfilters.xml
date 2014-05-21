@@ -4,7 +4,7 @@
  * Copyright (c) Codice Foundation
  *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
- * version 3 of the License, or any later version. 
+ * version 3 of the License, or any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
@@ -25,12 +25,12 @@
     		<cm:property name="proxyReceptorUrl" value="/sso"/>
     	</cm:default-properties>
     </cm:property-placeholder>
-    
+
 	<bean id="casSingleSignOutFilter" class="org.jasig.cas.client.session.SingleSignOutFilter" />
 
 	<bean id="casAuthenticationFilter"
 		class="org.jasig.cas.client.authentication.AuthenticationFilter">
-  		<property name="serverName" value="$cas{serverName}" />		
+  		<property name="serverName" value="$cas{serverName}" />
 	    <property name="casServerLoginUrl" value="$cas{casServerUrl}$cas{casServerLoginSuffix}" />
 		<property name="renew" value="false" />
 		<property name="gateway" value="false" />
@@ -40,7 +40,7 @@
 	<bean id="casTicketValidationFilter"
 		class="org.jasig.cas.client.validation.Cas20ProxyReceivingTicketValidationFilter">
 		<property name="ignoreInitConfiguration" value="true" />
- 		<property name="serverName" value="$cas{serverName}" />	
+ 		<property name="serverName" value="$cas{serverName}" />
 		<property name="millisBetweenCleanUps" value="60000" />
 		<property name="ticketValidator" ref="cas20ServiceTicketValidator" />
 		<property name="proxyReceptorUrl" value="$cas{proxyReceptorUrl}" />
@@ -50,8 +50,8 @@
 
 	<bean id="cas20ServiceTicketValidator"
 		class="org.jasig.cas.client.validation.Cas20ServiceTicketValidator">
-		<argument value="$cas{casServerUrl}" />		
-		<property  name="proxyCallbackUrl" value="$cas{proxyCallbackUrl}" />		
+		<argument value="$cas{casServerUrl}" />
+		<property  name="proxyCallbackUrl" value="$cas{proxyCallbackUrl}" />
 		<property name="proxyGrantingTicketStorage" ref="proxyStorage" />
 	</bean>
 
@@ -59,9 +59,9 @@
 		class="org.jasig.cas.client.util.HttpServletRequestWrapperFilter" />
 
 	<bean id="casAssertionThreadLocalFilter" class="org.jasig.cas.client.util.AssertionThreadLocalFilter" />
-	
+
 	<bean id="proxyStorage" class="org.jasig.cas.client.proxy.ProxyGrantingTicketStorageImpl" />
-	
+
 	<bean id="proxyFilter" class="ddf.security.cas.client.ProxyFilter">
 		<argument>
 			<list value-type="javax.servlet.Filter">
@@ -76,7 +76,7 @@
 
     <reference id="stsClientConfig" interface="ddf.security.sts.client.configuration.STSClientConfiguration" />
 
-    <bean id="filter" class="org.codice.security.filter.cas.CasFilter">
+    <bean id="filter" class="org.codice.security.handler.cas.CasHandler">
         <property name="clientConfiguration" ref="stsClientConfig" />
         <property name="proxyFilter" ref="proxyFilter" />
     </bean>

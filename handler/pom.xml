@@ -32,9 +32,10 @@
         <dependency>
             <groupId>org.apache.shiro</groupId>
             <artifactId>shiro-core</artifactId>
-            <version>1.2.1</version>
+            <version>${shiro.version}</version>
         </dependency>
     </dependencies>
+
     <modules>
         <module>security-handler-api</module>
         <module>security-handler-anonymous</module>
