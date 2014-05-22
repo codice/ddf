@@ -19,6 +19,11 @@
 		<welcome-file>SearchPage.jsp</welcome-file>
 	</welcome-file-list>
 	
+    <context-param>
+        <param-name>org.eclipse.jetty.servlet.SessionIdPathParameterName</param-name>
+        <param-value>none</param-value>
+    </context-param>
+	
 	<filter>
 		<filter-name>SecurityServletFilter</filter-name>
 		<filter-class>org.codice.ddf.ui.searchui.security.SecurityServletFilter</filter-class>

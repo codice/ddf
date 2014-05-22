@@ -19,6 +19,11 @@
     <welcome-file-list>
 		<welcome-file>index.html</welcome-file>
 	</welcome-file-list>
+	
+    <context-param>
+        <param-name>org.eclipse.jetty.servlet.SessionIdPathParameterName</param-name>
+        <param-value>none</param-value>
+    </context-param>
 
     <filter>
             <filter-name>SecurityServletFilter</filter-name>
