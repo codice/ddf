@@ -45,6 +45,7 @@
 		<property name="ticketValidator" ref="cas20ServiceTicketValidator" />
 		<property name="proxyReceptorUrl" value="$cas{proxyReceptorUrl}" />
 		<property name="proxyGrantingTicketStorage" ref="proxyStorage" />
+		<property name="redirectAfterValidation" value="true" />
 	</bean>
 
 	<bean id="cas20ServiceTicketValidator"
