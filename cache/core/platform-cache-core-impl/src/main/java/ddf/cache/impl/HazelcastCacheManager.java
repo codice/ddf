@@ -322,4 +322,14 @@ public class HazelcastCacheManager implements CacheManager {
         
         return mapCfg;
     }
+
+    @Override
+    public String getCacheInstanceName() {
+        String instanceName = null;
+        if(instance != null){
+            instanceName = instance.getName();
+        }
+        
+        return instanceName;
+    }
 }

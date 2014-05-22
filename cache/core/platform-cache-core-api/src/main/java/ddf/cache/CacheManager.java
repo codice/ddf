@@ -83,4 +83,12 @@ public interface CacheManager {
      * Shutdown the Cache Manager
      */
     public void shutdown();
+
+    /**
+     * Name of Managing Cache Instance
+     * 
+     * @return 
+     */
+    public String getCacheInstanceName();
+    
 }
