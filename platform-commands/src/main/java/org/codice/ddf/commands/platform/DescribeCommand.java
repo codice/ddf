@@ -15,6 +15,7 @@
 package org.codice.ddf.commands.platform;
 
 import java.util.Map;
+import java.util.TreeSet;
 
 import org.apache.felix.gogo.commands.Command;
 
@@ -30,8 +31,9 @@ public class DescribeCommand extends PlatformCommands implements ConfigurationWa
 
     @Override
     protected Object doExecute() throws Exception {
-        for (Map.Entry<String, String>  entry : configurationMap.entrySet()) {
-            System.out.printf("%s=%s\n", entry.getKey(), entry.getValue());
+        TreeSet<String> keys = new TreeSet<String>(configurationMap.keySet());
+        for (String key : keys) {
+            System.out.printf("%s=%s\n", key, configurationMap.get(key));
         }
         return null;
     }
