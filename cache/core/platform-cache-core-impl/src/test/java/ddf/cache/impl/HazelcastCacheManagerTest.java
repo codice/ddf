@@ -14,11 +14,11 @@
  **/
 package ddf.cache.impl;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.isOneOf;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.isOneOf;
 
 import java.io.File;
 import java.util.Date;
@@ -30,7 +30,6 @@ import java.util.UUID;
 
 import org.apache.commons.io.FileUtils;
 import org.codice.ddf.notifications.Notification;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,24 +57,6 @@ public class HazelcastCacheManagerTest {
     private static final String PERSISTENT_CACHE_NAME = "persistentCache";
 
     private CacheManager cacheMgt;
-
-    @BeforeClass
-    public static void oneTimeSetup() {
-//        ch.qos.logback.classic.Logger root = (ch.qos.logback.classic.Logger) LoggerFactory
-//                .getLogger(Logger.ROOT_LOGGER_NAME);
-//        root.setLevel(ch.qos.logback.classic.Level.DEBUG);
-    }
-
-//    @Before
-//    public void setUp() {
-//        cacheMgt = new HazelcastCacheManager();
-//    }
-//
-//    @After
-//    public void tearDown() {
-//        cacheMgt.removeCache(testCacheName);
-//        cacheMgt.shutdown();
-//    }
 
     
     @Test

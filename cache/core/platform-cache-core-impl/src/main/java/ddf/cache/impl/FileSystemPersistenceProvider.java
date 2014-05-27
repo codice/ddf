@@ -33,6 +33,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -80,18 +81,27 @@ public class FileSystemPersistenceProvider implements MapLoader<String, Object>,
 
     @Override
     public void store(String key, Object value) {
+        OutputStream file = null;
+        ObjectOutput output = null;
         try {
             File dir = new File(getMapStorePath());
             if(!dir.exists()) {
                 dir.mkdir();
             }
-            OutputStream file = new FileOutputStream(getMapStorePath() + key + ".ser");
+            file = new FileOutputStream(getMapStorePath() + key + ".ser");
             OutputStream buffer = new BufferedOutputStream(file);
-            ObjectOutput output = new ObjectOutputStream(buffer);
+            output = new ObjectOutputStream(buffer);
             output.writeObject(value);
-            output.close();
         } catch (IOException e) {
             LOGGER.info("IOException storing value in cache with key = " + key, e);
+        } finally {
+            try {
+                if (output != null) {
+                    output.close();
+                }
+            } catch (IOException e) {
+            }
+            IOUtils.closeQuietly(file);
         }
     }
 
@@ -128,21 +138,19 @@ public class FileSystemPersistenceProvider implements MapLoader<String, Object>,
     Object loadFromPersistence(String key) {
         File file = new File(getMapStorePath() + key + ".ser");
         if(!file.exists()) return null;
-
+        InputStream inputStream = null;
         try {
-            InputStream inputStream = 
-                new FileInputStream(getMapStorePath() + key + ".ser");
+            inputStream = new FileInputStream(getMapStorePath() + key + ".ser");
             InputStream buffer = new BufferedInputStream(inputStream);
             ObjectInput input = new ObjectInputStream(buffer);
             Object obj = (Object) input.readObject();
-            input.close();
-            buffer.close();
-            inputStream.close();
             return obj;
         } catch (IOException e) {
             LOGGER.info("IOException", e);
         } catch (ClassNotFoundException e) {
             LOGGER.info("ClassNotFoundException", e);
+        } finally {
+            IOUtils.closeQuietly(inputStream);
         }
         return null;
     }
@@ -152,7 +160,10 @@ public class FileSystemPersistenceProvider implements MapLoader<String, Object>,
         Map<String, Object> values = new HashMap<String, Object>();
 
         for(String key : keys) {
-            values.put(key, loadFromPersistence(key));
+            Object obj = loadFromPersistence(key);
+            if (obj != null) {
+                values.put(key, obj);
+            }
         }
         return values;
     }
