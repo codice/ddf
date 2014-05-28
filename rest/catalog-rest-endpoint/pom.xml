@@ -109,7 +109,6 @@
 						    org.apache.cxf.jaxrs.utils,
 							*
 						</Import-Package>
-						<Export-Package />
 						<DynamicImport-Package>javax.ws.rs.*</DynamicImport-Package>
 					</instructions>
 				</configuration>

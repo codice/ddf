@@ -14,32 +14,6 @@
  **/
 package org.codice.ddf.endpoints;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
-
-import org.apache.commons.lang.StringUtils;
-import org.codice.ddf.configuration.ConfigurationManager;
-import org.codice.ddf.configuration.ConfigurationWatcher;
-import org.codice.ddf.opensearch.query.OpenSearchQuery;
-import org.parboiled.errors.ParsingException;
-import org.slf4j.LoggerFactory;
-import org.slf4j.ext.XLogger;
-
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.Constants;
 import ddf.catalog.data.BinaryContent;
@@ -58,9 +32,33 @@ import ddf.security.Subject;
 import ddf.security.service.SecurityManager;
 import ddf.security.service.SecurityServiceException;
 import ddf.security.service.TokenRequestHandler;
+import org.apache.commons.lang.StringUtils;
+import org.codice.ddf.configuration.ConfigurationManager;
+import org.codice.ddf.configuration.ConfigurationWatcher;
+import org.codice.ddf.opensearch.query.OpenSearchQuery;
+import org.parboiled.errors.ParsingException;
+import org.slf4j.LoggerFactory;
+import org.slf4j.ext.XLogger;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 @Path("/")
-public class OpenSearchEndpoint implements ConfigurationWatcher {
+public class OpenSearchEndpoint implements ConfigurationWatcher, OpenSearch {
 
     private SecurityManager securityManager;
 
@@ -71,46 +69,6 @@ public class OpenSearchEndpoint implements ConfigurationWatcher {
     private final CatalogFramework framework;
 
     private final FilterBuilder filterBuilder;
-
-    private static final String PHRASE = "q";
-
-    private static final String MAX_RESULTS = "mr";
-
-    private static final String SOURCES = "src";
-
-    private static final String MAX_TIMEOUT = "mt";
-
-    private static final String START_INDEX = "start";
-
-    private static final String COUNT = "count";
-
-    private static final String BBOX = "bbox";
-
-    private static final String POLYGON = "polygon";
-
-    private static final String GEOMETRY = "geometry";
-
-    private static final String LAT = "lat";
-
-    private static final String LON = "lon";
-
-    private static final String RADIUS = "radius";
-
-    private static final String DATE_START = "dtstart";
-
-    private static final String DATE_END = "dtend";
-
-    private static final String DATE_OFFSET = "dtoffset";
-
-    private static final String TYPE = "type";
-
-    private static final String VERSION = "version";
-
-    private static final String SELECTOR = "selector";
-
-    private static final String SORT = "sort";
-
-    private static final String FORMAT = "format";
 
     private static final XLogger LOGGER = new XLogger(
             LoggerFactory.getLogger(OpenSearchEndpoint.class));

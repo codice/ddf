@@ -15,21 +15,12 @@
 
 package ddf.catalog.source.opensearch;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
-import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
+import ddf.catalog.data.Metacard;
+import ddf.catalog.impl.filter.TemporalFilter;
+import ddf.catalog.operation.QueryRequest;
+import ddf.catalog.operation.SourceResponse;
+import ddf.catalog.operation.impl.QueryRequestImpl;
+import org.apache.cxf.jaxrs.client.WebClient;
 import org.geotools.filter.FilterTransformer;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
@@ -43,11 +34,19 @@ import org.opengis.filter.sort.SortOrder;
 import org.slf4j.LoggerFactory;
 import org.slf4j.ext.XLogger;
 
-import ddf.catalog.data.Metacard;
-import ddf.catalog.impl.filter.TemporalFilter;
-import ddf.catalog.operation.QueryRequest;
-import ddf.catalog.operation.SourceResponse;
-import ddf.catalog.operation.impl.QueryRequestImpl;
+import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class TestCddaOpenSearchSite {
     private static final XLogger LOGGER = new XLogger(
@@ -68,10 +67,6 @@ public class TestCddaOpenSearchSite {
         }
     };
 
-    private static String DEFAULT_OS_URL = "https://example.com?q=REPLACE_ME&src=&mr=&count=10&mt=30000&dn=&lat=&lon=&radius=&bbox=&polygon=&dtstart=&dtend=&dateName=&filter=&sort=relevance:desc";
-
-    private static SecureRemoteConnection connection = new SecureRemoteConnectionImpl();
-
     /**
      * This test would have thrown an exception (cannot connect to service) if the url was being
      * called because no search phrase specified in query.
@@ -79,7 +74,13 @@ public class TestCddaOpenSearchSite {
     @Test
     public void testNoSearchPhrase() {
         try {
-            CddaOpenSearchSite site = new CddaOpenSearchSite(connection);
+            String endpointUrl = "http://example.com";
+            CddaOpenSearchSite site = new CddaOpenSearchSite();
+            OpenSearchConnection connection = new OpenSearchConnection(endpointUrl, null, null, null, null, null, null, null, null);
+            site.openSearchConnection = connection;
+            site.setParameters(Arrays.asList(
+                    "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort"
+                            .split(",")));
 
             MockQuery query = new MockQuery(null, 0, 10, "relevance", SortOrder.DESCENDING,
                     (long) 30000);
@@ -114,7 +115,13 @@ public class TestCddaOpenSearchSite {
     @Test
     public void testEmptySearchPhrase() {
         try {
-            CddaOpenSearchSite site = new CddaOpenSearchSite(connection);
+            String endpointUrl = "http://example.com";
+            CddaOpenSearchSite site = new CddaOpenSearchSite();
+            OpenSearchConnection connection = new OpenSearchConnection(endpointUrl, null, null, null, null, null, null, null, null);
+            site.openSearchConnection = connection;
+            site.setParameters(Arrays.asList(
+                    "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort"
+                            .split(",")));
 
             String searchTerm = "";
             String selector = null;
@@ -146,7 +153,15 @@ public class TestCddaOpenSearchSite {
     @Test
     public void testSiteNotAvailable() {
         try {
-            CddaOpenSearchSite site = new CddaOpenSearchSite(connection);
+            //don't use example.com here because there actually is a webpage at example.com which
+            //will cause this to resolve as available :)
+            String endpointUrl = "http://12345abc12345foobar.com";
+            CddaOpenSearchSite site = new CddaOpenSearchSite();
+            OpenSearchConnection connection = new OpenSearchConnection(endpointUrl, null, null, null, null, null, null, null, null);
+            site.openSearchConnection = connection;
+            site.setParameters(Arrays.asList(
+                    "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort"
+                            .split(",")));
             assertFalse(site.isAvailable());
         } catch (Exception e) {
             fail("Got an exception: " + e.getMessage());
@@ -156,7 +171,15 @@ public class TestCddaOpenSearchSite {
     @Test
     public void testContextualSearch_Url() {
         try {
-            CddaOpenSearchSite site = new CddaOpenSearchSite(connection);
+            String endpointUrl = "http://example.com";
+            CddaOpenSearchSite site = new CddaOpenSearchSite();
+            OpenSearchConnection connection = new OpenSearchConnection(endpointUrl, null, null, null, null, null, null, null, null);
+            site.openSearchConnection = connection;
+            site.setParameters(Arrays.asList(
+                    "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort"
+                            .split(",")));
+
+            WebClient webClient = site.openSearchConnection.getOpenSearchWebClient();
 
             String searchTerm = "cat";
             String selector = null;
@@ -165,10 +188,10 @@ public class TestCddaOpenSearchSite {
                     (long) 30000);
             query.addContextualFilter(searchTerm, selector);
 
-            String url = site.createUrl(query, null);
+            site.setOpenSearchParameters(query, null, webClient);
+            String urlStr = webClient.getCurrentURI().toString();
 
-            String expectedUrl = DEFAULT_OS_URL.replaceAll("REPLACE_ME", searchTerm);
-            assertEquals(expectedUrl, url);
+            assertTrue(urlStr.contains(URLEncoder.encode(searchTerm, "UTF-8")));
         } catch (Exception e) {
             LOGGER.error("unexpected exception", e);
             fail("Got an exception: " + e.getMessage());
@@ -181,7 +204,15 @@ public class TestCddaOpenSearchSite {
     @Test
     public void testContextualSearchMultiWords() {
         try {
-            CddaOpenSearchSite site = new CddaOpenSearchSite(connection);
+            String endpointUrl = "http://example.com";
+            CddaOpenSearchSite site = new CddaOpenSearchSite();
+            OpenSearchConnection connection = new OpenSearchConnection(endpointUrl, null, null, null, null, null, null, null, null);
+            site.openSearchConnection = connection;
+            site.setParameters(Arrays.asList(
+                    "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort"
+                            .split(",")));
+
+            WebClient webClient = site.openSearchConnection.getOpenSearchWebClient();
 
             String searchTerm = "cat dog";
             String output = "cat+dog";
@@ -191,10 +222,10 @@ public class TestCddaOpenSearchSite {
                     (long) 30000);
             query.addContextualFilter(searchTerm, selector);
 
-            String url = site.createUrl(query, null);
+            site.setOpenSearchParameters(query, null, webClient);
+            String urlStr = webClient.getCurrentURI().toString();
 
-            String expectedUrl = DEFAULT_OS_URL.replaceAll("REPLACE_ME", output);
-            assertEquals(expectedUrl, url);
+            assertTrue(urlStr.contains(URLEncoder.encode(output, "UTF-8")));
         } catch (Exception e) {
             LOGGER.error(UNEXPECTED_EXCEPTION_MSG, e);
             fail("Got an exception: " + e.getMessage());
@@ -207,20 +238,29 @@ public class TestCddaOpenSearchSite {
     @Test
     public void testContextualSearchQuotedWords() {
         try {
-            CddaOpenSearchSite site = new CddaOpenSearchSite(connection);
+            String endpointUrl = "http://example.com";
+            CddaOpenSearchSite site = new CddaOpenSearchSite();
+            OpenSearchConnection connection = new OpenSearchConnection(endpointUrl, null, null, null, null, null, null, null, null);
+            site.openSearchConnection = connection;
+            site.setParameters(Arrays.asList(
+                    "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort"
+                            .split(",")));
+
+            WebClient webClient = site.openSearchConnection.getOpenSearchWebClient();
 
             String searchTerm = "\"cat dog\"";
-            String output = URLEncoder.encode(searchTerm, "UTF-8");
+            String queryTerm = "\"cat+dog\"";
+            String output = URLEncoder.encode(queryTerm, "UTF-8");
             String selector = null;
 
             MockQuery query = new MockQuery(null, 0, 10, "relevance", SortOrder.DESCENDING,
                     (long) 30000);
             query.addContextualFilter(searchTerm, selector);
 
-            String url = site.createUrl(query, null);
+            site.setOpenSearchParameters(query, null, webClient);
+            String urlStr = webClient.getCurrentURI().toString();
 
-            String expectedUrl = DEFAULT_OS_URL.replaceAll("REPLACE_ME", output);
-            assertEquals(expectedUrl, url);
+            assertTrue(urlStr.contains(output));
         } catch (Exception e) {
             LOGGER.error(UNEXPECTED_EXCEPTION_MSG, e);
             fail("Got an exception: " + e.getMessage());
@@ -233,7 +273,15 @@ public class TestCddaOpenSearchSite {
     @Test
     public void testSearchPhraseSingleAND() {
         try {
-            CddaOpenSearchSite site = new CddaOpenSearchSite(connection);
+            String endpointUrl = "http://example.com";
+            CddaOpenSearchSite site = new CddaOpenSearchSite();
+            OpenSearchConnection connection = new OpenSearchConnection(endpointUrl, null, null, null, null, null, null, null, null);
+            site.openSearchConnection = connection;
+            site.setParameters(Arrays.asList(
+                    "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort"
+                            .split(",")));
+
+            WebClient webClient = site.openSearchConnection.getOpenSearchWebClient();
 
             String searchTerm = "This";
             String searchTerm2 = "That";
@@ -244,11 +292,10 @@ public class TestCddaOpenSearchSite {
             query.addContextualFilter(searchTerm, selector);
             query.addContextualFilter(searchTerm2, selector);
 
-            String url = site.createUrl(query, null);
+            site.setOpenSearchParameters(query, null, webClient);
+            String urlStr = webClient.getCurrentURI().toString();
 
-            String expectedUrl = DEFAULT_OS_URL.replaceAll("REPLACE_ME", searchTerm + "+AND+"
-                    + searchTerm2);
-            assertEquals(expectedUrl, url);
+            assertTrue(urlStr.contains(URLEncoder.encode(searchTerm + "+AND+"+ searchTerm2, "UTF-8")));
         } catch (Exception e) {
             LOGGER.error(UNEXPECTED_EXCEPTION_MSG, e);
             fail("Got an exception: " + e.getMessage());
@@ -261,7 +308,15 @@ public class TestCddaOpenSearchSite {
     @Test
     public void testSearchPhraseMultipleAND() {
         try {
-            CddaOpenSearchSite site = new CddaOpenSearchSite(connection);
+            String endpointUrl = "http://example.com";
+            CddaOpenSearchSite site = new CddaOpenSearchSite();
+            OpenSearchConnection connection = new OpenSearchConnection(endpointUrl, null, null, null, null, null, null, null, null);
+            site.openSearchConnection = connection;
+            site.setParameters(Arrays.asList(
+                    "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort"
+                            .split(",")));
+
+            WebClient webClient = site.openSearchConnection.getOpenSearchWebClient();
 
             String searchTerm[] = new String[] {"Who", "What", "When", "Where", "Why"};
             String output = "Who+AND+What+AND+When+AND+Where+AND+Why";
@@ -274,10 +329,10 @@ public class TestCddaOpenSearchSite {
                 query.addContextualFilter(searchTerm[i], selector);
             }
 
-            String url = site.createUrl(query, null);
+            site.setOpenSearchParameters(query, null, webClient);
+            String urlStr = webClient.getCurrentURI().toString();
 
-            String expectedUrl = DEFAULT_OS_URL.replaceAll("REPLACE_ME", output);
-            assertEquals(expectedUrl, url);
+            assertTrue(urlStr.contains(URLEncoder.encode(output, "UTF-8")));
         } catch (Exception e) {
             LOGGER.error(UNEXPECTED_EXCEPTION_MSG, e);
             fail("Got an exception: " + e.getMessage());
@@ -290,7 +345,15 @@ public class TestCddaOpenSearchSite {
     @Test
     public void testSearchPhraseSingleOR() {
         try {
-            CddaOpenSearchSite site = new CddaOpenSearchSite(connection);
+            String endpointUrl = "http://example.com";
+            CddaOpenSearchSite site = new CddaOpenSearchSite();
+            OpenSearchConnection connection = new OpenSearchConnection(endpointUrl, null, null, null, null, null, null, null, null);
+            site.openSearchConnection = connection;
+            site.setParameters(Arrays.asList(
+                    "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort"
+                            .split(",")));
+
+            WebClient webClient = site.openSearchConnection.getOpenSearchWebClient();
 
             String searchTerm = "This";
             String searchTerm2 = "That";
@@ -302,15 +365,11 @@ public class TestCddaOpenSearchSite {
                             MockQuery.filterFactory.property(Metacard.ANY_TEXT), searchTerm),
                     MockQuery.filterFactory.like(
                             MockQuery.filterFactory.property(Metacard.ANY_TEXT), searchTerm2));
-            // query.addContextualFilter(searchTerm, selector);
-            // query.filterFactory
-            // uery.addContextualFilter(searchTerm2, selector);
 
-            String url = site.createUrl(query, null);
+            site.setOpenSearchParameters(query, null, webClient);
+            String urlStr = webClient.getCurrentURI().toString();
 
-            String expectedUrl = DEFAULT_OS_URL.replaceAll("REPLACE_ME", searchTerm + "+OR+"
-                    + searchTerm2);
-            assertEquals(expectedUrl, url);
+            assertTrue(urlStr.contains(URLEncoder.encode(searchTerm + "+OR+"+ searchTerm2, "UTF-8")));
         } catch (Exception e) {
             LOGGER.error(UNEXPECTED_EXCEPTION_MSG, e);
             fail("Got an exception: " + e.getMessage());
@@ -323,7 +382,15 @@ public class TestCddaOpenSearchSite {
     @Test
     public void testSearchPhraseMultipleOr() {
         try {
-            CddaOpenSearchSite site = new CddaOpenSearchSite(connection);
+            String endpointUrl = "http://example.com";
+            CddaOpenSearchSite site = new CddaOpenSearchSite();
+            OpenSearchConnection connection = new OpenSearchConnection(endpointUrl, null, null, null, null, null, null, null, null);
+            site.openSearchConnection = connection;
+            site.setParameters(Arrays.asList(
+                    "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort"
+                            .split(",")));
+
+            WebClient webClient = site.openSearchConnection.getOpenSearchWebClient();
 
             String searchTerm[] = new String[] {"Who", "What", "When", "Where", "Why"};
             List<Filter> properties = new ArrayList<Filter>(searchTerm.length);
@@ -336,10 +403,10 @@ public class TestCddaOpenSearchSite {
                         MockQuery.filterFactory.property(Metacard.ANY_TEXT), searchTerm[i]));
             }
             query.filter = MockQuery.filterFactory.or(properties);
-            String url = site.createUrl(query, null);
+            site.setOpenSearchParameters(query, null, webClient);
+            String urlStr = webClient.getCurrentURI().toString();
 
-            String expectedUrl = DEFAULT_OS_URL.replaceAll("REPLACE_ME", output);
-            assertEquals(expectedUrl, url);
+            assertTrue(urlStr.contains(URLEncoder.encode(output, "UTF-8")));
         } catch (Exception e) {
             LOGGER.error(UNEXPECTED_EXCEPTION_MSG, e);
             fail("Got an exception: " + e.getMessage());
@@ -349,7 +416,15 @@ public class TestCddaOpenSearchSite {
     @Test
     public void testAbsoluteTemporalSearch_Url() {
         try {
-            CddaOpenSearchSite site = new CddaOpenSearchSite(connection);
+            String endpointUrl = "http://example.com";
+            CddaOpenSearchSite site = new CddaOpenSearchSite();
+            OpenSearchConnection connection = new OpenSearchConnection(endpointUrl, null, null, null, null, null, null, null, null);
+            site.openSearchConnection = connection;
+            site.setParameters(Arrays.asList(
+                    "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort"
+                            .split(",")));
+
+            WebClient webClient = site.openSearchConnection.getOpenSearchWebClient();
 
             MockQuery query = new MockQuery(null, 0, 10, "relevance", SortOrder.DESCENDING,
                     (long) 30000);
@@ -366,12 +441,14 @@ public class TestCddaOpenSearchSite {
             LOGGER.debug("start = " + start + ",   end = " + end);
             query.addTemporalFilter(start, end, null);
 
-            String url = site.createUrl(query, null);
+            site.setOpenSearchParameters(query, null, webClient);
+            String urlStr = webClient.getCurrentURI().toString();
 
-            String expectedUrl = DEFAULT_OS_URL.replaceAll("REPLACE_ME", searchTerm);
-            expectedUrl = expectedUrl.replaceAll("dtstart=", "dtstart=" + start);
-            expectedUrl = expectedUrl.replaceAll("dtend=", "dtend=" + end);
-            assertEquals(expectedUrl, url);
+            assertTrue(urlStr.contains("dtstart"));
+            assertTrue(urlStr.contains("dtend"));
+
+            assertTrue(urlStr.contains(URLEncoder.encode(start, "UTF-8")));
+            assertTrue(urlStr.contains(URLEncoder.encode(end, "UTF-8")));
         } catch (Exception e) {
             LOGGER.error(UNEXPECTED_EXCEPTION_MSG, e);
             fail("Got an exception: " + e.getMessage());
@@ -381,7 +458,15 @@ public class TestCddaOpenSearchSite {
     @Test
     public void testModifiedTemporalSearch_Url() {
         try {
-            CddaOpenSearchSite site = new CddaOpenSearchSite(connection);
+            String endpointUrl = "http://example.com";
+            CddaOpenSearchSite site = new CddaOpenSearchSite();
+            OpenSearchConnection connection = new OpenSearchConnection(endpointUrl, null, null, null, null, null, null, null, null);
+            site.openSearchConnection = connection;
+            site.setParameters(Arrays.asList(
+                    "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort"
+                            .split(",")));
+
+            WebClient webClient = site.openSearchConnection.getOpenSearchWebClient();
 
             MockQuery query = new MockQuery(null, 0, 10, "relevance", SortOrder.DESCENDING,
                     (long) 30000);
@@ -392,14 +477,14 @@ public class TestCddaOpenSearchSite {
             TemporalFilter temporalFilter = new TemporalFilter(360000);
             query.addTemporalFilter(temporalFilter);
 
-            String url = site.createUrl(query, null);
+            site.setOpenSearchParameters(query, null, webClient);
+            String urlStr = webClient.getCurrentURI().toString();
 
-            String expectedUrl = DEFAULT_OS_URL.replaceAll("REPLACE_ME", searchTerm);
-            expectedUrl = expectedUrl.replaceAll("dtstart=", "dtstart="
-                    + reformatDate(temporalFilter.getStartDate()));
-            expectedUrl = expectedUrl.replaceAll("dtend=",
-                    "dtend=" + reformatDate(temporalFilter.getEndDate()));
-            assertEquals(expectedUrl, url);
+            assertTrue(urlStr.contains("dtstart"));
+            assertTrue(urlStr.contains("dtend"));
+
+            assertTrue(urlStr.contains(URLEncoder.encode(reformatDate(temporalFilter.getStartDate()), "UTF-8")));
+            assertTrue(urlStr.contains(URLEncoder.encode(reformatDate(temporalFilter.getEndDate()), "UTF-8")));
         } catch (Exception e) {
             LOGGER.error(UNEXPECTED_EXCEPTION_MSG, e);
             fail("Got an exception: " + e.getMessage());
@@ -409,7 +494,15 @@ public class TestCddaOpenSearchSite {
     @Test
     public void testSpatialDistanceSearch_Url() {
         try {
-            CddaOpenSearchSite site = new CddaOpenSearchSite(connection);
+            String endpointUrl = "http://example.com";
+            CddaOpenSearchSite site = new CddaOpenSearchSite();
+            OpenSearchConnection connection = new OpenSearchConnection(endpointUrl, null, null, null, null, null, null, null, null);
+            site.openSearchConnection = connection;
+            site.setParameters(Arrays.asList(
+                    "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort"
+                            .split(",")));
+
+            WebClient webClient = site.openSearchConnection.getOpenSearchWebClient();
 
             MockQuery query = new MockQuery(null, 0, 10, "relevance", SortOrder.DESCENDING,
                     (long) 30000);
@@ -422,13 +515,16 @@ public class TestCddaOpenSearchSite {
             String radius = "123456";
             query.addSpatialDistanceFilter(lon, lat, radius);
 
-            String url = site.createUrl(query, null);
+            site.setOpenSearchParameters(query, null, webClient);
+            String urlStr = webClient.getCurrentURI().toString();
 
-            String expectedUrl = DEFAULT_OS_URL.replaceAll("REPLACE_ME", searchTerm);
-            expectedUrl = expectedUrl.replaceAll("lat=", "lat=" + Double.parseDouble(lat));
-            expectedUrl = expectedUrl.replaceAll("lon=", "lon=" + Double.parseDouble(lon));
-            expectedUrl = expectedUrl.replaceAll("radius=", "radius=" + Double.parseDouble(radius));
-            assertEquals(expectedUrl, url);
+            assertTrue(urlStr.contains("lat"));
+            assertTrue(urlStr.contains("lon"));
+            assertTrue(urlStr.contains("radius"));
+
+            assertTrue(urlStr.contains(String.valueOf(Double.parseDouble(lat))));
+            assertTrue(urlStr.contains(String.valueOf(Double.parseDouble(lon))));
+            assertTrue(urlStr.contains(String.valueOf(Double.parseDouble(radius))));
         } catch (Exception e) {
             LOGGER.error(UNEXPECTED_EXCEPTION_MSG, e);
             fail("Got an exception: " + e.getMessage());
@@ -438,7 +534,15 @@ public class TestCddaOpenSearchSite {
     @Test
     public void testSpatialSearch_Url() {
         try {
-            CddaOpenSearchSite site = new CddaOpenSearchSite(connection);
+            String endpointUrl = "http://example.com";
+            CddaOpenSearchSite site = new CddaOpenSearchSite();
+            OpenSearchConnection connection = new OpenSearchConnection(endpointUrl, null, null, null, null, null, null, null, null);
+            site.openSearchConnection = connection;
+            site.setParameters(Arrays.asList(
+                    "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort"
+                            .split(",")));
+
+            WebClient webClient = site.openSearchConnection.getOpenSearchWebClient();
 
             MockQuery query = new MockQuery(null, 0, 10, "relevance", SortOrder.DESCENDING,
                     (long) 30000);
@@ -450,9 +554,8 @@ public class TestCddaOpenSearchSite {
             String geometryWkt = "POLYGON((" + polygonCoords + "))";
             query.addSpatialFilter(geometryWkt);
 
-            String url = site.createUrl(query, null);
-
-            String expectedUrl = DEFAULT_OS_URL.replaceAll("REPLACE_ME", searchTerm);
+            site.setOpenSearchParameters(query, null, webClient);
+            String urlStr = webClient.getCurrentURI().toString();
 
             // Convert WKT polygon coords, which are lon lat pairs,
             // into lat,lon data
@@ -467,9 +570,8 @@ public class TestCddaOpenSearchSite {
                     polygonData += ",";
                 }
             }
-            expectedUrl = expectedUrl.replaceAll("polygon=", "polygon=" + polygonData);
 
-            assertEquals(expectedUrl, url);
+            assertTrue(urlStr.contains("polygon=" + polygonData));
         } catch (Exception e) {
             LOGGER.error(UNEXPECTED_EXCEPTION_MSG, e);
             fail("Got an exception: " + e.getMessage());
@@ -484,7 +586,16 @@ public class TestCddaOpenSearchSite {
     @Test
     public void testGeometryPointSearch_Url() {
         try {
-            CddaOpenSearchSite site = new CddaOpenSearchSite(connection);
+            String endpointUrl = "http://example.com";
+            CddaOpenSearchSite site = new CddaOpenSearchSite();
+            OpenSearchConnection connection = new OpenSearchConnection(endpointUrl, null, null, null, null, null, null, null, null);
+            site.openSearchConnection = connection;
+            site.setParameters(Arrays.asList(
+                    "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort"
+                            .split(",")));
+            site.setShouldConvertToBBox(true);
+
+            WebClient webClient = site.openSearchConnection.getOpenSearchWebClient();
 
             MockQuery query = new MockQuery(null, 0, 10, "relevance", SortOrder.DESCENDING,
                     (long) 30000);
@@ -495,13 +606,14 @@ public class TestCddaOpenSearchSite {
             String geometryWkt = "POINT(10 20)";
             query.addSpatialFilter(geometryWkt);
 
-            String url = site.createUrl(query, null);
+            site.setOpenSearchParameters(query, null, webClient);
+            String urlStr = webClient.getCurrentURI().toString();
 
-            Map<String, String> urlParams = urlToMap(url);
-            assertNull(urlParams.get("geometry"));
-
-            String expectedUrl = DEFAULT_OS_URL.replaceAll("REPLACE_ME", searchTerm);
-            assertEquals(expectedUrl, url);
+            assertTrue(!urlStr.contains("geometry"));
+            assertTrue(!urlStr.contains("lat"));
+            assertTrue(!urlStr.contains("lon"));
+            assertTrue(!urlStr.contains("polygon"));
+            assertTrue(!urlStr.contains("radius"));
         } catch (Exception e) {
             LOGGER.error(UNEXPECTED_EXCEPTION_MSG, e);
             fail("Got an exception: " + e.getMessage());
@@ -511,8 +623,16 @@ public class TestCddaOpenSearchSite {
     @Test
     public void testSpatialDistanceSearch_BBoxConversion_Url() {
         try {
-            CddaOpenSearchSite site = new CddaOpenSearchSite(connection);
+            String endpointUrl = "http://example.com";
+            CddaOpenSearchSite site = new CddaOpenSearchSite();
+            OpenSearchConnection connection = new OpenSearchConnection(endpointUrl, null, null, null, null, null, null, null, null);
+            site.openSearchConnection = connection;
+            site.setParameters(Arrays.asList(
+                    "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort"
+                            .split(",")));
             site.setShouldConvertToBBox(true);
+
+            WebClient webClient = site.openSearchConnection.getOpenSearchWebClient();
 
             MockQuery query = new MockQuery(null, 0, 10, "relevance", SortOrder.DESCENDING,
                     (long) 30000);
@@ -525,14 +645,14 @@ public class TestCddaOpenSearchSite {
             String radius = "123456";
             query.addSpatialDistanceFilter(lon, lat, radius);
 
-            String url = site.createUrl(query, null);
+            site.setOpenSearchParameters(query, null, webClient);
+            String urlStr = webClient.getCurrentURI().toString();
 
-            Map<String, String> urlParams = urlToMap(url);
-            assertNull(urlParams.get("lat"));
-            assertNull(urlParams.get("lon"));
-            assertNull(urlParams.get("radius"));
-            assertNull(urlParams.get("polygon"));
-            assertNotNull(urlParams.get("bbox"));
+            assertTrue(!urlStr.contains("lat"));
+            assertTrue(!urlStr.contains("lon"));
+            assertTrue(!urlStr.contains("radius"));
+            assertTrue(!urlStr.contains("polygon"));
+            assertTrue(urlStr.contains("bbox"));
         } catch (Exception e) {
             LOGGER.error(UNEXPECTED_EXCEPTION_MSG, e);
             fail("Got an exception: " + e.getMessage());
@@ -542,8 +662,16 @@ public class TestCddaOpenSearchSite {
     @Test
     public void testSpatialSearch_BBoxConversion_Url() {
         try {
-            CddaOpenSearchSite site = new CddaOpenSearchSite(connection);
+            String endpointUrl = "http://example.com";
+            CddaOpenSearchSite site = new CddaOpenSearchSite();
+            OpenSearchConnection connection = new OpenSearchConnection(endpointUrl, null, null, null, null, null, null, null, null);
+            site.openSearchConnection = connection;
+            site.setParameters(Arrays.asList(
+                    "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort"
+                            .split(",")));
             site.setShouldConvertToBBox(true);
+
+            WebClient webClient = site.openSearchConnection.getOpenSearchWebClient();
 
             MockQuery query = new MockQuery(null, 0, 10, "relevance", SortOrder.DESCENDING,
                     (long) 30000);
@@ -555,14 +683,14 @@ public class TestCddaOpenSearchSite {
             String geometryWkt = "POLYGON((" + polygonCoords + "))";
             query.addSpatialFilter(geometryWkt);
 
-            String url = site.createUrl(query, null);
+            site.setOpenSearchParameters(query, null, webClient);
+            String urlStr = webClient.getCurrentURI().toString();
 
-            Map<String, String> urlParams = urlToMap(url);
-            assertNull(urlParams.get("lat"));
-            assertNull(urlParams.get("lon"));
-            assertNull(urlParams.get("radius"));
-            assertNull(urlParams.get("polygon"));
-            assertNotNull(urlParams.get("bbox"));
+            assertTrue(!urlStr.contains("lat"));
+            assertTrue(!urlStr.contains("lon"));
+            assertTrue(!urlStr.contains("radius"));
+            assertTrue(!urlStr.contains("polygon"));
+            assertTrue(urlStr.contains("bbox"));
         } catch (Exception e) {
             LOGGER.error(UNEXPECTED_EXCEPTION_MSG, e);
             fail("Got an exception: " + e.getMessage());
@@ -572,7 +700,16 @@ public class TestCddaOpenSearchSite {
     @Test
     public void testContextualTemporalSpatialSearch_Url() {
         try {
-            CddaOpenSearchSite site = new CddaOpenSearchSite(connection);
+            String endpointUrl = "http://example.com";
+            CddaOpenSearchSite site = new CddaOpenSearchSite();
+            OpenSearchConnection connection = new OpenSearchConnection(endpointUrl, null, null, null, null, null, null, null, null);
+            site.openSearchConnection = connection;
+            site.setParameters(Arrays.asList(
+                    "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort"
+                            .split(",")));
+            site.setShouldConvertToBBox(false);
+
+            WebClient webClient = site.openSearchConnection.getOpenSearchWebClient();
 
             MockQuery query = new MockQuery(null, 0, 10, "relevance", SortOrder.DESCENDING,
                     (long) 30000);
@@ -593,14 +730,14 @@ public class TestCddaOpenSearchSite {
             LOGGER.debug("start = " + start + ",   end = " + end);
             query.addTemporalFilter(start, end, null);
 
-            String url = site.createUrl(query, null);
+            site.setOpenSearchParameters(query, null, webClient);
+            String urlStr = webClient.getCurrentURI().toString();
 
-            // Map<String, String> urlParams = urlToMap( url );
-            // assertNull( urlParams.get( "lat" ) );
-            // assertNull( urlParams.get( "lon" ) );
-            // assertNull( urlParams.get( "radius" ) );
-            // assertNull( urlParams.get( "polygon" ) );
-            // assertNotNull( urlParams.get( "bbox" ) );
+            assertTrue(!urlStr.contains("lat"));
+            assertTrue(!urlStr.contains("lon"));
+            assertTrue(!urlStr.contains("radius"));
+            assertTrue(urlStr.contains("polygon"));
+            assertTrue(!urlStr.contains("bbox"));
         } catch (Exception e) {
             LOGGER.error(UNEXPECTED_EXCEPTION_MSG, e);
             fail("Got an exception: " + e.getMessage());
@@ -609,81 +746,79 @@ public class TestCddaOpenSearchSite {
 
     @Test
     public void testEndpointUrl_SrcDefault() throws Exception {
-        CddaOpenSearchSite site = new CddaOpenSearchSite(connection);
-        String endpointUrl = "http://example.com?q={searchTerms}&src={fs:routeTo?}&mr={fs:maxResults?}&count={count?}&mt={fs:maxTimeout?}&dn={idn:userDN?}&lat={geo:lat?}&lon={geo:lon?}&radius={geo:radius?}&bbox={geo:box?}&polygon={geo:polygon?}&dtstart={time:start?}&dtend={time:end?}&dateName={cat:dateName?}&filter={fsa:filter?}&sort={fsa:sort?}";
-        site.setLocalQueryOnly(true);
-        site.setEndpointUrl(endpointUrl);
-        site.configureEndpointUrl();
-        String updatedEndpointUrl = site.getEndpointUrl();
-        assertTrue(updatedEndpointUrl.contains("src=local"));
-    }
+        String endpointUrl = "http://example.com";
+        CddaOpenSearchSite site = new CddaOpenSearchSite();
+        OpenSearchConnection connection = new OpenSearchConnection(endpointUrl, null, null, null, null, null, null, null, null);
+        site.openSearchConnection = connection;
+        site.setParameters(Arrays.asList(
+                "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort"
+                        .split(",")));
+        site.setShouldConvertToBBox(false);
 
-    @Test
-    public void testEndpointUrl_SrcLocal() throws Exception {
-        CddaOpenSearchSite site = new CddaOpenSearchSite(connection);
-        String endpointUrl = "http://example.com?q={searchTerms}&src=local&mr={fs:maxResults?}&count={count?}&mt={fs:maxTimeout?}&dn={idn:userDN?}&lat={geo:lat?}&lon={geo:lon?}&radius={geo:radius?}&bbox={geo:box?}&polygon={geo:polygon?}&dtstart={time:start?}&dtend={time:end?}&dateName={cat:dateName?}&filter={fsa:filter?}&sort={fsa:sort?}";
+        WebClient webClient = site.openSearchConnection.getOpenSearchWebClient();
         site.setLocalQueryOnly(true);
-        site.setEndpointUrl(endpointUrl);
-        site.configureEndpointUrl();
-        String updatedEndpointUrl = site.getEndpointUrl();
-        assertTrue(updatedEndpointUrl.contains("src=local"));
-    }
 
-    @Test
-    public void testEndpointUrl_SrcSiteName() throws Exception {
-        CddaOpenSearchSite site = new CddaOpenSearchSite(connection);
-        String endpointUrl = "http://example.com?q={searchTerms}&src=ABC&mr={fs:maxResults?}&count={count?}&mt={fs:maxTimeout?}&dn={idn:userDN?}&lat={geo:lat?}&lon={geo:lon?}&radius={geo:radius?}&bbox={geo:box?}&polygon={geo:polygon?}&dtstart={time:start?}&dtend={time:end?}&dateName={cat:dateName?}&filter={fsa:filter?}&sort={fsa:sort?}";
-        site.setLocalQueryOnly(true);
-        site.setEndpointUrl(endpointUrl);
-        site.configureEndpointUrl();
-        String updatedEndpointUrl = site.getEndpointUrl();
+        MockQuery query = new MockQuery(null, 0, 10, "relevance", SortOrder.DESCENDING,
+                (long) 30000);
+
+        String searchTerm = "Iran";
+        query.addContextualFilter(searchTerm, null);
+
+        site.setOpenSearchParameters(query, null, webClient);
+
+        String updatedEndpointUrl = webClient.getCurrentURI().toString();
         assertTrue(updatedEndpointUrl.contains("src=local"));
     }
 
     @Test
     public void testEndpointUrl_SrcEmpty() throws Exception {
-        CddaOpenSearchSite site = new CddaOpenSearchSite(connection);
-        String endpointUrl = "http://example.com?q={searchTerms}&src=&mr={fs:maxResults?}&count={count?}&mt={fs:maxTimeout?}&dn={idn:userDN?}&lat={geo:lat?}&lon={geo:lon?}&radius={geo:radius?}&bbox={geo:box?}&polygon={geo:polygon?}&dtstart={time:start?}&dtend={time:end?}&dateName={cat:dateName?}&filter={fsa:filter?}&sort={fsa:sort?}";
-        site.setLocalQueryOnly(true);
-        site.setEndpointUrl(endpointUrl);
-        site.configureEndpointUrl();
-        String updatedEndpointUrl = site.getEndpointUrl();
-        assertTrue(updatedEndpointUrl.contains("src=local"));
-    }
+        String endpointUrl = "http://example.com";
+        CddaOpenSearchSite site = new CddaOpenSearchSite();
+        OpenSearchConnection connection = new OpenSearchConnection(endpointUrl, null, null, null, null, null, null, null, null);
+        site.openSearchConnection = connection;
+        site.setParameters(Arrays.asList(
+                "q,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort"
+                        .split(",")));
+        site.setShouldConvertToBBox(false);
 
-    @Test
-    public void testEndpointUrl_SrcNotSpecified() throws Exception {
-        CddaOpenSearchSite site = new CddaOpenSearchSite(connection);
-        String endpointUrl = "http://example.com?q={searchTerms}&mr={fs:maxResults?}&count={count?}&mt={fs:maxTimeout?}&dn={idn:userDN?}&lat={geo:lat?}&lon={geo:lon?}&radius={geo:radius?}&bbox={geo:box?}&polygon={geo:polygon?}&dtstart={time:start?}&dtend={time:end?}&dateName={cat:dateName?}&filter={fsa:filter?}&sort={fsa:sort?}";
-        site.setLocalQueryOnly(true);
-        site.setEndpointUrl(endpointUrl);
-        site.configureEndpointUrl();
-        String updatedEndpointUrl = site.getEndpointUrl();
-        assertTrue(updatedEndpointUrl.contains("src=local"));
-    }
+        WebClient webClient = site.openSearchConnection.getOpenSearchWebClient();        site.setLocalQueryOnly(true);
 
-    @Test
-    public void testEndpointUrl_NotLocalQuery_SrcLocal() throws Exception {
-        CddaOpenSearchSite site = new CddaOpenSearchSite(connection);
-        String endpointUrl = "http://example.com?q={searchTerms}&src=local&mr={fs:maxResults?}&count={count?}&mt={fs:maxTimeout?}&dn={idn:userDN?}&lat={geo:lat?}&lon={geo:lon?}&radius={geo:radius?}&bbox={geo:box?}&polygon={geo:polygon?}&dtstart={time:start?}&dtend={time:end?}&dateName={cat:dateName?}&filter={fsa:filter?}&sort={fsa:sort?}";
-        LOGGER.debug("endpointUrl = " + endpointUrl);
-        site.setLocalQueryOnly(false);
-        site.setEndpointUrl(endpointUrl);
-        site.configureEndpointUrl();
-        String updatedEndpointUrl = site.getEndpointUrl();
-        LOGGER.debug("updatedEndpointUrl = " + updatedEndpointUrl);
-        assertTrue(updatedEndpointUrl.contains("src={fs:routeTo?}"));
+        MockQuery query = new MockQuery(null, 0, 10, "relevance", SortOrder.DESCENDING,
+                (long) 30000);
+
+        String searchTerm = "Iran";
+        query.addContextualFilter(searchTerm, null);
+
+        site.setOpenSearchParameters(query, null, webClient);
+
+        String updatedEndpointUrl = webClient.getCurrentURI().toString();
+        assertTrue(updatedEndpointUrl.contains("src=local"));
     }
 
     @Test
     public void testEndpointUrl_NotLocalQuery_SrcEmpty() throws Exception {
-        CddaOpenSearchSite site = new CddaOpenSearchSite(connection);
-        String endpointUrl = "http://example.com?q={searchTerms}&src=&mr={fs:maxResults?}&count={count?}&mt={fs:maxTimeout?}&dn={idn:userDN?}&lat={geo:lat?}&lon={geo:lon?}&radius={geo:radius?}&bbox={geo:box?}&polygon={geo:polygon?}&dtstart={time:start?}&dtend={time:end?}&dateName={cat:dateName?}&filter={fsa:filter?}&sort={fsa:sort?}";
+        String endpointUrl = "http://example.com";
+        CddaOpenSearchSite site = new CddaOpenSearchSite();
+        OpenSearchConnection connection = new OpenSearchConnection(endpointUrl, null, null, null, null, null, null, null, null);
+        site.openSearchConnection = connection;
+        site.setParameters(Arrays.asList(
+                "q,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort"
+                        .split(",")));
+        site.setShouldConvertToBBox(false);
+
+        WebClient webClient = site.openSearchConnection.getOpenSearchWebClient();        site.setLocalQueryOnly(true);
+
+        MockQuery query = new MockQuery(null, 0, 10, "relevance", SortOrder.DESCENDING,
+                (long) 30000);
+
+        String searchTerm = "Iran";
+        query.addContextualFilter(searchTerm, null);
+
         site.setLocalQueryOnly(false);
-        site.setEndpointUrl(endpointUrl);
-        site.configureEndpointUrl();
-        String updatedEndpointUrl = site.getEndpointUrl();
-        assertTrue(updatedEndpointUrl.contains("src=&"));
+        site.setOpenSearchParameters(query, null, webClient);
+
+        String updatedEndpointUrl = webClient.getCurrentURI().toString();
+        assertTrue(updatedEndpointUrl.contains("src"));
     }
 
     private String reformatDate(Date date) {

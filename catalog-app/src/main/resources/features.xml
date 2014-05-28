@@ -97,6 +97,7 @@
 
     <feature name="catalog-opensearch-source" install="manual" version="${project.version}" description="OpenSearch Federated Source queries a Federated Source using OpenSearch.">
         <feature>abdera</feature>
+        <feature>cxf-rs-security-sso-saml</feature>
         <bundle>mvn:org.apache.abdera/abdera-server/${abdera.version}</bundle>
         <bundle>mvn:ddf.catalog.opensearch/catalog-opensearch-source/${project.version}</bundle>
     </feature>

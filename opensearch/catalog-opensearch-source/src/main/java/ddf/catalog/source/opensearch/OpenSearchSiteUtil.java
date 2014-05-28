@@ -14,28 +14,17 @@
  **/
 package ddf.catalog.source.opensearch;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.util.Date;
-import java.util.Map;
-
-import javax.security.auth.Subject;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.Source;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
-
+import ddf.catalog.data.Result;
+import ddf.catalog.impl.filter.SpatialDistanceFilter;
+import ddf.catalog.impl.filter.SpatialFilter;
+import ddf.catalog.impl.filter.TemporalFilter;
+import ddf.catalog.operation.Query;
+import ddf.catalog.source.UnsupportedQueryException;
+import ddf.security.Subject;
+import ddf.security.assertion.SecurityAssertion;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.cxf.jaxrs.client.WebClient;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
 import org.opengis.filter.expression.PropertyName;
@@ -48,12 +37,26 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
-import ddf.catalog.data.Result;
-import ddf.catalog.impl.filter.SpatialDistanceFilter;
-import ddf.catalog.impl.filter.SpatialFilter;
-import ddf.catalog.impl.filter.TemporalFilter;
-import ddf.catalog.operation.Query;
-import ddf.catalog.source.UnsupportedQueryException;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.Source;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.security.Principal;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Utility helper class that performs much of the translation logic used in CddaOpenSearchSite.
@@ -62,45 +65,43 @@ import ddf.catalog.source.UnsupportedQueryException;
 public final class OpenSearchSiteUtil {
 
     // OpenSearch defined parameters
-    public static final String SEARCH_TERMS = "{searchTerms}";
+    public static final String SEARCH_TERMS = "q";
 
     // temporal
-    public static final String TIME_START = "{time:start?}";
+    public static final String TIME_START = "dtstart";
 
-    public static final String TIME_END = "{time:end?}";
+    public static final String TIME_END = "dtend";
 
-    public static final String TIME_NAME = "{cat:dateName?}";
+    public static final String TIME_NAME = "dateName";
 
     // geospatial
-    public static final String GEO_LAT = "{geo:lat?}";
+    public static final String GEO_LAT = "lat";
 
-    public static final String GEO_LON = "{geo:lon?}";
+    public static final String GEO_LON = "lon";
 
-    public static final String GEO_RADIUS = "{geo:radius?}";
+    public static final String GEO_RADIUS = "radius";
 
-    public static final String GEO_POLY = "{geo:polygon?}";
+    public static final String GEO_POLY = "polygon";
 
-    public static final String GEO_BBOX = "{geo:box?}";
+    public static final String GEO_BBOX = "bbox";
 
     // general options
-    public static final String SRC = "{fs:routeTo?}";
+    public static final String SRC = "src";
 
-    public static final String MAX_RESULTS = "{fs:maxResults?}";
+    public static final String MAX_RESULTS = "mr";
 
-    public static final String COUNT = "{count?}";
+    public static final String COUNT = "count";
 
-    public static final String MAX_TIMEOUT = "{fs:maxTimeout?}";
+    public static final String MAX_TIMEOUT = "mt";
 
-    public static final String USER_DN = "{idn:userDN?}";
+    public static final String USER_DN = "dn";
 
-    public static final String SORT = "{fsa:sort?}";
+    public static final String SORT = "sort";
 
-    public static final String FILTER = "{fsa:filter?}";
+    public static final String FILTER = "filter";
 
     // only for async searches
-    public static final String START_INDEX = "{startIndex?}";
-
-    public static final String START_PAGE = "{startPage?}";
+    public static final String START_INDEX = "start";
 
     // xpath operations
     public static final String XPATH_TITLE = "/ddms:Resource/ddms:title";
@@ -145,14 +146,12 @@ public final class OpenSearchSiteUtil {
     /**
      * Populates general site information.
      * 
-     * @param url
+     * @param client
      *            Initial StringBuilder url that is not filled in.
      * @param query
-     * @param user
-     * @return A string builder object that contains the filled-in URL (in string format) that
-     *         should be called.
+     * @param subject
      */
-    public static StringBuilder populateSearchOptions(StringBuilder url, Query query, Subject user) {
+    public static void populateSearchOptions(WebClient client, Query query, Subject subject, List<String> parameters) {
         String maxTotalSize = null;
         String maxPerPage = null;
         String routeTo = "";
@@ -177,28 +176,31 @@ public final class OpenSearchSiteUtil {
 
             sortStr = translateToOpenSearchSort(query.getSortBy());
 
-            if (user != null && !user.getPrincipals().isEmpty()) {
-                try {
-                    dn = URLEncoder.encode(user.getPrincipals().iterator().next().getName(),
-                            "UTF-8");
-                } catch (UnsupportedEncodingException e) {
-                    logger.warn("Bad Encoding, ignoring user distinguished name");
+            if (subject != null && !subject.getPrincipals().isEmpty()) {
+                List principals = subject.getPrincipals().asList();
+                for (Object principal : principals) {
+                    if (principal instanceof SecurityAssertion) {
+                        SecurityAssertion assertion = (SecurityAssertion) principal;
+                        Principal assertionPrincipal = assertion.getPrincipal();
+                        if (assertionPrincipal != null) {
+                            dn = assertionPrincipal.getName();
+                        }
+                    }
                 }
             }
         }
-        checkAndReplace(url, start, START_INDEX);
-        checkAndReplace(url, maxPerPage, COUNT);
-        checkAndReplace(url, maxTotalSize, MAX_RESULTS);
-        checkAndReplace(url, routeTo, SRC);
-        checkAndReplace(url, timeout, MAX_TIMEOUT);
-        checkAndReplace(url, dn, USER_DN);
-        checkAndReplace(url, filterStr, FILTER);
-        checkAndReplace(url, sortStr, SORT);
 
-        return url;
+        checkAndReplace(client, start, START_INDEX, parameters);
+        checkAndReplace(client, maxPerPage, COUNT, parameters);
+        checkAndReplace(client, maxTotalSize, MAX_RESULTS, parameters);
+        checkAndReplace(client, routeTo, SRC, parameters);
+        checkAndReplace(client, timeout, MAX_TIMEOUT, parameters);
+        checkAndReplace(client, dn, USER_DN, parameters);
+        checkAndReplace(client, filterStr, FILTER, parameters);
+        checkAndReplace(client, sortStr, SORT, parameters);
     }
 
-    private static String translateToOpenSearchSort(SortBy ddfSort) {
+    public static String translateToOpenSearchSort(SortBy ddfSort) {
         String openSearchSortStr = null;
         String orderType = null;
 
@@ -232,12 +234,11 @@ public final class OpenSearchSiteUtil {
      * OpenSearch specification does not define a syntax for its primary query parameter,
      * searchTerms, but it is generally used to support simple keyword queries.)
      * 
-     * @param url
+     * @param client
      * @param searchPhrase
-     * @return
      */
-    public static StringBuilder populateContextual(final StringBuilder url,
-            final String searchPhrase) {
+    public static void populateContextual(WebClient client,
+            final String searchPhrase, List<String> parameters) {
         String queryStr = searchPhrase;
         if (queryStr != null) {
             try {
@@ -247,22 +248,19 @@ public final class OpenSearchSiteUtil {
             }
         }
 
-        checkAndReplace(url, queryStr, SEARCH_TERMS);
-
-        return url;
+        checkAndReplace(client, queryStr, SEARCH_TERMS, parameters);
     }
 
     /**
      * Fills in the opensearch query URL with temporal information (Start, End, and Name). Currently
      * name is empty due to incompatibility with endpoints.
      * 
-     * @param url
+     * @param client
      *            OpenSearch URL to populate
      * @param temporal
      *            TemporalCriteria that contains temporal data
-     * @return The url object that was passed in with the temporal information added.
      */
-    public static StringBuilder populateTemporal(StringBuilder url, TemporalFilter temporal) {
+    public static void populateTemporal(WebClient client, TemporalFilter temporal, List<String> parameters) {
         DateTimeFormatter fmt = ISODateTimeFormat.dateTime();
         String start = "";
         String end = "";
@@ -275,24 +273,21 @@ public final class OpenSearchSiteUtil {
                     : System.currentTimeMillis();
             end = fmt.print(endLng);
         }
-        checkAndReplace(url, start, TIME_START);
-        checkAndReplace(url, end, TIME_END);
-        checkAndReplace(url, name, TIME_NAME);
-
-        return url;
+        checkAndReplace(client, start, TIME_START, parameters);
+        checkAndReplace(client, end, TIME_END, parameters);
+        checkAndReplace(client, name, TIME_NAME, parameters);
     }
 
     /**
      * Fills in the OpenSearch query URL with geospatial information (poly, lat, lon, and radius).
      * 
-     * @param url
+     * @param client
      *            OpenSearch URL to populate
      * @param spatial
      *            SpatialCriteria that contains the spatial data
-     * @return The url object that was passed in with the geospatial information added.
      */
-    public static StringBuilder populateGeospatial(StringBuilder url,
-            SpatialDistanceFilter spatial, boolean shouldConvertToBBox)
+    public static void populateGeospatial(WebClient client,
+            SpatialDistanceFilter spatial, boolean shouldConvertToBBox, List<String> parameters)
         throws UnsupportedQueryException {
         String lat = "";
         String lon = "";
@@ -327,26 +322,23 @@ public final class OpenSearchSiteUtil {
             }
         }
 
-        checkAndReplace(url, lat, GEO_LAT);
-        checkAndReplace(url, lon, GEO_LON);
-        checkAndReplace(url, radiusStr, GEO_RADIUS);
-        checkAndReplace(url, poly.toString(), GEO_POLY);
-        checkAndReplace(url, bbox.toString(), GEO_BBOX);
-
-        return url;
+        checkAndReplace(client, lat, GEO_LAT, parameters);
+        checkAndReplace(client, lon, GEO_LON, parameters);
+        checkAndReplace(client, radiusStr, GEO_RADIUS, parameters);
+        checkAndReplace(client, poly.toString(), GEO_POLY, parameters);
+        checkAndReplace(client, bbox.toString(), GEO_BBOX, parameters);
     }
 
     /**
      * Fills in the OpenSearch query URL with geospatial information (poly, lat, lon, and radius).
      * 
-     * @param url
+     * @param client
      *            OpenSearch URL to populate
      * @param spatial
      *            SpatialCriteria that contains the spatial data
-     * @return The url object that was passed in with the geospatial information added.
      */
-    public static StringBuilder populateGeospatial(StringBuilder url, SpatialFilter spatial,
-            boolean shouldConvertToBBox) throws UnsupportedQueryException {
+    public static void populateGeospatial(WebClient client, SpatialFilter spatial,
+            boolean shouldConvertToBBox, List<String> parameters) throws UnsupportedQueryException {
         String lat = "";
         String lon = "";
         String radiusStr = "";
@@ -378,13 +370,11 @@ public final class OpenSearchSiteUtil {
             }
         }
 
-        checkAndReplace(url, lat, GEO_LAT);
-        checkAndReplace(url, lon, GEO_LON);
-        checkAndReplace(url, radiusStr, GEO_RADIUS);
-        checkAndReplace(url, poly.toString(), GEO_POLY);
-        checkAndReplace(url, bbox.toString(), GEO_BBOX);
-
-        return url;
+        checkAndReplace(client, lat, GEO_LAT, parameters);
+        checkAndReplace(client, lon, GEO_LON, parameters);
+        checkAndReplace(client, radiusStr, GEO_RADIUS, parameters);
+        checkAndReplace(client, poly.toString(), GEO_POLY, parameters);
+        checkAndReplace(client, bbox.toString(), GEO_BBOX, parameters);
     }
 
     /**
@@ -414,29 +404,30 @@ public final class OpenSearchSiteUtil {
     /**
      * Checks the input and replaces the items inside of the url.
      * 
-     * @param url
+     * @param client
      *            The URL to do the replacement on. <b>NOTE:</b> replacement is done directly on
      *            this object.
      * @param inputStr
      *            Item to put into the URL.
      * @param definition
      *            Area inside of the URL to be replaced by.
-     * @return the input url object with the items replaced.
      */
-    private static StringBuilder checkAndReplace(StringBuilder url, String inputStr,
-            String definition) {
-        int start = url.indexOf(definition);
-        if (start == -1) {
-            logger.debug("Cannot find {} in OpenSearch Description Document, ignoring.", definition);
-        } else {
-            String replacementStr = "";
-            if (inputStr != null) {
-                replacementStr = inputStr;
+    private static void checkAndReplace(WebClient client, String inputStr,
+            String definition, List<String> parameters) {
+        if(hasParameter(definition, parameters)) {
+            if(StringUtils.isNotEmpty(inputStr)) {
+                client.replaceQueryParam(definition, inputStr);
             }
-            url.replace(start, start + definition.length(), replacementStr);
         }
+    }
 
-        return url;
+    private static boolean hasParameter(String parameter, List<String> parameters) {
+        for(String param : parameters) {
+            if(param.equalsIgnoreCase(parameter)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -448,10 +439,6 @@ public final class OpenSearchSiteUtil {
      *            atom document
      * @param xsltDoc
      *            xslt document that performs the atom->ddms translation
-     * @param classification
-     *            default classification
-     * @param ownerProducer
-     *            default ownerProducer
      * @return new DDMS document.
      * @throws UnsupportedQueryException
      */

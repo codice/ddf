@@ -14,49 +14,6 @@
  **/
 package ddf.catalog.source.opensearch;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.Serializable;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.Dictionary;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.security.auth.Subject;
-import javax.xml.namespace.QName;
-import javax.xml.transform.TransformerException;
-import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
-
-import org.apache.abdera.Abdera;
-import org.apache.abdera.ext.opensearch.OpenSearchConstants;
-import org.apache.abdera.model.Category;
-import org.apache.abdera.model.Element;
-import org.apache.abdera.model.Entry;
-import org.apache.abdera.model.Feed;
-import org.apache.abdera.parser.Parser;
-import org.apache.commons.io.IOUtils;
-import org.geotools.filter.FilterTransformer;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
-import org.osgi.service.cm.Configuration;
-import org.osgi.service.cm.ConfigurationAdmin;
-import org.slf4j.LoggerFactory;
-import org.slf4j.ext.XLogger;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-
-import ddf.catalog.Constants;
-import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.ContentType;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
@@ -74,20 +31,69 @@ import ddf.catalog.operation.impl.ResourceResponseImpl;
 import ddf.catalog.operation.impl.SourceResponseImpl;
 import ddf.catalog.resource.ResourceNotFoundException;
 import ddf.catalog.resource.ResourceNotSupportedException;
-import ddf.catalog.service.ConfiguredService;
 import ddf.catalog.resource.impl.ResourceImpl;
+import ddf.catalog.service.ConfiguredService;
 import ddf.catalog.source.FederatedSource;
 import ddf.catalog.source.SourceMonitor;
 import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.InputTransformer;
+import ddf.security.SecurityConstants;
+import ddf.security.Subject;
+import ddf.security.encryption.EncryptionService;
+import org.apache.abdera.Abdera;
+import org.apache.abdera.ext.opensearch.OpenSearchConstants;
+import org.apache.abdera.model.Category;
+import org.apache.abdera.model.Element;
+import org.apache.abdera.model.Entry;
+import org.apache.abdera.model.Feed;
+import org.apache.abdera.parser.Parser;
+import org.apache.commons.lang.StringUtils;
+import org.apache.cxf.jaxrs.client.Client;
+import org.apache.cxf.jaxrs.client.WebClient;
+import org.codice.ddf.configuration.ConfigurationManager;
+import org.codice.ddf.configuration.ConfigurationWatcher;
+import org.geotools.filter.FilterTransformer;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
+import org.osgi.service.cm.Configuration;
+import org.osgi.service.cm.ConfigurationAdmin;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.activation.MimeType;
+import javax.activation.MimeTypeParseException;
+import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.Response;
+import javax.xml.namespace.QName;
+import javax.xml.transform.TransformerException;
+import javax.xml.xpath.XPathFactory;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Serializable;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.Dictionary;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Federated site that talks via OpenSearch to the DDF platform. Communication is usually performed
  * via https which requires a keystore and trust store to be provided.
  * 
  */
-public final class OpenSearchSource implements FederatedSource, ConfiguredService {
+public final class OpenSearchSource implements FederatedSource, ConfiguredService,
+        ConfigurationWatcher {
+
     static final String BAD_URL_MESSAGE = "Bad url given for remote source";
 
     static final String COULD_NOT_RETRIEVE_RESOURCE_MESSAGE = "Could not retrieve resource";
@@ -99,11 +105,9 @@ public final class OpenSearchSource implements FederatedSource, ConfiguredServic
     // service properties
     private String shortname;
 
-    private String version;
-
     private boolean lastAvailable;
 
-    private Date lastAvailableDate;
+    private Date lastAvailableDate = null;
 
     private boolean localQueryOnly;
 
@@ -127,27 +131,40 @@ public final class OpenSearchSource implements FederatedSource, ConfiguredServic
 
     private static final String DEFAULT_SITE_SECURITY_NAME = "ddf.DefaultSiteSecurity";
 
-    private static final String URL_PARAMETERS_DELIMITER = "?";
+    private static final String URL_SRC_PARAMETER = "src";
 
-    private static final String URL_PARAMETER_SEPARATOR = "&";
+    private static final String LOCAL_SEARCH_PARAMETER = "local";
 
-    private static final String URL_SRC_PARAMETER = "src=";
-
-    private static final String LOCAL_SEARCH_PARAMETER = URL_SRC_PARAMETER + "local";
-
-    private static final XLogger logger = new XLogger(LoggerFactory.getLogger(OpenSearchSource.class));
+    private static final transient Logger LOGGER = LoggerFactory.getLogger(OpenSearchSource.class);
 
     private javax.xml.xpath.XPath xpath;
 
     private Configuration siteSecurityConfig;
 
-    private SecureRemoteConnection connection;
-
     private FilterAdapter filterAdapter;
 
     // expensive creation, meant to be done once
     private static final Abdera ABDERA = new Abdera();
+
     private String configurationPid;
+
+    protected OpenSearchConnection openSearchConnection;
+
+    private EncryptionService encryptionService;
+
+    private List<String> parameters;
+
+    private String username;
+
+    private String password;
+
+    private String keystorePassword;
+
+    private String truststorePassword;
+
+    private String keystorePath;
+
+    private String truststorePath;
 
     /**
      * Creates an OpenSearch Site instance. Sets an initial default endpointUrl that can be
@@ -155,12 +172,8 @@ public final class OpenSearchSource implements FederatedSource, ConfiguredServic
      * 
      * @throws ddf.catalog.source.UnsupportedQueryException
      */
-    public OpenSearchSource(SecureRemoteConnection connection, FilterAdapter filterAdapter) {
-        this.version = "1.0";
+    public OpenSearchSource(FilterAdapter filterAdapter) {
         this.filterAdapter = filterAdapter;
-        this.connection = connection;
-        endpointUrl = "https://example.com?q={searchTerms}&src={fs:routeTo?}&mr={fs:maxResults?}&count={count?}&mt={fs:maxTimeout?}&dn={idn:userDN?}&lat={geo:lat?}&lon={geo:lon?}&radius={geo:radius?}&bbox={geo:box?}&polygon={geo:polygon?}&dtstart={time:start?}&dtend={time:end?}&dateName={cat:dateName?}&filter={fsa:filter?}&sort={fsa:sort?}";
-        lastAvailableDate = null;
 
         XPathFactory xpFactory = XPathFactory.newInstance();
         xpath = xpFactory.newXPath();
@@ -172,11 +185,15 @@ public final class OpenSearchSource implements FederatedSource, ConfiguredServic
      */
     public void init() {
         isInitialized = true;
-        configureEndpointUrl();
+        configureClient();
     }
 
     public void destroy() {
-        logger.info("Nothing to destroy.");
+        LOGGER.info("Nothing to destroy.");
+    }
+
+    protected void configureClient() {
+        openSearchConnection = new OpenSearchConnection(endpointUrl, filterAdapter, keystorePassword, keystorePath, truststorePassword, truststorePath, username, password, encryptionService);
     }
 
     /**
@@ -193,23 +210,23 @@ public final class OpenSearchSource implements FederatedSource, ConfiguredServic
             if (configAdminServiceRef != null) {
                 ConfigurationAdmin ca = (ConfigurationAdmin) context
                         .getService(configAdminServiceRef);
-                logger.debug("configuration admin obtained: " + ca);
+                LOGGER.debug("configuration admin obtained: " + ca);
                 if (ca != null) {
                     siteSecurityConfig = ca.getConfiguration(DEFAULT_SITE_SECURITY_NAME);
-                    logger.debug("site security config obtained: " + siteSecurityConfig);
+                    LOGGER.debug("site security config obtained: " + siteSecurityConfig);
                     // updateDefaultClassification();
                 }
             }
         } catch (IOException ioe) {
-            logger.warn("Unable to obtain the configuration admin");
+            LOGGER.warn("Unable to obtain the configuration admin");
         }
     }
 
     private Map<String, String> updateDefaultClassification() {
         HashMap<String, String> securityProps = new HashMap<String, String>();
-        logger.debug("Assigning default classification values");
+        LOGGER.debug("Assigning default classification values");
         if (siteSecurityConfig != null) {
-            logger.debug("setting properties from config admin");
+            LOGGER.debug("setting properties from config admin");
             try {
                 // siteSecurityConfig.update();
                 @SuppressWarnings("unchecked")
@@ -222,10 +239,10 @@ public final class OpenSearchSource implements FederatedSource, ConfiguredServic
                     securityProps.put(currKey, currValue);
                 }
 
-                logger.debug("security properties: " + securityProps);
+                LOGGER.debug("security properties: " + securityProps);
 
             } catch (Exception e) {
-                logger.warn(
+                LOGGER.warn(
                         "Exception thrown while trying to obtain default properties.  "
                                 + "Setting all default classifications and owner/producers to U and USA respectively as a last resort.",
                         e);
@@ -235,7 +252,7 @@ public final class OpenSearchSource implements FederatedSource, ConfiguredServic
 
             }
         } else {
-            logger.info("site security config is null");
+            LOGGER.info("site security config is null");
             securityProps.clear(); // this is being cleared, so the
                                    // "last-resort" defaults specified in the
                                    // xsl will be used.
@@ -246,54 +263,18 @@ public final class OpenSearchSource implements FederatedSource, ConfiguredServic
 
     @Override
     public boolean isAvailable() {
-        boolean isAvailable;
+        boolean isAvailable = false;
         if (!lastAvailable
                 || (lastAvailableDate.before(new Date(System.currentTimeMillis()
                         - AVAILABLE_TIMEOUT_CHECK)))) {
-            StringBuilder url = new StringBuilder(endpointUrl);
-            InputStream is = null;
-            try {
-                // create basic query (single search phrase)
-                blankOutQuery(url);
-                if (logger.isDebugEnabled()) {
-                    logger.debug("Calling URL with test query to check availability: "
-                            + url.toString());
-                }
-                // call service
-                BinaryContent data = null;
-                try {
-                    data = connection.getData(url.toString());
-                } catch (MalformedURLException e) {
-                    logger.info("Could not retrieve data.", e);
-                    return false;
-                } catch (IOException e) {
-                    logger.info("Could not retrieve data.", e);
-                    return false;
-                }
-                if (data == null) {
-                    return false;
-                }
-                is = data.getInputStream();
-                // check for ANY response
-                Document availableDoc = OpenSearchSiteUtil.convertStreamToDocument(is);
-                String allContent = evaluate("/atom:feed", availableDoc);
-                if (!allContent.isEmpty() && allContent.length() > 0) {
-                    logger.debug("Found atom feed parent, marking site as available.");
-                    isAvailable = true;
-                    lastAvailableDate = new Date();
-                } else {
-                    logger.debug("No atom feed parent found, marking site as NOT available.");
-                    isAvailable = false;
-                }
 
-            } catch (UnsupportedQueryException uqe) {
-                logger.warn("Calling site threw error, marking as NOT available.", uqe);
-                isAvailable = false;
-            } catch (ConversionException ce) {
-                logger.warn("Calling site threw error, marking as NOT available.", ce);
-                isAvailable = false;
-            } finally {
-                IOUtils.closeQuietly(is);
+            WebClient client = openSearchConnection.getOpenSearchWebClient();
+
+            Response response = client.head();
+
+            if(!(response.getStatus() >= 400)) {
+                isAvailable = true;
+                lastAvailableDate = new Date();
             }
         } else {
             isAvailable = lastAvailable;
@@ -305,165 +286,158 @@ public final class OpenSearchSource implements FederatedSource, ConfiguredServic
     // TODO: actually use the callback!
     @Override
     public boolean isAvailable(SourceMonitor callback) {
-        return isAvailable();
+        if(isAvailable()) {
+            callback.setAvailable();
+            return true;
+        } else {
+            callback.setUnavailable();
+            return false;
+        }
     }
 
     @Override
     public SourceResponse query(QueryRequest queryRequest) throws UnsupportedQueryException {
         String methodName = "query";
-        logger.entry(methodName);
+        LOGGER.trace(methodName);
+
+        Serializable metacardId = queryRequest.getPropertyValue(Metacard.ID);
+        SourceResponseImpl response = null;
+
+        WebClient client = openSearchConnection.getOpenSearchWebClient();
+
+        Subject subject = null;
+        if (queryRequest.hasProperties()) {
+            Object subjectObj = queryRequest.getProperties()
+                    .get(SecurityConstants.SECURITY_SUBJECT);
+            subject = (Subject) subjectObj;
+            client = openSearchConnection.setSubjectOnWebClient(client, subject);
+        }
 
         Query query = queryRequest.getQuery();
 
-        if (logger.isDebugEnabled()) {
-            logger.debug("Received query: " + query);
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Received query: " + query);
         }
 
-        SourceResponseImpl response = new SourceResponseImpl(queryRequest, new ArrayList<Result>());
-        Subject user = (Subject) queryRequest.getPropertyValue(Constants.SUBJECT_PROPERTY);
+        boolean canDoOpenSearch = setOpenSearchParameters(query, subject, client);
 
-        String url = createOpenSearchUrl(query, user);
+        if(canDoOpenSearch) {
 
-        // Used in the processResponse() method to determine how to handle the input stream.
-        // ie. Is it a metacard (REST search) or an atom feed (Open Search)?
-        boolean isRestSearch = false;
+            Response clientResponse = client.get();
 
-        // if url is null, request cannot be done by OpenSearch, try REST
-        if (url == null) {
-            url = createRestUrl(query);
-            isRestSearch = true;
-        } else {
-            isRestSearch = false;
-        }
+            Object obj = clientResponse.getEntity();
 
-        // If the url is non-null, then it is valid and can be used to search the site.
-        if (url != null) {
-            BinaryContent data = null;
-            try {
-                data = connection.getData(url);
-                if (data == null) {
-                    return response;
-                }
-            } catch (MalformedURLException e) {
-                throw new UnsupportedQueryException("Could not complete query.", e);
-            } catch (IOException e) {
-                throw new UnsupportedQueryException("Could not complete query.", e);
+            response = new SourceResponseImpl(queryRequest,
+                    new ArrayList<Result>());
+
+            if (obj != null) {
+                response = processResponse((InputStream) obj, queryRequest);
             }
-            response = processResponse(data.getInputStream(), queryRequest, isRestSearch);
         } else {
-            logger.debug("URL created was null.");
+            Client restClient = openSearchConnection.newRestClient(endpointUrl,
+                    queryRequest.getQuery(),
+                    (String) metacardId, false);
+
+            if (restClient != null) {
+                WebClient webClient = openSearchConnection.getWebClientFromClient(restClient);
+
+                if (queryRequest.hasProperties()) {
+                    Object subjectObj = queryRequest.getProperties()
+                            .get(SecurityConstants.SECURITY_SUBJECT);
+                    subject = (Subject) subjectObj;
+                    webClient = openSearchConnection.setSubjectOnWebClient(webClient, subject);
+                }
+
+                Response clientResponse = webClient.get();
+
+                Object obj = clientResponse.getEntity();
+
+                Metacard metacard = null;
+                List<Result> resultQueue = new ArrayList<Result>();
+                try {
+                    metacard = inputTransformer.transform((InputStream) obj);
+                } catch (IOException e) {
+                    LOGGER.debug("Problem with transformation.", e);
+                } catch (CatalogTransformerException e) {
+                    LOGGER.debug("Problem with transformation.", e);
+                }
+                if (metacard != null) {
+                    metacard.setSourceId(getId());
+                    ResultImpl result = new ResultImpl(metacard);
+                    resultQueue.add(result);
+                    response = new SourceResponseImpl(queryRequest, resultQueue);
+                    response.setHits(resultQueue.size());
+                }
+            }
         }
 
-        logger.exit(methodName);
+        LOGGER.trace(methodName);
 
         return response;
     }
 
     // Refactored from query() and made protected so JUnit tests could be written for this logic
-    protected String createOpenSearchUrl(Query query, Subject user) {
-        if (logger.isDebugEnabled()) {
+    protected boolean setOpenSearchParameters(Query query, Subject subject, WebClient client) {
+        if (LOGGER.isDebugEnabled()) {
             FilterTransformer transform = new FilterTransformer();
             transform.setIndentation(2);
             try {
-                logger.debug(transform.transform(query));
+                LOGGER.debug(transform.transform(query));
             } catch (TransformerException e) {
-                logger.debug("Error transforming query to XML", e);
+                LOGGER.debug("Error transforming query to XML", e);
             }
         }
 
         OpenSearchFilterVisitor visitor = new OpenSearchFilterVisitor();
         query.accept(visitor, null);
 
-        String urlStr = null;
-
         ContextualSearch contextualFilter = visitor.getContextualSearch();
 
-        // All queries must have at least a search phrase to be valid, hence this check
-        // for a contextual filter with a non-empty search phrase
-        if (contextualFilter != null && !contextualFilter.getSearchPhrase().trim().isEmpty()) {
-            StringBuilder url = new StringBuilder(endpointUrl);
-            url = OpenSearchSiteUtil.populateSearchOptions(url, query, user);
-            url = OpenSearchSiteUtil.populateContextual(url, contextualFilter.getSearchPhrase());
+        //TODO fix this so we aren't just triggering off of a contextual query
+        if(contextualFilter != null) {
+            // All queries must have at least a search phrase to be valid, hence this check
+            // for a contextual filter with a non-empty search phrase
+            OpenSearchSiteUtil.populateSearchOptions(client, query, subject, parameters);
+            OpenSearchSiteUtil
+                    .populateContextual(client, contextualFilter.getSearchPhrase(), parameters);
 
             TemporalFilter temporalFilter = visitor.getTemporalSearch();
             if (temporalFilter != null) {
-                if (logger.isDebugEnabled()) {
-                    logger.debug("startDate = " + temporalFilter.getStartDate().toString());
-                    logger.debug("endDate = " + temporalFilter.getEndDate().toString());
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("startDate = " + temporalFilter.getStartDate().toString());
+                    LOGGER.debug("endDate = " + temporalFilter.getEndDate().toString());
                 }
-                url = OpenSearchSiteUtil.populateTemporal(url, temporalFilter);
+                OpenSearchSiteUtil.populateTemporal(client, temporalFilter, parameters);
             }
 
             SpatialFilter spatialFilter = visitor.getSpatialSearch();
             if (spatialFilter != null) {
                 if (spatialFilter instanceof SpatialDistanceFilter) {
                     try {
-                        url = OpenSearchSiteUtil.populateGeospatial(url,
-                                (SpatialDistanceFilter) spatialFilter, shouldConvertToBBox);
+                        OpenSearchSiteUtil.populateGeospatial(client,
+                                (SpatialDistanceFilter) spatialFilter, shouldConvertToBBox,
+                                parameters);
                     } catch (UnsupportedQueryException e) {
-                        logger.info("Problem with populating geospatial criteria. ", e);
+                        LOGGER.info("Problem with populating geospatial criteria. ", e);
                     }
                 } else {
                     try {
-                        url = OpenSearchSiteUtil.populateGeospatial(url, spatialFilter,
-                                shouldConvertToBBox);
+                        OpenSearchSiteUtil.populateGeospatial(client, spatialFilter,
+                                shouldConvertToBBox, parameters);
                     } catch (UnsupportedQueryException e) {
-                        logger.info("Problem with populating geospatial criteria. ", e);
+                        LOGGER.info("Problem with populating geospatial criteria. ", e);
                     }
                 }
             }
 
-            url = blankOutQuery(url);
-
-            urlStr = url.toString();
-        }
-
-        logger.debug("Open search url: {}.", urlStr);
-
-        return urlStr;
-    }
-
-    private String createRestUrl(Query query) {
-
-        String url = null;
-        RestFilterDelegate delegate = null;
-        RestUrl restUrl = newRestUrl();
-
-        if (restUrl != null) {
-            delegate = new RestFilterDelegate(restUrl);
-        }
-
-        if (delegate != null) {
-            try {
-                filterAdapter.adapt(query, delegate);
-                url = delegate.getRestUrl().buildUrl();
-            } catch (UnsupportedQueryException e) {
-                logger.debug("Not a REST request.", e);
+            if (localQueryOnly) {
+                client.replaceQueryParam(URL_SRC_PARAMETER, LOCAL_SEARCH_PARAMETER);
+            } else {
+                client.replaceQueryParam(URL_SRC_PARAMETER, "");
             }
-
+            return true;
         }
-
-        return url;
-    }
-
-    /**
-     * Blanks out the rest of the query for the options that were not passed in.
-     * 
-     * @param url
-     * @return
-     */
-    private StringBuilder blankOutQuery(StringBuilder url) {
-        try {
-            OpenSearchSiteUtil.populateSearchOptions(url, null, null);
-            OpenSearchSiteUtil.populateContextual(url, "Iraq");
-            OpenSearchSiteUtil.populateTemporal(url, null);
-            OpenSearchSiteUtil.populateGeospatial(url, (SpatialDistanceFilter) null,
-                    shouldConvertToBBox);
-        } catch (UnsupportedQueryException ce) {
-            logger.debug("Wasn't able to clear out the rest of the query, URL may be invalid.");
-        }
-
-        return url;
+        return false;
     }
 
     /**
@@ -472,31 +446,8 @@ public final class OpenSearchSource implements FederatedSource, ConfiguredServic
      * @return
      * @throws ddf.catalog.source.UnsupportedQueryException
      */
-    private SourceResponseImpl processResponse(InputStream is, QueryRequest queryRequest,
-            boolean isRestSearch) throws UnsupportedQueryException {
+    private SourceResponseImpl processResponse(InputStream is, QueryRequest queryRequest) throws UnsupportedQueryException {
         List<Result> resultQueue = new ArrayList<Result>();
-
-        logger.debug("isRestSearch: {}.", isRestSearch);
-
-        if (isRestSearch) {
-            Metacard metacard = null;
-            try {
-                metacard = inputTransformer.transform(is);
-            } catch (IOException e) {
-                logger.debug("Problem with transformation.", e);
-            } catch (CatalogTransformerException e) {
-                logger.debug("Problem with transformation.", e);
-            }
-            if (metacard != null) {
-                metacard.setSourceId(getId());
-                ResultImpl result = new ResultImpl(metacard);
-                resultQueue.add(result);
-                SourceResponseImpl response = new SourceResponseImpl(queryRequest, resultQueue);
-                response.setHits(resultQueue.size());
-                return response;
-            }
-
-        }
 
         ClassLoader tccl = Thread.currentThread().getContextClassLoader();
         Parser parser = null;
@@ -505,7 +456,7 @@ public final class OpenSearchSource implements FederatedSource, ConfiguredServic
 
             Thread.currentThread().setContextClassLoader(OpenSearchSource.class.getClassLoader());
             parser = ABDERA.getParser();
-            atomDoc = parser.parse(is);
+            atomDoc = parser.parse(new InputStreamReader(is));
 
         } finally {
             Thread.currentThread().setContextClassLoader(tccl);
@@ -532,7 +483,7 @@ public final class OpenSearchSource implements FederatedSource, ConfiguredServic
             } catch (NumberFormatException e) {
                 // totalResults is already initialized to the correct value, so don't change it
                 // here.
-                logger.debug("Received invalid number of results.", e);
+                LOGGER.debug("Received invalid number of results.", e);
             }
         }
 
@@ -631,7 +582,7 @@ public final class OpenSearchSource implements FederatedSource, ConfiguredServic
 
         ResultImpl result = new ResultImpl(metacard);
         if (relevance == null || relevance.isEmpty()) {
-            logger.debug("couldn't find valid relevance. Setting relevance to 0");
+            LOGGER.debug("couldn't find valid relevance. Setting relevance to 0");
             relevance = "0";
         }
         result.setRelevanceScore(new Double(relevance));
@@ -656,39 +607,14 @@ public final class OpenSearchSource implements FederatedSource, ConfiguredServic
             try {
                 return inputTransformer.transform(new ByteArrayInputStream(content.getBytes()), id);
             } catch (IOException e) {
-                logger.warn("Unable to read metacard content from Atom feed.", e);
+                LOGGER.warn("Unable to read metacard content from Atom feed.", e);
             } catch (CatalogTransformerException e) {
-                logger.warn(
+                LOGGER.warn(
                         "Unable to convert metacard content from Atom feed into Metacard object.",
                         e);
             }
         }
         return null;
-    }
-
-    /**
-     * Perform xpath evaluation and return value as a string.
-     * 
-     * @param xpathExpression
-     * @param node
-     * @return result of xpath evaluation
-     * @throws javax.xml.xpath.XPathExpressionException
-     */
-    private String evaluate(String xpathExpression, Node node) throws UnsupportedQueryException {
-        String result = "";
-        synchronized (xpath) {
-            try {
-                xpath.setNamespaceContext(new OpenSearchNamespaceContext());
-                result = xpath.evaluate(xpathExpression, node);
-            } catch (XPathExpressionException xpee) {
-                logger.warn("Error while performing xpath, result may be missing information.",
-                        xpee);
-            } finally {
-                xpath.reset();
-            }
-
-        }
-        return result;
     }
 
     /**
@@ -700,9 +626,8 @@ public final class OpenSearchSource implements FederatedSource, ConfiguredServic
     public void setEndpointUrl(String endpointUrl) {
         this.endpointUrl = endpointUrl;
 
-        // If the source is already initialized, adjust the endpoint URL
-        if (isInitialized) {
-            configureEndpointUrl();
+        if(isInitialized) {
+            configureClient();
         }
     }
 
@@ -712,7 +637,7 @@ public final class OpenSearchSource implements FederatedSource, ConfiguredServic
      * @return
      */
     public String getEndpointUrl() {
-        logger.trace("getEndpointUrl:  endpointUrl = " + endpointUrl);
+        LOGGER.trace("getEndpointUrl:  endpointUrl = " + endpointUrl);
         return endpointUrl;
     }
 
@@ -749,7 +674,7 @@ public final class OpenSearchSource implements FederatedSource, ConfiguredServic
 
     @Override
     public String getVersion() {
-        return version;
+        return "2.0";
     }
 
     /**
@@ -790,79 +715,6 @@ public final class OpenSearchSource implements FederatedSource, ConfiguredServic
         return this.ownerProducer;
     }
 
-    /**
-     * Sets file path of truststore.
-     * 
-     * @param trustStore
-     */
-    public void setTrustStoreLocation(String trustStore) {
-        connection.setTrustStoreLocation(trustStore);
-    }
-
-    /**
-     * Get file path of trust store.
-     * 
-     * @return file location.
-     */
-    public String getTrustStoreLocation() {
-        return connection.getTrustStoreLocation();
-    }
-
-    /**
-     * Sets file path of the client keystore.
-     * 
-     * @param keyStore
-     */
-    public void setKeyStoreLocation(String keyStore) {
-        connection.setKeyStoreLocation(keyStore);
-    }
-
-    /**
-     * Get file path of the client keystore.
-     * 
-     * @return keystore file path.
-     */
-    public String getKeyStoreLocation() {
-        return connection.getKeyStoreLocation();
-    }
-
-    /**
-     * Sets the password of the truststore.
-     * 
-     * @param trustStorePass
-     */
-    public void setTrustStorePassword(String trustStorePass) {
-        connection.setTrustStorePassword(trustStorePass);
-    }
-
-    /**
-     * Get the password of the truststore.
-     * 
-     * @return
-     */
-    public String getTrustStorePassword() {
-        return connection.getTrustStorePassword();
-    }
-
-    /**
-     * Sets the password of the keystore. Note: Private key alias and keystore must have the same
-     * password.
-     * 
-     * @param keyStorePass
-     */
-    public void setKeyStorePassword(String keyStorePass) {
-        connection.setKeyStorePassword(keyStorePass);
-    }
-
-    /**
-     * Gets the password of the keystore.
-     * 
-     * @return
-     */
-    public String getKeyStorePassword() {
-        return connection.getKeyStorePassword();
-    }
-
     public void setInputTransformer(InputTransformer inputTransformer) {
         this.inputTransformer = inputTransformer;
     }
@@ -879,13 +731,8 @@ public final class OpenSearchSource implements FederatedSource, ConfiguredServic
      *            true indicates only local queries, false indicates enterprise query
      */
     public void setLocalQueryOnly(boolean localQueryOnly) {
-        logger.trace("Setting localQueryOnly = " + localQueryOnly);
+        LOGGER.trace("Setting localQueryOnly = " + localQueryOnly);
         this.localQueryOnly = localQueryOnly;
-
-        // If the source is already initialized, adjust the endpoint URL
-        if (isInitialized) {
-            configureEndpointUrl();
-        }
     }
 
     /**
@@ -928,50 +775,52 @@ public final class OpenSearchSource implements FederatedSource, ConfiguredServic
 
         Serializable serializableId = requestProperties.get(Metacard.ID);
 
+        Subject subject = (Subject) requestProperties.get(SecurityConstants.SECURITY_SUBJECT);
+
         if (serializableId != null) {
-
             String metacardId = serializableId.toString();
-            RestUrl restUrl = null;
-            try {
-                restUrl = RestUrl.newInstance(endpointUrl);
-            } catch (MalformedURLException e) {
-                throw new ResourceNotFoundException(COULD_NOT_RETRIEVE_RESOURCE_MESSAGE + ": "
-                        + BAD_URL_MESSAGE, e);
-            } catch (URISyntaxException e) {
-                throw new ResourceNotFoundException(COULD_NOT_RETRIEVE_RESOURCE_MESSAGE + ": "
-                        + BAD_URL_MESSAGE, e);
-            }
+            Client restClient = openSearchConnection.newRestClient(endpointUrl, null, metacardId, true);
 
-            if (restUrl != null) {
-                restUrl.setId(metacardId);
-                restUrl.setRetrieveResource(true);
-                BinaryContent binaryContent = null;
-                try {
-                    binaryContent = connection.getData(restUrl.buildUrl());
-                } catch (IOException e) {
-                    throw new ResourceNotFoundException(COULD_NOT_RETRIEVE_RESOURCE_MESSAGE, e);
+            if (restClient != null) {
+                Object binaryContent = null;
+                MimeType mimeType = null;
+
+                WebClient webClient = openSearchConnection.getWebClientFromClient(restClient);
+
+                if(subject != null) {
+                    webClient = openSearchConnection.setSubjectOnWebClient(webClient, subject);
                 }
+
+                Response clientResponse = webClient.get();
+
+                Object contentType = clientResponse.getHeaders().get(HttpHeaders.CONTENT_TYPE);
+                try {
+                    mimeType = new MimeType("application/octet-stream");
+                    String content = null;
+                    if(contentType != null) {
+                        if(contentType instanceof String) {
+                            content = (String) contentType;
+                        } else if(contentType instanceof Collection && ((Collection) contentType).size() > 0) {
+                            content = (String) ((Collection) contentType).iterator().next();
+                        }
+                    }
+                    mimeType = new MimeType(content);
+                } catch (MimeTypeParseException e) {
+                    LOGGER.debug("Error creating mime type with input [{}] defaulting to {}",
+                            contentType, "application/octet-stream");
+                }
+
+                binaryContent = clientResponse.getEntity();
+
                 if (binaryContent != null) {
                     return new ResourceResponseImpl(new ResourceImpl(
-                            binaryContent.getInputStream(), binaryContent.getMimeType(), getId()
+                            (InputStream) binaryContent, mimeType, getId()
                                     + "_Resource_Retrieval:" + System.currentTimeMillis()));
                 }
             }
         }
 
         throw new ResourceNotFoundException(COULD_NOT_RETRIEVE_RESOURCE_MESSAGE);
-    }
-
-    private RestUrl newRestUrl() {
-        RestUrl restUrl = null;
-        try {
-            restUrl = RestUrl.newInstance(endpointUrl);
-        } catch (MalformedURLException e) {
-            logger.info(BAD_URL_MESSAGE, e);
-        } catch (URISyntaxException e) {
-            logger.info(BAD_URL_MESSAGE, e);
-        }
-        return restUrl;
     }
 
     @Override
@@ -986,77 +835,11 @@ public final class OpenSearchSource implements FederatedSource, ConfiguredServic
 
     @Override
     public Set<String> getOptions(Metacard metacard) {
-        logger.trace("ENTERING/EXITING: getOptions");
-        logger.debug("OpenSearch Source \"" + getId()
+        LOGGER.trace("ENTERING/EXITING: getOptions");
+        LOGGER.debug("OpenSearch Source \"" + getId()
                 + "\" does not support resource retrieval options.");
         return Collections.emptySet();
     }
-
-    /**
-     * Adjusts the endpoint URL based on whether only local queries should be executed by this
-     * OpenSearch Source. If the <code>localQueryOnly</code> attribute is set to true, then the
-     * endpoint URL's <code>src</code> parameter is overridden to be <code>src=local</code>. If the
-     * <code>src</code> parameter is currently set to <code>local</code> and this source is not
-     * currently configured for local queries only, then the endpoint URL's <code>src</code>
-     * parameter is reset to the default value of <code>{fs:routeTo?}</code>, which will resolve to
-     * an enterprise search.
-     * 
-     * This is primarily relevant for DDF-to-DDF federation via OpenSearch to prevent a circular
-     * federation issue using OpenSearch enterprise queries.
-     */
-    // Scope is protected to allow JUnit testing
-    protected void configureEndpointUrl() {
-        String methodName = "configureEndpointUrl";
-        logger.entry(methodName + ":   endpointUrl = " + endpointUrl);
-
-        // If only executing local queries, then change the src parameter in the
-        // OpenSearch endpoint URL so that "src=local"
-        if (localQueryOnly) {
-            // If there is no src parameter in the URL, then append it with a value of "local"
-            if (!endpointUrl.contains(URL_SRC_PARAMETER)) {
-                endpointUrl += URL_PARAMETER_SEPARATOR + LOCAL_SEARCH_PARAMETER;
-            }
-
-            // Otherwise, extract all of the endpoint URL's parameters and loop through them,
-            // looking for the src parameter and overriding its current value with "local"
-            else {
-                // Parse the current endpoint URL, splitting it between the address and the
-                // parameter list
-                // which are separated by a question mark (?)
-                int start = endpointUrl.indexOf(URL_PARAMETERS_DELIMITER);
-                String params = endpointUrl.substring(start + 1);
-
-                // Build up the modified endpoint URL (using the same class variable), starting
-                // with the address portion that was parsed previously
-                endpointUrl = endpointUrl.substring(0, start) + URL_PARAMETERS_DELIMITER;
-
-                // Loop thorugh the parameters list, appending each one back on the modified
-                // endpoint URL, except substitute src=local when the src parameter is detected
-                String[] paramList = params.split(URL_PARAMETER_SEPARATOR);
-                for (int i = 0; i < paramList.length; i++) {
-                    logger.trace("Param:  [" + paramList[i] + "]");
-                    if (i > 0) {
-                        endpointUrl += URL_PARAMETER_SEPARATOR;
-                    }
-                    if (paramList[i].contains(URL_SRC_PARAMETER)) {
-                        endpointUrl += LOCAL_SEARCH_PARAMETER;
-                    } else {
-                        endpointUrl += paramList[i];
-
-                    }
-                }
-            }
-        }
-
-        // If not local query only and src parameter is currently set to "local",
-        // then restore src parameter to default
-        else if (endpointUrl.contains(LOCAL_SEARCH_PARAMETER)) {
-            endpointUrl = endpointUrl.replace(LOCAL_SEARCH_PARAMETER, "src="
-                    + OpenSearchSiteUtil.SRC);
-        }
-
-        logger.exit(methodName + ":   endpointUrl = " + endpointUrl);
-    }    
 
     @Override
     public String getConfigurationPid()
@@ -1068,5 +851,91 @@ public final class OpenSearchSource implements FederatedSource, ConfiguredServic
     public void setConfigurationPid(String configurationPid)
     {
         this.configurationPid = configurationPid;
+    }
+
+    @Override
+    public void configurationUpdateCallback(Map<String, String> properties) {
+        String setTrustStorePath = properties.get(ConfigurationManager.TRUST_STORE);
+        if (StringUtils.isNotBlank(setTrustStorePath)) {
+            LOGGER.debug("Setting trust store path: " + setTrustStorePath);
+            truststorePath = setTrustStorePath;
+        }
+
+        String setTrustStorePassword = properties
+                .get(ConfigurationManager.TRUST_STORE_PASSWORD);
+        if (StringUtils.isNotBlank(setTrustStorePassword)) {
+            if (openSearchConnection.getEncryptionService() == null) {
+                LOGGER.error(
+                        "The StsRealm has a null Encryption Service. Unable to decrypt the encrypted "
+                                + "trustStore password. Setting decrypted password to null.");
+                truststorePassword = setTrustStorePassword;
+            } else {
+                setTrustStorePassword = openSearchConnection.getEncryptionService().decryptValue(setTrustStorePassword);
+                LOGGER.debug("Setting trust store password.");
+                truststorePassword = setTrustStorePassword;
+            }
+        }
+
+        String setKeyStorePath = properties.get(ConfigurationManager.KEY_STORE);
+        if (StringUtils.isNotBlank(setKeyStorePath)) {
+            LOGGER.debug("Setting key store path: " + setKeyStorePath);
+            openSearchConnection.setKeyStorePath(setKeyStorePath);
+            keystorePath = setKeyStorePath;
+        }
+
+        String setKeyStorePassword = properties
+                .get(ConfigurationManager.KEY_STORE_PASSWORD);
+        if (StringUtils.isNotBlank(setKeyStorePassword)) {
+            if (openSearchConnection.getEncryptionService() == null) {
+                LOGGER.error(
+                        "The StsRealm has a null Encryption Service. Unable to decrypt the encrypted "
+                                + "keyStore password. Setting decrypted password to null.");
+                keystorePassword = setKeyStorePassword;
+            } else {
+                setKeyStorePassword = openSearchConnection.getEncryptionService().decryptValue(setKeyStorePassword);
+                LOGGER.debug("Setting key store password.");
+                keystorePassword = setKeyStorePassword;
+            }
+        }
+
+        if(isInitialized) {
+            configureClient();
+        }
+    }
+
+    public EncryptionService getEncryptionService() {
+        return encryptionService;
+    }
+
+    public void setEncryptionService(EncryptionService encryptionService) {
+        this.encryptionService = encryptionService;
+    }
+
+    public List<String> getParameters() {
+        return parameters;
+    }
+
+    public void setParameters(List<String> parameters) {
+        this.parameters = parameters;
+    }
+
+    public void setParameters(String parameters) {
+        this.parameters = Arrays.asList(parameters.split(","));
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 }

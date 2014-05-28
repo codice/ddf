@@ -12,63 +12,65 @@
  *
  **/
 -->
- 
+
 <beans:beans xmlns="http://www.springframework.org/schema/osgi"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:osgix="http://www.springframework.org/schema/osgi-compendium"
-  xmlns:osgi="http://www.springframework.org/schema/osgi"
-  xmlns:beans="http://www.springframework.org/schema/beans"
-  xmlns:ctx="http://www.springframework.org/schema/context"
-  xsi:schemaLocation="http://www.springframework.org/schema/osgi  
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:osgix="http://www.springframework.org/schema/osgi-compendium"
+             xmlns:osgi="http://www.springframework.org/schema/osgi"
+             xmlns:beans="http://www.springframework.org/schema/beans"
+             xsi:schemaLocation="http://www.springframework.org/schema/osgi
        	http://www.springframework.org/schema/osgi/spring-osgi.xsd
      http://www.springframework.org/schema/osgi-compendium                                    
        	http://www.springframework.org/schema/osgi-compendium/spring-osgi-compendium.xsd    
-     http://www.springframework.org/schema/context 
-	    http://www.springframework.org/schema/context/spring-context.xsd
+
+
      http://www.springframework.org/schema/beans   
        	http://www.springframework.org/schema/beans/spring-beans.xsd">
 
 
     <osgi:reference id="xmlInputTransformer" interface="ddf.catalog.transform.InputTransformer"
-                    filter ="(&amp;(mime-type=text/xml)(id=xml))"/>
+                    filter="(&amp;(mime-type=text/xml)(id=xml))"/>
 
-	<osgi:reference id="filterAdapter" interface="ddf.catalog.filter.FilterAdapter"/>                    
+    <osgi:reference id="filterAdapter" interface="ddf.catalog.filter.FilterAdapter"/>
+
+    <osgi:reference id="encryptionService" interface="ddf.security.encryption.EncryptionService"/>
 
     <osgix:managed-service-factory id="CDDAfederationPrototypeServiceFactory"
-    factory-pid="CDDAOpenSearchSource" update-strategy="container-managed">
+                                   factory-pid="CDDAOpenSearchSource"
+                                   update-strategy="container-managed">
 
-    <osgix:interfaces>
-      <beans:value>ddf.catalog.source.FederatedSource</beans:value>
-    </osgix:interfaces>
+        <osgix:interfaces>
+            <beans:value>ddf.catalog.source.FederatedSource</beans:value>
+            <beans:value>org.codice.ddf.configuration.ConfigurationWatcher</beans:value>
+        </osgix:interfaces>
 
-    <!--
-      Defines the methods to be invoked when the OpenSearch Source instance
-      is created and when it is deleted. The init method is called after all of the
-      setter methods have been called.
-    -->
-    <beans:bean id="CDDAOpenSearchSource" class="ddf.catalog.source.opensearch.CddaOpenSearchSite"
-        init-method="init" destroy-method="destroy">
-      <beans:property name="context" ref="bundleContext" />
-      <beans:property name="shortname" value="CDDA-OS" />
-      <beans:property name="endpointUrl"
-        value="http://example.com?q={searchTerms?}&amp;start={startIndex?}&amp;format=atom&amp;dtstart={time:start?}&amp;dtend={time:end?}" />
-      <beans:property name="localQueryOnly" value="false" />
-      <beans:property name="shouldConvertToBBox" value="true" />
-      <beans:property name="trustStoreLocation" value="trustStore.jks" />
-      <beans:property name="trustStorePassword" value="password" />
-      <beans:property name="keyStoreLocation" value="keyStore.jks" />
-      <beans:property name="keyStorePassword" value="password" />
-      <beans:constructor-arg>
-      	<beans:bean id="cddaRemoteConnection" class="ddf.catalog.source.opensearch.SecureRemoteConnectionImpl"/>
-      </beans:constructor-arg>
-    </beans:bean>
+        <!--
+          Defines the methods to be invoked when the OpenSearch Source instance
+          is created and when it is deleted. The init method is called after all of the
+          setter methods have been called.
+        -->
+        <beans:bean id="CDDAOpenSearchSource"
+                    class="ddf.catalog.source.opensearch.CddaOpenSearchSite"
+                    init-method="init" destroy-method="destroy">
+            <beans:property name="context" ref="bundleContext"/>
+            <beans:property name="shortname" value="CDDA-OS"/>
+            <beans:property name="endpointUrl"
+                            value="http://example.com"/>
+            <beans:property name="localQueryOnly" value="false"/>
+            <beans:property name="shouldConvertToBBox" value="true"/>
+            <beans:property name="encryptionService" ref="encryptionService"/>
+            <beans:property name="parameters" value="q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort" />
+        </beans:bean>
 
     </osgix:managed-service-factory>
 
     <osgix:managed-service-factory id="DDFfederationPrototypeServiceFactory"
-        factory-pid="OpenSearchSource" update-strategy="container-managed">
+                                   factory-pid="OpenSearchSource"
+                                   update-strategy="container-managed">
 
         <osgix:interfaces>
             <beans:value>ddf.catalog.source.FederatedSource</beans:value>
+            <beans:value>org.codice.ddf.configuration.ConfigurationWatcher</beans:value>
         </osgix:interfaces>
 
         <!--
@@ -78,21 +80,15 @@
         -->
         <beans:bean id="OpenSearchSource" class="ddf.catalog.source.opensearch.OpenSearchSource"
                     init-method="init" destroy-method="destroy">
-            <beans:property name="context" ref="bundleContext" />
-            <beans:property name="shortname" value="DDF-OS" />
-            <beans:property name="endpointUrl"
-                            value="http://localhost:8181/services/catalog/query?q={searchTerms?}&amp;start={startIndex?}&amp;format=atom&amp;dtstart={time:start?}&amp;dtend={time:end?}" />
-            <beans:property name="localQueryOnly" value="false" />
-            <beans:property name="shouldConvertToBBox" value="true" />
-            <beans:property name="trustStoreLocation" value="trustStore.jks" />
-            <beans:property name="trustStorePassword" value="password" />
-            <beans:property name="keyStoreLocation" value="keyStore.jks" />
-            <beans:property name="keyStorePassword" value="password" />
-            <beans:property name="inputTransformer" ref="xmlInputTransformer" />
-            <beans:constructor-arg>
-      			<beans:bean id="remoteConnection" class="ddf.catalog.source.opensearch.SecureRemoteConnectionImpl"/>
-      		</beans:constructor-arg>
-		    <beans:constructor-arg ref="filterAdapter"/>
+            <beans:property name="context" ref="bundleContext"/>
+            <beans:property name="shortname" value="DDF-OS"/>
+            <beans:property name="endpointUrl" value="http://localhost:8181/services/catalog/query"/>
+            <beans:property name="localQueryOnly" value="false"/>
+            <beans:property name="shouldConvertToBBox" value="true"/>
+            <beans:property name="inputTransformer" ref="xmlInputTransformer"/>
+            <beans:property name="encryptionService" ref="encryptionService"/>
+            <beans:property name="parameters" value="q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort" />
+            <beans:constructor-arg ref="filterAdapter"/>
         </beans:bean>
 
     </osgix:managed-service-factory>
