@@ -38,6 +38,7 @@ import ddf.security.encryption.EncryptionService;
 import ddf.util.XPathHelper;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.codice.ddf.configuration.ConfigurationManager;
 import org.codice.ddf.configuration.ConfigurationWatcher;
@@ -129,7 +130,6 @@ public final class CddaOpenSearchSite implements FederatedSource, ConfiguredServ
 
     private Configuration siteSecurityConfig;
 
-    //NEW STUFF
     private String configurationPid;
 
     protected OpenSearchConnection openSearchConnection;
@@ -263,9 +263,14 @@ public final class CddaOpenSearchSite implements FederatedSource, ConfiguredServ
 
             WebClient client = openSearchConnection.getOpenSearchWebClient();
 
-            Response response = client.head();
+            Response response = null;
+            try {
+                response = client.head();
+            } catch (Fault e) {
+                LOGGER.warn("", e);
+            }
 
-            if(!(response.getStatus() >= 400)) {
+            if(response != null && !(response.getStatus() >= 400)) {
                 isAvailable = true;
                 lastAvailableDate = new Date();
             }
@@ -293,7 +298,6 @@ public final class CddaOpenSearchSite implements FederatedSource, ConfiguredServ
         String methodName = "query";
         LOGGER.trace(methodName);
 
-        Serializable metacardId = queryRequest.getPropertyValue(Metacard.ID);
         SourceResponseImpl response = new SourceResponseImpl(queryRequest, new ArrayList<Result>());
 
         WebClient client = openSearchConnection.getOpenSearchWebClient();
@@ -354,7 +358,7 @@ public final class CddaOpenSearchSite implements FederatedSource, ConfiguredServ
         ContextualSearch contextualFilter = visitor.getContextualSearch();
 
         //TODO fix this so we aren't just triggering off of a contextual query
-        if(contextualFilter != null) {
+        if(contextualFilter != null && StringUtils.isNotEmpty(contextualFilter.getSearchPhrase())) {
             // All queries must have at least a search phrase to be valid, hence this check
             // for a contextual filter with a non-empty search phrase
             OpenSearchSiteUtil.populateSearchOptions(client, query, subject, parameters);

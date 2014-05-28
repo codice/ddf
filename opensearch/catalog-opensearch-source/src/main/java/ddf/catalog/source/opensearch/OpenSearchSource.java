@@ -49,6 +49,7 @@ import org.apache.abdera.model.Entry;
 import org.apache.abdera.model.Feed;
 import org.apache.abdera.parser.Parser;
 import org.apache.commons.lang.StringUtils;
+import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.jaxrs.client.Client;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.codice.ddf.configuration.ConfigurationManager;
@@ -270,9 +271,14 @@ public final class OpenSearchSource implements FederatedSource, ConfiguredServic
 
             WebClient client = openSearchConnection.getOpenSearchWebClient();
 
-            Response response = client.head();
+            Response response = null;
+            try {
+                response = client.head();
+            } catch (Fault e) {
+                LOGGER.warn("", e);
+            }
 
-            if(!(response.getStatus() >= 400)) {
+            if(response != null && !(response.getStatus() >= 400)) {
                 isAvailable = true;
                 lastAvailableDate = new Date();
             }
@@ -394,7 +400,7 @@ public final class OpenSearchSource implements FederatedSource, ConfiguredServic
         ContextualSearch contextualFilter = visitor.getContextualSearch();
 
         //TODO fix this so we aren't just triggering off of a contextual query
-        if(contextualFilter != null) {
+        if(contextualFilter != null && StringUtils.isNotEmpty(contextualFilter.getSearchPhrase())) {
             // All queries must have at least a search phrase to be valid, hence this check
             // for a contextual filter with a non-empty search phrase
             OpenSearchSiteUtil.populateSearchOptions(client, query, subject, parameters);
