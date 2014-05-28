@@ -281,7 +281,6 @@ public final class CddaOpenSearchSite implements FederatedSource, ConfiguredServ
         return isAvailable;
     }
 
-    // TODO: actually use the callback!
     @Override
     public boolean isAvailable(SourceMonitor callback) {
         if(isAvailable()) {

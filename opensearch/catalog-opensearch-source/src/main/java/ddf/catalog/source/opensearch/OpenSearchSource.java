@@ -289,7 +289,6 @@ public final class OpenSearchSource implements FederatedSource, ConfiguredServic
         return isAvailable;
     }
 
-    // TODO: actually use the callback!
     @Override
     public boolean isAvailable(SourceMonitor callback) {
         if(isAvailable()) {
