@@ -18,6 +18,7 @@ import static org.custommonkey.xmlunit.XMLAssert.assertXMLEqual;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -47,6 +48,8 @@ import javax.xml.datatype.DatatypeConfigurationException;
 
 import net.opengis.cat.csw.v_2_0_2.CapabilitiesType;
 import net.opengis.cat.csw.v_2_0_2.GetRecordsType;
+import net.opengis.cat.csw.v_2_0_2.QueryType;
+import net.opengis.filter.v_1_1_0.SortOrderType;
 
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswException;
@@ -62,12 +65,13 @@ import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
 import org.junit.Assert;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Matchers;
 import org.opengis.filter.Filter;
 import org.opengis.filter.FilterFactory;
+import org.opengis.filter.sort.SortBy;
+import org.opengis.filter.sort.SortOrder;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
@@ -78,6 +82,7 @@ import org.xml.sax.SAXException;
 import ddf.catalog.data.ContentType;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
+import ddf.catalog.filter.impl.SortByImpl;
 import ddf.catalog.filter.proxy.adapter.GeotoolsFilterAdapterImpl;
 import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.operation.impl.QueryImpl;
@@ -202,6 +207,63 @@ public class TestCswSource extends TestCswSourceBase {
         String xml = getGetRecordsTypeAsXml(getRecordsType, CswConstants.VERSION_2_0_2);
         LOGGER.debug(xml);
         assertXMLEqual(xml, getRecordsControlXml202);
+    }
+
+    @Test
+    public void testQueryWithSorting() throws JAXBException, UnsupportedQueryException,
+        DatatypeConfigurationException, SAXException, IOException {
+
+        final String TITLE = "title";
+
+        // Setup
+        final String searchPhrase = "*";
+        final int pageSize = 1;
+        final int numRecordsReturned = 1;
+        final long numRecordsMatched = 1;
+
+        setupMockContextForMetacardTypeRegistrationAndUnregistration(getDefaultContentTypes());
+
+        try {
+            configureMockRemoteCsw(numRecordsReturned, numRecordsMatched,
+                    CswConstants.VERSION_2_0_2);
+        } catch (CswException e) {
+            fail("Could not configure Mock Remote CSW: " + e.getMessage());
+        }
+
+        RecordConverter mockRecordConverter = mock(RecordConverter.class);
+
+        QueryImpl query = new QueryImpl(builder.attribute(Metacard.ANY_TEXT).is()
+                .like().text(searchPhrase));
+        query.setPageSize(pageSize);
+        SortBy sortBy = new SortByImpl(TITLE, SortOrder.DESCENDING);
+        query.setSortBy(sortBy);
+
+        CswSource cswSource = getCswSource(mockCsw, mockContext, mockRecordConverter,
+                new LinkedList<String>());
+        cswSource.setCswUrl(URL);
+        cswSource.setId(ID);
+
+        // Perform test
+        SourceResponse response = cswSource.query(new QueryRequestImpl(query));
+
+        // Verify
+        Assert.assertNotNull(response);
+        assertThat(response.getResults().size(), is(numRecordsReturned));
+        assertThat(response.getHits(), is(numRecordsMatched));
+        ArgumentCaptor<GetRecordsType> captor = ArgumentCaptor.forClass(GetRecordsType.class);
+        try {
+            verify(mockCsw, atLeastOnce()).getRecords(captor.capture());
+        } catch (CswException e) {
+            fail("Could not verify mock CSW record count: " + e.getMessage());
+        }
+        GetRecordsType getRecordsType = captor.getValue();
+
+        QueryType cswQuery = (QueryType) getRecordsType.getAbstractQuery().getValue();
+        assertThat(cswQuery.getSortBy().getSortProperty().size(), is(1));
+        assertThat(cswQuery.getSortBy().getSortProperty().get(0).getPropertyName().getContent()
+                .get(0).toString(), equalTo(TITLE));
+        assertThat(cswQuery.getSortBy().getSortProperty().get(0).getSortOrder(),
+                is(SortOrderType.DESC));
     }
 
     /**

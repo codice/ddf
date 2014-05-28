@@ -56,6 +56,10 @@ import net.opengis.cat.csw.v_2_0_2.QueryConstraintType;
 import net.opengis.cat.csw.v_2_0_2.QueryType;
 import net.opengis.cat.csw.v_2_0_2.ResultType;
 import net.opengis.filter.v_1_1_0.FilterType;
+import net.opengis.filter.v_1_1_0.PropertyNameType;
+import net.opengis.filter.v_1_1_0.SortByType;
+import net.opengis.filter.v_1_1_0.SortOrderType;
+import net.opengis.filter.v_1_1_0.SortPropertyType;
 import net.opengis.filter.v_1_1_0.SpatialCapabilitiesType;
 import net.opengis.filter.v_1_1_0.SpatialOperatorNameType;
 import net.opengis.filter.v_1_1_0.SpatialOperatorType;
@@ -80,6 +84,7 @@ import org.codice.ddf.spatial.ogc.csw.catalog.common.GetCapabilitiesRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.converter.RecordConverterFactory;
 import org.codice.ddf.spatial.ogc.wcs.catalog.resource.reader.WcsResourceReader;
 import org.opengis.filter.Filter;
+import org.opengis.filter.sort.SortOrder;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
@@ -830,6 +835,10 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
         } else {
             queryType.setElementSetName(createElementSetName(ElementSetType.FULL));
         }
+        SortByType sortBy = createSortBy(query);
+        if(sortBy != null) {
+            queryType.setSortBy(sortBy);
+        }
         QueryConstraintType constraint = createQueryConstraint(query);
         if (null != constraint) {
             queryType.setConstraint(constraint);
@@ -837,6 +846,30 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
         ObjectFactory objectFactory = new ObjectFactory();
         return objectFactory.createQuery(queryType);
     }
+
+    private SortByType createSortBy(Query query) {
+        
+        SortByType sortBy = null;
+        
+        if(query.getSortBy() != null) {
+            sortBy = new SortByType();
+            SortPropertyType sortProperty = new SortPropertyType();
+            PropertyNameType propertyName = new PropertyNameType();
+
+            propertyName.setContent(Arrays.asList((Object) cswFilterDelegate.mapPropertyName(query
+                    .getSortBy().getPropertyName().getPropertyName())));
+            sortProperty.setPropertyName(propertyName);
+            if(SortOrder.DESCENDING.equals(query.getSortBy().getSortOrder())) {
+                sortProperty.setSortOrder(SortOrderType.DESC);
+            } else {
+                sortProperty.setSortOrder(SortOrderType.ASC);
+            }
+            sortBy.getSortProperty().add(sortProperty);
+        }
+        
+        return sortBy;
+    }
+
 
     private QueryConstraintType createQueryConstraint(Query query) throws UnsupportedQueryException {
         FilterType filter = createFilter(query);

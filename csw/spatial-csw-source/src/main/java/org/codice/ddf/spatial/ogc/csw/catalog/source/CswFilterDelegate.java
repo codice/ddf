@@ -1098,7 +1098,7 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
         return new DateTime(inputDate);
     }
 
-    private String mapPropertyName(String propertyName) {
+    protected String mapPropertyName(String propertyName) {
         if (isAnyText(propertyName)) {
             propertyName = CswConstants.ANY_TEXT;
         } else if (isId(propertyName)) {
