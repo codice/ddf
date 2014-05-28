@@ -222,6 +222,7 @@ public interface STSClientConfiguration {
 
     /**
      * Retrieves the assertion type that should be requested from the STS.
+     * Default value: http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0
      *
      * @return assertion type
      */
@@ -229,6 +230,7 @@ public interface STSClientConfiguration {
 
     /**
      * Sets the assertion type that should be requested from the STS.
+     * Default value: http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0
      *
      * @param assertionType
      */
@@ -236,6 +238,7 @@ public interface STSClientConfiguration {
 
     /**
      * Retrieves the key type that should be used when communicating with the STS.
+     * Default value: http://docs.oasis-open.org/ws-sx/ws-trust/200512/PublicKey
      *
      * @return key type
      */
@@ -243,6 +246,7 @@ public interface STSClientConfiguration {
 
     /**
      * Sets the key type that should be used when communicating with the STS.
+     * Default value: http://docs.oasis-open.org/ws-sx/ws-trust/200512/PublicKey
      *
      * @param keyType
      */
@@ -250,6 +254,7 @@ public interface STSClientConfiguration {
 
     /**
      * Retrieves the size of the key that should be used.
+     * Default value: 256
      *
      * @return key size
      */
@@ -257,6 +262,7 @@ public interface STSClientConfiguration {
 
     /**
      * Sets the size of the key that should be used.
+     * Default value: 256
      *
      * @param keySize
      */
@@ -264,6 +270,7 @@ public interface STSClientConfiguration {
 
     /**
      * Flags whether or not to supply a key in the request.
+     * Default value: true
      *
      * @return true to supply a key
      */
@@ -271,6 +278,7 @@ public interface STSClientConfiguration {
 
     /**
      * Sets whether or not to supply a key in the request.
+     * Default value: true
      *
      * @param useKey
      */
