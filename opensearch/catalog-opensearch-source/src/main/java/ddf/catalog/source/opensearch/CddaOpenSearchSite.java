@@ -38,7 +38,6 @@ import ddf.security.encryption.EncryptionService;
 import ddf.util.XPathHelper;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.codice.ddf.configuration.ConfigurationManager;
 import org.codice.ddf.configuration.ConfigurationWatcher;
@@ -53,6 +52,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import javax.ws.rs.client.ClientException;
 import javax.ws.rs.core.Response;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -266,7 +266,7 @@ public final class CddaOpenSearchSite implements FederatedSource, ConfiguredServ
             Response response = null;
             try {
                 response = client.head();
-            } catch (Fault e) {
+            } catch (ClientException e) {
                 LOGGER.warn("", e);
             }
 

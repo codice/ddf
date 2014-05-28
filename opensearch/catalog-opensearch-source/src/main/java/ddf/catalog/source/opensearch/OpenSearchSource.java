@@ -49,7 +49,6 @@ import org.apache.abdera.model.Entry;
 import org.apache.abdera.model.Feed;
 import org.apache.abdera.parser.Parser;
 import org.apache.commons.lang.StringUtils;
-import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.jaxrs.client.Client;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.codice.ddf.configuration.ConfigurationManager;
@@ -64,6 +63,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.activation.MimeType;
 import javax.activation.MimeTypeParseException;
+import javax.ws.rs.client.ClientException;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 import javax.xml.namespace.QName;
@@ -274,7 +274,7 @@ public final class OpenSearchSource implements FederatedSource, ConfiguredServic
             Response response = null;
             try {
                 response = client.head();
-            } catch (Fault e) {
+            } catch (ClientException e) {
                 LOGGER.warn("", e);
             }
 
