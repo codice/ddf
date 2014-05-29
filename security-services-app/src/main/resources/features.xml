@@ -121,6 +121,16 @@
         <feature>security-sts-realm</feature>
         <feature>security-policy-context</feature>
     </feature>
+    
+    <feature name="security-web-sso-defaults" install="manual" version="${project.version}"
+             description="Installs the default features needed for web-based SSO authentication.">
+        <feature>security-sts-server</feature>
+        <feature>security-filter-web-sso</feature>
+        <feature>security-filter-login</feature>
+        <feature>security-filter-delegate</feature>
+        <feature>security-handler-saml</feature>
+        <feature>security-handler-basic</feature>
+    </feature>
 
     <feature name="security-handler-basic" install="manual" version="${project.version}"
              description="Basic Authentication Handler for web applications.">
