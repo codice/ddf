@@ -157,9 +157,10 @@ public class LoginFilter implements Filter {
                 }
             } catch (SecurityServiceException e) {
                 LOGGER.error("Unable to get subject from SAML request.", e);
-                returnNotAuthorized(httpResponse);
+                throw new ServletException(e);
             } catch (WSSecurityException e) {
                 LOGGER.error("Unable to read/validate security token from http request.", e);
+                throw new ServletException(e);
             }
         } else if (token != null) {
             try {
@@ -187,10 +188,10 @@ public class LoginFilter implements Filter {
                 }
             } catch (SecurityServiceException e) {
                 LOGGER.error("Unable to get subject from auth request.", e);
-                returnNotAuthorized(httpResponse);
+                throw new ServletException(e);
             } catch (WSSecurityException e) {
                 LOGGER.error("Unable to encode SAML cookie.", e);
-                returnNotAuthorized(httpResponse);
+                throw new ServletException(e);
             }
         }
 
@@ -199,7 +200,6 @@ public class LoginFilter implements Filter {
             chain.doFilter(request, response);
         } else {
             LOGGER.debug("Could not attach subject to http request.");
-            returnNotAuthorized(httpResponse);
         }
     }
 
@@ -288,21 +288,6 @@ public class LoginFilter implements Filter {
     }
 
     /**
-     * Ends the connection if the SAML assertion or incoming token cannot be authenticated.
-     * @param response
-     */
-    private void returnNotAuthorized(HttpServletResponse response) {
-        try {
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.setContentLength(0);
-            response.flushBuffer();
-        } catch (IOException ioe) {
-            LOGGER.debug("Failed to send auth response: {}", ioe);
-        }
-
-    }
-
-    /**
      * Creates a cookie to be returned to the browser if the token was successfully exchanged for
      * a SAML assertion.
      * @param httpRequest
@@ -328,7 +313,6 @@ public class LoginFilter implements Filter {
             httpResponse.addCookie(cookie);
         } catch (MalformedURLException e) {
             LOGGER.error("Unable to get URL from request.", e);
-            returnNotAuthorized(httpResponse);
         }
     }
 
