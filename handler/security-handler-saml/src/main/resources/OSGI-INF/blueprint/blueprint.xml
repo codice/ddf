@@ -15,11 +15,11 @@
            xsi:schemaLocation="
   http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd">
 
-    <bean id="handler" class="org.codice.security.handler.saml.SAMLAssertionHandler">
+    <bean id="handler" class="org.codice.ddf.security.handler.saml.SAMLAssertionHandler">
 
     </bean>
 
-    <service ref="handler" interface="org.codice.security.handler.api.AuthenticationHandler" ranking="100">
+    <service ref="handler" interface="org.codice.ddf.security.handler.api.AuthenticationHandler" ranking="100">
 
     </service>
 

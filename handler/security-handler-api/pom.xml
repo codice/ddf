@@ -51,7 +51,7 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Export-Package>
-                            org.codice.security.handler.api
+                            org.codice.ddf.security.handler.api
                         </Export-Package>
                         <Import-Package>
                             javax.ws.rs,

@@ -37,7 +37,7 @@
     <ext:property-placeholder />
 
     <cm:property-placeholder
-            persistent-id="org.codice.security.validator.x509.X509PathTokenValidator"
+            persistent-id="org.codice.ddf.security.validator.x509.X509PathTokenValidator"
             placeholder-prefix="$x509validator{" update-strategy="reload">
         <cm:default-properties>
             <cm:property name="signatureProperties"
@@ -53,7 +53,7 @@
     </bean>
 
     <bean id="x509PathTokenValidator"
-          class="org.codice.security.validator.x509.X509PathTokenValidator" init-method="init">
+          class="org.codice.ddf.security.validator.x509.X509PathTokenValidator" init-method="init">
         <property name="signaturePropertiesPath" value="$x509validator{signatureProperties}"/>
     </bean>
 

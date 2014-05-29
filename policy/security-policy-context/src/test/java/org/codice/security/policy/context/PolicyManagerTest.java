@@ -16,8 +16,9 @@ package org.codice.security.policy.context;
 
 import ddf.security.permission.CollectionPermission;
 import junit.framework.Assert;
-import org.codice.security.policy.context.impl.Policy;
-import org.codice.security.policy.context.impl.PolicyManager;
+import org.codice.ddf.security.policy.context.ContextPolicy;
+import org.codice.ddf.security.policy.context.impl.Policy;
+import org.codice.ddf.security.policy.context.impl.PolicyManager;
 import org.junit.Before;
 import org.junit.Test;
 

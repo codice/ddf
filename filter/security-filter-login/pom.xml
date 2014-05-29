@@ -78,7 +78,7 @@
                             javax.servlet.http; version="[2.5.0,3.0.0)"
                         </Import-Package>
                         <Export-Package>
-                            org.codice.security.filter.login
+                            org.codice.ddf.security.filter.login
                         </Export-Package>
                     </instructions>
                 </configuration>

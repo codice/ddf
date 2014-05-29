@@ -1,16 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
+ *
  **/
 package org.codice.ddf.security.filter.delegate;
 
@@ -27,8 +27,8 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang.StringUtils;
-import org.codice.security.policy.context.ContextPolicy;
-import org.codice.security.policy.context.ContextPolicyManager;
+import org.codice.ddf.security.policy.context.ContextPolicy;
+import org.codice.ddf.security.policy.context.ContextPolicyManager;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
@@ -39,7 +39,7 @@ import org.slf4j.LoggerFactory;
  * {@link DelegateServletFilter} is meant to detect any Security ServletFilters
  * and call their {@link FilterChain}. If none are found it becomes a pass
  * through filter.
- * 
+ *
  */
 public class DelegateServletFilter implements Filter {
 
@@ -109,7 +109,7 @@ public class DelegateServletFilter implements Filter {
     /**
      * Sets the context policy manager that will be used to check if the
      * incoming request should be whitelisted (no filters called).
-     * 
+     *
      * @param policyManager
      *            Manager that contains policies for contexts.
      */

@@ -62,7 +62,7 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Export-Package>
-                            org.codice.security.filter.basic
+                            org.codice.ddf.security.filter.authorization
                         </Export-Package>
                     </instructions>
                 </configuration>

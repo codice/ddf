@@ -14,8 +14,8 @@
 -->
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0" xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0">
 
-    <bean id="policyMgr" class="org.codice.security.policy.context.impl.PolicyManager">
-        <cm:managed-properties persistent-id="org.codice.security.policy.context.impl.PolicyManager"
+    <bean id="policyMgr" class="org.codice.ddf.security.policy.context.impl.PolicyManager">
+        <cm:managed-properties persistent-id="org.codice.ddf.security.policy.context.impl.PolicyManager"
                                update-strategy="component-managed" update-method="setPolicies" />
         <property name="policies">
             <map>
@@ -25,7 +25,7 @@
         </property>
     </bean>
 
-    <service ref="policyMgr" interface="org.codice.security.policy.context.ContextPolicyManager">
+    <service ref="policyMgr" interface="org.codice.ddf.security.policy.context.ContextPolicyManager">
 
     </service>
 

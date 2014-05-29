@@ -46,8 +46,8 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Export-Package>
-                            org.codice.security.policy.context,
-                            org.codice.security.policy.context.attributes
+                            org.codice.ddf.security.policy.context,
+                            org.codice.ddf.security.policy.context.attributes
                         </Export-Package>
                     </instructions>
                 </configuration>

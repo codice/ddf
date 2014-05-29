@@ -17,6 +17,7 @@ package org.codice.security.policy.context.attributes;
 import ddf.security.permission.KeyValueCollectionPermission;
 import ddf.security.permission.KeyValuePermission;
 import junit.framework.Assert;
+import org.codice.ddf.security.policy.context.attributes.DefaultContextAttributeMapping;
 import org.junit.Before;
 import org.junit.Test;
 

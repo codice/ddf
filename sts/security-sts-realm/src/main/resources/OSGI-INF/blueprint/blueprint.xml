@@ -4,7 +4,7 @@
  * Copyright (c) Codice Foundation
  *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
- * version 3 of the License, or any later version. 
+ * version 3 of the License, or any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
@@ -15,10 +15,10 @@
  -->
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
 
-    <reference id="contextPolicyManager" interface="org.codice.security.policy.context.ContextPolicyManager" availability="optional" />
+    <reference id="contextPolicyManager" interface="org.codice.ddf.security.policy.context.ContextPolicyManager" availability="optional" />
     <reference id="encryptionService" interface="ddf.security.encryption.EncryptionService" />
     <reference id="stsClientConfig" interface="ddf.security.sts.client.configuration.STSClientConfiguration" />
-    
+
 	<bean id="stsRealm" class="ddf.security.realm.sts.StsRealm">
 	    <property name="encryptionService" ref="encryptionService" />
         <property name="stsClientConfig" ref="stsClientConfig" />
@@ -26,7 +26,7 @@
 	</bean>
 
 	<service ref="stsRealm" interface="org.codice.ddf.configuration.ConfigurationWatcher" />
-	
+
 	<service ref="stsRealm" interface="org.apache.shiro.realm.Realm" />
 
 </blueprint>

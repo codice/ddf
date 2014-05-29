@@ -21,7 +21,7 @@
 
     <ext:property-placeholder />
 
-    <cm:property-placeholder persistent-id="org.codice.security.handler.pki.PKIHandler"
+    <cm:property-placeholder persistent-id="org.codice.ddf.security.handler.pki.PKIHandler"
                              placeholder-prefix="$pkifilter{" update-strategy="reload">
         <cm:default-properties>
             <cm:property name="signatureProperties" value="${ddf.home}/etc/ws-security/server/signature.properties"/>
@@ -30,11 +30,11 @@
         </cm:default-properties>
     </cm:property-placeholder>
 
-    <bean id="handler" class="org.codice.security.handler.pki.PKIHandler" init-method="init">
+    <bean id="handler" class="org.codice.ddf.security.handler.pki.PKIHandler" init-method="init">
         <property name="signaturePropertiesPath" value="$pkifilter{signatureProperties}" />
     </bean>
 
-    <service ref="handler" interface="org.codice.security.handler.api.AuthenticationHandler" ranking="75">
+    <service ref="handler" interface="org.codice.ddf.security.handler.api.AuthenticationHandler" ranking="75">
 
     </service>
 

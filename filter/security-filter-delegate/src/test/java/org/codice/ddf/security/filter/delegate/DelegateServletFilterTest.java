@@ -1,16 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
+ *
  **/
 package org.codice.ddf.security.filter.delegate;
 
@@ -34,8 +34,8 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.codice.security.policy.context.ContextPolicy;
-import org.codice.security.policy.context.ContextPolicyManager;
+import org.codice.ddf.security.policy.context.ContextPolicy;
+import org.codice.ddf.security.policy.context.ContextPolicyManager;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -49,7 +49,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Tests that the DelegateServletFilter is functionality properly.
- * 
+ *
  */
 public class DelegateServletFilterTest {
 
@@ -70,7 +70,7 @@ public class DelegateServletFilterTest {
 
     /**
      * Tests the main logic of performing the filter with adding filters.
-     * 
+     *
      * @throws ServletException
      * @throws IOException
      * @throws InvalidSyntaxException
@@ -91,7 +91,7 @@ public class DelegateServletFilterTest {
 
     /**
      * Tests the main logic of performing the filter with no incoming filters.
-     * 
+     *
      * @throws ServletException
      * @throws IOException
      * @throws InvalidSyntaxException
@@ -112,7 +112,7 @@ public class DelegateServletFilterTest {
     /**
      * Tests that all of the local filters are skipped if the current context
      * matches a policy with no authentication methods.
-     * 
+     *
      * @throws InvalidSyntaxException
      * @throws IOException
      * @throws ServletException
@@ -142,7 +142,7 @@ public class DelegateServletFilterTest {
     /**
      * Tests that all of the local filters are called if the current context
      * matches a policy that contains authentication methods.
-     * 
+     *
      * @throws InvalidSyntaxException
      * @throws IOException
      * @throws ServletException

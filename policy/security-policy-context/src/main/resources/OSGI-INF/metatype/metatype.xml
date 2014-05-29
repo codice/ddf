@@ -17,7 +17,7 @@
 
     <OCD description="Web Context Security Policies"
     	 name="Web Context Policy Manager"
-    	 id="org.codice.security.policy.context.impl.PolicyManager">
+    	 id="org.codice.ddf.security.policy.context.impl.PolicyManager">
 
         <AD description="List of authentication types required for each context. List of default valid authentication types are: SAML, BASIC, PKI, ANON. Example: /context=AUTH1|AUTH2|AUTH3"
             name="Authentication Types" id="authenticationTypes" required="true" cardinality="100"
@@ -29,8 +29,8 @@
 
     </OCD>
 
-    <Designate pid="org.codice.security.policy.context.impl.PolicyManager">
-        <Object ocdref="org.codice.security.policy.context.impl.PolicyManager" />
+    <Designate pid="org.codice.ddf.security.policy.context.impl.PolicyManager">
+        <Object ocdref="org.codice.ddf.security.policy.context.impl.PolicyManager" />
     </Designate>
 
 </metatype:MetaData>

@@ -76,7 +76,7 @@
 
     <reference id="stsClientConfig" interface="ddf.security.sts.client.configuration.STSClientConfiguration" />
 
-    <bean id="filter" class="org.codice.security.handler.cas.CasHandler">
+    <bean id="filter" class="org.codice.ddf.security.handler.cas.CasHandler">
         <property name="clientConfiguration" ref="stsClientConfig" />
         <property name="proxyFilter" ref="proxyFilter" />
     </bean>
