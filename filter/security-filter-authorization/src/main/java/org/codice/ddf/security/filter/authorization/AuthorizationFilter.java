@@ -71,7 +71,7 @@ public class AuthorizationFilter implements Filter {
 
         boolean permitted = true;
         for(CollectionPermission permission : permissions) {
-            if(!subject.isPermittedAll(permission.getPermissionList())) {
+            if(subject == null || !subject.isPermittedAll(permission.getPermissionList())) {
                 permitted = false;
             }
         }
