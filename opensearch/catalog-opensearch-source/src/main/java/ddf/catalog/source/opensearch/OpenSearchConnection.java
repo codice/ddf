@@ -56,6 +56,11 @@ import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 import java.util.Arrays;
 
+/**
+ * This class wraps the CXF JAXRS code to make it easier to use and also easier to test. Most of
+ * the CXF code uses static methods to construct the web clients, which is inherently difficult to
+ * mock up when testing.
+ */
 public class OpenSearchConnection {
 
     protected static final String[] SSL_ALLOWED_ALGORITHMS =
@@ -97,6 +102,18 @@ public class OpenSearchConnection {
 
     private String password;
 
+    /**
+     * Default Constructor
+     * @param endpointUrl - OpenSearch URL to connect to
+     * @param filterAdapter - adapter to translate between DDF REST and OpenSearch
+     * @param keyStorePassword - SSL Keystore password
+     * @param keyStorePath - SSL Keystore file path
+     * @param trustStorePassword - SSL Truststore password
+     * @param trustStorePath - SSL Truststore file path
+     * @param username - Basic Auth user name
+     * @param password - Basic Auth password
+     * @param encryptionService - decrypt service for passwords
+     */
     public OpenSearchConnection(String endpointUrl, FilterAdapter filterAdapter,
             String keyStorePassword, String keyStorePath, String trustStorePassword,
             String trustStorePath, String username, String password, EncryptionService encryptionService) {
@@ -125,6 +142,12 @@ public class OpenSearchConnection {
         }
     }
 
+    /**
+     * Generates a DDF REST URL from an OpenSearch URL
+     * @param query
+     * @param endpointUrl
+     * @return URL in String format
+     */
     private String createRestUrl(Query query, String endpointUrl) {
 
         String url = null;
@@ -148,6 +171,11 @@ public class OpenSearchConnection {
         return url;
     }
 
+    /**
+     * Creates a new RestUrl object based on an OpenSearch URL
+     * @param url
+     * @return RestUrl object for a DDF REST endpoint
+     */
     private RestUrl newRestUrl(String url) {
         RestUrl restUrl = null;
         try {
@@ -161,10 +189,18 @@ public class OpenSearchConnection {
         return restUrl;
     }
 
+    /**
+     * Returns the OpenSearch {@link org.apache.cxf.jaxrs.client.WebClient}
+     * @return {@link org.apache.cxf.jaxrs.client.WebClient}
+     */
     public WebClient getOpenSearchWebClient() {
         return WebClient.fromClient(openSearchClient);
     }
 
+    /**
+     * Returns the DDF REST {@link org.apache.cxf.jaxrs.client.WebClient}
+     * @return {@link org.apache.cxf.jaxrs.client.WebClient}
+     */
     public WebClient getRestWebClient() {
         if (restServiceClient != null) {
             return WebClient.fromClient(restServiceClient);
@@ -172,10 +208,20 @@ public class OpenSearchConnection {
         return null;
     }
 
+    /**
+     * Returns an arbitrary {@link org.apache.cxf.jaxrs.client.WebClient} for any {@link org.apache.cxf.jaxrs.client.Client}
+     * @param client {@link org.apache.cxf.jaxrs.client.Client}
+     * @return {@link org.apache.cxf.jaxrs.client.WebClient}
+     */
     public WebClient getWebClientFromClient(Client client) {
         return WebClient.fromClient(client);
     }
 
+    /**
+     * Creates a new OpenSearch {@link org.apache.cxf.jaxrs.client.Client} based on a String URL
+     * @param url
+     * @return {@link org.apache.cxf.jaxrs.client.Client}
+     */
     public Client newOpenSearchClient(String url) {
         OpenSearch proxy = JAXRSClientFactory.create(url, OpenSearch.class);
         Client tmp = WebClient.client(proxy);
@@ -185,6 +231,15 @@ public class OpenSearchConnection {
         return tmp;
     }
 
+    /**
+     * Creates a new DDF REST {@link org.apache.cxf.jaxrs.client.Client} based on an OpenSearch
+     * String URL.
+     * @param url - OpenSearch URL
+     * @param query - Query to be performed
+     * @param metacardId - MetacardId to search for
+     * @param retrieveResource - true if this is a resource request
+     * @return {@link org.apache.cxf.jaxrs.client.Client}
+     */
     public Client newRestClient(String url, Query query, String metacardId,
             boolean retrieveResource) {
         if (query != null) {
@@ -193,7 +248,9 @@ public class OpenSearchConnection {
             RestUrl restUrl = newRestUrl(url);
 
             if (restUrl != null) {
-                restUrl.setId(metacardId);
+                if(StringUtils.isNotEmpty(metacardId)) {
+                    restUrl.setId(metacardId);
+                }
                 restUrl.setRetrieveResource(retrieveResource);
                 url = restUrl.buildUrl();
             }
@@ -209,6 +266,13 @@ public class OpenSearchConnection {
         return tmp;
     }
 
+    /**
+     * Sets a subject cookie on a {@link org.apache.cxf.jaxrs.client.WebClient} and returns the
+     * resulting client.
+     * @param webClient - {@link org.apache.cxf.jaxrs.client.WebClient} to update
+     * @param subject - {@link ddf.security.Subject} to inject
+     * @return {@link org.apache.cxf.jaxrs.client.WebClient}
+     */
     public WebClient setSubjectOnWebClient(WebClient webClient, Subject subject) {
         Cookie cookie = createSamlCookie(subject);
         return webClient.cookie(cookie);
@@ -218,7 +282,7 @@ public class OpenSearchConnection {
      * Creates a cookie to be returned to the browser if the token was successfully exchanged for
      * a SAML assertion.
      *
-     * @param subject
+     * @param subject - {@link ddf.security.Subject} to create the cookie from
      */
     private Cookie createSamlCookie(Subject subject) {
         Cookie cookie = null;
@@ -255,6 +319,10 @@ public class OpenSearchConnection {
         return Base64Utility.encode(deflatedToken);
     }
 
+    /**
+     * Add TLS and Basic Auth credentials to the underlying {@link org.apache.cxf.transport.http.HTTPConduit}
+     * @param client
+     */
     private void setTLSOptions(Client client) {
         ClientConfiguration clientConfiguration = WebClient.getConfig(client);
 
