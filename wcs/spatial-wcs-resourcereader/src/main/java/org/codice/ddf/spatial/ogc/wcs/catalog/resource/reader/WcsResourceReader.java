@@ -219,6 +219,7 @@ public class WcsResourceReader {
             } else {
                 String coverageId = uriParts[1];
                 LOGGER.debug("coverageId = {}", coverageId);
+                LOGGER.debug("Retrieving product from WCS: {}", this.wcsConfiguration.getWcsUrl());
                 return retrieveProduct(coverageId);
             }
         } else {

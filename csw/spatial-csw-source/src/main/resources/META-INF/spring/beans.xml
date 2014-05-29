@@ -28,18 +28,7 @@
 	<reference id="filterBuilder" interface="ddf.catalog.filter.FilterBuilder" />
 	
 	<reference id="mimeTypeMapper" interface="ddf.mime.MimeTypeMapper" />
-	
-	<!--
-	Since only CSW Sources will use WcsResourceReader and it is a one-to-one mapping
-	between specific CSW Source to its specific WCS Service, inject the WcsResourceReader
-	vs. registering it as a service and being searched through like all of the other
-	ResourceReaders. (In fact, WcsResourceReader does not even implement ResourceReader
-	interface because of this one-to-one affinity to its CSW Source). 
-
-	<beans:bean id="wcsResourceReader" class="org.codice.ddf.spatial.ogc.wcs.catalog.resource.reader.WcsResourceReader">
-	   <beans:property name="mimeTypeMapper" ref="mimeTypeMapper"/>
-	</beans:bean>
-    --> 
+	 
 	<!--
 	The list of registered ResourceReaders, e.g., URLResourceReader, that are selected based
 	upon their support for a specific scheme. 
