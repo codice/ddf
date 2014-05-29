@@ -295,21 +295,27 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
 
     public void refresh(Map<String, Object> configuration) {
         LOGGER.debug("{}: Entering refresh()", cswSourceConfiguration.getId());
+        
+        cswSourceConfiguration.setId((String) configuration.get(ID_PROPERTY));
 
-        String newCswUrl = (String) configuration.get(CSWURL_PROPERTY);
-        String newPassword = (String) configuration.get(PASSWORD_PROPERTY);
-        String newUsername = (String) configuration.get(USERNAME_PROPERTY);
-        String newWcsUrl = (String) configuration.get(WCSURL_PROPERTY);
-        String newOutputSchema = (String)configuration.get(OUTPUT_SCHEMA_PROPERTY);
-        LOGGER.debug("{}: new output schema: {}", cswSourceConfiguration.getId(), newOutputSchema);
+        cswSourceConfiguration.setCswUrl((String) configuration.get(CSWURL_PROPERTY));
+        
+        cswSourceConfiguration.setPassword((String) configuration.get(PASSWORD_PROPERTY));
+        
+        cswSourceConfiguration.setUsername((String) configuration.get(USERNAME_PROPERTY));
+        
+        cswSourceConfiguration.setWcsUrl((String) configuration.get(WCSURL_PROPERTY));
+       
+        String oldOutputSchema = cswSourceConfiguration.getOutputSchema();
+        cswSourceConfiguration.setOutputSchema((String)configuration.get(OUTPUT_SCHEMA_PROPERTY));
+        LOGGER.debug("{}: new output schema: {}", cswSourceConfiguration.getId(), cswSourceConfiguration.getOutputSchema());
         LOGGER.debug("{}: old output schema: {}", cswSourceConfiguration.getId(),
-                this.cswSourceConfiguration.getOutputSchema());
-        Boolean disableSSLCertVerification = (Boolean) configuration.get(SSL_VERIFICATION_PROPERTY);
+                oldOutputSchema);
+        
+        cswSourceConfiguration.setDisableSSLCertVerification((Boolean) configuration.get(SSL_VERIFICATION_PROPERTY));
+        
         cswSourceConfiguration.setIsLonLatOrder((Boolean) configuration
                 .get(IS_LON_LAT_ORDER_PROPERTY));
-        cswSourceConfiguration.setProductRetrievalMethod((String) configuration
-                .get(PRODUCT_RETRIEVAL_METHOD_PROPERTY));
-
         if (cswSourceConfiguration.isLonLatOrder()) {
             LOGGER.debug("{}: Setting coordinate ordering to LON/LAT.",
                     cswSourceConfiguration.getId());
@@ -317,82 +323,61 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
             LOGGER.debug("{}: Setting coordinate ordering to LAT/LON.",
                     cswSourceConfiguration.getId());
         }
+        
+        cswSourceConfiguration.setProductRetrievalMethod((String) configuration
+                .get(PRODUCT_RETRIEVAL_METHOD_PROPERTY));
 
         String spatialFilter = (String) configuration.get(FORCE_SPATIAL_FILTER_PROPERTY);
         if (StringUtils.isBlank(spatialFilter)) {
             spatialFilter = NO_FORCE_SPATIAL_FILTER;
         }
         forceSpatialFilter = spatialFilter;
-
-        String newId = (String) configuration.get(ID_PROPERTY);
-        Integer newPollInterval = (Integer) configuration.get(POLL_INTERVAL_PROPERTY);
-
+        
         String[] contentTypeNames = (String[]) configuration.get(CONTENTTYPES_PROPERTY);
         setContentTypeNames(Arrays.asList(contentTypeNames));
 
         cswSourceConfiguration.setCreatedDateMapping((String) configuration
                 .get(CREATED_DATE_MAPPING_PROPERTY));
+        
         cswSourceConfiguration.setEffectiveDateMapping((String) configuration
                 .get(EFFECTIVE_DATE_MAPPING_PROPERTY));
+        
         cswSourceConfiguration.setModifiedDateMapping((String) configuration
                 .get(MODIFIED_DATE_MAPPING_PROPERTY));
 
+        
         String previousContentTypeMapping = cswSourceConfiguration.getContentTypeMapping();
         LOGGER.debug("{}: Previous content type mapping: {}.", cswSourceConfiguration.getId(),
                 previousContentTypeMapping);
+        
         String currentContentTypeMapping = ((String) configuration
                 .get(CONTENT_TYPE_MAPPING_PROPERTY));
-
+        
         contentTypeMappingUpdated = !currentContentTypeMapping.equals(previousContentTypeMapping);
-
+        
         if (StringUtils.isEmpty(currentContentTypeMapping)) {
             currentContentTypeMapping = CswRecordMetacardType.CSW_TYPE;
         } else {
             currentContentTypeMapping = currentContentTypeMapping.trim();
         }
-
+        
         cswSourceConfiguration.setContentTypeMapping(currentContentTypeMapping);
-
+        
         LOGGER.debug("{}: Current content type mapping: {}.", cswSourceConfiguration.getId(),
                 currentContentTypeMapping);
-
+        
         if (contentTypeMappingUpdated) {
             LOGGER.debug("{}: The content type has been updated from {} to {}.",
                     cswSourceConfiguration.getId(), previousContentTypeMapping,
                     currentContentTypeMapping);
         }
-
-        cswSourceConfiguration.setId(newId);
-
-        // only attempt to re-connect on a refresh if not connected OR username,
-        // password, disableSSLCertVerification or the URL changes
-        // Change boolean complexity level
-        if (remoteCsw == null
-                || (!cswSourceConfiguration.getCswUrl().equalsIgnoreCase(newCswUrl) || !cswSourceConfiguration
-                        .getWcsUrl().equalsIgnoreCase(newWcsUrl))
-                || !this.cswSourceConfiguration.getOutputSchema().equals(newOutputSchema)) {
-            if ((cswSourceConfiguration.getPassword() != null && !cswSourceConfiguration
-                    .getPassword().equals(newPassword))
-                    || (cswSourceConfiguration.getUsername() != null && !cswSourceConfiguration
-                            .getUsername().equals(newUsername))
-                    || cswSourceConfiguration.getDisableSSLCertVerification() != disableSSLCertVerification
-                    || !this.cswSourceConfiguration.getOutputSchema().equals(newOutputSchema)) {
-                cswSourceConfiguration.setCswUrl(newCswUrl);
-                cswSourceConfiguration.setUsername(newUsername);
-                cswSourceConfiguration.setPassword(newPassword);
-                cswSourceConfiguration.setDisableSSLCertVerification(disableSSLCertVerification);
-                cswSourceConfiguration.setWcsUrl(newWcsUrl);
-                cswSourceConfiguration.setOutputSchema(newOutputSchema);
-                // recordConverter = getRecordConverter();
-                connectToRemoteCsw();
-                configureCswSource();
-
-            }
-        } else {
-            configureCswSource();
-            configureWcs();
-        }
-
+        
+        
+        // recordConverter = getRecordConverter();
+        connectToRemoteCsw();
+        configureCswSource();
+        
+        Integer newPollInterval = (Integer) configuration.get(POLL_INTERVAL_PROPERTY);
         if (!cswSourceConfiguration.getPollIntervalMinutes().equals(newPollInterval)) {
             LOGGER.debug("Poll Interval was changed for source {}.", cswSourceConfiguration.getId());
             cswSourceConfiguration.setPollIntervalMinutes(newPollInterval);
