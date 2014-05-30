@@ -14,9 +14,13 @@
  **/
 package org.codice.ddf.security.filter.delegate;
 
-import java.io.IOException;
-import java.util.Iterator;
-import java.util.LinkedList;
+import org.apache.commons.lang.StringUtils;
+import org.codice.ddf.security.policy.context.ContextPolicyManager;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.framework.ServiceReference;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -25,15 +29,9 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
-
-import org.apache.commons.lang.StringUtils;
-import org.codice.ddf.security.policy.context.ContextPolicy;
-import org.codice.ddf.security.policy.context.ContextPolicyManager;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.InvalidSyntaxException;
-import org.osgi.framework.ServiceReference;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.io.IOException;
+import java.util.Iterator;
+import java.util.LinkedList;
 
 /**
  * {@link DelegateServletFilter} is meant to detect any Security ServletFilters
@@ -66,9 +64,7 @@ public class DelegateServletFilter implements Filter {
         if (contextPolicyManager != null) {
             String contextPath = !StringUtils.isBlank(httpRequest.getContextPath()) ? httpRequest
                     .getContextPath() : httpRequest.getServletPath() + httpRequest.getPathInfo();
-            ContextPolicy policy = contextPolicyManager.getContextPolicy(contextPath);
-            LOGGER.debug("Got policy for ({}).", contextPath);
-            if (policy.getAuthenticationMethods().isEmpty()) {
+            if (contextPolicyManager.isWhiteListed(contextPath)) {
                 LOGGER.debug(
                         "Current Context path {} has been white listed by the local policy, no authentication or authorization filters will be applied.",
                         contextPath);

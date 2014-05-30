@@ -14,26 +14,6 @@
  **/
 package org.codice.ddf.security.filter.delegate;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.codice.ddf.security.policy.context.ContextPolicy;
 import org.codice.ddf.security.policy.context.ContextPolicyManager;
 import org.junit.Before;
@@ -46,6 +26,25 @@ import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests that the DelegateServletFilter is functionality properly.
@@ -127,9 +126,7 @@ public class DelegateServletFilterTest {
 
         // Create policy manager and policy without authentication method
         ContextPolicyManager policyManager = mock(ContextPolicyManager.class);
-        ContextPolicy policy = mock(ContextPolicy.class);
-        when(policy.getAuthenticationMethods()).thenReturn(new ArrayList<String>());
-        when(policyManager.getContextPolicy(contextPath)).thenReturn(policy);
+        when(policyManager.isWhiteListed(contextPath)).thenReturn(true);
 
         DelegateServletFilter filter = new DelegateServletFilter(mockContext(true));
         filter.setContextPolicyManager(policyManager);
