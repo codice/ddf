@@ -127,7 +127,6 @@
         <feature>security-sts-server</feature>
         <feature>security-filter-web-sso</feature>
         <feature>security-filter-login</feature>
-        <feature>security-filter-delegate</feature>
         <feature>security-handler-saml</feature>
         <feature>security-handler-basic</feature>
     </feature>

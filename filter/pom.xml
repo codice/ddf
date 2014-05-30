@@ -41,7 +41,6 @@
         <module>security-filter-web-sso</module>
         <module>security-filter-login</module>
         <module>security-filter-authorization</module>
-        <module>security-filter-delegate</module>
     </modules>
 
 

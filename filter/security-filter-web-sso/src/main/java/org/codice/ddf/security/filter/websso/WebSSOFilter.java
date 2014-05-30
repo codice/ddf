@@ -14,6 +14,7 @@
  **/
 package org.codice.ddf.security.filter.websso;
 
+import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.security.handler.api.AuthenticationHandler;
 import org.codice.ddf.security.handler.api.HandlerResult;
 import org.codice.ddf.security.policy.context.ContextPolicy;
@@ -74,28 +75,42 @@ public class WebSSOFilter implements Filter {
      * @throws ServletException
      */
     @Override
-    public synchronized void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
-
+    public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
+        LOGGER.debug("Performing doFilter() on WebSSOFilter");
         HttpServletRequest httpRequest = (HttpServletRequest) servletRequest;
         HttpServletResponse httpResponse = (HttpServletResponse) servletResponse;
 
-        String path = httpRequest.getServletPath();
+        String path = StringUtils.isNotBlank(httpRequest.getContextPath()) ? httpRequest
+                .getContextPath() : httpRequest.getServletPath() + StringUtils.defaultString(httpRequest.getPathInfo());
         LOGGER.debug("Handling request for path {}", path);
 
         List<AuthenticationHandler> handlerList;
 
         if(contextPolicyManager != null) {
-            handlerList = new ArrayList<AuthenticationHandler>();
-            updateHandlerList(httpRequest, handlerList);
+            handlerList = getHandlerList(path);
         } else {
             //if the manager is null just use the ranked list of installed handlers
             handlerList = this.handlerList;
         }
+        
+        if (contextPolicyManager.isWhiteListed(path)) {
+            LOGGER.debug("Context of {} has been whitelisted, adding a NO_AUTH_POLICY attribute to the header.", path);      
+            servletRequest.setAttribute(ContextPolicy.NO_AUTH_POLICY, true);
+            filterChain.doFilter(httpRequest, httpResponse);
+        } else {
+            // now handle the request and set the authentication token
+            handleRequest(httpRequest, httpResponse, filterChain, handlerList);
+        }
+        
+    }
+
+    private synchronized void handleRequest(HttpServletRequest httpRequest, HttpServletResponse httpResponse, FilterChain filterChain, List<AuthenticationHandler> handlerList) throws IOException, ServletException {
+        
 
         // First pass, see if anyone can come up with proper security token from the git-go
         HandlerResult result = null;
         for (AuthenticationHandler auth : handlerList) {
-            result = auth.getNormalizedToken(servletRequest, servletResponse, filterChain, false);
+            result = auth.getNormalizedToken(httpRequest, httpResponse, filterChain, false);
             if (result.getStatus() != HandlerResult.Status.NO_ACTION) {
                 break;
             }
@@ -106,7 +121,7 @@ public class WebSSOFilter implements Filter {
             LOGGER.debug("First pass with no tokens found - requesting tokens");
             // This pass, tell each handler to do whatever it takes to get a SecurityToken
             for (AuthenticationHandler auth : handlerList) {
-                result = auth.getNormalizedToken(servletRequest, servletResponse, filterChain, true);
+                result = auth.getNormalizedToken(httpRequest, httpResponse, filterChain, true);
                 if (result.getStatus() != HandlerResult.Status.NO_ACTION) {
                     break;
                 }
@@ -133,19 +148,19 @@ public class WebSSOFilter implements Filter {
             }
         } else {
             LOGGER.warn("Expected login credentials - didn't find any. Returning a forbidden response.");
-            returnSimpleResponse(HttpServletResponse.SC_FORBIDDEN, (HttpServletResponse) servletResponse);
+            returnSimpleResponse(HttpServletResponse.SC_FORBIDDEN, (HttpServletResponse) httpResponse);
             return;
         }
 
         // If we got here, we've received our tokens to continue
         LOGGER.debug("Invoking the rest of the filter chain");
         try {
-            filterChain.doFilter(servletRequest, servletResponse);
+            filterChain.doFilter(httpRequest, httpResponse);
         } catch  (Exception e) {
             // First pass, see if anyone can come up with proper security token from the git-go
             result = null;
             for (AuthenticationHandler auth : handlerList) {
-                result = auth.handleError(servletRequest, servletResponse, filterChain);
+                result = auth.handleError(httpRequest, httpResponse, filterChain);
                 if (result.getStatus() != HandlerResult.Status.NO_ACTION) {
                     break;
                 }
@@ -159,17 +174,20 @@ public class WebSSOFilter implements Filter {
         }
     }
 
-    private void updateHandlerList(HttpServletRequest httpRequest,
-            List<AuthenticationHandler> handlerList) {
-        ContextPolicy policy = contextPolicyManager.getContextPolicy(httpRequest.getContextPath());
-        Collection<String> authMethods = policy.getAuthenticationMethods();
-        for(String authMethod : authMethods) {
-            for(AuthenticationHandler handler : this.handlerList) {
-                if(handler.getAuthenticationType().equalsIgnoreCase(authMethod)) {
-                    handlerList.add(handler);
+    private List<AuthenticationHandler> getHandlerList(String path) {
+        List<AuthenticationHandler> handlerList = new ArrayList<AuthenticationHandler>();
+        ContextPolicy policy = contextPolicyManager.getContextPolicy(path);
+        if (policy != null) {
+            Collection<String> authMethods = policy.getAuthenticationMethods();
+            for(String authMethod : authMethods) {
+                for(AuthenticationHandler handler : this.handlerList) {
+                    if(handler.getAuthenticationType().equalsIgnoreCase(authMethod)) {
+                        handlerList.add(handler);
+                    }
                 }
             }
         }
+        return handlerList;
     }
 
     /**
@@ -190,6 +208,11 @@ public class WebSSOFilter implements Filter {
     @Override
     public void destroy() {
 
+    }
+    
+    @Override
+    public String toString() {
+        return WebSSOFilter.class.getName();
     }
 
     public List<AuthenticationHandler> getHandlerList() {

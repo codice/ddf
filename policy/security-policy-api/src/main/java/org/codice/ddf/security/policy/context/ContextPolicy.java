@@ -25,36 +25,44 @@ import java.util.Collection;
 public interface ContextPolicy {
 
     /**
+     * Setting that can be used in a header or attribute to signify that the
+     * policy on that current message does not require authentication.
+     */
+    public static final String NO_AUTH_POLICY = "org.codice.ddf.security.policy.no_authentication";
+
+    /**
      * Returns the context path that this policy covers.
+     * 
      * @return context path
      */
     public String getContextPath();
 
     /**
      * Returns a {@link java.util.Collection} of authentication methods
-     *
+     * 
      * @return authentication methods
      */
     public Collection<String> getAuthenticationMethods();
 
     /**
-     * Returns a {@link java.util.Collection} of {@link ddf.security.permission.CollectionPermission}
-     * objects built from the attribute mappings.
-     *
+     * Returns a {@link java.util.Collection} of
+     * {@link ddf.security.permission.CollectionPermission} objects built from
+     * the attribute mappings.
+     * 
      * @return permissions
      */
     public Collection<CollectionPermission> getAllowedAttributePermissions();
 
     /**
      * Returns a {@link java.util.Collection} of attribute names.
-     *
+     * 
      * @return all attribute names used in this policy
      */
     public Collection<String> getAllowedAttributeNames();
 
     /**
      * Sets the attribute mappings.
-     *
+     * 
      * @param attributes
      */
     public void setAllowedAttributes(Collection<ContextAttributeMapping> attributes);

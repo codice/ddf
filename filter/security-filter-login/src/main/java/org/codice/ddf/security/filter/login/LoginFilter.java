@@ -29,6 +29,7 @@ import org.apache.ws.security.components.crypto.Crypto;
 import org.apache.ws.security.components.crypto.CryptoFactory;
 import org.apache.ws.security.saml.ext.AssertionWrapper;
 import org.apache.ws.security.saml.ext.OpenSAMLUtil;
+import org.codice.ddf.security.policy.context.ContextPolicy;
 import org.joda.time.DateTime;
 import org.opensaml.Configuration;
 import org.opensaml.common.SAMLObjectBuilder;
@@ -63,12 +64,12 @@ import java.util.Properties;
 import java.util.UUID;
 
 /**
- * Servlet filter that exchanges all incoming tokens for a SAML assertion via an STS.
+ * Servlet filter that exchanges all incoming tokens for a SAML assertion via an
+ * STS.
  */
 public class LoginFilter implements Filter {
 
-    private static final transient Logger LOGGER = LoggerFactory
-            .getLogger(LoginFilter.class);
+    private static final transient Logger LOGGER = LoggerFactory.getLogger(LoginFilter.class);
 
     private static final String SAML_COOKIE_NAME = "org.codice.websso.saml.token";
 
@@ -96,7 +97,7 @@ public class LoginFilter implements Filter {
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
-        LOGGER.info("Starting log in filter.");
+        LOGGER.debug("Starting LoginFilter.");
         DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
         docBuilderFactory.setNamespaceAware(true);
         try {
@@ -107,8 +108,9 @@ public class LoginFilter implements Filter {
     }
 
     /**
-     * Validates an attached SAML assertion, or exchanges any other incoming token for a SAML
-     * assertion via the STS.
+     * Validates an attached SAML assertion, or exchanges any other incoming
+     * token for a SAML assertion via the STS.
+     * 
      * @param request
      * @param response
      * @param chain
@@ -118,8 +120,28 @@ public class LoginFilter implements Filter {
     @Override
     public void doFilter(final ServletRequest request, final ServletResponse response,
             final FilterChain chain) throws IOException, ServletException {
+        LOGGER.debug("Performing doFilter() on LoginFilter");
         HttpServletRequest httpRequest = (HttpServletRequest) request;
         HttpServletResponse httpResponse = (HttpServletResponse) response;
+
+        if (request.getAttribute(ContextPolicy.NO_AUTH_POLICY) != null) {
+            LOGGER.debug("NO_AUTH_POLICY header was found, skipping login filter.");
+            chain.doFilter(request, response);
+        } else {
+            // perform validation
+            Subject subject = validateRequest(httpRequest, httpResponse);
+            if (subject != null) {
+                httpRequest.setAttribute(SecurityConstants.SECURITY_SUBJECT, subject);
+                chain.doFilter(request, response);
+            } else {
+                LOGGER.debug("Could not attach subject to http request.");
+            }
+        }
+
+    }
+
+    private Subject validateRequest(final HttpServletRequest httpRequest,
+            final HttpServletResponse httpResponse) throws IOException, ServletException {
 
         Subject subject = null;
 
@@ -127,11 +149,11 @@ public class LoginFilter implements Filter {
         Object token = httpRequest.getAttribute("ddf.security.token");
         if (securityToken != null) {
             try {
-                //wrap the token
+                // wrap the token
                 AssertionWrapper assertion = new AssertionWrapper(
                         ((SecurityToken) securityToken).getToken());
 
-                //get the crypto junk
+                // get the crypto junk
                 Crypto crypto = getSignatureCrypto();
                 org.opensaml.saml2.core.Response samlResponse = createSamlResponse(
                         httpRequest.getRequestURI(), assertion.getIssuerString(),
@@ -149,10 +171,10 @@ public class LoginFilter implements Filter {
                             .fromDom(policyElement);
                     SAMLProtocolResponseValidator validator = new SAMLProtocolResponseValidator();
 
-                    //validate the assertion
+                    // validate the assertion
                     validator.validateSamlResponse(marshalledResponse, crypto, null);
 
-                    //if it is all good, then we'll create our subject
+                    // if it is all good, then we'll create our subject
                     subject = securityManager.getSubject(securityToken);
                 }
             } catch (SecurityServiceException e) {
@@ -195,29 +217,22 @@ public class LoginFilter implements Filter {
             }
         }
 
-        if (subject != null) {
-            httpRequest.setAttribute(SecurityConstants.SECURITY_SUBJECT, subject);
-            chain.doFilter(request, response);
-        } else {
-            LOGGER.debug("Could not attach subject to http request.");
-        }
+        return subject;
     }
 
     /**
-     * Creates the SAML response that we use for validation against the CXF code.
+     * Creates the SAML response that we use for validation against the CXF
+     * code.
+     * 
      * @param inResponseTo
      * @param issuer
      * @param status
      * @return Response
      */
-    private static Response createSamlResponse(
-            String inResponseTo,
-            String issuer,
-            Status status
-    ) {
+    private static Response createSamlResponse(String inResponseTo, String issuer, Status status) {
         if (responseBuilder == null) {
-            responseBuilder = (SAMLObjectBuilder<Response>)
-                    builderFactory.getBuilder(Response.DEFAULT_ELEMENT_NAME);
+            responseBuilder = (SAMLObjectBuilder<Response>) builderFactory
+                    .getBuilder(Response.DEFAULT_ELEMENT_NAME);
         }
         Response response = responseBuilder.buildObject();
 
@@ -233,15 +248,14 @@ public class LoginFilter implements Filter {
 
     /**
      * Creates the issuer object for the response.
+     * 
      * @param issuerValue
      * @return Issuer
      */
-    private static Issuer createIssuer(
-            String issuerValue
-    ) {
+    private static Issuer createIssuer(String issuerValue) {
         if (issuerBuilder == null) {
-            issuerBuilder = (SAMLObjectBuilder<Issuer>)
-                    builderFactory.getBuilder(Issuer.DEFAULT_ELEMENT_NAME);
+            issuerBuilder = (SAMLObjectBuilder<Issuer>) builderFactory
+                    .getBuilder(Issuer.DEFAULT_ELEMENT_NAME);
         }
         Issuer issuer = issuerBuilder.buildObject();
         issuer.setValue(issuerValue);
@@ -251,25 +265,23 @@ public class LoginFilter implements Filter {
 
     /**
      * Creates the status object for the response.
+     * 
      * @param statusCodeValue
      * @param statusMessage
      * @return Status
      */
-    private static Status createStatus(
-            String statusCodeValue,
-            String statusMessage
-    ) {
+    private static Status createStatus(String statusCodeValue, String statusMessage) {
         if (statusBuilder == null) {
-            statusBuilder = (SAMLObjectBuilder<Status>)
-                    builderFactory.getBuilder(Status.DEFAULT_ELEMENT_NAME);
+            statusBuilder = (SAMLObjectBuilder<Status>) builderFactory
+                    .getBuilder(Status.DEFAULT_ELEMENT_NAME);
         }
         if (statusCodeBuilder == null) {
-            statusCodeBuilder = (SAMLObjectBuilder<StatusCode>)
-                    builderFactory.getBuilder(StatusCode.DEFAULT_ELEMENT_NAME);
+            statusCodeBuilder = (SAMLObjectBuilder<StatusCode>) builderFactory
+                    .getBuilder(StatusCode.DEFAULT_ELEMENT_NAME);
         }
         if (statusMessageBuilder == null) {
-            statusMessageBuilder = (SAMLObjectBuilder<StatusMessage>)
-                    builderFactory.getBuilder(StatusMessage.DEFAULT_ELEMENT_NAME);
+            statusMessageBuilder = (SAMLObjectBuilder<StatusMessage>) builderFactory
+                    .getBuilder(StatusMessage.DEFAULT_ELEMENT_NAME);
         }
 
         Status status = statusBuilder.buildObject();
@@ -288,8 +300,9 @@ public class LoginFilter implements Filter {
     }
 
     /**
-     * Creates a cookie to be returned to the browser if the token was successfully exchanged for
-     * a SAML assertion.
+     * Creates a cookie to be returned to the browser if the token was
+     * successfully exchanged for a SAML assertion.
+     * 
      * @param httpRequest
      * @param httpResponse
      * @param cookieValue
@@ -303,7 +316,7 @@ public class LoginFilter implements Filter {
             cookie.setDomain(url.getHost());
             cookie.setPath("/");
             cookie.setSecure(true);
-            //TODO do we want a max age??
+            // TODO do we want a max age??
             if (timeoutSeconds > Integer.MAX_VALUE || timeoutSeconds < Integer.MIN_VALUE) {
                 cookie.setMaxAge(-1);
             } else {
@@ -317,7 +330,9 @@ public class LoginFilter implements Filter {
     }
 
     /**
-     * Encodes the SAML assertion as a deflated Base64 String so that it can be used as a Cookie.
+     * Encodes the SAML assertion as a deflated Base64 String so that it can be
+     * used as a Cookie.
+     * 
      * @param token
      * @return String
      * @throws WSSecurityException
@@ -331,7 +346,9 @@ public class LoginFilter implements Filter {
     }
 
     /**
-     * Returns a Crypto object initialized against the system signature properties.
+     * Returns a Crypto object initialized against the system signature
+     * properties.
+     * 
      * @return Crypto
      */
     private Crypto getSignatureCrypto() {
