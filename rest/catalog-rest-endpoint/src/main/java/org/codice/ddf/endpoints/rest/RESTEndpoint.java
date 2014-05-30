@@ -1,16 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
+ *
  **/
 package org.codice.ddf.endpoints.rest;
 
@@ -58,6 +58,7 @@ import javax.activation.MimeTypeParseException;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.HEAD;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -92,6 +93,14 @@ public class RESTEndpoint implements RESTService {
 
     private static String JSON_MIME_TYPE_STRING = "application/json";
 
+    private static final String HEADER_RANGE = "Range";
+
+    private static final String HEADER_ACCEPT_RANGES = "Accept-Ranges";
+
+    private static final String HEADER_CONTENT_LENGTH = "Content-Length";
+
+    private static final String HEADER_CONTENT_DISPOSITION = "Content-Disposition";
+
     private static MimeType JSON_MIME_TYPE = null;
 
     private FilterBuilder filterBuilder;
@@ -99,7 +108,7 @@ public class RESTEndpoint implements RESTService {
     private CatalogFramework catalogFramework;
 
     private MimeTypeToTransformerMapper mimeTypeToTransformerMapper;
-    
+
     private MimeTypeResolver tikaMimeTypeResolver;
 
     static {
@@ -119,12 +128,175 @@ public class RESTEndpoint implements RESTService {
     }
 
     /**
+     * REST Head. Retrieves information regarding the entry specified by the id.
+     * This can be used to verify that the Range header is supported (the Accept-Ranges header is returned) and to
+     * get the size of the requested resource for use in Content-Range requests.
+     *
+     * @param id
+     * @param uriInfo
+     * @param httpRequest
+     * @return
+     */
+    @HEAD
+    @Path("/{id:.*}")
+    public Response getHeaders(
+            @PathParam("id") String id,
+            @Context UriInfo uriInfo,
+            @Context HttpServletRequest httpRequest) {
+
+        return getHeaders(null, id, uriInfo, httpRequest);
+    }
+
+    /**
+     * REST Head. Returns headers only.  Primarily used to let the client know that range requests (though limited)
+     * are accepted.
+     *
+     * @param sourceid
+     * @param id
+     * @param uriInfo
+     * @param httpRequest
+     * @return
+     */
+    @HEAD
+    @Path("/sources/{sourceid}/{id:.*}")
+    public Response getHeaders(
+            @PathParam("sourceid") String sourceid,
+            @PathParam("id") String id,
+            @Context UriInfo uriInfo,
+            @Context HttpServletRequest httpRequest) {
+
+        Response response;
+        Response.ResponseBuilder responseBuilder;
+        QueryResponse queryResponse;
+        Metacard card = null;
+        Subject subject;
+
+        LOGGER.debug("getHeaders");
+        URI absolutePath = uriInfo.getAbsolutePath();
+        MultivaluedMap<String, String> map = uriInfo.getQueryParameters();
+
+        if (id != null) {
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Got id: " + id);
+                LOGGER.debug("Map of query parameters: \n" + map.toString());
+            }
+
+            subject = getSubject(httpRequest);
+            if (subject == null) {
+                LOGGER.debug("Could not set security attributes for user, performing query with no permissions set.");
+            }
+
+            Map<String, Serializable> convertedMap = convert(map);
+            convertedMap.put("url", absolutePath.toString());
+
+            LOGGER.debug("Map converted, retrieving product.");
+
+            // default to xml if no transformer specified
+            try {
+                String transformer = DEFAULT_METACARD_TRANSFORMER;
+
+                Filter filter = getFilterBuilder().attribute(Metacard.ID).is().equalTo().text(id);
+
+                Collection<String> sources = null;
+                if (sourceid != null) {
+                    sources = new ArrayList<String>();
+                    sources.add(sourceid);
+                }
+
+                QueryRequestImpl request = new QueryRequestImpl(new QueryImpl(filter), sources);
+                request.setProperties(convertedMap);
+                if (subject != null) {
+                    LOGGER.debug("Adding " + SecurityConstants.SECURITY_SUBJECT
+                            + " property with value " + subject + " to request.");
+                    request.getProperties().put(SecurityConstants.SECURITY_SUBJECT, subject);
+                }
+                queryResponse = catalogFramework.query(request, null);
+
+                // pull the metacard out of the blocking queue
+                List<Result> results = queryResponse.getResults();
+
+                // TODO: should be poll? do we want to specify a timeout? (will
+                // return null if timeout elapsed)
+                if (results != null && !results.isEmpty()) {
+                    card = results.get(0).getMetacard();
+                }
+
+                if (card == null) {
+                    throw new ServerErrorException("Unable to retrieve requested metacard.",
+                            Status.NOT_FOUND);
+                }
+
+                LOGGER.debug("Calling transform.");
+                final BinaryContent content = catalogFramework.transform(card, transformer, convertedMap);
+                LOGGER.debug("Read and transform complete, preparing response.");
+
+                responseBuilder = Response.noContent();
+
+                // Add the Accept-ranges header to let the client know that we accept ranges in bytes
+                responseBuilder.header(HEADER_ACCEPT_RANGES, "bytes");
+
+                String filename = null;
+
+                if (content instanceof Resource) {
+                    // If we got a resource, we can extract the filename.
+                    filename = ((Resource) content).getName();
+                } else {
+                    String fileExtension = getFileExtensionForMimeType(content.getMimeTypeValue());
+                    if (StringUtils.isNotBlank(fileExtension)) {
+                        filename = id + fileExtension;
+                    }
+                }
+
+                if (StringUtils.isNotBlank(filename)) {
+                    LOGGER.debug("filename: {}", filename);
+                    responseBuilder.header(HEADER_CONTENT_DISPOSITION, "inline; filename=\"" + filename
+                            + "\"");
+                }
+
+                long size = content.getSize();
+                if (size > 0) {
+                    responseBuilder.header(HEADER_CONTENT_LENGTH, size);
+                }
+
+                response = responseBuilder.build();
+
+            } catch (FederationException e) {
+                String exceptionMessage = "READ failed due to unexpected exception: "
+                        + e.getMessage();
+                throw new ServerErrorException(exceptionMessage, Status.INTERNAL_SERVER_ERROR);
+            } catch (CatalogTransformerException e) {
+                String exceptionMessage = "Unable to transform Metacard.  Try different transformer: "
+                        + e.getMessage();
+                throw new ServerErrorException(exceptionMessage, Status.INTERNAL_SERVER_ERROR);
+            } catch (SourceUnavailableException e) {
+                String exceptionMessage = "Cannot obtain query results because source is unavailable: "
+                        + e.getMessage();
+                throw new ServerErrorException(exceptionMessage, Status.INTERNAL_SERVER_ERROR);
+            } catch (UnsupportedQueryException e) {
+                String exceptionMessage = "Specified query is unsupported.  Change query and resubmit: "
+                        + e.getMessage();
+                throw new ServerErrorException(exceptionMessage, Status.BAD_REQUEST);
+            }
+            // The catalog framework will throw this if any of the transformers blow up. We need to
+            // catch this exception
+            // here or else execution will return to CXF and we'll lose this message and end up with
+            // a huge stack trace
+            // in a GUI or whatever else is connected to this endpoint
+            catch (IllegalArgumentException e) {
+                throw new ServerErrorException(e, Status.BAD_REQUEST);
+            }
+        } else {
+            throw new ServerErrorException("No ID specified.", Status.BAD_REQUEST);
+        }
+        return response;
+    }
+
+    /**
      * REST Get. Retrieves the metadata entry specified by the id. Transformer argument is optional,
      * but is used to specify what format the data should be returned.
-     * 
+     *
      * @param id
-     * @param transformerParam
-     *            (OPTIONAL)
+     * @param transformerParam (OPTIONAL)
      * @param uriInfo
      * @return
      * @throws ServerErrorException
@@ -132,17 +304,17 @@ public class RESTEndpoint implements RESTService {
     @GET
     @Path("/{id:.*}")
     public Response getDocument(@PathParam("id")
-    String id, @QueryParam("transform")
-    String transformerParam, @Context
-    UriInfo uriInfo, @Context
-    HttpServletRequest httpRequest) {
+                                    String id, @QueryParam("transform")
+                                    String transformerParam, @Context
+                                    UriInfo uriInfo, @Context
+                                    HttpServletRequest httpRequest) {
 
         return getDocument(null, id, transformerParam, uriInfo, httpRequest);
     }
 
     /**
      * REST Get. Retrieves information regarding sources available.
-     * 
+     *
      * @param uriInfo
      * @param httpRequest
      * @return
@@ -150,10 +322,10 @@ public class RESTEndpoint implements RESTService {
     @GET
     @Path("/sources")
     public Response getDocument(@Context
-    UriInfo uriInfo, @Context
-    HttpServletRequest httpRequest) {
+                                    UriInfo uriInfo, @Context
+                                    HttpServletRequest httpRequest) {
         BinaryContent content;
-        Response response;
+        ResponseBuilder responseBuilder;
         String sourcesString = null;
 
         JSONArray resultsList = new JSONArray();
@@ -186,7 +358,8 @@ public class RESTEndpoint implements RESTService {
                             contentTypeObj.put("name", contentType.getName());
                             contentTypeObj.put("version",
                                     contentType.getVersion() != null ? contentType.getVersion()
-                                            : "");
+                                            : ""
+                            );
                             contentTypesObj.add(contentTypeObj);
                         }
                     }
@@ -201,15 +374,19 @@ public class RESTEndpoint implements RESTService {
         sourcesString = JSONValue.toJSONString(resultsList);
         content = new BinaryContentImpl(new ByteArrayInputStream(sourcesString.getBytes()),
                 JSON_MIME_TYPE);
-        response = Response.ok(content.getInputStream(), content.getMimeTypeValue()).build();
-        return response;
+        responseBuilder = Response.ok(content.getInputStream(), content.getMimeTypeValue());
+
+        // Add the Accept-ranges header to let the client know that we accept ranges in bytes
+        responseBuilder.header(HEADER_ACCEPT_RANGES, "bytes");
+
+        return responseBuilder.build();
     }
 
     /**
      * REST Get. Retrieves the metadata entry specified by the id from the federated source
      * specified by sourceid. Transformer argument is optional, but is used to specify what format
      * the data should be returned.
-     * 
+     *
      * @param sourceid
      * @param id
      * @param transformerParam
@@ -219,13 +396,14 @@ public class RESTEndpoint implements RESTService {
     @GET
     @Path("/sources/{sourceid}/{id:.*}")
     public Response getDocument(@PathParam("sourceid")
-    String sourceid, @PathParam("id")
-    String id, @QueryParam("transform")
-    String transformerParam, @Context
-    UriInfo uriInfo, @Context
-    HttpServletRequest httpRequest) {
+                                    String sourceid, @PathParam("id")
+                                    String id, @QueryParam("transform")
+                                    String transformerParam, @Context
+                                    UriInfo uriInfo, @Context
+                                    HttpServletRequest httpRequest) {
 
-        Response response;
+        Response response = null;
+        Response.ResponseBuilder responseBuilder;
         QueryResponse queryResponse;
         Metacard card = null;
         Subject subject;
@@ -291,12 +469,34 @@ public class RESTEndpoint implements RESTService {
                 LOGGER.debug("Calling transform.");
                 final BinaryContent content = catalogFramework.transform(card, transformer, convertedMap);
                 LOGGER.debug("Read and transform complete, preparing response.");
-                
-                Response.ResponseBuilder responseBuilder = Response.ok(content.getInputStream(),
-                        content.getMimeTypeValue());                
-                
+
+                long size = content.getSize();
+
+                // Check for Range header and skip appropriately
+                if (rangeHeaderExists(httpRequest) && (getRangeStart(httpRequest) > 0)) {
+
+                    LOGGER.debug("rangeStart: {}", getRangeStart(httpRequest));
+
+                    responseBuilder = Response.status(Status.PARTIAL_CONTENT);
+
+                    content.getInputStream().skip(getRangeStart(httpRequest));
+
+                    responseBuilder.entity(content.getInputStream());
+                    responseBuilder.type(content.getMimeTypeValue());
+                } else {
+                    if (getRangeStart(httpRequest) < 0) {
+                        throw new UnsupportedQueryException("Invalid range value.");
+                    } else {
+                        responseBuilder = Response.ok(content.getInputStream(),
+                                content.getMimeTypeValue());
+                    }
+                }
+
+                // Add the Accept-ranges header to let the client know that we accept ranges in bytes
+                responseBuilder.header(HEADER_ACCEPT_RANGES, "bytes");
+
                 String filename = null;
-                
+
                 if (content instanceof Resource) {
                     // If we got a resource, we can extract the filename.
                     filename = ((Resource) content).getName();
@@ -309,13 +509,8 @@ public class RESTEndpoint implements RESTService {
 
                 if (StringUtils.isNotBlank(filename)) {
                     LOGGER.debug("filename: {}", filename);
-                    responseBuilder.header("Content-Disposition", "inline; filename=\"" + filename
+                    responseBuilder.header(HEADER_CONTENT_DISPOSITION, "inline; filename=\"" + filename
                             + "\"");
-                }
-                
-                long size = content.getSize();
-                if (size > 0) {
-                    responseBuilder.header("Content-Length", size);
                 }
 
                 response = responseBuilder.build();
@@ -335,7 +530,11 @@ public class RESTEndpoint implements RESTService {
                 String exceptionMessage = "Specified query is unsupported.  Change query and resubmit: "
                         + e.getMessage();
                 throw new ServerErrorException(exceptionMessage, Status.BAD_REQUEST);
+            } catch (IOException e) {
+                String exceptionMessage = "Error retrieving range: "
+                        + e.getMessage();
             }
+
             // The catalog framework will throw this if any of the transformers blow up. We need to
             // catch this exception
             // here or else execution will return to CXF and we'll lose this message and end up with
@@ -352,7 +551,7 @@ public class RESTEndpoint implements RESTService {
 
     /**
      * REST Put. Updates the specified metadata entry with the provided metadata.
-     * 
+     *
      * @param id
      * @param message
      * @return
@@ -360,8 +559,8 @@ public class RESTEndpoint implements RESTService {
     @PUT
     @Path("/{id:.*}")
     public Response updateDocument(@PathParam("id")
-    String id, @Context
-    HttpHeaders headers, @Context HttpServletRequest httpRequest, InputStream message) {
+                                       String id, @Context
+                                       HttpHeaders headers, @Context HttpServletRequest httpRequest, InputStream message) {
         LOGGER.debug("PUT");
         Response response;
 
@@ -410,14 +609,15 @@ public class RESTEndpoint implements RESTService {
 
     /**
      * REST Post. Creates a new metadata entry in the catalog.
-     * 
+     *
      * @param message
      * @return
      */
     @POST
-    public Response addDocument(@Context
-    HttpHeaders headers, @Context
-    UriInfo requestUriInfo, @Context HttpServletRequest httpRequest, InputStream message) {
+    public Response addDocument(@Context HttpHeaders headers,
+                                @Context UriInfo requestUriInfo,
+                                @Context HttpServletRequest httpRequest,
+                                InputStream message) {
         LOGGER.debug("POST");
         Response response;
 
@@ -484,14 +684,13 @@ public class RESTEndpoint implements RESTService {
 
     /**
      * REST Delete. Deletes a record from the catalog.
-     * 
+     *
      * @param id
      * @return
      */
     @DELETE
     @Path("/{id:.*}")
-    public Response deleteDocument(@PathParam("id")
-    String id, @Context HttpServletRequest httpRequest) {
+    public Response deleteDocument(@PathParam("id") String id, @Context HttpServletRequest httpRequest) {
         LOGGER.debug("DELETE");
         Response response;
         try {
@@ -548,7 +747,7 @@ public class RESTEndpoint implements RESTService {
     }
 
     private Metacard generateMetacard(MimeType mimeType, String id, InputStream message)
-        throws MetacardCreationException {
+            throws MetacardCreationException {
 
         List<InputTransformer> listOfCandidates = mimeTypeToTransformerMapper.findMatches(
                 InputTransformer.class, mimeType);
@@ -623,12 +822,61 @@ public class RESTEndpoint implements RESTService {
 
         return mimeType;
     }
-    
+
     private String getFileExtensionForMimeType(String mimeType) {
         String fileExtension = this.tikaMimeTypeResolver.getFileExtensionForMimeType(mimeType);
-            LOGGER.debug("Mime Type [{}] resolves to file extension [{}].",
-                    mimeType, fileExtension);
+        LOGGER.debug("Mime Type [{}] resolves to file extension [{}].",
+                mimeType, fileExtension);
         return fileExtension;
+    }
+
+    private boolean rangeHeaderExists(HttpServletRequest httpRequest) {
+        boolean response = false;
+
+        if (null != httpRequest) {
+            if (null != httpRequest.getHeader(HEADER_RANGE)) {
+                response = true;
+            }
+        }
+
+        return response;
+    }
+
+    // Return 0 (beginning of stream) if the range header does not exist.
+    private long getRangeStart(HttpServletRequest httpRequest) throws UnsupportedQueryException {
+        long response = 0;
+
+        if (httpRequest != null) {
+            if (rangeHeaderExists(httpRequest)) {
+                String rangeHeader = httpRequest.getHeader(HEADER_RANGE);
+                String range = getRange(rangeHeader);
+
+                if (range != null) {
+                    response = new Long(range).longValue();
+                }
+            }
+        }
+
+        return response;
+    }
+
+    private String getRange(String rangeHeader) throws UnsupportedQueryException {
+        String response = null;
+
+        if (rangeHeader != null) {
+            if (rangeHeader.contains("bytes=")) {
+                String tempString = rangeHeader.substring("bytes=".length());
+                if (tempString.contains("-")) {
+                    response = rangeHeader.substring("bytes=".length(), rangeHeader.lastIndexOf("-"));
+                } else {
+                    response = rangeHeader.substring("bytes=".length());
+                }
+            } else {
+                throw new UnsupportedQueryException("Invalid range header: " + rangeHeader);
+            }
+        }
+
+        return response;
     }
 
     protected Subject getSubject(HttpServletRequest request) {
@@ -657,7 +905,7 @@ public class RESTEndpoint implements RESTService {
     public void setFilterBuilder(FilterBuilder filterBuilder) {
         this.filterBuilder = filterBuilder;
     }
-    
+
     public void setTikaMimeTypeResolver(MimeTypeResolver mimeTypeResolver) {
         this.tikaMimeTypeResolver = mimeTypeResolver;
     }
