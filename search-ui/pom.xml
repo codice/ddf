@@ -34,7 +34,6 @@
 	</properties>
 	
     <modules>
-	<module>search-securityservletfilter</module>
 		<module>search-proxy</module>
         <module>simple</module>
         <module>standard</module>
