@@ -161,12 +161,7 @@
     <feature name="security-filter-web-sso" install="manual" version="${project.version}"
              description="Web SSO Filter for web applications.">
         <bundle>mvn:ddf.security.filter/security-filter-web-sso/${project.version}</bundle>
-    </feature>
-    
-    <feature name="security-filter-delegate" install="manual" version="${project.version}"
-             description="Delegate filter that is added to all servlets and exposes all installed filters.">
-        <bundle>mvn:ddf.security.filter/security-filter-delegate/${project.version}</bundle>
-    </feature>    
+    </feature> 
 
     <feature name="security-handler-pki" install="manual" version="${project.version}"
              description="PKI Handler for web applications.">
