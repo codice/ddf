@@ -161,6 +161,11 @@ public class AuthorizationFilterTest {
         public void setContextPolicy(String path, ContextPolicy contextPolicy) {
             stringContextPolicyMap.put(path, contextPolicy);
         }
+
+        @Override
+        public boolean isWhiteListed(String path) {
+            return false;
+        }
     }
 
     private class TestHttpServletRequest implements HttpServletRequest {

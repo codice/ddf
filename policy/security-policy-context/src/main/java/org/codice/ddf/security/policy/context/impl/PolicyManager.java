@@ -39,6 +39,8 @@ public class PolicyManager implements ContextPolicyManager {
 
     private Map<String, ContextPolicy> policyStore = new HashMap<String, ContextPolicy>();
 
+    private List<String> whiteListContexts = new ArrayList<String>();
+
     private ContextPolicy defaultPolicy = new Policy("/", new ArrayList<String>(), new ArrayList<ContextAttributeMapping>());
 
     public PolicyManager() {
@@ -50,6 +52,8 @@ public class PolicyManager implements ContextPolicyManager {
         ContextPolicy entry = policyStore.get(path);
         if(entry != null) {
             return entry;
+        } else if(whiteListContexts.contains(path)) {
+            return null;
         } else {
             int idx = path.lastIndexOf("/");
             if(idx <= 0) {
@@ -154,5 +158,27 @@ public class PolicyManager implements ContextPolicyManager {
                 policyStore.put(context, new Policy(context, contextToAuth.get(context), mappings));
             }
         }
+    }
+
+    public void setWhiteListContexts(List<String> contexts) {
+        if(contexts != null && !contexts.isEmpty()) {
+            whiteListContexts.clear();
+            whiteListContexts.addAll(contexts);
+        }
+    }
+
+    public void setWhiteListContexts(String contexts) {
+        if(StringUtils.isNotEmpty(contexts)) {
+            String[] contextsArr = contexts.split(",");
+            whiteListContexts.clear();
+            whiteListContexts.addAll(Arrays.asList(contextsArr));
+        }
+    }
+
+    public boolean isWhiteListed(String contextPath) {
+        if(getContextPolicy(contextPath) == null) {
+            return true;
+        }
+        return false;
     }
 }

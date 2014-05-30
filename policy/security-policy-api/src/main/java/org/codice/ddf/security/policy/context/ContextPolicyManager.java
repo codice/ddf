@@ -41,4 +41,11 @@ public interface ContextPolicyManager {
      * @param contextPolicy - context policy
      */
     public void setContextPolicy(String path, ContextPolicy contextPolicy);
+
+    /**
+     * Returns true if the policy is white listed.
+     * @param path - - context path
+     * @return true if the policy is white listed
+     */
+    public boolean isWhiteListed(String path);
 }

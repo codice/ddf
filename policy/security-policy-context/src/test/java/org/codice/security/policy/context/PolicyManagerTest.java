@@ -45,6 +45,8 @@ public class PolicyManagerTest {
         manager.setContextPolicy("/aaaaaa", new Policy("/aaaaaa", null, null));
         manager.setContextPolicy("/aaa", new Policy("/aaa", null, null));
         manager.setContextPolicy("/aaa/aaa", new Policy("/aaa/aaa", null, null));
+        manager.setContextPolicy("/foo/bar", new Policy("/foo/bar", null, null));
+        manager.setWhiteListContexts("/foo");
     }
 
     @Test
@@ -80,6 +82,22 @@ public class PolicyManagerTest {
         policy = manager.getContextPolicy("blah");
 
         Assert.assertEquals("/", policy.getContextPath());
+
+        policy = manager.getContextPolicy("/foo/bar");
+
+        Assert.assertEquals("/foo/bar", policy.getContextPath());
+
+        policy = manager.getContextPolicy("/foo/bar/foobar");
+
+        Assert.assertEquals("/foo/bar", policy.getContextPath());
+
+        policy = manager.getContextPolicy("/foo");
+
+        Assert.assertEquals(null, policy);
+
+        Assert.assertTrue(manager.isWhiteListed("/foo"));
+
+        Assert.assertTrue(!manager.isWhiteListed("/foo/bar"));
     }
 
     @Test
