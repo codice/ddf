@@ -113,6 +113,9 @@
         with other implementations
 
         changed project.version to cxf.version
+        
+        removed feature references http-whiteboard (from cxf-http) and jetty (from cxf-http-jetty)
+        to make it easier to directly use the pax features file to upgrade jetty versions.
 
     DO NOT EDIT
     -->
@@ -219,12 +222,10 @@
     </feature>
     <feature name="cxf-http" install="manual" version="${cxf.version}" resolver='(obr)'>
         <feature version="${cxf.version}">cxf-core</feature>
-        <feature version="[2,4)">http-whiteboard</feature>
         <bundle start-level='40'>mvn:org.apache.cxf/cxf-rt-transports-http/${cxf.version}</bundle>
     </feature>
     <feature name="cxf-http-jetty" install="manual" version="${cxf.version}" resolver='(obr)'>
         <feature version="[2,3)">cxf-http</feature>
-        <feature version="[7,9)">jetty</feature>
         <bundle start-level='40'>mvn:org.apache.cxf/cxf-rt-transports-http-jetty/${cxf.version}</bundle>
     </feature>
     <feature name="cxf-http-async" install="manual" version="${cxf.version}" resolver='(obr)'>
@@ -623,6 +624,11 @@
         description="cxf interceptors to capture metrics.">
         <bundle>mvn:ddf.metrics.interceptor/metrics-interceptor/${project.version}</bundle>
     </feature>   
+    
+    <feature name="platform-delegate-filter" install="manual" version="${project.version}"
+        description="Adds a filter delegate to every incoming servlet context.">
+        <bundle start-level="30">mvn:ddf.platform/platform-filter-delegate/${project.version}</bundle>
+    </feature>
 	
 	<feature name="platform-app" install="auto" version="${project.version}" 
 	  description="Installs the DDF platform boot features which all other applications depend upon.\nPlatform features installed by default include Apache CXF, Apache Camel, Action Framework, MIME Framework, Metrics, Security Core API and Security Encryption::DDF Platform">
