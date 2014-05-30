@@ -18,18 +18,37 @@
     <!-- This feature is used to ensure that the customized karaf jars are properly copied to the DDF repo on distro creation -->
 	<feature name="custom-karaf-bundles" install="manual" version="${project.version}" description="Customized KARAF Bundles">
 	    <bundle>mvn:org.codice/org.apache.karaf.deployer.kar/2.3.2.1</bundle>
-        <bundle>mvn:org.codice/org.apache.karaf.features.core/2.3.3.1</bundle>
+        <bundle>mvn:org.codice/org.apache.karaf.features.core/${karaf.version}.1</bundle>
         <!-- Remove bundles below this comment after upgrade to Karaf 2.3.4 or newer -->
-        <bundle>mvn:org.codice/org.apache.karaf.shell.log/2.3.3.1</bundle>
+        <bundle>mvn:org.codice/org.apache.karaf.shell.log/${karaf.version}.1</bundle>
         <bundle>mvn:org.apache.felix/org.apache.felix.configadmin/1.8.0</bundle>
 	</feature>
 	
 
     <feature name="kernel-webconsolebranding" version="${project.version}" description="DDF Web Admin Console branding">
-        <feature>webconsole</feature>
+        <feature>kernel-webconsole</feature>
 		<bundle>mvn:commons-io/commons-io/${commons-io.version}</bundle>
 		<bundle>mvn:ddf.distribution/webconsole-branding/${project.version}</bundle>
 		<bundle>mvn:ddf.distribution/webconsole-branding-plugin/${project.version}</bundle>
 	</feature>
+  
+    <!-- Added custom webconsole features by removing calls to http and whiteboard. This allows us to use newer pax web impl -->
+    <feature name="kernel-webconsole-base" description="Base support of the Karaf WebConsole" version="${karaf.version}">
+        <config name="org.apache.karaf.webconsole">
+            realm=karaf
+            role=${karaf.admin.role}
+        </config>
+        <bundle start-level="30">mvn:org.apache.felix/org.apache.felix.metatype/1.0.6</bundle>
+        <bundle start-level="30">mvn:org.apache.karaf.webconsole/org.apache.karaf.webconsole.branding/${karaf.version}</bundle>
+        <bundle start-level="30">mvn:org.apache.karaf.webconsole/org.apache.karaf.webconsole.console/${karaf.version}</bundle>
+    </feature>
+
+    <feature name="kernel-webconsole" description="Karaf WebConsole for administration and monitoring" version="${karaf.version}">
+        <feature version="${karaf.version}">kernel-webconsole-base</feature>
+        <bundle start-level="30">mvn:org.apache.karaf.webconsole/org.apache.karaf.webconsole.admin/${karaf.version}</bundle>
+        <bundle start-level="30">mvn:org.apache.karaf.webconsole/org.apache.karaf.webconsole.features/${karaf.version}</bundle>
+        <bundle start-level="30">mvn:org.apache.karaf.webconsole/org.apache.karaf.webconsole.gogo/${karaf.version}</bundle>
+        <bundle start-level="30">mvn:org.apache.felix/org.apache.felix.webconsole.plugins.event/1.0.2</bundle>
+    </feature>
 
 </features>

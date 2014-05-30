@@ -46,6 +46,7 @@
     <ddf.spatial.app.version>2.4.2-SNAPSHOT</ddf.spatial.app.version>
     <ddf.admin.app.version>1.1.0-SNAPSHOT</ddf.admin.app.version>
     <sitename.default>ddf.distribution</sitename.default>
+    <pax.web.version>3.0.4</pax.web.version>
   </properties>
 
   <build>
@@ -82,6 +83,7 @@
             <configuration>
               <inherited>false</inherited>
               <descriptors>
+                <descriptor>mvn:org.ops4j.pax.web/pax-web-features/${pax.web.version}/xml/features</descriptor>
                 <descriptor>mvn:ddf.distribution/kernel/${project.version}/xml/features</descriptor>
                 <descriptor>mvn:ddf.platform/platform-app/${ddf.platform.app.version}/xml/features</descriptor>
                 <descriptor>mvn:ddf.security/security-services-app/${ddf.security.app.version}/xml/features</descriptor>
