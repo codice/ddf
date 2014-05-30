@@ -37,6 +37,8 @@ public class PolicyManager implements ContextPolicyManager {
 
     private static final String REQ_ATTRS = "requiredAttributes";
 
+    private static final String WHITE_LIST = "whiteListContexts";
+
     private Map<String, ContextPolicy> policyStore = new HashMap<String, ContextPolicy>();
 
     private List<String> whiteListContexts = new ArrayList<String>();
@@ -97,10 +99,17 @@ public class PolicyManager implements ContextPolicyManager {
         String[] authContexts = null;
         Object reqAttrsObj = properties.get(REQ_ATTRS);
         String[] attrContexts = null;
+        Object whiteList = properties.get(WHITE_LIST);
         if(authTypesObj != null && authTypesObj instanceof String[]) {
             authContexts = (String[]) authTypesObj;
         } else if (authTypesObj != null) {
             authContexts = ((String) authTypesObj).split(",");
+        }
+
+        if(whiteList != null && whiteList instanceof String[]) {
+            setWhiteListContexts(Arrays.asList((String[]) whiteList));
+        } else if (whiteList != null) {
+            setWhiteListContexts((String) whiteList);
         }
 
         if(reqAttrsObj != null && reqAttrsObj instanceof String[]) {
