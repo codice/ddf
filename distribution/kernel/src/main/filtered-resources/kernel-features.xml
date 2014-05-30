@@ -14,6 +14,7 @@
 <features name="${project.artifactId}-${project.version}">
 
 	<repository>mvn:org.apache.karaf.assemblies.features/standard/${karaf.version}/xml/features</repository>
+    <repository>mvn:org.ops4j.pax.web/pax-web-features/${pax.web.version}/xml/features</repository>
 	
     <!-- This feature is used to ensure that the customized karaf jars are properly copied to the DDF repo on distro creation -->
 	<feature name="custom-karaf-bundles" install="manual" version="${project.version}" description="Customized KARAF Bundles">

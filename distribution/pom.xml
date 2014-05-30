@@ -28,6 +28,7 @@
   <properties>
     <commons-io.version>2.1</commons-io.version>
     <karaf.version>2.3.3</karaf.version>
+    <pax.web.version>3.0.4</pax.web.version>
   </properties> 
   
   <modules>
