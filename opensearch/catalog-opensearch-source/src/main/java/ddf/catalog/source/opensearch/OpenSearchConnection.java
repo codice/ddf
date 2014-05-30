@@ -148,11 +148,12 @@ public class OpenSearchConnection {
      * @param endpointUrl
      * @return URL in String format
      */
-    private String createRestUrl(Query query, String endpointUrl) {
+    private String createRestUrl(Query query, String endpointUrl, boolean retrieveResource) {
 
         String url = null;
         RestFilterDelegate delegate = null;
         RestUrl restUrl = newRestUrl(endpointUrl);
+        restUrl.setRetrieveResource(retrieveResource);
 
         if (restUrl != null) {
             delegate = new RestFilterDelegate(restUrl);
@@ -243,7 +244,7 @@ public class OpenSearchConnection {
     public Client newRestClient(String url, Query query, String metacardId,
             boolean retrieveResource) {
         if (query != null) {
-            url = createRestUrl(query, url);
+            url = createRestUrl(query, url, retrieveResource);
         } else {
             RestUrl restUrl = newRestUrl(url);
 

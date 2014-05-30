@@ -44,9 +44,6 @@ import ddf.mime.MimeTypeResolver;
 import ddf.mime.MimeTypeToTransformerMapper;
 import ddf.security.SecurityConstants;
 import ddf.security.Subject;
-import ddf.security.service.SecurityManager;
-import ddf.security.service.SecurityServiceException;
-import ddf.security.service.TokenRequestHandler;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 import net.minidev.json.JSONValue;
@@ -96,10 +93,6 @@ public class RESTEndpoint implements RESTService {
     private static String JSON_MIME_TYPE_STRING = "application/json";
 
     private static MimeType JSON_MIME_TYPE = null;
-
-    private SecurityManager securityManager;
-
-    private List<TokenRequestHandler> requestHandlerList;
 
     private FilterBuilder filterBuilder;
 
@@ -166,7 +159,20 @@ public class RESTEndpoint implements RESTService {
         JSONArray resultsList = new JSONArray();
         SourceInfoResponse sources;
         try {
-            sources = catalogFramework.getSourceInfo(new SourceInfoRequestEnterprise(true));
+            Subject subject = getSubject(httpRequest);
+            if (subject == null) {
+                LOGGER.debug("Could not set security attributes for user, performing query with no permissions set.");
+            }
+
+            SourceInfoRequestEnterprise sourceInfoRequestEnterprise = new SourceInfoRequestEnterprise(true);
+
+            if (subject != null) {
+                LOGGER.debug("Adding " + SecurityConstants.SECURITY_SUBJECT
+                        + " property with value " + subject + " to request.");
+                sourceInfoRequestEnterprise.getProperties().put(SecurityConstants.SECURITY_SUBJECT, subject);
+            }
+
+            sources = catalogFramework.getSourceInfo(sourceInfoRequestEnterprise);
             for (SourceDescriptor source : sources.getSourceInfo()) {
                 JSONObject sourceObj = new JSONObject();
                 sourceObj.put("id", source.getSourceId());
@@ -355,15 +361,28 @@ public class RESTEndpoint implements RESTService {
     @Path("/{id:.*}")
     public Response updateDocument(@PathParam("id")
     String id, @Context
-    HttpHeaders headers, InputStream message) {
+    HttpHeaders headers, @Context HttpServletRequest httpRequest, InputStream message) {
         LOGGER.debug("PUT");
         Response response;
 
         try {
             if (id != null && message != null) {
+
+                Subject subject = getSubject(httpRequest);
+                if (subject == null) {
+                    LOGGER.debug("Could not set security attributes for user, performing query with no permissions set.");
+                }
+
                 MimeType mimeType = getMimeType(headers);
                 UpdateRequestImpl updateReq = new UpdateRequestImpl(id, generateMetacard(mimeType,
                         id, message));
+
+                if(subject != null) {
+                    LOGGER.debug("Adding " + SecurityConstants.SECURITY_SUBJECT
+                            + " property with value " + subject + " to request.");
+                    updateReq.getProperties().put(SecurityConstants.SECURITY_SUBJECT, subject);
+                }
+
                 catalogFramework.update(updateReq);
                 response = Response.ok().build();
             } else {
@@ -398,7 +417,7 @@ public class RESTEndpoint implements RESTService {
     @POST
     public Response addDocument(@Context
     HttpHeaders headers, @Context
-    UriInfo requestUriInfo, InputStream message) {
+    UriInfo requestUriInfo, @Context HttpServletRequest httpRequest, InputStream message) {
         LOGGER.debug("POST");
         Response response;
 
@@ -406,8 +425,20 @@ public class RESTEndpoint implements RESTService {
 
         try {
             if (message != null) {
+                Subject subject = getSubject(httpRequest);
+                if (subject == null) {
+                    LOGGER.debug("Could not set security attributes for user, performing query with no permissions set.");
+                }
+
                 CreateRequestImpl createReq = new CreateRequestImpl(generateMetacard(mimeType,
                         null, message));
+
+
+                if(subject != null) {
+                    LOGGER.debug("Adding " + SecurityConstants.SECURITY_SUBJECT
+                            + " property with value " + subject + " to request.");
+                    createReq.getProperties().put(SecurityConstants.SECURITY_SUBJECT, subject);
+                }
 
                 CreateResponse createResponse = catalogFramework.create(createReq);
 
@@ -460,12 +491,24 @@ public class RESTEndpoint implements RESTService {
     @DELETE
     @Path("/{id:.*}")
     public Response deleteDocument(@PathParam("id")
-    String id) {
+    String id, @Context HttpServletRequest httpRequest) {
         LOGGER.debug("DELETE");
         Response response;
         try {
             if (id != null) {
+                Subject subject = getSubject(httpRequest);
+                if (subject == null) {
+                    LOGGER.debug("Could not set security attributes for user, performing query with no permissions set.");
+                }
+
                 DeleteRequestImpl deleteReq = new DeleteRequestImpl(id);
+
+                if(subject != null) {
+                    LOGGER.debug("Adding " + SecurityConstants.SECURITY_SUBJECT
+                            + " property with value " + subject + " to request.");
+                    deleteReq.getProperties().put(SecurityConstants.SECURITY_SUBJECT, subject);
+                }
+
                 catalogFramework.delete(deleteReq);
                 response = Response.ok(id).build();
             } else {
@@ -591,32 +634,11 @@ public class RESTEndpoint implements RESTService {
     protected Subject getSubject(HttpServletRequest request) {
         Subject subject = null;
         if (request != null) {
-            if (securityManager != null) {
-                for (TokenRequestHandler curHandler : requestHandlerList) {
-                    try {
-                        subject = securityManager.getSubject(curHandler.createToken(request));
-                        LOGGER.debug("Able to get populated subject from incoming request.");
-                        break;
-                    } catch (SecurityServiceException sse) {
-                        LOGGER.warn("Could not create subject from request handler, trying other handlers if available.");
-                    }
-                }
-            } else {
-                LOGGER.debug("No security manager was passed in, cannot obtain security credentials for user.");
-            }
+            subject = (Subject) request.getAttribute(SecurityConstants.SECURITY_SUBJECT);
         } else {
             LOGGER.debug("No servlet request found, cannot obtain user credentials.");
         }
         return subject;
-    }
-
-    public void setSecurityManager(SecurityManager securityManager) {
-        LOGGER.debug("Got a security manager");
-        this.securityManager = securityManager;
-    }
-
-    public void setRequestHandlers(List<TokenRequestHandler> requestHandlerList) {
-        this.requestHandlerList = requestHandlerList;
     }
 
     public MimeTypeToTransformerMapper getMimeTypeToTransformerMapper() {

@@ -278,7 +278,7 @@ public final class OpenSearchSource implements FederatedSource, ConfiguredServic
                 LOGGER.warn("", e);
             }
 
-            if(response != null && !(response.getStatus() >= 400)) {
+            if(response != null && !(response.getStatus() >= 404)) {
                 isAvailable = true;
                 lastAvailableDate = new Date();
             }

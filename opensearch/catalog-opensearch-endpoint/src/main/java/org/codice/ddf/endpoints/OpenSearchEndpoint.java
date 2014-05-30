@@ -29,9 +29,6 @@ import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.security.SecurityConstants;
 import ddf.security.Subject;
-import ddf.security.service.SecurityManager;
-import ddf.security.service.SecurityServiceException;
-import ddf.security.service.TokenRequestHandler;
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.configuration.ConfigurationManager;
 import org.codice.ddf.configuration.ConfigurationWatcher;
@@ -59,10 +56,6 @@ import java.util.Set;
 
 @Path("/")
 public class OpenSearchEndpoint implements ConfigurationWatcher, OpenSearch {
-
-    private SecurityManager securityManager;
-
-    private List<TokenRequestHandler> requestHandlerList;
 
     private static final String UPDATE_QUERY_INTERVAL = "interval";
 
@@ -312,34 +305,11 @@ public class OpenSearchEndpoint implements ConfigurationWatcher, OpenSearch {
     protected Subject getSubject(HttpServletRequest request) {
         Subject subject = null;
         if (request != null) {
-            if (securityManager != null) {
-                for (TokenRequestHandler curHandler : requestHandlerList) {
-                    try {
-                        subject = securityManager.getSubject(curHandler.createToken(request));
-                        LOGGER.debug("Able to get populated subject from incoming request.");
-                        break;
-                    } catch (SecurityServiceException sse) {
-                        LOGGER.warn(
-                                "Could not create subject from request handler, trying other handlers if available.",
-                                sse);
-                    }
-                }
-            } else {
-                LOGGER.debug("No security manager was passed in, cannot obtain security credentials for user.");
-            }
+            subject = (Subject) request.getAttribute(SecurityConstants.SECURITY_SUBJECT);
         } else {
             LOGGER.debug("No servlet request found, cannot obtain user credentials.");
         }
         return subject;
-    }
-
-    public void setSecurityManager(SecurityManager securityManager) {
-        LOGGER.debug("Got a security manager");
-        this.securityManager = securityManager;
-    }
-
-    public void setRequestHandlers(List<TokenRequestHandler> requestHandlerList) {
-        this.requestHandlerList = requestHandlerList;
     }
 
     /**

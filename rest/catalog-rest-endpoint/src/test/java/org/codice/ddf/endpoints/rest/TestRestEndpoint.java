@@ -162,7 +162,7 @@ public class TestRestEndpoint {
 
         HttpHeaders headers = mock(HttpHeaders.class);
 
-        rest.addDocument(headers, givenUriInfo(SAMPLE_ID), new ByteArrayInputStream("".getBytes()));
+        rest.addDocument(headers, givenUriInfo(SAMPLE_ID), mock(HttpServletRequest.class), new ByteArrayInputStream("".getBytes()));
 
         verify(matchingService, atLeastOnce()).findMatches(eq(InputTransformer.class),
                 isNull(MimeType.class));
@@ -194,7 +194,7 @@ public class TestRestEndpoint {
 
         HttpHeaders headers = createHeaders(Arrays.asList("!INVALID!"));
 
-        rest.addDocument(headers, givenUriInfo(SAMPLE_ID), new ByteArrayInputStream("".getBytes()));
+        rest.addDocument(headers, givenUriInfo(SAMPLE_ID), mock(HttpServletRequest.class), new ByteArrayInputStream("".getBytes()));
 
         verify(matchingService, atLeastOnce()).findMatches(eq(InputTransformer.class),
                 isNull(MimeType.class));
@@ -209,7 +209,7 @@ public class TestRestEndpoint {
 
         HttpHeaders headers = mock(HttpHeaders.class);
 
-        rest.addDocument(headers, mock(UriInfo.class), null);
+        rest.addDocument(headers, mock(UriInfo.class), mock(HttpServletRequest.class), null);
 
     }
 
@@ -233,7 +233,7 @@ public class TestRestEndpoint {
 
         InputStream is = new ByteArrayInputStream("".getBytes());
 
-        rest.addDocument(headers, mock(UriInfo.class), is);
+        rest.addDocument(headers, mock(UriInfo.class), mock(HttpServletRequest.class), is);
 
     }
 
@@ -266,7 +266,7 @@ public class TestRestEndpoint {
 
         InputStream is = new ByteArrayInputStream("".getBytes());
 
-        rest.addDocument(headers, mock(UriInfo.class), is);
+        rest.addDocument(headers, mock(UriInfo.class), mock(HttpServletRequest.class), is);
 
     }
 
@@ -314,7 +314,7 @@ public class TestRestEndpoint {
 
         InputStream is = new ByteArrayInputStream("".getBytes());
 
-        rest.addDocument(headers, mock(UriInfo.class), is);
+        rest.addDocument(headers, mock(UriInfo.class), mock(HttpServletRequest.class), is);
 
     }
 
@@ -333,7 +333,7 @@ public class TestRestEndpoint {
         UriInfo info = givenUriInfo(SAMPLE_ID);
 
         Response response = rest
-                .addDocument(headers, info, new ByteArrayInputStream("".getBytes()));
+                .addDocument(headers, info, mock(HttpServletRequest.class), new ByteArrayInputStream("".getBytes()));
 
         LOGGER.debug(ToStringBuilder.reflectionToString(response));
 
@@ -808,7 +808,7 @@ public class TestRestEndpoint {
         UriInfo info = givenUriInfo(SAMPLE_ID);
 
         try {
-            rest.addDocument(headers, info, new ByteArrayInputStream("".getBytes()));
+            rest.addDocument(headers, info, mock(HttpServletRequest.class), new ByteArrayInputStream("".getBytes()));
             fail();
         } catch (ServerErrorException e) {
             assertThat(e.getResponse().getStatus(), equalTo(INTERNAL_SERVER_ERROR));

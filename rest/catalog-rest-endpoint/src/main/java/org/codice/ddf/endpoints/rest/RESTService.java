@@ -97,7 +97,7 @@ public interface RESTService {
     @Path("/{id:.*}")
     public Response updateDocument(@PathParam("id")
     String id, @Context
-    HttpHeaders headers, InputStream message);
+    HttpHeaders headers, @Context HttpServletRequest httpRequest, InputStream message);
 
     /**
      * REST Post. Creates a new metadata entry in the catalog.
@@ -108,7 +108,7 @@ public interface RESTService {
     @POST
     public Response addDocument(@Context
     HttpHeaders headers, @Context
-    UriInfo requestUriInfo, InputStream message);
+    UriInfo requestUriInfo, @Context HttpServletRequest httpRequest, InputStream message);
 
     /**
      * REST Delete. Deletes a record from the catalog.
@@ -119,6 +119,6 @@ public interface RESTService {
     @DELETE
     @Path("/{id:.*}")
     public Response deleteDocument(@PathParam("id")
-    String id);
+    String id, @Context HttpServletRequest httpRequest);
 
 }
