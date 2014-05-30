@@ -457,6 +457,28 @@ public class TestRestEndpoint {
     }
 
     /**
+     * Tests retrieving a partial federated resource with a successful response
+     *
+     * @throws URISyntaxException
+     * @throws IngestException
+     * @throws SourceUnavailableException
+     * @throws UnsupportedQueryException
+     * @throws FederationException
+     * @throws CatalogTransformerException
+     * @throws IOException
+     * @throws ResourceNotFoundException
+     * @throws ResourceNotSupportedException
+     */
+    @Test
+    public void testGetPartialDocumentResourceLocalSuccess() throws URISyntaxException, IngestException,
+            SourceUnavailableException, UnsupportedQueryException, FederationException,
+            CatalogTransformerException, IOException, ResourceNotFoundException,
+            ResourceNotSupportedException {
+
+        getPartialDocumentResourceSuccess(true);
+    }
+
+    /**
      * Tests local retrieve with a successful response
      *
      * @throws URISyntaxException
@@ -517,15 +539,7 @@ public class TestRestEndpoint {
             CatalogTransformerException, IOException, ResourceNotFoundException,
             ResourceNotSupportedException {
 
-        CatalogFramework framework = givenCatalogFramework(SAMPLE_ID);
-        String transformer = mockTestSetup(framework, TestType.RESOURCE_TEST);
-        HttpServletRequest servletRequest = createServletRequest(new Integer(BYTES_TO_SKIP).toString());
-        Response response = executeTest(framework, transformer, false, servletRequest);
-
-        String responseMessage = IOUtils.toString((ByteArrayInputStream) response.getEntity());
-        assertEquals(GET_STREAM.substring(BYTES_TO_SKIP), responseMessage);
-        assertEquals(PARTIAL_CONTENT, response.getStatus());
-        assertEquals(GET_TYPE_OUTPUT, response.getMetadata().toString());
+        getPartialDocumentResourceSuccess(false);
     }
 
     /**
@@ -960,6 +974,36 @@ public class TestRestEndpoint {
         }
 
         return transformer;
+    }
+
+    /**
+     * Tests retrieving a partial resource, either local or federated, with a successful response
+     *
+     * @param local
+     * @throws URISyntaxException
+     * @throws IngestException
+     * @throws SourceUnavailableException
+     * @throws UnsupportedQueryException
+     * @throws FederationException
+     * @throws CatalogTransformerException
+     * @throws IOException
+     * @throws ResourceNotFoundException
+     * @throws ResourceNotSupportedException
+     */
+    private void getPartialDocumentResourceSuccess(boolean local) throws URISyntaxException, IngestException,
+            SourceUnavailableException, UnsupportedQueryException, FederationException,
+            CatalogTransformerException, IOException, ResourceNotFoundException,
+            ResourceNotSupportedException {
+
+        CatalogFramework framework = givenCatalogFramework(SAMPLE_ID);
+        String transformer = mockTestSetup(framework, TestType.RESOURCE_TEST);
+        HttpServletRequest servletRequest = createServletRequest(new Integer(BYTES_TO_SKIP).toString());
+        Response response = executeTest(framework, transformer, local, servletRequest);
+
+        String responseMessage = IOUtils.toString((ByteArrayInputStream) response.getEntity());
+        assertEquals(GET_STREAM.substring(BYTES_TO_SKIP), responseMessage);
+        assertEquals(PARTIAL_CONTENT, response.getStatus());
+        assertEquals(GET_TYPE_OUTPUT, response.getMetadata().toString());
     }
 
     private Response executeTest(CatalogFramework framework, String transformer, boolean local,
