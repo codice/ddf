@@ -24,6 +24,8 @@ import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.SourceInfoRequestEnterprise;
 import ddf.catalog.source.SourceDescriptor;
 import ddf.catalog.source.SourceUnavailableException;
+import ddf.security.SecurityConstants;
+import ddf.security.Subject;
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.ui.searchui.query.controller.SearchController;
 import org.codice.ddf.ui.searchui.query.model.Search;
@@ -32,6 +34,7 @@ import org.cometd.annotation.Listener;
 import org.cometd.annotation.Service;
 import org.cometd.annotation.Session;
 import org.cometd.bayeux.Message;
+import org.cometd.bayeux.server.BayeuxContext;
 import org.cometd.bayeux.server.BayeuxServer;
 import org.cometd.bayeux.server.ConfigurableServerChannel;
 import org.cometd.bayeux.server.ServerMessage;
@@ -48,7 +51,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * This class performs the searches when a client communicates with the cometd endpoint
@@ -167,8 +176,14 @@ public class SearchService {
                         }
                     });
 
+            BayeuxContext context = bayeux.getContext();
+            Subject subject = null;
+            if(context != null) {
+                subject = (Subject) context.getRequestAttribute(SecurityConstants.SECURITY_SUBJECT);
+            }
+
             // kick off the query
-            executeQuery(queryMessage);
+            executeQuery(queryMessage, subject);
 
             reply.put(Search.SUCCESSFUL, true);
             remote.deliver(serverSession, reply);
@@ -206,7 +221,7 @@ public class SearchService {
      * @param queryMessage
      *            - JSON message received from cometd
      */
-    public void executeQuery(Map<String, Object> queryMessage) {
+    public void executeQuery(Map<String, Object> queryMessage, Subject subject) {
         final String methodName = "executeQuery";
         LOGGER.debug("ENTERING {}", methodName);
 
@@ -255,7 +270,7 @@ public class SearchService {
 
         try {
             // Hand off to the search controller for the actual query
-            searchController.executeQuery(searchRequest, serverSession);
+            searchController.executeQuery(searchRequest, serverSession, subject);
         } catch (RuntimeException re) {
             LOGGER.warn("Exception while executing a query", re);
         }

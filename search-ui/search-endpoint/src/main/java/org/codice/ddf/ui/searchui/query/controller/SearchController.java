@@ -124,7 +124,7 @@ public class SearchController {
      * @param session
      *            - Cometd ServerSession
      */
-    public void executeQuery(final SearchRequest request, final ServerSession session) {
+    public void executeQuery(final SearchRequest request, final ServerSession session, final Subject subject) {
 
         final SearchController controller = this;
 
@@ -134,7 +134,7 @@ public class SearchController {
                 @Override
                 public void run() {
                     QueryResponse fedResponse = executeQuery(sourceId, request.getQuery(),
-                            null);
+                            subject);
                     try {
                         addQueryResponseToSearch(request, fedResponse);
                         //send full response if it changed, otherwise send empty one
