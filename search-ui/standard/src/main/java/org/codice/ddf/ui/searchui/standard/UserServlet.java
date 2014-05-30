@@ -14,34 +14,45 @@
  **/
 package org.codice.ddf.ui.searchui.standard;
 
+import ddf.security.SecurityConstants;
+import ddf.security.Subject;
+import ddf.security.assertion.SecurityAssertion;
 import net.minidev.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.shiro.subject.PrincipalCollection;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.Writer;
+import java.security.Principal;
 
 public class UserServlet extends HttpServlet {
-    private static final Logger LOGGER = LoggerFactory.getLogger(UserServlet.class);
-
-    private static final String USER_ATTRIBUTE = "org.codice.ddf.ui.searchui.standard.properties.user";
 
     @Override
     public void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, java.io.IOException {
 
-        String user = "";
+        Subject subject = null;
 
         Writer writer = null;
 
-        if (req.getAttribute(USER_ATTRIBUTE) != null) {
-            user = req.getAttribute(USER_ATTRIBUTE).toString();
+        if (req.getAttribute(SecurityConstants.SECURITY_SUBJECT) != null) {
+            subject = (Subject) req.getAttribute(SecurityConstants.SECURITY_SUBJECT);
         }
 
-        LOGGER.debug("user: {}", user);
+        PrincipalCollection principalCollection = subject.getPrincipals();
+
+        String user = "";
+
+        for(Object principal : principalCollection.asList()) {
+            if(principal instanceof SecurityAssertion) {
+                SecurityAssertion assertion = (SecurityAssertion) principal;
+
+                Principal jPrincipal = assertion.getPrincipal();
+                user = jPrincipal.getName();
+            }
+        }
 
         JSONObject obj = new JSONObject();
         obj.put("user", user);
