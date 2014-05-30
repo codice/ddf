@@ -264,7 +264,6 @@ define(function (require) {
                 minWidth: 350,
                 height: 185,
                 classes: 'multiselect',
-                noneSelectedText: 'Select Sources',
                 checkAllText: 'Select all',
                 uncheckAllText: 'Deselect all',
                 selectedText: function(numChecked, numTotal){
@@ -272,13 +271,16 @@ define(function (require) {
                 }
             };
 
-            var typeSelectOptions = _.clone(singleselectOptions);
+            var typeSelectOptions = _.clone(multiselectOptions);
             typeSelectOptions.minWidth = 350;
             typeSelectOptions.noneSelectedText = 'Select a Type';
 
-            this.$('#typeList').multiselect(typeSelectOptions);
+            var federationSourcesSelectOptions = _.clone(multiselectOptions);
+            federationSourcesSelectOptions.noneSelectedText = 'Select Sources';
 
-            this.$('#federationSources').multiselect(multiselectOptions).multiselectfilter();
+            this.$('#typeList').multiselect(typeSelectOptions).multiselectfilter();
+
+            this.$('#federationSources').multiselect(federationSourcesSelectOptions).multiselectfilter();
 
             this.$('#radiusUnits').multiselect(singleselectOptions);
 

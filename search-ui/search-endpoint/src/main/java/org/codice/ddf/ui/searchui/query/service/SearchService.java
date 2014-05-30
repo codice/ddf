@@ -263,7 +263,7 @@ public class SearchService {
         addContextualFilter(filters, searchTerms);
         addTemporalFilter(filters, dateStart, dateEnd, dateOffset);
         addSpatialFilter(filters, bbox, radius, lat, lon);
-        addTypeFilter(filters, type);
+        addTypeFilters(filters, type);
 
         Query query = createQuery(andFilters(filters), startIndex, localCount, sort, maxTimeout);
         SearchRequest searchRequest = new SearchRequest(sourceIds, query, guid);
@@ -423,10 +423,20 @@ public class SearchService {
         return wkt;
     }
 
-    private void addTypeFilter(List<Filter> filters, String type) {
-        if (StringUtils.isNotBlank(type)) {
-            LOGGER.debug("Recieved Type: {}", type);
-            filters.add(filterBuilder.attribute(Metacard.CONTENT_TYPE).is().text(type));
+    private void addTypeFilters(List<Filter> queryFilters, String types) {
+        if (StringUtils.isNotBlank(types)) {
+            LOGGER.debug("Received Types: {}", types);
+            
+            List<Filter> contentTypeFilters = new ArrayList<Filter>();
+            
+            for (String type : StringUtils.stripAll(types.split(","))) {
+                contentTypeFilters.add(filterBuilder.attribute(
+                        Metacard.CONTENT_TYPE).is().text(type));
+            }   
+            
+            queryFilters.add(filterBuilder.anyOf(contentTypeFilters));
+        } else {
+            LOGGER.debug("Received empty content types list");
         }
     }
 
