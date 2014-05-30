@@ -271,6 +271,7 @@
 		<module>platform-scheduler</module>
 		<module>security</module>
                 <module>platform-commands</module>
+                <module>platform-filter-delegate</module>
                 <module>platform-app</module>
 	</modules>
 	
