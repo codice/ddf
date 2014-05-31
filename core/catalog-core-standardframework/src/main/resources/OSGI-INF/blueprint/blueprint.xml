@@ -168,10 +168,12 @@
         <argument ref="resourceActionProviderList" />
     </bean>
 
-    <bean id="productCache" class="ddf.catalog.cache.ResourceCache" init-method="setupCache" destroy-method="teardownCache" >
+    <bean id="productCache" class="ddf.catalog.cache.impl.ResourceCache" init-method="setupCache" destroy-method="teardownCache" >
         <property name="productCacheDirectory" value="" />
         <property name="cacheDirMaxSizeMegabytes" value="10240" /> <!-- 10 GB -->
     </bean>
+    
+    <service ref="productCache" interface="ddf.catalog.cache.ResourceCacheInterface" />
 
 	<!-- create the ddf bean -->
 	<bean id="ddf" class="ddf.catalog.impl.CatalogFrameworkImpl">

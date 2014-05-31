@@ -19,10 +19,9 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ddf.cache.Cache;
 import ddf.cache.CacheException;
-import ddf.cache.CacheManager;
-import ddf.catalog.cache.CacheKey;
+import ddf.catalog.cache.ResourceCacheInterface;
+import ddf.catalog.cache.impl.CacheKey;
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
@@ -33,22 +32,17 @@ import ddf.catalog.operation.impl.ResourceRequestById;
 import ddf.catalog.plugin.PluginExecutionException;
 import ddf.catalog.plugin.PostQueryPlugin;
 import ddf.catalog.plugin.StopProcessingException;
-import ddf.catalog.resource.download.ReliableResource;
+import ddf.catalog.resource.data.ReliableResource;
 
 public class MetacardResourceSizePlugin implements PostQueryPlugin {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MetacardResourceSizePlugin.class);
     
-    private static final String PRODUCT_CACHE_NAME = "Product_Cache";
-    
-    private CacheManager cacheManager;
-    
-    private Cache cache;
+    private ResourceCacheInterface cache;
     
     
-    public MetacardResourceSizePlugin(CacheManager cacheManager) {
-        this.cacheManager = cacheManager;
-        this.cache = this.cacheManager.getCache(PRODUCT_CACHE_NAME);
+    public MetacardResourceSizePlugin(ResourceCacheInterface cache) {
+        this.cache = cache;
     }
     
     @Override

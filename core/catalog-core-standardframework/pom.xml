@@ -115,7 +115,7 @@
                         </Embed-Dependency>
                         <Embed-Transitive>true</Embed-Transitive>
 						<Private-Package>
-						    ddf.catalog.cache,
+						    ddf.catalog.cache.impl,
                             ddf.catalog.event.retrievestatus,
                             ddf.catalog.impl,
 							ddf.catalog.data.impl,
@@ -128,7 +128,9 @@
 							ddf.catalog.resourceretriever
 						</Private-Package>
 						<Export-Package>
-						    ddf.catalog.resourceretriever
+						    ddf.catalog.resourceretriever,
+						    ddf.catalog.cache, 
+						    ddf.catalog.resource.data
 						</Export-Package>
 					</instructions>
 				</configuration>

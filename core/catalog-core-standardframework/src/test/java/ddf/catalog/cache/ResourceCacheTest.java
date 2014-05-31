@@ -34,7 +34,8 @@ import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 
 import ddf.cache.CacheException;
-import ddf.catalog.resource.download.ReliableResource;
+import ddf.catalog.cache.impl.ResourceCache;
+import ddf.catalog.resource.data.ReliableResource;
 
 public class ResourceCacheTest {
     public String workingDir;

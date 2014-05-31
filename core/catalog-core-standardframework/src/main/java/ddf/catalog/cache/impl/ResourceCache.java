@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-package ddf.catalog.cache;
+package ddf.catalog.cache.impl;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -28,10 +28,11 @@ import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 
 import ddf.cache.CacheException;
+import ddf.catalog.cache.ResourceCacheInterface;
 import ddf.catalog.resource.Resource;
-import ddf.catalog.resource.download.ReliableResource;
+import ddf.catalog.resource.data.ReliableResource;
 
-public class ResourceCache {
+public class ResourceCache implements ResourceCacheInterface {
 
     private static final String KARAF_HOME = "karaf.home";
 

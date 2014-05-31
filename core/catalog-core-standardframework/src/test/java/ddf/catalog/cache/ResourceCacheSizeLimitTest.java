@@ -39,7 +39,9 @@ import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import com.hazelcast.test.TestHazelcastInstanceFactory;
 
-import ddf.catalog.resource.download.ReliableResource;
+import ddf.catalog.cache.impl.ProductCacheDirListener;
+import ddf.catalog.cache.impl.ResourceCache;
+import ddf.catalog.resource.data.ReliableResource;
 
 
 public class ResourceCacheSizeLimitTest {

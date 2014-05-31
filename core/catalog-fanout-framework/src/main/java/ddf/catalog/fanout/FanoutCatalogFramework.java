@@ -31,7 +31,7 @@ import org.slf4j.ext.XLogger;
 
 import ddf.cache.CacheException;
 import ddf.catalog.CatalogFramework;
-import ddf.catalog.cache.CacheKey;
+import ddf.catalog.cache.impl.CacheKey;
 import ddf.catalog.data.ContentType;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;

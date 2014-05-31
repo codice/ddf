@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-package ddf.catalog.cache;
+package ddf.catalog.cache.impl;
 
 import java.io.File;
 import java.util.Collection;
@@ -32,8 +32,8 @@ import com.hazelcast.core.IAtomicLong;
 import com.hazelcast.core.IMap;
 import com.hazelcast.query.PagingPredicate;
 
-import ddf.catalog.resource.download.ReliableResource;
-import ddf.catalog.resource.download.ReliableResourceComparator;
+import ddf.catalog.resource.data.ReliableResource;
+import ddf.catalog.resource.data.ReliableResourceComparator;
 
 public class ProductCacheDirListener<K, V> implements EntryListener<K, V>, HazelcastInstanceAware {
 

@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-package ddf.catalog.resource.download;
+package ddf.catalog.resource.data;
 
 import java.util.Comparator;
 import java.util.Map;

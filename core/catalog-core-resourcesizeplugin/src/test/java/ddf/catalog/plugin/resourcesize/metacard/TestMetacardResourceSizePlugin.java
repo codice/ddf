@@ -18,7 +18,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
-import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -28,27 +27,24 @@ import java.util.List;
 
 import org.junit.Test;
 
-import ddf.cache.Cache;
-import ddf.cache.CacheManager;
+import ddf.catalog.cache.ResourceCacheInterface;
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.ResultImpl;
 import ddf.catalog.operation.QueryResponse;
-import ddf.catalog.resource.download.ReliableResource;
+import ddf.catalog.resource.data.ReliableResource;
 
 public class TestMetacardResourceSizePlugin {
 
     @Test
     public void testMetacardResourceSizePopulatedAndHasProduct() throws Exception {
-        CacheManager cacheManager = mock(CacheManager.class);
-        Cache cache = mock(Cache.class);
-        when(cacheManager.getCache(anyString())).thenReturn(cache);
+        ResourceCacheInterface cache = mock(ResourceCacheInterface.class);
         ReliableResource cachedResource = mock(ReliableResource.class);
         when(cachedResource.getSize()).thenReturn(999L);
         when(cachedResource.hasProduct()).thenReturn(true);
-        when(cache.get(anyObject())).thenReturn(cachedResource);
+        when(cache.get(anyString())).thenReturn(cachedResource);
         
         MetacardImpl metacard = new MetacardImpl();
         metacard.setId("abc123");
@@ -62,7 +58,7 @@ public class TestMetacardResourceSizePlugin {
         QueryResponse input = mock(QueryResponse.class);
         when(input.getResults()).thenReturn(results);
         
-        MetacardResourceSizePlugin plugin = new MetacardResourceSizePlugin(cacheManager);
+        MetacardResourceSizePlugin plugin = new MetacardResourceSizePlugin(cache);
         QueryResponse queryResponse = plugin.process(input);
         assertThat(queryResponse.getResults().size(), is(1));
         Metacard resultMetacard = queryResponse.getResults().get(0).getMetacard();
@@ -82,13 +78,11 @@ public class TestMetacardResourceSizePlugin {
      */
     @Test
     public void testMetacardResourceSizePopulatedButNoProduct() throws Exception {
-        CacheManager cacheManager = mock(CacheManager.class);
-        Cache cache = mock(Cache.class);
-        when(cacheManager.getCache(anyString())).thenReturn(cache);
+        ResourceCacheInterface cache = mock(ResourceCacheInterface.class);
         ReliableResource cachedResource = mock(ReliableResource.class);
         when(cachedResource.getSize()).thenReturn(999L);
         when(cachedResource.hasProduct()).thenReturn(false);
-        when(cache.get(anyObject())).thenReturn(cachedResource);
+        when(cache.get(anyString())).thenReturn(cachedResource);
         
         MetacardImpl metacard = new MetacardImpl();
         metacard.setId("abc123");
@@ -102,7 +96,7 @@ public class TestMetacardResourceSizePlugin {
         QueryResponse input = mock(QueryResponse.class);
         when(input.getResults()).thenReturn(results);
         
-        MetacardResourceSizePlugin plugin = new MetacardResourceSizePlugin(cacheManager);
+        MetacardResourceSizePlugin plugin = new MetacardResourceSizePlugin(cache);
         QueryResponse queryResponse = plugin.process(input);
         assertThat(queryResponse.getResults().size(), is(1));
         Metacard resultMetacard = queryResponse.getResults().get(0).getMetacard();
@@ -115,9 +109,7 @@ public class TestMetacardResourceSizePlugin {
     
     @Test
     public void testNullMetacard() throws Exception {
-        CacheManager cacheManager = mock(CacheManager.class);
-        Cache cache = mock(Cache.class);
-        when(cacheManager.getCache(anyString())).thenReturn(cache);
+        ResourceCacheInterface cache = mock(ResourceCacheInterface.class);
         
         Result result = mock(Result.class);
         when(result.getMetacard()).thenReturn(null);
@@ -127,17 +119,15 @@ public class TestMetacardResourceSizePlugin {
         QueryResponse input = mock(QueryResponse.class);
         when(input.getResults()).thenReturn(results);
         
-        MetacardResourceSizePlugin plugin = new MetacardResourceSizePlugin(cacheManager);
+        MetacardResourceSizePlugin plugin = new MetacardResourceSizePlugin(cache);
         QueryResponse queryResponse = plugin.process(input);
         assertThat(queryResponse, equalTo(input));
     }
 
     @Test
     public void testWhenNoCachedResourceFound() throws Exception {
-        CacheManager cacheManager = mock(CacheManager.class);
-        Cache cache = mock(Cache.class);
-        when(cacheManager.getCache(anyString())).thenReturn(cache);
-        when(cache.get(anyObject())).thenReturn(null);
+        ResourceCacheInterface cache = mock(ResourceCacheInterface.class);
+        when(cache.get(anyString())).thenReturn(null);
         
         MetacardImpl metacard = new MetacardImpl();
         metacard.setId("abc123");
@@ -151,7 +141,7 @@ public class TestMetacardResourceSizePlugin {
         QueryResponse input = mock(QueryResponse.class);
         when(input.getResults()).thenReturn(results);
         
-        MetacardResourceSizePlugin plugin = new MetacardResourceSizePlugin(cacheManager);
+        MetacardResourceSizePlugin plugin = new MetacardResourceSizePlugin(cache);
         QueryResponse queryResponse = plugin.process(input);
         assertThat(queryResponse.getResults().size(), is(1));
         Metacard resultMetacard = queryResponse.getResults().get(0).getMetacard();
@@ -164,12 +154,10 @@ public class TestMetacardResourceSizePlugin {
 
     @Test
     public void testWhenCachedResourceSizeIsZero() throws Exception {
-        CacheManager cacheManager = mock(CacheManager.class);
-        Cache cache = mock(Cache.class);
-        when(cacheManager.getCache(anyString())).thenReturn(cache);
+        ResourceCacheInterface cache = mock(ResourceCacheInterface.class);
         ReliableResource cachedResource = mock(ReliableResource.class);
         when(cachedResource.getSize()).thenReturn(0L);
-        when(cache.get(anyObject())).thenReturn(cachedResource);
+        when(cache.get(anyString())).thenReturn(cachedResource);
         
         MetacardImpl metacard = new MetacardImpl();
         metacard.setId("abc123");
@@ -183,7 +171,7 @@ public class TestMetacardResourceSizePlugin {
         QueryResponse input = mock(QueryResponse.class);
         when(input.getResults()).thenReturn(results);
         
-        MetacardResourceSizePlugin plugin = new MetacardResourceSizePlugin(cacheManager);
+        MetacardResourceSizePlugin plugin = new MetacardResourceSizePlugin(cache);
         QueryResponse queryResponse = plugin.process(input);
         assertThat(queryResponse.getResults().size(), is(1));
         Metacard resultMetacard = queryResponse.getResults().get(0).getMetacard();

@@ -57,9 +57,9 @@ import org.mockito.stubbing.Answer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ddf.catalog.cache.CacheKey;
 import ddf.catalog.cache.MockInputStream;
-import ddf.catalog.cache.ResourceCache;
+import ddf.catalog.cache.impl.CacheKey;
+import ddf.catalog.cache.impl.ResourceCache;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.event.retrievestatus.DownloadsStatusEventPublisher;
 import ddf.catalog.operation.ResourceRequest;
@@ -67,6 +67,7 @@ import ddf.catalog.operation.ResourceResponse;
 import ddf.catalog.resource.Resource;
 import ddf.catalog.resource.ResourceNotFoundException;
 import ddf.catalog.resource.ResourceNotSupportedException;
+import ddf.catalog.resource.data.ReliableResource;
 import ddf.catalog.resourceretriever.ResourceRetriever;
 
 public class ReliableResourceDownloadManagerTest {

@@ -41,8 +41,8 @@ import com.google.common.io.CountingOutputStream;
 import com.google.common.io.FileBackedOutputStream;
 
 import ddf.cache.CacheException;
-import ddf.catalog.cache.CacheKey;
-import ddf.catalog.cache.ResourceCache;
+import ddf.catalog.cache.impl.CacheKey;
+import ddf.catalog.cache.impl.ResourceCache;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.event.retrievestatus.DownloadsStatusEventPublisher;
 import ddf.catalog.event.retrievestatus.DownloadsStatusEventPublisher.ProductRetrievalStatus;
@@ -52,6 +52,7 @@ import ddf.catalog.operation.impl.ResourceResponseImpl;
 import ddf.catalog.resource.Resource;
 import ddf.catalog.resource.ResourceNotFoundException;
 import ddf.catalog.resource.ResourceNotSupportedException;
+import ddf.catalog.resource.data.ReliableResource;
 import ddf.catalog.resource.download.DownloadManagerState.DownloadState;
 import ddf.catalog.resource.impl.ResourceImpl;
 import ddf.catalog.resourceretriever.ResourceRetriever;

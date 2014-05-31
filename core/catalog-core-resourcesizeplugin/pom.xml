@@ -83,11 +83,10 @@
                         <!-- These should be reworked: https://tools.codice.org/jira/browse/DDF-415 -->
                         <Private-Package>
                             ddf.catalog.plugin.resourcesize.metacard,
-                            ddf.catalog.cache,
+                            ddf.catalog.cache.impl,
                             ddf.catalog.data.impl,
                             ddf.catalog.event.retrievestatus,
                             ddf.catalog.operation.impl,
-                            ddf.catalog.resource.download,  
                             ddf.catalog.resourceretriever,
                             ddf.catalog.util.impl
                         </Private-Package>

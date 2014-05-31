@@ -30,6 +30,7 @@ import java.util.Set;
 import org.junit.Test;
 
 import ddf.cache.CacheException;
+import ddf.catalog.cache.impl.CacheKey;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.operation.ResourceRequest;
 

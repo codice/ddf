@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  * 
  **/
-package ddf.catalog.cache;
+package ddf.catalog.cache.impl;
 
 import java.util.Set;
 
