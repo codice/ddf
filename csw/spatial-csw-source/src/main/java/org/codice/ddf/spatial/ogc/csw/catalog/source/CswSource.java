@@ -516,10 +516,8 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
         LOGGER.debug("{}: Received query:\n{}", cswSourceConfiguration.getId(), query);
 
         GetRecordsType getRecordsType = createGetRecordsRequest(query, elementSetName, elementNames);
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("{}: GetRecords request:\n {}", cswSourceConfiguration.getId(),
-                    getGetRecordsTypeAsXml(getRecordsType));
-        }
+        LOGGER.debug("{}: GetRecords request:\n {}", cswSourceConfiguration.getId(),
+                getGetRecordsTypeAsXml(getRecordsType));
 
         LOGGER.debug("{}: Sending query to: {}", cswSourceConfiguration.getId(),
                 cswSourceConfiguration.getCswUrl());
@@ -534,14 +532,13 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
                 throw new UnsupportedQueryException("Invalid results returned from server");
             }
             this.availabilityTask.updateLastAvailableTimestamp(System.currentTimeMillis());
-            if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug(
                         "{}: Received [{}] record(s) of the [{}] record(s) matched from {}.",
                         new Object[] {cswSourceConfiguration.getId(),
                             cswRecordCollection.getNumberOfRecordsReturned(),
                             cswRecordCollection.getNumberOfRecordsMatched(),
                             cswSourceConfiguration.getCswUrl()});
-            }
+                
             results = createResults(cswRecordCollection);
             totalHits = cswRecordCollection.getNumberOfRecordsMatched();
         } catch (CswException cswe) {
@@ -765,17 +762,15 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
     }
     
     public void setRecordConverterFactoryList(List<RecordConverterFactory> factories) {
-        if (LOGGER.isDebugEnabled()) {
-            StringBuilder builder = new StringBuilder();
-            builder.append("\nRecord converter factory output schema list:");
+        StringBuilder builder = new StringBuilder();
+        builder.append("\nRecord converter factory output schema list:");
 
-            for (RecordConverterFactory rcf : ListUtils.emptyIfNull(factories)) {
-                builder.append("\n  Output schema: ");
-                builder.append(rcf.getOutputSchema());
-            }
-
-            LOGGER.debug(builder.toString());
+        for (RecordConverterFactory rcf : ListUtils.emptyIfNull(factories)) {
+            builder.append("\n  Output schema: ");
+            builder.append(rcf.getOutputSchema());
         }
+
+        LOGGER.debug(builder.toString());
 
         this.recordConverterFactories = factories;
     }

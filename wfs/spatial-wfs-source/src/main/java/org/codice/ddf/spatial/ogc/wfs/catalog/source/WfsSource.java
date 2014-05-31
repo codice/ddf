@@ -325,11 +325,9 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
     }
 
     private void connectToRemoteWfs() {
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug(
-                    "WfsSource {}: Connecting to remote WFS Server {}. SSL cert verification disabled? {}",
-                    new Object[] {getId(), wfsUrl, this.disableSSLCertVerification});
-        }
+        LOGGER.debug(
+                "WfsSource {}: Connecting to remote WFS Server {}. SSL cert verification disabled? {}",
+                new Object[] {getId(), wfsUrl, this.disableSSLCertVerification});
 
         try {
             if ((!StringUtils.isEmpty(username)) && (!StringUtils.isEmpty(password))) {
@@ -453,12 +451,10 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
                         for (FeatureConverterFactory factory : featureConverterFactories) {
                             if (ftName.equalsIgnoreCase(factory.getFeatureType())) {
                                 featureConverter = factory.createConverter();
-                                if (LOGGER.isDebugEnabled()) {
-                                    LOGGER.debug(
-                                            "WFS Source {}: Features of type: {} will be converted using {}",
-                                            new Object[] {getId(), ftName,
-                                                featureConverter.getClass().getSimpleName()});
-                                }
+                                LOGGER.debug(
+                                        "WFS Source {}: Features of type: {} will be converted using {}",
+                                        new Object[] {getId(), ftName,
+                                            featureConverter.getClass().getSimpleName()});
                                 break;
                             }
 
@@ -612,11 +608,9 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
             int stopIndex = Math.min((origPageSize * pageNumber) + query.getStartIndex(),
                     featureCollection.getFeatureMembers().size() + 1);
 
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("WFS Source {}: startIndex = {}, stopIndex = {}, origPageSize = {}, pageNumber = {}"
-                        + new Object[] {getId(), query.getStartIndex(), stopIndex, origPageSize,
-                            pageNumber});
-            }
+            LOGGER.debug("WFS Source {}: startIndex = {}, stopIndex = {}, origPageSize = {}, pageNumber = {}"
+                    + new Object[] {getId(), query.getStartIndex(), stopIndex, origPageSize,
+                        pageNumber});
 
             for (int i = query.getStartIndex(); i < stopIndex; i++) {
                 Metacard mc = featureCollection.getFeatureMembers().get(i - 1);
@@ -908,41 +902,36 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
     }
 
     private void logMessage(GetFeatureType getFeature) {
-        if (LOGGER.isDebugEnabled()) {
-            try {
-                StringWriter writer = new StringWriter();
-                JAXBContext contextObj = JAXBContext.newInstance(GetFeatureType.class);
+        try {
+            StringWriter writer = new StringWriter();
+            JAXBContext contextObj = JAXBContext.newInstance(GetFeatureType.class);
 
-                Marshaller marshallerObj = contextObj.createMarshaller();
-                marshallerObj.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+            Marshaller marshallerObj = contextObj.createMarshaller();
+            marshallerObj.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
 
-                marshallerObj.marshal(new ObjectFactory().createGetFeature(getFeature), writer);
-                LOGGER.debug("WfsSource {}: {}", getId(), writer.toString());
-            } catch (JAXBException e) {
-                LOGGER.debug("An error occurred debugging the GetFeature request", e);
-            }
+            marshallerObj.marshal(new ObjectFactory().createGetFeature(getFeature), writer);
+            LOGGER.debug("WfsSource {}: {}", getId(), writer.toString());
+        } catch (JAXBException e) {
+            LOGGER.debug("An error occurred debugging the GetFeature request", e);
         }
     }
 
     private void debugResult(Result result) {
-        if (LOGGER.isDebugEnabled()) {
-            if (result != null && result.getMetacard() != null) {
-                StringBuffer sb = new StringBuffer();
-                sb.append("\nid:\t" + result.getMetacard().getId());
-                sb.append("\nmetacardType:\t" + result.getMetacard().getMetacardType());
-                if (result.getMetacard().getMetacardType() != null) {
-                    sb.append("\nmetacardType name:\t"
-                            + result.getMetacard().getMetacardType().getName());
-                }
-                sb.append("\ncontentType:\t" + result.getMetacard().getContentTypeName());
-                sb.append("\ntitle:\t" + result.getMetacard().getTitle());
-                sb.append("\nsource:\t" + result.getMetacard().getSourceId());
-                sb.append("\nmetadata:\t" + result.getMetacard().getMetadata());
-                sb.append("\nlocation:\t" + result.getMetacard().getLocation());
-
-                LOGGER.debug("Transform complete. Metacard: {}", sb.toString());
+        if (result != null && result.getMetacard() != null) {
+            StringBuffer sb = new StringBuffer();
+            sb.append("\nid:\t" + result.getMetacard().getId());
+            sb.append("\nmetacardType:\t" + result.getMetacard().getMetacardType());
+            if (result.getMetacard().getMetacardType() != null) {
+                sb.append("\nmetacardType name:\t"
+                        + result.getMetacard().getMetacardType().getName());
             }
+            sb.append("\ncontentType:\t" + result.getMetacard().getContentTypeName());
+            sb.append("\ntitle:\t" + result.getMetacard().getTitle());
+            sb.append("\nsource:\t" + result.getMetacard().getSourceId());
+            sb.append("\nmetadata:\t" + result.getMetacard().getMetadata());
+            sb.append("\nlocation:\t" + result.getMetacard().getLocation());
 
+            LOGGER.debug("Transform complete. Metacard: {}", sb.toString());
         }
     }
 

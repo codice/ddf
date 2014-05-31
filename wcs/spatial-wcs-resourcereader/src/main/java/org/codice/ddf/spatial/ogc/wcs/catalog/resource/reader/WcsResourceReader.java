@@ -362,10 +362,9 @@ public class WcsResourceReader {
         }
 
         try {
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("{}: GetCoverage request:\n {}", wcsConfiguration.getId(),
-                        getGetCoverageAsXml(request));
-            }
+            LOGGER.debug("{}: GetCoverage request:\n {}", wcsConfiguration.getId(),
+                    getGetCoverageAsXml(request));
+
 
             GetCoverageResponse response = remoteWcs.getCoverage(request);
             String contentDisposition = response.getContentDisposition();
