@@ -28,13 +28,12 @@ import java.io.IOException;
 import javax.activation.MimeTypeParseException;
 
 import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 
-import ddf.cache.Cache;
+import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.core.IMap;
+
 import ddf.cache.CacheException;
-import ddf.cache.CacheManager;
 import ddf.catalog.resource.download.ReliableResource;
 
 public class ResourceCacheTest {
@@ -42,7 +41,9 @@ public class ResourceCacheTest {
 
     public ResourceCache resourceCache;
 
-    public Cache cache;
+    private HazelcastInstance instance;
+
+    private IMap cache;
 
     @Before
     public void setUp() {
@@ -52,11 +53,11 @@ public class ResourceCacheTest {
         System.setProperty("karaf.home", workingDir);
 
         // Simulates how blueprint creates the ResourceCache instance
-        cache = mock(Cache.class);
-        CacheManager cacheManager = mock(CacheManager.class);
-        when(cacheManager.getCache(anyString())).thenReturn(cache);
+        instance = mock(HazelcastInstance.class);
+        cache = mock(IMap.class);
+        when(instance.getMap(anyString())).thenReturn(cache);
         resourceCache = new ResourceCache();
-        resourceCache.setCacheManager(cacheManager);
+        resourceCache.setCache(instance);
         resourceCache.setProductCacheDirectory("");
     }
 

@@ -27,7 +27,7 @@
 
 	<properties>
 		<ddf.admin.app.version>1.0.0</ddf.admin.app.version>
-		<ddf.platform.app.version>2.4.0</ddf.platform.app.version>
+		<ddf.platform.app.version>2.5.0-SNAPSHOT</ddf.platform.app.version>
 		<org.codice.ddf.notifications.version>1.0.0</org.codice.ddf.notifications.version>
         <org.codice.ddf.activities.version>1.0.0-SNAPSHOT</org.codice.ddf.activities.version>
 		<abdera.version>1.1.3</abdera.version>
@@ -36,10 +36,35 @@
 		<org.geotools.bundle.version>${org.geotools.version}_1</org.geotools.bundle.version>
 		<opengis.bundle.version>${org.geotools.version}_1</opengis.bundle.version>
 		<tika.version>1.2</tika.version>
+        <xalan.version>2.7.1</xalan.version>
+        <xerces.version>2.9.1</xerces.version>
+        <saxon.version>9.1.0.8</saxon.version>
+        
+        <karaf.version>2.3.3</karaf.version>
+        <camel.version>2.12.1</camel.version>
 	</properties>
 
 	<dependencyManagement>
 		<dependencies>
+            <dependency>
+                <artifactId>karaf</artifactId>
+                <groupId>org.apache.karaf</groupId>
+                <version>${karaf.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.camel</groupId>
+                <artifactId>camel-parent</artifactId>
+                <version>${camel.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.osgi</groupId>
+                <artifactId>spring-osgi-mock</artifactId>
+                <version>1.2.1</version>
+            </dependency>
 			<dependency>
 				<groupId>ddf.admin.core</groupId>
 				<artifactId>admin-core-api</artifactId>
@@ -142,6 +167,76 @@
 				<artifactId>mime-tika-resolver</artifactId>
 				<version>${ddf.platform.app.version}</version>
 			</dependency>
+			<dependency>
+                <groupId>com.vividsolutions</groupId>
+                <artifactId>jts</artifactId>
+                <version>1.12</version>
+            </dependency>
+            <dependency>
+                <groupId>xmlunit</groupId>
+                <artifactId>xmlunit</artifactId>
+                <version>1.4</version>
+            </dependency>
+            <dependency>
+                <groupId>org.geotools</groupId>
+                <artifactId>gt-opengis</artifactId>
+                <version>${org.geotools.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.geotools</groupId>
+                <artifactId>gt-main</artifactId>
+                <version>${org.geotools.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.geotools</groupId>
+                <artifactId>gt-jts-wrapper</artifactId>
+                <version>${org.geotools.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.geotools.xsd</groupId>
+                <artifactId>gt-xsd-gml3</artifactId>
+                <version>${org.geotools.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>xalan</groupId>
+                <artifactId>xalan</artifactId>
+                <version>${xalan.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>xalan</groupId>
+                <artifactId>serializer</artifactId>
+                <version>${xalan.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>xerces</groupId>
+                <artifactId>xercesImpl</artifactId>
+                <version>${xerces.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.codahale.metrics</groupId>
+                <artifactId>metrics-core</artifactId>
+                <version>3.0.1</version>
+            </dependency>
+            <dependency>
+                <groupId>net.sf.saxon</groupId>
+                <artifactId>saxon</artifactId>
+                <version>${saxon.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>net.sf.saxon</groupId>
+                <artifactId>saxon-dom</artifactId>
+                <version>${saxon.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>net.minidev</groupId>
+                <artifactId>json-smart</artifactId>
+                <version>1.1.1</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-io</groupId>
+                <artifactId>commons-io</artifactId>
+                <version>2.1</version>
+            </dependency>
 		</dependencies>
 	</dependencyManagement>
 

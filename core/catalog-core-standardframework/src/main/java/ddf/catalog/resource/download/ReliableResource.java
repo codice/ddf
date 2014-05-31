@@ -43,6 +43,7 @@ public class ReliableResource implements Resource, Serializable {
     private MimeType mimeType;
     private String resourceName;
     private long size = -1L;
+    private long lastTouchedMillis = 0L;
     
     // The key used to store this object in the cache map
     private String key;
@@ -149,5 +150,13 @@ public class ReliableResource implements Resource, Serializable {
     @Override
     public String toString() {
         return ToStringBuilder.reflectionToString(this);
+    }
+
+    public long getLastTouchedMillis() {
+        return lastTouchedMillis;
+    }
+
+    public void setLastTouchedMillis(long lastTouchedMillis) {
+        this.lastTouchedMillis = lastTouchedMillis;
     }
 }

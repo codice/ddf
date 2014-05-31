@@ -60,6 +60,11 @@
             <groupId>org.codice.ddf</groupId>
             <artifactId>activities</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.hazelcast</groupId>
+            <artifactId>hazelcast</artifactId>
+            <version>3.2.1</version>        
+        </dependency> 
     </dependencies>
 
     <build>
@@ -72,7 +77,7 @@
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <!-- This should not be  embedding notifications: https://tools.codice.org/jira/browse/DDF-415-->
                         <Embed-Dependency>
-                            guava, notifications, activities  
+                            guava, notifications, activities, hazelcast  
                         </Embed-Dependency>
                         <Embed-Transitive>true</Embed-Transitive>
                         <!-- These should be reworked: https://tools.codice.org/jira/browse/DDF-415 -->
@@ -82,7 +87,7 @@
                             ddf.catalog.data.impl,
                             ddf.catalog.event.retrievestatus,
                             ddf.catalog.operation.impl,
-                            ddf.catalog.resource.download,
+                            ddf.catalog.resource.download,  
                             ddf.catalog.resourceretriever,
                             ddf.catalog.util.impl
                         </Private-Package>

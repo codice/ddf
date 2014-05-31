@@ -428,6 +428,11 @@ public class CatalogFrameworkImpl extends DescribableImpl implements Configurati
     	logger.debug("Setting product cache directory to {}", productCacheDirectory);
     	this.productCache.setProductCacheDirectory(productCacheDirectory);
     }
+
+    public void setCacheDirMaxSizeMegabytes(long maxSize){
+        logger.debug("Setting product cache max size to {}", maxSize);
+        this.productCache.setCacheDirMaxSizeMegabytes(maxSize);
+    }
     
     public void setCacheEnabled(boolean cacheEnabled) {
         logger.debug("Setting cacheEnabled = {}", cacheEnabled);

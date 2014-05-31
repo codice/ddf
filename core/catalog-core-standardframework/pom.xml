@@ -75,7 +75,19 @@
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
             <version>16.0.1</version>
-        </dependency>  
+        </dependency> 
+        <dependency>
+            <groupId>com.hazelcast</groupId>
+            <artifactId>hazelcast</artifactId>
+            <version>3.2.1</version>        
+        </dependency> 
+        <dependency>
+            <groupId>com.hazelcast</groupId>
+            <artifactId>hazelcast</artifactId>
+            <version>3.2.1</version>
+            <type>test-jar</type>
+            <scope>test</scope>        
+        </dependency>
 		<dependency>
 			<groupId>ch.qos.logback</groupId>
 			<artifactId>logback-classic</artifactId>
@@ -99,7 +111,7 @@
 					<instructions>
 						<Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
 						<Embed-Dependency>
-                            guava, notifications, activities
+                            guava, notifications, activities, hazelcast;scope=runtime|compile
                         </Embed-Dependency>
                         <Embed-Transitive>true</Embed-Transitive>
 						<Private-Package>

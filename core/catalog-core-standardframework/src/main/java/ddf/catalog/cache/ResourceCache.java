@@ -22,9 +22,12 @@ import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ddf.cache.Cache;
+import com.hazelcast.config.Config;
+import com.hazelcast.core.Hazelcast;
+import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.core.IMap;
+
 import ddf.cache.CacheException;
-import ddf.cache.CacheManager;
 import ddf.catalog.resource.Resource;
 import ddf.catalog.resource.download.ReliableResource;
 
@@ -35,6 +38,9 @@ public class ResourceCache {
     private static final Logger LOGGER = LoggerFactory.getLogger(ResourceCache.class);
 
     private static final String PRODUCT_CACHE_NAME = "Product_Cache";
+    
+    private static final long BYTES_IN_MEGABYTES = 1024L * 1024L;
+    private static final long DEFAULT_MAX_CACHE_DIR_SIZE_BYTES = 10737418240L;  //10 GB
 
     /**
      * Default location for product-cache directory, <INSTALL_DIR>/data/product-cache
@@ -42,22 +48,48 @@ public class ResourceCache {
     public static final String DEFAULT_PRODUCT_CACHE_DIRECTORY =
             "data" + File.separator + "product-cache";
 
-    private CacheManager cacheManager;
-
-    private Cache cache;
-
     private List<String> pendingCache = new ArrayList<String>();
 
     /** Directory for products cached to file system */
     private String productCacheDirectory;
 
+    private HazelcastInstance instance;
+    private IMap<Object, Object> cache;
+    private ProductCacheDirListener<Object, Object> cacheListener = new ProductCacheDirListener<Object, Object>(DEFAULT_MAX_CACHE_DIR_SIZE_BYTES);
 
-    public void setCacheManager(CacheManager cacheManager) {
-        LOGGER.debug("Setting cacheManager");
-        this.cacheManager = cacheManager;
-        this.cache = this.cacheManager.getCache(PRODUCT_CACHE_NAME);
+    //TODO: refactor into factory method
+    //called after all parameters are set
+    public void setCache(HazelcastInstance instance){
+        this.instance = instance;
+        if(instance == null){
+            Config cfg = new Config();
+            cfg.setClassLoader(getClass().getClassLoader());
+            this.instance = Hazelcast.newHazelcastInstance(cfg);
+        }
+        
+        cache = this.instance.getMap(PRODUCT_CACHE_NAME);
+        cacheListener.setHazelcastInstance(this.instance);
+        cache.addEntryListener(cacheListener, true);
     }
-
+    
+    public void setupCache(){
+        setCache(null);
+    }
+    
+    public void teardownCache(){
+        instance.shutdown();
+    }
+    
+    public void setCacheDirMaxSizeMegabytes(long cacheDirMaxSizeMegabytes) {
+        LOGGER.debug("Setting max size for cache directory: {}", cacheDirMaxSizeMegabytes);
+        cacheListener.setMaxDirSizeBytes(cacheDirMaxSizeMegabytes * BYTES_IN_MEGABYTES);
+    }
+    
+    public long getCacheDirMaxSizeMegabytes() {
+        LOGGER.debug("Getting max size for cache directory.");
+        return cacheListener.getMaxDirSizeBytes() / BYTES_IN_MEGABYTES;
+    }
+    
     public void setProductCacheDirectory(final String productCacheDirectory) {
         String newProductCacheDirectoryDir = "";
 
@@ -135,6 +167,7 @@ public class ResourceCache {
      */
     public void put(ReliableResource reliableResource) throws CacheException {
         LOGGER.trace("ENTERING: put(ReliableResource)");
+        reliableResource.setLastTouchedMillis(System.currentTimeMillis());
         cache.put(reliableResource.getKey(), reliableResource);
         removePendingCacheEntry(reliableResource.getKey());
 
@@ -173,16 +206,7 @@ public class ResourceCache {
         }
         LOGGER.debug("key {}", key);
 
-        ClassLoader tccl = Thread.currentThread().getContextClassLoader();
-
-        ReliableResource cachedResource = null;
-        try {
-            Thread.currentThread().setContextClassLoader(
-                  getClass().getClassLoader());
-            cachedResource = (ReliableResource) cache.get(key);
-        } finally {
-            Thread.currentThread().setContextClassLoader(tccl);
-        }
+        ReliableResource cachedResource = (ReliableResource) cache.get(key);
 
         // Check that ReliableResource actually maps to a file (product) in the
         // product cache directory. This check handles the case if the product
@@ -193,18 +217,8 @@ public class ResourceCache {
                 return cachedResource;
             } else {
                 LOGGER.debug("Entry found in the cache, but no product found in cache directory for key = {}", key);
-                tccl = Thread.currentThread().getContextClassLoader();
-
-                try {
-                    Thread.currentThread().setContextClassLoader(
-                          getClass().getClassLoader());
-                    cache.remove(key);
-                } finally {
-                    Thread.currentThread().setContextClassLoader(tccl);
-                }
-                throw new CacheException(
-                        "Entry found in the cache, but no product found in cache directory for key = "
-                                + key);
+                cache.remove(key);
+                throw new CacheException("Entry found in the cache, but no product found in cache directory for key = " + key);
             }
         } else {
             LOGGER.debug("No product found in cache for key = {}", key);
@@ -223,22 +237,9 @@ public class ResourceCache {
         if (key == null) {
             return false;
         }
-        ReliableResource cachedResource = null;
-        try {
-            ClassLoader tccl = Thread.currentThread().getContextClassLoader();
-
-            try {
-                Thread.currentThread().setContextClassLoader(
-                      getClass().getClassLoader());
-                cachedResource = (ReliableResource) cache.get(key);
-            } finally {
-                Thread.currentThread().setContextClassLoader(tccl);
-            }
-        } catch (CacheException e) {
-            LOGGER.debug("Could not find key {} in cache", key, e);
-            return false;
-        }
+        ReliableResource cachedResource = (ReliableResource) cache.get(key);
 
         return cachedResource != null;
     }
+
 }
