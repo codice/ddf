@@ -211,10 +211,10 @@ public final class OpenSearchSource implements FederatedSource, ConfiguredServic
             if (configAdminServiceRef != null) {
                 ConfigurationAdmin ca = (ConfigurationAdmin) context
                         .getService(configAdminServiceRef);
-                LOGGER.debug("configuration admin obtained: " + ca);
+                LOGGER.debug("configuration admin obtained: {}", ca);
                 if (ca != null) {
                     siteSecurityConfig = ca.getConfiguration(DEFAULT_SITE_SECURITY_NAME);
-                    LOGGER.debug("site security config obtained: " + siteSecurityConfig);
+                    LOGGER.debug("site security config obtained: {}", siteSecurityConfig);
                     // updateDefaultClassification();
                 }
             }
@@ -240,7 +240,7 @@ public final class OpenSearchSource implements FederatedSource, ConfiguredServic
                     securityProps.put(currKey, currValue);
                 }
 
-                LOGGER.debug("security properties: " + securityProps);
+                LOGGER.debug("security properties: {}", securityProps);
 
             } catch (Exception e) {
                 LOGGER.warn(
@@ -643,7 +643,7 @@ public final class OpenSearchSource implements FederatedSource, ConfiguredServic
      * @return
      */
     public String getEndpointUrl() {
-        LOGGER.trace("getEndpointUrl:  endpointUrl = " + endpointUrl);
+        LOGGER.trace("getEndpointUrl:  endpointUrl = {}", endpointUrl);
         return endpointUrl;
     }
 
@@ -737,7 +737,7 @@ public final class OpenSearchSource implements FederatedSource, ConfiguredServic
      *            true indicates only local queries, false indicates enterprise query
      */
     public void setLocalQueryOnly(boolean localQueryOnly) {
-        LOGGER.trace("Setting localQueryOnly = " + localQueryOnly);
+        LOGGER.trace("Setting localQueryOnly = {}", localQueryOnly);
         this.localQueryOnly = localQueryOnly;
     }
 
@@ -842,8 +842,7 @@ public final class OpenSearchSource implements FederatedSource, ConfiguredServic
     @Override
     public Set<String> getOptions(Metacard metacard) {
         LOGGER.trace("ENTERING/EXITING: getOptions");
-        LOGGER.debug("OpenSearch Source \"" + getId()
-                + "\" does not support resource retrieval options.");
+        LOGGER.debug("OpenSearch Source \"{}\" does not support resource retrieval options.", getId());
         return Collections.emptySet();
     }
 

@@ -203,10 +203,10 @@ public final class CddaOpenSearchSite implements FederatedSource, ConfiguredServ
             if (configAdminServiceRef != null) {
                 ConfigurationAdmin ca = (ConfigurationAdmin) context
                         .getService(configAdminServiceRef);
-                LOGGER.debug("configuration admin obtained: " + ca);
+                LOGGER.debug("configuration admin obtained: {}", ca);
                 if (ca != null) {
                     siteSecurityConfig = ca.getConfiguration(DEFAULT_SITE_SECURITY_NAME);
-                    LOGGER.debug("site security config obtained: " + siteSecurityConfig);
+                    LOGGER.debug("site security config obtained: {}", siteSecurityConfig);
                     // updateDefaultClassification();
                 }
             }
@@ -532,7 +532,7 @@ public final class CddaOpenSearchSite implements FederatedSource, ConfiguredServ
     public void configurationUpdateCallback(Map<String, String> properties) {
         String setTrustStorePath = properties.get(ConfigurationManager.TRUST_STORE);
         if (StringUtils.isNotBlank(setTrustStorePath)) {
-            LOGGER.debug("Setting trust store path: " + setTrustStorePath);
+            LOGGER.debug("Setting trust store path: {}", setTrustStorePath);
             truststorePath = setTrustStorePath;
         }
 
@@ -553,7 +553,7 @@ public final class CddaOpenSearchSite implements FederatedSource, ConfiguredServ
 
         String setKeyStorePath = properties.get(ConfigurationManager.KEY_STORE);
         if (StringUtils.isNotBlank(setKeyStorePath)) {
-            LOGGER.debug("Setting key store path: " + setKeyStorePath);
+            LOGGER.debug("Setting key store path: {}", setKeyStorePath);
             openSearchConnection.setKeyStorePath(setKeyStorePath);
             keystorePath = setKeyStorePath;
         }
@@ -624,7 +624,7 @@ public final class CddaOpenSearchSite implements FederatedSource, ConfiguredServ
      * @return
      */
     public String getEndpointUrl() {
-        LOGGER.trace("getEndpointUrl:  endpointUrl = " + endpointUrl);
+        LOGGER.trace("getEndpointUrl:  endpointUrl = {}", endpointUrl);
         return endpointUrl;
     }
 
@@ -710,7 +710,7 @@ public final class CddaOpenSearchSite implements FederatedSource, ConfiguredServ
      *            true indicates only local queries, false indicates enterprise query
      */
     public void setLocalQueryOnly(boolean localQueryOnly) {
-        LOGGER.trace("Setting localQueryOnly = " + localQueryOnly);
+        LOGGER.trace("Setting localQueryOnly = {}", localQueryOnly);
         this.localQueryOnly = localQueryOnly;
     }
 
@@ -764,8 +764,7 @@ public final class CddaOpenSearchSite implements FederatedSource, ConfiguredServ
     @Override
     public Set<String> getOptions(Metacard metacard) {
         LOGGER.trace("ENTERING/EXITING: getOptions");
-        LOGGER.debug("OpenSearch Source \"" + getId()
-                + "\" does not support resource retrieval options.");
+        LOGGER.debug("OpenSearch Source \" {}\" does not support resource retrieval options.", getId());
         return Collections.emptySet();
     }
 
