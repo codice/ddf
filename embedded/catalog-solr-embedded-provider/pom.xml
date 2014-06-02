@@ -170,7 +170,7 @@
         <dependency>
             <groupId>net.sf.saxon</groupId>
             <artifactId>Saxon-HE</artifactId>
-            <version>9.5.1-5</version>
+            <version>${saxon.version}</version>
         </dependency>
 
         <dependency>

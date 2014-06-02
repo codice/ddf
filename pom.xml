@@ -35,6 +35,7 @@
 	    <jts.version>1.12</jts.version>
 		<solr.version>4.7.2</solr.version>
         <lux.version>1.0.1</lux.version>
+        <saxon.version>9.5.1-5</saxon.version>
         <!-- Woodstox version from LuxDB -->
         <woodstox.version>4.1.1</woodstox.version>
         <xerces.version>2.9.1</xerces.version>  
