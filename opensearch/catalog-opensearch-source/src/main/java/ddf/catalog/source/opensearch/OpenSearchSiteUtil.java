@@ -424,7 +424,7 @@ public final class OpenSearchSiteUtil {
 
     private static boolean hasParameter(String parameter, List<String> parameters) {
         for(String param : parameters) {
-            if(param.equalsIgnoreCase(parameter)) {
+            if(param != null && param.equalsIgnoreCase(parameter)) {
                 return true;
             }
         }
