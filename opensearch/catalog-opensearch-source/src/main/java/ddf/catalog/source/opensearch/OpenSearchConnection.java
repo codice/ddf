@@ -275,8 +275,11 @@ public class OpenSearchConnection {
      * @return {@link org.apache.cxf.jaxrs.client.WebClient}
      */
     public WebClient setSubjectOnWebClient(WebClient webClient, Subject subject) {
-        Cookie cookie = createSamlCookie(subject);
-        return webClient.cookie(cookie);
+        if(subject != null) {
+            Cookie cookie = createSamlCookie(subject);
+            return webClient.cookie(cookie);
+        }
+        return webClient;
     }
 
     /**
