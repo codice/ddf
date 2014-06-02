@@ -206,8 +206,8 @@ public class RESTEndpoint implements RESTService {
                 QueryRequestImpl request = new QueryRequestImpl(new QueryImpl(filter), sources);
                 request.setProperties(convertedMap);
                 if (subject != null) {
-                    LOGGER.debug("Adding " + SecurityConstants.SECURITY_SUBJECT
-                            + " property with value " + subject + " to request.");
+                    LOGGER.debug("Adding {} property with value {} to request.",
+                            SecurityConstants.SECURITY_SUBJECT, subject);
                     request.getProperties().put(SecurityConstants.SECURITY_SUBJECT, subject);
                 }
                 queryResponse = catalogFramework.query(request, null);
@@ -339,8 +339,8 @@ public class RESTEndpoint implements RESTService {
             SourceInfoRequestEnterprise sourceInfoRequestEnterprise = new SourceInfoRequestEnterprise(true);
 
             if (subject != null) {
-                LOGGER.debug("Adding " + SecurityConstants.SECURITY_SUBJECT
-                        + " property with value " + subject + " to request.");
+                LOGGER.debug("Adding {} property with value {} to request.",
+                        SecurityConstants.SECURITY_SUBJECT, subject);
                 sourceInfoRequestEnterprise.getProperties().put(SecurityConstants.SECURITY_SUBJECT, subject);
             }
 
@@ -446,8 +446,8 @@ public class RESTEndpoint implements RESTService {
                 QueryRequestImpl request = new QueryRequestImpl(new QueryImpl(filter), sources);
                 request.setProperties(convertedMap);
                 if (subject != null) {
-                    LOGGER.debug("Adding " + SecurityConstants.SECURITY_SUBJECT
-                            + " property with value " + subject + " to request.");
+                    LOGGER.debug("Adding {} property with value {} to request.",
+                            SecurityConstants.SECURITY_SUBJECT, subject);
                     request.getProperties().put(SecurityConstants.SECURITY_SUBJECT, subject);
                 }
                 queryResponse = catalogFramework.query(request, null);
@@ -577,8 +577,8 @@ public class RESTEndpoint implements RESTService {
                         id, message));
 
                 if(subject != null) {
-                    LOGGER.debug("Adding " + SecurityConstants.SECURITY_SUBJECT
-                            + " property with value " + subject + " to request.");
+                    LOGGER.debug("Adding {} property with value {} to request.",
+                            SecurityConstants.SECURITY_SUBJECT, subject);
                     updateReq.getProperties().put(SecurityConstants.SECURITY_SUBJECT, subject);
                 }
 
@@ -635,8 +635,8 @@ public class RESTEndpoint implements RESTService {
 
 
                 if(subject != null) {
-                    LOGGER.debug("Adding " + SecurityConstants.SECURITY_SUBJECT
-                            + " property with value " + subject + " to request.");
+                    LOGGER.debug("Adding {} property with value {} to request.",
+                            SecurityConstants.SECURITY_SUBJECT, subject);
                     createReq.getProperties().put(SecurityConstants.SECURITY_SUBJECT, subject);
                 }
 
@@ -703,8 +703,8 @@ public class RESTEndpoint implements RESTService {
                 DeleteRequestImpl deleteReq = new DeleteRequestImpl(id);
 
                 if(subject != null) {
-                    LOGGER.debug("Adding " + SecurityConstants.SECURITY_SUBJECT
-                            + " property with value " + subject + " to request.");
+                    LOGGER.debug("Adding {} property with value {} to request.",
+                            SecurityConstants.SECURITY_SUBJECT, subject);
                     deleteReq.getProperties().put(SecurityConstants.SECURITY_SUBJECT, subject);
                 }
 
