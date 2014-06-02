@@ -267,10 +267,10 @@ public final class CddaOpenSearchSite implements FederatedSource, ConfiguredServ
             try {
                 response = client.head();
             } catch (ClientException e) {
-                LOGGER.warn("", e);
+                LOGGER.warn("Web Client was unable to connect to endpoint.", e);
             }
 
-            if(response != null && !(response.getStatus() >= 400)) {
+            if(response != null && !(response.getStatus() >= 404)) {
                 isAvailable = true;
                 lastAvailableDate = new Date();
             }

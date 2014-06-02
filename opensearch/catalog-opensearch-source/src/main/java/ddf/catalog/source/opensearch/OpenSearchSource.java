@@ -275,7 +275,7 @@ public final class OpenSearchSource implements FederatedSource, ConfiguredServic
             try {
                 response = client.head();
             } catch (ClientException e) {
-                LOGGER.warn("", e);
+                LOGGER.warn("Web Client was unable to connect to endpoint.", e);
             }
 
             if(response != null && !(response.getStatus() >= 404)) {
