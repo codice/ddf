@@ -20,6 +20,7 @@ import ddf.catalog.impl.filter.TemporalFilter;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.operation.impl.QueryRequestImpl;
+import ddf.catalog.source.UnsupportedQueryException;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.geotools.filter.FilterTransformer;
 import org.joda.time.format.DateTimeFormatter;
@@ -44,7 +45,6 @@ import java.util.List;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -74,13 +74,7 @@ public class TestCddaOpenSearchSite {
     @Test
     public void testNoSearchPhrase() {
         try {
-            String endpointUrl = "http://example.com";
-            CddaOpenSearchSite site = new CddaOpenSearchSite();
-            OpenSearchConnection connection = new OpenSearchConnection(endpointUrl, null, null, null, null, null, null, null, null);
-            site.openSearchConnection = connection;
-            site.setParameters(Arrays.asList(
-                    "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort"
-                            .split(",")));
+            CddaOpenSearchSite site = getCddaOpenSearchSite();
 
             MockQuery query = new MockQuery(null, 0, 10, "relevance", SortOrder.DESCENDING,
                     (long) 30000);
@@ -115,13 +109,7 @@ public class TestCddaOpenSearchSite {
     @Test
     public void testEmptySearchPhrase() {
         try {
-            String endpointUrl = "http://example.com";
-            CddaOpenSearchSite site = new CddaOpenSearchSite();
-            OpenSearchConnection connection = new OpenSearchConnection(endpointUrl, null, null, null, null, null, null, null, null);
-            site.openSearchConnection = connection;
-            site.setParameters(Arrays.asList(
-                    "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort"
-                            .split(",")));
+            CddaOpenSearchSite site = getCddaOpenSearchSite();
 
             String searchTerm = "";
             String selector = null;
@@ -146,38 +134,10 @@ public class TestCddaOpenSearchSite {
         }
     }
 
-    /**
-     * This test makes sure that the if the site is not in a correct environment it will be marked
-     * as not available.
-     */
-    @Test
-    public void testSiteNotAvailable() {
-        try {
-            //don't use example.com here because there actually is a webpage at example.com which
-            //will cause this to resolve as available :)
-            String endpointUrl = "http://12345abc12345foobar.com";
-            CddaOpenSearchSite site = new CddaOpenSearchSite();
-            OpenSearchConnection connection = new OpenSearchConnection(endpointUrl, null, null, null, null, null, null, null, null);
-            site.openSearchConnection = connection;
-            site.setParameters(Arrays.asList(
-                    "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort"
-                            .split(",")));
-            assertFalse(site.isAvailable());
-        } catch (Exception e) {
-            fail("Got an exception: " + e.getMessage());
-        }
-    }
-
     @Test
     public void testContextualSearch_Url() {
         try {
-            String endpointUrl = "http://example.com";
-            CddaOpenSearchSite site = new CddaOpenSearchSite();
-            OpenSearchConnection connection = new OpenSearchConnection(endpointUrl, null, null, null, null, null, null, null, null);
-            site.openSearchConnection = connection;
-            site.setParameters(Arrays.asList(
-                    "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort"
-                            .split(",")));
+            CddaOpenSearchSite site = getCddaOpenSearchSite();
 
             WebClient webClient = site.openSearchConnection.getOpenSearchWebClient();
 
@@ -198,19 +158,25 @@ public class TestCddaOpenSearchSite {
         }
     }
 
+    private CddaOpenSearchSite getCddaOpenSearchSite() throws UnsupportedQueryException {
+        String endpointUrl = "http://example.com";
+        CddaOpenSearchSite site = new CddaOpenSearchSite();
+        OpenSearchConnection connection = new OpenSearchConnection(endpointUrl, null, null, null, null, null, null, null, null);
+        site.openSearchConnection = connection;
+        site.setParameters(Arrays.asList(
+                "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort"
+                        .split(",")
+        ));
+        return site;
+    }
+
     /**
      * Tests output when dealing with multiple words with no operators. Used to test DDF-2139.
      */
     @Test
     public void testContextualSearchMultiWords() {
         try {
-            String endpointUrl = "http://example.com";
-            CddaOpenSearchSite site = new CddaOpenSearchSite();
-            OpenSearchConnection connection = new OpenSearchConnection(endpointUrl, null, null, null, null, null, null, null, null);
-            site.openSearchConnection = connection;
-            site.setParameters(Arrays.asList(
-                    "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort"
-                            .split(",")));
+            CddaOpenSearchSite site = getCddaOpenSearchSite();
 
             WebClient webClient = site.openSearchConnection.getOpenSearchWebClient();
 
@@ -238,13 +204,7 @@ public class TestCddaOpenSearchSite {
     @Test
     public void testContextualSearchQuotedWords() {
         try {
-            String endpointUrl = "http://example.com";
-            CddaOpenSearchSite site = new CddaOpenSearchSite();
-            OpenSearchConnection connection = new OpenSearchConnection(endpointUrl, null, null, null, null, null, null, null, null);
-            site.openSearchConnection = connection;
-            site.setParameters(Arrays.asList(
-                    "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort"
-                            .split(",")));
+            CddaOpenSearchSite site = getCddaOpenSearchSite();
 
             WebClient webClient = site.openSearchConnection.getOpenSearchWebClient();
 
@@ -273,13 +233,7 @@ public class TestCddaOpenSearchSite {
     @Test
     public void testSearchPhraseSingleAND() {
         try {
-            String endpointUrl = "http://example.com";
-            CddaOpenSearchSite site = new CddaOpenSearchSite();
-            OpenSearchConnection connection = new OpenSearchConnection(endpointUrl, null, null, null, null, null, null, null, null);
-            site.openSearchConnection = connection;
-            site.setParameters(Arrays.asList(
-                    "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort"
-                            .split(",")));
+            CddaOpenSearchSite site = getCddaOpenSearchSite();
 
             WebClient webClient = site.openSearchConnection.getOpenSearchWebClient();
 
@@ -308,13 +262,7 @@ public class TestCddaOpenSearchSite {
     @Test
     public void testSearchPhraseMultipleAND() {
         try {
-            String endpointUrl = "http://example.com";
-            CddaOpenSearchSite site = new CddaOpenSearchSite();
-            OpenSearchConnection connection = new OpenSearchConnection(endpointUrl, null, null, null, null, null, null, null, null);
-            site.openSearchConnection = connection;
-            site.setParameters(Arrays.asList(
-                    "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort"
-                            .split(",")));
+            CddaOpenSearchSite site = getCddaOpenSearchSite();
 
             WebClient webClient = site.openSearchConnection.getOpenSearchWebClient();
 
@@ -345,13 +293,7 @@ public class TestCddaOpenSearchSite {
     @Test
     public void testSearchPhraseSingleOR() {
         try {
-            String endpointUrl = "http://example.com";
-            CddaOpenSearchSite site = new CddaOpenSearchSite();
-            OpenSearchConnection connection = new OpenSearchConnection(endpointUrl, null, null, null, null, null, null, null, null);
-            site.openSearchConnection = connection;
-            site.setParameters(Arrays.asList(
-                    "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort"
-                            .split(",")));
+            CddaOpenSearchSite site = getCddaOpenSearchSite();
 
             WebClient webClient = site.openSearchConnection.getOpenSearchWebClient();
 
@@ -382,13 +324,7 @@ public class TestCddaOpenSearchSite {
     @Test
     public void testSearchPhraseMultipleOr() {
         try {
-            String endpointUrl = "http://example.com";
-            CddaOpenSearchSite site = new CddaOpenSearchSite();
-            OpenSearchConnection connection = new OpenSearchConnection(endpointUrl, null, null, null, null, null, null, null, null);
-            site.openSearchConnection = connection;
-            site.setParameters(Arrays.asList(
-                    "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort"
-                            .split(",")));
+            CddaOpenSearchSite site = getCddaOpenSearchSite();
 
             WebClient webClient = site.openSearchConnection.getOpenSearchWebClient();
 
@@ -416,13 +352,7 @@ public class TestCddaOpenSearchSite {
     @Test
     public void testAbsoluteTemporalSearch_Url() {
         try {
-            String endpointUrl = "http://example.com";
-            CddaOpenSearchSite site = new CddaOpenSearchSite();
-            OpenSearchConnection connection = new OpenSearchConnection(endpointUrl, null, null, null, null, null, null, null, null);
-            site.openSearchConnection = connection;
-            site.setParameters(Arrays.asList(
-                    "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort"
-                            .split(",")));
+            CddaOpenSearchSite site = getCddaOpenSearchSite();
 
             WebClient webClient = site.openSearchConnection.getOpenSearchWebClient();
 
@@ -458,13 +388,7 @@ public class TestCddaOpenSearchSite {
     @Test
     public void testModifiedTemporalSearch_Url() {
         try {
-            String endpointUrl = "http://example.com";
-            CddaOpenSearchSite site = new CddaOpenSearchSite();
-            OpenSearchConnection connection = new OpenSearchConnection(endpointUrl, null, null, null, null, null, null, null, null);
-            site.openSearchConnection = connection;
-            site.setParameters(Arrays.asList(
-                    "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort"
-                            .split(",")));
+            CddaOpenSearchSite site = getCddaOpenSearchSite();
 
             WebClient webClient = site.openSearchConnection.getOpenSearchWebClient();
 
@@ -483,8 +407,10 @@ public class TestCddaOpenSearchSite {
             assertTrue(urlStr.contains("dtstart"));
             assertTrue(urlStr.contains("dtend"));
 
-            assertTrue(urlStr.contains(URLEncoder.encode(reformatDate(temporalFilter.getStartDate()), "UTF-8")));
-            assertTrue(urlStr.contains(URLEncoder.encode(reformatDate(temporalFilter.getEndDate()), "UTF-8")));
+            assertTrue(urlStr.contains(URLEncoder.encode(
+                    reformatDate(temporalFilter.getStartDate()), "UTF-8")));
+            assertTrue(urlStr.contains(URLEncoder.encode(reformatDate(temporalFilter.getEndDate()),
+                    "UTF-8")));
         } catch (Exception e) {
             LOGGER.error(UNEXPECTED_EXCEPTION_MSG, e);
             fail("Got an exception: " + e.getMessage());
@@ -494,13 +420,7 @@ public class TestCddaOpenSearchSite {
     @Test
     public void testSpatialDistanceSearch_Url() {
         try {
-            String endpointUrl = "http://example.com";
-            CddaOpenSearchSite site = new CddaOpenSearchSite();
-            OpenSearchConnection connection = new OpenSearchConnection(endpointUrl, null, null, null, null, null, null, null, null);
-            site.openSearchConnection = connection;
-            site.setParameters(Arrays.asList(
-                    "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort"
-                            .split(",")));
+            CddaOpenSearchSite site = getCddaOpenSearchSite();
 
             WebClient webClient = site.openSearchConnection.getOpenSearchWebClient();
 
@@ -534,13 +454,7 @@ public class TestCddaOpenSearchSite {
     @Test
     public void testSpatialSearch_Url() {
         try {
-            String endpointUrl = "http://example.com";
-            CddaOpenSearchSite site = new CddaOpenSearchSite();
-            OpenSearchConnection connection = new OpenSearchConnection(endpointUrl, null, null, null, null, null, null, null, null);
-            site.openSearchConnection = connection;
-            site.setParameters(Arrays.asList(
-                    "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort"
-                            .split(",")));
+            CddaOpenSearchSite site = getCddaOpenSearchSite();
 
             WebClient webClient = site.openSearchConnection.getOpenSearchWebClient();
 
@@ -586,13 +500,7 @@ public class TestCddaOpenSearchSite {
     @Test
     public void testGeometryPointSearch_Url() {
         try {
-            String endpointUrl = "http://example.com";
-            CddaOpenSearchSite site = new CddaOpenSearchSite();
-            OpenSearchConnection connection = new OpenSearchConnection(endpointUrl, null, null, null, null, null, null, null, null);
-            site.openSearchConnection = connection;
-            site.setParameters(Arrays.asList(
-                    "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort"
-                            .split(",")));
+            CddaOpenSearchSite site = getCddaOpenSearchSite();
             site.setShouldConvertToBBox(true);
 
             WebClient webClient = site.openSearchConnection.getOpenSearchWebClient();
@@ -623,13 +531,7 @@ public class TestCddaOpenSearchSite {
     @Test
     public void testSpatialDistanceSearch_BBoxConversion_Url() {
         try {
-            String endpointUrl = "http://example.com";
-            CddaOpenSearchSite site = new CddaOpenSearchSite();
-            OpenSearchConnection connection = new OpenSearchConnection(endpointUrl, null, null, null, null, null, null, null, null);
-            site.openSearchConnection = connection;
-            site.setParameters(Arrays.asList(
-                    "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort"
-                            .split(",")));
+            CddaOpenSearchSite site = getCddaOpenSearchSite();
             site.setShouldConvertToBBox(true);
 
             WebClient webClient = site.openSearchConnection.getOpenSearchWebClient();
@@ -662,13 +564,7 @@ public class TestCddaOpenSearchSite {
     @Test
     public void testSpatialSearch_BBoxConversion_Url() {
         try {
-            String endpointUrl = "http://example.com";
-            CddaOpenSearchSite site = new CddaOpenSearchSite();
-            OpenSearchConnection connection = new OpenSearchConnection(endpointUrl, null, null, null, null, null, null, null, null);
-            site.openSearchConnection = connection;
-            site.setParameters(Arrays.asList(
-                    "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort"
-                            .split(",")));
+            CddaOpenSearchSite site = getCddaOpenSearchSite();
             site.setShouldConvertToBBox(true);
 
             WebClient webClient = site.openSearchConnection.getOpenSearchWebClient();
@@ -700,13 +596,7 @@ public class TestCddaOpenSearchSite {
     @Test
     public void testContextualTemporalSpatialSearch_Url() {
         try {
-            String endpointUrl = "http://example.com";
-            CddaOpenSearchSite site = new CddaOpenSearchSite();
-            OpenSearchConnection connection = new OpenSearchConnection(endpointUrl, null, null, null, null, null, null, null, null);
-            site.openSearchConnection = connection;
-            site.setParameters(Arrays.asList(
-                    "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort"
-                            .split(",")));
+            CddaOpenSearchSite site = getCddaOpenSearchSite();
             site.setShouldConvertToBBox(false);
 
             WebClient webClient = site.openSearchConnection.getOpenSearchWebClient();
@@ -746,13 +636,7 @@ public class TestCddaOpenSearchSite {
 
     @Test
     public void testEndpointUrl_SrcDefault() throws Exception {
-        String endpointUrl = "http://example.com";
-        CddaOpenSearchSite site = new CddaOpenSearchSite();
-        OpenSearchConnection connection = new OpenSearchConnection(endpointUrl, null, null, null, null, null, null, null, null);
-        site.openSearchConnection = connection;
-        site.setParameters(Arrays.asList(
-                "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort"
-                        .split(",")));
+        CddaOpenSearchSite site = getCddaOpenSearchSite();
         site.setShouldConvertToBBox(false);
 
         WebClient webClient = site.openSearchConnection.getOpenSearchWebClient();
@@ -778,7 +662,8 @@ public class TestCddaOpenSearchSite {
         site.openSearchConnection = connection;
         site.setParameters(Arrays.asList(
                 "q,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort"
-                        .split(",")));
+                        .split(",")
+        ));
         site.setShouldConvertToBBox(false);
 
         WebClient webClient = site.openSearchConnection.getOpenSearchWebClient();        site.setLocalQueryOnly(true);
@@ -803,10 +688,12 @@ public class TestCddaOpenSearchSite {
         site.openSearchConnection = connection;
         site.setParameters(Arrays.asList(
                 "q,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort"
-                        .split(",")));
+                        .split(",")
+        ));
         site.setShouldConvertToBBox(false);
 
-        WebClient webClient = site.openSearchConnection.getOpenSearchWebClient();        site.setLocalQueryOnly(true);
+        WebClient webClient = site.openSearchConnection.getOpenSearchWebClient();        site.setLocalQueryOnly(
+                true);
 
         MockQuery query = new MockQuery(null, 0, 10, "relevance", SortOrder.DESCENDING,
                 (long) 30000);
