@@ -133,7 +133,7 @@ public class OpenSearchConnection {
             restService = JAXRSClientFactory.create(restUrl.buildUrl(), RESTService.class);
             restServiceClient = WebClient.client(restService);
 
-            if (endpointUrl.startsWith("https") && StringUtils.isNotEmpty(keyStorePassword)
+            if (StringUtils.startsWithIgnoreCase(endpointUrl, "https") && StringUtils.isNotEmpty(keyStorePassword)
                     && StringUtils.isNotEmpty(keyStorePath) && StringUtils.isNotEmpty(trustStorePassword)
                     && StringUtils.isNotEmpty(trustStorePath)) {
                 setTLSOptions(openSearchClient);
@@ -226,7 +226,7 @@ public class OpenSearchConnection {
     public Client newOpenSearchClient(String url) {
         OpenSearch proxy = JAXRSClientFactory.create(url, OpenSearch.class);
         Client tmp = WebClient.client(proxy);
-        if (url.startsWith("https")) {
+        if (StringUtils.startsWithIgnoreCase(url, "https")) {
             setTLSOptions(tmp);
         }
         return tmp;
@@ -260,7 +260,7 @@ public class OpenSearchConnection {
         if (url != null) {
             RESTService proxy = JAXRSClientFactory.create(url, RESTService.class);
             tmp = WebClient.client(proxy);
-            if (url.startsWith("https")) {
+            if (StringUtils.startsWithIgnoreCase(url, "https")) {
                 setTLSOptions(tmp);
             }
         }
