@@ -176,7 +176,8 @@ public final class OpenSearchSiteUtil {
 
             sortStr = translateToOpenSearchSort(query.getSortBy());
 
-            if (subject != null && !subject.getPrincipals().isEmpty()) {
+            if (subject != null && subject.getPrincipals() != null
+                    && !subject.getPrincipals().isEmpty()) {
                 List principals = subject.getPrincipals().asList();
                 for (Object principal : principals) {
                     if (principal instanceof SecurityAssertion) {
