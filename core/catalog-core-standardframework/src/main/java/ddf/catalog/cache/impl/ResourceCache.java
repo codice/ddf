@@ -65,6 +65,7 @@ public class ResourceCache implements ResourceCacheInterface {
         if(instance == null){
             Config cfg = new Config();
             cfg.setClassLoader(getClass().getClassLoader());
+            cfg.getNetworkConfig().getJoin().getMulticastConfig().setEnabled(false);
             this.instance = Hazelcast.newHazelcastInstance(cfg);
         }
         

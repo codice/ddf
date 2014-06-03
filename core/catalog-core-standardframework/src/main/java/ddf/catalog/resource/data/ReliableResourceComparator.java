@@ -14,12 +14,15 @@
  **/
 package ddf.catalog.resource.data;
 
+import java.io.Serializable;
 import java.util.Comparator;
 import java.util.Map;
 
 
 @SuppressWarnings("rawtypes")  //suppressing these because Hazelcast specifically requires a Comparator<Map.Entry>
-public class ReliableResourceComparator implements Comparator<Map.Entry> {
+public class ReliableResourceComparator implements Comparator<Map.Entry>, Serializable {
+
+    private static final long serialVersionUID = 2003292006899211059L;
 
     @Override
     public int compare(Map.Entry rr1, Map.Entry rr2) {
