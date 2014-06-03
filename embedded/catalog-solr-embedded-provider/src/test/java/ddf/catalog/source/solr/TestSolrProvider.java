@@ -2915,33 +2915,114 @@ public class TestSolrProvider extends SolrProviderTestCase {
 
         deleteAllIn(provider);
 
-        Metacard metacard = new MockMetacard(Library.getFlagstaffRecord());
-        List<Metacard> list = Arrays.asList(metacard);
-
-        create(list);
+        DateTime now = new DateTime();
+        List<Metacard> list = addMetacardWithModifiedDate(now);
 
         /** POSITIVE CASE **/
-        Filter filter = filterBuilder.attribute(Metacard.MODIFIED).before()
-                .date(new DateTime().plus(1).toDate());
-
-        QueryImpl query = new QueryImpl(filter);
-
-        SourceResponse sourceResponse = provider.query(new QueryRequestImpl(query));
-
-        assertEquals(1, sourceResponse.getResults().size());
+        Filter filter = filterBuilder.attribute(Metacard.MODIFIED).before().date(dateAfterNow(now));
+        List<Result> results = getResultsForFilteredQuery(filter);
+        assertEquals(1, results.size());
 
         /** NEGATIVE CASE **/
-        filter = filterBuilder.attribute(Metacard.MODIFIED).before()
-                .date(new DateTime().minus(10000).toDate());
+        filter = filterBuilder.attribute(Metacard.MODIFIED).before().date(dateBeforeNow(now));
+        results = getResultsForFilteredQuery(filter);
+        assertEquals(0, results.size());
 
-        query = new QueryImpl(filter);
+    }
 
-        sourceResponse = provider.query(new QueryRequestImpl(query));
+    @Test()
+    public void testTemporalAfter() throws Exception {
 
-        assertEquals(0, sourceResponse.getResults().size());
+        deleteAllIn(provider);
 
-        /** Test Sort **/
+        DateTime now = new DateTime();
+        List<Metacard> list = addMetacardWithModifiedDate(now);
 
+        /** POSITIVE CASE **/
+        Filter filter = filterBuilder.attribute(Metacard.MODIFIED).after().date(dateBeforeNow(now));
+        List<Result> results = getResultsForFilteredQuery(filter);
+        assertEquals(1, results.size());
+
+        /** NEGATIVE CASE **/
+        filter = filterBuilder.attribute(Metacard.MODIFIED).after().date(dateAfterNow(now));
+        results = getResultsForFilteredQuery(filter);
+        assertEquals(0, results.size());
+    }
+
+    @Test()
+    public void testDateGreaterThan() throws Exception {
+
+        deleteAllIn(provider);
+
+        DateTime now = new DateTime();
+        List<Metacard> list = addMetacardWithModifiedDate(now);
+
+        /** POSITIVE CASE **/
+        Filter filter = filterBuilder.dateGreaterThan(Metacard.MODIFIED, dateBeforeNow(now));
+        List<Result> results = getResultsForFilteredQuery(filter);
+        assertEquals(1, results.size());
+
+        /** NEGATIVE CASE **/
+        filter = filterBuilder.dateGreaterThan(Metacard.MODIFIED, dateAfterNow(now));
+        results = getResultsForFilteredQuery(filter);
+        assertEquals(0, results.size());
+    }
+
+    @Test()
+    public void testDateGreaterThanOrEqualTo() throws Exception {
+
+        deleteAllIn(provider);
+
+        DateTime now = new DateTime();
+        List<Metacard> list = addMetacardWithModifiedDate(now);
+
+        /** POSITIVE CASE **/
+        Filter filter = filterBuilder.dateGreaterThanOrEqual(Metacard.MODIFIED, dateBeforeNow(now));
+        List<Result> results = getResultsForFilteredQuery(filter);
+        assertEquals(1, results.size());
+
+        /** NEGATIVE CASE **/
+        filter = filterBuilder.dateGreaterThanOrEqual(Metacard.MODIFIED, dateAfterNow(now));
+        results = getResultsForFilteredQuery(filter);
+        assertEquals(0, results.size());
+    }
+
+    @Test()
+    public void testDateLessThan() throws Exception {
+
+        deleteAllIn(provider);
+
+        DateTime now = new DateTime();
+        List<Metacard> list = addMetacardWithModifiedDate(now);
+
+        /** POSITIVE CASE **/
+        Filter filter = filterBuilder.dateLessThan(Metacard.MODIFIED, dateAfterNow(now));
+        List<Result> results = getResultsForFilteredQuery(filter);
+        assertEquals(1, results.size());
+
+        /** NEGATIVE CASE **/
+        filter = filterBuilder.dateLessThan(Metacard.MODIFIED, dateNow(now));
+        results = getResultsForFilteredQuery(filter);
+        assertEquals(0, results.size());
+    }
+
+    @Test()
+    public void testDateLessThanOrEqualTo() throws Exception {
+
+        deleteAllIn(provider);
+
+        DateTime now = new DateTime();
+        List<Metacard> list = addMetacardWithModifiedDate(now);
+
+        /** POSITIVE CASE **/
+        Filter filter = filterBuilder.dateLessThanOrEqual(Metacard.MODIFIED, dateAfterNow(now));
+        List<Result> results = getResultsForFilteredQuery(filter);
+        assertEquals(1, results.size());
+
+        /** NEGATIVE CASE **/
+        filter = filterBuilder.dateLessThanOrEqual(Metacard.MODIFIED, dateBeforeNow(now));
+        results = getResultsForFilteredQuery(filter);
+        assertEquals(0, results.size());
     }
 
     /**
@@ -2972,7 +3053,7 @@ public class TestSolrProvider extends SolrProviderTestCase {
 
         create(list);
 
-        Filter filter = filterBuilder.attribute(Metacard.EFFECTIVE).before().date(now.toDate());
+        Filter filter = filterBuilder.attribute(Metacard.EFFECTIVE).before().date(now.plusMillis(1).toDate());
 
         QueryImpl query = new QueryImpl(filter);
 
@@ -3021,7 +3102,7 @@ public class TestSolrProvider extends SolrProviderTestCase {
 
         // Sort all TEMPORAL DESC
 
-        filter = filterBuilder.attribute(Metacard.EFFECTIVE).before().date(now.toDate());
+        filter = filterBuilder.attribute(Metacard.EFFECTIVE).before().date(now.plusMillis(1).toDate());
 
         query = new QueryImpl(filter);
 

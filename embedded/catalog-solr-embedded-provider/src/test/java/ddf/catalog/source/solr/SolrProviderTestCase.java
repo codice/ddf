@@ -18,9 +18,11 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
+import org.joda.time.DateTime;
 import org.junit.BeforeClass;
 import org.opengis.filter.Filter;
 import org.slf4j.Logger;
@@ -53,11 +55,16 @@ public abstract class SolrProviderTestCase {
 
     protected static final String MASKED_ID = "scp";
 
-    protected static FilterBuilder filterBuilder = new GeotoolsFilterBuilder();
+    protected static TestSolrFilterBuilder filterBuilder = new TestSolrFilterBuilder();
 
     protected static SolrCatalogProvider provider = null;
 
     private static final int TEST_METHOD_NAME_INDEX = 3;
+
+    private static final int ONE_SECOND = 1;
+    private static final int TIME_STEP_10SECONDS = 10 * ONE_SECOND;
+    private static final int TIME_STEP_30SECONDS = 30 * ONE_SECOND;
+    private static final int A_LITTLE_WHILE = TIME_STEP_10SECONDS;
 
     @BeforeClass
     public static void setup() throws Exception {
@@ -166,4 +173,31 @@ public abstract class SolrProviderTestCase {
         return createResponse;
     }
 
+    protected List<Metacard> addMetacardWithModifiedDate(DateTime now) throws IngestException {
+        List<Metacard> list = new ArrayList<Metacard>();
+        MockMetacard m = new MockMetacard(Library.getFlagstaffRecord());
+        m.setEffectiveDate(dateNow(now));
+        list.add(m);
+        create(list);
+        return list;
+    }
+
+    protected List<Result> getResultsForFilteredQuery(Filter filter) throws UnsupportedQueryException {
+        QueryImpl query = new QueryImpl(filter);
+
+        SourceResponse sourceResponse = provider.query(new QueryRequestImpl(query));
+        return sourceResponse.getResults();
+    }
+
+    protected Date dateAfterNow(DateTime now) {
+        return now.plusSeconds(A_LITTLE_WHILE).toDate();
+    }
+
+    protected Date dateBeforeNow(DateTime now) {
+        return now.minusSeconds(A_LITTLE_WHILE).toDate();
+    }
+
+    protected Date dateNow(DateTime now) {
+        return now.toDate();
+    }
 }

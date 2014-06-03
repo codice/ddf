@@ -107,6 +107,14 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
 
     private static final String SOLR_SINGLE_WILDCARD_CHAR = "?";
 
+    private static final String SOLR_INCLUSIVE_START = ":[ ";
+
+    private static final String SOLR_EXCLUSIVE_START = ":{ ";
+
+    private static final String SOLR_INCLUSIVE_END = " ] ";
+
+    private static final String SOLR_EXCLUSIVE_END = " } ";
+
     private static final Map<String, String> FIELD_MAP;
 
     private static final String TOKENIZED = "_tokenized";
@@ -304,25 +312,59 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
         return getGreaterThanOrEqualToQuery(propertyName, AttributeFormat.DOUBLE, literal);
     }
 
-    public SolrQuery during(String propertyName, Date startDate, Date endDate) {
-        String formattedStartDate = dateFormatter.toExternal(startDate);
-        String formattedEndDate = dateFormatter.toExternal(endDate);
-
+    private SolrQuery buildDateQuery(String propertyName, String startCondition, String startDate, String endDate, String endCondition) {
         SolrQuery query = new SolrQuery();
         query.setQuery(" " + getMappedPropertyName(propertyName, AttributeFormat.DATE, false)
-                + ":[ " + formattedStartDate + TO + formattedEndDate + " ] ");
-
+                + startCondition + startDate + TO + endDate + endCondition);
         return query;
     }
 
+    private String formatDate(Date date) {
+        return dateFormatter.toExternal(date);
+    }
+
+    @Override
+    public SolrQuery during(String propertyName, Date startDate, Date endDate) {
+        String formattedStartDate = formatDate(startDate);
+        String formattedEndDate = formatDate(endDate);
+        return buildDateQuery(propertyName, SOLR_EXCLUSIVE_START, formattedStartDate, formattedEndDate, SOLR_EXCLUSIVE_END);
+    }
+
+    @Override
     public SolrQuery before(String propertyName, Date date) {
-        String formattedEndDate = dateFormatter.toExternal(date);
+        String formattedEndDate = formatDate(date);
 
-        SolrQuery query = new SolrQuery();
-        query.setQuery(" " + getMappedPropertyName(propertyName, AttributeFormat.DATE, false)
-                + ":[ *" + TO + formattedEndDate + " ] ");
+        return buildDateQuery(propertyName, SOLR_INCLUSIVE_START, SOLR_WILDCARD_CHAR, formattedEndDate, SOLR_EXCLUSIVE_END);
+    }
 
-        return query;
+    @Override
+    public SolrQuery after(String propertyName, Date startDate) {
+        String formattedStartDate = formatDate(startDate);
+        return buildDateQuery(propertyName, SOLR_EXCLUSIVE_START, formattedStartDate, SOLR_WILDCARD_CHAR, SOLR_INCLUSIVE_END);
+    }
+
+    @Override
+    public SolrQuery propertyIsGreaterThan(String propertyName, Date startDate) {
+        String formattedStartDate = formatDate(startDate);
+        return buildDateQuery(propertyName, SOLR_EXCLUSIVE_START, formattedStartDate, SOLR_WILDCARD_CHAR, SOLR_INCLUSIVE_END);
+    }
+
+    @Override
+    public SolrQuery propertyIsGreaterThanOrEqualTo(String propertyName, Date startDate) {
+        String formattedStartDate = formatDate(startDate);
+        return buildDateQuery(propertyName, SOLR_INCLUSIVE_START, formattedStartDate, SOLR_WILDCARD_CHAR, SOLR_INCLUSIVE_END);
+    }
+
+    @Override
+    public SolrQuery propertyIsLessThan(String propertyName, Date endDate) {
+        String formattedEndDate = formatDate(endDate);
+        return buildDateQuery(propertyName, SOLR_INCLUSIVE_START, SOLR_WILDCARD_CHAR, formattedEndDate, SOLR_EXCLUSIVE_END);
+    }
+
+    @Override
+    public SolrQuery propertyIsLessThanOrEqualTo(String propertyName, Date endDate) {
+        String formattedEndDate = formatDate(endDate);
+        return buildDateQuery(propertyName, SOLR_INCLUSIVE_START, SOLR_WILDCARD_CHAR, formattedEndDate, SOLR_INCLUSIVE_END);
     }
 
     @Override
@@ -331,14 +373,10 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
         Date start = now.minus(duration).toDate();
         Date end = now.toDate();
 
-        String formattedStartDate = dateFormatter.toExternal(start);
-        String formattedEndDate = dateFormatter.toExternal(end);
+        String formattedStartDate = formatDate(start);
+        String formattedEndDate = formatDate(end);
 
-        SolrQuery query = new SolrQuery();
-        query.setQuery(" " + getMappedPropertyName(propertyName, AttributeFormat.DATE, false)
-                + ":[ " + formattedStartDate + TO + formattedEndDate + " ] ");
-
-        return query;
+        return buildDateQuery(propertyName, SOLR_INCLUSIVE_START, formattedStartDate, formattedEndDate, SOLR_INCLUSIVE_END);
     }
 
     @Override
