@@ -30,7 +30,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Implementation of filter chain that allows the ability to add new filters to a chain.
+ * Implementation of filter chain that allows the ability to add new filters to
+ * a chain.
  * 
  */
 public class ProxyFilterChain implements FilterChain {
@@ -60,7 +61,11 @@ public class ProxyFilterChain implements FilterChain {
      *            The servlet filter to add.
      */
     public void addFilter(Filter filter) {
-        addFilters(Arrays.asList(filter));
+        if (filter != null) {
+            addFilters(Arrays.asList(filter));
+        } else {
+            throw new IllegalArgumentException("Cannot add null filter to chain.");
+        }
     }
 
     /**
@@ -72,10 +77,14 @@ public class ProxyFilterChain implements FilterChain {
      */
     public void addFilters(List<Filter> filters) {
         if (iterator != null) {
-            throw new IllegalStateException();
+            throw new IllegalStateException("Cannot add filter to current running chain.");
         }
 
-        this.filters.addAll(0, filters);
+        if (filters != null) {
+            this.filters.addAll(0, filters);
+        } else {
+            throw new IllegalArgumentException("Cannot add null filter list to chain.");
+        }
 
         if (LOGGER.isDebugEnabled()) {
             for (Filter filter : filters) {
@@ -97,8 +106,8 @@ public class ProxyFilterChain implements FilterChain {
                     servletRequest, servletResponse, this);
             filter.doFilter(servletRequest, servletResponse, this);
         } else {
-            LOGGER.debug("Calling filterChain {}.doFilter({}, {})",
-                    filterChain.getClass().getName(), servletRequest, servletResponse);
+            LOGGER.debug("Calling filterChain {}.doFilter({}, {})", filterChain.getClass()
+                    .getName(), servletRequest, servletResponse);
             filterChain.doFilter(servletRequest, servletResponse);
         }
     }
