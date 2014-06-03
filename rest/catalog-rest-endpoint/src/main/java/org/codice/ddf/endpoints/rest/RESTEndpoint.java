@@ -870,7 +870,7 @@ public class RESTEndpoint implements RESTService {
         String response = null;
 
         if (rangeHeader != null) {
-            if (rangeHeader.contains(BYTES_EQUAL)) {
+            if (rangeHeader.startsWith(BYTES_EQUAL)) {
                 String tempString = rangeHeader.substring(BYTES_EQUAL.length());
                 if (tempString.contains("-")) {
                     response = rangeHeader.substring(BYTES_EQUAL.length(), rangeHeader.lastIndexOf("-"));
