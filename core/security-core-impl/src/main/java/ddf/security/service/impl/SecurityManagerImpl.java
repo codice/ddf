@@ -56,7 +56,6 @@ public class SecurityManagerImpl implements SecurityManager {
         internalManager = new DefaultSecurityManager();
     }
 
-    @SuppressWarnings("unchecked")
     public void setRealms(Collection<Realm> realms) {
         this.realms = realms;
         // update the default manager with current realm list
@@ -75,6 +74,15 @@ public class SecurityManagerImpl implements SecurityManager {
         }
     }
 
+    /**
+     * Creates a new subject based on an incoming AuthenticationToken
+     * 
+     * @param token
+     *            AuthenticationToken that should be used to authenticate the
+     *            user and use as the basis for the new subject.
+     * @return new subject
+     * @throws SecurityServiceException
+     */
     private Subject getSubject(AuthenticationToken token) throws SecurityServiceException {
         if (token.getCredentials() == null) {
             throw new SecurityServiceException(
@@ -90,30 +98,37 @@ public class SecurityManagerImpl implements SecurityManager {
         }
         try {
             // create the subject that will be returned back to the user
-            return new SubjectImpl(createPrincipalFromToken(secToken), true,
-                    new SimpleSession(UUID.randomUUID().toString()), internalManager);
-        } catch (Exception e) {
-            throw new SecurityServiceException("Could not create a new subject", e);
-        }
-    }
-
-    private Subject getSubject(SecurityToken token) throws SecurityServiceException {
-        try {
-            // return the newly created subject
-            return new SubjectImpl(createPrincipalFromToken(token), true,
-                    new SimpleSession(UUID.randomUUID().toString()), internalManager);
+            return new SubjectImpl(createPrincipalFromToken(secToken), true, new SimpleSession(UUID
+                    .randomUUID().toString()), internalManager);
         } catch (Exception e) {
             throw new SecurityServiceException("Could not create a new subject", e);
         }
     }
 
     /**
-     * Updates the principal collection and realm settings that will be used to create a new
-     * subject.
+     * Creates a new subject using an incoming SecurityToken.
      * 
      * @param token
-     *            SecurityToken contain the principals describing the current user performing
-     *            operations.
+     *            Security token that the subject should be populated with
+     * @return new subject
+     * @throws SecurityServiceException
+     */
+    private Subject getSubject(SecurityToken token) throws SecurityServiceException {
+        try {
+            // return the newly created subject
+            return new SubjectImpl(createPrincipalFromToken(token), true, new SimpleSession(UUID
+                    .randomUUID().toString()), internalManager);
+        } catch (Exception e) {
+            throw new SecurityServiceException("Could not create a new subject", e);
+        }
+    }
+
+    /**
+     * Creates a new principal object from an incoming security token.
+     * 
+     * @param token
+     *            SecurityToken that contains the principals.
+     * @return new SimplePrincipalCollection
      */
     private SimplePrincipalCollection createPrincipalFromToken(SecurityToken token) {
         SimplePrincipalCollection principals = new SimplePrincipalCollection();
