@@ -858,7 +858,7 @@ public class RESTEndpoint implements RESTService {
                 String range = getRange(rangeHeader);
 
                 if (range != null) {
-                    response = new Long(range).longValue();
+                    response = Long.valueOf(range);
                 }
             }
         }
