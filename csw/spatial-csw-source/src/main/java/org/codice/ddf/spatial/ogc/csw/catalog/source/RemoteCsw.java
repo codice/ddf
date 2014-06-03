@@ -73,17 +73,17 @@ public class RemoteCsw extends TrustedRemoteSource implements Csw {
 
     private Map<String, String> jaxbElementClassMap = new HashMap<String, String>();
 
-    private Csw csw;
+    protected Csw csw;
+    
+    protected JAXRSClientFactoryBean bean;
 
     /**
      * Instantiates a new RemoteCsw
      * 
-     * @param cswServerUrl
-     *            The URL String of the Remote Server
-     * @param username
-     *            A user name that can be used to logged onto the Remote Server
-     * @param password
-     *            A password that can be used to logged onto the Remote Server
+     * @param recordConverterFactories
+     *            The reference to the the CSW Record Converters
+     * @param cswSourceConfiguration
+     *            The Csw Source Configuration
      */
     public RemoteCsw(List<RecordConverterFactory> recordConverterFactories,
             CswSourceConfiguration cswSourceConfiguration) {
@@ -93,7 +93,7 @@ public class RemoteCsw extends TrustedRemoteSource implements Csw {
             throw new IllegalArgumentException(errMsg);
         }
 
-        JAXRSClientFactoryBean bean = createJAXRSClientBean(recordConverterFactories,
+        bean = createJAXRSClientBean(recordConverterFactories,
                 cswSourceConfiguration);
 
         // Additionally, set the username and password for Basic Auth

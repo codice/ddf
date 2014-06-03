@@ -124,7 +124,7 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
 
     private FilterBuilder filterBuilder;
 
-    private CswSourceConfiguration cswSourceConfiguration;
+    protected CswSourceConfiguration cswSourceConfiguration;
 
     private FilterAdapter filterAdapter;
 
@@ -142,7 +142,7 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
     
     private Set<ElementSetType> detailLevels;
 
-    private RemoteCsw remoteCsw;
+    protected RemoteCsw remoteCsw;
 
     private BundleContext context;
 
@@ -156,7 +156,7 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
 
     private boolean contentTypeMappingUpdated;
     
-    private List<RecordConverterFactory> recordConverterFactories;
+    protected List<RecordConverterFactory> recordConverterFactories;
     
     private static final Logger LOGGER = LoggerFactory.getLogger(CswSource.class);
 
@@ -422,7 +422,7 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
 
     }
 
-    private void connectToRemoteCsw() {
+    protected void connectToRemoteCsw() {
         LOGGER.debug("Connecting to remote CSW Server " + cswSourceConfiguration.getCswUrl());
 
         try {
@@ -434,7 +434,7 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
         }
     }
 
-    private void configureWcs() {
+    protected void configureWcs() {
 
         if (cswSourceConfiguration.getProductRetrievalMethod().equalsIgnoreCase(
                 CswConstants.WCS_PRODUCT_RETRIEVAL)
@@ -708,6 +708,8 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
     }
 
     public void setCswUrl(String cswUrl) {
+        LOGGER.debug("Setting cswUrl to {}", cswUrl);
+
         cswSourceConfiguration.setCswUrl(cswUrl);
     }
 
