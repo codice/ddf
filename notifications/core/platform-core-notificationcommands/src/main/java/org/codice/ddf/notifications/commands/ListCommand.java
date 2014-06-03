@@ -70,7 +70,6 @@ public class ListCommand extends OsgiCommandSupport {
     @Argument(name = "User ID", description = "User ID to search for notifications. "
             + "If an id is not provided, then all of the notifications for all users are displayed.", 
             index = 0, multiValued = false, required = false)
-    String id = null;
     String userId = null;
     
     @Override
