@@ -101,6 +101,10 @@ public class RESTEndpoint implements RESTService {
 
     private static final String HEADER_CONTENT_DISPOSITION = "Content-Disposition";
 
+    private static final String BYTES = "bytes";
+
+    private static final String BYTES_EQUAL = "bytes=";
+
     private static MimeType JSON_MIME_TYPE = null;
 
     private FilterBuilder filterBuilder;
@@ -233,7 +237,7 @@ public class RESTEndpoint implements RESTService {
                 responseBuilder = Response.noContent();
 
                 // Add the Accept-ranges header to let the client know that we accept ranges in bytes
-                responseBuilder.header(HEADER_ACCEPT_RANGES, "bytes");
+                responseBuilder.header(HEADER_ACCEPT_RANGES, BYTES);
 
                 String filename = null;
 
@@ -377,7 +381,7 @@ public class RESTEndpoint implements RESTService {
         responseBuilder = Response.ok(content.getInputStream(), content.getMimeTypeValue());
 
         // Add the Accept-ranges header to let the client know that we accept ranges in bytes
-        responseBuilder.header(HEADER_ACCEPT_RANGES, "bytes");
+        responseBuilder.header(HEADER_ACCEPT_RANGES, BYTES);
 
         return responseBuilder.build();
     }
@@ -473,18 +477,20 @@ public class RESTEndpoint implements RESTService {
                 long size = content.getSize();
 
                 // Check for Range header and skip appropriately
-                if (rangeHeaderExists(httpRequest) && (getRangeStart(httpRequest) > 0)) {
+                long rangeStart = getRangeStart(httpRequest);
 
-                    LOGGER.debug("rangeStart: {}", getRangeStart(httpRequest));
+                if (rangeStart > 0) {
+
+                    LOGGER.debug("rangeStart: {}", rangeStart);
 
                     responseBuilder = Response.status(Status.PARTIAL_CONTENT);
 
-                    content.getInputStream().skip(getRangeStart(httpRequest));
+                    content.getInputStream().skip(rangeStart);
 
                     responseBuilder.entity(content.getInputStream());
                     responseBuilder.type(content.getMimeTypeValue());
                 } else {
-                    if (getRangeStart(httpRequest) < 0) {
+                    if (rangeStart < 0) {
                         throw new UnsupportedQueryException("Invalid range value.");
                     } else {
                         responseBuilder = Response.ok(content.getInputStream(),
@@ -493,7 +499,7 @@ public class RESTEndpoint implements RESTService {
                 }
 
                 // Add the Accept-ranges header to let the client know that we accept ranges in bytes
-                responseBuilder.header(HEADER_ACCEPT_RANGES, "bytes");
+                responseBuilder.header(HEADER_ACCEPT_RANGES, BYTES);
 
                 String filename = null;
 
@@ -864,12 +870,12 @@ public class RESTEndpoint implements RESTService {
         String response = null;
 
         if (rangeHeader != null) {
-            if (rangeHeader.contains("bytes=")) {
-                String tempString = rangeHeader.substring("bytes=".length());
+            if (rangeHeader.contains(BYTES_EQUAL)) {
+                String tempString = rangeHeader.substring(BYTES_EQUAL.length());
                 if (tempString.contains("-")) {
-                    response = rangeHeader.substring("bytes=".length(), rangeHeader.lastIndexOf("-"));
+                    response = rangeHeader.substring(BYTES_EQUAL.length(), rangeHeader.lastIndexOf("-"));
                 } else {
-                    response = rangeHeader.substring("bytes=".length());
+                    response = rangeHeader.substring(BYTES_EQUAL.length());
                 }
             } else {
                 throw new UnsupportedQueryException("Invalid range header: " + rangeHeader);
