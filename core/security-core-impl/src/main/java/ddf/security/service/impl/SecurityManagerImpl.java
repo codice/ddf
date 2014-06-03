@@ -43,8 +43,6 @@ public class SecurityManagerImpl implements SecurityManager {
 
     private Collection<Realm> realms;
 
-    private SimplePrincipalCollection principals = new SimplePrincipalCollection();
-
     private Logger logger = LoggerFactory.getLogger(SecurityManagerImpl.class);
 
     /**
@@ -91,9 +89,8 @@ public class SecurityManagerImpl implements SecurityManager {
                     "Did not receive a security token back, cannot complete authentication.");
         }
         try {
-            updateWithToken(secToken);
             // create the subject that will be returned back to the user
-            return new SubjectImpl(principals, true,
+            return new SubjectImpl(createPrincipalFromToken(secToken), true,
                     new SimpleSession(UUID.randomUUID().toString()), internalManager);
         } catch (Exception e) {
             throw new SecurityServiceException("Could not create a new subject", e);
@@ -102,9 +99,8 @@ public class SecurityManagerImpl implements SecurityManager {
 
     private Subject getSubject(SecurityToken token) throws SecurityServiceException {
         try {
-            updateWithToken(token);
             // return the newly created subject
-            return new SubjectImpl(principals, true,
+            return new SubjectImpl(createPrincipalFromToken(token), true,
                     new SimpleSession(UUID.randomUUID().toString()), internalManager);
         } catch (Exception e) {
             throw new SecurityServiceException("Could not create a new subject", e);
@@ -119,8 +115,8 @@ public class SecurityManagerImpl implements SecurityManager {
      *            SecurityToken contain the principals describing the current user performing
      *            operations.
      */
-    private void updateWithToken(SecurityToken token) {
-        principals.clear();
+    private SimplePrincipalCollection createPrincipalFromToken(SecurityToken token) {
+        SimplePrincipalCollection principals = new SimplePrincipalCollection();
         for (Realm curRealm : realms) {
             try {
                 logger.debug("Configuring settings for realm name: {} type: {}",
@@ -136,5 +132,6 @@ public class SecurityManagerImpl implements SecurityManager {
                         curRealm.getName());
             }
         }
+        return principals;
     }
 }
