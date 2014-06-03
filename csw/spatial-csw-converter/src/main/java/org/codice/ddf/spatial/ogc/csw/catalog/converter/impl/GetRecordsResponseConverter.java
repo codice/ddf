@@ -275,19 +275,21 @@ public class GetRecordsResponseConverter implements Converter {
         }
 
         LOGGER.debug("Unmarshalled {} metacards", metacards.size());
-        int index = 1;
-        for (Metacard m : metacards) {
-            LOGGER.debug("metacard {}: ", index);
-            LOGGER.debug("    id = {}", m.getId());
-            LOGGER.debug("    title = {}", m.getTitle());
-
-            // Some CSW services return an empty bounding box, i.e., no lower
-            // and/or upper corner positions
-            Attribute boundingBoxAttr = m.getAttribute("BoundingBox");
-            if (boundingBoxAttr != null) {
-                LOGGER.debug("    bounding box = {}", boundingBoxAttr.getValue().toString());
+        if (LOGGER.isDebugEnabled()) {
+            int index = 1;
+            for (Metacard m : metacards) {
+                LOGGER.debug("metacard {}: ", index);
+                LOGGER.debug("    id = {}", m.getId());
+                LOGGER.debug("    title = {}", m.getTitle());
+    
+                // Some CSW services return an empty bounding box, i.e., no lower
+                // and/or upper corner positions
+                Attribute boundingBoxAttr = m.getAttribute("BoundingBox");
+                if (boundingBoxAttr != null) {
+                    LOGGER.debug("    bounding box = {}", boundingBoxAttr.getValue());
+                }
+                index++;
             }
-            index++;
         }
 
         return cswRecords;
