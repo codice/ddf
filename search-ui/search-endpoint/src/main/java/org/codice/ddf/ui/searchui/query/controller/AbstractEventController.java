@@ -110,7 +110,7 @@ public abstract class AbstractEventController implements EventHandler {
         try {
             subject = SecurityUtils.getSubject();
         } catch (Exception e) {
-            LOGGER.info("Couldn't grab user subject from Shiro.", e);
+            LOGGER.debug("Couldn't grab user subject from Shiro.", e);
         }
 
         String userId = getUserId(serverSession, subject);
@@ -157,7 +157,7 @@ public abstract class AbstractEventController implements EventHandler {
         try {
             subject = SecurityUtils.getSubject();
         } catch (Exception e) {
-            LOGGER.info("Couldn't grab user subject from Shiro.", e);
+            LOGGER.debug("Couldn't grab user subject from Shiro.", e);
         }
 
         String userId = getUserId(serverSession, subject);
