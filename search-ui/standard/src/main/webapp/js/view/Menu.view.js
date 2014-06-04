@@ -233,8 +233,8 @@ define([
                 type: "GET",
                 url: "/search",
                 async: false,
-                username: "guest",
-                password: "guest",
+                username: Menu.UserModel.guestUser,
+                password: Menu.UserModel.guestPass,
                 error: function() {
                     document.location.reload();
                 },
@@ -263,19 +263,19 @@ define([
                 var Welcome = Menu.Item.extend({
                     className: 'dropdown',
                     initialize: function() {
-                        if(Menu.UserModel && Menu.UserModel.get('user') && Menu.UserModel.get('user') !== 'guest'){
+                        if(Menu.UserModel && Menu.UserModel.get('user') && !Menu.UserModel.isGuestUser()){
                             this.model.set({name: Menu.UserModel.get('user')});
                         }
                         this.listenTo(Menu.UserModel, 'change', this.updateUser);
                     },
                     updateUser: function() {
-                        if(Menu.UserModel.get('user') && Menu.UserModel.get('user') !== 'guest') {
+                        if(Menu.UserModel.get('user') && !Menu.UserModel.isGuestUser()) {
                             this.model.set({name: Menu.UserModel.get('user')});
                         }
                         this.render();
                     },
                     onRender: function() {
-                        if(Menu.UserModel.get('user') && Menu.UserModel.get('user') !== 'guest') {
+                        if(Menu.UserModel.get('user') && !Menu.UserModel.isGuestUser()) {
                             this.children.show(new Menu.LogoutForm());
                         }
                         else {

@@ -18,7 +18,12 @@ define([
 
     var UserModel = Backbone.Model.extend({
         url: '/search/standard/user',
-        useAjaxSync: true
+        useAjaxSync: true,
+        guestUser: 'guest',
+        guestPass: 'guest',
+        isGuestUser: function() {
+            return this.get('user') === this.guestUser;
+        }
     });
 
     return UserModel;
