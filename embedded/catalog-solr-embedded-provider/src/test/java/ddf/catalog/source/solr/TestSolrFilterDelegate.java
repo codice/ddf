@@ -14,6 +14,10 @@
  **/
 package ddf.catalog.source.solr;
 
+import java.util.Calendar;
+import java.util.Date;
+import java.util.TimeZone;
+
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
@@ -150,4 +154,65 @@ public class TestSolrFilterDelegate {
     }
     END OMIT per DDF-314*/
 
+    @Test
+    public void testTemporalBefore() {
+        stub(mockResolver.getField("created", AttributeFormat.DATE, false)).toReturn("created_date");
+
+        String expectedQuery = " created_date:[ * TO 1995-11-24T23:59:56.765Z } ";
+        SolrQuery temporalQuery = toTest.before(Metacard.CREATED, getCannedTime());
+        assertThat(temporalQuery.getQuery(), is(expectedQuery));
+    }
+
+    @Test
+    public void testTemporalAfter() {
+        stub(mockResolver.getField("created", AttributeFormat.DATE, false)).toReturn("created_date");
+
+        String expectedQuery = " created_date:{ 1995-11-24T23:59:56.765Z TO * ] ";
+        SolrQuery temporalQuery = toTest.after(Metacard.CREATED, getCannedTime());
+        assertThat(temporalQuery.getQuery(), is(expectedQuery));
+    }
+
+    @Test
+    public void testDatePropertyGreaterThan() {
+        stub(mockResolver.getField("created", AttributeFormat.DATE, false)).toReturn("created_date");
+
+        String expectedQuery = " created_date:{ 1995-11-24T23:59:56.765Z TO * ] ";
+        SolrQuery temporalQuery = toTest.propertyIsGreaterThan(Metacard.CREATED, getCannedTime());
+        assertThat(temporalQuery.getQuery(), is(expectedQuery));
+    }
+
+    @Test
+    public void testDatePropertyGreaterThanOrEqualTo() {
+        stub(mockResolver.getField("created", AttributeFormat.DATE, false)).toReturn("created_date");
+
+        String expectedQuery = " created_date:[ 1995-11-24T23:59:56.765Z TO * ] ";
+        SolrQuery temporalQuery = toTest.propertyIsGreaterThanOrEqualTo(Metacard.CREATED, getCannedTime());
+        assertThat(temporalQuery.getQuery(), is(expectedQuery));
+    }
+
+    @Test
+    public void testDatePropertyLessThan() {
+        stub(mockResolver.getField("created", AttributeFormat.DATE, false)).toReturn("created_date");
+
+        String expectedQuery = " created_date:[ * TO 1995-11-24T23:59:56.765Z } ";
+        SolrQuery temporalQuery = toTest.propertyIsLessThan(Metacard.CREATED, getCannedTime());
+        assertThat(temporalQuery.getQuery(), is(expectedQuery));
+    }
+
+    @Test
+    public void testDatePropertyLessThanOrEqualTo() {
+        stub(mockResolver.getField("created", AttributeFormat.DATE, false)).toReturn("created_date");
+
+        String expectedQuery = " created_date:[ * TO 1995-11-24T23:59:56.765Z ] ";
+        SolrQuery temporalQuery = toTest.propertyIsLessThanOrEqualTo(Metacard.CREATED, getCannedTime());
+        assertThat(temporalQuery.getQuery(), is(expectedQuery));
+    }
+
+    private Date getCannedTime() {
+        Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+        calendar.clear();
+        calendar.set(1995, Calendar.NOVEMBER, 24, 23, 59, 56);
+        calendar.set(Calendar.MILLISECOND, 765);
+        return calendar.getTime();
+    }
 }
