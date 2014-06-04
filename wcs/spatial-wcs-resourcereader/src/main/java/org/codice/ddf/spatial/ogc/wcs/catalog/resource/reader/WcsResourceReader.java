@@ -83,9 +83,9 @@ public class WcsResourceReader {
 
     private static final String FILENAME_STR = "filename=";
 
-    private WcsConfiguration wcsConfiguration;
+    protected WcsConfiguration wcsConfiguration;
 
-    private RemoteWcs remoteWcs;
+    protected RemoteWcs remoteWcs;
 
     /** Mapper for file extensions-to-mime types (and vice versa) */
     private MimeTypeMapper mimeTypeMapper;
@@ -139,7 +139,7 @@ public class WcsResourceReader {
         }
     }
 
-    private void configureWcs() {
+    protected void configureWcs() {
         try {
             if (remoteWcs != null) {
                 GetCapabilities request = new GetCapabilities();

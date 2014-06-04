@@ -75,7 +75,7 @@ public class RemoteWcs implements Wcs {
         wcs = bean.create(Wcs.class);
     }
 
-    private JAXRSClientFactoryBean createJAXRSClientBean(WcsConfiguration wcsConfiguration) {
+    protected JAXRSClientFactoryBean createJAXRSClientBean(WcsConfiguration wcsConfiguration) {
 
         JAXRSClientFactoryBean bean = new JAXRSClientFactoryBean();
         bean.setServiceClass(Wcs.class);
