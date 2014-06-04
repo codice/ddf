@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.shiro.SecurityUtils;
 import org.codice.ddf.activities.ActivityEvent;
 import org.codice.ddf.activities.ActivityEvent.ActivityStatus;
 import org.codice.ddf.notifications.Notification;
@@ -87,14 +88,22 @@ public class DownloadsStatusEventPublisher {
         
         Long sysTimeMillis = System.currentTimeMillis();
         
+        // Add user information to the request properties.
+        String user;
+        try {
+            org.apache.shiro.subject.Subject shiroSubject = SecurityUtils.getSubject();
+            user = shiroSubject.getPrincipal().toString();
+        } catch (Exception e) {
+            logger.debug("Could not get user from threadcontext, using session id.");
+            user = getProperty(resourceResponse, ActivityEvent.USER_ID_KEY);
+        }
+        
         if(notificationEnabled) {
             Notification notification = new Notification(APPLICATION_NAME,
                     resourceResponse.getResource().getName(),
                     generateMessage(status, resourceResponse.getResource().getName(),
                             bytes, sysTimeMillis, detail),
-                    sysTimeMillis,
-                    getProperty(resourceResponse,
-                            Notification.NOTIFICATION_KEY_USER_ID));
+                    sysTimeMillis, user);
 
             notification.put(STATUS, status.name().toLowerCase());
             notification.put(BYTES, String.valueOf(bytes));
@@ -144,7 +153,7 @@ public class DownloadsStatusEventPublisher {
             }
 
             ActivityEvent eventProperties = new ActivityEvent(metacard.getId(), new Date(), "Product Retrieval", resourceResponse.getResource().getName(), generateMessage(status, resourceResponse.getResource().getName(), 
-                    bytes, sysTimeMillis, detail), progress, operations, getProperty(resourceResponse, ActivityEvent.USER_ID_KEY), type);
+                    bytes, sysTimeMillis, detail), progress, operations, user, type);
             Event event = new Event(ActivityEvent.EVENT_TOPIC_BROADCAST, eventProperties);
             eventAdmin.postEvent(event);
         }

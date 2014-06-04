@@ -51,6 +51,10 @@
             <artifactId>catalog-core-metricsplugin</artifactId>
             <version>${project.version}</version>
 		</dependency>
+               <dependency>
+            <groupId>org.apache.shiro</groupId>
+            <artifactId>shiro-core</artifactId>
+        </dependency>
         <dependency>
             <groupId>ddf.catalog.core</groupId>
             <artifactId>ddf-pubsub</artifactId>
