@@ -41,28 +41,35 @@ import com.hazelcast.core.MapLoader;
 import com.hazelcast.core.MapStore;
 
 /**
- * Hazelcast persistence provider implementation of @MapLoader and @MapStore to serialize 
- * and persist Java objects stored in Hazelcast cache to disk.
- *
+ * Hazelcast persistence provider implementation of @MapLoader and @MapStore to serialize and
+ * persist Java objects stored in Hazelcast cache to disk.
+ * 
  */
-public class FileSystemPersistenceProvider implements MapLoader<String, Object>, MapStore<String, Object> {
-    
-    private static final Logger LOGGER = LoggerFactory.getLogger(FileSystemPersistenceProvider.class);
-    
+public class FileSystemPersistenceProvider implements MapLoader<String, Object>,
+        MapStore<String, Object> {
+
+    private static final Logger LOGGER = LoggerFactory
+            .getLogger(FileSystemPersistenceProvider.class);
+
+    private static final String PERSISTED_FILE_SUFFIX = ".ser";
+
     private String mapName = "default";
 
-    public FileSystemPersistenceProvider() {}
+    public FileSystemPersistenceProvider() {
+    }
 
     public FileSystemPersistenceProvider(String mapName) {
         LOGGER.debug("INSIDE: FileSystemPersistenceProvider constructor,  mapName = {}", mapName);
         this.mapName = mapName;
         File dir = new File(getPersistencePath());
-        if(!dir.exists()) dir.mkdir();
+        if (!dir.exists()) {
+            dir.mkdir();
+        }
     }
 
     /**
-     * Retrieve root directory of all persisted Hazelcast objects for this cache.
-     * The path is relative to containing bundle, i.e., DDF install directory.
+     * Retrieve root directory of all persisted Hazelcast objects for this cache. The path is
+     * relative to containing bundle, i.e., DDF install directory.
      * 
      * @return the path to root directory where serialized objects will be persisted
      */
@@ -85,10 +92,10 @@ public class FileSystemPersistenceProvider implements MapLoader<String, Object>,
         ObjectOutput output = null;
         try {
             File dir = new File(getMapStorePath());
-            if(!dir.exists()) {
+            if (!dir.exists()) {
                 dir.mkdir();
             }
-            file = new FileOutputStream(getMapStorePath() + key + ".ser");
+            file = new FileOutputStream(getMapStorePath() + key + PERSISTED_FILE_SUFFIX);
             OutputStream buffer = new BufferedOutputStream(file);
             output = new ObjectOutputStream(buffer);
             output.writeObject(value);
@@ -107,22 +114,22 @@ public class FileSystemPersistenceProvider implements MapLoader<String, Object>,
 
     @Override
     public void storeAll(Map<String, Object> keyValueMap) {
-        for(String key : keyValueMap.keySet()) {
+        for (String key : keyValueMap.keySet()) {
             store(key, keyValueMap.get(key));
         }
     }
 
     @Override
     public void delete(String key) {
-        File file = new File(getMapStorePath() + key + ".ser");
-        if(file.exists()) {
+        File file = new File(getMapStorePath() + key + PERSISTED_FILE_SUFFIX);
+        if (file.exists()) {
             file.delete();
         }
     }
 
     @Override
     public void deleteAll(Collection<String> keys) {
-        for(String key : keys) {
+        for (String key : keys) {
             delete(key);
         }
     }
@@ -136,15 +143,16 @@ public class FileSystemPersistenceProvider implements MapLoader<String, Object>,
     }
 
     Object loadFromPersistence(String key) {
-        File file = new File(getMapStorePath() + key + ".ser");
-        if(!file.exists()) return null;
+        File file = new File(getMapStorePath() + key + PERSISTED_FILE_SUFFIX);
+        if (!file.exists()) {
+            return null;
+        }
         InputStream inputStream = null;
         try {
-            inputStream = new FileInputStream(getMapStorePath() + key + ".ser");
+            inputStream = new FileInputStream(getMapStorePath() + key + PERSISTED_FILE_SUFFIX);
             InputStream buffer = new BufferedInputStream(inputStream);
             ObjectInput input = new ObjectInputStream(buffer);
-            Object obj = (Object) input.readObject();
-            return obj;
+            return (Object) input.readObject();
         } catch (IOException e) {
             LOGGER.debug("IOException", e);
         } catch (ClassNotFoundException e) {
@@ -159,7 +167,7 @@ public class FileSystemPersistenceProvider implements MapLoader<String, Object>,
     public Map<String, Object> loadAll(Collection<String> keys) {
         Map<String, Object> values = new HashMap<String, Object>();
 
-        for(String key : keys) {
+        for (String key : keys) {
             Object obj = loadFromPersistence(key);
             if (obj != null) {
                 values.put(key, obj);
@@ -169,11 +177,10 @@ public class FileSystemPersistenceProvider implements MapLoader<String, Object>,
     }
 
     private FilenameFilter getFilenameFilter() {
-        FilenameFilter filter = new FilenameFilter()
-        {
+        FilenameFilter filter = new FilenameFilter() {
             @Override
             public boolean accept(File file, String name) {
-                return name.toLowerCase().endsWith(".ser");
+                return name.toLowerCase().endsWith(PERSISTED_FILE_SUFFIX);
             }
         };
         return filter;
@@ -184,11 +191,12 @@ public class FileSystemPersistenceProvider implements MapLoader<String, Object>,
         Set<String> keys = new HashSet<String>();
 
         File[] files = new File(getMapStorePath()).listFiles(getFilenameFilter());
-        if (files == null)
+        if (files == null) {
             return keys;
+        }
 
         for (int i = 0; i < files.length; i++) {
-            keys.add(files[i].getName().replaceFirst(".ser", ""));
+            keys.add(files[i].getName().replaceFirst(PERSISTED_FILE_SUFFIX, ""));
         }
         return keys;
     }
