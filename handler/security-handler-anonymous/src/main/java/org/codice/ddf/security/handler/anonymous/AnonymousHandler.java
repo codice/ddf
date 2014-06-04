@@ -29,10 +29,14 @@ import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
-import javax.xml.bind.JAXB;
+import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
+import javax.xml.namespace.QName;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.security.Principal;
 
 /**
  * Handler that allows anonymous user access via a guest user account. The guest/guest account
@@ -46,9 +50,25 @@ public class AnonymousHandler implements AuthenticationHandler {
      */
     public static final String AUTH_TYPE = "ANON";
 
+    private Marshaller marshaller = null;
+
     @Override
     public String getAuthenticationType() {
         return AUTH_TYPE;
+    }
+
+    /**
+     * Extracts a Principal from a UsernameToken
+     * @param result
+     * @return Principal
+     */
+    private Principal getPrincipal(final UsernameTokenType result) {
+        return new Principal() {
+            private String username = result.getUsername().getValue();
+            @Override public String getName() {
+                return username;
+            }
+        };
     }
 
     @Override
@@ -70,13 +90,36 @@ public class AnonymousHandler implements AuthenticationHandler {
         usernameTokenType.getAny().add(passwordType);
 
         Writer writer = new StringWriter();
-        JAXB.marshal(usernameTokenType, writer);
+
+        JAXBContext context;
+        if (marshaller == null) {
+            try {
+                context = JAXBContext.newInstance(UsernameTokenType.class);
+                marshaller = context.createMarshaller();
+                marshaller.setProperty(Marshaller.JAXB_FRAGMENT, Boolean.TRUE);
+            } catch (JAXBException e) {
+                logger.error("Exception while creating UsernameToken marshaller.", e);
+            }
+        }
+
+        JAXBElement<UsernameTokenType> usernameTokenElement = new JAXBElement<UsernameTokenType>(
+                new QName(
+                        "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd",
+                        "UsernameToken"), UsernameTokenType.class,
+                usernameTokenType);
+
+        try {
+            marshaller.marshal(usernameTokenElement, writer);
+        } catch (JAXBException e) {
+            logger.error("Unable to create username token for anonymous user.", e);
+        }
 
         String usernameSecurityToken = writer.toString();
         logger.debug("Security token returned: {}", usernameSecurityToken);
 
         result.setAuthCredentials(usernameSecurityToken);
         result.setStatus(HandlerResult.Status.COMPLETED);
+        result.setPrincipal(getPrincipal(usernameTokenType));
         return result;
     }
 

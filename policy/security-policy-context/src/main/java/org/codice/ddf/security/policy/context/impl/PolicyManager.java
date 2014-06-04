@@ -122,7 +122,11 @@ public class PolicyManager implements ContextPolicyManager {
             Map<String, List<String>> contextToAuth = new HashMap<String, List<String>>();
             Map<String, List<ContextAttributeMapping>> contextToAttr = new HashMap<String, List<ContextAttributeMapping>>();
 
-            for(String auth : authContexts) {
+            List<String> authContextList = expandStrings(authContexts);
+
+            List<String> attrContextList = expandStrings(attrContexts);
+
+            for(String auth : authContextList) {
                 String[] parts = auth.split("=");
                 if(parts.length == 2) {
                     String[] auths = parts[1].split("\\|");
@@ -134,7 +138,7 @@ public class PolicyManager implements ContextPolicyManager {
                 }
             }
 
-            for(String attr : attrContexts) {
+            for(String attr : attrContextList) {
                 String context = attr.substring(0, attr.indexOf("="));
                 String value = attr.substring(attr.indexOf("=")+1);
                 if(StringUtils.isNotEmpty(context) && value != null) {
@@ -169,10 +173,27 @@ public class PolicyManager implements ContextPolicyManager {
         }
     }
 
+    private List<String> expandStrings(String[] itemArr) {
+        return expandStrings(Arrays.asList(itemArr));
+    }
+
+    private List<String> expandStrings(List<String> itemArr) {
+        List<String> itemList = new ArrayList<String>();
+        for(String item : itemArr) {
+            if(item.contains(",")) {
+                String[] items = item.split(",");
+                itemList.addAll(Arrays.asList(items));
+            } else {
+                itemList.add(item);
+            }
+        }
+        return itemList;
+    }
+
     public void setWhiteListContexts(List<String> contexts) {
         if(contexts != null && !contexts.isEmpty()) {
             whiteListContexts.clear();
-            whiteListContexts.addAll(contexts);
+            whiteListContexts.addAll(expandStrings(contexts));
         }
     }
 

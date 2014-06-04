@@ -106,7 +106,19 @@ public class PolicyManagerTest {
         properties.put("authenticationTypes", "/=SAML|BASIC,/search=SAML|BASIC|ANON,/admin=SAML|BASIC,/foo=BASIC,/blah=ANON,/bleh=ANON,/unprotected=,/unprotected2=");
         properties.put("requiredAttributes", "/={},/blah=,/search={role=user;control=foo|bar},/admin={role=admin|supervisor}");
         manager.setPolicies(properties);
+        testAllPolicies();
+    }
 
+    @Test
+    public void testMangledConfiguration() {
+        Map<String, Object> properties = new HashMap<String, Object>();
+        properties.put("authenticationTypes", new String[] {"/=SAML|BASIC,/search=SAML|BASIC|ANON,/admin=SAML|BASIC,/foo=BASIC,/blah=ANON", "/unprotected=,/unprotected2=", "/bleh=ANON"});
+        properties.put("requiredAttributes", new String[] {"/={},/blah=,/search={role=user;control=foo|bar}", "/admin={role=admin|supervisor}"});
+        manager.setPolicies(properties);
+        testAllPolicies();
+    }
+
+    private void testAllPolicies() {
         //check search policy
         ContextPolicy policy = manager.getContextPolicy("/search");
         Assert.assertEquals("/search", policy.getContextPath());
