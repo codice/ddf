@@ -86,8 +86,14 @@
         <argument ref="appService" />
     </bean>
 
-    <bean id="allApplicationsCompleter" class="org.codice.ddf.admin.application.service.impl.AllApplicationsCompleter"/>
-    <bean id="activeApplicationsCompleter" class="org.codice.ddf.admin.application.service.impl.ActiveApplicationsCompleter"/>
-    <bean id="notActiveApplicationsCompleter" class="org.codice.ddf.admin.application.service.impl.NotActiveApplicationsCompleter"/>
+    <bean id="allApplicationsCompleter" class="org.codice.ddf.admin.application.service.impl.AllApplicationsCompleter">
+      <argument ref="appService" />
+    </bean>
+    <bean id="activeApplicationsCompleter" class="org.codice.ddf.admin.application.service.impl.ActiveApplicationsCompleter">
+      <argument ref="appService" />
+    </bean>
+    <bean id="notActiveApplicationsCompleter" class="org.codice.ddf.admin.application.service.impl.NotActiveApplicationsCompleter">
+      <argument ref="appService" />
+    </bean>
 
 </blueprint>

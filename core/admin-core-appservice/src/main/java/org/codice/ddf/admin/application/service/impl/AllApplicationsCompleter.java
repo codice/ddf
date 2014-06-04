@@ -33,6 +33,10 @@ import org.codice.ddf.admin.application.service.ApplicationService;
 public class AllApplicationsCompleter extends AbstractApplicationsCompleter implements Completer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AllApplicationsCompleter.class);
+    
+    public AllApplicationsCompleter(ApplicationService applicationService) {
+        super(applicationService);
+    }
 
     /**
      * @param buffer the beginning string typed by the user
@@ -40,7 +44,6 @@ public class AllApplicationsCompleter extends AbstractApplicationsCompleter impl
      * @param candidates the list of completions proposed to the user
      */
     public int complete(String buffer, int cursor, List candidates) {
-        ApplicationService applicationService = getApplicationService();
         StringsCompleter delegate = new StringsCompleter();
         if (applicationService != null) {
             Set<Application> applications = applicationService.getApplications();

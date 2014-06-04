@@ -34,6 +34,10 @@ import org.codice.ddf.admin.application.service.ApplicationStatus.ApplicationSta
 public class ActiveApplicationsCompleter extends AbstractApplicationsCompleter implements Completer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ActiveApplicationsCompleter.class);
+    
+    public ActiveApplicationsCompleter(ApplicationService applicationService) {
+        super(applicationService);
+    }
 
     /**
      * @param buffer the beginning string typed by the user
@@ -41,7 +45,6 @@ public class ActiveApplicationsCompleter extends AbstractApplicationsCompleter i
      * @param candidates the list of completions proposed to the user
      */
     public int complete(String buffer, int cursor, List candidates) {
-        ApplicationService applicationService = getApplicationService();
 
         StringsCompleter delegate = new StringsCompleter();
         if (applicationService != null) {
