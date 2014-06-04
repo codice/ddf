@@ -26,10 +26,6 @@
   
     <dependencies>
         <dependency>
-            <groupId>ddf.cache.core</groupId>
-            <artifactId>cache-core-api</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.apache.karaf.shell</groupId>
             <artifactId>org.apache.karaf.shell.console</artifactId>
             <version>2.3.3</version>
@@ -53,11 +49,6 @@
             <artifactId>platform-core-notifications</artifactId>
             <version>${project.version}</version>
         </dependency> 
-        <dependency>
-            <groupId>org.codice.ddf</groupId>
-            <artifactId>notifications</artifactId>
-            <version>1.0.0</version>
-        </dependency>
     </dependencies>
     
     <build>
@@ -68,15 +59,10 @@
                 <extensions>true</extensions>
                 <configuration>
                     <instructions>
-                        <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName> 
-                        <Embed-Dependency>
-                            notifications
-                        </Embed-Dependency>
-                        <Embed-Transitive>true</Embed-Transitive>
+                        <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Export-Package />
                         <Import-Package>
-                            ddf.cache,
-                            org.codice.ddf.notifications,
+                            org.codice.ddf.notifications.store,
                             org.apache.felix.service.command,
                             org.apache.felix.gogo.commands,
                             org.apache.karaf.shell.console,

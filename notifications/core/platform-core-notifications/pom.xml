@@ -30,11 +30,6 @@
             <artifactId>cache-core-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.codice.ddf</groupId>
-            <artifactId>notifications</artifactId>
-            <version>1.0.0</version>
-        </dependency>
-        <dependency>
             <groupId>ddf.notifications.core</groupId>
             <artifactId>platform-notifications-core-api</artifactId>
             <version>${project.version}</version>
@@ -42,6 +37,10 @@
         <dependency>
             <groupId>commons-lang</groupId>
             <artifactId>commons-lang</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -60,6 +59,11 @@
             <groupId>org.osgi</groupId>
             <artifactId>org.osgi.compendium</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.hazelcast</groupId>
+            <artifactId>hazelcast</artifactId>
+            <version>3.2.1</version>        
+        </dependency>
     </dependencies>
     
     <build>
@@ -71,15 +75,10 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Embed-Dependency>
-                            notifications
+                            hazelcast
                         </Embed-Dependency>
                         <Embed-Transitive>true</Embed-Transitive>
-                        <Private-Package>
-                            org.codice.ddf.notifications.impl
-                        </Private-Package>
-                        <Export-Package>
-                            org.codice.ddf.notifications
-                        </Export-Package>
+                        <Export-Package />
                     </instructions>
                 </configuration>
             </plugin>

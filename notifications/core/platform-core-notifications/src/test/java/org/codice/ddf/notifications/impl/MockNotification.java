@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  * 
  **/
-package org.codice.ddf.notifications;
+package org.codice.ddf.notifications.impl;
 
 import java.util.HashMap;
 import java.util.UUID;
@@ -22,7 +22,7 @@ import java.util.UUID;
  * and includes the unique ID generated as the cache key for the notification.
  *
  */
-public class PersistentNotification extends HashMap<String, String> {
+public class MockNotification extends HashMap<String, String> {
     private static final long serialVersionUID = -2531844838114289516L;
     
     public static final String NOTIFICATION_KEY_UUID = "id";
@@ -48,7 +48,7 @@ public class PersistentNotification extends HashMap<String, String> {
      *                  the point at which the event triggering this
      *                  {@code Notification} was generated.
      */
-    public PersistentNotification(String application, String title, String message, 
+    public MockNotification(String application, String title, String message, 
             Long timestamp) {
         this(application, title, message, String.valueOf(timestamp), null);
     }
@@ -69,7 +69,7 @@ public class PersistentNotification extends HashMap<String, String> {
      *                  which the event triggering this {@code Notification} was 
      *                  generated.
      */
-    public PersistentNotification(String application, String title, String message, 
+    public MockNotification(String application, String title, String message, 
             String timestamp) {
         this(application, title, message, timestamp, null);
     }
@@ -93,7 +93,7 @@ public class PersistentNotification extends HashMap<String, String> {
      * @param userId The id of the user to which this {@code Notification}
      *               should be sent.
      */
-    public PersistentNotification(String application, String title, String message, 
+    public MockNotification(String application, String title, String message, 
             Long timestamp, String userId) {
        this(application, title, message, String.valueOf(timestamp), userId);
     }
@@ -117,7 +117,7 @@ public class PersistentNotification extends HashMap<String, String> {
      * @param userId The id of the user to which this {@code Notification}
      *               should be sent.
      */
-    public PersistentNotification(String application, String title, String message, 
+    public MockNotification(String application, String title, String message, 
             String timestamp, String userId) {
         setId(UUID.randomUUID().toString().replaceAll("-", ""));
         setApplication(application);

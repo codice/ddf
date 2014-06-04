@@ -78,13 +78,6 @@
             <version>0.9.24</version>
             <scope>test</scope>
         </dependency>
-        
-        <dependency>
-            <groupId>org.codice.ddf</groupId>
-            <artifactId>notifications</artifactId>
-            <version>1.0.0</version>
-            <scope>test</scope>
-        </dependency>
     </dependencies>
 
     <build>
@@ -96,9 +89,9 @@
                <configuration>
                    <instructions>
                        <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                       <Embed-Dependency>hazelcast,notifications;scope=test</Embed-Dependency>
-                       <Import-Package>	
-                            org.codice.ddf.notifications,					
+                       <Embed-Dependency>hazelcast</Embed-Dependency>
+                       <Embed-Transitive>true</Embed-Transitive>
+                       <Import-Package>					
 							sun.misc;resolution:=optional,
 							*
 			           </Import-Package>

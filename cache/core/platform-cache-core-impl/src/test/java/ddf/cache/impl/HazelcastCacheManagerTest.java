@@ -29,7 +29,6 @@ import java.util.Set;
 import java.util.UUID;
 
 import org.apache.commons.io.FileUtils;
-import org.codice.ddf.notifications.Notification;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -130,7 +129,7 @@ public class HazelcastCacheManagerTest {
             // Create new Cache Manager that will be configured based on the XML config file
             cacheMgt = new HazelcastCacheManager();
             Cache cache = cacheMgt.getCache(PERSISTENT_CACHE_NAME);
-            Notification notification = new Notification("app", "title", "message", new Date().getTime(), "user1");
+            MockNotification notification = new MockNotification("app", "title", "message", new Date().getTime(), "user1");
             String activityId = UUID.randomUUID().toString().replaceAll("-", "");
             cache.put(activityId, notification);
             
@@ -141,7 +140,7 @@ public class HazelcastCacheManagerTest {
             String[] persistedNotifications = mapStoreDir.list();
             assertTrue(persistedNotifications.length == 1);
             
-            Notification n = (Notification) provider.loadFromPersistence(activityId);
+            MockNotification n = (MockNotification) provider.loadFromPersistence(activityId);
             LOGGER.info("notification = {}", n);
             assertEquals(n.getApplication(), "app");
             assertEquals(n.getTitle(), "title");
@@ -180,7 +179,7 @@ public class HazelcastCacheManagerTest {
                     String activityId = UUID.randomUUID().toString().replaceAll("-", "");
                     String title = "title-" + j;
                     String message = "message-" + j;
-                    cache.put(activityId, new Notification(app, title, message, new Date().getTime(), userIds[i]));
+                    cache.put(activityId, new MockNotification(app, title, message, new Date().getTime(), userIds[i]));
                 }
             }
             
@@ -195,44 +194,44 @@ public class HazelcastCacheManagerTest {
             assertTrue(persistedNotifications.length == (userIds.length * numNotificationsPerUser));
             
             // Query for specific user's notifications and verify only they are returned
-            Set<Notification> notifications = (Set<Notification>) cache.query("userId = 'user2'");
+            Set<MockNotification> notifications = (Set<MockNotification>) cache.query("userId = 'user2'");
             assertNotNull(notifications);
             LOGGER.info("notifications.size() = " + notifications.size());
             assertTrue(notifications.size() == numNotificationsPerUser);
-            for (Notification n : notifications) {
+            for (MockNotification n : notifications) {
                 LOGGER.info("notification = {}", n);
                 assertTrue(n.getUserId().equals("user2"));
                 assertTrue(n.getApplication().equals("app-2"));
             }
             
             // Query with AND syntax
-            notifications = (Set<Notification>) cache.query("userId = 'user2' AND title='title-3'");
+            notifications = (Set<MockNotification>) cache.query("userId = 'user2' AND title='title-3'");
             assertNotNull(notifications);
             LOGGER.info("notifications.size() = " + notifications.size());
             assertTrue(notifications.size() == 1);
-            for (Notification n : notifications) {
+            for (MockNotification n : notifications) {
                 LOGGER.info("notification = {}", n);
                 assertTrue(n.getUserId().equals("user2"));
                 assertTrue(n.getTitle().equals("title-3"));
             }
             
             // Query with OR syntax
-            notifications = (Set<Notification>) cache.query("userId = 'user2' OR userId = 'user3'");
+            notifications = (Set<MockNotification>) cache.query("userId = 'user2' OR userId = 'user3'");
             assertNotNull(notifications);
             LOGGER.info("notifications.size() = " + notifications.size());
             // 2 users (user2 and user3)
             assertTrue(notifications.size() == (2 * numNotificationsPerUser));
-            for (Notification n : notifications) {
+            for (MockNotification n : notifications) {
                 LOGGER.info("notification = {}", n);
                 assertThat(n.getUserId(), isOneOf("user2", "user3"));
             }
             
             // Get all notifications
-            notifications = (Set<Notification>) cache.query("userId LIKE '%'");
+            notifications = (Set<MockNotification>) cache.query("userId LIKE '%'");
             assertNotNull(notifications);
             LOGGER.info("notifications.size() = " + notifications.size());
             assertTrue(notifications.size() == (userIds.length * numNotificationsPerUser));
-            for (Notification n : notifications) {
+            for (MockNotification n : notifications) {
                 LOGGER.info("notification = {}", n);
             }
         } finally {

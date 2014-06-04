@@ -37,7 +37,7 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Export-Package>
-                            org.codice.ddf.notifications.service
+                            org.codice.ddf.notifications.store
                         </Export-Package>
                     </instructions>
                 </configuration>

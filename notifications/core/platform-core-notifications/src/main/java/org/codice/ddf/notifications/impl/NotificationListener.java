@@ -14,12 +14,9 @@
  **/
 package org.codice.ddf.notifications.impl;
 
-import java.util.UUID;
-
 import org.apache.commons.lang.StringUtils;
-import org.codice.ddf.notifications.Notification;
-import org.codice.ddf.notifications.NotificationStore;
-import org.codice.ddf.notifications.PersistentNotification;
+import org.codice.ddf.notifications.store.NotificationStore;
+import org.codice.ddf.notifications.store.PersistentNotification;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
 import org.slf4j.Logger;
@@ -40,19 +37,18 @@ public class NotificationListener implements EventHandler {
     public void handleEvent(Event event) throws IllegalArgumentException {
         LOGGER.debug("Received notification on topic {}", event.getTopic());
 
-        String application = (String) event.getProperty(Notification.NOTIFICATION_KEY_APPLICATION);
-        String message = (String) event.getProperty(Notification.NOTIFICATION_KEY_MESSAGE);
-        String timestamp = (String) event.getProperty(Notification.NOTIFICATION_KEY_TIMESTAMP);
-        String title = (String) event.getProperty(Notification.NOTIFICATION_KEY_TITLE);
-        String userId = (String) event.getProperty(Notification.NOTIFICATION_KEY_USER_ID);
+        String application = (String) event.getProperty(PersistentNotification.NOTIFICATION_KEY_APPLICATION);
+        String message = (String) event.getProperty(PersistentNotification.NOTIFICATION_KEY_MESSAGE);
+        String timestamp = (String) event.getProperty(PersistentNotification.NOTIFICATION_KEY_TIMESTAMP);
+        String title = (String) event.getProperty(PersistentNotification.NOTIFICATION_KEY_TITLE);
+        String userId = (String) event.getProperty(PersistentNotification.NOTIFICATION_KEY_USER_ID);
         if (StringUtils.isBlank(userId)) {
-            throw new IllegalArgumentException("Event \"" + Notification.NOTIFICATION_KEY_USER_ID
+            throw new IllegalArgumentException("Event \"" + PersistentNotification.NOTIFICATION_KEY_USER_ID
                     + "\" property is null or empty");
         }
         
-        //TODO: Dp we need to get extra properties out of event for Notification, i.e., STATUS and BYTES?
+        //TODO: Do we need to get extra properties out of event for Notification, i.e., STATUS and BYTES?
         
-        //Notification notification = new Notification(application, title, message, timestamp, userId);
         PersistentNotification notification = new PersistentNotification(application, title, message, timestamp, userId);
         notificationStore.putNotification(notification);
     }

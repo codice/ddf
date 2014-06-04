@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  * 
  **/
-package org.codice.ddf.notifications;
+package org.codice.ddf.notifications.store;
 
 import java.util.List;
 import java.util.Map;

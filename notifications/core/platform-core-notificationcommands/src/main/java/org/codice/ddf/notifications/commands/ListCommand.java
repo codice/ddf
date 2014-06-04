@@ -24,9 +24,8 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
-import org.codice.ddf.notifications.Notification;
-import org.codice.ddf.notifications.NotificationStore;
-import org.codice.ddf.notifications.PersistentNotification;
+import org.codice.ddf.notifications.store.NotificationStore;
+import org.codice.ddf.notifications.store.PersistentNotification;
 import org.fusesource.jansi.Ansi;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
@@ -42,7 +41,7 @@ public class ListCommand extends OsgiCommandSupport {
     
     private static final Logger LOGGER = LoggerFactory.getLogger(ListCommand.class);
     
-    public static final String SERVICE_PID = "org.codice.ddf.notifications.NotificationStore";
+    public static final String SERVICE_PID = "org.codice.ddf.notifications.store.NotificationStore";
     
     public static final DateTimeFormatter DATETIME_FORMATTER = DateTimeFormat
             .forPattern("yyyy-MM-dd'T'HH:mm:ssZZ");
@@ -54,8 +53,6 @@ public class ListCommand extends OsgiCommandSupport {
     static final String RED_CONSOLE_COLOR = Ansi.ansi().fg(Ansi.Color.RED).toString();
 
     static final String CYAN_CONSOLE_COLOR = Ansi.ansi().fg(Ansi.Color.CYAN).toString();
-    
-    private static final String ID = "ID ";
     
     private static final String USER_ID = "User ID ";
     
@@ -93,7 +90,7 @@ public class ListCommand extends OsgiCommandSupport {
             console.print(DEFAULT_CONSOLE_COLOR);
 
             for (Map<String, String> notification : notifications) {
-                Long timestamp = Long.valueOf(notification.get(Notification.NOTIFICATION_KEY_TIMESTAMP));
+                Long timestamp = Long.valueOf(notification.get(PersistentNotification.NOTIFICATION_KEY_TIMESTAMP));
                 String dateTime = new DateTime(new Date(timestamp)).toString(DATETIME_FORMATTER);
                 LOGGER.debug("id = {}, userId = {}, timestamp = {}, application = {},  title = {},  message = {}",
                         notification.get(PersistentNotification.NOTIFICATION_KEY_UUID),
