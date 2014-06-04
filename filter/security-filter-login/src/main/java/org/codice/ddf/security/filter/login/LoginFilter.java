@@ -62,6 +62,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Properties;
 import java.util.UUID;
+import java.util.concurrent.Callable;
 
 /**
  * Servlet filter that exchanges all incoming tokens for a SAML assertion via an
@@ -132,7 +133,17 @@ public class LoginFilter implements Filter {
             Subject subject = validateRequest(httpRequest, httpResponse);
             if (subject != null) {
                 httpRequest.setAttribute(SecurityConstants.SECURITY_SUBJECT, subject);
-                chain.doFilter(request, response);
+                LOGGER.debug("Now performing request as user {}", subject.getPrincipal());
+                subject.execute(new Callable<Object>() {
+
+                    @Override
+                    public Object call() throws Exception {
+                        chain.doFilter(request, response);
+                        return null;
+                    }
+                    
+                });
+                
             } else {
                 LOGGER.debug("Could not attach subject to http request.");
             }
