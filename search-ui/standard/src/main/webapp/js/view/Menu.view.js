@@ -9,7 +9,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global define, setTimeout, clearTimeout*/
+/*global define, setTimeout, clearTimeout, document, window*/
 define([
     'marionette',
     'icanhaz',
@@ -25,9 +25,10 @@ define([
     'text!templates/tasks/task.menu.handlebars',
     'text!templates/tasks/task.category.handlebars',
     'cometdinit',
+    'jquery',
     'modelbinder',
     'perfectscrollbar'
-], function(Marionette, ich, menubarTemplate, menubarItemTemplate, UserModel, Backbone, notificationMenuTemplate, wreqr, _, loginTemplate, logoutTemplate, taskTemplate, taskCategoryTemplate, Cometd) {
+], function(Marionette, ich, menubarTemplate, menubarItemTemplate, UserModel, Backbone, notificationMenuTemplate, wreqr, _, loginTemplate, logoutTemplate, taskTemplate, taskCategoryTemplate, Cometd, $) {
 
     ich.addTemplate('menubarItemTemplate', menubarItemTemplate);
 
@@ -183,15 +184,41 @@ define([
     Menu.LoginForm = Marionette.ItemView.extend({
         template: 'loginTemplate',
         events: {
-            'click .btn-login': 'logInUser',
-            'click .btn-clear': 'clearFields'
+            'click .btn-signin': 'logInUser',
+            'click .btn-clear': 'clearFields',
+            'keypress #username': 'logInEnter',
+            'keypress #password': 'logInEnter'
+        },
+        logInEnter: function(e) {
+            if (e.keyCode === 13) {
+                this.logInUser();
+            }
         },
         logInUser: function() {
-            //this doesn't do anything yet
+            var view = this;
+            this.deleteCookie();
+            $.ajax({
+                type: "GET",
+                url: "/search",
+                async: false,
+                beforeSend: function (xhr) {
+                    var base64 = window.btoa(view.$('#username').val() + ":" + view.$('#password').val());
+                    xhr.setRequestHeader ("Authorization", "Basic " + base64);
+                },
+                error: function() {
+                    document.location.reload();
+                },
+                complete: function() {
+                    document.location.reload();
+                }
+            });
         },
         clearFields: function() {
             this.$('#username').val('');
             this.$('#password').val('');
+        },
+        deleteCookie: function() {
+            document.cookie = 'org.codice.websso.saml.token=; Path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
         }
     });
 
@@ -201,7 +228,23 @@ define([
             'click .btn-logout': 'logOutUser'
         },
         logOutUser: function() {
-            //this doesn't do anything yet
+            this.deleteCookie();
+            $.ajax({
+                type: "GET",
+                url: "/search",
+                async: false,
+                username: "guest",
+                password: "guest",
+                error: function() {
+                    document.location.reload();
+                },
+                complete: function() {
+                    document.location.reload();
+                }
+            });
+        },
+        deleteCookie: function() {
+            document.cookie = 'org.codice.websso.saml.token=; Path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
         }
     });
 
@@ -220,20 +263,19 @@ define([
                 var Welcome = Menu.Item.extend({
                     className: 'dropdown',
                     initialize: function() {
-                        if(Menu.UserModel && Menu.UserModel.get('user')){
+                        if(Menu.UserModel && Menu.UserModel.get('user') && Menu.UserModel.get('user') !== 'guest'){
                             this.model.set({name: Menu.UserModel.get('user')});
                         }
                         this.listenTo(Menu.UserModel, 'change', this.updateUser);
                     },
                     updateUser: function() {
-                        if(Menu.UserModel.get('user')) {
+                        if(Menu.UserModel.get('user') && Menu.UserModel.get('user') !== 'guest') {
                             this.model.set({name: Menu.UserModel.get('user')});
                         }
                         this.render();
                     },
                     onRender: function() {
-                        if(Menu.UserModel.get('user')) {
-                            //uncomment this when logout does something
+                        if(Menu.UserModel.get('user') && Menu.UserModel.get('user') !== 'guest') {
                             this.children.show(new Menu.LogoutForm());
                         }
                         else {
@@ -245,7 +287,7 @@ define([
                     id: 'signin',
                     name: 'Sign In',
                     //change this to true when we can log in or out
-                    dropdown: false
+                    dropdown: true
                 })}));
             }
 
