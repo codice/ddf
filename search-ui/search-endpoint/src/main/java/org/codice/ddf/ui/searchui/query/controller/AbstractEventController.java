@@ -14,12 +14,10 @@
  **/
 package org.codice.ddf.ui.searchui.query.controller;
 
-import java.util.Collections;
-import java.util.Dictionary;
-import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.Map;
-
+import ddf.security.assertion.SecurityAssertion;
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.subject.PrincipalCollection;
+import org.apache.shiro.subject.Subject;
 import org.cometd.annotation.Listener;
 import org.cometd.annotation.Service;
 import org.cometd.annotation.Session;
@@ -31,6 +29,13 @@ import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.security.Principal;
+import java.util.Collections;
+import java.util.Dictionary;
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.Map;
 
 /**
  * The {@code AbstractEventController} handles the processing and routing of
@@ -101,13 +106,17 @@ public abstract class AbstractEventController implements EventHandler {
             throw new IllegalArgumentException("ServerSession is null");
         }
 
-        // See NOTE in registerUserSession regarding the changes that need
-        // to be made when this is changed to obtain the user ID from the
-        // client.
-        String userId = serverSession.getId();
+        Subject subject = null;
+        try {
+            subject = SecurityUtils.getSubject();
+        } catch (Exception e) {
+            LOGGER.info("Couldn't grab user subject from Shiro.", e);
+        }
+
+        String userId = getUserId(serverSession, subject);
 
         if (null == userId) {
-            throw new IllegalArgumentException("ServerSession ID is null");
+            throw new IllegalArgumentException("User ID is null");
         }
 
         if (null != getSessionByUserId(userId)) {
@@ -144,21 +153,41 @@ public abstract class AbstractEventController implements EventHandler {
             throw new IllegalArgumentException("ServerSession is null");
         }
 
-        // NOTE: When this is modified to use a user ID rather than a session
-        // ID, the user ID will be in the ServerMessage
-        // (message.get(attributeName)). This statement will need to be
-        // modified and the corresponding unit test case will need to be
-        // modified to verify behavior for a null user ID rather than a null
-        // ServerSession ID.
-        String userId = serverSession.getId();
+        Subject subject = null;
+        try {
+            subject = SecurityUtils.getSubject();
+        } catch (Exception e) {
+            LOGGER.info("Couldn't grab user subject from Shiro.", e);
+        }
+
+        String userId = getUserId(serverSession, subject);
 
         if (null == userId) {
-            throw new IllegalArgumentException("ServerSession ID is null");
+            throw new IllegalArgumentException("User ID is null");
         }
 
         userSessionMap.put(userId, serverSession);
 
         LOGGER.debug("Added ServerSession to userSessionMap - New map: {}", userSessionMap);
+    }
+
+    private String getUserId(ServerSession serverSession, Subject subject) {
+        String userId = null;
+        if(subject != null) {
+            PrincipalCollection principalCollection = subject.getPrincipals();
+            for(Object principal : principalCollection.asList()) {
+                if(principal instanceof SecurityAssertion) {
+                    SecurityAssertion assertion = (SecurityAssertion) principal;
+
+                    Principal jPrincipal = assertion.getPrincipal();
+                    userId = jPrincipal.getName();
+                    break;
+                }
+            }
+        } else {
+            userId = serverSession.getId();
+        }
+        return userId;
     }
 
     /**
