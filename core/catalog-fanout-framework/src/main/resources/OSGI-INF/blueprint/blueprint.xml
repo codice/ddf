@@ -140,9 +140,9 @@
 
     <reference id="cacheManager" interface="ddf.cache.CacheManager" />
 
-    <bean id="productCache" class="ddf.catalog.cache.ResourceCache">
-        <property name="cacheManager" ref="cacheManager" />
+    <bean id="productCache" class="ddf.catalog.cache.impl.ResourceCache" init-method="setupCache" destroy-method="teardownCache" >
         <property name="productCacheDirectory" value="" />
+        <property name="cacheDirMaxSizeMegabytes" value="10240" />
     </bean>
 
 	<!-- create the ddf bean -->

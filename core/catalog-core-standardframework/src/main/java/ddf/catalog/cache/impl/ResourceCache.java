@@ -58,7 +58,6 @@ public class ResourceCache implements ResourceCacheInterface {
     private IMap<Object, Object> cache;
     private ProductCacheDirListener<Object, Object> cacheListener = new ProductCacheDirListener<Object, Object>(DEFAULT_MAX_CACHE_DIR_SIZE_BYTES);
 
-    //TODO: refactor into factory method
     //called after all parameters are set
     public void setCache(HazelcastInstance instance){
         this.instance = instance;

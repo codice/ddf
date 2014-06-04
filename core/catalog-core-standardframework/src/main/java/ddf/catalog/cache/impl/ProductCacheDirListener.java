@@ -128,8 +128,12 @@ public class ProductCacheDirListener<K, V> implements EntryListener<K, V>, Hazel
 
     @Override
     public void entryEvicted(EntryEvent<K, V> event) {
-        logger.debug("entry evicted event triggered");
-        //TODO: do i need to implement this?
+        V value = event.getValue();
+        if (value.getClass().isAssignableFrom(ReliableResource.class)) {
+            ReliableResource resource = (ReliableResource) value;
+            logger.debug("entry evicted event triggered: {}", resource.getKey());
+            cacheDirSize.addAndGet(-resource.getSize());
+        }
     }
     
     

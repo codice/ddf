@@ -31,7 +31,6 @@ public class CacheKey {
         this.resourceRequest = resourceRequest;
     }
 
-    // TODO check for characters that cannot be in a filepath
     /**
      * Key is comprised of the source, the metacard ID, and request properties if properties are
      * found. <br/>
