@@ -12,66 +12,66 @@
  **/
  -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  <parent>
-    <groupId>ddf</groupId>
-    <artifactId>ddf-parent</artifactId>
-    <version>1.0.1</version>
-  </parent>
-  <groupId>org.codice.ddf</groupId>
-  <artifactId>platform-configuration-impl</artifactId>
-  <name>DDF :: Platform Configuration Impl</name>
-  <description>Implementation of ConfigurationWatcher Interface for use by bundles.</description>
-  <packaging>bundle</packaging>
-  <version>1.0.0-SNAPSHOT</version>
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>ddf</groupId>
+        <artifactId>ddf-parent</artifactId>
+        <version>1.0.1</version>
+    </parent>
+    <groupId>org.codice.ddf</groupId>
+    <artifactId>platform-configuration-impl</artifactId>
+    <name>DDF :: Platform Configuration Impl</name>
+    <description>Implementation of ConfigurationWatcher Interface for use by bundles.</description>
+    <packaging>bundle</packaging>
+    <version>1.0.0-SNAPSHOT</version>
 
-  <properties>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-    <!-- Karaf-defined Properties -->
-    <ddf.platform.version>2.3.1</ddf.platform.version>
+        <!-- Karaf-defined Properties -->
+        <ddf.platform.version>2.3.1</ddf.platform.version>
 
-  </properties>
+    </properties>
 
-  <dependencies>
-    <dependency>
-      <groupId>ddf.platform</groupId>
-      <artifactId>platform-configuration</artifactId>
-      <version>${ddf.platform.version}</version>
-    </dependency>
+    <dependencies>
+        <dependency>
+            <groupId>ddf.platform</groupId>
+            <artifactId>platform-configuration</artifactId>
+            <version>${ddf.platform.version}</version>
+        </dependency>
 
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-ext</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-log4j12</artifactId>
-      <scope>test</scope>
-    </dependency>
-  </dependencies>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-ext</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
 
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.felix</groupId>
-        <artifactId>maven-bundle-plugin</artifactId>
-        <configuration>
-          <instructions>
-            <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-          </instructions>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <configuration>
+                    <instructions>
+                        <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+                    </instructions>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 
-  <repositories>
-    <repository>
-      <id>codice</id>
-      <name>Codice Repository</name>
-      <url>http://artifacts.codice.org/content/groups/public/</url>
-    </repository>
-  </repositories>
+    <repositories>
+        <repository>
+            <id>codice</id>
+            <name>Codice Repository</name>
+            <url>http://artifacts.codice.org/content/groups/public/</url>
+        </repository>
+    </repositories>
 
 </project>
