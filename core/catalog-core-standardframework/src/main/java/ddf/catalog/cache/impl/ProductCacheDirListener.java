@@ -45,32 +45,18 @@ public class ProductCacheDirListener<K, V> implements EntryListener<K, V>, Hazel
     private IMap<String, ReliableResource> map;
     private IAtomicLong cacheDirSize;
     private long maxDirSizeBytes;
-    
-    public long getMaxDirSizeBytes() {
-        return maxDirSizeBytes;
-    }
 
-    public void setMaxDirSizeBytes(long maxDirSizeBytes) {
+    private Set<String> manuallyEvictedEntries = Collections.synchronizedSet(new HashSet<String>());
+
+    /**
+     * Constructor for new Hazelcast listener
+     * 
+     * @param maxDirSizeBytes: If 0, no size limit will be enforced.
+     */
+    public ProductCacheDirListener(final long maxDirSizeBytes) {
         this.maxDirSizeBytes = maxDirSizeBytes;
     }
 
-    private Set<String> manuallyEvictedEntries = Collections.synchronizedSet(new HashSet<String>()); 
-    
-    
-    /**
-     * 
-     * @param maxDirSizeBytes: If 0, the size limit in bytes is Long.MAX_VALUE.  
-     */
-    public ProductCacheDirListener(final long maxDirSizeBytes){
-        
-        if(maxDirSizeBytes == 0){
-            this.maxDirSizeBytes = Long.MAX_VALUE;
-        }
-        else {
-            this.maxDirSizeBytes = maxDirSizeBytes;
-        }
-    }
-    
     @Override
     public void setHazelcastInstance(HazelcastInstance hc) {
         logger.debug("Setting hazelcast instance");
@@ -84,9 +70,9 @@ public class ProductCacheDirListener<K, V> implements EntryListener<K, V>, Hazel
         if (value.getClass().isAssignableFrom(ReliableResource.class)) {
             ReliableResource resource = (ReliableResource) value;
             logger.debug("entry added event triggered: {}", resource.getKey());
-            
+
             long currentCacheDirSize = cacheDirSize.addAndGet(resource.getSize());
-            if (maxDirSizeBytes < currentCacheDirSize) {
+            if (maxDirSizeBytes > 0 && maxDirSizeBytes < currentCacheDirSize) {
                 PagingPredicate pp = new PagingPredicate(new ReliableResourceComparator(), DEFAULT_PAGE_SIZE);
                 Collection<ReliableResource> lruResourceEntries = map.values(pp);
 
@@ -112,10 +98,9 @@ public class ProductCacheDirListener<K, V> implements EntryListener<K, V>, Hazel
         if (value.getClass().isAssignableFrom(ReliableResource.class)) {
             ReliableResource resource = (ReliableResource) value;
             logger.debug("entry removed event triggered: {}", resource.getKey());
-            if(manuallyEvictedEntries.contains(resource.getKey())){
+            if (manuallyEvictedEntries.contains(resource.getKey())) {
                 manuallyEvictedEntries.remove(resource.getKey());
-            }
-            else {
+            } else {
                 cacheDirSize.addAndGet(-resource.getSize());
             }
         }
@@ -135,12 +120,11 @@ public class ProductCacheDirListener<K, V> implements EntryListener<K, V>, Hazel
             cacheDirSize.addAndGet(-resource.getSize());
         }
     }
-    
-    
+
     private void deleteFromCache(IMap<String, ReliableResource> cacheMap, ReliableResource rr) {
         logger.debug("entry being deleted: {}", rr.getKey());
         manuallyEvictedEntries.add(rr.getKey());
-        
+
         // delete form cache
         cacheMap.delete(rr.getKey());
 
@@ -148,6 +132,14 @@ public class ProductCacheDirListener<K, V> implements EntryListener<K, V>, Hazel
         File cachedFile = new File(rr.getFilePath());
         cachedFile.delete();
         cacheDirSize.addAndGet(-rr.getSize());
+    }
+    
+    public long getMaxDirSizeBytes() {
+        return maxDirSizeBytes;
+    }
+
+    public void setMaxDirSizeBytes(long maxDirSizeBytes) {
+        this.maxDirSizeBytes = maxDirSizeBytes;
     }
 
 }

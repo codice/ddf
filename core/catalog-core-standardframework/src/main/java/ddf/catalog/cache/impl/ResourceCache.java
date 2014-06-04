@@ -18,7 +18,9 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,7 +42,7 @@ public class ResourceCache implements ResourceCacheInterface {
 
     private static final String PRODUCT_CACHE_NAME = "Product_Cache";
     
-    private static final long BYTES_IN_MEGABYTES = 1024L * 1024L;
+    private static final long BYTES_IN_MEGABYTES = FileUtils.ONE_MB;
     private static final long DEFAULT_MAX_CACHE_DIR_SIZE_BYTES = 10737418240L;  //10 GB
 
     /**
@@ -94,13 +96,14 @@ public class ResourceCache implements ResourceCacheInterface {
     public void setProductCacheDirectory(final String productCacheDirectory) {
         String newProductCacheDirectoryDir = "";
 
-        if (!productCacheDirectory.isEmpty()) {
+        
+        if (!StringUtils.isEmpty(productCacheDirectory)) {
             String path = FilenameUtils.normalize(productCacheDirectory);
             File directory = new File(path);
 
             // Create the directory if it doesn't exist
             if ((!directory.exists() && directory.mkdirs())
-                    || (directory.isDirectory() && directory.canRead())) {
+                    || (directory.isDirectory() && directory.canRead() && directory.canWrite())) {
                 LOGGER.debug("Setting product cache directory to: {}", path);
                 newProductCacheDirectoryDir = path;
             }
@@ -155,6 +158,7 @@ public class ResourceCache implements ResourceCacheInterface {
      * @param key
      * @return
      */
+    @Override
     public boolean isPending(String key) {
         return pendingCache.contains(key);
     }
@@ -166,6 +170,7 @@ public class ResourceCache implements ResourceCacheInterface {
      * @param reliableResource the resource to add to the cache map
      * @throws CacheException
      */
+    @Override
     public void put(ReliableResource reliableResource) throws CacheException {
         LOGGER.trace("ENTERING: put(ReliableResource)");
         reliableResource.setLastTouchedMillis(System.currentTimeMillis());
@@ -175,6 +180,7 @@ public class ResourceCache implements ResourceCacheInterface {
         LOGGER.trace("EXITING: put(ReliableResource)");
     }
 
+    @Override
     public void removePendingCacheEntry(String cacheKey) {
         if (!pendingCache.remove(cacheKey)) {
             LOGGER.debug("Did not find pending cache entry with key = {}", cacheKey);
@@ -183,6 +189,7 @@ public class ResourceCache implements ResourceCacheInterface {
         }
     }
 
+    @Override
     public void addPendingCacheEntry(String cacheKey) {
         if (isPending(cacheKey)) {
             LOGGER.debug("Cache entry with key = {} is already pending", cacheKey);
@@ -200,6 +207,7 @@ public class ResourceCache implements ResourceCacheInterface {
      * @throws CacheException
      *             if no Resource found
      */
+    @Override
     public Resource get(String key) throws CacheException {
         LOGGER.debug("ENTERING: get()");
         if (key == null) {
@@ -234,6 +242,7 @@ public class ResourceCache implements ResourceCacheInterface {
      * @param key
      * @return {@code true} if items exists in cache.
      */
+    @Override
     public boolean contains(String key) {
         if (key == null) {
             return false;

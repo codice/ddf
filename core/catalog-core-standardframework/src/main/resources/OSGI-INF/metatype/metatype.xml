@@ -26,7 +26,7 @@
       <AD name="Enable Product Caching" id="cacheEnabled" required="false" type="Boolean" default="false"
         description="Check to enable caching of retrieved products."/>
       <AD name="Max Cache Directory Size in Megabytes" id="cacheDirMaxSizeMegabytes" required="false" type="Long" default="10240"
-        description="Configure maximum directory size for product caching.  Oldest product cached will be evicted when a new product pushes the size over the specified limit.  Don't set this value to the available disk space because the cache will allow a new product to get cached and then check to see if the cache exceeds the maximum allowable size."/>      
+        description="Configure maximum directory size for product caching.  Oldest product cached will be evicted when a new product pushes the size over the specified limit.  Don't set this value to the available disk space because the cache will allow a new product to get cached and then check to see if the cache exceeds the maximum allowable size. A value of 0 disables the max limit."/>      
       <AD name="Delay (in seconds) between product retrieval retry attempts" id="delayBetweenRetryAttempts" required="false"
           type="Integer" default="10"
           description="The time to wait (in seconds) between attempting to retry retrieving a product."/>

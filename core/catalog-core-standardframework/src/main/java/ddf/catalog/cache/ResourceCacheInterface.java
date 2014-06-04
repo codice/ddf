@@ -18,14 +18,65 @@ import ddf.cache.CacheException;
 import ddf.catalog.resource.Resource;
 import ddf.catalog.resource.data.ReliableResource;
 
+/**
+ * Interface defining a cache of resources or references to resources.
+ * 
+ * @author ddf.isgs@lmco.com
+ *
+ */
 public interface ResourceCacheInterface {
-    public boolean isPending(String key);
     
-    public void put(ReliableResource reliableResource) throws CacheException;
+    /**
+     * Adds a resource to the cache.
+     * 
+     * @param reliableResource
+     * @throws CacheException
+     */
+    void put(ReliableResource reliableResource) throws CacheException;
     
-    public void removePendingCacheEntry(String cacheKey);
+    /**
+     * Gets resource from the cache.
+     * 
+     * @param key
+     * @return Resource obtained from cache
+     * @throws CacheException
+     */
+    Resource get(String key) throws CacheException;
+
+    /**
+     * Queries cache to determine if it contains a resource with the provided key.
+     * 
+     * @param key
+     * @return
+     */
+    boolean contains(String key);
+
+    /**
+     * Returns true if resource with specified cache key is already in the process of
+     * being cached. This check helps clients prevent attempting to cache the same resource
+     * multiple times.
+     * 
+     * @param key 
+     * @return 
+     */
+    boolean isPending(String key);
+
+    /**
+     * Removes resource from list of pending resources being added to cache.  
+     * This can help when multiple clients may be interacting with the same cache in order to 
+     * prevent multiple copies of the same resource being cached.
+     * 
+     * @param cacheKey
+     */
+    void removePendingCacheEntry(String cacheKey);
     
-    public void addPendingCacheEntry(String cacheKey);
+    /**
+     * Adds resource to list of resources in process of being cached.
+     * This can help when multiple clients may be interacting with the same cache in order to 
+     * prevent multiple copies of the same resource being cached.
+     * 
+     * @param cacheKey
+     */
+    void addPendingCacheEntry(String cacheKey);
     
-    public Resource get(String key) throws CacheException;
 }

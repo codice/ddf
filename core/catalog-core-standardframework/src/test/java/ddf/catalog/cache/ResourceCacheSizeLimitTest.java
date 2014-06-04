@@ -22,7 +22,6 @@ import static org.junit.Assert.assertTrue;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
-import java.util.concurrent.TimeUnit;
 
 import javax.activation.MimeType;
 
@@ -34,6 +33,8 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.hazelcast.core.EntryEvent;
+import com.hazelcast.core.EntryEventType;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
@@ -49,6 +50,7 @@ public class ResourceCacheSizeLimitTest {
     private static final String PRODUCT_CACHE_NAME = "Product_Cache";
     private static TestHazelcastInstanceFactory hcInstanceFactory;
     private static String productCacheDir;
+    private static ProductCacheDirListener<Object, Object> listener;
     private static final transient Logger LOGGER = LoggerFactory.getLogger(ResourceCacheSizeLimitTest.class);
 
     @BeforeClass
@@ -57,7 +59,7 @@ public class ResourceCacheSizeLimitTest {
         System.setProperty("karaf.home", workingDir);
         productCacheDir = workingDir + File.separator + ResourceCache.DEFAULT_PRODUCT_CACHE_DIRECTORY;
         hcInstanceFactory = new TestHazelcastInstanceFactory(10);
-        
+        listener = new ProductCacheDirListener<Object, Object>(15);
     }
     
     @AfterClass
@@ -76,24 +78,23 @@ public class ResourceCacheSizeLimitTest {
     @Test
     //@Ignore
     public void testExceedCacheDirMaxSize() throws IOException, InterruptedException {
-        HazelcastInstance instance = initializeTestHazelcastInstance(15);
+        HazelcastInstance instance = initializeTestHazelcastInstance();
+        listener.setMaxDirSizeBytes(15);
+        listener.setHazelcastInstance(instance);
         IMap<String, ReliableResource> cacheMap = instance.getMap(PRODUCT_CACHE_NAME);
-        
-        //Simulate adding product to product cache
+
+        // Simulate adding product to product cache
         String rr1Key = "rr1";
         String rr1FileName = "10bytes.txt";
-        simulateAddFileToProductCache(rr1Key, rr1FileName, rr1FileName, cacheMap);
-                
-        //ensure that the entry has not been removed from the cache since it doesn't exceed the max size
+        simulateAddFileToProductCache(rr1Key, rr1FileName, rr1FileName, cacheMap);  //this may take longer to execute than just the next line.  
+
+        // ensure that the entry has not been removed from the cache since it doesn't exceed the max size
         verifyCached(cacheMap, rr1Key, rr1FileName);
-        
-        //simulate adding additional product to cache
+
+        // simulate adding additional product to cache
         String rr2Key = "rr2";
         String rr2FileName = "15bytes.txt";
         simulateAddFileToProductCache(rr2Key, rr2FileName, rr2FileName, cacheMap);
-
-        //wait for poller to kick off that will remove rr1
-        TimeUnit.SECONDS.sleep(1);
         
         verifyRemovedFromCache(cacheMap, rr1Key, rr1FileName);
         verifyCached(cacheMap, rr2Key, rr2FileName);
@@ -101,7 +102,9 @@ public class ResourceCacheSizeLimitTest {
 
     @Test
     public void testExceedCacheDirMaxSizeMultipleEvictions() throws IOException, InterruptedException {
-        HazelcastInstance instance = initializeTestHazelcastInstance(28);
+        HazelcastInstance instance = initializeTestHazelcastInstance();
+        listener.setMaxDirSizeBytes(28);
+        listener.setHazelcastInstance(instance);
         IMap<String, ReliableResource> cacheMap = instance.getMap(PRODUCT_CACHE_NAME);
         
         //Simulate adding product to product cache
@@ -123,18 +126,17 @@ public class ResourceCacheSizeLimitTest {
         String rr3FileName = "15bytes_B.txt";
         simulateAddFileToProductCache(rr3Key, rr3FileName, rr3FileName, cacheMap);
 
-        //wait for poller to kick off that will remove rr1
-        TimeUnit.SECONDS.sleep(1);
-        
         verifyRemovedFromCache(cacheMap, rr1Key, rr1FileName);
         verifyRemovedFromCache(cacheMap, rr2Key, rr2FileName);
         verifyCached(cacheMap, rr3Key, rr3FileName);
     }
-    
+
     @Test
     //@Ignore
     public void testNotExceedCacheDirMaxSize() throws IOException, InterruptedException {
-        HazelcastInstance instance = initializeTestHazelcastInstance(50);
+        HazelcastInstance instance = initializeTestHazelcastInstance();
+        listener.setMaxDirSizeBytes(50);
+        listener.setHazelcastInstance(instance);
         IMap<String, ReliableResource> cacheMap = instance.getMap(PRODUCT_CACHE_NAME);
         
         //Simulate adding product to product cache
@@ -152,8 +154,6 @@ public class ResourceCacheSizeLimitTest {
         String rr3FileName = "15bytes_B.txt";
         simulateAddFileToProductCache(rr3Key, rr3FileName, rr3FileName, cacheMap);
 
-        //wait for poller to kick off that will remove rr1
-        TimeUnit.SECONDS.sleep(1);
         
         verifyCached(cacheMap, rr1Key, rr1FileName);
         verifyCached(cacheMap, rr2Key, rr2FileName);
@@ -162,23 +162,24 @@ public class ResourceCacheSizeLimitTest {
     
     @Test
     public void testSingleFileExceedCacheDirMaxSize() throws IOException, InterruptedException {
-        HazelcastInstance instance = initializeTestHazelcastInstance(5);
+        HazelcastInstance instance = initializeTestHazelcastInstance();
         IMap<String, ReliableResource> cacheMap = instance.getMap(PRODUCT_CACHE_NAME);
+        listener.setMaxDirSizeBytes(5);
+        listener.setHazelcastInstance(instance);
         
         //Simulate adding product to product cache
         String rr1Key = "rr1";
         String rr1FileName = "10bytes.txt";
         simulateAddFileToProductCache(rr1Key, rr1FileName, rr1FileName, cacheMap);
         
-        //wait for poller to kick off that will remove rr1
-        TimeUnit.SECONDS.sleep(1);
-        
         verifyRemovedFromCache(cacheMap, rr1Key, rr1FileName);
     }
     
     @Test
     public void testCacheDirMaxSizeManyEntries() throws IOException, InterruptedException{
-        HazelcastInstance instance = initializeTestHazelcastInstance(10);
+        HazelcastInstance instance = initializeTestHazelcastInstance();
+        listener.setHazelcastInstance(instance);
+        listener.setMaxDirSizeBytes(10);
         IMap<String, ReliableResource> cacheMap = instance.getMap(PRODUCT_CACHE_NAME);
         
         //Simulate adding product to product cache
@@ -193,8 +194,6 @@ public class ResourceCacheSizeLimitTest {
         //not in loop in order to slightly delay this file being added to the cache so it is sorted correctly and not accidentally removed
         simulateAddFileToProductCache(rrKeyPrefix + 11, rr1FileNameBase, 11 + rr1FileNameBase, cacheMap);
         
-        TimeUnit.SECONDS.sleep(1);
-        
         //entries from 0-10 should be removed from cache
         for(int i = 0; i < 11; i++){
             verifyRemovedFromCache(cacheMap, rrKeyPrefix + 1, i + rr1FileNameBase);
@@ -205,7 +204,9 @@ public class ResourceCacheSizeLimitTest {
     
     @Test
     public void testCacheDirMaxSizePaging() throws IOException, InterruptedException{
-        HazelcastInstance instance = initializeTestHazelcastInstance(132);
+        HazelcastInstance instance = initializeTestHazelcastInstance();
+        listener.setHazelcastInstance(instance);
+        listener.setMaxDirSizeBytes(132);
         IMap<String, ReliableResource> cacheMap = instance.getMap(PRODUCT_CACHE_NAME);
         
         //Simulate adding product to product cache
@@ -215,8 +216,6 @@ public class ResourceCacheSizeLimitTest {
         for(int i = 0; i < 12; i++){
             simulateAddFileToProductCache(rrKeyPrefix + i, rr1FileNameBase, i + rr1FileNameBase, cacheMap);
         }
-        
-        TimeUnit.SECONDS.sleep(1);
         
         //ensure all 12 10-byte files are cached
         for(int i = 0; i < 12; i++){
@@ -230,8 +229,7 @@ public class ResourceCacheSizeLimitTest {
         
         //ensure 125-byte file is cached
         verifyCached(cacheMap, rrKeyPrefix + indexOf125Bytes, oneTwentyFiveBytesFileName);
-        
-        TimeUnit.SECONDS.sleep(1);
+
         
         //entries from 0-9 should be removed from cache
         for(int i = 0; i < 12; i++){
@@ -241,17 +239,41 @@ public class ResourceCacheSizeLimitTest {
         verifyCached(cacheMap, rrKeyPrefix + indexOf125Bytes, oneTwentyFiveBytesFileName);
     }
     
-    private HazelcastInstance initializeTestHazelcastInstance(long maxDirSizeBytes) {
+    @Test
+    public void testCacheDirMaxSize0() throws IOException, InterruptedException{
+        HazelcastInstance instance = initializeTestHazelcastInstance();
+        listener.setMaxDirSizeBytes(0);
+        listener.setHazelcastInstance(instance);
+        IMap<String, ReliableResource> cacheMap = instance.getMap(PRODUCT_CACHE_NAME);
+        
+        //Simulate adding product to product cache
+        String rr1Key = "rr1";
+        String rr1FileName = "10bytes.txt";
+        simulateAddFileToProductCache(rr1Key, rr1FileName, rr1FileName, cacheMap);
+              
+        
+        //ensure that the entry has not been removed from the cache since it doesn't exceed the max size
+        verifyCached(cacheMap, rr1Key, rr1FileName);
+        
+        //simulate adding additional product to cache
+        String rr2Key = "rr2";
+        String rr2FileName = "15bytes.txt";
+        simulateAddFileToProductCache(rr2Key, rr2FileName, rr2FileName, cacheMap);
+        
+        verifyCached(cacheMap, rr2Key, rr2FileName);
+    }
+    
+    private HazelcastInstance initializeTestHazelcastInstance() {
         HazelcastInstance instance = hcInstanceFactory.newHazelcastInstance();
         
         IMap<Object, Object> cacheMap1 = instance.getMap(PRODUCT_CACHE_NAME);
-        ProductCacheDirListener<Object, Object> listener = new ProductCacheDirListener<Object, Object>(maxDirSizeBytes);
-        listener.setHazelcastInstance(instance);
-        cacheMap1.addEntryListener(listener, true);
+//        ProductCacheDirListener<Object, Object> listener = new ProductCacheDirListener<Object, Object>(maxDirSizeBytes);
+//        listener.setHazelcastInstance(instance);
+//        cacheMap1.addEntryListener(listener, true);
         return instance;
     }
     
-    private void simulateAddFileToProductCache(String key, String fileName, String destFileName, IMap<String, ReliableResource> cacheMap) throws IOException{
+    private ReliableResource simulateAddFileToProductCache(String key, String fileName, String destFileName, IMap<String, ReliableResource> cacheMap) throws IOException{
         String productOriginalLocation = System.getProperty("user.dir") + "/src/test/resources/" + fileName;
         File rrCachedFile = new File(productCacheDir + "/"+ destFileName);
         FileUtils.copyFile(new File(productOriginalLocation), rrCachedFile);
@@ -259,6 +281,8 @@ public class ResourceCacheSizeLimitTest {
         rr.setSize(rrCachedFile.length());
         LOGGER.debug("adding entry to cache: " + key);
         cacheMap.put(key, rr);
+        listener.entryAdded(new EntryEvent<Object, Object>(destFileName, null, EntryEventType.ADDED.getType(), key, rr));
+        return rr;
     }
 
     private void verifyCached(IMap<String, ReliableResource> cacheMap, String rrKey, String rrFileName) {
