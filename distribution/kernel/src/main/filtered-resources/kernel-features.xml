@@ -34,7 +34,7 @@
 	</feature>
   
     <!-- Added custom webconsole features by removing calls to http and whiteboard. This allows us to use newer pax web impl -->
-    <feature name="kernel-webconsole-base" description="Base support of the Karaf WebConsole" version="${karaf.version}">
+    <feature name="kernel-webconsole-base" install="manual" description="Base support of the Karaf WebConsole" version="${karaf.version}">
         <config name="org.apache.karaf.webconsole">
             realm=karaf
             role=${karaf.admin.role}
@@ -44,7 +44,7 @@
         <bundle start-level="30">mvn:org.apache.karaf.webconsole/org.apache.karaf.webconsole.console/${karaf.version}</bundle>
     </feature>
 
-    <feature name="kernel-webconsole" description="Karaf WebConsole for administration and monitoring" version="${karaf.version}">
+    <feature name="kernel-webconsole" install="manual" description="Karaf WebConsole for administration and monitoring" version="${karaf.version}">
         <feature version="${karaf.version}">kernel-webconsole-base</feature>
         <bundle start-level="30">mvn:org.apache.karaf.webconsole/org.apache.karaf.webconsole.admin/${karaf.version}</bundle>
         <bundle start-level="30">mvn:org.apache.karaf.webconsole/org.apache.karaf.webconsole.features/${karaf.version}</bundle>
