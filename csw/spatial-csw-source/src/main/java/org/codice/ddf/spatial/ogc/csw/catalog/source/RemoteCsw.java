@@ -93,7 +93,7 @@ public class RemoteCsw extends TrustedRemoteSource implements Csw {
             throw new IllegalArgumentException(errMsg);
         }
 
-        bean = createJAXRSClientBean(recordConverterFactories,
+        createJAXRSClientBean(recordConverterFactories,
                 cswSourceConfiguration);
 
         // Additionally, set the username and password for Basic Auth
@@ -109,10 +109,10 @@ public class RemoteCsw extends TrustedRemoteSource implements Csw {
         }
     }
 
-    private JAXRSClientFactoryBean createJAXRSClientBean(
+    private void createJAXRSClientBean(
             List<RecordConverterFactory> recordConverterFactories,
             CswSourceConfiguration cswSourceConfiguration) {
-        JAXRSClientFactoryBean bean = new JAXRSClientFactoryBean();
+        bean = new JAXRSClientFactoryBean();
         bean.setServiceClass(Csw.class);
         bean.setAddress(cswSourceConfiguration.getCswUrl());
         bean.getInInterceptors().add(new LoggingInInterceptor());
@@ -152,8 +152,6 @@ public class RemoteCsw extends TrustedRemoteSource implements Csw {
                 recordConverterFactories, cswSourceConfiguration);
         bean.setProviders(Arrays.asList(getRecordsTypeProvider, new CswResponseExceptionMapper(),
                 grmbr));
-        
-        return bean;
     }
 
     @Override
