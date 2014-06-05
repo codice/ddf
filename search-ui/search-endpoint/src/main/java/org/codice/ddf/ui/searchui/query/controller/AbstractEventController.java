@@ -15,9 +15,12 @@
 package org.codice.ddf.ui.searchui.query.controller;
 
 import ddf.security.assertion.SecurityAssertion;
+import net.minidev.json.JSONObject;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.subject.Subject;
+import org.codice.ddf.notifications.Notification;
+import org.codice.ddf.notifications.store.NotificationStore;
 import org.cometd.annotation.Listener;
 import org.cometd.annotation.Service;
 import org.cometd.annotation.Session;
@@ -35,7 +38,11 @@ import java.util.Collections;
 import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 /**
  * The {@code AbstractEventController} handles the processing and routing of
@@ -44,6 +51,8 @@ import java.util.Map;
 @Service
 public abstract class AbstractEventController implements EventHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractEventController.class);
+
+    private final ExecutorService executorService = Executors.newCachedThreadPool();
 
     @Session
     protected ServerSession controllerServerSession;
@@ -58,17 +67,25 @@ public abstract class AbstractEventController implements EventHandler {
     protected Map<String, ServerSession> userSessionMap = Collections
             .synchronizedMap(new HashMap<String, ServerSession>(41));
 
+    protected NotificationStore notificationStore;
+
     /**
      * Establishes {@code AbstractEventController} as a listener to events
      * published by the OSGi eventing framework on the event's root topic
      * 
      * @param bundleContext
      */
-    public AbstractEventController(BundleContext bundleContext) {
+    public AbstractEventController(NotificationStore notificationStore, BundleContext bundleContext) {
         Dictionary<String, Object> dictionary = new Hashtable<String, Object>();
         dictionary.put(EventConstants.EVENT_TOPIC, getControllerRootTopic());
 
         bundleContext.registerService(EventHandler.class.getName(), this, dictionary);
+
+        this.notificationStore = notificationStore;
+    }
+
+    public List<Map<String, String>> getNotificationsForUser(String userId) {
+        return notificationStore.getNotifications(userId);
     }
 
     /**
@@ -144,7 +161,7 @@ public abstract class AbstractEventController implements EventHandler {
      *             when the received {@code ServerSession} or the
      *             {@code ServerSession}'s id is null.
      */
-    public void registerUserSession(ServerSession serverSession, ServerMessage serverMessage)
+    public void registerUserSession(final ServerSession serverSession, ServerMessage serverMessage)
             throws IllegalArgumentException {
 
         LOGGER.debug("ServerSession: {}\nServerMessage: {}", serverSession, serverMessage);
@@ -168,7 +185,47 @@ public abstract class AbstractEventController implements EventHandler {
 
         userSessionMap.put(userId, serverSession);
 
+        if(subject != null) {
+            List<Map<String, String>> notifications = getNotificationsForUser(userId);
+
+            //TODO need to also get the activities for the user and send them back here as well
+
+            if(notifications != null && !notifications.isEmpty()) {
+                queuePersistedMessages(serverSession, notifications, "/" + Notification.NOTIFICATION_TOPIC_DOWNLOADS);
+            }
+        }
+
         LOGGER.debug("Added ServerSession to userSessionMap - New map: {}", userSessionMap);
+    }
+
+    private void queuePersistedMessages(final ServerSession serverSession,
+            List<Map<String, String>> messages, final String topic) {
+        for (Map<String, String> notification : messages) {
+            final JSONObject jsonPropMap = new JSONObject();
+            jsonPropMap.putAll(notification);
+
+            LOGGER.debug("Sending the following property map \"{}\": ",
+                    jsonPropMap.toJSONString());
+
+            executorService.submit(new Runnable() {
+                @Override
+                public void run() {
+                    int maxAttempts = 10;
+                    int attempts = 0;
+                    while(!serverSession.isConnected() && attempts < maxAttempts) {
+                        try {
+                            TimeUnit.SECONDS.sleep(1);
+                        } catch (InterruptedException e) { }
+                        attempts++;
+                        LOGGER.trace("Attemp {} of {} to send notifications back to client.", attempts, maxAttempts);
+                    }
+
+                    LOGGER.trace("Sending notifications back to client.");
+                    serverSession.deliver(controllerServerSession, topic,
+                            jsonPropMap.toJSONString(), null);
+                }
+            });
+        }
     }
 
     private String getUserId(ServerSession serverSession, Subject subject) {

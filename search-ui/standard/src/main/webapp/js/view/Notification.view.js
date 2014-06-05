@@ -18,9 +18,10 @@ define([ 'backbone',
          'underscore',
          'jquery',
          'wreqr',
+         'moment',
          'pnotify'
        ], 
-         function(Backbone, ich, messageTemplate, titleTemplate, _, $, wreqr) {
+         function(Backbone, ich, messageTemplate, titleTemplate, _, $, wreqr, moment) {
 
     // Create object to contain both the NotificationItemView and the NotificationListView in.
     // This is so we can return it below.
@@ -30,6 +31,8 @@ define([ 'backbone',
     ich.addTemplate('titleTemplate', titleTemplate);
     
     var stack_context;
+
+    var currentTime = moment();
     
     NotificationView.NotificationItemView = Backbone.Marionette.ItemView.extend({
 
@@ -38,20 +41,29 @@ define([ 'backbone',
         },
 
         onRender : function() {
+            var notificationTime = moment(this.model.get("timestamp"));
+            if(notificationTime.diff(currentTime) > 0) {
+                this.createNotification();
+            }
+
+            return this;
+        },
+
+        createNotification: function() {
+            var view = this;
             if (typeof stack_context === "undefined") stack_context = {
-                    "dir1": "down",
-                    "dir2": "left",
-                    "context": $("#notifications")
+                "dir1": "down",
+                "dir2": "left",
+                "context": $("#notifications")
             };
 
-            var view = this;
             var notification = $.pnotify({
-                title : ich.titleTemplate(this.model.toJSON()), 
+                title : ich.titleTemplate(this.model.toJSON()),
                 text : this.constructNotificationText(),
-                icon : "fa fa-exclamation-circle notification-title",  
+                icon : "fa fa-exclamation-circle notification-title",
                 hide : true,
                 closer_hover : false,
-                sticker: false, 
+                sticker: false,
                 history: false,
                 stack: stack_context,
                 //need to define custom styling since the default pnotify fontawesome styling makes every notice a warning.
@@ -73,7 +85,7 @@ define([ 'backbone',
                     hi_btnhov: "",
                     hi_hnd: "fa fa-chevron-down"
                 }
-            }); 
+            });
             this.notification = notification;
             this.notification.closer.on('click', function() {
                 if(view.model && view.model.collection) {
@@ -81,12 +93,15 @@ define([ 'backbone',
                     wreqr.vent.trigger('notification:close');
                 }
             });
-            return this;
         },
 
         openNotification: function(noti) {
             if(noti && noti.cid === this.model.cid) {
-                this.notification.pnotify_display();
+                if(!this.notification) {
+                    this.createNotification();
+                } else {
+                    this.notification.pnotify_display();
+                }
             }
         },
 

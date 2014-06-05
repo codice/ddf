@@ -15,8 +15,8 @@
 package org.codice.ddf.ui.searchui.query.controller;
 
 import net.minidev.json.JSONObject;
-
 import org.codice.ddf.notifications.Notification;
+import org.codice.ddf.notifications.store.NotificationStore;
 import org.cometd.annotation.Service;
 import org.cometd.bayeux.server.ServerSession;
 import org.osgi.framework.BundleContext;
@@ -38,8 +38,8 @@ public class NotificationController extends AbstractEventController {
     protected static final String NOTIFICATION_TOPIC_DOWNLOADS_COMETD = "/"
             + Notification.NOTIFICATION_TOPIC_DOWNLOADS;
 
-    public NotificationController(BundleContext bundleContext) {
-        super(bundleContext);
+    public NotificationController(NotificationStore notificationStore, BundleContext bundleContext) {
+        super(notificationStore, bundleContext);
 
     }
 

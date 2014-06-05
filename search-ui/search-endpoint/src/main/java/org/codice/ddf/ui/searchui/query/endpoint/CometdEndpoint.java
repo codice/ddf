@@ -14,8 +14,9 @@
  **/
 package org.codice.ddf.ui.searchui.query.endpoint;
 
-import javax.servlet.ServletException;
-
+import ddf.catalog.CatalogFramework;
+import ddf.catalog.filter.FilterBuilder;
+import org.codice.ddf.notifications.store.NotificationStore;
 import org.codice.ddf.ui.searchui.query.controller.ActivityController;
 import org.codice.ddf.ui.searchui.query.controller.NotificationController;
 import org.codice.ddf.ui.searchui.query.controller.SearchController;
@@ -31,8 +32,7 @@ import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ddf.catalog.CatalogFramework;
-import ddf.catalog.filter.FilterBuilder;
+import javax.servlet.ServletException;
 
 /**
  * The CometdEndpoint binds the SearchService and the CometdServlet together. 
@@ -67,12 +67,12 @@ public class CometdEndpoint {
      *            - FilterBuilder for the SearchService to use
      */
     public CometdEndpoint(CometdServlet cometdServlet, CatalogFramework framework, 
-            FilterBuilder filterBuilder, BundleContext bundleContext) {
+            FilterBuilder filterBuilder, NotificationStore notificationStore, BundleContext bundleContext) {
         this.cometdServlet = cometdServlet;
         this.filterBuilder = filterBuilder;
         this.searchController = new SearchController(framework);
-        this.notificationController = new NotificationController(bundleContext);
-        this.activityController = new ActivityController(bundleContext);
+        this.notificationController = new NotificationController(notificationStore, bundleContext);
+        this.activityController = new ActivityController(notificationStore, bundleContext);
     }
 
     public void init() throws ServletException {        

@@ -24,6 +24,7 @@
         </service-properties>
     </service>
 
+    <reference id="notificationStore" interface="org.codice.ddf.notifications.store.NotificationStore" />
     <reference id="catalog" interface="ddf.catalog.CatalogFramework"/>
     <reference id="filterBuilder" interface="ddf.catalog.filter.FilterBuilder"/>
     <reference id="securityManager" interface="ddf.security.service.SecurityManager" availability="optional"/>
@@ -35,6 +36,7 @@
         <argument ref="comet"/>
         <argument ref="catalog"/>
         <argument ref="filterBuilder"/>
+        <argument ref="notificationStore" />
         <argument ref="blueprintBundleContext" />
     </bean>
 

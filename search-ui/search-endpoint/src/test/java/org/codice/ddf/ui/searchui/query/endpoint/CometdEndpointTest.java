@@ -14,13 +14,9 @@
  **/
 package org.codice.ddf.ui.searchui.query.endpoint;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
-
+import ddf.catalog.CatalogFramework;
+import ddf.catalog.filter.FilterBuilder;
+import org.codice.ddf.notifications.store.NotificationStore;
 import org.codice.ddf.ui.searchui.query.controller.NotificationController;
 import org.cometd.bayeux.ChannelId;
 import org.cometd.bayeux.MarkedReference;
@@ -42,8 +38,14 @@ import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ddf.catalog.CatalogFramework;
-import ddf.catalog.filter.FilterBuilder;
+import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class CometdEndpointTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(CometdEndpointTest.class);
@@ -122,7 +124,7 @@ public class CometdEndpointTest {
         
         // Create the CometdEndpoint, passing in the mocked CometdServlet
         cometdEndpoint = new CometdEndpoint(cometdServlet,
-                mock(CatalogFramework.class), mock(FilterBuilder.class), 
+                mock(CatalogFramework.class), mock(FilterBuilder.class), mock(NotificationStore.class),
                 mock(BundleContext.class));
     }
 

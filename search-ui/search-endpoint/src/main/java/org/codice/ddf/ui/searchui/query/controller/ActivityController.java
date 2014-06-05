@@ -15,8 +15,8 @@
 package org.codice.ddf.ui.searchui.query.controller;
 
 import net.minidev.json.JSONObject;
-
 import org.codice.ddf.activities.ActivityEvent;
+import org.codice.ddf.notifications.store.NotificationStore;
 import org.cometd.annotation.Service;
 import org.cometd.bayeux.server.ServerSession;
 import org.osgi.framework.BundleContext;
@@ -37,8 +37,8 @@ public class ActivityController extends AbstractEventController {
     // the OSGi Event Admin doesn't allow it.
     protected static final String ACTIVITY_TOPIC_COMETD = "/" + ActivityEvent.EVENT_TOPIC_BROADCAST;
 
-    public ActivityController(BundleContext bundleContext) {
-        super(bundleContext);
+    public ActivityController(NotificationStore notificationStore, BundleContext bundleContext) {
+        super(notificationStore, bundleContext);
     }
 
     /**
