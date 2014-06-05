@@ -17,8 +17,14 @@ package ddf.catalog.source.solr;
 import java.util.Date;
 
 import org.geotools.filter.FilterFactoryImpl;
+import org.geotools.temporal.object.DefaultInstant;
+import org.geotools.temporal.object.DefaultPeriod;
+import org.geotools.temporal.object.DefaultPosition;
+
 import org.opengis.filter.Filter;
 import org.opengis.filter.FilterFactory;
+import org.opengis.temporal.Instant;
+import org.opengis.temporal.Period;
 
 import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
 
@@ -40,5 +46,17 @@ public class TestSolrFilterBuilder extends GeotoolsFilterBuilder {
 
     public Filter dateGreaterThanOrEqual(String attribute, Date literal) {
         return factory.greaterOrEqual(factory.property(attribute), factory.literal(literal));
+    }
+
+    public Filter dateIsDuring(String attribute, Date lowerBoundary, Date upperBoundary) {
+        return factory.during(factory.property(attribute), factory.literal(makePeriod(lowerBoundary, upperBoundary)));
+    }
+
+    private Period makePeriod(Date start, Date end) {
+        DefaultPosition defaultPosition = new DefaultPosition(start);
+        Instant startInstant = new DefaultInstant(defaultPosition);
+        Instant endInstant = new DefaultInstant(new DefaultPosition(end));
+        Period period = new DefaultPeriod(startInstant, endInstant);
+        return period;
     }
 }

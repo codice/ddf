@@ -368,6 +368,16 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
     }
 
     @Override
+    public SolrQuery propertyIsBetween(String propertyName, Date lowerBoundary, Date upperBoundary) {
+        String formattedStartDate = formatDate(lowerBoundary);
+        String formattedEndDate = formatDate(upperBoundary);
+        // From OGC 09-026r1 and ISO 19143:2010(E), Section 7.7.3.7:
+        // The PropertyIsBetween element is defined as a compact way of encoding a range check.
+        // The lower and upper boundary values are inclusive.
+        return buildDateQuery(propertyName, SOLR_INCLUSIVE_START, formattedStartDate, formattedEndDate, SOLR_INCLUSIVE_END);
+    }
+
+    @Override
     public SolrQuery relative(String propertyName, long duration) {
         DateTime now = new DateTime();
         Date start = now.minus(duration).toDate();

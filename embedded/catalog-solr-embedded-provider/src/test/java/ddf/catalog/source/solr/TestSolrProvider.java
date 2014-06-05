@@ -39,6 +39,7 @@ import java.net.URI;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -46,6 +47,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.TimeZone;
 import java.util.TreeSet;
 
 import javax.swing.border.BevelBorder;
@@ -3025,6 +3027,29 @@ public class TestSolrProvider extends SolrProviderTestCase {
         assertEquals(0, results.size());
     }
 
+    @Test()
+    public void testDateDuring() throws Exception {
+
+        deleteAllIn(provider);
+
+        DateTime now = new DateTime();
+        List<Metacard> list = addMetacardWithModifiedDate(now);
+
+        /** POSITIVE CASE **/
+        Filter filter = filterBuilder.dateIsDuring(Metacard.MODIFIED, dateBeforeNow(now), dateAfterNow(now));
+        List<Result> results = getResultsForFilteredQuery(filter);
+        assertEquals(1, results.size());
+
+        /** NEGATIVE CASES **/
+        filter = filterBuilder.dateIsDuring(Metacard.MODIFIED, getCannedTime(1980, Calendar.JANUARY, 1, 3), dateBeforeNow(now));
+        results = getResultsForFilteredQuery(filter);
+        assertEquals(0, results.size());
+
+        filter = filterBuilder.dateIsDuring(Metacard.MODIFIED, dateAfterNow(now), getCannedTime(2035, Calendar.JULY, 23, 46));
+        results = getResultsForFilteredQuery(filter);
+        assertEquals(0, results.size());
+    }
+
     /**
      * Test for a specific IRAD problem.
      * 
@@ -4374,5 +4399,13 @@ public class TestSolrProvider extends SolrProviderTestCase {
         assertEquals(metacard.getExpirationDate(), deletedMetacard.getExpirationDate());
         assertTrue(Arrays.equals(metacard.getThumbnail(), deletedMetacard.getThumbnail()));
         assertEquals(metacard.getLocation(), deletedMetacard.getLocation());
+    }
+
+    private Date getCannedTime(int year, int month, int day, int hour) {
+        Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+        calendar.clear();
+        calendar.set(year, month, day, hour, 59, 56);
+        calendar.set(Calendar.MILLISECOND, 765);
+        return calendar.getTime();
     }
 }

@@ -208,10 +208,23 @@ public class TestSolrFilterDelegate {
         assertThat(temporalQuery.getQuery(), is(expectedQuery));
     }
 
+    @Test
+    public void testDatePropertyIsBetween() {
+        stub(mockResolver.getField("created", AttributeFormat.DATE, false)).toReturn("created_date");
+
+        String expectedQuery = " created_date:[ 1995-11-24T23:59:56.765Z TO 1995-11-27T04:59:56.765Z ] ";
+        SolrQuery temporalQuery = toTest.propertyIsBetween(Metacard.CREATED, getCannedTime(), getCannedTime(1995, Calendar.NOVEMBER, 27, 4));
+        assertThat(temporalQuery.getQuery(), is(expectedQuery));
+    }
+
     private Date getCannedTime() {
+        return getCannedTime(1995, Calendar.NOVEMBER, 24, 23);
+    }
+
+    private Date getCannedTime(int year, int month, int day, int hour) {
         Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
         calendar.clear();
-        calendar.set(1995, Calendar.NOVEMBER, 24, 23, 59, 56);
+        calendar.set(year, month, day, hour, 59, 56);
         calendar.set(Calendar.MILLISECOND, 765);
         return calendar.getTime();
     }
