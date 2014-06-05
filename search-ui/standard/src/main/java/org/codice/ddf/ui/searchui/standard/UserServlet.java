@@ -41,30 +41,33 @@ public class UserServlet extends HttpServlet {
             subject = (Subject) req.getAttribute(SecurityConstants.SECURITY_SUBJECT);
         }
 
-        PrincipalCollection principalCollection = subject.getPrincipals();
-
-        String user = "";
-
-        for(Object principal : principalCollection.asList()) {
-            if(principal instanceof SecurityAssertion) {
-                SecurityAssertion assertion = (SecurityAssertion) principal;
-
-                Principal jPrincipal = assertion.getPrincipal();
-                user = jPrincipal.getName();
+        if (subject != null)
+        {
+            PrincipalCollection principalCollection = subject.getPrincipals();
+    
+            String user = "";
+    
+            for(Object principal : principalCollection.asList()) {
+                if(principal instanceof SecurityAssertion) {
+                    SecurityAssertion assertion = (SecurityAssertion) principal;
+    
+                    Principal jPrincipal = assertion.getPrincipal();
+                    user = jPrincipal.getName();
+                }
             }
-        }
-
-        JSONObject obj = new JSONObject();
-        obj.put("user", user);
-
-        resp.setContentType("application/json");
-        resp.setCharacterEncoding("UTF-8");
-
-        try {
-            writer = resp.getWriter();
-            writer.write(obj.toJSONString());
-        } finally {
-            writer.close();
+    
+            JSONObject obj = new JSONObject();
+            obj.put("user", user);
+    
+            resp.setContentType("application/json");
+            resp.setCharacterEncoding("UTF-8");
+    
+            try {
+                writer = resp.getWriter();
+                writer.write(obj.toJSONString());
+            } finally {
+                writer.close();
+            }
         }
     }
 
