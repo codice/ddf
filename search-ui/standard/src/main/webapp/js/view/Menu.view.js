@@ -24,11 +24,12 @@ define([
     'text!templates/menubarLogout.handlebars',
     'text!templates/tasks/task.menu.handlebars',
     'text!templates/tasks/task.category.handlebars',
+    'text!templates/help.handlebars',
     'cometdinit',
     'jquery',
     'modelbinder',
     'perfectscrollbar'
-], function(Marionette, ich, menubarTemplate, menubarItemTemplate, UserModel, Backbone, notificationMenuTemplate, wreqr, _, loginTemplate, logoutTemplate, taskTemplate, taskCategoryTemplate, Cometd, $) {
+], function(Marionette, ich, menubarTemplate, menubarItemTemplate, UserModel, Backbone, notificationMenuTemplate, wreqr, _, loginTemplate, logoutTemplate, taskTemplate, taskCategoryTemplate, helpTemplate, Cometd, $) {
 
     ich.addTemplate('menubarItemTemplate', menubarItemTemplate);
 
@@ -43,6 +44,8 @@ define([
     ich.addTemplate('taskTemplate', taskTemplate);
 
     ich.addTemplate('taskCategoryTemplate', taskCategoryTemplate);
+
+    ich.addTemplate('helpTemplate', helpTemplate);
 
     var Menu = {};
 
@@ -401,14 +404,17 @@ define([
             var Help = Menu.Item.extend({
                 className: 'dropdown',
                 onRender: function() {
-                    //TODO replace this with something better once we have help
-                    var DefaultView = Marionette.ItemView.extend({
+                    var HelpView = Marionette.ItemView.extend({
+                        template: 'helpTemplate',
                         className: 'dropdown-width',
-                        onRender: function() {
-                            this.$el.html(menuBarView.model.get('branding') + " " + menuBarView.model.get('version'));
+                        serializeData: function(){
+                             return {
+                                branding: menuBarView.model.get('branding'),
+                                version: menuBarView.model.get('version')
+                             };
                         }
                     });
-                    this.children.show(new DefaultView());
+                    this.children.show(new HelpView());
                 }
             });
             this.help.show(new Help({model: new MenuItem({

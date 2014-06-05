@@ -17,8 +17,8 @@
 	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd">
 
     <welcome-file-list>
-		<welcome-file>index.html</welcome-file>
-	</welcome-file-list>
+        <welcome-file>index.html</welcome-file>
+    </welcome-file-list>
 	
     <context-param>
         <param-name>org.eclipse.jetty.servlet.SessionIdPathParameterName</param-name>

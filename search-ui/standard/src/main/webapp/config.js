@@ -25,6 +25,7 @@
             perfectscrollbar: 'lib/perfect-scrollbar/min/perfect-scrollbar.with-mousewheel.min',
             spin: 'lib/spin.js/spin',
             q: 'lib/q/q',
+            strapdown: 'lib/strapdown/v/0.2',
 
             // backbone
             backbone: 'lib/components-backbone/backbone-min',

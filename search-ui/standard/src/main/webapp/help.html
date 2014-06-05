@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+ -->
+<html>
+
+<xmp theme="" style="display:none;">
+
+<!-- START MARKDOWN -->
+
+## Table of Contents
+--------------------
+
+- [Description](#Description)
+- [Menu Bar](#Menu-Bar)
+- [Map](#Map)
+- [Search Criteria Input Form](#Search-Criteria)
+- [Search Results](#Results)
+- [Record View](#Record)
+- [Appendix](#Appendix)
+
+
+
+
+
+## <a name="Description"></a> Description ##
+--------------------------------------------
+
+The **Standard Search UI** provides a convenient interface for querying and viewing search results. 
+The left panel provides a form to input search criteria and the right panel provides a map to view search results.
+
+
+
+
+
+## <a name="Menu-Bar"></a> Menu Bar ##
+--------------------------------------
+
+| Menu Bar Icons   | Description         |
+| ---------------------|---------------------|
+| Notifications        | Lists notifications. |
+| Help | Link to this help page. |
+| Home | Flys to the map's home position. |
+| Map Views | 3D, 2D, Columbus view |
+
+One can change the map view by selecting 3D, 2D, or Columbus view from the map view icons in the upper right corner of the page.
+
+
+
+## <a name="Map"></a> Map ##
+----------------------------
+
+The map displays search results using marker icons.  One can zoom in and zoom out using the mouse scroll wheel.  The map can be displayed in three views: 3D, 2D, and Columbus view 
+(see the [Menu Bar](#Menu-Bar) section for instructions on how to change the map view).  One can draw on the map to select a **Location** to search (see [Select a Location by Drawing on the Map](#Drawing-Example)).
+
+
+
+
+  
+## <a name="Search-Criteria"></a> Search Criteria Input Form ##
+-----------------------------------------------------------
+
+The **Search Criteria Input Form** allows users to specify search criteria and the [sources](#Appendix) to search.  One can enter any combination of search criteria (Keywords, Time, Location, Type, and [Sources](#Appendix)) 
+to limit/expand the query results returned.
+
+| Criteria        | Description         |
+| ----------------|---------------------|
+| Keywords | Search based on keywords.  Wildcards , asterisks (*), are supported. |
+| Time (Temporal) | Search based on [relative time](#Appendix) or [absolute time](#Appendix). Selecting **Any** from **Any**, **Relative**, or **Absolute** on the **Search** panel will not limit the results temporally.|
+| Location (Spatial) | Search spatially with [point-radius](#Appendix) or [bounding box](#Appendix). One can draw on the map to select a region for **Point-Radius** or **Bounding Box**. Selecting **Any**  from **Any**, **Point-Radius**, or **Bounding Box** on the **Search** panel will not limit the results spatially. |
+| Type (Content Type) | Search based on [content type](#Appendix). Selecting **Any** from **Any** or **Specific Types** on the **Search** panel will not limit the results by content type. |
+
+| Additional Sources |  Description         |
+| -------------------|----------------------|
+| All Sources | Search the [enterprise](#Appendix). |
+| Specific Sources | Select the [source(s)](#Appendix) to be searched. | 
+| None | Search the [local catalog](#Appendix) only. |
+
+| Button           |  Description         |
+| -----------------|----------------------|
+| Search           | Perform a search  based on the search criteria. |
+| Clear            | Clear all of the search criteria from the search form. |
+
+See [How to Perform Some Basic Search Queries](#Query-Examples) for some examples.
+ 
+ 
+ 
+ 
+ 
+## <a name="Results"></a>Search Results ##
+----------------------------------------
+
+The **Results** list shows the [top results](#Appendix) from a query.  Each result in the **Results** list provides the **Link** to the result's metadata, the **[Source](#Appendix)** of the result, and the **[Modified Date](#Appendix)** of the result.
+One can click on a result in the **Results** list to view additional information about the selected result, or one can click on a marker icon on the map to view additional information about the result at that location. 
+ 
+ 
+ 
+ 
+ 
+## <a name="Record"></a>Record View ##
+--------------------------------------
+
+The **Record** view shows a **Summary** tab and a **Details** tab providing information about the selected record.  One can use the **Previous** and **Next**
+buttons to navigate through results. 
+
+See [How to Fly to a Location on the Map](#Locate-Example) for directions on how to fly to a result's location on the map. 
+
+#### Summary Tab ####
+
+| Property         |  Description         |
+| -----------------|----------------------|
+| Title | The title of the record. |
+| Source | The [source](#Appendix) of the record. |
+| Created Date | The date/time the record was created. |
+| Modified Date | The date/time the record was last modified. |
+| Locate | Flys to the record's location on the map. |
+
+#### Details Tab ####
+
+| Property |  Description         |
+| ---------|----------------------|
+| Id | Uniquely identifies the record. |
+| Source Id | The [source](#Appendix) of the record. |
+| Title | The title of the record. |
+| Created | The date/time the record was created. |
+| Metadata Content Type Version | The metadata content type version of the record. |
+| Metacard Type | The record's type.  See [metacard type](#Appendix). |
+| Metadata Content Type | The metadata content type of the record. |
+| Effective | The date/time of the resource associated with the record. |
+| Modified | The date/time the record was last modified. |
+| Metadata | A link to the record in xml format. |
+
+
+
+
+
+## <a name="Appendix"></a> Appendix ##
+--------------------------------------
+
+| Term     |  Definition          |
+| ---------|----------------------|
+| absolute time | Search using a begin and end date/time range. |
+| bounding box | An area defined by two longitudes (West and East) and two latitudes (North and South). |
+| content type | The type of the resource described by the metadata.  Examples of content type are NITF, PDF, JPG. |
+| federation | All of the remote sources defined in this system. |
+| enterprise | The local catalog (this system) and all of the federated sources. |
+| local catalog | The catalog (data store) for this system. |
+| metacard type | The model used to define the attributes for a record. |
+| modified date | The date/time a record was last modified. |
+| point-radius | Search within a radius from a selected point. The point is specified in latitude and longitude, and the radius is specified in meters, kilometers, feet, yards, or miles. |
+| relative time | Search from some date/time in the past to now. |
+| source | A system that has a catalog (data store). This could be the local catalog provider (this system) or a federated source. |
+| top results | Defaults to 250.  The result count can be configured via the system's administration console. |
+
+
+
+
+#### <a name="Query-Examples"></a> How to Perform Some Basic Search Queries ####
+
+##### Wildcard Keyword Search on the [Enterprise](#Appendix) #####
+1. Enter an ***** in the **Keywords** textbox.
+2. From **Time**, select **Any** from **Any**, **Relative**, or **Absolute**.
+3. From **Location** , select **Any** from **Any**, **Point-Radius**, or **Bounding Box**.
+4. From **Type**, select **Any** from **Any** or **Specific Types**.
+5. From **Additional Sources**, select **All Sources** from **All Sources**, **Specific Sources**, or **None**.
+6. Click **Search**. 
+7. The results will display on the map as marker icons.
+8. Select a result from the Results list or click on a marker icon on the map.
+9. View **Summary** or **Detailed** information for the selected record.
+
+
+
+##### Keyword Search (Textual Query) on the [Enterprise](#Appendix) #####
+1. Enter a **keyword** in the **Keywords** textbox.
+2. From **Time**, select **Any** from **Any**, **Relative**, or **Absolute**.
+3. From **Location** , select **Any** from **Any**, **Point-Radius**, or **Bounding Box**.
+4. From **Type**, select **Any** from **Any** or **Specific Types**.
+5. From **Additional Sources**, select **All Sources** from **All Sources**, **Specific Sources**, or **None**.
+6. Click **Search**. 
+7. The results will display on the map as marker icons.
+8. Select a result from the Results list or click on a marker icon on the map.
+9. View **Summary** or **Detailed** information for the selected record.
+
+
+
+##### Keyword Search Limited by Date/Time on the [Enterprise](#Appendix) #####
+1. Enter a **keyword** in the **Keywords** textbox.
+2. From **Time**, select **Absolute** from **Any**, **Relative**, or **Absolute**.
+  1. Enter a **Begin** time.
+  2. Enter an **End** time.
+3. From **Location** , select **Any** from **Any**, **Point-Radius**, or **Bounding Box**.
+4. From **Type**, select **Any** from **Any** or **Specific Types**.
+5. From **Additional Sources**, select **All Sources** from **All Sources**, **Specific Sources**, or **None**.
+6. Click **Search**. 
+7. The results will display on the map as marker icons.
+8. Select a result from the Results list or click on a marker icon on the map.
+9. View **Summary** or **Detailed** information for the selected record.
+
+
+
+#####  Keyword Search Limited by Date/Time and Location on the [Enterprise](#Appendix) #####
+1. Enter a **keyword** in the **Keywords** textbox.
+2. From **Time**, select **Absolute** from **Any**, **Relative**, or **Absolute**.
+  1. Enter a **Begin** time.
+  2. Enter an **End** time.
+3. From **Location** , select **Point-Radius** from **Any**, **Point-Radius**, or **Bounding Box**.
+  1. Draw the area of interest on the map.  One can manually enter the latitude, longitude, radius, and units if desired.
+4. From **Type**, select **Any** from **Any** or **Specific Types**.
+5. From **Additional Sources**, select **All Sources** from **All Sources**, **Specific Sources**, or **None**.
+6. Click **Search**. 
+7. The results will display on the map as marker icons.
+8. Select a result from the Results list or click on a marker icon on the map.
+9. View **Summary** or **Detailed** information for the selected record.
+
+
+
+#####  Keyword Search Limited by Date/Time, Location, and Type on the [Enterprise](#Appendix) #####
+1. Enter a **keyword** in the **Keywords** textbox.
+2. From **Time**, select **Absolute** from **Any**, **Relative**, or **Absolute**.
+  1. Enter a **Begin** time.
+  2. Enter an **End** time.
+3. From **Location** , select **Point-Radius** from **Any**, **Point-Radius**, or **Bounding Box**.
+  1. Draw the area of interest on the map.  One can manually enter the latitude, longitude, radius, and units if desired.
+4. From **Type**, select **Specific Types** from **Any** or **Specific Types**.
+  1. Select a type from the dropdown list.
+5. From **Additional Sources**, select **All Sources** from **All Sources**, **Specific Sources**, or **None**.
+6. Click **Search**. 
+7. The results will display on the map as marker icons.
+8. Select a result from the Results list or click on a marker icon on the map.
+9. View **Summary** or **Detailed** information for the selected record.
+
+
+
+#####  Keyword Search Limited by Date/Time, Location, Type, and Source #####
+1. Enter a **keyword** in the **Keywords** textbox.
+2. From **Time**, select **Absolute** from **Any**, **Relative**, or **Absolute**.
+  1. Enter a **Begin** time.
+  2. Enter an **End** time.
+3. From **Location** , select **Point-Radius** from **Any**, **Point-Radius**, or **Bounding Box**.
+  1. Draw the area of interest on the map.  One can manually enter the latitude, longitude, radius, and units if desired.
+4. From **Type**, select **Specific Types** from **Any** or **Specific Types**.
+  1. Select a type from the dropdown list.
+5. From **Additional Sources**, select **Specific Sources** from **All Sources**, **Specific Sources**, or **None**.
+  1. Select a [source](#Appendix) from the dropdown list.
+6. Click **Search**. 
+7. The results will display on the map as marker icons.
+8. Select a result from the Results list or click on a marker icon on the map.
+9. View **Summary** or **Detailed** information for the selected record.
+
+
+
+##### Keyword Search on the [Local Catalog](#Appendix) #####
+1. Enter a **keyword** in the **Keywords** textbox.
+2. From **Time**, select **Any** from **Any**, **Relative**, or **Absolute**.
+3. From **Location** , select **Any** from **Any**, **Point-Radius**, or **Bounding Box**.
+4. From **Type**, select **Any** from **Any** or **Specific Types**.
+5. From **Additional Sources**, select **None** from **All Sources**, **Specific Sources**, or **None**.  **Note: None** mean query the [local catalog](#Appendix) (this system) only.
+6. Click **Search**. 
+7. The results will display on the map as marker icons.
+
+
+
+
+
+#### <a name="Map-Examples"></a> Using the Map ####
+
+##### <a name="Locate-Example"></a> How to Fly to a Location on the Map #####
+1. Perform a search.
+2. Select a result from the **Results** list or click on a marker icon on the map.
+3. View the **Summary** information for the record.
+4. Click on the **Locate** link.  This will cause the map to fly to the result's location on the map.
+5. Clicking the **Home** icon in the upper right will cause the map to return to its home position.
+
+
+
+##### <a name="Drawing-Example"></a> Select a Location by Drawing on the Map #####
+1. From **Location** , select **Point-Radius** or **Bounding Box** from **Any**, **Point-Radius** or **Bounding Box**.
+2. Draw on the map to select the desired region.
+5. Click **Search**.
+
+<!-- END MARKDOWN -->
+
+</xmp>
+
+<script src="lib/strapdown/v/0.2/strapdown.js"></script> 
+
+</html>
