@@ -14,6 +14,7 @@
  **/
 package ddf.catalog.event.retrievestatus;
 
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -21,10 +22,22 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.shiro.mgt.DefaultSecurityManager;
+import org.apache.shiro.session.mgt.SimpleSession;
+import org.apache.shiro.subject.PrincipalCollection;
+import org.apache.shiro.subject.SimplePrincipalCollection;
+import org.apache.shiro.subject.Subject;
+import org.apache.shiro.util.ThreadContext;
 import org.codice.ddf.notifications.Notification;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.BeforeClass;
+import org.mockito.Mockito;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventAdmin;
 import org.slf4j.Logger;
@@ -66,6 +79,12 @@ public abstract class AbstractDownloadsStatusEventPublisherTest {
 
     protected static DownloadsStatusEventPublisher publisher;
 
+    protected Event curEvent;
+
+    private static final String USER_ID = "testSubjectUser";
+
+    private static final String SESSION_ID = "123456";
+
     protected static final Logger LOGGER = org.slf4j.LoggerFactory
             .getLogger(AbstractDownloadsStatusEventPublisherTest.class);
 
@@ -74,72 +93,161 @@ public abstract class AbstractDownloadsStatusEventPublisherTest {
         resourceResponse = mock(ResourceResponse.class);
         resourceRequest = mock(ResourceRequest.class);
         resource = mock(Resource.class);
-        properties = mock(Map.class);
+        properties = new HashMap<String, Serializable>();
+        properties.put(Notification.NOTIFICATION_KEY_USER_ID, SESSION_ID);
 
         when(resource.getName()).thenReturn("testCometDSessionID");
-        when(properties.get(Notification.NOTIFICATION_KEY_USER_ID)).thenReturn("testUser");
         when(resourceRequest.getProperties()).thenReturn(properties);
+        when(resourceRequest.containsPropertyName(Notification.NOTIFICATION_KEY_USER_ID))
+                .thenReturn(true);
+        when(resourceRequest.getPropertyValue(Notification.NOTIFICATION_KEY_USER_ID)).thenReturn(
+                properties.get(Notification.NOTIFICATION_KEY_USER_ID));
         when(resourceResponse.getResource()).thenReturn(resource);
         when(resourceResponse.getRequest()).thenReturn(resourceRequest);
     }
 
-    @org.junit.Test
-    public void testPostRetrievalStatusHappyPath() {
-        setupPublisher();
+    @Before
+    public void setUpTest() {
+        eventAdmin = mock(EventAdmin.class);
+        Mockito.doAnswer(new Answer<Object>() {
 
+            @Override
+            public Object answer(InvocationOnMock invocation) throws Throwable {
+                Object[] args = invocation.getArguments();
+                curEvent = (Event) args[0];
+                return null;
+            }
+
+        }).when(eventAdmin).postEvent(any(Event.class));
+
+        metacard = mock(Metacard.class);
+        when(metacard.getId()).thenReturn("12345");
+    }
+
+    @After
+    public void tearDownTest() {
+        // Remove the security from the thread after every test
+        ThreadContext.unbindSecurityManager();
+        ThreadContext.unbindSubject();
+    }
+
+    /**
+     * Calls the retrieval status test with a security subject
+     */
+    @org.junit.Test
+    public void testPostRetrievalStatusWithSecurity() {
+        setupPublisher();
+        addSecurity();
+        testPostRetrievalStatus(USER_ID);
+    }
+
+    /**
+     * Calls the retrieval status test with no security subject (simulating no
+     * security in the system).
+     */
+    @org.junit.Test
+    public void testPostRetrievalStatusWithoutSecurity() {
+        setupPublisher();
+        testPostRetrievalStatus(SESSION_ID);
+    }
+
+    /**
+     * Tests that the retrieval status is properly sent to the event admin.
+     * 
+     * @param correctUser
+     *            user to check for in the event property
+     */
+    private void testPostRetrievalStatus(String correctUser) {
         publisher.postRetrievalStatus(resourceResponse, ProductRetrievalStatus.STARTED, metacard,
                 null, 0L);
         verify(eventAdmin, times(1)).postEvent(any(Event.class));
+        assertEquals(correctUser, curEvent.getProperty(Notification.NOTIFICATION_KEY_USER_ID));
 
         // Test with null bytes
         publisher.postRetrievalStatus(resourceResponse, ProductRetrievalStatus.STARTED, metacard,
                 null, null);
         verify(eventAdmin, times(2)).postEvent(any(Event.class));
+        assertEquals(correctUser, curEvent.getProperty(Notification.NOTIFICATION_KEY_USER_ID));
 
         publisher.postRetrievalStatus(resourceResponse, ProductRetrievalStatus.CANCELLED, metacard,
                 "test detail", 20L);
         verify(eventAdmin, times(3)).postEvent(any(Event.class));
+        assertEquals(correctUser, curEvent.getProperty(Notification.NOTIFICATION_KEY_USER_ID));
 
         publisher.postRetrievalStatus(resourceResponse, ProductRetrievalStatus.FAILED, metacard,
                 "test detail", 250L);
         verify(eventAdmin, times(4)).postEvent(any(Event.class));
+        assertEquals(correctUser, curEvent.getProperty(Notification.NOTIFICATION_KEY_USER_ID));
 
         publisher.postRetrievalStatus(resourceResponse, ProductRetrievalStatus.RETRYING, metacard,
                 "test detail", 350L);
         verify(eventAdmin, times(5)).postEvent(any(Event.class));
+        assertEquals(correctUser, curEvent.getProperty(Notification.NOTIFICATION_KEY_USER_ID));
 
         publisher.postRetrievalStatus(resourceResponse, ProductRetrievalStatus.COMPLETE, metacard,
                 "test detail", 500L);
         verify(eventAdmin, times(6)).postEvent(any(Event.class));
+        assertEquals(correctUser, curEvent.getProperty(Notification.NOTIFICATION_KEY_USER_ID));
     }
 
+    /**
+     * Calls the no name property test with a security subject (simulating
+     * security in the system).
+     */
     @org.junit.Test
-    public void testPostRetrievalStatusWithNoNameProperty() {
+    public void testPostRetrievalStatusWithNoNamePropertyWithSecurity() {
         setupPublisher();
+        addSecurity();
+        testPostRetrievalStatusWithNoNameProperty(USER_ID);
+    }
 
+    /**
+     * Calls the no name property test with no security subject (simulating no
+     * security in the system).
+     */
+    @org.junit.Test
+    public void testPostRetrievalStatusWithNoNamePropertyWithoutSecurity() {
+        setupPublisher();
+        testPostRetrievalStatusWithNoNameProperty(SESSION_ID);
+    }
+
+    /**
+     * Tests that the event admin is properly called when a status is sent with
+     * no name property.
+     * 
+     * @param correctUser
+     *            user to check for in the event property
+     */
+    private void testPostRetrievalStatusWithNoNameProperty(String correctUser) {
         publisher.postRetrievalStatus(resourceResponse, ProductRetrievalStatus.STARTED, metacard,
                 null, 0L);
         verify(eventAdmin, times(1)).postEvent(any(Event.class));
+        assertEquals(correctUser, curEvent.getProperty(Notification.NOTIFICATION_KEY_USER_ID));
 
         publisher.postRetrievalStatus(resourceResponse, ProductRetrievalStatus.STARTED, metacard,
                 "test detail", 10L);
         verify(eventAdmin, times(2)).postEvent(any(Event.class));
+        assertEquals(correctUser, curEvent.getProperty(Notification.NOTIFICATION_KEY_USER_ID));
 
         publisher.postRetrievalStatus(resourceResponse, ProductRetrievalStatus.CANCELLED, metacard,
                 "test detail", 20L);
         verify(eventAdmin, times(3)).postEvent(any(Event.class));
+        assertEquals(correctUser, curEvent.getProperty(Notification.NOTIFICATION_KEY_USER_ID));
 
         publisher.postRetrievalStatus(resourceResponse, ProductRetrievalStatus.FAILED, metacard,
                 "test detail", 250L);
         verify(eventAdmin, times(4)).postEvent(any(Event.class));
+        assertEquals(correctUser, curEvent.getProperty(Notification.NOTIFICATION_KEY_USER_ID));
 
         publisher.postRetrievalStatus(resourceResponse, ProductRetrievalStatus.RETRYING, metacard,
                 "test detail", 350L);
         verify(eventAdmin, times(5)).postEvent(any(Event.class));
+        assertEquals(correctUser, curEvent.getProperty(Notification.NOTIFICATION_KEY_USER_ID));
 
         publisher.postRetrievalStatus(resourceResponse, ProductRetrievalStatus.COMPLETE, metacard,
                 "test detail", 500L);
         verify(eventAdmin, times(6)).postEvent(any(Event.class));
+        assertEquals(correctUser, curEvent.getProperty(Notification.NOTIFICATION_KEY_USER_ID));
     }
 
     @org.junit.Test
@@ -179,4 +287,14 @@ public abstract class AbstractDownloadsStatusEventPublisherTest {
         publisher.setNotificationEnabled(false);
         publisher.setActivityEnabled(false);
     }
+
+    private void addSecurity() {
+        org.apache.shiro.mgt.SecurityManager secManager = new DefaultSecurityManager();
+        PrincipalCollection principals = new SimplePrincipalCollection(USER_ID, "testrealm");
+        Subject subject = new Subject.Builder(secManager).principals(principals)
+                .session(new SimpleSession()).authenticated(true).buildSubject();
+        ThreadContext.bind(secManager);
+        ThreadContext.bind(subject);
+    }
+
 }

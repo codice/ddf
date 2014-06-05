@@ -19,13 +19,10 @@ import static org.mockito.Mockito.when;
 
 import java.net.URL;
 
-import org.osgi.service.event.EventAdmin;
-
 import com.google.common.collect.ImmutableList;
 
 import ddf.action.Action;
 import ddf.action.ActionProvider;
-import ddf.catalog.data.Metacard;
 
 /**
  * 
@@ -37,9 +34,6 @@ public class NotificationEventPublisherTest extends AbstractDownloadsStatusEvent
 
     @Override
     protected void setupPublisher() {
-        eventAdmin = mock(EventAdmin.class);
-        metacard = mock(Metacard.class);
-        when(metacard.getId()).thenReturn("12345");
         actionProvider = mock(ActionProvider.class);
         Action downloadAction = mock(Action.class);
         try {
