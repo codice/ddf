@@ -217,7 +217,7 @@ public abstract class AbstractEventController implements EventHandler {
                             TimeUnit.SECONDS.sleep(1);
                         } catch (InterruptedException e) { }
                         attempts++;
-                        LOGGER.trace("Attemp {} of {} to send notifications back to client.", attempts, maxAttempts);
+                        LOGGER.trace("Attempt {} of {} to send notifications back to client.", attempts, maxAttempts);
                     }
 
                     LOGGER.trace("Sending notifications back to client.");
