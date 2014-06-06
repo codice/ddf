@@ -2918,7 +2918,7 @@ public class TestSolrProvider extends SolrProviderTestCase {
         deleteAllIn(provider);
 
         DateTime now = new DateTime();
-        List<Metacard> list = addMetacardWithModifiedDate(now);
+        addMetacardWithModifiedDate(now);
 
         /** POSITIVE CASE **/
         Filter filter = filterBuilder.attribute(Metacard.MODIFIED).before().date(dateAfterNow(now));
@@ -2938,7 +2938,7 @@ public class TestSolrProvider extends SolrProviderTestCase {
         deleteAllIn(provider);
 
         DateTime now = new DateTime();
-        List<Metacard> list = addMetacardWithModifiedDate(now);
+        addMetacardWithModifiedDate(now);
 
         /** POSITIVE CASE **/
         Filter filter = filterBuilder.attribute(Metacard.MODIFIED).after().date(dateBeforeNow(now));
@@ -2957,7 +2957,7 @@ public class TestSolrProvider extends SolrProviderTestCase {
         deleteAllIn(provider);
 
         DateTime now = new DateTime();
-        List<Metacard> list = addMetacardWithModifiedDate(now);
+        addMetacardWithModifiedDate(now);
 
         /** POSITIVE CASE **/
         Filter filter = filterBuilder.dateGreaterThan(Metacard.MODIFIED, dateBeforeNow(now));
@@ -2976,7 +2976,7 @@ public class TestSolrProvider extends SolrProviderTestCase {
         deleteAllIn(provider);
 
         DateTime now = new DateTime();
-        List<Metacard> list = addMetacardWithModifiedDate(now);
+        addMetacardWithModifiedDate(now);
 
         /** POSITIVE CASE **/
         Filter filter = filterBuilder.dateGreaterThanOrEqual(Metacard.MODIFIED, dateBeforeNow(now));
@@ -2995,7 +2995,7 @@ public class TestSolrProvider extends SolrProviderTestCase {
         deleteAllIn(provider);
 
         DateTime now = new DateTime();
-        List<Metacard> list = addMetacardWithModifiedDate(now);
+        addMetacardWithModifiedDate(now);
 
         /** POSITIVE CASE **/
         Filter filter = filterBuilder.dateLessThan(Metacard.MODIFIED, dateAfterNow(now));
@@ -3014,7 +3014,7 @@ public class TestSolrProvider extends SolrProviderTestCase {
         deleteAllIn(provider);
 
         DateTime now = new DateTime();
-        List<Metacard> list = addMetacardWithModifiedDate(now);
+        addMetacardWithModifiedDate(now);
 
         /** POSITIVE CASE **/
         Filter filter = filterBuilder.dateLessThanOrEqual(Metacard.MODIFIED, dateAfterNow(now));
@@ -3033,7 +3033,7 @@ public class TestSolrProvider extends SolrProviderTestCase {
         deleteAllIn(provider);
 
         DateTime now = new DateTime();
-        List<Metacard> list = addMetacardWithModifiedDate(now);
+        addMetacardWithModifiedDate(now);
 
         /** POSITIVE CASE **/
         Filter filter = filterBuilder.dateIsDuring(Metacard.MODIFIED, dateBeforeNow(now), dateAfterNow(now));
