@@ -13,77 +13,97 @@
  **/
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<modelVersion>4.0.0</modelVersion>
+    <modelVersion>4.0.0</modelVersion>
 
-	<parent>
-		<artifactId>core</artifactId>
-		<groupId>ddf.catalog.core</groupId>
-		<version>2.5.0-SNAPSHOT</version>
-	</parent>
+    <parent>
+        <artifactId>core</artifactId>
+        <groupId>ddf.catalog.core</groupId>
+        <version>2.5.0-SNAPSHOT</version>
+    </parent>
 
-	<artifactId>catalog-core-commands</artifactId>
-	<name>DDF :: Catalog :: Core :: Commands</name>
-	<packaging>bundle</packaging>
+    <artifactId>catalog-core-commands</artifactId>
+    <name>DDF :: Catalog :: Core :: Commands</name>
+    <packaging>bundle</packaging>
 
-	<dependencies>
+    <dependencies>
 
-		<dependency>
-			<groupId>org.apache.karaf.shell</groupId>
-			<artifactId>org.apache.karaf.shell.console</artifactId>
-		</dependency>
+        <dependency>
+            <groupId>org.apache.karaf.shell</groupId>
+            <artifactId>org.apache.karaf.shell.console</artifactId>
+        </dependency>
 
-		<dependency>
-			<groupId>org.osgi</groupId>
-			<artifactId>org.osgi.core</artifactId>
-		</dependency>
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.core</artifactId>
+        </dependency>
 
-		<dependency>
-			<groupId>ddf.catalog.core</groupId>
-			<artifactId>catalog-core-api-impl</artifactId>
-		</dependency>
+        <dependency>
+            <groupId>ddf.catalog.core</groupId>
+            <artifactId>catalog-core-api-impl</artifactId>
+        </dependency>
 
-		<dependency>
-			<groupId>ddf.catalog.core</groupId>
-			<artifactId>catalog-core-commons</artifactId>
-			<scope>compile</scope>
-		</dependency>
+        <dependency>
+            <groupId>joda-time</groupId>
+            <artifactId>joda-time</artifactId>
+            <version>2.2</version>
+            <type>jar</type>
+            <scope>compile</scope>
+        </dependency>
 
-		<dependency>
-			<groupId>ddf.catalog.core</groupId>
-			<artifactId>filter-proxy</artifactId>
-			<scope>test</scope>
-		</dependency>
+        <dependency>
+            <groupId>org.joda</groupId>
+            <artifactId>joda-convert</artifactId>
+            <version>1.2</version>
+            <type>jar</type>
+            <scope>compile</scope>
+        </dependency>
 
-	</dependencies>
+        <dependency>
+            <groupId>ddf.catalog.core</groupId>
+            <artifactId>catalog-core-commons</artifactId>
+            <scope>compile</scope>
+        </dependency>
 
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.apache.felix</groupId>
-				<artifactId>maven-bundle-plugin</artifactId>
-				<extensions>true</extensions>
-				<configuration>
-					<instructions>
-						<Private-Package>
-							org.codice.ddf.commands.*,
-							ddf.catalog.data.impl,
-							ddf.catalog.operation.impl,
-							ddf.catalog.util.impl,
-							ddf.catalog.filter.impl
-						</Private-Package>
-						<Export-Package />
-						<Import-Package>
-							ddf.catalog.filter,
-							org.apache.felix.service.command,
-							org.apache.felix.gogo.commands,
-							org.apache.karaf.shell.console,
-							org.osgi.framework;version="[1.5,2)",
-							*</Import-Package>
-					</instructions>
-				</configuration>
-			</plugin>
+        <dependency>
+            <groupId>ddf.catalog.core</groupId>
+            <artifactId>filter-proxy</artifactId>
+            <scope>test</scope>
+        </dependency>
 
-		</plugins>
-	</build>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <extensions>true</extensions>
+                <configuration>
+                    <instructions>
+                        <Embed-Dependency>
+                            joda-time;scope=runtime|compile, joda-convert;scope=runtime|compile
+                        </Embed-Dependency>
+                        <Embed-Transitive>true</Embed-Transitive>
+                        <Private-Package>
+                            org.codice.ddf.commands.*,
+                            ddf.catalog.data.impl,
+                            ddf.catalog.operation.impl,
+                            ddf.catalog.util.impl,
+                            ddf.catalog.filter.impl
+                        </Private-Package>
+                        <Export-Package />
+                        <Import-Package>
+                            ddf.catalog.filter,
+                            org.apache.felix.service.command,
+                            org.apache.felix.gogo.commands,
+                            org.apache.karaf.shell.console,
+                            org.osgi.framework;version="[1.5,2)",
+                            *</Import-Package>
+                    </instructions>
+                </configuration>
+            </plugin>
+
+        </plugins>
+    </build>
 
 </project>

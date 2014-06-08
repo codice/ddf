@@ -25,8 +25,9 @@ import java.util.List;
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
-import org.apache.karaf.shell.console.OsgiCommandSupport;
+import org.codice.ddf.commands.catalog.facade.CatalogFacade;
 import org.fusesource.jansi.Ansi;
+import org.joda.time.DateTime;
 import org.opengis.filter.Filter;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;
@@ -42,12 +43,11 @@ import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
-import ddf.catalog.source.CatalogProvider;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.MetacardTransformer;
 
-@Command(scope = CatalogCommands.NAMESPACE, name = "dump", description = "Exports Metacards from the current Catalog. Does not remove them.")
-public class DumpCommand extends OsgiCommandSupport {
+@Command(scope = CatalogCommands.NAMESPACE, name = "dump", description = "Exports Metacards from the current Catalog. Does not remove them. Date filters are ANDed together.")
+public class DumpCommand extends CatalogCommands {
 
     private static final double MILLISECONDS_PER_SECOND = 1000.0;
 
@@ -68,6 +68,18 @@ public class DumpCommand extends OsgiCommandSupport {
 
     @Option(name = "Extension", required = false, aliases = {"-e"}, multiValued = false, description = "The file extension of the data files.")
     String fileExtension = null;
+
+    @Option(name = "CreatedAfter", required = false, aliases = {"--created-after", "-ca"}, multiValued = false, description = "Include only entries created after this date.")
+    String createdAfter = null;
+
+    @Option(name = "CreatedBefore", required = false, aliases = {"--created-before", "-cb"}, multiValued = false, description = "Include only entries created before this date.")
+    String createdBefore = null;
+
+    @Option(name = "ModifiedAfter", required = false, aliases = {"--modified-after", "-ma"}, multiValued = false, description = "Include only entries modified after this date.")
+    String modifiedAfter = null;
+
+    @Option(name = "ModifiedBefore", required = false, aliases = {"--modified-before", "-mb"}, multiValued = false, description = "Include only entries modified before this date.")
+    String modifiedBefore = null;
 
     @Override
     protected Object doExecute() throws Exception {
@@ -92,10 +104,50 @@ public class DumpCommand extends OsgiCommandSupport {
             }
         }
 
-        CatalogProvider catalog = getService(CatalogProvider.class);
-        FilterBuilder builder = getService(FilterBuilder.class);
+        CatalogFacade catalog = getCatalog();
+        FilterBuilder builder = getFilterBuilder();
 
-        Filter filter = builder.attribute(Metacard.ID).is().like().text("*");
+
+        Filter createdFilter = null;
+        if ((createdAfter != null) && (createdBefore != null)) {
+            DateTime createStartDateTime = DateTime.parse(createdAfter);
+            DateTime createEndDateTime = DateTime.parse(createdBefore);
+            createdFilter = builder.attribute(Metacard.CREATED).is().during().dates(createStartDateTime.toDate(), createEndDateTime.toDate());
+        } else if (createdAfter != null) {
+            DateTime createStartDateTime = DateTime.parse(createdAfter);
+            createdFilter = builder.attribute(Metacard.CREATED).is().after().date(createStartDateTime.toDate());
+        } else if (createdBefore != null) {
+            DateTime createEndDateTime = DateTime.parse(createdBefore);
+            createdFilter = builder.attribute(Metacard.CREATED).is().before().date(createEndDateTime.toDate());
+        }
+
+        Filter modifiedFilter = null;
+        if ((modifiedAfter != null) && (modifiedBefore != null)) {
+            DateTime modifiedStartDateTime = DateTime.parse(modifiedAfter);
+            DateTime modifiedEndDateTime = DateTime.parse(modifiedBefore);
+            modifiedFilter = builder.attribute(Metacard.MODIFIED).is().during().dates(modifiedStartDateTime.toDate(), modifiedEndDateTime.toDate());
+        } else if (modifiedAfter != null) {
+            DateTime modifiedStartDateTime = DateTime.parse(modifiedAfter);
+            modifiedFilter = builder.attribute(Metacard.MODIFIED).is().after().date(modifiedStartDateTime.toDate());
+        } else if (modifiedBefore != null) {
+            DateTime modifiedEndDateTime = DateTime.parse(modifiedBefore);
+            modifiedFilter = builder.attribute(Metacard.MODIFIED).is().before().date(modifiedEndDateTime.toDate());
+        }
+
+        Filter filter = null;
+        if ((createdFilter != null) && (modifiedFilter != null)) {
+            // Filter by both created and modified dates
+            filter = builder.allOf(createdFilter, modifiedFilter);
+        } else if (createdFilter != null) {
+            // Only filter by created date
+            filter = createdFilter;
+        } else if (modifiedFilter != null) {
+            // Only filter by modified date
+            filter = modifiedFilter;
+        } else {
+            // Don't filter by date range
+            filter = builder.attribute(Metacard.ID).is().like().text("*");
+        }
 
         QueryImpl query = new QueryImpl(filter);
         query.setRequestsTotalResultsCount(false);
