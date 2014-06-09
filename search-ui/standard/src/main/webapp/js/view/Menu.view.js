@@ -28,8 +28,9 @@ define([
     'cometdinit',
     'jquery',
     'modelbinder',
-    'perfectscrollbar'
-], function(Marionette, ich, menubarTemplate, menubarItemTemplate, UserModel, Backbone, notificationMenuTemplate, wreqr, _, loginTemplate, logoutTemplate, taskTemplate, taskCategoryTemplate, helpTemplate, Cometd, $) {
+    'perfectscrollbar',
+    'backbonecometd'
+], function(Marionette, ich, menubarTemplate, menubarItemTemplate, User, Backbone, notificationMenuTemplate, wreqr, _, loginTemplate, logoutTemplate, taskTemplate, taskCategoryTemplate, helpTemplate, Cometd, $) {
 
     ich.addTemplate('menubarItemTemplate', menubarItemTemplate);
 
@@ -49,7 +50,7 @@ define([
 
     var Menu = {};
 
-    Menu.UserModel = new UserModel();
+    Menu.UserModel = new User.Response();
     Menu.UserModel.fetch();
 
     var MenuItem = Backbone.Model.extend({
@@ -202,7 +203,7 @@ define([
             this.deleteCookie();
             $.ajax({
                 type: "GET",
-                url: "/search",
+                url: document.URL,
                 async: false,
                 beforeSend: function (xhr) {
                     var base64 = window.btoa(view.$('#username').val() + ":" + view.$('#password').val());
@@ -234,7 +235,7 @@ define([
             this.deleteCookie();
             $.ajax({
                 type: "GET",
-                url: "/search",
+                url: document.URL,
                 async: false,
                 username: Menu.UserModel.guestUser,
                 password: Menu.UserModel.guestPass,
@@ -266,19 +267,22 @@ define([
                 var Welcome = Menu.Item.extend({
                     className: 'dropdown',
                     initialize: function() {
-                        if(Menu.UserModel && Menu.UserModel.get('user') && !Menu.UserModel.isGuestUser()){
-                            this.model.set({name: Menu.UserModel.get('user')});
+                        if(this.isNotGuestUser()){
+                            this.model.set({name: Menu.UserModel.get('user').get('username')});
                         }
                         this.listenTo(Menu.UserModel, 'change', this.updateUser);
                     },
                     updateUser: function() {
-                        if(Menu.UserModel.get('user') && !Menu.UserModel.isGuestUser()) {
-                            this.model.set({name: Menu.UserModel.get('user')});
+                        if(this.isNotGuestUser()) {
+                            this.model.set({name: Menu.UserModel.get('user').get('username')});
                         }
                         this.render();
                     },
+                    isNotGuestUser: function() {
+                        return Menu.UserModel && Menu.UserModel.get('user') && Menu.UserModel.get('user').get('username') && !Menu.UserModel.get('user').isGuestUser();
+                    },
                     onRender: function() {
-                        if(Menu.UserModel.get('user') && !Menu.UserModel.isGuestUser()) {
+                        if(this.isNotGuestUser()) {
                             this.children.show(new Menu.LogoutForm());
                         }
                         else {

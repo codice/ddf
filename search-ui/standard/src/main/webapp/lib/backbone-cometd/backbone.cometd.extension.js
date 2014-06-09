@@ -81,9 +81,15 @@
                     model.lastResponse = resp;
                 }
             };
-            model.subscription = Cometd.Comet.subscribe('/' + guid, options.success);
 
-            options.data.guid = guid;
+            //if we have passed in data, we are assuming that we want to setup a channel to listen
+            //this means we don't want to listen to a response from the service endpoint
+            if(options.data) {
+                model.subscription = Cometd.Comet.subscribe('/' + guid, options.success);
+                options.data.guid = guid;
+            } else { //just listen for a response from the service endpoint
+                model.subscription = Cometd.Comet.subscribe(model.url, options.success);
+            }
 
             Cometd.Comet.publish(model.url, options.data);
 

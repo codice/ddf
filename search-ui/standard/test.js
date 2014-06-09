@@ -29,11 +29,12 @@ console.log('setting up mock query endpoint');
 app.all('/services/catalog/query', server.mockQueryServer);
 app.all('/services/catalog/sources', server.mockSources);
 app.all('/services/store/config', server.mockConfigStore);
+app.all('/services/user', server.mockUser);
 app.all('/cometd/connect', server.mockConnect);
 app.all('/cometd/handshake', server.mockHandshake);
 app.all('/services/*', server.requestProxy);
 app.all('/cometd/*', server.requestProxy);
-app.all('/search/standard/user', server.mockUser);
+
 
 exports = module.exports = app;
 

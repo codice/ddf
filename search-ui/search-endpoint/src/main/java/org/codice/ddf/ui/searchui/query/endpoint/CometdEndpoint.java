@@ -21,6 +21,7 @@ import org.codice.ddf.ui.searchui.query.controller.ActivityController;
 import org.codice.ddf.ui.searchui.query.controller.NotificationController;
 import org.codice.ddf.ui.searchui.query.controller.SearchController;
 import org.codice.ddf.ui.searchui.query.service.SearchService;
+import org.codice.ddf.ui.searchui.query.service.UserService;
 import org.cometd.annotation.ServerAnnotationProcessor;
 import org.cometd.bayeux.server.BayeuxServer;
 import org.cometd.bayeux.server.ServerChannel;
@@ -54,7 +55,8 @@ public class CometdEndpoint {
     NotificationController notificationController;
     ActivityController activityController;
     SearchService searchService;
-    
+
+    UserService userService;
 
     /**
      * Create a new CometdEndpoint
@@ -121,6 +123,8 @@ public class CometdEndpoint {
                  
             searchController.setBayeuxServer(bayeuxServer);
             searchService = new SearchService(filterBuilder, searchController);
+            userService = new UserService();
+            cometdAnnotationProcessor.process(userService);
             cometdAnnotationProcessor.process(searchService);
             cometdAnnotationProcessor.process(notificationController);
             cometdAnnotationProcessor.process(activityController);

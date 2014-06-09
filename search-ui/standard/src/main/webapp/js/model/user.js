@@ -12,19 +12,44 @@
 /*global define*/
 
 define([
-    'backbone'
+    'backbone',
+    'backbonerelational'
     ], function (Backbone) {
     'use strict';
 
-    var UserModel = Backbone.Model.extend({
-        url: '/search/standard/user',
-        useAjaxSync: true,
-        guestUser: 'guest',
-        guestPass: 'guest',
+    var User = {};
+
+    User.Model = Backbone.RelationalModel.extend({
         isGuestUser: function() {
-            return this.get('user') === this.guestUser;
+            return this.get('username') === this.guestUser;
         }
     });
 
-    return UserModel;
+    User.Response = Backbone.RelationalModel.extend({
+        relations: [
+            {
+                type: Backbone.HasOne,
+                key: 'user',
+                relatedModel: User.Model,
+                includeInJSON: false,
+                reverseRelation: {
+                    key: 'userResult'
+                }
+            }
+        ],
+        url: '/service/user',
+        syncUrl: "/search/standard/user",
+        useAjaxSync: false,
+        guestUser: 'guest',
+        guestPass: 'guest',
+        parse: function (resp) {
+            if (resp.data) {
+                return resp.data;
+            }
+            return resp;
+        }
+
+    });
+
+    return User;
 });

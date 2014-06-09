@@ -25,14 +25,5 @@
         <param-value>none</param-value>
     </context-param>
 
-    <servlet>
-        <servlet-name>UserServlet</servlet-name>
-        <servlet-class>org.codice.ddf.ui.searchui.standard.UserServlet</servlet-class>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>UserServlet</servlet-name>
-        <url-pattern>/user</url-pattern>
-    </servlet-mapping>
-
 </web-app>
 
