@@ -19,6 +19,7 @@ import org.apache.cxf.ws.security.sts.provider.model.secext.AttributedString;
 import org.apache.cxf.ws.security.sts.provider.model.secext.PasswordString;
 import org.apache.cxf.ws.security.sts.provider.model.secext.UsernameTokenType;
 import org.apache.ws.security.WSConstants;
+import org.codice.ddf.security.handler.api.AuthenticationHandler;
 import org.codice.ddf.security.handler.api.HandlerResult;
 import org.jasypt.contrib.org.apache.commons.codec_1_3.binary.Base64;
 import org.slf4j.Logger;
@@ -30,17 +31,16 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.core.HttpHeaders;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.namespace.QName;
-import javax.ws.rs.core.HttpHeaders;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.security.Principal;
-import org.codice.ddf.security.handler.api.AuthenticationHandler;
 
 /**
  * Handler implementing Basic HTTP Authentication. If basic credentials are supplied in the HTTP
@@ -58,11 +58,19 @@ public class BasicAuthenticationHandler implements AuthenticationHandler {
      */
     public static final String AUTH_TYPE = "BASIC";
 
-
-    private static Marshaller marshaller = null;
+    private static final JAXBContext utContext = initContext();
 
     public String getAuthenticationType() {
         return AUTH_TYPE;
+    }
+
+    private static JAXBContext initContext() {
+        try {
+            return JAXBContext.newInstance(UsernameTokenType.class);
+        } catch (JAXBException e) {
+            LOGGER.error("Unable to create UsernameToken JAXB context.", e);
+        }
+        return null;
     }
 
     /**
@@ -142,29 +150,30 @@ public class BasicAuthenticationHandler implements AuthenticationHandler {
      * @return String
      */
     private synchronized String getUsernameTokenElement(UsernameTokenType result) {
-        JAXBContext context;
-
-        if (marshaller == null) {
+        Writer writer = new StringWriter();
+        Marshaller marshaller = null;
+        if(utContext != null) {
             try {
-                context = JAXBContext.newInstance(UsernameTokenType.class);
-                marshaller = context.createMarshaller();
+                marshaller = utContext.createMarshaller();
                 marshaller.setProperty(Marshaller.JAXB_FRAGMENT, Boolean.TRUE);
             } catch (JAXBException e) {
                 LOGGER.error("Exception while creating UsernameToken marshaller.", e);
             }
-        }
 
-        JAXBElement<UsernameTokenType> usernameTokenElement = new JAXBElement<UsernameTokenType>(
-                new QName(
-                        "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd",
-                        "UsernameToken"), UsernameTokenType.class,
-                result);
+            JAXBElement<UsernameTokenType> usernameTokenElement = new JAXBElement<UsernameTokenType>(
+                    new QName(
+                            "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd",
+                            "UsernameToken"), UsernameTokenType.class,
+                    result
+            );
 
-        Writer writer = new StringWriter();
-        try {
-            marshaller.marshal(usernameTokenElement, writer);
-        } catch (JAXBException e) {
-            LOGGER.error("Exception while writing username token.", e);
+            if (marshaller != null) {
+                try {
+                    marshaller.marshal(usernameTokenElement, writer);
+                } catch (JAXBException e) {
+                    LOGGER.error("Exception while writing username token.", e);
+                }
+            }
         }
 
         return writer.toString();

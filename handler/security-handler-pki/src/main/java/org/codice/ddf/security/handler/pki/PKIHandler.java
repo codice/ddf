@@ -16,7 +16,6 @@ package org.codice.ddf.security.handler.pki;
 
 import ddf.security.common.util.PropertiesLoader;
 import org.apache.cxf.ws.security.sts.provider.model.secext.BinarySecurityTokenType;
-import org.apache.cxf.ws.security.sts.provider.model.secext.UsernameTokenType;
 import org.apache.ws.security.WSConstants;
 import org.apache.ws.security.WSSecurityException;
 import org.apache.ws.security.components.crypto.CredentialException;
@@ -55,7 +54,7 @@ public class PKIHandler implements AuthenticationHandler {
      */
     public static final String AUTH_TYPE = "PKI";
 
-    private Marshaller marshaller = null;
+    private static final JAXBContext btContext = initContext();
 
     private Merlin merlin;
 
@@ -72,6 +71,15 @@ public class PKIHandler implements AuthenticationHandler {
         } catch (IOException e) {
             LOGGER.error("Unable to read merlin properties file.", e);
         }
+    }
+
+    private static JAXBContext initContext() {
+        try {
+            return JAXBContext.newInstance(BinarySecurityTokenType.class);
+        } catch (JAXBException e) {
+            LOGGER.error("Unable to create BinarySecurityToken JAXB context.", e);
+        }
+        return null;
     }
 
     @Override
@@ -145,8 +153,9 @@ public class PKIHandler implements AuthenticationHandler {
      * Creates a binary security token based on the provided credential.
      */
     private synchronized String getBinarySecurityToken(String credential) {
-        JAXBContext context;
         Writer writer = new StringWriter();
+
+        Marshaller marshaller = null;
 
         BinarySecurityTokenType binarySecurityTokenType = new BinarySecurityTokenType();
         binarySecurityTokenType.setValueType(WSConstants.X509TOKEN_NS + "#X509PKIPathv1");
@@ -160,20 +169,21 @@ public class PKIHandler implements AuthenticationHandler {
                 binarySecurityTokenType
         );
 
-        if (marshaller == null) {
+        if(btContext != null) {
             try {
-                context = JAXBContext.newInstance(UsernameTokenType.class);
-                marshaller = context.createMarshaller();
+                marshaller = btContext.createMarshaller();
                 marshaller.setProperty(Marshaller.JAXB_FRAGMENT, Boolean.TRUE);
             } catch (JAXBException e) {
                 LOGGER.error("Exception while creating UsernameToken marshaller.", e);
             }
-        }
 
-        try {
-            marshaller.marshal(binarySecurityTokenElement, writer);
-        } catch (JAXBException e) {
-            LOGGER.error("Exception while writing username token.", e);
+            if(marshaller != null) {
+                try {
+                    marshaller.marshal(binarySecurityTokenElement, writer);
+                } catch (JAXBException e) {
+                    LOGGER.error("Exception while writing username token.", e);
+                }
+            }
         }
 
         String binarySecurityToken = writer.toString();

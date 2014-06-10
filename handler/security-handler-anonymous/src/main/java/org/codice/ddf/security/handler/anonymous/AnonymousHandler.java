@@ -50,7 +50,7 @@ public class AnonymousHandler implements AuthenticationHandler {
      */
     public static final String AUTH_TYPE = "ANON";
 
-    private Marshaller marshaller = null;
+    private static final JAXBContext utContext = initContext();
 
     @Override
     public String getAuthenticationType() {
@@ -69,6 +69,15 @@ public class AnonymousHandler implements AuthenticationHandler {
                 return username;
             }
         };
+    }
+
+    private static JAXBContext initContext() {
+        try {
+            return JAXBContext.newInstance(UsernameTokenType.class);
+        } catch (JAXBException e) {
+            logger.error("Unable to create UsernameToken JAXB context.", e);
+        }
+        return null;
     }
 
     @Override
@@ -91,36 +100,43 @@ public class AnonymousHandler implements AuthenticationHandler {
 
         Writer writer = new StringWriter();
 
-        JAXBContext context;
-        if (marshaller == null) {
+        Marshaller marshaller = null;
+        if(utContext != null) {
             try {
-                context = JAXBContext.newInstance(UsernameTokenType.class);
-                marshaller = context.createMarshaller();
+                marshaller = utContext.createMarshaller();
                 marshaller.setProperty(Marshaller.JAXB_FRAGMENT, Boolean.TRUE);
             } catch (JAXBException e) {
                 logger.error("Exception while creating UsernameToken marshaller.", e);
             }
+
+            JAXBElement<UsernameTokenType> usernameTokenElement = new JAXBElement<UsernameTokenType>(
+                    new QName(
+                            "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd",
+                            "UsernameToken"), UsernameTokenType.class,
+                    usernameTokenType
+            );
+
+            if(marshaller != null) {
+                try {
+                    marshaller.marshal(usernameTokenElement, writer);
+                } catch (JAXBException e) {
+                    logger.error("Unable to create username token for anonymous user.", e);
+                }
+            }
+
+            String usernameSecurityToken = writer.toString();
+            logger.debug("Security token returned: {}", usernameSecurityToken);
+
+            result.setAuthCredentials(usernameSecurityToken);
+            result.setStatus(HandlerResult.Status.COMPLETED);
+            result.setPrincipal(getPrincipal(usernameTokenType));
+            return result;
+        } else {
+            result.setAuthCredentials("");
+            result.setStatus(HandlerResult.Status.NO_ACTION);
+            result.setPrincipal(null);
+            return result;
         }
-
-        JAXBElement<UsernameTokenType> usernameTokenElement = new JAXBElement<UsernameTokenType>(
-                new QName(
-                        "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd",
-                        "UsernameToken"), UsernameTokenType.class,
-                usernameTokenType);
-
-        try {
-            marshaller.marshal(usernameTokenElement, writer);
-        } catch (JAXBException e) {
-            logger.error("Unable to create username token for anonymous user.", e);
-        }
-
-        String usernameSecurityToken = writer.toString();
-        logger.debug("Security token returned: {}", usernameSecurityToken);
-
-        result.setAuthCredentials(usernameSecurityToken);
-        result.setStatus(HandlerResult.Status.COMPLETED);
-        result.setPrincipal(getPrincipal(usernameTokenType));
-        return result;
     }
 
     @Override
