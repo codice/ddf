@@ -167,7 +167,7 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
 
     private static final String DEFAULT_CSW_TRANSFORMER_ID = "csw";
 
-    private static final String CSW_SERVER_ERROR = "Error received from CSW server.";
+    protected static final String CSW_SERVER_ERROR = "Error received from CSW server.";
 
     private static final String DESCRIBABLE_PROPERTIES_FILE = "/describable.properties";
 
@@ -993,7 +993,7 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
         return writer.toString();
     }
 
-    private CapabilitiesType getCapabilities() {
+    protected CapabilitiesType getCapabilities() {
         CapabilitiesType caps = null;
         try {
             if (remoteCsw != null) {
@@ -1285,7 +1285,7 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
         return null;
     }
 
-    private String handleWebApplicationException(WebApplicationException wae) {
+    protected String handleWebApplicationException(WebApplicationException wae) {
         Response response = wae.getResponse();
         CswException cswException = new CswResponseExceptionMapper().fromResponse(response);
 
