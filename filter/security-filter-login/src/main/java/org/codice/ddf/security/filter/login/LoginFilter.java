@@ -17,6 +17,7 @@ package org.codice.ddf.security.filter.login;
 import ddf.security.SecurityConstants;
 import ddf.security.Subject;
 import ddf.security.assertion.SecurityAssertion;
+import ddf.security.common.audit.SecurityLogger;
 import ddf.security.common.util.PropertiesLoader;
 import ddf.security.service.SecurityManager;
 import ddf.security.service.SecurityServiceException;
@@ -134,6 +135,7 @@ public class LoginFilter implements Filter {
             if (subject != null) {
                 httpRequest.setAttribute(SecurityConstants.SECURITY_SUBJECT, subject);
                 LOGGER.debug("Now performing request as user {}", subject.getPrincipal());
+                SecurityLogger.logDebug("Executing request as user: " + subject.getPrincipal());
                 subject.execute(new Callable<Object>() {
 
                     @Override
