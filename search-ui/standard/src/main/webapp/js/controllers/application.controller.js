@@ -18,8 +18,9 @@ define(['jquery',
         'properties',
         'js/view/SearchControl.view',
         'js/model/source',
-        'backbone'
-    ], function ($, _, Marionette, app, properties, SearchControl, Source, Backbone) {
+        'backbone',
+        'poller'
+    ], function ($, _, Marionette, app, properties, SearchControl, Source, Backbone, poller) {
         'use strict';
         var document = window.document,
             ApplicationController;
@@ -42,7 +43,11 @@ define(['jquery',
                          success : function(){
                              controller.renderMainViews(mainView);
                          }
-                     });
+                    });
+
+                    // Poll the server for changes to Sources every 60 seconds -
+                    // This matches the DDF SourcePoller polling interval
+                    poller.get(controller.sources, { delay: 60000 }).start();
                 });
 
                 app.App.headerRegion.show(headerLayout);

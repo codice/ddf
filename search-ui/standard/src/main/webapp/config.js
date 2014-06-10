@@ -31,6 +31,7 @@
             backbone: 'lib/components-backbone/backbone-min',
             backbonerelational: 'lib/backbone-relational/backbone-relational',
             backbonecometd: 'lib/backbone-cometd/backbone.cometd.extension',
+            poller: 'lib/backbone-poller/backbone.poller',
             underscore: 'lib/lodash/dist/lodash.underscore.min',
             marionette: 'lib/marionette/lib/backbone.marionette.min',
             // TODO test combining
@@ -84,12 +85,17 @@
                 exports: 'Backbone'
             },
 
+            poller: {
+                deps: ['backbone']
+            },
+
             cesium: {
                 exports: 'Cesium'
             },
 
             backbonerelational: ['backbone'],
             backbonecometd: ['underscore', 'jquery', 'backbone', 'cometdinit'],
+
             marionette: {
                 deps: ['jquery', 'underscore', 'backbone'],
                 exports: 'Marionette'

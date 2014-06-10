@@ -183,9 +183,6 @@
                 <div id="sources" class="tab-pane {{#is federation 'selected'}}active{{/is}}">
                     <div id="scrollableSources" class="scrollable">
                         <select id="federationSources" class="input-xlarge" multiple="multiple">
-                        {{#each sources}}
-                            <option value={{id}} {{#ifNotOr available}}disabled{{/ifNotOr}}>{{id}}</option>
-                        {{/each}}
                         </select>
                     </div>
                 </div>

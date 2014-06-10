@@ -30,6 +30,7 @@ define(function (require) {
     require('datepickerOverride');
     require('datepickerAddon');
     require('modelbinder');
+    require('collectionbinder');
     require('multiselect');
     require('multiselectfilter');
 
@@ -108,6 +109,26 @@ define(function (require) {
             _.bindAll(this);
             this.model = new Query.Model();
             this.modelBinder = new Backbone.ModelBinder();
+
+            // Assign each source id as both the HTML <option>'s 
+            // "value" attribute and the <option>'s text. Convert the
+            // the source's "available" attribute to the <options>'s
+            // "disabled" attribute.
+            var sourcesBindings = {
+                id: [ { selector: '', 
+                        elAttribute: 'value'}, 
+                      { selector: ''} ],
+                available: { selector: '', 
+                             elAttribute: 'disabled', 
+                             converter: function (direction, value) { 
+                                 return !value; 
+                           }}
+            };
+
+            this.sourcesCollectionBinder = new Backbone.CollectionBinder(
+                new Backbone.CollectionBinder.ElManagerFactory(
+                    '<option></option>', sourcesBindings));
+
             this.sources = options.sources;
         },
 
@@ -126,7 +147,6 @@ define(function (require) {
         setSelectedFederation : function () {
             this.model.set('federation', 'selected');
             this.model.unset('src');
-            this.$('#federationSources').multiselect("refresh");
             this.updateScrollbar();
         },
 
@@ -224,20 +244,28 @@ define(function (require) {
                     }
                 };
 
-            var bindings = Backbone.ModelBinder.createDefaultBindings(this.el, 'name');
-            bindings.radius.selector = '[name=radiusValue]';
-            bindings.radius.converter = radiusConverter;
-            bindings.offsetTime.converter = offsetConverter;
-            bindings.offsetTimeUnits.converter = offsetConverter;
-            bindings.src = {};
-            bindings.src.selector = '#federationSources';
-            bindings.src.converter =  federationConverter;
-            bindings.type = {};
-            bindings.type.selector = '#typeList';
-            bindings.type.converter = federationConverter;
+            var queryModelBindings = Backbone.ModelBinder.createDefaultBindings(this.el, 'name');
+            queryModelBindings.radius.selector = '[name=radiusValue]';
+            queryModelBindings.radius.converter = radiusConverter;
+            queryModelBindings.offsetTime.converter = offsetConverter;
+            queryModelBindings.offsetTimeUnits.converter = offsetConverter;
+            queryModelBindings.src = {};
+            queryModelBindings.src.selector = '#federationSources';
+            queryModelBindings.src.converter =  federationConverter;
+            queryModelBindings.type = {};
+            queryModelBindings.type.selector = '#typeList';
+            queryModelBindings.type.converter = federationConverter;
 
+            this.modelBinder.bind(this.model, this.$el, queryModelBindings);
+            this.sourcesCollectionBinder.bind(this.sources, this.$('#federationSources'));
 
-            this.modelBinder.bind(this.model, this.$el, bindings);
+            // Refresh the sources multiselect widget to reflect
+            // changes when sources are added/removed or
+            // modified (e.g., become available/unavailable)
+            this.sources.bind('add change remove sort', function() {
+                $('#federationSources').multiselect("refresh"); 
+            });
+
 
             this.listenTo(this.model, 'change:bbox change:radius', this.updateZoomOnResults);
 
@@ -301,6 +329,7 @@ define(function (require) {
 
         onClose: function () {
             this.modelBinder.unbind();
+            this.sourcesCollectionBinder.unbind();
         },
 
         filterOnEnter: function (e) {

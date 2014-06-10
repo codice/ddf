@@ -3,6 +3,7 @@
     "version": "0.0.1",
     "private": true,
     "dependencies": {
+        "backbone-poller": "0.2.8",
         "backbone-relational": "0.8.7",
         "backbone.modelbinder": "1.0.5",
         "bootswatch": "v2.3.2",
