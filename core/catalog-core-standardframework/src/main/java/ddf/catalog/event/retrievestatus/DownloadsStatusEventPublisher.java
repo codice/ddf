@@ -26,8 +26,8 @@ import org.codice.ddf.activities.ActivityEvent.ActivityStatus;
 import org.codice.ddf.notifications.Notification;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventAdmin;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.ext.XLogger;
 
 import com.google.common.collect.ImmutableMap;
 
@@ -35,6 +35,7 @@ import ddf.action.Action;
 import ddf.action.ActionProvider;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.operation.ResourceResponse;
+import ddf.security.SubjectUtils;
 
 /**
  * The {@code DownloadsStatusEventPublisher} class creates events and sends them using the {@link EventAdmin} service
@@ -53,7 +54,7 @@ public class DownloadsStatusEventPublisher {
         STARTED, RETRYING, CANCELLED, FAILED, COMPLETE;
     }
 
-    private static final XLogger logger = new XLogger(LoggerFactory.getLogger(DownloadsStatusEventPublisher.class));
+    private static final Logger LOGGER = LoggerFactory.getLogger(DownloadsStatusEventPublisher.class);
 
     private EventAdmin eventAdmin;
     private List<ActionProvider> actionProviders;
@@ -77,10 +78,10 @@ public class DownloadsStatusEventPublisher {
      */
     public void postRetrievalStatus(final ResourceResponse resourceResponse, ProductRetrievalStatus status, Metacard metacard, String detail, Long bytes) {
 
-        logger.debug("ENTERING: postRetrievalStatus(...)");
-        logger.debug("status: {}", status);
-        logger.debug("detail: {}", detail);
-        logger.debug("bytes: {}", bytes);
+        LOGGER.debug("ENTERING: postRetrievalStatus(...)");
+        LOGGER.debug("status: {}", status);
+        LOGGER.debug("detail: {}", detail);
+        LOGGER.debug("bytes: {}", bytes);
 
         if (bytes == null) {
             bytes = 0L;
@@ -89,14 +90,14 @@ public class DownloadsStatusEventPublisher {
         Long sysTimeMillis = System.currentTimeMillis();
         
         // Add user information to the request properties.
-        String user;
+        org.apache.shiro.subject.Subject shiroSubject = null;
         try {
-            org.apache.shiro.subject.Subject shiroSubject = SecurityUtils.getSubject();
-            user = shiroSubject.getPrincipal().toString();
+            shiroSubject = SecurityUtils.getSubject();
         } catch (Exception e) {
-            logger.debug("Could not get user from threadcontext, using session id.");
-            user = getProperty(resourceResponse, ActivityEvent.USER_ID_KEY);
+            LOGGER.debug("Could not determine current user, using session id.");
         }
+        String user = SubjectUtils.getName(shiroSubject, getProperty(resourceResponse, ActivityEvent.USER_ID_KEY));
+        
         
         if(notificationEnabled) {
             Notification notification = new Notification(APPLICATION_NAME,
@@ -114,7 +115,7 @@ public class DownloadsStatusEventPublisher {
             eventAdmin.postEvent(event);
         }
         else {
-            logger.debug("Notifications have been disabled so this message will NOT be posted.");
+            LOGGER.debug("Notifications have been disabled so this message will NOT be posted.");
         }
 
         if (activityEnabled) {
@@ -158,10 +159,10 @@ public class DownloadsStatusEventPublisher {
             eventAdmin.postEvent(event);
         }
         else {
-            logger.debug("Activities have been disabled so this message will NOT be posted.");
+            LOGGER.debug("Activities have been disabled so this message will NOT be posted.");
         }
 
-        logger.debug("EXITING: postRetrievalStatus(...)");
+        LOGGER.debug("EXITING: postRetrievalStatus(...)");
     }
 
     private String getProperty(ResourceResponse resourceResponse, String property) {
@@ -169,7 +170,7 @@ public class DownloadsStatusEventPublisher {
 
         if (resourceResponse.getRequest().containsPropertyName(property)) {
             response = (String) resourceResponse.getRequest().getPropertyValue(property);
-            logger.debug("resourceResponse {} property: {}", property, response);
+            LOGGER.debug("resourceResponse {} property: {}", property, response);
         }
 
         return response;
@@ -218,7 +219,7 @@ public class DownloadsStatusEventPublisher {
 
         response.append(". ");
         response.append(detail);
-        logger.debug("message: {}", response.toString());
+        LOGGER.debug("message: {}", response.toString());
 
         return response.toString();
     }

@@ -34,6 +34,10 @@
           <groupId>ddf.platform</groupId>
           <artifactId>platform-configuration</artifactId>
         </dependency>
+        <dependency>
+            <groupId>ddf.security.core</groupId>
+            <artifactId>security-core-api</artifactId>
+        </dependency>
 		<dependency>
             <groupId>ddf.catalog.core</groupId>
             <artifactId>catalog-core-commons</artifactId>
