@@ -55,20 +55,25 @@ public class UserService {
             subject = (Subject) context.getRequestAttribute(SecurityConstants.SECURITY_SUBJECT);
         }
 
-        PrincipalCollection principalCollection = subject.getPrincipals();
+        if(subject != null) {
+            PrincipalCollection principalCollection = subject.getPrincipals();
 
-        Map<String, String> userMap = new HashMap<String, String>();
+            Map<String, String> userMap = new HashMap<String, String>();
 
-        for(Object principal : principalCollection.asList()) {
-            if(principal instanceof SecurityAssertion) {
-                SecurityAssertion assertion = (SecurityAssertion) principal;
+            for (Object principal : principalCollection.asList()) {
+                if (principal instanceof SecurityAssertion) {
+                    SecurityAssertion assertion = (SecurityAssertion) principal;
 
-                Principal jPrincipal = assertion.getPrincipal();
-                userMap.put("username", jPrincipal.getName());
+                    Principal jPrincipal = assertion.getPrincipal();
+                    userMap.put("username", jPrincipal.getName());
+                }
             }
+            reply.put("user", userMap);
+            reply.put(Search.SUCCESSFUL, true);
+            remote.deliver(serverSession, "/service/user", reply, null);
+        } else {
+            reply.put(Search.SUCCESSFUL, false);
+            remote.deliver(serverSession, "/service/user", reply, null);
         }
-        reply.put("user", userMap);
-        reply.put(Search.SUCCESSFUL, true);
-        remote.deliver(serverSession, "/service/user", reply, null);
     }
 }
