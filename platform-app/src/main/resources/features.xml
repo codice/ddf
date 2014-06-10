@@ -628,6 +628,11 @@
     <feature name="platform-delegate-filter" install="manual" version="${project.version}"
         description="Adds a filter delegate to every incoming servlet context.">
         <bundle start-level="30">mvn:ddf.platform/platform-filter-delegate/${project.version}</bundle>
+    </feature>  
+    
+    <feature name="cassandra-embedded" install="manual" version="${project.version}" description="DDF Embedded Cassandra">
+        <bundle>mvn:ddf.platform.cassandra/platform-cassandra-embedded-server/${project.version}</bundle> 
+        <configfile finalname="/data/cassandra/conf/cassandra.yaml" override="true">mvn:ddf.platform/platform-app/${project.version}/yaml/cassandra</configfile>
     </feature>
 	
 	<feature name="platform-app" install="auto" version="${project.version}" 

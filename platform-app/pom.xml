@@ -201,25 +201,6 @@
 				</executions>
 			</plugin>
 
-			<plugin>
-				<groupId>org.apache.karaf.tooling</groupId>
-				<artifactId>features-maven-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>create-kar</id>
-						<goals>
-							<goal>create-kar</goal>
-						</goals>
-						<configuration>
-							<resourcesDir>${project.build.directory}/resources</resourcesDir>
-							<featuresFile>${basedir}/target/classes/features.xml</featuresFile>
-							<!-- See https://issues.apache.org/jira/browse/KARAF-2357 for details on this setting -->
-							<ignoreDependencyFlag>true</ignoreDependencyFlag>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-
 			<!-- Puts the features XML file for this app into the maven repo. -->
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
@@ -239,12 +220,35 @@
 									<type>xml</type>
 									<classifier>features</classifier>
 								</artifact>
+								<artifact>
+                                  <file>target/classes/cassandra/cassandra.yaml</file>
+                                  <type>yaml</type>
+                                  <classifier>cassandra</classifier>
+                              </artifact>
 							</artifacts>
 						</configuration>
 					</execution>
 				</executions>
 			</plugin>
 
+            <plugin>
+                <groupId>org.apache.karaf.tooling</groupId>
+                <artifactId>features-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>create-kar</id>
+                        <goals>
+                            <goal>create-kar</goal>
+                        </goals>
+                        <configuration>
+                            <resourcesDir>${project.build.directory}/resources</resourcesDir>
+                            <featuresFile>${basedir}/target/classes/features.xml</featuresFile>
+                            <!-- See https://issues.apache.org/jira/browse/KARAF-2357 for details on this setting -->
+                            <ignoreDependencyFlag>true</ignoreDependencyFlag>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
 		</plugins>
 	</build>
 
