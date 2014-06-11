@@ -16,7 +16,7 @@
     <parent>
         <artifactId>search-ui</artifactId>
         <groupId>ddf.ui.search</groupId>
-        <version>2.4.1-SNAPSHOT</version>
+        <version>2.5.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <packaging>bundle</packaging>
@@ -49,12 +49,12 @@
         <dependency>
         	<groupId>ddf.catalog.core</groupId>
         	<artifactId>catalog-core-api-impl</artifactId>
-        	<version>2.3.1.ALPHA1</version>
+        	<version>${ddf.catalog.app.version}</version>
         </dependency>
         <dependency>
             <groupId>ddf.security.core</groupId>
             <artifactId>security-core-api</artifactId>
-            <version>2.3.0</version>
+            <version>${ddf.security.app.version}</version>
         </dependency>
         <dependency>
             <groupId>javax.ws.rs</groupId>
@@ -107,12 +107,13 @@
         <dependency>
             <groupId>ddf.notifications.core</groupId>
             <artifactId>platform-notifications-core-api</artifactId>
-            <version>2.5.0-SNAPSHOT</version>
+            <version>${ddf.platform.app.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
+            <version>1.9.5</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
