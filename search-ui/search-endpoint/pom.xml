@@ -54,7 +54,7 @@
         <dependency>
             <groupId>ddf.security.core</groupId>
             <artifactId>security-core-api</artifactId>
-            <version>${ddf.security.app.version}</version>
+            <version>${ddf.platform.app.version}</version>
         </dependency>
         <dependency>
             <groupId>javax.ws.rs</groupId>
