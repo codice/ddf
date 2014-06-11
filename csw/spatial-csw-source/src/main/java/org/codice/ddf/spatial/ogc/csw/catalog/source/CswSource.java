@@ -55,6 +55,7 @@ import net.opengis.cat.csw.v_2_0_2.ObjectFactory;
 import net.opengis.cat.csw.v_2_0_2.QueryConstraintType;
 import net.opengis.cat.csw.v_2_0_2.QueryType;
 import net.opengis.cat.csw.v_2_0_2.ResultType;
+import net.opengis.filter.v_1_1_0.FilterCapabilities;
 import net.opengis.filter.v_1_1_0.FilterType;
 import net.opengis.filter.v_1_1_0.PropertyNameType;
 import net.opengis.filter.v_1_1_0.SortByType;
@@ -133,7 +134,7 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
 
     private FilterAdapter filterAdapter;
 
-    private CswFilterDelegate cswFilterDelegate;
+    protected CswFilterDelegate cswFilterDelegate;
 
     private Set<SourceMonitor> sourceMonitors = new HashSet<SourceMonitor>();
 
@@ -248,9 +249,6 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
      * @param context
      *            The {@link BundleContext} from the OSGi Framework
      */
-
-
-
     public CswSource(RemoteCsw remoteCsw, BundleContext context,
             CswSourceConfiguration cswSourceConfiguration, List<RecordConverterFactory> factories) {
         this.remoteCsw = remoteCsw;
@@ -1090,7 +1088,6 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
      * @param capabilities
      *            The capabilities the Csw Server supports
      */
-
     private void readGetRecordsOperation(CapabilitiesType capabilities) {
         OperationsMetadata operationsMetadata = capabilities.getOperationsMetadata();
         if (null == operationsMetadata) {
@@ -1130,9 +1127,10 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
             } else {
                 isConstraintCql = false;
             }
-            cswFilterDelegate = new CswFilterDelegate(new CswRecordMetacardType(), getRecordsOp,
-                    capabilities.getFilterCapabilities(), outputFormatValues, resultTypesValues,
-                    cswSourceConfiguration);
+            
+            setFilterDelegate(new CswRecordMetacardType(), getRecordsOp,
+                    capabilities.getFilterCapabilities(), outputFormatValues, 
+                    resultTypesValues, cswSourceConfiguration);
 
             spatialCapabilities = capabilities.getFilterCapabilities().getSpatialCapabilities();
 
@@ -1146,6 +1144,28 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
                 cswFilterDelegate.setSpatialOps(spatialOperators);
             }
         }
+    }
+
+    /**
+     * Sets the {@link FilterDelegate} used by the CswSource. May be overridden
+     * in order to provide a custom FilterDelegate implementation.
+     * 
+     * @param cswRecordMetacardType
+     * @param getRecordsOp
+     * @param filterCapabilities
+     * @param outputFormatValues
+     * @param resultTypesValues
+     * @param cswSourceConfiguration
+     */
+    protected void setFilterDelegate(CswRecordMetacardType cswRecordMetacardType, 
+            Operation getRecordsOp, FilterCapabilities filterCapabilities, 
+            DomainType outputFormatValues, DomainType resultTypesValues,
+            CswSourceConfiguration cswSourceConfiguration) {
+        LOGGER.trace("Setting cswFilterDelegate to default CswFilterDelegate");
+        
+        cswFilterDelegate = new CswFilterDelegate(cswRecordMetacardType, getRecordsOp,
+                filterCapabilities, outputFormatValues, resultTypesValues,
+                cswSourceConfiguration);
     }
 
     private void readSetDetailLevels(DomainType elementSetNamesValues) {
