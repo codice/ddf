@@ -38,7 +38,7 @@
         <org.codice.ddf.activities.version>1.0.0-SNAPSHOT</org.codice.ddf.activities.version>
         <ddf.catalog.app.version>2.5.0-SNAPSHOT</ddf.catalog.app.version>
         <ddf.platform.app.version>2.5.0-SNAPSHOT</ddf.platform.app.version>
-        <ddf.security.app.version>2.5.0-SNAPSHOT</ddf.security.app.version>
+        <ddf.security.app.version>2.4.0-SNAPSHOT</ddf.security.app.version>
         <karaf.version>2.3.3</karaf.version>
     	<javax.inject.version>1</javax.inject.version>
     	
