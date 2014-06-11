@@ -15,6 +15,8 @@
 package org.codice.ddf.spatial.ogc.csw.catalog.common;
 
 import java.lang.reflect.Type;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -40,6 +42,21 @@ public class CswJAXBElementProvider<T> extends JAXBElementProvider<T> {
     private static final Logger LOGGER = LoggerFactory.getLogger(CswJAXBElementProvider.class);
 
     private static final JAXBContext jaxbContext = initJaxbContext();
+
+    public CswJAXBElementProvider() {
+        super();
+
+        Map<String, String> prefixes = new HashMap<String, String>();
+        prefixes.put(CswConstants.CSW_OUTPUT_SCHEMA, CswConstants.CSW_NAMESPACE_PREFIX);
+        prefixes.put(CswConstants.OWS_NAMESPACE, CswConstants.OWS_NAMESPACE_PREFIX);
+        prefixes.put(CswConstants.XML_SCHEMA_LANGUAGE, CswConstants.XML_SCHEMA_NAMESPACE_PREFIX);
+        prefixes.put(CswConstants.OGC_SCHEMA, CswConstants.OGC_NAMESPACE_PREFIX);
+        prefixes.put(CswConstants.GML_SCHEMA, CswConstants.GML_NAMESPACE_PREFIX);
+        prefixes.put(CswConstants.DUBLIN_CORE_SCHEMA, CswConstants.DUBLIN_CORE_NAMESPACE_PREFIX);
+        prefixes.put(CswConstants.DUBLIN_CORE_TERMS_SCHEMA, CswConstants.DUBLIN_CORE_TERMS_NAMESPACE_PREFIX);
+
+        setNamespacePrefixes(prefixes);
+    }
 
     @Override
     public JAXBContext getJAXBContext(Class<?> type, Type genericType) throws JAXBException {
