@@ -19,18 +19,19 @@
 	<OCD description="STS Ldap and Roles Claims Handler Configuration. WARNING: The server must be restarted for these updates to take affect."
 	 	name="Security STS LDAP and Roles Claims Handler" id="ddf.security.sts.claimsHandler">
 	    
-	    <AD name="LDAP URL:" id="ldapUrl" required="true" type="String"
+	    <AD name="LDAP URL:" id="url" required="true" type="String"
 	      default="ldap://ldap:1389"
 	      description="LDAP or LDAPS server and port">
 	    </AD>
 	    
-	    <AD name="LDAP Bind User DN:" id="ldapBindUserDn" required="true" type="String"
+	    <AD name="LDAP Bind User DN:" id="userDn" required="true" type="String"
 	      default="cn=admin" 
 	      description="DN of the user to bind with LDAP. This user should have the ability to verify passwords and read attributes for any user.">
 	    </AD>
 	    
-	    <AD name="LDAP Bind User Password:" id="ldapBindUserPass" required="true" type="Password"
-	      description="Password used to bind user with LDAP.">
+	    <AD name="LDAP Bind User Password:" id="password" required="true" type="Password"
+            default="ENC(c+GitDfYAMTDRESXSDDsMw==)" 
+            description="Password used to bind user with LDAP.">
 	    </AD>
 	    
 	    <AD name="LDAP Username Attribute:" id="userNameAttribute" required="true" type="String"
@@ -48,7 +49,7 @@
 	      description="Full LDAP path to where groups can be found.">
 	    </AD>
       
-        <AD name="Attribute Map File:" id="attributeMapFile" required="true" type="String" 
+        <AD name="Attribute Map File:" id="propertyFileLocation" required="true" type="String" 
           default="etc/ws-security/attributeMap.properties"
           description="Location of the file which contains user attribute maps to use.">
         </AD>

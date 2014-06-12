@@ -36,52 +36,30 @@
            xsi:schemaLocation="http://www.osgi.org/xmlns/blueprint/v1.0.0
 		http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd
         http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0
-        http://aries.apache.org/schemas/blueprint-cm/blueprint-cm-1.1.0.xsd" default-activation="lazy">
+        http://aries.apache.org/schemas/blueprint-cm/blueprint-cm-1.1.0.xsd">
 
-    <cm:property-placeholder persistent-id="ddf.security.sts.claimsHandler" placeholder-prefix="$ch{" update-strategy="reload">
-        <cm:default-properties>            
-            <cm:property name="userBaseDn" value="ou=users,dc=example,dc=com"/>
-            <cm:property name="groupBaseDn" value="ou=groups,dc=example,dc=com"/>
-            <cm:property name="userNameAttribute" value="uid"/>
-            <cm:property name="ldapUrl" value="ldap://ldap:1389"/>
-            <cm:property name="ldapBindUserDn" value="cn=admin"/>
-            <cm:property name="ldapBindUserPass" value="ENC(c+GitDfYAMTDRESXSDDsMw==)"/>
-            <cm:property name="attributeMapFile" value="etc/ws-security/attributeMap.properties" />
-            <cm:property name="securityAttributeClaimType" value="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"/>
-        </cm:default-properties>
-    </cm:property-placeholder>
 
     <reference id="encryptionService" interface="ddf.security.encryption.EncryptionService" />
-    
-    <bean id="contextSource" class="ddf.security.sts.claimsHandler.ContextSourceDecrypt" init-method="afterPropertiesSet">
-        <property name="encryptionService" ref="encryptionService" />
-        <property name="url" value="$ch{ldapUrl}" />
-        <property name="userDn" value="$ch{ldapBindUserDn}" />
-        <property name="password" value="$ch{ldapBindUserPass}" />
-    </bean>
 
-    <bean id="ldapTemplate" class="org.springframework.ldap.core.LdapTemplate">
-        <argument ref="contextSource" />
-    </bean>
-
-    <bean id="roleClaimsHandler" class="ddf.security.sts.claimsHandler.RoleClaimsHandler">
-        <property name="ldapTemplate" ref="ldapTemplate" />
-        <property name="propertyFileLocation" value="$ch{attributeMapFile}"/> 
-        <property name="userBaseDn" value="$ch{userBaseDn}" />
-        <property name="userNameAttribute" value="$ch{userNameAttribute}" />
-        <property name="groupBaseDn" value="$ch{groupBaseDn}" />
-    </bean>
-
-    <bean id="ldapClaimsHandler" class="ddf.security.sts.claimsHandler.LdapClaimsHandler">
-        <property name="ldapTemplate" ref="ldapTemplate" />
-        <property name="propertyFileLocation" value="$ch{attributeMapFile}"/> 
-        <property name="userBaseDN" value="$ch{userBaseDn}" />
-        <property name="userNameAttribute" value="$ch{userNameAttribute}" />
+    <bean id="claimsHandlerManager" class="ddf.security.sts.claimsHandler.ClaimsHandlerManager">
+        <cm:managed-properties persistent-id="ddf.security.sts.claimsHandler"
+            update-strategy="component-managed" update-method="update" />
+        <argument ref="encryptionService" />
+        <argument ref="blueprintBundleContext" />
+        <!-- Default properties -->
+        <argument>
+            <map key-type="java.lang.String" value-type="java.lang.String">
+                <entry key="ldapBindUserDn" value="cn=admin" />
+                <entry key="userBaseDn" value="ou=users,dc=example,dc=com" />
+                <entry key="groupBaseDn" value="ou=groups,dc=example,dc=com" />
+                <entry key="userNameAttribute" value="uid" />
+                <entry key="url" value="ldap://ldap:1389" />
+                <entry key="userDn" value="cn=admin" />
+                <entry key="password" value="ENC(c+GitDfYAMTDRESXSDDsMw==)" />
+                <entry key="propertyFileLocation" value="etc/ws-security/attributeMap.properties" />
+            </map>
+        </argument>
     </bean>
     
-    <service ref="roleClaimsHandler" interface="org.apache.cxf.sts.claims.ClaimsHandler"/>
-  
-    <service ref="ldapClaimsHandler" interface="org.apache.cxf.sts.claims.ClaimsHandler"/>
-
 </blueprint>
 

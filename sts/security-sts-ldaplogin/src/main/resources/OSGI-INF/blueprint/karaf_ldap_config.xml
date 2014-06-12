@@ -11,55 +11,43 @@
  *
  **/
 -->
-<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
-	xmlns:jaas="http://karaf.apache.org/xmlns/jaas/v1.1.0"
-    xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0"
-	xmlns:ext="http://aries.apache.org/blueprint/xmlns/blueprint-ext/v1.0.0"
-	xmlns:enc="http://karaf.apache.org/xmlns/jasypt/v1.0.0">
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0" 
+    xmlns:jaas="http://karaf.apache.org/xmlns/jaas/v1.1.0"
+    xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0" 
+    xmlns:ext="http://aries.apache.org/blueprint/xmlns/blueprint-ext/v1.0.0"
+    xmlns:enc="http://karaf.apache.org/xmlns/jasypt/v1.0.0">
 
     <type-converters>
-        <bean class="org.apache.karaf.jaas.modules.properties.PropertiesConverter"/>
-    </type-converters> 
-    
+        <bean class="org.apache.karaf.jaas.modules.properties.PropertiesConverter" />
+    </type-converters>
+
     <ext:property-placeholder />
 
-    <cm:property-placeholder persistent-id="ddf.security.sts.ldap" placeholder-prefix="$ldap{" update-strategy="reload">
-        <cm:default-properties>
-            <cm:property name="ldapBindUserDn" value="cn=admin"/>
-            <cm:property name="ldapBindUserPass" value="ENC(c+GitDfYAMTDRESXSDDsMw==)"/>
-            <cm:property name="ldapUrl" value="ldaps://ldap:1636"/>
-            <cm:property name="userBaseDn" value="ou=users,dc=example,dc=com"/>
-            <cm:property name="groupBaseDn" value="ou=groups,dc=example,dc=com"/>
-            <cm:property name="keyAlias" value="server"/>
-        </cm:default-properties>
-    </cm:property-placeholder>
-    
-	<jaas:config name="karaf" rank="2">
-        <jaas:module className="ddf.ldap.ldaplogin.SslLdapLoginModule" flags="sufficient">
-			initial.context.factory=com.sun.jndi.ldap.LdapCtxFactory
-			connection.username=$ldap{ldapBindUserDn}
-			connection.password=$ldap{ldapBindUserPass}
-			connection.url=$ldap{ldapUrl}
-			user.base.dn=$ldap{userBaseDn}
-			user.filter=(uid=%u)
-			user.search.subtree=true
-			role.base.dn=$ldap{groupBaseDn}
-			role.filter=(member=uid=%u,$ldap{userBaseDn})
-			role.name.attribute=cn
-			role.search.subtree=true
-			authentication=simple
-			ssl.protocol=SSL
-			ssl.truststore=ts
-			ssl.keystore=ks
-			ssl.keyalias=$ldap{keyAlias}
-            ssl.algorithm=SunX509
-		</jaas:module>
-        <jaas:module className="org.apache.karaf.jaas.modules.properties.PropertiesLoginModule" flags="sufficient">
-            users = ${ddf.home}/etc/users.properties
-        </jaas:module>
-	</jaas:config>
-	
-	<!-- temporarily hardcoded until we can get it working and configurable -->
-	<jaas:keystore name="ts" path="file:${ddf.home}/etc/keystores/serverTruststore.jks" keystorePassword="changeit" keyPasswords="server=changeit" />
-	<jaas:keystore name="ks" path="file:${ddf.home}/etc/keystores/serverKeystore.jks" keystorePassword="changeit" keyPasswords="server=changeit" />
+    <bean id="LdapConfig" class="ddf.ldap.ldaplogin.LdapLoginConfig">
+        <cm:managed-properties persistent-id="ddf.security.sts.ldap" update-strategy="component-managed"
+            update-method="update" />
+        <argument ref="blueprintBundleContext" />
+        <!-- Default properties -->
+        <argument>
+            <map key-type="java.lang.String" value-type="java.lang.String">
+                <entry key="ldapBindUserDn" value="cn=admin" />
+                <entry key="ldapBindUserPass" value="ENC(c+GitDfYAMTDRESXSDDsMw==)" />
+                <entry key="ldapUrl" value="ldaps://ldap:1636" />
+                <entry key="userBaseDn" value="ou=users,dc=example,dc=com" />
+                <entry key="groupBaseDn" value="ou=groups,dc=example,dc=com" />
+                <entry key="keyAlias" value="server" />
+            </map>
+        </argument>
+    </bean>
+
+    <reference id="encryptionService" interface="ddf.security.encryption.EncryptionService" />
+
+    <bean id="keystoreManager" class="ddf.ldap.ldaplogin.KeystoreManager">
+        <cm:managed-properties persistent-id="ddf.security.sts.ldap" update-strategy="container-managed" />
+        <argument ref="blueprintBundleContext" />
+        <argument ref="encryptionService" />
+    </bean>
+
+    <service ref="keystoreManager" interface="org.codice.ddf.configuration.ConfigurationWatcher" />
+
 </blueprint>

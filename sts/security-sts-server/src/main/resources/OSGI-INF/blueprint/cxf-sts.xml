@@ -47,11 +47,9 @@
     </type-converters> 
 
     <ext:property-placeholder />
-
+    
     <cm:property-placeholder persistent-id="ddf.security.sts" placeholder-prefix="$sts{" update-strategy="reload">
         <cm:default-properties>
-            <cm:property name="jaasContext" value="karaf"/>
-
             <cm:property name="signatureProperties" value="file:${ddf.home}/etc/ws-security/issuer/signature.properties"/>
             <cm:property name="signatureUsername" value="tokenissuer"/>
             <cm:property name="encryptionProperties" value="file:${ddf.home}/etc/ws-security/issuer/encryption.properties"/>
@@ -159,14 +157,6 @@
 
 
     <!-- VALIDATOR CONFIGURATION -->
-    <bean class="org.apache.ws.security.validate.JAASUsernameTokenValidator" id="JAASValidator">
-        <property name="contextName" value="$sts{jaasContext}" />
-    </bean>
-
-    <bean class="org.apache.cxf.sts.token.validator.UsernameTokenValidator" id="utValidator">
-        <property name="validator" ref="JAASValidator" />
-    </bean>
-
     <bean id="kerberosValidator" class="org.apache.ws.security.validate.KerberosTokenValidator">
         <property name="contextName" value="$sts{kerberosJaasContext}" />
         <property name="serviceName" value="$sts{kerberosServiceName}"/>
@@ -209,7 +199,6 @@
                     serviceName="ns1:SecurityTokenService"
                     endpointName="ns1:STS_Port">
         <jaxws:properties>
-            <entry key="ws-security.ut.validator" value-ref="utValidator"/>
             <entry key="ws-security.callback-handler"
                    value="ddf.security.sts.CommonCallbackHandler"/>
             <entry key="ws-security.signature.properties" value="$sts{signatureProperties}"/>
