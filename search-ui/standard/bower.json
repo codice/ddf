@@ -10,7 +10,7 @@
         "cesium": "http://cesiumjs.org/releases/Cesium-b25.zip",
         "components-backbone": "1.1.0",
         "components-bootstrap": "2.3.2",
-        "components-font-awesome": "4.0.3",
+        "components-font-awesome": "4.1.0",
         "icanhandlebarz": "atomicobject/ICanHandlebarz.js#f6ac1d1f8e1d796045563f1483eca6c4911ed7d1",
         "handlebars": "1.2.0",
         "html5shiv": "3.7.0",

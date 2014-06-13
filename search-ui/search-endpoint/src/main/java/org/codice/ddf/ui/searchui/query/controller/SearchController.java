@@ -21,6 +21,7 @@ import ddf.catalog.operation.Query;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.QueryResponse;
 import ddf.catalog.operation.SourceResponse;
+import ddf.catalog.operation.impl.ProcessingDetailsImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.operation.impl.QueryResponseImpl;
 import ddf.catalog.source.SourceUnavailableException;
@@ -32,6 +33,7 @@ import ddf.security.Subject;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 import org.apache.commons.collections.map.LRUMap;
+import org.codice.ddf.ui.searchui.query.model.QueryStatus;
 import org.codice.ddf.ui.searchui.query.model.Search;
 import org.codice.ddf.ui.searchui.query.model.SearchRequest;
 import org.cometd.bayeux.server.BayeuxServer;
@@ -45,6 +47,7 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -136,13 +139,12 @@ public class SearchController {
                     QueryResponse fedResponse = executeQuery(sourceId, request.getQuery(),
                             subject);
                     try {
-                        addQueryResponseToSearch(request, fedResponse);
+                        addQueryResponseToSearch(sourceId, request, fedResponse);
                         //send full response if it changed, otherwise send empty one
                         Search search = searchMap.get(request.getGuid());
-                        pushResults(
-                                request.getGuid(),
-                                controller.transform(
-                                        search.getCompositeQueryResponse(), request), session);
+                        pushResults(request.getGuid(),
+                                    controller.transform(search, request),
+                                    session);
                         if (search.isFinished()) {
                             searchMap.remove(request.getGuid());
                         }
@@ -156,12 +158,13 @@ public class SearchController {
         }
     }
 
-    private void addQueryResponseToSearch(SearchRequest searchRequest,
+    private void addQueryResponseToSearch(String sourceId, SearchRequest searchRequest,
             QueryResponse queryResponse) throws InterruptedException {
         if (searchMap.containsKey(searchRequest.getGuid())) {
             LOGGER.debug("Using previously created Search object for cache: {}",
                     searchRequest.getGuid());
             Search search = searchMap.get(searchRequest.getGuid());
+            addQueryStatusToSearch(sourceId, queryResponse, search);
             search.addQueryResponse(queryResponse);
         } else {
             LOGGER.debug("Creating new Search object to cache async query results: {}",
@@ -169,8 +172,18 @@ public class SearchController {
             Search search = new Search();
             search.addQueryResponse(queryResponse);
             search.setSearchRequest(searchRequest);
+            addQueryStatusToSearch(sourceId, queryResponse, search);
             searchMap.put(searchRequest.getGuid(), search);
         }
+    }
+
+    private void addQueryStatusToSearch(String sourceId, QueryResponse queryResponse,
+            Search search) {
+        QueryStatus queryStatus = search.getQueryStatus().get(sourceId);
+        queryStatus.setDetails(queryResponse.getProcessingDetails());
+        queryStatus.setHits(queryResponse.getHits());
+        queryStatus.setElapsed((Long) queryResponse.getProperties().get("elapsed"));
+        queryStatus.setDone(true);
     }
 
     /**
@@ -186,6 +199,7 @@ public class SearchController {
      */
     private QueryResponse executeQuery(String sourceId, Query query, Subject subject) {
         QueryResponse response = getEmptyResponse(sourceId);
+        long startTime = System.currentTimeMillis();
 
         try {
             if (query != null) {
@@ -199,24 +213,26 @@ public class SearchController {
                 }
 
                 LOGGER.debug("Sending query: {}", query);
-                QueryResponse frameworkResponse = framework.query(request);
-                if (frameworkResponse.getProcessingDetails().size() == 0
-                        && frameworkResponse.getHits() > 0) {
-                    response = frameworkResponse;
-                }
+                response = framework.query(request);
             }
         } catch (UnsupportedQueryException e) {
             LOGGER.warn("Error executing query", e);
+            response.getProcessingDetails().add(new ProcessingDetailsImpl(sourceId, e));
         } catch (FederationException e) {
             LOGGER.warn("Error executing query", e);
+            response.getProcessingDetails().add(new ProcessingDetailsImpl(sourceId, e));
         } catch (SourceUnavailableException e) {
             LOGGER.warn("Error executing query because the underlying source was unavailable.", e);
+            response.getProcessingDetails().add(new ProcessingDetailsImpl(sourceId, e));
         } catch (RuntimeException e) {
             // Account for any runtime exceptions and send back a server error
             // this prevents full stacktraces returning to the client
             // this allows for a graceful server error to be returned
             LOGGER.warn("RuntimeException on executing query", e);
+            response.getProcessingDetails().add(new ProcessingDetailsImpl(sourceId, e));
         }
+        long estimatedTime = System.currentTimeMillis() - startTime;
+        response.getProperties().put("elapsed", estimatedTime);
 
         return response;
     }
@@ -230,8 +246,11 @@ public class SearchController {
         return new QueryResponseImpl(queryRequest, new ArrayList<Result>(), 0);
     }
 
-    private JSONObject transform(SourceResponse upstreamResponse, SearchRequest searchRequest)
+    private JSONObject transform(Search search, SearchRequest searchRequest)
         throws CatalogTransformerException {
+
+        SourceResponse upstreamResponse = search.getCompositeQueryResponse();
+
         if (upstreamResponse == null) {
             throw new CatalogTransformerException("Cannot transform null "
                     + SourceResponse.class.getName());
@@ -241,11 +260,40 @@ public class SearchController {
 
         addObject(rootObject, Search.HITS, upstreamResponse.getHits());
         addObject(rootObject, Search.GUID, searchRequest.getGuid().toString());
+        addObject(rootObject, Search.RESULTS, getResultList(upstreamResponse.getResults()));
+        addObject(rootObject, Search.SOURCES, getQueryStatus(search.getQueryStatus()));
 
+        return rootObject;
+    }
+
+    private JSONArray getQueryStatus(Map<String, QueryStatus> queryStatus) {
+        JSONArray statuses = new JSONArray();
+
+        for (String key : queryStatus.keySet()) {
+            QueryStatus status = queryStatus.get(key);
+
+            JSONObject statusObject = new JSONObject();
+
+            addObject(statusObject, Search.ID, status.getSourceId());
+            if (status.isDone()) {
+                addObject(statusObject, Search.HITS, status.getHits());
+                addObject(statusObject, Search.SUCCESSFUL, status.isSuccessful());
+                addObject(statusObject, Search.ELAPSED, status.getElapsed());
+            }
+            addObject(statusObject, Search.DONE, status.isDone());
+
+            statuses.add(statusObject);
+        }
+
+        return statuses;
+    }
+
+    private JSONArray getResultList(List<Result> results)
+            throws CatalogTransformerException {
         JSONArray resultsList = new JSONArray();
 
-        if (upstreamResponse.getResults() != null) {
-            for (Result result : upstreamResponse.getResults()) {
+        if (results != null) {
+            for (Result result : results) {
                 if (result == null) {
                     throw new CatalogTransformerException("Cannot transform null "
                             + Result.class.getName());
@@ -256,9 +304,7 @@ public class SearchController {
                 }
             }
         }
-        addObject(rootObject, Search.RESULTS, resultsList);
-
-        return rootObject;
+        return resultsList;
     }
 
     private static JSONObject convertToJSON(Result result) throws CatalogTransformerException {

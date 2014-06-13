@@ -30,6 +30,8 @@ define(function (require) {
     }
 
     ich.addTemplate('resultListItem', require('text!templates/resultlist/resultListItem.handlebars'));
+    ich.addTemplate('statusItemTemplate', require('text!templates/resultlist/statusItem.handlebars'));
+    ich.addTemplate('statusTemplate', require('text!templates/resultlist/status.handlebars'));
     ich.addTemplate('resultListTemplate', require('text!templates/resultlist/resultList.handlebars'));
     ich.addTemplate('countLowTemplate', require('text!templates/resultlist/countlow.handlebars'));
     ich.addTemplate('countHighTemplate', require('text!templates/resultlist/counthigh.handlebars'));
@@ -147,12 +149,34 @@ define(function (require) {
         }
     });
 
+    List.StatusRow = Marionette.ItemView.extend({
+        tagName: 'tr',
+        template: 'statusItemTemplate',
+        modelEvents: {
+            "change": "render"
+        }
+    });
+
+    List.StatusTable = Marionette.CompositeView.extend({
+        template: 'statusTemplate',
+        itemView : List.StatusRow,
+        itemViewContainer: 'tbody',
+        events: {
+            'click #status-icon': 'toggleStatus'
+        },
+        toggleStatus: function() {
+            this.$('#status-table').toggle();
+            this.$('#status-icon').toggleClass('fa-caret-down fa-caret-right');
+        }
+    });
+
     List.MetacardListView = Marionette.Layout.extend({
         className: 'slide-animate height-full',
         template: 'resultListTemplate',
         regions: {
             countRegion: '.result-count',
-            listRegion: '#resultList'
+            listRegion: '#resultList',
+            statusRegion: '#result-status-list'
         },
         spinner: new Spinner(spinnerConfig),
         initialize: function (options) {
@@ -166,6 +190,9 @@ define(function (require) {
             }));
             this.updateCount();
             this.listenTo(this.model, 'change', this.updateCount);
+            this.statusRegion.show(new List.StatusTable({
+                collection: this.model.get("sources")
+            }));
         },
         onShow: function(){
             this.updateSpinner();

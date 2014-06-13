@@ -54,6 +54,25 @@ define(function (require) {
                 }
                 return date;
             },
+            duration: function(context, block) {
+                if (context && context.hash) {
+                    block = _.cloneDeep(context);
+                    context = 0;
+                }
+                var duration = moment.duration(context);
+
+                // Reset the language back to default before doing anything else
+                duration = duration.lang('en');
+
+                for (var i in block.hash) {
+                    if (duration[i]) {
+                        duration = duration[i](block.hash[i]);
+                    } else {
+                        console.log('moment.js duration does not support "' + i + '"');
+                    }
+                }
+                return duration;
+            },
             fileSize: function (item) {
                 var bytes = parseInt(item, 10);
                 if (isNaN(bytes)) {
@@ -104,6 +123,36 @@ define(function (require) {
                     }
                 }
                 return options.inverse(this);
+            },
+            gt: function (value, test, options) {
+                if (value > test) {
+                    return options.fn(this);
+                } else {
+                    return options.inverse(this);
+                }
+            },
+
+            gte: function (value, test, options) {
+                if (value >= test) {
+                    return options.fn(this);
+                } else {
+                    return options.inverse(this);
+                }
+            },
+            lt: function (value, test, options) {
+                if (value < test) {
+                    return options.fn(this);
+                } else {
+                    return options.inverse(this);
+                }
+            },
+
+            lte: function (value, test, options) {
+                if (value <= test) {
+                    return options.fn(this);
+                } else {
+                    return options.inverse(this);
+                }
             },
             ifAnd: function () {
                 var args = _.flatten(arguments);

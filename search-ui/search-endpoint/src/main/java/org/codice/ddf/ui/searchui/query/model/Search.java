@@ -30,7 +30,9 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * This class represents the cached asynchronous query response from all sources.
@@ -56,11 +58,21 @@ public class Search {
 
     public static final String SUCCESSFUL = "successful";
 
+    public static final String SOURCES = "sources";
+
+    public static final String ID = "id";
+
+    public static final String DONE = "done";
+
+    public static final String ELAPSED = "elapsed";
+
     private SearchRequest searchRequest;
 
     private QueryResponse compositeQueryResponse;
 
-    private List<Result> resultList = new ArrayList<Result>(100);
+    private List<Result> results = new ArrayList<Result>(100);
+
+    private Map<String, QueryStatus> queryStatus = new HashMap<String, QueryStatus>();
 
     private long hits = 0;
 
@@ -78,62 +90,70 @@ public class Search {
         if (queryResponse != null) {
             Comparator<Result> coreComparator = DEFAULT_COMPARATOR;
             if (compositeQueryResponse == null) {
-                LOGGER.debug("Creating new composite query response");
-                compositeQueryResponse = queryResponse;
-                resultList.addAll(compositeQueryResponse.getResults());
-                // Sort the initial results
-                Collections.sort(compositeQueryResponse.getResults(), coreComparator);
-                hits = compositeQueryResponse.getHits();
-                responseNum++;
+                initializeCompositeResponse(queryResponse, coreComparator);
             } else {
-                LOGGER.debug("Updating existing composite query response");
-                List<Result> latestResultList = queryResponse.getResults();
-
-                resultList.addAll(latestResultList);
-
-                // if there wasn't at least 1 request there, we wouldn't be here in the first place
-                SortBy sortBy = searchRequest.getQuery().getSortBy();
-
-                // Prepare the Comparators that we will use
-                if (sortBy != null && sortBy.getPropertyName() != null) {
-                    PropertyName sortingProp = sortBy.getPropertyName();
-                    String sortType = sortingProp.getPropertyName();
-                    SortOrder sortOrder = (sortBy.getSortOrder() == null) ? SortOrder.DESCENDING
-                            : sortBy.getSortOrder();
-
-                    if (Metacard.EFFECTIVE.equals(sortType)) {
-                        LOGGER.debug("Sorting by EFFECTIVE Date");
-                        coreComparator = new TemporalResultComparator(sortOrder, Metacard.EFFECTIVE);
-                    } else if (Result.DISTANCE.equals(sortType)) {
-                        LOGGER.debug("Sorting by DISTANCE");
-                        coreComparator = new DistanceResultComparator(sortOrder);
-                    } else if (Result.RELEVANCE.equals(sortType)) {
-                        LOGGER.debug("Sorting by RELEVANCE");
-                        coreComparator = new RelevanceResultComparator(sortOrder);
-                    }
-                }
-
-                // Sort the combination of all results we have recieved
-                Collections.sort(resultList, coreComparator);
-
-                List<Result> compositeResultList;
-                int end;
-                if (resultList.size() >= compositeQueryResponse.getRequest().getQuery().getPageSize()) {
-                    end = compositeQueryResponse.getRequest().getQuery().getPageSize();
-                } else {
-                    end = resultList.size();
-                }
-
-                compositeResultList = resultList.subList(0, end);
-
-                hits += queryResponse.getHits();
-
-                responseNum++;
-
-                compositeQueryResponse = new QueryResponseImpl(queryResponse.getRequest(), compositeResultList, true,
-                        hits);
+                addResultsToCompositeResult(queryResponse, coreComparator);
             }
         }
+        responseNum++;
+    }
+
+    private void initializeCompositeResponse(QueryResponse queryResponse,
+            Comparator<Result> coreComparator) {
+        LOGGER.debug("Creating new composite query response");
+        compositeQueryResponse = queryResponse;
+        results.addAll(compositeQueryResponse.getResults());
+        // Sort the initial results
+        Collections.sort(compositeQueryResponse.getResults(), coreComparator);
+        hits = compositeQueryResponse.getHits();
+    }
+
+    private void addResultsToCompositeResult(QueryResponse queryResponse,
+            Comparator<Result> coreComparator) {
+        LOGGER.debug("Updating existing composite query response");
+        List<Result> latestResultList = queryResponse.getResults();
+
+        results.addAll(latestResultList);
+
+        // if there wasn't at least 1 request there, we wouldn't be here in the first place
+        SortBy sortBy = searchRequest.getQuery().getSortBy();
+
+        // Prepare the Comparators that we will use
+        if (sortBy != null && sortBy.getPropertyName() != null) {
+            PropertyName sortingProp = sortBy.getPropertyName();
+            String sortType = sortingProp.getPropertyName();
+            SortOrder sortOrder = (sortBy.getSortOrder() == null) ? SortOrder.DESCENDING
+                    : sortBy.getSortOrder();
+
+            if (Metacard.EFFECTIVE.equals(sortType)) {
+                LOGGER.debug("Sorting by EFFECTIVE Date");
+                coreComparator = new TemporalResultComparator(sortOrder, Metacard.EFFECTIVE);
+            } else if (Result.DISTANCE.equals(sortType)) {
+                LOGGER.debug("Sorting by DISTANCE");
+                coreComparator = new DistanceResultComparator(sortOrder);
+            } else if (Result.RELEVANCE.equals(sortType)) {
+                LOGGER.debug("Sorting by RELEVANCE");
+                coreComparator = new RelevanceResultComparator(sortOrder);
+            }
+        }
+
+        // Sort the combination of all results we have recieved
+        Collections.sort(results, coreComparator);
+
+        List<Result> compositeResultList;
+        int end;
+        if (results.size() >= compositeQueryResponse.getRequest().getQuery().getPageSize()) {
+            end = compositeQueryResponse.getRequest().getQuery().getPageSize();
+        } else {
+            end = results.size();
+        }
+
+        compositeResultList = results.subList(0, end);
+
+        hits += queryResponse.getHits();
+
+        compositeQueryResponse = new QueryResponseImpl(queryResponse.getRequest(), compositeResultList, true,
+                hits);
     }
 
     public boolean isFinished() {
@@ -144,11 +164,19 @@ public class Search {
         return searchRequest;
     }
 
-    public void setSearchRequest(SearchRequest searchRequest) {
-        this.searchRequest = searchRequest;
+    public void setSearchRequest(SearchRequest request) {
+        searchRequest = request;
+
+        for (String sourceId : searchRequest.getSourceIds()) {
+            queryStatus.put(sourceId, new QueryStatus(sourceId));
+        }
     }
 
     public QueryResponse getCompositeQueryResponse() {
         return compositeQueryResponse;
+    }
+
+    public Map<String, QueryStatus> getQueryStatus() {
+        return queryStatus;
     }
 }

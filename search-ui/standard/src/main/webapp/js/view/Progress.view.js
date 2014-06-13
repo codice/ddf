@@ -79,6 +79,7 @@ define(function (require) {
         updateProgress: function() {
             var view = this;
             if((this.model.get("total") === 1 || this.model.get("hits") <= 0 ) && this.model.isComplete()) {
+                this.merge();
                 this.close();
             }
             if(this.model.get('current') > 0) {

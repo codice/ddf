@@ -290,6 +290,14 @@ define(function (require) {
         model: MetaCard.MetacardResult
     });
 
+    MetaCard.SourceResult = Backbone.RelationalModel.extend({
+
+    });
+
+    MetaCard.SourceList = Backbone.Collection.extend({
+        model: MetaCard.SourceResult
+    });
+
     MetaCard.SearchResult = Backbone.RelationalModel.extend({
         defaults: {
             count: properties.resultCount,
@@ -307,6 +315,16 @@ define(function (require) {
                 key: 'results',
                 relatedModel: MetaCard.MetacardResult,
                 collectionType: MetaCard.MetacardList,
+                includeInJSON: false,
+                reverseRelation: {
+                    key: 'searchResult'
+                }
+            },
+            {
+                type: Backbone.HasMany,
+                key: 'sources',
+                relatedModel: MetaCard.SourceResult,
+                collectionType: MetaCard.SourceList,
                 includeInJSON: false,
                 reverseRelation: {
                     key: 'searchResult'

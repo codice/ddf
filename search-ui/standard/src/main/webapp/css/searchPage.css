@@ -208,6 +208,10 @@ body {
     width: 100%;
 }
 
+.hidden {
+    display: none;
+}
+
 .left {
     left: 10px;
 }
@@ -298,6 +302,36 @@ body {
     padding: 5px 0px;
     font-size: smaller;
     color: grey;
+}
+
+.result-status-icon {
+    position: absolute;
+    top: 7px;
+    left: 15px;
+    vertical-align: top;
+    font-size: large;
+    color: grey;
+}
+
+.result-status .table {
+    margin-bottom: 15px;
+    background: #333;
+}
+
+.result-status .table td {
+    padding: 2px 5px;
+}
+
+.result-status .table-striped tbody>tr:nth-child(odd)>td, .table-striped tbody>tr:nth-child(odd)>th {
+    background-color: rgba(100,100,100,0.2);
+}
+
+.status-time {
+    color: #777;
+    width: 38px;
+    display: inline-block;
+    font-size: x-small;
+    font-style: italic;
 }
 
 #searchPages {

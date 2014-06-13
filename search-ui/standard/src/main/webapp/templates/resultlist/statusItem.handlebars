@@ -1,0 +1,37 @@
+{{!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+ --}}
+<td>
+    <div class="pull-left result-source" title="{{id}}">{{id}}</div>
+    <div class="pull-right">
+    {{#if done}}
+        {{#if successful}}
+            {{hits}} <span class="status-time">
+            {{#lt elapsed 60000}}
+                {{#lt elapsed 1000}}
+                    ({{duration elapsed milliseconds=null}}ms)
+                {{else}}
+                    ({{duration elapsed seconds=null}}s)
+                {{/lt}}
+            {{else}}
+                ({{duration elapsed minutes=null}}m)
+            {{/lt}}
+            </span>
+        {{else}}
+            <span class="label label-important">failed</span>
+        {{/if}}
+    {{else}}
+        <i class="fa fa-circle-o-notch fa-spin"></i>
+    {{/if}}
+    </div>
+</td>
