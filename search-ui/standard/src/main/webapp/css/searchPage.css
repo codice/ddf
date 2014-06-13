@@ -18,7 +18,8 @@ html, body {
 
 .table th,
 .table td {
-    border-top: 1px solid #444444;
+    border-top: 1px solid #444;
+    border-bottom: 1px solid #444;
 }
 
 .table .table {
