@@ -59,7 +59,7 @@ public class CatalogCommands extends OsgiCommandSupport {
 
     private static final int ONE_SECOND = 1000;
 
-    // TODO: remove "-provider" in DDF 3.0
+    // DDF-535: remove "-provider" alias in DDF 3.0
     @Option(name = "--provider", required = false, aliases = {"-p", "-provider"}, multiValued = false, description = "Interacts with the provider directly instead of the framework.")
     boolean isProvider = false;
 

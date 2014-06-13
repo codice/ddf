@@ -63,11 +63,11 @@ public class DumpCommand extends CatalogCommands {
     @Argument(name = "Batch size", description = "Number of Metacards to retrieve and export at a time until completion. Change this argument based on system memory and CatalogProvider limits.", index = 1, multiValued = false, required = false)
     int pageSize = 1000;
 
-    // TODO: remove "Transformer" in DDF 3.0
+    // DDF-535: remove "Transformer" alias in DDF 3.0
     @Option(name = "--transformer", required = false, aliases = {"-t", "Transformer"}, multiValued = false, description = "The metacard transformer ID to use to transform metacards into data files. The default metacard transformer is the Java serialization transformer.")
     String transformerId = DEFAULT_TRANSFORMER_ID;
 
-    // TODO: remove "Extension" in DDF 3.0
+    // DDF-535: remove "Extension" alias in DDF 3.0
     @Option(name = "--extension", required = false, aliases = {"-e", "Extension"}, multiValued = false, description = "The file extension of the data files.")
     String fileExtension = null;
 
