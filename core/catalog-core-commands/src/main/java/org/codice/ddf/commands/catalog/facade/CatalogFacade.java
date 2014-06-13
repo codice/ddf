@@ -14,6 +14,8 @@
  **/
 package org.codice.ddf.commands.catalog.facade;
 
+import java.util.Set;
+
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.federation.FederationException;
 import ddf.catalog.operation.CreateRequest;
@@ -51,4 +53,6 @@ public abstract class CatalogFacade implements Describable {
 
     public abstract SourceResponse query(QueryRequest query) throws UnsupportedQueryException,
         SourceUnavailableException, FederationException;
+
+    public abstract Set<String> getSourceIds();
 }

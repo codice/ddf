@@ -59,6 +59,14 @@
 		<command name="catalog/range">
 			<action class="org.codice.ddf.commands.catalog.RangeCommand" />
 		</command>
+		
+		<command name="catalog/replicate">
+			<action class="org.codice.ddf.commands.catalog.ReplicationCommand" />
+		</command>
+		
+		<command name="catalog/migrate">
+			<action class="org.codice.ddf.commands.catalog.MigrateCommand" />
+		</command>
 	</command-bundle>
 
 

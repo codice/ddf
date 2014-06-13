@@ -16,17 +16,17 @@ package org.codice.ddf.commands.catalog;
 
 import java.io.PrintStream;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.felix.gogo.commands.Option;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
+import org.codice.ddf.commands.catalog.facade.CatalogFacade;
+import org.codice.ddf.commands.catalog.facade.Framework;
+import org.codice.ddf.commands.catalog.facade.Provider;
 import org.fusesource.jansi.Ansi;
 import org.fusesource.jansi.Ansi.Color;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.osgi.util.tracker.ServiceTracker;
-
-import org.codice.ddf.commands.catalog.facade.CatalogFacade;
-import org.codice.ddf.commands.catalog.facade.Framework;
-import org.codice.ddf.commands.catalog.facade.Provider;
 
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.filter.FilterBuilder;
@@ -62,6 +62,10 @@ public class CatalogCommands extends OsgiCommandSupport {
     // DDF-535: remove "-provider" alias in DDF 3.0
     @Option(name = "--provider", required = false, aliases = {"-p", "-provider"}, multiValued = false, description = "Interacts with the provider directly instead of the framework.")
     boolean isProvider = false;
+
+    private static final double PERCENTAGE_MULTIPLIER = 100.0;
+
+    private static final int PROGESS_BAR_NOTCH_LENGTH = 50;
 
     @Override
     protected Object doExecute() throws Exception {
@@ -120,5 +124,41 @@ public class CatalogCommands extends OsgiCommandSupport {
         console.print(colorString);
         console.print(message);
         console.println(Ansi.ansi().reset().toString());
+    }
+
+    protected void printProgressAndFlush(PrintStream console, long start, long totalCount,
+            long currentCount) {
+        console.print(getProgressBar(currentCount, totalCount, start,
+                System.currentTimeMillis()));
+        console.flush();
+    }
+
+    private String getProgressBar(long currentCount, long totalPossible, long start, long end) {
+
+        int notches = calculateNotches(currentCount, totalPossible);
+
+        int progressPercentage = calculateProgressPercentage(currentCount, totalPossible);
+
+        int rate = calculateRecordsPerSecond(currentCount, start, end);
+
+        String progressArrow = ">";
+
+        // /r is required, it allows for the update in place
+        String progressBarFormat = "%1$4s%% [=%2$-50s] %3$5s records/sec\t\r";
+
+        return String.format(progressBarFormat, progressPercentage,
+                StringUtils.repeat("=", notches) + progressArrow, rate);
+    }
+
+    private int calculateNotches(long currentCount, long totalPossible) {
+        return (int) ((Double.valueOf(currentCount) / Double.valueOf(totalPossible)) * PROGESS_BAR_NOTCH_LENGTH);
+    }
+
+    private int calculateProgressPercentage(long currentCount, long totalPossible) {
+        return (int) ((Double.valueOf(currentCount) / Double.valueOf(totalPossible)) * PERCENTAGE_MULTIPLIER);
+    }
+
+    private int calculateRecordsPerSecond(long currentCount, long start, long end) {
+        return (int) (Double.valueOf(currentCount) / (Double.valueOf(end - start) / MILLISECONDS_PER_SECOND));
     }
 }

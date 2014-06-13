@@ -50,4 +50,8 @@ public class ConsoleOutput {
     public void resetSystemOut() {
         System.setOut(realSystemOut);
     }
+
+    public void reset() {
+        buffer.reset();
+    }
 }

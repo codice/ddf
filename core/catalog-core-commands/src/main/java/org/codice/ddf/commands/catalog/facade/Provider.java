@@ -14,6 +14,9 @@
  **/
 package org.codice.ddf.commands.catalog.facade;
 
+import java.util.Collections;
+import java.util.Set;
+
 import ddf.catalog.federation.FederationException;
 import ddf.catalog.operation.CreateRequest;
 import ddf.catalog.operation.CreateResponse;
@@ -83,6 +86,11 @@ public class Provider extends CatalogFacade {
     public SourceResponse query(QueryRequest query) throws UnsupportedQueryException,
         SourceUnavailableException, FederationException {
         return this.provider.query(query);
+    }
+
+    @Override
+    public Set<String> getSourceIds() {
+        return Collections.emptySet();
     }
 
 }
