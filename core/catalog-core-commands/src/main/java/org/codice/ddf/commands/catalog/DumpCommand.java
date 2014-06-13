@@ -46,7 +46,7 @@ import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.MetacardTransformer;
 
-@Command(scope = CatalogCommands.NAMESPACE, name = "dump", description = "Exports Metacards from the current Catalog. Does not remove them. Date filters are ANDed together.")
+@Command(scope = CatalogCommands.NAMESPACE, name = "dump", description = "Exports Metacards from the current Catalog. Does not remove them.\n\tDate filters are ANDed together, and are exclusive for range.\n\tISO8601 format includes YYYY-MM-dd, YYYY-MM-ddTHH, YYYY-MM-ddTHH:mm, YYYY-MM-ddTHH:mm:ss, YYY-MM-ddTHH:mm:ss.sss, THH:mm:sss. See documentation for full syntax and examples.")
 public class DumpCommand extends CatalogCommands {
 
     private static final double MILLISECONDS_PER_SECOND = 1000.0;
@@ -63,22 +63,24 @@ public class DumpCommand extends CatalogCommands {
     @Argument(name = "Batch size", description = "Number of Metacards to retrieve and export at a time until completion. Change this argument based on system memory and CatalogProvider limits.", index = 1, multiValued = false, required = false)
     int pageSize = 1000;
 
-    @Option(name = "Transformer", required = false, aliases = {"-t"}, multiValued = false, description = "The metacard transformer ID to use to transform metacards into data files. The default metacard transformer is the Java serialization transformer.")
+    // TODO: remove "Transformer" in DDF 3.0
+    @Option(name = "--transformer", required = false, aliases = {"-t", "Transformer"}, multiValued = false, description = "The metacard transformer ID to use to transform metacards into data files. The default metacard transformer is the Java serialization transformer.")
     String transformerId = DEFAULT_TRANSFORMER_ID;
 
-    @Option(name = "Extension", required = false, aliases = {"-e"}, multiValued = false, description = "The file extension of the data files.")
+    // TODO: remove "Extension" in DDF 3.0
+    @Option(name = "--extension", required = false, aliases = {"-e", "Extension"}, multiValued = false, description = "The file extension of the data files.")
     String fileExtension = null;
 
-    @Option(name = "CreatedAfter", required = false, aliases = {"--created-after", "-ca"}, multiValued = false, description = "Include only entries created after this date.")
+    @Option(name = "--created-after", required = false, aliases = {"-ca"}, multiValued = false, description = "Include only entries created after this date/time (ISO8601 format).")
     String createdAfter = null;
 
-    @Option(name = "CreatedBefore", required = false, aliases = {"--created-before", "-cb"}, multiValued = false, description = "Include only entries created before this date.")
+    @Option(name = "--created-before", required = false, aliases = {"-cb"}, multiValued = false, description = "Include only entries created before this date/time (ISO8601 format).")
     String createdBefore = null;
 
-    @Option(name = "ModifiedAfter", required = false, aliases = {"--modified-after", "-ma"}, multiValued = false, description = "Include only entries modified after this date.")
+    @Option(name = "--modified-after", required = false, aliases = {"-ma"}, multiValued = false, description = "Include only entries modified after this date/time (ISO8601 format).")
     String modifiedAfter = null;
 
-    @Option(name = "ModifiedBefore", required = false, aliases = {"--modified-before", "-mb"}, multiValued = false, description = "Include only entries modified before this date.")
+    @Option(name = "--modified-before", required = false, aliases = {"-mb"}, multiValued = false, description = "Include only entries modified before this date/time (ISO8601 format)")
     String modifiedBefore = null;
 
     @Override
