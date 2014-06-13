@@ -20,7 +20,7 @@ define([
         'js/view/Progress.view',
         'js/view/MetacardList.view',
         'js/view/MetacardDetail.view',
-        'js/model/Metacard.js',
+        'js/model/Metacard',
         'backbone',
         'direction',
         'icanhaz',
