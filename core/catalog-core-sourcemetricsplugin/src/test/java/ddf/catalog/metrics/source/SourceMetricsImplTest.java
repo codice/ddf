@@ -47,13 +47,6 @@ public class SourceMetricsImplTest {
 
     private FederatedSource fedSource;
 
-    @BeforeClass
-    public static void init() {
-        ch.qos.logback.classic.Logger root = (ch.qos.logback.classic.Logger) LoggerFactory
-                .getLogger(Logger.ROOT_LOGGER_NAME);
-        root.setLevel(ch.qos.logback.classic.Level.DEBUG);
-    }
-
     @Test
     public void testAddDeleteSource() throws Exception {
         String sourceId = "cp-1";

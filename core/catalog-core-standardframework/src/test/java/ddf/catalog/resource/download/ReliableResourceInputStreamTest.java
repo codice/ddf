@@ -50,13 +50,6 @@ public class ReliableResourceInputStreamTest {
     private ReliableResourceCallable reliableResourceCallable;
     private Future<ReliableResourceStatus> downloadFuture;
 
-    @BeforeClass
-    public static void oneTimeSetup() {
-        ch.qos.logback.classic.Logger root = (ch.qos.logback.classic.Logger) LoggerFactory
-                .getLogger(Logger.ROOT_LOGGER_NAME);
-        root.setLevel(ch.qos.logback.classic.Level.DEBUG);
-    }
-    
     @Before
     public void setup() {
         fbos = new FileBackedOutputStream(THRESHOLD);
