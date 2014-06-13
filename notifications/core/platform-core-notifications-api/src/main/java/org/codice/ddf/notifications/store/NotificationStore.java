@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- *  Internal Notification service.
+ * Internal Notification service.
  */
 public interface NotificationStore {
 
@@ -28,7 +28,7 @@ public interface NotificationStore {
      * @return
      */
     public List<Map<String, String>> getNotifications();
-    
+
     /**
      * Get all notifications for specified user.
      * 
@@ -36,6 +36,8 @@ public interface NotificationStore {
      * @return
      */
     public List<Map<String, String>> getNotifications(String userId);
-    
+
     public void putNotification(Map<String, String> notification);
+
+    public void removeNotification(String notificationId, String userId);
 }
