@@ -1389,9 +1389,9 @@ public class CatalogFrameworkImpl extends DescribableImpl implements Configurati
             } catch (CacheException e1) {
                 throw new ResourceNotFoundException(e1);
             }
-            if (productCache != null && productCache.contains(key)) {
+            if (productCache != null && productCache.containsValid(key, metacard)) {
                 try {
-                    Resource resource = productCache.get(key);
+                    Resource resource = productCache.getValid(key, metacard);
                     resourceResponse = new ResourceResponseImpl(resourceRequest,
                             requestProperties, resource);
                     logger.info(

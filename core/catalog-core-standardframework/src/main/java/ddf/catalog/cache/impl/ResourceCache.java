@@ -24,6 +24,12 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.hash.Funnel;
+import com.google.common.hash.HashCode;
+import com.google.common.hash.HashFunction;
+import com.google.common.hash.Hasher;
+import com.google.common.hash.Hashing;
+import com.google.common.hash.PrimitiveSink;
 import com.hazelcast.config.Config;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
@@ -31,6 +37,7 @@ import com.hazelcast.core.IMap;
 
 import ddf.cache.CacheException;
 import ddf.catalog.cache.ResourceCacheInterface;
+import ddf.catalog.data.Metacard;
 import ddf.catalog.resource.Resource;
 import ddf.catalog.resource.data.ReliableResource;
 
@@ -190,10 +197,11 @@ public class ResourceCache implements ResourceCacheInterface {
     }
 
     @Override
-    public void addPendingCacheEntry(String cacheKey) {
+    public void addPendingCacheEntry(ReliableResource reliableResource) {
+        String cacheKey = reliableResource.getKey();
         if (isPending(cacheKey)) {
             LOGGER.debug("Cache entry with key = {} is already pending", cacheKey);
-        } else if (contains(cacheKey)) {
+        } else if (containsValid(cacheKey, reliableResource.getMetacard())) {
             LOGGER.debug("Cache entry with key = {} is already in cache", cacheKey);
         } else {
             pendingCache.add(cacheKey);
@@ -204,23 +212,37 @@ public class ResourceCache implements ResourceCacheInterface {
      *
      * @param key
      * @return Resource, {@code null} if not found.
-     * @throws CacheException
-     *             if no Resource found
+     * @throws CacheException if no Resource found with given key.
      */
     @Override
-    public Resource get(String key) throws CacheException {
+    public Resource getValid(String key, Metacard latestMetacard) throws CacheException {
         LOGGER.debug("ENTERING: get()");
         if (key == null) {
             throw new CacheException("Must specify non-null key");
+        }
+        if (latestMetacard == null){
+            throw new CacheException("Must specify non-null metacard");
         }
         LOGGER.debug("key {}", key);
 
         ReliableResource cachedResource = (ReliableResource) cache.get(key);
 
+
+        
         // Check that ReliableResource actually maps to a file (product) in the
         // product cache directory. This check handles the case if the product
         // cache directory has had files deleted from it.
         if (cachedResource != null) {
+            try{
+                if(!validateCacheEntry(cachedResource, latestMetacard)){
+                    throw new CacheException("Entry found in cache was out-of-date or otherwise invalid.  Will need to be re-cached.  Entry key: " + key);
+                }
+            }
+            catch (IllegalArgumentException e){
+                // This should never happen.  If cachedResource is null we don't get into this block.  If latestMetacard is null, we shouldn't get into this class.
+                LOGGER.warn("Unable to validate cached resource against latest metacard from Catalog.  Resource returned from cache may be out-of-date.", e);
+            }
+            
             if (cachedResource.hasProduct()) {
                 LOGGER.debug("EXITING: get() for key {}", key);
                 return cachedResource;
@@ -243,13 +265,115 @@ public class ResourceCache implements ResourceCacheInterface {
      * @return {@code true} if items exists in cache.
      */
     @Override
-    public boolean contains(String key) {
+    public boolean containsValid(String key, Metacard latestMetacard) {
         if (key == null) {
             return false;
         }
         ReliableResource cachedResource = (ReliableResource) cache.get(key);
-
-        return cachedResource != null;
+        
+        boolean result;
+        try{
+            result = cachedResource != null ? (validateCacheEntry(cachedResource, latestMetacard)) : false;
+        }
+        catch (IllegalArgumentException e){
+            LOGGER.debug(e.getMessage());
+            return false;
+        }
+         
+        return result;
     }
 
+    //TODO: is it okay to make this protected for testing purposes?
+    /**
+     * Compares the {@link Metacard} in a {@link ReliableResource} pulled from cache with a Metacard obtained directly
+     * from the Catalog to ensure they are the same. Typically used to determine if the cache entry is out-of-date based
+     * on the Catalog having an updated Metacard.
+     * 
+     * @param cachedResource
+     * @param latestMetacard
+     * @return true if the cached ReliableResource still matches the most recent Metacard from the Catalog, false otherwise 
+     * @throws IllegalArgumentException if parameters are null
+     */
+    protected boolean validateCacheEntry(ReliableResource cachedResource, Metacard latestMetacard)
+            throws IllegalArgumentException {
+        LOGGER.trace("ENTERING: validateCacheEntry");
+        if (cachedResource == null || latestMetacard == null) {
+            throw new IllegalArgumentException(
+                    "Neither the cachedResource nor the metacard retrieved from the catalog can be null.");
+        }
+
+        HashFunction hf = Hashing.goodFastHash(32);
+        HashCode cachedResourceHC = hf.hashObject(cachedResource.getMetacard(), MetacardFunnel.INSTANCE);
+        HashCode latestMetacardHC = hf.hashObject(latestMetacard, MetacardFunnel.INSTANCE);
+
+        // compare hashes of cachedResource.getMetacard() and latestMetcard
+        if (cachedResourceHC.equals(latestMetacardHC)) {
+            LOGGER.trace("EXITING: validateCacheEntry");
+            return true;
+        } else {
+            File cachedFile = new File(cachedResource.getFilePath());
+            if (!FileUtils.deleteQuietly(cachedFile)) {
+                LOGGER.debug("File was not removed from cache directory.  File Path: {}", cachedResource.getFilePath());
+            }
+
+            cache.remove(cachedResource.getKey());
+            LOGGER.trace("EXITING: validateCacheEntry");
+            return false;
+        }
+    }
+    
+    //TODO: do I really need all of these in the hashing function?
+    private enum MetacardFunnel implements Funnel<Metacard>{
+        INSTANCE;
+
+        @Override
+        public void funnel(Metacard metacard, PrimitiveSink sink) {
+            if(metacard.getId() != null){
+                sink.putUnencodedChars(metacard.getId());
+            }
+            if(metacard.getSourceId() != null){
+                sink.putUnencodedChars(metacard.getSourceId());
+            }
+            if(metacard.getTitle() != null){
+                sink.putUnencodedChars(metacard.getTitle());
+            }
+            if(metacard.getMetadata() != null){
+                sink.putUnencodedChars(metacard.getMetadata());
+            }
+            if(metacard.getLocation() != null){
+                sink.putUnencodedChars(metacard.getLocation());
+            }
+            if(metacard.getContentTypeName() != null){
+                sink.putUnencodedChars(metacard.getContentTypeName());
+            }
+            if(metacard.getContentTypeVersion() != null){
+                sink.putUnencodedChars(metacard.getContentTypeVersion());
+            }
+            if(metacard.getContentTypeNamespace() != null){
+                sink.putUnencodedChars(metacard.getContentTypeNamespace().toString());
+            }
+            //Removing resource size because the MetacardResourceSizePlugin populates the size in the catalog's version of the metacard.  i could populate this in the cachedResource's metacard instead
+//            if(metacard.getResourceSize() != null){
+//                sink.putUnencodedChars(metacard.getResourceSize());
+//            }
+            if(metacard.getResourceURI() != null){
+                sink.putUnencodedChars(metacard.getResourceURI().toString());
+            }
+            if(metacard.getMetacardType() != null){
+                sink.putUnencodedChars(metacard.getMetacardType().getName());
+            }
+            if(metacard.getCreatedDate() != null){
+                sink.putLong(metacard.getCreatedDate().getTime());
+            }
+            if(metacard.getEffectiveDate() != null){
+                sink.putLong(metacard.getEffectiveDate().getTime());
+            }
+            if(metacard.getExpirationDate() != null){
+                sink.putLong(metacard.getExpirationDate().getTime());
+            }
+            if(metacard.getModifiedDate() != null){
+                sink.putLong(metacard.getModifiedDate().getTime());
+            }
+        }
+    }
 }

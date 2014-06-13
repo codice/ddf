@@ -42,6 +42,7 @@ import com.hazelcast.test.TestHazelcastInstanceFactory;
 
 import ddf.catalog.cache.impl.ProductCacheDirListener;
 import ddf.catalog.cache.impl.ResourceCache;
+import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.resource.data.ReliableResource;
 
 
@@ -277,7 +278,7 @@ public class ResourceCacheSizeLimitTest {
         String productOriginalLocation = System.getProperty("user.dir") + "/src/test/resources/" + fileName;
         File rrCachedFile = new File(productCacheDir + "/"+ destFileName);
         FileUtils.copyFile(new File(productOriginalLocation), rrCachedFile);
-        ReliableResource rr = new ReliableResource(key, rrCachedFile.getAbsolutePath(), new MimeType(), fileName);
+        ReliableResource rr = new ReliableResource(key, rrCachedFile.getAbsolutePath(), new MimeType(), fileName, new MetacardImpl());
         rr.setSize(rrCachedFile.length());
         LOGGER.debug("adding entry to cache: " + key);
         cacheMap.put(key, rr);

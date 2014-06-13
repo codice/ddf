@@ -65,7 +65,7 @@ public class MetacardResourceSizePlugin implements PostQueryPlugin {
                     try {
                         Thread.currentThread().setContextClassLoader(
                               getClass().getClassLoader());
-                        cachedResource = (ReliableResource) cache.get(key);
+                        cachedResource = (ReliableResource) cache.getValid(key, metacard);
                     } finally {
                         Thread.currentThread().setContextClassLoader(tccl);
                     } 

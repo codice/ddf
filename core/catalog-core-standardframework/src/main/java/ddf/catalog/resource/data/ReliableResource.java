@@ -27,6 +27,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ddf.catalog.data.Metacard;
 import ddf.catalog.resource.Resource;
 
 /**
@@ -47,17 +48,20 @@ public class ReliableResource implements Resource, Serializable {
     
     // The key used to store this object in the cache map
     private String key;
+
+    private Metacard metacard;
     
     
-    public ReliableResource(String key, String filePath) {
-        this(key, filePath, null, null);
-    }
+//    public ReliableResource(String key, String filePath) {
+//        this(key, filePath, null, null);
+//    }
     
-    public ReliableResource(String key, String filePath, MimeType mimeType, String name) {
+    public ReliableResource(String key, String filePath, MimeType mimeType, String name, Metacard metacard) {
         this.key = key;
         this.filePath = filePath;
         this.mimeType = mimeType;
         this.resourceName = name;
+        this.metacard = metacard;
     }
     
     public String getFilePath() {
@@ -158,5 +162,9 @@ public class ReliableResource implements Resource, Serializable {
 
     public void setLastTouchedMillis(long lastTouchedMillis) {
         this.lastTouchedMillis = lastTouchedMillis;
+    }
+
+    public Metacard getMetacard() {
+        return metacard;
     }
 }

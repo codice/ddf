@@ -287,14 +287,15 @@ public class ReliableResourceDownloadManager implements Runnable {
                 LOGGER.info("Cannot create cache key for resource with metacard ID = {}", metacard.getId());
             }
             if (key != null && !resourceCache.isPending(key)) {
-                resourceCache.addPendingCacheEntry(key);
+                
                 // Fully qualified path to cache file that will be written to.
                 // Example:
                 //     <INSTALL-DIR>/data/product-cache/<source-id>-<metacard-id>
                 //     <INSTALL-DIR>/data/product-cache/ddf.distribution-abc123
                 filePath = FilenameUtils.concat(resourceCache.getProductCacheDirectory(), key);
                 reliableResource = new ReliableResource(key, filePath,
-                        mimeType, resourceName);
+                        mimeType, resourceName, metacard);
+                resourceCache.addPendingCacheEntry(reliableResource);
                 
                 try {
                     fos = FileUtils.openOutputStream(new File(filePath));

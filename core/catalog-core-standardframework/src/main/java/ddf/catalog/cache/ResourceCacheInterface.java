@@ -15,6 +15,7 @@
 package ddf.catalog.cache;
 
 import ddf.cache.CacheException;
+import ddf.catalog.data.Metacard;
 import ddf.catalog.resource.Resource;
 import ddf.catalog.resource.data.ReliableResource;
 
@@ -35,21 +36,28 @@ public interface ResourceCacheInterface {
     void put(ReliableResource reliableResource) throws CacheException;
     
     /**
-     * Gets resource from the cache.
+     * Gets a valid resource from the cache.
+     * 
+     * A valid resource is one where the corresponding Metacard in the Catalog has not changed since its resource was
+     * cached.
      * 
      * @param key
      * @return Resource obtained from cache
      * @throws CacheException
+     *             if no valid Resource found with given key.
      */
-    Resource get(String key) throws CacheException;
+    Resource getValid(String key, Metacard latestMetacard) throws CacheException;
 
     /**
-     * Queries cache to determine if it contains a resource with the provided key.
+     * Queries cache to determine if it contains a valid resource with the provided key.
+     * 
+     * A valid resource is one where the corresponding Metacard in the Catalog has not changed since its resource was
+     * cached.
      * 
      * @param key
-     * @return
+     * @return true if cache contains valid Resource with given key.
      */
-    boolean contains(String key);
+    boolean containsValid(String key, Metacard latestMetacard);
 
     /**
      * Returns true if resource with specified cache key is already in the process of
@@ -77,6 +85,6 @@ public interface ResourceCacheInterface {
      * 
      * @param cacheKey
      */
-    void addPendingCacheEntry(String cacheKey);
+    void addPendingCacheEntry(ReliableResource reliableResource);
     
 }
