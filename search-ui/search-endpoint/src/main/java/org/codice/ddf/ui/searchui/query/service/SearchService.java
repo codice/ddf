@@ -99,6 +99,8 @@ public class SearchService {
 
     private static final String DATE_OFFSET = "dtoffset";
 
+    private static final String TIME_TYPE = "timeType";
+
     private static final String TYPE = "type";
 
     private static final String VERSION = "version";
@@ -246,6 +248,7 @@ public class SearchService {
         String type = castObject(String.class, queryMessage.get(TYPE));
         String versions = castObject(String.class, queryMessage.get(VERSION));
         String guid = castObject(String.class, queryMessage.get(GUID));
+        String timeType = castObject(String.class, queryMessage.get(TIME_TYPE));
 
         Long localCount = count;
 
@@ -261,7 +264,7 @@ public class SearchService {
         List<Filter> filters = new ArrayList<Filter>();
 
         addContextualFilter(filters, searchTerms);
-        addTemporalFilter(filters, dateStart, dateEnd, dateOffset);
+        addTemporalFilter(filters, dateStart, dateEnd, dateOffset, timeType);
         addSpatialFilter(filters, bbox, radius, lat, lon);
         addTypeFilters(filters, type);
 
@@ -336,12 +339,22 @@ public class SearchService {
      * @param dateOffset
      */
     private void addTemporalFilter(List<Filter> filters, String dateStart, String dateEnd,
-            Long dateOffset) {
-        if (StringUtils.isNotBlank(dateStart) || StringUtils.isNotBlank(dateEnd)) {
-            filters.add(filterBuilder.attribute(Metacard.MODIFIED).is().during().dates(
-                    parseDate(dateStart), parseDate(dateEnd)));
-        } else if (dateOffset != null) {
-            filters.add(filterBuilder.attribute(Metacard.MODIFIED).is().during().last(dateOffset));
+            Long dateOffset, String timeType) {
+        if (timeType.equals("modified")) {
+            if (StringUtils.isNotBlank(dateStart) || StringUtils.isNotBlank(dateEnd)) {
+                filters.add(filterBuilder.attribute(Metacard.MODIFIED).is().during().dates(
+                        parseDate(dateStart), parseDate(dateEnd)));
+            } else if (dateOffset != null) {
+                filters.add(filterBuilder.attribute(Metacard.MODIFIED).is().during().last(dateOffset));
+            }
+        }
+        else if (timeType.equals("effective")) {
+            if (StringUtils.isNotBlank(dateStart) || StringUtils.isNotBlank(dateEnd)) {
+                filters.add(filterBuilder.attribute(Metacard.EFFECTIVE).is().during().dates(
+                        parseDate(dateStart), parseDate(dateEnd)));
+            } else if (dateOffset != null) {
+                filters.add(filterBuilder.attribute(Metacard.EFFECTIVE).is().during().last(dateOffset));
+            }
         }
     }
 
