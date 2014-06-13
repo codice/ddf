@@ -26,7 +26,7 @@ define([
         'text!templates/resultlist/statusItem.handlebars',
         'text!templates/resultlist/status.handlebars'
     ],
-    function (Marionette, _, ich, dir, Spinner, spinnerConfig, wreqr, resultListItemTemplate, resultListTemplate, countLowTemplate, countHighTemplate) {
+    function (Marionette, _, ich, dir, Spinner, spinnerConfig, wreqr, resultListItemTemplate, resultListTemplate, countLowTemplate, countHighTemplate, statusItemTemplate, statusTemplate) {
         "use strict";
 
         var List = {};
@@ -41,6 +41,8 @@ define([
         ich.addTemplate('resultListTemplate', resultListTemplate);
         ich.addTemplate('countLowTemplate', countLowTemplate);
         ich.addTemplate('countHighTemplate', countHighTemplate);
+        ich.addTemplate('statusItemTemplate', statusItemTemplate);
+        ich.addTemplate('statusTemplate', statusTemplate);
 
         List.MetacardRow = Marionette.ItemView.extend({
             tagName: "tr",
