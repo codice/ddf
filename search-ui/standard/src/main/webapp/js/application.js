@@ -24,14 +24,13 @@ define(['jquery',
         'text!templates/map.handlebars',
         'text!templates/header.layout.handlebars',
         'text!templates/footer.layout.handlebars',
-        'text!templates/classification/classification-banner.handlebars',
         'js/view/Menu.view',
         // Load non attached libs and plugins
         'bootstrap',
         'backbonerelational',
         'backbonecometd',
         'jquerycometd'
-    ], function ($, _, Marionette, Backbone, ich, properties, maptype, main, map, header, footer, banner, Menu) {
+    ], function ($, _, Marionette, Backbone, ich, properties, maptype, main, map, header, footer, Menu) {
         'use strict';
 
         var Application = {};
@@ -41,9 +40,10 @@ define(['jquery',
         ich.addTemplate('map', map);
         ich.addTemplate('headerLayout', header);
         ich.addTemplate('footerLayout', footer);
-        ich.addTemplate('classificationBanner', banner);
 
         Application.App = new Marionette.Application();
+
+        Application.AppModel = new Backbone.Model(properties);
 
         Application.Controllers = {};
 
@@ -106,76 +106,6 @@ define(['jquery',
                 Application.App.mapRegion.show(mapView);
             }
         };
-
-        Application.Views.HeaderLayout = Marionette.Layout.extend({
-            template: 'headerLayout',
-            className: 'header-layout',
-
-            regions: {
-                classification: '.classification-container'
-            }
-        });
-
-        Application.Views.FooterLayout = Marionette.Layout.extend({
-            template: 'footerLayout',
-            className: 'footer-layout',
-
-            regions: {
-                classification: '.classification-container'
-            }
-        });
-
-        Application.Views.HeaderBanner = Backbone.View.extend({
-            className: "classification-banner",
-
-            initialize: function () {
-                var view = this;
-                _.bindAll(view);
-            },
-
-            render: function () {
-                var view = this,
-                    headerText = properties.header,
-                    style = properties.style,
-                    textColor = properties.textColor,
-                    header = {};
-
-                if (headerText && headerText !== "") {
-                    //set up header
-                    header.text = headerText;
-                    header.style = style;
-                    header.textColor = textColor;
-
-                    view.$el.html(ich.classificationBanner(header));
-                }
-            }
-        });
-
-        Application.Views.FooterBanner = Backbone.View.extend({
-            className: "classification-banner",
-
-            initialize: function () {
-                var view = this;
-                _.bindAll(view);
-            },
-
-            render: function () {
-                var view = this,
-                    footerText = properties.footer,
-                    style = properties.style,
-                    textColor = properties.textColor,
-                    footer = {};
-
-                if (footerText && footerText !== "") {
-                    //set up footer
-                    footer.text = footerText;
-                    footer.style = style;
-                    footer.textColor = textColor;
-
-                    view.$el.html(ich.classificationBanner(footer));
-                }
-            }
-        });
 
         return Application;
     }

@@ -48,6 +48,24 @@ define(['config'], function () {
             app.Controllers.applicationController.renderApplicationViews();
         });
 
+        //setup the header
+        app.App.addInitializer(function() {
+            app.App.headerRegion.show(new Marionette.ItemView({
+                template: 'headerLayout',
+                className: 'header-layout',
+                model: app.AppModel
+            }));
+        });
+
+        //setup the footer
+        app.App.addInitializer(function() {
+            app.App.footerRegion.show(new Marionette.ItemView({
+                template: 'footerLayout',
+                className: 'footer-layout',
+                model: app.AppModel
+            }));
+        });
+
         // Start up the Map view
         app.App.addInitializer(function() {
             app.showMapView();

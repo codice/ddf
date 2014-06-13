@@ -31,9 +31,7 @@ define(['jquery',
 
             renderApplicationViews: function () {
                 var controller = this,
-                    mainView = new app.Views.Main({model: new Backbone.Model(properties)}),
-                    headerLayout = new app.Views.HeaderLayout(),
-                    footerLayout = new app.Views.FooterLayout();
+                    mainView = new app.Views.Main({model: new Backbone.Model(properties)});
 
                 // Once the main application view has been attached to the DOM, set up the dependent views.
                 mainView.on('show', function () {
@@ -49,13 +47,7 @@ define(['jquery',
                     poller.get(controller.sources, { delay: 60000 }).start();
                 });
 
-                app.App.headerRegion.show(headerLayout);
-                headerLayout.classification.show(new app.Views.HeaderBanner());
-
                 app.App.mainRegion.show(mainView);
-
-                app.App.footerRegion.show(footerLayout);
-                footerLayout.classification.show(new app.Views.FooterBanner());
 
                 $(document).ready(function () {
                     document.title = properties.branding;
