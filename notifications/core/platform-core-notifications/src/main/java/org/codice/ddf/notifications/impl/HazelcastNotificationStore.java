@@ -134,13 +134,18 @@ public class HazelcastNotificationStore implements NotificationStore {
                 + notification.get(PersistentNotification.NOTIFICATION_KEY_USER_ID));
     }
 
-    @Override
+
     public void removeNotification(String notificationId, String userId) {
         Map<String, String> notification = (Map<String, String>) notificationsCache
                 .get(notificationId);
-        if (notification.get(PersistentNotification.NOTIFICATION_KEY_USER_ID).equals(userId)) {
-            notificationsCache.remove(notificationId);
+        if (notification != null) {
+            if (notification.get(PersistentNotification.NOTIFICATION_KEY_USER_ID).equals(userId)) {
+                notificationsCache.remove(notificationId);
+            }
+        } else {
+            LOGGER.debug("notification is null");
         }
+
     }
 
     @Override
