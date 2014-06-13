@@ -45,8 +45,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 /**
- * The {@code AbstractEventController} handles the processing and routing of
- * events.
+ * The {@code AbstractEventController} handles the processing and routing of events.
  */
 @Service
 public abstract class AbstractEventController implements EventHandler {
@@ -70,8 +69,8 @@ public abstract class AbstractEventController implements EventHandler {
     protected NotificationStore notificationStore;
 
     /**
-     * Establishes {@code AbstractEventController} as a listener to events
-     * published by the OSGi eventing framework on the event's root topic
+     * Establishes {@code AbstractEventController} as a listener to events published by the OSGi
+     * eventing framework on the event's root topic
      * 
      * @param bundleContext
      */
@@ -92,28 +91,24 @@ public abstract class AbstractEventController implements EventHandler {
      * Obtains the {@link ServerSession} associated with a given user id.
      * 
      * @param userId
-     *            The id of the user associated with the {@code ServerSession}
-     *            to be retrieved.
-     * @return The {@code ServerSession} associated with the received userId or
-     *         null if the user does not have an established
-     *         {@code ServerSession}
+     *            The id of the user associated with the {@code ServerSession} to be retrieved.
+     * @return The {@code ServerSession} associated with the received userId or null if the user
+     *         does not have an established {@code ServerSession}
      */
     public ServerSession getSessionByUserId(String userId) {
         return userSessionMap.get(userId);
     }
 
     /**
-     * Listens to the /meta/disconnect {@link org.cometd.bayeux.Channel} for
-     * clients disconnecting and deregisters the user. This should be invoked in
-     * order to remove {@code AbstractEventController} references to invalid
-     * {@link ServerSession}s.
+     * Listens to the /meta/disconnect {@link org.cometd.bayeux.Channel} for clients disconnecting
+     * and deregisters the user. This should be invoked in order to remove
+     * {@code AbstractEventController} references to invalid {@link ServerSession}s.
      * 
      * @param serverSession
-     *            The {@code ServerSession} object associated with the client
-     *            that is disconnecting
+     *            The {@code ServerSession} object associated with the client that is disconnecting
      * @param serverMessage
-     *            The {@link ServerMessage} that was sent from the client on the
-     *            /meta/disconnect Channel
+     *            The {@link ServerMessage} that was sent from the client on the /meta/disconnect
+     *            Channel
      */
     @Listener("/meta/disconnect")
     public void deregisterUserSession(ServerSession serverSession, ServerMessage serverMessage) {
@@ -144,25 +139,23 @@ public abstract class AbstractEventController implements EventHandler {
     }
 
     /**
-     * Enables private message delivery to a given user. As of CometD version
-     * 2.8.0, this must be called from the canHandshake method of a
-     * {@link SecurityPolicy}. See <a href=
+     * Enables private message delivery to a given user. As of CometD version 2.8.0, this must be
+     * called from the canHandshake method of a {@link SecurityPolicy}. See <a href=
      * "http://stackoverflow.com/questions/22695516/null-serversession-on-cometd-meta-handshake"
-     * >Obtaining user and session information for private message delivery</a>
-     * for more information.
+     * >Obtaining user and session information for private message delivery</a> for more
+     * information.
      * 
      * @param serverSession
-     *            The {@link ServerSession} on which to deliver messages to the
-     *            user for the user.
+     *            The {@link ServerSession} on which to deliver messages to the user for the user.
      * @param serverMessage
-     *            The {@link ServerMessage} containing the userId property with
-     *            which to associate the {@code ServerSession}.
+     *            The {@link ServerMessage} containing the userId property with which to associate
+     *            the {@code ServerSession}.
      * @throws IllegalArgumentException
-     *             when the received {@code ServerSession} or the
-     *             {@code ServerSession}'s id is null.
+     *             when the received {@code ServerSession} or the {@code ServerSession}'s id is
+     *             null.
      */
     public void registerUserSession(final ServerSession serverSession, ServerMessage serverMessage)
-            throws IllegalArgumentException {
+        throws IllegalArgumentException {
 
         LOGGER.debug("ServerSession: {}\nServerMessage: {}", serverSession, serverMessage);
 
@@ -185,13 +178,14 @@ public abstract class AbstractEventController implements EventHandler {
 
         userSessionMap.put(userId, serverSession);
 
-        if(subject != null) {
+        if (subject != null) {
             List<Map<String, String>> notifications = getNotificationsForUser(userId);
 
-            //TODO need to also get the activities for the user and send them back here as well
+            // TODO need to also get the activities for the user and send them back here as well
 
-            if(notifications != null && !notifications.isEmpty()) {
-                queuePersistedMessages(serverSession, notifications, "/" + Notification.NOTIFICATION_TOPIC_DOWNLOADS);
+            if (notifications != null && !notifications.isEmpty()) {
+                queuePersistedMessages(serverSession, notifications, "/"
+                        + Notification.NOTIFICATION_TOPIC_DOWNLOADS);
             }
         }
 
@@ -204,20 +198,21 @@ public abstract class AbstractEventController implements EventHandler {
             final JSONObject jsonPropMap = new JSONObject();
             jsonPropMap.putAll(notification);
 
-            LOGGER.debug("Sending the following property map \"{}\": ",
-                    jsonPropMap.toJSONString());
+            LOGGER.debug("Sending the following property map \"{}\": ", jsonPropMap.toJSONString());
 
             executorService.submit(new Runnable() {
                 @Override
                 public void run() {
                     int maxAttempts = 10;
                     int attempts = 0;
-                    while(!serverSession.isConnected() && attempts < maxAttempts) {
+                    while (!serverSession.isConnected() && attempts < maxAttempts) {
                         try {
                             TimeUnit.SECONDS.sleep(1);
-                        } catch (InterruptedException e) { }
+                        } catch (InterruptedException e) {
+                        }
                         attempts++;
-                        LOGGER.trace("Attempt {} of {} to send notifications back to client.", attempts, maxAttempts);
+                        LOGGER.trace("Attempt {} of {} to send notifications back to client.",
+                                attempts, maxAttempts);
                     }
 
                     LOGGER.trace("Sending notifications back to client.");
@@ -228,12 +223,12 @@ public abstract class AbstractEventController implements EventHandler {
         }
     }
 
-    private String getUserId(ServerSession serverSession, Subject subject) {
+    protected String getUserId(ServerSession serverSession, Subject subject) {
         String userId = null;
-        if(subject != null) {
+        if (subject != null) {
             PrincipalCollection principalCollection = subject.getPrincipals();
-            for(Object principal : principalCollection.asList()) {
-                if(principal instanceof SecurityAssertion) {
+            for (Object principal : principalCollection.asList()) {
+                if (principal instanceof SecurityAssertion) {
                     SecurityAssertion assertion = (SecurityAssertion) principal;
 
                     Principal jPrincipal = assertion.getPrincipal();
@@ -248,8 +243,8 @@ public abstract class AbstractEventController implements EventHandler {
     }
 
     /**
-     * Obtains the root topic of the controller that should be used when
-     * registering the eventhandler.
+     * Obtains the root topic of the controller that should be used when registering the
+     * eventhandler.
      * 
      * @return String representation of a root topic.
      */

@@ -87,12 +87,6 @@ define([ 'backbone',
                 }
             });
             this.notification = notification;
-            this.notification.closer.on('click', function() {
-                if(view.model && view.model.collection) {
-                    view.model.collection.remove(view.model);
-                    wreqr.vent.trigger('notification:close');
-                }
-            });
         },
 
         openNotification: function(noti) {
@@ -111,7 +105,9 @@ define([ 'backbone',
         },
 
         onClose : function() {
-            this.notification.pnotify_remove();
+            if(this.notification) {
+                this.notification.pnotify_remove();
+            }
         }
     });
 

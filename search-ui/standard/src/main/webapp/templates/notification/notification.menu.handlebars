@@ -11,9 +11,22 @@
  *
  **/
  --}}
-<div style="width: 100%">
-    <div class="notification-title-menu">{{application}}</div><div class="notification-time-menu">{{momentHelp timestamp fromNow=function}}</div>
-</div>
 
-<div class="notification-message-menu">{{message}}</div>
+
+ {{#is closeConfirm true}}
+    <div class="btn-group notification-remove-area">
+        <a href="#" class="btn btn-primary" id="remove">Remove</a> <a href="#" class="btn" id="cancelRemove">Cancel</a>
+    </div>
+{{else}}
+ <div style="position: relative;" class="width-full">
+        <div class="notification-title">
+            <span class="notification-title-menu">{{application}}</span></div>
+        <div class="notification-time-menu">{{momentHelp timestamp fromNow=function}}</div>
+        <div class="notification-message-menu">{{message}}</div>
+        <div class="notification-close">
+            <a href="#" class="fa fa-times" id="close"></a>
+        </div>
+    </div>
+
+{{/is}}
 <hr class="menu-divider" />

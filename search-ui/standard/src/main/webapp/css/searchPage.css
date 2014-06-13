@@ -672,6 +672,8 @@ span.add-on {
 
 .notification-title{
     color: #eee;
+    display: table-cell;
+    width: 100%;
 }
 
 .notification-time-menu {
@@ -681,6 +683,7 @@ span.add-on {
     width: 105px;
     text-align: right;
     white-space: nowrap;
+    padding-right: 15px;
 }
 
 .notification-message-menu {
@@ -1136,6 +1139,12 @@ div.dropdown-width li:first-child .task-category {
     position: absolute;
 }
 
+.notification-close {
+    right: -3px;
+    top: -3px;
+    position: absolute;
+}
+
 .download {
     display: table-cell;
     padding: 0px 3px;
@@ -1148,6 +1157,11 @@ div.dropdown-width li:first-child .task-category {
 }
 
 .task-remove-area {
+    width: 100%;
+    text-align: center;
+}
+
+.notification-remove-area {
     width: 100%;
     text-align: center;
 }

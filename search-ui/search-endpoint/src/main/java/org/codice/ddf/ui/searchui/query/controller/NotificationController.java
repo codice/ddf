@@ -15,9 +15,13 @@
 package org.codice.ddf.ui.searchui.query.controller;
 
 import net.minidev.json.JSONObject;
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.subject.Subject;
 import org.codice.ddf.notifications.Notification;
 import org.codice.ddf.notifications.store.NotificationStore;
+import org.cometd.annotation.Listener;
 import org.cometd.annotation.Service;
+import org.cometd.bayeux.server.ServerMessage;
 import org.cometd.bayeux.server.ServerSession;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.Event;
@@ -25,9 +29,10 @@ import org.osgi.service.event.EventHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Map;
+
 /**
- * The {@code NotificationController} handles the processing and routing of
- * notifications.
+ * The {@code NotificationController} handles the processing and routing of notifications.
  */
 @Service
 public class NotificationController extends AbstractEventController {
@@ -44,14 +49,13 @@ public class NotificationController extends AbstractEventController {
     }
 
     /**
-     * Implementation of {@link EventHandler#handleEvent(Event)} that receives
-     * notifications published on the {@link #NOTIFICATIONS_TOPIC_NAME} topic
-     * from the OSGi eventing framework and forwards them to their intended
-     * recipients.
+     * Implementation of {@link EventHandler#handleEvent(Event)} that receives notifications
+     * published on the {@link #NOTIFICATIONS_TOPIC_NAME} topic from the OSGi eventing framework and
+     * forwards them to their intended recipients.
      * 
      * @throws IllegalArgumentException
-     *             when any of the following required properties are either
-     *             missing from the Event or contain empty values:
+     *             when any of the following required properties are either missing from the Event
+     *             or contain empty values:
      * 
      *             <ul>
      *             <li>{@link Notification#NOTIFICATION_KEY_APPLICATION}</li>
@@ -116,5 +120,35 @@ public class NotificationController extends AbstractEventController {
     @Override
     public String getControllerRootTopic() {
         return Notification.NOTIFICATION_TOPIC_ROOT + "/*";
+    }
+
+    @Listener("/notification/action")
+    public void deletePersistentNotification(ServerSession serverSession,
+            ServerMessage serverMessage) {
+        LOGGER.debug("\nServerSession: {}\nServerMessage: {}", serverSession, serverMessage);
+
+        if (null == serverSession) {
+            throw new IllegalArgumentException("ServerSession is null");
+        }
+        if (null == serverMessage) {
+            throw new IllegalArgumentException("ServerMessage is null");
+        }
+
+        Subject subject = null;
+        try {
+            subject = SecurityUtils.getSubject();
+        } catch (Exception e) {
+            LOGGER.debug("Couldn't grab user subject from Shiro.", e);
+        }
+
+        String userId = getUserId(serverSession, subject);
+
+        Map<String, Object> message = serverMessage.getDataAsMap();
+
+        if ((message.get("action")).equals("remove")) {
+            String notificationId = (String) message.get("id");
+
+            notificationStore.removeNotification(notificationId, userId);
+        }
     }
 }
