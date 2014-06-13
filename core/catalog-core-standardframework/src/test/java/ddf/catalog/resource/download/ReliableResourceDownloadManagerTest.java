@@ -124,10 +124,6 @@ public class ReliableResourceDownloadManagerTest {
 
     @BeforeClass
     public static void oneTimeSetup() throws IOException {
-        ch.qos.logback.classic.Logger root = (ch.qos.logback.classic.Logger) LoggerFactory
-                .getLogger(Logger.ROOT_LOGGER_NAME);
-        root.setLevel(ch.qos.logback.classic.Level.DEBUG);
-
         workingDir = System.getProperty("user.dir");
         productCacheDirectory = workingDir + "/target/tests/product-cache";
         productInputFilename = workingDir + "/src/test/resources/foo_10_lines.txt";

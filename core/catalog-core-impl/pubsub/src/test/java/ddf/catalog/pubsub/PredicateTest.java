@@ -88,15 +88,6 @@ public class PredicateTest {
             + "      <category qualifier=\"SubjectCoverageQualifier\" code=\"nitf\" label=\"nitf\"/>\r\n"
             + "    </Subject>\r\n" + "  </subjectCoverage>\r\n"
             + "  <security classification=\"U\" ownerProducer=\"USA\"/>\r\n" + "</Resource>";
-    
-    
-
-    @BeforeClass
-    public static void oneTimeSetup() throws IOException {
-        ch.qos.logback.classic.Logger root = (ch.qos.logback.classic.Logger) LoggerFactory
-                .getLogger(Logger.ROOT_LOGGER_NAME);
-        root.setLevel(ch.qos.logback.classic.Level.DEBUG);
-    }
 
     @Test
     public void testContentTypeEvaluation() throws IOException {
