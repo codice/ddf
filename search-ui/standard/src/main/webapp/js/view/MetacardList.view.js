@@ -170,6 +170,21 @@ define(function (require) {
         }
     });
 
+    List.CountView = Marionette.ItemView.extend({
+        modelEvents: {
+            "change": "render"
+        },
+        getTemplate: function() {
+            if (!_.isUndefined(this.model.get('hits'))) {
+                if (this.model.get('results').length >= this.model.get('hits') || this.model.get('hits') === 0) {
+                    return 'countLowTemplate';
+                } else {
+                    return 'countHighTemplate';
+                }
+            }
+        }
+    });
+
     List.MetacardListView = Marionette.Layout.extend({
         className: 'slide-animate height-full',
         template: 'resultListTemplate',
@@ -188,30 +203,16 @@ define(function (require) {
             this.listRegion.show(new List.MetacardTable({
                 collection: this.model.get("results")
             }));
-            this.updateCount();
-            this.listenTo(this.model, 'change', this.updateCount);
             this.statusRegion.show(new List.StatusTable({
                 collection: this.model.get("sources")
+            }));
+            this.countRegion.show(new List.CountView({
+                model: this.model
             }));
         },
         onShow: function(){
             this.updateSpinner();
             this.listenTo(this.model, 'change', this.updateSpinner);
-        },
-        updateCount: function() {
-            if (!_.isUndefined(this.model.get("hits"))) {
-                if (this.model.get("results").length >= this.model.get("hits") || this.model.get("hits") === 0) {
-                    this.countRegion.show(new Marionette.ItemView({
-                        template: 'countLowTemplate',
-                        model: this.model
-                    }));
-                } else {
-                    this.countRegion.show(new Marionette.ItemView({
-                        template: 'countHighTemplate',
-                        model: this.model
-                    }));
-                }
-            }
         },
         updateSpinner: function () {
             if (!_.isUndefined(this.model.get("hits"))) {
