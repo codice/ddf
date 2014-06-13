@@ -13,7 +13,6 @@
 /*global define */
 define(function () {
     // blatently stolen and modified from http://stackoverflow.com/questions/16282330/find-centerpoint-of-polygon-in-javascript
-
     "use strict";
 
     function Point(x, y) {

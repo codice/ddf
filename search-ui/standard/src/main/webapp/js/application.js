@@ -85,9 +85,9 @@ define(['jquery',
 
                 mapView.on('show', function () {
                     require(['js/controllers/geospatial.controller',
-                             'js/widgets/draw.extent',
-                             'js/widgets/draw.circle'
-                            ], function (GeoController, DrawExtent, DrawCircle) {
+                        'js/widgets/draw.extent',
+                        'js/widgets/draw.circle'
+                    ], function (GeoController, DrawExtent, DrawCircle) {
 
                         var geoController = new GeoController();
 
@@ -176,10 +176,6 @@ define(['jquery',
                 }
             }
         });
-
-        Application.module = function (props) {
-            return _.extend({ Views: {} }, Backbone.Events, props);
-        };
 
         return Application;
     }

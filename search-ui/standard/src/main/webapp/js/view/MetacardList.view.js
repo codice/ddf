@@ -11,218 +11,224 @@
  **/
 /*global define*/
 
-define(function (require) {
-    "use strict";
+define([
+        'marionette',
+        'underscore',
+        'icanhaz',
+        'direction',
+        'spin',
+        'spinnerConfig',
+        'wreqr',
+        'text!templates/resultlist/resultListItem.handlebars',
+        'text!templates/resultlist/resultList.handlebars',
+        'text!templates/resultlist/countlow.handlebars',
+        'text!templates/resultlist/counthigh.handlebars',
+        'text!templates/resultlist/statusItem.handlebars',
+        'text!templates/resultlist/status.handlebars'
+    ],
+    function (Marionette, _, ich, dir, Spinner, spinnerConfig, wreqr, resultListItemTemplate, resultListTemplate, countLowTemplate, countHighTemplate) {
+        "use strict";
 
-    var Marionette = require('marionette'),
-        _ = require('underscore'),
-        ich = require('icanhaz'),
-        dir = require('direction'),
-        Spinner = require('spin'),
-        spinnerConfig = require('spinnerConfig'),
-        wreqr = require('wreqr'),
-        List = {};
+        var List = {};
+
+        function throwError(message, name) {
+          var error = new Error(message);
+          error.name = name || 'Error';
+          throw error;
+        }
+
+        ich.addTemplate('resultListItem', resultListItemTemplate);
+        ich.addTemplate('resultListTemplate', resultListTemplate);
+        ich.addTemplate('countLowTemplate', countLowTemplate);
+        ich.addTemplate('countHighTemplate', countHighTemplate);
+
+        List.MetacardRow = Marionette.ItemView.extend({
+            tagName: "tr",
+            template : 'resultListItem',
+            events: {
+                'click .metacard-link': 'viewMetacard'
+            },
+
+            serializeData: function(){
+                //we are overriding this serializeData function to change marionette's behavior
+                //previously it was performing a .toJSON on the model which is normally what you want
+                //but our model is pretty deep and this was causing some big performance issues
+                //so with this change we simply need up adapt our templates to work with backbone
+                //objects instead of flat json records
+                var data = {};
+
+                if (this.model) {
+                    data = this.model;
+                }
+
+                return data;
+            },
+
+            onRender : function(){
+                if(this.model.get('context')){
+                    this.$el.addClass('selected');
+                }
+            },
+
+            viewMetacard: function () {
+                this.model.set('direction', dir.forward);
+                if (this.model.get('context')) {
+                    wreqr.vent.trigger('metacard:selected', this.model);
+                }
+                this.model.set('context', true);
+            }
+
+        });
+
+        List.MetacardTable = Marionette.CollectionView.extend({
+            itemView : List.MetacardRow,
+            tagName: 'table',
+            className: 'table resultTable',
+            itemViewOptions : function(model){
+                return {
+                    model : model.get('metacard')
+                };
+            },
+            appendHtml: function (collectionView, itemView, index) {
+                var childAtIndex;
+
+                if (collectionView.isBuffering) {
+                    // could just quickly
+                    // use prepend
+                    if (index === 0) {
+                        collectionView._bufferedChildren.reverse();
+                        collectionView._bufferedChildren.push(itemView);
+                        collectionView._bufferedChildren.reverse();
+                        if(collectionView.elBuffer.firstChild) {
+                            return collectionView.elBuffer.insertBefore(itemView.el, collectionView.elBuffer.firstChild);
+                        } else {
+                            return collectionView.elBuffer.appendChild(itemView.el);
+                        }
+                    } else {
+                        // see if there is already
+                        // a child at the index
+                        childAtIndex = collectionView.$el.children().eq(index);
+                        if (childAtIndex.length) {
+                            return childAtIndex.before(itemView.el);
+                        } else {
+                            return collectionView.elBuffer.appendChild(itemView.el);
+                        }
+                    }
+                } else {
+                    // If we've already rendered the main collection, just
+                    // append the new items directly into the element.
+                    var $container = this.getItemViewContainer(collectionView);
+                    if (index === 0) {
+                        $container.empty();
+                        return $container.prepend(itemView.el);
+                    } else {
+                        // see if there is already
+                        // a child at the index
+                        childAtIndex = $container.children().eq(index);
+                        if (childAtIndex.length) {
+                            return childAtIndex.before(itemView.el);
+                        } else {
+                            return $container.append(itemView.el);
+                        }
+                    }
+                }
+            },
+            getItemViewContainer: function(containerView){
+                if ("$itemViewContainer" in containerView){
+                    return containerView.$itemViewContainer;
+                }
+
+                var container;
+                var itemViewContainer = Marionette.getOption(containerView, "itemViewContainer");
+                if (itemViewContainer) {
+                    var selector = _.isFunction(itemViewContainer) ? itemViewContainer.call(this) : itemViewContainer;
+                    container = containerView.$(selector);
+                    if (container.length <= 0) {
+                        throwError("The specified `itemViewContainer` was not found: " + containerView.itemViewContainer, "ItemViewContainerMissingError");
+                    }
+                } else {
+                    container = containerView.$el;
+                }
+
+                containerView.$itemViewContainer = container;
+                return container;
+            }
+        });
+
+        List.StatusRow = Marionette.ItemView.extend({
+            tagName: 'tr',
+            template: 'statusItemTemplate',
+            modelEvents: {
+                "change": "render"
+            }
+        });
     
-    function throwError(message, name) {
-      var error = new Error(message);
-      error.name = name || 'Error';
-      throw error;
-    }
-
-    ich.addTemplate('resultListItem', require('text!templates/resultlist/resultListItem.handlebars'));
-    ich.addTemplate('statusItemTemplate', require('text!templates/resultlist/statusItem.handlebars'));
-    ich.addTemplate('statusTemplate', require('text!templates/resultlist/status.handlebars'));
-    ich.addTemplate('resultListTemplate', require('text!templates/resultlist/resultList.handlebars'));
-    ich.addTemplate('countLowTemplate', require('text!templates/resultlist/countlow.handlebars'));
-    ich.addTemplate('countHighTemplate', require('text!templates/resultlist/counthigh.handlebars'));
-
-    List.MetacardRow = Marionette.ItemView.extend({
-        tagName: "tr",
-        template : 'resultListItem',
-        events: {
-            'click .metacard-link': 'viewMetacard'
-        },
-
-        serializeData: function(){
-            //we are overriding this serializeData function to change marionette's behavior
-            //previously it was performing a .toJSON on the model which is normally what you want
-            //but our model is pretty deep and this was causing some big performance issues
-            //so with this change we simply need up adapt our templates to work with backbone
-            //objects instead of flat json records
-            var data = {};
-
-            if (this.model) {
-                data = this.model;
+        List.StatusTable = Marionette.CompositeView.extend({
+            template: 'statusTemplate',
+            itemView : List.StatusRow,
+            itemViewContainer: 'tbody',
+            events: {
+                'click #status-icon': 'toggleStatus'
+            },
+            toggleStatus: function() {
+                this.$('#status-table').toggle();
+                this.$('#status-icon').toggleClass('fa-caret-down fa-caret-right');
             }
-
-            return data;
-        },
-
-        onRender : function(){
-            if(this.model.get('context')){
-                this.$el.addClass('selected');
-            }
-        },
-
-        viewMetacard: function () {
-            this.model.set('direction', dir.forward);
-            if (this.model.get('context')) {
-                wreqr.vent.trigger('metacard:selected', this.model);
-            }
-            this.model.set('context', true);
-        }
-
-    });
-
-    List.MetacardTable = Marionette.CollectionView.extend({
-        itemView : List.MetacardRow,
-        tagName: 'table',
-        className: 'table resultTable',
-        itemViewOptions : function(model){
-            return {
-                model : model.get('metacard')
-            };
-        },
-        appendHtml: function (collectionView, itemView, index) {
-            var childAtIndex;
-
-            if (collectionView.isBuffering) {
-                // could just quickly
-                // use prepend
-                if (index === 0) {
-                    collectionView._bufferedChildren.reverse();
-                    collectionView._bufferedChildren.push(itemView);
-                    collectionView._bufferedChildren.reverse();
-                    if(collectionView.elBuffer.firstChild) {
-                        return collectionView.elBuffer.insertBefore(itemView.el, collectionView.elBuffer.firstChild);
+        });
+    
+        List.CountView = Marionette.ItemView.extend({
+            modelEvents: {
+                "change": "render"
+            },
+            getTemplate: function() {
+                if (!_.isUndefined(this.model.get('hits'))) {
+                    if (this.model.get('results').length >= this.model.get('hits') || this.model.get('hits') === 0) {
+                        return 'countLowTemplate';
                     } else {
-                        return collectionView.elBuffer.appendChild(itemView.el);
-                    }
-                } else {
-                    // see if there is already
-                    // a child at the index
-                    childAtIndex = collectionView.$el.children().eq(index);
-                    if (childAtIndex.length) {
-                        return childAtIndex.before(itemView.el);
-                    } else {
-                        return collectionView.elBuffer.appendChild(itemView.el);
-                    }
-                }
-            } else {
-                // If we've already rendered the main collection, just
-                // append the new items directly into the element.
-                var $container = this.getItemViewContainer(collectionView);
-                if (index === 0) {
-                    $container.empty();
-                    return $container.prepend(itemView.el);
-                } else {
-                    // see if there is already
-                    // a child at the index
-                    childAtIndex = $container.children().eq(index);
-                    if (childAtIndex.length) {
-                        return childAtIndex.before(itemView.el);
-                    } else {
-                        return $container.append(itemView.el);
+                        return 'countHighTemplate';
                     }
                 }
             }
-        },
-        getItemViewContainer: function(containerView){
-            if ("$itemViewContainer" in containerView){
-                return containerView.$itemViewContainer;
-            }
-        
-            var container;
-            var itemViewContainer = Marionette.getOption(containerView, "itemViewContainer");
-            if (itemViewContainer) {
-                var selector = _.isFunction(itemViewContainer) ? itemViewContainer.call(this) : itemViewContainer;
-                container = containerView.$(selector);
-                if (container.length <= 0) {
-                    throwError("The specified `itemViewContainer` was not found: " + containerView.itemViewContainer, "ItemViewContainerMissingError");
-                }
-            } else {
-                container = containerView.$el;
-            }
-        
-            containerView.$itemViewContainer = container;
-            return container;
-        }
-    });
-
-    List.StatusRow = Marionette.ItemView.extend({
-        tagName: 'tr',
-        template: 'statusItemTemplate',
-        modelEvents: {
-            "change": "render"
-        }
-    });
-
-    List.StatusTable = Marionette.CompositeView.extend({
-        template: 'statusTemplate',
-        itemView : List.StatusRow,
-        itemViewContainer: 'tbody',
-        events: {
-            'click #status-icon': 'toggleStatus'
-        },
-        toggleStatus: function() {
-            this.$('#status-table').toggle();
-            this.$('#status-icon').toggleClass('fa-caret-down fa-caret-right');
-        }
-    });
-
-    List.CountView = Marionette.ItemView.extend({
-        modelEvents: {
-            "change": "render"
-        },
-        getTemplate: function() {
-            if (!_.isUndefined(this.model.get('hits'))) {
-                if (this.model.get('results').length >= this.model.get('hits') || this.model.get('hits') === 0) {
-                    return 'countLowTemplate';
+        });
+    
+        List.MetacardListView = Marionette.Layout.extend({
+            className: 'slide-animate height-full',
+            template: 'resultListTemplate',
+            regions: {
+                countRegion: '.result-count',
+                listRegion: '#resultList',
+                statusRegion: '#result-status-list'
+            },
+            spinner: new Spinner(spinnerConfig),
+            initialize: function (options) {
+                _.bindAll(this);
+                //options should be -> { results: results, mapView: mapView }
+                this.model = options.result;
+            },
+            onRender: function () {
+                this.listRegion.show(new List.MetacardTable({
+                    collection: this.model.get("results")
+                }));
+                this.statusRegion.show(new List.StatusTable({
+                    collection: this.model.get("sources")
+                }));
+                this.countRegion.show(new List.CountView({
+                    model: this.model
+                }));
+            },
+            onShow: function(){
+                this.updateSpinner();
+                this.listenTo(this.model, 'change', this.updateSpinner);
+            },
+            updateSpinner: function () {
+                if (!_.isUndefined(this.model.get("hits"))) {
+                    this.spinner.stop();
                 } else {
-                    return 'countHighTemplate';
+                    this.spinner.spin(this.el);
                 }
             }
-        }
-    });
+        });
 
-    List.MetacardListView = Marionette.Layout.extend({
-        className: 'slide-animate height-full',
-        template: 'resultListTemplate',
-        regions: {
-            countRegion: '.result-count',
-            listRegion: '#resultList',
-            statusRegion: '#result-status-list'
-        },
-        spinner: new Spinner(spinnerConfig),
-        initialize: function (options) {
-            _.bindAll(this);
-            //options should be -> { results: results, mapView: mapView }
-            this.model = options.result;
-        },
-        onRender: function () {
-            this.listRegion.show(new List.MetacardTable({
-                collection: this.model.get("results")
-            }));
-            this.statusRegion.show(new List.StatusTable({
-                collection: this.model.get("sources")
-            }));
-            this.countRegion.show(new List.CountView({
-                model: this.model
-            }));
-        },
-        onShow: function(){
-            this.updateSpinner();
-            this.listenTo(this.model, 'change', this.updateSpinner);
-        },
-        updateSpinner: function () {
-            if (!_.isUndefined(this.model.get("hits"))) {
-                this.spinner.stop();
-            } else {
-                this.spinner.spin(this.el);
-            }
-        }
-    });
-
-    return List;
+        return List;
 
 });

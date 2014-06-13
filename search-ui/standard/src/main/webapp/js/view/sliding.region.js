@@ -11,13 +11,15 @@
  **/
 /*global define*/
 /*jshint newcap:false */
-define(function (require) {
+define([
+        'marionette',
+        'underscore',
+        'properties',
+        'q',
+        'direction'
+    ],
+    function (Marionette, _, Properties, Q, dir) {
     "use strict";
-    var Marionette = require('marionette'),
-        _ = require('underscore'),
-        Properties = require('properties'),
-        Q = require('q'),
-        dir = require('direction');
 
     var flyIn = true,
         flyOut = false;

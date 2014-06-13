@@ -9,8 +9,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global define */
-var window = this;
+/*global define, window */
 define(['jquery',
         'underscore',
         'marionette',
@@ -40,9 +39,9 @@ define(['jquery',
                 mainView.on('show', function () {
                     controller.sources = new Source.Collection();
                     controller.sources.fetch({
-                         success : function(){
-                             controller.renderMainViews(mainView);
-                         }
+                        success: function () {
+                            controller.renderMainViews(mainView);
+                        }
                     });
 
                     // Poll the server for changes to Sources every 60 seconds -
@@ -65,12 +64,12 @@ define(['jquery',
                 //TODO: this hack here is to fix the issue of the main div not resizing correctly
                 //when the header and footer are in place
                 //remove this code when the correct way to get the div to resize is discovered
-                $(window).resize(function() {
+                $(window).resize(function () {
                     var height = $('body').height();
-                    if(properties.header && properties.header !== '') {
+                    if (properties.header && properties.header !== '') {
                         height = height - 20;
                     }
-                    if(properties.footer && properties.footer !== '') {
+                    if (properties.footer && properties.footer !== '') {
                         height = height - 20;
                     }
                     $('#content').height(height);
@@ -79,16 +78,16 @@ define(['jquery',
                 $(window).trigger('resize');
             },
 
-             renderMainViews: function () {
+            renderMainViews: function () {
 
-                 var searchControlView = new SearchControl.SearchControlLayout({
-                     sources : this.sources,
-                     el: $('#searchControls'),
-                     model: new SearchControl.SearchControlModel(properties)
-                 });
-                 searchControlView.render();
+                var searchControlView = new SearchControl.SearchControlLayout({
+                    sources: this.sources,
+                    el: $('#searchControls'),
+                    model: new SearchControl.SearchControlModel(properties)
+                });
+                searchControlView.render();
 
-             }
+            }
 
         });
 

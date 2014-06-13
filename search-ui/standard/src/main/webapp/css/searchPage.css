@@ -1154,3 +1154,8 @@ div.dropdown-width li:first-child .task-category {
     filter: alpha(opacity=25);
     opacity: .25;
 }
+
+.help-link {
+    margin-top: 10px;
+    display: block;
+}

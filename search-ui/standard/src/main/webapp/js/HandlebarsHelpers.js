@@ -10,15 +10,17 @@
  *
  **/
 /*global define*/
-define(function (require) {
-    "use strict";
+define([
+        'icanhaz',
+        'underscore',
+        'moment',
+        'handlebars'
+    ],
+    function (ich, _, moment, Handlebars) {
+        "use strict";
 
-// The module to be exported
-    var ich = require('icanhaz'),
-        _ = require('underscore'),
-        moment = require('moment'),
-        Handlebars = require('handlebars'),
-        helper, helpers = {
+        // The module to be exported
+        var helper, helpers = {
             /*
              * Handlebars Helper: Moment.js
              * @author: https://github.com/Arkkimaagi
@@ -236,11 +238,10 @@ define(function (require) {
             }
         };
 
-// Export helpers
-    for (helper in helpers) {
-        if (helpers.hasOwnProperty(helper)) {
-            ich.addHelper(helper, helpers[helper]);
+        // Export helpers
+        for (helper in helpers) {
+            if (helpers.hasOwnProperty(helper)) {
+                ich.addHelper(helper, helpers[helper]);
+            }
         }
-    }
-
 });
