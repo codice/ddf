@@ -33,6 +33,8 @@ import java.io.InputStream;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 
@@ -357,6 +359,17 @@ public class TestWfsSource {
         assertEquals(sampleFeatures.get(0), getFeatureType.getQuery().get(0).getTypeName());
     }
 
+    private static Comparator<QueryType> QueryTypeComparator = new Comparator<QueryType>() {
+
+        public int compare(QueryType queryType1, QueryType queryType2) {
+
+            String typeName1 = queryType1.getTypeName().getLocalPart();
+            String typeName2 = queryType2.getTypeName().getLocalPart();
+            return typeName1.compareTo(typeName2);
+        }
+
+    };
+
     @Test
     public void testTwoContentTypeAndNoPropertyQuery() throws UnsupportedQueryException,
         WfsException {
@@ -377,6 +390,7 @@ public class TestWfsSource {
 
         GetFeatureType getFeatureType = captor.getValue();
         assertMaxFeatures(getFeatureType, twoContentTypeQuery);
+        Collections.sort(getFeatureType.getQuery(), QueryTypeComparator);
         assertEquals(TWO_FEATURES.intValue(), getFeatureType.getQuery().size());
         assertEquals(sampleFeatures.get(0), getFeatureType.getQuery().get(0).getTypeName());
     }
@@ -522,6 +536,7 @@ public class TestWfsSource {
         GetFeatureType getFeatureType = captor.getValue();
         assertMaxFeatures(getFeatureType, propertyIsLikeQuery);
         assertTrue(getFeatureType.getQuery().size() == TWO_FEATURES);
+        Collections.sort(getFeatureType.getQuery(), QueryTypeComparator);
         QueryType query = getFeatureType.getQuery().get(0);
         assertTrue(query.getTypeName().equals(sampleFeatures.get(0)));
         assertTrue(query.getFilter().isSetComparisonOps());
@@ -877,6 +892,7 @@ public class TestWfsSource {
 
         GetFeatureType getFeatureType = captor.getValue();
         assertMaxFeatures(getFeatureType, inQuery);
+        Collections.sort(getFeatureType.getQuery(), QueryTypeComparator);
         assertEquals(TWO_FEATURES.intValue(), getFeatureType.getQuery().size());
         // Feature 1
         QueryType query = getFeatureType.getQuery().get(0);
