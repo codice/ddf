@@ -16,7 +16,7 @@
     <div class="pull-right">
     {{#if done}}
         {{#if successful}}
-            {{hits}} <span class="status-time">
+            {{results}}<span class="hits-separator">/</span>{{hits}} <span class="status-time">
             {{#lt elapsed 60000}}
                 {{#lt elapsed 1000}}
                     ({{duration elapsed milliseconds=null}}ms)

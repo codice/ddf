@@ -327,6 +327,11 @@ body {
     background-color: rgba(100,100,100,0.2);
 }
 
+.hits-separator {
+    font-size: small;
+    color: #777;
+}
+
 .status-time {
     color: #777;
     width: 38px;

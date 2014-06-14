@@ -164,26 +164,15 @@ public class SearchController {
             LOGGER.debug("Using previously created Search object for cache: {}",
                     searchRequest.getGuid());
             Search search = searchMap.get(searchRequest.getGuid());
-            addQueryStatusToSearch(sourceId, queryResponse, search);
-            search.addQueryResponse(queryResponse);
+            search.addQueryResponse(sourceId, queryResponse);
         } else {
             LOGGER.debug("Creating new Search object to cache async query results: {}",
                     searchRequest.getGuid());
             Search search = new Search();
-            search.addQueryResponse(queryResponse);
             search.setSearchRequest(searchRequest);
-            addQueryStatusToSearch(sourceId, queryResponse, search);
+            search.addQueryResponse(sourceId, queryResponse);
             searchMap.put(searchRequest.getGuid(), search);
         }
-    }
-
-    private void addQueryStatusToSearch(String sourceId, QueryResponse queryResponse,
-            Search search) {
-        QueryStatus queryStatus = search.getQueryStatus().get(sourceId);
-        queryStatus.setDetails(queryResponse.getProcessingDetails());
-        queryStatus.setHits(queryResponse.getHits());
-        queryStatus.setElapsed((Long) queryResponse.getProperties().get("elapsed"));
-        queryStatus.setDone(true);
     }
 
     /**
@@ -276,7 +265,8 @@ public class SearchController {
 
             addObject(statusObject, Search.ID, status.getSourceId());
             if (status.isDone()) {
-                addObject(statusObject, Search.HITS, status.getHits());
+                addObject(statusObject, Search.RESULTS, status.getHits());
+                addObject(statusObject, Search.HITS, status.getTotalHits());
                 addObject(statusObject, Search.SUCCESSFUL, status.isSuccessful());
                 addObject(statusObject, Search.ELAPSED, status.getElapsed());
             }

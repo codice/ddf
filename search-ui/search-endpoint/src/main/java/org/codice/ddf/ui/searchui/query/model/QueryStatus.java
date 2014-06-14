@@ -25,6 +25,8 @@ public class QueryStatus {
 
     private Set<ProcessingDetails> details = new HashSet<ProcessingDetails>();
 
+    private long hits;
+
     private long totalHits;
 
     private boolean isDone = false;
@@ -61,10 +63,18 @@ public class QueryStatus {
     }
 
     public long getHits() {
-        return totalHits;
+        return hits;
     }
 
     public void setHits(long hits) {
+        this.hits = hits;
+    }
+
+    public long getTotalHits() {
+        return totalHits;
+    }
+
+    public void setTotalHits(long hits) {
         totalHits = hits;
     }
 

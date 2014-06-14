@@ -32,6 +32,7 @@ import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.ResultImpl;
 import ddf.catalog.operation.QueryResponse;
+import org.mockito.Mockito;
 
 public class TestSearch {
     private MetacardImpl first = new MetacardImpl();
@@ -40,7 +41,7 @@ public class TestSearch {
 
     private MetacardImpl third = new MetacardImpl();
 
-    private QueryResponse mockQueryResponse = mock(QueryResponse.class);
+    private QueryResponse mockQueryResponse = mock(QueryResponse.class, Mockito.RETURNS_DEEP_STUBS);
 
     @Before
     public void before() {
@@ -61,8 +62,9 @@ public class TestSearch {
         List<Result> results = Arrays.<Result> asList(new ResultImpl(third), new ResultImpl(first),
                 new ResultImpl(second));
         when(mockQueryResponse.getResults()).thenReturn(results);
+        when(mockQueryResponse.getProperties().get("elapsed")).thenReturn(100L);
         Search search = new Search();
-        search.addQueryResponse(mockQueryResponse);
+        search.addQueryResponse("", mockQueryResponse);
         assertThat(search.getCompositeQueryResponse(), notNullValue());
         QueryResponse response = search.getCompositeQueryResponse();
         assertThat(response.getResults().isEmpty(), is(false));

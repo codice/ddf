@@ -21,6 +21,8 @@ import ddf.catalog.operation.impl.QueryResponseImpl;
 import ddf.catalog.util.impl.DistanceResultComparator;
 import ddf.catalog.util.impl.RelevanceResultComparator;
 import ddf.catalog.util.impl.TemporalResultComparator;
+import org.apache.commons.collections.Bag;
+import org.apache.commons.collections.bag.HashBag;
 import org.opengis.filter.expression.PropertyName;
 import org.opengis.filter.sort.SortBy;
 import org.opengis.filter.sort.SortOrder;
@@ -80,13 +82,14 @@ public class Search {
 
     /**
      * Adds a query response to the cached set of results.
-     * 
-     * @param queryResponse
-     *            - Query response to add
+     *
+     * @param sourceId      - Source ID of query response
+     * @param queryResponse - Query response to add
      * @return true, if the response for this paging set is different from the last time it was sent
      * @throws InterruptedException
      */
-    public synchronized void addQueryResponse(QueryResponse queryResponse) throws InterruptedException {
+    public synchronized void addQueryResponse(String sourceId, QueryResponse queryResponse) throws InterruptedException {
+        updateStatus(sourceId, queryResponse);
         if (queryResponse != null) {
             Comparator<Result> coreComparator = DEFAULT_COMPARATOR;
             if (compositeQueryResponse == null) {
@@ -94,8 +97,20 @@ public class Search {
             } else {
                 addResultsToCompositeResult(queryResponse, coreComparator);
             }
+            updateHitStatus(compositeQueryResponse.getResults());
         }
         responseNum++;
+    }
+
+    private void updateStatus(String sourceId, QueryResponse queryResponse) {
+        if (!queryStatus.containsKey(sourceId)) {
+            queryStatus.put(sourceId, new QueryStatus(sourceId));
+        }
+        QueryStatus status = queryStatus.get(sourceId);
+        status.setDetails(queryResponse.getProcessingDetails());
+        status.setTotalHits(queryResponse.getHits());
+        status.setElapsed((Long) queryResponse.getProperties().get("elapsed"));
+        status.setDone(true);
     }
 
     private void initializeCompositeResponse(QueryResponse queryResponse,
@@ -137,7 +152,7 @@ public class Search {
             }
         }
 
-        // Sort the combination of all results we have recieved
+        // Sort the combination of all results we have received
         Collections.sort(results, coreComparator);
 
         List<Result> compositeResultList;
@@ -154,6 +169,24 @@ public class Search {
 
         compositeQueryResponse = new QueryResponseImpl(queryResponse.getRequest(), compositeResultList, true,
                 hits);
+    }
+
+    private void updateHitStatus(List<Result> results) {
+        Bag hitSourceCount = new HashBag();
+
+        for (String sourceId : queryStatus.keySet()) {
+            queryStatus.get(sourceId).setHits(0);
+        }
+
+        for (Result result : results) {
+            hitSourceCount.add(result.getMetacard().getSourceId());
+        }
+
+        for (Object sourceId : hitSourceCount.uniqueSet()) {
+            if (queryStatus.containsKey(sourceId)) {
+                queryStatus.get(sourceId).setHits(hitSourceCount.getCount(sourceId));
+            }
+        }
     }
 
     public boolean isFinished() {
