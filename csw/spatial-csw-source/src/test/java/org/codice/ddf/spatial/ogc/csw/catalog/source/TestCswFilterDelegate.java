@@ -15,6 +15,7 @@
 package org.codice.ddf.spatial.ogc.csw.catalog.source;
 
 import static org.custommonkey.xmlunit.XMLAssert.assertXMLEqual;
+import static org.custommonkey.xmlunit.XMLAssert.assertXpathExists;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -34,6 +35,7 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.HashMap;
 import java.util.List;
 
 import javax.xml.bind.JAXBContext;
@@ -70,7 +72,10 @@ import org.codice.ddf.spatial.ogc.csw.catalog.common.CswJAXBElementProvider;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordMetacardType;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswSourceConfiguration;
 import org.custommonkey.xmlunit.Diff;
+import org.custommonkey.xmlunit.NamespaceContext;
+import org.custommonkey.xmlunit.SimpleNamespaceContext;
 import org.custommonkey.xmlunit.XMLUnit;
+import org.custommonkey.xmlunit.exceptions.XpathException;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -1086,6 +1091,17 @@ public class TestCswFilterDelegate {
 
     private final String emptyFilterXml = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
             + "<ns5:Filter xmlns:ns2=\"http://purl.org/dc/elements/1.1/\" xmlns=\"http://www.opengis.net/cat/csw/2.0.2\" xmlns:ns4=\"http://purl.org/dc/terms/\" xmlns:ns3=\"http://www.opengis.net/ows\" xmlns:ns9=\"http://www.w3.org/2001/SMIL20/Language\" xmlns:ns5=\"http://www.opengis.net/ogc\" xmlns:ns6=\"http://www.opengis.net/gml\" xmlns:ns7=\"http://www.w3.org/1999/xlink\" xmlns:ns8=\"http://www.w3.org/2001/SMIL20/\"/>";
+
+    @BeforeClass
+    public static void setupTestClass() {
+        // XPath query support.
+        HashMap map = new HashMap();
+        map.put("", "http://www.opengis.net/cat/csw/2.0.2");
+        map.put("ogc", "http://www.opengis.net/ogc");
+        NamespaceContext ctx = new SimpleNamespaceContext(map);
+        XMLUnit.setXpathNamespaceContext(ctx);
+    }
+
 
     /**
      * Property is equal to tests
@@ -2132,7 +2148,7 @@ public class TestCswFilterDelegate {
     }
 
     @Test
-    public void testFeatureIdOr() throws JAXBException, SAXException, IOException {
+    public void testFeatureIdOr() throws JAXBException, SAXException, IOException, XpathException {
         ObjectFactory filterObjectFactory = new ObjectFactory();
         FeatureIdType fidType = new FeatureIdType();
         fidType.setFid("cswRecord.1234");
@@ -2159,7 +2175,8 @@ public class TestCswFilterDelegate {
         marshaller.marshal(getFilterTypeJaxbElement(filter), writer);
         String xml = writer.toString();
 
-        assertXMLEqual(orFeatureIdXml, xml);
+        assertXpathExists("/ogc:Filter/ogc:FeatureId[@fid='cswRecord.1234']", xml);
+        assertXpathExists("/ogc:Filter/ogc:FeatureId[@fid='cswRecord.5678']", xml);
     }
 
     @Test(expected = UnsupportedOperationException.class)
