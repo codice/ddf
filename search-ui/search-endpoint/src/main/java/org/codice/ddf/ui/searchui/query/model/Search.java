@@ -97,7 +97,7 @@ public class Search {
             } else {
                 addResultsToCompositeResult(queryResponse, coreComparator);
             }
-            updateHitStatus(compositeQueryResponse.getResults());
+            updateResultStatus(compositeQueryResponse.getResults());
         }
         responseNum++;
     }
@@ -108,7 +108,7 @@ public class Search {
         }
         QueryStatus status = queryStatus.get(sourceId);
         status.setDetails(queryResponse.getProcessingDetails());
-        status.setTotalHits(queryResponse.getHits());
+        status.setHits(queryResponse.getHits());
         status.setElapsed((Long) queryResponse.getProperties().get("elapsed"));
         status.setDone(true);
     }
@@ -171,11 +171,11 @@ public class Search {
                 hits);
     }
 
-    private void updateHitStatus(List<Result> results) {
+    private void updateResultStatus(List<Result> results) {
         Bag hitSourceCount = new HashBag();
 
         for (String sourceId : queryStatus.keySet()) {
-            queryStatus.get(sourceId).setHits(0);
+            queryStatus.get(sourceId).setResultCount(0);
         }
 
         for (Result result : results) {
@@ -184,7 +184,7 @@ public class Search {
 
         for (Object sourceId : hitSourceCount.uniqueSet()) {
             if (queryStatus.containsKey(sourceId)) {
-                queryStatus.get(sourceId).setHits(hitSourceCount.getCount(sourceId));
+                queryStatus.get(sourceId).setResultCount(hitSourceCount.getCount(sourceId));
             }
         }
     }

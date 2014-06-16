@@ -265,8 +265,8 @@ public class SearchController {
 
             addObject(statusObject, Search.ID, status.getSourceId());
             if (status.isDone()) {
-                addObject(statusObject, Search.RESULTS, status.getHits());
-                addObject(statusObject, Search.HITS, status.getTotalHits());
+                addObject(statusObject, Search.RESULTS, status.getResultCount());
+                addObject(statusObject, Search.HITS, status.getHits());
                 addObject(statusObject, Search.SUCCESSFUL, status.isSuccessful());
                 addObject(statusObject, Search.ELAPSED, status.getElapsed());
             }

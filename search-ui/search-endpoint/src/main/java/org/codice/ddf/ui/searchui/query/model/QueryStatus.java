@@ -25,9 +25,9 @@ public class QueryStatus {
 
     private Set<ProcessingDetails> details = new HashSet<ProcessingDetails>();
 
-    private long hits;
+    private long resultCount;
 
-    private long totalHits;
+    private long hits;
 
     private boolean isDone = false;
 
@@ -46,11 +46,11 @@ public class QueryStatus {
         sourceId = source;
     }
 
-    public QueryStatus(String source, Set<ProcessingDetails> processingDetails, int hits,
+    public QueryStatus(String source, Set<ProcessingDetails> processingDetails, int totalHits,
             boolean done) {
         sourceId = source;
         details = processingDetails;
-        totalHits = hits;
+        hits = totalHits;
         isDone = done;
     }
 
@@ -62,20 +62,20 @@ public class QueryStatus {
         isDone = done;
     }
 
+    public long getResultCount() {
+        return resultCount;
+    }
+
+    public void setResultCount(long count) {
+        resultCount = count;
+    }
+
     public long getHits() {
         return hits;
     }
 
-    public void setHits(long hits) {
-        this.hits = hits;
-    }
-
-    public long getTotalHits() {
-        return totalHits;
-    }
-
-    public void setTotalHits(long hits) {
-        totalHits = hits;
+    public void setHits(long totalHits) {
+        hits = totalHits;
     }
 
     public Set<ProcessingDetails> getDetails() {
