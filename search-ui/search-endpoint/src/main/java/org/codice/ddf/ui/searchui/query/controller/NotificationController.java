@@ -145,10 +145,17 @@ public class NotificationController extends AbstractEventController {
 
         Map<String, Object> message = serverMessage.getDataAsMap();
 
-        if ((message.get("action")).equals("remove")) {
-            String notificationId = (String) message.get("id");
-
-            notificationStore.removeNotification(notificationId, userId);
+        if (message != null) {
+            if ((message.get("action")).equals("remove")) {
+                if (message.get("id") != null) {
+                    String notificationId = (String) message.get("id");
+                    this.notificationStore.removeNotification(notificationId, userId);
+                } else {
+                    throw new IllegalArgumentException("message.get('id') returned null.");
+                }
+            } else {
+                throw new IllegalArgumentException("message is null");
+            }
         }
     }
 }
