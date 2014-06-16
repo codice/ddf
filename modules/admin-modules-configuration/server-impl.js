@@ -102,6 +102,32 @@ server.mockQueryServer = function (req, res) {
     }
 };
 
+server.mockJolokia = function (req, res) {
+    var resourceDir = path.resolve('.', 'src/test/resources');
+
+    if(req.url.indexOf('/listServices') !== -1 ) {
+        var resourcePath = path.resolve(resourceDir, 'services.json');
+        res.contentType('application/json');
+        res.status(200).send(fs.readFileSync(resourcePath));
+    } else if(req.url.indexOf('/getService') !== -1 ) {
+        var resourcePath = path.resolve(resourceDir, 'config.json');
+        res.contentType('application/json');
+        res.status(200).send(fs.readFileSync(resourcePath));
+    } else if(req.url.indexOf('/add') !== -1 ) {
+        var resourcePath = path.resolve(resourceDir, 'add.json');
+        res.contentType('application/json');
+        res.status(200).send(fs.readFileSync(resourcePath));
+    } else if(req.url.indexOf('/ApplicationTree') !== -1) {
+        var resourcePath = path.resolve(resourceDir, 'application-service.json');
+        res.contentType('application/json');
+        res.status(200).send(fs.readFileSync(resourcePath));
+    } else {
+        var message = stringFormat('The specified resource does not exist.');
+        res.status(404).send(message);
+        res.end();
+    }
+};
+
 function getTestResource(name) {
     var resourceDir = path.resolve('.', 'src/test/resources');
     if (fs.existsSync(resourceDir)) {

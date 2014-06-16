@@ -60,15 +60,14 @@ server.requestProxy = function (req, res) {
 server.requestLocal = function (req, res) {
     "use strict";
 
-    req.url = "src/main/webapp/" + req.url.substring(14);
-    res.contentType('application/json');
-    res.status(200).send(fs.readFileSync(req.url));
-};
+    console.log('Request local content "' + req.url + '"');
 
-server.requestLocalTemplates = function (req, res) {
-    "use strict";
+    if(req.url.indexOf('/lib/') === -1) {
+        req.url = "src/main/webapp/" + req.url.substring(13);
+    } else {
+        req.url = "target/webapp/" + req.url.substring(13);
+    }
 
-    req.url = "../../ui/src/main/webapp/" + req.url;
     res.contentType('application/json');
     res.status(200).send(fs.readFileSync(req.url));
 };
@@ -99,6 +98,32 @@ server.mockQueryServer = function (req, res) {
             res.status(404).send(message);
             res.end();
         }
+    }
+};
+
+server.mockJolokia = function (req, res) {
+    var resourceDir = path.resolve('.', 'src/test/resources');
+
+    if(req.url.indexOf('/listServices') !== -1 ) {
+        var resourcePath = path.resolve(resourceDir, 'services.json');
+        res.contentType('application/json');
+        res.status(200).send(fs.readFileSync(resourcePath));
+    } else if(req.url.indexOf('/getService') !== -1 ) {
+        var resourcePath = path.resolve(resourceDir, 'config.json');
+        res.contentType('application/json');
+        res.status(200).send(fs.readFileSync(resourcePath));
+    } else if(req.url.indexOf('/add') !== -1 ) {
+        var resourcePath = path.resolve(resourceDir, 'add.json');
+        res.contentType('application/json');
+        res.status(200).send(fs.readFileSync(resourcePath));
+    } else if(req.url.indexOf('/ApplicationTree') !== -1) {
+        var resourcePath = path.resolve(resourceDir, 'application-service.json');
+        res.contentType('application/json');
+        res.status(200).send(fs.readFileSync(resourcePath));
+    } else {
+        var message = stringFormat('The specified resource does not exist.');
+        res.status(404).send(message);
+        res.end();
     }
 };
 

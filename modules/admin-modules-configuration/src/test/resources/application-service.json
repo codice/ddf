@@ -1,0 +1,80 @@
+{"timestamp": 1396549517, "status": 200, "request": {
+    "mbean": "org.codice.ddf.admin.application.service.ApplicationService:service=application-service",
+    "attribute": "ApplicationTree",
+    "type": "read"
+}, "value":
+    [
+        {
+            "description": "DDF Administration Tools",
+            "name": "admin-app",
+            "state": "ACTIVE",
+            "children": [],
+            "version": "1.0.0.ALPHA1-SNAPSHOT"
+        },
+        {
+            "description": "OpenDJ Embedded LDAP",
+            "name": "opendj-embedded",
+            "state": "INACTIVE",
+            "children": [],
+            "version": "1.0.0"
+        },
+        {
+            "description": "DDF platform boot features::",
+            "name": "platform-app",
+            "state": "ACTIVE",
+            "children": [
+                {
+                    "description": "DDF Catalog application default installations",
+                    "name": "catalog-app",
+                    "state": "ACTIVE",
+                    "children": [
+                        {
+                            "description": "DDF Content application default installations",
+                            "name": "content-app",
+                            "state": "ACTIVE",
+                            "children": [],
+                            "version": "2.3.1-SNAPSHOT"
+                        },
+                        {
+                            "description": "Catalog Provider with locally Embedded Solr Server, implemented using Solr 4.6.0.",
+                            "name": "solr-app",
+                            "state": "INACTIVE",
+                            "children": [],
+                            "version": "2.4.0-SNAPSHOT"
+                        },
+                        {
+                            "description": "DDF Spatial Services application default installations",
+                            "name": "spatial-app",
+                            "state": "FAILED",
+                            "children": [],
+                            "version": "2.4.1-SNAPSHOT"
+                        }
+                    ],
+                    "version": "2.3.1.ALPHA2-SNAPSHOT"
+                },
+                {
+                    "description": "Description of HTTP Proxy::HTTP Proxy",
+                    "name": "codice-httpproxy",
+                    "state": "FAILED",
+                    "children": [],
+                    "version": "1.0.0.ALPHA2"
+                },
+                {
+                    "description": "DDF Security Services application default installations",
+                    "name": "security-services-app",
+                    "state": "ACTIVE",
+                    "children": [],
+                    "version": "2.3.1-SNAPSHOT"
+                }
+            ],
+            "version": "2.3.2-SNAPSHOT"
+        },
+        {
+            "description": "UI for searching over DDF. Includes both standard (3D globe) and simple (text page) versions.::DDF Search UI",
+            "name": "search-app-2.3.1.ALPHA3-SNAPSHOT",
+            "state": "ACTIVE",
+            "children": [],
+            "version": "0.0.0"
+        }
+    ]
+}

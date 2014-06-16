@@ -29,7 +29,6 @@ console.log('setting up proxy only');
 app.all('/services/*', server.requestProxy);
 app.all('/jolokia/*', server.requestProxy);
 app.all('/applications/*', server.requestLocal);
-app.all('/templates/*', server.requestLocalTemplates);
 
 exports = module.exports = app;
 

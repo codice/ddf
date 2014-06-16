@@ -27,7 +27,8 @@ app.use(express.static(__dirname + '/src/main/webapp'));
 //if we're mocking, it is being run by grunt
 console.log('setting up mock query endpoint');
 app.all('/services/catalog/sources', server.mockSources);
-app.all('/services/*', server.requestProxy);
+app.all('/jolokia/*', server.mockJolokia);
+app.all('/applications/*', server.requestLocal);
 
 exports = module.exports = app;
 

@@ -1,0 +1,2891 @@
+{
+  "timestamp": 1396461623,
+  "status": 200,
+  "request": {
+    "operation": "listServices",
+    "mbean": "org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui,version=2.3.0",
+    "type": "exec"
+  },
+  "value": [
+    {
+      "id": "org.ops4j.pax.url.mvn",
+      "name": "Maven URL Configuration",
+      "metatype": [
+        {
+          "id": "org.ops4j.pax.url.mvn.certificateCheck",
+          "optionLabels": [],
+          "description": "",
+          "optionValues": [],
+          "name": "Certificate Check",
+          "defaultValue": [
+            "false"
+          ],
+          "type": 11,
+          "cardinality": 0
+        },
+        {
+          "id": "org.ops4j.pax.url.mvn.settings",
+          "optionLabels": [],
+          "description": "",
+          "optionValues": [],
+          "name": "Settings",
+          "defaultValue": [
+            ""
+          ],
+          "type": 1,
+          "cardinality": 0
+        },
+        {
+          "id": "org.ops4j.pax.url.mvn.localRepository",
+          "optionLabels": [],
+          "description": "",
+          "optionValues": [],
+          "name": "Local repository",
+          "defaultValue": [
+            ""
+          ],
+          "type": 1,
+          "cardinality": 0
+        },
+        {
+          "id": "org.ops4j.pax.url.mvn.defaultRepositories",
+          "optionLabels": [],
+          "description": "",
+          "optionValues": [],
+          "name": "Default repositories",
+          "defaultValue": [
+            ""
+          ],
+          "type": 1,
+          "cardinality": 0
+        },
+        {
+          "id": "org.ops4j.pax.url.mvn.repositories",
+          "optionLabels": [],
+          "description": "",
+          "optionValues": [],
+          "name": "Repositories",
+          "defaultValue": [
+            ""
+          ],
+          "type": 1,
+          "cardinality": 0
+        },
+        {
+          "id": "org.ops4j.pax.url.mvn.proxySupport",
+          "optionLabels": [],
+          "description": "",
+          "optionValues": [],
+          "name": "Proxy support",
+          "defaultValue": [
+            ""
+          ],
+          "type": 1,
+          "cardinality": 0
+        }
+      ],
+      "factory": false,
+      "configurations": [
+        {
+          "id": "org.ops4j.pax.url.mvn",
+          "bundle_name": "OPS4J Pax Url - mvn:",
+          "name": "Maven URL Configuration",
+          "bundle": 1,
+          "properties": {
+            "org.ops4j.pax.url.mvn.useFallbackRepositories": "false",
+            "org.ops4j.pax.url.mvn.disableAether": "true",
+            "org.ops4j.pax.url.mvn.defaultRepositories": "file:/Users/tustisos/deploy/client/ddf-2.3.1-SNAPSHOT/system@snapshots@id=karaf.system",
+            "felix.fileinstall.filename": "file:/Users/tustisos/deploy/client/ddf-2.3.1-SNAPSHOT/etc/org.ops4j.pax.url.mvn.cfg",
+            "service.pid": "org.ops4j.pax.url.mvn"
+          }
+        }
+      ]
+    },
+    {
+      "id": "org.ops4j.pax.url.wrap",
+      "name": "Wrap URL configuration",
+      "metatype": [
+        {
+          "id": "org.ops4j.pax.url.wrap.certificateCheck",
+          "optionLabels": [],
+          "description": "",
+          "optionValues": [],
+          "name": "Certificate Check",
+          "defaultValue": [
+            "false"
+          ],
+          "type": 11,
+          "cardinality": 0
+        }
+      ],
+      "factory": false
+    },
+    {
+      "id": "org.apache.karaf.log",
+      "name": "Apache Karaf Log",
+      "metatype": [
+        {
+          "id": "size",
+          "optionLabels": [],
+          "description": "size of the log to keep in memory",
+          "optionValues": [],
+          "name": "Size",
+          "defaultValue": [
+            "500"
+          ],
+          "type": 3,
+          "cardinality": 0
+        },
+        {
+          "id": "pattern",
+          "optionLabels": [],
+          "description": "Pattern used to display log entries",
+          "optionValues": [],
+          "name": "Pattern",
+          "defaultValue": [
+            "%d{ABSOLUTE} | %-5.5p | %-16.16t | %-32.32c{1} | %-32.32C %4L | %m%n"
+          ],
+          "type": 1,
+          "cardinality": 0
+        }
+      ],
+      "factory": false,
+      "configurations": [
+        {
+          "id": "org.apache.karaf.log",
+          "bundle_name": "Apache Karaf :: Shell :: Log Commands",
+          "name": "Apache Karaf Log",
+          "bundle": 22,
+          "properties": {
+            "pattern": "%d{ABSOLUTE} | %-5.5p | %-16.16t | %-40.40C %4L | %-20.20X{bundle.name} | %m%n",
+            "felix.fileinstall.filename": "file:/Users/tustisos/deploy/client/ddf-2.3.1-SNAPSHOT/etc/org.apache.karaf.log.cfg",
+            "service.pid": "org.apache.karaf.log",
+            "size": "500"
+          }
+        }
+      ]
+    },
+    {
+      "id": "org.apache.karaf.management",
+      "name": "Apache Karaf JMX Management",
+      "metatype": [
+        {
+          "id": "rmiRegistryHost",
+          "optionLabels": [],
+          "description": "host of the registry for the exported RMI service. Blank for all interfaces",
+          "optionValues": [],
+          "name": "RMI Registry Host",
+          "defaultValue": [
+            ""
+          ],
+          "type": 1,
+          "cardinality": 0
+        },
+        {
+          "id": "rmiRegistryPort",
+          "optionLabels": [],
+          "description": "port of the registry for the exported RMI service",
+          "optionValues": [],
+          "name": "RMI Registry Port",
+          "defaultValue": [
+            "1099"
+          ],
+          "type": 3,
+          "cardinality": 0
+        },
+        {
+          "id": "rmiServerHost",
+          "optionLabels": [],
+          "description": "host of the server for the exported RMI objects. Blank for all interfaces",
+          "optionValues": [],
+          "name": "RMI Server Host",
+          "defaultValue": [
+            ""
+          ],
+          "type": 1,
+          "cardinality": 0
+        },
+        {
+          "id": "rmiServerPort",
+          "optionLabels": [],
+          "description": "port of the server for the exported RMI objects",
+          "optionValues": [],
+          "name": "RMI Server Port",
+          "defaultValue": [
+            "44444"
+          ],
+          "type": 3,
+          "cardinality": 0
+        },
+        {
+          "id": "jmxRealm",
+          "optionLabels": [],
+          "description": "name of the JAAS realm used for authentication",
+          "optionValues": [],
+          "name": "Realm",
+          "defaultValue": [
+            "karaf"
+          ],
+          "type": 1,
+          "cardinality": 0
+        },
+        {
+          "id": "serviceUrl",
+          "optionLabels": [],
+          "description": "the service URL for the JMXConnectorServer",
+          "optionValues": [],
+          "name": "Service Url",
+          "defaultValue": [
+            "service:jmx:rmi://localhost:44444/jndi/rmi://localhost:1099/jmxrmi"
+          ],
+          "type": 1,
+          "cardinality": 0
+        },
+        {
+          "id": "daemon",
+          "optionLabels": [],
+          "description": "whether any threads started for the JMXConnectorServer should be started as daemon threads",
+          "optionValues": [],
+          "name": "Daemon",
+          "defaultValue": [
+            "true"
+          ],
+          "type": 11,
+          "cardinality": 0
+        },
+        {
+          "id": "threaded",
+          "optionLabels": [],
+          "description": "whether the JMXConnectorServer should be started in a separate thread",
+          "optionValues": [],
+          "name": "Threaded",
+          "defaultValue": [
+            "true"
+          ],
+          "type": 11,
+          "cardinality": 0
+        },
+        {
+          "id": "objectName",
+          "optionLabels": [],
+          "description": "the ObjectName used to register the JMXConnectorServer",
+          "optionValues": [],
+          "name": "ObjectName",
+          "defaultValue": [
+            "connector:name=rmi"
+          ],
+          "type": 1,
+          "cardinality": 0
+        },
+        {
+          "id": "secured",
+          "optionLabels": [],
+          "description": "whether to start MBean server with SSL",
+          "optionValues": [],
+          "name": "Secured",
+          "defaultValue": [
+            "false"
+          ],
+          "type": 11,
+          "cardinality": 0
+        },
+        {
+          "id": "keyStoreAvailabilityTimeout",
+          "optionLabels": [],
+          "description": "Number of milliseconds waiting for keystore to be loaded.",
+          "optionValues": [],
+          "name": "KeyStore Availability Timeout",
+          "defaultValue": [
+            "false"
+          ],
+          "type": 11,
+          "cardinality": 0
+        },
+        {
+          "id": "secureAlgorithm",
+          "optionLabels": [],
+          "description": "Algorithm to use",
+          "optionValues": [],
+          "name": "Secure Algorithm",
+          "defaultValue": [
+            "default"
+          ],
+          "type": 1,
+          "cardinality": 0
+        },
+        {
+          "id": "secureProtocol",
+          "optionLabels": [],
+          "description": "Protocol to use",
+          "optionValues": [],
+          "name": "Secure Protocol",
+          "defaultValue": [
+            "TLS"
+          ],
+          "type": 1,
+          "cardinality": 0
+        },
+        {
+          "id": "keyStore",
+          "optionLabels": [],
+          "description": "Keystore name from keystore manager",
+          "optionValues": [],
+          "name": "Keystore Name",
+          "defaultValue": [
+            "karaf.ks"
+          ],
+          "type": 1,
+          "cardinality": 0
+        },
+        {
+          "id": "keyAlias",
+          "optionLabels": [],
+          "description": "Key alias to be used with secured connector",
+          "optionValues": [],
+          "name": "Key Alias",
+          "defaultValue": [
+            "karaf"
+          ],
+          "type": 1,
+          "cardinality": 0
+        },
+        {
+          "id": "trustStore",
+          "optionLabels": [],
+          "description": "Truststore name from keystore manager",
+          "optionValues": [],
+          "name": "Truststore Name",
+          "defaultValue": [
+            "karaf.ts"
+          ],
+          "type": 1,
+          "cardinality": 0
+        },
+        {
+          "id": "authenticatorType",
+          "optionLabels": [],
+          "description": "Authenticator to use. Available values are \"none\", \"password\", and \"certificate\".",
+          "optionValues": [],
+          "name": "Authenticator Type",
+          "defaultValue": [
+            "password"
+          ],
+          "type": 1,
+          "cardinality": 0
+        }
+      ],
+      "factory": false,
+      "configurations": [
+        {
+          "id": "org.apache.karaf.management",
+          "bundle_name": "Apache Karaf :: Management",
+          "name": "Apache Karaf JMX Management",
+          "bundle": 23,
+          "properties": {
+            "rmiServerHost": "0.0.0.0",
+            "rmiRegistryHost": "0.0.0.0",
+            "objectName": "connector:name=rmi",
+            "jmxRealm": "karaf",
+            "threaded": "true",
+            "rmiServerPort": "44444",
+            "daemon": "true",
+            "serviceUrl": "service:jmx:rmi://0.0.0.0:44444/jndi/rmi://0.0.0.0:1099/karaf-root",
+            "rmiRegistryPort": "1099",
+            "felix.fileinstall.filename": "file:/Users/tustisos/deploy/client/ddf-2.3.1-SNAPSHOT/etc/org.apache.karaf.management.cfg",
+            "service.pid": "org.apache.karaf.management"
+          }
+        }
+      ]
+    },
+    {
+      "id": "org.apache.karaf.shell",
+      "name": "Apache Karaf Shell",
+      "metatype": [
+        {
+          "id": "sshPort",
+          "optionLabels": [],
+          "description": "port of the SSH daemon",
+          "optionValues": [],
+          "name": "SSH Port",
+          "defaultValue": [
+            "8101"
+          ],
+          "type": 3,
+          "cardinality": 0
+        },
+        {
+          "id": "sshHost",
+          "optionLabels": [],
+          "description": "name of the host used to bind the SSH daemon",
+          "optionValues": [],
+          "name": "SSH Host",
+          "defaultValue": [
+            "0.0.0.0"
+          ],
+          "type": 1,
+          "cardinality": 0
+        },
+        {
+          "id": "sshRealm",
+          "optionLabels": [],
+          "description": "name of the JAAS realm to use for SSH authentication",
+          "optionValues": [],
+          "name": "SSH Realm",
+          "defaultValue": [
+            "karaf"
+          ],
+          "type": 1,
+          "cardinality": 0
+        },
+        {
+          "id": "hostKey",
+          "optionLabels": [],
+          "description": "location of the host key for SSH",
+          "optionValues": [],
+          "name": "Host key",
+          "defaultValue": [
+            "${karaf.base}/etc/host.key"
+          ],
+          "type": 1,
+          "cardinality": 0
+        },
+        {
+          "id": "keySize",
+          "optionLabels": [],
+          "description": "Secret key size in 1024, 2048, 3072, or 4096",
+          "optionValues": [],
+          "name": "Key size",
+          "defaultValue": [
+            "1024"
+          ],
+          "type": 1,
+          "cardinality": 0
+        },
+        {
+          "id": "algorithm",
+          "optionLabels": [],
+          "description": "Host key algorithm in DSA, RSA, etc",
+          "optionValues": [],
+          "name": "Key algorithm",
+          "defaultValue": [
+            "DSA"
+          ],
+          "type": 1,
+          "cardinality": 0
+        }
+      ],
+      "factory": false,
+      "configurations": [
+        {
+          "id": "org.apache.karaf.shell",
+          "bundle_name": "Apache Karaf :: Shell :: SSH",
+          "name": "Apache Karaf Shell",
+          "bundle": 39,
+          "properties": {
+            "sshHost": "0.0.0.0",
+            "sshPort": "8101",
+            "hostKey": "/Users/tustisos/deploy/client/ddf-2.3.1-SNAPSHOT/etc/host.key",
+            "sshIdleTimeout": "1800000",
+            "felix.fileinstall.filename": "file:/Users/tustisos/deploy/client/ddf-2.3.1-SNAPSHOT/etc/org.apache.karaf.shell.cfg",
+            "service.pid": "org.apache.karaf.shell",
+            "sshRealm": "karaf"
+          }
+        }
+      ]
+    },
+    {
+      "id": "org.apache.felix.eventadmin.impl.EventAdmin",
+      "name": "Apache Felix Event Admin Implementation",
+      "metatype": [
+        {
+          "id": "org.apache.felix.eventadmin.ThreadPoolSize",
+          "optionLabels": null,
+          "description": "The size of the thread pool. The default value is 10. Increase in case of a large amount of synchronous events where the event handler services in turn send new synchronous events in the event dispatching thread or a lot of timeouts are to be expected. A value of less then 2 triggers the default value. A value of 2 effectively disables thread pooling.",
+          "optionValues": null,
+          "name": "Thread Pool Size",
+          "defaultValue": [
+            "20"
+          ],
+          "type": 3,
+          "cardinality": 0
+        },
+        {
+          "id": "org.apache.felix.eventadmin.Timeout",
+          "optionLabels": null,
+          "description": "The black-listing timeout in milliseconds. The default value is 5000. Increase or decrease at own discretion. A value of less then 100 turns timeouts off. Any other value is the time in milliseconds granted to each event handler before it gets blacklisted",
+          "optionValues": null,
+          "name": "Timeout",
+          "defaultValue": [
+            "5000"
+          ],
+          "type": 3,
+          "cardinality": 0
+        },
+        {
+          "id": "org.apache.felix.eventadmin.RequireTopic",
+          "optionLabels": null,
+          "description": "Are event handlers required to be registered with a topic? This is enabled by default. The specification says that event handlers must register with a list of topics they are interested in. Disabling this setting will enable that handlers without a topic are receiving all events (i.e., they are treated the same as with a topic=*).",
+          "optionValues": null,
+          "name": "Require Topic",
+          "defaultValue": [
+            "true"
+          ],
+          "type": 11,
+          "cardinality": 0
+        },
+        {
+          "id": "org.apache.felix.eventadmin.IgnoreTimeout",
+          "optionLabels": null,
+          "description": "Configure event handlers to be called without a timeout. If a timeout is configured by default all event handlers are called using the timeout. For performance optimization it is possible to configure event handlers where the timeout handling is not used - this reduces the thread usage from the thread pools as the timout handling requires an additional thread to call the event handler. However, the application should work without this configuration property. It is a pure optimization! The value is a list of strings. If a string ends with a dot, all handlers in exactly this package are ignored. If the string ends with a star, all handlers in this package and all subpackages are ignored. If the string neither ends with a dot nor with a star, this is assumed to define an exact class name.",
+          "optionValues": null,
+          "name": "Ignore Timeouts",
+          "defaultValue": null,
+          "type": 1,
+          "cardinality": 2147483647
+        }
+      ],
+      "factory": false
+    },
+    {
+      "id": "org.ops4j.pax.web",
+      "name": "Pax Web Runtime",
+      "metatype": [
+        {
+          "id": "org.osgi.service.http.useNIO",
+          "optionLabels": [],
+          "description": null,
+          "optionValues": [],
+          "name": "Use NIO",
+          "defaultValue": [
+            "true"
+          ],
+          "type": 1,
+          "cardinality": 0
+        },
+        {
+          "id": "org.osgi.service.http.port",
+          "optionLabels": [],
+          "description": null,
+          "optionValues": [],
+          "name": "HTTP Port",
+          "defaultValue": [
+            "8080"
+          ],
+          "type": 1,
+          "cardinality": 0
+        },
+        {
+          "id": "org.osgi.service.http.port.secure",
+          "optionLabels": [],
+          "description": null,
+          "optionValues": [],
+          "name": "HTTP Port Secure",
+          "defaultValue": [
+            "8443"
+          ],
+          "type": 1,
+          "cardinality": 0
+        },
+        {
+          "id": "org.osgi.service.http.enabled",
+          "optionLabels": [],
+          "description": null,
+          "optionValues": [],
+          "name": "HTTP enabled",
+          "defaultValue": [
+            "true"
+          ],
+          "type": 1,
+          "cardinality": 0
+        },
+        {
+          "id": "org.osgi.service.http.secure.enabled",
+          "optionLabels": [],
+          "description": null,
+          "optionValues": [],
+          "name": "HTTP Secure enabled",
+          "defaultValue": [
+            "false"
+          ],
+          "type": 1,
+          "cardinality": 0
+        },
+        {
+          "id": "javax.servlet.context.tempdir",
+          "optionLabels": [],
+          "description": null,
+          "optionValues": [],
+          "name": "Temp dir",
+          "defaultValue": [
+            ""
+          ],
+          "type": 1,
+          "cardinality": 0
+        },
+        {
+          "id": "org.ops4j.pax.web.session.timeout",
+          "optionLabels": [],
+          "description": null,
+          "optionValues": [],
+          "name": "Session Timeout",
+          "defaultValue": [
+            "5"
+          ],
+          "type": 1,
+          "cardinality": 0
+        },
+        {
+          "id": "org.ops4j.pax.web.listening.addresses",
+          "optionLabels": [],
+          "description": null,
+          "optionValues": [],
+          "name": "Listening Addresses",
+          "defaultValue": [
+            "0.0.0.0"
+          ],
+          "type": 1,
+          "cardinality": 0
+        },
+        {
+          "id": "org.ops4j.pax.web.session.cookie",
+          "optionLabels": [],
+          "description": null,
+          "optionValues": [],
+          "name": "Session cookie name",
+          "defaultValue": [
+            "JSESSIONID"
+          ],
+          "type": 1,
+          "cardinality": 0
+        },
+        {
+          "id": "org.ops4j.pax.web.session.url",
+          "optionLabels": [],
+          "description": null,
+          "optionValues": [],
+          "name": "Session URL",
+          "defaultValue": [
+            "jsessionid"
+          ],
+          "type": 1,
+          "cardinality": 0
+        },
+        {
+          "id": "org.ops4j.pax.web.worker.name",
+          "optionLabels": [],
+          "description": null,
+          "optionValues": [],
+          "name": "worker name",
+          "defaultValue": [
+            ""
+          ],
+          "type": 1,
+          "cardinality": 0
+        },
+        {
+          "id": "org.ops4j.pax.web.ssl.keystore",
+          "optionLabels": [],
+          "description": null,
+          "optionValues": [],
+          "name": "SSL Keystore",
+          "defaultValue": [
+            "${user.home}/.keystore"
+          ],
+          "type": 1,
+          "cardinality": 0
+        },
+        {
+          "id": "org.ops4j.pax.web.ssl.keystore.type",
+          "optionLabels": [],
+          "description": null,
+          "optionValues": [],
+          "name": "Keystore Type",
+          "defaultValue": [
+            ""
+          ],
+          "type": 1,
+          "cardinality": 0
+        },
+        {
+          "id": "org.ops4j.pax.web.ssl.password",
+          "optionLabels": [],
+          "description": null,
+          "optionValues": [],
+          "name": "Keystore Integrity Password",
+          "defaultValue": [
+            ""
+          ],
+          "type": 1,
+          "cardinality": 0
+        },
+        {
+          "id": "org.ops4j.pax.web.ssl.keypassword",
+          "optionLabels": [],
+          "description": null,
+          "optionValues": [],
+          "name": "Keystore Password",
+          "defaultValue": [
+            ""
+          ],
+          "type": 1,
+          "cardinality": 0
+        },
+        {
+          "id": "org.ops4j.pax.web.ssl.clientauthwanted",
+          "optionLabels": [],
+          "description": null,
+          "optionValues": [],
+          "name": "Client Authentication Wanted",
+          "defaultValue": [
+            ""
+          ],
+          "type": 1,
+          "cardinality": 0
+        },
+        {
+          "id": "org.ops4j.pax.web.ssl.clientauthneeded",
+          "optionLabels": [],
+          "description": null,
+          "optionValues": [],
+          "name": "Client Authentication Needed",
+          "defaultValue": [
+            ""
+          ],
+          "type": 1,
+          "cardinality": 0
+        },
+        {
+          "id": "org.ops4j.pax.web.config.file",
+          "optionLabels": [],
+          "description": null,
+          "optionValues": [],
+          "name": "Configuration File for Jetty",
+          "defaultValue": [
+            ""
+          ],
+          "type": 1,
+          "cardinality": 0
+        },
+        {
+          "id": "org.ops4j.pax.web.jsp.scratch.dir",
+          "optionLabels": [],
+          "description": null,
+          "optionValues": [],
+          "name": "JSP scratchdir",
+          "defaultValue": [
+            ""
+          ],
+          "type": 1,
+          "cardinality": 0
+        },
+        {
+          "id": "org.ops4j.pax.web.jsp.check.interval",
+          "optionLabels": [],
+          "description": null,
+          "optionValues": [],
+          "name": "JSP checkInterval",
+          "defaultValue": [
+            "300"
+          ],
+          "type": 1,
+          "cardinality": 0
+        },
+        {
+          "id": "org.ops4j.pax.web.jsp.debug.info",
+          "optionLabels": [],
+          "description": null,
+          "optionValues": [],
+          "name": "JSP classdebuginfo",
+          "defaultValue": [
+            "true"
+          ],
+          "type": 1,
+          "cardinality": 0
+        },
+        {
+          "id": "org.ops4j.pax.web.jsp.development",
+          "optionLabels": [],
+          "description": null,
+          "optionValues": [],
+          "name": "JSP development",
+          "defaultValue": [
+            "true"
+          ],
+          "type": 1,
+          "cardinality": 0
+        },
+        {
+          "id": "org.ops4j.pax.web.jsp.enable.pooling",
+          "optionLabels": [],
+          "description": null,
+          "optionValues": [],
+          "name": "JSP enablePooling",
+          "defaultValue": [
+            "true"
+          ],
+          "type": 1,
+          "cardinality": 0
+        },
+        {
+          "id": "org.ops4j.pax.web.jsp.ie.classid",
+          "optionLabels": [],
+          "description": null,
+          "optionValues": [],
+          "name": "JSP ieClassId",
+          "defaultValue": [
+            "clsid:8AD9C840-044E-11D1-B3E9-00805F499D93"
+          ],
+          "type": 1,
+          "cardinality": 0
+        },
+        {
+          "id": "org.ops4j.pax.web.jsp.java.encoding",
+          "optionLabels": [],
+          "description": null,
+          "optionValues": [],
+          "name": "JSP javaEncoding",
+          "defaultValue": [
+            "UTF-8"
+          ],
+          "type": 1,
+          "cardinality": 0
+        },
+        {
+          "id": "org.ops4j.pax.web.jsp.keep.generated",
+          "optionLabels": [],
+          "description": null,
+          "optionValues": [],
+          "name": "JSP keepgenerated",
+          "defaultValue": [
+            "true"
+          ],
+          "type": 1,
+          "cardinality": 0
+        },
+        {
+          "id": "org.ops4j.pax.web.jsp.log.verbosity.level",
+          "optionLabels": [],
+          "description": null,
+          "optionValues": [],
+          "name": "JSP logVerbosityLevel",
+          "defaultValue": [
+            "WARNING"
+          ],
+          "type": 1,
+          "cardinality": 0
+        },
+        {
+          "id": "org.ops4j.pax.web.jsp.mapped.file",
+          "optionLabels": [],
+          "description": null,
+          "optionValues": [],
+          "name": "JSP mappedfile",
+          "defaultValue": [
+            "false"
+          ],
+          "type": 1,
+          "cardinality": 0
+        },
+        {
+          "id": "org.ops4j.pax.web.jsp.tagpool.max.size",
+          "optionLabels": [],
+          "description": null,
+          "optionValues": [],
+          "name": "JSP tagpoolMaxSize",
+          "defaultValue": [
+            "5"
+          ],
+          "type": 1,
+          "cardinality": 0
+        },
+        {
+          "id": "org.ops4j.pax.web.log.ncsa.enabled",
+          "optionLabels": [],
+          "description": null,
+          "optionValues": [],
+          "name": "NCSA Log Format Enable",
+          "defaultValue": [
+            "false"
+          ],
+          "type": 1,
+          "cardinality": 0
+        },
+        {
+          "id": "org.ops4j.pax.web.log.ncsa.format",
+          "optionLabels": [],
+          "description": null,
+          "optionValues": [],
+          "name": "NCSA Log Format",
+          "defaultValue": [
+            "yyyy_mm_dd.request.log"
+          ],
+          "type": 1,
+          "cardinality": 0
+        },
+        {
+          "id": "org.ops4j.pax.web.log.ncsa.retaindays",
+          "optionLabels": [],
+          "description": null,
+          "optionValues": [],
+          "name": "NCSA Log RetainDays",
+          "defaultValue": [
+            "90"
+          ],
+          "type": 1,
+          "cardinality": 0
+        },
+        {
+          "id": "org.ops4j.pax.web.log.ncsa.append",
+          "optionLabels": [],
+          "description": null,
+          "optionValues": [],
+          "name": "NCSA Log Append",
+          "defaultValue": [
+            "true"
+          ],
+          "type": 1,
+          "cardinality": 0
+        },
+        {
+          "id": "org.ops4j.pax.web.log.ncsa.extended",
+          "optionLabels": [],
+          "description": null,
+          "optionValues": [],
+          "name": "NCSA Log Expended",
+          "defaultValue": [
+            "true"
+          ],
+          "type": 1,
+          "cardinality": 0
+        },
+        {
+          "id": "org.ops4j.pax.web.log.ncsa.dispatch",
+          "optionLabels": [],
+          "description": null,
+          "optionValues": [],
+          "name": "NCSA Log Dispatch",
+          "defaultValue": [
+            "false"
+          ],
+          "type": 1,
+          "cardinality": 0
+        },
+        {
+          "id": "org.ops4j.pax.web.log.ncsa.logtimezone",
+          "optionLabels": [],
+          "description": null,
+          "optionValues": [],
+          "name": "NCSA Log Time Zone",
+          "defaultValue": [
+            "GMT"
+          ],
+          "type": 1,
+          "cardinality": 0
+        },
+        {
+          "id": "org.ops4j.pax.web.log.ncsa.directory",
+          "optionLabels": [],
+          "description": null,
+          "optionValues": [],
+          "name": "NCSA Log Directory",
+          "defaultValue": [
+            ""
+          ],
+          "type": 1,
+          "cardinality": 0
+        }
+      ],
+      "factory": false,
+      "configurations": [
+        {
+          "id": "org.ops4j.pax.web",
+          "bundle_name": "OPS4J Pax Web - Runtime",
+          "name": "Pax Web Runtime",
+          "bundle": 72,
+          "properties": {
+            "org.ops4j.pax.web.ssl.keystore.type": "jks",
+            "org.osgi.service.http.port.secure": "8993",
+            "org.osgi.service.http.secure.enabled": "true",
+            "org.ops4j.pax.web.ssl.clientauthwanted": "true",
+            "org.ops4j.pax.web.ssl.keypassword": "changeit",
+            "org.ops4j.pax.web.ssl.keystore": "etc/keystores/serverKeystore.jks",
+            "org.osgi.service.http.enabled": "true",
+            "felix.fileinstall.filename": "file:/Users/tustisos/deploy/client/ddf-2.3.1-SNAPSHOT/etc/org.ops4j.pax.web.cfg",
+            "org.osgi.service.http.port": "8181",
+            "org.ops4j.pax.web.ssl.password": "changeit",
+            "service.pid": "org.ops4j.pax.web"
+          }
+        }
+      ]
+    },
+    {
+      "id": "org.apache.karaf.webconsole",
+      "name": "webconsole.name",
+      "metatype": [
+        {
+          "id": "realm",
+          "optionLabels": [],
+          "description": "realm.description",
+          "optionValues": [],
+          "name": "realm.name",
+          "defaultValue": [
+            "karaf"
+          ],
+          "type": 1,
+          "cardinality": 0
+        }
+      ],
+      "factory": false,
+      "configurations": [
+        {
+          "id": "org.apache.karaf.webconsole",
+          "bundle_name": "Apache Karaf :: Web Console :: Console",
+          "name": "webconsole.name",
+          "bundle": 76,
+          "properties": {
+            "realm": "karaf",
+            "org.apache.karaf.features.configKey": "org.apache.karaf.webconsole",
+            "role": "admin",
+            "service.pid": "org.apache.karaf.webconsole"
+          }
+        }
+      ]
+    },
+    {
+      "id": "org.apache.felix.webconsole.plugins.event.internal.PluginServlet",
+      "name": "Apache Felix Web Console Event Plugin",
+      "metatype": [
+        {
+          "id": "max.size",
+          "optionLabels": [],
+          "description": "The maximum number of events displayed in the plugin.",
+          "optionValues": [],
+          "name": "Maximum Events",
+          "defaultValue": [
+            "250"
+          ],
+          "type": 3,
+          "cardinality": 0
+        }
+      ],
+      "factory": false
+    },
+    {
+      "id": "org.apache.karaf.shell.config",
+      "name": "Apache Karaf Shell Config",
+      "metatype": [
+        {
+          "id": "storage",
+          "optionLabels": [],
+          "description": "the directory used as a storage for configurations",
+          "optionValues": [],
+          "name": "Storage directory",
+          "defaultValue": [
+            "${karaf.base}/etc/"
+          ],
+          "type": 1,
+          "cardinality": 0
+        }
+      ],
+      "factory": false
+    },
+    {
+      "id": "org.ops4j.pax.url.war",
+      "name": "WAR URL configuration",
+      "metatype": [
+        {
+          "id": "org.ops4j.pax.url.war.certificateCheck",
+          "optionLabels": [],
+          "description": "",
+          "optionValues": [],
+          "name": "Certificate Check",
+          "defaultValue": [
+            "false"
+          ],
+          "type": 11,
+          "cardinality": 0
+        }
+      ],
+      "factory": false,
+      "configurations": [
+        {
+          "id": "org.ops4j.pax.url.war",
+          "bundle_name": "OPS4J Pax Url - war",
+          "name": "WAR URL configuration",
+          "bundle": 95,
+          "properties": {
+            "org.apache.karaf.features.configKey": "org.ops4j.pax.url.war",
+            "org.ops4j.pax.url.war.importPaxLoggingPackages": "true",
+            "service.pid": "org.ops4j.pax.url.war"
+          }
+        }
+      ]
+    },
+    {
+      "id": "org.apache.cxf.osgi",
+      "name": "CXF Servlet Transport",
+      "metatype": [
+        {
+          "id": "org.apache.cxf.servlet.context",
+          "optionLabels": [],
+          "description": "",
+          "optionValues": [],
+          "name": "Servlet context path",
+          "defaultValue": [
+            "/cxf"
+          ],
+          "type": 1,
+          "cardinality": 0
+        },
+        {
+          "id": "org.apache.cxf.servlet.name",
+          "optionLabels": [],
+          "description": "",
+          "optionValues": [],
+          "name": "Servlet name",
+          "defaultValue": [
+            "cxf-osgi-transport-servlet"
+          ],
+          "type": 1,
+          "cardinality": 0
+        },
+        {
+          "id": "org.apache.cxf.servlet.hide-service-list-page",
+          "optionLabels": [],
+          "description": "",
+          "optionValues": [],
+          "name": "Hide service list",
+          "defaultValue": [
+            "false"
+          ],
+          "type": 1,
+          "cardinality": 0
+        },
+        {
+          "id": "org.apache.cxf.servlet.disable-address-updates",
+          "optionLabels": [],
+          "description": "",
+          "optionValues": [],
+          "name": "Disable address updates",
+          "defaultValue": [
+            "false"
+          ],
+          "type": 1,
+          "cardinality": 0
+        },
+        {
+          "id": "org.apache.cxf.servlet.base-address",
+          "optionLabels": [],
+          "description": "",
+          "optionValues": [],
+          "name": "Base address",
+          "defaultValue": [
+            ""
+          ],
+          "type": 1,
+          "cardinality": 0
+        },
+        {
+          "id": "org.apache.cxf.servlet.service-list-path",
+          "optionLabels": [],
+          "description": "",
+          "optionValues": [],
+          "name": "Service list path",
+          "defaultValue": [
+            ""
+          ],
+          "type": 1,
+          "cardinality": 0
+        },
+        {
+          "id": "org.apache.cxf.servlet.static-resources-list",
+          "optionLabels": [],
+          "description": "",
+          "optionValues": [],
+          "name": "Static resources list",
+          "defaultValue": [
+            ""
+          ],
+          "type": 1,
+          "cardinality": 0
+        },
+        {
+          "id": "org.apache.cxf.servlet.redirects-list",
+          "optionLabels": [],
+          "description": "",
+          "optionValues": [],
+          "name": "Redirects list",
+          "defaultValue": [
+            ""
+          ],
+          "type": 1,
+          "cardinality": 0
+        },
+        {
+          "id": "org.apache.cxf.servlet.redirect-servlet-name",
+          "optionLabels": [],
+          "description": "",
+          "optionValues": [],
+          "name": "Redirect servlet name",
+          "defaultValue": [
+            ""
+          ],
+          "type": 1,
+          "cardinality": 0
+        },
+        {
+          "id": "org.apache.cxf.servlet.redirect-servlet-path",
+          "optionLabels": [],
+          "description": "",
+          "optionValues": [],
+          "name": "Redirect servlet path",
+          "defaultValue": [
+            ""
+          ],
+          "type": 1,
+          "cardinality": 0
+        },
+        {
+          "id": "org.apache.cxf.servlet.service-list-all-contexts",
+          "optionLabels": [],
+          "description": "",
+          "optionValues": [],
+          "name": "List all contexts",
+          "defaultValue": [
+            ""
+          ],
+          "type": 1,
+          "cardinality": 0
+        }
+      ],
+      "factory": false,
+      "configurations": [
+        {
+          "id": "org.apache.cxf.osgi",
+          "bundle_name": "Apache CXF Runtime HTTP Transport",
+          "name": "CXF Servlet Transport",
+          "bundle": 141,
+          "properties": {
+            "org.apache.cxf.servlet.disable-address-updates": "true",
+            "org.apache.cxf.servlet.context": "/services",
+            "felix.fileinstall.filename": "file:/Users/tustisos/deploy/client/ddf-2.3.1-SNAPSHOT/etc/org.apache.cxf.osgi.cfg",
+            "service.pid": "org.apache.cxf.osgi"
+          }
+        }
+      ]
+    },
+    {
+      "id": "MetricsReporting",
+      "name": "Metrics Reporting",
+      "metatype": [
+        {
+          "id": "metricsMaxThreshold",
+          "optionLabels": [],
+          "description": "Max value a data sample can be for any metric (used to suppress spike data on metrics graphs)",
+          "optionValues": [],
+          "name": "Metrics Max Threshold",
+          "defaultValue": [
+            "4000000000.0"
+          ],
+          "type": 7,
+          "cardinality": 0
+        }
+      ],
+      "factory": false
+    },
+    {
+      "id": "ddf.platform.config",
+      "name": "Platform Global Configuration",
+      "metatype": [
+        {
+          "id": "protocol",
+          "optionLabels": [
+            "http",
+            "https"
+          ],
+          "description": "Default protocol to use for services.",
+          "optionValues": [
+            "http://",
+            "https://"
+          ],
+          "name": "Protocol",
+          "defaultValue": [
+            "http"
+          ],
+          "type": 1,
+          "cardinality": 0
+        },
+        {
+          "id": "host",
+          "optionLabels": [],
+          "description": "The host name or IP address used to advertise the system. Possibilities include the address of a single node of that of a load balancer in a multi-node deployment. NOTE: Does not change the address the system runs on.",
+          "optionValues": [],
+          "name": "Host",
+          "defaultValue": null,
+          "type": 1,
+          "cardinality": 0
+        },
+        {
+          "id": "port",
+          "optionLabels": [],
+          "description": "The port used to advertise the system. Possibilities include the port of a single node of that of a load balancer in a multi-node deployment. NOTE: Does not change the port the system runs on.",
+          "optionValues": [],
+          "name": "Port",
+          "defaultValue": null,
+          "type": 1,
+          "cardinality": 0
+        },
+        {
+          "id": "trustStore",
+          "optionLabels": [],
+          "description": "Trust Store location. Path is relative to ddf.home - for default (development-only) trust store, use etc/keystores/serverTruststore.jks.",
+          "optionValues": [],
+          "name": "Trust Store:",
+          "defaultValue": null,
+          "type": 1,
+          "cardinality": 0
+        },
+        {
+          "id": "trustStorePassword",
+          "optionLabels": [],
+          "description": "Trust Store password",
+          "optionValues": [],
+          "name": "Trust Store Password:",
+          "defaultValue": null,
+          "type": 12,
+          "cardinality": 0
+        },
+        {
+          "id": "keyStore",
+          "optionLabels": [],
+          "description": "Key Store location. Path is relative to ddf.home - for default (development-only) key store, use etc/keystores/serverKeystore.jks.",
+          "optionValues": [],
+          "name": "Key Store:",
+          "defaultValue": null,
+          "type": 1,
+          "cardinality": 0
+        },
+        {
+          "id": "keyStorePassword",
+          "optionLabels": [],
+          "description": "Key Store password.",
+          "optionValues": [],
+          "name": "Key Store Password:",
+          "defaultValue": null,
+          "type": 12,
+          "cardinality": 0
+        },
+        {
+          "id": "id",
+          "optionLabels": [],
+          "description": null,
+          "optionValues": [],
+          "name": "Site Name",
+          "defaultValue": null,
+          "type": 1,
+          "cardinality": 0
+        },
+        {
+          "id": "version",
+          "optionLabels": [],
+          "description": null,
+          "optionValues": [],
+          "name": "Version",
+          "defaultValue": null,
+          "type": 1,
+          "cardinality": 0
+        },
+        {
+          "id": "organization",
+          "optionLabels": [],
+          "description": null,
+          "optionValues": [],
+          "name": "Organization",
+          "defaultValue": null,
+          "type": 1,
+          "cardinality": 0
+        }
+      ],
+      "factory": false,
+      "configurations": [
+        {
+          "id": "ddf.platform.config",
+          "bundle_name": "DDF :: Platform :: Configuration",
+          "name": "Platform Global Configuration",
+          "bundle": 183,
+          "properties": {
+            "id": "ddf.distribution",
+            "port": "8181",
+            "protocol": "http://",
+            "organization": "Codice Foundation",
+            "host": "localhost",
+            "org.apache.karaf.features.configKey": "ddf.platform.config",
+            "service.pid": "ddf.platform.config",
+            "version": "2.3.0"
+          }
+        }
+      ]
+    },
+    {
+      "id": "ddf.catalog.federation.impl.SortedFederationStrategy",
+      "name": "Catalog Sorted Federation Strategy",
+      "metatype": [
+        {
+          "id": "maxStartIndex",
+          "optionLabels": [],
+          "description": "Sets a limit on the number of results this sorted federation strategy can handle from each federated source. A large start index          in conjunction with several federated sources could yield a large result set, which the sorted federation strategy has a limited ability to do.           The admin can make a rough calculation to decide what maximum start index to use based on the amount of memory in the system, the amount of          federated sources, the number of threads, and the expected amount of query results requested          ( (average # of threads) * (maximum # of federated sources) * (maxStartIndex + maximumQueryResults) ) must fit into the allocated memory of          the running distribution.  This field will be removed when sorted federation strategy has the ability to sort a larger amount of results.",
+          "optionValues": [],
+          "name": "Maximum start index",
+          "defaultValue": [
+            "50000"
+          ],
+          "type": 3,
+          "cardinality": 0
+        }
+      ],
+      "factory": false
+    },
+    {
+      "id": "ddf.catalog.CatalogFrameworkImpl",
+      "name": "Catalog Standard Framework",
+      "metatype": [
+        {
+          "id": "poolSize",
+          "optionLabels": [],
+          "description": null,
+          "optionValues": [],
+          "name": "Federation Thread Pool Size (0 for unlimited)",
+          "defaultValue": [
+            "0"
+          ],
+          "type": 3,
+          "cardinality": 0
+        }
+      ],
+      "factory": false
+    },
+    {
+      "id": "ddf.content.provider.filesystem.FileSystemProvider",
+      "name": "Content File System Storage Provider",
+      "metatype": [
+        {
+          "id": "baseContentDirectory",
+          "optionLabels": [],
+          "description": "Specifies the directory to use for the content repository. A shutdown of the server is necessary for this property to take effect. If a filepath is provided with directories that don't exist, File System Provider will attempt to create them. Out of the box (without configuration), the content repository is <INSTALL_DIR>/content/store.",
+          "optionValues": [],
+          "name": "Content Repository File Path",
+          "defaultValue": [
+            ""
+          ],
+          "type": 1,
+          "cardinality": 0
+        }
+      ],
+      "factory": false
+    },
+    {
+      "id": "ddf.security.sts.client.configuration",
+      "name": "Security STS Client",
+      "metatype": [
+        {
+          "id": "address",
+          "optionLabels": [],
+          "description": "STS WSDL Address",
+          "optionValues": [],
+          "name": "STS WSDL Address:",
+          "defaultValue": [
+            "https://server:8993/services/SecurityTokenService?wsdl"
+          ],
+          "type": 1,
+          "cardinality": 0
+        },
+        {
+          "id": "endpointName",
+          "optionLabels": [],
+          "description": "STS Endpoint Name.",
+          "optionValues": [],
+          "name": "STS Endpoint Name:",
+          "defaultValue": [
+            "{http://docs.oasis-open.org/ws-sx/ws-trust/200512/}STS_Port"
+          ],
+          "type": 1,
+          "cardinality": 0
+        },
+        {
+          "id": "serviceName",
+          "optionLabels": [],
+          "description": "STS Service Name.",
+          "optionValues": [],
+          "name": "STS Service Name:",
+          "defaultValue": [
+            "{http://docs.oasis-open.org/ws-sx/ws-trust/200512/}SecurityTokenService"
+          ],
+          "type": 1,
+          "cardinality": 0
+        },
+        {
+          "id": "signatureProperties",
+          "optionLabels": [],
+          "description": "Path to Signature crypto properties. This path can be part of the classpath, relative to ddf.home, or an absolute path on the system.",
+          "optionValues": [],
+          "name": "Signature Properties:",
+          "defaultValue": [
+            "etc/ws-security/server/signature.properties"
+          ],
+          "type": 1,
+          "cardinality": 0
+        },
+        {
+          "id": "encryptionProperties",
+          "optionLabels": [],
+          "description": "Path to Encryption crypto properties file. This path can be part of the classpath, relative to ddf.home, or an absolute path on the system.",
+          "optionValues": [],
+          "name": "Encryption Properties:",
+          "defaultValue": [
+            "etc/ws-security/server/encryption.properties"
+          ],
+          "type": 1,
+          "cardinality": 0
+        },
+        {
+          "id": "tokenProperties",
+          "optionLabels": [],
+          "description": "Path to STS crypto properties file. This path can be part of the classpath, relative to ddf.home, or an absolute path on the system.",
+          "optionValues": [],
+          "name": "STS Properties:",
+          "defaultValue": [
+            "etc/ws-security/server/signature.properties"
+          ],
+          "type": 1,
+          "cardinality": 0
+        },
+        {
+          "id": "claims",
+          "optionLabels": [],
+          "description": "Comma-delimited list of claims that should be requested by the STS.",
+          "optionValues": [],
+          "name": "Claims:",
+          "defaultValue": [
+            "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier",
+            "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress",
+            "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname",
+            "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname",
+            "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role"
+          ],
+          "type": 1,
+          "cardinality": 0
+        }
+      ],
+      "factory": false
+    },
+    {
+      "id": "ddf.catalog.source.solr.SolrCatalogProvider",
+      "name": "Catalog Embedded Solr Catalog Provider",
+      "metatype": [
+        {
+          "id": "dataDirectoryPath",
+          "optionLabels": [],
+          "description": "Specifies the directory to use for data storage. A shutdown of the server is necessary for this property to take effect. If a filepath is provided with directories that don't exist, Solr Catalog Provider (SCP) will attempt to create those directories. Out of the box (without configuration), this Solr Catalog Provider writes to <DISTRIBUTION_INSTALLATION_DIRECTORY>/data/solr. It is recommended to use an absolute filepath to minimize confusion such as /opt/solr_data in Linux or C:/solr_data in Windows.",
+          "optionValues": [],
+          "name": "Data Directory File Path",
+          "defaultValue": [
+            ""
+          ],
+          "type": 1,
+          "cardinality": 0
+        },
+        {
+          "id": "forceAutoCommit",
+          "optionLabels": [],
+          "description": "WARNING: Performance Impact.  Only in special cases should auto-commit be forced. Forcing auto-commit makes the search results visible immediately.",
+          "optionValues": [],
+          "name": "Force Auto Commit",
+          "defaultValue": [
+            ""
+          ],
+          "type": 11,
+          "cardinality": 0
+        },
+        {
+          "id": "disableTextPath",
+          "optionLabels": [],
+          "description": "Disables the ability to make Text Path queries by disabling the Text Path index. Disabling Text Path indexing typically increases ingest performance.",
+          "optionValues": [],
+          "name": "Disable Text Path indexing",
+          "defaultValue": [
+            ""
+          ],
+          "type": 11,
+          "cardinality": 0
+        }
+      ],
+      "factory": false
+    },
+    {
+      "id": "org.codice.ddf.ui.search.simple.properties",
+      "name": "Simple Search UI",
+      "metatype": [
+        {
+          "id": "header",
+          "optionLabels": [],
+          "description": "Specifies the header text to be rendered on the generated Query Page",
+          "optionValues": [],
+          "name": "Header",
+          "defaultValue": [
+            ""
+          ],
+          "type": 1,
+          "cardinality": 0
+        },
+        {
+          "id": "footer",
+          "optionLabels": [],
+          "description": "Specifies the footer text to be rendered on the generated Query Page",
+          "optionValues": [],
+          "name": "Footer",
+          "defaultValue": [
+            ""
+          ],
+          "type": 1,
+          "cardinality": 0
+        },
+        {
+          "id": "color",
+          "optionLabels": [],
+          "description": "Specifies the Text Color of the Header and Footer.  Use html css colors or #rrggbb.",
+          "optionValues": [],
+          "name": "Text Color",
+          "defaultValue": [
+            ""
+          ],
+          "type": 1,
+          "cardinality": 0
+        },
+        {
+          "id": "background",
+          "optionLabels": [],
+          "description": "Specifies the Background Color of the Header and Footer.  Use html css colors or #rrggbb.",
+          "optionValues": [],
+          "name": "Background Color",
+          "defaultValue": [
+            ""
+          ],
+          "type": 1,
+          "cardinality": 0
+        }
+      ],
+      "factory": false
+    },
+    {
+      "id": "org.codice.ddf.ui.search.standard.properties",
+      "name": "Standard Search UI",
+      "metatype": [
+        {
+          "id": "header",
+          "optionLabels": [],
+          "description": "Specifies the header text to be rendered on the generated Query Page",
+          "optionValues": [],
+          "name": "Header",
+          "defaultValue": [
+            ""
+          ],
+          "type": 1,
+          "cardinality": 0
+        },
+        {
+          "id": "footer",
+          "optionLabels": [],
+          "description": "Specifies the footer text to be rendered on the generated Query Page",
+          "optionValues": [],
+          "name": "Footer",
+          "defaultValue": [
+            ""
+          ],
+          "type": 1,
+          "cardinality": 0
+        },
+        {
+          "id": "style",
+          "optionLabels": [
+            "Green",
+            "Blue",
+            "Red",
+            "Yellow",
+            "Light Green",
+            "Light Blue",
+            "Light Red",
+            "Light Yellow",
+            "White",
+            "Black"
+          ],
+          "description": "Specifies the style of the Header and Footer.",
+          "optionValues": [
+            "green",
+            "blue",
+            "red",
+            "yellow",
+            "light-green",
+            "light-blue",
+            "light-red",
+            "light-yellow",
+            "white",
+            "black"
+          ],
+          "name": "Style",
+          "defaultValue": [
+            "Green"
+          ],
+          "type": 1,
+          "cardinality": 0
+        },
+        {
+          "id": "textColor",
+          "optionLabels": [
+            "Green",
+            "Blue",
+            "Red",
+            "Yellow",
+            "Light Green",
+            "Light Blue",
+            "Light Red",
+            "Light Yellow",
+            "White",
+            "Black"
+          ],
+          "description": "Specifies the text color of the Header and Footer.",
+          "optionValues": [
+            "banner-text-green",
+            "banner-text-blue",
+            "banner-text-red",
+            "banner-text-yellow",
+            "banner-text-light-green",
+            "banner-text-light-blue",
+            "banner-text-light-red",
+            "banner-text-light-yellow",
+            "banner-text-white",
+            "banner-text-black"
+          ],
+          "name": "Text Color",
+          "defaultValue": [
+            "White"
+          ],
+          "type": 1,
+          "cardinality": 0
+        },
+        {
+          "id": "enableWmsServer",
+          "optionLabels": [],
+          "description": "Enables use of WMS server (WMS server URL must be specified in Http Proxy Configuration 'Target Url').",
+          "optionValues": [],
+          "name": "WMS Server",
+          "defaultValue": [
+            "false"
+          ],
+          "type": 11,
+          "cardinality": 0
+        },
+        {
+          "id": "layers",
+          "optionLabels": [],
+          "description": "Specifies the WMS layers to be used.",
+          "optionValues": [],
+          "name": "WMS Layers",
+          "defaultValue": [
+            ""
+          ],
+          "type": 1,
+          "cardinality": 0
+        },
+        {
+          "id": "format",
+          "optionLabels": [],
+          "description": "Specifies the WMS layer format (image/png, etc.).",
+          "optionValues": [],
+          "name": "WMS Format",
+          "defaultValue": [
+            ""
+          ],
+          "type": 1,
+          "cardinality": 0
+        },
+        {
+          "id": "timeout",
+          "optionLabels": [],
+          "description": "Specifies the connection timeout in milliseconds to use when connecting to WMS services.",
+          "optionValues": [],
+          "name": "Connection Timeout",
+          "defaultValue": [
+            "5000"
+          ],
+          "type": 3,
+          "cardinality": 0
+        },
+        {
+          "id": "syncQuery",
+          "optionLabels": [],
+          "description": "Force federated queries to synchronously return results only after all sources have responded.",
+          "optionValues": [],
+          "name": "Synchronous Query",
+          "defaultValue": [
+            "false"
+          ],
+          "type": 11,
+          "cardinality": 0
+        }
+      ],
+      "factory": false
+    },
+    {
+      "id": "org.codice.ddf.ui.searchui.filter.RedirectServlet",
+      "name": "Search UI Redirect",
+      "metatype": [
+        {
+          "id": "defaultUri",
+          "optionLabels": [],
+          "description": "Specifies the redirect URI to use when accessing the /search URI.",
+          "optionValues": [],
+          "name": "Redirect URI",
+          "defaultValue": [
+            "/search/standard"
+          ],
+          "type": 1,
+          "cardinality": 0
+        }
+      ],
+      "factory": false,
+      "configurations": [
+        {
+          "id": "org.codice.ddf.ui.searchui.filter.RedirectServlet",
+          "bundle_name": "DDF :: UI :: Search UI :: Application Redirect",
+          "name": "Search UI Redirect",
+          "bundle": 275,
+          "properties": {
+            "org.apache.karaf.features.configKey": "org.codice.ddf.ui.searchui.filter.RedirectServlet",
+            "defaultUri": "/search/standard",
+            "service.pid": "org.codice.ddf.ui.searchui.filter.RedirectServlet"
+          }
+        }
+      ]
+    },
+    {
+      "id": "org.apache.felix.http",
+      "name": "Apache Felix Jetty Based Http Service",
+      "metatype": [
+        {
+          "id": "org.apache.felix.http.enable",
+          "optionLabels": [],
+          "description": "Whether or not HTTP is enabled. Defaults to true thus HTTP enabled.",
+          "optionValues": [],
+          "name": "Enable HTTP",
+          "defaultValue": [
+            "true"
+          ],
+          "type": 11,
+          "cardinality": 0
+        },
+        {
+          "id": "org.osgi.service.http.port",
+          "optionLabels": [],
+          "description": "Port to listen on for HTTP requests. Defaults to 8080.",
+          "optionValues": [],
+          "name": "HTTP Port",
+          "defaultValue": [
+            "8080"
+          ],
+          "type": 3,
+          "cardinality": 0
+        },
+        {
+          "id": "org.apache.felix.http.nio",
+          "optionLabels": [],
+          "description": "Wether or not to use NIO for HTTP. Defaults to true. Only used if HTTP is enabled.",
+          "optionValues": [],
+          "name": "NIO for HTTP",
+          "defaultValue": [
+            "true"
+          ],
+          "type": 11,
+          "cardinality": 0
+        },
+        {
+          "id": "org.apache.felix.https.enable",
+          "optionLabels": [],
+          "description": "Whether or not HTTPS is enabled. Defaults to false thus HTTPS disabled.",
+          "optionValues": [],
+          "name": "Enable HTTPS",
+          "defaultValue": [
+            "false"
+          ],
+          "type": 11,
+          "cardinality": 0
+        },
+        {
+          "id": "org.osgi.service.http.port.secure",
+          "optionLabels": [],
+          "description": "Port to listen on for HTTPS requests. Defaults to 433.",
+          "optionValues": [],
+          "name": "HTTPS Port",
+          "defaultValue": [
+            "433"
+          ],
+          "type": 3,
+          "cardinality": 0
+        },
+        {
+          "id": "org.apache.felix.https.nio",
+          "optionLabels": [],
+          "description": "Wether or not to use NIO for HTTP. Defaults to the value of the NIO for HTTP property. Only used if HTTPS is enabled.",
+          "optionValues": [],
+          "name": "NIO for HTTPS",
+          "defaultValue": [
+            "true"
+          ],
+          "type": 11,
+          "cardinality": 0
+        },
+        {
+          "id": "org.apache.felix.https.keystore",
+          "optionLabels": [],
+          "description": "Absolute Path to the Keystore to use for HTTPS. Only used if HTTPS is enabled in which case this property is required.",
+          "optionValues": [],
+          "name": "Keystore",
+          "defaultValue": null,
+          "type": 1,
+          "cardinality": 0
+        },
+        {
+          "id": "org.apache.felix.https.keystore.password",
+          "optionLabels": [],
+          "description": "Password to access the Keystore. Only used if HTTPS is enabled.",
+          "optionValues": [],
+          "name": "Keystore Password",
+          "defaultValue": null,
+          "type": 1,
+          "cardinality": 0
+        },
+        {
+          "id": "org.apache.felix.https.keystore.key.password",
+          "optionLabels": [],
+          "description": "Password to unlock the secret key from the Keystore. Only used if HTTPS is enabled.",
+          "optionValues": [],
+          "name": "Key Password",
+          "defaultValue": null,
+          "type": 1,
+          "cardinality": 0
+        },
+        {
+          "id": "org.apache.felix.https.truststore",
+          "optionLabels": [],
+          "description": "Absolute Path to the Truststore to use for HTTPS. Only used if HTTPS is enabled.",
+          "optionValues": [],
+          "name": "Truststore",
+          "defaultValue": null,
+          "type": 1,
+          "cardinality": 0
+        },
+        {
+          "id": "org.apache.felix.https.truststore.password",
+          "optionLabels": [],
+          "description": "Password to access the Truststore. Only used if HTTPS is enabled.",
+          "optionValues": [],
+          "name": "Truststore Password",
+          "defaultValue": null,
+          "type": 1,
+          "cardinality": 0
+        },
+        {
+          "id": "org.apache.felix.https.clientcertificate",
+          "optionLabels": [
+            "No Client Certificate",
+            "Client Certficate Wanted",
+            "Client Certificate Needed"
+          ],
+          "description": "Requirement for the Client to provide a valid certifcate. Defaults to none.",
+          "optionValues": [
+            "none",
+            "wants",
+            "needs"
+          ],
+          "name": "Client Certificate",
+          "defaultValue": [
+            "none"
+          ],
+          "type": 1,
+          "cardinality": 0
+        },
+        {
+          "id": "org.apache.felix.http.debug",
+          "optionLabels": [],
+          "description": "Whether to write DEBUG level messages or not. Defaults to false.",
+          "optionValues": [],
+          "name": "Debug Logging",
+          "defaultValue": [
+            "false"
+          ],
+          "type": 11,
+          "cardinality": 0
+        }
+      ],
+      "factory": false
+    },
+    {
+      "id": "ddf.ui.admin.api",
+      "name": "Configuration Admin JMX Bridge",
+      "metatype": [
+        {
+          "id": "filterList",
+          "optionLabels": [],
+          "description": null,
+          "optionValues": [],
+          "name": "Default Configuration Filter List:",
+          "defaultValue": [
+            "OpenSearchSource",
+            "CDDAOpenSearchSource",
+            "ddf.catalog.source.solr.SolrCatalogProvider"
+          ],
+          "type": 1,
+          "cardinality": -100
+        }
+      ],
+      "factory": false,
+      "configurations": [
+        {
+          "id": "ddf.ui.admin.api",
+          "bundle_name": "DDF :: Admin :: Core :: API",
+          "name": "Configuration Admin JMX Bridge",
+          "bundle": 280,
+          "properties": {
+            "filterList": [
+              "*"
+            ],
+            "service.pid": "ddf.ui.admin.api"
+          }
+        }
+      ]
+    },
+    {
+      "id": "org.apache.felix.fileinstall",
+      "name": "org.apache.felix.fileinstall",
+      "metatype": [
+        {
+          "id": "felix.fileinstall.dir",
+          "optionLabels": [],
+          "description": null,
+          "optionValues": [],
+          "name": "Poll directory",
+          "defaultValue": [
+            "load"
+          ],
+          "type": 1,
+          "cardinality": 0
+        },
+        {
+          "id": "felix.fileinstall.poll",
+          "optionLabels": [],
+          "description": null,
+          "optionValues": [],
+          "name": "Poll interval",
+          "defaultValue": [
+            "2000"
+          ],
+          "type": 1,
+          "cardinality": 0
+        },
+        {
+          "id": "felix.fileinstall.log.level",
+          "optionLabels": [],
+          "description": null,
+          "optionValues": [],
+          "name": "Log level",
+          "defaultValue": [
+            "0"
+          ],
+          "type": 1,
+          "cardinality": 0
+        },
+        {
+          "id": "felix.fileinstall.bundles.new.start",
+          "optionLabels": [],
+          "description": null,
+          "optionValues": [],
+          "name": "Start new bundles?",
+          "defaultValue": [
+            "true"
+          ],
+          "type": 1,
+          "cardinality": 0
+        },
+        {
+          "id": "felix.fileinstall.filter",
+          "optionLabels": [],
+          "description": null,
+          "optionValues": [],
+          "name": "File name filter",
+          "defaultValue": [
+            ""
+          ],
+          "type": 1,
+          "cardinality": 0
+        },
+        {
+          "id": "felix.fileinstall.tmpdir",
+          "optionLabels": [],
+          "description": null,
+          "optionValues": [],
+          "name": "Temp directory",
+          "defaultValue": [
+            "tmp"
+          ],
+          "type": 1,
+          "cardinality": 0
+        },
+        {
+          "id": "felix.fileinstall.noInitialDelay",
+          "optionLabels": [],
+          "description": null,
+          "optionValues": [],
+          "name": "No initial delay",
+          "defaultValue": [
+            "false"
+          ],
+          "type": 1,
+          "cardinality": 0
+        },
+        {
+          "id": "felix.fileinstall.bundles.startTransient",
+          "optionLabels": [],
+          "description": null,
+          "optionValues": [],
+          "name": "Start bundles transiently",
+          "defaultValue": [
+            "false"
+          ],
+          "type": 1,
+          "cardinality": 0
+        },
+        {
+          "id": "felix.fileinstall.bundles.startActivationPolicy",
+          "optionLabels": [],
+          "description": null,
+          "optionValues": [],
+          "name": "Use the bundle activation policy when starting",
+          "defaultValue": [
+            "true"
+          ],
+          "type": 1,
+          "cardinality": 0
+        },
+        {
+          "id": "felix.fileinstall.start.level",
+          "optionLabels": [],
+          "description": null,
+          "optionValues": [],
+          "name": "Bundles start level",
+          "defaultValue": [
+            "0"
+          ],
+          "type": 1,
+          "cardinality": 0
+        }
+      ],
+      "factory": true,
+      "configurations": [
+        {
+          "id": "org.apache.felix.fileinstall.6122b5ed-dd87-4aa2-b65c-44af09746db2",
+          "bundle_name": "Apache Felix File Install",
+          "name": "org.apache.felix.fileinstall",
+          "fpid": "org.apache.felix.fileinstall",
+          "bundle": 6,
+          "properties": {
+            "felix.fileinstall.active.level": "80",
+            "felix.fileinstall.tmpdir": "/Users/tustisos/deploy/client/ddf-2.3.1-SNAPSHOT/data/generated-bundles",
+            "service.factoryPid": "org.apache.felix.fileinstall",
+            "felix.fileinstall.dir": "/Users/tustisos/deploy/client/ddf-2.3.1-SNAPSHOT/deploy",
+            "felix.fileinstall.poll": "1000",
+            "felix.fileinstall.filename": "file:/Users/tustisos/deploy/client/ddf-2.3.1-SNAPSHOT/etc/org.apache.felix.fileinstall-deploy.cfg",
+            "service.pid": "org.apache.felix.fileinstall.6122b5ed-dd87-4aa2-b65c-44af09746db2",
+            "felix.fileinstall.start.level": "80"
+          }
+        },
+        {
+          "id": "org.apache.felix.fileinstall.f608f5fd-a863-449a-a076-20e49bbaf72c",
+          "bundle_name": "Apache Felix File Install",
+          "name": "org.apache.felix.fileinstall",
+          "fpid": "org.apache.felix.fileinstall",
+          "bundle": 6,
+          "properties": {
+            "felix.fileinstall.noInitialDelay": "false",
+            "felix.fileinstall.dir": "/Users/tustisos/deploy/client/ddf-2.3.1-SNAPSHOT/etc/ddf",
+            "service.factoryPid": "org.apache.felix.fileinstall",
+            "felix.fileinstall.filter": "",
+            "felix.fileinstall.poll": "1000",
+            "felix.fileinstall.log.level": "0",
+            "felix.fileinstall.filename": "file:/Users/tustisos/deploy/client/ddf-2.3.1-SNAPSHOT/etc/org.apache.felix.fileinstall-ddf.cfg",
+            "service.pid": "org.apache.felix.fileinstall.f608f5fd-a863-449a-a076-20e49bbaf72c",
+            "felix.fileinstall.start.level": "0",
+            "felix.fileinstall.bundles.startTransient": "false",
+            "felix.fileinstall.bundles.new.start": "true",
+            "felix.fileinstall.tmpdir": "/Users/tustisos/deploy/client/ddf-2.3.1-SNAPSHOT/data/generated-bundles",
+            "felix.fileinstall.bundles.startActivationPolicy": "true"
+          }
+        }
+      ]
+    },
+    {
+      "id": "org.apache.cxf.workqueues",
+      "name": "CXF work queue",
+      "metatype": [
+        {
+          "id": "name",
+          "optionLabels": [],
+          "description": "Use name 'default' to change the default work queue settings",
+          "optionValues": [],
+          "name": "Name",
+          "defaultValue": [
+            ""
+          ],
+          "type": 1,
+          "cardinality": 0
+        },
+        {
+          "id": "highWaterMark",
+          "optionLabels": [],
+          "description": "",
+          "optionValues": [],
+          "name": "High water mark",
+          "defaultValue": [
+            ""
+          ],
+          "type": 1,
+          "cardinality": 0
+        },
+        {
+          "id": "lowWaterMark",
+          "optionLabels": [],
+          "description": "",
+          "optionValues": [],
+          "name": "Low water mark",
+          "defaultValue": [
+            ""
+          ],
+          "type": 1,
+          "cardinality": 0
+        },
+        {
+          "id": "initialSize",
+          "optionLabels": [],
+          "description": "",
+          "optionValues": [],
+          "name": "Initial size",
+          "defaultValue": [
+            ""
+          ],
+          "type": 1,
+          "cardinality": 0
+        },
+        {
+          "id": "dequeueTimeout",
+          "optionLabels": [],
+          "description": "",
+          "optionValues": [],
+          "name": "Dequeue timeout",
+          "defaultValue": [
+            ""
+          ],
+          "type": 1,
+          "cardinality": 0
+        },
+        {
+          "id": "queueSize",
+          "optionLabels": [],
+          "description": "",
+          "optionValues": [],
+          "name": "Queue size",
+          "defaultValue": [
+            ""
+          ],
+          "type": 1,
+          "cardinality": 0
+        }
+      ],
+      "factory": true
+    },
+    {
+      "id": "DDF_Custom_Mime_Type_Resolver",
+      "name": "MIME Custom Types",
+      "metatype": [
+        {
+          "id": "name",
+          "optionLabels": [],
+          "description": null,
+          "optionValues": [],
+          "name": "Resolver Name",
+          "defaultValue": [
+            "DDF Custom Resolver"
+          ],
+          "type": 1,
+          "cardinality": 0
+        },
+        {
+          "id": "priority",
+          "optionLabels": [],
+          "description": null,
+          "optionValues": [],
+          "name": "Priority",
+          "defaultValue": [
+            "10"
+          ],
+          "type": 3,
+          "cardinality": 0
+        },
+        {
+          "id": "customMimeTypes",
+          "optionLabels": [],
+          "description": "List of key/value pairs where key is the file extension and value is the mime type, e.g., nitf=image/nitf",
+          "optionValues": [],
+          "name": "File Extensions to Mime Types",
+          "defaultValue": null,
+          "type": 1,
+          "cardinality": 100
+        }
+      ],
+      "factory": true,
+      "configurations": [
+        {
+          "id": "DDF_Custom_Mime_Type_Resolver.9209742e-795e-4215-a1ce-99039f6c9bad",
+          "bundle_name": "DDF :: MIME :: Core :: ConfigurableResolver",
+          "name": "MIME Custom Types",
+          "fpid": "DDF_Custom_Mime_Type_Resolver",
+          "bundle": 188,
+          "properties": {
+            "service.factoryPid": "DDF_Custom_Mime_Type_Resolver",
+            "org.apache.karaf.features.configKey": "DDF_Custom_Mime_Type_Resolver-Ddmsv20CustomMimeTypes",
+            "priority": "10",
+            "name": "DDMS v2.0 Content Resolver",
+            "customMimeTypes": "xml=text/xml;id=ddms",
+            "service.pid": "DDF_Custom_Mime_Type_Resolver.9209742e-795e-4215-a1ce-99039f6c9bad"
+          }
+        },
+        {
+          "id": "DDF_Custom_Mime_Type_Resolver.004eed4f-ba78-4d18-85f2-6d1a89214429",
+          "bundle_name": "DDF :: MIME :: Core :: ConfigurableResolver",
+          "name": "MIME Custom Types",
+          "fpid": "DDF_Custom_Mime_Type_Resolver",
+          "bundle": 188,
+          "properties": {
+            "service.factoryPid": "DDF_Custom_Mime_Type_Resolver",
+            "org.apache.karaf.features.configKey": "DDF_Custom_Mime_Type_Resolver-NitfCustomMimeTypes",
+            "priority": "10",
+            "name": "NITF Content Resolver",
+            "customMimeTypes": "nitf=image/nitf,ntf=image/nitf",
+            "service.pid": "DDF_Custom_Mime_Type_Resolver.004eed4f-ba78-4d18-85f2-6d1a89214429"
+          }
+        },
+        {
+          "id": "DDF_Custom_Mime_Type_Resolver.88bcd7fd-e10a-47b9-b5fd-3ece69cae1df",
+          "bundle_name": "DDF :: MIME :: Core :: ConfigurableResolver",
+          "name": "MIME Custom Types",
+          "fpid": "DDF_Custom_Mime_Type_Resolver",
+          "bundle": 188,
+          "properties": {
+            "service.factoryPid": "DDF_Custom_Mime_Type_Resolver",
+            "org.apache.karaf.features.configKey": "DDF_Custom_Mime_Type_Resolver-GeoJsonCustomMimeTypes",
+            "priority": "10",
+            "name": "GeoJson Content Resolver",
+            "customMimeTypes": "json=application/json;id=geojson",
+            "service.pid": "DDF_Custom_Mime_Type_Resolver.88bcd7fd-e10a-47b9-b5fd-3ece69cae1df"
+          }
+        }
+      ]
+    },
+    {
+      "id": "ddf.platform.scheduler.Command",
+      "name": "Platform Command Scheduler",
+      "metatype": [
+        {
+          "id": "command",
+          "optionLabels": [],
+          "description": "Shell command to be used within the container. For example, log:set DEBUG",
+          "optionValues": [],
+          "name": "Command",
+          "defaultValue": [
+            ""
+          ],
+          "type": 1,
+          "cardinality": 0
+        },
+        {
+          "id": "intervalInSeconds",
+          "optionLabels": [],
+          "description": "The interval of time in seconds between each execution. Must be a positive integer. For example, 3600 is 1 hour.",
+          "optionValues": [],
+          "name": "Interval in seconds",
+          "defaultValue": null,
+          "type": 3,
+          "cardinality": 0
+        }
+      ],
+      "factory": true
+    },
+    {
+      "id": "CDDAOpenSearchSource",
+      "name": "Catalog CDDA Opensearch Federated Source",
+      "metatype": [
+        {
+          "id": "shortname",
+          "optionLabels": [],
+          "description": null,
+          "optionValues": [],
+          "name": "Source Name",
+          "defaultValue": [
+            "CDDA-OS"
+          ],
+          "type": 1,
+          "cardinality": 0
+        },
+        {
+          "id": "endpointUrl",
+          "optionLabels": [],
+          "description": "The OpenSearch endpoint URL or DDF's OpenSearch endpoint (http://0.0.0.0:8181/services/catalog/query?q={searchTerms}...)",
+          "optionValues": [],
+          "name": "OpenSearch service URL",
+          "defaultValue": [
+            "http://example.com?q={searchTerms}&src={fs:routeTo?}&mr={fs:maxResults?}&count={count?}&mt={fs:maxTimeout?}&dn={idn:userDN?}&lat={geo:lat?}&lon={geo:lon?}&radius={geo:radius?}&bbox={geo:box?}&polygon={geo:polygon?}&dtstart={time:start?}&dtend={time:end?}&dateName={cat:dateName?}&filter={fsa:filter?}&sort={fsa:sort?}"
+          ],
+          "type": 1,
+          "cardinality": 0
+        },
+        {
+          "id": "localQueryOnly",
+          "optionLabels": [],
+          "description": "Always performs a local query by setting src=local OpenSearch parameter in endpoint URL. This must be set if federating to another DDF.",
+          "optionValues": [],
+          "name": "Always perform local query.",
+          "defaultValue": [
+            "false"
+          ],
+          "type": 11,
+          "cardinality": 0
+        },
+        {
+          "id": "shouldConvertToBBox",
+          "optionLabels": [],
+          "description": "Converts Polygon and Point-Radius searches to a Bounding Box for compatability with older interfaces. Generated bounding box is a very rough representation of the input geometry.",
+          "optionValues": [],
+          "name": "Convert to BBox",
+          "defaultValue": [
+            "true"
+          ],
+          "type": 11,
+          "cardinality": 0
+        },
+        {
+          "id": "trustStoreLocation",
+          "optionLabels": [],
+          "description": "Truststore is only required for secure OpenSearch endpoints",
+          "optionValues": [],
+          "name": "Truststore File Location",
+          "defaultValue": [
+            "trustStore.jks"
+          ],
+          "type": 1,
+          "cardinality": 0
+        },
+        {
+          "id": "trustStorePassword",
+          "optionLabels": [],
+          "description": null,
+          "optionValues": [],
+          "name": "Truststore Password",
+          "defaultValue": null,
+          "type": 12,
+          "cardinality": 0
+        },
+        {
+          "id": "keyStoreLocation",
+          "optionLabels": [],
+          "description": "Keystore is only required for secure OpenSearch endpoints",
+          "optionValues": [],
+          "name": "Keystore File Location",
+          "defaultValue": [
+            "keyStore.jks"
+          ],
+          "type": 1,
+          "cardinality": 0
+        },
+        {
+          "id": "keyStorePassword",
+          "optionLabels": [],
+          "description": null,
+          "optionValues": [],
+          "name": "Keystore Password",
+          "defaultValue": null,
+          "type": 12,
+          "cardinality": 0
+        }
+      ],
+      "factory": true,
+      "configurations": [
+        {
+          "id": "CDDAOpenSearchSource.61f4dcbf-6744-4b04-ab57-74127fbc6fdd",
+          "bundle_name": "DDF :: Catalog :: OpenSearch :: Source",
+          "name": "Catalog CDDA Opensearch Federated Source",
+          "fpid": "CDDAOpenSearchSource",
+          "bundle": 251,
+          "properties": {
+            "endpointUrl": "http://example:8181/services/catalog/query?q={searchTerms}&src={fs:routeTo?}&mr={fs:maxResults?}&start={startIndex?}&count={count?}&mt={fs:maxTimeout?}&dn={idn:userDN?}&lat={geo:lat?}&lon={geo:lon?}&radius={geo:radius?}&bbox={geo:box?}&polygon={geo:polygon?}&dtstart={time:start?}&dtend={time:end?}&dateName={cat:dateName?}&filter={fsa:filter?}&sort={fsa:sort?}",
+            "localQueryOnly": "true",
+            "keyStoreLocation": "keyStore.jks",
+            "trustStorePassword": "",
+            "service.factoryPid": "CDDAOpenSearchSource",
+            "shortname": "CDDA-OS",
+            "trustStoreLocation": "trustStore.jks",
+            "shouldConvertToBBox": "true",
+            "service.pid": "CDDAOpenSearchSource.61f4dcbf-6744-4b04-ab57-74127fbc6fdd",
+            "keyStorePassword": ""
+          }
+        },
+        {
+          "id": "CDDAOpenSearchSource.4641e2d0-fca3-4003-8585-38724dee3e54",
+          "bundle_name": "DDF :: Catalog :: OpenSearch :: Source",
+          "name": "Catalog CDDA Opensearch Federated Source",
+          "fpid": "CDDAOpenSearchSource",
+          "bundle": 251,
+          "properties": {
+            "endpointUrl": "http://example:8282/services/catalog/query?q={searchTerms}&src={fs:routeTo?}&mr={fs:maxResults?}&start={startIndex?}&count={count?}&mt={fs:maxTimeout?}&dn={idn:userDN?}&lat={geo:lat?}&lon={geo:lon?}&radius={geo:radius?}&bbox={geo:box?}&polygon={geo:polygon?}&dtstart={time:start?}&dtend={time:end?}&dateName={cat:dateName?}&filter={fsa:filter?}&sort={fsa:sort?}",
+            "localQueryOnly": "true",
+            "keyStoreLocation": "keyStore.jks",
+            "trustStorePassword": "",
+            "service.factoryPid": "CDDAOpenSearchSource",
+            "shortname": "CDDA-OS2",
+            "trustStoreLocation": "trustStore.jks",
+            "shouldConvertToBBox": "true",
+            "service.pid": "CDDAOpenSearchSource.4641e2d0-fca3-4003-8585-38724dee3e54",
+            "keyStorePassword": ""
+          }
+        }
+      ]
+    },
+    {
+      "id": "OpenSearchSource",
+      "name": "Catalog OpenSearch Federated Source",
+      "metatype": [
+        {
+          "id": "shortname",
+          "optionLabels": [],
+          "description": null,
+          "optionValues": [],
+          "name": "Source Name",
+          "defaultValue": [
+            "DDF-OS"
+          ],
+          "type": 1,
+          "cardinality": 0
+        },
+        {
+          "id": "endpointUrl",
+          "optionLabels": [],
+          "description": "The OpenSearch endpoint URL or DDF's OpenSearch endpoint (http://0.0.0.0:8181/services/catalog/query?q={searchTerms}...)",
+          "optionValues": [],
+          "name": "OpenSearch service URL",
+          "defaultValue": [
+            "http://localhost:8181/services/catalog/query?q={searchTerms}&src={fs:routeTo?}&mr={fs:maxResults?}&start={startIndex?}&count={count?}&mt={fs:maxTimeout?}&dn={idn:userDN?}&lat={geo:lat?}&lon={geo:lon?}&radius={geo:radius?}&bbox={geo:box?}&polygon={geo:polygon?}&dtstart={time:start?}&dtend={time:end?}&dateName={cat:dateName?}&filter={fsa:filter?}&sort={fsa:sort?}"
+          ],
+          "type": 1,
+          "cardinality": 0
+        },
+        {
+          "id": "localQueryOnly",
+          "optionLabels": [],
+          "description": "When federating with other DDFs, keep this checked. If checked, this source performs a local query on the remote site (by setting src=local in endpoint URL), as opposed to an enterprise search.",
+          "optionValues": [],
+          "name": "Always perform local query",
+          "defaultValue": [
+            "true"
+          ],
+          "type": 11,
+          "cardinality": 0
+        },
+        {
+          "id": "shouldConvertToBBox",
+          "optionLabels": [],
+          "description": "Converts Polygon and Point-Radius searches to a Bounding Box for compatability with older interfaces. Generated bounding box is a very rough representation of the input geometry.",
+          "optionValues": [],
+          "name": "Convert to BBox",
+          "defaultValue": [
+            "true"
+          ],
+          "type": 11,
+          "cardinality": 0
+        },
+        {
+          "id": "trustStoreLocation",
+          "optionLabels": [],
+          "description": "Truststore is only required for secure OpenSearch endpoints",
+          "optionValues": [],
+          "name": "Truststore File Location",
+          "defaultValue": [
+            "trustStore.jks"
+          ],
+          "type": 1,
+          "cardinality": 0
+        },
+        {
+          "id": "trustStorePassword",
+          "optionLabels": [],
+          "description": null,
+          "optionValues": [],
+          "name": "Truststore Password",
+          "defaultValue": null,
+          "type": 12,
+          "cardinality": 0
+        },
+        {
+          "id": "keyStoreLocation",
+          "optionLabels": [],
+          "description": "Keystore is only required for secure OpenSearch endpoints",
+          "optionValues": [],
+          "name": "Keystore File Location",
+          "defaultValue": [
+            "keyStore.jks"
+          ],
+          "type": 1,
+          "cardinality": 0
+        },
+        {
+          "id": "keyStorePassword",
+          "optionLabels": [],
+          "description": null,
+          "optionValues": [],
+          "name": "Keystore Password",
+          "defaultValue": null,
+          "type": 12,
+          "cardinality": 0
+        }
+      ],
+      "factory": true,
+      "configurations": [
+        {
+          "id": "OpenSearchSource.ea9f5ebf-e55a-4707-8225-44214421a509",
+          "bundle_name": "DDF :: Catalog :: OpenSearch :: Source",
+          "name": "Catalog OpenSearch Federated Source",
+          "fpid": "OpenSearchSource",
+          "bundle": 251,
+          "properties": {
+            "endpointUrl": "http://localhost:8284/services/catalog/query?q={searchTerms}&src={fs:routeTo?}&mr={fs:maxResults?}&start={startIndex?}&count={count?}&mt={fs:maxTimeout?}&dn={idn:userDN?}&lat={geo:lat?}&lon={geo:lon?}&radius={geo:radius?}&bbox={geo:box?}&polygon={geo:polygon?}&dtstart={time:start?}&dtend={time:end?}&dateName={cat:dateName?}&filter={fsa:filter?}&sort={fsa:sort?}",
+            "localQueryOnly": true,
+            "keyStoreLocation": "keyStore.jks",
+            "trustStorePassword": "",
+            "service.factoryPid": "OpenSearchSource",
+            "shortname": "DDF-OS4",
+            "trustStoreLocation": "trustStore.jks",
+            "shouldConvertToBBox": true,
+            "service.pid": "OpenSearchSource.ea9f5ebf-e55a-4707-8225-44214421a509",
+            "keyStorePassword": ""
+          }
+        },
+        {
+          "id": "OpenSearchSource.d9d8ec24-03a1-4baa-8e38-1aabd0fbf50e",
+          "bundle_name": "DDF :: Catalog :: OpenSearch :: Source",
+          "name": "Catalog OpenSearch Federated Source",
+          "fpid": "OpenSearchSource",
+          "bundle": 251,
+          "properties": {
+            "keyStoreLocation": "keyStore.jks",
+            "localQueryOnly": true,
+            "endpointUrl": "http://localhost:8181/services/catalog/query?q={searchTerms}&src={fs:routeTo?}&mr={fs:maxResults?}&start={startIndex?}&count={count?}&mt={fs:maxTimeout?}&dn={idn:userDN?}&lat={geo:lat?}&lon={geo:lon?}&radius={geo:radius?}&bbox={geo:box?}&polygon={geo:polygon?}&dtstart={time:start?}&dtend={time:end?}&dateName={cat:dateName?}&filter={fsa:filter?}&sort={fsa:sort?}",
+            "service.factoryPid": "OpenSearchSource",
+            "shortname": "DDF-OS",
+            "trustStoreLocation": "trustStore.jks",
+            "shouldConvertToBBox": true,
+            "service.pid": "OpenSearchSource.d9d8ec24-03a1-4baa-8e38-1aabd0fbf50e"
+          }
+        },
+        {
+          "id": "OpenSearchSource.45e6205d-6453-4e7b-b6f1-d256bf1b90be",
+          "bundle_name": "DDF :: Catalog :: OpenSearch :: Source",
+          "name": "Catalog OpenSearch Federated Source",
+          "fpid": "OpenSearchSource",
+          "bundle": 251,
+          "properties": {
+            "endpointUrl": "http://localhost:8383/services/catalog/query?q={searchTerms}&src={fs:routeTo?}&mr={fs:maxResults?}&start={startIndex?}&count={count?}&mt={fs:maxTimeout?}&dn={idn:userDN?}&lat={geo:lat?}&lon={geo:lon?}&radius={geo:radius?}&bbox={geo:box?}&polygon={geo:polygon?}&dtstart={time:start?}&dtend={time:end?}&dateName={cat:dateName?}&filter={fsa:filter?}&sort={fsa:sort?}",
+            "localQueryOnly": "true",
+            "keyStoreLocation": "keyStore.jks",
+            "trustStorePassword": "",
+            "service.factoryPid": "OpenSearchSource",
+            "shortname": "DDF-OS3",
+            "trustStoreLocation": "trustStore.jks",
+            "shouldConvertToBBox": "true",
+            "service.pid": "OpenSearchSource.45e6205d-6453-4e7b-b6f1-d256bf1b90be",
+            "keyStorePassword": ""
+          }
+        },
+        {
+          "id": "OpenSearchSource.348cbddc-8c8c-47da-b623-a7f47b7b18cd",
+          "bundle_name": "DDF :: Catalog :: OpenSearch :: Source",
+          "name": "Catalog OpenSearch Federated Source",
+          "fpid": "OpenSearchSource",
+          "bundle": 251,
+          "properties": {
+            "endpointUrl": "http://localhost:8181/services/catalog/query?q={searchTerms}&src={fs:routeTo?}&mr={fs:maxResults?}&start={startIndex?}&count={count?}&mt={fs:maxTimeout?}&dn={idn:userDN?}&lat={geo:lat?}&lon={geo:lon?}&radius={geo:radius?}&bbox={geo:box?}&polygon={geo:polygon?}&dtstart={time:start?}&dtend={time:end?}&dateName={cat:dateName?}&filter={fsa:filter?}&sort={fsa:sort?}",
+            "localQueryOnly": "true",
+            "keyStoreLocation": "keyStore.jks",
+            "trustStorePassword": "",
+            "service.factoryPid": "OpenSearchSource",
+            "shortname": "DDF-OS2",
+            "trustStoreLocation": "trustStore.jks",
+            "shouldConvertToBBox": "true",
+            "service.pid": "OpenSearchSource.348cbddc-8c8c-47da-b623-a7f47b7b18cd",
+            "keyStorePassword": ""
+          }
+        },
+        {
+          "id": "OpenSearchSource.7b0908d4-974c-48ee-80bb-a8c5189df0fe",
+          "bundle_name": "DDF :: Catalog :: OpenSearch :: Source",
+          "name": "Catalog OpenSearch Federated Source",
+          "fpid": "OpenSearchSource",
+          "bundle": 251,
+          "properties": {
+            "endpointUrl": "http://localhost:8181/services/catalog/query?q={searchTerms}&src={fs:routeTo?}&mr={fs:maxResults?}&start={startIndex?}&count={count?}&mt={fs:maxTimeout?}&dn={idn:userDN?}&lat={geo:lat?}&lon={geo:lon?}&radius={geo:radius?}&bbox={geo:box?}&polygon={geo:polygon?}&dtstart={time:start?}&dtend={time:end?}&dateName={cat:dateName?}&filter={fsa:filter?}&sort={fsa:sort?}",
+            "localQueryOnly": "true",
+            "keyStoreLocation": "keyStore.jks",
+            "trustStorePassword": "",
+            "service.factoryPid": "OpenSearchSource",
+            "shortname": "DDF-OS8",
+            "trustStoreLocation": "trustStore.jks",
+            "shouldConvertToBBox": "true",
+            "service.pid": "OpenSearchSource.7b0908d4-974c-48ee-80bb-a8c5189df0fe",
+            "keyStorePassword": ""
+          }
+        }
+      ]
+    },
+    {
+      "id": "ddf.content.core.directorymonitor.ContentDirectoryMonitor",
+      "name": "Content Directory Monitor",
+      "metatype": [
+        {
+          "id": "monitoredDirectoryPath",
+          "optionLabels": [],
+          "description": "Specifies the directory to be monitored",
+          "optionValues": [],
+          "name": "Directory Path",
+          "defaultValue": [
+            ""
+          ],
+          "type": 1,
+          "cardinality": 0
+        },
+        {
+          "id": "directive",
+          "optionLabels": [
+            "Store Only",
+            "Process Only",
+            "Store and Process"
+          ],
+          "description": "How ingested files are to be handled: Store Only = only store ingested file in DDF Content Repository; Process Only = only create catalog entry in Metadata Catalog for ingested file; Store and Process = do both",
+          "optionValues": [
+            "STORE",
+            "PROCESS",
+            "STORE_AND_PROCESS"
+          ],
+          "name": "Processing Directive",
+          "defaultValue": [
+            "STORE_AND_PROCESS"
+          ],
+          "type": 1,
+          "cardinality": 0
+        },
+        {
+          "id": "copyIngestedFiles",
+          "optionLabels": [],
+          "description": "Optional: Copy the ingested files into a backup directory under the monitored directory named /.ingested  -  NOTE: this will double the amount of disk space required for ingested files in this monitored directory if its Processing Directive includes storing the file in the DDF Content Repository.",
+          "optionValues": [],
+          "name": "Copy Files to Backup Directory",
+          "defaultValue": [
+            "false"
+          ],
+          "type": 11,
+          "cardinality": 0
+        }
+      ],
+      "factory": true
+    },
+    {
+      "id": "org.codice.ddf.spatial.kml.style",
+      "name": "Spatial KML Style Map Entry",
+      "metatype": [
+        {
+          "id": "attributeName",
+          "optionLabels": [],
+          "description": "The name of the Metacard Attribute to match against. e.g. title, metadata-content-type, etc",
+          "optionValues": [],
+          "name": "Attribute Name",
+          "defaultValue": null,
+          "type": 1,
+          "cardinality": 0
+        },
+        {
+          "id": "attributeValue",
+          "optionLabels": [],
+          "description": "The value of the Metacard Attribute.",
+          "optionValues": [],
+          "name": "Attribute Value",
+          "defaultValue": null,
+          "type": 1,
+          "cardinality": 0
+        },
+        {
+          "id": "styleUrl",
+          "optionLabels": [],
+          "description": "The full qualified URL to the KML Style. e.g. http://example.com/styles#myStyle",
+          "optionValues": [],
+          "name": "Style URL",
+          "defaultValue": null,
+          "type": 1,
+          "cardinality": 0
+        }
+      ],
+      "factory": true,
+      "configurations": [
+        {
+          "id": "org.codice.ddf.spatial.kml.style.28258592-b960-4a69-ab1a-69eda1cb1cee",
+          "bundle_name": "DDF :: Spatial :: KML :: Transformer",
+          "name": "Spatial KML Style Map Entry",
+          "fpid": "org.codice.ddf.spatial.kml.style",
+          "bundle": 278,
+          "properties": {
+            "queueSize": "",
+            "localQueryOnly": "true",
+            "service.factoryPid": "org.codice.ddf.spatial.kml.style",
+            "highWaterMark": "",
+            "felix.fileinstall.filter": "",
+            "felix.fileinstall.poll": "2000",
+            "styleUrl": "asdf",
+            "keyStorePassword": "",
+            "felix.fileinstall.bundles.startTransient": "false",
+            "felix.fileinstall.start.level": "0",
+            "dequeueTimeout": "",
+            "trustStorePassword": "",
+            "endpointUrl": "http://localhost:8181/services/catalog/query?q={searchTerms}&src={fs:routeTo?}&mr={fs:maxResults?}&start={startIndex?}&count={count?}&mt={fs:maxTimeout?}&dn={idn:userDN?}&lat={geo:lat?}&lon={geo:lon?}&radius={geo:radius?}&bbox={geo:box?}&polygon={geo:polygon?}&dtstart={time:start?}&dtend={time:end?}&dateName={cat:dateName?}&filter={fsa:filter?}&sort={fsa:sort?}",
+            "felix.fileinstall.tmpdir": "tmp",
+            "shortname": "DDF-OS",
+            "trustStoreLocation": "trustStore.jks",
+            "lowWaterMark": "",
+            "keyStoreLocation": "keyStore.jks",
+            "felix.fileinstall.noInitialDelay": "false",
+            "felix.fileinstall.dir": "load",
+            "felix.fileinstall.log.level": "0",
+            "service.pid": "org.codice.ddf.spatial.kml.style.28258592-b960-4a69-ab1a-69eda1cb1cee",
+            "shouldConvertToBBox": "true",
+            "attributeName": "asdf",
+            "felix.fileinstall.bundles.new.start": "true",
+            "attributeValue": "asdf",
+            "initialSize": "",
+            "felix.fileinstall.bundles.startActivationPolicy": "true"
+          }
+        }
+      ]
+    }
+  ]
+}

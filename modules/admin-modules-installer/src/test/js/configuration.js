@@ -54,7 +54,61 @@ casper.test.begin('Configuration View test', function(test) {
     });
 
     casper.then(function () {
+        this.fill('form#config-form', { host: "" }, false);
+    });
+
+    casper.waitFor(function() {
+       return this.evaluate(function() {
+           return document.querySelectorAll('#nextStep').length === 1;
+       });
+    }, function() {
+       test.assertExists('#nextStep');
+       this.click('#nextStep');
+    }, function() {
+       test.fail('Failed next button');
+    });
+
+    casper.waitFor(function() {
+      return this.evaluate(function() {
+          return document.querySelectorAll('#config-form').length === 1;
+      });
+    }, function() {
+      test.pass('Could not submit invalid hostname');
+    }, function() {
+      test.fail('Submitted valid hostname');
+    });
+
+    casper.then(function () {
+        this.fill('form#config-form', { host: "localhost" }, false);
+    });
+
+    casper.then(function () {
         this.fill('form#config-form', { port: "blah" }, false);
+    });
+
+    casper.waitFor(function() {
+       return this.evaluate(function() {
+           return document.querySelectorAll('#nextStep').length === 1;
+       });
+    }, function() {
+       test.assertExists('#nextStep');
+       this.click('#nextStep');
+    }, function() {
+       test.fail('Failed next button');
+    });
+
+    casper.waitFor(function() {
+      return this.evaluate(function() {
+          return document.querySelectorAll('#config-form').length === 1;
+      });
+    }, function() {
+      test.pass('Could not submit incorrect port value');
+    }, function() {
+      test.fail('Submitted incorrect port value');
+    });
+
+    casper.then(function () {
+        this.fill('form#config-form', { port: "" }, false);
     });
 
     casper.waitFor(function() {
