@@ -25,8 +25,9 @@ import java.util.List;
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
-import org.apache.karaf.shell.console.OsgiCommandSupport;
+import org.codice.ddf.commands.catalog.facade.CatalogFacade;
 import org.fusesource.jansi.Ansi;
+import org.joda.time.DateTime;
 import org.opengis.filter.Filter;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;
@@ -42,12 +43,11 @@ import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
-import ddf.catalog.source.CatalogProvider;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.MetacardTransformer;
 
-@Command(scope = CatalogCommands.NAMESPACE, name = "dump", description = "Exports Metacards from the current Catalog. Does not remove them.")
-public class DumpCommand extends OsgiCommandSupport {
+@Command(scope = CatalogCommands.NAMESPACE, name = "dump", description = "Exports Metacards from the current Catalog. Does not remove them.\n\tDate filters are ANDed together, and are exclusive for range.\n\tISO8601 format includes YYYY-MM-dd, YYYY-MM-ddTHH, YYYY-MM-ddTHH:mm, YYYY-MM-ddTHH:mm:ss, YYY-MM-ddTHH:mm:ss.sss, THH:mm:sss. See documentation for full syntax and examples.")
+public class DumpCommand extends CatalogCommands {
 
     private static final double MILLISECONDS_PER_SECOND = 1000.0;
 
@@ -63,11 +63,25 @@ public class DumpCommand extends OsgiCommandSupport {
     @Argument(name = "Batch size", description = "Number of Metacards to retrieve and export at a time until completion. Change this argument based on system memory and CatalogProvider limits.", index = 1, multiValued = false, required = false)
     int pageSize = 1000;
 
-    @Option(name = "Transformer", required = false, aliases = {"-t"}, multiValued = false, description = "The metacard transformer ID to use to transform metacards into data files. The default metacard transformer is the Java serialization transformer.")
+    // DDF-535: remove "Transformer" alias in DDF 3.0
+    @Option(name = "--transformer", required = false, aliases = {"-t", "Transformer"}, multiValued = false, description = "The metacard transformer ID to use to transform metacards into data files. The default metacard transformer is the Java serialization transformer.")
     String transformerId = DEFAULT_TRANSFORMER_ID;
 
-    @Option(name = "Extension", required = false, aliases = {"-e"}, multiValued = false, description = "The file extension of the data files.")
+    // DDF-535: remove "Extension" alias in DDF 3.0
+    @Option(name = "--extension", required = false, aliases = {"-e", "Extension"}, multiValued = false, description = "The file extension of the data files.")
     String fileExtension = null;
+
+    @Option(name = "--created-after", required = false, aliases = {"-ca"}, multiValued = false, description = "Include only entries created after this date/time (ISO8601 format).")
+    String createdAfter = null;
+
+    @Option(name = "--created-before", required = false, aliases = {"-cb"}, multiValued = false, description = "Include only entries created before this date/time (ISO8601 format).")
+    String createdBefore = null;
+
+    @Option(name = "--modified-after", required = false, aliases = {"-ma"}, multiValued = false, description = "Include only entries modified after this date/time (ISO8601 format).")
+    String modifiedAfter = null;
+
+    @Option(name = "--modified-before", required = false, aliases = {"-mb"}, multiValued = false, description = "Include only entries modified before this date/time (ISO8601 format)")
+    String modifiedBefore = null;
 
     @Override
     protected Object doExecute() throws Exception {
@@ -92,10 +106,50 @@ public class DumpCommand extends OsgiCommandSupport {
             }
         }
 
-        CatalogProvider catalog = getService(CatalogProvider.class);
-        FilterBuilder builder = getService(FilterBuilder.class);
+        CatalogFacade catalog = getCatalog();
+        FilterBuilder builder = getFilterBuilder();
 
-        Filter filter = builder.attribute(Metacard.ID).is().like().text("*");
+
+        Filter createdFilter = null;
+        if ((createdAfter != null) && (createdBefore != null)) {
+            DateTime createStartDateTime = DateTime.parse(createdAfter);
+            DateTime createEndDateTime = DateTime.parse(createdBefore);
+            createdFilter = builder.attribute(Metacard.CREATED).is().during().dates(createStartDateTime.toDate(), createEndDateTime.toDate());
+        } else if (createdAfter != null) {
+            DateTime createStartDateTime = DateTime.parse(createdAfter);
+            createdFilter = builder.attribute(Metacard.CREATED).is().after().date(createStartDateTime.toDate());
+        } else if (createdBefore != null) {
+            DateTime createEndDateTime = DateTime.parse(createdBefore);
+            createdFilter = builder.attribute(Metacard.CREATED).is().before().date(createEndDateTime.toDate());
+        }
+
+        Filter modifiedFilter = null;
+        if ((modifiedAfter != null) && (modifiedBefore != null)) {
+            DateTime modifiedStartDateTime = DateTime.parse(modifiedAfter);
+            DateTime modifiedEndDateTime = DateTime.parse(modifiedBefore);
+            modifiedFilter = builder.attribute(Metacard.MODIFIED).is().during().dates(modifiedStartDateTime.toDate(), modifiedEndDateTime.toDate());
+        } else if (modifiedAfter != null) {
+            DateTime modifiedStartDateTime = DateTime.parse(modifiedAfter);
+            modifiedFilter = builder.attribute(Metacard.MODIFIED).is().after().date(modifiedStartDateTime.toDate());
+        } else if (modifiedBefore != null) {
+            DateTime modifiedEndDateTime = DateTime.parse(modifiedBefore);
+            modifiedFilter = builder.attribute(Metacard.MODIFIED).is().before().date(modifiedEndDateTime.toDate());
+        }
+
+        Filter filter = null;
+        if ((createdFilter != null) && (modifiedFilter != null)) {
+            // Filter by both created and modified dates
+            filter = builder.allOf(createdFilter, modifiedFilter);
+        } else if (createdFilter != null) {
+            // Only filter by created date
+            filter = createdFilter;
+        } else if (modifiedFilter != null) {
+            // Only filter by modified date
+            filter = modifiedFilter;
+        } else {
+            // Don't filter by date range
+            filter = builder.attribute(Metacard.ID).is().like().text("*");
+        }
 
         QueryImpl query = new QueryImpl(filter);
         query.setRequestsTotalResultsCount(false);
