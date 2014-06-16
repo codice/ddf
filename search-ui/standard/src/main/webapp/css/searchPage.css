@@ -179,12 +179,10 @@ body {
 }
 
 .search-controls {
-    display: inline-block;
-    /*float: left;*/
     position: absolute;
     bottom: 30px;
     left: 15px;
-    width: 500px;
+    width: 400px;
     height: 95%;
     height: calc(100% - 82px);
     padding: 0px;

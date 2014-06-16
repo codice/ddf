@@ -340,22 +340,18 @@ public class SearchService {
      */
     private void addTemporalFilter(List<Filter> filters, String dateStart, String dateEnd,
             Long dateOffset, String timeType) {
-        if (timeType.equals("modified")) {
+        if (timeType.equals(Metacard.MODIFIED) || timeType.equals(Metacard.EFFECTIVE)) {
             if (StringUtils.isNotBlank(dateStart) || StringUtils.isNotBlank(dateEnd)) {
-                filters.add(filterBuilder.attribute(Metacard.MODIFIED).is().during().dates(
+                filters.add(filterBuilder.attribute(timeType).is().during().dates(
                         parseDate(dateStart), parseDate(dateEnd)));
             } else if (dateOffset != null) {
-                filters.add(filterBuilder.attribute(Metacard.MODIFIED).is().during().last(dateOffset));
+                filters.add(filterBuilder.attribute(timeType).is().during().last(dateOffset));
             }
         }
-        else if (timeType.equals("effective")) {
-            if (StringUtils.isNotBlank(dateStart) || StringUtils.isNotBlank(dateEnd)) {
-                filters.add(filterBuilder.attribute(Metacard.EFFECTIVE).is().during().dates(
-                        parseDate(dateStart), parseDate(dateEnd)));
-            } else if (dateOffset != null) {
-                filters.add(filterBuilder.attribute(Metacard.EFFECTIVE).is().during().last(dateOffset));
-            }
+        else {
+            LOGGER.warn("Invalid timeType passed. Expect {} {} instead got {}", Metacard.MODIFIED, Metacard.EFFECTIVE, timeType);
         }
+        
     }
 
     public static Date parseDate(String date) {

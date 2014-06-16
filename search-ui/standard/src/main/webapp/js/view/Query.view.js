@@ -132,6 +132,7 @@ define([
                                      return !value;
                                }}
 
+
                 };
 
                 this.sourcesCollectionBinder = new Backbone.CollectionBinder(
