@@ -53,11 +53,6 @@
             <groupId>net.minidev</groupId>
             <artifactId>json-smart</artifactId>
         </dependency>
-        <dependency>
-            <groupId>ddf.admin.security</groupId>
-            <artifactId>admin-security-filter</artifactId>
-            <version>1.0.0</version>
-        </dependency>
     </dependencies>
 
     <build>
@@ -112,8 +107,7 @@
                 <artifactId>maven-bundle-plugin</artifactId>
                 <configuration>
                     <instructions>
-                        <!--we will use this servlet filter once it has been made generic to protect this app-->
-                        <Embed-Dependency>json-smart,admin-security-filter</Embed-Dependency>
+                        <Embed-Dependency>json-smart</Embed-Dependency>
                         <Web-ContextPath>/admin</Web-ContextPath>
                         <_wab>src/main/webapp,${project.build.directory}/webapp</_wab>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
