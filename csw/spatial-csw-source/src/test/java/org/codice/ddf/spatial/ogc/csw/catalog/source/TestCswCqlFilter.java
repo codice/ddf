@@ -448,8 +448,8 @@ public class TestCswCqlFilter {
         CswSourceConfiguration cswSourceConfiguration = initCswSourceConfiguration(false,
                 CswRecordMetacardType.CSW_TYPE, effectiveDateMapping, replacedTemporalProperty, modifiedDateMapping);
 
-        CswFilterDelegate cswFilterDelegate = initDefaultCswFilterDelegate(cswSourceConfiguration);
-        FilterType filterType = cswFilterDelegate.during(propertyNameCreated,
+        CswFilterDelegate localCswFilterDelegate = initDefaultCswFilterDelegate(cswSourceConfiguration);
+        FilterType filterType = localCswFilterDelegate.during(propertyNameCreated,
                 startDate.toCalendar(null).getTime(), endDate.toCalendar(null).getTime());
         String cqlText = CswCqlTextFilter.getInstance().getCqlText(filterType);
 
@@ -470,8 +470,8 @@ public class TestCswCqlFilter {
         CswSourceConfiguration cswSourceConfiguration = initCswSourceConfiguration(false,
                 CswRecordMetacardType.CSW_TYPE, effectiveDateMapping, createdDateMapping, replacedTemporalProperty);
 
-        CswFilterDelegate cswFilterDelegate = initDefaultCswFilterDelegate(cswSourceConfiguration);
-        FilterType filterType = cswFilterDelegate.during(propertyNameModified,
+        CswFilterDelegate localCswFilterDelegate = initDefaultCswFilterDelegate(cswSourceConfiguration);
+        FilterType filterType = localCswFilterDelegate.during(propertyNameModified,
                 startDate.toCalendar(null).getTime(), endDate.toCalendar(null).getTime());
         String cqlText = CswCqlTextFilter.getInstance().getCqlText(filterType);
 
@@ -489,8 +489,8 @@ public class TestCswCqlFilter {
         long duration = 92000000000L;
         CswSourceConfiguration cswSourceConfiguration = initCswSourceConfiguration(false,
                 CswRecordMetacardType.CSW_TYPE, effectiveDateMapping, createdDateMapping, modifiedDateMapping);
-        CswFilterDelegate cswFilterDelegate = initDefaultCswFilterDelegate(cswSourceConfiguration);
-        FilterType filterType = cswFilterDelegate.relative(propertyNameModified,
+        CswFilterDelegate localCswFilterDelegate = initDefaultCswFilterDelegate(cswSourceConfiguration);
+        FilterType filterType = localCswFilterDelegate.relative(propertyNameModified,
                 duration);
 
         String cqlText = CswCqlTextFilter.getInstance().getCqlText(filterType);
@@ -1309,17 +1309,18 @@ public class TestCswCqlFilter {
     private Date getDate() {
         String dateString = "Jun 11 2002";
         SimpleDateFormat formatter = new SimpleDateFormat("MMM d yyyy");
-        Date date = null;
+        Date aDate = null;
         try {
-            date = formatter.parse(dateString);
+            aDate = formatter.parse(dateString);
         } catch (ParseException e) {
             LOGGER.error(e.getMessage(), e);
         }
-        return date;
+        return aDate;
     }
 
-    private String getPropertyIsEqualToWithDate(Date date) {
-        String propertyIsEqualToXmlWithDate = DEFAULT_PROPERTY_NAME + SPACE + EQUALS + SPACE + "'" +convertDateToIso8601Format(date)+"'";
+    private String getPropertyIsEqualToWithDate(Date aDate) {
+        String propertyIsEqualToXmlWithDate = DEFAULT_PROPERTY_NAME + SPACE + 
+                EQUALS + SPACE + "'" + convertDateToIso8601Format(aDate)+"'";
         return propertyIsEqualToXmlWithDate;
     }
 
@@ -1361,10 +1362,10 @@ public class TestCswCqlFilter {
             }
         }
 
-        CswFilterDelegate cswFilterDelegate = new CswFilterDelegate(new CswRecordMetacardType(),
+        CswFilterDelegate localCswFilterDelegate = new CswFilterDelegate(new CswRecordMetacardType(),
                 getOperation(), getMockFilterCapabilities(), outputFormatValues, resultTypesValues,
                 cswSourceConfiguration);
-        return cswFilterDelegate;
+        return localCswFilterDelegate;
     }
 
     private CswSourceConfiguration initCswSourceConfiguration(boolean isLonLatOrder, String contentType) {
@@ -1374,7 +1375,9 @@ public class TestCswCqlFilter {
         return cswSourceConfiguration;
     }
 
-    private CswSourceConfiguration initCswSourceConfiguration(boolean isLonLatOrder, String contentType, String effectiveDateMapping, String createdDateMapping, String modifiedDateMapping) {
+    private CswSourceConfiguration initCswSourceConfiguration(boolean isLonLatOrder, 
+            String contentType, String effectiveDateMapping, 
+            String createdDateMapping, String modifiedDateMapping) {
         CswSourceConfiguration cswSourceConfiguration = new CswSourceConfiguration();
         cswSourceConfiguration.setIsLonLatOrder(isLonLatOrder);
         cswSourceConfiguration.setContentTypeMapping(contentType);

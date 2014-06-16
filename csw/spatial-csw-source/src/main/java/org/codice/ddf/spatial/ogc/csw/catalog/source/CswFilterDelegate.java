@@ -104,7 +104,9 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
         super(getRecordsOp, outputFormatValues, resultTypesValues);
         this.cswRecordMetacardType = cswRecordMetacardType;
         this.cswSourceConfiguration = cswSourceConfiguration;
-        this.cswFilterFactory = new CswFilterFactory(cswSourceConfiguration.isLonLatOrder());
+        this.cswFilterFactory = new CswFilterFactory(
+                cswSourceConfiguration.isLonLatOrder(), 
+                cswSourceConfiguration.isSetUsePosList());
         updateAllowedOperations(filterCapabilities);
     }
 
@@ -964,9 +966,13 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
         }
 
         if (isSpatialOperationSupported(SpatialOperatorNameType.INTERSECTS)) {
+            LOGGER.info("Building INTERSECTS filter");
             BinarySpatialOperand intersectsBinarySpatialOperand = useGeometryOrEnvelope(
                     SpatialOperatorNameType.INTERSECTS, wkt);
+            LOGGER.info("BinarySpatialOperand: {}", intersectsBinarySpatialOperand);
             if (intersectsBinarySpatialOperand != BinarySpatialOperand.NONE) {
+                LOGGER.warn("FilterType: {}", cswFilterFactory.buildIntersectsGeospatialFilter(propertyName, wkt,
+                        intersectsBinarySpatialOperand));
                 return cswFilterFactory.buildIntersectsGeospatialFilter(propertyName, wkt,
                         intersectsBinarySpatialOperand);
             }
@@ -1166,8 +1172,7 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
 
         String wktGeometryOperand = getGeometryOperandFromWkt(wkt);
 
-        LOGGER.debug(
-                "Attempting to determine if geometry operand [{}] is supported for spatial operator [{}].",
+        LOGGER.debug("Attempting to determine if geometry operand [{}] is supported for spatial operator [{}].",
                 wktGeometryOperand, spatialOperatorName.toString());
 
         /**

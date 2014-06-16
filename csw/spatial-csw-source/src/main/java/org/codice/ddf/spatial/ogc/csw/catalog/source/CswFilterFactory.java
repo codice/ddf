@@ -88,6 +88,7 @@ public class CswFilterFactory {
     private net.opengis.gml.v_3_1_1.ObjectFactory gmlObjectFactory = new net.opengis.gml.v_3_1_1.ObjectFactory();
 
     private boolean isLonLatOrder;
+    private boolean isSetUsePosList;
 
     /**
      * Constructor for CswFilterFactory.
@@ -95,8 +96,9 @@ public class CswFilterFactory {
      * @param isLonLatOrder
      *            true if coordinate order is longitude, latitude; false, otherwise.
      */
-    public CswFilterFactory(boolean isLonLatOrder) {
+    public CswFilterFactory(boolean isLonLatOrder, boolean isSetUsePosList) {
         this.isLonLatOrder = isLonLatOrder;
+        this.isSetUsePosList = isSetUsePosList;
     }
 
     public FilterType buildNotFilter(FilterType filter) {
@@ -442,7 +444,17 @@ public class CswFilterFactory {
         geometry.setUserData(CswConstants.SRS_NAME);
         JAXBElement<? extends AbstractGeometryType> abstractGeometry = null;
         try {
-            JTSToGML311GeometryConverter converter = new JTSToGML311GeometryConverter();
+            JTSToGML311GeometryConverter converter;
+            
+            // The CswJTSToGML311GeometryConverter overrides methods of the 
+            // JTSToGML311GeometryConverter in order to output a <posList>
+            // element, rather than five <pos> elements, for LinearRings
+            if (isSetUsePosList) {
+                converter = new CswJTSToGML311GeometryConverter();
+            } else {
+                converter = new JTSToGML311GeometryConverter();
+            }
+            
             Marshaller marshaller = new MarshallerImpl(JAXB_CONTEXT.createMarshaller(), converter);
             StringWriter writer = new StringWriter();
             marshaller.marshal(geometry, writer);
@@ -458,7 +470,6 @@ public class CswFilterFactory {
                 abstractGeometry = (JAXBElement<? extends AbstractGeometryType>) object;
             } else {
                 LOGGER.error(
-
                         "Unable to cast to JAXBElement<? extends AbstractGeometryType>.  Object is of type [{}].",
                         object.getClass().getName());
             }

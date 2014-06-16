@@ -52,7 +52,7 @@ public final class CswCqlTextFilter {
     private static final org.geotools.xml.Configuration PARSER_CONFIG = new org.geotools.filter.v1_1.OGCConfiguration();
 
     public static CswCqlTextFilter getInstance() {
-        if(instance == null){
+        if (instance == null) {
             instance = new CswCqlTextFilter();
         }
         return instance;

@@ -57,6 +57,7 @@
 			<beans:property name="password" value="" />
 			<beans:property name="disableSSLCertVerification" value="false"/>
             <beans:property name="isLonLatOrder" value="false"/>
+            <beans:property name="usePosList" value="false"/>
             <beans:property name="contentTypeMapping" value="type"/>
 			<beans:property name="productRetrievalMethod" value="" />
 			<beans:property name="wcsUrl" value="" />
@@ -100,6 +101,7 @@
 			<beans:property name="password" value="" />
             <beans:property name="disableSSLCertVerification" value="false"/>
             <beans:property name="isLonLatOrder" value="false"/>
+            <beans:property name="usePosList" value="false"/>
             <beans:property name="contentTypeMapping" value="type"/>
             <beans:property name="productRetrievalMethod" value="SOURCE_URI" />
             <beans:property name="wcsUrl" value="" />

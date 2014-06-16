@@ -217,6 +217,8 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
     protected static final String SSL_VERIFICATION_PROPERTY = "disableSSLCertVerification";
 
     protected static final String IS_LON_LAT_ORDER_PROPERTY = "isLonLatOrder";
+    
+    private static final String USE_POS_LIST_PROPERTY = "usePosList";
 
     protected static final String POLL_INTERVAL_PROPERTY = "pollInterval";
     
@@ -327,6 +329,9 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
             LOGGER.debug("{}: Setting coordinate ordering to LAT/LON.",
                     cswSourceConfiguration.getId());
         }
+        
+        cswSourceConfiguration.setUsePosList((Boolean) configuration
+                .get(USE_POS_LIST_PROPERTY));
         
         cswSourceConfiguration.setProductRetrievalMethod((String) configuration
                 .get(PRODUCT_RETRIEVAL_METHOD_PROPERTY));
@@ -539,12 +544,11 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
                 throw new UnsupportedQueryException("Invalid results returned from server");
             }
             this.availabilityTask.updateLastAvailableTimestamp(System.currentTimeMillis());
-                LOGGER.debug(
-                        "{}: Received [{}] record(s) of the [{}] record(s) matched from {}.",
-                        cswSourceConfiguration.getId(),
-                        cswRecordCollection.getNumberOfRecordsReturned(),
-                        cswRecordCollection.getNumberOfRecordsMatched(),
-                        cswSourceConfiguration.getCswUrl());
+            LOGGER.debug("{}: Received [{}] record(s) of the [{}] record(s) matched from {}.",
+                    cswSourceConfiguration.getId(),
+                    cswRecordCollection.getNumberOfRecordsReturned(),
+                    cswRecordCollection.getNumberOfRecordsMatched(),
+                    cswSourceConfiguration.getCswUrl());
                 
             results = createResults(cswRecordCollection);
             totalHits = cswRecordCollection.getNumberOfRecordsMatched();
@@ -724,6 +728,12 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
         LOGGER.debug("{}: LON/LAT order: {}", cswSourceConfiguration.getId(),
                 cswSourceConfiguration.isLonLatOrder());
     }
+    
+    public void setUsePosList(Boolean usePosList) {
+        cswSourceConfiguration.setUsePosList(usePosList);
+        LOGGER.debug("Using posList rather than individual pos elements?: {}", 
+                usePosList);
+    }
 
     public void setIsCqlForced(Boolean isCqlForced) {
         cswSourceConfiguration.setIsCqlForced(isCqlForced);
@@ -785,7 +795,7 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
     }
     
     public List<RecordConverterFactory> getRecordConverterFactoryList() {
-       return this.recordConverterFactories;
+        return this.recordConverterFactories;
     }
 
     public String getForceSpatialFilter() {
@@ -835,7 +845,7 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
             queryType.setElementSetName(createElementSetName(ElementSetType.FULL));
         }
         SortByType sortBy = createSortBy(query);
-        if(sortBy != null) {
+        if (sortBy != null) {
             queryType.setSortBy(sortBy);
         }
         QueryConstraintType constraint = createQueryConstraint(query);
@@ -850,7 +860,7 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
         
         SortByType sortBy = null;
         
-        if(query.getSortBy() != null) {
+        if (query.getSortBy() != null) {
             sortBy = new SortByType();
             SortPropertyType sortProperty = new SortPropertyType();
             PropertyNameType propertyName = new PropertyNameType();
@@ -868,7 +878,7 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
             propertyName.setContent(Arrays.asList((Object) cswFilterDelegate
                     .mapPropertyName(propName)));
             sortProperty.setPropertyName(propertyName);
-            if(SortOrder.DESCENDING.equals(query.getSortBy().getSortOrder())) {
+            if (SortOrder.DESCENDING.equals(query.getSortBy().getSortOrder())) {
                 sortProperty.setSortOrder(SortOrderType.DESC);
             } else {
                 sortProperty.setSortOrder(SortOrderType.ASC);
@@ -908,6 +918,7 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
             throw new UnsupportedQueryException(cswSourceConfiguration.getId()
                     + ": CSW Source did not provide Filter Capabilities, unable to preform query.");
         }
+        LOGGER.warn("CswSource#createFilter FilterType Return: {}", this.filterAdapter.adapt(query, cswFilterDelegate));
         return this.filterAdapter.adapt(query, cswFilterDelegate);
     }
 
@@ -1098,17 +1109,17 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
      *   </ows:Operation>
      * </pre>
      * 
-     * @param capabilities
+     * @param capabilitiesType
      *            The capabilities the Csw Server supports
      */
-    private void readGetRecordsOperation(CapabilitiesType capabilities) {
-        OperationsMetadata operationsMetadata = capabilities.getOperationsMetadata();
+    private void readGetRecordsOperation(CapabilitiesType capabilitiesType) {
+        OperationsMetadata operationsMetadata = capabilitiesType.getOperationsMetadata();
         if (null == operationsMetadata) {
             LOGGER.error("{}: CSW Source contains no operations", cswSourceConfiguration.getId());
             return;
         }
 
-        description = capabilities.getServiceIdentification().getAbstract();
+        description = capabilitiesType.getServiceIdentification().getAbstract();
 
         Operation getRecordsOp = getOperation(operationsMetadata, CswConstants.GET_RECORDS);
 
@@ -1142,10 +1153,10 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
             }
             
             setFilterDelegate(new CswRecordMetacardType(), getRecordsOp,
-                    capabilities.getFilterCapabilities(), outputFormatValues, 
+                    capabilitiesType.getFilterCapabilities(), outputFormatValues, 
                     resultTypesValues, cswSourceConfiguration);
 
-            spatialCapabilities = capabilities.getFilterCapabilities().getSpatialCapabilities();
+            spatialCapabilities = capabilitiesType.getFilterCapabilities().getSpatialCapabilities();
 
             if (!NO_FORCE_SPATIAL_FILTER.equals(forceSpatialFilter)) {
                 SpatialOperatorType sot = new SpatialOperatorType();
@@ -1348,12 +1359,14 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
     private static JAXBContext initJaxbContext() {
 
         JAXBContext jaxbContext = null;
+        
+        String contextPath = StringUtils.join(new String[] {CswConstants.OGC_CSW_PACKAGE,
+            CswConstants.OGC_FILTER_PACKAGE, CswConstants.OGC_GML_PACKAGE,
+            CswConstants.OGC_OWS_PACKAGE}, ":");
 
         try {
-            jaxbContext = JAXBContext
-                    .newInstance(
-                            "net.opengis.cat.csw.v_2_0_2:net.opengis.filter.v_1_1_0:net.opengis.gml.v_3_1_1:net.opengis.ows.v_1_0_0",
-                            CswSource.class.getClassLoader());
+            jaxbContext = JAXBContext.newInstance(contextPath,
+                    CswSource.class.getClassLoader());
         } catch (JAXBException e) {
             LOGGER.error("Failed to initialize JAXBContext", e);
         }
@@ -1421,9 +1434,9 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
     }
     
     private boolean isOutputSchemaSupported() {
-        return this.cswSourceConfiguration.getOutputSchema() != null
-                && this.supportedOutputSchemas != null ? this.supportedOutputSchemas.getValue()
-                .contains(cswSourceConfiguration.getOutputSchema()) : false;
+        return this.cswSourceConfiguration.getOutputSchema() != null &&
+               this.supportedOutputSchemas != null ? this.supportedOutputSchemas.getValue()
+                       .contains(cswSourceConfiguration.getOutputSchema()) : false;
     }
 
     /**

@@ -24,8 +24,6 @@ import ddf.catalog.data.Metacard;
  * converters, readers, etc. will access this object to determine the latest configuration of the
  * {@link CswSource} they are working on.
  * 
- * @author rodgersh
- * 
  */
 public class CswSourceConfiguration {
 
@@ -48,6 +46,8 @@ public class CswSourceConfiguration {
     private String thumbnailMapping;
 
     private boolean isLonLatOrder;
+    
+    private boolean usePosList;
 
     private Integer pollIntervalMinutes;
 
@@ -156,6 +156,14 @@ public class CswSourceConfiguration {
 
     public boolean isLonLatOrder() {
         return this.isLonLatOrder;
+    }
+    
+    public boolean isSetUsePosList() {
+        return usePosList;
+    }
+    
+    public void setUsePosList(boolean usePosList) {
+        this.usePosList = usePosList;
     }
 
     public void setContentTypeMapping(String contentTypeMapping) {

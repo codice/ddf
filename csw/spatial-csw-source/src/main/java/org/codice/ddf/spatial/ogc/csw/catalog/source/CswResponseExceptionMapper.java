@@ -79,7 +79,7 @@ public class CswResponseExceptionMapper implements ResponseExceptionMapper<CswEx
                 String msg = null;
                 try {
                     InputStream is = (InputStream) response.getEntity();
-                    if(is.markSupported()) {
+                    if (is.markSupported()) {
                         is.reset();
                     }
                     msg = IOUtils.toString(is);

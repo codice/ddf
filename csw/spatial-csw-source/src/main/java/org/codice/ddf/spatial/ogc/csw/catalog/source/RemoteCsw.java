@@ -162,8 +162,8 @@ public class RemoteCsw extends TrustedRemoteSource implements Csw {
 
     @Override
     @GET
-    @Consumes({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
-    @Produces({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
+    @Consumes({ MediaType.TEXT_XML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.TEXT_XML, MediaType.APPLICATION_XML })
     public DescribeRecordResponseType describeRecord(DescribeRecordRequest request)
         throws CswException {
         return csw.describeRecord(request);
@@ -171,8 +171,8 @@ public class RemoteCsw extends TrustedRemoteSource implements Csw {
 
     @Override
     @POST
-    @Consumes({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
-    @Produces({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
+    @Consumes({ MediaType.TEXT_XML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.TEXT_XML, MediaType.APPLICATION_XML })
     public DescribeRecordResponseType describeRecord(DescribeRecordType request)
         throws CswException {
         return csw.describeRecord(request);
@@ -180,24 +180,24 @@ public class RemoteCsw extends TrustedRemoteSource implements Csw {
 
     @Override
     @GET
-    @Consumes({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
-    @Produces({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
+    @Consumes({ MediaType.TEXT_XML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.TEXT_XML, MediaType.APPLICATION_XML })
     public CapabilitiesType getCapabilities(GetCapabilitiesRequest request) throws CswException {
         return csw.getCapabilities(request);
     }
 
     @Override
     @POST
-    @Consumes({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
-    @Produces({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
+    @Consumes({ MediaType.TEXT_XML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.TEXT_XML, MediaType.APPLICATION_XML })
     public CapabilitiesType getCapabilities(GetCapabilitiesType request) throws CswException {
         return csw.getCapabilities(request);
     }
 
     @Override
     @GET
-    @Consumes({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
-    @Produces({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
+    @Consumes({ MediaType.TEXT_XML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.TEXT_XML, MediaType.APPLICATION_XML })
     public CswRecordCollection getRecordById(GetRecordByIdRequest request)
         throws CswException {
         return csw.getRecordById(request);
@@ -205,32 +205,32 @@ public class RemoteCsw extends TrustedRemoteSource implements Csw {
 
     @Override
     @POST
-    @Consumes({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
-    @Produces({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
+    @Consumes({ MediaType.TEXT_XML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.TEXT_XML, MediaType.APPLICATION_XML })
     public CswRecordCollection getRecordById(GetRecordByIdType request) throws CswException {
         return csw.getRecordById(request);
     }
 
     @Override
     @GET
-    @Consumes({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
-    @Produces({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
+    @Consumes({ MediaType.TEXT_XML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.TEXT_XML, MediaType.APPLICATION_XML })
     public CswRecordCollection getRecords(GetRecordsRequest request) throws CswException {
         return csw.getRecords(request);
     }
 
     @Override
     @POST
-    @Consumes({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
-    @Produces({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
+    @Consumes({ MediaType.TEXT_XML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.TEXT_XML, MediaType.APPLICATION_XML })
     public CswRecordCollection getRecords(GetRecordsType request) throws CswException {
         return csw.getRecords(request);
     }
 
     @Override
     @POST
-    @Consumes({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
-    @Produces({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
+    @Consumes({ MediaType.TEXT_XML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.TEXT_XML, MediaType.APPLICATION_XML })
     public TransactionResponseType transaction(TransactionType request) throws CswException {
         return csw.transaction(request);
     }
