@@ -72,6 +72,14 @@ server.requestLocal = function (req, res) {
     res.status(200).send(fs.readFileSync(req.url));
 };
 
+server.requestLocalTemplates = function (req, res) {
+    "use strict";
+
+    req.url = "../../ui/src/main/webapp/" + req.url;
+    res.contentType('application/json');
+    res.status(200).send(fs.readFileSync(req.url));
+};
+
 server.mockQueryServer = function (req, res) {
     var keyword = req.query.q;
     var resourceDir = path.resolve('.', 'src/test/resources');
