@@ -140,7 +140,7 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
 
     private Map<String, ContentType> contentTypes;
 
-    private WcsResourceReader wcsResourceReader;
+    protected WcsResourceReader wcsResourceReader;
 
     private List<ResourceReader> resourceReaders;
 
@@ -160,7 +160,7 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
 
     private String cswVersion;
 
-    private boolean contentTypeMappingUpdated;
+    protected boolean contentTypeMappingUpdated;
     
     protected List<RecordConverterFactory> recordConverterFactories;
     
@@ -195,49 +195,49 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
         }
     }
 
-    private static final String CSWURL_PROPERTY = "cswUrl";
+    protected static final String CSWURL_PROPERTY = "cswUrl";
 
-    private static final String ID_PROPERTY = "id";
+    protected static final String ID_PROPERTY = "id";
 
-    private static final String USERNAME_PROPERTY = "username";
+    protected static final String USERNAME_PROPERTY = "username";
 
-    private static final String PASSWORD_PROPERTY = "password";
+    protected static final String PASSWORD_PROPERTY = "password";
 
-    private static final String CONTENTTYPES_PROPERTY = "contentTypeNames";
+    protected static final String CONTENTTYPES_PROPERTY = "contentTypeNames";
 
-    private static final String EFFECTIVE_DATE_MAPPING_PROPERTY = "effectiveDateMapping";
+    protected static final String EFFECTIVE_DATE_MAPPING_PROPERTY = "effectiveDateMapping";
 
-    private static final String CREATED_DATE_MAPPING_PROPERTY = "createdDateMapping";
+    protected static final String CREATED_DATE_MAPPING_PROPERTY = "createdDateMapping";
 
-    private static final String MODIFIED_DATE_MAPPING_PROPERTY = "modifiedDateMapping";
+    protected static final String MODIFIED_DATE_MAPPING_PROPERTY = "modifiedDateMapping";
 
-    private static final String CONTENT_TYPE_MAPPING_PROPERTY = "contentTypeMapping";
+    protected static final String CONTENT_TYPE_MAPPING_PROPERTY = "contentTypeMapping";
 
-    private static final String SSL_VERIFICATION_PROPERTY = "disableSSLCertVerification";
+    protected static final String SSL_VERIFICATION_PROPERTY = "disableSSLCertVerification";
 
-    private static final String IS_LON_LAT_ORDER_PROPERTY = "isLonLatOrder";
+    protected static final String IS_LON_LAT_ORDER_PROPERTY = "isLonLatOrder";
 
-    private static final String POLL_INTERVAL_PROPERTY = "pollInterval";
+    protected static final String POLL_INTERVAL_PROPERTY = "pollInterval";
     
-    private static final String OUTPUT_SCHEMA_PROPERTY = "outputSchema";
+    protected static final String OUTPUT_SCHEMA_PROPERTY = "outputSchema";
 
-    private static final String FORCE_SPATIAL_FILTER_PROPERTY = "forceSpatialFilter";
+    protected static final String FORCE_SPATIAL_FILTER_PROPERTY = "forceSpatialFilter";
 
-    private static final String NO_FORCE_SPATIAL_FILTER = "NO_FILTER";
+    protected static final String NO_FORCE_SPATIAL_FILTER = "NO_FILTER";
 
-    private String forceSpatialFilter = NO_FORCE_SPATIAL_FILTER;
+    protected String forceSpatialFilter = NO_FORCE_SPATIAL_FILTER;
 
     private SpatialCapabilitiesType spatialCapabilities;
 
     private ScheduledExecutorService scheduler;
 
-    private ScheduledFuture<?> availabilityPollFuture;
+    protected ScheduledFuture<?> availabilityPollFuture;
 
     private AvailabilityTask availabilityTask;
 
-    private static final String PRODUCT_RETRIEVAL_METHOD_PROPERTY = "productRetrievalMethod";
+    protected static final String PRODUCT_RETRIEVAL_METHOD_PROPERTY = "productRetrievalMethod";
 
-    private static final String WCSURL_PROPERTY = "wcsUrl";
+    protected static final String WCSURL_PROPERTY = "wcsUrl";
 
     private boolean isConstraintCql;
 
@@ -389,7 +389,7 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
         }
     }
 
-    private void setupAvailabilityPoll() {
+    protected void setupAvailabilityPoll() {
         LOGGER.debug("Setting Availability poll task for {} minute(s) on Source {}",
                 cswSourceConfiguration.getPollIntervalMinutes(), cswSourceConfiguration.getId());
         CswSourceAvailabilityCommand command = new CswSourceAvailabilityCommand();
