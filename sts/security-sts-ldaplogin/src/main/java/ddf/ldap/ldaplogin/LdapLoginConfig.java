@@ -32,6 +32,8 @@ import org.slf4j.LoggerFactory;
 public class LdapLoginConfig {
 
     private static String LDAP_MODULE = ddf.ldap.ldaplogin.SslLdapLoginModule.class.getName();
+    
+    private static String PROPS_MODULE = org.apache.karaf.jaas.modules.properties.PropertiesLoginModule.class.getName();
 
     // using karaf to append to default jaas realm
     private static final String CONFIG_NAME = "karaf";
@@ -92,7 +94,8 @@ public class LdapLoginConfig {
         LOGGER.debug("Received an updated set of configurations for the LDAP Login Config.");
         // create modules from the newly updated config
         Module ldapModule = createLdapModule(props);
-        registerConfig(new Module[] {ldapModule});
+        Module propsModule = createPropertiesModule();
+        registerConfig(new Module[] {propsModule, ldapModule});
     }
 
     /**
@@ -128,5 +131,16 @@ public class LdapLoginConfig {
         ldapModule.setOptions(props);
 
         return ldapModule;
+    }
+    
+    private Module createPropertiesModule() {
+        Module propsModule = new Module();
+        propsModule.setClassName(PROPS_MODULE);
+        propsModule.setFlags(SUFFICIENT_FLAG);
+        propsModule.setName("propsModule");
+        Properties props = new Properties();
+        props.put("users", System.getProperty("ddf.home") + "/etc/users.properties");
+        propsModule.setOptions(props);        
+        return propsModule;
     }
 }
