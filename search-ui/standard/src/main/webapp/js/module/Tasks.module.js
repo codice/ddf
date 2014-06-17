@@ -10,9 +10,9 @@
  *
  **/
 /* global define */
-define(["application",
-        "cometdinit",
-        "js/model/Task",
+define(['application',
+        'cometdinit',
+        'js/model/Task',
         'wreqr'],
     function(Application, Cometd, Task,  wreqr) {
 

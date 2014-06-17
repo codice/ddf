@@ -22,14 +22,7 @@ define([
         'js/view/Progress.view',
         'wreqr',
         'text!templates/searchForm.handlebars',
-        'text!templates/user.handlebars',
-        'datepicker',
-        'datepickerOverride',
-        'datepickerAddon',
-        'modelbinder',
-        'collectionbinder',
-        'multiselect',
-        'multiselectfilter'
+        'text!templates/user.handlebars'
     ],
     function ($, Backbone, Marionette, _, ich, properties, MetaCard, Progress, wreqr, searchFormTemplate, userTemplate) {
         "use strict";

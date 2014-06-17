@@ -192,7 +192,7 @@ define([
                 }
             }
         });
-    
+
         List.MetacardListView = Marionette.Layout.extend({
             className: 'slide-animate height-full',
             template: 'resultListTemplate',
@@ -202,11 +202,6 @@ define([
                 statusRegion: '#result-status-list'
             },
             spinner: new Spinner(spinnerConfig),
-            initialize: function (options) {
-                _.bindAll(this);
-                //options should be -> { results: results, mapView: mapView }
-                this.model = options.result;
-            },
             onRender: function () {
                 this.listRegion.show(new List.MetacardTable({
                     collection: this.model.get("results")
@@ -221,6 +216,11 @@ define([
             onShow: function(){
                 this.updateSpinner();
                 this.listenTo(this.model, 'change', this.updateSpinner);
+                this.updateScrollbar();
+                this.updateScrollPos();
+            },
+            onClose: function() {
+                this.spinner.stop();
             },
             updateSpinner: function () {
                 if (!_.isUndefined(this.model.get("hits"))) {
@@ -228,6 +228,24 @@ define([
                 } else {
                     this.spinner.spin(this.el);
                 }
+            },
+            updateScrollbar: function () {
+                var view = this;
+                // defer seems to be necessary for this to update correctly
+                _.defer(function () {
+                    view.$el.perfectScrollbar('update');
+                });
+            },
+            updateScrollPos: function() {
+                var view = this;
+                _.defer(function () {
+                    var selected = view.$el.find('.selected');
+                    var container = view.$el.parent();
+                    if(selected.length !== 0)
+                    {
+                        container.scrollTop(selected.offset().top - container.offset().top + container.scrollTop());
+                    }
+                });
             }
         });
 

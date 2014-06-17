@@ -9,7 +9,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global define, require */
+/*global define, require, window */
 /*jslint nomen:false, -W064 */
 
 define(['config'], function () {
@@ -18,71 +18,39 @@ define(['config'], function () {
         'backbone',
         'marionette',
         'application',
-        'js/controllers/application.controller',
         'icanhaz',
+        'properties',
         'js/HandlebarsHelpers'
-    ], function ($, Backbone, Marionette, app, ApplicationController, ich) {
+    ], function ($, Backbone, Marionette, app, ich, properties) {
         'use strict';
+
+        var document = window.document;
+
+        //in here we drop in any top level patches, etc.
 
         Marionette.Renderer.render = function (template, data) {
             if(!template){return '';}
             return ich[template](data);
         };
 
-        // Set up the main regions that will be available at the Application level.
-        app.App.addRegions({
-            mainRegion : '#main',
-            mapRegion : '#map',
-            headerRegion : 'header',
-            footerRegion : 'footer',
-            menuRegion: '#menu'
+        //TODO: this hack here is to fix the issue of the main div not resizing correctly
+        //when the header and footer are in place
+        //remove this code when the correct way to get the div to resize is discovered
+        $(window).resize(function () {
+            var height = $('body').height();
+            if (properties.header && properties.header !== '') {
+                height = height - 20;
+            }
+            if (properties.footer && properties.footer !== '') {
+                height = height - 20;
+            }
+            $('#content').height(height);
         });
 
-        // Initialize the various services / controllers to be used by the application
-        app.App.addInitializer(function() {
-            app.Controllers.applicationController = new ApplicationController({app: app});
-        });
+        $(window).trigger('resize');
 
-        // Set up the frame of the application.
-        app.App.addInitializer(function() {
-            app.Controllers.applicationController.renderApplicationViews();
-        });
-
-        //setup the header
-        app.App.addInitializer(function() {
-            app.App.headerRegion.show(new Marionette.ItemView({
-                template: 'headerLayout',
-                className: 'header-layout',
-                model: app.AppModel
-            }));
-        });
-
-        //setup the footer
-        app.App.addInitializer(function() {
-            app.App.footerRegion.show(new Marionette.ItemView({
-                template: 'footerLayout',
-                className: 'footer-layout',
-                model: app.AppModel
-            }));
-        });
-
-        // Start up the Map view
-        app.App.addInitializer(function() {
-            app.showMapView();
-        });
-
-        // Once the application has been initialized (i.e. all initializers have completed), start up
-        // Backbone.history.
-        app.App.on('initialize:after', function() {
-            Backbone.history.start();
-        });
-        
-        app.App.addInitializer(function() {
-            require(["js/Notification.module"]);
-        });
-
-        app.App.addInitializer(function() {
-            require(["js/Tasks.module"]);
+        $(document).ready(function () {
+            document.title = properties.branding;
         });
 
         // Actually start up the application.

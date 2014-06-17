@@ -10,10 +10,10 @@
  *
  **/
 /* global define */
-define(["application", 
-        "cometdinit", 
-        "js/model/Notification", 
-        "js/view/Notification.view",
+define(['application',
+        'cometdinit',
+        'js/model/Notification',
+        'js/view/Notification.view',
         'wreqr'],
         function(Application, Cometd, Notification, NotificationView, wreqr) {
 

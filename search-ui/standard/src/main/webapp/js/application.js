@@ -20,23 +20,25 @@ define(['jquery',
         'properties',
         'maptype',
         // Templates
-        'text!templates/main.handlebars',
         'text!templates/map.handlebars',
         'text!templates/header.layout.handlebars',
         'text!templates/footer.layout.handlebars',
-        'js/view/Menu.view',
+        'js/controllers/application.controller',
         // Load non attached libs and plugins
         'bootstrap',
         'backbonerelational',
         'backbonecometd',
-        'jquerycometd'
-    ], function ($, _, Marionette, Backbone, ich, properties, maptype, main, map, header, footer, Menu) {
+        'jquerycometd',
+        'modelbinder'
+    ], function ($, _, Marionette, Backbone, ich, properties, maptype, map, header, footer, ApplicationController) {
         'use strict';
+
+        //collection binder must be loaded in after modelbinder, this ensure that happens
+        require(['collectionbinder']);
 
         var Application = {};
 
         // Setup templates
-        ich.addTemplate('main', main);
         ich.addTemplate('map', map);
         ich.addTemplate('headerLayout', header);
         ich.addTemplate('footerLayout', footer);
@@ -47,65 +49,66 @@ define(['jquery',
 
         Application.Controllers = {};
 
+        // Set up the main regions that will be available at the Application level.
+        Application.App.addRegions({
+            loadingRegion : '#loading',
+            mapRegion : '#map',
+            headerRegion : 'header',
+            footerRegion : 'footer',
+            menuRegion: '#menu',
+            searchRegion: '#search'
+        });
+
         Application.Router = new Marionette.AppRouter({
             routes: {
                 '': 'index'
             }
         });
 
-        Application.Views = {};
-
-        // Main Application View
-        Application.Views.Main = Marionette.Layout.extend({
-            template: 'main',
-            className: 'height-full-menu',
-            regions: {
-                menu: '#menu'
-            },
-
-            onRender: function () {
-                if (maptype.isNone()) {
-                    $('#searchControls', this.$el).addClass('full-screen-search');
-                }
-                this.menu.show(new Menu.Bar({model: this.model}));
-            }
+        // Initialize the application controller
+        Application.App.addInitializer(function() {
+            Application.Controllers.applicationController = new ApplicationController({Application: Application});
         });
 
-        // Map View
-        if (!maptype.isNone()) {
-            Application.Views.Map = new Marionette.ItemView({
-                template: 'map',
-                className: 'height-full'
-            });
-        }
+        //setup the header
+        Application.App.addInitializer(function() {
+            Application.App.headerRegion.show(new Marionette.ItemView({
+                template: 'headerLayout',
+                className: 'header-layout',
+                model: Application.AppModel
+            }));
+        });
 
-        Application.showMapView = function () {
-            if (maptype.is3d()) {
-                var mapView = Application.Views.Map;
+        //setup the footer
+        Application.App.addInitializer(function() {
+            Application.App.footerRegion.show(new Marionette.ItemView({
+                template: 'footerLayout',
+                className: 'footer-layout',
+                model: Application.AppModel
+            }));
+        });
 
-                mapView.on('show', function () {
-                    require(['js/controllers/geospatial.controller',
-                        'js/widgets/draw.extent',
-                        'js/widgets/draw.circle'
-                    ], function (GeoController, DrawExtent, DrawCircle) {
+        //load all modules
+        Application.App.addInitializer(function() {
+            require([
+                'js/module/Search.module',
+                'js/module/Notification.module',
+                'js/module/Tasks.module',
+                'js/module/Menu.module',
+                'js/module/Map3d.module'
+            ]);
+        });
 
-                        var geoController = new GeoController();
+        //get rid of the loading screen
+        Application.App.addInitializer(function() {
+            Application.App.loadingRegion.show(new Backbone.View());
+        });
 
-                        new DrawExtent.Controller({
-                            scene: geoController.scene,
-                            notificationEl: $('#notificationBar')
-                        });
-
-                        new DrawCircle.Controller({
-                            scene: geoController.scene,
-                            notificationEl: $('#notificationBar')
-                        });
-                    });
-                });
-
-                Application.App.mapRegion.show(mapView);
-            }
-        };
+        // Once the application has been initialized (i.e. all initializers have completed), start up
+        // Backbone.history.
+        Application.App.on('initialize:after', function() {
+            Backbone.history.start();
+        });
 
         return Application;
     }
