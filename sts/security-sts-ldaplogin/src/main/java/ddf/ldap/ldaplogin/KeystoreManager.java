@@ -89,21 +89,31 @@ public class KeystoreManager implements ConfigurationWatcher {
         String truststorePassword = encryptService.decryptValue(props
                 .get(ConfigurationManager.TRUST_STORE_PASSWORD));
 
-        if (!StringUtils.equals(this.keystoreLoc, keystoreLocation)
-                || !StringUtils.equals(this.keystorePass, keystorePassword)) {
-            LOGGER.debug("Detected a change in the values for the keystore, registering new keystore instance.");
-            keystoreRegistration = registerKeystore("ks", keystoreLocation, keystorePassword,
-                    keystoreRegistration);
-            this.keystoreLoc = keystoreLocation;
-            this.keystorePass = keystorePassword;
+        if (StringUtils.isNotBlank(keystoreLocation)
+                && (!StringUtils.equals(this.keystoreLoc, keystoreLocation) || !StringUtils.equals(
+                        this.keystorePass, keystorePassword))) {
+            if (new File(keystoreLocation).exists()) {
+                LOGGER.debug("Detected a change in the values for the keystore, registering new keystore instance.");
+                keystoreRegistration = registerKeystore("ks", keystoreLocation, keystorePassword,
+                        keystoreRegistration);
+                this.keystoreLoc = keystoreLocation;
+                this.keystorePass = keystorePassword;
+            } else {
+                LOGGER.debug("Keystore file does not exist at location {}, not updating keystore values.");
+            }
         }
-        if (!StringUtils.equals(this.truststoreLoc, truststoreLocation)
-                || !StringUtils.equals(this.truststorePass, truststorePassword)) {
-            LOGGER.debug("Detected a change in the values for the truststore, registering new keystore instance.");
-            truststoreRegistration = registerKeystore("ts", truststoreLocation, truststorePassword,
-                    truststoreRegistration);
-            this.truststoreLoc = truststoreLocation;
-            this.truststorePass = truststorePassword;
+        if (StringUtils.isNotBlank(truststoreLocation)
+                && (!StringUtils.equals(this.truststoreLoc, truststoreLocation) || !StringUtils
+                        .equals(this.truststorePass, truststorePassword))) {
+            if (new File(truststoreLocation).exists()) {
+                LOGGER.debug("Detected a change in the values for the truststore, registering new keystore instance.");
+                truststoreRegistration = registerKeystore("ts", truststoreLocation,
+                        truststorePassword, truststoreRegistration);
+                this.truststoreLoc = truststoreLocation;
+                this.truststorePass = truststorePassword;
+            } else {
+                LOGGER.debug("Truststore file does not exist at location {}, not updating truststore values.");
+            }
         }
 
     }
@@ -125,7 +135,11 @@ public class KeystoreManager implements ConfigurationWatcher {
             String password, ServiceRegistration<KeystoreInstance> keystoreReg) {
         location = HOME_LOCATION + File.separator + location;
         if (keystoreReg != null) {
-            keystoreReg.unregister();
+            try {
+                keystoreReg.unregister();
+            } catch (IllegalStateException ise) {
+                LOGGER.debug("Previous keystore instance was already unregistered.");
+            }
         }
         try {
             ResourceKeystoreInstance keystore = new ResourceKeystoreInstance();

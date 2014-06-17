@@ -19,7 +19,10 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.never;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Map;
@@ -27,7 +30,9 @@ import java.util.Map;
 import org.apache.karaf.jaas.config.KeystoreInstance;
 import org.codice.ddf.configuration.ConfigurationManager;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.mockito.Matchers;
 import org.osgi.framework.BundleContext;
 
@@ -42,14 +47,23 @@ public class KeystoreManagerTest {
     private BundleContext context;
 
     private EncryptionService encryptService;
+    
+    @Rule
+    public TemporaryFolder folder = new TemporaryFolder();
+    
+    private File keystore;
+    private File truststore;
 
     /**
      * Sets up a new context and encryptservice before each test.
+     * @throws IOException 
      */
     @Before
-    public void setUp() {
+    public void setUp() throws IOException {
         context = mock(BundleContext.class);
         encryptService = mock(EncryptionService.class);
+        keystore = folder.newFile("keystore.jks");
+        truststore = folder.newFile("truststore.jks");
     }
 
     /**
@@ -65,20 +79,21 @@ public class KeystoreManagerTest {
         updateMap.put(ConfigurationManager.TRUST_STORE_PASSWORD, "password");
 
         manager.configurationUpdateCallback(updateMap);
-        // register keystore and truststore
+        
+        // register keystore and truststore with INVALID file
+        verify(context, never()).registerService(eq(KeystoreInstance.class),
+                any(KeystoreInstance.class), Matchers.<Dictionary<String, Object>> any());
+
+        // only keystore changed to be valid
+        updateMap.put(ConfigurationManager.KEY_STORE, keystore.getAbsolutePath());
+        manager.configurationUpdateCallback(updateMap);
+        verify(context, times(1)).registerService(eq(KeystoreInstance.class),
+                any(KeystoreInstance.class), Matchers.<Dictionary<String, Object>> any());
+
+        // only truststore changed to be valid
+        updateMap.put(ConfigurationManager.TRUST_STORE, truststore.getAbsolutePath());
+        manager.configurationUpdateCallback(updateMap);
         verify(context, times(2)).registerService(eq(KeystoreInstance.class),
-                any(KeystoreInstance.class), Matchers.<Dictionary<String, Object>> any());
-
-        // only keystore changed
-        updateMap.put(ConfigurationManager.KEY_STORE, "/test/keystore2.jks");
-        manager.configurationUpdateCallback(updateMap);
-        verify(context, times(3)).registerService(eq(KeystoreInstance.class),
-                any(KeystoreInstance.class), Matchers.<Dictionary<String, Object>> any());
-
-        // only truststore changed
-        updateMap.put(ConfigurationManager.TRUST_STORE, "/test/truststore2.jks");
-        manager.configurationUpdateCallback(updateMap);
-        verify(context, times(4)).registerService(eq(KeystoreInstance.class),
                 any(KeystoreInstance.class), Matchers.<Dictionary<String, Object>> any());
 
     }
