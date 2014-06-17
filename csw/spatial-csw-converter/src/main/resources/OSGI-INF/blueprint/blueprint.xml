@@ -24,4 +24,14 @@
     		</entry>
     	</service-properties>
     </service>
+    <bean id="cswOgcCoreConverterFactory" class="org.codice.ddf.spatial.ogc.csw.catalog.converter.impl.CswRecordConverterFactory">
+        <property name="outputSchema" value="OGCCORE" />
+    </bean>
+    <service ref="cswOgcCoreConverterFactory" interface="org.codice.ddf.spatial.ogc.csw.catalog.converter.RecordConverterFactory">
+        <service-properties>
+            <entry key="outputSchema">
+                <value type="java.lang.String">OGCCORE</value>
+            </entry>
+        </service-properties>
+    </service>
 </blueprint>
