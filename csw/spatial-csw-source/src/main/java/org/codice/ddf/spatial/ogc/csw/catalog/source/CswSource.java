@@ -423,7 +423,7 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
     }
 
     protected void configureWcs() {
-
+    	
         if (cswSourceConfiguration.getProductRetrievalMethod().equalsIgnoreCase(
                 CswConstants.WCS_PRODUCT_RETRIEVAL)
                 && wcsResourceReader != null) {
