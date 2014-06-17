@@ -272,7 +272,7 @@ public class WcsResourceReader {
      * @param coverageId
      * @return
      */
-    private ResourceResponse retrieveProduct(String coverageId) {
+    protected ResourceResponse retrieveProduct(String coverageId) {
         ResourceResponse resourceResponse = null;
 
         // The DescribeCoverage response will return the spatial and temporal
