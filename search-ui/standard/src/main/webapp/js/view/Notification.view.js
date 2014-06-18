@@ -50,7 +50,6 @@ define([ 'backbone',
         },
 
         createNotification: function() {
-            var view = this;
             if (typeof stack_context === "undefined") stack_context = {
                 "dir1": "down",
                 "dir2": "left",
