@@ -9,7 +9,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global define, setTimeout, clearTimeout, document, window*/
+/*global define, setTimeout, clearTimeout, document, window, parseInt*/
 define([
     'marionette',
     'icanhaz',
@@ -111,11 +111,9 @@ define([
 
         },
         onRender: function() {
-            if(this.model.get('progress') <= 100) {
-                if(this.model.get('progress') === -1) {
-                    this.$('.task-progressbar').progressbar({value: false});
-                } else {
-                    this.$('.task-progressbar').progressbar({value: this.model.get('progress')});
+            if(parseInt(this.model.get('progress'), 10) <= 100) {
+                if(parseInt(this.model.get('progress'), 10) !== -1) {
+                    this.$('.task-progressbar').progressbar({value: parseInt(this.model.get('progress'), 10)});
                 }
             }
 

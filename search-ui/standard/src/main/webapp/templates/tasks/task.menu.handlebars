@@ -39,7 +39,11 @@
 
     <div class="width-full">
         {{#if progress}}
-            <div class="task-progressbar"></div>
+            <div class="task-progressbar">
+                {{#is progress '-1'}}
+                    {{fileSize bytes}} read
+                {{/is}}
+            </div>
             {{#is status "STOPPED"}}
                 {{#if operations.retry}}
                         <a href="#" class="fa fa-repeat retry" id="retry"></a>
