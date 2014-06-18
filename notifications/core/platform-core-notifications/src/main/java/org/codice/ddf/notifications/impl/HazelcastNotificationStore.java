@@ -41,25 +41,23 @@ import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import com.hazelcast.query.SqlPredicate;
 
-
 /**
- * Stores (persists) the notifications for *all* users in a single
- * persistent notifications cache to disk. The default location for the
- * persisted notification is "<INSTALL_DIR>/data/persistentNotifications".
- * Notifications are stored as a HashMap of attributes vs. a Notification
- * Java object. The object persisted must be Serializable.
- *
+ * Stores (persists) the notifications for *all* users in a single persistent notifications cache to
+ * disk. The default location for the persisted notification is
+ * "<INSTALL_DIR>/data/persistentNotifications". Notifications are stored as a HashMap of attributes
+ * vs. a Notification Java object. The object persisted must be Serializable.
+ * 
  */
 public class HazelcastNotificationStore implements NotificationStore {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(HazelcastNotificationStore.class);
-    
+
     public static final String NOTIFICATION_CACHE_NAME = "persistentNotifications";
-    
+
     private HazelcastInstance instance;
+
     private IMap<Object, Object> notificationsCache;
-    
-    
+
     public HazelcastNotificationStore(BundleContext context, String xmlConfigFilename) {
         LOGGER.info("Creating {} cache", NOTIFICATION_CACHE_NAME);
         if (this.instance == null) {
@@ -71,35 +69,38 @@ public class HazelcastNotificationStore implements NotificationStore {
             join.getTcpIpConfig().setEnabled(false);
             this.instance = Hazelcast.newHazelcastInstance(cfg);
         }
-        
+
         notificationsCache = this.instance.getMap(NOTIFICATION_CACHE_NAME);
     }
-    
+
     private Config getHazelcastConfig(BundleContext context, String xmlConfigFilename) {
-        Config cfg = null;        
+        Config cfg = null;
         Bundle bundle = context.getBundle();
-        
+
         URL xmlConfigFileUrl = null;
         if (StringUtils.isNotBlank(xmlConfigFilename)) {
             xmlConfigFileUrl = bundle.getResource(xmlConfigFilename);
         }
-        
+
         XmlConfigBuilder xmlConfigBuilder = null;
-        
+
         if (xmlConfigFileUrl != null) {
             try {
                 xmlConfigBuilder = new XmlConfigBuilder(xmlConfigFileUrl.openStream());
                 cfg = xmlConfigBuilder.build();
-                LOGGER.info("Successfully built hazelcast config from XML config file {}", xmlConfigFilename);
-            } catch(FileNotFoundException e) {
-                LOGGER.info("FileNotFoundException trying to build hazelcast config from XML file " + xmlConfigFilename, e);
+                LOGGER.info("Successfully built hazelcast config from XML config file {}",
+                        xmlConfigFilename);
+            } catch (FileNotFoundException e) {
+                LOGGER.info("FileNotFoundException trying to build hazelcast config from XML file "
+                        + xmlConfigFilename, e);
                 cfg = null;
-            } catch(IOException e) {
-                LOGGER.info("IOException trying to build hazelcast config from XML file " + xmlConfigFilename, e);
+            } catch (IOException e) {
+                LOGGER.info("IOException trying to build hazelcast config from XML file "
+                        + xmlConfigFilename, e);
                 cfg = null;
             }
         }
-        
+
         if (cfg == null) {
             LOGGER.info("Falling back to using generic Config for hazelcast");
             cfg = new Config();
@@ -113,27 +114,45 @@ public class HazelcastNotificationStore implements NotificationStore {
                 }
             } else {
                 MapStoreConfig mapStoreConfig = mapConfig.getMapStoreConfig();
-                LOGGER.debug("mapStoreConfig factoryClassName = {}", mapStoreConfig.getFactoryClassName());
+                LOGGER.debug("mapStoreConfig factoryClassName = {}",
+                        mapStoreConfig.getFactoryClassName());
             }
         }
-       
+
         return cfg;
     }
-    
+
     HazelcastInstance getHazelcastInstance() {
         return instance;
     }
-    
+
     @Override
     public void putNotification(Map<String, String> notification) {
-        notificationsCache.put(notification.get(PersistentNotification.NOTIFICATION_KEY_UUID), notification);
-        LOGGER.debug("Successfully cached notification for user = " + notification.get(PersistentNotification.NOTIFICATION_KEY_USER_ID));
+        notificationsCache.put(notification.get(PersistentNotification.NOTIFICATION_KEY_UUID),
+                notification);
+        LOGGER.debug("Successfully cached notification for user = "
+                + notification.get(PersistentNotification.NOTIFICATION_KEY_USER_ID));
     }
-    
+
+
+    public void removeNotification(String notificationId, String userId) {
+        Map<String, String> notification = (Map<String, String>) notificationsCache
+                .get(notificationId);
+        if (notification != null) {
+            if (notification.get(PersistentNotification.NOTIFICATION_KEY_USER_ID).equals(userId)) {
+                notificationsCache.remove(notificationId);
+            }
+        } else {
+            LOGGER.debug("notification is null");
+        }
+
+    }
+
     @Override
     public List<Map<String, String>> getNotifications() {
-        List<Map<String, String>> notificationsList = new ArrayList<Map<String, String>>();        
-        Collection<Object> notifications = notificationsCache.values(new SqlPredicate("userId LIKE '%'"));
+        List<Map<String, String>> notificationsList = new ArrayList<Map<String, String>>();
+        Collection<Object> notifications = notificationsCache.values(new SqlPredicate(
+                "userId LIKE '%'"));
         for (Object notificationObj : notifications) {
             @SuppressWarnings("unchecked")
             Map<String, String> notificationMap = (Map<String, String>) notificationObj;
@@ -147,12 +166,13 @@ public class HazelcastNotificationStore implements NotificationStore {
     public List<Map<String, String>> getNotifications(String userId) {
         List<Map<String, String>> notificationsList = new ArrayList<Map<String, String>>();
         if (StringUtils.isNotBlank(userId)) {
-                Collection<Object> notifications = notificationsCache.values(new SqlPredicate("userId = '" + userId + "'"));
-                for (Object notificationObj : notifications) {
-                    @SuppressWarnings("unchecked")                    
-                    Map<String, String> notificationMap = (Map<String, String>) notificationObj;
-                    notificationsList.add(notificationMap);
-                }
+            Collection<Object> notifications = notificationsCache.values(new SqlPredicate(
+                    "userId = '" + userId + "'"));
+            for (Object notificationObj : notifications) {
+                @SuppressWarnings("unchecked")
+                Map<String, String> notificationMap = (Map<String, String>) notificationObj;
+                notificationsList.add(notificationMap);
+            }
         }
 
         return notificationsList;

@@ -16,9 +16,7 @@ package org.codice.ddf.notifications.impl;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.isOneOf;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -45,34 +43,36 @@ import com.hazelcast.core.HazelcastInstance;
 import ddf.cache.CacheManager;
 
 public class HazelcastNotificationStoreTest {
-    
-    private static final transient Logger LOGGER = LoggerFactory.getLogger(HazelcastNotificationStoreTest.class);
-    
+
+    private static final transient Logger LOGGER = LoggerFactory
+            .getLogger(HazelcastNotificationStoreTest.class);
+
     private static final String TEST_PATH = "/src/main/resources/";
-    
+
     private static final String PERSISTENT_CACHE_NAME = "persistentNotifications";
 
     private CacheManager cacheMgt;
 
-    
     @Test
     public void testCreateCacheWithXmlConfigFile() throws Exception {
-        
+
         // Set system property that Hazelcast uses for its XML Config file
         String xmlConfigFilename = "notifications-hazelcast.xml";
-        String xmlConfigLocation = System.getProperty("user.dir") + TEST_PATH + "notifications-hazelcast.xml";
+        String xmlConfigLocation = System.getProperty("user.dir") + TEST_PATH
+                + "notifications-hazelcast.xml";
         System.setProperty("hazelcast.config", xmlConfigLocation);
-        
+
         Bundle bundle = mock(Bundle.class);
         URL url = new URL("file:///" + new File(xmlConfigLocation).getAbsolutePath());
         when(bundle.getResource(anyString())).thenReturn(url);
         BundleContext context = mock(BundleContext.class);
         when(context.getBundle()).thenReturn(bundle);
-        
+
         // Create new NotificationStore that will be configured based on the XML config file
-        HazelcastNotificationStore store = new HazelcastNotificationStore(context, xmlConfigFilename);
+        HazelcastNotificationStore store = new HazelcastNotificationStore(context,
+                xmlConfigFilename);
         HazelcastInstance instance = store.getHazelcastInstance();
-        
+
         MapConfig mapConfig = instance.getConfig().getMapConfig(PERSISTENT_CACHE_NAME);
         assertNotNull(mapConfig);
         assertEquals(0, mapConfig.getBackupCount());
@@ -80,43 +80,49 @@ public class HazelcastNotificationStoreTest {
         assertEquals(0, mapConfig.getTimeToLiveSeconds());
         assertEquals(EvictionPolicy.NONE, mapConfig.getEvictionPolicy());
         MapStoreConfig mapStoreConfig = mapConfig.getMapStoreConfig();
-        assertEquals("org.codice.ddf.notifications.impl.FileSystemMapStoreFactory", mapStoreConfig.getFactoryClassName());
-        
+        assertEquals("org.codice.ddf.notifications.impl.FileSystemMapStoreFactory",
+                mapStoreConfig.getFactoryClassName());
+
         instance.getMap(PERSISTENT_CACHE_NAME).destroy();
         instance.shutdown();
     }
-    
+
     @Test
     public void testCreateCacheWithMapStore() throws Exception {
-        
+
         // Set system property that Hazelcast uses for its XML Config file
         String xmlConfigFilename = "notifications-hazelcast.xml";
-        String xmlConfigLocation = System.getProperty("user.dir") + TEST_PATH + "notifications-hazelcast.xml";
+        String xmlConfigLocation = System.getProperty("user.dir") + TEST_PATH
+                + "notifications-hazelcast.xml";
         System.setProperty("hazelcast.config", xmlConfigLocation);
-        
+
         Bundle bundle = mock(Bundle.class);
         URL url = new URL("file:///" + new File(xmlConfigLocation).getAbsolutePath());
         when(bundle.getResource(anyString())).thenReturn(url);
         BundleContext context = mock(BundleContext.class);
         when(context.getBundle()).thenReturn(bundle);
-        
+
         // Create new NotificationStore that will be configured based on the XML config file
-        HazelcastNotificationStore store = new HazelcastNotificationStore(context, xmlConfigFilename);
+        HazelcastNotificationStore store = new HazelcastNotificationStore(context,
+                xmlConfigFilename);
         HazelcastInstance instance = store.getHazelcastInstance();
         File persistenceDir = null;
-        
+
         try {
-            MockNotification notification = new MockNotification("app", "title", "message", new Date().getTime(), "user1");
+            MockNotification notification = new MockNotification("app", "title", "message",
+                    new Date().getTime(), "user1");
             store.putNotification(notification);
-            
-            FileSystemPersistenceProvider provider = new FileSystemPersistenceProvider(PERSISTENT_CACHE_NAME);
+
+            FileSystemPersistenceProvider provider = new FileSystemPersistenceProvider(
+                    PERSISTENT_CACHE_NAME);
             persistenceDir = new File(provider.getPersistencePath());
             File mapStoreDir = new File(provider.getMapStorePath());
             assertTrue(mapStoreDir.exists());
             String[] persistedNotifications = mapStoreDir.list();
             assertTrue(persistedNotifications.length == 1);
-            
-            MockNotification n = (MockNotification) provider.loadFromPersistence(notification.getId());
+
+            MockNotification n = (MockNotification) provider.loadFromPersistence(notification
+                    .getId());
             LOGGER.info("notification = {}", n);
             assertEquals(n.getApplication(), "app");
             assertEquals(n.getTitle(), "title");
@@ -126,47 +132,52 @@ public class HazelcastNotificationStoreTest {
         } finally {
             instance.getMap(PERSISTENT_CACHE_NAME).destroy();
             instance.shutdown();
-            // Delete the serialized notification files - otherwise they will be read by any subsequent unit tests
+            // Delete the serialized notification files - otherwise they will be read by any
+            // subsequent unit tests
             FileUtils.deleteQuietly(persistenceDir);
         }
     }
-   
+
     @Test
     public void testQueryCacheWithMultipleUsersNotifications() throws Exception {
-        
+
         // Set system property that Hazelcast uses for its XML Config file
         String xmlConfigFilename = "notifications-hazelcast.xml";
-        String xmlConfigLocation = System.getProperty("user.dir") + TEST_PATH + "notifications-hazelcast.xml";
+        String xmlConfigLocation = System.getProperty("user.dir") + TEST_PATH
+                + "notifications-hazelcast.xml";
         System.setProperty("hazelcast.config", xmlConfigLocation);
-        
+
         Bundle bundle = mock(Bundle.class);
         URL url = new URL("file:///" + new File(xmlConfigLocation).getAbsolutePath());
         when(bundle.getResource(anyString())).thenReturn(url);
         BundleContext context = mock(BundleContext.class);
         when(context.getBundle()).thenReturn(bundle);
-        
+
         // Create new NotificationStore that will be configured based on the XML config file
-        HazelcastNotificationStore store = new HazelcastNotificationStore(context, xmlConfigFilename);
+        HazelcastNotificationStore store = new HazelcastNotificationStore(context,
+                xmlConfigFilename);
         HazelcastInstance instance = store.getHazelcastInstance();
         File persistenceDir = null;
-        
+
         try {
             // Create 3 notifications for each of 3 users and add each notification to the cache.
             // These notifications should be serialized and persisted to disk by Hazelcast.
-            String[] userIds = new String[] {"user1", "user2", "user3" };
+            String[] userIds = new String[] {"user1", "user2", "user3"};
             int numNotificationsPerUser = 3;
-            for (int i=0; i < userIds.length; i++) {           
+            for (int i = 0; i < userIds.length; i++) {
                 int appIndex = i + 1;
                 String app = "app-" + appIndex;
-                for (int j=1; j <= numNotificationsPerUser; j++) {
+                for (int j = 1; j <= numNotificationsPerUser; j++) {
                     String title = "title-" + j;
                     String message = "message-" + j;
-                    store.putNotification(new MockNotification(app, title, message, new Date().getTime(), userIds[i]));
+                    store.putNotification(new MockNotification(app, title, message, new Date()
+                            .getTime(), userIds[i]));
                 }
             }
-            
+
             // Verify all notifications were persisted to disk
-            FileSystemPersistenceProvider provider = new FileSystemPersistenceProvider(PERSISTENT_CACHE_NAME);
+            FileSystemPersistenceProvider provider = new FileSystemPersistenceProvider(
+                    PERSISTENT_CACHE_NAME);
             String mapStorePath = provider.getMapStorePath();
             String persistencePath = provider.getPersistencePath();
             persistenceDir = new File(persistencePath);
@@ -174,7 +185,7 @@ public class HazelcastNotificationStoreTest {
             assertTrue(mapStoreDir.exists());
             String[] persistedNotifications = mapStoreDir.list();
             assertTrue(persistedNotifications.length == (userIds.length * numNotificationsPerUser));
-            
+
             // Query for specific user's notifications and verify only they are returned
             List<Map<String, String>> notifications = store.getNotifications("user2");
             assertNotNull(notifications);
@@ -185,7 +196,7 @@ public class HazelcastNotificationStoreTest {
                 assertTrue(n.get(MockNotification.NOTIFICATION_KEY_USER_ID).equals("user2"));
                 assertTrue(n.get(MockNotification.NOTIFICATION_KEY_APPLICATION).equals("app-2"));
             }
-                        
+
             // Get all notifications
             notifications = store.getNotifications();
             assertNotNull(notifications);
@@ -194,12 +205,30 @@ public class HazelcastNotificationStoreTest {
             for (Map<String, String> n : notifications) {
                 LOGGER.info("notification = {}", n);
             }
+
+            // Remove all persisted notifications from a user, then get all notifications to
+            // verify that only notifications from specified user were removed
+            notifications = store.getNotifications();
+            assertNotNull(notifications);
+            for (Map<String, String> n : notifications) {
+                if (n.get(MockNotification.NOTIFICATION_KEY_USER_ID).equals("user2")) {
+                    store.removeNotification(n.get(MockNotification.NOTIFICATION_KEY_UUID), "user2");
+                }
+            }
+            notifications = store.getNotifications();
+            for (Map<String, String> n : notifications) {
+                if (n.get(MockNotification.NOTIFICATION_KEY_USER_ID).equals("user2")) {
+                    fail("Notification was not removed.");
+                }
+            }
+
         } finally {
             instance.getMap(PERSISTENT_CACHE_NAME).destroy();
             instance.shutdown();
-            // Delete the serialized notification files - otherwise they will be read by any subsequent unit tests
+            // Delete the serialized notification files - otherwise they will be read by any
+            // subsequent unit tests
             FileUtils.deleteQuietly(persistenceDir);
         }
     }
-   
+
 }
