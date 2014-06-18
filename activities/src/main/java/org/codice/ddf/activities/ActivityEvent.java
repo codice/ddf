@@ -40,6 +40,8 @@ public class ActivityEvent extends HashMap<String, Object> {
 
     public static final String CATEGORY_KEY = "category";
 
+    public static final String BYTES_READ_KEY = "bytes";
+
     public static final String EVENT_TOPIC = "ddf/activities";
 
     public static final String EVENT_TOPIC_BROADCAST = EVENT_TOPIC + "/broadcast";
@@ -68,7 +70,7 @@ public class ActivityEvent extends HashMap<String, Object> {
     }
 
     public ActivityEvent(String id, Date timestamp, String category, String title, String message,
-            String progress, Map<String, String> operations, String user, ActivityStatus type) {
+            String progress, Map<String, String> operations, String user, ActivityStatus type, Long bytes) {
         setActivityId(id);
         setTimestamp(timestamp);
         setCategory(category);
@@ -77,6 +79,7 @@ public class ActivityEvent extends HashMap<String, Object> {
         setProgress(progress);
         setOperations(operations);
         setUserId(user);
+        setBytesRead(bytes);
         this.put(STATUS_KEY, type.toString());
     }
 
@@ -251,5 +254,29 @@ public class ActivityEvent extends HashMap<String, Object> {
      */
     public void setUserId(String userId) {
         this.put(USER_ID_KEY, userId);
+    }
+
+    /**
+     * Returns the bytes read associated with the {@code Activity}.
+     *
+     * @return The bytes read associated with the {@code Activity}.
+     */
+    public Long getBytesRead() {
+        try {
+            Long bytes = new Long(this.get(BYTES_READ_KEY).toString());
+            return bytes;
+        } catch (NumberFormatException nfe) {
+            return 0L;
+        }
+    }
+
+    /**
+     * Overwrites the bytes read associated with the {@code Activity}.
+     *
+     * @param bytesRead
+     *            The new bytes read associated with the {@code Activity}.
+     */
+    public void setBytesRead(Long bytesRead) {
+        this.put(BYTES_READ_KEY, bytesRead);
     }
 }

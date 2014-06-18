@@ -39,8 +39,9 @@ public class ActivityEventTest {
         operations.put("cancel", "true");
         String user = UUID.randomUUID().toString();
         ActivityStatus type = ActivityStatus.RUNNING;
+        Long bytes = 1024000000L;
         ActivityEvent event = new ActivityEvent(id, timestamp, category, title, message, progress,
-                operations, user, type);
+                operations, user, type, bytes);
 
         // id
         assertEquals(id, event.getActivityId());
@@ -77,6 +78,10 @@ public class ActivityEventTest {
         // type
         assertEquals(type, ActivityStatus.valueOf(event.getActivityType()));
         assertEquals(type, ActivityStatus.valueOf(event.get(ActivityEvent.STATUS_KEY).toString()));
+
+        // bytes
+        assertEquals(bytes, event.getBytesRead());
+        assertEquals(bytes, event.get(ActivityEvent.BYTES_READ_KEY));
     }
 
 }
