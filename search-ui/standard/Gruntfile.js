@@ -169,7 +169,39 @@ module.exports = function (grunt) {
     grunt.registerTask('test', ['express:test','casperjs']);
     grunt.loadNpmTasks('grunt-zip');
 
-    var buildTasks = ['clean', 'bower', 'sed', 'copy', 'unzip', 'cesiumclean', 'cssmin', 'jshint'];
+    grunt.registerTask('bower-offline-install', 'Bower offline install work-around', function() {
+        var bower = require('bower');
+        var done = this.async();
+        grunt.log.writeln("Trying to install bower packages OFFline.");
+        bower.commands
+            .install([], {save: true}, { offline: true })
+             .on('data', function(data){
+                grunt.log.write(data);
+            })
+            .on('error', function(data){
+                grunt.log.writeln(data);
+                grunt.log.writeln("Trying to install bower packages ONline.");
+                bower.commands
+                    .install()
+                    .on('data', function(data){
+                        grunt.log.write(data);
+                    })
+                    .on('error', function(data){
+                        grunt.log.write(data);
+                        done(false);
+                    })
+                    .on('end', function () {
+                        grunt.log.write("Bower installed online.");
+                        done();
+                    });
+            })
+            .on('end', function () {
+
+                grunt.log.writeln("Bower installed offline.");
+               done();
+            });
+    });
+    var buildTasks = ['clean', 'bower-offline-install', 'sed', 'copy', 'unzip', 'cesiumclean', 'cssmin', 'jshint'];
 
     try {
         grunt.log.writeln('Checking for python');
