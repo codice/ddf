@@ -61,7 +61,8 @@ define([
         template: 'notificationMenuTemplate',
         tagName: 'li',
         events: {
-            'click' : 'openNotification'
+            'click' : 'openNotification',
+            'click a': 'removeNotification'
         },
         onClose: function() {
             clearTimeout(this.timeout);
@@ -71,6 +72,28 @@ define([
         },
         openNotification: function() {
             wreqr.vent.trigger('notification:open', this.model);
+        },
+        removeNotification: function(e) {
+            var id = e.target.id;
+            if(id) {
+                if(id !== 'close' && id !== 'cancelRemove') {
+                    if(id === 'remove') {
+                        this.model.collection.remove(this.model);
+                        wreqr.vent.trigger('notification:delete', this.model);
+                        Cometd.Comet.publish(this.model.url, {id: this.model.get('id'), action: id});
+                    }
+                } else {
+                    if(id === 'cancelRemove') {
+                        this.model.set({closeConfirm: false});
+                    } else {
+                        this.model.set({closeConfirm: true});
+                    }
+                }
+            }
+            e.stopPropagation();
+        },
+        initialize: function() {
+            this.listenTo(this.model, 'change', this.render);
         }
     });
 
@@ -87,6 +110,7 @@ define([
         clickBody: function(e) {
             //stops the menu from closing
             e.stopPropagation();
+
         },
         clickLink: function(e) {
             var id = e.target.id;
@@ -358,9 +382,26 @@ define([
             var Notification = Menu.Item.extend({
                 className: 'dropdown',
                 initialize: function() {
+                    wreqr.vent.on('notification:delete', _.bind(this.deleteNotification, this));
                     wreqr.vent.on('notification:new', _.bind(this.addNotification, this));
                     wreqr.vent.on('notification:close', _.bind(this.removeNotification, this));
                     this.modelBinder = new Backbone.ModelBinder();
+                },
+                deleteNotification: function() {
+                        if (!this.collection) {
+                            if (wreqr.reqres.hasHandler('notifications')) {
+                                this.collection = wreqr.reqres.request('notifications');
+                                this.render();
+                            }
+                        }
+                        if (this.collection) {
+                            if (this.collection.length === 0) {
+                                this.model.set({countNum: ''});
+                            } else {
+                                this.model.set({countNum: this.collection.length});
+                            }
+                            this.render();
+                        }
                 },
                 removeNotification: function() {
                     if(this.collection) {

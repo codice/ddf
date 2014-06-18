@@ -16,7 +16,9 @@ define(["backbone", "underscore", "jquery"], function (Backbone, _, $) {
     var Notification = {};
 
     Notification.Notification = Backbone.Model.extend({
-        initialize: function () {
+
+        url: '/notification/action',
+        initialize : function(){
             this.set("timestamp", parseInt(this.get("timestamp"), 10));
         },
 
