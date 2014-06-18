@@ -125,6 +125,7 @@ public class RemoteCsw extends TrustedRemoteSource implements Csw {
         // jaxbElementClassNames list
         jaxbElementClassNames.add(GetRecordsType.class.getName());
         jaxbElementClassNames.add(CapabilitiesType.class.getName());
+        jaxbElementClassNames.add(GetCapabilitiesType.class.getName());
         jaxbElementClassNames.add(GetRecordsResponseType.class.getName());
 
         getRecordsTypeProvider.setJaxbElementClassNames(jaxbElementClassNames);
@@ -136,6 +137,11 @@ public class RemoteCsw extends TrustedRemoteSource implements Csw {
         LOGGER.debug("{} expanded name: {}", CswConstants.GET_RECORDS, expandedName);
         jaxbElementClassMap.put(GetRecordsType.class.getName(), expandedName);
 
+        String getCapsEpandedName = new QName(CswConstants.CSW_OUTPUT_SCHEMA,
+                CswConstants.GET_CAPABILITIES).toString();
+        LOGGER.debug("{} expanded name: {}", CswConstants.GET_CAPABILITIES, expandedName);
+        jaxbElementClassMap.put(GetCapabilitiesType.class.getName(), getCapsEpandedName);        
+        
         String capsExpandedName = new QName(CswConstants.CSW_OUTPUT_SCHEMA,
                 CswConstants.CAPABILITIES).toString();
         LOGGER.debug("{} expanded name: {}", CswConstants.CAPABILITIES, capsExpandedName);
