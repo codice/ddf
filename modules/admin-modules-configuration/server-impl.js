@@ -60,7 +60,14 @@ server.requestProxy = function (req, res) {
 server.requestLocal = function (req, res) {
     "use strict";
 
-    req.url = "src/main/webapp/" + req.url.substring(15);
+    console.log('Request local content "' + req.url + '"');
+
+    if(req.url.indexOf('/lib/') === -1) {
+        req.url = "src/main/webapp/" + req.url.substring(15);
+    } else {
+        req.url = "target/webapp/" + req.url.substring(15);
+    }
+
     res.contentType('application/json');
     res.status(200).send(fs.readFileSync(req.url));
 };
