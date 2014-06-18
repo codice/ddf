@@ -16,6 +16,7 @@ module.exports = function (grunt) {
     var which = require('which');
 
     grunt.initConfig({
+        
         pkg: grunt.file.readJSON('package.json'),
 
         clean: {
@@ -131,14 +132,47 @@ module.exports = function (grunt) {
     //all tests will fail.
     grunt.registerTask('test', ['express:test','casperjs']);
 
-    var buildTasks = ['clean', 'bower', 'sed:imports', 'cssmin', 'jshint'];
+    grunt.registerTask('bower-offline-install', 'Bower offline install work-around', function() {
+        var bower = require('bower');
+        var done = this.async();
+        grunt.log.writeln("Trying to install bower packages OFFline.");
+        bower.commands
+            .install([], {save: true}, { offline: true })
+             .on('data', function(data){
+                grunt.log.write(data);
+            })
+            .on('error', function(data){
+                grunt.log.writeln(data);
+                grunt.log.writeln("Trying to install bower packages ONline.");
+                bower.commands
+                    .install()
+                    .on('data', function(data){
+                        grunt.log.write(data);
+                    })
+                    .on('error', function(data){
+                        grunt.log.write(data);
+                        done(false);
+                    })
+                    .on('end', function () {
+                        grunt.log.write("Bower installed online.");
+                        done();
+                    });
+            })
+            .on('end', function () {
+
+                grunt.log.writeln("Bower installed offline.");
+               done();
+            });
+    });
+
+    var buildTasks = ['clean', 'bower-offline-install', 'sed:imports', 'cssmin', 'jshint'];
 
     try {
         grunt.log.writeln('Checking for python');
         var pythonPath = which.sync('python');
         if(pythonPath) {
             grunt.log.writeln('Found python');
-            buildTasks = ['clean', 'bower', 'sed:imports', 'cssmin', 'jshint', 'test'];
+            buildTasks = ['clean', 'bower-offline-install', 'sed:imports', 'cssmin', 'jshint', 'test'];
         }
     } catch (e) {
         grunt.log.writeln('Python is not installed. Please install Python and ensure that it is in your path to run tests.');
