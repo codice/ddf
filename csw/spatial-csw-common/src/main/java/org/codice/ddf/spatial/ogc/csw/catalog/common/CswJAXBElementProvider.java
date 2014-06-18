@@ -20,11 +20,14 @@ import java.util.Map;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.jaxrs.provider.JAXBElementProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.sun.xml.bind.marshaller.NamespacePrefixMapper;
 
 /**
  *
@@ -55,6 +58,7 @@ public class CswJAXBElementProvider<T> extends JAXBElementProvider<T> {
         prefixes.put(CswConstants.DUBLIN_CORE_SCHEMA, CswConstants.DUBLIN_CORE_NAMESPACE_PREFIX);
         prefixes.put(CswConstants.DUBLIN_CORE_TERMS_SCHEMA, CswConstants.DUBLIN_CORE_TERMS_NAMESPACE_PREFIX);
 
+        setNamespaceMapperPropertyName(NS_MAPPER_PROPERTY_RI);
         setNamespacePrefixes(prefixes);
     }
 
@@ -81,5 +85,27 @@ public class CswJAXBElementProvider<T> extends JAXBElementProvider<T> {
         }
 
         return jaxbContext;
+    }
+    
+    @Override
+    protected void setNamespaceMapper(Marshaller ms, 
+            Map<String, String> map) throws Exception {
+
+        final Map<String, String> finalMap = map;
+        
+        NamespacePrefixMapper mapper = new NamespacePrefixMapper() {
+            
+            protected Map<String, String> prefixMap = finalMap;
+
+            @Override
+            public String getPreferredPrefix(String namespaceUri, String suggestion,
+                    boolean requirePrefix) {
+                return prefixMap.get(namespaceUri);
+            }
+            
+        };
+
+        ms.setProperty(NS_MAPPER_PROPERTY_RI, mapper);
+
     }
 }

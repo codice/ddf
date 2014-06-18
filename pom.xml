@@ -188,8 +188,8 @@
         <module>kml</module>
         <module>ogc</module>
         <module>wfs</module>
-        <module>csw</module>
         <module>wcs</module>
+        <module>csw</module>
         <module>spatial-app</module>
     </modules>
 
