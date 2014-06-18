@@ -104,6 +104,7 @@ import ddf.catalog.data.impl.ContentTypeImpl;
 import ddf.catalog.data.impl.ResultImpl;
 import ddf.catalog.filter.FilterAdapter;
 import ddf.catalog.filter.FilterBuilder;
+import ddf.catalog.filter.FilterDelegate;
 import ddf.catalog.operation.Query;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.ResourceResponse;
@@ -853,9 +854,19 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
             sortBy = new SortByType();
             SortPropertyType sortProperty = new SortPropertyType();
             PropertyNameType propertyName = new PropertyNameType();
+            String propName = query.getSortBy().getPropertyName().getPropertyName();
+            if (propName != null) {
+                if (Result.TEMPORAL.equals(propName) || Metacard.ANY_DATE.equals(propName)) {
+                    propName = Metacard.MODIFIED;
+                } else if (Result.RELEVANCE.equals(propName) || Metacard.ANY_TEXT.equals(propName)) {
+                    propName = Metacard.TITLE;
+                } else if (Result.DISTANCE.equals(propName) || Metacard.ANY_GEO.equals(propName)) {
+                    return null;
+                }
+            }
 
-            propertyName.setContent(Arrays.asList((Object) cswFilterDelegate.mapPropertyName(query
-                    .getSortBy().getPropertyName().getPropertyName())));
+            propertyName.setContent(Arrays.asList((Object) cswFilterDelegate
+                    .mapPropertyName(propName)));
             sortProperty.setPropertyName(propertyName);
             if(SortOrder.DESCENDING.equals(query.getSortBy().getSortOrder())) {
                 sortProperty.setSortOrder(SortOrderType.DESC);

@@ -17,8 +17,9 @@ package org.codice.ddf.spatial.ogc.csw.catalog.source;
 import static org.custommonkey.xmlunit.XMLAssert.assertXMLEqual;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -82,6 +83,7 @@ import org.xml.sax.SAXException;
 import ddf.catalog.data.ContentType;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
+import ddf.catalog.data.Result;
 import ddf.catalog.filter.impl.SortByImpl;
 import ddf.catalog.filter.proxy.adapter.GeotoolsFilterAdapterImpl;
 import ddf.catalog.operation.SourceResponse;
@@ -262,6 +264,165 @@ public class TestCswSource extends TestCswSourceBase {
         assertThat(cswQuery.getSortBy().getSortProperty().size(), is(1));
         assertThat(cswQuery.getSortBy().getSortProperty().get(0).getPropertyName().getContent()
                 .get(0).toString(), equalTo(TITLE));
+        assertThat(cswQuery.getSortBy().getSortProperty().get(0).getSortOrder(),
+                is(SortOrderType.DESC));
+    }
+
+    @Test
+    public void testQueryWithSortByDistance() throws JAXBException, UnsupportedQueryException,
+        DatatypeConfigurationException, SAXException, IOException {
+
+        // Setup
+        final String searchPhrase = "*";
+        final int pageSize = 1;
+        final int numRecordsReturned = 1;
+        final long numRecordsMatched = 1;
+
+        setupMockContextForMetacardTypeRegistrationAndUnregistration(getDefaultContentTypes());
+
+        try {
+            configureMockRemoteCsw(numRecordsReturned, numRecordsMatched,
+                    CswConstants.VERSION_2_0_2);
+        } catch (CswException e) {
+            fail("Could not configure Mock Remote CSW: " + e.getMessage());
+        }
+
+        RecordConverter mockRecordConverter = mock(RecordConverter.class);
+
+        QueryImpl query = new QueryImpl(builder.attribute(Metacard.ANY_TEXT).is().like()
+                .text(searchPhrase));
+        query.setPageSize(pageSize);
+        SortBy sortBy = new SortByImpl(Result.DISTANCE, SortOrder.DESCENDING);
+        query.setSortBy(sortBy);
+
+        CswSource cswSource = getCswSource(mockCsw, mockContext, mockRecordConverter,
+                new LinkedList<String>());
+        cswSource.setCswUrl(URL);
+        cswSource.setId(ID);
+
+        // Perform test
+        SourceResponse response = cswSource.query(new QueryRequestImpl(query));
+
+        // Verify
+        Assert.assertNotNull(response);
+        assertThat(response.getResults().size(), is(numRecordsReturned));
+        assertThat(response.getHits(), is(numRecordsMatched));
+        ArgumentCaptor<GetRecordsType> captor = ArgumentCaptor.forClass(GetRecordsType.class);
+        try {
+            verify(mockCsw, atLeastOnce()).getRecords(captor.capture());
+        } catch (CswException e) {
+            fail("Could not verify mock CSW record count: " + e.getMessage());
+        }
+        GetRecordsType getRecordsType = captor.getValue();
+
+        QueryType cswQuery = (QueryType) getRecordsType.getAbstractQuery().getValue();
+        assertThat(cswQuery.getSortBy(), nullValue());
+    }
+
+    @Test
+    public void testQueryWithSortByRelevance() throws JAXBException, UnsupportedQueryException,
+        DatatypeConfigurationException, SAXException, IOException {
+        // Setup
+        final String searchPhrase = "*";
+        final int pageSize = 1;
+        final int numRecordsReturned = 1;
+        final long numRecordsMatched = 1;
+
+        setupMockContextForMetacardTypeRegistrationAndUnregistration(getDefaultContentTypes());
+
+        try {
+            configureMockRemoteCsw(numRecordsReturned, numRecordsMatched,
+                    CswConstants.VERSION_2_0_2);
+        } catch (CswException e) {
+            fail("Could not configure Mock Remote CSW: " + e.getMessage());
+        }
+
+        RecordConverter mockRecordConverter = mock(RecordConverter.class);
+
+        QueryImpl query = new QueryImpl(builder.attribute(Metacard.ANY_TEXT).is().like()
+                .text(searchPhrase));
+        query.setPageSize(pageSize);
+        SortBy sortBy = new SortByImpl(Result.RELEVANCE, SortOrder.DESCENDING);
+        query.setSortBy(sortBy);
+
+        CswSource cswSource = getCswSource(mockCsw, mockContext, mockRecordConverter,
+                new LinkedList<String>());
+        cswSource.setCswUrl(URL);
+        cswSource.setId(ID);
+
+        // Perform test
+        SourceResponse response = cswSource.query(new QueryRequestImpl(query));
+
+        // Verify
+        Assert.assertNotNull(response);
+        assertThat(response.getResults().size(), is(numRecordsReturned));
+        assertThat(response.getHits(), is(numRecordsMatched));
+        ArgumentCaptor<GetRecordsType> captor = ArgumentCaptor.forClass(GetRecordsType.class);
+        try {
+            verify(mockCsw, atLeastOnce()).getRecords(captor.capture());
+        } catch (CswException e) {
+            fail("Could not verify mock CSW record count: " + e.getMessage());
+        }
+        GetRecordsType getRecordsType = captor.getValue();
+
+        QueryType cswQuery = (QueryType) getRecordsType.getAbstractQuery().getValue();
+        assertThat(cswQuery.getSortBy().getSortProperty().size(), is(1));
+        assertThat(cswQuery.getSortBy().getSortProperty().get(0).getPropertyName().getContent()
+                .get(0).toString(), equalTo(Metacard.TITLE));
+        assertThat(cswQuery.getSortBy().getSortProperty().get(0).getSortOrder(),
+                is(SortOrderType.DESC));
+    }
+
+    @Test
+    public void testQueryWithSortByTemporal() throws JAXBException, UnsupportedQueryException,
+        DatatypeConfigurationException, SAXException, IOException {
+        // Setup
+        final String searchPhrase = "*";
+        final int pageSize = 1;
+        final int numRecordsReturned = 1;
+        final long numRecordsMatched = 1;
+
+        setupMockContextForMetacardTypeRegistrationAndUnregistration(getDefaultContentTypes());
+
+        try {
+            configureMockRemoteCsw(numRecordsReturned, numRecordsMatched,
+                    CswConstants.VERSION_2_0_2);
+        } catch (CswException e) {
+            fail("Could not configure Mock Remote CSW: " + e.getMessage());
+        }
+
+        RecordConverter mockRecordConverter = mock(RecordConverter.class);
+
+        QueryImpl query = new QueryImpl(builder.attribute(Metacard.ANY_TEXT).is().like()
+                .text(searchPhrase));
+        query.setPageSize(pageSize);
+        SortBy sortBy = new SortByImpl(Result.TEMPORAL, SortOrder.DESCENDING);
+        query.setSortBy(sortBy);
+
+        CswSource cswSource = getCswSource(mockCsw, mockContext, mockRecordConverter,
+                new LinkedList<String>());
+        cswSource.setCswUrl(URL);
+        cswSource.setId(ID);
+
+        // Perform test
+        SourceResponse response = cswSource.query(new QueryRequestImpl(query));
+
+        // Verify
+        Assert.assertNotNull(response);
+        assertThat(response.getResults().size(), is(numRecordsReturned));
+        assertThat(response.getHits(), is(numRecordsMatched));
+        ArgumentCaptor<GetRecordsType> captor = ArgumentCaptor.forClass(GetRecordsType.class);
+        try {
+            verify(mockCsw, atLeastOnce()).getRecords(captor.capture());
+        } catch (CswException e) {
+            fail("Could not verify mock CSW record count: " + e.getMessage());
+        }
+        GetRecordsType getRecordsType = captor.getValue();
+
+        QueryType cswQuery = (QueryType) getRecordsType.getAbstractQuery().getValue();
+        assertThat(cswQuery.getSortBy().getSortProperty().size(), is(1));
+        assertThat(cswQuery.getSortBy().getSortProperty().get(0).getPropertyName().getContent()
+                .get(0).toString(), equalTo(Metacard.MODIFIED));
         assertThat(cswQuery.getSortBy().getSortProperty().get(0).getSortOrder(),
                 is(SortOrderType.DESC));
     }
@@ -642,6 +803,7 @@ public class TestCswSource extends TestCswSourceBase {
         }
         cswSourceConfiguration.setId(ID);
         cswSourceConfiguration.setCswUrl(URL);
+        cswSourceConfiguration.setModifiedDateMapping(Metacard.MODIFIED);
         return cswSourceConfiguration;
     }
 
