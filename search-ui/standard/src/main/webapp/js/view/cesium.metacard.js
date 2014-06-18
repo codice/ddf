@@ -24,10 +24,12 @@ define([
 
 
         Views.PointView = Marionette.ItemView.extend({
+            modelEvents: {
+                'change:context': 'toggleSelection'
+            },
             initialize: function (options) {
                 this.geoController = options.geoController;
                 if(! options.ignoreEvents) {
-                    this.listenTo(this.model, 'change:context', this.toggleSelection);
                     this.listenTo(this.geoController, 'click:left', this.onMapLeftClick);
                     this.listenTo(this.geoController, 'doubleclick:left', this.onMapDoubleClick);
                 }

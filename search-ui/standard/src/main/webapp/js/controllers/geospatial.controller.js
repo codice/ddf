@@ -31,7 +31,7 @@ define(['underscore',
                 this.setupEvents();
                 this.preloadBillboards();
 
-                wreqr.vent.on('map:show', _.bind(this.flyToLocation, this));
+                wreqr.vent.on('search:mapshow', _.bind(this.flyToLocation, this));
                 wreqr.vent.on('search:start', _.bind(this.clearResults, this));
                 wreqr.vent.on('search:results', _.bind(this.newResults, this));
                 wreqr.vent.on('search:clear', _.bind(this.clear, this));

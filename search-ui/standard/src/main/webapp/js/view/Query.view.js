@@ -102,6 +102,10 @@ define([
                 'change #offsetTimeUnits': 'onTimeUnitsChanged'
             },
 
+            modelEvents: {
+                'change:bbox change:radius': 'updateZoomOnResults'
+            },
+
             initialize: function (options) {
                 _.bindAll(this);
                 this.model = new Query.Model();
@@ -170,7 +174,7 @@ define([
                     radius: undefined,
                     bbox: undefined
                 }, {unset: true});
-                wreqr.vent.trigger("draw:end");
+                wreqr.vent.trigger("search:drawend");
                 this.updateScrollbar();
             },
 
@@ -182,7 +186,11 @@ define([
             },
 
             updateScrollbar: function () {
-                wreqr.vent.trigger('query:update');
+                var view = this;
+                // defer seems to be necessary for this to update correctly
+                _.defer(function () {
+                    view.$el.perfectScrollbar('update');
+                });
             },
 
             serializeData: function () {
@@ -263,9 +271,6 @@ define([
                     $('#federationSources').multiselect("refresh");
                 });
 
-
-                this.listenTo(this.model, 'change:bbox change:radius', this.updateZoomOnResults);
-
                 this.initDateTimePicker('#absoluteStartTime');
                 this.initDateTimePicker('#absoluteEndTime');
 
@@ -317,11 +322,11 @@ define([
             },
 
             drawCircle: function(){
-                wreqr.vent.trigger("draw:circle", this.model);
+                wreqr.vent.trigger("search:drawcircle", this.model);
             },
 
             drawExtent : function(){
-                wreqr.vent.trigger("draw:extent", this.model);
+                wreqr.vent.trigger("search:drawextent", this.model);
             },
 
             onClose: function () {
@@ -403,7 +408,7 @@ define([
                 // disable the whole form
                 this.$('button').addClass('disabled');
                 this.$('input').prop('disabled',true);
-                wreqr.vent.trigger("draw:stop");
+                wreqr.vent.trigger("search:drawstop");
 
                 result.fetch({
                     progress: progressFunction,
@@ -416,13 +421,14 @@ define([
                         }
                     }
                 }).complete(function () {
-                        //re-enable the whole form
-                        view.$('button').removeClass('disabled');
-                        view.$('input').prop('disabled',false);
-                        wreqr.vent.trigger('search:results', result, view.zoomOnResults);
-                    });
-
-
+                    //this is fired after cometd has acknowledged our query request
+                    //re-enable the whole form
+                    view.$('button').removeClass('disabled');
+                    view.$('input').prop('disabled',false);
+                }).success(function() {
+                    //this is fired after cometd has sent back the first result
+                    wreqr.vent.trigger('search:results', result, view.zoomOnResults);
+                });
             },
 
             reset: function () {

@@ -253,9 +253,9 @@ define([
                 this.scene = options.scene;
                 this.notificationEl = options.notificationEl;
 
-                wreqr.vent.on('draw:extent', _.bind(this.draw, this));
-                wreqr.vent.on('draw:stop', _.bind(this.stop, this));
-                wreqr.vent.on('draw:end', _.bind(this.destroy, this));
+                wreqr.vent.on('search:drawextent', _.bind(this.draw, this));
+                wreqr.vent.on('search:drawstop', _.bind(this.stop, this));
+                wreqr.vent.on('search:drawend', _.bind(this.destroy, this));
             },
             draw: function (model) {
                 if (this.enabled) {

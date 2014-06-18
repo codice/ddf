@@ -45,7 +45,7 @@ define([
             regions : {
                 progressRegion: "#progressRegion",
                 searchControlRegion: "#searchControlRegion",
-                leftRegion: {
+                searchRegion: {
                     selector: "#searchPages",
                     regionType:  SlidingRegion
                 }
@@ -58,31 +58,19 @@ define([
                     sources : options.sources
                 });
 
-                wreqr.vent.on('query:update', this.updateScrollbar);
                 wreqr.vent.on('search:show', this.showQuery);
-                wreqr.vent.on('search:clear', this.onQueryClear, this);
-                wreqr.vent.on('search:start', this.onQueryClear, this);
-                wreqr.vent.on('search:start', this.setupProgress, this);
-                wreqr.vent.on('search:start', this.showEmptyResults, this);
-                wreqr.vent.on('search:results', this.showResults, this);
-                wreqr.vent.on('metacard:selected', this.showMetacardDetail, this);
-
-                wreqr.vent.on('searchcontrol:back', this.back, this);
-                wreqr.vent.on('searchcontrol:forward', this.forward, this);
-
-                this.modelBinder = new Backbone.ModelBinder();
-            },
-
-            updateScrollbar: function () {
-                var view = this;
-                // defer seems to be necessary for this to update correctly
-                _.defer(function () {
-                    view.leftRegion.$el.perfectScrollbar('update');
-                });
+                wreqr.vent.on('search:clear', this.onQueryClear);
+                wreqr.vent.on('search:start', this.onQueryClear);
+                wreqr.vent.on('search:start', this.setupProgress);
+                wreqr.vent.on('search:start', this.showEmptyResults);
+                wreqr.vent.on('search:results', this.showResults);
+                wreqr.vent.on('metacard:selected', this.showMetacardDetail);
+                wreqr.vent.on('search:back', this.back);
+                wreqr.vent.on('search:forward', this.forward);
             },
 
             onRender : function(){
-                this.leftRegion.show(this.queryForm, dir.forward);
+                this.searchRegion.show(this.queryForm, dir.forward);
                 this.searchControlRegion.show(new SearchControl.SearchControlView());
 
                 if(maptype.isNone()) {
@@ -92,75 +80,62 @@ define([
             setupProgress: function (resultList, queryModel, numSources, progressObj) {
                 if (!resultList.useAjaxSync) {
                     if (numSources > 1) {
-                        if (this.progressView) {
-                            this.progressView.close();
-                        }
-                        this.progressView = new ProgressView({ resultList: resultList, queryModel: queryModel, sources: numSources, model: progressObj});
-                        this.progressRegion.show(this.progressView);
+                        this.progressRegion.show(new ProgressView({ resultList: resultList, queryModel: queryModel, sources: numSources, model: progressObj}));
                     }
                 }
             },
             onQueryClear: function () {
-                if (this.metacardDetail) {
-                    this.metacardDetail.remove();
-                    delete this.metacardDetail;
+                if (this.progressRegion.currentView) {
+                    this.progressRegion.close();
                 }
-                if (this.progressView) {
-                    this.progressView.close();
-                }
-                if (this.resultList) {
-                    this.resultList.close();
-                    delete this.resultList;
-                }
+                delete this.result;
+                delete this.metacard;
             },
-            back: function () {
-                if (this.leftRegion.currentView === this.resultList) {
+            back: function (currentState) {
+                if (currentState === 'results') {
                     //go back to query
                     this.showQuery(dir.backward);
                 }
-                else if (this.leftRegion.currentView === this.metacardDetail) {
+                else if (currentState === 'record') {
                     this.showResults(null, dir.backward);
                 }
             },
-            forward: function () {
-                if (this.leftRegion.currentView === this.queryForm) {
+            forward: function (currentState) {
+                if (currentState === 'search') {
                     this.showEmptyResults();
                 }
-                else if (this.leftRegion.currentView === this.resultList) {
+                else if (currentState === 'results') {
                     this.showMetacardDetail(null, dir.forward);
                 }
             },
             showQuery: function (direction) {
-                this.leftRegion.show(this.queryForm, direction);
+                this.searchRegion.show(this.queryForm, direction);
             },
             showEmptyResults: function() {
                 this.showResults(null, dir.forward);
             },
             showResults: function (result, direction) {
                 if (result) {
-                    this.resultList = new MetacardList.MetacardListView({model: result});
+                    this.result = result;
+                    this.searchRegion.show(new MetacardList.MetacardListView({model: result}), direction);
+                } else {
+                    if(!this.result) {
+                        this.result = new MetacardModel.SearchResult();
+                    }
+                    this.searchRegion.show(new MetacardList.MetacardListView({model: this.result}), direction);
                 }
-                if(!this.resultList){
-                    this.resultList = new MetacardList.MetacardListView({model: new MetacardModel.SearchResult()});
-                }
-                this.leftRegion.show(this.resultList, direction);
             },
             showMetacardDetail: function (metacard, direction) {
-                if (!metacard && this.metacardDetail) {
-                    this.metacardDetail.model.set('direction', dir.forward);
-                    metacard = this.metacardDetail.model;
+                if (!metacard && this.metacard) {
+                    this.metacard.set('direction', dir.forward);
+                    metacard = this.metacard;
                 }
 
                 if (metacard) {
-                    if (this.metacardDetail) {
-                        this.stopListening(this.metacardDetail, 'content-update', this.updateScrollbar);
-                    }
-                    this.metacardDetail = new MetacardDetail.MetacardDetailView({metacard: metacard});
-                    this.listenTo(this.metacardDetail, 'content-update', this.updateScrollbar);
+                    this.metacard = metacard;
                     direction = _.isUndefined(metacard.get('direction')) ? direction : metacard.get('direction');
+                    this.searchRegion.show(new MetacardDetail.MetacardDetailView({model: metacard}), direction);
                 }
-
-                this.leftRegion.show(this.metacardDetail, direction);
             }
         });
 

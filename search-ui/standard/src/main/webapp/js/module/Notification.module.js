@@ -18,7 +18,7 @@ define(['application',
         function(Application, Cometd, Notification, NotificationView, wreqr) {
 
     // Create a new module in the StandardUiApp
-    Application.App.module('NotificationModule', function(NotificationModule) {
+    Application.App.module('MenuModule.NotificationModule', function(NotificationModule) {
 
         // Instantiate Notifications collection and pass that to the two views I will use.
         var notifications = new Notification.List();

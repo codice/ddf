@@ -201,6 +201,9 @@ define([
                 listRegion: '#resultList',
                 statusRegion: '#result-status-list'
             },
+            modelEvents: {
+                'change': 'updateSpinner'
+            },
             spinner: new Spinner(spinnerConfig),
             onRender: function () {
                 this.listRegion.show(new List.MetacardTable({
@@ -215,7 +218,6 @@ define([
             },
             onShow: function(){
                 this.updateSpinner();
-                this.listenTo(this.model, 'change', this.updateSpinner);
                 this.updateScrollbar();
                 this.updateScrollPos();
             },

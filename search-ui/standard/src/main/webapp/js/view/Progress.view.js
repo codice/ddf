@@ -65,6 +65,9 @@ define([
             events: {
                 'click #progress-btn': 'merge'
             },
+            modelEvents: {
+                'change': 'updateProgress'
+            },
             initialize: function(options) {
                 this.model = options.model;
                 this.queryModel = options.queryModel;
@@ -73,11 +76,6 @@ define([
             },
             onRender: function() {
                 this.configureProgress();
-
-                this.listenTo(this.model, 'change', this.updateProgress);
-            },
-            onClose: function() {
-                this.stopListening(this.model, 'change', this.updateProgress);
             },
             updateProgress: function() {
                 var view = this;

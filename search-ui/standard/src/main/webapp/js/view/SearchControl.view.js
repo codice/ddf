@@ -110,12 +110,14 @@ define([
             },
 
             back: function () {
+                var state = this.model.currentState;
                 this.model.back();
-                wreqr.vent.trigger('searchcontrol:back', this.model.currentState);
+                wreqr.vent.trigger('search:back', state);
             },
             forward: function () {
+                var state = this.model.currentState;
                 this.model.forward();
-                wreqr.vent.trigger('searchcontrol:forward', this.model.currentState);
+                wreqr.vent.trigger('search:forward', state);
             }
         });
 

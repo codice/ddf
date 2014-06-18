@@ -16,7 +16,7 @@ define(['application',
         'wreqr'],
     function(Application, Cometd, Task,  wreqr) {
 
-        Application.App.module('TaskModule', function(TaskModule) {
+        Application.App.module('MenuModule.TaskModule', function(TaskModule) {
 
             var tasks = new Task.Collection();
 

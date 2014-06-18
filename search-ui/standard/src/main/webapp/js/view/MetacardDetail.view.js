@@ -37,9 +37,10 @@ define([
                 'click #prevRecord' : 'previousRecord',
                 'click #nextRecord' : 'nextRecord'
             },
-            initialize: function (options) {
-                // options should be -> { metacard: metacard }
-                this.model = options.metacard;
+            modelEvents: {
+                'change': 'render'
+            },
+            initialize: function () {
 
                 if(this.model.get('hash')) {
                     this.hash = this.model.get('hash');
@@ -56,8 +57,6 @@ define([
                 if (index < collection.length - 1) {
                     this.nextModel = collection.at(index + 1);
                 }
-
-                this.listenTo(this.model, 'change', this.render);
             },
             render: function () {
                 var jsonObj = this.model.toJSON();
@@ -75,12 +74,19 @@ define([
 
                 return this;
             },
+            updateScrollbar: function () {
+                var view = this;
+                // defer seems to be necessary for this to update correctly
+                _.defer(function () {
+                    view.$el.perfectScrollbar('update');
+                });
+            },
             onTabClick : function(e){
-                this.trigger('content-update');
+                this.updateScrollbar();
                 this.hash = e.target.hash;
             },
             viewLocation: function () {
-                wreqr.vent.trigger('map:show', this.model);
+                wreqr.vent.trigger('search:mapshow', this.model);
             },
             previousRecord: function () {
                 if (this.prevModel) {

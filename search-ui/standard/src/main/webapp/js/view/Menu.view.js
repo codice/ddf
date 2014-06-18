@@ -104,8 +104,8 @@ define([
             'click a': 'clickLink',
             'click': 'clickBody'
         },
-        initialize: function() {
-            this.listenTo(this.model, 'change', this.render);
+        modelEvents: {
+            'change': 'render'
         },
         clickBody: function(e) {
             //stops the menu from closing
@@ -202,8 +202,8 @@ define([
         regions: {
             children: 'ul.dropdown-menu'
         },
-        initialize: function() {
-            this.listenTo(this.model, 'change', this.render);
+        modelEvents: {
+            'change': 'render'
         }
     });
 
