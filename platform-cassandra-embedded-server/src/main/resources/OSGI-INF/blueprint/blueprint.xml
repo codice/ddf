@@ -18,10 +18,10 @@
     <bean id="cassandraConfig" class="org.codice.ddf.platform.cassandra.embedded.CassandraConfig">
         <argument value="DDF Cluster" />
         <argument value="conf/cassandra.yaml" />
-        <argument value="9160" />
-        <argument value="9042" />
-        <argument value="7000" />
-        <argument value="7001" />
+        <argument value="9160" />   <!-- RPC port -->
+        <argument value="9042" />   <!-- CQL port -->
+        <argument value="7000" />   <!-- storage port -->
+        <argument value="7001" />   <!-- SSL storage port -->
         <argument value="/data" />
         <argument value="/commitlog" />
         <argument value="/saved_caches" />
@@ -32,8 +32,6 @@
         <argument value="ddf" />
         <argument ref="cassandraConfig" />
     </bean>
-    
-    <service id="CasssandraServerService" ref="casssandraServer" interface="org.codice.ddf.persistentstorage.PersistentStore" />
     
 </blueprint>
     
