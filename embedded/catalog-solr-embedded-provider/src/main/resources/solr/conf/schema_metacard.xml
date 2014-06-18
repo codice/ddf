@@ -533,11 +533,11 @@
    <field name="id_txt" type="string" indexed="true" stored="true" required="true" /> 
    <field name="id_txt_tokenized" type="text_general" indexed="true" stored="false" required="false" />
    <field name="id_txt_tokenized_has_case" type="text_general_has_case" indexed="true" stored="false" required="false" />
-<!-- OMIT   
+   
    <field name="metacard_type_name" type="string" indexed="true" stored="true" required="true"/>
    
    <field name="metacard_type_object" type="binary" indexed="false" stored="true" required="true"/>
--->   
+   
    <!-- Common metadata fields, named specifically to match up with
      SolrCell metadata when parsing rich documents such as Word, PDF.
      Some fields are multiValued only because Tika currently may return
