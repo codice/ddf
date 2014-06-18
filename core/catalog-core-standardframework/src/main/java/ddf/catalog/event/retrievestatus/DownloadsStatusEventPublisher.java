@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.shiro.SecurityUtils;
 import org.codice.ddf.activities.ActivityEvent;
 import org.codice.ddf.activities.ActivityEvent.ActivityStatus;
@@ -51,7 +52,7 @@ public class DownloadsStatusEventPublisher {
     public static final String BYTES = "bytes";
 
     public static enum ProductRetrievalStatus {
-        STARTED, RETRYING, CANCELLED, FAILED, COMPLETE;
+        STARTED, IN_PROGRESS, RETRYING, CANCELLED, FAILED, COMPLETE;
     }
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DownloadsStatusEventPublisher.class);
@@ -61,6 +62,9 @@ public class DownloadsStatusEventPublisher {
 
     private boolean notificationEnabled = true;
     private boolean activityEnabled = true;
+    private static final int ONE_HUNDRED_PERCENT = 100;
+    private static final String NO_PROGRESS_BAR = "";
+    private static final String BYTES_READ_PROGRESS = "-1";
 
     /**
      * Used to publish product retrieval status updates via the OSGi Event Service
@@ -97,9 +101,8 @@ public class DownloadsStatusEventPublisher {
             LOGGER.debug("Could not determine current user, using session id.");
         }
         String user = SubjectUtils.getName(shiroSubject, getProperty(resourceResponse, ActivityEvent.USER_ID_KEY));
-        
-        
-        if(notificationEnabled) {
+
+        if (notificationEnabled && status != ProductRetrievalStatus.IN_PROGRESS) {
             Notification notification = new Notification(APPLICATION_NAME,
                     resourceResponse.getResource().getName(),
                     generateMessage(status, resourceResponse.getResource().getName(),
@@ -122,19 +125,23 @@ public class DownloadsStatusEventPublisher {
             
             // get Action
             Action downloadAction = null;
-            if(!actionProviders.isEmpty()) {
+            if (!actionProviders.isEmpty()) {
                 // take the first one
                 downloadAction = actionProviders.get(0).getAction(metacard);
             }
             
             // send activity event
             // progress for downloads 
-            String progress = "";
+            String progress = NO_PROGRESS_BAR;
             Map<String, String> operations = new HashMap<String, String>();
             ActivityStatus type;
             switch (status) {
             case STARTED:
                 type = ActivityStatus.STARTED;
+                if (downloadAction != null) {
+                    operations = ImmutableMap.of("cancel", "true");
+                    progress = BYTES_READ_PROGRESS;
+                }
                 break;
             case COMPLETE:
                 type = ActivityStatus.FINISHED;
@@ -150,11 +157,25 @@ public class DownloadsStatusEventPublisher {
                 break;
             default:
                 type = ActivityStatus.RUNNING;
-            
+                if (downloadAction != null) {
+                    operations = ImmutableMap.of("cancel", "true");
+                    progress = BYTES_READ_PROGRESS;
+                    if (metacard != null) {
+                        String resourceSizeStr = metacard.getResourceSize();
+                        if (!StringUtils.isEmpty(resourceSizeStr) && !StringUtils.equalsIgnoreCase(resourceSizeStr, "N/A")) {
+                            Long resourceSize = Long.parseLong(resourceSizeStr);
+                            if (resourceSize > 0) {
+                                progress = Long
+                                        .toString((bytes * ONE_HUNDRED_PERCENT) / resourceSize);
+                            }
+                        }
+                    }
+                }
+                break;
             }
 
             ActivityEvent eventProperties = new ActivityEvent(metacard.getId(), new Date(), "Product Retrieval", resourceResponse.getResource().getName(), generateMessage(status, resourceResponse.getResource().getName(), 
-                    bytes, sysTimeMillis, detail), progress, operations, user, type);
+                    bytes, sysTimeMillis, detail), progress, operations, user, type, bytes);
             Event event = new Event(ActivityEvent.EVENT_TOPIC_BROADCAST, eventProperties);
             eventAdmin.postEvent(event);
         }
@@ -212,7 +233,10 @@ public class DownloadsStatusEventPublisher {
         case FAILED:
             response.append(" failed");
             break;
-            
+
+        case IN_PROGRESS:
+            response.append(" downloading ");
+
         default:
             break;
         }

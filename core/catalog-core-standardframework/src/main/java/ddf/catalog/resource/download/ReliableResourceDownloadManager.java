@@ -358,7 +358,7 @@ public class ReliableResourceDownloadManager implements Runnable {
                     // the product retrieval. If such a "gap" is detected, the Callable will be canceled and a
                     // new download attempt (retry) will be started.
                     final Timer downloadTimer = new Timer();
-                    resourceRetrievalMonitor = new ResourceRetrievalMonitor(downloadFuture, reliableResourceCallable, monitorPeriod);
+                    resourceRetrievalMonitor = new ResourceRetrievalMonitor(downloadFuture, reliableResourceCallable, monitorPeriod, eventPublisher, resourceResponse, metacard);
                     LOGGER.debug("Configuring resourceRetrievalMonitor to run every {} ms", monitorPeriod);
                     downloadTimer.scheduleAtFixedRate(resourceRetrievalMonitor, monitorInitialDelay, monitorPeriod);
                     downloadStarted = true;
@@ -401,7 +401,8 @@ public class ReliableResourceDownloadManager implements Runnable {
                         }
                     }               
                     break;
-                } else {
+                }
+                else {
                     bytesRead = reliableResourceStatus.getBytesRead();
                     LOGGER.debug("Download not complete, only read {} bytes", bytesRead);
                     if (fos != null) {
@@ -464,7 +465,7 @@ public class ReliableResourceDownloadManager implements Runnable {
                         // is being read by the client - assume this is unrecoverable, but continue to cache the file
                         LOGGER.info("Handling FileBackedOutputStream exception");
                         eventPublisher.postRetrievalStatus(resourceResponse,
-                                ProductRetrievalStatus.CANCELLED, metacard, "", 0L);
+                                ProductRetrievalStatus.CANCELLED, metacard, "", reliableResourceStatus.getBytesRead());
                         IOUtils.closeQuietly(fbos);
                         IOUtils.closeQuietly(countingFbos);
                         LOGGER.debug("Cancelling resourceRetrievalMonitor");
@@ -478,7 +479,7 @@ public class ReliableResourceDownloadManager implements Runnable {
                         downloadState.setDownloadState(DownloadState.CANCELED);
                         LOGGER.debug("Cancelling resourceRetrievalMonitor");
                         resourceRetrievalMonitor.cancel();
-                        eventPublisher.postRetrievalStatus(resourceResponse, ProductRetrievalStatus.CANCELLED, metacard, "", 0L);
+                        eventPublisher.postRetrievalStatus(resourceResponse, ProductRetrievalStatus.CANCELLED, metacard, "", reliableResourceStatus.getBytesRead());
                         if (doCaching && cacheWhenCanceled) {
                             LOGGER.debug("Continuing to cache product");
                             reliableResourceCallable = new ReliableResourceCallable(resourceInputStream, fos, chunkSize);

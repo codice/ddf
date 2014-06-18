@@ -17,6 +17,9 @@ package ddf.catalog.resource.download;
 import java.util.TimerTask;
 import java.util.concurrent.Future;
 
+import ddf.catalog.data.Metacard;
+import ddf.catalog.event.retrievestatus.DownloadsStatusEventPublisher;
+import ddf.catalog.operation.ResourceResponse;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,17 +37,27 @@ public class ResourceRetrievalMonitor extends TimerTask {
     private Future<?> future;
     private ReliableResourceCallable reliableResourceCallable;
     private long monitorPeriod;
+    private DownloadsStatusEventPublisher eventPublisher;
+    private ResourceResponse resourceResponse;
+    private Metacard metacard;
 
 
     /**
      * @param future the @Future that started the @ReliableResourceCallable doing the resource download
      * @param reliableResourceCallable the @Callable to interrupt if no bytes read in specified period
      * @param monitorPeriod the frequency (in ms) this monitor should check for bytes read
+     * @param eventPublisher reference to the publisher of status events as the download progresses
+     * @param resourceResponse the resource response of the request
+     * @param metacard the @Metacard associated with the resource being downloaded
      */
-    public ResourceRetrievalMonitor(Future<?> future, ReliableResourceCallable reliableResourceCallable, long monitorPeriod) {
+    public ResourceRetrievalMonitor(Future<?> future, ReliableResourceCallable reliableResourceCallable, long monitorPeriod,
+            DownloadsStatusEventPublisher eventPublisher, ResourceResponse resourceResponse, Metacard metacard) {
         this.future = future;
         this.reliableResourceCallable = reliableResourceCallable;
         this.monitorPeriod = monitorPeriod;
+        this.eventPublisher = eventPublisher;
+        this.resourceResponse = resourceResponse;
+        this.metacard = metacard;
     }
 
     /**
@@ -67,6 +80,8 @@ public class ResourceRetrievalMonitor extends TimerTask {
                     chunkByteCount, monitorPeriod, bytesRead,
                     FileUtils.byteCountToDisplaySize(transferSpeed));
             previousBytesRead = reliableResourceCallable.getBytesRead();
+            eventPublisher.postRetrievalStatus(resourceResponse,
+                    DownloadsStatusEventPublisher.ProductRetrievalStatus.IN_PROGRESS, metacard, null, bytesRead);
         } else {
             LOGGER.debug("No bytes downloaded in last {} ms - cancelling ResourceRetrievalMonitor and ReliableResourceCallable future (thread).", monitorPeriod);
             // Stop this ResourceRetrievalMonitor since the ReliableResourceCallable being watched will be stopped now
