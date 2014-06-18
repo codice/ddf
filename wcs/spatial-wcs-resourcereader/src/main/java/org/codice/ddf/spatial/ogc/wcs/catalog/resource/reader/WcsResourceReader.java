@@ -389,7 +389,7 @@ public class WcsResourceReader {
         return resourceResponse;
     }
 
-    private SpatialSubsetType getSpatialSubset(JAXBElement<? extends EnvelopeType> envelope) {
+    protected SpatialSubsetType getSpatialSubset(JAXBElement<? extends EnvelopeType> envelope) {
 
         List<DirectPositionType> positions = envelope.getValue().getPos();
         String srsName = envelope.getValue().getSrsName();
@@ -439,7 +439,7 @@ public class WcsResourceReader {
         return spatialSubset;
     }
 
-    private OutputType getOutput(String format, List<CodeListType> requestResponseCRSs) {
+    protected OutputType getOutput(String format, List<CodeListType> requestResponseCRSs) {
 
         OutputType output = new OutputType();
         if (!requestResponseCRSs.isEmpty()) {
@@ -459,7 +459,7 @@ public class WcsResourceReader {
         return output;
     }
 
-    private String parseFilename(String contentDisposition) {
+    protected String parseFilename(String contentDisposition) {
         String filename = null;
         String contentHeader = StringUtils.stripEnd(contentDisposition, ";");
         if (StringUtils.isNotBlank(contentHeader)) {
@@ -487,7 +487,7 @@ public class WcsResourceReader {
         return filename;
     }
 
-    private String getMimeType(String filename) {
+    protected String getMimeType(String filename) {
 
         String mimeType = null;
         if (mimeTypeMapper != null) {
@@ -534,7 +534,7 @@ public class WcsResourceReader {
         return jaxbContext;
     }
 
-    private String getGetCoverageAsXml(GetCoverage getCoverage) {
+    protected String getGetCoverageAsXml(GetCoverage getCoverage) {
         Writer writer = new StringWriter();
         try {
             Marshaller marshaller = jaxbContext.createMarshaller();
