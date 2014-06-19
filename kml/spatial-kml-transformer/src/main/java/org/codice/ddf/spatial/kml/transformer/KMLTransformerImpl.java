@@ -62,6 +62,7 @@ import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.BinaryContentImpl;
+import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.transform.CatalogTransformerException;
 import de.micromata.opengis.kml.v_2_2_0.Coordinate;
@@ -220,6 +221,9 @@ public class KMLTransformerImpl implements KMLTransformer {
      */
     protected Placemark performDefaultTransformation(Metacard entry, String url)
         throws CatalogTransformerException {
+        
+        // wrap metacard to work around classLoader/reflection issues
+        entry = new MetacardImpl(entry);
         Placemark kmlPlacemark = KmlFactory.createPlacemark();
         kmlPlacemark.setId("Placemark-" + entry.getId());
         kmlPlacemark.setName(entry.getTitle());
