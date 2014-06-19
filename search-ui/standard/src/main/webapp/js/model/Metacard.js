@@ -17,9 +17,10 @@ define([
         'js/model/util',
         'properties',
         'wreqr',
+        'cometdinit',
         'backbonerelational'
     ],
-    function (Backbone, _, Util, properties, wreqr) {
+    function (Backbone, _, Util, properties, wreqr, Cometd) {
         "use strict";
         var MetaCard = {};
 
@@ -347,6 +348,15 @@ define([
                 queryParams.start = this.get("startIndex");
                 queryParams.format = this.get("format");
                 return queryParams;
+            },
+            cancel: function() {
+                Cometd.Comet.unsubscribe(this.subscription);
+                var sources = this.get('sources');
+                sources.forEach(function(source) {
+                    if(!source.get('done')) {
+                        source.set({'canceled': true});
+                    }
+                });
             }
         });
         return MetaCard;

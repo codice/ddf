@@ -544,6 +544,17 @@ span.add-on {
     background: none;
     border: 0;
 }
+.progress-cancel {
+    display: inline-block;
+    font-size: x-large;
+}
+.progress-container {
+    display: inline-block;
+    height: 100%;
+    width: 80%;
+    width: calc(100% - 35px);
+    background-color: rgba(90,90,90,1);
+}
 .progress-background {
     background: #fff url(images/ui-bg_flat_75_ffffff_40x100.png) 50% 50% repeat-x;
 }
@@ -562,7 +573,8 @@ span.add-on {
     display: table-cell;
     vertical-align: middle;
     margin-top: 1px;
-    width: 100%;
+    width: 80%;
+    width: calc(100% - 35px);
     height: 30px;
     text-align: center;
     font-size: 14px;
@@ -576,7 +588,8 @@ span.add-on {
     display: table-cell;
     vertical-align: middle;
     margin-top: 1px;
-    width: 100%;
+    width: 80%;
+    width: calc(100% - 35px);
     height: 30px;
     text-align: center;
     font-size: 14px;
@@ -620,7 +633,7 @@ span.add-on {
 
 .progress-panel {
     height: 100%;
-    background-color: rgba(90,90,90,1);
+    white-space: nowrap;
 }
 
 .progress-view {
@@ -1112,6 +1125,13 @@ div.dropdown-width li:first-child .task-category {
     padding-bottom: 10px;
     background: #242424;
     text-align: center;
+}
+
+a.cancel:hover, a.cancel:focus,
+a.retry:hover, a.retry:focus,
+a.download:hover, a.download:focus,
+a.pause:hover, a.pause:focus {
+    text-decoration: none;
 }
 
 .pause {

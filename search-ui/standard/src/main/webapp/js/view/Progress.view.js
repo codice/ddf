@@ -63,7 +63,8 @@ define([
             template: 'progressTemplate',
             className: 'progress-view',
             events: {
-                'click #progress-btn': 'merge'
+                'click #progress-btn': 'merge',
+                'click #progress-cancel': 'cancel'
             },
             modelEvents: {
                 'change': 'updateProgress'
@@ -136,6 +137,10 @@ define([
                 });
 
                 return deferred.resolve();
+            },
+            cancel: function() {
+                this.resultList.cancel();
+                this.close();
             }
         });
 

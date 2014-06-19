@@ -31,7 +31,11 @@
             <span class="label label-important">failed</span>
         {{/if}}
     {{else}}
-        <i class="fa fa-circle-o-notch fa-spin"></i>
+        {{#is canceled true}}
+            <span class="label label-warning">canceled</span>
+        {{else}}
+            <i class="fa fa-circle-o-notch fa-spin"></i>
+        {{/is}}
     {{/if}}
     </div>
 </td>
