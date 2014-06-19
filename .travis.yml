@@ -4,5 +4,5 @@ script: mvn test --quiet -B
 jdk:
   - openjdk6
   - oraclejdk7
-# Test failure on JDK8 - https://tools.codice.org/jira/browse/DDF-477
-#  - oraclejdk8
+  - openjdk7
+  - oraclejdk8
