@@ -388,10 +388,13 @@ define([
                     this.modelBinder = new Backbone.ModelBinder();
                 },
                 deleteNotification: function() {
+                    var view = this;
                         if (!this.collection) {
                             if (wreqr.reqres.hasHandler('notifications')) {
                                 this.collection = wreqr.reqres.request('notifications');
-                                this.render();
+                                _.defer(function () {
+                                    view.children.$el.perfectScrollbar('update');
+                                });
                             }
                         }
                         if (this.collection) {
@@ -400,7 +403,9 @@ define([
                             } else {
                                 this.model.set({countNum: this.collection.length});
                             }
-                            this.render();
+                            _.defer(function () {
+                                view.children.$el.perfectScrollbar('update');
+                            });
                         }
                 },
                 removeNotification: function() {
@@ -426,6 +431,7 @@ define([
                     }
                 },
                 onRender: function() {
+                var view = this;
                     if(this.collection) {
                         this.children.show(new Menu.NotificationList({collection: this.collection, itemViewContainer: this.children.$el}));
                         var bindings = Backbone.ModelBinder.createDefaultBindings(this.el, 'name');
@@ -433,6 +439,9 @@ define([
                     } else {
                         this.children.show(new Menu.NotificationEmpty());
                     }
+                    _.defer(function () {
+                        view.children.$el.perfectScrollbar();
+                    });
                 }
             });
             this.notification.show(new Notification({model: new MenuItem({
