@@ -39,7 +39,6 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
-import javax.xml.bind.PropertyException;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.stream.StreamSource;
@@ -108,10 +107,6 @@ public class KMLTransformerImpl implements KMLTransformer {
 
     private JAXBContext jaxbContext;
 
-    private Marshaller marshaller;
-
-    private Unmarshaller unmarshaller;
-            
     private static final Logger LOGGER = LoggerFactory.getLogger(KMLTransformerImpl.class);
 
     private ClassPathTemplateLoader templateLoader;
@@ -136,21 +131,20 @@ public class KMLTransformerImpl implements KMLTransformer {
 
         URL stylingUrl = context.getBundle().getResource(defaultStylingName);
 
+        Unmarshaller unmarshaller = null;
         try {
             this.jaxbContext = JAXBContext.newInstance(Kml.class);
-            this.marshaller = jaxbContext.createMarshaller();
-            this.unmarshaller = jaxbContext.createUnmarshaller();
+            unmarshaller = jaxbContext.createUnmarshaller();
         } catch (JAXBException e) {
-            LOGGER.error("Unable to create JAXB Context and Marshaller.  Setting to null.");
+            LOGGER.error("Unable to create JAXB Context.  Setting to null.");
             this.jaxbContext = null;
-            this.marshaller = null;
-            this.unmarshaller = null;
         }
 
         try {
             if (unmarshaller != null) {
                 LOGGER.debug("Reading in KML Style");
-                JAXBElement<Kml> jaxbKmlStyle = this.unmarshaller.unmarshal(new StreamSource(
+                JAXBElement<Kml> jaxbKmlStyle = unmarshaller.unmarshal(
+                        new StreamSource(
                         stylingUrl.openStream()), Kml.class);
                 Kml kml = jaxbKmlStyle.getValue();
                 if (kml.getFeature() != null) {
@@ -161,13 +155,6 @@ public class KMLTransformerImpl implements KMLTransformer {
             LOGGER.warn("Exception while unmarshalling default style resource.", e);
         } catch (IOException e) {
             LOGGER.warn("Exception while opening default style resource.", e);
-        }
-
-        try {
-            this.marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.FALSE);
-            this.marshaller.setProperty(Marshaller.JAXB_ENCODING, UTF_8);
-        } catch (PropertyException e) {
-            LOGGER.error("Unable to set properties on JAXB Marshaller: ", e);
         }
 
         templateLoader = new ClassPathTemplateLoader();
@@ -468,6 +455,9 @@ public class KMLTransformerImpl implements KMLTransformer {
         StringWriter writer = new StringWriter();
 
         try {
+            Marshaller marshaller = jaxbContext.createMarshaller();
+            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.FALSE);
+            marshaller.setProperty(Marshaller.JAXB_ENCODING, UTF_8);
             marshaller.marshal(kmlResult, writer);
         } catch (JAXBException e) {
             LOGGER.warn("Failed to marshal KML: ", e);
