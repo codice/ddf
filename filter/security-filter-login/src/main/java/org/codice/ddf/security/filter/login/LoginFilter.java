@@ -112,7 +112,7 @@ public class LoginFilter implements Filter {
     /**
      * Validates an attached SAML assertion, or exchanges any other incoming
      * token for a SAML assertion via the STS.
-     * 
+     *
      * @param request
      * @param response
      * @param chain
@@ -143,9 +143,9 @@ public class LoginFilter implements Filter {
                         chain.doFilter(request, response);
                         return null;
                     }
-                    
+
                 });
-                
+
             } else {
                 LOGGER.debug("Could not attach subject to http request.");
             }
@@ -162,6 +162,7 @@ public class LoginFilter implements Filter {
         Object token = httpRequest.getAttribute("ddf.security.token");
         if (securityToken != null) {
             try {
+                LOGGER.debug("Validating received SAML assertion.");
                 // wrap the token
                 AssertionWrapper assertion = new AssertionWrapper(
                         ((SecurityToken) securityToken).getToken());
@@ -236,7 +237,7 @@ public class LoginFilter implements Filter {
     /**
      * Creates the SAML response that we use for validation against the CXF
      * code.
-     * 
+     *
      * @param inResponseTo
      * @param issuer
      * @param status
@@ -261,7 +262,7 @@ public class LoginFilter implements Filter {
 
     /**
      * Creates the issuer object for the response.
-     * 
+     *
      * @param issuerValue
      * @return Issuer
      */
@@ -278,7 +279,7 @@ public class LoginFilter implements Filter {
 
     /**
      * Creates the status object for the response.
-     * 
+     *
      * @param statusCodeValue
      * @param statusMessage
      * @return Status
@@ -315,7 +316,7 @@ public class LoginFilter implements Filter {
     /**
      * Creates a cookie to be returned to the browser if the token was
      * successfully exchanged for a SAML assertion.
-     * 
+     *
      * @param httpRequest
      * @param httpResponse
      * @param cookieValue
@@ -324,6 +325,7 @@ public class LoginFilter implements Filter {
     private void createSamlCookie(HttpServletRequest httpRequest, HttpServletResponse httpResponse,
             String cookieValue, long timeoutSeconds) {
         try {
+            LOGGER.debug("Creating SAML cookie.");
             Cookie cookie = new Cookie(SAML_COOKIE_NAME, cookieValue);
             URL url = new URL(httpRequest.getRequestURL().toString());
             cookie.setDomain(url.getHost());
@@ -344,7 +346,7 @@ public class LoginFilter implements Filter {
     /**
      * Encodes the SAML assertion as a deflated Base64 String so that it can be
      * used as a Cookie.
-     * 
+     *
      * @param token
      * @return String
      * @throws WSSecurityException
@@ -360,7 +362,7 @@ public class LoginFilter implements Filter {
     /**
      * Returns a Crypto object initialized against the system signature
      * properties.
-     * 
+     *
      * @return Crypto
      */
     private Crypto getSignatureCrypto() {

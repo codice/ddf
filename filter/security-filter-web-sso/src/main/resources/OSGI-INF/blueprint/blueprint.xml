@@ -17,7 +17,7 @@
 
     <reference id="contextPolicyManager" interface="org.codice.ddf.security.policy.context.ContextPolicyManager" availability="optional" />
 
-    <reference-list id="handlerList" interface="org.codice.ddf.security.handler.api.AuthenticationHandler" availability="optional" />
+    <reference-list id="handlerList" interface="org.codice.ddf.security.handler.api.AuthenticationHandler" member-type="service-reference" availability="optional" />
 
     <bean id="filter" class="org.codice.ddf.security.filter.websso.WebSSOFilter">
         <property name="handlerList" ref="handlerList" />

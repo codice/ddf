@@ -17,6 +17,8 @@ package org.codice.ddf.security.handler.api;
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
 import org.apache.shiro.authc.AuthenticationToken;
 
+import java.security.Principal;
+
 /**
  * Encapsulates the return status for each handler. Consists of the status of any action taken by
  * the handler (successfully retrieved desired tokens, responded to a client in order to obtain
@@ -41,6 +43,8 @@ public class HandlerResult implements AuthenticationToken {
     private String authCredentials;
 
     private SecurityToken token;
+
+    private String source;
 
     public HandlerResult() {
         status = Status.NO_ACTION;
@@ -89,5 +93,29 @@ public class HandlerResult implements AuthenticationToken {
     @Override
     public Object getCredentials() {
         return token != null ? token : authCredentials;
+    }
+
+    public String getSource() {
+        return source;
+    }
+
+    public void setSource(String src) {
+        this.source = src;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Status: ");
+        sb.append(status.toString());
+        sb.append("; Principal name: ");
+        sb.append(principal == null ? "none" : ((Principal) principal).getName());
+        sb.append("; authCredentials: ");
+        sb.append(authCredentials);
+        sb.append("; token: ");
+        sb.append(token);
+        sb.append("; source: ");
+        sb.append(source);
+        return sb.toString();
     }
 }

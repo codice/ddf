@@ -77,6 +77,7 @@
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Import-Package>
                             *,
+                            org.apache.log4,
                             javax.servlet; version="[2.5.0,3.0.0)",
                             javax.servlet.http; version="[2.5.0,3.0.0)"
                         </Import-Package>
