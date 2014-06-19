@@ -231,7 +231,7 @@ define([
                         }
                         return value;
                     },
-                    federationConverter = function(direction,value){
+                    listConverter = function(direction,value){
                         // If there are multiple federated sources, the model wants
                         // a comma separated string for the list of federated sources.
                         // If there is only one federated source, the model wants
@@ -256,10 +256,10 @@ define([
                 queryModelBindings.offsetTimeUnits.converter = offsetConverter;
                 queryModelBindings.src = {};
                 queryModelBindings.src.selector = '#federationSources';
-                queryModelBindings.src.converter =  federationConverter;
+                queryModelBindings.src.converter =  listConverter;
                 queryModelBindings.type = {};
                 queryModelBindings.type.selector = '#typeList';
-                queryModelBindings.type.converter = federationConverter;
+                queryModelBindings.type.converter = listConverter;
 
                 this.modelBinder.bind(this.model, this.$el, queryModelBindings);
                 this.sourcesCollectionBinder.bind(this.sources, this.$('#federationSources'));
@@ -267,7 +267,7 @@ define([
                 // Refresh the sources multiselect widget to reflect
                 // changes when sources are added/removed or
                 // modified (e.g., become available/unavailable)
-                this.sources.bind('add change remove sort', function() {
+                this.sources.bind('add change remove', function() {
                     $('#federationSources').multiselect("refresh");
                 });
 
@@ -334,7 +334,7 @@ define([
                 this.sourcesCollectionBinder.unbind();
             },
 
-            filterOnEnter: function (e) {
+            filterOnEnter: function(e) {
                 var view = this;
                 if (e.keyCode === 13) {
                     // defer it to make sure the event to set the query parameter is run
@@ -345,7 +345,7 @@ define([
 
             },
 
-            updateZoomOnResults: function () {
+            updateZoomOnResults: function() {
                 this.zoomOnResults = this.model.get("bbox") || this.model.get("radius") ? true : false;
             },
 
