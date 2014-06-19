@@ -58,6 +58,7 @@
     <feature name="catalog-core-standardframework" install="manual" version="${project.version}"
         description="DDF Catalog Framework: the reference implementation of the DDF Catalog specification.">
         <bundle>mvn:ddf.catalog.core/catalog-core-standardframework/${project.version}</bundle>
+        <bundle>mvn:ddf.catalog.core/catalog-core-resourcesizeplugin/${project.version}</bundle>
     </feature>
     
     <feature name="catalog-core-fanoutframework" install="manual" version="${project.version}"
@@ -78,11 +79,6 @@
     <feature name="catalog-schematron-plugin" install="manual" version="${project.version}" description="Schematron pre-ingest validation plugin.">
         <bundle>mvn:ddf.catalog.schematron/catalog-schematron-plugin/${project.version}</bundle>
     </feature>   
-        
-    <feature name="catalog-core-resourcesizeplugin" install="manual" version="${project.version}"
-        description="Set metacard resource size to associated cached product's size (if available).">
-        <bundle>mvn:ddf.catalog.core/catalog-core-resourcesizeplugin/${project.version}</bundle>
-    </feature>
 
     <feature name="catalog-rest-endpoint" install="manual" version="${project.version}" description="REST Endpoint provides CRUD operations on the Catalog Framework.">
         <bundle>mvn:ddf.catalog.rest/catalog-rest-endpoint/${project.version}</bundle>
@@ -186,7 +182,6 @@
         <feature>catalog-core-standardframework</feature>
         <feature>catalog-core-metricsplugin</feature>
         <feature>catalog-core-sourcemetricsplugin</feature>
-        <feature>catalog-core-resourcesizeplugin</feature>
         <feature>catalog-transformer-thumbnail</feature>    
         <feature>catalog-transformer-metadata</feature>
         <feature>catalog-transformer-xsltengine</feature>
