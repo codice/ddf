@@ -341,9 +341,13 @@ public class SearchService {
     private void addTemporalFilter(List<Filter> filters, String dateStart, String dateEnd,
             Long dateOffset, String timeType) {
         if ((Metacard.MODIFIED).equals(timeType) || (Metacard.EFFECTIVE).equals(timeType)) {
-            if (StringUtils.isNotBlank(dateStart) || StringUtils.isNotBlank(dateEnd)) {
+            if (StringUtils.isNotBlank(dateStart) && StringUtils.isNotBlank(dateEnd)) {
                 filters.add(filterBuilder.attribute(timeType).is().during().dates(
                         parseDate(dateStart), parseDate(dateEnd)));
+            } else if (StringUtils.isNotBlank(dateStart)) {
+                filters.add(filterBuilder.attribute(timeType).is().after().date(parseDate(dateStart)));
+            } else if (StringUtils.isNotBlank(dateEnd)) {
+                filters.add(filterBuilder.attribute(timeType).is().before().date(parseDate(dateEnd)));
             } else if (dateOffset != null) {
                 filters.add(filterBuilder.attribute(timeType).is().during().last(dateOffset));
             }
