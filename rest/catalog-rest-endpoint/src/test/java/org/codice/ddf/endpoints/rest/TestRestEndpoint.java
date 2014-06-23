@@ -14,56 +14,6 @@
  **/
 package org.codice.ddf.endpoints.rest;
 
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasItems;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Matchers.isA;
-import static org.mockito.Matchers.isNull;
-import static org.mockito.Mockito.atLeastOnce;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.activation.MimeType;
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriBuilder;
-import javax.ws.rs.core.UriInfo;
-
-import net.minidev.json.JSONArray;
-import net.minidev.json.JSONObject;
-import net.minidev.json.parser.JSONParser;
-import net.minidev.json.parser.ParseException;
-
-import org.apache.commons.lang.builder.ToStringBuilder;
-import org.apache.tika.io.IOUtils;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.ContentType;
@@ -94,6 +44,53 @@ import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.InputTransformer;
 import ddf.mime.MimeTypeToTransformerMapper;
 import ddf.mime.tika.TikaMimeTypeResolver;
+import net.minidev.json.JSONArray;
+import net.minidev.json.JSONObject;
+import net.minidev.json.parser.JSONParser;
+import net.minidev.json.parser.ParseException;
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.tika.io.IOUtils;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.activation.MimeType;
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriBuilder;
+import javax.ws.rs.core.UriInfo;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasItems;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.isA;
+import static org.mockito.Matchers.isNull;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests methods of the {@link RESTEndpoint}
@@ -144,8 +141,6 @@ public class TestRestEndpoint {
     private static final String HEADER_ACCEPT_RANGES = "Accept-Ranges";
 
     private static final String ACCEPT_RANGES_VALUE = "bytes";
-
-    private static final String HEADER_CONTENT_LENGTH = "Content-Length";
 
     private static final String HEADER_CONTENT_DISPOSITION = "Content-Disposition";
 
@@ -457,28 +452,6 @@ public class TestRestEndpoint {
     }
 
     /**
-     * Tests retrieving a partial federated resource with a successful response
-     *
-     * @throws URISyntaxException
-     * @throws IngestException
-     * @throws SourceUnavailableException
-     * @throws UnsupportedQueryException
-     * @throws FederationException
-     * @throws CatalogTransformerException
-     * @throws IOException
-     * @throws ResourceNotFoundException
-     * @throws ResourceNotSupportedException
-     */
-    @Test
-    public void testGetPartialDocumentResourceLocalSuccess() throws URISyntaxException, IngestException,
-            SourceUnavailableException, UnsupportedQueryException, FederationException,
-            CatalogTransformerException, IOException, ResourceNotFoundException,
-            ResourceNotSupportedException {
-
-        getPartialDocumentResourceSuccess(true);
-    }
-
-    /**
      * Tests local retrieve with a successful response
      *
      * @throws URISyntaxException
@@ -518,28 +491,6 @@ public class TestRestEndpoint {
         assertEquals(GET_STREAM, responseMessage);
         assertEquals(OK, response.getStatus());
         assertEquals(GET_KML_TYPE_OUTPUT, response.getMetadata().toString());
-    }
-
-    /**
-     * Tests retrieving a partial federated resource with a successful response
-     *
-     * @throws URISyntaxException
-     * @throws IngestException
-     * @throws SourceUnavailableException
-     * @throws UnsupportedQueryException
-     * @throws FederationException
-     * @throws CatalogTransformerException
-     * @throws IOException
-     * @throws ResourceNotFoundException
-     * @throws ResourceNotSupportedException
-     */
-    @Test
-    public void testGetPartialDocumentResourceFedSuccess() throws URISyntaxException, IngestException,
-            SourceUnavailableException, UnsupportedQueryException, FederationException,
-            CatalogTransformerException, IOException, ResourceNotFoundException,
-            ResourceNotSupportedException {
-
-        getPartialDocumentResourceSuccess(false);
     }
 
     /**
@@ -657,31 +608,6 @@ public class TestRestEndpoint {
                 fail("Invalid ID returned");
             }
         }
-    }
-
-    /**
-     * Tests sending an invalid start range value
-     *
-     * @throws URISyntaxException
-     * @throws IngestException
-     * @throws SourceUnavailableException
-     * @throws UnsupportedQueryException
-     * @throws FederationException
-     * @throws CatalogTransformerException
-     * @throws IOException
-     * @throws ResourceNotFoundException
-     * @throws ResourceNotSupportedException
-     */
-    @Test(expected = ServerErrorException.class)
-    public void testGetPartialDocumentWithInvalidRangeValue() throws URISyntaxException, IngestException,
-            SourceUnavailableException, UnsupportedQueryException, FederationException,
-            CatalogTransformerException, IOException, ResourceNotFoundException,
-            ResourceNotSupportedException {
-
-        CatalogFramework framework = givenCatalogFramework(SAMPLE_ID);
-        String transformer = mockTestSetup(framework, TestType.RESOURCE_TEST);
-        HttpServletRequest servletRequest = createServletRequest("-1");
-        executeTest(framework, transformer, true, servletRequest);
     }
 
     /**
@@ -974,36 +900,6 @@ public class TestRestEndpoint {
         }
 
         return transformer;
-    }
-
-    /**
-     * Tests retrieving a partial resource, either local or federated, with a successful response
-     *
-     * @param local
-     * @throws URISyntaxException
-     * @throws IngestException
-     * @throws SourceUnavailableException
-     * @throws UnsupportedQueryException
-     * @throws FederationException
-     * @throws CatalogTransformerException
-     * @throws IOException
-     * @throws ResourceNotFoundException
-     * @throws ResourceNotSupportedException
-     */
-    private void getPartialDocumentResourceSuccess(boolean local) throws URISyntaxException, IngestException,
-            SourceUnavailableException, UnsupportedQueryException, FederationException,
-            CatalogTransformerException, IOException, ResourceNotFoundException,
-            ResourceNotSupportedException {
-
-        CatalogFramework framework = givenCatalogFramework(SAMPLE_ID);
-        String transformer = mockTestSetup(framework, TestType.RESOURCE_TEST);
-        HttpServletRequest servletRequest = createServletRequest(new Integer(BYTES_TO_SKIP).toString());
-        Response response = executeTest(framework, transformer, local, servletRequest);
-
-        String responseMessage = IOUtils.toString((ByteArrayInputStream) response.getEntity());
-        assertEquals(GET_STREAM.substring(BYTES_TO_SKIP), responseMessage);
-        assertEquals(PARTIAL_CONTENT, response.getStatus());
-        assertEquals(GET_TYPE_OUTPUT, response.getMetadata().toString());
     }
 
     private Response executeTest(CatalogFramework framework, String transformer, boolean local,

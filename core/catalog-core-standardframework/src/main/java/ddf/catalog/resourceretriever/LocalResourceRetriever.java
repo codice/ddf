@@ -14,19 +14,19 @@
  **/
 package ddf.catalog.resourceretriever;
 
-import java.io.IOException;
-import java.io.Serializable;
-import java.net.URI;
-import java.util.List;
-import java.util.Map;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import ddf.catalog.operation.ResourceResponse;
 import ddf.catalog.resource.ResourceNotFoundException;
 import ddf.catalog.resource.ResourceNotSupportedException;
 import ddf.catalog.resource.ResourceReader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.io.Serializable;
+import java.net.URI;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class LocalResourceRetriever implements ResourceRetriever {
     
@@ -42,15 +42,27 @@ public class LocalResourceRetriever implements ResourceRetriever {
         this.resourceUri = resourceUri;
         this.properties = properties;
     }
-    
+
     @Override
     public ResourceResponse retrieveResource() throws ResourceNotFoundException {
+        return retrieveResource(null);
+    }
+
+    @Override
+    public ResourceResponse retrieveResource(String bytesToSkip) throws ResourceNotFoundException {
         final String methodName = "retrieveResource";
         LOGGER.trace("ENTERING: {}", methodName);
         ResourceResponse resource = null;
 
         if (resourceUri == null) {
             throw new ResourceNotFoundException("Unable to find resource due to null URI");
+        }
+
+
+        Map<String, Serializable> props = new HashMap<String, Serializable>(properties);
+
+        if (bytesToSkip != null) {
+            props.put(BYTES_TO_SKIP, bytesToSkip);
         }
 
         for (ResourceReader reader : resourceReaders) {
@@ -60,7 +72,7 @@ public class LocalResourceRetriever implements ResourceRetriever {
                     try {
                         LOGGER.debug("Found an acceptable resource reader ({}) for URI {}",
                                 reader.getId(), resourceUri.toASCIIString());
-                        resource = reader.retrieveResource(resourceUri, properties);
+                        resource = reader.retrieveResource(resourceUri, props);
                         if (resource != null) {
                             break;
                         } else {

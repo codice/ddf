@@ -95,17 +95,23 @@
     </dependency>
 
     <dependency>
+        <groupId>org.apache.cxf</groupId>
+        <artifactId>cxf-rt-frontend-jaxrs</artifactId>
+        <scope>test</scope>
+    </dependency>
+
+      <dependency>
       <groupId>ddf.catalog.core</groupId>
       <artifactId>filter-proxy</artifactId>
       <scope>test</scope>
     </dependency>
-        
-        <!-- Wanted to use this in JUnit tests to be able to get SQL representation
-            of an OGC filter, but it caused class loader problems.
-            No idea why ...
-            <dependency> <groupId>org.geotools</groupId> <artifactId>gt-jdbc</artifactId>
-            </dependency>
-        -->
+
+      <!-- Wanted to use this in JUnit tests to be able to get SQL representation
+          of an OGC filter, but it caused class loader problems.
+          No idea why ...
+          <dependency> <groupId>org.geotools</groupId> <artifactId>gt-jdbc</artifactId>
+          </dependency>
+      -->
   </dependencies>
 
   <build>

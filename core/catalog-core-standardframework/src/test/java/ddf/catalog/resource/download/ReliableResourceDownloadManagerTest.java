@@ -14,33 +14,18 @@
  **/
 package ddf.catalog.resource.download;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.reset;
-import static org.mockito.Mockito.timeout;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-
-import javax.activation.MimeType;
-import javax.activation.MimeTypeParseException;
-
+import ddf.catalog.cache.MockInputStream;
+import ddf.catalog.cache.impl.CacheKey;
+import ddf.catalog.cache.impl.ResourceCache;
+import ddf.catalog.data.Metacard;
+import ddf.catalog.event.retrievestatus.DownloadsStatusEventPublisher;
+import ddf.catalog.operation.ResourceRequest;
+import ddf.catalog.operation.ResourceResponse;
+import ddf.catalog.resource.Resource;
+import ddf.catalog.resource.ResourceNotFoundException;
+import ddf.catalog.resource.ResourceNotSupportedException;
+import ddf.catalog.resource.data.ReliableResource;
+import ddf.catalog.resourceretriever.ResourceRetriever;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
@@ -57,18 +42,32 @@ import org.mockito.stubbing.Answer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ddf.catalog.cache.MockInputStream;
-import ddf.catalog.cache.impl.CacheKey;
-import ddf.catalog.cache.impl.ResourceCache;
-import ddf.catalog.data.Metacard;
-import ddf.catalog.event.retrievestatus.DownloadsStatusEventPublisher;
-import ddf.catalog.operation.ResourceRequest;
-import ddf.catalog.operation.ResourceResponse;
-import ddf.catalog.resource.Resource;
-import ddf.catalog.resource.ResourceNotFoundException;
-import ddf.catalog.resource.ResourceNotSupportedException;
-import ddf.catalog.resource.data.ReliableResource;
-import ddf.catalog.resourceretriever.ResourceRetriever;
+import javax.activation.MimeType;
+import javax.activation.MimeTypeParseException;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.timeout;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class ReliableResourceDownloadManagerTest {
     
@@ -717,7 +716,85 @@ public class ReliableResourceDownloadManagerTest {
                 } else {
                     mis = new MockInputStream(productInputFilename);
                 }
-                
+
+                if (retryType == RetryType.INPUT_STREAM_IO_EXCEPTION) {
+                    if (invocationCount == 1) {
+                        mis.setInvocationCountToThrowIOException(5);
+                    } else {
+                        mis.setInvocationCountToThrowIOException(-1);
+                    }
+                } else if (retryType == RetryType.TIMEOUT_EXCEPTION) {
+                    if (invocationCount == 1) {
+                        mis.setInvocationCountToTimeout(3);
+                        mis.setReadDelay(monitorPeriod * 2);
+                    } else {
+                        mis.setInvocationCountToTimeout(-1);
+                        mis.setReadDelay(0);
+                    }
+                } else if (retryType == RetryType.NETWORK_CONNECTION_UP_AND_DOWN) {
+                    mis.setInvocationCountToThrowIOException(2);
+                } else if (retryType == RetryType.NETWORK_CONNECTION_DROPPED) {
+                    if (invocationCount == 1) {
+                        mis.setInvocationCountToThrowIOException(2);
+                    } else {
+                        throw new ResourceNotFoundException();
+                    }
+                } else if (retryType == RetryType.CLIENT_CANCELS_DOWNLOAD) {
+
+                } else if (retryType == RetryType.CACHE_FILE_EXCEPTION) {
+//                        FileOutputStream cacheFileOutputStream = downloadMgr.getFileOutputStream();
+//                        try {
+//                            LOGGER.debug("Closing cacheFileOutputStream to simulate CACHED_FILE_OUTPUT_STREAM_EXCEPTION");
+//                            cacheFileOutputStream.close();
+//                        } catch (IOException e) {
+//                        }
+                }
+
+                // Reset the mock Resource so that it can be reconfigured to return
+                // the new InputStream
+                reset(resource);
+                when(resource.getInputStream()).thenReturn(mis);
+                when(resource.getName()).thenReturn("test-resource");
+                try {
+                    when(resource.getMimeType()).thenReturn(new MimeType("text/plain"));
+                } catch (MimeTypeParseException e) {
+                }
+
+                // Reset the mock ResourceResponse so that it can be reconfigured to return
+                // the new Resource
+                reset(resourceResponse);
+                when(resourceResponse.getRequest()).thenReturn(resourceRequest);
+                when(resourceResponse.getResource()).thenReturn(resource);
+                when(resourceResponse.getProperties()).thenReturn(new HashMap<String, Serializable>());
+
+                return resourceResponse;
+            }
+        });
+
+        ArgumentCaptor<Long> bytesReadArg = ArgumentCaptor.forClass(Long.class);
+
+        // Mocking to support re-retrieval of product when error encountered
+        // during caching.
+        when(retriever.retrieveResource(anyString())).thenAnswer(new Answer<Object>() {
+            int invocationCount = 0;
+
+            public Object answer(InvocationOnMock invocation) throws ResourceNotFoundException, IOException {
+                // Create new InputStream for retrieving the same product. This
+                // simulates re-retrieving the product from the remote source.
+                invocationCount++;
+                if (readSlow) {
+                    mis = new MockInputStream(productInputFilename, true);
+                    mis.setReadDelay(monitorPeriod - 2);
+                } else {
+                    mis = new MockInputStream(productInputFilename);
+                }
+
+                // Skip the number of bytes that have already been read
+                Object[] args = invocation.getArguments();
+                long bytesToSkip = Long.valueOf((String) args[0]);
+
+                mis.skip(bytesToSkip);
+
                 if (retryType == RetryType.INPUT_STREAM_IO_EXCEPTION) {
                     if (invocationCount == 1) {
                         mis.setInvocationCountToThrowIOException(5);

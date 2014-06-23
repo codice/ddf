@@ -14,23 +14,15 @@
  **/
 package ddf.catalog.resource.impl;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.Serializable;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URLConnection;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Set;
-
+import ddf.catalog.operation.ResourceResponse;
+import ddf.catalog.resource.Resource;
+import ddf.catalog.resource.ResourceNotFoundException;
+import ddf.mime.MimeTypeMapper;
+import ddf.mime.MimeTypeResolver;
+import ddf.mime.custom.CustomMimeTypeResolver;
+import ddf.mime.mapper.MimeTypeMapperImpl;
+import ddf.mime.tika.TikaMimeTypeResolver;
+import junit.framework.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -40,14 +32,25 @@ import org.junit.runners.model.FrameworkMethod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ddf.catalog.operation.ResourceResponse;
-import ddf.catalog.resource.Resource;
-import ddf.catalog.resource.ResourceNotFoundException;
-import ddf.mime.MimeTypeMapper;
-import ddf.mime.MimeTypeResolver;
-import ddf.mime.custom.CustomMimeTypeResolver;
-import ddf.mime.mapper.MimeTypeMapperImpl;
-import ddf.mime.tika.TikaMimeTypeResolver;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.Serializable;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URLConnection;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class ResourceReaderTest {
 
@@ -88,6 +91,8 @@ public class ResourceReaderTest {
     private static final String HOST = "127.0.0.1";
 
     private static final String BAD_FILE_NAME = "mydata?uri=63f30ff4dc85436ea507fceeb1396940_blahblahblah&this=that";
+
+    private static final String BYTES_TO_SKIP = "BytesToSkip";
 
     private MimeTypeMapper mimeTypeMapper;
 
@@ -278,15 +283,36 @@ public class ResourceReaderTest {
 
     @Test
     public void testNameInContentDisposition() throws URISyntaxException, IOException,
+            ResourceNotFoundException {
+        URI uri = new URI(HTTP_SCHEME_PLUS_SEP + HOST + TEST_PATH + BAD_FILE_NAME);
+        URLConnection conn = mock(URLConnection.class);
+
+        when(conn.getHeaderField(URLResourceReader.CONTENT_DISPOSITION)).thenReturn(
+                "inline; filename=\"" + JPEG_FILE_NAME_1 + "\"");
+        when(conn.getInputStream()).thenReturn(getBinaryData());
+
+        ResourceResponse response = verifyFileFromURLResourceReader(uri, JPEG_FILE_NAME_1, JPEG_MIME_TYPE, conn, null);
+
+        // verify that we got the entire resource
+        Assert.assertEquals(5, response.getResource().getByteArray().length);
+    }
+
+    @Test
+    public void testRetrievingPartialContent() throws URISyntaxException, IOException,
         ResourceNotFoundException {
         URI uri = new URI(HTTP_SCHEME_PLUS_SEP + HOST + TEST_PATH + BAD_FILE_NAME);
         URLConnection conn = mock(URLConnection.class);
 
         when(conn.getHeaderField(URLResourceReader.CONTENT_DISPOSITION)).thenReturn(
                 "inline; filename=\"" + JPEG_FILE_NAME_1 + "\"");
-        when(conn.getInputStream()).thenReturn(null);
+        when(conn.getInputStream()).thenReturn(getBinaryData());
 
-        verifyFileFromURLResourceReader(uri, JPEG_FILE_NAME_1, JPEG_MIME_TYPE, conn);
+        String bytesToSkip = "2";
+
+        ResourceResponse response = verifyFileFromURLResourceReader(uri, JPEG_FILE_NAME_1, JPEG_MIME_TYPE, conn, bytesToSkip);
+
+        // verify that we got the entire resource
+        Assert.assertEquals(3, response.getResource().getByteArray().length);
     }
 
     @Test
@@ -299,7 +325,7 @@ public class ResourceReaderTest {
                 "inline; filename=" + JPEG_FILE_NAME_1);
         when(conn.getInputStream()).thenReturn(null);
 
-        verifyFileFromURLResourceReader(uri, JPEG_FILE_NAME_1, JPEG_MIME_TYPE, conn);
+        verifyFileFromURLResourceReader(uri, JPEG_FILE_NAME_1, JPEG_MIME_TYPE, conn, null);
     }
 
     @Test
@@ -312,7 +338,7 @@ public class ResourceReaderTest {
                 "inline;filename=" + JPEG_FILE_NAME_1 + ";");
         when(conn.getInputStream()).thenReturn(null);
 
-        verifyFileFromURLResourceReader(uri, JPEG_FILE_NAME_1, JPEG_MIME_TYPE, conn);
+        verifyFileFromURLResourceReader(uri, JPEG_FILE_NAME_1, JPEG_MIME_TYPE, conn, null);
     }
 
     @Test
@@ -365,17 +391,31 @@ public class ResourceReaderTest {
         throws URISyntaxException, IOException, ResourceNotFoundException {
         URLConnection conn = mock(URLConnection.class);
         when(conn.getInputStream()).thenReturn(null);
-        verifyFileFromURLResourceReader(uri, filename, expectedMimeType, conn);
+        verifyFileFromURLResourceReader(uri, filename, expectedMimeType, conn, null);
     }
 
-    private void verifyFileFromURLResourceReader(URI uri, String filename, String expectedMimeType,
-            URLConnection conn) throws URISyntaxException, IOException, ResourceNotFoundException {
+    // Create arguments, adding bytesToSkip if present, and call doVerification
+    private ResourceResponse verifyFileFromURLResourceReader(URI uri, String filename, String expectedMimeType,
+                                                             URLConnection conn, String bytesToSkip)
+            throws URISyntaxException, IOException, ResourceNotFoundException {
+
+        Map<String, Serializable> arguments = new HashMap<String, Serializable>();
+
+        if (bytesToSkip != null) {
+            arguments.put(BYTES_TO_SKIP, bytesToSkip);
+        }
+
+        return doVerification(uri, filename, expectedMimeType, conn, arguments);
+
+    }
+
+    private ResourceResponse doVerification(URI uri, String filename, String expectedMimeType, URLConnection conn,
+                                            Map<String, Serializable> arguments)
+            throws URISyntaxException, IOException, ResourceNotFoundException {
 
         URLResourceReader resourceReader = new URLResourceReader(mimeTypeMapper);
 
         resourceReader.setConn(conn);
-
-        HashMap<String, Serializable> arguments = new HashMap<String, Serializable>();
 
         // Test using the URL ResourceReader
         LOGGER.info("URI: " + uri.toString());
@@ -392,6 +432,14 @@ public class ResourceReaderTest {
         assertTrue(name.equals(filename));
         assertTrue(resource.getMimeType().toString().contains(expectedMimeType));
 
+        return resourceResponse;
+    }
+
+    private static InputStream getBinaryData() {
+
+        byte[] sampleBytes = {65, 66, 67, 68, 69};
+
+        return new ByteArrayInputStream(sampleBytes);
     }
 
 }

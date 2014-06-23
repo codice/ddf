@@ -14,15 +14,20 @@
  **/
 package ddf.catalog.resourceretriever;
 
-import java.io.IOException;
-
 import ddf.catalog.operation.ResourceResponse;
 import ddf.catalog.resource.ResourceNotFoundException;
 import ddf.catalog.resource.ResourceNotSupportedException;
 
+import java.io.IOException;
+
 public interface ResourceRetriever {
+
+    static final String BYTES_TO_SKIP = "BytesToSkip";
 
     public ResourceResponse retrieveResource() throws ResourceNotFoundException,
         ResourceNotSupportedException, IOException;
+
+    public ResourceResponse retrieveResource(String bytesToSkip) throws ResourceNotFoundException,
+            ResourceNotSupportedException, IOException;
 
 }

@@ -105,6 +105,8 @@ public class RESTEndpoint implements RESTService {
 
     private static final String BYTES_EQUAL = "bytes=";
 
+    static final String BYTES_TO_SKIP = "BytesToSkip";
+
     private static MimeType JSON_MIME_TYPE = null;
 
     private FilterBuilder filterBuilder;
@@ -470,33 +472,21 @@ public class RESTEndpoint implements RESTService {
                             Status.NOT_FOUND);
                 }
 
+                // Check for Range header set the value in the map appropriately so that the catalogFramework
+                // can take care of the skipping
+                long bytesToSkip = getRangeStart(httpRequest);
+
+                if (bytesToSkip > 0) {
+                    LOGGER.debug("Bytes to skip: {}", String.valueOf(bytesToSkip));
+                    convertedMap.put(BYTES_TO_SKIP, bytesToSkip);
+                }
+
                 LOGGER.debug("Calling transform.");
                 final BinaryContent content = catalogFramework.transform(card, transformer, convertedMap);
                 LOGGER.debug("Read and transform complete, preparing response.");
 
-                long size = content.getSize();
-
-                // Check for Range header and skip appropriately
-                long rangeStart = getRangeStart(httpRequest);
-
-                if (rangeStart > 0) {
-
-                    LOGGER.debug("rangeStart: {}", rangeStart);
-
-                    responseBuilder = Response.status(Status.PARTIAL_CONTENT);
-
-                    content.getInputStream().skip(rangeStart);
-
-                    responseBuilder.entity(content.getInputStream());
-                    responseBuilder.type(content.getMimeTypeValue());
-                } else {
-                    if (rangeStart < 0) {
-                        throw new UnsupportedQueryException("Invalid range value.");
-                    } else {
-                        responseBuilder = Response.ok(content.getInputStream(),
-                                content.getMimeTypeValue());
-                    }
-                }
+                responseBuilder = Response.ok(content.getInputStream(),
+                        content.getMimeTypeValue());
 
                 // Add the Accept-ranges header to let the client know that we accept ranges in bytes
                 responseBuilder.header(HEADER_ACCEPT_RANGES, BYTES);
@@ -536,9 +526,6 @@ public class RESTEndpoint implements RESTService {
                 String exceptionMessage = "Specified query is unsupported.  Change query and resubmit: "
                         + e.getMessage();
                 throw new ServerErrorException(exceptionMessage, Status.BAD_REQUEST);
-            } catch (IOException e) {
-                String exceptionMessage = "Error retrieving range: "
-                        + e.getMessage();
             }
 
             // The catalog framework will throw this if any of the transformers blow up. We need to

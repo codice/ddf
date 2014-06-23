@@ -58,8 +58,8 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
-import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.ext.XLogger;
 
 import javax.activation.MimeType;
 import javax.activation.MimeTypeParseException;
@@ -136,7 +136,17 @@ public final class OpenSearchSource implements FederatedSource, ConfiguredServic
 
     private static final String LOCAL_SEARCH_PARAMETER = "local";
 
-    private static final transient Logger LOGGER = LoggerFactory.getLogger(OpenSearchSource.class);
+    private static final String HEADER_ACCEPT_RANGES = "Accept-Ranges";
+
+    private static final String HEADER_RANGE = "Range";
+
+    public static final String BYTES_TO_SKIP = "BytesToSkip";
+
+    private static final String BYTES = "bytes";
+
+    private static final String BYTES_EQUAL = "bytes=";
+
+    private static final XLogger LOGGER = new XLogger(LoggerFactory.getLogger(OpenSearchSource.class));
 
     private javax.xml.xpath.XPath xpath;
 
@@ -608,6 +618,15 @@ public final class OpenSearchSource implements FederatedSource, ConfiguredServic
         return metacard;
     }
 
+    // Update the WebClient with a Range header instructing the endpoint to skip bytesToSkip bytes.
+    private void constructRangeHeader(WebClient webClient, String bytesToSkip) {
+        StringBuilder headerValue = new StringBuilder(BYTES_EQUAL);
+        headerValue.append(bytesToSkip);
+        headerValue.append("-");
+
+        webClient.header(HEADER_RANGE, headerValue.toString());
+    }
+
     private Metacard parseContent(String content, String id) {
         if (inputTransformer != null && content != null && !content.isEmpty()) {
             try {
@@ -773,7 +792,11 @@ public final class OpenSearchSource implements FederatedSource, ConfiguredServic
 
     @Override
     public ResourceResponse retrieveResource(URI uri, Map<String, Serializable> requestProperties)
-        throws ResourceNotFoundException, ResourceNotSupportedException {
+            throws ResourceNotFoundException, ResourceNotSupportedException, IOException {
+
+        String bytesToSkip = null;
+        final String methodName = "retrieveResource";
+        LOGGER.entry(methodName);
 
         if (requestProperties == null) {
             throw new ResourceNotFoundException("Could not retrieve resource with null properties.");
@@ -792,6 +815,13 @@ public final class OpenSearchSource implements FederatedSource, ConfiguredServic
                 MimeType mimeType = null;
 
                 WebClient webClient = openSearchConnection.getWebClientFromClient(restClient);
+
+                // If a bytesToSkip property is present add range header
+                if (requestProperties.containsKey(BYTES_TO_SKIP)) {
+                    bytesToSkip = (String) requestProperties.get(BYTES_TO_SKIP);
+                    LOGGER.debug("Setting Range header with bytes to skip: {}", bytesToSkip);
+                    constructRangeHeader(webClient, bytesToSkip);
+                }
 
                 if(subject != null) {
                     webClient = openSearchConnection.setSubjectOnWebClient(webClient, subject);
@@ -819,6 +849,22 @@ public final class OpenSearchSource implements FederatedSource, ConfiguredServic
                 binaryContent = clientResponse.getEntity();
 
                 if (binaryContent != null) {
+
+                    if (requestProperties.containsKey(BYTES_TO_SKIP)) {
+
+                        // Since we sent a range header an accept-ranges header should be returned if the
+                        // remote endpoint support it.  If is not present, the inputStream hasn't skipped ahead
+                        // by the given number of bytes, so we need to take care of it here.
+                        String rangeHeader = clientResponse.getHeaderString(HEADER_ACCEPT_RANGES);
+
+                        if ((rangeHeader == null) || (!rangeHeader.equals(BYTES))) {
+                            LOGGER.debug("Skipping {} bytes", (String) requestProperties.get(BYTES_TO_SKIP));
+                            ((InputStream) binaryContent).skip(
+                                    Long.valueOf((String) requestProperties.get(BYTES_TO_SKIP)));
+                        }
+                    }
+
+                    LOGGER.exit(methodName);
                     return new ResourceResponseImpl(new ResourceImpl(
                             (InputStream) binaryContent, mimeType, getId()
                                     + "_Resource_Retrieval:" + System.currentTimeMillis()));
@@ -826,6 +872,7 @@ public final class OpenSearchSource implements FederatedSource, ConfiguredServic
             }
         }
 
+        LOGGER.exit(methodName);
         throw new ResourceNotFoundException(COULD_NOT_RETRIEVE_RESOURCE_MESSAGE);
     }
 

@@ -14,23 +14,23 @@
  **/
 package ddf.catalog.resourceretriever;
 
-import java.io.IOException;
-import java.io.Serializable;
-import java.net.URI;
-import java.util.Map;
-
 import ddf.catalog.operation.ResourceResponse;
 import ddf.catalog.resource.ResourceNotFoundException;
 import ddf.catalog.resource.ResourceNotSupportedException;
 import ddf.catalog.source.RemoteSource;
+
+import java.io.IOException;
+import java.io.Serializable;
+import java.net.URI;
+import java.util.HashMap;
+import java.util.Map;
 
 public class RemoteResourceRetriever implements ResourceRetriever {
 
     private RemoteSource source;
     private URI resourceUri;
     private Map<String, Serializable> properties;
-    
-    
+
     public RemoteResourceRetriever(RemoteSource source) {
         this(source, null, null);
     }
@@ -44,12 +44,26 @@ public class RemoteResourceRetriever implements ResourceRetriever {
     
     @Override
     public ResourceResponse retrieveResource() throws ResourceNotFoundException, IOException,
-        ResourceNotSupportedException {
+            ResourceNotSupportedException {
+        return retrieveResource(null);
+    }
+
+    @Override
+    public ResourceResponse retrieveResource(String bytesToSkip) throws ResourceNotFoundException, IOException,
+            ResourceNotSupportedException {
+
         if (resourceUri == null) {
             throw new ResourceNotFoundException("Cannot retrieve resource because resourceUri is null.");
         }
-        
-        return source.retrieveResource(resourceUri, properties);
+
+        // Create a fresh HashMap so as not to disturb the existing properties if we need to add to them
+        Map<String, Serializable> props = new HashMap<String, Serializable>(properties);
+
+        if (bytesToSkip != null) {
+            props.put(BYTES_TO_SKIP, bytesToSkip);
+        }
+
+        return source.retrieveResource(resourceUri, props);
     }
 
 }

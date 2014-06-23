@@ -1,18 +1,30 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
+ *
  **/
 package ddf.catalog.resource.impl;
+
+import ddf.catalog.data.Metacard;
+import ddf.catalog.operation.ResourceResponse;
+import ddf.catalog.operation.impl.ResourceResponseImpl;
+import ddf.catalog.resource.Resource;
+import ddf.catalog.resource.ResourceNotFoundException;
+import ddf.catalog.resource.ResourceReader;
+import ddf.mime.MimeTypeMapper;
+import org.apache.commons.lang.StringUtils;
+import org.apache.tika.Tika;
+import org.slf4j.LoggerFactory;
+import org.slf4j.ext.XLogger;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -27,24 +39,10 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.tika.Tika;
-import org.slf4j.LoggerFactory;
-import org.slf4j.ext.XLogger;
-
-import ddf.catalog.data.Metacard;
-import ddf.catalog.operation.ResourceResponse;
-import ddf.catalog.operation.impl.ResourceResponseImpl;
-import ddf.catalog.resource.Resource;
-import ddf.catalog.resource.ResourceNotFoundException;
-import ddf.catalog.resource.ResourceReader;
-import ddf.mime.MimeTypeMapper;
-
 /**
  * A URLResourceReader retrieves a {@link Resource} from a local or remote file system using a
  * {@link URI}. The {@link URI} is used to specify the file location. A URLResourceReader supports
  * {@link URI}s with HTTP, HTTPS, and file schemes.
- * 
  */
 public class URLResourceReader implements ResourceReader {
     private static final String URL_HTTP_SCHEME = "http";
@@ -73,7 +71,10 @@ public class URLResourceReader implements ResourceReader {
 
     private static final String FILENAME_STR = "filename=";
 
+    private static final String BYTES_TO_SKIP = "BytesToSkip";
+
     private static Set<String> qualifierSet;
+
     static {
         qualifierSet = new HashSet<String>(QUALIFIER_SET_SIZE);
         qualifierSet.add(URL_HTTP_SCHEME);
@@ -81,7 +82,9 @@ public class URLResourceReader implements ResourceReader {
         qualifierSet.add(URL_FILE_SCHEME);
     }
 
-    /** Mapper for file extensions-to-mime types (and vice versa) */
+    /**
+     * Mapper for file extensions-to-mime types (and vice versa)
+     */
     private MimeTypeMapper mimeTypeMapper;
 
     /* URLConnection to be injected during unit testing */
@@ -104,7 +107,7 @@ public class URLResourceReader implements ResourceReader {
 
     /**
      * Setter for use during unit testing
-     * 
+     *
      * @param conn
      */
     public void setConn(URLConnection conn) {
@@ -138,7 +141,7 @@ public class URLResourceReader implements ResourceReader {
 
     /**
      * Supported schemes are HTTP, HTTPS, and file
-     * 
+     *
      * @return set of supported schemes
      */
     @Override
@@ -165,21 +168,26 @@ public class URLResourceReader implements ResourceReader {
      * {@link ResourceResponse} from that. If the {@link URI}'s scheme is HTTP or HTTPS, the
      * {@link Resource}'s name gets set to the {@link URI} passed in, otherwise, if it is a file
      * scheme, the name is set to the actual file name.
-     * 
-     * @param resourceURI
-     *            A {@link URI} that defines what {@link Resource} to retrieve and how to do it.
-     * @param properties
-     *            Any additional arguments that should be passed to the {@link ResourceReader}.
+     *
+     * @param resourceURI A {@link URI} that defines what {@link Resource} to retrieve and how to do it.
+     * @param properties  Any additional arguments that should be passed to the {@link ResourceReader}.
      * @return A {@link ResourceResponse} containing the retrieved {@link Resource}.
      */
     @Override
     public ResourceResponse retrieveResource(URI resourceURI, Map<String, Serializable> properties)
-        throws IOException, ResourceNotFoundException {
+            throws IOException, ResourceNotFoundException {
         logger.entry();
+
+        String bytesToSkip = null;
 
         if (resourceURI == null) {
             logger.warn("Resource URI was null");
             throw new ResourceNotFoundException("Unable to find resource");
+        }
+
+        if (properties.containsKey(BYTES_TO_SKIP)) {
+            bytesToSkip = properties.get(BYTES_TO_SKIP).toString();
+            logger.debug("bytesToSkip: {}", bytesToSkip);
         }
 
         if (resourceURI.getScheme().equals(URL_HTTP_SCHEME)
@@ -187,14 +195,14 @@ public class URLResourceReader implements ResourceReader {
             logger.debug("Resource URI is HTTP or HTTPS");
             String fileAddress = resourceURI.toURL().getFile();
             logger.debug("resource name: {}", fileAddress);
-            return doRetrieveProduct(resourceURI, fileAddress);
+            return doRetrieveProduct(resourceURI, fileAddress, bytesToSkip);
 
         } else if (resourceURI.getScheme().equals(URL_FILE_SCHEME)) {
             logger.debug("Resource URI is a File");
             File filePathName = new File(resourceURI);
             String fileName = filePathName.getName();
             logger.debug("resource name: {}", fileName);
-            return doRetrieveProduct(resourceURI, fileName);
+            return doRetrieveProduct(resourceURI, fileName, bytesToSkip);
         } else {
             ResourceNotFoundException ce = new ResourceNotFoundException("Resource qualifier ( "
                     + resourceURI.getScheme() + " ) not valid. " + URLResourceReader.TITLE
@@ -206,8 +214,8 @@ public class URLResourceReader implements ResourceReader {
         }
     }
 
-    private ResourceResponse doRetrieveProduct(URI resourceURI, String productName)
-        throws IOException, ResourceNotFoundException {
+    private ResourceResponse doRetrieveProduct(URI resourceURI, String productName, String bytesToSkip)
+            throws IOException, ResourceNotFoundException {
 
         logger.entry();
         try {
@@ -325,6 +333,11 @@ public class URLResourceReader implements ResourceReader {
             logger.debug("mimeType set to: {}", mimeType);
 
             InputStream is = connection.getInputStream();
+
+            if (bytesToSkip != null) {
+                logger.debug("Skipping {} bytes", bytesToSkip);
+                is.skip(Long.valueOf(bytesToSkip));
+            }
 
             logger.debug("url file: {}", url.getFile());
 

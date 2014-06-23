@@ -85,6 +85,8 @@ public class TestOpenSearchSource {
 
     private static final String SAMPLE_SEARCH_PHRASE = "foobar";
 
+    private static final String BYTES_TO_SKIP = "BytesToSkip";
+
     private static FilterBuilder filterBuilder = new GeotoolsFilterBuilder();
 
     /**
@@ -245,13 +247,35 @@ public class TestOpenSearchSource {
         Assert.assertEquals(3, response.getResource().getByteArray().length);
     }
 
+
+    @Test
+    public void testRetrieveResourceWithBytesToSkip() throws ResourceNotSupportedException, IOException,
+            ResourceNotFoundException {
+
+        // given
+        FirstArgumentCapture answer = new FirstArgumentCapture(getBinaryData());
+
+        OpenSearchSource source = givenSource(answer);
+
+        Map<String, Serializable> requestProperties = new HashMap<String, Serializable>();
+
+        requestProperties.put(Metacard.ID, SAMPLE_ID);
+
+        requestProperties.put(OpenSearchSource.BYTES_TO_SKIP, "2");
+
+        // when
+        ResourceResponse response = source.retrieveResource(null, requestProperties);
+
+        Assert.assertEquals(1, response.getResource().getByteArray().length);
+    }
+
     /**
      * Given all null params, nothing will be returned, expect an exception.
      * 
      * @throws ResourceNotSupportedException
      */
     @Test
-    public void testRetrieveNullProduct() throws ResourceNotSupportedException {
+    public void testRetrieveNullProduct() throws ResourceNotSupportedException, IOException {
         WebClient client = mock(WebClient.class);
 
         Response clientResponse = mock(Response.class);
@@ -285,7 +309,7 @@ public class TestOpenSearchSource {
     }
 
     @Test
-    public void testRetrieveProductUriSyntaxException() throws ResourceNotSupportedException {
+    public void testRetrieveProductUriSyntaxException() throws ResourceNotSupportedException, IOException {
         WebClient client = mock(WebClient.class);
 
         Response clientResponse = mock(Response.class);
@@ -323,7 +347,7 @@ public class TestOpenSearchSource {
     }
 
     @Test
-    public void testRetrieveProductMalformedUrlException() throws ResourceNotSupportedException {
+    public void testRetrieveProductMalformedUrlException() throws ResourceNotSupportedException, IOException {
         WebClient client = mock(WebClient.class);
 
         Response clientResponse = mock(Response.class);

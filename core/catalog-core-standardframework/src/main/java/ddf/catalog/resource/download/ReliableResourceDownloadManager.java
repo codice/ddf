@@ -14,32 +14,10 @@
  **/
 package ddf.catalog.resource.download;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Timer;
-import java.util.concurrent.CancellationException;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-
-import javax.activation.MimeType;
-
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Stopwatch;
 import com.google.common.io.CountingOutputStream;
 import com.google.common.io.FileBackedOutputStream;
-
 import ddf.cache.CacheException;
 import ddf.catalog.cache.impl.CacheKey;
 import ddf.catalog.cache.impl.ResourceCache;
@@ -56,6 +34,25 @@ import ddf.catalog.resource.data.ReliableResource;
 import ddf.catalog.resource.download.DownloadManagerState.DownloadState;
 import ddf.catalog.resource.impl.ResourceImpl;
 import ddf.catalog.resourceretriever.ResourceRetriever;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.activation.MimeType;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Timer;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 /**
  * The manager for downloading a resource, including retrying the download if problems are encountered, and
@@ -539,19 +536,15 @@ public class ReliableResourceDownloadManager implements Runnable {
         ReliableResourceCallable reliableResourceCallable = null;
         
         try {
-            LOGGER.debug("Attempting to re-retrieve resource");
-            // Re-fetch product from the Source
-            ResourceResponse resourceResponse = resourceRetriever.retrieveResource();
+            LOGGER.debug("Attempting to re-retrieve resource, skipping {} bytes", bytesRead);
+
+            // Re-fetch product from the Source after setting up values to indicate the number of bytes to skip.
+            // This prevents the same bytes being read again and put in the PipedOutputStream that the
+            // client is still reading from and in the file being cached to.
+            ResourceResponse resourceResponse = resourceRetriever.retrieveResource(String.valueOf(bytesRead));
             LOGGER.debug("Name of re-retrieved resource = {}", resourceResponse.getResource().getName());
             resourceInputStream = resourceResponse.getResource().getInputStream();
 
-            // Skip forward in the product's InputStream the amount of bytes already successfully
-            // cached by ReliableResourceCallable. This prevents the same bytes being read again and
-            // put in the PipedOutputStream that the client is still reading from and in the
-            // file being cached to.
-            LOGGER.debug("Skipping {} bytes in re-retrieved source InputStream", bytesRead);
-            long bytesSkipped = resourceInputStream.skip(bytesRead);
-            LOGGER.debug("Actually skipped {} bytes in source InputStream", bytesSkipped);
             reliableResourceCallable = new ReliableResourceCallable(resourceInputStream, countingFbos, fos, chunkSize);
 
             // So that Callable can account for bytes read in previous download attempt(s)

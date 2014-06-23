@@ -14,16 +14,15 @@
  **/
 package ddf.catalog.resource.download;
 
+import com.google.common.io.CountingOutputStream;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicLong;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.google.common.io.CountingOutputStream;
 
 
 /**
@@ -260,7 +259,7 @@ public class ReliableResourceCallable implements Callable<ReliableResourceStatus
         }
 
         if (!interruptDownload && !cancelDownload && !Thread.interrupted()) {
-            LOGGER.debug("Returning -1 to indicate entire file downloaded successfully");
+            LOGGER.debug("Entire file downloaded successfully");
             reliableResourceStatus = new ReliableResourceStatus(
                     DownloadStatus.RESOURCE_DOWNLOAD_COMPLETE, bytesRead.get());
             reliableResourceStatus.setMessage("Download completed successfully");
