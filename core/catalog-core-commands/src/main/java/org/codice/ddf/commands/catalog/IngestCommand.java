@@ -125,7 +125,7 @@ public class IngestCommand extends CatalogCommands {
 
             console.println("Found " + fileList.length + " file(s) to insert.");
             
-            printProgressAndFlush(startTime, fileList, ingestCountObj.getCount());
+            printProgressAndFlush(startTime, fileList.length, ingestCountObj.getCount());
             
             if (multithreaded > 1 && fileList.length > batchSize) {
                 BlockingQueue<Runnable> blockingQueue = new ArrayBlockingQueue<Runnable>(
@@ -180,7 +180,7 @@ public class IngestCommand extends CatalogCommands {
                                 ingestCountObj.updateCount(createResponse.getCreatedMetacards().size());
                             }
                             
-                            printProgressAndFlush(startTime, fileList, ingestCountObj.getCount());
+                            printProgressAndFlush(startTime, fileList.length, ingestCountObj.getCount());
 
                         }
                     });
@@ -225,7 +225,7 @@ public class IngestCommand extends CatalogCommands {
                         }
                     }
                     
-                    printProgressAndFlush(startTime, fileList, ingestCountObj.getCount());
+                    printProgressAndFlush(startTime, fileList.length, ingestCountObj.getCount());
                 }
 
                 if (metacards.size() > 0) {
@@ -233,7 +233,7 @@ public class IngestCommand extends CatalogCommands {
                 }
             }
 
-            printProgressAndFlush(startTime, fileList, ingestCountObj.getCount());
+            printProgressAndFlush(startTime, fileList.length, ingestCountObj.getCount());
 
             long end = System.currentTimeMillis();
 
@@ -289,49 +289,12 @@ public class IngestCommand extends CatalogCommands {
         return null;
     }
 
-    void printProgressAndFlush(long start, File[] fileList, int ingestCount) {
-        console.print(getProgressBar(ingestCount, fileList.length, start,
-                System.currentTimeMillis()));
-        console.flush();
-    }
-    
     private void logIngestException(IngestException exception, File inputFile) {
         console.println(Ansi.ansi().fg(Ansi.Color.RED).toString()
                 + "Failed to ingest file [" + inputFile.getAbsolutePath() + "]."
                 + Ansi.ansi().reset().toString());
         console.println(Ansi.ansi().fg(Ansi.Color.RED).toString() + exception.getMessage()
                 + Ansi.ansi().reset().toString());
-    }
-
-    private String getProgressBar(int ingestCount, int totalPossible, long start, long end) {
-
-        int notches = calculateNotches(ingestCount, totalPossible);
-
-        int progressPercentage = calculateProgressPercentage(ingestCount, totalPossible);
-
-        int rate = calculateRecordsPerSecond(ingestCount, start, end);
-
-        String progressArrow = ">";
-
-        // /r is required, it allows for the update in place
-        String progressBarFormat = "%1$4s%% [=%2$-50s] %3$5s records/sec\t\r";
-
-        return String.format(progressBarFormat, progressPercentage,
-                StringUtils.repeat("=", notches) + progressArrow, rate);
-    }
-
-    private int calculateRecordsPerSecond(int ingestCount, long start, long end) {
-
-        return (int) (new Double(ingestCount) / (new Double(end - start) / MILLISECONDS_PER_SECOND));
-    }
-
-    private int calculateProgressPercentage(int ingestCount, int totalPossible) {
-        return (int) ((new Double(ingestCount) / new Double(totalPossible)) * PERCENTAGE_MULTIPLIER);
-    }
-
-    private int calculateNotches(int ingestCount, int totalPossible) {
-
-        return (int) ((new Double(ingestCount) / new Double(totalPossible)) * PROGESS_BAR_NOTCH_LENGTH);
     }
 
     private CreateResponse createMetacards(CatalogFacade catalog, List<Metacard> listOfMetaCards)
