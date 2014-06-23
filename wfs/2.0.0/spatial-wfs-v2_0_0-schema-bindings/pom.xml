@@ -47,8 +47,6 @@
                             </bindingIncludes>
                             <args>
                                 <arg>-Xannotate</arg>
-                                <arg>-Xvisitor</arg>
-                                <arg>-Xvisitor-package:net.opengis</arg>
                             </args>
                             <plugins>
                                 <plugin>
@@ -56,12 +54,6 @@
                                     <artifactId>jaxb2-basics-annotate</artifactId>
                                     <version>${jaxb.annotate.plugin.version}</version>
                                 </plugin>
-                                <plugin>
-                                    <groupId>com.massfords</groupId>
-                                    <artifactId>jaxb-visitor</artifactId>
-                                    <version>${jaxb.visitor.plugin.version}</version>
-                                </plugin>
-
                             </plugins>
                         </configuration>
                     </execution>
