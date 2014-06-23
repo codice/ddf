@@ -341,7 +341,7 @@
 						<li>
 							<div class="input-prepend">
 								<span class="add-on">Results per Page</span> <select id="count"
-									class="span4" type="number" name="count">
+									class="span5" type="number" name="count">
 									<option value="5">5</option>
 									<option value="10" selected="selected">10</option>
 									<option value="25">25</option>
