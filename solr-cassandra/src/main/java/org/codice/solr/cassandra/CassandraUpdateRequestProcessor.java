@@ -16,9 +16,8 @@ package org.codice.solr.cassandra;
 
 import java.io.IOException;
 import java.util.Collection;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.common.SolrInputField;
 import org.apache.solr.update.AddUpdateCommand;
@@ -84,7 +83,7 @@ public class CassandraUpdateRequestProcessor extends UpdateRequestProcessor {
         super.processRollback(cmd);
     }
 
-    private void persistToCassandra(SolrInputDocument solrInputDocument) {
+    public void persistToCassandra(SolrInputDocument solrInputDocument) {
         LOGGER.info("ENTERING: persistToCassandra()");
         
         String columnNamesClause = "";
@@ -116,6 +115,8 @@ public class CassandraUpdateRequestProcessor extends UpdateRequestProcessor {
                     valuesClause += "}";
                     validColumn = true;
                 }
+            } else if (fieldName.equals("lux_xml")) {
+                LOGGER.info("Ignoring field {} as it should not be stored in Cassandra", fieldName);
             } else if (fieldName.endsWith("_xml") || fieldName.endsWith("_txt")) {
                 String value = (String) fieldValue.getValue();
                 valuesClause += "'" + value + "'";
@@ -128,6 +129,13 @@ public class CassandraUpdateRequestProcessor extends UpdateRequestProcessor {
                 Integer value = Integer.valueOf((String) fieldValue.getValue());
                 valuesClause += value;
                 validColumn = true;
+            } else if (fieldName.endsWith("_geo")) {
+                LOGGER.info("_geo field not yet supported");
+            } else if (fieldName.endsWith("_tdt")) {
+                LOGGER.info("_tdt field not yet supported");
+            } else if (fieldName.endsWith("_obj") || fieldName.endsWith("_bin")) {
+                //LOGGER.info("_obj and _bin fields not yet supported - fieldName = {}", fieldName);
+                byte[] bytes = (byte[]) fieldValue.getValue();
             }
 
             if (validColumn) {
@@ -143,6 +151,14 @@ public class CassandraUpdateRequestProcessor extends UpdateRequestProcessor {
             count++;
         }
             
+        columnNamesClause = columnNamesClause.trim();
+        if (columnNamesClause.endsWith(",")) {
+            columnNamesClause = StringUtils.chop(columnNamesClause);
+        }
+        valuesClause = valuesClause.trim();
+        if (valuesClause.endsWith(",")) {
+            valuesClause = StringUtils.chop(valuesClause);
+        }
         String cql = "INSERT INTO " + storeName + "(";
         cql += columnNamesClause + ") VALUES (" + valuesClause + ")";
         LOGGER.info("cql = {}", cql);
@@ -154,7 +170,7 @@ public class CassandraUpdateRequestProcessor extends UpdateRequestProcessor {
             // Create and execute the CQL commands to create the table with a schema based on
             // the field types in the SolrInputDoument (the suffixes on the field names will indicate
             // the table schema to generate, e.g., "_txt" suffix indicates a "text" column type).
-            createTable(storeName, fieldNames);
+            createTable(storeName, columnNamesClause.split(","));
             
             // Re-execute CQL to insert entry
             LOGGER.info("Re-trying INSERT with cql = {}", cql);
@@ -162,7 +178,7 @@ public class CassandraUpdateRequestProcessor extends UpdateRequestProcessor {
         }
     }
     
-    private void createTable(String tableName, Collection<String> columnNames) {
+    private void createTable(String tableName, String[] columnNames) {
         cassandraClient.createTable(CASSANDRA_KEYSPACE_NAME, tableName, CASSANDRA_BASE_TABLE_SCHEMA);
         
         for (String columnName : columnNames) {

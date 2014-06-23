@@ -30,39 +30,7 @@
           <artifactId>cassandra</artifactId>
           <version>1.0.0-SNAPSHOT</version>
       </dependency>
-      <!-- OMIT
       <dependency>
-            <groupId>com.datastax.cassandra</groupId>
-            <artifactId>cassandra-driver-core</artifactId>
-            <version>2.0.2</version>
-        </dependency>
-        <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-            <version>15.0</version>
-        </dependency>
-        <dependency>
-            <groupId>com.codahale.metrics</groupId>
-            <artifactId>metrics-core</artifactId>
-            <version>3.0.1</version>
-        </dependency>
-        <dependency>
-            <groupId>net.jpountz.lz4</groupId>
-            <artifactId>lz4</artifactId>
-            <version>1.2.0</version>
-        </dependency>
-        <dependency>
-            <groupId>io.netty</groupId>
-            <artifactId>netty</artifactId>
-            <version>3.6.6.Final</version>
-        </dependency>        
-        <dependency>
-            <groupId>org.xerial.snappy</groupId>
-            <artifactId>snappy-java</artifactId>
-            <version>1.1.0.1</version>
-        </dependency>
-        END OMIT -->
-        <dependency>
             <groupId>org.apache.solr</groupId>
             <artifactId>solr-core</artifactId>
             <version>${solr.version}</version>
@@ -99,36 +67,5 @@
             </exclusions>
         </dependency>
   </dependencies>
-<!-- OMIT  
-  <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.felix</groupId>
-                <artifactId>maven-bundle-plugin</artifactId>
-                <extensions>true</extensions>
-                <configuration>
-                    <instructions>
-                        <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <Embed-Dependency>
-                            solr-solrj,
-                            solr-core,
-                            cassandra,
-                            cassandra-driver-core,
-                            guava,
-                            metrics-core,
-                            lz4,
-                            netty
-                        </Embed-Dependency>
-                        <Embed-Transitive>true</Embed-Transitive>
-                        <Private-Package>
-                            org.codice.solr.cassandra;version="${project.version}",
-                            org.xerial.snappy.*
-                        </Private-Package>
-                        <Export-Package />
-                    </instructions>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
--->    
+
 </project>
