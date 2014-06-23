@@ -42,9 +42,13 @@ public class ActivityEvent extends HashMap<String, Object> {
 
     public static final String BYTES_READ_KEY = "bytes";
 
+    public static final String DOWNLOAD_ID_KEY = "download_id";
+
     public static final String EVENT_TOPIC = "ddf/activities";
 
     public static final String EVENT_TOPIC_BROADCAST = EVENT_TOPIC + "/broadcast";
+
+    public static final String EVENT_TOPIC_DOWNLOAD_CANCEL = "ddf/download/cancel";
 
     /**
      * 
