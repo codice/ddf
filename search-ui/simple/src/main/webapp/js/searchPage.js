@@ -848,9 +848,7 @@ $('button[name=enterpriseFederationButton]').on('click', function (e) {
 	$('input[name=src]').val("");
 });
 
-function resetForm() {
-	jQuery(':hidden').val('');
-	
+function resetForm() {	
 	$('input[name=format]').val("geojson");
 	$('select[name=count]').val("10");
 	$('input[name=start]').val("1");
@@ -869,5 +867,6 @@ function resetForm() {
 	$('button[name=noTypeButton]').click();	
 	clearType();
 }
+
 
 		
