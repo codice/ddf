@@ -262,7 +262,7 @@
 		<module>opensearch</module>
 		<module>rest</module>
 		<module>security</module>
-		<module>catalog-persistent-storage</module>
+		<module>persistent-storage</module>
 		<module>catalog-app</module>
 		<module>admin</module>
 	</modules>

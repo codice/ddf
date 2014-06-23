@@ -14,8 +14,6 @@
 -->
 
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
-
-    <!-- <reference id="cassandraClient" interface="org.codice.ddf.cassandra.CassandraClient" /> -->
     
     <bean id="persistentStore" class="org.codice.ddf.persistentstorage.impl.PersistentStoreImpl">
         <argument value="http://localhost:8181/solr"/>
@@ -23,5 +21,19 @@
     
     <service ref="persistentStore" id="persistentStoreService" interface="org.codice.ddf.persistentstorage.api.PersistentStore">
     </service>
+        
+    <bean id="notificationListener" class="org.codice.ddf.persistentstorage.notifications.NotificationListener">
+        <argument ref="persistentStore" />
+    </bean>
     
+    <service ref="notificationListener" interface="org.osgi.service.event.EventHandler" >
+        <service-properties>
+            <entry key="event.topics" >
+                <array value-type="java.lang.String">
+                    <value>ddf/notifications/broadcast</value>
+                    <value>ddf/notifications/catalog/downloads</value>
+                </array>
+            </entry>
+        </service-properties>
+    </service>
 </blueprint>

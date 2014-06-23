@@ -79,6 +79,11 @@
          <artifactId>zookeeper</artifactId>
          <version>3.4.5</version> 
      </dependency>
+     <dependency>
+         <groupId>ddf.notifications.core</groupId>
+         <artifactId>platform-notifications-core-api</artifactId>
+         <version>${ddf.platform.app.version}</version>
+     </dependency>
   </dependencies>
   
   <build>
@@ -123,6 +128,7 @@
                      <Embed-Transitive>true</Embed-Transitive>
                      <Private-Package>
                          org.codice.ddf.persistentstorage.impl,
+                         org.codice.ddf.persistentstorage.notifications,
                          ddf.catalog.data.impl,
                          ddf.catalog.operation.impl,
                          ddf.catalog.util.impl
