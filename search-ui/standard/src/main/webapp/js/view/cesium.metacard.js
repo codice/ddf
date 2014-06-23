@@ -258,9 +258,7 @@ define([
                     view.geoController.billboardCollection.remove(view.billboard);
                 }
                 if (!_.isUndefined(view.lines)) {
-                    _.each(view.lines, function (linePrimitive) {
-                        view.geoController.scene.getPrimitives().remove(linePrimitive);
-                    });
+                    view.geoController.scene.getPrimitives().remove(view.lines);
                 }
 
                 this.stopListening();
