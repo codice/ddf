@@ -56,13 +56,7 @@ import ddf.catalog.transform.InputTransformer;
 @Command(scope = CatalogCommands.NAMESPACE, name = "ingest", description = "Ingests Metacards into the Catalog.")
 public class IngestCommand extends CatalogCommands {
 
-    private static final double PERCENTAGE_MULTIPLIER = 100.0;
-
-    private static final int PROGESS_BAR_NOTCH_LENGTH = 50;
-    
     private static final int DEFAULT_BATCH_SIZE = 1000;
-
-    private static final String DEFAULT_TRANSFORMER_ID = "ser";
 
     File failedIngestDirectory = null;
 

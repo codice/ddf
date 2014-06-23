@@ -49,25 +49,28 @@ public class CatalogCommands extends OsgiCommandSupport {
 
     protected static final int DEFAULT_NUMBER_OF_ITEMS = 15;
 
-    static final String ESCAPE = "\\";
+    protected static final String ESCAPE = "\\";
 
-    static final String SINGLE_WILDCARD = "?";
+    protected static final String SINGLE_WILDCARD = "?";
 
-    static final String WILDCARD = "*";
+    protected static final String WILDCARD = "*";
 
-    static final double MILLISECONDS_PER_SECOND = 1000.0;
+    protected static final double MILLISECONDS_PER_SECOND = 1000.0;
 
-    private static final int ONE_SECOND = 1000;
+    protected static final int ONE_SECOND = 1000;
+
+    protected static final double PERCENTAGE_MULTIPLIER = 100.0;
+
+    protected static final int PROGESS_BAR_NOTCH_LENGTH = 50;
+
+    protected PrintStream console = System.out;
+
+    protected static final String DEFAULT_TRANSFORMER_ID = "ser";
 
     // DDF-535: remove "-provider" alias in DDF 3.0
     @Option(name = "--provider", required = false, aliases = {"-p", "-provider"}, multiValued = false, description = "Interacts with the provider directly instead of the framework.")
     boolean isProvider = false;
 
-    private static final double PERCENTAGE_MULTIPLIER = 100.0;
-
-    private static final int PROGESS_BAR_NOTCH_LENGTH = 50;
-
-    protected PrintStream console = System.out;
 
     @Override
     protected Object doExecute() throws Exception {

@@ -40,7 +40,6 @@ import ddf.catalog.operation.impl.QueryRequestImpl;
 
 @Command(scope = CatalogCommands.NAMESPACE, name = "range", description = "Searches by the given range arguments (exclusively).")
 public class RangeCommand extends CatalogCommands {
-    private static final String WILDCARD = "*";
 
     private static final int MAX_LENGTH = 40;
 

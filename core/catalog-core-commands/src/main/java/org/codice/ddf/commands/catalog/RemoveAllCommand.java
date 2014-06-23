@@ -231,7 +231,7 @@ public class RemoveAllCommand extends CatalogCommands {
     private QueryRequest getIntendedQuery(FilterBuilder filterBuilder, int batchSize,
             boolean isRequestForExpired, boolean isRequestForTotal) throws InterruptedException {
 
-        Filter filter = filterBuilder.attribute(Metacard.ID).is().like().text("*");
+        Filter filter = filterBuilder.attribute(Metacard.ID).is().like().text(WILDCARD);
 
         if (isRequestForExpired) {
             filter = filterBuilder.attribute(Metacard.EXPIRATION).before().date(new Date());
@@ -249,7 +249,7 @@ public class RemoveAllCommand extends CatalogCommands {
     private QueryRequest getAlternateQuery(FilterBuilder filterBuilder, int batchSize,
             boolean isRequestForExpired, boolean isRequestForTotal) throws InterruptedException {
 
-        Filter filter = filterBuilder.attribute(Metacard.ANY_TEXT).is().like().text("*");
+        Filter filter = filterBuilder.attribute(Metacard.ANY_TEXT).is().like().text(WILDCARD);
 
         if (isRequestForExpired) {
             DateTime twoThousandYearsAgo = new DateTime().minusYears(2000);

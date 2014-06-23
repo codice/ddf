@@ -198,7 +198,7 @@ public abstract class DuplicateCommands extends CatalogCommands {
         } else if (isUseTemporal) {
             return builder.attribute(temporalProperty).is().during().last(start);
         } else {
-            return builder.attribute(Metacard.ANY_TEXT).is().like().text("*");
+            return builder.attribute(Metacard.ANY_TEXT).is().like().text(WILDCARD);
         }
     }
 
