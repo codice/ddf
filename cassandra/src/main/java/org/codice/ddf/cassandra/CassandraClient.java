@@ -44,7 +44,7 @@ public class CassandraClient {
     
     private static final String DEFAULT_KEYSPACE = "ddf";
     
-    private static final Pattern ALPHA_NUMERIC_UNDERSCORE_REGEX = Pattern.compile("^[A-za-z0-9_]*$");
+    private static final Pattern ALPHA_NUMERIC_UNDERSCORE_REGEX = Pattern.compile("^[A-Za-z0-9_]*$");
     
     private static final Pattern UUID_REGEX = Pattern.compile("(\\w{8})-(\\w{4})-(\\w{4})-(\\w{4})-(\\w{12})");
 
@@ -208,6 +208,12 @@ public class CassandraClient {
                 addColumn(tableName, columnName, "bigint");
             } else if (columnName.endsWith("_int")) {
                 addColumn(tableName, columnName, "int");
+            } else if (columnName.endsWith("_bin") || columnName.endsWith("_obj")) {
+                addColumn(tableName, columnName, "blob");
+            } else if (columnName.endsWith("_tdt")) {
+                addColumn(tableName, columnName, "timestamp");
+            } else if (columnName.endsWith("_geo")) {
+                LOGGER.info("Suffix _geo is not yet implemented for Cassandra");
             } else {
                 LOGGER.info("Suffix not supported on columnName {}", columnName);
             }
@@ -238,12 +244,13 @@ public class CassandraClient {
      * @return
      */
     public static String normalizeCqlName(String name) {
-        name = name.replaceAll("-",  "_");
+        name = name.trim().replaceAll("-",  "_");
         Matcher matcher = ALPHA_NUMERIC_UNDERSCORE_REGEX.matcher(name);
         if (matcher.matches()) {
             return name;
         } 
         //TODO  eventually normalize name such that never have to return null
+        LOGGER.info("Column name [{}] could not be normalized for CQL - return null", name);
         return null;
     }
 
