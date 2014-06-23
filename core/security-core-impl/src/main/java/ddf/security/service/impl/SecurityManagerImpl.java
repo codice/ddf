@@ -45,17 +45,17 @@ public class SecurityManagerImpl implements SecurityManager {
 
     private Logger logger = LoggerFactory.getLogger(SecurityManagerImpl.class);
 
-    /**
-     * Creates a new security manager with the collection of given realms.
-     * 
-     * @param realms
-     *            The realms used for the backing authZ and authN operations.
-     */
     public SecurityManagerImpl() {
         // create the new security manager
         internalManager = new DefaultSecurityManager();
     }
 
+    /**
+     * Creates a new security manager with the collection of given realms.
+     *
+     * @param realms
+     *            The realms used for the backing authZ and authN operations.
+     */
     public void setRealms(Collection<Realm> realms) {
         this.realms = realms;
         // update the default manager with current realm list

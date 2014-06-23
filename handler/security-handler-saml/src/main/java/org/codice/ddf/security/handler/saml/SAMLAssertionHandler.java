@@ -48,7 +48,7 @@ public class SAMLAssertionHandler implements AuthenticationHandler {
     private static final transient Logger LOGGER = LoggerFactory
       .getLogger(SAMLAssertionHandler.class);
 
-    private static final String SAML_COOKIE_NAME = "org.codice.websso.saml.token";
+    protected static final String SAML_COOKIE_NAME = "org.codice.websso.saml.token";
 
     /**
      * SAML type to use when configuring context policy.
@@ -118,8 +118,12 @@ public class SAMLAssertionHandler implements AuthenticationHandler {
         HashMap<String, Cookie> map = new HashMap<String, Cookie>();
 
         Cookie[] cookies = req.getCookies();
-        for (Cookie cookie : cookies) {
-            map.put(cookie.getName(), cookie);
+        if(cookies != null) {
+            for (Cookie cookie : cookies) {
+                if(cookie != null) {
+                    map.put(cookie.getName(), cookie);
+                }
+            }
         }
 
         return map;

@@ -91,18 +91,19 @@ public class PKIHandler implements AuthenticationHandler {
      * Handler implementing PKI authentication. Returns the {@link org.codice.ddf.security.handler.api.HandlerResult} containing
      * a BinarySecurityToken if the operation was successful.
      *
-     * @param request http request to obtain attributes from and to pass into any local filter chains required
+     * @param request  http request to obtain attributes from and to pass into any local filter chains required
      * @param response http response to return http responses or redirects
-     * @param chain original filter chain (should not be called from your handler)
-     * @param resolve flag with true implying that credentials should be obtained, false implying return if no credentials are found.
+     * @param chain    original filter chain (should not be called from your handler)
+     * @param resolve  flag with true implying that credentials should be obtained, false implying return if no credentials are found.
      * @return result of handling this request - status and optional tokens
      * @throws ServletException
      */
     @Override
     public HandlerResult getNormalizedToken(ServletRequest request, ServletResponse response,
-      FilterChain chain, boolean resolve) throws ServletException {
+            FilterChain chain, boolean resolve) throws ServletException {
         HandlerResult handlerResult;
-        X509Certificate[] certs = (X509Certificate[]) request.getAttribute("javax.servlet.request.X509Certificate");
+        X509Certificate[] certs = (X509Certificate[]) request
+                .getAttribute("java.servlet.request.X509Certificate");
         //doesn't matter what the resolve flag is set to, we do the same action
         if (certs != null && certs.length > 0) {
             byte[] certBytes = null;
@@ -127,14 +128,17 @@ public class PKIHandler implements AuthenticationHandler {
     }
 
     @Override
-    public HandlerResult handleError(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain) throws ServletException {
+    public HandlerResult handleError(ServletRequest servletRequest, ServletResponse servletResponse,
+            FilterChain chain) throws ServletException {
         HandlerResult result = new HandlerResult();
         LOGGER.debug("In error handler for pki - no action taken.");
         result.setStatus(HandlerResult.Status.NO_ACTION);
         return result;
     }
+
     /**
      * Returns a byte array representing a certificate chain.
+     *
      * @param certs
      * @return byte[]
      * @throws WSSecurityException
@@ -169,7 +173,7 @@ public class PKIHandler implements AuthenticationHandler {
                 binarySecurityTokenType
         );
 
-        if(btContext != null) {
+        if (btContext != null) {
             try {
                 marshaller = btContext.createMarshaller();
                 marshaller.setProperty(Marshaller.JAXB_FRAGMENT, Boolean.TRUE);
@@ -177,7 +181,7 @@ public class PKIHandler implements AuthenticationHandler {
                 LOGGER.error("Exception while creating UsernameToken marshaller.", e);
             }
 
-            if(marshaller != null) {
+            if (marshaller != null) {
                 try {
                     marshaller.marshal(binarySecurityTokenElement, writer);
                 } catch (JAXBException e) {
