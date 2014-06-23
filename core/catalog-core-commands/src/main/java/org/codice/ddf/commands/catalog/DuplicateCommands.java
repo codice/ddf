@@ -57,8 +57,6 @@ public abstract class DuplicateCommands extends CatalogCommands {
 
     protected static final int MAX_BATCH_SIZE = 1000;
 
-    protected PrintStream console = System.out;
-
     private List<Metacard> failedMetacards = Collections
             .synchronizedList(new ArrayList<Metacard>());
 
@@ -235,7 +233,7 @@ public abstract class DuplicateCommands extends CatalogCommands {
                 // end of stream
                 return null;
             }
-            System.out.print((char) byteOfData);
+            console.print((char) byteOfData);
             if (byteOfData == '\r' || byteOfData == '\n') {
                 break;
             }

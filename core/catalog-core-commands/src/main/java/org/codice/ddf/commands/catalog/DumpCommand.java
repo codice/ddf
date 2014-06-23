@@ -53,8 +53,6 @@ public class DumpCommand extends CatalogCommands {
 
     private static final String DEFAULT_TRANSFORMER_ID = "ser";
 
-    private PrintStream console = System.out;
-
     private static List<MetacardTransformer> transformers = null;
 
     @Argument(name = "Dump directory path", description = "Directory to export Metacards into. Paths are absolute and must be in quotes.  Files in directory will be overwritten if they already exist.", index = 0, multiValued = false, required = true)

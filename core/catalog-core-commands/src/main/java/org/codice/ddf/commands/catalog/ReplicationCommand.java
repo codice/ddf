@@ -73,7 +73,6 @@ public class ReplicationCommand extends DuplicateCommands {
 
     @Override
     protected Object doExecute() throws Exception {
-
         final CatalogFacade catalog = getCatalog();
 
         final CatalogFacade framework = new Framework(getService(CatalogFramework.class));
@@ -137,7 +136,7 @@ public class ReplicationCommand extends DuplicateCommands {
                     @Override
                     public void run() {
                         int count = queryAndIngest(framework, catalog, startIndex, filter);
-                        printProgressAndFlush(console, start, totalPossible,
+                        printProgressAndFlush(start, totalPossible,
                                 ingestCount.addAndGet(count));
                     }
                 });
@@ -154,7 +153,7 @@ public class ReplicationCommand extends DuplicateCommands {
         } else {
             do {
                 int count = queryAndIngest(framework, catalog, queryIndex.get(), filter);
-                printProgressAndFlush(console, start, totalPossible, ingestCount.addAndGet(count));
+                printProgressAndFlush(start, totalPossible, ingestCount.addAndGet(count));
             } while (queryIndex.addAndGet(batchSize) <= totalPossible);
         }
 

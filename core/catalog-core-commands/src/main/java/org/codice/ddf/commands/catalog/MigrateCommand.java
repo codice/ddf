@@ -56,8 +56,6 @@ public class MigrateCommand extends DuplicateCommands {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ReplicationCommand.class);
 
-    private PrintStream console = System.out;
-
     private CatalogFacade ingestProvider;
 
     private CatalogFacade framework;
@@ -139,8 +137,7 @@ public class MigrateCommand extends DuplicateCommands {
                     public void run() {
                         int count = queryAndIngest(framework, ingestProvider, queryIndex.get(),
                                 filter);
-                        printProgressAndFlush(console, start, totalPossible,
-                                ingestCount.addAndGet(count));
+                        printProgressAndFlush(start, totalPossible, ingestCount.addAndGet(count));
                     }
                 });
             } while (queryIndex.addAndGet(batchSize) <= totalPossible);
@@ -156,7 +153,7 @@ public class MigrateCommand extends DuplicateCommands {
         } else {
             do {
                 int count = queryAndIngest(framework, ingestProvider, queryIndex.get(), filter);
-                printProgressAndFlush(console, start, totalPossible, ingestCount.addAndGet(count));
+                printProgressAndFlush(start, totalPossible, ingestCount.addAndGet(count));
             } while (queryIndex.addAndGet(batchSize) <= totalPossible);
         }
 

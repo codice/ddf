@@ -42,8 +42,6 @@ public class RemoveCommand extends CatalogCommands {
             return null;
         }
 
-        PrintStream console = System.out;
-
         CatalogFacade catalogProvider = getCatalog();
 
         DeleteRequestImpl request = new DeleteRequestImpl(ids.toArray(new String[0]));
@@ -51,9 +49,9 @@ public class RemoveCommand extends CatalogCommands {
         DeleteResponse response = catalogProvider.delete(request);
 
         if (response.getDeletedMetacards().size() > 0) {
-            printColor(console, Ansi.Color.GREEN, ids + " successfully deleted.");
+            printColor(Ansi.Color.GREEN, ids + " successfully deleted.");
         } else {
-            printColor(console, Ansi.Color.RED, ids + " could not be deleted.");
+            printColor(Ansi.Color.RED, ids + " could not be deleted.");
         }
 
         return null;

@@ -64,8 +64,6 @@ public class IngestCommand extends CatalogCommands {
 
     private static final String DEFAULT_TRANSFORMER_ID = "ser";
 
-    private PrintStream console = System.out;
-    
     File failedIngestDirectory = null;
 
     @Argument(name = "File path or Directory path", description = "File path to a record or a directory of files to be ingested. Paths are absolute and must be in quotes."

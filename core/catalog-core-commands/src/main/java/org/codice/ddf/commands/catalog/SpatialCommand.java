@@ -55,7 +55,6 @@ public class SpatialCommand extends CatalogCommands {
 
     @Override
     protected Object doExecute() throws Exception {
-        PrintStream console = System.out;
 
         CatalogFacade catalogProvider = getCatalog();
 

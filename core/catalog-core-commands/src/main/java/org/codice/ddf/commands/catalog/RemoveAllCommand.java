@@ -76,11 +76,8 @@ public class RemoveAllCommand extends CatalogCommands {
     @Override
     protected Object doExecute() throws Exception {
 
-        PrintStream console = System.out;
-
         if (batchSize < PAGE_SIZE_LOWER_LIMIT) {
-            printColor(console, Ansi.Color.RED,
-                    String.format(BATCH_SIZE_ERROR_MESSAGE_FORMAT, batchSize));
+            printColor(Ansi.Color.RED, String.format(BATCH_SIZE_ERROR_MESSAGE_FORMAT, batchSize));
 
             return null;
         }
@@ -110,7 +107,7 @@ public class RemoveAllCommand extends CatalogCommands {
         }
 
         if (response == null) {
-            printColor(console, Ansi.Color.RED, "No response from Catalog.");
+            printColor(Ansi.Color.RED, "No response from Catalog.");
             return null;
         }
 

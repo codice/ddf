@@ -25,10 +25,10 @@ public class DescribeCommand extends CatalogCommands {
     protected Object doExecute() throws Exception {
         Describable catalog = getCatalog();
 
-        System.out.printf("%s=%s%n", "title", catalog.getTitle());
-        System.out.printf("%s=%s%n", "description", catalog.getDescription());
-        System.out.printf("%s=%s%n", "id", catalog.getId());
-        System.out.printf("%s=%s%n", "version", catalog.getVersion());
+        console.printf("%s=%s%n", "title", catalog.getTitle());
+        console.printf("%s=%s%n", "description", catalog.getDescription());
+        console.printf("%s=%s%n", "id", catalog.getId());
+        console.printf("%s=%s%n", "version", catalog.getVersion());
 
         return null;
     }

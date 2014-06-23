@@ -67,6 +67,8 @@ public class CatalogCommands extends OsgiCommandSupport {
 
     private static final int PROGESS_BAR_NOTCH_LENGTH = 50;
 
+    protected PrintStream console = System.out;
+
     @Override
     protected Object doExecute() throws Exception {
         return null;
@@ -114,7 +116,7 @@ public class CatalogCommands extends OsgiCommandSupport {
         return sBuilder.toString();
     }
 
-    protected void printColor(PrintStream console, Color color, String message) {
+    protected void printColor(Color color, String message) {
         String colorString;
         if (color == null || color.equals(Ansi.Color.DEFAULT)) {
             colorString = Ansi.ansi().reset().toString();
@@ -126,8 +128,7 @@ public class CatalogCommands extends OsgiCommandSupport {
         console.println(Ansi.ansi().reset().toString());
     }
 
-    protected void printProgressAndFlush(PrintStream console, long start, long totalCount,
-            long currentCount) {
+    protected void printProgressAndFlush(long start, long totalCount, long currentCount) {
         console.print(getProgressBar(currentCount, totalCount, start,
                 System.currentTimeMillis()));
         console.flush();
