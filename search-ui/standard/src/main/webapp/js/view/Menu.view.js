@@ -160,7 +160,6 @@ define([
     });
 
     Menu.NotificationEmpty = Marionette.ItemView.extend({
-        className: 'dropdown-width',
         render: function() {
             this.$el.html("No recent notifications.");
         }
@@ -332,15 +331,18 @@ define([
                         wreqr.vent.on('task:remove', _.bind(this.updateTask, this));
                         this.modelBinder = new Backbone.ModelBinder();
                     },
-                    updateTask: function () {
+                    updateScrollbar: function () {
                         var view = this;
+                        _.defer(function () {
+                            view.children.$el.perfectScrollbar('update');
+                        });
+                    },
+                    updateTask: function () {
                         if (!this.collection) {
                             if (wreqr.reqres.hasHandler('tasks')) {
                                 this.collection = wreqr.reqres.request('tasks');
                                 this.render();
-                                _.defer(function () {
-                                    view.children.$el.perfectScrollbar('update');
-                                });
+                                this.updateScrollbar();
                             }
                         }
                         if (this.collection) {
@@ -350,9 +352,7 @@ define([
                                 this.model.set({countNum: this.collection.length});
                             }
                             this.render();
-                            _.defer(function () {
-                                view.children.$el.perfectScrollbar('update');
-                            });
+                            this.updateScrollbar();
                         }
                     },
                     onRender: function () {
@@ -387,11 +387,17 @@ define([
                     wreqr.vent.on('notification:close', _.bind(this.removeNotification, this));
                     this.modelBinder = new Backbone.ModelBinder();
                 },
+                updateScrollbar: function () {
+                    var view = this;
+                    _.defer(function () {
+                        view.children.$el.perfectScrollbar('update');
+                    });
+                },
                 deleteNotification: function() {
                         if (!this.collection) {
                             if (wreqr.reqres.hasHandler('notifications')) {
                                 this.collection = wreqr.reqres.request('notifications');
-                                this.render();
+                                this.updateScrollbar();
                             }
                         }
                         if (this.collection) {
@@ -400,7 +406,7 @@ define([
                             } else {
                                 this.model.set({countNum: this.collection.length});
                             }
-                            this.render();
+                            this.updateScrollbar();
                         }
                 },
                 removeNotification: function() {
@@ -426,6 +432,7 @@ define([
                     }
                 },
                 onRender: function() {
+                var view = this;
                     if(this.collection) {
                         this.children.show(new Menu.NotificationList({collection: this.collection, itemViewContainer: this.children.$el}));
                         var bindings = Backbone.ModelBinder.createDefaultBindings(this.el, 'name');
@@ -433,6 +440,9 @@ define([
                     } else {
                         this.children.show(new Menu.NotificationEmpty());
                     }
+                    _.defer(function () {
+                        view.children.$el.perfectScrollbar();
+                    });
                 }
             });
             this.notification.show(new Notification({model: new MenuItem({
