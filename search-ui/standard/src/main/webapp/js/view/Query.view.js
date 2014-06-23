@@ -39,6 +39,7 @@ define([
             defaults: {
                 federation: 'enterprise',
                 offsetTimeUnits: 'hours',
+                timeType: 'modified',
                 radiusUnits: 'meters',
                 radius: 0,
                 radiusValue: 0
@@ -64,6 +65,7 @@ define([
                 if(north && south && east && west){
                     this.set('bbox', [west,south,east,north].join(','));
                 }
+
 
             },
 
@@ -97,6 +99,8 @@ define([
                 'click button[name=noFederationButton]' : 'setNoFederation',
                 'click button[name=selectedFederationButton]': 'setSelectedFederation',
                 'click button[name=enterpriseFederationButton]': 'setEnterpriseFederation',
+                'click button[name=modifiedTimeButton]': 'swapTimeTypeModified',
+                'click button[name=effectiveTimeButton]': 'swapTimeTypeEffective',
                 'keypress input[name=q]': 'filterOnEnter',
                 'change #radiusUnits': 'onRadiusUnitsChanged',
                 'change #offsetTimeUnits': 'onTimeUnitsChanged'
@@ -124,6 +128,8 @@ define([
                                  converter: function (direction, value) {
                                      return !value;
                                }}
+
+
                 };
 
                 this.sourcesCollectionBinder = new Backbone.CollectionBinder(
@@ -183,6 +189,14 @@ define([
                     type: undefined
                 }, {unset: true});
                 this.updateScrollbar();
+            },
+
+            swapTimeTypeModified: function() {
+                this.model.set("timeType", "modified");
+            },
+
+            swapTimeTypeEffective: function() {
+                this.model.set("timeType", "effective");
             },
 
             updateScrollbar: function () {
@@ -351,12 +365,12 @@ define([
 
             search: function () {
                 //check that we can even perform a search
-                //the model has 5 default attributes, so if we only have 5
+                //the model has 6 default attributes, so if we only have 6
                 //then we have no search criteria
-                //if we have 5 and one of them is the 'src' attribute, then we
+                //if we have 6 and one of them is the 'src' attribute, then we
                 //still have no search criteria
                 var modelSize = _.size(this.model.attributes);
-                if (modelSize === 5 || (modelSize === 6 && this.model.get('src'))) {
+                if (modelSize === 6 || (modelSize === 7 && this.model.get('src'))) {
                     return;
                 }
 
@@ -385,6 +399,7 @@ define([
                     });
                     if (sources.length > 0) {
                         this.model.set('src', sources.join(','));
+
                     }
                 }
 

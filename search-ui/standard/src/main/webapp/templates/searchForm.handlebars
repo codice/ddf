@@ -21,6 +21,14 @@
         <li class="nav-header">Time</li>
         <li>
             <div class="btn-group margin-bottom-large" data-toggle="buttons-radio">
+                <button type="button" class="btn btn-mini {{#is timeType 'modified'}}active{{/is}}" name="modifiedTimeButton" value="modified">Modified
+                </button>
+                <button type="button" class="btn btn-mini {{#is timeType 'effective'}}active{{/is}}" name="effectiveTimeButton" value="effective">Effective
+                </button>
+
+            </div>
+            <br />
+            <div class="btn-group margin-bottom-large" data-toggle="buttons-radio">
                 <button type="button" class="btn btn-mini time {{#ifNotOr dtoffset dtend dtstart}}active{{/ifNotOr}}"
                         name="noTemporalButton" data-target="#notemporal"
                         data-toggle="tab">Any
@@ -51,6 +59,7 @@
                             <option value="years">years</option>
                         </select>
                     </div>
+                    
                 </div>
                 <div id="time_absolute" class="tab-pane {{#ifAnd dtend dtstart}}active{{/ifAnd}}">
                     <div class="input-prepend">
