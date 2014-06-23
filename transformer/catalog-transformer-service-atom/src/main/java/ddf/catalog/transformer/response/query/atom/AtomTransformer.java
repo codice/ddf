@@ -88,6 +88,12 @@ public class AtomTransformer implements QueryResponseTransformer, ConfigurationW
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AtomTransformer.class);
 
+    /**
+     * This variable is a workaround. If org.apache.abdera.model.Link ever includes a "REL_PREVIEW" member variable, take this
+     * variable out and replace it in any function calls with: "Link.REL_PREVIEW"
+     */
+    public static final String REL_PREVIEW = "preview";
+
     public static final MimeType MIME_TYPE = new MimeType();
     static {
         try {
@@ -304,7 +310,7 @@ public class AtomTransformer implements QueryResponseTransformer, ConfigurationW
 
             addLink(viewMetacardActionProvider, metacard, entry, Link.REL_ALTERNATE);
 
-            addLink(thumbnailActionProvider, metacard, entry, Link.REL_RELATED);
+            addLink(thumbnailActionProvider, metacard, entry, REL_PREVIEW);
 
             /*
              * Atom spec text (rfc4287) Sect. 4.2.2.: "The "atom:category" element conveys
@@ -402,10 +408,30 @@ public class AtomTransformer implements QueryResponseTransformer, ConfigurationW
                 Action action = actionProvider.getAction(metacard);
 
                 if (action != null && action.getUrl() != null) {
+                    if (actionProvider.equals(resourceActionProvider) && metacard.getResourceURI() != null) {
 
-                    Link viewLink = entry.addLink(action.getUrl().toString(), linkType);
+                        Link viewLink = entry.addLink(action.getUrl().toString(), linkType);
+                        try {
+                            Long length = Long.parseLong(metacard.getResourceSize(), 10);
+                            viewLink.setLength(length);
+                        } catch (NumberFormatException e) {
+                            LOGGER.info("Could not cast {} as Long type.", metacard.getResourceSize());
+                        }
+                        viewLink.setTitle(action.getTitle());
+                        viewLink.setMimeType("application/octet-stream");
 
-                    viewLink.setTitle(action.getTitle());
+                    } else if (actionProvider.equals(thumbnailActionProvider) && metacard.getThumbnail() != null) {
+
+                        Link viewLink = entry.addLink(action.getUrl().toString(), linkType);
+                        viewLink.setTitle(action.getTitle());
+                        viewLink.setMimeType("image/jpeg");
+                    }
+                    else if (!actionProvider.equals(resourceActionProvider) && !actionProvider.equals(thumbnailActionProvider)) {
+
+                        Link viewLink = entry.addLink(action.getUrl().toString(), linkType);
+                        viewLink.setTitle(action.getTitle());
+                        viewLink.setMimeType("application/octet-stream");
+                    }
 
                 }
 
