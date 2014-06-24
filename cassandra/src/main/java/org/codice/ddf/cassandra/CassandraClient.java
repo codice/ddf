@@ -200,7 +200,7 @@ public class CassandraClient {
         columnName = normalizeCqlName(columnName);
         if (tableName != null && columnName != null && !hasColumn(tableName, columnName)) {
             LOGGER.info("Column {} does not exist in {} - altering table to add it", columnName, tableName);
-            if (columnName.endsWith("_set_txt")) {
+            if (columnName.endsWith("_txt_set")) {
                 addColumn(tableName, columnName, "set<text>");
             } else if (columnName.endsWith("_xml") || columnName.endsWith("_txt")) {
                 addColumn(tableName, columnName, "text");
@@ -234,6 +234,12 @@ public class CassandraClient {
         Session session = getSession(keyspaceName);
         session.execute(cql);
     }
+    
+    public void addEntryPrepared(String keyspaceName, String query, Object[] values) {
+        LOGGER.info("Executing CQL:  {}", query);
+        Session session = getSession(keyspaceName);
+        session.execute(query, values);
+    }    
     
     /**
      * Only alphanumerics and underscores are allowed in CQL table and column names -
