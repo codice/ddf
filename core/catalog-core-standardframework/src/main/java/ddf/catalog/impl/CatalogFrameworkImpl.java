@@ -44,6 +44,7 @@ import ddf.catalog.cache.impl.ResourceCache;
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.ContentType;
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.MetacardImpl;
 import ddf.catalog.data.Result;
 import ddf.catalog.event.retrievestatus.DownloadsStatusEventPublisher;
 import ddf.catalog.event.retrievestatus.DownloadsStatusEventPublisher.ProductRetrievalStatus;
@@ -1822,7 +1823,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements Configurati
             throw new ResourceNotFoundException(DEFAULT_RESOURCE_NOT_FOUND_MESSAGE);
         }
         
-        return new ResourceInfo(metacard, resourceUri);
+        return new ResourceInfo(new MetacardImpl(metacard), resourceUri);
     }
 
     protected Query createMetacardIdQuery(String metacardId) {
