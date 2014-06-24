@@ -63,18 +63,23 @@ public class IngestCommand extends CatalogCommands {
             + " This command can only detect roughly 2 billion records in one folder. Individual operating system limits might also apply.", index = 0, multiValued = false, required = true)
     String filePath = null;
 
-    @Argument(name = "Batch size", description = "Number of Metacards to ingest at a time. Change this argument based on system memory and catalog provider limits.", index = 1, multiValued = false, required = false)
-    int batchSize = DEFAULT_BATCH_SIZE;
+    // DDF-535: Remove this argument in ddf-3.0
+    @Argument(name = "Batch size", description = "Number of Metacards to ingest at a time. Change this argument based on system memory and catalog provider limits. [DEPRECATED: use --batchsize option instead]", index = 1, multiValued = false, required = false)
+    int deprecatedBatchSize = DEFAULT_BATCH_SIZE;
 
     @Option(name = "Transformer", required = false, aliases = {"-t"}, multiValued = false, description = "The metacard transformer ID to use to transform data files into metacards. The default metacard transformer is the Java serialization transformer."
             + "")
     String transformerId = DEFAULT_TRANSFORMER_ID;
 
-    @Option(name = "Multithreaded", required = false, aliases = {"-m"}, multiValued = false, description = "Flag to set number of threads to use when ingesting. Setting this value too high for your system can cause performance degradation.")
+    // DDF-535: Remove "Multithreaded" alias in ddf-3.0
+    @Option(name = "--multithreaded", required = false, aliases = {"-m", "Multithreaded"}, multiValued = false, description = "Number of threads to use when ingesting. Setting this value too high for your system can cause performance degradation.")
     int multithreaded = 1;
-    
+
     @Option(name = "Ingest Failure Directory", required = false, aliases = {"-d"}, multiValued = false, description = "The directory to put files that fail ingest.  Using this option will force a batch size of 1.")
     String directory = null;
+
+    @Option(name = "--batchsize", required = false, aliases = {"-b"}, multiValued = false, description = "Number of Metacards to ingest at a time. Change this argument based on system memory and catalog provider limits.")
+    int batchSize = DEFAULT_BATCH_SIZE;
 
     @Override
     protected Object doExecute() throws Exception {
@@ -86,6 +91,12 @@ public class IngestCommand extends CatalogCommands {
             printErrorMessage("File or directory [" + filePath + "] must exist.");
             console.println("If the file does indeed exist, try putting the path in quotes.");
             return null;
+        }
+
+        if (deprecatedBatchSize != DEFAULT_BATCH_SIZE) {
+            // user specified the old style batch size, so use that
+            printErrorMessage("Batch size positional argument is DEPRECATED, please use --batchsize option instead.");
+            batchSize = deprecatedBatchSize;
         }
 
         if (batchSize <= 0) {

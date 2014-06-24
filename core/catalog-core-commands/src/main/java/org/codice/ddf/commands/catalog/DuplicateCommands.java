@@ -63,10 +63,10 @@ public abstract class DuplicateCommands extends CatalogCommands {
 
     private static final SimpleDateFormat formatter = new SimpleDateFormat("MM-dd-yyyy");
 
-    @Option(name = "-b", required = false, aliases = {"-batchSize"}, multiValued = false, description = "Number of Metacards to ingest at a time. Change this argument based on system memory and catalog provider limits.")
+    @Option(name = "--batchsize", required = false, aliases = {"-b"}, multiValued = false, description = "Number of Metacards to ingest at a time. Change this argument based on system memory and catalog provider limits.")
     int batchSize = MAX_BATCH_SIZE;
 
-    @Option(name = "-m", required = false, aliases = {"-multihtreaded"}, multiValued = false, description = "Flag to set number of threads to use when ingesting. Setting this value too high for your system can cause performance degradation.")
+    @Option(name = "--multithreaded", required = false, aliases = {"-m"}, multiValued = false, description = "Number of threads to use when ingesting. Setting this value too high for your system can cause performance degradation.")
     int multithreaded = 1;
 
     @Option(name = "-t", required = false, aliases = {"-temporal"}, multiValued = false, description = "Flag to use temporal criteria to query federated source. The default is to use \"keyword like * \"")
