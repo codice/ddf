@@ -67,10 +67,13 @@ public class CatalogCommands extends OsgiCommandSupport {
 
     protected static final String DEFAULT_TRANSFORMER_ID = "ser";
 
+    private static final Color ERROR_COLOUR = Ansi.Color.RED;
+    private static final Color HEADER_COLOUR = Ansi.Color.CYAN;
+    private static final Color SUCCESS_COLOUR = Ansi.Color.GREEN;
+
     // DDF-535: remove "-provider" alias in DDF 3.0
     @Option(name = "--provider", required = false, aliases = {"-p", "-provider"}, multiValued = false, description = "Interacts with the provider directly instead of the framework.")
     boolean isProvider = false;
-
 
     @Override
     protected Object doExecute() throws Exception {
@@ -129,6 +132,18 @@ public class CatalogCommands extends OsgiCommandSupport {
         console.print(colorString);
         console.print(message);
         console.println(Ansi.ansi().reset().toString());
+    }
+
+    protected void printErrorMessage(String message) {
+        printColor(ERROR_COLOUR, message);
+    }
+
+    protected void printHeaderMessage(String message) {
+        printColor(HEADER_COLOUR, message);
+    }
+
+    protected void printSuccessMessage(String message) {
+        printColor(SUCCESS_COLOUR, message);
     }
 
     protected void printProgressAndFlush(long start, long totalCount, long currentCount) {

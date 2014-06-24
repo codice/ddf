@@ -35,7 +35,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.commons.lang.StringUtils;
 import org.apache.felix.gogo.commands.Option;
 import org.codice.ddf.commands.catalog.facade.CatalogFacade;
-import org.fusesource.jansi.Ansi;
 import org.opengis.filter.Filter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -253,17 +252,13 @@ public abstract class DuplicateCommands extends CatalogCommands {
         File directory = new File(failedDir);
         if (!directory.exists()) {
             if (!directory.mkdirs()) {
-                console.println(Ansi.ansi().fg(Ansi.Color.RED).toString()
-                        + "Unable to create directory [" + directory.getAbsolutePath() + "]."
-                        + Ansi.ansi().reset().toString());
+                printErrorMessage("Unable to create directory [" + directory.getAbsolutePath() + "].");
                 return;
             }
         }
 
         if (!directory.canWrite()) {
-            console.println(Ansi.ansi().fg(Ansi.Color.RED).toString() + "Directory ["
-                    + directory.getAbsolutePath() + "] is not writable."
-                    + Ansi.ansi().reset().toString());
+            printErrorMessage("Directory [" + directory.getAbsolutePath() + "] is not writable.");
             return;
         }
         for (Metacard metacard : failedMetacards) {

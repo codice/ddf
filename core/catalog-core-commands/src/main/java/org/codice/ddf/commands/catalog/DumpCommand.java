@@ -26,7 +26,6 @@ import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
 import org.codice.ddf.commands.catalog.facade.CatalogFacade;
-import org.fusesource.jansi.Ansi;
 import org.joda.time.DateTime;
 import org.opengis.filter.Filter;
 import org.osgi.framework.BundleContext;
@@ -82,13 +81,13 @@ public class DumpCommand extends CatalogCommands {
         File dumpDir = new File(dirPath);
 
         if (!dumpDir.exists()) {
-            printRed("Directory [" + dirPath + "] must exist.");
+            printErrorMessage("Directory [" + dirPath + "] must exist.");
             console.println("If the directory does indeed exist, try putting the path in quotes.");
             return null;
         }
 
         if (!dumpDir.isDirectory()) {
-            printRed("Path [" + dirPath + "] must be a directory.");
+            printErrorMessage("Path [" + dirPath + "] must be a directory.");
             return null;
         }
 
@@ -223,11 +222,6 @@ public class DumpCommand extends CatalogCommands {
                 fos.close();
             }
         }
-    }
-
-    private void printRed(String message) {
-        console.println(Ansi.ansi().fg(Ansi.Color.RED).toString() + message
-                + Ansi.ansi().reset().toString());
     }
 
     private List<MetacardTransformer> getTransformers() {

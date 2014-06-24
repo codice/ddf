@@ -95,9 +95,7 @@ public class SearchCommand extends CatalogCommands {
                 Ansi.ansi().fg(Ansi.Color.CYAN).toString(), response.getHits(), Ansi.ansi().reset()
                         .toString(), (end - start) / MILLISECONDS_PER_SECOND);
         console.printf(formatString, "", "", "", "");
-        console.print(Ansi.ansi().fg(Ansi.Color.CYAN).toString());
-        console.printf(formatString, ID, DATE, TITLE, EXCERPT);
-        console.print(Ansi.ansi().reset().toString());
+        printHeaderMessage(String.format(formatString, ID, DATE, TITLE, EXCERPT));
 
         for (Result result : response.getResults()) {
             Metacard metacard = result.getMetacard();

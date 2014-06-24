@@ -26,7 +26,6 @@ import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
 import org.codice.ddf.commands.catalog.facade.CatalogFacade;
-import org.fusesource.jansi.Ansi;
 import org.joda.time.DateTime;
 import org.opengis.filter.Filter;
 
@@ -77,8 +76,7 @@ public class RemoveAllCommand extends CatalogCommands {
     protected Object doExecute() throws Exception {
 
         if (batchSize < PAGE_SIZE_LOWER_LIMIT) {
-            printColor(Ansi.Color.RED, String.format(BATCH_SIZE_ERROR_MESSAGE_FORMAT, batchSize));
-
+            printErrorMessage(String.format(BATCH_SIZE_ERROR_MESSAGE_FORMAT, batchSize));
             return null;
         }
 
@@ -107,7 +105,7 @@ public class RemoveAllCommand extends CatalogCommands {
         }
 
         if (response == null) {
-            printColor(Ansi.Color.RED, "No response from Catalog.");
+            printErrorMessage("No response from Catalog.");
             return null;
         }
 
