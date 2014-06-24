@@ -88,8 +88,8 @@ public class RemoveAllCommand extends CatalogCommands {
 
         FilterBuilder filterBuilder = getFilterBuilder();
 
-        QueryRequest firstQuery = getIntendedQuery(filterBuilder, batchSize, expired, true);
-        QueryRequest subsequentQuery = getIntendedQuery(filterBuilder, batchSize, expired, false);
+        QueryRequest firstQuery = getIntendedQuery(filterBuilder, true);
+        QueryRequest subsequentQuery = getIntendedQuery(filterBuilder, false);
 
         long totalAmountDeleted = 0;
         long start = System.currentTimeMillis();
@@ -98,8 +98,8 @@ public class RemoveAllCommand extends CatalogCommands {
         try {
             response = catalog.query(firstQuery);
         } catch (UnsupportedQueryException e) {
-            firstQuery = getAlternateQuery(filterBuilder, batchSize, expired, true);
-            subsequentQuery = getAlternateQuery(filterBuilder, batchSize, expired, false);
+            firstQuery = getAlternateQuery(filterBuilder, true);
+            subsequentQuery = getAlternateQuery(filterBuilder, false);
 
             response = catalog.query(firstQuery);
         }
@@ -110,8 +110,8 @@ public class RemoveAllCommand extends CatalogCommands {
         }
 
         if (needsAlternateQueryAndResponse(response)) {
-            firstQuery = getAlternateQuery(filterBuilder, batchSize, expired, true);
-            subsequentQuery = getAlternateQuery(filterBuilder, batchSize, expired, false);
+            firstQuery = getAlternateQuery(filterBuilder, true);
+            subsequentQuery = getAlternateQuery(filterBuilder, false);
 
             response = catalog.query(firstQuery);
         }
@@ -226,12 +226,11 @@ public class RemoveAllCommand extends CatalogCommands {
         return Long.toString(hits);
     }
 
-    private QueryRequest getIntendedQuery(FilterBuilder filterBuilder, int batchSize,
-            boolean isRequestForExpired, boolean isRequestForTotal) throws InterruptedException {
+    private QueryRequest getIntendedQuery(FilterBuilder filterBuilder, boolean isRequestForTotal) throws InterruptedException {
 
         Filter filter = filterBuilder.attribute(Metacard.ID).is().like().text(WILDCARD);
 
-        if (isRequestForExpired) {
+        if (expired) {
             filter = filterBuilder.attribute(Metacard.EXPIRATION).before().date(new Date());
         }
 
@@ -244,12 +243,11 @@ public class RemoveAllCommand extends CatalogCommands {
         return new QueryRequestImpl(query);
     }
 
-    private QueryRequest getAlternateQuery(FilterBuilder filterBuilder, int batchSize,
-            boolean isRequestForExpired, boolean isRequestForTotal) throws InterruptedException {
+    private QueryRequest getAlternateQuery(FilterBuilder filterBuilder, boolean isRequestForTotal) throws InterruptedException {
 
         Filter filter = filterBuilder.attribute(Metacard.ANY_TEXT).is().like().text(WILDCARD);
 
-        if (isRequestForExpired) {
+        if (expired) {
             DateTime twoThousandYearsAgo = new DateTime().minusYears(2000);
 
             // less accurate than a Before filter, this is only used for those
