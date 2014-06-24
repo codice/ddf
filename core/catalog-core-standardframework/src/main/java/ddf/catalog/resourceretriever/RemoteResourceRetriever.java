@@ -45,11 +45,11 @@ public class RemoteResourceRetriever implements ResourceRetriever {
     @Override
     public ResourceResponse retrieveResource() throws ResourceNotFoundException, IOException,
             ResourceNotSupportedException {
-        return retrieveResource(null);
+        return retrieveResource(0);
     }
 
     @Override
-    public ResourceResponse retrieveResource(String bytesToSkip) throws ResourceNotFoundException, IOException,
+    public ResourceResponse retrieveResource(long bytesToSkip) throws ResourceNotFoundException, IOException,
             ResourceNotSupportedException {
 
         if (resourceUri == null) {
@@ -59,8 +59,8 @@ public class RemoteResourceRetriever implements ResourceRetriever {
         // Create a fresh HashMap so as not to disturb the existing properties if we need to add to them
         Map<String, Serializable> props = new HashMap<String, Serializable>(properties);
 
-        if (bytesToSkip != null) {
-            props.put(BYTES_TO_SKIP, bytesToSkip);
+        if (bytesToSkip > 0) {
+            props.put(BYTES_TO_SKIP, new Long(bytesToSkip));
         }
 
         return source.retrieveResource(resourceUri, props);

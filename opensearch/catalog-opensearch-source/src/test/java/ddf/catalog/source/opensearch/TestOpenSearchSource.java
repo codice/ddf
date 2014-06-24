@@ -261,7 +261,7 @@ public class TestOpenSearchSource {
 
         requestProperties.put(Metacard.ID, SAMPLE_ID);
 
-        requestProperties.put(OpenSearchSource.BYTES_TO_SKIP, "2");
+        requestProperties.put(OpenSearchSource.BYTES_TO_SKIP, Long.valueOf(2));
 
         // when
         ResourceResponse response = source.retrieveResource(null, requestProperties);

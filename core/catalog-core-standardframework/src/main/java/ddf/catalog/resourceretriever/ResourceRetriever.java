@@ -27,7 +27,7 @@ public interface ResourceRetriever {
     public ResourceResponse retrieveResource() throws ResourceNotFoundException,
         ResourceNotSupportedException, IOException;
 
-    public ResourceResponse retrieveResource(String bytesToSkip) throws ResourceNotFoundException,
+    public ResourceResponse retrieveResource(long bytesToSkip) throws ResourceNotFoundException,
             ResourceNotSupportedException, IOException;
 
 }

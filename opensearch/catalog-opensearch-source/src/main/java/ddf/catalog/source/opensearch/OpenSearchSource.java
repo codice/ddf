@@ -619,9 +619,9 @@ public final class OpenSearchSource implements FederatedSource, ConfiguredServic
     }
 
     // Update the WebClient with a Range header instructing the endpoint to skip bytesToSkip bytes.
-    private void constructRangeHeader(WebClient webClient, String bytesToSkip) {
+    private void constructRangeHeader(WebClient webClient, Long bytesToSkip) {
         StringBuilder headerValue = new StringBuilder(BYTES_EQUAL);
-        headerValue.append(bytesToSkip);
+        headerValue.append(bytesToSkip.toString());
         headerValue.append("-");
 
         webClient.header(HEADER_RANGE, headerValue.toString());
@@ -794,7 +794,7 @@ public final class OpenSearchSource implements FederatedSource, ConfiguredServic
     public ResourceResponse retrieveResource(URI uri, Map<String, Serializable> requestProperties)
             throws ResourceNotFoundException, ResourceNotSupportedException, IOException {
 
-        String bytesToSkip = null;
+        Long bytesToSkip = Long.valueOf(0);
         final String methodName = "retrieveResource";
         LOGGER.entry(methodName);
 
@@ -818,7 +818,7 @@ public final class OpenSearchSource implements FederatedSource, ConfiguredServic
 
                 // If a bytesToSkip property is present add range header
                 if (requestProperties.containsKey(BYTES_TO_SKIP)) {
-                    bytesToSkip = (String) requestProperties.get(BYTES_TO_SKIP);
+                    bytesToSkip = (Long) requestProperties.get(BYTES_TO_SKIP);
                     LOGGER.debug("Setting Range header with bytes to skip: {}", bytesToSkip);
                     constructRangeHeader(webClient, bytesToSkip);
                 }
@@ -858,9 +858,8 @@ public final class OpenSearchSource implements FederatedSource, ConfiguredServic
                         String rangeHeader = clientResponse.getHeaderString(HEADER_ACCEPT_RANGES);
 
                         if ((rangeHeader == null) || (!rangeHeader.equals(BYTES))) {
-                            LOGGER.debug("Skipping {} bytes", (String) requestProperties.get(BYTES_TO_SKIP));
-                            ((InputStream) binaryContent).skip(
-                                    Long.valueOf((String) requestProperties.get(BYTES_TO_SKIP)));
+                            LOGGER.debug("Skipping {} bytes", (Long) requestProperties.get(BYTES_TO_SKIP));
+                            ((InputStream) binaryContent).skip((Long) requestProperties.get(BYTES_TO_SKIP));
                         }
                     }
 

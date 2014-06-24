@@ -64,7 +64,7 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.anyLong;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.timeout;
@@ -779,7 +779,7 @@ public class ReliableResourceDownloadManagerTest {
 
         // Mocking to support re-retrieval of product when error encountered
         // during caching.
-        when(retriever.retrieveResource(anyString())).thenAnswer(new Answer<Object>() {
+        when(retriever.retrieveResource(anyLong())).thenAnswer(new Answer<Object>() {
             int invocationCount = 0;
 
             public Object answer(InvocationOnMock invocation) throws ResourceNotFoundException, IOException {
@@ -795,7 +795,7 @@ public class ReliableResourceDownloadManagerTest {
 
                 // Skip the number of bytes that have already been read
                 Object[] args = invocation.getArguments();
-                long bytesToSkip = Long.valueOf((String) args[0]);
+                long bytesToSkip = (Long) args[0];
 
                 mis.skip(bytesToSkip);
 
@@ -821,15 +821,6 @@ public class ReliableResourceDownloadManagerTest {
                     } else {
                         throw new ResourceNotFoundException();
                     }
-                } else if (retryType == RetryType.CLIENT_CANCELS_DOWNLOAD) {
-
-                } else if (retryType == RetryType.CACHE_FILE_EXCEPTION) {
-//                        FileOutputStream cacheFileOutputStream = downloadMgr.getFileOutputStream();
-//                        try {
-//                            LOGGER.debug("Closing cacheFileOutputStream to simulate CACHED_FILE_OUTPUT_STREAM_EXCEPTION");
-//                            cacheFileOutputStream.close();
-//                        } catch (IOException e) {
-//                        }
                 }
 
                 // Reset the mock Resource so that it can be reconfigured to return

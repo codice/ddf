@@ -1,16 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
+ *
  **/
 package ddf.catalog.resourceretriever;
 
@@ -29,14 +29,14 @@ import java.util.List;
 import java.util.Map;
 
 public class LocalResourceRetriever implements ResourceRetriever {
-    
+
     private static final Logger LOGGER = LoggerFactory.getLogger(LocalResourceRetriever.class);
 
     private List<ResourceReader> resourceReaders;
     private URI resourceUri;
     private Map<String, Serializable> properties;
-    
-    
+
+
     public LocalResourceRetriever(List<ResourceReader> resourceReaders, URI resourceUri, Map<String, Serializable> properties) {
         this.resourceReaders = resourceReaders;
         this.resourceUri = resourceUri;
@@ -45,11 +45,11 @@ public class LocalResourceRetriever implements ResourceRetriever {
 
     @Override
     public ResourceResponse retrieveResource() throws ResourceNotFoundException {
-        return retrieveResource(null);
+        return retrieveResource(0);
     }
 
     @Override
-    public ResourceResponse retrieveResource(String bytesToSkip) throws ResourceNotFoundException {
+    public ResourceResponse retrieveResource(long bytesToSkip) throws ResourceNotFoundException {
         final String methodName = "retrieveResource";
         LOGGER.trace("ENTERING: {}", methodName);
         ResourceResponse resource = null;
@@ -61,8 +61,8 @@ public class LocalResourceRetriever implements ResourceRetriever {
 
         Map<String, Serializable> props = new HashMap<String, Serializable>(properties);
 
-        if (bytesToSkip != null) {
-            props.put(BYTES_TO_SKIP, bytesToSkip);
+        if (bytesToSkip > 0) {
+            props.put(BYTES_TO_SKIP, new Long(bytesToSkip));
         }
 
         for (ResourceReader reader : resourceReaders) {
@@ -97,11 +97,12 @@ public class LocalResourceRetriever implements ResourceRetriever {
         if (resource == null) {
             throw new ResourceNotFoundException(
                     "Resource Readers could not find resource (or returned null resource) for URI: "
-                            + resourceUri.toASCIIString() + ". Scheme: " + resourceUri.getScheme());
+                            + resourceUri.toASCIIString() + ". Scheme: " + resourceUri.getScheme()
+            );
         }
         LOGGER.debug("Received resource, sending back: {}", resource.getResource().getName());
         LOGGER.trace("EXITING: {}", methodName);
-        
+
         return resource;
     }
 

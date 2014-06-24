@@ -553,7 +553,7 @@ public class ReliableResourceDownloadManager implements Runnable {
             // Re-fetch product from the Source after setting up values to indicate the number of bytes to skip.
             // This prevents the same bytes being read again and put in the PipedOutputStream that the
             // client is still reading from and in the file being cached to.
-            ResourceResponse resourceResponse = resourceRetriever.retrieveResource(String.valueOf(bytesRead));
+            ResourceResponse resourceResponse = resourceRetriever.retrieveResource(bytesRead);
             LOGGER.debug("Name of re-retrieved resource = {}", resourceResponse.getResource().getName());
             resourceInputStream = resourceResponse.getResource().getInputStream();
 
