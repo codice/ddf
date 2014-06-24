@@ -35,6 +35,7 @@ import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.osgi.framework.BundleContext;
+import org.osgi.service.event.EventAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -125,7 +126,7 @@ public class CometdEndpointTest {
         // Create the CometdEndpoint, passing in the mocked CometdServlet
         cometdEndpoint = new CometdEndpoint(cometdServlet,
                 mock(CatalogFramework.class), mock(FilterBuilder.class), mock(NotificationStore.class),
-                mock(BundleContext.class));
+                mock(BundleContext.class), mock(EventAdmin.class));
     }
 
     /**

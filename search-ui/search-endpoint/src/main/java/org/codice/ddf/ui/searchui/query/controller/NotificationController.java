@@ -25,6 +25,7 @@ import org.cometd.bayeux.server.ServerMessage;
 import org.cometd.bayeux.server.ServerSession;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.Event;
+import org.osgi.service.event.EventAdmin;
 import org.osgi.service.event.EventHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,8 +44,8 @@ public class NotificationController extends AbstractEventController {
     protected static final String NOTIFICATION_TOPIC_DOWNLOADS_COMETD = "/"
             + Notification.NOTIFICATION_TOPIC_DOWNLOADS;
 
-    public NotificationController(NotificationStore notificationStore, BundleContext bundleContext) {
-        super(notificationStore, bundleContext);
+    public NotificationController(NotificationStore notificationStore, BundleContext bundleContext, EventAdmin eventAdmin) {
+        super(notificationStore, bundleContext, eventAdmin);
 
     }
 

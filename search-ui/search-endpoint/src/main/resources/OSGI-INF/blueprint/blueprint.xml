@@ -24,6 +24,7 @@
         </service-properties>
     </service>
 
+    <reference id="eventAdmin" interface="org.osgi.service.event.EventAdmin" />
     <reference id="notificationStore" interface="org.codice.ddf.notifications.store.NotificationStore" />
     <reference id="catalog" interface="ddf.catalog.CatalogFramework"/>
     <reference id="filterBuilder" interface="ddf.catalog.filter.FilterBuilder"/>
@@ -38,7 +39,11 @@
         <argument ref="filterBuilder"/>
         <argument ref="notificationStore" />
         <argument ref="blueprintBundleContext" />
+        <argument ref="eventAdmin" />
     </bean>
+
+
+
 
 
 </blueprint>

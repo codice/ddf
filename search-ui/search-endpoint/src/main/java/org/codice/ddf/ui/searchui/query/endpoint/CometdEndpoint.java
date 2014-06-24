@@ -30,6 +30,7 @@ import org.cometd.bayeux.server.ServerSession;
 import org.cometd.server.CometdServlet;
 import org.cometd.server.DefaultSecurityPolicy;
 import org.osgi.framework.BundleContext;
+import org.osgi.service.event.EventAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -69,12 +70,12 @@ public class CometdEndpoint {
      *            - FilterBuilder for the SearchService to use
      */
     public CometdEndpoint(CometdServlet cometdServlet, CatalogFramework framework, 
-            FilterBuilder filterBuilder, NotificationStore notificationStore, BundleContext bundleContext) {
+            FilterBuilder filterBuilder, NotificationStore notificationStore, BundleContext bundleContext, EventAdmin eventAdmin) {
         this.cometdServlet = cometdServlet;
         this.filterBuilder = filterBuilder;
         this.searchController = new SearchController(framework);
-        this.notificationController = new NotificationController(notificationStore, bundleContext);
-        this.activityController = new ActivityController(notificationStore, bundleContext);
+        this.notificationController = new NotificationController(notificationStore, bundleContext, eventAdmin);
+        this.activityController = new ActivityController(notificationStore, bundleContext, eventAdmin);
     }
 
     public void init() throws ServletException {        

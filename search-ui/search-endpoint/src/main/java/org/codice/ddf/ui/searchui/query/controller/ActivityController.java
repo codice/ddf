@@ -21,6 +21,7 @@ import org.cometd.annotation.Service;
 import org.cometd.bayeux.server.ServerSession;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.Event;
+import org.osgi.service.event.EventAdmin;
 import org.osgi.service.event.EventHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,8 +38,8 @@ public class ActivityController extends AbstractEventController {
     // the OSGi Event Admin doesn't allow it.
     protected static final String ACTIVITY_TOPIC_COMETD = "/" + ActivityEvent.EVENT_TOPIC_BROADCAST;
 
-    public ActivityController(NotificationStore notificationStore, BundleContext bundleContext) {
-        super(notificationStore, bundleContext);
+    public ActivityController(NotificationStore notificationStore, BundleContext bundleContext, EventAdmin eventAdmin) {
+        super(notificationStore, bundleContext, eventAdmin);
     }
 
     /**

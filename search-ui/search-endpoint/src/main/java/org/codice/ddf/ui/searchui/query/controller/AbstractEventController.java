@@ -14,11 +14,15 @@
  **/
 package org.codice.ddf.ui.searchui.query.controller;
 
+import ddf.security.SubjectUtils;
 import ddf.security.assertion.SecurityAssertion;
 import net.minidev.json.JSONObject;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.subject.Subject;
+import org.codice.ddf.activities.ActivityEvent;
 import org.codice.ddf.notifications.Notification;
 import org.codice.ddf.notifications.store.NotificationStore;
 import org.cometd.annotation.Listener;
@@ -27,7 +31,10 @@ import org.cometd.annotation.Session;
 import org.cometd.bayeux.server.SecurityPolicy;
 import org.cometd.bayeux.server.ServerMessage;
 import org.cometd.bayeux.server.ServerSession;
+import org.cometd.server.ServerMessageImpl;
 import org.osgi.framework.BundleContext;
+import org.osgi.service.event.Event;
+import org.osgi.service.event.EventAdmin;
 import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
 import org.slf4j.Logger;
@@ -52,6 +59,7 @@ public abstract class AbstractEventController implements EventHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractEventController.class);
 
     private final ExecutorService executorService = Executors.newCachedThreadPool();
+    public static final java.lang.String EVENT_TOPIC_CANCEL = "download/action/cancel";
 
     @Session
     protected ServerSession controllerServerSession;
@@ -68,19 +76,22 @@ public abstract class AbstractEventController implements EventHandler {
 
     protected NotificationStore notificationStore;
 
+    private EventAdmin eventAdmin;
+
     /**
      * Establishes {@code AbstractEventController} as a listener to events published by the OSGi
      * eventing framework on the event's root topic
      * 
      * @param bundleContext
      */
-    public AbstractEventController(NotificationStore notificationStore, BundleContext bundleContext) {
+    public AbstractEventController(NotificationStore notificationStore, BundleContext bundleContext, EventAdmin eventAdmin) {
         Dictionary<String, Object> dictionary = new Hashtable<String, Object>();
         dictionary.put(EventConstants.EVENT_TOPIC, getControllerRootTopic());
 
         bundleContext.registerService(EventHandler.class.getName(), this, dictionary);
 
         this.notificationStore = notificationStore;
+        this.eventAdmin = eventAdmin;
     }
 
     public List<Map<String, String>> getNotificationsForUser(String userId) {
@@ -136,6 +147,52 @@ public abstract class AbstractEventController implements EventHandler {
         } else {
             LOGGER.debug("userSessionMap does not contain a user with the id \"{}\"", userId);
         }
+    }
+    @Listener("/service/action")
+    public void actionSession(final ServerSession serverSession, ServerMessage serverMessage) {
+        LOGGER.debug("\nServerSession: {}\nServerMessage: {}", serverSession, serverMessage);
+
+        if (null == serverSession) {
+            throw new IllegalArgumentException("ServerSession is null");
+        }
+
+        if (null == serverMessage) {
+            throw new IllegalArgumentException("ServerMessage is null");
+        }
+
+        Map<String, Object> actionMessage = serverMessage.getDataAsMap();
+        String actionName = (String) actionMessage.get("action");
+        String downloadIdentifier = (String) actionMessage.get("id");
+        LOGGER.debug("\nAction: {}", actionName);
+
+        if (StringUtils.equalsIgnoreCase(actionName, "cancel")) {
+            Subject subject = null;
+            try {
+                subject = SecurityUtils.getSubject();
+            } catch (Exception e) {
+                LOGGER.debug("Couldn't grab user subject from Shiro.", e);
+            }
+
+            String userId = getUserId(serverSession, subject);
+
+            if (null == userId) {
+                throw new IllegalArgumentException("User ID is null");
+            }
+            if (null == downloadIdentifier) {
+                throw new IllegalArgumentException("Metadata ID is null");
+            }
+
+            String downloadId = userId + downloadIdentifier;
+
+            JSONObject jsonPropMap = new JSONObject();
+            jsonPropMap.put(ActivityEvent.DOWNLOAD_ID_KEY, downloadId);
+
+            Event event = new Event(ActivityEvent.EVENT_TOPIC_DOWNLOAD_CANCEL, jsonPropMap);
+            eventAdmin.postEvent(event);
+
+
+        }
+
     }
 
     /**

@@ -23,6 +23,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.Event;
+import org.osgi.service.event.EventAdmin;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -53,7 +54,8 @@ public class ActivityControllerTest {
      */
     @Before
     public void setUp() throws Exception {
-        acitivityController = new ActivityController(mock(NotificationStore.class), mock(BundleContext.class));
+        acitivityController = new ActivityController(mock(NotificationStore.class), mock(BundleContext.class), mock(
+                EventAdmin.class));
         
         when(mockServerSession.getId()).thenReturn(MOCK_SESSION_ID);
         
