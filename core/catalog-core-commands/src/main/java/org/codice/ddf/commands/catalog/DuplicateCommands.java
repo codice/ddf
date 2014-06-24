@@ -139,15 +139,15 @@ public abstract class DuplicateCommands extends CatalogCommands {
             createResponse = provider.create(createRequest);
             createdMetacards = createResponse.getCreatedMetacards();
         } catch (IngestException e) {
-            console.printf("Recieved error while ingesting: %s\n", e.getMessage());
+            console.printf("Received error while ingesting: %s\n", e.getMessage());
             LOGGER.warn("Error during ingest. Attempting to ingest batch individually.");
             return ingestSingly(provider, metacards);
         } catch (SourceUnavailableException e) {
-            console.printf("Recieved error while ingesting: %s\n", e.getMessage());
+            console.printf("Received error while ingesting: %s\n", e.getMessage());
             LOGGER.warn("Error during ingest:", e);
             return createdMetacards;
         } catch (Exception e) {
-            console.printf("Unexpected Exception recieved while ingesting: %s\n", e.getMessage());
+            console.printf("Unexpected Exception received while ingesting: %s\n", e.getMessage());
             LOGGER.warn("Unexpected Exception during ingest:", e);
             return createdMetacards;
         }

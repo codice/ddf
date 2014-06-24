@@ -104,13 +104,13 @@ public class MigrateCommand extends DuplicateCommands {
         try {
             response = framework.query(queryRequest);
         } catch (FederationException e) {
-            console.println("Error occured while querying the Framework." + e.getMessage());
+            console.println("Error occurred while querying the Framework." + e.getMessage());
             return null;
         } catch (SourceUnavailableException e) {
-            console.println("Error occured while querying the Framework." + e.getMessage());
+            console.println("Error occurred while querying the Framework." + e.getMessage());
             return null;
         } catch (UnsupportedQueryException e) {
-            console.println("Error occured while querying the Framework." + e.getMessage());
+            console.println("Error occurred while querying the Framework." + e.getMessage());
             return null;
         }
 
@@ -183,13 +183,13 @@ public class MigrateCommand extends DuplicateCommands {
             LOGGER.debug("Querying with startIndex: {}", startIndex);
             response = framework.query(queryRequest);
         } catch (UnsupportedQueryException e) {
-            console.printf("Recieved error from Framework: %s\n", e.getMessage());
+            console.printf("Received error from Framework: %s\n", e.getMessage());
             return null;
         } catch (SourceUnavailableException e) {
-            console.printf("Recieved error from Frameworks: %s\n", e.getMessage());
+            console.printf("Received error from Frameworks: %s\n", e.getMessage());
             return null;
         } catch (FederationException e) {
-            console.printf("Recieved error from Frameworks: %s\n", e.getMessage());
+            console.printf("Received error from Frameworks: %s\n", e.getMessage());
             return null;
         }
         if (response.getProcessingDetails() != null && !response.getProcessingDetails().isEmpty()) {

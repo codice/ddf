@@ -108,7 +108,7 @@ public class ReplicationCommand extends DuplicateCommands {
         try {
             response = framework.query(queryRequest);
         } catch (Exception e) {
-            console.println("Error occured while querying the Federated Source.\n" + e.getMessage());
+            console.println("Error occurred while querying the Federated Source.\n" + e.getMessage());
             return null;
         }
 
@@ -186,13 +186,13 @@ public class ReplicationCommand extends DuplicateCommands {
             LOGGER.debug("Querying with startIndex: {}", startIndex);
             response = framework.query(queryRequest);
         } catch (UnsupportedQueryException e) {
-            console.printf("Recieved error from %s: %s\n", sourceId, e.getMessage());
+            console.printf("Received error from %s: %s\n", sourceId, e.getMessage());
             return null;
         } catch (SourceUnavailableException e) {
-            console.printf("Recieved error from %s: %s\n", sourceId, e.getMessage());
+            console.printf("Received error from %s: %s\n", sourceId, e.getMessage());
             return null;
         } catch (FederationException e) {
-            console.printf("Recieved error from %s: %s\n", sourceId, e.getMessage());
+            console.printf("Received error from %s: %s\n", sourceId, e.getMessage());
             return null;
         }
         if (response.getProcessingDetails() != null && !response.getProcessingDetails().isEmpty()) {
