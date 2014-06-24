@@ -18,7 +18,12 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class ActivityEvent extends HashMap<String, Object> {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ActivityEvent.class);
 
     private static final long serialVersionUID = -3965553379790729847L;
 
@@ -270,6 +275,7 @@ public class ActivityEvent extends HashMap<String, Object> {
             Long bytes = new Long(this.get(BYTES_READ_KEY).toString());
             return bytes;
         } catch (NumberFormatException nfe) {
+            LOGGER.debug("Received invalid number of bytes. ", nfe.getMessage());
             return 0L;
         }
     }
