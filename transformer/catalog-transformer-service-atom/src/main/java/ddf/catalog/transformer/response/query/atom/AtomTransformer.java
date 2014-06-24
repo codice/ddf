@@ -88,6 +88,10 @@ public class AtomTransformer implements QueryResponseTransformer, ConfigurationW
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AtomTransformer.class);
 
+    private static final String MIME_TYPE_JPEG = "image/jpeg";
+
+    private static final String MIME_TYPE_OCTET_STREAM = "application/octet-stream";
+
     /**
      * This variable is a workaround. If org.apache.abdera.model.Link ever includes a "REL_PREVIEW" member variable, take this
      * variable out and replace it in any function calls with: "Link.REL_PREVIEW"
@@ -410,7 +414,7 @@ public class AtomTransformer implements QueryResponseTransformer, ConfigurationW
                 if (action != null && action.getUrl() != null) {
                     if (actionProvider.equals(resourceActionProvider) && metacard.getResourceURI() != null) {
 
-                        Link viewLink = addLinkHelper(action, entry, linkType, "application/octet-stream");
+                        Link viewLink = addLinkHelper(action, entry, linkType, MIME_TYPE_OCTET_STREAM);
                         try {
                             Long length = Long.parseLong(metacard.getResourceSize(), 10);
                             viewLink.setLength(length);
@@ -421,11 +425,11 @@ public class AtomTransformer implements QueryResponseTransformer, ConfigurationW
 
                     } else if (actionProvider.equals(thumbnailActionProvider) && metacard.getThumbnail() != null) {
 
-                       addLinkHelper(action, entry, linkType, "image/jpeg");
+                       addLinkHelper(action, entry, linkType, MIME_TYPE_JPEG);
                     }
                     else if (!actionProvider.equals(resourceActionProvider) && !actionProvider.equals(thumbnailActionProvider)) {
 
-                        addLinkHelper(action, entry, linkType, "application/octet-stream");
+                        addLinkHelper(action, entry, linkType, MIME_TYPE_OCTET_STREAM);
                     }
 
                 }
