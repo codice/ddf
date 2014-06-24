@@ -33,6 +33,8 @@
     };
     Backbone.Model.prototype.destroy = destroyModel;
     Backbone.Collection.prototype.destroy = destroyColl;
+    Backbone.Model.prototype.unsubscribe = cometdUnbind;
+    Backbone.Collection.prototype.unsubscribe = cometdUnbind;
 
     var origSync = Backbone.sync;
 

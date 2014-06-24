@@ -17,10 +17,9 @@ define([
         'js/model/util',
         'properties',
         'wreqr',
-        'cometdinit',
         'backbonerelational'
     ],
-    function (Backbone, _, Util, properties, wreqr, Cometd) {
+    function (Backbone, _, Util, properties, wreqr) {
         "use strict";
         var MetaCard = {};
 
@@ -350,7 +349,7 @@ define([
                 return queryParams;
             },
             cancel: function() {
-                Cometd.Comet.unsubscribe(this.subscription);
+                this.unsubscribe();
                 var sources = this.get('sources');
                 sources.forEach(function(source) {
                     if(!source.get('done')) {
