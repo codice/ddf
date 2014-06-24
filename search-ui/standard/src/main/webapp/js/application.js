@@ -29,12 +29,10 @@ define(['jquery',
         'backbonerelational',
         'backbonecometd',
         'jquerycometd',
-        'modelbinder'
+        'modelbinder',
+        'collectionbinder'
     ], function ($, _, Marionette, Backbone, ich, properties, maptype, map, header, footer, ApplicationController) {
         'use strict';
-
-        //collection binder must be loaded in after modelbinder, this ensure that happens
-        require(['collectionbinder']);
 
         var Application = {};
 

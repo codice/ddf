@@ -51,8 +51,10 @@ define([ 'backbone',
 
         createNotification: function() {
             if (typeof stack_context === "undefined") stack_context = {
-                "dir1": "down",
+                "dir1": "up",
                 "dir2": "left",
+                "firstpos1": 25,
+                "firstpos2": 25,
                 "context": $("#notifications")
             };
 

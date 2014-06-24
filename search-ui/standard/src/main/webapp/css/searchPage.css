@@ -414,7 +414,7 @@ tr.selected {
     text-align: center;
 }
 
-#notificationBar{
+#mapDrawingPopup{
 	display: none;
 	color:white;
 	width:150px;
@@ -738,10 +738,12 @@ div.ui-pnotify-text br {
 
 .notification-context {
     position: absolute;
-    top: 50px;
-    bottom: auto;
+    bottom: 50px;
     right: 25px;
-    left: auto;
+}
+
+.ui-pnotify {
+    top: auto;
 }
 
 .ui-pnotify-closer{

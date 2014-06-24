@@ -77,6 +77,10 @@
 
         shim: {
 
+            collectionbinder: {
+                deps: ['modelbinder']
+            },
+
             jquerycometd: {
                 deps: ['jquery', 'cometd']
             },

@@ -24,7 +24,7 @@ define(['application',
                     template: 'map',
                     className: 'height-full',
                     regions: {
-                        notificationBar: '#notificationBar'
+                        mapDrawingPopup: '#mapDrawingPopup'
                     },
                     onShow: function() {
                         require(['js/controllers/geospatial.controller',
@@ -36,12 +36,12 @@ define(['application',
 
                             new DrawExtent.Controller({
                                 scene: geoController.scene,
-                                notificationEl: mapView.notificationBar.el
+                                notificationEl: mapView.mapDrawingPopup.el
                             });
 
                             new DrawCircle.Controller({
                                 scene: geoController.scene,
-                                notificationEl: mapView.notificationBar.el
+                                notificationEl: mapView.mapDrawingPopup.el
                             });
                         });
                     }

@@ -30,62 +30,62 @@ define([
             defaults: {
                 back: '',
                 forward: '',
-                title: 'Search'
+                title: 'Search',
+                currentState: 'search',
+                metacardDetail: undefined
             },
-            currentState: 'search',
             setInitialState: function() {
-                this.metacardDetail = undefined;
-                this.currentState = 'search';
-                var changeObj = {
+                this.set({
                     back: '',
                     forward: '',
-                    title: 'Search'
-                };
-                this.set(changeObj);
+                    title: 'Search',
+                    currentState: 'search',
+                    metacardDetail: undefined
+                });
             },
             setResultListState: function() {
-                this.currentState = 'results';
-                var changeObj = {
+                this.set({
                     back: 'Search',
                     title: 'Results',
-                    forward: ''
-                };
-                if(this.metacardDetail) {
-                    changeObj.forward = 'Record';
-                }
-                this.set(changeObj);
+                    forward: this.get('metacardDetail') ? 'Record' : '',
+                    currentState: 'results'
+                });
             },
             setSearchFormState: function() {
-                this.currentState = 'search';
-                var changeObj = {
+                this.set({
                     title: 'Search',
                     forward: 'Results',
-                    back: ''
-                };
-                this.set(changeObj);
+                    back: '',
+                    currentState: 'search'
+                });
             },
             setRecordViewState: function() {
-                this.metacardDetail = true;
-                this.currentState = 'record';
-                var changeObj = {
+                this.set({
                     title: 'Record',
                     back: 'Results',
-                    forward: ''
-                };
-                this.set(changeObj);
+                    forward: '',
+                    currentState: 'record',
+                    metacardDetail: true
+                });
             },
             back: function() {
-                if(this.currentState === 'results') {
-                    this.setSearchFormState();
-                } else if(this.currentState === 'record') {
-                    this.setResultListState();
+                switch (this.get('currentState')) {
+                    case 'results':
+                        this.setSearchFormState();
+                        break;
+                    case 'record':
+                        this.setResultListState();
+                        break;
                 }
             },
             forward: function() {
-                if(this.currentState === 'search') {
-                    this.setResultListState();
-                } else if(this.currentState === 'results') {
-                    this.setRecordViewState();
+                switch (this.get('currentState')) {
+                    case 'search':
+                        this.setResultListState();
+                        break;
+                    case 'results':
+                        this.setRecordViewState();
+                        break;
                 }
             }
         });
@@ -110,12 +110,12 @@ define([
             },
 
             back: function () {
-                var state = this.model.currentState;
+                var state = this.model.get('currentState');
                 this.model.back();
                 wreqr.vent.trigger('search:back', state);
             },
             forward: function () {
-                var state = this.model.currentState;
+                var state = this.model.get('currentState');
                 this.model.forward();
                 wreqr.vent.trigger('search:forward', state);
             }
