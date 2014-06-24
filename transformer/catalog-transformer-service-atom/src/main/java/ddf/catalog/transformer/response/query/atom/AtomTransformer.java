@@ -410,27 +410,22 @@ public class AtomTransformer implements QueryResponseTransformer, ConfigurationW
                 if (action != null && action.getUrl() != null) {
                     if (actionProvider.equals(resourceActionProvider) && metacard.getResourceURI() != null) {
 
-                        Link viewLink = entry.addLink(action.getUrl().toString(), linkType);
+                        Link viewLink = addLinkHelper(action, entry, linkType, "application/octet-stream");
                         try {
                             Long length = Long.parseLong(metacard.getResourceSize(), 10);
                             viewLink.setLength(length);
                         } catch (NumberFormatException e) {
                             LOGGER.info("Could not cast {} as Long type.", metacard.getResourceSize());
                         }
-                        viewLink.setTitle(action.getTitle());
-                        viewLink.setMimeType("application/octet-stream");
+
 
                     } else if (actionProvider.equals(thumbnailActionProvider) && metacard.getThumbnail() != null) {
 
-                        Link viewLink = entry.addLink(action.getUrl().toString(), linkType);
-                        viewLink.setTitle(action.getTitle());
-                        viewLink.setMimeType("image/jpeg");
+                       addLinkHelper(action, entry, linkType, "image/jpeg");
                     }
                     else if (!actionProvider.equals(resourceActionProvider) && !actionProvider.equals(thumbnailActionProvider)) {
 
-                        Link viewLink = entry.addLink(action.getUrl().toString(), linkType);
-                        viewLink.setTitle(action.getTitle());
-                        viewLink.setMimeType("application/octet-stream");
+                        addLinkHelper(action, entry, linkType, "application/octet-stream");
                     }
 
                 }
@@ -441,6 +436,13 @@ public class AtomTransformer implements QueryResponseTransformer, ConfigurationW
             }
         }
 
+    }
+
+    private Link addLinkHelper(Action action, Entry entry, String linkType, String mimeType) {
+        Link viewLink = entry.addLink(action.getUrl().toString(), linkType);
+        viewLink.setTitle(action.getTitle());
+        viewLink.setMimeType(mimeType);
+        return viewLink;
     }
 
     private List<Position> getGeoRssPositions(Metacard metacard) {
