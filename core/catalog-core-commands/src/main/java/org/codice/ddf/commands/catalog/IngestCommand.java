@@ -34,7 +34,6 @@ import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
 import org.codice.ddf.commands.catalog.facade.CatalogFacade;
-import org.fusesource.jansi.Ansi;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
@@ -84,25 +83,22 @@ public class IngestCommand extends CatalogCommands {
         File inputFile = new File(filePath);
 
         if (!inputFile.exists()) {
-            console.println(Ansi.ansi().fg(Ansi.Color.RED).toString() + "File or directory ["
-                    + filePath + "] must exist." + Ansi.ansi().reset().toString());
+            printErrorMessage("File or directory [" + filePath + "] must exist.");
             console.println("If the file does indeed exist, try putting the path in quotes.");
             return null;
         }
-        
+
         if (batchSize <= 0) {
-            console.println(Ansi.ansi().fg(Ansi.Color.RED).toString() + "A batch size of ["
-                    + batchSize + "] was supplied. Batch size must be greater than 0."
-                    + Ansi.ansi().reset().toString());
+            printErrorMessage("A batch size of [" + batchSize + "] was supplied. Batch size must be greater than 0.");
             return null;
         }
-        
-        if(!StringUtils.isEmpty(directory)) {
+
+        if (!StringUtils.isEmpty(directory)) {
             failedIngestDirectory = new File(directory);
-            if(!verifyFailedIngestDirectory()) {
+            if (!verifyFailedIngestDirectory()) {
                 return null;
             }
-            
+
             /**
              * Batch size is always set to 1, when using an Ingest Failure Directory.  If a batch size is specified by the user, issue
              * a warning stating that a batch size of 1 will be used.
@@ -112,21 +108,21 @@ public class IngestCommand extends CatalogCommands {
                         + batchSize
                         + ". When using an ingest failure directory, the batch size must be 1. Setting batch size to 1.");
             }
-            
+
             batchSize = 1;
         }
 
         ArrayList<Metacard> metacards = new ArrayList<Metacard>(batchSize);
         final CountRecorder ingestCountObj = new CountRecorder();
-        
+
         if (inputFile.isDirectory()) {
             final long startTime = System.currentTimeMillis();
             final File[] fileList = inputFile.listFiles();
 
             console.println("Found " + fileList.length + " file(s) to insert.");
-            
+
             printProgressAndFlush(startTime, fileList.length, ingestCountObj.getCount());
-            
+
             if (multithreaded > 1 && fileList.length > batchSize) {
                 BlockingQueue<Runnable> blockingQueue = new ArrayBlockingQueue<Runnable>(
                         multithreaded);
@@ -145,7 +141,7 @@ public class IngestCommand extends CatalogCommands {
                             } catch (IngestException e) {
                                 result = null;
                                 logIngestException(e, file);
-                                if(failedIngestDirectory == null) {
+                                if (failedIngestDirectory == null) {
                                     executorService.shutdownNow();
                                 } else {
                                     moveToFailedIngestDirectory(file);
@@ -175,11 +171,11 @@ public class IngestCommand extends CatalogCommands {
                                     executorService.shutdownNow();
                                 }
                             }
-                            
-                            if(createResponse != null) {
+
+                            if (createResponse != null) {
                                 ingestCountObj.updateCount(createResponse.getCreatedMetacards().size());
                             }
-                            
+
                             printProgressAndFlush(startTime, fileList.length, ingestCountObj.getCount());
 
                         }
@@ -214,17 +210,17 @@ public class IngestCommand extends CatalogCommands {
                     if (result != null) {
                         metacards.add(result);
                     }
-                    
+
                     if (batchSize == 1 && metacards.size() == batchSize) {
-                        if(!processBatch(catalog, metacards, file, ingestCountObj) && failedIngestDirectory == null) {
+                        if (!processBatch(catalog, metacards, file, ingestCountObj) && failedIngestDirectory == null) {
                             return null;
                         }
-                    } else if(batchSize > 1 && metacards.size() == batchSize) {
-                        if(!processBatch(catalog, metacards, ingestCountObj)) {
+                    } else if (batchSize > 1 && metacards.size() == batchSize) {
+                        if (!processBatch(catalog, metacards, ingestCountObj)) {
                             return null;
                         }
                     }
-                    
+
                     printProgressAndFlush(startTime, fileList.length, ingestCountObj.getCount());
                 }
 
@@ -248,10 +244,10 @@ public class IngestCommand extends CatalogCommands {
             Metacard result = null;
             try {
                 result = readMetacard(inputFile);
-            } catch(IngestException e) {
+            } catch (IngestException e) {
                 result = null;
                 logIngestException(e, inputFile);
-                if(failedIngestDirectory != null) {
+                if (failedIngestDirectory != null) {
                     moveToFailedIngestDirectory(inputFile);
                 }
             }
@@ -266,10 +262,8 @@ public class IngestCommand extends CatalogCommands {
                     createResponse = createMetacards(catalog, metacards);
                 } catch (IngestException e) {
                     createResponse = null;
-                    console.println(Ansi.ansi().fg(Ansi.Color.RED).toString()
-                            + inputFile.getAbsolutePath() + " failed ingest."
-                            + Ansi.ansi().reset().toString());
-                    if(failedIngestDirectory != null) {
+                    printErrorMessage(inputFile.getAbsolutePath() + " failed ingest.");
+                    if (failedIngestDirectory != null) {
                         moveToFailedIngestDirectory(inputFile);
                     }
                 }
@@ -290,11 +284,8 @@ public class IngestCommand extends CatalogCommands {
     }
 
     private void logIngestException(IngestException exception, File inputFile) {
-        console.println(Ansi.ansi().fg(Ansi.Color.RED).toString()
-                + "Failed to ingest file [" + inputFile.getAbsolutePath() + "]."
-                + Ansi.ansi().reset().toString());
-        console.println(Ansi.ansi().fg(Ansi.Color.RED).toString() + exception.getMessage()
-                + Ansi.ansi().reset().toString());
+        printErrorMessage("Failed to ingest file [" + inputFile.getAbsolutePath() + "].");
+        printErrorMessage(exception.getMessage());
     }
 
     private CreateResponse createMetacards(CatalogFacade catalog, List<Metacard> listOfMetaCards)
@@ -377,29 +368,26 @@ public class IngestCommand extends CatalogCommands {
         }
 
     }
-    
+
     private boolean verifyFailedIngestDirectory() {
-       
-        if(!failedIngestDirectory.exists()) {
+        if (!failedIngestDirectory.exists()) {
             makeFailedIngestDirectory();
         }
-        
-       if(!failedIngestDirectory.canWrite()) {
-           console.println(Ansi.ansi().fg(Ansi.Color.RED).toString() + "Directory ["
-                   + failedIngestDirectory.getAbsolutePath() + "] is not writable." + Ansi.ansi().reset().toString());
-           return false;
-       } else {
-           return true;
-       }
-    }
-    
-    private void makeFailedIngestDirectory() {
-        if(!failedIngestDirectory.mkdirs()) {
-            console.println(Ansi.ansi().fg(Ansi.Color.RED).toString() + "Unable to create directory ["
-                    + failedIngestDirectory.getAbsolutePath() + "]." + Ansi.ansi().reset().toString());
+
+        if (!failedIngestDirectory.canWrite()) {
+            printErrorMessage("Directory [" + failedIngestDirectory.getAbsolutePath() + "] is not writable.");
+            return false;
+        } else {
+            return true;
         }
     }
-    
+
+    private void makeFailedIngestDirectory() {
+        if (!failedIngestDirectory.mkdirs()) {
+            printErrorMessage("Unable to create directory [" + failedIngestDirectory.getAbsolutePath() + "].");
+        }
+    }
+
     private boolean processBatch(CatalogFacade catalog, ArrayList<Metacard> metacards,
             CountRecorder ingestCountObj) throws SourceUnavailableException {
         CreateResponse createResponse = null;
@@ -411,27 +399,24 @@ public class IngestCommand extends CatalogCommands {
         } catch (IngestException e) {
             createResponse = null;
             success = false;
-            console.println(Ansi.ansi().fg(Ansi.Color.RED).toString() + "Error executing command: "
-                    + e.getMessage() + Ansi.ansi().reset().toString());
+            printErrorMessage("Error executing command: " + e.getMessage());
         }
-        
+
         if (success) {
             ingestCountObj.updateCount(createResponse.getCreatedMetacards().size());
         }
-        
+
         metacards.clear();
         return success;
     }
-    
+
     private boolean processBatch(CatalogFacade catalog, ArrayList<Metacard> metacards,
             File inputFile, CountRecorder ingestCountObj) throws SourceUnavailableException {
         boolean success = false;
 
         if (!processBatch(catalog, metacards, ingestCountObj)) {
             if (failedIngestDirectory != null) {
-                console.println(Ansi.ansi().fg(Ansi.Color.RED).toString()
-                        + "Failed to ingest file [" + inputFile.getAbsolutePath() + "]."
-                        + Ansi.ansi().reset().toString());
+                printErrorMessage("Failed to ingest file [" + inputFile.getAbsolutePath() + "].");
                 moveToFailedIngestDirectory(inputFile);
             }
             success = false;
@@ -441,14 +426,13 @@ public class IngestCommand extends CatalogCommands {
 
         return success;
     }
-    
+
     private void moveToFailedIngestDirectory(File source) {
         File destination = new File(failedIngestDirectory.getAbsolutePath() + File.separator + source.getName());
-        
+
         if (!source.renameTo(destination)) {
-            console.println(Ansi.ansi().fg(Ansi.Color.RED).toString()
-                    + "Unable to move source file [" + source.getAbsolutePath()
-                    + "] to [" + failedIngestDirectory + "]." + Ansi.ansi().reset().toString());
+            printErrorMessage("Unable to move source file [" + source.getAbsolutePath()
+                    + "] to [" + failedIngestDirectory + "].");
         }
     }
 
