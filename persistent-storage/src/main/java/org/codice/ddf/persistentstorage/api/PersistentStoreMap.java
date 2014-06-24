@@ -33,7 +33,7 @@ public class PersistentStoreMap extends HashMap<String, Object> {
     public static final String LONG_SUFFIX = "_lng";
     
     // for Set<String>
-    public static final String TEXT_SET_SUFFIX = "_set_txt";
+    public static final String TEXT_SET_SUFFIX = "_txt_set";
     
     
     public void addIdProperty(Object value) {
