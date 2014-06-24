@@ -19,6 +19,7 @@ import java.io.Serializable;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.math.BigInteger;
+import java.net.ConnectException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -72,6 +73,7 @@ import net.opengis.ows.v_1_0_0.OperationsMetadata;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.common.util.CollectionUtils;
+import org.apache.cxf.interceptor.Fault;
 import org.codice.ddf.spatial.ogc.catalog.MetadataTransformer;
 import org.codice.ddf.spatial.ogc.catalog.common.AvailabilityCommand;
 import org.codice.ddf.spatial.ogc.catalog.common.AvailabilityTask;
@@ -1016,6 +1018,8 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
         } catch (WebApplicationException wae) {
             LOGGER.error(wae.getMessage(), wae);
             handleWebApplicationException(wae);
+        } catch (ClientException ce) {
+            LOGGER.error("Client Exception trying to check availability: {}", handleClientException(ce));
         }
         return caps;
     }
