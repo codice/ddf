@@ -590,11 +590,17 @@
    
    <dynamicField name="*_txt" type="string" indexed="true" stored="true"  />
    
+   <dynamicField name="*_txt_set" type="string" indexed="true" stored="true" multiValued="true" />
+   
    <dynamicField name="*_xml" type="string" indexed="false" stored="true"  />
    
    <dynamicField name="*_txt_tokenized" type="text_general" indexed="true" stored="false" />
    
    <dynamicField name="*_txt_tokenized_has_case" type="text_general_has_case" indexed="true" stored="false" />
+      
+   <dynamicField name="*_txt_set_tokenized" type="text_general" indexed="true" stored="false"  multiValued="true" />
+   
+   <dynamicField name="*_txt_set_tokenized_has_case" type="text_general_has_case" indexed="true" stored="false" multiValued="true" />
    
    <dynamicField name="*_bin" type="binary" indexed="false" stored="true"/>
    
@@ -622,6 +628,9 @@
   <!-- copyField commands copy one field to another at the time a document
         is added to the index.  It's used either to index the same field differently,
         or to add multiple fields to the same field for easier/faster searching.  -->
+        
+   <copyField source="*_txt_set" dest="*_txt_set_tokenized" multiValued="true"/>
+   <copyField source="*_txt_set" dest="*_txt_set_tokenized_has_case" multiValued="true"/>
    
    <copyField source="*_txt" dest="*_txt_tokenized"/>
    <copyField source="*_txt" dest="*_txt_tokenized_has_case"/>
