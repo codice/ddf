@@ -56,7 +56,8 @@ public class TestSAMLAssertionHandler {
         Element assertion = readDocument("/saml.xml").getDocumentElement();
         String assertionId = assertion.getAttributeNodeNS(null, "ID").getNodeValue();
         SecurityToken samlToken = new SecurityToken(assertionId, assertion, null);
-        Cookie cookie = new Cookie(SAMLAssertionHandler.SAML_COOKIE_NAME, encodeSaml(samlToken.getToken()));
+        Cookie cookie = new Cookie(SAMLAssertionHandler.SAML_COOKIE_NAME,
+                encodeSaml(samlToken.getToken()));
         when(request.getCookies()).thenReturn(new Cookie[] {cookie});
 
         HandlerResult result = handler.getNormalizedToken(request, response, chain, true);
@@ -88,8 +89,7 @@ public class TestSAMLAssertionHandler {
     /**
      * Reads a classpath resource into a Document.
      *
-     * @param name
-     *            the name of the classpath resource
+     * @param name the name of the classpath resource
      */
     private Document readDocument(String name) throws SAXException, IOException,
             ParserConfigurationException {

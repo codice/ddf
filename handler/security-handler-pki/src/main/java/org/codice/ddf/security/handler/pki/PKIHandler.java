@@ -46,19 +46,28 @@ import java.security.cert.X509Certificate;
  */
 public class PKIHandler implements AuthenticationHandler {
 
-    private static final transient Logger LOGGER = LoggerFactory
-            .getLogger(PKIHandler.class);
-
     /**
      * PKI type to use when configuring context policy.
      */
     public static final String AUTH_TYPE = "PKI";
+
+    private static final transient Logger LOGGER = LoggerFactory
+            .getLogger(PKIHandler.class);
 
     private static final JAXBContext btContext = initContext();
 
     private Merlin merlin;
 
     private String signaturePropertiesPath;
+
+    private static JAXBContext initContext() {
+        try {
+            return JAXBContext.newInstance(BinarySecurityTokenType.class);
+        } catch (JAXBException e) {
+            LOGGER.error("Unable to create BinarySecurityToken JAXB context.", e);
+        }
+        return null;
+    }
 
     /**
      * Initializes Merlin crypto object.
@@ -71,15 +80,6 @@ public class PKIHandler implements AuthenticationHandler {
         } catch (IOException e) {
             LOGGER.error("Unable to read merlin properties file.", e);
         }
-    }
-
-    private static JAXBContext initContext() {
-        try {
-            return JAXBContext.newInstance(BinarySecurityTokenType.class);
-        } catch (JAXBException e) {
-            LOGGER.error("Unable to create BinarySecurityToken JAXB context.", e);
-        }
-        return null;
     }
 
     @Override
@@ -102,8 +102,8 @@ public class PKIHandler implements AuthenticationHandler {
     public HandlerResult getNormalizedToken(ServletRequest request, ServletResponse response,
             FilterChain chain, boolean resolve) throws ServletException {
         HandlerResult handlerResult;
-        X509Certificate[] certs = (X509Certificate[]) request
-                .getAttribute("java.servlet.request.X509Certificate");
+        X509Certificate[] certs = (X509Certificate[]) request.getAttribute(
+                "javax.servlet.request.X509Certificate");
         //doesn't matter what the resolve flag is set to, we do the same action
         if (certs != null && certs.length > 0) {
             byte[] certBytes = null;

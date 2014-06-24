@@ -40,7 +40,8 @@ public class TestPKIHandler {
      * getNormalizedToken(), when given a valid HTTPServletRequest.
      */
     @Test
-    public void testGetNormalizedTokenSuccess() throws java.security.cert.CertificateException {
+    public void testGetNormalizedTokenSuccess()
+            throws java.security.cert.CertificateException, ServletException {
         PKIHandler handler = new PKIHandler();
 
         HttpServletRequest request = mock(HttpServletRequest.class);
@@ -66,10 +67,10 @@ public class TestPKIHandler {
         InputStream stream = new ByteArrayInputStream(
                 Base64.decodeBase64(certificateString.getBytes()));
         CertificateFactory factory = CertificateFactory.getInstance("X.509");
-        X509Certificate cert = (X509Certificate)factory.generateCertificate(stream);
-        X509Certificate [] certs = new X509Certificate[1];
+        X509Certificate cert = (X509Certificate) factory.generateCertificate(stream);
+        X509Certificate[] certs = new X509Certificate[1];
         certs[0] = cert;
-        when(request.getAttribute(("java.servlet.request.X509Certificate"))).thenReturn(certs);
+        when(request.getAttribute(("javax.servlet.request.X509Certificate"))).thenReturn(certs);
 
         /**
          * Note that the getNormalizedToken() method for PKI handlers do not
@@ -77,11 +78,7 @@ public class TestPKIHandler {
          */
         handler.init();
         HandlerResult result = null;
-        try {
-            result = handler.getNormalizedToken(request, response, chain, true);
-        } catch (ServletException e) {
-            e.printStackTrace();
-        }
+        result = handler.getNormalizedToken(request, response, chain, true);
 
         assertNotNull(result);
         assertEquals(HandlerResult.Status.COMPLETED, result.getStatus());
@@ -93,7 +90,8 @@ public class TestPKIHandler {
      * invalid data.
      */
     @Test
-    public void testGetNormalizedTokenFailureNoCertBytes() throws java.security.cert.CertificateException {
+    public void testGetNormalizedTokenFailureNoCertBytes()
+            throws java.security.cert.CertificateException, ServletException {
         PKIHandler handler = new PKIHandler();
 
         HttpServletRequest request = mock(HttpServletRequest.class);
@@ -119,21 +117,17 @@ public class TestPKIHandler {
         InputStream stream = new ByteArrayInputStream(
                 Base64.decodeBase64(certificateString.getBytes()));
         CertificateFactory factory = CertificateFactory.getInstance("X.509");
-        X509Certificate cert = (X509Certificate)factory.generateCertificate(stream);
-        X509Certificate [] certs = new X509Certificate[1];
+        X509Certificate cert = (X509Certificate) factory.generateCertificate(stream);
+        X509Certificate[] certs = new X509Certificate[1];
         certs[0] = cert;
-        when(request.getAttribute(("java.servlet.request.X509Certificate"))).thenReturn(certs);
+        when(request.getAttribute(("javax.servlet.request.X509Certificate"))).thenReturn(certs);
 
         /**
          * Note that the getNormalizedToken() method for PKI handlers do not
          * use the resolve tag.
          */
         HandlerResult result = null;
-        try {
-            result = handler.getNormalizedToken(request, response, chain, true);
-        } catch (ServletException e) {
-            e.printStackTrace();
-        }
+        result = handler.getNormalizedToken(request, response, chain, true);
 
         assertNotNull(result);
         assertEquals(HandlerResult.Status.NO_ACTION, result.getStatus());
@@ -144,25 +138,21 @@ public class TestPKIHandler {
      * getNormalizedToken(), when given an invalid HTTPServletRequest.
      */
     @Test
-    public void testGetNormalizedTokenFailureNoCerts() {
+    public void testGetNormalizedTokenFailureNoCerts() throws ServletException {
         PKIHandler handler = new PKIHandler();
 
         HttpServletRequest request = mock(HttpServletRequest.class);
         HttpServletResponse response = mock(HttpServletResponse.class);
         FilterChain chain = mock(FilterChain.class);
 
-        when(request.getAttribute("java.servlet.request.X509Certificate")).thenReturn(null);
+        when(request.getAttribute("javax.servlet.request.X509Certificate")).thenReturn(null);
 
         /**
          * Note that the getNormalizedToken() method for PKI handlers do not
          * use the resolve tag.
          */
         HandlerResult result = null;
-        try {
-            result = handler.getNormalizedToken(request, response, chain, true);
-        } catch (ServletException e) {
-            e.printStackTrace();
-        }
+        result = handler.getNormalizedToken(request, response, chain, true);
 
         assertNotNull(result);
         assertEquals(HandlerResult.Status.NO_ACTION, result.getStatus());
