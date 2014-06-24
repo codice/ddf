@@ -20,7 +20,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.shiro.SecurityUtils;
 import org.codice.ddf.activities.ActivityEvent;
 import org.codice.ddf.activities.ActivityEvent.ActivityStatus;
@@ -125,13 +124,13 @@ public class DownloadsStatusEventPublisher {
             
             // get Action
             Action downloadAction = null;
-            if (!actionProviders.isEmpty()) {
+            if (null != actionProviders && !actionProviders.isEmpty()) {
                 // take the first one
                 downloadAction = actionProviders.get(0).getAction(metacard);
             }
-            
+
             // send activity event
-            // progress for downloads 
+            // progress for downloads
             String progress = NO_PROGRESS_BAR;
             Map<String, String> operations = new HashMap<String, String>();
             ActivityStatus type;
@@ -162,7 +161,7 @@ public class DownloadsStatusEventPublisher {
                     progress = UNKNOWN_PROGRESS;
                     if (metacard != null) {
                         String resourceSizeStr = metacard.getResourceSize();
-                        if (!StringUtils.isEmpty(resourceSizeStr) && !StringUtils.equalsIgnoreCase(resourceSizeStr, "N/A")) {
+                        if (org.apache.commons.lang.math.NumberUtils.isNumber(resourceSizeStr)) {
                             Long resourceSize = Long.parseLong(resourceSizeStr);
                             if (resourceSize > 0) {
                                 progress = Long

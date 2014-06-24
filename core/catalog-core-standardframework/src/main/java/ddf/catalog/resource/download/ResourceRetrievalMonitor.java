@@ -82,8 +82,16 @@ public class ResourceRetrievalMonitor extends TimerTask {
                     chunkByteCount, monitorPeriod, bytesRead,
                     FileUtils.byteCountToDisplaySize(transferSpeed));
             previousBytesRead = reliableResourceCallable.getBytesRead();
-            eventPublisher.postRetrievalStatus(resourceResponse,
-                    DownloadsStatusEventPublisher.ProductRetrievalStatus.IN_PROGRESS, metacard, null, bytesRead, downloadIdentifier);
+            if (null != eventPublisher) {
+
+                eventPublisher.postRetrievalStatus(resourceResponse,
+                        DownloadsStatusEventPublisher.ProductRetrievalStatus.IN_PROGRESS, metacard,
+                        null, bytesRead, downloadIdentifier);
+            }
+            else {
+                LOGGER.debug("Event publisher is null ");
+            }
+
         } else {
             LOGGER.debug("No bytes downloaded in last {} ms - cancelling ResourceRetrievalMonitor and ReliableResourceCallable future (thread).", monitorPeriod);
             // Stop this ResourceRetrievalMonitor since the ReliableResourceCallable being watched will be stopped now
