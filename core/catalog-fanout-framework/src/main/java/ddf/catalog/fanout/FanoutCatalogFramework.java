@@ -615,7 +615,7 @@ public class FanoutCatalogFramework extends CatalogFrameworkImpl {
                             metacard.getId());
                     retrieveStatusEventPublisher.postRetrievalStatus(resourceResponse,
                             ProductRetrievalStatus.COMPLETE, metacard, null,
-                            resource.getSize());
+                            resource.getSize(), null);
                 } catch (CacheException ce) {
                     logger.info(
                             "Unable to get resource from cache. Have to retrieve it from the Source");
@@ -630,7 +630,7 @@ public class FanoutCatalogFramework extends CatalogFrameworkImpl {
                     ReliableResourceDownloadManager downloadManager = new ReliableResourceDownloadManager(
                             maxRetryAttempts, delayBetweenAttempts, monitorPeriod,
                             cacheEnabled, productCache, cacheWhenCanceled,
-                            retrieveStatusEventPublisher);
+                            retrieveStatusEventPublisher, retrieveStatusEventListener);
                     try {
                         resourceResponse = downloadManager.download(resourceRequest, metacard, retriever);
                     } catch (DownloadException e) {
@@ -649,7 +649,7 @@ public class FanoutCatalogFramework extends CatalogFrameworkImpl {
                 for (ConnectedSource currSource : connectedSources) {
                     ResourceRetriever retriever = new RemoteResourceRetriever(currSource, resourceUri, requestProperties);
                     ReliableResourceDownloadManager downloadManager = new ReliableResourceDownloadManager(maxRetryAttempts,
-                            delayBetweenAttempts, monitorPeriod, cacheEnabled, productCache, cacheWhenCanceled, retrieveStatusEventPublisher);
+                            delayBetweenAttempts, monitorPeriod, cacheEnabled, productCache, cacheWhenCanceled, retrieveStatusEventPublisher, retrieveStatusEventListener);
                     try {
                         resourceResponse = downloadManager.download(resourceRequest, metacard, retriever);
                     } catch (DownloadException e) {

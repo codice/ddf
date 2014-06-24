@@ -40,6 +40,7 @@ public class ResourceRetrievalMonitor extends TimerTask {
     private DownloadsStatusEventPublisher eventPublisher;
     private ResourceResponse resourceResponse;
     private Metacard metacard;
+    private String downloadIdentifier;
 
 
     /**
@@ -51,13 +52,14 @@ public class ResourceRetrievalMonitor extends TimerTask {
      * @param metacard the @Metacard associated with the resource being downloaded
      */
     public ResourceRetrievalMonitor(Future<?> future, ReliableResourceCallable reliableResourceCallable, long monitorPeriod,
-            DownloadsStatusEventPublisher eventPublisher, ResourceResponse resourceResponse, Metacard metacard) {
+            DownloadsStatusEventPublisher eventPublisher, ResourceResponse resourceResponse, Metacard metacard, String downloadIdentifier) {
         this.future = future;
         this.reliableResourceCallable = reliableResourceCallable;
         this.monitorPeriod = monitorPeriod;
         this.eventPublisher = eventPublisher;
         this.resourceResponse = resourceResponse;
         this.metacard = metacard;
+        this.downloadIdentifier = downloadIdentifier;
     }
 
     /**
@@ -81,7 +83,7 @@ public class ResourceRetrievalMonitor extends TimerTask {
                     FileUtils.byteCountToDisplaySize(transferSpeed));
             previousBytesRead = reliableResourceCallable.getBytesRead();
             eventPublisher.postRetrievalStatus(resourceResponse,
-                    DownloadsStatusEventPublisher.ProductRetrievalStatus.IN_PROGRESS, metacard, null, bytesRead);
+                    DownloadsStatusEventPublisher.ProductRetrievalStatus.IN_PROGRESS, metacard, null, bytesRead, downloadIdentifier);
         } else {
             LOGGER.debug("No bytes downloaded in last {} ms - cancelling ResourceRetrievalMonitor and ReliableResourceCallable future (thread).", monitorPeriod);
             // Stop this ResourceRetrievalMonitor since the ReliableResourceCallable being watched will be stopped now

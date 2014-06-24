@@ -26,6 +26,8 @@ import ddf.catalog.resource.ResourceNotFoundException;
 import ddf.catalog.resource.ResourceNotSupportedException;
 import ddf.catalog.resource.data.ReliableResource;
 import ddf.catalog.resourceretriever.ResourceRetriever;
+import ddf.catalog.event.retrievestatus.DownloadsStatusEventListener;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
@@ -99,6 +101,7 @@ public class ReliableResourceDownloadManagerTest {
     private boolean cacheWhenCanceled;
     private ResourceCache resourceCache;
     private DownloadsStatusEventPublisher eventPublisher;
+    private DownloadsStatusEventListener eventListener;
     private ReliableResourceDownloadManager downloadMgr;
     private ResourceRequest resourceRequest;
     private ResourceResponse resourceResponse;
@@ -138,10 +141,11 @@ public class ReliableResourceDownloadManagerTest {
         resourceCache = mock(ResourceCache.class);
         when(resourceCache.getProductCacheDirectory()).thenReturn(productCacheDirectory);
         eventPublisher = mock(DownloadsStatusEventPublisher.class);
+        eventListener = mock(DownloadsStatusEventListener.class);
         
         downloadMgr = new ReliableResourceDownloadManager(
                 maxRetryAttempts, delayBetweenAttempts, monitorPeriod, cacheEnabled,
-                resourceCache, cacheWhenCanceled, eventPublisher);
+                resourceCache, cacheWhenCanceled, eventPublisher, eventListener);
     }
     
     @Test(expected = DownloadException.class)
@@ -593,7 +597,7 @@ public class ReliableResourceDownloadManagerTest {
         cacheEnabled = true;
         downloadMgr = new ReliableResourceDownloadManager(
                 maxRetryAttempts, delayBetweenAttempts, monitorPeriod, cacheEnabled,
-                resourceCache, cacheWhenCanceled, eventPublisher);
+                resourceCache, cacheWhenCanceled, eventPublisher, eventListener);
         
         // Use small chunk size so download takes long enough for client
         // to have time to simulate FileBackedOutputStream exception
@@ -635,9 +639,9 @@ public class ReliableResourceDownloadManagerTest {
             Metacard metacard, ResourceRetriever retriever) throws Exception {
         downloadMgr = new ReliableResourceDownloadManager(
                 maxRetryAttempts, delayBetweenAttempts, monitorPeriod, cacheEnabled,
-                resourceCache, cacheWhenCanceled, eventPublisher);
+                resourceCache, cacheWhenCanceled, eventPublisher, eventListener);
         downloadMgr.setChunkSize(chunkSize);
-        
+
         ResourceResponse newResourceResponse = downloadMgr.download(resourceRequest, metacard, retriever);
         assertThat(newResourceResponse, is(notNullValue()));
         productInputStream = newResourceResponse.getResource().getInputStream();

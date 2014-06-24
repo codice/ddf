@@ -17,20 +17,12 @@ package ddf.catalog.impl;
 import java.io.IOException;
 import java.io.Serializable;
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
-import java.util.TreeSet;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import ddf.catalog.event.retrievestatus.DownloadsStatusEventListener;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.codice.ddf.configuration.ConfigurationManager;
@@ -252,6 +244,8 @@ public class CatalogFrameworkImpl extends DescribableImpl implements Configurati
     protected boolean cacheWhenCanceled = false;
     
     protected DownloadsStatusEventPublisher retrieveStatusEventPublisher;
+
+    protected DownloadsStatusEventListener retrieveStatusEventListener;
 
     protected boolean notificationEnabled = true;
     
@@ -485,6 +479,10 @@ public class CatalogFrameworkImpl extends DescribableImpl implements Configurati
     
     public void setRetrieveStatusEventPublisher(DownloadsStatusEventPublisher retrieveStatusEventPublisher) {
         this.retrieveStatusEventPublisher = retrieveStatusEventPublisher;
+    }
+
+    public void setRetrieveStatusEventListener(DownloadsStatusEventListener retrieveStatusEventListener) {
+        this.retrieveStatusEventListener = retrieveStatusEventListener;
     }
     
     /**
@@ -1399,7 +1397,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements Configurati
                             metacard.getId());
                     retrieveStatusEventPublisher.postRetrievalStatus(resourceResponse,
                             ProductRetrievalStatus.COMPLETE, metacard, null,
-                            resource.getSize());
+                            resource.getSize(), null);
                 } catch (CacheException ce) {
                     logger.info(
                             "Unable to get resource from cache. Have to retrieve it from source {}",
@@ -1428,7 +1426,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements Configurati
                         logger.debug("Retrieving product from remote source {}", source.getId());
                         ResourceRetriever retriever = new RemoteResourceRetriever(source, responseURI, requestProperties);
                         ReliableResourceDownloadManager downloadManager = new ReliableResourceDownloadManager(maxRetryAttempts,
-                                delayBetweenAttempts, monitorPeriod, cacheEnabled, productCache, cacheWhenCanceled, retrieveStatusEventPublisher);
+                                delayBetweenAttempts, monitorPeriod, cacheEnabled, productCache, cacheWhenCanceled, retrieveStatusEventPublisher, retrieveStatusEventListener);
                         try {
                             resourceResponse = downloadManager.download(resourceRequest, metacard, retriever);
                         } catch (DownloadException e) {
@@ -1445,7 +1443,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements Configurati
                     logger.debug("Retrieving product from local source {}", resourceSourceName);
                     ResourceRetriever retriever = new LocalResourceRetriever(resourceReaders, responseURI, requestProperties);
                     ReliableResourceDownloadManager downloadManager = new ReliableResourceDownloadManager(maxRetryAttempts,
-                            delayBetweenAttempts, monitorPeriod, cacheEnabled, productCache, cacheWhenCanceled, retrieveStatusEventPublisher);
+                            delayBetweenAttempts, monitorPeriod, cacheEnabled, productCache, cacheWhenCanceled, retrieveStatusEventPublisher, retrieveStatusEventListener);
                     try {
                         resourceResponse = downloadManager.download(resourceRequest, metacard, retriever);
                     } catch (DownloadException e) {

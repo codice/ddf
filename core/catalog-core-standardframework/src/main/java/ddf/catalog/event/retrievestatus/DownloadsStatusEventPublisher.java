@@ -64,7 +64,7 @@ public class DownloadsStatusEventPublisher {
     private boolean activityEnabled = true;
     private static final int ONE_HUNDRED_PERCENT = 100;
     private static final String NO_PROGRESS_BAR = "";
-    private static final String BYTES_READ_PROGRESS = "-1";
+    private static final String UNKNOWN_PROGRESS = "-1";
 
     /**
      * Used to publish product retrieval status updates via the OSGi Event Service
@@ -80,7 +80,7 @@ public class DownloadsStatusEventPublisher {
      * @param resourceResponse - The {@link ResourceResponse} of the request.
      * @param status           - The status of the retrieval.}
      */
-    public void postRetrievalStatus(final ResourceResponse resourceResponse, ProductRetrievalStatus status, Metacard metacard, String detail, Long bytes) {
+    public void postRetrievalStatus(final ResourceResponse resourceResponse, ProductRetrievalStatus status, Metacard metacard, String detail, Long bytes, String downloadIdentifier) {
 
         LOGGER.debug("ENTERING: postRetrievalStatus(...)");
         LOGGER.debug("status: {}", status);
@@ -140,7 +140,7 @@ public class DownloadsStatusEventPublisher {
                 type = ActivityStatus.STARTED;
                 if (downloadAction != null) {
                     operations = ImmutableMap.of("cancel", "true");
-                    progress = BYTES_READ_PROGRESS;
+                    progress = UNKNOWN_PROGRESS;
                 }
                 break;
             case COMPLETE:
@@ -159,7 +159,7 @@ public class DownloadsStatusEventPublisher {
                 type = ActivityStatus.RUNNING;
                 if (downloadAction != null) {
                     operations = ImmutableMap.of("cancel", "true");
-                    progress = BYTES_READ_PROGRESS;
+                    progress = UNKNOWN_PROGRESS;
                     if (metacard != null) {
                         String resourceSizeStr = metacard.getResourceSize();
                         if (!StringUtils.isEmpty(resourceSizeStr) && !StringUtils.equalsIgnoreCase(resourceSizeStr, "N/A")) {
@@ -174,7 +174,7 @@ public class DownloadsStatusEventPublisher {
                 break;
             }
 
-            ActivityEvent eventProperties = new ActivityEvent(metacard.getId(), new Date(), "Product Retrieval", resourceResponse.getResource().getName(), generateMessage(status, resourceResponse.getResource().getName(), 
+            ActivityEvent eventProperties = new ActivityEvent(downloadIdentifier, new Date(), "Product Retrieval", resourceResponse.getResource().getName(), generateMessage(status, resourceResponse.getResource().getName(),
                     bytes, sysTimeMillis, detail), progress, operations, user, type, bytes);
             Event event = new Event(ActivityEvent.EVENT_TOPIC_BROADCAST, eventProperties);
             eventAdmin.postEvent(event);

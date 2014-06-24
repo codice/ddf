@@ -18,6 +18,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.concurrent.Future;
 
+import ddf.catalog.event.retrievestatus.DownloadsStatusEventListener;
+import ddf.catalog.operation.ResourceResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,6 +55,12 @@ public class ReliableResourceInputStream extends InputStream {
     
     // Indicates if this InputStream is closed or not
     private boolean streamClosed = false;
+
+    private DownloadsStatusEventListener eventListener;
+
+    String downloadIdentifier;
+
+    ResourceResponse resourceResponse;
     
     
     /**
@@ -61,11 +69,14 @@ public class ReliableResourceInputStream extends InputStream {
      * @param downloadState the current state of the resource's download
      */
     public ReliableResourceInputStream(FileBackedOutputStream fbos,
-            CountingOutputStream countingFbos, DownloadManagerState downloadState) {
+            CountingOutputStream countingFbos, DownloadManagerState downloadState, DownloadsStatusEventListener eventListener, String downloadIdentifier, ResourceResponse resourceResponse) {
         this.fbos = fbos;
         fbosByteSource = fbos.asByteSource();
         this.countingFbos = countingFbos;
         this.downloadState = downloadState;
+        this.eventListener = eventListener;
+        this.downloadIdentifier = downloadIdentifier;
+        this.resourceResponse = resourceResponse;
     }
     
     /**
@@ -106,6 +117,9 @@ public class ReliableResourceInputStream extends InputStream {
         fbos.reset();
 
         streamClosed = true;
+
+        eventListener.removeDownloadIdentifier(downloadIdentifier, resourceResponse);
+
     }
     
     public boolean isClosed() {
