@@ -54,7 +54,7 @@ import ddf.catalog.util.impl.ServiceComparator;
 @Command(scope = CatalogCommands.NAMESPACE, name = "migrate", description = "Migrates Metacards from a Federated Source into the Catalog.")
 public class MigrateCommand extends DuplicateCommands {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ReplicationCommand.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(MigrateCommand.class);
 
     private CatalogFacade ingestProvider;
 
