@@ -138,6 +138,18 @@
         <argument ref="resourceActionProviderList" />
     </bean>
 
+    <bean id="retrieveStatusEventListener" class="ddf.catalog.event.retrievestatus.DownloadsStatusEventListener"/>
+
+    <service ref="retrieveStatusEventListener" interface="org.osgi.service.event.EventHandler" >
+        <service-properties>
+            <entry key="event.topics" >
+                <array value-type="java.lang.String">
+                    <value>ddf/download/cancel</value>
+                </array>
+            </entry>
+        </service-properties>
+    </service>
+
     <reference id="cacheManager" interface="ddf.cache.CacheManager" />
 
     <bean id="productCache" class="ddf.catalog.cache.impl.ResourceCache" init-method="setupCache" destroy-method="teardownCache" >
@@ -174,6 +186,7 @@
         <property name="cacheWhenCanceled" value="false" />
 		<property name="retrieveStatusEventPublisher" ref="retrieveStatusEventPublisher" />
         <property name="notificationEnabled" value="true" />
+        <property name="retrieveStatusEventListener" ref="retrieveStatusEventListener" />
 	</bean>
 
 	<bean id="sourcePoller" class="ddf.catalog.util.impl.SourcePoller">
