@@ -1019,7 +1019,7 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
             LOGGER.error(wae.getMessage(), wae);
             handleWebApplicationException(wae);
         } catch (ClientException ce) {
-            LOGGER.error("Client Exception trying to check availability: {}", handleClientException(ce));
+            handleClientException(ce);
         }
         return caps;
     }
