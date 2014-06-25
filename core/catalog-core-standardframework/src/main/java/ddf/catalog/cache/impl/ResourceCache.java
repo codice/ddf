@@ -283,7 +283,6 @@ public class ResourceCache implements ResourceCacheInterface {
         return result;
     }
 
-    //TODO: is it okay to make this protected for testing purposes?
     /**
      * Compares the {@link Metacard} in a {@link ReliableResource} pulled from cache with a Metacard obtained directly
      * from the Catalog to ensure they are the same. Typically used to determine if the cache entry is out-of-date based
@@ -322,7 +321,6 @@ public class ResourceCache implements ResourceCacheInterface {
         }
     }
     
-    //TODO: do I really need all of these in the hashing function?
     private enum MetacardFunnel implements Funnel<Metacard>{
         INSTANCE;
 
