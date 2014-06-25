@@ -35,7 +35,7 @@
     <properties>
         <cometd.version>2.7.0</cometd.version>
         <org.codice.ddf.notifications.version>1.0.0</org.codice.ddf.notifications.version>
-        <org.codice.ddf.activities.version>0.1.0</org.codice.ddf.activities.version>
+        <org.codice.ddf.activities.version>0.2.0-SNAPSHOT</org.codice.ddf.activities.version>
         <ddf.catalog.app.version>2.5.0-SNAPSHOT</ddf.catalog.app.version>
         <ddf.platform.app.version>2.5.0-SNAPSHOT</ddf.platform.app.version>
         <karaf.version>2.3.3</karaf.version>
