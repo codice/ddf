@@ -17,12 +17,7 @@ package ddf.catalog.fanout;
 import java.io.IOException;
 import java.io.Serializable;
 import java.net.URI;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 
 import org.osgi.framework.BundleContext;
@@ -615,7 +610,7 @@ public class FanoutCatalogFramework extends CatalogFrameworkImpl {
                             metacard.getId());
                     retrieveStatusEventPublisher.postRetrievalStatus(resourceResponse,
                             ProductRetrievalStatus.COMPLETE, metacard, null,
-                            resource.getSize(), null);
+                            resource.getSize(), UUID.randomUUID().toString());
                 } catch (CacheException ce) {
                     logger.info(
                             "Unable to get resource from cache. Have to retrieve it from the Source");

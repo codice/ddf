@@ -43,15 +43,11 @@ public class DownloadsStatusEventListener implements EventHandler {
         String methodName = "handleEvent";
         LOGGER.debug("ENTERING: {}", methodName);
 
-        String topic = event.getTopic();
 
-        if (null == event) {
-            throw new IllegalArgumentException("Event is null");
-        }
         if (null != event && null != event.getTopic() && null != event.getProperty(ActivityEvent.DOWNLOAD_ID_KEY)) {
 
             // If cancel event, then cancel the download stream
-            if (ActivityEvent.EVENT_TOPIC_DOWNLOAD_CANCEL == event.getTopic()) {
+            if (ActivityEvent.EVENT_TOPIC_DOWNLOAD_CANCEL.equals(event.getTopic())) {
                 String keyToCancel = event.getProperty(ActivityEvent.DOWNLOAD_ID_KEY).toString();
 
                 LOGGER.debug("downloadKey = {}", keyToCancel);

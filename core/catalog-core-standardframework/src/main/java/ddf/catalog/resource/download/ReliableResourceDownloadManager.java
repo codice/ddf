@@ -477,7 +477,6 @@ public class ReliableResourceDownloadManager implements Runnable {
                         IOUtils.closeQuietly(countingFbos);
                         LOGGER.debug("Cancelling resourceRetrievalMonitor");
                         resourceRetrievalMonitor.cancel();
-                       // eventListener.removeDownloadIdentifier(downloadIdentifier);
                         reliableResourceCallable = new ReliableResourceCallable(resourceInputStream, fos, chunkSize);
                         reliableResourceCallable.setBytesRead(bytesRead);
                         
@@ -487,7 +486,6 @@ public class ReliableResourceDownloadManager implements Runnable {
                         downloadState.setDownloadState(DownloadState.CANCELED);
                         LOGGER.debug("Cancelling resourceRetrievalMonitor");
                         resourceRetrievalMonitor.cancel();
-                        //eventListener.removeDownloadIdentifier(downloadIdentifier);
                         eventPublisher.postRetrievalStatus(resourceResponse, ProductRetrievalStatus.CANCELLED, metacard, "", reliableResourceStatus.getBytesRead(), downloadIdentifier);
                         if (doCaching && cacheWhenCanceled) {
                             LOGGER.debug("Continuing to cache product");

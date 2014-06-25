@@ -17,8 +17,18 @@ package ddf.catalog.impl;
 import java.io.IOException;
 import java.io.Serializable;
 import java.net.URI;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.Map.Entry;
+import java.util.TreeSet;
+import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -1398,7 +1408,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements Configurati
                             metacard.getId());
                     retrieveStatusEventPublisher.postRetrievalStatus(resourceResponse,
                             ProductRetrievalStatus.COMPLETE, metacard, null,
-                            resource.getSize(), null);
+                            resource.getSize(), UUID.randomUUID().toString());
                 } catch (CacheException ce) {
                     logger.info(
                             "Unable to get resource from cache. Have to retrieve it from source {}",
