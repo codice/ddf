@@ -67,16 +67,17 @@ public class IngestCommand extends CatalogCommands {
     @Argument(name = "Batch size", description = "Number of Metacards to ingest at a time. Change this argument based on system memory and catalog provider limits. [DEPRECATED: use --batchsize option instead]", index = 1, multiValued = false, required = false)
     int deprecatedBatchSize = DEFAULT_BATCH_SIZE;
 
-    @Option(name = "Transformer", required = false, aliases = {"-t"}, multiValued = false, description = "The metacard transformer ID to use to transform data files into metacards. The default metacard transformer is the Java serialization transformer."
-            + "")
+    // DDF-535: remove "Transformer" alias in ddf-3.0
+    @Option(name = "--transformer", required = false, aliases = {"-t", "Transformer"}, multiValued = false, description = "The metacard transformer ID to use to transform data files into metacards. The default metacard transformer is the Java serialization transformer.")
     String transformerId = DEFAULT_TRANSFORMER_ID;
 
     // DDF-535: Remove "Multithreaded" alias in ddf-3.0
     @Option(name = "--multithreaded", required = false, aliases = {"-m", "Multithreaded"}, multiValued = false, description = "Number of threads to use when ingesting. Setting this value too high for your system can cause performance degradation.")
     int multithreaded = 1;
 
-    @Option(name = "Ingest Failure Directory", required = false, aliases = {"-d"}, multiValued = false, description = "The directory to put files that fail ingest.  Using this option will force a batch size of 1.")
-    String directory = null;
+    // DDF-535: remove "-d" and "Ingest Failure Directory" aliases in ddf-3.0
+    @Option(name = "--failedDir", required = false, aliases = {"-d", "-f", "Ingest Failure Directory"}, multiValued = false, description = "The directory to put files that failed to ingest.  Using this option will force a batch size of 1.")
+    String failedDir = null;
 
     @Option(name = "--batchsize", required = false, aliases = {"-b"}, multiValued = false, description = "Number of Metacards to ingest at a time. Change this argument based on system memory and catalog provider limits.")
     int batchSize = DEFAULT_BATCH_SIZE;
@@ -104,8 +105,8 @@ public class IngestCommand extends CatalogCommands {
             return null;
         }
 
-        if (!StringUtils.isEmpty(directory)) {
-            failedIngestDirectory = new File(directory);
+        if (!StringUtils.isEmpty(failedDir)) {
+            failedIngestDirectory = new File(failedDir);
             if (!verifyFailedIngestDirectory()) {
                 return null;
             }

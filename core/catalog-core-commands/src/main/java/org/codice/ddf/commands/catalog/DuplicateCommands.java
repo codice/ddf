@@ -90,7 +90,7 @@ public abstract class DuplicateCommands extends CatalogCommands {
     @Option(name = "-lastmonths", required = false, aliases = {"-month"}, multiValued = false, description = "Option to replicate the last N month.")
     int lastMonths;
 
-    @Option(name = "-failedDir", required = false, aliases = {"-f"}, multiValued = false, description = "Option to specify where to write metacards that failed to ingest.")
+    @Option(name = "--failedDir", required = false, aliases = {"-f"}, multiValued = false, description = "Option to specify where to write metacards that failed to ingest.")
     String failedDir;
 
     abstract List<Metacard> query(CatalogFacade facade, int startIndex, Filter filter);
