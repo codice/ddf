@@ -14,19 +14,19 @@
 
  -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<modelVersion>4.0.0</modelVersion>
+    <modelVersion>4.0.0</modelVersion>
 
-	<parent>
-		<groupId>ddf</groupId>
-		<artifactId>ddf-parent</artifactId>
-		<version>2.0.0</version>
-	</parent>
+    <parent>
+        <groupId>ddf</groupId>
+        <artifactId>ddf-parent</artifactId>
+        <version>2.0.0</version>
+    </parent>
 
-	<groupId>org.codice.ddf.spatial</groupId>
-	<artifactId>spatial</artifactId>
-	<version>2.4.3-SNAPSHOT</version>
-	<packaging>pom</packaging>
-	<name>DDF :: Spatial</name>
+    <groupId>org.codice.ddf.spatial</groupId>
+    <artifactId>spatial</artifactId>
+    <version>2.4.3-SNAPSHOT</version>
+    <packaging>pom</packaging>
+    <name>DDF :: Spatial</name>
 
     <properties>
         <ddf.catalog.app.version>2.3.0</ddf.catalog.app.version>
@@ -81,6 +81,11 @@
             </dependency>
             <dependency>
                 <groupId>org.codice.ddf.spatial</groupId>
+                <artifactId>spatial-wfs-v2_0_0-schema-bindings</artifactId>
+                <version>${project.version}</version>
+                </dependency>
+            <dependency>
+                <groupId>org.codice.ddf.spatial</groupId>
                 <artifactId>spatial-wfs-api</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -96,7 +101,17 @@
             </dependency>
             <dependency>
                 <groupId>org.codice.ddf.spatial</groupId>
+                <artifactId>spatial-wfs-v2_0_0-common</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.codice.ddf.spatial</groupId>
                 <artifactId>spatial-wfs-converter</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.codice.ddf.spatial</groupId>
+                <artifactId>spatial-wfs-v2_0_0-converter</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -108,6 +123,12 @@
                 <groupId>org.codice.ddf.spatial</groupId>
                 <artifactId>spatial-wfs-v1_0_0-schema-webapp</artifactId>
                 <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.codice.ddf.spatial</groupId>
+                <artifactId>spatial-wfs-v2_0_0-schema-webapp</artifactId>
+                <version>${project.version}</version>
+                <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>org.geotools</groupId>
@@ -169,6 +190,11 @@
                 <artifactId>spatial-wcs-common</artifactId>
                 <version>${project.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.codice.ddf.spatial</groupId>
+                <artifactId>spatial-wfs-source</artifactId>
+                <version>${project.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
     <!-- global dependencies; do NOT redeclare in any sub pom -->
@@ -193,11 +219,11 @@
         <module>spatial-app</module>
     </modules>
 
-	<repositories>
-		<repository>
-			<id>codice</id>
-			<name>Codice Repository</name>
-			<url>http://artifacts.codice.org/content/groups/public/</url>
-		</repository>
-	</repositories>
+    <repositories>
+        <repository>
+            <id>codice</id>
+            <name>Codice Repository</name>
+            <url>http://artifacts.codice.org/content/groups/public/</url>
+        </repository>
+    </repositories>
 </project>

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0"?>
 <!--
 /**
  * Copyright (c) Codice Foundation
@@ -16,20 +16,28 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.codice.ddf.spatial</groupId>
-        <artifactId>wfs</artifactId>
+        <artifactId>wfs-v2.0.0</artifactId>
         <version>2.4.3-SNAPSHOT</version>
     </parent>
-    <artifactId>wfs-v2.0.0</artifactId>
-    <name>DDF :: Spatial :: WFS :: v2.0.0</name>
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    </properties>
-    <packaging>pom</packaging>
-    <modules>
-        <module>spatial-wfs-v2_0_0-schema-bindings</module>
-        <module>spatial-wfs-v2_0_0-schema-webapp</module>
-        <module>spatial-wfs-v2_0_0-common</module>
-        <module>spatial-wfs-v2_0_0-converter</module>
-        <module>spatial-wfs-v2_0_0-source</module>
-    </modules>
+    <artifactId>spatial-wfs-v2_0_0-common</artifactId>
+    <name>DDF :: Spatial :: WFS :: 2.0.0 :: Common</name>
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-rt-frontend-jaxrs</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.codice.ddf.spatial</groupId>
+            <artifactId>spatial-wfs-v2_0_0-schema-bindings</artifactId>
+            <version>2.4.3-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.catalog.core</groupId>
+            <artifactId>catalog-core-api-impl</artifactId>
+        </dependency>
+        <dependency>
+        	<groupId>org.codice.ddf.spatial</groupId>
+        	<artifactId>spatial-wfs-common</artifactId>
+        </dependency>
+    </dependencies>
 </project>
