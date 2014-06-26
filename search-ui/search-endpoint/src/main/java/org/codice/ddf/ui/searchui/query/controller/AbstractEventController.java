@@ -215,6 +215,22 @@ public abstract class AbstractEventController implements EventHandler {
     }
 
     /**
+     * Called by {@link  ddf.catalog.event.retrievestatus.DownloadStatusInfoImpl.cancelDownload} to fire a
+     * cancel event.
+     * @param userId The Id assigned to the user who is downloading.
+     * @param downloadIdentifier The randomly generated downloadId string assigned to the download at its start.
+     */
+    public void adminCancelDownload(String userId, String downloadIdentifier) {
+        String downloadId = userId + downloadIdentifier;
+
+        JSONObject jsonPropMap = new JSONObject();
+        jsonPropMap.put(ActivityEvent.DOWNLOAD_ID_KEY, downloadId);
+
+        Event event = new Event(ActivityEvent.EVENT_TOPIC_DOWNLOAD_CANCEL, jsonPropMap);
+        eventAdmin.postEvent(event);
+    }
+
+    /**
      * Enables private message delivery to a given user. As of CometD version 2.8.0, this must be
      * called from the canHandshake method of a {@link SecurityPolicy}. See <a href=
      * "http://stackoverflow.com/questions/22695516/null-serversession-on-cometd-meta-handshake"
