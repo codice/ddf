@@ -35,7 +35,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.commons.lang.StringUtils;
 import org.apache.felix.gogo.commands.Option;
 import org.codice.ddf.commands.catalog.facade.CatalogFacade;
-import org.fusesource.jansi.Ansi;
 import org.opengis.filter.Filter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,8 +56,6 @@ public abstract class DuplicateCommands extends CatalogCommands {
 
     protected static final int MAX_BATCH_SIZE = 1000;
 
-    protected PrintStream console = System.out;
-
     private List<Metacard> failedMetacards = Collections
             .synchronizedList(new ArrayList<Metacard>());
 
@@ -66,10 +63,10 @@ public abstract class DuplicateCommands extends CatalogCommands {
 
     private static final SimpleDateFormat formatter = new SimpleDateFormat("MM-dd-yyyy");
 
-    @Option(name = "-b", required = false, aliases = {"-batchSize"}, multiValued = false, description = "Number of Metacards to ingest at a time. Change this argument based on system memory and catalog provider limits.")
+    @Option(name = "--batchsize", required = false, aliases = {"-b"}, multiValued = false, description = "Number of Metacards to ingest at a time. Change this argument based on system memory and catalog provider limits.")
     int batchSize = MAX_BATCH_SIZE;
 
-    @Option(name = "-m", required = false, aliases = {"-multihtreaded"}, multiValued = false, description = "Flag to set number of threads to use when ingesting. Setting this value too high for your system can cause performance degradation.")
+    @Option(name = "--multithreaded", required = false, aliases = {"-m"}, multiValued = false, description = "Number of threads to use when ingesting. Setting this value too high for your system can cause performance degradation.")
     int multithreaded = 1;
 
     @Option(name = "-t", required = false, aliases = {"-temporal"}, multiValued = false, description = "Flag to use temporal criteria to query federated source. The default is to use \"keyword like * \"")
@@ -93,7 +90,7 @@ public abstract class DuplicateCommands extends CatalogCommands {
     @Option(name = "-lastmonths", required = false, aliases = {"-month"}, multiValued = false, description = "Option to replicate the last N month.")
     int lastMonths;
 
-    @Option(name = "-failedDir", required = false, aliases = {"-f"}, multiValued = false, description = "Option to specify where to write metacards that failed to ingest.")
+    @Option(name = "--failedDir", required = false, aliases = {"-f"}, multiValued = false, description = "Option to specify where to write metacards that failed to ingest.")
     String failedDir;
 
     abstract List<Metacard> query(CatalogFacade facade, int startIndex, Filter filter);
@@ -142,15 +139,15 @@ public abstract class DuplicateCommands extends CatalogCommands {
             createResponse = provider.create(createRequest);
             createdMetacards = createResponse.getCreatedMetacards();
         } catch (IngestException e) {
-            console.printf("Recieved error while ingesting: %s\n", e.getMessage());
+            printErrorMessage(String.format("Received error while ingesting: %s\n", e.getMessage()));
             LOGGER.warn("Error during ingest. Attempting to ingest batch individually.");
             return ingestSingly(provider, metacards);
         } catch (SourceUnavailableException e) {
-            console.printf("Recieved error while ingesting: %s\n", e.getMessage());
+            printErrorMessage(String.format("Received error while ingesting: %s\n", e.getMessage()));
             LOGGER.warn("Error during ingest:", e);
             return createdMetacards;
         } catch (Exception e) {
-            console.printf("Unexpected Exception recieved while ingesting: %s\n", e.getMessage());
+            printErrorMessage(String.format("Unexpected Exception received while ingesting: %s\n", e.getMessage()));
             LOGGER.warn("Unexpected Exception during ingest:", e);
             return createdMetacards;
         }
@@ -200,7 +197,7 @@ public abstract class DuplicateCommands extends CatalogCommands {
         } else if (isUseTemporal) {
             return builder.attribute(temporalProperty).is().during().last(start);
         } else {
-            return builder.attribute(Metacard.ANY_TEXT).is().like().text("*");
+            return builder.attribute(Metacard.ANY_TEXT).is().like().text(WILDCARD);
         }
     }
 
@@ -235,7 +232,7 @@ public abstract class DuplicateCommands extends CatalogCommands {
                 // end of stream
                 return null;
             }
-            System.out.print((char) byteOfData);
+            console.print((char) byteOfData);
             if (byteOfData == '\r' || byteOfData == '\n') {
                 break;
             }
@@ -255,17 +252,13 @@ public abstract class DuplicateCommands extends CatalogCommands {
         File directory = new File(failedDir);
         if (!directory.exists()) {
             if (!directory.mkdirs()) {
-                console.println(Ansi.ansi().fg(Ansi.Color.RED).toString()
-                        + "Unable to create directory [" + directory.getAbsolutePath() + "]."
-                        + Ansi.ansi().reset().toString());
+                printErrorMessage("Unable to create directory [" + directory.getAbsolutePath() + "].");
                 return;
             }
         }
 
         if (!directory.canWrite()) {
-            console.println(Ansi.ansi().fg(Ansi.Color.RED).toString() + "Directory ["
-                    + directory.getAbsolutePath() + "] is not writable."
-                    + Ansi.ansi().reset().toString());
+            printErrorMessage("Directory [" + directory.getAbsolutePath() + "] is not writable.");
             return;
         }
         for (Metacard metacard : failedMetacards) {

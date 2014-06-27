@@ -23,7 +23,6 @@ import java.util.List;
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.codice.ddf.commands.catalog.facade.CatalogFacade;
-import org.fusesource.jansi.Ansi;
 import org.joda.time.DateTime;
 import org.opengis.filter.Filter;
 import org.opengis.filter.sort.SortOrder;
@@ -40,7 +39,6 @@ import ddf.catalog.operation.impl.QueryRequestImpl;
 
 @Command(scope = CatalogCommands.NAMESPACE, name = "range", description = "Searches by the given range arguments (exclusively).")
 public class RangeCommand extends CatalogCommands {
-    private static final String WILDCARD = "*";
 
     private static final int MAX_LENGTH = 40;
 
@@ -64,14 +62,10 @@ public class RangeCommand extends CatalogCommands {
     @Override
     protected Object doExecute() throws Exception {
 
-        PrintStream console = System.out;
-
         String formatString = "%1$-7s %2$-33s %3$-26s %4$-" + MAX_LENGTH + "s%n";
 
         console.printf(formatString, "", "", "", "");
-        console.print(Ansi.ansi().fg(Ansi.Color.CYAN).toString());
-        console.printf(formatString, NUMBER, ID, attributeName, TITLE);
-        console.print(Ansi.ansi().reset().toString());
+        printHeaderMessage(String.format(formatString, NUMBER, ID, attributeName, TITLE));
 
         CatalogFacade catalogProvider = getCatalog();
         FilterBuilder builder = getFilterBuilder();

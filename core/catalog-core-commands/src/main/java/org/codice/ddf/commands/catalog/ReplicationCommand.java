@@ -73,7 +73,6 @@ public class ReplicationCommand extends DuplicateCommands {
 
     @Override
     protected Object doExecute() throws Exception {
-
         final CatalogFacade catalog = getCatalog();
 
         final CatalogFacade framework = new Framework(getService(CatalogFramework.class));
@@ -109,7 +108,7 @@ public class ReplicationCommand extends DuplicateCommands {
         try {
             response = framework.query(queryRequest);
         } catch (Exception e) {
-            console.println("Error occured while querying the Federated Source.\n" + e.getMessage());
+            printErrorMessage("Error occurred while querying the Federated Source.\n" + e.getMessage());
             return null;
         }
 
@@ -137,7 +136,7 @@ public class ReplicationCommand extends DuplicateCommands {
                     @Override
                     public void run() {
                         int count = queryAndIngest(framework, catalog, startIndex, filter);
-                        printProgressAndFlush(console, start, totalPossible,
+                        printProgressAndFlush(start, totalPossible,
                                 ingestCount.addAndGet(count));
                     }
                 });
@@ -154,7 +153,7 @@ public class ReplicationCommand extends DuplicateCommands {
         } else {
             do {
                 int count = queryAndIngest(framework, catalog, queryIndex.get(), filter);
-                printProgressAndFlush(console, start, totalPossible, ingestCount.addAndGet(count));
+                printProgressAndFlush(start, totalPossible, ingestCount.addAndGet(count));
             } while (queryIndex.addAndGet(batchSize) <= totalPossible);
         }
 
@@ -187,13 +186,13 @@ public class ReplicationCommand extends DuplicateCommands {
             LOGGER.debug("Querying with startIndex: {}", startIndex);
             response = framework.query(queryRequest);
         } catch (UnsupportedQueryException e) {
-            console.printf("Recieved error from %s: %s\n", sourceId, e.getMessage());
+            printErrorMessage(String.format("Received error from %s: %s\n", sourceId, e.getMessage()));
             return null;
         } catch (SourceUnavailableException e) {
-            console.printf("Recieved error from %s: %s\n", sourceId, e.getMessage());
+            printErrorMessage(String.format("Received error from %s: %s\n", sourceId, e.getMessage()));
             return null;
         } catch (FederationException e) {
-            console.printf("Recieved error from %s: %s\n", sourceId, e.getMessage());
+            printErrorMessage(String.format("Received error from %s: %s\n", sourceId, e.getMessage()));
             return null;
         }
         if (response.getProcessingDetails() != null && !response.getProcessingDetails().isEmpty()) {

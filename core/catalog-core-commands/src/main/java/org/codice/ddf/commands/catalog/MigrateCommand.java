@@ -54,9 +54,7 @@ import ddf.catalog.util.impl.ServiceComparator;
 @Command(scope = CatalogCommands.NAMESPACE, name = "migrate", description = "Migrates Metacards from a Federated Source into the Catalog.")
 public class MigrateCommand extends DuplicateCommands {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ReplicationCommand.class);
-
-    private PrintStream console = System.out;
+    private static final Logger LOGGER = LoggerFactory.getLogger(MigrateCommand.class);
 
     private CatalogFacade ingestProvider;
 
@@ -106,13 +104,13 @@ public class MigrateCommand extends DuplicateCommands {
         try {
             response = framework.query(queryRequest);
         } catch (FederationException e) {
-            console.println("Error occured while querying the Framework." + e.getMessage());
+            printErrorMessage("Error occurred while querying the Framework." + e.getMessage());
             return null;
         } catch (SourceUnavailableException e) {
-            console.println("Error occured while querying the Framework." + e.getMessage());
+            printErrorMessage("Error occurred while querying the Framework." + e.getMessage());
             return null;
         } catch (UnsupportedQueryException e) {
-            console.println("Error occured while querying the Framework." + e.getMessage());
+            printErrorMessage("Error occurred while querying the Framework." + e.getMessage());
             return null;
         }
 
@@ -139,8 +137,7 @@ public class MigrateCommand extends DuplicateCommands {
                     public void run() {
                         int count = queryAndIngest(framework, ingestProvider, queryIndex.get(),
                                 filter);
-                        printProgressAndFlush(console, start, totalPossible,
-                                ingestCount.addAndGet(count));
+                        printProgressAndFlush(start, totalPossible, ingestCount.addAndGet(count));
                     }
                 });
             } while (queryIndex.addAndGet(batchSize) <= totalPossible);
@@ -156,7 +153,7 @@ public class MigrateCommand extends DuplicateCommands {
         } else {
             do {
                 int count = queryAndIngest(framework, ingestProvider, queryIndex.get(), filter);
-                printProgressAndFlush(console, start, totalPossible, ingestCount.addAndGet(count));
+                printProgressAndFlush(start, totalPossible, ingestCount.addAndGet(count));
             } while (queryIndex.addAndGet(batchSize) <= totalPossible);
         }
 
@@ -186,13 +183,13 @@ public class MigrateCommand extends DuplicateCommands {
             LOGGER.debug("Querying with startIndex: {}", startIndex);
             response = framework.query(queryRequest);
         } catch (UnsupportedQueryException e) {
-            console.printf("Recieved error from Framework: %s\n", e.getMessage());
+            printErrorMessage(String.format("Received error from Framework: %s\n", e.getMessage()));
             return null;
         } catch (SourceUnavailableException e) {
-            console.printf("Recieved error from Frameworks: %s\n", e.getMessage());
+            printErrorMessage(String.format("Received error from Frameworks: %s\n", e.getMessage()));
             return null;
         } catch (FederationException e) {
-            console.printf("Recieved error from Frameworks: %s\n", e.getMessage());
+            printErrorMessage(String.format("Received error from Frameworks: %s\n", e.getMessage()));
             return null;
         }
         if (response.getProcessingDetails() != null && !response.getProcessingDetails().isEmpty()) {

@@ -26,7 +26,6 @@ import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
 import org.codice.ddf.commands.catalog.facade.CatalogFacade;
-import org.fusesource.jansi.Ansi;
 import org.joda.time.DateTime;
 import org.opengis.filter.Filter;
 import org.osgi.framework.BundleContext;
@@ -48,12 +47,6 @@ import ddf.catalog.transform.MetacardTransformer;
 
 @Command(scope = CatalogCommands.NAMESPACE, name = "dump", description = "Exports Metacards from the current Catalog. Does not remove them.\n\tDate filters are ANDed together, and are exclusive for range.\n\tISO8601 format includes YYYY-MM-dd, YYYY-MM-ddTHH, YYYY-MM-ddTHH:mm, YYYY-MM-ddTHH:mm:ss, YYY-MM-ddTHH:mm:ss.sss, THH:mm:sss. See documentation for full syntax and examples.")
 public class DumpCommand extends CatalogCommands {
-
-    private static final double MILLISECONDS_PER_SECOND = 1000.0;
-
-    private static final String DEFAULT_TRANSFORMER_ID = "ser";
-
-    private PrintStream console = System.out;
 
     private static List<MetacardTransformer> transformers = null;
 
@@ -88,13 +81,13 @@ public class DumpCommand extends CatalogCommands {
         File dumpDir = new File(dirPath);
 
         if (!dumpDir.exists()) {
-            printRed("Directory [" + dirPath + "] must exist.");
+            printErrorMessage("Directory [" + dirPath + "] must exist.");
             console.println("If the directory does indeed exist, try putting the path in quotes.");
             return null;
         }
 
         if (!dumpDir.isDirectory()) {
-            printRed("Path [" + dirPath + "] must be a directory.");
+            printErrorMessage("Path [" + dirPath + "] must be a directory.");
             return null;
         }
 
@@ -148,7 +141,7 @@ public class DumpCommand extends CatalogCommands {
             filter = modifiedFilter;
         } else {
             // Don't filter by date range
-            filter = builder.attribute(Metacard.ID).is().like().text("*");
+            filter = builder.attribute(Metacard.ID).is().like().text(WILDCARD);
         }
 
         QueryImpl query = new QueryImpl(filter);
@@ -231,11 +224,6 @@ public class DumpCommand extends CatalogCommands {
         }
     }
 
-    private void printRed(String message) {
-        console.println(Ansi.ansi().fg(Ansi.Color.RED).toString() + message
-                + Ansi.ansi().reset().toString());
-    }
-
     private List<MetacardTransformer> getTransformers() {
 
         BundleContext bundleContext = getBundleContext();
@@ -265,7 +253,7 @@ public class DumpCommand extends CatalogCommands {
         st.open();
 
         @SuppressWarnings("unchecked")
-        T service = (T) st.waitForService(1000);
+        T service = (T) st.waitForService(ONE_SECOND);
         if (service == null) {
             throw new InterruptedException("Could not find a service for: " + clazz.getName());
         }

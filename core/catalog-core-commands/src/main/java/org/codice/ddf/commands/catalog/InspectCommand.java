@@ -45,8 +45,6 @@ public class InspectCommand extends CatalogCommands {
             return null;
         }
 
-        PrintStream console = System.out;
-
         CatalogFacade catalog = getCatalog();
 
         Filter filter = getFilterBuilder().attribute(Metacard.ID).is().equalTo().text(id);

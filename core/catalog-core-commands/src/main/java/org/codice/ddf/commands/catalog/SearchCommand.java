@@ -58,8 +58,6 @@ public class SearchCommand extends CatalogCommands {
     @Override
     protected Object doExecute() throws Exception {
 
-        PrintStream console = System.out;
-
         String formatString = "%1$-33s %2$-26s %3$-" + TITLE_MAX_LENGTH + "s %4$-"
                 + EXCERPT_MAX_LENGTH + "s%n";
 
@@ -97,9 +95,7 @@ public class SearchCommand extends CatalogCommands {
                 Ansi.ansi().fg(Ansi.Color.CYAN).toString(), response.getHits(), Ansi.ansi().reset()
                         .toString(), (end - start) / MILLISECONDS_PER_SECOND);
         console.printf(formatString, "", "", "", "");
-        console.print(Ansi.ansi().fg(Ansi.Color.CYAN).toString());
-        console.printf(formatString, ID, DATE, TITLE, EXCERPT);
-        console.print(Ansi.ansi().reset().toString());
+        printHeaderMessage(String.format(formatString, ID, DATE, TITLE, EXCERPT));
 
         for (Result result : response.getResults()) {
             Metacard metacard = result.getMetacard();
