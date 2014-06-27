@@ -28,6 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.resource.Resource;
 
 /**
@@ -61,7 +62,7 @@ public class ReliableResource implements Resource, Serializable {
         this.filePath = filePath;
         this.mimeType = mimeType;
         this.resourceName = name;
-        this.metacard = metacard;
+        this.metacard = new MetacardImpl(metacard);
     }
     
     public String getFilePath() {

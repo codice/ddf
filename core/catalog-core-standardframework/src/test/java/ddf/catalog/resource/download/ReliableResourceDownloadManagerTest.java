@@ -18,6 +18,7 @@ import ddf.catalog.cache.MockInputStream;
 import ddf.catalog.cache.impl.CacheKey;
 import ddf.catalog.cache.impl.ResourceCache;
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.event.retrievestatus.DownloadsStatusEventPublisher;
 import ddf.catalog.operation.ResourceRequest;
 import ddf.catalog.operation.ResourceResponse;
@@ -677,6 +678,8 @@ public class ReliableResourceDownloadManagerTest {
         when(metacard.getId()).thenReturn(id);
 
         when(metacard.getSourceId()).thenReturn(source);
+
+        when(metacard.getMetacardType()).thenReturn(BasicTypes.BASIC_METACARD);
 
         return metacard;
     }

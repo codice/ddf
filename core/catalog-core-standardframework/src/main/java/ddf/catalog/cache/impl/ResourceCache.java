@@ -38,6 +38,7 @@ import com.hazelcast.core.IMap;
 import ddf.cache.CacheException;
 import ddf.catalog.cache.ResourceCacheInterface;
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.resource.Resource;
 import ddf.catalog.resource.data.ReliableResource;
 
@@ -301,12 +302,12 @@ public class ResourceCache implements ResourceCacheInterface {
                     "Neither the cachedResource nor the metacard retrieved from the catalog can be null.");
         }
 
-        HashFunction hf = Hashing.goodFastHash(32);
-        HashCode cachedResourceHC = hf.hashObject(cachedResource.getMetacard(), MetacardFunnel.INSTANCE);
-        HashCode latestMetacardHC = hf.hashObject(latestMetacard, MetacardFunnel.INSTANCE);
+        int cachedResourceHC = cachedResource.getMetacard().hashCode();
+        MetacardImpl latestMetacardImpl = new MetacardImpl(latestMetacard);
+        int latestMetacardHC = latestMetacardImpl.hashCode();
 
         // compare hashes of cachedResource.getMetacard() and latestMetcard
-        if (cachedResourceHC.equals(latestMetacardHC)) {
+        if (cachedResourceHC == latestMetacardHC) {
             LOGGER.trace("EXITING: validateCacheEntry");
             return true;
         } else {
@@ -318,60 +319,6 @@ public class ResourceCache implements ResourceCacheInterface {
             cache.remove(cachedResource.getKey());
             LOGGER.trace("EXITING: validateCacheEntry");
             return false;
-        }
-    }
-    
-    private enum MetacardFunnel implements Funnel<Metacard>{
-        INSTANCE;
-
-        @Override
-        public void funnel(Metacard metacard, PrimitiveSink sink) {
-            if(metacard.getId() != null){
-                sink.putUnencodedChars(metacard.getId());
-            }
-            if(metacard.getSourceId() != null){
-                sink.putUnencodedChars(metacard.getSourceId());
-            }
-            if(metacard.getTitle() != null){
-                sink.putUnencodedChars(metacard.getTitle());
-            }
-            if(metacard.getMetadata() != null){
-                sink.putUnencodedChars(metacard.getMetadata());
-            }
-            if(metacard.getLocation() != null){
-                sink.putUnencodedChars(metacard.getLocation());
-            }
-            if(metacard.getContentTypeName() != null){
-                sink.putUnencodedChars(metacard.getContentTypeName());
-            }
-            if(metacard.getContentTypeVersion() != null){
-                sink.putUnencodedChars(metacard.getContentTypeVersion());
-            }
-            if(metacard.getContentTypeNamespace() != null){
-                sink.putUnencodedChars(metacard.getContentTypeNamespace().toString());
-            }
-            //Removing resource size because the MetacardResourceSizePlugin populates the size in the catalog's version of the metacard.  i could populate this in the cachedResource's metacard instead
-//            if(metacard.getResourceSize() != null){
-//                sink.putUnencodedChars(metacard.getResourceSize());
-//            }
-            if(metacard.getResourceURI() != null){
-                sink.putUnencodedChars(metacard.getResourceURI().toString());
-            }
-            if(metacard.getMetacardType() != null){
-                sink.putUnencodedChars(metacard.getMetacardType().getName());
-            }
-            if(metacard.getCreatedDate() != null){
-                sink.putLong(metacard.getCreatedDate().getTime());
-            }
-            if(metacard.getEffectiveDate() != null){
-                sink.putLong(metacard.getEffectiveDate().getTime());
-            }
-            if(metacard.getExpirationDate() != null){
-                sink.putLong(metacard.getExpirationDate().getTime());
-            }
-            if(metacard.getModifiedDate() != null){
-                sink.putLong(metacard.getModifiedDate().getTime());
-            }
         }
     }
 }

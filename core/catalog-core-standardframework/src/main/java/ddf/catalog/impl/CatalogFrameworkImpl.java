@@ -1833,7 +1833,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements Configurati
             throw new ResourceNotFoundException(DEFAULT_RESOURCE_NOT_FOUND_MESSAGE);
         }
         
-        return new ResourceInfo(new MetacardImpl(metacard), resourceUri);
+        return new ResourceInfo(metacard, resourceUri);
     }
 
     protected Query createMetacardIdQuery(String metacardId) {
