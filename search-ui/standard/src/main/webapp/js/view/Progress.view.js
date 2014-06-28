@@ -112,8 +112,8 @@ define([
                 this.$el.find('#progressbar').progressbar({value: 0.001});
                 this.$el.find('#progressbar').hide();
                 this.$el.find('#progress-text').hide();
-                if (this.queryModel.get('selectedSources')) {
-                    this.model.setTotal(this.queryModel.get('selectedSources').split(',').length);
+                if (this.queryModel.get('src')) {
+                    this.model.setTotal(this.queryModel.get('src').split(',').length);
                 } else {
                     this.model.setTotal(this.sources);
                 }

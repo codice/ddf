@@ -141,19 +141,19 @@ define([
 
             setNoFederation : function () {
                 this.model.set('federation', 'local');
-                this.model.set('selectedSources', 'local');
+                this.model.set('src', 'local');
                 this.updateScrollbar();
             },
 
             setEnterpriseFederation : function () {
                 this.model.set('federation', 'enterprise');
-                this.model.unset('selectedSources');
+                this.model.unset('src');
                 this.updateScrollbar();
             },
 
             setSelectedFederation : function () {
                 this.model.set('federation', 'selected');
-                this.model.unset('selectedSources');
+                this.model.unset('src');
                 this.updateScrollbar();
             },
 
@@ -268,9 +268,9 @@ define([
                 queryModelBindings.radius.converter = radiusConverter;
                 queryModelBindings.offsetTime.converter = offsetConverter;
                 queryModelBindings.offsetTimeUnits.converter = offsetConverter;
-                queryModelBindings.selectedSources = {};
-                queryModelBindings.selectedSources.selector = '#federationSources';
-                queryModelBindings.selectedSources.converter = listConverter;
+                queryModelBindings.src = {};
+                queryModelBindings.src.selector = '#federationSources';
+                queryModelBindings.src.converter = listConverter;
                 queryModelBindings.type = {};
                 queryModelBindings.type.selector = '#typeList';
                 queryModelBindings.type.converter = listConverter;
@@ -371,10 +371,10 @@ define([
                 //check that we can even perform a search
                 //the model has 6 default attributes, so if we only have 6
                 //then we have no search criteria
-                //if we have 6 and one of them is the 'selectedSources' attribute, then we
+                //if we have 6 and one of them is the 'src' attribute, then we
                 //still have no search criteria
                 var modelSize = _.size(this.model.attributes);
-                if (modelSize === 6 || (modelSize === 7 && this.model.get('selectedSources'))) {
+                if (modelSize === 6 || (modelSize === 7 && this.model.get('src'))) {
                     return;
                 }
 
@@ -391,8 +391,8 @@ define([
                     sourceCount = 0,
                     queryParams = this.model.toJSON();
 
-                if (!_.isUndefined(queryParams.selectedSources)) {
-                    sourceCount = queryParams.selectedSources.split(',').length;
+                if (!_.isUndefined(queryParams.src)) {
+                    sourceCount = queryParams.src.split(',').length;
                 } else { // if enterprise query
                     var availableSources = [];
                     this.sources.each(function (source) {
@@ -403,7 +403,7 @@ define([
                     });
 
                     if (availableSources.length > 0) {
-                        this.model.set('selectedSources', availableSources.join(','));
+                        this.model.set('src', availableSources.join(','));
                     }
                 }
 
