@@ -73,7 +73,7 @@ public class SearchService {
 
     private static final String MAX_RESULTS = "mr";
 
-    private static final String SOURCES = "src";
+    private static final String SOURCES = "selectedSources";
 
     private static final String MAX_TIMEOUT = "mt";
 
