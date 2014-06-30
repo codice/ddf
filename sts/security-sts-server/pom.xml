@@ -53,7 +53,7 @@
 
         <dependency>
             <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-ext</artifactId>
+            <artifactId>slf4j-api</artifactId>
         </dependency>
 
         <dependency>
@@ -65,6 +65,12 @@
       		<groupId>ddf.security.sts</groupId>
       		<artifactId>security-sts-clientconfig</artifactId>
     	</dependency>
+        
+        <dependency>
+            <groupId>ddf.security.sts</groupId>
+            <artifactId>security-sts-crlinterceptor</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -75,12 +81,40 @@
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+                        <Embed-Dependency>cxf-services-sts-core</Embed-Dependency>
                         <Import-Package>
-                        javax.net.ssl,
-                        *
+                            javax.net.ssl,
+                            org.springframework.ldap.core;resolution:=optional,
+                        	org.springframework.ldap.core.support;resolution:=optional,
+                        	org.springframework.ldap.filter;resolution:=optional,
+                        	net.sf.ehcache;resolution:=optional;version="[2.5,3.0.0)",
+                        	net.sf.ehcache.config;resolution:=optional;version="[2.5,3.0.0)",
+                        	ch.qos.logback.classic;resolution:=optional;version="[1.0,2)",
+                        	com.hazelcast.core;resolution:=optional,
+                            *
                         </Import-Package>
-                        <Fragment-Host>org.apache.cxf.services.sts.core</Fragment-Host>
-                        <!--<Require-Bundle>org.apache.cxf.bundle,org.springframework.beans,org.springframework.context,org.springframework.osgi.core,org.ops4j.pax.url.classpath,org.apache.ws.security.wss4j,org.apache.servicemix.bundles.opensaml</Require-Bundle>-->
+                        <Private-Package>
+                            org.codice.ddf.security.sts.crl
+                        </Private-Package>
+                        <Export-Package>
+                            org.apache.cxf.sts;version=${cxf.version},
+                            org.apache.cxf.sts.cache;version=${cxf.version},
+                            org.apache.cxf.sts.claims;version=${cxf.version},
+                            org.apache.cxf.sts.event;version=${cxf.version},
+                            org.apache.cxf.sts.event.map;version=${cxf.version},
+                            org.apache.cxf.sts.interceptor;version=${cxf.version},
+                            org.apache.cxf.sts.operation;version=${cxf.version},
+                            org.apache.cxf.sts.provider;version=${cxf.version},
+                            org.apache.cxf.sts.request;version=${cxf.version},
+                            org.apache.cxf.sts.service;version=${cxf.version},
+                            org.apache.cxf.sts.token.canceller;version=${cxf.version},
+                            org.apache.cxf.sts.token.delegation;version=${cxf.version},
+                            org.apache.cxf.sts.token.provider;version=${cxf.version},
+                            org.apache.cxf.sts.token.realm;version=${cxf.version},
+                            org.apache.cxf.sts.token.renewer;version=${cxf.version},
+                            org.apache.cxf.sts.token.validator;version=${cxf.version},
+                            ddf.security.sts;version=${project.version}
+                        </Export-Package>
                     </instructions>
                 </configuration>
             </plugin>

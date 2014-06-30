@@ -154,6 +154,10 @@
         <property name="stsProperties" ref="STSProperties" />
         <property name="tokenStore" ref="defaultTokenStore" />
     </bean>
+    
+    <bean id="crlInterceptor" class="org.codice.ddf.security.sts.crl.CRLInterceptor">
+        <cm:managed-properties persistent-id="org.codice.ddf.security.sts.crl" update-strategy="container-managed" />
+    </bean>
 
 
     <!-- VALIDATOR CONFIGURATION -->
@@ -198,6 +202,9 @@
                     xmlns:ns1="http://docs.oasis-open.org/ws-sx/ws-trust/200512/"
                     serviceName="ns1:SecurityTokenService"
                     endpointName="ns1:STS_Port">
+        <jaxws:inInterceptors>
+            <ref component-id="crlInterceptor" />
+        </jaxws:inInterceptors>
         <jaxws:properties>
             <entry key="ws-security.callback-handler"
                    value="ddf.security.sts.CommonCallbackHandler"/>
