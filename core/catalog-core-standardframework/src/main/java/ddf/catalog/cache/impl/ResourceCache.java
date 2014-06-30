@@ -302,9 +302,9 @@ public class ResourceCache implements ResourceCacheInterface {
                     "Neither the cachedResource nor the metacard retrieved from the catalog can be null.");
         }
 
-        int cachedResourceHC = cachedResource.getMetacard().hashCode();
+        int cachedResourceHash = cachedResource.getMetacard().hashCode();
         MetacardImpl latestMetacardImpl = new MetacardImpl(latestMetacard);
-        int latestMetacardHC = latestMetacardImpl.hashCode();
+        int latestMetacardHash = latestMetacardImpl.hashCode();
 
         // compare hashes of cachedResource.getMetacard() and latestMetcard
         if (cachedResourceHC == latestMetacardHC) {
