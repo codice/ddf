@@ -165,6 +165,10 @@
         <property name="stsProperties" ref="STSProperties" />
         <property name="tokenStore" ref="defaultTokenStore" />
     </bean>
+    
+    <bean id="crlInterceptor" class="org.codice.ddf.security.sts.crl.CRLInterceptor">
+        <cm:managed-properties persistent-id="org.codice.ddf.security.sts.crl" update-strategy="container-managed" />
+    </bean>
 
 
     <!-- VALIDATOR CONFIGURATION -->

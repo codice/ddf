@@ -53,7 +53,7 @@
 
         <dependency>
             <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-ext</artifactId>
+            <artifactId>slf4j-api</artifactId>
         </dependency>
 
         <dependency>
@@ -87,6 +87,7 @@
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+                        <Embed-Dependency>cxf-services-sts-core</Embed-Dependency>
                         <Import-Package>
                             javax.net.ssl,
                             org.springframework.ldap.core;resolution:=optional,
