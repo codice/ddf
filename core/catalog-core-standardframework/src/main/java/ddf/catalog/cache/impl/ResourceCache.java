@@ -307,7 +307,7 @@ public class ResourceCache implements ResourceCacheInterface {
         int latestMetacardHash = latestMetacardImpl.hashCode();
 
         // compare hashes of cachedResource.getMetacard() and latestMetcard
-        if (cachedResourceHC == latestMetacardHC) {
+        if (cachedResourceHash == latestMetacardHash) {
             LOGGER.trace("EXITING: validateCacheEntry");
             return true;
         } else {
