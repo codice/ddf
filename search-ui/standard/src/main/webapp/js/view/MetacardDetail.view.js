@@ -57,6 +57,8 @@ define([
                 if (index < collection.length - 1) {
                     this.nextModel = collection.at(index + 1);
                 }
+                
+                wreqr.vent.on('search:beginMerge', _.bind(this.invalidateList, this));
             },
             render: function () {
                 var jsonObj = this.model.toJSON();
@@ -64,15 +66,16 @@ define([
                 jsonObj.url = this.model.url;
                 jsonObj.clientId = Cometd.Comet.getClientId();  //required for retrieve product notifications subscription
                 this.$el.html(ich.metacardTemplate(jsonObj));
-
+                this.updateIterationControls();
+                return this;
+            },
+            updateIterationControls: function () {
                 if (_.isUndefined(this.prevModel)) {
                     $('#prevRecord', this.$el).addClass('disabled');
                 }
                 if (_.isUndefined(this.nextModel)) {
                     $('#nextRecord', this.$el).addClass('disabled');
                 }
-
-                return this;
             },
             updateScrollbar: function () {
                 var view = this;
@@ -87,6 +90,11 @@ define([
             },
             viewLocation: function () {
                 wreqr.vent.trigger('search:mapshow', this.model);
+            },
+            invalidateList: function () {
+                delete this.prevModel;
+                delete this.nextModel;
+                this.updateIterationControls();
             },
             previousRecord: function () {
                 if (this.prevModel) {

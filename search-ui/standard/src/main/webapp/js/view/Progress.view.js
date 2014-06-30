@@ -15,6 +15,7 @@ define([
         'jquery',
         'backbone',
         'marionette',
+        'wreqr',
         'icanhaz',
         'q',
         'underscore',
@@ -23,7 +24,7 @@ define([
         'text!templates/progress.handlebars',
         'progressbar'
     ],
-    function ($, Backbone, Marionette, ich, Q, _, Spinner, spinnerConfig, progressTemplate) {
+    function ($, Backbone, Marionette, wreqr, ich, Q, _, Spinner, spinnerConfig, progressTemplate) {
         "use strict";
 
         var Progress = {};
@@ -119,6 +120,7 @@ define([
                 }
             },
             merge: function() {
+                wreqr.vent.trigger('search:beginMerge');
                 var view = this;
                 //merge the models somehow
                 var page = $.find('#searchPages').pop();
