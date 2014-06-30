@@ -1406,9 +1406,6 @@ public class CatalogFrameworkImpl extends DescribableImpl implements Configurati
                     logger.info(
                             "Successfully retrieved product from cache for metacard ID = {}",
                             metacard.getId());
-                    retrieveStatusEventPublisher.postRetrievalStatus(resourceResponse,
-                            ProductRetrievalStatus.COMPLETE, metacard, null,
-                            resource.getSize(), UUID.randomUUID().toString());
                 } catch (CacheException ce) {
                     logger.info(
                             "Unable to get resource from cache. Have to retrieve it from source {}",

@@ -101,7 +101,7 @@ public class DownloadsStatusEventPublisher {
         }
         String user = SubjectUtils.getName(shiroSubject, getProperty(resourceResponse, ActivityEvent.USER_ID_KEY));
 
-        if (notificationEnabled && status != ProductRetrievalStatus.IN_PROGRESS) {
+        if (notificationEnabled && (status != ProductRetrievalStatus.IN_PROGRESS) && (status != ProductRetrievalStatus.STARTED)) {
             Notification notification = new Notification(APPLICATION_NAME,
                     resourceResponse.getResource().getName(),
                     generateMessage(status, resourceResponse.getResource().getName(),
@@ -205,7 +205,6 @@ public class DownloadsStatusEventPublisher {
             detail = "";
         }
 
-        
         switch (status) {
         case STARTED:
             response.append(" started");
