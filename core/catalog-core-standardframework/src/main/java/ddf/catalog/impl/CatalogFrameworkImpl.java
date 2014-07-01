@@ -31,6 +31,7 @@ import java.util.TreeSet;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import ddf.catalog.event.retrievestatus.DownloadStatusInfo;
 import ddf.catalog.event.retrievestatus.DownloadsStatusEventListener;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
@@ -255,6 +256,8 @@ public class CatalogFrameworkImpl extends DescribableImpl implements Configurati
 
     protected DownloadsStatusEventListener retrieveStatusEventListener;
 
+    protected DownloadStatusInfo downloadStatusInfo;
+
     protected boolean notificationEnabled = true;
     
     protected boolean activityEnabled = true;
@@ -466,6 +469,10 @@ public class CatalogFrameworkImpl extends DescribableImpl implements Configurati
     public void setMaxRetryAttempts(int maxRetryAttempts) {
         logger.debug("Setting maxRetryAttempts = {}", maxRetryAttempts);
         this.maxRetryAttempts = maxRetryAttempts;
+    }
+
+    public void setDownloadStatusInfo(DownloadStatusInfo downloadStatusInfo) {
+        this.downloadStatusInfo = downloadStatusInfo;
     }
     
     /**
@@ -1431,7 +1438,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements Configurati
                         logger.debug("Retrieving product from remote source {}", source.getId());
                         ResourceRetriever retriever = new RemoteResourceRetriever(source, responseURI, requestProperties);
                         ReliableResourceDownloadManager downloadManager = new ReliableResourceDownloadManager(maxRetryAttempts,
-                                delayBetweenAttempts, monitorPeriod, cacheEnabled, productCache, cacheWhenCanceled, retrieveStatusEventPublisher, retrieveStatusEventListener);
+                                delayBetweenAttempts, monitorPeriod, cacheEnabled, productCache, cacheWhenCanceled, retrieveStatusEventPublisher, retrieveStatusEventListener, downloadStatusInfo);
                         try {
                             resourceResponse = downloadManager.download(resourceRequest, metacard, retriever);
                         } catch (DownloadException e) {
@@ -1448,7 +1455,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements Configurati
                     logger.debug("Retrieving product from local source {}", resourceSourceName);
                     ResourceRetriever retriever = new LocalResourceRetriever(resourceReaders, responseURI, requestProperties);
                     ReliableResourceDownloadManager downloadManager = new ReliableResourceDownloadManager(maxRetryAttempts,
-                            delayBetweenAttempts, monitorPeriod, cacheEnabled, productCache, cacheWhenCanceled, retrieveStatusEventPublisher, retrieveStatusEventListener);
+                            delayBetweenAttempts, monitorPeriod, cacheEnabled, productCache, cacheWhenCanceled, retrieveStatusEventPublisher, retrieveStatusEventListener, downloadStatusInfo);
                     try {
                         resourceResponse = downloadManager.download(resourceRequest, metacard, retriever);
                     } catch (DownloadException e) {

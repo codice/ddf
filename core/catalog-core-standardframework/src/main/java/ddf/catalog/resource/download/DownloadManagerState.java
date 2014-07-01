@@ -55,8 +55,5 @@ public class DownloadManagerState {
         return continueCaching;
     }
 
-    public void setContinueCaching(boolean continueCaching) {
-        this.continueCaching = continueCaching;
-    }
-
+    public void setContinueCaching(boolean continueCaching) {this.continueCaching = continueCaching; }
 }

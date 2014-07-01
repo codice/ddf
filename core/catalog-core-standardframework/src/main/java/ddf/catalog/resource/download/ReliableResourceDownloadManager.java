@@ -22,6 +22,7 @@ import ddf.cache.CacheException;
 import ddf.catalog.cache.impl.CacheKey;
 import ddf.catalog.cache.impl.ResourceCache;
 import ddf.catalog.data.Metacard;
+import ddf.catalog.event.retrievestatus.DownloadStatusInfo;
 import ddf.catalog.event.retrievestatus.DownloadsStatusEventListener;
 import ddf.catalog.event.retrievestatus.DownloadsStatusEventPublisher;
 import ddf.catalog.event.retrievestatus.DownloadsStatusEventPublisher.ProductRetrievalStatus;
@@ -136,6 +137,10 @@ public class ReliableResourceDownloadManager implements Runnable {
     private boolean downloadStarted;
 
     private String downloadIdentifier;
+
+    private DownloadStatusInfo downloadStatusInfo;
+
+    private String user;
     
     /**
      * Only set to true if cacheEnabled is true *AND* product being downloaded
@@ -157,7 +162,7 @@ public class ReliableResourceDownloadManager implements Runnable {
      */
     public ReliableResourceDownloadManager(int maxRetryAttempts, int delayBetweenAttempts,
             long monitorPeriod, boolean cacheEnabled, ResourceCache resourceCache,
-            boolean cacheWhenCanceled, DownloadsStatusEventPublisher eventPublisher, DownloadsStatusEventListener eventListener) {
+            boolean cacheWhenCanceled, DownloadsStatusEventPublisher eventPublisher, DownloadsStatusEventListener eventListener, DownloadStatusInfo downloadStatusInfo) {
         this.maxRetryAttempts = maxRetryAttempts;
         this.delayBetweenAttempts = delayBetweenAttempts;
         this.monitorPeriod = monitorPeriod;
@@ -166,6 +171,7 @@ public class ReliableResourceDownloadManager implements Runnable {
         this.cacheWhenCanceled = cacheWhenCanceled;
         this.eventPublisher = eventPublisher;
         this.eventListener = eventListener;
+        this.downloadStatusInfo = downloadStatusInfo;
         
         this.downloadState = new DownloadManagerState();
         this.downloadState.setDownloadState(DownloadManagerState.DownloadState.NOT_STARTED);
@@ -284,6 +290,7 @@ public class ReliableResourceDownloadManager implements Runnable {
         resourceInputStream = resource.getInputStream();
 
         eventListener.setDownloadMap(downloadIdentifier, resourceResponse);
+        downloadStatusInfo.addDownloadInfo(downloadIdentifier, this, resourceResponse);
 
         if (cacheEnabled) {
             CacheKey keyMaker = new CacheKey(metacard, resourceResponse.getRequest());
@@ -539,6 +546,16 @@ public class ReliableResourceDownloadManager implements Runnable {
         } finally {
             cleanupAfterDownload(reliableResourceStatus);
         }
+    }
+
+    public ReliableResourceInputStream getReliableResourceInputStream() {
+        return streamReadByClient;
+    }
+
+    public String getResourceSize() { return metacard.getResourceSize(); }
+
+    public ResourceResponse getResourceResponse() {
+        return resourceResponse;
     }
 
     private ReliableResourceCallable retrieveResource(long bytesRead) {

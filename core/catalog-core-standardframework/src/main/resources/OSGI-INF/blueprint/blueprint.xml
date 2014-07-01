@@ -168,7 +168,6 @@
     </bean>
 
     <bean id="retrieveStatusEventListener" class="ddf.catalog.event.retrievestatus.DownloadsStatusEventListener"/>
-
     <service ref="retrieveStatusEventListener" interface="org.osgi.service.event.EventHandler" >
         <service-properties>
             <entry key="event.topics" >
@@ -178,6 +177,9 @@
             </entry>
         </service-properties>
     </service>
+
+    <bean id="downloadStatusInfo" class="ddf.catalog.event.retrievestatus.DownloadStatusInfoImpl" />
+    <service ref="downloadStatusInfo" interface="ddf.catalog.event.retrievestatus.DownloadStatusInfo" />
 
     <bean id="productCache" class="ddf.catalog.cache.impl.ResourceCache" init-method="setupCache" destroy-method="teardownCache" >
         <property name="productCacheDirectory" value="" />
@@ -220,6 +222,7 @@
         <property name="retrieveStatusEventPublisher" ref="retrieveStatusEventPublisher" />
         <property name="notificationEnabled" value="true" />
         <property name="retrieveStatusEventListener" ref="retrieveStatusEventListener" />
+        <property name="downloadStatusInfo" ref="downloadStatusInfo" />
 	</bean>
 
 	<bean id="sourcePoller" class="ddf.catalog.util.impl.SourcePoller" >

@@ -15,6 +15,7 @@
 package ddf.catalog.event.retrievestatus;
 
 import ddf.catalog.operation.ResourceResponse;
+import ddf.catalog.resource.download.ReliableResourceDownloadManager;
 import ddf.security.SubjectUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -26,6 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -36,7 +38,9 @@ public class DownloadsStatusEventListener implements EventHandler {
 
     public DownloadsStatusEventListener() {}
 
-   private Map<String, InputStream> downloadMap = new HashMap<String, InputStream>();
+    private Map<String, InputStream> downloadMap = new HashMap<String, InputStream>();
+
+
 
     @Override
     public void handleEvent(Event event) {
@@ -113,8 +117,15 @@ public class DownloadsStatusEventListener implements EventHandler {
         LOGGER.debug("EXITING: {}", methodName);
     }
 
+    /**
+     * Public getter of downloadMap
+     *
+     * @return
+     */
+    public Map<String, InputStream> getDownloadMap() {return downloadMap; }
+
     public void removeDownloadIdentifier(String downloadIdentifier, ResourceResponse resourceResponse) {
-        String methodName = "setDownloadMap";
+        String methodName = "removeDownloadMap";
         LOGGER.debug("ENTERING: {}", methodName);
 
         if (null != downloadIdentifier) {

@@ -206,6 +206,10 @@ public class ReliableResourceInputStream extends InputStream {
     public long getBytesRead() {
         return fbosBytesRead;
     }
+
+    public long getBytesCached() { return countingFbos.getCount(); }
+
+    public DownloadManagerState getDownloadState() { return downloadState; }
     
     private boolean isFbosCompletelyRead(int numBytesRead, long fbosCount) {
         if (numBytesRead == -1 && fbosCount == fbosBytesRead &&
