@@ -44,6 +44,8 @@ import java.util.List;
  * (the SAML assertion).
  */
 public class WebSSOFilter implements Filter {
+    private static final String DEFAULT_REALM = "DDF";
+
     private static final String DDF_SECURITY_TOKEN = "ddf.security.securityToken";
 
     private static final String DDF_AUTHENTICATION_TOKEN = "ddf.security.token";
@@ -72,7 +74,7 @@ public class WebSSOFilter implements Filter {
      * and obtain them. Once a token has been received that we know how to
      * convert to a SAML assertion, we attach them to the request and continue
      * down the chain.
-     * 
+     *
      * @param servletRequest
      *            incoming http request
      * @param servletResponse
@@ -94,14 +96,27 @@ public class WebSSOFilter implements Filter {
                 + StringUtils.defaultString(httpRequest.getPathInfo());
         LOGGER.debug("Handling request for path {}", path);
 
-        if (contextPolicyManager != null && contextPolicyManager.isWhiteListed(path)) {
+        String realm = DEFAULT_REALM;
+        boolean isWhiteListed = false;
+        if (contextPolicyManager != null) {
+            ContextPolicy policy = contextPolicyManager.getContextPolicy(path);
+            if (policy != null) {
+                realm = policy.getRealm();
+            }
+
+            isWhiteListed = contextPolicyManager.isWhiteListed(path);
+        }
+
+        if (isWhiteListed) {
             LOGGER.debug(
                     "Context of {} has been whitelisted, adding a NO_AUTH_POLICY attribute to the header.",
                     path);
+            servletRequest.setAttribute(ContextPolicy.ACTIVE_REALM, realm);
             servletRequest.setAttribute(ContextPolicy.NO_AUTH_POLICY, true);
             filterChain.doFilter(httpRequest, httpResponse);
         } else {
             // now handle the request and set the authentication token
+            LOGGER.debug("Handling request for {} in security realm {}.", path, realm);
             handleRequest(httpRequest, httpResponse, filterChain, getHandlerList(path));
         }
 
@@ -114,6 +129,7 @@ public class WebSSOFilter implements Filter {
         // First pass, see if anyone can come up with proper security token from
         // the git-go
         HandlerResult result = null;
+        LOGGER.debug("Checking for existing tokens in request.");
         for (AuthenticationHandler auth : handlerList) {
             result = auth.getNormalizedToken(httpRequest, httpResponse, filterChain, false);
             if (result.getStatus() != HandlerResult.Status.NO_ACTION) {
@@ -146,10 +162,10 @@ public class WebSSOFilter implements Filter {
             case COMPLETED:
                 // set the appropriate request attribute
                 if (result.hasSecurityToken()) {
-                    LOGGER.debug("Attaching SecurityToken to http request");
+                    LOGGER.debug("Attaching security token to http request");
                     httpRequest.setAttribute(DDF_SECURITY_TOKEN, result.getCredentials());
                 } else {
-                    LOGGER.debug("Attaching AuthenticationToken to http request");
+                    LOGGER.debug("Attaching authentication credentials to http request");
                     httpRequest.setAttribute(DDF_AUTHENTICATION_TOKEN, result);
                 }
                 break;
@@ -206,7 +222,7 @@ public class WebSSOFilter implements Filter {
 
     /**
      * Sends the given response code back to the caller.
-     * 
+     *
      * @param code
      *            HTTP response code for this request
      * @param response

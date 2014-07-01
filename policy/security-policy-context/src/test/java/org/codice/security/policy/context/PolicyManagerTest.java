@@ -36,16 +36,16 @@ public class PolicyManagerTest {
     @Before
     public void setup() {
         manager = new PolicyManager();
-        manager.setContextPolicy("/", new Policy("/", null, null));
-        manager.setContextPolicy("/search", new Policy("/search", null, null));
-        manager.setContextPolicy("/admin", new Policy("/admin", null, null));
-        manager.setContextPolicy("/search/standard", new Policy("/search/standard", null, null));
-        manager.setContextPolicy("/cometd", new Policy("/cometd", null, null));
-        manager.setContextPolicy("/search/simple", new Policy("/search/simple", null, null));
-        manager.setContextPolicy("/aaaaaa", new Policy("/aaaaaa", null, null));
-        manager.setContextPolicy("/aaa", new Policy("/aaa", null, null));
-        manager.setContextPolicy("/aaa/aaa", new Policy("/aaa/aaa", null, null));
-        manager.setContextPolicy("/foo/bar", new Policy("/foo/bar", null, null));
+        manager.setContextPolicy("/", new Policy("/", null, null, null));
+        manager.setContextPolicy("/search", new Policy("/search", null, null, null));
+        manager.setContextPolicy("/admin", new Policy("/admin", null, null, null));
+        manager.setContextPolicy("/search/standard", new Policy("/search/standard", null, null, null));
+        manager.setContextPolicy("/cometd", new Policy("/cometd", null, null, null));
+        manager.setContextPolicy("/search/simple", new Policy("/search/simple", null, null, null));
+        manager.setContextPolicy("/aaaaaa", new Policy("/aaaaaa", null, null, null));
+        manager.setContextPolicy("/aaa", new Policy("/aaa", null, null, null));
+        manager.setContextPolicy("/aaa/aaa", new Policy("/aaa/aaa", null, null, null));
+        manager.setContextPolicy("/foo/bar", new Policy("/foo/bar", null, null, null));
         manager.setWhiteListContexts("/foo");
     }
 

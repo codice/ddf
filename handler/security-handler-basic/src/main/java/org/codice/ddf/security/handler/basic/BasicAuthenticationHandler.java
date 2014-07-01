@@ -21,6 +21,7 @@ import org.apache.cxf.ws.security.sts.provider.model.secext.UsernameTokenType;
 import org.apache.ws.security.WSConstants;
 import org.codice.ddf.security.handler.api.AuthenticationHandler;
 import org.codice.ddf.security.handler.api.HandlerResult;
+import org.codice.ddf.security.policy.context.ContextPolicy;
 import org.jasypt.contrib.org.apache.commons.codec_1_3.binary.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -98,8 +99,9 @@ public class BasicAuthenticationHandler implements AuthenticationHandler {
         final UsernameTokenType result = setAuthenticationInfo(httpRequest);
         if (resolve) {
             if (result == null) {
+                String realm = (String) request.getAttribute(ContextPolicy.ACTIVE_REALM);
                 handlerResult = new HandlerResult(HandlerResult.Status.REDIRECTED, null, "");
-                doAuthPrompt("DDF", (HttpServletResponse) response);
+                doAuthPrompt(realm, (HttpServletResponse) response);
                 return handlerResult;
             } else {
                 String usernameToken = getUsernameTokenElement(result);
@@ -122,7 +124,8 @@ public class BasicAuthenticationHandler implements AuthenticationHandler {
 
     @Override
     public HandlerResult handleError(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain) throws ServletException {
-        doAuthPrompt("DDF", (HttpServletResponse) servletResponse);
+        String realm = (String) servletRequest.getAttribute(ContextPolicy.ACTIVE_REALM);
+        doAuthPrompt(realm, (HttpServletResponse) servletResponse);
         HandlerResult result = new HandlerResult();
         LOGGER.debug("In error handler for basic auth - prompted for auth credentials.");
         result.setStatus(HandlerResult.Status.REDIRECTED);

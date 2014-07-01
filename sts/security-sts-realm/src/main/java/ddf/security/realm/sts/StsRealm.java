@@ -550,6 +550,9 @@ public class StsRealm extends AuthenticatingRealm implements ConfigurationWatche
         LOGGER.debug("Setting STS TOKEN USE CERT FOR KEY INFO to \"true\"");
         map.put(SecurityConstants.STS_TOKEN_USE_CERT_FOR_KEYINFO, String.valueOf(stsClientConfig.getUseKey()));
 
+        LOGGER.debug("Adding in realm information to the STSClient");
+        map.put("CLIENT_REALM", "DDF");
+
         stsClient.setProperties(map);
     }
 

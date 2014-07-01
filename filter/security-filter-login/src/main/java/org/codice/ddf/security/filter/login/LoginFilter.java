@@ -73,6 +73,10 @@ public class LoginFilter implements Filter {
 
     private static final transient Logger LOGGER = LoggerFactory.getLogger(LoginFilter.class);
 
+    private static final String DDF_SECURITY_TOKEN = "ddf.security.securityToken";
+
+    private static final String DDF_AUTHENTICATION_TOKEN = "ddf.security.token";
+
     private static final String SAML_COOKIE_NAME = "org.codice.websso.saml.token";
 
     private SecurityManager securityManager;
@@ -158,8 +162,12 @@ public class LoginFilter implements Filter {
 
         Subject subject = null;
 
-        Object securityToken = httpRequest.getAttribute("ddf.security.securityToken");
-        Object token = httpRequest.getAttribute("ddf.security.token");
+        Object securityToken = httpRequest.getAttribute(DDF_SECURITY_TOKEN);
+        Object token = httpRequest.getAttribute(DDF_AUTHENTICATION_TOKEN);
+        /*
+         * If the user has already authenticated they will have a valid SAML token. Validate
+         * that here and create the subject from the token.
+         */
         if (securityToken != null) {
             try {
                 LOGGER.debug("Validating received SAML assertion.");
@@ -199,8 +207,13 @@ public class LoginFilter implements Filter {
                 throw new ServletException(e);
             }
         } else if (token != null) {
+            /*
+             * The user didn't have a SAML token from a previous authentication, but they do have the
+             * credentials to log in - perform that action here.
+             */
             try {
                 synchronized (lock) {
+                    // login with the specified authentication credentials (AuthenticationToken)
                     subject = securityManager.getSubject(token);
                 }
 

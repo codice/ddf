@@ -143,6 +143,11 @@ public class AuthorizationFilterTest {
         public void setAllowedAttributes(Collection<ContextAttributeMapping> attributes) {
 
         }
+
+        @Override
+        public String getRealm() {
+            return "DDF";
+        }
     }
 
     private class TestPolicyManager implements ContextPolicyManager {

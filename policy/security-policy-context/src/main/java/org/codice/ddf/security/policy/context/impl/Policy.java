@@ -29,12 +29,15 @@ public class Policy implements ContextPolicy {
 
     private String contextPath;
 
+    private String realm;
+
     private Collection<String> authenticationMethods;
 
     private Collection<ContextAttributeMapping> attributeMappings;
 
-    public Policy(String contextPath, Collection<String> authenticationMethods, Collection<ContextAttributeMapping> attributeMappings) {
+    public Policy(String contextPath, String realm, Collection<String> authenticationMethods, Collection<ContextAttributeMapping> attributeMappings) {
         this.contextPath = contextPath;
+        this.realm = realm;
         this.authenticationMethods = authenticationMethods;
         this.attributeMappings = attributeMappings;
     }
@@ -43,6 +46,9 @@ public class Policy implements ContextPolicy {
     public String getContextPath() {
         return contextPath;
     }
+
+    @Override
+    public String getRealm() { return realm; }
 
     @Override
     public Collection<String> getAuthenticationMethods() {

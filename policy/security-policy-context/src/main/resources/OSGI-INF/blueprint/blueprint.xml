@@ -20,6 +20,7 @@
         <property name="policies">
             <map>
                 <entry key="authenticationTypes" value="/=SAML|basic,/admin=SAML|basic" />
+                <entry key="realms" value="/=DDF,/system=karaf" />
                 <entry key="requiredAttributes" value="/=,/admin={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=admin}" />
                 <entry key="whiteListContexts" value="/services/SecurityTokenService,/system/console" />
             </map>
