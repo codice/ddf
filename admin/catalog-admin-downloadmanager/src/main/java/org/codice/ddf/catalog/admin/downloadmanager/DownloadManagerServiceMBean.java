@@ -30,4 +30,6 @@ public interface DownloadManagerServiceMBean {
 
     public ArrayList<String> getAllDownloads(String userId);
 
+    public void removeDownloadInfo(String downloadIdentifier);
+
 }

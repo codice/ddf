@@ -93,4 +93,6 @@ public class DownloadManagerService implements DownloadManagerServiceMBean {
     public ArrayList<String> getAllDownloads(String userId){
         return downloadStatusInfo.getAllDownloads(userId);
     }
+
+    public void removeDownloadInfo(String downloadIdentifier) { downloadStatusInfo.removeDownloadInfo(downloadIdentifier); }
 }

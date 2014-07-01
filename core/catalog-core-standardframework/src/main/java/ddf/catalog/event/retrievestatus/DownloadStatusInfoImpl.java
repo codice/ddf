@@ -107,6 +107,11 @@ public class DownloadStatusInfoImpl implements DownloadStatusInfo{
         return statusMap;
     }
 
+    public void removeDownloadInfo(String downloadIdentifier) {
+        downloadManagers.remove(downloadIdentifier);
+        downloadUsers.remove(downloadIdentifier);
+    }
+
     private String getProperty(ResourceResponse resourceResponse, String property) {
         String response = "";
 

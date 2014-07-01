@@ -32,4 +32,6 @@ public interface DownloadStatusInfo {
     public ArrayList<String> getAllDownloads(String userId);
 
     public Map<String, String> getDownloadStatus(String downloadIdentifier);
+
+    public void removeDownloadInfo(String downloadIdentifier);
 }
