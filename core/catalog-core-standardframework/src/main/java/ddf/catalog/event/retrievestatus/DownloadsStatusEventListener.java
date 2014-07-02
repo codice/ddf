@@ -27,7 +27,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -117,12 +116,6 @@ public class DownloadsStatusEventListener implements EventHandler {
         LOGGER.debug("EXITING: {}", methodName);
     }
 
-    /**
-     * Public getter of downloadMap
-     *
-     * @return
-     */
-    public Map<String, InputStream> getDownloadMap() {return downloadMap; }
 
     public void removeDownloadIdentifier(String downloadIdentifier, ResourceResponse resourceResponse) {
         String methodName = "removeDownloadMap";

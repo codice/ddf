@@ -27,9 +27,6 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * Created by localadmin on 7/1/2014.
- */
 public class DownloadManagerService implements DownloadManagerServiceMBean {
 
     private ObjectName objectName;

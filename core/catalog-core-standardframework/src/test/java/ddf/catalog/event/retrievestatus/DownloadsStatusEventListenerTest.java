@@ -42,9 +42,6 @@ import java.util.concurrent.TimeUnit;
 
 import static org.mockito.Mockito.mock;
 
-/**
- * Created by localadmin on 6/30/2014.
- */
 public class DownloadsStatusEventListenerTest {
 
     private static ReliableResourceDownloadManager testDownloadManager;

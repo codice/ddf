@@ -20,18 +20,42 @@ import ddf.catalog.resource.download.ReliableResourceDownloadManager;
 import java.util.ArrayList;
 import java.util.Map;
 
-/**
- * Created by Harrison Tarr on 6/30/2014.
- */
 public interface DownloadStatusInfo {
 
-    public void addDownloadInfo(String downloadIdentifier,
+    /**
+     * Adds a {@link ddf.catalog.resource.download.ReliableResourceDownloadManager} to the Map, which is used by
+     * {@link this.getDownloadStatus}. Currently this is called in {@link ddf.catalog.resource.download.ReliableResourceDownloadManager}
+     * @param downloadIdentifier Randomly generated String assigned to download at its start.
+     * @param downloadManager The Object that handles the download; {@link this} uses it to gather information about
+     *                        the download.
+     */
+    void addDownloadInfo(String downloadIdentifier,
                                 ReliableResourceDownloadManager downloadManager, ResourceResponse resourceResponse);
-    public ArrayList<String> getAllDownloads();
 
-    public ArrayList<String> getAllDownloads(String userId);
+    /**
+     * Function to get all downloads.
+     * @return Returns an array of downloadIdentifier Strings
+     */
+    ArrayList<String> getAllDownloads();
 
-    public Map<String, String> getDownloadStatus(String downloadIdentifier);
+    /**
+     * Function to get all downloads for a specific user.
+     * @param userId The id of the user.
+     * @return Returns an array of downloadIdentifier Strings, similar to {@link this.getAllDownloads}.
+     */
+    ArrayList<String> getAllDownloads(String userId);
 
-    public void removeDownloadInfo(String downloadIdentifier);
+    /**
+     * Function to get information about a specific download.
+     * @param downloadIdentifier The randomly generated downloadId string assigned to the download at its start.
+     * @return Returns a map of attributes describing the download; see {@link this.getAllDownloadsStatus} for details.
+     */
+    Map<String, String> getDownloadStatus(String downloadIdentifier);
+
+    /**
+     * Function to remove the map entry corresponding to the downloadIdentifer passed it. This means it will no longer be
+     * returned by {@link this.getAllDownloadsStatus}, {@link this.getDownloadStatus}, or {@link this.getAllDownloads}.
+     * @param downloadIdentifier The randomly generated downloadId string assigned to the download at its start.
+     */
+    void removeDownloadInfo(String downloadIdentifier);
 }
