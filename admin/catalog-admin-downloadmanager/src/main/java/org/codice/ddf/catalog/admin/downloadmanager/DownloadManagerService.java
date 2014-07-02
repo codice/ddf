@@ -14,7 +14,6 @@
  **/
 package org.codice.ddf.catalog.admin.downloadmanager;
 
-
 import ddf.catalog.event.retrievestatus.DownloadStatusInfo;
 
 import javax.management.InstanceAlreadyExistsException;
@@ -24,6 +23,7 @@ import javax.management.ObjectName;
 import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
 import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -71,6 +71,7 @@ public class DownloadManagerService implements DownloadManagerServiceMBean {
             LOGGER.warn("Exception unregistering MBean: ", e);
         }
     }
+
     public ArrayList<Map<String, String>> getAllDownloadsStatus() {
         ArrayList<Map<String, String>> allDownloadsStatus = new ArrayList<Map<String, String>>();
         for (String item : downloadStatusInfo.getAllDownloads()) {
@@ -79,19 +80,23 @@ public class DownloadManagerService implements DownloadManagerServiceMBean {
         return allDownloadsStatus;
     }
 
-    public Map<String, String> getDownloadStatus(String downloadIdentifier){
+    public Map<String, String> getDownloadStatus(String downloadIdentifier) {
         return downloadStatusInfo.getDownloadStatus(downloadIdentifier);
     }
 
-    public ArrayList<String> getAllDownloads(){
+    public ArrayList<String> getAllDownloads() {
         return downloadStatusInfo.getAllDownloads();
     }
 
-    public ArrayList<String> getAllDownloads(String userId){
+    public ArrayList<String> getAllDownloads(String userId) {
         return downloadStatusInfo.getAllDownloads(userId);
     }
 
-    public void removeDownloadInfo(String downloadIdentifier) { downloadStatusInfo.removeDownloadInfo(downloadIdentifier); }
+    public void removeDownloadInfo(String downloadIdentifier) {
+        downloadStatusInfo.removeDownloadInfo(downloadIdentifier);
+    }
 
-    public void cancelDownload(String userId, String downloadIdentifier) {downloadStatusInfo.cancelDownload(userId, downloadIdentifier); }
+    public void cancelDownload(String userId, String downloadIdentifier) {
+        downloadStatusInfo.cancelDownload(userId, downloadIdentifier);
+    }
 }

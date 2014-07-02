@@ -28,7 +28,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-public class DownloadStatusInfoImpl implements DownloadStatusInfo{
+public class DownloadStatusInfoImpl implements DownloadStatusInfo {
 
     private Map<String, ReliableResourceDownloadManager> downloadManagers = new HashMap<String, ReliableResourceDownloadManager>();
 
@@ -43,7 +43,9 @@ public class DownloadStatusInfoImpl implements DownloadStatusInfo{
     public void setEventAdmin(EventAdmin eventAdmin) {
         this.eventAdmin = eventAdmin;
     }
-    public void addDownloadInfo(String downloadIdentifier, ReliableResourceDownloadManager downloadManager, ResourceResponse resourceResponse) {
+
+    public void addDownloadInfo(String downloadIdentifier,
+            ReliableResourceDownloadManager downloadManager, ResourceResponse resourceResponse) {
         downloadManagers.put(downloadIdentifier, downloadManager);
         org.apache.shiro.subject.Subject shiroSubject = null;
         try {
@@ -51,10 +53,10 @@ public class DownloadStatusInfoImpl implements DownloadStatusInfo{
         } catch (Exception e) {
             LOGGER.debug("Could not determine current user, using session id.");
         }
-        String user = SubjectUtils.getName(shiroSubject, getProperty(resourceResponse, ActivityEvent.USER_ID_KEY));
+        String user = SubjectUtils
+                .getName(shiroSubject, getProperty(resourceResponse, ActivityEvent.USER_ID_KEY));
         downloadUsers.put(downloadIdentifier, user);
     }
-
 
     public ArrayList<String> getAllDownloads() {
         String userId = null;
@@ -65,11 +67,13 @@ public class DownloadStatusInfoImpl implements DownloadStatusInfo{
 
         ArrayList<String> allDownloads = new ArrayList();
         if (null == userId) {
-            for (Map.Entry<String, ReliableResourceDownloadManager> item : downloadManagers.entrySet()) {
+            for (Map.Entry<String, ReliableResourceDownloadManager> item : downloadManagers
+                    .entrySet()) {
                 allDownloads.add(item.getKey());
             }
         } else {
-            for (Map.Entry<String, ReliableResourceDownloadManager> item : downloadManagers.entrySet()) {
+            for (Map.Entry<String, ReliableResourceDownloadManager> item : downloadManagers
+                    .entrySet()) {
                 if (item.getKey().substring(0, userId.length()) == userId) {
                     allDownloads.add(item.getKey());
                 }
@@ -85,13 +89,14 @@ public class DownloadStatusInfoImpl implements DownloadStatusInfo{
         Long downloadedBytes = downloadManager.getReliableResourceInputStream().getBytesCached();
         try {
             Long totalBytes = Long.parseLong(downloadManager.getResourceSize());
-            statusMap.put("percent", Long.toString((downloadedBytes * 100)/totalBytes));
+            statusMap.put("percent", Long.toString((downloadedBytes * 100) / totalBytes));
 
         } catch (Exception e) {
             statusMap.put("percent", UNKNOWN);
         }
         statusMap.put("downloadId", downloadIdentifier);
-        statusMap.put("status", downloadManager.getReliableResourceInputStream().getDownloadState().getDownloadState().name());
+        statusMap.put("status", downloadManager.getReliableResourceInputStream().getDownloadState()
+                .getDownloadState().name());
         statusMap.put("bytesDownloaded", Long.toString(downloadedBytes));
         statusMap.put("fileName", downloadManager.getResourceResponse().getResource().getName());
         statusMap.put("user", downloadUsers.get(downloadIdentifier));

@@ -30,17 +30,16 @@ import com.google.common.io.FileBackedOutputStream;
 /**
  * The @InputStream used by the client to read from the @FileBackedOutputStream being written to as the
  * resource is being downloaded.
- *
  */
 public class ReliableResourceInputStream extends InputStream {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ReliableResourceInputStream.class);
-    
+
     private Future<ReliableResourceStatus> downloadFuture;
 
     // The Callable that is writing to the FileBackedOutputStream that this object is reading from
     private ReliableResourceCallable reliableResourceCallable;
-    
+
     // The current state of the resource's download, e.g., IN_PROGRESS, COMPLETED, FAILED, etc.
     private DownloadManagerState downloadState;
 
@@ -52,7 +51,7 @@ public class ReliableResourceInputStream extends InputStream {
     private ByteSource fbosByteSource;
 
     private long fbosBytesRead = 0;
-    
+
     // Indicates if this InputStream is closed or not
     private boolean streamClosed = false;
 
@@ -61,15 +60,16 @@ public class ReliableResourceInputStream extends InputStream {
     String downloadIdentifier;
 
     ResourceResponse resourceResponse;
-    
-    
+
     /**
-     * @param fbos the @FileBackedOutputStream this object will read from
-     * @param countingFbos wrapped @FileBackedOutputStream that counts the number of bytes written so far
+     * @param fbos          the @FileBackedOutputStream this object will read from
+     * @param countingFbos  wrapped @FileBackedOutputStream that counts the number of bytes written so far
      * @param downloadState the current state of the resource's download
      */
     public ReliableResourceInputStream(FileBackedOutputStream fbos,
-            CountingOutputStream countingFbos, DownloadManagerState downloadState, DownloadsStatusEventListener eventListener, String downloadIdentifier, ResourceResponse resourceResponse) {
+            CountingOutputStream countingFbos, DownloadManagerState downloadState,
+            DownloadsStatusEventListener eventListener, String downloadIdentifier,
+            ResourceResponse resourceResponse) {
         this.fbos = fbos;
         fbosByteSource = fbos.asByteSource();
         this.countingFbos = countingFbos;
@@ -78,13 +78,13 @@ public class ReliableResourceInputStream extends InputStream {
         this.downloadIdentifier = downloadIdentifier;
         this.resourceResponse = resourceResponse;
     }
-    
+
     /**
      * Sets the @Callable and the @Future that started the @Callable that is populating the
-     * @FileBackedOutputStream is object is reading from.
-     * 
+     *
      * @param reliableResourceCallable
      * @param cachingFuture
+     * @FileBackedOutputStream is object is reading from.
      */
     public void setCallableAndItsFuture(ReliableResourceCallable reliableResourceCallable,
             Future<ReliableResourceStatus> downloadFuture) {
@@ -103,7 +103,7 @@ public class ReliableResourceInputStream extends InputStream {
         if (!downloadFuture.isDone()) {
             // Stop the caching thread
             // synchronized so that Callable can finish any writing to OutputStreams before being canceled
-            synchronized(reliableResourceCallable) {
+            synchronized (reliableResourceCallable) {
                 LOGGER.debug("Setting cancelDownload on ReliableResourceCallable thread");
                 reliableResourceCallable.setCancelDownload(true);
                 boolean status = downloadFuture.cancel(true);
@@ -121,7 +121,7 @@ public class ReliableResourceInputStream extends InputStream {
         eventListener.removeDownloadIdentifier(downloadIdentifier, resourceResponse);
 
     }
-    
+
     public boolean isClosed() {
         return streamClosed;
     }
@@ -170,9 +170,13 @@ public class ReliableResourceInputStream extends InputStream {
                 // delete the backing file it created in the <INSTALL_DIR>/data/tmp directory
                 fbos.reset();
             } else if (numBytesRead <= 0) {
-                LOGGER.debug("numBytesRead <= 0 but client hasn't read all of the data from FBOS - block and read");
-                while (downloadState.getDownloadState() == DownloadManagerState.DownloadState.IN_PROGRESS || 
-                        (fbosCount >= fbosBytesRead && downloadState.getDownloadState() != DownloadManagerState.DownloadState.FAILED && downloadState.getDownloadState() != null)) {
+                LOGGER.debug(
+                        "numBytesRead <= 0 but client hasn't read all of the data from FBOS - block and read");
+                while (downloadState.getDownloadState()
+                        == DownloadManagerState.DownloadState.IN_PROGRESS ||
+                        (fbosCount >= fbosBytesRead && downloadState.getDownloadState()
+                                != DownloadManagerState.DownloadState.FAILED
+                                && downloadState.getDownloadState() != null)) {
                     numBytesRead = readFromFbosInputStream(b, off, len);
                     if (numBytesRead > 0) {
                         LOGGER.debug("retry: numBytesRead = {}", numBytesRead);
@@ -189,7 +193,8 @@ public class ReliableResourceInputStream extends InputStream {
                     }
                 }
                 if (downloadState.getDownloadState() == DownloadManagerState.DownloadState.FAILED) {
-                    LOGGER.debug("Throwing IOException because download failed - cannot retrieve product");
+                    LOGGER.debug(
+                            "Throwing IOException because download failed - cannot retrieve product");
                     throw new IOException("Download failed - cannot retrieve product");
                 }
             }
@@ -197,27 +202,32 @@ public class ReliableResourceInputStream extends InputStream {
 
         return numBytesRead;
     }
-    
+
     /**
      * Returns the number of bytes read thus far from the @FileBackedOutputStream
-     * 
+     *
      * @return
      */
     public long getBytesRead() {
         return fbosBytesRead;
     }
 
-    public long getBytesCached() { return countingFbos.getCount(); }
+    public long getBytesCached() {
+        return countingFbos.getCount();
+    }
 
-    public DownloadManagerState getDownloadState() { return downloadState; }
-    
+    public DownloadManagerState getDownloadState() {
+        return downloadState;
+    }
+
     private boolean isFbosCompletelyRead(int numBytesRead, long fbosCount) {
         if (numBytesRead == -1 && fbosCount == fbosBytesRead &&
-                (downloadState.getDownloadState() == DownloadManagerState.DownloadState.COMPLETED || 
-                 downloadState.getDownloadState() == DownloadManagerState.DownloadState.FAILED)) {
+                (downloadState.getDownloadState() == DownloadManagerState.DownloadState.COMPLETED ||
+                        downloadState.getDownloadState()
+                                == DownloadManagerState.DownloadState.FAILED)) {
             return true;
         }
-        
+
         return false;
     }
 
