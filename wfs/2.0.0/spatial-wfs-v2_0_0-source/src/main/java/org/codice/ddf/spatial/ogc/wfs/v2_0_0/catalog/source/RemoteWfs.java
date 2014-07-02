@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  * 
  **/
-package org.codice.ddf.spatial.ogc.wfs.catalog.source;
+package org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.source;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -51,6 +51,8 @@ import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.GetPropertyValueRequ
 
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsException;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsFeatureCollection;
+import org.codice.ddf.spatial.ogc.wfs.catalog.source.MarkableStreamInterceptor;
+import org.codice.ddf.spatial.ogc.wfs.catalog.source.WfsResponseExceptionMapper;
 import org.codice.ddf.spatial.ogc.wfs.catalog.source.reader.FeatureCollectionMessageBodyReader;
 import org.codice.ddf.spatial.ogc.wfs.catalog.source.reader.XmlSchemaMessageBodyReader;
 import org.slf4j.Logger;
