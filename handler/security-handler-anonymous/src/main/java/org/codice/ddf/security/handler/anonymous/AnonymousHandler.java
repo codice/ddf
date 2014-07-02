@@ -103,14 +103,10 @@ public class AnonymousHandler implements AuthenticationHandler {
         HandlerResult handlerResult;
 
         UsernameTokenType result = setAuthenticationInfo((HttpServletRequest) request);
-        if (result == null) {
-            handlerResult = new HandlerResult(HandlerResult.Status.REDIRECTED, null, "");
-        } else {
-            String usernameToken = getUsernameTokenElement(result);
-            Principal principal = getPrincipal(result);
-            handlerResult = new HandlerResult(HandlerResult.Status.COMPLETED, principal,
-                    usernameToken);
-        }
+        String usernameToken = getUsernameTokenElement(result);
+        Principal principal = getPrincipal(result);
+        handlerResult = new HandlerResult(HandlerResult.Status.COMPLETED, principal,
+                usernameToken);
 
         return handlerResult;
     }
@@ -204,22 +200,20 @@ public class AnonymousHandler implements AuthenticationHandler {
          * Change the username and password if and only if the request is
          * valid value (i.e. non-null barring "guest").
          */
-        if (request != null) {
-            String header = httpRequest.getHeader("Authorization");
-            if (header != null && !header.equals("null") && !header.equals("")) {
-                String decodedHeader = new String(
-                        Base64.decodeBase64(header.split(" ")[1].getBytes()));
-                String headerData[] = {decodedHeader.split(":")[0], decodedHeader.split(":")[1]};
-                if (headerData != null && headerData[0] != null && headerData[1] != null) {
-                    if (!headerData[1].equals("guest")) {
-                        username = headerData[0];
-                        password = headerData[1];
-                    }
+        String header = httpRequest.getHeader("Authorization");
+        if (header != null && !header.equals("null") && !header.equals("")) {
+            String decodedHeader = new String(
+                    Base64.decodeBase64(header.split(" ")[1].getBytes()));
+            String headerData[] = {decodedHeader.split(":")[0], decodedHeader.split(":")[1]};
+            if (headerData != null && headerData[0] != null && headerData[1] != null) {
+                if (!headerData[1].equals("guest")) {
+                    username = headerData[0];
+                    password = headerData[1];
                 }
-            } else {
-                username = "guest";
-                password = "guest";
             }
+        } else {
+            username = "guest";
+            password = "guest";
         }
 
         /**
