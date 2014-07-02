@@ -19,6 +19,8 @@ import ddf.catalog.resource.download.ReliableResourceDownloadManager;
 import ddf.security.SubjectUtils;
 import org.apache.shiro.SecurityUtils;
 import org.codice.ddf.activities.ActivityEvent;
+import org.osgi.service.event.Event;
+import org.osgi.service.event.EventAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,6 +38,11 @@ public class DownloadStatusInfoImpl implements DownloadStatusInfo{
 
     private static final String UNKNOWN = "UNKNOWN";
 
+    private EventAdmin eventAdmin;
+
+    public void setEventAdmin(EventAdmin eventAdmin) {
+        this.eventAdmin = eventAdmin;
+    }
     public void addDownloadInfo(String downloadIdentifier, ReliableResourceDownloadManager downloadManager, ResourceResponse resourceResponse) {
         downloadManagers.put(downloadIdentifier, downloadManager);
         org.apache.shiro.subject.Subject shiroSubject = null;
@@ -95,6 +102,16 @@ public class DownloadStatusInfoImpl implements DownloadStatusInfo{
     public void removeDownloadInfo(String downloadIdentifier) {
         downloadManagers.remove(downloadIdentifier);
         downloadUsers.remove(downloadIdentifier);
+    }
+
+    public void cancelDownload(String userId, String downloadIdentifier) {
+        String downloadId = userId + downloadIdentifier;
+
+        Map<String, String> propertiesMap = new HashMap<String, String>();
+        propertiesMap.put(ActivityEvent.DOWNLOAD_ID_KEY, downloadId);
+
+        Event event = new Event(ActivityEvent.EVENT_TOPIC_DOWNLOAD_CANCEL, propertiesMap);
+        eventAdmin.postEvent(event);
     }
 
     private String getProperty(ResourceResponse resourceResponse, String property) {

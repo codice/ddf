@@ -58,4 +58,11 @@ public interface DownloadStatusInfo {
      * @param downloadIdentifier The randomly generated downloadId string assigned to the download at its start.
      */
     void removeDownloadInfo(String downloadIdentifier);
+
+    /**
+     * Function for admin to cancel a download. Throws a "cancel" event.
+     * @param userId The Id assigned to the user who is downloading.
+     * @param downloadIdentifier The randomly generated downloadId string assigned to the download at its start.
+     */
+    void cancelDownload(String userId, String downloadIdentifier);
 }

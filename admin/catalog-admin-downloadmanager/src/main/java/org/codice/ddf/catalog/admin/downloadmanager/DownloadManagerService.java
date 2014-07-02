@@ -92,4 +92,6 @@ public class DownloadManagerService implements DownloadManagerServiceMBean {
     }
 
     public void removeDownloadInfo(String downloadIdentifier) { downloadStatusInfo.removeDownloadInfo(downloadIdentifier); }
+
+    public void cancelDownload(String userId, String downloadIdentifier) {downloadStatusInfo.cancelDownload(userId, downloadIdentifier); }
 }

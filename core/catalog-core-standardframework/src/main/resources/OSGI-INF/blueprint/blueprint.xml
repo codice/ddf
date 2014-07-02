@@ -178,7 +178,9 @@
         </service-properties>
     </service>
 
-    <bean id="downloadStatusInfo" class="ddf.catalog.event.retrievestatus.DownloadStatusInfoImpl" />
+    <bean id="downloadStatusInfo" class="ddf.catalog.event.retrievestatus.DownloadStatusInfoImpl">
+        <property name="eventAdmin" ref="eventAdmin" />
+    </bean>
     <service ref="downloadStatusInfo" interface="ddf.catalog.event.retrievestatus.DownloadStatusInfo" />
 
     <bean id="productCache" class="ddf.catalog.cache.impl.ResourceCache" init-method="setupCache" destroy-method="teardownCache" >

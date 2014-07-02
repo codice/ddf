@@ -60,4 +60,11 @@ public interface DownloadManagerServiceMBean {
      */
     void removeDownloadInfo(String downloadIdentifier);
 
+    /**
+     * Function to cancel a download.
+     * @param userId The id of the user who is performing the download.
+     * @param downloadIdentifier The randomly generated downloadId string assigned to the download at its start.
+     */
+    void cancelDownload(String userId, String downloadIdentifier);
+
 }
