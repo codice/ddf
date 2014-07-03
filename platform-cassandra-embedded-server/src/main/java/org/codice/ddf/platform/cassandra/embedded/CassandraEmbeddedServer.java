@@ -54,7 +54,6 @@ import org.apache.cassandra.utils.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.datastax.driver.core.Cluster;
 import com.google.common.collect.Iterables;
 
 public class CassandraEmbeddedServer {
@@ -67,15 +66,13 @@ public class CassandraEmbeddedServer {
     {
         public void run()
         {
-            //HUGH System.exit(100);
+            //CASSANDRA_DAEMON System.exit(100);
             LOGGER.info("Cassandra exitThread called - how to exit???");
         }
     }, "Exit invoker");
     
     private String ddfHomeDir = System.getProperty("karaf.home");
     private String cassandraDir;
-    private String keyspaceName;
-    private Cluster cluster;
     
     private ExecutorService executor;
     public Server thriftServer;
@@ -83,53 +80,51 @@ public class CassandraEmbeddedServer {
     
     
     public CassandraEmbeddedServer(String keyspaceName, CassandraConfig config) {
-        LOGGER.info("Embedded Cassandra Server starting up ...");
-        this.keyspaceName = keyspaceName;       
+        LOGGER.debug("Embedded Cassandra Server starting up ...");
         
         cassandraDir = ddfHomeDir + "/data/cassandra";
         
         String commitDirName = cassandraDir + "/commitlog";
-        LOGGER.info("Cassandra commitlog dir = {}", commitDirName);
+        LOGGER.debug("Cassandra commitlog dir = {}", commitDirName);
         File dir = new File(commitDirName);
         if (!dir.exists()) {
-            LOGGER.info("Creating commitlog dir");
+            LOGGER.debug("Creating commitlog dir");
             dir.mkdirs();
         }
         
         String dataDirName = cassandraDir + "/data";
-        LOGGER.info("Cassandra data dir = {}", dataDirName);
+        LOGGER.debug("Cassandra data dir = {}", dataDirName);
         dir = new File(dataDirName);
         if (!dir.exists()) {
-            LOGGER.info("Creating data dir");
+            LOGGER.debug("Creating data dir");
             dir.mkdirs();
         }
         
         String savedCachesDirName = cassandraDir + "/saved_caches";
-        LOGGER.info("Cassandra saved_caches dir = {}", savedCachesDirName);
+        LOGGER.debug("Cassandra saved_caches dir = {}", savedCachesDirName);
         dir = new File(savedCachesDirName);
         if (!dir.exists()) {
-            LOGGER.info("Creating saved_caches dir");
+            LOGGER.debug("Creating saved_caches dir");
             dir.mkdirs();
         }
         
         String configYamlFilename = cassandraDir + "/conf/cassandra.yaml";
-        LOGGER.info("Cassandra config YAML file = {}", configYamlFilename);
+        LOGGER.debug("Cassandra config YAML file = {}", configYamlFilename);
         File configYamlFile = new File(configYamlFilename);
 //        if (!configYamlFile.exists()) {
 //            LOGGER.error("Cassandra config YAML file {} does not exist", configYamlFilename);
 //        }
         
-        //ACHILLES  final File triggersDir = new File(System.getProperty("java.io.tmpdir") + "/cassandra_triggers");
         final File triggersDir = new File(cassandraDir + "/cassandra_triggers");
         if (!triggersDir.exists()) {
             triggersDir.mkdir();
         }
         
-        LOGGER.info(" Embedded Cassandra RPC port/Thrift port = {}", config.getRPCPort());
-        LOGGER.info(" Embedded Cassandra Native port/CQL3 port = {}", config.getCqlPort());
-        LOGGER.info(" Embedded Cassandra Storage port = {}", config.getStoragePort());
-        LOGGER.info(" Embedded Cassandra Storage SSL port = {}", config.getStorageSSLPort());
-        LOGGER.info(" Embedded Cassandra triggers directory = {}", triggersDir);
+        LOGGER.debug(" Embedded Cassandra RPC port/Thrift port = {}", config.getRPCPort());
+        LOGGER.debug(" Embedded Cassandra Native port/CQL3 port = {}", config.getCqlPort());
+        LOGGER.debug(" Embedded Cassandra Storage port = {}", config.getStoragePort());
+        LOGGER.debug(" Embedded Cassandra Storage SSL port = {}", config.getStorageSSLPort());
+        LOGGER.debug(" Embedded Cassandra triggers directory = {}", triggersDir);
 
         LOGGER.info("Starting Cassandra...");
         config.write(configYamlFile);
@@ -160,13 +155,13 @@ public class CassandraEmbeddedServer {
     
     // Based on CassadraDaemon.setup()
     private boolean setup() {
-        LOGGER.info("Setting up embedded Cassandra ...");
+        LOGGER.debug("Setting up embedded Cassandra ...");
         // log warnings for different kinds of sub-optimal JVMs.  tldr use 64-bit Oracle >= 1.6u32
         if (!DatabaseDescriptor.hasLargeAddressSpace())
-            LOGGER.info("32bit JVM detected.  It is recommended to run Cassandra on a 64bit JVM for better performance.");
+            LOGGER.debug("32bit JVM detected.  It is recommended to run Cassandra on a 64bit JVM for better performance.");
         String javaVersion = System.getProperty("java.version");
         String javaVmName = System.getProperty("java.vm.name");
-        LOGGER.info("JVM vendor/version: {}/{}", javaVmName, javaVersion);
+        LOGGER.debug("JVM vendor/version: {}/{}", javaVmName, javaVersion);
         if (javaVmName.contains("OpenJDK"))
         {
             // There is essentially no QA done on OpenJDK builds, and
@@ -178,10 +173,10 @@ public class CassandraEmbeddedServer {
             LOGGER.warn("Non-Oracle JVM detected.  Some features, such as immediate unmap of compacted SSTables, may not work as intended");
         }
 
-        LOGGER.info("Heap size: {}/{}", Runtime.getRuntime().totalMemory(), Runtime.getRuntime().maxMemory());
+        LOGGER.debug("Heap size: {}/{}", Runtime.getRuntime().totalMemory(), Runtime.getRuntime().maxMemory());
         for(MemoryPoolMXBean pool: ManagementFactory.getMemoryPoolMXBeans())
-            LOGGER.info("{} {}: {}", pool.getName(), pool.getType(), pool.getPeakUsage());
-        LOGGER.info("Classpath: {}", System.getProperty("java.class.path"));
+            LOGGER.debug("{} {}: {}", pool.getName(), pool.getType(), pool.getPeakUsage());
+        LOGGER.debug("Classpath: {}", System.getProperty("java.class.path"));
         CLibrary.tryMlockall();
 
         Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler()
@@ -242,7 +237,7 @@ public class CassandraEmbeddedServer {
         catch (ConfigurationException e)
         {
             LOGGER.error("Fatal exception during initialization", e);
-            //HUGH System.exit(100);
+            //CASSANDRA_DAEMON System.exit(100);
             return false;
         }
 
@@ -256,7 +251,7 @@ public class CassandraEmbeddedServer {
         catch(IOException e)
         {
             LOGGER.error("Could not migrate old leveled manifest. Move away the .json file in the data directory", e);
-            //HUGH System.exit(100);
+            //CASSANDRA_DAEMON System.exit(100);
             return false;
         }
 
@@ -280,8 +275,7 @@ public class CassandraEmbeddedServer {
         // initialize keyspaces
         for (String keyspaceName : Schema.instance.getKeyspaces())
         {
-            if (LOGGER.isDebugEnabled())
-                LOGGER.debug("opening keyspace " + keyspaceName);
+            LOGGER.debug("opening keyspace {}", keyspaceName);
             // disable auto compaction until commit log replay ends
             for (ColumnFamilyStore cfs : Keyspace.open(keyspaceName).getColumnFamilyStores())
             {
@@ -293,10 +287,10 @@ public class CassandraEmbeddedServer {
         }
 
         if (CacheService.instance.keyCache.size() > 0)
-            LOGGER.info("completed pre-loading ({} keys) key cache.", CacheService.instance.keyCache.size());
+            LOGGER.debug("completed pre-loading ({} keys) key cache.", CacheService.instance.keyCache.size());
 
         if (CacheService.instance.rowCache.size() > 0)
-            LOGGER.info("completed pre-loading ({} keys) row cache.", CacheService.instance.rowCache.size());
+            LOGGER.debug("completed pre-loading ({} keys) row cache.", CacheService.instance.rowCache.size());
 
         try
         {
@@ -352,7 +346,7 @@ public class CassandraEmbeddedServer {
         SystemKeyspace.finishStartup();
 
         // start server internals
-        //HUGH StorageService.instance.registerDaemon(this);
+        //CASSANDRA_DAEMON StorageService.instance.registerDaemon(this);
         try
         {
             StorageService.instance.initServer();
@@ -360,15 +354,15 @@ public class CassandraEmbeddedServer {
         catch (ConfigurationException e)
         {
             LOGGER.error("Fatal configuration error", e);
-            System.err.println(e.getMessage() + "\nFatal configuration error; unable to start server.  See log for stacktrace.");
-            //HUGH System.exit(1);
+          //CASSANDRA_DAEMON System.err.println(e.getMessage() + "\nFatal configuration error; unable to start server.  See log for stacktrace.");
+            //CASSANDRA_DAEMON System.exit(1);
             return false;
         }
 
         Mx4jTool.maybeLoad();
 
         // Metrics
-        /*HUGH
+        /*CASSANDRA_DAEMON
         String metricsReporterConfigFile = System.getProperty("cassandra.metricsReporterConfigFile");
         if (metricsReporterConfigFile != null)
         {
@@ -383,12 +377,12 @@ public class CassandraEmbeddedServer {
                 LOGGER.warn("Failed to load metrics-reporter-config, metric sinks will not be activated", e);
             }
         }
-        END HUGH*/
+        END CASSANDRA_DAEMON*/
 
-        /*HUGH
+        /*CASSANDRA_DAEMON
         if (!FBUtilities.getBroadcastAddress().equals(InetAddress.getLoopbackAddress()))
             waitForGossipToSettle();
-        END HUGH*/
+        END CASSANDRA_DAEMON*/
 
         // Thift
         InetAddress rpcAddr = DatabaseDescriptor.getRpcAddress();

@@ -52,7 +52,6 @@ public class CassandraConfig {
             try {
                 String yamlDoc = FileUtils.readFileToString(new File(configYamlFilename));
                 yamlData = (Map<String, Object>) yaml.load(yamlDoc);
-//                String commitLogDir = (String) yamlData.get("commitlog_directory");
             } catch (IOException e) {
                 LOGGER.info("Unable to read config data from YAML file {}", configYamlFilename);
             }
@@ -128,7 +127,7 @@ public class CassandraConfig {
     }
 
     public void write(File configFile) {
-        LOGGER.info(" Temporary cassandra.yaml file = {}", configFile.getAbsolutePath());
+        LOGGER.debug(" Temporary cassandra.yaml file = {}", configFile.getAbsolutePath());
         try {
             configFile.getParentFile().mkdirs();
             if (configFile.exists())
