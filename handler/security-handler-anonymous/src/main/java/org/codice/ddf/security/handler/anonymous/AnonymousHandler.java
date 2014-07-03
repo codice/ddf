@@ -14,6 +14,7 @@
  **/
 package org.codice.ddf.security.handler.anonymous;
 
+import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.sts.QNameConstants;
 import org.apache.cxf.ws.security.sts.provider.model.secext.AttributedString;
 import org.apache.cxf.ws.security.sts.provider.model.secext.PasswordString;
@@ -129,10 +130,6 @@ public class AnonymousHandler implements AuthenticationHandler {
         httpResponse.setStatus(500);
         try {
             httpResponse.getWriter().write("Username/Password is invalid.");
-        } catch (IOException e) {
-            LOGGER.debug("Failed to send auth response: {}", e);
-        }
-        try {
             httpResponse.flushBuffer();
         } catch (IOException e) {
             LOGGER.debug("Failed to send auth response: {}", e);
@@ -191,29 +188,25 @@ public class AnonymousHandler implements AuthenticationHandler {
     private UsernameTokenType setAuthenticationInfo(HttpServletRequest request) {
         HttpServletRequest httpRequest = request;
 
-        String username = null;
-        String password = null;
+        String username = "guest";
+        String password = "guest";
 
         /**
          * Parse the header data and extract the username and password.
          *
-         * Change the username and password if and only if the request is
-         * valid value (i.e. non-null barring "guest").
+         * Change the username and password if request contains values.
          */
         String header = httpRequest.getHeader("Authorization");
-        if (header != null && !header.equals("null") && !header.equals("")) {
-            String decodedHeader = new String(
-                    Base64.decodeBase64(header.split(" ")[1].getBytes()));
-            String headerData[] = {decodedHeader.split(":")[0], decodedHeader.split(":")[1]};
-            if (headerData != null && headerData[0] != null && headerData[1] != null) {
-                if (!headerData[1].equals("guest")) {
-                    username = headerData[0];
-                    password = headerData[1];
+        if (!StringUtils.isEmpty(header)) {
+            String headerData[] = header.split(" ");
+            if (headerData.length == 2) {
+                String decodedHeader = new String(Base64.decodeBase64(headerData[1].getBytes()));
+                String decodedHeaderData[] = decodedHeader.split(":");
+                if (decodedHeaderData.length == 2) {
+                        username = decodedHeaderData[0];
+                        password = decodedHeaderData[1];
                 }
             }
-        } else {
-            username = "guest";
-            password = "guest";
         }
 
         /**
