@@ -62,7 +62,7 @@ public class CassandraClient {
         this.cluster = createCluster(host, port);
         this.keyspaceName = keyspaceName;
         
-        LOGGER.info("Creating {} keyspace", keyspaceName);
+        LOGGER.debug("Creating {} keyspace", keyspaceName);
         createKeyspace(keyspaceName, true);
         
         // Sets the keyspace to be used for all subsequent CQL statements
@@ -106,10 +106,10 @@ public class CassandraClient {
         try {
             if (tableName != null && !hasTable(tableName, keyspaceName)) {               
                 String query = "CREATE TABLE " + keyspaceName + "." + tableName + " (" + cqlColumnDescriptions + ")";
-                LOGGER.info("Executing query: {}", query);
+                LOGGER.debug("Executing query: {}", query);
                 getSession(keyspaceName).execute(query);
             } else {
-                LOGGER.info("Table {} already exists", tableName);
+                LOGGER.debug("Table {} already exists", tableName);
             }
         } catch (QueryExecutionException e) {
             LOGGER.info("QueryExecutionException: ", e);
@@ -146,13 +146,13 @@ public class CassandraClient {
         Metadata metadata = cluster.getMetadata();
         List<KeyspaceMetadata> keyspaceMetadataList = metadata.getKeyspaces();
         Map<String, TableMetadata> tables = new HashMap<String, TableMetadata>();
-        LOGGER.info("keyspaceMetadataList.size() = {}", keyspaceMetadataList.size());
+        LOGGER.debug("keyspaceMetadataList.size() = {}", keyspaceMetadataList.size());
         
         for (KeyspaceMetadata ksMetadata : keyspaceMetadataList) {
-            LOGGER.info("keyspace name = {}", ksMetadata.getName());
+            LOGGER.debug("keyspace name = {}", ksMetadata.getName());
             if (ksMetadata.getName().equals(keyspaceName)) {               
                 for (TableMetadata tableMetadata : ksMetadata.getTables()) {
-                    LOGGER.info("table name = {}", tableMetadata.getName());
+                    LOGGER.debug("table name = {}", tableMetadata.getName());
                     tables.put(tableMetadata.getName(), tableMetadata);
                 }
             }
@@ -164,11 +164,10 @@ public class CassandraClient {
     public TableMetadata getTable(String keyspaceName, String tableName) {
         Metadata metadata = cluster.getMetadata();
         List<KeyspaceMetadata> keyspaceMetadataList = metadata.getKeyspaces();
-        Map<String, TableMetadata> tables = new HashMap<String, TableMetadata>();
-        LOGGER.info("keyspaceMetadataList.size() = {}", keyspaceMetadataList.size());
+        LOGGER.debug("keyspaceMetadataList.size() = {}", keyspaceMetadataList.size());
         
         for (KeyspaceMetadata ksMetadata : keyspaceMetadataList) {
-            LOGGER.info("keyspace name = {}", ksMetadata.getName());
+            LOGGER.debug("keyspace name = {}", ksMetadata.getName());
             if (ksMetadata.getName().equals(keyspaceName)) {               
                 for (TableMetadata tableMetadata : ksMetadata.getTables()) {
                     if (tableMetadata.getName().equals(tableName)) {
@@ -199,7 +198,7 @@ public class CassandraClient {
         tableName = normalizeCqlName(tableName);
         columnName = normalizeCqlName(columnName);
         if (tableName != null && columnName != null && !hasColumn(tableName, columnName)) {
-            LOGGER.info("Column {} does not exist in {} - altering table to add it", columnName, tableName);
+            LOGGER.debug("Column {} does not exist in {} - altering table to add it", columnName, tableName);
             if (columnName.endsWith("_txt_set")) {
                 addColumn(tableName, columnName, "set<text>");
             } else if (columnName.endsWith("_xml") || columnName.endsWith("_txt")) {
@@ -213,30 +212,30 @@ public class CassandraClient {
             } else if (columnName.endsWith("_tdt")) {
                 addColumn(tableName, columnName, "timestamp");
             } else if (columnName.endsWith("_geo")) {
-                LOGGER.info("Suffix _geo is not yet implemented for Cassandra");
+                LOGGER.debug("Suffix _geo is not yet implemented for Cassandra");
             } else {
                 LOGGER.info("Suffix not supported on columnName {}", columnName);
             }
         } else {
-            LOGGER.info("Table {} already has column {} in it", tableName, columnName);
+            LOGGER.debug("Table {} already has column {} in it", tableName, columnName);
         }
     }
     
     public void addColumn(String tableName, String columnName, String columnType) {
         Session session = getSession(this.keyspaceName);
         String cql = "ALTER TABLE " + tableName + " ADD " + columnName + " " + columnType;
-        LOGGER.info("Adding column:  {}", cql);
+        LOGGER.debug("Adding column:  {}", cql);
         session.execute(cql);
     }
     
     public void addEntry(String keyspaceName, String cql) {
-        LOGGER.info("Executing CQL:  {}", cql);
+        LOGGER.debug("Executing CQL:  {}", cql);
         Session session = getSession(keyspaceName);
         session.execute(cql);
     }
     
     public void addEntryPrepared(String keyspaceName, String query, Object[] values) {
-        LOGGER.info("Executing CQL:  {}", query);
+        LOGGER.debug("Executing CQL:  {}", query);
         Session session = getSession(keyspaceName);
         session.execute(query, values);
     }    
@@ -278,7 +277,6 @@ public class CassandraClient {
     
     public void shutdown() {
         LOGGER.info("Embedded Cassandra shutdown() invoked ...");
-        //TODO ...
         //session.close();   //will this do it???
     }
 
@@ -287,7 +285,7 @@ public class CassandraClient {
     }
 
     public void addEntry(String type, Map<String, Object> properties) {
-        // TODO Auto-generated method stub
+        LOGGER.info("Not yet implemented ...");
         
     }
 }
