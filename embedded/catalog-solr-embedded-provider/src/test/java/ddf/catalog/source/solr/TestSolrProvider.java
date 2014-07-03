@@ -49,6 +49,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TimeZone;
 import java.util.TreeSet;
+import java.util.UUID;
 
 import javax.swing.border.BevelBorder;
 
@@ -325,8 +326,8 @@ public class TestSolrProvider extends SolrProviderTestCase {
 
         MockMetacard metacard = new MockMetacard(Library.getFlagstaffRecord());
 
-        metacard.setId("12345678900987654321abcdefgabcdefg");
-
+        String id = UUID.randomUUID().toString();
+        metacard.setId(id);
         metacard.setSourceId("ddfChild");
 
         Date oneDayAgo = new DateTime().minusDays(1).toDate();
@@ -2237,7 +2238,7 @@ public class TestSolrProvider extends SolrProviderTestCase {
     @Test
     public void testContextualFuzzy() throws Exception {
         deleteAllIn(provider);
-
+        
         List<Metacard> list = Arrays.asList(
                 (Metacard) new MockMetacard(Library.getFlagstaffRecord()),
                 (Metacard) new MockMetacard(Library.getTampaRecord()));
