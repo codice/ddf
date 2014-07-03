@@ -16,12 +16,15 @@ package ddf.catalog.source.solr;
 
 import static org.junit.Assert.assertEquals;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
+import org.codice.ddf.platform.cassandra.embedded.CassandraConfig;
+import org.codice.ddf.platform.cassandra.embedded.CassandraEmbeddedServer;
 import org.joda.time.DateTime;
 import org.junit.BeforeClass;
 import org.opengis.filter.Filter;
@@ -30,9 +33,7 @@ import org.slf4j.LoggerFactory;
 
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
-import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.filter.proxy.adapter.GeotoolsFilterAdapterImpl;
-import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
 import ddf.catalog.operation.CreateResponse;
 import ddf.catalog.operation.DeleteResponse;
 import ddf.catalog.operation.Query;
@@ -68,7 +69,27 @@ public abstract class SolrProviderTestCase {
 
     @BeforeClass
     public static void setup() throws Exception {
-        LOGGER.info("RUNNING setup.");
+        LOGGER.info("RUNNING one-time setup.");
+
+        // Start embedded cassandra server using the platform-app's CassandraEmbeddedServer
+        // (Embedded Cassandra server required for Solr unit tests because Solr update chain
+        // defined in solrconfig.xml specifes all entries in Solr be duplicated in Cassandra
+        // using the CassandraUpdrateRequestProcessor)
+        String workingDir = System.getProperty("user.dir") + File.separator + "target";
+        System.setProperty("karaf.home", workingDir);
+        String keyspaceName = "ddf";
+        CassandraConfig cassandraConfig = new CassandraConfig("DDF Cluster", "cassandra.yaml", 9160, 9042, 7000, 7001, 
+                "/data", "/commitlog", "/saved_caches");
+        CassandraEmbeddedServer cassandraServer = new CassandraEmbeddedServer(keyspaceName, cassandraConfig);
+      
+/*WORKS - cassandra-unit approach for starting embedded Cassandra server
+        System.setProperty("log4j.configuration", "file:" + workingDir + "log4j.properties");
+        EmbeddedCassandraServerHelper.startEmbeddedCassandra("/cassandra.yaml");
+        Cluster cluster = new Cluster.Builder().addContactPoints("localhost").withPort(9042).build();
+        Session session = cluster.connect();
+        session.execute("CREATE KEYSPACE ddf WITH replication={'class' : 'SimpleStrategy', 'replication_factor':1}");
+        session.execute("USE ddf");
+*/ 
         ConfigurationStore.getInstance().setDataDirectoryPath("target/solr");
         ConfigurationStore.getInstance().setForceAutoCommit(true);
         ConfigurationFileProxy configurationFileProxy = new ConfigurationFileProxy(null,
