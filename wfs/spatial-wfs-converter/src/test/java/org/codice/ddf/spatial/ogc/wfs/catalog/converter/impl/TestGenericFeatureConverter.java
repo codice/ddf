@@ -54,7 +54,7 @@ public class TestGenericFeatureConverter {
 
     private static final String GML = "GML";
 
-    private static final String PROPERTY_PREFIX = FEATURE_TYPE + WfsConstants.DECIMAL;
+    private static final String PROPERTY_PREFIX = FEATURE_TYPE + ".";
 
     private static final String ID_ELEMENT = "id";
 

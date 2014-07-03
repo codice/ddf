@@ -93,7 +93,7 @@ public abstract class AbstractFeatureConverter implements FeatureConverter {
 
     public void setMetacardType(MetacardType metacardType) {
         this.metacardType = metacardType;
-        this.prefix = metacardType.getName() + WfsConstants.DECIMAL;
+        this.prefix = metacardType.getName() + ".";
     }
 
     public MetacardType getMetacardType() {
@@ -110,7 +110,7 @@ public abstract class AbstractFeatureConverter implements FeatureConverter {
     protected Metacard createMetacardFromFeature(HierarchicalStreamReader hreader,
             MetacardType metacardType) {
 
-        String propertyPrefix = metacardType.getName() + WfsConstants.DECIMAL;
+        String propertyPrefix = metacardType.getName() + ".";
 
         StringWriter metadataWriter = new StringWriter();
         HierarchicalStreamReader reader = copyXml(hreader, metadataWriter);

@@ -13,7 +13,7 @@
  * 
  **/
 
-package org.codice.ddf.spatial.ogc.wfs.catalog.converter.impl;
+package org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.converter.impl;
 
 import java.util.Date;
 import java.util.HashSet;

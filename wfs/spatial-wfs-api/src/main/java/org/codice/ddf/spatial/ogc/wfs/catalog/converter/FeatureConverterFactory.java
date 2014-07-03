@@ -17,8 +17,6 @@ package org.codice.ddf.spatial.ogc.wfs.catalog.converter;
 /**
  * Factory Interface to provide a method for generating unique {@link FeatureConverter} instances
  * 
- * @author wmcnalli
- * 
  */
 public interface FeatureConverterFactory {
 

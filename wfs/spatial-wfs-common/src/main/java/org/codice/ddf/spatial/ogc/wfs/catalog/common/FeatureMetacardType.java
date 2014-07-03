@@ -65,7 +65,7 @@ public class FeatureMetacardType extends MetacardTypeImpl {
 
         this.featureType = featureType;
         this.nonQueryableProperties = nonQueryableProperties;
-        this.propertyPrefix = getName() + WfsConstants.DECIMAL;
+        this.propertyPrefix = getName() + ".";
         if (schema != null) {
             processXmlSchema(schema);
         } else {

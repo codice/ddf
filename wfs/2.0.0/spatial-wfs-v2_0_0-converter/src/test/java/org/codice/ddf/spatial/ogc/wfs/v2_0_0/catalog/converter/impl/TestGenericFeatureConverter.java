@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  * 
  **/
-package org.codice.ddf.spatial.ogc.wfs.catalog.converter.impl;
+package org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.converter.impl;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -35,6 +35,11 @@ import org.codice.ddf.spatial.ogc.wfs.catalog.common.FeatureMetacardType;
 import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.WfsConstants;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsFeatureCollection;
 import org.codice.ddf.spatial.ogc.wfs.catalog.converter.FeatureConverter;
+import org.codice.ddf.spatial.ogc.wfs.catalog.converter.impl.EnhancedStaxDriver;
+import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.converter.impl.FeatureCollectionConverterWfs20;
+import org.codice.ddf.spatial.ogc.wfs.catalog.converter.impl.GenericFeatureConverter;
+import org.codice.ddf.spatial.ogc.wfs.catalog.converter.impl.GmlGeometryConverter;
+import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.converter.impl.SampleMetacard;
 import org.junit.Test;
 
 import com.thoughtworks.xstream.XStream;
@@ -54,7 +59,7 @@ public class TestGenericFeatureConverter {
 
     private static final String GML = "GML";
 
-    private static final String PROPERTY_PREFIX = FEATURE_TYPE + WfsConstants.DECIMAL;
+    private static final String PROPERTY_PREFIX = FEATURE_TYPE + ".";
 
     private static final String ID_ELEMENT = "id";
 
@@ -136,7 +141,7 @@ public class TestGenericFeatureConverter {
     @Test
     public void testUnmarshalFeatureCollectionXmlToObject() {
         XStream xstream = new XStream(new WstxDriver());
-        FeatureCollectionConverter fcConverter = new FeatureCollectionConverter();
+        FeatureCollectionConverterWfs20 fcConverter = new FeatureCollectionConverterWfs20();
         Map<String, FeatureConverter> fcMap = new HashMap<String, FeatureConverter>();
 
         GenericFeatureConverter converter = new GenericFeatureConverter();
@@ -181,11 +186,11 @@ public class TestGenericFeatureConverter {
         XStream xstream = new XStream(new EnhancedStaxDriver());
 
         xstream.setMode(XStream.NO_REFERENCES);
-        xstream.registerConverter(new FeatureCollectionConverter());
+        xstream.registerConverter(new FeatureCollectionConverterWfs20());
         xstream.registerConverter(new GenericFeatureConverter());
         xstream.registerConverter(new GmlGeometryConverter());
         // Required the Implementing class. The interface would not work...
-        xstream.alias("wfs:FeatureCollection", WfsFeatureCollection.class);
+        xstream.alias(WfsConstants.WFS_NAMESPACE_PREFIX + ":" + "FeatureCollection", WfsFeatureCollection.class);
 
         Metacard mc = new SampleMetacard().getMetacard();
         WfsFeatureCollection wfc = new WfsFeatureCollection();

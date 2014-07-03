@@ -219,10 +219,10 @@ public class WfsEndpoint implements Wfs {
             if (request.getTypeName() == null) {
                 return buildMultipleFeatureTypeImportSchema(schemaCache.getFeatureTypeQnames());
             } else {
-                String[] types = request.getTypeName().split(WfsConstants.COMMA);
+                String[] types = request.getTypeName().split(",");
                 Set<QName> qnames = new HashSet<QName>();
                 for (String type : types) {
-                    String[] parsed = type.split(WfsConstants.NAMESPACE_DELIMITER);
+                    String[] parsed = type.split(":");
                     QName qname = null;
                     if (parsed.length == 2) {
                         qname = new QName(WfsConstants.NAMESPACE_URN_ROOT + parsed[0], parsed[1]);

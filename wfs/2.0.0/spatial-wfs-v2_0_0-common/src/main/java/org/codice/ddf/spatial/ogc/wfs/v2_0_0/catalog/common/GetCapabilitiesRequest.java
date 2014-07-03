@@ -14,40 +14,19 @@
  **/
 package org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common;
 
+import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsRequest;
+
 /**
- * JAX-RS Parameter Bean Class for the GetCapabilities request. The member variables will be
+ * JAX-RS Parameter Bean Class for the GetCapabilitiesRequest request. The member variables will be
  * automatically injected by the JAX-RS annotations.
  * 
  */
-public class GetCapabilitiesRequest {
-
-    private String request = WfsConstants.GET_CAPABILITIES;
-
-    private String service = WfsConstants.WFS;
-
-    private String version = WfsConstants.VERSION_2_0_0;
-
-    public String getRequest() {
-        return request;
-    }
-
-    public void setRequest(String request) {
-        this.request = request;
-    }
-
-    public String getService() {
-        return service;
-    }
-
-    public void setService(String service) {
-        this.service = service;
-    }
-
-    public String getVersion() {
-        return version;
-    }
-
-    public void setVersion(String version) {
-        this.version = version;
+public class GetCapabilitiesRequest extends WfsRequest {
+    
+    public GetCapabilitiesRequest(){
+        super();
+        setRequest(WfsConstants.GET_CAPABILITIES);
+        setVersion(WfsConstants.VERSION_2_0_0);
+        setService(WfsConstants.WFS);
     }
 }

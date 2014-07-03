@@ -40,7 +40,6 @@ public interface Wfs {
      * GetCapabilites - HTTP GET
      */
     @GET
-    @Consumes({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
     @Produces({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
     WFSCapabilitiesType getCapabilities(@QueryParam("")
     GetCapabilitiesRequest request) throws WfsException;
@@ -58,7 +57,6 @@ public interface Wfs {
      * DescribeFeatureType - HTTP GET
      */
     @GET
-    @Consumes({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
     @Produces({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
     XmlSchema describeFeatureType(@QueryParam("")
     DescribeFeatureTypeRequest request) throws WfsException;

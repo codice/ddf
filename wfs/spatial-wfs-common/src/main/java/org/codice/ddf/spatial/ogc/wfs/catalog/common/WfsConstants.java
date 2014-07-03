@@ -58,17 +58,10 @@ public class WfsConstants {
 
     public static final String METERS = "METERS";
 
-    public static final String DECIMAL = ".";
-
-    public static final String COMMA = ",";
-
-    public static final String SPACE = " ";
-
     public static final String EPSG_4326 = "EPSG:4326";
 
     /* Namespaces */
-    public static final String XSI_NAMESPACE = "http://www.w3.org/2001/XMLSchema-instance";
-
+    
     public static final String XSI_PREFIX = "xsi";
 
     public static final String WFS_NAMESPACE = "http://www.opengis.net/wfs";
@@ -85,14 +78,8 @@ public class WfsConstants {
 
     public static final String NAMESPACE_URN_ROOT = "urn:ddf.catalog.gml.";
 
-    public static final String NAMESPACE_DELIMITER = ":";
-
-    public static final String XMLNS_PREFIX = "xmlns:";
-
     public static final String ATTRIBUTE_SCHEMA_LOCATION = "xsi:schemaLocation";
-
-    public static final String UNDERSCORE = "_";
-
+    
     public static final double DEGREES_TO_RADIANS = Math.PI / 180.0;
 
     public static final double RADIANS_TO_DEGREES = 1 / DEGREES_TO_RADIANS;

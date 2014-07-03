@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
 
 import org.codice.ddf.spatial.ogc.catalog.common.converter.XmlNode;
@@ -59,6 +60,14 @@ public class FeatureCollectionConverter implements Converter {
     private String contextRoot;
 
     private Map<String, FeatureConverter> featureConverterMap = new HashMap<String, FeatureConverter>();
+    
+    protected Map<String, String> prefixToUriMapping = new HashMap<String, String>();
+    
+    public FeatureCollectionConverter() {
+        prefixToUriMapping.put(WfsConstants.XSI_PREFIX, XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI);
+        prefixToUriMapping.put(WfsConstants.WFS_NAMESPACE_PREFIX, WfsConstants.WFS_NAMESPACE);
+        prefixToUriMapping.put(WfsConstants.GML_PREFIX, WfsConstants.GML_NAMESPACE);
+    }
 
     @Override
     public boolean canConvert(Class clazz) {
@@ -69,28 +78,22 @@ public class FeatureCollectionConverter implements Converter {
     public void marshal(Object value, HierarchicalStreamWriter writer, MarshallingContext context) {
         WfsFeatureCollection wfc = (WfsFeatureCollection) value;
 
-        Map<String, String> prefixToUriMapping = new HashMap<String, String>();
-
         String schemaLoc = generateSchemaLocationFromMetacards(wfc.getFeatureMembers(),
                 prefixToUriMapping);
 
-        prefixToUriMapping.put(WfsConstants.XSI_PREFIX, WfsConstants.XSI_NAMESPACE);
-        prefixToUriMapping.put(WfsConstants.WFS_NAMESPACE_PREFIX, WfsConstants.WFS_NAMESPACE);
-        prefixToUriMapping.put(WfsConstants.GML_PREFIX, WfsConstants.GML_NAMESPACE);
-
         for (Entry<String, String> entry : prefixToUriMapping.entrySet()) {
-            writer.addAttribute(WfsConstants.XMLNS_PREFIX + entry.getKey(), entry.getValue());
+            writer.addAttribute(XMLConstants.XMLNS_ATTRIBUTE + ":" + entry.getKey(), entry.getValue());
         }
         writer.addAttribute(WfsConstants.ATTRIBUTE_SCHEMA_LOCATION, schemaLoc);
 
         Geometry allGeometry = getBounds(wfc.getFeatureMembers());
         if (!allGeometry.isEmpty()) {
-            XmlNode.writeEnvelope("gml:boundedBy", context, writer,
+            XmlNode.writeEnvelope(WfsConstants.GML_PREFIX + ":" + "boundedBy", context, writer,
                     allGeometry.getEnvelopeInternal());
         }
 
         for (Metacard mc : wfc.getFeatureMembers()) {
-            writer.startNode(WfsConstants.GML_PREFIX + WfsConstants.NAMESPACE_DELIMITER
+            writer.startNode(WfsConstants.GML_PREFIX + ":"
                     + FEATURE_MEMBER);
             context.convertAnother(mc);
             writer.endNode();
@@ -108,7 +111,7 @@ public class FeatureCollectionConverter implements Converter {
 
         StringBuilder descFeatureService = new StringBuilder();
         descFeatureService.append(contextRoot).append(
-                "/wfs?service=wfs&request=DescribeFeatureType&version=1.0.0&typeName=");
+                "/wfs?service=wfs&request=DescribeFeatureType&version=2.0.0&typeName=");
 
         StringBuilder schemaLocation = new StringBuilder();
         Set<QName> qnames = new HashSet<QName>();
@@ -118,10 +121,10 @@ public class FeatureCollectionConverter implements Converter {
         }
         for (QName qname : qnames) {
             prefixToUriMapping.put(qname.getPrefix(), qname.getNamespaceURI());
-            schemaLocation.append(qname.getNamespaceURI()).append(WfsConstants.SPACE)
+            schemaLocation.append(qname.getNamespaceURI()).append(" ")
                     .append(descFeatureService).append(qname.getPrefix())
-                    .append(WfsConstants.NAMESPACE_DELIMITER).append(qname.getLocalPart())
-                    .append(WfsConstants.SPACE);
+                    .append(":").append(qname.getLocalPart())
+                    .append(" ");
 
         }
         return schemaLocation.toString();

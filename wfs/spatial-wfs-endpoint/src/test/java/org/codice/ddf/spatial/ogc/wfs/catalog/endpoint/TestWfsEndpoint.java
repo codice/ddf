@@ -236,7 +236,7 @@ public class TestWfsEndpoint {
         DescribeFeatureTypeRequest request = new DescribeFeatureTypeRequest();
         QName qname = WfsQnameBuilder.buildQName(MetacardType.DEFAULT_METACARD_TYPE_NAME,
                 CONTENT_TYPE);
-        request.setTypeName(qname.getPrefix() + WfsConstants.NAMESPACE_DELIMITER
+        request.setTypeName(qname.getPrefix() + ":"
                 + qname.getLocalPart());
         XmlSchema schema = wfs.describeFeatureType(request);
         assertNotNull(schema);
@@ -255,7 +255,7 @@ public class TestWfsEndpoint {
         DescribeFeatureTypeType request = new DescribeFeatureTypeType();
         request.getTypeName().add(
                 new QName(WfsConstants.NAMESPACE_URN_ROOT + MetacardType.DEFAULT_METACARD_TYPE_NAME
-                        + WfsConstants.DECIMAL + CONTENT_TYPE, CONTENT_TYPE));
+                        + "." + CONTENT_TYPE, CONTENT_TYPE));
         XmlSchema schema = wfs.describeFeatureType(request);
         assertNotNull(schema);
     }

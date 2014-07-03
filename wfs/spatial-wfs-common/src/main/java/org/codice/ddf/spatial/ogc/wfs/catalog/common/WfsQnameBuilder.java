@@ -29,10 +29,10 @@ public class WfsQnameBuilder {
             return null;
         }
         // ensure no "illegal" characters are used
-        metacardTypeName = metacardTypeName.replace(WfsConstants.NAMESPACE_DELIMITER,
-                WfsConstants.UNDERSCORE);
-        contentTypeName = contentTypeName.replace(WfsConstants.NAMESPACE_DELIMITER,
-                WfsConstants.UNDERSCORE);
+        metacardTypeName = metacardTypeName.replace(":",
+                "_");
+        contentTypeName = contentTypeName.replace(":",
+                "_");
         // LOGGER.debug("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ original content type name: " +
         // contentTypeName);
         if (contentTypeName.contains(" ")) {
@@ -48,8 +48,8 @@ public class WfsQnameBuilder {
             prefix = contentTypeName;
             namespace = WfsConstants.NAMESPACE_URN_ROOT + metacardTypeName;
         } else {
-            prefix = metacardTypeName + WfsConstants.DECIMAL + contentTypeName;
-            namespace = WfsConstants.NAMESPACE_URN_ROOT + metacardTypeName + WfsConstants.DECIMAL
+            prefix = metacardTypeName + "." + contentTypeName;
+            namespace = WfsConstants.NAMESPACE_URN_ROOT + metacardTypeName + "."
                     + contentTypeName;
         }
         // LOGGER.debug("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ Building new QName with namespace: "

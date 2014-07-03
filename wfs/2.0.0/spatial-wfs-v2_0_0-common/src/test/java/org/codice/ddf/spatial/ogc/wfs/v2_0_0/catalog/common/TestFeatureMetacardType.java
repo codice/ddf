@@ -19,6 +19,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.xml.namespace.QName;
@@ -44,7 +45,7 @@ public class TestFeatureMetacardType {
     private static final QName FEATURE_TYPE = new QName("", "FeatureTypeName");
 
     private static final String PROPERTY_PREFIX = FEATURE_TYPE.getLocalPart()
-            + WfsConstants.DECIMAL;
+            + ".";
 
     private static final String GML = "GML";
 
@@ -56,7 +57,7 @@ public class TestFeatureMetacardType {
 
     private static final String ELEMENT_NAME_3 = ELEMENT_NAME + "3";
 
-    private static final List<String> NON_QUERYABLE_PROPS = new ArrayList<String>();
+    private static final List<String> NON_QUERYABLE_PROPS = Collections.emptyList();
 
     @Test
     public void testfeatureMetacardTypeFindSingleGmlProperty() {

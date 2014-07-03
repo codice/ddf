@@ -21,54 +21,18 @@ import javax.xml.namespace.QName;
  * automatically injected by the JAX-RS annotations.
  * 
  */
-public class DescribeFeatureTypeRequest {
-    private String request = WfsConstants.DESCRIBE_FEATURE_TYPE;
-
-    private String version = WfsConstants.VERSION_1_0_0;
-
-    private String service = WfsConstants.WFS;
-
-    private String typeName;
+public class DescribeFeatureTypeRequest extends WfsRequest {
 
     public DescribeFeatureTypeRequest() {
-        // Needed for Injection
+        setRequest(WfsConstants.DESCRIBE_FEATURE_TYPE);
+        setVersion(WfsConstants.VERSION_1_0_0);
+        setService(WfsConstants.WFS);
     }
 
     public DescribeFeatureTypeRequest(QName qname) {
-        this.typeName = qname.getPrefix() == null ? qname.getLocalPart() : qname.getPrefix()
-                + WfsConstants.NAMESPACE_DELIMITER + qname.getLocalPart();
+        super(qname);
+        setRequest(WfsConstants.DESCRIBE_FEATURE_TYPE);
+        setVersion(WfsConstants.VERSION_1_0_0);
+        setService(WfsConstants.WFS);
     }
-
-    public String getRequest() {
-        return request;
-    }
-
-    public void setRequest(String request) {
-        this.request = request;
-    }
-
-    public String getVersion() {
-        return version;
-    }
-
-    public void setVersion(String version) {
-        this.version = version;
-    }
-
-    public String getService() {
-        return service;
-    }
-
-    public void setService(String service) {
-        this.service = service;
-    }
-
-    public String getTypeName() {
-        return typeName;
-    }
-
-    public void setTypeName(String typeName) {
-        this.typeName = typeName;
-    }
-
 }

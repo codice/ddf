@@ -92,7 +92,7 @@ public class GenericFeatureConverter extends AbstractFeatureConverter {
         QName qname = WfsQnameBuilder.buildQName(metacard.getMetacardType().getName(),
                 metacard.getContentTypeName());
 
-        writer.startNode(qname.getPrefix() + WfsConstants.NAMESPACE_DELIMITER
+        writer.startNode(qname.getPrefix() + ":"
                 + qname.getLocalPart());
 
         // Add the "fid" attribute if we have an ID
@@ -104,7 +104,7 @@ public class GenericFeatureConverter extends AbstractFeatureConverter {
         if (null != metacard.getLocation()) {
             Geometry geo = XmlNode.readGeometry(metacard.getLocation());
             if (geo != null && !geo.isEmpty()) {
-                XmlNode.writeEnvelope("gml:boundedBy", context, writer, geo.getEnvelopeInternal());
+                XmlNode.writeEnvelope(WfsConstants.GML_PREFIX + ":" + "boundedBy", context, writer, geo.getEnvelopeInternal());
             }
         }
 
@@ -127,7 +127,7 @@ public class GenericFeatureConverter extends AbstractFeatureConverter {
             MarshallingContext context, HierarchicalStreamWriter writer) {
         // Loop to handle multi-valued attributes
 
-        String name = qname.getPrefix() + WfsConstants.NAMESPACE_DELIMITER + attribute.getName();
+        String name = qname.getPrefix() + ":" + attribute.getName();
         for (Serializable value : attribute.getValues()) {
             String xmlValue = null;
 

@@ -59,7 +59,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * A client to a WFS 1.0.0 Service. This class uses the {@link Wfs} interface to create a client
+ * A client to a WFS 2.0.0 Service. This class uses the {@link Wfs} interface to create a client
  * proxy from the {@link JAXRSClientFactory}.
  * 
  */
@@ -128,7 +128,7 @@ public class RemoteWfs extends TrustedRemoteSource implements Wfs {
         Map<String, String> jaxbClassMap = new HashMap<String, String>();
 
         // Ensure a namespace is used when the GetFeature request is generated
-        String expandedName = new QName(WfsConstants.WFS_NAMESPACE, "GetFeature").toString();
+        String expandedName = new QName(WfsConstants.WFS_NAMESPACE, WfsConstants.GET_FEATURE).toString();
         jaxbClassMap.put(GetFeatureType.class.getName(), expandedName);
         provider.setJaxbElementClassMap(jaxbClassMap);
         provider.setMarshallAsJaxbElement(true);

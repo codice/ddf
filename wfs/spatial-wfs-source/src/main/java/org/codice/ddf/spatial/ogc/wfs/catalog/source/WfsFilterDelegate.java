@@ -1171,15 +1171,15 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
             StringBuffer coordString = new StringBuffer();
 
             for (Coordinate coordinate : coordinates) {
-                coordString.append(coordinate.x).append(WfsConstants.COMMA).append(coordinate.y)
-                        .append(WfsConstants.SPACE);
+                coordString.append(coordinate.x).append(",").append(coordinate.y)
+                        .append(" ");
             }
 
             CoordinatesType coordinatesType = new CoordinatesType();
             coordinatesType.setValue(coordString.toString());
-            coordinatesType.setDecimal(WfsConstants.DECIMAL);
-            coordinatesType.setCs(WfsConstants.COMMA);
-            coordinatesType.setTs(WfsConstants.SPACE);
+            coordinatesType.setDecimal(".");
+            coordinatesType.setCs(",");
+            coordinatesType.setTs(" ");
 
             linearRing.setCoordinates(coordinatesType);
             LinearRingMemberType member = new LinearRingMemberType();
@@ -1200,7 +1200,7 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
 
         if (coordinates != null && coordinates.length > 0) {
             StringBuilder coordString = new StringBuilder();
-            coordString.append(coordinates[0].x).append(WfsConstants.COMMA)
+            coordString.append(coordinates[0].x).append(",")
                     .append(coordinates[0].y);
 
             CoordinatesType coordinatesType = new CoordinatesType();
@@ -1219,8 +1219,8 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
     private String buildCoordinateString(Envelope envelope) {
         StringBuilder sb = new StringBuilder();
 
-        sb.append(envelope.getMinX()).append(WfsConstants.COMMA).append(envelope.getMinY())
-                .append(WfsConstants.SPACE).append(envelope.getMaxX()).append(WfsConstants.COMMA)
+        sb.append(envelope.getMinX()).append(",").append(envelope.getMinY())
+                .append(" ").append(envelope.getMaxX()).append(",")
                 .append(envelope.getMaxY());
 
         return sb.toString();

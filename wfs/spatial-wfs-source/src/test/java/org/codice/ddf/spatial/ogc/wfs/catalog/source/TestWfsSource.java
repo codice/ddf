@@ -832,7 +832,7 @@ public class TestWfsSource {
     public void testQueryTwoFeaturesOneInvalid() throws UnsupportedQueryException, WfsException {
         setUp(TWO_TEXT_PROPERTY_SCHEMA, null, null, TWO_FEATURES);
         Filter orderPersonFilter = builder
-                .attribute(sampleFeatures.get(0) + WfsConstants.DECIMAL + ORDER_PERSON).is().like()
+                .attribute(sampleFeatures.get(0) + "." + ORDER_PERSON).is().like()
                 .text(LITERAL);
         Filter mctFeature1Fitler = builder.attribute(Metacard.CONTENT_TYPE).is().like()
                 .text(sampleFeatures.get(0).getLocalPart());
@@ -870,13 +870,13 @@ public class TestWfsSource {
         setUp(TWO_TEXT_PROPERTY_SCHEMA, null, null, TWO_FEATURES);
         Filter orderPersonFilter = builder
                 .attribute(
-                        sampleFeatures.get(0).getLocalPart() + WfsConstants.DECIMAL + ORDER_PERSON)
+                        sampleFeatures.get(0).getLocalPart() + "." + ORDER_PERSON)
                 .is().like().text(LITERAL);
         Filter mctFeature1Fitler = builder.attribute(Metacard.CONTENT_TYPE).is().like()
                 .text(sampleFeatures.get(0).getLocalPart());
         Filter feature1Filter = builder.allOf(Arrays.asList(orderPersonFilter, mctFeature1Fitler));
         Filter orderDogFilter = builder
-                .attribute(sampleFeatures.get(1).getLocalPart() + WfsConstants.DECIMAL + ORDER_DOG)
+                .attribute(sampleFeatures.get(1).getLocalPart() + "." + ORDER_DOG)
                 .is().like().text(LITERAL);
         Filter mctFeature2Fitler = builder.attribute(Metacard.CONTENT_TYPE).is().like()
                 .text(sampleFeatures.get(1).getLocalPart());
