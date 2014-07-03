@@ -47,19 +47,19 @@ public class CassandraUpdateRequestProcessorFactory extends UpdateRequestProcess
             
     @Override
     public void inform(SolrCore solrCore) {
-        LOGGER.info("ENTERING: inform()");
+        LOGGER.trace("ENTERING: inform()");
         this.solrCore = solrCore;
         NamedList<?> initArgs = null;
         for (PluginInfo info : solrCore.getSolrConfig().getPluginInfos(UpdateRequestProcessorChain.class.getName())) {
             
             if (info.name.equals(CHAIN_NAME)) {
                 initArgs = info.initArgs;
-                LOGGER.info("initArgs = {}", initArgs);
+                LOGGER.debug("initArgs = {}", initArgs);
                 if (initArgs != null) {
                     this.cassandraClient = getCassandraClient(initArgs);
                 }
             } else {
-                LOGGER.info("Skipping info.name = {}", info.name);
+                LOGGER.debug("Skipping info.name = {}", info.name);
             }
         }
     }
@@ -78,28 +78,28 @@ public class CassandraUpdateRequestProcessorFactory extends UpdateRequestProcess
         CassandraClient cassandraClient = null;
         int cassandraCqlPort = -1;
         
-        LOGGER.info("Checking if any system properties set for Cassandra host/port connection");
+        LOGGER.debug("Checking if any system properties set for Cassandra host/port connection");
         String cassandraHost = System.getProperty("cassandra.host");
         String port = System.getProperty("cassandra.port");
         if (StringUtils.isNotBlank(cassandraHost) && StringUtils.isNotBlank(port)) {
             cassandraCqlPort = Integer.valueOf(port);
             try {
                 cassandraClient = new CassandraClient(cassandraHost, cassandraCqlPort);
-                LOGGER.info("Successfully connected to Cassandra at host={}, port={} using system properties",
+                LOGGER.debug("Successfully connected to Cassandra at host={}, port={} using system properties",
                         cassandraHost, cassandraCqlPort);    
                 return cassandraClient;
             } catch (Exception e) {
-                LOGGER.info("Exception trying to get CassandraClient connection using system properties cassandra.host={}, cassandra.port={}", 
+                LOGGER.debug("Exception trying to get CassandraClient connection using system properties cassandra.host={}, cassandra.port={}", 
                         cassandraHost, cassandraCqlPort);
             }
         } else {
-            LOGGER.info("No system properties set for cassandra.host and cassandra.port");
+            LOGGER.debug("No system properties set for cassandra.host and cassandra.port");
         }
         
         String cassandraConnectionPropertiesFilename = System.getProperty("karaf.home") + "/data/solr/cassandra_connection.properties";
         File f = new File(cassandraConnectionPropertiesFilename);
         if (f.exists()) {
-            LOGGER.info("Attempting Cassandra connection using host/port from properties file {}", 
+            LOGGER.debug("Attempting Cassandra connection using host/port from properties file {}", 
                     cassandraConnectionPropertiesFilename);
             try {
                 InputStream is = new FileInputStream(f);
@@ -111,15 +111,15 @@ public class CassandraUpdateRequestProcessorFactory extends UpdateRequestProcess
                     cassandraCqlPort = Integer.valueOf(port);
                     try {
                         cassandraClient = new CassandraClient(cassandraHost, cassandraCqlPort);
-                        LOGGER.info("Successfully connected to Cassandra at host={}, port={} using properties file {}", 
+                        LOGGER.debug("Successfully connected to Cassandra at host={}, port={} using properties file {}", 
                                 cassandraHost, cassandraCqlPort, cassandraConnectionPropertiesFilename);
                         return cassandraClient;
                     } catch (Exception e) {
-                        LOGGER.info("Exception trying to get CassandraClient connection using cassandra_connection.properties file with cassandra.host={}, cassandra.port={}", 
+                        LOGGER.debug("Exception trying to get CassandraClient connection using cassandra_connection.properties file with cassandra.host={}, cassandra.port={}", 
                                 cassandraHost, cassandraCqlPort);
                     }
                 } else {
-                    LOGGER.info("Cassandra properties file's values for cassandra.host and cassandra.port were either null or empty");
+                    LOGGER.debug("Cassandra properties file's values for cassandra.host and cassandra.port were either null or empty");
                 }
             } catch (FileNotFoundException e) {
                 LOGGER.info("FileNotFoundException trying to connect to Cassandra using properties file", e);
@@ -127,17 +127,17 @@ public class CassandraUpdateRequestProcessorFactory extends UpdateRequestProcess
                 LOGGER.info("IOException trying to connect to Cassandra using properties file", e);
             }
         } else {
-            LOGGER.info("Cassandra connection properties file {} did not exist", cassandraConnectionPropertiesFilename);
+            LOGGER.debug("Cassandra connection properties file {} did not exist", cassandraConnectionPropertiesFilename);
         }
         
-        LOGGER.info("Attempting Cassandra connection using host/port from solrconfig.xml");
+        LOGGER.debug("Attempting Cassandra connection using host/port from solrconfig.xml");
         cassandraHost = (String) args.get("cassandra-host");
         port = (String) args.get("cassandra-cql-port");
         if (StringUtils.isNotBlank(port)) {
             cassandraCqlPort = Integer.valueOf(port);
         }
         try {
-            LOGGER.info("Attempting Cassandra connection using host={}, port={} from solrconfig.xml", 
+            LOGGER.debug("Attempting Cassandra connection using host={}, port={} from solrconfig.xml", 
                     cassandraHost, cassandraCqlPort);
             cassandraClient = new CassandraClient(cassandraHost, cassandraCqlPort);
             return cassandraClient;
@@ -152,7 +152,7 @@ public class CassandraUpdateRequestProcessorFactory extends UpdateRequestProcess
     @Override
     public UpdateRequestProcessor getInstance(SolrQueryRequest solrQueryRequest, SolrQueryResponse solrQueryResponse,
             UpdateRequestProcessor next) {
-        LOGGER.info("ENTERING: getInstance()");
+        LOGGER.trace("ENTERING: getInstance()");
         return new CassandraUpdateRequestProcessor(solrCore.getName(), cassandraClient, next);
     }
 

@@ -48,14 +48,14 @@ public class CassandraUpdateRequestProcessor extends UpdateRequestProcessor {
 
     public CassandraUpdateRequestProcessor(String storeName, CassandraClient cassandraClient, UpdateRequestProcessor next) {
         super(next);
-        LOGGER.info("INSIDE: CassandraUpdateRequestProcessor constructor");
+        LOGGER.trace("INSIDE: CassandraUpdateRequestProcessor constructor");
         this.storeName = storeName;
         this.cassandraClient = cassandraClient;
     }
     
     @Override
     public void processAdd(AddUpdateCommand cmd) throws IOException {
-        LOGGER.info("ENTERING: processAdd()");
+        LOGGER.trace("ENTERING: processAdd()");
         try {
             // Add SolrInputDocument's contents into Cassandra table corresponding to SolrCore
             SolrInputDocument solrInputDocument = cmd.getSolrInputDocument();
@@ -72,24 +72,24 @@ public class CassandraUpdateRequestProcessor extends UpdateRequestProcessor {
     
     @Override
     public void processCommit(CommitUpdateCommand cmd) throws IOException {
-        LOGGER.info("ENTERING: processCommit()");
+        LOGGER.trace("ENTERING: processCommit()");
         super.processCommit(cmd);
     }
     
     @Override
     public void processDelete(DeleteUpdateCommand cmd) throws IOException {
-        LOGGER.info("ENTERING: processDelete()");
+        LOGGER.trace("ENTERING: processDelete()");
         super.processDelete(cmd);
     }
     
     @Override
     public void processRollback(RollbackUpdateCommand cmd) throws IOException {
-        LOGGER.info("ENTERING: processRollback()");
+        LOGGER.trace("ENTERING: processRollback()");
         super.processRollback(cmd);
     }
 
     public void persistToCassandraPrepared(SolrInputDocument solrInputDocument) {
-        LOGGER.info("ENTERING: persistToCassandraPrepared()");
+        LOGGER.trace("ENTERING: persistToCassandraPrepared()");
         
         String columnNamesClause = "";
         String valuesClause = "";
@@ -98,7 +98,7 @@ public class CassandraUpdateRequestProcessor extends UpdateRequestProcessor {
         Collection<String> fieldNames = solrInputDocument.getFieldNames();
         List<Object> preparedValues = new ArrayList<Object>();
         for (String fieldName : fieldNames) {
-            LOGGER.info("Working on field name {}", fieldName);
+            LOGGER.debug("Working on field name {}", fieldName);
             SolrInputField fieldValue = (SolrInputField) solrInputDocument.getField(fieldName);
 
             boolean validColumn = false;
@@ -115,7 +115,7 @@ public class CassandraUpdateRequestProcessor extends UpdateRequestProcessor {
                     validColumn = true;
                 }
             } else if (fieldName.equals("lux_xml")) {
-                LOGGER.info("Ignoring field {} as it should not be stored in Cassandra", fieldName);
+                LOGGER.debug("Ignoring field {} as it should not be stored in Cassandra", fieldName);
             } else if (fieldName.endsWith("_xml") || fieldName.endsWith("_txt")) {
                 String value = (String) fieldValue.getValue();
                 preparedValues.add("'" + value + "'");
@@ -132,11 +132,11 @@ public class CassandraUpdateRequestProcessor extends UpdateRequestProcessor {
                 valuesClause += "?";
                 validColumn = true;
             } else if (fieldName.endsWith("_geo")) {
-                LOGGER.info("_geo field not yet supported");
+                LOGGER.debug("_geo field not yet supported");
             } else if (fieldName.endsWith("_tdt")) {
-                LOGGER.info("_tdt field not yet supported");
+                LOGGER.debug("_tdt field not yet supported");
             } else if (fieldName.endsWith("_obj") || fieldName.endsWith("_bin")) {
-                //LOGGER.info("_obj and _bin fields not yet supported - fieldName = {}", fieldName);
+                //LOGGER.debug("_obj and _bin fields not yet supported - fieldName = {}", fieldName);
                 byte[] bytes = (byte[]) fieldValue.getValue();
                 preparedValues.add(ByteBuffer.wrap(bytes));
                 valuesClause += "?";
@@ -150,7 +150,7 @@ public class CassandraUpdateRequestProcessor extends UpdateRequestProcessor {
                     valuesClause += ", ";
                 }
             } else {
-                LOGGER.info("Column {} was deemed invalid and not added to the INSERT", fieldName);
+                LOGGER.debug("Column {} was deemed invalid and not added to the INSERT", fieldName);
             }
 
             count++;
@@ -166,11 +166,11 @@ public class CassandraUpdateRequestProcessor extends UpdateRequestProcessor {
         }
         String cql = "INSERT INTO " + storeName + "(";
         cql += columnNamesClause + ") VALUES (" + valuesClause + ")";
-        LOGGER.info("cql = {}", cql);
+        LOGGER.debug("cql = {}", cql);
         try {
             cassandraClient.addEntryPrepared(CASSANDRA_KEYSPACE_NAME, cql, preparedValues.toArray());
         } catch (Exception e) {
-            LOGGER.info("Exception trying to INSERT entry for table {}. Will attempt to create table/schema and retry INSERT", storeName);
+            LOGGER.debug("Exception trying to INSERT entry for table {}. Will attempt to create table/schema and retry INSERT", storeName);
             // Assume exception is because Cassandra table or its columns do not exist yet.
             // Create and execute the CQL commands to create the table with a schema based on
             // the field types in the SolrInputDoument (the suffixes on the field names will indicate
@@ -178,14 +178,14 @@ public class CassandraUpdateRequestProcessor extends UpdateRequestProcessor {
             createTable(storeName, columnNamesClause.split(","));
             
             // Re-execute CQL to insert entry
-            LOGGER.info("Re-trying INSERT with cql = {}", cql);
+            LOGGER.debug("Re-trying INSERT with cql = {}", cql);
             cassandraClient.addEntryPrepared(CASSANDRA_KEYSPACE_NAME, cql, preparedValues.toArray());
         }
-        LOGGER.info("EXITING: persistToCassandraPrepared()");
+        LOGGER.trace("EXITING: persistToCassandraPrepared()");
     }
 
     public void persistToCassandra(SolrInputDocument solrInputDocument) {
-        LOGGER.info("ENTERING: persistToCassandra()");
+        LOGGER.trace("ENTERING: persistToCassandra()");
         
         String columnNamesClause = "";
         String valuesClause = "";
@@ -193,7 +193,7 @@ public class CassandraUpdateRequestProcessor extends UpdateRequestProcessor {
         int count = 1;
         Collection<String> fieldNames = solrInputDocument.getFieldNames();
         for (String fieldName : fieldNames) {
-            LOGGER.info("Working on field name {}", fieldName);
+            LOGGER.debug("Working on field name {}", fieldName);
             SolrInputField fieldValue = (SolrInputField) solrInputDocument.getField(fieldName);
 
             boolean validColumn = false;
@@ -217,7 +217,7 @@ public class CassandraUpdateRequestProcessor extends UpdateRequestProcessor {
                     validColumn = true;
                 }
             } else if (fieldName.equals("lux_xml")) {
-                LOGGER.info("Ignoring field {} as it should not be stored in Cassandra", fieldName);
+                LOGGER.debug("Ignoring field {} as it should not be stored in Cassandra", fieldName);
             } else if (fieldName.endsWith("_xml") || fieldName.endsWith("_txt")) {
                 String value = (String) fieldValue.getValue();
                 valuesClause += "'" + value + "'";
@@ -231,11 +231,11 @@ public class CassandraUpdateRequestProcessor extends UpdateRequestProcessor {
                 valuesClause += value;
                 validColumn = true;
             } else if (fieldName.endsWith("_geo")) {
-                LOGGER.info("_geo field not yet supported");
+                LOGGER.debug("_geo field not yet supported");
             } else if (fieldName.endsWith("_tdt")) {
-                LOGGER.info("_tdt field not yet supported");
+                LOGGER.debug("_tdt field not yet supported");
             } else if (fieldName.endsWith("_obj") || fieldName.endsWith("_bin")) {
-                LOGGER.info("_obj and _bin fields not yet supported - fieldName = {}", fieldName);
+                LOGGER.debug("_obj and _bin fields not yet supported - fieldName = {}", fieldName);
             }
 
             if (validColumn) {
@@ -245,7 +245,7 @@ public class CassandraUpdateRequestProcessor extends UpdateRequestProcessor {
                     valuesClause += ", ";
                 }
             } else {
-                LOGGER.info("Column {} was deemed invalid and not added to the INSERT", fieldName);
+                LOGGER.debug("Column {} was deemed invalid and not added to the INSERT", fieldName);
             }
 
             count++;
@@ -261,11 +261,11 @@ public class CassandraUpdateRequestProcessor extends UpdateRequestProcessor {
         }
         String cql = "INSERT INTO " + storeName + "(";
         cql += columnNamesClause + ") VALUES (" + valuesClause + ")";
-        LOGGER.info("cql = {}", cql);
+        LOGGER.debug("cql = {}", cql);
         try {
             cassandraClient.addEntry(CASSANDRA_KEYSPACE_NAME, cql);
         } catch (Exception e) {
-            LOGGER.info("Exception trying to INSERT entry for table {}. Will attempt to create table/schema and retry INSERT", storeName);
+            LOGGER.debug("Exception trying to INSERT entry for table {}. Will attempt to create table/schema and retry INSERT", storeName);
             // Assume exception is because Cassandra table or its columns do not exist yet.
             // Create and execute the CQL commands to create the table with a schema based on
             // the field types in the SolrInputDoument (the suffixes on the field names will indicate
@@ -273,7 +273,7 @@ public class CassandraUpdateRequestProcessor extends UpdateRequestProcessor {
             createTable(storeName, columnNamesClause.split(","));
             
             // Re-execute CQL to insert entry
-            LOGGER.info("Re-trying INSERT with cql = {}", cql);
+            LOGGER.debug("Re-trying INSERT with cql = {}", cql);
             cassandraClient.addEntry(CASSANDRA_KEYSPACE_NAME, cql);
         }
     }
