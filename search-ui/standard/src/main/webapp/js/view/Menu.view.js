@@ -61,7 +61,7 @@ define([
         template: 'notificationMenuTemplate',
         tagName: 'li',
         events: {
-            'click' : 'openNotification',
+            'click' : 'clickBody',
             'click a': 'removeNotification'
         },
         onClose: function() {
@@ -70,8 +70,9 @@ define([
         onRender: function() {
             this.timeout = setTimeout(this.render, 60000);
         },
-        openNotification: function() {
-            wreqr.vent.trigger('notification:open', this.model);
+        clickBody: function(e) {
+            //stops the menu from closing
+            e.stopPropagation();
         },
         removeNotification: function(e) {
             var id = e.target.id;

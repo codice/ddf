@@ -685,8 +685,8 @@ span.add-on {
 }
 
 .notification-message {
-    padding-top: 12px;
-    padding-bottom: 12px;
+    padding-top: 5px;
+    padding-bottom: 5px;
     color: white;
     font-size: .9em;
 }
@@ -725,8 +725,8 @@ span.add-on {
 }
 
 .notification-subtitle {
-    padding-top: 12px;
-    padding-bottom: 12px;
+    padding-top: 5px;
+    padding-bottom: 5px;
     font-weight: 200;
     font-size: .8em;
     color: #eee;
@@ -740,7 +740,10 @@ div.ui-pnotify-text br {
 }
 
 .notification-hr {
-    margin: 0px;
+    margin: 0;
+    border: 0;
+    border-top: 1px solid #2c2c2c;
+    border-bottom: 1px solid #eee;
 }
 
 .notification-context {
@@ -751,6 +754,10 @@ div.ui-pnotify-text br {
 
 .ui-pnotify {
     top: auto;
+}
+
+.ui-pnotify-container {
+    background-color: rgba(36,36,36,.9);
 }
 
 .ui-pnotify-closer{
@@ -1043,10 +1050,6 @@ button.ui-multiselect {
 
 div.dropdown-width li:last-child hr {
     display: none;
-}
-
-div.dropdown-width li {
-    cursor: pointer;
 }
 
 #tasks div.dropdown-width li {
