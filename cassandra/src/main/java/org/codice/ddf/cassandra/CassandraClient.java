@@ -36,6 +36,11 @@ import com.datastax.driver.core.exceptions.NoHostAvailableException;
 import com.datastax.driver.core.exceptions.QueryExecutionException;
 import com.datastax.driver.core.policies.Policies;
 
+/**
+ * This class provides helper methods for Apache Cassandra server, allowing the
+ * client to create, update, delete keyspaces, tables, and columns dynamically
+ * in the Cassandra server, and to add entries into the tables.
+ */
 public class CassandraClient {
 
     private static Logger LOGGER = LoggerFactory.getLogger(CassandraClient.class);
