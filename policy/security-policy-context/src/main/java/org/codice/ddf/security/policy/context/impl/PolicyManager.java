@@ -58,17 +58,17 @@ public class PolicyManager implements ContextPolicyManager {
     @Override
     public ContextPolicy getContextPolicy(String path) {
         ContextPolicy entry = policyStore.get(path);
-        if(entry != null) {
+        if (entry != null) {
             return entry;
-        } else if(whiteListContexts.contains(path)) {
+        } else if (whiteListContexts.contains(path)) {
             return null;
         } else {
             int idx = path.lastIndexOf("/");
-            if(idx <= 0) {
+            if (idx <= 0) {
                 idx++;
             }
             String pathFragment = path.substring(0, idx);
-            if(StringUtils.isNotEmpty(pathFragment)) {
+            if (StringUtils.isNotEmpty(pathFragment)) {
                 return getContextPolicy(pathFragment);
             } else {
                 //this is just here for safety
@@ -117,24 +117,24 @@ public class PolicyManager implements ContextPolicyManager {
             realmContexts = ((String) realmsObj).split(",");
         }
 
-        if(authTypesObj != null && authTypesObj instanceof String[]) {
+        if (authTypesObj != null && authTypesObj instanceof String[]) {
             authContexts = (String[]) authTypesObj;
         } else if (authTypesObj != null) {
             authContexts = ((String) authTypesObj).split(",");
         }
 
-        if(whiteList != null && whiteList instanceof String[]) {
+        if (whiteList != null && whiteList instanceof String[]) {
             setWhiteListContexts(Arrays.asList((String[]) whiteList));
         } else if (whiteList != null) {
             setWhiteListContexts((String) whiteList);
         }
 
-        if(reqAttrsObj != null && reqAttrsObj instanceof String[]) {
+        if (reqAttrsObj != null && reqAttrsObj instanceof String[]) {
             attrContexts = (String[]) reqAttrsObj;
         } else if (reqAttrsObj != null) {
             attrContexts = ((String) reqAttrsObj).split(",");
         }
-        if(authTypesObj != null && reqAttrsObj != null) {
+        if (authTypesObj != null && reqAttrsObj != null) {
 
             Map<String, String> contextToRealm = new HashMap<String, String>();
             Map<String, List<String>> contextToAuth = new HashMap<String, List<String>>();
@@ -153,24 +153,24 @@ public class PolicyManager implements ContextPolicyManager {
                 }
             }
 
-            for(String auth : authContextList) {
+            for (String auth : authContextList) {
                 String[] parts = auth.split("=");
-                if(parts.length == 2) {
+                if (parts.length == 2) {
                     String[] auths = parts[1].split("\\|");
-                    if(auths.length > 0) {
+                    if (auths.length > 0) {
                         contextToAuth.put(parts[0], Arrays.asList(auths));
                     }
-                } else if(parts.length == 1) {
+                } else if (parts.length == 1) {
                     contextToAuth.put(parts[0], new ArrayList<String>());
                 }
             }
 
-            for(String attr : attrContextList) {
+            for (String attr : attrContextList) {
                 String context = attr.substring(0, attr.indexOf("="));
-                String value = attr.substring(attr.indexOf("=")+1);
-                if(StringUtils.isNotEmpty(context) && value != null) {
-                    if(value.startsWith("{") && value.endsWith("}")) {
-                        if(value.length() == 2) {
+                String value = attr.substring(attr.indexOf("=") + 1);
+                if (StringUtils.isNotEmpty(context) && value != null) {
+                    if (value.startsWith("{") && value.endsWith("}")) {
+                        if (value.length() == 2) {
                             value = "";
                         } else {
                             value = value.substring(1, value.length() - 1);
@@ -178,9 +178,9 @@ public class PolicyManager implements ContextPolicyManager {
                     }
                     String[] attributes = value.split(";");
                     List<ContextAttributeMapping> attrMaps = new ArrayList<ContextAttributeMapping>();
-                    for(String attribute : attributes) {
+                    for (String attribute : attributes) {
                         String[] parts = attribute.split("=");
-                        if(parts.length == 2) {
+                        if (parts.length == 2) {
                             attrMaps.add(new DefaultContextAttributeMapping(parts[0], parts[1]));
                         }
                     }
@@ -190,9 +190,9 @@ public class PolicyManager implements ContextPolicyManager {
 
             Collection<String> contexts = contextToAuth.keySet();
 
-            for(String context : contexts) {
+            for (String context : contexts) {
                 List<ContextAttributeMapping> mappings = contextToAttr.get(context);
-                if(mappings == null) {
+                if (mappings == null) {
                     mappings = new ArrayList<ContextAttributeMapping>();
                 }
                 policyStore.put(context, new Policy(context, contextToRealm.get(context), contextToAuth.get(context), mappings));
@@ -206,8 +206,8 @@ public class PolicyManager implements ContextPolicyManager {
 
     private List<String> expandStrings(List<String> itemArr) {
         List<String> itemList = new ArrayList<String>();
-        for(String item : itemArr) {
-            if(item.contains(",")) {
+        for (String item : itemArr) {
+            if (item.contains(",")) {
                 String[] items = item.split(",");
                 itemList.addAll(Arrays.asList(items));
             } else {
@@ -218,14 +218,14 @@ public class PolicyManager implements ContextPolicyManager {
     }
 
     public void setWhiteListContexts(List<String> contexts) {
-        if(contexts != null && !contexts.isEmpty()) {
+        if (contexts != null && !contexts.isEmpty()) {
             whiteListContexts.clear();
             whiteListContexts.addAll(expandStrings(contexts));
         }
     }
 
     public void setWhiteListContexts(String contexts) {
-        if(StringUtils.isNotEmpty(contexts)) {
+        if (StringUtils.isNotEmpty(contexts)) {
             String[] contextsArr = contexts.split(",");
             whiteListContexts.clear();
             whiteListContexts.addAll(Arrays.asList(contextsArr));
@@ -233,7 +233,7 @@ public class PolicyManager implements ContextPolicyManager {
     }
 
     public boolean isWhiteListed(String contextPath) {
-        if(getContextPolicy(contextPath) == null) {
+        if (getContextPolicy(contextPath) == null) {
             return true;
         }
         return false;

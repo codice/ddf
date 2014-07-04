@@ -19,7 +19,8 @@
 
     </bean>
 
-    <service ref="handler" interface="org.codice.ddf.security.handler.api.AuthenticationHandler" ranking="100">
+    <service ref="handler" interface="org.codice.ddf.security.handler.api.AuthenticationHandler"
+             ranking="100">
 
     </service>
 

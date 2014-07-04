@@ -39,7 +39,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class SAMLAssertionHandlerTest {
+public class TestSAMLAssertionHandler {
 
     /**
      * This test ensures the proper functionality of SAMLAssertionHandler's
@@ -57,7 +57,7 @@ public class SAMLAssertionHandlerTest {
         String assertionId = assertion.getAttributeNodeNS(null, "ID").getNodeValue();
         SecurityToken samlToken = new SecurityToken(assertionId, assertion, null);
         Cookie cookie = new Cookie(SAMLAssertionHandler.SAML_COOKIE_NAME,
-                encodeSaml(samlToken.getToken()));
+          encodeSaml(samlToken.getToken()));
         when(request.getCookies()).thenReturn(new Cookie[] {cookie});
 
         HandlerResult result = handler.getNormalizedToken(request, response, chain, true);
@@ -92,7 +92,7 @@ public class SAMLAssertionHandlerTest {
      * @param name the name of the classpath resource
      */
     private Document readDocument(String name) throws SAXException, IOException,
-            ParserConfigurationException {
+      ParserConfigurationException {
         InputStream inStream = getClass().getResourceAsStream(name);
         return DOMUtils.readXml(inStream);
     }

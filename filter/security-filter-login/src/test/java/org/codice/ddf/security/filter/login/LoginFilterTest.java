@@ -57,7 +57,7 @@ public class LoginFilterTest {
         FilterChain filterChain = new FilterChain() {
             @Override
             public void doFilter(ServletRequest request, ServletResponse response)
-                    throws IOException, ServletException {
+              throws IOException, ServletException {
                 fail("Should not have called doFilter without a valid Subject");
             }
         };
@@ -87,14 +87,15 @@ public class LoginFilterTest {
         FilterChain filterChain = new FilterChain() {
             @Override
             public void doFilter(ServletRequest request, ServletResponse response)
-                    throws IOException, ServletException {
-                fail("Should not have called doFilter without a valid Subject");
+              throws IOException, ServletException {
+                fail("Should not have continued down the filter chain without a valid Subject");
             }
         };
 
         try {
             loginFilter.doFilter(servletRequest, servletResponse, filterChain);
-            fail("Should not have continued execution.");
+            // should execute here - without calling the filter chain
+            // fail("Should not have continued execution.");
         } catch (IOException e) {
             fail(e.getMessage());
         } catch (ServletException e) {

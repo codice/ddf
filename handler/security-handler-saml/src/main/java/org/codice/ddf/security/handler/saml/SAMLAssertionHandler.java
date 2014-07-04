@@ -21,7 +21,9 @@ import org.apache.cxf.staxutils.StaxUtils;
 import org.apache.cxf.rs.security.saml.DeflateEncoderDecoder;
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
 import org.codice.ddf.security.handler.api.AuthenticationHandler;
+import org.codice.ddf.security.handler.api.BaseAuthenticationToken;
 import org.codice.ddf.security.handler.api.HandlerResult;
+import org.codice.ddf.security.handler.api.SAMLAuthenticationToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
@@ -52,8 +54,11 @@ public class SAMLAssertionHandler implements AuthenticationHandler {
 
     protected static final String SAML_COOKIE_NAME = "org.codice.websso.saml.token";
 
+    protected String realm = BaseAuthenticationToken.DEFAULT_REALM;
+
+
     private static final transient Logger LOGGER = LoggerFactory
-            .getLogger(SAMLAssertionHandler.class);
+      .getLogger(SAMLAssertionHandler.class);
 
     /**
      * Returns a mapping of cookies from the incoming request. Key is the cookie name, while the
@@ -84,7 +89,7 @@ public class SAMLAssertionHandler implements AuthenticationHandler {
 
     @Override
     public HandlerResult getNormalizedToken(ServletRequest request, ServletResponse response,
-            FilterChain chain, boolean resolve) {
+      FilterChain chain, boolean resolve) {
         HandlerResult handlerResult = new HandlerResult();
 
         SecurityToken securityToken = null;
@@ -103,26 +108,19 @@ public class SAMLAssertionHandler implements AuthenticationHandler {
                 LOGGER.trace("Cookie value: {}", tokenString);
                 securityToken = new SecurityToken();
                 Element thisToken = StaxUtils.read(new StringReader(tokenString))
-                        .getDocumentElement();
+                  .getDocumentElement();
                 securityToken.setToken(thisToken);
-                handlerResult.setSecurityToken(securityToken);
+                SAMLAuthenticationToken samlToken = new SAMLAuthenticationToken(null, securityToken, realm);
+                handlerResult.setToken(samlToken);
                 handlerResult.setStatus(HandlerResult.Status.COMPLETED);
             } catch (DataFormatException e) {
-                LOGGER.warn(
-                        "Unexpected error deflating cookie value - proceeding without SAML token.",
-                        e);
+                LOGGER.warn("Unexpected error deflating cookie value - proceeding without SAML token.", e);
             } catch (Base64Exception e) {
-                LOGGER.warn(
-                        "Unexpected error un-encoding the cookie value - proceeding without SAML token.",
-                        e);
+                LOGGER.warn("Unexpected error un-encoding the cookie value - proceeding without SAML token.", e);
             } catch (IOException e) {
-                LOGGER.warn(
-                        "Unexpected error converting cookie value to string - proceeding without SAML token.",
-                        e);
+                LOGGER.warn("Unexpected error converting cookie value to string - proceeding without SAML token.", e);
             } catch (XMLStreamException e) {
-                LOGGER.warn(
-                        "Unexpected error converting XML string to element - proceeding without SAML token.",
-                        e);
+                LOGGER.warn("Unexpected error converting XML string to element - proceeding without SAML token.", e);
             }
         } else {
             LOGGER.trace("No SAML cookie located - returning with no results");
@@ -133,10 +131,18 @@ public class SAMLAssertionHandler implements AuthenticationHandler {
 
     @Override
     public HandlerResult handleError(ServletRequest servletRequest, ServletResponse servletResponse,
-            FilterChain chain) throws ServletException {
+      FilterChain chain) throws ServletException {
         HandlerResult result = new HandlerResult();
         LOGGER.debug("In error handler for saml - returning no action taken.");
         result.setStatus(HandlerResult.Status.NO_ACTION);
         return result;
+    }
+
+    public String getRealm() {
+        return realm;
+    }
+
+    public void setRealm(String realm) {
+        this.realm = realm;
     }
 }

@@ -63,7 +63,7 @@ public class DefaultContextAttributeMapping implements ContextAttributeMapping {
 
     @Override
     public CollectionPermission getAttributePermission() {
-        if(accessPermissionCollection == null) {
+        if (accessPermissionCollection == null) {
             accessPermissionCollection = new AccessPermissionCollection(new ArrayList<Permission>());
             accessPermissionCollection.addAll(getKeyValuePermissions());
         }
@@ -72,11 +72,11 @@ public class DefaultContextAttributeMapping implements ContextAttributeMapping {
 
     private Collection<KeyValuePermission> getKeyValuePermissions() {
         List<KeyValuePermission> permissions = new ArrayList<KeyValuePermission>();
-        if(attributeValue != null) {
+        if (attributeValue != null) {
 
-            if(attributeValue.contains("|")) { //list
+            if (attributeValue.contains("|")) { //list
                 String[] attrs = attributeValue.split("\\|");
-                for(String attr : attrs) {
+                for (String attr : attrs) {
                     permissions.add(new KeyValuePermission(attributeName, Arrays.asList(attr)));
                 }
             } else { //value
@@ -101,16 +101,15 @@ public class DefaultContextAttributeMapping implements ContextAttributeMapping {
          * Specifically, this permission will imply another permission if that permission matches at
          * least one of our permission attributes.
          *
-         * @param p
-         *            the permission to check for behavior/functionality comparison.
+         * @param p the permission to check for behavior/functionality comparison.
          * @return {@code true} if this current instance <em>implies</em> the specified
-         *         {@code Permission} argument, {@code false} otherwise.
+         * {@code Permission} argument, {@code false} otherwise.
          */
         @Override
         public boolean implies(Permission p) {
             if (permissionList.isEmpty()) {
                 SecurityLogger.logDebug(PERMISSION_START_MSG + toString() + PERMISSION_NOT_IMPLIES_MSG
-                        + p.toString() + PERMISSION_END_MSG);
+                  + p.toString() + PERMISSION_END_MSG);
                 return false;
             }
 
@@ -131,7 +130,7 @@ public class DefaultContextAttributeMapping implements ContextAttributeMapping {
                                 // create new
                                 // single valued key value permissions
                                 KeyValuePermission kvp = new KeyValuePermission(
-                                        ((KeyValuePermission) ourPerm).getKey());
+                                  ((KeyValuePermission) ourPerm).getKey());
                                 kvp.addValue(value);
                                 if (perm.implies(kvp)) {
                                     return true;
@@ -159,12 +158,12 @@ public class DefaultContextAttributeMapping implements ContextAttributeMapping {
                 // to make it match one
                 if (p.implies(permission)) {
                     SecurityLogger.logDebug(PERMISSION_START_MSG + toString() + PERMISSION_IMPLIES_MSG
-                            + p.toString() + PERMISSION_END_MSG);
+                      + p.toString() + PERMISSION_END_MSG);
                     return true;
                 }
             }
             SecurityLogger.logDebug(PERMISSION_START_MSG + toString() + PERMISSION_NOT_IMPLIES_MSG
-                    + p.toString() + PERMISSION_END_MSG);
+              + p.toString() + PERMISSION_END_MSG);
             return false;
         }
     }

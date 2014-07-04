@@ -75,12 +75,9 @@ public class WebSSOFilter implements Filter {
      * convert to a SAML assertion, we attach them to the request and continue
      * down the chain.
      *
-     * @param servletRequest
-     *            incoming http request
-     * @param servletResponse
-     *            response stream for returning the response
-     * @param filterChain
-     *            chain of filters to be invoked following this filter
+     * @param servletRequest  incoming http request
+     * @param servletResponse response stream for returning the response
+     * @param filterChain     chain of filters to be invoked following this filter
      * @throws IOException
      * @throws ServletException
      */
@@ -160,7 +157,12 @@ public class WebSSOFilter implements Filter {
             case NO_ACTION: // should never occur - one of the handlers should
                             // have returned a token
             case COMPLETED:
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("Attaching result handler to the http request - token is instance of {}", result.getToken().getClass().getSimpleName());
+                }
+                httpRequest.setAttribute(DDF_AUTHENTICATION_TOKEN, result);
                 // set the appropriate request attribute
+/*
                 if (result.hasSecurityToken()) {
                     LOGGER.debug("Attaching security token to http request");
                     httpRequest.setAttribute(DDF_SECURITY_TOKEN, result.getCredentials());
@@ -168,11 +170,16 @@ public class WebSSOFilter implements Filter {
                     LOGGER.debug("Attaching authentication credentials to http request");
                     httpRequest.setAttribute(DDF_AUTHENTICATION_TOKEN, result);
                 }
+*/
                 break;
+            default:
+                LOGGER.warn("Unexpected response from handler - ignoring");
+                return;
             }
         } else {
             LOGGER.warn("Expected login credentials - didn't find any. Returning a forbidden response.");
-            returnSimpleResponse(HttpServletResponse.SC_FORBIDDEN, httpResponse);
+            returnSimpleResponse(HttpServletResponse.SC_FORBIDDEN,
+              (HttpServletResponse) httpResponse);
             return;
         }
 
@@ -223,10 +230,8 @@ public class WebSSOFilter implements Filter {
     /**
      * Sends the given response code back to the caller.
      *
-     * @param code
-     *            HTTP response code for this request
-     * @param response
-     *            the servlet response object
+     * @param code     HTTP response code for this request
+     * @param response the servlet response object
      */
     private void returnSimpleResponse(int code, HttpServletResponse response) {
         try {

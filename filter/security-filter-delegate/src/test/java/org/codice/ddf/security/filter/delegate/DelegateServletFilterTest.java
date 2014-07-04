@@ -48,7 +48,6 @@ import static org.mockito.Mockito.when;
 
 /**
  * Tests that the DelegateServletFilter is functionality properly.
- *
  */
 public class DelegateServletFilterTest {
 
@@ -76,7 +75,7 @@ public class DelegateServletFilterTest {
      */
     @Test
     public void testDoFilterWithFiltersNoPolicy() throws IOException, ServletException,
-            InvalidSyntaxException {
+      InvalidSyntaxException {
         ServletRequest request = mock(HttpServletRequest.class);
         ServletResponse response = mock(HttpServletResponse.class);
 
@@ -97,7 +96,7 @@ public class DelegateServletFilterTest {
      */
     @Test
     public void testDoFilterWithNoFiltersNoPolicy() throws IOException, ServletException,
-            InvalidSyntaxException {
+      InvalidSyntaxException {
         ServletRequest request = mock(HttpServletRequest.class);
         ServletResponse response = mock(HttpServletResponse.class);
 
@@ -118,7 +117,7 @@ public class DelegateServletFilterTest {
      */
     @Test
     public void testDoFilterWithFiltersWithEmptyPolicy() throws InvalidSyntaxException,
-            IOException, ServletException {
+      IOException, ServletException {
         String contextPath = "/test/path";
         HttpServletRequest request = mock(HttpServletRequest.class);
         when(request.getContextPath()).thenReturn(contextPath);
@@ -146,7 +145,7 @@ public class DelegateServletFilterTest {
      */
     @Test
     public void testDoFilterWithFiltersWithAuthPolicy() throws InvalidSyntaxException, IOException,
-            ServletException {
+      ServletException {
         String contextPath = "/test/path";
         HttpServletRequest request = mock(HttpServletRequest.class);
         when(request.getContextPath()).thenReturn(contextPath);
@@ -169,7 +168,7 @@ public class DelegateServletFilterTest {
     }
 
     private void verifyFiltersCalled(ServletRequest request, ServletResponse response,
-            FilterChain initialChain) throws IOException, ServletException {
+      FilterChain initialChain) throws IOException, ServletException {
 
         // verify that all of the filters were called once
         verify(filter1).doFilter(eq(request), eq(response), any(FilterChain.class));
@@ -181,7 +180,7 @@ public class DelegateServletFilterTest {
     }
 
     private void verifyFiltersNotCalled(ServletRequest request, ServletResponse response,
-            FilterChain initialChain) throws IOException, ServletException {
+      FilterChain initialChain) throws IOException, ServletException {
 
         // verify that none of the filters were called
         verify(filter1, never()).doFilter(eq(request), eq(response), any(FilterChain.class));
@@ -193,7 +192,7 @@ public class DelegateServletFilterTest {
     }
 
     private BundleContext mockContext(boolean includeFilters) throws InvalidSyntaxException,
-            IOException, ServletException {
+      IOException, ServletException {
         BundleContext context = mock(BundleContext.class);
         filter1 = createMockFilter("filter1");
         filter2 = createMockFilter("filter2");
@@ -224,14 +223,14 @@ public class DelegateServletFilterTest {
                 Object[] args = invocation.getArguments();
                 LOGGER.debug("{} was called.", name);
                 ((FilterChain) args[2]).doFilter(((ServletRequest) args[0]),
-                        ((ServletResponse) args[1]));
+                  ((ServletResponse) args[1]));
                 return null;
             }
 
         })
-                .when(mockFilter)
-                .doFilter(any(ServletRequest.class), any(ServletResponse.class),
-                        any(FilterChain.class));
+          .when(mockFilter)
+          .doFilter(any(ServletRequest.class), any(ServletResponse.class),
+            any(FilterChain.class));
 
         return mockFilter;
     }

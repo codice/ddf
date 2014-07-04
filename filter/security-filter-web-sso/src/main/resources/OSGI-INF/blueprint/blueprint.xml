@@ -15,13 +15,17 @@
            xsi:schemaLocation="
   http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd">
 
-    <reference id="contextPolicyManager" interface="org.codice.ddf.security.policy.context.ContextPolicyManager" availability="optional" />
+    <reference id="contextPolicyManager"
+               interface="org.codice.ddf.security.policy.context.ContextPolicyManager"
+               availability="optional"/>
 
-    <reference-list id="handlerList" interface="org.codice.ddf.security.handler.api.AuthenticationHandler" member-type="service-reference" availability="optional" />
+    <reference-list id="handlerList"
+                    interface="org.codice.ddf.security.handler.api.AuthenticationHandler"
+                    availability="optional"/>
 
     <bean id="filter" class="org.codice.ddf.security.filter.websso.WebSSOFilter">
-        <property name="handlerList" ref="handlerList" />
-        <property name="contextPolicyManager" ref="contextPolicyManager" />
+        <property name="handlerList" ref="handlerList"/>
+        <property name="contextPolicyManager" ref="contextPolicyManager"/>
     </bean>
 
     <service ref="filter"

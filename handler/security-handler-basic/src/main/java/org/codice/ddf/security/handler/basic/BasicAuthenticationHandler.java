@@ -14,15 +14,12 @@
  **/
 package org.codice.ddf.security.handler.basic;
 
-import org.apache.cxf.sts.QNameConstants;
-import org.apache.cxf.ws.security.sts.provider.model.secext.AttributedString;
-import org.apache.cxf.ws.security.sts.provider.model.secext.PasswordString;
-import org.apache.cxf.ws.security.sts.provider.model.secext.UsernameTokenType;
-import org.apache.ws.security.WSConstants;
+import org.apache.ws.security.WSSecurityException;
+import org.apache.ws.security.util.Base64;
 import org.codice.ddf.security.handler.api.AuthenticationHandler;
+import org.codice.ddf.security.handler.api.BaseAuthenticationToken;
 import org.codice.ddf.security.handler.api.HandlerResult;
-import org.codice.ddf.security.policy.context.ContextPolicy;
-import org.jasypt.contrib.org.apache.commons.codec_1_3.binary.Base64;
+import org.codice.ddf.security.handler.api.UPAuthenticationToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,45 +30,34 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.HttpHeaders;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
-import javax.xml.namespace.QName;
 import java.io.IOException;
-import java.io.StringWriter;
-import java.io.Writer;
-import java.security.Principal;
 
 /**
- * Handler implementing Basic HTTP Authentication. If basic credentials are supplied in the HTTP
- * header, a UsernameToken will be created.
+ * Checks for basic authentication credentials in the http request header. If they exist, they are retrieved and
+ * returned in the HandlerResult.
  */
 public class BasicAuthenticationHandler implements AuthenticationHandler {
-
-    private static final transient Logger LOGGER = LoggerFactory
-            .getLogger(BasicAuthenticationHandler.class);
-
-    public static final String AUTHENTICATION_SCHEME_BASIC = "Basic";
+    private static final transient Logger LOGGER = LoggerFactory.getLogger(BasicAuthenticationHandler.class);
 
     /**
      * Basic type to use when configuring context policy.
      */
     public static final String AUTH_TYPE = "BASIC";
 
-    private static final JAXBContext utContext = initContext();
+    public static final String AUTHENTICATION_SCHEME_BASIC = "Basic";
 
-    public String getAuthenticationType() {
-        return AUTH_TYPE;
+    public static final String SOURCE = "BasicHandler";
+
+
+    protected String realm = BaseAuthenticationToken.DEFAULT_REALM;
+
+    public BasicAuthenticationHandler() {
+        LOGGER.debug("Creating basic username/token bst handler.");
     }
 
-    private static JAXBContext initContext() {
-        try {
-            return JAXBContext.newInstance(UsernameTokenType.class);
-        } catch (JAXBException e) {
-            LOGGER.error("Unable to create UsernameToken JAXB context.", e);
-        }
-        return null;
+    @Override
+    public String getAuthenticationType() {
+        return AUTH_TYPE;
     }
 
     /**
@@ -79,157 +65,79 @@ public class BasicAuthenticationHandler implements AuthenticationHandler {
      * to the client that authentication is needed if they are not present in the request.
      * Returns the {@link org.codice.ddf.security.handler.api.HandlerResult} for the HTTP Request.
      *
-     * @param request http request to obtain attributes from and to pass into any local filter chains required
+     * @param request  http request to obtain attributes from and to pass into any local filter chains required
      * @param response http response to return http responses or redirects
-     * @param chain original filter chain (should not be called from your handler)
-     * @param resolve flag with true implying that credentials should be obtained, false implying return if no credentials are found.
+     * @param chain    original filter chain (should not be called from your handler)
+     * @param resolve  flag with true implying that credentials should be obtained, false implying return if no credentials are found.
      * @return
      */
     @Override
-    public HandlerResult getNormalizedToken(ServletRequest request,
-        ServletResponse response, FilterChain chain, boolean resolve) {
+    public HandlerResult getNormalizedToken(ServletRequest request, ServletResponse response, FilterChain chain, boolean resolve) {
 
-        HandlerResult handlerResult;
+        HandlerResult handlerResult = new HandlerResult(HandlerResult.Status.NO_ACTION, null);
+        handlerResult.setSource(realm + "-" + SOURCE);
 
         HttpServletRequest httpRequest = (HttpServletRequest) request;
         String path = httpRequest.getServletPath();
         LOGGER.debug("Handling request for path {}", path);
 
         LOGGER.debug("Doing authentication and authorization for path {}", path);
-        final UsernameTokenType result = setAuthenticationInfo(httpRequest);
-        if (resolve) {
-            if (result == null) {
-                String realm = (String) request.getAttribute(ContextPolicy.ACTIVE_REALM);
-                handlerResult = new HandlerResult(HandlerResult.Status.REDIRECTED, null, "");
-                doAuthPrompt(realm, (HttpServletResponse) response);
-                return handlerResult;
-            } else {
-                String usernameToken = getUsernameTokenElement(result);
-                Principal principal = getPrincipal(result);
-                handlerResult = new HandlerResult(HandlerResult.Status.COMPLETED, principal, usernameToken);
-                return handlerResult;
-            }
-        } else {
-            if (result == null) {
-                handlerResult = new HandlerResult(HandlerResult.Status.NO_ACTION, null, "");
-                return handlerResult;
-            } else {
-                String usernameToken = getUsernameTokenElement(result);
-                Principal principal = getPrincipal(result);
-                handlerResult = new HandlerResult(HandlerResult.Status.COMPLETED, principal, usernameToken);
-                return handlerResult;
-            }
+
+        UPAuthenticationToken token = extractAuthenticationInfo(httpRequest);
+
+        // we found credentials, attach to result and return with completed status
+        if (token != null) {
+            handlerResult.setToken(token);
+            handlerResult.setStatus(HandlerResult.Status.COMPLETED);
+            return handlerResult;
         }
+
+        // we didn't find the credentials, see if we are to do anything or not
+        if (resolve) {
+            doAuthPrompt(realm, (HttpServletResponse) response);
+            handlerResult.setStatus(HandlerResult.Status.REDIRECTED);
+        }
+
+        return handlerResult;
     }
 
     @Override
     public HandlerResult handleError(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain) throws ServletException {
-        String realm = (String) servletRequest.getAttribute(ContextPolicy.ACTIVE_REALM);
         doAuthPrompt(realm, (HttpServletResponse) servletResponse);
-        HandlerResult result = new HandlerResult();
+        HandlerResult result = new HandlerResult(HandlerResult.Status.REDIRECTED, null);
+        result.setSource(realm + "-" + SOURCE);
         LOGGER.debug("In error handler for basic auth - prompted for auth credentials.");
-        result.setStatus(HandlerResult.Status.REDIRECTED);
         return result;
     }
 
     /**
-     * Extracts a Principal from a UsernameToken
-     * @param result
-     * @return Principal
-     */
-    private Principal getPrincipal(final UsernameTokenType result) {
-        return new Principal() {
-            private String username = result.getUsername().getValue();
-            @Override public String getName() {
-                return username;
-            }
-        };
-    }
-
-    /**
-     * Returns the UsernameToken marshalled as a String so that it can be attached to the
-     * {@link org.codice.ddf.security.handler.api.HandlerResult} object.
-     * @param result
-     * @return String
-     */
-    private synchronized String getUsernameTokenElement(UsernameTokenType result) {
-        Writer writer = new StringWriter();
-        Marshaller marshaller = null;
-        if(utContext != null) {
-            try {
-                marshaller = utContext.createMarshaller();
-                marshaller.setProperty(Marshaller.JAXB_FRAGMENT, Boolean.TRUE);
-            } catch (JAXBException e) {
-                LOGGER.error("Exception while creating UsernameToken marshaller.", e);
-            }
-
-            JAXBElement<UsernameTokenType> usernameTokenElement = new JAXBElement<UsernameTokenType>(
-                    new QName(
-                            "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd",
-                            "UsernameToken"), UsernameTokenType.class,
-                    result
-            );
-
-            if (marshaller != null) {
-                try {
-                    marshaller.marshal(usernameTokenElement, writer);
-                } catch (JAXBException e) {
-                    LOGGER.error("Exception while writing username token.", e);
-                }
-            }
-        }
-
-        return writer.toString();
-    }
-
-    /**
      * Return a 401 response back to the web browser to prompt for basic auth.
+     *
      * @param realm
      * @param response
      */
     private void doAuthPrompt(String realm, HttpServletResponse response) {
         try {
-            response.setHeader(HttpHeaders.WWW_AUTHENTICATE,
-                    AUTHENTICATION_SCHEME_BASIC + " realm=\"" + realm + "\"");
+            response.setHeader(HttpHeaders.WWW_AUTHENTICATE, AUTHENTICATION_SCHEME_BASIC + " realm=\"" + realm + "\"");
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.setContentLength(0);
             response.flushBuffer();
         } catch (IOException ioe) {
             LOGGER.debug("Failed to send auth response: {}", ioe);
         }
-
     }
 
     /**
-     * Extract the Authorization header and parse into username/password.
-     * @param authHeader
-     * @param cb
+     * Updates the given credentials with the username and password from the http authentication
+     * header of the http request. The authorization request is expected to be of the following form:
+     * <p/>
+     * Authorization: Basic <base64-encoded string of the form username:password>>
+     * <p/>
+     *
+     * @param request the http request containing the credential information
+     * @return string representation of the BinarySecurityTokenType, or null if username and password not supplied
      */
-    private void extractAuthInfo(String authHeader, ExtractAuthInfoCallback cb) {
-        authHeader = authHeader.trim();
-        String[] parts = authHeader.split(" ");
-        if (parts.length == 2) {
-            String authType = parts[0];
-            String authInfo = parts[1];
-
-            if (authType.equalsIgnoreCase(AUTHENTICATION_SCHEME_BASIC)) {
-                String decoded = new String(Base64.decodeBase64(authInfo.getBytes()));
-                parts = decoded.split(":");
-                if (parts.length == 2) {
-                    String user = parts[0];
-                    String password = parts[1];
-                    cb.getAuthInfo(user, password);
-                }
-            }
-        }
-    }
-
-    /**
-     * Creates a UsernameToken from an HTTP request.
-     * @param request
-     * @return UsernameTokenType
-     */
-    private UsernameTokenType setAuthenticationInfo(HttpServletRequest request) {
+    protected UPAuthenticationToken extractAuthenticationInfo(HttpServletRequest request) {
 
         String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
 
@@ -237,43 +145,48 @@ public class BasicAuthenticationHandler implements AuthenticationHandler {
             return null;
         }
 
-        final String[] username = {null};
-        final String[] pass = {null};
+        UPAuthenticationToken token = extractAuthInfo(authHeader);
 
-        extractAuthInfo(authHeader, new ExtractAuthInfoCallback() {
-            @Override
-            public void getAuthInfo(String userName, String password) {
-                username[0] = userName;
-                pass[0] = password;
-            }
-        });
-
-        if (username[0] == null) {
-            return null;
-        }
-
-        if (username[0] != null && pass[0] != null) {
-            UsernameTokenType usernameTokenType = new UsernameTokenType();
-            AttributedString user = new AttributedString();
-            user.setValue(username[0]);
-            usernameTokenType.setUsername(user);
-
-            // Add a password
-            PasswordString password = new PasswordString();
-            password.setValue(pass[0]);
-            password.setType(WSConstants.PASSWORD_TEXT);
-            JAXBElement<PasswordString> passwordType = new JAXBElement<PasswordString>(QNameConstants.PASSWORD, PasswordString.class, password);
-            usernameTokenType.getAny().add(passwordType);
-
-            return usernameTokenType;
-        }
-
-        return null;
+        return token;
     }
 
-    public interface ExtractAuthInfoCallback {
+    /**
+     * Extract the Authorization header and parse into a username/password token.
+     *
+     * @param authHeader the authHeader string from the HTTP request
+     * @return the initialize UPAuthenticationToken for this username, password, realm combination (or null)
+     */
+    protected UPAuthenticationToken extractAuthInfo(String authHeader) {
+        UPAuthenticationToken token = null;
+        authHeader = authHeader.trim();
+        String[] parts = authHeader.split(" ");
+        if (parts.length == 2) {
+            String authType = parts[0];
+            String authInfo = parts[1];
 
-        public void getAuthInfo(String userName, String password);
+            if (authType.equalsIgnoreCase(AUTHENTICATION_SCHEME_BASIC)) {
+                String decoded = null;
+                try {
+                    decoded = new String(Base64.decode(authInfo));
+                    parts = decoded.split(":");
+                    if (parts.length == 2) {
+                        token = new UPAuthenticationToken(parts[0], parts[1], realm);
+                    } else if ((parts.length == 1) && (decoded.endsWith(":"))) {
+                        token = new UPAuthenticationToken(parts[0], "", realm);
+                    }
+                } catch (WSSecurityException e) {
+                    LOGGER.warn("Unexpected error decoding username/password: " + e.getMessage(), e);
+                }
+            }
+        }
+        return token;
+    }
 
+    public String getRealm() {
+        return realm;
+    }
+
+    public void setRealm(String realm) {
+        this.realm = realm;
     }
 }

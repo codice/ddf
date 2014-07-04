@@ -37,7 +37,6 @@ import java.util.LinkedList;
  * {@link DelegateServletFilter} is meant to detect any Security ServletFilters
  * and call their {@link FilterChain}. If none are found it becomes a pass
  * through filter.
- *
  */
 public class DelegateServletFilter implements Filter {
 
@@ -57,17 +56,17 @@ public class DelegateServletFilter implements Filter {
 
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse,
-            FilterChain filterChain) throws IOException, ServletException {
+      FilterChain filterChain) throws IOException, ServletException {
 
         HttpServletRequest httpRequest = (HttpServletRequest) servletRequest;
 
         if (contextPolicyManager != null) {
             String contextPath = !StringUtils.isBlank(httpRequest.getContextPath()) ? httpRequest
-                    .getContextPath() : httpRequest.getServletPath() + httpRequest.getPathInfo();
+              .getContextPath() : httpRequest.getServletPath() + httpRequest.getPathInfo();
             if (contextPolicyManager.isWhiteListed(contextPath)) {
                 LOGGER.debug(
-                        "Current Context path {} has been white listed by the local policy, no authentication or authorization filters will be applied.",
-                        contextPath);
+                  "Current Context path {} has been white listed by the local policy, no authentication or authorization filters will be applied.",
+                  contextPath);
                 filterChain.doFilter(servletRequest, servletResponse);
                 return;
             }
@@ -106,8 +105,7 @@ public class DelegateServletFilter implements Filter {
      * Sets the context policy manager that will be used to check if the
      * incoming request should be whitelisted (no filters called).
      *
-     * @param policyManager
-     *            Manager that contains policies for contexts.
+     * @param policyManager Manager that contains policies for contexts.
      */
     public void setContextPolicyManager(ContextPolicyManager policyManager) {
         this.contextPolicyManager = policyManager;

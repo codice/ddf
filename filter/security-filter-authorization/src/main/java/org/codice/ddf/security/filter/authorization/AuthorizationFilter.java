@@ -39,12 +39,13 @@ import java.util.Collection;
 public class AuthorizationFilter implements Filter {
 
     private static final transient Logger LOGGER = LoggerFactory
-            .getLogger(AuthorizationFilter.class);
+      .getLogger(AuthorizationFilter.class);
 
     private final ContextPolicyManager contextPolicyManager;
 
     /**
      * Default constructor
+     *
      * @param contextPolicyManager
      */
     public AuthorizationFilter(ContextPolicyManager contextPolicyManager) {
@@ -59,7 +60,7 @@ public class AuthorizationFilter implements Filter {
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response,
-            FilterChain chain) throws IOException, ServletException {
+      FilterChain chain) throws IOException, ServletException {
         HttpServletRequest httpRequest = (HttpServletRequest) request;
         HttpServletResponse httpResponse = (HttpServletResponse) response;
 
@@ -70,8 +71,8 @@ public class AuthorizationFilter implements Filter {
         Collection<CollectionPermission> permissions = policy.getAllowedAttributePermissions();
 
         boolean permitted = true;
-        for(CollectionPermission permission : permissions) {
-            if(subject == null || !subject.isPermittedAll(permission.getPermissionList())) {
+        for (CollectionPermission permission : permissions) {
+            if (subject == null || !subject.isPermittedAll(permission.getPermissionList())) {
                 permitted = false;
             }
         }

@@ -48,7 +48,9 @@ public class Policy implements ContextPolicy {
     }
 
     @Override
-    public String getRealm() { return realm; }
+    public String getRealm() {
+        return realm;
+    }
 
     @Override
     public Collection<String> getAuthenticationMethods() {
@@ -58,7 +60,7 @@ public class Policy implements ContextPolicy {
     @Override
     public Collection<CollectionPermission> getAllowedAttributePermissions() {
         List<CollectionPermission> permissions = new ArrayList<CollectionPermission>();
-        for(ContextAttributeMapping mapping : attributeMappings) {
+        for (ContextAttributeMapping mapping : attributeMappings) {
             permissions.add(mapping.getAttributePermission());
         }
         return permissions;
@@ -67,8 +69,8 @@ public class Policy implements ContextPolicy {
     @Override
     public Collection<String> getAllowedAttributeNames() {
         List<String> names = new ArrayList<String>();
-        if(attributeMappings != null && attributeMappings.size() > 0) {
-            for(ContextAttributeMapping mapping : attributeMappings) {
+        if (attributeMappings != null && attributeMappings.size() > 0) {
+            for (ContextAttributeMapping mapping : attributeMappings) {
                 names.add(mapping.getAttributeName());
             }
         }

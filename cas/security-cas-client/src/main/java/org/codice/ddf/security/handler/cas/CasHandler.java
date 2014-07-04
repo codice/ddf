@@ -20,6 +20,7 @@ import org.apache.cxf.ws.security.sts.provider.model.secext.BinarySecurityTokenT
 import org.apache.ws.security.WSConstants;
 import org.apache.ws.security.util.Base64;
 import org.codice.ddf.security.handler.api.AuthenticationHandler;
+import org.codice.ddf.security.handler.api.BaseAuthenticationToken;
 import org.codice.ddf.security.handler.api.HandlerResult;
 import org.jasig.cas.client.authentication.AttributePrincipal;
 import org.slf4j.Logger;
@@ -52,6 +53,10 @@ public class CasHandler implements AuthenticationHandler {
      */
     public static final String AUTH_TYPE = "CAS";
 
+    public static final String SOURCE = "CASHandler";
+
+    protected String realm = BaseAuthenticationToken.DEFAULT_REALM;
+
     private STSClientConfiguration clientConfiguration;
 
     private ProxyFilter proxyFilter;
@@ -63,52 +68,53 @@ public class CasHandler implements AuthenticationHandler {
 
     @Override
     public HandlerResult getNormalizedToken(ServletRequest request, ServletResponse response,
-            FilterChain chain, boolean resolve) throws ServletException {
-        HandlerResult filterResult;
+        FilterChain chain, boolean resolve) throws ServletException {
+
+        // Default to NO_ACTION and set the source as this handler
+        HandlerResult handlerResult = new HandlerResult(HandlerResult.Status.NO_ACTION, null);
+        handlerResult.setSource(realm + "-" + SOURCE);
+
+        HttpServletRequest httpRequest = (HttpServletRequest) request;
+        String path = httpRequest.getServletPath();
+        LOGGER.debug("Doing CAS authentication and authorization for path {}", path);
+
         String proxyTicket = getProxyTicket((HttpServletRequest) request);
-        if(resolve) {
-            if(proxyTicket == null) {
+        // if I have a proxy ticket, create the token and return a completed status
+        if (proxyTicket != null) {
+            CASAuthenticationToken token = new CASAuthenticationToken(httpRequest.getUserPrincipal(), proxyTicket, realm);
+            handlerResult.setToken(token);
+            handlerResult.setStatus(HandlerResult.Status.COMPLETED);
+        } else {
+            // we didn't find a ticket, see if we are to go get one
+            if (resolve) {
                 try {
                     proxyFilter.doFilter(request, response, chain);
                 } catch (IOException e) {
                     throw new ServletException(e);
                 }
-                filterResult = new HandlerResult(HandlerResult.Status.REDIRECTED, null, "");
-                return filterResult;
-            } else {
-                String bst = getBinarySecurityToken(proxyTicket);
-                filterResult = new HandlerResult(HandlerResult.Status.COMPLETED, ((HttpServletRequest)request).getUserPrincipal(), bst);
-                return filterResult;
-            }
-        } else {
-            if(proxyTicket == null) {
-                filterResult = new HandlerResult(HandlerResult.Status.NO_ACTION, null, "");
-                return filterResult;
-            } else {
-                String bst = getBinarySecurityToken(proxyTicket);
-                filterResult = new HandlerResult(HandlerResult.Status.COMPLETED, ((HttpServletRequest)request).getUserPrincipal(), bst);
-                return filterResult;
+                handlerResult.setStatus(HandlerResult.Status.REDIRECTED);
             }
         }
+        return handlerResult;
     }
 
     @Override
     public HandlerResult handleError(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain) throws ServletException {
-        HandlerResult filterResult;
+        HandlerResult handlerResult;
         try {
             proxyFilter.doFilter(servletRequest, servletResponse, chain);
         } catch (IOException e) {
+            LOGGER.warn("Exception invoking the proxy filter: {}", e.getMessage(), e);
             throw new ServletException(e);
         }
-        filterResult = new HandlerResult(HandlerResult.Status.REDIRECTED, null, "");
-        return filterResult;
+        handlerResult = new HandlerResult(HandlerResult.Status.REDIRECTED, null);
+        return handlerResult;
     }
 
     /**
      * Gets the CAS proxy ticket that will be used by the STS to get a SAML assertion.
      *
-     * @param request
-     *            The Http servlet request.
+     * @param request The Http servlet request.
      * @return Returns the CAS proxy ticket that will be used by the STS to get a SAML assertion.
      */
     private String getProxyTicket(HttpServletRequest request) {
@@ -126,50 +132,6 @@ public class CasHandler implements AuthenticationHandler {
         return proxyTicket;
     }
 
-    /**
-     * Creates a binary security token based on the provided credential.
-     */
-    private synchronized String getBinarySecurityToken(String credential) {
-        JAXBContext context;
-        Writer writer = new StringWriter();
-
-        BinarySecurityTokenType binarySecurityTokenType = new BinarySecurityTokenType();
-        binarySecurityTokenType.setValueType("#CAS");
-        binarySecurityTokenType.setEncodingType(WSConstants.SOAPMESSAGE_NS + "#Base64Binary");
-        binarySecurityTokenType.setId("CAS");
-        binarySecurityTokenType.setValue(Base64.encode(credential.getBytes()));
-        JAXBElement<BinarySecurityTokenType> binarySecurityTokenElement = new JAXBElement<BinarySecurityTokenType>(
-                new QName(
-                        "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd",
-                        "BinarySecurityToken"), BinarySecurityTokenType.class,
-                binarySecurityTokenType
-        );
-
-        if(marshaller == null) {
-            try {
-                context = JAXBContext.newInstance(BinarySecurityTokenType.class);
-                marshaller = context.createMarshaller();
-                marshaller.setProperty(Marshaller.JAXB_FRAGMENT, Boolean.TRUE);
-            } catch (JAXBException e) {
-                LOGGER.error("Exception while creating UsernameToken marshaller.", e);
-            }
-        }
-
-        try {
-            marshaller.marshal(binarySecurityTokenElement, writer);
-        } catch (JAXBException e) {
-            LOGGER.error("Exception while writing username token.", e);
-        }
-
-        String binarySecurityToken = writer.toString();
-
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Binary Security Token: " + binarySecurityToken);
-        }
-
-        return binarySecurityToken;
-    }
-
     public STSClientConfiguration getClientConfiguration() {
         return clientConfiguration;
     }
@@ -184,5 +146,13 @@ public class CasHandler implements AuthenticationHandler {
 
     public void setProxyFilter(ProxyFilter proxyFilter) {
         this.proxyFilter = proxyFilter;
+    }
+
+    public void setRealm(String realm) {
+        this.realm = realm;
+    }
+
+    public String getRealm() {
+        return realm;
     }
 }

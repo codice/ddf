@@ -123,7 +123,7 @@
         <feature>security-sts-realm</feature>
         <feature>security-policy-context</feature>
     </feature>
-    
+
     <feature name="security-web-sso-defaults" install="manual" version="${project.version}"
              description="Installs the default features needed for web-based SSO authentication.">
         <feature>security-sts-server</feature>
@@ -164,7 +164,7 @@
     <feature name="security-filter-web-sso" install="manual" version="${project.version}"
              description="Web SSO Filter for web applications.">
         <bundle>mvn:ddf.security.filter/security-filter-web-sso/${project.version}</bundle>
-    </feature> 
+    </feature>
 
     <feature name="security-handler-pki" install="manual" version="${project.version}"
              description="PKI Handler for web applications.">

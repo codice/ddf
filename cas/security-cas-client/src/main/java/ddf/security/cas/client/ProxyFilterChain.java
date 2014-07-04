@@ -29,9 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- *
  * Proxy filter chain used to call of the required CAS filters in a specific order.
- *
  */
 public class ProxyFilterChain implements FilterChain {
     private static final Logger LOGGER = LoggerFactory.getLogger(ProxyFilterChain.class);
@@ -43,8 +41,7 @@ public class ProxyFilterChain implements FilterChain {
     private Iterator<Filter> iterator;
 
     /**
-     * @param filterChain
-     *            The filter chain from the web container.
+     * @param filterChain The filter chain from the web container.
      */
     public ProxyFilterChain(FilterChain filterChain) {
         this.filterChain = filterChain;
@@ -52,8 +49,7 @@ public class ProxyFilterChain implements FilterChain {
     }
 
     /**
-     * @param filter
-     *            The servlet filter to add.
+     * @param filter The servlet filter to add.
      */
     public void addFilter(Filter filter) {
         if (iterator != null) {
@@ -65,8 +61,7 @@ public class ProxyFilterChain implements FilterChain {
     }
 
     /**
-     * @param filters
-     *            The servlet filters to add.
+     * @param filters The servlet filters to add.
      */
     public void addFilters(List<Filter> filters) {
         if (iterator != null) {
@@ -86,10 +81,10 @@ public class ProxyFilterChain implements FilterChain {
      * Calls the next filter in the chain.
      *
      * @see javax.servlet.FilterChain#doFilter(javax.servlet.ServletRequest,
-     *      javax.servlet.ServletResponse)
+     * javax.servlet.ServletResponse)
      */
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse)
-        throws IOException, ServletException {
+      throws IOException, ServletException {
         if (iterator == null) {
             iterator = filters.iterator();
         }
@@ -101,7 +96,7 @@ public class ProxyFilterChain implements FilterChain {
         } else {
             LOGGER.debug("Calling filterChain {}.doFilter({},{})", filterChain.getClass().getName(), servletRequest, servletResponse);
             servletRequest.setAttribute("org.codice.ddf.ui.searchui.standard.properties.user",
-                    ((HttpServletRequestWrapper)servletRequest).getRemoteUser());
+              ((HttpServletRequestWrapper) servletRequest).getRemoteUser());
             LOGGER.debug("User: {}", servletRequest.getAttribute("org.codice.ddf.ui.searchui.standard.properties.user"));
             filterChain.doFilter(servletRequest, servletResponse);
         }

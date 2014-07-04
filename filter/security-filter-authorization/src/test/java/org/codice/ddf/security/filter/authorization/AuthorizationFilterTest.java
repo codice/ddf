@@ -69,7 +69,7 @@ public class AuthorizationFilterTest {
         FilterChain filterChain = new FilterChain() {
             @Override
             public void doFilter(ServletRequest request, ServletResponse response)
-                    throws IOException, ServletException {
+              throws IOException, ServletException {
                 fail("Should not have called doFilter without a valid Subject");
             }
         };
@@ -101,7 +101,7 @@ public class AuthorizationFilterTest {
         FilterChain filterChain = new FilterChain() {
             @Override
             public void doFilter(ServletRequest request, ServletResponse response)
-                    throws IOException, ServletException {
+              throws IOException, ServletException {
                 fail("Should not have called doFilter without a valid Subject");
             }
         };
@@ -152,6 +152,7 @@ public class AuthorizationFilterTest {
 
     private class TestPolicyManager implements ContextPolicyManager {
         Map<String, ContextPolicy> stringContextPolicyMap = new HashMap<String, ContextPolicy>();
+
         @Override
         public ContextPolicy getContextPolicy(String path) {
             return stringContextPolicyMap.get(path);

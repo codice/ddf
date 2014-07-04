@@ -14,17 +14,12 @@
  **/
 package org.codice.ddf.security.handler.api;
 
-import org.apache.cxf.ws.security.tokenstore.SecurityToken;
-import org.apache.shiro.authc.AuthenticationToken;
-
-import java.security.Principal;
-
 /**
  * Encapsulates the return status for each handler. Consists of the status of any action taken by
  * the handler (successfully retrieved desired tokens, responded to a client in order to obtain
  * missing tokens, or no action taken), as well as the actual tokens retrieved from the header.
  */
-public class HandlerResult implements AuthenticationToken {
+public class HandlerResult {
     public enum Status {
         // completed - auth tokens retrieved ready to move on
         COMPLETED,
@@ -38,27 +33,16 @@ public class HandlerResult implements AuthenticationToken {
 
     private Status status;
 
-    private Object principal;
-
-    private String authCredentials;
-
-    private SecurityToken token;
-
     private String source;
+
+    private BaseAuthenticationToken token;
 
     public HandlerResult() {
         status = Status.NO_ACTION;
     }
 
-    public HandlerResult(Status fs, Object p, String creds) {
+    public HandlerResult(Status fs, BaseAuthenticationToken t) {
         this.status = fs;
-        this.principal = p;
-        this.authCredentials = creds;
-    }
-
-    public HandlerResult(Status fs, Object p, SecurityToken t) {
-        this.status = fs;
-        this.principal = p;
         this.token = t;
     }
 
@@ -71,28 +55,12 @@ public class HandlerResult implements AuthenticationToken {
         this.status = status;
     }
 
-    public void setPrincipal(Object obj) {
-        this.principal = obj;
+    public void setToken(BaseAuthenticationToken token) {
+        this.token = token;
     }
 
-    @Override
-    public Object getPrincipal() {
-        return this.principal;
-    }
-
-    public void setAuthCredentials(String creds) {
-        this.authCredentials = creds;
-    }
-
-    public void setSecurityToken(SecurityToken t) {
-        this.token = t;
-    }
-
-    public boolean hasSecurityToken() { return this.token != null; }
-
-    @Override
-    public Object getCredentials() {
-        return token != null ? token : authCredentials;
+    public BaseAuthenticationToken getToken() {
+        return this.token;
     }
 
     public String getSource() {
@@ -108,14 +76,10 @@ public class HandlerResult implements AuthenticationToken {
         StringBuilder sb = new StringBuilder();
         sb.append("Status: ");
         sb.append(status.toString());
-        sb.append("; Principal name: ");
-        sb.append(principal == null ? "none" : ((Principal) principal).getName());
-        sb.append("; authCredentials: ");
-        sb.append(authCredentials);
-        sb.append("; token: ");
-        sb.append(token);
-        sb.append("; source: ");
+        sb.append("; Source: ");
         sb.append(source);
+        sb.append("; Token: ");
+        sb.append(token.toString());
         return sb.toString();
     }
 }

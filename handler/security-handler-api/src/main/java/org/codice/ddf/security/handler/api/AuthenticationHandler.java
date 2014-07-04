@@ -38,19 +38,20 @@ public interface AuthenticationHandler {
      * apply your own filters, etc.) and return a status of REDIRECTED.
      * In any case, if the required credentials are present (including the successful conclusion of any redirects, etc.)
      * place the credentials into the HandlerResult and return a status of COMPLETED.
-     * @param request http request to obtain attributes from and to pass into any local filter chains required
+     *
+     * @param request  http request to obtain attributes from and to pass into any local filter chains required
      * @param response http response to return http responses or redirects
-     * @param chain original filter chain (should not be called from your handler)
-     * @param resolve flag with true implying that credentials should be obtained, false implying return if no credentials are found.
+     * @param chain    original filter chain (should not be called from your handler)
+     * @param resolve  flag with true implying that credentials should be obtained, false implying return if no credentials are found.
      * @return result containing a status and the credentials to be placed into the http request
      */
-    HandlerResult getNormalizedToken(ServletRequest request, ServletResponse response, FilterChain chain, boolean resolve)
-            throws ServletException;
+    HandlerResult getNormalizedToken(ServletRequest request, ServletResponse response, FilterChain chain, boolean resolve) throws ServletException;
 
 
     /**
      * Called when downstream authentication fails. Should attempt to re-acquire credentials if appropriate. Returns
      * a status indicating if appropriate action has been taken.
+     *
      * @param servletRequest htt http response to return http responses or redirects
      * @return result containing a status indicating if further action is necessary
      */

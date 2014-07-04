@@ -14,16 +14,20 @@
  **/
 package org.codice.ddf.security.handler.anonymous;
 
+import org.codice.ddf.security.handler.api.BaseAuthenticationToken;
 import org.codice.ddf.security.handler.api.HandlerResult;
+import org.codice.ddf.security.handler.api.UPAuthenticationToken;
 import org.junit.Test;
 
 import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.security.Principal;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 
 public class AnonymousHandlerTest {
@@ -48,6 +52,30 @@ public class AnonymousHandlerTest {
 
         assertNotNull(result);
         assertEquals(HandlerResult.Status.COMPLETED, result.getStatus());
-        assertEquals("guest", ((Principal) result.getPrincipal()).getName());
+        assertTrue(result.getToken() instanceof UPAuthenticationToken);
+        assertEquals(((UPAuthenticationToken) result.getToken()).getUsername(), "guest");
+        assertEquals(((UPAuthenticationToken) result.getToken()).getPassword(), "guest");
+        assertEquals(((UPAuthenticationToken) result.getToken()).getRealm(), BaseAuthenticationToken.DEFAULT_REALM);
+        assertEquals("DDF-AnonymousHandler", result.getSource());
+    }
+
+    @Test
+    public void testHandleError() throws ServletException {
+        AnonymousHandler handler = new AnonymousHandler();
+
+        HttpServletRequest request = mock(HttpServletRequest.class);
+        HttpServletResponse response = mock(HttpServletResponse.class);
+        FilterChain chain = mock(FilterChain.class);
+
+        /**
+         * Note that the parameters are insignificant as AnonymousHandler
+         * does not use them.
+         */
+        HandlerResult result = handler.handleError(request, response, chain);
+
+        assertNotNull(result);
+        assertEquals(HandlerResult.Status.COMPLETED, result.getStatus());
+        assertNull(result.getToken());
+        assertEquals("DDF-AnonymousHandler", result.getSource());
     }
 }
