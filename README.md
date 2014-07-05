@@ -55,8 +55,20 @@ set MAVEN_OPTS='-Xmx512m -XX:MaxPermSize=128m'
 
 
 ### How to build ###
+In order to run through a full build, be sure to have a clone for all repositories (NOTE: daily snapshots are deployed so downloading and building each repo may not be necessary since those artifacts will be retrieved.):
+
 ```
 git clone git://github.com/codice/ddf.git
+git clone ddf-admin (https://github.com/codice/ddf-admin.git)
+git clone ddf-catalog (https://github.com/codice/ddf-catalog.git)
+git clone ddf-content (https://github.com/codice/ddf-content.git)
+git clone ddf-parent (https://github.com/codice/ddf-parent.git)
+git clone ddf-platform (https://github.com/codice/ddf-platform.git)
+git clone ddf-security (https://github.com/codice/ddf-security.git)
+git clone ddf-solr (https://github.com/codice/ddf-solr.git)
+git clone ddf-spatial (https://github.com/codice/ddf-spatial.git)
+git clone ddf-support  (https://github.com/codice/ddf-support.git)
+git clone ddf-ui (https://github.com/codice/ddf-ui.git)
 ```
 Change to the top level directory of DDF source distribution.
 
