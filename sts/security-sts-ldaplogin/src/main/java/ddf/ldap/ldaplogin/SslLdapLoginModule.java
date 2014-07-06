@@ -15,13 +15,8 @@
 
 package ddf.ldap.ldaplogin;
 
-import java.security.Principal;
-import java.security.acl.Group;
-import java.util.HashSet;
 import java.util.Hashtable;
-import java.util.LinkedHashSet;
 import java.util.Map;
-import java.util.Set;
 
 import javax.naming.Context;
 import javax.net.ssl.SSLSocketFactory;
