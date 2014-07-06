@@ -3,7 +3,7 @@
  * Copyright (c) Codice Foundation
  *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
- * version 3 of the License, or any later version. 
+ * version 3 of the License, or any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
@@ -13,13 +13,13 @@
  -->
  <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  
+
   <parent>
     <groupId>ddf.security.sts</groupId>
     <artifactId>security-sts-pom</artifactId>
     <version>2.4.0-SNAPSHOT</version>
   </parent>
-  
+
   <artifactId>security-sts-realm</artifactId>
   <packaging>bundle</packaging>
   <name>DDF :: Security :: STS :: Realm</name>
@@ -66,6 +66,10 @@
           <artifactId>security-policy-api</artifactId>
           <version>${project.version}</version>
       </dependency>
+    <dependency>
+        <groupId>ddf.security.handler</groupId>
+        <artifactId>security-handler-api</artifactId>
+    </dependency>
   </dependencies>
 
   <build>

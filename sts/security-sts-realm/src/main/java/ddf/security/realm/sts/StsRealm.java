@@ -15,6 +15,7 @@
 package ddf.security.realm.sts;
 
 import ddf.security.common.audit.SecurityLogger;
+import org.codice.ddf.security.handler.api.BaseAuthenticationToken;
 import ddf.security.common.callback.CommonCallbackHandler;
 import ddf.security.common.util.CommonSSLFactory;
 import ddf.security.common.util.PropertiesLoader;
@@ -207,14 +208,18 @@ public class StsRealm extends AuthenticatingRealm implements ConfigurationWatche
 
         String credential;
 
-        if (token.getCredentials() != null) {
-            credential = token.getCredentials().toString();
-            //removed the credentials from the log message for now, I don't think we should be dumping user/pass into log
-            LOGGER.debug("Received credentials.");
+        if (token instanceof BaseAuthenticationToken) {
+            credential = ((BaseAuthenticationToken) token).getCredentialsAsXMLString();
         } else {
+            credential = token.getCredentials().toString();
+        }
+        if (credential == null) {
             String msg = "Unable to authenticate credential.  A NULL credential was provided in the supplied authentication token. This may be due to an error with the SSO server that created the token.";
             LOGGER.error(msg);
             throw new AuthenticationException(msg);
+        } else {
+            //removed the credentials from the log message for now, I don't think we should be dumping user/pass into log
+            LOGGER.debug("Received credentials.");
         }
 
         if (!settingsConfigured) {
@@ -746,8 +751,15 @@ public class StsRealm extends AuthenticatingRealm implements ConfigurationWatche
 
         @Override
         public boolean doCredentialsMatch(AuthenticationToken token, AuthenticationInfo info) {
-            if (token.getCredentials() != null && info.getCredentials() != null) {
-                return token.getCredentials().equals(info.getCredentials());
+            if (token instanceof BaseAuthenticationToken) {
+                String xmlCreds = ((BaseAuthenticationToken) token).getCredentialsAsXMLString();
+                if (xmlCreds != null && info.getCredentials() != null) {
+                    return xmlCreds.equals(info.getCredentials());
+                }
+            } else {
+                if (token.getCredentials() != null && info.getCredentials() != null) {
+                    return token.getCredentials().equals(info.getCredentials());
+                }
             }
             return false;
         }

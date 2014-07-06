@@ -15,17 +15,10 @@
 package org.codice.ddf.security.handler.api;
 
 import org.apache.cxf.common.util.StringUtils;
-import org.apache.cxf.sts.QNameConstants;
-import org.apache.cxf.ws.security.sts.provider.model.secext.AttributedString;
-import org.apache.cxf.ws.security.sts.provider.model.secext.PasswordString;
-import org.apache.cxf.ws.security.sts.provider.model.secext.UsernameTokenType;
-import org.apache.ws.security.WSConstants;
 import org.apache.ws.security.WSSecurityException;
 import org.apache.ws.security.util.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.xml.bind.JAXBElement;
 
 public class UPAuthenticationToken extends BSTAuthenticationToken {
     private static final String BST_USERNAME = "Username:";
@@ -125,23 +118,6 @@ public class UPAuthenticationToken extends BSTAuthenticationToken {
         LOGGER.trace("Credential String: {}", retVal);
         return retVal;
     }
-
-    public UsernameTokenType getUsernameTokenType() {
-        UsernameTokenType usernameTokenType = new UsernameTokenType();
-        AttributedString user = new AttributedString();
-        user.setValue(getUsername());
-        usernameTokenType.setUsername(user);
-
-        // Add a password
-        PasswordString password = new PasswordString();
-        password.setValue(getPassword());
-        password.setType(WSConstants.PASSWORD_TEXT);
-        JAXBElement<PasswordString> passwordType = new JAXBElement<PasswordString>(QNameConstants.PASSWORD, PasswordString.class, password);
-        usernameTokenType.getAny().add(passwordType);
-
-        return usernameTokenType;
-    }
-
 
     @Override
     public String toString() {

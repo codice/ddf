@@ -45,7 +45,9 @@ import org.apache.cxf.sts.token.validator.TokenValidator;
 import org.apache.cxf.sts.token.validator.TokenValidatorParameters;
 import org.apache.cxf.sts.token.validator.TokenValidatorResponse;
 import org.apache.cxf.ws.security.sts.provider.model.ObjectFactory;
+import org.apache.cxf.ws.security.sts.provider.model.secext.AttributedString;
 import org.apache.cxf.ws.security.sts.provider.model.secext.BinarySecurityTokenType;
+import org.apache.cxf.ws.security.sts.provider.model.secext.PasswordString;
 import org.apache.cxf.ws.security.sts.provider.model.secext.UsernameTokenType;
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
 import org.apache.ws.security.CustomTokenPrincipal;
@@ -85,7 +87,8 @@ public class UPBSTValidator implements TokenValidator {
     public static final String UPBST_ID = "DDFUsername";
 
     public static final String BASE64_ENCODING = WSConstants.SOAPMESSAGE_NS + "#Base64Binary";
-
+    public static final String DDF_REALM = "DDF";
+    public static final String KARAF_REALM = "KARAF";
 
     private Validator validator = new org.apache.ws.security.validate.UsernameTokenValidator();
 
@@ -137,10 +140,20 @@ public class UPBSTValidator implements TokenValidator {
             String encodedCredential = ((BinarySecurityTokenType) token).getValue();
             LOGGER.debug("Encoded username/password credential: {}", encodedCredential);
             UPAuthenticationToken usernameToken = UPAuthenticationToken.parse(encodedCredential, true);
-            if ((realm == null) && (usernameToken.getRealm() == null))
+
+            // currently realm is not being passed through (no RealmParser that determines the realm
+            // based on the web context. So this just looks at the realm passed in the credentials.
+            // This generic instance just looks for the default realms (DDF and Karaf)
+            if (usernameToken.getRealm() == null) {
+                LOGGER.trace("No realm specified in request, canHandletoken = true");
                 return true;
-            if (!StringUtils.isEmpty(usernameToken.getRealm()))
-                return usernameToken.getRealm().equals(realm);
+            } else {
+                if (DDF_REALM.equalsIgnoreCase(usernameToken.getRealm()) ||
+                    KARAF_REALM.equalsIgnoreCase(usernameToken.getRealm())) {
+                    LOGGER.trace("Realm '{}' recognized - canHandleToken = true", usernameToken.getRealm());
+                    return true;
+                }
+            }
         }
         return false;
     }
@@ -181,7 +194,7 @@ public class UPBSTValidator implements TokenValidator {
         }
 
         UPAuthenticationToken usernameToken = UPAuthenticationToken.parse(binarySecurityType.getValue(), true);
-        UsernameTokenType usernameTokenType = usernameToken.getUsernameTokenType();
+        UsernameTokenType usernameTokenType = getUsernameTokenType(usernameToken);
         // Marshall the received JAXB object into a DOM Element
         Element usernameTokenElement = null;
         try {
@@ -302,4 +315,21 @@ public class UPBSTValidator implements TokenValidator {
         principal.setPasswordType(passwordType);
         return principal;
     }
+
+    public UsernameTokenType getUsernameTokenType(UPAuthenticationToken token) {
+        UsernameTokenType usernameTokenType = new UsernameTokenType();
+        AttributedString user = new AttributedString();
+        user.setValue(token.getUsername());
+        usernameTokenType.setUsername(user);
+
+        // Add a password
+        PasswordString password = new PasswordString();
+        password.setValue(token.getPassword());
+        password.setType(WSConstants.PASSWORD_TEXT);
+        JAXBElement<PasswordString> passwordType = new JAXBElement<PasswordString>(QNameConstants.PASSWORD, PasswordString.class, password);
+        usernameTokenType.getAny().add(passwordType);
+
+        return usernameTokenType;
+    }
+
 }

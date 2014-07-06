@@ -68,6 +68,18 @@
 
         <dependency>
             <groupId>ddf.security.sts</groupId>
+            <artifactId>security-sts-x509delegationhandler</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>ddf.security.sts</groupId>
+            <artifactId>security-sts-bstdelegationhandler</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>ddf.security.sts</groupId>
             <artifactId>security-sts-crlinterceptor</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -87,7 +99,10 @@
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <Embed-Dependency>cxf-services-sts-core</Embed-Dependency>
+                        <Embed-Dependency>cxf-services-sts-core,
+                            security-sts-x509delegationhandler,
+                            security-sts-bstdelegationhandler
+                        </Embed-Dependency>
                         <Import-Package>
                             javax.net.ssl,
                             org.springframework.ldap.core;resolution:=optional,

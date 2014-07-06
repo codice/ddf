@@ -1,16 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
+ *
  **/
 package ddf.ldap.ldaplogin;
 
@@ -27,16 +27,16 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Registers LDAP as a JAAS realm.
- * 
+ *
  */
 public class LdapLoginConfig {
 
     private static String LDAP_MODULE = ddf.ldap.ldaplogin.SslLdapLoginModule.class.getName();
-    
+
     private static String PROPS_MODULE = org.apache.karaf.jaas.modules.properties.PropertiesLoginModule.class.getName();
 
     // using karaf to append to default jaas realm
-    private static final String CONFIG_NAME = "karaf";
+    private static final String CONFIG_NAME = "ddf";
 
     private static final String SUFFICIENT_FLAG = "sufficient";
 
@@ -48,7 +48,7 @@ public class LdapLoginConfig {
 
     /**
      * Create new LDAP Login configuration.
-     * 
+     *
      * @param context
      *            BundleContext to register services under.
      * @param defaults
@@ -62,7 +62,7 @@ public class LdapLoginConfig {
 
     /**
      * Registers the passed-in modules under a new JaasRealm.
-     * 
+     *
      * @param modules
      *            Modules to add to the JaasRealm.
      */
@@ -86,7 +86,7 @@ public class LdapLoginConfig {
 
     /**
      * Update method that receives new properties.
-     * 
+     *
      * @param props
      *            Map of properties.
      */
@@ -100,7 +100,7 @@ public class LdapLoginConfig {
 
     /**
      * Creates a new module with the given properties.
-     * 
+     *
      * @param properties
      *            Map of properties.
      * @return newly created module.
@@ -132,7 +132,7 @@ public class LdapLoginConfig {
 
         return ldapModule;
     }
-    
+
     private Module createPropertiesModule() {
         Module propsModule = new Module();
         propsModule.setClassName(PROPS_MODULE);
@@ -140,7 +140,7 @@ public class LdapLoginConfig {
         propsModule.setName("propsModule");
         Properties props = new Properties();
         props.put("users", System.getProperty("ddf.home") + "/etc/users.properties");
-        propsModule.setOptions(props);        
+        propsModule.setOptions(props);
         return propsModule;
     }
 }

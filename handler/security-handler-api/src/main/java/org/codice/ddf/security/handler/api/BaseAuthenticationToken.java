@@ -15,8 +15,12 @@
 package org.codice.ddf.security.handler.api;
 
 import org.apache.shiro.authc.AuthenticationToken;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class BaseAuthenticationToken implements AuthenticationToken {
+    private static final transient Logger LOGGER = LoggerFactory.getLogger(BaseAuthenticationToken.class);
+
     public static final String DEFAULT_REALM = "DDF";
 
     /**
@@ -67,5 +71,23 @@ public class BaseAuthenticationToken implements AuthenticationToken {
 
     public String getRealm() {
         return realm;
+    }
+
+    /**
+     * Returns the credentials as an XML string suitable for injecting into a STS request.
+     * This default behavior assumes that the credentials actually are stored in their
+     * XML representation. If a subclass stores them differently, it is up to them to
+     * override this method.
+     * @return String containing the XML representation of this token's credentials
+     */
+    public String getCredentialsAsXMLString() {
+        String retVal = "";
+        if (getCredentials() != null) {
+            retVal = getCredentials().toString();
+        } else {
+            LOGGER.warn("Credentials are null - unable to create XML representation.");
+        }
+
+        return retVal;
     }
 }

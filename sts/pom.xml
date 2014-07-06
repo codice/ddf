@@ -37,6 +37,7 @@
         <module>security-sts-usernametokenvalidator</module>
         <module>security-sts-ldapclaimshandler</module>
         <module>security-sts-ldaplogin</module>
+        <module>security-sts-bstdelegationhandler</module>
         <module>security-sts-x509delegationhandler</module>
         <module>security-sts-upbstvalidator</module>
     </modules>

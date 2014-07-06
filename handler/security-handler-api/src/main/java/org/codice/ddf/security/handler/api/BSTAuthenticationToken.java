@@ -65,6 +65,11 @@ public abstract class BSTAuthenticationToken extends BaseAuthenticationToken {
         super(principal, realm, credentials);
     }
 
+    @Override
+    public String getCredentialsAsXMLString() {
+        return getBinarySecurityToken();
+    }
+
     public abstract String getEncodedCredentials();
 
     public String getBinarySecurityToken() {
