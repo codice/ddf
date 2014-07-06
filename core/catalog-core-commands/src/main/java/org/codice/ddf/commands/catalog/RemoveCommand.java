@@ -14,7 +14,6 @@
  **/
 package org.codice.ddf.commands.catalog;
 
-import java.io.PrintStream;
 import java.util.List;
 
 import org.apache.felix.gogo.commands.Argument;

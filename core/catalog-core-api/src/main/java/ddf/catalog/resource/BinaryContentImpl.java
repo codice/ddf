@@ -18,8 +18,6 @@ import java.io.InputStream;
 
 import javax.activation.MimeType;
 
-import org.apache.commons.lang.builder.ToStringBuilder;
-
 /**
  * BinaryContentImpl is the default implementation of {@link BinaryContent}
  * 

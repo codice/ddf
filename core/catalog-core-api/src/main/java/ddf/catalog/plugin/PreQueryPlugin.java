@@ -14,7 +14,6 @@
  **/
 package ddf.catalog.plugin;
 
-import ddf.catalog.data.Metacard;
 import ddf.catalog.operation.QueryRequest;
 
 /**

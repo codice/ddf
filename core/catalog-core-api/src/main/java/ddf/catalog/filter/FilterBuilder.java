@@ -22,7 +22,6 @@ import org.opengis.filter.Not;
 import org.opengis.filter.Or;
 
 import ddf.catalog.data.Attribute;
-import ddf.catalog.data.AttributeType;
 import ddf.catalog.data.AttributeType.AttributeFormat;
 import ddf.catalog.data.Metacard;
 

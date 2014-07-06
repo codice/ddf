@@ -14,7 +14,6 @@
  **/
 package org.codice.ddf.commands.catalog;
 
-import java.io.PrintStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;

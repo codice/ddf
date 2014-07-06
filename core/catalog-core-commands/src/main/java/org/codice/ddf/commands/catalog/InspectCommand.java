@@ -14,7 +14,6 @@
  **/
 package org.codice.ddf.commands.catalog;
 
-import java.io.PrintStream;
 import java.io.Serializable;
 import java.util.Collection;
 

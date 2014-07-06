@@ -16,7 +16,6 @@ package org.codice.ddf.commands.catalog;
 
 import static org.apache.commons.lang.StringUtils.isNotBlank;
 
-import java.io.PrintStream;
 import java.util.Date;
 import java.util.List;
 

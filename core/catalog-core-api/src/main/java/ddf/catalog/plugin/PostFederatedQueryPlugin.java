@@ -17,7 +17,6 @@ package ddf.catalog.plugin;
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.operation.Query;
 import ddf.catalog.operation.QueryResponse;
-import ddf.catalog.source.Source;
 
 /**
  * A PostFederatedQueryPlugin is used to execute functionality after a federated query has been

@@ -30,7 +30,7 @@ import ddf.catalog.util.impl.SourceDescriptorComparator;
  * 
  * @see SourceDescriptor
  * @see Source
- * @see SoruceInfoRequest
+ * @see SourceInfoRequest
  */
 public class SourceInfoResponseImpl extends ResponseImpl<SourceInfoRequest> implements
         SourceInfoResponse {

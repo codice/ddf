@@ -16,7 +16,6 @@ package ddf.catalog.util.impl;
 
 import java.util.Comparator;
 
-import org.opengis.filter.sort.SortOrder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

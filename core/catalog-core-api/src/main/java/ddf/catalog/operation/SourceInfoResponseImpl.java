@@ -16,7 +16,6 @@ package ddf.catalog.operation;
 
 import java.io.Serializable;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
@@ -30,7 +29,7 @@ import ddf.catalog.util.SourceDescriptorComparator;
  * 
  * @see SourceDescriptor
  * @see Source
- * @see SoruceInfoRequest
+ * @see SourceInfoRequest
  * 
  * @deprecated As of release 2.3.0, replaced by
  *             ddf.catalog.operation.impl.SourceInfoResponseImpl

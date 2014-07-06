@@ -15,15 +15,12 @@
 package ddf.geo.formatter;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.abdera.ext.geo.Coordinates;
 import org.apache.abdera.ext.geo.Line;
 import org.apache.abdera.ext.geo.Position;
 
-import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 
 public class MultiLineString extends LineString {

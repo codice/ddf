@@ -17,8 +17,6 @@ package ddf.catalog.operation;
 import java.io.Serializable;
 import java.util.Map;
 
-import ddf.catalog.data.Result;
-
 /**
  * 
  * @deprecated As of release 2.3.0, replaced by
