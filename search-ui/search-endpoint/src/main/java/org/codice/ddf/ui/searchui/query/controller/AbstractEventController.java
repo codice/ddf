@@ -14,10 +14,8 @@
  **/
 package org.codice.ddf.ui.searchui.query.controller;
 
-import ddf.security.SubjectUtils;
 import ddf.security.assertion.SecurityAssertion;
 import net.minidev.json.JSONObject;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.PrincipalCollection;
