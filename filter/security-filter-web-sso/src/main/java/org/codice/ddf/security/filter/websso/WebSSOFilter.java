@@ -120,14 +120,13 @@ public class WebSSOFilter implements Filter {
     }
 
     private void handleRequest(HttpServletRequest httpRequest, HttpServletResponse httpResponse,
-            FilterChain filterChain, List<AuthenticationHandler> handlerList) throws IOException,
-            ServletException {
+      FilterChain filterChain, List<AuthenticationHandler> handlers) throws IOException, ServletException {
 
         // First pass, see if anyone can come up with proper security token from
         // the git-go
         HandlerResult result = null;
         LOGGER.debug("Checking for existing tokens in request.");
-        for (AuthenticationHandler auth : handlerList) {
+        for (AuthenticationHandler auth : handlers) {
             result = auth.getNormalizedToken(httpRequest, httpResponse, filterChain, false);
             if (result.getStatus() != HandlerResult.Status.NO_ACTION) {
                 break;
@@ -139,7 +138,7 @@ public class WebSSOFilter implements Filter {
             LOGGER.debug("First pass with no tokens found - requesting tokens");
             // This pass, tell each handler to do whatever it takes to get a
             // SecurityToken
-            for (AuthenticationHandler auth : handlerList) {
+            for (AuthenticationHandler auth : handlers) {
                 result = auth.getNormalizedToken(httpRequest, httpResponse, filterChain, true);
                 if (result.getStatus() != HandlerResult.Status.NO_ACTION) {
                     break;
@@ -191,7 +190,7 @@ public class WebSSOFilter implements Filter {
             // First pass, see if anyone can come up with proper security token
             // from the git-go
             result = null;
-            for (AuthenticationHandler auth : handlerList) {
+            for (AuthenticationHandler auth : handlers) {
                 result = auth.handleError(httpRequest, httpResponse, filterChain);
                 if (result.getStatus() != HandlerResult.Status.NO_ACTION) {
                     break;
@@ -207,7 +206,7 @@ public class WebSSOFilter implements Filter {
     }
 
     private List<AuthenticationHandler> getHandlerList(String path) {
-        List<AuthenticationHandler> handlerList = new ArrayList<AuthenticationHandler>();
+        List<AuthenticationHandler> handlers = new ArrayList<AuthenticationHandler>();
         if (contextPolicyManager != null) {
             ContextPolicy policy = contextPolicyManager.getContextPolicy(path);
             if (policy != null) {
@@ -215,16 +214,16 @@ public class WebSSOFilter implements Filter {
                 for (String authMethod : authMethods) {
                     for (AuthenticationHandler handler : this.handlerList) {
                         if (handler.getAuthenticationType().equalsIgnoreCase(authMethod)) {
-                            handlerList.add(handler);
+                            handlers.add(handler);
                         }
                     }
                 }
             }
         } else {
             // if no manager, get a list of all the handlers.
-            handlerList.addAll(this.handlerList);
+            handlers.addAll(this.handlerList);
         }
-        return handlerList;
+        return handlers;
     }
 
     /**

@@ -57,11 +57,17 @@ public class X509DelegationHandler implements TokenDelegationHandler {
     public boolean canHandleToken(ReceivedToken delegateTarget) {
         Object token = delegateTarget.getToken();
         if (token instanceof BinarySecurityTokenType) {
+            return true;
+/*
+            // removed until we can find a way to make these pluggable - currently hard-coded in the
+            // blueprint for the cxf server. Since the isDelegationAllowed only checks for an instance
+            // BinarySecurityTokenType, then this is doing the job.
             BinarySecurityTokenType bstt = (BinarySecurityTokenType) token;
             if ((X509_PKI_PATH.equals(bstt.getValueType()) || X509_V3.equals(bstt.getValueType())) &&
                 BASE64_ENCODING.equals(bstt.getEncodingType())) {
                 return true;
             }
+*/
         }
         return false;
     }

@@ -48,7 +48,7 @@ public class BasicAuthenticationHandler implements AuthenticationHandler {
 
     public static final String SOURCE = "BasicHandler";
 
-
+    protected String authenticationType = AUTH_TYPE;
     protected String realm = BaseAuthenticationToken.DEFAULT_REALM;
 
     public BasicAuthenticationHandler() {
@@ -57,9 +57,12 @@ public class BasicAuthenticationHandler implements AuthenticationHandler {
 
     @Override
     public String getAuthenticationType() {
-        return AUTH_TYPE;
+        return authenticationType;
     }
 
+    public void setAuthenticationType(String authType) {
+        this.authenticationType = authType;
+    }
     /**
      * Processes the incoming request to retrieve the username/password tokens. Handles responding
      * to the client that authentication is needed if they are not present in the request.
