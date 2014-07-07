@@ -29,8 +29,6 @@ define([ 'backbone',
 
     ich.addTemplate('notificationTemplate', messageTemplate);
     ich.addTemplate('titleTemplate', titleTemplate);
-    
-    //var stack_context;
 
     var currentTime = moment();
 
