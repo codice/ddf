@@ -103,6 +103,7 @@
         <bundle>mvn:ddf.security.sts/security-sts-x509validator/${project.version}</bundle>
         <bundle>mvn:ddf.security.sts/security-sts-usernametokenvalidator/${project.version}</bundle>
         <bundle>mvn:ddf.security.sts/security-sts-ldapclaimshandler/${project.version}</bundle>
+        <bundle>mvn:ddf.security.sts/security-sts-upbstvalidator/${project.version}</bundle>
     </feature>
 
     <feature name="security-sts-realm" install="manual" version="${project.version}"
@@ -131,6 +132,8 @@
         <feature>security-filter-login</feature>
         <feature>security-handler-saml</feature>
         <feature>security-handler-basic</feature>
+        <feature>security-handler-pki</feature>
+        <feature>security-sts-upbstvalidator</feature>
         <feature>security-filter-authz</feature>
     </feature>
 
@@ -175,6 +178,11 @@
              description="Web Context policy manager">
         <bundle>mvn:ddf.security.policy/security-policy-api/${project.version}</bundle>
         <bundle>mvn:ddf.security.policy/security-policy-context/${project.version}</bundle>
+    </feature>
+
+    <feature name="security-sts-upbstvalidator" install="manual" version="${project.version}"
+             description="Validates username/password binary security tokens.">
+        <bundle>mvn:ddf.security.sts/security-sts-upbstvalidator/${project.version}</bundle>
     </feature>
 
 </features>

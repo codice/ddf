@@ -119,4 +119,5 @@ public class PKIHandler implements AuthenticationHandler {
     public void setTokenFactory(PKIAuthenticationTokenFactory factory) {
         tokenFactory = factory;
     }
+    public void setRealm(String realm) { this.realm = realm; }
 }
