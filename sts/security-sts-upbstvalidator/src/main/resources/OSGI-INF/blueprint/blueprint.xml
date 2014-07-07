@@ -55,11 +55,11 @@
 
     <bean class="org.apache.ws.security.validate.JAASUsernameTokenValidator" id="JAASValidator">
         <property name="contextName" value="$sts{jaasContext}"/>
-        <property name="supportedRealm" value="DDF"/>
     </bean>
 
     <bean class="org.codice.ddf.security.validator.uname.UPBSTValidator" id="utValidator">
         <property name="validator" ref="JAASValidator"/>
+        <property name="supportedRealm" value="DDF"/>
     </bean>
 
     <service ref="utValidator" interface="org.apache.cxf.sts.token.validator.TokenValidator"/>
