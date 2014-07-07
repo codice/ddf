@@ -28,6 +28,16 @@ module.exports = function (grunt) {
             }
         },
         copy: {
+            cesium: {
+                files: [
+                    {
+                        expand: true,
+                        cwd: 'target/cesium/Build/Cesium',
+                        src: ['**'],
+                        dest: 'target/webapp/lib/cesium/'
+                    }
+                ]
+            },
             // workaround for version numbers in perfect scrollbar minified file names
             perfectscrollbar: {
                 files: [
@@ -41,20 +51,6 @@ module.exports = function (grunt) {
                         }
                     }
                 ]
-            }
-        },
-        unzip: {
-            // workaround for a cesium zip content type detection bug
-            cesium: {
-                router: function (filepath) {
-                    if (grunt.file.doesPathContain('Cesium/', filepath)) {
-                        return filepath;
-                    } else {
-                        return null;
-                    }
-                },
-                src: 'target/webapp/lib/cesium/index.zip',
-                dest: 'target/webapp/lib/cesium/'
             }
         },
         sed: {
@@ -148,11 +144,6 @@ module.exports = function (grunt) {
         }
     });
 
-    grunt.registerTask('cesiumclean', function() {
-        // workaround for a cesium zip content type detection bug
-        grunt.file.delete('target/webapp/lib/cesium/index.zip' , {force: true});
-    });
-
     grunt.loadNpmTasks('grunt-bower-task');
     grunt.loadNpmTasks('grunt-contrib-cssmin');
     grunt.loadNpmTasks('grunt-contrib-clean');
@@ -162,12 +153,7 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-sed');
     grunt.loadNpmTasks('grunt-express');
     grunt.loadNpmTasks('grunt-casperjs');
-
-    //the grunt-zip task interferes with grunt-express, but since grunt loads these tasks in serially, we can
-    //just load it in down here after the express task is loaded. DO NOT move this task above the test task or
-    //all tests will fail.
     grunt.registerTask('test', ['express:test','casperjs']);
-    grunt.loadNpmTasks('grunt-zip');
 
     grunt.registerTask('bower-offline-install', 'Bower offline install work-around', function() {
         var bower = require('bower');
@@ -201,7 +187,7 @@ module.exports = function (grunt) {
                done();
             });
     });
-    var buildTasks = ['clean', 'bower-offline-install', 'sed', 'copy', 'unzip', 'cesiumclean', 'cssmin', 'jshint'];
+    var buildTasks = ['clean', 'bower-offline-install', 'sed', 'copy', 'cssmin', 'jshint'];
 
     try {
         grunt.log.writeln('Checking for python');

@@ -35,35 +35,17 @@ define([
         DrawCircle.CircleView = Backbone.View.extend({
             initialize: function (options) {
                 _.bindAll(this);
-                this.canvas = options.scene.getCanvas();
+                this.canvas = options.scene.canvas;
                 this.scene = options.scene;
-                this.ellipsoid = options.scene.getPrimitives().getCentralBody().getEllipsoid();
+                this.ellipsoid = options.scene.globe.ellipsoid;
                 this.mouseHandler = new Cesium.ScreenSpaceEventHandler(this.canvas);
                 var modelProp = _.defaults(this.model.toJSON(), {lat: 0, lon: 0, radius: 1});
-                this.primitive = new Cesium.Polygon({
-                    positions: Cesium.Shapes.computeCircleBoundary(
-                        this.ellipsoid,
-                        this.ellipsoid.cartographicToCartesian(Cesium.Cartographic.fromDegrees(modelProp.lon, modelProp.lat)),
-                        modelProp.radius),
-                    material: new Cesium.Material({
-                        fabric: {
-                            type: 'Color',
-                            uniforms: {
-                                // translucent yellow
-                                color: new Cesium.Color(1.0, 1.0, 0.0, 0.2)
-                            }
-                        }
-                    })
-                });
-
-                this.primitive.asynchronous = false;
-
-                this.scene.getPrimitives().add(this.primitive);
+                this.model.set(modelProp);
 
                 this.listenTo(this.model, 'change:lat change:lon change:radius', this.updatePrimitive);
             },
             enableInput: function () {
-                var controller = this.scene.getScreenSpaceCameraController();
+                var controller = this.scene.screenSpaceCameraController;
                 controller.enableTranslate = true;
                 controller.enableZoom = true;
                 controller.enableRotate = true;
@@ -71,7 +53,7 @@ define([
                 controller.enableLook = true;
             },
             disableInput: function () {
-                var controller = this.scene.getScreenSpaceCameraController();
+                var controller = this.scene.screenSpaceCameraController;
                 controller.enableTranslate = false;
                 controller.enableZoom = false;
                 controller.enableRotate = false;
@@ -108,73 +90,65 @@ define([
 
                 var modelProp = model.toJSON();
                 if (this.isModelReset(modelProp)) {
-                    this.scene.getPrimitives().remove(this.primitive);
+                    this.scene.primitives.remove(this.primitive);
                     this.stopListening();
                     return;
                 }
+
                 if (modelProp.radius === 0 || isNaN(modelProp.radius)) {
                     modelProp.radius = 1;
                 }
 
-                this.primitive.setPositions(Cesium.Shapes.computeCircleBoundary(
-                    this.ellipsoid,
-                    this.ellipsoid.cartographicToCartesian(Cesium.Cartographic.fromDegrees(modelProp.lon, modelProp.lat)),
-                    modelProp.radius
-                ));
+                this.drawBorderedCircle(model);
             },
-
-            addBorderedCircle: function (model) {
+            drawBorderedCircle: function (model) {
                 // if model has been reset
-
                 var modelProp = model.toJSON();
                 if (this.isModelReset(modelProp)) {
                     return;
                 }
+
                 // first destroy old one
                 if (this.primitive && !this.primitive.isDestroyed()) {
-                    this.scene.getPrimitives().remove(this.primitive);
+                    this.scene.primitives.remove(this.primitive);
                 }
 
-
-                var circleOutlineGeometry = new Cesium.CircleOutlineGeometry({
-                    center: this.ellipsoid.cartographicToCartesian(Cesium.Cartographic.fromDegrees(modelProp.lon, modelProp.lat)),
-                    radius: modelProp.radius
-                });
-
-                var circleOutlineInstance = new Cesium.GeometryInstance({
-                    geometry: circleOutlineGeometry,
-                    attributes: {
-                        color: Cesium.ColorGeometryInstanceAttribute.fromColor(Cesium.Color.KHAKI)
-                    }
-                });
-
                 this.primitive = new Cesium.Primitive({
-                    geometryInstances: [circleOutlineInstance],
+                    asynchronous: false,
+                    geometryInstances: [new Cesium.GeometryInstance({
+                        geometry: new Cesium.CircleOutlineGeometry({
+                            center: this.ellipsoid.cartographicToCartesian(Cesium.Cartographic.fromDegrees(modelProp.lon, modelProp.lat)),
+                            radius: modelProp.radius
+                        }),
+                        attributes: {
+                            color: Cesium.ColorGeometryInstanceAttribute.fromColor(Cesium.Color.KHAKI)
+                        }
+                    })],
                     appearance: new Cesium.PerInstanceColorAppearance({
                         flat: true,
                         renderState: {
                             depthTest: {
                                 enabled: true
                             },
-                            lineWidth: Math.min(4.0, this.scene.getContext().getMaximumAliasedLineWidth())
+                            lineWidth: Math.min(4.0, this.scene.context.maximumAliasedLineWidth)
                         }
                     })
                 });
-                this.scene.getPrimitives().add(this.primitive);
 
+                this.scene.primitives.add(this.primitive);
             },
             handleRegionStop: function () {
                 this.enableInput();
                 if (!this.mouseHandler.isDestroyed()) {
                     this.mouseHandler.destroy();
                 }
-                this.addBorderedCircle(this.model);
+                this.drawBorderedCircle(this.model);
                 this.stopListening(this.model, 'change:lat change:lon change:radius', this.updatePrimitive);
-                this.listenTo(this.model, 'change:lat change:lon change:radius', this.addBorderedCircle);
+                this.listenTo(this.model, 'change:lat change:lon change:radius', this.drawBorderedCircle);
                 this.model.trigger("EndExtent", this.model);
             },
             handleRegionInter: function (movement) {
-                var cartesian = this.scene.getCamera().controller.pickEllipsoid(movement.endPosition, this.ellipsoid),
+                var cartesian = this.scene.camera.pickEllipsoid(movement.endPosition, this.ellipsoid),
                     cartographic;
                 if (cartesian) {
                     cartographic = this.ellipsoid.cartesianToCartographic(cartesian);
@@ -182,10 +156,9 @@ define([
                 }
             },
             handleRegionStart: function (movement) {
-                var cartesian = this.scene.getCamera().controller.pickEllipsoid(movement.position, this.ellipsoid),
+                var cartesian = this.scene.camera.pickEllipsoid(movement.position, this.ellipsoid),
                     that = this;
                 if (cartesian) {
-                    // var that = this;
                     this.click1 = this.ellipsoid.cartesianToCartographic(cartesian);
                     this.mouseHandler.setInputAction(function () {
                         that.handleRegionStop();
@@ -215,7 +188,7 @@ define([
                     this.mouseHandler.destroy();
                 }
                 if (this.primitive && !this.primitive.isDestroyed()) {
-                    this.scene.getPrimitives().remove(this.primitive);
+                    this.scene.primitives.remove(this.primitive);
                 }
             }
 

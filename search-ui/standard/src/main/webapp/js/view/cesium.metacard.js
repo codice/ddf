@@ -55,44 +55,40 @@ define([
             buildBillboard: function () {
                 var view = this;
 
-                //TODO: using a promise to add the billboards will not work correctly when in asynchronous mode
-                //for the time being I'm going to leave this code here commented out until after
-                //the async UI work is completed
-    //                this.geoController.billboardPromise.then(function () {
-                    var point = view.model.get('geometry').getPoint();
-                    view.billboard = view.geoController.billboardCollection.add({
-                        imageIndex: view.imageIndex,
-                        position: view.geoController.ellipsoid.cartographicToCartesian(
-                            Cesium.Cartographic.fromDegrees(
-                                point.longitude,
-                                point.latitude,
-                                point.altitude
-                            )
-                        ),
-                        horizontalOrigin: Cesium.HorizontalOrigin.CENTER,
-                        verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
-                        scaleByDistance: new Cesium.NearFarScalar(1.0, 1.0, 1.5e7, 0.5)
-                    });
-                    view.billboard.setColor(view.color);
-                    view.billboard.setScale(0.41);
-                    view.billboard.hasScale = true;
+                var point = view.model.get('geometry').getPoint();
+                view.billboard = view.geoController.billboardCollection.add({
+                    imageIndex: view.imageIndex,
+                    position: view.geoController.ellipsoid.cartographicToCartesian(
+                        Cesium.Cartographic.fromDegrees(
+                            point.longitude,
+                            point.latitude,
+                            point.altitude
+                        )
+                    ),
+                    horizontalOrigin: Cesium.HorizontalOrigin.CENTER,
+                    verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
+                    scaleByDistance: new Cesium.NearFarScalar(1.0, 1.0, 1.5e7, 0.5)
+                });
+                view.billboard.color = view.color;
+                view.billboard.scale = 0.41;
+                view.billboard.hasScale = true;
             },
 
             toggleSelection: function () {
                 var view = this;
 
-                if (view.billboard.getEyeOffset().z < 0) {
-                    view.billboard.setEyeOffset(new Cesium.Cartesian3(0, 0, 0));
+                if (view.billboard.eyeOffset.z < 0) {
+                    view.billboard.eyeOffset = new Cesium.Cartesian3(0, 0, 0);
                 } else {
-                    view.billboard.setEyeOffset(new Cesium.Cartesian3(0, 0, -10));
+                    view.billboard.eyeOffset = new Cesium.Cartesian3(0, 0, -10);
                 }
 
                 if (view.model.get('context')) {
-                    view.billboard.setScale(0.5);
-                    view.billboard.setImageIndex(view.imageIndex + 1);
+                    view.billboard.scale = 0.5;
+                    view.billboard.imageIndex = view.imageIndex + 1;
                 } else {
-                    view.billboard.setScale(0.41);
-                    view.billboard.setImageIndex(view.imageIndex);
+                    view.billboard.scale = 0.41;
+                    view.billboard.imageIndex = view.imageIndex;
                 }
 
             },
@@ -147,8 +143,8 @@ define([
                         verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
                         scaleByDistance: new Cesium.NearFarScalar(1.0, 1.0, 1.5e7, 0.5)
                     });
-                    billboard.setColor(view.color);
-                    billboard.setScale(0.41);
+                    billboard.color = view.color;
+                    billboard.scale = 0.41;
                     billboard.hasScale = true;
                     return billboard;
                 });
@@ -158,17 +154,17 @@ define([
                 var view = this;
 
                 _.each(view.points, function(point) {
-                    if (point.getEyeOffset().z < 0) {
-                        point.setEyeOffset(new Cesium.Cartesian3(0, 0, 0));
+                    if (point.eyeOffset.z < 0) {
+                        point.eyeOffset = new Cesium.Cartesian3(0, 0, 0);
                     } else {
-                        point.setEyeOffset(new Cesium.Cartesian3(0, 0, -10));
+                        point.eyeOffset = new Cesium.Cartesian3(0, 0, -10);
                     }
                     if (view.model.get('context')) {
-                        point.setScale(0.5);
-                        point.setImageIndex(view.imageIndex + 1);
+                        point.scale = 0.5;
+                        point.imageIndex = view.imageIndex + 1;
                     } else {
-                        point.setScale(0.41);
-                        point.setImageIndex(view.imageIndex);
+                        point.scale = 0.41;
+                        point.imageIndex = view.imageIndex;
                     }
                 });
             },
@@ -247,7 +243,7 @@ define([
                 view.lines = new Cesium.PolylineCollection();
                 view.addLine(positions);
 
-                view.geoController.scene.getPrimitives().add(view.lines);
+                view.geoController.scene.primitives.add(view.lines);
             },
 
             onClose: function () {
@@ -258,7 +254,7 @@ define([
                     view.geoController.billboardCollection.remove(view.billboard);
                 }
                 if (!_.isUndefined(view.lines)) {
-                    view.geoController.scene.getPrimitives().remove(view.lines);
+                    view.geoController.scene.primitives.remove(view.lines);
                 }
 
                 this.stopListening();
@@ -279,7 +275,7 @@ define([
 
                     view.addLine(positions);
                 });
-                view.geoController.scene.getPrimitives().add(view.lines);
+                view.geoController.scene.primitives.add(view.lines);
             },
         });
 
@@ -350,7 +346,7 @@ define([
                         depthTest: {
                             enabled: true
                         },
-                        lineWidth: Math.min(2.0, this.geoController.scene.getContext().getMaximumAliasedLineWidth())
+                        lineWidth: Math.min(2.0, this.geoController.scene.context.maximumAliasedLineWidth)
                     }
                 });
 
@@ -408,7 +404,7 @@ define([
                 ];
 
                 _.each(view.polygons, function (polygonPrimitive) {
-                    view.geoController.scene.getPrimitives().add(polygonPrimitive);
+                    view.geoController.scene.primitives.add(polygonPrimitive);
                 });
             },
 
@@ -439,7 +435,7 @@ define([
                 }
                 if (!_.isUndefined(view.polygons)) {
                     _.each(view.polygons, function (polygonPrimitive) {
-                        view.geoController.scene.getPrimitives().remove(polygonPrimitive);
+                        view.geoController.scene.primitives.remove(polygonPrimitive);
                     });
                 }
 
@@ -477,7 +473,7 @@ define([
                         });
                 }
                 _.each(view.polygons, function (polygonPrimitive) {
-                    view.geoController.scene.getPrimitives().add(polygonPrimitive);
+                    view.geoController.scene.primitives.add(polygonPrimitive);
                 });
             },
 

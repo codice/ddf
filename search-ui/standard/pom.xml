@@ -101,6 +101,26 @@
     <build>
         <plugins>
             <plugin>
+                <groupId>com.googlecode.maven-download-plugin</groupId>
+                <artifactId>download-maven-plugin</artifactId>
+                <version>1.2.0</version>
+                <executions>
+                    <execution>
+                        <id>install-cesium</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>wget</goal>
+                        </goals>
+                        <configuration>
+                            <url>http://cesiumjs.org/releases/Cesium-b30.zip</url>
+                            <unpack>true</unpack>
+                            <outputDirectory>${project.build.directory}/cesium</outputDirectory>
+                            <md5>2f21af52eb817b6cb88ae491d21ff7b9</md5>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <groupId>com.github.eirslett</groupId>
                 <artifactId>frontend-maven-plugin</artifactId>
                 <version>0.0.14</version>

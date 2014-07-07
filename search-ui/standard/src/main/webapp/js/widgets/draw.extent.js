@@ -34,28 +34,14 @@ define([
         var defaultAttrs = ['north', 'east', 'west', 'south'];
         Draw.ExtentView = Backbone.View.extend({
             initialize: function (options) {
-                this.canvas = options.scene.getCanvas();
+                this.canvas = options.scene.canvas;
                 this.scene = options.scene;
-                this.ellipsoid = options.scene.getPrimitives()
-                    .getCentralBody().getEllipsoid();
-                this.mouseHandler = new Cesium.ScreenSpaceEventHandler(
-                    this.canvas);
-                this.primitive = new Cesium.ExtentPrimitive();
-                this.primitive.material = new Cesium.Material({
-                    fabric: {
-                        type: 'Color',
-                        uniforms: {
-                            color: new Cesium.Color(1.0, 1.0, 0.0, 0.2)
-                        }
-                    }
-                });
-                this.primitive.asynchronous = false;
-                this.scene.getPrimitives().add(this.primitive);
+                this.ellipsoid = options.scene.globe.ellipsoid;
+                this.mouseHandler = new Cesium.ScreenSpaceEventHandler(this.canvas);
                 this.listenTo(this.model, 'change:north change:south change:east change:west', this.updatePrimitive);
             },
             enableInput: function () {
-                var controller = this.scene
-                    .getScreenSpaceCameraController();
+                var controller = this.scene.screenSpaceCameraController;
                 controller.enableTranslate = true;
                 controller.enableZoom = true;
                 controller.enableRotate = true;
@@ -63,8 +49,7 @@ define([
                 controller.enableLook = true;
             },
             disableInput: function () {
-                var controller = this.scene
-                    .getScreenSpaceCameraController();
+                var controller = this.scene.screenSpaceCameraController;
                 controller.enableTranslate = false;
                 controller.enableZoom = false;
                 controller.enableRotate = false;
@@ -73,7 +58,7 @@ define([
             },
             setModelFromClicks: function (mn, mx) {
 
-                var e = new Cesium.Extent(),
+                var e = new Cesium.Rectangle(),
                     epsilon = Cesium.Math.EPSILON7,
                     modelProps;
 
@@ -103,7 +88,7 @@ define([
                 return e;
             },
 
-            modelToExtent: function (model) {
+            modelToRectangle: function (model) {
                 var toRad = Cesium.Math.toRadians;
                 var obj = model.toJSON();
                 if (_.every(defaultAttrs, function (val) {
@@ -116,92 +101,93 @@ define([
                 _.each(obj, function (val, key) {
                     obj[key] = toRad(val);
                 });
-                var extent = new Cesium.Extent();
+                var rectangle = new Cesium.Rectangle();
                 if (!obj.north || isNaN(obj.north) || !obj.south || isNaN(obj.south) || !obj.east || isNaN(obj.east) || !obj.west || isNaN(obj.west)) {
                     return null;
                 }
 
-                extent.north = obj.north;
-                extent.south = obj.south;
-                extent.east = obj.east;
-                extent.west = obj.west;
-                return extent;
+                rectangle.north = obj.north;
+                rectangle.south = obj.south;
+                rectangle.east = obj.east;
+                rectangle.west = obj.west;
+                return rectangle;
             },
 
             updatePrimitive: function (model) {
-                var extent = this.modelToExtent(model);
+                var rectangle = this.modelToRectangle(model);
                 // make sure the current model has width and height before drawing
-                if (extent && !_.isUndefined(extent) && (extent.north !== extent.south && extent.east !== extent.west)) {
-                    this.primitive.extent = extent;
+                if (rectangle && !_.isUndefined(rectangle) && (rectangle.north !== rectangle.south && rectangle.east !== rectangle.west)) {
+                    this.drawBorderedRectangle(rectangle);
                     //only call this if the mouse button isn't pressed, if we try to draw the border while someone is dragging
                     //the filled in shape won't show up
                     if (!this.buttonPressed) {
-                        this.addBorderedExtent(extent);
+                        this.drawBorderedRectangle(rectangle);
                     }
                 }
             },
 
             updateGeometry: function (model) {
-                var extent = this.modelToExtent(model);
-                if (extent && !_.isUndefined(extent) && (extent.north !== extent.south && extent.east !== extent.west)) {
-                    this.addBorderedExtent(extent);
+                var rectangle = this.modelToRectangle(model);
+                if (rectangle && !_.isUndefined(rectangle) && (rectangle.north !== rectangle.south && rectangle.east !== rectangle.west)) {
+                    this.drawBorderedRectangle(rectangle);
                 }
             },
 
-            addBorderedExtent: function (extent) {
+            drawBorderedRectangle: function (rectangle) {
 
-                if (!extent) {
+                if (!rectangle) {
                     // handles case where model changes to empty vars and we don't want to draw anymore
                     return;
                 }
 
                 // first destroy old one
                 if (this.primitive && !this.primitive.isDestroyed()) {
-                    this.scene.getPrimitives().remove(this.primitive);
+                    this.scene.primitives.remove(this.primitive);
                 }
 
                 this.primitive = new Cesium.Primitive({
-                    geometryInstances: new Cesium.GeometryInstance({
-                        geometry: new Cesium.ExtentOutlineGeometry({
-                            extent: extent
+                    asynchronous: false,
+                    geometryInstances: [new Cesium.GeometryInstance({
+                        geometry: new Cesium.RectangleOutlineGeometry({
+                            rectangle: rectangle
                         }),
                         attributes: {
                             color: Cesium.ColorGeometryInstanceAttribute.fromColor(Cesium.Color.KHAKI)
                         }
-                    }),
+                    })],
                     appearance: new Cesium.PerInstanceColorAppearance({
                         flat: true,
                         renderState: {
                             depthTest: {
                                 enabled: true
                             },
-                            lineWidth: Math.min(4.0, this.scene.getContext().getMaximumAliasedLineWidth())
+                            lineWidth: Math.min(4.0, this.scene.context.maximumAliasedLineWidth)
                         }
                     })
                 });
-                this.scene.getPrimitives().add(this.primitive);
+
+                this.scene.primitives.add(this.primitive);
             },
 
             handleRegionStop: function () {
                 this.enableInput();
                 this.mouseHandler.destroy();
-                this.addBorderedExtent(this.primitive.extent);
+                this.drawBorderedRectangle(this.primitive.rectangle);
                 this.stopListening(this.model, 'change:north change:south change:east change:west', this.updatePrimitive);
                 this.listenTo(this.model, 'change:north change:south change:east change:west', this.updateGeometry);
 
                 this.model.trigger("EndExtent", this.model);
             },
             handleRegionInter: function (movement) {
-                var cartesian = this.scene.getCamera().controller
+                var cartesian = this.scene.camera
                     .pickEllipsoid(movement.endPosition, this.ellipsoid), cartographic;
                 if (cartesian) {
-                    cartographic = this.ellipsoid
-                        .cartesianToCartographic(cartesian);
+                    cartographic = this.ellipsoid.cartesianToCartographic(cartesian);
                     this.setModelFromClicks(this.click1, cartographic);
                 }
             },
             handleRegionStart: function (movement) {
-                var cartesian = this.scene.getCamera().controller
+                var cartesian = this.scene.camera
                     .pickEllipsoid(movement.position, this.ellipsoid), that = this;
                 if (cartesian) {
                     // var that = this;
@@ -241,7 +227,7 @@ define([
                     this.mouseHandler.destroy();
                 }
                 if (this.primitive && !this.primitive.isDestroyed()) {
-                    this.scene.getPrimitives().remove(this.primitive);
+                    this.scene.primitives.remove(this.primitive);
                 }
             }
 

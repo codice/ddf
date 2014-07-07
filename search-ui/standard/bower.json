@@ -7,7 +7,6 @@
         "backbone-relational": "0.8.7",
         "backbone.modelbinder": "1.0.5",
         "bootswatch": "v2.3.2",
-        "cesium": "http://cesiumjs.org/releases/Cesium-b25.zip",
         "components-backbone": "1.1.0",
         "components-bootstrap": "2.3.2",
         "components-font-awesome": "4.1.0",

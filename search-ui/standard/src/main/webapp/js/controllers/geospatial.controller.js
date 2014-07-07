@@ -26,8 +26,8 @@ define(['underscore',
             initialize: function () {
                 this.mapViewer = this.createMap('cesiumContainer');
                 this.scene = this.mapViewer.scene;
-                this.ellipsoid = this.mapViewer.centralBody.getEllipsoid();
-                this.handler = new Cesium.ScreenSpaceEventHandler(this.scene.getCanvas());
+                this.ellipsoid = this.mapViewer.scene.globe.ellipsoid;
+                this.handler = new Cesium.ScreenSpaceEventHandler(this.scene.canvas);
                 this.setupEvents();
                 this.preloadBillboards();
 
@@ -91,12 +91,11 @@ define(['underscore',
                         return Q(Cesium.loadImage(billboard));
                     }))
                     .then(function (images) {
-                        controller.billboardCollection.setTextureAtlas(
-                            controller.scene.getContext().createTextureAtlas({
-                                images: images
-                            })
-                        );
-                        controller.scene.getPrimitives().add(controller.billboardCollection);
+                        controller.billboardCollection.textureAtlas = new Cesium.TextureAtlas({
+                            scene: controller.scene,
+                            images: images
+                        });
+                        controller.scene.primitives.add(controller.billboardCollection);
                     });
 
             },
@@ -123,7 +122,7 @@ define(['underscore',
 
             pickObject: function (event) {
                 var controller = this,
-                //Add the offset created by the timeline
+                    //Add the offset created by the timeline
                     position = new Cesium.Cartesian2(event.position.x, event.position.y),
                     selectedObject = controller.scene.pick(position);
 
@@ -137,26 +136,26 @@ define(['underscore',
                 };
             },
 
-            expandExtent: function (extent) {
+            expandRectangle: function (rectangle) {
                 var scalingFactor = 0.25;
 
-                var widthGap = Math.abs(extent.east) - Math.abs(extent.west);
-                var heightGap = Math.abs(extent.north) - Math.abs(extent.south);
+                var widthGap = Math.abs(rectangle.east) - Math.abs(rectangle.west);
+                var heightGap = Math.abs(rectangle.north) - Math.abs(rectangle.south);
                 
-                //ensure extent has some size
+                //ensure rectangle has some size
                 if(widthGap === 0) {
-                        widthGap = 1;
+                    widthGap = 1;
                 }
                 if(heightGap === 0) {
-                        heightGap = 1;
+                    heightGap = 1;
                 }
-                
-                extent.east = extent.east + Math.abs(scalingFactor * widthGap);
-                extent.north = extent.north + Math.abs(scalingFactor * heightGap);
-                extent.south = extent.south - Math.abs(scalingFactor * heightGap);
-                extent.west = extent.west - Math.abs(scalingFactor * widthGap);
 
-                return extent;
+                rectangle.east = rectangle.east + Math.abs(scalingFactor * widthGap);
+                rectangle.north = rectangle.north + Math.abs(scalingFactor * heightGap);
+                rectangle.south = rectangle.south - Math.abs(scalingFactor * heightGap);
+                rectangle.west = rectangle.west - Math.abs(scalingFactor * widthGap);
+
+                return rectangle;
             },
 
             getResultCenterPoint: function (result) {
@@ -230,8 +229,8 @@ define(['underscore',
                     return Cesium.Cartographic.fromDegrees(point.longitude, point.latitude, point.altitude);
                 });
 
-                var extent = Cesium.Extent.fromCartographicArray(cartPoints);
-                return extent;
+                var rectangle = Cesium.Rectangle.fromCartographicArray(cartPoints);
+                return rectangle;
             },
             flyToLocation: function (model) {
                 var geometry = model.get('geometry');
@@ -239,41 +238,35 @@ define(['underscore',
             },
             
             flyToGeometry: function (geometry) {
-                var flight, extent, cartArray;
+                var rectangle, cartArray;
 
                 cartArray = _.map(geometry.getAllPoints(), function (coordinate) {
                     return Cesium.Cartographic.fromDegrees(coordinate[0], coordinate[1], properties.defaultFlytoHeight);
                 });
 
-                extent = Cesium.Extent.fromCartographicArray(cartArray);
-                flight = Cesium.CameraFlightPath.createAnimationExtent(this.mapViewer.scene, {
-                    destination: this.expandExtent(extent)
+                rectangle = Cesium.Rectangle.fromCartographicArray(cartArray);
+                this.mapViewer.scene.camera.flyToRectangle({
+                    destination: this.expandRectangle(rectangle)
                 });
-
-                this.mapViewer.scene.getAnimations().add(flight);
             },
 
-            flyToExtent: function (extent) {
-                var flight;
-                if (extent.north === extent.south && extent.east === extent.west) {
-                    var destination = {height: properties.defaultFlytoHeight, latitude: extent.north, longitude: extent.west};
-                    flight = Cesium.CameraFlightPath.createAnimationCartographic(this.mapViewer.scene, {
-                        destination: destination
+            flyToRectangle: function (rectangle) {
+                if (rectangle.north === rectangle.south && rectangle.east === rectangle.west) {
+                    this.mapViewer.scene.camera.flyTo({
+                        destination: Cesium.Cartesian3.fromDegrees(rectangle.west, rectangle.north, properties.defaultFlytoHeight)
                     });
-                }
-                else {
-                    flight = Cesium.CameraFlightPath.createAnimationExtent(this.mapViewer.scene, {
-                        destination: this.expandExtent(extent)
+                } else {
+                    this.mapViewer.scene.camera.flyToRectangle({
+                        destination: this.expandRectangle(rectangle)
                     });
                 }
 
-                this.mapViewer.scene.getAnimations().add(flight);
             },
 
             flyToCenterPoint: function (results) {
-                var extent = this.getResultCenterPoint(results);
-                if (extent) {
-                    this.flyToExtent(extent);
+                var rectangle = this.getResultCenterPoint(results);
+                if (rectangle) {
+                    this.flyToRectangle(rectangle);
                 }
             },
 
