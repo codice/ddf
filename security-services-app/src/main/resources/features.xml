@@ -131,6 +131,7 @@
         <feature>security-filter-login</feature>
         <feature>security-handler-saml</feature>
         <feature>security-handler-basic</feature>
+        <feature>security-filter-authz</feature>
     </feature>
 
     <feature name="security-handler-basic" install="manual" version="${project.version}"
