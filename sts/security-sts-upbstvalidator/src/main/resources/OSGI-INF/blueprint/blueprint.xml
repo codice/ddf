@@ -55,6 +55,7 @@
 
     <bean class="org.apache.ws.security.validate.JAASUsernameTokenValidator" id="JAASValidator">
         <property name="contextName" value="$sts{jaasContext}"/>
+        <property name="supportedRealm" value="DDF"/>
     </bean>
 
     <bean class="org.codice.ddf.security.validator.uname.UPBSTValidator" id="utValidator">

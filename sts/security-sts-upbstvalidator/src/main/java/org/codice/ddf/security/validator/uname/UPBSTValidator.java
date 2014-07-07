@@ -93,6 +93,7 @@ public class UPBSTValidator implements TokenValidator {
     private Validator validator = new org.apache.ws.security.validate.UsernameTokenValidator();
 
     private UsernameTokenRealmCodec usernameTokenRealmCodec;
+    private String supportedRealm = DDF_REALM;
 
     /**
      * Set the WSS4J Validator instance to use to validate the token.
@@ -101,6 +102,15 @@ public class UPBSTValidator implements TokenValidator {
      */
     public void setValidator(Validator validator) {
         this.validator = validator;
+    }
+
+    /**
+     * Set the realm that this validator supports. This can be used to differentiate between
+     * two instances of this validator where each contains a differnent token validator.
+     * @param supportedRealm string representing the realm supported by this validator
+     */
+    public void setSupportedRealm(String supportedRealm) {
+        this.supportedRealm = supportedRealm;
     }
 
     /**
@@ -148,10 +158,11 @@ public class UPBSTValidator implements TokenValidator {
                 LOGGER.trace("No realm specified in request, canHandletoken = true");
                 return true;
             } else {
-                if (DDF_REALM.equalsIgnoreCase(usernameToken.getRealm()) ||
-                    KARAF_REALM.equalsIgnoreCase(usernameToken.getRealm())) {
+                if (supportedRealm.equalsIgnoreCase(usernameToken.getRealm())) {
                     LOGGER.trace("Realm '{}' recognized - canHandleToken = true", usernameToken.getRealm());
                     return true;
+                } else {
+                    LOGGER.trace("Realm '{}' unrecognized - canHandleToken = false");
                 }
             }
         }
