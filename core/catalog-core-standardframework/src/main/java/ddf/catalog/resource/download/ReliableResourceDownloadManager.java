@@ -580,8 +580,13 @@ public class ReliableResourceDownloadManager implements Runnable {
         }
     }
 
-    public ReliableResourceInputStream getReliableResourceInputStream() {
-        return streamReadByClient;
+    public Long getReliableResourceInputStreamBytesCached() {
+        return streamReadByClient.getBytesCached();
+    }
+
+    public String getReliableResourceInputStreamState() {
+        return streamReadByClient.getDownloadState()
+                .getDownloadState().name();
     }
 
     public String getResourceSize() {

@@ -24,8 +24,10 @@ import org.osgi.service.event.EventAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class DownloadStatusInfoImpl implements DownloadStatusInfo {
@@ -58,14 +60,13 @@ public class DownloadStatusInfoImpl implements DownloadStatusInfo {
         downloadUsers.put(downloadIdentifier, user);
     }
 
-    public ArrayList<String> getAllDownloads() {
-        String userId = null;
-        return getAllDownloads(userId);
+    public List<String> getAllDownloads() {
+        return getAllDownloads(null);
     }
 
-    public ArrayList<String> getAllDownloads(String userId) {
+    public List<String> getAllDownloads(String userId) {
 
-        ArrayList<String> allDownloads = new ArrayList();
+        List<String> allDownloads = new ArrayList();
         if (null == userId) {
             for (Map.Entry<String, ReliableResourceDownloadManager> item : downloadManagers
                     .entrySet()) {
@@ -74,7 +75,7 @@ public class DownloadStatusInfoImpl implements DownloadStatusInfo {
         } else {
             for (Map.Entry<String, ReliableResourceDownloadManager> item : downloadManagers
                     .entrySet()) {
-                if (item.getKey().substring(0, userId.length()) == userId) {
+                if (item.getKey().substring(0, userId.length()).equals(userId)) {
                     allDownloads.add(item.getKey());
                 }
             }
@@ -86,21 +87,23 @@ public class DownloadStatusInfoImpl implements DownloadStatusInfo {
     public Map<String, String> getDownloadStatus(String downloadIdentifier) {
         Map<String, String> statusMap = new HashMap<String, String>();
         ReliableResourceDownloadManager downloadManager = downloadManagers.get(downloadIdentifier);
-        Long downloadedBytes = downloadManager.getReliableResourceInputStream().getBytesCached();
-        try {
-            Long totalBytes = Long.parseLong(downloadManager.getResourceSize());
-            statusMap.put("percent", Long.toString((downloadedBytes * 100) / totalBytes));
+        if (downloadManager != null) {
+            Long downloadedBytes = downloadManager.getReliableResourceInputStreamBytesCached();
+            try {
+                Long totalBytes = Long.parseLong(downloadManager.getResourceSize());
+                statusMap.put("percent", Long.toString((downloadedBytes * 100) / totalBytes));
 
-        } catch (Exception e) {
-            statusMap.put("percent", UNKNOWN);
+            } catch (Exception e) {
+                statusMap.put("percent", UNKNOWN);
+            }
+            statusMap.put("downloadId", downloadIdentifier);
+            statusMap.put("status",
+                    downloadManager.getReliableResourceInputStreamState());
+            statusMap.put("bytesDownloaded", Long.toString(downloadedBytes));
+            statusMap
+                    .put("fileName", downloadManager.getResourceResponse().getResource().getName());
+            statusMap.put("user", downloadUsers.get(downloadIdentifier));
         }
-        statusMap.put("downloadId", downloadIdentifier);
-        statusMap.put("status", downloadManager.getReliableResourceInputStream().getDownloadState()
-                .getDownloadState().name());
-        statusMap.put("bytesDownloaded", Long.toString(downloadedBytes));
-        statusMap.put("fileName", downloadManager.getResourceResponse().getResource().getName());
-        statusMap.put("user", downloadUsers.get(downloadIdentifier));
-
         return statusMap;
     }
 

@@ -18,6 +18,7 @@ import ddf.catalog.operation.ResourceResponse;
 import ddf.catalog.resource.download.ReliableResourceDownloadManager;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -45,7 +46,7 @@ public interface DownloadStatusInfo {
      *
      * @return Returns an array of downloadIdentifier Strings
      */
-    ArrayList<String> getAllDownloads();
+    List<String> getAllDownloads();
 
     /**
      * Function to get all downloads for a specific user.
@@ -53,7 +54,7 @@ public interface DownloadStatusInfo {
      * @param userId The id of the user.
      * @return Returns an array of downloadIdentifier Strings, similar to {@link this.getAllDownloads}.
      */
-    ArrayList<String> getAllDownloads(String userId);
+    List<String> getAllDownloads(String userId);
 
     /**
      * Function to get information about a specific download.

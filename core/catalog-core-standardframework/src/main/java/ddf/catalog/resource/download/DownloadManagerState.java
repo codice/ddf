@@ -28,9 +28,7 @@ public class DownloadManagerState {
         COMPLETED,
         CANCELED,
         FAILED
-    }
-
-    ;
+    };
 
     private DownloadState state;
 
