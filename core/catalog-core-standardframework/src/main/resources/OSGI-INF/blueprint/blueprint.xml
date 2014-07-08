@@ -182,6 +182,8 @@
     <bean id="productCache" class="ddf.catalog.cache.impl.ResourceCache" init-method="setupCache" destroy-method="teardownCache" >
         <property name="productCacheDirectory" value="" />
         <property name="cacheDirMaxSizeMegabytes" value="10240" /> <!-- 10 GB -->
+        <property name="context" ref="blueprintBundleContext"/>
+        <property name="xmlConfigFilename" value="reliableResource-hazelcast.xml"/>
     </bean>
     
     <service ref="productCache" interface="ddf.catalog.cache.ResourceCacheInterface" />

@@ -14,33 +14,33 @@
  **/
 package ddf.catalog.cache.impl;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.google.common.hash.Funnel;
-import com.google.common.hash.HashCode;
-import com.google.common.hash.HashFunction;
-import com.google.common.hash.Hasher;
-import com.google.common.hash.Hashing;
-import com.google.common.hash.PrimitiveSink;
 import com.hazelcast.config.Config;
+import com.hazelcast.config.MapConfig;
+import com.hazelcast.config.MapStoreConfig;
+import com.hazelcast.config.XmlConfigBuilder;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
-
 import ddf.cache.CacheException;
 import ddf.catalog.cache.ResourceCacheInterface;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.resource.Resource;
 import ddf.catalog.resource.data.ReliableResource;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang.StringUtils;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ResourceCache implements ResourceCacheInterface {
 
@@ -57,7 +57,7 @@ public class ResourceCache implements ResourceCacheInterface {
      * Default location for product-cache directory, <INSTALL_DIR>/data/product-cache
      */
     public static final String DEFAULT_PRODUCT_CACHE_DIRECTORY =
-            "data" + File.separator + "product-cache";
+            "data" + File.separator + PRODUCT_CACHE_NAME;
 
     private List<String> pendingCache = new ArrayList<String>();
 
@@ -67,26 +67,77 @@ public class ResourceCache implements ResourceCacheInterface {
     private HazelcastInstance instance;
     private IMap<Object, Object> cache;
     private ProductCacheDirListener<Object, Object> cacheListener = new ProductCacheDirListener<Object, Object>(DEFAULT_MAX_CACHE_DIR_SIZE_BYTES);
+    private BundleContext context;
+    private String xmlConfigFilename;
 
     //called after all parameters are set
-    public void setCache(HazelcastInstance instance){
+    public void setCache(HazelcastInstance instance) {
+        LOGGER.debug("In setCache");
         this.instance = instance;
-        if(instance == null){
-            Config cfg = new Config();
+        if (this.instance == null) {
+            Config cfg = getHazelcastConfig(context, xmlConfigFilename);
             cfg.setClassLoader(getClass().getClassLoader());
-            cfg.getNetworkConfig().getJoin().getMulticastConfig().setEnabled(false);
             this.instance = Hazelcast.newHazelcastInstance(cfg);
         }
-        
+
         cache = this.instance.getMap(PRODUCT_CACHE_NAME);
         cacheListener.setHazelcastInstance(this.instance);
         cache.addEntryListener(cacheListener, true);
     }
-    
-    public void setupCache(){
+
+    public void setupCache() {
         setCache(null);
     }
-    
+
+    private Config getHazelcastConfig(BundleContext context, String xmlConfigFilename) {
+        Config cfg = null;
+        Bundle bundle = context.getBundle();
+
+        URL xmlConfigFileUrl = null;
+        if (StringUtils.isNotBlank(xmlConfigFilename)) {
+            xmlConfigFileUrl = bundle.getResource(xmlConfigFilename);
+        }
+
+        XmlConfigBuilder xmlConfigBuilder = null;
+
+        if (xmlConfigFileUrl != null) {
+            try {
+                xmlConfigBuilder = new XmlConfigBuilder(xmlConfigFileUrl.openStream());
+                cfg = xmlConfigBuilder.build();
+                LOGGER.info("Successfully built hazelcast config from XML config file {}",
+                        xmlConfigFilename);
+            } catch (FileNotFoundException e) {
+                LOGGER.info("FileNotFoundException trying to build hazelcast config from XML file "
+                        + xmlConfigFilename, e);
+                cfg = null;
+            } catch (IOException e) {
+                LOGGER.info("IOException trying to build hazelcast config from XML file "
+                        + xmlConfigFilename, e);
+                cfg = null;
+            }
+        }
+
+        if (cfg == null) {
+            LOGGER.info("Falling back to using generic Config for hazelcast");
+            cfg = new Config();
+        } else if (LOGGER.isDebugEnabled()) {
+            MapConfig mapConfig = cfg.getMapConfig("Product_Cache");
+            if (mapConfig == null) {
+                LOGGER.debug("mapConfig is NULL for persistentNotifications - try persistent*");
+                mapConfig = cfg.getMapConfig("persistent*");
+                if (mapConfig == null) {
+                    LOGGER.debug("mapConfig is NULL for persistent*");
+                }
+            } else {
+                MapStoreConfig mapStoreConfig = mapConfig.getMapStoreConfig();
+                LOGGER.debug("mapStoreConfig factoryClassName = {}",
+                        mapStoreConfig.getFactoryClassName());
+            }
+        }
+
+        return cfg;
+    }
+
     public void teardownCache(){
         instance.shutdown();
     }
@@ -157,7 +208,25 @@ public class ResourceCache implements ResourceCacheInterface {
     public String getProductCacheDirectory() {
         return productCacheDirectory;
     }
-    
+
+    public void setContext(BundleContext context) {
+        LOGGER.debug("Setting context");
+        this.context = context;
+    }
+
+    public BundleContext getContext() {
+        return context;
+    }
+
+    public void setXmlConfigFilename(String xmlConfigFilename) {
+        LOGGER.debug("Setting xmlConfigFilename to: {}", xmlConfigFilename);
+        this.xmlConfigFilename = xmlConfigFilename;
+    }
+
+    public String getXmlConfigFilename() {
+        return xmlConfigFilename;
+    }
+
     /**
      * Returns true if resource with specified cache key is already in the process of
      * being cached. This check helps clients prevent attempting to cache the same resource
