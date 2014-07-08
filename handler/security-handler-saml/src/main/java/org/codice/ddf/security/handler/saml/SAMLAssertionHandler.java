@@ -38,6 +38,7 @@ import javax.xml.stream.XMLStreamException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
+import java.security.Principal;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.zip.DataFormatException;
@@ -53,6 +54,7 @@ public class SAMLAssertionHandler implements AuthenticationHandler {
     public static final String AUTH_TYPE = "SAML";
 
     protected static final String SAML_COOKIE_NAME = "org.codice.websso.saml.token";
+    protected static final String SAML_COOKIE_REF = "org.codice.websso.saml.ref";
 
     protected String realm = BaseAuthenticationToken.DEFAULT_REALM;
 
@@ -96,6 +98,7 @@ public class SAMLAssertionHandler implements AuthenticationHandler {
         HttpServletRequest httpRequest = (HttpServletRequest) request;
         Map<String, Cookie> cookies = getCookieMap(httpRequest);
 
+        // check for full SAML assertions coming in (federated requests, etc.)
         Cookie samlCookie = cookies.get(SAML_COOKIE_NAME);
         if (samlCookie != null) {
             String cookieValue = samlCookie.getValue();
@@ -122,6 +125,17 @@ public class SAMLAssertionHandler implements AuthenticationHandler {
             } catch (XMLStreamException e) {
                 LOGGER.warn("Unexpected error converting XML string to element - proceeding without SAML token.", e);
             }
+            return handlerResult;
+        }
+
+        // Now try to find the reference to a SAML assertion
+        samlCookie = cookies.get(SAML_COOKIE_REF);
+        if (samlCookie != null) {
+            String cookieRef = samlCookie.getValue();
+            LOGGER.trace("Creating SAML authentication token with reference {}.", cookieRef);
+            SAMLAuthenticationToken samlToken = new SAMLAuthenticationToken(null, cookieRef, realm);
+            handlerResult.setToken(samlToken);
+            handlerResult.setStatus(HandlerResult.Status.COMPLETED);
         } else {
             LOGGER.trace("No SAML cookie located - returning with no results");
         }

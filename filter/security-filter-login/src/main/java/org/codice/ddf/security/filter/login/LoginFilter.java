@@ -82,6 +82,7 @@ public class LoginFilter implements Filter {
     private static final String DDF_AUTHENTICATION_TOKEN = "ddf.security.token";
 
     private static final String SAML_COOKIE_NAME = "org.codice.websso.saml.token";
+    private static final String SAML_COOKIE_REF = "org.codice.websso.saml.ref";
 
     private SecurityManager securityManager;
 
@@ -105,6 +106,8 @@ public class LoginFilter implements Filter {
 
     private Object lock = new Object();
 
+    private SAMLCache samlCache = new SAMLCache();
+
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
         LOGGER.debug("Starting LoginFilter.");
@@ -115,6 +118,7 @@ public class LoginFilter implements Filter {
         } catch (ParserConfigurationException e) {
             LOGGER.error("Unable to create doc builder.", e);
         }
+
     }
 
     /**
@@ -190,6 +194,21 @@ public class LoginFilter implements Filter {
         Subject subject;
         try {
             LOGGER.debug("Validating received SAML assertion.");
+
+            // if we received a reference to a SAML assertion, replace it with the real assertion
+            if (token.isReference()) {
+                LOGGER.trace("Converting SAML reference to assertion");
+                String realm = (String) httpRequest.getAttribute(ContextPolicy.ACTIVE_REALM);
+                SecurityToken savedToken = samlCache.get(realm, (String)token.getCredentials());
+                if (savedToken != null) {
+                    token.replaceReferenece(savedToken);
+                }
+                if (token.isReference()) {
+                    LOGGER.error("Couldn't find SAML assertion corresponding to provided reference.");
+                    throw new ServletException("Unable to exchanged provided SAML reference for cached assertion.");
+                }
+            }
+
             // wrap the token
             SecurityToken securityToken = (SecurityToken) token.getCredentials();
             AssertionWrapper assertion = new AssertionWrapper(securityToken.getToken());
@@ -245,8 +264,8 @@ public class LoginFilter implements Filter {
                 if (principal instanceof SecurityAssertion) {
                     Element samlToken = ((SecurityAssertion) principal).getSecurityToken()
                       .getToken();
-                    AssertionWrapper assertion = new AssertionWrapper(
-                      ((SecurityAssertion) principal).getSecurityToken().getToken());
+                    SecurityToken securityToken = ((SecurityAssertion) principal).getSecurityToken();
+                    AssertionWrapper assertion = new AssertionWrapper(securityToken.getToken());
                     DateTime before = assertion.getSaml2().getConditions().getNotBefore();
                     DateTime after = assertion.getSaml2().getConditions().getNotOnOrAfter();
                     long timeoutSeconds = -1;
@@ -255,8 +274,7 @@ public class LoginFilter implements Filter {
                         long afterMil = after.getMillis();
                         timeoutSeconds = (afterMil - beforeMil) / 1000;
                     }
-                    createSamlCookie(httpRequest, httpResponse, encodeSaml(samlToken),
-                      timeoutSeconds);
+                    createSamlCookie(httpRequest, httpResponse, securityToken, timeoutSeconds);
                 }
             }
         } catch (SecurityServiceException e) {
@@ -350,18 +368,23 @@ public class LoginFilter implements Filter {
 
     /**
      * Creates a cookie to be returned to the browser if the token was
-     * successfully exchanged for a SAML assertion.
+     * successfully exchanged for a SAML assertion. Adds it to the response
+     * object to be sent back to the caller.
      *
-     * @param httpRequest
-     * @param httpResponse
-     * @param cookieValue
-     * @param timeoutSeconds
+     * @param httpRequest the http request object for this request
+     * @param httpResponse the http response object for this request
+     * @param securityToken the SecurityToken object representing the SAML assertion
+     * @param timeoutSeconds the timeout value to use for the cookie
      */
     private void createSamlCookie(HttpServletRequest httpRequest, HttpServletResponse httpResponse,
-      String cookieValue, long timeoutSeconds) {
+        SecurityToken securityToken, long timeoutSeconds) {
         try {
-            LOGGER.debug("Creating SAML cookie.");
-            Cookie cookie = new Cookie(SAML_COOKIE_NAME, cookieValue);
+            String realm = (String) httpRequest.getAttribute(ContextPolicy.ACTIVE_REALM);
+
+            // put this SecurityToken into the cache and get the key
+            String samlReference = samlCache.put(realm, securityToken);
+            LOGGER.debug("Cached SecurityToken and created cookie reference of {}.", samlReference);
+            Cookie cookie = new Cookie(SAML_COOKIE_REF, samlReference);
             URL url = new URL(httpRequest.getRequestURL().toString());
             cookie.setDomain(url.getHost());
             cookie.setPath("/");

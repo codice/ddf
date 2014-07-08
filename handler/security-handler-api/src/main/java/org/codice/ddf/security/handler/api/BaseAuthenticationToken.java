@@ -69,6 +69,10 @@ public class BaseAuthenticationToken implements AuthenticationToken {
         return credentials;
     }
 
+    protected void setCredentials(Object o) {
+        this.credentials = o;
+    }
+
     public String getRealm() {
         return realm;
     }
