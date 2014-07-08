@@ -46,7 +46,6 @@ import javax.xml.bind.Marshaller;
 import javax.xml.namespace.QName;
 
 import net.opengis.fes._2.AbstractQueryExpressionType;
-import net.opengis.fes._2.ObjectFactory;
 import net.opengis.fes._2.SpatialOperatorType;
 import net.opengis.fes._2.FilterType;
 import net.opengis.wfs.v_2_0_0.FeatureTypeType;
@@ -64,12 +63,10 @@ import org.codice.ddf.spatial.ogc.catalog.MetadataTransformer;
 import org.codice.ddf.spatial.ogc.catalog.common.AvailabilityCommand;
 import org.codice.ddf.spatial.ogc.catalog.common.AvailabilityTask;
 import org.codice.ddf.spatial.ogc.catalog.common.ContentTypeFilterDelegate;
-import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.WfsConstants;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsException;
 import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.DescribeFeatureTypeRequest;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.FeatureMetacardType;
 import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.GetCapabilitiesRequest;
-import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsFeatureCollection;
 import org.codice.ddf.spatial.ogc.wfs.catalog.converter.FeatureConverter;
 import org.codice.ddf.spatial.ogc.wfs.catalog.converter.FeatureConverterFactory;
 import org.codice.ddf.spatial.ogc.wfs.catalog.converter.impl.GenericFeatureConverter;
@@ -86,15 +83,12 @@ import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.ContentTypeImpl;
-import ddf.catalog.data.impl.ResultImpl;
 import ddf.catalog.filter.FilterAdapter;
 import ddf.catalog.operation.Query;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.ResourceResponse;
 import ddf.catalog.operation.SourceResponse;
-import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.ResourceResponseImpl;
-import ddf.catalog.operation.impl.SourceResponseImpl;
 import ddf.catalog.resource.Resource;
 import ddf.catalog.resource.ResourceNotFoundException;
 import ddf.catalog.resource.ResourceNotSupportedException;
@@ -541,99 +535,9 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
     @Override
     public SourceResponse query(QueryRequest request) throws UnsupportedQueryException {
 
-        Query query = request.getQuery();
-        LOGGER.debug("WFS Source {}: Received query: \n{}", getId(), query);
+        //TODO: To be implemented.
 
-        if (query.getStartIndex() < 1) {
-            throw new UnsupportedQueryException(
-                    "Start Index is one-based and must be an integer greater than 0; should not be ["
-                            + query.getStartIndex() + "]");
-        }
-
-        SourceResponseImpl simpleResponse = null;
-
-        // WFS v1.0 specification does not support response indicating total
-        // number
-        // of features satisfying query constraints.
-        // Hence, we save off the original
-        // page size from the query request and create a copy of the query,
-        // changing
-        // the page size by a multiplier and the current page number of results
-        // so that
-        // more features are returned as the user pages through the results,
-        // getting
-        // a better sense of how many total features exist that satisfy the
-        // query.
-        int origPageSize = query.getPageSize();
-        if (origPageSize <= 0 || origPageSize > WFS_MAX_FEATURES_RETURNED) {
-            origPageSize = WFS_MAX_FEATURES_RETURNED;
-        }
-        QueryImpl modifiedQuery = new QueryImpl(query);
-
-        // Determine current page number of results being requested.
-        // Example: startIndex = 21 and origPageSize=10, then requesting to go
-        // to
-        // page number 3.
-        int pageNumber = Math.round(query.getStartIndex() / origPageSize) + 1;
-
-        // Modified page size is based on current page number and a constant
-        // multiplier,
-        // but limited to a max value to prevent time consuming queries just to
-        // get an
-        // approximation of total number of features.
-        // So as page number increases the pageSize increases.
-        // Example:
-        // pageNumber=2, modifiedPageSize=60
-        // pageNumber=3, modifiedPageSize=90
-        int modifiedPageSize = Math.min(pageNumber * origPageSize * WFS_QUERY_PAGE_SIZE_MULTIPLIER,
-                WFS_MAX_FEATURES_RETURNED);
-        LOGGER.debug("WFS Source {}: modified page size = {}", getId(), modifiedPageSize);
-        modifiedQuery.setPageSize(modifiedPageSize);
-
-        GetFeatureType getFeature = buildGetFeatureRequest(modifiedQuery);
-
-        try {
-            LOGGER.debug("WFS Source {}: Sending query ...", getId());
-            WfsFeatureCollection featureCollection = remoteWfs.getFeature(getFeature);
-
-            if (featureCollection == null) {
-                throw new UnsupportedQueryException("Invalid results returned from server");
-            }
-            availabilityTask.updateLastAvailableTimestamp(System.currentTimeMillis());
-            LOGGER.debug("WFS Source {}: Received featureCollection with {} metacards.", getId(),
-                    featureCollection.getFeatureMembers().size());
-
-            // Only return the number of results originally asked for in the
-            // query, or the entire list of results if it is smaller than the
-            // original page size.
-            int numberOfResultsToReturn = Math.min(origPageSize, featureCollection
-                    .getFeatureMembers().size());
-            List<Result> results = new ArrayList<Result>(numberOfResultsToReturn);
-
-            int stopIndex = Math.min((origPageSize * pageNumber) + query.getStartIndex(),
-                    featureCollection.getFeatureMembers().size() + 1);
-
-            LOGGER.debug("WFS Source {}: startIndex = {}, stopIndex = {}, origPageSize = {}, pageNumber = {}"
-                    , getId(), query.getStartIndex(), stopIndex, origPageSize, pageNumber);
-
-            for (int i = query.getStartIndex(); i < stopIndex; i++) {
-                Metacard mc = featureCollection.getFeatureMembers().get(i - 1);
-                mc = transform(mc, DEFAULT_WFS_TRANSFORMER_ID);
-                Result result = new ResultImpl(mc);
-                results.add(result);
-                debugResult(result);
-            }
-            Long totalHits = new Long(featureCollection.getFeatureMembers().size());
-            simpleResponse = new SourceResponseImpl(request, results, totalHits);
-        } catch (WfsException wfse) {
-            LOGGER.warn(WFS_ERROR_MESSAGE, wfse);
-            throw new UnsupportedQueryException("Error received from WFS Server", wfse);
-        } catch (ClientException ce) {
-            String msg = handleClientException(ce);
-            throw new UnsupportedQueryException(msg, ce);
-        }
-
-        return simpleResponse;
+        return null;
     }
 
     private GetFeatureType buildGetFeatureRequest(Query query) throws UnsupportedQueryException {
