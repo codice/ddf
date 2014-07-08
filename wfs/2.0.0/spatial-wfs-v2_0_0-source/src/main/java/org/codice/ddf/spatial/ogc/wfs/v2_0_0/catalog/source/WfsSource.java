@@ -45,15 +45,14 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.namespace.QName;
 
-import net.opengis.fes._2.AbstractQueryExpressionType;
-import net.opengis.fes._2.SpatialOperatorType;
-import net.opengis.fes._2.FilterType;
+import net.opengis.filter.v_2_0_0.FilterCapabilities;
+import net.opengis.filter.v_2_0_0.FilterType;
+import net.opengis.filter.v_2_0_0.SpatialOperatorType;
+import net.opengis.filter.v_2_0_0.SpatialOperatorsType;
 import net.opengis.wfs.v_2_0_0.FeatureTypeType;
 import net.opengis.wfs.v_2_0_0.GetFeatureType;
 import net.opengis.wfs.v_2_0_0.QueryType;
 import net.opengis.wfs.v_2_0_0.WFSCapabilitiesType;
-
-
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -63,13 +62,13 @@ import org.codice.ddf.spatial.ogc.catalog.MetadataTransformer;
 import org.codice.ddf.spatial.ogc.catalog.common.AvailabilityCommand;
 import org.codice.ddf.spatial.ogc.catalog.common.AvailabilityTask;
 import org.codice.ddf.spatial.ogc.catalog.common.ContentTypeFilterDelegate;
-import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsException;
-import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.DescribeFeatureTypeRequest;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.FeatureMetacardType;
-import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.GetCapabilitiesRequest;
+import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsException;
 import org.codice.ddf.spatial.ogc.wfs.catalog.converter.FeatureConverter;
 import org.codice.ddf.spatial.ogc.wfs.catalog.converter.FeatureConverterFactory;
 import org.codice.ddf.spatial.ogc.wfs.catalog.converter.impl.GenericFeatureConverter;
+import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.DescribeFeatureTypeRequest;
+import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.GetCapabilitiesRequest;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
@@ -108,7 +107,7 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
 
     private String wfsUrl;
 
-    private Map<QName, WfsFilterDelegate> featureTypeFilters = new HashMap<QName, WfsFilterDelegate>();
+    protected Map<QName, WfsFilterDelegate> featureTypeFilters = new HashMap<QName, WfsFilterDelegate>();
 
     private String username;
 
@@ -181,7 +180,7 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
 
     private String forceSpatialFilter = NO_FORCED_SPATIAL_FILTER;
 
-    private List<String> supportedGeoFilters;
+    private SpatialOperatorsType supportedSpatialOperators;
 
     private ScheduledExecutorService scheduler;
 
@@ -202,6 +201,7 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
 
     public WfsSource() {
         // Required for bean creation
+        LOGGER.debug("Creating {}", WfsSource.class.getName());
         scheduler = Executors.newSingleThreadScheduledExecutor();
     }
 
@@ -232,14 +232,12 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
      * @param configuration
      */
     public void refresh(Map<String, Object> configuration) {
-
         LOGGER.debug("WfsSource {}: Refresh called", getId());
         String wfsUrl = (String) configuration.get(WFSURL_PROPERTY);
         String password = (String) configuration.get(PASSWORD_PROPERTY);
         String username = (String) configuration.get(USERNAME_PROPERTY);
         Boolean disableSSLCertVerification = (Boolean) configuration.get(SSL_VERIFICATION_PROPERTY);
         String id = (String) configuration.get(ID_PROPERTY);
-
 
         String[] nonQueryableProperties = (String[]) configuration
                 .get(NON_QUERYABLE_PROPS_PROPERTY);
@@ -251,9 +249,7 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
 
         // only attempt to re-connect on a refresh if not connected OR username,
         // password, or the URL changes
-        if (remoteWfs == null
-                || hasWfsUrlChanged(wfsUrl)
-                || hasPasswordChanged(password) 
+        if (remoteWfs == null || hasWfsUrlChanged(wfsUrl) || hasPasswordChanged(password)
                 || hasUsernameChanged(username)
                 || hasDisableSslCertVerificationChanged(disableSSLCertVerification)) {
             this.wfsUrl = wfsUrl;
@@ -264,17 +260,19 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
             connectToRemoteWfs();
             configureWfsFeatures();
         } else {
-            // Only need to update the supportedGeos if we don't reconnect.
-            String spatialFilter = (String) configuration.get(SPATIAL_FILTER_PROPERTY);
-            if (!StringUtils.equals(forceSpatialFilter, spatialFilter)) {
-                List<String> geoFilters = new ArrayList<String>();
-                if (NO_FORCED_SPATIAL_FILTER.equals(spatialFilter)) {
-                    geoFilters.addAll(supportedGeoFilters);
+            // Only need to update the supportedSpatialOps if we don't reconnect.
+            String spatialOpName = (String) configuration.get(SPATIAL_FILTER_PROPERTY);
+            if (!StringUtils.equals(forceSpatialFilter, spatialOpName)) {
+                SpatialOperatorsType spatialOps = new SpatialOperatorsType();
+                if (NO_FORCED_SPATIAL_FILTER.equals(spatialOpName)) {
+                    spatialOps = supportedSpatialOperators;
                 } else {
-                    geoFilters.add(spatialFilter);
+                    SpatialOperatorType operator = new SpatialOperatorType();
+                    operator.setName(spatialOpName);
+                    spatialOps.getSpatialOperator().add(operator);
                 }
                 for (WfsFilterDelegate delegate : featureTypeFilters.values()) {
-                    delegate.setSupportedGeoFilters(geoFilters);
+                    delegate.setSpatialOps(spatialOps);
                 }
             }
         }
@@ -378,8 +376,7 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
 
         if (capabilities != null) {
             List<FeatureTypeType> featureTypes = getFeatureTypes(capabilities);
-            List<String> supportedGeo = getSupportedGeo(capabilities);
-            buildFeatureFilters(featureTypes, supportedGeo);
+            buildFeatureFilters(featureTypes, capabilities.getFilterCapabilities());
         } else {
             LOGGER.warn("WfsSource {}: WFS Server did not return any capabilities.", getId());
         }
@@ -393,93 +390,65 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
         return featureTypes;
     }
 
-    private List<String> getSupportedGeo(WFSCapabilitiesType capabilities) {
-        supportedGeoFilters = new ArrayList<String>();
-        
-        List<SpatialOperatorType> geoTypes = capabilities.getFilterCapabilities().getSpatialCapabilities().getSpatialOperators().getSpatialOperator();
-        
-        for(SpatialOperatorType geoType : geoTypes){
-        	supportedGeoFilters.add(geoType.getName());
+    private void updateSupportedSpatialOperators(SpatialOperatorsType spatialOperatorsType) {
+        if (spatialOperatorsType == null){
+            return;
         }
+        
+        supportedSpatialOperators = spatialOperatorsType;
 
-        if (!NO_FORCED_SPATIAL_FILTER.equals(forceSpatialFilter)) {
-            return Arrays.asList(forceSpatialFilter);
+        if (NO_FORCED_SPATIAL_FILTER.equals(forceSpatialFilter)) {
+            return;
         }
-        return supportedGeoFilters;
+        
+        SpatialOperatorsType forcedSpatialOpType = new SpatialOperatorsType();
+        SpatialOperatorType sot = new SpatialOperatorType();
+        sot.setName(forceSpatialFilter);
+        forcedSpatialOpType.getSpatialOperator().add(sot);
+        for (WfsFilterDelegate delegate : featureTypeFilters.values()) {
+            delegate.setSpatialOps(forcedSpatialOpType);
+        }
     }
 
-    private void buildFeatureFilters(List<FeatureTypeType> featureTypes, List<String> supportedGeo) {
+    private void buildFeatureFilters(List<FeatureTypeType> featureTypes,
+            FilterCapabilities filterCapabilities) {
+
+        if (filterCapabilities == null) {
+            return;
+        }
 
         // Use local Map for metacardtype registrations and once they are populated with latest
         // MetacardTypes, then do actual registration
         Map<String, MetacardTypeRegistration> mcTypeRegs = new HashMap<String, MetacardTypeRegistration>();
+        this.featureTypeFilters.clear();
 
         for (FeatureTypeType featureTypeType : featureTypes) {
-            String ftName = featureTypeType.getName().getLocalPart();
+            String ftSimpleName = featureTypeType.getName().getLocalPart();
 
-            if (mcTypeRegs.containsKey(ftName)) {
+            if (mcTypeRegs.containsKey(ftSimpleName)) {
                 LOGGER.debug(
                         "WfsSource {}: MetacardType {} is already registered - skipping to next metacard type",
-                        getId(), ftName);
+                        getId(), ftSimpleName);
                 continue;
             }
 
-            LOGGER.debug("ftName: {}", ftName);
+            LOGGER.debug("ftName: {}", ftSimpleName);
             try {
                 XmlSchema schema = remoteWfs.describeFeatureType(new DescribeFeatureTypeRequest(
                         featureTypeType.getName()));
 
                 if ((schema != null)) {
-                    FeatureMetacardType ftMetacard = new FeatureMetacardType(schema,
-                            featureTypeType.getName(),
-                            nonQueryableProperties != null ? Arrays.asList(nonQueryableProperties)
-                                    : new ArrayList<String>());
-
-                    Dictionary<String, Object> props = new Hashtable<String, Object>();
-                    props.put(Metacard.CONTENT_TYPE, new String[] {ftName});
-
-                    LOGGER.debug("WfsSource {}: Registering MetacardType: {}", getId(), ftName);
-
                     // Update local map with enough info to create actual MetacardType registrations
                     // later
-                    mcTypeRegs.put(ftName, new MetacardTypeRegistration(ftMetacard, props,
-                            featureTypeType.getDefaultCRS()));
-
-                    FeatureConverter featureConverter = null;
-
-                    if (!CollectionUtils.isEmpty(featureConverterFactories)) {
-                        for (FeatureConverterFactory factory : featureConverterFactories) {
-                            if (ftName.equalsIgnoreCase(factory.getFeatureType())) {
-                                featureConverter = factory.createConverter();
-                                LOGGER.debug(
-                                        "WFS Source {}: Features of type: {} will be converted using {}",
-                                        getId(), ftName, featureConverter.getClass().getSimpleName());
-                                break;
-                            }
-
-                        }
-
-                        if (featureConverter == null) {
-                            LOGGER.warn(
-                                    "WfsSource {}: Unable to find a feature specific converter; {} will be converted using the GenericFeatureConverter",
-                                    getId(), ftName);
-                            featureConverter = new GenericFeatureConverter();
-                        }
-                    } else {
-                        LOGGER.warn(
-                                "WfsSource {}: Unable to find a feature specific converter; {} will be converted using the GenericFeatureConverter",
-                                getId(), ftName);
-                        featureConverter = new GenericFeatureConverter();
-
-                    }
-                    featureConverter.setSourceId(getId());
-                    featureConverter.setMetacardType(ftMetacard);
-                    featureConverter.setWfsUrl(wfsUrl);
-
-                    // Add the Feature Type name as an alias for xstream
-                    remoteWfs.getFeatureCollectionReader().registerConverter(featureConverter);
+                    MetacardTypeRegistration registration = createFeatureMetacardTypeRegistration(
+                            featureTypeType, ftSimpleName, schema);
+                    mcTypeRegs.put(ftSimpleName, registration);
+                    FeatureMetacardType featureMetacardType = registration.getFtMetacard();
+                    lookupFeatureConverter(ftSimpleName, featureMetacardType);
+                    this.featureTypeFilters.put(featureMetacardType.getFeatureType(),
+                            new WfsFilterDelegate(featureMetacardType, filterCapabilities,
+                                    registration.getSrs()));
                 }
-
             } catch (WfsException wfse) {
                 LOGGER.warn(WFS_ERROR_MESSAGE, wfse);
             } catch (WebApplicationException wae) {
@@ -487,9 +456,22 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
             } catch (IllegalArgumentException ie) {
                 LOGGER.warn(WFS_ERROR_MESSAGE, ie);
             }
-
         }
 
+        registerFeatureMetacardTypes(mcTypeRegs);
+
+        if (featureTypeFilters.isEmpty()) {
+            LOGGER.warn(
+                    "Wfs Source {}: No Feature Type schemas validated. Marking source as unavailable",
+                    getId());
+        }
+        LOGGER.debug("Wfs Source {}: Number of validated Features = {}", getId(),
+                featureTypeFilters.size());
+        updateSupportedSpatialOperators(filterCapabilities.getSpatialCapabilities()
+                .getSpatialOperators());
+    }
+
+    private void registerFeatureMetacardTypes(Map<String, MetacardTypeRegistration> mcTypeRegs) {
         // Unregister all MetacardType services - the DescribeFeatureTypeRequest should
         // have returned all of the most current metacard types that will now be registered.
         // As Source(s) are added/removed from this instance or to other Source(s)
@@ -499,26 +481,66 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
         // a query could come in that is handled while the MetacardType registrations are
         // in a state of flux.
         unregisterAllMetacardTypes();
-        this.featureTypeFilters.clear();
         if (!mcTypeRegs.isEmpty()) {
-            for (String ftName : mcTypeRegs.keySet()) {
-                MetacardTypeRegistration mcTypeReg = mcTypeRegs.get(ftName);
-                FeatureMetacardType ftMetacard = mcTypeReg.getFtMetacard();
+            for (MetacardTypeRegistration registration : mcTypeRegs.values()) {
+                FeatureMetacardType ftMetacard = registration.getFtMetacard();
+                String simpleName = ftMetacard.getFeatureType().getLocalPart();
                 ServiceRegistration serviceRegistration = context.registerService(
-                        MetacardType.class.getName(), ftMetacard, mcTypeReg.getProps());
-                this.metacardTypeServiceRegistrations.put(ftName, serviceRegistration);
-                this.featureTypeFilters.put(ftMetacard.getFeatureType(), new WfsFilterDelegate(
-                        ftMetacard, supportedGeo, mcTypeReg.getSrs()));
+                        MetacardType.class.getName(), ftMetacard, registration.getProps());
+                this.metacardTypeServiceRegistrations.put(simpleName, serviceRegistration);
             }
         }
+    }
 
-        if (featureTypeFilters.isEmpty()) {
+    private void lookupFeatureConverter(String ftSimpleName, FeatureMetacardType ftMetacard) {
+        FeatureConverter featureConverter = null;
+
+        if (!CollectionUtils.isEmpty(featureConverterFactories)) {
+            for (FeatureConverterFactory factory : featureConverterFactories) {
+                if (ftSimpleName.equalsIgnoreCase(factory.getFeatureType())) {
+                    featureConverter = factory.createConverter();
+                    LOGGER.debug(
+                            "WFS Source {}: Features of type: {} will be converted using {}",
+                            getId(), ftSimpleName, featureConverter.getClass()
+                                    .getSimpleName());
+                    break;
+                }
+
+            }
+
+            if (featureConverter == null) {
+                LOGGER.warn(
+                        "WfsSource {}: Unable to find a feature specific converter; {} will be converted using the GenericFeatureConverter",
+                        getId(), ftSimpleName);
+                featureConverter = new GenericFeatureConverter();
+            }
+        } else {
             LOGGER.warn(
-                    "Wfs Source {}: No Feature Type schemas validated. Marking source as unavailable",
-                    getId());
+                    "WfsSource {}: Unable to find a feature specific converter; {} will be converted using the GenericFeatureConverter",
+                    getId(), ftSimpleName);
+            featureConverter = new GenericFeatureConverter();
+
         }
-        LOGGER.debug("Wfs Source {}: Number of validated Features = {}", getId(),
-                featureTypeFilters.size());
+        featureConverter.setSourceId(getId());
+        featureConverter.setMetacardType(ftMetacard);
+        featureConverter.setWfsUrl(wfsUrl);
+
+        // Add the Feature Type name as an alias for xstream
+        remoteWfs.getFeatureCollectionReader().registerConverter(featureConverter);
+    }
+
+    private MetacardTypeRegistration createFeatureMetacardTypeRegistration(
+            FeatureTypeType featureTypeType, String ftName, XmlSchema schema) {
+        FeatureMetacardType ftMetacard = new FeatureMetacardType(schema, featureTypeType.getName(),
+                nonQueryableProperties != null ? Arrays.asList(nonQueryableProperties)
+                        : new ArrayList<String>());
+
+        Dictionary<String, Object> props = new Hashtable<String, Object>();
+        props.put(Metacard.CONTENT_TYPE, new String[] {ftName});
+
+        LOGGER.debug("WfsSource {}: Registering MetacardType: {}", getId(), ftName);
+
+        return new MetacardTypeRegistration(ftMetacard, props, featureTypeType.getDefaultCRS());
     }
 
     @Override
@@ -554,8 +576,8 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
                 FilterType filter = filterAdapter.adapt(query, filterDelegateEntry.getValue());
                 if (filter != null) {
                     if (areAnyFiltersSet(filter)) {
-                        wfsQuery.setAbstractSelectionClause(
-                                new net.opengis.fes._2.ObjectFactory().createFilter(filter));
+                        wfsQuery.setAbstractSelectionClause(new net.opengis.filter.v_2_0_0.ObjectFactory()
+                                .createFilter(filter));
                     }
                     queries.add(wfsQuery);
                 } else {
@@ -569,7 +591,7 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
             GetFeatureType getFeatureType = new GetFeatureType();
             getFeatureType.setCount(BigInteger.valueOf(query.getPageSize()));
             
-            List<JAXBElement<? extends AbstractQueryExpressionType>> incomingQueries = getFeatureType.getAbstractQueryExpression();
+            List<JAXBElement<?>> incomingQueries = getFeatureType.getAbstractQueryExpression();
             for(QueryType queryType : queries){
                 incomingQueries.add(new net.opengis.wfs.v_2_0_0.ObjectFactory().createQuery(queryType));
             }

@@ -32,14 +32,12 @@ import org.apache.ws.commons.schema.XmlSchemaElement;
 import org.apache.ws.commons.schema.XmlSchemaSimpleType;
 import org.apache.ws.commons.schema.constants.Constants;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.FeatureMetacardType;
-import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.WfsConstants;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsFeatureCollection;
 import org.codice.ddf.spatial.ogc.wfs.catalog.converter.FeatureConverter;
 import org.codice.ddf.spatial.ogc.wfs.catalog.converter.impl.EnhancedStaxDriver;
-import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.converter.impl.FeatureCollectionConverterWfs20;
 import org.codice.ddf.spatial.ogc.wfs.catalog.converter.impl.GenericFeatureConverter;
 import org.codice.ddf.spatial.ogc.wfs.catalog.converter.impl.GmlGeometryConverter;
-import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.converter.impl.SampleMetacard;
+import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.WfsConstants;
 import org.junit.Test;
 
 import com.thoughtworks.xstream.XStream;
@@ -266,7 +264,7 @@ public class TestGenericFeatureConverter {
 
         XmlSchemaElement gmlElement = new XmlSchemaElement(schema, true);
         gmlElement.setSchemaType(new XmlSchemaComplexType(schema, false));
-        gmlElement.setSchemaTypeName(new QName(WfsConstants.GML_NAMESPACE, GML));
+        gmlElement.setSchemaTypeName(new QName(WfsConstants.GML_2_1_2_NAMESPACE, GML));
         gmlElement.setName(GROUND_GEOM_ELEMENT);
         elementMap.put(new QName(GROUND_GEOM_ELEMENT), gmlElement);
 

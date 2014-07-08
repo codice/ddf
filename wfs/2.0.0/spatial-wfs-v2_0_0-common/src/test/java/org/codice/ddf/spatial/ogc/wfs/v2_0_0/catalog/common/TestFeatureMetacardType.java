@@ -64,7 +64,7 @@ public class TestFeatureMetacardType {
         XmlSchema schema = new XmlSchema();
         XmlSchemaElement gmlElement = new XmlSchemaElement(schema, true);
         gmlElement.setSchemaType(new XmlSchemaComplexType(schema, false));
-        gmlElement.setSchemaTypeName(new QName(WfsConstants.GML_NAMESPACE, GML));
+        gmlElement.setSchemaTypeName(new QName(WfsConstants.GML_2_1_2_NAMESPACE, GML));
         gmlElement.setName(ELEMENT_NAME_1);
 
         FeatureMetacardType featureMetacardType = new FeatureMetacardType(schema, FEATURE_TYPE,
@@ -81,12 +81,12 @@ public class TestFeatureMetacardType {
         XmlSchema schema = new XmlSchema();
         XmlSchemaElement gmlElement = new XmlSchemaElement(schema, true);
         gmlElement.setSchemaType(new XmlSchemaComplexType(schema, false));
-        gmlElement.setSchemaTypeName(new QName(WfsConstants.GML_NAMESPACE, GML));
+        gmlElement.setSchemaTypeName(new QName(WfsConstants.GML_2_1_2_NAMESPACE, GML));
         gmlElement.setName(ELEMENT_NAME_1);
 
         XmlSchemaElement gmlElement2 = new XmlSchemaElement(schema, true);
         gmlElement2.setSchemaType(new XmlSchemaComplexType(schema, false));
-        gmlElement2.setSchemaTypeName(new QName(WfsConstants.GML_NAMESPACE, GML));
+        gmlElement2.setSchemaTypeName(new QName(WfsConstants.GML_2_1_2_NAMESPACE, GML));
         gmlElement2.setName(ELEMENT_NAME_2);
 
         FeatureMetacardType featureMetacardType = new FeatureMetacardType(schema, FEATURE_TYPE,
@@ -102,12 +102,12 @@ public class TestFeatureMetacardType {
         XmlSchema schema = new XmlSchema();
         XmlSchemaElement gmlElement = new XmlSchemaElement(schema, true);
         gmlElement.setSchemaType(new XmlSchemaComplexType(schema, false));
-        gmlElement.setSchemaTypeName(new QName(WfsConstants.GML_NAMESPACE, GML));
+        gmlElement.setSchemaTypeName(new QName(WfsConstants.GML_2_1_2_NAMESPACE, GML));
         gmlElement.setName(ELEMENT_NAME_1);
 
         XmlSchemaElement gmlElement2 = new XmlSchemaElement(schema, true);
         gmlElement2.setSchemaType(new XmlSchemaComplexType(schema, false));
-        gmlElement2.setSchemaTypeName(new QName(WfsConstants.GML_NAMESPACE, GML));
+        gmlElement2.setSchemaTypeName(new QName(WfsConstants.GML_2_1_2_NAMESPACE, GML));
         gmlElement2.setName(ELEMENT_NAME_2);
 
         List<String> nonQueryProps = new ArrayList<String>();
@@ -211,7 +211,7 @@ public class TestFeatureMetacardType {
         stringElement.setName(ELEMENT_NAME_1);
         XmlSchemaElement gmlElement = new XmlSchemaElement(schema, true);
         gmlElement.setSchemaType(new XmlSchemaComplexType(schema, false));
-        gmlElement.setSchemaTypeName(new QName(WfsConstants.GML_NAMESPACE, GML));
+        gmlElement.setSchemaTypeName(new QName(WfsConstants.GML_2_1_2_NAMESPACE, GML));
         gmlElement.setName(ELEMENT_NAME_2);
         schema.getElements().put(new QName(ELEMENT_NAME_1), stringElement);
         schema.getElements().put(new QName(ELEMENT_NAME_2), gmlElement);
@@ -232,7 +232,7 @@ public class TestFeatureMetacardType {
         // Create the GML and String types
         XmlSchemaElement gmlElement = new XmlSchemaElement(schema, true);
         gmlElement.setSchemaType(new XmlSchemaComplexType(schema, false));
-        gmlElement.setSchemaTypeName(new QName(WfsConstants.GML_NAMESPACE, GML));
+        gmlElement.setSchemaTypeName(new QName(WfsConstants.GML_2_1_2_NAMESPACE, GML));
         gmlElement.setName(ELEMENT_NAME_1);
 
         XmlSchemaElement stringElement = new XmlSchemaElement(schema, true);

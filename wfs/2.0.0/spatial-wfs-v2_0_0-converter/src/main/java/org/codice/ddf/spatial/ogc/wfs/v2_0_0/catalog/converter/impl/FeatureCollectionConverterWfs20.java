@@ -15,8 +15,9 @@
 
 package org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.converter.impl;
 
-import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.WfsConstants;
+import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsFeatureCollection;
 import org.codice.ddf.spatial.ogc.wfs.catalog.converter.impl.FeatureCollectionConverter;
+import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.WfsConstants;
 
 /**
  * This class works in conjunction with XStream to convert a {@link WfsFeatureCollection} v2.0 to XML
@@ -31,7 +32,7 @@ public class FeatureCollectionConverterWfs20 extends FeatureCollectionConverter 
     
     public FeatureCollectionConverterWfs20() {
         super();
-        prefixToUriMapping.put(WfsConstants.WFS_NAMESPACE_PREFIX, WfsConstants.WFS_NAMESPACE);
-        prefixToUriMapping.put(WfsConstants.GML_PREFIX, WfsConstants.GML_NAMESPACE);
+        prefixToUriMapping.put(WfsConstants.WFS_NAMESPACE_PREFIX, WfsConstants.WFS_2_0_NAMESPACE);
+        prefixToUriMapping.put(WfsConstants.GML_PREFIX, WfsConstants.GML_3_2_NAMESPACE);
     }
 }

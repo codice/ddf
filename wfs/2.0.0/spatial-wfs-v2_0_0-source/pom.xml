@@ -38,7 +38,7 @@
             <groupId>org.codice.ddf.spatial</groupId>
             <artifactId>spatial-wfs-v1_0_0-schema-bindings</artifactId>
         </dependency>
-
+        
         <dependency>
             <groupId>org.codice.ddf.spatial</groupId>
             <artifactId>spatial-wfs-v2_0_0-schema-bindings</artifactId>
@@ -111,6 +111,12 @@
             <artifactId>spatial-ogc-api</artifactId>
         </dependency>
         
+        <dependency>
+        	<groupId>org.jvnet.jaxb2_commons</groupId>
+			<artifactId>jaxb2-basics-runtime</artifactId>
+			<version>0.6.0</version>
+        </dependency>
+        
     </dependencies>
     <build>
         <resources>
@@ -131,13 +137,16 @@
                         <Embed-Dependency>
                             spatial-wfs-v1_0_0-schema-bindings,
                             spatial-wfs-v2_0_0-schema-bindings,
+                            filter-v_2_0_0-schema,
+                            ows-v_1_1_0-schema,
                             spatial-wfs-common,
                             spatial-wfs-v2_0_0-common,
                             spatial-ogc-common,
                             spatial-wfs-source,
                             spatial-wfs-converter;scope=compile|runtime,
                             spatial-wfs-v2_0_0-converter;scope=compile|runtime,
-                            catalog-core-api-impl</Embed-Dependency>
+                            catalog-core-api-impl,
+                            jaxb2-basics-runtime</Embed-Dependency>
                         <Embed-Transitive>true</Embed-Transitive>
                     </instructions>
                 </configuration>

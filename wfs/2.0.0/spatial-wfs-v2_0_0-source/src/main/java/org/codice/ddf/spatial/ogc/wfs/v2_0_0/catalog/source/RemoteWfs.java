@@ -42,19 +42,17 @@ import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.cxf.jaxrs.provider.JAXBElementProvider;
 import org.apache.ws.commons.schema.XmlSchema;
 import org.codice.ddf.spatial.ogc.catalog.common.TrustedRemoteSource;
-import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.DescribeFeatureTypeRequest;
-import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.GetCapabilitiesRequest;
-import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.WfsConstants;
-import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.Wfs;
-import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.GetPropertyValueRequest;
-
-
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsException;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsFeatureCollection;
 import org.codice.ddf.spatial.ogc.wfs.catalog.source.MarkableStreamInterceptor;
 import org.codice.ddf.spatial.ogc.wfs.catalog.source.WfsResponseExceptionMapper;
 import org.codice.ddf.spatial.ogc.wfs.catalog.source.reader.FeatureCollectionMessageBodyReader;
 import org.codice.ddf.spatial.ogc.wfs.catalog.source.reader.XmlSchemaMessageBodyReader;
+import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.DescribeFeatureTypeRequest;
+import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.GetCapabilitiesRequest;
+import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.GetPropertyValueRequest;
+import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.Wfs;
+import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.WfsConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -128,7 +126,8 @@ public class RemoteWfs extends TrustedRemoteSource implements Wfs {
         Map<String, String> jaxbClassMap = new HashMap<String, String>();
 
         // Ensure a namespace is used when the GetFeature request is generated
-        String expandedName = new QName(WfsConstants.WFS_NAMESPACE, WfsConstants.GET_FEATURE).toString();
+        String expandedName = new QName(WfsConstants.WFS_2_0_NAMESPACE, WfsConstants.GET_FEATURE)
+                .toString();
         jaxbClassMap.put(GetFeatureType.class.getName(), expandedName);
         provider.setJaxbElementClassMap(jaxbClassMap);
         provider.setMarshallAsJaxbElement(true);

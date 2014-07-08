@@ -41,8 +41,8 @@ public class WfsUriResolver extends DefaultURIResolver {
      *            base URI for the schema.
      */
     public InputSource resolveEntity(String namespace, String schemaLocation, String baseUri) {
-        if (WfsConstants.GML_NAMESPACE.equals(namespace)
-                || WfsConstants.WFS_NAMESPACE.equals(namespace)) {
+        if (WfsConstants.GML_3_2_NAMESPACE.equals(namespace)
+                || WfsConstants.WFS_2_0_NAMESPACE.equals(namespace)) {
             LOGGER.debug("Found WFS or GML namespace.");
             return null;
         }

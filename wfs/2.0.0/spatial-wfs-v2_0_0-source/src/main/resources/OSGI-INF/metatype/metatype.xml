@@ -47,7 +47,7 @@
             <Option label="Crosses" value="Crosses" />
             <Option label="Disjoint" value="Disjoint" />
             <Option label="DWithin" value="DWithin" />
-            <Option label="Intersect" value="Intersect" />
+            <Option label="Intersects" value="Intersects" />
             <Option label="Equals" value="Equals" />
             <Option label="Overlaps" value="Overlaps" />
             <Option label="Touches" value="Touches" />

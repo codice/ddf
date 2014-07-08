@@ -15,33 +15,50 @@
 package org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.source;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
+import java.util.EnumMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.xml.bind.JAXBElement;
+import javax.xml.namespace.QName;
 
-import net.opengis.fes._2.AbstractIdType;
-import net.opengis.fes._2.BBOXType;
-import net.opengis.fes._2.BinaryComparisonOpType;
-import net.opengis.fes._2.BinaryLogicOpType;
-import net.opengis.fes._2.BinarySpatialOpType;
-import net.opengis.fes._2.ComparisonOpsType;
-import net.opengis.fes._2.DistanceBufferType;
-import net.opengis.fes._2.FilterType;
-import net.opengis.fes._2.LiteralType;
-import net.opengis.fes._2.LowerBoundaryType;
-import net.opengis.fes._2.MeasureType;
-import net.opengis.fes._2.ObjectFactory;
-import net.opengis.fes._2.PropertyIsBetweenType;
-import net.opengis.fes._2.PropertyIsLikeType;
-import net.opengis.fes._2.ResourceIdType;
-import net.opengis.fes._2.SpatialOpsType;
-import net.opengis.fes._2.UnaryLogicOpType;
-import net.opengis.fes._2.UpperBoundaryType;
+import net.opengis.filter.v_2_0_0.AbstractIdType;
+import net.opengis.filter.v_2_0_0.BBOXType;
+import net.opengis.filter.v_2_0_0.BinaryComparisonOpType;
+import net.opengis.filter.v_2_0_0.BinaryLogicOpType;
+import net.opengis.filter.v_2_0_0.BinarySpatialOpType;
+import net.opengis.filter.v_2_0_0.ComparisonOperatorType;
+import net.opengis.filter.v_2_0_0.ComparisonOperatorsType;
+import net.opengis.filter.v_2_0_0.ComparisonOpsType;
+import net.opengis.filter.v_2_0_0.ConformanceType;
+import net.opengis.filter.v_2_0_0.DistanceBufferType;
+import net.opengis.filter.v_2_0_0.FilterCapabilities;
+import net.opengis.filter.v_2_0_0.FilterType;
+import net.opengis.filter.v_2_0_0.GeometryOperandsType;
+import net.opengis.filter.v_2_0_0.LiteralType;
+import net.opengis.filter.v_2_0_0.LowerBoundaryType;
+import net.opengis.filter.v_2_0_0.MeasureType;
+import net.opengis.filter.v_2_0_0.ObjectFactory;
+import net.opengis.filter.v_2_0_0.PropertyIsBetweenType;
+import net.opengis.filter.v_2_0_0.PropertyIsLikeType;
+import net.opengis.filter.v_2_0_0.ResourceIdType;
+import net.opengis.filter.v_2_0_0.ScalarCapabilitiesType;
+import net.opengis.filter.v_2_0_0.SpatialCapabilitiesType;
+import net.opengis.filter.v_2_0_0.SpatialOperatorType;
+import net.opengis.filter.v_2_0_0.SpatialOperatorsType;
+import net.opengis.filter.v_2_0_0.SpatialOpsType;
+import net.opengis.filter.v_2_0_0.TemporalCapabilitiesType;
+import net.opengis.filter.v_2_0_0.TemporalOperandsType;
+import net.opengis.filter.v_2_0_0.TemporalOperatorType;
+import net.opengis.filter.v_2_0_0.TemporalOperatorsType;
+import net.opengis.filter.v_2_0_0.UnaryLogicOpType;
+import net.opengis.filter.v_2_0_0.UpperBoundaryType;
+import net.opengis.ows.v_1_1_0.DomainType;
 import ogc.schema.opengis.gml.v_2_1_2.BoxType;
 import ogc.schema.opengis.gml.v_2_1_2.CoordinatesType;
 import ogc.schema.opengis.gml.v_2_1_2.LinearRingMemberType;
@@ -54,7 +71,10 @@ import org.apache.cxf.common.util.CollectionUtils;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.FeatureAttributeDescriptor;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.FeatureMetacardType;
 import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.WfsConstants;
+import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.WfsConstants.COMPARISON_OPERATORS;
+import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.WfsConstants.CONFORMANCE_CONSTRAINTS;
 import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.WfsConstants.SPATIAL_OPERATORS;
+import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.WfsConstants.TEMPORAL_OPERATORS;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -81,6 +101,9 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
 
     private ObjectFactory filterObjectFactory = new ObjectFactory();
 
+    // TODO - Update to GML 3.2
+    // private net.opengis.gml.v_3_2_0.ObjectFactory gmlObjectFactory = new
+    // net.opengis.gml.v_3_2_0.ObjectFactory();
     private ogc.schema.opengis.gml.v_2_1_2.ObjectFactory gmlObjectFactory = new ogc.schema.opengis.gml.v_2_1_2.ObjectFactory();
 
     private static final Logger LOGGER = LoggerFactory.getLogger(WfsFilterDelegate.class);
@@ -89,33 +112,154 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
 
     private static final String PROPERTY_NOT_QUERYABLE = "'%s' is not a queryable property.";
 
-    private List<String> supportedGeo;
+    private boolean logicalOps;
+
+    private Set<COMPARISON_OPERATORS> comparisonOps;
+
+    private Map<SPATIAL_OPERATORS, SpatialOperatorType> spatialOps = new ConcurrentHashMap<SPATIAL_OPERATORS, SpatialOperatorType>(
+            new EnumMap<SPATIAL_OPERATORS, SpatialOperatorType>(SPATIAL_OPERATORS.class));
+
+    private List<QName> geometryOperands;
+
+    private List<QName> temporalOperands;
+
+    private Map<TEMPORAL_OPERATORS, TemporalOperatorType> temporalOps = new ConcurrentHashMap<TEMPORAL_OPERATORS, TemporalOperatorType>(
+            new EnumMap<TEMPORAL_OPERATORS, TemporalOperatorType>(TEMPORAL_OPERATORS.class));
+
+    private boolean isSortingSupported;
 
     private String srsName;
 
     private boolean isEpsg4326 = false;
 
-    public WfsFilterDelegate(FeatureMetacardType featureMetacardType, List<String> supportedGeo,
-            String srsName) {
+    public WfsFilterDelegate(FeatureMetacardType featureMetacardType,
+            FilterCapabilities filterCapabilities, String srsName) {
 
         if (featureMetacardType == null) {
             throw new IllegalArgumentException("FeatureMetacardType can not be null");
         }
         this.featureMetacardType = featureMetacardType;
-        this.supportedGeo = supportedGeo;
         this.srsName = srsName;
-        if (WfsConstants.EPSG_4326.equalsIgnoreCase(srsName)) {
+        if (WfsConstants.EPSG_4326.equalsIgnoreCase(srsName)
+                || WfsConstants.EPSG_4326_URN.equalsIgnoreCase(srsName)) {
             isEpsg4326 = true;
         } else {
             LOGGER.debug(
                     "Unable to convert geometry to {}. All geospatial queries for this featureType will be invalidated!",
                     srsName);
         }
+        updateAllowedOperations(filterCapabilities);
     }
 
-    public void setSupportedGeoFilters(List<String> supportedGeos) {
-        LOGGER.debug("Updating supportedGeos to: {}", Arrays.toString(supportedGeos.toArray()));
-        this.supportedGeo = supportedGeos;
+    private final void updateAllowedOperations(FilterCapabilities filterCapabilities) {
+        comparisonOps = Collections
+                .newSetFromMap(new ConcurrentHashMap<COMPARISON_OPERATORS, Boolean>(
+                        new EnumMap<COMPARISON_OPERATORS, Boolean>(COMPARISON_OPERATORS.class)));
+
+        geometryOperands = new ArrayList<QName>();
+        temporalOperands = new ArrayList<QName>();
+
+
+        if (null == filterCapabilities) {
+            LOGGER.error("CSW Service doesn't support any filters");
+            return;
+        }
+
+        // CONFORMANCE
+        ConformanceType conformance = filterCapabilities.getConformance();
+        if (conformance != null) {
+            List<DomainType> constraints = conformance.getConstraint();
+            for (DomainType constraint : constraints) {
+                if (CONFORMANCE_CONSTRAINTS.ImplementsSorting.equals(CONFORMANCE_CONSTRAINTS
+                        .valueOf(constraint.getName())) && constraint.getDefaultValue() != null) {
+                    isSortingSupported = Boolean.parseBoolean(constraint.getDefaultValue()
+                            .getValue());
+                }
+            }
+        }
+
+        ScalarCapabilitiesType scalarCapabilities = filterCapabilities.getScalarCapabilities();
+        if (scalarCapabilities != null) {
+            // LOGICAL OPERATORS
+            if (scalarCapabilities.getLogicalOperators() != null) {
+                logicalOps = true;
+            }
+
+            // COMPARISON OPERATORS
+            ComparisonOperatorsType comparisonOperators = scalarCapabilities
+                    .getComparisonOperators();
+            if (comparisonOperators != null) {
+                for (ComparisonOperatorType comp : comparisonOperators.getComparisonOperator()) {
+                    if (null != comp) {
+                        comparisonOps.add(COMPARISON_OPERATORS.valueOf(comp.getName()));
+                    }
+                }
+            }
+        }
+
+        // SPATIAL OPERATORS
+        SpatialCapabilitiesType spatialCapabilities = filterCapabilities.getSpatialCapabilities();
+        if (spatialCapabilities != null) {
+            if (spatialCapabilities.getSpatialOperators() != null) {
+                setSpatialOps(spatialCapabilities.getSpatialOperators());
+            }
+
+            // GEOMETRY OPERANDS
+            GeometryOperandsType geometryOperandsType = spatialCapabilities.getGeometryOperands();
+            if (geometryOperandsType != null) {
+                for (GeometryOperandsType.GeometryOperand geoOperand : geometryOperandsType
+                        .getGeometryOperand()) {
+                    if (geoOperand.getName() != null) {
+                        geometryOperands.add(geoOperand.getName());
+                    }
+                }
+                LOGGER.debug("geometryOperands: {}", geometryOperands);
+            }
+        }
+
+        // TEMPORAL OPERATORS
+        TemporalCapabilitiesType temporalCapabilitiesType = filterCapabilities
+                .getTemporalCapabilities();
+        if (temporalCapabilitiesType != null) {
+            if (temporalCapabilitiesType.getTemporalOperators() != null) {
+                setTemporalOps(temporalCapabilitiesType.getTemporalOperators());
+            }
+
+            // GEOMETRY OPERANDS
+            TemporalOperandsType temporalOperandsType = temporalCapabilitiesType
+                    .getTemporalOperands();
+            if (temporalOperandsType != null) {
+                for (TemporalOperandsType.TemporalOperand temporalOperand : temporalOperandsType
+                        .getTemporalOperand()) {
+                    if (temporalOperand.getName() != null) {
+                        temporalOperands.add(temporalOperand.getName());
+                    }
+                }
+                LOGGER.debug("temporalOperands: {}", temporalOperands);
+            }
+        }
+    }
+
+    public void setSpatialOps(SpatialOperatorsType spatialOperators) {
+        spatialOps = new ConcurrentHashMap<SPATIAL_OPERATORS, SpatialOperatorType>(
+                new EnumMap<SPATIAL_OPERATORS, SpatialOperatorType>(SPATIAL_OPERATORS.class));
+
+        for (SpatialOperatorType spatialOp : spatialOperators.getSpatialOperator()) {
+            LOGGER.debug("Adding key [spatialOp Name: {}]", spatialOp.getName());
+            spatialOps.put(SPATIAL_OPERATORS.valueOf(spatialOp.getName()), spatialOp);
+            LOGGER.debug("spatialOps Map: {}", spatialOps.toString());
+        }
+    }
+
+    public void setTemporalOps(TemporalOperatorsType temporalOperators) {
+        temporalOps = new ConcurrentHashMap<TEMPORAL_OPERATORS, TemporalOperatorType>(
+                new EnumMap<TEMPORAL_OPERATORS, TemporalOperatorType>(TEMPORAL_OPERATORS.class));
+
+        for (TemporalOperatorType temporalOp : temporalOperators.getTemporalOperator()) {
+            LOGGER.debug("Adding key [temporalOp Name: {}]", temporalOp.getName());
+            temporalOps.put(TEMPORAL_OPERATORS.valueOf(temporalOp.getName()), temporalOp);
+            LOGGER.debug("temporalOps Map: {}", temporalOps.toString());
+        }
     }
 
     private static enum PROPERTY_IS_OPS {
@@ -821,10 +965,10 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
             throw new IllegalArgumentException(MISSING_PARAMETERS_MSG);
         }
 
-        if (supportedGeo.contains(SPATIAL_OPERATORS.Beyond.getValue())) {
+        if (spatialOps.containsKey(SPATIAL_OPERATORS.Beyond)) {
             return buildGeospatialFilterType(SPATIAL_OPERATORS.Beyond.toString(), propertyName,
                     wkt, distance);
-        } else if (supportedGeo.contains(SPATIAL_OPERATORS.DWithin.getValue())) {
+        } else if (spatialOps.containsKey(SPATIAL_OPERATORS.DWithin)) {
             return not(dwithin(propertyName, wkt, distance));
         } else {
             LOGGER.debug("WFS Source does not support Beyond filters");
@@ -843,10 +987,10 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
             throw new IllegalArgumentException(MISSING_PARAMETERS_MSG);
         }
 
-        if (supportedGeo.contains(SPATIAL_OPERATORS.Contains.getValue())) {
+        if (spatialOps.containsKey(SPATIAL_OPERATORS.Contains)) {
             return buildGeospatialFilterType(SPATIAL_OPERATORS.Contains.toString(), propertyName,
                     wkt, null);
-        } else if (supportedGeo.contains(SPATIAL_OPERATORS.Within.getValue())) {
+        } else if (spatialOps.containsKey(SPATIAL_OPERATORS.Within)) {
             return not(within(propertyName, wkt));
         } else {
             LOGGER.debug("WFS Source does not support Contains filters");
@@ -866,7 +1010,7 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
             throw new IllegalArgumentException(MISSING_PARAMETERS_MSG);
         }
 
-        if (supportedGeo.contains(SPATIAL_OPERATORS.Crosses.getValue())) {
+        if (spatialOps.containsKey(SPATIAL_OPERATORS.Crosses)) {
             return buildGeospatialFilterType(SPATIAL_OPERATORS.Crosses.toString(), propertyName,
                     wkt, null);
         } else {
@@ -886,12 +1030,12 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
             throw new IllegalArgumentException(MISSING_PARAMETERS_MSG);
         }
 
-        if (supportedGeo.contains(SPATIAL_OPERATORS.Disjoint.getValue())) {
+        if (spatialOps.containsKey(SPATIAL_OPERATORS.Disjoint)) {
             return buildGeospatialFilterType(SPATIAL_OPERATORS.Disjoint.toString(), propertyName,
                     wkt, null);
-        } else if (supportedGeo.contains(SPATIAL_OPERATORS.BBOX.getValue())) {
+        } else if (spatialOps.containsKey(SPATIAL_OPERATORS.BBOX)) {
             return not(bbox(propertyName, wkt));
-        } else if (supportedGeo.contains(SPATIAL_OPERATORS.Intersects.getValue())) {
+        } else if (spatialOps.containsKey(SPATIAL_OPERATORS.Intersects)) {
             return not(intersects(propertyName, wkt));
         } else {
             LOGGER.debug("WFS Source does not support Disjoint or BBOX filters");
@@ -910,12 +1054,12 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
             throw new IllegalArgumentException(MISSING_PARAMETERS_MSG);
         }
 
-        if (supportedGeo.contains(SPATIAL_OPERATORS.DWithin.getValue())) {
+        if (spatialOps.containsKey(SPATIAL_OPERATORS.DWithin)) {
             return this.buildGeospatialFilterType(SPATIAL_OPERATORS.DWithin.toString(),
                     propertyName, wkt, distance);
-        } else if (supportedGeo.contains(SPATIAL_OPERATORS.Beyond.getValue())) {
+        } else if (spatialOps.containsKey(SPATIAL_OPERATORS.Beyond)) {
             return not(beyond(propertyName, wkt, distance));
-        } else if (supportedGeo.contains(SPATIAL_OPERATORS.Intersects.getValue())) {
+        } else if (spatialOps.containsKey(SPATIAL_OPERATORS.Intersects)) {
             String bufferedWkt = bufferGeometry(wkt, distance);
             return intersects(propertyName, bufferedWkt);
         } else {
@@ -934,12 +1078,12 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
             throw new IllegalArgumentException(MISSING_PARAMETERS_MSG);
         }
 
-        if (supportedGeo.contains(SPATIAL_OPERATORS.Intersects.getValue())) {
+        if (spatialOps.containsKey(SPATIAL_OPERATORS.Intersects)) {
             return buildGeospatialFilterType(SPATIAL_OPERATORS.Intersects.toString(), propertyName,
                     wkt, null);
-        } else if (supportedGeo.contains(SPATIAL_OPERATORS.BBOX.getValue())) {
+        } else if (spatialOps.containsKey(SPATIAL_OPERATORS.BBOX)) {
             return bbox(propertyName, wkt);
-        } else if (supportedGeo.contains(SPATIAL_OPERATORS.Disjoint.getValue())) {
+        } else if (spatialOps.containsKey(SPATIAL_OPERATORS.Disjoint)) {
             return not(disjoint(propertyName, wkt));
         } else {
             LOGGER.debug("WFS Source does not support Intersect or BBOX");
@@ -958,7 +1102,7 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
             throw new IllegalArgumentException(MISSING_PARAMETERS_MSG);
         }
 
-        if (supportedGeo.contains(SPATIAL_OPERATORS.Overlaps.getValue())) {
+        if (spatialOps.containsKey(SPATIAL_OPERATORS.Overlaps)) {
             return buildGeospatialFilterType(SPATIAL_OPERATORS.Overlaps.toString(), propertyName,
                     wkt, null);
         } else {
@@ -977,7 +1121,7 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
             throw new IllegalArgumentException(MISSING_PARAMETERS_MSG);
         }
 
-        if (supportedGeo.contains(SPATIAL_OPERATORS.Touches.getValue())) {
+        if (spatialOps.containsKey(SPATIAL_OPERATORS.Touches)) {
             return buildGeospatialFilterType(SPATIAL_OPERATORS.Touches.toString(), propertyName,
                     wkt, null);
         } else {
@@ -996,10 +1140,10 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
             throw new IllegalArgumentException(MISSING_PARAMETERS_MSG);
         }
 
-        if (supportedGeo.contains(SPATIAL_OPERATORS.Within.getValue())) {
+        if (spatialOps.containsKey(SPATIAL_OPERATORS.Within)) {
             return buildGeospatialFilterType(SPATIAL_OPERATORS.Within.toString(), propertyName,
                     wkt, null);
-        } else if (supportedGeo.contains(SPATIAL_OPERATORS.Contains.getValue())) {
+        } else if (spatialOps.containsKey(SPATIAL_OPERATORS.Contains)) {
             return not(within(propertyName, wkt));
         } else {
             LOGGER.debug("WFS Source does not support Within filters");
@@ -1016,7 +1160,7 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
             throw new IllegalArgumentException(MISSING_PARAMETERS_MSG);
         }
 
-        if (supportedGeo.contains(SPATIAL_OPERATORS.BBOX.getValue())) {
+        if (spatialOps.containsKey(SPATIAL_OPERATORS.BBOX)) {
             return buildGeospatialFilterType(SPATIAL_OPERATORS.BBOX.toString(), propertyName, wkt,
                     null);
         } else {
@@ -1158,6 +1302,7 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
 
     private JAXBElement<BBOXType> buildBBoxType(String propertyName, String wkt) {
         BBOXType bboxType = new BBOXType();
+        BinarySpatialOpType bsot = new BinarySpatialOpType();
         JAXBElement<BoxType> box = createBoxType(wkt);
         //TODO: Figure out how to handle commented lines below
         //bboxType.setBox(box.getValue());
@@ -1331,6 +1476,42 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
                 * WfsConstants.RADIANS_TO_DEGREES;
         LOGGER.debug("{} meter(s) is approximately {} degree(s) of latitude.", distance, degrees);
         return degrees;
+    }
+
+    public boolean isLogicalOps() {
+        return logicalOps;
+    }
+
+    public Set<COMPARISON_OPERATORS> getComparisonOps() {
+        return comparisonOps;
+    }
+
+    public Map<SPATIAL_OPERATORS, SpatialOperatorType> getSpatialOps() {
+        return spatialOps;
+    }
+
+    public List<QName> getGeometryOperands() {
+        return geometryOperands;
+    }
+
+    public Map<TEMPORAL_OPERATORS, TemporalOperatorType> getTemporalOps() {
+        return temporalOps;
+    }
+
+    public List<QName> getTemporalOperands() {
+        return temporalOperands;
+    }
+
+    public boolean isSortingSupported() {
+        return isSortingSupported;
+    }
+
+    public String getSrsName() {
+        return srsName;
+    }
+
+    public boolean isEpsg4326() {
+        return isEpsg4326;
     }
 
 }
