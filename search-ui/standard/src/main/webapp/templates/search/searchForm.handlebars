@@ -13,6 +13,13 @@
  --}}
 <form id="searchForm" class="search-form" method="get">
     <ul class="nav nav-list">
+        {{#is isWorkspace true}}
+            <li class="nav-header">Query Name</li>
+            <li>
+                <input id="queryName" type="text" class="input-xlarge" value="{{name}}" />
+            </li>
+        {{/is}}
+
         <li class="nav-header">Keywords</li>
         <li>
             <input name="q" type="text" class="input-xlarge" autofocus />
@@ -201,10 +208,22 @@
 
         <li>
             <div class="form-actions btn-group search-buttons">
-                <a href="#" id="searchButton" class="btn btn-medium btn-primary searchButton">
-                    <i class="fa fa-search"></i> Search
-                </a>
+                {{#is isWorkspace true}}
+                    <a href="#" id="workspaceSearchButton" class="btn btn-medium btn-primary searchButton">
+                        <i class="fa fa-search"></i> Save & Search
+                    </a>
+                {{else}}
+                    <a href="#" id="searchButton" class="btn btn-medium btn-primary searchButton">
+                        <i class="fa fa-search"></i> Search
+                    </a>
+                {{/is}}
+
                 <a href="#" id="resetButton" class="btn btn-medium resetButton" type="reset">Clear</a>
+                {{#is isWorkspace true}}
+                    <a href="#" id="workspaceCancelButton" class="btn btn-medium">
+                        Cancel
+                    </a>
+                {{/is}}
             </div>
         </li>
     </ul>

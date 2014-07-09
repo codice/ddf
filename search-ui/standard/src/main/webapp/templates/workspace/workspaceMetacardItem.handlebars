@@ -11,10 +11,12 @@
  *
  **/
  --}}
-<div id="progressRegion">
-</div>
-<div id="searchControlRegion">
-</div>
-<hr class="nav-divider"/>
-<div id="searchPages">
-</div>
+<td>
+    <span class="workspace-name">{{title}}</span>
+</td>
+<td>
+    {{#is canEdit true}}
+        <a href="#" class="fa fa-pencil workspace-link workspace-edit"></a>
+        <a href="#" class="fa fa-times workspace-link workspace-remove"></a>
+    {{/is}}
+</td>

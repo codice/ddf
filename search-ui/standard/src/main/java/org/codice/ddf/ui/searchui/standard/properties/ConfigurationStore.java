@@ -77,8 +77,6 @@ public class ConfigurationStore {
     private static MimeType JSON_MIME_TYPE = null;
     
     private Integer timeout = 5000;
-
-    private Boolean isSyncQuery = false;
     
     private HttpProxyService httpProxy = null;
     
@@ -130,7 +128,6 @@ public class ConfigurationStore {
         configObj.put("layers", layers);
         configObj.put("format", format);
         configObj.put("timeout", timeout);
-        configObj.put("sync", isSyncQuery);
         configObj.put("targetUrl", targetUrl);
         configObj.put("resultCount", resultCount);
 
@@ -241,14 +238,6 @@ public class ConfigurationStore {
         this.timeout = timeout;
     }
 
-    public Boolean getSyncQuery() {
-        return this.isSyncQuery;
-    }
-
-    public void setSyncQuery(Boolean sync) {
-        this.isSyncQuery = sync;
-    }
-
     public String getTargetUrl() {
 		return targetUrl;
 	}
@@ -271,7 +260,6 @@ public class ConfigurationStore {
     		setLayers((String) properties.get("layers"));
     		setFormat((String) properties.get("format"));
     		setTimeout((Integer) properties.get("timeout"));
-    		setSyncQuery((Boolean) properties.get("syncQuery"));
     		setResultCount((Integer) properties.get("resultCount"));
     		setSignIn((Boolean) properties.get("signIn"));
             setTask((Boolean) properties.get("task"));
@@ -291,9 +279,8 @@ public class ConfigurationStore {
     		
             LOGGER.debug(
                     "Updated properties: header={}, footer={}, style={}, textColor={},"
-                            + "wmsServer={}, layers={}, format={}, timeout={}, syncQuery={}, resultCount{}",
-                    header, footer, style, textColor, wmsServer, layers, format, timeout,
-                    isSyncQuery, resultCount);
+                            + "wmsServer={}, layers={}, format={}, timeout={}, resultCount{}",
+                    header, footer, style, textColor, wmsServer, layers, format, timeout, resultCount);
   
     	} else{
     		LOGGER.debug("Properties are empty");

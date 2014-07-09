@@ -25,23 +25,21 @@ define([
         'direction',
         'icanhaz',
         'wreqr',
-        'text!templates/search.panel.handlebars',
+        'text!templates/search/search.panel.handlebars',
         'js/view/SearchControl.view',
-        'maptype',
+        'js/model/Query',
         // Load non attached libs and plugins
         'perfectscrollbar'
     ],
-    function ($, _, Marionette, SlidingRegion, QueryView, Progress, MetacardList, MetacardDetail, MetacardModel, Backbone, dir, ich, wreqr, searchPanel, SearchControl, maptype) {
+    function ($, _, Marionette, SlidingRegion, QueryView, Progress, MetacardList, MetacardDetail, MetacardModel, Backbone, dir, ich, wreqr, searchPanel, SearchControl, QueryModel) {
         "use strict";
-        var QueryFormView = QueryView.QueryView,
-            ProgressView = Progress.ProgressView,
-            Search = {};
+        var Search = {};
 
         ich.addTemplate('searchPanel', searchPanel);
 
         Search.SearchLayout = Marionette.Layout.extend({
             template : 'searchPanel',
-            className: 'partialaffix span3 row-fluid nav nav-list well well-small search-controls',
+            className: 'height-full',
             regions : {
                 progressRegion: "#progressRegion",
                 searchControlRegion: "#searchControlRegion",
@@ -51,36 +49,51 @@ define([
                 }
             },
 
-            initialize: function (options) {
+            initialize: function () {
                 _.bindAll(this);
 
-                this.queryForm = new QueryFormView({
-                    sources : options.sources
-                });
+                this.query = new QueryModel.Model();
 
-                wreqr.vent.on('search:show', this.showQuery);
-                wreqr.vent.on('search:clear', this.onQueryClear);
-                wreqr.vent.on('search:start', this.onQueryClear);
-                wreqr.vent.on('search:start', this.setupProgress);
-                wreqr.vent.on('search:start', this.showEmptyResults);
-                wreqr.vent.on('search:results', this.showResults);
-                wreqr.vent.on('metacard:selected', this.showMetacardDetail);
-                wreqr.vent.on('search:back', this.back);
-                wreqr.vent.on('search:forward', this.forward);
+                wreqr.vent.on('workspace:tabshown', _.bind(this.setupWreqr, this));
+            },
+
+            setupWreqr: function(tabHash) {
+                if(this.result && tabHash === '#search') {
+                    wreqr.vent.trigger('map:clear');
+                    wreqr.vent.trigger('map:results', this.result, false);
+                }
+
+                if(tabHash === '#search') {
+                    wreqr.vent.on('search:show', this.showQuery);
+                    wreqr.vent.on('search:clear', this.onQueryClear);
+                    wreqr.vent.on('search:start', this.onQueryClear);
+                    wreqr.vent.on('search:start', this.setupProgress);
+                    wreqr.vent.on('search:start', this.showEmptyResults);
+                    wreqr.vent.on('search:results', this.showResults);
+                    wreqr.vent.on('metacard:selected', this.showMetacardDetail);
+                    wreqr.vent.on('search:back', this.back);
+                    wreqr.vent.on('search:forward', this.forward);
+                } else {
+                    wreqr.vent.off('search:show', this.showQuery);
+                    wreqr.vent.off('search:clear', this.onQueryClear);
+                    wreqr.vent.off('search:start', this.onQueryClear);
+                    wreqr.vent.off('search:start', this.setupProgress);
+                    wreqr.vent.off('search:start', this.showEmptyResults);
+                    wreqr.vent.off('search:results', this.showResults);
+                    wreqr.vent.off('metacard:selected', this.showMetacardDetail);
+                    wreqr.vent.off('search:back', this.back);
+                    wreqr.vent.off('search:forward', this.forward);
+                }
             },
 
             onRender : function(){
-                this.searchRegion.show(this.queryForm, dir.forward);
+                this.searchRegion.show(new QueryView.QueryView({ model: this.query }), dir.forward);
                 this.searchControlRegion.show(new SearchControl.SearchControlView());
-
-                if(maptype.isNone()) {
-                    this.$el.addClass('full-screen-search');
-                }
             },
-            setupProgress: function (resultList, queryModel, numSources, progressObj) {
+            setupProgress: function (resultList, queryModel, progressObj) {
                 if (!resultList.useAjaxSync) {
-                    if (numSources > 1) {
-                        this.progressRegion.show(new ProgressView({ resultList: resultList, queryModel: queryModel, sources: numSources, model: progressObj}));
+                    if (queryModel.get('src') && queryModel.get('src').split(',').length > 1) {
+                        this.progressRegion.show(new Progress.ProgressView({ resultList: resultList, queryModel: queryModel, model: progressObj}));
                     }
                 }
             },
@@ -88,8 +101,6 @@ define([
                 if (this.progressRegion.currentView) {
                     this.progressRegion.close();
                 }
-                delete this.result;
-                delete this.metacard;
             },
             back: function (currentState) {
                 if (currentState === 'results') {
@@ -108,8 +119,11 @@ define([
                     this.showMetacardDetail(null, dir.forward);
                 }
             },
-            showQuery: function (direction) {
-                this.searchRegion.show(this.queryForm, direction);
+            showQuery: function (direction, query) {
+                if(query) {
+                    this.query = query;
+                }
+                this.searchRegion.show(new QueryView.QueryView({ sources : this.sources, model: this.query }), direction);
             },
             showEmptyResults: function() {
                 this.showResults(null, dir.forward);
@@ -126,16 +140,7 @@ define([
                 }
             },
             showMetacardDetail: function (metacard, direction) {
-                if (!metacard && this.metacard) {
-                    this.metacard.set('direction', dir.forward);
-                    metacard = this.metacard;
-                }
-
-                if (metacard) {
-                    this.metacard = metacard;
-                    direction = _.isUndefined(metacard.get('direction')) ? direction : metacard.get('direction');
-                    this.searchRegion.show(new MetacardDetail.MetacardDetailView({model: metacard}), direction);
-                }
+                this.searchRegion.show(new MetacardDetail.MetacardDetailView({model: metacard}), direction);
             }
         });
 

@@ -15,11 +15,10 @@ define([
         'backbone',
         'underscore',
         'js/model/util',
-        'properties',
         'wreqr',
         'backbonerelational'
     ],
-    function (Backbone, _, Util, properties, wreqr) {
+    function (Backbone, _, Util, wreqr) {
         "use strict";
         var MetaCard = {};
 
@@ -300,16 +299,6 @@ define([
         });
 
         MetaCard.SearchResult = Backbone.RelationalModel.extend({
-            defaults: {
-                count: properties.resultCount,
-                startIndex: 1,
-                format: "geojson",
-                queryParamDefaults: {
-                    count: "&count=",
-                    format: "&format=",
-                    start: "&start="
-                }
-            },
             relations: [
                 {
                     type: Backbone.HasMany,
@@ -340,13 +329,6 @@ define([
                     return resp.data;
                 }
                 return resp;
-            },
-            getQueryParams: function () {
-                var queryParams = this.get("queryParams");
-                queryParams.count = this.get("count");
-                queryParams.start = this.get("startIndex");
-                queryParams.format = this.get("format");
-                return queryParams;
             },
             cancel: function() {
                 this.unsubscribe();

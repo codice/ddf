@@ -54,7 +54,7 @@ define(['jquery',
             headerRegion : 'header',
             footerRegion : 'footer',
             menuRegion: '#menu',
-            searchRegion: '#search'
+            controlPanelRegion: '#controlPanel'
         });
 
         Application.Router = new Marionette.AppRouter({
@@ -93,7 +93,8 @@ define(['jquery',
                 'js/module/Notification.module',
                 'js/module/Tasks.module',
                 'js/module/Menu.module',
-                'js/module/Map3d.module'
+                'js/module/Map3d.module',
+                'js/module/Workspace.module'
             ]);
         });
 

@@ -13,10 +13,8 @@
 define(['application',
         'cometdinit',
         'marionette',
-        'js/view/Search.view',
-        'js/model/source',
-        'poller',
-        'wreqr',
+        'js/view/Workspace.view',
+        'js/model/Workspace',
         // Load non attached libs and plugins
         'datepicker',
         'datepickerOverride',
@@ -24,24 +22,33 @@ define(['application',
         'multiselect',
         'multiselectfilter'
     ],
-    function(Application, Cometd, Marionette, Search, Source, poller, wreqr) {
+    function(Application, Cometd, Marionette, WorkspaceView, Workspace) {
 
-        Application.App.module('WorkspaceModule.SearchModule', function(SearchModule) {
+        Application.App.module('WorkspaceModule', function(WorkspaceModule) {
 
-            SearchModule.sources = new Source.Collection();
-            SearchModule.sources.fetch();
+            WorkspaceModule.workspaces = new Workspace.WorkspaceResult();
+            WorkspaceModule.workspaces.fetch();
 
-            // Poll the server for changes to Sources every 60 seconds -
-            // This matches the DDF SourcePoller polling interval
-            poller.get(SearchModule.sources, { delay: 60000 }).start();
+            var workspaceView = new WorkspaceView.WorkspaceLayout({model: WorkspaceModule.workspaces});
 
-            wreqr.reqres.setHandler('sources', function () {
-                return SearchModule.sources;
+            var Controller = Marionette.Controller.extend({
+
+                initialize: function(options){
+                    this.region = options.region;
+                },
+
+                show: function(){
+                    this.region.show(workspaceView);
+                }
+
             });
 
-            wreqr.vent.on('search:currentview', function(region, search) {
-                region.show(new Search.SearchLayout({ search: search }));
+            WorkspaceModule.addInitializer(function(){
+                WorkspaceModule.contentController = new Controller({
+                    region: Application.App.controlPanelRegion
+                });
+                WorkspaceModule.contentController.show();
             });
         });
 
-});
+    });

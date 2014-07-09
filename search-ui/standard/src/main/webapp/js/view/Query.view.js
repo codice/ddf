@@ -21,75 +21,22 @@ define([
         'js/model/Metacard',
         'js/view/Progress.view',
         'wreqr',
-        'text!templates/searchForm.handlebars',
-        'text!templates/user.handlebars'
+        'text!templates/search/searchForm.handlebars'
     ],
-    function ($, Backbone, Marionette, _, ich, properties, MetaCard, Progress, wreqr, searchFormTemplate, userTemplate) {
+    function ($, Backbone, Marionette, _, ich, properties, MetaCard, Progress, wreqr, searchFormTemplate) {
         "use strict";
         var Query = {};
 
         ich.addTemplate('searchFormTemplate', searchFormTemplate);
-        ich.addTemplate('userTemplate', userTemplate);
 
-        Query.Model = Backbone.Model.extend({
-            //in the search we are checking for whether or not the model
-            //only contains 5 items to know if we can search or not
-            //as soon as the model contains more than 5 items, we assume
-            //that we have enough values to search
-            defaults: {
-                federation: 'enterprise',
-                offsetTimeUnits: 'hours',
-                timeType: 'modified',
-                radiusUnits: 'meters',
-                radius: 0,
-                radiusValue: 0
-            },
-
-            initialize: function () {
-                this.on('change:north change:south change:east change:west',this.setBBox);
-                _.bindAll(this,'swapDatesIfNeeded');
-            },
-
-            setDefaults : function() {
-                var model = this;
-                _.each(_.keys(model.defaults), function(key) {
-                    model.set(key, model.defaults[key]);
-                });
-            },
-
-            setBBox : function() {
-                var north = this.get('north'),
-                    south = this.get('south'),
-                    west = this.get('west'),
-                    east = this.get('east');
-                if(north && south && east && west){
-                    this.set('bbox', [west,south,east,north].join(','));
-                }
-
-
-            },
-
-            swapDatesIfNeeded : function() {
-                var model = this;
-                if(model.get('dtstart') && model.get('dtend')){
-                    var start = new Date(model.get('dtstart'));
-                    var end = new Date(model.get('dtend'));
-                    if(start > end){
-                        this.set({
-                            dtstart : end.toISOString(),
-                            dtend : start.toISOString()
-                        });
-                    }
-                }
-            }
-        });
-
-        Query.QueryView = Marionette.Layout.extend({
+        Query.QueryView = Marionette.ItemView.extend({
             template: 'searchFormTemplate',
             className : 'slide-animate',
 
             events: {
-                'click .searchButton': 'search',
+                'click #searchButton': 'search',
+                'click #workspaceSearchButton': 'workspaceSearch',
+                'click #workspaceCancelButton': 'workspaceCancel',
                 'click .resetButton': 'reset',
                 'click .time': 'clearTime',
                 'click .location': 'clearLocation',
@@ -112,7 +59,6 @@ define([
 
             initialize: function (options) {
                 _.bindAll(this);
-                this.model = new Query.Model();
                 this.modelBinder = new Backbone.ModelBinder();
 
                 // Assign each source id as both the HTML <option>'s
@@ -136,12 +82,16 @@ define([
                     new Backbone.CollectionBinder.ElManagerFactory(
                         '<option></option>', sourcesBindings));
 
-                this.sources = options.sources;
+                this.isWorkspace = options.isWorkspace;
+
+                if (wreqr.reqres.hasHandler('sources')) {
+                    this.sources = wreqr.reqres.request('sources');
+                }
             },
 
             setNoFederation : function () {
                 this.model.set('federation', 'local');
-                this.model.set('src', 'local');
+                this.model.set('src','local');
                 this.updateScrollbar();
             },
 
@@ -221,7 +171,7 @@ define([
                     return type.name + ':' + type.version;
                 });
                 var allSources = this.sources.toJSON();
-                return _.extend(this.model.toJSON(), {types: allTypes, sources: allSources});
+                return _.extend(this.model.toJSON(), {types: allTypes, sources: allSources, isWorkspace: this.isWorkspace});
             },
 
             onRender: function () {
@@ -270,7 +220,7 @@ define([
                 queryModelBindings.offsetTimeUnits.converter = offsetConverter;
                 queryModelBindings.src = {};
                 queryModelBindings.src.selector = '#federationSources';
-                queryModelBindings.src.converter = listConverter;
+                queryModelBindings.src.converter =  listConverter;
                 queryModelBindings.type = {};
                 queryModelBindings.type.selector = '#typeList';
                 queryModelBindings.type.converter = listConverter;
@@ -280,7 +230,6 @@ define([
                 // before the model bindings attempt to select them.
                 this.sourcesCollectionBinder.bind(this.sources, this.$('#federationSources'));
                 this.modelBinder.bind(this.model, this.$el, queryModelBindings);
-
 
                 // Refresh the sources multiselect widget to reflect
                 // changes when sources are added/removed or
@@ -356,9 +305,15 @@ define([
                 var view = this;
                 if (e.keyCode === 13) {
                     // defer it to make sure the event to set the query parameter is run
-                    _.defer(function () {
-                        view.search();
-                    });
+                    if(this.isWorkspace) {
+                        _.defer(function () {
+                            view.workspaceSearch();
+                        });
+                    } else {
+                        _.defer(function () {
+                            view.search();
+                        });
+                    }
                 }
 
             },
@@ -367,14 +322,59 @@ define([
                 this.zoomOnResults = this.model.get("bbox") || this.model.get("radius") ? true : false;
             },
 
+            canSearch: function() {
+                var modelSize = _.size(this.model.attributes);
+                if (modelSize === 9 || (modelSize === 10 && this.model.get('src'))) {
+                    return false;
+                }
+                return true;
+            },
+
+            workspaceSearch: function() {
+                var queryName = this.$('#queryName').val();
+                if(!this.canSearch() || !queryName) {
+                    return;
+                }
+
+                if (_.isUndefined(this.model.get('src'))) {
+                    this.model.setSources(this.sources);
+                }
+                var result = new MetaCard.SearchResult();
+                this.model.set({name: queryName, result: result});
+
+                var progressFunction = function() {
+                    result.mergeLatest();
+                };
+
+                result.fetch({
+                    progress: progressFunction,
+                    data: this.model.getQueryParams(),
+                    dataType: "json",
+                    timeout: 300000,
+                    error : function(){
+                        if (typeof console !== 'undefined') {
+                            console.error(arguments);
+                        }
+                    }
+                });
+
+                wreqr.vent.trigger("search:drawstop");
+                wreqr.vent.trigger('workspace:save', this.model);
+                wreqr.vent.trigger('workspace:show');
+            },
+
+            workspaceCancel: function() {
+                wreqr.vent.trigger('workspace:cancel', this.model);
+            },
+
             search: function () {
+                var view = this;
                 //check that we can even perform a search
                 //the model has 6 default attributes, so if we only have 6
                 //then we have no search criteria
                 //if we have 6 and one of them is the 'src' attribute, then we
                 //still have no search criteria
-                var modelSize = _.size(this.model.attributes);
-                if (modelSize === 6 || (modelSize === 7 && this.model.get('src'))) {
+                if(!this.canSearch()) {
                     return;
                 }
 
@@ -384,45 +384,17 @@ define([
                                             progress.increment.call(progress, {value: val, response: resp});
                                         };
 
-                //get results
-                var view = this,
-                    result,
-                    options,
-                    sourceCount = 0,
-                    queryParams = this.model.toJSON();
-
-                if (!_.isUndefined(queryParams.src)) {
-                    sourceCount = queryParams.src.split(',').length;
-                } else { // if enterprise query
-                    var availableSources = [];
-                    this.sources.each(function (source) {
-                        if (source.get('available') === true) {
-                            ++sourceCount;
-                            availableSources.push(source.get('id'));
-                        }
-                    });
-
-                    if (availableSources.length > 0) {
-                        this.model.set('src', availableSources.join(','));
-                    }
+                if (_.isUndefined(this.model.get('src'))) {
+                    this.model.setSources(this.sources);
                 }
 
-                options = {
-                    'queryParams': queryParams
-                };
-
-                result = new MetaCard.SearchResult(options);
-                this.result = result;
+                var result = new MetaCard.SearchResult();
+                this.model.set({searchResult: result});
                 wreqr.reqres.setHandler('search:results', function () {
                     return result;
                 });
 
-                if (properties.sync) {
-                    result.useAjaxSync = true;
-                    result.url = result.syncUrl;
-                }
-
-                wreqr.vent.trigger('search:start', result, this.model, sourceCount, progress);
+                wreqr.vent.trigger('search:start', result, this.model, progress);
 
                 // disable the whole form
                 this.$('button').addClass('disabled');
@@ -431,7 +403,7 @@ define([
 
                 result.fetch({
                     progress: progressFunction,
-                    data: result.getQueryParams(),
+                    data: this.model.getQueryParams(),
                     dataType: "json",
                     timeout: 300000,
                     error : function(){
@@ -447,6 +419,7 @@ define([
                 }).success(function() {
                     //this is fired after cometd has sent back the first result
                     wreqr.vent.trigger('search:results', result, view.zoomOnResults);
+                    wreqr.vent.trigger('map:results', result, view.zoomOnResults);
                 });
             },
 
@@ -455,19 +428,15 @@ define([
                 $('button[name=noLocationButton]').click();
                 $('button[name=noTypeButton]').click();
                 $('button[name=enterpriseFederationButton]').click();
-                $('#progressbar').hide();
                 this.model.clear();
                 this.model.setDefaults();
-
                 // Refresh the multiselect lists to reflect the changes
                 // to the model
                 $('#typeList').multiselect("refresh");
                 $('#federationSources').multiselect("refresh");
 
-                if (!_.isUndefined(this.result)) {
-                    this.result.clear();
-                }
                 wreqr.vent.trigger('search:clear');
+                wreqr.vent.trigger('map:clear');
                 $('input[name=q]').focus();
                 this.zoomOnResults = false;
             },

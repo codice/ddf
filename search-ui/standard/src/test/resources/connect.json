@@ -8,5 +8,240 @@
             "timeout": 30000
         },
         "channel": "/meta/connect"
+    },
+    {
+        "data": {
+            "guid": "e863f023-3b6f-4575-badf-a1f114e7b378",
+            "hits": 11,
+            "results": [
+                {
+                    "metacard": {
+                        "properties": {
+                            "id": "d34832c4a9444c5681851c63dc468ce3",
+                            "source-id": "ddf.distribution",
+                            "title": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ultrices",
+                            "created": "2014-02-22T18:11:27.169+0000",
+                            "metacard-type": "ddf.metacard",
+                            "modified": "2014-02-22T18:11:27.169+0000",
+                            "metadata": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris mollis urna tristique augue suscipit lacinia. Mauris eget erat ipsum. Mauris mollis mi eget turpis tempor, quis tincidunt quam venenatis. Aliquam sed felis ligula. Cras tempor fermentum leo, at tincidunt libero euismod ac. Nunc facilisis nisl neque. Class aptent taciti sociosqu."
+                        },
+                        "type": "Feature",
+                        "geometry": null
+                    },
+                    "relevance": 1.1717760562896729
+                },
+                {
+                    "metacard": {
+                        "properties": {
+                            "id": "f3172baad40c4deb8132a47cf91c8b0c",
+                            "source-id": "ddf.distribution",
+                            "title": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ultrices",
+                            "created": "2014-02-22T18:11:27.169+0000",
+                            "metacard-type": "ddf.metacard",
+                            "modified": "2014-02-22T18:11:27.169+0000",
+                            "metadata": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris mollis urna tristique augue suscipit lacinia. Mauris eget erat ipsum. Mauris mollis mi eget turpis tempor, quis tincidunt quam venenatis. Aliquam sed felis ligula. Cras tempor fermentum leo, at tincidunt libero euismod ac. Nunc facilisis nisl neque. Class aptent taciti sociosqu."
+                        },
+                        "type": "Feature",
+                        "geometry": {
+                            "type": "Point",
+                            "coordinates": [
+                                -83.01654,
+                                42.30008
+                            ]
+                        }
+                    },
+                    "relevance": 1.0545984506607056
+                },
+                {
+                    "metacard": {
+                        "properties": {
+                            "id": "d33838b3f30d4cfa95d67a7d23b394b5",
+                            "source-id": "ddf.distribution",
+                            "title": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ultrices",
+                            "created": "2014-02-22T18:11:27.169+0000",
+                            "metacard-type": "ddf.metacard",
+                            "modified": "2014-02-22T18:11:27.169+0000",
+                            "metadata": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris mollis urna tristique augue suscipit lacinia. Mauris eget erat ipsum. Mauris mollis mi eget turpis tempor, quis tincidunt quam venenatis. Aliquam sed felis ligula. Cras tempor fermentum leo, at tincidunt libero euismod ac. Nunc facilisis nisl neque. Class aptent taciti sociosqu."
+                        },
+                        "type": "Feature",
+                        "geometry": null
+                    },
+                    "relevance": 1.0147877931594849
+                },
+                {
+                    "metacard": {
+                        "properties": {
+                            "id": "35faeae9e1154d2a97e2a9a1de520ad0",
+                            "source-id": "ddf.distribution",
+                            "title": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ultrices",
+                            "created": "2014-02-22T18:11:27.169+0000",
+                            "metacard-type": "ddf.metacard",
+                            "modified": "2014-02-22T18:11:27.169+0000",
+                            "metadata": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris mollis urna tristique augue suscipit lacinia. Mauris eget erat ipsum. Mauris mollis mi eget turpis tempor, quis tincidunt quam venenatis. Aliquam sed felis ligula. Cras tempor fermentum leo, at tincidunt libero euismod ac. Nunc facilisis nisl neque. Class aptent taciti sociosqu."
+                        },
+                        "type": "Feature",
+                        "geometry": null
+                    },
+                    "relevance": 1.0147877931594849
+                },
+                {
+                    "metacard": {
+                        "properties": {
+                            "id": "dffc50fc1dc84619a79ffe47d2a15572",
+                            "source-id": "ddf.distribution",
+                            "title": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ultrices",
+                            "created": "2014-02-22T18:11:27.169+0000",
+                            "metacard-type": "ddf.metacard",
+                            "modified": "2014-02-22T18:11:27.169+0000",
+                            "metadata": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris mollis urna tristique augue suscipit lacinia. Mauris eget erat ipsum. Mauris mollis mi eget turpis tempor, quis tincidunt quam venenatis. Aliquam sed felis ligula. Cras tempor fermentum leo, at tincidunt libero euismod ac. Nunc facilisis nisl neque. Class aptent taciti sociosqu."
+                        },
+                        "type": "Feature",
+                        "geometry": null
+                    },
+                    "relevance": 1.0147877931594849
+                },
+                {
+                    "metacard": {
+                        "properties": {
+                            "id": "9cd00c4d1abd4039bb025d8dc78c8eea",
+                            "source-id": "ddf.distribution",
+                            "title": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ultrices",
+                            "created": "2014-02-22T18:11:27.169+0000",
+                            "metacard-type": "ddf.metacard",
+                            "modified": "2014-02-22T18:11:27.169+0000",
+                            "metadata": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris mollis urna tristique augue suscipit lacinia. Mauris eget erat ipsum. Mauris mollis mi eget turpis tempor, quis tincidunt quam venenatis. Aliquam sed felis ligula. Cras tempor fermentum leo, at tincidunt libero euismod ac. Nunc facilisis nisl neque. Class aptent taciti sociosqu."
+                        },
+                        "type": "Feature",
+                        "geometry": null
+                    },
+                    "relevance": 1.0147877931594849
+                },
+                {
+                    "metacard": {
+                        "properties": {
+                            "id": "cf58cbbeb1754c538db94c1ae4244095",
+                            "source-id": "ddf.distribution",
+                            "title": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ultrices",
+                            "created": "2014-02-22T18:11:27.169+0000",
+                            "metacard-type": "ddf.metacard",
+                            "modified": "2014-02-22T18:11:27.169+0000",
+                            "metadata": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris mollis urna tristique augue suscipit lacinia. Mauris eget erat ipsum. Mauris mollis mi eget turpis tempor, quis tincidunt quam venenatis. Aliquam sed felis ligula. Cras tempor fermentum leo, at tincidunt libero euismod ac. Nunc facilisis nisl neque. Class aptent taciti sociosqu."
+                        },
+                        "type": "Feature",
+                        "geometry": {
+                            "type": "Point",
+                            "coordinates": [
+                                -79.4163,
+                                43.70011
+                            ]
+                        }
+                    },
+                    "relevance": 1.0045887231826782
+                },
+                {
+                    "metacard": {
+                        "properties": {
+                            "id": "b02b0f80457c45eb8e258e3d2041fe5b",
+                            "source-id": "ddf.distribution",
+                            "title": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ultrices",
+                            "created": "2014-02-22T18:11:27.169+0000",
+                            "metacard-type": "ddf.metacard",
+                            "modified": "2014-02-22T18:11:27.169+0000",
+                            "metadata": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris mollis urna tristique augue suscipit lacinia. Mauris eget erat ipsum. Mauris mollis mi eget turpis tempor, quis tincidunt quam venenatis. Aliquam sed felis ligula. Cras tempor fermentum leo, at tincidunt libero euismod ac. Nunc facilisis nisl neque. Class aptent taciti sociosqu."
+                        },
+                        "type": "Feature",
+                        "geometry": {
+                            "type": "Point",
+                            "coordinates": [
+                                -75.69812,
+                                45.41117
+                            ]
+                        }
+                    },
+                    "relevance": 0.994284987449646
+                },
+                {
+                    "metacard": {
+                        "properties": {
+                            "id": "a5238e5f227a439b8ed31dca47f0fb69",
+                            "source-id": "ddf.distribution",
+                            "title": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ultrices",
+                            "created": "2014-02-22T18:11:27.169+0000",
+                            "metacard-type": "ddf.metacard",
+                            "modified": "2014-02-22T18:11:27.169+0000",
+                            "metadata": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris mollis urna tristique augue suscipit lacinia. Mauris eget erat ipsum. Mauris mollis mi eget turpis tempor, quis tincidunt quam venenatis. Aliquam sed felis ligula. Cras tempor fermentum leo, at tincidunt libero euismod ac. Nunc facilisis nisl neque. Class aptent taciti sociosqu."
+                        },
+                        "type": "Feature",
+                        "geometry": {
+                            "type": "Point",
+                            "coordinates": [
+                                -79.4163,
+                                43.70011
+                            ]
+                        }
+                    },
+                    "relevance": 0.9374208450317383
+                },
+                {
+                    "metacard": {
+                        "properties": {
+                            "id": "5637ad2376d1420b9756927a5e275b72",
+                            "source-id": "ddf.distribution",
+                            "title": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ultrices",
+                            "created": "2014-02-22T18:11:27.169+0000",
+                            "metacard-type": "ddf.metacard",
+                            "modified": "2014-02-22T18:11:27.169+0000",
+                            "metadata": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris mollis urna tristique augue suscipit lacinia. Mauris eget erat ipsum. Mauris mollis mi eget turpis tempor, quis tincidunt quam venenatis. Aliquam sed felis ligula. Cras tempor fermentum leo, at tincidunt libero euismod ac. Nunc facilisis nisl neque. Class aptent taciti sociosqu."
+                        },
+                        "type": "Feature",
+                        "geometry": {
+                            "type": "Point",
+                            "coordinates": [
+                                -114.08529,
+                                51.05011
+                            ]
+                        }
+                    },
+                    "relevance": 0.9300683736801147
+                },
+                {
+                    "metacard": {
+                        "properties": {
+                            "id": "415a57ba087f4d06b09abd9c3ccdc1ad",
+                            "source-id": "ddf.distribution",
+                            "title": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ultrices",
+                            "created": "2014-02-22T18:11:27.169+0000",
+                            "metacard-type": "ddf.metacard",
+                            "modified": "2014-02-22T18:11:27.169+0000",
+                            "metadata": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris mollis urna tristique augue suscipit lacinia. Mauris eget erat ipsum. Mauris mollis mi eget turpis tempor, quis tincidunt quam venenatis. Aliquam sed felis ligula. Cras tempor fermentum leo, at tincidunt libero euismod ac. Nunc facilisis nisl neque. Class aptent taciti sociosqu."
+                        },
+                        "type": "Feature",
+                        "geometry": {
+                            "type": "Point",
+                            "coordinates": [
+                                -73.58781,
+                                45.50884
+                            ]
+                        }
+                    },
+                    "relevance": 0.9300683736801147
+                }
+            ],
+            "successful":true,
+            "sources":[
+                {
+                    "id":"DDF-OS","done":false
+                },
+                {
+                    "elapsed":43,
+                    "id":"ddf.distribution",
+                    "hits":11,
+                    "results":11,
+                    "done":true,
+                    "successful":true
+                }
+            ]
+        },
+        "channel":"/e863f023-3b6f-4575-badf-a1f114e7b378"
     }
 ]

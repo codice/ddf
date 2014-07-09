@@ -11,8 +11,15 @@
  *
  **/
  --}}
-<span class="username">
-    {{#if user}}
-        Welcome {{user}}
-    {{/if}}
-</span>
+<form id="workspaceAddForm" class="workspace-add-panel">
+    <ul class="nav nav-list">
+        <li class="nav-header">Workspace Name</li>
+        <li>
+            <input id="workspaceName" type="text" class="input-xlarge" autofocus>
+        </li>
+    </ul>
+    <div class="form-actions btn-group">
+        <a href="#" class="btn btn-medium btn-primary submit">Add</a>
+        <a href="#" id="cancel" class="btn btn-medium" type="reset">Cancel</a>
+    </div>
+</form>

@@ -24,9 +24,10 @@ define([
         'text!templates/resultlist/countlow.handlebars',
         'text!templates/resultlist/counthigh.handlebars',
         'text!templates/resultlist/statusItem.handlebars',
-        'text!templates/resultlist/status.handlebars'
+        'text!templates/resultlist/status.handlebars',
+        'properties'
     ],
-    function (Marionette, _, ich, dir, Spinner, spinnerConfig, wreqr, resultListItemTemplate, resultListTemplate, countLowTemplate, countHighTemplate, statusItemTemplate, statusTemplate) {
+    function (Marionette, _, ich, dir, Spinner, spinnerConfig, wreqr, resultListItemTemplate, resultListTemplate, countLowTemplate, countHighTemplate, statusItemTemplate, statusTemplate, properties) {
         "use strict";
 
         var List = {};
@@ -181,6 +182,9 @@ define([
         List.CountView = Marionette.ItemView.extend({
             modelEvents: {
                 "change": "render"
+            },
+            serializeData: function() {
+                return _.extend(this.model.toJSON(), {count: properties.resultCount});
             },
             getTemplate: function() {
                 if (!_.isUndefined(this.model.get('hits'))) {

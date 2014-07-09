@@ -43,16 +43,8 @@ define(function (require) {
                     props.layers = data.layers;
                     props.wmsServer = data.wmsServer;
                     props.format = data.format;
-                    props.sync = data.sync;
                     props.targetUrl = data.targetUrl;
                     props.resultCount = data.resultCount;
-
-                    var sync = $.url().param('sync');
-                    if (sync === 'true') {
-                        props.sync = true;
-                    } else if (sync === 'false') {
-                        props.sync = false;
-                    }
 
                     return props;
                 }).fail(function(jqXHR, status, errorThrown) {

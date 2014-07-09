@@ -21,7 +21,7 @@ define([
         'underscore',
         'spin',
         'spinnerConfig',
-        'text!templates/progress.handlebars',
+        'text!templates/search/progress.handlebars',
         'progressbar'
     ],
     function ($, Backbone, Marionette, wreqr, ich, Q, _, Spinner, spinnerConfig, progressTemplate) {
@@ -73,8 +73,8 @@ define([
             initialize: function(options) {
                 this.model = options.model;
                 this.queryModel = options.queryModel;
-                this.sources = options.sources;
                 this.resultList = options.resultList;
+                wreqr.vent.on('search:clear', _.bind(this.close, this));
             },
             onRender: function() {
                 this.configureProgress();
@@ -115,8 +115,6 @@ define([
                 this.$el.find('#progress-text').hide();
                 if (this.queryModel.get('src')) {
                     this.model.setTotal(this.queryModel.get('src').split(',').length);
-                } else {
-                    this.model.setTotal(this.sources);
                 }
             },
             merge: function() {

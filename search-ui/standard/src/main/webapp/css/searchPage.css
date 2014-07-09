@@ -341,7 +341,7 @@ body {
     font-style: italic;
 }
 
-#searchPages {
+#searchPages, #workspace {
     /*magic needed to get perfect scrollbar needed*/
     overflow: hidden;
     position: relative;
@@ -633,18 +633,14 @@ span.add-on {
 }
 
 .progress-panel {
-    height: 100%;
+    height: 23px;
     white-space: nowrap;
+    margin-top: 5px;
+    margin-bottom: 3px;
 }
 
 .progress-view {
     height: 100%;
-}
-
-#progressRegion {
-    height: 23px;
-    padding-top: 5px;
-    padding-bottom: 3px;
 }
 
 .pulse {
@@ -1200,4 +1196,123 @@ a.pause:hover, a.pause:focus {
 .help-link {
     margin-top: 10px;
     display: block;
+}
+
+.tabs-below > .nav-tabs {
+    border: 0;
+    margin: 0 auto;
+    width: auto;
+    text-align: center;
+    display: table;
+}
+
+.tabs-below>.nav-tabs li.active>a, .tabs-below>.nav-tabs li.active>a:hover {
+    background-color: transparent;
+}
+
+.tabs-below>.nav-tabs>li>a {
+    margin-right: 0;
+}
+
+.tabs-below>.nav-tabs>li.active {
+    border-top: solid 1px #33b5e5;
+}
+
+.tabs-below>.nav-tabs>li {
+    border-top: solid 1px #666;
+}
+
+.tabs-below>.nav-tabs>li>a {
+    border-radius: 0;
+}
+
+.tabs-below>.nav-tabs>li.active:hover {
+    border-top: solid 1px #EEE;
+}
+
+.tabs-below>.nav-tabs>li:hover {
+    border-top: solid 1px #EEE;
+}
+
+.tabs-below>.nav-tabs>li>a:hover {
+    border: solid 1px transparent !important;
+}
+
+.tabbable .nav-tabs li.active>a {
+    border: solid 1px transparent !important;
+}
+
+.tab-pane {
+    height: 100%;
+}
+
+.workspace-panel {
+    height: 100%;
+}
+
+.workspace-tabs {
+    height: 80%;
+    height: calc(100% - 32px);
+    border-bottom: solid 1px #666;
+}
+
+.workspace-header-text {
+    display: inline-block;
+    float: left;
+    margin-left: 10px;
+}
+
+.workspace-header {
+    width: 80%;
+    width: calc(100% - 30px);
+    white-space: nowrap;
+    margin: 10px 0 0;
+    font-size: small;
+}
+
+.workspace-link {
+    display: inline-block;
+    float: right;
+    padding-top: 2px;
+    padding-right: 5px;
+    text-decoration: none;
+}
+
+.workspace-link:hover {
+    text-decoration: none;
+}
+
+.workspace-name {
+    display: inline-block;
+    float: left;
+    padding-left: 10px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.workspace-count {
+    display: inline-block;
+    float:right;
+}
+
+.workspace-row {
+    cursor: pointer;
+}
+
+.workspace-row > td {
+    padding: 8px 0;
+}
+
+.workspace-row td:nth-child(3) {
+    width: 40px;
+}
+
+.workspace-add-panel {
+    padding-top: 40px;
+}
+
+.workspace-table {
+    margin-left: 15px;
+    margin-right: 15px;
+    width: calc(100% - 30px);
 }

@@ -30,28 +30,35 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Service to retrieve user related information.
+ * Service for managing workspaces.
  */
 @Service
-public class UserService {
+public class WorkspaceService {
+
+    private final Map<String, Object> workspaceMap = new HashMap<String, Object>();
 
     @Session
     private ServerSession serverSession;
 
-    @Listener("/service/user")
-    public void getUser(final ServerSession remote, Message message) {
+    @Listener("/service/workspaces")
+    public void getWorkspaces(final ServerSession remote, Message message) {
         ServerMessage.Mutable reply = new ServerMessageImpl();
-        Subject subject = SecurityUtils.getSubject();
-
-        if(subject != null) {
-            Map<String, String> userMap = new HashMap<String, String>();
-            userMap.put("username", SubjectUtils.getName(subject));
-            reply.put("user", userMap);
+        Map<String, Object> data = message.getDataAsMap();
+        if(data == null || data.isEmpty() || data.get("workspaces") == null) {
+            Subject subject = SecurityUtils.getSubject();
+            String username = SubjectUtils.getName(subject);
+            Map<? extends String, ?> workspaces = (Map<? extends String, ?>) workspaceMap.get(username);
+            if(workspaces != null) {
+                reply.putAll(workspaces);
+            }
             reply.put(Search.SUCCESSFUL, true);
-            remote.deliver(serverSession, "/service/user", reply, null);
+            remote.deliver(serverSession, "/service/workspaces", reply, null);
         } else {
-            reply.put(Search.SUCCESSFUL, false);
-            remote.deliver(serverSession, "/service/user", reply, null);
+            Subject subject = SecurityUtils.getSubject();
+            String username = SubjectUtils.getName(subject);
+            workspaceMap.put(username, data);
+            reply.put(Search.SUCCESSFUL, true);
+            remote.deliver(serverSession, "/service/workspaces", reply, null);
         }
     }
 }

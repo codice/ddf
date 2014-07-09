@@ -38,7 +38,7 @@
 
     var origSync = Backbone.sync;
 
-    var generateGuid = function (model) {
+    Backbone.generateGuid = function (model) {
         var guid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
             var r = Math.random() * 16 | 0,
                 v = c == 'x' ? r : (r & 0x3 | 0x8);
@@ -56,44 +56,65 @@
 
     Backbone.sync = function (method, model, options) {
         if (options.useAjaxSync || model.useAjaxSync) {
-            return origSync(method, model, options);
+            return origSync.apply(model, arguments);
         } else {
             var deferred = $.Deferred();
             //create a primary key for this object if we don't have one already
-            var guid = model.guid || generateGuid(model);
+            var guid = model.guid || Backbone.generateGuid(model);
 
-            //method doesn't really matter
-            if (model.subscription) {
-                Cometd.Comet.unsubscribe(model.subscription);
-            }
-            var success = options.success;
-            options.success = function (resp) {
-                if (typeof options.progress == 'function') {
-                    options.progress(1, resp);
+            if(method === 'read') {
+                if (model.subscription) {
+                    Cometd.Comet.unsubscribe(model.subscription);
                 }
-                if(!model.lastResponse) {
+                var success = options.success;
+                options.success = function (resp) {
+                    if (!model.lastResponse) {
+                        var retVal = success(resp);
+                        if (retVal === false) {
+                            deferred.reject();
+                        } else {
+                            deferred.resolve();
+                            model.lastResponse = resp;
+                        }
+                    } else {
+                        model.lastResponse = resp;
+                    }
+                    if (typeof options.progress == 'function') {
+                        options.progress(1, resp);
+                    }
+                };
+
+                //if we have passed in data, we are assuming that we want to setup a channel to listen
+                //this means we don't want to listen to a response from the service endpoint
+                if (options.data) {
+                    model.subscription = Cometd.Comet.subscribe('/' + guid, options.success);
+                    options.data.guid = guid;
+                } else { //just listen for a response from the service endpoint
+                    model.subscription = Cometd.Comet.subscribe(model.url, options.success);
+                }
+
+                Cometd.Comet.publish(model.url, options.data);
+            } else { //for now we are assuming that create, patch, and update all do the same thing
+                var success = options.success;
+                options.success = function (resp) {
                     var retVal = success(resp);
                     if (retVal === false) {
                         deferred.reject();
                     } else {
                         deferred.resolve();
-                        model.lastResponse = resp;
                     }
-                } else {
-                    model.lastResponse = resp;
+                };
+                if(!model.subscription) {
+                    model.subscription = Cometd.Comet.subscribe(model.url, options.success);
                 }
-            };
 
-            //if we have passed in data, we are assuming that we want to setup a channel to listen
-            //this means we don't want to listen to a response from the service endpoint
-            if(options.data) {
-                model.subscription = Cometd.Comet.subscribe('/' + guid, options.success);
-                options.data.guid = guid;
-            } else { //just listen for a response from the service endpoint
-                model.subscription = Cometd.Comet.subscribe(model.url, options.success);
+                var params = {};
+                if(!options.data) {
+                    params.data = options.attrs || model.toJSON(options);
+                }
+
+                Cometd.Comet.publish(model.url, (_.extend(params, options)).data);
             }
-
-            Cometd.Comet.publish(model.url, options.data);
 
             var promise = deferred.promise();
             promise.complete = promise.done;

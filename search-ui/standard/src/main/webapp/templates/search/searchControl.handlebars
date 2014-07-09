@@ -15,8 +15,12 @@
     <tr>
         <td style="width:50.1%">
             {{#isnt back ''}}
-                <a href="#" class="back nav-link"><i class="fa fa-chevron-left"></i>&nbsp;<span
-                    class="backNavText" name="back">{{back}}</span></a>
+                <a href="#" class="back nav-link">
+                    {{#is showChevronBack true}}
+                        <i class="fa fa-chevron-left"></i>
+                    {{/is}}
+                    <span id="{{back}}" class="backNavText" name="back">{{back}}</span>
+                </a>
             {{/isnt}}
         </td>
         <td style="white-space:nowrap">
@@ -24,8 +28,12 @@
         </td>
         <td style="width:50.1%">
             {{#isnt forward ''}}
-                <a href="#" class="forward nav-link pull-right"><span
-                    class="forwardNavText" name="forward">{{forward}}</span>&nbsp;<i class="fa fa-chevron-right"></i></a>
+                <a href="#" class="forward nav-link pull-right">
+                    <span id="{{forward}}" class="forwardNavText" name="forward">{{forward}}</span>
+                    {{#is showChevronForward true}}
+                        <i class="fa fa-chevron-right"></i>
+                    {{/is}}
+                </a>
             {{/isnt}}
         </td>
     </tr>

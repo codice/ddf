@@ -18,7 +18,7 @@ define([
         'backbone',
         'icanhaz',
         'wreqr',
-        'text!templates/searchControl.handlebars'
+        'text!templates/search/searchControl.handlebars'
     ],
     function ($, _, Marionette, Backbone, ich, wreqr, searchControlTemplate) {
         "use strict";
@@ -32,22 +32,22 @@ define([
                 forward: '',
                 title: 'Search',
                 currentState: 'search',
-                metacardDetail: undefined
+                showChevronBack: true,
+                showChevronForward: true
             },
             setInitialState: function() {
                 this.set({
                     back: '',
                     forward: '',
                     title: 'Search',
-                    currentState: 'search',
-                    metacardDetail: undefined
+                    currentState: 'search'
                 });
             },
             setResultListState: function() {
                 this.set({
                     back: 'Search',
                     title: 'Results',
-                    forward: this.get('metacardDetail') ? 'Record' : '',
+                    forward: '',
                     currentState: 'results'
                 });
             },
@@ -64,8 +64,7 @@ define([
                     title: 'Record',
                     back: 'Results',
                     forward: '',
-                    currentState: 'record',
-                    metacardDetail: true
+                    currentState: 'record'
                 });
             },
             back: function() {
@@ -103,10 +102,22 @@ define([
             },
 
             initialize: function() {
-                wreqr.vent.on('metacard:selected', _.bind(this.model.setRecordViewState, this.model));
-                wreqr.vent.on('search:results', _.bind(this.model.setResultListState, this.model));
-                wreqr.vent.on('search:show', _.bind(this.model.setSearchFormState, this.model));
-                wreqr.vent.on('search:clear', _.bind(this.model.setInitialState, this.model));
+                this.setupEvents();
+                wreqr.vent.on('workspace:tabshown', _.bind(this.setupEvents, this));
+            },
+
+            setupEvents: function(tabHash) {
+                if(tabHash === '#search') {
+                    wreqr.vent.on('metacard:selected', _.bind(this.model.setRecordViewState, this.model));
+                    wreqr.vent.on('search:results', _.bind(this.model.setResultListState, this.model));
+                    wreqr.vent.on('search:show', _.bind(this.model.setSearchFormState, this.model));
+                    wreqr.vent.on('search:clear', _.bind(this.model.setInitialState, this.model));
+                } else {
+                    wreqr.vent.off('metacard:selected', _.bind(this.model.setRecordViewState, this.model));
+                    wreqr.vent.off('search:results', _.bind(this.model.setResultListState, this.model));
+                    wreqr.vent.off('search:show', _.bind(this.model.setSearchFormState, this.model));
+                    wreqr.vent.off('search:clear', _.bind(this.model.setInitialState, this.model));
+                }
             },
 
             back: function () {
