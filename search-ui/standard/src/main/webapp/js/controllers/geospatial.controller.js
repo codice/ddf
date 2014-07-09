@@ -253,7 +253,7 @@ define(['underscore',
             flyToRectangle: function (rectangle) {
                 if (rectangle.north === rectangle.south && rectangle.east === rectangle.west) {
                     this.mapViewer.scene.camera.flyTo({
-                        destination: Cesium.Cartesian3.fromDegrees(rectangle.west, rectangle.north, properties.defaultFlytoHeight)
+                        destination: Cesium.Cartesian3.fromRadians(rectangle.west, rectangle.north, properties.defaultFlytoHeight)
                     });
                 } else {
                     this.mapViewer.scene.camera.flyToRectangle({
