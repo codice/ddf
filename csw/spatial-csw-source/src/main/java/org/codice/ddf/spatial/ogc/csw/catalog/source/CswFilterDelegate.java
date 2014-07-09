@@ -966,13 +966,13 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
         }
 
         if (isSpatialOperationSupported(SpatialOperatorNameType.INTERSECTS)) {
-            LOGGER.info("Building INTERSECTS filter");
+            LOGGER.debug("Building INTERSECTS filter");
+            
             BinarySpatialOperand intersectsBinarySpatialOperand = useGeometryOrEnvelope(
                     SpatialOperatorNameType.INTERSECTS, wkt);
-            LOGGER.info("BinarySpatialOperand: {}", intersectsBinarySpatialOperand);
+            LOGGER.debug("BinarySpatialOperand: {}", intersectsBinarySpatialOperand);
+            
             if (intersectsBinarySpatialOperand != BinarySpatialOperand.NONE) {
-                LOGGER.warn("FilterType: {}", cswFilterFactory.buildIntersectsGeospatialFilter(propertyName, wkt,
-                        intersectsBinarySpatialOperand));
                 return cswFilterFactory.buildIntersectsGeospatialFilter(propertyName, wkt,
                         intersectsBinarySpatialOperand);
             }

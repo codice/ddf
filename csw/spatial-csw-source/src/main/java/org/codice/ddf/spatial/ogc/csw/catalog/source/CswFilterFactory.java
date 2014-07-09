@@ -94,7 +94,12 @@ public class CswFilterFactory {
      * Constructor for CswFilterFactory.
      * 
      * @param isLonLatOrder
-     *            true if coordinate order is longitude, latitude; false, otherwise.
+     *            True if coordinate order is longitude, latitude; False, otherwise.
+     * 
+     * @param isSetUsePosList
+     *            True if a single <posList> element, rather than a set of <pos>
+     *            elements, should be used in LinearRings when constructing XML 
+     *            Filter strings.
      */
     public CswFilterFactory(boolean isLonLatOrder, boolean isSetUsePosList) {
         this.isLonLatOrder = isLonLatOrder;

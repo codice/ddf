@@ -918,7 +918,7 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
             throw new UnsupportedQueryException(cswSourceConfiguration.getId()
                     + ": CSW Source did not provide Filter Capabilities, unable to preform query.");
         }
-        LOGGER.warn("CswSource#createFilter FilterType Return: {}", this.filterAdapter.adapt(query, cswFilterDelegate));
+        
         return this.filterAdapter.adapt(query, cswFilterDelegate);
     }
 

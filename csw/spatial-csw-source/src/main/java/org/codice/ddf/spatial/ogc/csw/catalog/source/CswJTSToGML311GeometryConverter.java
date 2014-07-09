@@ -65,13 +65,13 @@ public class CswJTSToGML311GeometryConverter extends JTSToGML311GeometryConverte
     protected AbstractGeometryType doCreateGeometryType(Geometry geometry) 
             throws IllegalArgumentException {
         if (geometry instanceof LinearRing) {
-            LOGGER.warn("Creating LinearRingType");
+            LOGGER.debug("Creating LinearRingType");
             return cswLinearRingConverter.createGeometryType((LinearRing) geometry);
         } else if (geometry instanceof Polygon) {
-            LOGGER.warn("Creating PolygonType");
+            LOGGER.debug("Creating PolygonType");
             return cswPolygonConverter.createGeometryType((Polygon) geometry);
         } else {
-            LOGGER.warn("Passing Geometry to superclass for default doCreateGeometryType processing");
+            LOGGER.debug("Passing Geometry to superclass for default doCreateGeometryType processing");
             return super.doCreateGeometryType(geometry);
         }
     }
@@ -81,13 +81,13 @@ public class CswJTSToGML311GeometryConverter extends JTSToGML311GeometryConverte
             Geometry geometry) throws IllegalArgumentException {
         
         if (geometry instanceof LinearRing) {
-            LOGGER.warn("Creating LinearRing");
+            LOGGER.debug("Creating LinearRing");
             return cswLinearRingConverter.createElement((LinearRing) geometry);
         } else if (geometry instanceof Polygon) {
-            LOGGER.warn("Creating Polygon");
+            LOGGER.debug("Creating Polygon");
             return cswPolygonConverter.createElement((Polygon) geometry);
         } else {
-            LOGGER.warn("Passing Geometry to superclass for default createElement processing");
+            LOGGER.debug("Passing Geometry to superclass for default createElement processing");
             return super.createElement(geometry);
         }
     }

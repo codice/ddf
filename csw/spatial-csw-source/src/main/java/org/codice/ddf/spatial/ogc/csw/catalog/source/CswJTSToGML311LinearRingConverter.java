@@ -38,26 +38,19 @@ public class CswJTSToGML311LinearRingConverter extends JTSToGML311LinearRingConv
 
     @Override
     protected LinearRingType doCreateGeometryType(LinearRing linearRing) {
-        final LinearRingType resultLinearRing;
+        final LinearRingType resultLinearRing;        
+
+        resultLinearRing = getObjectFactory().createLinearRingType();
         
-        // TODO: set via MetaType
-        boolean usePosList = true;
-        
-        if (usePosList) {
-            resultLinearRing = getObjectFactory().createLinearRingType();
-            
-            List<Double> posDoubleList = new ArrayList<Double>();
-            for (Coordinate coordinate : linearRing.getCoordinates()) {
-                posDoubleList.add(coordinate.x);
-                posDoubleList.add(coordinate.y);
-            }
-            
-            DirectPositionListType directPosListType = new DirectPositionListType();
-            directPosListType.setValue(posDoubleList);
-            resultLinearRing.setPosList(directPosListType);
-        } else {
-            resultLinearRing = super.doCreateGeometryType(linearRing);
+        List<Double> posDoubleList = new ArrayList<Double>();
+        for (Coordinate coordinate : linearRing.getCoordinates()) {
+            posDoubleList.add(coordinate.x);
+            posDoubleList.add(coordinate.y);
         }
+        
+        DirectPositionListType directPosListType = new DirectPositionListType();
+        directPosListType.setValue(posDoubleList);
+        resultLinearRing.setPosList(directPosListType);
 
         return resultLinearRing;
     }
