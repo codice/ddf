@@ -23,7 +23,7 @@ define([
         "use strict";
         var Draw = {};
 
-        Draw.ExentModel = Backbone.Model.extend({
+        Draw.BboxModel = Backbone.Model.extend({
             defaults: {
                 north: undefined,
                 east: undefined,
@@ -32,7 +32,7 @@ define([
             }
         });
         var defaultAttrs = ['north', 'east', 'west', 'south'];
-        Draw.ExtentView = Backbone.View.extend({
+        Draw.BboxView = Backbone.View.extend({
             initialize: function (options) {
                 this.canvas = options.scene.canvas;
                 this.scene = options.scene;
@@ -239,14 +239,14 @@ define([
                 this.scene = options.scene;
                 this.notificationEl = options.notificationEl;
 
-                wreqr.vent.on('search:drawextent', _.bind(this.draw, this));
+                wreqr.vent.on('search:drawbbox', _.bind(this.draw, this));
                 wreqr.vent.on('search:drawstop', _.bind(this.stop, this));
                 wreqr.vent.on('search:drawend', _.bind(this.destroy, this));
             },
             draw: function (model) {
                 if (this.enabled) {
-                    var bboxModel = model || new Draw.ExtentModel(),
-                        view = new Draw.ExtentView(
+                    var bboxModel = model || new Draw.BboxModel(),
+                        view = new Draw.BboxView(
                             {
                                 scene: this.scene,
                                 model: bboxModel

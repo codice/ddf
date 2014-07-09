@@ -28,13 +28,13 @@ define(['application',
                     },
                     onShow: function() {
                         require(['js/controllers/geospatial.controller',
-                            'js/widgets/draw.extent',
+                            'js/widgets/draw.bbox',
                             'js/widgets/draw.circle'
-                        ], function (GeoController, DrawExtent, DrawCircle) {
+                        ], function (GeoController, DrawBbox, DrawCircle) {
 
                             var geoController = new GeoController();
 
-                            new DrawExtent.Controller({
+                            new DrawBbox.Controller({
                                 scene: geoController.scene,
                                 notificationEl: mapView.mapDrawingPopup.el
                             });

@@ -95,7 +95,7 @@ define([
                 'click .location': 'clearLocation',
                 'click .type': 'clearType',
                 'click button[name=pointRadiusButton]' : 'drawCircle',
-                'click button[name=bboxButton]' : 'drawExtent',
+                'click button[name=bboxButton]' : 'drawBbox',
                 'click button[name=noFederationButton]' : 'setNoFederation',
                 'click button[name=selectedFederationButton]': 'setSelectedFederation',
                 'click button[name=enterpriseFederationButton]': 'setEnterpriseFederation',
@@ -343,8 +343,8 @@ define([
                 wreqr.vent.trigger("search:drawcircle", this.model);
             },
 
-            drawExtent : function(){
-                wreqr.vent.trigger("search:drawextent", this.model);
+            drawBbox: function(){
+                wreqr.vent.trigger("search:drawbbox", this.model);
             },
 
             onClose: function () {

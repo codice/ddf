@@ -17,10 +17,10 @@ define([
         'cesium',
         'underscore',
         'wreqr',
-        './draw.extent',
+        './draw.bbox.js',
         'maptype'
     ],
-    function (Marionette, Backbone, Cesium, _, wreqr, DrawExtent, maptype) {
+    function (Marionette, Backbone, Cesium, _, wreqr, DrawBbox, maptype) {
         "use strict";
         var DrawCircle = {};
 
@@ -223,7 +223,7 @@ define([
                     view.start();
                     this.view = view;
 
-                    this.notificationView = new DrawExtent.NotificationView({
+                    this.notificationView = new DrawBbox.NotificationView({
                         el: this.notificationEl
                     }).render();
                     this.listenToOnce(circleModel, 'EndExtent', function () {
