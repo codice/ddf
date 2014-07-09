@@ -230,6 +230,7 @@ public class TestCswFilterDelegate {
         
         @Override
         public String toString() {
+            // Convert to CamelCase
             return WordUtils.capitalizeFully(this.name());
         }
     }
@@ -255,6 +256,10 @@ public class TestCswFilterDelegate {
             return WordUtils.capitalizeFully(this.name(), delimiters).replaceAll("_", "");
         }
         
+        /**
+         * Returns the data type against which this ComparisonOperator can
+         * be performed.
+         */
         public ComparisonStringOperatorType getComparatorType() {
             ComparisonStringOperatorType returnType = null;
             switch (this) {
@@ -284,6 +289,10 @@ public class TestCswFilterDelegate {
             return returnType;
         }
         
+        /**
+         * Returns the number of arguments required to perform a comparison
+         * of this type.
+         */
         public int getNumArgs() {
             int numArgs = 0;
             
@@ -310,6 +319,10 @@ public class TestCswFilterDelegate {
         }
     }
     
+    /**
+     * Used to represent values that can be used within the 
+     * <PropertyName> elements of Filter strings.
+     */
     private enum GeospatialPropertyName {
         BOUNDING_BOX("ows", "BoundingBox"),
         SPATIAL("dct", "Spatial");
@@ -328,20 +341,48 @@ public class TestCswFilterDelegate {
         }
     }
 
+    /**
+     * Returns the standard XML Filter header string
+     * 
+     * @return
+     */
     private String getXmlHeaderString() {
         return "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><ns3:Filter xmlns:ns2=\"http://www.opengis.net/ows\" xmlns=\"http://www.opengis.net/cat/csw/2.0.2\" xmlns:ns4=\"http://www.opengis.net/gml\" xmlns:ns3=\"http://www.opengis.net/ogc\" xmlns:ns9=\"http://www.w3.org/2001/SMIL20/Language\" xmlns:ns5=\"http://www.w3.org/1999/xlink\" xmlns:ns6=\"http://purl.org/dc/elements/1.1/\" xmlns:ns7=\"http://purl.org/dc/terms/\" xmlns:ns8=\"http://www.w3.org/2001/SMIL20/\">";
     }
 
+    /**
+     * Returns the standard XML Filter footer string
+     * 
+     * @return
+     */
     private String getXmlFooterString() {
         return "</ns3:Filter>";
     }
 
-    private String createExpressionString(ComparisonOperator comparisonOp, 
-            String propertyName, String...args) {
+    /**
+     * Creates a property comparison Filter string without the standard XML
+     * header and footer.
+     * 
+     * @param comparisonOp The comparison operator to use when building the
+     *      Filter string
+     * @param propertyName The name of the property to include in the 
+     *      <PropertyName>
+     * @param args Zero or more strings to be used within the comparison
+     *      Filter. For example, a PROPERTY_IS_BETWEEN comparison operator 
+     *      requires two arguments, a string representing a lower boundary and a 
+     *      string representing an upper boundary, so two Strings must be 
+     *      supplied as parameters to this method.
+     *      
+     * @return
+     */
+    private String createComparisonFilterStringWithoutHeaderAndFooter(
+            ComparisonOperator comparisonOp, String propertyName, String...args) {
+        
         String expression = 
                 "<ns3:" + comparisonOp;
         
-        if (comparisonOp == ComparisonOperator.PROPERTY_IS_LIKE) {
+        if (comparisonOp.getComparatorType() == 
+                ComparisonOperator.ComparisonStringOperatorType.WILDCARD) {
             expression += " wildCard=\"*\" singleChar=\"#\" escapeChar=\"!\"";
         } else if (comparisonOp.getComparatorType() == ComparisonOperator.ComparisonStringOperatorType.STRING) {
             expression += " matchCase=\"false\"";
@@ -376,16 +417,38 @@ public class TestCswFilterDelegate {
         return expression;
     }
 
-    private String createComparisonString(ComparisonOperator comparisonOp, 
+    /**
+     * Creates a property comparison Filter string 
+     * 
+     * @param comparisonOp The comparison operator to use when building the
+     *      Filter string
+     * @param propertyName The name of the property to include in the 
+     *      <PropertyName>
+     * @param args See {@link #createComparisonFilterStringWithoutHeaderAndFooter(ComparisonOperator, String, String...)
+     *      for description of this argument.
+     * @return A comparison Filter string
+     */
+    private String createComparisonFilterString(ComparisonOperator comparisonOp, 
             String propertyName, String...args) {
         String compString = getXmlHeaderString() 
-                + createExpressionString(comparisonOp, propertyName, args)
+                + createComparisonFilterStringWithoutHeaderAndFooter(comparisonOp, propertyName, args)
                 + getXmlFooterString();
         
         return compString;
     }
 
-    private String createCompoundExpressionString(
+    /**
+     * Creates a compound expression Filter string by wrapping the received 
+     * expressions with a compound expression operator (e.g., AND, OR, NOT).
+     * 
+     * @param compoundOperator The {@code CompoundExpressionOperator} with which
+     *      to wrap the expressions
+     * @param expressions The expressions to be wrapped. If the expressions
+     *      contain a header/footer, it will be removed (the
+     *      header/footer will be added to the compound expression) 
+     * @return 
+     */
+    private String createCompoundExpressionFilterString(
             CompoundExpressionOperator compoundOperator, String...expressions) {
         String compoundExpression = null;
     
@@ -408,10 +471,31 @@ public class TestCswFilterDelegate {
         return compoundExpression;
     }
 
+    /**
+     * Converts a string of coordinates into <pos> elements
+     * 
+     * @param coordinatesString A string of coordinate pairs. Each coordinate 
+     *      pair is converted into a <pos> element in the order it appears in
+     *      the string. For example:
+     *      
+     *      "10.0 20.0 0.0 20.0"
+     *      
+     *      Will be converted to:
+     *      
+     *      "<ns4:pos>10.0 20.0</ns4:pos><ns4:pos>0.0 20.0"</ns4:pos>"
+     *      
+     * @return A string of <pos> elements representing the received coordinates
+     */
     private String createPosElementsString(String coordinatesString) {
         String pointStr = "";
         
         String[] coordinatesArray = coordinatesString.split(" ");
+        
+        if (coordinatesArray.length % 2 != 0) {
+            throw new IllegalArgumentException("Coordinates string is malformed: "
+                    + "Missing a coordinate - Cannot form a complete coordinate pair.");
+        }
+        
         for (int ii = 0; ii + 1 < coordinatesArray.length; ii = ii + 2) {
             pointStr += "<ns4:pos>" + coordinatesArray[ii] + " " + 
                     coordinatesArray[ii + 1] + "</ns4:pos>";
@@ -420,6 +504,17 @@ public class TestCswFilterDelegate {
         return pointStr;
     }
 
+    /**
+     * Creates a LinearRing Filter string. 
+     * 
+     * @param usePosList If true, will construct the LinearRing using a 
+     *      single <posList> element, rather than including a <pos> element for
+     *      each coordinate pair in the coordinates string.
+     * @param coordinatesString A string of ordered coordinate pairs that 
+     *      represent the polygon. For an example see 
+     *      {@link #LAT_LON_POLYGON_COORDINATES_STRING}.
+     * @return
+     */
     private String createLinearRingFilterString(boolean usePosList, 
             String coordinatesString) {
         String linearRingStr = "<ns4:LinearRing>";
@@ -439,8 +534,9 @@ public class TestCswFilterDelegate {
      * Given a point string of the form "x y" or "y x", returns the corresponding
      * XML point.
      * 
-     * @param pointString
-     * @return
+     * @param pointCoordinatesString A string containing a single coordinates
+     *      pair
+     * @return A string of the form "<ns4:Point>x y</ns4:Point>
      */
     private String createPointFilterString(String pointCoordinatesString) {
         int numCoords = pointCoordinatesString.split(" ").length;
@@ -453,6 +549,15 @@ public class TestCswFilterDelegate {
                 + "</ns4:Point>";
     }
 
+    /**
+     * Creates a MultiPoint Filter string. 
+     * 
+     * @param multiPointCoordinatesString A space-separated list of coordinates 
+     *      pairs. For an example see {@link #LAT_LON_LINESTRING_COORDINATES_STRING} 
+     * @return A string of the form 
+     *      "<ns4:pointMember><ns4:Point>x y</ns4:Point></ns4:pointMember>
+     *       <ns4:pointMember><ns4:Point>y z</ns4:Point></ns4:pointMember>"
+     */
     private String createMultiPointMembersFilterString(String multiPointCoordinatesString) {
         String[] coordinates = multiPointCoordinatesString.split(" ");
         
@@ -473,9 +578,20 @@ public class TestCswFilterDelegate {
         return multiPointMembersFilter;
     }
     
+    /**
+     * Creates an Envelop Filter string
+     * 
+     * @param spatialOperator The spatial operator to use in the Filter string
+     * @param propertyName The PropertyName to use in the Filter string
+     * @param lowerCornerPointCoords A pair of coordinates of the form "x y"
+     *      that represent the lower corner.
+     * @param upperCornerPointCoords A pair of coordinates of the form "x y"
+     *      that represent the upper corner.
+     * @return
+     */
     private String createEnvelopeFilterString(SpatialOperatorNameType spatialOperator,
-            GeospatialPropertyName propertyName, String lowerCornerCoords,
-            String upperCornerCoords) {
+            GeospatialPropertyName propertyName, String lowerCornerPointCoords,
+            String upperCornerPointCoords) {
 
         String spatialOpName;
         
@@ -493,8 +609,8 @@ public class TestCswFilterDelegate {
                 + "<ns3:" + spatialOpName + ">" 
                 +    "<ns3:PropertyName>" + propertyName + "</ns3:PropertyName>"
                 +    "<ns4:Envelope>"
-                +       "<ns4:lowerCorner>" + lowerCornerCoords +"</ns4:lowerCorner>"
-                +       "<ns4:upperCorner>" + upperCornerCoords +"</ns4:upperCorner>"
+                +       "<ns4:lowerCorner>" + lowerCornerPointCoords +"</ns4:lowerCorner>"
+                +       "<ns4:upperCorner>" + upperCornerPointCoords +"</ns4:upperCorner>"
                 +    "</ns4:Envelope>"
                 + "</ns3:" + spatialOpName + ">" 
                 + getXmlFooterString();
@@ -503,12 +619,40 @@ public class TestCswFilterDelegate {
         
     }
 
+    /**
+     * A convenience method for calling {@code createGeospatialFilterString} 
+     * without a property map.
+     */
     private String createGeospatialFilterString(SpatialOperatorNameType spatialOperator,
             GeospatialPropertyName propertyName, Geometries geoType, String coordinatesString) {
         return createGeospatialFilterString(spatialOperator, propertyName, 
                 geoType, coordinatesString, null);
     }
 
+    /**
+     * Creates a geospatial Filter string. 
+     * 
+     * @param spatialOperator The spatial operator (e.g., BBOX, INTERSECTS, 
+     *      WITHIN) to use in the Filter string
+     * @param propertyName he PropertyName to use in the Filter string
+     * @param geoType The type of geometry (e.g., LINESTRING, POINT, POLYGON)
+     *      the Filter string will represent
+     * @param coordinatesString A string of space-separated coordinates to
+     *      use when constructing the geometry Filter string
+     * @param propertyMap A map of additional properties. Currently valid
+     *      properties that will be used when applicable include:
+     *      
+     *      {@link #USE_POS_LIST_GEO_FILTER_PROP_MAP_KEY} A string with a value
+     *      of either "true" or "false." When true, a single <posList> element, 
+     *      rather than a set of <pos> elements, is used in building a
+     *      <LinearRing>.
+     *      
+     *      {@link #DISTANCE_GEO_FILTER_PROP_MAP_KEY} When present, a 
+     *      <Distance> element will be included in the geospatial Filter string
+     *      using the distance value included in the property map.
+     * 
+     * @return A string representing a geospatial Filter
+     */
     private String createGeospatialFilterString(SpatialOperatorNameType spatialOperator,
             GeospatialPropertyName propertyName, Geometries geoType, String coordinatesString, 
             Map<String, String> propertyMap) {
@@ -517,10 +661,9 @@ public class TestCswFilterDelegate {
             propertyMap = new HashMap<String, String>();
         }
         
-        // Replace underscores with spaces, convert to CamelCase, and then 
-        // remove the spaces
+        char[] delimiters = {'_'};
         String spatialOpName = WordUtils.capitalizeFully(
-                spatialOperator.name().replaceAll("_", " ")).replaceAll(" ", "");
+                spatialOperator.name(), delimiters).replaceAll("_", "");
         
         String geoTypeName = null;
         switch (geoType) {
@@ -584,96 +727,96 @@ public class TestCswFilterDelegate {
         return geoFilterStr;
     }
 
-    private final String duringXml = createComparisonString(
+    private final String duringXml = createComparisonFilterString(
             ComparisonOperator.PROPERTY_IS_BETWEEN, REPLACE_TEMPORAL_PROPERTY, 
             REPLACE_START_DATE, REPLACE_END_DATE);
 
-    private final String propertyIsEqualToXml = createComparisonString(
+    private final String propertyIsEqualToXml = createComparisonFilterString(
             ComparisonOperator.PROPERTY_IS_EQUAL_TO, DEFAULT_PROPERTY_NAME, "1");
 
-    private final String propertyIsEqualToXmlWithDecimal = createComparisonString(
+    private final String propertyIsEqualToXmlWithDecimal = createComparisonFilterString(
             ComparisonOperator.PROPERTY_IS_EQUAL_TO, DEFAULT_PROPERTY_NAME, "1.0");
 
-    private final String propertyIsEqualToXmlAnyText = createComparisonString(
+    private final String propertyIsEqualToXmlAnyText = createComparisonFilterString(
             ComparisonOperator.PROPERTY_IS_EQUAL_TO, CswConstants.ANY_TEXT, "1");
 
-    private final String propertyIsEqualToXmlContentType = createComparisonString(
+    private final String propertyIsEqualToXmlContentType = createComparisonFilterString(
             ComparisonOperator.PROPERTY_IS_EQUAL_TO, "type", "myType");
 
-    private final String propertyIsEqualToXmlWithNonIso8601Date = createComparisonString(
+    private final String propertyIsEqualToXmlWithNonIso8601Date = createComparisonFilterString(
             ComparisonOperator.PROPERTY_IS_EQUAL_TO, DEFAULT_PROPERTY_NAME, 
             convertDateToIso8601Format(SAMPLE_NON_ISO_8601_DATE).toString());
 
-    private final String propertyIsEqualToXmlWithBoolean = createComparisonString(
+    private final String propertyIsEqualToXmlWithBoolean = createComparisonFilterString(
             ComparisonOperator.PROPERTY_IS_EQUAL_TO, DEFAULT_PROPERTY_NAME, "true");
 
-    private final String propertyIsNotEqualToXml = createComparisonString(
+    private final String propertyIsNotEqualToXml = createComparisonFilterString(
             ComparisonOperator.PROPERTY_IS_NOT_EQUAL_TO, DEFAULT_PROPERTY_NAME, "1");
 
-    private final String propertyIsNotEqualToXmlWithDecimal = createComparisonString(
+    private final String propertyIsNotEqualToXmlWithDecimal = createComparisonFilterString(
             ComparisonOperator.PROPERTY_IS_NOT_EQUAL_TO, DEFAULT_PROPERTY_NAME, "1.0");
 
-    private final String propertyIsNotEqualToXmlAnyText = createComparisonString(
+    private final String propertyIsNotEqualToXmlAnyText = createComparisonFilterString(
             ComparisonOperator.PROPERTY_IS_NOT_EQUAL_TO, CswConstants.ANY_TEXT, "1");
 
-    private final String propertyIsNotEqualToXmlWithBoolean = createComparisonString(
+    private final String propertyIsNotEqualToXmlWithBoolean = createComparisonFilterString(
             ComparisonOperator.PROPERTY_IS_NOT_EQUAL_TO, DEFAULT_PROPERTY_NAME, "true");
 
-    private final String propertyIsGreaterThanXml = createComparisonString(
+    private final String propertyIsGreaterThanXml = createComparisonFilterString(
             ComparisonOperator.PROPERTY_IS_GREATER_THAN, DEFAULT_PROPERTY_NAME, "1");
 
-    private final String propertyIsGreaterThanXmlWithDecimal = createComparisonString(
+    private final String propertyIsGreaterThanXmlWithDecimal = createComparisonFilterString(
             ComparisonOperator.PROPERTY_IS_GREATER_THAN, DEFAULT_PROPERTY_NAME, "1.0");
 
-    private final String propertyIsGreaterThanXmlAnyText = createComparisonString(
+    private final String propertyIsGreaterThanXmlAnyText = createComparisonFilterString(
             ComparisonOperator.PROPERTY_IS_GREATER_THAN, CswConstants.ANY_TEXT, "1");
 
-    private final String propertyIsGreaterThanOrEqualToXml = createComparisonString(
+    private final String propertyIsGreaterThanOrEqualToXml = createComparisonFilterString(
             ComparisonOperator.PROPERTY_IS_GREATER_THAN_OR_EQUAL_TO, DEFAULT_PROPERTY_NAME, "1");
 
-    private final String propertyIsGreaterThanOrEqualToXmlWithDecimal = createComparisonString(
+    private final String propertyIsGreaterThanOrEqualToXmlWithDecimal = createComparisonFilterString(
             ComparisonOperator.PROPERTY_IS_GREATER_THAN_OR_EQUAL_TO, DEFAULT_PROPERTY_NAME, "1.0");
 
-    private final String propertyIsGreaterThanOrEqualToXmlAnyText = createComparisonString(
+    private final String propertyIsGreaterThanOrEqualToXmlAnyText = createComparisonFilterString(
             ComparisonOperator.PROPERTY_IS_GREATER_THAN_OR_EQUAL_TO, CswConstants.ANY_TEXT, "1");
 
-    private final String propertyIsLessThanXml = createComparisonString(
+    private final String propertyIsLessThanXml = createComparisonFilterString(
             ComparisonOperator.PROPERTY_IS_LESS_THAN, DEFAULT_PROPERTY_NAME, "1");
 
-    private final String propertyIsLessThanXmlWithDecimal = createComparisonString(
+    private final String propertyIsLessThanXmlWithDecimal = createComparisonFilterString(
             ComparisonOperator.PROPERTY_IS_LESS_THAN, DEFAULT_PROPERTY_NAME, "1.0");
 
-    private final String propertyIsLessThanXmlAnyText = createComparisonString(
+    private final String propertyIsLessThanXmlAnyText = createComparisonFilterString(
             ComparisonOperator.PROPERTY_IS_LESS_THAN, CswConstants.ANY_TEXT, "1");
 
-    private final String propertyIsLessThanOrEqualToXml = createComparisonString(
+    private final String propertyIsLessThanOrEqualToXml = createComparisonFilterString(
             ComparisonOperator.PROPERTY_IS_LESS_THAN_OR_EQUAL_TO, DEFAULT_PROPERTY_NAME, "1");
 
-    private final String propertyIsLessThanOrEqualToXmlWithDecimal = createComparisonString(
+    private final String propertyIsLessThanOrEqualToXmlWithDecimal = createComparisonFilterString(
             ComparisonOperator.PROPERTY_IS_LESS_THAN_OR_EQUAL_TO, DEFAULT_PROPERTY_NAME, "1.0");
 
-    private final String propertyIsLessThanOrEqualToXmlAnyText = createComparisonString(
+    private final String propertyIsLessThanOrEqualToXmlAnyText = createComparisonFilterString(
             ComparisonOperator.PROPERTY_IS_LESS_THAN_OR_EQUAL_TO, CswConstants.ANY_TEXT, "1");
 
-    private final String propertyIsBetweenXml = createComparisonString(
+    private final String propertyIsBetweenXml = createComparisonFilterString(
             ComparisonOperator.PROPERTY_IS_BETWEEN, DEFAULT_PROPERTY_NAME, "5", "15");
 
-    private final String propertyIsBetweenXmlWithDecimal = createComparisonString(
+    private final String propertyIsBetweenXmlWithDecimal = createComparisonFilterString(
             ComparisonOperator.PROPERTY_IS_BETWEEN, DEFAULT_PROPERTY_NAME, "5.0", "15.0");
 
-    private final String propertyIsNullXml = createComparisonString(
+    private final String propertyIsNullXml = createComparisonFilterString(
             ComparisonOperator.PROPERTY_IS_NULL, DEFAULT_PROPERTY_NAME);
 
-    private final String propertyIsLikeXml = createComparisonString(
+    private final String propertyIsLikeXml = createComparisonFilterString(
             ComparisonOperator.PROPERTY_IS_LIKE, DEFAULT_PROPERTY_NAME, "*bar*");
 
-    private final String propertyIsLikeXmlAnyText = createComparisonString(
+    private final String propertyIsLikeXmlAnyText = createComparisonFilterString(
             ComparisonOperator.PROPERTY_IS_LIKE, CswConstants.ANY_TEXT, "*bar*");
 
-    private final String orComparisonOpsXml = createCompoundExpressionString(
+    private final String orComparisonOpsXml = createCompoundExpressionFilterString(
             CompoundExpressionOperator.OR, 
-            createExpressionString(ComparisonOperator.PROPERTY_IS_EQUAL_TO, DEFAULT_PROPERTY_NAME, "true"),
-            createExpressionString(ComparisonOperator.PROPERTY_IS_LIKE, DEFAULT_PROPERTY_NAME, "*bar*"));
+            createComparisonFilterStringWithoutHeaderAndFooter(ComparisonOperator.PROPERTY_IS_EQUAL_TO, DEFAULT_PROPERTY_NAME, "true"),
+            createComparisonFilterStringWithoutHeaderAndFooter(ComparisonOperator.PROPERTY_IS_LIKE, DEFAULT_PROPERTY_NAME, "*bar*"));
     
     private final String intersectsPolygonXmlPropertyOwsBoundingBox = 
             createGeospatialFilterString(INTERSECTS, 
@@ -817,7 +960,7 @@ public class TestCswFilterDelegate {
                     LAT_LON_POLYGON_COORDINATES_STRING, POS_LIST_GEO_FILTER_PROP_MAP);
 
     private final String notDisjointPolygonXmlPropertyOwsBoundingBox = 
-            createCompoundExpressionString(CompoundExpressionOperator.NOT, 
+            createCompoundExpressionFilterString(CompoundExpressionOperator.NOT, 
                     createGeospatialFilterString(DISJOINT, 
                             GeospatialPropertyName.BOUNDING_BOX, 
                             Geometries.POLYGON, 
@@ -865,32 +1008,32 @@ public class TestCswFilterDelegate {
 
     // (NOT PropertyIsLike) OR PropertyIsEqualTo
     private final String orLogicOpsXml =
-            createCompoundExpressionString(CompoundExpressionOperator.OR, 
-                    createCompoundExpressionString(CompoundExpressionOperator.NOT, 
-                            createExpressionString(ComparisonOperator.PROPERTY_IS_LIKE, DEFAULT_PROPERTY_NAME, "*bar*")), 
-                    createExpressionString(ComparisonOperator.PROPERTY_IS_EQUAL_TO, DEFAULT_PROPERTY_NAME, "true"));
+            createCompoundExpressionFilterString(CompoundExpressionOperator.OR, 
+                    createCompoundExpressionFilterString(CompoundExpressionOperator.NOT, 
+                            createComparisonFilterStringWithoutHeaderAndFooter(ComparisonOperator.PROPERTY_IS_LIKE, DEFAULT_PROPERTY_NAME, "*bar*")), 
+                    createComparisonFilterStringWithoutHeaderAndFooter(ComparisonOperator.PROPERTY_IS_EQUAL_TO, DEFAULT_PROPERTY_NAME, "true"));
             
     // DWithin OR PropertyIsLike
-    private final String orSpatialOpsXml = createCompoundExpressionString(
+    private final String orSpatialOpsXml = createCompoundExpressionFilterString(
             CompoundExpressionOperator.OR, 
             createGeospatialFilterString(D_WITHIN, 
                     GeospatialPropertyName.BOUNDING_BOX, Geometries.POINT, "10.0 30.0", 
                     THOUSAND_METER_DISTANCE_GEO_FILTER_PROP_MAP),
-            createExpressionString(ComparisonOperator.PROPERTY_IS_LIKE, 
+            createComparisonFilterStringWithoutHeaderAndFooter(ComparisonOperator.PROPERTY_IS_LIKE, 
                     DEFAULT_PROPERTY_NAME, "*bar*"));
 
     // PropertyIsEqualTo AND PropertyIsLike
-    private final String andComparisonOpsXml = createCompoundExpressionString(
+    private final String andComparisonOpsXml = createCompoundExpressionFilterString(
             CompoundExpressionOperator.AND, 
-                createExpressionString(ComparisonOperator.PROPERTY_IS_EQUAL_TO, DEFAULT_PROPERTY_NAME, "true"),
-                createExpressionString(ComparisonOperator.PROPERTY_IS_LIKE, DEFAULT_PROPERTY_NAME, "*bar*"));
+                createComparisonFilterStringWithoutHeaderAndFooter(ComparisonOperator.PROPERTY_IS_EQUAL_TO, DEFAULT_PROPERTY_NAME, "true"),
+                createComparisonFilterStringWithoutHeaderAndFooter(ComparisonOperator.PROPERTY_IS_LIKE, DEFAULT_PROPERTY_NAME, "*bar*"));
 
     // (NOT PropertyIsLike) AND PropertyIsEqualTo
     private final String andLogicOpsXml =
-            createCompoundExpressionString(CompoundExpressionOperator.AND, 
-                    createCompoundExpressionString(CompoundExpressionOperator.NOT, 
-                            createExpressionString(ComparisonOperator.PROPERTY_IS_LIKE, DEFAULT_PROPERTY_NAME, "*bar*")), 
-                    createExpressionString(ComparisonOperator.PROPERTY_IS_EQUAL_TO, DEFAULT_PROPERTY_NAME, "true"));
+            createCompoundExpressionFilterString(CompoundExpressionOperator.AND, 
+                    createCompoundExpressionFilterString(CompoundExpressionOperator.NOT, 
+                            createComparisonFilterStringWithoutHeaderAndFooter(ComparisonOperator.PROPERTY_IS_LIKE, DEFAULT_PROPERTY_NAME, "*bar*")), 
+                    createComparisonFilterStringWithoutHeaderAndFooter(ComparisonOperator.PROPERTY_IS_EQUAL_TO, DEFAULT_PROPERTY_NAME, "true"));
 
     private String dWithinFallbackToIntersects1 = createEnvelopeFilterString(
             INTERSECTS, GeospatialPropertyName.BOUNDING_BOX, 
@@ -936,15 +1079,15 @@ public class TestCswFilterDelegate {
                     + " 30.0 30.001110264953223");
 
     // DWithin AND PropertyIsLike
-    private final String andSpatialOpsXml = createCompoundExpressionString(
+    private final String andSpatialOpsXml = createCompoundExpressionFilterString(
             CompoundExpressionOperator.AND, 
             createGeospatialFilterString(D_WITHIN, 
                     GeospatialPropertyName.BOUNDING_BOX, Geometries.POINT, "10.0 30.0", 
                     THOUSAND_METER_DISTANCE_GEO_FILTER_PROP_MAP),
-            createExpressionString(ComparisonOperator.PROPERTY_IS_LIKE, 
+            createComparisonFilterStringWithoutHeaderAndFooter(ComparisonOperator.PROPERTY_IS_LIKE, 
                     DEFAULT_PROPERTY_NAME, "*bar*"));
 
-    private final String configurableContentTypeMappingXml = createComparisonString(
+    private final String configurableContentTypeMappingXml = createComparisonFilterString(
             ComparisonOperator.PROPERTY_IS_EQUAL_TO, "format", "myContentType");
 
     private final String emptyFilterXml = getXmlHeaderString() + getXmlFooterString();
