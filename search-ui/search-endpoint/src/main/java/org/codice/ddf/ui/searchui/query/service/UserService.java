@@ -25,6 +25,8 @@ import org.cometd.bayeux.Message;
 import org.cometd.bayeux.server.ServerMessage;
 import org.cometd.bayeux.server.ServerSession;
 import org.cometd.server.ServerMessageImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -35,13 +37,21 @@ import java.util.Map;
 @Service
 public class UserService {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(UserService.class);
+
     @Session
     private ServerSession serverSession;
 
     @Listener("/service/user")
     public void getUser(final ServerSession remote, Message message) {
         ServerMessage.Mutable reply = new ServerMessageImpl();
-        Subject subject = SecurityUtils.getSubject();
+        Subject subject = null;
+
+        try {
+            subject = SecurityUtils.getSubject();
+        } catch (Exception e) {
+            LOGGER.debug("Unable to retrieve user from request.", e);
+        }
 
         if(subject != null) {
             Map<String, String> userMap = new HashMap<String, String>();
