@@ -13,8 +13,8 @@
  **/
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
->
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+        >
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -234,9 +234,9 @@
                 <artifactId>org.osgi.compendium</artifactId>
                 <version>${osgi.version}</version>
             </dependency>
-		<!-- WSS4J, a dependency of CXF depends on a version of Joda Time [1.6,2). 
-		  Before incrementing to 2.0 or beyond, ensure that the latest version of WSS4J 
-		  can use a version higher 2.0 or higher. -->
+            <!-- WSS4J, a dependency of CXF depends on a version of Joda Time [1.6,2).
+              Before incrementing to 2.0 or beyond, ensure that the latest version of WSS4J
+              can use a version higher 2.0 or higher. -->
             <dependency>
                 <groupId>joda-time</groupId>
                 <artifactId>joda-time</artifactId>
@@ -266,7 +266,6 @@
     <modules>
         <module>platform-configuration</module>
         <module>action</module>
-        <module>cache</module>
         <module>notifications</module>
         <module>mime</module>
         <module>metrics</module>
