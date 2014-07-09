@@ -275,6 +275,92 @@
             </resource>
         </resources>
         <plugins>
+           <!--  
+           Used to copy solr/conf files from maven repo to target/classes/solr/conf directory for use by unit tests. These
+           solr/conf files are now owned by the platform-solr-server-standalone bundle. They are placed in target/classes
+           directory so that they appear on the classpath and can be read as a resource.
+           -->
+           <plugin>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>2.8</version>
+                <executions>
+                    <execution>
+                        <id>copy</id>
+                        <phase>process-test-resources</phase>
+                        <goals>
+                            <goal>copy</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>ddf.platform.solr</groupId>
+                                    <artifactId>platform-solr-server-standalone</artifactId>
+                                    <version>${ddf.platform.app.version}</version>
+                                    <type>txt</type>
+                                    <classifier>protwords</classifier>
+                                    <overWrite>true</overWrite>
+                                    <outputDirectory>${project.build.directory}/classes/solr/conf</outputDirectory>
+                                    <destFileName>protwords.txt</destFileName>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>ddf.platform.solr</groupId>
+                                    <artifactId>platform-solr-server-standalone</artifactId>
+                                    <version>${ddf.platform.app.version}</version>
+                                    <type>xml</type>
+                                    <classifier>schema</classifier>
+                                    <overWrite>true</overWrite>
+                                    <outputDirectory>${project.build.directory}/classes/solr/conf</outputDirectory>
+                                    <destFileName>schema.xml</destFileName>
+                                </artifactItem>
+                                <!--
+                                solrconfig.xml not copied because should use the one in src/test/resources that has no 
+                                CassandraUpdateRequestProcessor in its update chain
+                                -->
+                                <artifactItem>
+                                    <groupId>ddf.platform.solr</groupId>
+                                    <artifactId>platform-solr-server-standalone</artifactId>
+                                    <version>${ddf.platform.app.version}</version>
+                                    <type>txt</type>
+                                    <classifier>stopwords_en</classifier>
+                                    <overWrite>true</overWrite>
+                                    <outputDirectory>${project.build.directory}/classes/solr/conf</outputDirectory>
+                                    <destFileName>stopwords_en.txt</destFileName>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>ddf.platform.solr</groupId>
+                                    <artifactId>platform-solr-server-standalone</artifactId>
+                                    <version>${ddf.platform.app.version}</version>
+                                    <type>txt</type>
+                                    <classifier>stopwords</classifier>
+                                    <overWrite>true</overWrite>
+                                    <outputDirectory>${project.build.directory}/classes/solr/conf</outputDirectory>
+                                    <destFileName>stopwords.txt</destFileName>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>ddf.platform.solr</groupId>
+                                    <artifactId>platform-solr-server-standalone</artifactId>
+                                    <version>${ddf.platform.app.version}</version>
+                                    <type>txt</type>
+                                    <classifier>synonyms</classifier>
+                                    <overWrite>true</overWrite>
+                                    <outputDirectory>${project.build.directory}/classes/solr/conf</outputDirectory>
+                                    <destFileName>synonyms.txt</destFileName>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>ddf.platform.solr</groupId>
+                                    <artifactId>platform-solr-server-standalone</artifactId>
+                                    <version>${ddf.platform.app.version}</version>
+                                    <type>xml</type>
+                                    <classifier>solr</classifier>
+                                    <overWrite>true</overWrite>
+                                    <outputDirectory>${project.build.directory}/classes/solr/conf</outputDirectory>
+                                    <destFileName>solr.xml</destFileName>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
             <!-- DDF-579: moved to platform-solr-server-standalone
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
