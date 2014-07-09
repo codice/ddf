@@ -1,99 +1,18 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
+ *
  **/
 package org.codice.ddf.spatial.ogc.csw.catalog.source;
-
-import java.io.IOException;
-import java.io.Serializable;
-import java.io.StringWriter;
-import java.io.Writer;
-import java.math.BigInteger;
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Dictionary;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
-
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.client.ClientException;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
-import javax.xml.namespace.QName;
-
-import net.opengis.cat.csw.v_2_0_2.CapabilitiesType;
-import net.opengis.cat.csw.v_2_0_2.ElementSetNameType;
-import net.opengis.cat.csw.v_2_0_2.ElementSetType;
-import net.opengis.cat.csw.v_2_0_2.GetRecordsType;
-import net.opengis.cat.csw.v_2_0_2.ObjectFactory;
-import net.opengis.cat.csw.v_2_0_2.QueryConstraintType;
-import net.opengis.cat.csw.v_2_0_2.QueryType;
-import net.opengis.cat.csw.v_2_0_2.ResultType;
-import net.opengis.filter.v_1_1_0.FilterCapabilities;
-import net.opengis.filter.v_1_1_0.FilterType;
-import net.opengis.filter.v_1_1_0.PropertyNameType;
-import net.opengis.filter.v_1_1_0.SortByType;
-import net.opengis.filter.v_1_1_0.SortOrderType;
-import net.opengis.filter.v_1_1_0.SortPropertyType;
-import net.opengis.filter.v_1_1_0.SpatialCapabilitiesType;
-import net.opengis.filter.v_1_1_0.SpatialOperatorNameType;
-import net.opengis.filter.v_1_1_0.SpatialOperatorType;
-import net.opengis.filter.v_1_1_0.SpatialOperatorsType;
-import net.opengis.ows.v_1_0_0.DomainType;
-import net.opengis.ows.v_1_0_0.Operation;
-import net.opengis.ows.v_1_0_0.OperationsMetadata;
-
-import org.apache.commons.collections4.ListUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.cxf.common.util.CollectionUtils;
-import org.codice.ddf.spatial.ogc.catalog.MetadataTransformer;
-import org.codice.ddf.spatial.ogc.catalog.common.AvailabilityCommand;
-import org.codice.ddf.spatial.ogc.catalog.common.AvailabilityTask;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.Csw;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswException;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordCollection;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordMetacardType;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswSourceConfiguration;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.GetCapabilitiesRequest;
-import org.codice.ddf.spatial.ogc.csw.catalog.converter.RecordConverterFactory;
-import org.codice.ddf.spatial.ogc.wcs.catalog.resource.reader.WcsResourceReader;
-import org.opengis.filter.Filter;
-import org.opengis.filter.sort.SortOrder;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.InvalidSyntaxException;
-import org.osgi.framework.ServiceReference;
-import org.osgi.framework.ServiceRegistration;
-import org.osgi.service.cm.Configuration;
-import org.osgi.service.cm.ConfigurationAdmin;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import ddf.catalog.Constants;
 import ddf.catalog.data.ContentType;
@@ -121,13 +40,93 @@ import ddf.catalog.source.SourceMonitor;
 import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.util.impl.MaskableImpl;
+import net.opengis.cat.csw.v_2_0_2.CapabilitiesType;
+import net.opengis.cat.csw.v_2_0_2.ElementSetNameType;
+import net.opengis.cat.csw.v_2_0_2.ElementSetType;
+import net.opengis.cat.csw.v_2_0_2.GetRecordsType;
+import net.opengis.cat.csw.v_2_0_2.ObjectFactory;
+import net.opengis.cat.csw.v_2_0_2.QueryConstraintType;
+import net.opengis.cat.csw.v_2_0_2.QueryType;
+import net.opengis.cat.csw.v_2_0_2.ResultType;
+import net.opengis.filter.v_1_1_0.FilterCapabilities;
+import net.opengis.filter.v_1_1_0.FilterType;
+import net.opengis.filter.v_1_1_0.PropertyNameType;
+import net.opengis.filter.v_1_1_0.SortByType;
+import net.opengis.filter.v_1_1_0.SortOrderType;
+import net.opengis.filter.v_1_1_0.SortPropertyType;
+import net.opengis.filter.v_1_1_0.SpatialCapabilitiesType;
+import net.opengis.filter.v_1_1_0.SpatialOperatorNameType;
+import net.opengis.filter.v_1_1_0.SpatialOperatorType;
+import net.opengis.filter.v_1_1_0.SpatialOperatorsType;
+import net.opengis.ows.v_1_0_0.DomainType;
+import net.opengis.ows.v_1_0_0.Operation;
+import net.opengis.ows.v_1_0_0.OperationsMetadata;
+import org.apache.commons.collections4.ListUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.cxf.common.util.CollectionUtils;
+import org.codice.ddf.configuration.ConfigurationManager;
+import org.codice.ddf.configuration.ConfigurationWatcher;
+import org.codice.ddf.spatial.ogc.catalog.MetadataTransformer;
+import org.codice.ddf.spatial.ogc.catalog.common.AvailabilityCommand;
+import org.codice.ddf.spatial.ogc.catalog.common.AvailabilityTask;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.Csw;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.CswException;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordCollection;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordMetacardType;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.CswSourceConfiguration;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.GetCapabilitiesRequest;
+import org.codice.ddf.spatial.ogc.csw.catalog.converter.RecordConverterFactory;
+import org.codice.ddf.spatial.ogc.wcs.catalog.resource.reader.WcsResourceReader;
+import org.opengis.filter.Filter;
+import org.opengis.filter.sort.SortOrder;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.framework.ServiceReference;
+import org.osgi.framework.ServiceRegistration;
+import org.osgi.service.cm.Configuration;
+import org.osgi.service.cm.ConfigurationAdmin;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.client.ClientException;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBElement;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
+import javax.xml.namespace.QName;
+import java.io.IOException;
+import java.io.Serializable;
+import java.io.StringWriter;
+import java.io.Writer;
+import java.math.BigInteger;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Dictionary;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 /**
  * CswSource provides a DDF {@link FederatedSource} and {@link ConnectedSource} for CSW 2.0.2
  * services.
- * 
  */
-public class CswSource extends MaskableImpl implements FederatedSource, ConnectedSource {
+public class CswSource extends MaskableImpl implements FederatedSource, ConnectedSource,
+        ConfigurationWatcher {
 
     private FilterBuilder filterBuilder;
 
@@ -146,7 +145,7 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
     private List<ResourceReader> resourceReaders;
 
     private DomainType supportedOutputSchemas;
-    
+
     private Set<ElementSetType> detailLevels;
 
     protected RemoteCsw remoteCsw;
@@ -162,9 +161,9 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
     private String cswVersion;
 
     protected boolean contentTypeMappingUpdated;
-    
+
     protected List<RecordConverterFactory> recordConverterFactories;
-    
+
     private static final Logger LOGGER = LoggerFactory.getLogger(CswSource.class);
 
     private static final String DEFAULT_CSW_TRANSFORMER_ID = "csw";
@@ -221,7 +220,7 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
     private static final String USE_POS_LIST_PROPERTY = "usePosList";
 
     protected static final String POLL_INTERVAL_PROPERTY = "pollInterval";
-    
+
     protected static final String OUTPUT_SCHEMA_PROPERTY = "outputSchema";
 
     protected static final String FORCE_SPATIAL_FILTER_PROPERTY = "forceSpatialFilter";
@@ -244,13 +243,15 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
 
     private boolean isConstraintCql;
 
+    private String keyStorePath, keyStorePassword;
+
+    private String trustStorePath, trustStorePassword;
+
     /**
      * Instantiates a CswSource. This constructor is for unit tests
-     * 
-     * @param remoteCsw
-     *            The JAXRS connection to a {@link Csw}
-     * @param context
-     *            The {@link BundleContext} from the OSGi Framework
+     *
+     * @param remoteCsw The JAXRS connection to a {@link Csw}
+     * @param context   The {@link BundleContext} from the OSGi Framework
      */
     public CswSource(RemoteCsw remoteCsw, BundleContext context,
             CswSourceConfiguration cswSourceConfiguration, List<RecordConverterFactory> factories) {
@@ -258,8 +259,8 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
         this.context = context;
         this.cswSourceConfiguration = cswSourceConfiguration;
         this.recordConverterFactories = factories;
+        scheduler = Executors.newSingleThreadScheduledExecutor();
     }
-
 
     /**
      * Instantiates a CswSource.
@@ -291,35 +292,35 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
     }
 
     /**
-     * 
      * Reinitializes the CswSource when there is a configuration change. Otherwise, it checks with
      * the server to see if any capabilities have changed.
-     * 
-     * @param configuration
-     *            The configuration with which to connect to the server
+     *
+     * @param configuration The configuration with which to connect to the server
      */
 
     public void refresh(Map<String, Object> configuration) {
         LOGGER.debug("{}: Entering refresh()", cswSourceConfiguration.getId());
-        
+
         cswSourceConfiguration.setId((String) configuration.get(ID_PROPERTY));
 
         cswSourceConfiguration.setCswUrl((String) configuration.get(CSWURL_PROPERTY));
-        
+
         cswSourceConfiguration.setPassword((String) configuration.get(PASSWORD_PROPERTY));
-        
+
         cswSourceConfiguration.setUsername((String) configuration.get(USERNAME_PROPERTY));
-        
+
         cswSourceConfiguration.setWcsUrl((String) configuration.get(WCSURL_PROPERTY));
-       
+
         String oldOutputSchema = cswSourceConfiguration.getOutputSchema();
-        cswSourceConfiguration.setOutputSchema((String)configuration.get(OUTPUT_SCHEMA_PROPERTY));
-        LOGGER.debug("{}: new output schema: {}", cswSourceConfiguration.getId(), cswSourceConfiguration.getOutputSchema());
+        cswSourceConfiguration.setOutputSchema((String) configuration.get(OUTPUT_SCHEMA_PROPERTY));
+        LOGGER.debug("{}: new output schema: {}", cswSourceConfiguration.getId(),
+                cswSourceConfiguration.getOutputSchema());
         LOGGER.debug("{}: old output schema: {}", cswSourceConfiguration.getId(),
                 oldOutputSchema);
-        
-        cswSourceConfiguration.setDisableSSLCertVerification((Boolean) configuration.get(SSL_VERIFICATION_PROPERTY));
-        
+
+        cswSourceConfiguration.setDisableSSLCertVerification(
+                (Boolean) configuration.get(SSL_VERIFICATION_PROPERTY));
+
         cswSourceConfiguration.setIsLonLatOrder((Boolean) configuration
                 .get(IS_LON_LAT_ORDER_PROPERTY));
         if (cswSourceConfiguration.isLonLatOrder()) {
@@ -341,54 +342,53 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
             spatialFilter = NO_FORCE_SPATIAL_FILTER;
         }
         forceSpatialFilter = spatialFilter;
-        
+
         String[] contentTypeNames = (String[]) configuration.get(CONTENTTYPES_PROPERTY);
         setContentTypeNames(Arrays.asList(contentTypeNames));
 
         cswSourceConfiguration.setCreatedDateMapping((String) configuration
                 .get(CREATED_DATE_MAPPING_PROPERTY));
-        
+
         cswSourceConfiguration.setEffectiveDateMapping((String) configuration
                 .get(EFFECTIVE_DATE_MAPPING_PROPERTY));
-        
+
         cswSourceConfiguration.setModifiedDateMapping((String) configuration
                 .get(MODIFIED_DATE_MAPPING_PROPERTY));
 
-        
         String previousContentTypeMapping = cswSourceConfiguration.getContentTypeMapping();
         LOGGER.debug("{}: Previous content type mapping: {}.", cswSourceConfiguration.getId(),
                 previousContentTypeMapping);
-        
+
         String currentContentTypeMapping = ((String) configuration
                 .get(CONTENT_TYPE_MAPPING_PROPERTY));
-        
+
         contentTypeMappingUpdated = !currentContentTypeMapping.equals(previousContentTypeMapping);
-        
+
         if (StringUtils.isEmpty(currentContentTypeMapping)) {
             currentContentTypeMapping = CswRecordMetacardType.CSW_TYPE;
         } else {
             currentContentTypeMapping = currentContentTypeMapping.trim();
         }
-        
+
         cswSourceConfiguration.setContentTypeMapping(currentContentTypeMapping);
-        
+
         LOGGER.debug("{}: Current content type mapping: {}.", cswSourceConfiguration.getId(),
                 currentContentTypeMapping);
-        
+
         if (contentTypeMappingUpdated) {
             LOGGER.debug("{}: The content type has been updated from {} to {}.",
                     cswSourceConfiguration.getId(), previousContentTypeMapping,
                     currentContentTypeMapping);
         }
-        
-        
+
         // recordConverter = getRecordConverter();
         connectToRemoteCsw();
         configureCswSource();
-        
+
         Integer newPollInterval = (Integer) configuration.get(POLL_INTERVAL_PROPERTY);
         if (!cswSourceConfiguration.getPollIntervalMinutes().equals(newPollInterval)) {
-            LOGGER.debug("Poll Interval was changed for source {}.", cswSourceConfiguration.getId());
+            LOGGER.debug("Poll Interval was changed for source {}.",
+                    cswSourceConfiguration.getId());
             cswSourceConfiguration.setPollIntervalMinutes(newPollInterval);
             availabilityPollFuture.cancel(true);
             setupAvailabilityPoll();
@@ -421,6 +421,14 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
 
         try {
             remoteCsw = new RemoteCsw(recordConverterFactories, cswSourceConfiguration);
+            if (StringUtils.isNotEmpty(keyStorePath) && StringUtils.isNotEmpty(keyStorePassword)
+                    && StringUtils.isNotEmpty(trustStorePath) && StringUtils
+                    .isNotEmpty(trustStorePassword)) {
+                remoteCsw.setKeystores(keyStorePath, keyStorePassword, trustStorePath,
+                        trustStorePassword);
+            } else {
+                LOGGER.debug("Keystores were not fully set up, skipping SSL configurations.");
+            }
             configureWcs();
         } catch (IllegalArgumentException iae) {
             LOGGER.error("Unable to create RemoteCsw.", iae);
@@ -429,7 +437,7 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
     }
 
     protected void configureWcs() {
-    	
+
         if (cswSourceConfiguration.getProductRetrievalMethod().equalsIgnoreCase(
                 CswConstants.WCS_PRODUCT_RETRIEVAL)
                 && wcsResourceReader != null) {
@@ -441,8 +449,11 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
             wcsResourceReader.setPassword(cswSourceConfiguration.getPassword());
             wcsResourceReader.init();
         } else {
-            LOGGER.debug("CSW Source not configured for WCS product retrival - no WcsResourceReader to configure");
-            wcsResourceReader.destroy();
+            LOGGER.debug(
+                    "CSW Source not configured for WCS product retrival - no WcsResourceReader to configure");
+            if (wcsResourceReader != null) {
+                wcsResourceReader.destroy();
+            }
         }
     }
 
@@ -496,7 +507,7 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
         LOGGER.debug("Setting WcsResourceReader");
         this.wcsResourceReader = wcsResourceReader;
     }
-    
+
     public void setOutputSchema(String outputSchema) {
         cswSourceConfiguration.setOutputSchema(outputSchema);
         LOGGER.debug("Setting output schema to: {}", outputSchema);
@@ -520,12 +531,13 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
 
     private SourceResponse query(QueryRequest queryRequest, ElementSetType elementSetName,
             List<QName> elementNames) throws UnsupportedQueryException {
-        
+
         Query query = queryRequest.getQuery();
         LOGGER.debug("{}: Received query:\n{}", cswSourceConfiguration.getId(), query);
 
-        GetRecordsType getRecordsType = createGetRecordsRequest(query, elementSetName, elementNames);
-        
+        GetRecordsType getRecordsType = createGetRecordsRequest(query, elementSetName,
+                elementNames);
+
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("{}: GetRecords request:\n {}", cswSourceConfiguration.getId(),
                     getGetRecordsTypeAsXml(getRecordsType));
@@ -566,7 +578,8 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
         LOGGER.debug("{}: Adding {} result(s) to the source response.",
                 cswSourceConfiguration.getId(), results.size());
 
-        SourceResponseImpl sourceResponse = new SourceResponseImpl(queryRequest, results, totalHits);
+        SourceResponseImpl sourceResponse = new SourceResponseImpl(queryRequest, results,
+                totalHits);
         addContentTypes(sourceResponse);
         unregisterMetacardTypes();
         registerMetacardTypes();
@@ -635,7 +648,7 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
 
     @Override
     public ResourceResponse retrieveResource(URI resourceUri, Map<String, Serializable> properties)
-        throws IOException, ResourceNotFoundException, ResourceNotSupportedException {
+            throws IOException, ResourceNotFoundException, ResourceNotSupportedException {
 
         LOGGER.debug("retrieving resource at : {}", resourceUri);
 
@@ -777,23 +790,23 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
     public void setPollInterval(Integer interval) {
         this.cswSourceConfiguration.setPollIntervalMinutes(interval);
     }
-    
+
     public void setRecordConverterFactoryList(List<RecordConverterFactory> factories) {
         if (LOGGER.isDebugEnabled()) {
             StringBuilder builder = new StringBuilder();
             builder.append("\nRecord converter factory output schema list:");
-    
+
             for (RecordConverterFactory rcf : ListUtils.emptyIfNull(factories)) {
                 builder.append("\n  Output schema: ");
                 builder.append(rcf.getOutputSchema());
             }
-    
+
             LOGGER.debug(builder.toString());
         }
 
         this.recordConverterFactories = factories;
     }
-    
+
     public List<RecordConverterFactory> getRecordConverterFactoryList() {
         return this.recordConverterFactories;
     }
@@ -857,9 +870,9 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
     }
 
     private SortByType createSortBy(Query query) {
-        
+
         SortByType sortBy = null;
-        
+
         if (query.getSortBy() != null) {
             sortBy = new SortByType();
             SortPropertyType sortProperty = new SortPropertyType();
@@ -868,7 +881,8 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
             if (propName != null) {
                 if (Result.TEMPORAL.equals(propName) || Metacard.ANY_DATE.equals(propName)) {
                     propName = Metacard.MODIFIED;
-                } else if (Result.RELEVANCE.equals(propName) || Metacard.ANY_TEXT.equals(propName)) {
+                } else if (Result.RELEVANCE.equals(propName) || Metacard.ANY_TEXT
+                        .equals(propName)) {
                     propName = Metacard.TITLE;
                 } else if (Result.DISTANCE.equals(propName) || Metacard.ANY_GEO.equals(propName)) {
                     return null;
@@ -885,12 +899,12 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
             }
             sortBy.getSortProperty().add(sortProperty);
         }
-        
+
         return sortBy;
     }
 
-
-    private QueryConstraintType createQueryConstraint(Query query) throws UnsupportedQueryException {
+    private QueryConstraintType createQueryConstraint(Query query)
+            throws UnsupportedQueryException {
         FilterType filter = createFilter(query);
         if (null == filter) {
             return null;
@@ -945,7 +959,7 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
     /**
      * Transforms the Metacard created from the CSW Record using the transformer specified by its
      * ID.
-     * 
+     *
      * @param metacard
      * @return
      */
@@ -1046,9 +1060,9 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
             if (capabilities.getFilterCapabilities() == null) {
                 return;
             }
-            
+
             readGetRecordsOperation(capabilities);
-            
+
             loadContentTypes();
             LOGGER.debug("{}: {}", cswSourceConfiguration.getId(), capabilities.toString());
         } else {
@@ -1073,39 +1087,39 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
     /**
      * Parses the getRecords {@link Operation} to understand the capabilities of the Csw Server. A
      * sample GetRecords Operation may look like this:
-     * 
+     * <p/>
      * <pre>
-     *   <ows:Operation name="GetRecords"> 
-     *     <ows:DCP> 
-     *       <ows:HTTP> 
-     *         <ows:Get  xlink:href="http://www.cubewerx.com/cwcsw.cgi?" /> 
-     *         <ows:Post xlink:href="http://www.cubewerx.com/cwcsw.cgi" /> 
-     *       </ows:HTTP> 
+     *   <ows:Operation name="GetRecords">
+     *     <ows:DCP>
+     *       <ows:HTTP>
+     *         <ows:Get  xlink:href="http://www.cubewerx.com/cwcsw.cgi?" />
+     *         <ows:Post xlink:href="http://www.cubewerx.com/cwcsw.cgi" />
+     *       </ows:HTTP>
      *     </ows:DCP>
-     *     <ows:Parameter name="TypeName"> 
+     *     <ows:Parameter name="TypeName">
      *       <ows:Value>csw:Record</ows:Value>
-     *     </ows:Parameter> 
-     *     <ows:Parameter name="outputFormat"> 
-     *       <ows:Value>application/xml</ows:Value> 
+     *     </ows:Parameter>
+     *     <ows:Parameter name="outputFormat">
+     *       <ows:Value>application/xml</ows:Value>
      *       <ows:Value>text/html</ows:Value>
-     *       <ows:Value>text/plain</ows:Value> 
-     *     </ows:Parameter> 
+     *       <ows:Value>text/plain</ows:Value>
+     *     </ows:Parameter>
      *     <ows:Parameter name="outputSchema">
      *       <ows:Value>http://www.opengis.net/cat/csw/2.0.2</ows:Value>
-     *     </ows:Parameter> 
+     *     </ows:Parameter>
      *     <ows:Parameter name="resultType">
-     *       <ows:Value>hits</ows:Value> 
+     *       <ows:Value>hits</ows:Value>
      *       <ows:Value>results</ows:Value>
-     *       <ows:Value>validate</ows:Value> 
-     *     </ows:Parameter> 
-     *     <ows:Parameter name="ElementSetName"> 
+     *       <ows:Value>validate</ows:Value>
+     *     </ows:Parameter>
+     *     <ows:Parameter name="ElementSetName">
      *       <ows:Value>brief</ows:Value>
-     *       <ows:Value>summary</ows:Value> 
+     *       <ows:Value>summary</ows:Value>
      *       <ows:Value>full</ows:Value>
-     *     </ows:Parameter> 
+     *     </ows:Parameter>
      *     <ows:Parameter name="CONSTRAINTLANGUAGE">
-     *       <ows:Value>Filter</ows:Value> 
-     *     </ows:Parameter> 
+     *       <ows:Value>Filter</ows:Value>
+     *     </ows:Parameter>
      *   </ows:Operation>
      * </pre>
      * 
@@ -1128,8 +1142,9 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
                     cswSourceConfiguration.getId());
             return;
         }
-        
-        this.supportedOutputSchemas = getParameter(getRecordsOp, CswConstants.OUTPUT_SCHEMA_PARAMETER);
+
+        this.supportedOutputSchemas = getParameter(getRecordsOp,
+                CswConstants.OUTPUT_SCHEMA_PARAMETER);
 
         DomainType constraintLanguage = getParameter(getRecordsOp,
                 CswConstants.CONSTRAINT_LANGUAGE_PARAMETER);
@@ -1138,7 +1153,8 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
                     CswConstants.OUTPUT_FORMAT_PARAMETER);
             DomainType resultTypesValues = getParameter(getRecordsOp,
                     CswConstants.RESULT_TYPE_PARAMETER);
-            readSetDetailLevels(getParameter(getRecordsOp, CswConstants.ELEMENT_SET_NAME_PARAMETER));
+            readSetDetailLevels(
+                    getParameter(getRecordsOp, CswConstants.ELEMENT_SET_NAME_PARAMETER));
 
             List<String> constraints = new ArrayList<String>();
             for (String s : constraintLanguage.getValue()) {
@@ -1146,12 +1162,13 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
             }
 
             if (constraints.contains(CswConstants.CONSTRAINT_LANGUAGE_CQL.toLowerCase())
-                    && !constraints.contains(CswConstants.CONSTRAINT_LANGUAGE_FILTER.toLowerCase())) {
+                    && !constraints
+                    .contains(CswConstants.CONSTRAINT_LANGUAGE_FILTER.toLowerCase())) {
                 isConstraintCql = true;
             } else {
                 isConstraintCql = false;
             }
-            
+
             setFilterDelegate(new CswRecordMetacardType(), getRecordsOp,
                     capabilitiesType.getFilterCapabilities(), outputFormatValues, 
                     resultTypesValues, cswSourceConfiguration);
@@ -1160,7 +1177,8 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
 
             if (!NO_FORCE_SPATIAL_FILTER.equals(forceSpatialFilter)) {
                 SpatialOperatorType sot = new SpatialOperatorType();
-                SpatialOperatorNameType sont = SpatialOperatorNameType.fromValue(forceSpatialFilter);
+                SpatialOperatorNameType sont = SpatialOperatorNameType
+                        .fromValue(forceSpatialFilter);
                 sot.setName(sont);
                 sot.setGeometryOperands(cswFilterDelegate.getGeoOpsForSpatialOp(sont));
                 SpatialOperatorsType spatialOperators = new SpatialOperatorsType();
@@ -1173,7 +1191,7 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
     /**
      * Sets the {@link FilterDelegate} used by the CswSource. May be overridden
      * in order to provide a custom FilterDelegate implementation.
-     * 
+     *
      * @param cswRecordMetacardType
      * @param getRecordsOp
      * @param filterCapabilities
@@ -1181,12 +1199,12 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
      * @param resultTypesValues
      * @param cswSourceConfiguration
      */
-    protected void setFilterDelegate(CswRecordMetacardType cswRecordMetacardType, 
-            Operation getRecordsOp, FilterCapabilities filterCapabilities, 
+    protected void setFilterDelegate(CswRecordMetacardType cswRecordMetacardType,
+            Operation getRecordsOp, FilterCapabilities filterCapabilities,
             DomainType outputFormatValues, DomainType resultTypesValues,
             CswSourceConfiguration cswSourceConfiguration) {
         LOGGER.trace("Setting cswFilterDelegate to default CswFilterDelegate");
-        
+
         cswFilterDelegate = new CswFilterDelegate(cswRecordMetacardType, getRecordsOp,
                 filterCapabilities, outputFormatValues, resultTypesValues,
                 cswSourceConfiguration);
@@ -1220,9 +1238,8 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
 
     /**
      * Searches every query response for previously unknown content types
-     * 
-     * @param response
-     *            A Query Response
+     *
+     * @param response A Query Response
      */
     private void addContentTypes(SourceResponse response) {
         if (response == null || response.getResults() == null) {
@@ -1287,9 +1304,11 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
                         + cswSourceConfiguration.getId() + ")" + "(" + CSWURL_PROPERTY + "="
                         + cswSourceConfiguration.getCswUrl() + "))");
             } catch (IOException e) {
-                LOGGER.warn("{}: Failed to capture managedConfig.  Exception: {}", cswSourceConfiguration.getId(), e);
+                LOGGER.warn("{}: Failed to capture managedConfig.  Exception: {}",
+                        cswSourceConfiguration.getId(), e);
             } catch (InvalidSyntaxException e) {
-                LOGGER.warn("{}: Failed to capture managedConfig.  Exception: {}", cswSourceConfiguration.getId(), e);
+                LOGGER.warn("{}: Failed to capture managedConfig.  Exception: {}",
+                        cswSourceConfiguration.getId(), e);
             }
         }
 
@@ -1432,22 +1451,31 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
 
         registeredMetacardTypes.removeAll(registeredMetacardTypes);
     }
-    
+
     private boolean isOutputSchemaSupported() {
         return this.cswSourceConfiguration.getOutputSchema() != null &&
                this.supportedOutputSchemas != null ? this.supportedOutputSchemas.getValue()
                        .contains(cswSourceConfiguration.getOutputSchema()) : false;
     }
 
+    @Override
+    public void configurationUpdateCallback(Map<String, String> configurationMap) {
+
+        LOGGER.debug("Got new configurations, updating the keystore and truststore.");
+        keyStorePath = configurationMap.get(ConfigurationManager.KEY_STORE);
+        keyStorePassword = configurationMap.get(ConfigurationManager.KEY_STORE_PASSWORD);
+        trustStorePath = configurationMap.get(ConfigurationManager.TRUST_STORE);
+        trustStorePassword = configurationMap.get(ConfigurationManager.TRUST_STORE_PASSWORD);
+
+    }
+
     /**
      * Callback class to check the Availability of the CswSource.
-     * 
+     * <p/>
      * NOTE: Ideally, the framework would call isAvailable on the Source and the SourcePoller would
      * have an AvailabilityTask that cached each Source's availability. Until that is done, allow
      * the command to handle the logic of managing availability.
-     * 
-     * @author kcwire
-     * 
+     *
      */
     private class CswSourceAvailabilityCommand implements AvailabilityCommand {
 

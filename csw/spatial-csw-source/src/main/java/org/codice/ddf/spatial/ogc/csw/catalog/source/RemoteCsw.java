@@ -1,31 +1,18 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
+ *
  **/
 package org.codice.ddf.spatial.ogc.csw.catalog.source;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
-import javax.xml.namespace.QName;
 
 import net.opengis.cat.csw.v_2_0_2.CapabilitiesType;
 import net.opengis.cat.csw.v_2_0_2.DescribeRecordResponseType;
@@ -36,7 +23,6 @@ import net.opengis.cat.csw.v_2_0_2.GetRecordsResponseType;
 import net.opengis.cat.csw.v_2_0_2.GetRecordsType;
 import net.opengis.cat.csw.v_2_0_2.TransactionResponseType;
 import net.opengis.cat.csw.v_2_0_2.TransactionType;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.interceptor.LoggingInInterceptor;
 import org.apache.cxf.interceptor.LoggingOutInterceptor;
@@ -58,10 +44,21 @@ import org.codice.ddf.spatial.ogc.csw.catalog.source.reader.GetRecordsMessageBod
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+import javax.xml.namespace.QName;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 /**
  * A client to a CSW 2.0.2 Service. This class uses the {@link Csw} interface to create a client
  * proxy from the {@link JAXRSClientBeanFactory}.
- * 
  */
 public class RemoteCsw extends TrustedRemoteSource implements Csw {
 
@@ -74,16 +71,14 @@ public class RemoteCsw extends TrustedRemoteSource implements Csw {
     private Map<String, String> jaxbElementClassMap = new HashMap<String, String>();
 
     protected Csw csw;
-    
+
     protected JAXRSClientFactoryBean bean;
 
     /**
      * Instantiates a new RemoteCsw
-     * 
-     * @param recordConverterFactories
-     *            The reference to the the CSW Record Converters
-     * @param cswSourceConfiguration
-     *            The Csw Source Configuration
+     *
+     * @param recordConverterFactories The reference to the the CSW Record Converters
+     * @param cswSourceConfiguration   The Csw Source Configuration
      */
     public RemoteCsw(List<RecordConverterFactory> recordConverterFactories,
             CswSourceConfiguration cswSourceConfiguration) {
@@ -107,6 +102,13 @@ public class RemoteCsw extends TrustedRemoteSource implements Csw {
         if (cswSourceConfiguration.getDisableSSLCertVerification()) {
             disableSSLCertValidation(WebClient.client(csw));
         }
+
+    }
+
+    public void setKeystores(String keyStorePath, String keyStorePassword, String trustStorePath,
+            String trustStorePassword) {
+        this.configureKeystores(WebClient.client(csw), keyStorePath, keyStorePassword,
+                trustStorePath, trustStorePassword);
     }
 
     private void createJAXRSClientBean(
@@ -140,8 +142,8 @@ public class RemoteCsw extends TrustedRemoteSource implements Csw {
         String getCapsEpandedName = new QName(CswConstants.CSW_OUTPUT_SCHEMA,
                 CswConstants.GET_CAPABILITIES).toString();
         LOGGER.debug("{} expanded name: {}", CswConstants.GET_CAPABILITIES, expandedName);
-        jaxbElementClassMap.put(GetCapabilitiesType.class.getName(), getCapsEpandedName);        
-        
+        jaxbElementClassMap.put(GetCapabilitiesType.class.getName(), getCapsEpandedName);
+
         String capsExpandedName = new QName(CswConstants.CSW_OUTPUT_SCHEMA,
                 CswConstants.CAPABILITIES).toString();
         LOGGER.debug("{} expanded name: {}", CswConstants.CAPABILITIES, capsExpandedName);
@@ -165,7 +167,7 @@ public class RemoteCsw extends TrustedRemoteSource implements Csw {
     @Consumes({ MediaType.TEXT_XML, MediaType.APPLICATION_XML })
     @Produces({ MediaType.TEXT_XML, MediaType.APPLICATION_XML })
     public DescribeRecordResponseType describeRecord(DescribeRecordRequest request)
-        throws CswException {
+            throws CswException {
         return csw.describeRecord(request);
     }
 
@@ -174,7 +176,7 @@ public class RemoteCsw extends TrustedRemoteSource implements Csw {
     @Consumes({ MediaType.TEXT_XML, MediaType.APPLICATION_XML })
     @Produces({ MediaType.TEXT_XML, MediaType.APPLICATION_XML })
     public DescribeRecordResponseType describeRecord(DescribeRecordType request)
-        throws CswException {
+            throws CswException {
         return csw.describeRecord(request);
     }
 
@@ -199,7 +201,7 @@ public class RemoteCsw extends TrustedRemoteSource implements Csw {
     @Consumes({ MediaType.TEXT_XML, MediaType.APPLICATION_XML })
     @Produces({ MediaType.TEXT_XML, MediaType.APPLICATION_XML })
     public CswRecordCollection getRecordById(GetRecordByIdRequest request)
-        throws CswException {
+            throws CswException {
         return csw.getRecordById(request);
     }
 

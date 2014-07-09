@@ -1,16 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
+ *
  **/
 package org.codice.ddf.spatial.ogc.csw.catalog.source;
 
@@ -37,8 +37,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Dictionary;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.ws.rs.WebApplicationException;
@@ -52,6 +54,8 @@ import net.opengis.cat.csw.v_2_0_2.GetRecordsType;
 import net.opengis.cat.csw.v_2_0_2.QueryType;
 import net.opengis.filter.v_1_1_0.SortOrderType;
 
+import org.codice.ddf.configuration.ConfigurationManager;
+import org.codice.ddf.spatial.ogc.catalog.common.AvailabilityTask;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswException;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordCollection;
@@ -61,6 +65,13 @@ import org.codice.ddf.spatial.ogc.csw.catalog.common.GetCapabilitiesRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.converter.RecordConverter;
 import org.codice.ddf.spatial.ogc.csw.catalog.converter.RecordConverterFactory;
 import org.codice.ddf.spatial.ogc.csw.catalog.converter.impl.CswRecordConverterFactory;
+import org.eclipse.jetty.server.Handler;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.handler.DefaultHandler;
+import org.eclipse.jetty.server.handler.HandlerCollection;
+import org.eclipse.jetty.server.ssl.SslSocketConnector;
+import org.eclipse.jetty.servlet.ServletContextHandler;
+import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.geotools.filter.FilterFactoryImpl;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormatter;
@@ -95,6 +106,7 @@ public class TestCswSource extends TestCswSourceBase {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TestCswSource.class);
 
+
     @Test
     public void testParseCapabilities() throws CswException {
         RecordConverter mockRecordConverter = mock(RecordConverter.class);
@@ -102,8 +114,8 @@ public class TestCswSource extends TestCswSourceBase {
 
         assertTrue(source.isAvailable());
         assertEquals(10, source.getContentTypes().size());
-        Set<ContentType> expected = generateContentType(Arrays.asList(new String[] {"a", "b", "c",
-            "d", "e", "f", "g", "h", "i", "j"}));
+        Set<ContentType> expected = generateContentType(Arrays.asList("a", "b", "c",
+                "d", "e", "f", "g", "h", "i", "j"));
         assertThat(source.getContentTypes(), is(expected));
     }
 
@@ -111,13 +123,13 @@ public class TestCswSource extends TestCswSourceBase {
     public void testInitialContentList() throws CswException {
 
         RecordConverter mockRecordConverter = mock(RecordConverter.class);
-        
+
         CswSource source = getCswSource(createRemoteCsw(), mockContext, mockRecordConverter, Arrays.asList("x", "y"));
 
         assertTrue(source.isAvailable());
         assertEquals(12, source.getContentTypes().size());
-        Set<ContentType> expected = generateContentType(Arrays.asList(new String[] {"a", "b", "c",
-            "d", "e", "f", "g", "h", "i", "j", "x", "y"}));
+        Set<ContentType> expected = generateContentType(Arrays.asList("a", "b", "c",
+            "d", "e", "f", "g", "h", "i", "j", "x", "y"));
         assertThat(source.getContentTypes(), is(expected));
     }
 
@@ -125,8 +137,8 @@ public class TestCswSource extends TestCswSourceBase {
     public void testAddingContentTypesOnQueries() throws CswException, UnsupportedQueryException {
         RemoteCsw remote = createRemoteCsw();
 
-        List<String> expectedNames = new LinkedList<String>(Arrays.asList(new String[] {"a", "b",
-            "c", "d", "e", "f", "g", "h", "i", "j"}));
+        List<String> expectedNames = new LinkedList<String>(Arrays.asList("a", "b", "c",
+                "d", "e", "f", "g", "h", "i", "j"));
 
         ServiceRegistration<?> mockRegisteredMetacardType = (ServiceRegistration<?>) mock(ServiceRegistration.class);
         LOGGER.info("mockRegisteredMetacardType: {}", mockRegisteredMetacardType);
@@ -180,7 +192,7 @@ public class TestCswSource extends TestCswSourceBase {
         } catch (CswException e) {
             fail("Could not configure Mock Remote CSW: " + e.getMessage());
         }
-        
+
         RecordConverter mockRecordConverter = mock(RecordConverter.class);
 
         QueryImpl propertyIsLikeQuery = new QueryImpl(builder.attribute(Metacard.ANY_TEXT).is()
@@ -456,13 +468,13 @@ public class TestCswSource extends TestCswSourceBase {
 
         // Set content type mapping to "format"
         RecordConverter mockRecordConverter = mock(RecordConverter.class);
-        
+
         CswSource cswSource = getCswSource(mockCsw, mockContext, mockRecordConverter, new LinkedList<String>(), CswRecordMetacardType.CSW_FORMAT);
         cswSource.setCswUrl(URL);
         cswSource.setId(ID);
 
         // Perform test
-        SourceResponse response = cswSource.query(new QueryRequestImpl(propertyIsEqualToQuery));
+        cswSource.query(new QueryRequestImpl(propertyIsEqualToQuery));
 
         // Verify
         ArgumentCaptor<GetRecordsType> captor = ArgumentCaptor.forClass(GetRecordsType.class);
@@ -522,7 +534,7 @@ public class TestCswSource extends TestCswSourceBase {
         cswSource.setId(ID);
 
         // Perform test
-        SourceResponse response = cswSource.query(new QueryRequestImpl(propertyIsEqualToQuery));
+        cswSource.query(new QueryRequestImpl(propertyIsEqualToQuery));
 
         // Verify
         ArgumentCaptor<GetRecordsType> captor = ArgumentCaptor.forClass(GetRecordsType.class);
@@ -599,7 +611,7 @@ public class TestCswSource extends TestCswSourceBase {
         cswSource.setEffectiveDateMapping(Metacard.EFFECTIVE);
 
         // Perform test
-        SourceResponse response = cswSource.query(new QueryRequestImpl(temporalQuery));
+        cswSource.query(new QueryRequestImpl(temporalQuery));
 
         // Verify
         ArgumentCaptor<GetRecordsType> captor = ArgumentCaptor.forClass(GetRecordsType.class);
@@ -694,14 +706,14 @@ public class TestCswSource extends TestCswSourceBase {
         temporalQuery.setPageSize(pageSize);
 
         RecordConverter mockRecordConverter = mock(RecordConverter.class);
-        
+
         CswSource cswSource = getCswSource(mockCsw, mockContext, mockRecordConverter, new LinkedList<String>());
         cswSource.setCswUrl(URL);
         cswSource.setId(ID);
 
         cswSource.setEffectiveDateMapping(Metacard.EFFECTIVE);
         // Perform test
-        SourceResponse response = cswSource.query(new QueryRequestImpl(temporalQuery));
+        cswSource.query(new QueryRequestImpl(temporalQuery));
 
         // Verify
         ArgumentCaptor<GetRecordsType> captor = ArgumentCaptor.forClass(GetRecordsType.class);
@@ -750,7 +762,7 @@ public class TestCswSource extends TestCswSourceBase {
         } catch (CswException e) {
             fail("Could not verify Mock CSW record count " + e.getMessage());
         }
-        
+
         RecordConverter mockRecordConverter = mock(RecordConverter.class);
 
         CswSource cswSource = getCswSource(mockCsw, mockContext, mockRecordConverter, new ArrayList<String>());
@@ -774,9 +786,9 @@ public class TestCswSource extends TestCswSourceBase {
         CapabilitiesType mockCapabilitiesType = mock(CapabilitiesType.class);
         when(mockCsw.getCapabilities(any(GetCapabilitiesRequest.class))).thenReturn(
                 mockCapabilitiesType);
-        
+
         RecordConverter mockRecordConverter = mock(RecordConverter.class);
-        
+
         CswSource cswSource = getCswSource(mockCsw, mockContext, mockRecordConverter, new ArrayList<String>());
         cswSource.setCswUrl(URL);
         cswSource.setId(ID);
@@ -787,7 +799,83 @@ public class TestCswSource extends TestCswSourceBase {
         cswSource.query(new QueryRequestImpl(propertyIsLikeQuery));
 
     }
-    
+
+    @Test
+    public void testCertificateConnection() {
+
+        // create jetty server
+        int serverPort = 0;
+        Server server = new Server();
+        server.setStopAtShutdown(true);
+        ServletContextHandler context = new ServletContextHandler();
+        context.setContextPath("/");
+
+        // add dummy servlet that will return static response
+        context.addServlet(CswServlet.class, "/services/csw");
+
+        HandlerCollection handlers = new HandlerCollection();
+        handlers.setHandlers(new Handler[] {context, new DefaultHandler()});
+        server.setHandler(handlers);
+        SslContextFactory sslContextFactory = new SslContextFactory();
+        // server uses the server cert
+        sslContextFactory.setKeyStorePath(getClass().getResource("/serverKeystore.jks").getPath());
+        sslContextFactory.setKeyStorePassword("changeit");
+
+        // only accept connection with proper client certificate
+        sslContextFactory.setNeedClientAuth(true);
+
+        SslSocketConnector sslSocketConnector = new SslSocketConnector(sslContextFactory);
+        sslSocketConnector.setPort(0);
+        server.addConnector(sslSocketConnector);
+
+        try {
+            server.start();
+            if(server.getConnectors().length == 1) {
+                serverPort = server.getConnectors()[0].getLocalPort();
+                LOGGER.info("Server started on Port: {} ", serverPort);
+            } else {
+                LOGGER.warn("Got more than one connector back, could not determine correct port for SSL communication.");
+            }
+        } catch (Exception e) {
+            LOGGER.warn("Could not start jetty server, expecting test failures.", e);
+        }
+
+        // set up csw configuration
+        CswSourceConfiguration cswSourceConfiguration = new CswSourceConfiguration();
+        cswSourceConfiguration.setContentTypeMapping(CswRecordMetacardType.CSW_TYPE);
+        cswSourceConfiguration.setId(ID);
+        cswSourceConfiguration.setModifiedDateMapping(Metacard.MODIFIED);
+        cswSourceConfiguration.setProductRetrievalMethod(CswConstants.WCS_PRODUCT_RETRIEVAL);
+        cswSourceConfiguration.setCswUrl("https://localhost:" + serverPort + "/services/csw");
+        cswSourceConfiguration.setDisableSSLCertVerification(false);
+        cswSourceConfiguration.setPollIntervalMinutes(1);
+        RecordConverterFactory factory = new CswRecordConverterFactory();
+
+        // create new source
+        CswSource cswSource = new CswSource(null, mockContext, cswSourceConfiguration,
+                Arrays.asList(factory));
+        cswSource.setFilterAdapter(new GeotoolsFilterAdapterImpl());
+        cswSource.setFilterBuilder(builder);
+        cswSource.setOutputSchema(CswConstants.CSW_OUTPUT_SCHEMA);
+
+
+        // client is using the client certificates
+        Map<String, String> configurationMap = new HashMap<String, String>();
+        configurationMap.put(ConfigurationManager.KEY_STORE, getClass().getResource("/clientKeystore.jks").getPath());
+        configurationMap.put(ConfigurationManager.KEY_STORE_PASSWORD, "changeit");
+        configurationMap.put(ConfigurationManager.TRUST_STORE, getClass().getResource("/clientTruststore.jks").getPath());
+        configurationMap.put(ConfigurationManager.TRUST_STORE_PASSWORD, "changeit");
+
+        cswSource.configurationUpdateCallback(configurationMap);
+        cswSource.connectToRemoteCsw();
+
+        // hit server
+        if (cswSource.getCapabilities() == null) {
+            fail("Could not get capabilities from the test server. This means no connection was established.");
+        }
+
+    }
+
     @Test
     public void junk() {
         UnsupportedQueryException e = new UnsupportedQueryException("this is an error");

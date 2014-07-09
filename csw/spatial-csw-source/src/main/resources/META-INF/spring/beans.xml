@@ -13,117 +13,126 @@
  **/
 -->
 <beans:beans xmlns="http://www.springframework.org/schema/osgi"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
-	xmlns:osgix="http://www.springframework.org/schema/osgi-compendium"
-	xmlns:beans="http://www.springframework.org/schema/beans"
-	xsi:schemaLocation="http://www.springframework.org/schema/osgi  
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:osgix="http://www.springframework.org/schema/osgi-compendium"
+             xmlns:beans="http://www.springframework.org/schema/beans"
+             xsi:schemaLocation="http://www.springframework.org/schema/osgi
         http://www.springframework.org/schema/osgi/spring-osgi.xsd
      http://www.springframework.org/schema/osgi-compendium 
      http://www.springframework.org/schema/osgi-compendium/spring-osgi-compendium.xsd
      http://www.springframework.org/schema/beans   
         http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-	<!-- Get reference to Filter Adapter implementation -->
-	<reference id="filterAdapter" interface="ddf.catalog.filter.FilterAdapter" />
-	<reference id="filterBuilder" interface="ddf.catalog.filter.FilterBuilder" />
-	
-	<reference id="mimeTypeMapper" interface="ddf.mime.MimeTypeMapper" />
-	 
-	<!--
-	The list of registered ResourceReaders, e.g., URLResourceReader, that are selected based
-	upon their support for a specific scheme. 
-	-->  
-	<list id="resourceReaders" interface="ddf.catalog.resource.ResourceReader" />
-	
-	<list id="recordConverterFactoryList" interface="org.codice.ddf.spatial.ogc.csw.catalog.converter.RecordConverterFactory"/>
-	    
-	<osgix:managed-service-factory
-		id="org.codice.ddf.spatial.ogc.csw.catalog.source.CswFederatedSource.id" factory-pid="Csw_Federated_Source"
-		update-strategy="bean-managed" update-method="refresh">
+    <!-- Get reference to Filter Adapter implementation -->
+    <reference id="filterAdapter" interface="ddf.catalog.filter.FilterAdapter"/>
+    <reference id="filterBuilder" interface="ddf.catalog.filter.FilterBuilder"/>
 
-		<osgix:interfaces>
-			<beans:value>ddf.catalog.source.FederatedSource</beans:value>
-		</osgix:interfaces>
+    <reference id="mimeTypeMapper" interface="ddf.mime.MimeTypeMapper"/>
 
-		<beans:bean id="Csw_Federated_Source" class="org.codice.ddf.spatial.ogc.csw.catalog.source.CswSource"
-			init-method="init" destroy-method="destroy">
-	        
-			<beans:property name="context" ref="bundleContext" />
-			<beans:property name="filterBuilder" ref="filterBuilder" />
-			<beans:property name="filterAdapter" ref="filterAdapter" />
-			<beans:property name="cswUrl" value="" />
-			<beans:property name="id" value="" />
-			<beans:property name="username" value="" />
-			<beans:property name="password" value="" />
-			<beans:property name="disableSSLCertVerification" value="false"/>
-            <beans:property name="isLonLatOrder" value="false"/>
-            <beans:property name="usePosList" value="false"/>
-            <beans:property name="contentTypeMapping" value="type"/>
-			<beans:property name="productRetrievalMethod" value="" />
-			<beans:property name="wcsUrl" value="" />
-			<beans:property name="wcsResourceReader">
-				<beans:bean id="wcsResourceReader" class="org.codice.ddf.spatial.ogc.wcs.catalog.resource.reader.WcsResourceReader">
-	                <beans:property name="mimeTypeMapper" ref="mimeTypeMapper"/>
-	            </beans:bean>
-	        </beans:property>
-			<beans:property name="effectiveDateMapping" value="" />
-			<beans:property name="createdDateMapping" value="" />
-			<beans:property name="modifiedDateMapping" value="" />
-			<beans:property name="resourceUriMapping" value="" />
-			<beans:property name="thumbnailMapping" value="" />
-			<beans:property name="contentTypeNames">
-				<beans:list></beans:list>
-            </beans:property>
-            <beans:property name="pollInterval" value="" />
-            <beans:property name="resourceReaders" ref="resourceReaders" />
-            <beans:property name="outputSchema" value="" />
-            <beans:property name="recordConverterFactoryList" ref="recordConverterFactoryList" />
-            <beans:property name="isCqlForced" value="false" />
-            <beans:property name="forceSpatialFilter" value="" />
-		</beans:bean>
-	</osgix:managed-service-factory>
+    <!--
+    The list of registered ResourceReaders, e.g., URLResourceReader, that are selected based
+    upon their support for a specific scheme.
+    -->
+    <list id="resourceReaders" interface="ddf.catalog.resource.ResourceReader"/>
 
-	<osgix:managed-service-factory
-		id="org.codice.ddf.spatial.ogc.csw.catalog.source.CswConnectedSource.id" factory-pid="Csw_Connected_Source"
-		update-strategy="bean-managed" update-method="refresh">
+    <list id="recordConverterFactoryList"
+          interface="org.codice.ddf.spatial.ogc.csw.catalog.converter.RecordConverterFactory"/>
 
-		<osgix:interfaces>
-			<beans:value>ddf.catalog.source.ConnectedSource</beans:value>
-		</osgix:interfaces>
-		<beans:bean id="Csw_Connected_Source" class="org.codice.ddf.spatial.ogc.csw.catalog.source.CswSource"
-			init-method="init" destroy-method="destroy">
-			<beans:property name="context" ref="bundleContext" />
-			<beans:property name="filterBuilder" ref="filterBuilder" />
-			<beans:property name="filterAdapter" ref="filterAdapter" />
-			<beans:property name="cswUrl" value="" />
-			<beans:property name="id" value="" />
-			<beans:property name="username" value="" />
-			<beans:property name="password" value="" />
+    <osgix:managed-service-factory
+            id="org.codice.ddf.spatial.ogc.csw.catalog.source.CswFederatedSource.id"
+            factory-pid="Csw_Federated_Source"
+            update-strategy="bean-managed" update-method="refresh">
+
+        <osgix:interfaces>
+            <beans:value>ddf.catalog.source.FederatedSource</beans:value>
+            <beans:value>org.codice.ddf.configuration.ConfigurationWatcher</beans:value>
+        </osgix:interfaces>
+
+        <beans:bean id="Csw_Federated_Source"
+                    class="org.codice.ddf.spatial.ogc.csw.catalog.source.CswSource"
+                    init-method="init" destroy-method="destroy">
+
+            <beans:property name="context" ref="bundleContext"/>
+            <beans:property name="filterBuilder" ref="filterBuilder"/>
+            <beans:property name="filterAdapter" ref="filterAdapter"/>
+            <beans:property name="cswUrl" value=""/>
+            <beans:property name="id" value=""/>
+            <beans:property name="username" value=""/>
+            <beans:property name="password" value=""/>
             <beans:property name="disableSSLCertVerification" value="false"/>
             <beans:property name="isLonLatOrder" value="false"/>
             <beans:property name="usePosList" value="false"/>
             <beans:property name="contentTypeMapping" value="type"/>
-            <beans:property name="productRetrievalMethod" value="SOURCE_URI" />
-            <beans:property name="wcsUrl" value="" />
+            <beans:property name="productRetrievalMethod" value=""/>
+            <beans:property name="wcsUrl" value=""/>
             <beans:property name="wcsResourceReader">
-                <beans:bean id="connectedWcsResourceReader" class="org.codice.ddf.spatial.ogc.wcs.catalog.resource.reader.WcsResourceReader">
+                <beans:bean id="wcsResourceReader"
+                            class="org.codice.ddf.spatial.ogc.wcs.catalog.resource.reader.WcsResourceReader">
                     <beans:property name="mimeTypeMapper" ref="mimeTypeMapper"/>
                 </beans:bean>
             </beans:property>
-			<beans:property name="effectiveDateMapping" value="" />
-			<beans:property name="createdDateMapping" value="" />
-			<beans:property name="modifiedDateMapping" value="" />
-            <beans:property name="resourceUriMapping" value="" />
-            <beans:property name="thumbnailMapping" value="" />
-			<beans:property name="contentTypeNames">
-				<beans:list></beans:list>
+            <beans:property name="effectiveDateMapping" value=""/>
+            <beans:property name="createdDateMapping" value=""/>
+            <beans:property name="modifiedDateMapping" value=""/>
+            <beans:property name="resourceUriMapping" value=""/>
+            <beans:property name="thumbnailMapping" value=""/>
+            <beans:property name="contentTypeNames">
+                <beans:list></beans:list>
             </beans:property>
-            <beans:property name="pollInterval" value="" />
-            <beans:property name="resourceReaders" ref="resourceReaders" />
-            <beans:property name="outputSchema" value="" />
-            <beans:property name="recordConverterFactoryList" ref="recordConverterFactoryList" />
-            <beans:property name="isCqlForced" value="false" />
-            <beans:property name="forceSpatialFilter" value="" />
-		</beans:bean>
-	</osgix:managed-service-factory>
+            <beans:property name="pollInterval" value=""/>
+            <beans:property name="resourceReaders" ref="resourceReaders"/>
+            <beans:property name="outputSchema" value=""/>
+            <beans:property name="recordConverterFactoryList" ref="recordConverterFactoryList"/>
+            <beans:property name="isCqlForced" value="false"/>
+            <beans:property name="forceSpatialFilter" value=""/>
+        </beans:bean>
+    </osgix:managed-service-factory>
+
+    <osgix:managed-service-factory
+            id="org.codice.ddf.spatial.ogc.csw.catalog.source.CswConnectedSource.id"
+            factory-pid="Csw_Connected_Source"
+            update-strategy="bean-managed" update-method="refresh">
+
+        <osgix:interfaces>
+            <beans:value>ddf.catalog.source.ConnectedSource</beans:value>
+            <beans:value>org.codice.ddf.configuration.ConfigurationWatcher</beans:value>
+        </osgix:interfaces>
+        <beans:bean id="Csw_Connected_Source"
+                    class="org.codice.ddf.spatial.ogc.csw.catalog.source.CswSource"
+                    init-method="init" destroy-method="destroy">
+            <beans:property name="context" ref="bundleContext"/>
+            <beans:property name="filterBuilder" ref="filterBuilder"/>
+            <beans:property name="filterAdapter" ref="filterAdapter"/>
+            <beans:property name="cswUrl" value=""/>
+            <beans:property name="id" value=""/>
+            <beans:property name="username" value=""/>
+            <beans:property name="password" value=""/>
+            <beans:property name="disableSSLCertVerification" value="false"/>
+            <beans:property name="isLonLatOrder" value="false"/>
+            <beans:property name="usePosList" value="false"/>
+            <beans:property name="contentTypeMapping" value="type"/>
+            <beans:property name="productRetrievalMethod" value="SOURCE_URI"/>
+            <beans:property name="wcsUrl" value=""/>
+            <beans:property name="wcsResourceReader">
+                <beans:bean id="connectedWcsResourceReader"
+                            class="org.codice.ddf.spatial.ogc.wcs.catalog.resource.reader.WcsResourceReader">
+                    <beans:property name="mimeTypeMapper" ref="mimeTypeMapper"/>
+                </beans:bean>
+            </beans:property>
+            <beans:property name="effectiveDateMapping" value=""/>
+            <beans:property name="createdDateMapping" value=""/>
+            <beans:property name="modifiedDateMapping" value=""/>
+            <beans:property name="resourceUriMapping" value=""/>
+            <beans:property name="thumbnailMapping" value=""/>
+            <beans:property name="contentTypeNames">
+                <beans:list></beans:list>
+            </beans:property>
+            <beans:property name="pollInterval" value=""/>
+            <beans:property name="resourceReaders" ref="resourceReaders"/>
+            <beans:property name="outputSchema" value=""/>
+            <beans:property name="recordConverterFactoryList" ref="recordConverterFactoryList"/>
+            <beans:property name="isCqlForced" value="false"/>
+            <beans:property name="forceSpatialFilter" value=""/>
+        </beans:bean>
+    </osgix:managed-service-factory>
 </beans:beans>
