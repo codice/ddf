@@ -32,9 +32,9 @@ define([ 'backbone',
 
     var currentTime = moment();
 
-    //notificationStack and count used to display only one popup notification at a time
+    //notificationStack and isNotificationOpen used to display only one popup notification at a time
     var notificationStack = [];
-    var count = 0;
+    var isNotificationOpen = false;
     
     NotificationView.NotificationItemView = Backbone.Marionette.ItemView.extend({
 
@@ -63,10 +63,11 @@ define([ 'backbone',
                 delay: 3000,
                 history: false,
                 after_close: function () {
-                    if (count > 1 && notificationStack.length) {
-                        notificationStack.shift().pnotify_display();
-                    }
-                    --count;
+                   if (notificationStack.length) {
+						notificationStack.shift().pnotify_display();
+					} else {
+						isNotificationOpen = false;
+					}
                 },
                 stack: {"dir1": "up",
                         "dir2": "left",
@@ -94,12 +95,12 @@ define([ 'backbone',
                 }
             });
 
-            this.notification = notification;
-
-            notificationStack.push(this.notification);
-            ++count;
-            if (count === 1 && notificationStack.length === 1) {
-                notificationStack.shift().pnotify_display();
+            if (isNotificationOpen === false) {
+                this.notification = notification;
+                this.notification.pnotify_display();
+                isNotificationOpen = true;
+            } else {
+                notificationStack.push(notification);
             }
         },
 
