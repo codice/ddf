@@ -20,6 +20,10 @@
             <action class="org.codice.ddf.notifications.commands.ListCommand" />
         </command>
         
+        <command name="notifications/send">
+            <action class="org.codice.ddf.notifications.commands.SendCommand" />
+        </command>
+        
     </command-bundle>
 
 

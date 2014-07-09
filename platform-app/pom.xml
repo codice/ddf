@@ -174,7 +174,11 @@
         <org.ops4j-base-lang>1.2.2</org.ops4j-base-lang>
         <org.ops4j.pax.swissbox.version>1.3.1</org.ops4j.pax.swissbox.version>
         <saxon.version>9.1.0.8</saxon.version>
-        <saxon.bundle.plugin>${saxon.version}_1</saxon.bundle.plugin>   
+        <saxon.bundle.plugin>${saxon.version}_1</saxon.bundle.plugin>
+        
+        <jts.bundle.version>1.12_1</jts.bundle.version>
+        <org.geotools.bundle.version>${org.geotools.version}_1</org.geotools.bundle.version>
+        <opengis.bundle.version>${org.geotools.version}_1</opengis.bundle.version>  
     </properties>
     
 	<build>

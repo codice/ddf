@@ -1,0 +1,37 @@
+
+<!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version. 
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+-->
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+    xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0">
+
+    <bean id="cassandraConfig" class="org.codice.ddf.cassandra.embedded.CassandraConfig">
+        <argument value="DDF Cluster" />
+        <argument value="conf/cassandra.yaml" />
+        <argument value="9160" />   <!-- RPC port -->
+        <argument value="9042" />   <!-- CQL port -->
+        <argument value="7000" />   <!-- storage port -->
+        <argument value="7001" />   <!-- SSL storage port -->
+        <argument value="/data" />
+        <argument value="/commitlog" />
+        <argument value="/saved_caches" />
+    </bean>
+    
+    <bean id="casssandraServer" class="org.codice.ddf.cassandra.embedded.CassandraEmbeddedServer"
+        destroy-method="shutdown">
+        <argument value="ddf" />
+        <argument ref="cassandraConfig" />
+    </bean>
+    
+</blueprint>
+    

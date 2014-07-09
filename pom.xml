@@ -37,6 +37,7 @@
         <org.slf4j.version>1.7.1</org.slf4j.version>
         <osgi.version>4.3.1</osgi.version>
         <shiro.version>1.2.1</shiro.version>
+		<org.geotools.version>8.4</org.geotools.version>
     </properties>
 
     <dependencyManagement>
@@ -266,6 +267,9 @@
     <modules>
         <module>platform-configuration</module>
         <module>action</module>
+        <module>cassandra</module>
+        <module>solr</module>
+        <module>persistence</module>
         <module>notifications</module>
         <module>mime</module>
         <module>metrics</module>

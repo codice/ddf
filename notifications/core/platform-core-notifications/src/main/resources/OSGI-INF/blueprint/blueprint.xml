@@ -16,7 +16,7 @@
     xsi:schemaLocation="
         http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd
         ">
-     
+    <!-- DDF-579: converted persistence of notifications to use Cassandra vs. Hazelcast 
     <bean id="notificationStore" class="org.codice.ddf.notifications.impl.HazelcastNotificationStore">
         <argument ref="blueprintBundleContext" />
         <argument value="notifications-hazelcast.xml" />
@@ -25,8 +25,16 @@
     <service ref="notificationStore" interface="org.codice.ddf.notifications.store.NotificationStore" >
     </service>
     
-    <bean id="notificationListener" class="org.codice.ddf.notifications.impl.NotificationListener">
+    <bean id="notificationListener" class="org.codice.ddf.notifications.impl.HazelcastNotificationListener">
         <argument ref="notificationStore" />
+    </bean>
+    
+    END DDF-579 -->
+    
+    <reference id="persistentStore" interface="org.codice.ddf.persistence.PersistentStore" />
+    
+    <bean id="notificationListener" class="org.codice.ddf.notifications.impl.NotificationListener">
+        <argument ref="persistentStore" />
     </bean>
     
     <service ref="notificationListener" interface="org.osgi.service.event.EventHandler" >

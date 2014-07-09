@@ -566,7 +566,13 @@
     
     <feature name="notifications-core" install="manual" version="${project.version}" description="DDF Notifications Core">
         <feature>notifications-core-api</feature>
+        <feature>persistence-core-api</feature>
         <bundle>mvn:ddf.notifications.core/platform-core-notifications/${project.version}</bundle>
+    </feature>
+        
+    <feature name="notifications-commands" install="manual" version="${project.version}" description="DDF Notifications Console Commands">
+        <feature>notifications-core-api</feature>
+        <feature>persistence-core-api</feature>
         <bundle>mvn:ddf.notifications.core/platform-core-notificationcommands/${project.version}</bundle>
     </feature>
         
@@ -630,9 +636,73 @@
         <bundle start-level="30">mvn:ddf.platform/platform-filter-delegate/${project.version}</bundle>
     </feature>  
     
-    <feature name="cassandra-embedded" install="manual" version="${project.version}" description="DDF Embedded Cassandra">
+    <feature name="cassandra" install="manual" version="${project.version}" description="DDF Embedded Cassandra">
         <bundle>mvn:ddf.platform.cassandra/platform-cassandra-embedded-server/${project.version}</bundle> 
         <configfile finalname="/data/cassandra/conf/cassandra.yaml" override="true">mvn:ddf.platform/platform-app/${project.version}/yaml/cassandra</configfile>
+    </feature>
+    
+    <feature name="solr" install="manual" version="${project.version}" description="DDF Standalone Solr Server">
+        <bundle>mvn:org.codice.thirdparty/jts/${jts.bundle.version}</bundle>
+        <bundle>mvn:org.codice.thirdparty/gt-opengis/${opengis.bundle.version}</bundle>
+        <bundle>mvn:org.codice.thirdparty/picocontainer/1.2_1</bundle>
+        <bundle>mvn:org.codice.thirdparty/vecmath/1.3.2_1</bundle> <!-- for GeoTools -->
+        <bundle>mvn:org.codice.thirdparty/geotools-suite/${org.geotools.bundle.version}</bundle>
+        <bundle>mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/war</bundle>
+        
+        <configfile finalname="/solr/collection1/conf/solrconfig.xml">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/xml/solrconfig</configfile>
+        <configfile finalname="/solr/collection1/conf/schema.xml">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/xml/schema</configfile>
+        <configfile finalname="/solr/collection1/conf/protwords.txt">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/protwords</configfile>
+        <configfile finalname="/solr/collection1/conf/stopwords_en.txt">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/stopwords_en</configfile>
+        <configfile finalname="/solr/collection1/conf/stopwords.txt">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/stopwords</configfile>
+        <configfile finalname="/solr/collection1/conf/synonyms.txt">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/synonyms</configfile>
+        
+                
+        <configfile finalname="/data/solr/cassandra_connection.properties">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/properties/cassandra_connection</configfile>
+
+        <configfile finalname="/data/solr/metacard/conf/solr.xml">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/xml/solr</configfile>
+        <!-- DDF-579: only catalog-embedded-solr-provider will create metacards and it provides its own solrconfig.xml file that omits
+                      the CassandraUpdateRequestProcessor from the update chain until robust Solr searching is supported.
+        -->
+        <configfile finalname="/data/solr/metacard/conf/schema.xml">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/xml/schema</configfile>
+        <configfile finalname="/data/solr/metacard/conf/protwords.txt">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/protwords</configfile>
+        <configfile finalname="/data/solr/metacard/conf/stopwords_en.txt">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/stopwords_en</configfile>
+        <configfile finalname="/data/solr/metacard/conf/stopwords.txt">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/stopwords</configfile>
+        <configfile finalname="/data/solr/metacard/conf/synonyms.txt">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/synonyms</configfile>
+
+        <configfile finalname="/data/solr/saved_query/conf/solr.xml">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/xml/solr</configfile>
+        <configfile finalname="/data/solr/saved_query/conf/solrconfig.xml">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/xml/solrconfig</configfile>
+        <configfile finalname="/data/solr/saved_query/conf/schema.xml">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/xml/schema</configfile>
+        <configfile finalname="/data/solr/saved_query/conf/protwords.txt">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/protwords</configfile>
+        <configfile finalname="/data/solr/saved_query/conf/stopwords_en.txt">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/stopwords_en</configfile>
+        <configfile finalname="/data/solr/saved_query/conf/stopwords.txt">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/stopwords</configfile>
+        <configfile finalname="/data/solr/saved_query/conf/synonyms.txt">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/synonyms</configfile>
+
+        <configfile finalname="/data/solr/notification/conf/solr.xml">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/xml/solr</configfile>
+        <configfile finalname="/data/solr/notification/conf/solrconfig.xml">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/xml/solrconfig</configfile>
+        <configfile finalname="/data/solr/notification/conf/schema.xml">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/xml/schema</configfile>
+        <configfile finalname="/data/solr/notification/conf/protwords.txt">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/protwords</configfile>
+        <configfile finalname="/data/solr/notification/conf/stopwords_en.txt">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/stopwords_en</configfile>
+        <configfile finalname="/data/solr/notification/conf/stopwords.txt">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/stopwords</configfile>
+        <configfile finalname="/data/solr/notification/conf/synonyms.txt">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/synonyms</configfile>
+
+        <configfile finalname="/data/solr/task/conf/solr.xml">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/xml/solr</configfile>
+        <configfile finalname="/data/solr/task/conf/solrconfig.xml">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/xml/solrconfig</configfile>
+        <configfile finalname="/data/solr/task/conf/schema.xml">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/xml/schema</configfile>
+        <configfile finalname="/data/solr/task/conf/protwords.txt">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/protwords</configfile>
+        <configfile finalname="/data/solr/task/conf/stopwords_en.txt">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/stopwords_en</configfile>
+        <configfile finalname="/data/solr/task/conf/stopwords.txt">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/stopwords</configfile>
+        <configfile finalname="/data/solr/task/conf/synonyms.txt">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/synonyms</configfile>
+        
+    </feature>
+    
+    <feature name="persistence-core-api" install="manual" version="${project.version}" description="DDF Internal Persistence Core API">
+        <bundle>mvn:ddf.persistence.core/persistence-core-api/${project.version}</bundle> 
+    </feature>
+    
+    <feature name="persistence-core" install="manual" version="${project.version}" description="DDF Internal Persistence Core Implementation">
+        <feature>persistence-core-api</feature>
+        <bundle>mvn:ddf.persistence.core/persistence-core-impl/${project.version}</bundle>
+        <bundle>mvn:org.codice.thirdparty/gt-opengis/${opengis.bundle.version}</bundle> 
     </feature>
 	
 	<feature name="platform-app" install="auto" version="${project.version}" 
@@ -653,6 +723,9 @@
         <feature>security-core-api</feature>
         <feature>metrics-reporting</feature>
         <feature>metrics-services</feature>
+        <feature>cassandra</feature>
+        <feature>solr</feature>
+        <feature>persistence-core</feature>
 		
 		<bundle>mvn:ch.qos.cal10n/cal10n-api/0.7.4</bundle> <!-- for slf4j-ext -->
 		<bundle>mvn:org.slf4j/slf4j-ext/${org.slf4j.version}</bundle>

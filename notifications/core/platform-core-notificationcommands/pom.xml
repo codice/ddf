@@ -49,6 +49,11 @@
             <artifactId>platform-core-notifications</artifactId>
             <version>${project.version}</version>
         </dependency> 
+        <dependency>
+            <groupId>org.codice.ddf</groupId>
+            <artifactId>notifications</artifactId>
+            <version>1.0.0</version>
+        </dependency>
     </dependencies>
     
     <build>
@@ -60,6 +65,10 @@
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+                        <Embed-Dependency>
+                            notifications
+                        </Embed-Dependency>
+                        <Embed-Transitive>true</Embed-Transitive>
                         <Export-Package />
                         <Import-Package>
                             org.codice.ddf.notifications.store,
