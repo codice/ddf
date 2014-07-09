@@ -26,7 +26,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.mock;
 
-public class TestAnonymousHandler {
+public class AnonymousHandlerTest {
 
     /**
      * This test ensures the proper functionality of AnonymousHandler's method,
