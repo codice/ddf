@@ -458,6 +458,12 @@ define([
                 $('#progressbar').hide();
                 this.model.clear();
                 this.model.setDefaults();
+
+                // Refresh the multiselect lists to reflect the changes
+                // to the model
+                $('#typeList').multiselect("refresh");
+                $('#federationSources').multiselect("refresh");
+
                 if (!_.isUndefined(this.result)) {
                     this.result.clear();
                 }
