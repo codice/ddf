@@ -71,9 +71,6 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
 
     private static final String SPATIAL_INDEX = "_geo_index";
 
-    private static final double NEAREST_NEIGHBOR_DISTANCE_LIMIT = metersToDegrees(new Distance(
-            1000, LinearUnit.NAUTICAL_MILE).getAs(LinearUnit.METER));
-
     // Using quantization of 12 to reduce error below 1%
     private static final int QUADRANT_SEGMENTS = 12;
 
@@ -391,6 +388,13 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
 
     @Override
     public SolrQuery nearestNeighbor(String propertyName, String wkt) {
+        Double nauticalMiles = ConfigurationStore.getInstance().getNearestNeighborDistanceLimit();
+        if (nauticalMiles == null) {
+            nauticalMiles = Double.valueOf(1000);
+            ConfigurationStore.getInstance().setNearestNeighborDistanceLimit(Double.valueOf(1000));
+        }
+        Double degreeLimitForQuery = metersToDegrees(new Distance(
+                nauticalMiles, LinearUnit.NAUTICAL_MILE).getAs(LinearUnit.METER));
         Geometry geo = getGeometry(wkt);
 
         if (geo != null) {
@@ -402,7 +406,7 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
             }
 
             String nearestNeighborQuery = geoPointToCircleQuery(propertyName,
-                    NEAREST_NEIGHBOR_DISTANCE_LIMIT, pnt);
+                    degreeLimitForQuery, pnt);
 
             return getSolrQueryWithSort(nearestNeighborQuery);
 

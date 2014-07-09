@@ -33,6 +33,8 @@ public class ConfigurationStore {
 
     private boolean disableTextPath;
 
+    private Double nearestNeighborDistanceLimit;
+
     private ConfigurationStore() {
     }
 
@@ -74,6 +76,12 @@ public class ConfigurationStore {
     public void setDataDirectoryPath(String dataDirectoryPath) {
         this.dataDirectoryPath = dataDirectoryPath;
     }
+
+    public Double getNearestNeighborDistanceLimit() {return nearestNeighborDistanceLimit; }
+
+    public void setNearestNeighborDistanceLimit(Double nearestNeighborDistanceLimit) {
+        this.nearestNeighborDistanceLimit = nearestNeighborDistanceLimit;
+        }
 
     /**
      * 
