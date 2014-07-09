@@ -13,7 +13,6 @@
 define(['application',
         'cometdinit',
         'marionette',
-        'js/view/Search.view',
         'js/model/source',
         'poller',
         'wreqr',
@@ -24,7 +23,7 @@ define(['application',
         'multiselect',
         'multiselectfilter'
     ],
-    function(Application, Cometd, Marionette, Search, Source, poller, wreqr) {
+    function(Application, Cometd, Marionette, Source, poller, wreqr) {
 
         Application.App.module('WorkspaceModule.SearchModule', function(SearchModule) {
 
@@ -37,10 +36,6 @@ define(['application',
 
             wreqr.reqres.setHandler('sources', function () {
                 return SearchModule.sources;
-            });
-
-            wreqr.vent.on('search:currentview', function(region, search) {
-                region.show(new Search.SearchLayout({ search: search }));
             });
         });
 

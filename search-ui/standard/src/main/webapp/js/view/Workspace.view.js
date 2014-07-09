@@ -34,12 +34,14 @@ define([
         'js/model/Query',
         'js/view/MetacardList.view',
         'js/view/MetacardDetail.view',
+        'js/view/Search.view',
         // Load non attached libs and plugins
         'perfectscrollbar'
     ],
     function ($, _, Marionette, Workspace, Backbone, dir, ich, wreqr, workspacePanel, workspaceList,
               workspaceItem, workspaceAdd, workspace, workspaceQueryItem, workspaceMetacardItem,
-              maptype, WorkspaceControl, SlidingRegion, QueryView, QueryModel, MetacardList, MetacardDetail) {
+              maptype, WorkspaceControl, SlidingRegion, QueryView, QueryModel, MetacardList, MetacardDetail,
+              Search) {
         "use strict";
         var WorkspaceView = {};
 
@@ -406,7 +408,7 @@ define([
 
             onRender : function(){
                 this.workspacesRegion.show(new WorkspaceView.WorkspacesLayoutView({model: this.model}));
-                wreqr.vent.trigger('search:currentview', this.searchRegion);
+                this.searchRegion.show(new Search.SearchLayout());
 
                 if(maptype.isNone()) {
                     this.$el.addClass('full-screen-search');
