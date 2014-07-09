@@ -86,12 +86,12 @@
             <dependency>
                 <groupId>ddf.catalog.solr</groupId>
                 <artifactId>solr-xpath</artifactId>
-                <version>${project.version}</version>
+                <version>${ddf.platform.app.version}</version>
             </dependency>
 			<dependency>
                 <groupId>ddf.catalog.solr</groupId>
                 <artifactId>solr-cassandra</artifactId>
-                <version>${project.version}</version>
+                <version>${ddf.platform.app.version}</version>
             </dependency>
             <!-- Version for Solr -->
             <dependency>
@@ -114,11 +114,8 @@
     </dependencyManagement>
 	
 	<modules>
-        <module>solr-xpath</module>
-		<module>solr-cassandra</module>
 		<module>embedded</module>
 		<module>external</module>
-		<module>server</module>
 		<module>catalog-solr-app</module>
     </modules>
 	

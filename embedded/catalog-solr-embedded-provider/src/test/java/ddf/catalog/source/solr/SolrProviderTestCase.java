@@ -23,8 +23,8 @@ import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
-import org.codice.ddf.platform.cassandra.embedded.CassandraConfig;
-import org.codice.ddf.platform.cassandra.embedded.CassandraEmbeddedServer;
+import org.codice.ddf.cassandra.embedded.CassandraConfig;
+import org.codice.ddf.cassandra.embedded.CassandraEmbeddedServer;
 import org.joda.time.DateTime;
 import org.junit.BeforeClass;
 import org.opengis.filter.Filter;

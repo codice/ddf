@@ -14,15 +14,14 @@
  **/
 package ddf.catalog.source.solr;
 
-import java.util.Calendar;
-import java.util.Date;
-import java.util.TimeZone;
-
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.stub;
-import static org.mockito.Mockito.when;
+
+import java.util.Calendar;
+import java.util.Date;
+import java.util.TimeZone;
 
 import org.apache.solr.client.solrj.SolrQuery;
 import org.junit.Test;

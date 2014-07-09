@@ -127,8 +127,9 @@ public final class SolrServerFactory {
             configProxy = new ConfigurationFileProxy(null, ConfigurationStore.getInstance());
         }
 
-        File configurationDir = new File(ConfigurationFileProxy.DEFAULT_SOLR_CONFIG_PARENT_DIR,
-                ConfigurationFileProxy.SOLR_CONFIG_LOCATION_IN_BUNDLE);
+//DDF-579        File configurationDir = new File(ConfigurationFileProxy.DEFAULT_SOLR_CONFIG_PARENT_DIR,
+//                ConfigurationFileProxy.SOLR_CONFIG_LOCATION_IN_BUNDLE);
+        File configurationDir = new File(ConfigurationFileProxy.DEFAULT_SOLR_DATA_PARENT_DIR + "/" + ConfigurationFileProxy.CATALOG_SOLR_COLLECTION_NAME + "/conf");
         configProxy.writeBundleFilesTo(configurationDir);
 
         File solrConfigFile = getConfigFile(solrConfigFileName, configProxy);

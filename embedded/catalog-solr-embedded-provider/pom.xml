@@ -68,18 +68,20 @@
             <artifactId>snappy-java</artifactId>
             <version>1.1.0.1</version>   <!-- version that should be OSGi classloader compatible -->
         </dependency>
+        <dependency>
+            <groupId>ddf.platform.solr</groupId>
+            <artifactId>solr-cassandra</artifactId>
+            <version>${ddf.platform.app.version}</version>
+        </dependency>
+        
         <!-- END Cassandra dependencies -->
         
         <dependency>
-            <groupId>ddf.catalog.solr</groupId>
+            <groupId>ddf.platform.solr</groupId>
             <artifactId>solr-xpath</artifactId>
+            <version>${ddf.platform.app.version}</version>
         </dependency>
         
-        <dependency>
-            <groupId>ddf.catalog.solr</groupId>
-            <artifactId>solr-cassandra</artifactId>
-        </dependency>
-
         <dependency>
             <groupId>org.apache.solr</groupId>
             <artifactId>solr-solrj</artifactId>
@@ -226,7 +228,7 @@
         <dependency>
             <groupId>ddf.platform.cassandra</groupId>
             <artifactId>platform-cassandra-embedded-server</artifactId>
-            <version>2.5.0-SNAPSHOT</version>
+            <version>${ddf.platform.app.version}</version>
             <scope>test</scope>
         </dependency> 
         <dependency>
@@ -273,6 +275,7 @@
             </resource>
         </resources>
         <plugins>
+            <!-- DDF-579: moved to platform-solr-server-standalone
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>build-helper-maven-plugin</artifactId>
@@ -331,6 +334,7 @@
                     </execution>
                 </executions>
             </plugin>
+            END DDF-579 -->
             <!-- Export test JAR for reuse by other projects -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -388,7 +392,8 @@
                             cassandra-driver-core,
                             metrics-core,
                             lz4,
-                            netty
+                            netty,
+                            solr-cassandra
                             <!-- END Cassandra -->
                         </Embed-Dependency>
                         <Embed-Transitive>true</Embed-Transitive>
