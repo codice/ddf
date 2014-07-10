@@ -661,7 +661,7 @@ var pointRadiusLatitude = validateNumberInRange(-90, 90, urlVals.param('latitude
 $('input[name=latitude]').val(pointRadiusLatitude);
 var pointRadiusLongitude = validateNumberInRange(-180, 180, urlVals.param('longitude'), "");
 $('input[name=longitude]').val(pointRadiusLongitude);
-var radiusValue = getPositiveIntValue(urlVals.param('radiusValue'));
+var radiusValue = parseFloat(urlVals.param('radiusValue'), 10);
 $('input[name=radiusValue]').val(radiusValue);
 if(urlVals.param('radiusUnits')) {
 	$('select[name=radiusUnits]').val(urlVals.param('radiusUnits'));
@@ -685,7 +685,7 @@ function updateOffset() {
 function updatePointRadius() {
 	pointRadiusLatitude = validateNumber($('input[name=latitude]'), pointRadiusLatitude);
 	pointRadiusLongitude = validateNumber($('input[name=longitude]'), pointRadiusLongitude);
-	radiusValue = validatePositiveInteger($('input[name=radiusValue]'), radiusValue);
+	radiusValue = validateNumber($('input[name=radiusValue]'), radiusValue);
 	
 	if(pointRadiusLatitude && pointRadiusLongitude && radiusValue) {
 		$('input[name=lat]').val(pointRadiusLatitude);

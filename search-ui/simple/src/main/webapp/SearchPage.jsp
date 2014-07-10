@@ -225,7 +225,7 @@
 										<div class="span7">
 											<span class="add-on add-on-label">Radius<i
 												class="icon-plus"></i></span> <input class="span5" id="radiusValue"
-												name="radiusValue" type="number" placeholder=""
+												name="radiusValue" type="number" min="0" step="any" placeholder=""
 												onchange="updatePointRadius()" />
 										</div>
 										<select id="radiusUnits" class="add-on span4"

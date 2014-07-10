@@ -178,16 +178,18 @@ define([
                 var view = this;
 
                 var radiusConverter = function (direction, value) {
-                        var unitVal = view.model.get("radiusUnits");
+                        var radiusUnitVal = view.model.get("radiusUnits");
+                        var distanceFromMeters = view.getDistanceFromMeters(parseFloat(value, 10), radiusUnitVal);
+
                         if (direction === 'ModelToView') {
                             //radius value is bound to radius since radiusValue is converted, so we just need to set
                             //the value so that it shows up in the view
-                            view.model.set("radiusValue", view.getDistanceFromMeters(parseInt(value, 10), unitVal));
-                            return view.getDistanceFromMeters(parseInt(value, 10), unitVal);
-                        } else {
-                            return view.getDistanceInMeters(parseInt(value, 10), unitVal);
+                            view.model.set("radiusValue", distanceFromMeters);
                         }
+
+                        return distanceFromMeters;
                     },
+
                     offsetConverter = function (direction, value) {
                         if (direction !== 'ModelToView') {
                             //all we really need to do is just calculate the dtoffset on the model based on these two values
