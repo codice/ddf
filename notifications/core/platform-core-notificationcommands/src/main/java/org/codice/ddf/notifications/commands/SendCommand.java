@@ -14,6 +14,8 @@
  **/
 package org.codice.ddf.notifications.commands;
 
+import java.util.UUID;
+
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
@@ -82,7 +84,8 @@ public class SendCommand extends OsgiCommandSupport {
 
     private void sendNotification() throws Exception {
         Long sysTimeMillis = System.currentTimeMillis();
-        Notification notification = new Notification(application,
+        String id = UUID.randomUUID().toString().replaceAll("-", "");
+        Notification notification = new Notification(id, application,
                 title,
                 message,
                 sysTimeMillis,

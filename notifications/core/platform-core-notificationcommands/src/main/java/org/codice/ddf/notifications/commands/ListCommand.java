@@ -24,6 +24,7 @@ import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
+import org.apache.felix.gogo.commands.Option;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
 import org.codice.ddf.notifications.store.PersistentNotification;
 import org.codice.ddf.persistence.PersistenceException;
@@ -44,7 +45,6 @@ public class ListCommand extends OsgiCommandSupport {
     
     private static final Logger LOGGER = LoggerFactory.getLogger(ListCommand.class);
     
-//DDF-579    public static final String SERVICE_PID = "org.codice.ddf.notifications.store.NotificationStore";
     public static final String SERVICE_PID = "org.codice.ddf.persistence.PersistentStore";
     
     public static final DateTimeFormatter DATETIME_FORMATTER = DateTimeFormat
@@ -57,6 +57,8 @@ public class ListCommand extends OsgiCommandSupport {
     static final String RED_CONSOLE_COLOR = Ansi.ansi().fg(Ansi.Color.RED).toString();
 
     static final String CYAN_CONSOLE_COLOR = Ansi.ansi().fg(Ansi.Color.CYAN).toString();
+    
+    private static final String ID = "ID ";
     
     private static final String USER_ID = "User ID ";
     
@@ -73,12 +75,15 @@ public class ListCommand extends OsgiCommandSupport {
             index = 0, multiValued = false, required = false)
     String userId = null;
     
+    @Option(name = "ECQL", required = false, aliases = {"-ecql"}, multiValued = false, description = "ECQL query to get notifications.")
+    String ecql = null;
+    
     @Override
     protected Object doExecute() throws Exception {
 
         PrintStream console = System.out;
         
-        String formatString = "%1$-30s %2$-30s %3$-15s %4$-20s %5$-" + MAX_LENGTH + "s%n";
+        String formatString = "%1$-33s %2$-30s %3$-30s %4$-15s %5$-20s %6$-" + MAX_LENGTH + "s%n";
 
         List<Map<String, Object>> notifications = getNotifications(userId);
         if (notifications == null || notifications.size() == 0) {
@@ -88,9 +93,9 @@ public class ListCommand extends OsgiCommandSupport {
             console.print("Total notifications found: " + notifications.size());
             console.println();
             console.println();
-            console.printf(formatString, "", "", "", "", "");
+            console.printf(formatString, "", "", "", "", "", "");
             console.print(CYAN_CONSOLE_COLOR);
-            console.printf(formatString, USER_ID, TIMESTAMP, APPLICATION, TITLE, MESSAGE);
+            console.printf(formatString, ID, USER_ID, TIMESTAMP, APPLICATION, TITLE, MESSAGE);
             console.print(DEFAULT_CONSOLE_COLOR);
 
             for (Map<String, Object> notification : notifications) {
@@ -107,6 +112,7 @@ public class ListCommand extends OsgiCommandSupport {
                 
                 console.printf(
                         formatString,
+                        notification.get(PersistentNotification.NOTIFICATION_KEY_UUID),
                         notification.get(PersistentNotification.NOTIFICATION_KEY_USER_ID), 
                         dateTime, 
                         notification.get(PersistentNotification.NOTIFICATION_KEY_APPLICATION), 
@@ -137,7 +143,9 @@ public class ListCommand extends OsgiCommandSupport {
             if (persistentStore != null) {
                 try {
                     List<Map<String, Object>> results = new ArrayList<Map<String, Object>>();
-                    if (StringUtils.isNotBlank(userId)) {
+                    if (StringUtils.isNotBlank(ecql)) {
+                        results = persistentStore.get(PersistentStore.NOTIFICATION_TYPE, ecql);
+                    } else if (StringUtils.isNotBlank(userId)) {
                         results = persistentStore.get(PersistentStore.NOTIFICATION_TYPE, 
                                 PersistentNotification.NOTIFICATION_KEY_USER_ID + " = '" + userId + "'");
                     } else {
@@ -148,7 +156,7 @@ public class ListCommand extends OsgiCommandSupport {
                         notifications.add(PersistentItem.stripSuffixes(result));
                     }
                 } catch (PersistenceException e) {
-                    LOGGER.info("PersistenceException during retrieval of notifications");
+                    LOGGER.info("PersistenceException during retrieval of notifications", e);
                 }
             } else {
                 LOGGER.debug("Unable to lookup PersistentStore service");
