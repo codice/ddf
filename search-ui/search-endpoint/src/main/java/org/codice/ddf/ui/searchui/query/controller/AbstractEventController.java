@@ -14,31 +14,8 @@
  **/
 package org.codice.ddf.ui.searchui.query.controller;
 
-import ddf.security.assertion.SecurityAssertion;
-import net.minidev.json.JSONObject;
-import org.apache.commons.lang.StringUtils;
-import org.apache.shiro.SecurityUtils;
-import org.apache.shiro.subject.PrincipalCollection;
-import org.apache.shiro.subject.Subject;
-import org.codice.ddf.activities.ActivityEvent;
-import org.codice.ddf.notifications.Notification;
-import org.codice.ddf.notifications.store.NotificationStore;
-import org.cometd.annotation.Listener;
-import org.cometd.annotation.Service;
-import org.cometd.annotation.Session;
-import org.cometd.bayeux.server.SecurityPolicy;
-import org.cometd.bayeux.server.ServerMessage;
-import org.cometd.bayeux.server.ServerSession;
-import org.cometd.server.ServerMessageImpl;
-import org.osgi.framework.BundleContext;
-import org.osgi.service.event.Event;
-import org.osgi.service.event.EventAdmin;
-import org.osgi.service.event.EventConstants;
-import org.osgi.service.event.EventHandler;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.security.Principal;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Dictionary;
 import java.util.HashMap;
@@ -48,6 +25,33 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+
+import net.minidev.json.JSONObject;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.subject.PrincipalCollection;
+import org.apache.shiro.subject.Subject;
+import org.codice.ddf.activities.ActivityEvent;
+import org.codice.ddf.notifications.Notification;
+import org.codice.ddf.persistence.PersistenceException;
+import org.codice.ddf.persistence.PersistentItem;
+import org.codice.ddf.persistence.PersistentStore;
+import org.cometd.annotation.Listener;
+import org.cometd.annotation.Service;
+import org.cometd.annotation.Session;
+import org.cometd.bayeux.server.SecurityPolicy;
+import org.cometd.bayeux.server.ServerMessage;
+import org.cometd.bayeux.server.ServerSession;
+import org.osgi.framework.BundleContext;
+import org.osgi.service.event.Event;
+import org.osgi.service.event.EventAdmin;
+import org.osgi.service.event.EventConstants;
+import org.osgi.service.event.EventHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import ddf.security.assertion.SecurityAssertion;
 
 /**
  * The {@code AbstractEventController} handles the processing and routing of events.
@@ -72,7 +76,7 @@ public abstract class AbstractEventController implements EventHandler {
     protected Map<String, ServerSession> userSessionMap = Collections
             .synchronizedMap(new HashMap<String, ServerSession>(41));
 
-    protected NotificationStore notificationStore;
+    protected PersistentStore persistentStore;
 
     private EventAdmin eventAdmin;
 
@@ -82,18 +86,36 @@ public abstract class AbstractEventController implements EventHandler {
      * 
      * @param bundleContext
      */
-    public AbstractEventController(NotificationStore notificationStore, BundleContext bundleContext, EventAdmin eventAdmin) {
+    public AbstractEventController(PersistentStore persistentStore, BundleContext bundleContext, EventAdmin eventAdmin) {
         Dictionary<String, Object> dictionary = new Hashtable<String, Object>();
         dictionary.put(EventConstants.EVENT_TOPIC, getControllerRootTopic());
 
         bundleContext.registerService(EventHandler.class.getName(), this, dictionary);
 
-        this.notificationStore = notificationStore;
+        this.persistentStore = persistentStore;
         this.eventAdmin = eventAdmin;
     }
 
     public List<Map<String, String>> getNotificationsForUser(String userId) {
-        return notificationStore.getNotifications(userId);
+//        return notificationStore.getNotifications(userId);
+        List<Map<String, String>> notifications = new ArrayList<Map<String, String>>();
+        List<Map<String, Object>> results = new ArrayList<Map<String, Object>>();
+        try {
+            results = persistentStore.get(PersistentStore.NOTIFICATION_TYPE, 
+                    Notification.NOTIFICATION_KEY_USER_ID + " = '" + userId + "'");
+        } catch (PersistenceException e) {
+            LOGGER.info("PersistenceException trying to get notifications for user {}", userId);
+        }
+        for (Map<String, Object> result : results) {
+            Map<String, Object> sanitizedResult = PersistentItem.stripSuffixes(result);
+            Map<String, String> notification = new HashMap<String, String>();
+            for (String name : sanitizedResult.keySet()) {
+                notification.put(name, (String) sanitizedResult.get(name));
+            }
+            notifications.add(notification);
+        }
+        
+        return notifications;
     }
 
     /**

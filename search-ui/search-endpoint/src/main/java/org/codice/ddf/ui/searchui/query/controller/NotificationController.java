@@ -14,11 +14,15 @@
  **/
 package org.codice.ddf.ui.searchui.query.controller;
 
+import java.util.Map;
+
 import net.minidev.json.JSONObject;
+
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
 import org.codice.ddf.notifications.Notification;
-import org.codice.ddf.notifications.store.NotificationStore;
+import org.codice.ddf.persistence.PersistenceException;
+import org.codice.ddf.persistence.PersistentStore;
 import org.cometd.annotation.Listener;
 import org.cometd.annotation.Service;
 import org.cometd.bayeux.server.ServerMessage;
@@ -29,8 +33,6 @@ import org.osgi.service.event.EventAdmin;
 import org.osgi.service.event.EventHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.Map;
 
 /**
  * The {@code NotificationController} handles the processing and routing of notifications.
@@ -44,8 +46,8 @@ public class NotificationController extends AbstractEventController {
     protected static final String NOTIFICATION_TOPIC_DOWNLOADS_COMETD = "/"
             + Notification.NOTIFICATION_TOPIC_DOWNLOADS;
 
-    public NotificationController(NotificationStore notificationStore, BundleContext bundleContext, EventAdmin eventAdmin) {
-        super(notificationStore, bundleContext, eventAdmin);
+    public NotificationController(PersistentStore persistentStore, BundleContext bundleContext, EventAdmin eventAdmin) {
+        super(persistentStore, bundleContext, eventAdmin);
 
     }
 
@@ -150,7 +152,12 @@ public class NotificationController extends AbstractEventController {
             if ((message.get("action")).equals("remove")) {
                 if (message.get("id") != null) {
                     String notificationId = (String) message.get("id");
-                    this.notificationStore.removeNotification(notificationId, userId);
+                    try {
+                        this.persistentStore.delete(PersistentStore.NOTIFICATION_TYPE, 
+                                "id = '" + notificationId + "'");
+                    } catch (PersistenceException e) {
+                        throw new IllegalArgumentException("Unable to delete notification with id = " + notificationId);
+                    }
                 } else {
                     throw new IllegalArgumentException("message.get('id') returned null.");
                 }

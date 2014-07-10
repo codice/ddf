@@ -104,9 +104,16 @@
             <groupId>joda-time</groupId>
             <artifactId>joda-time</artifactId>
         </dependency>
+        <!-- 
         <dependency>
             <groupId>ddf.notifications.core</groupId>
             <artifactId>platform-notifications-core-api</artifactId>
+            <version>${ddf.platform.app.version}</version>
+        </dependency>
+        -->
+        <dependency>
+            <groupId>ddf.persistence.core</groupId>
+            <artifactId>persistence-core-api</artifactId>
             <version>${ddf.platform.app.version}</version>
         </dependency>
 

@@ -14,8 +14,18 @@
  **/
 package org.codice.ddf.ui.searchui.query.controller;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import java.util.Date;
+import java.util.HashMap;
+import java.util.UUID;
+
 import org.codice.ddf.activities.ActivityEvent;
-import org.codice.ddf.notifications.store.NotificationStore;
+import org.codice.ddf.persistence.PersistentStore;
 import org.cometd.bayeux.server.ServerMessage;
 import org.cometd.bayeux.server.ServerSession;
 import org.junit.After;
@@ -24,16 +34,6 @@ import org.junit.Test;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventAdmin;
-
-import java.util.Date;
-import java.util.HashMap;
-import java.util.UUID;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /**
  * Test cases for {@link ActivityController} 
@@ -54,7 +54,7 @@ public class ActivityControllerTest {
      */
     @Before
     public void setUp() throws Exception {
-        acitivityController = new ActivityController(mock(NotificationStore.class), mock(BundleContext.class), mock(
+        acitivityController = new ActivityController(mock(PersistentStore.class), mock(BundleContext.class), mock(
                 EventAdmin.class));
         
         when(mockServerSession.getId()).thenReturn(MOCK_SESSION_ID);
