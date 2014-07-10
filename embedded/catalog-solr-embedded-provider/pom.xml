@@ -361,66 +361,6 @@
                     </execution>
                 </executions>
             </plugin>
-            <!-- DDF-579: moved to platform-solr-server-standalone
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>build-helper-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>attach-artifacts</id>
-                        <phase>package</phase>
-                        <inherited>false</inherited>
-                        <goals>
-                            <goal>attach-artifact</goal>
-                        </goals>
-                        <configuration>
-                            <artifacts>
-                                <artifact>
-                                    <file>target/classes/solr/conf/protwords.txt</file>
-                                    <type>txt</type>
-                                    <classifier>protwords</classifier>
-                                </artifact>
-                                <artifact>
-                                    <file>target/classes/solr/conf/schema.xml</file>
-                                    <type>xml</type>
-                                    <classifier>schema</classifier>
-                                </artifact>
-                                <artifact>
-                                    <file>target/classes/solr/conf/schema_metacard.xml</file>
-                                    <type>xml</type>
-                                    <classifier>schema_metacard</classifier>
-                                </artifact>
-                                <artifact>
-                                    <file>target/classes/solr/conf/solrconfig.xml</file>
-                                    <type>xml</type>
-                                    <classifier>solrconfig</classifier>
-                                </artifact>
-                                <artifact>
-                                    <file>target/classes/solr/conf/stopwords_en.txt</file>
-                                    <type>txt</type>
-                                    <classifier>stopwords_en</classifier>
-                                </artifact>
-                                <artifact>
-                                    <file>target/classes/solr/conf/stopwords.txt</file>
-                                    <type>txt</type>
-                                    <classifier>stopwords</classifier>
-                                </artifact>
-                                <artifact>
-                                    <file>target/classes/solr/conf/synonyms.txt</file>
-                                    <type>txt</type>
-                                    <classifier>synonyms</classifier>
-                                </artifact>
-                                <artifact>
-                                    <file>target/classes/solr/conf/cassandra_connection.properties</file>
-                                    <type>properties</type>
-                                  <classifier>cassandra_connection</classifier>
-                                </artifact>
-                            </artifacts>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            END DDF-579 -->
             <!-- Export test JAR for reuse by other projects -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
