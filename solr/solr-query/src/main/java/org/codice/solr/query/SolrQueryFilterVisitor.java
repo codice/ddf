@@ -78,8 +78,8 @@ public class SolrQueryFilterVisitor extends DefaultFilterVisitor {
             throw new UnsupportedOperationException("Literal value is required for search.");
         }
 
-        // Change hard-coded STRING to use a DynamicSchemaResolver that caches all columns based on suffix to format
-        // need to figure out how to get column metadata from Solr schema
+        // Change hard-coded STRING to use a DynamicSchemaResolver that caches all columns based on suffix to format.
+        // Need to figure out how to get column metadata from Solr schema
         String mappedPropertyName = getMappedPropertyName(propertyName, AttributeFormat.STRING,
                 true);
         
