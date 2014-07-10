@@ -800,6 +800,10 @@ public class TestCswSource extends TestCswSourceBase {
 
     }
 
+    /**
+     * Tests that the certificates are properly added to outgoing requests and allow for mutual
+     * authentication on a server that requires client auth.
+     */
     @Test
     public void testCertificateConnection() {
 

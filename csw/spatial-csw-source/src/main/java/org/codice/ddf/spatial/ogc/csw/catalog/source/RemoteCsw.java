@@ -105,6 +105,13 @@ public class RemoteCsw extends TrustedRemoteSource implements Csw {
 
     }
 
+    /**
+     * Sets the keystores to use for outgoing requests.
+     * @param keyStorePath Path to the keystore.
+     * @param keyStorePassword Password for the keystore.
+     * @param trustStorePath Path to the truststore.
+     * @param trustStorePassword Password for the truststore.
+     */
     public void setKeystores(String keyStorePath, String keyStorePassword, String trustStorePath,
             String trustStorePassword) {
         this.configureKeystores(WebClient.client(csw), keyStorePath, keyStorePassword,

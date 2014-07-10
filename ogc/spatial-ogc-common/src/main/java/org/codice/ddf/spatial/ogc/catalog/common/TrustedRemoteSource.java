@@ -89,6 +89,14 @@ public abstract class TrustedRemoteSource {
 
     }
 
+    /**
+     * Configures the client keystores.
+     * @param client Client used for outgoing requests.
+     * @param keyStorePath Path to the keystore that should be used.
+     * @param keyStorePassword Password for the keystore.
+     * @param trustStorePath Path to the truststore that should be used.
+     * @param trustStorePassword Password for the truststore.
+     */
     protected void configureKeystores(Client client, String keyStorePath, String keyStorePassword,
             String trustStorePath, String trustStorePassword) {
         ClientConfiguration clientConfiguration = WebClient.getConfig(client);
