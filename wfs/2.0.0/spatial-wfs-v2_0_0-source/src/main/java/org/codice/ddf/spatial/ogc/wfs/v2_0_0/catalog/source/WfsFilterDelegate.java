@@ -160,8 +160,8 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
         temporalOperands = new ArrayList<QName>();
 
 
-        if (null == filterCapabilities) {
-            LOGGER.error("CSW Service doesn't support any filters");
+        if (filterCapabilities == null) {
+            LOGGER.error("WFS 2.0 Service doesn't support any filters");
             return;
         }
 
@@ -169,11 +169,13 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
         ConformanceType conformance = filterCapabilities.getConformance();
         if (conformance != null) {
             List<DomainType> constraints = conformance.getConstraint();
-            for (DomainType constraint : constraints) {
-                if (CONFORMANCE_CONSTRAINTS.ImplementsSorting.equals(CONFORMANCE_CONSTRAINTS
-                        .valueOf(constraint.getName())) && constraint.getDefaultValue() != null) {
-                    isSortingSupported = Boolean.parseBoolean(constraint.getDefaultValue()
-                            .getValue());
+            if (!CollectionUtils.isEmpty(constraints)) {
+                for (DomainType constraint : constraints) {
+                    if (CONFORMANCE_CONSTRAINTS.ImplementsSorting.equals(CONFORMANCE_CONSTRAINTS
+                            .valueOf(constraint.getName())) && constraint.getDefaultValue() != null) {
+                        isSortingSupported = Boolean.parseBoolean(constraint.getDefaultValue()
+                                .getValue());
+                    }
                 }
             }
         }
