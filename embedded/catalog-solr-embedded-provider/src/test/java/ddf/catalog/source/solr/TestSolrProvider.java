@@ -1,16 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
+ *
  **/
 package ddf.catalog.source.solr;
 
@@ -105,7 +105,6 @@ import ddf.catalog.source.UnsupportedQueryException;
  * Uses the {@link RandomBlockJUnit4ClassRunner} to run the methods randomly so that the order does
  * not matter when testing.
  * </p>
- * 
  */
 @RunWith(RandomBlockJUnit4ClassRunner.class)
 public class TestSolrProvider extends SolrProviderTestCase {
@@ -160,12 +159,13 @@ public class TestSolrProvider extends SolrProviderTestCase {
 
     protected static final String ARIZONA_INTERSECTING_MULTIPOLYGON_WKT = "MULTIPOLYGON (((-116.26171901822 34.658206701279, -113.80078151822 38.261722326279, -110.15332058072 35.625003576279, -110.06542995572 33.251956701279, -113.97656276822 32.812503576279, -116.26171901822 34.658206701279)), ((-117.88085950283 35.588624751196, -117.66113294033 40.554445063696, -120.60546887783 37.654054438696, -117.88085950283 35.588624751196)))";
 
-    protected static final String ARIZONA_INTERSECTING_GEOMETRYCOLLECTION_WKT = "GEOMETRYCOLLECTION ("
-            + FLAGSTAFF_AIRPORT_POINT_WKT
-            + ", "
-            + ARIZONA_INTERSECTING_LINESTING_WKT
-            + ", "
-            + ARIZONA_INTERSECTING_MULTIPOLYGON_WKT + ")";
+    protected static final String ARIZONA_INTERSECTING_GEOMETRYCOLLECTION_WKT =
+            "GEOMETRYCOLLECTION ("
+                    + FLAGSTAFF_AIRPORT_POINT_WKT
+                    + ", "
+                    + ARIZONA_INTERSECTING_LINESTING_WKT
+                    + ", "
+                    + ARIZONA_INTERSECTING_MULTIPOLYGON_WKT + ")";
 
     protected static final String ARIZONA_POLYGON_WKT = "POLYGON ((-114.52062730304343 33.02770735822419, -114.55908930307925 33.03678235823264, -114.6099253031266 33.027002358223534, -114.63396730314898 33.03356735822965, -114.6451593031594 33.044412358239754, -114.66395130317692 33.038922358234636, -114.71135530322107 33.09538235828722, -114.70946330321931 33.122375358312354, -114.6781203031901 33.16725035835415, -114.6800513031919 33.224595358407555, -114.68771130319904 33.23925835842121, -114.67769330318971 33.268016358447994, -114.73542730324348 33.3057083584831, -114.70360330321384 33.352418358526606, -114.7249363032337 33.41105935858121, -114.64509230315934 33.419116358588724, -114.63057330314584 33.439425358607636, -114.621089303137 33.468599358634805, -114.59808630311556 33.48612735865113, -114.5870613031053 33.50944535867285, -114.52942030305162 33.56007335872, -114.5402473030617 33.58050735873903, -114.52717030304953 33.622136358777794, -114.52526330304775 33.66550435881818, -114.53643330305815 33.682735358834236, -114.49567630302019 33.70836935885811, -114.5102873030338 33.74320035889055, -114.50455830302846 33.7717143589171, -114.5211223030439 33.82603135896769, -114.51172230303513 33.84196535898253, -114.52096230304375 33.862926359002046, -114.49818830302253 33.925036359059895, -114.5256323030481 33.95241335908539, -114.51820830304118 33.96506335909717, -114.42898030295808 34.02984435915751, -114.42402930295347 34.07833235920266, -114.41016630294055 34.10265435922531, -114.32279930285918 34.1412973592613, -114.28536830282434 34.17123135928918, -114.23577630277813 34.186222359303144, -114.14991230269818 34.266979359378354, -114.12523030267519 34.272621359383606, -114.13412730268348 34.31454835942266, -114.15341530270143 34.33644735944305, -114.18208030272814 34.36520635946984, -114.2578423027987 34.40548835950735, -114.2833943028225 34.41206935951348, -114.30286530284062 34.43575435953554, -114.33263630286835 34.454873359553346, -114.3765073029092 34.45967935955782, -114.38386230291606 34.47708535957403, -114.3768283029095 34.536563359629426, -114.40974230294016 34.58372335967334, -114.43430230296303 34.59896335968754, -114.42227030295183 34.61089535969865, -114.46563730299222 34.70987335979083, -114.49780430302218 34.74475735982332, -114.52555330304801 34.74891135982719, -114.54204030306337 34.759958359837476, -114.5702173030896 34.83186035990444, -114.62726330314274 34.875533359945116, -114.63047530314574 34.919501359986064, -114.62100730313692 34.943609360008516, -114.63227630314742 34.997651360058846, -114.62106830313698 34.99891436006002, -114.63378030314881 35.041863360100024, -114.59563230311329 35.07605836013187, -114.6359093031508 35.11865536017154, -114.62644130314197 35.13390636018575, -114.58261630310116 35.132560360184485, -114.57225530309151 35.14006736019148, -114.56104030308107 35.17434636022341, -114.5595833030797 35.22018336026609, -114.58789030310608 35.304768360344866, -114.58958430310764 35.358378360394795, -114.64539630315963 35.450760360480835, -114.6722153031846 35.515754360541365, -114.64979230316374 35.54663736057013, -114.65313430316684 35.5848333606057, -114.63986630315449 35.611348360630394, -114.65406630316771 35.64658436066321, -114.66848630318114 35.65639936067235, -114.66509130317797 35.69309936070653, -114.68882030320007 35.73259536074332, -114.68273930319441 35.76470336077322, -114.68986730320105 35.84744236085027, -114.66246230317552 35.870960360872175, -114.66160030317472 35.88047336088104, -114.69927630320981 35.91161236091004, -114.7362123032442 35.987648360980856, -114.71767330322695 36.036758361026585, -114.72896630323746 36.058753361047074, -114.7281503032367 36.08596236107242, -114.71276130322238 36.10518136109032, -114.62161030313749 36.141966361124574, -114.59893530311636 36.13833536112119, -114.5305733030527 36.15509036113679, -114.46661330299312 36.1247113611085, -114.44394530297203 36.1210533611051, -114.38080330291321 36.15099136113298, -114.34423430287916 36.137480361120396, -114.31609530285294 36.11143836109614, -114.30385730284155 36.08710836107348, -114.30758730284502 36.06223336105032, -114.233472302776 36.01833136100943, -114.20676930275113 36.017255361008424, -114.12902330267872 36.04173036103122, -114.10777530265894 36.12109036110513, -114.04510530260056 36.19397836117301, -114.03739230259339 36.21602336119354, -114.04371630259928 36.84184936177639, -114.04393930259948 36.99653836192046, -112.89998330153409 36.99622736192016, -112.54252130120118 36.99799436192181, -112.23725830091688 36.995492361919474, -111.3561643000963 37.001709361925265, -110.7400632995225 37.002488361926, -110.48408929928411 37.003926361927334, -110.45223629925445 36.991746361915986, -109.99707629883055 36.99206736191629, -109.0484802979471 36.99664136192055, -109.0478462979465 35.99666436098925, -109.04664129794538 34.95464636001879, -109.04865229794726 34.59178035968085, -109.05034929794884 33.7833023589279, -109.050526297949 33.20516435838946, -109.05134629794976 32.779550357993074, -109.04949529794804 32.44204435767875, -109.04561529794442 31.34345335665561, -110.45257829925477 31.33766035665021, -111.07196429983162 31.335634356648328, -111.36952130010873 31.431531356737636, -113.32911130193375 32.04362135730769, -114.82176130332388 32.487169357720774, -114.80939430331236 32.6160443578408, -114.72204930323102 32.720857357938414, -114.71269530322232 32.7350133579516, -114.69404030320493 32.74142535795757, -114.60394230312102 32.72628535794347, -114.60352230312063 32.73588635795241, -114.57195930309123 32.73743935795386, -114.57221030309148 32.74882935796447, -114.56075130308079 32.74893635796457, -114.56158230308156 32.760753357975574, -114.54300430306427 32.76074935797557, -114.54318730306444 32.77123235798533, -114.53009530305225 32.7714113579855, -114.53507730305688 32.788047358000995, -114.52621930304863 32.80991235802135, -114.4614363029883 32.84542235805443, -114.47644430300228 32.9359083581387, -114.46838730299478 32.9777893581777, -114.52062730304343 33.02770735822419))";
 
@@ -211,7 +211,6 @@ public class TestSolrProvider extends SolrProviderTestCase {
 
     /**
      * Testing that you cannot instantiate with a null Server.
-     * 
      */
     @Test(expected = IllegalArgumentException.class)
     public void testSolrServerNull() {
@@ -221,7 +220,7 @@ public class TestSolrProvider extends SolrProviderTestCase {
     /**
      * Testing that if we create a record, it is truly ingested and we can retrieve all the fields
      * we intend to be retrievable.
-     * 
+     *
      * @throws IngestException
      * @throws UnsupportedQueryException
      */
@@ -300,7 +299,7 @@ public class TestSolrProvider extends SolrProviderTestCase {
 
     @Test(expected = IngestException.class)
     public void testCreateOperationWithSourceIdNoId() throws IngestException,
-        UnsupportedQueryException {
+            UnsupportedQueryException {
 
         deleteAllIn(provider);
 
@@ -319,7 +318,8 @@ public class TestSolrProvider extends SolrProviderTestCase {
     }
 
     @Test
-    public void testCreateOperationWithSourceId() throws IngestException, UnsupportedQueryException {
+    public void testCreateOperationWithSourceId()
+            throws IngestException, UnsupportedQueryException {
 
         deleteAllIn(provider);
 
@@ -395,7 +395,7 @@ public class TestSolrProvider extends SolrProviderTestCase {
 
     /**
      * Tests what happens when the whole request is null.
-     * 
+     *
      * @throws IngestException
      * @throws UnsupportedQueryException
      */
@@ -498,7 +498,7 @@ public class TestSolrProvider extends SolrProviderTestCase {
 
     /**
      * Testing that if records are properly updated.
-     * 
+     *
      * @throws IngestException
      * @throws UnsupportedQueryException
      */
@@ -534,7 +534,7 @@ public class TestSolrProvider extends SolrProviderTestCase {
 
     /**
      * Tests if a partial update is handled appropriately.
-     * 
+     *
      * @throws IngestException
      * @throws UnsupportedQueryException
      */
@@ -561,7 +561,7 @@ public class TestSolrProvider extends SolrProviderTestCase {
 
     /**
      * Tests what happens when the whole request is null.
-     * 
+     *
      * @throws IngestException
      * @throws UnsupportedQueryException
      */
@@ -578,7 +578,7 @@ public class TestSolrProvider extends SolrProviderTestCase {
 
     /**
      * Tests null list in UpdateRequest
-     * 
+     *
      * @throws IngestException
      * @throws UnsupportedQueryException
      */
@@ -595,7 +595,7 @@ public class TestSolrProvider extends SolrProviderTestCase {
 
     /**
      * Tests empty list in UpdateRequest
-     * 
+     *
      * @throws IngestException
      * @throws UnsupportedQueryException
      */
@@ -926,13 +926,13 @@ public class TestSolrProvider extends SolrProviderTestCase {
 
     /**
      * Testing that if no records are found to update, the provider returns an empty list.
-     * 
+     *
      * @throws IngestException
      * @throws UnsupportedQueryException
      */
     @Test
     public void testUpdateOperationWithNoResults() throws IngestException,
-        UnsupportedQueryException {
+            UnsupportedQueryException {
 
         deleteAllIn(provider);
 
@@ -946,7 +946,7 @@ public class TestSolrProvider extends SolrProviderTestCase {
 
     /**
      * Testing update operation of alternative attribute. Should return positive results.
-     * 
+     *
      * @throws IngestException
      * @throws UnsupportedQueryException
      */
@@ -1017,13 +1017,13 @@ public class TestSolrProvider extends SolrProviderTestCase {
 
     /**
      * Tests if we catch properly the case that the attribute value matches multiple Metacards.
-     * 
+     *
      * @throws IngestException
      * @throws UnsupportedQueryException
      */
     @Test(expected = IngestException.class)
     public void testUpdateNonUniqueAttributeValue() throws IngestException,
-        UnsupportedQueryException {
+            UnsupportedQueryException {
 
         deleteAllIn(provider);
 
@@ -1085,13 +1085,13 @@ public class TestSolrProvider extends SolrProviderTestCase {
     /**
      * Tests if we catch a rare case where some attribute value match multiple Metacards while
      * others do not match any records.
-     * 
+     *
      * @throws IngestException
      * @throws UnsupportedQueryException
      */
     @Test(expected = IngestException.class)
     public void testUpdateNonUniqueAttributeValue2() throws IngestException,
-        UnsupportedQueryException {
+            UnsupportedQueryException {
 
         deleteAllIn(provider);
 
@@ -1153,7 +1153,7 @@ public class TestSolrProvider extends SolrProviderTestCase {
 
     /**
      * Testing update operation of unknown attribute. Should return no results.
-     * 
+     *
      * @throws IngestException
      * @throws UnsupportedQueryException
      */
@@ -1212,7 +1212,7 @@ public class TestSolrProvider extends SolrProviderTestCase {
 
     /**
      * Testing if exception is thrown with a <code>null</code> property.
-     * 
+     *
      * @throws IngestException
      */
     @Test(expected = IngestException.class)
@@ -1259,7 +1259,7 @@ public class TestSolrProvider extends SolrProviderTestCase {
 
     /**
      * Testing that if records are properly deleted.
-     * 
+     *
      * @throws IngestException
      * @throws UnsupportedQueryException
      */
@@ -1310,7 +1310,7 @@ public class TestSolrProvider extends SolrProviderTestCase {
 
     /**
      * Tests what happens when the whole request is null.
-     * 
+     *
      * @throws IngestException
      * @throws UnsupportedQueryException
      */
@@ -1327,7 +1327,7 @@ public class TestSolrProvider extends SolrProviderTestCase {
 
     /**
      * Tests the provider will allow you to delete nothing.
-     * 
+     *
      * @throws IngestException
      * @throws UnsupportedQueryException
      */
@@ -1346,7 +1346,7 @@ public class TestSolrProvider extends SolrProviderTestCase {
 
     /**
      * Testing if another attribute can be used to delete records other than {@link Metacard#ID}
-     * 
+     *
      * @throws IngestException
      * @throws UnsupportedQueryException
      */
@@ -1361,41 +1361,44 @@ public class TestSolrProvider extends SolrProviderTestCase {
 
         DeleteResponse deleteResponse = provider.delete(new DeleteRequest() {
 
-            @Override
-            public boolean hasProperties() {
-                return false;
-            }
+                                                            @Override
+                                                            public boolean hasProperties() {
+                                                                return false;
+                                                            }
 
-            @Override
-            public Serializable getPropertyValue(String name) {
-                return null;
-            }
+                                                            @Override
+                                                            public Serializable getPropertyValue(
+                                                                    String name) {
+                                                                return null;
+                                                            }
 
-            @Override
-            public Set<String> getPropertyNames() {
-                return null;
-            }
+                                                            @Override
+                                                            public Set<String> getPropertyNames() {
+                                                                return null;
+                                                            }
 
-            @Override
-            public Map<String, Serializable> getProperties() {
-                return null;
-            }
+                                                            @Override
+                                                            public Map<String, Serializable> getProperties() {
+                                                                return null;
+                                                            }
 
-            @Override
-            public boolean containsPropertyName(String name) {
-                return false;
-            }
+                                                            @Override
+                                                            public boolean containsPropertyName(
+                                                                    String name) {
+                                                                return false;
+                                                            }
 
-            @Override
-            public List<? extends Serializable> getAttributeValues() {
-                return Arrays.asList(MockMetacard.DEFAULT_TITLE);
-            }
+                                                            @Override
+                                                            public List<? extends Serializable> getAttributeValues() {
+                                                                return Arrays
+                                                                        .asList(MockMetacard.DEFAULT_TITLE);
+                                                            }
 
-            @Override
-            public String getAttributeName() {
-                return Metacard.TITLE;
-            }
-        }
+                                                            @Override
+                                                            public String getAttributeName() {
+                                                                return Metacard.TITLE;
+                                                            }
+                                                        }
 
         );
 
@@ -1769,7 +1772,7 @@ public class TestSolrProvider extends SolrProviderTestCase {
     /**
      * Searching Solr with a field not known to the server should return 0 results and should not
      * give an error.
-     * 
+     *
      * @throws IngestException
      * @throws UnsupportedQueryException
      */
@@ -1838,13 +1841,13 @@ public class TestSolrProvider extends SolrProviderTestCase {
     /**
      * Testing if the temporal search does not fail when no schema field can be found and/or there
      * is no data in the index
-     * 
+     *
      * @throws IngestException
      * @throws UnsupportedQueryException
      */
     @Test
     public void testQueryMissingSortFieldTemporal() throws IngestException,
-        UnsupportedQueryException {
+            UnsupportedQueryException {
 
         /*
          * I have tested this with an empty schema and without an empty schema - both pass, but
@@ -1869,7 +1872,7 @@ public class TestSolrProvider extends SolrProviderTestCase {
     /**
      * If parts of a query can be understood, the query should be executed whereas the part that has
      * a missing property should return 0 results.
-     * 
+     *
      * @throws Exception
      */
     @Test
@@ -2104,7 +2107,7 @@ public class TestSolrProvider extends SolrProviderTestCase {
 
     /**
      * Testing attributes are properly indexed.
-     * 
+     *
      * @param bundleContext
      * @throws Exception
      */
@@ -2129,7 +2132,7 @@ public class TestSolrProvider extends SolrProviderTestCase {
 
     /**
      * Testing {@link Metacard#ANY_TEXT}
-     * 
+     *
      * @param bundleContext
      * @throws Exception
      */
@@ -2163,7 +2166,7 @@ public class TestSolrProvider extends SolrProviderTestCase {
 
     /**
      * Testing case sensitive index.
-     * 
+     *
      * @param bundleContext
      * @throws Exception
      */
@@ -2430,7 +2433,8 @@ public class TestSolrProvider extends SolrProviderTestCase {
         /* DATES */
 
         queryAndVerifyCount(1,
-                filterBuilder.attribute(Metacard.EFFECTIVE).is().equalTo().date(exactEffectiveDate));
+                filterBuilder.attribute(Metacard.EFFECTIVE).is().equalTo()
+                        .date(exactEffectiveDate));
 
     }
 
@@ -2572,7 +2576,8 @@ public class TestSolrProvider extends SolrProviderTestCase {
                 filterBuilder.attribute(Metacard.GEOGRAPHY).intersecting()
                         .wkt(FLAGSTAFF_AIRPORT_POINT_WKT),
                 filterBuilder.anyOf(filterBuilder.xpath(nonexistentXpath).exists(), filterBuilder
-                        .xpath("//also/does/not[@exist]").is().like().text(FLAGSTAFF_QUERY_PHRASE)));
+                        .xpath("//also/does/not[@exist]").is().like()
+                        .text(FLAGSTAFF_QUERY_PHRASE)));
 
         sourceResponse = provider.query(new QueryRequestImpl(new QueryImpl(filter)));
 
@@ -2610,7 +2615,8 @@ public class TestSolrProvider extends SolrProviderTestCase {
         queryXpathPositiveExists("//*[@country='US']", PURCHASE_ORDER_QUERY_PHRASE);
 
         queryXpathPositiveWithSearchPhrase("//shipTo/@country", "US", PURCHASE_ORDER_QUERY_PHRASE);
-        queryXpathPositiveWithSearchPhrase("//shipTo/@country", "us", PURCHASE_ORDER_QUERY_PHRASE, false);
+        queryXpathPositiveWithSearchPhrase("//shipTo/@country", "us", PURCHASE_ORDER_QUERY_PHRASE,
+                false);
         queryXpathPositiveWithSearchPhrase("/purchaseOrder/comment",
                 "Hurry, my lawn is going wild!", PURCHASE_ORDER_QUERY_PHRASE);
         queryXpathPositiveWithSearchPhrase("/purchaseOrder/items//comment",
@@ -2665,12 +2671,12 @@ public class TestSolrProvider extends SolrProviderTestCase {
     }
 
     public void queryXpathPositiveWithSearchPhrase(String xpath, String searchPhrase,
-                                                   String recordMatchPhrase) throws Exception {
+            String recordMatchPhrase) throws Exception {
         queryXpathPositiveWithSearchPhrase(xpath, searchPhrase, recordMatchPhrase, true);
     }
 
     public void queryXpathPositiveWithSearchPhrase(String xpath, String searchPhrase,
-                                                   String recordMatchPhrase, boolean isCaseSensitive) throws Exception {
+            String recordMatchPhrase, boolean isCaseSensitive) throws Exception {
         SourceResponse sourceResponse = queryXpathWithPhrase(xpath, searchPhrase, isCaseSensitive);
         assertEquals("Failed to find record for xpath: " + xpath, 1, sourceResponse.getResults()
                 .size());
@@ -2682,13 +2688,14 @@ public class TestSolrProvider extends SolrProviderTestCase {
     }
 
     public void queryXpathNegativeWithSearchPhrase(String xpath, String searchPhrase)
-        throws Exception {
+            throws Exception {
         SourceResponse sourceResponse = queryXpathWithPhrase(xpath, searchPhrase, true);
         assertEquals("Should not have found record for xpath: " + xpath, 0, sourceResponse
                 .getResults().size());
     }
 
-    private SourceResponse queryXpathWithPhrase(String xpath, String searchPhrase, boolean isCaseSensitive) throws UnsupportedQueryException {
+    private SourceResponse queryXpathWithPhrase(String xpath, String searchPhrase,
+            boolean isCaseSensitive) throws UnsupportedQueryException {
         Filter filter;
         if (isCaseSensitive) {
             filter = filterBuilder.xpath(xpath).is().like().caseSensitiveText(searchPhrase);
@@ -2864,7 +2871,7 @@ public class TestSolrProvider extends SolrProviderTestCase {
     }
 
     private void greaterThanQueryAssertion(String fieldName, Serializable fieldValue, int count)
-        throws UnsupportedQueryException {
+            throws UnsupportedQueryException {
 
         Filter filter = null;
 
@@ -3036,23 +3043,27 @@ public class TestSolrProvider extends SolrProviderTestCase {
         addMetacardWithModifiedDate(now);
 
         /** POSITIVE CASE **/
-        Filter filter = filterBuilder.dateIsDuring(Metacard.MODIFIED, dateBeforeNow(now), dateAfterNow(now));
+        Filter filter = filterBuilder
+                .dateIsDuring(Metacard.MODIFIED, dateBeforeNow(now), dateAfterNow(now));
         List<Result> results = getResultsForFilteredQuery(filter);
         assertEquals(1, results.size());
 
         /** NEGATIVE CASES **/
-        filter = filterBuilder.dateIsDuring(Metacard.MODIFIED, getCannedTime(1980, Calendar.JANUARY, 1, 3), dateBeforeNow(now));
+        filter = filterBuilder
+                .dateIsDuring(Metacard.MODIFIED, getCannedTime(1980, Calendar.JANUARY, 1, 3),
+                        dateBeforeNow(now));
         results = getResultsForFilteredQuery(filter);
         assertEquals(0, results.size());
 
-        filter = filterBuilder.dateIsDuring(Metacard.MODIFIED, dateAfterNow(now), getCannedTime(2035, Calendar.JULY, 23, 46));
+        filter = filterBuilder.dateIsDuring(Metacard.MODIFIED, dateAfterNow(now),
+                getCannedTime(2035, Calendar.JULY, 23, 46));
         results = getResultsForFilteredQuery(filter);
         assertEquals(0, results.size());
     }
 
     /**
      * Test for a specific IRAD problem.
-     * 
+     *
      * @throws Exception
      */
     @Test
@@ -3078,7 +3089,8 @@ public class TestSolrProvider extends SolrProviderTestCase {
 
         create(list);
 
-        Filter filter = filterBuilder.attribute(Metacard.EFFECTIVE).before().date(now.plusMillis(1).toDate());
+        Filter filter = filterBuilder.attribute(Metacard.EFFECTIVE).before()
+                .date(now.plusMillis(1).toDate());
 
         QueryImpl query = new QueryImpl(filter);
 
@@ -3127,7 +3139,8 @@ public class TestSolrProvider extends SolrProviderTestCase {
 
         // Sort all TEMPORAL DESC
 
-        filter = filterBuilder.attribute(Metacard.EFFECTIVE).before().date(now.plusMillis(1).toDate());
+        filter = filterBuilder.attribute(Metacard.EFFECTIVE).before()
+                .date(now.plusMillis(1).toDate());
 
         query = new QueryImpl(filter);
 
@@ -3365,7 +3378,7 @@ public class TestSolrProvider extends SolrProviderTestCase {
 
     /**
      * Tests the offset aka start index (startIndex) functionality.
-     * 
+     *
      * @param bundleContext
      * @throws Exception
      */
@@ -3517,7 +3530,8 @@ public class TestSolrProvider extends SolrProviderTestCase {
 
         try {
             sourceResponse = provider.query(new QueryRequestImpl(query));
-            Assert.fail("Expected an exception stating that the start index should be greater than 0. ");
+            Assert.fail(
+                    "Expected an exception stating that the start index should be greater than 0. ");
         } catch (UnsupportedQueryException e) {
             assertTrue(e.getMessage().indexOf("greater than 0") != ALL_RESULTS);
         }
@@ -3553,7 +3567,8 @@ public class TestSolrProvider extends SolrProviderTestCase {
         query.setPageSize(1);
         sourceResponse = provider.query(new QueryRequestImpl(query));
 
-        assertEquals("Failed to find Flagstaff record only.", 1, sourceResponse.getResults().size());
+        assertEquals("Failed to find Flagstaff record only.", 1,
+                sourceResponse.getResults().size());
 
         for (Result r : sourceResponse.getResults()) {
             assertTrue("Wrong record, Flagstaff keyword was not found.", ALL_RESULTS != r
@@ -3601,7 +3616,7 @@ public class TestSolrProvider extends SolrProviderTestCase {
         // FEET
         double[] coords = {-111.67121887207031, 35.138454437255859};
         query = new QueryImpl(builder.filterFactory.dwithin(Metacard.ANY_GEO, new PointImpl(
-                new DirectPositionImpl(coords), DefaultGeographicCRS.WGS84), 195000,
+                        new DirectPositionImpl(coords), DefaultGeographicCRS.WGS84), 195000,
                 UomOgcMapping.FOOT.name()));
 
         query.setStartIndex(1);
@@ -3710,10 +3725,8 @@ public class TestSolrProvider extends SolrProviderTestCase {
         ConfigurationStore.getInstance().setNearestNeighborDistanceLimit(Double.valueOf(1000));
         ConfigurationStore.getInstance().setNearestNeighborDistanceLimit(Double.valueOf(-3));
         assertTrue(ConfigurationStore.getInstance().getNearestNeighborDistanceLimit() != -3);
-        //assertTrue(ConfigurationStore.getInstance().getNearestNeighborDistanceLimit() == 1000);
-        //ConfigurationStore.getInstance().setNearestNeighborDistanceLimit("dafolsdf");
-        //assertTrue(!ConfigurationStore.getInstance().getNearestNeighborDistanceLimit().equals("dafolsdf"));
-        //assertTrue(ConfigurationStore.getInstance().getNearestNeighborDistanceLimit() == 1000);
+        ConfigurationStore.getInstance().setNearestNeighborDistanceLimit(Double.valueOf(12));
+        assertTrue(ConfigurationStore.getInstance().getNearestNeighborDistanceLimit() == 12);
         ConfigurationStore.getInstance().setNearestNeighborDistanceLimit(Double.valueOf(1000));
     }
 
@@ -4060,8 +4073,9 @@ public class TestSolrProvider extends SolrProviderTestCase {
         testSpatialWithWkt(FLAGSTAFF_AIRPORT_POINT_WKT, positiveFilter, negativeFilter);
     }
 
-    private void testSpatialWithinWithWkt(String metacardWkt, String positiveWkt, String negativeWkt)
-        throws Exception {
+    private void testSpatialWithinWithWkt(String metacardWkt, String positiveWkt,
+            String negativeWkt)
+            throws Exception {
         Filter positiveFilter = filterBuilder.attribute(Metacard.ANY_GEO).within().wkt(positiveWkt);
         Filter negativeFilter = filterBuilder.attribute(Metacard.ANY_GEO).within().wkt(negativeWkt);
         testSpatialWithWkt(metacardWkt, positiveFilter, negativeFilter);
@@ -4079,8 +4093,9 @@ public class TestSolrProvider extends SolrProviderTestCase {
         testSpatialWithWkt(positiveWkt, positiveFilter, negativeFilter);
     }
 
-    private void testSpatialWithWkt(String metacardWkt, Filter positiveFilter, Filter negativeFilter)
-        throws Exception {
+    private void testSpatialWithWkt(String metacardWkt, Filter positiveFilter,
+            Filter negativeFilter)
+            throws Exception {
         deleteAllIn(provider, 4);
 
         MetacardImpl metacard = new MockMetacard(Library.getFlagstaffRecord());
@@ -4292,7 +4307,7 @@ public class TestSolrProvider extends SolrProviderTestCase {
 
     /**
      * Test that makes sure sourceId is returned for deletions, creates, and updates.
-     * 
+     *
      * @throws Exception
      */
     @Test
@@ -4329,7 +4344,7 @@ public class TestSolrProvider extends SolrProviderTestCase {
 
     /**
      * Checks if it flag is false, text path indexing works
-     * 
+     *
      * @throws Exception
      */
     @Test
@@ -4342,7 +4357,7 @@ public class TestSolrProvider extends SolrProviderTestCase {
 
     /**
      * If we disable text path support, we expect 0 results.
-     * 
+     *
      * @throws Exception
      */
     @Test
@@ -4354,7 +4369,7 @@ public class TestSolrProvider extends SolrProviderTestCase {
 
     /**
      * If we disable text path support, we expect 0 results.
-     * 
+     *
      * @throws Exception
      */
     @Test
@@ -4366,7 +4381,7 @@ public class TestSolrProvider extends SolrProviderTestCase {
 
     /**
      * If we disable text path support, we expect 0 results.
-     * 
+     *
      * @throws Exception
      */
     @Test
@@ -4377,7 +4392,8 @@ public class TestSolrProvider extends SolrProviderTestCase {
                 .fuzzyText("Hurry, my lawn is going wild!"));
     }
 
-    private void prepareXPath(boolean isXpathDisabled) throws IngestException, UnsupportedQueryException {
+    private void prepareXPath(boolean isXpathDisabled)
+            throws IngestException, UnsupportedQueryException {
         ConfigurationStore.getInstance().setDisableTextPath(isXpathDisabled);
 
         deleteAllIn(provider);
@@ -4392,7 +4408,8 @@ public class TestSolrProvider extends SolrProviderTestCase {
 
     private void assertNotFilter(Filter filter) throws UnsupportedQueryException {
         SourceResponse sourceResponse = provider.query(new QueryRequestImpl(new QueryImpl(filter)));
-        assertEquals("Found a metacard and should not have.", 0, sourceResponse.getResults().size());
+        assertEquals("Found a metacard and should not have.", 0,
+                sourceResponse.getResults().size());
     }
 
     private void verifyDeletedRecord(MockMetacard metacard, CreateResponse createResponse,

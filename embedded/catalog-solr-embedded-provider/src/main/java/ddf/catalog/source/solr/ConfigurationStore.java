@@ -78,12 +78,13 @@ public class ConfigurationStore {
     }
 
     public void setNearestNeighborDistanceLimit(Double nearestNeighborDistanceLimit) {
-            if (nearestNeighborDistanceLimit >= 0) {
-                this.nearestNeighborDistanceLimit = nearestNeighborDistanceLimit;
-            } else {
-                this.nearestNeighborDistanceLimit = nearestNeighborDistanceLimit * -1;
-                LOGGER.info("{} was multiplied by -1 to get a positive number.", nearestNeighborDistanceLimit);
-            }
+        if (nearestNeighborDistanceLimit >= 0) {
+            this.nearestNeighborDistanceLimit = nearestNeighborDistanceLimit;
+        } else {
+            this.nearestNeighborDistanceLimit = nearestNeighborDistanceLimit * -1;
+            LOGGER.info("{} was multiplied by -1 to get a positive number.",
+                    nearestNeighborDistanceLimit);
+        }
     }
 
     /**
