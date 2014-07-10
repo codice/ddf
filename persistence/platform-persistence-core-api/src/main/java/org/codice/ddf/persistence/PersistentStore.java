@@ -34,7 +34,7 @@ public interface PersistentStore {
     public void add(String type, Map<String, Object> properties) throws PersistenceException;
     
     /**
-     * Gets all of the items of the specified type.
+     * Get all of the items of the specified type.
      * 
      * @param type
      * @return
@@ -43,7 +43,7 @@ public interface PersistentStore {
     public List<Map<String, Object>> get(String type) throws PersistenceException;
     
     /**
-     * Gets items matching the ECQL query criteria.
+     * Get items matching the ECQL query criteria.
      * 
      * @param type
      * @param ecql
@@ -51,5 +51,15 @@ public interface PersistentStore {
      * @throws PersistenceException
      */
     public List<Map<String, Object>> get(String type, String ecql) throws PersistenceException;
+    
+    /**
+     * Delete items matching the ECQL query criteria.
+     * 
+     * @param type
+     * @param ecql
+     * @return Count of the items deleted
+     * @throws PersistenceException
+     */
+    public int delete(String type, String ecql) throws PersistenceException;
     
 }

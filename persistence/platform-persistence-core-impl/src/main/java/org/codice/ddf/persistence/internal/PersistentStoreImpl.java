@@ -18,7 +18,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -41,8 +40,8 @@ import org.codice.ddf.persistence.PersistenceException;
 import org.codice.ddf.persistence.PersistentItem;
 import org.codice.ddf.persistence.PersistentStore;
 import org.codice.solr.query.SolrQueryFilterVisitor;
+import org.geotools.filter.text.cql2.CQL;
 import org.geotools.filter.text.cql2.CQLException;
-import org.geotools.filter.text.ecql.ECQL;
 import org.opengis.filter.Filter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -168,7 +167,7 @@ public class PersistentStoreImpl implements PersistentStore {
             if (StringUtils.isBlank(ecql)) {
                 solrQuery = new SolrQuery("*:*");
             } else {
-                Filter filter = ECQL.toFilter(ecql);
+                Filter filter = CQL.toFilter(ecql);
                 solrQuery = (SolrQuery) filter.accept(visitor, null);
             }
             QueryResponse solrResponse = coreSolrServer.query(solrQuery, METHOD.POST);
@@ -208,12 +207,39 @@ public class PersistentStoreImpl implements PersistentStore {
         return results;
     }
     
+    @Override
+    public int delete(String type, String ecql) throws PersistenceException {
+        List<Map<String, Object>> itemsToDelete = this.get(type, ecql);
+        List<String> idsToDelete = new ArrayList<String>();
+        for (Map<String, Object> item : itemsToDelete) {
+            String uuid = (String) item.get(PersistentItem.ID);
+            if (StringUtils.isNotBlank(uuid)) {
+                idsToDelete.add(uuid);
+            }
+        }
+        
+        if (!idsToDelete.isEmpty()) {
+            try {
+                LOGGER.info("Deleting {} items by ID", idsToDelete.size());
+                this.coreSolrServer.deleteById(idsToDelete);
+            } catch (SolrServerException e) {
+                LOGGER.info("SolrServerException while trying to delete items by ID", e);
+                throw new PersistenceException("SolrServerException while trying to delete items by ID");
+            } catch (IOException e) {
+                LOGGER.info("IOException while trying to delete items by ID", e);
+                throw new PersistenceException("IOException while trying to delete items by ID");
+            }
+        }
+        
+        return idsToDelete.size();
+    }
+    
     private void setSolrCore(String storeName) {
         this.storeName = storeName;
         
         // Must specify shard in URL so proper core is used
         this.coreSolrServer = new HttpSolrServer(this.solrUrl + "/" + this.storeName);
-        
+        CoreAdminResponse response = null;
         if (!solrCoreExists(solrServer, this.storeName)) {
             //LOGGER.info("writing solr conf XML files from bundle to disk");
             
@@ -223,8 +249,7 @@ public class PersistentStoreImpl implements PersistentStore {
             String configFile = "solrconfig.xml";
             String schemaFile = "schema.xml";
             try {
-                CoreAdminResponse response = 
-                        CoreAdminRequest.createCore(this.storeName, instanceDir, this.solrServer, configFile, schemaFile);
+                response = CoreAdminRequest.createCore(this.storeName, instanceDir, this.solrServer, configFile, schemaFile);
             } catch (SolrServerException e) {
                 LOGGER.error("SolrServerException creating " + this.storeName + " core", e);
             } catch (IOException e) {
@@ -233,14 +258,30 @@ public class PersistentStoreImpl implements PersistentStore {
         } else {
             LOGGER.info("Solr core {} already exists - just reload it", this.storeName);
             try {
-                CoreAdminResponse response = 
-                        CoreAdminRequest.reloadCore(this.storeName, this.solrServer);
+                response = CoreAdminRequest.reloadCore(this.storeName, this.solrServer);
             } catch (SolrServerException e) {
                 LOGGER.error("SolrServerException reloading " + this.storeName + " core", e);
             } catch (IOException e) {
                 LOGGER.error("IOException reloading " + this.storeName + " core", e);
             }
         }
+        
+//         
+//        try {
+//            SolrQuery query = new SolrQuery(); 
+//            query.setRequestHandler("/schema/version");
+//            QueryResponse qr = this.coreSolrServer.query(query);
+//            Float version = (Float) qr.getResponse().get("version"); 
+//            LOGGER.info("Solr schema version = {} for Solr Core {}", version, this.storeName);
+//            query.setRequestHandler("/schema/fields&includeDynamic=true");
+//            qr = this.coreSolrServer.query(query);
+//            NamedList<Object> objs = qr.getResponse();
+//        } catch (SolrServerException e) {
+//            LOGGER.error("SolrServerException getting schema version", e);
+//        } 
+        
+        
+        LOGGER.trace("EXITING: setSolrCore");
     }
 
     private boolean solrCoreExists(SolrServer solrServer, String coreName) {
