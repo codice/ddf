@@ -20,9 +20,11 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -449,16 +451,13 @@ public class CswFilterFactory {
         geometry.setUserData(CswConstants.SRS_NAME);
         JAXBElement<? extends AbstractGeometryType> abstractGeometry = null;
         try {
-            JTSToGML311GeometryConverter converter;
+            Map<String, String> geoConverterProps = new HashMap<String, String>();
+            geoConverterProps.put(
+                    CswJTSToGML311GeometryConverter.USE_POS_LIST_GEO_CONVERTER_PROP_KEY, 
+                    String.valueOf(this.isSetUsePosList));
             
-            // The CswJTSToGML311GeometryConverter overrides methods of the 
-            // JTSToGML311GeometryConverter in order to output a <posList>
-            // element, rather than five <pos> elements, for LinearRings
-            if (isSetUsePosList) {
-                converter = new CswJTSToGML311GeometryConverter();
-            } else {
-                converter = new JTSToGML311GeometryConverter();
-            }
+            JTSToGML311GeometryConverter converter = 
+                    new CswJTSToGML311GeometryConverter(geoConverterProps);
             
             Marshaller marshaller = new MarshallerImpl(JAXB_CONTEXT.createMarshaller(), converter);
             StringWriter writer = new StringWriter();

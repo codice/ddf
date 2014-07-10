@@ -28,29 +28,67 @@ import org.jvnet.ogc.gml.v_3_1_1.jts.JTSToGML311SRSReferenceGroupConverterInterf
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.LinearRing;
 
+/**
+ * An implementation of {@link JTSToGML311LinearRingConverter} that provides a 
+ * means of customizing the LinearRing GML. By default, the
+ * {@code CswJTSToGML311LinearRingConverter} behaves identically to the 
+ * {@code JTSToGML311LinearRingConverter}, but the output of the converter can
+ * be customized via constructor argument(s).
+ */
 public class CswJTSToGML311LinearRingConverter extends JTSToGML311LinearRingConverter {
-
+    boolean usePosList = false;
+    
+    /**
+     * Constructs a LinearRing converter that is functionally identical to the
+     * converter constructed by 
+     * {@link org.jvnet.ogc.gml.v_3_1_1.jts.JTSToGML311LinearRingConverter#JTSToGML311LinearRingConverter(ObjectFactoryInterface, JTSToGML311SRSReferenceGroupConverterInterface, JTSToGML311CoordinateConverter)}
+     */
     public CswJTSToGML311LinearRingConverter(ObjectFactoryInterface objectFactory,
             JTSToGML311SRSReferenceGroupConverterInterface srsReferenceGroupConverter,
             JTSToGML311CoordinateConverter coordinateConverter) {
-        super(objectFactory, srsReferenceGroupConverter, coordinateConverter);
+        this(objectFactory, srsReferenceGroupConverter, coordinateConverter, false);
     }
 
+    /**
+     * Constructs a LinearRing converter that is functionally identical to the
+     * converter constructed by 
+     * {@link org.jvnet.ogc.gml.v_3_1_1.jts.JTSToGML311LinearRingConverter#JTSToGML311LinearRingConverter(ObjectFactoryInterface, JTSToGML311SRSReferenceGroupConverterInterface, JTSToGML311CoordinateConverter)}
+     * with the exception that if usePosList is true the returned 
+     * {@link LinearRingType} will have its posList member variable populated 
+     * and set, rather than its posOrPointPropertyOrPointRep. When converted to
+     * a string, this results in the GML containing a single <posList> element,
+     * rather than a list of <pos> elements.
+     */
+    public CswJTSToGML311LinearRingConverter(ObjectFactoryInterface objectFactory,
+            JTSToGML311SRSReferenceGroupConverterInterface srsReferenceGroupConverter,
+            JTSToGML311CoordinateConverter coordinateConverter,
+            boolean usePosList) {
+        super(objectFactory, srsReferenceGroupConverter, coordinateConverter);
+        this.usePosList = usePosList;
+    }
+
+    /**
+     * @see {@code JTSToGML311LinearRingConverter#doCreateGeometryType}
+     */
     @Override
     protected LinearRingType doCreateGeometryType(LinearRing linearRing) {
         final LinearRingType resultLinearRing;        
 
-        resultLinearRing = getObjectFactory().createLinearRingType();
-        
-        List<Double> posDoubleList = new ArrayList<Double>();
-        for (Coordinate coordinate : linearRing.getCoordinates()) {
-            posDoubleList.add(coordinate.x);
-            posDoubleList.add(coordinate.y);
+        if (usePosList) {
+            resultLinearRing = getObjectFactory().createLinearRingType();
+            
+            List<Double> posDoubleList = new ArrayList<Double>();
+            for (Coordinate coordinate : linearRing.getCoordinates()) {
+                posDoubleList.add(coordinate.x);
+                posDoubleList.add(coordinate.y);
+            }
+            
+            DirectPositionListType directPosListType = new DirectPositionListType();
+            directPosListType.setValue(posDoubleList);
+            resultLinearRing.setPosList(directPosListType);
+        } else {
+            resultLinearRing = super.doCreateGeometryType(linearRing);
         }
-        
-        DirectPositionListType directPosListType = new DirectPositionListType();
-        directPosListType.setValue(posDoubleList);
-        resultLinearRing.setPosList(directPosListType);
 
         return resultLinearRing;
     }
