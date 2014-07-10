@@ -155,11 +155,18 @@ public class WebSSOFilter implements Filter {
                 // necessary to get their tokens
                 LOGGER.debug("Stopping filter chain - handled by plugins");
                 return;
-            case NO_ACTION: // should never occur - one of the handlers should
-                            // have returned a token
+            case NO_ACTION:
+                // should never occur - one of the handlers should have returned a token
+                LOGGER.warn("No handlers were able to determine required credentials, returning forbidden.");
+                returnSimpleResponse(HttpServletResponse.SC_FORBIDDEN, (HttpServletResponse) httpResponse);
+                return;
             case COMPLETED:
-                if (LOGGER.isDebugEnabled()) {
+                if (LOGGER.isDebugEnabled() && result.getToken() != null) {
                     LOGGER.debug("Attaching result handler to the http request - token is instance of {}", result.getToken().getClass().getSimpleName());
+                } else {
+                    LOGGER.warn("Completed without credentials - check context policy configuration.");
+                    returnSimpleResponse(HttpServletResponse.SC_FORBIDDEN, (HttpServletResponse) httpResponse);
+                    return;
                 }
                 httpRequest.setAttribute(DDF_AUTHENTICATION_TOKEN, result);
                 // set the appropriate request attribute

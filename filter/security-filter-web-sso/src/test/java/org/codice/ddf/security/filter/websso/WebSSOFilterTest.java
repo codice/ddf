@@ -123,8 +123,9 @@ public class WebSSOFilterTest {
         filter.doFilter(request, response, filterChain);
 
         verify(handler1, times(2)).getNormalizedToken(any(HttpServletRequest.class), any(HttpServletResponse.class), any(FilterChain.class), anyBoolean());
-        verify(request).setAttribute(DDF_AUTHENTICATION_TOKEN, completedResult);
-        verify(filterChain).doFilter(request, response);
+        // the next filter should NOT be called
+        verify(filterChain, never()).doFilter(request, response);
+        verify(request, never()).setAttribute(eq(DDF_AUTHENTICATION_TOKEN), any(HandlerResult.class));
     }
 
     @Test
