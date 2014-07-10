@@ -3706,6 +3706,18 @@ public class TestSolrProvider extends SolrProviderTestCase {
     }
 
     @Test
+    public void testNearestNeighborBadConfig() {
+        ConfigurationStore.getInstance().setNearestNeighborDistanceLimit(Double.valueOf(1000));
+        ConfigurationStore.getInstance().setNearestNeighborDistanceLimit(Double.valueOf(-3));
+        assertTrue(ConfigurationStore.getInstance().getNearestNeighborDistanceLimit() != -3);
+        //assertTrue(ConfigurationStore.getInstance().getNearestNeighborDistanceLimit() == 1000);
+        //ConfigurationStore.getInstance().setNearestNeighborDistanceLimit("dafolsdf");
+        //assertTrue(!ConfigurationStore.getInstance().getNearestNeighborDistanceLimit().equals("dafolsdf"));
+        //assertTrue(ConfigurationStore.getInstance().getNearestNeighborDistanceLimit() == 1000);
+        ConfigurationStore.getInstance().setNearestNeighborDistanceLimit(Double.valueOf(1000));
+    }
+
+    @Test
     public void testSpatialDistanceWithinPolygon() throws Exception {
         Filter positiveFilter = filterBuilder.attribute(Metacard.GEOGRAPHY).withinBuffer()
                 .wkt(ARIZONA_POLYGON_WKT, 50 * METERS_PER_KM);
