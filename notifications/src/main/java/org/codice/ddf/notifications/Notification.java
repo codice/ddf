@@ -24,6 +24,7 @@ public class Notification extends HashMap<String, String> {
 
     private static final long serialVersionUID = -2531844838114289515L;
     
+    public static final String NOTIFICATION_KEY_ID = "id";
     public static final String NOTIFICATION_KEY_APPLICATION = "application";
     public static final String NOTIFICATION_KEY_MESSAGE = "message";
     public static final String NOTIFICATION_KEY_TIMESTAMP = "timestamp";
@@ -40,6 +41,8 @@ public class Notification extends HashMap<String, String> {
      * Constructs a Notification with the specified application name, title
      * message, and timestamp.
      * 
+     * @param id The unique ID of this {@code Notification}
+     * 
      * @param application The name of the application that triggered the 
      *                    generation of this {@code Notification}
      *                    
@@ -52,14 +55,16 @@ public class Notification extends HashMap<String, String> {
      *                  the point at which the event triggering this
      *                  {@code Notification} was generated.
      */
-    public Notification(String application, String title, String message, 
+    public Notification(String id, String application, String title, String message, 
             Long timestamp) {
-        this(application, title, message, String.valueOf(timestamp), null);
+        this(id, application, title, message, String.valueOf(timestamp), null);
     }
     
     /**
      * Constructs a Notification with the specified application name, title
      * message, and timestamp.
+     * 
+     * @param id The unique ID of this {@code Notification}
      * 
      * @param application The name of the application that triggered the 
      *                    generation of this {@code Notification}
@@ -73,14 +78,16 @@ public class Notification extends HashMap<String, String> {
      *                  which the event triggering this {@code Notification} was 
      *                  generated.
      */
-    public Notification(String application, String title, String message, 
+    public Notification(String id, String application, String title, String message, 
             String timestamp) {
-        this(application, title, message, timestamp, null);
+        this(id, application, title, message, timestamp, null);
     }
     
     /**
      * Constructs a Notification with the specified application name, title
      * message, timestamp, and user ID.
+     * 
+     * @param id The unique ID of this {@code Notification}
      * 
      * @param application The name of the application that triggered the 
      *                    generation of this {@code Notification}
@@ -97,14 +104,16 @@ public class Notification extends HashMap<String, String> {
      * @param userId The id of the user to which this {@code Notification}
      *               should be sent.
      */
-    public Notification(String application, String title, String message, 
+    public Notification(String id, String application, String title, String message, 
             Long timestamp, String userId) {
-       this(application, title, message, String.valueOf(timestamp), userId);
+       this(id, application, title, message, String.valueOf(timestamp), userId);
     }
     
     /**
      * Constructs a Notification with the specified application name, title
      * message, timestamp, and user ID.
+     * 
+     * @param id The unique ID of this {@code Notification}
      * 
      * @param application The name of the application that triggered the 
      *                    generation of this {@code Notification}
@@ -121,9 +130,10 @@ public class Notification extends HashMap<String, String> {
      * @param userId The id of the user to which this {@code Notification}
      *               should be sent.
      */
-    public Notification(String application, String title, String message, 
+    public Notification(String id, String application, String title, String message, 
             String timestamp, String userId) {
         
+        setId(id);
         setApplication(application);
         setTitle(title);
         setMessage(message);
@@ -132,6 +142,24 @@ public class Notification extends HashMap<String, String> {
         if (null != userId && !userId.isEmpty()) {
             setUserId(userId);
         }
+    }
+    
+    /**
+     * Returns the ID of the {@code Notification}
+     *  
+     * @return The ID of the {@code Notification}
+     */
+    public String getId() {
+        return this.get(NOTIFICATION_KEY_ID);
+    }
+    
+    /**
+     * Overwrites the ID of the {@code Notification}
+     *  
+     * @param id The new unique ID of the {@code Notification}
+     */
+    public void setId(String id) {
+        this.put(NOTIFICATION_KEY_ID, id);
     }
     
     /**
