@@ -26,13 +26,11 @@
     </properties>
     <packaging>pom</packaging>
     <modules>
-        <module>2.0.0</module>
-        <module>spatial-wfs-v1_0_0-schema-bindings</module>
-        <module>spatial-wfs-v1_0_0-schema-webapp</module>
         <module>spatial-wfs-api</module>
         <module>spatial-wfs-common</module>
         <module>spatial-wfs-converter</module>
         <module>spatial-wfs-source</module>
-        <module>spatial-wfs-endpoint</module>
+        <module>1.0.0</module>
+        <module>2.0.0</module>
     </modules>
 </project>

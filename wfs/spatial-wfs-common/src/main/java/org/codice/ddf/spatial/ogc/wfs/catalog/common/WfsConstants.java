@@ -20,34 +20,8 @@ package org.codice.ddf.spatial.ogc.wfs.catalog.common;
  */
 public class WfsConstants {
 
-    /* Request Names */
-    public static final String GET_CAPABILITES = "GetCapabilities";
-
-    public static final String DESCRIBE_FEATURE_TYPE = "DescribeFeatureType";
-
-    public static final String GET_FEATURE = "GetFeature";
-
-    /* Version Numbers */
-    public static final String VERSION_1_0_0 = "1.0.0";
-
     /* Service Names */
     public static final String WFS = "WFS";
-
-    public static enum SPATIAL_OPERATORS {
-        BBOX("BBOX"), Beyond("Beyond"), Contains("Contains"), Crosses("Crosses"), Disjoint(
-                "Disjoint"), DWithin("DWithin"), Intersect("Intersect"), Equals("Equals"), Overlaps(
-                "Overlaps"), Touches("Touches"), Within("Within");
-
-        private String value;
-
-        public String getValue() {
-            return value;
-        }
-
-        SPATIAL_OPERATORS(String value) {
-            this.value = value;
-        }
-    }
 
     /* XML Encoded Filter Constsants */
     public static final String ESCAPE = "!";
@@ -59,26 +33,20 @@ public class WfsConstants {
     public static final String METERS = "METERS";
 
     public static final String EPSG_4326 = "EPSG:4326";
+    
+    public static final String EPSG_4326_URN = "urn:ogc:def:crs:EPSG::4326";
 
     /* Namespaces */
     
     public static final String XSI_PREFIX = "xsi";
 
-    public static final String WFS_NAMESPACE = "http://www.opengis.net/wfs";
-
     public static final String WFS_NAMESPACE_PREFIX = "wfs";
-
-    public static final String GML_NAMESPACE = "http://www.opengis.net/gml";
 
     public static final String GML_PREFIX = "gml";
 
-    public static final String GML_SCHEMA_LOCATION = "/ogc/gml/2.1.2/feature.xsd";
-
-    public static final String WFS_SCHEMA_LOCATION = "/ogc/wfs/1.0.0/WFS-capabilities.xsd";
-
-    public static final String NAMESPACE_URN_ROOT = "urn:ddf.catalog.gml.";
-
     public static final String ATTRIBUTE_SCHEMA_LOCATION = "xsi:schemaLocation";
+    
+    public static final String NAMESPACE_URN_ROOT = "urn:ddf.catalog.gml.";
     
     public static final double DEGREES_TO_RADIANS = Math.PI / 180.0;
 

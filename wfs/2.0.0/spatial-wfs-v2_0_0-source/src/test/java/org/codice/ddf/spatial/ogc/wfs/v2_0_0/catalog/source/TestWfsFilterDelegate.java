@@ -21,10 +21,10 @@ import static org.mockito.Mockito.mock;
 import net.opengis.filter.v_2_0_0.FilterCapabilities;
 
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.FeatureMetacardType;
-import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.WfsConstants;
-import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.WfsConstants.COMPARISON_OPERATORS;
-import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.WfsConstants.SPATIAL_OPERATORS;
-import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.WfsConstants.TEMPORAL_OPERATORS;
+import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.Wfs20Constants;
+import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.Wfs20Constants.COMPARISON_OPERATORS;
+import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.Wfs20Constants.SPATIAL_OPERATORS;
+import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.Wfs20Constants.TEMPORAL_OPERATORS;
 import org.junit.Test;
 
 public class TestWfsFilterDelegate {
@@ -34,11 +34,11 @@ public class TestWfsFilterDelegate {
     @Test
     public void testFullFilterCapabilities() {
         WfsFilterDelegate delegate = new WfsFilterDelegate(mockFeatureMetacardType,
-                MockWfsServer.getFilterCapabilities(), WfsConstants.EPSG_4326_URN);
+                MockWfsServer.getFilterCapabilities(), Wfs20Constants.EPSG_4326_URN);
         assertThat(delegate.isLogicalOps(), is(true));
         assertThat(delegate.isEpsg4326(), is(true));
         assertThat(delegate.isSortingSupported(), is(true));
-        assertThat(delegate.getSrsName(), is(WfsConstants.EPSG_4326_URN));
+        assertThat(delegate.getSrsName(), is(Wfs20Constants.EPSG_4326_URN));
         assertThat(delegate.getComparisonOps().size(), is(COMPARISON_OPERATORS.values().length));
         assertThat(delegate.getGeometryOperands().size(), greaterThan(0));
         assertThat(delegate.getSpatialOps().size(), is(SPATIAL_OPERATORS.values().length));
@@ -51,11 +51,11 @@ public class TestWfsFilterDelegate {
         FilterCapabilities capabilities = MockWfsServer.getFilterCapabilities();
         capabilities.setConformance(null);
         WfsFilterDelegate delegate = new WfsFilterDelegate(mockFeatureMetacardType, capabilities,
-                WfsConstants.EPSG_4326_URN);
+                Wfs20Constants.EPSG_4326_URN);
         assertThat(delegate.isLogicalOps(), is(true));
         assertThat(delegate.isEpsg4326(), is(true));
         assertThat(delegate.isSortingSupported(), is(false));
-        assertThat(delegate.getSrsName(), is(WfsConstants.EPSG_4326_URN));
+        assertThat(delegate.getSrsName(), is(Wfs20Constants.EPSG_4326_URN));
         assertThat(delegate.getComparisonOps().size(), is(COMPARISON_OPERATORS.values().length));
         assertThat(delegate.getGeometryOperands().size(), greaterThan(0));
         assertThat(delegate.getSpatialOps().size(), is(SPATIAL_OPERATORS.values().length));
@@ -68,11 +68,11 @@ public class TestWfsFilterDelegate {
         FilterCapabilities capabilities = MockWfsServer.getFilterCapabilities();
         capabilities.setScalarCapabilities(null);
         WfsFilterDelegate delegate = new WfsFilterDelegate(mockFeatureMetacardType, capabilities,
-                WfsConstants.EPSG_4326_URN);
+                Wfs20Constants.EPSG_4326_URN);
         assertThat(delegate.isLogicalOps(), is(false));
         assertThat(delegate.isEpsg4326(), is(true));
         assertThat(delegate.isSortingSupported(), is(true));
-        assertThat(delegate.getSrsName(), is(WfsConstants.EPSG_4326_URN));
+        assertThat(delegate.getSrsName(), is(Wfs20Constants.EPSG_4326_URN));
         assertThat(delegate.getComparisonOps().size(), is(0));
         assertThat(delegate.getGeometryOperands().size(), greaterThan(0));
         assertThat(delegate.getSpatialOps().size(), is(SPATIAL_OPERATORS.values().length));
@@ -85,11 +85,11 @@ public class TestWfsFilterDelegate {
         FilterCapabilities capabilities = MockWfsServer.getFilterCapabilities();
         capabilities.setSpatialCapabilities(null);
         WfsFilterDelegate delegate = new WfsFilterDelegate(mockFeatureMetacardType, capabilities,
-                WfsConstants.EPSG_4326_URN);
+                Wfs20Constants.EPSG_4326_URN);
         assertThat(delegate.isLogicalOps(), is(true));
         assertThat(delegate.isEpsg4326(), is(true));
         assertThat(delegate.isSortingSupported(), is(true));
-        assertThat(delegate.getSrsName(), is(WfsConstants.EPSG_4326_URN));
+        assertThat(delegate.getSrsName(), is(Wfs20Constants.EPSG_4326_URN));
         assertThat(delegate.getComparisonOps().size(), is(COMPARISON_OPERATORS.values().length));
         assertThat(delegate.getGeometryOperands().size(), is(0));
         assertThat(delegate.getSpatialOps().size(), is(0));
@@ -102,11 +102,11 @@ public class TestWfsFilterDelegate {
         FilterCapabilities capabilities = MockWfsServer.getFilterCapabilities();
         capabilities.setTemporalCapabilities(null);
         WfsFilterDelegate delegate = new WfsFilterDelegate(mockFeatureMetacardType, capabilities,
-                WfsConstants.EPSG_4326_URN);
+                Wfs20Constants.EPSG_4326_URN);
         assertThat(delegate.isLogicalOps(), is(true));
         assertThat(delegate.isEpsg4326(), is(true));
         assertThat(delegate.isSortingSupported(), is(true));
-        assertThat(delegate.getSrsName(), is(WfsConstants.EPSG_4326_URN));
+        assertThat(delegate.getSrsName(), is(Wfs20Constants.EPSG_4326_URN));
         assertThat(delegate.getComparisonOps().size(), is(COMPARISON_OPERATORS.values().length));
         assertThat(delegate.getGeometryOperands().size(), greaterThan(0));
         assertThat(delegate.getSpatialOps().size(), is(SPATIAL_OPERATORS.values().length));

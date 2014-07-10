@@ -38,11 +38,11 @@ import net.opengis.filter.v_2_0_0.TemporalOperatorsType;
 import net.opengis.ows.v_1_1_0.DomainType;
 import net.opengis.ows.v_1_1_0.ValueType;
 
-import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.WfsConstants;
-import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.WfsConstants.COMPARISON_OPERATORS;
-import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.WfsConstants.CONFORMANCE_CONSTRAINTS;
-import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.WfsConstants.SPATIAL_OPERATORS;
-import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.WfsConstants.TEMPORAL_OPERATORS;
+import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.Wfs20Constants;
+import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.Wfs20Constants.COMPARISON_OPERATORS;
+import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.Wfs20Constants.CONFORMANCE_CONSTRAINTS;
+import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.Wfs20Constants.SPATIAL_OPERATORS;
+import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.Wfs20Constants.TEMPORAL_OPERATORS;
 
 public class MockWfsServer {
 
@@ -79,8 +79,8 @@ public class MockWfsServer {
 
         GeometryOperandsType geometryOperands = new GeometryOperandsType();
 
-        List<QName> qnames = Arrays.asList(new QName(WfsConstants.GML_3_2_NAMESPACE, "Box"),
-                new QName(WfsConstants.GML_3_2_NAMESPACE, "Envelope"));
+        List<QName> qnames = Arrays.asList(new QName(Wfs20Constants.GML_3_2_NAMESPACE, "Box"),
+                new QName(Wfs20Constants.GML_3_2_NAMESPACE, "Envelope"));
         for (QName qName : qnames) {
             GeometryOperand operand = new GeometryOperand();
             operand.setName(qName);
@@ -97,8 +97,8 @@ public class MockWfsServer {
             temporal.getTemporalOperators().getTemporalOperator().add(operator);
         }
         TemporalOperandsType temporalOperands = new TemporalOperandsType();
-        List<QName> timeQNames = Arrays.asList(new QName(WfsConstants.GML_3_2_NAMESPACE,
-                "TimePeriod"), new QName(WfsConstants.GML_3_2_NAMESPACE, "TimeInstant"));
+        List<QName> timeQNames = Arrays.asList(new QName(Wfs20Constants.GML_3_2_NAMESPACE,
+                "TimePeriod"), new QName(Wfs20Constants.GML_3_2_NAMESPACE, "TimeInstant"));
         for (QName qName : timeQNames) {
             TemporalOperand operand = new TemporalOperand();
             operand.setName(qName);

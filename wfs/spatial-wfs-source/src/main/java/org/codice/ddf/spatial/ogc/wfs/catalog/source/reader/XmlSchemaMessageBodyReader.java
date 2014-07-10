@@ -50,7 +50,7 @@ public class XmlSchemaMessageBodyReader implements MessageBodyReader<XmlSchema> 
 
     private DefaultCamelContext camelContext = new DefaultCamelContext();
 
-    private WfsUriResolver wfsUriResolver = new WfsUriResolver();
+    protected WfsUriResolver wfsUriResolver = new WfsUriResolver();
 
     @Override
     public boolean isReadable(Class<?> clazz, Type type, Annotation[] annotations,

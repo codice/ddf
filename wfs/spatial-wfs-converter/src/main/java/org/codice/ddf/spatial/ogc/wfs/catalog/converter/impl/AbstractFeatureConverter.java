@@ -31,7 +31,6 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.spatial.ogc.catalog.common.converter.XmlNode;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.FeatureMetacardType;
-import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsConstants;
 import org.codice.ddf.spatial.ogc.wfs.catalog.converter.FeatureConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

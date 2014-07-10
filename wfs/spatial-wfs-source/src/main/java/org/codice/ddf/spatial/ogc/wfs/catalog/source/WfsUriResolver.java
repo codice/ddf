@@ -14,9 +14,9 @@
  **/
 package org.codice.ddf.spatial.ogc.wfs.catalog.source;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.ws.commons.schema.XmlSchema;
 import org.apache.ws.commons.schema.resolver.DefaultURIResolver;
-import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.InputSource;
@@ -28,6 +28,9 @@ import org.xml.sax.InputSource;
  */
 public class WfsUriResolver extends DefaultURIResolver {
     private static final Logger LOGGER = LoggerFactory.getLogger(WfsUriResolver.class);
+    private String gmlNamespace;
+    private String wfsNamespace;
+    
 
     /**
      * Try to resolve a schema location to some data. If the namespace is that of WFS or GML ignore
@@ -41,13 +44,24 @@ public class WfsUriResolver extends DefaultURIResolver {
      *            base URI for the schema.
      */
     public InputSource resolveEntity(String namespace, String schemaLocation, String baseUri) {
-        if (WfsConstants.GML_NAMESPACE.equals(namespace)
-                || WfsConstants.WFS_NAMESPACE.equals(namespace)) {
+        if (StringUtils.isEmpty(gmlNamespace) || StringUtils.isEmpty(wfsNamespace)) {
+            LOGGER.error("Defined constant GML or WFS namespace has not been set.");
+            return null;
+        }
+        else if (gmlNamespace.equals(namespace) || wfsNamespace.equals(namespace)) {
             LOGGER.debug("Found WFS or GML namespace.");
             return null;
         }
 
         return super.resolveEntity(namespace, schemaLocation, baseUri);
     }
+    
+    public void setGmlNamespace(String gmlNamespace) {
+        this.gmlNamespace = gmlNamespace;
+    }
 
+    public void setWfsNamespace(String wfsNamespace) {
+        this.wfsNamespace = wfsNamespace;
+    }
+    
 }

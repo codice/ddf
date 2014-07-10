@@ -69,6 +69,7 @@ import org.codice.ddf.spatial.ogc.wfs.catalog.converter.FeatureConverterFactory;
 import org.codice.ddf.spatial.ogc.wfs.catalog.converter.impl.GenericFeatureConverter;
 import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.DescribeFeatureTypeRequest;
 import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.GetCapabilitiesRequest;
+import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.Wfs20Constants;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
@@ -529,7 +530,7 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
             FeatureTypeType featureTypeType, String ftName, XmlSchema schema) {
         FeatureMetacardType ftMetacard = new FeatureMetacardType(schema, featureTypeType.getName(),
                 nonQueryableProperties != null ? Arrays.asList(nonQueryableProperties)
-                        : new ArrayList<String>());
+                        : new ArrayList<String>(), Wfs20Constants.GML_3_2_NAMESPACE);
 
         Dictionary<String, Object> props = new Hashtable<String, Object>();
         props.put(Metacard.CONTENT_TYPE, new String[] {ftName});

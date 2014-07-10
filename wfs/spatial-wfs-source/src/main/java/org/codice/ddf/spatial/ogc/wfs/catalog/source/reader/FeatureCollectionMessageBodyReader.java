@@ -46,25 +46,21 @@ import com.thoughtworks.xstream.io.xml.WstxDriver;
 
 import ddf.catalog.data.Metacard;
 
-@Consumes({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
+@Consumes({ MediaType.TEXT_XML, MediaType.APPLICATION_XML })
 @Provider
 public class FeatureCollectionMessageBodyReader implements MessageBodyReader<WfsFeatureCollection> {
 
-    private XStream xstream;
+    protected XStream xstream;
 
-    private FeatureCollectionConverter featureCollectionConverter;
+    protected FeatureCollectionConverter featureCollectionConverter;
 
-    private Map<String, FeatureConverter> featureConverterMap = new HashMap<String, FeatureConverter>();
+    protected Map<String, FeatureConverter> featureConverterMap = new HashMap<String, FeatureConverter>();
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FeatureCollectionMessageBodyReader.class);
 
     public FeatureCollectionMessageBodyReader() {
         xstream = new XStream(new WstxDriver());
         xstream.setClassLoader(this.getClass().getClassLoader());
-        featureCollectionConverter = new FeatureCollectionConverter();
-        featureCollectionConverter.setFeatureConverterMap(featureConverterMap);
-
-        xstream.registerConverter(featureCollectionConverter);
         xstream.registerConverter(new GmlGeometryConverter());
         xstream.registerConverter(new GmlEnvelopeConverter());
         xstream.alias("FeatureCollection", WfsFeatureCollection.class);

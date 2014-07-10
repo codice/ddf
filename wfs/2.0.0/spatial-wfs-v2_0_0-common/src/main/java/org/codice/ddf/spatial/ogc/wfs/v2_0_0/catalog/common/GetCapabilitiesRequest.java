@@ -25,8 +25,8 @@ public class GetCapabilitiesRequest extends WfsRequest {
     
     public GetCapabilitiesRequest(){
         super();
-        setRequest(WfsConstants.GET_CAPABILITIES);
-        setVersion(WfsConstants.VERSION_2_0_0);
-        setService(WfsConstants.WFS);
+        setRequest(Wfs20Constants.GET_CAPABILITIES);
+        setVersion(Wfs20Constants.VERSION_2_0_0);
+        setService(Wfs20Constants.WFS);
     }
 }

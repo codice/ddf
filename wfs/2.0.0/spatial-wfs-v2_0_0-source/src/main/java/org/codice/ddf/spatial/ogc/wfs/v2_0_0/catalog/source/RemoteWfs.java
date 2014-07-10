@@ -41,14 +41,15 @@ import org.codice.ddf.spatial.ogc.catalog.common.TrustedRemoteSource;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsException;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsFeatureCollection;
 import org.codice.ddf.spatial.ogc.wfs.catalog.source.MarkableStreamInterceptor;
-import org.codice.ddf.spatial.ogc.wfs.catalog.source.WfsResponseExceptionMapper;
-import org.codice.ddf.spatial.ogc.wfs.catalog.source.reader.FeatureCollectionMessageBodyReader;
-import org.codice.ddf.spatial.ogc.wfs.catalog.source.reader.XmlSchemaMessageBodyReader;
 import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.DescribeFeatureTypeRequest;
 import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.GetCapabilitiesRequest;
 import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.GetPropertyValueRequest;
 import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.Wfs;
-import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.WfsConstants;
+import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.Wfs20Constants;
+import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.source.reader.FeatureCollectionMessageBodyReaderWfs20;
+import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.source.reader.XmlSchemaMessageBodyReaderWfs20;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A client to a WFS 2.0.0 Service. This class uses the {@link Wfs} interface to create a client
@@ -59,7 +60,7 @@ public class RemoteWfs extends TrustedRemoteSource implements Wfs {
 
     private Wfs wfs;
 
-    private FeatureCollectionMessageBodyReader featureCollectionReader;
+    private FeatureCollectionMessageBodyReaderWfs20 featureCollectionReader;
 
     public RemoteWfs(String wfsServerUrl, String username, String password,
             boolean disableSSLCertVerification) {
@@ -76,18 +77,18 @@ public class RemoteWfs extends TrustedRemoteSource implements Wfs {
         Map<String, String> jaxbClassMap = new HashMap<String, String>();
 
         // Ensure a namespace is used when the GetFeature request is generated
-        String expandedName = new QName(WfsConstants.WFS_2_0_NAMESPACE, WfsConstants.GET_FEATURE)
+        String expandedName = new QName(Wfs20Constants.WFS_2_0_NAMESPACE, Wfs20Constants.GET_FEATURE)
                 .toString();
         jaxbClassMap.put(GetFeatureType.class.getName(), expandedName);
         provider.setJaxbElementClassMap(jaxbClassMap);
         provider.setMarshallAsJaxbElement(true);
 
-        featureCollectionReader = new FeatureCollectionMessageBodyReader();
-        return Arrays.asList(provider, new WfsResponseExceptionMapper(),
-                new XmlSchemaMessageBodyReader(), featureCollectionReader);
+        featureCollectionReader = new FeatureCollectionMessageBodyReaderWfs20();
+        return Arrays.asList(provider,
+                new XmlSchemaMessageBodyReaderWfs20(), featureCollectionReader);
     }
 
-    public FeatureCollectionMessageBodyReader getFeatureCollectionReader() {
+    public FeatureCollectionMessageBodyReaderWfs20 getFeatureCollectionReader() {
         return featureCollectionReader;
     }
 

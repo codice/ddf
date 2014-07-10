@@ -63,12 +63,6 @@ public class FeatureCollectionConverter implements Converter {
     
     protected Map<String, String> prefixToUriMapping = new HashMap<String, String>();
     
-    public FeatureCollectionConverter() {
-        prefixToUriMapping.put(WfsConstants.XSI_PREFIX, XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI);
-        prefixToUriMapping.put(WfsConstants.WFS_NAMESPACE_PREFIX, WfsConstants.WFS_NAMESPACE);
-        prefixToUriMapping.put(WfsConstants.GML_PREFIX, WfsConstants.GML_NAMESPACE);
-    }
-
     @Override
     public boolean canConvert(Class clazz) {
         return WfsFeatureCollection.class.isAssignableFrom(clazz);

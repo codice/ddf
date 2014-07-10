@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version. 
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+-->
+<beans:beans xmlns="http://www.springframework.org/schema/osgi"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:osgix="http://www.springframework.org/schema/osgi-compendium"
+             xmlns:beans="http://www.springframework.org/schema/beans"
+             xsi:schemaLocation="http://www.springframework.org/schema/osgi
+        http://www.springframework.org/schema/osgi/spring-osgi.xsd
+     http://www.springframework.org/schema/osgi-compendium 
+     http://www.springframework.org/schema/osgi-compendium/spring-osgi-compendium.xsd
+     http://www.springframework.org/schema/beans   
+        http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <!-- Get reference to Filter Adapter implementation -->
+    <reference id="filterAdapter" interface="ddf.catalog.filter.FilterAdapter"/>
+
+    <list id="converterList" interface="org.codice.ddf.spatial.ogc.wfs.catalog.converter.FeatureConverterFactory" cardinality="0..N"/>
+
+    <osgix:managed-service-factory
+            id="org.codice.ddf.spatial.ogc.wfs.catalog.source.WfsFederatedSource.id" factory-pid="Wfs_Federated_Source"
+            update-strategy="bean-managed" update-method="refresh">
+
+        <osgix:interfaces>
+            <beans:value>ddf.catalog.source.FederatedSource</beans:value>
+        </osgix:interfaces>
+
+        <beans:bean id="Wfs_Federated_Source" class="org.codice.ddf.spatial.ogc.wfs.catalog.source.WfsSource"
+                    init-method="init" destroy-method="destroy">
+            <beans:property name="context" ref="bundleContext"/>
+            <beans:property name="filterAdapter" ref="filterAdapter"/>
+            <beans:property name="wfsUrl" value="http://demo.mapserver.org/cgi-bin/wfs"/>
+            <beans:property name="id" value=""/>
+            <beans:property name="username" value=""/>
+            <beans:property name="password" value=""/>
+            <beans:property name="disableSSLCertVerification" value="false"/>
+            <beans:property name="nonQueryableProperties">
+                <beans:list></beans:list>
+            </beans:property>
+            <beans:property name="featureConverterFactoryList" ref="converterList"/>
+            <beans:property name="pollInterval" value=""/>
+            <beans:property name="forceSpatialFilter" value="" />
+        </beans:bean>
+    </osgix:managed-service-factory>
+
+    <osgix:managed-service-factory
+            id="org.codice.ddf.spatial.ogc.wfs.catalog.source.WfsConnectedSource.id" factory-pid="Wfs_Connected_Source"
+            update-strategy="bean-managed" update-method="refresh">
+
+        <osgix:interfaces>
+            <beans:value>ddf.catalog.source.ConnectedSource</beans:value>
+        </osgix:interfaces>
+        <beans:bean id="Wfs_Connected_Source" class="org.codice.ddf.spatial.ogc.wfs.catalog.source.WfsSource"
+                    init-method="init" destroy-method="destroy">
+            <beans:property name="context" ref="bundleContext"/>
+            <beans:property name="filterAdapter" ref="filterAdapter"/>
+            <beans:property name="wfsUrl"
+                            value="http://demo.mapserver.org/cgi-bin/wfs"/>
+            <beans:property name="id" value=""/>
+            <beans:property name="username" value=""/>
+            <beans:property name="password" value=""/>
+            <beans:property name="disableSSLCertVerification" value="false"/>
+            <beans:property name="nonQueryableProperties">
+                <beans:list></beans:list>
+            </beans:property>
+            <beans:property name="featureConverterFactoryList" ref="converterList"/>
+            <beans:property name="pollInterval" value=""/>
+            <beans:property name="forceSpatialFilter" value="" />
+        </beans:bean>
+    </osgix:managed-service-factory>
+</beans:beans>

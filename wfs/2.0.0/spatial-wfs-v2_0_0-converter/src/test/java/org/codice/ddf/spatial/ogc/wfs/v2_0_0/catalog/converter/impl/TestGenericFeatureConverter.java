@@ -37,7 +37,7 @@ import org.codice.ddf.spatial.ogc.wfs.catalog.converter.FeatureConverter;
 import org.codice.ddf.spatial.ogc.wfs.catalog.converter.impl.EnhancedStaxDriver;
 import org.codice.ddf.spatial.ogc.wfs.catalog.converter.impl.GenericFeatureConverter;
 import org.codice.ddf.spatial.ogc.wfs.catalog.converter.impl.GmlGeometryConverter;
-import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.WfsConstants;
+import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.Wfs20Constants;
 import org.junit.Test;
 
 import com.thoughtworks.xstream.XStream;
@@ -132,7 +132,7 @@ public class TestGenericFeatureConverter {
         assertNotNull(mc.getModifiedDate());
 
         assertNotNull(mc.getContentTypeNamespace());
-        assertEquals(mc.getContentTypeNamespace().toString(), WfsConstants.NAMESPACE_URN_ROOT
+        assertEquals(mc.getContentTypeNamespace().toString(), Wfs20Constants.NAMESPACE_URN_ROOT
                 + metacardType.getName());
     }
 
@@ -188,7 +188,7 @@ public class TestGenericFeatureConverter {
         xstream.registerConverter(new GenericFeatureConverter());
         xstream.registerConverter(new GmlGeometryConverter());
         // Required the Implementing class. The interface would not work...
-        xstream.alias(WfsConstants.WFS_NAMESPACE_PREFIX + ":" + "FeatureCollection", WfsFeatureCollection.class);
+        xstream.alias(Wfs20Constants.WFS_NAMESPACE_PREFIX + ":" + "FeatureCollection", WfsFeatureCollection.class);
 
         Metacard mc = new SampleMetacard().getMetacard();
         WfsFeatureCollection wfc = new WfsFeatureCollection();
@@ -233,7 +233,8 @@ public class TestGenericFeatureConverter {
         XmlSchema schema = new XmlSchema();
         schema.getElements().putAll(buildElementMap(schema));
 
-        return new FeatureMetacardType(schema, new QName(FEATURE_TYPE), new ArrayList<String>());
+        return new FeatureMetacardType(schema, new QName(FEATURE_TYPE), new ArrayList<String>(),
+        		Wfs20Constants.GML_3_2_NAMESPACE);
 
     }
 
@@ -264,7 +265,7 @@ public class TestGenericFeatureConverter {
 
         XmlSchemaElement gmlElement = new XmlSchemaElement(schema, true);
         gmlElement.setSchemaType(new XmlSchemaComplexType(schema, false));
-        gmlElement.setSchemaTypeName(new QName(WfsConstants.GML_2_1_2_NAMESPACE, GML));
+        gmlElement.setSchemaTypeName(new QName(Wfs20Constants.GML_3_2_NAMESPACE, GML));
         gmlElement.setName(GROUND_GEOM_ELEMENT);
         elementMap.put(new QName(GROUND_GEOM_ELEMENT), gmlElement);
 

@@ -70,11 +70,11 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.common.util.CollectionUtils;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.FeatureAttributeDescriptor;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.FeatureMetacardType;
-import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.WfsConstants;
-import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.WfsConstants.COMPARISON_OPERATORS;
-import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.WfsConstants.CONFORMANCE_CONSTRAINTS;
-import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.WfsConstants.SPATIAL_OPERATORS;
-import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.WfsConstants.TEMPORAL_OPERATORS;
+import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.Wfs20Constants;
+import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.Wfs20Constants.COMPARISON_OPERATORS;
+import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.Wfs20Constants.CONFORMANCE_CONSTRAINTS;
+import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.Wfs20Constants.SPATIAL_OPERATORS;
+import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.Wfs20Constants.TEMPORAL_OPERATORS;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -140,8 +140,8 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
         }
         this.featureMetacardType = featureMetacardType;
         this.srsName = srsName;
-        if (WfsConstants.EPSG_4326.equalsIgnoreCase(srsName)
-                || WfsConstants.EPSG_4326_URN.equalsIgnoreCase(srsName)) {
+        if (Wfs20Constants.EPSG_4326.equalsIgnoreCase(srsName)
+                || Wfs20Constants.EPSG_4326_URN.equalsIgnoreCase(srsName)) {
             isEpsg4326 = true;
         } else {
             LOGGER.debug(
@@ -891,9 +891,9 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
                     .createPropertyIsLike(new PropertyIsLikeType());
             //TODO: Figure out how to handle commented lines below
             //propIsLike.getValue()..setPropertyName(createPropertyNameType(property).getValue());
-            propIsLike.getValue().setEscapeChar(WfsConstants.ESCAPE);
+            propIsLike.getValue().setEscapeChar(Wfs20Constants.ESCAPE);
             propIsLike.getValue().setSingleChar(SINGLE_CHAR);
-            propIsLike.getValue().setWildCard(WfsConstants.WILD_CARD);
+            propIsLike.getValue().setWildCard(Wfs20Constants.WILD_CARD);
            // propIsLike.getValue().setLiteral(createLiteralType(literal).getValue());
 
             return propIsLike;
@@ -1293,7 +1293,7 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
         MeasureType measureType = new MeasureType();
         measureType.setValue(distance);
         // the filter adapter normalizes all distances to meters
-        measureType.setUom(WfsConstants.METERS);
+        measureType.setUom(Wfs20Constants.METERS);
         dbt.getValue().setDistance(measureType);
         //TODO: Figure out how to handle commented lines below
         //dbt.getValue().setGeometry(createPoint(wkt));
@@ -1474,8 +1474,8 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
      * (see bufferGeometry()).
      */
     private double metersToDegrees(double distance) {
-        double degrees = (distance / WfsConstants.EARTH_MEAN_RADIUS_METERS)
-                * WfsConstants.RADIANS_TO_DEGREES;
+        double degrees = (distance / Wfs20Constants.EARTH_MEAN_RADIUS_METERS)
+                * Wfs20Constants.RADIANS_TO_DEGREES;
         LOGGER.debug("{} meter(s) is approximately {} degree(s) of latitude.", distance, degrees);
         return degrees;
     }

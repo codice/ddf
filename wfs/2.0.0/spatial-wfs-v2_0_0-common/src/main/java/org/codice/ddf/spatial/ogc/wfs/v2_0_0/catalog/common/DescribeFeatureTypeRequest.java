@@ -31,8 +31,8 @@ public class DescribeFeatureTypeRequest extends WfsRequest {
 
     public DescribeFeatureTypeRequest(QName qname) {
         super(qname);
-        setRequest(WfsConstants.DESCRIBE_FEATURE_TYPE);
-        setVersion(WfsConstants.VERSION_2_0_0);
-        setService(WfsConstants.WFS);
+        setRequest(Wfs20Constants.DESCRIBE_FEATURE_TYPE);
+        setVersion(Wfs20Constants.VERSION_2_0_0);
+        setService(Wfs20Constants.WFS);
     }
 }

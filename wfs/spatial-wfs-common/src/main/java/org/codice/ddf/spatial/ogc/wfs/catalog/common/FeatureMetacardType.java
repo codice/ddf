@@ -56,9 +56,11 @@ public class FeatureMetacardType extends MetacardTypeImpl {
     private transient String propertyPrefix;
 
     private transient List<String> nonQueryableProperties;
+    
+    private transient String gmlNamespace;
 
     public FeatureMetacardType(XmlSchema schema, final QName featureType,
-            List<String> nonQueryableProperties) {
+            List<String> nonQueryableProperties, String gmlNamespace) {
         super(featureType.getLocalPart(), null);
 
         addBasicMetacardAttributeDescriptors();
@@ -66,6 +68,7 @@ public class FeatureMetacardType extends MetacardTypeImpl {
         this.featureType = featureType;
         this.nonQueryableProperties = nonQueryableProperties;
         this.propertyPrefix = getName() + ".";
+        this.gmlNamespace = gmlNamespace;
         if (schema != null) {
             processXmlSchema(schema);
         } else {
@@ -192,7 +195,7 @@ public class FeatureMetacardType extends MetacardTypeImpl {
     private Boolean processGmlType(XmlSchemaElement xmlSchemaElement) {
         QName qName = xmlSchemaElement.getSchemaTypeName();
         String name = xmlSchemaElement.getName();
-        if ((qName != null) && qName.getNamespaceURI().equals(WfsConstants.GML_NAMESPACE)
+        if ((qName != null) && qName.getNamespaceURI().equals(gmlNamespace)
                 && (!StringUtils.isEmpty(name))) {
             gmlProperties.add(propertyPrefix + name);
 

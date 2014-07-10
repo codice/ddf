@@ -14,11 +14,13 @@
  **/
 package org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common;
 
+import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsConstants;
+
 /**
  * Constants for WFS services and requests.
  * 
  */
-public class WfsConstants {
+public class Wfs20Constants extends WfsConstants{
 
     /* Request Names */
     public static final String GET_CAPABILITIES = "GetCapabilities";
@@ -33,7 +35,6 @@ public class WfsConstants {
     public static final String VERSION_2_0_0 = "2.0.0";
 
     /* Service Names */
-    public static final String WFS = "WFS";
 
     public static enum SPATIAL_OPERATORS {
         BBOX("BBOX"), Beyond("Beyond"), Contains("Contains"), Crosses("Crosses"), Disjoint(
@@ -108,43 +109,15 @@ public class WfsConstants {
         }
     }
 
-    /* XML Encoded Filter Constsants */
-    public static final String ESCAPE = "!";
-
-    public static final String SINGLE_CHAR = "#";
-
-    public static final String WILD_CARD = "*";
-
-    public static final String METERS = "METERS";
-
-    public static final String EPSG_4326 = "EPSG:4326";
-
-    public static final String EPSG_4326_URN = "urn:ogc:def:crs:EPSG::4326";
-
     /* Namespaces */
 
-    public static final String XSI_PREFIX = "xsi";
 
     public static final String WFS_2_0_NAMESPACE = "http://www.opengis.net/wfs/2.0";
-
-    public static final String WFS_NAMESPACE_PREFIX = "wfs";
 
     public static final String GML_2_1_2_NAMESPACE = "http://www.opengis.net/gml";
 
     public static final String GML_3_2_NAMESPACE = " http://www.opengis.net/gml/3.2";
 
-    public static final String GML_PREFIX = "gml";
-
     public static final String WFS_SCHEMA_LOCATION = "/ogc/wfs/2.0.0/wfs.xsd";
-
-    public static final String NAMESPACE_URN_ROOT = "urn:ddf.catalog.gml.";
-
-    public static final String ATTRIBUTE_SCHEMA_LOCATION = "xsi:schemaLocation";
-    
-    public static final double DEGREES_TO_RADIANS = Math.PI / 180.0;
-
-    public static final double RADIANS_TO_DEGREES = 1 / DEGREES_TO_RADIANS;
-
-    public static final double EARTH_MEAN_RADIUS_METERS = 6371008.7714;
 
 }

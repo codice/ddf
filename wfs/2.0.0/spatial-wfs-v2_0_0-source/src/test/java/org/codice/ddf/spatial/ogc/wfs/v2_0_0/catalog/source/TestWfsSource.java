@@ -37,10 +37,11 @@ import org.apache.ws.commons.schema.XmlSchema;
 import org.apache.ws.commons.schema.XmlSchemaCollection;
 import org.codice.ddf.spatial.ogc.catalog.common.AvailabilityTask;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsException;
-import org.codice.ddf.spatial.ogc.wfs.catalog.source.reader.FeatureCollectionMessageBodyReader;
+import org.codice.ddf.spatial.ogc.wfs.catalog.source.WfsUriResolver;
 import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.DescribeFeatureTypeRequest;
 import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.GetCapabilitiesRequest;
-import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.WfsConstants;
+import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.Wfs20Constants;
+import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.source.reader.FeatureCollectionMessageBodyReaderWfs20;
 import org.junit.Test;
 import org.osgi.framework.BundleContext;
 
@@ -64,7 +65,7 @@ public class TestWfsSource {
 
     private AvailabilityTask mockAvailabilityTask = mock(AvailabilityTask.class);
 
-    private FeatureCollectionMessageBodyReader mockReader = mock(FeatureCollectionMessageBodyReader.class);
+    private FeatureCollectionMessageBodyReaderWfs20 mockReader = mock(FeatureCollectionMessageBodyReaderWfs20.class);
 
     public WfsSource getWfsSource(final String schema, final FilterCapabilities filterCapabilities,
             final String srsName, final int numFeatures) throws WfsException {
@@ -86,14 +87,17 @@ public class TestWfsSource {
                 qName = new QName("http://example.com", SAMPLE_FEATURE_NAME + ii, "Prefix" + ii);
             }
             feature.setName(qName);
-            feature.setDefaultCRS(WfsConstants.EPSG_4326_URN);
+            feature.setDefaultCRS(Wfs20Constants.EPSG_4326_URN);
             mockCapabilites.getFeatureTypeList().getFeatureType().add(feature);
         }
 
         XmlSchema xmlSchema = null;
         if (StringUtils.isNotBlank(schema)) {
             XmlSchemaCollection schemaCollection = new XmlSchemaCollection();
-            schemaCollection.setSchemaResolver(new WfsUriResolver());
+            WfsUriResolver wfsUriResolver = new WfsUriResolver();
+            wfsUriResolver.setGmlNamespace(Wfs20Constants.GML_3_2_NAMESPACE);
+            wfsUriResolver.setWfsNamespace(Wfs20Constants.WFS_2_0_NAMESPACE);
+            schemaCollection.setSchemaResolver(wfsUriResolver);
             xmlSchema = schemaCollection.read(new StreamSource(new ByteArrayInputStream(schema
                     .getBytes())));
         }
@@ -111,7 +115,7 @@ public class TestWfsSource {
     public void testParseCapabilities() throws WfsException {
         WfsSource source = getWfsSource(ONE_TEXT_PROPERTY_SCHEMA,
                 MockWfsServer.getFilterCapabilities(),
-                WfsConstants.EPSG_4326_URN, 1);
+                Wfs20Constants.EPSG_4326_URN, 1);
 
         assertTrue(source.isAvailable());
         assertThat(source.featureTypeFilters.size(), is(1));
@@ -123,7 +127,7 @@ public class TestWfsSource {
     @Test
     public void testParseCapabilitiesNoFeatures() throws WfsException {
         WfsSource source = getWfsSource("", MockWfsServer.getFilterCapabilities(),
-                WfsConstants.EPSG_4326_URN, 0);
+                Wfs20Constants.EPSG_4326_URN, 0);
 
         assertTrue(source.isAvailable());
         assertThat(source.featureTypeFilters.size(), is(0));
@@ -131,7 +135,7 @@ public class TestWfsSource {
 
     @Test
     public void testParseCapabilitiesNoFilterCapabilities() throws WfsException {
-        WfsSource source = getWfsSource(ONE_TEXT_PROPERTY_SCHEMA, null, WfsConstants.EPSG_4326_URN,
+        WfsSource source = getWfsSource(ONE_TEXT_PROPERTY_SCHEMA, null, Wfs20Constants.EPSG_4326_URN,
                 1);
 
         assertTrue(source.isAvailable());
