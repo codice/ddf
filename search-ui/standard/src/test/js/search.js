@@ -8,22 +8,16 @@ casper.test.begin('simple contextual query', 3, function(test) {
 
     casper.waitFor(function() {
         return this.evaluate(function() {
+            var Backbone = require('backbone');
+            Backbone.generateGuid = function(model) {
+                return 'e863f023-3b6f-4575-badf-a1f114e7b378';
+            };
             return document.querySelectorAll('form').length === 1;
         });
     }, function() {
         test.pass('Found query form');
     }, function() {
         test.fail('Failed finding query form');
-    });
-
-    casper.waitFor(function() {
-        return this.evaluate(function() {
-            var Backbone = require('backbone');
-            Backbone.generateGuid = function(model) {
-                return 'e863f023-3b6f-4575-badf-a1f114e7b378';
-            };
-            return true;
-        });
     });
 
     casper.then(function () {

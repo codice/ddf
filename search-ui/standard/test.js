@@ -32,8 +32,6 @@ app.all('/services/store/config', server.mockConfigStore);
 app.all('/services/user', server.mockUser);
 app.all('/cometd/connect', server.mockConnect);
 app.all('/cometd/handshake', server.mockHandshake);
-app.all('/services/*', server.requestProxy);
-app.all('/cometd/*', server.requestProxy);
 
 
 exports = module.exports = app;
