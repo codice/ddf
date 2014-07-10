@@ -41,7 +41,8 @@ public class CassandraUpdateRequestProcessor extends UpdateRequestProcessor {
     
     // The minimum schema/columns that every Cassandra table has
     private static final String CASSANDRA_BASE_TABLE_SCHEMA = 
-            "id_txt uuid PRIMARY KEY, createddate_tdt timestamp";
+            "id_txt text PRIMARY KEY, createddate_tdt timestamp";
+            //"id_txt uuid PRIMARY KEY, createddate_tdt timestamp";
     
     private String storeName;
     private CassandraClient cassandraClient;
@@ -79,6 +80,7 @@ public class CassandraUpdateRequestProcessor extends UpdateRequestProcessor {
     @Override
     public void processDelete(DeleteUpdateCommand cmd) throws IOException {
         LOGGER.trace("ENTERING: processDelete()");
+        String id = cmd.getId();
         super.processDelete(cmd);
     }
     
@@ -104,7 +106,8 @@ public class CassandraUpdateRequestProcessor extends UpdateRequestProcessor {
             boolean validColumn = false;
             if (fieldName.equals("id_txt")) {
                 String value = (String) fieldValue.getValue();
-                preparedValues.add(CassandraClient.normalizeUuid(value));  // do not quote UUID value
+                // No longer necessary since changed id_txt to a text type
+                //preparedValues.add(CassandraClient.normalizeUuid(value));  // do not quote UUID value
                 valuesClause += "?";
                 validColumn = true;
             } else if (fieldName.endsWith("_txt_set")) {
@@ -199,7 +202,8 @@ public class CassandraUpdateRequestProcessor extends UpdateRequestProcessor {
             boolean validColumn = false;
             if (fieldName.equals("id_txt")) {
                 String value = (String) fieldValue.getValue();
-                valuesClause += CassandraClient.normalizeUuid(value);  // do not quote UUID value
+                // No longer necessary since changed id_txt to a text type
+                //valuesClause += CassandraClient.normalizeUuid(value);  // do not quote UUID value
                 validColumn = true;
             } else if (fieldName.endsWith("_txt_set")) {
                 Collection<Object> values = fieldValue.getValues();
