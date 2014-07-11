@@ -77,8 +77,6 @@ public class DownloadsStatusEventListenerTest {
                 new LocalResourceRetriever(testResourceReaderList,
                         testMetacard.getResourceURI(), tmpMap));
 
-        testGetDownloadStatusHelper(idToBytes,
-                DownloadManagerState.DownloadState.IN_PROGRESS.name(), downloadFile.getName());
         TimeUnit.SECONDS.sleep(2);
         testGetDownloadStatusHelper(idToBytes, DownloadManagerState.DownloadState.COMPLETED.name(),
                 downloadFile.getName());
