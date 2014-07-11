@@ -168,13 +168,17 @@ public class NotificationController extends AbstractEventController {
             String id = (String) notification.get("id");
             String action = (String) notification.get("action");
 
-            if ("remove".equals(action)) {
-                if(StringUtils.isNotBlank(id)) {
-                    this.notificationStore.removeNotification(id, userId);
-                } else {
-                    throw new IllegalArgumentException("Message id is missing.");
-                }
-            }
+            if (action != null) {
+				if ("remove".equals(action)) {
+					if(StringUtils.isNotBlank(id)) {
+						this.notificationStore.removeNotification(id, userId);
+					} else {
+						throw new IllegalArgumentException("Message id is missing.");
+					}
+				}
+			} else {
+				throw new IllegalArgumentException("Message action is null.");
+			}
         }
     }
 }
