@@ -40,7 +40,7 @@ public class IntegrationTest {
         InputTransformer inputTransformer = new XmlInputTransformer();
         MetacardTransformer outputTransformer = new XmlMetacardTransformer();
 
-        InputStream input = getClass().getResourceAsStream("/ddms.xml");
+        InputStream input = getClass().getResourceAsStream("/extensibleMetacard.xml");
         Metacard metacard = inputTransformer.transform(input);
 
         LOGGER.info("Attributes: ");

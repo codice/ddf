@@ -16,12 +16,12 @@ package ddf.catalog.resource.download;
 
 /**
  * State for the entire download of a single product. This state is used to keep
- * the @ReliableResourceInputStream informed of the overall state of the 
- * @ReliableResourceDownloadManager as the download progresses.
+ * the @ReliableResourceInputStream informed of the overall state of the
  *
+ * @ReliableResourceDownloadManager as the download progresses.
  */
 public class DownloadManagerState {
-    
+
     public enum DownloadState {
         NOT_STARTED,
         IN_PROGRESS,
@@ -29,16 +29,17 @@ public class DownloadManagerState {
         CANCELED,
         FAILED
     };
-    
+
     private DownloadState state;
+
     private boolean cacheEnabled;
+
     private boolean continueCaching;
-    
-    
+
     public void setDownloadState(DownloadState state) {
         this.state = state;
     }
-    
+
     public DownloadState getDownloadState() {
         return state;
     }
@@ -58,5 +59,4 @@ public class DownloadManagerState {
     public void setContinueCaching(boolean continueCaching) {
         this.continueCaching = continueCaching;
     }
-
 }

@@ -105,7 +105,7 @@
       <xs:element name="summary" type="atom:textType" minOccurs="0" maxOccurs="1" />
       <xs:element name="title" type="atom:textType" minOccurs="1" maxOccurs="1" />
       <xs:element name="updated" type="atom:dateTimeType" minOccurs="1" maxOccurs="1" />
-            <!-- Marked as lax to prevent necessary validation of ddms (ddms should be validated before this point) -->
+            <!-- Marked as lax to prevent necessary validation of xml (xml should be validated before this point) -->
       <xs:any namespace="##other" minOccurs="0" maxOccurs="unbounded" processContents="lax" />
     </xs:choice>
     <xs:attributeGroup ref="atom:commonAttributes" />

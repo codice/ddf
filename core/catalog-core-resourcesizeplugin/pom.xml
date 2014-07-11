@@ -87,7 +87,8 @@
                             ddf.catalog.event.retrievestatus,
                             ddf.catalog.operation.impl,
                             ddf.catalog.resourceretriever,
-                            ddf.catalog.util.impl
+                            ddf.catalog.util.impl,
+                            ddf.catalog.resource.download
                         </Private-Package>
                         <Export-Package />
                     </instructions>

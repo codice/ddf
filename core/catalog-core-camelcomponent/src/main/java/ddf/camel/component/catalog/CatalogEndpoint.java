@@ -61,7 +61,7 @@ public class CatalogEndpoint extends DefaultEndpoint {
      * @param component
      *            the route node catalog component
      * @param transformerId
-     *            the {@link ddf.catalog.transform.InputTransformer} ID, id=ddms20
+     *            the {@link ddf.catalog.transform.InputTransformer} ID, id=xml
      * @param mimeType
      *            the registered service mime-type
      * @param contextPath
@@ -115,7 +115,7 @@ public class CatalogEndpoint extends DefaultEndpoint {
         // path.
         // The context path is the portion of the route node's URI after the
         // "catalog" scheme,
-        // e.g., <from uri="catalog:inputtransformer?mimeType=text/xml&amp;=id=ddms20" />
+        // e.g., <from uri="catalog:inputtransformer?mimeType=text/xml&amp;=id=xml" />
         if (contextPath.equals(INPUT_TRANSFORMER)) {
             producer = new InputTransformerProducer(this);
         } else if (contextPath.equals(QUERYRESPONSE_TRANSFORMER)) {
@@ -146,7 +146,7 @@ public class CatalogEndpoint extends DefaultEndpoint {
         // path.
         // The context path is the portion of the route node's URI after the
         // "catalog" scheme,
-        // e.g., <from uri="catalog:inputtransformer?mimeType=text/xml&amp;id=ddms20" />
+        // e.g., <from uri="catalog:inputtransformer?mimeType=text/xml&amp;id=xml" />
         if (contextPath.equals(INPUT_TRANSFORMER)) {
             consumer = new InputTransformerConsumer(this, processor);
         } else if (contextPath.equals(QUERYRESPONSE_TRANSFORMER)) {

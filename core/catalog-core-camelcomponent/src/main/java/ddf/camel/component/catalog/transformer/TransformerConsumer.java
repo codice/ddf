@@ -91,7 +91,7 @@ public class TransformerConsumer extends DefaultConsumer {
         }
 
         // Register this Catalog Consumer as an QueryResponseTransformer in the OSGi registry.
-        // The transformer ID (e.g., id=text/xml;id=ddms) specified in the Camel route node
+        // The transformer ID (e.g., id=text/xml;id=xml) specified in the Camel route node
         // is used as the "id" key for this QueryResponseTransformer in the OSGi registry.
         // (This is how the CatalogContentPlugin will be able to look up this transformer by
         // mimetype)

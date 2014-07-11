@@ -28,5 +28,6 @@
   <modules>
     <module>plugin</module>
     <module>module</module>
+      <module>catalog-admin-downloadmanager</module>
   </modules>
 </project>

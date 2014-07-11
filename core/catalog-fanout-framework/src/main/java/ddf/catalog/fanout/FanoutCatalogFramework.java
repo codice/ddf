@@ -621,7 +621,7 @@ public class FanoutCatalogFramework extends CatalogFrameworkImpl {
                     ReliableResourceDownloadManager downloadManager = new ReliableResourceDownloadManager(
                             maxRetryAttempts, delayBetweenAttempts, monitorPeriod,
                             cacheEnabled, productCache, cacheWhenCanceled,
-                            retrieveStatusEventPublisher, retrieveStatusEventListener);
+                            retrieveStatusEventPublisher, retrieveStatusEventListener, downloadStatusInfo);
                     try {
                         resourceResponse = downloadManager.download(resourceRequest, metacard, retriever);
                     } catch (DownloadException e) {
@@ -640,7 +640,7 @@ public class FanoutCatalogFramework extends CatalogFrameworkImpl {
                 for (ConnectedSource currSource : connectedSources) {
                     ResourceRetriever retriever = new RemoteResourceRetriever(currSource, resourceUri, requestProperties);
                     ReliableResourceDownloadManager downloadManager = new ReliableResourceDownloadManager(maxRetryAttempts,
-                            delayBetweenAttempts, monitorPeriod, cacheEnabled, productCache, cacheWhenCanceled, retrieveStatusEventPublisher, retrieveStatusEventListener);
+                            delayBetweenAttempts, monitorPeriod, cacheEnabled, productCache, cacheWhenCanceled, retrieveStatusEventPublisher, retrieveStatusEventListener, downloadStatusInfo);
                     try {
                         resourceResponse = downloadManager.download(resourceRequest, metacard, retriever);
                     } catch (DownloadException e) {

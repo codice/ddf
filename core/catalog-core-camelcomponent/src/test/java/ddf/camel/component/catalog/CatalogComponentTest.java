@@ -63,71 +63,58 @@ public class CatalogComponentTest extends CamelTestSupport {
 
     private CatalogComponent catalogComponent;
 
-    private final String ddmsInput = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n"
-            + "<ddms:Resource xmlns:ddms=\"http://metadata.dod.mil/mdr/ns/DDMS/2.0/\" xmlns:ICISM=\"urn:us:gov:ic:ism:v2\" xmlns:gml=\"http://www.opengis.net/gml\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n"
-            + "  <ddms:identifier ddms:qualifier=\"http://metadata.dod.mil/mdr/ns/MDR/0.1/MDR.owl#URI\" ddms:value=\"http://www.defenselink.mil/news/May2004/n05172004_200405174.html\"/>\n"
-            + "  <ddms:title ICISM:classification=\"U\" ICISM:ownerProducer=\"AUS GBR USA\">Serengeti Event</ddms:title>\n"
-            + "  <ddms:description ICISM:classification=\"U\" ICISM:ownerProducer=\"AUS GBR USA\">Serengeti information</ddms:description>\n"
-            + "  <ddms:language ddms:qualifier=\"http://metadata.dod.mil/mdr/ns/ExtStd/iso_639-2b.owl#en\" ddms:value=\"en\"/>\n"
-            + "  <ddms:dates ddms:posted=\"2004-08-16\"/>\n"
-            + "  <ddms:rights ddms:copyright=\"true\" ddms:privacyAct=\"false\" ddms:intellectualProperty=\"true\"/>\n"
-            + "  <ddms:creator ICISM:classification=\"U\" ICISM:ownerProducer=\"AUS GBR USA\">\n"
-            + "    <ddms:Person>\n"
-            + "      <ddms:name>Donna Miles</ddms:name>\n"
-            + "      <ddms:surname>Miles</ddms:surname>\n"
-            + "      <ddms:affiliation>American Forces Press Service</ddms:affiliation>\n"
-            + "    </ddms:Person>\n"
-            + "  </ddms:creator>\n"
-            + "  <ddms:publisher ICISM:classification=\"U\" ICISM:ownerProducer=\"AUS GBR USA\">\n"
-            + "    <ddms:Organization>\n"
-            + "      <ddms:name>American Forces Press Service</ddms:name>\n"
-            + "    </ddms:Organization>\n"
-            + "  </ddms:publisher>\n"
-            + "  <ddms:format>\n"
-            + "    <ddms:Media>\n"
-            + "      <ddms:mimeType>text/pdf</ddms:mimeType>\n"
-            + "      <ddms:extent ddms:qualifier=\"http://metadata.dod.mil/mdr/ns/UnitOfMeasure/0.1/ComputerStorage.owl#byte\" ddms:value=\"299000\"/>\n"
-            + "      <ddms:medium>digital</ddms:medium>\n"
-            + "    </ddms:Media>\n"
-            + "  </ddms:format>\n"
-            + "  <ddms:subjectCoverage>\n"
-            + "    <ddms:Subject>\n"
-            + "      <ddms:category ddms:qualifier=\"http://metadata.dod.mil/mdr/ns/TaxFG/0.75c/Core_Tax_0.75c.owl#Terrorist_event \" ddms:code=\"Terrorism_Event\" ddms:label=\"Terrorism Event\"/>\n"
-            + "      <ddms:category ddms:qualifier=\"http://metadata.dod.mil/mdr/ns/DomainSets/1.0/GOP_biofeature_agent_type.owl#_21\" ddms:code=\"_21\" ddms:label=\"NERVE SARIN\"/>\n"
-            + "      <ddms:category ddms:qualifier=\"http://metadata.dod.mil/mdr/ns/DomainSets/1.0/GMI_TargetSystemType.owl#WMD\" ddms:code=\"WMD\" ddms:label=\"Weapons of Mass Destruction\"/>\n"
-            + "      <ddms:keyword ddms:value=\"exercise\"/>\n"
-            + "      <ddms:category ddms:qualifier=\"SubjectCoverageQualifier\" ddms:code=\"nitf\" ddms:label=\"nitf\"/>\n"
-            + "    </ddms:Subject>\n"
-            + "  </ddms:subjectCoverage>\n"
-            + "  <ddms:temporalCoverage>\n"
-            + "    <ddms:TimePeriod>\n"
-            + "      <ddms:start>2004-05-17</ddms:start>\n"
-            + "      <ddms:end>2004-05-17</ddms:end>\n"
-            + "    </ddms:TimePeriod>\n"
-            + "  </ddms:temporalCoverage>\n"
-            + "  <ddms:geospatialCoverage>\n"
-            + "    <ddms:GeospatialExtent>\n"
-            + "      <ddms:geographicIdentifier>\n"
-            + "        <ddms:name>Serengeti</ddms:name>\n"
-            + "        <ddms:countryCode ddms:qualifier=\"http://metadata.dod.mil/mdr/ns/ExtStd/1.0/FIPS10-4-2.owl#IZ\"/>\n"
-            + "      </ddms:geographicIdentifier>\n"
-            + "      <ddms:boundingGeometry>\n"
-            + "        <gml:Polygon gml:id=\"BGE-1\" srsName=\"http://metadata.dod.mil/mdr/ns/GSIP/crs/WGS84E_2D\">\n"
-            + "          <gml:exterior>\n"
-            + "            <gml:LinearRing>\n"
-            + "              <gml:pos>11.0 22.0</gml:pos>\n"
-            + "              <gml:pos>10.0 22.0</gml:pos>\n"
-            + "              <gml:pos>10.0 23.0</gml:pos>\n"
-            + "              <gml:pos>11.0 23.0</gml:pos>\n"
-            + "              <gml:pos>11.0 22.0</gml:pos>\n"
-            + "            </gml:LinearRing>\n"
-            + "          </gml:exterior>\n"
-            + "        </gml:Polygon>\n"
-            + "      </ddms:boundingGeometry>\n"
-            + "    </ddms:GeospatialExtent>\n"
-            + "  </ddms:geospatialCoverage>\n"
-            + "  <ddms:security ICISM:classification=\"U\" ICISM:ownerProducer=\"USA\"/>\n"
-            + "</ddms:Resource>";
+    private final String xmlInput = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n" +
+        "<ns3:metacard xmlns:ns1=\"http://www.opengis.net/gml\" xmlns:ns2=\"http://www.w3.org/1999/xlink\" xmlns:ns3=\"urn:catalog:metacard\" xmlns:ns4=\"http://www.w3.org/2001/SMIL20/\" xmlns:ns6=\"http://www.w3.org/2001/SMIL20/Language\" ns1:id=\"1234567890987654321\">\n"+
+        "<ns3:type>ddf.metacard</ns3:type>\n"+
+        "<ns3:source>foobar</ns3:source>\n"+
+        "<ns3:string name=\"title\">\n"+
+            "<ns3:value>Title!</ns3:value>\n"+
+        "</ns3:string>\n"+
+        "<ns3:dateTime name=\"modified\"/>\n"+
+        "<ns3:string name=\"metadata-content-type-version\"/>\n"+
+        "<ns3:base64Binary name=\"thumbnail\">\n"+
+            "<ns3:value>AAABAAABAQEAAQAAAQEBAAEAAAEBAQABAAABAQEAAQAAAQEBAAEAAAEBAQABAAABAQE=</ns3:value>\n"+
+        "</ns3:base64Binary>\n"+
+        "<ns3:dateTime name=\"expiration\">\n"+
+            "<ns3:value>2012-12-27T16:31:01.641-07:00</ns3:value>\n"+
+        "</ns3:dateTime>\n"+
+        "<ns3:string name=\"metadata-target-namespace\"/>\n"+
+        "<ns3:dateTime name=\"created\"/>\n"+
+        "<ns3:stringxml name=\"metadata\">\n"+
+            "<ns3:value>\n"+
+                "<foo xmlns=\"http://foo.com\">\n"+
+                    "<bar/>\n"+
+                "</foo>\n"+
+            "</ns3:value>\n"+
+        "</ns3:stringxml>\n"+
+        "<ns3:string name=\"resource-size\"/>\n"+
+        "<ns3:string name=\"metadata-content-type\"/>\n"+
+        "<ns3:geometry name=\"location\">\n"+
+            "<ns3:value>\n"+
+                "<ns1:Polygon>\n"+
+                    "<ns1:exterior>\n"+
+                        "<ns1:LinearRing>\n"+
+                            "<ns1:pos>35.0 10.0</ns1:pos>\n"+
+                            "<ns1:pos>10.0 20.0</ns1:pos>\n"+
+                            "<ns1:pos>15.0 40.0</ns1:pos>\n"+
+                            "<ns1:pos>45.0 45.0</ns1:pos>\n"+
+                            "<ns1:pos>35.0 10.0</ns1:pos>\n"+
+                        "</ns1:LinearRing>\n"+
+                    "</ns1:exterior>\n"+
+                    "<ns1:interior>\n"+
+                        "<ns1:LinearRing>\n"+
+                            "<ns1:pos>20.0 30.0</ns1:pos>\n"+
+                            "<ns1:pos>35.0 35.0</ns1:pos>\n"+
+                            "<ns1:pos>30.0 20.0</ns1:pos>\n"+
+                            "<ns1:pos>20.0 30.0</ns1:pos>\n"+
+                        "</ns1:LinearRing>\n"+
+                    "</ns1:interior>\n"+
+                "</ns1:Polygon>\n"+
+            "</ns3:value>\n"+
+        "</ns3:geometry>\n"+
+        "<ns3:string name=\"resource-uri\"/>\n"+
+        "<ns3:dateTime name=\"effective\"/>\n"+
+    "</ns3:metacard>";
 
     // The route being tested
     @Override
@@ -144,7 +131,7 @@ public class CatalogComponentTest extends CamelTestSupport {
                         "catalog:inputtransformer?" + CatalogComponent.MIME_TYPE_PARAMETER
                                 + "=text/xml&id=identity").to(
                         "catalog:inputtransformer?" + CatalogComponent.MIME_TYPE_PARAMETER
-                                + "=text/xml&id=ddms20").to("mock:result");
+                                + "=text/xml&id=xml").to("mock:result");
 
             }
         };
@@ -240,23 +227,23 @@ public class CatalogComponentTest extends CamelTestSupport {
 
         catalogComponent.setMimeTypeToTransformerMapper(null);
 
-        // Mock a DDMS InputTransformer and register it in the OSGi Registry
+        // Mock a XML InputTransformer and register it in the OSGi Registry
         // (PojoSR)
         InputTransformer mockTransformer = getMockInputTransformer();
         Hashtable<String, String> props = new Hashtable<String, String>();
-        props.put(MimeTypeToTransformerMapper.ID_KEY, "ddms20");
+        props.put(MimeTypeToTransformerMapper.ID_KEY, "xml");
         props.put(MimeTypeToTransformerMapper.MIME_TYPE_KEY, "text/xml");
         bundleContext.registerService(InputTransformer.class.getName(), mockTransformer, props);
 
-        // Send in sample DDMS as InputStream to InputTransformer
-        InputStream input = IOUtils.toInputStream(ddmsInput);
+        // Send in sample XML as InputStream to InputTransformer
+        InputStream input = IOUtils.toInputStream(xmlInput);
 
         // Get the InputTransformer registered with the ID associated with the
         // <from> node in the Camel route
         InputTransformer transformer = getTransformer("text/xml", "identity");
         assertNotNull("InputTransformer for text/xml;id=identity not found", transformer);
 
-        // Attempt to transform the DDMS XML input into a Metacard
+        // Attempt to transform the XML input into a Metacard
         try {
             transformer.transform(input);
             fail("Should have thrown a CatalogTransformerException");
@@ -282,21 +269,21 @@ public class CatalogComponentTest extends CamelTestSupport {
         when(matchingService.findMatches(eq(InputTransformer.class), isA(MimeType.class)))
                 .thenReturn(list);
 
-        // Send in sample DDMS as InputStream to InputTransformer
-        InputStream input = IOUtils.toInputStream(ddmsInput);
+        // Send in sample XML as InputStream to InputTransformer
+        InputStream input = IOUtils.toInputStream(xmlInput);
 
         // Get the InputTransformer registered with the ID associated with the
         // <from> node in the Camel route
         InputTransformer transformer = getTransformer("text/xml", "identity");
         assertNotNull("InputTransformer for text/xml;id=identity not found", transformer);
 
-        // Attempt to transform the DDMS XML input into a Metacard
+        // Attempt to transform the XML input into a Metacard
         try {
             transformer.transform(input);
             fail("Should have thrown a CatalogTransformerException");
         } catch (CatalogTransformerException e) {
             assertEquals(
-                    "Did not find an InputTransformer for MIME Type [text/xml] and id [ddms20]",
+                    "Did not find an InputTransformer for MIME Type [text/xml] and id [xml]",
                     e.getMessage());
         }
     }
@@ -307,11 +294,11 @@ public class CatalogComponentTest extends CamelTestSupport {
         MockEndpoint mock = getMockEndpoint("mock:result");
         mock.expectedMinimumMessageCount(1);
 
-        // Mock a DDMS InputTransformer and register it in the OSGi Registry
+        // Mock a XML InputTransformer and register it in the OSGi Registry
         // (PojoSR)
         InputTransformer mockTransformer = getMockInputTransformer();
         Hashtable<String, String> props = new Hashtable<String, String>();
-        props.put(MimeTypeToTransformerMapper.ID_KEY, "ddms20");
+        props.put(MimeTypeToTransformerMapper.ID_KEY, "xml");
         props.put(MimeTypeToTransformerMapper.MIME_TYPE_KEY, "text/xml");
         bundleContext.registerService(InputTransformer.class.getName(), mockTransformer, props);
 
@@ -322,20 +309,20 @@ public class CatalogComponentTest extends CamelTestSupport {
         // MimeTypeToTransformerMapper.class.getName(), matchingService, null );
         catalogComponent.setMimeTypeToTransformerMapper(matchingService);
 
-        // Mock the MimeTypeToTransformerMapper returning the mock DDMS
+        // Mock the MimeTypeToTransformerMapper returning the mock XML
         // InputTransformer
         when(matchingService.findMatches(eq(InputTransformer.class), isA(MimeType.class)))
                 .thenReturn((List) Arrays.asList(mockTransformer));
 
-        // Send in sample DDMS as InputStream to InputTransformer
-        InputStream input = IOUtils.toInputStream(ddmsInput);
+        // Send in sample XML as InputStream to InputTransformer
+        InputStream input = IOUtils.toInputStream(xmlInput);
 
         // Get the InputTransformer registered with the ID associated with the
         // <from> node in the Camel route
         InputTransformer transformer = getTransformer("text/xml", "identity");
         assertNotNull("InputTransformer for mimeType=text/xml&id=identity not found", transformer);
 
-        // Transform the DDMS XML input into a Metacard
+        // Transform the XML input into a Metacard
         Metacard metacard = transformer.transform(input);
         assertNotNull(metacard);
 
