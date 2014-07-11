@@ -16,7 +16,6 @@ package org.codice.ddf.ui.searchui.query.controller;
 
 
 import java.util.Map;
-
 import net.minidev.json.JSONObject;
 import org.apache.commons.lang.StringUtils;
 import org.apache.shiro.SecurityUtils;
