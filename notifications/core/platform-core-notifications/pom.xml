@@ -12,24 +12,25 @@
  *
  **/
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  <parent>
-    <groupId>ddf.notifications.core</groupId>
-    <artifactId>notifications-core-pom</artifactId>
-    <version>2.5.0-SNAPSHOT</version>
-  </parent>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>ddf.notifications.core</groupId>
+        <artifactId>notifications-core-pom</artifactId>
+        <version>2.5.0-SNAPSHOT</version>
+    </parent>
 
-  <artifactId>platform-core-notifications</artifactId>
-  <name>DDF :: Platform :: Core :: Notifications</name>
-  <packaging>bundle</packaging> 
+    <artifactId>platform-core-notifications</artifactId>
+    <name>DDF :: Platform :: Core :: Notifications</name>
+    <packaging>bundle</packaging>
 
     <dependencies>
         <dependency>
-	         <groupId>ddf.persistence.core</groupId>
-	         <artifactId>persistence-core-api</artifactId>
-	         <version>${project.version}</version>
-	    </dependency>
+            <groupId>ddf.persistence.core</groupId>
+            <artifactId>persistence-core-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <dependency>
             <groupId>ddf.cache.core</groupId>
             <artifactId>cache-core-api</artifactId>
@@ -40,12 +41,7 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>ddf.catalog.core</groupId>
-            <artifactId>catalog-core-standardframework</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-        <groupId>commons-lang</groupId>
+            <groupId>commons-lang</groupId>
             <artifactId>commons-lang</artifactId>
         </dependency>
         <dependency>
@@ -55,7 +51,7 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-ext</artifactId>
-        </dependency>       
+        </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-simple</artifactId>
@@ -72,10 +68,10 @@
         <dependency>
             <groupId>com.hazelcast</groupId>
             <artifactId>hazelcast</artifactId>
-            <version>3.2.1</version>        
+            <version>3.2.1</version>
         </dependency>
     </dependencies>
-    
+
     <build>
         <plugins>
             <plugin>
@@ -88,7 +84,7 @@
                             hazelcast
                         </Embed-Dependency>
                         <Embed-Transitive>true</Embed-Transitive>
-                        <Export-Package />
+                        <Export-Package/>
                     </instructions>
                 </configuration>
             </plugin>
