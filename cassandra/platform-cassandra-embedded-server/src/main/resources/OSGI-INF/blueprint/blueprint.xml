@@ -17,19 +17,14 @@
 
     <bean id="cassandraConfig" class="org.codice.ddf.cassandra.embedded.CassandraConfig">
         <argument value="DDF Cluster" />
-        <argument value="conf/cassandra.yaml" />
         <argument value="9160" />   <!-- RPC port -->
         <argument value="9042" />   <!-- CQL port -->
         <argument value="7000" />   <!-- storage port -->
         <argument value="7001" />   <!-- SSL storage port -->
-        <argument value="/data" />
-        <argument value="/commitlog" />
-        <argument value="/saved_caches" />
     </bean>
     
     <bean id="casssandraServer" class="org.codice.ddf.cassandra.embedded.CassandraEmbeddedServer"
         destroy-method="shutdown">
-        <argument value="ddf" />
         <argument ref="cassandraConfig" />
     </bean>
     

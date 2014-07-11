@@ -38,34 +38,15 @@ public class CassandraConfig {
     
     private Config config = new Config();
     
-    
     @SuppressWarnings("unchecked")
-    public CassandraConfig(String clusterName, String configYamlFilename, int rpcPort, int cqlPort,
-            int storagePort, int sslStoragePort, String dataFolder, String commitLogFolder,
-            String savedCachesFolder) {
+    public CassandraConfig(String clusterName, int rpcPort, int cqlPort,
+            int storagePort, int sslStoragePort) {
         config.cluster_name = clusterName;
-
-        Yaml yaml = new Yaml();
-        File configYamlFile = new File(configYamlFilename);
-        if (configYamlFile.exists()) {
-            Map<String, Object> yamlData = null;
-            try {
-                String yamlDoc = FileUtils.readFileToString(new File(configYamlFilename));
-                yamlData = (Map<String, Object>) yaml.load(yamlDoc);
-            } catch (IOException e) {
-                LOGGER.info("Unable to read config data from YAML file {}", configYamlFilename);
-            }
-        } else {
-            LOGGER.info("Cassandra YAML config file {} does not exist - will use default config values.", configYamlFilename);
-        }
         
         config.rpc_port = rpcPort;
         config.native_transport_port = cqlPort;
         config.storage_port = storagePort;
         config.ssl_storage_port = sslStoragePort;
-        config.data_file_directories = new String[] {dataFolder};
-        config.commitlog_directory = commitLogFolder;
-        config.saved_caches_directory = savedCachesFolder;
 
         config.hinted_handoff_enabled = "false";
         config.max_hint_window_in_ms = 10800000; // 3 hours
@@ -130,13 +111,15 @@ public class CassandraConfig {
         LOGGER.debug(" Temporary cassandra.yaml file = {}", configFile.getAbsolutePath());
         try {
             configFile.getParentFile().mkdirs();
-            if (configFile.exists())
+            if (configFile.exists()) {
                 configFile.delete();
+            }
 
             configFile.createNewFile();
         } catch (IOException e1) {
             throw new IllegalStateException("Cannot create config file", e1);
         }
+
         PrintWriter printWriter = null;
         try {
             printWriter = new PrintWriter(configFile);
@@ -185,6 +168,17 @@ public class CassandraConfig {
     
     public String getClusterName() {
         return config.cluster_name;
-    }  
-    
+    }
+
+    public void setDataFolder(String dataFolder) {
+        config.data_file_directories = new String[] {dataFolder};
+    }
+
+    public void setCommitLogFolder(String commitLogFolder) {
+        config.commitlog_directory = commitLogFolder;
+    }
+
+    public void setSavedCachesFolder(String savedCachesFolder) {
+        config.saved_caches_directory = savedCachesFolder;
+    }
 }

@@ -79,12 +79,13 @@ public class CassandraEmbeddedServer {
     public Server nativeServer;
     
     
-    public CassandraEmbeddedServer(String keyspaceName, CassandraConfig config) {
+    public CassandraEmbeddedServer(CassandraConfig config) {
         LOGGER.debug("Embedded Cassandra Server starting up ...");
         
         cassandraDir = ddfHomeDir + "/data/cassandra";
         
         String commitDirName = cassandraDir + "/commitlog";
+        config.setCommitLogFolder(commitDirName);
         LOGGER.debug("Cassandra commitlog dir = {}", commitDirName);
         File dir = new File(commitDirName);
         if (!dir.exists()) {
@@ -93,6 +94,7 @@ public class CassandraEmbeddedServer {
         }
         
         String dataDirName = cassandraDir + "/data";
+        config.setDataFolder(dataDirName);
         LOGGER.debug("Cassandra data dir = {}", dataDirName);
         dir = new File(dataDirName);
         if (!dir.exists()) {
@@ -101,6 +103,7 @@ public class CassandraEmbeddedServer {
         }
         
         String savedCachesDirName = cassandraDir + "/saved_caches";
+        config.setSavedCachesFolder(savedCachesDirName);
         LOGGER.debug("Cassandra saved_caches dir = {}", savedCachesDirName);
         dir = new File(savedCachesDirName);
         if (!dir.exists()) {
@@ -111,9 +114,6 @@ public class CassandraEmbeddedServer {
         String configYamlFilename = cassandraDir + "/conf/cassandra.yaml";
         LOGGER.debug("Cassandra config YAML file = {}", configYamlFilename);
         File configYamlFile = new File(configYamlFilename);
-//        if (!configYamlFile.exists()) {
-//            LOGGER.error("Cassandra config YAML file {} does not exist", configYamlFilename);
-//        }
         
         final File triggersDir = new File(cassandraDir + "/cassandra_triggers");
         if (!triggersDir.exists()) {
