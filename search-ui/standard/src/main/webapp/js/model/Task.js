@@ -20,6 +20,9 @@ define([
     Task.Model = Backbone.Model.extend({
         url: '/service/action',
         useAjaxSync: false,
+        initialize : function(){
+            this.set("timestamp", parseInt(this.get("timestamp"), 10));
+        },
         validate : function(attrs) {
             if(!attrs.id)
                 return "Task must have id.";

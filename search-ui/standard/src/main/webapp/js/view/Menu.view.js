@@ -18,6 +18,7 @@ define([
     'js/model/user',
     'backbone',
     'text!templates/notification/notification.menu.handlebars',
+    'text!templates/notification/notification.category.handlebars',
     'wreqr',
     'underscore',
     'text!templates/menu/menubarLogin.handlebars',
@@ -30,13 +31,15 @@ define([
     'modelbinder',
     'perfectscrollbar',
     'backbonecometd'
-], function(Marionette, ich, menubarTemplate, menubarItemTemplate, User, Backbone, notificationMenuTemplate, wreqr, _, loginTemplate, logoutTemplate, taskTemplate, taskCategoryTemplate, helpTemplate, Cometd, $) {
+], function(Marionette, ich, menubarTemplate, menubarItemTemplate, User, Backbone, notificationMenuTemplate, notificationCategoryTemplate, wreqr, _, loginTemplate, logoutTemplate, taskTemplate, taskCategoryTemplate, helpTemplate, Cometd, $) {
 
     ich.addTemplate('menubarItemTemplate', menubarItemTemplate);
 
     ich.addTemplate('menubarTemplate', menubarTemplate);
 
     ich.addTemplate('notificationMenuTemplate', notificationMenuTemplate);
+
+    ich.addTemplate('notificationCategoryTemplate', notificationCategoryTemplate);
 
     ich.addTemplate('loginTemplate', loginTemplate);
 
@@ -64,6 +67,9 @@ define([
             'click' : 'clickBody',
             'click a': 'removeNotification'
         },
+        modelEvents: {
+            'change': 'render'
+        },
         onClose: function() {
             clearTimeout(this.timeout);
         },
@@ -81,7 +87,7 @@ define([
                     if(id === 'remove') {
                         this.model.collection.remove(this.model);
                         wreqr.vent.trigger('notification:delete', this.model);
-                        Cometd.Comet.publish(this.model.url, {id: this.model.get('id'), action: id});
+                        Cometd.Comet.publish(this.model.url, {data: [{id: this.model.get('id'), action: id}]});
                     }
                 } else {
                     if(id === 'cancelRemove') {
@@ -92,9 +98,6 @@ define([
                 }
             }
             e.stopPropagation();
-        },
-        initialize: function() {
-            this.listenTo(this.model, 'change', this.render);
         }
     });
 
@@ -132,19 +135,12 @@ define([
             }
             this.clickBody(e);
         },
-        onClose: function() {
-
-        },
         onRender: function() {
             if(parseInt(this.model.get('progress'), 10) <= 100) {
                 if(parseInt(this.model.get('progress'), 10) !== -1) {
                     this.$('.task-progressbar').progressbar({value: parseInt(this.model.get('progress'), 10)});
                 }
             }
-
-        },
-        openNotification: function() {
-            wreqr.vent.trigger('notification:open', this.model);
         }
     });
 
@@ -152,12 +148,73 @@ define([
         tagName: 'li',
         template: 'taskCategoryTemplate',
         events: {
+            'click #closeCategory': 'dismissAll',
+            'click #removeAll': 'removeAll',
+            'click #cancelRemove': 'cancelRemoveAll',
             'click': 'clickBody'
+        },
+          modelEvents: {
+            'change': 'render'
         },
         clickBody: function(e) {
             //stops the menu from closing
             e.stopPropagation();
+        },
+        removeAll: function(e) {
+            var tasksInCategory = [];
+            tasksInCategory = this.model.get('collection').where({category: this.model.get('category')});
+
+            this.model.get('collection').remove(tasksInCategory);
+            wreqr.vent.trigger('task:remove', this);
+
+            this.clickBody(e);
+        },
+        cancelRemoveAll: function() {
+            this.model.set({closeConfirm: false});
+        },
+        dismissAll: function() {
+            this.model.set({closeConfirm: true});
         }
+    });
+
+     Menu.NotificationCategory = Marionette.ItemView.extend({
+        tagName: 'li',
+        template: 'notificationCategoryTemplate',
+        events: {
+            'click #closeCategory': 'dismissAll',
+            'click #removeAll': 'removeAll',
+            'click #cancelRemove': 'cancelRemoveAll',
+            'click': 'clickBody'
+        },
+        modelEvents: {
+            'change': 'render'
+        },
+        clickBody: function(e) {
+            //stops the menu from closing
+            e.stopPropagation();
+        },
+        removeAll: function(e) {
+            var notificationsInCategory = [];
+            var notifications = [];
+            notificationsInCategory = this.model.get('collection').where({application: this.model.get('category')});
+
+            this.model.get('collection').remove(notificationsInCategory);
+            wreqr.vent.trigger('notification:delete', this.model);
+
+            for (var i=0; i<notificationsInCategory.length; ++i){
+                notifications.push({id: notificationsInCategory[i].get('id'), action: 'remove'});
+            }
+            Cometd.Comet.publish("/notification/action", {data: notifications});
+
+            this.clickBody(e);
+        },
+        cancelRemoveAll: function() {
+            this.model.set({closeConfirm: false});
+        },
+        dismissAll: function() {
+            this.model.set({closeConfirm: true});
+        }
+
     });
 
     Menu.NotificationEmpty = Marionette.ItemView.extend({
@@ -179,9 +236,10 @@ define([
         showCollection: function(){
             var ItemView;
             var category;
+            var view = this;
             this.collection.each(function(item, index){
                 if(category !== item.get('category')) {
-                    this.addItemView(new Backbone.Model({category: item.get('category')}), Menu.TaskCategory);
+                    this.addItemView(new Backbone.Model({category: item.get('category'), collection: view.collection}), Menu.TaskCategory);
                 }
                 category = item.get('category');
                 ItemView = this.getItemView(item);
@@ -193,7 +251,21 @@ define([
     Menu.NotificationList = Marionette.CollectionView.extend({
         className: 'dropdown-width',
         itemView: Menu.NotificationItem,
-        emptyView: Menu.NotificationEmpty
+        emptyView: Menu.NotificationEmpty,
+
+        showCollection: function(){
+            var ItemView;
+            var category;
+            var view = this;
+            this.collection.each(function(item, index){
+                if(category !== item.get('application')) {
+                    this.addItemView(new Backbone.Model({category: item.get('application'), collection: view.collection}), Menu.NotificationCategory);
+                }
+                category = item.get('application');
+                ItemView = this.getItemView(item);
+                this.addItemView(item, ItemView, index);
+            }, this);
+        }
     });
 
     Menu.Item = Marionette.Layout.extend({

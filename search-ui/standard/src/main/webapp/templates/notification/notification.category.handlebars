@@ -12,14 +12,14 @@
  **/
  --}}
 
-<div class="task-category">
+<div class="notification-category">
     {{category}}
         {{#is closeConfirm true}}
-             <div class="btn-group taskCategory-remove-area">
+             <div class="btn-group notificationCategory-remove-area">
                  <a href="#" class="btn btn-primary" id="removeAll">Remove All</a> <a href="#" class="btn" id="cancelRemove">Cancel</a>
              </div>
         {{else}}
-                <div class="taskCategory-close">
+                <div class="notificationCategory-close">
                     <a href="#" class="fa fa-trash-o" id="closeCategory"></a>
                 </div>
         {{/is}}

@@ -64,10 +64,10 @@ define([ 'backbone',
                 history: false,
                 after_close: function () {
                    if (notificationStack.length) {
-						notificationStack.shift().pnotify_display();
-					} else {
-						isNotificationOpen = false;
-					}
+                        notificationStack.shift().pnotify_display();
+                   } else {
+                        isNotificationOpen = false;
+                   }
                 },
                 stack: {"dir1": "up",
                         "dir2": "left",
@@ -96,9 +96,9 @@ define([ 'backbone',
             });
 
             if (isNotificationOpen === false) {
-                this.notification = notification;
-                this.notification.pnotify_display();
-                isNotificationOpen = true;
+                 this.notification = notification;
+                 this.notification.pnotify_display();
+                 isNotificationOpen = true;
             } else {
                 notificationStack.push(notification);
             }

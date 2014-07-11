@@ -695,6 +695,8 @@ span.add-on {
     color: #eee;
     display: table-cell;
     width: 100%;
+    padding-top: 10px;
+    padding-bottom: 10px;
 }
 
 .notification-time-menu {
@@ -733,6 +735,18 @@ span.add-on {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+}
+
+.notification-category {
+    position: relative;
+    width: 330px;
+    left: -15px;
+    font-size: 1.2em;
+    font-weight: 700;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    background: #242424;
+    text-align: center;
 }
 
 div.ui-pnotify-text br {
@@ -1081,7 +1095,7 @@ div.dropdown-width li:last-child hr {
 
 .task-title {
     display: table-cell;
-    width: 100%;
+    width: 60%;
     padding-top: 10px;
     padding-bottom: 10px;
 
@@ -1091,7 +1105,7 @@ div.dropdown-width li:last-child hr {
     text-overflow: ellipsis;
     overflow: hidden;
     display: block;
-    width: 200px;
+    width: 180px;
 }
 
 .task-message {
@@ -1174,6 +1188,18 @@ a.pause:hover, a.pause:focus {
     position: absolute;
 }
 
+.notificationCategory-close {
+    right: 13px;
+    top: 8px;
+    position: absolute;
+}
+
+.taskCategory-close {
+    right: 13px;
+    top: 8px;
+    position: absolute;
+}
+
 .download {
     display: table-cell;
     padding: 0px 3px;
@@ -1193,6 +1219,18 @@ a.pause:hover, a.pause:focus {
 .notification-remove-area {
     width: 100%;
     text-align: center;
+}
+
+.notificationCategory-remove-area {
+    width: 100%;
+    text-align: center;
+    background: #242424;
+}
+
+.taskCategory-remove-area {
+    width: 100%;
+    text-align: center;
+    background: #242424;
 }
 
 .ui-progressbar-overlay {

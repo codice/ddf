@@ -43,7 +43,13 @@ define(["backbone", "underscore", "jquery"], function (Backbone, _, $) {
     var addOptions = {add: true, remove: false};
     Notification.List = Backbone.Collection.extend({
         model: Notification.Notification,
-        comparator: 'timestamp',
+        comparator: function(a, b) {
+                    if(a.get('application') === b.get('application')) {
+                        return a.get('timestamp') - b.get('timestamp');
+                    } else {
+                        return a.get('application').localeCompare(b.get('application'));
+                    }
+                },
         policies: {
             latest: function (timeCutOff) {
                 var coll = this;
