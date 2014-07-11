@@ -3,6 +3,5 @@ install: mvn install --quiet -DskipTests=true -B
 script: mvn test --quiet -B
 jdk:
   - openjdk7
-  - openjdk6
   - oraclejdk7
   - oraclejdk8
