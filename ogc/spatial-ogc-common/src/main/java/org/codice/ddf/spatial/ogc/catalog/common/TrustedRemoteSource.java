@@ -15,21 +15,6 @@
 
 package org.codice.ddf.spatial.ogc.catalog.common;
 
-import org.apache.commons.io.IOUtils;
-import org.apache.cxf.configuration.jsse.TLSClientParameters;
-import org.apache.cxf.configuration.security.FiltersType;
-import org.apache.cxf.jaxrs.client.Client;
-import org.apache.cxf.jaxrs.client.ClientConfiguration;
-import org.apache.cxf.jaxrs.client.WebClient;
-import org.apache.cxf.transport.http.HTTPConduit;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.net.ssl.KeyManager;
-import javax.net.ssl.KeyManagerFactory;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.TrustManagerFactory;
-import javax.net.ssl.X509TrustManager;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -41,9 +26,33 @@ import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
+import java.util.List;
+
+import javax.net.ssl.KeyManager;
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.TrustManagerFactory;
+import javax.net.ssl.X509TrustManager;
+
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.cxf.common.util.CollectionUtils;
+import org.apache.cxf.configuration.jsse.TLSClientParameters;
+import org.apache.cxf.configuration.security.FiltersType;
+import org.apache.cxf.interceptor.Interceptor;
+import org.apache.cxf.interceptor.LoggingInInterceptor;
+import org.apache.cxf.interceptor.LoggingOutInterceptor;
+import org.apache.cxf.jaxrs.client.Client;
+import org.apache.cxf.jaxrs.client.ClientConfiguration;
+import org.apache.cxf.jaxrs.client.JAXRSClientFactoryBean;
+import org.apache.cxf.jaxrs.client.WebClient;
+import org.apache.cxf.message.Message;
+import org.apache.cxf.transport.http.HTTPConduit;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class TrustedRemoteSource {
-
+    
     protected static final String[] SSL_ALLOWED_ALGORITHMS =
             {
                     ".*_WITH_AES_.*"
@@ -56,38 +65,7 @@ public abstract class TrustedRemoteSource {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TrustedRemoteSource.class);
 
-    protected void disableSSLCertValidation(Client client) {
-        HTTPConduit conduit = WebClient.getConfig(client).getHttpConduit();
-        TLSClientParameters params = conduit.getTlsClientParameters();
 
-        if (params == null) {
-            params = new TLSClientParameters();
-            conduit.setTlsClientParameters(params);
-        }
-
-        params.setTrustManagers(new TrustManager[] {new X509TrustManager() {
-
-            @Override
-            public void checkClientTrusted(X509Certificate[] chain, String authType)
-                    throws CertificateException {
-
-            }
-
-            @Override
-            public void checkServerTrusted(X509Certificate[] chain, String authType)
-                    throws CertificateException {
-
-            }
-
-            @Override
-            public X509Certificate[] getAcceptedIssuers() {
-                return null;
-            }
-
-        }});
-        params.setDisableCNCheck(true);
-
-    }
 
     /**
      * Configures the client keystores.
@@ -176,5 +154,140 @@ public abstract class TrustedRemoteSource {
         } catch (UnrecoverableKeyException e) {
             LOGGER.error("Unable to read keystore: ", e);
         }
+    }
+    
+    /**
+     * Creates the JAX-RS client based the information provided.
+     * 
+     * @param clazz
+     *            - the interface this client implements
+     * @param url
+     *            - the URL of the server to connect to
+     * @param username
+     *            - username for basic auth (can be null or empty)
+     * @param password
+     *            - password for basic auth (can be null or empty)
+     * @param disableSslCertValidation
+     *            - flag to disable CN check when using HTTPS
+     * @param providers
+     *            - list of providers
+     * @param classLoader
+     *            - the classloader of the client. Ensures the interface is on the classpath.
+     * @return - the client
+     */
+    protected <T> T createClientBean(Class<T> clazz, String url, String username,
+            String password, boolean disableSslCertValidation, List<? extends Object> providers, ClassLoader classLoader) {
+        JAXRSClientFactoryBean clientFactoryBean = initClientBean(clazz, url, classLoader,
+                providers, username, password);
+
+        T client = clientFactoryBean.create(clazz);
+        if (disableSslCertValidation) {
+            disableSSLCertValidation(client);
+        }
+
+        return client;
+    }
+
+    /**
+     * Creates the JAX-RS client based the information provided.
+     * 
+     * @param clazz
+     *            - the interface this client implements
+     * @param url
+     *            - the URL of the server to connect to
+     * @param username
+     *            - username for basic auth (can be null or empty)
+     * @param password
+     *            - password for basic auth (can be null or empty)
+     * @param disableSslCertValidation
+     *            - flag to disable CN check when using HTTPS
+     * @param providers
+     *            - list of providers
+     * @param classLoader
+     *            - the classloader of the client. Ensures the interface is on the classpath.
+     * @param interceptor
+     *            - a custom InInterceptor
+     * @return - the client
+     */
+    protected <T> T createClientBean(Class<T> clazz, String url, String username,
+ String password,
+            boolean disableSslCertValidation, List<? extends Object> providers,
+            ClassLoader classLoader,
+            Interceptor<? extends Message> interceptor) {
+        JAXRSClientFactoryBean clientFactoryBean = initClientBean(clazz, url, classLoader,
+                providers, username, password);
+
+        if (interceptor != null) {
+            clientFactoryBean.getInInterceptors().add(interceptor);
+        }
+
+        T client = clientFactoryBean.create(clazz);
+        if (disableSslCertValidation) {
+            disableSSLCertValidation(client);
+        }
+
+        return client;
+    }
+
+    private JAXRSClientFactoryBean initClientBean(Class clazz, String url, ClassLoader classLoader,
+            List<? extends Object> providers, String username, String password) {
+        if (StringUtils.isEmpty(url)) {
+            final String errMsg = TrustedRemoteSource.class.getSimpleName()
+                    + " was called without a valid URL. "
+                    + TrustedRemoteSource.class.getSimpleName() + " will not be able to connect.";
+            LOGGER.error(errMsg);
+            throw new IllegalArgumentException(errMsg);
+        }
+
+        JAXRSClientFactoryBean clientFactoryBean = new JAXRSClientFactoryBean();
+        clientFactoryBean.setServiceClass(clazz);
+        clientFactoryBean.setAddress(url);
+        clientFactoryBean.setClassLoader(classLoader);
+        clientFactoryBean.getInInterceptors().add(new LoggingInInterceptor());
+        clientFactoryBean.getOutInterceptors().add(new LoggingOutInterceptor());
+
+        if (!CollectionUtils.isEmpty(providers)) {
+            clientFactoryBean.setProviders(providers);
+        }
+        if ((StringUtils.isNotEmpty(username)) && (StringUtils.isNotEmpty(password))) {
+            clientFactoryBean.setUsername(username);
+            clientFactoryBean.setPassword(password);
+        }
+        return clientFactoryBean;
+    }
+
+    private void disableSSLCertValidation(Object client) {
+        ClientConfiguration config = WebClient.getConfig(client);
+        HTTPConduit conduit = (HTTPConduit) config.getConduit();
+
+        TLSClientParameters params = conduit.getTlsClientParameters();
+
+        if (params == null) {
+            params = new TLSClientParameters();
+            conduit.setTlsClientParameters(params);
+        }
+
+        params.setTrustManagers(new TrustManager[] {new X509TrustManager() {
+
+            @Override
+            public void checkClientTrusted(X509Certificate[] chain, String authType)
+                throws CertificateException {
+
+            }
+
+            @Override
+            public void checkServerTrusted(X509Certificate[] chain, String authType)
+                throws CertificateException {
+
+            }
+
+            @Override
+            public X509Certificate[] getAcceptedIssuers() {
+                return null;
+            }
+
+        }});
+        params.setDisableCNCheck(true);
+
     }
 }

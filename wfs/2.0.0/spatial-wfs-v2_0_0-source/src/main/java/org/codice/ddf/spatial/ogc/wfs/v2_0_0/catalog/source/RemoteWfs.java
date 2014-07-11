@@ -16,6 +16,7 @@ package org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.source;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.ws.rs.Consumes;
@@ -33,12 +34,7 @@ import net.opengis.wfs.v_2_0_0.GetPropertyValueType;
 import net.opengis.wfs.v_2_0_0.ValueCollectionType;
 import net.opengis.wfs.v_2_0_0.WFSCapabilitiesType;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.cxf.interceptor.LoggingInInterceptor;
-import org.apache.cxf.interceptor.LoggingOutInterceptor;
 import org.apache.cxf.jaxrs.client.JAXRSClientFactory;
-import org.apache.cxf.jaxrs.client.JAXRSClientFactoryBean;
-import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.cxf.jaxrs.provider.JAXBElementProvider;
 import org.apache.ws.commons.schema.XmlSchema;
 import org.codice.ddf.spatial.ogc.catalog.common.TrustedRemoteSource;
@@ -53,8 +49,6 @@ import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.GetCapabilitiesReque
 import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.GetPropertyValueRequest;
 import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.Wfs;
 import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.WfsConstants;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * A client to a WFS 2.0.0 Service. This class uses the {@link Wfs} interface to create a client
@@ -63,62 +57,18 @@ import org.slf4j.LoggerFactory;
  */
 public class RemoteWfs extends TrustedRemoteSource implements Wfs {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(RemoteWfs.class);
-
     private Wfs wfs;
 
     private FeatureCollectionMessageBodyReader featureCollectionReader;
 
-    public RemoteWfs(String wfsServerUrl, boolean disableSSLCertVerification) {
-        if (StringUtils.isEmpty(wfsServerUrl)) {
-            final String errMsg = "RemoteWfs(wfsUrl) was called without a WFS URL.  RemotWfs will not be able to connect.";
-            LOGGER.error(errMsg);
-            throw new IllegalArgumentException(errMsg);
-        }
-
-        JAXRSClientFactoryBean bean = createJAXRSClientBean(wfsServerUrl);
-
-        bean.getInInterceptors().add(new MarkableStreamInterceptor());
-
-        wfs = bean.create(Wfs.class);
-        if (disableSSLCertVerification) {
-            disableSSLCertValidation(WebClient.client(wfs));
-        }
-
-    }
-
     public RemoteWfs(String wfsServerUrl, String username, String password,
             boolean disableSSLCertVerification) {
-
-        if ((StringUtils.isEmpty(wfsServerUrl)) || (StringUtils.isEmpty(username))
-                || (StringUtils.isEmpty(password))) {
-            final String errMsg = "RemoteWfs(wfsUrl, Username, Password) was called without a wfsUrl, username or password.  RemoteWfs will not be able to connect.";
-            LOGGER.error(errMsg);
-            throw new IllegalArgumentException(errMsg);
-        }
-
-        JAXRSClientFactoryBean bean = createJAXRSClientBean(wfsServerUrl);
-
-        // Additionally, set the username and password for Basic Auth
-        bean.setUsername(username);
-        bean.setPassword(password);
-
-        bean.getInInterceptors().add(new MarkableStreamInterceptor());
-
-        wfs = bean.create(Wfs.class);
-        if (disableSSLCertVerification) {
-            disableSSLCertValidation(WebClient.client(wfs));
-        }
+        wfs = createClientBean(Wfs.class, wfsServerUrl, username, password,
+                disableSSLCertVerification, initProviders(), getClass().getClassLoader(),
+                new MarkableStreamInterceptor());
     }
 
-    private JAXRSClientFactoryBean createJAXRSClientBean(final String url) {
-        JAXRSClientFactoryBean bean = new JAXRSClientFactoryBean();
-        bean.setServiceClass(Wfs.class);
-        bean.setAddress(url);
-        bean.setClassLoader(getClass().getClassLoader());
-        bean.getInInterceptors().add(new LoggingInInterceptor());
-        bean.getOutInterceptors().add(new LoggingOutInterceptor());
-
+    private List<? extends Object> initProviders() {
         // We need to tell the JAXBElementProvider to marshal the GetFeatureType
         // class as an element
         // because it is are missing the @XmlRootElement Annotation
@@ -133,11 +83,8 @@ public class RemoteWfs extends TrustedRemoteSource implements Wfs {
         provider.setMarshallAsJaxbElement(true);
 
         featureCollectionReader = new FeatureCollectionMessageBodyReader();
-
-        bean.setProviders(Arrays.asList(provider, new WfsResponseExceptionMapper(),
-                new XmlSchemaMessageBodyReader(), featureCollectionReader));
-
-        return bean;
+        return Arrays.asList(provider, new WfsResponseExceptionMapper(),
+                new XmlSchemaMessageBodyReader(), featureCollectionReader);
     }
 
     public FeatureCollectionMessageBodyReader getFeatureCollectionReader() {

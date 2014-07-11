@@ -14,6 +14,19 @@
  **/
 package org.codice.ddf.spatial.ogc.csw.catalog.source;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+import javax.xml.namespace.QName;
+
 import net.opengis.cat.csw.v_2_0_2.CapabilitiesType;
 import net.opengis.cat.csw.v_2_0_2.DescribeRecordResponseType;
 import net.opengis.cat.csw.v_2_0_2.DescribeRecordType;
@@ -23,9 +36,7 @@ import net.opengis.cat.csw.v_2_0_2.GetRecordsResponseType;
 import net.opengis.cat.csw.v_2_0_2.GetRecordsType;
 import net.opengis.cat.csw.v_2_0_2.TransactionResponseType;
 import net.opengis.cat.csw.v_2_0_2.TransactionType;
-import org.apache.commons.lang.StringUtils;
-import org.apache.cxf.interceptor.LoggingInInterceptor;
-import org.apache.cxf.interceptor.LoggingOutInterceptor;
+
 import org.apache.cxf.jaxrs.client.JAXRSClientFactoryBean;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.codice.ddf.spatial.ogc.catalog.common.TrustedRemoteSource;
@@ -43,18 +54,6 @@ import org.codice.ddf.spatial.ogc.csw.catalog.converter.RecordConverterFactory;
 import org.codice.ddf.spatial.ogc.csw.catalog.source.reader.GetRecordsMessageBodyReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
-import javax.xml.namespace.QName;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * A client to a CSW 2.0.2 Service. This class uses the {@link Csw} interface to create a client
@@ -82,27 +81,11 @@ public class RemoteCsw extends TrustedRemoteSource implements Csw {
      */
     public RemoteCsw(List<RecordConverterFactory> recordConverterFactories,
             CswSourceConfiguration cswSourceConfiguration) {
-        if (StringUtils.isEmpty(cswSourceConfiguration.getCswUrl())) {
-            final String errMsg = "RemoteCsw(cswUrl) was called without a cswUrl.  RemoteCsw will not be able to connect.";
-            LOGGER.error(errMsg);
-            throw new IllegalArgumentException(errMsg);
-        }
-
-        createJAXRSClientBean(recordConverterFactories,
-                cswSourceConfiguration);
-
-        // Additionally, set the username and password for Basic Auth
-        if ((!StringUtils.isEmpty(cswSourceConfiguration.getUsername()))
-                && (!StringUtils.isEmpty(cswSourceConfiguration.getPassword()))) {
-            bean.setUsername(cswSourceConfiguration.getUsername());
-            bean.setPassword(cswSourceConfiguration.getPassword());
-        }
-
-        csw = bean.create(Csw.class);
-        if (cswSourceConfiguration.getDisableSSLCertVerification()) {
-            disableSSLCertValidation(WebClient.client(csw));
-        }
-
+        csw = createClientBean(Csw.class, cswSourceConfiguration.getCswUrl(),
+                cswSourceConfiguration.getUsername(), cswSourceConfiguration.getPassword(),
+                cswSourceConfiguration.getDisableSSLCertVerification(),
+                initProviders(recordConverterFactories, cswSourceConfiguration), getClass()
+                        .getClassLoader());
     }
 
     /**
@@ -118,15 +101,9 @@ public class RemoteCsw extends TrustedRemoteSource implements Csw {
                 trustStorePath, trustStorePassword);
     }
 
-    private void createJAXRSClientBean(
+    private List<? extends Object> initProviders(
             List<RecordConverterFactory> recordConverterFactories,
             CswSourceConfiguration cswSourceConfiguration) {
-        bean = new JAXRSClientFactoryBean();
-        bean.setServiceClass(Csw.class);
-        bean.setAddress(cswSourceConfiguration.getCswUrl());
-        bean.getInInterceptors().add(new LoggingInInterceptor());
-        bean.getOutInterceptors().add(new LoggingOutInterceptor());
-
         getRecordsTypeProvider = new CswJAXBElementProvider<GetRecordsType>();
         getRecordsTypeProvider.setMarshallAsJaxbElement(true);
 
@@ -165,8 +142,8 @@ public class RemoteCsw extends TrustedRemoteSource implements Csw {
 
         GetRecordsMessageBodyReader grmbr = new GetRecordsMessageBodyReader(
                 recordConverterFactories, cswSourceConfiguration);
-        bean.setProviders(Arrays.asList(getRecordsTypeProvider, new CswResponseExceptionMapper(),
-                grmbr));
+        return Arrays.asList(getRecordsTypeProvider, new CswResponseExceptionMapper(), grmbr);
+
     }
 
     @Override

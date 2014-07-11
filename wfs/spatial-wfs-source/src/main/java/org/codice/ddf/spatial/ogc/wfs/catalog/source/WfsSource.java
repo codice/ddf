@@ -330,11 +330,7 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
                 getId(), wfsUrl, this.disableSSLCertVerification);
 
         try {
-            if ((!StringUtils.isEmpty(username)) && (!StringUtils.isEmpty(password))) {
                 remoteWfs = new RemoteWfs(wfsUrl, username, password, disableSSLCertVerification);
-            } else {
-                remoteWfs = new RemoteWfs(wfsUrl, disableSSLCertVerification);
-            }
         } catch (IllegalArgumentException iae) {
             LOGGER.warn("Unable to create RemoteWfs.", iae);
             remoteWfs = null;
