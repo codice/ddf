@@ -17,6 +17,7 @@ package org.codice.ddf.security.filter.websso;
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.security.handler.api.AuthenticationHandler;
 import org.codice.ddf.security.handler.api.HandlerResult;
+import org.codice.ddf.security.handler.api.InvalidSAMLReceivedException;
 import org.codice.ddf.security.policy.context.ContextPolicy;
 import org.codice.ddf.security.policy.context.ContextPolicyManager;
 import org.slf4j.Logger;
@@ -28,9 +29,12 @@ import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -45,6 +49,8 @@ import java.util.List;
  */
 public class WebSSOFilter implements Filter {
     private static final String DEFAULT_REALM = "DDF";
+    private static final String SAML_COOKIE_NAME = "org.codice.websso.saml.token";
+    private static final String SAML_COOKIE_REF = "org.codice.websso.saml.ref";
 
     private static final String DDF_SECURITY_TOKEN = "ddf.security.securityToken";
 
@@ -131,6 +137,7 @@ public class WebSSOFilter implements Filter {
         for (AuthenticationHandler auth : handlers) {
             result = auth.getNormalizedToken(httpRequest, httpResponse, filterChain, false);
             if (result.getStatus() != HandlerResult.Status.NO_ACTION) {
+                LOGGER.debug("Handler {} set the result status to {}", auth.getAuthenticationType(), result.getStatus());
                 break;
             }
         }
@@ -143,6 +150,7 @@ public class WebSSOFilter implements Filter {
             for (AuthenticationHandler auth : handlers) {
                 result = auth.getNormalizedToken(httpRequest, httpResponse, filterChain, true);
                 if (result.getStatus() != HandlerResult.Status.NO_ACTION) {
+                    LOGGER.debug("Handler {} set the result status to {}", auth.getAuthenticationType(), result.getStatus());
                     break;
                 }
             }
@@ -161,24 +169,15 @@ public class WebSSOFilter implements Filter {
                 returnSimpleResponse(HttpServletResponse.SC_FORBIDDEN, (HttpServletResponse) httpResponse);
                 return;
             case COMPLETED:
-                if (LOGGER.isDebugEnabled() && result.getToken() != null) {
-                    LOGGER.debug("Attaching result handler to the http request - token is instance of {}", result.getToken().getClass().getSimpleName());
-                } else {
+                if (result.getToken() == null) {
                     LOGGER.warn("Completed without credentials - check context policy configuration.");
                     returnSimpleResponse(HttpServletResponse.SC_FORBIDDEN, (HttpServletResponse) httpResponse);
                     return;
                 }
-                httpRequest.setAttribute(DDF_AUTHENTICATION_TOKEN, result);
-                // set the appropriate request attribute
-/*
-                if (result.hasSecurityToken()) {
-                    LOGGER.debug("Attaching security token to http request");
-                    httpRequest.setAttribute(DDF_SECURITY_TOKEN, result.getCredentials());
-                } else {
-                    LOGGER.debug("Attaching authentication credentials to http request");
-                    httpRequest.setAttribute(DDF_AUTHENTICATION_TOKEN, result);
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("Attaching result handler to the http request - token is instance of {}", result.getToken().getClass().getSimpleName());
                 }
-*/
+                httpRequest.setAttribute(DDF_AUTHENTICATION_TOKEN, result);
                 break;
             default:
                 LOGGER.warn("Unexpected response from handler - ignoring");
@@ -195,13 +194,23 @@ public class WebSSOFilter implements Filter {
         LOGGER.debug("Invoking the rest of the filter chain");
         try {
             filterChain.doFilter(httpRequest, httpResponse);
+        } catch (InvalidSAMLReceivedException e) {
+            // we tried to process an invalid or missing SAML assertion
+            deleteCookie(SAML_COOKIE_NAME, httpRequest, httpResponse);
+            deleteCookie(SAML_COOKIE_REF, httpRequest, httpResponse);
+            // redirect to ourselves without the SAML cookies
+            httpResponse.sendRedirect(httpRequest.getRequestURI());
+            return;
         } catch (Exception e) {
+            LOGGER.debug("Exception in filter chain - passing off to handlers. Msg: {}", e.getMessage(), e);
+
             // First pass, see if anyone can come up with proper security token
             // from the git-go
             result = null;
             for (AuthenticationHandler auth : handlers) {
                 result = auth.handleError(httpRequest, httpResponse, filterChain);
                 if (result.getStatus() != HandlerResult.Status.NO_ACTION) {
+                    LOGGER.debug("Handler {} set the status to {}", auth.getAuthenticationType(), result.getStatus());
                     break;
                 }
             }
@@ -247,11 +256,30 @@ public class WebSSOFilter implements Filter {
      */
     private void returnSimpleResponse(int code, HttpServletResponse response) {
         try {
+            LOGGER.debug("Sending response code {}", code);
             response.setStatus(code);
             response.setContentLength(0);
             response.flushBuffer();
         } catch (IOException ioe) {
             LOGGER.debug("Failed to send auth response", ioe);
+        }
+    }
+
+    public void deleteCookie(String cookieName, HttpServletRequest request, HttpServletResponse response) {
+        //remove session cookie
+        try {
+            LOGGER.debug("Removing cookie {}", cookieName);
+            response.setContentType("text/html");
+            Cookie cookie = new Cookie(cookieName, "");
+            URL url = null;
+            url = new URL(request.getRequestURL().toString());
+            cookie.setDomain(url.getHost());
+            cookie.setMaxAge(0);
+            cookie.setPath("/");
+            cookie.setComment("EXPIRING COOKIE at " + System.currentTimeMillis());
+            response.addCookie(cookie);
+        } catch (MalformedURLException e) {
+            LOGGER.warn("Unable to delete cookie {}", cookieName, e);
         }
     }
 

@@ -33,6 +33,7 @@ import org.apache.ws.security.saml.ext.OpenSAMLUtil;
 import org.codice.ddf.security.handler.api.BSTAuthenticationToken;
 import org.codice.ddf.security.handler.api.BaseAuthenticationToken;
 import org.codice.ddf.security.handler.api.HandlerResult;
+import org.codice.ddf.security.handler.api.InvalidSAMLReceivedException;
 import org.codice.ddf.security.handler.api.SAMLAuthenticationToken;
 import org.codice.ddf.security.policy.context.ContextPolicy;
 import org.joda.time.DateTime;
@@ -204,8 +205,9 @@ public class LoginFilter implements Filter {
                     token.replaceReferenece(savedToken);
                 }
                 if (token.isReference()) {
-                    LOGGER.error("Couldn't find SAML assertion corresponding to provided reference.");
-                    throw new ServletException("Unable to exchanged provided SAML reference for cached assertion.");
+                    String msg = "Missing or invalid SAML assertion for provided reference.";
+                    LOGGER.error(msg);
+                    throw new InvalidSAMLReceivedException(msg);
                 }
             }
 
