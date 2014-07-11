@@ -88,13 +88,13 @@ public class FileSystemProviderTest {
 
     @Test
     public void testCreate_MimeTypeWithIdParameter() throws Exception {
-        String mimeType = "text/xml;id=ddms20";
+        String mimeType = "text/xml;id=xml";
         assertContentItem(TEST_INPUT_CONTENTS, mimeType, ".xml");
     }
 
     @Test
     public void testCreate_MimeTypeWithIdAndOtherParameter() throws Exception {
-        String mimeType = "text/xml;charset=UTF-8;id=ddms20";
+        String mimeType = "text/xml;charset=UTF-8;id=xml";
         assertContentItem(TEST_INPUT_CONTENTS, mimeType, ".xml");
     }
 

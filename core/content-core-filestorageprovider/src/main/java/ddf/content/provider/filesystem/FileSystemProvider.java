@@ -62,7 +62,7 @@ public class FileSystemProvider implements StorageProvider {
 
     public static final String DEFAULT_CONTENT_REPOSITORY = "content" + File.separator + "store";
 
-    /** Optional id parameter for mime type, e.g., text/xml;id=ddms20 */
+    /** Optional id parameter for mime type, e.g., text/xml;id=xml */
     private static final String ID_PARAMETER = "id";
 
     /** Mapper for file extensions-to-mime types (and vice versa) */
