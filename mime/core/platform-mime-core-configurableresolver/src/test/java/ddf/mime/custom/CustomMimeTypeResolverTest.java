@@ -106,19 +106,19 @@ public class CustomMimeTypeResolverTest {
     public void testSetCustomMimeTypeWithMimeParameter() {
         CustomMimeTypeResolver resolver = new CustomMimeTypeResolver();
 
-        resolver.setCustomMimeTypes(new String[] {"xml=text/xml;id=ddms"});
+        resolver.setCustomMimeTypes(new String[] {"xml=text/xml;id=xml"});
 
         Map<String, List<String>> mimeTypesToFileExtensions = resolver
                 .getCustomMimeTypesToFileExtensionsMap();
-        assertTrue(mimeTypesToFileExtensions.containsKey("text/xml;id=ddms"));
+        assertTrue(mimeTypesToFileExtensions.containsKey("text/xml;id=xml"));
         assertFalse(mimeTypesToFileExtensions.containsKey("text/xml"));
-        List<String> fileExtensions = mimeTypesToFileExtensions.get("text/xml;id=ddms");
+        List<String> fileExtensions = mimeTypesToFileExtensions.get("text/xml;id=xml");
         assertTrue(fileExtensions.contains("xml"));
 
         Map<String, String> fileExtensionsMimeTypes = resolver
                 .getCustomFileExtensionsToMimeTypesMap();
         assertTrue(fileExtensionsMimeTypes.containsKey("xml"));
-        assertEquals("text/xml;id=ddms", fileExtensionsMimeTypes.get("xml"));
+        assertEquals("text/xml;id=xml", fileExtensionsMimeTypes.get("xml"));
     }
 
     @Test
