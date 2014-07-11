@@ -14,7 +14,7 @@
  **/
 package org.codice.ddf.catalog.admin.downloadmanager;
 
-import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -35,7 +35,7 @@ public interface DownloadManagerServiceMBean {
      * "fileName" (name of the file being downloaded)
      * "user" (identifer of the user performing the download)
      */
-    ArrayList<Map<String, String>> getAllDownloadsStatus();
+    List<Map<String, String>> getAllDownloadsStatus();
 
     /**
      * Function to get information about a specific download.
@@ -50,7 +50,7 @@ public interface DownloadManagerServiceMBean {
      *
      * @return Returns an array of downloadIdentifier Strings
      */
-    ArrayList<String> getAllDownloads();
+    List<String> getAllDownloads();
 
     /**
      * Function to get all downloads for a specific user.
@@ -58,7 +58,7 @@ public interface DownloadManagerServiceMBean {
      * @param userId The id of the user.
      * @return Returns an array of downloadIdentifier Strings, similar to {@link this.getAllDownloads}.
      */
-    ArrayList<String> getAllDownloads(String userId);
+    List<String> getAllDownloads(String userId);
 
     /**
      * Function to remove the map entry corresponding to the downloadIdentifer passed it. This means it will no longer be

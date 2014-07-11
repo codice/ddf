@@ -21,6 +21,7 @@ import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import java.lang.management.ManagementFactory;
+import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
 
@@ -72,8 +73,8 @@ public class DownloadManagerService implements DownloadManagerServiceMBean {
         }
     }
 
-    public ArrayList<Map<String, String>> getAllDownloadsStatus() {
-        ArrayList<Map<String, String>> allDownloadsStatus = new ArrayList<Map<String, String>>();
+    public List<Map<String, String>> getAllDownloadsStatus() {
+        List<Map<String, String>> allDownloadsStatus = new ArrayList<Map<String, String>>();
         for (String item : downloadStatusInfo.getAllDownloads()) {
             allDownloadsStatus.add(downloadStatusInfo.getDownloadStatus(item));
         }
@@ -84,11 +85,11 @@ public class DownloadManagerService implements DownloadManagerServiceMBean {
         return downloadStatusInfo.getDownloadStatus(downloadIdentifier);
     }
 
-    public ArrayList<String> getAllDownloads() {
+    public List<String> getAllDownloads() {
         return downloadStatusInfo.getAllDownloads();
     }
 
-    public ArrayList<String> getAllDownloads(String userId) {
+    public List<String> getAllDownloads(String userId) {
         return downloadStatusInfo.getAllDownloads(userId);
     }
 
