@@ -47,26 +47,19 @@ public class FileSystemPersistenceProvider implements MapLoader<String, Object>,
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FileSystemPersistenceProvider.class);
 
+    private static final String SER = ".ser";
+
+    private static final String PERSISTENCE_PATH = "data/";
+
     private String mapName = "default";
 
-    public FileSystemPersistenceProvider() {
-    }
-
-    public FileSystemPersistenceProvider(String mapName) {
-        LOGGER.info("INSIDE: FileSystemPersistenceProvider constructor,  mapName = {}", mapName);
+    FileSystemPersistenceProvider(String mapName) {
+        LOGGER.trace("INSIDE: FileSystemPersistenceProvider constructor,  mapName = {}", mapName);
         this.mapName = mapName;
-        File dir = new File(getPersistencePath());
-        if (!dir.exists()) dir.mkdir();
-    }
-
-    /**
-     * Retrieve root directory of all persisted Hazelcast objects for this cache.
-     * The path is relative to containing bundle, i.e., DDF install directory.
-     *
-     * @return the path to root directory where serialized objects will be persisted
-     */
-    String getPersistencePath() {
-        return "data/";
+        File dir = new File(PERSISTENCE_PATH);
+        if (!dir.exists()) {
+            dir.mkdir();
+        }
     }
 
     /**
@@ -75,7 +68,7 @@ public class FileSystemPersistenceProvider implements MapLoader<String, Object>,
      * @return
      */
     String getMapStorePath() {
-        return getPersistencePath() + mapName + "/";
+        return PERSISTENCE_PATH + mapName + "/";
     }
 
     @Override
@@ -83,29 +76,30 @@ public class FileSystemPersistenceProvider implements MapLoader<String, Object>,
         OutputStream file = null;
         ObjectOutput output = null;
 
-        LOGGER.debug("Entering store - key: {}", key);
+        LOGGER.trace("Entering: store - key: {}", key);
         try {
             File dir = new File(getMapStorePath());
             if (!dir.exists()) {
                 dir.mkdir();
             }
-            LOGGER.debug("file name: {}", getMapStorePath() + key + ".ser");
-            file = new FileOutputStream(getMapStorePath() + key + ".ser");
+            LOGGER.debug("file name: {}{}{}", getMapStorePath(), key, SER);
+            file = new FileOutputStream(getMapStoreFile(key));
             OutputStream buffer = new BufferedOutputStream(file);
             output = new ObjectOutputStream(buffer);
             output.writeObject(value);
         } catch (IOException e) {
-            LOGGER.info("IOException storing value in cache with key = " + key, e);
+            LOGGER.info("IOException storing value in cache with key = {}", key, e);
         } finally {
             try {
                 if (output != null) {
                     output.close();
                 }
             } catch (IOException e) {
+                // Intentionally ignored
             }
             IOUtils.closeQuietly(file);
         }
-        LOGGER.debug("Leaving store");
+        LOGGER.trace("Exiting: store");
     }
 
     @Override
@@ -117,7 +111,7 @@ public class FileSystemPersistenceProvider implements MapLoader<String, Object>,
 
     @Override
     public void delete(String key) {
-        File file = new File(getMapStorePath() + key + ".ser");
+        File file = getMapStoreFile(key);
         if (file.exists()) {
             file.delete();
         }
@@ -139,11 +133,11 @@ public class FileSystemPersistenceProvider implements MapLoader<String, Object>,
     }
 
     Object loadFromPersistence(String key) {
-        File file = new File(getMapStorePath() + key + ".ser");
+        File file = getMapStoreFile(key);
         if (!file.exists()) return null;
         InputStream inputStream = null;
         try {
-            inputStream = new FileInputStream(getMapStorePath() + key + ".ser");
+            inputStream = new FileInputStream(getMapStorePath() + key + SER);
             InputStream buffer = new BufferedInputStream(inputStream);
             ObjectInput input = new ObjectInputStream(buffer);
             Object obj = (Object) input.readObject();
@@ -175,7 +169,7 @@ public class FileSystemPersistenceProvider implements MapLoader<String, Object>,
         FilenameFilter filter = new FilenameFilter() {
             @Override
             public boolean accept(File file, String name) {
-                return name.toLowerCase().endsWith(".ser");
+                return name.toLowerCase().endsWith(SER);
             }
         };
         return filter;
@@ -191,7 +185,7 @@ public class FileSystemPersistenceProvider implements MapLoader<String, Object>,
             return keys;
 
         for (int i = 0; i < files.length; i++) {
-            keys.add(files[i].getName().replaceFirst(".ser", ""));
+            keys.add(files[i].getName().replaceFirst(SER, ""));
         }
 
         LOGGER.debug("Leaving loadAllKeys");
@@ -205,4 +199,9 @@ public class FileSystemPersistenceProvider implements MapLoader<String, Object>,
             file.delete();
         }
     }
+
+    private File getMapStoreFile(String key) {
+        return new File(getMapStorePath() + key + SER);
+    }
+
 }

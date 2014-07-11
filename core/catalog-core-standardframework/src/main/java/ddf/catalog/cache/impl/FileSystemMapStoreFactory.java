@@ -33,7 +33,7 @@ public class FileSystemMapStoreFactory implements MapStoreFactory<String, Object
 
     @Override
     public MapLoader<String, Object> newMapStore(String mapName, Properties properties) {
-        LOGGER.debug("INSIDE: newMapStore()");
+        LOGGER.trace("INSIDE: newMapStore()");
         return new FileSystemPersistenceProvider(mapName);
     }
 
