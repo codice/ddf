@@ -2352,21 +2352,6 @@
       "factory": true,
       "configurations": [
         {
-          "id": "DDF_Custom_Mime_Type_Resolver.9209742e-795e-4215-a1ce-99039f6c9bad",
-          "bundle_name": "DDF :: MIME :: Core :: ConfigurableResolver",
-          "name": "MIME Custom Types",
-          "fpid": "DDF_Custom_Mime_Type_Resolver",
-          "bundle": 188,
-          "properties": {
-            "service.factoryPid": "DDF_Custom_Mime_Type_Resolver",
-            "org.apache.karaf.features.configKey": "DDF_Custom_Mime_Type_Resolver-Ddmsv20CustomMimeTypes",
-            "priority": "10",
-            "name": "DDMS v2.0 Content Resolver",
-            "customMimeTypes": "xml=text/xml;id=ddms",
-            "service.pid": "DDF_Custom_Mime_Type_Resolver.9209742e-795e-4215-a1ce-99039f6c9bad"
-          }
-        },
-        {
           "id": "DDF_Custom_Mime_Type_Resolver.004eed4f-ba78-4d18-85f2-6d1a89214429",
           "bundle_name": "DDF :: MIME :: Core :: ConfigurableResolver",
           "name": "MIME Custom Types",
