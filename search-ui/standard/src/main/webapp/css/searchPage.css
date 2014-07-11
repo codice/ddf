@@ -309,10 +309,16 @@ body {
 .result-status-icon {
     position: absolute;
     top: 7px;
-    left: 15px;
+    left: 23px;
     vertical-align: top;
     font-size: large;
-    color: grey;
+    color: #33b5e5;
+    cursor: pointer;
+}
+
+#status-table td {
+    padding-top: 3px;
+    padding-bottom: 3px;
 }
 
 .result-status .table {
