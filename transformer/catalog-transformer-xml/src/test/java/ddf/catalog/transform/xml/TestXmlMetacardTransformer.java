@@ -48,7 +48,7 @@ public class TestXmlMetacardTransformer {
     private static final Logger LOGGER = LoggerFactory.getLogger(TestXmlMetacardTransformer.class);
 
     @Test
-    public void testNonDdms() throws CatalogTransformerException {
+    public void testXmlMetacardTransformerSparse() throws CatalogTransformerException {
 
         MetacardImpl mc = new MetacardImpl();
 
@@ -90,7 +90,7 @@ public class TestXmlMetacardTransformer {
     }
 
     @Test
-    public void testDdms() throws Exception {
+    public void testXmlMetacardTransformer() throws Exception {
 
         MetacardImpl mc = new MetacardImpl();
 
@@ -111,7 +111,7 @@ public class TestXmlMetacardTransformer {
         mc.setThumbnail(testThumbnail);
 
         String metadata = null;
-        FileInputStream stream = new FileInputStream(new File("src/test/resources/ddms.xml"));
+        FileInputStream stream = new FileInputStream(new File("src/test/resources/extensibleMetacard.xml"));
         try {
             FileChannel fc = stream.getChannel();
             MappedByteBuffer bb = fc.map(FileChannel.MapMode.READ_ONLY, 0, fc.size());

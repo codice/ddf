@@ -265,6 +265,7 @@ public abstract class AbstractDownloadsStatusEventPublisherTest {
     protected abstract void setupPublisher();
 
     private void setupPublisherWithNoNotifications() {
+        actionProvider = mock(ActionProvider.class);
         eventAdmin = mock(EventAdmin.class);
         publisher = new DownloadsStatusEventPublisher(eventAdmin, ImmutableList.of(actionProvider));
         publisher.setNotificationEnabled(false);

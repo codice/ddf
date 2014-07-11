@@ -305,7 +305,7 @@ public class TestXmlResponseQueueTransformer {
     }
 
     @Test
-    public void testDdms() throws Exception {
+    public void testXmlResponseQueueTransformer() throws Exception {
 
         MetacardImpl mc = new MetacardImpl();
 
@@ -326,7 +326,7 @@ public class TestXmlResponseQueueTransformer {
         mc.setThumbnail(testThumbnail);
 
         String metadata = null;
-        FileInputStream stream = new FileInputStream(new File("src/test/resources/ddms.xml"));
+        FileInputStream stream = new FileInputStream(new File("src/test/resources/extensibleMetacard.xml"));
         try {
             FileChannel fc = stream.getChannel();
             MappedByteBuffer bb = fc.map(FileChannel.MapMode.READ_ONLY, 0, fc.size());
