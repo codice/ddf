@@ -28,6 +28,7 @@ import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
+import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.admin.application.service.Application;
 import org.codice.ddf.admin.application.service.ApplicationNode;
 import org.codice.ddf.admin.application.service.ApplicationService;
@@ -204,7 +205,7 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
     
     @Override
     public void removeApplication(String applicationURL) {
-        if (null != applicationURL && !applicationURL.isEmpty()) {
+        if (!StringUtils.isEmpty(applicationURL)) {
             try {
                 logger.debug("Removing application with URL: {}", applicationURL);
                 appService.removeApplication(new URI((String) applicationURL));
