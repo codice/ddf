@@ -35,7 +35,7 @@ public class NotificationTest {
      */
     @Test
     public void notificationConstructorsDoNotSetEmptyUserId() {
-        Notification notification = new Notification("myId",
+        Notification notification = new Notification("myId", "mySessionId",
                 "myAppName", "testing", "testing", new Date().getTime(), "");
         assertEquals("Notification constructor accepted empty userId", null, 
                 notification.getUserId());
@@ -51,7 +51,7 @@ public class NotificationTest {
     public void testSetAndGetTimestampLong() {
         Long timeNow = new Date().getTime();
         String timeNowString = String.valueOf(timeNow);
-        Notification notification = new Notification("myId",
+        Notification notification = new Notification("myId", "mySessionId",
                 "myAppName", "testing", "testing", timeNowString);
         
         assertEquals("Notification did not return expected timestamp string", 

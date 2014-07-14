@@ -30,6 +30,7 @@ public class Notification extends HashMap<String, String> {
     public static final String NOTIFICATION_KEY_TIMESTAMP = "timestamp";
     public static final String NOTIFICATION_KEY_TITLE = "title";
     public static final String NOTIFICATION_KEY_USER_ID = "user";
+    public static final String NOTIFICATION_KEY_SESSION_ID = "session";
     
     public static final String NOTIFICATION_TOPIC_ROOT = "ddf/notifications";
     public static final String NOTIFICATION_TOPIC_BROADCAST = 
@@ -43,6 +44,8 @@ public class Notification extends HashMap<String, String> {
      * 
      * @param id The unique ID of this {@code Notification}
      * 
+     * @param sessionId The new unique session ID of the {@code Notification}
+     * 
      * @param application The name of the application that triggered the 
      *                    generation of this {@code Notification}
      *                    
@@ -55,9 +58,9 @@ public class Notification extends HashMap<String, String> {
      *                  the point at which the event triggering this
      *                  {@code Notification} was generated.
      */
-    public Notification(String id, String application, String title, String message, 
+    public Notification(String id, String sessionId, String application, String title, String message, 
             Long timestamp) {
-        this(id, application, title, message, String.valueOf(timestamp), null);
+        this(id, sessionId, application, title, message, String.valueOf(timestamp), null);
     }
     
     /**
@@ -65,6 +68,8 @@ public class Notification extends HashMap<String, String> {
      * message, and timestamp.
      * 
      * @param id The unique ID of this {@code Notification}
+     * 
+     * @param sessionId The new unique session ID of the {@code Notification}
      * 
      * @param application The name of the application that triggered the 
      *                    generation of this {@code Notification}
@@ -78,9 +83,9 @@ public class Notification extends HashMap<String, String> {
      *                  which the event triggering this {@code Notification} was 
      *                  generated.
      */
-    public Notification(String id, String application, String title, String message, 
+    public Notification(String id, String sessionId, String application, String title, String message, 
             String timestamp) {
-        this(id, application, title, message, timestamp, null);
+        this(id, sessionId, application, title, message, timestamp, null);
     }
     
     /**
@@ -88,6 +93,8 @@ public class Notification extends HashMap<String, String> {
      * message, timestamp, and user ID.
      * 
      * @param id The unique ID of this {@code Notification}
+     * 
+     * @param sessionId The new unique session ID of the {@code Notification}
      * 
      * @param application The name of the application that triggered the 
      *                    generation of this {@code Notification}
@@ -104,9 +111,9 @@ public class Notification extends HashMap<String, String> {
      * @param userId The id of the user to which this {@code Notification}
      *               should be sent.
      */
-    public Notification(String id, String application, String title, String message, 
+    public Notification(String id, String sessionId, String application, String title, String message, 
             Long timestamp, String userId) {
-       this(id, application, title, message, String.valueOf(timestamp), userId);
+       this(id, sessionId, application, title, message, String.valueOf(timestamp), userId);
     }
     
     /**
@@ -114,6 +121,8 @@ public class Notification extends HashMap<String, String> {
      * message, timestamp, and user ID.
      * 
      * @param id The unique ID of this {@code Notification}
+     * 
+     * @param sessionId The new unique session ID of the {@code Notification}
      * 
      * @param application The name of the application that triggered the 
      *                    generation of this {@code Notification}
@@ -130,10 +139,11 @@ public class Notification extends HashMap<String, String> {
      * @param userId The id of the user to which this {@code Notification}
      *               should be sent.
      */
-    public Notification(String id, String application, String title, String message, 
+    public Notification(String id, String sessionId, String application, String title, String message, 
             String timestamp, String userId) {
         
         setId(id);
+        setSessionId(sessionId);
         setApplication(application);
         setTitle(title);
         setMessage(message);
@@ -151,6 +161,24 @@ public class Notification extends HashMap<String, String> {
      */
     public String getId() {
         return this.get(NOTIFICATION_KEY_ID);
+    }
+    
+    /**
+     * Overwrites the Session ID of the {@code Notification}
+     *  
+     * @param sessionId The new unique session ID of the {@code Notification}
+     */
+    public void setSessionId(String sessionId) {
+        this.put(NOTIFICATION_KEY_SESSION_ID, sessionId);
+    }
+    
+    /**
+     * Returns the Session ID of the {@code Notification}
+     *  
+     * @return The Session ID of the {@code Notification}
+     */
+    public String getSessionId() {
+        return this.get(NOTIFICATION_KEY_SESSION_ID);
     }
     
     /**

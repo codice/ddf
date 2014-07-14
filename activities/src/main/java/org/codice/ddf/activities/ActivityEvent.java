@@ -28,6 +28,8 @@ public class ActivityEvent extends HashMap<String, Object> {
     private static final long serialVersionUID = -3965553379790729847L;
 
     public static final String ID_KEY = "id";
+    
+    public static final String SESSION_ID_KEY = "session";
 
     public static final String STATUS_KEY = "status";
 
