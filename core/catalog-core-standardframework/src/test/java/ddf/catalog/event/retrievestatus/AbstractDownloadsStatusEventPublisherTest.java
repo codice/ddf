@@ -83,6 +83,8 @@ public abstract class AbstractDownloadsStatusEventPublisherTest {
     protected Event curEvent;
 
     private static final String USER_ID = "testSubjectUser";
+    
+    private static final String DEFAULT_USER_ID = "";
 
     private static final String SESSION_ID = "123456";
 
@@ -97,7 +99,8 @@ public abstract class AbstractDownloadsStatusEventPublisherTest {
         resourceRequest = mock(ResourceRequest.class);
         resource = mock(Resource.class);
         properties = new HashMap<String, Serializable>();
-        properties.put(Notification.NOTIFICATION_KEY_USER_ID, SESSION_ID);
+        properties.put(Notification.NOTIFICATION_KEY_USER_ID, USER_ID);
+        properties.put(Notification.NOTIFICATION_KEY_SESSION_ID, SESSION_ID);
 
         when(resource.getName()).thenReturn("testCometDSessionID");
         when(resourceRequest.getProperties()).thenReturn(properties);
@@ -105,6 +108,10 @@ public abstract class AbstractDownloadsStatusEventPublisherTest {
                 .thenReturn(true);
         when(resourceRequest.getPropertyValue(Notification.NOTIFICATION_KEY_USER_ID)).thenReturn(
                 properties.get(Notification.NOTIFICATION_KEY_USER_ID));
+        when(resourceRequest.containsPropertyName(Notification.NOTIFICATION_KEY_SESSION_ID))
+            .thenReturn(true);
+        when(resourceRequest.getPropertyValue(Notification.NOTIFICATION_KEY_SESSION_ID)).thenReturn(
+            properties.get(Notification.NOTIFICATION_KEY_SESSION_ID));
         when(resourceResponse.getResource()).thenReturn(resource);
         when(resourceResponse.getRequest()).thenReturn(resourceRequest);
     }
@@ -152,7 +159,7 @@ public abstract class AbstractDownloadsStatusEventPublisherTest {
     @org.junit.Test
     public void testPostRetrievalStatusWithoutSecurity() {
         setupPublisher();
-        testPostRetrievalStatus(SESSION_ID);
+        testPostRetrievalStatus(DEFAULT_USER_ID);
     }
 
     /**
@@ -201,7 +208,7 @@ public abstract class AbstractDownloadsStatusEventPublisherTest {
     @org.junit.Test
     public void testPostRetrievalStatusWithNoNamePropertyWithoutSecurity() {
         setupPublisher();
-        testPostRetrievalStatusWithNoNameProperty(SESSION_ID);
+        testPostRetrievalStatusWithNoNameProperty(DEFAULT_USER_ID);
     }
 
     /**

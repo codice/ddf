@@ -100,7 +100,7 @@ public class DownloadsStatusEventPublisher {
         } catch (Exception e) {
             LOGGER.debug("Could not determine current user, using session id.");
         }
-        String user = SubjectUtils.getName(shiroSubject, getProperty(resourceResponse, ActivityEvent.USER_ID_KEY));
+        String user = SubjectUtils.getName(shiroSubject, "");
 
         if (notificationEnabled && (status != ProductRetrievalStatus.IN_PROGRESS) && (status != ProductRetrievalStatus.STARTED)) {
             String id = UUID.randomUUID().toString().replaceAll("-", "");
@@ -178,8 +178,13 @@ public class DownloadsStatusEventPublisher {
                 break;
             }
 
-            ActivityEvent eventProperties = new ActivityEvent(downloadIdentifier, new Date(), "Product Retrieval", resourceResponse.getResource().getName(), generateMessage(status, resourceResponse.getResource().getName(),
-                    bytes, sysTimeMillis, detail), progress, operations, user, type, bytes);
+            ActivityEvent eventProperties = new ActivityEvent(downloadIdentifier, 
+                    getProperty(resourceResponse, ActivityEvent.SESSION_ID_KEY), 
+                    new Date(), 
+                    "Product Retrieval", 
+                    resourceResponse.getResource().getName(), 
+                    generateMessage(status, resourceResponse.getResource().getName(), bytes, sysTimeMillis, detail), 
+                    progress, operations, user, type, bytes);
             Event event = new Event(ActivityEvent.EVENT_TOPIC_BROADCAST, eventProperties);
             eventAdmin.postEvent(event);
         }
