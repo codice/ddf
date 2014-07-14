@@ -153,6 +153,8 @@ define([
                         searchResult.get('results').length === 0) {
                         var progressFunction = function () {
                             searchResult.mergeLatest();
+                            wreqr.vent.trigger('map:clear');
+                            wreqr.vent.trigger('map:results', searchResult, false);
                         };
 
                         searchResult.fetch({
@@ -166,8 +168,6 @@ define([
                                 }
                             }
                         });
-                        wreqr.vent.trigger('map:clear');
-                        wreqr.vent.trigger('map:results', searchResult, false);
                     }
 
                     wreqr.vent.trigger('workspace:results', dir.forward, searchResult);
@@ -378,6 +378,8 @@ define([
                     this.currentResults = model;
                 }
                 this.workspaceRegion.show(new MetacardList.MetacardListView({model: this.currentResults}), direction);
+                wreqr.vent.trigger('map:clear');
+                wreqr.vent.trigger('map:results', this.currentResults);
             },
 
             showWorkspaceMetacard: function(model) {
