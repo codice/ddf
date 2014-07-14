@@ -1136,7 +1136,7 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
         return Metacard.ANY_GEO.equalsIgnoreCase(propertyName);
     }
 
-    private boolean isContentType(String propertyName) {
+    protected boolean isContentType(String propertyName) {
         return Metacard.CONTENT_TYPE.equalsIgnoreCase(propertyName);
     }
 
