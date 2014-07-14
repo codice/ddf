@@ -104,7 +104,10 @@ public class DownloadsStatusEventPublisher {
 
         if (notificationEnabled && (status != ProductRetrievalStatus.IN_PROGRESS) && (status != ProductRetrievalStatus.STARTED)) {
             String id = UUID.randomUUID().toString().replaceAll("-", "");
-            Notification notification = new Notification(id, APPLICATION_NAME,
+            Notification notification = new Notification(id, 
+                    //get sessionId from resource request
+                    getProperty(resourceResponse, ActivityEvent.SESSION_ID_KEY),
+                    APPLICATION_NAME,
                     resourceResponse.getResource().getName(),
                     generateMessage(status, resourceResponse.getResource().getName(),
                             bytes, sysTimeMillis, detail),
