@@ -421,14 +421,8 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
 
         try {
             remoteCsw = new RemoteCsw(recordConverterFactories, cswSourceConfiguration);
-            if (StringUtils.isNotEmpty(keyStorePath) && StringUtils.isNotEmpty(keyStorePassword)
-                    && StringUtils.isNotEmpty(trustStorePath) && StringUtils
-                    .isNotEmpty(trustStorePassword)) {
-                remoteCsw.setKeystores(keyStorePath, keyStorePassword, trustStorePath,
-                        trustStorePassword);
-            } else {
-                LOGGER.debug("Keystores were not fully set up, skipping SSL configurations.");
-            }
+            remoteCsw.setKeystores(keyStorePath, keyStorePassword, trustStorePath,
+                    trustStorePassword);
             configureWcs();
         } catch (IllegalArgumentException iae) {
             LOGGER.error("Unable to create RemoteCsw.", iae);
@@ -447,6 +441,8 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
             wcsResourceReader.setWcsUrl(cswSourceConfiguration.getWcsUrl());
             wcsResourceReader.setUsername(cswSourceConfiguration.getUsername());
             wcsResourceReader.setPassword(cswSourceConfiguration.getPassword());
+            wcsResourceReader.setKeystores(keyStorePath, keyStorePassword, trustStorePath,
+                    trustStorePassword);
             wcsResourceReader.init();
         } else {
             LOGGER.debug(
@@ -1466,6 +1462,14 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
         keyStorePassword = configurationMap.get(ConfigurationManager.KEY_STORE_PASSWORD);
         trustStorePath = configurationMap.get(ConfigurationManager.TRUST_STORE);
         trustStorePassword = configurationMap.get(ConfigurationManager.TRUST_STORE_PASSWORD);
+        if (remoteCsw != null) {
+            remoteCsw.setKeystores(keyStorePath, keyStorePassword, trustStorePath,
+                    trustStorePassword);
+        }
+        if (wcsResourceReader != null) {
+            wcsResourceReader.setKeystores(keyStorePath, keyStorePassword, trustStorePath,
+                    trustStorePassword);
+        }
 
     }
 

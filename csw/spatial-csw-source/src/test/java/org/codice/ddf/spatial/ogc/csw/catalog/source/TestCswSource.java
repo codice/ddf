@@ -14,48 +14,20 @@
  **/
 package org.codice.ddf.spatial.ogc.csw.catalog.source;
 
-import static org.custommonkey.xmlunit.XMLAssert.assertXMLEqual;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.atLeastOnce;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Dictionary;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.client.ClientException;
-import javax.ws.rs.core.Response;
-import javax.xml.bind.JAXBException;
-import javax.xml.datatype.DatatypeConfigurationException;
-
+import ddf.catalog.data.ContentType;
+import ddf.catalog.data.Metacard;
+import ddf.catalog.data.MetacardType;
+import ddf.catalog.data.Result;
+import ddf.catalog.filter.impl.SortByImpl;
+import ddf.catalog.filter.proxy.adapter.GeotoolsFilterAdapterImpl;
+import ddf.catalog.operation.SourceResponse;
+import ddf.catalog.operation.impl.QueryImpl;
+import ddf.catalog.operation.impl.QueryRequestImpl;
+import ddf.catalog.source.UnsupportedQueryException;
 import net.opengis.cat.csw.v_2_0_2.CapabilitiesType;
 import net.opengis.cat.csw.v_2_0_2.GetRecordsType;
 import net.opengis.cat.csw.v_2_0_2.QueryType;
 import net.opengis.filter.v_1_1_0.SortOrderType;
-
-import org.codice.ddf.configuration.ConfigurationManager;
-import org.codice.ddf.spatial.ogc.catalog.common.AvailabilityTask;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswException;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordCollection;
@@ -65,13 +37,6 @@ import org.codice.ddf.spatial.ogc.csw.catalog.common.GetCapabilitiesRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.converter.RecordConverter;
 import org.codice.ddf.spatial.ogc.csw.catalog.converter.RecordConverterFactory;
 import org.codice.ddf.spatial.ogc.csw.catalog.converter.impl.CswRecordConverterFactory;
-import org.eclipse.jetty.server.Handler;
-import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.handler.DefaultHandler;
-import org.eclipse.jetty.server.handler.HandlerCollection;
-import org.eclipse.jetty.server.ssl.SslSocketConnector;
-import org.eclipse.jetty.servlet.ServletContextHandler;
-import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.geotools.filter.FilterFactoryImpl;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormatter;
@@ -91,16 +56,37 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
-import ddf.catalog.data.ContentType;
-import ddf.catalog.data.Metacard;
-import ddf.catalog.data.MetacardType;
-import ddf.catalog.data.Result;
-import ddf.catalog.filter.impl.SortByImpl;
-import ddf.catalog.filter.proxy.adapter.GeotoolsFilterAdapterImpl;
-import ddf.catalog.operation.SourceResponse;
-import ddf.catalog.operation.impl.QueryImpl;
-import ddf.catalog.operation.impl.QueryRequestImpl;
-import ddf.catalog.source.UnsupportedQueryException;
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.client.ClientException;
+import javax.ws.rs.core.Response;
+import javax.xml.bind.JAXBException;
+import javax.xml.datatype.DatatypeConfigurationException;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Dictionary;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
+
+import static org.custommonkey.xmlunit.XMLAssert.assertXMLEqual;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class TestCswSource extends TestCswSourceBase {
 
@@ -797,86 +783,6 @@ public class TestCswSource extends TestCswSourceBase {
         propertyIsLikeQuery.setPageSize(10);
 
         cswSource.query(new QueryRequestImpl(propertyIsLikeQuery));
-
-    }
-
-    /**
-     * Tests that the certificates are properly added to outgoing requests and allow for mutual
-     * authentication on a server that requires client auth.
-     */
-    @Test
-    public void testCertificateConnection() {
-
-        // create jetty server
-        int serverPort = 0;
-        Server server = new Server();
-        server.setStopAtShutdown(true);
-        ServletContextHandler context = new ServletContextHandler();
-        context.setContextPath("/");
-
-        // add dummy servlet that will return static response
-        context.addServlet(CswServlet.class, "/services/csw");
-
-        HandlerCollection handlers = new HandlerCollection();
-        handlers.setHandlers(new Handler[] {context, new DefaultHandler()});
-        server.setHandler(handlers);
-        SslContextFactory sslContextFactory = new SslContextFactory();
-        // server uses the server cert
-        sslContextFactory.setKeyStorePath(getClass().getResource("/serverKeystore.jks").getPath());
-        sslContextFactory.setKeyStorePassword("changeit");
-
-        // only accept connection with proper client certificate
-        sslContextFactory.setNeedClientAuth(true);
-
-        SslSocketConnector sslSocketConnector = new SslSocketConnector(sslContextFactory);
-        sslSocketConnector.setPort(0);
-        server.addConnector(sslSocketConnector);
-
-        try {
-            server.start();
-            if(server.getConnectors().length == 1) {
-                serverPort = server.getConnectors()[0].getLocalPort();
-                LOGGER.info("Server started on Port: {} ", serverPort);
-            } else {
-                LOGGER.warn("Got more than one connector back, could not determine correct port for SSL communication.");
-            }
-        } catch (Exception e) {
-            LOGGER.warn("Could not start jetty server, expecting test failures.", e);
-        }
-
-        // set up csw configuration
-        CswSourceConfiguration cswSourceConfiguration = new CswSourceConfiguration();
-        cswSourceConfiguration.setContentTypeMapping(CswRecordMetacardType.CSW_TYPE);
-        cswSourceConfiguration.setId(ID);
-        cswSourceConfiguration.setModifiedDateMapping(Metacard.MODIFIED);
-        cswSourceConfiguration.setProductRetrievalMethod(CswConstants.WCS_PRODUCT_RETRIEVAL);
-        cswSourceConfiguration.setCswUrl("https://localhost:" + serverPort + "/services/csw");
-        cswSourceConfiguration.setDisableSSLCertVerification(false);
-        cswSourceConfiguration.setPollIntervalMinutes(1);
-        RecordConverterFactory factory = new CswRecordConverterFactory();
-
-        // create new source
-        CswSource cswSource = new CswSource(null, mockContext, cswSourceConfiguration,
-                Arrays.asList(factory));
-        cswSource.setFilterAdapter(new GeotoolsFilterAdapterImpl());
-        cswSource.setFilterBuilder(builder);
-        cswSource.setOutputSchema(CswConstants.CSW_OUTPUT_SCHEMA);
-
-
-        // client is using the client certificates
-        Map<String, String> configurationMap = new HashMap<String, String>();
-        configurationMap.put(ConfigurationManager.KEY_STORE, getClass().getResource("/clientKeystore.jks").getPath());
-        configurationMap.put(ConfigurationManager.KEY_STORE_PASSWORD, "changeit");
-        configurationMap.put(ConfigurationManager.TRUST_STORE, getClass().getResource("/clientTruststore.jks").getPath());
-        configurationMap.put(ConfigurationManager.TRUST_STORE_PASSWORD, "changeit");
-
-        cswSource.configurationUpdateCallback(configurationMap);
-        cswSource.connectToRemoteCsw();
-
-        // hit server
-        if (cswSource.getCapabilities() == null) {
-            fail("Could not get capabilities from the test server. This means no connection was established.");
-        }
 
     }
 

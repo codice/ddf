@@ -15,6 +15,11 @@
 
 package org.codice.ddf.spatial.ogc.catalog.common;
 
+import javax.net.ssl.KeyManager;
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.TrustManagerFactory;
+import javax.net.ssl.X509TrustManager;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -68,11 +73,13 @@ public abstract class TrustedRemoteSource {
 
 
     /**
-     * Configures the client keystores.
-     * @param client Client used for outgoing requests.
-     * @param keyStorePath Path to the keystore that should be used.
-     * @param keyStorePassword Password for the keystore.
-     * @param trustStorePath Path to the truststore that should be used.
+     * Configures the client keystores. If any of the paramters are null, that keystore will be set
+     * to the system default.
+     *
+     * @param client             Client used for outgoing requests.
+     * @param keyStorePath       Path to the keystore that should be used.
+     * @param keyStorePassword   Password for the keystore.
+     * @param trustStorePath     Path to the truststore that should be used.
      * @param trustStorePassword Password for the truststore.
      */
     protected void configureKeystores(Client client, String keyStorePath, String keyStorePassword,
@@ -80,59 +87,96 @@ public abstract class TrustedRemoteSource {
         ClientConfiguration clientConfiguration = WebClient.getConfig(client);
 
         HTTPConduit httpConduit = clientConfiguration.getHttpConduit();
+        TLSClientParameters tlsParams = httpConduit.getTlsClientParameters();
 
         try {
-            TLSClientParameters tlsParams = new TLSClientParameters();
-            tlsParams.setDisableCNCheck(true);
+            if (tlsParams == null) {
+                tlsParams = new TLSClientParameters();
+                httpConduit.setTlsClientParameters(tlsParams);
+            }
 
             // the default type is JKS
             KeyStore trustStore = KeyStore.getInstance(KeyStore.getDefaultType());
 
-            // add the truststore if it exists
-            File truststore = new File(trustStorePath);
-            if (truststore.exists() && trustStorePassword != null) {
-                FileInputStream fis = new FileInputStream(truststore);
-                try {
-                    LOGGER.debug("Loading trustStore");
-                    trustStore.load(fis, trustStorePassword.toCharArray());
-                } catch (IOException e) {
-                    LOGGER.error("Unable to load truststore. {}", truststore, e);
-                } catch (CertificateException e) {
-                    LOGGER.error("Unable to load certificates from keystore. {}", truststore, e);
-                } finally {
-                    IOUtils.closeQuietly(fis);
+            // add the trustStore if it exists
+            if (StringUtils.isNotEmpty(trustStorePath)) {
+                File trustStoreFile = new File(trustStorePath);
+                if (trustStoreFile.exists() && trustStorePassword != null) {
+                    FileInputStream fis = new FileInputStream(trustStoreFile);
+                    try {
+                        LOGGER.debug("Loading trustStore");
+                        if (StringUtils.isNotEmpty(trustStorePassword)) {
+                            trustStore.load(fis, trustStorePassword.toCharArray());
+                        } else {
+                            LOGGER.debug(
+                                    "No password found, trying to load trustStore with no password.");
+                            trustStore.load(fis, null);
+                        }
+                    } catch (IOException e) {
+                        LOGGER.error("Unable to load truststore. {}", trustStoreFile, e);
+                    } catch (CertificateException e) {
+                        LOGGER.error("Unable to load certificates from keystore. {}",
+                                trustStoreFile, e);
+                    } finally {
+                        IOUtils.closeQuietly(fis);
+                    }
+                    TrustManagerFactory trustFactory = TrustManagerFactory
+                            .getInstance(TrustManagerFactory
+                                    .getDefaultAlgorithm());
+                    trustFactory.init(trustStore);
+                    LOGGER.debug("trust manager factory initialized");
+                    TrustManager[] tm = trustFactory.getTrustManagers();
+                    tlsParams.setTrustManagers(tm);
+                } else {
+                    tlsParams.setTrustManagers(null);
+                    LOGGER.debug(
+                            "TrustStore file does not exist or no password was set, using system default.");
                 }
-                TrustManagerFactory trustFactory = TrustManagerFactory
-                        .getInstance(TrustManagerFactory
-                                .getDefaultAlgorithm());
-                trustFactory.init(trustStore);
-                LOGGER.debug("trust manager factory initialized");
-                TrustManager[] tm = trustFactory.getTrustManagers();
-                tlsParams.setTrustManagers(tm);
+            } else {
+                tlsParams.setTrustManagers(null);
+                LOGGER.debug(
+                        "TrustStore path was passed in as null or empty, using system default");
             }
 
             KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
 
-            // add the keystore if it exists
-            File keystore = new File(keyStorePath);
-            if (keystore.exists() && keyStorePassword != null) {
-                FileInputStream fis = new FileInputStream(keystore);
-                try {
-                    LOGGER.debug("Loading keyStore");
-                    keyStore.load(fis, keyStorePassword.toCharArray());
-                } catch (IOException e) {
-                    LOGGER.error("Unable to load keystore. {}", keystore, e);
-                } catch (CertificateException e) {
-                    LOGGER.error("Unable to load certificates from keystore. {}", keystore, e);
-                } finally {
-                    IOUtils.closeQuietly(fis);
+            // add the keyStore if it exists
+            if(StringUtils.isNotEmpty(keyStorePath)) {
+                File keyStoreFile = new File(keyStorePath);
+                if (keyStoreFile.exists()) {
+                    FileInputStream fis = new FileInputStream(keyStoreFile);
+                    try {
+                        LOGGER.debug("Loading keyStore");
+                        if(StringUtils.isNotEmpty(keyStorePassword)) {
+                            keyStore.load(fis, keyStorePassword.toCharArray());
+                        } else {
+                            LOGGER.debug(
+                                    "No password found, trying to load keyStore with no password.");
+                            keyStore.load(fis, null);
+                        }
+                    } catch (IOException e) {
+                        LOGGER.error("Unable to load keystore. {}", keyStoreFile, e);
+                    } catch (CertificateException e) {
+                        LOGGER.error("Unable to load certificates from keystore. {}", keyStoreFile,
+                                e);
+                    } finally {
+                        IOUtils.closeQuietly(fis);
+                    }
+                    KeyManagerFactory keyFactory = KeyManagerFactory.getInstance(KeyManagerFactory
+                            .getDefaultAlgorithm());
+                    keyFactory.init(keyStore, keyStorePassword.toCharArray());
+                    LOGGER.debug("key manager factory initialized");
+                    KeyManager[] km = keyFactory.getKeyManagers();
+                    tlsParams.setKeyManagers(km);
+                } else {
+                    LOGGER.debug(
+                            "Keystore path or password were not passed in, using system defaults.");
+                    tlsParams.setKeyManagers(null);
                 }
-                KeyManagerFactory keyFactory = KeyManagerFactory.getInstance(KeyManagerFactory
-                        .getDefaultAlgorithm());
-                keyFactory.init(keyStore, keyStorePassword.toCharArray());
-                LOGGER.debug("key manager factory initialized");
-                KeyManager[] km = keyFactory.getKeyManagers();
-                tlsParams.setKeyManagers(km);
+            } else {
+                LOGGER.debug(
+                        "Keystore path was passed in as null or empty, using system defaults.");
+                tlsParams.setKeyManagers(null);
             }
 
             // this sets the algorithms that we accept for SSL
@@ -141,7 +185,6 @@ public abstract class TrustedRemoteSource {
             filter.getExclude().addAll(Arrays.asList(SSL_DISALLOWED_ALGORITHMS));
             tlsParams.setCipherSuitesFilter(filter);
 
-            httpConduit.setTlsClientParameters(tlsParams);
         } catch (KeyStoreException e) {
             LOGGER.error("Unable to read keystore: ", e);
         } catch (NoSuchAlgorithmException e) {

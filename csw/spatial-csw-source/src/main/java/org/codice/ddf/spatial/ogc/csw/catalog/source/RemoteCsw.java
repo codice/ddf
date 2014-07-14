@@ -57,7 +57,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * A client to a CSW 2.0.2 Service. This class uses the {@link Csw} interface to create a client
- * proxy from the {@link JAXRSClientBeanFactory}.
+ * proxy from the {@link JAXRSClientFactoryBean}.
  */
 public class RemoteCsw extends TrustedRemoteSource implements Csw {
 

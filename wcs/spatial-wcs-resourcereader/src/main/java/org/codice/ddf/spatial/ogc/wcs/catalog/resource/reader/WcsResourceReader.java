@@ -50,6 +50,7 @@ import net.opengis.wcs.v_1_0_0.TimeSequenceType;
 import net.opengis.wcs.v_1_0_0.WCSCapabilitiesType;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.cxf.jaxrs.client.WebClient;
 import org.codice.ddf.spatial.ogc.wcs.catalog.GetCoverageResponse;
 import org.codice.ddf.spatial.ogc.wcs.catalog.WcsConfiguration;
 import org.codice.ddf.spatial.ogc.wcs.catalog.WcsException;
@@ -128,7 +129,7 @@ public class WcsResourceReader {
 
     private void connectToRemoteWcs() {
 
-        LOGGER.debug("Connecting to remote WCS Server " + wcsConfiguration.getWcsUrl());
+        LOGGER.debug("Connecting to remote WCS Server {}", wcsConfiguration.getWcsUrl());
 
         try {
             remoteWcs = new RemoteWcs(wcsConfiguration);
@@ -148,6 +149,18 @@ public class WcsResourceReader {
         } catch (WcsException e) {
             LOGGER.warn("Error getting capabilities of WCS service", e);
         }
+    }
+
+    /**
+     * Sets the keystores to use for outgoing requests.
+     * @param keyStorePath Path to the keystore.
+     * @param keyStorePassword Password for the keystore.
+     * @param trustStorePath Path to the truststore.
+     * @param trustStorePassword Password for the truststore.
+     */
+    public void setKeystores(String keyStorePath, String keyStorePassword, String trustStorePath,
+            String trustStorePassword) {
+        remoteWcs.setKeystores(keyStorePath, keyStorePassword, trustStorePath, trustStorePassword);
     }
 
     public String getWcsUrl() {

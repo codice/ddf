@@ -32,6 +32,8 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.interceptor.LoggingInInterceptor;
 import org.apache.cxf.interceptor.LoggingOutInterceptor;
 import org.apache.cxf.jaxrs.client.JAXRSClientFactoryBean;
+import org.apache.cxf.jaxrs.client.WebClient;
+import org.codice.ddf.spatial.ogc.catalog.common.TrustedRemoteSource;
 import org.codice.ddf.spatial.ogc.wcs.catalog.DescribeCoverageRequest;
 import org.codice.ddf.spatial.ogc.wcs.catalog.GetCapabilitiesRequest;
 import org.codice.ddf.spatial.ogc.wcs.catalog.GetCoverageRequest;
@@ -45,12 +47,11 @@ import org.slf4j.LoggerFactory;
 
 /**
  * A client to a WCS 1.0.0 Service. This class uses the {@link Wcs} interface to create a client
- * proxy from the {@link JAXRSClientBeanFactory}.
- * 
- * @author rodgersh
+ * proxy from the {@link JAXRSClientFactoryBean}.
+ *
  * 
  */
-public class RemoteWcs implements Wcs {
+public class RemoteWcs extends TrustedRemoteSource implements Wcs {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RemoteWcs.class);
 
@@ -86,6 +87,19 @@ public class RemoteWcs implements Wcs {
         bean.setProviders(Arrays.asList(new GetCoverageMessageBodyReader()));
 
         return bean;
+    }
+
+    /**
+     * Sets the keystores to use for outgoing requests.
+     * @param keyStorePath Path to the keystore.
+     * @param keyStorePassword Password for the keystore.
+     * @param trustStorePath Path to the truststore.
+     * @param trustStorePassword Password for the truststore.
+     */
+    public void setKeystores(String keyStorePath, String keyStorePassword, String trustStorePath,
+            String trustStorePassword) {
+        this.configureKeystores(WebClient.client(wcs), keyStorePath, keyStorePassword,
+                trustStorePath, trustStorePassword);
     }
 
     @Override
