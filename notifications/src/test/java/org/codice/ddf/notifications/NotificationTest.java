@@ -25,19 +25,22 @@ import org.junit.Test;
  * Class of test methods for the {@link Notification} class.
  */
 public class NotificationTest {
+    
+    private static final String DEFAULT_USER_ID = "";
 
     /**
      * Test of the {@link Notification#Notification(String, String, String, String, String)}
      * constructor.
      * 
-     * Verifies that the constructor will not set a 
-     * {@link Notification#NOTIFICATION_KEY_USER_ID} to an empty {@code String}
+     * Verifies that the constructor will set a 
+     * {@link Notification#NOTIFICATION_KEY_USER_ID} to an empty {@code String},
+     * which simulates an anonymous user.
      */
     @Test
-    public void notificationConstructorsDoNotSetEmptyUserId() {
+    public void testNotificationSetAnonymousUserId() {
         Notification notification = new Notification("myId", "mySessionId",
                 "myAppName", "testing", "testing", new Date().getTime(), "");
-        assertEquals("Notification constructor accepted empty userId", null, 
+        assertEquals("Notification constructor accepted empty userId", DEFAULT_USER_ID, 
                 notification.getUserId());
     }
     

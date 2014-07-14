@@ -80,9 +80,10 @@ public class ActivityEvent extends HashMap<String, Object> {
         STARTED, RUNNING, FINISHED, STOPPED, PAUSED, FAILED
     }
 
-    public ActivityEvent(String id, Date timestamp, String category, String title, String message,
+    public ActivityEvent(String id, String sessionId, Date timestamp, String category, String title, String message,
             String progress, Map<String, String> operations, String user, ActivityStatus type, Long bytes) {
         setActivityId(id);
+        setSessionId(sessionId);
         setTimestamp(timestamp);
         setCategory(category);
         setTitle(title);
@@ -145,6 +146,26 @@ public class ActivityEvent extends HashMap<String, Object> {
      */
     public String getActivityId() {
         return this.get(ID_KEY).toString();
+    }
+
+    /**
+     * Set the session id of the activity being performed.
+     * 
+     * @param sessionId
+     *            This session id should be unique and used across the entire lifecycle
+     *            of the {@code ActivityEvent}.
+     */
+    public void setSessionId(String sessionId) {
+        this.put(SESSION_ID_KEY, sessionId);
+    }
+
+    /**
+     * Retrieves the session ID of the current {@code ActivityEvent}.
+     * 
+     * @return session ID of the {@code ActivityEvent}.
+     */
+    public String getSessionId() {
+        return this.get(SESSION_ID_KEY).toString();
     }
 
     /**
