@@ -3,7 +3,7 @@
 // NOTE: to enable debug uncomment the following 2 lines.
 //casper.options.verbose = true;
 //casper.options.logLevel = 'debug';
-casper.test.begin('simple contextual query', 3, function(test) {
+casper.test.begin('simple contextual query', 1, function(test) {
     casper.start('http://localhost:8383/');
 
     casper.waitFor(function() {
@@ -15,7 +15,7 @@ casper.test.begin('simple contextual query', 3, function(test) {
     }, function() {
         test.fail('Failed finding query form');
     });
-    
+
     //we need a mock cometd server to be able to run this
 //
 //    casper.then(function () {
