@@ -85,7 +85,8 @@ public class SendCommand extends OsgiCommandSupport {
     private void sendNotification() throws Exception {
         Long sysTimeMillis = System.currentTimeMillis();
         String id = UUID.randomUUID().toString().replaceAll("-", "");
-        Notification notification = new Notification(id, application,
+        String sessionId = "mockSessionId";
+        Notification notification = new Notification(id, sessionId, application,
                 title,
                 message,
                 sysTimeMillis,
