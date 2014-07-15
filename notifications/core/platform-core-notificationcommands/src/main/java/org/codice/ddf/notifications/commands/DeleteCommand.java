@@ -15,15 +15,12 @@
 package org.codice.ddf.notifications.commands;
 
 import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
-import org.codice.ddf.notifications.store.PersistentNotification;
+import org.codice.ddf.notifications.Notification;
 import org.codice.ddf.persistence.PersistenceException;
 import org.codice.ddf.persistence.PersistentStore;
 import org.fusesource.jansi.Ansi;
@@ -46,8 +43,8 @@ public class DeleteCommand extends OsgiCommandSupport {
     @Option(name = "User ID", required = false, aliases = {"-u"}, multiValued = false, description = "The user to delete notifications for.")
     String userId = null;
 
-    @Option(name = "UUID", required = false, aliases = {"-id"}, multiValued = false, description = "The uuid to delete notification for.")
-    String uuid = null;
+    @Option(name = "ID", required = false, aliases = {"-id"}, multiValued = false, description = "The id to delete notification for.")
+    String id = null;
 
     @Override
     protected Object doExecute() throws Exception {
@@ -69,17 +66,17 @@ public class DeleteCommand extends OsgiCommandSupport {
             
             PersistentStore persistentStore = (PersistentStore) bundleContext.getService(serviceReferences[0]);
             if (persistentStore != null) {               
-                    if (StringUtils.isNotBlank(uuid)) {
+                    if (StringUtils.isNotBlank(id)) {
                         try {
                             numDeleted = persistentStore.delete(PersistentStore.NOTIFICATION_TYPE, 
-                                    PersistentNotification.NOTIFICATION_KEY_UUID + " = '" + uuid + "'");
+                                    Notification.NOTIFICATION_KEY_ID + " = '" + id + "'");
                         } catch (PersistenceException e) {
-                            LOGGER.info("PersistenceException during deletion of notifications for UUID {}", uuid, e);
+                            LOGGER.info("PersistenceException during deletion of notifications for ID {}", id, e);
                         }
                     } else if (StringUtils.isNotBlank(userId)) {
                         try {
                             numDeleted = persistentStore.delete(PersistentStore.NOTIFICATION_TYPE, 
-                                    PersistentNotification.NOTIFICATION_KEY_USER_ID + " = '" + userId + "'");
+                                    Notification.NOTIFICATION_KEY_USER_ID + " = '" + userId + "'");
                         } catch (PersistenceException e) {
                             LOGGER.info("PersistenceException during deletion of notifications for user {}", userId, e);
                         }

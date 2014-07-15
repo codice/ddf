@@ -17,7 +17,6 @@ package org.codice.ddf.notifications.commands;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -26,7 +25,7 @@ import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
-import org.codice.ddf.notifications.store.PersistentNotification;
+import org.codice.ddf.notifications.Notification;
 import org.codice.ddf.persistence.PersistenceException;
 import org.codice.ddf.persistence.PersistentItem;
 import org.codice.ddf.persistence.PersistentStore;
@@ -99,24 +98,24 @@ public class ListCommand extends OsgiCommandSupport {
             console.print(DEFAULT_CONSOLE_COLOR);
 
             for (Map<String, Object> notification : notifications) {
-                Long timestamp = Long.valueOf((String) notification.get(PersistentNotification.NOTIFICATION_KEY_TIMESTAMP));
+                Long timestamp = Long.valueOf((String) notification.get(Notification.NOTIFICATION_KEY_TIMESTAMP));
                 String dateTime = new DateTime(new Date(timestamp)).toString(DATETIME_FORMATTER);
-                String message = (String) notification.get(PersistentNotification.NOTIFICATION_KEY_MESSAGE);
+                String message = (String) notification.get(Notification.NOTIFICATION_KEY_MESSAGE);
                 LOGGER.debug("id = {}, userId = {}, timestamp = {}, application = {},  title = {},  message = {}",
-                        notification.get(PersistentNotification.NOTIFICATION_KEY_UUID),
-                        notification.get(PersistentNotification.NOTIFICATION_KEY_USER_ID), 
+                        notification.get(Notification.NOTIFICATION_KEY_ID),
+                        notification.get(Notification.NOTIFICATION_KEY_USER_ID),
                         dateTime, 
-                        notification.get(PersistentNotification.NOTIFICATION_KEY_APPLICATION), 
-                        notification.get(PersistentNotification.NOTIFICATION_KEY_TITLE),
+                        notification.get(Notification.NOTIFICATION_KEY_APPLICATION), 
+                        notification.get(Notification.NOTIFICATION_KEY_TITLE),
                         message);
                 
                 console.printf(
                         formatString,
-                        notification.get(PersistentNotification.NOTIFICATION_KEY_UUID),
-                        notification.get(PersistentNotification.NOTIFICATION_KEY_USER_ID), 
+                        notification.get(Notification.NOTIFICATION_KEY_ID),
+                        notification.get(Notification.NOTIFICATION_KEY_USER_ID), 
                         dateTime, 
-                        notification.get(PersistentNotification.NOTIFICATION_KEY_APPLICATION), 
-                        notification.get(PersistentNotification.NOTIFICATION_KEY_TITLE),
+                        notification.get(Notification.NOTIFICATION_KEY_APPLICATION), 
+                        notification.get(Notification.NOTIFICATION_KEY_TITLE),
                         message.substring(0, Math.min(message.length(), MAX_LENGTH)));
             }
         }
@@ -147,7 +146,7 @@ public class ListCommand extends OsgiCommandSupport {
                         results = persistentStore.get(PersistentStore.NOTIFICATION_TYPE, ecql);
                     } else if (StringUtils.isNotBlank(userId)) {
                         results = persistentStore.get(PersistentStore.NOTIFICATION_TYPE, 
-                                PersistentNotification.NOTIFICATION_KEY_USER_ID + " = '" + userId + "'");
+                                Notification.NOTIFICATION_KEY_USER_ID + " = '" + userId + "'");
                     } else {
                         results = persistentStore.get(PersistentStore.NOTIFICATION_TYPE);
                     }
