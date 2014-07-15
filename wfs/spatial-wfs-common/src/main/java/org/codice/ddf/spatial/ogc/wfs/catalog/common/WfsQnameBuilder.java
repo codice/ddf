@@ -33,12 +33,9 @@ public class WfsQnameBuilder {
                 "_");
         contentTypeName = contentTypeName.replace(":",
                 "_");
-        // LOGGER.debug("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ original content type name: " +
-        // contentTypeName);
+
         if (contentTypeName.contains(" ")) {
             contentTypeName = contentTypeName.replaceAll(" ", "");
-            // LOGGER.debug("######$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ converted contentTypeName: "
-            // + contentTypeName);
         }
 
         // Build the QName to uniquely identify this content type
@@ -52,8 +49,7 @@ public class WfsQnameBuilder {
             namespace = WfsConstants.NAMESPACE_URN_ROOT + metacardTypeName + "."
                     + contentTypeName;
         }
-        // LOGGER.debug("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ Building new QName with namespace: "
-        // + namespace + " contentTypeName: " + contentTypeName + " prefix: " + prefix);
+
         QName qname = new QName(namespace, contentTypeName, prefix);
         return qname;
     }

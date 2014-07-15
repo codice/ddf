@@ -44,16 +44,23 @@
         </bundle>
         <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xstream/${xstream.bundle.version}
         </bundle>
-        <bundle>mvn:org.codice.ddf.spatial/spatial-wfs-v1_0_0-schema-webapp/${project.version}</bundle>
         <bundle>mvn:org.codice.ddf.spatial/spatial-wfs-api/${project.version}</bundle>
         <bundle>mvn:org.codice.ddf.spatial/spatial-wfs-source/${project.version}</bundle>
+    </feature>
+        
+    <feature name="spatial-wfs-v1_0_0" install="manual" version="${project.version}"
+             description="Web Feature Service (WFS) v1.0.0 Source.">
+        <feature>spatial-wfs</feature>
+        <bundle>mvn:org.codice.ddf.spatial/spatial-wfs-v1_0_0-source/${project.version}</bundle>
+        <bundle>mvn:org.codice.ddf.spatial/spatial-wfs-v1_0_0-schema-webapp/${project.version}</bundle>
+        <bundle>mvn:org.codice.ddf.spatial/spatial-wfs-v1_0_0-endpoint/${project.version}</bundle>
     </feature>
     
     <feature name="spatial-wfs-v2_0_0" install="manual" version="${project.version}"
              description="Web Feature Service (WFS) v2.0.0 Source.">
         <feature>spatial-wfs</feature>
-        <bundle>mvn:org.codice.ddf.spatial/spatial-wfs-v2_0_0-schema-webapp/${project.version}</bundle>
         <bundle>mvn:org.codice.ddf.spatial/spatial-wfs-v2_0_0-source/${project.version}</bundle>
+        <bundle>mvn:org.codice.ddf.spatial/spatial-wfs-v2_0_0-schema-webapp/${project.version}</bundle>
     </feature>
 
     <feature name="spatial-csw" install="manual" version="${project.version}"
@@ -75,6 +82,7 @@
         <feature>spatial-kml-transformer</feature>
         <feature>spatial-kml-networklinkendpoint</feature>
         <feature>spatial-wfs</feature>
+        <feature>spatial-wfs-v1_0_0</feature>
         <feature>spatial-wfs-v2_0_0</feature>
         <feature>spatial-csw</feature>
     </feature>

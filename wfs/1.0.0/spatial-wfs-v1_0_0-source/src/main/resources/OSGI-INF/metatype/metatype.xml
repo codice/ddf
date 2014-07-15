@@ -14,7 +14,7 @@
 -->
 <metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
 
-    <OCD name="WFS Federated Source" id="Wfs_Federated_Source" description="WFS Federated Source">
+    <OCD name="WFS v1.0.0 Federated Source" id="Wfs_v1_0_0_Federated_Source" description="WFS v1.0.0 Federated Source">
 
         <AD description="The unique name of the Source" name="Source ID" id="id" required="true"
             type="String" default="WFS"/>
@@ -56,7 +56,7 @@
 
     </OCD>
 
-    <OCD description="WFS Connected Source" name="WFS Connected Source" id="Wfs_Connected_Source">
+    <OCD description="WFS v1.0.0 Connected Source" name="WFS v1.0.0 Connected Source" id="Wfs_v1_0_0_Connected_Source">
 
         <AD description="The unique name of the Source" name="Source ID" id="id" required="true" type="String"
             default="WFS"/>
@@ -98,12 +98,12 @@
 		
     </OCD>
 
-    <Designate pid="Wfs_Federated_Source" factoryPid="Wfs_Federated_Source">
-        <Object ocdref="Wfs_Federated_Source"/>
+    <Designate pid="Wfs_v1_0_0_Federated_Source" factoryPid="Wfs_v1_0_0_Federated_Source">
+        <Object ocdref="Wfs_v1_0_0_Federated_Source"/>
     </Designate>
 
-    <Designate pid="Wfs_Connected_Source" factoryPid="Wfs_Connected_Source">
-        <Object ocdref="Wfs_Connected_Source"/>
+    <Designate pid="Wfs_v1_0_0_Connected_Source" factoryPid="Wfs_v1_0_0_Connected_Source">
+        <Object ocdref="Wfs_v1_0_0_Connected_Source"/>
     </Designate>
 
 </metatype:MetaData>

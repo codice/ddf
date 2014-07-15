@@ -20,7 +20,7 @@
         <version>2.5.0-SNAPSHOT</version>
     </parent>
     <artifactId>wfs-v1.0.0</artifactId>
-    <name>DDF :: Spatial :: WFS :: v1.0.0</name>
+    <name>DDF :: Spatial :: WFS :: 1.0.0</name>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>

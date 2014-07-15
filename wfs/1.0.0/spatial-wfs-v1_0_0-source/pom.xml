@@ -21,7 +21,7 @@
     </parent>
     <artifactId>spatial-wfs-v1_0_0-source</artifactId>
     <packaging>bundle</packaging>
-    <name>DDF :: Spatial :: WFS : 1.0.0 :: Source</name>
+    <name>DDF :: Spatial :: WFS :: 1.0.0 :: Source</name>
 
     <dependencies>
         <dependency>

@@ -21,7 +21,7 @@
 		<version>2.5.0-SNAPSHOT</version>
 	</parent>
 	<artifactId>spatial-wfs-v2_0_0-schema-bindings</artifactId>
-	<name>DDF :: Spatial :: WFS :: v2.0.0 Schema Bindings</name>
+	<name>DDF :: Spatial :: WFS :: 2.0.0 :: Schema Bindings</name>
 	<dependencies>
 		<dependency>
 			<groupId>org.jvnet.ogc</groupId>
