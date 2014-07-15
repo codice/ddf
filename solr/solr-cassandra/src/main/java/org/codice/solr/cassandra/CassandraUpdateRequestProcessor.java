@@ -81,6 +81,8 @@ public class CassandraUpdateRequestProcessor extends UpdateRequestProcessor {
     public void processDelete(DeleteUpdateCommand cmd) throws IOException {
         LOGGER.trace("ENTERING: processDelete()");
         String id = cmd.getId();
+        LOGGER.debug("Deleting row with id = {}", id);
+        cassandraClient.deleteEntryById(storeName, id);
         super.processDelete(cmd);
     }
     
@@ -204,6 +206,7 @@ public class CassandraUpdateRequestProcessor extends UpdateRequestProcessor {
                 String value = (String) fieldValue.getValue();
                 // No longer necessary since changed id_txt to a text type
                 //valuesClause += CassandraClient.normalizeUuid(value);  // do not quote UUID value
+                valuesClause += "'" + value + "'";
                 validColumn = true;
             } else if (fieldName.endsWith("_txt_set")) {
                 Collection<Object> values = fieldValue.getValues();
