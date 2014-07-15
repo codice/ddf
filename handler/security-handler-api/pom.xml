@@ -47,9 +47,15 @@
             <artifactId>servlet-api</artifactId>
         </dependency>
         <dependency>
+            <groupId>ddf.security</groupId>
+            <artifactId>ddf-security-common</artifactId>
+        </dependency>
+<!--
+        <dependency>
             <groupId>ddf.security.core</groupId>
             <artifactId>security-core-impl</artifactId>
         </dependency>
+-->
     </dependencies>
 
     <build>
@@ -60,6 +66,10 @@
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+                        <Embed-Dependency>
+                            ddf-security-common
+
+                        </Embed-Dependency>
                         <Export-Package>
                             org.codice.ddf.security.handler.api
                         </Export-Package>

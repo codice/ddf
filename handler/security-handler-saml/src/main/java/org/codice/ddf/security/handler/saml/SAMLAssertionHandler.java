@@ -20,13 +20,15 @@ import org.apache.cxf.helpers.IOUtils;
 import org.apache.cxf.staxutils.StaxUtils;
 import org.apache.cxf.rs.security.saml.DeflateEncoderDecoder;
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
-import org.codice.ddf.security.handler.api.AuthenticationHandler;
-import org.codice.ddf.security.handler.api.BaseAuthenticationToken;
 import org.codice.ddf.security.handler.api.HandlerResult;
 import org.codice.ddf.security.handler.api.SAMLAuthenticationToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
+import org.codice.ddf.security.handler.api.AuthenticationHandler;
+import org.codice.ddf.security.handler.api.BaseAuthenticationToken;
+
+import org.codice.ddf.security.common.HttpUtils;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -34,11 +36,13 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.xml.stream.XMLStreamException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
-import java.security.Principal;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.zip.DataFormatException;
@@ -62,28 +66,6 @@ public class SAMLAssertionHandler implements AuthenticationHandler {
     private static final transient Logger LOGGER = LoggerFactory
       .getLogger(SAMLAssertionHandler.class);
 
-    /**
-     * Returns a mapping of cookies from the incoming request. Key is the cookie name, while the
-     * value is the Cookie object itself.
-     *
-     * @param req Servlet request for this call
-     * @return map of Cookie objects present in the current request - always returns a map
-     */
-    public static Map<String, Cookie> getCookieMap(HttpServletRequest req) {
-        HashMap<String, Cookie> map = new HashMap<String, Cookie>();
-
-        Cookie[] cookies = req.getCookies();
-        if (cookies != null) {
-            for (Cookie cookie : cookies) {
-                if (cookie != null) {
-                    map.put(cookie.getName(), cookie);
-                }
-            }
-        }
-
-        return map;
-    }
-
     @Override
     public String getAuthenticationType() {
         return AUTH_TYPE;
@@ -96,7 +78,7 @@ public class SAMLAssertionHandler implements AuthenticationHandler {
 
         SecurityToken securityToken = null;
         HttpServletRequest httpRequest = (HttpServletRequest) request;
-        Map<String, Cookie> cookies = getCookieMap(httpRequest);
+        Map<String, Cookie> cookies = HttpUtils.getCookieMap(httpRequest);
 
         // check for full SAML assertions coming in (federated requests, etc.)
         Cookie samlCookie = cookies.get(SAML_COOKIE_NAME);
@@ -143,11 +125,35 @@ public class SAMLAssertionHandler implements AuthenticationHandler {
         return handlerResult;
     }
 
+    /**
+     * If an error occured during the processing of the request, this method will get called. Since
+     * SAML handling is typically processed first, then we can assume that there was an error with
+     * the presented SAML assertion - either it was invalid, or the reference didn't match a
+     * cached assertion, etc. In order not to get stuck in a processing loop, we will remove the
+     * existing SAML assertion cookies - that will allow handling to progress moving forward.
+     * @param servletRequest http servlet request
+     * @param servletResponse http servlet response
+     * @param chain rest of the request chain to be invoked after security handling
+     * @return result containing the potential credentials and status
+     * @throws ServletException
+     */
     @Override
     public HandlerResult handleError(ServletRequest servletRequest, ServletResponse servletResponse,
       FilterChain chain) throws ServletException {
         HandlerResult result = new HandlerResult();
-        LOGGER.debug("In error handler for saml - returning no action taken.");
+
+        HttpServletRequest httpRequest = servletRequest instanceof HttpServletRequest ? (HttpServletRequest) servletRequest : null;
+        HttpServletResponse httpResponse = servletResponse instanceof HttpServletResponse ? (HttpServletResponse) servletResponse : null;
+        if (httpRequest == null || httpResponse == null) {
+            return result;
+        }
+
+        LOGGER.debug("In error handler for saml - clearing cookies and returning no action taken.");
+
+        // we tried to process an invalid or missing SAML assertion
+        deleteCookie(SAML_COOKIE_NAME, httpRequest, httpResponse);
+        deleteCookie(SAML_COOKIE_REF, httpRequest, httpResponse);
+
         result.setStatus(HandlerResult.Status.NO_ACTION);
         return result;
     }
@@ -159,4 +165,23 @@ public class SAMLAssertionHandler implements AuthenticationHandler {
     public void setRealm(String realm) {
         this.realm = realm;
     }
+
+    public void deleteCookie(String cookieName, HttpServletRequest request, HttpServletResponse response) {
+        //remove session cookie
+        try {
+            LOGGER.debug("Removing cookie {}", cookieName);
+            response.setContentType("text/html");
+            Cookie cookie = new Cookie(cookieName, "");
+            URL url = null;
+            url = new URL(request.getRequestURL().toString());
+            cookie.setDomain(url.getHost());
+            cookie.setMaxAge(0);
+            cookie.setPath("/");
+            cookie.setComment("EXPIRING COOKIE at " + System.currentTimeMillis());
+            response.addCookie(cookie);
+        } catch (MalformedURLException e) {
+            LOGGER.warn("Unable to delete cookie {}", cookieName, e);
+        }
+    }
+
 }
