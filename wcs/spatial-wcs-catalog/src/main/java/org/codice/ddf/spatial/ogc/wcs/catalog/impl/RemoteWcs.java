@@ -29,8 +29,6 @@ import net.opengis.wcs.v_1_0_0.GetCoverage;
 import net.opengis.wcs.v_1_0_0.WCSCapabilitiesType;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.cxf.interceptor.LoggingInInterceptor;
-import org.apache.cxf.interceptor.LoggingOutInterceptor;
 import org.apache.cxf.jaxrs.client.JAXRSClientFactoryBean;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.codice.ddf.spatial.ogc.catalog.common.TrustedRemoteSource;
@@ -64,29 +62,11 @@ public class RemoteWcs extends TrustedRemoteSource implements Wcs {
             throw new IllegalArgumentException(errMsg);
         }
 
-        JAXRSClientFactoryBean bean = createJAXRSClientBean(wcsConfiguration);
+        wcs = createClientBean(Wcs.class, wcsConfiguration.getWcsUrl(),
+                wcsConfiguration.getUsername(), wcsConfiguration.getPassword(),
+                wcsConfiguration.getDisableSSLCertVerification(),
+                Arrays.asList(new GetCoverageMessageBodyReader()), getClass().getClassLoader());
 
-        // Additionally, set the username and password for Basic Auth
-        if ((!StringUtils.isEmpty(wcsConfiguration.getUsername()))
-                && (!StringUtils.isEmpty(wcsConfiguration.getPassword()))) {
-            bean.setUsername(wcsConfiguration.getUsername());
-            bean.setPassword(wcsConfiguration.getPassword());
-        }
-
-        wcs = bean.create(Wcs.class);
-    }
-
-    protected JAXRSClientFactoryBean createJAXRSClientBean(WcsConfiguration wcsConfiguration) {
-
-        JAXRSClientFactoryBean bean = new JAXRSClientFactoryBean();
-        bean.setServiceClass(Wcs.class);
-        bean.setAddress(wcsConfiguration.getWcsUrl());
-        bean.getInInterceptors().add(new LoggingInInterceptor());
-        bean.getOutInterceptors().add(new LoggingOutInterceptor());
-
-        bean.setProviders(Arrays.asList(new GetCoverageMessageBodyReader()));
-
-        return bean;
     }
 
     /**
