@@ -201,11 +201,30 @@ define([
                 this.scene = options.scene;
                 this.notificationEl = options.notificationEl;
 
+                wreqr.vent.on('search:circledisplay', _.bind(this.showCircle, this));
                 wreqr.vent.on('search:drawcircle', _.bind(this.draw, this));
                 wreqr.vent.on('search:drawstop', _.bind(this.stop, this));
                 wreqr.vent.on('search:drawend', _.bind(this.destroy, this));
             },
+            showCircle: function(model) {
+                if (this.enabled) {
+                    var circleModel = model || new DrawCircle.CircleModel(),
+                        view = new DrawCircle.CircleView({
+                            scene: this.scene,
+                            model: circleModel
+                        });
 
+                    if (this.view) {
+                        this.view.destroyPrimitive();
+                        this.view.stop();
+
+                    }
+                    view.updatePrimitive(model);
+                    this.view = view;
+
+                    return circleModel;
+                }
+            },
             draw: function (model) {
                 if (this.enabled) {
                     var circleModel = model || new DrawCircle.CircleModel(),
@@ -237,7 +256,9 @@ define([
                 if (this.enabled && this.view) {
                     this.view.stop();
                     this.view.handleRegionStop();
-                    this.notificationView.close();
+                    if(this.notificationView) {
+                        this.notificationView.close();
+                    }
                 }
             },
             destroy: function () {
@@ -245,7 +266,9 @@ define([
                     this.view.stop();
                     this.view.destroyPrimitive();
                     this.view = undefined;
-                    this.notificationView.close();
+                    if(this.notificationView) {
+                        this.notificationView.close();
+                    }
                 }
             }
 

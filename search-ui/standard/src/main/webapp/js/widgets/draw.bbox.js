@@ -239,9 +239,30 @@ define([
                 this.scene = options.scene;
                 this.notificationEl = options.notificationEl;
 
+                wreqr.vent.on('search:bboxdisplay', _.bind(this.showBox, this));
                 wreqr.vent.on('search:drawbbox', _.bind(this.draw, this));
                 wreqr.vent.on('search:drawstop', _.bind(this.stop, this));
                 wreqr.vent.on('search:drawend', _.bind(this.destroy, this));
+            },
+            showBox: function(model) {
+                if (this.enabled) {
+                    var bboxModel = model || new Draw.BboxModel(),
+                        view = new Draw.BboxView(
+                            {
+                                scene: this.scene,
+                                model: bboxModel
+                            });
+
+                    if (this.view) {
+                        this.view.destroyPrimitive();
+                        this.view.stop();
+
+                    }
+                    view.updatePrimitive(model);
+                    this.view = view;
+
+                    return bboxModel;
+                }
             },
             draw: function (model) {
                 if (this.enabled) {
@@ -272,7 +293,9 @@ define([
             stop: function () {
                 if (this.enabled && this.view) {
                     this.view.stop();
-                    this.notificationView.close();
+                    if(this.notificationView) {
+                        this.notificationView.close();
+                    }
                 }
             },
             destroy: function () {
@@ -280,7 +303,9 @@ define([
                     this.view.stop();
                     this.view.destroyPrimitive();
                     this.view = undefined;
-                    this.notificationView.close();
+                    if(this.notificationView) {
+                        this.notificationView.close();
+                    }
                 }
             }
         });

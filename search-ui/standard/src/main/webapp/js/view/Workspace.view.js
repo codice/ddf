@@ -170,7 +170,7 @@ define([
                         });
                     }
 
-                    wreqr.vent.trigger('workspace:results', dir.forward, searchResult);
+                    wreqr.vent.trigger('workspace:results', dir.forward, this.model);
                 }
             }
         });
@@ -307,9 +307,13 @@ define([
             },
 
             setupEvents: function(tabHash) {
-                if(this.currentResults && tabHash === '#workspaces') {
+                if(this.currentSearch && tabHash === '#workspaces') {
                     wreqr.vent.trigger('map:clear');
-                    wreqr.vent.trigger('map:results', this.currentResults, false);
+                    wreqr.vent.trigger('map:results', this.currentSearch.get('result'), false);
+
+                    if(this.currentSearch) {
+                        this.updateMapPrimative();
+                    }
                 }
 
                 if(tabHash === '#workspaces') {
@@ -322,6 +326,7 @@ define([
                     wreqr.vent.on('workspace:save', this.workspaceSave);
                     wreqr.vent.on('workspace:saveall', this.workspaceSave);
                     wreqr.vent.on('workspace:cancel', this.workspaceCancel);
+                    this.workspaceRegion.show(undefined, dir.none);
                 } else {
                     wreqr.vent.off('workspace:show', this.showWorkspace);
                     wreqr.vent.off('workspace:results', this.showWorkspaceResults);
@@ -332,6 +337,7 @@ define([
                     wreqr.vent.off('workspace:save', this.workspaceSave);
                     wreqr.vent.off('workspace:saveall', this.workspaceSave);
                     wreqr.vent.off('workspace:cancel', this.workspaceCancel);
+                    this.workspaceRegion.close();
                 }
             },
 
@@ -375,15 +381,30 @@ define([
 
             showWorkspaceResults: function(direction, model) {
                 if(model) {
-                    this.currentResults = model;
+                    this.currentSearch = model;
                 }
-                this.workspaceRegion.show(new MetacardList.MetacardListView({model: this.currentResults}), direction);
+
+                this.updateMapPrimative();
+
+                this.workspaceRegion.show(new MetacardList.MetacardListView({model: this.currentSearch.get('result')}), direction);
                 wreqr.vent.trigger('map:clear');
-                wreqr.vent.trigger('map:results', this.currentResults);
+                wreqr.vent.trigger('map:results', this.currentSearch.get('result'));
             },
 
             showWorkspaceMetacard: function(model) {
                 this.workspaceRegion.show(new MetacardDetail.MetacardDetailView({model: model}), dir.forward);
+            },
+
+            updateMapPrimative: function() {
+                wreqr.vent.trigger('search:drawend');
+                if(this.currentSearch.get('north') && this.currentSearch.get('south') && this.currentSearch.get('east') &&
+                    this.currentSearch.get('west')) {
+                    wreqr.vent.trigger('search:bboxdisplay', this.currentSearch);
+                    this.currentSearch.trigger('EndExtent');
+                } else if(this.currentSearch.get('lat') && this.currentSearch.get('lon') && this.currentSearch.get('radius')) {
+                    wreqr.vent.trigger('search:circledisplay', this.currentSearch);
+                    this.currentSearch.trigger('EndExtent');
+                }
             },
 
             onRender: function() {

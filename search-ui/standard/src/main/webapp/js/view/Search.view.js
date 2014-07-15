@@ -61,6 +61,9 @@ define([
                 if(this.result && tabHash === '#search') {
                     wreqr.vent.trigger('map:clear');
                     wreqr.vent.trigger('map:results', this.result, false);
+                    if(this.query) {
+                        this.updateMapPrimative();
+                    }
                 }
 
                 if(tabHash === '#search') {
@@ -73,6 +76,7 @@ define([
                     wreqr.vent.on('metacard:selected', this.showMetacardDetail);
                     wreqr.vent.on('search:back', this.back);
                     wreqr.vent.on('search:forward', this.forward);
+                    this.searchRegion.show(undefined, dir.none);
                 } else {
                     wreqr.vent.off('search:show', this.showQuery);
                     wreqr.vent.off('search:clear', this.onQueryClear);
@@ -83,6 +87,19 @@ define([
                     wreqr.vent.off('metacard:selected', this.showMetacardDetail);
                     wreqr.vent.off('search:back', this.back);
                     wreqr.vent.off('search:forward', this.forward);
+                    this.searchRegion.close();
+                }
+            },
+
+            updateMapPrimative: function() {
+                wreqr.vent.trigger('search:drawend');
+                if(this.query.get('north') && this.query.get('south') && this.query.get('east') &&
+                    this.query.get('west')) {
+                    wreqr.vent.trigger('search:bboxdisplay', this.query);
+                    this.query.trigger('EndExtent');
+                } else if(this.query.get('lat') && this.query.get('lon') && this.query.get('radius')) {
+                    wreqr.vent.trigger('search:circledisplay', this.query);
+                    this.query.trigger('EndExtent');
                 }
             },
 
@@ -101,6 +118,7 @@ define([
                 if (this.progressRegion.currentView) {
                     this.progressRegion.close();
                 }
+                delete this.result;
             },
             back: function (currentState) {
                 if (currentState === 'results') {

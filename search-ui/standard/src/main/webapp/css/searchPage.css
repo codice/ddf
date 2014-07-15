@@ -260,6 +260,11 @@ body {
 
 .nav-title {
     font-size: large;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: block;
+    width: 200px;
+    text-align: center;
 }
 
 .nav-divider {

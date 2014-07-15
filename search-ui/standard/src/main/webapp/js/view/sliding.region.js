@@ -36,6 +36,14 @@ define([
             direction = _.isUndefined(direction, dir.forward) ? dir.forward : direction;
             this.ensureEl();
 
+            if(!view) {
+                if(this.currentView) {
+                    view = this.currentView;
+                } else {
+                    return this.currentPromise;
+                }
+            }
+
             var isViewClosed = view.isClosed || _.isUndefined(view.$el);
 
             var isDifferentView = view !== this.currentView;
@@ -57,7 +65,7 @@ define([
                 view.render();
                 var openPromise;
                 if (isDifferentView || isViewClosed) {
-                    openPromise = region.open(view, direction);
+                    openPromise = region.open(view, direction, isViewClosed);
                 } else {
                     openPromise = Q();
                 }
@@ -79,7 +87,7 @@ define([
 
         },
 
-        open: function (view, direction) {
+        open: function (view, direction, isViewClosed) {
             // src  example
 //           this.$el.empty().append(view.el);
             var region = this;
@@ -98,11 +106,17 @@ define([
                 top = -this.$el.outerHeight();
             }
 
+            if(isViewClosed) {
+                view.delegateEvents(view.events);
+            }
+
             view.$el.css({
                 left : left,
                 top : top,
                 opacity : 0
             });
+
+            view.isClosed = false;
 
             return this.slide(view, direction, flyIn)
                 .then(function(){
@@ -125,14 +139,16 @@ define([
                     // call 'close' or 'remove', depending on which is found
                     if (view.close) {
                         view.close();
+                        view.isClosed = true;
                     }
                     else if (view.remove) {
                         view.remove();
+                        view.isClosed = true;
                     }
 
                     Marionette.triggerMethod.call(region, "close");
 
-                    delete region.currentView;
+//                    delete region.currentView;
                 });
 
         },
