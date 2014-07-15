@@ -22,7 +22,7 @@
 
     <groupId>ddf.platform.solr</groupId>
     <artifactId>platform-solr-server-standalone</artifactId>
-    <name>DDF :: Catalog :: Solr :: Server :: Standalone War</name>
+    <name>DDF :: Platform :: Solr :: Server :: Standalone War</name>
     <packaging>war</packaging>
 
     <dependencies>
