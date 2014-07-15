@@ -96,18 +96,20 @@ public class PersistentStoreImpl implements PersistentStore {
         // Set Solr Core name to type and create/connect to Solr Core
         setSolrCore(type);
         
-        String uuid = UUID.randomUUID().toString();
+        //OMIT String uuid = UUID.randomUUID().toString();
         Date now = new Date();
         //DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
         //String createdDate = df.format(now);
         
         SolrInputDocument solrInputDocument = new SolrInputDocument();
-        solrInputDocument.addField(PersistentItem.ID, uuid);
+        //OMIT solrInputDocument.addField(PersistentItem.ID, uuid);
         solrInputDocument.addField("createddate_tdt", now);
         
         for (String key : properties.keySet()) {
-//        for (String key : item.getPropertyNames()) {            
-            if (key.endsWith(PersistentItem.TEXT_SET_SUFFIX)) {
+//        for (String key : item.getPropertyNames()) {
+            if (key.equals(PersistentItem.ID)) {
+                solrInputDocument.addField(key, (String) properties.get(key));
+            } else if (key.endsWith(PersistentItem.TEXT_SET_SUFFIX)) {
                 @SuppressWarnings("unchecked")
 //                Set<String> values = item.getTextSetProperty(key);
                 Set<String> values = (Set<String>) properties.get(key);
@@ -159,7 +161,7 @@ public class PersistentStoreImpl implements PersistentStore {
         // Set Solr Core name to type and create/connect to Solr Core
         setSolrCore(type);
         
-        SolrQueryFilterVisitor visitor = new SolrQueryFilterVisitor();
+        SolrQueryFilterVisitor visitor = new SolrQueryFilterVisitor(coreSolrServer);
 
         try {
             SolrQuery solrQuery;
