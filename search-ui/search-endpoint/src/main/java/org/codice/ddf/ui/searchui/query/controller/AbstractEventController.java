@@ -110,7 +110,7 @@ public abstract class AbstractEventController implements EventHandler {
             Map<String, Object> sanitizedResult = PersistentItem.stripSuffixes(result);
             Map<String, String> notification = new HashMap<String, String>();
             for (String name : sanitizedResult.keySet()) {
-                notification.put(name, (String) sanitizedResult.get(name));
+                notification.put(name, sanitizedResult.get(name).toString());
             }
             notifications.add(notification);
         }

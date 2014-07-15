@@ -16,6 +16,7 @@ package org.codice.ddf.ui.searchui.query.controller;
 
 import net.minidev.json.JSONObject;
 
+import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.activities.ActivityEvent;
 import org.codice.ddf.persistence.PersistentStore;
 import org.cometd.annotation.Service;
@@ -87,13 +88,27 @@ public class ActivityController extends AbstractEventController {
                     + "\" property is null or empty");
         }
 
+        String sessionId = (String) event.getProperty(ActivityEvent.SESSION_ID_KEY);
+        if (null == sessionId || sessionId.isEmpty()) {
+            throw new IllegalArgumentException("Activity Event \"" + ActivityEvent.SESSION_ID_KEY
+                    + "\" property is null or empty");
+        }        
+
         String userId = (String) event.getProperty(ActivityEvent.USER_ID_KEY);
-        if (null == userId || userId.isEmpty()) {
+        // Blank user ID is allowed as this indicates the anonymous user
+        if (null == userId) {
             throw new IllegalArgumentException("Activity Event \"" + ActivityEvent.USER_ID_KEY
                     + "\" property is null or empty");
         }
 
-        ServerSession recipient = getSessionByUserId(userId);
+        ServerSession recipient = null;
+        if (StringUtils.isNotBlank(userId)) {
+            LOGGER.debug("Getting ServerSession for userId {}", userId);
+            recipient = getSessionByUserId(userId);
+        } else {
+            LOGGER.debug("Getting ServerSession for sessionId {}", sessionId);
+            recipient = getSessionByUserId(sessionId);
+        }
 
         if (null != recipient) {
             JSONObject jsonPropMap = new JSONObject();
@@ -110,8 +125,8 @@ public class ActivityController extends AbstractEventController {
                     jsonPropMap.toJSONString(), null);
 
         } else {
-            LOGGER.debug("User with ID \"{}\" is not connected to the server. "
-                    + "Ignoring activity", userId);
+            LOGGER.debug("Session with ID \"{}\" is not connected to the server. "
+                    + "Ignoring activity", sessionId);
         }
     }
 

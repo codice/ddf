@@ -18,6 +18,7 @@ import java.util.Map;
 
 import net.minidev.json.JSONObject;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
 import org.codice.ddf.notifications.Notification;
@@ -95,13 +96,28 @@ public class NotificationController extends AbstractEventController {
                     + "\" property is null or empty");
         }
 
+        String sessionId = (String) event.getProperty(Notification.NOTIFICATION_KEY_SESSION_ID);
+        if (null == sessionId || sessionId.isEmpty()) {
+            throw new IllegalArgumentException("Event \"" + Notification.NOTIFICATION_KEY_SESSION_ID
+                    + "\" property is null or empty");
+        }
+        
         String userId = (String) event.getProperty(Notification.NOTIFICATION_KEY_USER_ID);
-        if (null == userId || userId.isEmpty()) {
+        // Blank user ID is allowed as this indicates the anonymous user
+        if (null == userId) {
             throw new IllegalArgumentException("Event \"" + Notification.NOTIFICATION_KEY_USER_ID
                     + "\" property is null or empty");
         }
 
-        ServerSession recipient = getSessionByUserId(userId);
+        ServerSession recipient = null;
+        if (StringUtils.isNotBlank(userId)) {
+            LOGGER.debug("Getting ServerSession for userId {}", userId);
+            recipient = getSessionByUserId(userId);
+        } else {
+            LOGGER.debug("Getting ServerSession for sessionId {}", sessionId);
+            recipient = getSessionByUserId(sessionId);
+        }
+        
         if (null != recipient) {
             JSONObject jsonPropMap = new JSONObject();
 
@@ -115,8 +131,8 @@ public class NotificationController extends AbstractEventController {
                     jsonPropMap.toJSONString(), null);
 
         } else {
-            LOGGER.debug("User with ID \"{}\" is not connected to the server. "
-                    + "Ignnoring notification", userId);
+            LOGGER.debug("Session with ID \"{}\" is not connected to the server. "
+                    + "Ignnoring notification", sessionId);
         }
     }
 
