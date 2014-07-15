@@ -243,8 +243,14 @@ public class CassandraClient {
         LOGGER.debug("Executing CQL:  {}", query);
         Session session = getSession(keyspaceName);
         session.execute(query, values);
-    }    
+    }        
     
+    public void deleteEntryById(String tableName, String id) {
+        String cql = "DELETE FROM " + tableName + " WHERE id_txt = '" + id + "'";
+        LOGGER.debug("cql = {}", cql);
+        Session session = getSession(keyspaceName);
+        session.execute(cql);
+    }
     /**
      * Only alphanumerics and underscores are allowed in CQL table and column names -
      * replace any dashes with underscores in the table/column name and verify the
