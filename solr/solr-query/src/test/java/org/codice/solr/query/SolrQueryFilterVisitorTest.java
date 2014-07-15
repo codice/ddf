@@ -98,7 +98,7 @@ public class SolrQueryFilterVisitorTest {
         EmbeddedSolrServer solrServer = new EmbeddedSolrServer(container, CORE_NAME);
         
         // the test
-        SolrQueryFilterVisitor visitor = new SolrQueryFilterVisitor();
+        SolrQueryFilterVisitor visitor = new SolrQueryFilterVisitor(solrServer);
         Filter filter = ECQL.toFilter("Name = 'Hugh'");
         SolrQuery solrQuery = (SolrQuery) filter.accept(visitor, null);
         assertNotNull(solrQuery);

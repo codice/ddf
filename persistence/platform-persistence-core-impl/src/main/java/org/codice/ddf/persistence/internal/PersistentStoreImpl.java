@@ -18,10 +18,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
@@ -96,22 +96,18 @@ public class PersistentStoreImpl implements PersistentStore {
         // Set Solr Core name to type and create/connect to Solr Core
         setSolrCore(type);
         
-        //OMIT String uuid = UUID.randomUUID().toString();
         Date now = new Date();
         //DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
         //String createdDate = df.format(now);
         
         SolrInputDocument solrInputDocument = new SolrInputDocument();
-        //OMIT solrInputDocument.addField(PersistentItem.ID, uuid);
         solrInputDocument.addField("createddate_tdt", now);
         
         for (String key : properties.keySet()) {
-//        for (String key : item.getPropertyNames()) {
             if (key.equals(PersistentItem.ID)) {
                 solrInputDocument.addField(key, (String) properties.get(key));
             } else if (key.endsWith(PersistentItem.TEXT_SET_SUFFIX)) {
                 @SuppressWarnings("unchecked")
-//                Set<String> values = item.getTextSetProperty(key);
                 Set<String> values = (Set<String>) properties.get(key);
                 if (values != null && !values.isEmpty()) {
                     for (String value : values) {
@@ -120,13 +116,10 @@ public class PersistentStoreImpl implements PersistentStore {
                 }
             } else if (key.endsWith(PersistentItem.XML_SUFFIX) || key.endsWith(PersistentItem.TEXT_SUFFIX)) {
                 solrInputDocument.addField(key, (String) properties.get(key));
-//                solrInputDocument.addField(key, item.getProperty(key));
             } else if (key.endsWith(PersistentItem.LONG_SUFFIX)) {
                 solrInputDocument.addField(key, (Long) properties.get(key));
-//                solrInputDocument.addField(key, item.getProperty(key));
             } else if (key.endsWith(PersistentItem.INT_SUFFIX)) {
                 solrInputDocument.addField(key, (Integer) properties.get(key));
-//                solrInputDocument.addField(key, item.getProperty(key));
             }
         }
 
@@ -151,7 +144,7 @@ public class PersistentStoreImpl implements PersistentStore {
     
     @Override
     // Returned Map will have suffixes in the key names - client is responsible for handling them
-    public List<Map<String, Object>> get(String type, String ecql) throws PersistenceException {
+    public List<Map<String, Object>> get(String type, String cql) throws PersistenceException {
         if (StringUtils.isBlank(type)) {
             throw new PersistenceException("The type of object(s) to retrieve must be non-null and not blank, e.g., notification, metacard, etc.");
         }
@@ -165,11 +158,11 @@ public class PersistentStoreImpl implements PersistentStore {
 
         try {
             SolrQuery solrQuery;
-            // If not ECQL specified, then return all items
-            if (StringUtils.isBlank(ecql)) {
+            // If not cql specified, then return all items
+            if (StringUtils.isBlank(cql)) {
                 solrQuery = new SolrQuery("*:*");
             } else {
-                Filter filter = CQL.toFilter(ecql);
+                Filter filter = CQL.toFilter(cql);
                 solrQuery = (SolrQuery) filter.accept(visitor, null);
             }
             QueryResponse solrResponse = coreSolrServer.query(solrQuery, METHOD.POST);
@@ -201,17 +194,17 @@ public class PersistentStoreImpl implements PersistentStore {
                 results.add(result);
             }
         } catch (CQLException e) {
-            throw new PersistenceException("CQLException while getting Solr data with ECQL statement " + ecql, e);
+            throw new PersistenceException("CQLException while getting Solr data with cql statement " + cql, e);
         } catch (SolrServerException e) {
-            throw new PersistenceException("SolrServerException while getting Solr data with ECQL statement " + ecql, e);
+            throw new PersistenceException("SolrServerException while getting Solr data with cql statement " + cql, e);
         }        
         
         return results;
     }
     
     @Override
-    public int delete(String type, String ecql) throws PersistenceException {
-        List<Map<String, Object>> itemsToDelete = this.get(type, ecql);
+    public int delete(String type, String cql) throws PersistenceException {
+        List<Map<String, Object>> itemsToDelete = this.get(type, cql);
         List<String> idsToDelete = new ArrayList<String>();
         for (Map<String, Object> item : itemsToDelete) {
             String uuid = (String) item.get(PersistentItem.ID);

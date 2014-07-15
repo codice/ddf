@@ -14,10 +14,22 @@
  **/
 package org.codice.solr.query;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-public class SchemaFields {
+import org.apache.commons.lang.StringUtils;
+import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.request.LukeRequest;
+import org.apache.solr.client.solrj.response.LukeResponse;
+import org.apache.solr.client.solrj.response.LukeResponse.FieldInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+public class SchemaFieldResolver {
+    
+    private static final Logger LOGGER = LoggerFactory.getLogger(SchemaFieldResolver.class);
 
     public static final Map<String, AttributeFormat> SUFFIX_TO_FORMAT_MAP = new HashMap<String, AttributeFormat>();
 
@@ -46,6 +58,12 @@ public class SchemaFields {
     public static final String DATE_SUFFIX = "_tdt";
 
     public static final String BINARY_SUFFIX = "_bin";
+    
+    public static final String[] FORMAT_SUFFIXES = new String[] {
+        OBJECT_SUFFIX, LONG_SUFFIX, INTEGER_SUFFIX, SHORT_SUFFIX, FLOAT_SUFFIX,
+        DOUBLE_SUFFIX, BOOLEAN_SUFFIX, GEO_SUFFIX, TEXT_SUFFIX, XML_SUFFIX,
+        DATE_SUFFIX, BINARY_SUFFIX
+    };
 
     public static final String TOKENIZED = "_tokenized";
 
@@ -85,8 +103,9 @@ public class SchemaFields {
         FORMAT_TO_SUFFIX_MAP.put(AttributeFormat.LONG, LONG_SUFFIX);
         FORMAT_TO_SUFFIX_MAP.put(AttributeFormat.SHORT, SHORT_SUFFIX);
         FORMAT_TO_SUFFIX_MAP.put(AttributeFormat.OBJECT, OBJECT_SUFFIX);
-
     }
+    
+    private SolrServer solrServer;
 
 //    public AttributeFormat getFormat(String suffix) {
 //        return SUFFIX_TO_FORMAT_MAP.get(suffix);
@@ -96,5 +115,65 @@ public class SchemaFields {
 //
 //        return FORMAT_TO_SUFFIX_MAP.get(attributeFormat);
 //    }
+    
+    public SchemaFieldResolver(SolrServer solrServer) {
+        this.solrServer = solrServer;
+    }
 
+    public SchemaField getSchemaField(String propertyName, boolean isSearchedAsExactValue) {
+        SchemaField schemaField = null;
+        LukeRequest luke = new LukeRequest();        
+        LukeResponse rsp;
+        try {
+            rsp = luke.process(solrServer);
+            Map<String, FieldInfo> fieldsInfo = rsp.getFieldInfo();
+            if (fieldsInfo != null && !fieldsInfo.isEmpty()) {
+                LOGGER.info("got fieldsInfo for {} fields", fieldsInfo.size());
+                
+                for (String fieldName : fieldsInfo.keySet()) {
+                    
+                    // See if any fieldName startsWith(propertyName)
+                    // if it does, then see if remainder of fieldName matches any expected suffix
+                    // if suffix matches, then get type of field and cache it
+                    if (fieldName.startsWith(propertyName) && StringUtils.endsWithAny(fieldName, FORMAT_SUFFIXES)) {
+                        String fieldType = fieldsInfo.get(fieldName).getType();
+                        int index = StringUtils.lastIndexOfAny(fieldName, FORMAT_SUFFIXES);
+                        String suffix = fieldName.substring(index);
+                        if (!isSearchedAsExactValue) {
+                            suffix = getSpecialIndexSuffix(suffix);
+                            fieldType += suffix;
+                        }
+                        LOGGER.info("field {} has type {}", fieldName, fieldType);
+                        schemaField = new SchemaField(fieldName, fieldType);
+                        schemaField.setSuffix(suffix);
+                        return schemaField;
+                    }
+                }
+            } else {
+                LOGGER.info("fieldsInfo from LukeRequest are either null or empty");
+            }
+
+        } catch (SolrServerException e) {
+            LOGGER.info("SolrServerException while processing LukeRequest", e);
+        } catch (IOException e) {
+            LOGGER.info("IOException while processing LukeRequest", e);
+        }
+        
+        LOGGER.info("Did not find SchemaField for property {}", propertyName);
+        
+        return schemaField;
+    }
+       
+    private String getSpecialIndexSuffix(String suffix) {
+
+        if (suffix.equalsIgnoreCase(TEXT_SUFFIX)) {
+            return SchemaFieldResolver.TOKENIZED;
+        } else if (suffix.equalsIgnoreCase(GEO_SUFFIX)) {
+            return SchemaFieldResolver.INDEXED;
+        } else if (suffix.equalsIgnoreCase(XML_SUFFIX)) {
+            return SchemaFieldResolver.TEXT_PATH;
+        }
+        
+        return "";
+    }
 }

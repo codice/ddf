@@ -74,8 +74,8 @@ public class ListCommand extends OsgiCommandSupport {
             index = 0, multiValued = false, required = false)
     String userId = null;
     
-    @Option(name = "ECQL", required = false, aliases = {"-ecql"}, multiValued = false, description = "ECQL query to get notifications.")
-    String ecql = null;
+    @Option(name = "CQL", required = false, aliases = {"-cql"}, multiValued = false, description = "OGC CQL query to get notifications.")
+    String cql = null;
     
     @Override
     protected Object doExecute() throws Exception {
@@ -142,8 +142,8 @@ public class ListCommand extends OsgiCommandSupport {
             if (persistentStore != null) {
                 try {
                     List<Map<String, Object>> results = new ArrayList<Map<String, Object>>();
-                    if (StringUtils.isNotBlank(ecql)) {
-                        results = persistentStore.get(PersistentStore.NOTIFICATION_TYPE, ecql);
+                    if (StringUtils.isNotBlank(cql)) {
+                        results = persistentStore.get(PersistentStore.NOTIFICATION_TYPE, cql);
                     } else if (StringUtils.isNotBlank(userId)) {
                         results = persistentStore.get(PersistentStore.NOTIFICATION_TYPE, 
                                 Notification.NOTIFICATION_KEY_USER_ID + " = '" + userId + "'");

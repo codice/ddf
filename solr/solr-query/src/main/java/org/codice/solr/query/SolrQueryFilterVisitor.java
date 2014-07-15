@@ -14,12 +14,18 @@
  **/
 package org.codice.solr.query;
 
+import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
+import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.request.LukeRequest;
+import org.apache.solr.client.solrj.response.LukeResponse;
+import org.apache.solr.client.solrj.response.LukeResponse.FieldInfo;
 import org.geotools.filter.visitor.DefaultFilterVisitor;
 import org.opengis.filter.PropertyIsEqualTo;
 import org.slf4j.Logger;
@@ -43,13 +49,26 @@ public class SolrQueryFilterVisitor extends DefaultFilterVisitor {
    
     private static final Map<String, String> FIELD_MAP;
 
-    public static final String TOKENIZED_METADATA_FIELD = "metadata_txt" + SchemaFields.TOKENIZED;
+    public static final String TOKENIZED_METADATA_FIELD = "metadata_txt" + SchemaFieldResolver.TOKENIZED;
     
     static {
         Map<String, String> tempMap = new HashMap<String, String>();
         tempMap.put("anyText", TOKENIZED_METADATA_FIELD);
         //tempMap.put(Metacard.ANY_GEO, Metacard.GEOGRAPHY + SPATIAL_INDEX);
         FIELD_MAP = Collections.unmodifiableMap(tempMap);
+    }
+    
+    private SolrServer solrServer;
+    
+    private SchemaFieldResolver schemaFieldResolver;
+    
+    // key=propertyName, e.g., "user", no suffix
+    private static Map<String, SchemaField> SCHEMA_FIELDS_CACHE = new HashMap<String, SchemaField>();
+    
+    
+    public SolrQueryFilterVisitor(SolrServer solrServer) {
+        this.solrServer = solrServer;
+        schemaFieldResolver = new SchemaFieldResolver(solrServer);
     }
 
     @Override
@@ -76,15 +95,42 @@ public class SolrQueryFilterVisitor extends DefaultFilterVisitor {
         
         if (StringUtils.isBlank(literalValue)) {
             throw new UnsupportedOperationException("Literal value is required for search.");
-        }
+        }        
 
-        // Change hard-coded STRING to use a DynamicSchemaResolver that caches all columns based on suffix to format.
-        // Need to figure out how to get column metadata from Solr schema
-        String mappedPropertyName = getMappedPropertyName(propertyName, AttributeFormat.STRING,
-                true);
-        
+        String mappedPropertyName = getMappedPropertyName(propertyName);
+       
         return new SolrQuery(mappedPropertyName + ":" + QUOTE + escapeSpecialCharacters(literalValue)
                 + QUOTE);
+    }
+    
+    String getMappedPropertyName(String propertyName) {
+        String mappedPropertyName = null;
+        
+        // propertyName will not have the suffix. Field names (the keys) in the fieldsInfo map
+        // will have the suffix and the variations on the property name, e.g., for propertyName="user"
+        // fieldsInfo will have keys for "user_txt", "user_txt_tokenized", and "user_txt_tokenized_has_case"
+        SchemaField schemaField = null;
+        if (SCHEMA_FIELDS_CACHE.containsKey(propertyName)) {
+            LOGGER.info("Getting SchemaField for propertyName {} from cache", propertyName);
+            schemaField = SCHEMA_FIELDS_CACHE.get(propertyName);
+        } else {
+            LOGGER.info("Using SchemaFieldResolver for propertyName {}", propertyName);
+            schemaField = schemaFieldResolver.getSchemaField(propertyName, true);
+            SCHEMA_FIELDS_CACHE.put(propertyName, schemaField);
+        }        
+        
+        if (schemaField != null) {
+            mappedPropertyName = schemaField.getName();
+            LOGGER.info("propertyName = {},    mappedPropertyName = {},   schemaField = {}", 
+                    propertyName, mappedPropertyName, schemaField);
+        } else {
+            // Fallback - treat all fields as String
+            mappedPropertyName = getMappedPropertyName(propertyName, AttributeFormat.STRING,
+                    true);
+            LOGGER.info("Used fallback to get mappedPropertyName of {}", mappedPropertyName);
+        }
+        
+        return mappedPropertyName;
     }
     
     private String getMappedPropertyName(String propertyName, AttributeFormat format,
@@ -113,7 +159,7 @@ public class SolrQueryFilterVisitor extends DefaultFilterVisitor {
     public String getField(String propertyName, AttributeFormat format,
             boolean isSearchedAsExactValue) {
 
-        String fieldName = propertyName + SchemaFields.FORMAT_TO_SUFFIX_MAP.get(format)
+        String fieldName = propertyName + SchemaFieldResolver.FORMAT_TO_SUFFIX_MAP.get(format)
                 + (isSearchedAsExactValue ? "" : getSpecialIndexSuffix(format));
 
 //        if (fieldsCache.contains(fieldName)) {
@@ -140,11 +186,11 @@ public class SolrQueryFilterVisitor extends DefaultFilterVisitor {
 
         switch (format) {
         case STRING:
-            return SchemaFields.TOKENIZED;
+            return SchemaFieldResolver.TOKENIZED;
         case GEOMETRY:
-            return SchemaFields.INDEXED;
+            return SchemaFieldResolver.INDEXED;
         case XML:
-            return SchemaFields.TEXT_PATH;
+            return SchemaFieldResolver.TEXT_PATH;
         default:
             break;
         }
