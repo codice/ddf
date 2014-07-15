@@ -15,6 +15,8 @@
 package org.codice.ddf.platform.filter.delegate;
 
 import java.io.IOException;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -38,9 +40,9 @@ import org.slf4j.LoggerFactory;
 public class DelegateServletFilter implements Filter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DelegateServletFilter.class);
-    
+
     private FilterConfig filterConfig;
-    
+
     private List<Filter> filters;
 
     public DelegateServletFilter(List<Filter> filters) {
@@ -60,6 +62,13 @@ public class DelegateServletFilter implements Filter {
 
             ProxyFilterChain chain = new ProxyFilterChain(filterChain);
 
+            LinkedList<Filter> sortedFilters = new LinkedList<Filter>(filters);
+            Collections.sort(sortedFilters, new Comparator<Filter>() {
+                @Override
+                public int compare(Filter o1, Filter o2) {
+                    return 0;
+                }
+            });
             Iterator<Filter> reverseIterator = new LinkedList<Filter>(filters).descendingIterator();
             while (reverseIterator.hasNext()) {
                 Filter curFilter = reverseIterator.next();

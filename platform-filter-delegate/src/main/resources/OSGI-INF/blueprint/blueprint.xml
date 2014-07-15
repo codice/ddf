@@ -20,15 +20,23 @@
   <reference-list id="servletContexts" interface="javax.servlet.ServletContext">
     <reference-listener ref="filterInjector" bind-method="injectFilter" />
   </reference-list>
-  
-  <reference-list id="filters" interface="javax.servlet.Filter" availability="optional" />
-  
+
+    <bean id="sortedServiceList" class="org.codice.ddf.platform.util.SortedServiceList">
+        <argument ref="blueprintBundleContext" />
+    </bean>
+
+    <reference-list id="filters" interface="javax.servlet.Filter" availability="optional" >
+        <reference-listener bind-method="bindPlugin" unbind-method="unbindPlugin" ref="sortedServiceList" />
+    </reference-list>
+
   <bean id="delegatingServletFilter" class="org.codice.ddf.platform.filter.delegate.DelegateServletFilter" >
-    <argument ref="filters" />
+    <argument ref="sortedServiceList" />
   </bean>
 
   <bean id="filterInjector" class="org.codice.ddf.platform.filter.delegate.FilterInjector">
     <argument ref="delegatingServletFilter" />
   </bean>
+
+
 
 </blueprint>
