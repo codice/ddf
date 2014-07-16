@@ -85,9 +85,9 @@ public class WcsResourceReader {
 
     protected WcsConfiguration wcsConfiguration;
 
-    private String keyStorePath, keyStorePassword = null;
+    protected String keyStorePath, keyStorePassword = null;
 
-    private String trustStorePath, trustStorePassword = null;
+    protected String trustStorePath, trustStorePassword = null;
 
     protected RemoteWcs remoteWcs;
 

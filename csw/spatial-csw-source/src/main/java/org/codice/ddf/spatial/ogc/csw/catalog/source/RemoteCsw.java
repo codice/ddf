@@ -71,8 +71,6 @@ public class RemoteCsw extends TrustedRemoteSource implements Csw {
 
     protected Csw csw;
 
-    protected JAXRSClientFactoryBean bean;
-
     /**
      * Instantiates a new RemoteCsw
      *
@@ -101,7 +99,7 @@ public class RemoteCsw extends TrustedRemoteSource implements Csw {
                 trustStorePath, trustStorePassword);
     }
 
-    private List<? extends Object> initProviders(
+    protected List<? extends Object> initProviders(
             List<RecordConverterFactory> recordConverterFactories,
             CswSourceConfiguration cswSourceConfiguration) {
         getRecordsTypeProvider = new CswJAXBElementProvider<GetRecordsType>();
