@@ -259,22 +259,7 @@ public class PersistentStoreImpl implements PersistentStore {
             } catch (IOException e) {
                 LOGGER.error("IOException reloading " + this.storeName + " core", e);
             }
-        }
-        
-//         
-//        try {
-//            SolrQuery query = new SolrQuery(); 
-//            query.setRequestHandler("/schema/version");
-//            QueryResponse qr = this.coreSolrServer.query(query);
-//            Float version = (Float) qr.getResponse().get("version"); 
-//            LOGGER.info("Solr schema version = {} for Solr Core {}", version, this.storeName);
-//            query.setRequestHandler("/schema/fields&includeDynamic=true");
-//            qr = this.coreSolrServer.query(query);
-//            NamedList<Object> objs = qr.getResponse();
-//        } catch (SolrServerException e) {
-//            LOGGER.error("SolrServerException getting schema version", e);
-//        } 
-        
+        }        
         
         LOGGER.trace("EXITING: setSolrCore");
     }
