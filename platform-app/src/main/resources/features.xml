@@ -589,11 +589,6 @@
             priority = 10
             customMimeTypes = nitf=image/nitf,ntf=image/nitf
         </config>
-        <config name="DDF_Custom_Mime_Type_Resolver-Ddmsv20CustomMimeTypes">
-            name = DDMS v2.0 Content Resolver
-            priority = 10
-            customMimeTypes = xml=text/xml;id=ddms
-        </config>
         <config name="DDF_Custom_Mime_Type_Resolver-GeoJsonCustomMimeTypes">
             name = GeoJson Content Resolver
             priority = 10

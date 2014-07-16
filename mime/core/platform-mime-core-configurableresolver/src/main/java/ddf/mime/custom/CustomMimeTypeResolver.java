@@ -96,7 +96,6 @@ public class CustomMimeTypeResolver implements MimeTypeResolver {
             // mimeTypeMapping is of the form <file extension>=<mime type>
             // Examples:
             // nitf=image/nitf
-            // xml=text/xml;id=xml
 
             String fileExtension = StringUtils.substringBefore(mimeTypeMapping, "=");
             String mimeType = StringUtils.substringAfter(mimeTypeMapping, "=");
