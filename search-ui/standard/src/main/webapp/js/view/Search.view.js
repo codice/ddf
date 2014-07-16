@@ -158,6 +158,9 @@ define([
                 }
             },
             showMetacardDetail: function (metacard, direction) {
+                if(metacard.get('direction') && !direction) {
+                    direction = metacard.get('direction');
+                }
                 this.searchRegion.show(new MetacardDetail.MetacardDetailView({model: metacard}), direction);
             }
         });
