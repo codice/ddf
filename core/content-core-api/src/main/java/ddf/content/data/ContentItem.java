@@ -72,7 +72,7 @@ public interface ContentItem {
     public MimeType getMimeType();
 
     /**
-     * Return the mime type raw data for the content item, e.g., image/nitf or text/xml;id=xml
+     * Return the mime type raw data for the content item, e.g., image/nitf or application/json;id=geojson
      * 
      * @return the mime type raw data for the content item
      */
