@@ -67,6 +67,12 @@
             </dependency>
 
             <dependency>
+                <groupId>ddf.platform</groupId>
+                <artifactId>platform-util</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
                 <groupId>ddf.action.core</groupId>
                 <artifactId>action-core-api</artifactId>
                 <version>${project.version}</version>
