@@ -14,7 +14,6 @@
  **/
 package org.codice.solr.query;
 
-import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -22,10 +21,6 @@ import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
-import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.request.LukeRequest;
-import org.apache.solr.client.solrj.response.LukeResponse;
-import org.apache.solr.client.solrj.response.LukeResponse.FieldInfo;
 import org.geotools.filter.visitor.DefaultFilterVisitor;
 import org.opengis.filter.PropertyIsEqualTo;
 import org.slf4j.Logger;
@@ -45,30 +40,34 @@ public class SolrQueryFilterVisitor extends DefaultFilterVisitor {
     private static final String[] ESCAPED_LUCENE_SPECIAL_CHARACTERS = new String[] {"\\+", "\\-",
         "\\&&", "\\||", "\\!", "\\(", "\\)", "\\{", "\\}", "\\[", "\\]", "\\^", "\\\"", "\\~",
         "\\:"};
-    
-   
+      
     private static final Map<String, String> FIELD_MAP;
 
     public static final String TOKENIZED_METADATA_FIELD = "metadata_txt" + SchemaFieldResolver.TOKENIZED;
     
+    private static final String SPATIAL_INDEX = "_geo_index";
+    
     static {
         Map<String, String> tempMap = new HashMap<String, String>();
         tempMap.put("anyText", TOKENIZED_METADATA_FIELD);
-        //tempMap.put(Metacard.ANY_GEO, Metacard.GEOGRAPHY + SPATIAL_INDEX);
+        tempMap.put("anyGeo", "location" + SPATIAL_INDEX);
         FIELD_MAP = Collections.unmodifiableMap(tempMap);
     }
     
-    private SolrServer solrServer;
-    
     private SchemaFieldResolver schemaFieldResolver;
     
-    // key=propertyName, e.g., "user", no suffix
+    private String solrCoreName;
+    
+    // key=solrCoreName.propertyName without suffix, e.g., "notification.user"
+    // Since this FilterVisitor is used across multiple Solr cores and this cache map
+    // is static, the key must be able to distinguish values that may have the same property name
+    // in multiple cores.
     private static Map<String, SchemaField> SCHEMA_FIELDS_CACHE = new HashMap<String, SchemaField>();
     
     
-    public SolrQueryFilterVisitor(SolrServer solrServer) {
-        this.solrServer = solrServer;
+    public SolrQueryFilterVisitor(SolrServer solrServer, String solrCoreName) {
         schemaFieldResolver = new SchemaFieldResolver(solrServer);
+        this.solrCoreName = solrCoreName;
     }
 
     @Override
@@ -110,13 +109,14 @@ public class SolrQueryFilterVisitor extends DefaultFilterVisitor {
         // will have the suffix and the variations on the property name, e.g., for propertyName="user"
         // fieldsInfo will have keys for "user_txt", "user_txt_tokenized", and "user_txt_tokenized_has_case"
         SchemaField schemaField = null;
-        if (SCHEMA_FIELDS_CACHE.containsKey(propertyName)) {
+        String cacheKey = solrCoreName + "." + propertyName;
+        if (SCHEMA_FIELDS_CACHE.containsKey(cacheKey)) {
             LOGGER.info("Getting SchemaField for propertyName {} from cache", propertyName);
-            schemaField = SCHEMA_FIELDS_CACHE.get(propertyName);
+            schemaField = SCHEMA_FIELDS_CACHE.get(cacheKey);
         } else {
             LOGGER.info("Using SchemaFieldResolver for propertyName {}", propertyName);
             schemaField = schemaFieldResolver.getSchemaField(propertyName, true);
-            SCHEMA_FIELDS_CACHE.put(propertyName, schemaField);
+            SCHEMA_FIELDS_CACHE.put(cacheKey, schemaField);
         }        
         
         if (schemaField != null) {
@@ -144,8 +144,6 @@ public class SolrQueryFilterVisitor extends DefaultFilterVisitor {
             return specialField;
         }
 
-        // Uses DynamicSchemaResolver to add field suffix (e.g., _xml) 
-//        String mappedPropertyName = resolver.getField(propertyName, format, isSearchedAsExactString);
         String mappedPropertyName = getField(propertyName, format, isSearchedAsExactString);
         
         return mappedPropertyName;

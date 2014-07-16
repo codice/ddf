@@ -154,7 +154,7 @@ public class PersistentStoreImpl implements PersistentStore {
         // Set Solr Core name to type and create/connect to Solr Core
         setSolrCore(type);
         
-        SolrQueryFilterVisitor visitor = new SolrQueryFilterVisitor(coreSolrServer);
+        SolrQueryFilterVisitor visitor = new SolrQueryFilterVisitor(coreSolrServer, type);
 
         try {
             SolrQuery solrQuery;
