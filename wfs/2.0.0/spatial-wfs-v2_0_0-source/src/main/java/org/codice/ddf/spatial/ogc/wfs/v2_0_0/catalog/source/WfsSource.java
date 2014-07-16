@@ -64,6 +64,7 @@ import org.codice.ddf.spatial.ogc.catalog.common.AvailabilityTask;
 import org.codice.ddf.spatial.ogc.catalog.common.ContentTypeFilterDelegate;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.FeatureMetacardType;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsException;
+import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsFeatureCollection;
 import org.codice.ddf.spatial.ogc.wfs.catalog.converter.FeatureConverter;
 import org.codice.ddf.spatial.ogc.wfs.catalog.converter.FeatureConverterFactory;
 import org.codice.ddf.spatial.ogc.wfs.catalog.converter.impl.GenericFeatureConverter;
@@ -83,12 +84,14 @@ import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.ContentTypeImpl;
+import ddf.catalog.data.impl.ResultImpl;
 import ddf.catalog.filter.FilterAdapter;
 import ddf.catalog.operation.Query;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.ResourceResponse;
 import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.operation.impl.ResourceResponseImpl;
+import ddf.catalog.operation.impl.SourceResponseImpl;
 import ddf.catalog.resource.Resource;
 import ddf.catalog.resource.ResourceNotFoundException;
 import ddf.catalog.resource.ResourceNotSupportedException;
@@ -553,10 +556,50 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
 
     @Override
     public SourceResponse query(QueryRequest request) throws UnsupportedQueryException {
+        Query query = request.getQuery();
+        LOGGER.debug("WFS Source {}: Received query: \n{}", getId(), query);
+        
+        if (query.getStartIndex() < 1) {
+            throw new UnsupportedQueryException(
+                    "Start Index is one-based and must be an integer greater than 0; should not be ["
+                            + query.getStartIndex() + "]");
+        }
+        
+        SourceResponseImpl simpleResponse = null;
+        GetFeatureType getFeature = buildGetFeatureRequest(query);
+        
+        try {
+            LOGGER.debug("WFS Source {}: Sending query ...", getId());
+            WfsFeatureCollection featureCollection = remoteWfs.getFeature(getFeature);
 
-        //TODO: To be implemented.
+            if (featureCollection == null) {
+                throw new UnsupportedQueryException("Invalid results returned from server");
+            }
+            int numResults = featureCollection.getFeatureMembers().size();
+            availabilityTask.updateLastAvailableTimestamp(System.currentTimeMillis());
+            LOGGER.debug("WFS Source {}: Received featureCollection with {} metacards.", getId(),
+                    numResults);
 
-        return null;
+            List<Result> results = new ArrayList<Result>(numResults);
+
+            for (int i = 0; i < featureCollection.getFeatureMembers().size(); i++) {
+                Metacard mc = featureCollection.getFeatureMembers().get(i);
+                mc = transform(mc, DEFAULT_WFS_TRANSFORMER_ID);
+                Result result = new ResultImpl(mc);
+                results.add(result);
+                debugResult(result);
+            }
+            Long totalHits = new Long(featureCollection.getFeatureMembers().size());
+            simpleResponse = new SourceResponseImpl(request, results, totalHits);
+        } catch (WfsException wfse) {
+            LOGGER.warn(WFS_ERROR_MESSAGE, wfse);
+            throw new UnsupportedQueryException("Error received from WFS Server", wfse);
+        } catch (ClientException ce) {
+            String msg = handleClientException(ce);
+            throw new UnsupportedQueryException(msg, ce);
+        }
+
+        return simpleResponse;
     }
 
     private GetFeatureType buildGetFeatureRequest(Query query) throws UnsupportedQueryException {
@@ -587,7 +630,7 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
 
             GetFeatureType getFeatureType = new GetFeatureType();
             getFeatureType.setCount(BigInteger.valueOf(query.getPageSize()));
-            
+            getFeatureType.setStartIndex(BigInteger.valueOf(query.getStartIndex()));
             List<JAXBElement<?>> incomingQueries = getFeatureType.getAbstractQueryExpression();
             for(QueryType queryType : queries){
                 incomingQueries.add(new net.opengis.wfs.v_2_0_0.ObjectFactory().createQuery(queryType));
