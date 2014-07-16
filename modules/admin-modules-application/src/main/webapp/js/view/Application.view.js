@@ -290,8 +290,10 @@ define([
             this.model.updateModel();
         },
 
-        toggleRemoveFlag: function() {
-            if (this.isAppRemovalEnabled()) {
+        toggleRemoveFlag: function(toggleEvent) {
+            toggleEvent.preventDefault();
+
+            if (this.isAppRemovalEnabled() && !this.$el.hasClass('disabled')) {
                 this.model.toggleRemoveFlag();
             }
         },
@@ -316,20 +318,9 @@ define([
             var appId = this.model.get('appId');
             if(_.indexOf(disableList, appId) !== -1) {
                 this.$('#' + appId + 'cb').attr('disabled', true);
-                this.$('#' + appId + '-delete-icon').addClass('fa-minus-circle-disabled disabled');
+                this.$('#' + appId + '-delete-icon').addClass('fa-minus-circle-disabled');
+                this.$el.addClass('disabled');
             }
-
-            this.$('.fa-minus-circle').click(function (event) {
-                // Prevent window from jumping to the top of the page
-                // when the remove icon is clicked.
-                event.preventDefault();
-
-                // Disable the remove action for applications in the
-                // disableList
-                if ($(this).hasClass('disabled')) {
-                    return false;
-                }
-            });
         },
 
         bind: function () {
