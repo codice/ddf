@@ -74,10 +74,17 @@ public class DummyPreQueryPlugin implements PreQueryPlugin {
 
                     // Define the extra query clause(s) to add to the copied filter
                     // This will create a filter with a search phrase of:
-                    // ((("schematypesearch") and ("test" and
+                    // ((("schematypesearch") and ("test" and ("ISAF" or "CAN"))))
                     Filter contextualFilter = filterBuilder.attribute(Metacard.ANY_TEXT).like()
                             .text("test");
-                    Filter extraFilter = filterBuilder.allOf(contextualFilter);
+                    Filter releasableToFilter1 = filterBuilder
+                            .attribute(Metacard.ANY_TEXT).like()
+                            .text("ISAF");
+                    Filter releasableToFilter2 = filterBuilder
+                            .attribute(Metacard.ANY_TEXT).like()
+                            .text("CAN");
+                    Filter orFilter = filterBuilder.anyOf(releasableToFilter1, releasableToFilter2);
+                    Filter extraFilter = filterBuilder.allOf(contextualFilter, orFilter);
 
                     // AND this PreQueryPlugin's extra query clause(s) to the copied filter
                     Filter modifiedFilter = filterBuilder.allOf(copiedFilter, extraFilter);
