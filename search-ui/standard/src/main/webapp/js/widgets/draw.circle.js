@@ -34,13 +34,10 @@ define([
         var defaultAttrs = ['lat', 'lon', 'radius'];
         DrawCircle.CircleView = Backbone.View.extend({
             initialize: function (options) {
-                _.bindAll(this);
                 this.canvas = options.scene.canvas;
                 this.scene = options.scene;
                 this.ellipsoid = options.scene.globe.ellipsoid;
                 this.mouseHandler = new Cesium.ScreenSpaceEventHandler(this.canvas);
-                var modelProp = _.defaults(this.model.toJSON(), {lat: 0, lon: 0, radius: 1});
-                this.model.set(modelProp);
 
                 this.listenTo(this.model, 'change:lat change:lon change:radius', this.updatePrimitive);
             },

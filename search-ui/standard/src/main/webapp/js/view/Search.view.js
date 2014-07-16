@@ -62,7 +62,7 @@ define([
                     wreqr.vent.trigger('map:clear');
                     wreqr.vent.trigger('map:results', this.result, false);
                     if(this.query) {
-                        this.updateMapPrimative();
+                        this.updateMapPrimitive();
                     }
                 }
 
@@ -91,7 +91,7 @@ define([
                 }
             },
 
-            updateMapPrimative: function() {
+            updateMapPrimitive: function() {
                 wreqr.vent.trigger('search:drawend');
                 if(this.query.get('north') && this.query.get('south') && this.query.get('east') &&
                     this.query.get('west')) {

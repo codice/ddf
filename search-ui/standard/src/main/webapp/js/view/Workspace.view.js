@@ -312,7 +312,7 @@ define([
                     wreqr.vent.trigger('map:results', this.currentSearch.get('result'), false);
 
                     if(this.currentSearch) {
-                        this.updateMapPrimative();
+                        this.updateMapPrimitive();
                     }
                 }
 
@@ -384,7 +384,7 @@ define([
                     this.currentSearch = model;
                 }
 
-                this.updateMapPrimative();
+                this.updateMapPrimitive();
 
                 this.workspaceRegion.show(new MetacardList.MetacardListView({model: this.currentSearch.get('result')}), direction);
                 wreqr.vent.trigger('map:clear');
@@ -395,7 +395,7 @@ define([
                 this.workspaceRegion.show(new MetacardDetail.MetacardDetailView({model: model}), dir.forward);
             },
 
-            updateMapPrimative: function() {
+            updateMapPrimitive: function() {
                 wreqr.vent.trigger('search:drawend');
                 if(this.currentSearch.get('north') && this.currentSearch.get('south') && this.currentSearch.get('east') &&
                     this.currentSearch.get('west')) {
