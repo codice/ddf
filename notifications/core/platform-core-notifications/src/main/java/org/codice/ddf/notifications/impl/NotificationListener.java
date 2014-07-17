@@ -45,9 +45,10 @@ public class NotificationListener implements EventHandler {
         String timestamp = (String) event.getProperty(Notification.NOTIFICATION_KEY_TIMESTAMP);
         String title = (String) event.getProperty(Notification.NOTIFICATION_KEY_TITLE);
         String userId = (String) event.getProperty(Notification.NOTIFICATION_KEY_USER_ID);
-        if (StringUtils.isBlank(userId)) {
+//        if (StringUtils.isBlank(userId)) {
+        if (userId == null) {
             throw new IllegalArgumentException("Event \"" + Notification.NOTIFICATION_KEY_USER_ID
-                    + "\" property is null or empty");
+                    + "\" property is null");
         }
         
         //TODO: Do we need to get extra properties out of event for Notification, i.e., STATUS and BYTES?
