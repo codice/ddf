@@ -286,6 +286,7 @@
                             javax.net.ssl,
                             javax.servlet;version="2.5",
                             javax.servlet.http,
+                            javax.xml.bind,
                             javax.xml.namespace,
                             javax.xml.parsers,
                             javax.xml.stream,

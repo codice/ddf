@@ -21,6 +21,8 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 
+import javax.xml.bind.DatatypeConverter;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.common.SolrInputField;
@@ -60,7 +62,6 @@ public class CassandraUpdateRequestProcessor extends UpdateRequestProcessor {
         try {
             // Add SolrInputDocument's contents into Cassandra table corresponding to SolrCore
             SolrInputDocument solrInputDocument = cmd.getSolrInputDocument();
-//            persistToCassandraPrepared(solrInputDocument);
             persistToCassandra(solrInputDocument);
             
             // Call next UpdateRequestProcessor in the chain
@@ -92,7 +93,7 @@ public class CassandraUpdateRequestProcessor extends UpdateRequestProcessor {
         super.processRollback(cmd);
     }
 
-    public void persistToCassandraPrepared(SolrInputDocument solrInputDocument) {
+    public void persistToCassandra(SolrInputDocument solrInputDocument) {
         LOGGER.trace("ENTERING: persistToCassandraPrepared()");
         
         String columnNamesClause = "";
@@ -110,6 +111,7 @@ public class CassandraUpdateRequestProcessor extends UpdateRequestProcessor {
                 String value = (String) fieldValue.getValue();
                 // No longer necessary since changed id_txt to a text type
                 //preparedValues.add(CassandraClient.normalizeUuid(value));  // do not quote UUID value
+                preparedValues.add("'" + value + "'");
                 valuesClause += "?";
                 validColumn = true;
             } else if (fieldName.endsWith("_txt_set")) {
@@ -137,15 +139,36 @@ public class CassandraUpdateRequestProcessor extends UpdateRequestProcessor {
                 valuesClause += "?";
                 validColumn = true;
             } else if (fieldName.endsWith("_geo")) {
-                LOGGER.debug("_geo field not yet supported");
-            } else if (fieldName.endsWith("_tdt")) {
-                LOGGER.debug("_tdt field not yet supported");
-            } else if (fieldName.endsWith("_obj") || fieldName.endsWith("_bin")) {
-                //LOGGER.debug("_obj and _bin fields not yet supported - fieldName = {}", fieldName);
-                byte[] bytes = (byte[]) fieldValue.getValue();
-                preparedValues.add(ByteBuffer.wrap(bytes));
+                // Should be a WKT string for geometry data
+                String value = (String) fieldValue.getValue();
+                preparedValues.add("'" + value + "'");
                 valuesClause += "?";
                 validColumn = true;
+            } else if (fieldName.endsWith("_tdt")) {
+                String value = (String) fieldValue.getValue();
+                long dateTimeInMillis = DatatypeConverter.parseDateTime(value).getTimeInMillis();
+                preparedValues.add(dateTimeInMillis);
+                valuesClause += "?";
+                validColumn = true;
+            } else if (fieldName.endsWith("_obj") || fieldName.endsWith("_bin")) {
+                //LOGGER.debug("_obj and _bin fields not yet supported - fieldName = {}", fieldName);
+                byte[] bytes = null;
+                if (byte[].class.isAssignableFrom(fieldValue.getValue().getClass())) {
+                    LOGGER.debug("fieldValue is already a byte[]");
+                    bytes = (byte[]) fieldValue.getValue();
+                } else if (String.class.isAssignableFrom(fieldValue.getValue().getClass())) {
+                    LOGGER.debug("fieldValue is String that will be converted to a byte[]");
+                    bytes = ((String) fieldValue.getValue()).getBytes();
+                }
+                //byte[] bytes = (byte[]) fieldValue.getValue();
+                if (bytes != null && bytes.length > 0) {
+                    LOGGER.debug("Wrapping {} bytes as a prepared value", bytes.length);
+                    preparedValues.add(ByteBuffer.wrap(bytes));
+                    valuesClause += "?";
+                    validColumn = true;
+                } else {
+                    LOGGER.info("Could not get fieldValue as a byte[]");
+                }
             }
 
             if (validColumn) {
@@ -187,102 +210,6 @@ public class CassandraUpdateRequestProcessor extends UpdateRequestProcessor {
             cassandraClient.addEntryPrepared(CASSANDRA_KEYSPACE_NAME, cql, preparedValues.toArray());
         }
         LOGGER.trace("EXITING: persistToCassandraPrepared()");
-    }
-
-    public void persistToCassandra(SolrInputDocument solrInputDocument) {
-        LOGGER.trace("ENTERING: persistToCassandra()");
-        
-        String columnNamesClause = "";
-        String valuesClause = "";
-
-        int count = 1;
-        Collection<String> fieldNames = solrInputDocument.getFieldNames();
-        for (String fieldName : fieldNames) {
-            LOGGER.debug("Working on field name {}", fieldName);
-            SolrInputField fieldValue = (SolrInputField) solrInputDocument.getField(fieldName);
-
-            boolean validColumn = false;
-            if (fieldName.equals("id_txt")) {
-                String value = (String) fieldValue.getValue();
-                // No longer necessary since changed id_txt to a text type
-                //valuesClause += CassandraClient.normalizeUuid(value);  // do not quote UUID value
-                valuesClause += "'" + value + "'";
-                validColumn = true;
-            } else if (fieldName.endsWith("_txt_set")) {
-                Collection<Object> values = fieldValue.getValues();
-                if (values != null && !values.isEmpty()) {
-                    valuesClause += "{";
-                    int setCount = 1;
-                    for (Object value : values) {
-                        valuesClause += "'" + (String) value + "'";
-                        if (setCount != values.size()) {
-                            valuesClause += ", ";
-                        }
-                        setCount++;
-                    }
-                    valuesClause += "}";
-                    validColumn = true;
-                }
-            } else if (fieldName.equals("lux_xml")) {
-                LOGGER.debug("Ignoring field {} as it should not be stored in Cassandra", fieldName);
-            } else if (fieldName.endsWith("_xml") || fieldName.endsWith("_txt")) {
-                String value = (String) fieldValue.getValue();
-                valuesClause += "'" + value + "'";
-                validColumn = true;
-            } else if (fieldName.endsWith("_lng")) {
-                Long value = Long.valueOf((String) fieldValue.getValue());
-                valuesClause += value;
-                validColumn = true;
-            } else if (fieldName.endsWith("_int")) {
-                Integer value = Integer.valueOf((String) fieldValue.getValue());
-                valuesClause += value;
-                validColumn = true;
-            } else if (fieldName.endsWith("_geo")) {
-                LOGGER.debug("_geo field not yet supported");
-            } else if (fieldName.endsWith("_tdt")) {
-                LOGGER.debug("_tdt field not yet supported");
-            } else if (fieldName.endsWith("_obj") || fieldName.endsWith("_bin")) {
-                LOGGER.debug("_obj and _bin fields not yet supported - fieldName = {}", fieldName);
-            }
-
-            if (validColumn) {
-                columnNamesClause += CassandraClient.normalizeCqlName(fieldName);
-                if (count != fieldNames.size()) {
-                    columnNamesClause += ", ";
-                    valuesClause += ", ";
-                }
-            } else {
-                LOGGER.debug("Column {} was deemed invalid and not added to the INSERT", fieldName);
-            }
-
-            count++;
-        }
-            
-        columnNamesClause = columnNamesClause.trim();
-        if (columnNamesClause.endsWith(",")) {
-            columnNamesClause = StringUtils.chop(columnNamesClause);
-        }
-        valuesClause = valuesClause.trim();
-        if (valuesClause.endsWith(",")) {
-            valuesClause = StringUtils.chop(valuesClause);
-        }
-        String cql = "INSERT INTO " + storeName + "(";
-        cql += columnNamesClause + ") VALUES (" + valuesClause + ")";
-        LOGGER.debug("cql = {}", cql);
-        try {
-            cassandraClient.addEntry(CASSANDRA_KEYSPACE_NAME, cql);
-        } catch (Exception e) {
-            LOGGER.debug("Exception trying to INSERT entry for table {}. Will attempt to create table/schema and retry INSERT", storeName);
-            // Assume exception is because Cassandra table or its columns do not exist yet.
-            // Create and execute the CQL commands to create the table with a schema based on
-            // the field types in the SolrInputDoument (the suffixes on the field names will indicate
-            // the table schema to generate, e.g., "_txt" suffix indicates a "text" column type).
-            createTable(storeName, columnNamesClause.split(","));
-            
-            // Re-execute CQL to insert entry
-            LOGGER.debug("Re-trying INSERT with cql = {}", cql);
-            cassandraClient.addEntry(CASSANDRA_KEYSPACE_NAME, cql);
-        }
     }
     
     private void createTable(String tableName, String[] columnNames) {

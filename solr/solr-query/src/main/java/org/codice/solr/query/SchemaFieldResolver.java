@@ -75,7 +75,7 @@ public class SchemaFieldResolver {
 
     public static final String METACARD_TYPE_FIELD_NAME = "metacard_type_name" + TEXT_SUFFIX;
 
-    public static final String METACARD_TYPE_OBJECT_FIELD_NAME = "metacard_type_object" + OBJECT_SUFFIX;
+    public static final String METACARD_TYPE_OBJECT_FIELD_NAME = "metacard_type" + OBJECT_SUFFIX;
 
     static {
         SUFFIX_TO_FORMAT_MAP.put(GEO_SUFFIX, AttributeFormat.GEOMETRY);

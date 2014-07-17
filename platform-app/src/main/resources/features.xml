@@ -660,9 +660,7 @@
         <configfile finalname="/data/solr/cassandra_connection.properties">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/properties/cassandra_connection</configfile>
 
         <configfile finalname="/data/solr/metacard/conf/solr.xml">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/xml/solr</configfile>
-        <!-- DDF-579: only catalog-embedded-solr-provider will create metacards and it provides its own solrconfig.xml file that omits
-                      the CassandraUpdateRequestProcessor from the update chain until robust Solr searching is supported.
-        -->
+        <configfile finalname="/data/solr/metacard/conf/solrconfig.xml">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/xml/solrconfig</configfile>
         <configfile finalname="/data/solr/metacard/conf/schema.xml">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/xml/schema</configfile>
         <configfile finalname="/data/solr/metacard/conf/protwords.txt">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/protwords</configfile>
         <configfile finalname="/data/solr/metacard/conf/stopwords_en.txt">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/stopwords_en</configfile>
