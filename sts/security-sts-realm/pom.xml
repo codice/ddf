@@ -70,6 +70,10 @@
         <groupId>ddf.security.handler</groupId>
         <artifactId>security-handler-api</artifactId>
     </dependency>
+      <dependency>
+          <groupId>ddf.security</groupId>
+          <artifactId>ddf-security-common</artifactId>
+      </dependency>
   </dependencies>
 
   <build>
@@ -80,7 +84,11 @@
         <configuration>
           <instructions>
             <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-            <Embed-Dependency>security-handler-api, security-policy-api, security-sts-clientconfig</Embed-Dependency>
+            <Embed-Dependency>security-handler-api,
+                security-policy-api,
+                security-sts-clientconfig,
+                ddf-security-common
+            </Embed-Dependency>
           </instructions>
         </configuration>
       </plugin>

@@ -74,8 +74,13 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Embed-Dependency>
+                            ddf-security-common,
                             security-handler-api
                         </Embed-Dependency>
+                        <Import-Package>
+                            org.apache.cxf.common.util,
+                            *
+                        </Import-Package>
                     </instructions>
                 </configuration>
             </plugin>
