@@ -47,7 +47,7 @@ import java.security.Principal;
  * must be present in the user store for this handler to work correctly.
  */
 public class AnonymousHandler implements AuthenticationHandler {
-    public static final Logger LOGGER = LoggerFactory.getLogger(AnonymousHandler.class.getName());
+    public static final Logger LOGGER = LoggerFactory.getLogger(AnonymousHandler.class);
 
     /**
      * Anonymous type to use when configuring context policy.
@@ -108,7 +108,6 @@ public class AnonymousHandler implements AuthenticationHandler {
         Principal principal = getPrincipal(result);
         handlerResult = new HandlerResult(HandlerResult.Status.COMPLETED, principal,
                 usernameToken);
-
         return handlerResult;
     }
 

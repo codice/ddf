@@ -156,8 +156,7 @@ public class WebSSOFilter implements Filter {
             }
         } else {
             LOGGER.warn("Expected login credentials - didn't find any. Returning a forbidden response.");
-            returnSimpleResponse(HttpServletResponse.SC_FORBIDDEN,
-                    (HttpServletResponse) httpResponse);
+            returnSimpleResponse(HttpServletResponse.SC_FORBIDDEN, httpResponse);
             return;
         }
 

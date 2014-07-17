@@ -67,7 +67,14 @@
         <property name="claimHandlers" ref="claimsHandler" />
     </bean>
 
-    <reference-list id="claimsHandler" interface="org.apache.cxf.sts.claims.ClaimsHandler"/> 
+    <reference-list id="claimsHandler" interface="org.apache.cxf.sts.claims.ClaimsHandler"/>
+
+    <!-- AUDIT LOGGER -->
+    <bean id="stsEventListener" class="ddf.security.sts.STSEventListener" />
+
+    <bean id="loggerListener" class="org.apache.cxf.sts.event.map.EventMapper">
+        <argument ref="stsEventListener" />
+    </bean>
     
     <!-- PROVIDER CONFIGURATION -->
     <bean id="claimsAttributeProvider" class="org.apache.cxf.sts.claims.ClaimsAttributeStatementProvider" />
@@ -130,6 +137,7 @@
         <property name="stsProperties" ref="STSProperties"/>
         <property name="claimsManager" ref="claimsManager" />
         <property name="tokenStore" ref="defaultTokenStore" />
+        <property name="eventListener" ref="loggerListener" />
     </bean>
     
     <bean id="validateDelegate"
@@ -142,6 +150,7 @@
         <property name="tokenValidators" ref="tokenValidatorList"/> 
         <property name="stsProperties" ref="STSProperties"/>
         <property name="tokenStore" ref="defaultTokenStore" />
+        <property name="eventListener" ref="loggerListener" />
     </bean>
 
     <bean id="renewDelegate" class="org.apache.cxf.sts.operation.TokenRenewOperation">
@@ -153,6 +162,7 @@
         <property name="tokenValidators" ref="tokenValidatorList"/>
         <property name="stsProperties" ref="STSProperties" />
         <property name="tokenStore" ref="defaultTokenStore" />
+        <property name="eventListener" ref="loggerListener" />
     </bean>
     
     <bean id="crlInterceptor" class="org.codice.ddf.security.sts.crl.CRLInterceptor">
