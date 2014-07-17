@@ -4,15 +4,15 @@ cluster_name: 'Test Cluster'
 listen_address: 127.0.0.1
 rpc_address: localhost
 
-start_rpc: true   #HUGH
+start_rpc: true
 
 # You may want to make the port non-standard if it might conflict
 # with an actual Cassandra server running on the same box.
-rpc_port: 9160
+rpc_port: 9170
 
-start_native_transport: true   #HUGH
+start_native_transport: true
 # port for the CQL native transport to listen for clients on
-native_transport_port: 9042  #HUGH
+native_transport_port: 9052
 
 # Data stored in the target directory for this project
 data_file_directories:
@@ -31,22 +31,19 @@ initial_token:
 auto_bootstrap: false
 hinted_handoff_enabled: true
 authenticator: org.apache.cassandra.auth.AllowAllAuthenticator
-#HUGH authority: org.apache.cassandra.auth.AllowAllAuthority
 partitioner: org.apache.cassandra.dht.RandomPartitioner
 commitlog_sync: periodic
 commitlog_sync_period_in_ms: 10000
 disk_access_mode: auto
 concurrent_reads: 2
 concurrent_writes: 4
-#HUGH sliced_buffer_size_in_kb: 64
-storage_port: 7000
+storage_port: 7010
 rpc_keepalive: true
 thrift_framed_transport_size_in_mb: 15
 thrift_max_message_length_in_mb: 16
 snapshot_before_compaction: false
 column_index_size_in_kb: 64
 in_memory_compaction_limit_in_mb: 16
-#HUGH rpc_timeout_in_ms: 10000
 endpoint_snitch: org.apache.cassandra.locator.SimpleSnitch
 dynamic_snitch: true
 dynamic_snitch_update_interval_in_ms: 100 

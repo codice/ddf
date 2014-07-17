@@ -77,7 +77,7 @@ public abstract class SolrProviderTestCase {
         // using the CassandraUpdrateRequestProcessor)
         String workingDir = System.getProperty("user.dir") + File.separator + "target";
         System.setProperty("karaf.home", workingDir);
-        CassandraConfig cassandraConfig = new CassandraConfig("DDF Cluster", 9160, 9042, 7000, 7001);
+        CassandraConfig cassandraConfig = new CassandraConfig("DDF Cluster", 9170, 9052, 7010, 7011);
         cassandraConfig.setCommitLogFolder("/commitlog");
         cassandraConfig.setDataFolder("/data");
         cassandraConfig.setSavedCachesFolder("/saved_caches");
