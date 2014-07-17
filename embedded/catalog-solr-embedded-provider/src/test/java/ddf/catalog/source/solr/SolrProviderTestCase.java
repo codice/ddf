@@ -70,18 +70,19 @@ public abstract class SolrProviderTestCase {
     @BeforeClass
     public static void setup() throws Exception {
         LOGGER.info("RUNNING one-time setup.");
-/*
+
         // Start embedded cassandra server using the platform-app's CassandraEmbeddedServer
         // (Embedded Cassandra server required for Solr unit tests because Solr update chain
         // defined in solrconfig.xml specifes all entries in Solr be duplicated in Cassandra
         // using the CassandraUpdrateRequestProcessor)
         String workingDir = System.getProperty("user.dir") + File.separator + "target";
         System.setProperty("karaf.home", workingDir);
-        String keyspaceName = "ddf";
-        CassandraConfig cassandraConfig = new CassandraConfig("DDF Cluster", "cassandra.yaml", 9160, 9042, 7000, 7001, 
-                "/data", "/commitlog", "/saved_caches");
-        CassandraEmbeddedServer cassandraServer = new CassandraEmbeddedServer(keyspaceName, cassandraConfig);
-*/      
+        CassandraConfig cassandraConfig = new CassandraConfig("DDF Cluster", 9160, 9042, 7000, 7001);
+        cassandraConfig.setCommitLogFolder("/commitlog");
+        cassandraConfig.setDataFolder("/data");
+        cassandraConfig.setSavedCachesFolder("/saved_caches");
+        CassandraEmbeddedServer cassandraServer = new CassandraEmbeddedServer(cassandraConfig);
+     
 /*WORKS - cassandra-unit approach for starting embedded Cassandra server
         System.setProperty("log4j.configuration", "file:" + workingDir + "log4j.properties");
         EmbeddedCassandraServerHelper.startEmbeddedCassandra("/cassandra.yaml");

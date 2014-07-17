@@ -312,10 +312,16 @@
                                     <outputDirectory>${project.build.directory}/classes/solr/conf</outputDirectory>
                                     <destFileName>schema.xml</destFileName>
                                 </artifactItem>
-                                <!--
-                                solrconfig.xml not copied because should use the one in src/test/resources that has no 
-                                CassandraUpdateRequestProcessor in its update chain
-                                -->
+                                <artifactItem>
+                                    <groupId>ddf.platform.solr</groupId>
+                                    <artifactId>platform-solr-server-standalone</artifactId>
+                                    <version>${ddf.platform.app.version}</version>
+                                    <type>xml</type>
+                                    <classifier>solrconfig</classifier>
+                                    <overWrite>true</overWrite>
+                                    <outputDirectory>${project.build.directory}/classes/solr/conf</outputDirectory>
+                                    <destFileName>solrconfig.xml</destFileName>
+                                </artifactItem>
                                 <artifactItem>
                                     <groupId>ddf.platform.solr</groupId>
                                     <artifactId>platform-solr-server-standalone</artifactId>
