@@ -217,7 +217,7 @@ public class CassandraClient {
             } else if (columnName.endsWith("_tdt")) {
                 addColumn(tableName, columnName, "timestamp");
             } else if (columnName.endsWith("_geo")) {
-                LOGGER.debug("Suffix _geo is not yet implemented for Cassandra");
+                addColumn(tableName, columnName, "text");
             } else {
                 LOGGER.info("Suffix not supported on columnName {}", columnName);
             }
@@ -240,7 +240,7 @@ public class CassandraClient {
     }
     
     public void addEntryPrepared(String keyspaceName, String query, Object[] values) {
-        LOGGER.debug("Executing CQL:  {}", query);
+        LOGGER.debug("Executing query:  {}", query);
         Session session = getSession(keyspaceName);
         session.execute(query, values);
     }        
