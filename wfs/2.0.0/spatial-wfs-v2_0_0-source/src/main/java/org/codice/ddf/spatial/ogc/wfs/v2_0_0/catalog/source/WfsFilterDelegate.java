@@ -39,6 +39,7 @@ import net.opengis.filter.v_2_0_0.ConformanceType;
 import net.opengis.filter.v_2_0_0.DistanceBufferType;
 import net.opengis.filter.v_2_0_0.FilterCapabilities;
 import net.opengis.filter.v_2_0_0.FilterType;
+import net.opengis.filter.v_2_0_0.FunctionType;
 import net.opengis.filter.v_2_0_0.GeometryOperandsType;
 import net.opengis.filter.v_2_0_0.LiteralType;
 import net.opengis.filter.v_2_0_0.LowerBoundaryType;
@@ -748,7 +749,6 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
 
     private FilterType buildPropertyIsFilterType(String propertyName, Object literal,
             PROPERTY_IS_OPS propertyIsType) {
-
         if (!isValidInputParameters(propertyName, literal)) {
             throw new IllegalArgumentException(MISSING_PARAMETERS_MSG);
         }
@@ -889,13 +889,12 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
         case PropertyIsLike:
             JAXBElement<PropertyIsLikeType> propIsLike = filterObjectFactory
                     .createPropertyIsLike(new PropertyIsLikeType());
-            //TODO: Figure out how to handle commented lines below
-            //propIsLike.getValue()..setPropertyName(createPropertyNameType(property).getValue());
+            
             propIsLike.getValue().setEscapeChar(Wfs20Constants.ESCAPE);
             propIsLike.getValue().setSingleChar(SINGLE_CHAR);
             propIsLike.getValue().setWildCard(Wfs20Constants.WILD_CARD);
-           // propIsLike.getValue().setLiteral(createLiteralType(literal).getValue());
-
+            propIsLike.getValue().getExpression().add(createLiteralType(literal));
+            propIsLike.getValue().getExpression().add(createPropertyNameType(property));
             return propIsLike;
 
         default:

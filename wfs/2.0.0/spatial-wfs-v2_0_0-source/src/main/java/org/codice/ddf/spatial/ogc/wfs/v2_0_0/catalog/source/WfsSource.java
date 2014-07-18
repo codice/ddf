@@ -605,15 +605,14 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
     private GetFeatureType buildGetFeatureRequest(Query query) throws UnsupportedQueryException {
         List<ContentType> contentTypes = getContentTypesFromQuery(query);
         List<QueryType> queries = new ArrayList<QueryType>();
-
         for (Entry<QName, WfsFilterDelegate> filterDelegateEntry : featureTypeFilters.entrySet()) {
             if (contentTypes.isEmpty()
                     || isFeatureTypeInQuery(contentTypes, filterDelegateEntry.getKey()
                             .getLocalPart())) {
                 QueryType wfsQuery = new QueryType();
                 wfsQuery.setHandle(filterDelegateEntry.getKey().getLocalPart());
+                FilterType filter = filterAdapter.adapt(query, filterDelegateEntry.getValue()); 
 
-                FilterType filter = filterAdapter.adapt(query, filterDelegateEntry.getValue());
                 if (filter != null) {
                     if (areAnyFiltersSet(filter)) {
                         wfsQuery.setAbstractSelectionClause(new net.opengis.filter.v_2_0_0.ObjectFactory()
