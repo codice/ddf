@@ -35,10 +35,18 @@
         <wss4j.version>1.6.13</wss4j.version>
         <cxf.version>2.7.8</cxf.version>
         <shiro.version>1.2.1</shiro.version>
+        <karaf.version>2.3.3</karaf.version>
     </properties>
 
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <artifactId>karaf</artifactId>
+                <groupId>org.apache.karaf</groupId>
+                <version>${karaf.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
             <dependency>
                 <groupId>ddf.platform</groupId>
                 <artifactId>platform</artifactId>
