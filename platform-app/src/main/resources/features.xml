@@ -698,7 +698,7 @@
 
     <feature name="platform-util" install="manual" version="${project.version}"
         description="Utility class at the platform level.">
-        <bundle>mvn:ddf.platform/platform.utils/${project.version}</bundle>
+        <bundle>mvn:ddf.platform/platform-util/${project.version}</bundle>
     </feature>
 
 	<feature name="platform-app" install="auto" version="${project.version}"
