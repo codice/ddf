@@ -18,7 +18,7 @@ import ddf.security.SecurityConstants;
 import ddf.security.Subject;
 import ddf.security.assertion.SecurityAssertion;
 import ddf.security.common.audit.SecurityLogger;
-import ddf.security.common.util.PropertiesLoader;
+import org.codice.ddf.security.common.PropertiesLoader;
 import ddf.security.service.SecurityManager;
 import ddf.security.service.SecurityServiceException;
 import org.apache.cxf.common.util.Base64Utility;
