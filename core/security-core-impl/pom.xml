@@ -92,7 +92,6 @@
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <Embed-Dependency>common-io</Embed-Dependency>
                         <Import-Package>
                             javax.servlet.http; version="[2.5.0,3.0.0)",
                             <!--
@@ -107,6 +106,7 @@
                             System bundle.
                             -->
                             javax.xml.stream;version="1.0",
+                            org.apache.commons.io;version="1.4.0",
                             *
                         </Import-Package>
                         <Export-Package>

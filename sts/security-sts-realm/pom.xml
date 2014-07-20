@@ -74,6 +74,10 @@
           <groupId>ddf.security</groupId>
           <artifactId>ddf-security-common</artifactId>
       </dependency>
+      <dependency>
+          <groupId>commons-io</groupId>
+          <artifactId>commons-io</artifactId>
+      </dependency>
   </dependencies>
 
   <build>
@@ -89,6 +93,10 @@
                 security-sts-clientconfig,
                 ddf-security-common
             </Embed-Dependency>
+            <Import-Pacage>
+                org.apache.commons.io;version="1.4.0",
+                *
+            </Import-Pacage>
           </instructions>
         </configuration>
       </plugin>
