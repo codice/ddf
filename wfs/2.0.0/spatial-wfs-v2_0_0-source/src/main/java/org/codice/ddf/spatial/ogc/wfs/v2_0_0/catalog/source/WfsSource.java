@@ -247,36 +247,15 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
 
         Integer newPollInterval = (Integer) configuration.get(POLL_INTERVAL_PROPERTY);
         super.setId(id);
+        
+        this.wfsUrl = wfsUrl;
+        this.password = password;
+        this.username = username;
+        this.disableSSLCertVerification = disableSSLCertVerification;
+        this.forceSpatialFilter = (String) configuration.get(SPATIAL_FILTER_PROPERTY);
 
-        // only attempt to re-connect on a refresh if not connected OR username,
-        // password, or the URL changes
-        if (remoteWfs == null || hasWfsUrlChanged(wfsUrl) || hasPasswordChanged(password)
-                || hasUsernameChanged(username)
-                || hasDisableSslCertVerificationChanged(disableSSLCertVerification)) {
-            this.wfsUrl = wfsUrl;
-            this.password = password;
-            this.username = username;
-            this.disableSSLCertVerification = disableSSLCertVerification;
-
-            connectToRemoteWfs();
-            configureWfsFeatures();
-        } else {
-            // Only need to update the supportedSpatialOps if we don't reconnect.
-            String spatialOpName = (String) configuration.get(SPATIAL_FILTER_PROPERTY);
-            if (!StringUtils.equals(forceSpatialFilter, spatialOpName)) {
-                SpatialOperatorsType spatialOps = new SpatialOperatorsType();
-                if (NO_FORCED_SPATIAL_FILTER.equals(spatialOpName)) {
-                    spatialOps = supportedSpatialOperators;
-                } else {
-                    SpatialOperatorType operator = new SpatialOperatorType();
-                    operator.setName(spatialOpName);
-                    spatialOps.getSpatialOperator().add(operator);
-                }
-                for (WfsFilterDelegate delegate : featureTypeFilters.values()) {
-                    delegate.setSpatialOps(spatialOps);
-                }
-            }
-        }
+        connectToRemoteWfs();
+        configureWfsFeatures();
 
         if (!pollInterval.equals(newPollInterval)) {
             LOGGER.debug("Poll Interval was changed for source {}.", getId());
@@ -284,22 +263,6 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
             availabilityPollFuture.cancel(true);
             setupAvailabilityPoll();
         }
-    }
-    
-    private boolean hasWfsUrlChanged(String wfsUrl) {
-        return !StringUtils.equals(this.wfsUrl, wfsUrl);
-    }
-    
-    private boolean hasPasswordChanged(String password) {
-        return !StringUtils.equals(this.password, password);
-    }
-
-    private boolean hasUsernameChanged(String username) {
-        return !StringUtils.equals(this.username, username);
-    }
-    
-    private boolean hasDisableSslCertVerificationChanged(Boolean disableSSLCertVerification) {
-        return this.disableSSLCertVerification != disableSSLCertVerification;
     }
 
     private void setupAvailabilityPoll() {
@@ -459,7 +422,7 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
 
         if (featureTypeFilters.isEmpty()) {
             LOGGER.warn(
-                    "Wfs Source {}: No Feature Type schemas validated. Marking source as unavailable",
+                    "Wfs Source {}: No Feature Type schemas validated.",
                     getId());
         }
         LOGGER.debug("Wfs Source {}: Number of validated Features = {}", getId(),
@@ -934,6 +897,7 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
                 // If the source becomes available, configure it.
                 if (newAvailability) {
                     configureWfsFeatures();
+                    newAvailability = !featureTypeFilters.isEmpty();
                 }
             }
             return newAvailability;

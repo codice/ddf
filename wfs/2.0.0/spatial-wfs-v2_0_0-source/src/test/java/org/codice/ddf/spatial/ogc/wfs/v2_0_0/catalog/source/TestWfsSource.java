@@ -20,9 +20,12 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.ByteArrayInputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.xml.namespace.QName;
 import javax.xml.transform.stream.StreamSource;
@@ -43,8 +46,10 @@ import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.GetCapabilitiesReque
 import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.Wfs20Constants;
 import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.source.reader.FeatureCollectionMessageBodyReaderWfs20;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.osgi.framework.BundleContext;
 
+import ddf.catalog.data.ContentType;
 import ddf.catalog.filter.proxy.adapter.GeotoolsFilterAdapterImpl;
 
 public class TestWfsSource {
@@ -54,6 +59,7 @@ public class TestWfsSource {
             + "<xs:element name=\"shiporder\">" + "<xs:complexType>" + "<xs:sequence>"
             + "<xs:element name=\"orderperson\" type=\"xs:string\"/>" + "</xs:sequence>"
             + "</xs:complexType>" + "</xs:element>" + "</xs:schema>";
+    
 
     private static final String SAMPLE_FEATURE_NAME = "SampleFeature";
 
@@ -69,6 +75,13 @@ public class TestWfsSource {
 
     public WfsSource getWfsSource(final String schema, final FilterCapabilities filterCapabilities,
             final String srsName, final int numFeatures) throws WfsException {
+
+        return getWfsSource(schema, filterCapabilities, srsName, numFeatures, false);
+    }
+
+    public WfsSource getWfsSource(final String schema, final FilterCapabilities filterCapabilities,
+            final String srsName, final int numFeatures,
+            final boolean throwExceptionOnDescribeFeatureType) throws WfsException {
 
         // GetCapabilities Response
         when(mockWfs.getCapabilities(any(GetCapabilitiesRequest.class)))
@@ -102,9 +115,14 @@ public class TestWfsSource {
                     .getBytes())));
         }
 
-        when(mockWfs.describeFeatureType(any(DescribeFeatureTypeRequest.class))).thenReturn(
-                xmlSchema);
+        if (throwExceptionOnDescribeFeatureType) {
+            when(mockWfs.describeFeatureType(any(DescribeFeatureTypeRequest.class))).thenThrow(
+                    new WfsException(""));
 
+        } else {
+            when(mockWfs.describeFeatureType(any(DescribeFeatureTypeRequest.class))).thenReturn(
+                    xmlSchema);
+        }
         when(mockWfs.getFeatureCollectionReader()).thenReturn(mockReader);
 
         return new WfsSource(mockWfs, new GeotoolsFilterAdapterImpl(), mockContext,
@@ -141,6 +159,58 @@ public class TestWfsSource {
         assertTrue(source.isAvailable());
         assertThat(source.featureTypeFilters.size(), is(0));
     }
+    
+    @Test
+    public void testConfigureFeatureTypes() throws WfsException {
+        ArgumentCaptor<DescribeFeatureTypeRequest> captor = ArgumentCaptor.forClass(DescribeFeatureTypeRequest.class);
 
+        WfsSource source = getWfsSource(ONE_TEXT_PROPERTY_SCHEMA,
+                MockWfsServer.getFilterCapabilities(),
+                Wfs20Constants.EPSG_4326_URN, 1);
+
+        final String SAMPLE_FEATURE_NAME0 = SAMPLE_FEATURE_NAME+"0";
+        
+        verify(mockWfs).describeFeatureType(captor.capture());
+
+        DescribeFeatureTypeRequest describeFeatureType = captor.getValue();
+        
+        // sample feature 0 does not have a prefix
+        assertTrue((":"+SAMPLE_FEATURE_NAME0).equals(describeFeatureType.getTypeName()));
+        
+        assertTrue(source.isAvailable());
+        assertThat(source.featureTypeFilters.size(), is(1));
+        WfsFilterDelegate delegate = source.featureTypeFilters.get(new QName(SAMPLE_FEATURE_NAME0));
+        assertThat(delegate, notNullValue());
+        
+        assertThat(source.getContentTypes().size(), is(1));
+        
+        List<ContentType> types = new ArrayList<ContentType>();
+        types.addAll(source.getContentTypes());
+
+        assertTrue(SAMPLE_FEATURE_NAME0.equals(types.get(0).getName()));
+    }
+
+    @Test
+    public void testConfigureFeatureTypesDescribeFeatureException() throws WfsException {
+        ArgumentCaptor<DescribeFeatureTypeRequest> captor = ArgumentCaptor.forClass(DescribeFeatureTypeRequest.class);
+
+        WfsSource source = getWfsSource(ONE_TEXT_PROPERTY_SCHEMA,
+                MockWfsServer.getFilterCapabilities(),
+                Wfs20Constants.EPSG_4326_URN, 1, true);
+
+        final String SAMPLE_FEATURE_NAME0 = SAMPLE_FEATURE_NAME+"0";
+        
+        verify(mockWfs).describeFeatureType(captor.capture());
+
+        DescribeFeatureTypeRequest describeFeatureType = captor.getValue();
+        
+        // sample feature 0 does not have a prefix
+        assertTrue((":"+SAMPLE_FEATURE_NAME0).equals(describeFeatureType.getTypeName()));
+        
+        assertTrue(source.featureTypeFilters.isEmpty());
+        
+        assertTrue(source.getContentTypes().isEmpty());
+
+    }
 
 }
