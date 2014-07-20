@@ -30,6 +30,8 @@ public class WcsConfiguration {
 
     private String password;
 
+    private boolean disableSSLCertVerification;
+
     public String getWcsUrl() {
         return wcsUrl;
     }
@@ -60,6 +62,14 @@ public class WcsConfiguration {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public void setDisableSSLCertVerification(boolean disableSSLCertVerification) {
+        this.disableSSLCertVerification = disableSSLCertVerification;
+    }
+
+    public boolean getDisableSSLCertVerification() {
+        return disableSSLCertVerification;
     }
 
 }

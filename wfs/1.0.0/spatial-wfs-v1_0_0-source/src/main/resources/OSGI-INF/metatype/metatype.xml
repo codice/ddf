@@ -17,7 +17,7 @@
     <OCD name="WFS v1.0.0 Federated Source" id="Wfs_v1_0_0_Federated_Source" description="WFS v1.0.0 Federated Source">
 
         <AD description="The unique name of the Source" name="Source ID" id="id" required="true"
-            type="String" default="WFS"/>
+            type="String" default="WFS_v1_0_0"/>
 
         <AD description="URL to the endpoint implementing the Web Feature Service (WFS) spec"
             name="WFS URL" id="wfsUrl" required="true" type="String" />

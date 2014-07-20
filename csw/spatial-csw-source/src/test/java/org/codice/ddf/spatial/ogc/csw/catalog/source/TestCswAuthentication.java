@@ -22,6 +22,7 @@ import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordMetacardType;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswSourceConfiguration;
 import org.codice.ddf.spatial.ogc.csw.catalog.converter.RecordConverterFactory;
 import org.codice.ddf.spatial.ogc.csw.catalog.converter.impl.CswRecordConverterFactory;
+import org.codice.ddf.spatial.ogc.wcs.catalog.resource.reader.WcsResourceReader;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.DefaultHandler;
@@ -44,9 +45,9 @@ import static org.junit.Assert.fail;
  * Tests that the certificates are properly added to outgoing requests and allow for mutual
  * authentication on a server that requires client auth.
  */
-public class CswAuthenticationTest extends TestCswSourceBase {
+public class TestCswAuthentication extends TestCswSourceBase {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(CswAuthenticationTest.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(TestCswAuthentication.class);
 
     private static Server server;
 
@@ -70,7 +71,7 @@ public class CswAuthenticationTest extends TestCswSourceBase {
         SslContextFactory sslContextFactory = new SslContextFactory();
         // server uses the server cert
         sslContextFactory.setKeyStorePath(
-                CswAuthenticationTest.class.getResource("/serverKeystore.jks").getPath());
+                TestCswAuthentication.class.getResource("/serverKeystore.jks").getPath());
         sslContextFactory.setKeyStorePassword("changeit");
 
         // only accept connection with proper client certificate
@@ -148,6 +149,7 @@ public class CswAuthenticationTest extends TestCswSourceBase {
         cswSourceConfiguration.setModifiedDateMapping(Metacard.MODIFIED);
         cswSourceConfiguration.setProductRetrievalMethod(CswConstants.WCS_PRODUCT_RETRIEVAL);
         cswSourceConfiguration.setCswUrl("https://localhost:" + serverPort + "/services/csw");
+
         cswSourceConfiguration.setDisableSSLCertVerification(true);
         cswSourceConfiguration.setPollIntervalMinutes(1);
         RecordConverterFactory factory = new CswRecordConverterFactory();

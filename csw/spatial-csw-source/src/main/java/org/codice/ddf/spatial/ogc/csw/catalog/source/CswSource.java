@@ -441,6 +441,8 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
             wcsResourceReader.setWcsUrl(cswSourceConfiguration.getWcsUrl());
             wcsResourceReader.setUsername(cswSourceConfiguration.getUsername());
             wcsResourceReader.setPassword(cswSourceConfiguration.getPassword());
+            wcsResourceReader.setDisableSSLCertVerification(
+                    cswSourceConfiguration.getDisableSSLCertVerification());
             wcsResourceReader.setKeystores(keyStorePath, keyStorePassword, trustStorePath,
                     trustStorePassword);
             wcsResourceReader.init();

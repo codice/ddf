@@ -50,7 +50,6 @@ import net.opengis.wcs.v_1_0_0.TimeSequenceType;
 import net.opengis.wcs.v_1_0_0.WCSCapabilitiesType;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.cxf.jaxrs.client.WebClient;
 import org.codice.ddf.spatial.ogc.wcs.catalog.GetCoverageResponse;
 import org.codice.ddf.spatial.ogc.wcs.catalog.WcsConfiguration;
 import org.codice.ddf.spatial.ogc.wcs.catalog.WcsException;
@@ -86,6 +85,10 @@ public class WcsResourceReader {
 
     protected WcsConfiguration wcsConfiguration;
 
+    protected String keyStorePath, keyStorePassword = null;
+
+    protected String trustStorePath, trustStorePassword = null;
+
     protected RemoteWcs remoteWcs;
 
     /** Mapper for file extensions-to-mime types (and vice versa) */
@@ -101,8 +104,10 @@ public class WcsResourceReader {
 
     /**
      * Constructor for unit testing only.
-     * 
-     * @param remoteWcs
+     * @param remoteWcs RemoteWcs to use
+     * @param id id for the configuration
+     * @param wcsUrl url to the remote server
+     * @param mimeTypeMapper mimetype mapper
      */
     public WcsResourceReader(RemoteWcs remoteWcs, String id, String wcsUrl,
             MimeTypeMapper mimeTypeMapper) {
@@ -133,6 +138,7 @@ public class WcsResourceReader {
 
         try {
             remoteWcs = new RemoteWcs(wcsConfiguration);
+            remoteWcs.setKeystores(keyStorePath, keyStorePassword, trustStorePath, trustStorePassword);
             configureWcs();
         } catch (IllegalArgumentException iae) {
             LOGGER.error("Unable to create RemoteWcs.", iae);
@@ -160,7 +166,17 @@ public class WcsResourceReader {
      */
     public void setKeystores(String keyStorePath, String keyStorePassword, String trustStorePath,
             String trustStorePassword) {
-        remoteWcs.setKeystores(keyStorePath, keyStorePassword, trustStorePath, trustStorePassword);
+
+        this.keyStorePath = keyStorePath;
+        this.keyStorePassword = keyStorePassword;
+        this.trustStorePath = trustStorePath;
+        this.trustStorePassword = trustStorePassword;
+
+        // if wcs is already set, update with new keystores
+        if (remoteWcs != null) {
+            remoteWcs.setKeystores(keyStorePath, keyStorePassword, trustStorePath, trustStorePassword);
+        }
+
     }
 
     public String getWcsUrl() {
@@ -193,6 +209,14 @@ public class WcsResourceReader {
 
     public String getId() {
         return wcsConfiguration.getId();
+    }
+
+    public void setDisableSSLCertVerification(boolean disableSSLCertVerification) {
+        wcsConfiguration.setDisableSSLCertVerification(disableSSLCertVerification);
+    }
+
+    public boolean getDisableSSLCertVerification() {
+        return wcsConfiguration.getDisableSSLCertVerification();
     }
 
     /**
