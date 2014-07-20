@@ -4,7 +4,7 @@
  * Copyright (c) Codice Foundation
  *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
- * version 3 of the License, or any later version. 
+ * version 3 of the License, or any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
@@ -92,18 +92,19 @@
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+                        <Embed-Dependency>common-io</Embed-Dependency>
                         <Import-Package>
                             javax.servlet.http; version="[2.5.0,3.0.0)",
                             <!--
                             Needed because API versioned independently of
                             the project their code is in, hence the version
-                            supplied by dependency management would be incorrect. 
+                            supplied by dependency management would be incorrect.
                             -->
                             ddf.security.expansion;version="[1.0,2)",
-                            <!-- 
+                            <!--
                             Needed to ensure the javax.xml.stream bundle exported
                             by Servicemix is used vs. the bundle exported by OSGi
-                            System bundle. 
+                            System bundle.
                             -->
                             javax.xml.stream;version="1.0",
                             *
