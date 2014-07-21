@@ -667,13 +667,13 @@
         <configfile finalname="/data/solr/metacard/conf/stopwords.txt">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/stopwords</configfile>
         <configfile finalname="/data/solr/metacard/conf/synonyms.txt">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/synonyms</configfile>
 
-        <configfile finalname="/data/solr/saved_query/conf/solr.xml">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/xml/solr</configfile>
-        <configfile finalname="/data/solr/saved_query/conf/solrconfig.xml">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/xml/solrconfig</configfile>
-        <configfile finalname="/data/solr/saved_query/conf/schema.xml">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/xml/schema</configfile>
-        <configfile finalname="/data/solr/saved_query/conf/protwords.txt">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/protwords</configfile>
-        <configfile finalname="/data/solr/saved_query/conf/stopwords_en.txt">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/stopwords_en</configfile>
-        <configfile finalname="/data/solr/saved_query/conf/stopwords.txt">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/stopwords</configfile>
-        <configfile finalname="/data/solr/saved_query/conf/synonyms.txt">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/synonyms</configfile>
+        <configfile finalname="/data/solr/workspace/conf/solr.xml">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/xml/solr</configfile>
+        <configfile finalname="/data/solr/workspace/conf/solrconfig.xml">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/xml/solrconfig</configfile>
+        <configfile finalname="/data/solr/workspace/conf/schema.xml">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/xml/schema</configfile>
+        <configfile finalname="/data/solr/workspace/conf/protwords.txt">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/protwords</configfile>
+        <configfile finalname="/data/solr/workspace/conf/stopwords_en.txt">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/stopwords_en</configfile>
+        <configfile finalname="/data/solr/workspace/conf/stopwords.txt">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/stopwords</configfile>
+        <configfile finalname="/data/solr/workspace/conf/synonyms.txt">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/synonyms</configfile>
 
         <configfile finalname="/data/solr/notification/conf/solr.xml">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/xml/solr</configfile>
         <configfile finalname="/data/solr/notification/conf/solrconfig.xml">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/xml/solrconfig</configfile>
