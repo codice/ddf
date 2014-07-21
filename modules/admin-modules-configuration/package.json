@@ -22,10 +22,10 @@
     "node": ">=0.10.5"
   },
   "devDependencies": {
-    "grunt": "0.4.1",
+    "grunt": "0.4.5",
     "grunt-cli": "0.1.13",
-    "bower": "1.3.2",
-    "grunt-bower-task": "0.3.4",
+    "bower": "1.3.8",
+    "grunt-bower-task": "0.4.0",
     "grunt-casperjs": "git+https://github.com/codice/grunt-casperjs.git#2e4f3a632089aeb50839dbcbc92562b4e950d326",
     "grunt-contrib-jshint": "0.3.0",
     "grunt-contrib-clean": "0.4.0",
