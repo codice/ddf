@@ -45,11 +45,8 @@ define([
                 if(this.model.get('hash')) {
                     this.hash = this.model.get('hash');
                 }
-
-                var metacardResult = this.model.get("metacardResult").at(0);
-                var searchResult = metacardResult.get("searchResult");
-                var collection = searchResult.get("results");
-                var index = collection.indexOf(metacardResult);
+                var collection = this.model.collection;
+                var index = collection.indexOf(this.model.parents[0]);
 
                 if (index !== 0) {
                     this.prevModel = collection.at(index - 1);

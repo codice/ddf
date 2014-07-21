@@ -9,26 +9,25 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global define*/
+/*global define, setInterval, clearInterval*/
 
 define([
         'backbone',
         'underscore',
         'properties',
         'js/model/Metacard',
-        'backbonerelational'
+        'backboneassociations'
     ],
     function (Backbone, _, properties, Metacard) {
         "use strict";
         var Query = {};
 
-        Query.Model = Backbone.RelationalModel.extend({
+        Query.Model = Backbone.AssociatedModel.extend({
             relations: [
                 {
-                    type: Backbone.HasOne,
+                    type: Backbone.One,
                     key: 'result',
-                    relatedModel: Metacard.SearchResult,
-                    includeInJSON: true
+                    relatedModel: Metacard.SearchResult
                 }
             ],
             //in the search we are checking for whether or not the model
@@ -38,6 +37,7 @@ define([
             defaults: {
                 federation: 'enterprise',
                 offsetTimeUnits: 'hours',
+                scheduleUnits: 'minutes',
                 timeType: 'modified',
                 radiusUnits: 'meters',
                 radius: 0,
@@ -48,8 +48,76 @@ define([
             },
 
             initialize: function () {
-                this.on('change:north change:south change:east change:west',this.setBBox);
                 _.bindAll(this);
+                this.listenTo(this, 'change:north change:south change:east change:west',this.setBBox);
+                this.listenTo(this, 'change:scheduled change:scheduleValue change:scheduleUnits', this.startScheduledSearch);
+
+                if(this.get('scheduled')) {
+                    this.startSearch();
+                }
+
+                this.startScheduledSearch();
+            },
+
+            startScheduledSearch: function() {
+                var model = this;
+                if(this.get('scheduled')) {
+                    var scheduleDelay = this.getScheduleDelay();
+                    this.stopScheduledSearch();
+                    this.timeoutId = setInterval(function () {
+                        model.startSearch();
+                    }, scheduleDelay);
+                } else {
+                    this.stopScheduledSearch();
+                }
+            },
+
+            stopScheduledSearch: function() {
+                if(this.timeoutId) {
+                    clearInterval(this.timeoutId);
+                }
+            },
+
+            getScheduleDelay: function() {
+                var val;
+                switch(this.get('scheduleUnits')) {
+                    case 'minutes':
+                        val = (this.get('scheduleValue') || 5) * 60 * 1000;
+                        break;
+                    case 'hours':
+                        val = (this.get('scheduleValue') || 1) * 60 * 60 * 1000;
+                        break;
+                }
+                return val;
+            },
+
+            startSearch:function(progressFunction) {
+                var result;
+                if(this.get('result')) {
+                    result = this.get('result');
+                } else {
+                    result = new Metacard.SearchResult();
+                    this.set({result: result});
+                }
+
+                var progress = progressFunction || function() {
+                    result.get('results').each(function(searchResult) {
+                        searchResult.cleanup();
+                    });
+                    result.mergeLatest();
+                };
+
+                return result.fetch({
+                    progress: progress,
+                    data: this.getQueryParams(),
+                    dataType: "json",
+                    timeout: 300000,
+                    error : function(){
+                        if (typeof console !== 'undefined') {
+                            console.error(arguments);
+                        }
+                    }
+                });
             },
 
             setSources: function(sources) {
@@ -87,8 +155,6 @@ define([
                 if(north && south && east && west){
                     this.set('bbox', [west,south,east,north].join(','));
                 }
-
-
             },
 
             swapDatesIfNeeded : function() {

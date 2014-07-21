@@ -896,12 +896,8 @@ div.ui-multiselect-single .ui-multiselect-checkboxes label.ui-state-hover > span
     color: white;
 }
 
-#pointradius button.ui-multiselect {
-    height: auto;
-}
-
-#time_relative button.ui-multiselect {
-    height: auto;
+button.ui-multiselect {
+    height: auto !important;
 }
 
 .form-actions {

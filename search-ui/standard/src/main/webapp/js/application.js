@@ -26,7 +26,7 @@ define(['jquery',
         'js/controllers/application.controller',
         // Load non attached libs and plugins
         'bootstrap',
-        'backbonerelational',
+        'backboneassociations',
         'backbonecometd',
         'jquerycometd',
         'modelbinder',

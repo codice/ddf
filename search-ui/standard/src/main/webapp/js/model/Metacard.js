@@ -16,13 +16,13 @@ define([
         'underscore',
         'js/model/util',
         'wreqr',
-        'backbonerelational'
+        'backboneassociations'
     ],
     function (Backbone, _, Util, wreqr) {
         "use strict";
         var MetaCard = {};
 
-        MetaCard.Geometry = Backbone.RelationalModel.extend({
+        MetaCard.Geometry = Backbone.AssociatedModel.extend({
 
             isPoint: function () {
                 return this.get('type') === 'Point';
@@ -232,11 +232,11 @@ define([
 
         });
 
-        MetaCard.Properties = Backbone.RelationalModel.extend({
+        MetaCard.Properties = Backbone.AssociatedModel.extend({
 
         });
 
-        MetaCard.Metacard = Backbone.RelationalModel.extend({
+        MetaCard.Metacard = Backbone.AssociatedModel.extend({
             url: '/services/catalog/',
 
             initialize: function () {
@@ -259,12 +259,12 @@ define([
 
             relations: [
                 {
-                    type: Backbone.HasOne,
+                    type: Backbone.One,
                     key: 'geometry',
                     relatedModel: MetaCard.Geometry
                 },
                 {
-                    type: Backbone.HasOne,
+                    type: Backbone.One,
                     key: 'properties',
                     relatedModel: MetaCard.Properties
                 }
@@ -272,53 +272,31 @@ define([
             ]
         });
 
-        MetaCard.MetacardResult = Backbone.RelationalModel.extend({
+        MetaCard.MetacardResult = Backbone.AssociatedModel.extend({
             relations: [
                 {
-                    type: Backbone.HasOne,
+                    type: Backbone.One,
                     key: 'metacard',
-                    relatedModel: MetaCard.Metacard,
-                    includeInJSON: false,
-                    reverseRelation: {
-                        key: 'metacardResult'
-                    }
+                    relatedModel: MetaCard.Metacard
                 }
             ]
         });
 
-        MetaCard.MetacardList = Backbone.Collection.extend({
-            model: MetaCard.MetacardResult
-        });
-
-        MetaCard.SourceResult = Backbone.RelationalModel.extend({
+        MetaCard.SourceResult = Backbone.AssociatedModel.extend({
 
         });
 
-        MetaCard.SourceList = Backbone.Collection.extend({
-            model: MetaCard.SourceResult
-        });
-
-        MetaCard.SearchResult = Backbone.RelationalModel.extend({
+        MetaCard.SearchResult = Backbone.AssociatedModel.extend({
             relations: [
                 {
-                    type: Backbone.HasMany,
+                    type: Backbone.Many,
                     key: 'results',
-                    relatedModel: MetaCard.MetacardResult,
-                    collectionType: MetaCard.MetacardList,
-                    includeInJSON: false,
-                    reverseRelation: {
-                        key: 'searchResult'
-                    }
+                    relatedModel: MetaCard.MetacardResult
                 },
                 {
-                    type: Backbone.HasMany,
+                    type: Backbone.Many,
                     key: 'sources',
-                    relatedModel: MetaCard.SourceResult,
-                    collectionType: MetaCard.SourceList,
-                    includeInJSON: false,
-                    reverseRelation: {
-                        key: 'searchResult'
-                    }
+                    relatedModel: MetaCard.SourceResult
                 }
             ],
             url: "/service/query",

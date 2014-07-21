@@ -80,7 +80,7 @@
                         model.lastResponse = resp;
                     }
                     if (typeof options.progress == 'function') {
-                        options.progress(1, resp);
+                        options.progress(1, model);
                     }
                 };
 

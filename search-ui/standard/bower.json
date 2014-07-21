@@ -4,7 +4,7 @@
     "private": true,
     "dependencies": {
         "backbone-poller": "0.2.8",
-        "backbone-relational": "0.8.8",
+        "backbone-associations": "0.6.2",
         "backbone.modelbinder": "1.0.5",
         "bootswatch": "v2.3.2",
         "components-backbone": "1.1.0",

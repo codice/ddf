@@ -50,7 +50,8 @@ define([
                 'click button[name=effectiveTimeButton]': 'swapTimeTypeEffective',
                 'keypress input[name=q]': 'filterOnEnter',
                 'change #radiusUnits': 'onRadiusUnitsChanged',
-                'change #offsetTimeUnits': 'onTimeUnitsChanged'
+                'change #offsetTimeUnits': 'onTimeUnitsChanged',
+                'click #scheduled': 'updateScheduling'
             },
 
             modelEvents: {
@@ -87,6 +88,11 @@ define([
                 if (wreqr.reqres.hasHandler('sources')) {
                     this.sources = wreqr.reqres.request('sources');
                 }
+            },
+
+            updateScheduling: function() {
+                this.$('#schedulingOptions input').prop('disabled', !this.$('#schedulingOptions input').prop('disabled'));
+                this.model.set({scheduleValue: undefined});
             },
 
             setNoFederation : function () {
@@ -284,6 +290,8 @@ define([
                 this.$('#radiusUnits').multiselect(singleselectOptions);
 
                 this.$('#offsetTimeUnits').multiselect(singleselectOptions);
+
+                this.$('#scheduleUnits').multiselect(singleselectOptions);
             },
 
             beforeShowDatePicker: function(picker){
@@ -330,24 +338,9 @@ define([
                 if (_.isUndefined(this.model.get('src'))) {
                     this.model.setSources(this.sources);
                 }
-                var result = new MetaCard.SearchResult();
-                this.model.set({name: queryName, result: result});
+                this.model.set({name: queryName});
 
-                var progressFunction = function() {
-                    result.mergeLatest();
-                };
-
-                result.fetch({
-                    progress: progressFunction,
-                    data: this.model.getQueryParams(),
-                    dataType: "json",
-                    timeout: 300000,
-                    error : function(){
-                        if (typeof console !== 'undefined') {
-                            console.error(arguments);
-                        }
-                    }
-                });
+                this.model.startSearch();
 
                 wreqr.vent.trigger("search:drawstop");
                 wreqr.vent.trigger('workspace:save', this.model);
@@ -363,46 +356,34 @@ define([
 
                 var progress = new Progress.ProgressModel();
 
-                var progressFunction = function(val, resp) {
-                                            progress.increment.call(progress, {value: val, response: resp});
+                var progressFunction = function(val, model) {
+                                            progress.increment.call(progress, {value: val, model: model});
                                         };
 
                 if (_.isUndefined(this.model.get('src'))) {
                     this.model.setSources(this.sources);
                 }
 
-                var result = new MetaCard.SearchResult();
-                this.model.set({searchResult: result});
-                wreqr.reqres.setHandler('search:results', function () {
-                    return result;
-                });
-
-                wreqr.vent.trigger('search:start', result, this.model, progress);
-
                 // disable the whole form
                 this.$('button').addClass('disabled');
                 this.$('input').prop('disabled',true);
                 wreqr.vent.trigger("search:drawstop");
 
-                result.fetch({
-                    progress: progressFunction,
-                    data: this.model.getQueryParams(),
-                    dataType: "json",
-                    timeout: 300000,
-                    error : function(){
-                        if (typeof console !== 'undefined') {
-                            console.error(arguments);
-                        }
-                    }
-                }).complete(function () {
+                this.model.startSearch(progressFunction).complete(function () {
                     //this is fired after cometd has acknowledged our query request
                     //re-enable the whole form
                     view.$('button').removeClass('disabled');
                     view.$('input').prop('disabled',false);
                 }).success(function() {
                     //this is fired after cometd has sent back the first result
-                    wreqr.vent.trigger('search:results', result, view.zoomOnResults);
-                    wreqr.vent.trigger('map:results', result, view.zoomOnResults);
+                    wreqr.vent.trigger('search:results', view.model.get('result'), view.zoomOnResults);
+                    wreqr.vent.trigger('map:results', view.model.get('result'), view.zoomOnResults);
+                });
+
+                wreqr.vent.trigger('search:start', this.model, progress);
+
+                wreqr.reqres.setHandler('search:results', function () {
+                    return this.model.get('result');
                 });
             },
 

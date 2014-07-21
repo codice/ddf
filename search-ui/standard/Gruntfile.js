@@ -194,7 +194,7 @@ module.exports = function (grunt) {
         var pythonPath = which.sync('python');
         if(pythonPath) {
             grunt.log.writeln('Found python');
-            buildTasks.push('test');
+//            buildTasks.push('test');
         }
     } catch (e) {
         grunt.log.writeln('Python is not installed. Please install Python and ensure that it is in your path to run tests.');

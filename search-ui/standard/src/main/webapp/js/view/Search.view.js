@@ -107,11 +107,9 @@ define([
                 this.searchRegion.show(new QueryView.QueryView({ model: this.query }), dir.forward);
                 this.searchControlRegion.show(new SearchControl.SearchControlView());
             },
-            setupProgress: function (resultList, queryModel, progressObj) {
-                if (!resultList.useAjaxSync) {
-                    if (queryModel.get('src') && queryModel.get('src').split(',').length > 1) {
-                        this.progressRegion.show(new Progress.ProgressView({ resultList: resultList, queryModel: queryModel, model: progressObj}));
-                    }
+            setupProgress: function (queryModel, progressObj) {
+                if (queryModel.get('src') && queryModel.get('src').split(',').length > 1) {
+                    this.progressRegion.show(new Progress.ProgressView({ resultList: queryModel.get('result'), queryModel: queryModel, model: progressObj}));
                 }
             },
             onQueryClear: function () {

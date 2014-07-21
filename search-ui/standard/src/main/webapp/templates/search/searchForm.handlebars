@@ -206,6 +206,23 @@
             </div>
         </li>
 
+        {{#is isWorkspace true}}
+            <li class="nav-header">Scheduling</li>
+            <li>
+                <input type="checkbox" id="scheduled" name="scheduled" class="pull-left" /><label for="scheduled">&nbsp;Scheduled Search</label>
+                <div id="schedulingOptions" class="tab-content">
+                    <div class="input-prepend input-append">
+                        <span class="add-on add-on-label">Every&nbsp;</span>
+                        <input class="input-medium" id="scheduleValue" name="scheduleValue" type="number" min="0" step="any" placeholder="" {{#if scheduled}}{{else}}disabled{{/if}}/>
+                        <select id="scheduleUnits" name="scheduleUnits" class="add-on">
+                            <option value="minutes" selected="selected">minutes</option>
+                            <option value="hours">hours</option>
+                        </select>
+                    </div>
+                </div>
+            </li>
+        {{/is}}
+
         <li>
             <div class="form-actions btn-group search-buttons">
                 {{#is isWorkspace true}}

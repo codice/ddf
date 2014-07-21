@@ -13,28 +13,24 @@
 
 define([
     'backbone',
-    'backbonerelational'
+    'backboneassociations'
     ], function (Backbone) {
     'use strict';
 
     var User = {};
 
-    User.Model = Backbone.RelationalModel.extend({
+    User.Model = Backbone.AssociatedModel.extend({
         isGuestUser: function() {
             return this.get('username') === this.guestUser;
         }
     });
 
-    User.Response = Backbone.RelationalModel.extend({
+    User.Response = Backbone.AssociatedModel.extend({
         relations: [
             {
-                type: Backbone.HasOne,
+                type: Backbone.One,
                 key: 'user',
-                relatedModel: User.Model,
-                includeInJSON: false,
-                reverseRelation: {
-                    key: 'userResult'
-                }
+                relatedModel: User.Model
             }
         ],
         url: '/service/user',

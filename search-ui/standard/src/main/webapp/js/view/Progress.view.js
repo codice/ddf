@@ -39,11 +39,11 @@ define([
             },
             increment: function(obj) {
                 var setObj = {};
-                if(obj.response && obj.response.data) {
+                if(obj.model.lastResponse && obj.model.lastResponse.data) {
                     if(_.isUndefined(this.lastMergeHits)) {
-                        this.lastMergeHits = obj.response.data.hits;
+                        this.lastMergeHits = obj.model.lastResponse.data.hits;
                     } else {
-                        setObj.hits = obj.response.data.hits - this.lastMergeHits;
+                        setObj.hits = obj.model.lastResponse.data.hits - this.lastMergeHits;
                     }
                 }
                 setObj.current = this.get('current') + obj.value;

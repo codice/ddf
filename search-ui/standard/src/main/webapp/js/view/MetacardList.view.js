@@ -188,7 +188,7 @@ define([
             },
             getTemplate: function() {
                 if (!_.isUndefined(this.model.get('hits'))) {
-                    if (this.model.get('results').length >= this.model.get('hits') || this.model.get('hits') === 0) {
+                    if (!this.model.get('results') || this.model.get('results').length >= this.model.get('hits') || this.model.get('hits') === 0) {
                         return 'countLowTemplate';
                     } else {
                         return 'countHighTemplate';
@@ -206,7 +206,7 @@ define([
                 statusRegion: '#result-status-list'
             },
             modelEvents: {
-                'change': 'updateSpinner'
+                'change': 'render'
             },
             spinner: new Spinner(spinnerConfig),
             onRender: function () {

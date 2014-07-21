@@ -29,7 +29,7 @@
 
             // backbone
             backbone: 'lib/components-backbone/backbone-min',
-            backbonerelational: 'lib/backbone-relational/backbone-relational',
+            backboneassociations: 'lib/backbone-associations/backbone-associations-min',
             backbonecometd: 'lib/backbone-cometd/backbone.cometd.extension',
             poller: 'lib/backbone-poller/backbone.poller',
             underscore: 'lib/lodash/dist/lodash.underscore.min',
@@ -98,7 +98,7 @@
                 exports: 'Cesium'
             },
 
-            backbonerelational: ['backbone'],
+            backboneassociations: ['backbone'],
             backbonecometd: ['underscore', 'jquery', 'backbone', 'cometdinit'],
 
             marionette: {

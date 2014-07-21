@@ -15,63 +15,33 @@ define([
         'backbone',
         'js/model/Metacard',
         'js/model/Query',
-        'backbonerelational'
+        'backboneassociations'
     ],
     function (Backbone, Metacard, Query) {
         "use strict";
         var Workspace = {};
 
-        Workspace.MetacardList = Backbone.Collection.extend({
-            model: Metacard.Metacard
-        });
-
-        Workspace.QueryList = Backbone.Collection.extend({
-            model: Query.Model
-        });
-
-        Workspace.Workspace = Backbone.RelationalModel.extend({
+        Workspace.Model = Backbone.AssociatedModel.extend({
             relations: [
                 {
-                    type: Backbone.HasMany,
+                    type: Backbone.Many,
                     key: 'searches',
-                    relatedModel: Query.Model,
-                    collectionType: Workspace.QueryList,
-                    includeInJSON: true,
-                    reverseRelation: {
-                        key: 'workspace'
-                    }
+                    relatedModel: Query.Model
                 },
                 {
-                    type: Backbone.HasMany,
+                    type: Backbone.Many,
                     key: 'metacards',
-                    relatedModel: Metacard.Metacard,
-                    collectionType: Workspace.MetacardList,
-                    includeInJSON: true,
-                    reverseRelation: {
-                        key: 'workspace'
-                    }
+                    relatedModel: Metacard.Metacard
                 }
             ]
         });
 
-        Workspace.WorkspaceList = Backbone.Collection.extend({
-            model: Workspace.Workspace
-        });
-
-        Workspace.WorkspaceResult = Backbone.RelationalModel.extend({
-            defaults: {
-                workspaces: new Workspace.WorkspaceList()
-            },
+        Workspace.WorkspaceResult = Backbone.AssociatedModel.extend({
             relations: [
                 {
-                    type: Backbone.HasMany,
+                    type: Backbone.Many,
                     key: 'workspaces',
-                    relatedModel: Workspace.Workspace,
-                    collectionType: Workspace.WorkspaceList,
-                    includeInJSON: true,
-                    reverseRelation: {
-                        key: 'workspaceResult'
-                    }
+                    relatedModel: Workspace.Model
                 }
             ],
             url: '/service/workspaces',

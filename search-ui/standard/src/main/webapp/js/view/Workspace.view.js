@@ -63,10 +63,10 @@ define([
                 this.collection = options.collection;
             },
             addWorkspace: function() {
-                var workspace = new Workspace.Workspace({name: this.$('#workspaceName').val()});
+                var workspace = new Workspace.Model({name: this.$('#workspaceName').val()});
                 this.collection.add(workspace);
 
-                this.collection.workspaceResult.save();
+                this.collection.parents[0].save();
                 wreqr.vent.trigger('workspace:list', this.model);
             },
             cancel: function() {
@@ -148,27 +148,12 @@ define([
             },
             showSearch: function() {
                 if(!this.editing) {
-                    var searchResult = this.model.get('result');
-                    if (searchResult && searchResult.get('results') &&
-                        searchResult.get('results').length === 0) {
-                        var progressFunction = function () {
-                            searchResult.mergeLatest();
-                            wreqr.vent.trigger('map:clear');
-                            wreqr.vent.trigger('map:results', searchResult, false);
-                        };
-
-                        searchResult.fetch({
-                            progress: progressFunction,
-                            data: this.model.getQueryParams(),
-                            dataType: "json",
-                            timeout: 300000,
-                            error: function () {
-                                if (typeof console !== 'undefined') {
-                                    console.error(arguments);
-                                }
-                            }
-                        });
-                    }
+                    var progressFunction = function (value, model) {
+                        model.mergeLatest();
+                        wreqr.vent.trigger('map:clear');
+                        wreqr.vent.trigger('map:results', model, false);
+                    };
+                    this.model.startSearch(progressFunction);
 
                     wreqr.vent.trigger('workspace:results', dir.forward, this.model);
                 }
@@ -300,6 +285,10 @@ define([
                 }
             },
 
+            modelEvents: {
+                'change': 'render'
+            },
+
             initialize: function() {
                 _.bindAll(this);
 
@@ -392,7 +381,13 @@ define([
             },
 
             showWorkspaceMetacard: function(model) {
-                this.workspaceRegion.show(new MetacardDetail.MetacardDetailView({model: model}), dir.forward);
+                var direction;
+                if(model.get('direction')) {
+                    direction = model.get('direction');
+                } else {
+                    direction = dir.forward;
+                }
+                this.workspaceRegion.show(new MetacardDetail.MetacardDetailView({model: model}), direction);
             },
 
             updateMapPrimitive: function() {
