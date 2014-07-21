@@ -90,7 +90,7 @@
             <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
             <Embed-Dependency>security-handler-api,
                 security-policy-api,
-                security-sts-clientconfig,
+<!--                security-sts-clientconfig,  -->
                 ddf-security-common
             </Embed-Dependency>
             <Import-Package>
