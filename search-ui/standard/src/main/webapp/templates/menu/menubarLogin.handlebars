@@ -13,12 +13,13 @@
  --}}
 <div class="login-container">
     <form class="login-form">
+        <div align="center" id="loginError" class="alert alert-error" style="display: none;">Credentials are invalid.</div>
         <label for="username">Username:</label>
         <input type="text" id="username" name="username" />
         <label for="password">Password:</label>
         <input type="password" id="password" name="password" />
         <div class="form-actions btn-group pull-right">
-            <a href="#" class="btn btn-medium btn-primary btn-signin"></a>
+            <a href="#" class="btn btn-medium btn-primary btn-signin">Sign In</a>
             <a href="#" class="btn btn-medium btn-clear" type="reset">Clear</a>
         </div>
     </form>

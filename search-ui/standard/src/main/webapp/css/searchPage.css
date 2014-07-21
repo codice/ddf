@@ -1323,3 +1323,15 @@ a.pause:hover, a.pause:focus {
     margin-right: 15px;
     width: calc(100% - 30px);
 }
+
+.error-text {
+    display: block;
+    text-align: center;
+    width: 100%;
+    font-size: small;
+    color: #666;
+}
+
+.login-form > label {
+    cursor: default;
+}

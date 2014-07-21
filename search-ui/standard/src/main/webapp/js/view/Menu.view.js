@@ -231,16 +231,27 @@ define([
                     xhr.setRequestHeader ("Authorization", "Basic " + base64);
                 },
                 error: function() {
-                    document.location.reload();
+                    view.showErrorText();
+                    view.setErrorState();
                 },
-                complete: function() {
+                success: function() {
                     document.location.reload();
                 }
             });
         },
+        showErrorText: function() {
+            this.$('#loginError').show();
+        },
+        setErrorState: function() {
+            this.$('#password').focus(function() {
+                this.select();
+                }
+            );
+        },
         clearFields: function() {
             this.$('#username').val('');
             this.$('#password').val('');
+            this.$('#loginError').hide();
         },
         deleteCookie: function() {
             document.cookie = 'org.codice.websso.saml.token=; Path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
@@ -263,7 +274,7 @@ define([
                 error: function() {
                     document.location.reload();
                 },
-                complete: function() {
+                success: function() {
                     document.location.reload();
                 }
             });
