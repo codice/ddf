@@ -26,6 +26,7 @@ import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.update.processor.UpdateRequestProcessor;
 import org.cassandraunit.utils.EmbeddedCassandraServerHelper;
 import org.codice.ddf.cassandra.CassandraClient;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,7 +42,7 @@ public class TestCassandraUpdateRequestProcessor {
     
     
     @Test
-    //@Ignore
+    @Ignore
     public void test() throws Exception { 
         //cassandra-unit approach for starting embedded Cassandra server
         String cassandraHost = "localhost";
