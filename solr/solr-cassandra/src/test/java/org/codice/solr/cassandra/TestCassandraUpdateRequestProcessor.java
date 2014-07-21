@@ -45,7 +45,7 @@ public class TestCassandraUpdateRequestProcessor {
     public void test() throws Exception { 
         //cassandra-unit approach for starting embedded Cassandra server
         String cassandraHost = "localhost";
-        int cassandraPort = 9042;
+        int cassandraPort = 9052;
         String workingDir = System.getProperty("user.dir") + "/src/test/resources/";
         System.setProperty("log4j.configuration", "file:" + workingDir + "log4j.properties");
         EmbeddedCassandraServerHelper.startEmbeddedCassandra("/cassandra.yaml");
