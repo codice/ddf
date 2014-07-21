@@ -17,6 +17,7 @@ package org.codice.ddf.ui.searchui.query.service;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.filter.FilterBuilder;
+import ddf.catalog.filter.FilterDelegate;
 import ddf.catalog.filter.impl.SortByImpl;
 import ddf.catalog.operation.Query;
 import ddf.catalog.operation.SourceInfoResponse;
@@ -502,6 +503,11 @@ public class SearchService {
 
         LOGGER.debug("Retrieved query settings: \n sortField: {} \nsortOrder: {}", sortField,
                 sortOrder);
+        if (filter == null) {
+            LOGGER.debug("Received an empty filter. Using a wildcard contextual filter instead.");
+            filter = filterBuilder.attribute(Metacard.ANY_TEXT).is().like()
+                    .text(FilterDelegate.WILDCARD_CHAR);
+        }
         return new QueryImpl(filter, startIndex.intValue(), count.intValue(), sort, true,
                 maxTimeout);
     }

@@ -324,19 +324,8 @@ define([
                 this.zoomOnResults = this.model.get("bbox") || this.model.get("radius") ? true : false;
             },
 
-            canSearch: function() {
-                var modelSize = _.size(this.model.attributes);
-                if (modelSize === 9 || (modelSize === 10 && this.model.get('src'))) {
-                    return false;
-                }
-                return true;
-            },
-
             workspaceSearch: function() {
                 var queryName = this.$('#queryName').val();
-                if(!this.canSearch() || !queryName) {
-                    return;
-                }
 
                 if (_.isUndefined(this.model.get('src'))) {
                     this.model.setSources(this.sources);
@@ -371,14 +360,6 @@ define([
 
             search: function () {
                 var view = this;
-                //check that we can even perform a search
-                //the model has 6 default attributes, so if we only have 6
-                //then we have no search criteria
-                //if we have 6 and one of them is the 'src' attribute, then we
-                //still have no search criteria
-                if(!this.canSearch()) {
-                    return;
-                }
 
                 var progress = new Progress.ProgressModel();
 
