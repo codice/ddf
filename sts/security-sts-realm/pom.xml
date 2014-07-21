@@ -93,10 +93,10 @@
                 security-sts-clientconfig,
                 ddf-security-common
             </Embed-Dependency>
-            <Import-Pacage>
+            <Import-Package>
                 org.apache.commons.io;version="1.4.0",
                 *
-            </Import-Pacage>
+            </Import-Package>
           </instructions>
         </configuration>
       </plugin>
