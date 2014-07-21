@@ -150,7 +150,7 @@ public class Notification extends HashMap<String, String> {
         setTimestamp(timestamp);
         
         // Allow blank user ID (since that is the default user ID for anonymous user)
-        if (null != userId) { //) && !userId.isEmpty()) {
+        if (null != userId) {
             setUserId(userId);
         }
     }
