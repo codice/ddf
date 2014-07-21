@@ -62,6 +62,7 @@ public class CometdEndpoint {
     UserService userService;
 
     WorkspaceService workspaceService;
+    PersistentStore persistentStore;
 
     /**
      * Create a new CometdEndpoint
@@ -78,6 +79,7 @@ public class CometdEndpoint {
         this.cometdServlet = cometdServlet;
         this.filterBuilder = filterBuilder;
         this.searchController = new SearchController(framework);
+        this.persistentStore = persistentStore;
         this.notificationController = new NotificationController(persistentStore, bundleContext, eventAdmin);
         this.activityController = new ActivityController(persistentStore, bundleContext, eventAdmin);
     }
@@ -129,7 +131,7 @@ public class CometdEndpoint {
             searchController.setBayeuxServer(bayeuxServer);
             searchService = new SearchService(filterBuilder, searchController);
             userService = new UserService();
-            workspaceService = new WorkspaceService();
+            workspaceService = new WorkspaceService(persistentStore);
             cometdAnnotationProcessor.process(userService);
             cometdAnnotationProcessor.process(workspaceService);
             cometdAnnotationProcessor.process(searchService);
