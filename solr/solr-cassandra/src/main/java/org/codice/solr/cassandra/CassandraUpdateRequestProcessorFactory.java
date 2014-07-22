@@ -116,7 +116,7 @@ public class CassandraUpdateRequestProcessorFactory extends UpdateRequestProcess
                         return cassandraClient;
                     } catch (Exception e) {
                         LOGGER.debug("Exception trying to get CassandraClient connection using cassandra_connection.properties file with cassandra.host={}, cassandra.port={}", 
-                                cassandraHost, cassandraCqlPort);
+                                cassandraHost, cassandraCqlPort, e);
                     }
                 } else {
                     LOGGER.debug("Cassandra properties file's values for cassandra.host and cassandra.port were either null or empty");

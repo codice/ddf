@@ -41,7 +41,8 @@ public class CassandraUpdateRequestProcessor extends UpdateRequestProcessor {
     
     private static final String CASSANDRA_KEYSPACE_NAME = "ddf";
     
-    // The minimum schema/columns that every Cassandra table has
+    // The minimum schema/columns that every Cassandra table has.
+    // Do not make id column a uuid type because third party developers' IDs may not be UUIDs.
     private static final String CASSANDRA_BASE_TABLE_SCHEMA = 
             "id_txt text PRIMARY KEY, createddate_tdt timestamp";
             //"id_txt uuid PRIMARY KEY, createddate_tdt timestamp";
@@ -67,7 +68,6 @@ public class CassandraUpdateRequestProcessor extends UpdateRequestProcessor {
             // Call next UpdateRequestProcessor in the chain
             super.processAdd(cmd);
         } catch (Exception e) {
-            LOGGER.info("Need to do rollback here");
             throw new RuntimeException(e);
         }
     }
@@ -94,7 +94,7 @@ public class CassandraUpdateRequestProcessor extends UpdateRequestProcessor {
     }
 
     public void persistToCassandra(SolrInputDocument solrInputDocument) {
-        LOGGER.trace("ENTERING: persistToCassandraPrepared()");
+        LOGGER.trace("ENTERING: persistToCassandra()");
         
         String columnNamesClause = "";
         String valuesClause = "";
@@ -111,7 +111,7 @@ public class CassandraUpdateRequestProcessor extends UpdateRequestProcessor {
                 String value = (String) fieldValue.getValue();
                 // No longer necessary since changed id_txt to a text type
                 //preparedValues.add(CassandraClient.normalizeUuid(value));  // do not quote UUID value
-                preparedValues.add("'" + value + "'");
+                preparedValues.add(value);
                 valuesClause += "?";
                 validColumn = true;
             } else if (fieldName.endsWith("_txt_set")) {
@@ -125,8 +125,15 @@ public class CassandraUpdateRequestProcessor extends UpdateRequestProcessor {
                 LOGGER.debug("Ignoring field {} as it should not be stored in Cassandra", fieldName);
             } else if (fieldName.endsWith("_xml") || fieldName.endsWith("_txt")) {
                 String value = (String) fieldValue.getValue();
-                preparedValues.add("'" + value + "'");
-                valuesClause += "?";
+                preparedValues.add(value);
+                //TEMP - to cause error so can test rollback
+                if (fieldName.equals("user_txt") && value.equals("rollback")) {
+                    LOGGER.info("Causing failure so rollback will occur");
+                } else {
+                    valuesClause += "?";
+                }
+                //END TEMP
+                //TEMP valuesClause += "?";
                 validColumn = true;
             } else if (fieldName.endsWith("_lng")) {
                 Long value = Long.valueOf((String) fieldValue.getValue());
@@ -141,7 +148,7 @@ public class CassandraUpdateRequestProcessor extends UpdateRequestProcessor {
             } else if (fieldName.endsWith("_geo")) {
                 // Should be a WKT string for geometry data
                 String value = (String) fieldValue.getValue();
-                preparedValues.add("'" + value + "'");
+                preparedValues.add(value);
                 valuesClause += "?";
                 validColumn = true;
             } else if (fieldName.endsWith("_tdt")) {
@@ -151,7 +158,6 @@ public class CassandraUpdateRequestProcessor extends UpdateRequestProcessor {
                 valuesClause += "?";
                 validColumn = true;
             } else if (fieldName.endsWith("_obj") || fieldName.endsWith("_bin")) {
-                //LOGGER.debug("_obj and _bin fields not yet supported - fieldName = {}", fieldName);
                 byte[] bytes = null;
                 if (byte[].class.isAssignableFrom(fieldValue.getValue().getClass())) {
                     LOGGER.debug("fieldValue is already a byte[]");
@@ -160,7 +166,6 @@ public class CassandraUpdateRequestProcessor extends UpdateRequestProcessor {
                     LOGGER.debug("fieldValue is String that will be converted to a byte[]");
                     bytes = ((String) fieldValue.getValue()).getBytes();
                 }
-                //byte[] bytes = (byte[]) fieldValue.getValue();
                 if (bytes != null && bytes.length > 0) {
                     LOGGER.debug("Wrapping {} bytes as a prepared value", bytes.length);
                     preparedValues.add(ByteBuffer.wrap(bytes));
@@ -195,6 +200,7 @@ public class CassandraUpdateRequestProcessor extends UpdateRequestProcessor {
         String cql = "INSERT INTO " + storeName + "(";
         cql += columnNamesClause + ") VALUES (" + valuesClause + ")";
         LOGGER.debug("cql = {}", cql);
+        
         try {
             cassandraClient.addEntryPrepared(CASSANDRA_KEYSPACE_NAME, cql, preparedValues.toArray());
         } catch (Exception e) {
@@ -207,9 +213,14 @@ public class CassandraUpdateRequestProcessor extends UpdateRequestProcessor {
             
             // Re-execute CQL to insert entry
             LOGGER.debug("Re-trying INSERT with cql = {}", cql);
-            cassandraClient.addEntryPrepared(CASSANDRA_KEYSPACE_NAME, cql, preparedValues.toArray());
+            try {
+                cassandraClient.addEntryPrepared(CASSANDRA_KEYSPACE_NAME, cql, preparedValues.toArray());
+            } catch (Exception e2) {
+                LOGGER.info("Exception trying to INSERT entry for table {}. Re-throwing as persistenceException", storeName);
+                throw new RuntimeException(e2);
+            }
         }
-        LOGGER.trace("EXITING: persistToCassandraPrepared()");
+        LOGGER.trace("EXITING: persistToCassandra()");
     }
     
     private void createTable(String tableName, String[] columnNames) {
