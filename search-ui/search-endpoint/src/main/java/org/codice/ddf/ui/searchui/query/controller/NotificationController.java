@@ -96,7 +96,7 @@ public class NotificationController extends AbstractEventController {
         }
 
         String sessionId = (String) event.getProperty(Notification.NOTIFICATION_KEY_SESSION_ID);
-        if (null == sessionId || sessionId.isEmpty()) {
+        if (StringUtils.isBlank(sessionId)) {
             throw new IllegalArgumentException("Event \"" + Notification.NOTIFICATION_KEY_SESSION_ID
                     + "\" property is null or empty");
         }
