@@ -150,6 +150,11 @@
         </service-properties>
     </service>
 
+    <bean id="downloadStatusInfo" class="ddf.catalog.event.retrievestatus.DownloadStatusInfoImpl">
+        <property name="eventAdmin" ref="eventAdmin"/>
+    </bean>
+    <service ref="downloadStatusInfo" interface="ddf.catalog.event.retrievestatus.DownloadStatusInfo"/>
+
     <reference id="cacheManager" interface="ddf.cache.CacheManager" />
 
     <bean id="productCache" class="ddf.catalog.cache.impl.ResourceCache" init-method="setupCache" destroy-method="teardownCache" >
@@ -189,7 +194,8 @@
 		<property name="retrieveStatusEventPublisher" ref="retrieveStatusEventPublisher" />
         <property name="notificationEnabled" value="true" />
         <property name="retrieveStatusEventListener" ref="retrieveStatusEventListener" />
-	</bean>
+        <property name="downloadStatusInfo" ref="downloadStatusInfo"/>
+    </bean>
 
 	<bean id="sourcePoller" class="ddf.catalog.util.impl.SourcePoller">
 		<argument ref="sourcePollerRunner" />
