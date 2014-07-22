@@ -190,6 +190,9 @@ define([
             },
             addSearch: function() {
                 var model = new QueryModel.Model();
+                if(!this.model.get('searches')) {
+                    this.model.set({searches: new Workspace.SearchList()});
+                }
                 this.model.get('searches').add(model);
                 wreqr.vent.trigger('workspace:searchedit', dir.forward, model);
             },
@@ -371,6 +374,9 @@ define([
             },
 
             showWorkspaceAdd: function(direction) {
+                if(!this.model.get('workspaces')) {
+                    this.model.set({workspaces: new Workspace.WorkspaceList()});
+                }
                 this.workspaceRegion.show(new WorkspaceView.WorkspaceAdd({collection: this.model.get('workspaces')}), direction);
             },
 

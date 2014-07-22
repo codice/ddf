@@ -21,6 +21,10 @@ define([
         "use strict";
         var Workspace = {};
 
+        Workspace.SearchList = Backbone.Collection.extend({
+            model: Query.Model
+        });
+
         Workspace.Model = Backbone.AssociatedModel.extend({
             relations: [
                 {
@@ -36,12 +40,17 @@ define([
             ]
         });
 
+        Workspace.WorkspaceList = Backbone.Collection.extend({
+            model: Workspace.Model
+        });
+
         Workspace.WorkspaceResult = Backbone.AssociatedModel.extend({
             relations: [
                 {
                     type: Backbone.Many,
                     key: 'workspaces',
-                    relatedModel: Workspace.Model
+                    relatedModel: Workspace.Model,
+                    collectionType: Workspace.WorkspaceList
                 }
             ],
             url: '/service/workspaces',
