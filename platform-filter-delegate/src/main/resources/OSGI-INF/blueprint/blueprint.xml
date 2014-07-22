@@ -30,7 +30,7 @@
     </reference-list>
 
   <bean id="delegatingServletFilter" class="org.codice.ddf.platform.filter.delegate.DelegateServletFilter" >
-    <argument ref="sortedServiceList" />
+    <argument ref="blueprintBundleContext" />
   </bean>
 
   <bean id="filterInjector" class="org.codice.ddf.platform.filter.delegate.FilterInjector">

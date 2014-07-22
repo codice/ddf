@@ -19,6 +19,7 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -38,7 +39,9 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
+import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -76,7 +79,7 @@ public class DelegateServletFilterTest {
         ServletRequest request = mock(HttpServletRequest.class);
         ServletResponse response = mock(HttpServletResponse.class);
 
-        DelegateServletFilter filter = new DelegateServletFilter(mockFilters(true));
+        DelegateServletFilter filter = new DelegateServletFilter(createMockContext(true));
 
         filter.doFilter(request, response, initialChain);
 
@@ -97,7 +100,7 @@ public class DelegateServletFilterTest {
         ServletRequest request = mock(HttpServletRequest.class);
         ServletResponse response = mock(HttpServletResponse.class);
 
-        DelegateServletFilter filter = new DelegateServletFilter(mockFilters(false));
+        DelegateServletFilter filter = new DelegateServletFilter(createMockContext(false));
 
         filter.doFilter(request, response, initialChain);
 
@@ -144,7 +147,7 @@ public class DelegateServletFilterTest {
 
     private Filter createMockFilter(final String name) throws IOException, ServletException {
         Filter mockFilter = mock(Filter.class);
-        Mockito.when(mockFilter.toString()).thenReturn(name);
+        when(mockFilter.toString()).thenReturn(name);
         Mockito.doAnswer(new Answer<Object>() {
 
             @Override
@@ -162,6 +165,21 @@ public class DelegateServletFilterTest {
                         any(FilterChain.class));
 
         return mockFilter;
+    }
+
+    private BundleContext createMockContext(boolean includeFilters)
+            throws InvalidSyntaxException, IOException, ServletException {
+        BundleContext context = mock(BundleContext.class);
+        List<Filter> mockFilters = mockFilters(includeFilters);
+        List<ServiceReference<Filter>> referenceList = new ArrayList<ServiceReference<Filter>>();
+        for(Filter curFilter : mockFilters) {
+            ServiceReference<Filter> mockRef = mock(ServiceReference.class);
+            when(context.getService(mockRef)).thenReturn(curFilter);
+            referenceList.add(mockRef);
+        }
+        when(context.getServiceReferences(Filter.class, null)).thenReturn(referenceList);
+
+        return context;
     }
 
 

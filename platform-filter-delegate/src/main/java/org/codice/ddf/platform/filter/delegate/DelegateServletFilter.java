@@ -14,12 +14,12 @@
  **/
 package org.codice.ddf.platform.filter.delegate;
 
-import java.io.IOException;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.Constants;
+import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.framework.ServiceReference;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -27,9 +27,11 @@ import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.io.IOException;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.LinkedList;
 
 /**
  * {@link DelegateServletFilter} is meant to detect any ServletFilters
@@ -43,10 +45,10 @@ public class DelegateServletFilter implements Filter {
 
     private FilterConfig filterConfig;
 
-    private List<Filter> filters;
+    private BundleContext context;
 
-    public DelegateServletFilter(List<Filter> filters) {
-        this.filters = filters;
+    public DelegateServletFilter(BundleContext context) {
+        this.context = context;
     }
 
     @Override
@@ -57,23 +59,30 @@ public class DelegateServletFilter implements Filter {
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse,
             FilterChain filterChain) throws IOException, ServletException {
 
-        if (!filters.isEmpty()) {
-            LOGGER.debug("Found {} filter(s), now filtering...", filters.size());
+        Collection<ServiceReference<Filter>> referenceCollection = null;
+
+        try {
+            referenceCollection = context.getServiceReferences(Filter.class, null);
+        } catch (InvalidSyntaxException ise) {
+            LOGGER.debug("Should not get this exception as there is no filter being passed.");
+        }
+
+        if (referenceCollection != null && !referenceCollection.isEmpty()) {
+            LOGGER.debug("Found {} filter(s), now filtering...", referenceCollection.size());
 
             ProxyFilterChain chain = new ProxyFilterChain(filterChain);
 
-            LinkedList<Filter> sortedFilters = new LinkedList<Filter>(filters);
-            Collections.sort(sortedFilters, new Comparator<Filter>() {
-                @Override
-                public int compare(Filter o1, Filter o2) {
-                    return 0;
-                }
-            });
-            Iterator<Filter> reverseIterator = new LinkedList<Filter>(filters).descendingIterator();
+            LinkedList<ServiceReference<Filter>> sortedFilters = new LinkedList<ServiceReference<Filter>>(referenceCollection);
+            // natural ordering of service references is to sort by service ranking
+            Collections.sort(sortedFilters);
+
+            Iterator<ServiceReference<Filter>> reverseIterator = sortedFilters.descendingIterator();
             while (reverseIterator.hasNext()) {
-                Filter curFilter = reverseIterator.next();
+                ServiceReference<Filter> curService = reverseIterator.next();
+                Filter curFilter = context.getService(curService);
                 curFilter.init(filterConfig);
                 if (!curFilter.getClass().toString().equals(this.getClass().toString())) {
+                    LOGGER.debug("Adding filter that has a service ranking of {}", curService.getProperty(Constants.SERVICE_RANKING));
                     chain.addFilter(curFilter);
                 }
                 reverseIterator.remove();
