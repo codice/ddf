@@ -14,6 +14,7 @@
  **/
 package ddf.sdk.plugin.presubscription;
 
+import ddf.catalog.data.Metacard;
 import org.opengis.filter.Filter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,7 +65,7 @@ public class DummyPreSubscriptionPlugin implements PreSubscriptionPlugin {
 
                 // Define the extra query clause(s) to add to the copied filter
                 Filter extraFilter = filterBuilder
-                        .attribute("/ddms:Resource/ddms:security/@ICISM:releasableTo").like()
+                        .attribute(Metacard.ANY_TEXT).like()
                         .text("CAN");
 
                 // AND the extra query clause(s) to the copied filter

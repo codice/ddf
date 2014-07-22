@@ -14,6 +14,7 @@
  **/
 package ddf.sdk.plugin.presubscription;
 
+import ddf.catalog.data.Metacard;
 import org.opengis.filter.Filter;
 
 import ddf.catalog.filter.FilterBuilder;
@@ -30,11 +31,11 @@ public class FilterModifierDelegate extends CopyFilterDelegate {
         // Build the original filter
         Filter originalFilter = filterBuilder.attribute(propertyName).like().text(literal);
 
-        // Add extra contextual search phrase on "releasableTo" field to only
-        // allow catalog entries releasable to Canada to generate events when
+        // Add extra contextual search phrase on "any text" field to only
+        // allow catalog entries referencing Canada to generate events when
         // created/updated/deleted
         Filter extraFilter = filterBuilder
-                .attribute("/ddms:Resource/ddms:security/@ICISM:releasableTo").like().text("CAN");
+                .attribute(Metacard.ANY_TEXT).like().text("CAN");
 
         // AND both filters together and return it
         Filter modifiedFilter = filterBuilder.allOf(originalFilter, extraFilter);
