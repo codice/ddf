@@ -97,7 +97,6 @@ public abstract class AbstractEventController implements EventHandler {
     }
 
     public List<Map<String, String>> getNotificationsForUser(String userId) {
-//        return notificationStore.getNotifications(userId);
         List<Map<String, String>> notifications = new ArrayList<Map<String, String>>();
         List<Map<String, Object>> results = new ArrayList<Map<String, Object>>();
         try {
