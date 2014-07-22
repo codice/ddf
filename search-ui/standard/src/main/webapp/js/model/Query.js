@@ -101,10 +101,12 @@ define([
                 }
 
                 var progress = progressFunction || function() {
-                    result.get('results').each(function(searchResult) {
+                    var localResult = result;
+                    localResult.get('results').each(function(searchResult) {
                         searchResult.cleanup();
                     });
-                    result.mergeLatest();
+                    localResult.mergeLatest();
+                    localResult = null;
                 };
 
                 return result.fetch({
