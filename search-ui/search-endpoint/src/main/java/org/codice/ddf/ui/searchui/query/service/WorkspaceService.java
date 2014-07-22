@@ -51,8 +51,6 @@ public class WorkspaceService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(WorkspaceService.class);
 
-    //DDF-605 private final Map<String, Object> workspaceMap = new HashMap<String, Object>();
-
     @Session
     private ServerSession serverSession;
     
@@ -80,12 +78,6 @@ public class WorkspaceService {
         // No workspaces persisted for an anonymous user (whose username="")
         if (StringUtils.isNotBlank(username)) {
             if (data == null || data.isEmpty() || data.get("workspaces") == null) {
-                /*DDF-605
-                Map<? extends String, ?> workspaces = (Map<? extends String, ?>) workspaceMap.get(username);
-                if (workspaces != null) {
-                    reply.putAll(workspaces);
-                }
-                */
                 List<Map<String, Object>> workspacesList = new ArrayList<Map<String, Object>>();
                 try {
                     workspacesList = persistentStore.get(PersistentStore.WORKSPACE_TYPE, 
@@ -124,7 +116,6 @@ public class WorkspaceService {
                 } catch (PersistenceException e) {
                     LOGGER.info("PersistenceException while trying to persist workspaces for user {}", username, e);
                 }
-                //DDF-605 workspaceMap.put(username, data);
                 reply.put(Search.SUCCESSFUL, true);
                 remote.deliver(serverSession, "/service/workspaces", reply, null);
             }
