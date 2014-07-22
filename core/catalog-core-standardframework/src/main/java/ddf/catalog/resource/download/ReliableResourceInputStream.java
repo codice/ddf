@@ -157,48 +157,42 @@ public class ReliableResourceInputStream extends InputStream {
             LOGGER.trace("fbos count = {}, fbosBytesRead = {}", fbosCount, fbosBytesRead);
         }
 
-        // More bytes written to FileBackedOutputStream than have been read by the client -
-        // ok to skip and do a read
-        if (fbosCount > fbosBytesRead) {
-            numBytesRead = readFromFbosInputStream(b, off, len);
-        } else if (fbosCount > 0) {
-            // bytes have been written to the FileBackedOutputStream
-            numBytesRead = readFromFbosInputStream(b, off, len);
-            if (isFbosCompletelyRead(numBytesRead, fbosCount)) {
-                LOGGER.debug("Sending EOF");
-                // Client is done reading from this FileBackedOutputStream, so can
-                // delete the backing file it created in the <INSTALL_DIR>/data/tmp directory
-                fbos.reset();
-            } else if (numBytesRead <= 0) {
-                LOGGER.debug(
-                        "numBytesRead <= 0 but client hasn't read all of the data from FBOS - block and read");
-                while (downloadState.getDownloadState()
-                        == DownloadManagerState.DownloadState.IN_PROGRESS ||
-                        (fbosCount >= fbosBytesRead && downloadState.getDownloadState()
-                                != DownloadManagerState.DownloadState.FAILED
-                                && downloadState.getDownloadState() != null)) {
-                    numBytesRead = readFromFbosInputStream(b, off, len);
-                    if (numBytesRead > 0) {
-                        LOGGER.debug("retry: numBytesRead = {}", numBytesRead);
-                        break;
-                    } else if (isFbosCompletelyRead(numBytesRead, fbosCount)) {
-                        LOGGER.debug("Got EOF - resetting FBOS");
-                        fbos.reset();
-                        break;
-                    } else {
-                        try {
-                            Thread.sleep(100);
-                        } catch (InterruptedException e) {
-                        }
+        numBytesRead = readFromFbosInputStream(b, off, len);
+        if (isFbosCompletelyRead(numBytesRead, fbosCount)) {
+            LOGGER.debug("Sending EOF");
+            // Client is done reading from this FileBackedOutputStream, so can
+            // delete the backing file it created in the <INSTALL_DIR>/data/tmp directory
+            fbos.reset();
+        } else if (numBytesRead <= 0) {
+            LOGGER.debug(
+                    "numBytesRead <= 0 but client hasn't read all of the data from FBOS - block and read");
+            while (downloadState.getDownloadState()
+                    == DownloadManagerState.DownloadState.IN_PROGRESS ||
+                    (fbosCount >= fbosBytesRead && downloadState.getDownloadState()
+                            != DownloadManagerState.DownloadState.FAILED
+                            && downloadState.getDownloadState() != null)) {
+                numBytesRead = readFromFbosInputStream(b, off, len);
+                if (numBytesRead > 0) {
+                    LOGGER.debug("retry: numBytesRead = {}", numBytesRead);
+                    break;
+                } else if (isFbosCompletelyRead(numBytesRead, fbosCount)) {
+                    LOGGER.debug("Got EOF - resetting FBOS");
+                    fbos.reset();
+                    break;
+                } else {
+                    try {
+                        Thread.sleep(100);
+                    } catch (InterruptedException e) {
                     }
                 }
-                if (downloadState.getDownloadState() == DownloadManagerState.DownloadState.FAILED) {
-                    LOGGER.debug(
-                            "Throwing IOException because download failed - cannot retrieve product");
-                    throw new IOException("Download failed - cannot retrieve product");
-                }
+            }
+            if (downloadState.getDownloadState() == DownloadManagerState.DownloadState.FAILED) {
+                LOGGER.debug(
+                        "Throwing IOException because download failed - cannot retrieve product");
+                throw new IOException("Download failed - cannot retrieve product");
             }
         }
+
 
         return numBytesRead;
     }
