@@ -30,7 +30,8 @@ define([
     'jquery',
     'modelbinder',
     'perfectscrollbar',
-    'backbonecometd'
+    'backbonecometd',
+    'progressbar'
 ], function(Marionette, ich, menubarTemplate, menubarItemTemplate, User, Backbone, notificationMenuTemplate, notificationCategoryTemplate, wreqr, _, loginTemplate, logoutTemplate, taskTemplate, taskCategoryTemplate, helpTemplate, Cometd, $) {
 
     ich.addTemplate('menubarItemTemplate', menubarItemTemplate);

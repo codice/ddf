@@ -19,11 +19,13 @@ import net.minidev.json.JSONObject;
 import org.apache.commons.lang.StringUtils;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
+import org.codice.ddf.activities.ActivityEvent;
 import org.codice.ddf.notifications.Notification;
 import org.codice.ddf.persistence.PersistenceException;
 import org.codice.ddf.persistence.PersistentStore;
 import org.cometd.annotation.Listener;
 import org.cometd.annotation.Service;
+import org.cometd.bayeux.Message;
 import org.cometd.bayeux.server.ServerMessage;
 import org.cometd.bayeux.server.ServerSession;
 import org.osgi.framework.BundleContext;
@@ -33,6 +35,9 @@ import org.osgi.service.event.EventHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -138,6 +143,34 @@ public class NotificationController extends AbstractEventController {
     @Override
     public String getControllerRootTopic() {
         return Notification.NOTIFICATION_TOPIC_ROOT + "/*";
+    }
+
+    @Listener('/'+Notification.NOTIFICATION_TOPIC_ROOT)
+    public void getPersistedNotifications(final ServerSession remote, Message message) {
+        Subject subject = null;
+        try {
+            subject = SecurityUtils.getSubject();
+        } catch (Exception e) {
+            LOGGER.debug("Couldn't grab user subject from Shiro.", e);
+        }
+
+        String userId = getUserId(remote, subject);
+
+        if (null == userId) {
+            throw new IllegalArgumentException("User ID is null");
+        }
+
+        List<Map<String, String>> notifications = getNotificationsForUser(userId);
+        List<Map<String, Object>> compatibleNotifications = new ArrayList<Map<String, Object>>();
+        for (Map<String, String> entry : notifications) {
+            Map<String, Object> tempEntry = new HashMap<String, Object>();
+            tempEntry.putAll(entry);
+            compatibleNotifications.add(tempEntry);
+        }
+
+        if (notifications != null && !notifications.isEmpty()) {
+            queuePersistedMessages(remote, compatibleNotifications, "/" + Notification.NOTIFICATION_TOPIC_BROADCAST);
+        }
     }
 
     @Listener("/notification/action")

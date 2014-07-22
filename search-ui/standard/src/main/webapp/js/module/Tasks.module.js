@@ -36,6 +36,8 @@ define(['application',
                         wreqr.vent.trigger('task:update', model);
                     }
                 });
+
+                Cometd.Comet.publish("/ddf/activities", null);
             });
         });
 

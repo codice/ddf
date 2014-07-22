@@ -1,16 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
+ *
  **/
 package org.codice.ddf.ui.searchui.query.controller;
 
@@ -61,6 +61,7 @@ public abstract class AbstractEventController implements EventHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractEventController.class);
 
     private final ExecutorService executorService = Executors.newCachedThreadPool();
+
     public static final java.lang.String EVENT_TOPIC_CANCEL = "download/action/cancel";
 
     @Session
@@ -83,10 +84,11 @@ public abstract class AbstractEventController implements EventHandler {
     /**
      * Establishes {@code AbstractEventController} as a listener to events published by the OSGi
      * eventing framework on the event's root topic
-     * 
+     *
      * @param bundleContext
      */
-    public AbstractEventController(PersistentStore persistentStore, BundleContext bundleContext, EventAdmin eventAdmin) {
+    public AbstractEventController(PersistentStore persistentStore, BundleContext bundleContext,
+            EventAdmin eventAdmin) {
         Dictionary<String, Object> dictionary = new Hashtable<String, Object>();
         dictionary.put(EventConstants.EVENT_TOPIC, getControllerRootTopic());
 
@@ -100,7 +102,7 @@ public abstract class AbstractEventController implements EventHandler {
         List<Map<String, String>> notifications = new ArrayList<Map<String, String>>();
         List<Map<String, Object>> results = new ArrayList<Map<String, Object>>();
         try {
-            results = persistentStore.get(PersistentStore.NOTIFICATION_TYPE, 
+            results = persistentStore.get(PersistentStore.NOTIFICATION_TYPE,
                     Notification.NOTIFICATION_KEY_USER_ID + " = '" + userId + "'");
         } catch (PersistenceException e) {
             LOGGER.info("PersistenceException trying to get notifications for user {}", userId);
@@ -113,17 +115,44 @@ public abstract class AbstractEventController implements EventHandler {
             }
             notifications.add(notification);
         }
-        
+
         return notifications;
+    }
+
+    public List<Map<String, Object>> getActivitiesForUser(String userId) {
+        List<Map<String, Object>> activities = new ArrayList<Map<String, Object>>();
+        List<Map<String, Object>> results = new ArrayList<Map<String, Object>>();
+        try {
+            results = persistentStore.get(PersistentStore.ACTIVITY_TYPE,
+                    ActivityEvent.USER_ID_KEY + " = '" + userId + "'");
+        } catch (PersistenceException e) {
+            LOGGER.info("PersistenceException trying to get activities for user {}", userId);
+        }
+        for (Map<String, Object> result : results) {
+            Map<String, Object> sanitizedResult = PersistentItem.stripSuffixes(result);
+            Map<String, Object> activity = new HashMap<String, Object>();
+            activity.put(ActivityEvent.OPERATIONS_KEY, new HashMap<String, String>());
+            for (Map.Entry<String, Object> entry: sanitizedResult.entrySet()) {
+                if (entry.getKey().contains(ActivityEvent.OPERATIONS_KEY + "_")) {
+                    ((Map) activity.get(ActivityEvent.OPERATIONS_KEY)).put(
+                            entry.getKey().substring((ActivityEvent.OPERATIONS_KEY + "_").length()),
+                            entry.getValue().toString());
+                } else {
+                    activity.put(entry.getKey(), entry.getValue().toString());
+                }
+            }
+            activities.add(activity);
+        }
+
+        return activities;
     }
 
     /**
      * Obtains the {@link ServerSession} associated with a given user id.
-     * 
-     * @param userId
-     *            The id of the user associated with the {@code ServerSession} to be retrieved.
+     *
+     * @param userId The id of the user associated with the {@code ServerSession} to be retrieved.
      * @return The {@code ServerSession} associated with the received userId or null if the user
-     *         does not have an established {@code ServerSession}
+     * does not have an established {@code ServerSession}
      */
     public ServerSession getSessionByUserId(String userId) {
         return userSessionMap.get(userId);
@@ -133,12 +162,10 @@ public abstract class AbstractEventController implements EventHandler {
      * Listens to the /meta/disconnect {@link org.cometd.bayeux.Channel} for clients disconnecting
      * and deregisters the user. This should be invoked in order to remove
      * {@code AbstractEventController} references to invalid {@link ServerSession}s.
-     * 
-     * @param serverSession
-     *            The {@code ServerSession} object associated with the client that is disconnecting
-     * @param serverMessage
-     *            The {@link ServerMessage} that was sent from the client on the /meta/disconnect
-     *            Channel
+     *
+     * @param serverSession The {@code ServerSession} object associated with the client that is disconnecting
+     * @param serverMessage The {@link ServerMessage} that was sent from the client on the /meta/disconnect
+     *                      Channel
      */
     @Listener("/meta/disconnect")
     public void deregisterUserSession(ServerSession serverSession, ServerMessage serverMessage) {
@@ -167,6 +194,7 @@ public abstract class AbstractEventController implements EventHandler {
             LOGGER.debug("userSessionMap does not contain a user with the id \"{}\"", userId);
         }
     }
+
     @Listener("/service/action")
     public void actionSession(final ServerSession serverSession, ServerMessage serverMessage) {
         LOGGER.debug("\nServerSession: {}\nServerMessage: {}", serverSession, serverMessage);
@@ -209,7 +237,6 @@ public abstract class AbstractEventController implements EventHandler {
             Event event = new Event(ActivityEvent.EVENT_TOPIC_DOWNLOAD_CANCEL, jsonPropMap);
             eventAdmin.postEvent(event);
 
-
         }
 
     }
@@ -217,7 +244,8 @@ public abstract class AbstractEventController implements EventHandler {
     /**
      * Called by {@link  ddf.catalog.event.retrievestatus.DownloadStatusInfoImpl.cancelDownload} to fire a
      * cancel event.
-     * @param userId The Id assigned to the user who is downloading.
+     *
+     * @param userId             The Id assigned to the user who is downloading.
      * @param downloadIdentifier The randomly generated downloadId string assigned to the download at its start.
      */
     public void adminCancelDownload(String userId, String downloadIdentifier) {
@@ -236,18 +264,15 @@ public abstract class AbstractEventController implements EventHandler {
      * "http://stackoverflow.com/questions/22695516/null-serversession-on-cometd-meta-handshake"
      * >Obtaining user and session information for private message delivery</a> for more
      * information.
-     * 
-     * @param serverSession
-     *            The {@link ServerSession} on which to deliver messages to the user for the user.
-     * @param serverMessage
-     *            The {@link ServerMessage} containing the userId property with which to associate
-     *            the {@code ServerSession}.
-     * @throws IllegalArgumentException
-     *             when the received {@code ServerSession} or the {@code ServerSession}'s id is
-     *             null.
+     *
+     * @param serverSession The {@link ServerSession} on which to deliver messages to the user for the user.
+     * @param serverMessage The {@link ServerMessage} containing the userId property with which to associate
+     *                      the {@code ServerSession}.
+     * @throws IllegalArgumentException when the received {@code ServerSession} or the {@code ServerSession}'s id is
+     *                                  null.
      */
     public void registerUserSession(final ServerSession serverSession, ServerMessage serverMessage)
-        throws IllegalArgumentException {
+            throws IllegalArgumentException {
 
         LOGGER.debug("ServerSession: {}\nServerMessage: {}", serverSession, serverMessage);
 
@@ -270,23 +295,13 @@ public abstract class AbstractEventController implements EventHandler {
 
         userSessionMap.put(userId, serverSession);
 
-        if (subject != null) {
-            List<Map<String, String>> notifications = getNotificationsForUser(userId);
-
-            // TODO need to also get the activities for the user and send them back here as well
-
-            if (notifications != null && !notifications.isEmpty()) {
-                queuePersistedMessages(serverSession, notifications, "/"
-                        + Notification.NOTIFICATION_TOPIC_DOWNLOADS);
-            }
-        }
 
         LOGGER.debug("Added ServerSession to userSessionMap - New map: {}", userSessionMap);
     }
 
-    private void queuePersistedMessages(final ServerSession serverSession,
-            List<Map<String, String>> messages, final String topic) {
-        for (Map<String, String> notification : messages) {
+    protected void queuePersistedMessages(final ServerSession serverSession,
+            List<Map<String, Object>> messages, final String topic) {
+        for (Map<String, Object> notification : messages) {
             final JSONObject jsonPropMap = new JSONObject();
             jsonPropMap.putAll(notification);
 
@@ -308,8 +323,8 @@ public abstract class AbstractEventController implements EventHandler {
                     }
 
                     LOGGER.trace("Sending notifications back to client.");
-                    serverSession.deliver(controllerServerSession, topic,
-                            jsonPropMap.toJSONString(), null);
+                        serverSession.deliver(controllerServerSession, topic,
+                                jsonPropMap.toJSONString(), null);
                 }
             });
         }
@@ -337,7 +352,7 @@ public abstract class AbstractEventController implements EventHandler {
     /**
      * Obtains the root topic of the controller that should be used when registering the
      * eventhandler.
-     * 
+     *
      * @return String representation of a root topic.
      */
     public abstract String getControllerRootTopic();

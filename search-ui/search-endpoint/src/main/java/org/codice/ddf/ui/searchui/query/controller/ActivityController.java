@@ -17,9 +17,13 @@ package org.codice.ddf.ui.searchui.query.controller;
 import net.minidev.json.JSONObject;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.subject.Subject;
 import org.codice.ddf.activities.ActivityEvent;
 import org.codice.ddf.persistence.PersistentStore;
+import org.cometd.annotation.Listener;
 import org.cometd.annotation.Service;
+import org.cometd.bayeux.Message;
 import org.cometd.bayeux.server.ServerSession;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.Event;
@@ -27,6 +31,9 @@ import org.osgi.service.event.EventAdmin;
 import org.osgi.service.event.EventHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * The {@code ActivityController} handles the processing and routing of
@@ -127,6 +134,32 @@ public class ActivityController extends AbstractEventController {
         } else {
             LOGGER.debug("Session with ID \"{}\" is not connected to the server. "
                     + "Ignoring activity", sessionId);
+        }
+    }
+
+    @Listener('/'+ActivityEvent.EVENT_TOPIC)
+    public void getPersistedActivities(final ServerSession remote, Message message) {
+        Map<String, Object> data = message.getDataAsMap();
+        if (data == null || data.isEmpty()) {
+            Subject subject = null;
+            try {
+                subject = SecurityUtils.getSubject();
+            } catch (Exception e) {
+                LOGGER.debug("Couldn't grab user subject from Shiro.", e);
+            }
+
+            String userId = getUserId(remote, subject);
+
+            if (null == userId) {
+                throw new IllegalArgumentException("User ID is null");
+            }
+
+            List<Map<String, Object>> activities = getActivitiesForUser(userId);
+
+            if (activities != null && !activities.isEmpty()) {
+                queuePersistedMessages(remote, activities,
+                        "/" + ActivityEvent.EVENT_TOPIC_BROADCAST);
+            }
         }
     }
 
