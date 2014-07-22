@@ -57,10 +57,16 @@ define([
             template: 'workspaceAdd',
             events: {
                 'click .submit': 'addWorkspace',
-                'click #cancel': 'cancel'
+                'click #cancel': 'cancel',
+                'keypress #workspaceName': 'addWorkspaceOnEnter'
             },
             initialize: function(options) {
                 this.collection = options.collection;
+            },
+            addWorkspaceOnEnter: function(e) {
+                if (e.keyCode === 13) {
+                    this.addWorkspace();
+                }
             },
             addWorkspace: function() {
                 var workspace = new Workspace.Model({name: this.$('#workspaceName').val()});
