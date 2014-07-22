@@ -12,6 +12,23 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  * 
  **/
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.codice.ddf.cassandra.embedded;
 
 import java.io.File;
@@ -154,7 +171,7 @@ public class CassandraEmbeddedServer {
     }
     
     // Based on CassadraDaemon.setup()
-    private boolean setup() {
+    protected boolean setup() {
         LOGGER.debug("Setting up embedded Cassandra ...");
         // log warnings for different kinds of sub-optimal JVMs.  tldr use 64-bit Oracle >= 1.6u32
         if (!DatabaseDescriptor.hasLargeAddressSpace())
@@ -414,8 +431,12 @@ public class CassandraEmbeddedServer {
     }    
     
     public void shutdown() {
-        LOGGER.info("Embedded Cassandra shutdown() invoked ...");
-        //TODO ...
-        //session.close();   //will this do it???
+        LOGGER.debug("ENTERING: shutdown()");
+        
+        thriftServer.stop();
+        nativeServer.stop();
+        LOGGER.info("Embedded Cassandra Server shutdown");
+        
+        LOGGER.debug("EXITING: shutdown()");
     }   
 }
