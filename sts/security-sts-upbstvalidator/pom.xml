@@ -47,7 +47,6 @@
         <dependency>
             <groupId>ddf.security.handler</groupId>
             <artifactId>security-handler-api</artifactId>
-            <version>${project.version}</version>
         </dependency>
     </dependencies>
 

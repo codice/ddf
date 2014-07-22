@@ -43,13 +43,7 @@
             <groupId>ddf.security</groupId>
             <artifactId>ddf-security-common</artifactId>
         </dependency>
-<!--
-        <dependency>
-            <groupId>ddf.security.core</groupId>
-            <artifactId>security-core-impl</artifactId>
-        </dependency>
--->
-    </dependencies>
+   </dependencies>
 
     <build>
         <plugins>

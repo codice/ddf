@@ -115,6 +115,12 @@ public class UPAuthenticationToken extends BSTAuthenticationToken {
         builder.append(BST_REALM);
         builder.append(realm);
         String retVal = builder.toString();
+        if (LOGGER.isTraceEnabled()) {
+            String[] lines = retVal.split(NEWLINE);
+            if (lines.length >= 3) {
+                LOGGER.trace("Credentials String: {}\n{}\n{}", lines[0], BST_PASSWORD+"******", lines[2]);
+            }
+        }
         LOGGER.trace("Credential String: {}", retVal);
         return retVal;
     }

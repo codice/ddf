@@ -117,6 +117,11 @@
         <bundle>mvn:ddf.security.sts/security-sts-ldaplogin/${project.version}</bundle>
     </feature>
 
+    <feature name="security-sts-ldapclaimshandler" install="manual" version="${project.version}"
+             description="Retrieves claims attributes from an LDAP store.">
+        <bundle>mvn:ddf.security.sts/security-sts-ldapclaimshandler/${project.version}</bundle>
+    </feature>
+
     <feature name="security-services-app" install="auto" version="${project.version}"
              description="The Security Application provides Authentication, Authorization, and Auditing services for the DDF.\nThey comprise both a framework that developers and integrators can extend and also a reference implementation that can be used which meets security requirements.::DDF Security">
         <feature>platform-app</feature>
