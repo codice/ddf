@@ -76,16 +76,18 @@ public class DelegateServletFilter implements Filter {
             // natural ordering of service references is to sort by service ranking
             Collections.sort(sortedFilters);
 
-            Iterator<ServiceReference<Filter>> reverseIterator = sortedFilters.descendingIterator();
-            while (reverseIterator.hasNext()) {
-                ServiceReference<Filter> curService = reverseIterator.next();
+            // because we're inserting these one at a time (inserting at index 0),
+            // we insert them from lowest to highest in order to end up with the highest at index 0.
+            Iterator<ServiceReference<Filter>> iterator = sortedFilters.iterator();
+            while (iterator.hasNext()) {
+                ServiceReference<Filter> curService = iterator.next();
                 Filter curFilter = context.getService(curService);
                 curFilter.init(filterConfig);
                 if (!curFilter.getClass().toString().equals(this.getClass().toString())) {
                     LOGGER.debug("Adding filter that has a service ranking of {}", curService.getProperty(Constants.SERVICE_RANKING));
                     chain.addFilter(curFilter);
                 }
-                reverseIterator.remove();
+                iterator.remove();
             }
 
             chain.doFilter(servletRequest, servletResponse);
