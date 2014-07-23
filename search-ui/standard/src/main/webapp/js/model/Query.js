@@ -91,6 +91,13 @@ define([
                 return val;
             },
 
+            clearSearch: function() {
+                if(this.get('result')) {
+                    this.get('result').cleanup();
+                }
+                this.set({result: undefined});
+            },
+
             startSearch:function(progressFunction) {
                 var result;
                 if(this.get('result')) {

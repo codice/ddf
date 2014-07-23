@@ -369,6 +369,7 @@ define([
                 this.$('input').prop('disabled',true);
                 wreqr.vent.trigger("search:drawstop");
 
+                this.model.clearSearch();
                 this.model.startSearch(progressFunction).complete(function () {
                     //this is fired after cometd has acknowledged our query request
                     //re-enable the whole form

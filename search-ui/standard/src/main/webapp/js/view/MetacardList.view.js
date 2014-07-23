@@ -171,11 +171,43 @@ define([
             itemView : List.StatusRow,
             itemViewContainer: 'tbody',
             events: {
-                'click #status-icon': 'toggleStatus'
+                'click #status-icon': 'toggleStatus',
+                'click #refresh-icon': 'refreshResults'
+            },
+            initialize: function() {
+                if(this.collection) {
+                    this.listenTo(this.collection, 'change', this.setRefreshIcon);
+                }
             },
             toggleStatus: function() {
                 this.$('#status-table').toggle();
                 this.$('#status-icon').toggleClass('fa-caret-down fa-caret-right');
+            },
+            refreshResults: function() {
+                if(!this.isSearchRunning()) {
+                    this.collection.parents[0].parents[0].startSearch();
+                }
+            },
+            onRender: function() {
+                this.setRefreshIcon();
+            },
+            setRefreshIcon: function() {
+                if(this.isSearchRunning()) {
+                    this.$('#refresh-icon').removeClass('fa-refresh');
+                    this.$('#refresh-icon').addClass('fa-circle-o-notch fa-spin');
+                } else {
+                    this.$('#refresh-icon').removeClass('fa-circle-o-notch fa-spin');
+                    this.$('#refresh-icon').addClass('fa-refresh');
+                }
+            },
+            isSearchRunning: function() {
+                var working = false;
+                this.collection.forEach(function(source) {
+                    if(!source.get('done')) {
+                        working = true;
+                    }
+                });
+                return working;
             }
         });
     
@@ -213,9 +245,11 @@ define([
                 this.listRegion.show(new List.MetacardTable({
                     collection: this.model.get("results")
                 }));
-                this.statusRegion.show(new List.StatusTable({
-                    collection: this.model.get("sources")
-                }));
+                if(this.model.get("sources")) {
+                    this.statusRegion.show(new List.StatusTable({
+                        collection: this.model.get("sources")
+                    }));
+                }
                 this.countRegion.show(new List.CountView({
                     model: this.model
                 }));

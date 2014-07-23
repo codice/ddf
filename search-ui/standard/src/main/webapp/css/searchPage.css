@@ -321,6 +321,15 @@ body {
     cursor: pointer;
 }
 
+.result-refresh-icon {
+    position: absolute;
+    top: 7px;
+    right: 23px;
+    vertical-align: top;
+    color: #33b5e5;
+    cursor: pointer;
+}
+
 #status-table td {
     padding-top: 3px;
     padding-bottom: 3px;
