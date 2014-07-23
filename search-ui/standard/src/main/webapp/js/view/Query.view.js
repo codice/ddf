@@ -335,6 +335,10 @@ define([
             workspaceSearch: function() {
                 var queryName = this.$('#queryName').val();
 
+                if(!queryName) {
+                    return;
+                }
+
                 if (_.isUndefined(this.model.get('src'))) {
                     this.model.setSources(this.sources);
                 }
