@@ -22,9 +22,9 @@ public interface PersistentStore {
     public static final String METACARD_TYPE = "metacard";
     public static final String SAVED_QUERY_TYPE = "saved_query";
     public static final String NOTIFICATION_TYPE = "notification";
-    public static final String TASK_TYPE = "task";
+    public static final String ACTIVITY_TYPE = "activity";
     public static final String WORKSPACE_TYPE = "workspace";
-    
+
     /**
      * Adds item of specified type with the specified properties.
      * 

@@ -27,7 +27,11 @@
         <command name="notifications/delete">
             <action class="org.codice.ddf.notifications.commands.DeleteCommand" />
         </command>
-                
+
+        <command name="activities/send">
+            <action class="org.codice.ddf.activities.commands.SendCommand" />
+        </command>
+
     </command-bundle>
 
 

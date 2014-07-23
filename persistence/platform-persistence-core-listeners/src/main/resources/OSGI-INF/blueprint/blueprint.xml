@@ -33,7 +33,7 @@
     
     <reference id="persistentStore" interface="org.codice.ddf.persistence.PersistentStore" />
     
-    <bean id="notificationListener" class="org.codice.ddf.notifications.impl.NotificationListener">
+    <bean id="notificationListener" class="org.codice.ddf.persistence.events.NotificationListener">
         <argument ref="persistentStore" />
     </bean>
     
@@ -43,6 +43,21 @@
                 <array value-type="java.lang.String">
                     <value>ddf/notifications/broadcast</value>
                     <value>ddf/notifications/catalog/downloads</value>
+                </array>
+            </entry>
+        </service-properties>
+    </service>
+
+    <bean id="activityListener" class="org.codice.ddf.persistence.events.ActivityListener">
+        <argument ref="persistentStore" />
+    </bean>
+
+    <service ref="activityListener" interface="org.osgi.service.event.EventHandler" >
+        <service-properties>
+            <entry key="event.topics" >
+                <array value-type="java.lang.String">
+                    <value>ddf/activities</value>
+                    <value>ddf/activities/broadcast</value>
                 </array>
             </entry>
         </service-properties>

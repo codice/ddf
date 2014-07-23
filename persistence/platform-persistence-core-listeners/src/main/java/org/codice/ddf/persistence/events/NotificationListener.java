@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  * 
  **/
-package org.codice.ddf.notifications.impl;
+package org.codice.ddf.persistence.events;
 
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.notifications.Notification;
