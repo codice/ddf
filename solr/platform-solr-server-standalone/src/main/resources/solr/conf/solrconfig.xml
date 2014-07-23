@@ -1578,9 +1578,6 @@
         <str name="xml-format">tiny</str>
         <!-- Strip all namespaces from indexed content -->
         <str name="strip-namespaces">yes</str>
-        <str name="cassandra-host">localhost</str>
-        <str name="cassandra-cql-port">9042</str>
-        <processor class="org.codice.solr.cassandra.CassandraUpdateRequestProcessorFactory" />                       
         <processor class="lux.solr.LuxUpdateProcessorFactory" />
         <processor class="solr.LogUpdateProcessorFactory" />
         <processor class="solr.RunUpdateProcessorFactory" />        

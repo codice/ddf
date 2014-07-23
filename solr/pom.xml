@@ -45,7 +45,6 @@
   <modules>
       <module>solr-query</module>
       <module>solr-xpath</module>
-	  <module>solr-cassandra</module>
       <module>platform-solr-server-standalone</module>
   </modules>
     

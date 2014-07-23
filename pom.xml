@@ -267,7 +267,6 @@
     <modules>
         <module>platform-configuration</module>
         <module>action</module>
-        <module>cassandra</module>
         <module>solr</module>
         <module>persistence</module>
         <module>notifications</module>

@@ -224,11 +224,6 @@
 									<type>xml</type>
 									<classifier>features</classifier>
 								</artifact>
-								<artifact>
-                                  <file>target/classes/cassandra/cassandra.yaml</file>
-                                  <type>yaml</type>
-                                  <classifier>cassandra</classifier>
-                              </artifact>
 							</artifacts>
 						</configuration>
 					</execution>

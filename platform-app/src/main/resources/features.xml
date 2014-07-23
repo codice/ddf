@@ -636,11 +636,6 @@
         <bundle start-level="30">mvn:ddf.platform/platform-filter-delegate/${project.version}</bundle>
     </feature>  
     
-    <feature name="cassandra" install="manual" version="${project.version}" description="DDF Embedded Cassandra">
-        <bundle>mvn:ddf.platform.cassandra/platform-cassandra-embedded-server/${project.version}</bundle> 
-        <configfile finalname="/data/cassandra/conf/cassandra.yaml" override="true">mvn:ddf.platform/platform-app/${project.version}/yaml/cassandra</configfile>
-    </feature>
-    
     <feature name="solr" install="manual" version="${project.version}" description="DDF Standalone Solr Server">
         <bundle>mvn:org.codice.thirdparty/jts/${jts.bundle.version}</bundle>
         <bundle>mvn:org.codice.thirdparty/gt-opengis/${opengis.bundle.version}</bundle>
@@ -656,9 +651,6 @@
         <configfile finalname="/solr/collection1/conf/stopwords.txt">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/stopwords</configfile>
         <configfile finalname="/solr/collection1/conf/synonyms.txt">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/synonyms</configfile>
         
-                
-        <configfile finalname="/data/solr/cassandra_connection.properties">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/properties/cassandra_connection</configfile>
-
         <configfile finalname="/data/solr/metacard/conf/solr.xml">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/xml/solr</configfile>
         <configfile finalname="/data/solr/metacard/conf/solrconfig.xml">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/xml/solrconfig</configfile>
         <configfile finalname="/data/solr/metacard/conf/schema.xml">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/xml/schema</configfile>
@@ -721,7 +713,6 @@
         <feature>security-core-api</feature>
         <feature>metrics-reporting</feature>
         <feature>metrics-services</feature>
-        <feature>cassandra</feature>
         <feature>solr</feature>
         <feature>persistence-core</feature>
 		
