@@ -73,9 +73,9 @@ public abstract class AbstractFeatureConverter implements FeatureConverter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractFeatureConverter.class);
 
-    private static final String ERROR_PARSING_MESSAGE = "Error parsing Geometry from feature xml.";
+    protected static final String ERROR_PARSING_MESSAGE = "Error parsing Geometry from feature xml.";
 
-    private static final String UTF8_ENCODING = "UTF-8";
+    protected static final String UTF8_ENCODING = "UTF-8";
 
     @Override
     public boolean canConvert(Class clazz) {
@@ -108,21 +108,17 @@ public abstract class AbstractFeatureConverter implements FeatureConverter {
 
     protected Metacard createMetacardFromFeature(HierarchicalStreamReader hreader,
             MetacardType metacardType) {
-
         String propertyPrefix = metacardType.getName() + ".";
-
         StringWriter metadataWriter = new StringWriter();
         HierarchicalStreamReader reader = copyXml(hreader, metadataWriter);
-
         MetacardImpl mc = new MetacardImpl(metacardType);
         mc.setContentTypeName(metacardType.getName());
-
+        
         while (reader.hasMoreChildren()) {
             reader.moveDown();
 
             String name = propertyPrefix + reader.getNodeName();
-            AttributeDescriptor attributeDescriptor = metacardType.getAttributeDescriptor(name);
-
+            AttributeDescriptor attributeDescriptor = metacardType.getAttributeDescriptor(name);                      
             Serializable value = null;
 
             if (attributeDescriptor != null
@@ -196,11 +192,11 @@ public abstract class AbstractFeatureConverter implements FeatureConverter {
             break;
         case GEOMETRY:
             XmlNode node = new XmlNode(reader);
-
+            String xml = node.toString();
             GMLReader gmlReader = new GMLReader();
             Geometry geo = null;
             try {
-                geo = gmlReader.read(node.toString(), null);
+                geo = gmlReader.read(xml, null);
             } catch (SAXException e) {
                 LOGGER.warn(ERROR_PARSING_MESSAGE, e);
             } catch (IOException e) {

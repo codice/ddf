@@ -33,6 +33,18 @@
             <artifactId>xstream</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.geotools</groupId>
+            <artifactId>gt-xml</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.geotools</groupId>
+            <artifactId>gt-shapefile</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.geotools</groupId>
+            <artifactId>gt-epsg-hsql</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.codice.ddf.spatial</groupId>
             <artifactId>spatial-wfs-v2_0_0-schema-bindings</artifactId>
         </dependency>
@@ -50,7 +62,7 @@
             <exclusions>
                 <exclusion>
                     <artifactId>cxf-rt-frontend-jaxrs</artifactId>
-	                <groupId>org.apache.cxf</groupId>
+                    <groupId>org.apache.cxf</groupId>
                 </exclusion>
             </exclusions>
         </dependency>

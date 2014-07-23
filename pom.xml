@@ -146,6 +146,16 @@
                 <version>${org.geotools.version}</version>
             </dependency>
             <dependency>
+                <groupId>org.geotools</groupId>
+                <artifactId>gt-shapefile</artifactId>
+                <version>${org.geotools.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.geotools</groupId>
+                <artifactId>gt-epsg-hsql</artifactId>
+                <version>${org.geotools.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>ddf.catalog.core</groupId>
                 <artifactId>filter-proxy</artifactId>
                 <version>${ddf.catalog.app.version}</version>

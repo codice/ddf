@@ -12,7 +12,7 @@
  *
  **/
 -->
-<vid:video_data_set fid='video_data_set.2' xmlns:vid='http://example.com' xmlns:gml='http://www.opengis.net/gml'>
+<vid:video_data_set fid='video_data_set.2' xmlns:vid='http://example.com' xmlns:gml='http://www.opengis.net/gml/3.2'>
     <vid:id>2</vid:id>
     <vid:version>1</vid:version>
     <vid:end_date>2005-04-07T09:54:38.983</vid:end_date>
@@ -24,18 +24,12 @@
     <vid:start_date>2005-04-07T09:53:39.000</vid:start_date>
     <vid:width>1280</vid:width>
     <vid:ground_geom>
-        <gml:MultiPolygon srsName='http://www.opengis.net/gml/srs/epsg.xml#4326'>
-            <gml:polygonMember>
-                <gml:Polygon>
-                    <gml:outerBoundaryIs>
-                        <gml:LinearRing>
-                            <gml:coordinates>138.62436068196084,-34.933447128860166 138.624054045753,-34.9344123244184
-                                138.624051098627,-34.93441204108663 138.62436068196084,-34.933447128860166
-                            </gml:coordinates>
-                        </gml:LinearRing>
-                    </gml:outerBoundaryIs>
+                <gml:Polygon srsName="urn:ogc:def:crs:EPSG::4326" gml:id="P2">
+                    <gml:exterior>
+                      <gml:LinearRing>
+                         <gml:posList>-30.92013931274414 117.6552810668945 -30.92383384704589 117.661361694336 -30.93005561828613 117.6666412353516 -30.93280601501464 117.6663589477539 -30.93186187744141 117.6594467163086 -30.93780517578125 117.6541137695312 -30.94397163391114 117.6519470214844 -30.94255638122559 117.6455535888672 -30.93402862548828 117.6336364746094 -30.92874908447266 117.6355285644531 -30.92138862609864 117.6326370239258 -30.92236137390137 117.6395568847656 -30.91708374023438 117.6433029174805 -30.91711044311523 117.6454467773437 -30.92061042785645 117.6484985351563 -30.92061042785645 117.6504135131836 -30.91638946533203 117.6504440307617 -30.92013931274414 117.6552810668945</gml:posList>
+                      </gml:LinearRing>
+                    </gml:exterior>
                 </gml:Polygon>
-            </gml:polygonMember>
-        </gml:MultiPolygon>
     </vid:ground_geom>
 </vid:video_data_set>

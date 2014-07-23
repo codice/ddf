@@ -13,7 +13,7 @@
  * 
  **/
 
-package org.codice.ddf.spatial.ogc.wfs.catalog.converter.impl;
+package org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.converter.impl;
 
 import java.io.Serializable;
 import java.net.URI;
@@ -31,6 +31,7 @@ import org.codice.ddf.spatial.ogc.catalog.common.converter.XmlNode;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.AttributeDescriptorComparator;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsConstants;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsQnameBuilder;
+import org.codice.ddf.spatial.ogc.wfs.catalog.converter.impl.EnhancedStaxWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,13 +54,13 @@ import ddf.catalog.data.impl.MetacardImpl;
  * @author kcwire
  * 
  */
-public class GenericFeatureConverter extends AbstractFeatureConverter {
+public class GenericFeatureConverterWfs20 extends AbstractFeatureConverterWfs20 {
 
     private static final String FID = "fid";
 
     private String sourceId = null;
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(GenericFeatureConverter.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(GenericFeatureConverterWfs20.class);
 
     /**
      * Method to determine if this converter knows how to convert the specified Class.

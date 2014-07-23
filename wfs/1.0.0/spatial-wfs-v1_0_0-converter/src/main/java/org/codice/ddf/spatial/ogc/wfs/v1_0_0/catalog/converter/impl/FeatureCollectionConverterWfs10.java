@@ -32,6 +32,7 @@ public class FeatureCollectionConverterWfs10 extends FeatureCollectionConverter 
     
     public FeatureCollectionConverterWfs10() {
         super();
+        FEATURE_MEMBER = "featureMember";
         prefixToUriMapping.put(Wfs10Constants.XSI_PREFIX, XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI);
         prefixToUriMapping.put(Wfs10Constants.WFS_NAMESPACE_PREFIX, Wfs10Constants.WFS_NAMESPACE);
         prefixToUriMapping.put(Wfs10Constants.GML_PREFIX, Wfs10Constants.GML_NAMESPACE);

@@ -17,6 +17,7 @@ package org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.converter.impl;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -42,6 +43,7 @@ import org.junit.Test;
 
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.xml.WstxDriver;
+import com.thoughtworks.xstream.mapper.Mapper;
 
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.Metacard;
@@ -53,7 +55,7 @@ public class TestGenericFeatureConverter {
 
     private static final String FEATURE_TYPE = "video_data_set";
 
-    private static final String SOURCE_ID = "WFS";
+    private static final String SOURCE_ID = "WFS_2_0";
 
     private static final String GML = "GML";
 
@@ -88,7 +90,7 @@ public class TestGenericFeatureConverter {
         XStream xstream = new XStream(new WstxDriver());
 
         MetacardType metacardType = buildMetacardType();
-        GenericFeatureConverter converter = new GenericFeatureConverter();
+        GenericFeatureConverterWfs20 converter = new GenericFeatureConverterWfs20();
         converter.setMetacardType(buildMetacardType());
 
         converter.setSourceId(SOURCE_ID);
@@ -142,7 +144,7 @@ public class TestGenericFeatureConverter {
         FeatureCollectionConverterWfs20 fcConverter = new FeatureCollectionConverterWfs20();
         Map<String, FeatureConverter> fcMap = new HashMap<String, FeatureConverter>();
 
-        GenericFeatureConverter converter = new GenericFeatureConverter();
+        GenericFeatureConverterWfs20 converter = new GenericFeatureConverterWfs20();
 
         fcMap.put("video_data_set", converter);
         fcConverter.setFeatureConverterMap(fcMap);
@@ -162,7 +164,7 @@ public class TestGenericFeatureConverter {
         assertEquals(mc.getId(), "video_data_set.1");
 
     }
-
+    
     @Test(expected = IllegalArgumentException.class)
     public void testUnmarshalNoMetacardTypeRegisteredInConverter() throws Throwable {
         XStream xstream = new XStream(new WstxDriver());
@@ -234,7 +236,7 @@ public class TestGenericFeatureConverter {
         schema.getElements().putAll(buildElementMap(schema));
 
         return new FeatureMetacardType(schema, new QName(FEATURE_TYPE), new ArrayList<String>(),
-        		Wfs20Constants.GML_3_2_NAMESPACE);
+                Wfs20Constants.GML_3_2_NAMESPACE);
 
     }
 
@@ -286,9 +288,12 @@ public class TestGenericFeatureConverter {
     }
 
     private String getLocation() {
-        return "MULTIPOLYGON (((138.62436068196084 -34.933447128860166, 138.624054045753 "
-                + "-34.9344123244184, 138.624051098627 -34.93441204108663, "
-                + "138.62436068196084 -34.933447128860166)))";
+        return "POLYGON ((-30.92013931274414 117.6552810668945, -30.92383384704589 117.661361694336, -30.93005561828613 117.6666412353516, "
+                + "-30.93280601501464 117.6663589477539, -30.93186187744141 117.6594467163086, -30.93780517578125 117.6541137695312, "
+                + "-30.94397163391114 117.6519470214844, -30.94255638122559 117.6455535888672, -30.93402862548828 117.6336364746094, "
+                + "-30.92874908447266 117.6355285644531, -30.92138862609864 117.6326370239258, -30.92236137390137 117.6395568847656, "
+                + "-30.91708374023438 117.6433029174805, -30.91711044311523 117.6454467773437, -30.92061042785645 117.6484985351563, "
+                + "-30.92061042785645 117.6504135131836, -30.91638946533203 117.6504440307617, -30.92013931274414 117.6552810668945))";
     }
 
 }

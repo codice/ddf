@@ -55,7 +55,7 @@ import ddf.catalog.data.impl.MetacardImpl;
 
 public class FeatureCollectionConverter implements Converter {
 
-    private static final String FEATURE_MEMBER = "featureMember";
+    protected String FEATURE_MEMBER = "";
 
     private String contextRoot;
 
