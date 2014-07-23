@@ -573,6 +573,7 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
                     || isFeatureTypeInQuery(contentTypes, filterDelegateEntry.getKey()
                             .getLocalPart())) {
                 QueryType wfsQuery = new QueryType();
+                wfsQuery.setTypeNames(Arrays.asList(filterDelegateEntry.getKey().getLocalPart()));
                 wfsQuery.setHandle(filterDelegateEntry.getKey().getLocalPart());
                 FilterType filter = filterAdapter.adapt(query, filterDelegateEntry.getValue()); 
 
@@ -607,8 +608,8 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
 
     private boolean areAnyFiltersSet(FilterType filter) {
         if (filter != null) {
-            return (filter.isSetComparisonOps() || filter.isSetId()
-                    || filter.isSetLogicOps() || filter.isSetSpatialOps());
+            return (filter.isSetComparisonOps() || filter.isSetId() || filter.isSetLogicOps()
+                    || filter.isSetSpatialOps() || filter.isSetTemporalOps());
         } else {
             return false;
         }
@@ -843,7 +844,10 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
         if (LOGGER.isDebugEnabled()) {
             try {
                 StringWriter writer = new StringWriter();
-                JAXBContext contextObj = JAXBContext.newInstance(GetFeatureType.class);
+                String context = StringUtils.join(new String[] {Wfs20Constants.OGC_FILTER_PACKAGE,
+                    Wfs20Constants.OGC_GML_PACKAGE, Wfs20Constants.OGC_OWS_PACKAGE,
+                    Wfs20Constants.OGC_WFS_PACKAGE}, ":");
+                JAXBContext contextObj = JAXBContext.newInstance(context, WfsSource.class.getClassLoader());
     
                 Marshaller marshallerObj = contextObj.createMarshaller();
                 marshallerObj.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
@@ -912,8 +916,6 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
      * NOTE: Ideally, the framework would call isAvailable on the Source and the SourcePoller would
      * have an AvailabilityTask that cached each Source's availability. Until that is done, allow
      * the command to handle the logic of managing availability.
-     * 
-     * @author kcwire
      * 
      */
     private class WfsSourceAvailabilityCommand implements AvailabilityCommand {

@@ -32,6 +32,7 @@ import net.opengis.filter.v_2_0_0.BBOXType;
 import net.opengis.filter.v_2_0_0.BinaryComparisonOpType;
 import net.opengis.filter.v_2_0_0.BinaryLogicOpType;
 import net.opengis.filter.v_2_0_0.BinarySpatialOpType;
+import net.opengis.filter.v_2_0_0.BinaryTemporalOpType;
 import net.opengis.filter.v_2_0_0.ComparisonOperatorType;
 import net.opengis.filter.v_2_0_0.ComparisonOperatorsType;
 import net.opengis.filter.v_2_0_0.ComparisonOpsType;
@@ -39,7 +40,6 @@ import net.opengis.filter.v_2_0_0.ConformanceType;
 import net.opengis.filter.v_2_0_0.DistanceBufferType;
 import net.opengis.filter.v_2_0_0.FilterCapabilities;
 import net.opengis.filter.v_2_0_0.FilterType;
-import net.opengis.filter.v_2_0_0.FunctionType;
 import net.opengis.filter.v_2_0_0.GeometryOperandsType;
 import net.opengis.filter.v_2_0_0.LiteralType;
 import net.opengis.filter.v_2_0_0.LowerBoundaryType;
@@ -55,10 +55,14 @@ import net.opengis.filter.v_2_0_0.SpatialOperatorsType;
 import net.opengis.filter.v_2_0_0.SpatialOpsType;
 import net.opengis.filter.v_2_0_0.TemporalCapabilitiesType;
 import net.opengis.filter.v_2_0_0.TemporalOperandsType;
+import net.opengis.filter.v_2_0_0.TemporalOperandsType.TemporalOperand;
 import net.opengis.filter.v_2_0_0.TemporalOperatorType;
 import net.opengis.filter.v_2_0_0.TemporalOperatorsType;
 import net.opengis.filter.v_2_0_0.UnaryLogicOpType;
 import net.opengis.filter.v_2_0_0.UpperBoundaryType;
+import net.opengis.gml.v_3_2_0.TimeInstantType;
+import net.opengis.gml.v_3_2_0.TimePeriodType;
+import net.opengis.gml.v_3_2_0.TimePositionType;
 import net.opengis.ows.v_1_1_0.DomainType;
 import ogc.schema.opengis.gml.v_2_1_2.BoxType;
 import ogc.schema.opengis.gml.v_2_1_2.CoordinatesType;
@@ -107,6 +111,8 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
     // net.opengis.gml.v_3_2_0.ObjectFactory();
     private ogc.schema.opengis.gml.v_2_1_2.ObjectFactory gmlObjectFactory = new ogc.schema.opengis.gml.v_2_1_2.ObjectFactory();
 
+    private net.opengis.gml.v_3_2_0.ObjectFactory gml320ObjectFactory = new net.opengis.gml.v_3_2_0.ObjectFactory();
+    
     private static final Logger LOGGER = LoggerFactory.getLogger(WfsFilterDelegate.class);
 
     private static final String MISSING_PARAMETERS_MSG = "Required parameters are missing";
@@ -693,6 +699,30 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
                 convertDateToIso8601Format(lowerBoundary),
                 convertDateToIso8601Format(upperBoundary));
     }
+    
+    @Override
+    public FilterType during(String propertyName, Date startDate, Date endDate) {
+        return buildDuringFilterType(mapPropertyName(propertyName),
+                convertDateToIso8601Format(startDate), convertDateToIso8601Format(endDate));
+    }
+
+    @Override
+    public FilterType relative(String propertyName, long duration) {
+        DateTime now = new DateTime();
+        DateTime startDate = new DateTime().minus(duration);
+        return buildDuringFilterType(mapPropertyName(propertyName), startDate, now);
+    }
+
+    @Override
+    public FilterType after(String propertyName, Date date) {
+        return buildAfterFilterType(mapPropertyName(propertyName), convertDateToIso8601Format(date));
+    }
+
+    @Override
+    public FilterType before(String propertyName, Date date) {
+        return buildBeforeFilterType(mapPropertyName(propertyName),
+                convertDateToIso8601Format(date));
+    }
 
     @Override
     public FilterType propertyIsBetween(String propertyName, int lowerBoundary, int upperBoundary) {
@@ -745,6 +775,113 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
             return null;
         }
         return filter;
+    }
+    
+    private FilterType buildDuringFilterType(String propertyName, DateTime startDate, DateTime endDate) {
+        if (!isValidInputParameters(propertyName, startDate, endDate)) {
+            throw new IllegalArgumentException(MISSING_PARAMETERS_MSG);
+        }
+        
+        if(!isTemporalOpSupported(TEMPORAL_OPERATORS.During)) {
+            throw new UnsupportedOperationException(
+                    "Temporal Operator [" + TEMPORAL_OPERATORS.During + "] is not supported.");
+        }
+        
+        TemporalOperand timePeriodTemporalOperand = new TemporalOperand();
+        timePeriodTemporalOperand.setName(new QName(Wfs20Constants.GML_3_2_NAMESPACE, "TimePeriod"));
+        if(!isTemporalOperandSupported(timePeriodTemporalOperand)) {
+            throw new UnsupportedOperationException(
+                    "Temporal Operand [" + timePeriodTemporalOperand.getName() + "] is not supported.");
+        }
+
+        FilterType filter = filterObjectFactory.createFilterType();
+
+        if (featureMetacardType.getProperties().contains(propertyName)) {
+            FeatureAttributeDescriptor featureAttributeDescriptor = (FeatureAttributeDescriptor) featureMetacardType
+                    .getAttributeDescriptor(propertyName);
+            if (featureAttributeDescriptor.isIndexed()) {
+                filter.setTemporalOps(createDuring(
+                        featureAttributeDescriptor.getPropertyName(), featureMetacardType.getName(), startDate, endDate));
+            } else {
+                throw new IllegalArgumentException(String.format(PROPERTY_NOT_QUERYABLE,
+                        propertyName));
+            }
+        } else {
+            return null;
+        }
+        return filter;
+    }
+    
+    private FilterType buildAfterFilterType(String propertyName, DateTime date) {
+        if (!isValidInputParameters(propertyName, date)) {
+            throw new IllegalArgumentException(MISSING_PARAMETERS_MSG);
+        }
+        
+        if(!isTemporalOpSupported(TEMPORAL_OPERATORS.After)) {
+            throw new UnsupportedOperationException(
+                    "Temporal Operator [" + TEMPORAL_OPERATORS.After + "] is not supported.");
+        }
+        
+        TemporalOperand timeInstantTemporalOperand = new TemporalOperand();
+        timeInstantTemporalOperand.setName(new QName(Wfs20Constants.GML_3_2_NAMESPACE, "TimeInstant"));
+        if(!isTemporalOperandSupported(timeInstantTemporalOperand)) {
+            throw new UnsupportedOperationException(
+                    "Temporal Operand [" + timeInstantTemporalOperand.getName() + "] is not supported.");
+        }
+        
+        FilterType filter = filterObjectFactory.createFilterType();
+
+        if (featureMetacardType.getProperties().contains(propertyName)) {
+            FeatureAttributeDescriptor featureAttributeDescriptor = (FeatureAttributeDescriptor) featureMetacardType
+                    .getAttributeDescriptor(propertyName);
+            if (featureAttributeDescriptor.isIndexed()) {
+                filter.setTemporalOps(createAfter(
+                        featureAttributeDescriptor.getPropertyName(), featureMetacardType.getName(), date));
+            } else {
+                throw new IllegalArgumentException(String.format(PROPERTY_NOT_QUERYABLE,
+                        propertyName));
+            }
+        } else {
+            return null;
+        }
+        return filter;
+        
+    }
+    
+    private FilterType buildBeforeFilterType(String propertyName, DateTime date) {
+        if (!isValidInputParameters(propertyName, date)) {
+            throw new IllegalArgumentException(MISSING_PARAMETERS_MSG);
+        }
+        
+        if(!isTemporalOpSupported(TEMPORAL_OPERATORS.Before)) {
+            throw new UnsupportedOperationException(
+                    "Temporal Operator [" + TEMPORAL_OPERATORS.Before + "] is not supported.");
+        }
+        
+        TemporalOperand timeInstantTemporalOperand = new TemporalOperand();
+        timeInstantTemporalOperand.setName(new QName(Wfs20Constants.GML_3_2_NAMESPACE, "TimeInstant"));
+        if(!isTemporalOperandSupported(timeInstantTemporalOperand)) {
+            throw new UnsupportedOperationException(
+                    "Temporal Operand [" + timeInstantTemporalOperand.getName() + "] is not supported.");
+        }
+        
+        FilterType filter = filterObjectFactory.createFilterType();
+
+        if (featureMetacardType.getProperties().contains(propertyName)) {
+            FeatureAttributeDescriptor featureAttributeDescriptor = (FeatureAttributeDescriptor) featureMetacardType
+                    .getAttributeDescriptor(propertyName);
+            if (featureAttributeDescriptor.isIndexed()) {
+                filter.setTemporalOps(createBefore(
+                        featureAttributeDescriptor.getPropertyName(), featureMetacardType.getName(), date));
+            } else {
+                throw new IllegalArgumentException(String.format(PROPERTY_NOT_QUERYABLE,
+                        propertyName));
+            }
+        } else {
+            return null;
+        }
+        return filter;
+        
     }
 
     private FilterType buildPropertyIsFilterType(String propertyName, Object literal,
@@ -910,6 +1047,71 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
         propertyIsBetween.setExpression(createPropertyNameType(property));
 
         return filterObjectFactory.createPropertyIsBetween(propertyIsBetween);
+    }
+    
+    private JAXBElement<BinaryTemporalOpType> createDuring(String property, String type,
+            DateTime startDate, DateTime endDate) {
+        JAXBElement<BinaryTemporalOpType> during = filterObjectFactory
+                .createDuring(createBinaryTemporalOpType(property, type, startDate, endDate));
+        return during;
+    }
+
+    private JAXBElement<BinaryTemporalOpType> createAfter(String property, String type,
+            DateTime date) {
+        JAXBElement<BinaryTemporalOpType> after = filterObjectFactory
+                .createAfter(createBinaryTemporalOpType(property, type, date));
+        return after;
+    }
+
+    private JAXBElement<BinaryTemporalOpType> createBefore(String property, String type,
+            DateTime date) {
+        JAXBElement<BinaryTemporalOpType> before = filterObjectFactory
+                .createBefore(createBinaryTemporalOpType(property, type, date));
+        return before;
+    }
+
+    private BinaryTemporalOpType createBinaryTemporalOpType(String property, String type,
+            DateTime startDate, DateTime endDate) {
+        BinaryTemporalOpType binaryTemporalOpType = filterObjectFactory
+                .createBinaryTemporalOpType();
+        binaryTemporalOpType.setValueReference(property);
+        binaryTemporalOpType.setExpression(gml320ObjectFactory
+                .createTimePeriod(createTimePeriodType(property, type, startDate, endDate)));
+
+        return binaryTemporalOpType;
+    }
+
+    private BinaryTemporalOpType createBinaryTemporalOpType(String property, String type,
+            DateTime date) {
+        BinaryTemporalOpType binaryTemporalOpType = filterObjectFactory
+                .createBinaryTemporalOpType();
+        binaryTemporalOpType.setValueReference(property);
+        binaryTemporalOpType.setExpression(gml320ObjectFactory
+                .createTimeInstant(createTimeInstantType(property, type, date)));
+
+        return binaryTemporalOpType;
+    }
+
+    private TimePositionType createTimePositionType(DateTime dateTime) {
+        TimePositionType timePosition = gml320ObjectFactory.createTimePositionType();
+        timePosition.getValue().add(dateTime.toString());
+        return timePosition;
+    }
+
+    private TimePeriodType createTimePeriodType(String property, String type, DateTime startDate,
+            DateTime endDate) {
+        TimePeriodType timePeriodType = gml320ObjectFactory.createTimePeriodType();
+        timePeriodType.setBeginPosition(createTimePositionType(startDate));
+        timePeriodType.setEndPosition(createTimePositionType(endDate));
+        timePeriodType.setId(type + ".1");
+        return timePeriodType;
+    }
+
+    private TimeInstantType createTimeInstantType(String property, String type, DateTime date) {
+        TimeInstantType timeInstantType = gml320ObjectFactory.createTimeInstantType();
+        timeInstantType.setTimePosition(createTimePositionType(date));
+        timeInstantType.setId(type + ".1");
+        return timeInstantType;
     }
 
     private JAXBElement<ResourceIdType> createFeatureIdFilter(final String id) {
@@ -1514,5 +1716,21 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
     public boolean isEpsg4326() {
         return isEpsg4326;
     }
-
+    
+    private boolean isTemporalOpSupported(TEMPORAL_OPERATORS temporalOp) {
+        return temporalOps.containsKey(temporalOp);
+    }
+    
+    private boolean isTemporalOperandSupported(TemporalOperand temporalOperand) {
+       return temporalOperands.contains(temporalOperand.getName());
+    }
+    
+    private String mapPropertyName(String originalPropertyName) {
+        // TODO
+        // See DDF ticket https://tools.codice.org/jira/browse/DDF-612 for mapping
+        // metacard attributes to feature properties.
+        LOGGER.debug("No mapping for property {}.", originalPropertyName);
+        return originalPropertyName;
+    }
+    
 }

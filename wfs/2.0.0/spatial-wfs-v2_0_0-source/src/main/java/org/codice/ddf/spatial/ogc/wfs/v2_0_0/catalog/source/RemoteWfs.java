@@ -46,10 +46,9 @@ import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.GetCapabilitiesReque
 import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.GetPropertyValueRequest;
 import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.Wfs;
 import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.Wfs20Constants;
+import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.Wfs20JaxbElementProvider;
 import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.source.reader.FeatureCollectionMessageBodyReaderWfs20;
 import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.source.reader.XmlSchemaMessageBodyReaderWfs20;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * A client to a WFS 2.0.0 Service. This class uses the {@link Wfs} interface to create a client
@@ -73,7 +72,7 @@ public class RemoteWfs extends TrustedRemoteSource implements Wfs {
         // We need to tell the JAXBElementProvider to marshal the GetFeatureType
         // class as an element
         // because it is are missing the @XmlRootElement Annotation
-        JAXBElementProvider<GetFeatureType> provider = new JAXBElementProvider<GetFeatureType>();
+        JAXBElementProvider<GetFeatureType> provider = new Wfs20JaxbElementProvider<GetFeatureType>();
         Map<String, String> jaxbClassMap = new HashMap<String, String>();
 
         // Ensure a namespace is used when the GetFeature request is generated

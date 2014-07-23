@@ -60,7 +60,7 @@ public class Wfs20Constants extends WfsConstants{
                 "ImplementsMinTemporalFilter"), ImplementsTemporalFilter("ImplementsTemporalFilter"), ImplementsVersionNav(
                 "ImplementsVersionNav"), ImplementsSorting("ImplementsSorting"), ImplementsExtendedOperators(
                 "ImplementsExtendedOperators"), ImplementsMinimumXPath("ImplementsMinimumXPath"), ImplementsSchemaElementFunc(
-                "ImplementsSchemaElementFunc");
+                "ImplementsSchemaElementFunc"), ImplementsResourceId("ImplementsResourceId");
 
         private String value;
 
@@ -116,8 +116,16 @@ public class Wfs20Constants extends WfsConstants{
 
     public static final String GML_2_1_2_NAMESPACE = "http://www.opengis.net/gml";
 
-    public static final String GML_3_2_NAMESPACE = " http://www.opengis.net/gml/3.2";
+    public static final String GML_3_2_NAMESPACE = "http://www.opengis.net/gml/3.2";
 
     public static final String WFS_SCHEMA_LOCATION = "/ogc/wfs/2.0.0/wfs.xsd";
+    
+    public static final String OGC_WFS_PACKAGE = "net.opengis.wfs.v_2_0_0";
+
+    public static final String OGC_FILTER_PACKAGE = "net.opengis.filter.v_2_0_0";
+
+    public static final String OGC_GML_PACKAGE = "net.opengis.gml.v_3_2_0";
+
+    public static final String OGC_OWS_PACKAGE = "net.opengis.ows.v_1_1_0";
 
 }
