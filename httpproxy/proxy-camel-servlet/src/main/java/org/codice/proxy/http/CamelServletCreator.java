@@ -22,31 +22,34 @@ import org.osgi.service.http.HttpService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 /**
  * Creates a registered Camel Servlet
+ * 
  * @author ddf
- *
+ * 
  */
 public class CamelServletCreator {
-	BundleContext bundleContext = null;
-	private static final Logger LOGGER = LoggerFactory.getLogger(CamelServletCreator.class);
-	public static final String SERVLET_PATH = "/proxy";
-	public static final String SERVLET_NAME = "CamelServlet";
-	
-	public CamelServletCreator(BundleContext bundleContext){
-		this.bundleContext = bundleContext;
-	}
+    BundleContext bundleContext = null;
 
-	
-	/**
-	 * Register the Camel Servlet with the HTTP Service
-	 */
-	public void registerServlet(){
-	
-		Dictionary props = new Hashtable();
-		props.put( "alias", SERVLET_PATH );
-		props.put("servlet-name", SERVLET_NAME);
-		bundleContext.registerService( "javax.servlet.Servlet", new HttpProxyCamelHttpTransportServlet(), props );
-	}
+    private static final Logger LOGGER = LoggerFactory.getLogger(CamelServletCreator.class);
+
+    public static final String SERVLET_PATH = "/proxy";
+
+    public static final String SERVLET_NAME = "CamelServlet";
+
+    public CamelServletCreator(BundleContext bundleContext) {
+        this.bundleContext = bundleContext;
+    }
+
+    /**
+     * Register the Camel Servlet with the HTTP Service
+     */
+    public void registerServlet() {
+
+        Dictionary props = new Hashtable();
+        props.put("alias", SERVLET_PATH);
+        props.put("servlet-name", SERVLET_NAME);
+        bundleContext.registerService("javax.servlet.Servlet",
+                new HttpProxyCamelHttpTransportServlet(), props);
+    }
 }

@@ -14,9 +14,9 @@
  -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<parent>
-	    <groupId>ddf</groupId>
-        <artifactId>ddf-parent</artifactId>       
-        <version>1.0.1</version>
+	    <groupId>ddf.lib</groupId>
+        <artifactId>lib</artifactId>       
+        <version>1.0.0-SNAPSHOT</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
@@ -36,7 +36,7 @@
 			<scope>test</scope>
 		</dependency>
     </dependencies>
-
+<!--OMIT
   <repositories>
     <repository>
       <id>codice</id>
@@ -44,4 +44,5 @@
       <url>http://artifacts.codice.org/content/groups/public/</url>
     </repository>
   </repositories>
+-->  
 </project>
