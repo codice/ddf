@@ -167,7 +167,7 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
 
     private List<FeatureConverterFactory> featureConverterFactories;
 
-    private static final String DEFAULT_WFS_TRANSFORMER_ID = "wfs";
+    private static final String DEFAULT_WFS_TRANSFORMER_ID = "wfs_2_0";
 
     static {
         try {
@@ -520,6 +520,12 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
     @Override
     public SourceResponse query(QueryRequest request) throws UnsupportedQueryException {
         Query query = request.getQuery();
+        
+        if (query == null){
+            LOGGER.error("WFS Source {}: Incoming query is null.", getId());
+            return null;
+        }
+        
         LOGGER.debug("WFS Source {}: Received query: \n{}", getId(), query);
         
         if (query.getStartIndex() < 1) {
@@ -545,7 +551,7 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
 
             List<Result> results = new ArrayList<Result>(numResults);
 
-            for (int i = 0; i < featureCollection.getFeatureMembers().size(); i++) {
+            for (int i = 0; i < numResults; i++) {
                 Metacard mc = featureCollection.getFeatureMembers().get(i);
                 mc = transform(mc, DEFAULT_WFS_TRANSFORMER_ID);
                 Result result = new ResultImpl(mc);
