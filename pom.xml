@@ -13,12 +13,6 @@
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  
-  <parent>
-      <groupId>ddf</groupId>
-      <artifactId>ddf-parent</artifactId>
-      <version>2.0.0</version>
-  </parent>
 	
   <groupId>ddf.lib</groupId>
   <artifactId>lib</artifactId>
@@ -33,48 +27,6 @@
 	  <module>notifications</module>
 	  <module>platform-configuration-impl</module>
   </modules>
-  
-  <properties>
-      <org.slf4j.version>1.7.1</org.slf4j.version>
-  </properties>
-  
-  <dependencyManagement>
-      <dependencies>
-	    <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-ext</artifactId>
-			<version>${org.slf4j.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-log4j12</artifactId>
-            <version>${org.slf4j.version}</version>
-        </dependency>
-      </dependencies>
-  </dependencyManagement>
- 
-    <dependencies>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.8</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.hamcrest</groupId>
-            <artifactId>hamcrest-all</artifactId>
-            <version>1.1</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-all</artifactId>
-            <version>1.9.0</version>
-            <scope>test</scope>
-        </dependency>
-  </dependencies>
 	
 </project>
   
