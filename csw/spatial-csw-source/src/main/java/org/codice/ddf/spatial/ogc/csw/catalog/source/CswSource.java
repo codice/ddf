@@ -242,10 +242,10 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
     protected static final String WCSURL_PROPERTY = "wcsUrl";
 
     private boolean isConstraintCql;
+    
+    protected String keyStorePath, keyStorePassword;
 
-    private String keyStorePath, keyStorePassword;
-
-    private String trustStorePath, trustStorePassword;
+    protected String trustStorePath, trustStorePassword;
 
     /**
      * Instantiates a CswSource. This constructor is for unit tests
