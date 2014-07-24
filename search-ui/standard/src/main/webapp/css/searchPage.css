@@ -1323,7 +1323,6 @@ a.pause:hover, a.pause:focus {
 .workspace-header {
     width: 80%;
     width: calc(100% - 30px);
-    white-space: nowrap;
     margin: 10px 0 0;
     font-size: small;
 }
