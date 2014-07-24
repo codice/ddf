@@ -127,5 +127,9 @@ public class Wfs20Constants extends WfsConstants{
     public static final String OGC_GML_PACKAGE = "net.opengis.gml.v_3_2_0";
 
     public static final String OGC_OWS_PACKAGE = "net.opengis.ows.v_1_1_0";
+    
+    public static final String TIME_PERIOD = "TimePeriod";
+    
+    public static final String TIME_INSTANT = "TimeInstant";
 
 }

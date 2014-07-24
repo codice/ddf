@@ -17,6 +17,10 @@ package org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.source;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.text.pattern.PatternMatcher.matchesPattern;
+import static org.hamcrest.text.pattern.Patterns.anyCharacterIn;
+import static org.hamcrest.text.pattern.Patterns.oneOrMore;
+import static org.hamcrest.text.pattern.Patterns.sequence;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -44,6 +48,7 @@ import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.Wfs20Constants;
 import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.Wfs20Constants.COMPARISON_OPERATORS;
 import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.Wfs20Constants.SPATIAL_OPERATORS;
 import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.Wfs20Constants.TEMPORAL_OPERATORS;
+import org.hamcrest.text.pattern.PatternMatcher;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeUtils;
 import org.junit.Test;
@@ -150,7 +155,7 @@ public class TestWfsFilterDelegate {
      *   <Filter>
      *     <During>
      *         <ValueReference>myPropertyName</ValueReference>
-     *         <ns4:TimePeriod ns4:id="myType.1">
+     *         <ns4:TimePeriod ns4:id="myType.1406219647420">
      *             <ns4:beginPosition>1974-08-01T16:29:45.430-07:00</ns4:beginPosition>
      *             <ns4:endPosition>2014-07-22T16:29:45.430-07:00</ns4:endPosition>
      *         </ns4:TimePeriod>
@@ -187,7 +192,7 @@ public class TestWfsFilterDelegate {
         TimePeriodType timePeriod = (TimePeriodType) binaryTemporalOpType.getExpression().getValue();
         assertThat(timePeriod.getBeginPosition().getValue().get(0), is(startDate.toString()));
         assertThat(timePeriod.getEndPosition().getValue().get(0), is(endDate.toString()));
-        assertThat(timePeriod.getId(), is(mockType + ".1"));
+        assertThat(timePeriod.getId(), is(matchesPattern(new PatternMatcher(sequence(mockType, ".", oneOrMore(anyCharacterIn("0-9")))))));
     }
     
     @Test
@@ -198,7 +203,7 @@ public class TestWfsFilterDelegate {
      *   <Filter>
      *     <During>
      *         <ValueReference>myPropertyName</ValueReference>
-     *         <ns4:TimePeriod ns4:id="myType.1">
+     *         <ns4:TimePeriod ns4:id="myType.1406219647420">
      *             <ns4:beginPosition>1974-08-01T16:29:45.430-07:00</ns4:beginPosition>
      *             <ns4:endPosition>2014-07-22T16:29:45.430-07:00</ns4:endPosition>
      *         </ns4:TimePeriod>
@@ -246,7 +251,7 @@ public class TestWfsFilterDelegate {
         TimePeriodType timePeriod = (TimePeriodType) binaryTemporalOpType.getExpression().getValue();
         assertThat(timePeriod.getBeginPosition().getValue().get(0), is(startDate.toString()));
         assertThat(timePeriod.getEndPosition().getValue().get(0), is(now.toString()));
-        assertThat(timePeriod.getId(), is(mockType + ".1"));
+        assertThat(timePeriod.getId(), is(matchesPattern(new PatternMatcher(sequence(mockType, ".", oneOrMore(anyCharacterIn("0-9")))))));
         
         // Reset the System time
         DateTimeUtils.setCurrentMillisSystem();
@@ -260,7 +265,7 @@ public class TestWfsFilterDelegate {
      *    <ns5:Filter xmlns:ns2="http://www.opengis.net/ows/1.1" xmlns="http://www.opengis.net/fes/2.0" xmlns:ns4="http://www.opengis.net/gml" xmlns:ns3="http://www.w3.org/1999/xlink" xmlns:ns5="http://www.opengis.net/ogc">
      *        <After>
      *            <ValueReference>myPropertyName</ValueReference>
-     *            <ns4:TimeInstant ns4:id="myType.1">
+     *            <ns4:TimeInstant ns4:id="myType.1406219647420">
      *                <ns4:timePosition>2013-07-23T14:02:09.239-07:00</ns4:timePosition>
      *            </ns4:TimeInstant>
      *         </After>
@@ -293,7 +298,7 @@ public class TestWfsFilterDelegate {
         assertThat(binaryTemporalOpType.isSetExpression(), is(true));
         TimeInstantType timeInstant = (TimeInstantType) binaryTemporalOpType.getExpression().getValue();
         assertThat(timeInstant.getTimePosition().getValue().get(0), is(date.toString()));
-        assertThat(timeInstant.getId(), is(mockType + ".1"));
+        assertThat(timeInstant.getId(), is(matchesPattern(new PatternMatcher(sequence(mockType, ".", oneOrMore(anyCharacterIn("0-9")))))));
     }
     
     @Test
@@ -304,7 +309,7 @@ public class TestWfsFilterDelegate {
      * <ns5:Filter xmlns:ns2="http://www.opengis.net/ows/1.1" xmlns="http://www.opengis.net/fes/2.0" xmlns:ns4="http://www.opengis.net/gml" xmlns:ns3="http://www.w3.org/1999/xlink" xmlns:ns5="http://www.opengis.net/ogc">
      *     <Before>
      *         <ValueReference>myPropertyName</ValueReference>
-     *         <ns4:TimeInstant ns4:id="myType.1">
+     *         <ns4:TimeInstant ns4:id="myType.1406219647420">
      *             <ns4:timePosition>2013-07-23T14:04:50.853-07:00</ns4:timePosition>
      *         </ns4:TimeInstant>
      *     </Before>
@@ -338,7 +343,7 @@ public class TestWfsFilterDelegate {
         assertThat(binaryTemporalOpType.isSetExpression(), is(true));
         TimeInstantType timeInstant = (TimeInstantType) binaryTemporalOpType.getExpression().getValue();
         assertThat(timeInstant.getTimePosition().getValue().get(0), is(date.toString()));
-        assertThat(timeInstant.getId(), is(mockType + ".1"));
+        assertThat(timeInstant.getId(), is(matchesPattern(new PatternMatcher(sequence(mockType, ".", oneOrMore(anyCharacterIn("0-9")))))));
     }
     
     private String getXmlFromMarshaller(FilterType filterType) throws JAXBException {

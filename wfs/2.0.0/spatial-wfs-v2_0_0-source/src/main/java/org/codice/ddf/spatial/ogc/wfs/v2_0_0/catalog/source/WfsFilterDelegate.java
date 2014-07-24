@@ -709,7 +709,7 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
     @Override
     public FilterType relative(String propertyName, long duration) {
         DateTime now = new DateTime();
-        DateTime startDate = new DateTime().minus(duration);
+        DateTime startDate = now.minus(duration);
         return buildDuringFilterType(mapPropertyName(propertyName), startDate, now);
     }
 
@@ -778,17 +778,18 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
     }
     
     private FilterType buildDuringFilterType(String propertyName, DateTime startDate, DateTime endDate) {
-        if (!isValidInputParameters(propertyName, startDate, endDate)) {
-            throw new IllegalArgumentException(MISSING_PARAMETERS_MSG);
-        }
         
         if(!isTemporalOpSupported(TEMPORAL_OPERATORS.During)) {
             throw new UnsupportedOperationException(
                     "Temporal Operator [" + TEMPORAL_OPERATORS.During + "] is not supported.");
         }
         
+        if (!isValidInputParameters(propertyName, startDate, endDate)) {
+            throw new IllegalArgumentException(MISSING_PARAMETERS_MSG);
+        }
+                
         TemporalOperand timePeriodTemporalOperand = new TemporalOperand();
-        timePeriodTemporalOperand.setName(new QName(Wfs20Constants.GML_3_2_NAMESPACE, "TimePeriod"));
+        timePeriodTemporalOperand.setName(new QName(Wfs20Constants.GML_3_2_NAMESPACE, Wfs20Constants.TIME_PERIOD));
         if(!isTemporalOperandSupported(timePeriodTemporalOperand)) {
             throw new UnsupportedOperationException(
                     "Temporal Operand [" + timePeriodTemporalOperand.getName() + "] is not supported.");
@@ -813,17 +814,18 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
     }
     
     private FilterType buildAfterFilterType(String propertyName, DateTime date) {
-        if (!isValidInputParameters(propertyName, date)) {
-            throw new IllegalArgumentException(MISSING_PARAMETERS_MSG);
-        }
         
         if(!isTemporalOpSupported(TEMPORAL_OPERATORS.After)) {
             throw new UnsupportedOperationException(
                     "Temporal Operator [" + TEMPORAL_OPERATORS.After + "] is not supported.");
         }
         
+        if (!isValidInputParameters(propertyName, date)) {
+            throw new IllegalArgumentException(MISSING_PARAMETERS_MSG);
+        }
+        
         TemporalOperand timeInstantTemporalOperand = new TemporalOperand();
-        timeInstantTemporalOperand.setName(new QName(Wfs20Constants.GML_3_2_NAMESPACE, "TimeInstant"));
+        timeInstantTemporalOperand.setName(new QName(Wfs20Constants.GML_3_2_NAMESPACE, Wfs20Constants.TIME_INSTANT));
         if(!isTemporalOperandSupported(timeInstantTemporalOperand)) {
             throw new UnsupportedOperationException(
                     "Temporal Operand [" + timeInstantTemporalOperand.getName() + "] is not supported.");
@@ -849,17 +851,18 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
     }
     
     private FilterType buildBeforeFilterType(String propertyName, DateTime date) {
-        if (!isValidInputParameters(propertyName, date)) {
-            throw new IllegalArgumentException(MISSING_PARAMETERS_MSG);
-        }
         
         if(!isTemporalOpSupported(TEMPORAL_OPERATORS.Before)) {
             throw new UnsupportedOperationException(
                     "Temporal Operator [" + TEMPORAL_OPERATORS.Before + "] is not supported.");
         }
         
+        if (!isValidInputParameters(propertyName, date)) {
+            throw new IllegalArgumentException(MISSING_PARAMETERS_MSG);
+        }
+        
         TemporalOperand timeInstantTemporalOperand = new TemporalOperand();
-        timeInstantTemporalOperand.setName(new QName(Wfs20Constants.GML_3_2_NAMESPACE, "TimeInstant"));
+        timeInstantTemporalOperand.setName(new QName(Wfs20Constants.GML_3_2_NAMESPACE, Wfs20Constants.TIME_INSTANT));
         if(!isTemporalOperandSupported(timeInstantTemporalOperand)) {
             throw new UnsupportedOperationException(
                     "Temporal Operand [" + timeInstantTemporalOperand.getName() + "] is not supported.");
@@ -1103,14 +1106,14 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
         TimePeriodType timePeriodType = gml320ObjectFactory.createTimePeriodType();
         timePeriodType.setBeginPosition(createTimePositionType(startDate));
         timePeriodType.setEndPosition(createTimePositionType(endDate));
-        timePeriodType.setId(type + ".1");
+        timePeriodType.setId(type + "." + System.currentTimeMillis());
         return timePeriodType;
     }
 
     private TimeInstantType createTimeInstantType(String property, String type, DateTime date) {
         TimeInstantType timeInstantType = gml320ObjectFactory.createTimeInstantType();
         timeInstantType.setTimePosition(createTimePositionType(date));
-        timeInstantType.setId(type + ".1");
+        timeInstantType.setId(type +  "." + System.currentTimeMillis());
         return timeInstantType;
     }
 
