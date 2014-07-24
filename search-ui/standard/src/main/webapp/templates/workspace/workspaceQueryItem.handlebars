@@ -15,7 +15,7 @@
     <span class="workspace-name">{{name}}</span>
 </td>
 <td>
-    <span class="workspace-count">{{hits}}&nbsp;{{#is working true}}<i class="fa fa-circle-o-notch fa-spin"></i>{{/is}}</span>
+    <span class="workspace-count">{{hits}}&nbsp;<span class="status-time">({{initiated}})</span>&nbsp;{{#is working true}}<i class="fa fa-circle-o-notch fa-spin"></i>{{/is}}</span>
 </td>
 <td>
     {{#is editing true}}

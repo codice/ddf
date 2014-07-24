@@ -122,11 +122,14 @@ define([
                 }
             },
             serializeData: function() {
-                var working = false, result = this.model.get('result'), hits;
+                var working = false, result = this.model.get('result'), hits, initiated;
                 if(result) {
                     var sources = result.get('sources');
                     if(result.get('hits')) {
                         hits = result.get('hits');
+                    }
+                    if(result.get('initiated')) {
+                        initiated = result.get('initiated');
                     }
                     if(sources) {
                         sources.forEach(function(source) {
@@ -136,7 +139,7 @@ define([
                         });
                     }
                 }
-                return _.extend(this.model.toJSON(), {working: working, editing: this.editing, hits: hits});
+                return _.extend(this.model.toJSON(), {working: working, editing: this.editing, initiated: initiated, hits: hits});
             },
             editMode: function() {
                 this.editing = true;

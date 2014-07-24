@@ -15,10 +15,11 @@ define([
         'backbone',
         'underscore',
         'properties',
+        'moment',
         'js/model/Metacard',
         'backboneassociations'
     ],
-    function (Backbone, _, properties, Metacard) {
+    function (Backbone, _, properties, moment, Metacard) {
         "use strict";
         var Query = {};
 
@@ -106,6 +107,8 @@ define([
                     result = new Metacard.SearchResult();
                     this.set({result: result});
                 }
+                
+                result.set('initiated', moment().format('lll'));
 
                 var progress = progressFunction || function() {
                     var localResult = result;
