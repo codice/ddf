@@ -31,51 +31,7 @@
         <url>http://www.codice.org/</url>
     </organization>
 
-    <dependencies>
-        <!-- START Cassandra dependencies -->
-        <dependency>
-           <groupId>org.codice.ddf</groupId>
-           <artifactId>cassandra</artifactId>
-           <version>1.0.0-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>com.datastax.cassandra</groupId>
-            <artifactId>cassandra-driver-core</artifactId>
-            <version>2.0.2</version>
-        </dependency>
-        <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-            <version>15.0</version>
-        </dependency>
-        <dependency>
-            <groupId>com.codahale.metrics</groupId>
-            <artifactId>metrics-core</artifactId>
-            <version>3.0.1</version>
-        </dependency>
-        <dependency>
-            <groupId>net.jpountz.lz4</groupId>
-            <artifactId>lz4</artifactId>
-            <version>1.2.0</version>
-        </dependency>
-        <dependency>
-            <groupId>io.netty</groupId>
-            <artifactId>netty</artifactId>
-            <version>3.6.6.Final</version>
-        </dependency>        
-        <dependency>
-            <groupId>org.xerial.snappy</groupId>
-            <artifactId>snappy-java</artifactId>
-            <version>1.1.0.1</version>   <!-- version that should be OSGi classloader compatible -->
-        </dependency>
-        <dependency>
-            <groupId>ddf.platform.solr</groupId>
-            <artifactId>solr-cassandra</artifactId>
-            <version>${ddf.platform.app.version}</version>
-        </dependency>
-        
-        <!-- END Cassandra dependencies -->
-        
+    <dependencies>  
         <dependency>
             <groupId>ddf.platform.solr</groupId>
             <artifactId>solr-xpath</artifactId>
@@ -223,48 +179,6 @@
             <version>1.7.1</version>
             <scope>test</scope>
         </dependency>
-        
-        <!-- For Cassandra unit testing -->         
-        <dependency>
-            <groupId>ddf.platform.cassandra</groupId>
-            <artifactId>platform-cassandra-embedded-server</artifactId>
-            <version>${ddf.platform.app.version}</version>
-            <scope>test</scope>
-        </dependency> 
-        <dependency>
-            <groupId>com.googlecode.concurrentlinkedhashmap</groupId>
-			<artifactId>concurrentlinkedhashmap-lru</artifactId>
-			<version>1.4</version>
-			<scope>test</scope>
-        </dependency>
-        <!-- Can use cassandra-unit for embedded Cassandr server vs. DDF CassandraEmbeddedServer in platform-app;
-             cassandra-unit still requires concurrentlinkedhashmap and antlr dependencies        
-        <dependency>
-		    <groupId>org.cassandraunit</groupId>
-		    <artifactId>cassandra-unit</artifactId>
-		    <version>2.0.2.1</version>
-		    <scope>test</scope>
-		</dependency>
-		<dependency>
-		    <groupId>org.yaml</groupId>
-		    <artifactId>snakeyaml</artifactId>
-		    <version>1.13</version>
-		    <scope>test</scope>
-		</dependency>
-        END cassandra-unit -->		
-        <dependency>
-            <groupId>org.antlr</groupId>
-            <artifactId>antlr</artifactId>
-            <version>3.2</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.antlr</groupId>
-            <artifactId>antlr-runtime</artifactId>
-            <version>3.2</version>
-            <scope>test</scope>
-        </dependency>
-		<!-- END Cassandra unit testing -->
     </dependencies>
 
     <build>
@@ -418,15 +332,7 @@
                             httpcore,
                             httpmime,
                             noggit,
-                            zookeeper,
-                            <!-- Cassandra -->
-                            cassandra,
-                            cassandra-driver-core,
-                            metrics-core,
-                            lz4,
-                            netty,
-                            solr-cassandra
-                            <!-- END Cassandra -->
+                            zookeeper
                         </Embed-Dependency>
                         <Embed-Transitive>true</Embed-Transitive>
                         <!-- We want the maven-populated describable.properties, so we overwrite 
@@ -437,8 +343,7 @@
                             ddf.catalog.source.solr;version="${project.version}",
                             ddf.catalog.data.impl,
                             ddf.catalog.operation.impl,
-                            ddf.catalog.util.impl,
-                            org.xerial.snappy.*    <!-- Cassandra -->
+                            ddf.catalog.util.impl
                         </Private-Package>
                         <Export-Package />
                         <Import-Package>

@@ -88,11 +88,6 @@
                 <artifactId>solr-xpath</artifactId>
                 <version>${ddf.platform.app.version}</version>
             </dependency>
-			<dependency>
-                <groupId>ddf.catalog.solr</groupId>
-                <artifactId>solr-cassandra</artifactId>
-                <version>${ddf.platform.app.version}</version>
-            </dependency>
             <!-- Version for Solr -->
             <dependency>
                 <groupId>org.apache.httpcomponents</groupId>
