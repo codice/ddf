@@ -28,5 +28,16 @@
 	  <module>platform-configuration-impl</module>
   </modules>
 	
+  <distributionManagement>
+		<snapshotRepository>
+			<id>snapshots</id>
+			<url>${snapshots.repository.url}</url>
+		</snapshotRepository>
+		<repository>
+			<id>releases</id>
+			<url>${releases.repository.url}</url>
+		</repository>
+  </distributionManagement>
+	
 </project>
   
