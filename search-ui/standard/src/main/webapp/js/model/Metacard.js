@@ -240,20 +240,14 @@ define([
             url: '/services/catalog/',
 
             initialize: function () {
-                this.on('change:context', this.onChangeContext);
+                this.listenTo(wreqr.vent, 'metacard:selected', _.bind(this.onAppContext, this));
             },
 
-            onChangeContext: function () {
-                if (this.get('context')) {
-                    wreqr.vent.trigger('metacard:selected', this);
-                    wreqr.vent.on('metacard:selected', _.bind(this.onAppContext, this), this);
-                }
-            },
-
-            onAppContext: function (model) {
+            onAppContext: function (direction, model) {
                 if (model !== this) {
-                    wreqr.vent.stopListening('metacard:selected', null, this);
                     this.set('context', false);
+                } else {
+                    this.set('context', true);
                 }
             },
 

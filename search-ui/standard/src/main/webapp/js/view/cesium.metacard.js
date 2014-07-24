@@ -16,9 +16,10 @@ define([
         'marionette',
         'underscore',
         'cesium',
-        'direction'
+        'direction',
+        'wreqr'
     ],
-    function (Backbone, Marionette, _, Cesium, dir) {
+    function (Backbone, Marionette, _, Cesium, dir, wreqr) {
         "use strict";
         var Views = {};
 
@@ -39,13 +40,12 @@ define([
             },
 
             isThisPrimitive : function(event){
-                var view = this;
                 // could wrap this in one huge if statement, but this seems more readable
                 if(_.has(event,'object')){
-                    if(event.object === view.billboard){
+                    if(event.object === this.billboard){
                         return true;
                     }
-                    if(_.contains(view.lines, event.object)){
+                    if(_.contains(this.lines, event.object)){
                         return true;
                     }
                 }
@@ -53,12 +53,10 @@ define([
             },
 
             buildBillboard: function () {
-                var view = this;
-
-                var point = view.model.get('geometry').getPoint();
-                view.billboard = view.geoController.billboardCollection.add({
-                    imageIndex: view.imageIndex,
-                    position: view.geoController.ellipsoid.cartographicToCartesian(
+                var point = this.model.get('geometry').getPoint();
+                this.billboard = this.geoController.billboardCollection.add({
+                    imageIndex: this.imageIndex,
+                    position: this.geoController.ellipsoid.cartographicToCartesian(
                         Cesium.Cartographic.fromDegrees(
                             point.longitude,
                             point.latitude,
@@ -69,52 +67,45 @@ define([
                     verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
                     scaleByDistance: new Cesium.NearFarScalar(1.0, 1.0, 1.5e7, 0.5)
                 });
-                view.billboard.color = view.color;
-                view.billboard.scale = 0.41;
-                view.billboard.hasScale = true;
+                this.billboard.color = this.color;
+                this.billboard.scale = 0.41;
+                this.billboard.hasScale = true;
             },
 
             toggleSelection: function () {
-                var view = this;
-
-                if (view.billboard.eyeOffset.z < 0) {
-                    view.billboard.eyeOffset = new Cesium.Cartesian3(0, 0, 0);
+                if (this.billboard.eyeOffset.z < 0) {
+                    this.billboard.eyeOffset = new Cesium.Cartesian3(0, 0, 0);
                 } else {
-                    view.billboard.eyeOffset = new Cesium.Cartesian3(0, 0, -10);
+                    this.billboard.eyeOffset = new Cesium.Cartesian3(0, 0, -10);
                 }
 
-                if (view.model.get('context')) {
-                    view.billboard.scale = 0.5;
-                    view.billboard.imageIndex = view.imageIndex + 1;
+                if (this.model.get('context')) {
+                    this.billboard.scale = 0.5;
+                    this.billboard.imageIndex = this.imageIndex + 1;
                 } else {
-                    view.billboard.scale = 0.41;
-                    view.billboard.imageIndex = view.imageIndex;
+                    this.billboard.scale = 0.41;
+                    this.billboard.imageIndex = this.imageIndex;
                 }
 
             },
             onMapLeftClick: function (event) {
-                var view = this;
                 // find out if this click is on us
-                if (_.has(event, 'object') && event.object === view.billboard) {
-                    view.model.set('direction', dir.none);
-                    view.model.set('context', true);
+                if (_.has(event, 'object') && event.object === this.billboard) {
+                    wreqr.vent.trigger('metacard:selected', dir.none, this.model);
                 }
             },
             onMapDoubleClick: function (event) {
-                var view = this;
                 // find out if this click is on us
-                if (_.has(event, 'object') && event.object === view.billboard) {
-                    view.geoController.flyToLocation(view.model);
+                if (_.has(event, 'object') && event.object === this.billboard) {
+                    this.geoController.flyToLocation(this.model);
 
                 }
             },
 
             onClose: function () {
-                var view = this;
-
                 // If there is already a billboard for this view, remove it
-                if (!_.isUndefined(view.billboard)) {
-                    view.geoController.billboardCollection.remove(view.billboard);
+                if (!_.isUndefined(this.billboard)) {
+                    this.geoController.billboardCollection.remove(this.billboard);
 
                 }
                 this.stopListening();
@@ -170,18 +161,15 @@ define([
             },
 
             onMapLeftClick: function (event) {
-                var view = this;
                 // find out if this click is on us
-                if (_.has(event, 'object') && _.contains(view.points, event.object)) {
-                    view.model.set('direction', dir.none);
-                    view.model.set('context', true);
+                if (_.has(event, 'object') && _.contains(this.points, event.object)) {
+                    wreqr.vent.trigger('metacard:selected', dir.none, this.model);
                 }
             },
             onMapDoubleClick: function (event) {
-                var view = this;
                 // find out if this click is on us
-                if (_.has(event, 'object') && _.contains(view.points, event.object)) {
-                    view.geoController.flyToLocation(view.model);
+                if (_.has(event, 'object') && _.contains(this.points, event.object)) {
+                    this.geoController.flyToLocation(this.model);
                 }
             },
 
@@ -208,18 +196,15 @@ define([
             },
 
             onMapLeftClick: function (event) {
-                var view = this;
                 // find out if this click is on us
-                if (view.isThisPrimitive(event)) {
-                    view.model.set('direction', dir.none);
-                    view.model.set('context', true);
+                if (this.isThisPrimitive(event)) {
+                    wreqr.vent.trigger('metacard:selected', dir.none, this.model);
                 }
             },
             onMapDoubleClick: function (event) {
-                var view = this;
                 // find out if this click is on us
-                if (view.isThisPrimitive(event)) {
-                    view.geoController.flyToLocation(view.model);
+                if (this.isThisPrimitive(event)) {
+                    this.geoController.flyToLocation(this.model);
 
                 }
             },
@@ -247,14 +232,12 @@ define([
             },
 
             onClose: function () {
-                var view = this;
-
                 // If there is already a billboard for this view, remove it
-                if (!_.isUndefined(view.billboard)) {
-                    view.geoController.billboardCollection.remove(view.billboard);
+                if (!_.isUndefined(this.billboard)) {
+                    this.geoController.billboardCollection.remove(this.billboard);
                 }
-                if (!_.isUndefined(view.lines)) {
-                    view.geoController.scene.primitives.remove(view.lines);
+                if (!_.isUndefined(this.lines)) {
+                    this.geoController.scene.primitives.remove(this.lines);
                 }
 
                 this.stopListening();
@@ -295,30 +278,25 @@ define([
             },
 
             toggleSelection : function(){
-                var view = this;
                 // call super for billboard modification
                 Views.PointView.prototype.toggleSelection.call(this);
-                if (view.model.get('context')) {
-                    view.setPolygonSelected();
-                }else{
-                    view.setPolygonUnselected();
+                if (this.model.get('context')) {
+                    this.setPolygonSelected();
+                } else {
+                    this.setPolygonUnselected();
                 }
 
             },
             onMapLeftClick: function (event) {
-                var view = this;
                 // find out if this click is on us
-                if (view.isThisPrimitive(event)) {
-                    view.model.set('direction', dir.none);
-                    view.model.set('context', true);
+                if (this.isThisPrimitive(event)) {
+                    wreqr.vent.trigger('metacard:selected', dir.none, this.model);
                 }
             },
             onMapDoubleClick: function (event) {
-                var view = this;
                 // find out if this click is on us
-                if (view.isThisPrimitive(event)) {
-                    view.geoController.flyToLocation(view.model);
-
+                if (this.isThisPrimitive(event)) {
+                    this.geoController.flyToLocation(this.model);
                 }
             },
 

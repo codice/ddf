@@ -74,11 +74,7 @@ define([
             },
 
             viewMetacard: function () {
-                this.model.set('direction', dir.forward);
-                if (this.model.get('context')) {
-                    wreqr.vent.trigger('metacard:selected', this.model);
-                }
-                this.model.set('context', true);
+                wreqr.vent.trigger('metacard:selected', dir.forward, this.model);
             }
 
         });

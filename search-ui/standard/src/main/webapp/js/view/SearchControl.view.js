@@ -18,9 +18,10 @@ define([
         'backbone',
         'icanhaz',
         'wreqr',
-        'text!templates/search/searchControl.handlebars'
+        'text!templates/search/searchControl.handlebars',
+        'direction'
     ],
-    function ($, _, Marionette, Backbone, ich, wreqr, searchControlTemplate) {
+    function ($, _, Marionette, Backbone, ich, wreqr, searchControlTemplate, dir) {
         "use strict";
         var SearchControl = {};
 
@@ -36,12 +37,7 @@ define([
                 showChevronForward: true
             },
             setInitialState: function() {
-                this.set({
-                    back: '',
-                    forward: '',
-                    title: 'Search',
-                    currentState: 'search'
-                });
+                this.set(this.defaults);
             },
             setResultListState: function() {
                 this.set({
@@ -66,26 +62,6 @@ define([
                     forward: '',
                     currentState: 'record'
                 });
-            },
-            back: function() {
-                switch (this.get('currentState')) {
-                    case 'results':
-                        this.setSearchFormState();
-                        break;
-                    case 'record':
-                        this.setResultListState();
-                        break;
-                }
-            },
-            forward: function() {
-                switch (this.get('currentState')) {
-                    case 'search':
-                        this.setResultListState();
-                        break;
-                    case 'results':
-                        this.setRecordViewState();
-                        break;
-                }
             }
         });
 
@@ -93,8 +69,8 @@ define([
             template : 'searchControlTemplate',
             model: new SearchControl.SearchControlModel(),
             events: {
-                'click .back': 'back',
-                'click .forward': 'forward'
+                'click .back': 'action',
+                'click .forward': 'action'
             },
 
             modelEvents: {
@@ -120,15 +96,26 @@ define([
                 }
             },
 
-            back: function () {
+            action: function (e) {
                 var state = this.model.get('currentState');
-                this.model.back();
-                wreqr.vent.trigger('search:back', state);
-            },
-            forward: function () {
-                var state = this.model.get('currentState');
-                this.model.forward();
-                wreqr.vent.trigger('search:forward', state);
+                var id = e.target.id;
+                switch(state) {
+                    case 'search':
+                        if(id === 'Results') {
+                            wreqr.vent.trigger('search:results', dir.forward);
+                        }
+                        break;
+                    case 'results':
+                        if(id === 'Search') {
+                            wreqr.vent.trigger('search:show', dir.backward);
+                        }
+                        break;
+                    case 'record':
+                        if(id === 'Results') {
+                            wreqr.vent.trigger('search:results', dir.backward);
+                        }
+                        break;
+                }
             }
         });
 

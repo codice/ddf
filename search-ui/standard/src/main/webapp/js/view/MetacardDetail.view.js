@@ -14,7 +14,7 @@
 define([
         'jquery',
         'underscore',
-        'backbone',
+        'marionette',
         'icanhaz',
         'direction',
         'maptype',
@@ -22,15 +22,16 @@ define([
         'cometdinit',
         'text!templates/metacard.handlebars'
     ],
-    function ($, _, Backbone, ich, dir, maptype, wreqr, Cometd, metacardTemplate) {
+    function ($, _, Marionette, ich, dir, maptype, wreqr, Cometd, metacardTemplate) {
         "use strict";
 
         var Metacard = {};
 
         ich.addTemplate('metacardTemplate', metacardTemplate);
 
-        Metacard.MetacardDetailView = Backbone.View.extend({
+        Metacard.MetacardDetailView = Marionette.ItemView.extend({
             className : 'slide-animate',
+            template: 'metacardTemplate',
             events: {
                 'click .location-link': 'viewLocation',
                 'click .nav-tabs' : 'onTabClick',
@@ -57,14 +58,11 @@ define([
                 
                 wreqr.vent.on('search:beginMerge', _.bind(this.invalidateList, this));
             },
-            render: function () {
-                var jsonObj = this.model.toJSON();
-                jsonObj.mapAvailable = maptype.isMap();
-                jsonObj.url = this.model.url;
-                jsonObj.clientId = Cometd.Comet.getClientId();  //required for retrieve product notifications subscription
-                this.$el.html(ich.metacardTemplate(jsonObj));
+            onRender: function () {
                 this.updateIterationControls();
-                return this;
+            },
+            serializeData: function() {
+                return _.extend(this.model.toJSON(), {mapAvailable: maptype.isMap(), url: this.model.url, clientId: Cometd.Comet.getClientId()});
             },
             updateIterationControls: function () {
                 if (_.isUndefined(this.prevModel)) {
@@ -95,24 +93,19 @@ define([
             },
             previousRecord: function () {
                 if (this.prevModel) {
-                    this.prevModel.get("metacard").set('hash', this.hash);
-                    this.model.set('context', false);
-                    this.prevModel.get("metacard").set('direction', dir.downward);
-                    this.prevModel.get("metacard").set('context', true);
+                    this.prevModel.get("metacard").set({
+                        hash: this.hash
+                    });
+                    wreqr.vent.trigger('metacard:selected', dir.downward, this.prevModel.get("metacard"));
                 }
             },
             nextRecord: function () {
                 if (this.nextModel) {
-                    this.nextModel.get("metacard").set('hash', this.hash);
-                    this.model.set('context', false);
-                    this.nextModel.get("metacard").set('direction', dir.upward);
-                    this.nextModel.get("metacard").set('context', true);
+                    this.nextModel.get("metacard").set({
+                        hash: this.hash
+                    });
+                    wreqr.vent.trigger('metacard:selected', dir.upward, this.nextModel.get("metacard"));
                 }
-            },
-            close: function () {
-                this.remove();
-                this.stopListening();
-                this.unbind();
             }
         });
 

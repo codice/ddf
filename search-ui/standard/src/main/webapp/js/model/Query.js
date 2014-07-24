@@ -28,7 +28,8 @@ define([
                 {
                     type: Backbone.One,
                     key: 'result',
-                    relatedModel: Metacard.SearchResult
+                    relatedModel: Metacard.SearchResult,
+                    isTransient: true
                 }
             ],
             //in the search we are checking for whether or not the model

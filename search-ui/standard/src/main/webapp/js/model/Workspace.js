@@ -21,6 +21,10 @@ define([
         "use strict";
         var Workspace = {};
 
+        Workspace.MetacardList = Backbone.Collection.extend({
+            model: Metacard.Metacard
+        });
+
         Workspace.SearchList = Backbone.Collection.extend({
             model: Query.Model
         });
@@ -37,7 +41,15 @@ define([
                     key: 'metacards',
                     relatedModel: Metacard.Metacard
                 }
-            ]
+            ],
+            initialize: function() {
+                if(!this.get('searches')) {
+                    this.set({searches: new Workspace.SearchList()});
+                }
+                if(!this.get('metacards')) {
+                    this.set({metacards: new Workspace.MetacardList()});
+                }
+            }
         });
 
         Workspace.WorkspaceList = Backbone.Collection.extend({
@@ -55,6 +67,11 @@ define([
             ],
             url: '/service/workspaces',
             useAjaxSync: false,
+            initialize: function() {
+                if(!this.get('workspaces')) {
+                    this.set({workspaces: new Workspace.WorkspaceList()});
+                }
+            },
             parse: function (resp) {
                 if (resp.data) {
                     return resp.data;

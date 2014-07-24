@@ -21,9 +21,10 @@ define([
         'js/model/Metacard',
         'js/view/Progress.view',
         'wreqr',
-        'text!templates/search/searchForm.handlebars'
+        'text!templates/search/searchForm.handlebars',
+        'direction'
     ],
-    function ($, Backbone, Marionette, _, ich, properties, MetaCard, Progress, wreqr, searchFormTemplate) {
+    function ($, Backbone, Marionette, _, ich, properties, MetaCard, Progress, wreqr, searchFormTemplate, dir) {
         "use strict";
         var Query = {};
 
@@ -381,7 +382,7 @@ define([
                     view.$('input').prop('disabled',false);
                 }).success(function() {
                     //this is fired after cometd has sent back the first result
-                    wreqr.vent.trigger('search:results', view.model.get('result'), view.zoomOnResults);
+                    wreqr.vent.trigger('search:results', dir.forward, view.model.get('result'));
                     wreqr.vent.trigger('map:results', view.model.get('result'), view.zoomOnResults);
                 });
 

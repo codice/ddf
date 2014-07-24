@@ -123,8 +123,7 @@ define([
             model: new WorkspaceControl.WorkspaceControlModel(),
             events: {
                 'click .back': 'action',
-                'click .forward': 'action',
-                'shown.bs.tab': 'setupEvents'
+                'click .forward': 'action'
             },
 
             modelEvents: {

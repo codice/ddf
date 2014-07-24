@@ -74,8 +74,6 @@ define([
                     wreqr.vent.on('search:start', this.showEmptyResults);
                     wreqr.vent.on('search:results', this.showResults);
                     wreqr.vent.on('metacard:selected', this.showMetacardDetail);
-                    wreqr.vent.on('search:back', this.back);
-                    wreqr.vent.on('search:forward', this.forward);
                     this.searchRegion.show(undefined, dir.none);
                 } else {
                     wreqr.vent.off('search:show', this.showQuery);
@@ -85,8 +83,6 @@ define([
                     wreqr.vent.off('search:start', this.showEmptyResults);
                     wreqr.vent.off('search:results', this.showResults);
                     wreqr.vent.off('metacard:selected', this.showMetacardDetail);
-                    wreqr.vent.off('search:back', this.back);
-                    wreqr.vent.off('search:forward', this.forward);
                     this.searchRegion.close();
                 }
             },
@@ -118,23 +114,6 @@ define([
                 }
                 delete this.result;
             },
-            back: function (currentState) {
-                if (currentState === 'results') {
-                    //go back to query
-                    this.showQuery(dir.backward);
-                }
-                else if (currentState === 'record') {
-                    this.showResults(null, dir.backward);
-                }
-            },
-            forward: function (currentState) {
-                if (currentState === 'search') {
-                    this.showEmptyResults();
-                }
-                else if (currentState === 'results') {
-                    this.showMetacardDetail(null, dir.forward);
-                }
-            },
             showQuery: function (direction, query) {
                 if(query) {
                     this.query = query;
@@ -142,9 +121,9 @@ define([
                 this.searchRegion.show(new QueryView.QueryView({ sources : this.sources, model: this.query }), direction);
             },
             showEmptyResults: function() {
-                this.showResults(null, dir.forward);
+                this.showResults(dir.forward);
             },
-            showResults: function (result, direction) {
+            showResults: function (direction, result) {
                 if (result) {
                     this.result = result;
                     this.searchRegion.show(new MetacardList.MetacardListView({model: result}), direction);
@@ -155,10 +134,7 @@ define([
                     this.searchRegion.show(new MetacardList.MetacardListView({model: this.result}), direction);
                 }
             },
-            showMetacardDetail: function (metacard, direction) {
-                if(metacard.get('direction') && !direction) {
-                    direction = metacard.get('direction');
-                }
+            showMetacardDetail: function (direction, metacard) {
                 this.searchRegion.show(new MetacardDetail.MetacardDetailView({model: metacard}), direction);
             }
         });
