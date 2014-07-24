@@ -66,4 +66,10 @@ public interface ApplicationServiceBeanMBean {
      */
     void removeApplication(String applicationURL);
 
+    /**
+     * Gets all installation profiles on the system.
+     * @return installation profile objects.
+     */
+    List<Map<String, Object>> getInstallationProfiles();
+
 }

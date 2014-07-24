@@ -1,4 +1,4 @@
-{{!--
+<!--
 /**
  * Copyright (c) Codice Foundation
  *
@@ -10,22 +10,22 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
- --}}
-<div id="welcome" class="inner-content" style="display:none">
+ -->
+<features name="test-app-1.0.0">
 
-</div>
-<div id="configuration" class="inner-content" style="display:none">
+	<feature name="install-profiles" install="auto"
+		description="Main feature."></feature>
 
-</div>
-<div id="applications" class="inner-content" style="display:none">
 
-</div>
-<div id="finish" class="inner-content" style="display:none">
+	<feature name="profile-test1" install="manual"
+		description="Desc1">
+		<feature>main-feature</feature>
+	</feature>
 
-</div>
-<div id="profiles" class="inner-content" style="display:none">
+	<feature name="profile-test2" install="manual"
+		description="Desc2">
+		<feature>main-feature</feature>
+		<feature>main-feature2</feature>
+	</feature>
 
-</div>
-<div id="navigation" class="bottom-navs">
-
-</div>
+</features>

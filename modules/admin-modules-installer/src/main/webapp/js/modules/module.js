@@ -15,8 +15,9 @@ define([
     'js/application',
     '/installer/js/views/InstallerMain.view.js',
     '/installer/js/models/Installer.js',
+    '/installer/js/controllers/InstallerMain.controller.js',
     '/installer/templateConfig.js'
-    ], function(Application, InstallerMainView, InstallerModel) {
+    ], function(Application, InstallerMainView, InstallerModel, InstallerMainController) {
 
     Application.App.module('Installation', function(AppModule, App, Backbone, Marionette, $, _) {
 
@@ -24,7 +25,7 @@ define([
         //welcome
         //config
         //apps
-        installerModel.setTotalSteps(3);
+        installerModel.setTotalSteps(4);
 
         // Define a view to show
         // ---------------------
@@ -51,12 +52,14 @@ define([
         // ------------------------------------------
 
         AppModule.addInitializer(function(){
+
+            AppModule.installerMainController = new InstallerMainController();
+
             AppModule.contentController = new Controller({
                 region: App.installation
             });
+
             AppModule.contentController.show();
         });
-
-
     });
 });

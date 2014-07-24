@@ -276,7 +276,7 @@ define([
 
         isAppRemovalEnabled: function() {
             if (this.enableApplicationRemoval) {
-               return true;
+                return true;
             }
 
             return false;
@@ -363,6 +363,8 @@ define([
             // Pass the enableApplicationRemoval flag to the AppTreeView
             // initialize function by adding it to the itemViewOptions
             this.itemViewOptions.enableApplicationRemoval = options.enableApplicationRemoval;
+            this.itemViewOptions.navigationModel = options.navigationModel;
+
         }
     });
 
@@ -389,6 +391,7 @@ define([
 
         initialize: function (options) {
             var self = this;
+            this.selectedProfile = options.selectedProfile;
             this.modelClass = options.modelClass;
             this.enableApplicationRemoval = options.enableApplicationRemoval;
             this.showAddUpgradeBtn = options.showAddUpgradeBtn;
@@ -400,6 +403,8 @@ define([
                 this.response.fetch({
                     success: function(model) {
                         self.model.set(model.get("value"));
+                        self.model.setSelectedBasedOnProfile(self.selectedProfile);
+                        self.trigger('collection:loaded');
                     }
                 });
             }

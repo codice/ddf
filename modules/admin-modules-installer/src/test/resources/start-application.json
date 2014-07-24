@@ -1,0 +1,6 @@
+{"timestamp": 1406830548, "status": 200, "request": {
+    "operation": "startApplication",
+    "mbean": "org.codice.ddf.admin.application.service.ApplicationService:service=application-service",
+    "arguments": ["solr-app"],
+    "type": "exec"
+}, "value": true}

@@ -142,28 +142,6 @@ casper.test.begin('Page Selection Test', function(test) {
     });
 
     casper.waitFor(function() {
-       return this.evaluate(function() {
-           return document.querySelectorAll('#previousStep').length === 1;
-       });
-    }, function() {
-       test.assertExists('#previousStep');
-       this.click('#previousStep');
-    }, function() {
-       test.fail('Failed previous button');
-    });
-
-    casper.waitFor(function() {
-        return this.evaluate(function() {
-            return document.querySelectorAll('#nextStep').length === 1;
-        });
-    }, function() {
-        test.assertExists('#nextStep');
-        this.click('#nextStep');
-    }, function() {
-        test.fail('Failed next button');
-    });
-
-    casper.waitFor(function() {
         return this.evaluate(function() {
             return document.querySelectorAll('#finishStep').length === 1;
         });

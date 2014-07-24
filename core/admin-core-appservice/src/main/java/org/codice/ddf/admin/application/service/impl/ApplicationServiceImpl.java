@@ -16,6 +16,7 @@ package org.codice.ddf.admin.application.service.impl;
 
 import java.io.File;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Dictionary;
 import java.util.HashMap;
@@ -66,6 +67,8 @@ public class ApplicationServiceImpl implements ApplicationService {
     private static final String POST_CONFIG_START = "admin-post-install-modules";
 
     private static final String POST_CONFIG_STOP = "admin-modules-installer";
+
+    private static final String INSTALLATION_PROFILE_PREFIX = "profile-";
 
     /**
      * Used to make sure that the config file is only checked on first run.
@@ -366,6 +369,25 @@ public class ApplicationServiceImpl implements ApplicationService {
     @Override
     public Application findFeature(Feature feature) {
         return findFeature(feature, getApplications());
+    }
+
+    @Override
+    public List<Feature> getInstallationProfiles() {
+    	logger.debug("Looking for installation profile features");
+        List<Feature> profiles = new ArrayList<Feature>();
+        try{
+            for (Feature feature : featuresService.listFeatures()) {
+                if (feature.getName().contains(INSTALLATION_PROFILE_PREFIX)) {
+                    profiles.add(feature);
+                }
+            }
+        } catch(Exception e){
+            logger.error(
+                    "Encountered an error while trying to obtain the installation profile features.",
+                    e);
+        }
+
+        return profiles;
     }
 
     /**
