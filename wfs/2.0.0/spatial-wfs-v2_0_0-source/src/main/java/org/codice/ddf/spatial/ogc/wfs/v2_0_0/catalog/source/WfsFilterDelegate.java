@@ -783,16 +783,21 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
             throw new UnsupportedOperationException(
                     "Temporal Operator [" + TEMPORAL_OPERATORS.During + "] is not supported.");
         }
-        
-        if (!isValidInputParameters(propertyName, startDate, endDate)) {
-            throw new IllegalArgumentException(MISSING_PARAMETERS_MSG);
-        }
                 
         TemporalOperand timePeriodTemporalOperand = new TemporalOperand();
         timePeriodTemporalOperand.setName(new QName(Wfs20Constants.GML_3_2_NAMESPACE, Wfs20Constants.TIME_PERIOD));
         if(!isTemporalOperandSupported(timePeriodTemporalOperand)) {
             throw new UnsupportedOperationException(
                     "Temporal Operand [" + timePeriodTemporalOperand.getName() + "] is not supported.");
+        }
+        
+        if (!isValidInputParameters(propertyName, startDate, endDate)) {
+            throw new IllegalArgumentException(MISSING_PARAMETERS_MSG);
+        }
+        
+        if (!isPropertyTemporalType(propertyName)) {
+            throw new IllegalArgumentException("Property [" + propertyName + "] is not of type "
+                    + timePeriodTemporalOperand.getName() + ".");
         }
 
         FilterType filter = filterObjectFactory.createFilterType();
@@ -820,15 +825,20 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
                     "Temporal Operator [" + TEMPORAL_OPERATORS.After + "] is not supported.");
         }
         
-        if (!isValidInputParameters(propertyName, date)) {
-            throw new IllegalArgumentException(MISSING_PARAMETERS_MSG);
-        }
-        
         TemporalOperand timeInstantTemporalOperand = new TemporalOperand();
         timeInstantTemporalOperand.setName(new QName(Wfs20Constants.GML_3_2_NAMESPACE, Wfs20Constants.TIME_INSTANT));
         if(!isTemporalOperandSupported(timeInstantTemporalOperand)) {
             throw new UnsupportedOperationException(
                     "Temporal Operand [" + timeInstantTemporalOperand.getName() + "] is not supported.");
+        }
+        
+        if (!isValidInputParameters(propertyName, date)) {
+            throw new IllegalArgumentException(MISSING_PARAMETERS_MSG);
+        }
+        
+        if (!isPropertyTemporalType(propertyName)) {
+            throw new IllegalArgumentException("Property [" + propertyName + "] is not of type "
+                    + timeInstantTemporalOperand.getName() + ".");
         }
         
         FilterType filter = filterObjectFactory.createFilterType();
@@ -857,15 +867,20 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
                     "Temporal Operator [" + TEMPORAL_OPERATORS.Before + "] is not supported.");
         }
         
-        if (!isValidInputParameters(propertyName, date)) {
-            throw new IllegalArgumentException(MISSING_PARAMETERS_MSG);
-        }
-        
         TemporalOperand timeInstantTemporalOperand = new TemporalOperand();
         timeInstantTemporalOperand.setName(new QName(Wfs20Constants.GML_3_2_NAMESPACE, Wfs20Constants.TIME_INSTANT));
         if(!isTemporalOperandSupported(timeInstantTemporalOperand)) {
             throw new UnsupportedOperationException(
                     "Temporal Operand [" + timeInstantTemporalOperand.getName() + "] is not supported.");
+        }
+        
+        if (!isValidInputParameters(propertyName, date)) {
+            throw new IllegalArgumentException(MISSING_PARAMETERS_MSG);
+        }
+        
+        if (!isPropertyTemporalType(propertyName)) {
+            throw new IllegalArgumentException("Property [" + propertyName + "] is not of type "
+                    + timeInstantTemporalOperand.getName() + ".");
         }
         
         FilterType filter = filterObjectFactory.createFilterType();
@@ -1154,6 +1169,10 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
             return false;
         }
         return true;
+    }
+    
+    private boolean isPropertyTemporalType(String propertyName) {
+        return featureMetacardType.getTemporalProperties().contains(propertyName);
     }
 
     private DateTime convertDateToIso8601Format(Date inputDate) {

@@ -34,6 +34,8 @@ import org.apache.ws.commons.schema.XmlSchemaSequenceMember;
 import org.apache.ws.commons.schema.XmlSchemaSimpleType;
 import org.apache.ws.commons.schema.XmlSchemaType;
 import org.apache.ws.commons.schema.constants.Constants;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.AttributeType;
@@ -44,12 +46,16 @@ import ddf.catalog.data.impl.MetacardTypeImpl;
 public class FeatureMetacardType extends MetacardTypeImpl {
 
     private static final long serialVersionUID = 1L;
+    
+    private static final Logger LOGGER = LoggerFactory.getLogger(FeatureMetacardType.class);
 
     private transient List<String> properties = new ArrayList<String>();
 
     private transient List<String> textualProperties = new ArrayList<String>();
 
     private transient List<String> gmlProperties = new ArrayList<String>();
+    
+    private transient List<String> temporalProperties = new ArrayList<String>();
 
     private transient QName featureType;
 
@@ -195,8 +201,28 @@ public class FeatureMetacardType extends MetacardTypeImpl {
     private Boolean processGmlType(XmlSchemaElement xmlSchemaElement) {
         QName qName = xmlSchemaElement.getSchemaTypeName();
         String name = xmlSchemaElement.getName();
+        
+        if (qName != null
+                && StringUtils.isNotEmpty(name)
+                && qName.getNamespaceURI().equals(gmlNamespace)
+                && (qName.getLocalPart().equals("TimeInstantType") || qName.getLocalPart().equals(
+                        "TimePeriodType"))) {
+            LOGGER.debug("Adding temporal property: {}", propertyPrefix + name);
+            temporalProperties.add(propertyPrefix + name);
+
+            boolean multiValued = xmlSchemaElement.getMaxOccurs() > 1 ? true : false;
+            descriptors.add(new FeatureAttributeDescriptor(propertyPrefix + name, name,
+                    isQueryable(name) /* indexed */, true /* stored */, false /* tokenized */,
+                    multiValued, BasicTypes.DATE_TYPE));
+
+            properties.add(propertyPrefix + name);
+
+            return true;
+        }
+        
         if ((qName != null) && qName.getNamespaceURI().equals(gmlNamespace)
                 && (!StringUtils.isEmpty(name))) {
+            LOGGER.debug("Adding geo property: {}", propertyPrefix + name);
             gmlProperties.add(propertyPrefix + name);
 
             boolean multiValued = xmlSchemaElement.getMaxOccurs() > 1 ? true : false;
@@ -208,6 +234,7 @@ public class FeatureMetacardType extends MetacardTypeImpl {
 
             return true;
         }
+        
         return false;
     }
 
@@ -256,5 +283,9 @@ public class FeatureMetacardType extends MetacardTypeImpl {
 
     public List<String> getProperties() {
         return properties;
+    }
+    
+    public List<String> getTemporalProperties() {
+        return temporalProperties;
     }
 }
