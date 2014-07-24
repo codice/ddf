@@ -17,7 +17,6 @@ package org.codice.solr.query;
 import org.geotools.filter.visitor.NullExpressionVisitor;
 import org.opengis.filter.expression.Literal;
 import org.opengis.filter.expression.PropertyName;
-//import org.opengis.temporal.Duration;
 
 public class ExpressionValueVisitor  extends NullExpressionVisitor {
 
@@ -33,10 +32,6 @@ public class ExpressionValueVisitor  extends NullExpressionVisitor {
         return propertyName;
     }
 
-//    public Duration getDuration() {
-//
-//        return null;
-//    }
 
     @Override
     public Object visit(Literal expression, Object extraData) {
