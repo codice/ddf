@@ -18,10 +18,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
@@ -52,12 +52,14 @@ public class PersistentStoreImpl implements PersistentStore {
     
     private String solrUrl;
     private SolrServer solrServer;
-    private SolrServer coreSolrServer;
-    private String storeName;
+    //private SolrServer coreSolrServer;
+    //private String storeName;
+    private ConcurrentHashMap<String, HttpSolrServer> coreSolrServers;
     
     
     public PersistentStoreImpl(String solrUrl) {
         LOGGER.trace("INSIDE: PersistentStoreImpl constructor with solrUrl = {}", solrUrl);
+        coreSolrServers = new ConcurrentHashMap<String, HttpSolrServer>();
         setSolrUrl(solrUrl);
     }
     
@@ -94,7 +96,7 @@ public class PersistentStoreImpl implements PersistentStore {
         LOGGER.debug("Adding entry of type {}", type);
         
         // Set Solr Core name to type and create/connect to Solr Core
-        setSolrCore(type);
+        HttpSolrServer coreSolrServer = getSolrCore(type);
         
         Date now = new Date();
         //DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
@@ -128,20 +130,20 @@ public class PersistentStoreImpl implements PersistentStore {
             LOGGER.debug("UpdateResponse from add of SolrInputDocument:  {}", response);
         } catch (SolrServerException e) {
             LOGGER.info("SolrServerException while adding Solr index for persistent type {}", type, e);
-            doRollback(type);
+            doRollback(coreSolrServer, type);
             throw new PersistenceException("SolrServerException while adding Solr index for persistent type " + type, e);
         } catch (IOException e) {
             LOGGER.info("IOException while adding Solr index for persistent type {}", type, e);
-            doRollback(type);
+            doRollback(coreSolrServer, type);
             throw new PersistenceException("IOException while adding Solr index for persistent type " + type, e);
         } catch (RuntimeException e) {
             LOGGER.info("RuntimeException while adding Solr index for persistent type {}", type, e);
-            doRollback(type);
+            doRollback(coreSolrServer, type);
             throw new PersistenceException("RuntimeException while adding Solr index for persistent type " + type, e);
         }
     }
     
-    private void doRollback(String type) {
+    private void doRollback(HttpSolrServer coreSolrServer, String type) {
         LOGGER.debug("ENTERING: doRollback()");
         try {
             coreSolrServer.rollback();
@@ -168,7 +170,7 @@ public class PersistentStoreImpl implements PersistentStore {
         List<Map<String, Object>> results = new ArrayList<Map<String, Object>>();
         
         // Set Solr Core name to type and create/connect to Solr Core
-        setSolrCore(type);
+        HttpSolrServer coreSolrServer = getSolrCore(type);
         
         SolrQueryFilterVisitor visitor = new SolrQueryFilterVisitor(coreSolrServer, type);
 
@@ -221,6 +223,7 @@ public class PersistentStoreImpl implements PersistentStore {
     @Override
     public int delete(String type, String cql) throws PersistenceException {
         List<Map<String, Object>> itemsToDelete = this.get(type, cql);
+        HttpSolrServer coreSolrServer = getSolrCore(type);
         List<String> idsToDelete = new ArrayList<String>();
         for (Map<String, Object> item : itemsToDelete) {
             String uuid = (String) item.get(PersistentItem.ID);
@@ -232,18 +235,18 @@ public class PersistentStoreImpl implements PersistentStore {
         if (!idsToDelete.isEmpty()) {
             try {
                 LOGGER.info("Deleting {} items by ID", idsToDelete.size());
-                this.coreSolrServer.deleteById(idsToDelete);
+                coreSolrServer.deleteById(idsToDelete);
             } catch (SolrServerException e) {
                 LOGGER.info("SolrServerException while trying to delete items by ID for persistent type {}", type, e);
-                doRollback(type);
+                doRollback(coreSolrServer, type);
                 throw new PersistenceException("SolrServerException while trying to delete items by ID for persistent type " + type, e);
             } catch (IOException e) {
                 LOGGER.info("IOException while trying to delete items by ID for persistent type {}", type, e);
-                doRollback(type);
+                doRollback(coreSolrServer, type);
                 throw new PersistenceException("IOException while trying to delete items by ID for persistent type " + type, e);
             } catch (RuntimeException e) {
                 LOGGER.info("RuntimeException while trying to delete items by ID for persistent type {}", type, e);
-                doRollback(type);
+                doRollback(coreSolrServer, type);
                 throw new PersistenceException("RuntimeException while trying to delete items by ID for persistent type " + type, e);
             }
         }
@@ -251,39 +254,34 @@ public class PersistentStoreImpl implements PersistentStore {
         return idsToDelete.size();
     }
     
-    private void setSolrCore(String storeName) {
-        this.storeName = storeName;
+    private HttpSolrServer getSolrCore(String storeName) {
+        if (coreSolrServers.containsKey(storeName)) {
+            LOGGER.info("Returning core {} from map of coreSolrServers", storeName);
+            return coreSolrServers.get(storeName);
+        }
         
         // Must specify shard in URL so proper core is used
-        this.coreSolrServer = new HttpSolrServer(this.solrUrl + "/" + this.storeName);
+        HttpSolrServer coreSolrServer = new HttpSolrServer(this.solrUrl + "/" + storeName);
         CoreAdminResponse response = null;
-        if (!solrCoreExists(solrServer, this.storeName)) {
+        if (!solrCoreExists(this.solrServer, storeName)) {
             //LOGGER.info("writing solr conf XML files from bundle to disk");
-            
-            
-            LOGGER.info("Creating Solr core {}", this.storeName);
-            String instanceDir = System.getProperty("karaf.home") + "/data/solr/" + this.storeName;
+            LOGGER.info("Creating Solr core {}", storeName);
+            String instanceDir = System.getProperty("karaf.home") + "/data/solr/" + storeName;
             String configFile = "solrconfig.xml";
             String schemaFile = "schema.xml";
             try {
-                response = CoreAdminRequest.createCore(this.storeName, instanceDir, this.solrServer, configFile, schemaFile);
+                response = CoreAdminRequest.createCore(storeName, instanceDir, this.solrServer, configFile, schemaFile);
+                coreSolrServers.put(storeName, coreSolrServer);
             } catch (SolrServerException e) {
-                LOGGER.error("SolrServerException creating " + this.storeName + " core", e);
+                LOGGER.error("SolrServerException creating " + storeName + " core", e);
             } catch (IOException e) {
-                LOGGER.error("IOException creating " + this.storeName + " core", e);
+                LOGGER.error("IOException creating " + storeName + " core", e);
             }
-        } else {
-            LOGGER.info("Solr core {} already exists - just reload it", this.storeName);
-            try {
-                response = CoreAdminRequest.reloadCore(this.storeName, this.solrServer);
-            } catch (SolrServerException e) {
-                LOGGER.error("SolrServerException reloading " + this.storeName + " core", e);
-            } catch (IOException e) {
-                LOGGER.error("IOException reloading " + this.storeName + " core", e);
-            }
-        }        
+        }     
         
-        LOGGER.trace("EXITING: setSolrCore");
+        LOGGER.trace("EXITING: getSolrCore");
+        
+        return coreSolrServer;
     }
 
     private boolean solrCoreExists(SolrServer solrServer, String coreName) {
