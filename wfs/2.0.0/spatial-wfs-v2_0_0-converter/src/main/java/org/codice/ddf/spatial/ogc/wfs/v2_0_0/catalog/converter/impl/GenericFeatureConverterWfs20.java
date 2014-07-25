@@ -49,9 +49,7 @@ import ddf.catalog.data.impl.MetacardImpl;
 
 /**
  * This class works in conjunction with XStream to convert a {@link Metacard} to XML according to
- * the GML 2.1.2 spec. It will also convert respective XML into a Metacard.
- * 
- * @author kcwire
+ * the GML 3.2.1 spec. It will also convert respective XML into a Metacard.
  * 
  */
 public class GenericFeatureConverterWfs20 extends AbstractFeatureConverterWfs20 {
@@ -97,8 +95,8 @@ public class GenericFeatureConverterWfs20 extends AbstractFeatureConverterWfs20 
                 + qname.getLocalPart());
 
         // Add the "fid" attribute if we have an ID
-        String fid = (String) metacard.getAttribute(Metacard.ID).getValue();
-        if (fid != null) {
+        if (metacard.getAttribute(Metacard.ID).getValue() != null){
+            String fid = (String) metacard.getAttribute(Metacard.ID).getValue();
             writer.addAttribute(FID, fid);
         }
 

@@ -57,7 +57,8 @@ public abstract class AbstractFeatureConverterWfs20 extends AbstractFeatureConve
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractFeatureConverterWfs20.class);
     private static final String XML_PARSE_FAILURE = "Failed to parse GML based XML into a Document.";
     private static final String CREATE_TRANSFORMER_FAILURE = "Failed to create Transformer.";
-    private static final String GML_GEOMETRY_FAILURE = "Failed to transform GML to Geometry";
+    private static final String GML_GEOMETRY_FAILURE = "Failed to transform GML to Geometry.\n";
+    private String geometryXml = "";
 
     protected Serializable writeFeaturePropertyToMetacardAttribute(AttributeFormat attributeFormat,
             HierarchicalStreamReader reader) {
@@ -88,9 +89,9 @@ public abstract class AbstractFeatureConverterWfs20 extends AbstractFeatureConve
             break;
         case GEOMETRY:
             XmlNode node = new XmlNode(reader);
-            String xml = node.toString();
+            geometryXml = node.toString();
             Geometry geo = null;
-            geo = readGml(xml);
+            geo = readGml(geometryXml);
             
             if (geo != null) {
                 WKTWriter wktWriter = new WKTWriter();
@@ -150,23 +151,6 @@ public abstract class AbstractFeatureConverterWfs20 extends AbstractFeatureConve
             //Add GML 3.2.1 namespace to XML chunk
             doc.getDocumentElement().setAttribute("xmlns:" + prefix, "http://www.opengis.net/gml/3.2");
         }
-            
-        //Print out resulting XML
-        Transformer transformer = null;
-        try {
-            transformer = TransformerFactory.newInstance().newTransformer();
-        } catch (TransformerConfigurationException e) {
-            LOGGER.error("Failure to create a new Transformer for GML XML.");
-        } catch (TransformerFactoryConfigurationError e) {
-            LOGGER.error("Failure to create a new Transformer for GML XML.");
-        }
-        Source source = new DOMSource(doc);
-        Result output = new StreamResult(System.out);
-        try {
-            transformer.transform(source, output);
-        } catch (TransformerException e1) {
-            LOGGER.error("Failure to transform output");
-        }
         
         //Convert DOM to InputStream
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -196,11 +180,11 @@ public abstract class AbstractFeatureConverterWfs20 extends AbstractFeatureConve
         try {
             geo = (Geometry)parser.parse(xmlIs);
         } catch (IOException e) {
-            LOGGER.error(GML_GEOMETRY_FAILURE);
+            LOGGER.error(GML_GEOMETRY_FAILURE + geometryXml);
         } catch (SAXException e) {
-            LOGGER.error(GML_GEOMETRY_FAILURE);
+            LOGGER.error(GML_GEOMETRY_FAILURE + geometryXml);
         } catch (ParserConfigurationException e) {
-            LOGGER.error(GML_GEOMETRY_FAILURE);
+            LOGGER.error(GML_GEOMETRY_FAILURE + geometryXml);
         }
         
         return geo;
