@@ -16,6 +16,7 @@ package org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.source;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
@@ -175,7 +176,7 @@ public class TestWfsSource {
         DescribeFeatureTypeRequest describeFeatureType = captor.getValue();
         
         // sample feature 0 does not have a prefix
-        assertTrue((":"+SAMPLE_FEATURE_NAME0).equals(describeFeatureType.getTypeName()));
+        assertThat(SAMPLE_FEATURE_NAME0, equalTo(describeFeatureType.getTypeName()));
         
         assertTrue(source.isAvailable());
         assertThat(source.featureTypeFilters.size(), is(1));
@@ -205,7 +206,7 @@ public class TestWfsSource {
         DescribeFeatureTypeRequest describeFeatureType = captor.getValue();
         
         // sample feature 0 does not have a prefix
-        assertTrue((":"+SAMPLE_FEATURE_NAME0).equals(describeFeatureType.getTypeName()));
+        assertThat(SAMPLE_FEATURE_NAME0, equalTo(describeFeatureType.getTypeName()));
         
         assertTrue(source.featureTypeFilters.isEmpty());
         
