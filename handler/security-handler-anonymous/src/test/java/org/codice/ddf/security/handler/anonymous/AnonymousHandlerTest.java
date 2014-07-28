@@ -24,11 +24,16 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class AnonymousHandlerTest {
 
@@ -60,11 +65,14 @@ public class AnonymousHandlerTest {
     }
 
     @Test
-    public void testHandleError() throws ServletException {
+    public void testHandleError() throws ServletException, IOException {
         AnonymousHandler handler = new AnonymousHandler();
-
+        StringWriter writer = new StringWriter(1024);
+        PrintWriter printWriter = new PrintWriter(writer);
         HttpServletRequest request = mock(HttpServletRequest.class);
         HttpServletResponse response = mock(HttpServletResponse.class);
+        when(response.getWriter()).thenReturn(printWriter);
+
         FilterChain chain = mock(FilterChain.class);
 
         /**
@@ -77,5 +85,6 @@ public class AnonymousHandlerTest {
         assertEquals(HandlerResult.Status.COMPLETED, result.getStatus());
         assertNull(result.getToken());
         assertEquals("DDF-AnonymousHandler", result.getSource());
+        assertEquals(AnonymousHandler.INVALID_MESSAGE, writer.toString());
     }
 }

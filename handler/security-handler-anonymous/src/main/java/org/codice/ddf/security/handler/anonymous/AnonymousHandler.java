@@ -48,6 +48,8 @@ public class AnonymousHandler implements AuthenticationHandler {
 
     protected static final String GUEST_PW = "guest";
 
+    public static final String INVALID_MESSAGE = "Username/Password is invalid.";
+
     @Override
     public String getAuthenticationType() {
         return AUTH_TYPE;
@@ -115,7 +117,7 @@ public class AnonymousHandler implements AuthenticationHandler {
         HttpServletResponse httpResponse = (HttpServletResponse) servletResponse;
         httpResponse.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         try {
-            httpResponse.getWriter().write("Username/Password is invalid.");
+            httpResponse.getWriter().write(INVALID_MESSAGE);
             httpResponse.flushBuffer();
         } catch (IOException e) {
             logger.debug("Failed to send auth response: {}", e);

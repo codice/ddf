@@ -116,7 +116,6 @@ public class WebSSOFilter implements Filter {
         if (isWhiteListed) {
             LOGGER.debug(
                 "Context of {} has been whitelisted, adding a NO_AUTH_POLICY attribute to the header.", path);
-            servletRequest.setAttribute(ContextPolicy.ACTIVE_REALM, realm);
             servletRequest.setAttribute(ContextPolicy.NO_AUTH_POLICY, true);
             filterChain.doFilter(httpRequest, httpResponse);
         } else {
