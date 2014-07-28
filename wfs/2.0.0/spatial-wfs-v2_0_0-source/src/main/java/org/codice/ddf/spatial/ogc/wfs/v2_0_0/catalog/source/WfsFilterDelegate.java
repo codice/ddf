@@ -42,6 +42,7 @@ import net.opengis.filter.v_2_0_0.FilterCapabilities;
 import net.opengis.filter.v_2_0_0.FilterType;
 import net.opengis.filter.v_2_0_0.GeometryOperandsType;
 import net.opengis.filter.v_2_0_0.LiteralType;
+import net.opengis.filter.v_2_0_0.LogicalOperators;
 import net.opengis.filter.v_2_0_0.LowerBoundaryType;
 import net.opengis.filter.v_2_0_0.MeasureType;
 import net.opengis.filter.v_2_0_0.ObjectFactory;
@@ -234,7 +235,7 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
                 setTemporalOps(temporalCapabilitiesType.getTemporalOperators());
             }
 
-            // GEOMETRY OPERANDS
+            // TEMPORAL OPERANDS
             TemporalOperandsType temporalOperandsType = temporalCapabilitiesType
                     .getTemporalOperands();
             if (temporalOperandsType != null) {
@@ -283,8 +284,9 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
 
     @Override
     public FilterType or(List<FilterType> filtersToBeOred) {
-        // Remove invalid filters so they aren't OR'd.
-        filtersToBeOred.removeAll(Collections.singleton(null));
+        if (filtersToBeOred.contains(Collections.singleton(null))) {
+            throw new UnsupportedOperationException("Invalid filters found in list of filters!");
+        }
 
         return buildAndOrFilter(filtersToBeOred,
                 filterObjectFactory.createOr(new BinaryLogicOpType()));
@@ -292,9 +294,10 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
 
     @Override
     public FilterType not(FilterType filterToBeNoted) {
+        areLogicalOperationsSupported();
         FilterType returnFilter = new FilterType();
         if (filterToBeNoted == null) {
-            return returnFilter;
+            return null;
         }
         UnaryLogicOpType notType = new UnaryLogicOpType();
         if (filterToBeNoted.isSetComparisonOps()) {
@@ -357,8 +360,11 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
 
     private FilterType buildAndOrFilter(List<FilterType> filters,
             JAXBElement<BinaryLogicOpType> andOrFilter) {
-
-        if (filters.isEmpty()) {
+        
+        areLogicalOperationsSupported();
+        
+        
+        if (filters == null || filters.isEmpty()) {
             return null;
         }
         removeEmptyFilters(filters);
@@ -1745,6 +1751,12 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
     
     private boolean isTemporalOperandSupported(TemporalOperand temporalOperand) {
        return temporalOperands.contains(temporalOperand.getName());
+    }
+    
+    private void areLogicalOperationsSupported() {
+        if (!logicalOps) {
+            throw new UnsupportedOperationException("Logical Operations are not supported.");
+        }
     }
     
     private String mapPropertyName(String originalPropertyName) {
