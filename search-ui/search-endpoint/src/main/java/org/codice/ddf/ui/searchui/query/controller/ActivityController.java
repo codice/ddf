@@ -89,7 +89,7 @@ public class ActivityController extends AbstractEventController {
         }
 
         String sessionId = (String) event.getProperty(ActivityEvent.SESSION_ID_KEY);
-        if (null == sessionId || sessionId.isEmpty()) {
+        if (StringUtils.isEmpty(sessionId)) {
             throw new IllegalArgumentException("Activity Event \"" + ActivityEvent.SESSION_ID_KEY
                     + "\" property is null or empty");
         }        
