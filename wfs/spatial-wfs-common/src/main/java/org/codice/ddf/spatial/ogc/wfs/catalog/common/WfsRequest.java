@@ -17,6 +17,7 @@ package org.codice.ddf.spatial.ogc.wfs.catalog.common;
 
 import javax.xml.namespace.QName;
 
+import org.apache.cxf.common.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,7 +35,7 @@ public class WfsRequest {
     
     public WfsRequest(QName qname){
         if(qname != null){
-            this.typeName = qname.getPrefix() == null ? qname.getLocalPart() : qname.getPrefix()
+            this.typeName = StringUtils.isEmpty(qname.getPrefix()) ? qname.getLocalPart() : qname.getPrefix()
                     + ":" + qname.getLocalPart();
         } else {
             LOGGER.debug("Incoming QName was null");
