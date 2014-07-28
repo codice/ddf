@@ -45,8 +45,10 @@ public class NotificationListener implements EventHandler {
         String timestamp = (String) event.getProperty(Notification.NOTIFICATION_KEY_TIMESTAMP);
         String title = (String) event.getProperty(Notification.NOTIFICATION_KEY_TITLE);
         String userId = (String) event.getProperty(Notification.NOTIFICATION_KEY_USER_ID);
-//        if (StringUtils.isBlank(userId)) {
-        if (userId == null) {
+        
+        // Do not allow blank for user ID since notifications should not be persisted for
+        // an anonymous user
+        if (StringUtils.isBlank(userId)) {
             throw new IllegalArgumentException("Event \"" + Notification.NOTIFICATION_KEY_USER_ID
                     + "\" property is null");
         }
@@ -59,12 +61,6 @@ public class NotificationListener implements EventHandler {
         item.addProperty(Notification.NOTIFICATION_KEY_APPLICATION, application);
         item.addProperty(Notification.NOTIFICATION_KEY_TITLE,  title);
         item.addProperty(Notification.NOTIFICATION_KEY_MESSAGE, message);
-//        Map<String, Object> item = new HashMap<String, Object>();
-//        item.put(Notification.NOTIFICATION_KEY_USER_ID, userId);
-//        item.put(Notification.NOTIFICATION_KEY_TIMESTAMP, timestamp);
-//        item.put(Notification.NOTIFICATION_KEY_APPLICATION, application);
-//        item.put(Notification.NOTIFICATION_KEY_TITLE,  title);
-//        item.put(Notification.NOTIFICATION_KEY_MESSAGE, message);
         try {
             persistentStore.add(PersistentStore.NOTIFICATION_TYPE, item);
         } catch (PersistenceException e) {
