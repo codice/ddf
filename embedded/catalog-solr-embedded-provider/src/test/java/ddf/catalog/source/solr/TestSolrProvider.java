@@ -2583,6 +2583,57 @@ public class TestSolrProvider extends SolrProviderTestCase {
     }
 
     @Test
+    public void testXpathNestedXpathQuery() throws Exception {
+
+        ConfigurationStore.getInstance().setDisableTextPath(false);
+        deleteAllIn(provider);
+
+        String explicitXpath1 = "//rss/channel/itunes:explicit";
+        String explicitXpath2 = "//rss/channel/ITunes:explicit";
+        String updateXpath1 = "//rss/channel/sy:updatePeriod";
+        String updateXpath2 = "//rss/channel/SY:updatePeriod";
+        String updateFreq1 = "//rss/channel/sy:updateFrequency";
+        String updateFreq2 = "//rss/channel/SY:updateFrequency";
+        String existsXpath = "//rss/channel/language";
+
+        MockMetacard tampa = new MockMetacard(Library.getTampaRecord());
+        tampa.setTitle("Tampa");
+        tampa.setLocation(TAMPA_AIRPORT_POINT_WKT);
+        MockMetacard flagstaff = new MockMetacard(Library.getFlagstaffRecord());
+        flagstaff.setLocation(FLAGSTAFF_AIRPORT_POINT_WKT);
+
+        create(Arrays.asList((Metacard) tampa, flagstaff));
+
+        /* XPath */
+
+        Filter existsFilter = filterBuilder.xpath(existsXpath).exists();
+        Filter notFilter = filterBuilder.not(filterBuilder.xpath(existsXpath).is().like()
+                .text("en-us"));
+        Filter firstPart = filterBuilder.allOf(existsFilter, notFilter);
+
+        Filter anyGroupFilter = filterBuilder.anyOf(filterBuilder.xpath(explicitXpath1).is().like()
+                .text("no"), filterBuilder.xpath(explicitXpath2).is().like().text("no"));
+
+        Filter anyABfilter = filterBuilder.anyOf(filterBuilder.xpath(updateXpath1).is().like()
+                .text("hourly"), filterBuilder.xpath(updateFreq1).is().like().text("1"));
+        Filter anyACfilter = filterBuilder.anyOf(filterBuilder.xpath(updateXpath2).is().like()
+                .text("hourly"), filterBuilder.xpath(updateFreq2).is().like().text("1"));
+        
+        Filter allABACFilter = filterBuilder.allOf(anyABfilter, anyACfilter);
+
+        Filter secondPart = filterBuilder.anyOf(anyGroupFilter, allABACFilter);
+
+        Filter totalFilter = filterBuilder.allOf(firstPart, secondPart);
+
+        SourceResponse sourceResponse = provider.query(new QueryRequestImpl(new QueryImpl(
+                totalFilter)));
+        // SourceResponse sourceResponse = provider.query(new QueryRequestImpl(new QueryImpl(
+        // allABACFilter)));
+
+        assertEquals("Nested XPath", ONE_HIT, sourceResponse.getResults().size());
+    }
+
+    @Test
     public void testXpathQuery() throws Exception {
 
         prepareXPath(false);

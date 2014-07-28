@@ -22,9 +22,9 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
-import com.vividsolutions.jts.io.ParseException;
-import com.vividsolutions.jts.io.WKTReader;
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrQuery.ORDER;
@@ -40,6 +40,8 @@ import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.MultiPoint;
 import com.vividsolutions.jts.geom.Point;
+import com.vividsolutions.jts.io.ParseException;
+import com.vividsolutions.jts.io.WKTReader;
 import com.vividsolutions.jts.io.WKTWriter;
 
 import ddf.catalog.data.AttributeType.AttributeFormat;
@@ -156,32 +158,39 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
     private void combineXpathFilterQueries(SolrQuery query, List<SolrQuery> subQueries,
             String operator) {
         List<String> queryParams = new ArrayList<String>();
-        List<String> xpaths = new ArrayList<String>();
+        // Use Set to remove duplicates now that the namespaces have been stripped out
+        Set<String> xpathFilters = new TreeSet<String>();
+        Set<String> xpathIndexes = new TreeSet<String>();
 
         for (SolrQuery subQuery : subQueries) {
             String[] params = subQuery.getParams(FILTER_QUERY_PARAM_NAME);
             if (params != null) {
                 for (String param : params) {
-                    // Assuming XPath is the same between xpath and xpath_index so only adding once
-                    if (StringUtils.startsWith(param, XPATH_QUERY_PARSER_PREFIX
-                            + XPATH_FILTER_QUERY_INDEX)) {
-                        xpaths.add(StringUtils.substringAfter(
-                                StringUtils.substringBeforeLast(param, "\""),
-                                XPATH_FILTER_QUERY_INDEX + ":\""));
+                    if (StringUtils.startsWith(param, XPATH_QUERY_PARSER_PREFIX)) {
+                        if (StringUtils.contains(param, XPATH_FILTER_QUERY_INDEX)) {
+                            xpathIndexes.add(StringUtils.substringAfter(
+                                    StringUtils.substringBeforeLast(param, "\""),
+                                    XPATH_FILTER_QUERY_INDEX + ":\""));
+                        } else if (StringUtils.startsWith(param, XPATH_QUERY_PARSER_PREFIX
+                                + XPATH_FILTER_QUERY)) {
+                            xpathFilters.add(StringUtils.substringAfter(
+                                    StringUtils.substringBeforeLast(param, "\""),
+                                    XPATH_FILTER_QUERY + ":\""));
+                        }
                     }
-                    Collections.addAll(queryParams, params);
+                    Collections.addAll(queryParams, param);
                 }
             }
         }
 
-        if (xpaths.size() > 1) {
+        if (xpathFilters.size() > 1) {
             // More than one XPath found, need to combine
             String filter = XPATH_QUERY_PARSER_PREFIX + XPATH_FILTER_QUERY + ":\"("
-                    + StringUtils.join(xpaths, operator.toLowerCase()) + ")\"";
+                    + StringUtils.join(xpathFilters, operator.toLowerCase()) + ")\"";
 
             List<String> indexes = new ArrayList<String>();
-            for (String xpath : xpaths) {
-                indexes.add(XPATH_FILTER_QUERY_INDEX + ":\"(" + xpath + ")\"");
+            for (String xpath : xpathIndexes) {
+                indexes.add("(" + XPATH_FILTER_QUERY_INDEX + ":\"" + xpath + "\")");
             }
             String index = XPATH_QUERY_PARSER_PREFIX + StringUtils.join(indexes, operator);
 

@@ -19,6 +19,7 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.stub;
 
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
@@ -214,6 +215,48 @@ public class TestSolrFilterDelegate {
         String expectedQuery = " created_date:[ 1995-11-24T23:59:56.765Z TO 1995-11-27T04:59:56.765Z ] ";
         SolrQuery temporalQuery = toTest.propertyIsBetween(Metacard.CREATED, getCannedTime(), getCannedTime(1995, Calendar.NOVEMBER, 27, 4));
         assertThat(temporalQuery.getQuery(), is(expectedQuery));
+    }
+
+    @Test
+    public void testXpathExists() {
+        String xpath = "//root/sub/@attribute";
+        String expectedQuery = "{!xpath}xpath:\"" + xpath + "\"";
+        SolrQuery xpathQuery = toTest.xpathExists(xpath);
+        assertThat(xpathQuery.getFilterQueries()[0], is(expectedQuery));
+    }
+
+    @Test
+    public void testXpathIsLike() {
+        String xpath = "//root/sub/@attribute";
+        String expectedQuery = "{!xpath}xpath:\"" + xpath
+                + "[contains(lower-case(.), 'example')]\"";
+        SolrQuery xpathQuery = toTest.xpathIsLike(xpath, "example", false);
+        assertThat(xpathQuery.getFilterQueries()[0], is(expectedQuery));
+    }
+
+    @Test
+    public void testXpathOR() {
+        String xpath = "//root/sub/@attribute";
+        String expected1Query = "{!xpath}xpath:\"" + xpath
+                + "[contains(lower-case(.), 'example1')]\"";
+        SolrQuery xpath1Query = toTest.xpathIsLike(xpath, "example1", false);
+        assertThat(xpath1Query.getFilterQueries()[0], is(expected1Query));
+
+        String expected2Query = "{!xpath}xpath:\"" + xpath
+                + "[contains(lower-case(.), 'example2')]\"";
+        SolrQuery xpath2Query = toTest.xpathIsLike(xpath, "example2", false);
+        assertThat(xpath2Query.getFilterQueries()[0], is(expected2Query));
+
+        SolrQuery combinedQuery = toTest.or(Arrays.asList(xpath1Query, xpath2Query));
+        String combinedExpectedFilter = "{!xpath}xpath:\"(" + xpath
+                + "[contains(lower-case(.), 'example1')] or " + xpath
+                + "[contains(lower-case(.), 'example2')])\"";
+        String expectedIndex = "{!xpath}(xpath_index:\"" + xpath
+                + "[contains(lower-case(.), 'example1')]\") OR " + "(xpath_index:\"" + xpath
+                + "[contains(lower-case(.), 'example2')]\")";
+        assertThat(combinedQuery.getFilterQueries().length, is(2));
+        assertThat(combinedQuery.getFilterQueries()[0], is(combinedExpectedFilter));
+        assertThat(combinedQuery.getFilterQueries()[1], is(expectedIndex));
     }
 
     private Date getCannedTime() {
