@@ -31,9 +31,9 @@ public class SchemaFieldResolver {
     
     private static final Logger LOGGER = LoggerFactory.getLogger(SchemaFieldResolver.class);
 
-    public static final Map<String, AttributeFormat> SUFFIX_TO_FORMAT_MAP = new HashMap<String, AttributeFormat>();
+    private static final Map<String, AttributeFormat> SUFFIX_TO_FORMAT_MAP = new HashMap<String, AttributeFormat>();
 
-    public static final Map<AttributeFormat, String> FORMAT_TO_SUFFIX_MAP = new HashMap<AttributeFormat, String>();
+    private static final Map<AttributeFormat, String> FORMAT_TO_SUFFIX_MAP = new HashMap<AttributeFormat, String>();
 
     public static final String OBJECT_SUFFIX = "_obj";
 
@@ -107,14 +107,14 @@ public class SchemaFieldResolver {
     
     private SolrServer solrServer;
 
-//    public AttributeFormat getFormat(String suffix) {
-//        return SUFFIX_TO_FORMAT_MAP.get(suffix);
-//    }
-//
-//    public String getFieldSuffix(AttributeFormat attributeFormat) {
-//
-//        return FORMAT_TO_SUFFIX_MAP.get(attributeFormat);
-//    }
+    public AttributeFormat getFormat(String suffix) {
+        return SUFFIX_TO_FORMAT_MAP.get(suffix);
+    }
+
+    public String getFieldSuffix(AttributeFormat attributeFormat) {
+
+        return FORMAT_TO_SUFFIX_MAP.get(attributeFormat);
+    }
     
     public SchemaFieldResolver(SolrServer solrServer) {
         this.solrServer = solrServer;

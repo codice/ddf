@@ -157,7 +157,7 @@ public class SolrQueryFilterVisitor extends DefaultFilterVisitor {
     public String getField(String propertyName, AttributeFormat format,
             boolean isSearchedAsExactValue) {
 
-        String fieldName = propertyName + SchemaFieldResolver.FORMAT_TO_SUFFIX_MAP.get(format)
+        String fieldName = propertyName + schemaFieldResolver.getFieldSuffix(format)
                 + (isSearchedAsExactValue ? "" : getSpecialIndexSuffix(format));
 
 //        if (fieldsCache.contains(fieldName)) {
