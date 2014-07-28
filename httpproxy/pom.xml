@@ -12,175 +12,116 @@
  *
  **/
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-  <modelVersion>4.0.0</modelVersion>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
 
-  <parent>
+    <parent>
         <groupId>ddf</groupId>
-        <artifactId>ddf-parent</artifactId>       
+        <artifactId>ddf-parent</artifactId>
         <version>2.0.0</version>
     </parent>
-  
-  <groupId>org.codice.httpproxy</groupId>
-  <artifactId>httpproxy-pom</artifactId>
-  <version>1.0.1-SNAPSHOT</version>
-  <packaging>pom</packaging>
-  <name>Codice DDF HTTP Proxy</name>
 
-  <properties>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <org.slf4j.version>1.7.1</org.slf4j.version>
-    
-    <!-- Karaf-defined Properties -->
-    <karaf.version>2.3.3</karaf.version>
-    <camel.version>2.12.1</camel.version>
- 
-  </properties>
+    <groupId>org.codice.httpproxy</groupId>
+    <artifactId>httpproxy-pom</artifactId>
+    <version>1.0.1-SNAPSHOT</version>
+    <packaging>pom</packaging>
+    <name>Codice DDF HTTP Proxy</name>
 
-  <dependencyManagement>
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <org.slf4j.version>1.7.1</org.slf4j.version>
+
+        <!-- Karaf-defined Properties -->
+        <karaf.version>2.3.3</karaf.version>
+        <camel.version>2.12.1</camel.version>
+
+    </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <artifactId>karaf</artifactId>
+                <groupId>org.apache.karaf</groupId>
+                <version>${karaf.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <dependency>
+                <artifactId>camel-parent</artifactId>
+                <groupId>org.apache.camel</groupId>
+                <version>${camel.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>${org.slf4j.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-simple</artifactId>
+                <version>${org.slf4j.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-ext</artifactId>
+                <version>${org.slf4j.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-jdk14</artifactId>
+                <version>${org.slf4j.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-log4j12</artifactId>
+                <version>${org.slf4j.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
     <dependencies>
-      <dependency>
-        <artifactId>karaf</artifactId>
-        <groupId>org.apache.karaf</groupId>
-        <version>${karaf.version}</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.8</version>
+            <scope>test</scope>
+        </dependency>
 
-      <dependency>
-        <artifactId>camel-parent</artifactId>
-        <groupId>org.apache.camel</groupId>
-        <version>${camel.version}</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
+        <dependency>
+            <groupId>org.hamcrest</groupId>
+            <artifactId>hamcrest-all</artifactId>
+            <version>1.1</version>
+            <scope>test</scope>
+        </dependency>
 
-      <dependency>
-        <groupId>org.slf4j</groupId>
-        <artifactId>slf4j-api</artifactId>
-        <version>${org.slf4j.version}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.slf4j</groupId>
-        <artifactId>slf4j-simple</artifactId>
-        <version>${org.slf4j.version}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.slf4j</groupId>
-        <artifactId>slf4j-ext</artifactId>
-        <version>${org.slf4j.version}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.slf4j</groupId>
-        <artifactId>slf4j-jdk14</artifactId>
-        <version>${org.slf4j.version}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.slf4j</groupId>
-        <artifactId>slf4j-log4j12</artifactId>
-        <version>${org.slf4j.version}</version>
-      </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-all</artifactId>
+            <version>1.9.0</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
-  </dependencyManagement>
 
-  <dependencies>
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>4.8</version>
-      <scope>test</scope>
-    </dependency>
-    
-    <dependency>
-      <groupId>org.hamcrest</groupId>
-      <artifactId>hamcrest-all</artifactId>
-      <version>1.1</version>
-      <scope>test</scope>
-    </dependency>
+    <modules>
+        <module>proxy-camel-servlet</module>
+        <module>proxy-camel-route</module>
+    </modules>
 
-    <dependency>
-      <groupId>org.mockito</groupId>
-      <artifactId>mockito-all</artifactId>
-      <version>1.9.0</version>
-      <scope>test</scope>
-    </dependency>
-  </dependencies>
-
-  <modules>
-    <module>proxy-camel-servlet</module>
-    <module>proxy-camel-route</module>
-  </modules>
-<!-- OMIT
-  <scm>
-    <url>https://github.com/codice/ddf-libs.git</url>
-    <connection>scm:git:git://github.com/codice/ddf-libs.git</connection>
-    <developerConnection>scm:git:git://github.com/codice/ddf-libs.git</developerConnection>
-    <tag>HEAD</tag>
-  </scm>
-
-  <distributionManagement>
-    <snapshotRepository>
-      <id>snapshots</id>
-      <url>${snapshots.repository.url}</url>
-    </snapshotRepository>
-    <repository>
-      <id>releases</id>
-      <url>${releases.repository.url}</url>
-    </repository>
-  </distributionManagement>
-
-  <build>
-    <pluginManagement>
-      <plugins>
-        <plugin>
-          <groupId>org.apache.felix</groupId>
-          <artifactId>maven-bundle-plugin</artifactId>
-          <version>2.3.5</version>
-          <extensions>true</extensions>
-          <configuration>
-            <instructions>
-              <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-            </instructions>
-          </configuration>
-        </plugin>
-
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-compiler-plugin</artifactId>
-          <version>2.3.2</version>
-          <configuration>
-            <source>1.6</source>
-            <target>1.6</target>
-            <maxmem>512M</maxmem>
-            <fork>${compiler.fork}</fork>
-            <encoding>${project.build.sourceEncoding}</encoding>
-          </configuration>
-        </plugin>
-
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-release-plugin</artifactId>
-          <version>2.4.2</version>
-          <configuration>
-            <autoVersionSubmodules>true</autoVersionSubmodules>
-            <preparationGoals>clean verify install</preparationGoals>
-            <pushChanges>false</pushChanges>
-          </configuration>
-        </plugin>
-      </plugins>
-    </pluginManagement>
-  </build>
-
-  <repositories>
-    <repository>
-      <id>codice</id>
-      <name>Codice Repository</name>
-      <url>http://artifacts.codice.org/content/groups/public/</url>
-    </repository>
-  </repositories>
--->
+    <repositories>
+        <repository>
+            <id>codice</id>
+            <name>Codice Repository</name>
+            <url>http://artifacts.codice.org/content/groups/public/</url>
+        </repository>
+    </repositories>
 </project>

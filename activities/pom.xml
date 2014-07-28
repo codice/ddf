@@ -12,48 +12,44 @@
  *
  **/
  -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <parent>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
         <groupId>ddf</groupId>
-        <artifactId>ddf-parent</artifactId>       
+        <artifactId>ddf-parent</artifactId>
         <version>2.0.0</version>
     </parent>
 
-  <modelVersion>4.0.0</modelVersion>
+    <modelVersion>4.0.0</modelVersion>
 
-  <groupId>org.codice.ddf</groupId>
-  <artifactId>activities</artifactId>
-  <version>0.2.0-SNAPSHOT</version>
-  <packaging>jar</packaging>
-  <name>DDF :: Activities</name>
-  
+    <groupId>org.codice.ddf</groupId>
+    <artifactId>activities</artifactId>
+    <version>0.2.0-SNAPSHOT</version>
+    <packaging>jar</packaging>
+    <name>DDF :: Activities</name>
 
-  <dependencies>
-  <!--OMIT
-    <dependency>
-      <groupId>org.mockito</groupId>
-      <artifactId>mockito-core</artifactId>
-      <scope>test</scope>
-    </dependency>
-    -->
-    <dependency>
-      <groupId>org.osgi</groupId>
-      <artifactId>org.osgi.compendium</artifactId>
-      <version>4.3.1</version>
-    </dependency>
-    <dependency>
-       <groupId>org.slf4j</groupId>
-       <artifactId>slf4j-ext</artifactId>
-       <version>1.7.1</version>
-    </dependency>
-  </dependencies>
-<!--OMIT
-  <repositories>
-    <repository>
-      <id>codice</id>
-      <name>Codice Repository</name>
-      <url>http://artifacts.codice.org/content/groups/public/</url>
-    </repository>
-  </repositories>
--->  
+
+    <dependencies>
+
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.compendium</artifactId>
+            <version>4.3.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-ext</artifactId>
+            <version>1.7.1</version>
+        </dependency>
+    </dependencies>
+
+    <repositories>
+        <repository>
+            <id>codice</id>
+            <name>Codice Repository</name>
+            <url>http://artifacts.codice.org/content/groups/public/</url>
+        </repository>
+    </repositories>
+
 </project>
