@@ -38,7 +38,7 @@ public abstract class AbstractStoreCommand extends OsgiCommandSupport {
     protected Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Option(name = "Persistence Type", aliases = {"-t", "--type"}, required = true,
-            description = "Type of item to retrieve from the persistence store.\nOptions: metacard, saved_query, notification, task, or workspace",
+            description = "Type of item to retrieve from the persistence store.\nOptions: metacard, saved_query, notification, activity, or workspace",
             multiValued = false)
     protected String type;
 
@@ -59,12 +59,12 @@ public abstract class AbstractStoreCommand extends OsgiCommandSupport {
                 if (StringUtils.equals(type, PersistentStore.METACARD_TYPE) || StringUtils
                         .equals(type, PersistentStore.NOTIFICATION_TYPE) || StringUtils
                         .equals(type, PersistentStore.SAVED_QUERY_TYPE) || StringUtils
-                        .equals(type, PersistentStore.TASK_TYPE) || StringUtils
+                        .equals(type, PersistentStore.ACTIVITY_TYPE) || StringUtils
                         .equals(type, PersistentStore.WORKSPACE_TYPE)) {
                     storeCommand();
                 } else {
                     console.println(
-                            "Type passed in was not correct. Must be one of \"metacard\", \"saved_query\", \"notification\", \"task\", or \"workspace\".");
+                            "Type passed in was not correct. Must be one of \"metacard\", \"saved_query\", \"notification\", \"activity\", or \"workspace\".");
                 }
             } else {
                 console.println(
