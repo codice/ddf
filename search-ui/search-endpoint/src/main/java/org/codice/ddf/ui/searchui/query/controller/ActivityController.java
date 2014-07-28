@@ -20,10 +20,12 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
 import org.codice.ddf.activities.ActivityEvent;
+import org.codice.ddf.persistence.PersistenceException;
 import org.codice.ddf.persistence.PersistentStore;
 import org.cometd.annotation.Listener;
 import org.cometd.annotation.Service;
 import org.cometd.bayeux.Message;
+import org.cometd.bayeux.server.ServerMessage;
 import org.cometd.bayeux.server.ServerSession;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.Event;
@@ -159,6 +161,55 @@ public class ActivityController extends AbstractEventController {
             if (activities != null && !activities.isEmpty()) {
                 queuePersistedMessages(remote, activities,
                         "/" + ActivityEvent.EVENT_TOPIC_BROADCAST);
+            }
+        }
+    }
+
+    @Listener("/service/action")
+    public void deletePersistentActivity(ServerSession serverSession,
+            ServerMessage serverMessage) {
+        LOGGER.debug("\nServerSession: {}\nServerMessage: {}", serverSession, serverMessage);
+
+        if (null == serverSession) {
+            throw new IllegalArgumentException("ServerSession is null");
+        }
+        if (null == serverMessage) {
+            throw new IllegalArgumentException("ServerMessage is null");
+        }
+
+        Subject subject = null;
+        try {
+            subject = SecurityUtils.getSubject();
+        } catch (Exception e) {
+            LOGGER.debug("Couldn't grab user subject from Shiro.", e);
+        }
+
+        String userId = getUserId(serverSession, subject);
+
+        Object activitiesPreCast = serverMessage.getDataAsMap().get("data");
+        Object[] activities = activitiesPreCast instanceof List ? ((List)activitiesPreCast).toArray() : (Object[])activitiesPreCast;
+
+        for (Object activityObject : activities) {
+            Map activity = (Map) activityObject;
+            String id = (String) activity.get("id");
+            String action = (String) activity.get("action");
+
+            if (action != null) {
+                if ("remove".equals(action)) {
+                    //You can have a blank id for anonymous
+                    if (id != null) {
+                        try {
+                            this.persistentStore.delete(PersistentStore.ACTIVITY_TYPE,
+                                    "id = '" + id + "'");
+                        } catch (PersistenceException e) {
+                            throw new IllegalArgumentException("Unable to delete activity with id = " + id);
+                        }
+                    } else {
+                        throw new IllegalArgumentException("Message id is null");
+                    }
+                }
+            } else {
+                throw new IllegalArgumentException("Message action is null.");
             }
         }
     }

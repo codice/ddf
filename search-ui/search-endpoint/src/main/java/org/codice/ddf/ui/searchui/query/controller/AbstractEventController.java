@@ -105,7 +105,7 @@ public abstract class AbstractEventController implements EventHandler {
             results = persistentStore.get(PersistentStore.NOTIFICATION_TYPE,
                     Notification.NOTIFICATION_KEY_USER_ID + " = '" + userId + "'");
         } catch (PersistenceException e) {
-            LOGGER.info("PersistenceException trying to get notifications for user {}", userId);
+            LOGGER.debug("PersistenceException trying to get notifications for user {}", userId, e);
         }
         for (Map<String, Object> result : results) {
             Map<String, Object> sanitizedResult = PersistentItem.stripSuffixes(result);
@@ -126,7 +126,7 @@ public abstract class AbstractEventController implements EventHandler {
             results = persistentStore.get(PersistentStore.ACTIVITY_TYPE,
                     ActivityEvent.USER_ID_KEY + " = '" + userId + "'");
         } catch (PersistenceException e) {
-            LOGGER.info("PersistenceException trying to get activities for user {}", userId);
+            LOGGER.debug("PersistenceException trying to get activities for user {}", userId, e);
         }
         for (Map<String, Object> result : results) {
             Map<String, Object> sanitizedResult = PersistentItem.stripSuffixes(result);
