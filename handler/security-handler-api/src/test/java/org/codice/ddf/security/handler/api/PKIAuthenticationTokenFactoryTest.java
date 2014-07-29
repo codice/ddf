@@ -19,7 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class PKIAuthenticationTokenFactoryTest extends TestCase {
-    private static final transient Logger LOGGER = LoggerFactory.getLogger(UPAuthenticationToken.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(UPAuthenticationToken.class);
 
     protected static final String encodedCert =
       "MIIDejCCAmKgAwIBAgIBBTANBgkqhkiG9w0BAQUFADBgMQswCQYDVQQGEwJVUzEY"

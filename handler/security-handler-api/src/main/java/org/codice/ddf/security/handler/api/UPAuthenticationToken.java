@@ -29,7 +29,7 @@ public class UPAuthenticationToken extends BSTAuthenticationToken {
 
     private static final String NEWLINE = "\n";
 
-    private static final transient Logger LOGGER = LoggerFactory.getLogger(UPAuthenticationToken.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(UPAuthenticationToken.class);
 
     public UPAuthenticationToken(String username, String password) {
         super(username, password);

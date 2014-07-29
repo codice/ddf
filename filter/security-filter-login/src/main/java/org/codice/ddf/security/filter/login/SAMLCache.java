@@ -22,7 +22,7 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class SAMLCache {
-    private static final transient Logger LOGGER = LoggerFactory.getLogger(SAMLCache.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SAMLCache.class);
 
     private ConcurrentHashMap<String, SecurityToken> cache = new ConcurrentHashMap<String, SecurityToken>();
 

@@ -37,7 +37,7 @@ import java.io.IOException;
  * returned in the HandlerResult.
  */
 public class BasicAuthenticationHandler implements AuthenticationHandler {
-    private static final transient Logger LOGGER = LoggerFactory.getLogger(BasicAuthenticationHandler.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(BasicAuthenticationHandler.class);
 
     /**
      * Basic type to use when configuring context policy.

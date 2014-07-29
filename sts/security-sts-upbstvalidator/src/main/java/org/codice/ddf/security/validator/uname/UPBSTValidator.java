@@ -80,7 +80,7 @@ import org.codice.ddf.security.handler.api.UPAuthenticationToken;
  * DDFUsername BST validator for the STS.
  */
 public class UPBSTValidator implements TokenValidator {
-    private static final transient org.slf4j.Logger LOGGER = LoggerFactory.getLogger(UPBSTValidator.class);
+    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(UPBSTValidator.class);
 
     public static final String UPBST_VALUE_TYPE = "urn:ddf:security:sso#DDFToken";
 

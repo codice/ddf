@@ -27,7 +27,7 @@ import java.io.IOException;
 import java.security.cert.X509Certificate;
 
 public class PKIAuthenticationTokenFactory {
-    private static final transient Logger LOGGER = LoggerFactory.getLogger(PKIAuthenticationTokenFactory.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(PKIAuthenticationTokenFactory.class);
 
     private Merlin merlin;
 

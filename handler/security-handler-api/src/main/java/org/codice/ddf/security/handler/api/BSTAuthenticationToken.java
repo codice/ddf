@@ -39,7 +39,7 @@ public abstract class BSTAuthenticationToken extends BaseAuthenticationToken {
 
     public static final String DDF_BST_USERNAME_LN = "DDFUsername";
 
-    private static final transient Logger LOGGER = LoggerFactory.getLogger(BSTAuthenticationToken.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(BSTAuthenticationToken.class);
 
     // values to be included in the binary security token - specific to each subclass
     protected String tokenValueType = DDF_BST_NS + '#' + DDF_BST_LN;

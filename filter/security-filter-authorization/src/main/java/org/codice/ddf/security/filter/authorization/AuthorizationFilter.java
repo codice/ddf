@@ -38,7 +38,7 @@ import java.util.Collection;
  */
 public class AuthorizationFilter implements Filter {
 
-    private static final transient Logger LOGGER = LoggerFactory
+    private static final Logger LOGGER = LoggerFactory
       .getLogger(AuthorizationFilter.class);
 
     private final ContextPolicyManager contextPolicyManager;

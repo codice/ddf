@@ -25,6 +25,7 @@ import org.codice.ddf.security.handler.api.SAMLAuthenticationToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
+import ddf.security.SecurityConstants;
 import org.codice.ddf.security.handler.api.AuthenticationHandler;
 import org.codice.ddf.security.handler.api.BaseAuthenticationToken;
 
@@ -57,13 +58,10 @@ public class SAMLAssertionHandler implements AuthenticationHandler {
      */
     public static final String AUTH_TYPE = "SAML";
 
-    protected static final String SAML_COOKIE_NAME = "org.codice.websso.saml.token";
-    protected static final String SAML_COOKIE_REF = "org.codice.websso.saml.ref";
-
     protected String realm = BaseAuthenticationToken.DEFAULT_REALM;
 
 
-    private static final transient Logger LOGGER = LoggerFactory
+    private static final Logger LOGGER = LoggerFactory
       .getLogger(SAMLAssertionHandler.class);
 
     @Override
@@ -81,7 +79,7 @@ public class SAMLAssertionHandler implements AuthenticationHandler {
         Map<String, Cookie> cookies = HttpUtils.getCookieMap(httpRequest);
 
         // check for full SAML assertions coming in (federated requests, etc.)
-        Cookie samlCookie = cookies.get(SAML_COOKIE_NAME);
+        Cookie samlCookie = cookies.get(SecurityConstants.SAML_COOKIE_NAME);
         if (samlCookie != null) {
             String cookieValue = samlCookie.getValue();
             LOGGER.trace("Cookie retrieved");
@@ -111,7 +109,7 @@ public class SAMLAssertionHandler implements AuthenticationHandler {
         }
 
         // Now try to find the reference to a SAML assertion
-        samlCookie = cookies.get(SAML_COOKIE_REF);
+        samlCookie = cookies.get(SecurityConstants.SAML_COOKIE_REF);
         if (samlCookie != null) {
             String cookieRef = samlCookie.getValue();
             LOGGER.trace("Creating SAML authentication token with reference {}.", cookieRef);
@@ -151,8 +149,8 @@ public class SAMLAssertionHandler implements AuthenticationHandler {
         LOGGER.debug("In error handler for saml - clearing cookies and returning no action taken.");
 
         // we tried to process an invalid or missing SAML assertion
-        deleteCookie(SAML_COOKIE_NAME, httpRequest, httpResponse);
-        deleteCookie(SAML_COOKIE_REF, httpRequest, httpResponse);
+        deleteCookie(SecurityConstants.SAML_COOKIE_NAME, httpRequest, httpResponse);
+        deleteCookie(SecurityConstants.SAML_COOKIE_REF, httpRequest, httpResponse);
 
         result.setStatus(HandlerResult.Status.NO_ACTION);
         return result;

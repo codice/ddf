@@ -23,7 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class UPAuthenticationTokenTest extends TestCase {
-    private static final transient Logger LOGGER = LoggerFactory.getLogger(UPAuthenticationToken.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(UPAuthenticationToken.class);
 
     public static final String TEST_NAME = "name";
 

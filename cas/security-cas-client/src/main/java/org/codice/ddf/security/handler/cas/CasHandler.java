@@ -44,7 +44,7 @@ import java.io.Writer;
  * Authentication Handler for CAS. Runs through CAS filter chain if no CAS ticket is present.
  */
 public class CasHandler implements AuthenticationHandler {
-    private static final transient Logger LOGGER = LoggerFactory.getLogger(CasHandler.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CasHandler.class);
 
     private static Marshaller marshaller = null;
 

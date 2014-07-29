@@ -25,7 +25,7 @@ import org.w3c.dom.ls.LSSerializer;
 import java.security.Principal;
 
 public class SAMLAuthenticationToken extends BaseAuthenticationToken {
-    private static final transient Logger LOGGER = LoggerFactory.getLogger(SAMLAuthenticationToken.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SAMLAuthenticationToken.class);
     boolean reference = true;
     /**
      * Constructor that only allows SecurityToken objects to be used as the credentials.

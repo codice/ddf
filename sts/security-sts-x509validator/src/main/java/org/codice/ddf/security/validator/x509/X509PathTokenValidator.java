@@ -70,8 +70,7 @@ public class X509PathTokenValidator implements TokenValidator {
 
     public static final String BASE64_ENCODING = WSConstants.SOAPMESSAGE_NS + "#Base64Binary";
 
-    private static final transient org.slf4j.Logger LOGGER = LoggerFactory
-            .getLogger(X509PathTokenValidator.class);
+    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(X509PathTokenValidator.class);
 
     private Validator validator = new SignatureTrustValidator();
 

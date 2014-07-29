@@ -14,6 +14,7 @@
  **/
 package org.codice.ddf.security.handler.saml;
 
+import ddf.security.SecurityConstants;
 import org.apache.cxf.common.util.Base64Utility;
 import org.apache.cxf.helpers.DOMUtils;
 import org.apache.cxf.rs.security.saml.DeflateEncoderDecoder;
@@ -56,7 +57,7 @@ public class SAMLAssertionHandlerTest {
         Element assertion = readDocument("/saml.xml").getDocumentElement();
         String assertionId = assertion.getAttributeNodeNS(null, "ID").getNodeValue();
         SecurityToken samlToken = new SecurityToken(assertionId, assertion, null);
-        Cookie cookie = new Cookie(SAMLAssertionHandler.SAML_COOKIE_NAME,
+        Cookie cookie = new Cookie(SecurityConstants.SAML_COOKIE_NAME,
           encodeSaml(samlToken.getToken()));
         when(request.getCookies()).thenReturn(new Cookie[] {cookie});
 

@@ -58,9 +58,9 @@ public class AnonymousHandlerTest {
         assertNotNull(result);
         assertEquals(HandlerResult.Status.COMPLETED, result.getStatus());
         assertTrue(result.getToken() instanceof UPAuthenticationToken);
-        assertEquals(((UPAuthenticationToken) result.getToken()).getUsername(), "guest");
-        assertEquals(((UPAuthenticationToken) result.getToken()).getPassword(), "guest");
-        assertEquals(((UPAuthenticationToken) result.getToken()).getRealm(), BaseAuthenticationToken.DEFAULT_REALM);
+        assertEquals("guest", ((UPAuthenticationToken) result.getToken()).getUsername());
+        assertEquals("guest", ((UPAuthenticationToken) result.getToken()).getPassword());
+        assertEquals(BaseAuthenticationToken.DEFAULT_REALM, ((UPAuthenticationToken) result.getToken()).getRealm());
         assertEquals("DDF-AnonymousHandler", result.getSource());
     }
 

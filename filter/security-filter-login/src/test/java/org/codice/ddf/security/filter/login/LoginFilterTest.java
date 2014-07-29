@@ -15,6 +15,8 @@
 package org.codice.ddf.security.filter.login;
 
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
+import org.codice.ddf.security.handler.api.HandlerResult;
+import org.codice.ddf.security.handler.api.UPAuthenticationToken;
 import org.junit.Test;
 
 import javax.servlet.FilterChain;
@@ -39,6 +41,9 @@ import java.util.Map;
 
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 public class LoginFilterTest {
 
@@ -71,8 +76,13 @@ public class LoginFilterTest {
         }
     }
 
+    /**
+     * Test with a bad subject - shouldn't call the filter chain, just returns.
+     * @throws IOException
+     * @throws ServletException
+     */
     @Test
-    public void testBadSubject() {
+    public void testBadSubject() throws IOException, ServletException {
         FilterConfig filterConfig = mock(FilterConfig.class);
         LoginFilter loginFilter = new LoginFilter();
         try {
@@ -92,15 +102,23 @@ public class LoginFilterTest {
             }
         };
 
-        try {
-            loginFilter.doFilter(servletRequest, servletResponse, filterChain);
-            // should execute here - without calling the filter chain
-            // fail("Should not have continued execution.");
-        } catch (IOException e) {
-            fail(e.getMessage());
-        } catch (ServletException e) {
-            //should get an exception
-        }
+        loginFilter.doFilter(servletRequest, servletResponse, filterChain);
+    }
+
+    @Test
+    public void testValidEmptySubject() throws IOException, ServletException {
+        FilterConfig filterConfig = mock(FilterConfig.class);
+        LoginFilter loginFilter = new LoginFilter();
+        loginFilter.init(filterConfig);
+
+        HttpServletRequest servletRequest = new TestHttpServletRequest();
+        servletRequest.setAttribute("ddf.security.token", mock(HandlerResult.class));
+        HttpServletResponse servletResponse = mock(HttpServletResponse.class);
+        FilterChain filterChain = mock(FilterChain.class);
+
+        loginFilter.doFilter(servletRequest, servletResponse, filterChain);
+
+        verify(filterChain, never()).doFilter(servletRequest, servletResponse);
     }
 
     private class TestHttpServletRequest implements HttpServletRequest {

@@ -76,14 +76,11 @@ import java.util.concurrent.Callable;
  */
 public class LoginFilter implements Filter {
 
-    private static final transient Logger LOGGER = LoggerFactory.getLogger(LoginFilter.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(LoginFilter.class);
 
     private static final String DDF_SECURITY_TOKEN = "ddf.security.securityToken";
 
     private static final String DDF_AUTHENTICATION_TOKEN = "ddf.security.token";
-
-    private static final String SAML_COOKIE_NAME = "org.codice.websso.saml.token";
-    private static final String SAML_COOKIE_REF = "org.codice.websso.saml.ref";
 
     private SecurityManager securityManager;
 
@@ -172,8 +169,10 @@ public class LoginFilter implements Filter {
         Subject subject = null;
 
         //Object securityToken = httpRequest.getAttribute(DDF_SECURITY_TOKEN);
-        HandlerResult result = (HandlerResult) httpRequest.getAttribute(DDF_AUTHENTICATION_TOKEN);
-        if (result != null) {
+        Object ddfAuthToken = httpRequest.getAttribute(DDF_AUTHENTICATION_TOKEN);
+
+        if (ddfAuthToken != null && ddfAuthToken instanceof HandlerResult) {
+            HandlerResult result = (HandlerResult) ddfAuthToken;
             BaseAuthenticationToken thisToken = result.getToken();
 
             /*
@@ -184,8 +183,6 @@ public class LoginFilter implements Filter {
                 subject = handleAuthenticationToken(httpRequest, httpResponse, (SAMLAuthenticationToken) thisToken);
             else if (thisToken instanceof BSTAuthenticationToken)
                 subject = handleAuthenticationToken(httpRequest, httpResponse, (BSTAuthenticationToken) thisToken);
-
-
         }
 
         return subject;
@@ -386,7 +383,7 @@ public class LoginFilter implements Filter {
             // put this SecurityToken into the cache and get the key
             String samlReference = samlCache.put(realm, securityToken);
             LOGGER.debug("Cached SecurityToken and created cookie reference of {}.", samlReference);
-            Cookie cookie = new Cookie(SAML_COOKIE_REF, samlReference);
+            Cookie cookie = new Cookie(SecurityConstants.SAML_COOKIE_REF, samlReference);
             URL url = new URL(httpRequest.getRequestURL().toString());
             cookie.setDomain(url.getHost());
             cookie.setPath("/");

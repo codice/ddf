@@ -81,7 +81,6 @@ public class PKIHandlerTest {
          * Note that the getNormalizedToken() method for PKI handlers do not
          * use the resolve tag.
          */
-        //handler.init();
         HandlerResult result = null;
         result = handler.getNormalizedToken(request, response, chain, true);
 

@@ -33,7 +33,7 @@ import org.apache.ws.security.WSConstants;
  */
 public class BSTDelegationHandler implements TokenDelegationHandler {
 
-    private static final transient org.slf4j.Logger LOGGER = LoggerFactory.getLogger(BSTDelegationHandler.class);
+    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(BSTDelegationHandler.class);
     public static final String X509_PKI_PATH = WSConstants.X509TOKEN_NS + "#X509PKIPathv1";
     public static final String X509_V3 = WSConstants.X509TOKEN_NS + "#X509v3";
     public static final String BASE64_ENCODING = WSConstants.SOAPMESSAGE_NS + "#Base64Binary";
@@ -64,85 +64,7 @@ public class BSTDelegationHandler implements TokenDelegationHandler {
             response.setDelegationAllowed(true);
         }
 
-/*
-        if (isDelegationAllowed(delegateTarget, tokenParameters.getAppliesToAddress())) {
-            response.setDelegationAllowed(true);
-        }
-*/
-
         return response;
     }
-
-    /**
-     * Is Delegation allowed for a particular token
-     */
-/*
-    protected boolean isDelegationAllowed(
-        ReceivedToken receivedToken, String appliesToAddress
-    ) {
-        Element validateTargetElement = (Element)receivedToken.getToken();
-        try {
-            AssertionWrapper assertion = new AssertionWrapper(validateTargetElement);
-
-            for (String confirmationMethod : assertion.getConfirmationMethods()) {
-                if (!(SAML1Constants.CONF_BEARER.equals(confirmationMethod)
-                    || SAML2Constants.CONF_BEARER.equals(confirmationMethod))) {
-                    LOG.fine("An unsupported Confirmation Method was used: " + confirmationMethod);
-                    return false;
-                }
-            }
-
-            if (checkAudienceRestriction && appliesToAddress != null) {
-                List<String> addresses = getAudienceRestrictions(assertion);
-                if (!(addresses.isEmpty() || addresses.contains(appliesToAddress))) {
-                    LOG.fine("The AppliesTo address " + appliesToAddress + " is not contained"
-                             + " in the Audience Restriction addresses in the assertion");
-                    return false;
-                }
-            }
-        } catch (WSSecurityException ex) {
-            LOG.log(Level.WARNING, "Error in ascertaining whether delegation is allowed", ex);
-            return false;
-        }
-
-        return true;
-    }
-
-    protected List<String> getAudienceRestrictions(AssertionWrapper assertion) {
-        List<String> addresses = new ArrayList<String>();
-        if (assertion.getSaml1() != null) {
-            for (AudienceRestrictionCondition restriction
-                : assertion.getSaml1().getConditions().getAudienceRestrictionConditions()) {
-                for (org.opensaml.saml1.core.Audience audience : restriction.getAudiences()) {
-                    addresses.add(audience.getUri());
-                }
-            }
-        } else if (assertion.getSaml2() != null) {
-            for (org.opensaml.saml2.core.AudienceRestriction restriction
-                : assertion.getSaml2().getConditions().getAudienceRestrictions()) {
-                for (org.opensaml.saml2.core.Audience audience : restriction.getAudiences()) {
-                    addresses.add(audience.getAudienceURI());
-                }
-            }
-        }
-
-        return addresses;
-    }
-
-    public boolean isCheckAudienceRestriction() {
-        return checkAudienceRestriction;
-    }
-
-    */
-/**
-     * Set whether to perform a check that the received AppliesTo address is contained in the
-     * token as one of the AudienceRestriction URIs. The default is false.
-     * @param checkAudienceRestriction whether to perform an audience restriction check or not
-     *//*
-
-    public void setCheckAudienceRestriction(boolean checkAudienceRestriction) {
-        this.checkAudienceRestriction = checkAudienceRestriction;
-    }
-*/
 }
 

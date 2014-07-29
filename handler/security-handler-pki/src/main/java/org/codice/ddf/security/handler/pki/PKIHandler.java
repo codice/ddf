@@ -49,7 +49,7 @@ import java.security.cert.X509Certificate;
  * converted to a BinarySecurityToken.
  */
 public class PKIHandler implements AuthenticationHandler {
-    private static final transient Logger LOGGER = LoggerFactory.getLogger(PKIHandler.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(PKIHandler.class);
 
     /**
      * PKI type to use when configuring context policy.

@@ -43,7 +43,7 @@ import org.opensaml.saml1.core.AudienceRestrictionCondition;
  */
 public class X509DelegationHandler implements TokenDelegationHandler {
 
-    private static final transient org.slf4j.Logger LOGGER = LoggerFactory
+    private static final org.slf4j.Logger LOGGER = LoggerFactory
       .getLogger(X509DelegationHandler.class);
     private static final Logger LOG =
         LogUtils.getL7dLogger(X509DelegationHandler.class);

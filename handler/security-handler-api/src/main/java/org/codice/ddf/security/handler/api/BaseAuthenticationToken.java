@@ -19,7 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class BaseAuthenticationToken implements AuthenticationToken {
-    private static final transient Logger LOGGER = LoggerFactory.getLogger(BaseAuthenticationToken.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(BaseAuthenticationToken.class);
 
     public static final String DEFAULT_REALM = "DDF";
 

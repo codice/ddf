@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
 import java.security.Principal;
 
 public class PKIAuthenticationToken extends BSTAuthenticationToken {
-    private static final transient Logger LOGGER = LoggerFactory.getLogger(PKIAuthenticationToken.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(PKIAuthenticationToken.class);
 
     public static final String X509_PKI_PATH = "X509PKIPathv1";
     //public static final String GX_X509_PKI_PATH="#GXX509PKIPathv1";

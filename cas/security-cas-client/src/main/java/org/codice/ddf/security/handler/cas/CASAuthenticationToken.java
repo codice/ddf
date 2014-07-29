@@ -24,7 +24,7 @@ import org.slf4j.LoggerFactory;
 import java.security.Principal;
 
 public class CASAuthenticationToken extends BSTAuthenticationToken {
-    private static final transient Logger LOGGER = LoggerFactory.getLogger(CASAuthenticationToken.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CASAuthenticationToken.class);
 
     public static final String CAS_ID = "CAS";
 
@@ -51,6 +51,9 @@ public class CASAuthenticationToken extends BSTAuthenticationToken {
             user = ((Principal) principal).getName();
         else if (principal instanceof String)
             user = (String) principal;
+        if (user == null) {
+            LOGGER.warn("Unexpected null user.");
+        }
         return user;
     }
 
