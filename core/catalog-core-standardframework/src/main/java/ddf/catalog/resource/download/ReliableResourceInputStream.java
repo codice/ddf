@@ -142,6 +142,7 @@ public class ReliableResourceInputStream extends InputStream {
 
     @Override
     public int read(byte b[], int off, int len) throws IOException {
+
         if (b == null) {
             throw new NullPointerException();
         } else if (off < 0 || len < 0 || len > b.length - off) {
@@ -158,12 +159,15 @@ public class ReliableResourceInputStream extends InputStream {
         }
 
         numBytesRead = readFromFbosInputStream(b, off, len);
+        LOGGER.debug("First time reading inputstream, bytesRead is {}", numBytesRead);
+
         if (isFbosCompletelyRead(numBytesRead, fbosCount)) {
             LOGGER.debug("Sending EOF");
             // Client is done reading from this FileBackedOutputStream, so can
             // delete the backing file it created in the <INSTALL_DIR>/data/tmp directory
             fbos.reset();
         } else if (numBytesRead <= 0) {
+            LOGGER.debug("Retry reading inputstream");
             LOGGER.debug(
                     "numBytesRead <= 0 but client hasn't read all of the data from FBOS - block and read");
             while (downloadState.getDownloadState()
@@ -172,6 +176,7 @@ public class ReliableResourceInputStream extends InputStream {
                             != DownloadManagerState.DownloadState.FAILED
                             && downloadState.getDownloadState() != null)) {
                 numBytesRead = readFromFbosInputStream(b, off, len);
+
                 if (numBytesRead > 0) {
                     LOGGER.debug("retry: numBytesRead = {}", numBytesRead);
                     break;
@@ -192,7 +197,6 @@ public class ReliableResourceInputStream extends InputStream {
                 throw new IOException("Download failed - cannot retrieve product");
             }
         }
-
 
         return numBytesRead;
     }
