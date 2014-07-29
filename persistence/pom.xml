@@ -28,6 +28,7 @@
   <modules>
       <module>platform-persistence-core-api</module>
       <module>platform-persistence-core-impl</module>
+      <module>platform-persistence-commands</module>
   </modules>
   
 </project>
