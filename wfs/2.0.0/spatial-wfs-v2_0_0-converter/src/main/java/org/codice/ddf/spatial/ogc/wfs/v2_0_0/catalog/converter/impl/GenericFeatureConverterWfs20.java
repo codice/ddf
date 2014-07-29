@@ -95,7 +95,7 @@ public class GenericFeatureConverterWfs20 extends AbstractFeatureConverterWfs20 
                 + qname.getLocalPart());
 
         // Add the "fid" attribute if we have an ID
-        if (metacard.getAttribute(Metacard.ID).getValue() != null){
+        if (metacard.getAttribute(Metacard.ID).getValue() != null) {
             String fid = (String) metacard.getAttribute(Metacard.ID).getValue();
             writer.addAttribute(FID, fid);
         }

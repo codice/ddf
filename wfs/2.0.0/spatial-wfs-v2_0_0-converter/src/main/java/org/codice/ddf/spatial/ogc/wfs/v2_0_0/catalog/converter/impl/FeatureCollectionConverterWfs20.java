@@ -30,7 +30,7 @@ public class FeatureCollectionConverterWfs20 extends FeatureCollectionConverter 
     
     public FeatureCollectionConverterWfs20() {
         super();
-        FEATURE_MEMBER = "member";
+        featureMember = "member";
         prefixToUriMapping.put(Wfs20Constants.WFS_NAMESPACE_PREFIX, Wfs20Constants.WFS_2_0_NAMESPACE);
         prefixToUriMapping.put(Wfs20Constants.GML_PREFIX, Wfs20Constants.GML_3_2_NAMESPACE);
     }

@@ -55,7 +55,7 @@ import ddf.catalog.data.impl.MetacardImpl;
 
 public class FeatureCollectionConverter implements Converter {
 
-    protected String FEATURE_MEMBER = "";
+    protected String featureMember = "";
 
     private String contextRoot;
 
@@ -88,7 +88,7 @@ public class FeatureCollectionConverter implements Converter {
 
         for (Metacard mc : wfc.getFeatureMembers()) {
             writer.startNode(WfsConstants.GML_PREFIX + ":"
-                    + FEATURE_MEMBER);
+                    + featureMember);
             context.convertAnother(mc);
             writer.endNode();
         }
@@ -148,7 +148,7 @@ public class FeatureCollectionConverter implements Converter {
             String nodeName = reader.getNodeName();
             // Its important to note that the reader appears to drop the
             // namespace.
-            if (FEATURE_MEMBER.equals(nodeName)) {
+            if (featureMember.equals(nodeName)) {
                 reader.moveDown();
                 // lookup the converter for this featuretype
                 featureCollection.getFeatureMembers().add(

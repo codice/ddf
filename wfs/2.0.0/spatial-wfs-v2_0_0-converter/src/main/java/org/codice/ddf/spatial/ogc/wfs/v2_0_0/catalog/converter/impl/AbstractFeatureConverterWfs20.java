@@ -115,7 +115,7 @@ public abstract class AbstractFeatureConverterWfs20 extends AbstractFeatureConve
 
     }
     
-    private Geometry readGml(String xml){
+    private Geometry readGml(String xml) {
         //Add namespace into XML for processing
         DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
         DocumentBuilder dBuilder = null;
@@ -138,18 +138,18 @@ public abstract class AbstractFeatureConverterWfs20 extends AbstractFeatureConve
       
         String[] namePrefix = doc.getDocumentElement().getNodeName().split(":");
         String prefix = "";
-        if(namePrefix.length < 2){
+        if (namePrefix.length < 2) {
             LOGGER.debug("Incoming XML has no GML prefix");    
-        } else{
+        } else {
             prefix = ":" + namePrefix[0];
         }
         
         String xmlNs = doc.getDocumentElement().getAttribute("xmlns" + prefix);
-        if (xmlNs.equals(Wfs20Constants.GML_3_2_NAMESPACE)){
+        if (xmlNs.equals(Wfs20Constants.GML_3_2_NAMESPACE)) {
             LOGGER.warn("Namespace already exists.");
-        } else{
+        } else {
             //Add GML 3.2.1 namespace to XML chunk
-            doc.getDocumentElement().setAttribute("xmlns:" + prefix, "http://www.opengis.net/gml/3.2");
+            doc.getDocumentElement().setAttribute("xmlns:" + prefix, Wfs20Constants.GML_3_2_NAMESPACE);
         }
         
         //Convert DOM to InputStream
@@ -180,11 +180,11 @@ public abstract class AbstractFeatureConverterWfs20 extends AbstractFeatureConve
         try {
             geo = (Geometry)parser.parse(xmlIs);
         } catch (IOException e) {
-            LOGGER.error(GML_GEOMETRY_FAILURE + geometryXml);
+            LOGGER.error("{} {}", GML_GEOMETRY_FAILURE, geometryXml);
         } catch (SAXException e) {
-            LOGGER.error(GML_GEOMETRY_FAILURE + geometryXml);
+            LOGGER.error("{} {}", GML_GEOMETRY_FAILURE, geometryXml);
         } catch (ParserConfigurationException e) {
-            LOGGER.error(GML_GEOMETRY_FAILURE + geometryXml);
+            LOGGER.error("{} {}", GML_GEOMETRY_FAILURE, geometryXml);
         }
         
         return geo;

@@ -139,6 +139,14 @@ public class TestWfsFilterDelegate {
             + "xmlns:ns3=\"http://www.w3.org/1999/xlink\" xmlns:ns5=\"http://www.opengis.net/ogc\" "
             + "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"/>";
     
+    private final String featureIdXml = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><ns5:Filter "
+            + "xmlns:ns2=\"http://www.opengis.net/ows/1.1\" xmlns=\"http://www.opengis.net/fes/2.0\" xmlns:ns4=\"http://www.opengis.net/gml\" "
+            + "xmlns:ns3=\"http://www.w3.org/1999/xlink\" xmlns:ns5=\"http://www.opengis.net/ogc\"><ResourceId rid=\"1234567\"/></ns5:Filter>";
+    
+    private final String featureTypeFeatureIdXml = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><ns5:Filter "
+            + "xmlns:ns2=\"http://www.opengis.net/ows/1.1\" xmlns=\"http://www.opengis.net/fes/2.0\" xmlns:ns4=\"http://www.opengis.net/gml\" "
+            + "xmlns:ns3=\"http://www.w3.org/1999/xlink\" xmlns:ns5=\"http://www.opengis.net/ogc\"><ResourceId rid=\"myType.1234567\"/></ns5:Filter>";
+    
 
     @Test
     public void testFullFilterCapabilities() {
@@ -905,6 +913,40 @@ public class TestWfsFilterDelegate {
         
         //Perform Test
         FilterType filter = delegate.not(filterToBeNoted);
+    }
+    
+    @Test
+    public void testFeatureID() throws Exception {
+        WfsFilterDelegate delegate = mockFeatureMetacardCreateDelegate();
+        String featureId = "1234567";
+        
+        //Perform Test
+        FilterType matchIdFilter = delegate.propertyIsLike(Metacard.ID, featureId, true);
+        assertXMLEqual(featureIdXml, getXmlFromMarshaller(matchIdFilter));
+    }
+    
+    @Test
+    public void testFeatureTypeFeatureID() throws Exception {
+        WfsFilterDelegate delegate = mockFeatureMetacardCreateDelegate();
+        String mockType = "myType";
+        String featureId = "1234567";
+        String mockTypeFeatureId = mockType + "." + featureId;
+        
+        //Perform Test
+        FilterType matchIdFilter = delegate.propertyIsEqualTo(Metacard.ID, mockTypeFeatureId, true);
+        assertXMLEqual(featureTypeFeatureIdXml, getXmlFromMarshaller(matchIdFilter));
+    }
+    
+    @Test
+    public void testInvalidFeatureTypeFeatureID() throws Exception {
+        WfsFilterDelegate delegate = mockFeatureMetacardCreateDelegate();
+        String mockType = "myBadType";
+        String featureId = "1234567";
+        String mockTypeFeatureId = mockType + "." + featureId;
+        
+        //Perform Test
+        FilterType matchIdFilter = delegate.propertyIsEqualTo(Metacard.ID, mockTypeFeatureId, true);
+        assertXMLEqual(logicalEmptyItemList, getXmlFromMarshaller(matchIdFilter));
     }
     
     private WfsFilterDelegate mockFeatureMetacardCreateDelegate(){
