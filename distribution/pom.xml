@@ -37,6 +37,7 @@
     <module>webconsole-branding-plugin</module>
     <module>ddf-common</module>
     <module>kernel</module>
+    <module>install-profiles</module>
     <module>ddf</module>
   </modules>
   	
