@@ -12,14 +12,14 @@
  **/
  --}}
 <td>
-    <span class="workspace-name">{{name}}</span>
-</td>
-<td>
-    <span class="workspace-count">{{hits}}&nbsp;<span class="status-time">({{initiated}})</span>&nbsp;{{#is working true}}<i class="fa fa-circle-o-notch fa-spin"></i>{{/is}}</span>
-</td>
-<td>
+    <a href="#" class="workspace-name">{{name}}</a><br>
+    <span class="workspace-name">{{initiated}}</span>&nbsp;{{#is working true}}<i class="fa fa-circle-o-notch fa-spin"></i>{{/is}}
+    <span class="workspace-count">{{hits}}&nbsp;</span>
     {{#is editing true}}
-        <a id="remove" href="#" class="fa fa-times workspace-link workspace-remove"></a>
-        <a id="edit" href="#" class="fa fa-pencil workspace-link workspace-edit"></a>
+        <td>
+            <a id="remove" href="#" class="fa fa-times workspace-link workspace-remove"></a>
+            <a id="edit" href="#" class="fa fa-pencil workspace-link workspace-edit"></a>
+        </td>
     {{/is}}
+    
 </td>

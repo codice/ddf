@@ -1344,7 +1344,7 @@ a.pause:hover, a.pause:focus {
     float: left;
     padding-left: 10px;
     overflow: hidden;
-    text-overflow: ellipsis;
+    text-overflow: ellipsis;    
 }
 
 .workspace-count {
@@ -1360,8 +1360,9 @@ a.pause:hover, a.pause:focus {
     padding: 8px 0;
 }
 
-.workspace-row td:nth-child(3) {
+.workspace-row td:nth-child(2) {
     width: 40px;
+    vertical-align: top;
 }
 
 .workspace-add-panel {

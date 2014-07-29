@@ -9,7 +9,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global define*/
+/*global define, setInterval, clearInterval*/
 
 define([
         'jquery',
@@ -20,6 +20,7 @@ define([
         'direction',
         'icanhaz',
         'wreqr',
+        'moment',
         'text!templates/workspace/workspacePanel.handlebars',
         'text!templates/workspace/workspaceList.handlebars',
         'text!templates/workspace/workspaceItem.handlebars',
@@ -38,7 +39,7 @@ define([
         // Load non attached libs and plugins
         'perfectscrollbar'
     ],
-    function ($, _, Marionette, Workspace, Backbone, dir, ich, wreqr, workspacePanel, workspaceList,
+    function ($, _, Marionette, Workspace, Backbone, dir, ich, wreqr, moment, workspacePanel, workspaceList,
               workspaceItem, workspaceAdd, workspace, workspaceQueryItem, workspaceMetacardItem,
               maptype, WorkspaceControl, SlidingRegion, QueryView, QueryModel, MetacardList, MetacardDetail,
               Search) {
@@ -120,6 +121,7 @@ define([
                 if(this.model.get('result')) {
                     this.listenTo(this.model.get('result'), 'change', this.render);
                 }
+                this.updateInterval = setInterval(this.update.bind(this), 60000);
             },
             serializeData: function() {
                 var working = false, result = this.model.get('result'), hits, initiated;
@@ -129,7 +131,7 @@ define([
                         hits = result.get('hits');
                     }
                     if(result.get('initiated')) {
-                        initiated = result.get('initiated');
+                        initiated = moment(result.get('initiated')).fromNow();
                     }
                     if(sources) {
                         sources.forEach(function(source) {
@@ -141,6 +143,11 @@ define([
                 }
                 return _.extend(this.model.toJSON(), {working: working, editing: this.editing, initiated: initiated, hits: hits});
             },
+            update: function() {
+                if(! this.editing) {
+                    this.render();
+                }
+            },            
             editMode: function() {
                 this.editing = true;
                 this.render();
@@ -166,6 +173,9 @@ define([
 
                     wreqr.vent.trigger('workspace:results', dir.forward, this.model);
                 }
+            },
+            onClose: function() {
+                clearInterval(this.updateInterval);
             }
         });
 
