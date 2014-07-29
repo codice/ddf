@@ -285,7 +285,7 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
     @Override
     public FilterType or(List<FilterType> filtersToBeOred) {
         if (filtersToBeOred.contains(Collections.singleton(null))) {
-            throw new UnsupportedOperationException("Invalid filters found in list of filters!");
+            throw new UnsupportedOperationException("Invalid filters found in list of filters.");
         }
 
         return buildAndOrFilter(filtersToBeOred,

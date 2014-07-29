@@ -14,7 +14,6 @@
  **/
 package org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.source;
 
-import static org.custommonkey.xmlunit.XMLAssert.assertXMLEqual;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
@@ -22,6 +21,7 @@ import static org.hamcrest.text.pattern.PatternMatcher.matchesPattern;
 import static org.hamcrest.text.pattern.Patterns.anyCharacterIn;
 import static org.hamcrest.text.pattern.Patterns.oneOrMore;
 import static org.hamcrest.text.pattern.Patterns.sequence;
+import static org.junit.Assert.assertNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -37,12 +37,18 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.namespace.QName;
 
+import net.opengis.filter.v_2_0_0.BinaryLogicOpType;
 import net.opengis.filter.v_2_0_0.BinaryTemporalOpType;
 import net.opengis.filter.v_2_0_0.ComparisonOperatorType;
 import net.opengis.filter.v_2_0_0.ComparisonOperatorsType;
+import net.opengis.filter.v_2_0_0.DistanceBufferType;
 import net.opengis.filter.v_2_0_0.FilterCapabilities;
 import net.opengis.filter.v_2_0_0.FilterType;
+import net.opengis.filter.v_2_0_0.LiteralType;
+import net.opengis.filter.v_2_0_0.PropertyIsLikeType;
+import net.opengis.filter.v_2_0_0.ResourceIdType;
 import net.opengis.filter.v_2_0_0.ScalarCapabilitiesType;
+import net.opengis.filter.v_2_0_0.UnaryLogicOpType;
 import net.opengis.gml.v_3_2_0.TimeInstantType;
 import net.opengis.gml.v_3_2_0.TimePeriodType;
 
@@ -53,6 +59,7 @@ import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.Wfs20Constants;
 import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.Wfs20Constants.COMPARISON_OPERATORS;
 import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.Wfs20Constants.SPATIAL_OPERATORS;
 import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.Wfs20Constants.TEMPORAL_OPERATORS;
+
 import org.hamcrest.text.pattern.PatternMatcher;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeUtils;
@@ -69,84 +76,16 @@ public class TestWfsFilterDelegate {
     private static final String FILTER_QNAME_LOCAL_PART = "Filter";
     
     private static final String LITERAL = "Literal";
+    
+    private static final String VALUE_REFERENCE = "ValueReference";
+    
+    private static final String LOGICAL_OR_NAME = "{http://www.opengis.net/fes/2.0}Or";
+    
+    private static final String LOGICAL_AND_NAME = "{http://www.opengis.net/fes/2.0}And";
+    
+    private static final String LOGICAL_NOT_NAME = "{http://www.opengis.net/fes/2.0}Not";
 
     private FeatureMetacardType mockFeatureMetacardType = mock(FeatureMetacardType.class);
-    
-    private final String logicalOrOfComparisons = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><ns5:Filter "
-            + "xmlns:ns2=\"http://www.opengis.net/ows/1.1\" xmlns=\"http://www.opengis.net/fes/2.0\" xmlns:ns4=\"http://www.opengis.net/gml\" "
-            + "xmlns:ns3=\"http://www.w3.org/1999/xlink\" xmlns:ns5=\"http://www.opengis.net/ogc\"><Or><PropertyIsLike wildCard=\"*\" singleChar=\"?\" "
-            + "escapeChar=\"!\"><Literal>Literal</Literal><ValueReference>myPropertyName</ValueReference></PropertyIsLike><PropertyIsLike "
-            + "wildCard=\"*\" singleChar=\"?\" escapeChar=\"!\"><Literal>Literal</Literal><ValueReference>myPropertyName</ValueReference>"
-            + "</PropertyIsLike></Or></ns5:Filter>";
-    
-    private final String logicalAndOfComparisons = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><ns5:Filter "
-            + "xmlns:ns2=\"http://www.opengis.net/ows/1.1\" xmlns=\"http://www.opengis.net/fes/2.0\" xmlns:ns4=\"http://www.opengis.net/gml\" "
-            + "xmlns:ns3=\"http://www.w3.org/1999/xlink\" xmlns:ns5=\"http://www.opengis.net/ogc\"><And><PropertyIsLike wildCard=\"*\" singleChar=\"?\" "
-            + "escapeChar=\"!\"><Literal>Literal</Literal><ValueReference>myPropertyName</ValueReference></PropertyIsLike><PropertyIsLike wildCard=\"*\" "
-            + "singleChar=\"?\" escapeChar=\"!\"><Literal>Literal</Literal><ValueReference>myPropertyName</ValueReference></PropertyIsLike></And>"
-            + "</ns5:Filter>";
-    
-    private final String logicalNotOfComparisons = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><ns5:Filter "
-            + "xmlns:ns2=\"http://www.opengis.net/ows/1.1\" xmlns=\"http://www.opengis.net/fes/2.0\" xmlns:ns4=\"http://www.opengis.net/gml\" "
-            + "xmlns:ns3=\"http://www.w3.org/1999/xlink\" xmlns:ns5=\"http://www.opengis.net/ogc\"><Not><PropertyIsLike wildCard=\"*\" singleChar=\"?\" "
-            + "escapeChar=\"!\"><Literal>Literal</Literal><ValueReference>myPropertyName</ValueReference></PropertyIsLike></Not></ns5:Filter>";
-    
-    private final String logicalOrOfSpatials = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><ns5:Filter "
-            + "xmlns:ns2=\"http://www.opengis.net/ows/1.1\" xmlns=\"http://www.opengis.net/fes/2.0\" xmlns:ns4=\"http://www.opengis.net/gml\" "
-            + "xmlns:ns3=\"http://www.w3.org/1999/xlink\" xmlns:ns5=\"http://www.opengis.net/ogc\"><Or><DWithin><Distance uom=\"METERS\">1000.0"
-            + "</Distance></DWithin><DWithin><Distance uom=\"METERS\">1500.0</Distance></DWithin></Or></ns5:Filter>";
-    
-    private final String logicalNotOfSpatial ="<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><ns5:Filter "
-            + "xmlns:ns2=\"http://www.opengis.net/ows/1.1\" xmlns=\"http://www.opengis.net/fes/2.0\" xmlns:ns4=\"http://www.opengis.net/gml\" "
-            + "xmlns:ns3=\"http://www.w3.org/1999/xlink\" xmlns:ns5=\"http://www.opengis.net/ogc\"><Not><DWithin><Distance uom=\"METERS\">1000.0"
-            + "</Distance></DWithin></Not></ns5:Filter>";
-    
-    private final String logicalAndOfSpatials = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><ns5:Filter "
-            + "xmlns:ns2=\"http://www.opengis.net/ows/1.1\" xmlns=\"http://www.opengis.net/fes/2.0\" xmlns:ns4=\"http://www.opengis.net/gml\" "
-            + "xmlns:ns3=\"http://www.w3.org/1999/xlink\" xmlns:ns5=\"http://www.opengis.net/ogc\"><And><DWithin><Distance uom=\"METERS\">1000.0"
-            + "</Distance></DWithin><DWithin><Distance uom=\"METERS\">1500.0</Distance></DWithin></And></ns5:Filter>";
-    
-    private final String logicalOrOfLogicals = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><ns5:Filter "
-            + "xmlns:ns2=\"http://www.opengis.net/ows/1.1\" xmlns=\"http://www.opengis.net/fes/2.0\" xmlns:ns4=\"http://www.opengis.net/gml\" "
-            + "xmlns:ns3=\"http://www.w3.org/1999/xlink\" xmlns:ns5=\"http://www.opengis.net/ogc\"><Or><Or><PropertyIsLike wildCard=\"*\" "
-            + "singleChar=\"?\" escapeChar=\"!\"><Literal>Literal</Literal><ValueReference>myPropertyName</ValueReference></PropertyIsLike>"
-            + "<PropertyIsLike wildCard=\"*\" singleChar=\"?\" escapeChar=\"!\"><Literal>Literal</Literal><ValueReference>myPropertyName"
-            + "</ValueReference></PropertyIsLike></Or><And><DWithin><Distance uom=\"METERS\">1000.0</Distance></DWithin><DWithin><Distance "
-            + "uom=\"METERS\">1500.0</Distance></DWithin></And></Or></ns5:Filter>";
-    
-    private final String logicalAndOfLogicals = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><ns5:Filter "
-            + "xmlns:ns2=\"http://www.opengis.net/ows/1.1\" xmlns=\"http://www.opengis.net/fes/2.0\" xmlns:ns4=\"http://www.opengis.net/gml\" "
-            + "xmlns:ns3=\"http://www.w3.org/1999/xlink\" xmlns:ns5=\"http://www.opengis.net/ogc\"><And><Or><PropertyIsLike wildCard=\"*\" "
-            + "singleChar=\"?\" escapeChar=\"!\"><Literal>Literal</Literal><ValueReference>myPropertyName</ValueReference></PropertyIsLike>"
-            + "<PropertyIsLike wildCard=\"*\" singleChar=\"?\" escapeChar=\"!\"><Literal>Literal</Literal><ValueReference>myPropertyName"
-            + "</ValueReference></PropertyIsLike></Or><And><DWithin><Distance uom=\"METERS\">1000.0</Distance></DWithin><DWithin><Distance "
-            + "uom=\"METERS\">1500.0</Distance></DWithin></And></And></ns5:Filter>";
-    
-    private final String logicalNotOfLogical = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><ns5:Filter "
-            + "xmlns:ns2=\"http://www.opengis.net/ows/1.1\" xmlns=\"http://www.opengis.net/fes/2.0\" xmlns:ns4=\"http://www.opengis.net/gml\" "
-            + "xmlns:ns3=\"http://www.w3.org/1999/xlink\" xmlns:ns5=\"http://www.opengis.net/ogc\"><Not><Or><PropertyIsLike wildCard=\"*\" "
-            + "singleChar=\"?\" escapeChar=\"!\"><Literal>Literal</Literal><ValueReference>myPropertyName</ValueReference></PropertyIsLike>"
-            + "<PropertyIsLike wildCard=\"*\" singleChar=\"?\" escapeChar=\"!\"><Literal>Literal</Literal><ValueReference>myPropertyName"
-            + "</ValueReference></PropertyIsLike></Or></Not></ns5:Filter>";
-    
-    private final String logicalOneItem = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><ns5:Filter "
-            + "xmlns:ns2=\"http://www.opengis.net/ows/1.1\" xmlns=\"http://www.opengis.net/fes/2.0\" xmlns:ns4=\"http://www.opengis.net/gml\" "
-            + "xmlns:ns3=\"http://www.w3.org/1999/xlink\" xmlns:ns5=\"http://www.opengis.net/ogc\"><PropertyIsLike wildCard=\"*\" singleChar=\"?\" "
-            + "escapeChar=\"!\"><Literal>Literal</Literal><ValueReference>myPropertyName</ValueReference></PropertyIsLike></ns5:Filter>";
-    
-    private final String logicalEmptyItemList = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><ns5:Filter xsi:nil=\"true\" "
-            + "xmlns:ns2=\"http://www.opengis.net/ows/1.1\" xmlns=\"http://www.opengis.net/fes/2.0\" xmlns:ns4=\"http://www.opengis.net/gml\" "
-            + "xmlns:ns3=\"http://www.w3.org/1999/xlink\" xmlns:ns5=\"http://www.opengis.net/ogc\" "
-            + "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"/>";
-    
-    private final String featureIdXml = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><ns5:Filter "
-            + "xmlns:ns2=\"http://www.opengis.net/ows/1.1\" xmlns=\"http://www.opengis.net/fes/2.0\" xmlns:ns4=\"http://www.opengis.net/gml\" "
-            + "xmlns:ns3=\"http://www.w3.org/1999/xlink\" xmlns:ns5=\"http://www.opengis.net/ogc\"><ResourceId rid=\"1234567\"/></ns5:Filter>";
-    
-    private final String featureTypeFeatureIdXml = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><ns5:Filter "
-            + "xmlns:ns2=\"http://www.opengis.net/ows/1.1\" xmlns=\"http://www.opengis.net/fes/2.0\" xmlns:ns4=\"http://www.opengis.net/gml\" "
-            + "xmlns:ns3=\"http://www.w3.org/1999/xlink\" xmlns:ns5=\"http://www.opengis.net/ogc\"><ResourceId rid=\"myType.1234567\"/></ns5:Filter>";
-    
 
     @Test
     public void testFullFilterCapabilities() {
@@ -546,7 +485,9 @@ public class TestWfsFilterDelegate {
     
     @Test
     public void testLogicalOrOfComparisons() throws Exception {
-        WfsFilterDelegate delegate = mockFeatureMetacardCreateDelegate();
+        String mockProperty = "myPropertyName";
+        String mockType = "myType";
+        WfsFilterDelegate delegate = mockFeatureMetacardCreateDelegate(mockProperty, mockType);
         
         FilterType compFilter1 = delegate.propertyIsLike(Metacard.ANY_TEXT, LITERAL, true);
         FilterType compFilter2 = delegate.propertyIsLike(Metacard.ANY_TEXT, LITERAL, true);
@@ -556,27 +497,53 @@ public class TestWfsFilterDelegate {
         
         //Perform Test
         FilterType filter = delegate.or(filtersToBeOred);
+
+        //Verify
+        assertThat(filter.getLogicOps().getName().toString(), is(LOGICAL_OR_NAME));
+        BinaryLogicOpType logicOpType = (BinaryLogicOpType) filter.getLogicOps().getValue();
         
-        assertXMLEqual(logicalOrOfComparisons, getXmlFromMarshaller(filter));
+        PropertyIsLikeType compOpsType1 = (PropertyIsLikeType) logicOpType.getComparisonOpsOrSpatialOpsOrTemporalOps().get(0).getValue();
+        String valRef1 = fetchPropertyIsLikeExpression(compOpsType1, VALUE_REFERENCE);
+        assertThat(valRef1, is(mockProperty));
+        String literal1 = fetchPropertyIsLikeExpression(compOpsType1, LITERAL);
+        assertThat(literal1, is(LITERAL));
+        
+        PropertyIsLikeType compOpsType2 = (PropertyIsLikeType) logicOpType.getComparisonOpsOrSpatialOpsOrTemporalOps().get(1).getValue();
+        String valRef2 = fetchPropertyIsLikeExpression(compOpsType2, VALUE_REFERENCE);
+        assertThat(valRef2, is(mockProperty));
+        String literal2 = fetchPropertyIsLikeExpression(compOpsType2, LITERAL);
+        assertThat(literal2, is(LITERAL));
     }
  
     @Test
     public void testLogicalNotOfComparison() throws Exception {
         
-        WfsFilterDelegate delegate = mockFeatureMetacardCreateDelegate();
+        String mockProperty = "myPropertyName";
+        String mockType = "myType";
+        WfsFilterDelegate delegate = mockFeatureMetacardCreateDelegate(mockProperty, mockType);
         
         FilterType filterToBeNoted = delegate.propertyIsLike(Metacard.ANY_TEXT, LITERAL, true);
         
         //Perform Test
         FilterType filter = delegate.not(filterToBeNoted);
         
-        assertXMLEqual(logicalNotOfComparisons, getXmlFromMarshaller(filter));
+        //Verify
+        assertThat(filter.getLogicOps().getName().toString(), is(LOGICAL_NOT_NAME));
+        UnaryLogicOpType logicOpType = (UnaryLogicOpType) filter.getLogicOps().getValue();
+        
+        PropertyIsLikeType compOpsType1 = (PropertyIsLikeType) logicOpType.getComparisonOps().getValue();
+        String valRef1 = fetchPropertyIsLikeExpression(compOpsType1, VALUE_REFERENCE);
+        assertThat(valRef1, is(mockProperty));
+        String literal1 = fetchPropertyIsLikeExpression(compOpsType1, LITERAL);
+        assertThat(literal1, is(LITERAL));
     }
     
     @Test
     public void testLogicalAndOfComparison() throws Exception {
         
-        WfsFilterDelegate delegate = mockFeatureMetacardCreateDelegate();
+        String mockProperty = "myPropertyName";
+        String mockType = "myType";
+        WfsFilterDelegate delegate = mockFeatureMetacardCreateDelegate(mockProperty, mockType);
         
         FilterType compFilter1 = delegate.propertyIsLike(Metacard.ANY_TEXT, LITERAL, true);
         FilterType compFilter2 = delegate.propertyIsLike(Metacard.ANY_TEXT, LITERAL, true);
@@ -586,18 +553,33 @@ public class TestWfsFilterDelegate {
         
         //Perform Test
         FilterType filter = delegate.and(filtersToBeAnded);
-
-        assertXMLEqual(logicalAndOfComparisons, getXmlFromMarshaller(filter));
+        
+        //Verify
+        assertThat(filter.getLogicOps().getName().toString(), is(LOGICAL_AND_NAME));
+        BinaryLogicOpType logicOpType = (BinaryLogicOpType) filter.getLogicOps().getValue();
+        
+        PropertyIsLikeType compOpsType1 = (PropertyIsLikeType) logicOpType.getComparisonOpsOrSpatialOpsOrTemporalOps().get(0).getValue();
+        String valRef1 = fetchPropertyIsLikeExpression(compOpsType1, VALUE_REFERENCE);
+        assertThat(valRef1, is(mockProperty));
+        String literal1 = fetchPropertyIsLikeExpression(compOpsType1, LITERAL);
+        assertThat(literal1, is(LITERAL));
+        
+        PropertyIsLikeType compOpsType2 = (PropertyIsLikeType) logicOpType.getComparisonOpsOrSpatialOpsOrTemporalOps().get(1).getValue();
+        String valRef2 = fetchPropertyIsLikeExpression(compOpsType2, VALUE_REFERENCE);
+        assertThat(valRef2, is(mockProperty));
+        String literal2 = fetchPropertyIsLikeExpression(compOpsType2, LITERAL);
+        assertThat(literal2, is(LITERAL));
     }
     
     @Test
     public void testLogicalOrOfSpatial() throws Exception {
 
-        WfsFilterDelegate delegate = mockFeatureMetacardCreateDelegate();
+        String mockProperty = "myPropertyName";
+        String mockType = "myType";
+        WfsFilterDelegate delegate = mockFeatureMetacardCreateDelegate(mockProperty, mockType);
               
         FilterType spatialFilter1 = delegate.dwithin(Metacard.ANY_GEO, "POINT (30 10)", Double.valueOf(1000));
         FilterType spatialFilter2 = delegate.dwithin(Metacard.ANY_GEO, "POINT (50 10)", Double.valueOf(1500));
-        FilterType compFilter1 = delegate.propertyIsLike(Metacard.ANY_TEXT, LITERAL, true);
         List<FilterType> filtersToBeOred = new ArrayList<FilterType>();
         filtersToBeOred.add(spatialFilter1);
         filtersToBeOred.add(spatialFilter2);
@@ -605,26 +587,44 @@ public class TestWfsFilterDelegate {
         //Perform Test
         FilterType filter = delegate.or(filtersToBeOred);
         
-        assertXMLEqual(logicalOrOfSpatials, getXmlFromMarshaller(filter));
+        //Verify
+        assertThat(filter.getLogicOps().getName().toString(), is(LOGICAL_OR_NAME));
+        BinaryLogicOpType logicOpType = (BinaryLogicOpType) filter.getLogicOps().getValue();
+        DistanceBufferType spatialOpsType1 = (DistanceBufferType) logicOpType.getComparisonOpsOrSpatialOpsOrTemporalOps().get(0).getValue();
+        assertThat(Double.toString(spatialOpsType1.getDistance().getValue()), is(Double.valueOf(1000).toString()));
+        
+        DistanceBufferType spatialOpsType2 = (DistanceBufferType) logicOpType.getComparisonOpsOrSpatialOpsOrTemporalOps().get(1).getValue();
+        assertThat(Double.toString(spatialOpsType2.getDistance().getValue()), is(Double.valueOf(1500).toString()));
+        
+        
     }
     
     @Test
     public void testLogicalNotOfSpatial() throws Exception {
         
-        WfsFilterDelegate delegate = mockFeatureMetacardCreateDelegate();
+        String mockProperty = "myPropertyName";
+        String mockType = "myType";
+        WfsFilterDelegate delegate = mockFeatureMetacardCreateDelegate(mockProperty, mockType);
         
         FilterType spatialFilter1 = delegate.dwithin(Metacard.ANY_GEO, "POINT (30 10)", Double.valueOf(1000));
         
         //Perform Test
         FilterType filter = delegate.not(spatialFilter1);
         
-        assertXMLEqual(logicalNotOfSpatial, getXmlFromMarshaller(filter));
+        //Verify
+        assertThat(filter.getLogicOps().getName().toString(), is(LOGICAL_NOT_NAME));
+        UnaryLogicOpType logicOpType = (UnaryLogicOpType) filter.getLogicOps().getValue();
+        DistanceBufferType spatialOpsType1 = (DistanceBufferType) logicOpType.getSpatialOps().getValue();
+        assertThat(Double.toString(spatialOpsType1.getDistance().getValue()), is(Double.valueOf(1000).toString()));
+        
     }
     
     @Test
     public void testLogicalAndOfSpatial() throws Exception {
         
-        WfsFilterDelegate delegate = mockFeatureMetacardCreateDelegate();
+        String mockProperty = "myPropertyName";
+        String mockType = "myType";
+        WfsFilterDelegate delegate = mockFeatureMetacardCreateDelegate(mockProperty, mockType);
         
         
         FilterType spatialFilter1 = delegate.dwithin(Metacard.ANY_GEO, "POINT (30 10)", Double.valueOf(1000));
@@ -637,12 +637,21 @@ public class TestWfsFilterDelegate {
         //Perform Test
         FilterType filter = delegate.and(filtersToBeAnded);
 
-        assertXMLEqual(logicalAndOfSpatials, getXmlFromMarshaller(filter));
+        //Verify
+        assertThat(filter.getLogicOps().getName().toString(), is(LOGICAL_AND_NAME));
+        BinaryLogicOpType logicOpType = (BinaryLogicOpType) filter.getLogicOps().getValue();
+        DistanceBufferType spatialOpsType1 = (DistanceBufferType) logicOpType.getComparisonOpsOrSpatialOpsOrTemporalOps().get(0).getValue();
+        assertThat(Double.toString(spatialOpsType1.getDistance().getValue()), is(Double.valueOf(1000).toString()));
+        
+        DistanceBufferType spatialOpsType2 = (DistanceBufferType) logicOpType.getComparisonOpsOrSpatialOpsOrTemporalOps().get(1).getValue();
+        assertThat(Double.toString(spatialOpsType2.getDistance().getValue()), is(Double.valueOf(1500).toString()));
     }
     
     @Test
     public void testLogicalOrOfLogicals() throws Exception {
-        WfsFilterDelegate delegate = mockFeatureMetacardCreateDelegate();
+        String mockProperty = "myPropertyName";
+        String mockType = "myType";
+        WfsFilterDelegate delegate = mockFeatureMetacardCreateDelegate(mockProperty, mockType);
         
         FilterType compFilter1 = delegate.propertyIsLike(Metacard.ANY_TEXT, LITERAL, true);
         FilterType compFilter2 = delegate.propertyIsLike(Metacard.ANY_TEXT, LITERAL, true);
@@ -665,12 +674,41 @@ public class TestWfsFilterDelegate {
         
         //Perform Test
         FilterType filter = delegate.or(filtersToBeOred);
-        assertXMLEqual(logicalOrOfLogicals, getXmlFromMarshaller(filter));
+        
+        //Verify
+        assertThat(filter.getLogicOps().getName().toString(), is(LOGICAL_OR_NAME));
+        BinaryLogicOpType logicOpType = (BinaryLogicOpType) filter.getLogicOps().getValue();
+        
+        BinaryLogicOpType logicOrType = (BinaryLogicOpType) logicOpType.getComparisonOpsOrSpatialOpsOrTemporalOps().get(0).getValue();
+        assertThat(logicOpType.getComparisonOpsOrSpatialOpsOrTemporalOps().get(0).getName().toString(), is(LOGICAL_OR_NAME));  
+        
+        PropertyIsLikeType compOpsType1 = (PropertyIsLikeType) logicOrType.getComparisonOpsOrSpatialOpsOrTemporalOps().get(0).getValue();
+        String valRef1 = fetchPropertyIsLikeExpression(compOpsType1, VALUE_REFERENCE);
+        assertThat(valRef1, is(mockProperty));
+        String literal1 = fetchPropertyIsLikeExpression(compOpsType1, LITERAL);
+        assertThat(literal1, is(LITERAL));
+        
+        PropertyIsLikeType compOpsType2 = (PropertyIsLikeType) logicOrType.getComparisonOpsOrSpatialOpsOrTemporalOps().get(1).getValue();
+        String valRef2 = fetchPropertyIsLikeExpression(compOpsType2, VALUE_REFERENCE);
+        assertThat(valRef2, is(mockProperty));
+        String literal2 = fetchPropertyIsLikeExpression(compOpsType2, LITERAL);
+        assertThat(literal2, is(LITERAL));      
+        
+        BinaryLogicOpType logicAndType = (BinaryLogicOpType) logicOpType.getComparisonOpsOrSpatialOpsOrTemporalOps().get(1).getValue();
+        assertThat(logicOpType.getComparisonOpsOrSpatialOpsOrTemporalOps().get(1).getName().toString(), is(LOGICAL_AND_NAME));
+        
+        DistanceBufferType spatialOpsType1 = (DistanceBufferType) logicAndType.getComparisonOpsOrSpatialOpsOrTemporalOps().get(0).getValue();
+        assertThat(Double.toString(spatialOpsType1.getDistance().getValue()), is(Double.valueOf(1000).toString()));
+        
+        DistanceBufferType spatialOpsType2 = (DistanceBufferType) logicAndType.getComparisonOpsOrSpatialOpsOrTemporalOps().get(1).getValue();
+        assertThat(Double.toString(spatialOpsType2.getDistance().getValue()), is(Double.valueOf(1500).toString()));
     }
     
     @Test
     public void testLogicalAndOfLogicals() throws Exception {
-        WfsFilterDelegate delegate = mockFeatureMetacardCreateDelegate();
+        String mockProperty = "myPropertyName";
+        String mockType = "myType";
+        WfsFilterDelegate delegate = mockFeatureMetacardCreateDelegate(mockProperty, mockType);
         
         FilterType compFilter1 = delegate.propertyIsLike(Metacard.ANY_TEXT, LITERAL, true);
         FilterType compFilter2 = delegate.propertyIsLike(Metacard.ANY_TEXT, LITERAL, true);
@@ -693,12 +731,43 @@ public class TestWfsFilterDelegate {
         
         //Perform Test
         FilterType filter = delegate.and(filtersToBeAnded);
-        assertXMLEqual(logicalAndOfLogicals, getXmlFromMarshaller(filter));
+        
+        //Verify
+        assertThat(filter.getLogicOps().getName().toString(), is(LOGICAL_AND_NAME));
+        BinaryLogicOpType logicOpType = (BinaryLogicOpType) filter.getLogicOps().getValue();
+        
+        BinaryLogicOpType logicOrType = (BinaryLogicOpType) logicOpType.getComparisonOpsOrSpatialOpsOrTemporalOps().get(0).getValue();
+        assertThat(logicOpType.getComparisonOpsOrSpatialOpsOrTemporalOps().get(0).getName().toString(), is(LOGICAL_OR_NAME));  
+        
+        PropertyIsLikeType compOpsType1 = (PropertyIsLikeType) logicOrType.getComparisonOpsOrSpatialOpsOrTemporalOps().get(0).getValue();
+        String valRef1 = fetchPropertyIsLikeExpression(compOpsType1, VALUE_REFERENCE);
+        assertThat(valRef1, is(mockProperty));
+        String literal1 = fetchPropertyIsLikeExpression(compOpsType1, LITERAL);
+        assertThat(literal1, is(LITERAL));
+        
+        PropertyIsLikeType compOpsType2 = (PropertyIsLikeType) logicOrType.getComparisonOpsOrSpatialOpsOrTemporalOps().get(1).getValue();
+        String valRef2 = fetchPropertyIsLikeExpression(compOpsType2, VALUE_REFERENCE);
+        assertThat(valRef2, is(mockProperty));
+        String literal2 = fetchPropertyIsLikeExpression(compOpsType2, LITERAL);
+        assertThat(literal2, is(LITERAL));      
+        
+        BinaryLogicOpType logicAndType = (BinaryLogicOpType) logicOpType.getComparisonOpsOrSpatialOpsOrTemporalOps().get(1).getValue();
+        assertThat(logicOpType.getComparisonOpsOrSpatialOpsOrTemporalOps().get(1).getName().toString(), is(LOGICAL_AND_NAME));
+        
+        DistanceBufferType spatialOpsType1 = (DistanceBufferType) logicAndType.getComparisonOpsOrSpatialOpsOrTemporalOps().get(0).getValue();
+        assertThat(Double.toString(spatialOpsType1.getDistance().getValue()), is(Double.valueOf(1000).toString()));
+        
+        DistanceBufferType spatialOpsType2 = (DistanceBufferType) logicAndType.getComparisonOpsOrSpatialOpsOrTemporalOps().get(1).getValue();
+        assertThat(Double.toString(spatialOpsType2.getDistance().getValue()), is(Double.valueOf(1500).toString()));
+        
+        
     }
     
     @Test
     public void testLogicalNotOfLogicals() throws Exception {
-        WfsFilterDelegate delegate = mockFeatureMetacardCreateDelegate();
+        String mockProperty = "myPropertyName";
+        String mockType = "myType";
+        WfsFilterDelegate delegate = mockFeatureMetacardCreateDelegate(mockProperty, mockType);
         
         FilterType compFilter1 = delegate.propertyIsLike(Metacard.ANY_TEXT, LITERAL, true);
         FilterType compFilter2 = delegate.propertyIsLike(Metacard.ANY_TEXT, LITERAL, true);
@@ -708,12 +777,32 @@ public class TestWfsFilterDelegate {
         
         //Perform Test
         FilterType filter = delegate.not(delegate.or(subFiltersToBeOred));
-        assertXMLEqual(logicalNotOfLogical, getXmlFromMarshaller(filter));
+
+        //Verify
+        assertThat(filter.getLogicOps().getName().toString(), is(LOGICAL_NOT_NAME));
+        UnaryLogicOpType logicOpType = (UnaryLogicOpType) filter.getLogicOps().getValue();
+        
+        BinaryLogicOpType logicOrType = (BinaryLogicOpType) logicOpType.getLogicOps().getValue();
+        assertThat(logicOpType.getLogicOps().getName().toString(), is(LOGICAL_OR_NAME));  
+        
+        PropertyIsLikeType compOpsType1 = (PropertyIsLikeType) logicOrType.getComparisonOpsOrSpatialOpsOrTemporalOps().get(0).getValue();
+        String valRef1 = fetchPropertyIsLikeExpression(compOpsType1, VALUE_REFERENCE);
+        assertThat(valRef1, is(mockProperty));
+        String literal1 = fetchPropertyIsLikeExpression(compOpsType1, LITERAL);
+        assertThat(literal1, is(LITERAL));
+        
+        PropertyIsLikeType compOpsType2 = (PropertyIsLikeType) logicOrType.getComparisonOpsOrSpatialOpsOrTemporalOps().get(1).getValue();
+        String valRef2 = fetchPropertyIsLikeExpression(compOpsType2, VALUE_REFERENCE);
+        assertThat(valRef2, is(mockProperty));
+        String literal2 = fetchPropertyIsLikeExpression(compOpsType2, LITERAL);
+        assertThat(literal2, is(LITERAL));      
     }
     
     @Test
     public void testLogicalOrOneItem() throws Exception {
-        WfsFilterDelegate delegate = mockFeatureMetacardCreateDelegate();
+        String mockProperty = "myPropertyName";
+        String mockType = "myType";
+        WfsFilterDelegate delegate = mockFeatureMetacardCreateDelegate(mockProperty, mockType);
         
         FilterType compFilter1 = delegate.propertyIsLike(Metacard.ANY_TEXT, LITERAL, true);
         List<FilterType> filtersToBeOred = new ArrayList<FilterType>();
@@ -721,36 +810,61 @@ public class TestWfsFilterDelegate {
         
         //Perform Test
         FilterType filter = delegate.or(filtersToBeOred);
-        assertXMLEqual(logicalOneItem, getXmlFromMarshaller(filter));
+        
+        //Verify
+        //Only one filter was provided to OR so only that filter is returned as not enough filters to OR together
+        assertNull(filter.getLogicOps()); 
+        PropertyIsLikeType compOpsType1 = (PropertyIsLikeType) filter.getComparisonOps().getValue();
+        String valRef1 = fetchPropertyIsLikeExpression(compOpsType1, VALUE_REFERENCE);
+        assertThat(valRef1, is(mockProperty));
+        String literal1 = fetchPropertyIsLikeExpression(compOpsType1, LITERAL);
+        assertThat(literal1, is(LITERAL));
     }
     
     @Test
     public void testLogicalAndOneItem() throws Exception {
-        WfsFilterDelegate delegate = mockFeatureMetacardCreateDelegate();
+        String mockProperty = "myPropertyName";
+        String mockType = "myType";
+        WfsFilterDelegate delegate = mockFeatureMetacardCreateDelegate(mockProperty, mockType);
         
         FilterType compFilter1 = delegate.propertyIsLike(Metacard.ANY_TEXT, LITERAL, true);
         List<FilterType> filtersToBeAnded = new ArrayList<FilterType>();
         filtersToBeAnded.add(compFilter1);
         
         //Perform Test
-        FilterType filter = delegate.or(filtersToBeAnded);
-        assertXMLEqual(logicalOneItem, getXmlFromMarshaller(filter));
+        FilterType filter = delegate.and(filtersToBeAnded);
+
+        //Verify
+        //Only one filter was provided to AND so only that filter is returned as not enough filters to AND together
+        assertNull(filter.getLogicOps()); 
+        PropertyIsLikeType compOpsType1 = (PropertyIsLikeType) filter.getComparisonOps().getValue();
+        String valRef1 = fetchPropertyIsLikeExpression(compOpsType1, VALUE_REFERENCE);
+        assertThat(valRef1, is(mockProperty));
+        String literal1 = fetchPropertyIsLikeExpression(compOpsType1, LITERAL);
+        assertThat(literal1, is(LITERAL));
     }
     
     @Test
     public void testLogicalAndEmptyItemList() throws Exception {
-        WfsFilterDelegate delegate = mockFeatureMetacardCreateDelegate();
+        String mockProperty = "myPropertyName";
+        String mockType = "myType";
+        WfsFilterDelegate delegate = mockFeatureMetacardCreateDelegate(mockProperty, mockType);
         
         List<FilterType> filtersToBeAnded = new ArrayList<FilterType>();
         
         //Perform Test
-        FilterType filter = delegate.or(filtersToBeAnded);
-        assertXMLEqual(logicalEmptyItemList, getXmlFromMarshaller(filter));
+        FilterType filter = delegate.and(filtersToBeAnded);
+
+        //Verify
+        //A Null filter should be returned
+        assertNull(filter);
     }
     
     @Test
     public void testLogicalOrNullItem() throws Exception {
-        WfsFilterDelegate delegate = mockFeatureMetacardCreateDelegate();
+        String mockProperty = "myPropertyName";
+        String mockType = "myType";
+        WfsFilterDelegate delegate = mockFeatureMetacardCreateDelegate(mockProperty, mockType);
         
         FilterType compFilter1 = null;
         List<FilterType> filtersToBeAnded = new ArrayList<FilterType>();
@@ -758,23 +872,27 @@ public class TestWfsFilterDelegate {
         
         //Perform Test
         FilterType filter = delegate.or(filtersToBeAnded);
-        assertXMLEqual(logicalEmptyItemList, getXmlFromMarshaller(filter));
+        assertNull(filter);
     }
     
     @Test
     public void testLogicalNotNullItem() throws Exception {
-        WfsFilterDelegate delegate = mockFeatureMetacardCreateDelegate();
+        String mockProperty = "myPropertyName";
+        String mockType = "myType";
+        WfsFilterDelegate delegate = mockFeatureMetacardCreateDelegate(mockProperty, mockType);
         
         FilterType compFilter1 = null;
         
         //Perform Test
         FilterType filter = delegate.not(compFilter1);
-        assertXMLEqual(logicalEmptyItemList, getXmlFromMarshaller(filter));
+        assertNull(filter);
     }
     
     @Test
     public void testLogicalAndNullItem() throws Exception {
-        WfsFilterDelegate delegate = mockFeatureMetacardCreateDelegate();
+        String mockProperty = "myPropertyName";
+        String mockType = "myType";
+        WfsFilterDelegate delegate = mockFeatureMetacardCreateDelegate(mockProperty, mockType);
         
         FilterType compFilter1 = null;
         List<FilterType> filtersToBeAnded = new ArrayList<FilterType>();
@@ -782,18 +900,20 @@ public class TestWfsFilterDelegate {
         
         //Perform Test
         FilterType filter = delegate.and(filtersToBeAnded);
-        assertXMLEqual(logicalEmptyItemList, getXmlFromMarshaller(filter));
+        assertNull(filter);
     }
     
     @Test
     public void testLogicalAndNullFilterList() throws Exception {
-        WfsFilterDelegate delegate = mockFeatureMetacardCreateDelegate();
+        String mockProperty = "myPropertyName";
+        String mockType = "myType";
+        WfsFilterDelegate delegate = mockFeatureMetacardCreateDelegate(mockProperty, mockType);
         
         List<FilterType> filtersToBeAnded = null;
         
         //Perform Test
         FilterType filter = delegate.and(filtersToBeAnded);
-        assertXMLEqual(logicalEmptyItemList, getXmlFromMarshaller(filter));
+        assertNull(filter);
     }
     
     @Test(expected=UnsupportedOperationException.class)
@@ -917,41 +1037,66 @@ public class TestWfsFilterDelegate {
     
     @Test
     public void testFeatureID() throws Exception {
-        WfsFilterDelegate delegate = mockFeatureMetacardCreateDelegate();
+        String mockProperty = "myPropertyName";
+        String mockType = "myType";
+        WfsFilterDelegate delegate = mockFeatureMetacardCreateDelegate(mockProperty, mockType);
         String featureId = "1234567";
         
         //Perform Test
         FilterType matchIdFilter = delegate.propertyIsLike(Metacard.ID, featureId, true);
-        assertXMLEqual(featureIdXml, getXmlFromMarshaller(matchIdFilter));
+        
+        //Verify
+        assertThat(((ResourceIdType)matchIdFilter.getId().get(0).getValue()).getRid(), is(featureId));
     }
     
     @Test
     public void testFeatureTypeFeatureID() throws Exception {
-        WfsFilterDelegate delegate = mockFeatureMetacardCreateDelegate();
+        String mockProperty = "myPropertyName";
         String mockType = "myType";
+        WfsFilterDelegate delegate = mockFeatureMetacardCreateDelegate(mockProperty, mockType);
+
         String featureId = "1234567";
         String mockTypeFeatureId = mockType + "." + featureId;
         
         //Perform Test
         FilterType matchIdFilter = delegate.propertyIsEqualTo(Metacard.ID, mockTypeFeatureId, true);
-        assertXMLEqual(featureTypeFeatureIdXml, getXmlFromMarshaller(matchIdFilter));
+
+        //Verify
+        assertThat(((ResourceIdType)matchIdFilter.getId().get(0).getValue()).getRid(), is(mockTypeFeatureId));
     }
     
     @Test
     public void testInvalidFeatureTypeFeatureID() throws Exception {
-        WfsFilterDelegate delegate = mockFeatureMetacardCreateDelegate();
-        String mockType = "myBadType";
+        String mockProperty = "myPropertyName";
+        String mockType = "myType";
+        WfsFilterDelegate delegate = mockFeatureMetacardCreateDelegate(mockProperty, mockType);
+        String nonExistentType = "myBadType";
         String featureId = "1234567";
-        String mockTypeFeatureId = mockType + "." + featureId;
+        String mockTypeFeatureId = nonExistentType + "." + featureId;
         
         //Perform Test
         FilterType matchIdFilter = delegate.propertyIsEqualTo(Metacard.ID, mockTypeFeatureId, true);
-        assertXMLEqual(logicalEmptyItemList, getXmlFromMarshaller(matchIdFilter));
+        assertNull(matchIdFilter);
     }
     
-    private WfsFilterDelegate mockFeatureMetacardCreateDelegate(){
-        String mockProperty = "myPropertyName";
-        String mockType = "myType";
+    private String fetchPropertyIsLikeExpression(PropertyIsLikeType compOpsType, String expressionType) {
+        String result = null;
+        List<JAXBElement<?>> expressions = compOpsType.getExpression();
+        for(int i=0; i < expressions.size(); ++i){
+            String item = expressions.get(i).getName().getLocalPart();
+            if (item.equals(VALUE_REFERENCE) && item.equals(expressionType)){
+                result = expressions.get(i).getValue().toString();
+                 
+             } else if (item.equals(LITERAL) && item.equals(expressionType)){
+                 LiteralType literal = (LiteralType)expressions.get(i).getValue();
+                 result = literal.getContent().get(0).toString();
+             } 
+        }
+        
+        return result;
+    }
+    
+    private WfsFilterDelegate mockFeatureMetacardCreateDelegate(String mockProperty, String mockType){
         List<String> mockProperties = new ArrayList<String>(1);
         mockProperties.add(mockProperty);
         when(mockFeatureMetacardType.getProperties()).thenReturn(mockProperties);
@@ -974,7 +1119,7 @@ public class TestWfsFilterDelegate {
     private String getXmlFromMarshaller(FilterType filterType) throws JAXBException {
         JAXBContext jaxbContext = initJaxbContext();
         Marshaller marshaller = jaxbContext.createMarshaller();
-        //marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
+        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
         Writer writer = new StringWriter();
         marshaller.marshal(getFilterTypeJaxbElement(filterType), writer);
         String xml = writer.toString();
