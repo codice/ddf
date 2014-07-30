@@ -108,6 +108,7 @@ define([
 
             if(isViewClosed) {
                 view.delegateEvents(view.events);
+                view.initialize(view.options);
             }
 
             view.$el.css({

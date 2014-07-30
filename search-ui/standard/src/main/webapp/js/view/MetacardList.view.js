@@ -49,7 +49,29 @@ define([
             tagName: "tr",
             template : 'resultListItem',
             events: {
-                'click .metacard-link': 'viewMetacard'
+                'click .metacard-link': 'viewMetacard',
+                'click #select-record-checkbox': 'changeRecordSelection'
+            },
+
+            resultSelect: false,
+
+            initialize: function() {
+                this.listenTo(wreqr.vent, 'search:resultsselect', this.resultSelectMode);
+                this.listenTo(wreqr.vent, 'search:resultssave', this.resultSaveMode);
+            },
+
+            changeRecordSelection: function(e) {
+                this.model.set('selectedForSave', e.target.checked);
+            },
+
+            resultSelectMode: function() {
+                this.resultSelect = true;
+                this.render();
+            },
+
+            resultSaveMode: function() {
+                this.resultSelect = false;
+                this.render();
             },
 
             serializeData: function(){
@@ -64,7 +86,7 @@ define([
                     data = this.model;
                 }
 
-                return data;
+                return _.extend(data, {resultSelect: this.resultSelect});
             },
 
             onRender : function(){
@@ -237,6 +259,9 @@ define([
                 'change': 'render'
             },
             spinner: new Spinner(spinnerConfig),
+            initialize: function() {
+                this.listenTo(wreqr.vent, 'search:resultssave', this.saveSelectedRecords);
+            },
             onRender: function () {
                 this.listRegion.show(new List.MetacardTable({
                     collection: this.model.get("results")
@@ -259,7 +284,8 @@ define([
                 this.spinner.stop();
             },
             updateSpinner: function () {
-                if (!_.isUndefined(this.model.get("hits"))) {
+                if (!_.isUndefined(this.model.get("hits")) ||
+                    (this.model.get('results') && this.model.get('results').length > 0)) {
                     this.spinner.stop();
                 } else {
                     this.spinner.spin(this.el);
@@ -282,6 +308,15 @@ define([
                         container.scrollTop(selected.offset().top - container.offset().top + container.scrollTop());
                     }
                 });
+            },
+            saveSelectedRecords: function() {
+                var records = this.model.get('results').where({'metacard.selectedForSave': true});
+                if(records && records.length) {
+                    _.each(records, function (record) {
+                        record.unset('metacard.selectedForSave');
+                    });
+                    wreqr.vent.trigger('workspace:saveresults', undefined, records);
+                }
             }
         });
 

@@ -11,6 +11,11 @@
  *
  **/
  --}}
+{{#if resultSelect}}
+    <td class="result-select-column">
+        <input id="select-record-checkbox" type="checkbox" />
+    </td>
+{{/if}}
 <td>
     <a href="#" class="metacard-link"  title="Title">
         {{#if attributes.properties.attributes.title}}

@@ -39,7 +39,7 @@ define([ 'backbone',
     NotificationView.NotificationItemView = Backbone.Marionette.ItemView.extend({
 
         initialize: function() {
-            wreqr.vent.on('notification:open', _.bind(this.openNotification, this));
+            this.listenTo(wreqr.vent, 'notification:open', this.openNotification);
         },
 
         onRender : function() {

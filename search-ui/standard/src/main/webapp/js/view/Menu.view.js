@@ -411,8 +411,8 @@ define([
                             this.collection = wreqr.reqres.request('tasks');
                         }
 
-                        wreqr.vent.on('task:update', _.bind(this.updateTask, this));
-                        wreqr.vent.on('task:remove', _.bind(this.updateTask, this));
+                        this.listenTo(wreqr.vent, 'task:update', this.updateTask);
+                        this.listenTo(wreqr.vent, 'task:remove', this.updateTask);
                         this.modelBinder = new Backbone.ModelBinder();
                     },
                     updateScrollbar: function () {
@@ -466,9 +466,9 @@ define([
             var Notification = Menu.Item.extend({
                 className: 'dropdown',
                 initialize: function() {
-                    wreqr.vent.on('notification:delete', _.bind(this.deleteNotification, this));
-                    wreqr.vent.on('notification:new', _.bind(this.addNotification, this));
-                    wreqr.vent.on('notification:close', _.bind(this.removeNotification, this));
+                    this.listenTo(wreqr.vent, 'notification:delete', this.deleteNotification);
+                    this.listenTo(wreqr.vent, 'notification:new', this.addNotification);
+                    this.listenTo(wreqr.vent, 'notification:close', this.removeNotification);
                     this.modelBinder = new Backbone.ModelBinder();
                 },
                 updateScrollbar: function () {

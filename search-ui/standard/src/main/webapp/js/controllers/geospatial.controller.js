@@ -31,10 +31,10 @@ define(['underscore',
                 this.setupEvents();
                 this.preloadBillboards();
 
-                wreqr.vent.on('search:mapshow', _.bind(this.flyToLocation, this));
-                wreqr.vent.on('search:start', _.bind(this.clearResults, this));
-                wreqr.vent.on('map:results', _.bind(this.newResults, this));
-                wreqr.vent.on('map:clear', _.bind(this.clear, this));
+                this.listenTo(wreqr.vent, 'search:mapshow', this.flyToLocation);
+                this.listenTo(wreqr.vent, 'search:start', this.clearResults);
+                this.listenTo(wreqr.vent, 'map:results', this.newResults);
+                this.listenTo(wreqr.vent, 'map:clear', this.clear);
 
                 if (wreqr.reqres.hasHandler('search:results')) {
                     this.newResults(wreqr.reqres.request('search:results'));

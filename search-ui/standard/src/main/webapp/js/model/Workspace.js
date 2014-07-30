@@ -39,7 +39,7 @@ define([
                 {
                     type: Backbone.Many,
                     key: 'metacards',
-                    relatedModel: Metacard.Metacard
+                    relatedModel: Metacard.MetacardResult
                 }
             ],
             initialize: function() {

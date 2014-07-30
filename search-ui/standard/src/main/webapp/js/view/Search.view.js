@@ -28,10 +28,13 @@ define([
         'text!templates/search/search.panel.handlebars',
         'js/view/SearchControl.view',
         'js/model/Query',
+        'js/view/WorkspaceSaveResults.view',
         // Load non attached libs and plugins
         'perfectscrollbar'
     ],
-    function ($, _, Marionette, SlidingRegion, QueryView, Progress, MetacardList, MetacardDetail, MetacardModel, Backbone, dir, ich, wreqr, searchPanel, SearchControl, QueryModel) {
+    function ($, _, Marionette, SlidingRegion, QueryView, Progress, MetacardList, MetacardDetail,
+              MetacardModel, Backbone, dir, ich, wreqr, searchPanel, SearchControl, QueryModel,
+              WorkspaceSaveResults) {
         "use strict";
         var Search = {};
 
@@ -54,7 +57,7 @@ define([
 
                 this.query = new QueryModel.Model();
 
-                wreqr.vent.on('workspace:tabshown', _.bind(this.setupWreqr, this));
+                this.listenTo(wreqr.vent, 'workspace:tabshown', this.setupWreqr);
             },
 
             setupWreqr: function(tabHash) {
@@ -67,24 +70,37 @@ define([
                 }
 
                 if(tabHash === '#search') {
-                    wreqr.vent.on('search:show', this.showQuery);
-                    wreqr.vent.on('search:clear', this.onQueryClear);
-                    wreqr.vent.on('search:start', this.onQueryClear);
-                    wreqr.vent.on('search:start', this.setupProgress);
-                    wreqr.vent.on('search:start', this.showEmptyResults);
-                    wreqr.vent.on('search:results', this.showResults);
-                    wreqr.vent.on('metacard:selected', this.showMetacardDetail);
+                    this.listenTo(wreqr.vent, 'search:show', this.showQuery);
+                    this.listenTo(wreqr.vent, 'search:clear', this.onQueryClear);
+                    this.listenTo(wreqr.vent, 'search:start', this.onQueryClear);
+                    this.listenTo(wreqr.vent, 'search:start', this.setupProgress);
+                    this.listenTo(wreqr.vent, 'search:start', this.showEmptyResults);
+                    this.listenTo(wreqr.vent, 'search:results', this.showResults);
+                    this.listenTo(wreqr.vent, 'metacard:selected', this.showMetacardDetail);
+                    this.listenTo(wreqr.vent, 'workspace:saveresults', this.saveResultsToWorkspace);
+                    this.listenTo(wreqr.vent, 'workspace:resultssavecancel', this.cancelResultsToWorkspace);
                     this.searchRegion.show(undefined, dir.none);
                 } else {
-                    wreqr.vent.off('search:show', this.showQuery);
-                    wreqr.vent.off('search:clear', this.onQueryClear);
-                    wreqr.vent.off('search:start', this.onQueryClear);
-                    wreqr.vent.off('search:start', this.setupProgress);
-                    wreqr.vent.off('search:start', this.showEmptyResults);
-                    wreqr.vent.off('search:results', this.showResults);
-                    wreqr.vent.off('metacard:selected', this.showMetacardDetail);
+                    this.stopListening(wreqr.vent, 'search:show');
+                    this.stopListening(wreqr.vent, 'search:clear');
+                    this.stopListening(wreqr.vent, 'search:start');
+                    this.stopListening(wreqr.vent, 'search:start');
+                    this.stopListening(wreqr.vent, 'search:start');
+                    this.stopListening(wreqr.vent, 'search:results');
+                    this.stopListening(wreqr.vent, 'metacard:selected');
+                    this.stopListening(wreqr.vent, 'workspace:saveresults');
+                    this.stopListening(wreqr.vent, 'workspace:resultssavecancel');
                     this.searchRegion.close();
                 }
+            },
+
+            saveResultsToWorkspace: function(search, records) {
+                var workspaces = wreqr.reqres.request('workspace:getworkspaces');
+                this.searchRegion.show(new WorkspaceSaveResults({model: workspaces, search: search, records: records}), dir.forward);
+            },
+
+            cancelResultsToWorkspace: function() {
+                this.showResults(dir.backward);
             },
 
             updateMapPrimitive: function() {

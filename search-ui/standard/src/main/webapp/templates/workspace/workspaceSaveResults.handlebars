@@ -1,0 +1,41 @@
+{{!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+ --}}
+<form id="workspaceSelectForm" class="workspace-add-panel">
+    {{#if hasSearch}}
+        <ul class="nav nav-list">
+            <li class="nav-header">Search Name</li>
+            <li>
+                <input id="searchName" type="text" class="input-xlarge">
+            </li>
+        </ul>
+    {{/if}}
+    <ul class="nav nav-list">
+        <li>
+            <input id="workspaceNameRadio" type="radio" name="workspaceType" value="create_new_workspace" class="pull-left">
+            <div class="workspace-select-name">
+                <input name="workspaceName" type="text" class="input-xlarge" autofocus>
+            </div>
+        </li>
+        {{#each workspaces}}
+            <li>
+                <input type="radio" name="workspaceType" value="{{name}}" class="pull-left">
+                <div class="workspace-select-name">{{name}}</div>
+            </li>
+        {{/each}}
+    </ul>
+    <div class="form-actions btn-group">
+        <a href="#" class="btn btn-medium btn-primary submit">Save</a>
+        <a href="#" id="cancel" class="btn btn-medium" type="reset">Cancel</a>
+    </div>
+</form>

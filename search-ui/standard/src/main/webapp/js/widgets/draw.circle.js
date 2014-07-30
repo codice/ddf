@@ -198,10 +198,10 @@ define([
                 this.scene = options.scene;
                 this.notificationEl = options.notificationEl;
 
-                wreqr.vent.on('search:circledisplay', _.bind(this.showCircle, this));
-                wreqr.vent.on('search:drawcircle', _.bind(this.draw, this));
-                wreqr.vent.on('search:drawstop', _.bind(this.stop, this));
-                wreqr.vent.on('search:drawend', _.bind(this.destroy, this));
+                this.listenTo(wreqr.vent, 'search:circledisplay', this.showCircle);
+                this.listenTo(wreqr.vent, 'search:drawcircle', this.draw);
+                this.listenTo(wreqr.vent, 'search:drawstop', this.stop);
+                this.listenTo(wreqr.vent, 'search:drawend', this.destroy);
             },
             showCircle: function(model) {
                 if (this.enabled) {

@@ -100,12 +100,24 @@ define([
                     showChevronForward: false
                 });
             },
-            setWorkspaceResultsState: function() {
+            setWorkspaceResultsState: function(direction, model) {
                 this.set({
                     back: 'Workspace',
                     title: 'Results',
-                    forward: '',
-                    currentState: 'results'
+                    forward: model && model.models ? '' : 'Save',
+                    currentState: 'results',
+                    showChevronBack: true,
+                    showChevronForward: false
+                });
+            },
+            setWorkspaceResultsSelectState: function() {
+                this.set({
+                    back: 'Workspace',
+                    title: 'Results',
+                    forward: 'Done',
+                    currentState: 'results',
+                    showChevronBack: true,
+                    showChevronForward: false
                 });
             },
             setWorkspaceMetacardState: function() {
@@ -113,7 +125,17 @@ define([
                     back: 'Results',
                     title: 'Record',
                     forward: '',
-                    currentState: 'metacard'
+                    currentState: 'metacard',
+                    showChevronBack: true,
+                    showChevronForward: false
+                });
+            },
+            setSelectWorkspaceState: function() {
+                this.set({
+                    back: '',
+                    title: 'Select Workspace',
+                    forward: '',
+                    currentState: 'select'
                 });
             }
         });
@@ -132,32 +154,38 @@ define([
 
             initialize: function() {
                 this.setupEvents();
-                wreqr.vent.on('workspace:tabshown', _.bind(this.setupEvents, this));
+                this.listenTo(wreqr.vent, 'workspace:tabshown', this.setupEvents);
             },
 
             setupEvents: function(tabHash) {
                 if(tabHash === '#workspaces') {
-                    wreqr.vent.on('workspace:show', _.bind(this.model.setWorkspaceViewState, this.model));
-                    wreqr.vent.on('workspace:results', _.bind(this.model.setWorkspaceResultsState, this.model));
-                    wreqr.vent.on('metacard:selected', _.bind(this.model.setWorkspaceMetacardState, this.model));
-                    wreqr.vent.on('workspace:new', _.bind(this.model.setWorkspaceNewState, this.model));
-                    wreqr.vent.on('workspace:searchedit', _.bind(this.model.setWorkspaceQueryEditState, this.model));
-                    wreqr.vent.on('workspace:edit', _.bind(this.model.setWorkspaceEditState, this.model));
-                    wreqr.vent.on('workspace:list', _.bind(this.model.setWorkspaceListState, this.model));
-                    wreqr.vent.on('workspace:saveall', _.bind(this.model.setWorkspaceListState, this.model));
-                    wreqr.vent.on('workspace:editall', _.bind(this.model.setWorkspaceListEditState, this.model));
-                    wreqr.vent.on('workspace:save', _.bind(this.model.setWorkspaceViewState, this.model));
+                    this.listenTo(wreqr.vent, 'workspace:show', _.bind(this.model.setWorkspaceViewState, this.model));
+                    this.listenTo(wreqr.vent, 'workspace:results', _.bind(this.model.setWorkspaceResultsState, this.model));
+                    this.listenTo(wreqr.vent, 'metacard:selected', _.bind(this.model.setWorkspaceMetacardState, this.model));
+                    this.listenTo(wreqr.vent, 'workspace:new', _.bind(this.model.setWorkspaceNewState, this.model));
+                    this.listenTo(wreqr.vent, 'workspace:searchedit', _.bind(this.model.setWorkspaceQueryEditState, this.model));
+                    this.listenTo(wreqr.vent, 'workspace:edit', _.bind(this.model.setWorkspaceEditState, this.model));
+                    this.listenTo(wreqr.vent, 'workspace:list', _.bind(this.model.setWorkspaceListState, this.model));
+                    this.listenTo(wreqr.vent, 'workspace:saveall', _.bind(this.model.setWorkspaceListState, this.model));
+                    this.listenTo(wreqr.vent, 'workspace:editall', _.bind(this.model.setWorkspaceListEditState, this.model));
+                    this.listenTo(wreqr.vent, 'workspace:save', _.bind(this.model.setWorkspaceViewState, this.model));
+                    this.listenTo(wreqr.vent, 'workspace:saveresults', _.bind(this.model.setSelectWorkspaceState, this.model));
+                    this.listenTo(wreqr.vent, 'workspace:resultssavecancel', _.bind(this.model.setWorkspaceResultsState, this.model));
+                    this.listenTo(wreqr.vent, 'search:resultsselect', _.bind(this.model.setWorkspaceResultsSelectState, this.model));
                 } else {
-                    wreqr.vent.off('workspace:show', _.bind(this.model.setWorkspaceViewState, this.model));
-                    wreqr.vent.off('workspace:results', _.bind(this.model.setWorkspaceResultsState, this.model));
-                    wreqr.vent.off('metacard:selected', _.bind(this.model.setWorkspaceMetacardState, this.model));
-                    wreqr.vent.off('workspace:new', _.bind(this.model.setWorkspaceNewState, this.model));
-                    wreqr.vent.off('workspace:searchedit', _.bind(this.model.setWorkspaceQueryEditState, this.model));
-                    wreqr.vent.off('workspace:edit', _.bind(this.model.setWorkspaceEditState, this.model));
-                    wreqr.vent.off('workspace:list', _.bind(this.model.setWorkspaceListState, this.model));
-                    wreqr.vent.off('workspace:saveall', _.bind(this.model.setWorkspaceListState, this.model));
-                    wreqr.vent.off('workspace:editall', _.bind(this.model.setWorkspaceListEditState, this.model));
-                    wreqr.vent.off('workspace:save', _.bind(this.model.setWorkspaceViewState, this.model));
+                    this.stopListening(wreqr.vent, 'workspace:show');
+                    this.stopListening(wreqr.vent, 'workspace:results');
+                    this.stopListening(wreqr.vent, 'metacard:selected');
+                    this.stopListening(wreqr.vent, 'workspace:new');
+                    this.stopListening(wreqr.vent, 'workspace:searchedit');
+                    this.stopListening(wreqr.vent, 'workspace:edit');
+                    this.stopListening(wreqr.vent, 'workspace:list');
+                    this.stopListening(wreqr.vent, 'workspace:saveall');
+                    this.stopListening(wreqr.vent, 'workspace:editall');
+                    this.stopListening(wreqr.vent, 'workspace:save');
+                    this.stopListening(wreqr.vent, 'workspace:saveresults');
+                    this.stopListening(wreqr.vent, 'workspace:resultssavecancel');
+                    this.stopListening(wreqr.vent, 'search:resultsselect');
                 }
             },
 
@@ -197,6 +225,13 @@ define([
                     case 'results':
                         if(id === 'Workspace') {
                             wreqr.vent.trigger('workspace:show', dir.backward);
+                        }
+                        if(id === 'Save') {
+                            wreqr.vent.trigger('search:resultsselect');
+                        }
+                        if(id === 'Done') {
+                            this.model.setWorkspaceResultsState();
+                            wreqr.vent.trigger('search:resultssave');
                         }
                         break;
                     case 'metacard':

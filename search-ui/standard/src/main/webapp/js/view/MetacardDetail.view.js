@@ -55,8 +55,8 @@ define([
                 if (index < collection.length - 1) {
                     this.nextModel = collection.at(index + 1);
                 }
-                
-                wreqr.vent.on('search:beginMerge', _.bind(this.invalidateList, this));
+
+                this.listenTo(wreqr.vent, 'search:beginMerge', this.invalidateList);
             },
             onRender: function () {
                 this.updateIterationControls();

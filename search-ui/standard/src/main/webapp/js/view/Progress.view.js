@@ -74,7 +74,7 @@ define([
                 this.model = options.model;
                 this.queryModel = options.queryModel;
                 this.resultList = options.resultList;
-                wreqr.vent.on('search:clear', _.bind(this.close, this));
+                this.listenTo(wreqr.vent, 'search:clear', this.close);
             },
             onRender: function() {
                 this.configureProgress();
