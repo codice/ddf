@@ -408,6 +408,7 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
                     mcTypeRegs.put(ftSimpleName, registration);
                     FeatureMetacardType featureMetacardType = registration.getFtMetacard();
                     lookupFeatureConverter(ftSimpleName, featureMetacardType);
+                    
                     this.featureTypeFilters.put(featureMetacardType.getFeatureType(),
                             new WfsFilterDelegate(featureMetacardType, filterCapabilities,
                                     registration.getSrs()));
@@ -579,7 +580,16 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
                     || isFeatureTypeInQuery(contentTypes, filterDelegateEntry.getKey()
                             .getLocalPart())) {
                 QueryType wfsQuery = new QueryType();
-                wfsQuery.setTypeNames(Arrays.asList(filterDelegateEntry.getKey().getLocalPart()));
+                
+                String typeName = null;
+                if(StringUtils.isEmpty(filterDelegateEntry.getKey().getPrefix())) {
+                    typeName = filterDelegateEntry.getKey().getLocalPart();
+                } else {
+                    typeName = filterDelegateEntry.getKey().getPrefix() + 
+                            ":" + filterDelegateEntry.getKey().getLocalPart();
+                }
+                
+                wfsQuery.setTypeNames(Arrays.asList(typeName));
                 wfsQuery.setHandle(filterDelegateEntry.getKey().getLocalPart());
                 FilterType filter = filterAdapter.adapt(query, filterDelegateEntry.getValue()); 
 
