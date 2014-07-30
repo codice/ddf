@@ -11,15 +11,22 @@
  *
  **/
  --}}
-<td>
-    <span class="workspace-name">{{name}}</span>
-</td>
-<td>
-    <span class="workspace-count">{{hits}}&nbsp;{{#is working true}}<i class="fa fa-circle-o-notch fa-spin"></i>{{/is}}</span>
-</td>
-<td>
-    {{#is editing true}}
+ {{#is editing false}}
+    <td>
+        <span class="workspace-name">{{name}}</span>
+    </td>
+    <td>
+        <span class="workspace-count">{{hits}}&nbsp;{{#is working true}}<i class="fa fa-circle-o-notch fa-spin"></i>{{/is}}</span>
+    </td>
+{{/is}}
+
+{{#is editing true}}
+    <td>
+        <input type="text" id="name" class="input-xlarge" placeholder="{{name}}" autofocus>
+    </td>
+    <td>
         <a href="#" class="fa fa-times workspace-link workspace-remove"></a>
-    {{/is}}
-</td>
+    </td>
+{{/is}}
+
 
