@@ -1,0 +1,70 @@
+{{!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+ --}}
+{{#is isDisabled false}}<a href="#{{appId}}-removeModal" class="fa fa-times removeApp removeHide" data-toggle="modal"></a>{{/is}}
+<div id="{{appId}}-removeModal" class="modal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                {{#if removeMessage}}
+                    Removing [{{appId}}] will also remove the following apps:<br><br>
+                        {{#each removeMessage}}
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[{{this}}]<br>
+                        {{/each}}
+                    <br>Do you want to remove all the apps listed above?<br>
+                {{else}}
+                    Remove [{{appId}}]?<br>
+                {{/if}}
+                <br>
+                <button type="button" class="removeConfirm" data-dismiss="modal" aria-hidden="true">Confirm</button>
+                <button type="button" class="removeCancel" data-dismiss="modal" aria-hidden="true">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+{{#is isDisabled false}}<a href="#{{appId}}-installModal" class="fa fa-download installApp installHide" data-toggle="modal"></a>{{/is}}
+<div id="{{appId}}-installModal" class="modal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                {{#if installMessage}}
+                    Installing [{{appId}}] requires the following apps to be installed:<br><br>
+                    {{#each installMessage}}
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[{{this}}]<br>
+                    {{/each}}
+                    <br>Do you want to install all the apps listed above?<br>
+                {{else}}
+                    Install [{{appId}}]?<br>
+                {{/if}}
+                <br>
+                <button type="button" class="installConfirm" data-dismiss="modal" aria-hidden="true">Confirm</button>
+                <button type="button" class="installCancel" data-dismiss="modal" aria-hidden="true">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+<header id="{{appId}}-name" class="name" >{{displayName}}</header>
+<header id="{{appId}}-version" class="version">[{{version}}]</header>
+<h2 class="description boxDescription rowDescription">{{description}}</h2>
+<a href="#{{appId}}-descriptionModal" class="btn btn-primary btn-sm descriptionButton" data-toggle="modal">More</a>
+<div id="{{appId}}-descriptionModal" class="modal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                <h4>Application Description:</h4>
+                <h6>{{description}}</h6>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,132 @@
+{
+  "timestamp": 1406145250,
+  "status": 200,
+  "request": {
+    "mbean": "org.codice.ddf.admin.application.service.ApplicationService:service=application-service",
+    "attribute": "ApplicationArray",
+    "type": "read"
+  },
+  "value": [
+    {
+      "parents": [],
+      "dependencies": [],
+      "description": "DDF Web Admin Console branding",
+      "name": "kernel-webconsolebranding",
+      "state": "ACTIVE",
+      "uri": "mvn:ddf.distribution/kernel/2.5.0-SNAPSHOT/xml/features",
+      "version": "2.5.0-SNAPSHOT"
+    },
+    {
+      "parents": [],
+      "dependencies": [],
+      "description": "OpenDJ Embedded LDAP",
+      "name": "opendj-embedded",
+      "state": "INACTIVE",
+      "uri": "mvn:org.codice.opendj.embedded/opendj-embedded-app/1.0.0/xml/features",
+      "version": "1.0.0"
+    },
+    {
+      "parents": [
+        "platform-app"
+      ],
+      "dependencies": [],
+      "description": "Administration application for installing and managing DDF.\\nIncludes the Admin UI and the underlying application service that supports the user interface.\\nThe Admin UI provides contains modules allowing the administrator to install/remove applications and their dependencies and to access configuration pages to customize and tailor system services and properties.\\nThe application service provides the supporting operations allowing the Admin UI to add, remove, start, stop, and obtain status information about all applications on the system.::DDF Admin",
+      "name": "admin-app",
+      "state": "ACTIVE",
+      "uri": "mvn:ddf.admin/admin-app/1.1.0-SNAPSHOT/xml/features",
+      "version": "1.1.0-SNAPSHOT"
+    },
+    {
+      "parents": [
+        "platform-app",
+        "catalog-app"
+      ],
+      "dependencies": [],
+      "description": "DDF Content is used for storing, reading, processing, transforming, and cataloging various file types.\\nIt allows a client to give DDF a file and then have that file stored in a content repository and optionally cached in the DDF Catalog.::DDF Content",
+      "name": "content-app",
+      "state": "INACTIVE",
+      "uri": "mvn:ddf.content/content-app/2.4.0/xml/features",
+      "version": "2.4.0"
+    },
+    {
+      "parents": [
+        "platform-app",
+        "catalog-app"
+      ],
+      "dependencies": [],
+      "description": "The DDF Standard Search UI is an application that not only provides results in a html format but also provides a convenient, simple querying user interface.\\nThe left pane of the SearchUI contains basic fields to query the Catalog and other Sources. The right pane consists of a map.\\nIt includes both standard (3d globe) and simple (text page) versions.::DDF Standard Search UI",
+      "name": "search-ui-app",
+      "state": "INACTIVE",
+      "uri": "mvn:ddf.ui.search/search-app/2.5.0-SNAPSHOT/xml/features",
+      "version": "2.5.0-SNAPSHOT"
+    },
+    {
+      "parents": [
+        "platform-app",
+        "catalog-app"
+      ],
+      "dependencies": [],
+      "description": "The Solr Catalog Provider (SCP) is an implementation of the CatalogProvider interface using Apache Solr 4.7.2 as a data store.\\nThe SCP supports extensible metacards, fast/simple contextual searching, indexes xml attributes/CDATA sections/XML text elements, contains full XPath support, works with an embedded local Solr Server, and also works with a standalone Solr Server.::DDF Solr Catalog",
+      "name": "solr-app",
+      "state": "INACTIVE",
+      "uri": "mvn:ddf.catalog.solr/catalog-solr-app/2.4.1/xml/features",
+      "version": "2.4.1"
+    },
+    {
+      "parents": [
+        "platform-app",
+        "catalog-app"
+      ],
+      "dependencies": [],
+      "description": "DDF Spatial contains standards-based, geospatial endpoints, sources, and transforms.::DDF Spatial",
+      "name": "spatial-app",
+      "state": "INACTIVE",
+      "uri": "mvn:org.codice.ddf.spatial/spatial-app/2.4.2/xml/features",
+      "version": "2.4.2"
+    },
+    {
+      "parents": [
+        "platform-app"
+      ],
+      "dependencies": [
+        "content-app",
+        "search-ui-app",
+        "solr-app",
+        "spatial-app"
+      ],
+      "description": "The DDF Catalog provides a framework for storing, searching, processing, and transforming information.\\nClients typically perform query, create, read, update, and delete (QCRUD) operations against the Catalog.\\nAt the core of the Catalog functionality is the Catalog Framework, which routes all requests and responses through the system, invoking additional processing per the system configuration.::DDF Catalog",
+      "name": "catalog-app",
+      "state": "INACTIVE",
+      "uri": "mvn:ddf.catalog/catalog-app/2.5.0-SNAPSHOT/xml/features",
+      "version": "2.5.0-SNAPSHOT"
+    },
+    {
+      "parents": [
+        "platform-app"
+      ],
+      "dependencies": [],
+      "description": "The Security Application provides Authentication, Authorization, and Auditing services for the DDF.\\nThey comprise both a framework that developers and integrators can extend and also a reference implementation that can be used which meets security requirements.::DDF Security",
+      "name": "security-services-app",
+      "state": "INACTIVE",
+      "uri": "mvn:ddf.security/security-services-app/2.4.0-SNAPSHOT/xml/features",
+      "version": "2.4.0-SNAPSHOT"
+    },
+    {
+      "parents": [],
+      "dependencies": [
+        "admin-app",
+        "catalog-app",
+        "content-app",
+        "search-ui-app",
+        "solr-app",
+        "spatial-app",
+        "security-services-app"
+      ],
+      "description": "Installs the DDF platform boot features which all other applications depend upon.\\nPlatform features installed by default include Apache CXF, Apache Camel, Action Framework, MIME Framework, Metrics, Security Core API and Security Encryption::DDF Platform",
+      "name": "platform-app",
+      "state": "ACTIVE",
+      "uri": "mvn:ddf.platform/platform-app/2.5.0-SNAPSHOT/xml/features",
+      "version": "2.5.0-SNAPSHOT"
+    }
+  ]
+}

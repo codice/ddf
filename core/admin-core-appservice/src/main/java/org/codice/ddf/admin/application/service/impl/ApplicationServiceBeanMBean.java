@@ -33,6 +33,14 @@ public interface ApplicationServiceBeanMBean {
     List<Map<String, Object>> getApplicationTree();
 
     /**
+     * Creates an application list that has two attributes that describes relationships
+     * between applications (parent and children dependencies).
+     *
+     * @return A list of the root applications expressed as maps.
+     */
+    List<Map<String, Object>> getApplicationArray();
+
+    /**
      * Starts an application with the given name.
      * 
      * @param appName

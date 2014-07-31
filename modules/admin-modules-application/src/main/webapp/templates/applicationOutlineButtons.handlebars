@@ -1,0 +1,69 @@
+{{!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+ --}}
+<div class="application-function-btn">
+    <a href="#application-add-modal" class="btn btn-success add" data-toggle="modal">Add/Upgrade an Application</a>
+    <a href="#application-install-modal" class="btn btn-success install" data-toggle="modal">Install Application</a>
+    <a href="#application-remove-modal" class="btn btn-primary remove" data-toggle="modal">Remove Application</a>
+    <a href="#application-toggle-modal" class="btn btn-default toggle" data-toggle="modal">Toggle Application View</a>
+</div>
+<div id="application-add-modal" class="modal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                <h2>Add new applications</h2>
+                <h5 class="warning-info">Adding a new application will reset unsaved selections on the application tree.</h5>
+            </div>
+            <div class="modal-body">
+                <ul class="nav nav-tabs">
+                    <li class="active"><a href="#upload" data-toggle="tab">File Upload</a></li>
+                    <li><a href="#url" data-toggle="tab">Maven URL</a></li>
+                </ul>
+                <div class="tab-content">
+                    <div class="tab-pane active" id="upload">
+                        <form id="fileupload" action="/services/application" method="POST" enctype="multipart/form-data">
+                            <span class="btn btn-info fileinput-button">
+                                <i class="glyphicon glyphicon-plus"></i>
+                                <span>Add application files...</span>
+                                <input id="app-upload-btn" type="file" name="files[]" accept="audio/midi,application/java-archive" multiple>
+                            </span>
+                            <div class="span5 fileupload-progress">
+                                <div id="fileContainer">
+
+                                </div>
+                            </div>
+                            <div class="fileupload-loading"></div>
+                        </form>
+                    </div>
+                    <div class="tab-pane" id="url">
+                        <div class="url-tab">
+                            <input id="urlField" type="text">
+                            <a id="add-url-btn" href="#" class="btn btn-info">Add URL</a>
+                            <span class="file-fail-text"></span>
+                            <div id="urlContainer">
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="btn-group">
+                    <button type="button" class="btn btn-primary submit-button" data-dismiss="modal">Save Changes</button>
+                    <button type="button" class="btn btn-default cancel-button" data-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

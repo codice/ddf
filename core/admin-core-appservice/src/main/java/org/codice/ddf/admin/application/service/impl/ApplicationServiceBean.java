@@ -61,6 +61,10 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
     
     private static final String MAP_URI = "uri";
 
+    private static final String MAP_DEPENDENCIES = "dependencies";
+
+    private static final String MAP_PARENTS = "parents";
+
     private Logger logger = LoggerFactory.getLogger(ApplicationServiceBeanMBean.class);
 
     /**
@@ -160,6 +164,68 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
         }
         appMap.put(MAP_CHILDREN, children);
         return appMap;
+    }
+
+    @Override
+    public List<Map<String, Object>> getApplicationArray() {
+        Set<ApplicationNode> rootApplications = appService.getApplicationArray();
+        List<Map<String, Object>> applications = new ArrayList<Map<String, Object>>();
+        List<Map<String, Object>> applicationsArray = new ArrayList<Map<String, Object>>();
+        for (ApplicationNode curRoot : rootApplications) {
+            List<String> parentList = new ArrayList<String>();
+            applications.add(convertApplicationEntries(curRoot, parentList, applicationsArray));
+        }
+        logger.debug("Returning {} root applications.", applications.size());
+        return applicationsArray;
+    }
+
+    private Map<String, Object> convertApplicationEntries(ApplicationNode application, List<String> parentList, List<Map<String, Object>> applicationsArray) {
+        logger.debug("Converting {} to a map", application.getApplication().getName());
+        Map<String, Object> appMap = new HashMap<String, Object>();
+        Application internalApplication = application.getApplication();
+        appMap.put(MAP_NAME, internalApplication.getName());
+        appMap.put(MAP_VERSION, internalApplication.getVersion());
+        appMap.put(MAP_DESCRIPTION, internalApplication.getDescription());
+        appMap.put(MAP_STATE, application.getStatus().getState().toString());
+        appMap.put(MAP_URI, internalApplication.getURI().toString());
+        List<String> childrenList = new ArrayList<String>();
+        parentList.add(internalApplication.getName());
+        List<String> transferParentList = new ArrayList<String>();
+        appMap.put(MAP_PARENTS, parentList);
+
+        for (ApplicationNode curNode : application.getChildren()) {
+            Application node = curNode.getApplication();
+            childrenList.add(node.getName());
+            makeDependencyList(childrenList, curNode);
+
+            convertApplicationEntries(curNode, parentList, applicationsArray);
+        }
+        appMap.put(MAP_DEPENDENCIES, childrenList);
+
+        if (parentList.size() == 1) {
+            transferParentList.clear();
+            appMap.put(MAP_PARENTS, transferParentList);
+        }
+        else {
+            int index = parentList.indexOf(internalApplication.getName());
+            for (int i = 0; i < index; i++) {
+                transferParentList.add(parentList.get(i));
+            }
+            appMap.put(MAP_PARENTS, transferParentList);
+            parentList.clear();
+            parentList.addAll(transferParentList);
+        }
+        applicationsArray.add(appMap);
+        return appMap;
+    }
+
+    private void makeDependencyList(List<String> childrenList, ApplicationNode application) {
+        logger.debug("Getting Dependency List", application.getApplication().getName());
+        for (ApplicationNode curNode : application.getChildren()) {
+            Application node = curNode.getApplication();
+            childrenList.add(node.getName());
+            makeDependencyList(childrenList, curNode);
+        }
     }
 
     @Override

@@ -320,6 +320,12 @@ public class ApplicationServiceImpl implements ApplicationService {
         return applicationTree;
     }
 
+    @Override
+    public Set<ApplicationNode> getApplicationArray() {
+
+        return getApplicationTree();
+    }
+
     /**
      * Finds a common parent that contains all other applications as parent
      * dependencies.

@@ -171,3 +171,108 @@ a.fa-minus-circle-disabled {
 a.fa-minus-circle-selected {
     color: red;   
 }
+
+/**
+ *  The following is used for the Applications Module.  Not the Applications
+ *  code that runs in the Installer UI.
+ **/
+#application-outline {
+    position: relative;
+}
+#application-outline .appview {
+    margin: 20px;
+}
+.application-grid-buttons {
+    padding-bottom: 25px;
+}
+.btn.btn-default.toggle {
+    float:right;
+}
+.btn.btn-info.cancel {
+    margin-top: 15px;
+}
+.apps-grid {
+    padding-top: 15px;
+    padding-left: 15px;
+    padding-right: 15px;
+}
+.appInfo {
+    background-color: #B0C4DE;
+    margin: 0;
+    margin-right: 15px;
+    margin-bottom: 15px;
+    padding: 10px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+.row {
+    table-layout:fixed;
+    width: 500px;
+}
+.box {
+    display:inline-block;
+    table-layout:auto;
+    width: 300px;
+}
+.removeApp {
+    color: black;
+    float: right;
+    padding-top: 5px;
+    padding-right: 5px;
+}
+.removeHide {
+    display: none;
+}
+.installApp {
+    color: black;
+    float: right;
+    padding-top: 5px;
+    padding-right: 5px;
+}
+.installHide {
+    display: none;
+}
+.name {
+    font-weight: bold;
+    font-size: 125%;
+}
+.version {
+    margin-left: 20px;
+}
+.rowDescription {
+    margin-left: 20px;
+    margin-top: 3px;
+    margin-bottom: 3px;
+    width: 450px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 100%;
+}
+.boxDescription {
+    margin-left: 20px;
+    margin-top: 3px;
+    margin-bottom: 3px;
+    width: 250px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 100%;
+}
+.descriptionButton {
+    float:right;
+    margin-left: 20px;
+    margin-top: 3px;
+    margin-bottom: 3px;
+    margin-right: 3px;
+    padding-top: 0;
+    padding-bottom: 0;
+    padding-left: 5px;
+    padding-right: 5px;
+}
+.application-status {
+    margin: 20px 0px;
+    height: 30px;
+    width: 100%;
+    color: #3498db;
+}

@@ -24,7 +24,11 @@
             detailsTemplate: '/applications/templates/details.handlebars',
             applicationNew: '/applications/templates/applicationNew.handlebars',
             mvnItemTemplate: '/applications/templates/mvnUrlItem.handlebars',
-            fileProgress: '/applications/templates/fileProgress.handlebars'
+            fileProgress: '/applications/templates/fileProgress.handlebars',
+            applicationOutline: '/applications/templates/applicationOutline.handlebars',
+            applicationOutlineButtons: '/applications/templates/applicationOutlineButtons.handlebars',
+            applicationGrid: '/applications/templates/applicationGrid.handlebars',
+            applicationInfo: '/applications/templates/applicationInfo.handlebars'
         }
     });
 }());
