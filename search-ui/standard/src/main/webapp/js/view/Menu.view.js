@@ -328,6 +328,7 @@ define([
         },
         deleteCookie: function() {
             document.cookie = 'org.codice.websso.saml.token=; Path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+            document.cookie = 'org.codice.websso.saml.ref=; Path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
         }
     });
 
@@ -354,6 +355,7 @@ define([
         },
         deleteCookie: function() {
             document.cookie = 'org.codice.websso.saml.token=; Path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+            document.cookie = 'org.codice.websso.saml.ref=; Path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
         }
     });
 
