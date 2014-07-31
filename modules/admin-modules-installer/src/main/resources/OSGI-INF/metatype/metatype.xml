@@ -1,0 +1,28 @@
+<!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+-->
+<metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
+
+    <OCD description="Login Filter Config" name="Login Filter Config" id="org.codice.admin.modules.installer.filter.RedirectFilter">
+
+        <AD name="Login filter ignore strings:" id="loginIgnoreList" required="true"
+            type="String" cardinality="100"
+            default="/admin,/installer,/jolokia,/system/console"
+            description="Full or partial relative paths for the login filter to not redirect" />
+
+    </OCD>
+
+    <Designate pid="org.codice.admin.modules.installer.filter.RedirectFilter">
+        <Object ocdref="org.codice.admin.modules.installer.filter.RedirectFilter" />
+    </Designate>
+</metatype:MetaData>
