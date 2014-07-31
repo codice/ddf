@@ -118,7 +118,7 @@ define([
                 }
             },
             isUrl: function (value, options) {
-                if (value && value !== "") {
+                if (value && value !== "" && _.isString(value)) {
                     var protocol = value.toLowerCase().split("/")[0];
                     if (protocol && (protocol === "http:" || protocol === "https:")) {
                         return options.fn(this);
