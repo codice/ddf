@@ -95,7 +95,9 @@ public class DownloadsStatusEventListener implements EventHandler {
             }
             String user = SubjectUtils.getName(shiroSubject,
                     getProperty(resourceResponse, ActivityEvent.USER_ID_KEY));
-
+            if (StringUtils.isBlank(user)) {
+                user = getProperty(resourceResponse, ActivityEvent.SESSION_ID_KEY);
+            }
             String id = user + downloadIdentifier;
 
             InputStream is = resourceResponse.getResource().getInputStream();
@@ -132,7 +134,9 @@ public class DownloadsStatusEventListener implements EventHandler {
             }
             String user = SubjectUtils.getName(shiroSubject,
                     getProperty(resourceResponse, ActivityEvent.USER_ID_KEY));
-
+            if (StringUtils.isBlank(user)) {
+                user = getProperty(resourceResponse, ActivityEvent.SESSION_ID_KEY);
+            }
             String id = user + downloadIdentifier;
             if (null != downloadMap) {
                 for (Map.Entry<String, InputStream> item : downloadMap.entrySet()) {
