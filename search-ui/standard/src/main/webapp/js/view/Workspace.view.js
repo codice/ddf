@@ -116,8 +116,8 @@ define([
             },
             editing: false,
             initialize: function() {
-                wreqr.vent.on('workspace:edit', _.bind(this.editMode, this));
-                wreqr.vent.on('workspace:save', _.bind(this.doneMode, this));
+                this.listenTo(wreqr.vent, 'workspace:edit', this.editMode);
+                this.listenTo(wreqr.vent, 'workspace:save', this.doneMode);
                 if(this.model.get('result')) {
                     this.listenTo(this.model.get('result'), 'change', this.render);
                 }
@@ -199,12 +199,16 @@ define([
                 workspaceMetacardPanelRegion: '#workspaceMetacardPanel'
             },
             events: {
-                'click #addSearch': 'addSearch'
+                'click #addSearch': 'addSearch',
+                'click #view-records': 'viewSavedRecords'
             },
             addSearch: function() {
                 var model = new QueryModel.Model();
                 this.model.get('searches').add(model);
                 wreqr.vent.trigger('workspace:searchedit', dir.forward, model);
+            },
+            viewSavedRecords: function() {
+                wreqr.vent.trigger('workspace:results', dir.forward, this.model.get('metacards'));
             },
             onRender: function() {
                 this.workspaceSearchPanelRegion.show(new WorkspaceView.SearchList({collection: this.model.get('searches')}));
@@ -226,9 +230,8 @@ define([
             editing: false,
             initialize: function() {
                 var view = this;
-                wreqr.vent.on('workspace:editall', _.bind(this.editMode, this));
-                wreqr.vent.on('workspace:saveall', _.bind(this.doneMode, this));
-
+                this.listenTo(wreqr.vent, 'workspace:editall', this.editMode);
+                this.listenTo(wreqr.vent, 'workspace:saveall', this.doneMode);
                 if(this.model.get('searches')) {
                     var searches = this.model.get('searches');
                     searches.forEach(function(search) {
@@ -321,7 +324,9 @@ define([
             initialize: function() {
                 _.bindAll(this);
 
-                wreqr.vent.on('workspace:tabshown', _.bind(this.setupEvents, this));
+                this.listenTo(wreqr.vent, 'workspace:tabshown', this.setupEvents);
+                this.listenTo(wreqr.vent, 'workspace:save', this.workspaceSave);
+                this.listenTo(wreqr.vent, 'workspace:saveall', this.workspaceSave);
             },
 
             setupEvents: function(tabHash) {
@@ -335,28 +340,36 @@ define([
                 }
 
                 if(tabHash === '#workspaces') {
-                    wreqr.vent.on('workspace:show', this.showWorkspace);
-                    wreqr.vent.on('workspace:results', this.showWorkspaceResults);
-                    wreqr.vent.on('metacard:selected', this.showWorkspaceMetacard);
-                    wreqr.vent.on('workspace:new', this.showWorkspaceAdd);
-                    wreqr.vent.on('workspace:searchedit', this.showWorkspaceSearchEdit);
-                    wreqr.vent.on('workspace:list', this.showWorkspaceList);
-                    wreqr.vent.on('workspace:save', this.workspaceSave);
-                    wreqr.vent.on('workspace:saveall', this.workspaceSave);
-                    wreqr.vent.on('workspace:cancel', this.workspaceCancel);
+                    this.listenTo(wreqr.vent, 'workspace:show', this.showWorkspace);
+                    this.listenTo(wreqr.vent, 'workspace:results', this.showWorkspaceResults);
+                    this.listenTo(wreqr.vent, 'metacard:selected', this.showWorkspaceMetacard);
+                    this.listenTo(wreqr.vent, 'workspace:new', this.showWorkspaceAdd);
+                    this.listenTo(wreqr.vent, 'workspace:searchedit', this.showWorkspaceSearchEdit);
+                    this.listenTo(wreqr.vent, 'workspace:list', this.showWorkspaceList);
+                    this.listenTo(wreqr.vent, 'workspace:cancel', this.workspaceCancel);
+                    this.listenTo(wreqr.vent, 'workspace:saveresults', this.saveResultsToWorkspace);
+                    this.listenTo(wreqr.vent, 'workspace:resultssavecancel', this.cancelResultsToWorkspace);
                     this.workspaceRegion.show(undefined, dir.none);
                 } else {
-                    wreqr.vent.off('workspace:show', this.showWorkspace);
-                    wreqr.vent.off('workspace:results', this.showWorkspaceResults);
-                    wreqr.vent.off('metacard:selected', this.showWorkspaceMetacard);
-                    wreqr.vent.off('workspace:new', this.showWorkspaceAdd);
-                    wreqr.vent.off('workspace:searchedit', this.showWorkspaceSearchEdit);
-                    wreqr.vent.off('workspace:list', this.showWorkspaceList);
-                    wreqr.vent.off('workspace:save', this.workspaceSave);
-                    wreqr.vent.off('workspace:saveall', this.workspaceSave);
-                    wreqr.vent.off('workspace:cancel', this.workspaceCancel);
+                    this.stopListening(wreqr.vent, 'workspace:show');
+                    this.stopListening(wreqr.vent, 'workspace:results');
+                    this.stopListening(wreqr.vent, 'metacard:selected');
+                    this.stopListening(wreqr.vent, 'workspace:new');
+                    this.stopListening(wreqr.vent, 'workspace:searchedit');
+                    this.stopListening(wreqr.vent, 'workspace:list');
+                    this.stopListening(wreqr.vent, 'workspace:cancel');
+                    this.stopListening(wreqr.vent, 'workspace:saveresults');
+                    this.stopListening(wreqr.vent, 'workspace:resultssavecancel');
                     this.workspaceRegion.close();
                 }
+            },
+
+            saveResultsToWorkspace: function(search, records) {
+                this.workspaceRegion.show(new WorkspaceSaveResults({model: this.model, search: search, records: records}), dir.forward);
+            },
+
+            cancelResultsToWorkspace: function() {
+                this.showWorkspaceResults(dir.backward);
             },
 
             workspaceCancel: function(model) {
@@ -399,7 +412,14 @@ define([
 
             showWorkspaceResults: function(direction, model) {
                 if(model) {
+                    if(model.models) {
+                        var tmpResult = new Backbone.Model();
+                        tmpResult.set({results: model});
+                        this.currentSearch = new Backbone.Model();
+                        this.currentSearch.set({result: tmpResult});
+                    } else {
                     this.currentSearch = model;
+                    }
                 }
 
                 this.updateMapPrimitive();
