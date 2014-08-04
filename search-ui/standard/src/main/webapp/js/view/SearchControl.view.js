@@ -82,6 +82,9 @@ define([
                     forward: '',
                     currentState: 'record'
                 });
+            },
+            revertToPrevious: function() {
+                this.set(this._previousAttributes);
             }
         });
 
@@ -110,8 +113,8 @@ define([
                     this.listenTo(wreqr.vent, 'search:clear', _.bind(this.model.setInitialState, this.model));
                     this.listenTo(wreqr.vent, 'search:resultsselect', _.bind(this.model.setResultListSelectState, this.model));
                     this.listenTo(wreqr.vent, 'workspace:saveresults', _.bind(this.model.setSelectWorkspaceState, this.model));
-                    this.listenTo(wreqr.vent, 'workspace:resultssavecancel', _.bind(this.model.setResultListState, this.model));
-                    this.listenTo(wreqr.vent, 'workspace:searchsavecancel', _.bind(this.model.setSearchFormState, this.model));
+                    this.listenTo(wreqr.vent, 'workspace:resultssavecancel', _.bind(this.model.revertToPrevious, this.model));
+                    this.listenTo(wreqr.vent, 'workspace:searchsavecancel', _.bind(this.model.revertToPrevious, this.model));
                     this.resetViewState();
                 } else {
                     this.stopListening(wreqr.vent, 'metacard:selected');

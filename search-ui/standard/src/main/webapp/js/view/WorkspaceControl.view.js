@@ -137,6 +137,9 @@ define([
                     forward: '',
                     currentState: 'select'
                 });
+            },
+            revertToPrevious: function() {
+                this.set(this._previousAttributes);
             }
         });
 
@@ -170,7 +173,7 @@ define([
                     this.listenTo(wreqr.vent, 'workspace:editall', _.bind(this.model.setWorkspaceListEditState, this.model));
                     this.listenTo(wreqr.vent, 'workspace:save', _.bind(this.model.setWorkspaceViewState, this.model));
                     this.listenTo(wreqr.vent, 'workspace:saveresults', _.bind(this.model.setSelectWorkspaceState, this.model));
-                    this.listenTo(wreqr.vent, 'workspace:resultssavecancel', _.bind(this.model.setWorkspaceResultsState, this.model));
+                    this.listenTo(wreqr.vent, 'workspace:resultssavecancel', _.bind(this.model.revertToPrevious, this.model));
                     this.listenTo(wreqr.vent, 'search:resultsselect', _.bind(this.model.setWorkspaceResultsSelectState, this.model));
                     this.resetViewState();
                 } else {
