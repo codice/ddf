@@ -265,8 +265,6 @@ body {
     display: block;
     width: 200px;
     text-align: center;
-    padding-top: 3px;
-    padding-bottom: 3px;
 }
 
 .nav-divider {
@@ -377,7 +375,7 @@ body {
     width: 100%;
     /*this is for IE only*/
     height: 600px;
-    height: calc(100% - 66px);
+    height: calc(100% - 60px);
     background-repeat: no-repeat;
     background-size: 100% 40px, 100% 40px, 100% 14px, 100% 14px;
 
@@ -1358,6 +1356,10 @@ a.pause:hover, a.pause:focus {
     cursor: pointer;
 }
 
+.workspace-row input {
+    margin-bottom: 0;
+}
+
 .workspace-row > td {
     padding: 8px 0;
 }
@@ -1387,23 +1389,4 @@ a.pause:hover, a.pause:focus {
 
 .login-form > label {
     cursor: default;
-}
-
-.result-select-column {
-    width: 10px;
-}
-
-.workspace-select-name {
-    margin-left: 15px;
-    margin-bottom: 10px;
-}
-
-.workspace-select-name > input {
-    margin: 0;
-}
-
-.saved-records-block {
-    width: 80%;
-    width: calc(100% - 30px);
-    margin: 10px 0 0;
 }
