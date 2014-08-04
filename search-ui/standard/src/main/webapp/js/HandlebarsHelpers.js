@@ -76,24 +76,67 @@ define([
                 return duration;
             },
             fileSize: function (item) {
-                var bytes = parseInt(item, 10);
-                if (isNaN(bytes)) {
-                    return item;
-                }
-                var size, index,
-                    type = ['bytes', 'KB', 'MB', 'GB', 'TB'];
-                if(bytes === 0) {
-                    return "0 bytes";
-                }
-                else {
-                    index = Math.floor(Math.log(bytes) / Math.log(1000));
-                    if(index > 4) {
-                        index = 4;
-                    }
+                var givenProductSize = item.replace(/[,]+/g,'').trim();    //remove any commas and trailing whitespace
+                var bytes = parseInt(givenProductSize, 10);
+                var noUnitsGiven = /[0-9]$/;    //number without a word following
+                var reformattedProductSize = givenProductSize.replace(/\s\s+/g,' ');   //remove extra whitespaces
+                var finalFormatProductSize = reformattedProductSize.replace(/([0-9])([a-zA-Z])/g, '$1 $2'); //make sure there is exactly one space between number and unit
+                var sizeArray = finalFormatProductSize.split(' ');  //splits size into number and unit
 
-                    size = (bytes / Math.pow(1000, index)).toFixed(index < 2 ? 0 : 1);
+                if (isNaN(bytes)) {
+                    return 'Unknown Size';
                 }
-                return size + " " + type[index];
+
+                if (noUnitsGiven.test(givenProductSize)) {   //need to parse number given and add units, number is assumed to be bytes
+                    var size, index,
+                        type = ['bytes', 'KB', 'MB', 'GB', 'TB'];
+                    if(bytes === 0) {
+                        return "0 bytes";
+                    } else {
+                        index = Math.floor(Math.log(bytes) / Math.log(1000));
+                        if(index > 4) {
+                            index = 4;
+                        }
+
+                        size = (bytes / Math.pow(1000, index)).toFixed(index < 2 ? 0 : 1);
+                    }
+                    return size + " " + type[index];
+
+                } else {  //units were included with size
+
+                    switch (sizeArray[1].toLowerCase()) {
+                        case 'bytes':
+                            return sizeArray[0] + ' bytes';
+                        case 'b':
+                            return sizeArray[0] + ' bytes';
+                        case 'kb':
+                            return sizeArray[0] + ' KB';
+                        case 'kilobytes':
+                            return sizeArray[0] + ' KB';
+                        case 'kbytes':
+                            return sizeArray[0] + ' KB';
+                        case 'mb':
+                            return sizeArray[0] + ' MB';
+                        case 'megabytes':
+                            return sizeArray[0] + ' MB';
+                        case 'mbytes':
+                            return sizeArray[0] + ' MB';
+                        case 'gb':
+                            return sizeArray[0] + ' GB';
+                        case 'gigabytes':
+                            return sizeArray[0] + ' GB';
+                        case 'gbytes':
+                            return sizeArray[0] + ' GB';
+                        case 'tb':
+                            return sizeArray[0] + ' TB';
+                        case 'terabytes':
+                            return sizeArray[0] + ' TB';
+                        case 'tbytes':
+                            return sizeArray[0] + ' TB';
+                        default:
+                            return 'Unknown Size';
+                    }
+                }
             },
             isNotBlank: function (context, block) {
                 if (context && context !== "") {
