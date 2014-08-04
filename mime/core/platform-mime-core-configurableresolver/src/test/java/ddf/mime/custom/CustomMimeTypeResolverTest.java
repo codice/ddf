@@ -106,19 +106,19 @@ public class CustomMimeTypeResolverTest {
     public void testSetCustomMimeTypeWithMimeParameter() {
         CustomMimeTypeResolver resolver = new CustomMimeTypeResolver();
 
-        resolver.setCustomMimeTypes(new String[] {"xml=text/xml;id=ddms"});
+        resolver.setCustomMimeTypes(new String[] {"json=application/json;id=geojson"});
 
         Map<String, List<String>> mimeTypesToFileExtensions = resolver
                 .getCustomMimeTypesToFileExtensionsMap();
-        assertTrue(mimeTypesToFileExtensions.containsKey("text/xml;id=ddms"));
-        assertFalse(mimeTypesToFileExtensions.containsKey("text/xml"));
-        List<String> fileExtensions = mimeTypesToFileExtensions.get("text/xml;id=ddms");
-        assertTrue(fileExtensions.contains("xml"));
+        assertTrue(mimeTypesToFileExtensions.containsKey("application/json;id=geojson"));
+        assertFalse(mimeTypesToFileExtensions.containsKey("application/json"));
+        List<String> fileExtensions = mimeTypesToFileExtensions.get("application/json;id=geojson");
+        assertTrue(fileExtensions.contains("json"));
 
         Map<String, String> fileExtensionsMimeTypes = resolver
                 .getCustomFileExtensionsToMimeTypesMap();
-        assertTrue(fileExtensionsMimeTypes.containsKey("xml"));
-        assertEquals("text/xml;id=ddms", fileExtensionsMimeTypes.get("xml"));
+        assertTrue(fileExtensionsMimeTypes.containsKey("json"));
+        assertEquals("application/json;id=geojson", fileExtensionsMimeTypes.get("json"));
     }
 
     @Test

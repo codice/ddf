@@ -589,11 +589,6 @@
             priority = 10
             customMimeTypes = nitf=image/nitf,ntf=image/nitf
         </config>
-        <config name="DDF_Custom_Mime_Type_Resolver-Ddmsv20CustomMimeTypes">
-            name = DDMS v2.0 Content Resolver
-            priority = 10
-            customMimeTypes = xml=text/xml;id=ddms
-        </config>
         <config name="DDF_Custom_Mime_Type_Resolver-GeoJsonCustomMimeTypes">
             name = GeoJson Content Resolver
             priority = 10
@@ -675,13 +670,14 @@
         <configfile finalname="/data/solr/notification/conf/stopwords.txt">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/stopwords</configfile>
         <configfile finalname="/data/solr/notification/conf/synonyms.txt">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/synonyms</configfile>
 
-        <configfile finalname="/data/solr/task/conf/solr.xml">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/xml/solr</configfile>
-        <configfile finalname="/data/solr/task/conf/solrconfig.xml">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/xml/solrconfig</configfile>
-        <configfile finalname="/data/solr/task/conf/schema.xml">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/xml/schema</configfile>
-        <configfile finalname="/data/solr/task/conf/protwords.txt">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/protwords</configfile>
-        <configfile finalname="/data/solr/task/conf/stopwords_en.txt">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/stopwords_en</configfile>
-        <configfile finalname="/data/solr/task/conf/stopwords.txt">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/stopwords</configfile>
-        <configfile finalname="/data/solr/task/conf/synonyms.txt">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/synonyms</configfile>
+
+        <configfile finalname="/data/solr/activity/conf/solr.xml">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/xml/solr</configfile>
+        <configfile finalname="/data/solr/activity/conf/solrconfig.xml">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/xml/solrconfig</configfile>
+        <configfile finalname="/data/solr/activity/conf/schema.xml">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/xml/schema</configfile>
+        <configfile finalname="/data/solr/activity/conf/protwords.txt">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/protwords</configfile>
+        <configfile finalname="/data/solr/activity/conf/stopwords_en.txt">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/stopwords_en</configfile>
+        <configfile finalname="/data/solr/activity/conf/stopwords.txt">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/stopwords</configfile>
+        <configfile finalname="/data/solr/activity/conf/synonyms.txt">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/synonyms</configfile>
 
     </feature>
 
@@ -694,6 +690,7 @@
         <bundle>mvn:ddf.persistence.core/persistence-core-impl/${project.version}</bundle>
         <bundle>mvn:ddf.persistence.core/persistence-core-commands/${project.version}</bundle>
         <bundle>mvn:org.codice.thirdparty/gt-opengis/${opengis.bundle.version}</bundle>
+        <bundle>mvn:ddf.persistence.core/persistence-core-listeners/${project.version}</bundle>
     </feature>
 
     <feature name="platform-util" install="manual" version="${project.version}"
