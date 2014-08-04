@@ -73,16 +73,41 @@ public class DownloadsStatusEventPublisher {
         this.eventAdmin = eventAdmin;
         this.actionProviders = actionProviders;
     }
-
+    
     /**
-     * Set the current retrieval status for product identified by key.
-     *
-     * @param resourceResponse - The {@link ResourceResponse} of the request.
-     * @param status           - The status of the retrieval.}
+     * Send notification and activity with current retrieval status.
+     * 
+     * @param resourceResponse
+     * @param status
+     * @param metacard
+     * @param detail
+     * @param bytes
+     * @param downloadIdentifier
      */
-    public void postRetrievalStatus(final ResourceResponse resourceResponse, ProductRetrievalStatus status, Metacard metacard, String detail, Long bytes, String downloadIdentifier) {
+    public void postRetrievalStatus(final ResourceResponse resourceResponse,
+            ProductRetrievalStatus status, Metacard metacard, String detail, Long bytes,
+            String downloadIdentifier) {
+        postRetrievalStatus(resourceResponse, status, metacard, detail, bytes, downloadIdentifier, true, true);
+    }
+    
+    /**
+     * Based on the input parameters send notification and/or activity with current retrieval status.
+     * 
+     * @param resourceResponse
+     * @param status
+     * @param metacard
+     * @param detail
+     * @param bytes
+     * @param downloadIdentifier
+     * @param sendNotification true indicates a notification with current retrieval status is to be sent
+     * @param sendActivity true indicates an activity with current retrieval status is to be sent
+     */
+    public void postRetrievalStatus(final ResourceResponse resourceResponse,
+            ProductRetrievalStatus status, Metacard metacard, String detail, Long bytes,
+            String downloadIdentifier, boolean sendNotification, boolean sendActivity) {
 
         LOGGER.debug("ENTERING: postRetrievalStatus(...)");
+        LOGGER.debug("sendNotification = {},   sendActivity = {}", sendNotification, sendActivity);
         LOGGER.debug("status: {}", status);
         LOGGER.debug("detail: {}", detail);
         LOGGER.debug("bytes: {}", bytes);
@@ -102,7 +127,9 @@ public class DownloadsStatusEventPublisher {
         }
         String user = SubjectUtils.getName(shiroSubject, "");
 
-        if (notificationEnabled && (status != ProductRetrievalStatus.IN_PROGRESS) && (status != ProductRetrievalStatus.STARTED)) {
+        if (notificationEnabled && sendNotification
+                && (status != ProductRetrievalStatus.IN_PROGRESS)
+                && (status != ProductRetrievalStatus.STARTED)) {
             String id = UUID.randomUUID().toString().replaceAll("-", "");
             Notification notification = new Notification(id, 
                     //get sessionId from resource request
@@ -125,7 +152,7 @@ public class DownloadsStatusEventPublisher {
             LOGGER.debug("Notifications have been disabled so this message will NOT be posted.");
         }
 
-        if (activityEnabled) {
+        if (activityEnabled && sendActivity) {
             
             // get Action
             Action downloadAction = null;

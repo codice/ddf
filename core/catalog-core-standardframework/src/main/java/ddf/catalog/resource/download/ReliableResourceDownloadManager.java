@@ -419,7 +419,7 @@ public class ReliableResourceDownloadManager implements Runnable {
                                 "Client had canceled download and caching completed - do NOT send ProductRetrievalCompleted notification");
                         eventPublisher.postRetrievalStatus(resourceResponse,
                                 ProductRetrievalStatus.COMPLETE, metacard, null,
-                                reliableResourceStatus.getBytesRead(), downloadIdentifier);
+                                reliableResourceStatus.getBytesRead(), downloadIdentifier, false, true);
                     }
                     if (doCaching) {
                         try {
