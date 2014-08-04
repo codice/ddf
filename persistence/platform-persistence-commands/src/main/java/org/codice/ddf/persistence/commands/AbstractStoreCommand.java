@@ -14,7 +14,6 @@
  **/
 package org.codice.ddf.persistence.commands;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.felix.gogo.commands.Option;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
 import org.codice.ddf.persistence.PersistenceException;
@@ -38,7 +37,7 @@ public abstract class AbstractStoreCommand extends OsgiCommandSupport {
     protected Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Option(name = "Persistence Type", aliases = {"-t", "--type"}, required = true,
-            description = "Type of item to retrieve from the persistence store.\nOptions: metacard, saved_query, notification, activity, or workspace",
+            description = "Type of entry in the persistence store to perform the current operation on.\nOptions: metacard, saved_query, notification, activity, or workspace",
             multiValued = false)
     protected String type;
 
@@ -56,15 +55,12 @@ public abstract class AbstractStoreCommand extends OsgiCommandSupport {
         try {
             if (persistentStoreRef != null) {
                 persistentStore = getBundleContext().getService(persistentStoreRef);
-                if (StringUtils.equals(type, PersistentStore.METACARD_TYPE) || StringUtils
-                        .equals(type, PersistentStore.NOTIFICATION_TYPE) || StringUtils
-                        .equals(type, PersistentStore.SAVED_QUERY_TYPE) || StringUtils
-                        .equals(type, PersistentStore.ACTIVITY_TYPE) || StringUtils
-                        .equals(type, PersistentStore.WORKSPACE_TYPE)) {
+                if (PersistentStore.PERSISTENCE_TYPES.contains(type)) {
                     storeCommand();
                 } else {
                     console.println(
-                            "Type passed in was not correct. Must be one of \"metacard\", \"saved_query\", \"notification\", \"activity\", or \"workspace\".");
+                            "Type passed in was not correct. Must be one of "
+                                    + PersistentStore.PERSISTENCE_TYPES + ".");
                 }
             } else {
                 console.println(

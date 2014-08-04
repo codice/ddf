@@ -57,10 +57,7 @@ public class StoreListCommand extends AbstractStoreCommand {
             console.println("Result {" + i + "}:");
             if (headerSet.isEmpty()) {
                 // populates the header with the keys from the first entry
-                Set<String> keys = curStore.keySet();
-                for (String curKey : keys) {
-                    headerSet.add(curKey);
-                }
+                headerSet.addAll(curStore.keySet());
             }
 
             for (String curKey : headerSet) {
