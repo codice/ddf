@@ -30,7 +30,8 @@ define([
     'jquery',
     'modelbinder',
     'perfectscrollbar',
-    'backbonecometd'
+    'backbonecometd',
+    'progressbar'
 ], function(Marionette, ich, menubarTemplate, menubarItemTemplate, User, Backbone, notificationMenuTemplate, notificationCategoryTemplate, wreqr, _, loginTemplate, logoutTemplate, taskTemplate, taskCategoryTemplate, helpTemplate, Cometd, $) {
 
     ich.addTemplate('menubarItemTemplate', menubarItemTemplate);
@@ -124,6 +125,7 @@ define([
                     if(id === 'remove') {
                         this.model.collection.remove(this.model);
                         wreqr.vent.trigger('task:remove', this.model);
+                        Cometd.Comet.publish(this.model.url, {data: [{id: this.model.get('id'), action: id}]});
                     }
                 } else {
                     if(id === 'cancelRemove') {
@@ -161,11 +163,18 @@ define([
             e.stopPropagation();
         },
         removeAll: function(e) {
-            var tasksInCategory = [];
-            tasksInCategory = this.model.get('collection').where({category: this.model.get('category')});
+            var activitiesToDelete = [];
+            var currentActivities = [];
+            currentActivities = this.model.get('collection').where({category: this.model.get('category')});
 
-            this.model.get('collection').remove(tasksInCategory);
-            wreqr.vent.trigger('task:remove', this);
+            this.model.get('collection').remove(currentActivities);
+            wreqr.vent.trigger('task:remove', this.model);
+
+            _.each(currentActivities, function(activity) {
+                activitiesToDelete.push({id: activity.get('id'), action: 'remove'});
+            });
+
+            Cometd.Comet.publish("/service/action", {data: activitiesToDelete});
 
             this.clickBody(e);
         },

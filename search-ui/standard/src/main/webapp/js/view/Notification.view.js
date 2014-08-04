@@ -28,6 +28,7 @@ define([ 'backbone',
     var NotificationView = {};
 
     ich.addTemplate('notificationTemplate', messageTemplate);
+
     ich.addTemplate('titleTemplate', titleTemplate);
 
     var currentTime = moment();

@@ -36,7 +36,9 @@ define(["backbone", "underscore", "jquery"], function (Backbone, _, $) {
 
         //parses out the object returned from CometD 
         parse: function (resp) {
-            return $.parseJSON(resp.data);
+            if(!_.isEmpty(resp.data)) {
+                return $.parseJSON(resp.data);
+            }
         }
     });
 

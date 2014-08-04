@@ -43,6 +43,8 @@ define(['application',
                     wreqr.vent.trigger('notification:new', incomingNotification);
                 }
             });
+
+            Cometd.Comet.publish("/ddf/notifications", {});
         });
     });
 
