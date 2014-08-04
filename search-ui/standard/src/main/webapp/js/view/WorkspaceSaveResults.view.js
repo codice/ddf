@@ -100,7 +100,7 @@ define([
                         this.$('input[name=workspaceName]').val('');
                     }
                 }
-                this.$('#workspaceNameRadio').prop('checked', true);
+                this.$('#workspaceNameRadio').click();
             },
             onClose: function () {
                 this.search = undefined;
