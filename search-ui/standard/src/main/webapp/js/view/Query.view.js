@@ -52,7 +52,8 @@ define([
                 'keypress input[name=q]': 'filterOnEnter',
                 'change #radiusUnits': 'onRadiusUnitsChanged',
                 'change #offsetTimeUnits': 'onTimeUnitsChanged',
-                'click #scheduled': 'updateScheduling'
+                'click #scheduled': 'updateScheduling',
+                'click #saveButton': 'saveSearch'
             },
 
             modelEvents: {
@@ -354,6 +355,10 @@ define([
 
             workspaceCancel: function() {
                 wreqr.vent.trigger('workspace:cancel', this.model);
+            },
+
+            saveSearch: function() {
+                wreqr.vent.trigger('workspace:saveresults', this.model);
             },
 
             search: function () {

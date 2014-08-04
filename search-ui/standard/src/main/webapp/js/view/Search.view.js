@@ -79,6 +79,7 @@ define([
                     this.listenTo(wreqr.vent, 'metacard:selected', this.showMetacardDetail);
                     this.listenTo(wreqr.vent, 'workspace:saveresults', this.saveResultsToWorkspace);
                     this.listenTo(wreqr.vent, 'workspace:resultssavecancel', this.cancelResultsToWorkspace);
+                    this.listenTo(wreqr.vent, 'workspace:searchsavecancel', this.cancelSearchToWorkspace);
                     this.searchRegion.show(undefined, dir.none);
                 } else {
                     this.stopListening(wreqr.vent, 'search:show');
@@ -90,6 +91,7 @@ define([
                     this.stopListening(wreqr.vent, 'metacard:selected');
                     this.stopListening(wreqr.vent, 'workspace:saveresults');
                     this.stopListening(wreqr.vent, 'workspace:resultssavecancel');
+                    this.stopListening(wreqr.vent, 'workspace:searchsavecancel');
                     this.searchRegion.close();
                 }
             },
@@ -101,6 +103,10 @@ define([
 
             cancelResultsToWorkspace: function() {
                 this.showResults(dir.backward);
+            },
+
+            cancelSearchToWorkspace: function() {
+                this.showQuery(dir.backward);
             },
 
             updateMapPrimitive: function() {

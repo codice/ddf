@@ -43,13 +43,20 @@ define([
                 this.viewModel = new Backbone.Model();
                 this.modelBinder = new Backbone.ModelBinder();
             },
+            serializeData: function() {
+                return _.extend(this.model.toJSON(), {hasSearch: this.search ? true : false});
+            },
             onRender: function() {
                 var modelBindings = Backbone.ModelBinder.createDefaultBindings(this.el, 'name');
                 this.modelBinder.bind(this.viewModel, this.$el, modelBindings);
             },
             onShow: function() {
                 this.$('input[name=workspaceName]').val('New Workspace');
-                this.$('input[name=workspaceName]').focus();
+                if(this.search) {
+                    this.$('input[name=searchName]').focus();
+                } else {
+                    this.$('input[name=workspaceName]').focus();
+                }
             },
             saveResults: function () {
                 var workspace;
@@ -60,6 +67,7 @@ define([
                 }
                 if(this.viewModel.get('workspaceType') === 'create_new_workspace') {
                     if(!this.viewModel.get('workspaceName') || this.viewModel.get('workspaceName') === '') {
+                        this.$('input[name=workspaceName]').focus();
                         return;
                     }
                     workspace = new Workspace.Model({name: this.viewModel.get('workspaceName')});
@@ -69,9 +77,13 @@ define([
                     workspace.get('metacards').add(this.records);
                 }
                 if (this.search) {
+                    if(!this.viewModel.get('searchName')) {
+                        this.$('input[name=searchName]').focus();
+                        return;
+                    }
+                    this.search.set({name: this.viewModel.get('searchName')});
                     workspace.get('searches').add(this.search);
                 }
-                this.cleanup();
                 wreqr.vent.trigger('workspace:saveall');
                 this.cancel();
             },
@@ -90,15 +102,19 @@ define([
                 }
                 this.$('#workspaceNameRadio').prop('checked', true);
             },
-            cleanup: function () {
+            onClose: function () {
                 this.search = undefined;
                 this.records = undefined;
                 this.workspace = undefined;
                 this.modelBinder.unbind();
             },
             cancel: function () {
-                this.cleanup();
-                wreqr.vent.trigger('workspace:resultssavecancel');
+                if(this.search) {
+                    wreqr.vent.trigger('workspace:searchsavecancel');
+                }
+                if(this.records) {
+                    wreqr.vent.trigger('workspace:resultssavecancel');
+                }
             }
         });
 

@@ -14,25 +14,30 @@
 <form id="workspaceSelectForm" class="workspace-add-panel">
     {{#if hasSearch}}
         <ul class="nav nav-list">
-            <li class="nav-header">Search Name</li>
+            <li class="nav-header">Enter Name for Saved Search</li>
             <li>
-                <input id="searchName" type="text" class="input-xlarge">
+                <input name="searchName" type="text" class="input-xlarge margin-bottom-xlarge">
             </li>
         </ul>
     {{/if}}
     <ul class="nav nav-list">
-        <li>
-            <input id="workspaceNameRadio" type="radio" name="workspaceType" value="create_new_workspace" class="pull-left">
-            <div class="workspace-select-name">
-                <input name="workspaceName" type="text" class="input-xlarge" autofocus>
-            </div>
-        </li>
+        {{#if hasSearch}}
+            <li class="nav-header">Select Workspace for Saved Search</li>
+        {{else}}
+            <li class="nav-header">Select Workspace for Saved Records</li>
+        {{/if}}
         {{#each workspaces}}
             <li>
                 <input type="radio" name="workspaceType" value="{{name}}" class="pull-left">
                 <div class="workspace-select-name">{{name}}</div>
             </li>
         {{/each}}
+        <li>
+            <input id="workspaceNameRadio" type="radio" name="workspaceType" value="create_new_workspace" class="pull-left">
+            <div class="workspace-select-name">
+                <input name="workspaceName" type="text" class="input-xlarge" autofocus>
+            </div>
+        </li>
     </ul>
     <div class="form-actions btn-group">
         <a href="#" class="btn btn-medium btn-primary submit">Save</a>

@@ -172,6 +172,7 @@ define([
                     this.listenTo(wreqr.vent, 'workspace:saveresults', _.bind(this.model.setSelectWorkspaceState, this.model));
                     this.listenTo(wreqr.vent, 'workspace:resultssavecancel', _.bind(this.model.setWorkspaceResultsState, this.model));
                     this.listenTo(wreqr.vent, 'search:resultsselect', _.bind(this.model.setWorkspaceResultsSelectState, this.model));
+                    this.resetViewState();
                 } else {
                     this.stopListening(wreqr.vent, 'workspace:show');
                     this.stopListening(wreqr.vent, 'workspace:results');
@@ -186,6 +187,21 @@ define([
                     this.stopListening(wreqr.vent, 'workspace:saveresults');
                     this.stopListening(wreqr.vent, 'workspace:resultssavecancel');
                     this.stopListening(wreqr.vent, 'search:resultsselect');
+                }
+            },
+
+            resetViewState: function () {
+                var state = this.model.get('currentState');
+                switch(state) {
+                    case 'list':
+                        this.model.setWorkspaceListState();
+                        break;
+                    case 'view':
+                        this.model.setWorkspaceViewState();
+                        break;
+                    case 'results':
+                        this.model.setWorkspaceResultsState();
+                        break;
                 }
             },
 

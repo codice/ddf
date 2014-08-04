@@ -111,6 +111,7 @@ define([
                     this.listenTo(wreqr.vent, 'search:resultsselect', _.bind(this.model.setResultListSelectState, this.model));
                     this.listenTo(wreqr.vent, 'workspace:saveresults', _.bind(this.model.setSelectWorkspaceState, this.model));
                     this.listenTo(wreqr.vent, 'workspace:resultssavecancel', _.bind(this.model.setResultListState, this.model));
+                    this.resetViewState();
                 } else {
                     this.stopListening(wreqr.vent, 'metacard:selected');
                     this.stopListening(wreqr.vent, 'search:results');
@@ -119,6 +120,15 @@ define([
                     this.stopListening(wreqr.vent, 'search:resultsselect');
                     this.stopListening(wreqr.vent, 'workspace:saveresults');
                     this.stopListening(wreqr.vent, 'workspace:resultssavecancel');
+                }
+            },
+
+            resetViewState: function () {
+                var state = this.model.get('currentState');
+                switch(state) {
+                    case 'results':
+                        this.model.setResultListState();
+                        break;
                 }
             },
 

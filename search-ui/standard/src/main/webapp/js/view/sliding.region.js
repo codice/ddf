@@ -62,6 +62,9 @@ define([
                 closePromise = Q();
             }
             this.currentPromise = closePromise.then(function () {
+                if(isViewClosed) {
+                    view.initialize(view.options);
+                }
                 view.render();
                 var openPromise;
                 if (isDifferentView || isViewClosed) {
@@ -108,7 +111,6 @@ define([
 
             if(isViewClosed) {
                 view.delegateEvents(view.events);
-                view.initialize(view.options);
             }
 
             view.$el.css({
