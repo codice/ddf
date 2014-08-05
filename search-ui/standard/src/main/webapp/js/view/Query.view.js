@@ -52,7 +52,8 @@ define([
                 'keypress input[name=q]': 'filterOnEnter',
                 'change #radiusUnits': 'onRadiusUnitsChanged',
                 'change #offsetTimeUnits': 'onTimeUnitsChanged',
-                'click #scheduled': 'updateScheduling',
+                'click button[name=notScheduledButton]': 'updateScheduling',
+                'click button[name=scheduledButton]': 'updateScheduling',
                 'click #saveButton': 'saveSearch'
             },
 
@@ -92,8 +93,12 @@ define([
                 }
             },
 
-            updateScheduling: function() {
-                this.$('#schedulingOptions input').prop('disabled', !this.$('#schedulingOptions input').prop('disabled'));
+            updateScheduling: function(e) {
+                if(e.target.name === 'notScheduledButton') {
+                    this.model.set({scheduled: false});
+                } else if(e.target.name === 'scheduledButton') {
+                    this.model.set({scheduled: true});
+                }
                 this.model.set({scheduleValue: undefined});
             },
 

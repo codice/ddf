@@ -209,15 +209,27 @@
         {{#is isWorkspace true}}
             <li class="nav-header">Scheduling</li>
             <li>
-                <input type="checkbox" id="scheduled" name="scheduled" class="pull-left" /><label for="scheduled">&nbsp;Scheduled Search</label>
+                <div class="btn-group margin-bottom-large" data-toggle="buttons-radio">
+                    <button type="button" class="btn btn-mini {{#isnt scheduled true}} active{{/isnt}}"
+                            name="notScheduledButton" data-target="#nosched"
+                            data-toggle="tab">Not Scheduled
+                    </button>
+                    <button type="button" class="btn btn-mini {{#is scheduled true}} active{{/is}}"
+                            name="scheduledButton" data-target="#sched"
+                            data-toggle="tab">Scheduled
+                    </button>
+                </div>
                 <div id="schedulingOptions" class="tab-content">
-                    <div class="input-prepend input-append">
-                        <span class="add-on add-on-label">Every&nbsp;</span>
-                        <input class="input-medium" id="scheduleValue" name="scheduleValue" type="number" min="0" step="any" placeholder="" {{#if scheduled}}{{else}}disabled{{/if}}/>
-                        <select id="scheduleUnits" name="scheduleUnits" class="add-on">
-                            <option value="minutes" selected="selected">minutes</option>
-                            <option value="hours">hours</option>
-                        </select>
+                    <div id="nosched" class="tab-pane {{#isnt scheduled true}} active{{/isnt}}"></div>
+                    <div id="sched" class="tab-pane {{#is scheduled true}} active{{/is}}">
+                        <div class="input-prepend input-append">
+                            <span class="add-on add-on-label">Every&nbsp;</span>
+                            <input class="input-medium" id="scheduleValue" name="scheduleValue" type="number" min="0" step="any" placeholder="" />
+                            <select id="scheduleUnits" name="scheduleUnits" class="add-on">
+                                <option value="minutes" selected="selected">minutes</option>
+                                <option value="hours">hours</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
             </li>
