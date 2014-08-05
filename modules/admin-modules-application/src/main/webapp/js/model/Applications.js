@@ -13,13 +13,15 @@
  *
  **/
 /*global define*/
-define(function (require) {
-    'use strict';
+define([
+        'backbone',
+        'jquery',
+        'underscore',
+        'q'
+    ],
+    function (Backbone, $, _, Q) {
+    "use strict";
 
-    var Backbone = require('backbone'),
-        $ = require('jquery'),
-        _ = require('underscore'),
-        Q = require('q');
     var Applications = {};
 
     var startUrl = '/jolokia/exec/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/startApplication/';

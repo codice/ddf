@@ -270,11 +270,12 @@ define([
             this.modelBinder.bind(this.model, this.el, bindings);
         },
         serializeData: function () {
-            for(var i = 0; i < disableList.length; i++) {
-                if(this.model.attributes.appId === disableList[i]) {
-                    return _.extend(this.model.toJSON(), {isDisabled: true});
+            var that = this;
+            disableList.forEach(function(child) {
+                if(that.model.attributes.appId === child) {
+                    return _.extend(that.model.toJSON(), {isDisabled: true});
                 }
-            }
+            });
 
             return _.extend(this.model.toJSON(), {isDisabled: false});
         },
@@ -284,17 +285,15 @@ define([
             var removeMessage = [];
 
             if(children.length !== 0) {
-                for(var i = 0; i < children.length; i++) {
-                    for(var j = 0; j < that.model.collection.models.length; j++) {
-                        if(children[i] === that.model.collection.models[j].attributes.appId) {
-                            if(that.model.collection.models[j].attributes.state === 'ACTIVE') {
-                                removeMessage.push(children[i]);
-                                j = that.model.collection.models.length;
-                            }
+                children.forEach(function(child) {
+                    that.model.collection.each(function(modelChild) {
+                        if((modelChild.attributes.appId === child) &&
+                            (modelChild.attributes.state === 'ACTIVE')) {
+                            removeMessage.push(child);
                         }
-                    }
-                }
-                that.model.set({removeMessage: removeMessage});
+                    });
+                });
+                this.model.set({removeMessage: removeMessage});
             }
         },
         installMessage: function() {
@@ -303,17 +302,15 @@ define([
             var installMessage = [];
 
             if(parents.length !== 0) {
-                for(var i = 0; i < parents.length; i++) {
-                    for(var j = 0; j < that.model.collection.models.length; j++) {
-                        if(parents[i] === that.model.collection.models[j].attributes.appId) {
-                            if(that.model.collection.models[j].attributes.state === 'INACTIVE') {
-                                installMessage.push(parents[i]);
-                                j = that.model.collection.models.length;
-                            }
+                parents.forEach(function(parent) {
+                    that.model.collection.each(function(modelChild) {
+                        if((modelChild.attributes.appId === parent) &&
+                            (modelChild.attributes.state === 'INACTIVE')) {
+                            installMessage.push(parent);
                         }
-                    }
-                }
-                that.model.set({installMessage: installMessage});
+                    });
+                });
+                this.model.set({installMessage: installMessage});
             }
         },
         removePrompt: function() {
@@ -322,18 +319,16 @@ define([
             var removeMessage = [];
 
             if(children.length !== 0) {
-                for(var i = 0; i < children.length; i++) {
-                    for(var j = 0; j < that.model.collection.models.length; j++) {
-                        if(children[i] === that.model.collection.models[j].attributes.appId) {
-                            if(that.model.collection.models[j].attributes.state === 'ACTIVE') {
-                                removeMessage.push(children[i]);
-                                that.model.collection.models[j].flagRemove();
-                                j = that.model.collection.models.length;
-                            }
+                children.forEach(function(child) {
+                    that.model.collection.each(function(modelChild) {
+                        if((modelChild.attributes.appId === child) &&
+                            (modelChild.attributes.state === 'ACTIVE')) {
+                            removeMessage.push(child);
+                            modelChild.flagRemove();
                         }
-                    }
-                }
-                that.model.set({removeMessage: removeMessage});
+                    });
+                });
+                this.model.set({removeMessage: removeMessage});
             }
             this.model.flagRemove();
         },
@@ -343,18 +338,16 @@ define([
             var installMessage = [];
 
             if(parents.length !== 0) {
-                for(var i = 0; i < parents.length; i++) {
-                    for(var j = 0; j < that.model.collection.models.length; j++) {
-                        if(parents[i] === that.model.collection.models[j].attributes.appId) {
-                            if(that.model.collection.models[j].attributes.state === 'INACTIVE') {
-                                installMessage.push(parents[i]);
-                                that.model.collection.models[j].flagRemove();
-                                j = that.model.collection.models.length;
-                            }
+                parents.forEach(function(parent) {
+                    that.model.collection.each(function(modelChild) {
+                        if((modelChild.attributes.appId === parent) &&
+                            (modelChild.attributes.state === 'INACTIVE')) {
+                            installMessage.push(parent);
+                            modelChild.flagRemove();
                         }
-                    }
-                }
-                that.model.set({installMessage: installMessage});
+                    });
+                });
+                this.model.set({installMessage: installMessage});
             }
             this.model.flagRemove();
         }
@@ -402,10 +395,10 @@ define([
         },
         toggleLayout: function() {
             if(this.AppShowLayout === BOX_LAYOUT) {
-                $("h2.description").toggleClass("boxDescription", true);
+                this.$("h2").toggleClass("boxDescription", true);
                 $("div.appInfo").toggleClass("box", true);
             } else {
-                $("h2.description").toggleClass("boxDescription", false);
+                this.$("h2").toggleClass("boxDescription", false);
                 $("div.appInfo").toggleClass("box", false);
             }
         }
@@ -480,14 +473,14 @@ define([
                 this.gridLayout = ROW_LAYOUT;
                 this.appsgrid.currentView.AppShowLayout = ROW_LAYOUT;
 
-                $("h2.description").toggleClass("boxDescription", false);
+                this.$("h2").toggleClass("boxDescription", false);
                 $("div.appInfo").toggleClass("box", false);
             }
             else {
                 this.gridLayout = BOX_LAYOUT;
                 this.appsgrid.currentView.AppShowLayout = BOX_LAYOUT;
 
-                $("h2.description").toggleClass("boxDescription", true);
+                this.$("h2").toggleClass("boxDescription", true);
                 $("div.appInfo").toggleClass("box", true);
             }
         },
@@ -572,11 +565,12 @@ define([
             });
         },
         setErrorStates: function() {
-            for(var i = 0; i < this.model.length; i++) {
-                if(this.model.models[i].attributes.error === true) {
-                    this.$('#'+this.model.models[i].attributes.appId+'-name').css('color', 'red');
+            var that = this;
+            this.model.each(function(child) {
+                if(child.attributes.error === true) {
+                    that.$('#'+child.attributes.appId+'-name').css('color', 'red');
                 }
-            }
+            });
         }
     });
 

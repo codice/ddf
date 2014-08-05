@@ -178,9 +178,8 @@ a.fa-minus-circle-selected {
  **/
 #application-outline {
     position: relative;
-}
-#application-outline .appview {
-    margin: 20px;
+    padding: 20px;
+    background-color: #ecf0f1;
 }
 .application-grid-buttons {
     padding-bottom: 25px;
@@ -192,18 +191,13 @@ a.fa-minus-circle-selected {
     margin-top: 15px;
 }
 .apps-grid {
-    padding-top: 15px;
-    padding-left: 15px;
-    padding-right: 15px;
+    border: black 10px;
+    padding: 15px 15px 0px 15px;
 }
 .appInfo {
     background-color: #B0C4DE;
-    margin: 0;
-    margin-right: 15px;
-    margin-bottom: 15px;
-    padding: 10px;
-    padding-top: 5px;
-    padding-bottom: 5px;
+    margin: 0px 15px 15px 0px;
+    padding: 5px 10px;
 }
 .row {
     table-layout:fixed;
@@ -217,8 +211,7 @@ a.fa-minus-circle-selected {
 .removeApp {
     color: black;
     float: right;
-    padding-top: 5px;
-    padding-right: 5px;
+    padding: 5px;
 }
 .removeHide {
     display: none;
@@ -226,8 +219,7 @@ a.fa-minus-circle-selected {
 .installApp {
     color: black;
     float: right;
-    padding-top: 5px;
-    padding-right: 5px;
+    padding: 5px;
 }
 .installHide {
     display: none;
@@ -240,9 +232,7 @@ a.fa-minus-circle-selected {
     margin-left: 20px;
 }
 .rowDescription {
-    margin-left: 20px;
-    margin-top: 3px;
-    margin-bottom: 3px;
+    margin: 3px 0px 3px 20px;
     width: 450px;
     white-space: nowrap;
     overflow: hidden;
@@ -250,9 +240,7 @@ a.fa-minus-circle-selected {
     font-size: 100%;
 }
 .boxDescription {
-    margin-left: 20px;
-    margin-top: 3px;
-    margin-bottom: 3px;
+    margin: 3px 0px 3px 20px;
     width: 250px;
     white-space: nowrap;
     overflow: hidden;
@@ -261,14 +249,8 @@ a.fa-minus-circle-selected {
 }
 .descriptionButton {
     float:right;
-    margin-left: 20px;
-    margin-top: 3px;
-    margin-bottom: 3px;
-    margin-right: 3px;
-    padding-top: 0;
-    padding-bottom: 0;
-    padding-left: 5px;
-    padding-right: 5px;
+    margin: 3px 3px 3px 20px;
+    padding: 0px 5px;
 }
 .application-status {
     margin: 20px 0px;
