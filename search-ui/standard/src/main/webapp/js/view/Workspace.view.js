@@ -28,6 +28,7 @@ define([
         'text!templates/workspace/workspace.handlebars',
         'text!templates/workspace/workspaceQueryItem.handlebars',
         'text!templates/workspace/workspaceMetacardItem.handlebars',
+        'js/view/WorkspaceSaveResults.view',
         'maptype',
         'js/view/WorkspaceControl.view',
         'js/view/sliding.region',
@@ -41,8 +42,8 @@ define([
     ],
     function ($, _, Marionette, Workspace, Backbone, dir, ich, wreqr, moment, workspacePanel, workspaceList,
               workspaceItem, workspaceAdd, workspace, workspaceQueryItem, workspaceMetacardItem,
-              maptype, WorkspaceControl, SlidingRegion, QueryView, QueryModel, MetacardList, MetacardDetail,
-              Search) {
+              WorkspaceSaveResults, maptype, WorkspaceControl, SlidingRegion, QueryView, QueryModel,
+              MetacardList, MetacardDetail, Search) {
         "use strict";
         var WorkspaceView = {};
 
