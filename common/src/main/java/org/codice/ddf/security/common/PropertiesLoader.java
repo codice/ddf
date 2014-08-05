@@ -126,10 +126,15 @@ public final class PropertiesLoader {
                     logger.debug("Attempting to load properties from file system: "
                             + propertiesFile);
                 }
-                File propFile = null;
-                if (propertiesFile.startsWith("/")) {
+                File propFile = new File(propertiesFile);
+                // If properties file has fully-qualified absolute path (which
+                // the blueprint file specifies) then can load it directly.
+                if (propFile.isAbsolute()) {
+                    logger.debug("propertiesFile {} is absolute", propertiesFile);
                     propFile = new File(propertiesFile);
                 } else {
+                    // Otherwise need to prepend parent path which is based on
+                    // the installation directory
                     String karafHome = System.getProperty("karaf.home");
                     if (karafHome != null && !karafHome.isEmpty()) {
                         propFile = new File(karafHome, propertiesFile);
