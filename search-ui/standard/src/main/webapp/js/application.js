@@ -89,7 +89,6 @@ define(['jquery',
         //load all modules
         Application.App.addInitializer(function() {
             require([
-                'js/module/Search.module',
                 'js/module/Notification.module',
                 'js/module/Tasks.module',
                 'js/module/Menu.module',

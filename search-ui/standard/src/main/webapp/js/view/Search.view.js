@@ -140,7 +140,7 @@ define([
                 if(query) {
                     this.query = query;
                 }
-                this.searchRegion.show(new QueryView.QueryView({ sources : this.sources, model: this.query }), direction);
+                this.searchRegion.show(new QueryView.QueryView({ model: this.query }), direction);
             },
             showEmptyResults: function() {
                 this.showResults(dir.forward);

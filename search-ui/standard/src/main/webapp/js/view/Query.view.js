@@ -166,19 +166,23 @@ define([
             },
 
             serializeData: function () {
-                var allTypes = _.chain(this.sources.map(function (source) {
-                    return source.get('contentTypes');
-                })).flatten().value();
-                allTypes.sort(function compare(a, b) {
-                     if (a.name.toUpperCase() < b.name.toUpperCase())
-                       return -1;
-                     if (a.name.toUpperCase() > b.name.toUpperCase())
-                        return 1;
-                     return 0;});
-                allTypes = _.uniq(allTypes, false, function(type){
-                    return type.name + ':' + type.version;
-                });
-                var allSources = this.sources.toJSON();
+                var allSources, allTypes;
+                if(this.sources) {
+                    allTypes = _.chain(this.sources.map(function (source) {
+                        return source.get('contentTypes');
+                    })).flatten().value();
+                    allTypes.sort(function compare(a, b) {
+                        if (a.name.toUpperCase() < b.name.toUpperCase())
+                            return -1;
+                        if (a.name.toUpperCase() > b.name.toUpperCase())
+                            return 1;
+                        return 0;
+                    });
+                    allTypes = _.uniq(allTypes, false, function (type) {
+                        return type.name + ':' + type.version;
+                    });
+                    allSources = this.sources.toJSON();
+                }
                 return _.extend(this.model.toJSON(), {types: allTypes, sources: allSources, isWorkspace: this.isWorkspace});
             },
 

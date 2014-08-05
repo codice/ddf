@@ -16,6 +16,8 @@ define(['application',
         'js/view/Workspace.view',
         'js/model/Workspace',
         'wreqr',
+        'poller',
+        'js/model/source',
         // Load non attached libs and plugins
         'datepicker',
         'datepickerOverride',
@@ -23,9 +25,20 @@ define(['application',
         'multiselect',
         'multiselectfilter'
     ],
-    function(Application, Cometd, Marionette, WorkspaceView, Workspace, wreqr) {
+    function(Application, Cometd, Marionette, WorkspaceView, Workspace, wreqr, poller, Source) {
 
         Application.App.module('WorkspaceModule', function(WorkspaceModule) {
+
+            WorkspaceModule.sources = new Source.Collection();
+            WorkspaceModule.sources.fetch();
+
+            // Poll the server for changes to Sources every 60 seconds -
+            // This matches the DDF SourcePoller polling interval
+            poller.get(WorkspaceModule.sources, { delay: 60000 }).start();
+
+            wreqr.reqres.setHandler('sources', function () {
+                return WorkspaceModule.sources;
+            });
 
             WorkspaceModule.workspaces = new Workspace.WorkspaceResult();
             WorkspaceModule.workspaces.fetch();
