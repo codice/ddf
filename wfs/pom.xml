@@ -30,6 +30,7 @@
         <module>spatial-wfs-common</module>
         <module>spatial-wfs-converter</module>
         <module>spatial-wfs-source</module>
+        <module>spatial-wfs-mapper</module>
         <module>1.0.0</module>
         <module>2.0.0</module>
     </modules>

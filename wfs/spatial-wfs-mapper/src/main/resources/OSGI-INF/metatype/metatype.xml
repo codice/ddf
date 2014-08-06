@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version. 
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+-->
+
+<metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
+
+	<OCD description="Metacard Attribute to WFS Feature Property Map"
+		name="Metacard Attribute to WFS Feature Property Map" id="org.codice.ddf.spatial.ogc.wfs.catalog.mapper.MetacardAttributeMapper">
+
+
+		<AD name="Feature Type" id="featureType" required="true" type="String"
+			description="Feature Type. Format is {URI}local-name" />
+
+		<AD name="Metacard Attribute to WFS Feature Property Mapping" id="metacardAttrToFeaturePropMap"
+			required="true" type="String" cardinality="100"
+			description="Metacard Attribute to WFS Feature Property Mapping. Format is metacardAttribute=featureProperty" />
+
+	</OCD>
+
+	<Designate factoryPid="org.codice.ddf.spatial.ogc.wfs.catalog.mapper.MetacardAttributeMapper">
+		<Object ocdref="org.codice.ddf.spatial.ogc.wfs.catalog.mapper.MetacardAttributeMapper" />
+	</Designate>
+</metatype:MetaData>
