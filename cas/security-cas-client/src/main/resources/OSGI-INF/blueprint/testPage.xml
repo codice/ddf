@@ -14,14 +14,6 @@
 -->
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
 
-	<bean id="testPage" class="ddf.security.cas.client.TestPage" />
-	
-	<service id="testPageService" ref="testPage"
-		interface="javax.servlet.http.HttpServlet">
-		<service-properties>
-			<entry key="alias" value="/sso" />
-			<entry key="servlet-name" value="TestPage" />
-		</service-properties>
-	</service>
+
 
 </blueprint>

@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  * 
  **/
-package ddf.security.cas.client;
+package org.codice.ddf.security.handler.cas;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -29,6 +29,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.codice.ddf.security.handler.cas.filter.ProxyFilter;
 import org.jasig.cas.client.authentication.AttributePrincipal;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,6 +50,14 @@ public class TestPage extends HttpServlet {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TestPage.class);
 
+    private ProxyFilter proxyFilter;
+
+
+    public TestPage(ProxyFilter proxyFilter) {
+        super();
+        this.proxyFilter = proxyFilter;
+    }
+
     /**
      * @see javax.servlet.http.HttpServlet#doGet(javax.servlet.http.HttpServletRequest,
      *      javax.servlet.http.HttpServletResponse)
@@ -56,7 +65,6 @@ public class TestPage extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
         throws ServletException, IOException {
-        response.setContentType("text/html");
         doPost(request, response);
     }
 
@@ -70,6 +78,9 @@ public class TestPage extends HttpServlet {
         PrintWriter out = null;
 
         try {
+            LOGGER.debug("Calling CAS filters.");
+            proxyFilter.doFilter(request, response, null);
+            LOGGER.debug("Done calling CAS filters, returning SSO page.");
             response.setContentType("text/html");
             out = response.getWriter();
             createPage(request, out);

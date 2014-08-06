@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  * 
  **/
-package ddf.security.cas.client;
+package org.codice.ddf.security.handler.cas;
 
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
@@ -26,6 +26,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.codice.ddf.security.handler.cas.filter.ProxyFilter;
 import org.junit.Test;
 
 public class TestPageTest {
@@ -36,8 +37,9 @@ public class TestPageTest {
         HttpServletRequest request = mock(HttpServletRequest.class);
         HttpServletResponse response = mock(HttpServletResponse.class);
         when(response.getWriter()).thenReturn(new PrintWriter(writer));
+        ProxyFilter proxyFilter = mock(ProxyFilter.class);
 
-        TestPage page = new TestPage();
+        TestPage page = new TestPage(proxyFilter);
         page.doGet(request, response);
         assertTrue(writer.toString().contains("request.getRemoteUser() = null"));
     }
@@ -50,8 +52,9 @@ public class TestPageTest {
                 .thenThrow(new IllegalArgumentException("Excepted exception."));
         HttpServletResponse response = mock(HttpServletResponse.class);
         when(response.getWriter()).thenReturn(new PrintWriter(writer));
+        ProxyFilter proxyFilter = mock(ProxyFilter.class);
 
-        TestPage page = new TestPage();
+        TestPage page = new TestPage(proxyFilter);
         page.doGet(request, response);
         assertTrue(writer.toString().contains("Error Creating Test Page"));
     }

@@ -14,7 +14,6 @@
  **/
 package org.codice.ddf.security.handler.cas;
 
-import org.apache.ws.security.WSConstants;
 import org.apache.ws.security.util.Base64;
 import org.codice.ddf.security.handler.api.BSTAuthenticationToken;
 import org.codice.ddf.security.handler.api.BaseAuthenticationToken;
@@ -28,19 +27,19 @@ public class CASAuthenticationToken extends BSTAuthenticationToken {
 
     public static final String CAS_ID = "CAS";
 
-    public static final String CAS_VALUE_TYPE = "#" + CAS_ID;
+    private static final String SEP_CHAR = "|";
 
-    public CASAuthenticationToken(Principal principal, String proxyTicket) {
-        this(principal, proxyTicket, BaseAuthenticationToken.DEFAULT_REALM);
+    public CASAuthenticationToken(Principal principal, String proxyTicket, String serviceUrl) {
+        this(principal, proxyTicket, serviceUrl, BaseAuthenticationToken.DEFAULT_REALM);
     }
 
-    public CASAuthenticationToken(Principal principal, String proxyTicket, String realm) {
-        super(principal, proxyTicket, realm);
-        setTokenValueType(WSConstants.X509TOKEN_NS, CAS_VALUE_TYPE);
+    public CASAuthenticationToken(Principal principal, String proxyTicket, String serviceUrl, String realm) {
+        super(principal, proxyTicket + SEP_CHAR + serviceUrl, realm);
+        setTokenValueType("", CAS_ID);
         setTokenId(CAS_ID);
     }
 
-    public String getProxyTicket() {
+    public String getTicketWithService() {
         String ticket = (String) getCredentials();
         return ticket;
     }
@@ -66,7 +65,7 @@ public class CASAuthenticationToken extends BSTAuthenticationToken {
 
     @Override
     public String getEncodedCredentials() {
-        String encodedTicket = Base64.encode(getProxyTicket().getBytes());
+        String encodedTicket = Base64.encode(getTicketWithService().getBytes());
         LOGGER.trace("BST: {}", encodedTicket);
         return encodedTicket;
     }
@@ -77,9 +76,9 @@ public class CASAuthenticationToken extends BSTAuthenticationToken {
         sb.append("User: ");
         sb.append(getUser());
         sb.append("; ticket: ");
-        String ticket = getProxyTicket();
+        String ticket = getTicketWithService();
         if ((ticket != null) && (ticket.length() > 5))
-            sb.append(getProxyTicket().substring(0, 5));
+            sb.append(getTicketWithService().substring(0, 5));
         else
             sb.append(ticket);
         sb.append("...; realm: ");

@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-package ddf.security.cas.client;
+package org.codice.ddf.security.handler.cas.filter;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -41,7 +41,7 @@ public class ProxyFilterChain implements FilterChain {
     private Iterator<Filter> iterator;
 
     /**
-     * @param filterChain The filter chain from the web container.
+     * @param filterChain The filter chain from the web container. If null, no other filters will be called after this chain is complete.
      */
     public ProxyFilterChain(FilterChain filterChain) {
         this.filterChain = filterChain;
@@ -94,11 +94,15 @@ public class ProxyFilterChain implements FilterChain {
             LOGGER.debug("Calling filter {}.doFilter({},{},{})", filter.getClass().getName(), servletRequest, servletResponse, this);
             filter.doFilter(servletRequest, servletResponse, this);
         } else {
-            LOGGER.debug("Calling filterChain {}.doFilter({},{})", filterChain.getClass().getName(), servletRequest, servletResponse);
-            servletRequest.setAttribute("org.codice.ddf.ui.searchui.standard.properties.user",
-              ((HttpServletRequestWrapper) servletRequest).getRemoteUser());
-            LOGGER.debug("User: {}", servletRequest.getAttribute("org.codice.ddf.ui.searchui.standard.properties.user"));
-            filterChain.doFilter(servletRequest, servletResponse);
+            if (filterChain != null) {
+                servletRequest.setAttribute("org.codice.ddf.ui.searchui.standard.properties.user",
+                        ((HttpServletRequestWrapper) servletRequest).getRemoteUser());
+                LOGGER.debug("User: {}", servletRequest
+                        .getAttribute("org.codice.ddf.ui.searchui.standard.properties.user"));
+                LOGGER.debug("Calling filterChain {}.doFilter({},{})",
+                        filterChain.getClass().getName(), servletRequest, servletResponse);
+                filterChain.doFilter(servletRequest, servletResponse);
+            }
         }
     }
 

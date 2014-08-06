@@ -26,8 +26,6 @@
     	</cm:default-properties>
     </cm:property-placeholder>
 
-	<bean id="casSingleSignOutFilter" class="org.jasig.cas.client.session.SingleSignOutFilter" />
-
 	<bean id="casAuthenticationFilter"
 		class="org.jasig.cas.client.authentication.AuthenticationFilter">
   		<property name="serverName" value="$cas{serverName}" />
@@ -49,27 +47,20 @@
 	</bean>
 
 	<bean id="cas20ServiceTicketValidator"
-		class="org.jasig.cas.client.validation.Cas20ServiceTicketValidator">
+		class="org.jasig.cas.client.validation.Cas20ProxyTicketValidator">
 		<argument value="$cas{casServerUrl}" />
 		<property  name="proxyCallbackUrl" value="$cas{proxyCallbackUrl}" />
+        <property name="acceptAnyProxy" value="true" />
 		<property name="proxyGrantingTicketStorage" ref="proxyStorage" />
 	</bean>
 
-	<bean id="casRequestWrapperFilter"
-		class="org.jasig.cas.client.util.HttpServletRequestWrapperFilter" />
-
-	<bean id="casAssertionThreadLocalFilter" class="org.jasig.cas.client.util.AssertionThreadLocalFilter" />
-
 	<bean id="proxyStorage" class="org.jasig.cas.client.proxy.ProxyGrantingTicketStorageImpl" />
 
-	<bean id="proxyFilter" class="ddf.security.cas.client.ProxyFilter">
+	<bean id="proxyFilter" class="org.codice.ddf.security.handler.cas.filter.ProxyFilter">
 		<argument>
 			<list value-type="javax.servlet.Filter">
-			    <ref component-id="casSingleSignOutFilter" />
 			    <ref component-id="casTicketValidationFilter" />
-				<ref component-id="casAuthenticationFilter" />
-				<ref component-id="casRequestWrapperFilter" />
-				<ref component-id="casAssertionThreadLocalFilter" />
+                <ref component-id="casAuthenticationFilter" />
 			</list>
 		</argument>
 	</bean>
@@ -81,7 +72,19 @@
         <property name="proxyFilter" ref="proxyFilter" />
     </bean>
 
-    <service ref="filter" interface="org.codice.security.filter.api.AuthenticationHandler" ranking="50">
+    <service ref="filter" interface="org.codice.ddf.security.handler.api.AuthenticationHandler" ranking="50" />
 
+    <!-- SSO Callback Page -->
+    <bean id="testPage" class="org.codice.ddf.security.handler.cas.TestPage">
+        <argument ref="proxyFilter" />
+    </bean>
+
+    <service id="testPageService" ref="testPage"
+             interface="javax.servlet.http.HttpServlet">
+        <service-properties>
+            <entry key="alias" value="/sso" />
+            <entry key="servlet-name" value="TestPage" />
+        </service-properties>
     </service>
+
 </blueprint>

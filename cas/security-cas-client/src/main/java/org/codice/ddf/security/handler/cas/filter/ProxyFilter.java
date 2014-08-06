@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-package ddf.security.cas.client;
+package org.codice.ddf.security.handler.cas.filter;
 
 import java.io.IOException;
 import java.util.List;

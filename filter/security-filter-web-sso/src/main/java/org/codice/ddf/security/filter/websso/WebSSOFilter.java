@@ -165,12 +165,12 @@ public class WebSSOFilter implements Filter {
             case NO_ACTION:
                 // should never occur - one of the handlers should have returned a token
                 LOGGER.warn("No handlers were able to determine required credentials, returning forbidden.");
-                returnSimpleResponse(HttpServletResponse.SC_FORBIDDEN, (HttpServletResponse) httpResponse);
+                returnSimpleResponse(HttpServletResponse.SC_FORBIDDEN, httpResponse);
                 return;
             case COMPLETED:
                 if (result.getToken() == null) {
                     LOGGER.warn("Completed without credentials - check context policy configuration.");
-                    returnSimpleResponse(HttpServletResponse.SC_FORBIDDEN, (HttpServletResponse) httpResponse);
+                    returnSimpleResponse(HttpServletResponse.SC_FORBIDDEN, httpResponse);
                     return;
                 }
                 if (LOGGER.isDebugEnabled()) {
@@ -184,8 +184,7 @@ public class WebSSOFilter implements Filter {
             }
         } else {
             LOGGER.warn("Expected login credentials - didn't find any. Returning a forbidden response.");
-            returnSimpleResponse(HttpServletResponse.SC_FORBIDDEN,
-              (HttpServletResponse) httpResponse);
+            returnSimpleResponse(HttpServletResponse.SC_FORBIDDEN, httpResponse);
             return;
         }
 
@@ -270,8 +269,7 @@ public class WebSSOFilter implements Filter {
             LOGGER.debug("Removing cookie {}", cookieName);
             response.setContentType("text/html");
             Cookie cookie = new Cookie(cookieName, "");
-            URL url = null;
-            url = new URL(request.getRequestURL().toString());
+            URL url = new URL(request.getRequestURL().toString());
             cookie.setDomain(url.getHost());
             cookie.setMaxAge(0);
             cookie.setPath("/");

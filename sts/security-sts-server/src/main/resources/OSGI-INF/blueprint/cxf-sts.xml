@@ -107,11 +107,11 @@
         <property name="lifetime" value="$sts{lifetime}" />
     </bean>
 
-    <bean id="utDelegationHandler" class="org.apache.cxf.sts.token.delegation.UsernameTokenDelegationHandler"></bean>
+    <bean id="utDelegationHandler" class="org.apache.cxf.sts.token.delegation.UsernameTokenDelegationHandler" />
 
-    <bean id="samlDelegationHandler" class="org.apache.cxf.sts.token.delegation.SAMLDelegationHandler"></bean>
+    <bean id="samlDelegationHandler" class="org.apache.cxf.sts.token.delegation.SAMLDelegationHandler" />
 
-    <bean id="hokDelegationHandler" class="org.apache.cxf.sts.token.delegation.HOKDelegationHandler"></bean>
+    <bean id="hokDelegationHandler" class="org.apache.cxf.sts.token.delegation.HOKDelegationHandler" />
 
     <bean id="x509DelegationHandler" class="org.codice.ddf.security.delegation.x509.X509DelegationHandler"></bean>
     <bean id="bstDelegationHandler" class="org.codice.ddf.security.delegation.BSTDelegationHandler"></bean>
@@ -232,7 +232,7 @@
         </jaxws:properties>
     </jaxws:endpoint>
 
-    <reference-list id="tokenValidatorList" interface="org.apache.cxf.sts.token.validator.TokenValidator"/>
+    <reference-list id="tokenValidatorList" interface="org.apache.cxf.sts.token.validator.TokenValidator" availability="optional" />
 
 </blueprint>
 
