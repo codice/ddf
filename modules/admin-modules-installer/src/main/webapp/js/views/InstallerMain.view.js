@@ -21,10 +21,12 @@ define([
     '/installer/js/views/Configuration.view.js',
     '/installer/js/views/Application.view.js',
     '/installer/js/views/Finish.view.js',
+    '/installer/js/views/Profile.view.js',
     'icanhaz',
     'text!/installer/templates/main.handlebars',
-    '/installer/lib/application-module/js/model/Applications.js'
-    ], function (Marionette, WelcomeView, NavigationView, ConfigurationView, ApplicationView, FinishView, ich, mainTemplate, AppModel) {
+    '/installer/lib/application-module/js/model/Applications.js',
+    'js/application'
+    ], function (Marionette, WelcomeView, NavigationView, ConfigurationView, ApplicationView, FinishView,ProfileView, ich, mainTemplate, AppModel, Application) {
 
     ich.addTemplate('mainTemplate', mainTemplate);
 
@@ -37,6 +39,7 @@ define([
             configuration: '#configuration',
             applications: '#applications',
             finish: '#finish',
+            profiles: '#profiles',
             navigation: '#navigation'
         },
         onRender: function() {
@@ -52,10 +55,13 @@ define([
             if(this.configuration.currentView && this.model.get('stepNumber') !== 1) {
                 this.hideConfiguration();
             }
-            if(this.applications.currentView && this.model.get('stepNumber') !== 2) {
+            if(this.profiles.currentView && this.model.get('stepNumber') !== 2) {
+                this.hideProfiles();
+            }
+            if(this.applications.currentView && this.model.get('stepNumber') !== 3) {
                 this.hideApplications();
             }
-            if(this.finish.currentView && this.model.get('stepNumber') !== 3) {
+            if(this.finish.currentView && this.model.get('stepNumber') !== 4) {
                 this.hideFinish();
             }
             //show the next or previous view
@@ -63,9 +69,11 @@ define([
                 this.showWelcome();
             } else if(!this.configuration.currentView && this.model.get('stepNumber') === 1) {
                 this.showConfiguration();
-            } else if(!this.applications.currentView && this.model.get('stepNumber') === 2) {
+            } else if(!this.profiles.currentView && this.model.get('stepNumber') === 2) {
+                this.showProfiles();
+            } else if(!this.applications.currentView && this.model.get('stepNumber') === 3) {
                 this.showApplications();
-            } else if(!this.finish.currentView && this.model.get('stepNumber') >= 3) {
+            } else if(!this.finish.currentView && this.model.get('stepNumber') >= 4) {
                 this.showFinish();
             }
         },
@@ -75,8 +83,7 @@ define([
             } else {
                 this.welcome.show(new WelcomeView({navigationModel: this.model}));
             }
-            var elem = this.$(this.welcome.el);
-            elem.show();
+            this.$(this.welcome.el).show();
         },
         showConfiguration: function() {
             if(this.configuration.currentView) {
@@ -102,6 +109,27 @@ define([
             }
             this.$(this.finish.el).show();
         },
+        showProfiles: function(){
+            var self = this;
+            if(this.profiles.currentView) {
+                this.profiles.show();
+            } else {
+                Application.App.submodules.Installation.installerMainController.fetchInstallProfiles().then(function(profiles){
+                    // set initial selected profile if null.
+                    var profileKey = self.model.get('selectedProfile');
+                    if(!profileKey){
+                        profileKey = profiles.first().get('name');
+                        self.model.set('selectedProfile',profileKey);
+                    }
+
+                    self.profiles.show(new ProfileView({
+                        navigationModel: self.model,
+                        collection: profiles
+                    }));
+                });
+            }
+            this.$(this.profiles.el).show();
+        },
         hideWelcome: function() {
             this.welcome.close();
             this.$(this.welcome.el).hide();
@@ -117,6 +145,10 @@ define([
         hideFinish: function() {
             this.finish.close();
             this.$(this.finish.el).hide();
+        },
+        hideProfiles: function() {
+            this.profiles.close();
+            this.$(this.profiles.el).hide();
         }
     });
 

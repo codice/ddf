@@ -44,12 +44,14 @@ define(['backbone', 'underscore', 'jquery'], function (Backbone, _, $) {
         defaults: {
             hasNext: true,
             hasPrevious: false,
-            totalSteps: 3,
+            totalSteps: 4,
             stepNumber: 0,
             percentComplete: 0,
             busy: false,
             message: '',
-            steps: []
+            steps: [],
+            selectedProfile: null,
+            isCustomProfile: false
         },
         initialize: function() {
             _.bindAll(this);

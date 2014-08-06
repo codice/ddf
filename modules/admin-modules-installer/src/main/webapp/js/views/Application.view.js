@@ -21,9 +21,10 @@ define([
         '/installer/lib/application-module/js/view/Application.view.js',
         'text!/installer/lib/application-module/css/style.css',
         'jquery',
+        'js/application',
         'fileupload'
     ],
-    function(Marionette, ich, applicationWrapperTemplate, AppView, AppCSS, $) {
+    function(Marionette, ich, applicationWrapperTemplate, AppView, AppCSS, $, Application) {
     "use strict";
 
         $("<style type='text/css'> " + AppCSS + " </style>").appendTo("head");
@@ -45,7 +46,20 @@ define([
                 this.listenTo(this.navigationModel, 'previous', this.previous);
             },
             onRender: function () {
-                this.applications.show(new AppView({navigationModel: this.navigationModel, modelClass: this.modelClass, showAddUpgradeBtn: false}));
+                var self = this;
+                Application.App.submodules.Installation.installerMainController.fetchInstallProfiles().then(function(profiles){
+
+                    var profileKey = self.navigationModel.get('selectedProfile');
+                    var selectedProfile = profiles.findWhere({name: profileKey});
+                    var appView  = new AppView({selectedProfile: selectedProfile, modelClass: self.modelClass, showAddUpgradeBtn: false});
+                    self.listenToOnce(appView, 'collection:loaded', function(){
+                        if(!self.navigationModel.get('isCustomProfile')){
+                            self.navigationModel.trigger('next'); // force next step... which will trigger the apps to be installed.
+                        }
+                    });
+                    self.applications.show(appView);
+                });
+
             },
             onClose: function () {
                 this.stopListening(this.navigationModel);

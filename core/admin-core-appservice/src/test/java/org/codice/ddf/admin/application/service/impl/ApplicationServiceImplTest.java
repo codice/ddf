@@ -19,6 +19,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -72,6 +73,8 @@ public class ApplicationServiceImplTest {
     private static final String TEST_MAIN_FEATURE_1_FILE_NAME = "test-features-with-main-feature.xml";
 
     private static final String TEST_MAIN_FEATURE_2_FILE_NAME = "test-features-with-main-feature2.xml";
+    
+    private static final String TEST_INSTALL_PROFILE_FILE_NAME = "test-features-install-profiles.xml";
 
     private static Repository noMainFeatureRepo1, noMainFeatureRepo2, mainFeatureRepo;
 
@@ -927,6 +930,61 @@ public class ApplicationServiceImplTest {
 
         assertNotNull(rootApps);
         assertEquals(2, rootApps.size());
+    }
+    
+    /**
+     * Tests install profile and make sure they load correctly.
+     * @throws Exception 
+     */
+    @Test
+    public void testInstallProfileFeatures() throws Exception {
+        Repository mainFeaturesRepo2 = createRepo(TEST_INSTALL_PROFILE_FILE_NAME);
+
+        Set<Repository> activeRepos = new HashSet<Repository>(Arrays.asList(mainFeatureRepo,
+                mainFeaturesRepo2, noMainFeatureRepo1));
+
+        FeaturesService featuresService = createMockFeaturesService(activeRepos, null, null);
+        when(bundleContext.getService(mockFeatureRef)).thenReturn(featuresService);
+
+        ApplicationServiceImpl appService = new ApplicationServiceImpl(bundleContext, bundleStateServices);
+
+        List<Feature> profiles = appService.getInstallationProfiles();
+
+        assertNotNull(profiles);
+        assertEquals(2, profiles.size());
+        
+        assertEquals("profile-test1", profiles.get(0).getName());
+        // loop through since they can be returned in any order.
+        for (Feature profile : profiles) {
+            if ("profile-test1".equals(profile.getName())) {
+        		assertEquals("Desc1", profile.getDescription());
+                List<String> featureNames = getFeatureNames(profile.getDependencies());
+        		assertEquals(1, featureNames.size());
+        		assertTrue(featureNames.contains("main-feature"));
+            } else if ("profile-test2".equals(profile.getName())) {
+        		assertEquals("Desc2", profile.getDescription());
+                List<String> featureNames = getFeatureNames(profile.getDependencies());
+        		assertEquals(2, featureNames.size());
+        		assertTrue(featureNames.contains("main-feature"));
+        		assertTrue(featureNames.contains("main-feature2"));
+        		
+        	} else {
+        		fail("feature should not be a install-profile feature.  FeatureName:" + profile.getName());
+        	}
+        }
+    }
+    
+    /**
+     * Builds a list containing the feature names of all features.
+     * @param features features to loop through.
+     * @return list containing the feature names.
+     */
+    private List<String> getFeatureNames(List<Feature> features){
+    	List<String> featureNames = new ArrayList<String>();
+    	for(Feature feature : features){
+    		featureNames.add(feature.getName());
+    	}
+    	return featureNames;
     }
 
     /**

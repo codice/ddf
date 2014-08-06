@@ -87,3 +87,57 @@ center {
 .disabled-previous {
     background-color: #DDD !important;
 }
+
+.text-center {
+    text-align: center;
+}
+
+
+.profile-options {
+    cursor: pointer;
+    height: 400px;
+}
+
+.profile-options .cell {
+    display: table-cell;
+    height: 100px;
+    vertical-align: middle;
+    padding: 0px 0px 0px 20px;
+}
+
+.profile-option.selected {
+    background-color: #ecf0f1; /* Same as well well-main */
+}
+
+.profile-option .customize {
+    display: none;
+    margin: 0px 20px 0px 20px;
+
+    /* colors pulled from bootstrap btn-default */
+    color: #ffffff;
+    background-color: #798d8f;
+    border-color: #74898a;
+}
+
+.profile-option .customize i{
+    display: none;
+}
+
+.profile-option .customize[data-is-customized="true"] {
+    /* colors pulled from bootstrap btn-primary */
+    color: #ffffff;
+    background-color: #2c3e50;
+    border-color: #2c3e50;
+}
+
+.profile-option .customize[data-is-customized="true"] i {
+    display: inline-block;
+}
+
+.profile-option.selected .customize {
+    display: block;
+}
+
+.profile-option h2 {
+    text-transform: capitalize;
+}

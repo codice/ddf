@@ -15,6 +15,7 @@
 package org.codice.ddf.admin.application.service;
 
 import java.net.URI;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.karaf.features.Feature;
@@ -183,5 +184,11 @@ public interface ApplicationService {
      * @return The application which contains that feature.
      */
     Application findFeature(Feature feature);
+
+    /**
+     * Gets the application Profile features on the system.
+     * @return the inatllation profiles.
+     */
+    List<Feature> getInstallationProfiles();
 
 }

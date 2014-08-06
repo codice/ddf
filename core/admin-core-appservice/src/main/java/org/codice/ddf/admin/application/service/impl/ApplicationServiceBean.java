@@ -29,6 +29,7 @@ import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.karaf.features.Feature;
 import org.codice.ddf.admin.application.service.Application;
 import org.codice.ddf.admin.application.service.ApplicationNode;
 import org.codice.ddf.admin.application.service.ApplicationService;
@@ -43,7 +44,9 @@ import org.slf4j.LoggerFactory;
  */
 public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
 
-    private ObjectName objectName;
+    
+
+	private ObjectName objectName;
 
     private MBeanServer mBeanServer;
 
@@ -60,6 +63,12 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
     private static final String MAP_STATE = "state";
     
     private static final String MAP_URI = "uri";
+    
+    private static final String INSTALL_PROFILE_DEFAULT_APPLICATIONS = "defaultApplications";
+
+	private static final String INSTALL_PROFILE_DESCRIPTION = "description";
+
+	private static final String INSTALL_PROFILE_NAME = "name";
 
     private static final String MAP_DEPENDENCIES = "dependencies";
 
@@ -137,6 +146,32 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
             throw new ApplicationServiceException(e);
         }
     }
+
+
+
+    @Override
+    public List<Map<String, Object>> getInstallationProfiles(){
+        List<Feature> installationProfiles = appService.getInstallationProfiles();
+        List<Map<String, Object>> profiles = new ArrayList<Map<String, Object>>();
+
+        for(Feature profile : installationProfiles){
+            Map<String, Object> profileMap = new HashMap<String, Object>();
+            profileMap.put(INSTALL_PROFILE_NAME, profile.getName());
+            profileMap.put(INSTALL_PROFILE_DESCRIPTION, profile.getDescription());
+
+            List<String> includedFeatures = new ArrayList<String>();
+            for (Feature feature : profile.getDependencies()) {
+                includedFeatures.add(feature.getName());
+            }
+            profileMap.put(INSTALL_PROFILE_DEFAULT_APPLICATIONS, includedFeatures);
+
+            profiles.add(profileMap);
+        }
+
+        return profiles;
+
+    }
+
 
     @Override
     public List<Map<String, Object>> getApplicationTree() {

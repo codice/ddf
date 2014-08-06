@@ -70,7 +70,7 @@ public class ApplicationUploadEndpoint {
 
         List<Attachment> attachmentList = multipartBody.getAllAttachments();
         File newFile = null;
-        for(Attachment attachment : attachmentList) {
+        for (Attachment attachment : attachmentList) {
             filename = attachment.getContentDisposition().getParameter(FILENAME_CONTENT_DISPOSITION_PARAMETER_NAME);
 
             if (StringUtils.isEmpty(filename)) {
@@ -151,9 +151,9 @@ public class ApplicationUploadEndpoint {
             }
         }
 
-        if(response == null) {
+        if (response == null) {
             try {
-                if(newFile != null) {
+                if (newFile != null) {
                     appService.addApplication(newFile.toURI());
                 }
 

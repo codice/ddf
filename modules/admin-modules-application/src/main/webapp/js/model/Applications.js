@@ -313,7 +313,20 @@ define([
             this.get('children').each(function(child, index) {
                 child.validateInstall(jsonModel.children.at(index).toJSON(), failList);
             });
-        }
+        },
+
+        setSelectedBasedOnProfile: function(installProfile){
+            var self = this;
+            if( _.indexOf(installProfile.get('defaultApplications'), self.get('appId')) > -1){
+                self.set('selected', true);
+            }
+
+            if(self.get('children')){
+                self.get('children').each(function(childModel){
+                    childModel.setSelectedBasedOnProfile(installProfile);
+                });
+            }
+        },
 
     });
 
@@ -416,8 +429,17 @@ define([
                     statusUpdate('', 100);
                 }
             }
-        }
+        },
 
+        // loops through all nodes and their children and marks them selected if they exist in the installation profile provided.
+        setSelectedBasedOnProfile: function(installProfile){
+            var self = this;
+            if(installProfile){
+                self.each(function(model){
+                    model.setSelectedBasedOnProfile(installProfile);
+                });
+            }
+        }
     });
 
     // Applications.Response
