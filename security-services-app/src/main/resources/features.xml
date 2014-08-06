@@ -140,6 +140,7 @@
         <feature>security-handler-pki</feature>
         <feature>security-sts-upbstvalidator</feature>
         <feature>security-filter-authz</feature>
+        <feature>security-pdp-java</feature>
     </feature>
 
     <feature name="security-handler-basic" install="manual" version="${project.version}"

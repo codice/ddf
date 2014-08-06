@@ -14,9 +14,8 @@
  **/
 package org.codice.ddf.security.filter.authorization;
 
-import ddf.security.SecurityConstants;
-import ddf.security.Subject;
 import ddf.security.permission.CollectionPermission;
+import org.apache.shiro.SecurityUtils;
 import org.codice.ddf.security.policy.context.ContextPolicy;
 import org.codice.ddf.security.policy.context.ContextPolicyManager;
 import org.slf4j.Logger;
@@ -64,7 +63,13 @@ public class AuthorizationFilter implements Filter {
         HttpServletRequest httpRequest = (HttpServletRequest) request;
         HttpServletResponse httpResponse = (HttpServletResponse) response;
 
-        Subject subject = (Subject) httpRequest.getAttribute(SecurityConstants.SECURITY_SUBJECT);
+        org.apache.shiro.subject.Subject subject = null;
+
+        try {
+            subject = SecurityUtils.getSubject();
+        } catch (Exception e) {
+            LOGGER.debug("Unable to retrieve user from request.", e);
+        }
 
         ContextPolicy policy = contextPolicyManager.getContextPolicy(httpRequest.getContextPath());
 
