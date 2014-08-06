@@ -25,4 +25,6 @@ public interface MetacardAttributeMapper {
      * @return The Feature property mapped to the given Metacard attribute.
      */
     String getFeaturePropertyForMetacardAttribute(String metacardAttribute);
+    
+    String getFeatureType();
 }

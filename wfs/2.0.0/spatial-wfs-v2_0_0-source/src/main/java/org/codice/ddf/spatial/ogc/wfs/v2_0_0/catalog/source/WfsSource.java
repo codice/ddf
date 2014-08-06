@@ -64,12 +64,13 @@ import org.codice.ddf.spatial.ogc.catalog.common.AvailabilityTask;
 import org.codice.ddf.spatial.ogc.catalog.common.ContentTypeFilterDelegate;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.FeatureMetacardType;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsException;
-import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.Wfs20FeatureCollection;
 import org.codice.ddf.spatial.ogc.wfs.catalog.converter.FeatureConverter;
 import org.codice.ddf.spatial.ogc.wfs.catalog.converter.FeatureConverterFactory;
+import org.codice.ddf.spatial.ogc.wfs.catalog.mapper.MetacardAttributeMapper;
 import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.DescribeFeatureTypeRequest;
 import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.GetCapabilitiesRequest;
 import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.Wfs20Constants;
+import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.Wfs20FeatureCollection;
 import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.converter.impl.GenericFeatureConverterWfs20;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;
@@ -168,7 +169,7 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
     private List<FeatureConverterFactory> featureConverterFactories;
 
     private static final String DEFAULT_WFS_TRANSFORMER_ID = "wfs_2_0";
-
+    
     static {
         try {
             describableProperties.load(WfsSource.class
@@ -193,6 +194,8 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
     private AvailabilityTask availabilityTask;
 
     private Set<SourceMonitor> sourceMonitors = new HashSet<SourceMonitor>();
+    
+    private List<MetacardAttributeMapper> metacardAttributeToFeaturePropertyMappers;
 
     public WfsSource(RemoteWfs remoteWfs, FilterAdapter filterAdapter, BundleContext context,
             AvailabilityTask task) {
@@ -409,9 +412,12 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
                     FeatureMetacardType featureMetacardType = registration.getFtMetacard();
                     lookupFeatureConverter(ftSimpleName, featureMetacardType);
                     
+                    MetacardAttributeMapper metacardAttributeToFeaturePropertyMapper = 
+                            lookupMetacardAttributeToFeaturePropertyMapper(featureMetacardType.getFeatureType());
+                    
                     this.featureTypeFilters.put(featureMetacardType.getFeatureType(),
                             new WfsFilterDelegate(featureMetacardType, filterCapabilities,
-                                    registration.getSrs()));
+                                    registration.getSrs(), metacardAttributeToFeaturePropertyMapper));
                 }
             } catch (WfsException wfse) {
                 LOGGER.warn(WFS_ERROR_MESSAGE, wfse);
@@ -491,6 +497,29 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
 
         // Add the Feature Type name as an alias for xstream
         remoteWfs.getFeatureCollectionReader().registerConverter(featureConverter);
+    }
+    
+    private MetacardAttributeMapper lookupMetacardAttributeToFeaturePropertyMapper(QName featureType) {
+        MetacardAttributeMapper metacardAttributeToFeaturePropertyMapper = null;
+
+        if (this.metacardAttributeToFeaturePropertyMappers != null) {
+            for (MetacardAttributeMapper mapper : this.metacardAttributeToFeaturePropertyMappers) {
+                if (StringUtils.equals(mapper.getFeatureType(), featureType.toString())) {
+                    LOGGER.debug("Found {} for feature type {}.",
+                            MetacardAttributeMapper.class.getSimpleName(), featureType.toString());
+                    metacardAttributeToFeaturePropertyMapper = mapper;
+                    break;
+                }
+            }
+
+            if (metacardAttributeToFeaturePropertyMapper == null) {
+                LOGGER.warn("Unable to find a {} for feature type {}.",
+                        MetacardAttributeMapper.class.getSimpleName(), featureType.toString());
+            }
+
+        }
+
+        return metacardAttributeToFeaturePropertyMapper;
     }
 
     private MetacardTypeRegistration createFeatureMetacardTypeRegistration(
@@ -832,6 +861,14 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
     public void setFeatureConverterFactoryList(List<FeatureConverterFactory> factories) {
         this.featureConverterFactories = factories;
     }
+    
+    public void setMetacardAttributeToFeaturePropertyMapper(List<MetacardAttributeMapper> mappers) {
+        this.metacardAttributeToFeaturePropertyMappers = mappers;
+    }
+    
+    public List<MetacardAttributeMapper> getMetacardAttributeToFeaturePropertyMappers() {
+        return this.metacardAttributeToFeaturePropertyMappers;
+    }
 
     private String handleWebApplicationException(WebApplicationException wae) {
         Response response = wae.getResponse();
@@ -844,7 +881,7 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
         //return msg;
         return null;
     }
-
+    
     private String handleClientException(ClientException ce) {
         String msg = "";
         if (ce.getCause() instanceof WebApplicationException) {

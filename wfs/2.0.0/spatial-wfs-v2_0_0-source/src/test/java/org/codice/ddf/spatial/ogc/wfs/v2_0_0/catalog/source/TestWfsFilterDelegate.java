@@ -55,11 +55,11 @@ import net.opengis.gml.v_3_2_0.TimePeriodType;
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.FeatureAttributeDescriptor;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.FeatureMetacardType;
+import org.codice.ddf.spatial.ogc.wfs.catalog.mapper.MetacardAttributeMapper;
 import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.Wfs20Constants;
 import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.Wfs20Constants.COMPARISON_OPERATORS;
 import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.Wfs20Constants.SPATIAL_OPERATORS;
 import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.Wfs20Constants.TEMPORAL_OPERATORS;
-
 import org.hamcrest.text.pattern.PatternMatcher;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeUtils;
@@ -90,7 +90,7 @@ public class TestWfsFilterDelegate {
     @Test
     public void testFullFilterCapabilities() {
         WfsFilterDelegate delegate = new WfsFilterDelegate(mockFeatureMetacardType,
-                MockWfsServer.getFilterCapabilities(), Wfs20Constants.EPSG_4326_URN);
+                MockWfsServer.getFilterCapabilities(), Wfs20Constants.EPSG_4326_URN, null);
         assertThat(delegate.isLogicalOps(), is(true));
         assertThat(delegate.isEpsg4326(), is(true));
         assertThat(delegate.isSortingSupported(), is(true));
@@ -107,7 +107,7 @@ public class TestWfsFilterDelegate {
         FilterCapabilities capabilities = MockWfsServer.getFilterCapabilities();
         capabilities.setConformance(null);
         WfsFilterDelegate delegate = new WfsFilterDelegate(mockFeatureMetacardType, capabilities,
-                Wfs20Constants.EPSG_4326_URN);
+                Wfs20Constants.EPSG_4326_URN, null);
         assertThat(delegate.isLogicalOps(), is(true));
         assertThat(delegate.isEpsg4326(), is(true));
         assertThat(delegate.isSortingSupported(), is(false));
@@ -124,7 +124,7 @@ public class TestWfsFilterDelegate {
         FilterCapabilities capabilities = MockWfsServer.getFilterCapabilities();
         capabilities.setScalarCapabilities(null);
         WfsFilterDelegate delegate = new WfsFilterDelegate(mockFeatureMetacardType, capabilities,
-                Wfs20Constants.EPSG_4326_URN);
+                Wfs20Constants.EPSG_4326_URN, null);
         assertThat(delegate.isLogicalOps(), is(false));
         assertThat(delegate.isEpsg4326(), is(true));
         assertThat(delegate.isSortingSupported(), is(true));
@@ -141,7 +141,7 @@ public class TestWfsFilterDelegate {
         FilterCapabilities capabilities = MockWfsServer.getFilterCapabilities();
         capabilities.setSpatialCapabilities(null);
         WfsFilterDelegate delegate = new WfsFilterDelegate(mockFeatureMetacardType, capabilities,
-                Wfs20Constants.EPSG_4326_URN);
+                Wfs20Constants.EPSG_4326_URN, null);
         assertThat(delegate.isLogicalOps(), is(true));
         assertThat(delegate.isEpsg4326(), is(true));
         assertThat(delegate.isSortingSupported(), is(true));
@@ -158,7 +158,7 @@ public class TestWfsFilterDelegate {
         FilterCapabilities capabilities = MockWfsServer.getFilterCapabilities();
         capabilities.setTemporalCapabilities(null);
         WfsFilterDelegate delegate = new WfsFilterDelegate(mockFeatureMetacardType, capabilities,
-                Wfs20Constants.EPSG_4326_URN);
+                Wfs20Constants.EPSG_4326_URN, null);
         assertThat(delegate.isLogicalOps(), is(true));
         assertThat(delegate.isEpsg4326(), is(true));
         assertThat(delegate.isSortingSupported(), is(true));
@@ -178,8 +178,8 @@ public class TestWfsFilterDelegate {
      * 
      *   <Filter>
      *     <During>
-     *         <ValueReference>myPropertyName</ValueReference>
-     *         <ns4:TimePeriod ns4:id="myType.1406219647420">
+     *         <ValueReference>myFeatureProperty</ValueReference>
+     *         <ns4:TimePeriod ns4:id="myFeatureType.1406219647420">
      *             <ns4:beginPosition>1974-08-01T16:29:45.430-07:00</ns4:beginPosition>
      *             <ns4:endPosition>2014-07-22T16:29:45.430-07:00</ns4:endPosition>
      *         </ns4:TimePeriod>
@@ -189,63 +189,69 @@ public class TestWfsFilterDelegate {
      **/
     public void testDuring_PropertyIsOfTemporalType() throws Exception {
         // Setup
-        String mockProperty = "myPropertyName";
-        String mockType = "myType";
+        String mockMetacardAttribute = "myMetacardAttribute";
+        String mockFeatureType = "myFeatureType";
+        String mockFeatureProperty = "myFeatureProperty";
         List<String> mockProperties = new ArrayList<String>(1);
-        mockProperties.add(mockProperty);
+        mockProperties.add(mockFeatureProperty);
         when(mockFeatureMetacardType.getProperties()).thenReturn(mockProperties);
-        when(mockFeatureMetacardType.getName()).thenReturn(mockType);
+        when(mockFeatureMetacardType.getName()).thenReturn(mockFeatureType);
         when(mockFeatureMetacardType.getTemporalProperties()).thenReturn(mockProperties);
         FeatureAttributeDescriptor mockFeatureAttributeDescriptor = mock(FeatureAttributeDescriptor.class);
         when(mockFeatureAttributeDescriptor.isIndexed()).thenReturn(true);
-        when(mockFeatureAttributeDescriptor.getPropertyName()).thenReturn(mockProperty);
-        when(mockFeatureMetacardType.getAttributeDescriptor(mockProperty)).thenReturn(mockFeatureAttributeDescriptor);
+        when(mockFeatureAttributeDescriptor.getPropertyName()).thenReturn(mockFeatureProperty);
+        when(mockFeatureMetacardType.getAttributeDescriptor(mockFeatureProperty)).thenReturn(mockFeatureAttributeDescriptor);
+        MetacardAttributeMapper mockMapper = mock(MetacardAttributeMapper.class);
+        when(mockMapper.getFeaturePropertyForMetacardAttribute(mockMetacardAttribute)).thenReturn(mockFeatureProperty);
         WfsFilterDelegate delegate = new WfsFilterDelegate(mockFeatureMetacardType,
-                MockWfsServer.getFilterCapabilities(), Wfs20Constants.EPSG_4326_URN);
+                MockWfsServer.getFilterCapabilities(), Wfs20Constants.EPSG_4326_URN, mockMapper);
         DateTime startDate = new DateTime().minusDays(365);
         DateTime endDate = new DateTime().minusDays(10);
         
         // Perform Test
-        FilterType filter = delegate.during(mockProperty, startDate.toDate(), endDate.toDate());
+        FilterType filter = delegate.during(mockMetacardAttribute, startDate.toDate(), endDate.toDate());
 
         //Verify
         assertThat(filter.getTemporalOps().getName().toString(), is("{http://www.opengis.net/fes/2.0}During"));
         BinaryTemporalOpType binaryTemporalOpType = (BinaryTemporalOpType) filter.getTemporalOps().getValue();
         assertThat(binaryTemporalOpType.isSetValueReference(), is(true));
-        assertThat(binaryTemporalOpType.getValueReference(), is(mockProperty));
+        assertThat(binaryTemporalOpType.getValueReference(), is(mockFeatureProperty));
         assertThat(binaryTemporalOpType.isSetExpression(), is(true));
         TimePeriodType timePeriod = (TimePeriodType) binaryTemporalOpType.getExpression().getValue();
         assertThat(timePeriod.getBeginPosition().getValue().get(0), is(startDate.toString()));
         assertThat(timePeriod.getEndPosition().getValue().get(0), is(endDate.toString()));
-        assertThat(timePeriod.getId(), is(matchesPattern(new PatternMatcher(sequence(mockType, ".", oneOrMore(anyCharacterIn("0-9")))))));
+        assertThat(timePeriod.getId(), is(matchesPattern(new PatternMatcher(sequence(mockFeatureType, ".", oneOrMore(anyCharacterIn("0-9")))))));
     }
     
     @Test(expected=IllegalArgumentException.class)
     /**
-     * Verify that when Feature property "myPropertyName" is not defined in the Feature schema as a {http://www.opengis.net/gml/3.2}TimePeriodType
+     * Verify that when Feature property "myFeatureProperty" is not defined in the Feature schema as a {http://www.opengis.net/gml/3.2}TimePeriodType
      * an IllegalArgumentException is thrown.
      */
     public void testDuring_PropertyIsNotOfTemporalType() {
         // Setup
-        String mockProperty = "myPropertyName";
-        String mockType = "myType";
+        String mockMetacardAttribute = "myMetacardAttribute";
+        String mockFeatureType = "myFeatureType";
+        String mockFeatureProperty = "myFeatureProperty";
         List<String> mockProperties = new ArrayList<String>(1);
-        mockProperties.add(mockProperty);
+        mockProperties.add(mockFeatureProperty);
         when(mockFeatureMetacardType.getProperties()).thenReturn(mockProperties);
-        when(mockFeatureMetacardType.getName()).thenReturn(mockType);
+        when(mockFeatureMetacardType.getName()).thenReturn(mockFeatureType);
         List<String> mockTemporalProperties = Collections.emptyList();
         when(mockFeatureMetacardType.getTemporalProperties()).thenReturn(mockTemporalProperties);
         FeatureAttributeDescriptor mockFeatureAttributeDescriptor = mock(FeatureAttributeDescriptor.class);
         when(mockFeatureAttributeDescriptor.isIndexed()).thenReturn(true);
-        when(mockFeatureAttributeDescriptor.getPropertyName()).thenReturn(mockProperty);
-        when(mockFeatureMetacardType.getAttributeDescriptor(mockProperty)).thenReturn(mockFeatureAttributeDescriptor);
+        when(mockFeatureAttributeDescriptor.getPropertyName()).thenReturn(mockFeatureProperty);
+        when(mockFeatureMetacardType.getAttributeDescriptor(mockFeatureProperty)).thenReturn(mockFeatureAttributeDescriptor);
+        MetacardAttributeMapper mockMapper = mock(MetacardAttributeMapper.class);
+        when(mockMapper.getFeaturePropertyForMetacardAttribute(mockMetacardAttribute)).thenReturn(mockFeatureProperty);
         WfsFilterDelegate delegate = new WfsFilterDelegate(mockFeatureMetacardType,
-                MockWfsServer.getFilterCapabilities(), Wfs20Constants.EPSG_4326_URN);
+                MockWfsServer.getFilterCapabilities(), Wfs20Constants.EPSG_4326_URN, mockMapper);
         DateTime startDate = new DateTime().minusDays(365);
         DateTime endDate = new DateTime().minusDays(10);
         
         // Perform Test
-        FilterType filter = delegate.during(mockProperty, startDate.toDate(), endDate.toDate());
+        FilterType filter = delegate.during(mockMetacardAttribute, startDate.toDate(), endDate.toDate());
     }
     
     @Test
@@ -255,8 +261,8 @@ public class TestWfsFilterDelegate {
      * 
      *   <Filter>
      *     <During>
-     *         <ValueReference>myPropertyName</ValueReference>
-     *         <ns4:TimePeriod ns4:id="myType.1406219647420">
+     *         <ValueReference>myFeatureProperty</ValueReference>
+     *         <ns4:TimePeriod ns4:id="myFeatureType.1406219647420">
      *             <ns4:beginPosition>1974-08-01T16:29:45.430-07:00</ns4:beginPosition>
      *             <ns4:endPosition>2014-07-22T16:29:45.430-07:00</ns4:endPosition>
      *         </ns4:TimePeriod>
@@ -266,19 +272,22 @@ public class TestWfsFilterDelegate {
      **/
     public void testRelative_PropertyIsOfTemporalType() throws Exception {
         // Setup
-        String mockProperty = "myPropertyName";
-        String mockType = "myType";
+        String mockMetacardAttribute = "myMetacardAttribute";
+        String mockFeatureType = "myFeatureType";
+        String mockFeatureProperty = "myFeatureProperty";
         List<String> mockProperties = new ArrayList<String>(1);
-        mockProperties.add(mockProperty);
+        mockProperties.add(mockFeatureProperty);
         when(mockFeatureMetacardType.getProperties()).thenReturn(mockProperties);
-        when(mockFeatureMetacardType.getName()).thenReturn(mockType);
+        when(mockFeatureMetacardType.getName()).thenReturn(mockFeatureType);
         when(mockFeatureMetacardType.getTemporalProperties()).thenReturn(mockProperties);
         FeatureAttributeDescriptor mockFeatureAttributeDescriptor = mock(FeatureAttributeDescriptor.class);
         when(mockFeatureAttributeDescriptor.isIndexed()).thenReturn(true);
-        when(mockFeatureAttributeDescriptor.getPropertyName()).thenReturn(mockProperty);
-        when(mockFeatureMetacardType.getAttributeDescriptor(mockProperty)).thenReturn(mockFeatureAttributeDescriptor);
+        when(mockFeatureAttributeDescriptor.getPropertyName()).thenReturn(mockFeatureProperty);
+        when(mockFeatureMetacardType.getAttributeDescriptor(mockFeatureProperty)).thenReturn(mockFeatureAttributeDescriptor);
+        MetacardAttributeMapper mockMapper = mock(MetacardAttributeMapper.class);
+        when(mockMapper.getFeaturePropertyForMetacardAttribute(mockMetacardAttribute)).thenReturn(mockFeatureProperty);
         WfsFilterDelegate delegate = new WfsFilterDelegate(mockFeatureMetacardType,
-                MockWfsServer.getFilterCapabilities(), Wfs20Constants.EPSG_4326_URN);
+                MockWfsServer.getFilterCapabilities(), Wfs20Constants.EPSG_4326_URN, mockMapper);
         long duration = 604800000;
         DateTime now = new DateTime();
         /**
@@ -294,18 +303,18 @@ public class TestWfsFilterDelegate {
    
         
         // Perform Test
-        FilterType filter = delegate.relative(mockProperty, duration);
+        FilterType filter = delegate.relative(mockMetacardAttribute, duration);
 
         //Verify
         assertThat(filter.getTemporalOps().getName().toString(), is("{http://www.opengis.net/fes/2.0}During"));
         BinaryTemporalOpType binaryTemporalOpType = (BinaryTemporalOpType) filter.getTemporalOps().getValue();
         assertThat(binaryTemporalOpType.isSetValueReference(), is(true));
-        assertThat(binaryTemporalOpType.getValueReference(), is(mockProperty));
+        assertThat(binaryTemporalOpType.getValueReference(), is(mockFeatureProperty));
         assertThat(binaryTemporalOpType.isSetExpression(), is(true));
         TimePeriodType timePeriod = (TimePeriodType) binaryTemporalOpType.getExpression().getValue();
         assertThat(timePeriod.getBeginPosition().getValue().get(0), is(startDate.toString()));
         assertThat(timePeriod.getEndPosition().getValue().get(0), is(now.toString()));
-        assertThat(timePeriod.getId(), is(matchesPattern(new PatternMatcher(sequence(mockType, ".", oneOrMore(anyCharacterIn("0-9")))))));
+        assertThat(timePeriod.getId(), is(matchesPattern(new PatternMatcher(sequence(mockFeatureType, ".", oneOrMore(anyCharacterIn("0-9")))))));
         
         // Reset the System time
         DateTimeUtils.setCurrentMillisSystem();
@@ -313,29 +322,32 @@ public class TestWfsFilterDelegate {
     
     @Test(expected=IllegalArgumentException.class)
     /**
-     * Verify that when Feature property "myPropertyName" is not defined in the Feature schema as a {http://www.opengis.net/gml/3.2}TimePeriodType
+     * Verify that when Feature property "myFeatureProperty" is not defined in the Feature schema as a {http://www.opengis.net/gml/3.2}TimePeriodType
      * an IllegalArgumentException is thrown.
      */
     public void testRelative_PropertyIsNotOfTemporalType() {
         // Setup
-        String mockProperty = "myPropertyName";
-        String mockType = "myType";
+        String mockMetacardAttribute = "myMetacardAttribute";
+        String mockFeatureType = "myFeatureType";
+        String mockFeatureProperty = "myFeatureProperty";
         List<String> mockProperties = new ArrayList<String>(1);
-        mockProperties.add(mockProperty);
+        mockProperties.add(mockFeatureProperty);
         when(mockFeatureMetacardType.getProperties()).thenReturn(mockProperties);
-        when(mockFeatureMetacardType.getName()).thenReturn(mockType);
+        when(mockFeatureMetacardType.getName()).thenReturn(mockFeatureType);
         List<String> mockTemporalProperties = Collections.emptyList();
         when(mockFeatureMetacardType.getTemporalProperties()).thenReturn(mockTemporalProperties);
         FeatureAttributeDescriptor mockFeatureAttributeDescriptor = mock(FeatureAttributeDescriptor.class);
         when(mockFeatureAttributeDescriptor.isIndexed()).thenReturn(true);
-        when(mockFeatureAttributeDescriptor.getPropertyName()).thenReturn(mockProperty);
-        when(mockFeatureMetacardType.getAttributeDescriptor(mockProperty)).thenReturn(mockFeatureAttributeDescriptor);
+        when(mockFeatureAttributeDescriptor.getPropertyName()).thenReturn(mockFeatureProperty);
+        when(mockFeatureMetacardType.getAttributeDescriptor(mockFeatureProperty)).thenReturn(mockFeatureAttributeDescriptor);
+        MetacardAttributeMapper mockMapper = mock(MetacardAttributeMapper.class);
+        when(mockMapper.getFeaturePropertyForMetacardAttribute(mockMetacardAttribute)).thenReturn(mockFeatureProperty);
         WfsFilterDelegate delegate = new WfsFilterDelegate(mockFeatureMetacardType,
-                MockWfsServer.getFilterCapabilities(), Wfs20Constants.EPSG_4326_URN);
+                MockWfsServer.getFilterCapabilities(), Wfs20Constants.EPSG_4326_URN, mockMapper);
         long duration = 604800000;
 
         // Perform Test
-        FilterType filter = delegate.relative(mockProperty, duration);
+        FilterType filter = delegate.relative(mockMetacardAttribute, duration);
     }
     
     @Test
@@ -345,8 +357,8 @@ public class TestWfsFilterDelegate {
      *    <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
      *    <ns5:Filter xmlns:ns2="http://www.opengis.net/ows/1.1" xmlns="http://www.opengis.net/fes/2.0" xmlns:ns4="http://www.opengis.net/gml" xmlns:ns3="http://www.w3.org/1999/xlink" xmlns:ns5="http://www.opengis.net/ogc">
      *        <After>
-     *            <ValueReference>myPropertyName</ValueReference>
-     *            <ns4:TimeInstant ns4:id="myType.1406219647420">
+     *            <ValueReference>myFeatureProperty</ValueReference>
+     *            <ns4:TimeInstant ns4:id="myFeatureType.1406219647420">
      *                <ns4:timePosition>2013-07-23T14:02:09.239-07:00</ns4:timePosition>
      *            </ns4:TimeInstant>
      *         </After>
@@ -354,60 +366,66 @@ public class TestWfsFilterDelegate {
      */
     public void testAfter_PropertyIsOfTemporalType() throws Exception {
         // Setup
-        String mockProperty = "myPropertyName";
-        String mockType = "myType";
+        String mockMetacardAttribute = "myMetacardAttribute";
+        String mockFeatureType = "myFeatureType";
+        String mockFeatureProperty = "myFeatureProperty";
         List<String> mockProperties = new ArrayList<String>(1);
-        mockProperties.add(mockProperty);
+        mockProperties.add(mockFeatureProperty);
         when(mockFeatureMetacardType.getProperties()).thenReturn(mockProperties);
-        when(mockFeatureMetacardType.getName()).thenReturn(mockType);
+        when(mockFeatureMetacardType.getName()).thenReturn(mockFeatureType);
         when(mockFeatureMetacardType.getTemporalProperties()).thenReturn(mockProperties);
         FeatureAttributeDescriptor mockFeatureAttributeDescriptor = mock(FeatureAttributeDescriptor.class);
         when(mockFeatureAttributeDescriptor.isIndexed()).thenReturn(true);
-        when(mockFeatureAttributeDescriptor.getPropertyName()).thenReturn(mockProperty);
-        when(mockFeatureMetacardType.getAttributeDescriptor(mockProperty)).thenReturn(mockFeatureAttributeDescriptor);
+        when(mockFeatureAttributeDescriptor.getPropertyName()).thenReturn(mockFeatureProperty);
+        when(mockFeatureMetacardType.getAttributeDescriptor(mockFeatureProperty)).thenReturn(mockFeatureAttributeDescriptor);
+        MetacardAttributeMapper mockMapper = mock(MetacardAttributeMapper.class);
+        when(mockMapper.getFeaturePropertyForMetacardAttribute(mockMetacardAttribute)).thenReturn(mockFeatureProperty);
         WfsFilterDelegate delegate = new WfsFilterDelegate(mockFeatureMetacardType,
-                MockWfsServer.getFilterCapabilities(), Wfs20Constants.EPSG_4326_URN);
+                MockWfsServer.getFilterCapabilities(), Wfs20Constants.EPSG_4326_URN, mockMapper);
         DateTime date = new DateTime().minusDays(365);
         
         // Perform Test
-        FilterType filter = delegate.after(mockProperty, date.toDate());
+        FilterType filter = delegate.after(mockMetacardAttribute, date.toDate());
 
         //Verify
         assertThat(filter.getTemporalOps().getName().toString(), is("{http://www.opengis.net/fes/2.0}After"));
         BinaryTemporalOpType binaryTemporalOpType = (BinaryTemporalOpType) filter.getTemporalOps().getValue();
         assertThat(binaryTemporalOpType.isSetValueReference(), is(true));
-        assertThat(binaryTemporalOpType.getValueReference(), is(mockProperty));
+        assertThat(binaryTemporalOpType.getValueReference(), is(mockFeatureProperty));
         assertThat(binaryTemporalOpType.isSetExpression(), is(true));
         TimeInstantType timeInstant = (TimeInstantType) binaryTemporalOpType.getExpression().getValue();
         assertThat(timeInstant.getTimePosition().getValue().get(0), is(date.toString()));
-        assertThat(timeInstant.getId(), is(matchesPattern(new PatternMatcher(sequence(mockType, ".", oneOrMore(anyCharacterIn("0-9")))))));
+        assertThat(timeInstant.getId(), is(matchesPattern(new PatternMatcher(sequence(mockFeatureType, ".", oneOrMore(anyCharacterIn("0-9")))))));
     }
     
     @Test(expected=IllegalArgumentException.class)
     /**
-     * Verify that when Feature property "myPropertyName" is not defined in the Feature schema as a {http://www.opengis.net/gml/3.2}TimeInstantType
+     * Verify that when Feature property "myFeatureProperty" is not defined in the Feature schema as a {http://www.opengis.net/gml/3.2}TimeInstantType
      * an IllegalArgumentException is thrown.
      */
     public void testAfter_PropertyIsNotOfTemporalType() {
         // Setup
-        String mockProperty = "myPropertyName";
-        String mockType = "myType";
+        String mockMetacardAttribute = "myMetacardAttribute";
+        String mockFeatureType = "myFeatureType";
+        String mockFeatureProperty = "myFeatureProperty";
         List<String> mockProperties = new ArrayList<String>(1);
-        mockProperties.add(mockProperty);
+        mockProperties.add(mockFeatureProperty);
         when(mockFeatureMetacardType.getProperties()).thenReturn(mockProperties);
-        when(mockFeatureMetacardType.getName()).thenReturn(mockType);
+        when(mockFeatureMetacardType.getName()).thenReturn(mockFeatureType);
         List<String> mockTemporalProperties = Collections.emptyList();
         when(mockFeatureMetacardType.getTemporalProperties()).thenReturn(mockTemporalProperties);
         FeatureAttributeDescriptor mockFeatureAttributeDescriptor = mock(FeatureAttributeDescriptor.class);
         when(mockFeatureAttributeDescriptor.isIndexed()).thenReturn(true);
-        when(mockFeatureAttributeDescriptor.getPropertyName()).thenReturn(mockProperty);
-        when(mockFeatureMetacardType.getAttributeDescriptor(mockProperty)).thenReturn(mockFeatureAttributeDescriptor);
+        when(mockFeatureAttributeDescriptor.getPropertyName()).thenReturn(mockFeatureProperty);
+        when(mockFeatureMetacardType.getAttributeDescriptor(mockFeatureProperty)).thenReturn(mockFeatureAttributeDescriptor);
+        MetacardAttributeMapper mockMapper = mock(MetacardAttributeMapper.class);
+        when(mockMapper.getFeaturePropertyForMetacardAttribute(mockMetacardAttribute)).thenReturn(mockFeatureProperty);
         WfsFilterDelegate delegate = new WfsFilterDelegate(mockFeatureMetacardType,
-                MockWfsServer.getFilterCapabilities(), Wfs20Constants.EPSG_4326_URN);
+                MockWfsServer.getFilterCapabilities(), Wfs20Constants.EPSG_4326_URN, mockMapper);
         DateTime date = new DateTime().minusDays(365);
         
         // Perform Test
-        FilterType filter = delegate.after(mockProperty, date.toDate());
+        FilterType filter = delegate.after(mockMetacardAttribute, date.toDate());
     }
     
     @Test
@@ -417,8 +435,8 @@ public class TestWfsFilterDelegate {
      * <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
      * <ns5:Filter xmlns:ns2="http://www.opengis.net/ows/1.1" xmlns="http://www.opengis.net/fes/2.0" xmlns:ns4="http://www.opengis.net/gml" xmlns:ns3="http://www.w3.org/1999/xlink" xmlns:ns5="http://www.opengis.net/ogc">
      *     <Before>
-     *         <ValueReference>myPropertyName</ValueReference>
-     *         <ns4:TimeInstant ns4:id="myType.1406219647420">
+     *         <ValueReference>myFeatureProperty</ValueReference>
+     *         <ns4:TimeInstant ns4:id="myFeatureType.1406219647420">
      *             <ns4:timePosition>2013-07-23T14:04:50.853-07:00</ns4:timePosition>
      *         </ns4:TimeInstant>
      *     </Before>
@@ -427,60 +445,66 @@ public class TestWfsFilterDelegate {
      */
     public void testBefore_PropertyIsOfTemporalType() throws Exception {
         // Setup
-        String mockProperty = "myPropertyName";
-        String mockType = "myType";
+        String mockMetacardAttribute = "myMetacardAttribute";
+        String mockFeatureType = "myFeatureType";
+        String mockFeatureProperty = "myFeatureProperty";
         List<String> mockProperties = new ArrayList<String>(1);
-        mockProperties.add(mockProperty);
+        mockProperties.add(mockFeatureProperty);
         when(mockFeatureMetacardType.getProperties()).thenReturn(mockProperties);
-        when(mockFeatureMetacardType.getName()).thenReturn(mockType);
+        when(mockFeatureMetacardType.getName()).thenReturn(mockFeatureType);
         when(mockFeatureMetacardType.getTemporalProperties()).thenReturn(mockProperties);
         FeatureAttributeDescriptor mockFeatureAttributeDescriptor = mock(FeatureAttributeDescriptor.class);
         when(mockFeatureAttributeDescriptor.isIndexed()).thenReturn(true);
-        when(mockFeatureAttributeDescriptor.getPropertyName()).thenReturn(mockProperty);
-        when(mockFeatureMetacardType.getAttributeDescriptor(mockProperty)).thenReturn(mockFeatureAttributeDescriptor);
+        when(mockFeatureAttributeDescriptor.getPropertyName()).thenReturn(mockFeatureProperty);
+        when(mockFeatureMetacardType.getAttributeDescriptor(mockFeatureProperty)).thenReturn(mockFeatureAttributeDescriptor);
+        MetacardAttributeMapper mockMapper = mock(MetacardAttributeMapper.class);
+        when(mockMapper.getFeaturePropertyForMetacardAttribute(mockMetacardAttribute)).thenReturn(mockFeatureProperty);
         WfsFilterDelegate delegate = new WfsFilterDelegate(mockFeatureMetacardType,
-                MockWfsServer.getFilterCapabilities(), Wfs20Constants.EPSG_4326_URN);
+                MockWfsServer.getFilterCapabilities(), Wfs20Constants.EPSG_4326_URN, mockMapper);
         DateTime date = new DateTime().minusDays(365);
         
         // Perform Test
-        FilterType filter = delegate.before(mockProperty, date.toDate());
+        FilterType filter = delegate.before(mockMetacardAttribute, date.toDate());
 
         //Verify
         assertThat(filter.getTemporalOps().getName().toString(), is("{http://www.opengis.net/fes/2.0}Before"));
         BinaryTemporalOpType binaryTemporalOpType = (BinaryTemporalOpType) filter.getTemporalOps().getValue();
         assertThat(binaryTemporalOpType.isSetValueReference(), is(true));
-        assertThat(binaryTemporalOpType.getValueReference(), is(mockProperty));
+        assertThat(binaryTemporalOpType.getValueReference(), is(mockFeatureProperty));
         assertThat(binaryTemporalOpType.isSetExpression(), is(true));
         TimeInstantType timeInstant = (TimeInstantType) binaryTemporalOpType.getExpression().getValue();
         assertThat(timeInstant.getTimePosition().getValue().get(0), is(date.toString()));
-        assertThat(timeInstant.getId(), is(matchesPattern(new PatternMatcher(sequence(mockType, ".", oneOrMore(anyCharacterIn("0-9")))))));
+        assertThat(timeInstant.getId(), is(matchesPattern(new PatternMatcher(sequence(mockFeatureType, ".", oneOrMore(anyCharacterIn("0-9")))))));
     }
     
     @Test(expected=IllegalArgumentException.class)
     /**
-     * Verify that when Feature property "myPropertyName" is not defined in the Feature schema as a {http://www.opengis.net/gml/3.2}TimeInstantType
+     * Verify that when Feature property "myFeatureProperty" is not defined in the Feature schema as a {http://www.opengis.net/gml/3.2}TimeInstantType
      * an IllegalArgumentException is thrown.
      */
     public void testBefore_PropertyIsNotOfTemporalType() {
         // Setup
-        String mockProperty = "myPropertyName";
-        String mockType = "myType";
+        String mockMetacardAttribute = "myMetacardAttribute";
+        String mockFeatureType = "myFeatureType";
+        String mockFeatureProperty = "myFeatureProperty";
         List<String> mockProperties = new ArrayList<String>(1);
-        mockProperties.add(mockProperty);
+        mockProperties.add(mockFeatureProperty);
         when(mockFeatureMetacardType.getProperties()).thenReturn(mockProperties);
-        when(mockFeatureMetacardType.getName()).thenReturn(mockType);
+        when(mockFeatureMetacardType.getName()).thenReturn(mockFeatureType);
         List<String> mockTemporalProperties = Collections.emptyList();
         when(mockFeatureMetacardType.getTemporalProperties()).thenReturn(mockTemporalProperties);
         FeatureAttributeDescriptor mockFeatureAttributeDescriptor = mock(FeatureAttributeDescriptor.class);
         when(mockFeatureAttributeDescriptor.isIndexed()).thenReturn(true);
-        when(mockFeatureAttributeDescriptor.getPropertyName()).thenReturn(mockProperty);
-        when(mockFeatureMetacardType.getAttributeDescriptor(mockProperty)).thenReturn(mockFeatureAttributeDescriptor);
+        when(mockFeatureAttributeDescriptor.getPropertyName()).thenReturn(mockFeatureProperty);
+        when(mockFeatureMetacardType.getAttributeDescriptor(mockFeatureProperty)).thenReturn(mockFeatureAttributeDescriptor);
+        MetacardAttributeMapper mockMapper = mock(MetacardAttributeMapper.class);
+        when(mockMapper.getFeaturePropertyForMetacardAttribute(mockMetacardAttribute)).thenReturn(mockFeatureProperty);
         WfsFilterDelegate delegate = new WfsFilterDelegate(mockFeatureMetacardType,
-                MockWfsServer.getFilterCapabilities(), Wfs20Constants.EPSG_4326_URN);
+                MockWfsServer.getFilterCapabilities(), Wfs20Constants.EPSG_4326_URN, mockMapper);
         DateTime date = new DateTime().minusDays(365);
         
         // Perform Test
-        FilterType filter = delegate.before(mockProperty, date.toDate());
+        FilterType filter = delegate.before(mockMetacardAttribute, date.toDate());
     }
     
     @Test
@@ -945,7 +969,7 @@ public class TestWfsFilterDelegate {
         filterCap.setScalarCapabilities(scalar);
         
         WfsFilterDelegate delegate = new WfsFilterDelegate(mockFeatureMetacardType,
-                filterCap, Wfs20Constants.EPSG_4326_URN);
+                filterCap, Wfs20Constants.EPSG_4326_URN, null);
         
         FilterType compFilter1 = delegate.propertyIsLike(Metacard.ANY_TEXT, LITERAL, true);
         FilterType compFilter2 = delegate.propertyIsLike(Metacard.ANY_TEXT, LITERAL, true);
@@ -986,7 +1010,7 @@ public class TestWfsFilterDelegate {
         filterCap.setScalarCapabilities(scalar);
         
         WfsFilterDelegate delegate = new WfsFilterDelegate(mockFeatureMetacardType,
-                filterCap, Wfs20Constants.EPSG_4326_URN);
+                filterCap, Wfs20Constants.EPSG_4326_URN, null);
         
         FilterType compFilter1 = delegate.propertyIsLike(Metacard.ANY_TEXT, LITERAL, true);
         FilterType compFilter2 = delegate.propertyIsLike(Metacard.ANY_TEXT, LITERAL, true);
@@ -1027,7 +1051,7 @@ public class TestWfsFilterDelegate {
         filterCap.setScalarCapabilities(scalar);
         
         WfsFilterDelegate delegate = new WfsFilterDelegate(mockFeatureMetacardType,
-                filterCap, Wfs20Constants.EPSG_4326_URN);
+                filterCap, Wfs20Constants.EPSG_4326_URN, null);
         
         FilterType filterToBeNoted = delegate.propertyIsLike(Metacard.ANY_TEXT, LITERAL, true);
         
@@ -1110,7 +1134,7 @@ public class TestWfsFilterDelegate {
         when(mockFeatureMetacardType.getAttributeDescriptor(mockProperty)).thenReturn(mockFeatureAttributeDescriptor);
         
         WfsFilterDelegate delegate = new WfsFilterDelegate(mockFeatureMetacardType,
-                MockWfsServer.getFilterCapabilities(), Wfs20Constants.EPSG_4326_URN);
+                MockWfsServer.getFilterCapabilities(), Wfs20Constants.EPSG_4326_URN, null);
         
         return delegate;
     }

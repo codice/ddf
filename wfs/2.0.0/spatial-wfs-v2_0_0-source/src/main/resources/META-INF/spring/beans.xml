@@ -25,6 +25,8 @@
 
     <!-- Get reference to Filter Adapter implementation -->
     <reference id="filterAdapter" interface="ddf.catalog.filter.FilterAdapter"/>
+    
+    <list id="metacardAttrToFeaturePropMappers" interface="org.codice.ddf.spatial.ogc.wfs.catalog.mapper.MetacardAttributeMapper" cardinality="0..N" />
 
     <list id="converterList" interface="org.codice.ddf.spatial.ogc.wfs.catalog.converter.FeatureConverterFactory" cardinality="0..N"/>
 
@@ -51,6 +53,7 @@
             <beans:property name="featureConverterFactoryList" ref="converterList"/>
             <beans:property name="pollInterval" value=""/>
             <beans:property name="forceSpatialFilter" value="" />
+            <beans:property name="metacardAttributeToFeaturePropertyMapper" ref="metacardAttrToFeaturePropMappers" />
         </beans:bean>
     </osgix:managed-service-factory>
 
@@ -77,6 +80,7 @@
             <beans:property name="featureConverterFactoryList" ref="converterList"/>
             <beans:property name="pollInterval" value=""/>
             <beans:property name="forceSpatialFilter" value="" />
+            <beans:property name="metacardAttributeToFeaturePropertyMapper" ref="metacardAttrToFeaturePropMapper" />
         </beans:bean>
     </osgix:managed-service-factory>
 </beans:beans>

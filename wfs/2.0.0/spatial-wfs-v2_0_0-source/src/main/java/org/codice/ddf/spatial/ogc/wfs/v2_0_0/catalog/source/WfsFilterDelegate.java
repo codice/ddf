@@ -76,6 +76,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.common.util.CollectionUtils;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.FeatureAttributeDescriptor;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.FeatureMetacardType;
+import org.codice.ddf.spatial.ogc.wfs.catalog.mapper.MetacardAttributeMapper;
 import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.Wfs20Constants;
 import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.Wfs20Constants.COMPARISON_OPERATORS;
 import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.Wfs20Constants.CONFORMANCE_CONSTRAINTS;
@@ -139,14 +140,17 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
     private String srsName;
 
     private boolean isEpsg4326 = false;
+    
+    private MetacardAttributeMapper metacardAttributeToFeaturePropertyMapper;
 
     public WfsFilterDelegate(FeatureMetacardType featureMetacardType,
-            FilterCapabilities filterCapabilities, String srsName) {
+            FilterCapabilities filterCapabilities, String srsName, MetacardAttributeMapper metacardAttributeToFeaturePropertyMapper) {
 
         if (featureMetacardType == null) {
             throw new IllegalArgumentException("FeatureMetacardType can not be null");
         }
         this.featureMetacardType = featureMetacardType;
+        this.metacardAttributeToFeaturePropertyMapper = metacardAttributeToFeaturePropertyMapper;
         this.srsName = srsName;
         if (Wfs20Constants.EPSG_4326.equalsIgnoreCase(srsName)
                 || Wfs20Constants.EPSG_4326_URN.equalsIgnoreCase(srsName)) {
@@ -707,7 +711,7 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
     
     @Override
     public FilterType during(String propertyName, Date startDate, Date endDate) {
-        return buildDuringFilterType(mapPropertyName(propertyName),
+        return buildDuringFilterType(mapMetacardAttribute(propertyName),
                 convertDateToIso8601Format(startDate), convertDateToIso8601Format(endDate));
     }
 
@@ -715,17 +719,17 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
     public FilterType relative(String propertyName, long duration) {
         DateTime now = new DateTime();
         DateTime startDate = now.minus(duration);
-        return buildDuringFilterType(mapPropertyName(propertyName), startDate, now);
+        return buildDuringFilterType(mapMetacardAttribute(propertyName), startDate, now);
     }
 
     @Override
     public FilterType after(String propertyName, Date date) {
-        return buildAfterFilterType(mapPropertyName(propertyName), convertDateToIso8601Format(date));
+        return buildAfterFilterType(mapMetacardAttribute(propertyName), convertDateToIso8601Format(date));
     }
 
     @Override
     public FilterType before(String propertyName, Date date) {
-        return buildBeforeFilterType(mapPropertyName(propertyName),
+        return buildBeforeFilterType(mapMetacardAttribute(propertyName),
                 convertDateToIso8601Format(date));
     }
 
@@ -1758,12 +1762,26 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
         }
     }
     
-    private String mapPropertyName(String originalPropertyName) {
-        // TODO
-        // See DDF ticket https://tools.codice.org/jira/browse/DDF-612 for mapping
-        // metacard attributes to feature properties.
-        LOGGER.debug("No mapping for property {}.", originalPropertyName);
-        return originalPropertyName;
+    private String mapMetacardAttribute(String metacardAttribute) {
+        String featureProperty = null;
+
+        if (this.metacardAttributeToFeaturePropertyMapper != null) {
+            featureProperty = this.metacardAttributeToFeaturePropertyMapper
+                    .getFeaturePropertyForMetacardAttribute(metacardAttribute);
+        } else {
+            LOGGER.debug("{} is null.", MetacardAttributeMapper.class.getSimpleName());
+            return metacardAttribute;
+        }
+
+        if (featureProperty == null) {
+            LOGGER.debug("Unable to find feature property for metacard attribute {}.",
+                    metacardAttribute);
+            return metacardAttribute;
+        } else {
+            LOGGER.debug("Found feature property {} for metacard attribute {}.", featureProperty,
+                    metacardAttribute);
+            return featureProperty;
+        }
     }
     
 }

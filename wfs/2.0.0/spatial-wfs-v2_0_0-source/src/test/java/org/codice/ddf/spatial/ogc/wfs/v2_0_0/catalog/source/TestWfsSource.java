@@ -15,8 +15,8 @@
 package org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.source;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
@@ -41,6 +41,7 @@ import org.apache.ws.commons.schema.XmlSchema;
 import org.apache.ws.commons.schema.XmlSchemaCollection;
 import org.codice.ddf.spatial.ogc.catalog.common.AvailabilityTask;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsException;
+import org.codice.ddf.spatial.ogc.wfs.catalog.mapper.MetacardAttributeMapper;
 import org.codice.ddf.spatial.ogc.wfs.catalog.source.WfsUriResolver;
 import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.DescribeFeatureTypeRequest;
 import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.GetCapabilitiesRequest;
@@ -125,9 +126,15 @@ public class TestWfsSource {
                     xmlSchema);
         }
         when(mockWfs.getFeatureCollectionReader()).thenReturn(mockReader);
-
-        return new WfsSource(mockWfs, new GeotoolsFilterAdapterImpl(), mockContext,
+        
+        MetacardAttributeMapper mockMapper = mock(MetacardAttributeMapper.class);
+        List<MetacardAttributeMapper> mappers = new ArrayList<MetacardAttributeMapper>(1);
+        mappers.add(mockMapper);
+        
+        WfsSource source = new WfsSource(mockWfs, new GeotoolsFilterAdapterImpl(), mockContext,
                 mockAvailabilityTask);
+        source.setMetacardAttributeToFeaturePropertyMapper(mappers);
+        return source;
     }
 
     @Test
@@ -135,7 +142,7 @@ public class TestWfsSource {
         WfsSource source = getWfsSource(ONE_TEXT_PROPERTY_SCHEMA,
                 MockWfsServer.getFilterCapabilities(),
                 Wfs20Constants.EPSG_4326_URN, 1);
-
+        
         assertTrue(source.isAvailable());
         assertThat(source.featureTypeFilters.size(), is(1));
         WfsFilterDelegate delegate = source.featureTypeFilters.get(new QName(SAMPLE_FEATURE_NAME
