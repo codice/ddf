@@ -66,6 +66,7 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.isA;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -266,7 +267,8 @@ public class TestOpenSearchSource {
         // when
         ResourceResponse response = source.retrieveResource(null, requestProperties);
 
-        Assert.assertEquals(1, response.getResource().getByteArray().length);
+        //DDF-643 Assert.assertEquals(1, response.getResource().getByteArray().length);
+        Assert.assertTrue((Boolean) response.getPropertyValue(OpenSearchSource.BYTES_SKIPPED));
     }
 
     /**
@@ -509,6 +511,8 @@ public class TestOpenSearchSource {
         when(client.get()).thenReturn(clientResponse);
 
         when(clientResponse.getEntity()).thenReturn(getBinaryData());
+        
+        when(clientResponse.getHeaderString(eq(OpenSearchSource.HEADER_ACCEPT_RANGES))).thenReturn(OpenSearchSource.BYTES);
 
         when(openSearchConnection.getOpenSearchWebClient()).thenReturn(client);
 

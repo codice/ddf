@@ -65,6 +65,8 @@ public class ReliableResourceDownloadManager implements Runnable {
 
     private static final Logger LOGGER = LoggerFactory
             .getLogger(ReliableResourceDownloadManager.class);
+    
+    public static final String BYTES_SKIPPED = "BytesSkipped";
 
     static final int ONE_SECOND_IN_MS = 1000;
 
@@ -611,6 +613,23 @@ public class ReliableResourceDownloadManager implements Runnable {
             LOGGER.debug("Name of re-retrieved resource = {}",
                     resourceResponse.getResource().getName());
             resourceInputStream = resourceResponse.getResource().getInputStream();
+            
+            // If Source did not support the skipping of bytes, then will have to do it here.
+            if (!resourceResponse.containsPropertyName(BYTES_SKIPPED)) {
+                    LOGGER.debug("Skipping {} bytes in re-retrieved source InputStream", bytesRead);
+                    long numBytesSkipped = resourceInputStream.skip(bytesRead);
+                    LOGGER.debug("Actually skipped {} bytes in source InputStream", numBytesSkipped);
+            } else {
+                // If Source did not skip the number of bytes (even though it supposedly supported skipping)
+                boolean bytesSkipped = (Boolean) resourceResponse.getPropertyValue(BYTES_SKIPPED);
+                if (!bytesSkipped) {
+                    LOGGER.debug("Skipping {} bytes in re-retrieved source InputStream", bytesRead);
+                    long numBytesSkipped = resourceInputStream.skip(bytesRead);
+                    LOGGER.debug("Actually skipped {} bytes in source InputStream", numBytesSkipped);
+                } else {
+                    LOGGER.info("Source skipped bytes");
+                }
+            } 
 
             reliableResourceCallable = new ReliableResourceCallable(resourceInputStream,
                     countingFbos, fos, chunkSize);

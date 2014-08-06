@@ -159,7 +159,7 @@ public class ReliableResourceInputStream extends InputStream {
         }
 
         numBytesRead = readFromFbosInputStream(b, off, len);
-        LOGGER.debug("First time reading inputstream, bytesRead is {}", numBytesRead);
+        LOGGER.trace("First time reading inputstream, bytesRead is {}", numBytesRead);
 
         if (isFbosCompletelyRead(numBytesRead, fbosCount)) {
             LOGGER.debug("Sending EOF");
@@ -167,8 +167,8 @@ public class ReliableResourceInputStream extends InputStream {
             // delete the backing file it created in the <INSTALL_DIR>/data/tmp directory
             fbos.reset();
         } else if (numBytesRead <= 0) {
-            LOGGER.debug("Retry reading inputstream");
-            LOGGER.debug(
+            LOGGER.trace("Retry reading inputstream");
+            LOGGER.trace(
                     "numBytesRead <= 0 but client hasn't read all of the data from FBOS - block and read");
             while (downloadState.getDownloadState()
                     == DownloadManagerState.DownloadState.IN_PROGRESS ||
@@ -178,7 +178,7 @@ public class ReliableResourceInputStream extends InputStream {
                 numBytesRead = readFromFbosInputStream(b, off, len);
 
                 if (numBytesRead > 0) {
-                    LOGGER.debug("retry: numBytesRead = {}", numBytesRead);
+                    LOGGER.trace("retry: numBytesRead = {}", numBytesRead);
                     break;
                 } else if (isFbosCompletelyRead(numBytesRead, fbosCount)) {
                     LOGGER.debug("Got EOF - resetting FBOS");

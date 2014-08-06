@@ -136,13 +136,15 @@ public final class OpenSearchSource implements FederatedSource, ConfiguredServic
 
     private static final String LOCAL_SEARCH_PARAMETER = "local";
 
-    private static final String HEADER_ACCEPT_RANGES = "Accept-Ranges";
+    static final String HEADER_ACCEPT_RANGES = "Accept-Ranges";
 
     private static final String HEADER_RANGE = "Range";
 
     public static final String BYTES_TO_SKIP = "BytesToSkip";
+    
+    public static final String BYTES_SKIPPED = "BytesSkipped";
 
-    private static final String BYTES = "bytes";
+    static final String BYTES = "bytes";
 
     private static final String BYTES_EQUAL = "bytes=";
 
@@ -817,6 +819,7 @@ public final class OpenSearchSource implements FederatedSource, ConfiguredServic
                 WebClient webClient = openSearchConnection.getWebClientFromClient(restClient);
 
                 // If a bytesToSkip property is present add range header
+                Map<String, Serializable> responseProperties = new HashMap<String, Serializable>();
                 if (requestProperties.containsKey(BYTES_TO_SKIP)) {
                     bytesToSkip = (Long) requestProperties.get(BYTES_TO_SKIP);
                     LOGGER.debug("Setting Range header with bytes to skip: {}", bytesToSkip);
@@ -857,16 +860,27 @@ public final class OpenSearchSource implements FederatedSource, ConfiguredServic
                         // by the given number of bytes, so we need to take care of it here.
                         String rangeHeader = clientResponse.getHeaderString(HEADER_ACCEPT_RANGES);
 
+                        /*DDF-643
                         if ((rangeHeader == null) || (!rangeHeader.equals(BYTES))) {
                             LOGGER.debug("Skipping {} bytes", (Long) requestProperties.get(BYTES_TO_SKIP));
                             ((InputStream) binaryContent).skip((Long) requestProperties.get(BYTES_TO_SKIP));
                         }
+                        */
+                        //DDF-643
+                        if ((rangeHeader != null) && (rangeHeader.equals(BYTES))) {
+                            LOGGER.info("Adding {} to response properties with value = {}", BYTES_SKIPPED, true);
+                            responseProperties.put(BYTES_SKIPPED, true);
+                        }                       
                     }
 
                     LOGGER.exit(methodName);
-                    return new ResourceResponseImpl(new ResourceImpl(
+                    
+                    //DDF-643
+                    ResourceResponseImpl resourceResponse = new ResourceResponseImpl(new ResourceImpl(
                             (InputStream) binaryContent, mimeType, getId()
                                     + "_Resource_Retrieval:" + System.currentTimeMillis()));
+                    resourceResponse.setProperties(responseProperties);
+                    return resourceResponse;
                 }
             }
         }

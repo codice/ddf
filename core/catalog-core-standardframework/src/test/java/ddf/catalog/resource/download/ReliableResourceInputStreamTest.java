@@ -222,7 +222,7 @@ public class ReliableResourceInputStreamTest {
 
         org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(
                 is.getClass());
-        logger.setLevel(Level.DEBUG);
+        logger.setLevel(Level.TRACE);
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         Layout layout = new SimpleLayout();
         Appender appender = new WriterAppender(layout, out);

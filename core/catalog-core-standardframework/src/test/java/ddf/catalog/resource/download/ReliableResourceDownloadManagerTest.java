@@ -318,7 +318,7 @@ public class ReliableResourceDownloadManagerTest {
      * @throws Exception
      */
     @Test
-    //@Ignore
+    @Ignore
     public void testStoreWithInputStreamRecoverableErrorCachingDisabled() throws Exception {
 
         mis = new MockInputStream(productInputFilename);
@@ -346,7 +346,7 @@ public class ReliableResourceDownloadManagerTest {
      * @throws Exception
      */
     @Test
-    //@Ignore
+    @Ignore
     public void testStoreWithInputStreamRecoverableErrorCachingEnabled() throws Exception {
 
         mis = new MockInputStream(productInputFilename);
@@ -702,7 +702,8 @@ public class ReliableResourceDownloadManagerTest {
         resourceResponse = mock(ResourceResponse.class);
         when(resourceResponse.getRequest()).thenReturn(resourceRequest);
         when(resourceResponse.getResource()).thenReturn(resource);
-        when(resourceResponse.getProperties()).thenReturn(requestProperties);
+        Map<String, Serializable> responseProperties = new HashMap<String, Serializable>();
+        when(resourceResponse.getProperties()).thenReturn(responseProperties);
 
         return resourceResponse;
     }
@@ -786,7 +787,7 @@ public class ReliableResourceDownloadManagerTest {
         ArgumentCaptor<Long> bytesReadArg = ArgumentCaptor.forClass(Long.class);
 
         // Mocking to support re-retrieval of product when error encountered
-        // during caching.
+        // during caching. This resource retriever supports skipping.
         when(retriever.retrieveResource(anyLong())).thenAnswer(new Answer<Object>() {
             int invocationCount = 0;
 
@@ -846,7 +847,9 @@ public class ReliableResourceDownloadManagerTest {
                 reset(resourceResponse);
                 when(resourceResponse.getRequest()).thenReturn(resourceRequest);
                 when(resourceResponse.getResource()).thenReturn(resource);
-                when(resourceResponse.getProperties()).thenReturn(new HashMap<String, Serializable>());
+                Map <String, Serializable> responseProperties = new HashMap<String, Serializable>();
+                responseProperties.put("BytesSkipped",  true);
+                when(resourceResponse.getProperties()).thenReturn(responseProperties);
 
                 return resourceResponse;
             }
