@@ -169,7 +169,7 @@ public class GenericFeatureConverterWfs20 extends AbstractFeatureConverterWfs20 
     }
 
     /**
-     * This method will unmarshal an XML instance of a "gml:featureMember" to a {@link Metacard}.
+     * This method will unmarshal an XML instance of a "gml:member" to a {@link Metacard}.
      * 
      * @param hreader
      *            the stream reader responsible for reading this xml doc

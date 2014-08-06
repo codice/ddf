@@ -328,8 +328,7 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
                     throw new UnsupportedOperationException(
                             "Query with mix of feature ID and non-feature ID queries not supported");
                 }
-                if (isFeatureIdFilter) {
-                	
+                if (isFeatureIdFilter) {	
                 	List<JAXBElement<? extends AbstractIdType>> idFilterTypeList = filterType.getId();
                 	for (JAXBElement<? extends AbstractIdType> idFilter : idFilterTypeList) {
 	                	

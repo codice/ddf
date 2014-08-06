@@ -17,7 +17,6 @@ package org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.converter.impl;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -33,17 +32,15 @@ import org.apache.ws.commons.schema.XmlSchemaElement;
 import org.apache.ws.commons.schema.XmlSchemaSimpleType;
 import org.apache.ws.commons.schema.constants.Constants;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.FeatureMetacardType;
-import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsFeatureCollection;
 import org.codice.ddf.spatial.ogc.wfs.catalog.converter.FeatureConverter;
 import org.codice.ddf.spatial.ogc.wfs.catalog.converter.impl.EnhancedStaxDriver;
-import org.codice.ddf.spatial.ogc.wfs.catalog.converter.impl.GenericFeatureConverter;
 import org.codice.ddf.spatial.ogc.wfs.catalog.converter.impl.GmlGeometryConverter;
 import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.Wfs20Constants;
+import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.Wfs20FeatureCollection;
 import org.junit.Test;
 
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.xml.WstxDriver;
-import com.thoughtworks.xstream.mapper.Mapper;
 
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.Metacard;
@@ -154,13 +151,12 @@ public class TestGenericFeatureConverter {
         converter.setMetacardType(buildMetacardType());
         xstream.registerConverter(converter);
         xstream.registerConverter(new GmlGeometryConverter());
-        xstream.alias("FeatureCollection", WfsFeatureCollection.class);
+        xstream.alias("FeatureCollection", Wfs20FeatureCollection.class);
         InputStream is = TestGenericFeatureConverter.class
                 .getResourceAsStream("/video_data_set_collection.xml");
-
-        WfsFeatureCollection wfc = (WfsFeatureCollection) xstream.fromXML(is);
-        assertEquals(4, wfc.getFeatureMembers().size());
-        Metacard mc = wfc.getFeatureMembers().get(0);
+        Wfs20FeatureCollection wfc = (Wfs20FeatureCollection) xstream.fromXML(is);
+        assertEquals(4, wfc.getMembers().size());
+        Metacard mc = wfc.getMembers().get(0);
         assertEquals(mc.getId(), "video_data_set.1");
 
     }
@@ -168,13 +164,13 @@ public class TestGenericFeatureConverter {
     @Test(expected = IllegalArgumentException.class)
     public void testUnmarshalNoMetacardTypeRegisteredInConverter() throws Throwable {
         XStream xstream = new XStream(new WstxDriver());
-        xstream.registerConverter(new GenericFeatureConverter());
+        xstream.registerConverter(new GenericFeatureConverterWfs20());
         xstream.registerConverter(new GmlGeometryConverter());
         xstream.alias(FEATURE_TYPE, Metacard.class);
         InputStream is = TestGenericFeatureConverter.class
                 .getResourceAsStream("/video_data_set.xml");
         try {
-            WfsFeatureCollection wfs = (WfsFeatureCollection) xstream.fromXML(is);
+            Wfs20FeatureCollection wfs = (Wfs20FeatureCollection) xstream.fromXML(is);
         } catch (Exception e) {
             throw e.getCause();
         }
@@ -187,14 +183,14 @@ public class TestGenericFeatureConverter {
 
         xstream.setMode(XStream.NO_REFERENCES);
         xstream.registerConverter(new FeatureCollectionConverterWfs20());
-        xstream.registerConverter(new GenericFeatureConverter());
+        xstream.registerConverter(new GenericFeatureConverterWfs20());
         xstream.registerConverter(new GmlGeometryConverter());
         // Required the Implementing class. The interface would not work...
-        xstream.alias(Wfs20Constants.WFS_NAMESPACE_PREFIX + ":" + "FeatureCollection", WfsFeatureCollection.class);
+        xstream.alias(Wfs20Constants.WFS_NAMESPACE_PREFIX + ":" + "FeatureCollection", Wfs20FeatureCollection.class);
 
         Metacard mc = new SampleMetacard().getMetacard();
-        WfsFeatureCollection wfc = new WfsFeatureCollection();
-        wfc.getFeatureMembers().add(mc);
+        Wfs20FeatureCollection wfc = new Wfs20FeatureCollection();
+        wfc.getMembers().add(mc);
         MetacardImpl mc2 = new SampleMetacard().getMetacard();
         // Ignore the hack stuff, this was just to imitate having two different
         // "MetacardTypes"
@@ -215,7 +211,7 @@ public class TestGenericFeatureConverter {
                 return BasicTypes.BASIC_METACARD.getAttributeDescriptor(arg0);
             }
         });
-        wfc.getFeatureMembers().add(mc2);
+        wfc.getMembers().add(mc2);
 
         String xml = xstream.toXML(wfc);
     }

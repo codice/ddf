@@ -31,7 +31,6 @@ import net.opengis.wfs.v_2_0_0.ValueCollectionType;
 
 import org.apache.ws.commons.schema.XmlSchema;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsException;
-import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsFeatureCollection;
 
 /**
  * JAX-RS Interface to define a WFS server.
@@ -80,7 +79,7 @@ public interface Wfs {
     @POST
     @Consumes({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
     @Produces({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
-    WfsFeatureCollection getFeature(GetFeatureType getFeature) throws WfsException;
+    Wfs20FeatureCollection getFeature(GetFeatureType getFeature) throws WfsException;
     
     /**
      * GetPropertyValueType - HTTP GET

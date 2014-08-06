@@ -80,7 +80,7 @@ public class FeatureCollectionMessageBodyReader implements MessageBodyReader<Wfs
         // Save original input stream for any exception message that might need to be
         // created
         String originalInputStream = IOUtils.toString(inStream, "UTF-8");
-
+        
         // Re-create the input stream (since it has already been read for potential
         // exception message creation)
         inStream = new ByteArrayInputStream(originalInputStream.getBytes("UTF-8"));

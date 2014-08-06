@@ -39,7 +39,7 @@ import org.apache.cxf.jaxrs.provider.JAXBElementProvider;
 import org.apache.ws.commons.schema.XmlSchema;
 import org.codice.ddf.spatial.ogc.catalog.common.TrustedRemoteSource;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsException;
-import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsFeatureCollection;
+import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.Wfs20FeatureCollection;
 import org.codice.ddf.spatial.ogc.wfs.catalog.source.MarkableStreamInterceptor;
 import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.DescribeFeatureTypeRequest;
 import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.GetCapabilitiesRequest;
@@ -71,10 +71,10 @@ public class RemoteWfs extends TrustedRemoteSource implements Wfs {
     private List<? extends Object> initProviders() {
         // We need to tell the JAXBElementProvider to marshal the GetFeatureType
         // class as an element
-        // because it is are missing the @XmlRootElement Annotation
+        // because it is missing the @XmlRootElement Annotation
         JAXBElementProvider<GetFeatureType> provider = new Wfs20JaxbElementProvider<GetFeatureType>();
         Map<String, String> jaxbClassMap = new HashMap<String, String>();
-
+        
         // Ensure a namespace is used when the GetFeature request is generated
         String expandedName = new QName(Wfs20Constants.WFS_2_0_NAMESPACE, Wfs20Constants.GET_FEATURE)
                 .toString();
@@ -113,7 +113,7 @@ public class RemoteWfs extends TrustedRemoteSource implements Wfs {
     @POST
     @Consumes({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
     @Produces({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
-    public WfsFeatureCollection getFeature(GetFeatureType getFeature) throws WfsException {
+    public Wfs20FeatureCollection getFeature(GetFeatureType getFeature) throws WfsException {
         return this.wfs.getFeature(getFeature);
     }
 

@@ -64,13 +64,13 @@ import org.codice.ddf.spatial.ogc.catalog.common.AvailabilityTask;
 import org.codice.ddf.spatial.ogc.catalog.common.ContentTypeFilterDelegate;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.FeatureMetacardType;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsException;
-import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsFeatureCollection;
+import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.Wfs20FeatureCollection;
 import org.codice.ddf.spatial.ogc.wfs.catalog.converter.FeatureConverter;
 import org.codice.ddf.spatial.ogc.wfs.catalog.converter.FeatureConverterFactory;
-import org.codice.ddf.spatial.ogc.wfs.catalog.converter.impl.GenericFeatureConverter;
 import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.DescribeFeatureTypeRequest;
 import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.GetCapabilitiesRequest;
 import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.Wfs20Constants;
+import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.converter.impl.GenericFeatureConverterWfs20;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
@@ -476,13 +476,13 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
                 LOGGER.warn(
                         "WfsSource {}: Unable to find a feature specific converter; {} will be converted using the GenericFeatureConverter",
                         getId(), ftSimpleName);
-                featureConverter = new GenericFeatureConverter();
+                featureConverter = new GenericFeatureConverterWfs20();
             }
         } else {
             LOGGER.warn(
                     "WfsSource {}: Unable to find a feature specific converter; {} will be converted using the GenericFeatureConverter",
                     getId(), ftSimpleName);
-            featureConverter = new GenericFeatureConverter();
+            featureConverter = new GenericFeatureConverterWfs20();
 
         }
         featureConverter.setSourceId(getId());
@@ -540,12 +540,12 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
         
         try {
             LOGGER.debug("WFS Source {}: Sending query ...", getId());
-            WfsFeatureCollection featureCollection = remoteWfs.getFeature(getFeature);
+            Wfs20FeatureCollection featureCollection = remoteWfs.getFeature(getFeature);
 
             if (featureCollection == null) {
                 throw new UnsupportedQueryException("Invalid results returned from server");
             }
-            int numResults = featureCollection.getFeatureMembers().size();
+            int numResults = featureCollection.getNumberReturned().intValue();
             availabilityTask.updateLastAvailableTimestamp(System.currentTimeMillis());
             LOGGER.debug("WFS Source {}: Received featureCollection with {} metacards.", getId(),
                     numResults);
@@ -553,14 +553,14 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
             List<Result> results = new ArrayList<Result>(numResults);
 
             for (int i = 0; i < numResults; i++) {
-                Metacard mc = featureCollection.getFeatureMembers().get(i);
+                Metacard mc = featureCollection.getMembers().get(i);
                 mc = transform(mc, DEFAULT_WFS_TRANSFORMER_ID);
                 Result result = new ResultImpl(mc);
                 results.add(result);
                 debugResult(result);
             }
-            Long totalHits = new Long(featureCollection.getFeatureMembers().size());
-            simpleResponse = new SourceResponseImpl(request, results, totalHits);
+            
+            simpleResponse = new SourceResponseImpl(request, results, new Long(numResults));
         } catch (WfsException wfse) {
             LOGGER.warn(WFS_ERROR_MESSAGE, wfse);
             throw new UnsupportedQueryException("Error received from WFS Server", wfse);

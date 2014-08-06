@@ -50,8 +50,6 @@ import ddf.catalog.data.impl.MetacardImpl;
  * This class works in conjunction with XStream to convert a {@link Metacard} to XML according to
  * the GML 2.1.2 spec. It will also convert respective XML into a Metacard.
  * 
- * @author kcwire
- * 
  */
 public class GenericFeatureConverter extends AbstractFeatureConverter {
 

@@ -49,8 +49,6 @@ import ddf.catalog.data.impl.MetacardImpl;
  * according to the GML 2.1.2 spec. It will also convert respective XML into a
  * {@link WfsFeatureCollection}.
  * 
- * @author kcwire
- * 
  */
 
 public class FeatureCollectionConverter implements Converter {
