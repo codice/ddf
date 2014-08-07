@@ -37,11 +37,11 @@ public class MockMimeTypeResolver implements MimeTypeResolver {
         this.customFileExtensionsToMimeTypesMap = new HashMap<String, String>();
         customFileExtensionsToMimeTypesMap.put("nitf", "image/nitf");
         customFileExtensionsToMimeTypesMap.put("ntf", "image/nitf");
-        customFileExtensionsToMimeTypesMap.put("xml", "text/xml;id=ddms20");
+        customFileExtensionsToMimeTypesMap.put("xml", "text/xml;id=xml");
 
         this.customMimeTypesToFileExtensionsMap = new HashMap<String, String>();
         customMimeTypesToFileExtensionsMap.put("image/nitf", "nitf");
-        customMimeTypesToFileExtensionsMap.put("text/xml;id=ddms20", "xml");
+        customMimeTypesToFileExtensionsMap.put("text/xml;id=xml", "xml");
     }
 
     @Override
