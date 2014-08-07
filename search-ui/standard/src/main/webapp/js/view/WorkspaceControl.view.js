@@ -169,11 +169,11 @@ define([
                     this.listenTo(wreqr.vent, 'workspace:searchedit', _.bind(this.model.setWorkspaceQueryEditState, this.model));
                     this.listenTo(wreqr.vent, 'workspace:edit', _.bind(this.model.setWorkspaceEditState, this.model));
                     this.listenTo(wreqr.vent, 'workspace:list', _.bind(this.model.setWorkspaceListState, this.model));
-                    this.listenTo(wreqr.vent, 'workspace:saveall', _.bind(this.model.setWorkspaceListState, this.model));
                     this.listenTo(wreqr.vent, 'workspace:editall', _.bind(this.model.setWorkspaceListEditState, this.model));
                     this.listenTo(wreqr.vent, 'workspace:save', _.bind(this.model.setWorkspaceViewState, this.model));
                     this.listenTo(wreqr.vent, 'workspace:saveresults', _.bind(this.model.setSelectWorkspaceState, this.model));
                     this.listenTo(wreqr.vent, 'workspace:resultssavecancel', _.bind(this.model.revertToPrevious, this.model));
+                    this.listenTo(wreqr.vent, 'workspace:searchsavecancel', _.bind(this.model.revertToPrevious, this.model));
                     this.listenTo(wreqr.vent, 'search:resultsselect', _.bind(this.model.setWorkspaceResultsSelectState, this.model));
                     this.resetViewState();
                 } else {
@@ -184,11 +184,11 @@ define([
                     this.stopListening(wreqr.vent, 'workspace:searchedit');
                     this.stopListening(wreqr.vent, 'workspace:edit');
                     this.stopListening(wreqr.vent, 'workspace:list');
-                    this.stopListening(wreqr.vent, 'workspace:saveall');
                     this.stopListening(wreqr.vent, 'workspace:editall');
                     this.stopListening(wreqr.vent, 'workspace:save');
                     this.stopListening(wreqr.vent, 'workspace:saveresults');
                     this.stopListening(wreqr.vent, 'workspace:resultssavecancel');
+                    this.stopListening(wreqr.vent, 'workspace:searchsavecancel');
                     this.stopListening(wreqr.vent, 'search:resultsselect');
                 }
             },
@@ -220,6 +220,7 @@ define([
                             wreqr.vent.trigger('workspace:editall');
                         }
                         if(id === 'Done') {
+                            this.model.setWorkspaceListState();
                             wreqr.vent.trigger('workspace:saveall');
                         }
                         break;
