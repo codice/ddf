@@ -601,7 +601,7 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
         return simpleResponse;
     }
 
-    private GetFeatureType buildGetFeatureRequest(Query query) throws UnsupportedQueryException {
+    protected GetFeatureType buildGetFeatureRequest(Query query) throws UnsupportedQueryException {
         List<ContentType> contentTypes = getContentTypesFromQuery(query);
         List<QueryType> queries = new ArrayList<QueryType>();
         for (Entry<QName, WfsFilterDelegate> filterDelegateEntry : featureTypeFilters.entrySet()) {

@@ -17,7 +17,9 @@ package org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.source;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
@@ -25,15 +27,19 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.ByteArrayInputStream;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.xml.bind.JAXBElement;
 import javax.xml.namespace.QName;
 import javax.xml.transform.stream.StreamSource;
 
 import net.opengis.filter.v_2_0_0.FilterCapabilities;
 import net.opengis.wfs.v_2_0_0.FeatureTypeListType;
 import net.opengis.wfs.v_2_0_0.FeatureTypeType;
+import net.opengis.wfs.v_2_0_0.GetFeatureType;
+import net.opengis.wfs.v_2_0_0.QueryType;
 import net.opengis.wfs.v_2_0_0.WFSCapabilitiesType;
 
 import org.apache.commons.lang.StringUtils;
@@ -46,13 +52,21 @@ import org.codice.ddf.spatial.ogc.wfs.catalog.source.WfsUriResolver;
 import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.DescribeFeatureTypeRequest;
 import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.GetCapabilitiesRequest;
 import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.Wfs20Constants;
+import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.Wfs20FeatureCollection;
 import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.source.reader.FeatureCollectionMessageBodyReaderWfs20;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.opengis.filter.sort.SortBy;
+import org.opengis.filter.sort.SortOrder;
 import org.osgi.framework.BundleContext;
 
 import ddf.catalog.data.ContentType;
+import ddf.catalog.data.Metacard;
+import ddf.catalog.filter.impl.SortByImpl;
 import ddf.catalog.filter.proxy.adapter.GeotoolsFilterAdapterImpl;
+import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
+import ddf.catalog.operation.impl.QueryImpl;
+import ddf.catalog.source.UnsupportedQueryException;
 
 public class TestWfsSource {
 
@@ -74,6 +88,8 @@ public class TestWfsSource {
     private AvailabilityTask mockAvailabilityTask = mock(AvailabilityTask.class);
 
     private FeatureCollectionMessageBodyReaderWfs20 mockReader = mock(FeatureCollectionMessageBodyReaderWfs20.class);
+    
+    private final GeotoolsFilterBuilder builder = new GeotoolsFilterBuilder();
 
     public WfsSource getWfsSource(final String schema, final FilterCapabilities filterCapabilities,
             final String srsName, final int numFeatures) throws WfsException {
@@ -88,6 +104,7 @@ public class TestWfsSource {
         // GetCapabilities Response
         when(mockWfs.getCapabilities(any(GetCapabilitiesRequest.class)))
                 .thenReturn(mockCapabilites);
+
         mockCapabilites.setFilterCapabilities(filterCapabilities);
 
         when(mockAvailabilityTask.isAvailable()).thenReturn(true);
@@ -137,6 +154,62 @@ public class TestWfsSource {
         return source;
     }
 
+    public WfsSource getWfsSource(final String schema, final FilterCapabilities filterCapabilities,
+            final String srsName, final int numFeatures,
+            final boolean throwExceptionOnDescribeFeatureType, boolean prefix) throws WfsException {
+
+        // GetCapabilities Response
+        when(mockWfs.getCapabilities(any(GetCapabilitiesRequest.class)))
+                .thenReturn(mockCapabilites);
+        Wfs20FeatureCollection featureCollection = new Wfs20FeatureCollection();
+        featureCollection.setNumberReturned(BigInteger.valueOf(0));
+        
+        when(mockWfs.getFeature(any(GetFeatureType.class)))
+            .thenReturn(featureCollection);
+        mockCapabilites.setFilterCapabilities(filterCapabilities);
+
+        when(mockAvailabilityTask.isAvailable()).thenReturn(true);
+
+        mockCapabilites.setFeatureTypeList(new FeatureTypeListType());
+        for (int ii = 0; ii < numFeatures; ii++) {
+            FeatureTypeType feature = new FeatureTypeType();
+            QName qName;
+            if (prefix) {
+                qName = new QName("http://example.com", SAMPLE_FEATURE_NAME + ii, "Prefix" + ii);
+            } else {
+                qName = new QName("http://example.com", SAMPLE_FEATURE_NAME + ii);
+            }
+            feature.setName(qName);
+            feature.setDefaultCRS(Wfs20Constants.EPSG_4326_URN);
+            mockCapabilites.getFeatureTypeList().getFeatureType().add(feature);
+        }
+
+        XmlSchema xmlSchema = null;
+        if (StringUtils.isNotBlank(schema)) {
+            XmlSchemaCollection schemaCollection = new XmlSchemaCollection();
+            WfsUriResolver wfsUriResolver = new WfsUriResolver();
+            wfsUriResolver.setGmlNamespace(Wfs20Constants.GML_3_2_NAMESPACE);
+            wfsUriResolver.setWfsNamespace(Wfs20Constants.WFS_2_0_NAMESPACE);
+            schemaCollection.setSchemaResolver(wfsUriResolver);
+            xmlSchema = schemaCollection.read(new StreamSource(new ByteArrayInputStream(schema
+                    .getBytes())));
+        }
+
+        if (throwExceptionOnDescribeFeatureType) {
+            when(mockWfs.describeFeatureType(any(DescribeFeatureTypeRequest.class))).thenThrow(
+                    new WfsException(""));
+
+        } else {
+            when(mockWfs.describeFeatureType(any(DescribeFeatureTypeRequest.class))).thenReturn(
+                    xmlSchema);
+        }
+        when(mockWfs.getFeatureCollectionReader()).thenReturn(mockReader);
+
+        return new WfsSource(mockWfs, new GeotoolsFilterAdapterImpl(), mockContext,
+                mockAvailabilityTask);
+    }
+
+    
     @Test
     public void testParseCapabilities() throws WfsException {
         WfsSource source = getWfsSource(ONE_TEXT_PROPERTY_SCHEMA,
@@ -220,5 +293,72 @@ public class TestWfsSource {
         assertTrue(source.getContentTypes().isEmpty());
 
     }
+    
+    @Test
+    public void testTypeNameHasPrefix() throws WfsException, UnsupportedQueryException {
+        
+        //Setup
+        final String TITLE = "title";
+        final String searchPhrase = "*";
+        final int pageSize = 1;
+        
+        WfsSource source = getWfsSource(ONE_TEXT_PROPERTY_SCHEMA,
+                MockWfsServer.getFilterCapabilities(),
+                Wfs20Constants.EPSG_4326_URN, 3, false, true);
+        
+        
+        QueryImpl query = new QueryImpl(builder.attribute(Metacard.ANY_TEXT).is()
+                .like().text(searchPhrase));
+        query.setPageSize(pageSize);
+        SortBy sortBy = new SortByImpl(TITLE, SortOrder.DESCENDING);
+        query.setSortBy(sortBy);
+                
+        // Perform test
+        GetFeatureType featureType = source.buildGetFeatureRequest(query);
+        
+        //Validate
+        List<JAXBElement<?>> queryList = featureType.getAbstractQueryExpression();
+        for (JAXBElement<?> queryType : queryList){
+             Object val =  queryType.getValue();
+             QueryType queryTypeVal = (QueryType) val;
+             assertThat(queryTypeVal.getTypeNames().get(0), containsString("Prefix"));
+             assertThat(queryTypeVal.getTypeNames().get(0), containsString(":"));
+             assertThat(queryTypeVal.getTypeNames().get(0), containsString("SampleFeature"));
+        }
+    }
+    
+    @Test
+    public void testTypeNameHasNoPrefix() throws WfsException, UnsupportedQueryException {
+        
+        //Setup
+        final String TITLE = "title";
+        final String searchPhrase = "*";
+        final int pageSize = 1;
+        
+        WfsSource source = getWfsSource(ONE_TEXT_PROPERTY_SCHEMA,
+                MockWfsServer.getFilterCapabilities(),
+                Wfs20Constants.EPSG_4326_URN, 3, false, false);
+        
+        
+        QueryImpl query = new QueryImpl(builder.attribute(Metacard.ANY_TEXT).is()
+                .like().text(searchPhrase));
+        query.setPageSize(pageSize);
+        SortBy sortBy = new SortByImpl(TITLE, SortOrder.DESCENDING);
+        query.setSortBy(sortBy);
+                
+        // Perform test
+        GetFeatureType featureType = source.buildGetFeatureRequest(query);
+        
+        //Validate
+        List<JAXBElement<?>> queryList = featureType.getAbstractQueryExpression();
+        for (JAXBElement<?> queryType : queryList){
+             Object val =  queryType.getValue();
+             QueryType queryTypeVal = (QueryType) val;
+             assertThat(queryTypeVal.getTypeNames().get(0), containsString("SampleFeature"));
+             assertThat(queryTypeVal.getTypeNames().get(0), is(not(containsString("Prefix"))));
+             assertThat(queryTypeVal.getTypeNames().get(0), is(not(containsString(":"))));
+        }
+    }
+
 
 }
