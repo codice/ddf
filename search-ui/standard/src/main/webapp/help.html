@@ -13,285 +13,427 @@
  **/
  -->
 <html>
-
-<xmp theme="" style="display:none;">
-
-<!-- START MARKDOWN -->
-
-## Table of Contents
---------------------
-
-- [Description](#Description)
-- [Menu Bar](#Menu-Bar)
-- [Map](#Map)
-- [Search Criteria Input Form](#Search-Criteria)
-- [Search Results](#Results)
-- [Record View](#Record)
-- [Appendix](#Appendix)
-
-
-
-
-
-## <a name="Description"></a> Description ##
---------------------------------------------
-
-The **Standard Search UI** provides a convenient interface for querying and viewing search results. 
-The left panel provides a form to input search criteria and the right panel provides a map to view search results.
-
-
-
-
-
-## <a name="Menu-Bar"></a> Menu Bar ##
---------------------------------------
-
-| Menu Bar Icons   | Description         |
-| ---------------------|---------------------|
-| Notifications        | Lists notifications. |
-| Help | Link to this help page. |
-| Home | Flys to the map's home position. |
-| Map Views | 3D, 2D, Columbus view |
-
-One can change the map view by selecting 3D, 2D, or Columbus view from the map view icons in the upper right corner of the page.
-
-
-
-## <a name="Map"></a> Map ##
-----------------------------
-
-The map displays search results using marker icons.  One can zoom in and zoom out using the mouse scroll wheel.  The map can be displayed in three views: 3D, 2D, and Columbus view 
-(see the [Menu Bar](#Menu-Bar) section for instructions on how to change the map view).  One can draw on the map to select a **Location** to search (see [Select a Location by Drawing on the Map](#Drawing-Example)).
-
-
-
-
-  
-## <a name="Search-Criteria"></a> Search Criteria Input Form ##
------------------------------------------------------------
-
-The **Search Criteria Input Form** allows users to specify search criteria and the [sources](#Appendix) to search.  One can enter any combination of search criteria (Keywords, Time, Location, Type, and [Sources](#Appendix)) 
-to limit/expand the query results returned.
-
-| Criteria        | Description         |
-| ----------------|---------------------|
-| Keywords | Search based on keywords.  Wildcards , asterisks (*), are supported. |
-| Time (Temporal) | Search based on [relative time](#Appendix) or [absolute time](#Appendix). Selecting **Any** from **Any**, **Relative**, or **Absolute** on the **Search** panel will not limit the results temporally.|
-| Location (Spatial) | Search spatially with [point-radius](#Appendix) or [bounding box](#Appendix). One can draw on the map to select a region for **Point-Radius** or **Bounding Box**. Selecting **Any**  from **Any**, **Point-Radius**, or **Bounding Box** on the **Search** panel will not limit the results spatially. |
-| Type (Content Type) | Search based on [content type](#Appendix). Selecting **Any** from **Any** or **Specific Types** on the **Search** panel will not limit the results by content type. |
-
-| Additional Sources |  Description         |
-| -------------------|----------------------|
-| All Sources | Search the [enterprise](#Appendix). |
-| Specific Sources | Select the [source(s)](#Appendix) to be searched. | 
-| None | Search the [local catalog](#Appendix) only. |
-
-| Button           |  Description         |
-| -----------------|----------------------|
-| Search           | Perform a search  based on the search criteria. |
-| Clear            | Clear all of the search criteria from the search form. |
-
-See [How to Perform Some Basic Search Queries](#Query-Examples) for some examples.
- 
- 
- 
- 
- 
-## <a name="Results"></a>Search Results ##
-----------------------------------------
-
-The **Results** list shows the [top results](#Appendix) from a query.  Each result in the **Results** list provides the **Link** to the result's metadata, the **[Source](#Appendix)** of the result, and the **[Modified Date](#Appendix)** of the result.
-One can click on a result in the **Results** list to view additional information about the selected result, or one can click on a marker icon on the map to view additional information about the result at that location. 
- 
- 
- 
- 
- 
-## <a name="Record"></a>Record View ##
---------------------------------------
-
-The **Record** view shows a **Summary** tab and a **Details** tab providing information about the selected record.  One can use the **Previous** and **Next**
-buttons to navigate through results. 
-
-See [How to Fly to a Location on the Map](#Locate-Example) for directions on how to fly to a result's location on the map. 
-
-#### Summary Tab ####
-
-| Property         |  Description         |
-| -----------------|----------------------|
-| Title | The title of the record. |
-| Source | The [source](#Appendix) of the record. |
-| Created Date | The date/time the record was created. |
-| Modified Date | The date/time the record was last modified. |
-| Locate | Flys to the record's location on the map. |
-
-#### Details Tab ####
-
-| Property |  Description         |
-| ---------|----------------------|
-| Id | Uniquely identifies the record. |
-| Source Id | The [source](#Appendix) of the record. |
-| Title | The title of the record. |
-| Created | The date/time the record was created. |
-| Metadata Content Type Version | The metadata content type version of the record. |
-| Metacard Type | The record's type.  See [metacard type](#Appendix). |
-| Metadata Content Type | The metadata content type of the record. |
-| Effective | The date/time of the resource associated with the record. |
-| Modified | The date/time the record was last modified. |
-| Metadata | A link to the record in xml format. |
-
-
-
-
-
-## <a name="Appendix"></a> Appendix ##
---------------------------------------
-
-| Term     |  Definition          |
-| ---------|----------------------|
-| absolute time | Search using a begin and end date/time range. |
-| bounding box | An area defined by two longitudes (West and East) and two latitudes (North and South). |
-| content type | The type of the resource described by the metadata.  Examples of content type are NITF, PDF, JPG. |
-| federation | All of the remote sources defined in this system. |
-| enterprise | The local catalog (this system) and all of the federated sources. |
-| local catalog | The catalog (data store) for this system. |
-| metacard type | The model used to define the attributes for a record. |
-| modified date | The date/time a record was last modified. |
-| point-radius | Search within a radius from a selected point. The point is specified in latitude and longitude, and the radius is specified in meters, kilometers, feet, yards, or miles. |
-| relative time | Search from some date/time in the past to now. |
-| source | A system that has a catalog (data store). This could be the local catalog provider (this system) or a federated source. |
-| top results | Defaults to 250.  The result count can be configured via the system's administration console. |
-
-
-
-
-#### <a name="Query-Examples"></a> How to Perform Some Basic Search Queries ####
-
-##### Wildcard Keyword Search on the [Enterprise](#Appendix) #####
-1. Enter an ***** in the **Keywords** textbox.
-2. From **Time**, select **Any** from **Any**, **Relative**, or **Absolute**.
-3. From **Location** , select **Any** from **Any**, **Point-Radius**, or **Bounding Box**.
-4. From **Type**, select **Any** from **Any** or **Specific Types**.
-5. From **Additional Sources**, select **All Sources** from **All Sources**, **Specific Sources**, or **None**.
-6. Click **Search**. 
-7. The results will display on the map as marker icons.
-8. Select a result from the Results list or click on a marker icon on the map.
-9. View **Summary** or **Detailed** information for the selected record.
-
-
-
-##### Keyword Search (Textual Query) on the [Enterprise](#Appendix) #####
-1. Enter a **keyword** in the **Keywords** textbox.
-2. From **Time**, select **Any** from **Any**, **Relative**, or **Absolute**.
-3. From **Location** , select **Any** from **Any**, **Point-Radius**, or **Bounding Box**.
-4. From **Type**, select **Any** from **Any** or **Specific Types**.
-5. From **Additional Sources**, select **All Sources** from **All Sources**, **Specific Sources**, or **None**.
-6. Click **Search**. 
-7. The results will display on the map as marker icons.
-8. Select a result from the Results list or click on a marker icon on the map.
-9. View **Summary** or **Detailed** information for the selected record.
-
-
-
-##### Keyword Search Limited by Date/Time on the [Enterprise](#Appendix) #####
-1. Enter a **keyword** in the **Keywords** textbox.
-2. From **Time**, select **Absolute** from **Any**, **Relative**, or **Absolute**.
-  1. Enter a **Begin** time.
-  2. Enter an **End** time.
-3. From **Location** , select **Any** from **Any**, **Point-Radius**, or **Bounding Box**.
-4. From **Type**, select **Any** from **Any** or **Specific Types**.
-5. From **Additional Sources**, select **All Sources** from **All Sources**, **Specific Sources**, or **None**.
-6. Click **Search**. 
-7. The results will display on the map as marker icons.
-8. Select a result from the Results list or click on a marker icon on the map.
-9. View **Summary** or **Detailed** information for the selected record.
-
-
-
-#####  Keyword Search Limited by Date/Time and Location on the [Enterprise](#Appendix) #####
-1. Enter a **keyword** in the **Keywords** textbox.
-2. From **Time**, select **Absolute** from **Any**, **Relative**, or **Absolute**.
-  1. Enter a **Begin** time.
-  2. Enter an **End** time.
-3. From **Location** , select **Point-Radius** from **Any**, **Point-Radius**, or **Bounding Box**.
-  1. Draw the area of interest on the map.  One can manually enter the latitude, longitude, radius, and units if desired.
-4. From **Type**, select **Any** from **Any** or **Specific Types**.
-5. From **Additional Sources**, select **All Sources** from **All Sources**, **Specific Sources**, or **None**.
-6. Click **Search**. 
-7. The results will display on the map as marker icons.
-8. Select a result from the Results list or click on a marker icon on the map.
-9. View **Summary** or **Detailed** information for the selected record.
-
-
-
-#####  Keyword Search Limited by Date/Time, Location, and Type on the [Enterprise](#Appendix) #####
-1. Enter a **keyword** in the **Keywords** textbox.
-2. From **Time**, select **Absolute** from **Any**, **Relative**, or **Absolute**.
-  1. Enter a **Begin** time.
-  2. Enter an **End** time.
-3. From **Location** , select **Point-Radius** from **Any**, **Point-Radius**, or **Bounding Box**.
-  1. Draw the area of interest on the map.  One can manually enter the latitude, longitude, radius, and units if desired.
-4. From **Type**, select **Specific Types** from **Any** or **Specific Types**.
-  1. Select a type from the dropdown list.
-5. From **Additional Sources**, select **All Sources** from **All Sources**, **Specific Sources**, or **None**.
-6. Click **Search**. 
-7. The results will display on the map as marker icons.
-8. Select a result from the Results list or click on a marker icon on the map.
-9. View **Summary** or **Detailed** information for the selected record.
-
-
-
-#####  Keyword Search Limited by Date/Time, Location, Type, and Source #####
-1. Enter a **keyword** in the **Keywords** textbox.
-2. From **Time**, select **Absolute** from **Any**, **Relative**, or **Absolute**.
-  1. Enter a **Begin** time.
-  2. Enter an **End** time.
-3. From **Location** , select **Point-Radius** from **Any**, **Point-Radius**, or **Bounding Box**.
-  1. Draw the area of interest on the map.  One can manually enter the latitude, longitude, radius, and units if desired.
-4. From **Type**, select **Specific Types** from **Any** or **Specific Types**.
-  1. Select a type from the dropdown list.
-5. From **Additional Sources**, select **Specific Sources** from **All Sources**, **Specific Sources**, or **None**.
-  1. Select a [source](#Appendix) from the dropdown list.
-6. Click **Search**. 
-7. The results will display on the map as marker icons.
-8. Select a result from the Results list or click on a marker icon on the map.
-9. View **Summary** or **Detailed** information for the selected record.
-
-
-
-##### Keyword Search on the [Local Catalog](#Appendix) #####
-1. Enter a **keyword** in the **Keywords** textbox.
-2. From **Time**, select **Any** from **Any**, **Relative**, or **Absolute**.
-3. From **Location** , select **Any** from **Any**, **Point-Radius**, or **Bounding Box**.
-4. From **Type**, select **Any** from **Any** or **Specific Types**.
-5. From **Additional Sources**, select **None** from **All Sources**, **Specific Sources**, or **None**.  **Note: None** mean query the [local catalog](#Appendix) (this system) only.
-6. Click **Search**. 
-7. The results will display on the map as marker icons.
-
-
-
-
-
-#### <a name="Map-Examples"></a> Using the Map ####
-
-##### <a name="Locate-Example"></a> How to Fly to a Location on the Map #####
-1. Perform a search.
-2. Select a result from the **Results** list or click on a marker icon on the map.
-3. View the **Summary** information for the record.
-4. Click on the **Locate** link.  This will cause the map to fly to the result's location on the map.
-5. Clicking the **Home** icon in the upper right will cause the map to return to its home position.
-
-
-
-##### <a name="Drawing-Example"></a> Select a Location by Drawing on the Map #####
-1. From **Location** , select **Point-Radius** or **Bounding Box** from **Any**, **Point-Radius** or **Bounding Box**.
-2. Draw on the map to select the desired region.
-5. Click **Search**.
-
-<!-- END MARKDOWN -->
-
-</xmp>
-
-<script src="lib/strapdown/v/0.2/strapdown.js"></script> 
-
+<head>
+    <meta charset="utf-8">
+    <title>Standard Search UI Help</title>
+
+    <link href="lib/bootswatch/flatly/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="container">
+<div class="page-header">
+    <h1>Standard Search UI Help</h1>
+</div>
+<h2>Table of Contents</h2>
+<div class="well">
+    <ul>
+        <li><a href="#toc">Table of Contents</a></li>
+        <li><a href="#overview">Overview</a></li>
+        <li><a href="#search">Search</a>
+            <ul>
+                <li><a href="#searchcriteria">Search Criteria</a></li>
+                <li><a href="#results">Results</a></li>
+                <li><a href="#summary">Record Summary</a></li>
+                <li><a href="#details">Record Details</a></li>
+                <li><a href="#savedsearch">Save a Search</a></li>
+            </ul>
+        </li>
+        <li><a href="#workspaces">Workspaces</a>
+            <ul>
+                <li><a href="#createworkspace">Create a Workspace</a></li>
+            </ul>
+        </li>
+        <li><a href="#notifications">Notifications</a></li>
+        <li><a href="#activities">Activities</a></li>
+        <li><a href="#install">Install</a></li>
+        <li><a href="#configuration">Configuration</a>
+            <ul>
+                <li><a href="#configurableproperties">Configurable Properties</a></li>
+            </ul>
+        </li>
+        <li><a href="#downloads">Downloads</a></li>
+    </ul>
+</div>
+
+
+<h2><a id="overview"></a>Overview</h2>
+<p>The DDF Standard Search UI application allows a user to search for records in the local Catalog (provider) and
+    federated sources. Results of the search are returned in HTML format and are displayed on a globe, providing a visual
+    representation of where the records were found.</p>
+
+<p>Located at the bottom of the left pane of the Search UI are two tabs: <a href="#search">Search</a> and
+    <a href="#workspaces">Workspaces</a>. The Search tab contains basic fields to query the Catalog and other sources. The
+    workspaces feature uses the same search criteria that are provided in the Search tab, and it also allows the user to
+    create custom searches that can be saved for later execution. The right-side pane displays a map that, when records are
+    found, shows the location of where the record was retrieved.</p>
+
+<h2><a id="search"></a>Search</h2>
+<p>The Standard Search UI allows users to search for records in the local Catalog and federated sources based on the
+    criteria entered in the Search tab. After a search is executed, the UI provides results based on the defined
+    criteria and detailed information about each result. Additionally, a user can save individual records that were
+    returned by the query to a workspace, so they can be referenced in the future. The user can also save the search
+    criteria to a workspace so the query can be run again.</p>
+
+<h3><a id="searchcriteria"></a>Search Criteria</h3>
+<p>The Search UI queries a Catalog using the following criteria.</p>
+<table class="table table-striped table-bordered">
+    <thead>
+    <tr>
+        <th>Criteria</th>
+        <th>Description</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td>KEYWORDS</td>
+        <td>Search by free text using the grammar of the underlying endpoint/Catalog.</td>
+    </tr>
+    <tr>
+        <td>TIME</td>
+        <td>Search based on relative or absolute time of the modified (default) or effective date.</td>
+    </tr>
+    <tr>
+        <td>LOCATION</td>
+        <td>Search using a point-radius or bounding box.</td>
+    </tr>
+    <tr>
+        <td>TYPE</td>
+        <td>Search for specific Metacard.CONTENT_TYPE values.</td>
+    </tr>
+    <tr>
+        <td>ADDITIONAL SOURCES</td>
+        <td>Select <b>All Sources</b> or <b>Specific Sources</b>.</td>
+    </tr>
+    <tr>
+        <td>All Sources</td>
+        <td>Create an enterprise search. All federations are queried.</td>
+    </tr>
+    <tr>
+        <td>Specific Sources</td>
+        <td>Search a specific source(s). If a source is unavailable, it is displayed in red text.</td>
+    </tr>
+    </tbody>
+</table>
+
+<h3><a id="results"></a>Results</h3>
+<p>After a query is executed, the records matching the search criteria are automatically displayed in the Results pane.</p>
+<table class="table table-striped table-bordered">
+    <thead>
+    <tr>
+        <th>Item</th>
+        <th>Description</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td>Results</td>
+        <td>The number of records that were returned as a result of the query. Only the top 250 results are
+            displayed, with the most relevant records displayed at the top of the list. If more than 250 results
+            are returned, try narrowing the search criteria.</td>
+    </tr>
+    <tr>
+        <td>Search button</td>
+        <td>Navigates back to the Search pane.</td>
+    </tr>
+    <tr>
+        <td>Save button</td>
+        <td>Allows the user to select individual records to save.</td>
+    </tr>
+    <tr>
+        <td>Records list</td>
+        <td>Shows the results of the search. The following information is displayed for each record:<br />
+            Title – The title of the record is displayed in blue text (e.g., INDIA REPORTED BUYING TWO WHITE SUGAR
+            CARGOES). Select the title of the record to view more details.<br />
+            Source – The gray text displayed below the record title is the data source (e.g., ddf.distribution) and
+            the amount of time that has passed since the record was created (e.g., an hour ago).</td>
+    </tr>
+    <tr>
+        <td>Refresh button</td>
+        <td>Refreshes the list of results. The most relevant records continue to be displayed at the top of the
+            results list.</td>
+    </tr>
+    </tbody>
+</table>
+
+<h3><a id="summary"></a>Record Summary</h3>
+<p>When an individual record is selected in the results list, the Record pane opens. When the Summary button is
+    selected in the Record pane, the following information is displayed.</p>
+<table class="table table-striped table-bordered">
+    <thead>
+    <tr>
+        <th>Item</th>
+        <th>Description</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td>Results button</td>
+        <td>Navigates back to the original query results list.</td>
+    </tr>
+    <tr>
+        <td>Up and down arrows</td>
+        <td>Navigate through the records that were returned in the search. When the end or the beginning of the
+            search results list is reached, the respective up or down arrow is disabled.</td>
+    </tr>
+    <tr>
+        <td>Details button</td>
+        <td>Opens the <a href="#details">Details tab</a>, which displays more information about the record.</td>
+    </tr>
+    <tr>
+        <td>Title</td>
+        <td>The title of the record is displayed in uppercase white font.</td>
+    </tr>
+    <tr>
+        <td>Source</td>
+        <td>The location that the metadata came from, which could be the local provider or a federated source.</td>
+    </tr>
+    <tr>
+        <td>Created time</td>
+        <td>When the record was created.</td>
+    </tr>
+    <tr>
+        <td>Modified time</td>
+        <td>How long ago the record was last modified.</td>
+    </tr>
+    <tr>
+        <td>Locate button</td>
+        <td>Centers the map on the record's originating location.</td>
+    </tr>
+    </tbody>
+</table>
+
+<h3><a id="details"></a>Record Details</h3>
+<p>When an individual record is selected in the results list, the Record pane opens. When the Details button is
+    selected in the Record pane, the following information is displayed.</p>
+<table class="table table-striped table-bordered">
+    <thead>
+    <tr>
+        <th>Item</th>
+        <th>Description</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td>Results button</td>
+        <td>Navigates back to the original query results list.</td>
+    </tr>
+    <tr>
+        <td>Up and down arrows</td>
+        <td>Navigate through the records that were returned in the search. When the end or the beginning of the
+            search results list is reached, the respective up or down arrow is disabled.</td>
+    </tr>
+    <tr>
+        <td>Summary button</td>
+        <td>Opens the <a href="#summary">Summary tab</a>, which provides a high level overview of the result set.</td>
+    </tr>
+    <tr>
+        <td>Id</td>
+        <td>The record's unique identifier.</td>
+    </tr>
+    <tr>
+        <td>Source Id</td>
+        <td>Where the metadata was retrieved from, which could be the local provider or a federated source.</td>
+    </tr>
+    <tr>
+        <td>Title</td>
+        <td>The title of the record is displayed in uppercase white font.</td>
+    </tr>
+    <tr>
+        <td>Created time</td>
+        <td>When the record was created.</td>
+    </tr>
+    <tr>
+        <td>Metacard Type</td>
+        <td>The type of metacard associated with the record.</td>
+    </tr>
+    <tr>
+        <td>Modified</td>
+        <td>How long ago the record was last modified.</td>
+    </tr>
+    <tr>
+        <td>Thumbnail</td>
+        <td>Depicts a reduced size image of the original artifact for the current record, if available.</td>
+    </tr>
+    <tr>
+        <td>Download</td>
+        <td>When applicable, a download link for the product associated with the record is displayed. The size of
+            the product is also displayed, if available. If the size is not available, N/A is displayed.</td>
+    </tr>
+    <tr>
+        <td>Metadata</td>
+        <td>Shows a representation of the metadata XML, if available.</td>
+    </tr>
+    </tbody>
+</table>
+
+<h3><a id="savedsearch"></a>Save a Search</h3>
+<p>Saved searches are search criteria that are created and saved by a user. Each saved search has a name that
+    was defined by the user, and the search  can be executed at a later time or be scheduled for execution. Saved records (metacards)
+    that the user elected to save for future use are returned as part of a search. These queries can be saved to a
+    <a href="#workspaces">workspace</a>, which is a collection of searches and metacards created by a user.  Complete
+    the following procedure to create a saved search.</p>
+<ol>
+    <li>Select the Search tab at the bottom of the left pane.</li>
+    <li>Use the fields provided to define the <a href="#searchcriteria">search criteria</a> for the query to be saved.
+    </li>
+    <li>Select the <b>Save</b> button. The Select Workspace pane opens.</li>
+    <li>Type a name for the query in the <b>ENTER NAME FOR SEARCH</b> field.</li>
+    <li>Select a workspace in which to save the query, or create a workspace by typing a title for the new workspace in
+        the <b>New Workspace</b> field.</li>
+    <li>Select the <b>Save</b> button.</li>
+</ol>
+<table class="table table-striped table-bordered">
+    <thead>
+    <tr>
+        <th>NOTE</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td>The size of the product is based on the value in the associated metacard's resource-size attribute.
+            This is defined when the metacard was originally created and may or may not be accurate. Often it will
+            be set to N/A, indicating that the size is unknown or not applicable.<br /><br />
+            However, if the administrator has enabled caching on DDF and has installed the
+            catalog-core-resourcesizeplugin PostQuery Plugin, and if the product has been retrieved, it has been
+            cached and the size of the product can be determined based on the cached file's size. Therefore,
+            subsequent query results that include that product will display an accurate size under the download
+            link.</td>
+    </tr>
+    </tbody>
+</table>
+
+<h2><a id="workspaces"></a>Workspaces</h2>
+<p>Each user can create multiple workspaces and assign each of them a descriptive name. Each workspace can contain
+    multiple <a href="#savedsearch">saved searches</a> and contain multiple saved records (metacards). Workspaces are saved for each user
+    and are loaded when the user logs in. Workspaces and their contents are persisted, so they survive if DDF is
+    restarted. Currently, workspaces are private and cannot be viewed by other users.</p>
+
+<h3><a id="createworkspace"></a>Create a Workspace</h3>
+<ol>
+    <li>Select the Workspaces tab at the bottom of the Search UI's left pane. The Workspaces pane opens, which displays
+        the existing workspaces that were created by the user. At the top of the pane, an option to <b>Add</b> and an
+        option to <b>Edit</b> are displayed.</li>
+    <li>Select the <b>Add</b> button at the top of the left pane. A new workspace is created.</li>
+    <li>In the <b>Workspace Name</b> field, enter a descriptive name for the workspace.</li>
+    <li>Select the <b>Add</b> button. The Workspaces pane opens, which now displays the new workspace and any existing
+        workspaces.</li>
+    <li>Select the name of the new workspace. The data (i.e., saved searches and records) for the selected workspace is displayed in the Workspace pane.</li>
+    <li>Select the + icon near the top of the Workspace pane to begin adding queries to the workspace. The Add/Edit Search pane opens.</li>
+    <li>Enter a name for the new query to be saved in the <b>QUERY NAME</b> field.</li>
+    <li>Complete the rest of the <a href="#searchcriteria">search criteria</a>.</li>
+    <li>Select the <b>Save & Search</b> button. The Search UI begins searching for records matching the criteria,
+        and the new query is saved to the workspace. When the search is complete, the Workspace pane opens.</li>
+    <li>Select the name of the search to view the query results.</li>
+    <li>If necessary, in the Workspace pane, select the <b>Edit</b> button then select the pencil icon next to the name of a query to change the search
+        criteria.
+    </li>
+    <li>If necessary, in the Workspace pane, select the delete icon next to the name of a query to delete the query from the workspace.</li>
+</ol>
+
+<h2><a id="notifications"></a>Notifications</h2>
+<p>The Standard Search UI receives all notifications from DDF.  These notifications appear as pop-up windows inside the
+    Search UI to alert the user of an event of interest. To view all notifications, select the notification (bell)
+    icon.</p>
+<p>Currently, the notifications provide information about product retrieval only.  After a user initiates a resource
+    download, they receive periodic notifications that provide the progress of the download (e.g., the download
+    completed, failed, or is being retried).</p>
+
+
+<table class="table table-striped table-bordered">
+    <thead>
+    <tr>
+        <th>NOTE</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td>A notification pop-up remains visible until it is dismissed or the browser is refreshed. Once a
+            notification is dismissed, it cannot be retrieved again.</td>
+    </tr>
+    </tbody>
+</table>
+
+<h2><a id="activities"></a>Activities</h2>
+<p>Similar to notifications, activities appear as pop-up windows inside the Search UI. Activity events include the
+    status and progress of actions that are being performed by the user, such as searches and downloads. To view all
+    activities, select the activity icon in the top-right corner of the window. A list of all activities opens in a
+    drop-down menu, from which activities can be read and deleted. If a download activity is being performed, the
+    Activity drop-down menu provides the link to retrieve the product.</p>
+<p>If caching is enabled, a progress bar is displayed in the Activity (Product Retrieval) drop-down menu until the
+    action being performed is complete. </p>
+
+<h2><a id="install"></a>Install</h2>
+<p>The Search UI application is installed by default. The Search UI feature, search-ui, can be installed and uninstalled
+    using the <a href="/system/console/features" target="_blank">Web Console</a>.</p>
+
+<h2><a id="configuration"></a>Configuration</h2>
+<p>The Search UI is configured by selecting Standard Search UI in the <a href="/system/console/configMgr" target="_blank">Web Console</a>,
+    editing the properties, then selecting the <b>Save</b> button.</p>
+<h3><a id="configurableproperties"></a>Configurable Properties</h3>
+<table class="table table-striped table-bordered">
+    <thead>
+    <tr>
+        <th>Title</th>
+        <th>Property</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Required</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td>Footer</td>
+        <td>footer</td>
+        <td>String</td>
+        <td>The footer text to be rendered on the Search UI.</td>
+        <td>No</td>
+    </tr>
+    <tr>
+        <td>Header</td>
+        <td>header</td>
+        <td>String</td>
+        <td>The header text to be rendered on the Search UI.</td>
+        <td>No</td>
+    </tr>
+    <tr>
+        <td>Style</td>
+        <td>style</td>
+        <td>String</td>
+        <td>The style name (background color) of the Header and Footer.</td>
+        <td>Yes</td>
+    </tr>
+    <tr>
+        <td>Text Color</td>
+        <td>textColor</td>
+        <td>String</td>
+        <td>The text color of the Header and Footer.</td>
+        <td>Yes</td>
+    </tr>
+    <tr>
+        <td>WMS Format</td>
+        <td>format</td>
+        <td>String</td>
+        <td>The WMS layer format (image/png, etc.)</td>
+        <td>No</td>
+    </tr>
+    <tr>
+        <td>WMS Layers</td>
+        <td>layers</td>
+        <td>String</td>
+        <td>The WMS layers to be used.</td>
+        <td>No</td>
+    </tr>
+    <tr>
+        <td>WMS Server</td>
+        <td>wmsServer</td>
+        <td>String</td>
+        <td>The WMS server to be used as the map tile provider.</td>
+        <td>No</td>
+    </tr>
+    </tbody>
+</table>
+
+<h2><a id="downloads"></a>Downloads</h2>
+<p>Downloads from the UI are currently managed by the user-specific browser's download manager.  The UI itself does not
+    have a built-in download manager utility.</p>
+</body>
 </html>
