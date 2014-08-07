@@ -74,7 +74,7 @@
                 exports: 'Handlebars'
             },
             icanhaz: {
-                deps: ['handlebars'],
+                deps: ['handlebars','jquery'],
                 exports: 'ich'
             },
 

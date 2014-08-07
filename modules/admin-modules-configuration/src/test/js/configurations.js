@@ -73,55 +73,55 @@ casper.test.begin('Configurations View test', function(test) {
         },
         function fail() {
             test.assertExists("#ddfplatformconfig form.add-federated-source");
-    });
+        }
+    );
 
     casper.then(function () {
-        this.fill('#ddfplatformconfig form.add-federated-source', { protocol: "http" }, false);
+        this.fill('#ddfplatformconfig .add-federated-source', { protocol: "http" }, false);
         test.comment('Entered value for protocol');
     });
 
     casper.then(function () {
-        this.fill('#ddfplatformconfig form.add-federated-source', { host: "localhost" }, false);
+        this.fill('#ddfplatformconfig .add-federated-source', { host: "localhost" }, false);
         test.comment('Entered value for host');
     });
-
     casper.then(function () {
-        this.fill('#ddfplatformconfig form.add-federated-source', { port: "8181" }, false);
+        this.fill('#ddfplatformconfig .add-federated-source', { port: "8181" }, false);
         test.comment('Entered value for port');
     });
 
     casper.then(function () {
-        this.fill('#ddfplatformconfig form.add-federated-source', { trustStore: "" }, false);
+        this.fill('#ddfplatformconfig .add-federated-source', { trustStore: "" }, false);
         test.comment('Entered value for trustStore');
     });
 
     casper.then(function () {
-        this.fill('#ddfplatformconfig form.add-federated-source', { trustStorePassword: "" }, false);
+        this.fill('#ddfplatformconfig .add-federated-source', { trustStorePassword: "" }, false);
         test.comment('Entered value for trustStorePassword');
     });
 
     casper.then(function () {
-        this.fill('#ddfplatformconfig form.add-federated-source', { keyStore: "" }, false);
+        this.fill('#ddfplatformconfig .add-federated-source', { keyStore: "" }, false);
         test.comment('Entered value for keyStore');
     });
 
     casper.then(function () {
-        this.fill('#ddfplatformconfig form.add-federated-source', { keyStorePassword: "" }, false);
+        this.fill('#ddfplatformconfig .add-federated-source', { keyStorePassword: "" }, false);
         test.comment('Entered value for keyStorePassword');
     });
 
     casper.then(function () {
-        this.fill('#ddfplatformconfig form.add-federated-source', { id: "ddf.distribution" }, false);
+        this.fill('#ddfplatformconfig .add-federated-source', { id: "ddf.distribution" }, false);
         test.comment('Entered value for id');
     });
 
     casper.then(function () {
-        this.fill('#ddfplatformconfig form.add-federated-source', { version: "2.3.0" }, false);
+        this.fill('#ddfplatformconfig .add-federated-source', { version: "2.3.0" }, false);
         test.comment('Entered value for version');
     });
 
     casper.then(function () {
-        this.fill('#ddfplatformconfig form.add-federated-source', { organization: "Codice Foundation" }, false);
+        this.fill('#ddfplatformconfig .add-federated-source', { organization: "Codice Foundation" }, false);
         test.comment('Entered value for organization');
     });
 

@@ -13,21 +13,26 @@
  *
  **/
 /*global define, window*/
-define(function (require) {
-
-    var ich = require('icanhaz'),
-        _ = require('underscore'),
-        Marionette = require('marionette'),
-        Service = require('/configurations/js/model/Service.js'),
-        ConfigurationEdit = require('/configurations/js/view/ConfigurationEdit.view.js');
+define([
+    'icanhaz',
+    'underscore',
+    'marionette',
+    '/configurations/js/model/Service.js',
+    '/configurations/js/view/ConfigurationEdit.view.js',
+    'text!/configurations/templates/serviceList.handlebars',
+    'text!/configurations/templates/serviceRow.handlebars',
+    'text!/configurations/templates/configurationRow.handlebars',
+    'text!/configurations/templates/servicePage.handlebars',
+    'text!/configurations/templates/configurationList.handlebars'
+],function (ich, _, Marionette, Service, ConfigurationEdit,serviceList,serviceRow,configurationRow,servicePage,configurationList) {
 
     var ServiceView = {};
 
-    ich.addTemplate('serviceList', require('text!/configurations/templates/serviceList.handlebars'));
-    ich.addTemplate('serviceRow', require('text!/configurations/templates/serviceRow.handlebars'));
-    ich.addTemplate('configurationRow', require('text!/configurations/templates/configurationRow.handlebars'));
-    ich.addTemplate('servicePage', require('text!/configurations/templates/servicePage.handlebars'));
-    ich.addTemplate('configurationList', require('text!/configurations/templates/configurationList.handlebars'));
+    ich.addTemplate('serviceList', serviceList);
+    ich.addTemplate('serviceRow', serviceRow);
+    ich.addTemplate('configurationRow', configurationRow);
+    ich.addTemplate('servicePage', servicePage);
+    ich.addTemplate('configurationList', configurationList);
 
     ServiceView.ConfigurationRow = Marionette.Layout.extend({
         template: "configurationRow",

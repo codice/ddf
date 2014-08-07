@@ -12,27 +12,37 @@
 /*global define*/
 
 // #Main Application
-define(function (require) {
+define([
+    'underscore',
+    'backbone',
+    'marionette',
+    'icanhaz',
+    'poller',
+    'js/models/Module',
+    'js/models/App',
+    'text!templates/tabs.handlebars',
+    'text!templates/appHeader.handlebars',
+    'text!templates/header.handlebars',
+    'text!templates/footer.handlebars',
+    'text!templates/moduleTab.handlebars'
+    ],function (_, Backbone, Marionette, ich, poller, Module, AppModel, tabs, appHeader, header, footer, moduleTab) {
     'use strict';
 
-    // Load non attached libs and plugins
+    var Application = {};
 
-
-    // Load attached libs and application modules
-    var _ = require('underscore'),
-        Backbone = require('backbone'),
-        Marionette = require('marionette'),
-        ich = require('icanhaz'),
-        poller = require('poller'),
-        Application = {};
-    require('marionette');
+    // This was moved from the main.js file into here.
+    // Since this modules has ui components, and it gets loaded before main.js, we need to init the renderer here for now until we sort this out.
+    Marionette.Renderer.render = function (template, data) {
+        if(!template){return '';}
+        return ich[template](data);
+    };
 
     // Setup initial templates that we know we'll need
-    ich.addTemplate('tabs', require('text!templates/tabs.handlebars'));
-    ich.addTemplate('appHeader', require('text!templates/appHeader.handlebars'));
-    ich.addTemplate('headerLayout', require('text!templates/header.handlebars'));
-    ich.addTemplate('footerLayout', require('text!templates/footer.handlebars'));
-    ich.addTemplate('moduleTab', require('text!templates/moduleTab.handlebars'));
+    ich.addTemplate('tabs', tabs);
+    ich.addTemplate('appHeader', appHeader);
+    ich.addTemplate('headerLayout', header);
+    ich.addTemplate('footerLayout', footer);
+    ich.addTemplate('moduleTab', moduleTab);
 
     Application.App = new Marionette.Application();
 
@@ -46,8 +56,6 @@ define(function (require) {
     });
 
     //setup models
-    var Module = require('js/models/Module');
-    var AppModel = require('js/models/App');
     var options = {
         delay: 30000
     };

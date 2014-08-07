@@ -14,12 +14,21 @@
  **/
 /*global define*/
 /** Main view page for add. */
-define(function (require) {
-
-    var Backbone = require('backbone'),
-        Marionette = require('marionette'),
-        _ = require('underscore'),
-        ich = require('icanhaz');
+define([
+    'backbone',
+    'marionette',
+    'underscore',
+    'icanhaz',
+    'text!/configurations/templates/configurationEdit.handlebars',
+    'text!templates/optionListType.handlebars',
+    'text!templates/textType.handlebars',
+    'text!templates/passwordType.handlebars',
+    'text!templates/numberType.handlebars',
+    'text!templates/checkboxType.handlebars',
+    'text!templates/textTypeListRegion.handlebars',
+    'text!templates/textTypeListHeader.handlebars',
+    'text!templates/textTypeList.handlebars'
+],function (Backbone,Marionette,_,ich, configurationEdit,optionListType,textType,passwordType,numberType,checkboxType,textTypeListRegion,textTypeListHeader,textTypeList) {
 
     var ConfigurationEdit = {};
     
@@ -41,30 +50,30 @@ define(function (require) {
     var BOOLEAN = 11;
     var PASSWORD = 12;
     
-    ich.addTemplate('configurationEdit', require('text!/configurations/templates/configurationEdit.handlebars'));
+    ich.addTemplate('configurationEdit', configurationEdit);
     if(!ich.optionListType) {
-        ich.addTemplate('optionListType', require('text!templates/optionListType.handlebars'));
+        ich.addTemplate('optionListType', optionListType);
     }
     if(!ich.textType) {
-        ich.addTemplate('textType', require('text!templates/textType.handlebars'));
+        ich.addTemplate('textType', textType);
     }
     if(!ich.passwordType) {
-        ich.addTemplate('passwordType', require('text!templates/passwordType.handlebars'));
+        ich.addTemplate('passwordType', passwordType);
     }
     if(!ich.numberType) {
-        ich.addTemplate('numberType', require('text!templates/numberType.handlebars'));
+        ich.addTemplate('numberType', numberType);
     }
     if(!ich.checkboxType) {
-        ich.addTemplate('checkboxType', require('text!templates/checkboxType.handlebars'));
+        ich.addTemplate('checkboxType', checkboxType);
     }
     if(!ich.textTypeListRegion) {
-        ich.addTemplate('textTypeListRegion', require('text!templates/textTypeListRegion.handlebars'));
+        ich.addTemplate('textTypeListRegion', textTypeListRegion);
     }
     if(!ich.textTypeListHeader) {
-        ich.addTemplate('textTypeListHeader', require('text!templates/textTypeListHeader.handlebars'));
+        ich.addTemplate('textTypeListHeader', textTypeListHeader);
     }
     if(!ich.textTypeList) {
-        ich.addTemplate('textTypeList', require('text!templates/textTypeList.handlebars'));
+        ich.addTemplate('textTypeList', textTypeList);
     }
 
     ConfigurationEdit.ViewArrayEntry = Marionette.ItemView.extend({

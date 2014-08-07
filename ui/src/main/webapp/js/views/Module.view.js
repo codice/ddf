@@ -9,12 +9,12 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global define,setTimeout*/
-define(function(require) {
-
-    var Marionette = require('marionette'),
-        $ = require('jquery'),
-        Application = require('js/application');
+/*global require,define,setTimeout*/
+define([
+        'marionette',
+        'jquery',
+        'js/application'
+    ],function(Marionette, $, Application) {
 
 //    $(window).resize(function() {
 //        var width = $('body').width();
