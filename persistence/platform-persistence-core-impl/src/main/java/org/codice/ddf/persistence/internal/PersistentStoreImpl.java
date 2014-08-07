@@ -14,15 +14,6 @@
  **/
 package org.codice.ddf.persistence.internal;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrRequest.METHOD;
@@ -45,6 +36,15 @@ import org.geotools.filter.text.cql2.CQLException;
 import org.opengis.filter.Filter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class PersistentStoreImpl implements PersistentStore {
     
@@ -88,7 +88,7 @@ public class PersistentStoreImpl implements PersistentStore {
         if (type == null || type.isEmpty()) {
             return;
         }
-        if (properties == null || properties.isEmpty()) {
+        if (properties == null || properties.isEmpty() || properties.containsValue("guest")) {
             return;
         }
         LOGGER.debug("Adding entry of type {}", type);
