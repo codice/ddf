@@ -25,7 +25,13 @@
 			name="Force Auto Commit" id="forceAutoCommit" required="true" type="Boolean" default="" />
 		<AD
 			description="Disables the ability to make Text Path queries by disabling the Text Path index. Disabling Text Path indexing typically increases ingest performance."
-			name="Disable Text Path indexing" id="disableTextPath" required="true" type="Boolean" default="" />				
+			name="Disable Text Path indexing" id="disableTextPath" required="true" type="Boolean" default="" />
+        <AD
+            description="Limit for &quot;Nearest Neighbor&quot; search in nautical miles.
+            Please Note: This should be a positive number; if the number is negative, it will be converted to positive and if the input is not a number it will be silently rejected."
+            name="Nearest Neighbor Distance Limit" id="nearestNeighborDistanceLimit"
+            required="true" type="Double" default="1000"/>
+
 	</OCD>
 
 	<Designate

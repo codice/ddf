@@ -1,16 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
+ *
  **/
 package ddf.catalog.source.solr;
 
@@ -53,7 +53,6 @@ import ddf.measure.Distance.LinearUnit;
 
 /**
  * Translates filter-proxy calls into Solr query syntax.
- * 
  */
 public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
 
@@ -63,18 +62,15 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
 
     // *, ?, and / are escaped by the filter adapter
     private static final String[] LUCENE_SPECIAL_CHARACTERS = new String[] {"+", "-", "&&", "||",
-        "!", "(", ")", "{", "}", "[", "]", "^", "\"", "~", ":"};
+            "!", "(", ")", "{", "}", "[", "]", "^", "\"", "~", ":"};
 
     private static final String[] ESCAPED_LUCENE_SPECIAL_CHARACTERS = new String[] {"\\+", "\\-",
-        "\\&&", "\\||", "\\!", "\\(", "\\)", "\\{", "\\}", "\\[", "\\]", "\\^", "\\\"", "\\~",
-        "\\:"};
+            "\\&&", "\\||", "\\!", "\\(", "\\)", "\\{", "\\}", "\\[", "\\]", "\\^", "\\\"", "\\~",
+            "\\:"};
 
     private static final String INTERSECTS_OPERATION = "Intersects";
 
     private static final String SPATIAL_INDEX = "_geo_index";
-
-    private static final double NEAREST_NEIGHBOR_DISTANCE_LIMIT = metersToDegrees(new Distance(
-            1000, LinearUnit.NAUTICAL_MILE).getAs(LinearUnit.METER));
 
     // Using quantization of 12 to reduce error below 1%
     private static final int QUADRANT_SEGMENTS = 12;
@@ -120,6 +116,7 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
     private static final Map<String, String> FIELD_MAP;
 
     private static final String TOKENIZED = "_tokenized";
+
     public static final String TOKENIZED_METADATA_FIELD = Metacard.METADATA + "_txt" + TOKENIZED;
 
     private static final double DEFAULT_ERROR_IN_METERS = 1;
@@ -225,7 +222,8 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
     }
 
     @Override
-    public SolrQuery propertyIsEqualTo(String propertyName, String literal, boolean isCaseSensitive) {
+    public SolrQuery propertyIsEqualTo(String propertyName, String literal,
+            boolean isCaseSensitive) {
         if (!isCaseSensitive) {
             throw new UnsupportedOperationException(
                     "Case insensitive exact searches are not supported.");
@@ -321,7 +319,8 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
         return getGreaterThanOrEqualToQuery(propertyName, AttributeFormat.DOUBLE, literal);
     }
 
-    private SolrQuery buildDateQuery(String propertyName, String startCondition, String startDate, String endDate, String endCondition) {
+    private SolrQuery buildDateQuery(String propertyName, String startCondition, String startDate,
+            String endDate, String endCondition) {
         SolrQuery query = new SolrQuery();
         query.setQuery(" " + getMappedPropertyName(propertyName, AttributeFormat.DATE, false)
                 + startCondition + startDate + TO + endDate + endCondition);
@@ -336,54 +335,63 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
     public SolrQuery during(String propertyName, Date startDate, Date endDate) {
         String formattedStartDate = formatDate(startDate);
         String formattedEndDate = formatDate(endDate);
-        return buildDateQuery(propertyName, SOLR_EXCLUSIVE_START, formattedStartDate, formattedEndDate, SOLR_EXCLUSIVE_END);
+        return buildDateQuery(propertyName, SOLR_EXCLUSIVE_START, formattedStartDate,
+                formattedEndDate, SOLR_EXCLUSIVE_END);
     }
 
     @Override
     public SolrQuery before(String propertyName, Date date) {
         String formattedEndDate = formatDate(date);
 
-        return buildDateQuery(propertyName, SOLR_INCLUSIVE_START, SOLR_WILDCARD_CHAR, formattedEndDate, SOLR_EXCLUSIVE_END);
+        return buildDateQuery(propertyName, SOLR_INCLUSIVE_START, SOLR_WILDCARD_CHAR,
+                formattedEndDate, SOLR_EXCLUSIVE_END);
     }
 
     @Override
     public SolrQuery after(String propertyName, Date startDate) {
         String formattedStartDate = formatDate(startDate);
-        return buildDateQuery(propertyName, SOLR_EXCLUSIVE_START, formattedStartDate, SOLR_WILDCARD_CHAR, SOLR_INCLUSIVE_END);
+        return buildDateQuery(propertyName, SOLR_EXCLUSIVE_START, formattedStartDate,
+                SOLR_WILDCARD_CHAR, SOLR_INCLUSIVE_END);
     }
 
     @Override
     public SolrQuery propertyIsGreaterThan(String propertyName, Date startDate) {
         String formattedStartDate = formatDate(startDate);
-        return buildDateQuery(propertyName, SOLR_EXCLUSIVE_START, formattedStartDate, SOLR_WILDCARD_CHAR, SOLR_INCLUSIVE_END);
+        return buildDateQuery(propertyName, SOLR_EXCLUSIVE_START, formattedStartDate,
+                SOLR_WILDCARD_CHAR, SOLR_INCLUSIVE_END);
     }
 
     @Override
     public SolrQuery propertyIsGreaterThanOrEqualTo(String propertyName, Date startDate) {
         String formattedStartDate = formatDate(startDate);
-        return buildDateQuery(propertyName, SOLR_INCLUSIVE_START, formattedStartDate, SOLR_WILDCARD_CHAR, SOLR_INCLUSIVE_END);
+        return buildDateQuery(propertyName, SOLR_INCLUSIVE_START, formattedStartDate,
+                SOLR_WILDCARD_CHAR, SOLR_INCLUSIVE_END);
     }
 
     @Override
     public SolrQuery propertyIsLessThan(String propertyName, Date endDate) {
         String formattedEndDate = formatDate(endDate);
-        return buildDateQuery(propertyName, SOLR_INCLUSIVE_START, SOLR_WILDCARD_CHAR, formattedEndDate, SOLR_EXCLUSIVE_END);
+        return buildDateQuery(propertyName, SOLR_INCLUSIVE_START, SOLR_WILDCARD_CHAR,
+                formattedEndDate, SOLR_EXCLUSIVE_END);
     }
 
     @Override
     public SolrQuery propertyIsLessThanOrEqualTo(String propertyName, Date endDate) {
         String formattedEndDate = formatDate(endDate);
-        return buildDateQuery(propertyName, SOLR_INCLUSIVE_START, SOLR_WILDCARD_CHAR, formattedEndDate, SOLR_INCLUSIVE_END);
+        return buildDateQuery(propertyName, SOLR_INCLUSIVE_START, SOLR_WILDCARD_CHAR,
+                formattedEndDate, SOLR_INCLUSIVE_END);
     }
 
     @Override
-    public SolrQuery propertyIsBetween(String propertyName, Date lowerBoundary, Date upperBoundary) {
+    public SolrQuery propertyIsBetween(String propertyName, Date lowerBoundary,
+            Date upperBoundary) {
         String formattedStartDate = formatDate(lowerBoundary);
         String formattedEndDate = formatDate(upperBoundary);
         // From OGC 09-026r1 and ISO 19143:2010(E), Section 7.7.3.7:
         // The PropertyIsBetween element is defined as a compact way of encoding a range check.
         // The lower and upper boundary values are inclusive.
-        return buildDateQuery(propertyName, SOLR_INCLUSIVE_START, formattedStartDate, formattedEndDate, SOLR_INCLUSIVE_END);
+        return buildDateQuery(propertyName, SOLR_INCLUSIVE_START, formattedStartDate,
+                formattedEndDate, SOLR_INCLUSIVE_END);
     }
 
     @Override
@@ -395,11 +403,19 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
         String formattedStartDate = formatDate(start);
         String formattedEndDate = formatDate(end);
 
-        return buildDateQuery(propertyName, SOLR_INCLUSIVE_START, formattedStartDate, formattedEndDate, SOLR_INCLUSIVE_END);
+        return buildDateQuery(propertyName, SOLR_INCLUSIVE_START, formattedStartDate,
+                formattedEndDate, SOLR_INCLUSIVE_END);
     }
 
     @Override
     public SolrQuery nearestNeighbor(String propertyName, String wkt) {
+        Double nauticalMiles = ConfigurationStore.getInstance().getNearestNeighborDistanceLimit();
+        if (nauticalMiles == null) {
+            nauticalMiles = Double.valueOf(1000);
+            ConfigurationStore.getInstance().setNearestNeighborDistanceLimit(Double.valueOf(1000));
+        }
+        Double degreeLimitForQuery = metersToDegrees(new Distance(
+                nauticalMiles, LinearUnit.NAUTICAL_MILE).getAs(LinearUnit.METER));
         Geometry geo = getGeometry(wkt);
 
         if (geo != null) {
@@ -411,7 +427,7 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
             }
 
             String nearestNeighborQuery = geoPointToCircleQuery(propertyName,
-                    NEAREST_NEIGHBOR_DISTANCE_LIMIT, pnt);
+                    degreeLimitForQuery, pnt);
 
             return getSolrQueryWithSort(nearestNeighborQuery);
 
@@ -536,7 +552,8 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
         return getXPathQuery(xpath, literal, false);
     }
 
-    private SolrQuery getXPathQuery(final String pattern, final String searchPhrase, final boolean isCaseSensitive) {
+    private SolrQuery getXPathQuery(final String pattern, final String searchPhrase,
+            final boolean isCaseSensitive) {
         // TODO should use XPath parser to make sure to only remove namespace pattern from path and not quoted text
         // replace quotes and remove namespaces
         String xpath = pattern.replace("\"", "'").replaceAll("[\\w]+:(?!:)", "");
@@ -554,7 +571,8 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
         }
 
         SolrQuery solrQuery = new SolrQuery(query);
-        solrQuery.addFilterQuery(XPATH_QUERY_PARSER_PREFIX + XPATH_FILTER_QUERY + ":\"" + xpath + "\"",
+        solrQuery.addFilterQuery(
+                XPATH_QUERY_PARSER_PREFIX + XPATH_FILTER_QUERY + ":\"" + xpath + "\"",
                 XPATH_QUERY_PARSER_PREFIX + XPATH_FILTER_QUERY_INDEX + ":\"" + xpath + "\"");
 
         return solrQuery;

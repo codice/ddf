@@ -1,16 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
+ *
  **/
 package ddf.catalog.source.solr;
 
@@ -19,7 +19,6 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Stores external configuration properties to be used across POJOs.
- * 
  */
 public class ConfigurationStore {
 
@@ -32,6 +31,8 @@ public class ConfigurationStore {
     private boolean forceAutoCommit;
 
     private boolean disableTextPath;
+
+    private Double nearestNeighborDistanceLimit;
 
     private ConfigurationStore() {
     }
@@ -50,7 +51,6 @@ public class ConfigurationStore {
     }
 
     /**
-     * 
      * @return true, if text path indexing has been disabled
      */
     public boolean isDisableTextPath() {
@@ -58,10 +58,8 @@ public class ConfigurationStore {
     }
 
     /**
-     * 
-     * @param disableTextPath
-     *            When set to true, this will turn off text path indexing for every subsequent
-     *            update or insert.
+     * @param disableTextPath When set to true, this will turn off text path indexing for every subsequent
+     *                        update or insert.
      */
     public void setDisableTextPath(boolean disableTextPath) {
         this.disableTextPath = disableTextPath;
@@ -75,8 +73,15 @@ public class ConfigurationStore {
         this.dataDirectoryPath = dataDirectoryPath;
     }
 
+    public Double getNearestNeighborDistanceLimit() {
+        return nearestNeighborDistanceLimit;
+    }
+
+    public void setNearestNeighborDistanceLimit(Double nearestNeighborDistanceLimit) {
+        this.nearestNeighborDistanceLimit = Math.abs(nearestNeighborDistanceLimit);
+    }
+
     /**
-     * 
      * @return true, if forcing auto commit is turned on
      */
     public boolean isForceAutoCommit() {
@@ -84,10 +89,8 @@ public class ConfigurationStore {
     }
 
     /**
-     * 
-     * @param forceAutoCommit
-     *            When set to true, this will force a soft commit upon every solr transaction such
-     *            as insert, delete,
+     * @param forceAutoCommit When set to true, this will force a soft commit upon every solr transaction such
+     *                        as insert, delete,
      */
     public void setForceAutoCommit(boolean forceAutoCommit) {
         this.forceAutoCommit = forceAutoCommit;
