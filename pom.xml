@@ -108,14 +108,10 @@
 		</developer>
 		<developer>
 			<name>Michael Menousek</name>
-			<organization>Lockheed Martin</organization>
+			<organization>Connexta</organization>
 		</developer>
 		<developer>
 			<name>Phillip Klinefelter</name>
-			<organization>Lockheed Martin</organization>
-		</developer>
-		<developer>
-			<name>Rhett Olschner</name>
 			<organization>Lockheed Martin</organization>
 		</developer>
 		<developer>
@@ -141,17 +137,9 @@
 			<name>Jeff Vettraino</name>
 			<organization>Cohesive Integrations</organization>		
 		</contributor>
-		<contributor>
-			<name>Sam Patel</name>
-			<organization>Lockheed Martin</organization>		
-		</contributor>
 	    <contributor>
 			<name>Sam Snyder</name>
 			<organization>Aviture</organization>
-		</contributor>
-		<contributor>
-			<name>Timothy Anderson</name>
-			<organization>Lockheed Martin</organization>
 		</contributor>
 	</contributors>
 
