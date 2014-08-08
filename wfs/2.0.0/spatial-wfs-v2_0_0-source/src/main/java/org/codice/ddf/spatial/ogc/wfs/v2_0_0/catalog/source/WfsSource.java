@@ -574,22 +574,32 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
             if (featureCollection == null) {
                 throw new UnsupportedQueryException("Invalid results returned from server");
             }
-            int numResults = featureCollection.getNumberReturned().intValue();
-            availabilityTask.updateLastAvailableTimestamp(System.currentTimeMillis());
-            LOGGER.debug("WFS Source {}: Received featureCollection with {} metacards.", getId(),
-                    numResults);
-
-            List<Result> results = new ArrayList<Result>(numResults);
-
-            for (int i = 0; i < numResults; i++) {
-                Metacard mc = featureCollection.getMembers().get(i);
-                mc = transform(mc, DEFAULT_WFS_TRANSFORMER_ID);
-                Result result = new ResultImpl(mc);
-                results.add(result);
-                debugResult(result);
+            if (featureCollection.getNumberReturned() == null){
+                System.out.println("QWWQ");
+                throw new UnsupportedQueryException("The number of features returned did not exist");
             }
             
-            simpleResponse = new SourceResponseImpl(request, results, new Long(numResults));
+            int numResults = featureCollection.getNumberReturned().intValue();
+
+            if (numResults > 0){
+                availabilityTask.updateLastAvailableTimestamp(System.currentTimeMillis());
+                LOGGER.debug("WFS Source {}: Received featureCollection with {} metacards.", getId(),
+                        numResults);
+    
+                List<Result> results = new ArrayList<Result>(numResults);
+    
+                for (int i = 0; i < numResults; i++) {
+                    Metacard mc = featureCollection.getMembers().get(i);
+                    mc = transform(mc, DEFAULT_WFS_TRANSFORMER_ID);
+                    Result result = new ResultImpl(mc);
+                    results.add(result);
+                    debugResult(result);
+                }
+                
+                simpleResponse = new SourceResponseImpl(request, results, new Long(numResults));
+            } else {
+                throw new UnsupportedQueryException("The number of features returned is a 0 or negative number");
+            }
         } catch (WfsException wfse) {
             LOGGER.warn(WFS_ERROR_MESSAGE, wfse);
             throw new UnsupportedQueryException("Error received from WFS Server", wfse);
@@ -637,6 +647,18 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
         if (queries != null && !queries.isEmpty()) {
 
             GetFeatureType getFeatureType = new GetFeatureType();
+            int pageSize = query.getPageSize();
+            if (pageSize < 0){
+                LOGGER.error("Page size has a negative value");
+                throw new UnsupportedQueryException(
+                        "Unable to build query. Page size has a negative value.");
+            }
+            int startIndex = query.getStartIndex();
+            if (startIndex < 0){
+                LOGGER.error("Start index has a negative value");
+                throw new UnsupportedQueryException(
+                        "Unable to build query. Start index has a negative value.");
+            }
             getFeatureType.setCount(BigInteger.valueOf(query.getPageSize()));
             getFeatureType.setStartIndex(BigInteger.valueOf(query.getStartIndex()));
             List<JAXBElement<?>> incomingQueries = getFeatureType.getAbstractQueryExpression();

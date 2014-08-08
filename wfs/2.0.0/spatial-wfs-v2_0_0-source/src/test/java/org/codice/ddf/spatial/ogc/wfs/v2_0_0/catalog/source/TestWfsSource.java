@@ -33,6 +33,7 @@ import java.util.List;
 
 import javax.xml.bind.JAXBElement;
 import javax.xml.namespace.QName;
+import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.stream.StreamSource;
 
 import net.opengis.filter.v_2_0_0.FilterCapabilities;
@@ -56,16 +57,23 @@ import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.Wfs20FeatureCollecti
 import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.source.reader.FeatureCollectionMessageBodyReaderWfs20;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
+import org.opengis.filter.Filter;
 import org.opengis.filter.sort.SortBy;
 import org.opengis.filter.sort.SortOrder;
 import org.osgi.framework.BundleContext;
 
 import ddf.catalog.data.ContentType;
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.filter.impl.SortByImpl;
 import ddf.catalog.filter.proxy.adapter.GeotoolsFilterAdapterImpl;
 import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
+import ddf.catalog.operation.Query;
+import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.operation.impl.QueryImpl;
+import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.source.UnsupportedQueryException;
 
 public class TestWfsSource {
@@ -78,6 +86,12 @@ public class TestWfsSource {
     
 
     private static final String SAMPLE_FEATURE_NAME = "SampleFeature";
+    
+    private static final Integer MAX_FEATURES = 10;
+    
+    private static final Integer NULL_NUM_RETURNED = 9889;
+    
+    private static final String LITERAL = "literal";
 
     private RemoteWfs mockWfs = mock(RemoteWfs.class);
 
@@ -88,6 +102,8 @@ public class TestWfsSource {
     private AvailabilityTask mockAvailabilityTask = mock(AvailabilityTask.class);
 
     private FeatureCollectionMessageBodyReaderWfs20 mockReader = mock(FeatureCollectionMessageBodyReaderWfs20.class);
+    
+    private Wfs20FeatureCollection mockFeatureCollection = mock(Wfs20FeatureCollection.class);
     
     private final GeotoolsFilterBuilder builder = new GeotoolsFilterBuilder();
 
@@ -144,25 +160,49 @@ public class TestWfsSource {
         }
         when(mockWfs.getFeatureCollectionReader()).thenReturn(mockReader);
         
+        // GetFeature Response
+        when(mockWfs.getFeature(any(GetFeatureType.class))).thenReturn(mockFeatureCollection);
+        
+        when(mockFeatureCollection.getNumberReturned()).thenReturn(BigInteger.valueOf(numFeatures));
+
+        when(mockFeatureCollection.getMembers()).thenAnswer(new Answer<List<Metacard>>() {
+            @Override
+            public List<Metacard> answer(InvocationOnMock invocation) {
+                // Create as many metacards as there are features
+                List<Metacard> metacards = new ArrayList<Metacard>(numFeatures);
+                for (int i = 0; i < numFeatures; i++) {
+                    MetacardImpl mc = new MetacardImpl();
+                    mc.setId("ID_" + String.valueOf(i + 1));
+                    metacards.add(mc);
+                }
+
+                return metacards;
+            }
+        });
+        
         MetacardAttributeMapper mockMapper = mock(MetacardAttributeMapper.class);
         List<MetacardAttributeMapper> mappers = new ArrayList<MetacardAttributeMapper>(1);
         mappers.add(mockMapper);
         
         WfsSource source = new WfsSource(mockWfs, new GeotoolsFilterAdapterImpl(), mockContext,
                 mockAvailabilityTask);
+        
         source.setMetacardAttributeToFeaturePropertyMapper(mappers);
         return source;
     }
 
     public WfsSource getWfsSource(final String schema, final FilterCapabilities filterCapabilities,
             final String srsName, final int numFeatures,
-            final boolean throwExceptionOnDescribeFeatureType, boolean prefix) throws WfsException {
+            final boolean throwExceptionOnDescribeFeatureType, boolean prefix, int numReturned) throws WfsException {
 
         // GetCapabilities Response
         when(mockWfs.getCapabilities(any(GetCapabilitiesRequest.class)))
                 .thenReturn(mockCapabilites);
         Wfs20FeatureCollection featureCollection = new Wfs20FeatureCollection();
-        featureCollection.setNumberReturned(BigInteger.valueOf(0));
+        
+        if (numReturned != NULL_NUM_RETURNED) {
+            featureCollection.setNumberReturned(BigInteger.valueOf(numReturned));
+        }
         
         when(mockWfs.getFeature(any(GetFeatureType.class)))
             .thenReturn(featureCollection);
@@ -304,7 +344,7 @@ public class TestWfsSource {
         
         WfsSource source = getWfsSource(ONE_TEXT_PROPERTY_SCHEMA,
                 MockWfsServer.getFilterCapabilities(),
-                Wfs20Constants.EPSG_4326_URN, 3, false, true);
+                Wfs20Constants.EPSG_4326_URN, 3, false, true, 3);
         
         
         QueryImpl query = new QueryImpl(builder.attribute(Metacard.ANY_TEXT).is()
@@ -337,7 +377,7 @@ public class TestWfsSource {
         
         WfsSource source = getWfsSource(ONE_TEXT_PROPERTY_SCHEMA,
                 MockWfsServer.getFilterCapabilities(),
-                Wfs20Constants.EPSG_4326_URN, 3, false, false);
+                Wfs20Constants.EPSG_4326_URN, 3, false, false, 3);
         
         
         QueryImpl query = new QueryImpl(builder.attribute(Metacard.ANY_TEXT).is()
@@ -360,5 +400,135 @@ public class TestWfsSource {
         }
     }
 
+    /**
+     * Given 10 features (and metacards) exist that match search criteria, since page size=4 and
+     * startIndex=1, should get 4 results back - metacards 1 thru 4.
+     * 
+     * @throws WfsException
+     * @throws TransformerConfigurationException
+     * @throws UnsupportedQueryException
+     */
+    @Test
+    public void testPagingStartIndexZero() throws WfsException, TransformerConfigurationException,
+        UnsupportedQueryException {
+        
+        //Setup
+        int pageSize = 4;
+        int startIndex = 0;
 
+        WfsSource source = getWfsSource(ONE_TEXT_PROPERTY_SCHEMA,
+                MockWfsServer.getFilterCapabilities(),
+                Wfs20Constants.EPSG_4326_URN, 10, false);
+        Filter filter = builder.attribute(Metacard.ANY_TEXT).is().like().text(LITERAL);
+        Query query = new QueryImpl(filter, startIndex, pageSize, null, false, 0);
+
+        //Execute
+        GetFeatureType featureType = source.buildGetFeatureRequest(query);
+        BigInteger startIndexGetFeature = featureType.getStartIndex();
+        BigInteger countGetFeature = featureType.getCount();
+        
+        //Verify
+        assertThat(countGetFeature.intValue(), is(pageSize));
+        assertThat(startIndexGetFeature.intValue(), is(startIndex));
+    }
+    
+    /**
+     * Verify that, per DDF Query API Javadoc, if the startIndex is negative, the WfsSource throws
+     * an UnsupportedQueryException.
+     * 
+     * @throws WfsException
+     * @throws TransformerConfigurationException
+     * @throws UnsupportedQueryException
+     */
+    @Test(expected = UnsupportedQueryException.class)
+    public void testPagingStartIndexNegative() throws WfsException,
+        TransformerConfigurationException, UnsupportedQueryException {
+        //Setup
+        int pageSize = 4;
+        int startIndex = -1;
+
+        WfsSource source = getWfsSource(ONE_TEXT_PROPERTY_SCHEMA,
+                MockWfsServer.getFilterCapabilities(),
+                Wfs20Constants.EPSG_4326_URN, 10, false);
+        Filter filter = builder.attribute(Metacard.ANY_TEXT).is().like().text(LITERAL);
+        Query query = new QueryImpl(filter, startIndex, pageSize, null, false, 0);
+
+        //Execute
+        GetFeatureType featureType = source.buildGetFeatureRequest(query);
+    }
+
+    /**
+     * Verify that, per DDF Query API Javadoc, if the startIndex is negative, the WfsSource throws
+     * an UnsupportedQueryException.
+     * 
+     * @throws WfsException
+     * @throws TransformerConfigurationException
+     * @throws UnsupportedQueryException
+     */
+    @Test(expected = UnsupportedQueryException.class)
+    public void testPagingPageSizeNegative() throws WfsException,
+        TransformerConfigurationException, UnsupportedQueryException {
+        //Setup
+        int pageSize = -4;
+        int startIndex = 0;
+
+        WfsSource source = getWfsSource(ONE_TEXT_PROPERTY_SCHEMA,
+                MockWfsServer.getFilterCapabilities(),
+                Wfs20Constants.EPSG_4326_URN, 10, false);
+        Filter filter = builder.attribute(Metacard.ANY_TEXT).is().like().text(LITERAL);
+        Query query = new QueryImpl(filter, startIndex, pageSize, null, false, 0);
+
+        //Execute
+        GetFeatureType featureType = source.buildGetFeatureRequest(query);
+    }
+    
+    @Test(expected = UnsupportedQueryException.class)
+    public void testResultNumReturnedNegative() throws WfsException,
+        TransformerConfigurationException, UnsupportedQueryException {
+      //Setup
+        final String TITLE = "title";
+        final String searchPhrase = "*";
+        final int pageSize = 1;
+        
+        WfsSource source = getWfsSource(ONE_TEXT_PROPERTY_SCHEMA,
+                MockWfsServer.getFilterCapabilities(),
+                Wfs20Constants.EPSG_4326_URN, 3, false, true, -1);
+        
+        
+        QueryImpl query = new QueryImpl(builder.attribute(Metacard.ANY_TEXT).is()
+                .like().text(searchPhrase));
+        query.setPageSize(pageSize);
+        SortBy sortBy = new SortByImpl(TITLE, SortOrder.DESCENDING);
+        query.setSortBy(sortBy);
+        QueryRequestImpl queryReq = new QueryRequestImpl(query);
+                
+        // Perform test
+        SourceResponse resp = source.query(queryReq);
+        
+    }
+    
+    @Test(expected = UnsupportedQueryException.class)
+    public void testResultNumReturnedIsNull() throws WfsException,
+        TransformerConfigurationException, UnsupportedQueryException {
+      //Setup
+        final String TITLE = "title";
+        final String searchPhrase = "*";
+        final int pageSize = 1;
+        
+        WfsSource source = getWfsSource(ONE_TEXT_PROPERTY_SCHEMA,
+                MockWfsServer.getFilterCapabilities(),
+                Wfs20Constants.EPSG_4326_URN, 3, false, true, NULL_NUM_RETURNED);
+        
+        
+        QueryImpl query = new QueryImpl(builder.attribute(Metacard.ANY_TEXT).is()
+                .like().text(searchPhrase));
+        query.setPageSize(pageSize);
+        SortBy sortBy = new SortByImpl(TITLE, SortOrder.DESCENDING);
+        query.setSortBy(sortBy);
+        QueryRequestImpl queryReq = new QueryRequestImpl(query);
+                
+        // Perform test
+        SourceResponse resp = source.query(queryReq);
+        
+    }
 }
