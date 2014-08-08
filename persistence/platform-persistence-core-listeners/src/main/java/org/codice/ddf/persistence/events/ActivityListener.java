@@ -24,6 +24,9 @@ import org.osgi.service.event.EventHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class ActivityListener implements EventHandler {
@@ -34,6 +37,26 @@ public class ActivityListener implements EventHandler {
 
     public ActivityListener(PersistentStore persistentStore) {
         this.persistentStore = persistentStore;
+        List<Map<String, Object>> results = new ArrayList<Map<String, Object>>();
+        try {
+            results = persistentStore.get(PersistentStore.ACTIVITY_TYPE,
+                    ActivityEvent.STATUS_KEY + " = '" + ActivityEvent.ActivityStatus.STARTED
+                            .toString() + "'");
+        } catch (PersistenceException e) {
+            LOGGER.debug("PersistenceException trying to get {} activities", ActivityEvent.ActivityStatus.STARTED, e);
+        }
+        for (Map<String, Object> result :results) {
+            //Map<String, Object> sanitizedResult = PersistentItem.stripSuffixes(result);
+            result.put(ActivityEvent.STATUS_KEY + "_txt",
+                    ActivityEvent.ActivityStatus.FAILED.toString());
+            result.put(ActivityEvent.MESSAGE_KEY + "_txt", "Resource retrieval failed");
+            result.put(ActivityEvent.PROGRESS_KEY + "_txt", "");
+            try {
+                persistentStore.add(PersistentStore.ACTIVITY_TYPE, result);
+            } catch (PersistenceException e) {
+                LOGGER.info("Caught PersistenceException {}", e.getMessage());
+            }
+        }
     }
 
     @Override
@@ -43,10 +66,14 @@ public class ActivityListener implements EventHandler {
         String id = (String) event.getProperty(ActivityEvent.ID_KEY);
         String session = (String) event.getProperty(ActivityEvent.SESSION_ID_KEY);
         String status = (String) event.getProperty(ActivityEvent.STATUS_KEY);
+        if (status.equals(ActivityEvent.ActivityStatus.RUNNING.toString())) {
+            return;
+        }
         String title = (String) event.getProperty(ActivityEvent.TITLE_KEY);
         String message = (String) event.getProperty(ActivityEvent.MESSAGE_KEY);
         String timestamp = (String) event.getProperty(ActivityEvent.TIMESTAMP_KEY);
-        Map<String, String> operations = (Map<String, String>) event.getProperty(ActivityEvent.OPERATIONS_KEY);
+        Map<String, String> operations = (Map<String, String>) event
+                .getProperty(ActivityEvent.OPERATIONS_KEY);
         String progress = (String) event.getProperty(ActivityEvent.PROGRESS_KEY);
         String user = (String) event.getProperty(ActivityEvent.USER_ID_KEY);
         String category = (String) event.getProperty(ActivityEvent.CATEGORY_KEY);
@@ -61,7 +88,8 @@ public class ActivityListener implements EventHandler {
         activityToStore.addProperty(ActivityEvent.MESSAGE_KEY, message);
         activityToStore.addProperty(ActivityEvent.TIMESTAMP_KEY, timestamp);
         for (Map.Entry<String, String> entry : operations.entrySet()) {
-            activityToStore.addProperty(ActivityEvent.OPERATIONS_KEY + "_" + entry.getKey(), entry.getValue());
+            activityToStore.addProperty(ActivityEvent.OPERATIONS_KEY + "_" + entry.getKey(),
+                    entry.getValue());
         }
         activityToStore.addProperty(ActivityEvent.PROGRESS_KEY, progress);
         activityToStore.addProperty(ActivityEvent.USER_ID_KEY, user);
@@ -74,6 +102,5 @@ public class ActivityListener implements EventHandler {
             LOGGER.info("Caught PersistenceException {}", e.getMessage());
         }
     }
-
 
 }

@@ -71,6 +71,9 @@
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+                        <Embed-Dependency>
+                            notifications, activities
+                        </Embed-Dependency>
                     </instructions>
                 </configuration>
             </plugin>
