@@ -575,7 +575,6 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
                 throw new UnsupportedQueryException("Invalid results returned from server");
             }
             if (featureCollection.getNumberReturned() == null){
-                System.out.println("QWWQ");
                 throw new UnsupportedQueryException("The number of features returned did not exist");
             }
             
