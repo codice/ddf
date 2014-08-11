@@ -33,6 +33,7 @@
     <reference id="securityManager" interface="ddf.security.service.SecurityManager"/>
 
     <bean id="filter" class="org.codice.ddf.security.filter.login.LoginFilter">
+        <argument ref="samlCache" />
         <property name="securityManager" ref="securityManager"/>
         <property name="signaturePropertiesFile" value="$loginfilter{signatureProperties}"/>
     </bean>

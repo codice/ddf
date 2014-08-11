@@ -104,7 +104,17 @@ public class LoginFilter implements Filter {
 
     private Object lock = new Object();
 
-    private SAMLCache samlCache = new SAMLCache();
+    private SAMLCache samlCache;
+
+    public LoginFilter() {
+        super();
+        samlCache = new SAMLCache();
+    }
+
+    public LoginFilter(SAMLCache samlCache) {
+        super();
+        this.samlCache = samlCache;
+    }
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
