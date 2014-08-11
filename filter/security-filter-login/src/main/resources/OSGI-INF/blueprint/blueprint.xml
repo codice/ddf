@@ -45,4 +45,9 @@
         </service-properties>
     </service>
 
+    <bean id="samlCache" class="org.codice.ddf.security.filter.login.SAMLCache">
+        <cm:managed-properties persistent-id="org.codice.ddf.security.filter.login.SAMLCache"
+                               update-strategy="container-managed" />
+    </bean>
+
 </blueprint>

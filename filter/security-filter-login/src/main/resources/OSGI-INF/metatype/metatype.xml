@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+
+ -->
+<metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
+
+    <OCD name="Security SAML Cache" id="org.codice.ddf.security.filter.login.SAMLCache">
+        <AD description="The amount of minutes after a SAML assertion is cached that it should be expired. On expiration a new SAML assertion will need to be retrieved."
+            name="Expiration Time (in minutes)" id="expirationTime" required="true" type="Integer"
+            default="31"/>
+    </OCD>
+
+    <Designate pid="org.codice.ddf.security.filter.login.SAMLCache">
+        <Object ocdref="org.codice.ddf.security.filter.login.SAMLCache"/>
+    </Designate>
+
+</metatype:MetaData>
