@@ -112,6 +112,7 @@ public class TestKmlEndpoint {
         config.put(ConfigurationManager.HOST, TEST_HOST);
         config.put(ConfigurationManager.PORT, TEST_PORT);
         config.put(ConfigurationManager.SERVICES_CONTEXT_ROOT, "/services");
+        config.put(ConfigurationManager.CONTACT, "example@example.com");
 
         when(mockFramework.getSourceInfo(any(SourceInfoRequest.class))).thenReturn(
                 mockSourceInfoResponse);
@@ -128,6 +129,10 @@ public class TestKmlEndpoint {
         when(mockUriInfo.getQueryParameters(false)).thenReturn(mockMap);
         KmlEndpoint kmlEndpoint = new KmlEndpoint(mockBranding, mockFramework);
         kmlEndpoint.configurationUpdateCallback(config);
+        kmlEndpoint.setDescription("This is some description.");
+        kmlEndpoint
+                .setLogo("https://tools.codice.org/wiki/download/attachments/3047457/DDF?version=1&modificationDate=1369422662164&api=v2");
+        kmlEndpoint.setWebSite("https://tools.codice.org/wiki/display/DDF/DDF+Home");
         Kml response = kmlEndpoint.getKmlNetworkLink(mockUriInfo);
         assertThat(response, notNullValue());
         assertThat(response.getFeature(), is(NetworkLink.class));

@@ -32,6 +32,16 @@
 			default="" />
 			
 		<AD
+			description="URL of the web site to be displayed in the description."
+			name="Web Site" id="webSite" required="false" type="String"
+			default="" />
+			
+		<AD
+			description="URL to the logo to be displayed in the description."
+			name="Logo" id="logo" required="false" type="String"
+			default="" />
+			
+		<AD
 			description="Check if the source NetworkLinks should be visible by default."
 			name="Visible By Default" id="visibleByDefault" required="false" type="Boolean"
 			default="false" />

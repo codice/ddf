@@ -79,6 +79,7 @@
     <feature name="spatial-app"  install="auto" version="${project.version}"
         description="DDF Spatial contains standards-based, geospatial endpoints, sources, and transforms.::DDF Spatial">
         <feature>catalog-app</feature>
+        <feature>search-ui-app</feature>
         <feature>spatial-kml-transformer</feature>
         <feature>spatial-kml-networklinkendpoint</feature>
         <feature>spatial-wfs</feature>

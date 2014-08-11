@@ -43,14 +43,35 @@
     </dependency>
 
     <dependency>
-	      <groupId>de.micromata.jak</groupId>
-	      <artifactId>JavaAPIforKml</artifactId>
+	    <groupId>de.micromata.jak</groupId>
+	    <artifactId>JavaAPIforKml</artifactId>
 	</dependency>
 
     <dependency>
-    		<groupId>org.apache.felix</groupId>
-    		<artifactId>org.apache.felix.webconsole</artifactId>
-    	</dependency>
+    	<groupId>org.apache.felix</groupId>
+    	<artifactId>org.apache.felix.webconsole</artifactId>
+    </dependency>
+    	
+    <dependency>
+		<groupId>com.github.jknack</groupId>
+		<artifactId>handlebars</artifactId>
+	</dependency>
+	<dependency>
+			<groupId>org.antlr</groupId>
+			<artifactId>antlr4-runtime</artifactId>
+			<version>4.1</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.abego.treelayout</groupId>
+					<artifactId>org.abego.treelayout.core</artifactId>
+				</exclusion>
+			</exclusions>	
+	</dependency>
+	<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-lang3</artifactId>
+			<version>3.0</version>
+	</dependency>
   </dependencies>
   
   <build>
@@ -64,7 +85,8 @@
         <configuration>
           <instructions>
             <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-            <Embed-Dependency>JavaAPIforKml, catalog-core-api-impl</Embed-Dependency>
+            <Embed-Dependency>JavaAPIforKml, catalog-core-api-impl, handlebars, antlr4-runtime, commons-lang3</Embed-Dependency>
+            <Import-Package>!org.abego.treelayout.*, *</Import-Package>
           </instructions>
         </configuration>
       </plugin>

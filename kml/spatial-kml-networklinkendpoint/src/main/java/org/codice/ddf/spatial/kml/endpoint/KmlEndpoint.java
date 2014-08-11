@@ -43,6 +43,10 @@ import org.codice.ddf.configuration.ConfigurationWatcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.github.jknack.handlebars.Handlebars;
+import com.github.jknack.handlebars.Template;
+import com.github.jknack.handlebars.io.ClassPathTemplateLoader;
+
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.operation.SourceInfoResponse;
 import ddf.catalog.operation.impl.SourceInfoRequestEnterprise;
@@ -123,7 +127,30 @@ public class KmlEndpoint implements ConfigurationWatcher {
 
     private Integer maxResults = 100;
 
+    private String webSite;
+
+    private String logo;
+
+    private String productName;
+
+    private String contact;
+
+    private String baseUrl;
+
+    private ClassPathTemplateLoader templateLoader;
+
     private static final Logger LOGGER = LoggerFactory.getLogger(KmlEndpoint.class);
+
+    public KmlEndpoint(BrandingPlugin brandingPlugin, CatalogFramework catalogFramework) {
+        LOGGER.trace("ENTERING: KML Endpoint Constructor");
+        this.branding = brandingPlugin;
+        this.framework = catalogFramework;
+        templateLoader = new ClassPathTemplateLoader();
+        templateLoader.setPrefix("/templates");
+        templateLoader.setSuffix(".hbt");
+        this.productName = branding.getProductName().split(" ")[0];
+        LOGGER.trace("EXITING: KML Endpoint Constructor");
+    }
 
     /**
      * Attempts to load a KML {@link Style} from a file provided via a file system path.
@@ -165,6 +192,10 @@ public class KmlEndpoint implements ConfigurationWatcher {
         this.description = description;
     }
 
+    public String getDescription() {
+        return this.description;
+    }
+
     /**
      * Sets if the Source {@link NetworkLink}s should be Visible by Default.
      * 
@@ -185,11 +216,46 @@ public class KmlEndpoint implements ConfigurationWatcher {
         this.maxResults = maxResults;
     }
 
-    public KmlEndpoint(BrandingPlugin brandingPlugin, CatalogFramework catalogFramework) {
-        LOGGER.trace("ENTERING: KML Endpoint Constructor");
-        this.branding = brandingPlugin;
-        this.framework = catalogFramework;
-        LOGGER.trace("EXITING: KML Endpoint Constructor");
+    /**
+     * Sets the Web Site URL that will be used in the description of the Root {@link NetworkLink}.
+     * 
+     * @param webSite
+     *            - the URL of the web site
+     */
+    public void setWebSite(String webSite) {
+        this.webSite = webSite;
+    }
+
+    public String getWebSite() {
+        return this.webSite;
+    }
+
+    /**
+     * Sets the URL of the Logo that will be used in the description of the Root {@link NetworkLink}
+     * .
+     * 
+     * @param logo
+     *            - the URL to the logo
+     */
+    public void setLogo(String logo) {
+        this.logo = logo;
+    }
+
+    public String getLogo() {
+        return this.logo;
+    }
+
+
+    public String getProductName() {
+        return this.productName;
+    }
+
+    public String getContact() {
+        return this.contact;
+    }
+
+    public String getBaseUrl() {
+        return this.baseUrl;
     }
 
     /**
@@ -215,11 +281,24 @@ public class KmlEndpoint implements ConfigurationWatcher {
     private Kml createRootNetworkLink(UriInfo uriInfo) throws UnknownHostException {
         Kml kml = KmlFactory.createKml();
         NetworkLink rootNetworkLink = kml.createAndSetNetworkLink();
-        String name = branding.getProductName().split(" ")[0];
-        rootNetworkLink.setName(name);
+
+        rootNetworkLink.setName(this.productName);
         rootNetworkLink.setSnippet(KmlFactory.createSnippet().withMaxLines(0));
-        rootNetworkLink.setDescription(description);
+        UriBuilder baseUrlBuidler = UriBuilder.fromUri(uriInfo.getBaseUri());
+        baseUrlBuidler.replacePath("");
+        this.baseUrl = baseUrlBuidler.build().toString();
+        String descriptionHtml = description;
+        Handlebars handlebars = new Handlebars(templateLoader);
+        try {
+            Template template = handlebars.compile("description");
+            descriptionHtml = template.apply(this);
+            LOGGER.debug(descriptionHtml);
+        } catch (IOException e) {
+            LOGGER.error("Failed to apply description Template", e);
+        }
+        rootNetworkLink.setDescription(descriptionHtml);
         rootNetworkLink.setOpen(true);
+        rootNetworkLink.setVisibility(false);
         Link link = rootNetworkLink.createAndSetLink();
         UriBuilder builder = UriBuilder.fromUri(uriInfo.getBaseUri());
         builder = generateEndpointUrl(servicesContextRoot + FORWARD_SLASH + CATALOG_URL_PATH
@@ -430,6 +509,14 @@ public class KmlEndpoint implements ConfigurationWatcher {
                 LOGGER.debug("servicesContextRoot = {}", this.servicesContextRoot);
             } else {
                 LOGGER.debug("servicesContextRoot = NULL");
+            }
+
+            value = configuration.get(ConfigurationManager.CONTACT);
+            if (value != null) {
+                this.contact = value.toString();
+                LOGGER.debug("contact = {}", this.contact);
+            } else {
+                LOGGER.debug("contact = NULL");
             }
         } else {
             LOGGER.debug("properties are NULL or empty");
