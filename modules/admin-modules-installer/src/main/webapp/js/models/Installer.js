@@ -50,6 +50,7 @@ define(['backbone', 'underscore', 'jquery'], function (Backbone, _, $) {
             busy: false,
             message: '',
             steps: [],
+            showInstallProfileStep: false,
             selectedProfile: null,
             isCustomProfile: false
         },

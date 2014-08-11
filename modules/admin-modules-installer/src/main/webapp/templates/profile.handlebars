@@ -14,28 +14,34 @@
 <h3>Installation Profiles</h3>
 
 <div class="well white">
-    <p class="lead">Choose an application install profile.</p>
-
-    <div class="profile-options scroll-area ps-container">
-        {{#profiles}}
-            <div class="profile-option clearfix">
-                <div class="pull-left">
-                    <div class="cell">
-                        <input type="radio" name="selectedProfile" value="{{name}}" />
+    {{#if profiles}}
+        <p class="lead">Choose an application install profile.</p>
+        <div class="profile-options scroll-area ps-container">
+            {{#profiles}}
+                <div class="profile-option clearfix">
+                    <div class="pull-left">
+                        <div class="cell">
+                            <input type="radio" name="selectedProfile" value="{{name}}" />
+                        </div>
+                        <div class="cell">
+                            <h2 class="">{{displayName}}</h2>
+                            <p>{{description}}</p>
+                        </div>
                     </div>
-                    <div class="cell">
-                        <h2 class="">{{displayName}}</h2>
-                        <p>{{description}}</p>
+                    <div class="pull-right">
+                        <div class="cell">
+                            <button type="checkbox" class="btn customize" name="isCustomProfile"><i class="fa fa-check"></i> Customize</button>
+                        </div>
                     </div>
                 </div>
-                <div class="pull-right">
-                    <div class="cell">
-                        <button type="checkbox" class="btn customize" name="isCustomProfile"><i class="fa fa-check"></i> Customize</button>
-                    </div>
-                </div>
-            </div>
-        {{/profiles}}
-    </div>
-
-
+            {{/profiles}}
+        </div>
+    {{else}}
+        <p class="lead">
+            No Installation Profiles are configured on the system.
+            <br/>
+            <br/>
+            Click next to proceed to Application Customization.
+        </p>
+    {{/if}}
 </div>

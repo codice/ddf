@@ -10,7 +10,7 @@
  *
  **/
 /* jshint unused: false */
-/*global define*/
+/*global define, console */
 define([
     'js/application',
     '/installer/js/views/InstallerMain.view.js',
@@ -22,10 +22,8 @@ define([
     Application.App.module('Installation', function(AppModule, App, Backbone, Marionette, $, _) {
 
         var installerModel = new InstallerModel.Model();
-        //welcome
-        //config
-        //apps
-        installerModel.setTotalSteps(4);
+
+
 
         // Define a view to show
         // ---------------------
@@ -59,7 +57,24 @@ define([
                 region: App.installation
             });
 
-            AppModule.contentController.show();
+            // We determine how many steps we need based on if there are any profiles in the stystem.
+            AppModule.installerMainController.fetchInstallProfiles().then(function(profiles){
+                if(profiles.isEmpty()){
+                    installerModel.set('showInstallProfileStep', false);
+                    installerModel.setTotalSteps(3);
+                } else {
+                    installerModel.set('showInstallProfileStep', true);
+                    installerModel.setTotalSteps(4);
+                }
+            }).fail(function(error){
+                // fallback: just don't show the install profile steps.
+                installerModel.set('showInstallProfileStep', false);
+                installerModel.setTotalSteps(3);
+                console.log(error);
+            }).done(function(){
+                // regardless of success, lets display the page.
+                AppModule.contentController.show();
+            });
         });
     });
 });
