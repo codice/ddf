@@ -208,20 +208,20 @@ a.fa-minus-circle-selected {
     table-layout:auto;
     width: 300px;
 }
-.removeApp {
+.stopApp {
     color: black;
     float: right;
     padding: 5px;
 }
-.removeHide {
+.stopAppHide {
     display: none;
 }
-.installApp {
+.startApp {
     color: black;
     float: right;
     padding: 5px;
 }
-.installHide {
+.startAppHide {
     display: none;
 }
 .name {

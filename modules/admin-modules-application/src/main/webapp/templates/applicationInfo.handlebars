@@ -11,44 +11,44 @@
  *
  **/
  --}}
-{{#is isDisabled false}}<a href="#{{appId}}-removeModal" class="fa fa-times removeApp removeHide" data-toggle="modal"></a>{{/is}}
-<div id="{{appId}}-removeModal" class="modal" tabindex="-1" role="dialog" aria-hidden="true">
+{{#is isDisabled false}}<a href="#{{appId}}-stopModal" class="fa fa-times stopApp stopAppHide" data-toggle="modal"></a>{{/is}}
+<div id="{{appId}}-stopModal" class="modal" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                {{#if removeMessage}}
-                    Removing [{{appId}}] will also remove the following apps:<br><br>
-                        {{#each removeMessage}}
+                {{#if stopMessage}}
+                    Stopping [{{appId}}] will also stop the following apps:<br><br>
+                        {{#each stopMessage}}
                             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[{{this}}]<br>
                         {{/each}}
-                    <br>Do you want to remove all the apps listed above?<br>
+                    <br>Do you want to stop all the apps listed above?<br>
                 {{else}}
-                    Remove [{{appId}}]?<br>
+                    Stop [{{appId}}]?<br>
                 {{/if}}
                 <br>
-                <button type="button" class="removeConfirm" data-dismiss="modal" aria-hidden="true">Confirm</button>
-                <button type="button" class="removeCancel" data-dismiss="modal" aria-hidden="true">Cancel</button>
+                <button type="button" class="stopAppConfirm" data-dismiss="modal" aria-hidden="true">Confirm</button>
+                <button type="button" class="stopAppCancel" data-dismiss="modal" aria-hidden="true">Cancel</button>
             </div>
         </div>
     </div>
 </div>
-{{#is isDisabled false}}<a href="#{{appId}}-installModal" class="fa fa-download installApp installHide" data-toggle="modal"></a>{{/is}}
-<div id="{{appId}}-installModal" class="modal" tabindex="-1" role="dialog" aria-hidden="true">
+<a href="#{{appId}}-startModal" class="fa fa-download startApp startAppHide" data-toggle="modal"></a>
+<div id="{{appId}}-startModal" class="modal" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                {{#if installMessage}}
-                    Installing [{{appId}}] requires the following apps to be installed:<br><br>
-                    {{#each installMessage}}
+                {{#if startMessage}}
+                    Starting [{{appId}}] requires the following apps to be started:<br><br>
+                    {{#each startMessage}}
                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[{{this}}]<br>
                     {{/each}}
-                    <br>Do you want to install all the apps listed above?<br>
+                    <br>Do you want to start all the apps listed above?<br>
                 {{else}}
-                    Install [{{appId}}]?<br>
+                    Start [{{appId}}]?<br>
                 {{/if}}
                 <br>
-                <button type="button" class="installConfirm" data-dismiss="modal" aria-hidden="true">Confirm</button>
-                <button type="button" class="installCancel" data-dismiss="modal" aria-hidden="true">Cancel</button>
+                <button type="button" class="startAppConfirm" data-dismiss="modal" aria-hidden="true">Confirm</button>
+                <button type="button" class="startAppCancel" data-dismiss="modal" aria-hidden="true">Cancel</button>
             </div>
         </div>
     </div>

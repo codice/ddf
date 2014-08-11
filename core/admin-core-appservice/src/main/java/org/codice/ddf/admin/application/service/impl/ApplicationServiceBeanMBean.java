@@ -38,7 +38,7 @@ public interface ApplicationServiceBeanMBean {
      *
      * @return A list of the root applications expressed as maps.
      */
-    List<Map<String, Object>> getApplicationArray();
+    List<Map<String, Object>> getApplications();
 
     /**
      * Starts an application with the given name.

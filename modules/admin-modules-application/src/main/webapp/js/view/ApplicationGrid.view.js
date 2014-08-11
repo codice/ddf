@@ -27,10 +27,11 @@ define([
     'text!applicationOutlineButtons',
     'text!applicationInfo',
     'text!applicationGrid',
+    '/applications/js/wreqr.js',
     'fileupload',
     'perfectscrollbar'
 ], function(require, Backbone, Marionette, ich, _, $, applicationNew, mvnItemTemplate, fileProgress,
-            applicationOutlineButtons, applicationInfo, applicationGrid) {
+            applicationOutlineButtons, applicationInfo, applicationGrid, wreqr) {
     "use strict";
 
     if(!ich.applicationNew) {
@@ -237,29 +238,26 @@ define([
         }
     });
 
+    // List of apps that cannot have any actions performed on them through
+    // the applications module
     var disableList = [
         'platform-app',
         'admin-app'
     ];
 
-    // Recursive tree view
+    // Itemview for each individual application
     var AppInfoView = Marionette.ItemView.extend({
         template: 'applicationInfo',
         tagName: 'div',
         className: 'appInfo row box',
         itemViewOptions: {},
         events: {
-            'click .fa.fa-times.removeApp': 'removeMessage',
-            'click .fa.fa-download.installApp': 'installMessage',
-            'click .removeConfirm': 'removePrompt',
-            'click .installConfirm': 'installPrompt'
+            'click .fa.fa-times.stopApp': 'stopMessage',
+            'click .fa.fa-download.startApp': 'startMessage',
+            'click .stopAppConfirm': 'stopPrompt',
+            'click .startAppConfirm': 'startPrompt'
         },
-
         initialize: function () {
-            // grab all the child collections from the parent model
-            // so that we can render the collection as children of
-            // this parent model
-
             this.modelBinder = new Backbone.ModelBinder();
         },
         onRender: function () {
@@ -269,137 +267,129 @@ define([
             var bindings = {};
             this.modelBinder.bind(this.model, this.el, bindings);
         },
+        // Will disable functionality for certain applications
         serializeData: function () {
             var that = this;
+            var disable = false;
             disableList.forEach(function(child) {
-                if(that.model.attributes.appId === child) {
-                    return _.extend(that.model.toJSON(), {isDisabled: true});
+                if(that.model.get('appId') === child) {
+                    disable = true;
                 }
             });
 
-            return _.extend(this.model.toJSON(), {isDisabled: false});
+            if(disable === true) {
+                return _.extend(this.model.toJSON(), {isDisabled: true});
+            } else {
+                return _.extend(this.model.toJSON(), {isDisabled: false});
+            }
         },
-        removeMessage: function() {
+        // Creates a message that gets displayed on the stop prompt displaying
+        // any dependent applications that will also be stopped in the process
+        stopMessage: function() {
             var that = this;
-            var children = this.model.attributes.dependencies;
-            var removeMessage = [];
+            var children = this.model.get('dependencies');
+            var stopMessage = [];
 
             if(children.length !== 0) {
                 children.forEach(function(child) {
                     that.model.collection.each(function(modelChild) {
-                        if((modelChild.attributes.appId === child) &&
-                            (modelChild.attributes.state === 'ACTIVE')) {
-                            removeMessage.push(child);
+                        if((modelChild.get('appId') === child) &&
+                            (modelChild.get('state') === 'ACTIVE')) {
+                            stopMessage.push(child);
                         }
                     });
                 });
-                this.model.set({removeMessage: removeMessage});
+                this.model.set({stopMessage: stopMessage});
             }
         },
-        installMessage: function() {
+        // Creates a message that gets displayed on the start prompt displaying
+        // any parent applications that will also be started in the process
+        startMessage: function() {
             var that = this;
-            var parents = this.model.attributes.parents;
-            var installMessage = [];
+            var parents = this.model.get('parents');
+            var startMessage = [];
 
             if(parents.length !== 0) {
                 parents.forEach(function(parent) {
                     that.model.collection.each(function(modelChild) {
-                        if((modelChild.attributes.appId === parent) &&
-                            (modelChild.attributes.state === 'INACTIVE')) {
-                            installMessage.push(parent);
+                        if((modelChild.get('appId') === parent) &&
+                            (modelChild.get('state') === 'INACTIVE')) {
+                            startMessage.push(parent);
                         }
                     });
                 });
-                this.model.set({installMessage: installMessage});
+                this.model.set({startMessage: startMessage});
             }
         },
-        removePrompt: function() {
-            var that = this;
-            var children = this.model.attributes.dependencies;
-            var removeMessage = [];
-
-            if(children.length !== 0) {
-                children.forEach(function(child) {
-                    that.model.collection.each(function(modelChild) {
-                        if((modelChild.attributes.appId === child) &&
-                            (modelChild.attributes.state === 'ACTIVE')) {
-                            removeMessage.push(child);
-                            modelChild.flagRemove();
-                        }
-                    });
-                });
-                this.model.set({removeMessage: removeMessage});
-            }
-            this.model.flagRemove();
+        // Only toggle the flag if the stop action is confirmed
+        stopPrompt: function() {
+            this.stopMessage();
+            this.model.toggleChosenApp();
         },
-        installPrompt: function() {
-            var that = this;
-            var parents = this.model.attributes.parents;
-            var installMessage = [];
-
-            if(parents.length !== 0) {
-                parents.forEach(function(parent) {
-                    that.model.collection.each(function(modelChild) {
-                        if((modelChild.attributes.appId === parent) &&
-                            (modelChild.attributes.state === 'INACTIVE')) {
-                            installMessage.push(parent);
-                            modelChild.flagRemove();
-                        }
-                    });
-                });
-                this.model.set({installMessage: installMessage});
-            }
-            this.model.flagRemove();
+        // Only toggle the flag if the start action is confirmed
+        startPrompt: function() {
+            this.startMessage();
+            this.model.toggleChosenApp();
         }
     });
 
+    // Collection of all the applications
     var AppInfoCollectionView = Marionette.CollectionView.extend({
         itemView: AppInfoView,
         className: 'apps-grid',
         itemViewOptions: {},
         events: {
-            'click .fa.fa-times.removeApp': 'removePrompt',
-            'click .fa.fa-download.installApp': 'installPrompt'
+            'click .fa.fa-times.stopApp': 'stopPrompt',
+            'click .fa.fa-download.startApp': 'startPrompt'
         },
         modelEvents: {
             'change': 'render'
         },
-
         initialize: function(options) {
             this.AppShowState = options.AppShowState;
-            this.AppShowLayout = options.AppShowLayout;
+            this.listenTo(wreqr.vent, 'toggle:layout', this.toggleLayout);
+            this.listenTo(wreqr.vent, 'toggle:state', this.toggleState);
         },
+        // Shows the applications in the proper state upon a re-render
         showCollection: function(){
             this.collection.each(function(item, index){
-                if(this.AppShowState === item.attributes.state) {
+                if(this.AppShowState === item.get('state')) {
                     this.addItemView(item, AppInfoView, index);
                 }
             }, this);
-            this.toggleLayout();
         },
         addChildView: function(item, collection, options){
-            if(this.AppShowState === item.attributes.state) {
+            if(this.AppShowState === item.get('state')) {
 
             this.closeEmptyView();
             var ItemView = this.getItemView();
             return this.addItemView(item, ItemView, options.index);
             }
         },
-        removePrompt: function() {
+        stopPrompt: function() {
+            this.toggleState(STOP_STATE);
             this.render();
-            this.toggleLayout();
         },
-        installPrompt: function() {
+        startPrompt: function() {
+            this.toggleState(INACTIVE_STATE);
             this.render();
-            this.toggleLayout();
         },
-        toggleLayout: function() {
-            if(this.AppShowLayout === BOX_LAYOUT) {
+        // Changes the css layout
+        toggleLayout: function(layout) {
+            if(layout === BOX_LAYOUT) {
                 this.$("h2").toggleClass("boxDescription", true);
                 $("div.appInfo").toggleClass("box", true);
             } else {
                 this.$("h2").toggleClass("boxDescription", false);
                 $("div.appInfo").toggleClass("box", false);
+            }
+        },
+        // Keeps track of the current view of applications
+        toggleState: function(state) {
+            if(state === STOP_STATE) {
+                this.AppShowState = ACTIVE_STATE;
+            } else {
+                this.AppShowState = state;
             }
         }
     });
@@ -408,7 +398,9 @@ define([
     var ROW_LAYOUT = 1;
     var ACTIVE_STATE = "ACTIVE";
     var INACTIVE_STATE = "INACTIVE";
+    var STOP_STATE = "STOP";
 
+    // Main layout view for all the applications
     var ApplicationView = Marionette.Layout.extend({
         template: 'applicationGrid',
         tagName: 'div',
@@ -418,16 +410,16 @@ define([
             appsgrid: '#apps-grid',
             applicationViewCancel: '#application-view-cancel'
         },
-
         events: {
-            'click .btn.btn-success.install': 'installAppView',
-            'click .btn.btn-primary.remove': 'removeAppView',
-            'click .btn.btn-default.toggle': 'toggleView',
+            'click .btn.btn-success.start': 'startAppView',
+            'click .btn.btn-primary.stop': 'stopAppView',
+            'click .btn.btn-default.toggle': 'toggleClick',
             'click .btn.btn-info.cancel': 'refreshView',
-            'click button.removeConfirm': 'confirmRemove',
-            'click button.installConfirm': 'confirmInstall'
+            'click button.stopAppConfirm': 'confirmStop',
+            'click button.startAppConfirm': 'confirmStart',
+            'click button.stopAppCancel': 'stopAppView',
+            'click button.startAppCancel': 'startAppView'
         },
-
         initialize: function (options) {
             var self = this;
 
@@ -452,123 +444,126 @@ define([
             var view = this;
 
             _.defer(function() {
-                view.appsgrid.show(new AppInfoCollectionView({collection: view.model, AppShowState: ACTIVE_STATE, AppShowLayout: BOX_LAYOUT}));
+                view.appsgrid.show(new AppInfoCollectionView({collection: view.model, AppShowState: ACTIVE_STATE}));
                 view.applicationGridButtons.show(new NewApplicationView({response: view.response}));
                 view.$('#application-grid-layout').perfectScrollbar();
             });
+
+            this.listenTo(wreqr.vent, 'toggle:layout', this.toggleView);
         },
+        // Default view of the applications
         refreshView: function() {
-            this.appsgrid.currentView.AppShowLayout = BOX_LAYOUT;
-            this.appsgrid.currentView.AppShowState = ACTIVE_STATE;
-            this.appsgrid.currentView.render();
-            this.gridLayout = BOX_LAYOUT;
-            this.gridState = ACTIVE_STATE;
+            wreqr.vent.trigger('toggle:state', ACTIVE_STATE);
+            that.appsgrid.currentView.render();
 
-            $("a.fa.fa-times.removeApp").toggleClass("removeHide", true);
-            $("a.fa.fa-download.installApp").toggleClass("installHide", true);
-            $("a.btn.btn-primary.btn-sm.descriptionButton").toggleClass("descriptionButtonHide", true);
+            that.toggleState(ACTIVE_STATE);
+            that.toggleView(that.gridLayout);
         },
-        toggleView: function() {
+        // Toggle used to change the layout of the applications
+        toggleClick: function() {
             if(this.gridLayout === BOX_LAYOUT) {
-                this.gridLayout = ROW_LAYOUT;
-                this.appsgrid.currentView.AppShowLayout = ROW_LAYOUT;
-
+                wreqr.vent.trigger('toggle:layout', ROW_LAYOUT);
+            } else {
+                wreqr.vent.trigger('toggle:layout', BOX_LAYOUT);
+            }
+        },
+        // Performs action to change css class to alter the view of the applications
+        toggleView: function(layout) {
+            this.gridLayout = layout;
+            if(layout === BOX_LAYOUT) {
+                this.$("h2").toggleClass("boxDescription", true);
+                $("div.appInfo").toggleClass("box", true);
+            } else {
                 this.$("h2").toggleClass("boxDescription", false);
                 $("div.appInfo").toggleClass("box", false);
             }
-            else {
-                this.gridLayout = BOX_LAYOUT;
-                this.appsgrid.currentView.AppShowLayout = BOX_LAYOUT;
-
-                this.$("h2").toggleClass("boxDescription", true);
-                $("div.appInfo").toggleClass("box", true);
+        },
+        // Changes what applications are shown based on the state requested
+        // i.e.: Regular view of active applications
+        //       Start view of applications that are prepackaged but not running
+        //       Stop view of applications that are currently active that can be stopped
+        toggleState: function(state) {
+            this.gridState = state;
+            if(state === ACTIVE_STATE) {
+                $("a.fa.fa-times.stopApp").toggleClass("stopAppHide", true);
+                $("a.fa.fa-download.startApp").toggleClass("startAppHide", true);
+            } else if(state === INACTIVE_STATE) {
+                $("a.fa.fa-times.stopApp").toggleClass("stopAppHide", true);
+                $("a.fa.fa-download.startApp").toggleClass("startAppHide", false);
+            } else {
+                $("a.fa.fa-times.stopApp").toggleClass("stopAppHide", false);
+                $("a.fa.fa-download.startApp").toggleClass("startAppHide", true);
             }
         },
-        installAppView: function() {
-            this.appsgrid.currentView.AppShowState = INACTIVE_STATE;
+        startAppView: function() {
+            wreqr.vent.trigger('toggle:state', INACTIVE_STATE);
             this.appsgrid.currentView.render();
-            this.gridState = INACTIVE_STATE;
-            if(this.gridLayout === ROW_LAYOUT) {
-                this.toggleView();
-                this.toggleView();
-            }
 
-            $("a.fa.fa-times.removeApp").toggleClass("removeHide", true);
-            $("a.fa.fa-download.installApp").toggleClass("installHide", false);
+            this.toggleState(INACTIVE_STATE);
+            this.toggleView(this.gridLayout);
         },
-        removeAppView: function() {
-            this.appsgrid.currentView.AppShowState = ACTIVE_STATE;
+        stopAppView: function() {
+            wreqr.vent.trigger('toggle:state', STOP_STATE);
             this.appsgrid.currentView.render();
-            this.gridState = ACTIVE_STATE;
-            if(this.gridLayout === ROW_LAYOUT) {
-                this.toggleView();
-                this.toggleView();
-            }
 
-            $("a.fa.fa-times.removeApp").toggleClass("removeHide", false);
-            $("a.fa.fa-download.installApp").toggleClass("installHide", true);
+            this.toggleState(STOP_STATE);
+            this.toggleView(this.gridLayout);
         },
-        confirmRemove: function() {
-            this.updateProgress("remove");
+        confirmStop: function() {
+            this.updateProgress("stop");
         },
-        confirmInstall: function() {
-            this.updateProgress("install");
+        confirmStart: function() {
+            this.updateProgress("start");
         },
         updateProgress: function(action) {
             var that = this;
-            if(action === "install") {
-                this.progressBarInstall(function(message, percentage) {
+            if(action === "start") {
+                this.progressBarStartApp(function(message, percentage) {
                     that.$('.application-status').html(message);
                     that.$(".progress-bar").animate({width: percentage+'%'}, 0, 'swing');
                 });
             } else {
-                this.progressBarRemove(function(message, percentage) {
+                this.progressBarStopApp(function(message, percentage) {
                     that.$('.application-status').html(message);
                     that.$(".progress-bar").animate({width: percentage+'%'}, 0, 'swing');
                 });
             }
         },
-        progressBarInstall: function (message) {
+        progressBarStartApp: function (message) {
             var that = this;
 
             var jsonModel = this.model.toJSON();
             var numNodes = this.model.length;
 
-            return this.model.update('install', this.response, message).then(function() {
+            return this.model.update('start', this.response, message).then(function() {
                 that.model.update('read', that.response, message).then(function() {
-                    that.model.validateUpdate(jsonModel, numNodes, message, "install");
+                    that.model.validateUpdate(jsonModel, numNodes, message, "start");
                     that.setErrorStates();
                     that.appsgrid.currentView.AppShowState = ACTIVE_STATE;
                     that.appsgrid.currentView.render();
-                    if(that.gridLayout === ROW_LAYOUT) {
-                        that.toggleView();
-                        that.toggleView();
-                    }
+                    that.toggleView(that.gridLayout);
                 });
             });
         },
-        progressBarRemove: function (message) {
+        progressBarStopApp: function (message) {
             var that = this;
 
             var jsonModel = this.model.toJSON();
             var numNodes = this.model.length;
 
-            return this.model.update('remove', this.response, message).then(function() {
+            return this.model.update('stop', this.response, message).then(function() {
                 that.model.update('read', that.response, message).then(function() {
-                    that.model.validateUpdate(jsonModel, numNodes, message, "remove");
+                    that.model.validateUpdate(jsonModel, numNodes, message, "stop");
                     that.setErrorStates();
-                    if(that.gridLayout === ROW_LAYOUT) {
-                        that.toggleView();
-                        that.toggleView();
-                    }
+                    that.toggleView(that.gridLayout);
                 });
             });
         },
         setErrorStates: function() {
             var that = this;
             this.model.each(function(child) {
-                if(child.attributes.error === true) {
-                    that.$('#'+child.attributes.appId+'-name').css('color', 'red');
+                if(child.get('error') === true) {
+                    that.$('#'+child.get('appId')+'-name').css('color', 'red');
                 }
             });
         }

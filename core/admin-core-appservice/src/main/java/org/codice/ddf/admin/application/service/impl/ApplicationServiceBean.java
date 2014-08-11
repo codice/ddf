@@ -202,8 +202,8 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
     }
 
     @Override
-    public List<Map<String, Object>> getApplicationArray() {
-        Set<ApplicationNode> rootApplications = appService.getApplicationArray();
+    public List<Map<String, Object>> getApplications() {
+        Set<ApplicationNode> rootApplications = appService.getApplicationTree();
         List<Map<String, Object>> applications = new ArrayList<Map<String, Object>>();
         List<Map<String, Object>> applicationsArray = new ArrayList<Map<String, Object>>();
         for (ApplicationNode curRoot : rootApplications) {

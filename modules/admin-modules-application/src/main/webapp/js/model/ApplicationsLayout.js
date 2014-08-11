@@ -37,41 +37,41 @@ define([
     // installed. This node can have zero or more children (which are also 'Applications.Treenode`
     // nodes themselves).
     Applications.TreeNode = Backbone.Model.extend({
-       defaults: {
-            removeFlag: false,
+        defaults: {
+            chosenApp: false,
             selected: false
-       },
+        },
 
-       initialize: function(){
-           var children = this.get('children');
-           var that = this;
-           var changeObj = {};
+        initialize: function(){
+            var children = this.get('children');
+            var that = this;
+            var changeObj = {};
 
-           // Some (not properly created) applications features file result in a name that includes the
-           // version number - strip that off and move it into the version number.
-           this.massageVersionNumbers();
-           this.cleanupDisplayName();
-           this.updateName();
-           this.updateDescription();
+            // Some (not properly created) applications features file result in a name that includes the
+            // version number - strip that off and move it into the version number.
+            this.massageVersionNumbers();
+            this.cleanupDisplayName();
+            this.updateName();
+            this.updateDescription();
 
-           // Reflect the current state of the application in the model and keep the
-           // state to determine if the user changes it.
-           changeObj.selected = changeObj.currentState = this.get('state') === 'ACTIVE';
-           changeObj.removeFlag = false;
-           changeObj.error = false;
+            // Reflect the current state of the application in the model and keep the
+            // state to determine if the user changes it.
+            changeObj.selected = changeObj.currentState = this.get('state') === 'ACTIVE';
+            changeObj.chosenApp = false;
+            changeObj.error = false;
 
-           // Change the children from json representation to models and include a link
-           // in each to their parent.
-           if (children) {
-               changeObj.children = new Applications.TreeNodeCollection(children);
-               this.set(changeObj);
-               this.get('children').forEach(function (child) {
+            // Change the children from json representation to models and include a link
+            // in each to their parent.
+            if (children) {
+                changeObj.children = new Applications.TreeNodeCollection(children);
+                this.set(changeObj);
+                this.get('children').forEach(function (child) {
                    child.set({parent: that});
-               });
-           } else {
-               this.set(changeObj);
-           }
-       },
+                });
+            } else {
+                this.set(changeObj);
+            }
+        },
 
         // Since the name is used for ids in the DOM, remove any periods
         // that might exist - but store in a separate attribute since we need the
@@ -151,43 +151,42 @@ define([
             }
         },
 
-
-
-        flagRemove: function () {
-           this.set({removeFlag: true});
+        // Flag used to signify an application that was selected by the user to undergo a
+        // certain action whether it be to be started or stopped
+        toggleChosenApp: function () {
+            this.set({chosenApp: true});
         },
 
-        installAction: function(statusUpdate) {
+        // Creates a promise for the start action of an application
+        startAction: function(statusUpdate) {
             var promise;
             promise = this.start(statusUpdate);
             return promise;
         },
 
-        uninstallAction: function(statusUpdate) {
+        // Creates a promise for the stop action of an application
+        stopAction: function(statusUpdate) {
             var promise;
             promise = this.stop(statusUpdate);
             return promise;
         },
 
-        // Determines whether the user has changed the selection of this model or
-        // not - does not check its children.
-        installInactive: function() {
+        // Checks to see if the given application is in the INACTIVE state which is used
+        // prior to starting an application
+        startInactive: function() {
             return (this.get('state') === "INACTIVE");
         },
 
-        // Determines whether the user has changed the selection of this model or
-        // not - does not check its children.
-        removeActive: function() {
+        // Checks to see if the given application is in the ACTIVE state which is used
+        // prior to stopping an application
+        stopActive: function() {
             return (this.get('state') === "ACTIVE");
         },
 
-        // Performs the actual AJAX call to save the current model. Takes a status
+        // Performs the actual AJAX call to start the current application. Takes a status
         // function to keep anyone who cares informed about each step being performed.
-
-        // Installs should be performed top-down - from the parent node down
-        // through the children.
         start: function(statusUpdate) {
-            if (this.installInactive()) {
+            if (this.startInactive()) {
                 var name = this.get('name');
                 var type = 'GET';
                 var url = '';
@@ -208,10 +207,10 @@ define([
             }
         },
 
-        // Uninstalls should be performed bottom-up - from the leaf nodes
-        // to the parent.
+        // Performs the actual AJAX call to stop the current application. Takes a status
+        // function to keep anyone who cares informed about each step being performed.
         stop: function(statusUpdate) {
-            if (this.removeActive()) {
+            if (this.stopActive()) {
                 var name = this.get('name');
                 var type = 'GET';
                 var url = '';
@@ -231,29 +230,31 @@ define([
             }
         },
 
+        // Verifies that the applications that needed to be started or stopped
+        // are in fact in the proper state in the system
         validateUpdatedNode: function(jsonModel, failList, action) {
             var that = this;
-             if(action === "install") {
+            if(action === "start") {
                 this.collection.each(function(child) {
-                     if((jsonModel.appId === child.attributes.appId) &&
+                    if((jsonModel.appId === child.attributes.appId) &&
                         (child.attributes.state !== 'ACTIVE')) {
                         failList.push(that.get('appId'));
                         child.attributes.error = true;
-                     } else {
-                        child.attributes.removeFlag = false;
-                     }
-                 });
-             } else {
+                    } else {
+                        child.attributes.chosenApp = false;
+                    }
+                });
+            } else {
                 this.collection.each(function(child) {
-                     if((jsonModel.appId === child.attributes.appId) &&
+                    if((jsonModel.appId === child.attributes.appId) &&
                         (child.attributes.state !== 'INACTIVE')) {
                         failList.push(that.get('appId'));
                         child.attributes.error = true;
-                     } else {
-                        child.attributes.removeFlag = false;
-                     }
-                 });
-             }
+                    } else {
+                        child.attributes.chosenApp = false;
+                    }
+                });
+            }
         }
     });
 
@@ -264,9 +265,9 @@ define([
     // elements can be recursive nodes.
     Applications.TreeNodeCollection = Backbone.Collection.extend({
         model: Applications.TreeNode,
-          url: '/jolokia/read/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/ApplicationArray/',
+          url: '/jolokia/read/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/Applications/',
 
-        // Reading the collection can be perfomed using a normal fetch (through the
+        // Reading the collection can be performed using a normal fetch (through the
         // `Applications.Response` model - then pulling out the values.
         // Saving the state of the selected applications doesn't follow the normal
         // REST model - each application is uninstalled or installed through
@@ -279,10 +280,10 @@ define([
                         thisModel.reset(data.get('value'));
                     }
                 });
-            } else if (method === 'install'){ // this is a save of the model (CUD)
-                return this.updateAction(statusUpdate, "install");
+            } else if (method === 'start'){ // this is a save of the model (CUD)
+                return this.updateAction(statusUpdate, "start");
             } else {
-                return this.updateAction(statusUpdate, "remove");
+                return this.updateAction(statusUpdate, "stop");
             }
         },
 
@@ -291,19 +292,42 @@ define([
         // method accepts a `statusUpdate` function which will be called with `(message, percentComplete)`
         // to keep the caller aware of the current status.
         updateAction: function(statusUpdate, action) {
-            // Determine the total number of actions to be performed so that we can provide
-            // a percent complete in the `statusUpdate` method.
-            var count = 0;
-            var totalCount = 0;
+            var that = this;
+            var promiseArr = [];
 
+            var appDependents;
+            var theChosenApp;
+            var finalList = [];
+
+            // Find app that was selected to be started/stopped
             this.each(function(child) {
-                if(child.attributes.removeFlag === true) {
-                    totalCount++;
+                if(child.get('chosenApp') === true) {
+                    if(action === "start") {
+                        appDependents = child.get('parents');
+                    } else {
+                        appDependents = child.get('dependencies');
+                    }
+                    theChosenApp = child.get('appId');
                 }
             });
 
-            var promiseArr = [];
+            // Create list of apps that will be started/stopped based on dependencies
+            if(appDependents.length > 0) {
+                this.each(function(child) {
+                    if(appDependents.indexOf(child.get('appId')) !== -1) {
+                        if(((action === "start") && (child.get('state') === 'INACTIVE')) ||
+                           ((action === "stop") && (child.get('state') === 'ACTIVE')) ) {
+                            finalList.push(child.get('appId'));
+                        }
+                    }
+                });
+            }
+            finalList.push(theChosenApp);
 
+            // Determine the total number of actions to be performed so that we can provide
+            // a percent complete in the `statusUpdate` method.
+            var count = 0;
+            var totalCount = finalList.length;
             var internalStatusUpdate = function(message) {
                 if (typeof statusUpdate !== 'undefined') {
                     statusUpdate(message, count/totalCount*100);
@@ -311,29 +335,28 @@ define([
                 count++;
             };
 
-            if(action === "install") {
-                this.each(function(child) {
-                    if(child.attributes.removeFlag === true) {
-                        promiseArr.push(child.installAction(internalStatusUpdate));
+            finalList.forEach(function(finalApps) {
+                that.each(function(app) {
+                    if(app.get('appId') === finalApps) {
+                        if(action === "start") {
+                            promiseArr.push(app.startAction(internalStatusUpdate));
+                        } else {
+                            promiseArr.push(app.stopAction(internalStatusUpdate));
+                        }
                     }
                 });
-            } else {
-                this.each(function(child) {
-                    if(child.attributes.removeFlag === true) {
-                        promiseArr.push(child.uninstallAction(internalStatusUpdate));
-                    }
+            });
 
-                });
-            }
             return Q.all(promiseArr);
         },
 
+        // verify the start/stop actions
         validateUpdate: function(jsonModel, numNodes, statusUpdate, action) {
             var that = this;
             var failList = [];
 
             jsonModel.forEach(function(child, index) {
-                if(child.removeFlag === true) {
+                if(child.chosenApp === true) {
                     that.models[index].validateUpdatedNode(child, failList, action);
                 }
             });
@@ -343,27 +366,27 @@ define([
             if(failList.length > 0) {
                 if(failList.length === 1) {
                     if (typeof statusUpdate !== 'undefined') {
-                        if(action === 'install') {
-                            statusUpdate('An application failed to install.', donePercent);
+                        if(action === 'start') {
+                            statusUpdate('An application failed to start.', donePercent);
                         } else {
-                            statusUpdate('An application removal failed.', donePercent);
+                            statusUpdate('An application failed to stop.', donePercent);
                         }
                     }
                 } else if(failList.length > 1) {
                     if (typeof statusUpdate !== 'undefined') {
-                        if(action === 'install') {
-                            statusUpdate('Several applications failed to install.', donePercent);
+                        if(action === 'start') {
+                            statusUpdate('Several applications failed to start.', donePercent);
                         } else {
-                            statusUpdate('Several application removals failed.', donePercent);
+                            statusUpdate('Several applications failed to stop.', donePercent);
                         }
                     }
                 }
             } else {
                 if (typeof statusUpdate !== 'undefined') {
-                    if(action === 'install') {
-                        statusUpdate('Install complete.', 100);
+                    if(action === 'start') {
+                        statusUpdate('Start complete.', 100);
                     } else {
-                        statusUpdate('Remove complete.', 100);
+                        statusUpdate('Stop complete.', 100);
                     }
                 }
             }
@@ -376,7 +399,7 @@ define([
     // Represents the response from the application-service when obtaining the list of all applications
     // on the system.
     Applications.Response = Backbone.Model.extend({
-        url: '/jolokia/read/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/ApplicationArray/'
+        url: '/jolokia/read/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/Applications/'
     });
 
     return Applications;

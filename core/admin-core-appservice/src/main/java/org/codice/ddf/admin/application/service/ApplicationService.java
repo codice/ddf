@@ -168,15 +168,6 @@ public interface ApplicationService {
     Set<ApplicationNode> getApplicationTree();
 
     /**
-     * Creates an application list that has two attributes that describes relationships
-     * between applications (parent and children dependencies).
-     *
-     * @return set of application nodes that will contain dependency information
-     *          as attributes.
-     */
-    Set<ApplicationNode> getApplicationArray();
-
-    /**
      * Determine which application contains a certain feature.
      * 
      * @param feature
