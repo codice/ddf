@@ -104,7 +104,7 @@ public class TestWfsSource {
     private FeatureCollectionMessageBodyReaderWfs20 mockReader = mock(FeatureCollectionMessageBodyReaderWfs20.class);
     
     private Wfs20FeatureCollection mockFeatureCollection = mock(Wfs20FeatureCollection.class);
-    
+
     private final GeotoolsFilterBuilder builder = new GeotoolsFilterBuilder();
 
     public WfsSource getWfsSource(final String schema, final FilterCapabilities filterCapabilities,
@@ -248,7 +248,6 @@ public class TestWfsSource {
         return new WfsSource(mockWfs, new GeotoolsFilterAdapterImpl(), mockContext,
                 mockAvailabilityTask);
     }
-
     
     @Test
     public void testParseCapabilities() throws WfsException {
@@ -343,9 +342,8 @@ public class TestWfsSource {
         final int pageSize = 1;
         
         WfsSource source = getWfsSource(ONE_TEXT_PROPERTY_SCHEMA,
-                MockWfsServer.getFilterCapabilities(),
+                MockWfsServer.getFilterCapabilities(),      
                 Wfs20Constants.EPSG_4326_URN, 3, false, true, 3);
-        
         
         QueryImpl query = new QueryImpl(builder.attribute(Metacard.ANY_TEXT).is()
                 .like().text(searchPhrase));
