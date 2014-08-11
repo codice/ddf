@@ -454,10 +454,10 @@ define([
         // Default view of the applications
         refreshView: function() {
             wreqr.vent.trigger('toggle:state', ACTIVE_STATE);
-            that.appsgrid.currentView.render();
+            this.appsgrid.currentView.render();
 
-            that.toggleState(ACTIVE_STATE);
-            that.toggleView(that.gridLayout);
+            this.toggleState(ACTIVE_STATE);
+            this.toggleView(this.gridLayout);
         },
         // Toggle used to change the layout of the applications
         toggleClick: function() {
