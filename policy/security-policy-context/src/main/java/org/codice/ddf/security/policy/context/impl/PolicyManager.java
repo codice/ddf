@@ -51,6 +51,8 @@ public class PolicyManager implements ContextPolicyManager {
 
     private ContextPolicy defaultPolicy = new Policy("/", DEFAULT_REALM, new ArrayList<String>(), new ArrayList<ContextAttributeMapping>());
 
+    private Map<String, Object> restartProperties = new HashMap<String, Object>();
+
     public PolicyManager() {
         policyStore.put("/", defaultPolicy);
     }
@@ -215,6 +217,60 @@ public class PolicyManager implements ContextPolicyManager {
             }
         }
         return itemList;
+    }
+
+    public void setAuthenticationTypes(List<String> authenticationTypes) {
+        if (authenticationTypes != null) {
+            restartProperties.put(AUTH_TYPES, authenticationTypes.toArray(new String[authenticationTypes.size()]));
+        } else {
+            restartProperties.put(AUTH_TYPES, null);
+        }
+        if(restartProperties.containsKey(REQ_ATTRS) && restartProperties.containsKey(REALMS)) {
+            setPolicies(restartProperties);
+        }
+    }
+
+    public void setAuthenticationTypes(String authenticationTypes) {
+        restartProperties.put(AUTH_TYPES, authenticationTypes);
+        if(restartProperties.containsKey(REQ_ATTRS) && restartProperties.containsKey(REALMS)) {
+            setPolicies(restartProperties);
+        }
+    }
+
+    public void setRequiredAttributes(List<String> requiredAttributes) {
+        if (requiredAttributes != null) {
+            restartProperties.put(REQ_ATTRS, requiredAttributes.toArray(new String[requiredAttributes.size()]));
+        } else {
+            restartProperties.put(REQ_ATTRS, null);
+        }
+        if(restartProperties.containsKey(AUTH_TYPES) && restartProperties.containsKey(REALMS)) {
+            setPolicies(restartProperties);
+        }
+    }
+
+    public void setRequiredAttributes(String requiredAttributes) {
+        restartProperties.put(REQ_ATTRS, requiredAttributes);
+        if(restartProperties.containsKey(AUTH_TYPES) && restartProperties.containsKey(REALMS)) {
+            setPolicies(restartProperties);
+        }
+    }
+
+    public void setRealms(List<String> realms) {
+        if (realms != null) {
+            restartProperties.put(REALMS, realms.toArray(new String[realms.size()]));
+        } else {
+            restartProperties.put(REALMS, null);
+        }
+        if(restartProperties.containsKey(REQ_ATTRS) && restartProperties.containsKey(AUTH_TYPES)) {
+            setPolicies(restartProperties);
+        }
+    }
+
+    public void setRealms(String realms) {
+        restartProperties.put(REALMS, realms);
+        if(restartProperties.containsKey(REQ_ATTRS) && restartProperties.containsKey(AUTH_TYPES)) {
+            setPolicies(restartProperties);
+        }
     }
 
     public void setWhiteListContexts(List<String> contexts) {
