@@ -31,6 +31,8 @@ import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.Wfs20Constants;
 import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.Wfs20FeatureCollection;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsQnameBuilder;
 import org.codice.ddf.spatial.ogc.wfs.catalog.converter.FeatureConverter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.thoughtworks.xstream.converters.Converter;
 import com.thoughtworks.xstream.converters.MarshallingContext;
@@ -54,12 +56,17 @@ import ddf.catalog.data.impl.MetacardImpl;
 public class FeatureCollectionConverterWfs20 implements Converter {
 
     private static final String featureMember = "member";
+    
+    private static final String FEATURE_COLLECTION = "FeatureCollection";
 
     private String contextRoot;
 
     private Map<String, FeatureConverter> featureConverterMap = new HashMap<String, FeatureConverter>();
     
     private Map<String, String> prefixToUriMapping = new HashMap<String, String>();
+    
+    private static final Logger LOGGER = LoggerFactory.getLogger(FeatureCollectionConverterWfs20.class);
+
     
     public FeatureCollectionConverterWfs20(){
         prefixToUriMapping.put(Wfs20Constants.WFS_NAMESPACE_PREFIX, Wfs20Constants.WFS_2_0_NAMESPACE);
@@ -149,14 +156,35 @@ public class FeatureCollectionConverterWfs20 implements Converter {
         while (reader.hasMoreChildren()) {
             reader.moveDown();
             String nodeName = reader.getNodeName();
+            
             // Its important to note that the reader appears to drop the
             // namespace.
             if (featureMember.equals(nodeName)) {
                 reader.moveDown();
-                // lookup the converter for this featuretype
-                featureCollection.getMembers().add(
-                        (Metacard) context.convertAnother(null, MetacardImpl.class,
-                                featureConverterMap.get(reader.getNodeName())));
+                String subNodeName = reader.getNodeName();
+                //If the member contains a sub feature collection, step in and get members
+                if(subNodeName.equals(FEATURE_COLLECTION)){
+ 
+                    while (reader.hasMoreChildren()){
+                        reader.moveDown();
+                        String subNodeName2 = reader.getNodeName();
+                        if (featureMember.equals(subNodeName2)) {
+                            reader.moveDown();
+                            // lookup the converter for this featuretype
+                            featureCollection.getMembers().add(
+                                    (Metacard) context.convertAnother(null, MetacardImpl.class,
+                                            featureConverterMap.get(reader.getNodeName())));
+                            reader.moveUp();
+                        }
+                        reader.moveUp();
+                    }
+                    
+                } else {
+                    // lookup the converter for this featuretype
+                    featureCollection.getMembers().add(
+                            (Metacard) context.convertAnother(null, MetacardImpl.class,
+                                    featureConverterMap.get(reader.getNodeName())));
+                }
                 reader.moveUp();
             }
             reader.moveUp();

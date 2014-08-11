@@ -88,13 +88,14 @@ public class FeatureCollectionMessageBodyReaderWfs20 implements MessageBodyReade
         return Wfs20FeatureCollection.class.isAssignableFrom(clazz);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public Wfs20FeatureCollection readFrom(Class<Wfs20FeatureCollection> clazz, Type type,
             Annotation[] annotations, MediaType mediaType, MultivaluedMap<String, String> headers,
             InputStream inStream) throws IOException, WebApplicationException {
 
         // Save original input stream for any exception message that might need to be
-        // created
+        // created and additional attributes
         String originalInputStream = IOUtils.toString(inStream, "UTF-8");
         LOGGER.debug("{}", originalInputStream);
         //Fetch FeatureCollection attributes
