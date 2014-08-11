@@ -602,6 +602,8 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
         } catch (WfsException wfse) {
             LOGGER.warn(WFS_ERROR_MESSAGE, wfse);
             throw new UnsupportedQueryException("Error received from WFS Server", wfse);
+        } catch (WebApplicationException wae) {
+            handleWebApplicationException(wae);
         } catch (ClientException ce) {
             String msg = handleClientException(ce);
             throw new UnsupportedQueryException(msg, ce);
@@ -893,14 +895,12 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
 
     private String handleWebApplicationException(WebApplicationException wae) {
         Response response = wae.getResponse();
-        //TODO: figure out WFS 2.0 exceptions
-        //WfsException wfsException = new WfsResponseExceptionMapper().fromResponse(response);
-        //String msg = "Error received from WFS Server " + getId() + "\n" + wfsException.getMessage();
-
-       // LOGGER.warn(msg, wae);
-
-        //return msg;
-        return null;
+        WfsException wfsException = new WfsResponseExceptionMapper().fromResponse(response);
+        String msg = "Error received from CSW Server " + getId() + "\n"
+                + wfsException.getMessage();
+        LOGGER.error(msg, wae);
+        
+        return msg;
     }
     
     private String handleClientException(ClientException ce) {
