@@ -25,8 +25,11 @@ define([
 
         require([
                 '/applications/js/view/ApplicationGrid.view.js',
-                '/applications/js/model/ApplicationsLayout.js'
-            ], function(ApplicationView, ApplicationModel) {
+                '/applications/js/model/ApplicationsLayout.js',
+               '/applications/js/view/features/Features.view.js',
+               '/applications/js/model/features/Feature.js'
+
+            ], function(ApplicationView, ApplicationModel, FeaturesView, FeatureModel) {
             var appPage = new ApplicationView({modelClass: ApplicationModel, enableApplicationRemoval: true});
 
             // Define a controller to run this module

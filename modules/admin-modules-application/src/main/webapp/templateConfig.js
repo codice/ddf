@@ -28,7 +28,9 @@
             applicationOutline: '/applications/templates/applicationOutline.handlebars',
             applicationOutlineButtons: '/applications/templates/applicationOutlineButtons.handlebars',
             applicationGrid: '/applications/templates/applicationGrid.handlebars',
-            applicationInfo: '/applications/templates/applicationInfo.handlebars'
+            applicationInfo: '/applications/templates/applicationInfo.handlebars',
+            featureTemplate: '/applications/templates/features/features.handlebars',
+            featureRowTemplate: '/applications/templates/features/featureRow.handlebars'
         }
     });
 }());
