@@ -30,6 +30,8 @@ import org.osgi.service.cm.ConfigurationAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ddf.catalog.data.Result;
+
 /**
  *  Maps Metacard attributes to Feature properties. 
  *
@@ -55,6 +57,12 @@ public class MetacardAttributeMapperImpl implements MetacardAttributeMapper {
     private String featureType;
     
     Map<String, String> metacardAttributeToFeaturePropertyMap;
+    
+    String sortByTemporalFeatureProperty;
+    
+    String sortByRelevanceFeatureProperty;
+    
+    String sortByDistanceFeatureProperty;
     
     boolean invalidFeatureType;
  
@@ -135,6 +143,36 @@ public class MetacardAttributeMapperImpl implements MetacardAttributeMapper {
     
     public Map<String, String> getMetacardAttributeToFeaturePropertyMap() {
         return this.metacardAttributeToFeaturePropertyMap;
+    }
+    
+    public void setSortByTemporalFeatureProperty(String temporalFeatureProperty) {
+        LOGGER.debug("Setting sortByTemporalFeatureProperty to: {}", temporalFeatureProperty);
+        this.sortByTemporalFeatureProperty = temporalFeatureProperty;
+    }
+    
+    @Override
+    public String getSortByTemporalFeatureProperty() {
+        return this.sortByTemporalFeatureProperty;
+    }
+    
+    public void setSortByRelevanceFeatureProperty(String relevanceFeatureProperty) {
+        LOGGER.debug("Setting sortByRelevanceFeatureProperty to: {}", relevanceFeatureProperty);
+        this.sortByRelevanceFeatureProperty = relevanceFeatureProperty;
+    }
+    
+    @Override
+    public String getSortByRelevanceFeatureProperty() {
+        return this.sortByRelevanceFeatureProperty;
+    }
+    
+    public void setSortByDistanceFeatureProperty(String distanceFeatureProperty) {
+        LOGGER.debug("Setting sortByDistanceFeatureProperty to: {}", distanceFeatureProperty);
+        this.sortByDistanceFeatureProperty = distanceFeatureProperty;
+    }
+    
+    @Override
+    public String getSortByDistanceFeatureProperty() {
+        return this.sortByDistanceFeatureProperty;
     }
     
     /**

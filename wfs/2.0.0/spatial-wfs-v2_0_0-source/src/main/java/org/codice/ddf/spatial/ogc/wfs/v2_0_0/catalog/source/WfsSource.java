@@ -45,8 +45,12 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.namespace.QName;
 
+import net.opengis.filter.v_2_0_0.AbstractSortingClauseType;
 import net.opengis.filter.v_2_0_0.FilterCapabilities;
 import net.opengis.filter.v_2_0_0.FilterType;
+import net.opengis.filter.v_2_0_0.SortByType;
+import net.opengis.filter.v_2_0_0.SortOrderType;
+import net.opengis.filter.v_2_0_0.SortPropertyType;
 import net.opengis.filter.v_2_0_0.SpatialOperatorType;
 import net.opengis.filter.v_2_0_0.SpatialOperatorsType;
 import net.opengis.wfs.v_2_0_0.FeatureTypeType;
@@ -72,6 +76,9 @@ import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.GetCapabilitiesReque
 import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.Wfs20Constants;
 import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.Wfs20FeatureCollection;
 import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.converter.impl.GenericFeatureConverterWfs20;
+import org.opengis.filter.expression.PropertyName;
+import org.opengis.filter.sort.SortBy;
+import org.opengis.filter.sort.SortOrder;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
@@ -638,6 +645,14 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
                         wfsQuery.setAbstractSelectionClause(new net.opengis.filter.v_2_0_0.ObjectFactory()
                                 .createFilter(filter));
                     }
+                    
+                    if (query.getSortBy() != null) {
+                        JAXBElement<Object> sortingClause = buildingSortingClause(filterDelegateEntry.getKey(), query.getSortBy());
+                        if (sortingClause != null) {
+                            wfsQuery.setAbstractSortingClause(sortingClause);
+                        }
+                    }
+                    
                     queries.add(wfsQuery);
                 } else {
                     LOGGER.debug("WFS Source {}: {} has an invalid filter.", getId(),
@@ -672,6 +687,52 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
             throw new UnsupportedQueryException(
                     "Unable to build query. No filters could be created from query criteria.");
         }
+    }
+    
+    private JAXBElement<Object> buildingSortingClause(QName featureType, SortBy incomingSortBy) throws UnsupportedQueryException {
+        net.opengis.filter.v_2_0_0.ObjectFactory filterObjectFactory = new net.opengis.filter.v_2_0_0.ObjectFactory();
+        String propertyName = mapSortByPropertyName(featureType, incomingSortBy.getPropertyName().getPropertyName());
+        SortOrder sortOrder = incomingSortBy.getSortOrder();
+        
+        SortPropertyType sortPropertyType = filterObjectFactory.createSortPropertyType();
+        sortPropertyType.setValueReference(propertyName);
+        
+        if(SortOrder.ASCENDING.equals(sortOrder)) {
+            sortPropertyType.setSortOrder(SortOrderType.ASC);
+        } else if(SortOrder.DESCENDING.equals(sortOrder)) {
+            sortPropertyType.setSortOrder(SortOrderType.DESC);
+        } else {
+            throw new UnsupportedQueryException(
+                    "Unable to build query. Unknown sort order of [" + sortOrder.identifier() + "].");
+        }
+        
+        SortByType sortByType = filterObjectFactory.createSortByType();
+        sortByType.getSortProperty().add(sortPropertyType);
+
+        return filterObjectFactory.createAbstractSortingClause(sortByType);
+    }
+    
+    private String mapSortByPropertyName(QName featureType, String incomingPropertyName) {
+        MetacardAttributeMapper metacardToFeaturePropertyMapper = lookupMetacardAttributeToFeaturePropertyMapper(featureType);
+        String mappedPropertyName = null;
+
+        if (StringUtils.equals(Result.TEMPORAL, incomingPropertyName)) {
+            mappedPropertyName = StringUtils.isNotBlank(metacardToFeaturePropertyMapper
+                    .getSortByTemporalFeatureProperty()) ? metacardToFeaturePropertyMapper
+                    .getSortByTemporalFeatureProperty() : incomingPropertyName;
+        } else if (StringUtils.equals(Result.RELEVANCE, incomingPropertyName)) {
+            mappedPropertyName = StringUtils.isNotBlank(metacardToFeaturePropertyMapper
+                    .getSortByRelevanceFeatureProperty()) ? metacardToFeaturePropertyMapper
+                    .getSortByRelevanceFeatureProperty() : incomingPropertyName;
+        } else if (StringUtils.equals(Result.DISTANCE, incomingPropertyName)) {
+            mappedPropertyName = StringUtils.isNotBlank(metacardToFeaturePropertyMapper
+                    .getSortByDistanceFeatureProperty()) ? metacardToFeaturePropertyMapper
+                    .getSortByDistanceFeatureProperty() : incomingPropertyName;
+        } else {
+            mappedPropertyName = incomingPropertyName;
+        }
+
+        return mappedPropertyName;
     }
 
     private boolean areAnyFiltersSet(FilterType filter) {

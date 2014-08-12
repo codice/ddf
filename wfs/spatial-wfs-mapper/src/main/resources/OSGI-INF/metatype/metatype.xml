@@ -18,13 +18,21 @@
 	<OCD description="Metacard Attribute to WFS Feature Property Map"
 		name="Metacard Attribute to WFS Feature Property Map" id="org.codice.ddf.spatial.ogc.wfs.catalog.mapper.MetacardAttributeMapper">
 
-
 		<AD name="Feature Type" id="featureType" required="true" type="String"
 			description="Feature Type. Format is {URI}local-name" />
 
 		<AD name="Metacard Attribute to WFS Feature Property Mapping" id="metacardAttrToFeaturePropMap"
 			required="true" type="String" cardinality="100"
 			description="Metacard Attribute to WFS Feature Property Mapping. Format is metacardAttribute=featureProperty" />
+			
+		<AD name="Temporal Sort By Feature Property" id="sortByTemporalFeatureProperty" required="false" type="String"
+			description="When Sorting Temporally, Sort By This Feature Property." />
+			
+ 		<AD name="Relevance Sort By Feature Property" id="sortByRelevanceFeatureProperty" required="false" type="String"
+			description="When Sorting By Relevance, Sort By This Feature Property." />
+			
+		<AD name="Distance Sort By Feature Property" id="sortByDistanceFeatureProperty" required="false" type="String"
+			description="When Sorting By Distance, Sort By This Feature Property." />
 
 	</OCD>
 

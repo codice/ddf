@@ -27,4 +27,10 @@ public interface MetacardAttributeMapper {
     String getFeaturePropertyForMetacardAttribute(String metacardAttribute);
     
     String getFeatureType();
+    
+    String getSortByTemporalFeatureProperty();
+    
+    String getSortByRelevanceFeatureProperty();
+    
+    String getSortByDistanceFeatureProperty();
 }
