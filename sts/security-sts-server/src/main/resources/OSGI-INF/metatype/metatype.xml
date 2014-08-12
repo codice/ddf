@@ -22,7 +22,7 @@
         </AD>
 
 	    <AD name="JAAS Context:" id="jaasContext" required="true" type="String"
-	      default="karaf" 
+	      default="ddf"
 	      description="The JAAS context to be used with this service.">
 	    </AD>
 	    

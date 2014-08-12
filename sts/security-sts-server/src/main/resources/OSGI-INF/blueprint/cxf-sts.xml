@@ -55,8 +55,6 @@
             <cm:property name="encryptionProperties" value="file:${ddf.home}/etc/ws-security/issuer/encryption.properties"/>
             <cm:property name="encryptionUsername" value="server"/>
             <cm:property name="issuer" value="tokenissuer"/>
-            <cm:property name="kerberosJaasContext" value="kerberos"/>
-            <cm:property name="kerberosServiceName" value="user@example.com"/>
             <cm:property name="securityAttributeClaimType" value="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"/>
             <cm:property name="lifetime" value="1800" />
         </cm:default-properties>
@@ -113,8 +111,8 @@
 
     <bean id="hokDelegationHandler" class="org.apache.cxf.sts.token.delegation.HOKDelegationHandler" />
 
-    <bean id="x509DelegationHandler" class="org.codice.ddf.security.delegation.x509.X509DelegationHandler"></bean>
-    <bean id="bstDelegationHandler" class="org.codice.ddf.security.delegation.BSTDelegationHandler"></bean>
+    <bean id="x509DelegationHandler" class="org.codice.ddf.security.delegation.x509.X509DelegationHandler" />
+    <bean id="bstDelegationHandler" class="org.codice.ddf.security.delegation.BSTDelegationHandler" />
 
     <!-- DELEGATE CONFIGURATION -->
     <bean id="issueDelegate"
@@ -170,13 +168,6 @@
 
     <bean id="crlInterceptor" class="org.codice.ddf.security.sts.crl.CRLInterceptor">
         <cm:managed-properties persistent-id="org.codice.ddf.security.sts.crl" update-strategy="container-managed" />
-    </bean>
-
-
-    <!-- VALIDATOR CONFIGURATION -->
-    <bean id="kerberosValidator" class="org.apache.ws.security.validate.KerberosTokenValidator">
-        <property name="contextName" value="$sts{kerberosJaasContext}" />
-        <property name="serviceName" value="$sts{kerberosServiceName}"/>
     </bean>
 
     <bean id="service"
