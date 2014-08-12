@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
@@ -29,8 +30,6 @@ import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import ddf.catalog.data.Result;
 
 /**
  *  Maps Metacard attributes to Feature properties. 
@@ -117,28 +116,21 @@ public class MetacardAttributeMapperImpl implements MetacardAttributeMapper {
     
     public void setMetacardAttrToFeaturePropMap(String[] metacardAttrToFeaturePropList) {
         Map<String, String> metacardAttributeToFeaturePropertyMap = new HashMap<String, String>();
-        
-        for(String singleMapping : metacardAttrToFeaturePropList) {
+
+        for (String singleMapping : metacardAttrToFeaturePropList) {
             // workaround for admin console bug (https://issues.apache.org/jira/browse/KARAF-1701)
-            if(StringUtils.contains(singleMapping, ",")) {
+            if (StringUtils.contains(singleMapping, ",")) {
                 metacardAttributeToFeaturePropertyMap.putAll(workaround(singleMapping));
                 continue;
             }
-            
-            if (isValidMapping(singleMapping)) {
-                String metacardAttribute = getMetacardAttribute(singleMapping);
-                String featureProperty = getFeatureProperty(singleMapping);
-                LOGGER.debug("Adding Metacard attribute to Feature property mapping [{}={}].",
-                        metacardAttribute, featureProperty);
-                metacardAttributeToFeaturePropertyMap.put(metacardAttribute, featureProperty);
-            } else {
-                LOGGER.error("Invalid mapping pattern. {} does not match pattern {}", singleMapping, METACARD_ATTR_TO_FEATURE_PROP_MAPPING_PATTERN);
-            }
+            addMetacardAttributeToFeaturePropertyMap(metacardAttributeToFeaturePropertyMap,
+                    singleMapping);
         }
-        
+
         this.metacardAttributeToFeaturePropertyMap = metacardAttributeToFeaturePropertyMap;
-        
-        LOGGER.debug("Metacard attribute to Feature property mapping is {}.", this.metacardAttributeToFeaturePropertyMap);
+
+        LOGGER.debug("Metacard attribute to Feature property mapping is {}.",
+                this.metacardAttributeToFeaturePropertyMap);
     }
     
     public Map<String, String> getMetacardAttributeToFeaturePropertyMap() {
@@ -185,16 +177,8 @@ public class MetacardAttributeMapperImpl implements MetacardAttributeMapper {
         Map<String, String> metacardAttributeToFeaturePropertyMap = new HashMap<String, String>();
         
         for (String singleMapping : StringUtils.split(metacardAttrToFeaturePropList, ",")) {
-            if (isValidMapping(singleMapping)) {
                 LOGGER.debug("Single mapping [{}].", singleMapping);
-                String metacardAttribute = getMetacardAttribute(singleMapping);
-                String featureProperty = getFeatureProperty(singleMapping);
-                LOGGER.debug("Adding Metacard attribute to Feature property mapping [{}={}].",
-                        metacardAttribute, featureProperty);
-                metacardAttributeToFeaturePropertyMap.put(metacardAttribute, featureProperty);
-            } else {
-                LOGGER.error("Invalid mapping pattern. {} does not match pattern {}", singleMapping, METACARD_ATTR_TO_FEATURE_PROP_MAPPING_PATTERN);
-            }
+                addMetacardAttributeToFeaturePropertyMap(metacardAttributeToFeaturePropertyMap, singleMapping);
         }
         
         LOGGER.debug("Workaround complete.");
@@ -202,25 +186,26 @@ public class MetacardAttributeMapperImpl implements MetacardAttributeMapper {
         return metacardAttributeToFeaturePropertyMap;
     }
     
-    private String getMetacardAttribute(String mapping) {
-        String metacardAttribute = StringUtils.trim(StringUtils.split(mapping, "=")[0]);
-        LOGGER.debug("metacardAttribute [{}]", metacardAttribute);
-        return metacardAttribute;
-    }
-    
-    private String getFeatureProperty(String mapping) {
-        String featureProperty = StringUtils.trim(StringUtils.split(mapping, "=")[1]);
-        LOGGER.debug("featureProperty [{}]", featureProperty);
-        return featureProperty;
-    }
-    
-    private boolean isValidMapping(String mapping) {
-        if (METACARD_ATTR_TO_FEATURE_PROP_MAPPING_PATTERN.matcher(mapping).matches()) {
+    private void addMetacardAttributeToFeaturePropertyMap(
+            Map<String, String> metacardAttributeToFeaturePropertyMap, String mapping) {
+        Matcher matcher = METACARD_ATTR_TO_FEATURE_PROP_MAPPING_PATTERN.matcher(mapping);
+        if (matcher.matches()) {
             LOGGER.debug("{} matches pattern {}", mapping,
                     METACARD_ATTR_TO_FEATURE_PROP_MAPPING_PATTERN);
-            return true;
+            String metacardAttribute = StringUtils.trim(matcher.group(1));
+            String featureProperty = StringUtils.trim(matcher.group(2));
+            if (metacardAttribute != null && featureProperty != null) {
+                LOGGER.debug("Adding Metacard attribute to Feature property mapping [{}={}].",
+                        metacardAttribute, featureProperty);
+                metacardAttributeToFeaturePropertyMap.put(metacardAttribute, featureProperty);
+            } else {
+                LOGGER.debug(
+                        "Unable to add mapping.  Received null value for Metacard attribute or Feature property.  metacardAttribute: {}; featureProperty: {}",
+                        metacardAttribute, featureProperty);
+            }
         } else {
-            return false;
+            LOGGER.debug("Invalid mapping pattern. {} does not match pattern {}", mapping,
+                    METACARD_ATTR_TO_FEATURE_PROP_MAPPING_PATTERN);
         }
     }
     
