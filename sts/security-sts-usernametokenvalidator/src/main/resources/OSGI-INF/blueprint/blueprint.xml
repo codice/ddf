@@ -48,7 +48,7 @@
 
     <cm:property-placeholder persistent-id="ddf.security.sts" placeholder-prefix="$sts{" update-strategy="reload">
         <cm:default-properties>
-            <cm:property name="jaasContext" value="karaf"/>
+            <cm:property name="jaasContext" value="ddf"/>
         </cm:default-properties>
     </cm:property-placeholder>
 
