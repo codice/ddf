@@ -63,6 +63,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.opengis.filter.Filter;
+
 import org.opengis.filter.sort.SortBy;
 import org.opengis.filter.sort.SortOrder;
 import org.osgi.framework.BundleContext;
@@ -78,6 +79,7 @@ import ddf.catalog.operation.Query;
 import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
+
 import ddf.catalog.source.UnsupportedQueryException;
 
 public class TestWfsSource {
@@ -106,7 +108,7 @@ public class TestWfsSource {
     private AvailabilityTask mockAvailabilityTask = mock(AvailabilityTask.class);
 
     private FeatureCollectionMessageBodyReaderWfs20 mockReader = mock(FeatureCollectionMessageBodyReaderWfs20.class);
-    
+   
     private Wfs20FeatureCollection mockFeatureCollection = mock(Wfs20FeatureCollection.class);
 
     private final GeotoolsFilterBuilder builder = new GeotoolsFilterBuilder();
@@ -381,7 +383,6 @@ public class TestWfsSource {
                 MockWfsServer.getFilterCapabilities(),
                 Wfs20Constants.EPSG_4326_URN, 3, false, false, 3);
         
-        
         QueryImpl query = new QueryImpl(builder.attribute(Metacard.ANY_TEXT).is()
                 .like().text(searchPhrase));
         query.setPageSize(pageSize);
@@ -401,7 +402,7 @@ public class TestWfsSource {
              assertThat(queryTypeVal.getTypeNames().get(0), is(not(containsString(":"))));
         }
     }
-
+    
     /**
      * Given 10 features (and metacards) exist that match search criteria, since page size=4 and
      * startIndex=1, should get 4 results back - metacards 1 thru 4.
