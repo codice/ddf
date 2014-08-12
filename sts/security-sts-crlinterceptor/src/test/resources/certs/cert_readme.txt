@@ -12,6 +12,11 @@ In short they were:
 1) Creating the CA:
 	a) openssl genrsa -out ca.key 4096
 	b) openssl req -new -x509 -days 3655 -key ca.key -out ca.crt
+	c) create ca files
+		i) touch certindex
+		ii) echo 01 > certserial
+		iii) echo 01 > crlnumber
+		iv) make sure ca.conf is in current folder
 
 2) Creating Valid IA:
 	a) openssl genrsa -out ia.key 4096
