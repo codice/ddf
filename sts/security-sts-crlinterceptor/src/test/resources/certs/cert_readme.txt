@@ -42,3 +42,9 @@ openssl x509 -in <certificate file> -text -noout
 
 Viewing CRLs can be done by doing:
 openssl crl -inform DER -text -in <crl file>
+
+Adding certificates to a Java Keystore:
+1) Create a PKCS12 file from the key and crt files.
+	a) openssl pkcs12 -export -in ia.crt -inkey ia.key -out ia.p12
+2) Import PKCS12 file into a JKS.
+	a) keytool -v -importkeystore -srckeystore ia.p12 -srcstoretype PKCS12 -destkeystore ia.jks -deststoretype JKS
