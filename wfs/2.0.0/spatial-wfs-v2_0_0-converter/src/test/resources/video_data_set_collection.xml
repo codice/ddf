@@ -34,7 +34,7 @@
         </gml:Envelope>
     </wfs:boundedBy>
     <wfs:member>
-        <vid:video_data_set fid='video_data_set.1'>
+        <vid:video_data_set id='video_data_set.1'>
             <vid:id>1</vid:id>
             <vid:version>1</vid:version>
             <vid:end_date>2005-04-07T09:15:39.033</vid:end_date>
@@ -58,7 +58,7 @@
         </vid:video_data_set>
     </wfs:member>
     <wfs:member>
-        <vid:video_data_set fid='video_data_set.2'>
+        <vid:video_data_set id='video_data_set.2'>
             <vid:id>2</vid:id>
             <vid:version>1</vid:version>
             <vid:end_date>2005-04-07T09:54:38.983</vid:end_date>
@@ -82,7 +82,7 @@
         </vid:video_data_set>
     </wfs:member>
     <wfs:member>
-        <vid:video_data_set fid='video_data_set.3'>
+        <vid:video_data_set id='video_data_set.3'>
             <vid:id>3</vid:id>
             <vid:version>1</vid:version>
             <vid:end_date>2005-04-27T12:16:08.206</vid:end_date>
@@ -106,7 +106,7 @@
         </vid:video_data_set>
     </wfs:member>
     <wfs:member>
-        <vid:video_data_set fid='video_data_set.4'>
+        <vid:video_data_set id='video_data_set.4'>
             <vid:id>4</vid:id>
             <vid:version>1</vid:version>
             <vid:end_date>2005-04-12T07:33:13.095</vid:end_date>

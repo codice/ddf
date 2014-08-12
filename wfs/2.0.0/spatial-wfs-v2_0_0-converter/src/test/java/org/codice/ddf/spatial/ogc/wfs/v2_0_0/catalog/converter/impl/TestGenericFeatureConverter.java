@@ -34,12 +34,14 @@ import org.apache.ws.commons.schema.constants.Constants;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.FeatureMetacardType;
 import org.codice.ddf.spatial.ogc.wfs.catalog.converter.FeatureConverter;
 import org.codice.ddf.spatial.ogc.wfs.catalog.converter.impl.EnhancedStaxDriver;
+import org.codice.ddf.spatial.ogc.wfs.catalog.converter.impl.GmlEnvelopeConverter;
 import org.codice.ddf.spatial.ogc.wfs.catalog.converter.impl.GmlGeometryConverter;
 import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.Wfs20Constants;
 import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.Wfs20FeatureCollection;
 import org.junit.Test;
 
 import com.thoughtworks.xstream.XStream;
+import com.thoughtworks.xstream.io.xml.QNameMap;
 import com.thoughtworks.xstream.io.xml.WstxDriver;
 
 import ddf.catalog.data.AttributeDescriptor;
@@ -81,6 +83,10 @@ public class TestGenericFeatureConverter {
     private static final String WIDTH_ELEMENT = "width";
 
     private static final String GROUND_GEOM_ELEMENT = "ground_geom";
+    
+    private static final String STATES_TITLE_ELEMENT = "STATE_NAME";
+    
+    private static final String STATES_FEATURE_TYPE = "states";
 
     @Test
     public void testUnmarshalSingleFeatureXmlToObject() {
@@ -158,6 +164,35 @@ public class TestGenericFeatureConverter {
         assertEquals(4, wfc.getMembers().size());
         Metacard mc = wfc.getMembers().get(0);
         assertEquals(mc.getId(), "video_data_set.1");
+
+    }
+    
+    @Test
+    public void testUnmarshalMultiQueryFeatureCollectionXmlToObject() {
+        XStream xstream = new XStream(new WstxDriver());
+        FeatureCollectionConverterWfs20 fcConverter = new FeatureCollectionConverterWfs20();
+        Map<String, FeatureConverter> fcMap = new HashMap<String, FeatureConverter>();
+
+        GenericFeatureConverterWfs20 converter = new GenericFeatureConverterWfs20();
+
+        fcMap.put("states", converter);
+        fcMap.put("streams", converter);
+        fcConverter.setFeatureConverterMap(fcMap);
+
+        xstream.registerConverter(fcConverter);
+
+        converter.setMetacardType(buildStatesMetacardType());
+        xstream.registerConverter(converter);
+        xstream.registerConverter(new GmlGeometryConverter());
+        xstream.registerConverter(new GmlEnvelopeConverter());
+        xstream.alias("FeatureCollection", Wfs20FeatureCollection.class);
+        InputStream is = TestGenericFeatureConverter.class
+                .getResourceAsStream("/geoserver_sample.xml");
+        Wfs20FeatureCollection wfc = (Wfs20FeatureCollection) xstream.fromXML(is);
+        assertEquals(7, wfc.getMembers().size());
+        Metacard mc = wfc.getMembers().get(0);
+        
+        assertEquals(mc.getId(), "states.10");
 
     }
     
@@ -266,6 +301,25 @@ public class TestGenericFeatureConverter {
         gmlElement.setSchemaTypeName(new QName(Wfs20Constants.GML_3_2_NAMESPACE, GML));
         gmlElement.setName(GROUND_GEOM_ELEMENT);
         elementMap.put(new QName(GROUND_GEOM_ELEMENT), gmlElement);
+
+        return elementMap;
+    }
+    
+    private MetacardType buildStatesMetacardType() {
+
+        XmlSchema schema = new XmlSchema();
+        schema.getElements().putAll(buildStatesElementMap(schema));
+
+        return new FeatureMetacardType(schema, new QName(STATES_FEATURE_TYPE), new ArrayList<String>(),
+                Wfs20Constants.GML_3_2_NAMESPACE);
+
+    }
+    
+    private Map<QName, XmlSchemaElement> buildStatesElementMap(XmlSchema schema) {
+        Map<QName, XmlSchemaElement> elementMap = new HashMap<QName, XmlSchemaElement>();
+
+        elementMap.put(new QName(STATES_TITLE_ELEMENT),
+                buildSchemaElement(STATES_TITLE_ELEMENT, schema, Constants.XSD_STRING));
 
         return elementMap;
     }

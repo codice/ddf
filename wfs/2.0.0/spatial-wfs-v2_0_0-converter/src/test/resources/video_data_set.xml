@@ -12,7 +12,7 @@
  *
  **/
 -->
-<vid:video_data_set fid='video_data_set.2' xmlns:vid='http://example.com' xmlns:gml='http://www.opengis.net/gml/3.2'>
+<vid:video_data_set id='video_data_set.2' xmlns:vid='http://example.com' xmlns:gml='http://www.opengis.net/gml/3.2'>
     <vid:id>2</vid:id>
     <vid:version>1</vid:version>
     <vid:end_date>2005-04-07T09:54:38.983</vid:end_date>

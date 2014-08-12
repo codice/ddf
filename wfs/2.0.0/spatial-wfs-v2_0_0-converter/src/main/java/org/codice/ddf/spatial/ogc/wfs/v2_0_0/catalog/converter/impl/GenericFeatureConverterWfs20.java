@@ -19,6 +19,7 @@ import java.io.Serializable;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -54,7 +55,7 @@ import ddf.catalog.data.impl.MetacardImpl;
  */
 public class GenericFeatureConverterWfs20 extends AbstractFeatureConverterWfs20 {
 
-    private static final String FID = "fid";
+    private static final String ID = "id";
 
     private String sourceId = null;
 
@@ -94,10 +95,10 @@ public class GenericFeatureConverterWfs20 extends AbstractFeatureConverterWfs20 
         writer.startNode(qname.getPrefix() + ":"
                 + qname.getLocalPart());
 
-        // Add the "fid" attribute if we have an ID
+        // Add the "id" attribute if we have an ID
         if (metacard.getAttribute(Metacard.ID).getValue() != null) {
-            String fid = (String) metacard.getAttribute(Metacard.ID).getValue();
-            writer.addAttribute(FID, fid);
+            String id = (String) metacard.getAttribute(Metacard.ID).getValue();
+            writer.addAttribute(ID, id);
         }
 
         if (null != metacard.getLocation()) {
@@ -181,8 +182,16 @@ public class GenericFeatureConverterWfs20 extends AbstractFeatureConverterWfs20 
     public Object unmarshal(HierarchicalStreamReader hreader, UnmarshallingContext context) {
 
         LOGGER.debug("Entering: {} : unmarshal", this.getClass().getName());
-
-        String fid = hreader.getAttribute(FID);
+        //Workaround for Xstream which seems to be having issues involving attributes with namespaces,
+        //in that it cannot fetch the attributes value directly by name.
+        String id = null;
+        int count = hreader.getAttributeCount();
+        for(int i=0; i < count; ++i){
+            if (hreader.getAttributeName(i).equals(ID)) {
+                id = hreader.getAttribute(i);
+            }
+        }
+        
         MetacardImpl mc;
         if (metacardType != null) {
             mc = (MetacardImpl) createMetacardFromFeature(hreader, metacardType);
@@ -190,7 +199,7 @@ public class GenericFeatureConverterWfs20 extends AbstractFeatureConverterWfs20 
             throw new IllegalArgumentException(
                     "No MetacardType registered on the FeatureConverter.  Unable to to convert features to metacards.");
         }
-        mc.setId(fid);
+        mc.setId(id);
         mc.setSourceId(sourceId);
 
         // set some default values that we can't get from a generic
@@ -206,7 +215,7 @@ public class GenericFeatureConverterWfs20 extends AbstractFeatureConverterWfs20 
             mc.setModifiedDate(genericDate);
         }
         if (StringUtils.isBlank(mc.getTitle())) {
-            mc.setTitle(fid);
+            mc.setTitle(id);
         }
 
         mc.setContentTypeName(metacardType.getName());
