@@ -21,6 +21,7 @@ import java.math.BigInteger;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -45,7 +46,6 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.namespace.QName;
 
-import net.opengis.filter.v_2_0_0.AbstractSortingClauseType;
 import net.opengis.filter.v_2_0_0.FilterCapabilities;
 import net.opengis.filter.v_2_0_0.FilterType;
 import net.opengis.filter.v_2_0_0.SortByType;
@@ -76,7 +76,6 @@ import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.GetCapabilitiesReque
 import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.Wfs20Constants;
 import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.Wfs20FeatureCollection;
 import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.converter.impl.GenericFeatureConverterWfs20;
-import org.opengis.filter.expression.PropertyName;
 import org.opengis.filter.sort.SortBy;
 import org.opengis.filter.sort.SortOrder;
 import org.osgi.framework.BundleContext;
@@ -210,6 +209,7 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
         this.filterAdapter = filterAdapter;
         this.context = context;
         this.availabilityTask = task;
+        this.metacardAttributeToFeaturePropertyMappers = Collections.emptyList();
         configureWfsFeatures();
     }
 
@@ -511,7 +511,7 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
 
         if (this.metacardAttributeToFeaturePropertyMappers != null) {
             for (MetacardAttributeMapper mapper : this.metacardAttributeToFeaturePropertyMappers) {
-                if (StringUtils.equals(mapper.getFeatureType(), featureType.toString())) {
+                if (mapper != null && StringUtils.equals(mapper.getFeatureType(), featureType.toString())) {
                     LOGGER.debug("Found {} for feature type {}.",
                             MetacardAttributeMapper.class.getSimpleName(), featureType.toString());
                     metacardAttributeToFeaturePropertyMapper = mapper;
