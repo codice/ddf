@@ -14,6 +14,8 @@
  **/
 package org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common;
 
+import javax.xml.namespace.QName;
+
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsConstants;
 
 /**
@@ -131,5 +133,15 @@ public class Wfs20Constants extends WfsConstants{
     public static final String TIME_PERIOD = "TimePeriod";
     
     public static final String TIME_INSTANT = "TimeInstant";
+
+    public static final QName POLYGON = new QName(GML_3_2_NAMESPACE, "Polygon");
+
+    public static final QName ENVELOPE = new QName(GML_3_2_NAMESPACE, "Envelope");
+
+    public static final QName BOX = new QName(GML_3_2_NAMESPACE, "Box");
+
+    public static final QName LINESTRING = new QName(GML_3_2_NAMESPACE, "LineString");
+
+    public static final QName POINT = new QName(GML_3_2_NAMESPACE, "Point");
 
 }

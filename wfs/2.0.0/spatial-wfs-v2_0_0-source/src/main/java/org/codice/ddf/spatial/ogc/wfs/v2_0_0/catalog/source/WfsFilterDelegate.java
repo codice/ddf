@@ -41,8 +41,8 @@ import net.opengis.filter.v_2_0_0.DistanceBufferType;
 import net.opengis.filter.v_2_0_0.FilterCapabilities;
 import net.opengis.filter.v_2_0_0.FilterType;
 import net.opengis.filter.v_2_0_0.GeometryOperandsType;
+import net.opengis.filter.v_2_0_0.GeometryOperandsType.GeometryOperand;
 import net.opengis.filter.v_2_0_0.LiteralType;
-import net.opengis.filter.v_2_0_0.LogicalOperators;
 import net.opengis.filter.v_2_0_0.LowerBoundaryType;
 import net.opengis.filter.v_2_0_0.MeasureType;
 import net.opengis.filter.v_2_0_0.ObjectFactory;
@@ -61,21 +61,24 @@ import net.opengis.filter.v_2_0_0.TemporalOperatorType;
 import net.opengis.filter.v_2_0_0.TemporalOperatorsType;
 import net.opengis.filter.v_2_0_0.UnaryLogicOpType;
 import net.opengis.filter.v_2_0_0.UpperBoundaryType;
+import net.opengis.gml.v_3_2_0.AbstractRingPropertyType;
+import net.opengis.gml.v_3_2_0.CoordinatesType;
+import net.opengis.gml.v_3_2_0.DirectPositionType;
+import net.opengis.gml.v_3_2_0.EnvelopeType;
+import net.opengis.gml.v_3_2_0.LineStringType;
+import net.opengis.gml.v_3_2_0.LinearRingType;
+import net.opengis.gml.v_3_2_0.PointType;
+import net.opengis.gml.v_3_2_0.PolygonType;
 import net.opengis.gml.v_3_2_0.TimeInstantType;
 import net.opengis.gml.v_3_2_0.TimePeriodType;
 import net.opengis.gml.v_3_2_0.TimePositionType;
 import net.opengis.ows.v_1_1_0.DomainType;
-import ogc.schema.opengis.gml.v_2_1_2.BoxType;
-import ogc.schema.opengis.gml.v_2_1_2.CoordinatesType;
-import ogc.schema.opengis.gml.v_2_1_2.LinearRingMemberType;
-import ogc.schema.opengis.gml.v_2_1_2.LinearRingType;
-import ogc.schema.opengis.gml.v_2_1_2.PointType;
-import ogc.schema.opengis.gml.v_2_1_2.PolygonType;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.common.util.CollectionUtils;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.FeatureAttributeDescriptor;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.FeatureMetacardType;
+import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsConstants;
 import org.codice.ddf.spatial.ogc.wfs.catalog.mapper.MetacardAttributeMapper;
 import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.Wfs20Constants;
 import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.Wfs20Constants.COMPARISON_OPERATORS;
@@ -89,6 +92,9 @@ import org.slf4j.LoggerFactory;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.LineString;
+import com.vividsolutions.jts.geom.Point;
+import com.vividsolutions.jts.geom.Polygon;
 import com.vividsolutions.jts.io.ParseException;
 import com.vividsolutions.jts.io.WKTReader;
 import com.vividsolutions.jts.io.WKTWriter;
@@ -107,11 +113,6 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
     private FeatureMetacardType featureMetacardType;
 
     private ObjectFactory filterObjectFactory = new ObjectFactory();
-
-    // TODO - Update to GML 3.2
-    // private net.opengis.gml.v_3_2_0.ObjectFactory gmlObjectFactory = new
-    // net.opengis.gml.v_3_2_0.ObjectFactory();
-    private ogc.schema.opengis.gml.v_2_1_2.ObjectFactory gmlObjectFactory = new ogc.schema.opengis.gml.v_2_1_2.ObjectFactory();
 
     private net.opengis.gml.v_3_2_0.ObjectFactory gml320ObjectFactory = new net.opengis.gml.v_3_2_0.ObjectFactory();
     
@@ -1378,7 +1379,7 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
             return buildGeospatialFilterType(SPATIAL_OPERATORS.Within.toString(), propertyName,
                     wkt, null);
         } else if (spatialOps.containsKey(SPATIAL_OPERATORS.Contains)) {
-            return not(within(propertyName, wkt));
+            return contains(propertyName, wkt);
         } else {
             LOGGER.debug("WFS Source does not support Within filters");
             return null;
@@ -1513,10 +1514,8 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
 
     private JAXBElement<BinarySpatialOpType> buildBinarySpatialOpType(
             JAXBElement<BinarySpatialOpType> bsot, String propertyName, String wkt) {
-        //TODO: Figure out how to handle commented lines below
-        //bsot.getValue().setPropertyName(createPropertyNameType(propertyName).getValue());
-        //bsot.getValue().setGeometry(createPolygon(wkt));
-
+        bsot.getValue().setValueReference(propertyName);
+        bsot.getValue().setExpression(createGeometryOperand(wkt));
         return bsot;
     }
 
@@ -1527,66 +1526,115 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
         // the filter adapter normalizes all distances to meters
         measureType.setUom(Wfs20Constants.METERS);
         dbt.getValue().setDistance(measureType);
-        //TODO: Figure out how to handle commented lines below
-        //dbt.getValue().setGeometry(createPoint(wkt));
-        //dbt.getValue().setPropertyName(createPropertyNameType(propertyName).getValue());
-
+        dbt.getValue().setExpression(filterObjectFactory.createValueReference(propertyName));
+        dbt.getValue().setAny(createGeometryOperand(wkt));
         return dbt;
     }
 
     private JAXBElement<BBOXType> buildBBoxType(String propertyName, String wkt) {
         BBOXType bboxType = new BBOXType();
-        BinarySpatialOpType bsot = new BinarySpatialOpType();
-        JAXBElement<BoxType> box = createBoxType(wkt);
-        //TODO: Figure out how to handle commented lines below
-        //bboxType.setBox(box.getValue());
-        //bboxType.setPropertyName(createPropertyNameType(propertyName).getValue());
-
+        bboxType.setExpression(filterObjectFactory.createValueReference(propertyName));
+        try {
+            bboxType.setAny(createEnvelope(getGeometryFromWkt(wkt)));
+        } catch (ParseException e) {
+            throw new UnsupportedOperationException("Unable to parse WKT Geometry [" + wkt + "]", e);
+        }
         return filterObjectFactory.createBBOX(bboxType);
     }
 
-    private JAXBElement<BoxType> createBoxType(String wkt) {
-        BoxType box = new BoxType();
-        box.setSrsName(srsName);
-        box.setCoordinates(createCoordinatesTypeFromWkt(wkt).getValue());
-        return gmlObjectFactory.createBox(box);
+    private JAXBElement<?> createGeometryOperand(final String wkt) {
+        Geometry wktGeometry = null;
+        try {
+            wktGeometry = getGeometryFromWkt(wkt);
+        } catch (ParseException e) {
+            throw new UnsupportedOperationException("Unable to parse WKT Geometry [" + wkt + "]", e);
+        }
+        if (wktGeometry instanceof Polygon) {
+            GeometryOperand polygonOperand = new GeometryOperand();
+            polygonOperand.setName(Wfs20Constants.POLYGON);
+            if (isGeometryOperandSupported(polygonOperand)) {
+                return createPolygon(wktGeometry);
+            }
+            GeometryOperand envelopeOperand = new GeometryOperand();
+            envelopeOperand.setName(Wfs20Constants.ENVELOPE);
+            if (isGeometryOperandSupported(envelopeOperand)) {
+                return createEnvelope(wktGeometry);
+            }
+        } else if (wktGeometry instanceof Point) {
+            GeometryOperand pointOperand = new GeometryOperand();
+            pointOperand.setName(Wfs20Constants.POINT);
+            if (isGeometryOperandSupported(pointOperand)) {
+                return createPoint(wktGeometry);
+            }
+        } else if (wktGeometry instanceof LineString) {
+            GeometryOperand lineStringOperand = new GeometryOperand();
+            lineStringOperand.setName(Wfs20Constants.LINESTRING);
+            if (isGeometryOperandSupported(lineStringOperand)) {
+                return createLineString(wktGeometry);
+            }
+        }
+        throw new UnsupportedOperationException("Geometry Operand from WKT [" + wkt
+                + "] is not supported.");
     }
 
-    private JAXBElement<PolygonType> createPolygon(String wkt) {
-        PolygonType polygon = new PolygonType();
-        LinearRingType linearRing = new LinearRingType();
+    private JAXBElement<PolygonType> createPolygon(Geometry geometry) {
+        PolygonType polygonType = gml320ObjectFactory.createPolygonType();
+        polygonType.setSrsName(WfsConstants.EPSG_4326_URN);
+        LinearRingType ring = gml320ObjectFactory.createLinearRingType();
+        ring.setCoordinates(createCoordinates(geometry));
+        AbstractRingPropertyType abstractRing = gml320ObjectFactory
+                .createAbstractRingPropertyType();
+        abstractRing.setAbstractRing(gml320ObjectFactory.createLinearRing(ring));
+        polygonType.setExterior(abstractRing);
 
-        Coordinate[] coordinates = getCoordinatesFromWkt(wkt);
+        return gml320ObjectFactory.createPolygon(polygonType);
+    }
+
+    private JAXBElement<EnvelopeType> createEnvelope(Geometry geometry) {
+        EnvelopeType envelopeType = gml320ObjectFactory.createEnvelopeType();
+        envelopeType.setSrsName(WfsConstants.EPSG_4326_URN);
+        Envelope envelope = geometry.getEnvelopeInternal();
+        DirectPositionType lowerCorner = gml320ObjectFactory.createDirectPositionType();
+        lowerCorner.getValue().add(envelope.getMinX());
+        lowerCorner.getValue().add(envelope.getMinY());
+        envelopeType.setLowerCorner(lowerCorner);
+        DirectPositionType upperCorner = gml320ObjectFactory.createDirectPositionType();
+        upperCorner.getValue().add(envelope.getMaxX());
+        upperCorner.getValue().add(envelope.getMaxY());
+        envelopeType.setUpperCorner(upperCorner);
+        return gml320ObjectFactory.createEnvelope(envelopeType);
+    }
+
+    private JAXBElement<LineStringType> createLineString(Geometry geometry) {
+        LineStringType lineStringType = gml320ObjectFactory.createLineStringType();
+        lineStringType.setSrsName(WfsConstants.EPSG_4326_URN);
+        lineStringType.setCoordinates(createCoordinates(geometry));
+        return gml320ObjectFactory.createLineString(lineStringType);
+    }
+
+    private CoordinatesType createCoordinates(Geometry geometry) {
+        CoordinatesType coords = gml320ObjectFactory.createCoordinatesType();
+        Coordinate[] coordinates = geometry.getCoordinates();
         if (coordinates != null && coordinates.length > 0) {
             StringBuffer coordString = new StringBuffer();
 
             for (Coordinate coordinate : coordinates) {
-                coordString.append(coordinate.x).append(",").append(coordinate.y)
-                        .append(" ");
+                coordString.append(coordinate.x).append(",").append(coordinate.y).append(" ");
             }
-
-            CoordinatesType coordinatesType = new CoordinatesType();
-            coordinatesType.setValue(coordString.toString());
-            coordinatesType.setDecimal(".");
-            coordinatesType.setCs(",");
-            coordinatesType.setTs(" ");
-
-            linearRing.setCoordinates(coordinatesType);
-            LinearRingMemberType member = new LinearRingMemberType();
-            member.setGeometry(gmlObjectFactory.createLinearRing(linearRing));
-            polygon.setOuterBoundaryIs(member);
-            polygon.setSrsName(srsName);
-
-            return gmlObjectFactory.createPolygon(polygon);
+            coords.setValue(coordString.toString());
+            coords.setDecimal(".");
+            coords.setCs(",");
+            coords.setTs(" ");
+            coords.setValue(coordString.toString());
+            return coords;
         } else {
             throw new IllegalArgumentException(
-                    "Unable to parse Polygon coordinates from WKT String");
+                    "Unable to parse Geometry coordinates from WKT String");
         }
-
     }
 
-    private JAXBElement<PointType> createPoint(String wkt) {
-        Coordinate[] coordinates = getCoordinatesFromWkt(wkt);
+    private JAXBElement<PointType> createPoint(Geometry geometry) {
+        Coordinate[] coordinates = geometry.getCoordinates();
 
         if (coordinates != null && coordinates.length > 0) {
             StringBuilder coordString = new StringBuilder();
@@ -1600,32 +1648,14 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
             point.setSrsName(srsName);
             point.setCoordinates(coordinatesType);
 
-            return gmlObjectFactory.createPoint(point);
+            return gml320ObjectFactory.createPoint(point);
         } else {
             throw new IllegalArgumentException("Unable to parse Point coordinates from WKT String");
         }
     }
 
-    private String buildCoordinateString(Envelope envelope) {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append(envelope.getMinX()).append(",").append(envelope.getMinY())
-                .append(" ").append(envelope.getMaxX()).append(",")
-                .append(envelope.getMaxY());
-
-        return sb.toString();
-    }
-
-    private JAXBElement<CoordinatesType> createCoordinatesTypeFromWkt(String wkt) {
-
-        Envelope envelope = createEnvelopeFromWkt(wkt);
-
-        String coords = buildCoordinateString(envelope);
-        CoordinatesType coordinatesType = new CoordinatesType();
-
-        coordinatesType.setValue(coords);
-
-        return gmlObjectFactory.createCoordinates(coordinatesType);
+    private boolean isGeometryOperandSupported(GeometryOperand geoOperand) {
+        return geometryOperands.contains(geoOperand.getName());
     }
 
     private JAXBElement<LiteralType> createLiteralType(Object literalValue) {
@@ -1648,30 +1678,6 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
         UpperBoundaryType upperBoundaryType = new UpperBoundaryType();
         upperBoundaryType.setExpression(createLiteralType(upperBoundary));
         return upperBoundaryType;
-    }
-
-    private Envelope createEnvelopeFromWkt(String wkt) {
-        Envelope envelope = null;
-        try {
-            Geometry geo = getGeometryFromWkt(wkt);
-            envelope = geo.getEnvelopeInternal();
-        } catch (ParseException e) {
-            throw new IllegalArgumentException("Unable to parse WKT String", e);
-        }
-
-        return envelope;
-
-    }
-
-    private Coordinate[] getCoordinatesFromWkt(String wkt) {
-        Coordinate[] coordinates = null;
-        try {
-            Geometry geo = getGeometryFromWkt(wkt);
-            coordinates = geo.getCoordinates();
-        } catch (ParseException e) {
-            throw new IllegalArgumentException("Unable to parse WKT String", e);
-        }
-        return coordinates;
     }
 
     private Geometry getGeometryFromWkt(String wkt) throws ParseException {
@@ -1783,5 +1789,4 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
             return featureProperty;
         }
     }
-    
 }

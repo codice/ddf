@@ -14,6 +14,7 @@
  **/
 package org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.source;
 
+import static org.custommonkey.xmlunit.XMLAssert.assertXMLEqual;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
@@ -21,10 +22,14 @@ import static org.hamcrest.text.pattern.PatternMatcher.matchesPattern;
 import static org.hamcrest.text.pattern.Patterns.anyCharacterIn;
 import static org.hamcrest.text.pattern.Patterns.oneOrMore;
 import static org.hamcrest.text.pattern.Patterns.sequence;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.util.ArrayList;
@@ -37,17 +42,21 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.namespace.QName;
 
+import net.opengis.filter.v_2_0_0.BBOXType;
 import net.opengis.filter.v_2_0_0.BinaryLogicOpType;
+import net.opengis.filter.v_2_0_0.BinarySpatialOpType;
 import net.opengis.filter.v_2_0_0.BinaryTemporalOpType;
 import net.opengis.filter.v_2_0_0.ComparisonOperatorType;
 import net.opengis.filter.v_2_0_0.ComparisonOperatorsType;
 import net.opengis.filter.v_2_0_0.DistanceBufferType;
 import net.opengis.filter.v_2_0_0.FilterCapabilities;
 import net.opengis.filter.v_2_0_0.FilterType;
+import net.opengis.filter.v_2_0_0.GeometryOperandsType.GeometryOperand;
 import net.opengis.filter.v_2_0_0.LiteralType;
 import net.opengis.filter.v_2_0_0.PropertyIsLikeType;
 import net.opengis.filter.v_2_0_0.ResourceIdType;
 import net.opengis.filter.v_2_0_0.ScalarCapabilitiesType;
+import net.opengis.filter.v_2_0_0.SpatialOperatorType;
 import net.opengis.filter.v_2_0_0.UnaryLogicOpType;
 import net.opengis.gml.v_3_2_0.TimeInstantType;
 import net.opengis.gml.v_3_2_0.TimePeriodType;
@@ -60,14 +69,17 @@ import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.Wfs20Constants;
 import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.Wfs20Constants.COMPARISON_OPERATORS;
 import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.Wfs20Constants.SPATIAL_OPERATORS;
 import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.Wfs20Constants.TEMPORAL_OPERATORS;
+import org.custommonkey.xmlunit.XMLUnit;
 import org.hamcrest.text.pattern.PatternMatcher;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeUtils;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.xml.sax.SAXException;
 
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.impl.BasicTypes;
 
 public class TestWfsFilterDelegate {
     
@@ -84,6 +96,18 @@ public class TestWfsFilterDelegate {
     private static final String LOGICAL_AND_NAME = "{http://www.opengis.net/fes/2.0}And";
     
     private static final String LOGICAL_NOT_NAME = "{http://www.opengis.net/fes/2.0}Not";
+
+    private static final String MOCK_GEOM = "geom";
+
+    private static final String MOCK_GEOM2 = "geom2";
+
+    private static final String POLYGON = "POLYGON ((30 -10, 30 30, 10 30, 10 -10, 30 -10))";
+
+    private static final String LINESTRING = "LINESTRING (30 -10, 30 30, 10 30, 10 -10)";
+
+    private static final String POINT = "POINT (30 -10)";
+
+    private static final double DISTANCE = 1000.0;
 
     private FeatureMetacardType mockFeatureMetacardType = mock(FeatureMetacardType.class);
 
@@ -1103,6 +1127,454 @@ public class TestWfsFilterDelegate {
         assertNull(matchIdFilter);
     }
     
+    private WfsFilterDelegate setupFilterDelegate(String spatialOpType) {
+        List<String> gmlProps = new ArrayList<String>();
+        gmlProps.add(MOCK_GEOM);
+
+        when(mockFeatureMetacardType.getGmlProperties()).thenReturn(gmlProps);
+        when(mockFeatureMetacardType.getAttributeDescriptor(MOCK_GEOM)).thenReturn(
+                new FeatureAttributeDescriptor(MOCK_GEOM, MOCK_GEOM, true, false, false, false,
+                        BasicTypes.STRING_TYPE));
+
+        SpatialOperatorType operator = new SpatialOperatorType();
+        operator.setName(spatialOpType.toString());
+        FilterCapabilities capabilities = MockWfsServer.getFilterCapabilities();
+        capabilities.getSpatialCapabilities().getSpatialOperators().getSpatialOperator().clear();
+        capabilities.getSpatialCapabilities().getSpatialOperators().getSpatialOperator()
+                .add(operator);
+        return new WfsFilterDelegate(mockFeatureMetacardType, capabilities,
+                Wfs20Constants.EPSG_4326_URN, null);
+    }
+
+    @Test
+    public void testBeyondFilter() throws JAXBException, SAXException, IOException {
+        WfsFilterDelegate delegate = setupFilterDelegate(SPATIAL_OPERATORS.Beyond.toString());
+
+        FilterType filter = delegate.beyond(Metacard.ANY_GEO, POLYGON, DISTANCE);
+
+        assertTrue(filter.isSetSpatialOps());
+        assertTrue(filter.getSpatialOps().getValue() instanceof DistanceBufferType);
+        XMLUnit.setNormalizeWhitespace(true);
+        XMLUnit.setIgnoreWhitespace(true);
+        assertXMLEqual(MockWfsServer.getBeyondXmlFilter(), getXmlFromMarshaller(filter));
+    }
+
+    @Test
+    public void testBeyondAsNotDwithin() {
+        WfsFilterDelegate delegate = setupFilterDelegate(SPATIAL_OPERATORS.DWithin.toString());
+
+        FilterType filter = delegate.beyond(Metacard.ANY_GEO, POLYGON, DISTANCE);
+        assertTrue(filter.getLogicOps().getValue() instanceof UnaryLogicOpType);
+        UnaryLogicOpType type = (UnaryLogicOpType) filter.getLogicOps().getValue();
+        assertTrue(type.getSpatialOps().getValue() instanceof DistanceBufferType);
+    }
+
+    @Test
+    public void testBeyondFilterUnsupported() {
+        WfsFilterDelegate delegate = setupFilterDelegate(SPATIAL_OPERATORS.Intersects.toString());
+
+        FilterType filter = delegate.beyond(Metacard.ANY_GEO, POLYGON, DISTANCE);
+        assertTrue(filter == null);
+    }
+
+    @Test
+    public void testContainsFilter() throws JAXBException, SAXException, IOException {
+        WfsFilterDelegate delegate = setupFilterDelegate(SPATIAL_OPERATORS.Contains.toString());
+
+        FilterType filter = delegate.contains(Metacard.ANY_GEO, POLYGON);
+        assertTrue(filter.getSpatialOps().getValue() instanceof BinarySpatialOpType);
+        assertFalse(filter.isSetLogicOps());
+        XMLUnit.setNormalizeWhitespace(true);
+        XMLUnit.setIgnoreWhitespace(true);
+        assertXMLEqual(MockWfsServer.getContainsXmlFilter(), getXmlFromMarshaller(filter));
+    }
+
+    @Test
+    public void testContainsUnsupported() {
+        WfsFilterDelegate delegate = setupFilterDelegate(SPATIAL_OPERATORS.Intersects.toString());
+
+        FilterType filter = delegate.contains(Metacard.ANY_GEO, POLYGON);
+        assertTrue(filter == null);
+    }
+
+    @Test
+    public void testCrossesFilter() throws SAXException, IOException, JAXBException {
+        WfsFilterDelegate delegate = setupFilterDelegate(SPATIAL_OPERATORS.Crosses.toString());
+        FilterType filter = delegate.crosses(Metacard.ANY_GEO, LINESTRING);
+        assertTrue(filter.getSpatialOps().getValue() instanceof BinarySpatialOpType);
+        assertFalse(filter.isSetLogicOps());
+        XMLUnit.setNormalizeWhitespace(true);
+        XMLUnit.setIgnoreWhitespace(true);
+        assertXMLEqual(MockWfsServer.getCrossesXmlFilter(), getXmlFromMarshaller(filter));
+    }
+
+    @Test
+    public void testCrossesUnsupported() {
+        WfsFilterDelegate delegate = setupFilterDelegate(SPATIAL_OPERATORS.Intersects.toString());
+
+        FilterType filter = delegate.crosses(Metacard.ANY_GEO, POLYGON);
+        assertTrue(filter == null);
+    }
+
+    @Test
+    public void testDisjointFilter() throws SAXException, IOException, JAXBException {
+        WfsFilterDelegate delegate = setupFilterDelegate(SPATIAL_OPERATORS.Disjoint.toString());
+
+        FilterType filter = delegate.disjoint(Metacard.ANY_GEO, POLYGON);
+        assertTrue(filter.getSpatialOps().getValue() instanceof BinarySpatialOpType);
+        XMLUnit.setNormalizeWhitespace(true);
+        XMLUnit.setIgnoreWhitespace(true);
+        assertXMLEqual(MockWfsServer.getDisjointXmlFilter(), getXmlFromMarshaller(filter));
+    }
+
+    @Test
+    public void testDisjointAsNotBBox() throws SAXException, IOException, JAXBException {
+        WfsFilterDelegate delegate = setupFilterDelegate(SPATIAL_OPERATORS.BBOX.toString());
+
+        FilterType filter = delegate.disjoint(Metacard.ANY_GEO, POLYGON);
+        assertTrue(filter.getLogicOps().getValue() instanceof UnaryLogicOpType);
+        UnaryLogicOpType type = (UnaryLogicOpType) filter.getLogicOps().getValue();
+        assertTrue(type.getSpatialOps().getValue() instanceof BBOXType);
+        XMLUnit.setNormalizeWhitespace(true);
+        XMLUnit.setIgnoreWhitespace(true);
+        assertXMLEqual(MockWfsServer.getNotBboxXmlFilter(), getXmlFromMarshaller(filter));
+    }
+
+    @Test
+    public void testDisjointAsNotIntersects() throws SAXException, IOException, JAXBException {
+        WfsFilterDelegate delegate = setupFilterDelegate(SPATIAL_OPERATORS.Intersects.toString());
+
+        FilterType filter = delegate.disjoint(Metacard.ANY_GEO, POLYGON);
+        assertTrue(filter.getLogicOps().getValue() instanceof UnaryLogicOpType);
+        UnaryLogicOpType type = (UnaryLogicOpType) filter.getLogicOps().getValue();
+        assertTrue(type.getSpatialOps().getValue() instanceof BinarySpatialOpType);
+        XMLUnit.setNormalizeWhitespace(true);
+        XMLUnit.setIgnoreWhitespace(true);
+        assertXMLEqual(MockWfsServer.getNotIntersectsXmlFilter(), getXmlFromMarshaller(filter));
+    }
+
+    @Test
+    public void testDWithinFilterPolygon() throws SAXException, IOException, JAXBException {
+        WfsFilterDelegate delegate = setupFilterDelegate(SPATIAL_OPERATORS.DWithin.toString());
+
+        FilterType filter = delegate.dwithin(Metacard.ANY_GEO, POLYGON, DISTANCE);
+        assertFalse(filter.isSetLogicOps());
+        assertTrue(filter.isSetSpatialOps());
+        assertTrue(filter.getSpatialOps().getValue() instanceof DistanceBufferType);
+        XMLUnit.setNormalizeWhitespace(true);
+        XMLUnit.setIgnoreWhitespace(true);
+        assertXMLEqual(MockWfsServer.getDWithinXmlFilter(), getXmlFromMarshaller(filter));
+    }
+
+    @Test
+    public void testDWithinFilterPoint() throws SAXException, IOException, JAXBException {
+        WfsFilterDelegate delegate = setupFilterDelegate(SPATIAL_OPERATORS.DWithin.toString());
+
+        FilterType filter = delegate.dwithin(Metacard.ANY_GEO, POINT, DISTANCE);
+        assertFalse(filter.isSetLogicOps());
+        assertTrue(filter.isSetSpatialOps());
+        assertTrue(filter.getSpatialOps().getValue() instanceof DistanceBufferType);
+        XMLUnit.setNormalizeWhitespace(true);
+        XMLUnit.setIgnoreWhitespace(true);
+        assertXMLEqual(MockWfsServer.getDWithinPointXmlFilter(), getXmlFromMarshaller(filter));
+    }
+
+    @Test
+    public void testDwithinAsNotBeyond() {
+        WfsFilterDelegate delegate = setupFilterDelegate(SPATIAL_OPERATORS.Beyond.toString());
+
+        FilterType filter = delegate.dwithin(Metacard.ANY_GEO, POLYGON, DISTANCE);
+        assertTrue(filter.getLogicOps().getValue() instanceof UnaryLogicOpType);
+        UnaryLogicOpType type = (UnaryLogicOpType) filter.getLogicOps().getValue();
+        assertTrue(type.getSpatialOps().getValue() instanceof DistanceBufferType);
+
+    }
+
+    /**
+     * From the Search UI, point-radius uses dwithin. We want dwithin to fallback to intersects as a
+     * last resort. We buffer the geometry (the point) by the radius and do an intersects.
+     */
+    @Test
+    public void testDwithinAsIntersects() throws JAXBException, SAXException, IOException {
+        WfsFilterDelegate delegate = setupFilterDelegate(SPATIAL_OPERATORS.Intersects.toString());
+        /**
+         * Made distance a large value so if the original WKT and the buffered WKT are plotted at:
+         * http://openlayers.org/dev/examples/vector-formats.html one can easily see the buffer.
+         */
+        double distance = 200000.0;
+        FilterType filter = delegate.dwithin(Metacard.ANY_GEO, POINT, distance);
+
+        String xml = getXmlFromMarshaller(filter);
+
+        XMLUnit.setNormalizeWhitespace(true);
+        XMLUnit.setIgnoreWhitespace(true);
+        assertXMLEqual(MockWfsServer.getDWithinAsIntersectsXml(), xml);
+    }
+
+    @Test
+    public void testDwithinUnsupported() {
+        WfsFilterDelegate delegate = setupFilterDelegate(SPATIAL_OPERATORS.Contains.toString());
+
+        FilterType filter = delegate.dwithin(Metacard.ANY_GEO, POLYGON, DISTANCE);
+        assertNull(filter);
+    }
+
+    @Test
+    public void testIntersects() throws SAXException, IOException, JAXBException {
+        WfsFilterDelegate delegate = setupFilterDelegate(SPATIAL_OPERATORS.Intersects.toString());
+
+        FilterType filter = delegate.intersects(Metacard.ANY_GEO, POLYGON);
+
+        assertTrue(filter.getSpatialOps().getValue() instanceof BinarySpatialOpType);
+        assertFalse(filter.isSetLogicOps());
+        XMLUnit.setNormalizeWhitespace(true);
+        XMLUnit.setIgnoreWhitespace(true);
+        assertXMLEqual(MockWfsServer.getIntersectsXmlFilter(), getXmlFromMarshaller(filter));
+    }
+
+    @Test
+    public void testIntersectsWithEnvelope() throws SAXException, IOException, JAXBException {
+        List<String> gmlProps = new ArrayList<String>();
+        gmlProps.add(MOCK_GEOM);
+
+        when(mockFeatureMetacardType.getGmlProperties()).thenReturn(gmlProps);
+        when(mockFeatureMetacardType.getAttributeDescriptor(MOCK_GEOM)).thenReturn(
+                new FeatureAttributeDescriptor(MOCK_GEOM, MOCK_GEOM, true, false, false, false,
+                        BasicTypes.STRING_TYPE));
+
+        SpatialOperatorType operator = new SpatialOperatorType();
+        operator.setName(SPATIAL_OPERATORS.Intersects.toString());
+        FilterCapabilities capabilities = MockWfsServer.getFilterCapabilities();
+        capabilities.getSpatialCapabilities().getSpatialOperators().getSpatialOperator().clear();
+        capabilities.getSpatialCapabilities().getSpatialOperators().getSpatialOperator()
+                .add(operator);
+        capabilities.getSpatialCapabilities().getGeometryOperands().getGeometryOperand().clear();
+        GeometryOperand geoOperand = new GeometryOperand();
+        geoOperand.setName(Wfs20Constants.ENVELOPE);
+        capabilities.getSpatialCapabilities().getGeometryOperands().getGeometryOperand()
+                .add(geoOperand);
+        WfsFilterDelegate delegate = new WfsFilterDelegate(mockFeatureMetacardType, capabilities,
+                Wfs20Constants.EPSG_4326_URN, null);
+        
+        FilterType filter = delegate.intersects(Metacard.ANY_GEO, POLYGON);
+
+        assertTrue(filter.getSpatialOps().getValue() instanceof BinarySpatialOpType);
+        assertFalse(filter.isSetLogicOps());
+        XMLUnit.setNormalizeWhitespace(true);
+        XMLUnit.setIgnoreWhitespace(true);
+        assertXMLEqual(MockWfsServer.getIntersectsWithEnvelopeXmlFilter(),
+                getXmlFromMarshaller(filter));
+    }
+
+    @Test
+    public void testIntersectsAsBoundingBox() throws SAXException, IOException, JAXBException {
+        WfsFilterDelegate delegate = setupFilterDelegate(SPATIAL_OPERATORS.BBOX.toString());
+
+        FilterType filter = delegate.intersects(Metacard.ANY_GEO, POLYGON);
+        assertTrue(filter instanceof FilterType);
+        assertTrue(filter.getSpatialOps().getValue() instanceof BBOXType);
+        assertFalse(filter.isSetLogicOps());
+        XMLUnit.setNormalizeWhitespace(true);
+        XMLUnit.setIgnoreWhitespace(true);
+        assertXMLEqual(MockWfsServer.getBboxXmlFilter(), getXmlFromMarshaller(filter));
+    }
+
+    @Test
+    public void testIntersectsAsNotDisjoint() {
+        WfsFilterDelegate delegate = setupFilterDelegate(SPATIAL_OPERATORS.Disjoint.toString());
+
+        FilterType filter = delegate.intersects(Metacard.ANY_GEO, POLYGON);
+
+        assertTrue(filter.isSetLogicOps());
+        assertTrue(filter.getLogicOps().getValue() instanceof UnaryLogicOpType);
+        UnaryLogicOpType type = (UnaryLogicOpType) filter.getLogicOps().getValue();
+        assertTrue(type.isSetSpatialOps());
+        assertTrue(type.getSpatialOps().getValue() instanceof BinarySpatialOpType);
+    }
+
+    @Test
+    public void testIntersectsUnsupported() {
+        WfsFilterDelegate delegate = setupFilterDelegate(SPATIAL_OPERATORS.Contains.toString());
+
+        FilterType filter = delegate.intersects(Metacard.ANY_GEO, POLYGON);
+        assertTrue(filter == null);
+    }
+
+    @Test
+    public void testOverlapsFilter() throws SAXException, IOException, JAXBException {
+        WfsFilterDelegate delegate = setupFilterDelegate(SPATIAL_OPERATORS.Overlaps.toString());
+        FilterType filter = delegate.overlaps(Metacard.ANY_GEO, POLYGON);
+
+        assertTrue(filter.getSpatialOps().getValue() instanceof BinarySpatialOpType);
+        assertFalse(filter.isSetLogicOps());
+        XMLUnit.setNormalizeWhitespace(true);
+        XMLUnit.setIgnoreWhitespace(true);
+        assertXMLEqual(MockWfsServer.getOverlapsXmlFilter(), getXmlFromMarshaller(filter));
+    }
+
+    @Test
+    public void testOverlapsUnsupported() {
+        WfsFilterDelegate delegate = setupFilterDelegate(SPATIAL_OPERATORS.Intersects.toString());
+        FilterType filter = delegate.overlaps(Metacard.ANY_GEO, POLYGON);
+
+        assertTrue(filter == null);
+    }
+
+    @Test
+    public void testTouchesFilter() throws SAXException, IOException, JAXBException {
+        WfsFilterDelegate delegate = setupFilterDelegate(SPATIAL_OPERATORS.Touches.toString());
+
+        FilterType filter = delegate.touches(Metacard.ANY_GEO, POLYGON);
+
+        assertTrue(filter.getSpatialOps().getValue() instanceof BinarySpatialOpType);
+        assertFalse(filter.isSetLogicOps());
+        XMLUnit.setNormalizeWhitespace(true);
+        XMLUnit.setIgnoreWhitespace(true);
+        assertXMLEqual(MockWfsServer.getTouchesXmlFilter(), getXmlFromMarshaller(filter));
+    }
+
+    @Test
+    public void testTouchesUnsupported() {
+        WfsFilterDelegate delegate = setupFilterDelegate(SPATIAL_OPERATORS.Intersects.toString());
+        FilterType filter = delegate.touches(Metacard.ANY_GEO, POLYGON);
+
+        assertTrue(filter == null);
+    }
+
+    @Test
+    public void testWithinFilter() throws SAXException, IOException, JAXBException {
+        WfsFilterDelegate delegate = setupFilterDelegate(SPATIAL_OPERATORS.Within.toString());
+
+        FilterType filter = delegate.within(Metacard.ANY_GEO, POLYGON);
+
+        assertTrue(filter.getSpatialOps().getValue() instanceof BinarySpatialOpType);
+        assertFalse(filter.isSetLogicOps());
+        XMLUnit.setNormalizeWhitespace(true);
+        XMLUnit.setIgnoreWhitespace(true);
+        assertXMLEqual(MockWfsServer.getWithinXmlFilter(), getXmlFromMarshaller(filter));
+    }
+
+    @Test
+    public void testWithinAsContainsFilter() throws SAXException, IOException, JAXBException {
+        WfsFilterDelegate delegate = setupFilterDelegate(SPATIAL_OPERATORS.Contains.toString());
+
+        FilterType filter = delegate.within(Metacard.ANY_GEO, POLYGON);
+
+        assertTrue(filter.getSpatialOps().getValue() instanceof BinarySpatialOpType);
+        assertFalse(filter.isSetLogicOps());
+        XMLUnit.setNormalizeWhitespace(true);
+        XMLUnit.setIgnoreWhitespace(true);
+        assertXMLEqual(MockWfsServer.getContainsXmlFilter(), getXmlFromMarshaller(filter));
+    }
+
+    @Test
+    public void testWithinUnsupported() {
+        WfsFilterDelegate delegate = setupFilterDelegate(SPATIAL_OPERATORS.Intersects.toString());
+        FilterType filter = delegate.within(Metacard.ANY_GEO, POLYGON);
+
+        assertTrue(filter == null);
+    }
+
+    @Test
+    public void testIntersectsMultipleProperties() {
+
+        List<String> gmlProps = new ArrayList<String>();
+        gmlProps.add(MOCK_GEOM);
+        gmlProps.add(MOCK_GEOM2);
+        when(mockFeatureMetacardType.getGmlProperties()).thenReturn(gmlProps);
+        when(mockFeatureMetacardType.getAttributeDescriptor(MOCK_GEOM)).thenReturn(
+                new FeatureAttributeDescriptor(MOCK_GEOM, MOCK_GEOM, true, false, false, false,
+                        BasicTypes.STRING_TYPE));
+
+        when(mockFeatureMetacardType.getAttributeDescriptor(MOCK_GEOM2)).thenReturn(
+                new FeatureAttributeDescriptor(MOCK_GEOM2, MOCK_GEOM2, true, false, false, false,
+                        BasicTypes.STRING_TYPE));
+
+        SpatialOperatorType operator = new SpatialOperatorType();
+        operator.setName(SPATIAL_OPERATORS.Intersects.toString());
+        FilterCapabilities capabilities = MockWfsServer.getFilterCapabilities();
+        capabilities.getSpatialCapabilities().getSpatialOperators().getSpatialOperator().clear();
+        capabilities.getSpatialCapabilities().getSpatialOperators().getSpatialOperator()
+                .add(operator);
+        WfsFilterDelegate delegate = new WfsFilterDelegate(mockFeatureMetacardType, capabilities,
+                Wfs20Constants.EPSG_4326_URN, null);
+
+        FilterType filter = delegate.intersects(Metacard.ANY_GEO, POLYGON);
+        assertNotNull(filter);
+        assertTrue(filter.isSetLogicOps());
+        assertNotNull(filter.getLogicOps());
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testSingleGmlPropertyBlacklisted() {
+        WfsFilterDelegate delegate = setupFilterDelegate(SPATIAL_OPERATORS.Contains.toString());
+        when(mockFeatureMetacardType.getAttributeDescriptor(MOCK_GEOM)).thenReturn(
+                new FeatureAttributeDescriptor(MOCK_GEOM, MOCK_GEOM, false, false, false, false,
+                        BasicTypes.STRING_TYPE));
+
+        delegate.contains(MOCK_GEOM, POLYGON);
+    }
+
+    @Test
+    public void testAllGmlPropertiesBlacklisted() {
+        List<String> gmlProps = new ArrayList<String>();
+        gmlProps.add(MOCK_GEOM);
+        gmlProps.add(MOCK_GEOM2);
+        when(mockFeatureMetacardType.getGmlProperties()).thenReturn(gmlProps);
+        when(mockFeatureMetacardType.getAttributeDescriptor(MOCK_GEOM)).thenReturn(
+                new FeatureAttributeDescriptor(MOCK_GEOM, MOCK_GEOM, false, false, false, false,
+                        BasicTypes.STRING_TYPE));
+
+        when(mockFeatureMetacardType.getAttributeDescriptor(MOCK_GEOM)).thenReturn(
+                new FeatureAttributeDescriptor(MOCK_GEOM, MOCK_GEOM, false, false, false, false,
+                        BasicTypes.STRING_TYPE));
+        SpatialOperatorType operator = new SpatialOperatorType();
+        operator.setName(SPATIAL_OPERATORS.Intersects.toString());
+        FilterCapabilities capabilities = MockWfsServer.getFilterCapabilities();
+        capabilities.getSpatialCapabilities().getSpatialOperators().getSpatialOperator().clear();
+        capabilities.getSpatialCapabilities().getSpatialOperators().getSpatialOperator()
+                .add(operator);
+        WfsFilterDelegate delegate = new WfsFilterDelegate(mockFeatureMetacardType, capabilities,
+                Wfs20Constants.EPSG_4326_URN, null);
+
+        FilterType filter = delegate.intersects(Metacard.ANY_GEO, POLYGON);
+        assertNull(filter);
+
+    }
+
+    @Test(expected = UnsupportedOperationException.class)
+    public void testBadPolygonWkt() {
+        WfsFilterDelegate delegate = setupFilterDelegate(SPATIAL_OPERATORS.Intersects.toString());
+        delegate.intersects(Metacard.ANY_GEO, "junk");
+    }
+
+    @Test(expected = UnsupportedOperationException.class)
+    public void testBadPointWkt() {
+        WfsFilterDelegate delegate = setupFilterDelegate(SPATIAL_OPERATORS.DWithin.toString());
+        delegate.dwithin(Metacard.ANY_GEO, "junk", DISTANCE);
+    }
+
+    @Test
+    public void testNonEpsg4326Srs() {
+        List<String> gmlProps = new ArrayList<String>();
+        gmlProps.add(MOCK_GEOM);
+        when(mockFeatureMetacardType.getGmlProperties()).thenReturn(gmlProps);
+
+        WfsFilterDelegate delegate = new WfsFilterDelegate(mockFeatureMetacardType,
+                MockWfsServer.getFilterCapabilities(), "EPSG:42304", null);
+        FilterType filter = delegate.intersects(Metacard.ANY_GEO, POLYGON);
+
+        assertTrue(filter == null);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testGeoFilterNullMetacardType() {
+        WfsFilterDelegate delegate = new WfsFilterDelegate(null,
+                MockWfsServer.getFilterCapabilities(), Wfs20Constants.EPSG_4326_URN, null);
+
+        FilterType filter = delegate.beyond(Metacard.ANY_GEO, POLYGON, DISTANCE);
+    }
+
     private String fetchPropertyIsLikeExpression(PropertyIsLikeType compOpsType, String expressionType) {
         String result = null;
         List<JAXBElement<?>> expressions = compOpsType.getExpression();
