@@ -14,7 +14,7 @@
 # [Distributed Data Framework \(DDF\)](http://ddf.codice.org/)
 [![Build Status](https://travis-ci.org/codice/ddf.png)](https://travis-ci.org/codice/ddf-libs?branch=master)
 
-DDF-Libs is a repository for library modules in DDF. Typically the modules in this repostiory are re-usable across different components of DDF.
+DDF-Libs is a repository for library modules in DDF. Typically the modules in this repository are re-usable across different components of DDF.
 
 ## Additional information
 Please refer to the DDF readme on https://github.com/codice/ddf for more information.
