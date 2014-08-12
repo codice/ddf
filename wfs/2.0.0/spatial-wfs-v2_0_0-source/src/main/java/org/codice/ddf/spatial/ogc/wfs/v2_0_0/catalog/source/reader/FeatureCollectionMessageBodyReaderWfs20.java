@@ -106,7 +106,26 @@ public class FeatureCollectionMessageBodyReaderWfs20 implements MessageBodyReade
             Reader reader = new StringReader(originalInputStream);
             wfsFeatureCollectionType = (JAXBElement<FeatureCollectionType>) unmarshaller
                     .unmarshal(reader);
-        } catch (JAXBException e1) {
+        } catch (ClassCastException e1) {
+            LOGGER.error("Exception unmarshalling {}", e1);
+            
+            // If an ExceptionReport is sent from the remote WFS site it will be sent with an
+            // JAX-RS "OK" status, hence the ErrorResponse exception mapper will not fire.
+            // Instead the ServiceExceptionReport will come here and be treated like a GetFeature
+            // response, resulting in an XStreamException since ExceptionReport cannot be
+            // unmarshalled. So this catch clause is responsible for catching that XStream
+            // exception and creating a JAX-RS response containing the original stream
+            // (with the ExceptionReport) and rethrowing it as a WebApplicationException,
+            // which CXF will wrap as a ClientException that the WfsSource catches, converts
+            // to a WfsException, and logs.
+
+            ByteArrayInputStream bis = new ByteArrayInputStream(originalInputStream.getBytes());
+            ResponseBuilder responseBuilder = Response.ok(bis);
+            responseBuilder.type("text/xml");
+            Response response = responseBuilder.build();
+            throw new WebApplicationException(e1, response);
+        }
+        catch (JAXBException e1) {
             LOGGER.error("Error in retrieving feature collection.", e1);
         }
    
@@ -125,21 +144,7 @@ public class FeatureCollectionMessageBodyReaderWfs20 implements MessageBodyReade
             featureCollection.setNumberReturned(numberReturned);
             
         } catch (XStreamException e) {
-            // If a ServiceExceptionReport is sent from the remote WFS site it will be sent with an
-            // JAX-RS "OK" status, hence the ErrorResponse exception mapper will not fire.
-            // Instead the ServiceExceptionReport will come here and be treated like a GetFeature
-            // response, resulting in an XStreamException since ExceptionReport cannot be
-            // unmarshalled. So this catch clause is responsible for catching that XStream
-            // exception and creating a JAX-RS response containing the original stream
-            // (with the ExceptionReport) and rethrowing it as a WebApplicationException,
-            // which CXF will wrap as a ClientException that the WfsSource catches, converts
-            // to a WfsException, and logs.
             LOGGER.error("Exception unmarshalling {}", e);
-            ByteArrayInputStream bis = new ByteArrayInputStream(originalInputStream.getBytes());
-            ResponseBuilder responseBuilder = Response.ok(bis);
-            responseBuilder.type("text/xml");
-            Response response = responseBuilder.build();
-            throw new WebApplicationException(e, response);
         } finally {
             IOUtils.closeQuietly(inStream);
         }

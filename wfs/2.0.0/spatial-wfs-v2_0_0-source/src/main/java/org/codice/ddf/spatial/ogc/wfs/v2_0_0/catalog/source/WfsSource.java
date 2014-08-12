@@ -957,7 +957,7 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
     private String handleWebApplicationException(WebApplicationException wae) {
         Response response = wae.getResponse();
         WfsException wfsException = new WfsResponseExceptionMapper().fromResponse(response);
-        String msg = "Error received from CSW Server " + getId() + "\n"
+        String msg = "Error received from WFS Server " + getId() + "\n"
                 + wfsException.getMessage();
         LOGGER.error(msg, wae);
         
