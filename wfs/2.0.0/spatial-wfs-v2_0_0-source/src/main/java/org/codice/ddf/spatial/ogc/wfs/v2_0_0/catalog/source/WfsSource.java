@@ -653,7 +653,7 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
                                 .createFilter(filter));
                     }
                     
-                    if (query.getSortBy() != null) {
+                    if (query.getSortBy() != null && filterDelegateEntry.getValue().isSortingSupported()) {
                         JAXBElement<Object> sortingClause = buildingSortingClause(filterDelegateEntry.getKey(), query.getSortBy());
                         if (sortingClause != null) {
                             wfsQuery.setAbstractSortingClause(sortingClause);
@@ -696,27 +696,37 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
         }
     }
     
-    private JAXBElement<Object> buildingSortingClause(QName featureType, SortBy incomingSortBy) throws UnsupportedQueryException {
+    private JAXBElement<Object> buildingSortingClause(QName featureType, SortBy incomingSortBy)
+        throws UnsupportedQueryException {
         net.opengis.filter.v_2_0_0.ObjectFactory filterObjectFactory = new net.opengis.filter.v_2_0_0.ObjectFactory();
-        String propertyName = mapSortByPropertyName(featureType, incomingSortBy.getPropertyName().getPropertyName());
-        SortOrder sortOrder = incomingSortBy.getSortOrder();
-        
-        SortPropertyType sortPropertyType = filterObjectFactory.createSortPropertyType();
-        sortPropertyType.setValueReference(propertyName);
-        
-        if(SortOrder.ASCENDING.equals(sortOrder)) {
-            sortPropertyType.setSortOrder(SortOrderType.ASC);
-        } else if(SortOrder.DESCENDING.equals(sortOrder)) {
-            sortPropertyType.setSortOrder(SortOrderType.DESC);
-        } else {
-            throw new UnsupportedQueryException(
-                    "Unable to build query. Unknown sort order of [" + sortOrder.identifier() + "].");
-        }
-        
-        SortByType sortByType = filterObjectFactory.createSortByType();
-        sortByType.getSortProperty().add(sortPropertyType);
 
-        return filterObjectFactory.createAbstractSortingClause(sortByType);
+        String propertyName = mapSortByPropertyName(featureType, incomingSortBy.getPropertyName()
+                .getPropertyName());
+
+        if (propertyName != null) {
+
+            SortOrder sortOrder = incomingSortBy.getSortOrder();
+
+            SortPropertyType sortPropertyType = filterObjectFactory.createSortPropertyType();
+            sortPropertyType.setValueReference(propertyName);
+
+            if (SortOrder.ASCENDING.equals(sortOrder)) {
+                sortPropertyType.setSortOrder(SortOrderType.ASC);
+            } else if (SortOrder.DESCENDING.equals(sortOrder)) {
+                sortPropertyType.setSortOrder(SortOrderType.DESC);
+            } else {
+                throw new UnsupportedQueryException(
+                        "Unable to build query. Unknown sort order of [" + sortOrder.identifier()
+                                + "].");
+            }
+
+            SortByType sortByType = filterObjectFactory.createSortByType();
+            sortByType.getSortProperty().add(sortPropertyType);
+
+            return filterObjectFactory.createAbstractSortingClause(sortByType);
+        } else {
+            return null;
+        }
     }
     
     private String mapSortByPropertyName(QName featureType, String incomingPropertyName) {
@@ -737,10 +747,10 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
                         .getSortByDistanceFeatureProperty()) ? metacardToFeaturePropertyMapper
                         .getSortByDistanceFeatureProperty() : incomingPropertyName;
             } else {
-                mappedPropertyName = incomingPropertyName;
+                mappedPropertyName = null;
             }
         } else {
-            mappedPropertyName = incomingPropertyName;
+            mappedPropertyName = null;
         }
 
         return mappedPropertyName;
